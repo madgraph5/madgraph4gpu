@@ -8,12 +8,12 @@
 #ifndef MG5_Sigma_sm_epem_mupmum_H
 #define MG5_Sigma_sm_epem_mupmum_H
 
-#include <complex> 
-#include <vector> 
+#include <complex>
+#include <vector>
 
 #include "Parameters_sm.h"
 
-using namespace std; 
+using namespace std;
 
 //==========================================================================
 // A class for calculating the matrix elements for
@@ -28,13 +28,13 @@ class CPPProcess
     CPPProcess() {}
 
     // Initialize process.
-    virtual void initProc(string param_card_name); 
+    virtual void initProc(string param_card_name, bool verb = true); 
 
     // Calculate flavour-independent parts of cross section.
-    virtual void sigmaKin(); 
+    virtual void sigmaKin(bool ppar = true);
 
     // Evaluate sigmaHat(sHat).
-    virtual double sigmaHat(); 
+    virtual double sigmaHat();
 
     // Info on the subprocess.
     virtual string name() const {return "e+ e- > mu+ mu- (sm)";}
@@ -52,39 +52,39 @@ class CPPProcess
     const double * getMatrixElements() const {return matrix_element;}
 
     // Constants for array limits
-    static const int ninitial = 2; 
-    static const int nexternal = 4; 
-    static const int nprocesses = 1; 
+    static const int ninitial = 2;
+    static const int nexternal = 4;
+    static const int nprocesses = 1;
 
   private:
 
     // Private functions to calculate the matrix element for all subprocesses
     // Calculate wavefunctions
-    void calculate_wavefunctions(const int perm[], const int hel[]); 
-    static const int nwavefuncs = 6; 
-    std::complex<double> w[nwavefuncs][18]; 
-    static const int namplitudes = 2; 
-    std::complex<double> amp[namplitudes]; 
-    double matrix_1_epem_mupmum(); 
+    void calculate_wavefunctions(const int perm[], const int hel[]);
+    static const int nwavefuncs = 6;
+    std::complex<double> w[nwavefuncs][18];
+    static const int namplitudes = 2;
+    std::complex<double> amp[namplitudes];
+    double matrix_1_epem_mupmum();
 
     // Store the matrix element value from sigmaKin
-    double matrix_element[nprocesses]; 
+    double matrix_element[nprocesses];
 
     // Color flows, used when selecting color
-    double * jamp2[nprocesses]; 
+    double * jamp2[nprocesses];
 
     // Pointer to the model parameters
-    Parameters_sm * pars; 
+    Parameters_sm * pars;
 
     // vector with external particle masses
-    vector<double> mME; 
+    vector<double> mME;
 
     // vector with momenta (to be changed each event)
-    vector < double * > p; 
+    vector < double * > p;
     // Initial particle ids
-    int id1, id2; 
+    int id1, id2;
 
-}; 
+};
 
 
 #endif  // MG5_Sigma_sm_epem_mupmum_H

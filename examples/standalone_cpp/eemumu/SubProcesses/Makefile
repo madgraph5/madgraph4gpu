@@ -1,7 +1,7 @@
 LIBDIR=../../lib
 INCDIR=../../src
 MODELLIB=model_sm
-CXXFLAGS= -O -I$(INCDIR) -I.
+CXXFLAGS= -g -O -I$(INCDIR) -I.
 LIBFLAGS= -L$(LIBDIR) -l$(MODELLIB)
 
 main=check

@@ -1,5 +1,5 @@
 LIBDIR=../lib
-CXXFLAGS= -O -I.
+CXXFLAGS= -g -O -I.
 
 target=$(LIBDIR)/libmodel_sm.a
 

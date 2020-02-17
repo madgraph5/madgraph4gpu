@@ -27,17 +27,17 @@ class SLHABlock
 class SLHAReader
 {
   public:
-    SLHAReader(std::string file_name = "")
-	{if(file_name != "") read_slha_file(file_name);}
+    SLHAReader(std::string file_name = "", bool verb = true)
+	{if(file_name != "") read_slha_file(file_name, verb);}
 
-    void read_slha_file(std::string file_name);
-    double get_block_entry(std::string block_name, std::vector<int> indices, 
+    void read_slha_file(std::string file_name, bool verb = true);
+    double get_block_entry(std::string block_name, std::vector<int> indices,
 			   double def_val = 0);
-    double get_block_entry(std::string block_name, int index, 
+    double get_block_entry(std::string block_name, int index,
 			   double def_val = 0);
-    void set_block_entry(std::string block_name, std::vector<int> indices, 
+    void set_block_entry(std::string block_name, std::vector<int> indices,
 			   double value);
-    void set_block_entry(std::string block_name, int index, 
+    void set_block_entry(std::string block_name, int index,
 			   double value);
   private:
     std::map<std::string, SLHABlock> _blocks;
