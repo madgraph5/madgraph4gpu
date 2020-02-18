@@ -17,16 +17,15 @@ using namespace MG5_sm;
 //--------------------------------------------------------------------------
 // Initialize process.
 
-void CPPProcess::initProc(string param_card_name, bool verb)
-{
+void CPPProcess::initProc(string param_card_name, bool verb) {
   // Instantiate the model class and set parameters that stay fixed during run
   pars = Parameters_sm::getInstance();
   SLHAReader slha(param_card_name, verb);
   pars->setIndependentParameters(slha);
   pars->setIndependentCouplings();
-  if ( verb ) {
-  	pars->printIndependentParameters();
-  	pars->printIndependentCouplings();
+  if (verb) {
+    pars->printIndependentParameters();
+    pars->printIndependentCouplings();
   }
   // Set external particle masses for this matrix element
   mME.push_back(pars->ZERO);
@@ -39,21 +38,19 @@ void CPPProcess::initProc(string param_card_name, bool verb)
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, part independent of incoming flavour.
 
-void CPPProcess::sigmaKin( bool ppar )
-{
+void CPPProcess::sigmaKin(bool ppar) {
   // Set the parameters which change event by event
   pars->setDependentParameters();
   pars->setDependentCouplings();
   static bool firsttime = true;
-  if (firsttime && ppar)
-  {
+  if (firsttime && ppar) {
     pars->printDependentParameters();
     pars->printDependentCouplings();
     firsttime = false;
   }
 
   // Reset color flows
-  for(int i = 0; i < 1; i++ )
+  for (int i = 0; i < 1; i++)
     jamp2[0][i] = 0.;
 
   // Local variables and constants
@@ -62,50 +59,43 @@ void CPPProcess::sigmaKin( bool ppar )
   static int ntry = 0, sum_hel = 0, ngood = 0;
   static int igood[ncomb];
   static int jhel;
-  std::complex<double> * * wfs;
+  std::complex<double> **wfs;
   double t[nprocesses];
   // Helicities for the process
-  static const int helicities[ncomb][nexternal] = {{-1, -1, -1, -1}, {-1, -1,
-      -1, 1}, {-1, -1, 1, -1}, {-1, -1, 1, 1}, {-1, 1, -1, -1}, {-1, 1, -1, 1},
-      {-1, 1, 1, -1}, {-1, 1, 1, 1}, {1, -1, -1, -1}, {1, -1, -1, 1}, {1, -1,
-      1, -1}, {1, -1, 1, 1}, {1, 1, -1, -1}, {1, 1, -1, 1}, {1, 1, 1, -1}, {1,
-      1, 1, 1}};
+  static const int helicities[ncomb][nexternal] = {
+      {-1, -1, -1, -1}, {-1, -1, -1, 1}, {-1, -1, 1, -1}, {-1, -1, 1, 1},
+      {-1, 1, -1, -1},  {-1, 1, -1, 1},  {-1, 1, 1, -1},  {-1, 1, 1, 1},
+      {1, -1, -1, -1},  {1, -1, -1, 1},  {1, -1, 1, -1},  {1, -1, 1, 1},
+      {1, 1, -1, -1},   {1, 1, -1, 1},   {1, 1, 1, -1},   {1, 1, 1, 1}};
   // Denominators: spins, colors and identical particles
   const int denominators[nprocesses] = {4};
 
   ntry = ntry + 1;
 
   // Reset the matrix elements
-  for(int i = 0; i < nprocesses; i++ )
-  {
+  for (int i = 0; i < nprocesses; i++) {
     matrix_element[i] = 0.;
   }
   // Define permutation
   int perm[nexternal];
-  for(int i = 0; i < nexternal; i++ )
-  {
+  for (int i = 0; i < nexternal; i++) {
     perm[i] = i;
   }
 
-  if (sum_hel == 0 || ntry < 10)
-  {
+  if (sum_hel == 0 || ntry < 10) {
     // Calculate the matrix element for all helicities
-    for(int ihel = 0; ihel < ncomb; ihel++ )
-    {
-      if (goodhel[ihel] || ntry < 2)
-      {
+    for (int ihel = 0; ihel < ncomb; ihel++) {
+      if (goodhel[ihel] || ntry < 2) {
         calculate_wavefunctions(perm, helicities[ihel]);
         t[0] = matrix_1_epem_mupmum();
 
         double tsum = 0;
-        for(int iproc = 0; iproc < nprocesses; iproc++ )
-        {
+        for (int iproc = 0; iproc < nprocesses; iproc++) {
           matrix_element[iproc] += t[iproc];
           tsum += t[iproc];
         }
         // Store which helicities give non-zero result
-        if (tsum != 0. && !goodhel[ihel])
-        {
+        if (tsum != 0. && !goodhel[ihel]) {
           goodhel[ihel] = true;
           ngood++;
           igood[ngood] = ihel;
@@ -114,47 +104,36 @@ void CPPProcess::sigmaKin( bool ppar )
     }
     jhel = 0;
     sum_hel = min(sum_hel, ngood);
-  }
-  else
-  {
+  } else {
     // Only use the "good" helicities
-    for(int j = 0; j < sum_hel; j++ )
-    {
+    for (int j = 0; j < sum_hel; j++) {
       jhel++;
       if (jhel >= ngood)
         jhel = 0;
-      double hwgt = double(ngood)/double(sum_hel);
+      double hwgt = double(ngood) / double(sum_hel);
       int ihel = igood[jhel];
       calculate_wavefunctions(perm, helicities[ihel]);
       t[0] = matrix_1_epem_mupmum();
 
-      for(int iproc = 0; iproc < nprocesses; iproc++ )
-      {
+      for (int iproc = 0; iproc < nprocesses; iproc++) {
         matrix_element[iproc] += t[iproc] * hwgt;
       }
     }
   }
 
-  for (int i = 0; i < nprocesses; i++ )
+  for (int i = 0; i < nprocesses; i++)
     matrix_element[i] /= denominators[i];
-
-
-
 }
 
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, including incoming flavour dependence.
 
-double CPPProcess::sigmaHat()
-{
+double CPPProcess::sigmaHat() {
   // Select between the different processes
-  if(id1 == -11 && id2 == 11)
-  {
+  if (id1 == -11 && id2 == 11) {
     // Add matrix elements for processes with beams (-11, 11)
     return matrix_element[0];
-  }
-  else
-  {
+  } else {
     // Return 0 if not correct initial state assignment
     return 0.;
   }
@@ -166,8 +145,7 @@ double CPPProcess::sigmaHat()
 //--------------------------------------------------------------------------
 // Evaluate |M|^2 for each subprocess
 
-void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[])
-{
+void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
   // Calculate wavefunctions for all processes
   int i, j;
 
@@ -178,16 +156,14 @@ void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[])
   oxxxxx(p[perm[3]], mME[3], hel[3], +1, w[3]);
   FFV1P0_3(w[1], w[0], pars->GC_3, pars->ZERO, pars->ZERO, w[4]);
   FFV2_4_3(w[1], w[0], -pars->GC_51, pars->GC_59, pars->mdl_MZ, pars->mdl_WZ,
-      w[5]);
+           w[5]);
 
   // Calculate all amplitudes
   // Amplitude(s) for diagram number 0
   FFV1_0(w[2], w[3], w[4], pars->GC_3, amp[0]);
   FFV2_4_0(w[2], w[3], w[5], -pars->GC_51, pars->GC_59, amp[1]);
-
 }
-double CPPProcess::matrix_1_epem_mupmum()
-{
+double CPPProcess::matrix_1_epem_mupmum() {
   int i, j;
   // Local variables
   const int ngraphs = 2;
@@ -203,16 +179,15 @@ double CPPProcess::matrix_1_epem_mupmum()
 
   // Sum and square the color flows to get the matrix element
   double matrix = 0;
-  for(i = 0; i < ncolor; i++ )
-  {
+  for (i = 0; i < ncolor; i++) {
     ztemp = 0.;
-    for(j = 0; j < ncolor; j++ )
+    for (j = 0; j < ncolor; j++)
       ztemp = ztemp + cf[i][j] * jamp[j];
-    matrix = matrix + real(ztemp * conj(jamp[i]))/denom[i];
+    matrix = matrix + real(ztemp * conj(jamp[i])) / denom[i];
   }
 
   // Store the leading color flows for choice of color
-  for(i = 0; i < ncolor; i++ )
+  for (i = 0; i < ncolor; i++)
     jamp2[0][i] += real(jamp[i] * conj(jamp[i]));
 
   return matrix;

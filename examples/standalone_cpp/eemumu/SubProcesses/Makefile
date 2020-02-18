@@ -4,7 +4,7 @@ MODELLIB=model_sm
 CXXFLAGS= -g -O -I$(INCDIR) -I.
 LIBFLAGS= -L$(LIBDIR) -l$(MODELLIB)
 
-main=check
+main=check.exe
 
 all: $(main)
 
@@ -22,4 +22,3 @@ $(LIBDIR)/lib$(MODELLIB).a:
 clean:
 	rm -f $(target)
 	rm -f $(objects)
-
