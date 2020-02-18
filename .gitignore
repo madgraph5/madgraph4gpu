@@ -1,0 +1,5 @@
+# compilation
+*.o
+*.a
+*.exe
+
