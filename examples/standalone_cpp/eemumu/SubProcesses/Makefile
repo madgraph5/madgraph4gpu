@@ -1,3 +1,4 @@
+# standalone_cpp
 LIBDIR=../../lib
 INCDIR=../../src
 MODELLIB=model_sm
@@ -6,7 +7,11 @@ LIBFLAGS= -L$(LIBDIR) -l$(MODELLIB)
 
 main=check.exe
 
-all: $(main)
+all:
+	cd ../../src && make
+	make check
+
+check: $(main)
 
 objects=CPPProcess.o check_sa.o
 
@@ -20,5 +25,6 @@ $(LIBDIR)/lib$(MODELLIB).a:
 .PHONY: clean
 
 clean:
+	cd ../../src && make clean
 	rm -f $(target)
 	rm -f $(objects)
