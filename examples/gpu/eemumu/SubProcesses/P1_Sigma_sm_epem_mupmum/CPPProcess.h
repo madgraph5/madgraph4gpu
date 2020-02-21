@@ -13,7 +13,9 @@
 
 #include "Parameters_sm.h"
 
-using namespace std;
+#include <thrust/complex.h>
+
+// using namespace std;
 
 //==========================================================================
 // A class for calculating the matrix elements for
@@ -35,15 +37,15 @@ public:
   virtual double sigmaHat();
 
   // Info on the subprocess.
-  virtual string name() const { return "e+ e- > mu+ mu- (sm)"; }
+  virtual std::string name() const { return "e+ e- > mu+ mu- (sm)"; }
 
   virtual int code() const { return 1; }
 
-  const vector<double> &getMasses() const { return mME; }
+  const std::vector<double> &getMasses() const { return mME; }
 
   // Get and set momenta for matrix element evaluation
-  vector<double *> getMomenta() { return p; }
-  void setMomenta(vector<double *> &momenta) { p = momenta; }
+  std::vector<double *> getMomenta() { return p; }
+  void setMomenta(std::vector<double *> &momenta) { p = momenta; }
   void setInitial(int inid1, int inid2) {
     id1 = inid1;
     id2 = inid2;
@@ -62,9 +64,9 @@ private:
   // Calculate wavefunctions
   void calculate_wavefunctions(const int perm[], const int hel[]);
   static const int nwavefuncs = 6;
-  std::complex<double> w[nwavefuncs][18];
+  thrust::complex<double> w[nwavefuncs][18];
   static const int namplitudes = 2;
-  std::complex<double> amp[namplitudes];
+  thrust::complex<double> amp[namplitudes];
   double matrix_1_epem_mupmum();
 
   // Store the matrix element value from sigmaKin
@@ -77,10 +79,10 @@ private:
   Parameters_sm *pars;
 
   // vector with external particle masses
-  vector<double> mME;
+  std::vector<double> mME;
 
   // vector with momenta (to be changed each event)
-  vector<double *> p;
+  std::vector<double *> p;
   // Initial particle ids
   int id1, id2;
 };
