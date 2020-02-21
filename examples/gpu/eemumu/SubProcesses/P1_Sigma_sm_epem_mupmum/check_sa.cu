@@ -43,8 +43,6 @@ int main(int argc, char **argv) {
   double energy = 1500;
   double weight;
 
-  std::cout << "LEN getMasses " << process.getMasses().size() << std::endl;
-
   for (int x = 0; x <= numevts; ++x) {
 
     // Get phase space point
