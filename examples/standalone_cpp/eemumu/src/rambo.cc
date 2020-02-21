@@ -90,7 +90,7 @@ double rn(int idummy) {
 vector<double *> get_momenta(int ninitial, double energy, vector<double> masses,
                              double &wgt) {
   //---- auxiliary function to change convention between MadGraph5_aMC@NLO and
-  //rambo
+  // rambo
   //---- four momenta.
   int nexternal = masses.size();
   int nfinal = nexternal - ninitial;
