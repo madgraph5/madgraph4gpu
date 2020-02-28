@@ -12,8 +12,10 @@
 #include <vector>
 
 #include "Parameters_sm.h"
+#include "timer.h"
 
 using namespace std;
+#define TIMERTYPE std::chrono::high_resolution_clock
 
 //==========================================================================
 // A class for calculating the matrix elements for
@@ -58,6 +60,8 @@ public:
   static const int nprocesses = 1;
 
 private:
+
+  
   // Private functions to calculate the matrix element for all subprocesses
   // Calculate wavefunctions
   void calculate_wavefunctions(const int perm[], const int hel[]);
@@ -83,6 +87,8 @@ private:
   vector<double *> p;
   // Initial particle ids
   int id1, id2;
+
+  //Timer<TIMERTYPE> m_timer;
 };
 
 #endif // MG5_Sigma_sm_epem_mupmum_H

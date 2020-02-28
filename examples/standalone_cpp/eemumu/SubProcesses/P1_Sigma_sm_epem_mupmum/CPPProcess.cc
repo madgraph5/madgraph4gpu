@@ -174,6 +174,8 @@ void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
     std::cout << std::endl;
   }
 
+  //m_timer.Start();  
+
   // Calculate all wavefunctions
   oxxxxx(p[perm[0]], mME[0], hel[0], -1, w[0]);
   ixxxxx(p[perm[1]], mME[1], hel[1], +1, w[1]);
@@ -187,6 +189,10 @@ void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
   // Amplitude(s) for diagram number 0
   FFV1_0(w[2], w[3], w[4], pars->GC_3, amp[0]);
   FFV2_4_0(w[2], w[3], w[5], -pars->GC_51, pars->GC_59, amp[1]);
+
+  //float gputime = m_timer.GetDuration();
+  //std::cout << "Wave function time: " << gputime << std::endl;
+
 
   std::cout << ">>> w: " << std::endl;
   for (int i = 0; i < 6; ++i) {
