@@ -1,6 +1,7 @@
 LIBDIR=../lib
-CXXFLAGS= -g -O -I.
-CUFLAGS= -arch=compute_35 -rdc=true
+CXXFLAGS= -g -O0 -I.
+CUFLAGS= -arch=compute_35 -rdc=true -G
+# CUFLAGS= -arch=compute_35 -G
 NVCC=/usr/local/cuda/bin/nvcc
 CXX=g++
 
@@ -8,7 +9,7 @@ target=$(LIBDIR)/libmodel_sm.a
 
 all: $(target)
 
-cxx_objects=Parameters_sm.o rambo.o read_slha.o
+cxx_objects=Parameters_sm.o read_slha.o rambo.o
 cu_objects=HelAmps_sm.o
 
 %.o : %.cc

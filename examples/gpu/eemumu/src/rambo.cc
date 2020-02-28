@@ -6,8 +6,6 @@
 
 #include "rambo.h"
 
-using namespace std;
-
 double Random::ranmar() {
   /*     -----------------
    * universal random number generator proposed by marsaglia and zaman
@@ -87,8 +85,8 @@ double rn(int idummy) {
   return ran;
 }
 
-vector<double *> get_momenta(int ninitial, double energy, vector<double> masses,
-                             double &wgt) {
+std::vector<double *> get_momenta(int ninitial, double energy,
+                                  std::vector<double> masses, double &wgt) {
   //---- auxiliary function to change convention between MadGraph5_aMC@NLO and
   // rambo
   //---- four momenta.
@@ -99,21 +97,21 @@ vector<double *> get_momenta(int ninitial, double energy, vector<double> masses,
 
   if (ninitial == 1) {
     // Momenta for the incoming particle
-    vector<double *> p(1, new double[4]);
+    std::vector<double *> p(1, new double[4]);
     p[0][0] = m1;
     p[0][1] = 0.;
     p[0][2] = 0.;
     p[0][3] = 0.;
 
-    vector<double> finalmasses(++masses.begin(), masses.end());
-    vector<double *> p_rambo = rambo(m1, finalmasses, wgt);
+    std::vector<double> finalmasses(++masses.begin(), masses.end());
+    std::vector<double *> p_rambo = rambo(m1, finalmasses, wgt);
     p.insert(++p.begin(), p_rambo.begin(), p_rambo.end());
 
     return p;
   }
 
   else if (ninitial != 2) {
-    cout << "Rambo needs 1 or 2 incoming particles" << endl;
+    std::cout << "Rambo needs 1 or 2 incoming particles" << std::endl;
     exit(-1);
   }
 
@@ -129,7 +127,7 @@ vector<double *> get_momenta(int ninitial, double energy, vector<double> masses,
   double energy1 = sqrt(pow(mom, 2) + pow(m1, 2));
   double energy2 = sqrt(pow(mom, 2) + pow(m2, 2));
   // Set momenta for incoming particles
-  vector<double *> p(1, new double[4]);
+  std::vector<double *> p(1, new double[4]);
   p[0][0] = energy1;
   p[0][1] = 0;
   p[0][2] = 0;
@@ -146,13 +144,13 @@ vector<double *> get_momenta(int ninitial, double energy, vector<double> masses,
     wgt = 1;
     return p;
   }
-  vector<double> finalmasses(++(++masses.begin()), masses.end());
-  vector<double *> p_rambo = rambo(energy, finalmasses, wgt);
+  std::vector<double> finalmasses(++(++masses.begin()), masses.end());
+  std::vector<double *> p_rambo = rambo(energy, finalmasses, wgt);
   p.insert(++(++p.begin()), p_rambo.begin(), p_rambo.end());
   return p;
 }
 
-vector<double *> rambo(double et, vector<double> &xm, double &wt) {
+std::vector<double *> rambo(double et, std::vector<double> &xm, double &wt) {
   /**********************************************************************
    *                       rambo                                         *
    *    ra(ndom)  m(omenta)  b(eautifully)  o(rganized)                  *
@@ -169,9 +167,9 @@ vector<double *> rambo(double et, vector<double> &xm, double &wt) {
    *    wt = weight of the event                                         *
    ***********************************************************************/
   int n = xm.size();
-  vector<double *> q, p;
-  vector<double> z(n), r(4), b(3), p2(n), xm2(n), e(n), v(n);
-  static vector<int> iwarn(5, 0);
+  std::vector<double *> q, p;
+  std::vector<double> z(n), r(4), b(3), p2(n), xm2(n), e(n), v(n);
+  static std::vector<int> iwarn(5, 0);
   static double acc = 1e-14;
   static int itmax = 6, ibegin = 0;
   static double twopi = 8. * atan(1.);
@@ -192,7 +190,7 @@ vector<double *> rambo(double et, vector<double> &xm, double &wt) {
   }
   // check on the number of particles
   if (n < 1 || n > 101) {
-    cout << "Too few or many particles: " << n << endl;
+    std::cout << "Too few or many particles: " << n << std::endl;
     exit(-1);
   }
   // check whether total energy is sufficient; count nonzero masses
@@ -204,7 +202,7 @@ vector<double *> rambo(double et, vector<double> &xm, double &wt) {
     xmt = xmt + abs(xm[i]);
   }
   if (xmt > et) {
-    cout << "Too low energy: " << et << " needed " << xmt << endl;
+    std::cout << "Too low energy: " << et << " needed " << xmt << std::endl;
     exit(-1);
   }
   // the parameter values are now accepted
@@ -250,12 +248,12 @@ vector<double *> rambo(double et, vector<double> &xm, double &wt) {
     wt = (2. * n - 4.) * log(et) + z[n - 1];
   if (wt < -180.) {
     if (iwarn[0] <= 5)
-      cout << "Too small wt, risk for underflow: " << wt << endl;
+      std::cout << "Too small wt, risk for underflow: " << wt << std::endl;
     iwarn[0] = iwarn[0] + 1;
   }
   if (wt > 174.) {
     if (iwarn[1] <= 5)
-      cout << "Too large wt, risk for overflow: " << wt << endl;
+      std::cout << "Too large wt, risk for overflow: " << wt << std::endl;
     iwarn[1] = iwarn[1] + 1;
   }
 
@@ -287,7 +285,8 @@ vector<double *> rambo(double et, vector<double> &xm, double &wt) {
       break;
     iter = iter + 1;
     if (iter > itmax) {
-      cout << "Too many iterations without desired accuracy: " << itmax << endl;
+      std::cout << "Too many iterations without desired accuracy: " << itmax
+                << std::endl;
       break;
     }
     x = x - f0 / (x * g0);
@@ -312,12 +311,12 @@ vector<double *> rambo(double et, vector<double> &xm, double &wt) {
   wt = wt + wtm;
   if (wt < -180.) {
     if (iwarn[2] <= 5)
-      cout << "Too small wt, risk for underflow: " << wt << endl;
+      std::cout << "Too small wt, risk for underflow: " << wt << std::endl;
     iwarn[2] = iwarn[2] + 1;
   }
   if (wt > 174.) {
     if (iwarn[3] <= 5)
-      cout << "Too large wt, risk for overflow: " << wt << endl;
+      std::cout << "Too large wt, risk for overflow: " << wt << std::endl;
     iwarn[3] = iwarn[3] + 1;
   }
   // return log of weight

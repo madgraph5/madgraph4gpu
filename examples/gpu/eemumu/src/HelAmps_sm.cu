@@ -6,7 +6,6 @@
 #include <complex>
 #include <cstdlib>
 #include <iostream>
-using namespace std;
 
 #include <cuda_runtime.h>
 #include <thrust/complex.h>
@@ -274,11 +273,14 @@ __global__ void sxxxxx(double p[4], int nss, thrust::complex<double> sc[3]) {
 }
 
 __global__ void oxxxxx(double p[4], double fmass, int nhel, int nsf,
-                       thrust::complex<double> fo[6]) {
+                       thrust::complex<double> *fo) {
+  //}[6]) {
   thrust::complex<double> chi[2];
   double sf[2], sfomeg[2], omega[2], pp, pp3, sqp0p3, sqm[2];
   int nh, ip, im;
+  thrust::complex<double> tmp = thrust::complex<double>(p[0] * nsf, p[3] * nsf);
   fo[0] = thrust::complex<double>(p[0] * nsf, p[3] * nsf);
+  // fo[0] = tmp;
   fo[1] = thrust::complex<double>(p[1] * nsf, p[2] * nsf);
   nh = nhel * nsf;
   if (fmass != 0.000) {
@@ -346,28 +348,21 @@ __global__ void FFV1_0(thrust::complex<double> F1[],
                        thrust::complex<double> F2[],
                        thrust::complex<double> V3[],
                        thrust::complex<double> COUP,
-                       thrust::complex<double> &vertex) {
-  static thrust::complex<double> *cI;
-  cudaMalloc(&cI, sizeof(thrust::complex<double>));
-  *cI = thrust::complex<double>(0., 1.);
-  thrust::complex<double> TMP2;
-  TMP2 =
-      (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + (*cI) * (V3[4]))) +
-       (F1[3] * (F2[4] * (V3[3] - (*cI) * (V3[4])) + F2[5] * (V3[2] - V3[5])) +
-        (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + (*cI) * (V3[4]))) +
-         F1[5] *
-             (F2[2] * (+(*cI) * (V3[4]) - V3[3]) + F2[3] * (V3[2] + V3[5])))));
-  vertex = COUP * -(*cI) * TMP2;
+                       thrust::complex<double> *vertex) {
+  thrust::complex<double> cI = thrust::complex<double>(0., 1.);
+  thrust::complex<double> TMP2 =
+      (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
+       (F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])) +
+        (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
+         F1[5] * (F2[2] * (+cI * (V3[4]) - V3[3]) + F2[3] * (V3[2] + V3[5])))));
+  (*vertex) = COUP * -cI * TMP2;
 }
 
 __global__ void FFV2_3(thrust::complex<double> F1[],
                        thrust::complex<double> F2[],
                        thrust::complex<double> *COUP, double M3, double W3,
                        thrust::complex<double> V3[]) {
-  static thrust::complex<double> *cI;
-  cudaMalloc(&cI, sizeof(thrust::complex<double>));
-  *cI = thrust::complex<double>(0., 1.);
-  // sr static thrust::complex<double> cI = thrust::complex<double>(0., 1.);
+  thrust::complex<double> cI = thrust::complex<double>(0., 1.);
   thrust::complex<double> denom;
   thrust::complex<double> TMP1;
   double P3[4];
@@ -381,30 +376,22 @@ __global__ void FFV2_3(thrust::complex<double> F1[],
   P3[1] = -V3[1].real();
   P3[2] = -V3[1].imag();
   P3[3] = -V3[0].imag();
-  TMP1 =
-      (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + (*cI) * (P3[2]))) +
-       F1[3] * (F2[4] * (P3[1] - (*cI) * (P3[2])) + F2[5] * (P3[0] - P3[3])));
+  TMP1 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
+          F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
   denom = (*COUP) / ((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) -
-                     (P3[3] * P3[3]) - M3 * (M3 - (*cI) * W3));
-  V3[2] =
-      denom * (-(*cI)) * (F1[2] * F2[4] + F1[3] * F2[5] - P3[0] * OM3 * TMP1);
-  V3[3] =
-      denom * (-(*cI)) * (-F1[2] * F2[5] - F1[3] * F2[4] - P3[1] * OM3 * TMP1);
-  V3[4] =
-      denom * (-(*cI)) *
-      (-(*cI) * (F1[2] * F2[5]) + (*cI) * (F1[3] * F2[4]) - P3[2] * OM3 * TMP1);
-  V3[5] =
-      denom * (-(*cI)) * (F1[3] * F2[5] - F1[2] * F2[4] - P3[3] * OM3 * TMP1);
+                     (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
+  V3[2] = denom * (-cI) * (F1[2] * F2[4] + F1[3] * F2[5] - P3[0] * OM3 * TMP1);
+  V3[3] = denom * (-cI) * (-F1[2] * F2[5] - F1[3] * F2[4] - P3[1] * OM3 * TMP1);
+  V3[4] = denom * (-cI) *
+          (-cI * (F1[2] * F2[5]) + cI * (F1[3] * F2[4]) - P3[2] * OM3 * TMP1);
+  V3[5] = denom * (-cI) * (F1[3] * F2[5] - F1[2] * F2[4] - P3[3] * OM3 * TMP1);
 }
 
 __global__ void FFV4_3(thrust::complex<double> F1[],
                        thrust::complex<double> F2[],
                        thrust::complex<double> *COUP, double M3, double W3,
                        thrust::complex<double> V3[]) {
-  static thrust::complex<double> *cI;
-  cudaMalloc(&cI, sizeof(thrust::complex<double>));
-  *cI = thrust::complex<double>(0., 1.);
-  // sr static thrust::complex<double> cI = thrust::complex<double>(0., 1.);
+  thrust::complex<double> cI = thrust::complex<double>(0., 1.);
   thrust::complex<double> denom;
   thrust::complex<double> TMP1;
   double P3[4];
@@ -419,28 +406,25 @@ __global__ void FFV4_3(thrust::complex<double> F1[],
   P3[1] = -V3[1].real();
   P3[2] = -V3[1].imag();
   P3[3] = -V3[0].imag();
-  TMP4 =
-      (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + (*cI) * (P3[2]))) +
-       F1[5] * (F2[2] * (+(*cI) * (P3[2]) - P3[1]) + F2[3] * (P3[0] + P3[3])));
-  TMP1 =
-      (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + (*cI) * (P3[2]))) +
-       F1[3] * (F2[4] * (P3[1] - (*cI) * (P3[2])) + F2[5] * (P3[0] - P3[3])));
+  TMP4 = (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) +
+          F1[5] * (F2[2] * (+cI * (P3[2]) - P3[1]) + F2[3] * (P3[0] + P3[3])));
+  TMP1 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
+          F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
   denom = (*COUP) / ((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) -
-                     (P3[3] * P3[3]) - M3 * (M3 - (*cI) * W3));
-  V3[2] = denom * (-2. * (*cI)) *
+                     (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
+  V3[2] = denom * (-2. * cI) *
           (OM3 * -1. / 2. * P3[0] * (TMP1 + 2. * (TMP4)) +
            (+1. / 2. * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] +
             F1[5] * F2[3]));
-  V3[3] = denom * (-2. * (*cI)) *
+  V3[3] = denom * (-2. * cI) *
           (OM3 * -1. / 2. * P3[1] * (TMP1 + 2. * (TMP4)) +
            (-1. / 2. * (F1[2] * F2[5] + F1[3] * F2[4]) + F1[4] * F2[3] +
             F1[5] * F2[2]));
-  V3[4] =
-      denom * 2. * (*cI) *
-      (OM3 * 1. / 2. * P3[2] * (TMP1 + 2. * (TMP4)) +
-       (+1. / 2. * (*cI) * (F1[2] * F2[5]) - 1. / 2. * (*cI) * (F1[3] * F2[4]) -
-        (*cI) * (F1[4] * F2[3]) + (*cI) * (F1[5] * F2[2])));
-  V3[5] = denom * 2. * (*cI) *
+  V3[4] = denom * 2. * cI *
+          (OM3 * 1. / 2. * P3[2] * (TMP1 + 2. * (TMP4)) +
+           (+1. / 2. * cI * (F1[2] * F2[5]) - 1. / 2. * cI * (F1[3] * F2[4]) -
+            cI * (F1[4] * F2[3]) + cI * (F1[5] * F2[2])));
+  V3[5] = denom * 2. * cI *
           (OM3 * 1. / 2. * P3[3] * (TMP1 + 2. * (TMP4)) +
            (+1. / 2. * (F1[2] * F2[4]) - 1. / 2. * (F1[3] * F2[5]) -
             F1[4] * F2[2] + F1[5] * F2[3]));
@@ -451,30 +435,33 @@ __global__ void FFV2_4_3(thrust::complex<double> F1[],
                          thrust::complex<double> COUP1,
                          thrust::complex<double> COUP2, double M3, double W3,
                          thrust::complex<double> V3[]) {
+  // sr fixme // V3 returns empty while should carry value in 6th iteration
   int i;
   thrust::complex<double> *COUP1t, *COUP2t, *Vtmp; //[6];
   cudaMalloc(&COUP1t, sizeof(thrust::complex<double>));
   cudaMalloc(&COUP2t, sizeof(thrust::complex<double>));
-  cudaMalloc((void **)&Vtmp, 6 * sizeof(thrust::complex<double>));
+  cudaMalloc(&Vtmp, 6 * sizeof(thrust::complex<double>));
   *COUP1t = COUP1;
   *COUP2t = COUP2;
   FFV2_3<<<1, 1>>>(F1, F2, COUP1t, M3, W3, V3);
+  cudaDeviceSynchronize();
   FFV4_3<<<1, 1>>>(F1, F2, COUP2t, M3, W3, Vtmp);
+  cudaDeviceSynchronize();
   i = 2;
   while (i < 6) {
     V3[i] = V3[i] + Vtmp[i];
     i++;
   }
+  // cudaFree(COUP1t);
+  // cudaFree(COUP2t);
+  cudaFree(Vtmp);
 }
 
 __global__ void FFV1P0_3(thrust::complex<double> F1[],
                          thrust::complex<double> F2[],
                          thrust::complex<double> COUP, double M3, double W3,
                          thrust::complex<double> V3[]) {
-  static thrust::complex<double> *cI;
-  cudaMalloc(&cI, sizeof(thrust::complex<double>));
-  *cI = thrust::complex<double>(0., 1.);
-  // sr static thrust::complex<double> cI = thrust::complex<double>(0., 1.);
+  thrust::complex<double> cI = thrust::complex<double>(0., 1.);
   double P3[4];
   thrust::complex<double> denom;
   V3[0] = +F1[0] + F2[0];
@@ -484,15 +471,15 @@ __global__ void FFV1P0_3(thrust::complex<double> F1[],
   P3[2] = -V3[1].imag();
   P3[3] = -V3[0].imag();
   denom = COUP / ((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) -
-                  (P3[3] * P3[3]) - M3 * (M3 - (*cI) * W3));
-  V3[2] = denom * (-(*cI)) *
+                  (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
+  V3[2] = denom * (-cI) *
           (F1[2] * F2[4] + F1[3] * F2[5] + F1[4] * F2[2] + F1[5] * F2[3]);
-  V3[3] = denom * (-(*cI)) *
+  V3[3] = denom * (-cI) *
           (F1[4] * F2[3] + F1[5] * F2[2] - F1[2] * F2[5] - F1[3] * F2[4]);
-  V3[4] = denom * (-(*cI)) *
-          (-(*cI) * (F1[2] * F2[5] + F1[5] * F2[2]) +
-           (*cI) * (F1[3] * F2[4] + F1[4] * F2[3]));
-  V3[5] = denom * (-(*cI)) *
+  V3[4] = denom * (-cI) *
+          (-cI * (F1[2] * F2[5] + F1[5] * F2[2]) +
+           cI * (F1[3] * F2[4] + F1[4] * F2[3]));
+  V3[5] = denom * (-cI) *
           (F1[3] * F2[5] + F1[4] * F2[2] - F1[2] * F2[4] - F1[5] * F2[3]);
 }
 
@@ -501,51 +488,47 @@ __global__ void FFV4_0(thrust::complex<double> F1[],
                        thrust::complex<double> V3[],
                        thrust::complex<double> *COUP,
                        thrust::complex<double> *vertex) {
-  static thrust::complex<double> *cI;
-  cudaMalloc(&cI, sizeof(thrust::complex<double>));
-  *cI = thrust::complex<double>(0., 1.);
-  // sr static thrust::complex<double> cI = thrust::complex<double>(0., 1.);
-  thrust::complex<double> TMP0;
-  thrust::complex<double> TMP3;
-  TMP0 =
-      (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + (*cI) * (V3[4]))) +
-       F1[3] * (F2[4] * (V3[3] - (*cI) * (V3[4])) + F2[5] * (V3[2] - V3[5])));
-  TMP3 =
-      (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + (*cI) * (V3[4]))) +
-       F1[5] * (F2[2] * (+(*cI) * (V3[4]) - V3[3]) + F2[3] * (V3[2] + V3[5])));
-  (*vertex) = (*COUP) * (-1.) * (+(*cI) * (TMP0) + 2. * (*cI) * (TMP3));
+  thrust::complex<double> cI = thrust::complex<double>(0., 1.);
+  thrust::complex<double> TMP0, TMP3;
+  TMP0 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
+          F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
+  TMP3 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
+          F1[5] * (F2[2] * (+cI * (V3[4]) - V3[3]) + F2[3] * (V3[2] + V3[5])));
+  (*vertex) = (*COUP) * (-1.) * (+cI * (TMP0) + 2. * cI * (TMP3));
 }
 
 __global__ void FFV2_0(thrust::complex<double> F1[],
                        thrust::complex<double> F2[],
                        thrust::complex<double> V3[],
                        thrust::complex<double> *COUP,
-                       thrust::complex<double> &vertex) {
-  static thrust::complex<double> *cI;
-  cudaMalloc(&cI, sizeof(thrust::complex<double>));
-  *cI = thrust::complex<double>(0., 1.);
-  // sr static thrust::complex<double> cI = thrust::complex<double>(0., 1.);
+                       thrust::complex<double> *vertex) {
+  thrust::complex<double> cI = thrust::complex<double>(0., 1.);
   thrust::complex<double> TMP0;
-  TMP0 =
-      (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + (*cI) * (V3[4]))) +
-       F1[3] * (F2[4] * (V3[3] - (*cI) * (V3[4])) + F2[5] * (V3[2] - V3[5])));
-  vertex = (*COUP) * -(*cI) * TMP0;
+  TMP0 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
+          F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
+  (*vertex) = (*COUP) * -cI * TMP0;
 }
 
 __global__ void
 FFV2_4_0(thrust::complex<double> F1[], thrust::complex<double> F2[],
          thrust::complex<double> V3[], thrust::complex<double> COUP1,
-         thrust::complex<double> COUP2, thrust::complex<double> &vertex) {
-  // thrust::complex<double> tmp;
-  thrust::complex<double> *COUP1t, *COUP2t, *tmp;
+         thrust::complex<double> COUP2, thrust::complex<double> *vertex) {
+  thrust::complex<double> *COUP1t, *COUP2t, *tmp, *vertext;
   cudaMalloc(&COUP1t, sizeof(thrust::complex<double>));
   cudaMalloc(&COUP2t, sizeof(thrust::complex<double>));
   cudaMalloc(&tmp, sizeof(thrust::complex<double>));
+  cudaMalloc(&vertext, sizeof(thrust::complex<double>));
   *COUP1t = COUP1;
   *COUP2t = COUP2;
-  FFV2_0<<<1, 1>>>(F1, F2, V3, COUP1t, vertex);
+  vertext = vertex;
+  FFV2_0<<<1, 1>>>(F1, F2, V3, COUP1t, vertext);
+  cudaDeviceSynchronize();
   FFV4_0<<<1, 1>>>(F1, F2, V3, COUP2t, tmp);
-  vertex = vertex + (*tmp);
+  cudaDeviceSynchronize();
+  (*vertex) = (*vertex) + (*tmp);
+  cudaFree(COUP1t);
+  cudaFree(COUP2t);
+  cudaFree(tmp);
 }
 
 } // namespace gMG5_sm

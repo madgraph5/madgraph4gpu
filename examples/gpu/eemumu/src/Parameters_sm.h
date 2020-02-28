@@ -11,7 +11,6 @@
 #include <complex>
 
 #include "read_slha.h"
-using namespace std;
 
 class Parameters_sm {
 public:

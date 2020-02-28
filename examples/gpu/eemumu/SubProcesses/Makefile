@@ -2,8 +2,9 @@
 LIBDIR=../../lib
 INCDIR=../../src
 MODELLIB=model_sm
-CXXFLAGS= -g -O -I$(INCDIR) -I.
-CUFLAGS= -arch=compute_35 -rdc=true
+CXXFLAGS= -g -O0 -I$(INCDIR) -I.
+CUFLAGS= -arch=compute_35 -rdc=true -G
+# CUFLAGS= -arch=compute_35 -G
 LIBFLAGS= -L$(LIBDIR) -l$(MODELLIB)
 NVCC=/usr/local/cuda/bin/nvcc
 CXX=g++
@@ -16,7 +17,7 @@ all:
 
 check: $(main)
 
-# cxx_objects=check_sa.o
+#cxx_objects=check_sa.o
 cu_objects=CPPProcess.o check_sa.o
 
 %.o : %.cc
@@ -26,7 +27,7 @@ cu_objects=CPPProcess.o check_sa.o
 	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
 
 $(main): $(cxx_objects) $(cu_objects) $(LIBDIR)/lib$(MODELLIB).a
-	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(LIBFLAGS) -arch=compute_35
+	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(LIBFLAGS) -arch=compute_35 -lcuda
 
 $(LIBDIR)/lib$(MODELLIB).a:
 	cd ../../src

@@ -1,7 +1,5 @@
 #include <vector>
 
-using namespace std;
-
 class Random {
 public:
   double ranmar();
@@ -15,7 +13,7 @@ private:
 
 double rn(int idummy);
 
-vector<double *> get_momenta(int ninitial, double energy, vector<double> masses,
-                             double &wgt);
+std::vector<double *> get_momenta(int ninitial, double energy,
+                                  std::vector<double> masses, double &wgt);
 
-vector<double *> rambo(double et, vector<double> &xm, double &wt);
+std::vector<double *> rambo(double et, std::vector<double> &xm, double &wt);
