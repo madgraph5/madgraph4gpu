@@ -14,7 +14,6 @@
 #include "Parameters_sm.h"
 
 #include <thrust/complex.h>
-#include <thrust/host_vector.h>
 
 //==========================================================================
 // A class for calculating the matrix elements for
@@ -34,17 +33,17 @@ public:
   // Constructor.
 
   CPPProcess();
-  CPPProcess(processMem *pm);
+  CPPProcess(processMem *pm, bool verbose=false, bool debug=false);
 
   ~CPPProcess();
 
   void resetGPUMemory();
 
   // Initialize process.
-  virtual void initProc(std::string param_card_name, bool verb = true);
+  virtual void initProc(std::string param_card_name);
 
   // Calculate flavour-independent parts of cross section.
-  virtual void sigmaKin(bool ppar = true);
+  virtual void sigmaKin();
 
   // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
@@ -58,7 +57,6 @@ public:
   const std::vector<double> &getMasses() const;
 
   // Get and set momenta for matrix element evaluation
-  //thrust::host_vector<double *> getMomenta() { return p; }
   std::vector<double *> getMomenta() { return p; }                                                                      
 
   void setMomenta(std::vector<double *> &momenta); //{ p = momenta; }                                                     
@@ -78,6 +76,13 @@ public:
   static const int nprocesses = 1;
 
 private:
+
+  // print verbose info
+  bool m_verbose;
+  
+  // print debug info
+  bool m_debug;
+  
   // Private functions to calculate the matrix element for all subprocesses
   // Calculate wavefunctions
   void calculate_wavefunctions(const int perm[], const int hel[]);
@@ -104,11 +109,9 @@ private:
   Parameters_sm *pars;
 
   // vector with external particle masses
-  // thrust::host_vector<double> mME;
   std::vector<double> mME;
 
   // vector with momenta (to be changed each event)
-  //thrust::host_vector<double *> p;
    std::vector<double *> p;
 
   // Initial particle ids

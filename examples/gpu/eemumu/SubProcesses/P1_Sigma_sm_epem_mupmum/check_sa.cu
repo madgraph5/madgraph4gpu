@@ -7,7 +7,6 @@
 // sr fixme // because of this include this needs to be a cuda file...
 
 #include "rambo.h"
-//#include <thrust/host_vector.h>
 
 bool is_number(const char *s) {
   const char *t = s;
@@ -22,11 +21,13 @@ int usage(int ret = 0) {
 }
 
 int main(int argc, char **argv) {
-  bool verbose = false;
+  bool verbose = false, debug = false;
   int numevts = 0;
   for (int argn = 1; argn < argc; ++argn) {
     if (strcmp(argv[argn], "--verbose") == 0)
       verbose = true;
+    else if (strcmp(argv[argn], "--debug") == 0)
+      debug = true;
     else if (is_number(argv[argn]))
       numevts = atoi(argv[argn]);
     else
@@ -59,10 +60,10 @@ int main(int argc, char **argv) {
 
   cudaDeviceSynchronize();
   // Create a process object
-  CPPProcess process(pm);
+  CPPProcess process(pm, verbose, debug);
 
   // Read param_card and set parameters
-  process.initProc("../../Cards/param_card.dat", verbose);
+  process.initProc("../../Cards/param_card.dat");
 
   double energy = 1500;
   double weight;
@@ -79,7 +80,7 @@ int main(int argc, char **argv) {
     process.setMomenta(p);
 
     // Evaluate matrix element
-    process.sigmaKin(verbose);
+    process.sigmaKin();
 
     const double *matrix_elements = process.getMatrixElements();
 

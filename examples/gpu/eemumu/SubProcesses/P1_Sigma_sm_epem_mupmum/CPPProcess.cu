@@ -13,87 +13,22 @@
 #include <iostream>
 #include <thrust/complex.h>
 
-//extern void ixxxxx(double p[4], double fmass, int nhel, int nsf,
-//                   thrust::complex<double> fi[6]);
-
 CPPProcess::CPPProcess() {}
-//{
 
-/*
-cudaMallocManaged((void **)&w,
-                  18 * nwavefuncs * sizeof(thrust::complex<double>),
-                  cudaMemAttachGlobal);
-for (int i = 0; i < 18; ++i) {
-  for (int y = 0; y < nwavefuncs; ++y) {
-    w[i][y] = thrust::complex<double>(0.0, 0.0);
-  }
-}
-*/
-
-/*
-cudaMallocManaged((void **)&w, nwavefuncs * sizeof(thrust::complex<double>));
-for (int i = 0; i < nwavefuncs; ++i) {
-  cudaMallocManaged((void **)&w[i], 18 * sizeof(thrust::complex<double>));
-  for (int y = 0; y < 18; ++y) {
-    w[i][y] = thrust::complex<double>(0.00, 0.00);
-  }
-}
-*/
-
-/*
-  std::cout << "print matrix: " << std::endl << std::endl;
-  for (int x = 0; x < rows; ++x) {
-    for (int y = 0; y < nwavefuncs; ++y) {
-      std::cout << (void *)&w[x][y] << " ";
-      //      std::cout << std::right << std::setw(2) << w[x][y].real() <<
-  "."
-      //                << w[x][y].imag() << " ";
-    }
-    std::cout << std::endl;
-  }
-  */
-//}
-
-CPPProcess::CPPProcess(processMem *pm) : m(pm), mME(4, 0.0) {}
+CPPProcess::CPPProcess(processMem *pm, bool verbose, bool debug) : m(pm), m_verbose(verbose), m_debug(debug), mME(4, 0.0) {}
 
 CPPProcess::~CPPProcess() {}
 
 void CPPProcess::setMomenta(std::vector<double *> & momenta) {
-for (std::vector<double*>::iterator it = momenta.begin(); it != momenta.end(); ++it) {
+  for (std::vector<double*>::iterator it = momenta.begin(); it != momenta.end(); ++it) {
     double *tmp;
     cudaMallocManaged(&tmp, 4 * sizeof(double));
-    cudaMemcpy(tmp, *it, 4 * sizeof(double), cudaMemcpyHostToHost);
-    p.push_back(tmp);
-}
-
-}
-
-/*
-void CPPProcess::setMomenta(std::vector<double *> &momenta) {
-  for (std::vector<double *>::iterator it = momenta.begin();
-       it != momenta.end(); ++it) {
-    double *tmp;
-    cudaMallocManaged(&tmp, 4 * sizeof(double));
-    // memcpy(tmp, *it, 4 * sizeof(double));
     cudaMemcpy(tmp, *it, 4 * sizeof(double), cudaMemcpyHostToHost);
     p.push_back(tmp);
   }
 }
-*/
 
 const std::vector<double> &CPPProcess::getMasses() const { return mME; }
-
-/*
-std::vector<double> CPPProcess::getMasses() {
-
-  std::vector<double> tmp;
-  for (thrust::host_vector<double>::iterator it = mME.begin(); it != mME->end();
-       ++it) {
-    tmp.push_back(*it);
-  }
-  return tmp;
-}
-*/
 
 //==========================================================================
 // Class member functions for calculating the matrix elements for
@@ -102,14 +37,14 @@ std::vector<double> CPPProcess::getMasses() {
 //--------------------------------------------------------------------------
 // Initialize process.
 
-void CPPProcess::initProc(std::string param_card_name, bool verb) {
+void CPPProcess::initProc(std::string param_card_name) {
 
   // Instantiate the model class and set parameters that stay fixed during run
   pars = Parameters_sm::getInstance();
-  SLHAReader slha(param_card_name, verb);
+  SLHAReader slha(param_card_name, m_verbose);
   pars->setIndependentParameters(slha);
   pars->setIndependentCouplings();
-  if (verb) {
+  if (m_verbose) {
     pars->printIndependentParameters();
     pars->printIndependentCouplings();
   }
@@ -129,28 +64,17 @@ void CPPProcess::resetGPUMemory() {
     cudaFree(*it);
   }
   p.clear();
-/*
-  for (int i = 0; i < m->tnamplitudes; ++i) {
-    m->tamp[i] = thrust::complex<double>(0.0, 0.0);
-  }
-
-  for (int i = 0; i < m->tnwavefuncs; ++i) {
-    for (int j = 0; j < m->twrows; ++j) {
-      m->tw[i][j] = thrust::complex<double>(0.0, 0.0);
-    }
-  }
-  */
 }
 
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, part independent of incoming flavour.
 
-void CPPProcess::sigmaKin(bool ppar) {
+void CPPProcess::sigmaKin() {
   // Set the parameters which change event by event
   pars->setDependentParameters();
   pars->setDependentCouplings();
   static bool firsttime = true;
-  if (firsttime && ppar) {
+  if (firsttime && m_verbose) {
     pars->printDependentParameters();
     pars->printDependentCouplings();
     firsttime = false;
@@ -194,7 +118,8 @@ void CPPProcess::sigmaKin(bool ppar) {
     for (int ihel = 0; ihel < ncomb; ihel++) {
       if (goodhel[ihel] || ntry < 2) {
 
-        std::cout << std::endl
+        if (m_debug) {
+          std::cout << std::endl
                   << std::endl
                   << "<<<<< " << ihel << " " << ihel << " " << ihel << " "
                   << ihel << " " << ihel << " " << ihel << " " << ihel << " "
@@ -202,7 +127,8 @@ void CPPProcess::sigmaKin(bool ppar) {
                   << ihel << " " << ihel << " " << ihel << " " << ihel << " "
                   << ihel << " "
                   << " >>>>>>>>" << std::endl;
-
+        }
+	
         calculate_wavefunctions(perm, helicities[ihel]);
         t[0] = matrix_1_epem_mupmum();
 
@@ -230,7 +156,8 @@ void CPPProcess::sigmaKin(bool ppar) {
       double hwgt = double(ngood) / double(sum_hel);
       int ihel = igood[jhel];
 
-      std::cout << std::endl
+      if (m_debug) {
+        std::cout << std::endl
                 << std::endl
                 << "<<<<< " << ihel << " " << ihel << " " << ihel << " " << ihel
                 << " " << ihel << " " << ihel << " " << ihel << " " << ihel
@@ -238,7 +165,8 @@ void CPPProcess::sigmaKin(bool ppar) {
                 << " " << ihel << " " << ihel << " " << ihel << " " << ihel
                 << " "
                 << " >>>>>>>>" << std::endl;
-
+      }
+      
       calculate_wavefunctions(perm, helicities[ihel]);
       t[0] = matrix_1_epem_mupmum();
 
@@ -279,16 +207,18 @@ void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
   // dim3 block(1, 1, 1);
   // dim3 grid(1, 1, 1);
 
-  std::cout << "<<< w: " << std::endl;
-  for (int i = 0; i < 6; ++i) {
-    std::cout << "w" << i << ": ";
-    for (int j = 0; j < 18; ++j) {
-      if (m->tw[i][j].real() || m->tw[i][j].imag())
-        std::cout << m->tw[i][j] << " ";
-      else
-        std::cout << "0 ";
+  if (m_debug) {
+    std::cout << "<<< w: " << std::endl;
+    for (int i = 0; i < 6; ++i) {
+      std::cout << "w" << i << ": ";
+      for (int j = 0; j < 18; ++j) {
+        if (m->tw[i][j].real() || m->tw[i][j].imag())
+          std::cout << m->tw[i][j] << " ";
+        else
+          std::cout << "0 ";
+      }
+      std::cout << std::endl;
     }
-    std::cout << std::endl;
   }
 
   cudaDeviceSynchronize();
@@ -316,23 +246,25 @@ void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
                               pars->GC_59, &m->tamp[1]);
   cudaDeviceSynchronize();
 
-  std::cout << ">>> w: " << std::endl;
-  for (int i = 0; i < 6; ++i) {
-    std::cout << "w" << i << ": ";
-    for (int j = 0; j < 18; ++j) {
-      if (m->tw[i][j].real() || m->tw[i][j].imag())
-        std::cout << m->tw[i][j] << " ";
-      else
-        std::cout << "0 ";
+  if (m_debug) {
+    std::cout << ">>> w: " << std::endl;
+    for (int i = 0; i < 6; ++i) {
+      std::cout << "w" << i << ": ";
+      for (int j = 0; j < 18; ++j) {
+        if (m->tw[i][j].real() || m->tw[i][j].imag())
+          std::cout << m->tw[i][j] << " ";
+        else
+          std::cout << "0 ";
+      }
+      std::cout << std::endl;
+    }
+
+    std::cout << ">>>>>>>> tamp: ";
+    for (int x = 0; x < m->tnamplitudes; ++x) {
+      std::cout << m->tamp[x] << " ";
     }
     std::cout << std::endl;
   }
-
-  std::cout << ">>>>>>>> tamp: ";
-  for (int x = 0; x < m->tnamplitudes; ++x) {
-    std::cout << m->tamp[x] << " ";
-  }
-  std::cout << std::endl;
 }
 
 double CPPProcess::matrix_1_epem_mupmum() {
