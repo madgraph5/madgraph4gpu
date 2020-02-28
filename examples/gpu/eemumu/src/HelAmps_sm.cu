@@ -197,8 +197,8 @@ __global__ void txxxxx(double p[4], double tmass, int nhel, int nst,
           ft[i][j] = sqh * (em[i] * e0[j] + e0[i] * em[j]);
       }
     } else {
-      // sr // std::cerr << "Invalid helicity in txxxxx.\n";
-      // sr // std::exit(1);
+      // sr fixme // std::cerr << "Invalid helicity in txxxxx.\n";
+      // sr fixme // std::exit(1);
     }
   }
 
@@ -273,14 +273,11 @@ __global__ void sxxxxx(double p[4], int nss, thrust::complex<double> sc[3]) {
 }
 
 __global__ void oxxxxx(double p[4], double fmass, int nhel, int nsf,
-                       thrust::complex<double> *fo) {
-  //}[6]) {
+                       thrust::complex<double> *fo /* [6] */) {
   thrust::complex<double> chi[2];
   double sf[2], sfomeg[2], omega[2], pp, pp3, sqp0p3, sqm[2];
   int nh, ip, im;
-  thrust::complex<double> tmp = thrust::complex<double>(p[0] * nsf, p[3] * nsf);
   fo[0] = thrust::complex<double>(p[0] * nsf, p[3] * nsf);
-  // fo[0] = tmp;
   fo[1] = thrust::complex<double>(p[1] * nsf, p[2] * nsf);
   nh = nhel * nsf;
   if (fmass != 0.000) {
@@ -435,7 +432,6 @@ __global__ void FFV2_4_3(thrust::complex<double> F1[],
                          thrust::complex<double> COUP1,
                          thrust::complex<double> COUP2, double M3, double W3,
                          thrust::complex<double> V3[]) {
-  // sr fixme // V3 returns empty while should carry value in 6th iteration
   int i;
   thrust::complex<double> *COUP1t, *COUP2t, *Vtmp; //[6];
   cudaMalloc(&COUP1t, sizeof(thrust::complex<double>));
@@ -444,7 +440,7 @@ __global__ void FFV2_4_3(thrust::complex<double> F1[],
   *COUP1t = COUP1;
   *COUP2t = COUP2;
   FFV2_3<<<1, 1>>>(F1, F2, COUP1t, M3, W3, V3);
-  cudaDeviceSynchronize();
+  // cudaDeviceSynchronize(); // sr fixme // is a sync needed after each kernel call?
   FFV4_3<<<1, 1>>>(F1, F2, COUP2t, M3, W3, Vtmp);
   cudaDeviceSynchronize();
   i = 2;
@@ -452,8 +448,8 @@ __global__ void FFV2_4_3(thrust::complex<double> F1[],
     V3[i] = V3[i] + Vtmp[i];
     i++;
   }
-  // cudaFree(COUP1t);
-  // cudaFree(COUP2t);
+  cudaFree(COUP1t);
+  cudaFree(COUP2t);
   cudaFree(Vtmp);
 }
 
@@ -522,7 +518,7 @@ FFV2_4_0(thrust::complex<double> F1[], thrust::complex<double> F2[],
   *COUP2t = COUP2;
   vertext = vertex;
   FFV2_0<<<1, 1>>>(F1, F2, V3, COUP1t, vertext);
-  cudaDeviceSynchronize();
+  // cudaDeviceSynchronize(); // sr fixme // is a sync needed after each kernel call?
   FFV4_0<<<1, 1>>>(F1, F2, V3, COUP2t, tmp);
   cudaDeviceSynchronize();
   (*vertex) = (*vertex) + (*tmp);

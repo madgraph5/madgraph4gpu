@@ -41,24 +41,19 @@ int main(int argc, char **argv) {
 
   processMem *pm = new processMem();
 
-  cudaDeviceSynchronize();
-
   cudaMallocManaged(&pm->tamp,
                     pm->tnamplitudes * sizeof(thrust::complex<double>));
 
   cudaMallocManaged(&pm->tw, pm->twrows * sizeof(thrust::complex<double>));
-  // cudaDeviceSynchronize();
   for (int i = 0; i < pm->twrows; ++i) {
     cudaMallocManaged(&pm->tw[i],
                       pm->tnwavefuncs * sizeof(thrust::complex<double>));
-    // cudaDeviceSynchronize();
     for (int y = 0; y < pm->twrows; ++y) {
       pm->tw[i][y] =
           thrust::complex<double>(0.00, 0.00); // double(i), double(y));
     }
   }
 
-  cudaDeviceSynchronize();
   // Create a process object
   CPPProcess process(pm, verbose, debug);
 
