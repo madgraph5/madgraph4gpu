@@ -7,6 +7,7 @@
 
 #include "CPPProcess.h"
 #include "HelAmps_sm.h"
+#include <iostream>
 
 using namespace MG5_sm;
 
@@ -86,8 +87,19 @@ void CPPProcess::sigmaKin(bool ppar) {
     // Calculate the matrix element for all helicities
     for (int ihel = 0; ihel < ncomb; ihel++) {
       if (goodhel[ihel] || ntry < 2) {
+
+        std::cout << std::endl
+                  << std::endl
+                  << "<<<<< " << ihel << " " << ihel << " " << ihel << " "
+                  << ihel << " " << ihel << " " << ihel << " " << ihel << " "
+                  << ihel << " " << ihel << " " << ihel << " " << ihel << " "
+                  << ihel << " " << ihel << " " << ihel << " " << ihel << " "
+                  << ihel << " "
+                  << " >>>>>>>>" << std::endl;
+
         calculate_wavefunctions(perm, helicities[ihel]);
         t[0] = matrix_1_epem_mupmum();
+        // std::cout << "t[0] oben: " << t[0] << std::endl;
 
         double tsum = 0;
         for (int iproc = 0; iproc < nprocesses; iproc++) {
@@ -114,6 +126,7 @@ void CPPProcess::sigmaKin(bool ppar) {
       int ihel = igood[jhel];
       calculate_wavefunctions(perm, helicities[ihel]);
       t[0] = matrix_1_epem_mupmum();
+      // std::cout << "t[0] unten: " << t[0] << std::endl;
 
       for (int iproc = 0; iproc < nprocesses; iproc++) {
         matrix_element[iproc] += t[iproc] * hwgt;
@@ -149,6 +162,18 @@ void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
   // Calculate wavefunctions for all processes
   int i, j;
 
+  std::cout << "<<< w: " << std::endl;
+  for (int i = 0; i < 6; ++i) {
+    std::cout << "w" << i << ": ";
+    for (int j = 0; j < 18; ++j) {
+      if (w[i][j].real() || w[i][j].imag())
+        std::cout << w[i][j] << " ";
+      else
+        std::cout << "0 ";
+    }
+    std::cout << std::endl;
+  }
+
   // Calculate all wavefunctions
   oxxxxx(p[perm[0]], mME[0], hel[0], -1, w[0]);
   ixxxxx(p[perm[1]], mME[1], hel[1], +1, w[1]);
@@ -162,7 +187,26 @@ void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
   // Amplitude(s) for diagram number 0
   FFV1_0(w[2], w[3], w[4], pars->GC_3, amp[0]);
   FFV2_4_0(w[2], w[3], w[5], -pars->GC_51, pars->GC_59, amp[1]);
+
+  std::cout << ">>> w: " << std::endl;
+  for (int i = 0; i < 6; ++i) {
+    std::cout << "w" << i << ": ";
+    for (int j = 0; j < 18; ++j) {
+      if (w[i][j].real() || w[i][j].imag())
+        std::cout << w[i][j] << " ";
+      else
+        std::cout << "0 ";
+    }
+    std::cout << std::endl;
+  }
+
+  std::cout << ">>>>>>>> tamp: ";
+  for (int x = 0; x < namplitudes; ++x) {
+    std::cout << amp[x] << " ";
+  }
+  std::cout << std::endl;
 }
+
 double CPPProcess::matrix_1_epem_mupmum() {
   int i, j;
   // Local variables
