@@ -12,8 +12,11 @@
 #include <vector>
 
 #include "Parameters_sm.h"
+#include "timer.h"
 
 #include <thrust/complex.h>
+
+#define TIMERTYPE std::chrono::high_resolution_clock
 
 //==========================================================================
 // A class for calculating the matrix elements for
@@ -76,6 +79,8 @@ public:
   static const int nprocesses = 1;
 
 private:
+
+  Timer<TIMERTYPE> m_timer;
 
   // print verbose info
   bool m_verbose;

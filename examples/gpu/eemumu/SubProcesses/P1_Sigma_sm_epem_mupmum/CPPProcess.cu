@@ -221,6 +221,8 @@ void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
     }
   }
 
+  m_timer.Start();
+
   cudaDeviceSynchronize();
   // Calculate all wavefunctions
   gMG5_sm::oxxxxx<<<1, 1>>>(p[perm[0]], mME[0], hel[0], -1, m->tw[0]);
@@ -245,6 +247,9 @@ void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
   gMG5_sm::FFV2_4_0<<<1, 1>>>(m->tw[2], m->tw[3], m->tw[5], -pars->GC_51,
                               pars->GC_59, &m->tamp[1]);
   cudaDeviceSynchronize();
+
+  float gputime = m_timer.GetDuration();
+  std::cout << "Wave function time: " << gputime << std::endl;
 
   if (m_debug) {
     std::cout << ">>> w: " << std::endl;
