@@ -14,21 +14,34 @@
 #include "Parameters_sm.h"
 
 #include <thrust/complex.h>
-
-// using namespace std;
+#include <thrust/host_vector.h>
 
 //==========================================================================
 // A class for calculating the matrix elements for
 // Process: e+ e- > mu+ mu- WEIGHTED<=4 @1
 //--------------------------------------------------------------------------
 
+struct processMem {
+  static const int tnwavefuncs = 6;
+  static const int twrows = 18;
+  static const int tnamplitudes = 2;
+  thrust::complex<double> *tamp; //[tnamplitudes];
+  thrust::complex<double> **tw;  //[twrows][tnwavefuncs];
+};
+
 class CPPProcess {
 public:
   // Constructor.
-  CPPProcess() {}
+
+  CPPProcess();
+  CPPProcess(processMem *pm);
+
+  ~CPPProcess();
+
+  void resetGPUMemory();
 
   // Initialize process.
-  virtual void initProc(string param_card_name, bool verb = true);
+  virtual void initProc(std::string param_card_name, bool verb = true);
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin(bool ppar = true);
@@ -41,11 +54,16 @@ public:
 
   virtual int code() const { return 1; }
 
-  const std::vector<double> &getMasses() const { return mME; }
+  // thrust::host_vector<double> getMasses();
+  const std::vector<double> &getMasses() const;
 
   // Get and set momenta for matrix element evaluation
-  std::vector<double *> getMomenta() { return p; }
-  void setMomenta(std::vector<double *> &momenta) { p = momenta; }
+  //thrust::host_vector<double *> getMomenta() { return p; }
+  std::vector<double *> getMomenta() { return p; }                                                                      
+
+  void setMomenta(std::vector<double *> &momenta); //{ p = momenta; }                                                     
+  //void setMomenta(std::vector<double *> &momenta);
+
   void setInitial(int inid1, int inid2) {
     id1 = inid1;
     id2 = inid2;
@@ -63,10 +81,17 @@ private:
   // Private functions to calculate the matrix element for all subprocesses
   // Calculate wavefunctions
   void calculate_wavefunctions(const int perm[], const int hel[]);
+
+  processMem *m;
+
   static const int nwavefuncs = 6;
+
   thrust::complex<double> w[nwavefuncs][18];
+
   static const int namplitudes = 2;
+
   thrust::complex<double> amp[namplitudes];
+
   double matrix_1_epem_mupmum();
 
   // Store the matrix element value from sigmaKin
@@ -79,10 +104,13 @@ private:
   Parameters_sm *pars;
 
   // vector with external particle masses
+  // thrust::host_vector<double> mME;
   std::vector<double> mME;
 
   // vector with momenta (to be changed each event)
-  std::vector<double *> p;
+  //thrust::host_vector<double *> p;
+   std::vector<double *> p;
+
   // Initial particle ids
   int id1, id2;
 };
