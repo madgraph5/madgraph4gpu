@@ -26,7 +26,8 @@ int main(int argc, char **argv) {
   for (int argn = 1; argn < argc; ++argn) {
     if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
       verbose = true;
-    else if (strcmp(argv[argn], "--debug") == 0 || strcmp(argv[argn], "-d") == 0)
+    else if (strcmp(argv[argn], "--debug") == 0 ||
+             strcmp(argv[argn], "-d") == 0)
       debug = true;
     else if (is_number(argv[argn]))
       numevts = atoi(argv[argn]);

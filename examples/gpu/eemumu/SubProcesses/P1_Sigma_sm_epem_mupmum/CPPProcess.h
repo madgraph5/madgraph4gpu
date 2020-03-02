@@ -36,7 +36,7 @@ public:
   // Constructor.
 
   CPPProcess();
-  CPPProcess(processMem *pm, bool verbose=false, bool debug=false);
+  CPPProcess(processMem *pm, bool verbose = false, bool debug = false);
 
   ~CPPProcess();
 
@@ -60,10 +60,10 @@ public:
   const std::vector<double> &getMasses() const;
 
   // Get and set momenta for matrix element evaluation
-  std::vector<double *> getMomenta() { return p; }                                                                      
+  std::vector<double *> getMomenta() { return p; }
 
-  void setMomenta(std::vector<double *> &momenta); //{ p = momenta; }                                                     
-  //void setMomenta(std::vector<double *> &momenta);
+  void setMomenta(std::vector<double *> &momenta); //{ p = momenta; }
+  // void setMomenta(std::vector<double *> &momenta);
 
   void setInitial(int inid1, int inid2) {
     id1 = inid1;
@@ -79,15 +79,14 @@ public:
   static const int nprocesses = 1;
 
 private:
-
   Timer<TIMERTYPE> m_timer;
 
   // print verbose info
   bool m_verbose;
-  
+
   // print debug info
   bool m_debug;
-  
+
   // Private functions to calculate the matrix element for all subprocesses
   // Calculate wavefunctions
   void calculate_wavefunctions(const int perm[], const int hel[]);
@@ -117,7 +116,7 @@ private:
   std::vector<double> mME;
 
   // vector with momenta (to be changed each event)
-   std::vector<double *> p;
+  std::vector<double *> p;
 
   // Initial particle ids
   int id1, id2;

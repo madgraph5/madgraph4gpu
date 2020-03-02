@@ -15,12 +15,14 @@
 
 CPPProcess::CPPProcess() {}
 
-CPPProcess::CPPProcess(processMem *pm, bool verbose, bool debug) : m(pm), m_verbose(verbose), m_debug(debug), mME(4, 0.0) {}
+CPPProcess::CPPProcess(processMem *pm, bool verbose, bool debug)
+    : m(pm), m_verbose(verbose), m_debug(debug), mME(4, 0.0) {}
 
 CPPProcess::~CPPProcess() {}
 
-void CPPProcess::setMomenta(std::vector<double *> & momenta) {
-  for (std::vector<double*>::iterator it = momenta.begin(); it != momenta.end(); ++it) {
+void CPPProcess::setMomenta(std::vector<double *> &momenta) {
+  for (std::vector<double *>::iterator it = momenta.begin();
+       it != momenta.end(); ++it) {
     double *tmp;
     cudaMallocManaged(&tmp, 4 * sizeof(double));
     cudaMemcpy(tmp, *it, 4 * sizeof(double), cudaMemcpyHostToHost);
@@ -60,7 +62,7 @@ void CPPProcess::initProc(std::string param_card_name) {
 
 void CPPProcess::resetGPUMemory() {
 
-  for (std::vector<double*>::iterator it = p.begin(); it != p.end(); ++it){
+  for (std::vector<double *>::iterator it = p.begin(); it != p.end(); ++it) {
     cudaFree(*it);
   }
   p.clear();
@@ -120,15 +122,15 @@ void CPPProcess::sigmaKin() {
 
         if (m_debug) {
           std::cout << std::endl
-                  << std::endl
-                  << "<<<<< " << ihel << " " << ihel << " " << ihel << " "
-                  << ihel << " " << ihel << " " << ihel << " " << ihel << " "
-                  << ihel << " " << ihel << " " << ihel << " " << ihel << " "
-                  << ihel << " " << ihel << " " << ihel << " " << ihel << " "
-                  << ihel << " "
-                  << " >>>>>>>>" << std::endl;
+                    << std::endl
+                    << "<<<<< " << ihel << " " << ihel << " " << ihel << " "
+                    << ihel << " " << ihel << " " << ihel << " " << ihel << " "
+                    << ihel << " " << ihel << " " << ihel << " " << ihel << " "
+                    << ihel << " " << ihel << " " << ihel << " " << ihel << " "
+                    << ihel << " "
+                    << " >>>>>>>>" << std::endl;
         }
-	
+
         calculate_wavefunctions(perm, helicities[ihel]);
         t[0] = matrix_1_epem_mupmum();
 
@@ -158,15 +160,15 @@ void CPPProcess::sigmaKin() {
 
       if (m_debug) {
         std::cout << std::endl
-                << std::endl
-                << "<<<<< " << ihel << " " << ihel << " " << ihel << " " << ihel
-                << " " << ihel << " " << ihel << " " << ihel << " " << ihel
-                << " " << ihel << " " << ihel << " " << ihel << " " << ihel
-                << " " << ihel << " " << ihel << " " << ihel << " " << ihel
-                << " "
-                << " >>>>>>>>" << std::endl;
+                  << std::endl
+                  << "<<<<< " << ihel << " " << ihel << " " << ihel << " "
+                  << ihel << " " << ihel << " " << ihel << " " << ihel << " "
+                  << ihel << " " << ihel << " " << ihel << " " << ihel << " "
+                  << ihel << " " << ihel << " " << ihel << " " << ihel << " "
+                  << ihel << " "
+                  << " >>>>>>>>" << std::endl;
       }
-      
+
       calculate_wavefunctions(perm, helicities[ihel]);
       t[0] = matrix_1_epem_mupmum();
 
@@ -252,6 +254,7 @@ void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
   std::cout << "Wave function time: " << gputime << std::endl;
 
   if (m_debug) {
+
     std::cout << ">>> w: " << std::endl;
     for (int i = 0; i < 6; ++i) {
       std::cout << "w" << i << ": ";
