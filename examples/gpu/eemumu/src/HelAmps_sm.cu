@@ -486,8 +486,6 @@ __global__ void FFV2_4_3(int f1i, int f2i,
   *COUP1t = COUP1;
   *COUP2t = COUP2;
   FFV2_3<<<1, 1>>>(f1i, f2i, COUP1t, M3, W3, v3i);
-  // cudaDeviceSynchronize(); // sr fixme // is a sync needed after each kernel
-  // call?
   FFV4_3<<<1, 1>>>(f1i, f2i, COUP2t, M3, W3, Vtmp);
   cudaDeviceSynchronize();
   i = 2;
@@ -581,8 +579,6 @@ __global__ void FFV2_4_0(int f1i, int f2i, int v3i,
   *COUP2t = COUP2;
   vertext = vertex;
   FFV2_0<<<1, 1>>>(f1i, f2i, v3i, COUP1t, vertext);
-  // cudaDeviceSynchronize(); // sr fixme // is a sync needed after each kernel
-  // call?
   FFV4_0<<<1, 1>>>(f1i, f2i, v3i, COUP2t, tmp);
   cudaDeviceSynchronize();
   (*vertex) = (*vertex) + (*tmp);
