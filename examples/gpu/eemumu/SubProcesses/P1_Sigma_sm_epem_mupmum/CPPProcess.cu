@@ -17,9 +17,7 @@ CPPProcess::CPPProcess() {}
 
 CPPProcess::CPPProcess(processMem *pm, bool verbose, bool debug)
     : m(pm), m_verbose(verbose), m_debug(debug), mME(4, 0.0) {
-  cudaDeviceSynchronize();
   gMG5_sm::memAlloc<<<1, 1>>>();
-  cudaDeviceSynchronize();
 }
 
 CPPProcess::~CPPProcess() {}
@@ -229,31 +227,19 @@ void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
 
   m_timer.Start();
 
-  cudaDeviceSynchronize();
   // Calculate all wavefunctions
-  gMG5_sm::oxxxxx<<<1, 1>>>(p[perm[0]], mME[0], hel[0], -1, 0); // m->tw[0]);
-  cudaDeviceSynchronize();
-  gMG5_sm::ixxxxx<<<1, 1>>>(p[perm[1]], mME[1], hel[1], +1, 1); // m->tw[1]);
-  cudaDeviceSynchronize();
-  gMG5_sm::ixxxxx<<<1, 1>>>(p[perm[2]], mME[2], hel[2], -1, 2); // m->tw[2]);
-  cudaDeviceSynchronize();
-  gMG5_sm::oxxxxx<<<1, 1>>>(p[perm[3]], mME[3], hel[3], +1, 3); // m->tw[3]);
-  cudaDeviceSynchronize();
-  gMG5_sm::FFV1P0_3<<<1, 1>>>(1, 0, /* m->tw[1], m->tw[0], */ pars->GC_3,
-                              pars->ZERO, pars->ZERO, 4); // m->tw[4]);
-  cudaDeviceSynchronize();
-  gMG5_sm::FFV2_4_3<<<1, 1>>>(1, 0, /* m->tw[1], m->tw[0], */ -pars->GC_51,
-                              pars->GC_59, pars->mdl_MZ, pars->mdl_WZ,
-                              5); // m->tw[5]);
-  cudaDeviceSynchronize();
+  gMG5_sm::oxxxxx<<<1, 1>>>(p[perm[0]], mME[0], hel[0], -1, 0);
+  gMG5_sm::ixxxxx<<<1, 1>>>(p[perm[1]], mME[1], hel[1], +1, 1);
+  gMG5_sm::ixxxxx<<<1, 1>>>(p[perm[2]], mME[2], hel[2], -1, 2);
+  gMG5_sm::oxxxxx<<<1, 1>>>(p[perm[3]], mME[3], hel[3], +1, 3);
+
+  gMG5_sm::FFV1P0_3<<<1, 1>>>(1, 0, pars->GC_3, pars->ZERO, pars->ZERO, 4);
+  gMG5_sm::FFV2_4_3<<<1, 1>>>(1, 0, -pars->GC_51, pars->GC_59, pars->mdl_MZ,
+                              pars->mdl_WZ, 5);
   // Calculate all amplitudes
   // Amplitude(s) for diagram number 0
-  gMG5_sm::FFV1_0<<<1, 1>>>(
-      2, 3, 4, /* m->tw[2], m->tw[3], m->tw[4], */ pars->GC_3, &m->tamp[0]);
-  cudaDeviceSynchronize();
-  gMG5_sm::FFV2_4_0<<<1, 1>>>(2, 3, 5,
-                              /* m->tw[2], m->tw[3], m->tw[5], */ -pars->GC_51,
-                              pars->GC_59, &m->tamp[1]);
+  gMG5_sm::FFV1_0<<<1, 1>>>(2, 3, 4, pars->GC_3, &m->tamp[0]);
+  gMG5_sm::FFV2_4_0<<<1, 1>>>(2, 3, 5, -pars->GC_51, pars->GC_59, &m->tamp[1]);
   cudaDeviceSynchronize();
 
   float gputime = m_timer.GetDuration();
