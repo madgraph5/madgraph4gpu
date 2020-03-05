@@ -251,7 +251,9 @@ void CPPProcess::call_wavefunctions_kernel(int ihel) {
       pars->GC_51, pars->GC_59, pars->mdl_MZ, pars->mdl_WZ);
   cudaDeviceSynchronize();
 
-  // sr fixme // copy back the amplitudes from the device
+  gpuErrchk(cudaMemcpy((void *)amp, (void *)m->tamp,
+                       m->tnamplitudes * sizeof(thrust::complex<double>),
+                       cudaMemcpyDeviceToHost));
 
   float gputime = m_timer.GetDuration();
   std::cout << "Wave function time: " << gputime << std::endl;
