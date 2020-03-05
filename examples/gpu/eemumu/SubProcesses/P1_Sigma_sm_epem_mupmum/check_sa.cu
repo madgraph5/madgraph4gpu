@@ -51,7 +51,8 @@ int main(int argc, char **argv) {
 
   for (int x = 0; x < numevts; ++x) {
 
-    process.resetGPUMemory();
+    std::cout << x << std::endl;
+    // process.resetGPUMemory();
 
     // Get phase space point
     std::vector<double *> p =

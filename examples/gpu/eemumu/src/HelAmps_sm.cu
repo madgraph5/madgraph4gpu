@@ -31,8 +31,8 @@ __global__ void calculate_wavefunctions(
   FFV2_4_3(w[1], w[0], -GC_51, GC_59, mdl_MZ, mdl_WZ, w[5]);
   // Calculate all amplitudes
   // Amplitude(s) for diagram number 0
-  FFV1_0(w[2], w[3], w[4], GC_3, amp[0]);
-  FFV2_4_0(w[2], w[3], w[5], -GC_51, GC_59, amp[1]);
+  FFV1_0(w[2], w[3], w[4], GC_3, &amp[0]);
+  FFV2_4_0(w[2], w[3], w[5], -GC_51, GC_59, &amp[1]);
 }
 
 __device__ void ixxxxx(double p[4], double fmass, int nhel, int nsf,
@@ -368,14 +368,14 @@ __device__ void FFV1_0(thrust::complex<double> F1[],
                        thrust::complex<double> F2[],
                        thrust::complex<double> V3[],
                        thrust::complex<double> COUP,
-                       thrust::complex<double> vertex) {
+                       thrust::complex<double> *vertex) {
   thrust::complex<double> cI = thrust::complex<double>(0., 1.);
   thrust::complex<double> TMP2 =
       (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
        (F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])) +
         (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
          F1[5] * (F2[2] * (+cI * (V3[4]) - V3[3]) + F2[3] * (V3[2] + V3[5])))));
-  vertex = COUP * -cI * TMP2;
+  (*vertex) = COUP * -cI * TMP2;
 }
 
 __device__ void FFV2_3(thrust::complex<double> F1[],
@@ -530,7 +530,7 @@ __device__ void FFV2_0(thrust::complex<double> F1[],
 __device__ void
 FFV2_4_0(thrust::complex<double> F1[], thrust::complex<double> F2[],
          thrust::complex<double> V3[], thrust::complex<double> COUP1,
-         thrust::complex<double> COUP2, thrust::complex<double> vertex) {
+         thrust::complex<double> COUP2, thrust::complex<double> *vertex) {
   thrust::complex<double> *COUP1t, *COUP2t, *tmp, *vertext;
   cudaMalloc(&COUP1t, sizeof(thrust::complex<double>));
   cudaMalloc(&COUP2t, sizeof(thrust::complex<double>));
@@ -538,11 +538,11 @@ FFV2_4_0(thrust::complex<double> F1[], thrust::complex<double> F2[],
   cudaMalloc(&vertext, sizeof(thrust::complex<double>));
   *COUP1t = COUP1;
   *COUP2t = COUP2;
-  vertext = &vertex;
+  vertext = vertex;
   FFV2_0(F1, F2, V3, COUP1t, vertext);
   FFV4_0(F1, F2, V3, COUP2t, tmp);
   cudaDeviceSynchronize();
-  vertex = vertex + (*tmp);
+  (*vertex) = (*vertex) + (*tmp);
   cudaFree(COUP1t);
   cudaFree(COUP2t);
   cudaFree(tmp);

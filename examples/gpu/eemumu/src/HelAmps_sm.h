@@ -38,7 +38,7 @@ __device__ void FFV1_0(thrust::complex<double> F1[],
                        thrust::complex<double> F2[],
                        thrust::complex<double> V3[],
                        thrust::complex<double> COUP,
-                       thrust::complex<double> vertex);
+                       thrust::complex<double> *vertex);
 
 __device__ void FFV2_3(thrust::complex<double> F1[],
                        thrust::complex<double> F2[],
@@ -76,7 +76,7 @@ __device__ void FFV2_0(thrust::complex<double> F1[],
 __device__ void
 FFV2_4_0(thrust::complex<double> F1[], thrust::complex<double> F2[],
          thrust::complex<double> V3[], thrust::complex<double> COUP1,
-         thrust::complex<double> COUP2, thrust::complex<double> vertex);
+         thrust::complex<double> COUP2, thrust::complex<double> *vertex);
 
 } // namespace gMG5_sm
 

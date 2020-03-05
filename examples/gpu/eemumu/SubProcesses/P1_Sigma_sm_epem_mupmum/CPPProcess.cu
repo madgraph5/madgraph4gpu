@@ -71,11 +71,15 @@ CPPProcess::CPPProcess(bool verbose, bool debug)
       {-1, 1, -1, -1},  {-1, 1, -1, 1},  {-1, 1, 1, -1},  {-1, 1, 1, 1},
       {1, -1, -1, -1},  {1, -1, -1, 1},  {1, -1, 1, -1},  {1, -1, 1, 1},
       {1, 1, -1, -1},   {1, 1, -1, 1},   {1, 1, 1, -1},   {1, 1, 1, 1}};
-  gpuErrchk(cudaMallocManaged(&m->thelicities,
-                              m->tncomb * m->tnexternal * sizeof(int)));
+  gpuErrchk(cudaMallocManaged(&m->thelicities, m->tncomb * sizeof(int)));
   for (int i = 0; i < m->tncomb; ++i) {
-    gpuErrchk(cudaMemcpy(&m->thelicities[i], &helicities[i],
-                         m->tnexternal * sizeof(int), cudaMemcpyHostToHost));
+    gpuErrchk(
+        cudaMallocManaged(&m->thelicities[i], m->tnexternal * sizeof(int)));
+    memcpy(m->thelicities[i], helicities[i], m->tnexternal * sizeof(int));
+    /*
+gpuErrchk(cudaMemcpy(&m->thelicities[i], &helicities[i],
+                     m->tnexternal * sizeof(int), cudaMemcpyHostToHost));
+                     */
   }
 
   // mm
@@ -94,8 +98,11 @@ CPPProcess::~CPPProcess() {}
 void CPPProcess::setMomenta(std::vector<double *> &momenta) {
 
   for (int i = 0; i < m->tnioparticles; ++i) {
+    memcpy((void *)m->tp[i], (void *)momenta[i], 4 * sizeof(double));
+    /*
     gpuErrchk(cudaMemcpy((void *)m->tp[i], (void *)momenta[i],
                          4 * sizeof(double), cudaMemcpyHostToHost));
+                         */
     // memcpy(ptemp[i], momenta[i], 4 * sizeof(double));
   }
 
@@ -251,9 +258,12 @@ void CPPProcess::call_wavefunctions_kernel(int ihel) {
       pars->GC_51, pars->GC_59, pars->mdl_MZ, pars->mdl_WZ);
   cudaDeviceSynchronize();
 
+  memcpy(amp, m->tamp, m->tnamplitudes * sizeof(thrust::complex<double>));
+  /*
   gpuErrchk(cudaMemcpy((void *)amp, (void *)m->tamp,
                        m->tnamplitudes * sizeof(thrust::complex<double>),
                        cudaMemcpyDeviceToHost));
+  */
 
   float gputime = m_timer.GetDuration();
   std::cout << "Wave function time: " << gputime << std::endl;
