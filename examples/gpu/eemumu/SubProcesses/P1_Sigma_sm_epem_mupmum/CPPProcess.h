@@ -27,20 +27,28 @@ struct processMem {
   static const int tnwavefuncs = 6;
   static const int twrows = 18;
   static const int tnamplitudes = 2;
+  static const int tnioparticles = 4;
+  static const int tnexternal = 4;
+  static const int tncomb = 16;
   thrust::complex<double> *tamp; //[tnamplitudes];
   thrust::complex<double> **tw;  //[twrows][tnwavefuncs];
+  double **tp;
+  double *mME;
+  int *tperm;
+  int **thelicities;
 };
 
 class CPPProcess {
 public:
   // Constructor.
 
-  CPPProcess();
-  CPPProcess(processMem *pm, bool verbose = false, bool debug = false);
+  CPPProcess(bool verbose = false, bool debug = false);
 
   ~CPPProcess();
 
   void resetGPUMemory();
+
+  void call_wavefunctions_kernel(int ihel);
 
   // Initialize process.
   virtual void initProc(std::string param_card_name);
@@ -77,6 +85,8 @@ public:
   static const int ninitial = 2;
   static const int nexternal = 4;
   static const int nprocesses = 1;
+
+  // void allocMem();
 
 private:
   Timer<TIMERTYPE> m_timer;
@@ -120,6 +130,9 @@ private:
 
   // Initial particle ids
   int id1, id2;
+
+  // temp p array
+  double **ptemp;
 };
 
 #endif // MG5_Sigma_sm_epem_mupmum_H

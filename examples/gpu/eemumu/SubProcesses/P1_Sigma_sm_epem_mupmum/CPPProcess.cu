@@ -13,16 +13,93 @@
 #include <iostream>
 #include <thrust/complex.h>
 
-CPPProcess::CPPProcess() {}
+#define gpuErrchk(ans)                                                         \
+  { gpuAssert((ans), __FILE__, __LINE__); }
+inline void gpuAssert(cudaError_t code, const char *file, int line,
+                      bool abort = true) {
+  if (code != cudaSuccess) {
+    fprintf(stderr, "GPUassert: %s %s %d\n", cudaGetErrorString(code), file,
+            line);
+    if (abort)
+      exit(code);
+  }
+}
 
-CPPProcess::CPPProcess(processMem *pm, bool verbose, bool debug)
-    : m(pm), m_verbose(verbose), m_debug(debug), mME(4, 0.0) {
-  gMG5_sm::memAlloc<<<1, 1>>>();
+CPPProcess::CPPProcess(bool verbose, bool debug)
+    : m_verbose(verbose), m_debug(debug), mME(4, 0.00) {
+
+  m = new processMem();
+
+  // mm
+  // mME
+  static double tmpmME[4] = {0.00, 0.00, 0.00, 0.00};
+  gpuErrchk(cudaMallocManaged(&m->mME, 4 * sizeof(double)));
+  gpuErrchk(cudaMemcpy((void *)m->mME, (void *)tmpmME, 4 * sizeof(double),
+                       cudaMemcpyHostToHost));
+
+  // mm
+  // p
+  ptemp = (double **)malloc(m->tnioparticles * sizeof(double));
+  for (int i = 0; i < 4; ++i) {
+    ptemp[i] = (double *)malloc(4 * sizeof(double));
+  }
+  gpuErrchk(cudaMallocManaged(&m->tp, m->tnioparticles * sizeof(double)));
+  for (int i = 0; i < 4; ++i) {
+    gpuErrchk(cudaMallocManaged(&m->tp[i], 4 * sizeof(double)));
+  }
+
+  // amp
+  gpuErrchk(cudaMallocManaged(&m->tamp, m->tnamplitudes *
+                                            sizeof(thrust::complex<double>)));
+
+  // w
+  gpuErrchk(
+      cudaMallocManaged(&m->tw, m->twrows * sizeof(thrust::complex<double>)));
+  for (int i = 0; i < m->twrows; ++i) {
+    gpuErrchk(cudaMallocManaged(
+        &m->tw[i], m->tnwavefuncs * sizeof(thrust::complex<double>)));
+    for (int y = 0; y < m->twrows; ++y) {
+      m->tw[i][y] = thrust::complex<double>(0.00, 0.00);
+    }
+  }
+
+  // mm
+  // helicities
+  // Helicities for the process
+  static int helicities[m->tncomb][m->tnexternal] = {
+      {-1, -1, -1, -1}, {-1, -1, -1, 1}, {-1, -1, 1, -1}, {-1, -1, 1, 1},
+      {-1, 1, -1, -1},  {-1, 1, -1, 1},  {-1, 1, 1, -1},  {-1, 1, 1, 1},
+      {1, -1, -1, -1},  {1, -1, -1, 1},  {1, -1, 1, -1},  {1, -1, 1, 1},
+      {1, 1, -1, -1},   {1, 1, -1, 1},   {1, 1, 1, -1},   {1, 1, 1, 1}};
+  gpuErrchk(cudaMallocManaged(&m->thelicities,
+                              m->tncomb * m->tnexternal * sizeof(int)));
+  for (int i = 0; i < m->tncomb; ++i) {
+    gpuErrchk(cudaMemcpy(&m->thelicities[i], &helicities[i],
+                         m->tnexternal * sizeof(int), cudaMemcpyHostToHost));
+  }
+
+  // mm
+  // perm
+  static int perm[m->tnexternal];
+  for (int i = 0; i < m->tnexternal; i++) {
+    perm[i] = i;
+  }
+  gpuErrchk(cudaMallocManaged(&m->tperm, m->tnexternal * sizeof(int)));
+  gpuErrchk(cudaMemcpy((void *)m->tperm, (void *)perm,
+                       m->tnexternal * sizeof(int), cudaMemcpyHostToHost));
 }
 
 CPPProcess::~CPPProcess() {}
 
 void CPPProcess::setMomenta(std::vector<double *> &momenta) {
+
+  for (int i = 0; i < m->tnioparticles; ++i) {
+    gpuErrchk(cudaMemcpy((void *)m->tp[i], (void *)momenta[i],
+                         4 * sizeof(double), cudaMemcpyHostToHost));
+    // memcpy(ptemp[i], momenta[i], 4 * sizeof(double));
+  }
+
+  /*
   for (std::vector<double *>::iterator it = momenta.begin();
        it != momenta.end(); ++it) {
     double *tmp;
@@ -30,6 +107,7 @@ void CPPProcess::setMomenta(std::vector<double *> &momenta) {
     cudaMemcpy(tmp, *it, 4 * sizeof(double), cudaMemcpyHostToHost);
     p.push_back(tmp);
   }
+  */
 }
 
 const std::vector<double> &CPPProcess::getMasses() const { return mME; }
@@ -52,20 +130,13 @@ void CPPProcess::initProc(std::string param_card_name) {
     pars->printIndependentParameters();
     pars->printIndependentCouplings();
   }
-  // Set external particle masses for this matrix element
-  /*
-  mME.push_back(0.0); // pars->ZERO);
-  mME.push_back(pars->ZERO);
-  mME.push_back(pars->ZERO);
-  mME.push_back(pars->ZERO);
-  */
   jamp2[0] = new double[1];
 }
 
 void CPPProcess::resetGPUMemory() {
 
   for (std::vector<double *>::iterator it = p.begin(); it != p.end(); ++it) {
-    cudaFree(*it);
+    gpuErrchk(cudaFree(*it));
   }
   p.clear();
 }
@@ -96,12 +167,6 @@ void CPPProcess::sigmaKin() {
   static int jhel;
   // thrust::complex<double> **wfs;
   double t[nprocesses];
-  // Helicities for the process
-  static const int helicities[ncomb][nexternal] = {
-      {-1, -1, -1, -1}, {-1, -1, -1, 1}, {-1, -1, 1, -1}, {-1, -1, 1, 1},
-      {-1, 1, -1, -1},  {-1, 1, -1, 1},  {-1, 1, 1, -1},  {-1, 1, 1, 1},
-      {1, -1, -1, -1},  {1, -1, -1, 1},  {1, -1, 1, -1},  {1, -1, 1, 1},
-      {1, 1, -1, -1},   {1, 1, -1, 1},   {1, 1, 1, -1},   {1, 1, 1, 1}};
   // Denominators: spins, colors and identical particles
   const int denominators[nprocesses] = {4};
 
@@ -111,29 +176,13 @@ void CPPProcess::sigmaKin() {
   for (int i = 0; i < nprocesses; i++) {
     matrix_element[i] = 0.;
   }
-  // Define permutation
-  int perm[nexternal];
-  for (int i = 0; i < nexternal; i++) {
-    perm[i] = i;
-  }
 
   if (sum_hel == 0 || ntry < 10) {
     // Calculate the matrix element for all helicities
     for (int ihel = 0; ihel < ncomb; ihel++) {
       if (goodhel[ihel] || ntry < 2) {
 
-        if (m_debug) {
-          std::cout << std::endl
-                    << std::endl
-                    << "<<<<< " << ihel << " " << ihel << " " << ihel << " "
-                    << ihel << " " << ihel << " " << ihel << " " << ihel << " "
-                    << ihel << " " << ihel << " " << ihel << " " << ihel << " "
-                    << ihel << " " << ihel << " " << ihel << " " << ihel << " "
-                    << ihel << " "
-                    << " >>>>>>>>" << std::endl;
-        }
-
-        calculate_wavefunctions(perm, helicities[ihel]);
+        call_wavefunctions_kernel(ihel);
         t[0] = matrix_1_epem_mupmum();
 
         double tsum = 0;
@@ -160,18 +209,7 @@ void CPPProcess::sigmaKin() {
       double hwgt = double(ngood) / double(sum_hel);
       int ihel = igood[jhel];
 
-      if (m_debug) {
-        std::cout << std::endl
-                  << std::endl
-                  << "<<<<< " << ihel << " " << ihel << " " << ihel << " "
-                  << ihel << " " << ihel << " " << ihel << " " << ihel << " "
-                  << ihel << " " << ihel << " " << ihel << " " << ihel << " "
-                  << ihel << " " << ihel << " " << ihel << " " << ihel << " "
-                  << ihel << " "
-                  << " >>>>>>>>" << std::endl;
-      }
-
-      calculate_wavefunctions(perm, helicities[ihel]);
+      call_wavefunctions_kernel(ihel);
       t[0] = matrix_1_epem_mupmum();
 
       for (int iproc = 0; iproc < nprocesses; iproc++) {
@@ -204,28 +242,26 @@ double CPPProcess::sigmaHat() {
 //--------------------------------------------------------------------------
 // Evaluate |M|^2 for each subprocess
 
+void CPPProcess::call_wavefunctions_kernel(int ihel) {
+
+  m_timer.Start();
+
+  gMG5_sm::calculate_wavefunctions<<<1, 1>>>(
+      m->tperm, m->thelicities[ihel], m->mME, m->tp, m->tamp, m->tw, pars->GC_3,
+      pars->GC_51, pars->GC_59, pars->mdl_MZ, pars->mdl_WZ);
+  cudaDeviceSynchronize();
+
+  // sr fixme // copy back the amplitudes from the device
+
+  float gputime = m_timer.GetDuration();
+  std::cout << "Wave function time: " << gputime << std::endl;
+}
+
+/*
 void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
   // Calculate wavefunctions for all processes
   // int i, j;
 
-  // dim3 block(1, 1, 1);
-  // dim3 grid(1, 1, 1);
-
-  if (m_debug) {
-    std::cout << "<<< w: " << std::endl;
-    for (int i = 0; i < 6; ++i) {
-      std::cout << "w" << i << ": ";
-      for (int j = 0; j < 18; ++j) {
-        if (m->tw[i][j].real() || m->tw[i][j].imag())
-          std::cout << m->tw[i][j] << " ";
-        else
-          std::cout << "0 ";
-      }
-      std::cout << std::endl;
-    }
-  }
-
-  m_timer.Start();
 
   // Calculate all wavefunctions
   gMG5_sm::oxxxxx<<<1, 1>>>(p[perm[0]], mME[0], hel[0], -1, 0);
@@ -242,30 +278,8 @@ void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
   gMG5_sm::FFV2_4_0<<<1, 1>>>(2, 3, 5, -pars->GC_51, pars->GC_59, &m->tamp[1]);
   cudaDeviceSynchronize();
 
-  float gputime = m_timer.GetDuration();
-  std::cout << "Wave function time: " << gputime << std::endl;
-
-  if (m_debug) {
-
-    std::cout << ">>> w: " << std::endl;
-    for (int i = 0; i < 6; ++i) {
-      std::cout << "w" << i << ": ";
-      for (int j = 0; j < 18; ++j) {
-        if (m->tw[i][j].real() || m->tw[i][j].imag())
-          std::cout << m->tw[i][j] << " ";
-        else
-          std::cout << "0 ";
-      }
-      std::cout << std::endl;
-    }
-
-    std::cout << ">>>>>>>> tamp: ";
-    for (int x = 0; x < m->tnamplitudes; ++x) {
-      std::cout << m->tamp[x] << " ";
-    }
-    std::cout << std::endl;
-  }
 }
+*/
 
 double CPPProcess::matrix_1_epem_mupmum() {
   int i, j;

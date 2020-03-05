@@ -40,23 +40,8 @@ int main(int argc, char **argv) {
   if (verbose)
     std::cout << "num evts: " << numevts << std::endl;
 
-  processMem *pm = new processMem();
-
-  cudaMallocManaged(&pm->tamp,
-                    pm->tnamplitudes * sizeof(thrust::complex<double>));
-
-  cudaMallocManaged(&pm->tw, pm->twrows * sizeof(thrust::complex<double>));
-  for (int i = 0; i < pm->twrows; ++i) {
-    cudaMallocManaged(&pm->tw[i],
-                      pm->tnwavefuncs * sizeof(thrust::complex<double>));
-    for (int y = 0; y < pm->twrows; ++y) {
-      pm->tw[i][y] =
-          thrust::complex<double>(0.00, 0.00); // double(i), double(y));
-    }
-  }
-
   // Create a process object
-  CPPProcess process(pm, verbose, debug);
+  CPPProcess process(verbose, debug);
 
   // Read param_card and set parameters
   process.initProc("../../Cards/param_card.dat");
