@@ -1,7 +1,9 @@
+CUARCHNUM=70
 LIBDIR=../lib
-CXXFLAGS= -g -O0 -I.
-CUFLAGS= -arch=compute_35 -rdc=true -G
-# CUFLAGS= -arch=compute_35 -G
+#CXXFLAGS= -g -O0 -I.
+CXXFLAGS= -O3 -I.
+CUARCHFLAGS= -arch=compute_$(CUARCHNUM)
+CUFLAGS= $(CUARCHFLAGS) -rdc=true -G
 NVCC=/usr/local/cuda/bin/nvcc
 CXX=g++
 
