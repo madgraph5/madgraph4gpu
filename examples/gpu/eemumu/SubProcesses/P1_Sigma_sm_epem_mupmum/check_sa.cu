@@ -51,9 +51,6 @@ int main(int argc, char **argv) {
 
   for (int x = 0; x < numevts; ++x) {
 
-    std::cout << x << std::endl;
-    // process.resetGPUMemory();
-
     // Get phase space point
     std::vector<double *> p =
         get_momenta(process.ninitial, energy, process.getMasses(), weight);

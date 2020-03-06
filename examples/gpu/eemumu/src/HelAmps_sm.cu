@@ -13,19 +13,19 @@
 namespace gMG5_sm {
 
 __global__ void calculate_wavefunctions(
-    int *perm, int *hel, double *mME, double **p, thrust::complex<double> *amp,
-    thrust::complex<double> **w, thrust::complex<double> GC_3,
-    thrust::complex<double> GC_51, thrust::complex<double> GC_59, double mdl_MZ,
-    double mdl_WZ) {
+    int *perm, int (*hel)[4], int ihel, double *mME, double (*p)[4],
+    thrust::complex<double> *amp, thrust::complex<double> (*w)[6],
+    thrust::complex<double> GC_3, thrust::complex<double> GC_51,
+    thrust::complex<double> GC_59, double mdl_MZ, double mdl_WZ) {
   // Calculate wavefunctions for all processes
   // int i, j;
   double ZERO = 0.00;
 
   // Calculate all wavefunctions
-  oxxxxx(p[perm[0]], mME[0], hel[0], -1, w[0]);
-  ixxxxx(p[perm[1]], mME[1], hel[1], +1, w[1]);
-  ixxxxx(p[perm[2]], mME[2], hel[2], -1, w[2]);
-  oxxxxx(p[perm[3]], mME[3], hel[3], +1, w[3]);
+  oxxxxx(p[perm[0]], mME[0], hel[ihel][0], -1, w[0]);
+  ixxxxx(p[perm[1]], mME[1], hel[ihel][1], +1, w[1]);
+  ixxxxx(p[perm[2]], mME[2], hel[ihel][2], -1, w[2]);
+  oxxxxx(p[perm[3]], mME[3], hel[ihel][3], +1, w[3]);
 
   FFV1P0_3(w[1], w[0], GC_3, ZERO, ZERO, w[4]);
   FFV2_4_3(w[1], w[0], -GC_51, GC_59, mdl_MZ, mdl_WZ, w[5]);

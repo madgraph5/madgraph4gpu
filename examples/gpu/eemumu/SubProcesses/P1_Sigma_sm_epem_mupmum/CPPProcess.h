@@ -24,18 +24,12 @@
 //--------------------------------------------------------------------------
 
 struct processMem {
-  static const int tnwavefuncs = 6;
-  static const int twrows = 18;
-  static const int tnamplitudes = 2;
-  static const int tnioparticles = 4;
-  static const int tnexternal = 4;
-  static const int tncomb = 16;
-  thrust::complex<double> *tamp; //[tnamplitudes];
-  thrust::complex<double> **tw;  //[twrows][tnwavefuncs];
-  double **tp;
-  double *mME;
-  int *tperm;
-  int **thelicities;
+  thrust::complex<double> *tamp;    //[namplitudes];
+  thrust::complex<double> (*tw)[6]; // ok nwavefuncs
+  double (*tp)[4];                  // ok
+  double *tmME;                     // ok
+  int *tperm;                       // ok
+  int (*thelicities)[4];            // ok nexternal
 };
 
 class CPPProcess {
@@ -45,8 +39,6 @@ public:
   CPPProcess(bool verbose = false, bool debug = false);
 
   ~CPPProcess();
-
-  void resetGPUMemory();
 
   void call_wavefunctions_kernel(int ihel);
 
@@ -64,14 +56,9 @@ public:
 
   virtual int code() const { return 1; }
 
-  // thrust::host_vector<double> getMasses();
   const std::vector<double> &getMasses() const;
 
-  // Get and set momenta for matrix element evaluation
-  std::vector<double *> getMomenta() { return p; }
-
-  void setMomenta(std::vector<double *> &momenta); //{ p = momenta; }
-  // void setMomenta(std::vector<double *> &momenta);
+  void setMomenta(std::vector<double *> &momenta);
 
   void setInitial(int inid1, int inid2) {
     id1 = inid1;
@@ -86,8 +73,6 @@ public:
   static const int nexternal = 4;
   static const int nprocesses = 1;
 
-  // void allocMem();
-
 private:
   Timer<TIMERTYPE> m_timer;
 
@@ -97,17 +82,20 @@ private:
   // print debug info
   bool m_debug;
 
-  // Private functions to calculate the matrix element for all subprocesses
-  // Calculate wavefunctions
+  // Private function to calculate the matrix element for all subprocesses
   void calculate_wavefunctions(const int perm[], const int hel[]);
 
   processMem *m;
 
   static const int nwavefuncs = 6;
 
-  thrust::complex<double> w[nwavefuncs][18];
-
   static const int namplitudes = 2;
+
+  static const int ncomb = 16;
+
+  static const int wrows = 18;
+
+  static const int nioparticles = 4;
 
   thrust::complex<double> amp[namplitudes];
 
@@ -125,14 +113,8 @@ private:
   // vector with external particle masses
   std::vector<double> mME;
 
-  // vector with momenta (to be changed each event)
-  std::vector<double *> p;
-
   // Initial particle ids
   int id1, id2;
-
-  // temp p array
-  double **ptemp;
 };
 
 #endif // MG5_Sigma_sm_epem_mupmum_H
