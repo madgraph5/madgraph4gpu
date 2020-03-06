@@ -1,18 +1,21 @@
 CUARCHNUM=70
 LIBDIR=../lib
-#CXXFLAGS= -g -O0 -I.
 CXXFLAGS= -O3 -I.
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM)
-CUFLAGS= $(CUARCHFLAGS) -rdc=true -G
+CUFLAGS= $(CUARCHFLAGS) -rdc=true
 NVCC=/usr/local/cuda/bin/nvcc
 CXX=g++
 
 target=$(LIBDIR)/libmodel_sm.a
+cxx_objects=Parameters_sm.o read_slha.o rambo.o
+cu_objects=HelAmps_sm.o
 
 all: $(target)
 
-cxx_objects=Parameters_sm.o read_slha.o rambo.o
-cu_objects=HelAmps_sm.o
+debug: CXXFLAGS:=$(filter-out -O3,$(CXXFLAGS))
+debug: CXXFLAGS += -g -O0
+debug: CUFLAGS += -G
+debug: $(target)
 
 %.o : %.cc
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
