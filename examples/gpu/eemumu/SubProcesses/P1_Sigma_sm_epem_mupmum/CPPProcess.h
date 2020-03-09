@@ -74,6 +74,11 @@ public:
   static const int nprocesses = 1;
 
 private:
+  // gpu variables
+  int gpu_nwarps = 1;
+  int gpu_nthreads = 1;
+
+  // timer
   Timer<TIMERTYPE> m_timer;
 
   // print verbose info

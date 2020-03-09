@@ -8,6 +8,7 @@
 #include "CPPProcess.h"
 #include "HelAmps_sm.h"
 
+#include <algorithm>
 #include <iomanip> // setw
 #include <iostream>
 #include <thrust/complex.h>
@@ -29,6 +30,7 @@ CPPProcess::CPPProcess(bool verbose, bool debug)
     : m_verbose(verbose), m_debug(debug), mME(4, 0.00) {
 
   m = new processMem();
+  int dim = gpu_nwarps * gpu_nthreads;
 
   // tmME
   static double tmpmME[4] = {0.00, 0.00, 0.00, 0.00};
@@ -36,6 +38,7 @@ CPPProcess::CPPProcess(bool verbose, bool debug)
   gpuErrchk(cudaMemcpy((void *)m->tmME, (void *)tmpmME, 4 * sizeof(double),
                        cudaMemcpyHostToDevice));
 
+  // dim
   // tp
   gpuErrchk(cudaMalloc(&m->tp, nioparticles * 4 * sizeof(double)));
 
@@ -205,10 +208,10 @@ void CPPProcess::call_wavefunctions_kernel(int ihel) {
 
   m_timer.Start();
 
-  gMG5_sm::calculate_wavefunctions<<<1, 1>>>(
+  gMG5_sm::calculate_wavefunctions<<<gpu_nwarps, gpu_nthreads>>>(
       m->tperm, m->thelicities, ihel, m->tmME, m->tp, m->tamp, m->tw,
       pars->GC_3, pars->GC_51, pars->GC_59, pars->mdl_MZ, pars->mdl_WZ);
-  cudaDeviceSynchronize();
+  // cudaDeviceSynchronize();
 
   // memcpy(amp, m->tamp, namplitudes * sizeof(thrust::complex<double>));
   gpuErrchk(cudaMemcpy((void *)amp, (void *)m->tamp,
