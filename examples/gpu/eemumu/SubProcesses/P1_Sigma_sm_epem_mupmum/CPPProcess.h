@@ -24,12 +24,13 @@
 //--------------------------------------------------------------------------
 
 struct processMem {
-  thrust::complex<double> *tamp;    //[namplitudes];
-  thrust::complex<double> (*tw)[6]; // ok nwavefuncs
-  double (*tp)[4];                  // ok
-  double *tmME;                     // ok
-  int *tperm;                       // ok
-  int (*thelicities)[4];            // ok nexternal
+  thrust::complex<double> *tamp; // [dim][namplitudes]; --> (*tamp)[2]
+  thrust::complex<double> (
+      *tw)[6][6];        // [dim][nwavefuncs][18] sr fixme -> [6][18]
+  double (*tp)[4];       // [dim][4][4] --> (*tp)[4][4]
+  double *tmME;          // [4(nmasses)]
+  int *tperm;            // [nexternal]
+  int (*thelicities)[4]; // [nexternal][16(possible permutations)]
 };
 
 class CPPProcess {
@@ -98,7 +99,7 @@ private:
 
   static const int ncomb = 16;
 
-  static const int wrows = 18;
+  static const int wrows = 6; // was 18;
 
   static const int nioparticles = 4;
 

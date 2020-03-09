@@ -32,25 +32,38 @@ CPPProcess::CPPProcess(bool verbose, bool debug)
   m = new processMem();
   int dim = gpu_nwarps * gpu_nthreads;
 
-  // tmME
+  // tmME - nodim
   static double tmpmME[4] = {0.00, 0.00, 0.00, 0.00};
   gpuErrchk(cudaMalloc(&m->tmME, 4 * sizeof(double)));
   gpuErrchk(cudaMemcpy((void *)m->tmME, (void *)tmpmME, 4 * sizeof(double),
                        cudaMemcpyHostToDevice));
 
-  // dim
-  // tp
+  // tp - DIM --> LATER --> add "dim" to cudaMalloc
+  /*
+  - rambo::get_momenta (rambo::rambo) fuellt vector 4 particles * 4 momenta
+  - CPPProcess::setMomenta fuellt m->tp
+  */
   gpuErrchk(cudaMalloc(&m->tp, nioparticles * 4 * sizeof(double)));
 
-  // amp
+  // amp - DIM --> LATER --> add "dim" to cudaMalloc
+  /*
+  - i/o parameter to kernels
+  - after kernel call fill amp member
+  - matrix_1_epem_mupmum uses amp for final calculation of weight -> return
+  value used in rambo::sigmaKin --> writes into CPPProcess::matrix_element
+  member
+  */
   gpuErrchk(
       cudaMalloc(&m->tamp, namplitudes * sizeof(thrust::complex<double>)));
 
-  // w
-  gpuErrchk(cudaMalloc((void **)&m->tw,
-                       wrows * nwavefuncs * sizeof(thrust::complex<double>)));
+  // w - DIM
+  /*
+  - internal variable within kernels
+  */
+  gpuErrchk(cudaMalloc((void **)&m->tw, dim * wrows * nwavefuncs *
+                                            sizeof(thrust::complex<double>)));
 
-  // Helicities for the process
+  // Helicities for the process - nodim
   static int helicities[ncomb][nexternal] = {
       {-1, -1, -1, -1}, {-1, -1, -1, 1}, {-1, -1, 1, -1}, {-1, -1, 1, 1},
       {-1, 1, -1, -1},  {-1, 1, -1, 1},  {-1, 1, 1, -1},  {-1, 1, 1, 1},
@@ -61,7 +74,7 @@ CPPProcess::CPPProcess(bool verbose, bool debug)
                        ncomb * nexternal * sizeof(int),
                        cudaMemcpyHostToDevice));
 
-  // perm
+  // perm - nodim
   static int perm[nexternal];
   for (int i = 0; i < nexternal; i++)
     perm[i] = i;
