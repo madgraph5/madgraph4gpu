@@ -77,8 +77,8 @@ public:
 
 private:
   // gpu variables
-  int gpu_nwarps = 1;
-  int gpu_nthreads = 1;
+  int gpu_nwarps = 10;
+  int gpu_nthreads = 128;
   int dim; // gpu_nwarps * gpu_nthreads;
 
   // timer

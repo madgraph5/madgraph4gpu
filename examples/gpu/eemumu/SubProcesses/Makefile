@@ -26,10 +26,13 @@ check: $(main)
 
 cu_objects=CPPProcess.o check_sa.o
 
-%.o : %.cc
+%.o : %.cc %.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-%.o : %.cu
+check_sa.o: check_sa.cu
+	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
+
+%.o : %.cu %.h
 	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
 
 $(main): $(cxx_objects) $(cu_objects) $(LIBDIR)/lib$(MODELLIB).a

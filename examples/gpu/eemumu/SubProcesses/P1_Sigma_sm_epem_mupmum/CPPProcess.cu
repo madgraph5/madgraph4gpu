@@ -35,9 +35,9 @@ CPPProcess::CPPProcess(bool verbose, bool debug)
     amp[i] = new thrust::complex<double>[namplitudes];
   }
 
-  matrix_element = new double *[nprocesses];
-  for (int i = 0; i < nprocesses; ++i) {
-    matrix_element[i] = new double[dim];
+  matrix_element = new double *[dim];
+  for (int i = 0; i < dim; ++i) {
+    matrix_element[i] = new double[nprocesses];
   }
 
   m = new processMem();
@@ -60,7 +60,7 @@ CPPProcess::CPPProcess(bool verbose, bool debug)
   - i/o parameter to kernels
   - after kernel call fill amp member
   - matrix_1_epem_mupmum uses amp for final calculation of weight -> return
-  value used in rambo::sigmaKin --> writes into CPPProcess::matrix_element
+  value used in CPPProcess::sigmaKin --> writes into CPPProcess::matrix_element
   member
   */
   gpuErrchk(cudaMallocManaged(&m->tamp, dim * namplitudes *
@@ -164,8 +164,8 @@ void CPPProcess::sigmaKin() {
   ntry = ntry + 1;
 
   // Reset the matrix elements
-  for (int i = 0; i < nprocesses; i++) {
-    for (int j = 0; j < dim; ++j) {
+  for (int i = 0; i < dim; i++) {
+    for (int j = 0; j < nprocesses; ++j) {
       matrix_element[i][j] = 0.;
     }
   }
@@ -182,7 +182,7 @@ void CPPProcess::sigmaKin() {
         double tsum[dim] = {0};
         for (int iproc = 0; iproc < nprocesses; iproc++) {
           for (int d = 0; d < dim; ++d) {
-            matrix_element[iproc][d] += t[iproc][d];
+            matrix_element[d][iproc] += t[iproc][d];
             tsum[d] += t[iproc][d];
           }
         }
@@ -213,15 +213,15 @@ void CPPProcess::sigmaKin() {
 
       for (int iproc = 0; iproc < nprocesses; iproc++) {
         for (int d = 0; d < dim; ++d) {
-          matrix_element[iproc][d] += t[iproc][d] * hwgt;
+          matrix_element[d][iproc] += t[iproc][d] * hwgt;
         }
       }
     }
   }
 
-  for (int i = 0; i < nprocesses; i++)
-    for (int d = 0; d < dim; ++d) {
-      matrix_element[i][d] /= denominators[i];
+  for (int i = 0; i < dim; i++)
+    for (int j = 0; j < nprocesses; ++j) {
+      matrix_element[i][j] /= denominators[j];
     }
 }
 

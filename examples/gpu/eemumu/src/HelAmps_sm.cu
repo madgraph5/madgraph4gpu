@@ -20,11 +20,12 @@ __global__ void calculate_wavefunctions(
   // Calculate wavefunctions for all processes
   // int i, j;
   double ZERO = 0.00;
-  // printf("\n\nblock (%i / %i), thread (%i)\n\n", blockIdx.x, blockDim.x,
-  //       threadIdx.x);
-  int dim = 1; // = blockIdx.x * blockDim.x + threadIdx.x; // sr fixme,
-               // calculate number
-  dim -= 1;
+#ifdef DEBUG
+  printf("\n\nblock (%i / %i), thread (%i)\n\n", blockIdx.x, blockDim.x,
+         threadIdx.x);
+#endif
+  int dim = blockIdx.x * blockDim.x + threadIdx.x;
+
   thrust::complex<double>(*dw)[6] = w[dim];
   thrust::complex<double> *damp = amp[dim];
   double(*dp)[4] = p[dim];

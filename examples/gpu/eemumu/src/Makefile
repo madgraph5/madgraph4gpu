@@ -17,10 +17,10 @@ debug: CXXFLAGS += -g -O0 -DDEBUG
 debug: CUFLAGS += -G
 debug: $(target)
 
-%.o : %.cc
+%.o : %.cc %.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-%.o : %.cu
+%.o : %.cu %.h
 	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
 
 
