@@ -24,13 +24,12 @@
 //--------------------------------------------------------------------------
 
 struct processMem {
-  thrust::complex<double> *tamp; // [dim][namplitudes]; --> (*tamp)[2]
-  thrust::complex<double> (
-      *tw)[6][6];        // [dim][nwavefuncs][18] sr fixme -> [6][18]
-  double (*tp)[4];       // [dim][4][4] --> (*tp)[4][4]
-  double *tmME;          // [4(nmasses)]
-  int *tperm;            // [nexternal]
-  int (*thelicities)[4]; // [nexternal][16(possible permutations)]
+  thrust::complex<double> (*tamp)[2];  // [dim][namplitudes]
+  thrust::complex<double> (*tw)[6][6]; // [dim][nwavefuncs][6] was [6][18]
+  double (*tp)[4][4];                  // [dim][4][4]
+  double *tmME;                        // [4(nmasses)]
+  int *tperm;                          // [nexternal]
+  int (*thelicities)[4];               // [nexternal][16(possible permutations)]
 };
 
 class CPPProcess {
@@ -50,7 +49,7 @@ public:
   virtual void sigmaKin();
 
   // Evaluate sigmaHat(sHat).
-  virtual double sigmaHat();
+  // sr fixme // virtual double sigmaHat();
 
   // Info on the subprocess.
   virtual std::string name() const { return "e+ e- > mu+ mu- (sm)"; }
@@ -59,7 +58,7 @@ public:
 
   const std::vector<double> &getMasses() const;
 
-  void setMomenta(std::vector<double *> &momenta);
+  void setMomenta(std::vector<std::vector<double *>> &momenta);
 
   void setInitial(int inid1, int inid2) {
     id1 = inid1;
@@ -67,7 +66,9 @@ public:
   }
 
   // Get matrix element vector
-  const double *getMatrixElements() const { return matrix_element; }
+  double **getMatrixElements() const { return matrix_element; }
+
+  int getDim() const { return dim; }
 
   // Constants for array limits
   static const int ninitial = 2;
@@ -78,6 +79,7 @@ private:
   // gpu variables
   int gpu_nwarps = 1;
   int gpu_nthreads = 1;
+  int dim; // gpu_nwarps * gpu_nthreads;
 
   // timer
   Timer<TIMERTYPE> m_timer;
@@ -103,15 +105,15 @@ private:
 
   static const int nioparticles = 4;
 
-  thrust::complex<double> amp[namplitudes];
+  thrust::complex<double> **amp; // [dim][namplitudes];
 
-  double matrix_1_epem_mupmum();
+  void matrix_1_epem_mupmum(double *matrix); // return value double[dim]
 
   // Store the matrix element value from sigmaKin
-  double matrix_element[nprocesses];
+  double **matrix_element; // [nprocesses][dim];
 
   // Color flows, used when selecting color
-  double *jamp2[nprocesses];
+  double *jamp2[nprocesses]; // sr fixme // does this need a gpu dimension?
 
   // Pointer to the model parameters
   Parameters_sm *pars;

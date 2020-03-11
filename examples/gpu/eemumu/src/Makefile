@@ -13,7 +13,7 @@ cu_objects=HelAmps_sm.o
 all: $(target)
 
 debug: CXXFLAGS:=$(filter-out -O3,$(CXXFLAGS))
-debug: CXXFLAGS += -g -O0
+debug: CXXFLAGS += -g -O0 -DDEBUG
 debug: CUFLAGS += -G
 debug: $(target)
 

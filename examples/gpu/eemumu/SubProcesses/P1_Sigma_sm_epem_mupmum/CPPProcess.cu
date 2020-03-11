@@ -27,10 +27,20 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
 }
 
 CPPProcess::CPPProcess(bool verbose, bool debug)
-    : m_verbose(verbose), m_debug(debug), mME(4, 0.00) {
+    : m_verbose(verbose), m_debug(debug), dim(gpu_nwarps * gpu_nthreads),
+      mME(4, 0.00) {
+
+  amp = new thrust::complex<double> *[dim];
+  for (int i = 0; i < dim; ++i) {
+    amp[i] = new thrust::complex<double>[namplitudes];
+  }
+
+  matrix_element = new double *[nprocesses];
+  for (int i = 0; i < nprocesses; ++i) {
+    matrix_element[i] = new double[dim];
+  }
 
   m = new processMem();
-  int dim = gpu_nwarps * gpu_nthreads;
 
   // tmME - nodim
   static double tmpmME[4] = {0.00, 0.00, 0.00, 0.00};
@@ -43,9 +53,9 @@ CPPProcess::CPPProcess(bool verbose, bool debug)
   - rambo::get_momenta (rambo::rambo) fuellt vector 4 particles * 4 momenta
   - CPPProcess::setMomenta fuellt m->tp
   */
-  gpuErrchk(cudaMalloc(&m->tp, nioparticles * 4 * sizeof(double)));
+  gpuErrchk(cudaMalloc(&m->tp, dim * nioparticles * 4 * sizeof(double)));
 
-  // amp - DIM --> LATER --> add "dim" to cudaMalloc
+  // amp - DIM
   /*
   - i/o parameter to kernels
   - after kernel call fill amp member
@@ -53,8 +63,8 @@ CPPProcess::CPPProcess(bool verbose, bool debug)
   value used in rambo::sigmaKin --> writes into CPPProcess::matrix_element
   member
   */
-  gpuErrchk(
-      cudaMalloc(&m->tamp, namplitudes * sizeof(thrust::complex<double>)));
+  gpuErrchk(cudaMallocManaged(&m->tamp, dim * namplitudes *
+                                            sizeof(thrust::complex<double>)));
 
   // w - DIM
   /*
@@ -85,11 +95,13 @@ CPPProcess::CPPProcess(bool verbose, bool debug)
 
 CPPProcess::~CPPProcess() {}
 
-void CPPProcess::setMomenta(std::vector<double *> &momenta) {
+void CPPProcess::setMomenta(std::vector<std::vector<double *>> &momenta) {
 
-  for (int i = 0; i < nioparticles; ++i) {
-    gpuErrchk(cudaMemcpy((void *)m->tp[i], (void *)momenta[i],
-                         4 * sizeof(double), cudaMemcpyHostToDevice));
+  for (int d = 0; d < dim; ++d) {
+    for (int i = 0; i < nioparticles; ++i) {
+      gpuErrchk(cudaMemcpy((void *)m->tp[d][i], (void *)momenta[d][i],
+                           4 * sizeof(double), cudaMemcpyHostToDevice));
+    }
   }
 }
 
@@ -140,8 +152,12 @@ void CPPProcess::sigmaKin() {
   static int ntry = 0, sum_hel = 0, ngood = 0;
   static int igood[ncomb];
   static int jhel;
-  // thrust::complex<double> **wfs;
-  double t[nprocesses];
+  // sr fixme // move out of functions
+  double **t = new double *[nprocesses];
+  for (int i = 0; i < nprocesses; ++i) {
+    t[i] = new double[dim];
+  }
+  // double t[nprocesses][dim] = {0}; // [nprocesses]
   // Denominators: spins, colors and identical particles
   const int denominators[nprocesses] = {4};
 
@@ -149,27 +165,34 @@ void CPPProcess::sigmaKin() {
 
   // Reset the matrix elements
   for (int i = 0; i < nprocesses; i++) {
-    matrix_element[i] = 0.;
+    for (int j = 0; j < dim; ++j) {
+      matrix_element[i][j] = 0.;
+    }
   }
 
+  // sr fixme // better to run the first n calculations serial?
   if (sum_hel == 0 || ntry < 10) {
     // Calculate the matrix element for all helicities
     for (int ihel = 0; ihel < ncomb; ihel++) {
       if (goodhel[ihel] || ntry < 2) {
 
         call_wavefunctions_kernel(ihel);
-        t[0] = matrix_1_epem_mupmum();
+        matrix_1_epem_mupmum(t[0]);
 
-        double tsum = 0;
+        double tsum[dim] = {0};
         for (int iproc = 0; iproc < nprocesses; iproc++) {
-          matrix_element[iproc] += t[iproc];
-          tsum += t[iproc];
+          for (int d = 0; d < dim; ++d) {
+            matrix_element[iproc][d] += t[iproc][d];
+            tsum[d] += t[iproc][d];
+          }
         }
         // Store which helicities give non-zero result
-        if (tsum != 0. && !goodhel[ihel]) {
-          goodhel[ihel] = true;
-          ngood++;
-          igood[ngood] = ihel;
+        for (int d = 0; d < dim; ++d) {
+          if (tsum[d] != 0. && !goodhel[ihel]) {
+            goodhel[ihel] = true;
+            ngood++;
+            igood[ngood] = ihel;
+          }
         }
       }
     }
@@ -177,6 +200,7 @@ void CPPProcess::sigmaKin() {
     sum_hel = min(sum_hel, ngood);
   } else {
     // Only use the "good" helicities
+    // sr fixme // is the calculation of good helicities parralelizable?
     for (int j = 0; j < sum_hel; j++) {
       jhel++;
       if (jhel >= ngood)
@@ -185,21 +209,27 @@ void CPPProcess::sigmaKin() {
       int ihel = igood[jhel];
 
       call_wavefunctions_kernel(ihel);
-      t[0] = matrix_1_epem_mupmum();
+      matrix_1_epem_mupmum(t[0]);
 
       for (int iproc = 0; iproc < nprocesses; iproc++) {
-        matrix_element[iproc] += t[iproc] * hwgt;
+        for (int d = 0; d < dim; ++d) {
+          matrix_element[iproc][d] += t[iproc][d] * hwgt;
+        }
       }
     }
   }
 
   for (int i = 0; i < nprocesses; i++)
-    matrix_element[i] /= denominators[i];
+    for (int d = 0; d < dim; ++d) {
+      matrix_element[i][d] /= denominators[i];
+    }
 }
 
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, including incoming flavour dependence.
 
+// sr fixme // deal with gpu dimension of matrix_element
+/*
 double CPPProcess::sigmaHat() {
   // Select between the different processes
   if (id1 == -11 && id2 == 11) {
@@ -210,6 +240,7 @@ double CPPProcess::sigmaHat() {
     return 0.;
   }
 }
+*/
 
 //==========================================================================
 // Private class member functions
@@ -224,43 +255,49 @@ void CPPProcess::call_wavefunctions_kernel(int ihel) {
   gMG5_sm::calculate_wavefunctions<<<gpu_nwarps, gpu_nthreads>>>(
       m->tperm, m->thelicities, ihel, m->tmME, m->tp, m->tamp, m->tw,
       pars->GC_3, pars->GC_51, pars->GC_59, pars->mdl_MZ, pars->mdl_WZ);
-  // cudaDeviceSynchronize();
+  cudaDeviceSynchronize();
 
   // memcpy(amp, m->tamp, namplitudes * sizeof(thrust::complex<double>));
-  gpuErrchk(cudaMemcpy((void *)amp, (void *)m->tamp,
-                       namplitudes * sizeof(thrust::complex<double>),
+  /*
+  gpuErrchk(cudaMemcpy(amp, m->tamp,
+                       dim * namplitudes * sizeof(thrust::complex<double>),
                        cudaMemcpyDeviceToHost));
-
+*/
   float gputime = m_timer.GetDuration();
   std::cout << "Wave function time: " << gputime << std::endl;
 }
 
-double CPPProcess::matrix_1_epem_mupmum() {
-  int i, j;
-  // Local variables
-  // const int ngraphs = 2;
-  const int ncolor = 1;
-  std::complex<double> ztemp;
-  std::complex<double> jamp[ncolor];
-  // The color matrix;
-  static const double denom[ncolor] = {1};
-  static const double cf[ncolor][ncolor] = {{1}};
+// --> calculate multi-dimensional amp
+void CPPProcess::matrix_1_epem_mupmum(double *matrix) {
+  // static double matrix[dim];
+  for (int d = 0; d < dim; ++d) {
+    thrust::complex<double> *lamp = m->tamp[d]; // [namplitudes]
+    int i, j;
+    // Local variables
+    // const int ngraphs = 2;
+    const int ncolor = 1;
+    std::complex<double> ztemp;
+    std::complex<double> jamp[ncolor];
+    // The color matrix;
+    static const double denom[ncolor] = {1};
+    static const double cf[ncolor][ncolor] = {{1}};
 
-  // Calculate color flows
-  jamp[0] = -amp[0] - amp[1];
+    // Calculate color flows
+    jamp[0] = -lamp[0] - lamp[1];
 
-  // Sum and square the color flows to get the matrix element
-  double matrix = 0;
-  for (i = 0; i < ncolor; i++) {
-    ztemp = 0.;
-    for (j = 0; j < ncolor; j++)
-      ztemp = ztemp + cf[i][j] * jamp[j];
-    matrix = matrix + real(ztemp * conj(jamp[i])) / denom[i];
+    // Sum and square the color flows to get the matrix element
+    matrix[d] = 0;
+    for (i = 0; i < ncolor; i++) {
+      ztemp = 0.;
+      for (j = 0; j < ncolor; j++)
+        ztemp = ztemp + cf[i][j] * jamp[j];
+      matrix[d] = matrix[d] + real(ztemp * conj(jamp[i])) / denom[i];
+    }
+
+    // Store the leading color flows for choice of color
+    // sr fixme // maybe this needs to go outside the loop? does it need a
+    // dimension?
+    for (i = 0; i < ncolor; i++)
+      jamp2[0][i] += real(jamp[i] * conj(jamp[i]));
   }
-
-  // Store the leading color flows for choice of color
-  for (i = 0; i < ncolor; i++)
-    jamp2[0][i] += real(jamp[i] * conj(jamp[i]));
-
-  return matrix;
 }

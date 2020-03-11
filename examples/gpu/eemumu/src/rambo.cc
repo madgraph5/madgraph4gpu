@@ -85,8 +85,9 @@ double rn(int idummy) {
   return ran;
 }
 
-std::vector<double *> get_momenta(int ninitial, double energy,
-                                  std::vector<double> masses, double &wgt) {
+std::vector<std::vector<double *>> get_momenta(int ninitial, double energy,
+                                               std::vector<double> masses,
+                                               double &wgt, int dim) {
   //---- auxiliary function to change convention between MadGraph5_aMC@NLO and
   // rambo
   //---- four momenta.
@@ -96,18 +97,21 @@ std::vector<double *> get_momenta(int ninitial, double energy,
   double m1 = masses[0];
 
   if (ninitial == 1) {
-    // Momenta for the incoming particle
-    std::vector<double *> p(1, new double[4]);
-    p[0][0] = m1;
-    p[0][1] = 0.;
-    p[0][2] = 0.;
-    p[0][3] = 0.;
+    std::vector<std::vector<double *>> p2;
+    for (int d = 0; d < dim; ++d) {
+      // Momenta for the incoming particle
+      std::vector<double *> p(1, new double[4]);
+      p[0][0] = m1;
+      p[0][1] = 0.;
+      p[0][2] = 0.;
+      p[0][3] = 0.;
 
-    std::vector<double> finalmasses(++masses.begin(), masses.end());
-    std::vector<double *> p_rambo = rambo(m1, finalmasses, wgt);
-    p.insert(++p.begin(), p_rambo.begin(), p_rambo.end());
-
-    return p;
+      std::vector<double> finalmasses(++masses.begin(), masses.end());
+      std::vector<double *> p_rambo = rambo(m1, finalmasses, wgt);
+      p.insert(++p.begin(), p_rambo.begin(), p_rambo.end());
+      p2.push_back(p);
+    }
+    return p2;
   }
 
   else if (ninitial != 2) {
@@ -127,27 +131,32 @@ std::vector<double *> get_momenta(int ninitial, double energy,
   double energy1 = sqrt(pow(mom, 2) + pow(m1, 2));
   double energy2 = sqrt(pow(mom, 2) + pow(m2, 2));
   // Set momenta for incoming particles
-  std::vector<double *> p(1, new double[4]);
-  p[0][0] = energy1;
-  p[0][1] = 0;
-  p[0][2] = 0;
-  p[0][3] = mom;
-  p.push_back(new double[4]);
-  p[1][0] = energy2;
-  p[1][1] = 0;
-  p[1][2] = 0;
-  p[1][3] = -mom;
+  std::vector<std::vector<double *>> p2;
+  for (int d = 0; d < dim; ++d) {
 
-  if (nfinal == 1) {
+    std::vector<double *> p(1, new double[4]);
+    p[0][0] = energy1;
+    p[0][1] = 0;
+    p[0][2] = 0;
+    p[0][3] = mom;
     p.push_back(new double[4]);
-    p[2][0] = energy;
-    wgt = 1;
-    return p;
+    p[1][0] = energy2;
+    p[1][1] = 0;
+    p[1][2] = 0;
+    p[1][3] = -mom;
+
+    if (nfinal == 1) {
+      p.push_back(new double[4]);
+      p[2][0] = energy;
+      wgt = 1;
+      p2.push_back(p);
+    }
+    std::vector<double> finalmasses(++(++masses.begin()), masses.end());
+    std::vector<double *> p_rambo = rambo(energy, finalmasses, wgt);
+    p.insert(++(++p.begin()), p_rambo.begin(), p_rambo.end());
+    p2.push_back(p);
   }
-  std::vector<double> finalmasses(++(++masses.begin()), masses.end());
-  std::vector<double *> p_rambo = rambo(energy, finalmasses, wgt);
-  p.insert(++(++p.begin()), p_rambo.begin(), p_rambo.end());
-  return p;
+  return p2;
 }
 
 std::vector<double *> rambo(double et, std::vector<double> &xm, double &wt) {

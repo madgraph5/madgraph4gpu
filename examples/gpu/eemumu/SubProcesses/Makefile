@@ -17,7 +17,7 @@ all:
 	make check
 
 debug: CXXFLAGS:=$(filter-out -O3,$(CXXFLAGS))
-debug: CXXFLAGS += -g -O0
+debug: CXXFLAGS += -g -O0 -DDEBUG
 debug: CUFLAGS += -G
 debug: MAKEDEBUG := debug
 debug: check

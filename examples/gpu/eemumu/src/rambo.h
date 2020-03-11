@@ -13,7 +13,8 @@ private:
 
 double rn(int idummy);
 
-std::vector<double *> get_momenta(int ninitial, double energy,
-                                  std::vector<double> masses, double &wgt);
+std::vector<std::vector<double *>> get_momenta(int ninitial, double energy,
+                                               std::vector<double> masses,
+                                               double &wgt, int dim);
 
 std::vector<double *> rambo(double et, std::vector<double> &xm, double &wt);

@@ -49,11 +49,13 @@ int main(int argc, char **argv) {
   double energy = 1500;
   double weight;
 
+  int dim = process.getDim();
+
   for (int x = 0; x < numevts; ++x) {
 
     // Get phase space point
-    std::vector<double *> p =
-        get_momenta(process.ninitial, energy, process.getMasses(), weight);
+    std::vector<std::vector<double *>> p =
+        get_momenta(process.ninitial, energy, process.getMasses(), weight, dim);
 
     // Set momenta for this event
     process.setMomenta(p);
@@ -61,34 +63,39 @@ int main(int argc, char **argv) {
     // Evaluate matrix element
     process.sigmaKin();
 
-    const double *matrix_elements = process.getMatrixElements();
+    double **matrix_elements = process.getMatrixElements();
 
-    if (verbose) {
-      std::cout << "Momenta:" << std::endl;
-      for (int i = 0; i < process.nexternal; i++)
-        std::cout << std::setw(4) << i + 1 << setiosflags(std::ios::scientific)
-                  << std::setw(14) << p[i][0]
-                  << setiosflags(std::ios::scientific) << std::setw(14)
-                  << p[i][1] << setiosflags(std::ios::scientific)
-                  << std::setw(14) << p[i][2]
-                  << setiosflags(std::ios::scientific) << std::setw(14)
-                  << p[i][3] << std::endl;
-      std::cout << "-----------------------------------------------------------"
-                   "------------------"
-                << std::endl;
-    }
+    for (int d = 0; d < dim; ++d) {
 
-    if (verbose) {
-      // Display matrix elements
-      for (int i = 0; i < process.nprocesses; i++)
-        std::cout << " Matrix element = "
-                  //	 << setiosflags(ios::fixed) << setprecision(17)
-                  << matrix_elements[i] << " GeV^"
-                  << -(2 * process.nexternal - 8) << std::endl;
+      if (verbose) {
+        std::cout << "Momenta:" << std::endl;
+        for (int i = 0; i < process.nexternal; i++)
+          std::cout << std::setw(4) << i + 1
+                    << setiosflags(std::ios::scientific) << std::setw(14)
+                    << p[d][i][0] << setiosflags(std::ios::scientific)
+                    << std::setw(14) << p[d][i][1]
+                    << setiosflags(std::ios::scientific) << std::setw(14)
+                    << p[d][i][2] << setiosflags(std::ios::scientific)
+                    << std::setw(14) << p[d][i][3] << std::endl;
+        std::cout
+            << "-----------------------------------------------------------"
+               "------------------"
+            << std::endl;
+      }
 
-      std::cout << "-----------------------------------------------------------"
-                   "------------------"
-                << std::endl;
+      if (verbose) {
+        // Display matrix elements
+        for (int i = 0; i < process.nprocesses; i++)
+          std::cout << " Matrix element = "
+                    //	 << setiosflags(ios::fixed) << setprecision(17)
+                    << matrix_elements[d][i] << " GeV^"
+                    << -(2 * process.nexternal - 8) << std::endl;
+
+        std::cout
+            << "-----------------------------------------------------------"
+               "------------------"
+            << std::endl;
+      }
     }
   }
 }

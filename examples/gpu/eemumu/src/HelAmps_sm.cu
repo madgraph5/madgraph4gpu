@@ -13,29 +13,68 @@
 namespace gMG5_sm {
 
 __global__ void calculate_wavefunctions(
-    int *perm, int (*hel)[4], int ihel, double *mME, double (*p)[4],
-    thrust::complex<double> *amp, thrust::complex<double> (*w)[6][6],
+    int *perm, int (*hel)[4], int ihel, double *mME, double (*p)[4][4],
+    thrust::complex<double> (*amp)[2], thrust::complex<double> (*w)[6][6],
     thrust::complex<double> GC_3, thrust::complex<double> GC_51,
     thrust::complex<double> GC_59, double mdl_MZ, double mdl_WZ) {
   // Calculate wavefunctions for all processes
   // int i, j;
   double ZERO = 0.00;
-  int dim = 1; // sr fixme, calculate number
+  // printf("\n\nblock (%i / %i), thread (%i)\n\n", blockIdx.x, blockDim.x,
+  //       threadIdx.x);
+  int dim = 1; // = blockIdx.x * blockDim.x + threadIdx.x; // sr fixme,
+               // calculate number
   dim -= 1;
   thrust::complex<double>(*dw)[6] = w[dim];
+  thrust::complex<double> *damp = amp[dim];
+  double(*dp)[4] = p[dim];
 
   // Calculate all wavefunctions
-  oxxxxx(p[perm[0]], mME[0], hel[ihel][0], -1, dw[0]);
-  ixxxxx(p[perm[1]], mME[1], hel[ihel][1], +1, dw[1]);
-  ixxxxx(p[perm[2]], mME[2], hel[ihel][2], -1, dw[2]);
-  oxxxxx(p[perm[3]], mME[3], hel[ihel][3], +1, dw[3]);
+  oxxxxx(dp[perm[0]], mME[0], hel[ihel][0], -1, dw[0]);
+  ixxxxx(dp[perm[1]], mME[1], hel[ihel][1], +1, dw[1]);
+  ixxxxx(dp[perm[2]], mME[2], hel[ihel][2], -1, dw[2]);
+  oxxxxx(dp[perm[3]], mME[3], hel[ihel][3], +1, dw[3]);
 
   FFV1P0_3(dw[1], dw[0], GC_3, ZERO, ZERO, dw[4]);
   FFV2_4_3(dw[1], dw[0], -GC_51, GC_59, mdl_MZ, mdl_WZ, dw[5]);
   // Calculate all amplitudes
   // Amplitude(s) for diagram number 0
-  FFV1_0(dw[2], dw[3], dw[4], GC_3, &amp[0]);
-  FFV2_4_0(dw[2], dw[3], dw[5], -GC_51, GC_59, &amp[1]);
+  FFV1_0(dw[2], dw[3], dw[4], GC_3, &damp[0]);
+  FFV2_4_0(dw[2], dw[3], dw[5], -GC_51, GC_59, &damp[1]);
+
+#ifdef DEBUG
+  printf("\n\n >>> DEBUG >>> DEBUG >>> DEBUG >>>\n");
+
+  printf("\nHelicities: %d %d %d %d\n", hel[ihel][0], hel[ihel][1],
+         hel[ihel][2], hel[ihel][3]);
+
+  printf("\nMomenta:\n");
+  for (int i = 0; i < 4; ++i) {
+    printf("%i %e %e %e %e\n", i, dp[perm[i]][0], dp[perm[i]][1],
+           dp[perm[i]][2], dp[perm[i]][3]);
+  }
+
+  printf("\nMasses: %e, %e, %e, %e\n", mME[0], mME[1], mME[2], mME[3]);
+
+  printf("\nAmplitudes: (%e, %e), (%e, %e)\n", damp[0].real(), damp[0].imag(),
+         damp[1].real(), damp[1].imag());
+
+  printf("\nWavefuncs:\n");
+  for (int i = 0; i < 6; ++i) {
+    printf("%i ", i);
+    for (int j = 0; j < 6; ++j) {
+      double re = dw[i][j].real(), im = dw[i][j].imag();
+      if (re == 0 && im == 0) {
+        printf("0, ");
+      } else {
+        printf("(%e, %e), ", re, im);
+      }
+    }
+    printf("\n");
+  }
+
+  printf("\n\n <<< DEBUG <<< DEBUG <<< DEBUG <<<\n\n");
+#endif
 }
 
 __device__ void ixxxxx(double p[4], double fmass, int nhel, int nsf,
@@ -467,7 +506,8 @@ __device__ void FFV2_4_3(thrust::complex<double> F1[],
   *COUP2t = COUP2;
   FFV2_3(F1, F2, COUP1t, M3, W3, V3);
   FFV4_3(F1, F2, COUP2t, M3, W3, Vtmp);
-  cudaDeviceSynchronize();
+  // cudaDeviceSynchronize(); // sr fixme // still needed when above are not
+  // kernel calls?
   i = 2;
   while (i < 6) {
     V3[i] = V3[i] + Vtmp[i];
@@ -544,7 +584,8 @@ FFV2_4_0(thrust::complex<double> F1[], thrust::complex<double> F2[],
   vertext = vertex;
   FFV2_0(F1, F2, V3, COUP1t, vertext);
   FFV4_0(F1, F2, V3, COUP2t, tmp);
-  cudaDeviceSynchronize();
+  // cudaDeviceSynchronize(); // sr fixme // still needed when above are not
+  // kernel calls?
   (*vertex) = (*vertex) + (*tmp);
   cudaFree(COUP1t);
   cudaFree(COUP2t);
