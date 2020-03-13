@@ -26,9 +26,9 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
   }
 }
 
-CPPProcess::CPPProcess(bool verbose, bool debug)
-    : m_verbose(verbose), m_debug(debug), dim(gpu_nwarps * gpu_nthreads),
-      mME(4, 0.00) {
+CPPProcess::CPPProcess(int gpuwarps, int gputhreads, bool verbose, bool debug)
+    : gpu_nwarps(gpuwarps), gpu_nthreads(gputhreads), m_verbose(verbose),
+      m_debug(debug), dim(gpu_nwarps * gpu_nthreads), mME(4, 0.00) {
 
   amp = new thrust::complex<double> *[dim];
   for (int i = 0; i < dim; ++i) {
@@ -99,6 +99,7 @@ void CPPProcess::setMomenta(std::vector<std::vector<double *>> &momenta) {
 
   for (int d = 0; d < dim; ++d) {
     for (int i = 0; i < nioparticles; ++i) {
+      cudaDeviceSynchronize();
       gpuErrchk(cudaMemcpy((void *)m->tp[d][i], (void *)momenta[d][i],
                            4 * sizeof(double), cudaMemcpyHostToDevice));
     }

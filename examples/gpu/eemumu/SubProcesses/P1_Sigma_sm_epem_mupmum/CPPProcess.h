@@ -24,19 +24,20 @@
 //--------------------------------------------------------------------------
 
 struct processMem {
-  thrust::complex<double> (*tamp)[2];  // [dim][namplitudes]
-  thrust::complex<double> (*tw)[6][6]; // [dim][nwavefuncs][6] was [6][18]
-  double (*tp)[4][4];                  // [dim][4][4]
-  double *tmME;                        // [4(nmasses)]
-  int *tperm;                          // [nexternal]
-  int (*thelicities)[4];               // [nexternal][16(possible permutations)]
+  thrust::complex<double> (*tamp)[2];  // [dim][namplitudes] --> global
+  thrust::complex<double> (*tw)[6][6]; // [dim][nwavefuncs][6] --> global
+  double (*tp)[4][4];                  // [dim][4][4] --> global
+  double *tmME;                        // [4(nmasses)] --> constant
+  int *tperm;                          // [nexternal] --> constant
+  int (*thelicities)[4]; // [nexternal][16(possible permutations)] --> constant
 };
 
 class CPPProcess {
 public:
   // Constructor.
 
-  CPPProcess(bool verbose = false, bool debug = false);
+  CPPProcess(int gpuwarps, int gputhreads, bool verbose = false,
+             bool debug = false);
 
   ~CPPProcess();
 
@@ -77,8 +78,8 @@ public:
 
 private:
   // gpu variables
-  int gpu_nwarps = 10;
-  int gpu_nthreads = 128;
+  int gpu_nwarps;
+  int gpu_nthreads;
   int dim; // gpu_nwarps * gpu_nthreads;
 
   // timer

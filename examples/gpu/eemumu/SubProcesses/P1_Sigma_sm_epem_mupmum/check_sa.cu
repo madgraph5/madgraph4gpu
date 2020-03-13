@@ -22,7 +22,8 @@ int usage(int ret = 0) {
 
 int main(int argc, char **argv) {
   bool verbose = false, debug = false;
-  int numevts = 0;
+  int numevts = 0, gpuwarps = 1, gputhreads = 1;
+  std::vector<int> numvec;
   for (int argn = 1; argn < argc; ++argn) {
     if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
       verbose = true;
@@ -30,10 +31,22 @@ int main(int argc, char **argv) {
              strcmp(argv[argn], "-d") == 0)
       debug = true;
     else if (is_number(argv[argn]))
-      numevts = atoi(argv[argn]);
+      numvec.push_back(atoi(argv[argn]));
+    // numevts = atoi(argv[argn]);
     else
       return usage(1);
   }
+  int veclen = numvec.size();
+  if (veclen == 3) {
+    gpuwarps = numvec[0];
+    gputhreads = numvec[1];
+    numevts = numvec[2];
+  } else if (veclen == 1) {
+    numevts = numvec[0];
+  } else {
+    return usage(1);
+  }
+
   if (numevts == 0)
     return usage(1);
 
@@ -41,7 +54,7 @@ int main(int argc, char **argv) {
     std::cout << "num evts: " << numevts << std::endl;
 
   // Create a process object
-  CPPProcess process(verbose, debug);
+  CPPProcess process(gpuwarps, gputhreads, verbose, debug);
 
   // Read param_card and set parameters
   process.initProc("../../Cards/param_card.dat");

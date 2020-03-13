@@ -26,9 +26,9 @@ __global__ void calculate_wavefunctions(
 #endif
   int dim = blockIdx.x * blockDim.x + threadIdx.x;
 
-  thrust::complex<double>(*dw)[6] = w[dim];
-  thrust::complex<double> *damp = amp[dim];
-  double(*dp)[4] = p[dim];
+  thrust::complex<double> *damp = amp[dim]; // --> shared
+  thrust::complex<double>(*dw)[6] = w[dim]; // --> shared
+  double(*dp)[4] = p[dim];                  // --> shared
 
   // Calculate all wavefunctions
   oxxxxx(dp[perm[0]], mME[0], hel[ihel][0], -1, dw[0]);

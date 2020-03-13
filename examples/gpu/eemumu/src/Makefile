@@ -2,7 +2,7 @@ CUARCHNUM=70
 LIBDIR=../lib
 CXXFLAGS= -O3 -I.
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM)
-CUFLAGS= $(CUARCHFLAGS) -rdc=true
+CUFLAGS= $(CUARCHFLAGS) -use_fast_math -rdc=true
 NVCC=/usr/local/cuda/bin/nvcc
 CXX=g++
 
