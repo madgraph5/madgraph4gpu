@@ -251,11 +251,14 @@ double CPPProcess::sigmaHat() {
 
 void CPPProcess::call_wavefunctions_kernel(int ihel) {
 
-  m_timer.Start();
+  if (m_verbose) {
+    m_timer.Start();
+  }
 
   gMG5_sm::calculate_wavefunctions<<<gpu_nwarps, gpu_nthreads>>>(
       m->tperm, m->thelicities, ihel, m->tmME, m->tp, m->tamp, m->tw,
-      pars->GC_3, pars->GC_51, pars->GC_59, pars->mdl_MZ, pars->mdl_WZ);
+      pars->GC_3, pars->GC_51, pars->GC_59, pars->mdl_MZ, pars->mdl_WZ, m_debug,
+      m_verbose);
   cudaDeviceSynchronize();
 
   // memcpy(amp, m->tamp, namplitudes * sizeof(thrust::complex<double>));
@@ -264,8 +267,10 @@ void CPPProcess::call_wavefunctions_kernel(int ihel) {
                        dim * namplitudes * sizeof(thrust::complex<double>),
                        cudaMemcpyDeviceToHost));
 */
-  float gputime = m_timer.GetDuration();
-  std::cout << "Wave function time: " << gputime << std::endl;
+  if (m_verbose) {
+    float gputime = m_timer.GetDuration();
+    std::cout << "Wave function time: " << gputime << std::endl;
+  }
 }
 
 // --> calculate multi-dimensional amp

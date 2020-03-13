@@ -18,7 +18,8 @@ __global__ void calculate_wavefunctions(
     int *perm, int (*hel)[4], int ihel, double *mME, double (*p)[4][4],
     thrust::complex<double> (*amp)[2], thrust::complex<double> (*w)[6][6],
     thrust::complex<double> GC_3, thrust::complex<double> GC_51,
-    thrust::complex<double> GC_59, double mdl_MZ, double mdl_WZ);
+    thrust::complex<double> GC_59, double mdl_MZ, double mdl_WZ,
+    bool debug = false, bool verbose = false);
 
 __device__ void oxxxxx(double p[4], double fmass, int nhel, int nsf,
                        thrust::complex<double> fo[6]);

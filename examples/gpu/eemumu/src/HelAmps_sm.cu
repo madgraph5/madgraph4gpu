@@ -16,14 +16,15 @@ __global__ void calculate_wavefunctions(
     int *perm, int (*hel)[4], int ihel, double *mME, double (*p)[4][4],
     thrust::complex<double> (*amp)[2], thrust::complex<double> (*w)[6][6],
     thrust::complex<double> GC_3, thrust::complex<double> GC_51,
-    thrust::complex<double> GC_59, double mdl_MZ, double mdl_WZ) {
+    thrust::complex<double> GC_59, double mdl_MZ, double mdl_WZ, bool debug,
+    bool verbose) {
   // Calculate wavefunctions for all processes
   // int i, j;
   double ZERO = 0.00;
-#ifdef DEBUG
-  printf("\n\nblock (%i / %i), thread (%i)\n\n", blockIdx.x, blockDim.x,
-         threadIdx.x);
-#endif
+  if (debug) {
+    printf("\n\nblock (%i / %i), thread (%i)\n\n", blockIdx.x, blockDim.x,
+           threadIdx.x);
+  }
   int dim = blockIdx.x * blockDim.x + threadIdx.x;
 
   thrust::complex<double> *damp = amp[dim]; // --> shared
@@ -43,39 +44,39 @@ __global__ void calculate_wavefunctions(
   FFV1_0(dw[2], dw[3], dw[4], GC_3, &damp[0]);
   FFV2_4_0(dw[2], dw[3], dw[5], -GC_51, GC_59, &damp[1]);
 
-#ifdef DEBUG
-  printf("\n\n >>> DEBUG >>> DEBUG >>> DEBUG >>>\n");
+  if (debug) {
+    printf("\n\n >>> DEBUG >>> DEBUG >>> DEBUG >>>\n");
 
-  printf("\nHelicities: %d %d %d %d\n", hel[ihel][0], hel[ihel][1],
-         hel[ihel][2], hel[ihel][3]);
+    printf("\nHelicities: %d %d %d %d\n", hel[ihel][0], hel[ihel][1],
+           hel[ihel][2], hel[ihel][3]);
 
-  printf("\nMomenta:\n");
-  for (int i = 0; i < 4; ++i) {
-    printf("%i %e %e %e %e\n", i, dp[perm[i]][0], dp[perm[i]][1],
-           dp[perm[i]][2], dp[perm[i]][3]);
-  }
-
-  printf("\nMasses: %e, %e, %e, %e\n", mME[0], mME[1], mME[2], mME[3]);
-
-  printf("\nAmplitudes: (%e, %e), (%e, %e)\n", damp[0].real(), damp[0].imag(),
-         damp[1].real(), damp[1].imag());
-
-  printf("\nWavefuncs:\n");
-  for (int i = 0; i < 6; ++i) {
-    printf("%i ", i);
-    for (int j = 0; j < 6; ++j) {
-      double re = dw[i][j].real(), im = dw[i][j].imag();
-      if (re == 0 && im == 0) {
-        printf("0, ");
-      } else {
-        printf("(%e, %e), ", re, im);
-      }
+    printf("\nMomenta:\n");
+    for (int i = 0; i < 4; ++i) {
+      printf("%i %e %e %e %e\n", i, dp[perm[i]][0], dp[perm[i]][1],
+             dp[perm[i]][2], dp[perm[i]][3]);
     }
-    printf("\n");
-  }
 
-  printf("\n\n <<< DEBUG <<< DEBUG <<< DEBUG <<<\n\n");
-#endif
+    printf("\nMasses: %e, %e, %e, %e\n", mME[0], mME[1], mME[2], mME[3]);
+
+    printf("\nAmplitudes: (%e, %e), (%e, %e)\n", damp[0].real(), damp[0].imag(),
+           damp[1].real(), damp[1].imag());
+
+    printf("\nWavefuncs:\n");
+    for (int i = 0; i < 6; ++i) {
+      printf("%i ", i);
+      for (int j = 0; j < 6; ++j) {
+        double re = dw[i][j].real(), im = dw[i][j].imag();
+        if (re == 0 && im == 0) {
+          printf("0, ");
+        } else {
+          printf("(%e, %e), ", re, im);
+        }
+      }
+      printf("\n");
+    }
+
+    printf("\n\n <<< DEBUG <<< DEBUG <<< DEBUG <<<\n\n");
+  }
 }
 
 __device__ void ixxxxx(double p[4], double fmass, int nhel, int nsf,

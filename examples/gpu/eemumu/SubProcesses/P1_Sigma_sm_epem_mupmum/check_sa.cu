@@ -66,6 +66,10 @@ int main(int argc, char **argv) {
 
   for (int x = 0; x < numevts; ++x) {
 
+    if (!(verbose || debug)) {
+      std::cout << ".";
+    }
+
     // Get phase space point
     std::vector<std::vector<double *>> p =
         get_momenta(process.ninitial, energy, process.getMasses(), weight, dim);
@@ -110,5 +114,8 @@ int main(int argc, char **argv) {
             << std::endl;
       }
     }
+  }
+  if (!(verbose || debug)) {
+    std::cout << std::endl;
   }
 }
