@@ -54,14 +54,16 @@ CPPProcess::CPPProcess(int gpuwarps, int gputhreads, bool verbose, bool debug)
   - CPPProcess::setMomenta fuellt m->tp
   */
   gpuErrchk(cudaMalloc(&m->tp, dim * nioparticles * 4 * sizeof(double)));
+  // gpuErrchk(cudaMalloc(&m->tp, (dim + dim * nioparticles) * sizeof(double *)
+  // + dim * nioparticles * 4 * sizeof(double)));
 
   // amp - DIM
   /*
   - i/o parameter to kernels
   - after kernel call fill amp member
   - matrix_1_epem_mupmum uses amp for final calculation of weight -> return
-  value used in CPPProcess::sigmaKin --> writes into CPPProcess::matrix_element
-  member
+  value used in CPPProcess::sigmaKin --> writes into
+  CPPProcess::matrix_element member
   */
   gpuErrchk(cudaMallocManaged(&m->tamp, dim * namplitudes *
                                             sizeof(thrust::complex<double>)));
@@ -95,15 +97,31 @@ CPPProcess::CPPProcess(int gpuwarps, int gputhreads, bool verbose, bool debug)
 
 CPPProcess::~CPPProcess() {}
 
-void CPPProcess::setMomenta(std::vector<std::vector<double *>> &momenta) {
+void CPPProcess::setMomenta(double ***momenta, int momentasize) {
+
+  cudaDeviceSynchronize(); // sr fixme // needed?
+
+  /* this doesn't work
+  gpuErrchk(cudaMemcpy((void *)m->tp, (void *)momenta, momentasize,
+                       cudaMemcpyHostToDevice));
 
   for (int d = 0; d < dim; ++d) {
     for (int i = 0; i < nioparticles; ++i) {
       cudaDeviceSynchronize();
-      gpuErrchk(cudaMemcpy((void *)m->tp[d][i], (void *)momenta[d][i],
+      gpuErrchk(cudaMemcpy((void *)&m->tp[d][i][0], (void *)&momenta[d][i][0],
                            4 * sizeof(double), cudaMemcpyHostToDevice));
     }
   }
+*/
+  /*
+    for (int d = 0; d < dim; ++d) {
+      for (int i = 0; i < nioparticles; ++i) {
+        cudaDeviceSynchronize();
+        gpuErrchk(cudaMemcpy((void *)m->tp[d][i], (void *)momenta[d][i],
+                             4 * sizeof(double), cudaMemcpyHostToDevice));
+      }
+    }
+  */
 }
 
 const std::vector<double> &CPPProcess::getMasses() const { return mME; }

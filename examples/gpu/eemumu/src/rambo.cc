@@ -1,10 +1,34 @@
 #include <cmath>
+#include <cstring>
 #include <iostream>
 #include <math.h>
 #include <stdlib.h>
 #include <vector>
 
 #include "rambo.h"
+
+template <typename T>
+T **alloc2DArray(int y, int x, int &size, bool init = false) {
+
+  int i, j, count = 0;
+  T *ptr, **arr;
+
+  size = sizeof(T *) * y + sizeof(T) * y * x;
+  arr = (T **)malloc(size);
+
+  ptr = (T *)(arr + y); // points to first T value
+
+  // for loop to point rows pointer to appropriate location in 2D array
+  for (i = 0; i < y; ++i)
+    arr[i] = (ptr + x * i);
+
+  if (init)
+    for (i = 0; i < y; i++)
+      for (j = 0; j < x; j++)
+        arr[i][j] = ++count;
+
+  return arr;
+}
 
 double Random::ranmar() {
   /*     -----------------
@@ -85,9 +109,8 @@ double rn(int idummy) {
   return ran;
 }
 
-std::vector<std::vector<double *>> get_momenta(int ninitial, double energy,
-                                               std::vector<double> masses,
-                                               double &wgt, int dim) {
+void get_momenta(int ninitial, double energy, std::vector<double> masses,
+                 double &wgt, int dim, double ***p) {
   //---- auxiliary function to change convention between MadGraph5_aMC@NLO and
   // rambo
   //---- four momenta.
@@ -95,23 +118,22 @@ std::vector<std::vector<double *>> get_momenta(int ninitial, double energy,
   int nfinal = nexternal - ninitial;
   double e2 = pow(energy, 2);
   double m1 = masses[0];
-  std::vector<std::vector<double *>> p2;
 
   if (ninitial == 1) {
+    std::vector<double> finalmasses(++masses.begin(), masses.end());
+    int prsize;
+    double **p_rambo = alloc2DArray<double>(finalmasses.size(), 4, prsize);
     for (int d = 0; d < dim; ++d) {
       // Momenta for the incoming particle
-      std::vector<double *> p(1, new double[4]);
-      p[0][0] = m1;
-      p[0][1] = 0.;
-      p[0][2] = 0.;
-      p[0][3] = 0.;
+      p[d][0][0] = m1;
+      p[d][0][1] = 0.;
+      p[d][0][2] = 0.;
+      p[d][0][3] = 0.;
 
-      std::vector<double> finalmasses(++masses.begin(), masses.end());
-      std::vector<double *> p_rambo = rambo(m1, finalmasses, wgt);
-      p.insert(++p.begin(), p_rambo.begin(), p_rambo.end());
-      p2.push_back(p);
+      rambo(m1, finalmasses, wgt, p_rambo);
+      memcpy(&p[d][1][0], &p_rambo[0][0], prsize);
     }
-    return p2;
+    free(*p_rambo);
   }
 
   else if (ninitial != 2) {
@@ -131,34 +153,32 @@ std::vector<std::vector<double *>> get_momenta(int ninitial, double energy,
   double energy1 = sqrt(pow(mom, 2) + pow(m1, 2));
   double energy2 = sqrt(pow(mom, 2) + pow(m2, 2));
   // Set momenta for incoming particles
+  std::vector<double> finalmasses(++(++masses.begin()), masses.end());
+  int prsize;
+  double **p_rambo = alloc2DArray<double>(finalmasses.size(), 4, prsize);
+
   for (int d = 0; d < dim; ++d) {
 
-    std::vector<double *> p(1, new double[4]);
-    p[0][0] = energy1;
-    p[0][1] = 0;
-    p[0][2] = 0;
-    p[0][3] = mom;
-    p.push_back(new double[4]);
-    p[1][0] = energy2;
-    p[1][1] = 0;
-    p[1][2] = 0;
-    p[1][3] = -mom;
+    p[d][0][0] = energy1;
+    p[d][0][1] = 0;
+    p[d][0][2] = 0;
+    p[d][0][3] = mom;
+    p[d][1][0] = energy2;
+    p[d][1][1] = 0;
+    p[d][1][2] = 0;
+    p[d][1][3] = -mom;
 
     if (nfinal == 1) {
-      p.push_back(new double[4]);
-      p[2][0] = energy;
+      p[d][2][0] = energy;
       wgt = 1;
-      p2.push_back(p);
     }
-    std::vector<double> finalmasses(++(++masses.begin()), masses.end());
-    std::vector<double *> p_rambo = rambo(energy, finalmasses, wgt);
-    p.insert(++(++p.begin()), p_rambo.begin(), p_rambo.end());
-    p2.push_back(p);
+    rambo(energy, finalmasses, wgt, p_rambo);
+    memcpy(&p[d][nexternal - nfinal][0], &p_rambo[0][0], prsize);
   }
-  return p2;
+  // free(*p_rambo); // sr fixme // need to free memory
 }
 
-std::vector<double *> rambo(double et, std::vector<double> &xm, double &wt) {
+void rambo(double et, std::vector<double> &xm, double &wt, double **p) {
   /**********************************************************************
    *                       rambo                                         *
    *    ra(ndom)  m(omenta)  b(eautifully)  o(rganized)                  *
@@ -175,7 +195,7 @@ std::vector<double *> rambo(double et, std::vector<double> &xm, double &wt) {
    *    wt = weight of the event                                         *
    ***********************************************************************/
   int n = xm.size();
-  std::vector<double *> q, p;
+  std::vector<double *> q;
   std::vector<double> z(n), r(4), b(3), p2(n), xm2(n), e(n), v(n);
   static std::vector<int> iwarn(5, 0);
   static double acc = 1e-14;
@@ -185,7 +205,6 @@ std::vector<double *> rambo(double et, std::vector<double> &xm, double &wt) {
 
   for (int i = 0; i < n; i++) {
     q.push_back(new double[4]);
-    p.push_back(new double[4]);
   }
   // initialization step: factorials for the phase space weight
   if (ibegin == 0) {
@@ -268,7 +287,7 @@ std::vector<double *> rambo(double et, std::vector<double> &xm, double &wt) {
   // return for weighted massless momenta
   if (nm == 0) {
     // return log of weight
-    return p;
+    return; // p
   }
 
   // massive particles: rescale the momenta by a factor x
@@ -328,5 +347,4 @@ std::vector<double *> rambo(double et, std::vector<double> &xm, double &wt) {
     iwarn[3] = iwarn[3] + 1;
   }
   // return log of weight
-  return p;
 }

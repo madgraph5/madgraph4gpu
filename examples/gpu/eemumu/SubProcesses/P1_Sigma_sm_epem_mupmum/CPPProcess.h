@@ -59,7 +59,7 @@ public:
 
   const std::vector<double> &getMasses() const;
 
-  void setMomenta(std::vector<std::vector<double *>> &momenta);
+  void setMomenta(double ***p, int psize);
 
   void setInitial(int inid1, int inid2) {
     id1 = inid1;

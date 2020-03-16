@@ -30,6 +30,7 @@ __global__ void calculate_wavefunctions(
   thrust::complex<double> *damp = amp[dim]; // --> shared
   thrust::complex<double>(*dw)[6] = w[dim]; // --> shared
   double(*dp)[4] = p[dim];                  // --> shared
+  // double **dp = p[dim]; // --> shared
 
   // Calculate all wavefunctions
   oxxxxx(dp[perm[0]], mME[0], hel[ihel][0], -1, dw[0]);
