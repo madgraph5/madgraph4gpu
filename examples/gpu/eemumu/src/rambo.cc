@@ -95,9 +95,9 @@ std::vector<std::vector<double *>> get_momenta(int ninitial, double energy,
   int nfinal = nexternal - ninitial;
   double e2 = pow(energy, 2);
   double m1 = masses[0];
+  std::vector<std::vector<double *>> p2;
 
   if (ninitial == 1) {
-    std::vector<std::vector<double *>> p2;
     for (int d = 0; d < dim; ++d) {
       // Momenta for the incoming particle
       std::vector<double *> p(1, new double[4]);
@@ -131,7 +131,6 @@ std::vector<std::vector<double *>> get_momenta(int ninitial, double energy,
   double energy1 = sqrt(pow(mom, 2) + pow(m1, 2));
   double energy2 = sqrt(pow(mom, 2) + pow(m2, 2));
   // Set momenta for incoming particles
-  std::vector<std::vector<double *>> p2;
   for (int d = 0; d < dim; ++d) {
 
     std::vector<double *> p(1, new double[4]);

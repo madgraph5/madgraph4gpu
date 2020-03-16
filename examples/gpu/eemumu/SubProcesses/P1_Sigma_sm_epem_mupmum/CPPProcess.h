@@ -71,6 +71,8 @@ public:
 
   int getDim() const { return dim; }
 
+  int getNIOParticles() const { return nioparticles; }
+
   // Constants for array limits
   static const int ninitial = 2;
   static const int nexternal = 4;
