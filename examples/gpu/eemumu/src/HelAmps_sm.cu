@@ -10,7 +10,25 @@
 #include <cuda_runtime.h>
 #include <thrust/complex.h>
 
+#define gpuErrchk2(ans)                                                        \
+  { gpuAssert2((ans), __FILE__, __LINE__); }
+
+__device__ void gpuAssert2(cudaError_t code, const char *file, int line,
+                           bool abort = true) {
+  if (code != cudaSuccess) {
+    printf("GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+    /*
+    if (abort)
+      exit(code);
+      */
+  }
+}
+
 namespace gMG5_sm {
+
+__device__ void debugMsg(const char *msg) {
+  // printf("%i.%i-%s ", blockIdx.x, threadIdx.x, msg);
+}
 
 __global__ void calculate_wavefunctions(
     int *perm, int (*hel)[4], int ihel, double *mME, double (*p)[4][4],
@@ -18,6 +36,7 @@ __global__ void calculate_wavefunctions(
     thrust::complex<double> GC_3, thrust::complex<double> GC_51,
     thrust::complex<double> GC_59, double mdl_MZ, double mdl_WZ, bool debug,
     bool verbose) {
+  debugMsg("%>");
   // Calculate wavefunctions for all processes
   // int i, j;
   double ZERO = 0.00;
@@ -36,14 +55,12 @@ __global__ void calculate_wavefunctions(
   ixxxxx(dp[perm[1]], mME[1], hel[ihel][1], +1, dw[1]);
   ixxxxx(dp[perm[2]], mME[2], hel[ihel][2], -1, dw[2]);
   oxxxxx(dp[perm[3]], mME[3], hel[ihel][3], +1, dw[3]);
-
   FFV1P0_3(dw[1], dw[0], GC_3, ZERO, ZERO, dw[4]);
   FFV2_4_3(dw[1], dw[0], -GC_51, GC_59, mdl_MZ, mdl_WZ, dw[5]);
   // Calculate all amplitudes
   // Amplitude(s) for diagram number 0
   FFV1_0(dw[2], dw[3], dw[4], GC_3, &damp[0]);
   FFV2_4_0(dw[2], dw[3], dw[5], -GC_51, GC_59, &damp[1]);
-
   if (debug) {
     printf("\n\n >>> DEBUG >>> DEBUG >>> DEBUG >>>\n");
 
@@ -77,10 +94,12 @@ __global__ void calculate_wavefunctions(
 
     printf("\n\n <<< DEBUG <<< DEBUG <<< DEBUG <<<\n\n");
   }
+  debugMsg("<%");
 }
 
 __device__ void ixxxxx(double p[4], double fmass, int nhel, int nsf,
                        thrust::complex<double> fi[6]) {
+  debugMsg("b>");
   thrust::complex<double> chi[2];
   double sf[2], sfomega[2], omega[2], pp, pp3, sqp0p3, sqm[2];
   int ip, im, nh;
@@ -144,6 +163,7 @@ __device__ void ixxxxx(double p[4], double fmass, int nhel, int nsf,
       fi[5] = thrust::complex<double>(0.0, 0.0);
     }
   }
+  debugMsg("<b");
   return;
 }
 
@@ -341,6 +361,7 @@ __device__ void sxxxxx(double p[4], int nss, thrust::complex<double> sc[3]) {
 
 __device__ void oxxxxx(double p[4], double fmass, int nhel, int nsf,
                        thrust::complex<double> fo[6]) {
+  debugMsg("a>");
   thrust::complex<double> chi[2];
   double sf[2], sfomeg[2], omega[2], pp, pp3, sqp0p3, sqm[2];
   int nh, ip, im;
@@ -405,6 +426,7 @@ __device__ void oxxxxx(double p[4], double fmass, int nhel, int nsf,
       fo[5] = chi[0];
     }
   }
+  debugMsg("<a");
   return;
 }
 
@@ -413,6 +435,7 @@ __device__ void FFV1_0(thrust::complex<double> F1[],
                        thrust::complex<double> V3[],
                        thrust::complex<double> COUP,
                        thrust::complex<double> *vertex) {
+  debugMsg("g>");
   thrust::complex<double> cI = thrust::complex<double>(0., 1.);
   thrust::complex<double> TMP2 =
       (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
@@ -420,12 +443,14 @@ __device__ void FFV1_0(thrust::complex<double> F1[],
         (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
          F1[5] * (F2[2] * (+cI * (V3[4]) - V3[3]) + F2[3] * (V3[2] + V3[5])))));
   (*vertex) = COUP * -cI * TMP2;
+  debugMsg("<g");
 }
 
 __device__ void FFV2_3(thrust::complex<double> F1[],
                        thrust::complex<double> F2[],
                        thrust::complex<double> *COUP, double M3, double W3,
                        thrust::complex<double> V3[]) {
+  debugMsg("e>");
   thrust::complex<double> cI = thrust::complex<double>(0., 1.);
   thrust::complex<double> denom;
   thrust::complex<double> TMP1;
@@ -449,12 +474,14 @@ __device__ void FFV2_3(thrust::complex<double> F1[],
   V3[4] = denom * (-cI) *
           (-cI * (F1[2] * F2[5]) + cI * (F1[3] * F2[4]) - P3[2] * OM3 * TMP1);
   V3[5] = denom * (-cI) * (F1[3] * F2[5] - F1[2] * F2[4] - P3[3] * OM3 * TMP1);
+  debugMsg("<e");
 }
 
 __device__ void FFV4_3(thrust::complex<double> F1[],
                        thrust::complex<double> F2[],
                        thrust::complex<double> *COUP, double M3, double W3,
                        thrust::complex<double> V3[]) {
+  debugMsg("f>");
   thrust::complex<double> cI = thrust::complex<double>(0., 1.);
   thrust::complex<double> denom;
   thrust::complex<double> TMP1;
@@ -462,6 +489,7 @@ __device__ void FFV4_3(thrust::complex<double> F1[],
   double OM3;
   thrust::complex<double> TMP4;
   OM3 = 0.;
+  // debugMsg("0");
   if (M3 != 0.)
     OM3 = 1. / (M3 * M3);
   V3[0] = +F1[0] + F2[0];
@@ -470,28 +498,35 @@ __device__ void FFV4_3(thrust::complex<double> F1[],
   P3[1] = -V3[1].real();
   P3[2] = -V3[1].imag();
   P3[3] = -V3[0].imag();
+  // debugMsg("1");
   TMP4 = (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) +
           F1[5] * (F2[2] * (+cI * (P3[2]) - P3[1]) + F2[3] * (P3[0] + P3[3])));
   TMP1 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
           F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
+  // debugMsg("2");
   denom = (*COUP) / ((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) -
                      (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
+  // debugMsg("3");
   V3[2] = denom * (-2. * cI) *
           (OM3 * -1. / 2. * P3[0] * (TMP1 + 2. * (TMP4)) +
            (+1. / 2. * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] +
             F1[5] * F2[3]));
+  // debugMsg("4");
   V3[3] = denom * (-2. * cI) *
           (OM3 * -1. / 2. * P3[1] * (TMP1 + 2. * (TMP4)) +
            (-1. / 2. * (F1[2] * F2[5] + F1[3] * F2[4]) + F1[4] * F2[3] +
             F1[5] * F2[2]));
+  // debugMsg("5");
   V3[4] = denom * 2. * cI *
           (OM3 * 1. / 2. * P3[2] * (TMP1 + 2. * (TMP4)) +
            (+1. / 2. * cI * (F1[2] * F2[5]) - 1. / 2. * cI * (F1[3] * F2[4]) -
             cI * (F1[4] * F2[3]) + cI * (F1[5] * F2[2])));
+  // debugMsg("6");
   V3[5] = denom * 2. * cI *
           (OM3 * 1. / 2. * P3[3] * (TMP1 + 2. * (TMP4)) +
            (+1. / 2. * (F1[2] * F2[4]) - 1. / 2. * (F1[3] * F2[5]) -
             F1[4] * F2[2] + F1[5] * F2[3]));
+  debugMsg("<f");
 }
 
 __device__ void FFV2_4_3(thrust::complex<double> F1[],
@@ -499,15 +534,22 @@ __device__ void FFV2_4_3(thrust::complex<double> F1[],
                          thrust::complex<double> COUP1,
                          thrust::complex<double> COUP2, double M3, double W3,
                          thrust::complex<double> V3[]) {
+  debugMsg("d>");
   int i;
   thrust::complex<double> *COUP1t, *COUP2t, *Vtmp; //[6];
-  cudaMalloc(&COUP1t, sizeof(thrust::complex<double>));
-  cudaMalloc(&COUP2t, sizeof(thrust::complex<double>));
-  cudaMalloc(&Vtmp, 6 * sizeof(thrust::complex<double>));
+  gpuErrchk2(cudaMalloc(&COUP1t, sizeof(thrust::complex<double>)));
+  gpuErrchk2(cudaMalloc(&COUP2t, sizeof(thrust::complex<double>)));
+  // Vtmp = (thrust::complex<double> *)malloc(6 &
+  // sizeof(thrust::complex<double>));
+  gpuErrchk2(cudaMalloc(&Vtmp, 6 * sizeof(thrust::complex<double>)));
   *COUP1t = COUP1;
   *COUP2t = COUP2;
+  *Vtmp = thrust::complex<double>(0, 0);
+  gpuErrchk2(cudaDeviceSynchronize());
   FFV2_3(F1, F2, COUP1t, M3, W3, V3);
+  gpuErrchk2(cudaDeviceSynchronize());
   FFV4_3(F1, F2, COUP2t, M3, W3, Vtmp);
+  gpuErrchk2(cudaDeviceSynchronize());
   // cudaDeviceSynchronize(); // sr fixme // still needed when above are not
   // kernel calls?
   i = 2;
@@ -515,15 +557,18 @@ __device__ void FFV2_4_3(thrust::complex<double> F1[],
     V3[i] = V3[i] + Vtmp[i];
     i++;
   }
-  cudaFree(COUP1t);
-  cudaFree(COUP2t);
-  cudaFree(Vtmp);
+  gpuErrchk2(cudaFree(COUP1t));
+  gpuErrchk2(cudaFree(COUP2t));
+  // free(Vtmp);
+  gpuErrchk2(cudaFree(Vtmp));
+  debugMsg("<d");
 }
 
 __device__ void FFV1P0_3(thrust::complex<double> F1[],
                          thrust::complex<double> F2[],
                          thrust::complex<double> COUP, double M3, double W3,
                          thrust::complex<double> V3[]) {
+  debugMsg("c>");
   thrust::complex<double> cI = thrust::complex<double>(0., 1.);
   double P3[4];
   thrust::complex<double> denom;
@@ -544,6 +589,7 @@ __device__ void FFV1P0_3(thrust::complex<double> F1[],
            cI * (F1[3] * F2[4] + F1[4] * F2[3]));
   V3[5] = denom * (-cI) *
           (F1[3] * F2[5] + F1[4] * F2[2] - F1[2] * F2[4] - F1[5] * F2[3]);
+  debugMsg("<c");
 }
 
 __device__ void FFV4_0(thrust::complex<double> F1[],
@@ -551,6 +597,7 @@ __device__ void FFV4_0(thrust::complex<double> F1[],
                        thrust::complex<double> V3[],
                        thrust::complex<double> *COUP,
                        thrust::complex<double> *vertex) {
+  debugMsg("j>");
   thrust::complex<double> cI = thrust::complex<double>(0., 1.);
   thrust::complex<double> TMP0, TMP3;
   TMP0 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
@@ -558,6 +605,7 @@ __device__ void FFV4_0(thrust::complex<double> F1[],
   TMP3 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
           F1[5] * (F2[2] * (+cI * (V3[4]) - V3[3]) + F2[3] * (V3[2] + V3[5])));
   (*vertex) = (*COUP) * (-1.) * (+cI * (TMP0) + 2. * cI * (TMP3));
+  debugMsg("<j");
 }
 
 __device__ void FFV2_0(thrust::complex<double> F1[],
@@ -565,33 +613,40 @@ __device__ void FFV2_0(thrust::complex<double> F1[],
                        thrust::complex<double> V3[],
                        thrust::complex<double> *COUP,
                        thrust::complex<double> *vertex) {
+  debugMsg("i>");
   thrust::complex<double> cI = thrust::complex<double>(0., 1.);
   thrust::complex<double> TMP0;
   TMP0 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
           F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
   (*vertex) = (*COUP) * -cI * TMP0;
+  debugMsg("<i");
 }
 
 __device__ void
 FFV2_4_0(thrust::complex<double> F1[], thrust::complex<double> F2[],
          thrust::complex<double> V3[], thrust::complex<double> COUP1,
          thrust::complex<double> COUP2, thrust::complex<double> *vertex) {
+  debugMsg("h>");
   thrust::complex<double> *COUP1t, *COUP2t, *tmp, *vertext;
-  cudaMalloc(&COUP1t, sizeof(thrust::complex<double>));
-  cudaMalloc(&COUP2t, sizeof(thrust::complex<double>));
-  cudaMalloc(&tmp, sizeof(thrust::complex<double>));
-  cudaMalloc(&vertext, sizeof(thrust::complex<double>));
+  gpuErrchk2(cudaMalloc(&COUP1t, sizeof(thrust::complex<double>)));
+  gpuErrchk2(cudaMalloc(&COUP2t, sizeof(thrust::complex<double>)));
+  gpuErrchk2(cudaMalloc(&tmp, sizeof(thrust::complex<double>)));
+  gpuErrchk2(cudaMalloc(&vertext, sizeof(thrust::complex<double>)));
   *COUP1t = COUP1;
   *COUP2t = COUP2;
   vertext = vertex;
+  gpuErrchk2(cudaDeviceSynchronize());
   FFV2_0(F1, F2, V3, COUP1t, vertext);
+  gpuErrchk2(cudaDeviceSynchronize());
   FFV4_0(F1, F2, V3, COUP2t, tmp);
+  gpuErrchk2(cudaDeviceSynchronize());
   // cudaDeviceSynchronize(); // sr fixme // still needed when above are not
   // kernel calls?
   (*vertex) = (*vertex) + (*tmp);
-  cudaFree(COUP1t);
-  cudaFree(COUP2t);
-  cudaFree(tmp);
+  gpuErrchk2(cudaFree(COUP1t));
+  gpuErrchk2(cudaFree(COUP2t));
+  gpuErrchk2(cudaFree(tmp));
+  debugMsg("<h");
 }
 
 } // namespace gMG5_sm
