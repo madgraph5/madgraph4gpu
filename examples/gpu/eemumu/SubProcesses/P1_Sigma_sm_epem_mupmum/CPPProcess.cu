@@ -102,6 +102,7 @@ void CPPProcess::setMomenta(std::vector<std::vector<double *>> &momenta) {
       cudaDeviceSynchronize();
       gpuErrchk(cudaMemcpy((void *)m->tp[d][i], (void *)momenta[d][i],
                            4 * sizeof(double), cudaMemcpyHostToDevice));
+      cudaDeviceSynchronize();
     }
   }
 }
@@ -218,6 +219,11 @@ void CPPProcess::sigmaKin() {
         }
       }
     }
+    // sr fixme // move out of functions
+    for (int i = 0; i < nprocesses; ++i) {
+      delete[] t[i];
+    }
+    delete[](*t);
   }
 
   for (int i = 0; i < dim; i++)
@@ -255,6 +261,7 @@ void CPPProcess::call_wavefunctions_kernel(int ihel) {
     m_timer.Start();
   }
 
+  cudaDeviceSynchronize();
   gMG5_sm::calculate_wavefunctions<<<gpu_nwarps, gpu_nthreads>>>(
       m->tperm, m->thelicities, ihel, m->tmME, m->tp, m->tamp, m->tw,
       pars->GC_3, pars->GC_51, pars->GC_59, pars->mdl_MZ, pars->mdl_WZ, m_debug,
@@ -271,6 +278,18 @@ void CPPProcess::call_wavefunctions_kernel(int ihel) {
     float gputime = m_timer.GetDuration();
     std::cout << "Wave function time: " << gputime << std::endl;
   }
+
+  /*
+    std::cout << std::endl << std::endl;
+    for (int i = 0; i < gpu_nwarps; ++i) {
+      for (int j = 0; j < gpu_nthreads; ++j) {
+        int d = i * gpu_nwarps + j;
+        std::cout << m->tamp[d][0] << ", " << m->tamp[d][1] << " ";
+      }
+      std::cout << std::endl;
+    }
+    std::cout << std::endl;
+  */
 }
 
 // --> calculate multi-dimensional amp

@@ -114,7 +114,15 @@ int main(int argc, char **argv) {
             << std::endl;
       }
     }
+    for (std::vector<std::vector<double *>>::iterator it = p.begin();
+         it != p.end(); ++it) {
+      for (std::vector<double *>::iterator jt = it->begin(); jt != it->end();
+           ++jt) {
+        delete[] & (**jt);
+      }
+    }
   }
+
   if (!(verbose || debug)) {
     std::cout << std::endl;
   }
