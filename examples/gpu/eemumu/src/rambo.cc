@@ -250,6 +250,10 @@ std::vector<double *> rambo(double et, std::vector<double> &xm, double &wt) {
     p[i][0] = x * (g * q[i][0] + bq);
   }
 
+  for (int i = 0; i < n; ++i) {
+    delete[] q[i];
+  }
+
   // calculate weight and possible warnings
   wt = po2log;
   if (n != 2)
