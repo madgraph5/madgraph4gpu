@@ -26,9 +26,11 @@
 struct processMem {
   thrust::complex<double> (*tamp)[2];  // [dim][namplitudes] --> global
   thrust::complex<double> (*tw)[6][6]; // [dim][nwavefuncs][6] --> global
-  double (*tp)[4][4];                  // [dim][4][4] --> global
-  double *tmME;                        // [4(nmasses)] --> constant
-  int *tperm;                          // [nexternal] --> constant
+  thrust::complex<double> (
+      *tmp)[4];          // [dim][4] max 4 temp variables needed --> shared?
+  double (*tp)[4][4];    // [dim][4][4] --> global
+  double *tmME;          // [4(nmasses)] --> constant
+  int *tperm;            // [nexternal] --> constant
   int (*thelicities)[4]; // [nexternal][16(possible permutations)] --> constant
 };
 

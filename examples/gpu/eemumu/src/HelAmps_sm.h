@@ -17,9 +17,9 @@ namespace gMG5_sm {
 __global__ void calculate_wavefunctions(
     int *perm, int (*hel)[4], int ihel, double *mME, double (*p)[4][4],
     thrust::complex<double> (*amp)[2], thrust::complex<double> (*w)[6][6],
-    thrust::complex<double> GC_3, thrust::complex<double> GC_51,
-    thrust::complex<double> GC_59, double mdl_MZ, double mdl_WZ,
-    bool debug = false, bool verbose = false);
+    thrust::complex<double> (*tmp)[4], thrust::complex<double> GC_3,
+    thrust::complex<double> GC_51, thrust::complex<double> GC_59, double mdl_MZ,
+    double mdl_WZ, bool debug = false, bool verbose = false);
 
 __device__ void oxxxxx(double p[4], double fmass, int nhel, int nsf,
                        thrust::complex<double> fo[6]);
@@ -50,7 +50,8 @@ __device__ void FFV2_4_3(thrust::complex<double> F1[],
                          thrust::complex<double> F2[],
                          thrust::complex<double> COUP1,
                          thrust::complex<double> COUP2, double M3, double W3,
-                         thrust::complex<double> V3[]);
+                         thrust::complex<double> V3[],
+                         thrust::complex<double> dtmp[]);
 
 __device__ void FFV1P0_3(thrust::complex<double> F1[],
                          thrust::complex<double> F2[],
@@ -77,7 +78,8 @@ __device__ void FFV2_0(thrust::complex<double> F1[],
 __device__ void
 FFV2_4_0(thrust::complex<double> F1[], thrust::complex<double> F2[],
          thrust::complex<double> V3[], thrust::complex<double> COUP1,
-         thrust::complex<double> COUP2, thrust::complex<double> *vertex);
+         thrust::complex<double> COUP2, thrust::complex<double> *vertex,
+         thrust::complex<double> dtmp[]);
 
 } // namespace gMG5_sm
 

@@ -66,6 +66,12 @@ CPPProcess::CPPProcess(int gpuwarps, int gputhreads, bool verbose, bool debug)
   gpuErrchk(cudaMallocManaged(&m->tamp, dim * namplitudes *
                                             sizeof(thrust::complex<double>)));
 
+  /*
+  temporary variables needed inside the kernel wave functions (re-using them
+  inside two functions )
+  */
+  gpuErrchk(cudaMalloc(&m->tmp, dim * 4 * sizeof(thrust::complex<double>)));
+
   // w - DIM
   /*
   - internal variable within kernels
@@ -263,7 +269,7 @@ void CPPProcess::call_wavefunctions_kernel(int ihel) {
 
   cudaDeviceSynchronize();
   gMG5_sm::calculate_wavefunctions<<<gpu_nwarps, gpu_nthreads>>>(
-      m->tperm, m->thelicities, ihel, m->tmME, m->tp, m->tamp, m->tw,
+      m->tperm, m->thelicities, ihel, m->tmME, m->tp, m->tamp, m->tw, m->tmp,
       pars->GC_3, pars->GC_51, pars->GC_59, pars->mdl_MZ, pars->mdl_WZ, m_debug,
       m_verbose);
   cudaDeviceSynchronize();

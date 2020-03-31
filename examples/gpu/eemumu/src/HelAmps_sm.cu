@@ -33,9 +33,9 @@ __device__ void debugMsg(const char *msg) {
 __global__ void calculate_wavefunctions(
     int *perm, int (*hel)[4], int ihel, double *mME, double (*p)[4][4],
     thrust::complex<double> (*amp)[2], thrust::complex<double> (*w)[6][6],
-    thrust::complex<double> GC_3, thrust::complex<double> GC_51,
-    thrust::complex<double> GC_59, double mdl_MZ, double mdl_WZ, bool debug,
-    bool verbose) {
+    thrust::complex<double> (*tmp)[4], thrust::complex<double> GC_3,
+    thrust::complex<double> GC_51, thrust::complex<double> GC_59, double mdl_MZ,
+    double mdl_WZ, bool debug, bool verbose) {
   debugMsg("%>");
   // Calculate wavefunctions for all processes
   // int i, j;
@@ -49,6 +49,7 @@ __global__ void calculate_wavefunctions(
   thrust::complex<double> *damp = amp[dim]; // --> shared
   thrust::complex<double>(*dw)[6] = w[dim]; // --> shared
   double(*dp)[4] = p[dim];                  // --> shared
+  thrust::complex<double> *dtmp = tmp[dim]; // --> shared?
 
   // Calculate all wavefunctions
   oxxxxx(dp[perm[0]], mME[0], hel[ihel][0], -1, dw[0]);
@@ -56,11 +57,11 @@ __global__ void calculate_wavefunctions(
   ixxxxx(dp[perm[2]], mME[2], hel[ihel][2], -1, dw[2]);
   oxxxxx(dp[perm[3]], mME[3], hel[ihel][3], +1, dw[3]);
   FFV1P0_3(dw[1], dw[0], GC_3, ZERO, ZERO, dw[4]);
-  FFV2_4_3(dw[1], dw[0], -GC_51, GC_59, mdl_MZ, mdl_WZ, dw[5]);
+  FFV2_4_3(dw[1], dw[0], -GC_51, GC_59, mdl_MZ, mdl_WZ, dw[5], dtmp);
   // Calculate all amplitudes
   // Amplitude(s) for diagram number 0
   FFV1_0(dw[2], dw[3], dw[4], GC_3, &damp[0]);
-  FFV2_4_0(dw[2], dw[3], dw[5], -GC_51, GC_59, &damp[1]);
+  FFV2_4_0(dw[2], dw[3], dw[5], -GC_51, GC_59, &damp[1], dtmp);
   if (debug) {
     printf("\n\n >>> DEBUG >>> DEBUG >>> DEBUG >>>\n");
 
@@ -533,22 +534,20 @@ __device__ void FFV2_4_3(thrust::complex<double> F1[],
                          thrust::complex<double> F2[],
                          thrust::complex<double> COUP1,
                          thrust::complex<double> COUP2, double M3, double W3,
-                         thrust::complex<double> V3[]) {
+                         thrust::complex<double> V3[],
+                         thrust::complex<double> dtmp[]) {
   debugMsg("d>");
   int i;
-  thrust::complex<double> *COUP1t, *COUP2t, *Vtmp; //[6];
-  gpuErrchk2(cudaMalloc(&COUP1t, sizeof(thrust::complex<double>)));
-  gpuErrchk2(cudaMalloc(&COUP2t, sizeof(thrust::complex<double>)));
-  // Vtmp = (thrust::complex<double> *)malloc(6 &
-  // sizeof(thrust::complex<double>));
+  // COUP1, COUP2, Vtmp
+  thrust::complex<double> *Vtmp;
   gpuErrchk2(cudaMalloc(&Vtmp, 6 * sizeof(thrust::complex<double>)));
-  *COUP1t = COUP1;
-  *COUP2t = COUP2;
+  dtmp[0] = COUP1;
+  dtmp[1] = COUP2;
   *Vtmp = thrust::complex<double>(0, 0);
   gpuErrchk2(cudaDeviceSynchronize());
-  FFV2_3(F1, F2, COUP1t, M3, W3, V3);
+  FFV2_3(F1, F2, &dtmp[0], M3, W3, V3);
   gpuErrchk2(cudaDeviceSynchronize());
-  FFV4_3(F1, F2, COUP2t, M3, W3, Vtmp);
+  FFV4_3(F1, F2, &dtmp[1], M3, W3, Vtmp);
   gpuErrchk2(cudaDeviceSynchronize());
   // cudaDeviceSynchronize(); // sr fixme // still needed when above are not
   // kernel calls?
@@ -557,9 +556,6 @@ __device__ void FFV2_4_3(thrust::complex<double> F1[],
     V3[i] = V3[i] + Vtmp[i];
     i++;
   }
-  gpuErrchk2(cudaFree(COUP1t));
-  gpuErrchk2(cudaFree(COUP2t));
-  // free(Vtmp);
   gpuErrchk2(cudaFree(Vtmp));
   debugMsg("<d");
 }
@@ -625,27 +621,17 @@ __device__ void FFV2_0(thrust::complex<double> F1[],
 __device__ void
 FFV2_4_0(thrust::complex<double> F1[], thrust::complex<double> F2[],
          thrust::complex<double> V3[], thrust::complex<double> COUP1,
-         thrust::complex<double> COUP2, thrust::complex<double> *vertex) {
+         thrust::complex<double> COUP2, thrust::complex<double> *vertex,
+         thrust::complex<double> dtmp[]) {
   debugMsg("h>");
-  thrust::complex<double> *COUP1t, *COUP2t, *tmp, *vertext;
-  gpuErrchk2(cudaMalloc(&COUP1t, sizeof(thrust::complex<double>)));
-  gpuErrchk2(cudaMalloc(&COUP2t, sizeof(thrust::complex<double>)));
-  gpuErrchk2(cudaMalloc(&tmp, sizeof(thrust::complex<double>)));
-  gpuErrchk2(cudaMalloc(&vertext, sizeof(thrust::complex<double>)));
-  *COUP1t = COUP1;
-  *COUP2t = COUP2;
-  vertext = vertex;
+  dtmp[0] = COUP1;
+  dtmp[1] = COUP2;
   gpuErrchk2(cudaDeviceSynchronize());
-  FFV2_0(F1, F2, V3, COUP1t, vertext);
+  FFV2_0(F1, F2, V3, &dtmp[0], vertex);
   gpuErrchk2(cudaDeviceSynchronize());
-  FFV4_0(F1, F2, V3, COUP2t, tmp);
+  FFV4_0(F1, F2, V3, &dtmp[1], &dtmp[2]);
   gpuErrchk2(cudaDeviceSynchronize());
-  // cudaDeviceSynchronize(); // sr fixme // still needed when above are not
-  // kernel calls?
-  (*vertex) = (*vertex) + (*tmp);
-  gpuErrchk2(cudaFree(COUP1t));
-  gpuErrchk2(cudaFree(COUP2t));
-  gpuErrchk2(cudaFree(tmp));
+  (*vertex) = (*vertex) + dtmp[2];
   debugMsg("<h");
 }
 
