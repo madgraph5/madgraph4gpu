@@ -9,8 +9,10 @@
 #include "HelAmps_sm.h"
 
 #include <algorithm>
-#include <iomanip> // setw
+#include <algorithm> // perf stats
+#include <iomanip>   // setw
 #include <iostream>
+#include <numeric> // perf stats
 #include <thrust/complex.h>
 
 #define gpuErrchk(ans)                                                         \
@@ -26,9 +28,11 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
   }
 }
 
-CPPProcess::CPPProcess(int gpuwarps, int gputhreads, bool verbose, bool debug)
-    : gpu_nwarps(gpuwarps), gpu_nthreads(gputhreads), m_verbose(verbose),
-      m_debug(debug), dim(gpu_nwarps * gpu_nthreads), mME(4, 0.00) {
+CPPProcess::CPPProcess(int numiterations, int gpuwarps, int gputhreads,
+                       bool verbose, bool debug, bool perf)
+    : m_numiterations(numiterations), gpu_nwarps(gpuwarps),
+      gpu_nthreads(gputhreads), m_verbose(verbose), m_debug(debug),
+      m_perf(perf), dim(gpu_nwarps * gpu_nthreads), mME(4, 0.00) {
 
   amp = new thrust::complex<double> *[dim];
   for (int i = 0; i < dim; ++i) {
@@ -114,6 +118,30 @@ void CPPProcess::setMomenta(std::vector<std::vector<double *>> &momenta) {
 }
 
 const std::vector<double> &CPPProcess::getMasses() const { return mME; }
+
+void CPPProcess::printPerformanceStats() {
+  float sum = std::accumulate(m_wavetimes.begin(), m_wavetimes.end(), 0.0);
+  int numelems = m_wavetimes.size();
+  float mean = sum / numelems;
+  float sq_sum = std::inner_product(m_wavetimes.begin(), m_wavetimes.end(),
+                                    m_wavetimes.begin(), 0.0);
+  float stdev = std::sqrt(sq_sum / numelems - mean * mean);
+  std::vector<float>::iterator mintime =
+      std::min_element(m_wavetimes.begin(), m_wavetimes.end());
+  std::vector<float>::iterator maxtime =
+      std::max_element(m_wavetimes.begin(), m_wavetimes.end());
+
+  std::cout << "***********************************" << std::endl
+            << "NumIterations        = " << m_numiterations << std::endl
+            << "NumThreadsPerBlock   = " << gpu_nthreads << std::endl
+            << "NumBlocksPerGrid     = " << gpu_nwarps << std::endl
+            << "NumberOfEntries      = " << numelems << std::endl
+            << std::scientific << "TotalTimeInWaveFuncs = " << sum << std::endl
+            << "MeanTimeinWaveFuncs  = " << mean << std::endl
+            << "StdDevWaveFuncs      = " << stdev << std::endl
+            << "MinTimeInWaveFuncs   = " << *mintime << std::endl
+            << "MaxTimeInWaveFuncs   = " << *maxtime << std::endl;
+}
 
 //==========================================================================
 // Class member functions for calculating the matrix elements for
@@ -263,7 +291,7 @@ double CPPProcess::sigmaHat() {
 
 void CPPProcess::call_wavefunctions_kernel(int ihel) {
 
-  if (m_verbose) {
+  if (m_perf) {
     m_timer.Start();
   }
 
@@ -280,9 +308,11 @@ void CPPProcess::call_wavefunctions_kernel(int ihel) {
                        dim * namplitudes * sizeof(thrust::complex<double>),
                        cudaMemcpyDeviceToHost));
 */
-  if (m_verbose) {
+  if (m_perf) {
     float gputime = m_timer.GetDuration();
-    std::cout << "Wave function time: " << gputime << std::endl;
+    m_wavetimes.push_back(gputime);
+    if (m_verbose)
+      std::cout << "Wave function time: " << gputime << std::endl;
   }
 
   /*

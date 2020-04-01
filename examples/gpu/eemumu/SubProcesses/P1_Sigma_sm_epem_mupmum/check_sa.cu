@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -21,7 +22,7 @@ int usage(int ret = 0) {
 }
 
 int main(int argc, char **argv) {
-  bool verbose = false, debug = false;
+  bool verbose = false, debug = false, perf = false;
   int numevts = 0, gpuwarps = 1, gputhreads = 1;
   std::vector<int> numvec;
   for (int argn = 1; argn < argc; ++argn) {
@@ -30,6 +31,9 @@ int main(int argc, char **argv) {
     else if (strcmp(argv[argn], "--debug") == 0 ||
              strcmp(argv[argn], "-d") == 0)
       debug = true;
+    else if (strcmp(argv[argn], "--performance") == 0 ||
+             strcmp(argv[argn], "-p") == 0)
+      perf = true;
     else if (is_number(argv[argn]))
       numvec.push_back(atoi(argv[argn]));
     // numevts = atoi(argv[argn]);
@@ -54,7 +58,7 @@ int main(int argc, char **argv) {
     std::cout << "num evts: " << numevts << std::endl;
 
   // Create a process object
-  CPPProcess process(gpuwarps, gputhreads, verbose, debug);
+  CPPProcess process(numevts, gpuwarps, gputhreads, verbose, debug, perf);
 
   // Read param_card and set parameters
   process.initProc("../../Cards/param_card.dat");
@@ -64,9 +68,11 @@ int main(int argc, char **argv) {
 
   int dim = process.getDim();
 
+  std::vector<double> matrixelementvector;
+
   for (int x = 0; x < numevts; ++x) {
 
-    if (!(verbose || debug)) {
+    if (!(verbose || debug || perf)) {
       std::cout << ".";
     }
 
@@ -100,18 +106,23 @@ int main(int argc, char **argv) {
             << std::endl;
       }
 
-      if (verbose) {
+      if (verbose || perf) {
         // Display matrix elements
-        for (int i = 0; i < process.nprocesses; i++)
-          std::cout << " Matrix element = "
-                    //	 << setiosflags(ios::fixed) << setprecision(17)
-                    << matrix_elements[d][i] << " GeV^"
-                    << -(2 * process.nexternal - 8) << std::endl;
+        for (int i = 0; i < process.nprocesses; i++) {
+          if (verbose)
+            std::cout << " Matrix element = "
+                      //	 << setiosflags(ios::fixed) << setprecision(17)
+                      << matrix_elements[d][i] << " GeV^"
+                      << -(2 * process.nexternal - 8) << std::endl;
+          if (perf)
+            matrixelementvector.push_back(matrix_elements[d][i]);
+        }
 
-        std::cout
-            << "-----------------------------------------------------------"
-               "------------------"
-            << std::endl;
+        if (verbose)
+          std::cout
+              << "-----------------------------------------------------------"
+                 "------------------"
+              << std::endl;
       }
     }
     for (std::vector<std::vector<double *>>::iterator it = p.begin();
@@ -123,7 +134,25 @@ int main(int argc, char **argv) {
     }
   }
 
-  if (!(verbose || debug)) {
+  if (!(verbose || debug || perf)) {
     std::cout << std::endl;
+  }
+  if (perf) {
+    process.printPerformanceStats();
+    int numelems = matrixelementvector.size();
+    /*
+    double sum = std::accumulate(
+        matrixelementvector.begin() l matrixelementvector.end(), 0.0);
+        */
+    std::vector<double>::iterator maxelem = std::max_element(
+        matrixelementvector.begin(), matrixelementvector.end());
+    std::vector<double>::iterator minelem = std::min_element(
+        matrixelementvector.begin(), matrixelementvector.end());
+    std::cout << "-----------------------------------" << std::endl
+              << "NProcesses           = " << process.nprocesses << std::endl
+              << "NumMatrixElements    = " << numelems << std::endl
+              << std::scientific << "MaxMatrixElemValue   = " << *maxelem
+              << std::endl
+              << "MinMatrixElemValue   = " << *minelem << std::endl;
   }
 }

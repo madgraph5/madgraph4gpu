@@ -38,8 +38,8 @@ class CPPProcess {
 public:
   // Constructor.
 
-  CPPProcess(int gpuwarps, int gputhreads, bool verbose = false,
-             bool debug = false);
+  CPPProcess(int numiterations, int gpuwarps, int gputhreads,
+             bool verbose = false, bool debug = false, bool perf = false);
 
   ~CPPProcess();
 
@@ -75,12 +75,16 @@ public:
 
   int getNIOParticles() const { return nioparticles; }
 
+  // print performance numbers
+  void printPerformanceStats();
+
   // Constants for array limits
   static const int ninitial = 2;
   static const int nexternal = 4;
   static const int nprocesses = 1;
 
 private:
+  int m_numiterations;
   // gpu variables
   int gpu_nwarps;
   int gpu_nthreads;
@@ -94,6 +98,10 @@ private:
 
   // print debug info
   bool m_debug;
+
+  // print performance info
+  bool m_perf;
+  std::vector<float> m_wavetimes;
 
   // Private function to calculate the matrix element for all subprocesses
   void calculate_wavefunctions(const int perm[], const int hel[]);
