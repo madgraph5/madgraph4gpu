@@ -2,6 +2,7 @@
 #include <cstring>
 #include <iomanip>
 #include <iostream>
+#include <unistd.h>
 #include <vector>
 
 #include "CPPProcess.h"
@@ -149,6 +150,7 @@ int main(int argc, char **argv) {
     std::vector<double>::iterator minelem = std::min_element(
         matrixelementvector.begin(), matrixelementvector.end());
     std::cout << "-----------------------------------" << std::endl
+              << "ProcessID:           = " << getpid() << std::endl
               << "NProcesses           = " << process.nprocesses << std::endl
               << "NumMatrixElements    = " << numelems << std::endl
               << std::scientific << "MaxMatrixElemValue   = " << *maxelem
