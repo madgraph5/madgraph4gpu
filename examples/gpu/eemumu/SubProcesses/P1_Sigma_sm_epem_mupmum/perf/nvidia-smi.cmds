@@ -1,0 +1,2 @@
+nvidia-smi dmon -i 3 -d 10 -s pucvmet -o DT | tee nvidia-smi-dmon.txt
+nvidia-smi pmon -i 3 -d 10 -s mu -o DT | tee nvidia-smi-pmon.txt
