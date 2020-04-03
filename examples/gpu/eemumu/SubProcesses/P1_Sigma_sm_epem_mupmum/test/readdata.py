@@ -42,13 +42,16 @@ class ReadData():
                 if endtime:
                     starttime = endtime
                 endtime = datetime.strptime(dstr, '%Y-%b-%d %H:%M:%S')
-                localdict['WallStartTime'] = starttime
-                localdict['WallEndTime'] = endtime
+                if starttime and endtime:
+                    localdict['WallStartTime'] = starttime
+                    localdict['WallEndTime'] = endtime
         values.append(localdict)
         return values
 
 
 if __name__ == '__main__':
-    r = ReadData('20200402-perf-test-run1.txt')
+    r = ReadData('20200402-perf-test-run2.txt')
     v = r.genData()
     print v
+    print len(v)
+    print v[-1].keys()
