@@ -6,4 +6,4 @@ do
   echo $cmd
   $cmd
   date
-done < params2.txt
+done < $1
