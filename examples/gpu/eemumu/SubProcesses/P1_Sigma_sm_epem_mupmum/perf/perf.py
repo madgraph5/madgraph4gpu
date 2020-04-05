@@ -1,7 +1,7 @@
 from optparse import OptionParser
 from datetime import datetime
 from readdata import ReadData
-from mpl_toolkits.mplot3d import Axes3D
+# from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import numpy as np
 import copy
@@ -17,9 +17,8 @@ class Perf():
         self.axesr = [xrem, yrem]  # remove outer bands from axes
         self.axesv = [[], [], []]
         self.data = rd.genData()
-        # print self.data[0]
 
-    def prepAxes(self):
+    def prepAxes3D(self):
         for d in self.data:
             ks = d.keys()
             for ax in self.axesn:
@@ -39,7 +38,7 @@ class Perf():
         self.axesv[0] = self.axesv[0][self.axesr[0]:]  # sr
         self.axesv[1] = self.axesv[1][self.axesr[1]:]  # sr
 
-    def prepData(self):
+    def prepData3D(self):
         xlen = len(self.axesv[0])
         ylen = len(self.axesv[1])
         self.data2d = []
@@ -57,9 +56,9 @@ class Perf():
                 zval = d[self.axesn[2]]
                 self.data2d[xpos][ypos] = zval
 
-    def plot(self):
-        self.prepAxes()
-        self.prepData()
+    def plot3D(self):
+        self.prepAxes3D()
+        self.prepData3D()
 
         data_array = np.array(self.data2d)
         fig = plt.figure()
@@ -84,6 +83,58 @@ class Perf():
         # z_data = np.log10(z_data)
         ax.bar3d(x_data, y_data, np.zeros(len(z_data)), 1, 1, z_data)
         plt.show()
+
+    def prepData2D(self):
+        self.dataDict2D = {}
+        xname = self.axesn[0]
+        yname = self.axesn[1]
+        zname = self.axesn[2]
+
+        for d in self.data:
+            xval = d[xname]
+            yval = d[yname]
+            zval = d[zname]
+
+            dim = xval * yval
+            tick = '%s/%s' % (str(xval), str(yval))
+            vallist = [zval, tick]
+            if dim not in self.dataDict2D:
+                self.dataDict2D[dim] = [vallist]
+            else:
+                self.dataDict2D[dim].append(vallist)
+
+    def plot2D(self):
+        self.prepData2D()
+
+        dims = self.dataDict2D.keys()
+        dims.sort()
+
+        xlist = range(1, len(dims) + 1)
+        ylist = []
+
+        for d in dims:
+            ysublist = []
+            for y in self.dataDict2D[d]:
+                ysublist.append(y[0])
+            ylist.append(ysublist)
+
+        for xe, ye in zip(xlist, ylist):
+            plt.scatter([xe] * len(ye), ye, s=20, marker='.', edgecolors='none')
+
+        plt.xticks(xlist)
+        plt.xlabel('%s * %s' % (self.axesn[0], self.axesn[1]))
+        plt.ylabel(self.axesn[2])
+        plt.yscale('log')
+        plt.axes().set_xticklabels(dims, {'rotation': 45})
+        plt.text(2, 4, 'foo\nbar')
+        plt.show()
+
+
+def print_keys(loc, date, run):
+    perffile = '%s/%s-perf-test-run%s.txt' % (loc, date, run)
+    data = ReadData(perffile).genData()
+    for k in data[0].keys():
+        print(k)
 
 
 if __name__ == '__main__':
@@ -110,6 +161,8 @@ if __name__ == '__main__':
                       help='# of outer x dimensions to remove')
     parser.add_option('--yrm', dest='yrm', default=0,
                       help='# of outer y dimensions to remove')
+    parser.add_option('-k', '--keys', dest='keys', action='store_true',
+                      help='print available keys from data')
 
     (op, ar) = parser.parse_args()
 
@@ -120,8 +173,14 @@ if __name__ == '__main__':
     if op.yrm:
         yrm = int(op.yrm)
 
+    if op.keys:
+        print_keys(op.dir, op.date, op.run)
+        sys.exit(0)
+
     if (ar):
         print parser.print_help()
         sys.exit(1)
 
-    Perf(op.date, op.run, op.xax, op.yax, op.zax, xrm, yrm, op.dir).plot()
+    p = Perf(op.date, op.run, op.xax, op.yax, op.zax, xrm, yrm, op.dir)
+    # p.plot3D()
+    p.plot2D()
