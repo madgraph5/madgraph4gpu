@@ -1,7 +1,7 @@
 from optparse import OptionParser
 from datetime import datetime
 from readdata import ReadData
-# from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import numpy as np
 import copy
@@ -168,6 +168,9 @@ if __name__ == '__main__':
 
     (op, ar) = parser.parse_args()
 
+    plotnames = ['2D', '3D']
+    plot = '2D'
+
     xrm = 0
     yrm = 0
     if op.xrm:
@@ -179,10 +182,14 @@ if __name__ == '__main__':
         print_keys(op.dir, op.date, op.run)
         sys.exit(0)
 
-    if (ar):
+    if (len(ar) == 1 and ar[0].upper() not in plotnames) or len(ar) > 1:
         print parser.print_help()
         sys.exit(1)
+    elif len(ar) == 1:
+        plot = ar[0].upper()
 
     p = Perf(op.date, op.run, op.xax, op.yax, op.zax, xrm, yrm, op.dir)
-    # p.plot3D()
-    p.plot2D()
+    if plot == '3D':
+        p.plot3D()
+    if plot == '2D':
+        p.plot2D()
