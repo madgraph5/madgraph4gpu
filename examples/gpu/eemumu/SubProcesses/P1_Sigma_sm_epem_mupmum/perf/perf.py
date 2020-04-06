@@ -118,15 +118,17 @@ class Perf():
                 ysublist.append(y[0])
             ylist.append(ysublist)
 
+        fig, ax = plt.subplots()
         for xe, ye in zip(xlist, ylist):
-            plt.scatter([xe] * len(ye), ye, s=20, marker='.', edgecolors='none')
+            ax.scatter([xe] * len(ye), ye, s=20, marker='.', edgecolors='none')
 
-        plt.xticks(xlist)
-        plt.xlabel('%s * %s' % (self.axesn[0], self.axesn[1]))
-        plt.ylabel(self.axesn[2])
-        plt.yscale('log')
-        plt.axes().set_xticklabels(dims, {'rotation': 45})
-        plt.text(2, 4, 'foo\nbar')
+        ax.set_xticks(xlist)
+        ax.set_xlabel('%s * %s' % (self.axesn[0], self.axesn[1]))
+        ax.set_ylabel(self.axesn[2])
+        ax.set_yscale('log')
+        ax.set_xticklabels(dims, {'rotation': 45})
+        ax.text(2, 4, 'foo\nbar')
+
         plt.show()
 
 
