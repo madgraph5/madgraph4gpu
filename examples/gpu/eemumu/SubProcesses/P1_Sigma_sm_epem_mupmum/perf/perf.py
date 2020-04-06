@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import copy
 import sys
+from operator import itemgetter
 
 
 class Perf():
@@ -112,11 +113,15 @@ class Perf():
         xlist = range(1, len(dims) + 1)
         ylist = []
 
+        ylabels = []
         for d in dims:
             ysublist = []
             for y in self.dataDict2D[d]:
-                ysublist.append(y[0])
-            ylist.append(ysublist)
+                ysublist.append(y)  # y[0]
+            ysublist = sorted(ysublist, key=itemgetter(0), reverse=True)
+            print ysublist
+            ylabels.append([x[1] for x in ysublist])
+            ylist.append([x[0] for x in ysublist])
 
         fig, ax = plt.subplots()
         for xe, ye in zip(xlist, ylist):
@@ -127,7 +132,17 @@ class Perf():
         ax.set_ylabel(self.axesn[2])
         ax.set_yscale('log')
         ax.set_xticklabels(dims, {'rotation': 45})
-        ax.text(2, 4, 'foo\nbar')
+        xpos = 1
+        for y in ylabels:
+            xstr = ''
+            for x in y:
+                # xstr += x.replace('/', '\n')
+                xstr += x
+                xstr += '\n'
+            ax.text(xpos, 0.25, xstr, {'fontsize': 'xx-small', 'ha': 'center',
+                                      'va': 'bottom'})
+            xpos += 1
+        # ax.text(1, 0.3, '1024\n32\n\n1024\n1024', {'fontsize':'xx-small', 'ha':'center', 'va':'bottom'})
 
         plt.show()
 
