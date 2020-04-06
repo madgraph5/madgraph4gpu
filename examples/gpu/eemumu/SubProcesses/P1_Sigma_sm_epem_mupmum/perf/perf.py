@@ -1,7 +1,7 @@
 from optparse import OptionParser
 from datetime import datetime
 from readdata import ReadData
-from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 import matplotlib.pyplot as plt
 import numpy as np
 import copy
@@ -140,10 +140,8 @@ class Perf():
                 xstr += x
                 xstr += '\n'
             ax.text(xpos, 0.25, xstr, {'fontsize': 'xx-small', 'ha': 'center',
-                                      'va': 'bottom'})
+                                       'va': 'bottom'})
             xpos += 1
-        # ax.text(1, 0.3, '1024\n32\n\n1024\n1024', {'fontsize':'xx-small', 'ha':'center', 'va':'bottom'})
-
         plt.show()
 
 

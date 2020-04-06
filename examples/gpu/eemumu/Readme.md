@@ -1,3 +1,18 @@
+# e+e- -> mu+mu- gpu version
+
+### Ideas for performance improvements
+
+- better usage of gpu memory layers
+- cuComplex vs thrust::complex
+- remove remaining cudaMalloc in kernel functions
+- re-use variables (more)
+- C++11 + features (move semantics, ...)
+  - does nvcc support those? 
+- compiler flags
+
+### Original code generation
+
+```bash
 MG5_aMC>generate e+ e- > mu+ mu-
 INFO: Checking for minimal orders which gives processes. 
 INFO: Please specify coupling orders to bypass this step. 
@@ -25,4 +40,4 @@ INFO: Running make for src
 Output to directory /data/roiser/madgraph/MG5_aMC_v2_7_0/eemumu done.
 
 MG5_aMC>
-
+```
