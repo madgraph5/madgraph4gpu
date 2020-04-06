@@ -82,4 +82,6 @@ int main(int argc, char **argv) {
            << endl;
     }
   }
+
+  process.printPerformanceStats();
 }

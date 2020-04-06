@@ -7,7 +7,9 @@
 
 #include "CPPProcess.h"
 #include "HelAmps_sm.h"
+#include <algorithm> // perf stats
 #include <iostream>
+#include <numeric> // perf stats
 
 using namespace MG5_sm;
 
@@ -88,6 +90,7 @@ void CPPProcess::sigmaKin(bool ppar) {
     for (int ihel = 0; ihel < ncomb; ihel++) {
       if (goodhel[ihel] || ntry < 2) {
 
+        /*
         std::cout << std::endl
                   << std::endl
                   << "<<<<< " << ihel << " " << ihel << " " << ihel << " "
@@ -96,6 +99,7 @@ void CPPProcess::sigmaKin(bool ppar) {
                   << ihel << " " << ihel << " " << ihel << " " << ihel << " "
                   << ihel << " "
                   << " >>>>>>>>" << std::endl;
+                  */
 
         calculate_wavefunctions(perm, helicities[ihel]);
         t[0] = matrix_1_epem_mupmum();
@@ -162,6 +166,7 @@ void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
   // Calculate wavefunctions for all processes
   int i, j;
 
+  /*
   std::cout << "<<< w: " << std::endl;
   for (int i = 0; i < 6; ++i) {
     std::cout << "w" << i << ": ";
@@ -173,8 +178,9 @@ void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
     }
     std::cout << std::endl;
   }
+  */
 
-  // m_timer.Start();
+  m_timer.Start();
 
   // Calculate all wavefunctions
   oxxxxx(p[perm[0]], mME[0], hel[0], -1, w[0]);
@@ -190,9 +196,11 @@ void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
   FFV1_0(w[2], w[3], w[4], pars->GC_3, amp[0]);
   FFV2_4_0(w[2], w[3], w[5], -pars->GC_51, pars->GC_59, amp[1]);
 
-  // float gputime = m_timer.GetDuration();
+  float gputime = m_timer.GetDuration();
+  m_wavetimes.push_back(gputime);
   // std::cout << "Wave function time: " << gputime << std::endl;
 
+  /*
   std::cout << ">>> w: " << std::endl;
   for (int i = 0; i < 6; ++i) {
     std::cout << "w" << i << ": ";
@@ -210,6 +218,7 @@ void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
     std::cout << amp[x] << " ";
   }
   std::cout << std::endl;
+  */
 }
 
 double CPPProcess::matrix_1_epem_mupmum() {
@@ -240,4 +249,24 @@ double CPPProcess::matrix_1_epem_mupmum() {
     jamp2[0][i] += real(jamp[i] * conj(jamp[i]));
 
   return matrix;
+}
+
+void CPPProcess::printPerformanceStats() {
+  float sum = std::accumulate(m_wavetimes.begin(), m_wavetimes.end(), 0.0);
+  int numelems = m_wavetimes.size();
+  float mean = sum / numelems;
+  float sq_sum = std::inner_product(m_wavetimes.begin(), m_wavetimes.end(),
+                                    m_wavetimes.begin(), 0.0);
+  float stdev = std::sqrt(sq_sum / numelems - mean * mean);
+  std::vector<float>::iterator mintime =
+      std::min_element(m_wavetimes.begin(), m_wavetimes.end());
+  std::vector<float>::iterator maxtime =
+      std::max_element(m_wavetimes.begin(), m_wavetimes.end());
+
+  std::cout << "***********************************" << std::endl
+            << std::scientific << "TotalTimeInWaveFuncs = " << sum << std::endl
+            << "MeanTimeinWaveFuncs  = " << mean << std::endl
+            << "StdDevWaveFuncs      = " << stdev << std::endl
+            << "MinTimeInWaveFuncs   = " << *mintime << std::endl
+            << "MaxTimeInWaveFuncs   = " << *maxtime << std::endl;
 }
