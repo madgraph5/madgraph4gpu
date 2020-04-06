@@ -10,9 +10,9 @@ Each performance run contains 4 files, distinguished by _\<date>_ and _\<run#>_
 
 ## Performance runs
 
-sw version | date | run # | # events / execution | max threads | # configs | Comment
---- | --- | --- | --- | --- | --- | --- 
- | 20200402 | run1 | 6.3 * 10^6 | 384 | | 16 iterations fixed, try max number of threads / block
- | 20200402 | run2 | 6.3 * 10^6 | 384 | 108 | full mesh of configs 
- | 20200404 | run1 | 6.3 * 10^6 | 256 | 108 | step size of threads is power of 2 
- | 20200405 | run1 | 6.3 * 10^6 | 256 | 108 | re-run 20200404-*-run1, check variance
+sw version | date | run # | processor type | # events / execution | max threads | # configs | Comment
+--- | --- | --- | --- | --- | --- | --- | ---
+ | 20200402 | run1 | | 6.3 * 10^6 | 384 | | 16 iterations fixed, try max number of threads / block
+ | 20200402 | run2 | | 6.3 * 10^6 | 384 | 108 | full mesh of configs 
+ | 20200404 | run1 | | 6.3 * 10^6 | 256 | 108 | step size of threads is power of 2 
+ | 20200405 | run1 | GV100GL | 6.3 * 10^6 | 256 | 108 | re-run 20200404-*-run1, check variance
