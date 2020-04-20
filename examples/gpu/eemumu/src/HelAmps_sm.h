@@ -50,8 +50,7 @@ __device__ void FFV2_4_3(thrust::complex<double> F1[],
                          thrust::complex<double> F2[],
                          thrust::complex<double> COUP1,
                          thrust::complex<double> COUP2, double M3, double W3,
-                         thrust::complex<double> V3[],
-                         thrust::complex<double> dtmp[]);
+                         thrust::complex<double> V3[]);
 
 __device__ void FFV1P0_3(thrust::complex<double> F1[],
                          thrust::complex<double> F2[],
@@ -73,7 +72,7 @@ __device__ void FFV2_0(thrust::complex<double> F1[],
                        thrust::complex<double> F2[],
                        thrust::complex<double> V3[],
                        thrust::complex<double> COUP,
-                       thrust::complex<double> vertex);
+                       thrust::complex<double> *vertex);
 
 __device__ void
 FFV2_4_0(thrust::complex<double> F1[], thrust::complex<double> F2[],
