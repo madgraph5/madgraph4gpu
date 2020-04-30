@@ -9,8 +9,22 @@
 #define Parameters_sm_H
 
 #include <complex>
+#include <thrust/complex.h>
 
 #include "read_slha.h"
+
+struct parsMem {
+  thrust::complex<double> GC_3;
+  thrust::complex<double> GC_51;
+  thrust::complex<double> GC_59;
+  double mdl_MZ;
+  double mdl_WZ;
+};
+
+static parsMem &getParsMem() {
+  static parsMem m;
+  return m;
+}
 
 class Parameters_sm {
 public:

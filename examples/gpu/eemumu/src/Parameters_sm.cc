@@ -77,11 +77,16 @@ void Parameters_sm::setIndependentParameters(SLHAReader &slha) {
   mdl_ee__exp__2 = ((mdl_ee) * (mdl_ee));
   mdl_sw__exp__2 = ((mdl_sw) * (mdl_sw));
   mdl_cw__exp__2 = ((mdl_cw) * (mdl_cw));
+  getParsMem().mdl_MZ = mdl_MZ;
+  getParsMem().mdl_WZ = mdl_WZ;
 }
 void Parameters_sm::setIndependentCouplings() {
   GC_3 = -(mdl_ee * mdl_complexi);
   GC_51 = (mdl_cw * mdl_ee * mdl_complexi) / (2. * mdl_sw);
   GC_59 = (mdl_ee * mdl_complexi * mdl_sw) / (2. * mdl_cw);
+  getParsMem().GC_3 = GC_3;
+  getParsMem().GC_51 = GC_51;
+  getParsMem().GC_59 = GC_59;
 }
 void Parameters_sm::setDependentParameters() {
   mdl_sqrt__aS = sqrt(aS);
