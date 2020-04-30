@@ -541,11 +541,11 @@ __device__ void FFV2_4_3(thrust::complex<double> F1[],
   thrust::complex<double> *Vtmp;
   gpuErrchk2(cudaMalloc(&Vtmp, 6 * sizeof(thrust::complex<double>)));
   *Vtmp = thrust::complex<double>(0, 0);
-  gpuErrchk2(cudaDeviceSynchronize());
+  // gpuErrchk2(cudaDeviceSynchronize());
   FFV2_3(F1, F2, COUP1, M3, W3, V3);
-  gpuErrchk2(cudaDeviceSynchronize());
+  // gpuErrchk2(cudaDeviceSynchronize());
   FFV4_3(F1, F2, COUP2, M3, W3, Vtmp);
-  gpuErrchk2(cudaDeviceSynchronize());
+  // gpuErrchk2(cudaDeviceSynchronize());
   // cudaDeviceSynchronize(); // sr fixme // still needed when above are not
   // kernel calls?
   i = 2;
@@ -621,11 +621,11 @@ FFV2_4_0(thrust::complex<double> F1[], thrust::complex<double> F2[],
          thrust::complex<double> COUP2, thrust::complex<double> *vertex,
          thrust::complex<double> dtmp[]) {
   debugMsg("h>");
-  gpuErrchk2(cudaDeviceSynchronize());
+  // gpuErrchk2(cudaDeviceSynchronize());
   FFV2_0(F1, F2, V3, COUP1, vertex);
-  gpuErrchk2(cudaDeviceSynchronize());
+  // gpuErrchk2(cudaDeviceSynchronize());
   FFV4_0(F1, F2, V3, COUP2, &dtmp[2]);
-  gpuErrchk2(cudaDeviceSynchronize());
+  // gpuErrchk2(cudaDeviceSynchronize());
   (*vertex) = (*vertex) + dtmp[2];
   debugMsg("<h");
 }
