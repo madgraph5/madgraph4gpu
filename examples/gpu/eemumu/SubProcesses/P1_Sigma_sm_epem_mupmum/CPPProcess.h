@@ -51,9 +51,6 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat).
-  // sr fixme // virtual double sigmaHat();
-
   // Info on the subprocess.
   virtual std::string name() const { return "e+ e- > mu+ mu- (sm)"; }
 
@@ -102,9 +99,6 @@ private:
   // print performance info
   bool m_perf;
   std::vector<float> m_wavetimes;
-
-  // Private function to calculate the matrix element for all subprocesses
-  void calculate_wavefunctions(const int perm[], const int hel[]);
 
   processMem *m;
 

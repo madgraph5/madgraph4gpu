@@ -46,20 +46,17 @@ CPPProcess::CPPProcess(int numiterations, int gpuwarps, int gputhreads,
 
   m = new processMem();
 
-  // tmME - nodim
   static double tmpmME[4] = {0.00, 0.00, 0.00, 0.00};
   gpuErrchk(cudaMalloc(&m->tmME, 4 * sizeof(double)));
   gpuErrchk(cudaMemcpy((void *)m->tmME, (void *)tmpmME, 4 * sizeof(double),
                        cudaMemcpyHostToDevice));
 
-  // tp - DIM --> LATER --> add "dim" to cudaMalloc
   /*
   - rambo::get_momenta (rambo::rambo) fuellt vector 4 particles * 4 momenta
   - CPPProcess::setMomenta fuellt m->tp
   */
   gpuErrchk(cudaMalloc(&m->tp, dim * nioparticles * 4 * sizeof(double)));
 
-  // amp - DIM
   /*
   - i/o parameter to kernels
   - after kernel call fill amp member
@@ -76,7 +73,6 @@ CPPProcess::CPPProcess(int numiterations, int gpuwarps, int gputhreads,
   */
   gpuErrchk(cudaMalloc(&m->tmp, dim * 4 * sizeof(thrust::complex<double>)));
 
-  // w - DIM
   /*
   - internal variable within kernels
   */
@@ -109,10 +105,10 @@ void CPPProcess::setMomenta(std::vector<std::vector<double *>> &momenta) {
 
   for (int d = 0; d < dim; ++d) {
     for (int i = 0; i < nioparticles; ++i) {
-      cudaDeviceSynchronize();
+      // cudaDeviceSynchronize();
       gpuErrchk(cudaMemcpy((void *)m->tp[d][i], (void *)momenta[d][i],
                            4 * sizeof(double), cudaMemcpyHostToDevice));
-      cudaDeviceSynchronize();
+      // cudaDeviceSynchronize();
     }
   }
 }
@@ -269,20 +265,6 @@ void CPPProcess::sigmaKin() {
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, including incoming flavour dependence.
 
-// sr fixme // deal with gpu dimension of matrix_element
-/*
-double CPPProcess::sigmaHat() {
-  // Select between the different processes
-  if (id1 == -11 && id2 == 11) {
-    // Add matrix elements for processes with beams (-11, 11)
-    return matrix_element[0];
-  } else {
-    // Return 0 if not correct initial state assignment
-    return 0.;
-  }
-}
-*/
-
 //==========================================================================
 // Private class member functions
 
@@ -295,7 +277,7 @@ void CPPProcess::call_wavefunctions_kernel(int ihel) {
     m_timer.Start();
   }
 
-  cudaDeviceSynchronize();
+  // cudaDeviceSynchronize();
   gMG5_sm::calculate_wavefunctions<<<gpu_nwarps, gpu_nthreads>>>(
       m->tperm, m->thelicities, ihel, m->tmME, m->tp, m->tamp, m->tw, m->tmp,
       pars->GC_3, pars->GC_51, pars->GC_59, pars->mdl_MZ, pars->mdl_WZ, m_debug,
