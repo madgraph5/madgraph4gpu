@@ -4,7 +4,7 @@ INCDIR=../../src
 MODELLIB=model_sm
 CXXFLAGS= -O3 -I$(INCDIR) -I.
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM) #--gpu-architecture=compute_35 --gpu-code=sm_35
-CUFLAGS= $(CUARCHFLAGS) -use_fast_math -rdc=true
+CUFLAGS= $(CUARCHFLAGS) -use_fast_math -rdc=true -lineinfo 
 LIBFLAGS= -L$(LIBDIR) -l$(MODELLIB)
 NVCC=/usr/local/cuda/bin/nvcc
 CXX=g++
