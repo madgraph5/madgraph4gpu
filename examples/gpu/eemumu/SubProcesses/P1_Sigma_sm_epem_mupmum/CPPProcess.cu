@@ -28,7 +28,7 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
   }
 }
 
-__constant__ int hel2[4];
+__constant__ int hel2[16][4];
 
 CPPProcess::CPPProcess(int numiterations, int gpuwarps, int gputhreads,
                        bool verbose, bool debug, bool perf)
@@ -91,21 +91,7 @@ CPPProcess::CPPProcess(int numiterations, int gpuwarps, int gputhreads,
       {-1, 1, -1, -1},  {-1, 1, -1, 1},  {-1, 1, 1, -1},  {-1, 1, 1, 1},
       {1, -1, -1, -1},  {1, -1, -1, 1},  {1, -1, 1, -1},  {1, -1, 1, 1},
       {1, 1, -1, -1},   {1, 1, -1, 1},   {1, 1, 1, -1},   {1, 1, 1, 1}};
-  gpuErrchk(cudaMalloc(&m->thelicities, ncomb * nexternal * sizeof(int)));
-
-  gpuErrchk(cudaMemcpy(m->thelicities, helicities,
-                       ncomb * nexternal * sizeof(int),
-                       cudaMemcpyHostToDevice));
-
-  const int helicities2[4] = {1, 2, 3, 4};
-  /*
-      {-1, -1, -1, -1}, {-1, -1, -1, 1}, {-1, -1, 1, -1}, {-1, -1, 1, 1},
-      {-1, 1, -1, -1},  {-1, 1, -1, 1},  {-1, 1, 1, -1},  {-1, 1, 1, 1},
-      {1, -1, -1, -1},  {1, -1, -1, 1},  {1, -1, 1, -1},  {1, -1, 1, 1},
-      {1, 1, -1, -1},   {1, 1, -1, 1},   {1, 1, 1, -1},   {1, 1, 1, 1}};
-      */
-  // gpuErrchk(cudaMalloc(&hel2, ncomb * nexternal * sizeof(int)));
-  gpuErrchk(cudaMemcpyToSymbol(hel2, helicities2, 4 * sizeof(int)));
+  gpuErrchk(cudaMemcpyToSymbol(hel2, helicities, 16 * 4 * sizeof(int)));
 
   // perm - nodim
   static int perm[nexternal];
@@ -296,8 +282,8 @@ void CPPProcess::call_wavefunctions_kernel(int ihel) {
 
   // cudaDeviceSynchronize();
   gMG5_sm::calculate_wavefunctions<<<gpu_nwarps, gpu_nthreads>>>(
-      m->tperm, m->thelicities, ihel, m->tmME, m->tp, m->tamp, pars->GC_3,
-      pars->GC_51, pars->GC_59, pars->mdl_MZ, pars->mdl_WZ, m_debug, m_verbose);
+      m->tperm, ihel, m->tmME, m->tp, m->tamp, pars->GC_3, pars->GC_51,
+      pars->GC_59, pars->mdl_MZ, pars->mdl_WZ, m_debug, m_verbose);
   cudaDeviceSynchronize();
 
   // memcpy(amp, m->tamp, namplitudes * sizeof(thrust::complex<double>));

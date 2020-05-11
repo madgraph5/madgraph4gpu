@@ -17,14 +17,10 @@ __device__ void gpuAssert2(cudaError_t code, const char *file, int line,
                            bool abort = true) {
   if (code != cudaSuccess) {
     printf("GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
-    /*
-    if (abort)
-      exit(code);
-      */
   }
 }
 
-extern __constant__ int hel2[4];
+extern __constant__ int hel2[16][4];
 
 namespace gMG5_sm {
 
@@ -33,12 +29,11 @@ __device__ void debugMsg(const char *msg) {
 }
 
 __global__ void calculate_wavefunctions(
-    int *perm, int (*hel)[4], int ihel, double *mME, double (*p)[4][4],
+    int *perm, int ihel, double *mME, double (*p)[4][4],
     thrust::complex<double> (*amp)[2], thrust::complex<double> GC_3,
     thrust::complex<double> GC_51, thrust::complex<double> GC_59, double mdl_MZ,
     double mdl_WZ, bool debug, bool verbose) {
   debugMsg("%>");
-  printf("%i", hel2[2]);
   // Calculate wavefunctions for all processes
   // int i, j;
   double ZERO = 0.00;
@@ -56,10 +51,10 @@ __global__ void calculate_wavefunctions(
   double(*dp)[4] = p[dim]; // --> shared
 
   // Calculate all wavefunctions
-  oxxxxx(dp[perm[0]], mME[0], hel[ihel][0], -1, dw[0]);
-  ixxxxx(dp[perm[1]], mME[1], hel[ihel][1], +1, dw[1]);
-  ixxxxx(dp[perm[2]], mME[2], hel[ihel][2], -1, dw[2]);
-  oxxxxx(dp[perm[3]], mME[3], hel[ihel][3], +1, dw[3]);
+  oxxxxx(dp[perm[0]], mME[0], hel2[ihel][0], -1, dw[0]);
+  ixxxxx(dp[perm[1]], mME[1], hel2[ihel][1], +1, dw[1]);
+  ixxxxx(dp[perm[2]], mME[2], hel2[ihel][2], -1, dw[2]);
+  oxxxxx(dp[perm[3]], mME[3], hel2[ihel][3], +1, dw[3]);
   FFV1P0_3(dw[1], dw[0], GC_3, ZERO, ZERO, dw[4]);
   FFV2_4_3(dw[1], dw[0], -GC_51, GC_59, mdl_MZ, mdl_WZ, dw[5]);
   // Calculate all amplitudes
@@ -69,8 +64,8 @@ __global__ void calculate_wavefunctions(
   if (debug) {
     printf("\n\n >>> DEBUG >>> DEBUG >>> DEBUG >>>\n");
 
-    printf("\nHelicities: %d %d %d %d\n", hel[ihel][0], hel[ihel][1],
-           hel[ihel][2], hel[ihel][3]);
+    printf("\nHelicities: %d %d %d %d\n", hel2[ihel][0], hel2[ihel][1],
+           hel2[ihel][2], hel2[ihel][3]);
 
     printf("\nMomenta:\n");
     for (int i = 0; i < 4; ++i) {

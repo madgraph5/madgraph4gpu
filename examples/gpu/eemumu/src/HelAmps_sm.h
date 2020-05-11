@@ -15,7 +15,7 @@
 namespace gMG5_sm {
 
 __global__ void calculate_wavefunctions(
-    int *perm, int (*hel)[4], int ihel, double *mME, double (*p)[4][4],
+    int *perm, int ihel, double *mME, double (*p)[4][4],
     thrust::complex<double> (*amp)[2], thrust::complex<double> GC_3,
     thrust::complex<double> GC_51, thrust::complex<double> GC_59, double mdl_MZ,
     double mdl_WZ, bool debug = false, bool verbose = false);
