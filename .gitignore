@@ -6,5 +6,6 @@
 
 # other
 *.local.log
+*.local
 *~
 /local/
