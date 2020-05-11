@@ -4,7 +4,7 @@ CXXFLAGS= -O3 -I.
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM)
 CUFLAGS= $(CUARCHFLAGS) -use_fast_math -rdc=true -lineinfo
 CUINC=/usr/local/cuda/targets/x86_64-linux/include
-NVCC=/usr/local/cuda/bin/nvcc
+NVCC=nvcc
 CXX=g++
 
 target=$(LIBDIR)/libmodel_sm.a
@@ -23,7 +23,7 @@ debug: $(target)
 # not sure including the cuda includes here is a good idea...
 # ... needed for thrust/complex which in principal is a C++ class
 %.o : %.cc %.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(CUINC) -c $< -o $@
+	$(CXX)  $(CPPFLAGS) $(CXXFLAGS) -I$(CUINC) -c $< -o $@
 
 %.o : %.cu %.h
 	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
