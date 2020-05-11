@@ -24,6 +24,8 @@ __device__ void gpuAssert2(cudaError_t code, const char *file, int line,
   }
 }
 
+extern __constant__ int hel2[4];
+
 namespace gMG5_sm {
 
 __device__ void debugMsg(const char *msg) {
@@ -32,11 +34,11 @@ __device__ void debugMsg(const char *msg) {
 
 __global__ void calculate_wavefunctions(
     int *perm, int (*hel)[4], int ihel, double *mME, double (*p)[4][4],
-    thrust::complex<double> (*amp)[2], thrust::complex<double> (*w)[6][6],
-    thrust::complex<double> (*tmp)[4], thrust::complex<double> GC_3,
+    thrust::complex<double> (*amp)[2], thrust::complex<double> GC_3,
     thrust::complex<double> GC_51, thrust::complex<double> GC_59, double mdl_MZ,
     double mdl_WZ, bool debug, bool verbose) {
   debugMsg("%>");
+  printf("%i", hel2[2]);
   // Calculate wavefunctions for all processes
   // int i, j;
   double ZERO = 0.00;
@@ -47,9 +49,11 @@ __global__ void calculate_wavefunctions(
   int dim = blockIdx.x * blockDim.x + threadIdx.x;
 
   thrust::complex<double> *damp = amp[dim]; // --> shared
-  thrust::complex<double>(*dw)[6] = w[dim]; // --> shared
-  double(*dp)[4] = p[dim];                  // --> shared
-  thrust::complex<double> *dtmp = tmp[dim]; // --> shared?
+  // thrust::complex<double>(*dw)[6] = w[dim]; // --> shared
+  // warning because of default constructor of complex assigns values to r & i
+  __shared__ thrust::complex<double> dw[6][6];
+  // thrust::complex<double> dw[6][6];
+  double(*dp)[4] = p[dim]; // --> shared
 
   // Calculate all wavefunctions
   oxxxxx(dp[perm[0]], mME[0], hel[ihel][0], -1, dw[0]);
@@ -61,7 +65,7 @@ __global__ void calculate_wavefunctions(
   // Calculate all amplitudes
   // Amplitude(s) for diagram number 0
   FFV1_0(dw[2], dw[3], dw[4], GC_3, &damp[0]);
-  FFV2_4_0(dw[2], dw[3], dw[5], -GC_51, GC_59, &damp[1], dtmp);
+  FFV2_4_0(dw[2], dw[3], dw[5], -GC_51, GC_59, &damp[1]);
   if (debug) {
     printf("\n\n >>> DEBUG >>> DEBUG >>> DEBUG >>>\n");
 
@@ -618,15 +622,12 @@ __device__ void FFV2_0(thrust::complex<double> F1[],
 __device__ void
 FFV2_4_0(thrust::complex<double> F1[], thrust::complex<double> F2[],
          thrust::complex<double> V3[], thrust::complex<double> COUP1,
-         thrust::complex<double> COUP2, thrust::complex<double> *vertex,
-         thrust::complex<double> dtmp[]) {
+         thrust::complex<double> COUP2, thrust::complex<double> *vertex) {
   debugMsg("h>");
-  // gpuErrchk2(cudaDeviceSynchronize());
+  thrust::complex<double> tmp;
   FFV2_0(F1, F2, V3, COUP1, vertex);
-  // gpuErrchk2(cudaDeviceSynchronize());
-  FFV4_0(F1, F2, V3, COUP2, &dtmp[2]);
-  // gpuErrchk2(cudaDeviceSynchronize());
-  (*vertex) = (*vertex) + dtmp[2];
+  FFV4_0(F1, F2, V3, COUP2, &tmp);
+  (*vertex) = (*vertex) + tmp;
   debugMsg("<h");
 }
 
