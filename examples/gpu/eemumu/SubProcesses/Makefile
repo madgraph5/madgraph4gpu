@@ -6,7 +6,7 @@ CXXFLAGS= -O3 -I$(INCDIR) -I.
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM) #--gpu-architecture=compute_35 --gpu-code=sm_35
 CUFLAGS= $(CUARCHFLAGS) -use_fast_math -rdc=true -lineinfo
 LIBFLAGS= -L$(LIBDIR) -l$(MODELLIB)
-NVCC=nvcc
+NVCC=/usr/local/cuda/bin/nvcc
 CXX=g++
 MAKEDEBUG=
 
@@ -19,8 +19,8 @@ all: check
 check: $(main)
 
 debug: CXXFLAGS:=$(filter-out -O3,$(CXXFLAGS))
-debug: CUFLAGS:=$(filter-out -lineinfo,$(CUFLAGS))
 debug: CXXFLAGS += -g -O0 -DDEBUG
+debug: CUFLAGS:=$(filter-out -lineinfo,$(CUFLAGS))
 debug: CUFLAGS += -G
 debug: MAKEDEBUG := debug
 debug: check
