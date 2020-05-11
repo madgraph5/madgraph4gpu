@@ -4,30 +4,29 @@ INCDIR=../../src
 MODELLIB=model_sm
 CXXFLAGS= -O3 -I$(INCDIR) -I.
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM) #--gpu-architecture=compute_35 --gpu-code=sm_35
-CUFLAGS= $(CUARCHFLAGS) -use_fast_math -rdc=true -lineinfo 
+CUFLAGS= $(CUARCHFLAGS) -use_fast_math -rdc=true -lineinfo
 LIBFLAGS= -L$(LIBDIR) -l$(MODELLIB)
 NVCC=/usr/local/cuda/bin/nvcc
 CXX=g++
 MAKEDEBUG=
 
 main=check.exe
+cu_objects=CPPProcess.o check_sa.o
+cxx_objects=
 
-all:
-	cd ../../src && make
-	make check
-
-debug: CXXFLAGS:=$(filter-out -O3,$(CXXFLAGS))
-debug: CXXFLAGS += -g -O0 -DDEBUG
-debug: CUFLAGS += -G
-debug: MAKEDEBUG := debug
-debug: all
+all: check
 
 check: $(main)
 
-cu_objects=CPPProcess.o check_sa.o
+debug: CXXFLAGS:=$(filter-out -O3,$(CXXFLAGS))
+debug: CUFLAGS:=$(filter-out -lineinfo,$(CUFLAGS))
+debug: CXXFLAGS += -g -O0 -DDEBUG
+debug: CUFLAGS += -G
+debug: MAKEDEBUG := debug
+debug: check
 
-%.o : %.cc %.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+modellib:
+	cd ../../src && make $(MAKEDEBUG)
 
 check_sa.o: check_sa.cu
 	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
@@ -35,11 +34,11 @@ check_sa.o: check_sa.cu
 %.o : %.cu %.h
 	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
 
-$(main): $(cxx_objects) $(cu_objects) $(LIBDIR)/lib$(MODELLIB).a
-	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) -lcuda
+%.o : %.cc %.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-$(LIBDIR)/lib$(MODELLIB).a:
-	cd ../../src && make $(MAKEDEBUG)
+$(main): modellib $(cxx_objects) $(cu_objects)
+	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) -lcuda
 
 .PHONY: clean
 
