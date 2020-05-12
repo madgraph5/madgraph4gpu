@@ -26,8 +26,6 @@
 struct processMem {
   thrust::complex<double> (*tamp)[2]; // [dim][namplitudes] --> global
   double (*tp)[4][4];                 // [dim][4][4] --> global
-  double *tmME;                       // [4(nmasses)] --> constant
-  int *tperm;                         // [nexternal] --> constant
 };
 
 class CPPProcess {

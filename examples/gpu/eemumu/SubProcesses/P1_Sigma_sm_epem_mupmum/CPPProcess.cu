@@ -28,18 +28,18 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
   }
 }
 
-__constant__ int hel2[16][4];
+__constant__ int cHel[16][4];
+__constant__ double cMME[4];
+__constant__ int cPerm[4];
+__constant__ double cIPC[6];
+__constant__ double cIPD[2];
+__shared__ double sw[6][12];
 
 CPPProcess::CPPProcess(int numiterations, int gpuwarps, int gputhreads,
                        bool verbose, bool debug, bool perf)
     : m_numiterations(numiterations), gpu_nwarps(gpuwarps),
       gpu_nthreads(gputhreads), m_verbose(verbose), m_debug(debug),
       m_perf(perf), dim(gpu_nwarps * gpu_nthreads), mME(4, 0.00) {
-
-  amp = new thrust::complex<double> *[dim];
-  for (int i = 0; i < dim; ++i) {
-    amp[i] = new thrust::complex<double>[namplitudes];
-  }
 
   matrix_element = new double *[dim];
   for (int i = 0; i < dim; ++i) {
@@ -48,10 +48,8 @@ CPPProcess::CPPProcess(int numiterations, int gpuwarps, int gputhreads,
 
   m = new processMem();
 
-  static double tmpmME[4] = {0.00, 0.00, 0.00, 0.00};
-  gpuErrchk(cudaMalloc(&m->tmME, 4 * sizeof(double)));
-  gpuErrchk(cudaMemcpy((void *)m->tmME, (void *)tmpmME, 4 * sizeof(double),
-                       cudaMemcpyHostToDevice));
+  static double tmpmME[4] = {0.0, 0.0, 0.0, 0.0};
+  gpuErrchk(cudaMemcpyToSymbol(cMME, tmpmME, 4 * sizeof(double)));
 
   /*
   - rambo::get_momenta (rambo::rambo) fills vector 4 particles * 4 momenta
@@ -69,29 +67,17 @@ CPPProcess::CPPProcess(int numiterations, int gpuwarps, int gputhreads,
   gpuErrchk(cudaMallocManaged(&m->tamp, dim * namplitudes *
                                             sizeof(thrust::complex<double>)));
 
-  /*
-  temporary variables needed inside the kernel wave functions (re-using them
-  inside two functions )
-  */
-  /*
-  gpuErrchk(cudaMalloc(&m->tmp, dim * 4 * sizeof(thrust::complex<double>)));
-  */
-
   // Helicities for the process - nodim
-  static int helicities[ncomb][nexternal] = {
+  static int tHel[ncomb][nexternal] = {
       {-1, -1, -1, -1}, {-1, -1, -1, 1}, {-1, -1, 1, -1}, {-1, -1, 1, 1},
       {-1, 1, -1, -1},  {-1, 1, -1, 1},  {-1, 1, 1, -1},  {-1, 1, 1, 1},
       {1, -1, -1, -1},  {1, -1, -1, 1},  {1, -1, 1, -1},  {1, -1, 1, 1},
       {1, 1, -1, -1},   {1, 1, -1, 1},   {1, 1, 1, -1},   {1, 1, 1, 1}};
-  gpuErrchk(cudaMemcpyToSymbol(hel2, helicities, 16 * 4 * sizeof(int)));
+  gpuErrchk(cudaMemcpyToSymbol(cHel, tHel, ncomb * nexternal * sizeof(int)));
 
   // perm - nodim
-  static int perm[nexternal];
-  for (int i = 0; i < nexternal; i++)
-    perm[i] = i;
-  gpuErrchk(cudaMalloc(&m->tperm, nexternal * sizeof(int)));
-  gpuErrchk(cudaMemcpy((void *)m->tperm, (void *)perm, nexternal * sizeof(int),
-                       cudaMemcpyHostToDevice));
+  static int perm[nexternal] = {0, 1, 2, 3};
+  gpuErrchk(cudaMemcpyToSymbol(cPerm, perm, nexternal * sizeof(int)));
 }
 
 CPPProcess::~CPPProcess() {}
@@ -148,6 +134,12 @@ void CPPProcess::initProc(std::string param_card_name) {
   SLHAReader slha(param_card_name, m_verbose);
   pars->setIndependentParameters(slha);
   pars->setIndependentCouplings();
+  static thrust::complex<double> tIPC[3] = {pars->GC_3, pars->GC_51,
+                                            pars->GC_59};
+  gpuErrchk(
+      cudaMemcpyToSymbol(cIPC, tIPC, 3 * sizeof(thrust::complex<double>)));
+  static double tIPD[2] = {pars->mdl_MZ, pars->mdl_WZ};
+  gpuErrchk(cudaMemcpyToSymbol(cIPD, tIPD, 2 * sizeof(double)));
   if (m_verbose) {
     pars->printIndependentParameters();
     pars->printIndependentCouplings();
@@ -274,8 +266,7 @@ void CPPProcess::call_wavefunctions_kernel(int ihel) {
 
   // cudaDeviceSynchronize();
   gMG5_sm::calculate_wavefunctions<<<gpu_nwarps, gpu_nthreads>>>(
-      m->tperm, ihel, m->tmME, m->tp, m->tamp, pars->GC_3, pars->GC_51,
-      pars->GC_59, pars->mdl_MZ, pars->mdl_WZ, m_debug, m_verbose);
+      ihel, m->tp, m->tamp, m_debug, m_verbose);
   cudaDeviceSynchronize();
 
   // memcpy(amp, m->tamp, namplitudes * sizeof(thrust::complex<double>));
