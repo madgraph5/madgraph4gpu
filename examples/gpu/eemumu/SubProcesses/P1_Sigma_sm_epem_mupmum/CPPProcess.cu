@@ -77,14 +77,6 @@ CPPProcess::CPPProcess(int numiterations, int gpuwarps, int gputhreads,
   gpuErrchk(cudaMalloc(&m->tmp, dim * 4 * sizeof(thrust::complex<double>)));
   */
 
-  /*
-  - internal variable within kernels
-  */
-  /*
-  gpuErrchk(cudaMalloc((void **)&m->tw, dim * wrows * nwavefuncs *
-                                            sizeof(thrust::complex<double>)));
-  */
-
   // Helicities for the process - nodim
   static int helicities[ncomb][nexternal] = {
       {-1, -1, -1, -1}, {-1, -1, -1, 1}, {-1, -1, 1, -1}, {-1, -1, 1, 1},
