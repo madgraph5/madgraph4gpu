@@ -6,7 +6,7 @@ CXXFLAGS= -O3 -I$(INCDIR) -I.
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM) #--gpu-architecture=compute_35 --gpu-code=sm_35
 CUFLAGS= $(CUARCHFLAGS) -use_fast_math -rdc=true -lineinfo
 LIBFLAGS= -L$(LIBDIR) -l$(MODELLIB)
-NVCC=/usr/local/cuda/bin/nvcc
+NVCC=nvcc
 CXX=g++
 MAKEDEBUG=
 
@@ -38,7 +38,7 @@ check_sa.o: check_sa.cu
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 $(main): modellib $(cxx_objects) $(cu_objects)
-	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) -lcuda
+	$(NVCC)  -o $@ $(cxx_objects) $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) -lcuda
 
 .PHONY: clean
 
