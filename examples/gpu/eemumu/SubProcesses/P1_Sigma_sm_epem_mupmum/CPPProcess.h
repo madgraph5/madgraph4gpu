@@ -46,7 +46,8 @@ public:
   void preSigmaKin();
 
   // Calculate flavour-independent parts of cross section.
-  virtual void sigmaKin();
+  virtual void sigmaKin(int ncomb, bool (&goodhel)[16], int &ntry, int &sum_hel,
+                        int &ngood, int (&igood)[16], int &jhel);
 
   // Info on the subprocess.
   virtual std::string name() const { return "e+ e- > mu+ mu- (sm)"; }

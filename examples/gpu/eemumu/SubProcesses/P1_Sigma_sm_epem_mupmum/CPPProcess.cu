@@ -1,10 +1,3 @@
-//==========================================================================
-// This file has been automatically generated for C++ Standalone by
-// MadGraph5_aMC@NLO v. 2.7.0, 2020-01-20
-// By the MadGraph5_aMC@NLO Development Team
-// Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
-//==========================================================================
-
 #include "CPPProcess.h"
 #include "HelAmps_sm.h"
 
@@ -86,10 +79,8 @@ void CPPProcess::setMomenta(std::vector<std::vector<double *>> &momenta) {
 
   for (int d = 0; d < dim; ++d) {
     for (int i = 0; i < nioparticles; ++i) {
-      // cudaDeviceSynchronize();
       gpuErrchk(cudaMemcpy((void *)m->tp[d][i], (void *)momenta[d][i],
                            4 * sizeof(double), cudaMemcpyHostToDevice));
-      // cudaDeviceSynchronize();
     }
   }
 }
@@ -119,13 +110,6 @@ void CPPProcess::printPerformanceStats() {
             << "MinTimeInWaveFuncs   = " << *mintime << std::endl
             << "MaxTimeInWaveFuncs   = " << *maxtime << std::endl;
 }
-
-//==========================================================================
-// Class member functions for calculating the matrix elements for
-// Process: e+ e- > mu+ mu- WEIGHTED<=4 @1
-
-//--------------------------------------------------------------------------
-// Initialize process.
 
 void CPPProcess::initProc(std::string param_card_name) {
 
@@ -162,24 +146,19 @@ void CPPProcess::preSigmaKin() {
   }
 }
 
-void CPPProcess::sigmaKin() {
+void CPPProcess::sigmaKin(int ncomb, bool (&goodhel)[16], int &ntry,
+                          int &sum_hel, int &ngood, int (&igood)[16],
+                          int &jhel) {
 
   // Reset color flows
   for (int i = 0; i < 1; i++)
     jamp2[0][i] = 0.;
 
-  // Local variables and constants
-  const int ncomb = 16;
-  static bool goodhel[ncomb] = {ncomb * false};
-  static int ntry = 0, sum_hel = 0, ngood = 0;
-  static int igood[ncomb];
-  static int jhel;
   // sr fixme // move out of functions
   double **t = new double *[nprocesses];
   for (int i = 0; i < nprocesses; ++i) {
     t[i] = new double[dim];
   }
-  // double t[nprocesses][dim] = {0}; // [nprocesses]
   // Denominators: spins, colors and identical particles
   const int denominators[nprocesses] = {4};
 
@@ -252,50 +231,22 @@ void CPPProcess::sigmaKin() {
     }
 }
 
-//--------------------------------------------------------------------------
-// Evaluate |M|^2, including incoming flavour dependence.
-
-//==========================================================================
-// Private class member functions
-
-//--------------------------------------------------------------------------
-// Evaluate |M|^2 for each subprocess
-
 void CPPProcess::call_wavefunctions_kernel(int ihel) {
 
   if (m_perf) {
     m_timer.Start();
   }
 
-  // cudaDeviceSynchronize();
   gMG5_sm::calculate_wavefunctions<<<gpu_nblocks, gpu_nthreads>>>(
       ihel, m->tp, m->tamp, m_debug, m_verbose);
   cudaDeviceSynchronize();
 
-  // memcpy(amp, m->tamp, namplitudes * sizeof(thrust::complex<double>));
-  /*
-  gpuErrchk(cudaMemcpy(amp, m->tamp,
-                       dim * namplitudes * sizeof(thrust::complex<double>),
-                       cudaMemcpyDeviceToHost));
-*/
   if (m_perf) {
     float gputime = m_timer.GetDuration();
     m_wavetimes.push_back(gputime);
     if (m_verbose)
       std::cout << "Wave function time: " << gputime << std::endl;
   }
-
-  /*
-    std::cout << std::endl << std::endl;
-    for (int i = 0; i < gpu_nblocks; ++i) {
-      for (int j = 0; j < gpu_nthreads; ++j) {
-        int d = i * gpu_nblocks + j;
-        std::cout << m->tamp[d][0] << ", " << m->tamp[d][1] << " ";
-      }
-      std::cout << std::endl;
-    }
-    std::cout << std::endl;
-  */
 }
 
 // --> calculate multi-dimensional amp

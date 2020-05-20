@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
     return usage(1);
 
   if (verbose)
-    std::cout << "num evts: " << numiter << std::endl;
+    std::cout << "# iterations: " << numiter << std::endl;
 
   // Create a process object
   CPPProcess process(numiter, gpublocks, gputhreads, verbose, debug, perf);
@@ -70,11 +70,16 @@ int main(int argc, char **argv) {
 
   std::vector<double> matrixelementvector;
 
-  for (int x = 0; x < numiter; ++x) {
+  // Local variables and constants
+  const int ncomb = 16;
+  static bool goodhel[ncomb] = {ncomb * false};
+  static int ntry = 0, sum_hel = 0, ngood = 0;
+  static int igood[ncomb];
+  static int jhel;
 
-    if (!(verbose || debug || perf)) {
-      std::cout << ".";
-    }
+  std::cout << "sizeofint" << sizeof(bool) << std::endl;
+
+  for (int x = 0; x < numiter; ++x) {
 
     // Get phase space point
     std::vector<std::vector<double *>> p =
@@ -86,29 +91,27 @@ int main(int argc, char **argv) {
     process.preSigmaKin();
 
     // Evaluate matrix element
-    process.sigmaKin();
+    process.sigmaKin(ncomb, goodhel, ntry, sum_hel, ngood, igood, jhel);
 
     double **matrix_elements = process.getMatrixElements();
 
-    for (int d = 0; d < dim; ++d) {
+    if (verbose || perf) {
 
-      if (verbose) {
-        std::cout << "Momenta:" << std::endl;
-        for (int i = 0; i < process.nexternal; i++)
-          std::cout << std::setw(4) << i + 1
-                    << setiosflags(std::ios::scientific) << std::setw(14)
-                    << p[d][i][0] << setiosflags(std::ios::scientific)
-                    << std::setw(14) << p[d][i][1]
-                    << setiosflags(std::ios::scientific) << std::setw(14)
-                    << p[d][i][2] << setiosflags(std::ios::scientific)
-                    << std::setw(14) << p[d][i][3] << std::endl;
-        std::cout
-            << "-----------------------------------------------------------"
-               "------------------"
-            << std::endl;
-      }
+      for (int d = 0; d < dim; ++d) {
 
-      if (verbose || perf) {
+        if (verbose) {
+          std::cout << "Momenta:" << std::endl;
+          for (int i = 0; i < process.nexternal; i++)
+            std::cout << std::setw(4) << i + 1
+                      << setiosflags(std::ios::scientific) << std::setw(14)
+                      << p[d][i][0] << setiosflags(std::ios::scientific)
+                      << std::setw(14) << p[d][i][1]
+                      << setiosflags(std::ios::scientific) << std::setw(14)
+                      << p[d][i][2] << setiosflags(std::ios::scientific)
+                      << std::setw(14) << p[d][i][3] << std::endl;
+          std::cout << std::string(80, '-') << std::endl;
+        }
+
         // Display matrix elements
         for (int i = 0; i < process.nprocesses; i++) {
           if (verbose)
@@ -121,12 +124,12 @@ int main(int argc, char **argv) {
         }
 
         if (verbose)
-          std::cout
-              << "-----------------------------------------------------------"
-                 "------------------"
-              << std::endl;
+          std::cout << std::string(80, '-') << std::endl;
       }
+    } else if (!debug) {
+      std::cout << ".";
     }
+
     for (std::vector<std::vector<double *>>::iterator it = p.begin();
          it != p.end(); ++it) {
       for (std::vector<double *>::iterator jt = it->begin(); jt != it->end();
@@ -139,6 +142,7 @@ int main(int argc, char **argv) {
   if (!(verbose || debug || perf)) {
     std::cout << std::endl;
   }
+
   if (perf) {
     process.printPerformanceStats();
     int numelems = matrixelementvector.size();
