@@ -45,6 +45,7 @@ __global__ void calculate_wavefunctions(int ihel, double (*p)[4][4],
            threadIdx.x);
   }
 #endif
+
   double ZERO = 0.00;
   int dim = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -52,6 +53,8 @@ __global__ void calculate_wavefunctions(int ihel, double (*p)[4][4],
   // warning because of default constructor of complex assigns values to r & i
   double(*dp)[4] = p[dim]; // --> shared
 
+  // for (int i = 0; i < 384; ++i) {
+  // for (int i = 0; i < 10; ++i) {
   // Calculate all wavefunctions
   oxxxxx(dp[cPerm[0]], cMME[0], cHel[ihel][0], -1, sw[0]);
   ixxxxx(dp[cPerm[1]], cMME[1], cHel[ihel][1], +1, sw[1]);
@@ -63,6 +66,7 @@ __global__ void calculate_wavefunctions(int ihel, double (*p)[4][4],
   // Amplitude(s) for diagram number 0
   FFV1_0(sw[2], sw[3], sw[4], cIPC[0], &damp[0]);
   FFV2_4_0(sw[2], sw[3], sw[5], -cIPC[1], cIPC[2], &damp[1]);
+  // }
 #ifdef DEBUG
   if (debug) {
     printf("\n\n >>> DEBUG >>> DEBUG >>> DEBUG >>>\n");

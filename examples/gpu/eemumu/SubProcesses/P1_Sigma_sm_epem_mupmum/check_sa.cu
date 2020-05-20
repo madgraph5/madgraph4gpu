@@ -24,7 +24,7 @@ int usage(int ret = 0) {
 
 int main(int argc, char **argv) {
   bool verbose = false, debug = false, perf = false;
-  int numevts = 0, gpuwarps = 1, gputhreads = 1;
+  int numiter = 0, gpublocks = 1, gputhreads = 1;
   std::vector<int> numvec;
   for (int argn = 1; argn < argc; ++argn) {
     if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
@@ -37,29 +37,28 @@ int main(int argc, char **argv) {
       perf = true;
     else if (is_number(argv[argn]))
       numvec.push_back(atoi(argv[argn]));
-    // numevts = atoi(argv[argn]);
     else
       return usage(1);
   }
   int veclen = numvec.size();
   if (veclen == 3) {
-    gpuwarps = numvec[0];
+    gpublocks = numvec[0];
     gputhreads = numvec[1];
-    numevts = numvec[2];
+    numiter = numvec[2];
   } else if (veclen == 1) {
-    numevts = numvec[0];
+    numiter = numvec[0];
   } else {
     return usage(1);
   }
 
-  if (numevts == 0)
+  if (numiter == 0)
     return usage(1);
 
   if (verbose)
-    std::cout << "num evts: " << numevts << std::endl;
+    std::cout << "num evts: " << numiter << std::endl;
 
   // Create a process object
-  CPPProcess process(numevts, gpuwarps, gputhreads, verbose, debug, perf);
+  CPPProcess process(numiter, gpublocks, gputhreads, verbose, debug, perf);
 
   // Read param_card and set parameters
   process.initProc("../../Cards/param_card.dat");
@@ -71,7 +70,7 @@ int main(int argc, char **argv) {
 
   std::vector<double> matrixelementvector;
 
-  for (int x = 0; x < numevts; ++x) {
+  for (int x = 0; x < numiter; ++x) {
 
     if (!(verbose || debug || perf)) {
       std::cout << ".";
@@ -83,6 +82,8 @@ int main(int argc, char **argv) {
 
     // Set momenta for this event
     process.setMomenta(p);
+
+    process.preSigmaKin();
 
     // Evaluate matrix element
     process.sigmaKin();

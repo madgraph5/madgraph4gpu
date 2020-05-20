@@ -32,7 +32,7 @@ class CPPProcess {
 public:
   // Constructor.
 
-  CPPProcess(int numiterations, int gpuwarps, int gputhreads,
+  CPPProcess(int numiterations, int gpublocks, int gputhreads,
              bool verbose = false, bool debug = false, bool perf = false);
 
   ~CPPProcess();
@@ -41,6 +41,9 @@ public:
 
   // Initialize process.
   virtual void initProc(std::string param_card_name);
+
+  // everything from sigmaKin which has to be left outside the kernel
+  void preSigmaKin();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
@@ -77,9 +80,9 @@ public:
 private:
   int m_numiterations;
   // gpu variables
-  int gpu_nwarps;
+  int gpu_nblocks;
   int gpu_nthreads;
-  int dim; // gpu_nwarps * gpu_nthreads;
+  int dim; // gpu_nblocks * gpu_nthreads;
 
   // timer
   Timer<TIMERTYPE> m_timer;

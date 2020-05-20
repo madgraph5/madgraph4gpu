@@ -35,11 +35,11 @@ __constant__ double cIPC[6];
 __constant__ double cIPD[2];
 __shared__ double sw[6][12];
 
-CPPProcess::CPPProcess(int numiterations, int gpuwarps, int gputhreads,
+CPPProcess::CPPProcess(int numiterations, int gpublocks, int gputhreads,
                        bool verbose, bool debug, bool perf)
-    : m_numiterations(numiterations), gpu_nwarps(gpuwarps),
+    : m_numiterations(numiterations), gpu_nblocks(gpublocks),
       gpu_nthreads(gputhreads), m_verbose(verbose), m_debug(debug),
-      m_perf(perf), dim(gpu_nwarps * gpu_nthreads), mME(4, 0.00) {
+      m_perf(perf), dim(gpu_nblocks * gpu_nthreads), mME(4, 0.00) {
 
   matrix_element = new double *[dim];
   for (int i = 0; i < dim; ++i) {
@@ -111,7 +111,7 @@ void CPPProcess::printPerformanceStats() {
   std::cout << "***********************************" << std::endl
             << "NumIterations        = " << m_numiterations << std::endl
             << "NumThreadsPerBlock   = " << gpu_nthreads << std::endl
-            << "NumBlocksPerGrid     = " << gpu_nwarps << std::endl
+            << "NumBlocksPerGrid     = " << gpu_nblocks << std::endl
             << "NumberOfEntries      = " << numelems << std::endl
             << std::scientific << "TotalTimeInWaveFuncs = " << sum << std::endl
             << "MeanTimeinWaveFuncs  = " << mean << std::endl
@@ -150,7 +150,7 @@ void CPPProcess::initProc(std::string param_card_name) {
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, part independent of incoming flavour.
 
-void CPPProcess::sigmaKin() {
+void CPPProcess::preSigmaKin() {
   // Set the parameters which change event by event
   pars->setDependentParameters();
   pars->setDependentCouplings();
@@ -160,6 +160,9 @@ void CPPProcess::sigmaKin() {
     pars->printDependentCouplings();
     firsttime = false;
   }
+}
+
+void CPPProcess::sigmaKin() {
 
   // Reset color flows
   for (int i = 0; i < 1; i++)
@@ -265,7 +268,7 @@ void CPPProcess::call_wavefunctions_kernel(int ihel) {
   }
 
   // cudaDeviceSynchronize();
-  gMG5_sm::calculate_wavefunctions<<<gpu_nwarps, gpu_nthreads>>>(
+  gMG5_sm::calculate_wavefunctions<<<gpu_nblocks, gpu_nthreads>>>(
       ihel, m->tp, m->tamp, m_debug, m_verbose);
   cudaDeviceSynchronize();
 
@@ -284,9 +287,9 @@ void CPPProcess::call_wavefunctions_kernel(int ihel) {
 
   /*
     std::cout << std::endl << std::endl;
-    for (int i = 0; i < gpu_nwarps; ++i) {
+    for (int i = 0; i < gpu_nblocks; ++i) {
       for (int j = 0; j < gpu_nthreads; ++j) {
-        int d = i * gpu_nwarps + j;
+        int d = i * gpu_nblocks + j;
         std::cout << m->tamp[d][0] << ", " << m->tamp[d][1] << " ";
       }
       std::cout << std::endl;
