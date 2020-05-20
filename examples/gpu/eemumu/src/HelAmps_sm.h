@@ -14,8 +14,14 @@
 
 namespace gMG5_sm {
 
-__global__ void calculate_wavefunctions(int ihel, double (*p)[4][4],
-                                        thrust::complex<double> (*amp)[2],
+__global__ void sigmaKin(double (*p)[4][4], double (*m)[1], bool debug,
+                         bool verbose);
+
+__device__ void matrix_1_epem_mupmum(double &matrix,
+                                     thrust::complex<double> amp[2]);
+
+__device__ void calculate_wavefunctions(int ihel, double (*p)[4],
+                                        thrust::complex<double> amp[2],
                                         bool debug = false,
                                         bool verbose = false);
 

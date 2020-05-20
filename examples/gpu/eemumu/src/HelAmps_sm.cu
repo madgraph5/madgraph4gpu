@@ -25,7 +25,7 @@ extern __constant__ double cMME[4];
 extern __constant__ int cPerm[4];
 extern __constant__ thrust::complex<double> cIPC[3];
 extern __constant__ double cIPD[2];
-extern __shared__ thrust::complex<double> sw[6][6];
+// extern __shared__ thrust::complex<double> sw[6][6];
 
 namespace gMG5_sm {
 
@@ -35,8 +35,142 @@ __device__ void debugMsg(const char *msg) {
 }
 #endif
 
-__global__ void calculate_wavefunctions(int ihel, double (*p)[4][4],
-                                        thrust::complex<double> (*amp)[2],
+// later
+/*
+void CPPProcess::sigmaKin(int ncomb, bool (&goodhel)[16], int &ntry,
+                          int &sum_hel, int &ngood, int (&igood)[16],
+                          int &jhel) {
+                    */
+__global__ void sigmaKin(double (*p)[4][4], double (*m)[1], bool debug,
+                         bool verbose) {
+
+  int nprocesses = 1;
+
+  int dim = blockIdx.x * blockDim.x + threadIdx.x;
+
+  double(*dp)[4] = p[dim];
+  double *matrix_element = m[dim];
+
+  thrust::complex<double> amp[2];
+  double t[1];
+
+  /*
+  printf("%d : %f %f %f %f, %f %f %f %f, %f %f %f %f, %f %f %f %f\n", dim,
+         dp[0][0], dp[0][1], dp[0][2], dp[0][3], dp[1][0], dp[1][1], dp[1][2],
+         dp[1][3], dp[2][0], dp[2][1], dp[2][2], dp[2][3], dp[3][0], dp[3][1],
+         dp[3][2], dp[3][3]);
+         */
+  // <later>
+  // Local variables and constants
+  const int ncomb = 16;
+  static bool goodhel[ncomb] = {ncomb * false};
+  static int ntry = 0, sum_hel = 0, ngood = 0;
+  static int igood[ncomb];
+  static int jhel;
+  // </later>
+
+  // Reset color flows
+  /* sr fixme
+  for (int i = 0; i < 1; i++)
+    jamp2[0][i] = 0.;
+*/
+
+  // Denominators: spins, colors and identical particles
+  const int denominators[1] = {4}; // nprocesses
+
+  ntry = ntry + 1;
+
+  // Reset the matrix elements
+  for (int i = 0; i < nprocesses; ++i) { // nprocesses
+    matrix_element[i] = 0.;
+  }
+
+  // sr fixme // better to run the first n calculations serial?
+  if (sum_hel == 0 || ntry < 10) {
+    // Calculate the matrix element for all helicities
+    for (int ihel = 0; ihel < ncomb; ihel++) {
+      if (goodhel[ihel] || ntry < 2) {
+
+        calculate_wavefunctions(ihel, dp, amp, debug, verbose);
+        matrix_1_epem_mupmum(t[0], amp);
+
+        double tsum = 0;
+        for (int iproc = 0; iproc < nprocesses; iproc++) {
+          matrix_element[iproc] += t[iproc];
+          tsum += t[iproc];
+        }
+        // Store which helicities give non-zero result
+        if (tsum != 0. && !goodhel[ihel]) {
+          goodhel[ihel] = true;
+          ngood++;
+          igood[ngood] = ihel;
+        }
+      }
+    }
+    jhel = 0;
+    sum_hel = min(sum_hel, ngood);
+  } else {
+    // Only use the "good" helicities
+    // sr fixme // is the calculation of good helicities parralelizable?
+    for (int j = 0; j < sum_hel; j++) {
+      jhel++;
+      if (jhel >= ngood)
+        jhel = 0;
+      double hwgt = double(ngood) / double(sum_hel);
+      int ihel = igood[jhel];
+
+      calculate_wavefunctions(ihel, dp, amp, debug, verbose);
+      matrix_1_epem_mupmum(t[0], amp);
+
+      for (int iproc = 0; iproc < nprocesses; iproc++) {
+        matrix_element[iproc] += t[iproc] * hwgt;
+      }
+    }
+  }
+
+  for (int i = 0; i < nprocesses; ++i) {
+    matrix_element[i] /= denominators[i];
+  }
+
+  // printf("%d - %e\n", dim, t[0]);
+}
+
+// --> calculate multi-dimensional amp
+__device__ void matrix_1_epem_mupmum(double &matrix,
+                                     thrust::complex<double> amp[2]) {
+  int i, j;
+  // Local variables
+  // const int ngraphs = 2;
+  const int ncolor = 1;
+  thrust::complex<double> ztemp;
+  thrust::complex<double> jamp[ncolor];
+  // The color matrix;
+  static const double denom[ncolor] = {1};
+  static const double cf[ncolor][ncolor] = {{1}};
+
+  // Calculate color flows
+  jamp[0] = -amp[0] - amp[1];
+
+  // Sum and square the color flows to get the matrix element
+  matrix = 0;
+  for (i = 0; i < ncolor; i++) {
+    ztemp = 0.;
+    for (j = 0; j < ncolor; j++)
+      ztemp = ztemp + cf[i][j] * jamp[j];
+    matrix = matrix + (ztemp * conj(jamp[i])).real() / denom[i];
+  }
+
+  // Store the leading color flows for choice of color
+  // sr fixme // maybe this needs to go outside the loop? does it need a
+  // dimension?
+  /* sr fixme
+  for (i = 0; i < ncolor; i++)
+    jamp2[0][i] += (jamp[i] * conj(jamp[i])).real();
+  */
+}
+
+__device__ void calculate_wavefunctions(int ihel, double (*dp)[4],
+                                        thrust::complex<double> amp[2],
                                         bool debug, bool verbose) {
 #ifdef DEBUG
   debugMsg("%>");
@@ -47,14 +181,8 @@ __global__ void calculate_wavefunctions(int ihel, double (*p)[4][4],
 #endif
 
   double ZERO = 0.00;
-  int dim = blockIdx.x * blockDim.x + threadIdx.x;
+  thrust::complex<double> sw[6][6];
 
-  thrust::complex<double> *damp = amp[dim]; // --> shared
-  // warning because of default constructor of complex assigns values to r & i
-  double(*dp)[4] = p[dim]; // --> shared
-
-  // for (int i = 0; i < 384; ++i) {
-  // for (int i = 0; i < 10; ++i) {
   // Calculate all wavefunctions
   oxxxxx(dp[cPerm[0]], cMME[0], cHel[ihel][0], -1, sw[0]);
   ixxxxx(dp[cPerm[1]], cMME[1], cHel[ihel][1], +1, sw[1]);
@@ -64,9 +192,9 @@ __global__ void calculate_wavefunctions(int ihel, double (*p)[4][4],
   FFV2_4_3(sw[1], sw[0], -cIPC[1], cIPC[2], cIPD[0], cIPD[1], sw[5]);
   // Calculate all amplitudes
   // Amplitude(s) for diagram number 0
-  FFV1_0(sw[2], sw[3], sw[4], cIPC[0], &damp[0]);
-  FFV2_4_0(sw[2], sw[3], sw[5], -cIPC[1], cIPC[2], &damp[1]);
-  // }
+  FFV1_0(sw[2], sw[3], sw[4], cIPC[0], &amp[0]);
+  FFV2_4_0(sw[2], sw[3], sw[5], -cIPC[1], cIPC[2], &amp[1]);
+
 #ifdef DEBUG
   if (debug) {
     printf("\n\n >>> DEBUG >>> DEBUG >>> DEBUG >>>\n");
@@ -82,8 +210,8 @@ __global__ void calculate_wavefunctions(int ihel, double (*p)[4][4],
 
     printf("\nMasses: %e, %e, %e, %e\n", cMME[0], cMME[1], cMME[2], cMME[3]);
 
-    printf("\nAmplitudes: (%e, %e), (%e, %e)\n", damp[0].real(), damp[0].imag(),
-           damp[1].real(), damp[1].imag());
+    printf("\nAmplitudes: (%e, %e), (%e, %e)\n", amp[0].real(), amp[0].imag(),
+           amp[1].real(), amp[1].imag());
 
     printf("\nWavefuncs:\n");
     for (int i = 0; i < 6; ++i) {
