@@ -41,15 +41,21 @@ void CPPProcess::sigmaKin(int ncomb, bool (&goodhel)[16], int &ntry,
                           int &sum_hel, int &ngood, int (&igood)[16],
                           int &jhel) {
                     */
-__global__ void sigmaKin(double (*p)[4][4], double (*m)[1], bool debug,
-                         bool verbose) {
+__global__ void sigmaKin(cudaPitchedPtr tp, double *meDevPtr, size_t mePitch,
+                         bool debug, bool verbose) {
+
+  // for (int xx = 0; xx < 384; ++xx) {
 
   int nprocesses = 1;
 
   int dim = blockIdx.x * blockDim.x + threadIdx.x;
 
-  double(*dp)[4] = p[dim];
-  double *matrix_element = m[dim];
+  char *devPtr = (char *)tp.ptr;
+  size_t dpt = tp.pitch;
+  size_t slicePitch = dpt * 4;
+
+  char *dps = devPtr + dim * slicePitch;
+  double *matrix_element = (double *)((char *)meDevPtr + dim * mePitch);
 
   thrust::complex<double> amp[2];
   double t[1];
@@ -91,7 +97,7 @@ __global__ void sigmaKin(double (*p)[4][4], double (*m)[1], bool debug,
     for (int ihel = 0; ihel < ncomb; ihel++) {
       if (goodhel[ihel] || ntry < 2) {
 
-        calculate_wavefunctions(ihel, dp, amp, debug, verbose);
+        calculate_wavefunctions(ihel, dps, dpt, amp, debug, verbose);
         matrix_1_epem_mupmum(t[0], amp);
 
         double tsum = 0;
@@ -119,7 +125,7 @@ __global__ void sigmaKin(double (*p)[4][4], double (*m)[1], bool debug,
       double hwgt = double(ngood) / double(sum_hel);
       int ihel = igood[jhel];
 
-      calculate_wavefunctions(ihel, dp, amp, debug, verbose);
+      calculate_wavefunctions(ihel, dps, dpt, amp, debug, verbose);
       matrix_1_epem_mupmum(t[0], amp);
 
       for (int iproc = 0; iproc < nprocesses; iproc++) {
@@ -131,6 +137,7 @@ __global__ void sigmaKin(double (*p)[4][4], double (*m)[1], bool debug,
   for (int i = 0; i < nprocesses; ++i) {
     matrix_element[i] /= denominators[i];
   }
+  //}
 
   // printf("%d - %e\n", dim, t[0]);
 }
@@ -169,7 +176,7 @@ __device__ void matrix_1_epem_mupmum(double &matrix,
   */
 }
 
-__device__ void calculate_wavefunctions(int ihel, double (*dp)[4],
+__device__ void calculate_wavefunctions(int ihel, char *dps, size_t dpt,
                                         thrust::complex<double> amp[2],
                                         bool debug, bool verbose) {
 #ifdef DEBUG
@@ -184,10 +191,10 @@ __device__ void calculate_wavefunctions(int ihel, double (*dp)[4],
   thrust::complex<double> sw[6][6];
 
   // Calculate all wavefunctions
-  oxxxxx(dp[cPerm[0]], cMME[0], cHel[ihel][0], -1, sw[0]);
-  ixxxxx(dp[cPerm[1]], cMME[1], cHel[ihel][1], +1, sw[1]);
-  ixxxxx(dp[cPerm[2]], cMME[2], cHel[ihel][2], -1, sw[2]);
-  oxxxxx(dp[cPerm[3]], cMME[3], cHel[ihel][3], +1, sw[3]);
+  oxxxxx((double *)(dps + cPerm[0] * dpt), cMME[0], cHel[ihel][0], -1, sw[0]);
+  ixxxxx((double *)(dps + cPerm[1] * dpt), cMME[1], cHel[ihel][1], +1, sw[1]);
+  ixxxxx((double *)(dps + cPerm[2] * dpt), cMME[2], cHel[ihel][2], -1, sw[2]);
+  oxxxxx((double *)(dps + cPerm[3] * dpt), cMME[3], cHel[ihel][3], +1, sw[3]);
   FFV1P0_3(sw[1], sw[0], cIPC[0], ZERO, ZERO, sw[4]);
   FFV2_4_3(sw[1], sw[0], -cIPC[1], cIPC[2], cIPD[0], cIPD[1], sw[5]);
   // Calculate all amplitudes

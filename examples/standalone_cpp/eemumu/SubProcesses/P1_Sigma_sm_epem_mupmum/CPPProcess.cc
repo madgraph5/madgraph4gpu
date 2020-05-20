@@ -52,6 +52,8 @@ void CPPProcess::sigmaKin(bool ppar) {
     firsttime = false;
   }
 
+  m_timer.Start();
+
   // Reset color flows
   for (int i = 0; i < 1; i++)
     jamp2[0][i] = 0.;
@@ -140,6 +142,9 @@ void CPPProcess::sigmaKin(bool ppar) {
 
   for (int i = 0; i < nprocesses; i++)
     matrix_element[i] /= denominators[i];
+
+  float gputime = m_timer.GetDuration();
+  m_wavetimes.push_back(gputime);
 }
 
 //--------------------------------------------------------------------------
@@ -180,8 +185,6 @@ void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
   }
   */
 
-  m_timer.Start();
-
   // Calculate all wavefunctions
   oxxxxx(p[perm[0]], mME[0], hel[0], -1, w[0]);
   ixxxxx(p[perm[1]], mME[1], hel[1], +1, w[1]);
@@ -196,8 +199,6 @@ void CPPProcess::calculate_wavefunctions(const int perm[], const int hel[]) {
   FFV1_0(w[2], w[3], w[4], pars->GC_3, amp[0]);
   FFV2_4_0(w[2], w[3], w[5], -pars->GC_51, pars->GC_59, amp[1]);
 
-  float gputime = m_timer.GetDuration();
-  m_wavetimes.push_back(gputime);
   // std::cout << "Wave function time: " << gputime << std::endl;
 
   /*

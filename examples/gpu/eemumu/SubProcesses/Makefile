@@ -19,7 +19,7 @@ all: check
 check: $(main)
 
 debug: CXXFLAGS:=$(filter-out -O3,$(CXXFLAGS))
-debug: CXXFLAGS += -g -O0 -DDEBUG
+debug: CXXFLAGS += -g -O0 -DDEBUG2
 debug: CUFLAGS:=$(filter-out -lineinfo,$(CUFLAGS))
 debug: CUFLAGS += -G
 debug: MAKEDEBUG := debug

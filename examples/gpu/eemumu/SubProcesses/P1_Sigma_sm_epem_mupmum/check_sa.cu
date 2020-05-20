@@ -90,12 +90,36 @@ int main(int argc, char **argv) {
   int dim = gpublocks * gputhreads;
 
   // GPU memory
+  /*
   double(*tp)[4][4];
   gpuErrchk3(cudaMalloc(&tp, dim * 4 * 4 * sizeof(double)));
+*/
+  // Local Memory
+  double lp[dim][4][4];
 
-  double(*matrix_element)[1];
+  cudaExtent extent = make_cudaExtent(4 * sizeof(double), 4, dim);
+  cudaPitchedPtr devPitchedPtr;
+  gpuErrchk3(cudaMalloc3D(&devPitchedPtr, extent));
+
+  cudaMemcpy3DParms tdp = {0};
+  tdp.srcPtr.ptr = lp;
+  tdp.srcPtr.pitch = 4 * sizeof(double);
+  tdp.srcPtr.xsize = 4;
+  tdp.srcPtr.ysize = 4;
+  tdp.dstPtr.ptr = devPitchedPtr.ptr;
+  tdp.dstPtr.pitch = devPitchedPtr.pitch;
+  tdp.dstPtr.xsize = 4;
+  tdp.dstPtr.ysize = 4;
+  tdp.extent.width = 4 * sizeof(double);
+  tdp.extent.height = 4;
+  tdp.extent.depth = dim;
+  tdp.kind = cudaMemcpyHostToDevice;
+
+  double meHostPtr[dim][1]; // dim = rows, 1 = cols
+  double *meDevPtr;
+  size_t mePitch;
   gpuErrchk3(
-      cudaMallocManaged(&matrix_element, dim * nprocesses * sizeof(double)));
+      cudaMallocPitch(&meDevPtr, &mePitch, /* 1 * */ sizeof(double), dim));
 
   std::vector<double> matrixelementvector;
 
@@ -110,7 +134,6 @@ int main(int argc, char **argv) {
   */
 
   for (int x = 0; x < numiter; ++x) {
-
     // Get phase space point
     std::vector<std::vector<double *>> p =
         get_momenta(process.ninitial, energy, process.getMasses(), weight, dim);
@@ -118,10 +141,14 @@ int main(int argc, char **argv) {
     // Set momenta for this event
     for (int d = 0; d < dim; ++d) {
       for (int i = 0; i < 4; ++i) {
-        gpuErrchk3(cudaMemcpy((void *)tp[d][i], (void *)p[d][i],
-                              4 * sizeof(double), cudaMemcpyHostToDevice));
+        for (int j = 0; j < 4; ++j) {
+          lp[d][i][j] = p[d][i][j];
+        }
       }
     }
+
+    gpuErrchk3(cudaMemcpy3D(&tdp));
+
     process.preSigmaKin();
 
     if (perf) {
@@ -131,9 +158,11 @@ int main(int argc, char **argv) {
     // Evaluate matrix element
     // later process.sigmaKin(ncomb, goodhel, ntry, sum_hel, ngood, igood,
     // jhel);
-    gMG5_sm::sigmaKin<<<gpublocks, gputhreads>>>(tp, matrix_element, debug,
-                                                 verbose);
-    cudaDeviceSynchronize();
+    gMG5_sm::sigmaKin<<<gpublocks, gputhreads>>>(devPitchedPtr, meDevPtr,
+                                                 mePitch, debug, verbose);
+
+    gpuErrchk3(cudaMemcpy2D(meHostPtr, sizeof(double), meDevPtr, mePitch,
+                            sizeof(double), dim, cudaMemcpyDeviceToHost));
 
     if (perf) {
       float gputime = timer.GetDuration();
@@ -164,10 +193,10 @@ int main(int argc, char **argv) {
           if (verbose)
             std::cout << " Matrix element = "
                       //	 << setiosflags(ios::fixed) << setprecision(17)
-                      << matrix_element[d][i] << " GeV^"
+                      << meHostPtr[d][i] << " GeV^"
                       << -(2 * process.nexternal - 8) << std::endl;
           if (perf)
-            matrixelementvector.push_back(matrix_element[d][i]);
+            matrixelementvector.push_back(meHostPtr[d][i]);
         }
 
         if (verbose)
@@ -191,7 +220,6 @@ int main(int argc, char **argv) {
   }
 
   if (perf) {
-
     float sum = std::accumulate(wavetimes.begin(), wavetimes.end(), 0.0);
     int num_wts = wavetimes.size();
     float mean = sum / num_wts;
