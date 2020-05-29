@@ -89,14 +89,11 @@ int main(int argc, char **argv) {
 
   int dim = gpublocks * gputhreads;
 
-  // GPU memory
-  /*
-  double(*tp)[4][4];
-  gpuErrchk3(cudaMalloc(&tp, dim * 4 * 4 * sizeof(double)));
-*/
   // Local Memory
   double lp[dim][4][4];
 
+  // GPU memory
+  // from http://www.orangeowlsolutions.com/archives/817
   cudaExtent extent = make_cudaExtent(4 * sizeof(double), 4, dim);
   cudaPitchedPtr devPitchedPtr;
   gpuErrchk3(cudaMalloc3D(&devPitchedPtr, extent));

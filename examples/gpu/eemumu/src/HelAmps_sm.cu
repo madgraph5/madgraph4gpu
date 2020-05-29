@@ -60,26 +60,13 @@ __global__ void sigmaKin(cudaPitchedPtr tp, double *meDevPtr, size_t mePitch,
   thrust::complex<double> amp[2];
   double t[1];
 
-  /*
-  printf("%d : %f %f %f %f, %f %f %f %f, %f %f %f %f, %f %f %f %f\n", dim,
-         dp[0][0], dp[0][1], dp[0][2], dp[0][3], dp[1][0], dp[1][1], dp[1][2],
-         dp[1][3], dp[2][0], dp[2][1], dp[2][2], dp[2][3], dp[3][0], dp[3][1],
-         dp[3][2], dp[3][3]);
-         */
   // <later>
   // Local variables and constants
   const int ncomb = 16;
   static bool goodhel[ncomb] = {ncomb * false};
-  static int ntry = 0, sum_hel = 0, ngood = 0;
+  static int ntry = 0, ngood = 0;
   static int igood[ncomb];
-  static int jhel;
   // </later>
-
-  // Reset color flows
-  /* sr fixme
-  for (int i = 0; i < 1; i++)
-    jamp2[0][i] = 0.;
-*/
 
   // Denominators: spins, colors and identical particles
   const int denominators[1] = {4}; // nprocesses
@@ -92,44 +79,26 @@ __global__ void sigmaKin(cudaPitchedPtr tp, double *meDevPtr, size_t mePitch,
   }
 
   // sr fixme // better to run the first n calculations serial?
-  if (sum_hel == 0 || ntry < 10) {
-    // Calculate the matrix element for all helicities
-    for (int ihel = 0; ihel < ncomb; ihel++) {
-      if (goodhel[ihel] || ntry < 2) {
+  // if (sum_hel == 0 || ntry < 10) {
+  // Calculate the matrix element for all helicities
 
-        calculate_wavefunctions(ihel, dps, dpt, amp, debug, verbose);
-        matrix_1_epem_mupmum(t[0], amp);
-
-        double tsum = 0;
-        for (int iproc = 0; iproc < nprocesses; iproc++) {
-          matrix_element[iproc] += t[iproc];
-          tsum += t[iproc];
-        }
-        // Store which helicities give non-zero result
-        if (tsum != 0. && !goodhel[ihel]) {
-          goodhel[ihel] = true;
-          ngood++;
-          igood[ngood] = ihel;
-        }
-      }
-    }
-    jhel = 0;
-    sum_hel = min(sum_hel, ngood);
-  } else {
-    // Only use the "good" helicities
-    // sr fixme // is the calculation of good helicities parralelizable?
-    for (int j = 0; j < sum_hel; j++) {
-      jhel++;
-      if (jhel >= ngood)
-        jhel = 0;
-      double hwgt = double(ngood) / double(sum_hel);
-      int ihel = igood[jhel];
+  for (int ihel = 0; ihel < ncomb; ihel++) {
+    if (goodhel[ihel] || ntry < 2) {
 
       calculate_wavefunctions(ihel, dps, dpt, amp, debug, verbose);
       matrix_1_epem_mupmum(t[0], amp);
 
+      double tsum = 0;
       for (int iproc = 0; iproc < nprocesses; iproc++) {
-        matrix_element[iproc] += t[iproc] * hwgt;
+        matrix_element[iproc] += t[iproc];
+        tsum += t[iproc];
+      }
+
+      // Store which helicities give non-zero result
+      if (tsum != 0. && !goodhel[ihel]) {
+        goodhel[ihel] = true;
+        ngood++;
+        igood[ngood] = ihel;
       }
     }
   }
@@ -137,7 +106,7 @@ __global__ void sigmaKin(cudaPitchedPtr tp, double *meDevPtr, size_t mePitch,
   for (int i = 0; i < nprocesses; ++i) {
     matrix_element[i] /= denominators[i];
   }
-  //}
+  // }
 
   // printf("%d - %e\n", dim, t[0]);
 }
