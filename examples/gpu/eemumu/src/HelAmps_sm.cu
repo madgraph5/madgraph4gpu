@@ -44,9 +44,9 @@ void CPPProcess::sigmaKin(int ncomb, bool (&goodhel)[16], int &ntry,
 __global__ void sigmaKin(cudaPitchedPtr tp, double *meDevPtr, size_t mePitch,
                          bool debug, bool verbose) {
 
-  // for (int xx = 0; xx < 384; ++xx) {
-
   int nprocesses = 1;
+
+  // for (int xx = 0; xx < 384; ++xx) {
 
   int dim = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -54,18 +54,20 @@ __global__ void sigmaKin(cudaPitchedPtr tp, double *meDevPtr, size_t mePitch,
   size_t dpt = tp.pitch;
   size_t slicePitch = dpt * 4;
 
-  char *dps = devPtr + dim * slicePitch;
-  double *matrix_element = (double *)((char *)meDevPtr + dim * mePitch);
+  __shared__ char *dps;
+  dps = devPtr + dim * slicePitch;
+  __shared__ double matrix_element[1];
+  matrix_element[0] = ((double *)((char *)meDevPtr + dim * mePitch))[0];
 
   thrust::complex<double> amp[2];
-  double t[1];
+  __shared__ double t[1];
 
   // <later>
   // Local variables and constants
   const int ncomb = 16;
-  static bool goodhel[ncomb] = {ncomb * false};
-  static int ntry = 0, ngood = 0;
-  static int igood[ncomb];
+  static bool goodhel[16] = {16 * false};
+  __shared__ int ntry;
+  ntry = 0;
   // </later>
 
   // Denominators: spins, colors and identical particles
@@ -97,14 +99,24 @@ __global__ void sigmaKin(cudaPitchedPtr tp, double *meDevPtr, size_t mePitch,
       // Store which helicities give non-zero result
       if (tsum != 0. && !goodhel[ihel]) {
         goodhel[ihel] = true;
-        ngood++;
-        igood[ngood] = ihel;
       }
     }
   }
 
   for (int i = 0; i < nprocesses; ++i) {
     matrix_element[i] /= denominators[i];
+    /*
+   if (matrix_element[i] == 0) {
+     printf("zero value %i * %i + %i\n", blockIdx.x, blockDim.x, threadIdx.x);
+     // printf("%s\n", dps);
+     for (int i = 0; i < 4; ++i) {
+       // tmp = (double *)(dps + i * dpt);
+       printf("%i.%i %i %f,%f,%f,%f\n", blockIdx.x, threadIdx.x, i,
+              ((double *)(dps + i * dpt))[0], ((double *)(dps + i * dpt))[1],
+              ((double *)(dps + i * dpt))[2], ((double *)(dps + i * dpt))[3]);
+     }
+   }
+   */
   }
   // }
 
@@ -135,14 +147,6 @@ __device__ void matrix_1_epem_mupmum(double &matrix,
       ztemp = ztemp + cf[i][j] * jamp[j];
     matrix = matrix + (ztemp * conj(jamp[i])).real() / denom[i];
   }
-
-  // Store the leading color flows for choice of color
-  // sr fixme // maybe this needs to go outside the loop? does it need a
-  // dimension?
-  /* sr fixme
-  for (i = 0; i < ncolor; i++)
-    jamp2[0][i] += (jamp[i] * conj(jamp[i])).real();
-  */
 }
 
 __device__ void calculate_wavefunctions(int ihel, char *dps, size_t dpt,
@@ -296,7 +300,8 @@ __device__ void FFV1_0(thrust::complex<double> F1[],
   debugMsg("g>");
 #endif
   thrust::complex<double> cI = thrust::complex<double>(0., 1.);
-  thrust::complex<double> TMP2 =
+  __shared__ thrust::complex<double> TMP2;
+  TMP2 =
       (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
        (F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])) +
         (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
