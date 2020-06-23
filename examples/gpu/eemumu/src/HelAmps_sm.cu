@@ -65,7 +65,7 @@ __global__ void sigmaKin(cudaPitchedPtr tp, double *meDevPtr, size_t mePitch,
   const int ncomb = 16;
   static bool goodhel[ncomb] = {ncomb * false};
   static int ntry = 0, ngood = 0;
-  static int igood[ncomb];
+  // static int igood[ncomb];
   // </later>
 
   // Denominators: spins, colors and identical particles
@@ -98,7 +98,7 @@ __global__ void sigmaKin(cudaPitchedPtr tp, double *meDevPtr, size_t mePitch,
       if (tsum != 0. && !goodhel[ihel]) {
         goodhel[ihel] = true;
         ngood++;
-        igood[ngood] = ihel;
+        // igood[ngood] = ihel;
       }
     }
   }
@@ -168,8 +168,8 @@ __device__ void calculate_wavefunctions(int ihel, char *dps, size_t dpt,
   FFV2_4_3(sw[1], sw[0], -cIPC[1], cIPC[2], cIPD[0], cIPD[1], sw[5]);
   // Calculate all amplitudes
   // Amplitude(s) for diagram number 0
-  FFV1_0(sw[2], sw[3], sw[4], cIPC[0], &amp[0]);
-  FFV2_4_0(sw[2], sw[3], sw[5], -cIPC[1], cIPC[2], &amp[1]);
+  // FFV1_0(sw[2], sw[3], sw[4], cIPC[0], &amp[0]);
+  FFV2_4_0(sw[2], sw[3], sw[4], sw[5], cIPC[0], -cIPC[1], cIPC[2], amp);
 
 #ifdef DEBUG
   if (debug) {
@@ -287,110 +287,6 @@ __device__ void oxxxxx(double p[4], double fmass, int nhel, int nsf,
   return;
 }
 
-__device__ void FFV1_0(thrust::complex<double> F1[],
-                       thrust::complex<double> F2[],
-                       thrust::complex<double> V3[],
-                       thrust::complex<double> COUP,
-                       thrust::complex<double> *vertex) {
-#ifdef DEBUG
-  debugMsg("g>");
-#endif
-  thrust::complex<double> cI = thrust::complex<double>(0., 1.);
-  thrust::complex<double> TMP2 =
-      (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
-       (F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])) +
-        (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
-         F1[5] * (F2[2] * (+cI * (V3[4]) - V3[3]) + F2[3] * (V3[2] + V3[5])))));
-  (*vertex) = COUP * -cI * TMP2;
-#ifdef DEBUG
-  debugMsg("<g");
-#endif
-}
-
-__device__ void FFV2_3(thrust::complex<double> F1[],
-                       thrust::complex<double> F2[],
-                       thrust::complex<double> COUP, double M3, double W3,
-                       thrust::complex<double> V3[]) {
-#ifdef DEBUG
-  debugMsg("e>");
-#endif
-  thrust::complex<double> cI = thrust::complex<double>(0., 1.);
-  thrust::complex<double> denom;
-  thrust::complex<double> TMP1;
-  double P3[4];
-  double OM3;
-  OM3 = 0.;
-  if (M3 != 0.)
-    OM3 = 1. / (M3 * M3);
-  V3[0] = +F1[0] + F2[0];
-  V3[1] = +F1[1] + F2[1];
-  P3[0] = -V3[0].real();
-  P3[1] = -V3[1].real();
-  P3[2] = -V3[1].imag();
-  P3[3] = -V3[0].imag();
-  TMP1 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
-          F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
-  denom = COUP / ((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) -
-                  (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
-  V3[2] = denom * (-cI) * (F1[2] * F2[4] + F1[3] * F2[5] - P3[0] * OM3 * TMP1);
-  V3[3] = denom * (-cI) * (-F1[2] * F2[5] - F1[3] * F2[4] - P3[1] * OM3 * TMP1);
-  V3[4] = denom * (-cI) *
-          (-cI * (F1[2] * F2[5]) + cI * (F1[3] * F2[4]) - P3[2] * OM3 * TMP1);
-  V3[5] = denom * (-cI) * (F1[3] * F2[5] - F1[2] * F2[4] - P3[3] * OM3 * TMP1);
-#ifdef DEBUG
-  debugMsg("<e");
-#endif
-}
-
-__device__ void FFV4_3(thrust::complex<double> F1[],
-                       thrust::complex<double> F2[],
-                       thrust::complex<double> COUP, double M3, double W3,
-                       thrust::complex<double> V3[]) {
-#ifdef DEBUG
-  debugMsg("f>");
-#endif
-  thrust::complex<double> cI = thrust::complex<double>(0., 1.);
-  thrust::complex<double> denom;
-  thrust::complex<double> TMP1;
-  double P3[4];
-  double OM3;
-  thrust::complex<double> TMP4;
-  OM3 = 0.;
-  if (M3 != 0.)
-    OM3 = 1. / (M3 * M3);
-  V3[0] = +F1[0] + F2[0];
-  V3[1] = +F1[1] + F2[1];
-  P3[0] = -V3[0].real();
-  P3[1] = -V3[1].real();
-  P3[2] = -V3[1].imag();
-  P3[3] = -V3[0].imag();
-  TMP4 = (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) +
-          F1[5] * (F2[2] * (+cI * (P3[2]) - P3[1]) + F2[3] * (P3[0] + P3[3])));
-  TMP1 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
-          F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
-  denom = COUP / ((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) -
-                  (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
-  V3[2] = denom * (-2. * cI) *
-          (OM3 * -1. / 2. * P3[0] * (TMP1 + 2. * (TMP4)) +
-           (+1. / 2. * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] +
-            F1[5] * F2[3]));
-  V3[3] = denom * (-2. * cI) *
-          (OM3 * -1. / 2. * P3[1] * (TMP1 + 2. * (TMP4)) +
-           (-1. / 2. * (F1[2] * F2[5] + F1[3] * F2[4]) + F1[4] * F2[3] +
-            F1[5] * F2[2]));
-  V3[4] = denom * 2. * cI *
-          (OM3 * 1. / 2. * P3[2] * (TMP1 + 2. * (TMP4)) +
-           (+1. / 2. * cI * (F1[2] * F2[5]) - 1. / 2. * cI * (F1[3] * F2[4]) -
-            cI * (F1[4] * F2[3]) + cI * (F1[5] * F2[2])));
-  V3[5] = denom * 2. * cI *
-          (OM3 * 1. / 2. * P3[3] * (TMP1 + 2. * (TMP4)) +
-           (+1. / 2. * (F1[2] * F2[4]) - 1. / 2. * (F1[3] * F2[5]) -
-            F1[4] * F2[2] + F1[5] * F2[3]));
-#ifdef DEBUG
-  debugMsg("<f");
-#endif
-}
-
 __device__ void FFV2_4_3(thrust::complex<double> F1[],
                          thrust::complex<double> F2[],
                          thrust::complex<double> COUP1,
@@ -400,17 +296,61 @@ __device__ void FFV2_4_3(thrust::complex<double> F1[],
   debugMsg("d>");
 #endif
   int i;
-  thrust::complex<double> *Vtmp;
-  gpuErrchk2(cudaMalloc(&Vtmp, 6 * sizeof(thrust::complex<double>)));
+  thrust::complex<double> Vtmp[6];
   *Vtmp = thrust::complex<double>(0, 0);
-  FFV2_3(F1, F2, COUP1, M3, W3, V3);
-  FFV4_3(F1, F2, COUP2, M3, W3, Vtmp);
+  thrust::complex<double> cI = thrust::complex<double>(0., 1.);
+  thrust::complex<double> denom;
+  thrust::complex<double> TMP1, TMP4;
+  double P3[4];
+  double OM3;
+  OM3 = 0.;
+  if (M3 != 0.)
+    OM3 = 1. / (M3 * M3);
+  V3[0] = +F1[0] + F2[0];
+  V3[1] = +F1[1] + F2[1];
+  P3[0] = -V3[0].real();
+  P3[1] = -V3[1].real();
+  P3[2] = -V3[1].imag();
+  P3[3] = -V3[0].imag();
+  TMP1 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
+          F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
+  denom = COUP1 / ((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) -
+                   (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
+  V3[2] = denom * (-cI) * (F1[2] * F2[4] + F1[3] * F2[5] - P3[0] * OM3 * TMP1);
+  V3[3] = denom * (-cI) * (-F1[2] * F2[5] - F1[3] * F2[4] - P3[1] * OM3 * TMP1);
+  V3[4] = denom * (-cI) *
+          (-cI * (F1[2] * F2[5]) + cI * (F1[3] * F2[4]) - P3[2] * OM3 * TMP1);
+  V3[5] = denom * (-cI) * (F1[3] * F2[5] - F1[2] * F2[4] - P3[3] * OM3 * TMP1);
+
+  TMP4 = (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) +
+          F1[5] * (F2[2] * (+cI * (P3[2]) - P3[1]) + F2[3] * (P3[0] + P3[3])));
+  TMP1 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
+          F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
+
+  denom = COUP2 / ((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) -
+                   (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
+  Vtmp[2] = denom * (-2. * cI) *
+            (OM3 * -1. / 2. * P3[0] * (TMP1 + 2. * (TMP4)) +
+             (+1. / 2. * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] +
+              F1[5] * F2[3]));
+  Vtmp[3] = denom * (-2. * cI) *
+            (OM3 * -1. / 2. * P3[1] * (TMP1 + 2. * (TMP4)) +
+             (-1. / 2. * (F1[2] * F2[5] + F1[3] * F2[4]) + F1[4] * F2[3] +
+              F1[5] * F2[2]));
+  Vtmp[4] = denom * 2. * cI *
+            (OM3 * 1. / 2. * P3[2] * (TMP1 + 2. * (TMP4)) +
+             (+1. / 2. * cI * (F1[2] * F2[5]) - 1. / 2. * cI * (F1[3] * F2[4]) -
+              cI * (F1[4] * F2[3]) + cI * (F1[5] * F2[2])));
+  Vtmp[5] = denom * 2. * cI *
+            (OM3 * 1. / 2. * P3[3] * (TMP1 + 2. * (TMP4)) +
+             (+1. / 2. * (F1[2] * F2[4]) - 1. / 2. * (F1[3] * F2[5]) -
+              F1[4] * F2[2] + F1[5] * F2[3]));
+
   i = 2;
   while (i < 6) {
     V3[i] = V3[i] + Vtmp[i];
     i++;
   }
-  gpuErrchk2(cudaFree(Vtmp));
 #ifdef DEBUG
   debugMsg("<d");
 #endif
@@ -448,55 +388,37 @@ __device__ void FFV1P0_3(thrust::complex<double> F1[],
 #endif
 }
 
-__device__ void FFV4_0(thrust::complex<double> F1[],
-                       thrust::complex<double> F2[],
-                       thrust::complex<double> V3[],
-                       thrust::complex<double> COUP,
-                       thrust::complex<double> *vertex) {
-#ifdef DEBUG
-  debugMsg("j>");
-#endif
-  thrust::complex<double> cI = thrust::complex<double>(0., 1.);
-  thrust::complex<double> TMP0, TMP3;
-  TMP0 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
-          F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
-  TMP3 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
-          F1[5] * (F2[2] * (+cI * (V3[4]) - V3[3]) + F2[3] * (V3[2] + V3[5])));
-  (*vertex) = COUP * (-1.) * (+cI * (TMP0) + 2. * cI * (TMP3));
-#ifdef DEBUG
-  debugMsg("<j");
-#endif
-}
-
-__device__ void FFV2_0(thrust::complex<double> F1[],
-                       thrust::complex<double> F2[],
-                       thrust::complex<double> V3[],
-                       thrust::complex<double> COUP,
-                       thrust::complex<double> *vertex) {
-#ifdef DEBUG
-  debugMsg("i>");
-#endif
-  thrust::complex<double> cI = thrust::complex<double>(0., 1.);
-  thrust::complex<double> TMP0;
-  TMP0 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
-          F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
-  (*vertex) = COUP * -cI * TMP0;
-#ifdef DEBUG
-  debugMsg("<i");
-#endif
-}
-
 __device__ void
 FFV2_4_0(thrust::complex<double> F1[], thrust::complex<double> F2[],
-         thrust::complex<double> V3[], thrust::complex<double> COUP1,
-         thrust::complex<double> COUP2, thrust::complex<double> *vertex) {
+         thrust::complex<double> V3a[], thrust::complex<double> V3b[],
+         thrust::complex<double> COUP0, thrust::complex<double> COUP1,
+         thrust::complex<double> COUP2, thrust::complex<double> vertex[]) {
 #ifdef DEBUG
   debugMsg("h>");
 #endif
-  thrust::complex<double> tmp;
-  FFV2_0(F1, F2, V3, COUP1, vertex);
-  FFV4_0(F1, F2, V3, COUP2, &tmp);
-  (*vertex) = (*vertex) + tmp;
+
+  thrust::complex<double> cI = thrust::complex<double>(0., 1.);
+  thrust::complex<double> TMP0, TMP1, TMP2;
+  TMP2 =
+      (F1[2] * (F2[4] * (V3a[2] + V3a[5]) + F2[5] * (V3a[3] + cI * (V3a[4]))) +
+       (F1[3] * (F2[4] * (V3a[3] - cI * (V3a[4])) + F2[5] * (V3a[2] - V3a[5])) +
+        (F1[4] *
+             (F2[2] * (V3a[2] - V3a[5]) - F2[3] * (V3a[3] + cI * (V3a[4]))) +
+         F1[5] *
+             (F2[2] * (+cI * (V3a[4]) - V3a[3]) + F2[3] * (V3a[2] + V3a[5])))));
+  vertex[0] = COUP0 * -cI * TMP2;
+
+  TMP0 =
+      (F1[2] * (F2[4] * (V3b[2] + V3b[5]) + F2[5] * (V3b[3] + cI * (V3b[4]))) +
+       F1[3] * (F2[4] * (V3b[3] - cI * (V3b[4])) + F2[5] * (V3b[2] - V3b[5])));
+  TMP1 =
+      (F1[2] * (F2[4] * (V3b[2] + V3b[5]) + F2[5] * (V3b[3] + cI * (V3b[4]))) +
+       F1[3] * (F2[4] * (V3b[3] - cI * (V3b[4])) + F2[5] * (V3b[2] - V3b[5])));
+  TMP2 =
+      (F1[4] * (F2[2] * (V3b[2] - V3b[5]) - F2[3] * (V3b[3] + cI * (V3b[4]))) +
+       F1[5] * (F2[2] * (+cI * (V3b[4]) - V3b[3]) + F2[3] * (V3b[2] + V3b[5])));
+  vertex[1] =
+      COUP2 * (-1.) * (+cI * (TMP1) + 2. * cI * (TMP2)) + COUP1 * -cI * TMP0;
 #ifdef DEBUG
   debugMsg("<h");
 #endif

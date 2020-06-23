@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
   std::vector<float> wavetimes;
 
   // remove
-  int nprocesses = 1;
+  // int nprocesses = 1;
 
   for (int argn = 1; argn < argc; ++argn) {
     if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
