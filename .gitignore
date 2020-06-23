@@ -9,3 +9,6 @@
 *.local
 *~
 /local/
+
+# profiling
+profile_*
