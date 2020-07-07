@@ -35,6 +35,12 @@ int main(int argc, char **argv) {
   if (verbose)
     std::cout << "num evts: " << numevts << std::endl;
 
+  cl::sycl::range<1> work_items{(unsigned long)numevts};
+
+  cl::sycl::queue q;
+
+  q.submit([&](cl::sycl::handler& cgh){
+
   // Create a process object
   CPPProcess process;
 
@@ -44,11 +50,6 @@ int main(int argc, char **argv) {
   double energy = 1500;
   double weight;
 
-  /*
-   Laurence: Moved the getting and setting of momenta out of the
-             for loop as it is constant for each itteration.
-  */
-  
   // Get phase space point
   vector<double *> p =
   get_momenta(process.ninitial, energy, process.getMasses(), weight);
@@ -56,24 +57,17 @@ int main(int argc, char **argv) {
   // Set momenta for this event
   process.setMomenta(p);
 
-  /*
-   Laurence: Start sycl parallel for.
-  */
-
-  cl::sycl::queue q;
-  cl::sycl::range<1> work_items{(unsigned long)numevts};
-
-  q.submit([&](cl::sycl::handler& cgh){
- 
-    cgh.parallel_for<class vector_add>(work_items,
+  cgh.parallel_for<class vector_add>(work_items,
                                          [=] (cl::sycl::id<1> tid) {
 
     // Evaluate matrix element
-    sigmaKin(verbose,process.pars);
+    process.sigmaKin(verbose);
 
     //const double *matrix_elements = process.getMatrixElements();
      
     });
+   process.printPerformanceStats();
+
     });
 /* 
    if (verbose) {
@@ -102,5 +96,4 @@ int main(int argc, char **argv) {
     }
   }
 */
-  process.printPerformanceStats();
 }
