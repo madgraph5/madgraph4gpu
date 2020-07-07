@@ -22,6 +22,8 @@ using namespace std;
 // Process: e+ e- > mu+ mu- WEIGHTED<=4 @1
 //--------------------------------------------------------------------------
 
+void sigmaKin(bool ppar = true);
+
 class CPPProcess {
 public:
   // Constructor.
@@ -31,7 +33,7 @@ public:
   virtual void initProc(string param_card_name, bool verb = true);
 
   // Calculate flavour-independent parts of cross section.
-  virtual void sigmaKin(bool ppar = true);
+  // virtual void sigmaKin(bool ppar = true);
 
   // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();

@@ -4,6 +4,7 @@
 
 #include "CPPProcess.h"
 #include "rambo.h"
+#include <CL/sycl.hpp>
 
 bool is_number(const char *s) {
   const char *t = s;
@@ -43,21 +44,39 @@ int main(int argc, char **argv) {
   double energy = 1500;
   double weight;
 
-  for (int x = 0; x <= numevts; ++x) {
+  /*
+   Laurence: Moved the getting and setting of momenta out of the
+             for loop as it is constant for each itteration.
+  */
+  
+  // Get phase space point
+  vector<double *> p =
+  get_momenta(process.ninitial, energy, process.getMasses(), weight);
 
-    // Get phase space point
-    vector<double *> p =
-        get_momenta(process.ninitial, energy, process.getMasses(), weight);
+  // Set momenta for this event
+  process.setMomenta(p);
 
-    // Set momenta for this event
-    process.setMomenta(p);
+  /*
+   Laurence: Start sycl parallel for.
+  */
+
+  cl::sycl::queue q;
+  cl::sycl::range<1> work_items{(unsigned long)numevts};
+
+  q.submit([&](cl::sycl::handler& cgh){
+ 
+    cgh.parallel_for<class vector_add>(work_items,
+                                         [=] (cl::sycl::id<1> tid) {
 
     // Evaluate matrix element
-    process.sigmaKin(verbose);
+    sigmaKin(verbose,process.pars);
 
-    const double *matrix_elements = process.getMatrixElements();
-
-    if (verbose) {
+    //const double *matrix_elements = process.getMatrixElements();
+     
+    });
+    });
+/* 
+   if (verbose) {
       cout << "Momenta:" << endl;
       for (int i = 0; i < process.nexternal; i++)
         cout << setw(4) << i + 1 << setiosflags(ios::scientific) << setw(14)
@@ -82,6 +101,6 @@ int main(int argc, char **argv) {
            << endl;
     }
   }
-
+*/
   process.printPerformanceStats();
 }
