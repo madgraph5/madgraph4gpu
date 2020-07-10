@@ -61,9 +61,10 @@ public:
 
   // print performance numbers
   void printPerformanceStats();
-
-private:
+  
   std::vector<float> m_wavetimes;
+   
+private:
   // Private functions to calculate the matrix element for all subprocesses
   // Calculate wavefunctions
   void calculate_wavefunctions(const int perm[], const int hel[]);

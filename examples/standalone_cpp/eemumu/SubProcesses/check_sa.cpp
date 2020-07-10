@@ -35,40 +35,52 @@ int main(int argc, char **argv) {
   if (verbose)
     std::cout << "num evts: " << numevts << std::endl;
 
-  cl::sycl::range<1> work_items{(unsigned long)numevts};
-
-  cl::sycl::queue q;
-
-  q.submit([&](cl::sycl::handler& cgh){
-
   // Create a process object
   CPPProcess process;
+  
+  // Used to store timings
+  vector<float> t(numevts);
 
-  // Read param_card and set parameters
-  process.initProc("../../Cards/param_card.dat", verbose);
+  cl::sycl::range<1> work_items{(unsigned long)numevts};
+  cl::sycl::buffer<float> buff_t(t.data(), t.size());
+  cl::sycl::queue q; 
+ 
+  q.submit([&](cl::sycl::handler& cgh){
 
-  double energy = 1500;
-  double weight;
+    auto access_t = buff_t.get_access<cl::sycl::access::mode::write>(cgh);
+ 
+    // Put here so that it captures the instance     
+    // Read param_card and set parameters
+    process.initProc("../../Cards/param_card.dat", verbose);
 
-  // Get phase space point
-  vector<double *> p =
-  get_momenta(process.ninitial, energy, process.getMasses(), weight);
+    cgh.parallel_for<class my_kernel>(work_items,
+                                         [=] (cl::sycl::id<1> idx) {
+      // Create local (tread) copy (_lc) of the instance
+      CPPProcess process_lc = process; 
+      double energy = 1500;
+      double weight;
 
-  // Set momenta for this event
-  process.setMomenta(p);
+      // Get phase space point
+      vector<double *> p = 
+      get_momenta(process_lc.ninitial, energy, process_lc.getMasses(), weight);
 
-  cgh.parallel_for<class vector_add>(work_items,
-                                         [=] (cl::sycl::id<1> tid) {
+      // Set momenta for this event
+      process_lc.setMomenta(p);
 
-    // Evaluate matrix element
-    process.sigmaKin(verbose);
+      // Evaluate matrix element
+      process_lc.sigmaKin(false);
 
-    //const double *matrix_elements = process.getMatrixElements();
-     
+      const double *matrix_elements = process_lc.getMatrixElements();
+
+      // Store the timings back in the orginal instance
+      access_t[idx] = process_lc.m_wavetimes[0];
+
     });
-   process.printPerformanceStats();
+  });
+  q.wait();
+  process.m_wavetimes = t;
+  process.printPerformanceStats();
 
-    });
 /* 
    if (verbose) {
       cout << "Momenta:" << endl;

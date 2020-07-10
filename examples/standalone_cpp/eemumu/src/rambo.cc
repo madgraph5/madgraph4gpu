@@ -19,9 +19,9 @@ double Random::ranmar() {
   ranu[iranmr] = uni;
   iranmr = iranmr - 1;
   jranmr = jranmr - 1;
-  if (iranmr == 0)
+  if (iranmr < 0) // fixed race condition
     iranmr = 97;
-  if (jranmr == 0)
+  if (jranmr < 0) // fixed race condition
     jranmr = 97;
   ranc = ranc - rancd;
   if (ranc < 0)
