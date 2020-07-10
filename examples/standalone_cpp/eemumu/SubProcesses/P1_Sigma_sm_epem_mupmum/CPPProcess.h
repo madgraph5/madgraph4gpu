@@ -61,7 +61,7 @@ public:
 
   // print performance numbers
   void printPerformanceStats();
-  
+ 
   std::vector<float> m_wavetimes;
    
 private:
