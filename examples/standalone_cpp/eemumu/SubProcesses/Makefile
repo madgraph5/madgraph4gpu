@@ -26,5 +26,5 @@ $(LIBDIR)/lib$(MODELLIB).a:
 
 clean:
 	cd ../../src && make clean
-	rm -f $(target)
+	rm -f $(main)
 	rm -f $(objects)
