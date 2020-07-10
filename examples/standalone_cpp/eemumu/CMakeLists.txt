@@ -18,7 +18,7 @@ include_directories(
     SubProcesses/P1_Sigma_sm_epem_mupmum
     ${HIPSYCL_INSTALL_LOCATION}/include
     ${HIPSYCL_INSTALL_LOCATION}/include/hipSYCL/contrib/
-    )
+)
 
 set (SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/read_slha.cc
