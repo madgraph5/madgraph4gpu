@@ -14,7 +14,7 @@ set(HIPSYCL_INSTALL_LOCATION /opt/hipSYCL/)
 set(hipSYCL_DIR ${HIPSYCL_INSTALL_LOCATION}/lib/cmake)
 
 include_directories(
-    src 
+    src
     SubProcesses/P1_Sigma_sm_epem_mupmum
     ${HIPSYCL_INSTALL_LOCATION}/include
     ${HIPSYCL_INSTALL_LOCATION}/include/hipSYCL/contrib/
@@ -29,7 +29,7 @@ set (SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/SubProcesses/P1_Sigma_sm_epem_mupmum/check_sa.cpp
 )
 
-add_definitions(-O0 -g )
+add_definitions(-O0 -g)
 
 find_package(hipSYCL CONFIG REQUIRED)
 
