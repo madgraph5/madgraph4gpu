@@ -3,17 +3,14 @@ cmake_minimum_required(VERSION 2.8.11)
 project(check_sa)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
-set(CL_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../../../../../cmake-build-Debug/output)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/SubProcesses/P1_Sigma_sm_epem_mupmum)
 set(CONFIGURATION_NAME "Debug")
 
 include_directories(
     src
-    SubProcesses/P1_Sigma_sm_epem_mupmum/
+    SubProcesses/P1_Sigma_sm_epem_mupmum
 )
-
-add_definitions(-O0 -g)
 
 set (SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/read_slha.cc
@@ -23,5 +20,7 @@ set (SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/SubProcesses/P1_Sigma_sm_epem_mupmum/CPPProcess.cc
     ${CMAKE_CURRENT_LIST_DIR}/SubProcesses/P1_Sigma_sm_epem_mupmum/check_sa.cpp
 )
+
+add_definitions(-O0 -g)
 
 add_executable(check_sa.exe ${SOURCES})
