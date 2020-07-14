@@ -12,8 +12,8 @@ bool is_number(const char *s) {
   return strlen(s) == t - s;
 }
 
-int usage(int ret = 0) {
-  std::cout << "do it correctly" << std::endl;
+int usage(char* argv0, int ret = 1) {
+  std::cout << "Usage: " << argv0 << " [--verbose] numevts" << std::endl;
   return ret;
 }
 
@@ -26,10 +26,10 @@ int main(int argc, char **argv) {
     else if (is_number(argv[argn]))
       numevts = atoi(argv[argn]);
     else
-      return usage(1);
+      return usage(argv[0]);
   }
   if (numevts == 0)
-    return usage(1);
+    return usage(argv[0]);
 
   if (verbose)
     std::cout << "num evts: " << numevts << std::endl;
