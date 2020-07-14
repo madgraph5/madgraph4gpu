@@ -32,8 +32,9 @@ bool is_number(const char *s) {
   return strlen(s) == t - s;
 }
 
-int usage(int ret = 0) {
-  std::cout << "call me correctly" << std::endl;
+int usage(char* argv0, int ret = 1) {
+  std::cout << "Usage: " << argv0 
+            << " [--verbose|-v] [--debug|-d] [--performance|-p] [#gpublocks #gputhreads] #iterations" << std::endl;
   return ret;
 }
 
@@ -59,7 +60,7 @@ int main(int argc, char **argv) {
     else if (is_number(argv[argn]))
       numvec.push_back(atoi(argv[argn]));
     else
-      return usage(1);
+      return usage(argv[0]);
   }
   int veclen = numvec.size();
   if (veclen == 3) {
@@ -69,11 +70,11 @@ int main(int argc, char **argv) {
   } else if (veclen == 1) {
     numiter = numvec[0];
   } else {
-    return usage(1);
+    return usage(argv[0]);
   }
 
   if (numiter == 0)
-    return usage(1);
+    return usage(argv[0]);
 
   if (verbose)
     std::cout << "# iterations: " << numiter << std::endl;
