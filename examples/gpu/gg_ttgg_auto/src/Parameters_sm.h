@@ -35,9 +35,9 @@ class Parameters_sm
     // Model parameters dependent on aS
     double mdl_sqrt__aS, G, mdl_G__exp__2; 
     // Model couplings independent of aS
-    std::complex<double> GC_3, GC_50, GC_59; 
-    // Model couplings dependent on aS
 
+    // Model couplings dependent on aS
+    std::complex<double> GC_10, GC_11, GC_12; 
 
     // Set parameters that are unchanged during the run
     void setIndependentParameters(SLHAReader& slha); 

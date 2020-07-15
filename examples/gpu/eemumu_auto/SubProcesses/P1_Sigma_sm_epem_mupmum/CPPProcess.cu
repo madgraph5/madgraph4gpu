@@ -18,8 +18,8 @@ using namespace MG5_sm;
 // Class member functions for calculating the matrix elements for
 // Process: e+ e- > mu+ mu- WEIGHTED<=4 @1
 
-extern __constant__ int cHel[16][4]; 
-extern __constant__ double cmME[4]; 
+__constant__ int cHel[16][4]; 
+__constant__ double cmME[4]; 
 // extern __constant__ int cPerm[4];
 // 
 __constant__ double cIPC[6];  // coupling ?
