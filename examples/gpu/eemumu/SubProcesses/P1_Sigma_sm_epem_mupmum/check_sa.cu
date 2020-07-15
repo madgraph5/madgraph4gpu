@@ -89,6 +89,8 @@ int main(int argc, char **argv) {
   double energy = 1500;
   double weight;
 
+  int meGeVexponent = -(2 * process.nexternal - 8);
+
   int dim = gpublocks * gputhreads;
 
   // Local Memory
@@ -196,8 +198,7 @@ int main(int argc, char **argv) {
           if (verbose)
             std::cout << " Matrix element = "
                       //	 << setiosflags(ios::fixed) << setprecision(17)
-                      << meHostPtr[d][i] << " GeV^"
-                      << -(2 * process.nexternal - 8) << std::endl;
+                      << meHostPtr[d][i] << " GeV^" << meGeVexponent << std::endl;
           if (perf)
             matrixelementvector.push_back(meHostPtr[d][i]);
         }
@@ -257,10 +258,8 @@ int main(int argc, char **argv) {
               << "NProcesses            = " << process.nprocesses << std::endl
               << "NumMatrixElements     = " << num_mes << std::endl
               << std::scientific
-              << "MaxMatrixElemValue    = " << *maxelem
-              << " GeV^" << -(2 * process.nexternal - 8) << std::endl
-              << "MinMatrixElemValue    = " << *minelem
-              << " GeV^" << -(2 * process.nexternal - 8) << std::endl
+              << "MaxMatrixElemValue    = " << *maxelem << " GeV^" << meGeVexponent << std::endl
+              << "MinMatrixElemValue    = " << *minelem << " GeV^" << meGeVexponent << std::endl
               << "MatrixElementsPerSec  = " << num_mes/sum << " sec^-1" << std::endl;
   }
 }
