@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <algorithm> // perf stats
 #include <cstring>
 #include <iomanip>
@@ -236,6 +235,11 @@ int main(int argc, char **argv) {
         std::max_element(wavetimes.begin(), wavetimes.end());
 
     int num_mes = matrixelementvector.size();
+    float sumelem = std::accumulate(matrixelementvector.begin(), matrixelementvector.end(), 0.0);
+    float meanelem = sumelem / num_mes;
+    float sqselem = std::inner_product(matrixelementvector.begin(), matrixelementvector.end(), 
+                                       matrixelementvector.begin(), 0.0);
+    float stdelem = std::sqrt(sqselem / num_mes - meanelem * meanelem);
     std::vector<double>::iterator maxelem = std::max_element(
         matrixelementvector.begin(), matrixelementvector.end());
     std::vector<double>::iterator minelem = std::min_element(
@@ -257,9 +261,15 @@ int main(int argc, char **argv) {
               << "ProcessID:            = " << getpid() << std::endl
               << "NProcesses            = " << process.nprocesses << std::endl
               << "NumMatrixElements     = " << num_mes << std::endl
-              << std::scientific
-              << "MaxMatrixElemValue    = " << *maxelem << " GeV^" << meGeVexponent << std::endl
-              << "MinMatrixElemValue    = " << *minelem << " GeV^" << meGeVexponent << std::endl
               << "MatrixElementsPerSec  = " << num_mes/sum << " sec^-1" << std::endl;
+
+    std::cout << "***********************************" << std::endl
+              << "NumMatrixElements     = " << num_mes << std::endl
+              << std::scientific
+              << "MeanMatrixElemValue   = " << meanelem << " GeV^" << meGeVexponent << std::endl
+              << "StdErrMatrixElemValue = " << stdelem/sqrt(num_mes) << " GeV^" << meGeVexponent << std::endl
+              << "StdDevMatrixElemValue = " << stdelem << " GeV^" << meGeVexponent << std::endl
+              << "MinMatrixElemValue    = " << *minelem << " GeV^" << meGeVexponent << std::endl
+              << "MaxMatrixElemValue    = " << *maxelem << " GeV^" << meGeVexponent << std::endl;
   }
 }
