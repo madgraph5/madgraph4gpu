@@ -34,7 +34,8 @@ bool is_number(const char *s) {
 
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0 
-            << " [--verbose|-v] [--debug|-d] [--performance|-p] [#gpublocks #gputhreads] #iterations" << std::endl;
+            << " [--verbose|-v] [--debug|-d] [--performance|-p]"
+            << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl;
   return ret;
 }
 
