@@ -241,22 +241,26 @@ int main(int argc, char **argv) {
         matrixelementvector.begin(), matrixelementvector.end());
 
     std::cout << "***********************************" << std::endl
-              << "NumIterations        = " << numiter << std::endl
-              << "NumThreadsPerBlock   = " << gputhreads << std::endl
-              << "NumBlocksPerGrid     = " << gpublocks << std::endl
-              << "NumberOfEntries      = " << num_wts << std::endl
-              << std::scientific << "TotalTimeInWaveFuncs = " << sum
-              << std::endl
-              << "MeanTimeinWaveFuncs  = " << mean << std::endl
-              << "StdDevWaveFuncs      = " << stdev << std::endl
-              << "MinTimeInWaveFuncs   = " << *mintime << std::endl
-              << "MaxTimeInWaveFuncs   = " << *maxtime << std::endl
+              << "NumIterations         = " << numiter << std::endl
+              << "NumThreadsPerBlock    = " << gputhreads << std::endl
+              << "NumBlocksPerGrid      = " << gpublocks << std::endl
               << "-----------------------------------" << std::endl
-              << "ProcessID:           = " << getpid() << std::endl
-              << "NProcesses           = " << process.nprocesses << std::endl
-              << "NumMatrixElements    = " << num_mes << std::endl
-              << std::scientific << "MaxMatrixElemValue   = " << *maxelem
-              << std::endl
-              << "MinMatrixElemValue   = " << *minelem << std::endl;
+              << "NumberOfEntries       = " << num_wts << std::endl
+              << std::scientific
+              << "TotalTimeInWaveFuncs  = " << sum << " sec" << std::endl
+              << "MeanTimeInWaveFuncs   = " << mean << " sec" << std::endl
+              << "StdDevTimeInWaveFuncs = " << stdev << " sec" << std::endl
+              << "MinTimeInWaveFuncs    = " << *mintime << " sec" << std::endl
+              << "MaxTimeInWaveFuncs    = " << *maxtime << " sec" << std::endl
+              << "-----------------------------------" << std::endl
+              << "ProcessID:            = " << getpid() << std::endl
+              << "NProcesses            = " << process.nprocesses << std::endl
+              << "NumMatrixElements     = " << num_mes << std::endl
+              << std::scientific
+              << "MaxMatrixElemValue    = " << *maxelem
+              << " GeV^" << -(2 * process.nexternal - 8) << std::endl
+              << "MinMatrixElemValue    = " << *minelem
+              << " GeV^" << -(2 * process.nexternal - 8) << std::endl
+              << "MatrixElementsPerSec  = " << num_mes/sum << " sec^-1" << std::endl;
   }
 }
