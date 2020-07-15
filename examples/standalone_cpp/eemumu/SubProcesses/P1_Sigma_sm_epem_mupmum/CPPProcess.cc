@@ -265,11 +265,12 @@ void CPPProcess::printPerformanceStats() {
       std::max_element(m_wavetimes.begin(), m_wavetimes.end());
 
   std::cout << "***********************************" << std::endl
-            << std::scientific << "TotalTimeInWaveFuncs  = " << sum << std::endl
+            << std::scientific 
+            << "TotalTimeInWaveFuncs  = " << sum << " sec" << std::endl
             << "TotalNumOfWaveFuncs   = " << numelems << std::endl
-            << "MeanTimeInWaveFuncs   = " << mean << std::endl
-            << "MeanWaveFuncsPerSec   = " << 1/mean << std::endl
-            << "StdDevTimeInWaveFuncs = " << stdev << std::endl
-            << "MinTimeInWaveFuncs    = " << *mintime << std::endl
-            << "MaxTimeInWaveFuncs    = " << *maxtime << std::endl;
+            << "MeanTimeInWaveFuncs   = " << mean << " sec" << std::endl
+            << "MeanWaveFuncsPerSec   = " << 1/mean << " sec^-1" << std::endl
+            << "StdDevTimeInWaveFuncs = " << stdev << " sec" << std::endl
+            << "MinTimeInWaveFuncs    = " << *mintime << " sec" << std::endl
+            << "MaxTimeInWaveFuncs    = " << *maxtime << " sec" << std::endl;
 }
