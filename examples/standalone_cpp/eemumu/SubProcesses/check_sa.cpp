@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
   double energy = 1500;
   double weight;
 
-  for (int x = 0; x <= numevts; ++x) {
+  for (int x = 0; x < numevts; ++x) {
 
     // Get phase space point
     vector<double *> p =
