@@ -1,6 +1,8 @@
+#include <algorithm> // perf stats
 #include <cstring>
 #include <iomanip>
 #include <iostream>
+#include <numeric> // perf stats
 
 #include "CPPProcess.h"
 #include "rambo.h"
@@ -12,8 +14,8 @@ bool is_number(const char *s) {
   return strlen(s) == t - s;
 }
 
-int usage(int ret = 0) {
-  std::cout << "do it correctly" << std::endl;
+int usage(char* argv0, int ret = 1) {
+  std::cout << "Usage: " << argv0 << " [--verbose] numevts" << std::endl;
   return ret;
 }
 
@@ -26,10 +28,10 @@ int main(int argc, char **argv) {
     else if (is_number(argv[argn]))
       numevts = atoi(argv[argn]);
     else
-      return usage(1);
+      return usage(argv[0]);
   }
   if (numevts == 0)
-    return usage(1);
+    return usage(argv[0]);
 
   if (verbose)
     std::cout << "num evts: " << numevts << std::endl;
@@ -43,7 +45,11 @@ int main(int argc, char **argv) {
   double energy = 1500;
   double weight;
 
-  for (int x = 0; x <= numevts; ++x) {
+  int meGeVexponent = -(2 * process.nexternal - 8);
+
+  std::vector<double> matrixelementvector;
+
+  for (int x = 0; x < numevts; ++x) {
 
     // Get phase space point
     vector<double *> p =
@@ -74,14 +80,37 @@ int main(int argc, char **argv) {
       for (int i = 0; i < process.nprocesses; i++)
         cout << " Matrix element = "
              //	 << setiosflags(ios::fixed) << setprecision(17)
-             << matrix_elements[i] << " GeV^" << -(2 * process.nexternal - 8)
-             << endl;
+             << matrix_elements[i] << " GeV^" << meGeVexponent << std::endl;
 
       cout << " ---------------------------------------------------------------"
               "--------------"
            << endl;
     }
+   
+    for (int i = 0; i < process.nprocesses; i++)
+      matrixelementvector.push_back(matrix_elements[i]);
+
   }
 
   process.printPerformanceStats();
+
+  int num_mes = matrixelementvector.size();
+  float sumelem = std::accumulate(matrixelementvector.begin(), matrixelementvector.end(), 0.0);
+  float meanelem = sumelem / num_mes;
+  float sqselem = std::inner_product(matrixelementvector.begin(), matrixelementvector.end(), 
+                                     matrixelementvector.begin(), 0.0);
+  float stdelem = std::sqrt(sqselem / num_mes - meanelem * meanelem);
+  std::vector<double>::iterator maxelem =
+    std::max_element(matrixelementvector.begin(), matrixelementvector.end());
+  std::vector<double>::iterator minelem =
+    std::min_element(matrixelementvector.begin(), matrixelementvector.end());
+
+  std::cout << "***********************************" << std::endl
+            << "NumMatrixElements     = " << num_mes << std::endl
+            << std::scientific
+            << "MeanMatrixElemValue   = " << meanelem << " GeV^" << meGeVexponent << std::endl
+            << "StdErrMatrixElemValue = " << stdelem/sqrt(num_mes) << " GeV^" << meGeVexponent << std::endl
+            << "StdDevMatrixElemValue = " << stdelem << " GeV^" << meGeVexponent << std::endl
+            << "MinMatrixElemValue    = " << *minelem << " GeV^" << meGeVexponent << std::endl
+            << "MaxMatrixElemValue    = " << *maxelem << " GeV^" << meGeVexponent << std::endl;
 }
