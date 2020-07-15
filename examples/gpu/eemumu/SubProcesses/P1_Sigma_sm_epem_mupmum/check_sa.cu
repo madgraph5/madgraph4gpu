@@ -163,6 +163,10 @@ int main(int argc, char **argv) {
     gpuErrchk3(cudaMemcpy2D(meHostPtr, sizeof(double), meDevPtr, mePitch,
                             sizeof(double), dim, cudaMemcpyDeviceToHost));
 
+    if (verbose)
+      std::cout << "***********************************" << std::endl
+                << "Iteration #" << x+1 << " of " << numiter << std::endl;
+
     if (perf) {
       float gputime = timer.GetDuration();
       wavetimes.push_back(gputime);
