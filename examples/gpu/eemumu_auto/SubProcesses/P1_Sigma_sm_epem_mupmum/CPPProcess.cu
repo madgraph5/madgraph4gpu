@@ -38,12 +38,16 @@ __device__ void calculate_wavefunctions(int ihel, char * dps, size_t dpt,
   ixxxxx((double * )(dps + 1 * dpt), cmME[1], cHel[ihel][1], +1, w[1]); 
   ixxxxx((double * )(dps + 2 * dpt), cmME[2], cHel[ihel][2], -1, w[2]); 
   oxxxxx((double * )(dps + 3 * dpt), cmME[3], cHel[ihel][3], +1, w[3]); 
-  FFV1P0_3(w[1], w[0], cIPC[0], 0., 0., w[4]); 
+  FFV1P0_3(w[1], w[0], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
+      w[4]);
   // Amplitude(s) for diagram number 1
-  FFV1_0(w[2], w[3], w[4], cIPC[0], &amp[0]); 
-  FFV2_4_3(w[1], w[0], cIPC[1], cIPC[2], cIPD[0], cIPD[1], w[4]); 
+  FFV1_0(w[2], w[3], w[4], thrust::complex<double> (cIPC[0], cIPC[1]),
+      &amp[0]);
+  FFV2_4_3(w[1], w[0], thrust::complex<double> (cIPC[2], cIPC[3]),
+      thrust::complex<double> (cIPC[4], cIPC[5]), cIPD[0], cIPD[1], w[4]);
   // Amplitude(s) for diagram number 2
-  FFV2_4_0(w[2], w[3], w[4], cIPC[1], cIPC[2], &amp[1]); 
+  FFV2_4_0(w[2], w[3], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
+      thrust::complex<double> (cIPC[4], cIPC[5]), &amp[1]);
   // double CPPProcess::matrix_1_epem_mupmum() {
   int i, j; 
   // Local variables
