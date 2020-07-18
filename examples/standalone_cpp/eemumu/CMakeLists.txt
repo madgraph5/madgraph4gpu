@@ -21,7 +21,7 @@ include_directories(
 )
 
 set (SOURCES
-    ${CMAKE_CURRENT_LIST_DIR}/src/extras.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/extras.cc
     ${CMAKE_CURRENT_LIST_DIR}/src/read_slha.cc
     ${CMAKE_CURRENT_LIST_DIR}/src/HelAmps_sm.cc
     ${CMAKE_CURRENT_LIST_DIR}/src/Parameters_sm.cc
