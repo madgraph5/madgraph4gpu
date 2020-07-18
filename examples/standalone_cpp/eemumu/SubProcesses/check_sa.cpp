@@ -74,12 +74,12 @@ int main(int argc, char **argv) {
       const double *matrix_elements = process_lc.getMatrixElements();
 
       // Store the timings back in the orginal instance
-      access_t[idx] = process_lc.m_wavetimes[0];
+      //access_t[idx] = process_lc.m_wavetimes[0];
 
     });
   });
   q.wait();
-  process.m_wavetimes = t;
+  //process.m_wavetimes = t;
   //process.printPerformanceStats();
 
 /* 
