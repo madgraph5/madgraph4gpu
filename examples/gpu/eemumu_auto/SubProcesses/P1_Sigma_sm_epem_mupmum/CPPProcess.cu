@@ -19,7 +19,7 @@ using namespace MG5_sm;
 // Process: e+ e- > mu+ mu- WEIGHTED<=4 @1
 
 __constant__ int cHel[16][4]; 
-__constant__ double cmME[4]; 
+// __constant__ double cmME[4]; value hardcoded now
 // extern __constant__ int cPerm[4];
 // 
 __constant__ double cIPC[6];  // coupling ?
@@ -34,10 +34,10 @@ __device__ void calculate_wavefunctions(int ihel, char * dps, size_t dpt,
   thrust::complex<double> amp[2]; 
   // Calculate wavefunctions for all processes
   thrust::complex<double> w[5][6]; 
-  oxxxxx((double * )(dps + 0 * dpt), cmME[0], cHel[ihel][0], -1, w[0]); 
-  ixxxxx((double * )(dps + 1 * dpt), cmME[1], cHel[ihel][1], +1, w[1]); 
-  ixxxxx((double * )(dps + 2 * dpt), cmME[2], cHel[ihel][2], -1, w[2]); 
-  oxxxxx((double * )(dps + 3 * dpt), cmME[3], cHel[ihel][3], +1, w[3]); 
+  oxxxxx((double * )(dps + 0 * dpt), 0., cHel[ihel][0], -1, w[0]); 
+  ixxxxx((double * )(dps + 1 * dpt), 0., cHel[ihel][1], +1, w[1]); 
+  ixxxxx((double * )(dps + 2 * dpt), 0., cHel[ihel][2], -1, w[2]); 
+  oxxxxx((double * )(dps + 3 * dpt), 0., cHel[ihel][3], +1, w[3]); 
   FFV1P0_3(w[1], w[0], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[4]);
   // Amplitude(s) for diagram number 1
@@ -125,7 +125,6 @@ void CPPProcess::initProc(string param_card_name)
 
   cudaMemcpyToSymbol(cIPC, tIPC, 3 * sizeof(thrust::complex<double> )); 
   cudaMemcpyToSymbol(cIPD, tIPD, 2 * sizeof(double)); 
-  cudaMemcpyToSymbol(cMME, mME, 4 * sizeof(double))); 
 }
 
 //--------------------------------------------------------------------------
