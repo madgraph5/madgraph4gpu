@@ -83,7 +83,7 @@ __device__ void calculate_wavefunctions(int ihel, char * dps, size_t dpt,
 CPPProcess::CPPProcess(int numiterations, int gpublocks, int gputhreads, 
 bool verbose, bool debug)
 : m_numiterations(numiterations), gpu_nblocks(gpublocks), 
-gpu_nthreads(gputhreads), dim(gpu_nblocks * gpu_nthreads), mME(4, 0.00) 
+gpu_nthreads(gputhreads), dim(gpu_nblocks * gpu_nthreads) 
 {
 
 
@@ -125,6 +125,7 @@ void CPPProcess::initProc(string param_card_name)
 
   cudaMemcpyToSymbol(cIPC, tIPC, 3 * sizeof(thrust::complex<double> )); 
   cudaMemcpyToSymbol(cIPD, tIPD, 2 * sizeof(double)); 
+  cudaMemcpyToSymbol(cMME, mME, 4 * sizeof(double))); 
 }
 
 //--------------------------------------------------------------------------
