@@ -47,19 +47,27 @@ __device__ void FFV1P0_3(thrust::complex<double> F1[], thrust::complex<double>
     F2[], thrust::complex<double> COUP, double M3, double W3,
     thrust::complex<double> V3[]);
 
-__device__ void VVVV4_0(thrust::complex<double> V1[], thrust::complex<double>
-    V2[], thrust::complex<double> V3[], thrust::complex<double> V4[],
-    thrust::complex<double> COUP, thrust::complex<double> * vertex);
-
-__device__ void VVVV4P0_1(thrust::complex<double> V2[], thrust::complex<double>
-    V3[], thrust::complex<double> V4[], thrust::complex<double> COUP, double
-    M1, double W1, thrust::complex<double> V1[]);
-
 __device__ void VVVV1_0(thrust::complex<double> V1[], thrust::complex<double>
     V2[], thrust::complex<double> V3[], thrust::complex<double> V4[],
     thrust::complex<double> COUP, thrust::complex<double> * vertex);
 
 __device__ void VVVV1P0_1(thrust::complex<double> V2[], thrust::complex<double>
+    V3[], thrust::complex<double> V4[], thrust::complex<double> COUP, double
+    M1, double W1, thrust::complex<double> V1[]);
+
+__device__ void VVVV3_0(thrust::complex<double> V1[], thrust::complex<double>
+    V2[], thrust::complex<double> V3[], thrust::complex<double> V4[],
+    thrust::complex<double> COUP, thrust::complex<double> * vertex);
+
+__device__ void VVVV3P0_1(thrust::complex<double> V2[], thrust::complex<double>
+    V3[], thrust::complex<double> V4[], thrust::complex<double> COUP, double
+    M1, double W1, thrust::complex<double> V1[]);
+
+__device__ void VVVV4_0(thrust::complex<double> V1[], thrust::complex<double>
+    V2[], thrust::complex<double> V3[], thrust::complex<double> V4[],
+    thrust::complex<double> COUP, thrust::complex<double> * vertex);
+
+__device__ void VVVV4P0_1(thrust::complex<double> V2[], thrust::complex<double>
     V3[], thrust::complex<double> V4[], thrust::complex<double> COUP, double
     M1, double W1, thrust::complex<double> V1[]);
 
@@ -70,14 +78,6 @@ __device__ void VVV1_0(thrust::complex<double> V1[], thrust::complex<double>
 __device__ void VVV1P0_1(thrust::complex<double> V2[], thrust::complex<double>
     V3[], thrust::complex<double> COUP, double M1, double W1,
     thrust::complex<double> V1[]);
-
-__device__ void VVVV3_0(thrust::complex<double> V1[], thrust::complex<double>
-    V2[], thrust::complex<double> V3[], thrust::complex<double> V4[],
-    thrust::complex<double> COUP, thrust::complex<double> * vertex);
-
-__device__ void VVVV3P0_1(thrust::complex<double> V2[], thrust::complex<double>
-    V3[], thrust::complex<double> V4[], thrust::complex<double> COUP, double
-    M1, double W1, thrust::complex<double> V1[]);
 
 }  // end namespace MG5_sm
 
