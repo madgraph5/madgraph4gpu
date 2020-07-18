@@ -7,9 +7,7 @@
 
 #include "CPPProcess.h"
 #include "HelAmps_sm.h"
-#include <algorithm> // perf stats
-#include <iostream>
-#include <numeric> // perf stats
+#include "extras.h"
 
 using namespace MG5_sm;
 
@@ -20,21 +18,21 @@ using namespace MG5_sm;
 //--------------------------------------------------------------------------
 // Initialize process.
 
-void CPPProcess::initProc(string param_card_name, bool verb) {
+void CPPProcess::initProc(char const* param_card_name, bool verb) {
   // Instantiate the model class and set parameters that stay fixed during run
   pars = Parameters_sm::getInstance();
   SLHAReader slha(param_card_name, verb);
   pars->setIndependentParameters(slha);
   pars->setIndependentCouplings();
   if (verb) {
-    pars->printIndependentParameters();
-    pars->printIndependentCouplings();
+    //pars->printIndependentParameters();
+    //pars->printIndependentCouplings();
   }
   // Set external particle masses for this matrix element
-  mME.push_back(pars->ZERO);
-  mME.push_back(pars->ZERO);
-  mME.push_back(pars->ZERO);
-  mME.push_back(pars->ZERO);
+  mME[0] = pars->ZERO;
+  mME[1] = pars->ZERO;
+  mME[2] = pars->ZERO;
+  mME[3] = pars->ZERO;
   jamp2[0] = new double[1];
 }
 
@@ -47,12 +45,12 @@ void CPPProcess::sigmaKin(bool ppar) {
   pars->setDependentCouplings();
   static bool firsttime = true;
   if (firsttime && ppar) {
-    pars->printDependentParameters();
-    pars->printDependentCouplings();
+    //pars->printDependentParameters();
+    //pars->printDependentCouplings();
     firsttime = false;
   }
 
-  m_timer.Start();
+  //m_timer.Start();
 
   // Reset color flows
   for (int i = 0; i < 1; i++)
@@ -64,7 +62,7 @@ void CPPProcess::sigmaKin(bool ppar) {
   static int ntry = 0, sum_hel = 0, ngood = 0;
   static int igood[ncomb];
   static int jhel;
-  std::complex<double> **wfs;
+  extras::complex **wfs;
   double t[nprocesses];
   // Helicities for the process
   static const int helicities[ncomb][nexternal] = {
@@ -121,7 +119,7 @@ void CPPProcess::sigmaKin(bool ppar) {
       }
     }
     jhel = 0;
-    sum_hel = min(sum_hel, ngood);
+    sum_hel = std::min(sum_hel, ngood);
   } else {
     // Only use the "good" helicities
     for (int j = 0; j < sum_hel; j++) {
@@ -143,8 +141,8 @@ void CPPProcess::sigmaKin(bool ppar) {
   for (int i = 0; i < nprocesses; i++)
     matrix_element[i] /= denominators[i];
 
-  float gputime = m_timer.GetDuration();
-  m_wavetimes.push_back(gputime);
+  //float gputime = m_timer.GetDuration();
+  //m_wavetimes.push_back(gputime);
 }
 
 //--------------------------------------------------------------------------
@@ -227,8 +225,8 @@ double CPPProcess::matrix_1_epem_mupmum() {
   // Local variables
   const int ngraphs = 2;
   const int ncolor = 1;
-  std::complex<double> ztemp;
-  std::complex<double> jamp[ncolor];
+  extras::complex ztemp;
+  extras::complex jamp[ncolor];
   // The color matrix;
   static const double denom[ncolor] = {1};
   static const double cf[ncolor][ncolor] = {{1}};
@@ -242,17 +240,17 @@ double CPPProcess::matrix_1_epem_mupmum() {
     ztemp = 0.;
     for (j = 0; j < ncolor; j++)
       ztemp = ztemp + cf[i][j] * jamp[j];
-    matrix = matrix + real(ztemp * conj(jamp[i])) / denom[i];
+    matrix = matrix + (ztemp * (jamp[i])).real() / denom[i];
   }
 
   // Store the leading color flows for choice of color
   for (i = 0; i < ncolor; i++)
-    jamp2[0][i] += real(jamp[i] * conj(jamp[i]));
+    jamp2[0][i] += (jamp[i] * conj(jamp[i])).real();
 
   return matrix;
 }
 
-void CPPProcess::printPerformanceStats() {
+/*void CPPProcess::printPerformanceStats() {
   float sum = std::accumulate(m_wavetimes.begin(), m_wavetimes.end(), 0.0);
   int numelems = m_wavetimes.size();
   float mean = sum / numelems;
@@ -270,4 +268,12 @@ void CPPProcess::printPerformanceStats() {
             << "StdDevWaveFuncs      = " << stdev << std::endl
             << "MinTimeInWaveFuncs   = " << *mintime << std::endl
             << "MaxTimeInWaveFuncs   = " << *maxtime << std::endl;
+}*/
+
+double* CPPProcess::getMasses(){
+  double* temp = new double[4];
+  for (int i = 0; i < 4; i++){
+    temp[i] = mME[i];
+  }
+  return temp;
 }

@@ -1,6 +1,5 @@
-#include <vector>
-
-using namespace std;
+#pragma once
+#include "extras.h"
 
 class Random {
 public:
@@ -15,7 +14,7 @@ private:
 
 double rn(int idummy);
 
-vector<double *> get_momenta(int ninitial, double energy, vector<double> masses,
+double** get_momenta(int ninitial, double energy, double masses[],
                              double &wgt);
 
-vector<double *> rambo(double et, vector<double> &xm, double &wt);
+double** rambo(double et, double xm[2], double &wt);

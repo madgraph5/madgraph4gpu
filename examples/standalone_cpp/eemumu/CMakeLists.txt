@@ -21,6 +21,7 @@ include_directories(
 )
 
 set (SOURCES
+    ${CMAKE_CURRENT_LIST_DIR}/src/extras.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/read_slha.cc
     ${CMAKE_CURRENT_LIST_DIR}/src/HelAmps_sm.cc
     ${CMAKE_CURRENT_LIST_DIR}/src/Parameters_sm.cc
@@ -29,7 +30,8 @@ set (SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/SubProcesses/P1_Sigma_sm_epem_mupmum/check_sa.cpp
 )
 
-add_definitions(-O0 -g)
+add_definitions(-O0 -g -ferror-limit=2)
+link_directories(/opt/hipSYCL/cuda/lib64)
 
 find_package(hipSYCL CONFIG REQUIRED)
 

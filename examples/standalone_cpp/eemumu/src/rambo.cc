@@ -2,11 +2,10 @@
 #include <iostream>
 #include <math.h>
 #include <stdlib.h>
-#include <vector>
+#include "extras.h"
 
 #include "rambo.h"
 
-using namespace std;
 
 double Random::ranmar() {
   /*     -----------------
@@ -87,33 +86,48 @@ double rn(int idummy) {
   return ran;
 }
 
-vector<double *> get_momenta(int ninitial, double energy, vector<double> masses,
+double** get_momenta(int ninitial, double energy, double masses[4],
                              double &wgt) {
   //---- auxiliary function to change convention between MadGraph5_aMC@NLO and
   // rambo
   //---- four momenta.
-  int nexternal = masses.size();
+  int nexternal = sizeof(*masses)/sizeof(masses[0]);
   int nfinal = nexternal - ninitial;
   double e2 = pow(energy, 2);
   double m1 = masses[0];
 
   if (ninitial == 1) {
     // Momenta for the incoming particle
-    vector<double *> p(1, new double[4]);
+    double p[1][4];
     p[0][0] = m1;
     p[0][1] = 0.;
     p[0][2] = 0.;
     p[0][3] = 0.;
 
-    vector<double> finalmasses(++masses.begin(), masses.end());
-    vector<double *> p_rambo = rambo(m1, finalmasses, wgt);
-    p.insert(++p.begin(), p_rambo.begin(), p_rambo.end());
+    double finalmasses[2];
+    for (int i = 2; i<4; i++){
+      finalmasses[i] = masses[i];
+    }
+    double** p_rambo = rambo(m1, finalmasses, wgt);
 
-    return p;
+    double** temp = new double*[3];
+    for (int i = 0; i < 1; i++){
+      temp[i] = new double[4];
+      for (int j = 0; j < 4; j++){
+        temp[i][j] = p[i][j];
+        }
+    }
+    for (int i = 1; i < 3; i++){
+      temp[i] = new double[4];
+      for (int j = 0; j < 4; j++){
+        temp[i][j] = p_rambo[i][j];
+      }
+    }
+    return temp;
   }
 
   else if (ninitial != 2) {
-    cout << "Rambo needs 1 or 2 incoming particles" << endl;
+    std::cout << "Rambo needs 1 or 2 incoming particles" << std::endl;
     exit(-1);
   }
 
@@ -128,31 +142,60 @@ vector<double *> get_momenta(int ninitial, double energy, vector<double> masses,
            (4 * e2));
   double energy1 = sqrt(pow(mom, 2) + pow(m1, 2));
   double energy2 = sqrt(pow(mom, 2) + pow(m2, 2));
-  // Set momenta for incoming particles
-  vector<double *> p(1, new double[4]);
+ 
+ // Set momenta for incoming particles
+ int n = 4;
+  if (nfinal == 1) {
+    n=3;
+  }
+  
+  double p[n][4];
   p[0][0] = energy1;
   p[0][1] = 0;
   p[0][2] = 0;
   p[0][3] = mom;
-  p.push_back(new double[4]);
   p[1][0] = energy2;
   p[1][1] = 0;
   p[1][2] = 0;
   p[1][3] = -mom;
 
   if (nfinal == 1) {
-    p.push_back(new double[4]);
     p[2][0] = energy;
     wgt = 1;
-    return p;
+    double** temp = new double*[3];
+    for (int i = 0; i < 3; i++){
+      temp[i] = new double[4];
+      for (int j = 0; j < 4; j++){
+        temp[i][j] = p[i][j];
+        }
+    }
+    return temp;
   }
-  vector<double> finalmasses(++(++masses.begin()), masses.end());
-  vector<double *> p_rambo = rambo(energy, finalmasses, wgt);
-  p.insert(++(++p.begin()), p_rambo.begin(), p_rambo.end());
-  return p;
+  
+    double finalmasses[2];
+    for (int i = 2; i<4; i++){
+      finalmasses[i] = masses[i];
+    }
+    double** p_rambo = rambo(energy, finalmasses, wgt);
+
+    double** temp = new double*[4];
+    for (int i = 0; i < 2; i++){
+      temp[i] = new double[4];
+      for (int j = 0; j < 4; j++){
+        temp[i][j] = p[i][j];
+        }
+    }
+    for (int i = 2; i < 4; i++){
+      temp[i] = new double[4];
+      for (int j = 0; j < 4; j++){
+        temp[i][j] = p_rambo[i-2][j];
+      }
+    }
+
+    return temp;
 }
 
-vector<double *> rambo(double et, vector<double> &xm, double &wt) {
+double** rambo(double et, double xm[2], double &wt) {
   /**********************************************************************
    *                       rambo                                         *
    *    ra(ndom)  m(omenta)  b(eautifully)  o(rganized)                  *
@@ -168,19 +211,16 @@ vector<double *> rambo(double et, vector<double> &xm, double &wt) {
    *    p  = particle momenta ( dim=(4,nexternal-nincoming) )            *
    *    wt = weight of the event                                         *
    ***********************************************************************/
-  int n = xm.size();
-  vector<double *> q, p;
-  vector<double> z(n), r(4), b(3), p2(n), xm2(n), e(n), v(n);
-  static vector<int> iwarn(5, 0);
+  int n = 2;
+  double p[n][4];
+  double q[n][4];
+  double z[n], r[4], b[3], p2[n], xm2[n], e[n], v[n];
+  static int iwarn[5];
   static double acc = 1e-14;
   static int itmax = 6, ibegin = 0;
   static double twopi = 8. * atan(1.);
   static double po2log = log(twopi / 4.);
 
-  for (int i = 0; i < n; i++) {
-    q.push_back(new double[4]);
-    p.push_back(new double[4]);
-  }
   // initialization step: factorials for the phase space weight
   if (ibegin == 0) {
     ibegin = 1;
@@ -192,7 +232,7 @@ vector<double *> rambo(double et, vector<double> &xm, double &wt) {
   }
   // check on the number of particles
   if (n < 1 || n > 101) {
-    cout << "Too few or many particles: " << n << endl;
+    std::cout << "Too few or many particles: " << n << std::endl;
     exit(-1);
   }
   // check whether total energy is sufficient; count nonzero masses
@@ -204,7 +244,7 @@ vector<double *> rambo(double et, vector<double> &xm, double &wt) {
     xmt = xmt + abs(xm[i]);
   }
   if (xmt > et) {
-    cout << "Too low energy: " << et << " needed " << xmt << endl;
+    std::cout << "Too low energy: " << et << " needed " << xmt << std::endl;
     exit(-1);
   }
   // the parameter values are now accepted
@@ -250,19 +290,26 @@ vector<double *> rambo(double et, vector<double> &xm, double &wt) {
     wt = (2. * n - 4.) * log(et) + z[n - 1];
   if (wt < -180.) {
     if (iwarn[0] <= 5)
-      cout << "Too small wt, risk for underflow: " << wt << endl;
+      std::cout << "Too small wt, risk for underflow: " << wt << std::endl;
     iwarn[0] = iwarn[0] + 1;
   }
   if (wt > 174.) {
     if (iwarn[1] <= 5)
-      cout << "Too large wt, risk for overflow: " << wt << endl;
+      std::cout << "Too large wt, risk for overflow: " << wt << std::endl;
     iwarn[1] = iwarn[1] + 1;
   }
 
   // return for weighted massless momenta
   if (nm == 0) {
     // return log of weight
-    return p;
+    double** temp = new double*[n];
+    for (int i = 0; i < n; i++){
+      temp[i] = new double[4];
+      for (int j = 0; j < 4; j++){
+        temp[i][j] = p[i][j];
+        }
+    }
+    return temp;
   }
 
   // massive particles: rescale the momenta by a factor x
@@ -287,7 +334,7 @@ vector<double *> rambo(double et, vector<double> &xm, double &wt) {
       break;
     iter = iter + 1;
     if (iter > itmax) {
-      cout << "Too many iterations without desired accuracy: " << itmax << endl;
+      std::cout << "Too many iterations without desired accuracy: " << itmax << std::endl;
       break;
     }
     x = x - f0 / (x * g0);
@@ -312,14 +359,21 @@ vector<double *> rambo(double et, vector<double> &xm, double &wt) {
   wt = wt + wtm;
   if (wt < -180.) {
     if (iwarn[2] <= 5)
-      cout << "Too small wt, risk for underflow: " << wt << endl;
+      std::cout << "Too small wt, risk for underflow: " << wt << std::endl;
     iwarn[2] = iwarn[2] + 1;
   }
   if (wt > 174.) {
     if (iwarn[3] <= 5)
-      cout << "Too large wt, risk for overflow: " << wt << endl;
+      std::cout << "Too large wt, risk for overflow: " << wt << std::endl;
     iwarn[3] = iwarn[3] + 1;
   }
   // return log of weight
-  return p;
+  double** temp = new double*[n];
+    for (int i = 0; i < n; i++){
+      temp[i] = new double[4];
+      for (int j = 0; j < 4; j++){
+        temp[i][j] = p[i][j];
+        }
+    }
+    return temp;
 }

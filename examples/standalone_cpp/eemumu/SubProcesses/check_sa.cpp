@@ -5,6 +5,7 @@
 #include "CPPProcess.h"
 #include "rambo.h"
 #include <CL/sycl.hpp>
+#include "extras.h"
 
 bool is_number(const char *s) {
   const char *t = s;
@@ -39,7 +40,7 @@ int main(int argc, char **argv) {
   CPPProcess process;
   
   // Used to store timings
-  vector<float> t(numevts);
+  std::vector<float> t(numevts);
 
   cl::sycl::range<1> work_items{(unsigned long)numevts};
   cl::sycl::buffer<float> buff_t(t.data(), t.size());
@@ -61,7 +62,7 @@ int main(int argc, char **argv) {
       double weight;
 
       // Get phase space point
-      vector<double *> p = 
+      double** p = 
       get_momenta(process_lc.ninitial, energy, process_lc.getMasses(), weight);
 
       // Set momenta for this event
@@ -79,7 +80,7 @@ int main(int argc, char **argv) {
   });
   q.wait();
   process.m_wavetimes = t;
-  process.printPerformanceStats();
+  //process.printPerformanceStats();
 
 /* 
    if (verbose) {
