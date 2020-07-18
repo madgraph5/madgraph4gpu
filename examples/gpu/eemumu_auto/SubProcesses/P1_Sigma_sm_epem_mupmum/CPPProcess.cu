@@ -64,7 +64,6 @@ __device__ void calculate_wavefunctions(int ihel, char * dps, size_t dpt,
   jamp[0] = -amp[0] - amp[1]; 
 
   // Sum and square the color flows to get the matrix element
-  matrix = 0; 
   for(i = 0; i < ncolor; i++ )
   {
     ztemp = 0.; 
@@ -94,6 +93,7 @@ gpu_nthreads(gputhreads), dim(gpu_nblocks * gpu_nthreads), mME(4, 0.00)
       1, -1}, {-1, 1, 1, 1}, {1, -1, -1, -1}, {1, -1, -1, 1}, {1, -1, 1, -1},
       {1, -1, 1, 1}, {1, 1, -1, -1}, {1, 1, -1, 1}, {1, 1, 1, -1}, {1, 1, 1,
       1}};
+  cudaMemcpyToSymbol(cHel, tHel, ncomb * nexternal * sizeof(int)); 
   // perm - nodim
   // static int perm[nexternal] = {0, 1, 2, 3};
 }
