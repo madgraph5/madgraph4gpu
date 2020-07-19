@@ -120,6 +120,8 @@ void CPPProcess::initProc(string param_card_name)
   pars->setIndependentCouplings(); 
   pars->printIndependentParameters(); 
   pars->printIndependentCouplings(); 
+  pars->setDependentParameters(); 
+  pars->setDependentCouplings(); 
   // Set external particle masses for this matrix element
   mME.push_back(pars->ZERO); 
   mME.push_back(pars->ZERO); 
