@@ -45,65 +45,65 @@ __device__ void calculate_wavefunctions(int ihel, char * dps, size_t dpt,
       w[6]);
   // Amplitude(s) for diagram number 1
   VVV1_0(w[5], w[6], w[4], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[0]);
+      &amp[0]); printf(" &amp[0] %f %f", &amp[0].real(), &amp[0].imag(); )
   FFV1_1(w[2], w[4], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[7]);
   // Amplitude(s) for diagram number 2
   FFV1_0(w[3], w[7], w[5], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[1]);
+      &amp[1]); printf(" &amp[1] %f %f", &amp[1].real(), &amp[1].imag(); )
   FFV1_2(w[3], w[4], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[8]);
   // Amplitude(s) for diagram number 3
   FFV1_0(w[8], w[2], w[5], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[2]);
+      &amp[2]); printf(" &amp[2] %f %f", &amp[2].real(), &amp[2].imag(); )
   FFV1_1(w[2], w[0], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[5]);
   FFV1_2(w[3], w[1], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[9]);
   // Amplitude(s) for diagram number 4
   FFV1_0(w[9], w[5], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[3]);
+      &amp[3]); printf(" &amp[3] %f %f", &amp[3].real(), &amp[3].imag(); )
   VVV1P0_1(w[1], w[4], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[10]);
   // Amplitude(s) for diagram number 5
   FFV1_0(w[3], w[5], w[10], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[4]);
+      &amp[4]); printf(" &amp[4] %f %f", &amp[4].real(), &amp[4].imag(); )
   // Amplitude(s) for diagram number 6
   FFV1_0(w[8], w[5], w[1], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[5]);
+      &amp[5]); printf(" &amp[5] %f %f", &amp[5].real(), &amp[5].imag(); )
   FFV1_2(w[3], w[0], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[5]);
   FFV1_1(w[2], w[1], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[11]);
   // Amplitude(s) for diagram number 7
   FFV1_0(w[5], w[11], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[6]);
+      &amp[6]); printf(" &amp[6] %f %f", &amp[6].real(), &amp[6].imag(); )
   // Amplitude(s) for diagram number 8
   FFV1_0(w[5], w[2], w[10], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[7]);
+      &amp[7]); printf(" &amp[7] %f %f", &amp[7].real(), &amp[7].imag(); )
   // Amplitude(s) for diagram number 9
   FFV1_0(w[5], w[7], w[1], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[8]);
+      &amp[8]); printf(" &amp[8] %f %f", &amp[8].real(), &amp[8].imag(); )
   VVV1P0_1(w[0], w[4], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[5]);
   // Amplitude(s) for diagram number 10
   FFV1_0(w[3], w[11], w[5], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[9]);
+      &amp[9]); printf(" &amp[9] %f %f", &amp[9].real(), &amp[9].imag(); )
   // Amplitude(s) for diagram number 11
   FFV1_0(w[9], w[2], w[5], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[10]);
+      &amp[10]); printf(" &amp[10] %f %f", &amp[10].real(), &amp[10].imag(); )
   // Amplitude(s) for diagram number 12
   VVV1_0(w[5], w[1], w[6], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[11]);
+      &amp[11]); printf(" &amp[11] %f %f", &amp[11].real(), &amp[11].imag(); )
   // Amplitude(s) for diagram number 13
   FFV1_0(w[8], w[11], w[0], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[12]);
+      &amp[12]); printf(" &amp[12] %f %f", &amp[12].real(), &amp[12].imag(); )
   // Amplitude(s) for diagram number 14
   FFV1_0(w[9], w[7], w[0], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[13]);
+      &amp[13]); printf(" &amp[13] %f %f", &amp[13].real(), &amp[13].imag(); )
   // Amplitude(s) for diagram number 15
   VVV1_0(w[0], w[10], w[6], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[14]);
+      &amp[14]); printf(" &amp[14] %f %f", &amp[14].real(), &amp[14].imag(); )
   VVVV1P0_1(w[0], w[1], w[4], thrust::complex<double> (cIPC[4], cIPC[5]), 0.,
       0., w[10]);
   VVVV3P0_1(w[0], w[1], w[4], thrust::complex<double> (cIPC[4], cIPC[5]), 0.,
@@ -112,11 +112,11 @@ __device__ void calculate_wavefunctions(int ihel, char * dps, size_t dpt,
       0., w[9]);
   // Amplitude(s) for diagram number 16
   FFV1_0(w[3], w[2], w[10], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[15]);
+      &amp[15]); printf(" &amp[15] %f %f", &amp[15].real(), &amp[15].imag(); )
   FFV1_0(w[3], w[2], w[6], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[16]);
+      &amp[16]); printf(" &amp[16] %f %f", &amp[16].real(), &amp[16].imag(); )
   FFV1_0(w[3], w[2], w[9], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[17]);
+      &amp[17]); printf(" &amp[17] %f %f", &amp[17].real(), &amp[17].imag(); )
   // double CPPProcess::matrix_1_gg_ttxg() {
   int i, j; 
   // Local variables
