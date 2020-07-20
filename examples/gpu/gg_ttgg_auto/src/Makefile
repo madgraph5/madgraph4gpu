@@ -7,6 +7,13 @@ CUINC=/usr/local/cuda/targets/x86_64-linux/include
 NVCC=nvcc
 CXX=g++
 
+# Assuming uname is available, detect if architecture is power
+UNAME_P := $(shell uname -p)
+ifeq ($(UNAME_P),ppc64le)
+    CUFLAGS+= -Xcompiler -mno-float128
+endif
+
+
 target=$(LIBDIR)/libmodel_sm.a
 cxx_objects=Parameters_sm.o read_slha.o rambo.o
 cu_objects=HelAmps_sm.o

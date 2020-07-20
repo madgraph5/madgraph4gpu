@@ -468,14 +468,14 @@ __device__ void FFV1P0_3(thrust::complex<double> F1[], const
   P3[3] = -V3[0].imag(); 
   denom = COUP/((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] *
       P3[3]) - M3 * (M3 - cI * W3));
-  V3[2] = denom * (-cI) * (F1[2] * F2[4] + F1[3] * F2[5] + F1[4] * F2[2] +
-      F1[5] * F2[3]);
-  V3[3] = denom * (-cI) * (-F1[2] * F2[5] - F1[3] * F2[4] + F1[4] * F2[3] +
-      F1[5] * F2[2]);
-  V3[4] = denom * (-cI) * (-cI * (F1[2] * F2[5] + F1[5] * F2[2]) + cI * (F1[3]
-      * F2[4] + F1[4] * F2[3]));
-  V3[5] = denom * (-cI) * (-F1[2] * F2[4] - F1[5] * F2[3] + F1[3] * F2[5] +
-      F1[4] * F2[2]);
+  V3[2] = denom * (-cI) * (cuCmul(F2[4], F1[2]) + cuCmul(F2[5], F1[3]) +
+      cuCmul(F2[2], F1[4]) + cuCmul(F2[3], F1[5]));
+  V3[3] = denom * (-cI) * (-cuCmul(F2[5], F1[2]) - cuCmul(F2[4], F1[3]) +
+      cuCmul(F2[3], F1[4]) + cuCmul(F2[2], F1[5]));
+  V3[4] = denom * (-cI) * (-cI * (cuCmul(F2[5], F1[2]) + cuCmul(F2[2], F1[5]))
+      + cI * (cuCmul(F2[4], F1[3]) + cuCmul(F2[3], F1[4])));
+  V3[5] = denom * (-cI) * (-cuCmul(F2[4], F1[2]) - cuCmul(F2[3], F1[5]) +
+      cuCmul(F2[5], F1[3]) + cuCmul(F2[2], F1[4]));
 }
 
 
@@ -513,13 +513,14 @@ __device__ void FFV2_3(thrust::complex<double> F1[], const
       F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
   denom = COUP/((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] *
       P3[3]) - M3 * (M3 - cI * W3));
-  V3[2] = denom * (-cI) * (F1[2] * F2[4] + F1[3] * F2[5] - P3[0] * OM3 * TMP2); 
-  V3[3] = denom * (-cI) * (-F1[2] * F2[5] - F1[3] * F2[4] - P3[1] * OM3 *
-      TMP2);
-  V3[4] = denom * (-cI) * (-cI * (F1[2] * F2[5]) + cI * (F1[3] * F2[4]) - P3[2]
-      * OM3 * TMP2);
-  V3[5] = denom * (-cI) * (-F1[2] * F2[4] - P3[3] * OM3 * TMP2 + F1[3] *
-      F2[5]);
+  V3[2] = denom * (-cI) * (cuCmul(F2[4], F1[2]) + cuCmul(F2[5], F1[3]) -
+      cuCmul(TMP2, cuCmul(OM3, P3[0])));
+  V3[3] = denom * (-cI) * (-cuCmul(F2[5], F1[2]) - cuCmul(F2[4], F1[3]) -
+      cuCmul(TMP2, cuCmul(OM3, P3[1])));
+  V3[4] = denom * (-cI) * (-cI * (cuCmul(F2[5], F1[2])) + cI * (cuCmul(F2[4],
+      F1[3])) - cuCmul(TMP2, cuCmul(OM3, P3[2])));
+  V3[5] = denom * (-cI) * (-cuCmul(F2[4], F1[2]) - cuCmul(TMP2, cuCmul(OM3,
+      P3[3])) + cuCmul(F2[5], F1[3]));
 }
 
 
@@ -530,10 +531,10 @@ __device__ void FFV4_0(thrust::complex<double> F1[], const
   thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
   thrust::complex<double> TMP3; 
   thrust::complex<double> TMP4; 
-  TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
-      F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
   TMP4 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
       F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
+  TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
+      F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
   (*vertex) = COUP * (-1.) * (+cI * (TMP3) + 2. * cI * (TMP4)); 
 }
 
@@ -564,17 +565,17 @@ __device__ void FFV4_3(thrust::complex<double> F1[], const
   denom = COUP/((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] *
       P3[3]) - M3 * (M3 - cI * W3));
   V3[2] = denom * (-2. * cI) * (OM3 * - 1./2. * P3[0] * (TMP2 + 2. * (TMP5)) +
-      (+1./2. * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] + F1[5] *
-      F2[3]));
+      (+1./2. * (cuCmul(F2[4], F1[2]) + cuCmul(F2[5], F1[3])) + cuCmul(F2[2],
+      F1[4]) + cuCmul(F2[3], F1[5])));
   V3[3] = denom * (-2. * cI) * (OM3 * - 1./2. * P3[1] * (TMP2 + 2. * (TMP5)) +
-      (-1./2. * (F1[2] * F2[5] + F1[3] * F2[4]) + F1[4] * F2[3] + F1[5] *
-      F2[2]));
+      (-1./2. * (cuCmul(F2[5], F1[2]) + cuCmul(F2[4], F1[3])) + cuCmul(F2[3],
+      F1[4]) + cuCmul(F2[2], F1[5])));
   V3[4] = denom * 2. * cI * (OM3 * 1./2. * P3[2] * (TMP2 + 2. * (TMP5)) +
-      (+1./2. * cI * (F1[2] * F2[5]) - 1./2. * cI * (F1[3] * F2[4]) - cI *
-      (F1[4] * F2[3]) + cI * (F1[5] * F2[2])));
+      (+1./2. * cI * (cuCmul(F2[5], F1[2])) - 1./2. * cI * (cuCmul(F2[4],
+      F1[3])) - cI * (cuCmul(F2[3], F1[4])) + cI * (cuCmul(F2[2], F1[5]))));
   V3[5] = denom * 2. * cI * (OM3 * 1./2. * P3[3] * (TMP2 + 2. * (TMP5)) +
-      (+1./2. * (F1[2] * F2[4]) - 1./2. * (F1[3] * F2[5]) - F1[4] * F2[2] +
-      F1[5] * F2[3]));
+      (+1./2. * (cuCmul(F2[4], F1[2])) - 1./2. * (cuCmul(F2[5], F1[3])) -
+      cuCmul(F2[2], F1[4]) + cuCmul(F2[3], F1[5])));
 }
 
 
@@ -586,12 +587,12 @@ __device__ void FFV2_4_0(thrust::complex<double> F1[], const
   thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
   thrust::complex<double> TMP3; 
   thrust::complex<double> TMP4; 
-  TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
-      F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
   TMP4 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
       F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
-  (*vertex) = (-1.) * (COUP2 * (+cI * (TMP3) + 2. * cI * (TMP4)) + cI * (TMP3 *
-      COUP1));
+  TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
+      F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
+  (*vertex) = (-1.) * (COUP2 * (+cI * (TMP3) + 2. * cI * (TMP4)) + cI *
+      (cuCmul(COUP1, TMP3)));
 }
 
 
@@ -622,21 +623,25 @@ __device__ void FFV2_4_3(thrust::complex<double> F1[], const
   denom = 1./((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] *
       P3[3]) - M3 * (M3 - cI * W3));
   V3[2] = denom * (-2. * cI) * (COUP2 * (OM3 * - 1./2. * P3[0] * (TMP2 + 2. *
-      (TMP5)) + (+1./2. * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] +
-      F1[5] * F2[3])) + 1./2. * (COUP1 * (F1[2] * F2[4] + F1[3] * F2[5] - P3[0]
-      * OM3 * TMP2)));
+      (TMP5)) + (+1./2. * (cuCmul(F2[4], F1[2]) + cuCmul(F2[5], F1[3])) +
+      cuCmul(F2[2], F1[4]) + cuCmul(F2[3], F1[5]))) + 1./2. * (COUP1 *
+      (cuCmul(F2[4], F1[2]) + cuCmul(F2[5], F1[3]) - cuCmul(TMP2, cuCmul(OM3,
+      P3[0])))));
   V3[3] = denom * (-2. * cI) * (COUP2 * (OM3 * - 1./2. * P3[1] * (TMP2 + 2. *
-      (TMP5)) + (-1./2. * (F1[2] * F2[5] + F1[3] * F2[4]) + F1[4] * F2[3] +
-      F1[5] * F2[2])) - 1./2. * (COUP1 * (F1[2] * F2[5] + F1[3] * F2[4] + P3[1]
-      * OM3 * TMP2)));
+      (TMP5)) + (-1./2. * (cuCmul(F2[5], F1[2]) + cuCmul(F2[4], F1[3])) +
+      cuCmul(F2[3], F1[4]) + cuCmul(F2[2], F1[5]))) - 1./2. * (COUP1 *
+      (cuCmul(F2[5], F1[2]) + cuCmul(F2[4], F1[3]) + cuCmul(TMP2, cuCmul(OM3,
+      P3[1])))));
   V3[4] = denom * cI * (COUP2 * (OM3 * P3[2] * (TMP2 + 2. * (TMP5)) + (+cI *
-      (F1[2] * F2[5]) - cI * (F1[3] * F2[4]) - 2. * cI * (F1[4] * F2[3]) + 2. *
-      cI * (F1[5] * F2[2]))) + COUP1 * (+cI * (F1[2] * F2[5]) - cI * (F1[3] *
-      F2[4]) + P3[2] * OM3 * TMP2));
+      (cuCmul(F2[5], F1[2])) - cI * (cuCmul(F2[4], F1[3])) - 2. * cI *
+      (cuCmul(F2[3], F1[4])) + 2. * cI * (cuCmul(F2[2], F1[5])))) + COUP1 *
+      (+cI * (cuCmul(F2[5], F1[2])) - cI * (cuCmul(F2[4], F1[3])) +
+      cuCmul(TMP2, cuCmul(OM3, P3[2]))));
   V3[5] = denom * 2. * cI * (COUP2 * (OM3 * 1./2. * P3[3] * (TMP2 + 2. *
-      (TMP5)) + (+1./2. * (F1[2] * F2[4]) - 1./2. * (F1[3] * F2[5]) - F1[4] *
-      F2[2] + F1[5] * F2[3])) + 1./2. * (COUP1 * (F1[2] * F2[4] + P3[3] * OM3 *
-      TMP2 - F1[3] * F2[5])));
+      (TMP5)) + (+1./2. * (cuCmul(F2[4], F1[2])) - 1./2. * (cuCmul(F2[5],
+      F1[3])) - cuCmul(F2[2], F1[4]) + cuCmul(F2[3], F1[5]))) + 1./2. * (COUP1
+      * (cuCmul(F2[4], F1[2]) + cuCmul(TMP2, cuCmul(OM3, P3[3])) -
+      cuCmul(F2[5], F1[3]))));
 }
 
 
