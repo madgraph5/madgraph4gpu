@@ -439,119 +439,17 @@ thrust::complex<double> fo[6])
   }
   return; 
 }
-__device__ void VVVV4_0(thrust::complex<double> V1[], const
-    thrust::complex<double> V2[], const thrust::complex<double> V3[], const
-    thrust::complex<double> V4[], const thrust::complex<double> COUP,
-    thrust::complex<double> * vertex)
-{
-  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
-  thrust::complex<double> TMP0; 
-  thrust::complex<double> TMP1; 
-  thrust::complex<double> TMP2; 
-  thrust::complex<double> TMP3; 
-  TMP0 = (cuCmul(V2[2], V4[2]) - cuCmul(V2[3], V4[3]) - cuCmul(V2[4], V4[4]) -
-      cuCmul(V2[5], V4[5]));
-  TMP1 = (cuCmul(V1[2], V3[2]) - cuCmul(V1[3], V3[3]) - cuCmul(V1[4], V3[4]) -
-      cuCmul(V1[5], V3[5]));
-  TMP3 = (cuCmul(V1[2], V2[2]) - cuCmul(V1[3], V2[3]) - cuCmul(V1[4], V2[4]) -
-      cuCmul(V1[5], V2[5]));
-  TMP2 = (cuCmul(V3[2], V4[2]) - cuCmul(V3[3], V4[3]) - cuCmul(V3[4], V4[4]) -
-      cuCmul(V3[5], V4[5]));
-  (*vertex) = COUP * (-cI * (cuCmul(TMP1, TMP0)) + cI * (cuCmul(TMP3, TMP2))); 
-}
-
-
-__device__ void VVVV4P0_1(thrust::complex<double> V2[], const
-    thrust::complex<double> V3[], const thrust::complex<double> V4[], const
-    thrust::complex<double> COUP, const double M1, const double W1,
-    thrust::complex<double> V1[])
-{
-  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
-  double P1[4]; 
-  thrust::complex<double> TMP0; 
-  thrust::complex<double> TMP2; 
-  thrust::complex<double> denom; 
-  V1[0] = +V2[0] + V3[0] + V4[0]; 
-  V1[1] = +V2[1] + V3[1] + V4[1]; 
-  P1[0] = -V1[0].real(); 
-  P1[1] = -V1[1].real(); 
-  P1[2] = -V1[1].imag(); 
-  P1[3] = -V1[0].imag(); 
-  TMP0 = (cuCmul(V2[2], V4[2]) - cuCmul(V2[3], V4[3]) - cuCmul(V2[4], V4[4]) -
-      cuCmul(V2[5], V4[5]));
-  TMP2 = (cuCmul(V3[2], V4[2]) - cuCmul(V3[3], V4[3]) - cuCmul(V3[4], V4[4]) -
-      cuCmul(V3[5], V4[5]));
-  denom = COUP/((P1[0] * P1[0]) - (P1[1] * P1[1]) - (P1[2] * P1[2]) - (P1[3] *
-      P1[3]) - M1 * (M1 - cI * W1));
-  V1[2] = denom * (-cI * (cuCmul(TMP0, V3[2])) + cI * (cuCmul(TMP2, V2[2]))); 
-  V1[3] = denom * (-cI * (cuCmul(TMP0, V3[3])) + cI * (cuCmul(TMP2, V2[3]))); 
-  V1[4] = denom * (-cI * (cuCmul(TMP0, V3[4])) + cI * (cuCmul(TMP2, V2[4]))); 
-  V1[5] = denom * (-cI * (cuCmul(TMP0, V3[5])) + cI * (cuCmul(TMP2, V2[5]))); 
-}
-
-
-__device__ void VVVV1_0(thrust::complex<double> V1[], const
-    thrust::complex<double> V2[], const thrust::complex<double> V3[], const
-    thrust::complex<double> V4[], const thrust::complex<double> COUP,
-    thrust::complex<double> * vertex)
-{
-  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
-  thrust::complex<double> TMP0; 
-  thrust::complex<double> TMP1; 
-  thrust::complex<double> TMP4; 
-  thrust::complex<double> TMP5; 
-  TMP0 = (cuCmul(V2[2], V4[2]) - cuCmul(V2[3], V4[3]) - cuCmul(V2[4], V4[4]) -
-      cuCmul(V2[5], V4[5]));
-  TMP4 = (cuCmul(V1[2], V4[2]) - cuCmul(V1[3], V4[3]) - cuCmul(V1[4], V4[4]) -
-      cuCmul(V1[5], V4[5]));
-  TMP1 = (cuCmul(V1[2], V3[2]) - cuCmul(V1[3], V3[3]) - cuCmul(V1[4], V3[4]) -
-      cuCmul(V1[5], V3[5]));
-  TMP5 = (cuCmul(V3[2], V2[2]) - cuCmul(V3[3], V2[3]) - cuCmul(V3[4], V2[4]) -
-      cuCmul(V3[5], V2[5]));
-  (*vertex) = COUP * (-cI * (cuCmul(TMP5, TMP4)) + cI * (cuCmul(TMP1, TMP0))); 
-}
-
-
-__device__ void VVVV1P0_1(thrust::complex<double> V2[], const
-    thrust::complex<double> V3[], const thrust::complex<double> V4[], const
-    thrust::complex<double> COUP, const double M1, const double W1,
-    thrust::complex<double> V1[])
-{
-  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
-  double P1[4]; 
-  thrust::complex<double> TMP0; 
-  thrust::complex<double> TMP5; 
-  thrust::complex<double> denom; 
-  V1[0] = +V2[0] + V3[0] + V4[0]; 
-  V1[1] = +V2[1] + V3[1] + V4[1]; 
-  P1[0] = -V1[0].real(); 
-  P1[1] = -V1[1].real(); 
-  P1[2] = -V1[1].imag(); 
-  P1[3] = -V1[0].imag(); 
-  TMP0 = (cuCmul(V2[2], V4[2]) - cuCmul(V2[3], V4[3]) - cuCmul(V2[4], V4[4]) -
-      cuCmul(V2[5], V4[5]));
-  TMP5 = (cuCmul(V3[2], V2[2]) - cuCmul(V3[3], V2[3]) - cuCmul(V3[4], V2[4]) -
-      cuCmul(V3[5], V2[5]));
-  denom = COUP/((P1[0] * P1[0]) - (P1[1] * P1[1]) - (P1[2] * P1[2]) - (P1[3] *
-      P1[3]) - M1 * (M1 - cI * W1));
-  V1[2] = denom * (-cI * (cuCmul(TMP5, V4[2])) + cI * (cuCmul(TMP0, V3[2]))); 
-  V1[3] = denom * (-cI * (cuCmul(TMP5, V4[3])) + cI * (cuCmul(TMP0, V3[3]))); 
-  V1[4] = denom * (-cI * (cuCmul(TMP5, V4[4])) + cI * (cuCmul(TMP0, V3[4]))); 
-  V1[5] = denom * (-cI * (cuCmul(TMP5, V4[5])) + cI * (cuCmul(TMP0, V3[5]))); 
-}
-
-
 __device__ void FFV1_0(thrust::complex<double> F1[], const
     thrust::complex<double> F2[], const thrust::complex<double> V3[], const
     thrust::complex<double> COUP, thrust::complex<double> * vertex)
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
-  thrust::complex<double> TMP6; 
-  TMP6 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
+  thrust::complex<double> TMP0; 
+  TMP0 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
       (F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])) +
       (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
       F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])))));
-  (*vertex) = COUP * - cI * TMP6; 
+  (*vertex) = COUP * - cI * TMP0; 
 }
 
 
@@ -654,65 +552,14 @@ __device__ void FFV1P0_3(thrust::complex<double> F1[], const
   P3[3] = -V3[0].imag(); 
   denom = COUP/((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] *
       P3[3]) - M3 * (M3 - cI * W3));
-  V3[2] = denom * (-cI) * (cuCmul(F2[4], F1[2]) + cuCmul(F2[5], F1[3]) +
-      cuCmul(F2[2], F1[4]) + cuCmul(F2[3], F1[5]));
-  V3[3] = denom * (-cI) * (-cuCmul(F2[5], F1[2]) - cuCmul(F2[4], F1[3]) +
-      cuCmul(F2[3], F1[4]) + cuCmul(F2[2], F1[5]));
-  V3[4] = denom * (-cI) * (-cI * (cuCmul(F2[5], F1[2]) + cuCmul(F2[2], F1[5]))
-      + cI * (cuCmul(F2[4], F1[3]) + cuCmul(F2[3], F1[4])));
-  V3[5] = denom * (-cI) * (-cuCmul(F2[4], F1[2]) - cuCmul(F2[3], F1[5]) +
-      cuCmul(F2[5], F1[3]) + cuCmul(F2[2], F1[4]));
-}
-
-
-__device__ void VVVV3_0(thrust::complex<double> V1[], const
-    thrust::complex<double> V2[], const thrust::complex<double> V3[], const
-    thrust::complex<double> V4[], const thrust::complex<double> COUP,
-    thrust::complex<double> * vertex)
-{
-  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
-  thrust::complex<double> TMP2; 
-  thrust::complex<double> TMP3; 
-  thrust::complex<double> TMP4; 
-  thrust::complex<double> TMP5; 
-  TMP3 = (cuCmul(V1[2], V2[2]) - cuCmul(V1[3], V2[3]) - cuCmul(V1[4], V2[4]) -
-      cuCmul(V1[5], V2[5]));
-  TMP4 = (cuCmul(V1[2], V4[2]) - cuCmul(V1[3], V4[3]) - cuCmul(V1[4], V4[4]) -
-      cuCmul(V1[5], V4[5]));
-  TMP5 = (cuCmul(V3[2], V2[2]) - cuCmul(V3[3], V2[3]) - cuCmul(V3[4], V2[4]) -
-      cuCmul(V3[5], V2[5]));
-  TMP2 = (cuCmul(V3[2], V4[2]) - cuCmul(V3[3], V4[3]) - cuCmul(V3[4], V4[4]) -
-      cuCmul(V3[5], V4[5]));
-  (*vertex) = COUP * (-cI * (cuCmul(TMP5, TMP4)) + cI * (cuCmul(TMP3, TMP2))); 
-}
-
-
-__device__ void VVVV3P0_1(thrust::complex<double> V2[], const
-    thrust::complex<double> V3[], const thrust::complex<double> V4[], const
-    thrust::complex<double> COUP, const double M1, const double W1,
-    thrust::complex<double> V1[])
-{
-  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
-  double P1[4]; 
-  thrust::complex<double> TMP2; 
-  thrust::complex<double> TMP5; 
-  thrust::complex<double> denom; 
-  V1[0] = +V2[0] + V3[0] + V4[0]; 
-  V1[1] = +V2[1] + V3[1] + V4[1]; 
-  P1[0] = -V1[0].real(); 
-  P1[1] = -V1[1].real(); 
-  P1[2] = -V1[1].imag(); 
-  P1[3] = -V1[0].imag(); 
-  TMP5 = (cuCmul(V3[2], V2[2]) - cuCmul(V3[3], V2[3]) - cuCmul(V3[4], V2[4]) -
-      cuCmul(V3[5], V2[5]));
-  TMP2 = (cuCmul(V3[2], V4[2]) - cuCmul(V3[3], V4[3]) - cuCmul(V3[4], V4[4]) -
-      cuCmul(V3[5], V4[5]));
-  denom = COUP/((P1[0] * P1[0]) - (P1[1] * P1[1]) - (P1[2] * P1[2]) - (P1[3] *
-      P1[3]) - M1 * (M1 - cI * W1));
-  V1[2] = denom * (-cI * (cuCmul(TMP5, V4[2])) + cI * (cuCmul(TMP2, V2[2]))); 
-  V1[3] = denom * (-cI * (cuCmul(TMP5, V4[3])) + cI * (cuCmul(TMP2, V2[3]))); 
-  V1[4] = denom * (-cI * (cuCmul(TMP5, V4[4])) + cI * (cuCmul(TMP2, V2[4]))); 
-  V1[5] = denom * (-cI * (cuCmul(TMP5, V4[5])) + cI * (cuCmul(TMP2, V2[5]))); 
+  V3[2] = denom * (-cI) * (F1[2] * F2[4] + F1[3] * F2[5] + F1[4] * F2[2] +
+      F1[5] * F2[3]);
+  V3[3] = denom * (-cI) * (-F1[2] * F2[5] - F1[3] * F2[4] + F1[4] * F2[3] +
+      F1[5] * F2[2]);
+  V3[4] = denom * (-cI) * (-cI * (F1[2] * F2[5] + F1[5] * F2[2]) + cI * (F1[3]
+      * F2[4] + F1[4] * F2[3]));
+  V3[5] = denom * (-cI) * (-F1[2] * F2[4] - F1[5] * F2[3] + F1[3] * F2[5] +
+      F1[4] * F2[2]);
 }
 
 
@@ -725,11 +572,11 @@ __device__ void VVV1_0(thrust::complex<double> V1[], const
   double P2[4]; 
   double P3[4]; 
   thrust::complex<double> TMP1; 
-  thrust::complex<double> TMP10; 
-  thrust::complex<double> TMP11; 
-  thrust::complex<double> TMP12; 
+  thrust::complex<double> TMP2; 
   thrust::complex<double> TMP3; 
+  thrust::complex<double> TMP4; 
   thrust::complex<double> TMP5; 
+  thrust::complex<double> TMP6; 
   thrust::complex<double> TMP7; 
   thrust::complex<double> TMP8; 
   thrust::complex<double> TMP9; 
@@ -745,26 +592,17 @@ __device__ void VVV1_0(thrust::complex<double> V1[], const
   P3[1] = V3[1].real(); 
   P3[2] = V3[1].imag(); 
   P3[3] = V3[0].imag(); 
-  TMP12 = (cuCmul(P3[0], V1[2]) - cuCmul(P3[1], V1[3]) - cuCmul(P3[2], V1[4]) -
-      cuCmul(P3[3], V1[5]));
-  TMP3 = (cuCmul(V1[2], V2[2]) - cuCmul(V1[3], V2[3]) - cuCmul(V1[4], V2[4]) -
-      cuCmul(V1[5], V2[5]));
-  TMP8 = (cuCmul(P2[0], V3[2]) - cuCmul(P2[1], V3[3]) - cuCmul(P2[2], V3[4]) -
-      cuCmul(P2[3], V3[5]));
-  TMP9 = (cuCmul(P1[0], V2[2]) - cuCmul(P1[1], V2[3]) - cuCmul(P1[2], V2[4]) -
-      cuCmul(P1[3], V2[5]));
-  TMP1 = (cuCmul(V1[2], V3[2]) - cuCmul(V1[3], V3[3]) - cuCmul(V1[4], V3[4]) -
-      cuCmul(V1[5], V3[5]));
-  TMP5 = (cuCmul(V3[2], V2[2]) - cuCmul(V3[3], V2[3]) - cuCmul(V3[4], V2[4]) -
-      cuCmul(V3[5], V2[5]));
-  TMP7 = (cuCmul(P1[0], V3[2]) - cuCmul(P1[1], V3[3]) - cuCmul(P1[2], V3[4]) -
-      cuCmul(P1[3], V3[5]));
-  TMP11 = (cuCmul(P2[0], V1[2]) - cuCmul(P2[1], V1[3]) - cuCmul(P2[2], V1[4]) -
-      cuCmul(P2[3], V1[5]));
-  TMP10 = (cuCmul(P3[0], V2[2]) - cuCmul(P3[1], V2[3]) - cuCmul(P3[2], V2[4]) -
-      cuCmul(P3[3], V2[5]));
-  (*vertex) = COUP * (TMP1 * (+cI * (TMP9) - cI * (TMP10)) + (TMP3 * (-cI *
-      (TMP7) + cI * (TMP8)) + TMP5 * (-cI * (TMP11) + cI * (TMP12))));
+  TMP1 = (V2[2] * V1[2] - V2[3] * V1[3] - V2[4] * V1[4] - V2[5] * V1[5]); 
+  TMP5 = (V3[2] * V1[2] - V3[3] * V1[3] - V3[4] * V1[4] - V3[5] * V1[5]); 
+  TMP4 = (P1[0] * V2[2] - P1[1] * V2[3] - P1[2] * V2[4] - P1[3] * V2[5]); 
+  TMP6 = (V2[2] * P3[0] - V2[3] * P3[1] - V2[4] * P3[2] - V2[5] * P3[3]); 
+  TMP8 = (P2[0] * V1[2] - P2[1] * V1[3] - P2[2] * V1[4] - P2[3] * V1[5]); 
+  TMP2 = (V3[2] * P1[0] - V3[3] * P1[1] - V3[4] * P1[2] - V3[5] * P1[3]); 
+  TMP7 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
+  TMP9 = (V1[2] * P3[0] - V1[3] * P3[1] - V1[4] * P3[2] - V1[5] * P3[3]); 
+  TMP3 = (V3[2] * P2[0] - V3[3] * P2[1] - V3[4] * P2[2] - V3[5] * P2[3]); 
+  (*vertex) = COUP * (TMP1 * (-cI * (TMP2) + cI * (TMP3)) + (TMP5 * (+cI *
+      (TMP4) - cI * (TMP6)) + TMP7 * (-cI * (TMP8) + cI * (TMP9))));
 }
 
 
@@ -776,11 +614,11 @@ __device__ void VVV1P0_1(thrust::complex<double> V2[], const
   double P1[4]; 
   double P2[4]; 
   double P3[4]; 
-  thrust::complex<double> TMP10; 
-  thrust::complex<double> TMP5; 
+  thrust::complex<double> TMP2; 
+  thrust::complex<double> TMP3; 
+  thrust::complex<double> TMP4; 
+  thrust::complex<double> TMP6; 
   thrust::complex<double> TMP7; 
-  thrust::complex<double> TMP8; 
-  thrust::complex<double> TMP9; 
   thrust::complex<double> denom; 
   P2[0] = V2[0].real(); 
   P2[1] = V2[1].real(); 
@@ -796,26 +634,156 @@ __device__ void VVV1P0_1(thrust::complex<double> V2[], const
   P1[1] = -V1[1].real(); 
   P1[2] = -V1[1].imag(); 
   P1[3] = -V1[0].imag(); 
-  TMP9 = (cuCmul(P1[0], V2[2]) - cuCmul(P1[1], V2[3]) - cuCmul(P1[2], V2[4]) -
-      cuCmul(P1[3], V2[5]));
-  TMP8 = (cuCmul(P2[0], V3[2]) - cuCmul(P2[1], V3[3]) - cuCmul(P2[2], V3[4]) -
-      cuCmul(P2[3], V3[5]));
-  TMP5 = (cuCmul(V3[2], V2[2]) - cuCmul(V3[3], V2[3]) - cuCmul(V3[4], V2[4]) -
-      cuCmul(V3[5], V2[5]));
-  TMP7 = (cuCmul(P1[0], V3[2]) - cuCmul(P1[1], V3[3]) - cuCmul(P1[2], V3[4]) -
-      cuCmul(P1[3], V3[5]));
-  TMP10 = (cuCmul(P3[0], V2[2]) - cuCmul(P3[1], V2[3]) - cuCmul(P3[2], V2[4]) -
-      cuCmul(P3[3], V2[5]));
+  TMP4 = (P1[0] * V2[2] - P1[1] * V2[3] - P1[2] * V2[4] - P1[3] * V2[5]); 
+  TMP6 = (V2[2] * P3[0] - V2[3] * P3[1] - V2[4] * P3[2] - V2[5] * P3[3]); 
+  TMP2 = (V3[2] * P1[0] - V3[3] * P1[1] - V3[4] * P1[2] - V3[5] * P1[3]); 
+  TMP7 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
+  TMP3 = (V3[2] * P2[0] - V3[3] * P2[1] - V3[4] * P2[2] - V3[5] * P2[3]); 
   denom = COUP/((P1[0] * P1[0]) - (P1[1] * P1[1]) - (P1[2] * P1[2]) - (P1[3] *
       P1[3]) - M1 * (M1 - cI * W1));
-  V1[2] = denom * (TMP5 * (-cI * (P2[0]) + cI * (P3[0])) + (V2[2] * (-cI *
-      (TMP7) + cI * (TMP8)) + V3[2] * (+cI * (TMP9) - cI * (TMP10))));
-  V1[3] = denom * (TMP5 * (-cI * (P2[1]) + cI * (P3[1])) + (V2[3] * (-cI *
-      (TMP7) + cI * (TMP8)) + V3[3] * (+cI * (TMP9) - cI * (TMP10))));
-  V1[4] = denom * (TMP5 * (-cI * (P2[2]) + cI * (P3[2])) + (V2[4] * (-cI *
-      (TMP7) + cI * (TMP8)) + V3[4] * (+cI * (TMP9) - cI * (TMP10))));
-  V1[5] = denom * (TMP5 * (-cI * (P2[3]) + cI * (P3[3])) + (V2[5] * (-cI *
-      (TMP7) + cI * (TMP8)) + V3[5] * (+cI * (TMP9) - cI * (TMP10))));
+  V1[2] = denom * (TMP7 * (-cI * (P2[0]) + cI * (P3[0])) + (V2[2] * (-cI *
+      (TMP2) + cI * (TMP3)) + V3[2] * (+cI * (TMP4) - cI * (TMP6))));
+  V1[3] = denom * (TMP7 * (-cI * (P2[1]) + cI * (P3[1])) + (V2[3] * (-cI *
+      (TMP2) + cI * (TMP3)) + V3[3] * (+cI * (TMP4) - cI * (TMP6))));
+  V1[4] = denom * (TMP7 * (-cI * (P2[2]) + cI * (P3[2])) + (V2[4] * (-cI *
+      (TMP2) + cI * (TMP3)) + V3[4] * (+cI * (TMP4) - cI * (TMP6))));
+  V1[5] = denom * (TMP7 * (-cI * (P2[3]) + cI * (P3[3])) + (V2[5] * (-cI *
+      (TMP2) + cI * (TMP3)) + V3[5] * (+cI * (TMP4) - cI * (TMP6))));
+}
+
+
+__device__ void VVVV3_0(thrust::complex<double> V1[], const
+    thrust::complex<double> V2[], const thrust::complex<double> V3[], const
+    thrust::complex<double> V4[], const thrust::complex<double> COUP,
+    thrust::complex<double> * vertex)
+{
+  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
+  thrust::complex<double> TMP1; 
+  thrust::complex<double> TMP10; 
+  thrust::complex<double> TMP11; 
+  thrust::complex<double> TMP7; 
+  TMP1 = (V2[2] * V1[2] - V2[3] * V1[3] - V2[4] * V1[4] - V2[5] * V1[5]); 
+  TMP10 = (V1[2] * V4[2] - V1[3] * V4[3] - V1[4] * V4[4] - V1[5] * V4[5]); 
+  TMP7 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
+  TMP11 = (V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5]); 
+  (*vertex) = COUP * (-cI * (TMP7 * TMP10) + cI * (TMP1 * TMP11)); 
+}
+
+
+__device__ void VVVV3P0_1(thrust::complex<double> V2[], const
+    thrust::complex<double> V3[], const thrust::complex<double> V4[], const
+    thrust::complex<double> COUP, const double M1, const double W1,
+    thrust::complex<double> V1[])
+{
+  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
+  double P1[4]; 
+  thrust::complex<double> TMP11; 
+  thrust::complex<double> TMP7; 
+  thrust::complex<double> denom; 
+  V1[0] = +V2[0] + V3[0] + V4[0]; 
+  V1[1] = +V2[1] + V3[1] + V4[1]; 
+  P1[0] = -V1[0].real(); 
+  P1[1] = -V1[1].real(); 
+  P1[2] = -V1[1].imag(); 
+  P1[3] = -V1[0].imag(); 
+  TMP7 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
+  TMP11 = (V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5]); 
+  denom = COUP/((P1[0] * P1[0]) - (P1[1] * P1[1]) - (P1[2] * P1[2]) - (P1[3] *
+      P1[3]) - M1 * (M1 - cI * W1));
+  V1[2] = denom * (-cI * (TMP7 * V4[2]) + cI * (V2[2] * TMP11)); 
+  V1[3] = denom * (-cI * (TMP7 * V4[3]) + cI * (V2[3] * TMP11)); 
+  V1[4] = denom * (-cI * (TMP7 * V4[4]) + cI * (V2[4] * TMP11)); 
+  V1[5] = denom * (-cI * (TMP7 * V4[5]) + cI * (V2[5] * TMP11)); 
+}
+
+
+__device__ void VVVV1_0(thrust::complex<double> V1[], const
+    thrust::complex<double> V2[], const thrust::complex<double> V3[], const
+    thrust::complex<double> V4[], const thrust::complex<double> COUP,
+    thrust::complex<double> * vertex)
+{
+  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
+  thrust::complex<double> TMP10; 
+  thrust::complex<double> TMP12; 
+  thrust::complex<double> TMP5; 
+  thrust::complex<double> TMP7; 
+  TMP5 = (V3[2] * V1[2] - V3[3] * V1[3] - V3[4] * V1[4] - V3[5] * V1[5]); 
+  TMP10 = (V1[2] * V4[2] - V1[3] * V4[3] - V1[4] * V4[4] - V1[5] * V4[5]); 
+  TMP7 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
+  TMP12 = (V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5]); 
+  (*vertex) = COUP * (-cI * (TMP7 * TMP10) + cI * (TMP5 * TMP12)); 
+}
+
+
+__device__ void VVVV1P0_1(thrust::complex<double> V2[], const
+    thrust::complex<double> V3[], const thrust::complex<double> V4[], const
+    thrust::complex<double> COUP, const double M1, const double W1,
+    thrust::complex<double> V1[])
+{
+  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
+  double P1[4]; 
+  thrust::complex<double> TMP12; 
+  thrust::complex<double> TMP7; 
+  thrust::complex<double> denom; 
+  V1[0] = +V2[0] + V3[0] + V4[0]; 
+  V1[1] = +V2[1] + V3[1] + V4[1]; 
+  P1[0] = -V1[0].real(); 
+  P1[1] = -V1[1].real(); 
+  P1[2] = -V1[1].imag(); 
+  P1[3] = -V1[0].imag(); 
+  TMP7 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
+  TMP12 = (V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5]); 
+  denom = COUP/((P1[0] * P1[0]) - (P1[1] * P1[1]) - (P1[2] * P1[2]) - (P1[3] *
+      P1[3]) - M1 * (M1 - cI * W1));
+  V1[2] = denom * (-cI * (TMP7 * V4[2]) + cI * (V3[2] * TMP12)); 
+  V1[3] = denom * (-cI * (TMP7 * V4[3]) + cI * (V3[3] * TMP12)); 
+  V1[4] = denom * (-cI * (TMP7 * V4[4]) + cI * (V3[4] * TMP12)); 
+  V1[5] = denom * (-cI * (TMP7 * V4[5]) + cI * (V3[5] * TMP12)); 
+}
+
+
+__device__ void VVVV4_0(thrust::complex<double> V1[], const
+    thrust::complex<double> V2[], const thrust::complex<double> V3[], const
+    thrust::complex<double> V4[], const thrust::complex<double> COUP,
+    thrust::complex<double> * vertex)
+{
+  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
+  thrust::complex<double> TMP1; 
+  thrust::complex<double> TMP11; 
+  thrust::complex<double> TMP12; 
+  thrust::complex<double> TMP5; 
+  TMP11 = (V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5]); 
+  TMP1 = (V2[2] * V1[2] - V2[3] * V1[3] - V2[4] * V1[4] - V2[5] * V1[5]); 
+  TMP5 = (V3[2] * V1[2] - V3[3] * V1[3] - V3[4] * V1[4] - V3[5] * V1[5]); 
+  TMP12 = (V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5]); 
+  (*vertex) = COUP * (-cI * (TMP5 * TMP12) + cI * (TMP1 * TMP11)); 
+}
+
+
+__device__ void VVVV4P0_1(thrust::complex<double> V2[], const
+    thrust::complex<double> V3[], const thrust::complex<double> V4[], const
+    thrust::complex<double> COUP, const double M1, const double W1,
+    thrust::complex<double> V1[])
+{
+  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
+  double P1[4]; 
+  thrust::complex<double> TMP11; 
+  thrust::complex<double> TMP12; 
+  thrust::complex<double> denom; 
+  V1[0] = +V2[0] + V3[0] + V4[0]; 
+  V1[1] = +V2[1] + V3[1] + V4[1]; 
+  P1[0] = -V1[0].real(); 
+  P1[1] = -V1[1].real(); 
+  P1[2] = -V1[1].imag(); 
+  P1[3] = -V1[0].imag(); 
+  TMP11 = (V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5]); 
+  TMP12 = (V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5]); 
+  denom = COUP/((P1[0] * P1[0]) - (P1[1] * P1[1]) - (P1[2] * P1[2]) - (P1[3] *
+      P1[3]) - M1 * (M1 - cI * W1));
+  V1[2] = denom * (-cI * (V3[2] * TMP12) + cI * (V2[2] * TMP11)); 
+  V1[3] = denom * (-cI * (V3[3] * TMP12) + cI * (V2[3] * TMP11)); 
+  V1[4] = denom * (-cI * (V3[4] * TMP12) + cI * (V2[4] * TMP11)); 
+  V1[5] = denom * (-cI * (V3[5] * TMP12) + cI * (V2[5] * TMP11)); 
 }
 
 

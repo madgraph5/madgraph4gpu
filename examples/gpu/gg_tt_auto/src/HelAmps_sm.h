@@ -31,6 +31,10 @@ thrust::complex<double> fi[18]);
 __device__ void vxxxxx(double p[4], double vmass, int nhel, int nsv, 
 thrust::complex<double> v[6]); 
 
+__device__ void VVV1P0_1(thrust::complex<double> V2[], const
+    thrust::complex<double> V3[], const thrust::complex<double> COUP, const
+    double M1, const double W1, thrust::complex<double> V1[]);
+
 __device__ void FFV1_0(thrust::complex<double> F1[], const
     thrust::complex<double> F2[], const thrust::complex<double> V3[], const
     thrust::complex<double> COUP, thrust::complex<double> * vertex);
@@ -42,10 +46,6 @@ __device__ void FFV1_1(thrust::complex<double> F2[], const
 __device__ void FFV1_2(thrust::complex<double> F1[], const
     thrust::complex<double> V3[], const thrust::complex<double> COUP, const
     double M2, const double W2, thrust::complex<double> F2[]);
-
-__device__ void VVV1P0_1(thrust::complex<double> V2[], const
-    thrust::complex<double> V3[], const thrust::complex<double> COUP, const
-    double M1, const double W1, thrust::complex<double> V1[]);
 
 }  // end namespace MG5_sm
 
