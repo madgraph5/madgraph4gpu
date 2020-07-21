@@ -42,12 +42,12 @@ __device__ void calculate_wavefunctions(int ihel, char * dps, size_t dpt,
       w[4]);
   // Amplitude(s) for diagram number 1
   FFV1_0(w[2], w[3], w[4], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[0]);
+      &amp[0]); //printf(" &amp[0] %f %f\n", amp[0].real(), amp[0].imag());
   FFV2_4_3(w[1], w[0], thrust::complex<double> (cIPC[2], cIPC[3]),
       thrust::complex<double> (cIPC[4], cIPC[5]), cIPD[0], cIPD[1], w[4]);
   // Amplitude(s) for diagram number 2
   FFV2_4_0(w[2], w[3], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
-      thrust::complex<double> (cIPC[4], cIPC[5]), &amp[1]);
+      thrust::complex<double> (cIPC[4], cIPC[5]), &amp[1]); //printf(" &amp[1] %f %f\n", amp[1].real(), amp[1].imag());
   // double CPPProcess::matrix_1_epem_mupmum() {
   int i, j; 
   // Local variables
