@@ -20,7 +20,7 @@ void sigmaKin(const double[4][4], bool debug, bool verbose);
 void matrix_1_epem_mupmum(double &matrix,
                                      std::complex<double> amp[2]);
 
-void calculate_wavefunctions(int ihel, std::complex<double> amp[2],
+void calculate_wavefunctions(const double lp[4][4], const int perm[4], int ihel, std::complex<double> amp[2],
                                         bool debug = false,
                                         bool verbose = false);
 
