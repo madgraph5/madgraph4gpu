@@ -91,24 +91,24 @@ int main(int argc, char **argv) {
   int dim = gpublocks * gputhreads;
 
   // Local Memory
-  double lp[dim][4][4];
+  double lp[dim][5][4];
 
   // GPU memory
   // from http://www.orangeowlsolutions.com/archives/817
-  cudaExtent extent = make_cudaExtent(4 * sizeof(double), 4, dim);
+  cudaExtent extent = make_cudaExtent(5 * sizeof(double), 4, dim);
   cudaPitchedPtr devPitchedPtr;
   gpuErrchk3(cudaMalloc3D(&devPitchedPtr, extent));
 
   cudaMemcpy3DParms tdp = {0};
   tdp.srcPtr.ptr = lp;
-  tdp.srcPtr.pitch = 4 * sizeof(double);
+  tdp.srcPtr.pitch = 5 * sizeof(double);
   tdp.srcPtr.xsize = 4;
   tdp.srcPtr.ysize = 4;
   tdp.dstPtr.ptr = devPitchedPtr.ptr;
   tdp.dstPtr.pitch = devPitchedPtr.pitch;
   tdp.dstPtr.xsize = 4;
   tdp.dstPtr.ysize = 4;
-  tdp.extent.width = 4 * sizeof(double);
+  tdp.extent.width = 5 * sizeof(double);
   tdp.extent.height = 4;
   tdp.extent.depth = dim;
   tdp.kind = cudaMemcpyHostToDevice;
@@ -128,7 +128,7 @@ int main(int argc, char **argv) {
 
     // Set momenta for this event
     for (int d = 0; d < dim; ++d) {
-      for (int i = 0; i < 4; ++i) {
+      for (int i = 0; i < 5; ++i) {
         for (int j = 0; j < 4; ++j) {
           lp[d][i][j] = p[d][i][j];
         }

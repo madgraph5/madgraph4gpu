@@ -43,9 +43,9 @@ void Parameters_sm::setIndependentParameters(SLHAReader& slha)
   mdl_MTA = slha.get_block_entry("mass", 15, 1.777000e+00); 
   mdl_MT = slha.get_block_entry("mass", 6, 1.730000e+02); 
   mdl_MB = slha.get_block_entry("mass", 5, 4.700000e+00); 
-  mdl_conjg__CKM1x1 = 1.; 
-  mdl_CKM3x3 = 1.; 
   mdl_conjg__CKM3x3 = 1.; 
+  mdl_CKM3x3 = 1.; 
+  mdl_conjg__CKM1x1 = 1.; 
   mdl_complexi = std::complex<double> (0., 1.); 
   mdl_MZ__exp__2 = ((mdl_MZ) * (mdl_MZ)); 
   mdl_MZ__exp__4 = ((mdl_MZ) * (mdl_MZ) * (mdl_MZ) * (mdl_MZ)); 
@@ -80,9 +80,7 @@ void Parameters_sm::setIndependentParameters(SLHAReader& slha)
 }
 void Parameters_sm::setIndependentCouplings()
 {
-  GC_3 = -(mdl_ee * mdl_complexi); 
-  GC_50 = -(mdl_cw * mdl_ee * mdl_complexi)/(2. * mdl_sw); 
-  GC_59 = (mdl_ee * mdl_complexi * mdl_sw)/(2. * mdl_cw); 
+
 }
 void Parameters_sm::setDependentParameters()
 {
@@ -92,7 +90,9 @@ void Parameters_sm::setDependentParameters()
 }
 void Parameters_sm::setDependentCouplings()
 {
-
+  GC_10 = -G; 
+  GC_11 = mdl_complexi * G; 
+  GC_12 = mdl_complexi * mdl_G__exp__2; 
 }
 
 // Routines for printing out parameters
@@ -129,12 +129,12 @@ void Parameters_sm::printIndependentParameters()
       setw(10) << mdl_MT << endl;
   cout << setw(20) <<  "mdl_MB " <<  "= " << setiosflags(ios::scientific) <<
       setw(10) << mdl_MB << endl;
-  cout << setw(20) <<  "mdl_conjg__CKM1x1 " <<  "= " <<
-      setiosflags(ios::scientific) << setw(10) << mdl_conjg__CKM1x1 << endl;
-  cout << setw(20) <<  "mdl_CKM3x3 " <<  "= " << setiosflags(ios::scientific)
-      << setw(10) << mdl_CKM3x3 << endl;
   cout << setw(20) <<  "mdl_conjg__CKM3x3 " <<  "= " <<
       setiosflags(ios::scientific) << setw(10) << mdl_conjg__CKM3x3 << endl;
+  cout << setw(20) <<  "mdl_CKM3x3 " <<  "= " << setiosflags(ios::scientific)
+      << setw(10) << mdl_CKM3x3 << endl;
+  cout << setw(20) <<  "mdl_conjg__CKM1x1 " <<  "= " <<
+      setiosflags(ios::scientific) << setw(10) << mdl_conjg__CKM1x1 << endl;
   cout << setw(20) <<  "mdl_complexi " <<  "= " << setiosflags(ios::scientific)
       << setw(10) << mdl_complexi << endl;
   cout << setw(20) <<  "mdl_MZ__exp__2 " <<  "= " <<
@@ -199,12 +199,7 @@ void Parameters_sm::printIndependentParameters()
 void Parameters_sm::printIndependentCouplings()
 {
   cout <<  "sm model couplings independent of event kinematics:" << endl; 
-  cout << setw(20) <<  "GC_3 " <<  "= " << setiosflags(ios::scientific) <<
-      setw(10) << GC_3 << endl;
-  cout << setw(20) <<  "GC_50 " <<  "= " << setiosflags(ios::scientific) <<
-      setw(10) << GC_50 << endl;
-  cout << setw(20) <<  "GC_59 " <<  "= " << setiosflags(ios::scientific) <<
-      setw(10) << GC_59 << endl;
+
 }
 void Parameters_sm::printDependentParameters()
 {
@@ -219,7 +214,12 @@ void Parameters_sm::printDependentParameters()
 void Parameters_sm::printDependentCouplings()
 {
   cout <<  "sm model couplings dependent on event kinematics:" << endl; 
-
+  cout << setw(20) <<  "GC_10 " <<  "= " << setiosflags(ios::scientific) <<
+      setw(10) << GC_10 << endl;
+  cout << setw(20) <<  "GC_11 " <<  "= " << setiosflags(ios::scientific) <<
+      setw(10) << GC_11 << endl;
+  cout << setw(20) <<  "GC_12 " <<  "= " << setiosflags(ios::scientific) <<
+      setw(10) << GC_12 << endl;
 }
 
 
