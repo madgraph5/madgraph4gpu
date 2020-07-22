@@ -5,22 +5,12 @@
 #include <numeric> // perf stats
 #include <unistd.h>
 #include <vector>
-
+#include <CL/sycl.hpp>
 #include "CPPProcess.h"
 #include "HelAmps_sm.h"
 
 #include "rambo.h"
 #include "timer.h"
-
-#define gpuErrchk3(ans)                                                        \
-  { gpuAssert3((ans), __FILE__, __LINE__); }
-
-inline void gpuAssert3(cudaError_t code, const char *file, int line,
-                       bool abort = true) {
-  if (code != cudaSuccess) {
-    printf("GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
-  }
-}
 
 #define TIMERTYPE std::chrono::high_resolution_clock
 
@@ -34,13 +24,13 @@ bool is_number(const char *s) {
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0 
             << " [--verbose|-v] [--debug|-d] [--performance|-p]"
-            << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl;
+            << " [#work items] #iterations" << std::endl;
   return ret;
 }
 
 int main(int argc, char **argv) {
   bool verbose = false, debug = false, perf = false;
-  int numiter = 0, gpublocks = 1, gputhreads = 1;
+  int numiter = 0, work_groups = 0, work_items = 1;
   std::vector<int> numvec;
   Timer<TIMERTYPE> timer;
   std::vector<float> wavetimes;
@@ -63,10 +53,9 @@ int main(int argc, char **argv) {
       return usage(argv[0]);
   }
   int veclen = numvec.size();
-  if (veclen == 3) {
-    gpublocks = numvec[0];
-    gputhreads = numvec[1];
-    numiter = numvec[2];
+  if (veclen == 2) {
+    work_items = numvec[0];
+    numiter = numvec[1];
   } else if (veclen == 1) {
     numiter = numvec[0];
   } else {
@@ -80,7 +69,7 @@ int main(int argc, char **argv) {
     std::cout << "# iterations: " << numiter << std::endl;
 
   // Create a process object
-  CPPProcess process(numiter, gpublocks, gputhreads, verbose, debug);
+  CPPProcess process(numiter, work_groups, work_items, verbose, debug);
 
   // Read param_card and set parameters
   process.initProc("../../Cards/param_card.dat");
@@ -90,36 +79,10 @@ int main(int argc, char **argv) {
 
   int meGeVexponent = -(2 * process.nexternal - 8);
 
-  int dim = gpublocks * gputhreads;
+  int dim = work_items;
 
   // Local Memory
-  double lp[dim][4][4];
-
-  // GPU memory
-  // from http://www.orangeowlsolutions.com/archives/817
-  cudaExtent extent = make_cudaExtent(4 * sizeof(double), 4, dim);
-  cudaPitchedPtr devPitchedPtr;
-  gpuErrchk3(cudaMalloc3D(&devPitchedPtr, extent));
-
-  cudaMemcpy3DParms tdp = {0};
-  tdp.srcPtr.ptr = lp;
-  tdp.srcPtr.pitch = 4 * sizeof(double);
-  tdp.srcPtr.xsize = 4;
-  tdp.srcPtr.ysize = 4;
-  tdp.dstPtr.ptr = devPitchedPtr.ptr;
-  tdp.dstPtr.pitch = devPitchedPtr.pitch;
-  tdp.dstPtr.xsize = 4;
-  tdp.dstPtr.ysize = 4;
-  tdp.extent.width = 4 * sizeof(double);
-  tdp.extent.height = 4;
-  tdp.extent.depth = dim;
-  tdp.kind = cudaMemcpyHostToDevice;
-
-  double meHostPtr[dim][1]; // dim = rows, 1 = cols
-  double *meDevPtr;
-  size_t mePitch;
-  gpuErrchk3(
-      cudaMallocPitch(&meDevPtr, &mePitch, /* 1 * */ sizeof(double), dim));
+  double lp[1][4][4];
 
   std::vector<double> matrixelementvector;
 
@@ -138,32 +101,38 @@ int main(int argc, char **argv) {
     std::vector<std::vector<double *>> p =
         get_momenta(process.ninitial, energy, process.getMasses(), weight, dim);
 
-    // Set momenta for this event
-    for (int d = 0; d < dim; ++d) {
-      for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 4; ++j) {
-          lp[d][i][j] = p[d][i][j];
-        }
-      }
-    }
-
-    gpuErrchk3(cudaMemcpy3D(&tdp));
-
-    process.preSigmaKin();
-
     if (perf) {
       timer.Start();
     }
 
-    // Evaluate matrix element
-    // later process.sigmaKin(ncomb, goodhel, ntry, sum_hel, ngood, igood,
-    // jhel);
-    gMG5_sm::sigmaKin<<<gpublocks, gputhreads>>>(devPitchedPtr, meDevPtr,
-                                                 mePitch, debug, verbose);
+    cl::sycl::range<1> range{(unsigned long)dim};
+   // cl::sycl::buffer<double> buff_lp; //(p.data(), p.size());
+    cl::sycl::queue q; 
+ 
+    q.submit([&](cl::sycl::handler& cgh){
 
-    gpuErrchk3(cudaMemcpy2D(meHostPtr, sizeof(double), meDevPtr, mePitch,
-                            sizeof(double), dim, cudaMemcpyDeviceToHost));
+   //   auto access_lp = buff_lp.get_access<cl::sycl::access::mode::write>(cgh);
+ 
+      // Put here so that it captures the instance  
+      // Set momenta for this event
+/*      for (int d = 0; d < dim; ++d) {
+        for (int i = 0; i < 4; ++i) {
+          for (int j = 0; j < 4; ++j) {
+            lp[d][i][j] = p[d][i][j];
+          }
+        }
+      }*/
 
+    process.preSigmaKin();
+    cgh.parallel_for<class my_kernel>(range,
+                                         [=] (cl::sycl::id<1> idx) {
+       gMG5_sm::sigmaKin(lp[idx[0]], debug, verbose);
+      
+    
+      }); // End parallel_for
+    }); // End submit
+    q.wait();
+    
     if (verbose)
       std::cout << "***********************************" << std::endl
                 << "Iteration #" << x+1 << " of " << numiter << std::endl;
@@ -191,15 +160,14 @@ int main(int argc, char **argv) {
                       << std::setw(14) << p[d][i][3] << std::endl;
           std::cout << std::string(80, '-') << std::endl;
         }
-
         // Display matrix elements
         for (int i = 0; i < process.nprocesses; i++) {
-          if (verbose)
+          /*if (verbose)
             std::cout << " Matrix element = "
                       //	 << setiosflags(ios::fixed) << setprecision(17)
                       << meHostPtr[d][i] << " GeV^" << meGeVexponent << std::endl;
           if (perf)
-            matrixelementvector.push_back(meHostPtr[d][i]);
+            matrixelementvector.push_back(meHostPtr[d][i]);*/
         }
 
         if (verbose)
@@ -247,8 +215,8 @@ int main(int argc, char **argv) {
 
     std::cout << "***********************************" << std::endl
               << "NumIterations         = " << numiter << std::endl
-              << "NumThreadsPerBlock    = " << gputhreads << std::endl
-              << "NumBlocksPerGrid      = " << gpublocks << std::endl
+              << "NumThreadsPerBlock    = " << work_items << std::endl
+              << "NumBlocksPerGrid      = " << work_groups << std::endl
               << "-----------------------------------" << std::endl
               << "NumberOfEntries       = " << num_wts << std::endl
               << std::scientific

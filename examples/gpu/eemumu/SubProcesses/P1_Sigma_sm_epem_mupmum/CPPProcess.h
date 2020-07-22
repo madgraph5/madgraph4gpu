@@ -13,7 +13,7 @@
 
 #include "Parameters_sm.h"
 
-#include <thrust/complex.h>
+#include <complex>
 
 //==========================================================================
 // A class for calculating the matrix elements for
@@ -24,7 +24,7 @@ class CPPProcess {
 public:
   // Constructor.
 
-  CPPProcess(int numiterations, int gpublocks, int gputhreads,
+  CPPProcess(int numiterations, int groups, int items,
              bool verbose = false, bool debug = false);
 
   ~CPPProcess();
@@ -59,9 +59,9 @@ public:
 private:
   int m_numiterations;
   // gpu variables
-  int gpu_nblocks;
-  int gpu_nthreads;
-  int dim; // gpu_nblocks * gpu_nthreads;
+  int work_groups;
+  int work_items;
+  int dim; // work_groups * work_items;
 
   // print verbose info
   bool m_verbose;
@@ -79,7 +79,7 @@ private:
 
   static const int nioparticles = 4;
 
-  thrust::complex<double> **amp; // [dim][namplitudes];
+  std::complex<double> **amp; // [dim][namplitudes];
 
   // Pointer to the model parameters
   Parameters_sm *pars;

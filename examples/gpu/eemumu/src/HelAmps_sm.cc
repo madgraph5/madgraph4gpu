@@ -2,35 +2,15 @@
 #define gHelAmps_sm
 
 #include "HelAmps_sm.h"
-#include <cmath>
+#include <math.h>
 #include <complex>
 #include <cstdlib>
 #include <iostream>
 
-#include <cuda_runtime.h>
-#include <thrust/complex.h>
-
-#define gpuErrchk2(ans)                                                        \
-  { gpuAssert2((ans), __FILE__, __LINE__); }
-
-__device__ void gpuAssert2(cudaError_t code, const char *file, int line,
-                           bool abort = true) {
-  if (code != cudaSuccess) {
-    printf("GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
-  }
-}
-
-extern __constant__ int cHel[16][4];
-extern __constant__ double cMME[4];
-extern __constant__ int cPerm[4];
-extern __constant__ thrust::complex<double> cIPC[3];
-extern __constant__ double cIPD[2];
-// extern __shared__ thrust::complex<double> sw[6][6];
-
 namespace gMG5_sm {
 
 #ifdef DEBUG
-__device__ void debugMsg(const char *msg) {
+void debugMsg(const char *msg) {
   printf("%i.%i-%s ", blockIdx.x, threadIdx.x, msg);
 }
 #endif
@@ -41,23 +21,15 @@ void CPPProcess::sigmaKin(int ncomb, bool (&goodhel)[16], int &ntry,
                           int &sum_hel, int &ngood, int (&igood)[16],
                           int &jhel) {
                     */
-__global__ void sigmaKin(cudaPitchedPtr tp, double *meDevPtr, size_t mePitch,
-                         bool debug, bool verbose) {
+void sigmaKin(const double lp[4][4], bool debug, bool verbose) {
 
   // for (int xx = 0; xx < 384; ++xx) {
 
   int nprocesses = 1;
 
-  int dim = blockIdx.x * blockDim.x + threadIdx.x;
 
-  char *devPtr = (char *)tp.ptr;
-  size_t dpt = tp.pitch;
-  size_t slicePitch = dpt * 4;
-
-  char *dps = devPtr + dim * slicePitch;
-  double *matrix_element = (double *)((char *)meDevPtr + dim * mePitch);
-
-  thrust::complex<double> amp[2];
+  double* matrix_element;
+  std::complex<double> amp[2];
   double t[1];
 
   // <later>
@@ -74,9 +46,9 @@ __global__ void sigmaKin(cudaPitchedPtr tp, double *meDevPtr, size_t mePitch,
   ntry = ntry + 1;
 
   // Reset the matrix elements
-  for (int i = 0; i < nprocesses; ++i) { // nprocesses
+/*  for (int i = 0; i < nprocesses; ++i) { // nprocesses
     matrix_element[i] = 0.;
-  }
+  }*/
 
   // sr fixme // better to run the first n calculations serial?
   // if (sum_hel == 0 || ntry < 10) {
@@ -85,7 +57,7 @@ __global__ void sigmaKin(cudaPitchedPtr tp, double *meDevPtr, size_t mePitch,
   for (int ihel = 0; ihel < ncomb; ihel++) {
     if (goodhel[ihel] || ntry < 2) {
 
-      calculate_wavefunctions(ihel, dps, dpt, amp, debug, verbose);
+      calculate_wavefunctions(ihel, amp, debug, verbose);
       matrix_1_epem_mupmum(t[0], amp);
 
       double tsum = 0;
@@ -112,14 +84,14 @@ __global__ void sigmaKin(cudaPitchedPtr tp, double *meDevPtr, size_t mePitch,
 }
 
 // --> calculate multi-dimensional amp
-__device__ void matrix_1_epem_mupmum(double &matrix,
-                                     thrust::complex<double> amp[2]) {
+void matrix_1_epem_mupmum(double &matrix,
+                                     std::complex<double> amp[2]) {
   int i, j;
   // Local variables
   // const int ngraphs = 2;
   const int ncolor = 1;
-  thrust::complex<double> ztemp;
-  thrust::complex<double> jamp[ncolor];
+  std::complex<double> ztemp;
+  std::complex<double> jamp[ncolor];
   // The color matrix;
   static const double denom[ncolor] = {1};
   static const double cf[ncolor][ncolor] = {{1}};
@@ -145,8 +117,7 @@ __device__ void matrix_1_epem_mupmum(double &matrix,
   */
 }
 
-__device__ void calculate_wavefunctions(int ihel, char *dps, size_t dpt,
-                                        thrust::complex<double> amp[2],
+void calculate_wavefunctions(int ihel, std::complex<double> amp[2],
                                         bool debug, bool verbose) {
 #ifdef DEBUG
   debugMsg("%>");
@@ -157,10 +128,10 @@ __device__ void calculate_wavefunctions(int ihel, char *dps, size_t dpt,
 #endif
 
   double ZERO = 0.00;
-  thrust::complex<double> sw[6][6];
+  std::complex<double> sw[6][6];
 
   // Calculate all wavefunctions
-  oxxxxx((double *)(dps + cPerm[0] * dpt), cMME[0], cHel[ihel][0], -1, sw[0]);
+/*  oxxxxx((double *)(dps + cPerm[0] * dpt), cMME[0], cHel[ihel][0], -1, sw[0]);
   ixxxxx((double *)(dps + cPerm[1] * dpt), cMME[1], cHel[ihel][1], +1, sw[1]);
   ixxxxx((double *)(dps + cPerm[2] * dpt), cMME[2], cHel[ihel][2], -1, sw[2]);
   oxxxxx((double *)(dps + cPerm[3] * dpt), cMME[3], cHel[ihel][3], +1, sw[3]);
@@ -170,7 +141,7 @@ __device__ void calculate_wavefunctions(int ihel, char *dps, size_t dpt,
   // Amplitude(s) for diagram number 0
   // FFV1_0(sw[2], sw[3], sw[4], cIPC[0], &amp[0]);
   FFV2_4_0(sw[2], sw[3], sw[4], sw[5], cIPC[0], -cIPC[1], cIPC[2], amp);
-
+*/
 #ifdef DEBUG
   if (debug) {
     printf("\n\n >>> DEBUG >>> DEBUG >>> DEBUG >>>\n");
@@ -209,38 +180,38 @@ __device__ void calculate_wavefunctions(int ihel, char *dps, size_t dpt,
 #endif
 }
 
-__device__ void ixxxxx(double p[4], double fmass, int nhel, int nsf,
-                       thrust::complex<double> fi[6]) {
+void ixxxxx(double p[4], double fmass, int nhel, int nsf,
+                       std::complex<double> fi[6]) {
 #ifdef DEBUG
   debugMsg("b>");
 #endif
-  thrust::complex<double> chi[2];
+  std::complex<double> chi[2];
   double sqp0p3;
   int nh;
-  fi[0] = thrust::complex<double>(-p[0] * nsf, -p[3] * nsf);
-  fi[1] = thrust::complex<double>(-p[1] * nsf, -p[2] * nsf);
+  fi[0] = std::complex<double>(-p[0] * nsf, -p[3] * nsf);
+  fi[1] = std::complex<double>(-p[1] * nsf, -p[2] * nsf);
   nh = nhel * nsf;
   if (p[1] == 0.0 and p[2] == 0.0 and p[3] < 0.0) {
     sqp0p3 = 0.0;
   } else {
-    sqp0p3 = sqrt(max(p[0] + p[3], 0.0)) * nsf;
+    sqp0p3 = sqrt(std::max(p[0] + p[3], 0.0)) * nsf;
   }
-  chi[0] = thrust::complex<double>(sqp0p3, 0.0);
+  chi[0] = std::complex<double>(sqp0p3, 0.0);
   if (sqp0p3 == 0.0) {
-    chi[1] = thrust::complex<double>(-nhel * sqrt(2.0 * p[0]), 0.0);
+    chi[1] = std::complex<double>(-nhel * sqrt(2.0 * p[0]), 0.0);
   } else {
-    chi[1] = thrust::complex<double>(nh * p[1], p[2]) / sqp0p3;
+    chi[1] = std::complex<double>(nh * p[1], p[2]) / sqp0p3;
   }
   if (nh == 1) {
-    fi[2] = thrust::complex<double>(0.0, 0.0);
-    fi[3] = thrust::complex<double>(0.0, 0.0);
+    fi[2] = std::complex<double>(0.0, 0.0);
+    fi[3] = std::complex<double>(0.0, 0.0);
     fi[4] = chi[0];
     fi[5] = chi[1];
   } else {
     fi[2] = chi[1];
     fi[3] = chi[0];
-    fi[4] = thrust::complex<double>(0.0, 0.0);
-    fi[5] = thrust::complex<double>(0.0, 0.0);
+    fi[4] = std::complex<double>(0.0, 0.0);
+    fi[5] = std::complex<double>(0.0, 0.0);
   }
 #ifdef DEBUG
   debugMsg("<b");
@@ -248,36 +219,36 @@ __device__ void ixxxxx(double p[4], double fmass, int nhel, int nsf,
   return;
 }
 
-__device__ void oxxxxx(double p[4], double fmass, int nhel, int nsf,
-                       thrust::complex<double> fo[6]) {
+void oxxxxx(double p[4], double fmass, int nhel, int nsf,
+                       std::complex<double> fo[6]) {
 #ifdef DEBUG
   debugMsg("a>");
 #endif
-  thrust::complex<double> chi[2];
+  std::complex<double> chi[2];
   double sqp0p3;
   int nh;
-  fo[0] = thrust::complex<double>(p[0] * nsf, p[3] * nsf);
-  fo[1] = thrust::complex<double>(p[1] * nsf, p[2] * nsf);
+  fo[0] = std::complex<double>(p[0] * nsf, p[3] * nsf);
+  fo[1] = std::complex<double>(p[1] * nsf, p[2] * nsf);
   nh = nhel * nsf;
   if ((p[1] == 0.00) and (p[2] == 0.00) and (p[3] < 0.00)) {
     sqp0p3 = 0.00;
   } else {
-    sqp0p3 = sqrt(max(p[0] + p[3], 0.00)) * nsf;
+    sqp0p3 = sqrt(std::max(p[0] + p[3], 0.00)) * nsf;
   }
-  chi[0] = thrust::complex<double>(sqp0p3, 0.00);
+  chi[0] = std::complex<double>(sqp0p3, 0.00);
   if (sqp0p3 == 0.000) {
-    chi[1] = thrust::complex<double>(-nhel, 0.00) * sqrt(2.0 * p[0]);
+    chi[1] = std::complex<double>(-nhel, 0.00) * sqrt(2.0 * p[0]);
   } else {
-    chi[1] = thrust::complex<double>(nh * p[1], -p[2]) / sqp0p3;
+    chi[1] = std::complex<double>(nh * p[1], -p[2]) / sqp0p3;
   }
   if (nh == 1) {
     fo[2] = chi[0];
     fo[3] = chi[1];
-    fo[4] = thrust::complex<double>(0.00, 0.00);
-    fo[5] = thrust::complex<double>(0.00, 0.00);
+    fo[4] = std::complex<double>(0.00, 0.00);
+    fo[5] = std::complex<double>(0.00, 0.00);
   } else {
-    fo[2] = thrust::complex<double>(0.00, 0.00);
-    fo[3] = thrust::complex<double>(0.00, 0.00);
+    fo[2] = std::complex<double>(0.00, 0.00);
+    fo[3] = std::complex<double>(0.00, 0.00);
     fo[4] = chi[1];
     fo[5] = chi[0];
   }
@@ -287,20 +258,20 @@ __device__ void oxxxxx(double p[4], double fmass, int nhel, int nsf,
   return;
 }
 
-__device__ void FFV2_4_3(thrust::complex<double> F1[],
-                         thrust::complex<double> F2[],
-                         thrust::complex<double> COUP1,
-                         thrust::complex<double> COUP2, double M3, double W3,
-                         thrust::complex<double> V3[]) {
+void FFV2_4_3(std::complex<double> F1[],
+                         std::complex<double> F2[],
+                         std::complex<double> COUP1,
+                         std::complex<double> COUP2, double M3, double W3,
+                         std::complex<double> V3[]) {
 #ifdef DEBUG
   debugMsg("d>");
 #endif
   int i;
-  thrust::complex<double> Vtmp[6];
-  *Vtmp = thrust::complex<double>(0, 0);
-  thrust::complex<double> cI = thrust::complex<double>(0., 1.);
-  thrust::complex<double> denom;
-  thrust::complex<double> TMP1, TMP4;
+  std::complex<double> Vtmp[6];
+  *Vtmp = std::complex<double>(0, 0);
+  std::complex<double> cI = std::complex<double>(0., 1.);
+  std::complex<double> denom;
+  std::complex<double> TMP1, TMP4;
   double P3[4];
   double OM3;
   OM3 = 0.;
@@ -356,16 +327,16 @@ __device__ void FFV2_4_3(thrust::complex<double> F1[],
 #endif
 }
 
-__device__ void FFV1P0_3(thrust::complex<double> F1[],
-                         thrust::complex<double> F2[],
-                         thrust::complex<double> COUP, double M3, double W3,
-                         thrust::complex<double> V3[]) {
+void FFV1P0_3(std::complex<double> F1[],
+                         std::complex<double> F2[],
+                         std::complex<double> COUP, double M3, double W3,
+                         std::complex<double> V3[]) {
 #ifdef DEBUG
   debugMsg("c>");
 #endif
-  thrust::complex<double> cI = thrust::complex<double>(0., 1.);
+  std::complex<double> cI = std::complex<double>(0., 1.);
   double P3[4];
-  thrust::complex<double> denom;
+  std::complex<double> denom;
   V3[0] = +F1[0] + F2[0];
   V3[1] = +F1[1] + F2[1];
   P3[0] = -V3[0].real();
@@ -388,17 +359,17 @@ __device__ void FFV1P0_3(thrust::complex<double> F1[],
 #endif
 }
 
-__device__ void
-FFV2_4_0(thrust::complex<double> F1[], thrust::complex<double> F2[],
-         thrust::complex<double> V3a[], thrust::complex<double> V3b[],
-         thrust::complex<double> COUP0, thrust::complex<double> COUP1,
-         thrust::complex<double> COUP2, thrust::complex<double> vertex[]) {
+void
+FFV2_4_0(std::complex<double> F1[], std::complex<double> F2[],
+         std::complex<double> V3a[], std::complex<double> V3b[],
+         std::complex<double> COUP0, std::complex<double> COUP1,
+         std::complex<double> COUP2, std::complex<double> vertex[]) {
 #ifdef DEBUG
   debugMsg("h>");
 #endif
 
-  thrust::complex<double> cI = thrust::complex<double>(0., 1.);
-  thrust::complex<double> TMP0, TMP1, TMP2;
+  std::complex<double> cI = std::complex<double>(0., 1.);
+  std::complex<double> TMP0, TMP1, TMP2;
   TMP2 =
       (F1[2] * (F2[4] * (V3a[2] + V3a[5]) + F2[5] * (V3a[3] + cI * (V3a[4]))) +
        (F1[3] * (F2[4] * (V3a[3] - cI * (V3a[4])) + F2[5] * (V3a[2] - V3a[5])) +

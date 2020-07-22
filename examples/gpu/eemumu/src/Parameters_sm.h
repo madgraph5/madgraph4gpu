@@ -9,14 +9,12 @@
 #define Parameters_sm_H
 
 #include <complex>
-#include <thrust/complex.h>
-
 #include "read_slha.h"
 
 struct parsMem {
-  thrust::complex<double> GC_3;
-  thrust::complex<double> GC_51;
-  thrust::complex<double> GC_59;
+  std::complex<double> GC_3;
+  std::complex<double> GC_51;
+  std::complex<double> GC_59;
   double mdl_MZ;
   double mdl_WZ;
 };
