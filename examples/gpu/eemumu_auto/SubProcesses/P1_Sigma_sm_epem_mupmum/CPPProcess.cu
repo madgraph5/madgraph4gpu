@@ -132,7 +132,8 @@ void CPPProcess::initProc(string param_card_name)
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, part independent of incoming flavour.
 
-__global__ void sigmaKin(double * allmomenta) 
+__global__ void sigmaKin(double * allmomenta, double * meDevPtr, size_t
+    mePitch)
 {
   // Set the parameters which change event by event
   // Need to discuss this with Stefan
@@ -145,12 +146,12 @@ __global__ void sigmaKin(double * allmomenta)
   int nprocesses = 1; 
   int tid = blockIdx.x * blockDim.x + threadIdx.x; 
 
-  char * devPtr = (char * )tp.ptr; 
-  size_t dpt = tp.pitch; 
-  size_t slicePitch = dpt * 4; 
+  // char *devPtr = (char *)tp.ptr;
+  // size_t dpt = tp.pitch;
+  // size_t slicePitch = dpt * 4;
 
   char * dps = devPtr + dim * slicePitch; 
-  double * matrix_element = (double * )((char * )meDevPtr + dim * mePitch); 
+  double * matrix_element = (double * )((char * )meDevPtr + tid * mePitch); 
 
   thrust::complex<double> amp[2]; 
 
