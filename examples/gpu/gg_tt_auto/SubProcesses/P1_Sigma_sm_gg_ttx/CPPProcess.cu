@@ -147,7 +147,7 @@ __global__ void sigmaKin(double * allmomenta, double * output)
   // Reset color flows
 
   // for (int xx = 0; xx < 384; ++xx) {
-  int nprocesses = 1; 
+  const int nprocesses = 1; 
   int tid = blockIdx.x * blockDim.x + threadIdx.x; 
 
   // char *devPtr = (char *)tp.ptr;
