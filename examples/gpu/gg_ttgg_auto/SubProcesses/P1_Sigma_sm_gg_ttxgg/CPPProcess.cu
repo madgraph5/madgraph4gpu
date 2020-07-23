@@ -1090,14 +1090,14 @@ __global__ void sigmaKin(double * allmomenta, double * meDevPtr, size_t
 
   thrust::complex<double> amp[159]; 
 
-  double local_m[5][4]; 
+  double local_m[6][4]; 
   int DIM = blockDim.x * gridDim.x; 
   // for (int i=0; i<20;i++){
   // printf(" %f ", allmomenta[i]);
   // }
   // printf("\n");
   // printf("DIM is %i/%i\n", tid, DIM);
-  for (int i = 0; i < 5; i++ )
+  for (int i = 0; i < 6; i++ )
   {
     for (int j = 0; j < 4; j++ )
     {
