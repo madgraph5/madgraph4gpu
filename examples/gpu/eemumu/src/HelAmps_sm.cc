@@ -21,13 +21,13 @@ void CPPProcess::sigmaKin(int ncomb, bool (&goodhel)[16], int &ntry,
                           int &sum_hel, int &ngood, int (&igood)[16],
                           int &jhel) {
                     */
-void sigmaKin(const double lp[4][4], bool debug, bool verbose) {
+void sigmaKin(const double lp[4][4], const std::complex<double> IPC[3], const double IPD[2], bool debug, bool verbose) {
 
   // for (int xx = 0; xx < 384; ++xx) {
 
   int nprocesses = 1;
-
-  double matrix_element[nprocesses];  
+  static const int nexternal = 4; // From original CPPProces.h
+  double* matrix_element = new double[nprocesses];
   std::complex<double> amp[2];
   double t[1];
 
@@ -38,6 +38,12 @@ void sigmaKin(const double lp[4][4], bool debug, bool verbose) {
   static int ntry = 0, ngood = 0;
   // static int igood[ncomb];
   // </later>
+  // Helicities for the process - nodim
+  static int helicities[ncomb][nexternal] = {
+      {-1, -1, -1, -1}, {-1, -1, -1, 1}, {-1, -1, 1, -1}, {-1, -1, 1, 1},
+      {-1, 1, -1, -1},  {-1, 1, -1, 1},  {-1, 1, 1, -1},  {-1, 1, 1, 1},
+      {1, -1, -1, -1},  {1, -1, -1, 1},  {1, -1, 1, -1},  {1, -1, 1, 1},
+      {1, 1, -1, -1},   {1, 1, -1, 1},   {1, 1, 1, -1},   {1, 1, 1, 1}};
 
   // Denominators: spins, colors and identical particles
   const int denominators[1] = {4}; // nprocesses
@@ -49,7 +55,6 @@ void sigmaKin(const double lp[4][4], bool debug, bool verbose) {
     matrix_element[i] = 0.;
   }
   // Define permutation
-  static const int nexternal = 4; // From original CPPProces.h
   int perm[nexternal];
   for (int i = 0; i < nexternal; i++) {
     perm[i] = i;
@@ -62,7 +67,7 @@ void sigmaKin(const double lp[4][4], bool debug, bool verbose) {
   for (int ihel = 0; ihel < ncomb; ihel++) {
     if (goodhel[ihel] || ntry < 2) {
 
-      calculate_wavefunctions(lp, perm, ihel, amp, debug, verbose);
+      calculate_wavefunctions(lp, IPC, IPD, perm, helicities, ihel, amp, debug, verbose);
       matrix_1_epem_mupmum(t[0], amp);
 
       double tsum = 0;
@@ -122,7 +127,7 @@ void matrix_1_epem_mupmum(double &matrix,
   */
 }
 
-void calculate_wavefunctions(const double lp[4][4], const int perm[4], int ihel, std::complex<double> amp[2],
+void calculate_wavefunctions(const double lp[4][4], const std::complex<double> IPC[3], const double IPD[2], const int perm[4], int helicities[16][4], int ihel, std::complex<double> amp[2],
                                         bool debug, bool verbose) {
 #ifdef DEBUG
   debugMsg("%>");
@@ -133,22 +138,20 @@ void calculate_wavefunctions(const double lp[4][4], const int perm[4], int ihel,
 #endif
 
   double ZERO = 0.00;
-  std::complex<double> sw[6][6];
-  
-  int mME[4] = {0, 0 , 0, 0};
-   
-  
+  std::complex<double> sw[6][6];  
+  int mME[4] = {0, 0, 0, 0};
+
   // Calculate all wavefunctions
-  oxxxxx(lp[perm[0]], mME[0], cHel[ihel][0], -1, sw[0]);
-  ixxxxx(lp[perm[1]], mME[1], cHel[ihel][1], +1, sw[1]);
-  ixxxxx(lp[perm[2]], mME[2], cHel[ihel][2], -1, sw[2]);
-  oxxxxx(lp[perm[3]], mME[3], cHel[ihel][3], +1, sw[3]);
-  FFV1P0_3(sw[1], sw[0], cIPC[0], ZERO, ZERO, sw[4]);
-  FFV2_4_3(sw[1], sw[0], -cIPC[1], cIPC[2], cIPD[0], cIPD[1], sw[5]);
+  oxxxxx(lp[perm[0]], mME[0], helicities[ihel][0], -1, sw[0]);
+  ixxxxx(lp[perm[1]], mME[1], helicities[ihel][1], +1, sw[1]);
+  ixxxxx(lp[perm[2]], mME[2], helicities[ihel][2], -1, sw[2]);
+  oxxxxx(lp[perm[3]], mME[3], helicities[ihel][3], +1, sw[3]);
+  FFV1P0_3(sw[1], sw[0], IPC[0], ZERO, ZERO, sw[4]);
+  FFV2_4_3(sw[1], sw[0], -IPC[1], IPC[2], IPD[0], IPD[1], sw[5]);
   // Calculate all amplitudes
   // Amplitude(s) for diagram number 0
   // FFV1_0(sw[2], sw[3], sw[4], cIPC[0], &amp[0]);
-  FFV2_4_0(sw[2], sw[3], sw[4], sw[5], cIPC[0], -cIPC[1], cIPC[2], amp);
+  FFV2_4_0(sw[2], sw[3], sw[4], sw[5], IPC[0], -IPC[1], IPC[2], amp);
 
 #ifdef DEBUG
   if (debug) {
@@ -188,7 +191,7 @@ void calculate_wavefunctions(const double lp[4][4], const int perm[4], int ihel,
 #endif
 }
 
-void ixxxxx(double p[4], double fmass, int nhel, int nsf,
+void ixxxxx(const double p[4], const double fmass, const int nhel, const int nsf,
                        std::complex<double> fi[6]) {
 #ifdef DEBUG
   debugMsg("b>");
@@ -227,7 +230,7 @@ void ixxxxx(double p[4], double fmass, int nhel, int nsf,
   return;
 }
 
-void oxxxxx(double p[4], double fmass, int nhel, int nsf,
+void oxxxxx(const double p[4], const double fmass, const int nhel, const int nsf,
                        std::complex<double> fo[6]) {
 #ifdef DEBUG
   debugMsg("a>");

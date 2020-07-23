@@ -15,19 +15,19 @@ namespace gMG5_sm {
 
 //void sigmaKin(cudaPitchedPtr tp, double *meDevPtr, size_t mePitch,
                          //bool debug, bool verbose);
-void sigmaKin(const double[4][4], bool debug, bool verbose);
+void sigmaKin(const double[4][4], const std::complex<double> IPC[3], const double IPD[2], bool debug, bool verbose);
 
 void matrix_1_epem_mupmum(double &matrix,
                                      std::complex<double> amp[2]);
 
-void calculate_wavefunctions(const double lp[4][4], const int perm[4], int ihel, std::complex<double> amp[2],
+void calculate_wavefunctions(const double lp[4][4], const std::complex<double> IPC[3], const double IPD[2], const int perm[4], int helicities[16][4], int ihel, std::complex<double> amp[2],
                                         bool debug = false,
                                         bool verbose = false);
 
-void oxxxxx(double p[4], double fmass, int nhel, int nsf,
+void oxxxxx(const double p[4], const double fmass, const int nhel, int const nsf,
                        std::complex<double> fo[6]);
 
-void ixxxxx(double p[4], double fmass, int nhel, int nsf,
+void ixxxxx(const double p[4], double fmass, int nhel, int nsf,
                        std::complex<double> fi[6]);
 
 void FFV2_4_3(std::complex<double> F1[],

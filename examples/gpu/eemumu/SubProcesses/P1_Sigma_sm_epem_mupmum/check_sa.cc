@@ -5,6 +5,7 @@
 #include <numeric> // perf stats
 #include <unistd.h>
 #include <vector>
+
 #include <CL/sycl.hpp>
 #include "CPPProcess.h"
 #include "HelAmps_sm.h"
@@ -65,6 +66,15 @@ int main(int argc, char **argv) {
   if (numiter == 0)
     return usage(argv[0]);
 
+  cl::sycl::queue q; 
+  cl::sycl::device device = q.get_device();
+  int max_cus = device.get_info<cl::sycl::info::device::max_compute_units>();
+  if (work_items >  max_cus){
+      std::cerr << "Error: Specified work items is greater than available: " << work_items 
+        << " < " << max_cus << "."<< std::endl;
+        return 1;
+  }
+
   if (verbose)
     std::cout << "# iterations: " << numiter << std::endl;
 
@@ -80,9 +90,6 @@ int main(int argc, char **argv) {
   int meGeVexponent = -(2 * process.nexternal - 8);
 
   int dim = work_items;
-
-  // Local Memory
-  double lp[1][4][4];
 
   std::vector<double> matrixelementvector;
 
@@ -106,28 +113,34 @@ int main(int argc, char **argv) {
     }
 
     cl::sycl::range<1> range{(unsigned long)dim};
-   // cl::sycl::buffer<double> buff_lp; //(p.data(), p.size());
-    cl::sycl::queue q; 
+
+    double* matrix_element[dim];
  
     q.submit([&](cl::sycl::handler& cgh){
 
-   //   auto access_lp = buff_lp.get_access<cl::sycl::access::mode::write>(cgh);
- 
-      // Put here so that it captures the instance  
+      // Put here so that it captures the instance
+      double lp[1][4][4];
       // Set momenta for this event
-/*      for (int d = 0; d < dim; ++d) {
+      for (int d = 0; d < 1; ++d) {
         for (int i = 0; i < 4; ++i) {
           for (int j = 0; j < 4; ++j) {
             lp[d][i][j] = p[d][i][j];
           }
         }
-      }*/
+      }
+      std::complex<double> IPC[3];
+      IPC[0] = process.IPC[0];
+      IPC[1] = process.IPC[1];
+      IPC[2] = process.IPC[2];
+      double IPD[2];
+      IPD[0] = process.IPD[0];
+      IPD[1] = process.IPD[1]; 
 
-    process.preSigmaKin();
+      process.preSigmaKin();
     cgh.parallel_for<class my_kernel>(range,
                                          [=] (cl::sycl::id<1> idx) {
-       gMG5_sm::sigmaKin(lp[idx[0]], debug, verbose);
-      
+       gMG5_sm::sigmaKin(lp[0], IPC, IPD, debug, verbose);
+        
     
       }); // End parallel_for
     }); // End submit
@@ -160,21 +173,22 @@ int main(int argc, char **argv) {
                       << std::setw(14) << p[d][i][3] << std::endl;
           std::cout << std::string(80, '-') << std::endl;
         }
+
         // Display matrix elements
         for (int i = 0; i < process.nprocesses; i++) {
-          /*if (verbose)
+          if (verbose)
             std::cout << " Matrix element = "
                       //	 << setiosflags(ios::fixed) << setprecision(17)
-                      << meHostPtr[d][i] << " GeV^" << meGeVexponent << std::endl;
-          if (perf)
-            matrixelementvector.push_back(meHostPtr[d][i]);*/
+                      << matrix_element[d][i] << " GeV^" << meGeVexponent << std::endl;
+          //if (perf)
+          //  matrixelementvector.push_back(meHostPtr[d][i]);
         }
 
         if (verbose)
           std::cout << std::string(80, '-') << std::endl;
       }
     } else if (!debug) {
-      std::cout << ".";
+     // std::cout << ".";
     }
 
     for (std::vector<std::vector<double *>>::iterator it = p.begin();

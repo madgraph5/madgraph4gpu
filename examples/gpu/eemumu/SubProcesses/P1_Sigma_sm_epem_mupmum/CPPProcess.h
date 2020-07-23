@@ -56,6 +56,9 @@ public:
   static const int nexternal = 4;
   static const int nprocesses = 1;
 
+  std::complex<double> IPC[3];
+  double IPD[2];
+
 private:
   int m_numiterations;
   // gpu variables
