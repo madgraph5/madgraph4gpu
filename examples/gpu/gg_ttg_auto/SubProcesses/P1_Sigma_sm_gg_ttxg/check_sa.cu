@@ -119,8 +119,8 @@ int main(int argc, char **argv) {
     //new
     int num_bytes = 4*5*dim * sizeof(double);
     double *allmomenta = 0;
-    cudaMalloc((void**)&device_array, num_bytes);
-    cudaMemcpy(allmomenta,lp_new,num_bytes,cudaMemcpyHostToDevice);
+    cudaMalloc((void**)&allmomenta, num_bytes);
+    cudaMemcpy(allmomenta,lp,num_bytes,cudaMemcpyHostToDevice);
 
     //gpuErrchk3(cudaMemcpy3D(&tdp));
 
