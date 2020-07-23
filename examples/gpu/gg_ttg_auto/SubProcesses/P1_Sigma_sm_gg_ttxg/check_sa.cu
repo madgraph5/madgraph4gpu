@@ -133,7 +133,7 @@ int main(int argc, char **argv) {
     // Evaluate matrix element
     // later process.sigmaKin(ncomb, goodhel, ntry, sum_hel, ngood, igood,
     // jhel);
-    sigmaKin<<<gpublocks, gputhreads>>>(allmomenta,double * meDevPtr, size_t mePitch);//, debug, verbose);
+    sigmaKin<<<gpublocks, gputhreads>>>(allmomenta,  meDevPtr, mePitch);//, debug, verbose);
 
     gpuErrchk3(cudaMemcpy2D(meHostPtr, sizeof(double), meDevPtr, mePitch,
                             sizeof(double), dim, cudaMemcpyDeviceToHost));
