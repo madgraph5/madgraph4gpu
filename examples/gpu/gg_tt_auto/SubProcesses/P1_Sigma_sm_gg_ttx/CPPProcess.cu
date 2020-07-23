@@ -155,7 +155,7 @@ __global__ void sigmaKin(double * allmomenta, double * meDevPtr, size_t
   // size_t dpt = tp.pitch;
   // size_t slicePitch = dpt * 4;
 
-  char * dps = devPtr + dim * slicePitch; 
+  // char *dps = devPtr + dim * slicePitch;
   double * matrix_element = (double * )((char * )meDevPtr + tid * mePitch); 
 
   thrust::complex<double> amp[3]; 
