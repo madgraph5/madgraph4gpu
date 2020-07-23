@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
   //typedef double arr_t[4][4];
   double* lp = new double[4*4*dim];
 
-  double* meHostPtr[dim*1];
+  double* meHostPtr = new double[dim*1];
   double *meDevPtr =0;
   int num_bytes_back = 1 * dim * sizeof(double);
   cudaMalloc((void**)&meDevPtr, num_bytes_back);
@@ -173,9 +173,9 @@ int main(int argc, char **argv) {
           if (verbose)
             std::cout << " Matrix element = "
                       //	 << setiosflags(ios::fixed) << setprecision(17)
-                      << meHostPtr[d][i] << " GeV^" << meGeVexponent << std::endl;
+                      << meHostPtr[i*1 + d] << " GeV^" << meGeVexponent << std::endl;
           if (perf)
-            matrixelementvector.push_back(meHostPtr[d][i]);
+            matrixelementvector.push_back(meHostPtr[i*1 + d]);
         }
 
         if (verbose)

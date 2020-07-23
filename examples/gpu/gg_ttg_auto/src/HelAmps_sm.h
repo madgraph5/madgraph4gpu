@@ -47,11 +47,6 @@ __device__ void FFV1P0_3(thrust::complex<double> F1[], const
     thrust::complex<double> F2[], const thrust::complex<double> COUP, const
     double M3, const double W3, thrust::complex<double> V3[]);
 
-__device__ void VVVV1P0_1(thrust::complex<double> V2[], const
-    thrust::complex<double> V3[], const thrust::complex<double> V4[], const
-    thrust::complex<double> COUP, const double M1, const double W1,
-    thrust::complex<double> V1[]);
-
 __device__ void VVVV3P0_1(thrust::complex<double> V2[], const
     thrust::complex<double> V3[], const thrust::complex<double> V4[], const
     thrust::complex<double> COUP, const double M1, const double W1,
@@ -69,6 +64,11 @@ __device__ void VVV1_0(thrust::complex<double> V1[], const
 __device__ void VVV1P0_1(thrust::complex<double> V2[], const
     thrust::complex<double> V3[], const thrust::complex<double> COUP, const
     double M1, const double W1, thrust::complex<double> V1[]);
+
+__device__ void VVVV1P0_1(thrust::complex<double> V2[], const
+    thrust::complex<double> V3[], const thrust::complex<double> V4[], const
+    thrust::complex<double> COUP, const double M1, const double W1,
+    thrust::complex<double> V1[]);
 
 }  // end namespace MG5_sm
 
