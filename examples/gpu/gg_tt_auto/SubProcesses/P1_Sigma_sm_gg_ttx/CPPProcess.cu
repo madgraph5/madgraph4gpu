@@ -28,31 +28,31 @@ __constant__ double cIPD[2];
 
 // Evaluate |M|^2 for each subprocess
 
-__device__ void calculate_wavefunctions(int ihel, char * dps, size_t dpt,
+__device__ void calculate_wavefunctions(int ihel, double local_mom[4][4],
     double &matrix)
 {
   thrust::complex<double> amp[3]; 
   // Calculate wavefunctions for all processes
   thrust::complex<double> w[5][6]; 
-  vxxxxx((double * )(dps + 0 * dpt), 0., cHel[ihel][0], -1, w[0]); 
-  vxxxxx((double * )(dps + 1 * dpt), 0., cHel[ihel][1], -1, w[1]); 
-  oxxxxx((double * )(dps + 2 * dpt), cIPD[0], cHel[ihel][2], +1, w[2]); 
-  ixxxxx((double * )(dps + 3 * dpt), cIPD[0], cHel[ihel][3], -1, w[3]); 
+  vxxxxx(local_mom[0], 0., cHel[ihel][0], -1, w[0]); 
+  vxxxxx(local_mom[1], 0., cHel[ihel][1], -1, w[1]); 
+  oxxxxx(local_mom[2], cIPD[0], cHel[ihel][2], +1, w[2]); 
+  ixxxxx(local_mom[3], cIPD[0], cHel[ihel][3], -1, w[3]); 
   VVV1P0_1(w[0], w[1], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[4]);
   // Amplitude(s) for diagram number 1
   FFV1_0(w[3], w[2], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[0]); //printf(" &amp[0] %f %f\n", amp[0].real(), amp[0].imag());
+      &amp[0]);
   FFV1_1(w[2], w[0], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[4]);
   // Amplitude(s) for diagram number 2
   FFV1_0(w[3], w[4], w[1], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[1]); //printf(" &amp[1] %f %f\n", amp[1].real(), amp[1].imag());
+      &amp[1]);
   FFV1_2(w[3], w[0], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[4]);
   // Amplitude(s) for diagram number 3
   FFV1_0(w[4], w[2], w[1], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[2]); //printf(" &amp[2] %f %f\n", amp[2].real(), amp[2].imag());
+      &amp[2]);
   // double CPPProcess::matrix_1_gg_ttx() {
   int i, j; 
   // Local variables
@@ -137,7 +137,7 @@ void CPPProcess::initProc(string param_card_name)
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, part independent of incoming flavour.
 
-__global__ void sigmaKin(cudaPitchedPtr tp, double * meDevPtr, size_t mePitch) 
+__global__ void sigmaKin(double * allmomenta) 
 {
   // Set the parameters which change event by event
   // Need to discuss this with Stefan
@@ -148,7 +148,7 @@ __global__ void sigmaKin(cudaPitchedPtr tp, double * meDevPtr, size_t mePitch)
 
   // for (int xx = 0; xx < 384; ++xx) {
   int nprocesses = 1; 
-  int dim = blockIdx.x * blockDim.x + threadIdx.x; 
+  int tid = blockIdx.x * blockDim.x + threadIdx.x; 
 
   char * devPtr = (char * )tp.ptr; 
   size_t dpt = tp.pitch; 
@@ -158,6 +158,23 @@ __global__ void sigmaKin(cudaPitchedPtr tp, double * meDevPtr, size_t mePitch)
   double * matrix_element = (double * )((char * )meDevPtr + dim * mePitch); 
 
   thrust::complex<double> amp[3]; 
+
+  double local_m[5][4]; 
+  int DIM = blockDim.x * gridDim.x; 
+  // for (int i=0; i<20;i++){
+  // printf(" %f ", allmomenta[i]);
+  // }
+  // printf("\n");
+  // printf("DIM is %i/%i\n", tid, DIM);
+  for (int i = 0; i < 5; i++ )
+  {
+    for (int j = 0; j < 4; j++ )
+    {
+      local_m[i][j] = allmomenta[i * 4 * DIM + j * DIM + tid]; 
+      // printf(" %f ", local_m[i][j]);
+    }
+    // printf("\n");
+  }
 
 
   // Local variables and constants
@@ -191,7 +208,7 @@ __global__ void sigmaKin(cudaPitchedPtr tp, double * meDevPtr, size_t mePitch)
 
   for (int ihel = 0; ihel < ncomb; ihel++ )
   {
-    calculate_wavefunctions(ihel, dps, dpt, matrix_element[0]); 
+    calculate_wavefunctions(ihel, local_m, matrix_element[0]); 
   }
 
 

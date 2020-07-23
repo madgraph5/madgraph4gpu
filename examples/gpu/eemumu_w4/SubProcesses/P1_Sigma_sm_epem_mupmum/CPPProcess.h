@@ -5,8 +5,8 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#ifndef MG5_Sigma_sm_gg_ttx_H
-#define MG5_Sigma_sm_gg_ttx_H
+#ifndef MG5_Sigma_sm_epem_mupmum_H
+#define MG5_Sigma_sm_epem_mupmum_H
 
 #include <complex> 
 #include <vector> 
@@ -17,11 +17,11 @@
 #include <thrust/complex.h> 
 
 
-__global__ void sigmaKin(double * allmomenta); 
+__global__ void sigmaKin(cudaPitchedPtr tp, double * meDevPtr, size_t mePitch); 
 
 //==========================================================================
 // A class for calculating the matrix elements for
-// Process: g g > t t~ WEIGHTED<=2 @1
+// Process: e+ e- > mu+ mu- WEIGHTED<=4 @1
 //--------------------------------------------------------------------------
 
 class CPPProcess
@@ -71,9 +71,9 @@ class CPPProcess
     bool m_debug; 
 
     static const int nwavefuncs = 6; 
-    static const int namplitudes = 3; 
+    static const int namplitudes = 2; 
     static const int ncomb = 16; 
-    static const int wrows = 7; 
+    static const int wrows = 6; 
     // static const int nioparticles = 4;
 
     thrust::complex<double> * * amp; 
@@ -91,4 +91,4 @@ class CPPProcess
 }; 
 
 
-#endif  // MG5_Sigma_sm_gg_ttx_H
+#endif  // MG5_Sigma_sm_epem_mupmum_H

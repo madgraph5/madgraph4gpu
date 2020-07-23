@@ -24,7 +24,7 @@ class Parameters_sm
     // Model parameters independent of aS
     double mdl_WH, mdl_WW, mdl_WZ, mdl_WT, mdl_ymtau, mdl_ymt, mdl_ymb, aS,
         mdl_Gf, aEWM1, mdl_MH, mdl_MZ, mdl_MTA, mdl_MT, mdl_MB,
-        mdl_conjg__CKM3x3, mdl_CKM3x3, mdl_conjg__CKM1x1, mdl_MZ__exp__2,
+        mdl_conjg__CKM1x1, mdl_CKM3x3, mdl_conjg__CKM3x3, mdl_MZ__exp__2,
         mdl_MZ__exp__4, mdl_sqrt__2, mdl_MH__exp__2, mdl_aEW, mdl_MW,
         mdl_sqrt__aEW, mdl_ee, mdl_MW__exp__2, mdl_sw2, mdl_cw, mdl_sqrt__sw2,
         mdl_sw, mdl_g1, mdl_gw, mdl_vev, mdl_vev__exp__2, mdl_lam, mdl_yb,

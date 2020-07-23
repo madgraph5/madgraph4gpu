@@ -91,27 +91,8 @@ int main(int argc, char **argv) {
   int dim = gpublocks * gputhreads;
 
   // Local Memory
-  double lp[dim][4][4];
-
-  // GPU memory
-  // from http://www.orangeowlsolutions.com/archives/817
-  cudaExtent extent = make_cudaExtent(4 * sizeof(double), 4, dim);
-  cudaPitchedPtr devPitchedPtr;
-  gpuErrchk3(cudaMalloc3D(&devPitchedPtr, extent));
-
-  cudaMemcpy3DParms tdp = {0};
-  tdp.srcPtr.ptr = lp;
-  tdp.srcPtr.pitch = 4 * sizeof(double);
-  tdp.srcPtr.xsize = 4;
-  tdp.srcPtr.ysize = 4;
-  tdp.dstPtr.ptr = devPitchedPtr.ptr;
-  tdp.dstPtr.pitch = devPitchedPtr.pitch;
-  tdp.dstPtr.xsize = 4;
-  tdp.dstPtr.ysize = 4;
-  tdp.extent.width = 4 * sizeof(double);
-  tdp.extent.height = 4;
-  tdp.extent.depth = dim;
-  tdp.kind = cudaMemcpyHostToDevice;
+  //typedef double arr_t[4][4];
+  double* lp = new double[4*4*dim];
 
   double meHostPtr[dim][1]; // dim = rows, 1 = cols
   double *meDevPtr;
@@ -130,12 +111,18 @@ int main(int argc, char **argv) {
     for (int d = 0; d < dim; ++d) {
       for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
-          lp[d][i][j] = p[d][i][j];
+          lp[i*dim*4+j*dim+d] = p[d][i][j];
         }
       }
     }
 
-    gpuErrchk3(cudaMemcpy3D(&tdp));
+    //new
+    int num_bytes = 4*4*dim * sizeof(double);
+    double *allmomenta = 0;
+    cudaMalloc((void**)&device_array, num_bytes);
+    cudaMemcpy(allmomenta,lp_new,num_bytes,cudaMemcpyHostToDevice);
+
+    //gpuErrchk3(cudaMemcpy3D(&tdp));
 
    //process.preSigmaKin();
 
@@ -146,8 +133,7 @@ int main(int argc, char **argv) {
     // Evaluate matrix element
     // later process.sigmaKin(ncomb, goodhel, ntry, sum_hel, ngood, igood,
     // jhel);
-    sigmaKin<<<gpublocks, gputhreads>>>(devPitchedPtr, meDevPtr,
-                                                 mePitch);//, debug, verbose);
+    sigmaKin<<<gpublocks, gputhreads>>>(allmomenta);//, debug, verbose);
 
     gpuErrchk3(cudaMemcpy2D(meHostPtr, sizeof(double), meDevPtr, mePitch,
                             sizeof(double), dim, cudaMemcpyDeviceToHost));
@@ -260,4 +246,6 @@ int main(int argc, char **argv) {
               << "MinMatrixElemValue    = " << *minelem << " GeV^" << meGeVexponent << std::endl
               << "MaxMatrixElemValue    = " << *maxelem << " GeV^" << meGeVexponent << std::endl;
   }
+  delete[] lp;
+
 }

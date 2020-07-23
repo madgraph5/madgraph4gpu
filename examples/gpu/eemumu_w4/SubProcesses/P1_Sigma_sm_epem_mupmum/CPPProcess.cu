@@ -28,16 +28,16 @@ __constant__ double cIPD[2];
 
 // Evaluate |M|^2 for each subprocess
 
-__device__ void calculate_wavefunctions(int ihel, double local_mom[4][4],
+__device__ void calculate_wavefunctions(int ihel, char * dps, size_t dpt,
     double &matrix)
 {
   thrust::complex<double> amp[2]; 
   // Calculate wavefunctions for all processes
   thrust::complex<double> w[5][6]; 
-  oxxxxx(local_mom[0], 0., cHel[ihel][0], -1, w[0]); 
-  ixxxxx(local_mom[1], 0., cHel[ihel][1], +1, w[1]); 
-  ixxxxx(local_mom[2], 0., cHel[ihel][2], -1, w[2]); 
-  oxxxxx(local_mom[3], 0., cHel[ihel][3], +1, w[3]); 
+  oxxxxx((double * )(dps + 0 * dpt), 0., cHel[ihel][0], -1, w[0]); 
+  ixxxxx((double * )(dps + 1 * dpt), 0., cHel[ihel][1], +1, w[1]); 
+  ixxxxx((double * )(dps + 2 * dpt), 0., cHel[ihel][2], -1, w[2]); 
+  oxxxxx((double * )(dps + 3 * dpt), 0., cHel[ihel][3], +1, w[3]); 
   FFV1P0_3(w[1], w[0], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[4]);
   // Amplitude(s) for diagram number 1
@@ -132,7 +132,7 @@ void CPPProcess::initProc(string param_card_name)
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, part independent of incoming flavour.
 
-__global__ void sigmaKin(double * allmomenta) 
+__global__ void sigmaKin(cudaPitchedPtr tp, double * meDevPtr, size_t mePitch) 
 {
   // Set the parameters which change event by event
   // Need to discuss this with Stefan
@@ -143,7 +143,7 @@ __global__ void sigmaKin(double * allmomenta)
 
   // for (int xx = 0; xx < 384; ++xx) {
   int nprocesses = 1; 
-  int tid = blockIdx.x * blockDim.x + threadIdx.x; 
+  int dim = blockIdx.x * blockDim.x + threadIdx.x; 
 
   char * devPtr = (char * )tp.ptr; 
   size_t dpt = tp.pitch; 
@@ -153,23 +153,6 @@ __global__ void sigmaKin(double * allmomenta)
   double * matrix_element = (double * )((char * )meDevPtr + dim * mePitch); 
 
   thrust::complex<double> amp[2]; 
-
-  double local_m[5][4]; 
-  int DIM = blockDim.x * gridDim.x; 
-  // for (int i=0; i<20;i++){
-  // printf(" %f ", allmomenta[i]);
-  // }
-  // printf("\n");
-  // printf("DIM is %i/%i\n", tid, DIM);
-  for (int i = 0; i < 5; i++ )
-  {
-    for (int j = 0; j < 4; j++ )
-    {
-      local_m[i][j] = allmomenta[i * 4 * DIM + j * DIM + tid]; 
-      // printf(" %f ", local_m[i][j]);
-    }
-    // printf("\n");
-  }
 
 
   // Local variables and constants
@@ -203,7 +186,7 @@ __global__ void sigmaKin(double * allmomenta)
 
   for (int ihel = 0; ihel < ncomb; ihel++ )
   {
-    calculate_wavefunctions(ihel, local_m, matrix_element[0]); 
+    calculate_wavefunctions(ihel, dps, dpt, matrix_element[0]); 
   }
 
 
