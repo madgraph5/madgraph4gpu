@@ -137,8 +137,7 @@ void CPPProcess::initProc(string param_card_name)
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, part independent of incoming flavour.
 
-__global__ void sigmaKin(double * allmomenta, double * meDevPtr, size_t
-    mePitch)
+__global__ void sigmaKin(double * allmomenta, double * output) 
 {
   // Set the parameters which change event by event
   // Need to discuss this with Stefan
@@ -156,7 +155,7 @@ __global__ void sigmaKin(double * allmomenta, double * meDevPtr, size_t
   // size_t slicePitch = dpt * 4;
 
   // char *dps = devPtr + dim * slicePitch;
-  double * matrix_element = (double * )((char * )meDevPtr + tid * mePitch); 
+  double matrix_element[nprocesses]; 
 
   thrust::complex<double> amp[3]; 
 
@@ -185,7 +184,7 @@ __global__ void sigmaKin(double * allmomenta, double * meDevPtr, size_t
   // static int igood[ncomb];
   // static int jhel;
   // std::complex<double> **wfs;
-  double t[1]; 
+  // double t[1];
   // Helicities for the process
   // static const int helicities[ncomb][nexternal] =
   // {{-1,-1,-1,-1},{-1,-1,-1,1},{-1,-1,1,-1},{-1,-1,1,1},{-1,1,-1,-1},{-1,1,-1,
@@ -216,6 +215,13 @@ __global__ void sigmaKin(double * allmomenta, double * meDevPtr, size_t
   for (int i = 0; i < nprocesses; ++ i)
   {
     matrix_element[i] /= denominators[i]; 
+  }
+  for (int i = 0; i < nprocesses; ++ i)
+  {
+    output[i * nprocesses + tid] = matrix_element[i]; 
+    // printf("output %i %i %i %f", tid, i, i*nprocesses+tid,
+    // output[i*nprocesses+tid]);
+
   }
 
 
