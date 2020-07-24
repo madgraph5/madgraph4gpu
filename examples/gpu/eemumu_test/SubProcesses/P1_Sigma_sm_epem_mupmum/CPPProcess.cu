@@ -37,7 +37,7 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[4][3],
   thrust::complex<double> jamp[ncolor]; 
   thrust::complex<double> tmp_amp;
 // Calculate wavefunctions for all processes
-  thrust::complex<double> w[5][6]; 
+  thrust::complex<double> w[5][4]; 
   oxxxxx(local_mom[0], 0., cHel[ihel][0], -1, w[0]); 
   ixxxxx(local_mom[1], 0., cHel[ihel][1], +1, w[1]); 
   ixxxxx(local_mom[2], 0., cHel[ihel][2], -1, w[2]); 
