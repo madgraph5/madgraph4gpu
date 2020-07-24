@@ -74,7 +74,10 @@ int main(int argc, char **argv) {
   if (numiter == 0)
     return usage(argv[0]);
 
-  cudaFree(0);
+  //std::cout << "Calling cudaFree... " << std::endl;
+  cudaFree(0); // SLOW!
+  //std::cout << "Calling cudaFree... done" << std::endl;
+
   if (verbose)
     std::cout << "# iterations: " << numiter << std::endl;
 
@@ -103,10 +106,13 @@ int main(int argc, char **argv) {
 
   std::vector<double> matrixelementvector;
 
+
   for (int x = 0; x < numiter; ++x) {
+    //std::cout << "Iteration #" << x+0 << std::endl;
     // Get phase space point
     std::vector<std::vector<double *>> p =
-        get_momenta(process.ninitial, energy, process.getMasses(), weight, dim);
+      get_momenta(process.ninitial, energy, process.getMasses(), weight, dim); // SLOW!
+    //std::cout << "Got momenta" << std::endl;
 
     // Set momenta for this event
     for (int d = 0; d < dim; ++d) {
