@@ -28,7 +28,7 @@ __constant__ double cIPD[2];
 
 // Evaluate |M|^2 for each subprocess
 
-__device__ void calculate_wavefunctions(int ihel, double local_mom[6][4],
+__device__ void calculate_wavefunctions(int ihel, double local_mom[6][3],
     double &matrix)
 {
   thrust::complex<double> amp[159]; 
@@ -1089,7 +1089,7 @@ __global__ void sigmaKin(double * allmomenta, double * output)
 
   thrust::complex<double> amp[159]; 
 
-  double local_m[6][4]; 
+  double local_m[6][3]; 
   int DIM = blockDim.x * gridDim.x; 
   // for (int i=0; i<20;i++){
   // printf(" %f ", allmomenta[i]);
@@ -1098,9 +1098,9 @@ __global__ void sigmaKin(double * allmomenta, double * output)
   // printf("DIM is %i/%i\n", tid, DIM);
   for (int i = 0; i < 6; i++ )
   {
-    for (int j = 0; j < 4; j++ )
+    for (int j = 0; j < 3; j++ )
     {
-      local_m[i][j] = allmomenta[i * 4 * DIM + j * DIM + tid]; 
+      local_m[i][j] = allmomenta[i * 3 * DIM + j * DIM + tid]; 
       // printf(" %f ", local_m[i][j]);
     }
     // printf("\n");

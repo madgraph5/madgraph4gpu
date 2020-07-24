@@ -74,6 +74,7 @@ int main(int argc, char **argv) {
   if (numiter == 0)
     return usage(argv[0]);
 
+  cudaFree(0);
   if (verbose)
     std::cout << "# iterations: " << numiter << std::endl;
 
@@ -92,7 +93,7 @@ int main(int argc, char **argv) {
 
   // Local Memory
   //typedef double arr_t[6][4];
-  double* lp = new double[6*4*dim];
+  double* lp = new double[6*3*dim];
 
   double* meHostPtr = new double[dim*1];
   double *meDevPtr =0;
@@ -110,14 +111,14 @@ int main(int argc, char **argv) {
     // Set momenta for this event
     for (int d = 0; d < dim; ++d) {
       for (int i = 0; i < 6; ++i) {
-        for (int j = 0; j < 4; ++j) {
-          lp[i*dim*4+j*dim+d] = p[d][i][j];
+        for (int j = 0; j < 3; ++j) {
+          lp[i*dim*3+j*dim+d] = p[d][i][1+j];
         }
       }
     }
 
     //new
-    int num_bytes = 4*6*dim * sizeof(double);
+    int num_bytes = 3*6*dim * sizeof(double);
     double *allmomenta = 0;
     cudaMalloc((void**)&allmomenta, num_bytes);
     cudaMemcpy(allmomenta,lp,num_bytes,cudaMemcpyHostToDevice);
@@ -134,7 +135,7 @@ int main(int argc, char **argv) {
     // later process.sigmaKin(ncomb, goodhel, ntry, sum_hel, ngood, igood,
     // jhel);
     sigmaKin<<<gpublocks, gputhreads>>>(allmomenta,  meDevPtr);//, debug, verbose);
-
+    gpuErrchk3( cudaPeekAtLastError() );
     //gpuErrchk3(cudaMemcpy2D(meHostPtr, sizeof(double), meDevPtr, mePitch,
     //                        sizeof(double), dim, cudaMemcpyDeviceToHost));
 
