@@ -2,7 +2,7 @@ CUARCHNUM=70
 LIBDIR=../lib
 CXXFLAGS= -O3 -I.
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM)
-CUFLAGS= $(CUARCHFLAGS) -use_fast_math -rdc=true -lineinfo
+CUFLAGS= $(CUARCHFLAGS) -use_fast_math -lineinfo
 CUINC=/usr/local/cuda/targets/x86_64-linux/include
 NVCC=nvcc
 CXX=g++
@@ -16,7 +16,7 @@ endif
 
 target=$(LIBDIR)/libmodel_sm.a
 cxx_objects=Parameters_sm.o read_slha.o rambo.o
-cu_objects=HelAmps_sm.o
+cu_objects=
 
 all: $(target)
 
