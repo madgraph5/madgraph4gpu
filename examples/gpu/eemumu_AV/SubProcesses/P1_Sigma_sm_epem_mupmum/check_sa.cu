@@ -105,13 +105,16 @@ int main( int argc, char **argv )
   const int ndim = gpublocks * gputhreads;
   const int npar = process.nexternal; // for this process (eemumu): npar=4
   const int np3 = 3; // dimension of 3-momenta (px,py,pz): energy from rambo is ignored (mass is known)
+
   double* hstMomenta = new double[npar*np3*ndim]; // SOA[npar][np3][ndim]
+  int nbytesMomenta = np3*npar*ndim * sizeof(double);
+  double* devMomenta = 0; // device momenta
+  gpuErrchk3( cudaMalloc( &devMomenta, nbytesMomenta ) );
 
   double* hstMEs = new double[ndim];
-  double* devMEs = 0;
   int nbytesMEs = ndim * sizeof(double);
+  double* devMEs = 0;
   gpuErrchk3( cudaMalloc( &devMEs, nbytesMEs ) );
-
 
   std::vector<double> matrixelementvector;
 
@@ -132,10 +135,6 @@ int main( int argc, char **argv )
         for (int ip3 = 0; ip3 < np3; ++ip3)
           hstMomenta[ipar*ndim*np3 + ip3*ndim + idim] = // SOA[npar][np3][ndim]
             rmbMomenta[idim][ipar][1+ip3]; // energy from rambo is ignored (mass is known)
-
-    int nbytesMomenta = np3*npar*ndim * sizeof(double);
-    double* devMomenta = 0; // device momenta
-    gpuErrchk3( cudaMalloc( &devMomenta, nbytesMomenta ) );
     gpuErrchk3( cudaMemcpy( devMomenta, hstMomenta, nbytesMomenta, cudaMemcpyHostToDevice ) );
 
    //process.preSigmaKin();
@@ -206,7 +205,6 @@ int main( int argc, char **argv )
         delete[] & (**jt);
       }
     }
-    gpuErrchk3( cudaFree( devMomenta ) );
   }
 
   if (!(verbose || debug || perf)) {
@@ -266,5 +264,6 @@ int main( int argc, char **argv )
 
   delete[] hstMomenta;
   gpuErrchk3( cudaFree( devMEs ) );
+  gpuErrchk3( cudaFree( devMomenta ) );
 
 }
