@@ -16,7 +16,7 @@ using namespace std;
 namespace MG5_sm 
 {
 
-__device__ void ixxxxx(double pvec[3], double fmass, int nhel, int nsf, 
+__device__ void ixxxxx(constdouble * pvec, double fmass, int nhel, int nsf, 
 thrust::complex<double> fi[6]) 
 {
   thrust::complex<double> chi[2]; 
@@ -457,107 +457,17 @@ thrust::complex<double> fo[6])
   }
   return; 
 }
-__device__ void VVVV3_0(thrust::complex<double> V1[], const
-thrust::complex<double> V2[], const thrust::complex<double> V3[], const
-thrust::complex<double> V4[], const thrust::complex<double> COUP, 
-thrust::complex<double> * vertex)
-{
-  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
-  thrust::complex<double> TMP0; 
-  thrust::complex<double> TMP1; 
-  thrust::complex<double> TMP2; 
-  thrust::complex<double> TMP3; 
-  TMP3 = (V1[2] * V2[2] - V1[3] * V2[3] - V1[4] * V2[4] - V1[5] * V2[5]); 
-  TMP1 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
-  TMP2 = (V4[2] * V3[2] - V4[3] * V3[3] - V4[4] * V3[4] - V4[5] * V3[5]); 
-  TMP0 = (V4[2] * V1[2] - V4[3] * V1[3] - V4[4] * V1[4] - V4[5] * V1[5]); 
-  (*vertex) = COUP * (-cI * (TMP0 * TMP1) + cI * (TMP2 * TMP3)); 
-}
-
-
-__device__ void VVVV3P0_1(thrust::complex<double> V2[], const
-thrust::complex<double> V3[], const thrust::complex<double> V4[], const
-thrust::complex<double> COUP, const double M1, const double W1, 
-thrust::complex<double> V1[])
-{
-  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
-  double P1[4]; 
-  thrust::complex<double> TMP1; 
-  thrust::complex<double> TMP2; 
-  thrust::complex<double> denom; 
-  V1[0] = +V2[0] + V3[0] + V4[0]; 
-  V1[1] = +V2[1] + V3[1] + V4[1]; 
-  P1[0] = -V1[0].real(); 
-  P1[1] = -V1[1].real(); 
-  P1[2] = -V1[1].imag(); 
-  P1[3] = -V1[0].imag(); 
-  TMP1 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
-  TMP2 = (V4[2] * V3[2] - V4[3] * V3[3] - V4[4] * V3[4] - V4[5] * V3[5]); 
-  denom = COUP/((P1[0] * P1[0]) - (P1[1] * P1[1]) - (P1[2] * P1[2]) - (P1[3] * 
-  P1[3]) - M1 * (M1 - cI * W1)); 
-  V1[2] = denom * (-cI * (V4[2] * TMP1) + cI * (V2[2] * TMP2)); 
-  V1[3] = denom * (-cI * (V4[3] * TMP1) + cI * (V2[3] * TMP2)); 
-  V1[4] = denom * (-cI * (V4[4] * TMP1) + cI * (V2[4] * TMP2)); 
-  V1[5] = denom * (-cI * (V4[5] * TMP1) + cI * (V2[5] * TMP2)); 
-}
-
-
-__device__ void VVVV1_0(thrust::complex<double> V1[], const
-thrust::complex<double> V2[], const thrust::complex<double> V3[], const
-thrust::complex<double> V4[], const thrust::complex<double> COUP, 
-thrust::complex<double> * vertex)
-{
-  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
-  thrust::complex<double> TMP0; 
-  thrust::complex<double> TMP1; 
-  thrust::complex<double> TMP4; 
-  thrust::complex<double> TMP5; 
-  TMP5 = (V1[2] * V3[2] - V1[3] * V3[3] - V1[4] * V3[4] - V1[5] * V3[5]); 
-  TMP1 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
-  TMP0 = (V4[2] * V1[2] - V4[3] * V1[3] - V4[4] * V1[4] - V4[5] * V1[5]); 
-  TMP4 = (V4[2] * V2[2] - V4[3] * V2[3] - V4[4] * V2[4] - V4[5] * V2[5]); 
-  (*vertex) = COUP * (-cI * (TMP0 * TMP1) + cI * (TMP4 * TMP5)); 
-}
-
-
-__device__ void VVVV1P0_1(thrust::complex<double> V2[], const
-thrust::complex<double> V3[], const thrust::complex<double> V4[], const
-thrust::complex<double> COUP, const double M1, const double W1, 
-thrust::complex<double> V1[])
-{
-  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
-  double P1[4]; 
-  thrust::complex<double> TMP1; 
-  thrust::complex<double> TMP4; 
-  thrust::complex<double> denom; 
-  V1[0] = +V2[0] + V3[0] + V4[0]; 
-  V1[1] = +V2[1] + V3[1] + V4[1]; 
-  P1[0] = -V1[0].real(); 
-  P1[1] = -V1[1].real(); 
-  P1[2] = -V1[1].imag(); 
-  P1[3] = -V1[0].imag(); 
-  TMP1 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
-  TMP4 = (V4[2] * V2[2] - V4[3] * V2[3] - V4[4] * V2[4] - V4[5] * V2[5]); 
-  denom = COUP/((P1[0] * P1[0]) - (P1[1] * P1[1]) - (P1[2] * P1[2]) - (P1[3] * 
-  P1[3]) - M1 * (M1 - cI * W1)); 
-  V1[2] = denom * (-cI * (V4[2] * TMP1) + cI * (V3[2] * TMP4)); 
-  V1[3] = denom * (-cI * (V4[3] * TMP1) + cI * (V3[3] * TMP4)); 
-  V1[4] = denom * (-cI * (V4[4] * TMP1) + cI * (V3[4] * TMP4)); 
-  V1[5] = denom * (-cI * (V4[5] * TMP1) + cI * (V3[5] * TMP4)); 
-}
-
-
 __device__ void FFV1_0(thrust::complex<double> F1[], const
 thrust::complex<double> F2[], const thrust::complex<double> V3[], const
 thrust::complex<double> COUP, thrust::complex<double> * vertex)
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
-  thrust::complex<double> TMP6; 
-  TMP6 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) + 
+  thrust::complex<double> TMP0; 
+  TMP0 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) + 
   (F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])) + 
   (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) + 
   F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5]))))); 
-  (*vertex) = COUP * - cI * TMP6; 
+  (*vertex) = COUP * - cI * TMP0; 
 }
 
 
@@ -671,21 +581,111 @@ double M3, const double W3, thrust::complex<double> V3[])
 }
 
 
+__device__ void VVVV3_0(thrust::complex<double> V1[], const
+thrust::complex<double> V2[], const thrust::complex<double> V3[], const
+thrust::complex<double> V4[], const thrust::complex<double> COUP, 
+thrust::complex<double> * vertex)
+{
+  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
+  thrust::complex<double> TMP1; 
+  thrust::complex<double> TMP2; 
+  thrust::complex<double> TMP3; 
+  thrust::complex<double> TMP4; 
+  TMP4 = (V1[2] * V2[2] - V1[3] * V2[3] - V1[4] * V2[4] - V1[5] * V2[5]); 
+  TMP1 = (V4[2] * V1[2] - V4[3] * V1[3] - V4[4] * V1[4] - V4[5] * V1[5]); 
+  TMP2 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
+  TMP3 = (V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5]); 
+  (*vertex) = COUP * (-cI * (TMP1 * TMP2) + cI * (TMP3 * TMP4)); 
+}
+
+
+__device__ void VVVV3P0_1(thrust::complex<double> V2[], const
+thrust::complex<double> V3[], const thrust::complex<double> V4[], const
+thrust::complex<double> COUP, const double M1, const double W1, 
+thrust::complex<double> V1[])
+{
+  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
+  double P1[4]; 
+  thrust::complex<double> TMP2; 
+  thrust::complex<double> TMP3; 
+  thrust::complex<double> denom; 
+  V1[0] = +V2[0] + V3[0] + V4[0]; 
+  V1[1] = +V2[1] + V3[1] + V4[1]; 
+  P1[0] = -V1[0].real(); 
+  P1[1] = -V1[1].real(); 
+  P1[2] = -V1[1].imag(); 
+  P1[3] = -V1[0].imag(); 
+  TMP2 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
+  TMP3 = (V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5]); 
+  denom = COUP/((P1[0] * P1[0]) - (P1[1] * P1[1]) - (P1[2] * P1[2]) - (P1[3] * 
+  P1[3]) - M1 * (M1 - cI * W1)); 
+  V1[2] = denom * (-cI * (V4[2] * TMP2) + cI * (V2[2] * TMP3)); 
+  V1[3] = denom * (-cI * (V4[3] * TMP2) + cI * (V2[3] * TMP3)); 
+  V1[4] = denom * (-cI * (V4[4] * TMP2) + cI * (V2[4] * TMP3)); 
+  V1[5] = denom * (-cI * (V4[5] * TMP2) + cI * (V2[5] * TMP3)); 
+}
+
+
+__device__ void VVVV1_0(thrust::complex<double> V1[], const
+thrust::complex<double> V2[], const thrust::complex<double> V3[], const
+thrust::complex<double> V4[], const thrust::complex<double> COUP, 
+thrust::complex<double> * vertex)
+{
+  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
+  thrust::complex<double> TMP1; 
+  thrust::complex<double> TMP2; 
+  thrust::complex<double> TMP5; 
+  thrust::complex<double> TMP6; 
+  TMP6 = (V3[2] * V1[2] - V3[3] * V1[3] - V3[4] * V1[4] - V3[5] * V1[5]); 
+  TMP5 = (V4[2] * V2[2] - V4[3] * V2[3] - V4[4] * V2[4] - V4[5] * V2[5]); 
+  TMP1 = (V4[2] * V1[2] - V4[3] * V1[3] - V4[4] * V1[4] - V4[5] * V1[5]); 
+  TMP2 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
+  (*vertex) = COUP * (-cI * (TMP1 * TMP2) + cI * (TMP5 * TMP6)); 
+}
+
+
+__device__ void VVVV1P0_1(thrust::complex<double> V2[], const
+thrust::complex<double> V3[], const thrust::complex<double> V4[], const
+thrust::complex<double> COUP, const double M1, const double W1, 
+thrust::complex<double> V1[])
+{
+  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
+  double P1[4]; 
+  thrust::complex<double> TMP2; 
+  thrust::complex<double> TMP5; 
+  thrust::complex<double> denom; 
+  V1[0] = +V2[0] + V3[0] + V4[0]; 
+  V1[1] = +V2[1] + V3[1] + V4[1]; 
+  P1[0] = -V1[0].real(); 
+  P1[1] = -V1[1].real(); 
+  P1[2] = -V1[1].imag(); 
+  P1[3] = -V1[0].imag(); 
+  TMP5 = (V4[2] * V2[2] - V4[3] * V2[3] - V4[4] * V2[4] - V4[5] * V2[5]); 
+  TMP2 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
+  denom = COUP/((P1[0] * P1[0]) - (P1[1] * P1[1]) - (P1[2] * P1[2]) - (P1[3] * 
+  P1[3]) - M1 * (M1 - cI * W1)); 
+  V1[2] = denom * (-cI * (V4[2] * TMP2) + cI * (V3[2] * TMP5)); 
+  V1[3] = denom * (-cI * (V4[3] * TMP2) + cI * (V3[3] * TMP5)); 
+  V1[4] = denom * (-cI * (V4[4] * TMP2) + cI * (V3[4] * TMP5)); 
+  V1[5] = denom * (-cI * (V4[5] * TMP2) + cI * (V3[5] * TMP5)); 
+}
+
+
 __device__ void VVVV4_0(thrust::complex<double> V1[], const
 thrust::complex<double> V2[], const thrust::complex<double> V3[], const
 thrust::complex<double> V4[], const thrust::complex<double> COUP, 
 thrust::complex<double> * vertex)
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
-  thrust::complex<double> TMP2; 
   thrust::complex<double> TMP3; 
   thrust::complex<double> TMP4; 
   thrust::complex<double> TMP5; 
-  TMP3 = (V1[2] * V2[2] - V1[3] * V2[3] - V1[4] * V2[4] - V1[5] * V2[5]); 
-  TMP5 = (V1[2] * V3[2] - V1[3] * V3[3] - V1[4] * V3[4] - V1[5] * V3[5]); 
-  TMP2 = (V4[2] * V3[2] - V4[3] * V3[3] - V4[4] * V3[4] - V4[5] * V3[5]); 
-  TMP4 = (V4[2] * V2[2] - V4[3] * V2[3] - V4[4] * V2[4] - V4[5] * V2[5]); 
-  (*vertex) = COUP * (-cI * (TMP4 * TMP5) + cI * (TMP2 * TMP3)); 
+  thrust::complex<double> TMP6; 
+  TMP4 = (V1[2] * V2[2] - V1[3] * V2[3] - V1[4] * V2[4] - V1[5] * V2[5]); 
+  TMP5 = (V4[2] * V2[2] - V4[3] * V2[3] - V4[4] * V2[4] - V4[5] * V2[5]); 
+  TMP6 = (V3[2] * V1[2] - V3[3] * V1[3] - V3[4] * V1[4] - V3[5] * V1[5]); 
+  TMP3 = (V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5]); 
+  (*vertex) = COUP * (-cI * (TMP5 * TMP6) + cI * (TMP3 * TMP4)); 
 }
 
 
@@ -696,8 +696,8 @@ thrust::complex<double> V1[])
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
   double P1[4]; 
-  thrust::complex<double> TMP2; 
-  thrust::complex<double> TMP4; 
+  thrust::complex<double> TMP3; 
+  thrust::complex<double> TMP5; 
   thrust::complex<double> denom; 
   V1[0] = +V2[0] + V3[0] + V4[0]; 
   V1[1] = +V2[1] + V3[1] + V4[1]; 
@@ -705,14 +705,14 @@ thrust::complex<double> V1[])
   P1[1] = -V1[1].real(); 
   P1[2] = -V1[1].imag(); 
   P1[3] = -V1[0].imag(); 
-  TMP2 = (V4[2] * V3[2] - V4[3] * V3[3] - V4[4] * V3[4] - V4[5] * V3[5]); 
-  TMP4 = (V4[2] * V2[2] - V4[3] * V2[3] - V4[4] * V2[4] - V4[5] * V2[5]); 
+  TMP5 = (V4[2] * V2[2] - V4[3] * V2[3] - V4[4] * V2[4] - V4[5] * V2[5]); 
+  TMP3 = (V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5]); 
   denom = COUP/((P1[0] * P1[0]) - (P1[1] * P1[1]) - (P1[2] * P1[2]) - (P1[3] * 
   P1[3]) - M1 * (M1 - cI * W1)); 
-  V1[2] = denom * (-cI * (V3[2] * TMP4) + cI * (V2[2] * TMP2)); 
-  V1[3] = denom * (-cI * (V3[3] * TMP4) + cI * (V2[3] * TMP2)); 
-  V1[4] = denom * (-cI * (V3[4] * TMP4) + cI * (V2[4] * TMP2)); 
-  V1[5] = denom * (-cI * (V3[5] * TMP4) + cI * (V2[5] * TMP2)); 
+  V1[2] = denom * (-cI * (V3[2] * TMP5) + cI * (V2[2] * TMP3)); 
+  V1[3] = denom * (-cI * (V3[3] * TMP5) + cI * (V2[3] * TMP3)); 
+  V1[4] = denom * (-cI * (V3[4] * TMP5) + cI * (V2[4] * TMP3)); 
+  V1[5] = denom * (-cI * (V3[5] * TMP5) + cI * (V2[5] * TMP3)); 
 }
 
 
@@ -724,12 +724,12 @@ thrust::complex<double> COUP, thrust::complex<double> * vertex)
   double P1[4]; 
   double P2[4]; 
   double P3[4]; 
-  thrust::complex<double> TMP1; 
   thrust::complex<double> TMP10; 
   thrust::complex<double> TMP11; 
   thrust::complex<double> TMP12; 
-  thrust::complex<double> TMP3; 
-  thrust::complex<double> TMP5; 
+  thrust::complex<double> TMP2; 
+  thrust::complex<double> TMP4; 
+  thrust::complex<double> TMP6; 
   thrust::complex<double> TMP7; 
   thrust::complex<double> TMP8; 
   thrust::complex<double> TMP9; 
@@ -745,17 +745,17 @@ thrust::complex<double> COUP, thrust::complex<double> * vertex)
   P3[1] = V3[1].real(); 
   P3[2] = V3[1].imag(); 
   P3[3] = V3[0].imag(); 
-  TMP9 = (V2[2] * P1[0] - V2[3] * P1[1] - V2[4] * P1[2] - V2[5] * P1[3]); 
   TMP8 = (V3[2] * P2[0] - V3[3] * P2[1] - V3[4] * P2[2] - V3[5] * P2[3]); 
-  TMP3 = (V1[2] * V2[2] - V1[3] * V2[3] - V1[4] * V2[4] - V1[5] * V2[5]); 
-  TMP1 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
-  TMP7 = (V3[2] * P1[0] - V3[3] * P1[1] - V3[4] * P1[2] - V3[5] * P1[3]); 
-  TMP5 = (V1[2] * V3[2] - V1[3] * V3[3] - V1[4] * V3[4] - V1[5] * V3[5]); 
   TMP10 = (V2[2] * P3[0] - V2[3] * P3[1] - V2[4] * P3[2] - V2[5] * P3[3]); 
-  TMP11 = (V1[2] * P2[0] - V1[3] * P2[1] - V1[4] * P2[2] - V1[5] * P2[3]); 
+  TMP9 = (P1[0] * V2[2] - P1[1] * V2[3] - P1[2] * V2[4] - P1[3] * V2[5]); 
+  TMP2 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
+  TMP4 = (V1[2] * V2[2] - V1[3] * V2[3] - V1[4] * V2[4] - V1[5] * V2[5]); 
+  TMP6 = (V3[2] * V1[2] - V3[3] * V1[3] - V3[4] * V1[4] - V3[5] * V1[5]); 
   TMP12 = (V1[2] * P3[0] - V1[3] * P3[1] - V1[4] * P3[2] - V1[5] * P3[3]); 
-  (*vertex) = COUP * (TMP1 * (-cI * (TMP11) + cI * (TMP12)) + (TMP3 * (-cI * 
-  (TMP7) + cI * (TMP8)) + TMP5 * (+cI * (TMP9) - cI * (TMP10)))); 
+  TMP7 = (V3[2] * P1[0] - V3[3] * P1[1] - V3[4] * P1[2] - V3[5] * P1[3]); 
+  TMP11 = (P2[0] * V1[2] - P2[1] * V1[3] - P2[2] * V1[4] - P2[3] * V1[5]); 
+  (*vertex) = COUP * (TMP2 * (-cI * (TMP11) + cI * (TMP12)) + (TMP4 * (-cI * 
+  (TMP7) + cI * (TMP8)) + TMP6 * (+cI * (TMP9) - cI * (TMP10)))); 
 }
 
 
@@ -767,8 +767,8 @@ double M1, const double W1, thrust::complex<double> V1[])
   double P1[4]; 
   double P2[4]; 
   double P3[4]; 
-  thrust::complex<double> TMP1; 
   thrust::complex<double> TMP10; 
+  thrust::complex<double> TMP2; 
   thrust::complex<double> TMP7; 
   thrust::complex<double> TMP8; 
   thrust::complex<double> TMP9; 
@@ -787,20 +787,20 @@ double M1, const double W1, thrust::complex<double> V1[])
   P1[1] = -V1[1].real(); 
   P1[2] = -V1[1].imag(); 
   P1[3] = -V1[0].imag(); 
-  TMP9 = (V2[2] * P1[0] - V2[3] * P1[1] - V2[4] * P1[2] - V2[5] * P1[3]); 
   TMP8 = (V3[2] * P2[0] - V3[3] * P2[1] - V3[4] * P2[2] - V3[5] * P2[3]); 
-  TMP1 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
-  TMP7 = (V3[2] * P1[0] - V3[3] * P1[1] - V3[4] * P1[2] - V3[5] * P1[3]); 
   TMP10 = (V2[2] * P3[0] - V2[3] * P3[1] - V2[4] * P3[2] - V2[5] * P3[3]); 
+  TMP9 = (P1[0] * V2[2] - P1[1] * V2[3] - P1[2] * V2[4] - P1[3] * V2[5]); 
+  TMP2 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
+  TMP7 = (V3[2] * P1[0] - V3[3] * P1[1] - V3[4] * P1[2] - V3[5] * P1[3]); 
   denom = COUP/((P1[0] * P1[0]) - (P1[1] * P1[1]) - (P1[2] * P1[2]) - (P1[3] * 
   P1[3]) - M1 * (M1 - cI * W1)); 
-  V1[2] = denom * (TMP1 * (-cI * (P2[0]) + cI * (P3[0])) + (V2[2] * (-cI * 
+  V1[2] = denom * (TMP2 * (-cI * (P2[0]) + cI * (P3[0])) + (V2[2] * (-cI * 
   (TMP7) + cI * (TMP8)) + V3[2] * (+cI * (TMP9) - cI * (TMP10)))); 
-  V1[3] = denom * (TMP1 * (-cI * (P2[1]) + cI * (P3[1])) + (V2[3] * (-cI * 
+  V1[3] = denom * (TMP2 * (-cI * (P2[1]) + cI * (P3[1])) + (V2[3] * (-cI * 
   (TMP7) + cI * (TMP8)) + V3[3] * (+cI * (TMP9) - cI * (TMP10)))); 
-  V1[4] = denom * (TMP1 * (-cI * (P2[2]) + cI * (P3[2])) + (V2[4] * (-cI * 
+  V1[4] = denom * (TMP2 * (-cI * (P2[2]) + cI * (P3[2])) + (V2[4] * (-cI * 
   (TMP7) + cI * (TMP8)) + V3[4] * (+cI * (TMP9) - cI * (TMP10)))); 
-  V1[5] = denom * (TMP1 * (-cI * (P2[3]) + cI * (P3[3])) + (V2[5] * (-cI * 
+  V1[5] = denom * (TMP2 * (-cI * (P2[3]) + cI * (P3[3])) + (V2[5] * (-cI * 
   (TMP7) + cI * (TMP8)) + V3[5] * (+cI * (TMP9) - cI * (TMP10)))); 
 }
 
@@ -841,9 +841,15 @@ __constant__ double cIPD[2];
 __device__ void calculate_wavefunctions(int ihel, double local_mom[6][3],
     double &matrix)
 {
-  thrust::complex<double> amp[159]; 
+  thrust::complex<double> amp[1];  // was 159
+  const int ncolor = 24; 
+  thrust::complex<double> jamp[ncolor]; 
   // Calculate wavefunctions for all processes
   thrust::complex<double> w[26][6]; 
+  for(int i = 0; i < 24; i++ )
+  {
+    jamp[i] = thrust::complex<double> (0., 0.); 
+  }
   vxxxxx(local_mom[0], 0., cHel[ihel][0], -1, w[0]); 
   vxxxxx(local_mom[1], 0., cHel[ihel][1], -1, w[1]); 
   oxxxxx(local_mom[2], cIPD[0], cHel[ihel][2], +1, w[2]); 
@@ -857,73 +863,157 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[6][3],
   // Amplitude(s) for diagram number 1
   VVVV1_0(w[6], w[7], w[4], w[5], thrust::complex<double> (cIPC[4], cIPC[5]),
       &amp[0]);
+  jamp[0] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[1] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[6] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[7] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[16] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[17] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[22] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[23] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVVV3_0(w[6], w[7], w[4], w[5], thrust::complex<double> (cIPC[4], cIPC[5]),
-      &amp[1]);
+      &amp[0]);
+  jamp[0] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[6] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[12] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[14] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[18] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[20] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[22] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[23] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVVV4_0(w[6], w[7], w[4], w[5], thrust::complex<double> (cIPC[4], cIPC[5]),
-      &amp[2]);
+      &amp[0]);
+  jamp[1] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[7] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[12] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[14] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[16] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[17] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[18] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[20] += +thrust::complex<double> (0, 1) * amp[0]; 
   VVV1P0_1(w[6], w[4], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[8]);
   // Amplitude(s) for diagram number 2
   VVV1_0(w[7], w[5], w[8], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[3]);
+      &amp[0]);
+  jamp[0] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[6] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[12] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[14] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[18] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[20] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[22] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[23] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVV1P0_1(w[6], w[5], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[9]);
   // Amplitude(s) for diagram number 3
   VVV1_0(w[7], w[4], w[9], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[4]);
+      &amp[0]);
+  jamp[1] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[7] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[12] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[14] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[16] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[17] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[18] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[20] += +thrust::complex<double> (0, 1) * amp[0]; 
   VVV1P0_1(w[4], w[5], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[10]);
   // Amplitude(s) for diagram number 4
   VVV1_0(w[6], w[7], w[10], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[5]);
+      &amp[0]);
+  jamp[0] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[1] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[6] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[7] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[16] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[17] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[22] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[23] += -thrust::complex<double> (0, 1) * amp[0]; 
   FFV1_1(w[2], w[4], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[11]);
   FFV1_2(w[3], w[6], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[12]);
   // Amplitude(s) for diagram number 5
   FFV1_0(w[12], w[11], w[5], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[6]);
+      &amp[0]);
+  jamp[16] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[17] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 6
   FFV1_0(w[3], w[11], w[9], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[7]);
+      &amp[0]);
+  jamp[12] += +amp[0]; 
+  jamp[14] += -amp[0]; 
+  jamp[16] += -amp[0]; 
+  jamp[17] += +amp[0]; 
   FFV1_2(w[3], w[5], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[13]);
   // Amplitude(s) for diagram number 7
   FFV1_0(w[13], w[11], w[6], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[8]);
+      &amp[0]);
+  jamp[12] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[14] += -thrust::complex<double> (0, 1) * amp[0]; 
   FFV1_1(w[2], w[5], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[14]);
   // Amplitude(s) for diagram number 8
   FFV1_0(w[12], w[14], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[9]);
+      &amp[0]);
+  jamp[22] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[23] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 9
   FFV1_0(w[3], w[14], w[8], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[10]);
+      &amp[0]);
+  jamp[18] += +amp[0]; 
+  jamp[20] += -amp[0]; 
+  jamp[22] += -amp[0]; 
+  jamp[23] += +amp[0]; 
   FFV1_2(w[3], w[4], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[15]);
   // Amplitude(s) for diagram number 10
   FFV1_0(w[15], w[14], w[6], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[11]);
+      &amp[0]);
+  jamp[18] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[20] += -thrust::complex<double> (0, 1) * amp[0]; 
   FFV1_1(w[2], w[6], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[16]);
   // Amplitude(s) for diagram number 11
   FFV1_0(w[15], w[16], w[5], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[12]);
+      &amp[0]);
+  jamp[1] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[7] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 12
   FFV1_0(w[15], w[2], w[9], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[13]);
+      &amp[0]);
+  jamp[1] += +amp[0]; 
+  jamp[7] += -amp[0]; 
+  jamp[18] += -amp[0]; 
+  jamp[20] += +amp[0]; 
   // Amplitude(s) for diagram number 13
   FFV1_0(w[13], w[16], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[14]);
+      &amp[0]);
+  jamp[0] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[6] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 14
   FFV1_0(w[13], w[2], w[8], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[15]);
+      &amp[0]);
+  jamp[0] += +amp[0]; 
+  jamp[6] += -amp[0]; 
+  jamp[12] += -amp[0]; 
+  jamp[14] += +amp[0]; 
   // Amplitude(s) for diagram number 15
   FFV1_0(w[3], w[16], w[10], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[16]);
+      &amp[0]);
+  jamp[0] += +amp[0]; 
+  jamp[1] += -amp[0]; 
+  jamp[6] += -amp[0]; 
+  jamp[7] += +amp[0]; 
   // Amplitude(s) for diagram number 16
   FFV1_0(w[12], w[2], w[10], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[17]);
+      &amp[0]);
+  jamp[16] += +amp[0]; 
+  jamp[17] += -amp[0]; 
+  jamp[22] += -amp[0]; 
+  jamp[23] += +amp[0]; 
   FFV1_1(w[2], w[0], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[12]);
   FFV1_2(w[3], w[1], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
@@ -932,59 +1022,89 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[6][3],
       cIPD[1], w[8]);
   // Amplitude(s) for diagram number 17
   FFV1_0(w[16], w[8], w[5], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[18]);
+      &amp[0]);
+  jamp[3] += -amp[0]; 
   FFV1_1(w[12], w[5], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[9]);
   // Amplitude(s) for diagram number 18
   FFV1_0(w[16], w[9], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[19]);
+      &amp[0]);
+  jamp[5] += -amp[0]; 
   // Amplitude(s) for diagram number 19
   FFV1_0(w[16], w[12], w[10], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[20]);
+      &amp[0]);
+  jamp[3] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[5] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVV1P0_1(w[1], w[4], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[6]);
   FFV1P0_3(w[3], w[12], thrust::complex<double> (cIPC[2], cIPC[3]), 0., 0.,
       w[17]);
   // Amplitude(s) for diagram number 20
   VVV1_0(w[6], w[5], w[17], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[21]);
+      &amp[0]);
+  jamp[0] += +amp[0]; 
+  jamp[2] += -amp[0]; 
+  jamp[4] += -amp[0]; 
+  jamp[5] += +amp[0]; 
   // Amplitude(s) for diagram number 21
   FFV1_0(w[3], w[9], w[6], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[22]);
+      &amp[0]);
+  jamp[4] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[5] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 22
   FFV1_0(w[13], w[12], w[6], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[23]);
+      &amp[0]);
+  jamp[0] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[2] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVV1P0_1(w[1], w[5], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[18]);
   // Amplitude(s) for diagram number 23
   VVV1_0(w[18], w[4], w[17], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[24]);
+      &amp[0]);
+  jamp[1] += +amp[0]; 
+  jamp[2] += -amp[0]; 
+  jamp[3] += +amp[0]; 
+  jamp[4] += -amp[0]; 
   // Amplitude(s) for diagram number 24
   FFV1_0(w[3], w[8], w[18], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[25]);
+      &amp[0]);
+  jamp[2] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[3] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 25
   FFV1_0(w[15], w[12], w[18], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[26]);
+      &amp[0]);
+  jamp[1] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[4] += -thrust::complex<double> (0, 1) * amp[0]; 
   FFV1_1(w[12], w[1], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[19]);
   // Amplitude(s) for diagram number 26
   FFV1_0(w[15], w[19], w[5], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[27]);
+      &amp[0]);
+  jamp[1] += -amp[0]; 
   // Amplitude(s) for diagram number 27
   FFV1_0(w[15], w[9], w[1], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[28]);
+      &amp[0]);
+  jamp[4] += -amp[0]; 
   // Amplitude(s) for diagram number 28
   FFV1_0(w[13], w[19], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[29]);
+      &amp[0]);
+  jamp[0] += -amp[0]; 
   // Amplitude(s) for diagram number 29
   FFV1_0(w[13], w[8], w[1], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[30]);
+      &amp[0]);
+  jamp[2] += -amp[0]; 
   // Amplitude(s) for diagram number 30
   FFV1_0(w[3], w[19], w[10], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[31]);
+      &amp[0]);
+  jamp[0] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[1] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 31
   VVV1_0(w[1], w[10], w[17], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[32]);
+      &amp[0]);
+  jamp[0] += +amp[0]; 
+  jamp[1] += -amp[0]; 
+  jamp[3] += -amp[0]; 
+  jamp[5] += +amp[0]; 
   VVVV1P0_1(w[1], w[4], w[5], thrust::complex<double> (cIPC[4], cIPC[5]), 0.,
       0., w[17]);
   VVVV3P0_1(w[1], w[4], w[5], thrust::complex<double> (cIPC[4], cIPC[5]), 0.,
@@ -993,11 +1113,23 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[6][3],
       0., w[8]);
   // Amplitude(s) for diagram number 32
   FFV1_0(w[3], w[12], w[17], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[33]);
+      &amp[0]);
+  jamp[0] += +amp[0]; 
+  jamp[1] += -amp[0]; 
+  jamp[3] += -amp[0]; 
+  jamp[5] += +amp[0]; 
   FFV1_0(w[3], w[12], w[19], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[34]);
+      &amp[0]);
+  jamp[1] += -amp[0]; 
+  jamp[2] += +amp[0]; 
+  jamp[3] += -amp[0]; 
+  jamp[4] += +amp[0]; 
   FFV1_0(w[3], w[12], w[8], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[35]);
+      &amp[0]);
+  jamp[0] += -amp[0]; 
+  jamp[2] += +amp[0]; 
+  jamp[4] += +amp[0]; 
+  jamp[5] += -amp[0]; 
   FFV1_2(w[3], w[0], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[12]);
   FFV1_1(w[2], w[1], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
@@ -1006,317 +1138,695 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[6][3],
       cIPD[1], w[20]);
   // Amplitude(s) for diagram number 33
   FFV1_0(w[20], w[9], w[5], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[36]);
+      &amp[0]);
+  jamp[11] += -amp[0]; 
   FFV1_2(w[12], w[5], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[21]);
   // Amplitude(s) for diagram number 34
   FFV1_0(w[21], w[9], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[37]);
+      &amp[0]);
+  jamp[9] += -amp[0]; 
   // Amplitude(s) for diagram number 35
   FFV1_0(w[12], w[9], w[10], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[38]);
+      &amp[0]);
+  jamp[9] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[11] += -thrust::complex<double> (0, 1) * amp[0]; 
   FFV1P0_3(w[12], w[2], thrust::complex<double> (cIPC[2], cIPC[3]), 0., 0.,
       w[22]);
   // Amplitude(s) for diagram number 36
   VVV1_0(w[6], w[5], w[22], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[39]);
+      &amp[0]);
+  jamp[9] += +amp[0]; 
+  jamp[15] += -amp[0]; 
+  jamp[21] += -amp[0]; 
+  jamp[23] += +amp[0]; 
   // Amplitude(s) for diagram number 37
   FFV1_0(w[21], w[2], w[6], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[40]);
+      &amp[0]);
+  jamp[9] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[15] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 38
   FFV1_0(w[12], w[14], w[6], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[41]);
+      &amp[0]);
+  jamp[21] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[23] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 39
   VVV1_0(w[18], w[4], w[22], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[42]);
+      &amp[0]);
+  jamp[11] += +amp[0]; 
+  jamp[15] += -amp[0]; 
+  jamp[17] += +amp[0]; 
+  jamp[21] += -amp[0]; 
   // Amplitude(s) for diagram number 40
   FFV1_0(w[20], w[2], w[18], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[43]);
+      &amp[0]);
+  jamp[11] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[21] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 41
   FFV1_0(w[12], w[11], w[18], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[44]);
+      &amp[0]);
+  jamp[15] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[17] += -thrust::complex<double> (0, 1) * amp[0]; 
   FFV1_2(w[12], w[1], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[23]);
   // Amplitude(s) for diagram number 42
   FFV1_0(w[23], w[11], w[5], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[45]);
+      &amp[0]);
+  jamp[17] += -amp[0]; 
   // Amplitude(s) for diagram number 43
   FFV1_0(w[21], w[11], w[1], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[46]);
+      &amp[0]);
+  jamp[15] += -amp[0]; 
   // Amplitude(s) for diagram number 44
   FFV1_0(w[23], w[14], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[47]);
+      &amp[0]);
+  jamp[23] += -amp[0]; 
   // Amplitude(s) for diagram number 45
   FFV1_0(w[20], w[14], w[1], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[48]);
+      &amp[0]);
+  jamp[21] += -amp[0]; 
   // Amplitude(s) for diagram number 46
   FFV1_0(w[23], w[2], w[10], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[49]);
+      &amp[0]);
+  jamp[17] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[23] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 47
   VVV1_0(w[1], w[10], w[22], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[50]);
+      &amp[0]);
+  jamp[9] += +amp[0]; 
+  jamp[11] += -amp[0]; 
+  jamp[17] += -amp[0]; 
+  jamp[23] += +amp[0]; 
   // Amplitude(s) for diagram number 48
   FFV1_0(w[12], w[2], w[17], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[51]);
+      &amp[0]);
+  jamp[9] += +amp[0]; 
+  jamp[11] += -amp[0]; 
+  jamp[17] += -amp[0]; 
+  jamp[23] += +amp[0]; 
   FFV1_0(w[12], w[2], w[19], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[52]);
+      &amp[0]);
+  jamp[11] += -amp[0]; 
+  jamp[15] += +amp[0]; 
+  jamp[17] += -amp[0]; 
+  jamp[21] += +amp[0]; 
   FFV1_0(w[12], w[2], w[8], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[53]);
+      &amp[0]);
+  jamp[9] += -amp[0]; 
+  jamp[15] += +amp[0]; 
+  jamp[21] += +amp[0]; 
+  jamp[23] += -amp[0]; 
   VVV1P0_1(w[0], w[4], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[12]);
   FFV1_2(w[3], w[12], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[22]);
   // Amplitude(s) for diagram number 49
   FFV1_0(w[22], w[9], w[5], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[54]);
+      &amp[0]);
+  jamp[10] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[11] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVV1P0_1(w[12], w[5], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[23]);
   // Amplitude(s) for diagram number 50
   FFV1_0(w[3], w[9], w[23], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[55]);
+      &amp[0]);
+  jamp[6] += +amp[0]; 
+  jamp[8] += -amp[0]; 
+  jamp[10] += -amp[0]; 
+  jamp[11] += +amp[0]; 
   // Amplitude(s) for diagram number 51
   FFV1_0(w[13], w[9], w[12], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[56]);
+      &amp[0]);
+  jamp[6] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[8] += -thrust::complex<double> (0, 1) * amp[0]; 
   FFV1_1(w[2], w[12], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[20]);
   // Amplitude(s) for diagram number 52
   FFV1_0(w[16], w[20], w[5], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[57]);
+      &amp[0]);
+  jamp[3] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[13] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 53
   FFV1_0(w[16], w[2], w[23], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[58]);
+      &amp[0]);
+  jamp[3] += +amp[0]; 
+  jamp[13] += -amp[0]; 
+  jamp[19] += -amp[0]; 
+  jamp[22] += +amp[0]; 
   // Amplitude(s) for diagram number 54
   FFV1_0(w[16], w[14], w[12], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[59]);
+      &amp[0]);
+  jamp[19] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[22] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 55
   FFV1_0(w[3], w[20], w[18], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[60]);
+      &amp[0]);
+  jamp[2] += +amp[0]; 
+  jamp[3] += -amp[0]; 
+  jamp[12] += -amp[0]; 
+  jamp[13] += +amp[0]; 
   // Amplitude(s) for diagram number 56
   FFV1_0(w[22], w[2], w[18], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[61]);
+      &amp[0]);
+  jamp[10] += +amp[0]; 
+  jamp[11] += -amp[0]; 
+  jamp[20] += -amp[0]; 
+  jamp[21] += +amp[0]; 
   // Amplitude(s) for diagram number 57
   VVV1_0(w[12], w[18], w[7], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[62]);
+      &amp[0]);
+  jamp[2] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[3] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[10] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[11] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[12] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[13] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[20] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[21] += +thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 58
   VVVV1_0(w[12], w[1], w[7], w[5], thrust::complex<double> (cIPC[4], cIPC[5]),
-      &amp[63]);
+      &amp[0]);
+  jamp[2] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[6] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[8] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[12] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[19] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[20] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[21] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[22] += +thrust::complex<double> (0, 1) * amp[0]; 
   VVVV3_0(w[12], w[1], w[7], w[5], thrust::complex<double> (cIPC[4], cIPC[5]),
-      &amp[64]);
+      &amp[0]);
+  jamp[2] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[3] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[10] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[11] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[12] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[13] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[20] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[21] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVVV4_0(w[12], w[1], w[7], w[5], thrust::complex<double> (cIPC[4], cIPC[5]),
-      &amp[65]);
+      &amp[0]);
+  jamp[3] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[6] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[8] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[10] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[11] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[13] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[19] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[22] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVV1P0_1(w[12], w[1], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[21]);
   // Amplitude(s) for diagram number 59
   VVV1_0(w[7], w[5], w[21], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[66]);
+      &amp[0]);
+  jamp[2] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[6] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[8] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[12] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[19] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[20] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[21] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[22] += +thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 60
   VVV1_0(w[1], w[7], w[23], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[67]);
+      &amp[0]);
+  jamp[3] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[6] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[8] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[10] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[11] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[13] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[19] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[22] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 61
   FFV1_0(w[3], w[14], w[21], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[68]);
+      &amp[0]);
+  jamp[19] += +amp[0]; 
+  jamp[20] += -amp[0]; 
+  jamp[21] += +amp[0]; 
+  jamp[22] += -amp[0]; 
   // Amplitude(s) for diagram number 62
   FFV1_0(w[22], w[14], w[1], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[69]);
+      &amp[0]);
+  jamp[20] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[21] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 63
   FFV1_0(w[13], w[2], w[21], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[70]);
+      &amp[0]);
+  jamp[2] += +amp[0]; 
+  jamp[6] += -amp[0]; 
+  jamp[8] += +amp[0]; 
+  jamp[12] += -amp[0]; 
   // Amplitude(s) for diagram number 64
   FFV1_0(w[13], w[20], w[1], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[71]);
+      &amp[0]);
+  jamp[2] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[12] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVV1P0_1(w[0], w[5], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[20]);
   FFV1_2(w[3], w[20], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[21]);
   // Amplitude(s) for diagram number 65
   FFV1_0(w[21], w[9], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[72]);
+      &amp[0]);
+  jamp[8] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[9] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVV1P0_1(w[20], w[4], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[22]);
   // Amplitude(s) for diagram number 66
   FFV1_0(w[3], w[9], w[22], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[73]);
+      &amp[0]);
+  jamp[7] += +amp[0]; 
+  jamp[8] += -amp[0]; 
+  jamp[9] += +amp[0]; 
+  jamp[10] += -amp[0]; 
   // Amplitude(s) for diagram number 67
   FFV1_0(w[15], w[9], w[20], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[74]);
+      &amp[0]);
+  jamp[7] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[10] += -thrust::complex<double> (0, 1) * amp[0]; 
   FFV1_1(w[2], w[20], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[23]);
   // Amplitude(s) for diagram number 68
   FFV1_0(w[16], w[23], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[75]);
+      &amp[0]);
+  jamp[5] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[19] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 69
   FFV1_0(w[16], w[2], w[22], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[76]);
+      &amp[0]);
+  jamp[5] += +amp[0]; 
+  jamp[13] += -amp[0]; 
+  jamp[16] += +amp[0]; 
+  jamp[19] += -amp[0]; 
   // Amplitude(s) for diagram number 70
   FFV1_0(w[16], w[11], w[20], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[77]);
+      &amp[0]);
+  jamp[13] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[16] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 71
   FFV1_0(w[3], w[23], w[6], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[78]);
+      &amp[0]);
+  jamp[4] += +amp[0]; 
+  jamp[5] += -amp[0]; 
+  jamp[18] += -amp[0]; 
+  jamp[19] += +amp[0]; 
   // Amplitude(s) for diagram number 72
   FFV1_0(w[21], w[2], w[6], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[79]);
+      &amp[0]);
+  jamp[8] += +amp[0]; 
+  jamp[9] += -amp[0]; 
+  jamp[14] += -amp[0]; 
+  jamp[15] += +amp[0]; 
   // Amplitude(s) for diagram number 73
   VVV1_0(w[20], w[6], w[7], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[80]);
+      &amp[0]);
+  jamp[4] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[5] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[8] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[9] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[14] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[15] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[18] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[19] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 74
   VVVV1_0(w[20], w[1], w[7], w[4], thrust::complex<double> (cIPC[4], cIPC[5]),
-      &amp[81]);
+      &amp[0]);
+  jamp[4] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[7] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[10] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[13] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[14] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[15] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[16] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[18] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVVV3_0(w[20], w[1], w[7], w[4], thrust::complex<double> (cIPC[4], cIPC[5]),
-      &amp[82]);
+      &amp[0]);
+  jamp[4] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[5] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[8] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[9] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[14] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[15] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[18] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[19] += +thrust::complex<double> (0, 1) * amp[0]; 
   VVVV4_0(w[20], w[1], w[7], w[4], thrust::complex<double> (cIPC[4], cIPC[5]),
-      &amp[83]);
+      &amp[0]);
+  jamp[5] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[7] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[8] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[9] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[10] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[13] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[16] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[19] += +thrust::complex<double> (0, 1) * amp[0]; 
   VVV1P0_1(w[20], w[1], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[12]);
   // Amplitude(s) for diagram number 75
   VVV1_0(w[7], w[4], w[12], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[84]);
+      &amp[0]);
+  jamp[4] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[7] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[10] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[13] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[14] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[15] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[16] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[18] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 76
   VVV1_0(w[1], w[7], w[22], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[85]);
+      &amp[0]);
+  jamp[5] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[7] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[8] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[9] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[10] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[13] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[16] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[19] += +thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 77
   FFV1_0(w[3], w[11], w[12], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[86]);
+      &amp[0]);
+  jamp[13] += +amp[0]; 
+  jamp[14] += -amp[0]; 
+  jamp[15] += +amp[0]; 
+  jamp[16] += -amp[0]; 
   // Amplitude(s) for diagram number 78
   FFV1_0(w[21], w[11], w[1], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[87]);
+      &amp[0]);
+  jamp[14] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[15] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 79
   FFV1_0(w[15], w[2], w[12], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[88]);
+      &amp[0]);
+  jamp[4] += +amp[0]; 
+  jamp[7] += -amp[0]; 
+  jamp[10] += +amp[0]; 
+  jamp[18] += -amp[0]; 
   // Amplitude(s) for diagram number 80
   FFV1_0(w[15], w[23], w[1], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[89]);
+      &amp[0]);
+  jamp[4] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[18] += -thrust::complex<double> (0, 1) * amp[0]; 
   FFV1_1(w[9], w[0], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[23]);
   // Amplitude(s) for diagram number 81
   FFV1_0(w[15], w[23], w[5], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[90]);
+      &amp[0]);
+  jamp[7] += -amp[0]; 
   FFV1_2(w[15], w[0], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[12]);
   // Amplitude(s) for diagram number 82
   FFV1_0(w[12], w[9], w[5], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[91]);
+      &amp[0]);
+  jamp[10] += -amp[0]; 
   // Amplitude(s) for diagram number 83
   FFV1_0(w[13], w[23], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[92]);
+      &amp[0]);
+  jamp[6] += -amp[0]; 
   FFV1_2(w[13], w[0], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[21]);
   // Amplitude(s) for diagram number 84
   FFV1_0(w[21], w[9], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[93]);
+      &amp[0]);
+  jamp[8] += -amp[0]; 
   // Amplitude(s) for diagram number 85
   FFV1_0(w[3], w[23], w[10], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[94]);
+      &amp[0]);
+  jamp[6] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[7] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVV1P0_1(w[0], w[10], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[23]);
   // Amplitude(s) for diagram number 86
   FFV1_0(w[3], w[9], w[23], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[95]);
+      &amp[0]);
+  jamp[6] += +amp[0]; 
+  jamp[7] += -amp[0]; 
+  jamp[9] += -amp[0]; 
+  jamp[11] += +amp[0]; 
   FFV1_2(w[16], w[0], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[22]);
   // Amplitude(s) for diagram number 87
   FFV1_0(w[22], w[11], w[5], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[96]);
+      &amp[0]);
+  jamp[16] += -amp[0]; 
   FFV1_1(w[11], w[0], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[20]);
   // Amplitude(s) for diagram number 88
   FFV1_0(w[16], w[20], w[5], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[97]);
+      &amp[0]);
+  jamp[13] += -amp[0]; 
   // Amplitude(s) for diagram number 89
   FFV1_0(w[22], w[14], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[98]);
+      &amp[0]);
+  jamp[22] += -amp[0]; 
   FFV1_1(w[14], w[0], thrust::complex<double> (cIPC[2], cIPC[3]), cIPD[0],
       cIPD[1], w[24]);
   // Amplitude(s) for diagram number 90
   FFV1_0(w[16], w[24], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[99]);
+      &amp[0]);
+  jamp[19] += -amp[0]; 
   // Amplitude(s) for diagram number 91
   FFV1_0(w[22], w[2], w[10], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[100]);
+      &amp[0]);
+  jamp[16] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[22] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 92
   FFV1_0(w[16], w[2], w[23], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[101]);
+      &amp[0]);
+  jamp[3] += +amp[0]; 
+  jamp[5] += -amp[0]; 
+  jamp[16] += -amp[0]; 
+  jamp[22] += +amp[0]; 
   // Amplitude(s) for diagram number 93
   VVVV1_0(w[0], w[6], w[7], w[5], thrust::complex<double> (cIPC[4], cIPC[5]),
-      &amp[102]);
+      &amp[0]);
+  jamp[0] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[2] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[8] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[14] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[18] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[19] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[21] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[23] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVVV3_0(w[0], w[6], w[7], w[5], thrust::complex<double> (cIPC[4], cIPC[5]),
-      &amp[103]);
+      &amp[0]);
+  jamp[0] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[2] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[4] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[5] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[9] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[15] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[21] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[23] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVVV4_0(w[0], w[6], w[7], w[5], thrust::complex<double> (cIPC[4], cIPC[5]),
-      &amp[104]);
+      &amp[0]);
+  jamp[4] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[5] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[8] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[9] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[14] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[15] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[18] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[19] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVV1P0_1(w[0], w[6], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[22]);
   // Amplitude(s) for diagram number 94
   VVV1_0(w[7], w[5], w[22], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[105]);
+      &amp[0]);
+  jamp[0] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[2] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[8] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[14] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[18] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[19] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[21] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[23] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVV1P0_1(w[0], w[7], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[25]);
   // Amplitude(s) for diagram number 95
   VVV1_0(w[6], w[5], w[25], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[106]);
+      &amp[0]);
+  jamp[0] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[2] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[4] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[5] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[9] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[15] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[21] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[23] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 96
   FFV1_0(w[3], w[14], w[22], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[107]);
+      &amp[0]);
+  jamp[18] += +amp[0]; 
+  jamp[19] += -amp[0]; 
+  jamp[21] += -amp[0]; 
+  jamp[23] += +amp[0]; 
   // Amplitude(s) for diagram number 97
   FFV1_0(w[3], w[24], w[6], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[108]);
+      &amp[0]);
+  jamp[18] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[19] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 98
   FFV1_0(w[13], w[2], w[22], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[109]);
+      &amp[0]);
+  jamp[0] += +amp[0]; 
+  jamp[2] += -amp[0]; 
+  jamp[8] += -amp[0]; 
+  jamp[14] += +amp[0]; 
   // Amplitude(s) for diagram number 99
   FFV1_0(w[21], w[2], w[6], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[110]);
+      &amp[0]);
+  jamp[8] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[14] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 100
   VVVV1_0(w[0], w[18], w[7], w[4], thrust::complex<double> (cIPC[4], cIPC[5]),
-      &amp[111]);
+      &amp[0]);
+  jamp[1] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[4] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[10] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[12] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[13] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[15] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[17] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[20] += +thrust::complex<double> (0, 1) * amp[0]; 
   VVVV3_0(w[0], w[18], w[7], w[4], thrust::complex<double> (cIPC[4], cIPC[5]),
-      &amp[112]);
+      &amp[0]);
+  jamp[1] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[2] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[3] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[4] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[11] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[15] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[17] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[21] += +thrust::complex<double> (0, 1) * amp[0]; 
   VVVV4_0(w[0], w[18], w[7], w[4], thrust::complex<double> (cIPC[4], cIPC[5]),
-      &amp[113]);
+      &amp[0]);
+  jamp[2] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[3] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[10] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[11] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[12] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[13] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[20] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[21] += +thrust::complex<double> (0, 1) * amp[0]; 
   VVV1P0_1(w[0], w[18], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[6]);
   // Amplitude(s) for diagram number 101
   VVV1_0(w[7], w[4], w[6], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[114]);
+      &amp[0]);
+  jamp[1] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[4] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[10] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[12] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[13] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[15] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[17] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[20] += +thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 102
   VVV1_0(w[18], w[4], w[25], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[115]);
+      &amp[0]);
+  jamp[1] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[2] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[3] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[4] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[11] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[15] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[17] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[21] += +thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 103
   FFV1_0(w[3], w[11], w[6], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[116]);
+      &amp[0]);
+  jamp[12] += +amp[0]; 
+  jamp[13] += -amp[0]; 
+  jamp[15] += -amp[0]; 
+  jamp[17] += +amp[0]; 
   // Amplitude(s) for diagram number 104
   FFV1_0(w[3], w[20], w[18], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[117]);
+      &amp[0]);
+  jamp[12] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[13] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 105
   FFV1_0(w[15], w[2], w[6], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[118]);
+      &amp[0]);
+  jamp[1] += +amp[0]; 
+  jamp[4] += -amp[0]; 
+  jamp[10] += -amp[0]; 
+  jamp[20] += +amp[0]; 
   // Amplitude(s) for diagram number 106
   FFV1_0(w[12], w[2], w[18], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[119]);
+      &amp[0]);
+  jamp[10] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[20] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 107
   VVVV1_0(w[0], w[1], w[7], w[10], thrust::complex<double> (cIPC[4], cIPC[5]),
-      &amp[120]);
+      &amp[0]);
+  jamp[0] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[1] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[6] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[7] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[16] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[17] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[22] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[23] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVVV3_0(w[0], w[1], w[7], w[10], thrust::complex<double> (cIPC[4], cIPC[5]),
-      &amp[121]);
+      &amp[0]);
+  jamp[0] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[1] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[3] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[5] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[9] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[11] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[17] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[23] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVVV4_0(w[0], w[1], w[7], w[10], thrust::complex<double> (cIPC[4], cIPC[5]),
-      &amp[122]);
+      &amp[0]);
+  jamp[3] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[5] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[6] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[7] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[9] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[11] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[16] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[22] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 108
   VVV1_0(w[1], w[10], w[25], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[123]);
+      &amp[0]);
+  jamp[0] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[1] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[3] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[5] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[9] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[11] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[17] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[23] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 109
   VVV1_0(w[1], w[7], w[23], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[124]);
+      &amp[0]);
+  jamp[3] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[5] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[6] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[7] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[9] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[11] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[16] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[22] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 110
   FFV1_0(w[13], w[20], w[1], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[125]);
+      &amp[0]);
+  jamp[12] += -amp[0]; 
   // Amplitude(s) for diagram number 111
   FFV1_0(w[21], w[11], w[1], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[126]);
+      &amp[0]);
+  jamp[14] += -amp[0]; 
   // Amplitude(s) for diagram number 112
   FFV1_0(w[15], w[24], w[1], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[127]);
+      &amp[0]);
+  jamp[18] += -amp[0]; 
   // Amplitude(s) for diagram number 113
   FFV1_0(w[12], w[14], w[1], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[128]);
+      &amp[0]);
+  jamp[20] += -amp[0]; 
   VVVV1P0_1(w[0], w[1], w[4], thrust::complex<double> (cIPC[4], cIPC[5]), 0.,
       0., w[12]);
   VVVV3P0_1(w[0], w[1], w[4], thrust::complex<double> (cIPC[4], cIPC[5]), 0.,
@@ -1325,25 +1835,73 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[6][3],
       0., w[21]);
   // Amplitude(s) for diagram number 114
   VVV1_0(w[12], w[7], w[5], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[129]);
+      &amp[0]);
+  jamp[0] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[2] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[8] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[14] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[18] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[19] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[21] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[23] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVV1_0(w[24], w[7], w[5], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[130]);
+      &amp[0]);
+  jamp[2] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[6] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[8] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[12] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[19] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[20] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[21] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[22] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVV1_0(w[21], w[7], w[5], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[131]);
+      &amp[0]);
+  jamp[0] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[6] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[12] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[14] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[18] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[20] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[22] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[23] += +thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 115
   FFV1_0(w[3], w[14], w[12], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[132]);
+      &amp[0]);
+  jamp[18] += +amp[0]; 
+  jamp[19] += -amp[0]; 
+  jamp[21] += -amp[0]; 
+  jamp[23] += +amp[0]; 
   FFV1_0(w[3], w[14], w[24], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[133]);
+      &amp[0]);
+  jamp[19] += -amp[0]; 
+  jamp[20] += +amp[0]; 
+  jamp[21] += -amp[0]; 
+  jamp[22] += +amp[0]; 
   FFV1_0(w[3], w[14], w[21], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[134]);
+      &amp[0]);
+  jamp[18] += -amp[0]; 
+  jamp[20] += +amp[0]; 
+  jamp[22] += +amp[0]; 
+  jamp[23] += -amp[0]; 
   // Amplitude(s) for diagram number 116
   FFV1_0(w[13], w[2], w[12], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[135]);
+      &amp[0]);
+  jamp[0] += +amp[0]; 
+  jamp[2] += -amp[0]; 
+  jamp[8] += -amp[0]; 
+  jamp[14] += +amp[0]; 
   FFV1_0(w[13], w[2], w[24], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[136]);
+      &amp[0]);
+  jamp[2] += -amp[0]; 
+  jamp[6] += +amp[0]; 
+  jamp[8] += -amp[0]; 
+  jamp[12] += +amp[0]; 
   FFV1_0(w[13], w[2], w[21], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[137]);
+      &amp[0]);
+  jamp[0] += -amp[0]; 
+  jamp[6] += +amp[0]; 
+  jamp[12] += +amp[0]; 
+  jamp[14] += -amp[0]; 
   VVVV1P0_1(w[0], w[1], w[5], thrust::complex<double> (cIPC[4], cIPC[5]), 0.,
       0., w[21]);
   VVVV3P0_1(w[0], w[1], w[5], thrust::complex<double> (cIPC[4], cIPC[5]), 0.,
@@ -1352,25 +1910,73 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[6][3],
       0., w[24]);
   // Amplitude(s) for diagram number 117
   VVV1_0(w[21], w[7], w[4], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[138]);
+      &amp[0]);
+  jamp[1] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[4] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[10] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[12] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[13] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[15] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[17] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[20] += +thrust::complex<double> (0, 1) * amp[0]; 
   VVV1_0(w[13], w[7], w[4], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[139]);
+      &amp[0]);
+  jamp[4] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[7] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[10] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[13] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[14] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[15] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[16] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[18] += +thrust::complex<double> (0, 1) * amp[0]; 
   VVV1_0(w[24], w[7], w[4], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[140]);
+      &amp[0]);
+  jamp[1] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[7] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[12] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[14] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[16] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[17] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[18] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[20] += -thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 118
   FFV1_0(w[3], w[11], w[21], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[141]);
+      &amp[0]);
+  jamp[12] += +amp[0]; 
+  jamp[13] += -amp[0]; 
+  jamp[15] += -amp[0]; 
+  jamp[17] += +amp[0]; 
   FFV1_0(w[3], w[11], w[13], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[142]);
+      &amp[0]);
+  jamp[13] += -amp[0]; 
+  jamp[14] += +amp[0]; 
+  jamp[15] += -amp[0]; 
+  jamp[16] += +amp[0]; 
   FFV1_0(w[3], w[11], w[24], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[143]);
+      &amp[0]);
+  jamp[12] += -amp[0]; 
+  jamp[14] += +amp[0]; 
+  jamp[16] += +amp[0]; 
+  jamp[17] += -amp[0]; 
   // Amplitude(s) for diagram number 119
   FFV1_0(w[15], w[2], w[21], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[144]);
+      &amp[0]);
+  jamp[1] += +amp[0]; 
+  jamp[4] += -amp[0]; 
+  jamp[10] += -amp[0]; 
+  jamp[20] += +amp[0]; 
   FFV1_0(w[15], w[2], w[13], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[145]);
+      &amp[0]);
+  jamp[4] += -amp[0]; 
+  jamp[7] += +amp[0]; 
+  jamp[10] += -amp[0]; 
+  jamp[18] += +amp[0]; 
   FFV1_0(w[15], w[2], w[24], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[146]);
+      &amp[0]);
+  jamp[1] += -amp[0]; 
+  jamp[7] += +amp[0]; 
+  jamp[18] += +amp[0]; 
+  jamp[20] += -amp[0]; 
   VVVV1P0_1(w[0], w[4], w[5], thrust::complex<double> (cIPC[4], cIPC[5]), 0.,
       0., w[24]);
   VVVV3P0_1(w[0], w[4], w[5], thrust::complex<double> (cIPC[4], cIPC[5]), 0.,
@@ -1379,40 +1985,113 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[6][3],
       0., w[13]);
   // Amplitude(s) for diagram number 120
   FFV1_0(w[3], w[9], w[24], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[147]);
+      &amp[0]);
+  jamp[6] += +amp[0]; 
+  jamp[7] += -amp[0]; 
+  jamp[9] += -amp[0]; 
+  jamp[11] += +amp[0]; 
   FFV1_0(w[3], w[9], w[15], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[148]);
+      &amp[0]);
+  jamp[7] += -amp[0]; 
+  jamp[8] += +amp[0]; 
+  jamp[9] += -amp[0]; 
+  jamp[10] += +amp[0]; 
   FFV1_0(w[3], w[9], w[13], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[149]);
+      &amp[0]);
+  jamp[6] += -amp[0]; 
+  jamp[8] += +amp[0]; 
+  jamp[10] += +amp[0]; 
+  jamp[11] += -amp[0]; 
   // Amplitude(s) for diagram number 121
   FFV1_0(w[16], w[2], w[24], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[150]);
+      &amp[0]);
+  jamp[3] += +amp[0]; 
+  jamp[5] += -amp[0]; 
+  jamp[16] += -amp[0]; 
+  jamp[22] += +amp[0]; 
   FFV1_0(w[16], w[2], w[15], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[151]);
+      &amp[0]);
+  jamp[5] += -amp[0]; 
+  jamp[13] += +amp[0]; 
+  jamp[16] += -amp[0]; 
+  jamp[19] += +amp[0]; 
   FFV1_0(w[16], w[2], w[13], thrust::complex<double> (cIPC[2], cIPC[3]),
-      &amp[152]);
+      &amp[0]);
+  jamp[3] += -amp[0]; 
+  jamp[13] += +amp[0]; 
+  jamp[19] += +amp[0]; 
+  jamp[22] += -amp[0]; 
   // Amplitude(s) for diagram number 122
   VVV1_0(w[24], w[1], w[7], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[153]);
+      &amp[0]);
+  jamp[3] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[5] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[6] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[7] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[9] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[11] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[16] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[22] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVV1_0(w[15], w[1], w[7], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[154]);
+      &amp[0]);
+  jamp[5] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[7] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[8] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[9] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[10] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[13] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[16] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[19] += -thrust::complex<double> (0, 1) * amp[0]; 
   VVV1_0(w[13], w[1], w[7], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[155]);
+      &amp[0]);
+  jamp[3] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[6] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[8] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[10] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[11] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[13] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[19] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[22] += +thrust::complex<double> (0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 123
   VVV1_0(w[0], w[17], w[7], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[156]);
+      &amp[0]);
+  jamp[0] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[1] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[3] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[5] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[9] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[11] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[17] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[23] += +thrust::complex<double> (0, 1) * amp[0]; 
   VVV1_0(w[0], w[19], w[7], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[157]);
+      &amp[0]);
+  jamp[1] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[2] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[3] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[4] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[11] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[15] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[17] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[21] += +thrust::complex<double> (0, 1) * amp[0]; 
   VVV1_0(w[0], w[8], w[7], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[158]);
+      &amp[0]);
+  jamp[0] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[2] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[4] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[5] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[9] += -thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[15] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[21] += +thrust::complex<double> (0, 1) * amp[0]; 
+  jamp[23] += -thrust::complex<double> (0, 1) * amp[0]; 
   // double CPPProcess::matrix_1_gg_ttxgg() {
+
+
   int i, j; 
   // Local variables
 
   // const int ngraphs = 2;
-  const int ncolor = 24; 
+
   thrust::complex<double> ztemp; 
-  thrust::complex<double> jamp[ncolor]; 
   // The color matrix;
   static const double denom[ncolor] = {54, 54, 54, 54, 54, 54, 54, 54, 54, 54,
       54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54};
@@ -1452,343 +2131,6 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[6][3],
       -10, -10, -1, 62, 71, -10, 80, -1, 8, -10, -1, -1, 8, 8, -64, 80, 8, 8,
       -64, -64, 512}};
 
-  // Calculate color flows
-  jamp[0] = +thrust::complex<double> (0, 1) * amp[0] + thrust::complex<double>
-      (0, 1) * amp[1] + thrust::complex<double> (0, 1) * amp[3] +
-      thrust::complex<double> (0, 1) * amp[5] + thrust::complex<double> (0, 1)
-      * amp[14] + amp[15] + amp[16] + amp[21] + thrust::complex<double> (0, 1)
-      * amp[23] - amp[29] + thrust::complex<double> (0, 1) * amp[31] + amp[32]
-      + amp[33] - amp[35] + thrust::complex<double> (0, 1) * amp[102] +
-      thrust::complex<double> (0, 1) * amp[103] + thrust::complex<double> (0,
-      1) * amp[105] + thrust::complex<double> (0, 1) * amp[106] + amp[109] +
-      thrust::complex<double> (0, 1) * amp[120] + thrust::complex<double> (0,
-      1) * amp[121] + thrust::complex<double> (0, 1) * amp[123] +
-      thrust::complex<double> (0, 1) * amp[129] - thrust::complex<double> (0,
-      1) * amp[131] + amp[135] - amp[137] - thrust::complex<double> (0, 1) *
-      amp[156] + thrust::complex<double> (0, 1) * amp[158];
-  jamp[1] = -thrust::complex<double> (0, 1) * amp[0] + thrust::complex<double>
-      (0, 1) * amp[2] + thrust::complex<double> (0, 1) * amp[4] -
-      thrust::complex<double> (0, 1) * amp[5] + thrust::complex<double> (0, 1)
-      * amp[12] + amp[13] - amp[16] + amp[24] + thrust::complex<double> (0, 1)
-      * amp[26] - amp[27] - thrust::complex<double> (0, 1) * amp[31] - amp[32]
-      - amp[33] - amp[34] + thrust::complex<double> (0, 1) * amp[111] +
-      thrust::complex<double> (0, 1) * amp[112] + thrust::complex<double> (0,
-      1) * amp[114] + thrust::complex<double> (0, 1) * amp[115] + amp[118] -
-      thrust::complex<double> (0, 1) * amp[120] - thrust::complex<double> (0,
-      1) * amp[121] - thrust::complex<double> (0, 1) * amp[123] +
-      thrust::complex<double> (0, 1) * amp[138] - thrust::complex<double> (0,
-      1) * amp[140] + amp[144] - amp[146] + thrust::complex<double> (0, 1) *
-      amp[156] + thrust::complex<double> (0, 1) * amp[157];
-  jamp[2] = -amp[21] - thrust::complex<double> (0, 1) * amp[23] - amp[24] +
-      thrust::complex<double> (0, 1) * amp[25] - amp[30] + amp[34] + amp[35] +
-      amp[60] - thrust::complex<double> (0, 1) * amp[62] +
-      thrust::complex<double> (0, 1) * amp[63] + thrust::complex<double> (0, 1)
-      * amp[64] + thrust::complex<double> (0, 1) * amp[66] + amp[70] +
-      thrust::complex<double> (0, 1) * amp[71] - thrust::complex<double> (0, 1)
-      * amp[102] - thrust::complex<double> (0, 1) * amp[103] -
-      thrust::complex<double> (0, 1) * amp[105] - thrust::complex<double> (0,
-      1) * amp[106] - amp[109] - thrust::complex<double> (0, 1) * amp[112] -
-      thrust::complex<double> (0, 1) * amp[113] - thrust::complex<double> (0,
-      1) * amp[115] - thrust::complex<double> (0, 1) * amp[129] -
-      thrust::complex<double> (0, 1) * amp[130] - amp[135] - amp[136] -
-      thrust::complex<double> (0, 1) * amp[157] - thrust::complex<double> (0,
-      1) * amp[158];
-  jamp[3] = -amp[18] + thrust::complex<double> (0, 1) * amp[20] + amp[24] -
-      thrust::complex<double> (0, 1) * amp[25] - amp[32] - amp[33] - amp[34] +
-      thrust::complex<double> (0, 1) * amp[57] + amp[58] - amp[60] +
-      thrust::complex<double> (0, 1) * amp[62] - thrust::complex<double> (0, 1)
-      * amp[64] - thrust::complex<double> (0, 1) * amp[65] -
-      thrust::complex<double> (0, 1) * amp[67] + amp[101] +
-      thrust::complex<double> (0, 1) * amp[112] + thrust::complex<double> (0,
-      1) * amp[113] + thrust::complex<double> (0, 1) * amp[115] -
-      thrust::complex<double> (0, 1) * amp[121] - thrust::complex<double> (0,
-      1) * amp[122] - thrust::complex<double> (0, 1) * amp[123] -
-      thrust::complex<double> (0, 1) * amp[124] + amp[150] - amp[152] -
-      thrust::complex<double> (0, 1) * amp[153] + thrust::complex<double> (0,
-      1) * amp[155] + thrust::complex<double> (0, 1) * amp[156] +
-      thrust::complex<double> (0, 1) * amp[157];
-  jamp[4] = -amp[21] + thrust::complex<double> (0, 1) * amp[22] - amp[24] -
-      thrust::complex<double> (0, 1) * amp[26] - amp[28] + amp[34] + amp[35] +
-      amp[78] - thrust::complex<double> (0, 1) * amp[80] +
-      thrust::complex<double> (0, 1) * amp[81] + thrust::complex<double> (0, 1)
-      * amp[82] + thrust::complex<double> (0, 1) * amp[84] + amp[88] +
-      thrust::complex<double> (0, 1) * amp[89] - thrust::complex<double> (0, 1)
-      * amp[103] - thrust::complex<double> (0, 1) * amp[104] -
-      thrust::complex<double> (0, 1) * amp[106] - thrust::complex<double> (0,
-      1) * amp[111] - thrust::complex<double> (0, 1) * amp[112] -
-      thrust::complex<double> (0, 1) * amp[114] - thrust::complex<double> (0,
-      1) * amp[115] - amp[118] - thrust::complex<double> (0, 1) * amp[138] -
-      thrust::complex<double> (0, 1) * amp[139] - amp[144] - amp[145] -
-      thrust::complex<double> (0, 1) * amp[157] - thrust::complex<double> (0,
-      1) * amp[158];
-  jamp[5] = -amp[19] - thrust::complex<double> (0, 1) * amp[20] + amp[21] -
-      thrust::complex<double> (0, 1) * amp[22] + amp[32] + amp[33] - amp[35] +
-      thrust::complex<double> (0, 1) * amp[75] + amp[76] - amp[78] +
-      thrust::complex<double> (0, 1) * amp[80] - thrust::complex<double> (0, 1)
-      * amp[82] - thrust::complex<double> (0, 1) * amp[83] -
-      thrust::complex<double> (0, 1) * amp[85] - amp[101] +
-      thrust::complex<double> (0, 1) * amp[103] + thrust::complex<double> (0,
-      1) * amp[104] + thrust::complex<double> (0, 1) * amp[106] +
-      thrust::complex<double> (0, 1) * amp[121] + thrust::complex<double> (0,
-      1) * amp[122] + thrust::complex<double> (0, 1) * amp[123] +
-      thrust::complex<double> (0, 1) * amp[124] - amp[150] - amp[151] +
-      thrust::complex<double> (0, 1) * amp[153] + thrust::complex<double> (0,
-      1) * amp[154] - thrust::complex<double> (0, 1) * amp[156] +
-      thrust::complex<double> (0, 1) * amp[158];
-  jamp[6] = -thrust::complex<double> (0, 1) * amp[0] - thrust::complex<double>
-      (0, 1) * amp[1] - thrust::complex<double> (0, 1) * amp[3] -
-      thrust::complex<double> (0, 1) * amp[5] - thrust::complex<double> (0, 1)
-      * amp[14] - amp[15] - amp[16] + amp[55] + thrust::complex<double> (0, 1)
-      * amp[56] - thrust::complex<double> (0, 1) * amp[63] +
-      thrust::complex<double> (0, 1) * amp[65] - thrust::complex<double> (0, 1)
-      * amp[66] + thrust::complex<double> (0, 1) * amp[67] - amp[70] - amp[92]
-      + thrust::complex<double> (0, 1) * amp[94] + amp[95] -
-      thrust::complex<double> (0, 1) * amp[120] + thrust::complex<double> (0,
-      1) * amp[122] + thrust::complex<double> (0, 1) * amp[124] +
-      thrust::complex<double> (0, 1) * amp[130] + thrust::complex<double> (0,
-      1) * amp[131] + amp[136] + amp[137] + amp[147] - amp[149] +
-      thrust::complex<double> (0, 1) * amp[153] - thrust::complex<double> (0,
-      1) * amp[155];
-  jamp[7] = +thrust::complex<double> (0, 1) * amp[0] - thrust::complex<double>
-      (0, 1) * amp[2] - thrust::complex<double> (0, 1) * amp[4] +
-      thrust::complex<double> (0, 1) * amp[5] - thrust::complex<double> (0, 1)
-      * amp[12] - amp[13] + amp[16] + amp[73] + thrust::complex<double> (0, 1)
-      * amp[74] - thrust::complex<double> (0, 1) * amp[81] +
-      thrust::complex<double> (0, 1) * amp[83] - thrust::complex<double> (0, 1)
-      * amp[84] + thrust::complex<double> (0, 1) * amp[85] - amp[88] - amp[90]
-      - thrust::complex<double> (0, 1) * amp[94] - amp[95] +
-      thrust::complex<double> (0, 1) * amp[120] - thrust::complex<double> (0,
-      1) * amp[122] - thrust::complex<double> (0, 1) * amp[124] +
-      thrust::complex<double> (0, 1) * amp[139] + thrust::complex<double> (0,
-      1) * amp[140] + amp[145] + amp[146] - amp[147] - amp[148] -
-      thrust::complex<double> (0, 1) * amp[153] - thrust::complex<double> (0,
-      1) * amp[154];
-  jamp[8] = -amp[55] - thrust::complex<double> (0, 1) * amp[56] +
-      thrust::complex<double> (0, 1) * amp[63] - thrust::complex<double> (0, 1)
-      * amp[65] + thrust::complex<double> (0, 1) * amp[66] -
-      thrust::complex<double> (0, 1) * amp[67] + amp[70] +
-      thrust::complex<double> (0, 1) * amp[72] - amp[73] + amp[79] +
-      thrust::complex<double> (0, 1) * amp[80] - thrust::complex<double> (0, 1)
-      * amp[82] - thrust::complex<double> (0, 1) * amp[83] -
-      thrust::complex<double> (0, 1) * amp[85] - amp[93] -
-      thrust::complex<double> (0, 1) * amp[102] + thrust::complex<double> (0,
-      1) * amp[104] - thrust::complex<double> (0, 1) * amp[105] - amp[109] +
-      thrust::complex<double> (0, 1) * amp[110] - thrust::complex<double> (0,
-      1) * amp[129] - thrust::complex<double> (0, 1) * amp[130] - amp[135] -
-      amp[136] + amp[148] + amp[149] + thrust::complex<double> (0, 1) *
-      amp[154] + thrust::complex<double> (0, 1) * amp[155];
-  jamp[9] = -amp[37] + thrust::complex<double> (0, 1) * amp[38] + amp[39] +
-      thrust::complex<double> (0, 1) * amp[40] + amp[50] + amp[51] - amp[53] -
-      thrust::complex<double> (0, 1) * amp[72] + amp[73] - amp[79] -
-      thrust::complex<double> (0, 1) * amp[80] + thrust::complex<double> (0, 1)
-      * amp[82] + thrust::complex<double> (0, 1) * amp[83] +
-      thrust::complex<double> (0, 1) * amp[85] - amp[95] -
-      thrust::complex<double> (0, 1) * amp[103] - thrust::complex<double> (0,
-      1) * amp[104] - thrust::complex<double> (0, 1) * amp[106] -
-      thrust::complex<double> (0, 1) * amp[121] - thrust::complex<double> (0,
-      1) * amp[122] - thrust::complex<double> (0, 1) * amp[123] -
-      thrust::complex<double> (0, 1) * amp[124] - amp[147] - amp[148] -
-      thrust::complex<double> (0, 1) * amp[153] - thrust::complex<double> (0,
-      1) * amp[154] + thrust::complex<double> (0, 1) * amp[156] -
-      thrust::complex<double> (0, 1) * amp[158];
-  jamp[10] = +thrust::complex<double> (0, 1) * amp[54] - amp[55] + amp[61] +
-      thrust::complex<double> (0, 1) * amp[62] - thrust::complex<double> (0, 1)
-      * amp[64] - thrust::complex<double> (0, 1) * amp[65] -
-      thrust::complex<double> (0, 1) * amp[67] - amp[73] -
-      thrust::complex<double> (0, 1) * amp[74] + thrust::complex<double> (0, 1)
-      * amp[81] - thrust::complex<double> (0, 1) * amp[83] +
-      thrust::complex<double> (0, 1) * amp[84] - thrust::complex<double> (0, 1)
-      * amp[85] + amp[88] - amp[91] - thrust::complex<double> (0, 1) * amp[111]
-      + thrust::complex<double> (0, 1) * amp[113] - thrust::complex<double> (0,
-      1) * amp[114] - amp[118] + thrust::complex<double> (0, 1) * amp[119] -
-      thrust::complex<double> (0, 1) * amp[138] - thrust::complex<double> (0,
-      1) * amp[139] - amp[144] - amp[145] + amp[148] + amp[149] +
-      thrust::complex<double> (0, 1) * amp[154] + thrust::complex<double> (0,
-      1) * amp[155];
-  jamp[11] = -amp[36] - thrust::complex<double> (0, 1) * amp[38] + amp[42] +
-      thrust::complex<double> (0, 1) * amp[43] - amp[50] - amp[51] - amp[52] -
-      thrust::complex<double> (0, 1) * amp[54] + amp[55] - amp[61] -
-      thrust::complex<double> (0, 1) * amp[62] + thrust::complex<double> (0, 1)
-      * amp[64] + thrust::complex<double> (0, 1) * amp[65] +
-      thrust::complex<double> (0, 1) * amp[67] + amp[95] -
-      thrust::complex<double> (0, 1) * amp[112] - thrust::complex<double> (0,
-      1) * amp[113] - thrust::complex<double> (0, 1) * amp[115] +
-      thrust::complex<double> (0, 1) * amp[121] + thrust::complex<double> (0,
-      1) * amp[122] + thrust::complex<double> (0, 1) * amp[123] +
-      thrust::complex<double> (0, 1) * amp[124] + amp[147] - amp[149] +
-      thrust::complex<double> (0, 1) * amp[153] - thrust::complex<double> (0,
-      1) * amp[155] - thrust::complex<double> (0, 1) * amp[156] -
-      thrust::complex<double> (0, 1) * amp[157];
-  jamp[12] = -thrust::complex<double> (0, 1) * amp[1] - thrust::complex<double>
-      (0, 1) * amp[2] - thrust::complex<double> (0, 1) * amp[3] -
-      thrust::complex<double> (0, 1) * amp[4] + amp[7] +
-      thrust::complex<double> (0, 1) * amp[8] - amp[15] - amp[60] +
-      thrust::complex<double> (0, 1) * amp[62] - thrust::complex<double> (0, 1)
-      * amp[63] - thrust::complex<double> (0, 1) * amp[64] -
-      thrust::complex<double> (0, 1) * amp[66] - amp[70] -
-      thrust::complex<double> (0, 1) * amp[71] - thrust::complex<double> (0, 1)
-      * amp[111] + thrust::complex<double> (0, 1) * amp[113] -
-      thrust::complex<double> (0, 1) * amp[114] + amp[116] +
-      thrust::complex<double> (0, 1) * amp[117] - amp[125] +
-      thrust::complex<double> (0, 1) * amp[130] + thrust::complex<double> (0,
-      1) * amp[131] + amp[136] + amp[137] - thrust::complex<double> (0, 1) *
-      amp[138] + thrust::complex<double> (0, 1) * amp[140] + amp[141] -
-      amp[143];
-  jamp[13] = -thrust::complex<double> (0, 1) * amp[57] - amp[58] + amp[60] -
-      thrust::complex<double> (0, 1) * amp[62] + thrust::complex<double> (0, 1)
-      * amp[64] + thrust::complex<double> (0, 1) * amp[65] +
-      thrust::complex<double> (0, 1) * amp[67] - amp[76] +
-      thrust::complex<double> (0, 1) * amp[77] - thrust::complex<double> (0, 1)
-      * amp[81] + thrust::complex<double> (0, 1) * amp[83] -
-      thrust::complex<double> (0, 1) * amp[84] + thrust::complex<double> (0, 1)
-      * amp[85] + amp[86] - amp[97] + thrust::complex<double> (0, 1) * amp[111]
-      - thrust::complex<double> (0, 1) * amp[113] + thrust::complex<double> (0,
-      1) * amp[114] - amp[116] - thrust::complex<double> (0, 1) * amp[117] +
-      thrust::complex<double> (0, 1) * amp[138] + thrust::complex<double> (0,
-      1) * amp[139] - amp[141] - amp[142] + amp[151] + amp[152] -
-      thrust::complex<double> (0, 1) * amp[154] - thrust::complex<double> (0,
-      1) * amp[155];
-  jamp[14] = +thrust::complex<double> (0, 1) * amp[1] + thrust::complex<double>
-      (0, 1) * amp[2] + thrust::complex<double> (0, 1) * amp[3] +
-      thrust::complex<double> (0, 1) * amp[4] - amp[7] -
-      thrust::complex<double> (0, 1) * amp[8] + amp[15] - amp[79] -
-      thrust::complex<double> (0, 1) * amp[80] + thrust::complex<double> (0, 1)
-      * amp[81] + thrust::complex<double> (0, 1) * amp[82] +
-      thrust::complex<double> (0, 1) * amp[84] - amp[86] +
-      thrust::complex<double> (0, 1) * amp[87] + thrust::complex<double> (0, 1)
-      * amp[102] - thrust::complex<double> (0, 1) * amp[104] +
-      thrust::complex<double> (0, 1) * amp[105] + amp[109] -
-      thrust::complex<double> (0, 1) * amp[110] - amp[126] +
-      thrust::complex<double> (0, 1) * amp[129] - thrust::complex<double> (0,
-      1) * amp[131] + amp[135] - amp[137] - thrust::complex<double> (0, 1) *
-      amp[139] - thrust::complex<double> (0, 1) * amp[140] + amp[142] +
-      amp[143];
-  jamp[15] = -amp[39] - thrust::complex<double> (0, 1) * amp[40] - amp[42] +
-      thrust::complex<double> (0, 1) * amp[44] - amp[46] + amp[52] + amp[53] +
-      amp[79] + thrust::complex<double> (0, 1) * amp[80] -
-      thrust::complex<double> (0, 1) * amp[81] - thrust::complex<double> (0, 1)
-      * amp[82] - thrust::complex<double> (0, 1) * amp[84] + amp[86] -
-      thrust::complex<double> (0, 1) * amp[87] + thrust::complex<double> (0, 1)
-      * amp[103] + thrust::complex<double> (0, 1) * amp[104] +
-      thrust::complex<double> (0, 1) * amp[106] + thrust::complex<double> (0,
-      1) * amp[111] + thrust::complex<double> (0, 1) * amp[112] +
-      thrust::complex<double> (0, 1) * amp[114] + thrust::complex<double> (0,
-      1) * amp[115] - amp[116] + thrust::complex<double> (0, 1) * amp[138] +
-      thrust::complex<double> (0, 1) * amp[139] - amp[141] - amp[142] +
-      thrust::complex<double> (0, 1) * amp[157] + thrust::complex<double> (0,
-      1) * amp[158];
-  jamp[16] = -thrust::complex<double> (0, 1) * amp[0] + thrust::complex<double>
-      (0, 1) * amp[2] + thrust::complex<double> (0, 1) * amp[4] -
-      thrust::complex<double> (0, 1) * amp[5] + thrust::complex<double> (0, 1)
-      * amp[6] - amp[7] + amp[17] + amp[76] - thrust::complex<double> (0, 1) *
-      amp[77] + thrust::complex<double> (0, 1) * amp[81] -
-      thrust::complex<double> (0, 1) * amp[83] + thrust::complex<double> (0, 1)
-      * amp[84] - thrust::complex<double> (0, 1) * amp[85] - amp[86] - amp[96]
-      + thrust::complex<double> (0, 1) * amp[100] - amp[101] -
-      thrust::complex<double> (0, 1) * amp[120] + thrust::complex<double> (0,
-      1) * amp[122] + thrust::complex<double> (0, 1) * amp[124] -
-      thrust::complex<double> (0, 1) * amp[139] - thrust::complex<double> (0,
-      1) * amp[140] + amp[142] + amp[143] - amp[150] - amp[151] +
-      thrust::complex<double> (0, 1) * amp[153] + thrust::complex<double> (0,
-      1) * amp[154];
-  jamp[17] = +thrust::complex<double> (0, 1) * amp[0] - thrust::complex<double>
-      (0, 1) * amp[2] - thrust::complex<double> (0, 1) * amp[4] +
-      thrust::complex<double> (0, 1) * amp[5] - thrust::complex<double> (0, 1)
-      * amp[6] + amp[7] - amp[17] + amp[42] - thrust::complex<double> (0, 1) *
-      amp[44] - amp[45] + thrust::complex<double> (0, 1) * amp[49] - amp[50] -
-      amp[51] - amp[52] - thrust::complex<double> (0, 1) * amp[111] -
-      thrust::complex<double> (0, 1) * amp[112] - thrust::complex<double> (0,
-      1) * amp[114] - thrust::complex<double> (0, 1) * amp[115] + amp[116] +
-      thrust::complex<double> (0, 1) * amp[120] + thrust::complex<double> (0,
-      1) * amp[121] + thrust::complex<double> (0, 1) * amp[123] -
-      thrust::complex<double> (0, 1) * amp[138] + thrust::complex<double> (0,
-      1) * amp[140] + amp[141] - amp[143] - thrust::complex<double> (0, 1) *
-      amp[156] - thrust::complex<double> (0, 1) * amp[157];
-  jamp[18] = -thrust::complex<double> (0, 1) * amp[1] - thrust::complex<double>
-      (0, 1) * amp[2] - thrust::complex<double> (0, 1) * amp[3] -
-      thrust::complex<double> (0, 1) * amp[4] + amp[10] +
-      thrust::complex<double> (0, 1) * amp[11] - amp[13] - amp[78] +
-      thrust::complex<double> (0, 1) * amp[80] - thrust::complex<double> (0, 1)
-      * amp[81] - thrust::complex<double> (0, 1) * amp[82] -
-      thrust::complex<double> (0, 1) * amp[84] - amp[88] -
-      thrust::complex<double> (0, 1) * amp[89] - thrust::complex<double> (0, 1)
-      * amp[102] + thrust::complex<double> (0, 1) * amp[104] -
-      thrust::complex<double> (0, 1) * amp[105] + amp[107] +
-      thrust::complex<double> (0, 1) * amp[108] - amp[127] -
-      thrust::complex<double> (0, 1) * amp[129] + thrust::complex<double> (0,
-      1) * amp[131] + amp[132] - amp[134] + thrust::complex<double> (0, 1) *
-      amp[139] + thrust::complex<double> (0, 1) * amp[140] + amp[145] +
-      amp[146];
-  jamp[19] = -amp[58] + thrust::complex<double> (0, 1) * amp[59] -
-      thrust::complex<double> (0, 1) * amp[63] + thrust::complex<double> (0, 1)
-      * amp[65] - thrust::complex<double> (0, 1) * amp[66] +
-      thrust::complex<double> (0, 1) * amp[67] + amp[68] -
-      thrust::complex<double> (0, 1) * amp[75] - amp[76] + amp[78] -
-      thrust::complex<double> (0, 1) * amp[80] + thrust::complex<double> (0, 1)
-      * amp[82] + thrust::complex<double> (0, 1) * amp[83] +
-      thrust::complex<double> (0, 1) * amp[85] - amp[99] +
-      thrust::complex<double> (0, 1) * amp[102] - thrust::complex<double> (0,
-      1) * amp[104] + thrust::complex<double> (0, 1) * amp[105] - amp[107] -
-      thrust::complex<double> (0, 1) * amp[108] + thrust::complex<double> (0,
-      1) * amp[129] + thrust::complex<double> (0, 1) * amp[130] - amp[132] -
-      amp[133] + amp[151] + amp[152] - thrust::complex<double> (0, 1) *
-      amp[154] - thrust::complex<double> (0, 1) * amp[155];
-  jamp[20] = +thrust::complex<double> (0, 1) * amp[1] + thrust::complex<double>
-      (0, 1) * amp[2] + thrust::complex<double> (0, 1) * amp[3] +
-      thrust::complex<double> (0, 1) * amp[4] - amp[10] -
-      thrust::complex<double> (0, 1) * amp[11] + amp[13] - amp[61] -
-      thrust::complex<double> (0, 1) * amp[62] + thrust::complex<double> (0, 1)
-      * amp[63] + thrust::complex<double> (0, 1) * amp[64] +
-      thrust::complex<double> (0, 1) * amp[66] - amp[68] +
-      thrust::complex<double> (0, 1) * amp[69] + thrust::complex<double> (0, 1)
-      * amp[111] - thrust::complex<double> (0, 1) * amp[113] +
-      thrust::complex<double> (0, 1) * amp[114] + amp[118] -
-      thrust::complex<double> (0, 1) * amp[119] - amp[128] -
-      thrust::complex<double> (0, 1) * amp[130] - thrust::complex<double> (0,
-      1) * amp[131] + amp[133] + amp[134] + thrust::complex<double> (0, 1) *
-      amp[138] - thrust::complex<double> (0, 1) * amp[140] + amp[144] -
-      amp[146];
-  jamp[21] = -amp[39] + thrust::complex<double> (0, 1) * amp[41] - amp[42] -
-      thrust::complex<double> (0, 1) * amp[43] - amp[48] + amp[52] + amp[53] +
-      amp[61] + thrust::complex<double> (0, 1) * amp[62] -
-      thrust::complex<double> (0, 1) * amp[63] - thrust::complex<double> (0, 1)
-      * amp[64] - thrust::complex<double> (0, 1) * amp[66] + amp[68] -
-      thrust::complex<double> (0, 1) * amp[69] + thrust::complex<double> (0, 1)
-      * amp[102] + thrust::complex<double> (0, 1) * amp[103] +
-      thrust::complex<double> (0, 1) * amp[105] + thrust::complex<double> (0,
-      1) * amp[106] - amp[107] + thrust::complex<double> (0, 1) * amp[112] +
-      thrust::complex<double> (0, 1) * amp[113] + thrust::complex<double> (0,
-      1) * amp[115] + thrust::complex<double> (0, 1) * amp[129] +
-      thrust::complex<double> (0, 1) * amp[130] - amp[132] - amp[133] +
-      thrust::complex<double> (0, 1) * amp[157] + thrust::complex<double> (0,
-      1) * amp[158];
-  jamp[22] = +thrust::complex<double> (0, 1) * amp[0] + thrust::complex<double>
-      (0, 1) * amp[1] + thrust::complex<double> (0, 1) * amp[3] +
-      thrust::complex<double> (0, 1) * amp[5] + thrust::complex<double> (0, 1)
-      * amp[9] - amp[10] - amp[17] + amp[58] - thrust::complex<double> (0, 1) *
-      amp[59] + thrust::complex<double> (0, 1) * amp[63] -
-      thrust::complex<double> (0, 1) * amp[65] + thrust::complex<double> (0, 1)
-      * amp[66] - thrust::complex<double> (0, 1) * amp[67] - amp[68] - amp[98]
-      - thrust::complex<double> (0, 1) * amp[100] + amp[101] +
-      thrust::complex<double> (0, 1) * amp[120] - thrust::complex<double> (0,
-      1) * amp[122] - thrust::complex<double> (0, 1) * amp[124] -
-      thrust::complex<double> (0, 1) * amp[130] - thrust::complex<double> (0,
-      1) * amp[131] + amp[133] + amp[134] + amp[150] - amp[152] -
-      thrust::complex<double> (0, 1) * amp[153] + thrust::complex<double> (0,
-      1) * amp[155];
-  jamp[23] = -thrust::complex<double> (0, 1) * amp[0] - thrust::complex<double>
-      (0, 1) * amp[1] - thrust::complex<double> (0, 1) * amp[3] -
-      thrust::complex<double> (0, 1) * amp[5] - thrust::complex<double> (0, 1)
-      * amp[9] + amp[10] + amp[17] + amp[39] - thrust::complex<double> (0, 1) *
-      amp[41] - amp[47] - thrust::complex<double> (0, 1) * amp[49] + amp[50] +
-      amp[51] - amp[53] - thrust::complex<double> (0, 1) * amp[102] -
-      thrust::complex<double> (0, 1) * amp[103] - thrust::complex<double> (0,
-      1) * amp[105] - thrust::complex<double> (0, 1) * amp[106] + amp[107] -
-      thrust::complex<double> (0, 1) * amp[120] - thrust::complex<double> (0,
-      1) * amp[121] - thrust::complex<double> (0, 1) * amp[123] -
-      thrust::complex<double> (0, 1) * amp[129] + thrust::complex<double> (0,
-      1) * amp[131] + amp[132] - amp[134] + thrust::complex<double> (0, 1) *
-      amp[156] - thrust::complex<double> (0, 1) * amp[158];
 
   // Sum and square the color flows to get the matrix element
   for(i = 0; i < ncolor; i++ )
@@ -1897,9 +2239,10 @@ __global__ void sigmaKin(double * allmomenta, double * output)
   // char *dps = devPtr + dim * slicePitch;
   double matrix_element[nprocesses]; 
 
-  thrust::complex<double> amp[159]; 
+  thrust::complex<double> amp[1];  // was 159];
 
-  double local_m[6][3]; 
+
+  Double local_m[6][3]; 
   int DIM = blockDim.x * gridDim.x; 
   // for (int i=0; i<20;i++){
   // printf(" %f ", allmomenta[i]);
