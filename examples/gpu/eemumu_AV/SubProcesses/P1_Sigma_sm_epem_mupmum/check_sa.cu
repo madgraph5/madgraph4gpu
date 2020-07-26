@@ -206,6 +206,7 @@ int main( int argc, char **argv )
         delete[] & (**jt);
       }
     }
+    gpuErrchk3( cudaFree( devMomenta ) );
   }
 
   if (!(verbose || debug || perf)) {
@@ -262,6 +263,8 @@ int main( int argc, char **argv )
               << "MinMatrixElemValue    = " << *minelem << " GeV^" << meGeVexponent << std::endl
               << "MaxMatrixElemValue    = " << *maxelem << " GeV^" << meGeVexponent << std::endl;
   }
+
   delete[] hstMomenta;
+  gpuErrchk3( cudaFree( devMEs ) );
 
 }
