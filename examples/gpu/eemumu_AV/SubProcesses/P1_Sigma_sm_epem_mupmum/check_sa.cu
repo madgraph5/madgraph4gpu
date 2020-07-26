@@ -1,4 +1,5 @@
 #include <algorithm> // perf stats
+#include <cassert>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -12,33 +13,39 @@
 #include "rambo.h"
 #include "timer.h"
 
-#define gpuErrchk3(ans)                                                        \
-  { gpuAssert3((ans), __FILE__, __LINE__); }
+#define TIMERTYPE std::chrono::high_resolution_clock
 
-inline void gpuAssert3(cudaError_t code, const char *file, int line,
-                       bool abort = true) {
-  if (code != cudaSuccess) {
-    printf("GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+inline void gpuAssert3( cudaError_t code, const char* file, int line, bool abort = true )
+{
+  if ( code != cudaSuccess ) 
+  {
+    printf( "GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line );
+    if ( abort ) assert( code == cudaSuccess );
   }
 }
 
-#define TIMERTYPE std::chrono::high_resolution_clock
+inline void gpuErrchk3( cudaError_t code, bool abort = true )
+{ 
+  gpuAssert3( code, __FILE__, __LINE__ ); 
+}
 
-bool is_number(const char *s) {
+bool is_number( const char *s )
+{
   const char *t = s;
-  while (*t != '\0' && isdigit(*t))
-    ++t;
+  while ( *t != '\0' && isdigit(*t) ) ++t;
   return strlen(s) == t - s;
 }
 
-int usage(char* argv0, int ret = 1) {
+int usage( char* argv0, int ret = 1 ) 
+{
   std::cout << "Usage: " << argv0 
             << " [--verbose|-v] [--debug|-d] [--performance|-p]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl;
   return ret;
 }
 
-int main(int argc, char **argv) {
+int main( int argc, char **argv ) 
+{
   bool verbose = false, debug = false, perf = false;
   int niter = 0;
   int gpublocks = 1;
@@ -93,12 +100,12 @@ int main(int argc, char **argv) {
 
   const int meGeVexponent = -(2 * process.nexternal - 8);
 
-  int ndim = gpublocks * gputhreads;
 
   // Local Memory
+  const int ndim = gpublocks * gputhreads;
   const int npar = process.nexternal; // for this process (eemumu): npar=4
   const int np3 = 3; // dimension of 3-momenta (px,py,pz): energy from rambo is ignored (mass is known)
-  double* hstMomenta = new double[npar*np3*ndim];
+  double* hstMomenta = new double[npar*np3*ndim]; // SOA[npar][np3][ndim]
 
   double* hstMEs = new double[ndim];
   double* devMEs = 0;
