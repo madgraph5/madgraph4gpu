@@ -55,17 +55,18 @@ int main( int argc, char **argv )
   std::vector<float> wavetimes;
 
 
-  for (int argn = 1; argn < argc; ++argn) {
-    if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
+  for ( int argn = 1; argn < argc; ++argn ) 
+  {
+    if ( strcmp(argv[argn], "--verbose" ) == 0 || strcmp( argv[argn], "-v" ) == 0 )
       verbose = true;
-    else if (strcmp(argv[argn], "--debug") == 0 ||
-             strcmp(argv[argn], "-d") == 0)
+    else if ( strcmp(argv[argn], "--debug" ) == 0 ||
+              strcmp(argv[argn], "-d" ) == 0)
       debug = true;
-    else if (strcmp(argv[argn], "--performance") == 0 ||
-             strcmp(argv[argn], "-p") == 0)
+    else if ( strcmp(argv[argn], "--performance" ) == 0 ||
+              strcmp(argv[argn], "-p" ) == 0)
       perf = true;
-    else if (is_number(argv[argn]))
-      numvec.push_back(atoi(argv[argn]));
+    else if ( is_number(argv[argn]) )
+      numvec.push_back( atoi(argv[argn]) );
     else
       return usage(argv[0]);
   }
