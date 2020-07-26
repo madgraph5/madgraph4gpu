@@ -92,15 +92,16 @@ int main(int argc, char **argv) {
 
   int meGeVexponent = -(2 * process.nexternal - 8);
 
-  int dim = gpublocks * gputhreads;
+  int ndim = gpublocks * gputhreads;
 
   // Local Memory
-  //typedef double arr_t[4][4];
-  double* lp = new double[4*3*dim];
+  const int npar = process.nexternal; // for this process (eemumu): npar=4
+  const int np3 = 3; // dimension of 3-momenta (px,py,pz): energy from rambo is ignored (mass is known)
+  double* lp = new double[npar*np3*ndim];
 
-  double* meHostPtr = new double[dim*1];
+  double* meHostPtr = new double[ndim*1];
   double *meDevPtr =0;
-  int num_bytes_back = 1 * dim * sizeof(double);
+  int num_bytes_back = 1 * ndim * sizeof(double);
   cudaMalloc((void**)&meDevPtr, num_bytes_back);
 
 
@@ -111,20 +112,17 @@ int main(int argc, char **argv) {
     //std::cout << "Iteration #" << x+0 << std::endl;
     // Get phase space point
     std::vector<std::vector<double *>> p =
-      get_momenta(process.ninitial, energy, process.getMasses(), weight, dim); // SLOW!
+      get_momenta(process.ninitial, energy, process.getMasses(), weight, ndim); // SLOW!
     //std::cout << "Got momenta" << std::endl;
 
-    // Set momenta for this event
-    for (int d = 0; d < dim; ++d) {
-      for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 3; ++j) {
-          lp[i*dim*3+j*dim+d] = p[d][i][1+j];
-        }
-      }
-    }
+    // Set momenta for this event by copying them from the rambo output
+    for (int idim = 0; idim < ndim; ++idim)
+      for (int ipar = 0; ipar < npar; ++ipar)
+        for (int ip3 = 0; ip3 < np3; ++ip3)
+          lp[ipar*ndim*np3 + ip3*ndim + idim] = p[idim][ipar][1+ip3]; // energy from rambo is ignored (mass is known)
 
     //new
-    int num_bytes = 3*4*dim * sizeof(double);
+    int num_bytes = np3*npar*ndim * sizeof(double);
     double *allmomenta = 0;
     cudaMalloc((void**)&allmomenta, num_bytes);
     cudaMemcpy(allmomenta,lp,num_bytes,cudaMemcpyHostToDevice);
@@ -145,7 +143,7 @@ int main(int argc, char **argv) {
     //gpuErrchk3(cudaMemcpy2D(meHostPtr, sizeof(double), meDevPtr, mePitch,
     //                        sizeof(double), dim, cudaMemcpyDeviceToHost));
 
-   cudaMemcpy(meHostPtr, meDevPtr, 1 * dim*sizeof(double), cudaMemcpyDeviceToHost);
+   cudaMemcpy(meHostPtr, meDevPtr, 1 * ndim*sizeof(double), cudaMemcpyDeviceToHost);
 
     if (verbose)
       std::cout << "***********************************" << std::endl
@@ -160,29 +158,31 @@ int main(int argc, char **argv) {
 
     if (verbose || perf) {
 
-      for (int d = 0; d < dim; ++d) {
+      for (int idim = 0; idim < ndim; ++idim) {
 
         if (verbose) {
           std::cout << "Momenta:" << std::endl;
-          for (int i = 0; i < process.nexternal; i++)
-            std::cout << std::setw(4) << i + 1
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << p[d][i][0] << setiosflags(std::ios::scientific)
-                      << std::setw(14) << p[d][i][1]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << p[d][i][2] << setiosflags(std::ios::scientific)
-                      << std::setw(14) << p[d][i][3] << std::endl;
+          for (int ipar = 0; ipar < npar; ipar++)
+            std::cout << std::setw(4) << ipar + 1
+                      << setiosflags(std::ios::scientific)
+                      << std::setw(14) << p[idim][ipar][0]
+                      << setiosflags(std::ios::scientific)
+                      << std::setw(14) << p[idim][ipar][1]
+                      << setiosflags(std::ios::scientific)
+                      << std::setw(14) << p[idim][ipar][2]
+                      << setiosflags(std::ios::scientific)
+                      << std::setw(14) << p[idim][ipar][3] << std::endl;
           std::cout << std::string(80, '-') << std::endl;
         }
 
         // Display matrix elements
-        for (int i = 0; i < process.nprocesses; i++) {
+        for (int iproc = 0; iproc < process.nprocesses; iproc++) {
           if (verbose)
             std::cout << " Matrix element = "
                       //	 << setiosflags(ios::fixed) << setprecision(17)
-                      << meHostPtr[i*1 + d] << " GeV^" << meGeVexponent << std::endl;
+                      << meHostPtr[iproc*1 + idim] << " GeV^" << meGeVexponent << std::endl;
           if (perf)
-            matrixelementvector.push_back(meHostPtr[i*1 + d]);
+            matrixelementvector.push_back(meHostPtr[iproc*1 + idim]);
         }
 
         if (verbose)
