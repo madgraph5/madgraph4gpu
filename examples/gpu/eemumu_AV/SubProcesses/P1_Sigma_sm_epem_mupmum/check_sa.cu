@@ -84,7 +84,7 @@ int main( int argc, char **argv )
     return usage(argv[0]);
 
   //std::cout << "Calling cudaFree... " << std::endl;
-  cudaFree(0); // SLOW!
+  gpuErrchk3( cudaFree(0) ); // SLOW!
   //std::cout << "Calling cudaFree... done" << std::endl;
 
   if (verbose)
@@ -110,7 +110,7 @@ int main( int argc, char **argv )
   double* hstMEs = new double[ndim];
   double* devMEs = 0;
   int nbytesMEs = ndim * sizeof(double);
-  cudaMalloc( &devMEs, nbytesMEs );
+  gpuErrchk3( cudaMalloc( &devMEs, nbytesMEs ) );
 
 
   std::vector<double> matrixelementvector;
@@ -135,10 +135,8 @@ int main( int argc, char **argv )
 
     int nbytesMomenta = np3*npar*ndim * sizeof(double);
     double* devMomenta = 0; // device momenta
-    cudaMalloc( &devMomenta, nbytesMomenta );
-    cudaMemcpy( devMomenta, hstMomenta, nbytesMomenta, cudaMemcpyHostToDevice );
-
-    //gpuErrchk3(cudaMemcpy3D(&tdp));
+    gpuErrchk3( cudaMalloc( &devMomenta, nbytesMomenta ) );
+    gpuErrchk3( cudaMemcpy( devMomenta, hstMomenta, nbytesMomenta, cudaMemcpyHostToDevice ) );
 
    //process.preSigmaKin();
 
@@ -151,10 +149,8 @@ int main( int argc, char **argv )
     // jhel);
     sigmaKin<<<gpublocks, gputhreads>>>(devMomenta,  devMEs);//, debug, verbose);
     gpuErrchk3( cudaPeekAtLastError() );
-    //gpuErrchk3(cudaMemcpy2D(hstMEs, sizeof(double), devMEs, mePitch,
-    //                        sizeof(double), dim, cudaMemcpyDeviceToHost));
 
-    cudaMemcpy( hstMEs, devMEs, nbytesMEs, cudaMemcpyDeviceToHost );
+    gpuErrchk3( cudaMemcpy( hstMEs, devMEs, nbytesMEs, cudaMemcpyDeviceToHost ) );
 
     if (verbose)
       std::cout << "***********************************" << std::endl
