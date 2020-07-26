@@ -90,7 +90,6 @@ int main(int argc, char **argv) {
   process.initProc( "../../Cards/param_card.dat" );
 
   const double energy = 1500;
-  double weight;
 
   const int meGeVexponent = -(2 * process.nexternal - 8);
 
@@ -101,10 +100,10 @@ int main(int argc, char **argv) {
   const int np3 = 3; // dimension of 3-momenta (px,py,pz): energy from rambo is ignored (mass is known)
   double* hstMomenta = new double[npar*np3*ndim];
 
-  double* meHostPtr = new double[ndim*1];
-  double *meDevPtr =0;
-  int num_bytes_back = 1 * ndim * sizeof(double);
-  cudaMalloc((void**)&meDevPtr, num_bytes_back);
+  double* hstMEs = new double[ndim];
+  double* devMEs = 0;
+  int nbytesMEs = ndim * sizeof(double);
+  cudaMalloc( &devMEs, nbytesMEs );
 
 
   std::vector<double> matrixelementvector;
@@ -115,6 +114,7 @@ int main(int argc, char **argv) {
 
     //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
     // Get a vector of ndim phase space points
+    double weight; // dummy in this test application
     std::vector<std::vector<double *>> rmbMomenta = // AOS[ndim][npar][np3+1]
       get_momenta(process.ninitial, energy, process.getMasses(), weight, ndim); // SLOW!
     //std::cout << "Got momenta" << std::endl;
@@ -142,12 +142,12 @@ int main(int argc, char **argv) {
     // Evaluate matrix element
     // later process.sigmaKin(ncomb, goodhel, ntry, sum_hel, ngood, igood,
     // jhel);
-    sigmaKin<<<gpublocks, gputhreads>>>(devMomenta,  meDevPtr);//, debug, verbose);
+    sigmaKin<<<gpublocks, gputhreads>>>(devMomenta,  devMEs);//, debug, verbose);
     gpuErrchk3( cudaPeekAtLastError() );
-    //gpuErrchk3(cudaMemcpy2D(meHostPtr, sizeof(double), meDevPtr, mePitch,
+    //gpuErrchk3(cudaMemcpy2D(hstMEs, sizeof(double), devMEs, mePitch,
     //                        sizeof(double), dim, cudaMemcpyDeviceToHost));
 
-   cudaMemcpy(meHostPtr, meDevPtr, 1 * ndim*sizeof(double), cudaMemcpyDeviceToHost);
+    cudaMemcpy( hstMEs, devMEs, nbytesMEs, cudaMemcpyDeviceToHost );
 
     if (verbose)
       std::cout << "***********************************" << std::endl
@@ -184,9 +184,9 @@ int main(int argc, char **argv) {
           if (verbose)
             std::cout << " Matrix element = "
                       //	 << setiosflags(ios::fixed) << setprecision(17)
-                      << meHostPtr[iproc*1 + idim] << " GeV^" << meGeVexponent << std::endl;
+                      << hstMEs[iproc*1 + idim] << " GeV^" << meGeVexponent << std::endl;
           if (perf)
-            matrixelementvector.push_back(meHostPtr[iproc*1 + idim]);
+            matrixelementvector.push_back(hstMEs[iproc*1 + idim]);
         }
 
         if (verbose)
