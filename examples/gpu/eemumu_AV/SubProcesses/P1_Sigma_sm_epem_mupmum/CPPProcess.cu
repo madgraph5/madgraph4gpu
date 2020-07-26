@@ -156,7 +156,8 @@ void CPPProcess::initProc(string param_card_name)
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, part independent of incoming flavour.
 
-__global__ void sigmaKin(double * allmomenta, double * output) 
+__global__
+void sigmaKin( const double * allmomenta, double * output ) 
 {
   // Set the parameters which change event by event
   // Need to discuss this with Stefan

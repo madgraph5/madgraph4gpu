@@ -17,7 +17,8 @@
 #include <thrust/complex.h> 
 
 
-__global__ void sigmaKin(double * allmomenta, double * output); 
+__global__
+void sigmaKin( const double* allmomenta, double* output ); 
 
 //==========================================================================
 // A class for calculating the matrix elements for
