@@ -7,7 +7,7 @@ else
 fi
 cmd="./check.exe -p 2048 256 12"
 trace=$logs/eemumuAV_`date +%m%d_%H%M`
-time ${cmd} | tee ${trace}.txt
+( time ${cmd} ) 2>&1 | tee ${trace}.txt
 if [ "${host%%raplab*}" != "${host}" ]; then
   ncu -o ${trace} ${cmd}
   nsys profile -o ${trace} ${cmd}
