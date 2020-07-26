@@ -87,12 +87,12 @@ int main(int argc, char **argv) {
   CPPProcess process( niter, gpublocks, gputhreads, verbose, debug );
 
   // Read param_card and set parameters
-  process.initProc("../../Cards/param_card.dat");
+  process.initProc( "../../Cards/param_card.dat" );
 
-  double energy = 1500;
+  const double energy = 1500;
   double weight;
 
-  int meGeVexponent = -(2 * process.nexternal - 8);
+  const int meGeVexponent = -(2 * process.nexternal - 8);
 
   int ndim = gpublocks * gputhreads;
 
