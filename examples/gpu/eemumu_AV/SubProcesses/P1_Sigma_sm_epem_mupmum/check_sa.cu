@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
   // Local Memory
   const int npar = process.nexternal; // for this process (eemumu): npar=4
   const int np3 = 3; // dimension of 3-momenta (px,py,pz): energy from rambo is ignored (mass is known)
-  double* lp = new double[npar*np3*ndim];
+  double* hstMomenta = new double[npar*np3*ndim];
 
   double* meHostPtr = new double[ndim*1];
   double *meDevPtr =0;
@@ -109,9 +109,10 @@ int main(int argc, char **argv) {
 
 
   for (int x = 0; x < numiter; ++x) {
+
     //std::cout << "Iteration #" << x+0 << std::endl;
-    // Get phase space point
-    std::vector<std::vector<double *>> p =
+    // Get a vector of ndim phase space points
+    std::vector<std::vector<double *>> rmbMomenta = // AOS[ndim][npar][np3+1]
       get_momenta(process.ninitial, energy, process.getMasses(), weight, ndim); // SLOW!
     //std::cout << "Got momenta" << std::endl;
 
@@ -119,13 +120,13 @@ int main(int argc, char **argv) {
     for (int idim = 0; idim < ndim; ++idim)
       for (int ipar = 0; ipar < npar; ++ipar)
         for (int ip3 = 0; ip3 < np3; ++ip3)
-          lp[ipar*ndim*np3 + ip3*ndim + idim] = p[idim][ipar][1+ip3]; // energy from rambo is ignored (mass is known)
+          hstMomenta[ipar*ndim*np3 + ip3*ndim + idim] = // SOA[npar][np3][ndim]
+            rmbMomenta[idim][ipar][1+ip3]; // energy from rambo is ignored (mass is known)
 
-    //new
-    int num_bytes = np3*npar*ndim * sizeof(double);
-    double *allmomenta = 0;
-    cudaMalloc((void**)&allmomenta, num_bytes);
-    cudaMemcpy(allmomenta,lp,num_bytes,cudaMemcpyHostToDevice);
+    int nbytesMomenta = np3*npar*ndim * sizeof(double);
+    double* devMomenta = 0; // device momenta
+    cudaMalloc( &devMomenta, nbytesMomenta );
+    cudaMemcpy( devMomenta, hstMomenta, nbytesMomenta, cudaMemcpyHostToDevice );
 
     //gpuErrchk3(cudaMemcpy3D(&tdp));
 
@@ -138,7 +139,7 @@ int main(int argc, char **argv) {
     // Evaluate matrix element
     // later process.sigmaKin(ncomb, goodhel, ntry, sum_hel, ngood, igood,
     // jhel);
-    sigmaKin<<<gpublocks, gputhreads>>>(allmomenta,  meDevPtr);//, debug, verbose);
+    sigmaKin<<<gpublocks, gputhreads>>>(devMomenta,  meDevPtr);//, debug, verbose);
     gpuErrchk3( cudaPeekAtLastError() );
     //gpuErrchk3(cudaMemcpy2D(meHostPtr, sizeof(double), meDevPtr, mePitch,
     //                        sizeof(double), dim, cudaMemcpyDeviceToHost));
@@ -165,13 +166,13 @@ int main(int argc, char **argv) {
           for (int ipar = 0; ipar < npar; ipar++)
             std::cout << std::setw(4) << ipar + 1
                       << setiosflags(std::ios::scientific)
-                      << std::setw(14) << p[idim][ipar][0]
+                      << std::setw(14) << rmbMomenta[idim][ipar][0]
                       << setiosflags(std::ios::scientific)
-                      << std::setw(14) << p[idim][ipar][1]
+                      << std::setw(14) << rmbMomenta[idim][ipar][1]
                       << setiosflags(std::ios::scientific)
-                      << std::setw(14) << p[idim][ipar][2]
+                      << std::setw(14) << rmbMomenta[idim][ipar][2]
                       << setiosflags(std::ios::scientific)
-                      << std::setw(14) << p[idim][ipar][3] << std::endl;
+                      << std::setw(14) << rmbMomenta[idim][ipar][3] << std::endl;
           std::cout << std::string(80, '-') << std::endl;
         }
 
@@ -192,8 +193,8 @@ int main(int argc, char **argv) {
       std::cout << ".";
     }
 
-    for (std::vector<std::vector<double *>>::iterator it = p.begin();
-         it != p.end(); ++it) {
+    for (std::vector<std::vector<double *>>::iterator it = rmbMomenta.begin();
+         it != rmbMomenta.end(); ++it) {
       for (std::vector<double *>::iterator jt = it->begin(); jt != it->end();
            ++jt) {
         delete[] & (**jt);
@@ -255,6 +256,6 @@ int main(int argc, char **argv) {
               << "MinMatrixElemValue    = " << *minelem << " GeV^" << meGeVexponent << std::endl
               << "MaxMatrixElemValue    = " << *maxelem << " GeV^" << meGeVexponent << std::endl;
   }
-  delete[] lp;
+  delete[] hstMomenta;
 
 }
