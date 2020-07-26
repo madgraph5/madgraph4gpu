@@ -40,7 +40,9 @@ int usage(char* argv0, int ret = 1) {
 
 int main(int argc, char **argv) {
   bool verbose = false, debug = false, perf = false;
-  int numiter = 0, gpublocks = 1, gputhreads = 1;
+  int niter = 0;
+  int gpublocks = 1;
+  int gputhreads = 1;
   std::vector<int> numvec;
   Timer<TIMERTYPE> timer;
   std::vector<float> wavetimes;
@@ -64,14 +66,14 @@ int main(int argc, char **argv) {
   if (veclen == 3) {
     gpublocks = numvec[0];
     gputhreads = numvec[1];
-    numiter = numvec[2];
+    niter = numvec[2];
   } else if (veclen == 1) {
-    numiter = numvec[0];
+    niter = numvec[0];
   } else {
     return usage(argv[0]);
   }
 
-  if (numiter == 0)
+  if (niter == 0)
     return usage(argv[0]);
 
   //std::cout << "Calling cudaFree... " << std::endl;
@@ -79,10 +81,10 @@ int main(int argc, char **argv) {
   //std::cout << "Calling cudaFree... done" << std::endl;
 
   if (verbose)
-    std::cout << "# iterations: " << numiter << std::endl;
+    std::cout << "# iterations: " << niter << std::endl;
 
   // Create a process object
-  CPPProcess process(numiter, gpublocks, gputhreads, verbose, debug);
+  CPPProcess process( niter, gpublocks, gputhreads, verbose, debug );
 
   // Read param_card and set parameters
   process.initProc("../../Cards/param_card.dat");
@@ -108,9 +110,10 @@ int main(int argc, char **argv) {
   std::vector<double> matrixelementvector;
 
 
-  for (int x = 0; x < numiter; ++x) {
+  for ( int iiter = 0; iiter < niter; ++iiter ) 
+  {
 
-    //std::cout << "Iteration #" << x+0 << std::endl;
+    //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
     // Get a vector of ndim phase space points
     std::vector<std::vector<double *>> rmbMomenta = // AOS[ndim][npar][np3+1]
       get_momenta(process.ninitial, energy, process.getMasses(), weight, ndim); // SLOW!
@@ -148,7 +151,7 @@ int main(int argc, char **argv) {
 
     if (verbose)
       std::cout << "***********************************" << std::endl
-                << "Iteration #" << x+1 << " of " << numiter << std::endl;
+                << "Iteration #" << iiter+1 << " of " << niter << std::endl;
 
     if (perf) {
       float gputime = timer.GetDuration();
@@ -230,7 +233,7 @@ int main(int argc, char **argv) {
         matrixelementvector.begin(), matrixelementvector.end());
 
     std::cout << "***********************************" << std::endl
-              << "NumIterations         = " << numiter << std::endl
+              << "NumIterations         = " << niter << std::endl
               << "NumThreadsPerBlock    = " << gputhreads << std::endl
               << "NumBlocksPerGrid      = " << gpublocks << std::endl
               << "-----------------------------------" << std::endl
