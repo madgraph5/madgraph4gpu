@@ -9,65 +9,75 @@
 #ifndef HelAmps_sm_H
 #define HelAmps_sm_H
 
-#include <cmath> 
-#include <thrust/complex.h> 
+#include "mg5Complex.h"
+#include <cmath>
 
+using namespace std;
 
-using namespace std; 
+namespace MG5_sm {
+__device__ void oxxxxx(double p[4], double fmass, int nhel, int nsf,
+                       mg5Complex fo[6]);
 
-namespace MG5_sm 
-{
-__device__ void oxxxxx(double p[4], double fmass, int nhel, int nsf, 
-thrust::complex<double> fo[6]); 
+__device__ void sxxxxx(double p[4], int nss, mg5Complex sc[3]);
 
-__device__ void sxxxxx(double p[4], int nss, thrust::complex<double> sc[3]); 
+__device__ void ixxxxx(double p[4], double fmass, int nhel, int nsf,
+                       mg5Complex fi[6]);
 
-__device__ void ixxxxx(double p[4], double fmass, int nhel, int nsf, 
-thrust::complex<double> fi[6]); 
+__device__ void txxxxx(double p[4], double tmass, int nhel, int nst,
+                       mg5Complex fi[18]);
 
-__device__ void txxxxx(double p[4], double tmass, int nhel, int nst, 
-thrust::complex<double> fi[18]); 
+__device__ void vxxxxx(double p[4], double vmass, int nhel, int nsv,
+                       mg5Complex v[6]);
 
-__device__ void vxxxxx(double p[4], double vmass, int nhel, int nsv, 
-thrust::complex<double> v[6]); 
+__device__ void FFV2_0(mg5Complex F1[],
+                       const mg5Complex F2[],
+                       const mg5Complex V3[],
+                       const mg5Complex COUP,
+                       mg5Complex *vertex);
 
-__device__ void FFV2_0(thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> V3[], const
-thrust::complex<double> COUP, thrust::complex<double> * vertex); 
+__device__ void FFV2_3(mg5Complex F1[],
+                       const mg5Complex F2[],
+                       const mg5Complex COUP, const double M3,
+                       const double W3, mg5Complex V3[]);
 
-__device__ void FFV2_3(thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> COUP, const
-double M3, const double W3, thrust::complex<double> V3[]); 
+__device__ void FFV4_0(mg5Complex F1[],
+                       const mg5Complex F2[],
+                       const mg5Complex V3[],
+                       const mg5Complex COUP,
+                       mg5Complex *vertex);
 
-__device__ void FFV4_0(thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> V3[], const
-thrust::complex<double> COUP, thrust::complex<double> * vertex); 
+__device__ void FFV4_3(mg5Complex F1[],
+                       const mg5Complex F2[],
+                       const mg5Complex COUP, const double M3,
+                       const double W3, mg5Complex V3[]);
 
-__device__ void FFV4_3(thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> COUP, const
-double M3, const double W3, thrust::complex<double> V3[]); 
+__device__ void FFV1_0(mg5Complex F1[],
+                       const mg5Complex F2[],
+                       const mg5Complex V3[],
+                       const mg5Complex COUP,
+                       mg5Complex *vertex);
 
-__device__ void FFV1_0(thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> V3[], const
-thrust::complex<double> COUP, thrust::complex<double> * vertex); 
+__device__ void FFV1P0_3(mg5Complex F1[],
+                         const mg5Complex F2[],
+                         const mg5Complex COUP, const double M3,
+                         const double W3, mg5Complex V3[]);
 
-__device__ void FFV1P0_3(thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> COUP, const
-double M3, const double W3, thrust::complex<double> V3[]); 
+__device__ void FFV2_4_0(mg5Complex F1[],
+                         const mg5Complex F2[],
+                         const mg5Complex V3[],
+                         const mg5Complex COUP1,
+                         const mg5Complex COUP2,
+                         mg5Complex *vertex);
 
-__device__ void FFV2_4_0(thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> V3[], const
-thrust::complex<double> COUP1, const thrust::complex<double> COUP2, 
-thrust::complex<double> * vertex); 
+__device__ void FFV2_4_3(mg5Complex F1[],
+                         const mg5Complex F2[],
+                         const mg5Complex COUP1,
+                         const mg5Complex COUP2, const double M3,
+                         const double W3, mg5Complex V3[]);
 
-__device__ void FFV2_4_3(thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> COUP1, const
-thrust::complex<double> COUP2, const double M3, const double W3, 
-thrust::complex<double> V3[]); 
+} // end namespace MG5_sm
 
-}  // end namespace MG5_sm
-
-#endif  // HelAmps_sm_H
+#endif // HelAmps_sm_H
 
 //==========================================================================
 // This file has been automatically generated for C++ Standalone by
@@ -79,87 +89,77 @@ thrust::complex<double> V3[]);
 #ifndef MG5_Sigma_sm_epem_mupmum_H
 #define MG5_Sigma_sm_epem_mupmum_H
 
-#include <complex> 
-#include <vector> 
-
+#include <complex>
+#include <vector>
 
 #include "Parameters_sm.h"
 
-#include <thrust/complex.h> 
+#include <thrust/complex.h>
 
-
-__global__ void sigmaKin(double * allmomenta, double * output); 
+__global__ void sigmaKin(double *allmomenta, double *output);
 
 //==========================================================================
 // A class for calculating the matrix elements for
 // Process: e+ e- > mu+ mu- WEIGHTED<=4 @1
 //--------------------------------------------------------------------------
 
-class CPPProcess
-{
-  public:
+class CPPProcess {
+public:
+  CPPProcess(int numiterations, int gpublocks, int gputhreads,
+             bool verbose = false, bool debug = false);
 
-    CPPProcess(int numiterations, int gpublocks, int gputhreads, 
-    bool verbose = false, bool debug = false); 
+  ~CPPProcess();
 
-    ~CPPProcess(); 
+  // Initialize process.
+  virtual void initProc(std::string param_card_name);
 
-    // Initialize process.
-    virtual void initProc(std::string param_card_name); 
+  virtual int code() const { return 1; }
 
+  const std::vector<double> &getMasses() const;
 
-    virtual int code() const {return 1;}
+  void setInitial(int inid1, int inid2) {
+    id1 = inid1;
+    id2 = inid2;
+  }
 
-    const std::vector<double> &getMasses() const; 
+  int getDim() const { return dim; }
 
-    void setInitial(int inid1, int inid2) 
-    {
-      id1 = inid1; 
-      id2 = inid2; 
-    }
+  int getNIOParticles() const { return nexternal; }
 
-    int getDim() const {return dim;}
+  // Constants for array limits
+  static const int ninitial = 2;
+  static const int nexternal = 4;
+  static const int nprocesses = 1;
 
-    int getNIOParticles() const {return nexternal;}
+private:
+  int m_numiterations;
+  // gpu variables
+  int gpu_nblocks;
+  int gpu_nthreads;
+  int dim; // gpu_nblocks * gpu_nthreads;
 
+  // print verbose info
+  bool m_verbose;
 
-    // Constants for array limits
-    static const int ninitial = 2; 
-    static const int nexternal = 4; 
-    static const int nprocesses = 1; 
+  // print debug info
+  bool m_debug;
 
-  private:
-    int m_numiterations; 
-    // gpu variables
-    int gpu_nblocks; 
-    int gpu_nthreads; 
-    int dim;  // gpu_nblocks * gpu_nthreads;
+  static const int nwavefuncs = 6;
+  static const int namplitudes = 2;
+  static const int ncomb = 16;
+  static const int wrows = 6;
+  // static const int nioparticles = 4;
 
-    // print verbose info
-    bool m_verbose; 
+  mg5Complex **amp;
 
-    // print debug info
-    bool m_debug; 
+  // Pointer to the model parameters
+  Parameters_sm *pars;
 
-    static const int nwavefuncs = 6; 
-    static const int namplitudes = 2; 
-    static const int ncomb = 16; 
-    static const int wrows = 6; 
-    // static const int nioparticles = 4;
+  // vector with external particle masses
+  std::vector<double> mME;
 
-    thrust::complex<double> * * amp; 
+  // Initial particle ids
+  int id1, id2;
+};
 
-
-    // Pointer to the model parameters
-    Parameters_sm * pars; 
-
-    // vector with external particle masses
-    std::vector<double> mME; 
-
-    // Initial particle ids
-    int id1, id2; 
-
-}; 
-
-
-#endif  // MG5_Sigma_sm_epem_mupmum_H
+#endif // MG5_Sigma_sm_epem_mupmum_H
