@@ -7,27 +7,13 @@
 #include <unistd.h>
 #include <vector>
 
+#include "CPPProcess.h"
 //#include "HelAmps_sm.h"
-
-//#include "CPPProcess.h"
-#include "CPPProcess.cu"
 
 #include "rambo.h"
 #include "timer.h"
 
 #define TIMERTYPE std::chrono::high_resolution_clock
-
-inline void gpuAssert3( cudaError_t code, const char* file, int line, bool abort = true )
-{
-  if ( code != cudaSuccess ) 
-  {
-    printf( "GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line );
-    if ( abort ) assert( code == cudaSuccess );
-  }
-}
-
-#define gpuErrchk3(code) \
-  { gpuAssert3( code, __FILE__, __LINE__ ); }
 
 bool is_number( const char *s )
 {
@@ -147,7 +133,7 @@ int main( int argc, char **argv )
     // Evaluate matrix element
     // later process.sigmaKin(ncomb, goodhel, ntry, sum_hel, ngood, igood,
     // jhel);
-    MG5_sm::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta,  devMEs);//, debug, verbose);
+    sigmaKin<<<gpublocks, gputhreads>>>(devMomenta,  devMEs);//, debug, verbose);
     gpuErrchk3( cudaPeekAtLastError() );
 
     gpuErrchk3( cudaMemcpy( hstMEs, devMEs, nbytesMEs, cudaMemcpyDeviceToHost ) );
