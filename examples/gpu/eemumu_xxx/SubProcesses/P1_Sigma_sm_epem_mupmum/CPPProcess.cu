@@ -23,7 +23,7 @@ __device__ void ipzxxx(double pvec[3], int nhel, int nsf, thrust::complex<double
   //p[0] = p[3];
   
   double SQP0P3 = sqrt(2.*pvec[3])*(float)(nSF);
-  int   NH = nHEL*nSF;
+  int   NH = nhel*nSF;
 
   fi[0] = thrust::complex<double>(pvec[3]*(double)(nSF),
                                   pvec[3]*(double)(nSF));
@@ -47,14 +47,14 @@ __device__ void imzxxx(double pvec[3], int nhel, int nsf, thrust::complex<double
   //p[0] = -p[3];
 
   //double SQP0P3 = sqrt(p[0]+p[3])*(float)(nSF);
-  int   NH = nHEL*nSF;
+  int   NH = nhel*nSF;
 
   fi[0] = thrust::complex<double>(-pvec[3]*(double)(nSF),
        	       	       	       	  pvec[3]*(double)(nSF));
   fi[1] = thrust::complex<double>(0.,0.);
 
   thrust::complex<double> CZERO   = thrust::complex<double>(0.0,   0.0);
-  thrust::complex<double> CHI = thrust::complex<double>(nHEL*sqrt(-2.0*pvec[3]), 0.0);
+  thrust::complex<double> CHI = thrust::complex<double>(nhel*sqrt(-2.0*pvec[3]), 0.0);
 
     fi[2]=(NH== 1)*CZERO   + (NH==-1)*CHI;
     fi[3]=CZERO;
