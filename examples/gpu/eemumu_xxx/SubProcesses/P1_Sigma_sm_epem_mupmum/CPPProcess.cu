@@ -423,7 +423,7 @@ thrust::complex<double> fo[6])
     // p = {pvec[3], 0, 0 , pvec[3]}
     double SQP0P3=sqrt(2.*pvec[3])*(double)(nsf);
     int     NH=nhel*nsf;
-    cmplx CZERO   = thrust::complex<double>(0., 0.);
+    thrust::complex<double> CZERO   = thrust::complex<double>(0., 0.);
 
     fo[0] = thrust::complex<double>(pvec[3]*(float)(nsf),
                     pvec[3]*(float)(nsf));
