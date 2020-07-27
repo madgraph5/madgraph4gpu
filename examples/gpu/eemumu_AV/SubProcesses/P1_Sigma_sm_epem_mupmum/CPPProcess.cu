@@ -5,7 +5,7 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#include "HelAmps_sm.h"
+//#include "HelAmps_sm.h"
 #include <complex> 
 #include <cmath> 
 #include <iostream> 
@@ -16,8 +16,8 @@ using namespace std;
 namespace MG5_sm 
 {
 
-__device__ void ixxxxx(double pvec[3], double fmass, int nhel, int nsf, 
-thrust::complex<double> fi[6]) 
+__device__ 
+void ixxxxx( const double pvec[3], double fmass, int nhel, int nsf, thrust::complex<double> fi[6] ) 
 {
   thrust::complex<double> chi[2]; 
   double sf[2], sfomega[2], omega[2], pp, pp3, sqp0p3, sqm[2]; 
@@ -107,8 +107,8 @@ thrust::complex<double> fi[6])
   return; 
 }
 
-__device__ void txxxxx(double pvec[3], double tmass, int nhel, int nst, 
-thrust::complex<double> tc[18]) 
+__device__ 
+void txxxxx( const double pvec[3], double tmass, int nhel, int nst, thrust::complex<double> tc[18] ) 
 {
   thrust::complex<double> ft[6][4], ep[4], em[4], e0[4]; 
   double pt, pt2, pp, pzpt, emp, sqh, sqs; 
@@ -283,8 +283,8 @@ thrust::complex<double> tc[18])
   }
 }
 
-__device__ void vxxxxx(double pvec[3], double vmass, int nhel, int nsv, 
-thrust::complex<double> vc[6]) 
+__device__ 
+void vxxxxx( const double pvec[3], double vmass, int nhel, int nsv, thrust::complex<double> vc[6] ) 
 {
   double hel, hel0, pt, pt2, pp, pzpt, emp, sqh; 
   int nsvahl; 
@@ -354,7 +354,8 @@ thrust::complex<double> vc[6])
   return; 
 }
 
-__device__ void sxxxxx(double pvec[3], int nss, thrust::complex<double> sc[3]) 
+__device__ 
+void sxxxxx( const double pvec[3], int nss, thrust::complex<double> sc[3] ) 
 {
   // double p[4] = {0, pvec[0], pvec[1], pvec[2]};
   // p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]+fmass*fmass);
@@ -366,8 +367,8 @@ __device__ void sxxxxx(double pvec[3], int nss, thrust::complex<double> sc[3])
   return; 
 }
 
-__device__ void oxxxxx(double pvec[3], double fmass, int nhel, int nsf, 
-thrust::complex<double> fo[6]) 
+__device__ 
+void oxxxxx( const double pvec[3], double fmass, int nhel, int nsf, thrust::complex<double> fo[6] ) 
 {
   thrust::complex<double> chi[2]; 
   double sf[2], sfomeg[2], omega[2], pp, pp3, sqp0p3, sqm[2]; 
@@ -457,6 +458,8 @@ thrust::complex<double> fo[6])
   }
   return; 
 }
+
+
 __device__ void FFV2_0(thrust::complex<double> F1[], const
 thrust::complex<double> F2[], const thrust::complex<double> V3[], const
 thrust::complex<double> COUP, thrust::complex<double> * vertex)
@@ -669,7 +672,7 @@ thrust::complex<double> V3[])
 //==========================================================================
 
 #include "CPPProcess.h"
-#include "HelAmps_sm.h"
+//#include "HelAmps_sm.h"
 
 #include <algorithm> 
 #include <iostream> 
