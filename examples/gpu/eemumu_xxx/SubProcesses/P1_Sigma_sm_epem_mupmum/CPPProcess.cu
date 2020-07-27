@@ -156,7 +156,7 @@ thrust::complex<double> fi[6])
   }
 
   return; 
-
+}
 
 __device__ void txxxxx(double pvec[3], double tmass, int nhel, int nst, 
 thrust::complex<double> tc[18]) 
