@@ -675,8 +675,6 @@ thrust::complex<double> V3[])
 #include <iostream> 
 #include <thrust/complex.h> 
 
-using namespace MG5_sm; 
-
 //==========================================================================
 // Class member functions for calculating the matrix elements for
 // Process: e+ e- > mu+ mu- WEIGHTED<=4 @1
@@ -694,6 +692,7 @@ __constant__ double cIPD[2];
 __device__ void calculate_wavefunctions(int ihel, double local_mom[4][3],
     double &matrix)
 {
+  using namespace MG5_sm; 
   thrust::complex<double> amp[2]; 
   // Calculate wavefunctions for all processes
   thrust::complex<double> w[5][6]; 
