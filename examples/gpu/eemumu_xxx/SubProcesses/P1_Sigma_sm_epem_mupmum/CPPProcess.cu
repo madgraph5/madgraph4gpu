@@ -29,8 +29,8 @@ __device__ void ipzxxx(double pvec[3], int nhel, int nsf, thrust::complex<double
   thrust::complex<double> sqp0p3 = thrust::complex<double>(sqrt(2.* pvec[3]) * nsf, 0.); 
 
   fi[2]=fi[1];
-  fi[3]=(NH== 1)*fi[1]   + (NH==-1)*sqp0p3;
-  fi[4]=(NH== 1)*sqp0p3 + (NH==-1)*fi[1];
+  fi[3]=(nh== 1)*fi[1]   + (nh==-1)*sqp0p3;
+  fi[4]=(nh== 1)*sqp0p3 + (nh==-1)*fi[1];
   fi[5]=fi[1];
 }
 
@@ -45,10 +45,10 @@ __device__ void imzxxx(double pvec[3], int nhel, int nsf, thrust::complex<double
   int nh = nhel * nsf; 
   thrust::complex<double>  chi = thrust::complex<double> (nhel * sqrt(2.0 * pvec[3]), 0.0); 
 
-  fi[2]=(NH== 1)*fi[1]   + (NH==-1)*chi;
+  fi[2]=(nh== 1)*fi[1]   + (nh==-1)*chi;
   fi[3]=fi[1];
   fi[4]=fi[1];
-  fi[5]=(NH== 1)*chi   + (NH==-1)*fi[1];
+  fi[5]=(nh== 1)*chi   + (nh==-1)*fi[1];
 }
 
 __device__ void ixzxxx(double pvec[3],  int nhel, int nsf, thrust::complex<double> fi[6]) 
@@ -74,10 +74,10 @@ __device__ void ixzxxx(double pvec[3],  int nhel, int nsf, thrust::complex<doubl
   thrust::complex<double> chi1 = thrust::complex<double> (nh * pvec[1]/sqp0p3, pvec[2]/sqp0p3); 
   thrust::complex<double> CZERO = thrust::complex<double>(0.,0.);
     
-  fi[2]=(NH== 1)*CZERO   + (NH==-1)*chi1;
-  fi[3]=(NH== 1)*CZERO   + (NH==-1)*chi0;
-  fi[4]=(NH== 1)*chi0    + (NH==-1)*CZERO;
-  fi[5]=(NH== 1)*chi1    + (NH==-1)*CZERO;
+  fi[2]=(nh== 1)*CZERO   + (nh==-1)*chi1;
+  fi[3]=(nh== 1)*CZERO   + (nh==-1)*chi0;
+  fi[4]=(nh== 1)*chi0    + (nh==-1)*CZERO;
+  fi[5]=(nh== 1)*chi1    + (nh==-1)*CZERO;
   return; 
 }
 
@@ -445,10 +445,10 @@ thrust::complex<double> fo[6])
   
   thrust::complex<double> CSQP0P3 = thrust::complex<double> (sqrt(2.* pvec[3]) * nsf, 0.00); 
     
-    fo[2]=(NH== 1)*CSQP0P3 + (NH==-1)*fo[1];
-    fo[3]=CZERO;
-    fo[4]=CZERO;
-    fo[5]=(NH== 1)*fo[1]   + (NH==-1)*CSQP0P3;
+    fo[2]=(nh== 1)*CSQP0P3 + (nh==-1)*fo[1];
+    fo[3]=fo[1];
+    fo[4]=fo[1];
+    fo[5]=(nh== 1)*fo[1]   + (nh==-1)*CSQP0P3;
 }
 
 __device__ void omzxxx(double pvec[3], int nhel, int nsf, 
@@ -458,15 +458,15 @@ thrust::complex<double> fo[6])
   // PX = PY =0
   // E = -PZ (E>0)
   
-  fo[0] = thrust::complex<double> (p[0] * nsf, p[3] * nsf); 
+  fo[0] = thrust::complex<double> (-pvec[3] * nsf, pvec[3] * nsf); 
   fo[1] = thrust::complex<double> (0., 0.); 
   int nh = nhel * nsf; 
-  thrust::complex<double> chi = thrust::complex<double> (-nhel, 0.00) * sqrt(2.0 * p[0]); 
+  thrust::complex<double> chi = thrust::complex<double> (-nhel, 0.00) * sqrt(-2.0 * pvec[3]); 
 
-  fo[2]=(NH== 1)*fo[1] + (NH==-1)*fo[1];
-  fo[3]=(NH== 1)*chi + (NH==-1)*fo[1];;
-  fo[4]=(NH== 1)*fo[1] + (NH==-1)*chi;
-  fo[5]=(NH== 1)*fo[1] + (NH==-1)*chi;
+  fo[2]=(nh== 1)*fo[1] + (nh==-1)*fo[1];
+  fo[3]=(nh== 1)*chi + (nh==-1)*fo[1];;
+  fo[4]=(nh== 1)*fo[1] + (nh==-1)*chi;
+  fo[5]=(nh== 1)*fo[1] + (nh==-1)*chi;
   
   return; 
 }
@@ -477,21 +477,21 @@ __device__ void oxzxxx(double pvec[3], int nhel, int nsf, thrust::complex<double
   // PT > 0
 
   //double p[4] = {0, pvec[0], pvec[1], pvec[2]}; 
-  double  E = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]); 
+  double  E = sqrt(pvec[1] * pvec[1] + pvec[2] * pvec[2] + pvec[3] * pvec[3]); 
 
-  fo[0] = thrust::complex<double> (p[0] * nsf, p[3] * nsf); 
-  fo[1] = thrust::complex<double> (p[1] * nsf, p[2] * nsf); 
+  fo[0] = thrust::complex<double> (E * nsf, pvec[3] * nsf); 
+  fo[1] = thrust::complex<double> (pvec[1] * nsf, pvec[2] * nsf); 
   int nh = nhel * nsf; 
 
-  double sqp0p3 = sqrt(p[0] + p[3]) * nsf; 
+  double sqp0p3 = sqrt(E + pvec[3]) * nsf; 
   thrust::complex<double> chi0 = thrust::complex<double> (sqp0p3, 0.00); 
-  thrust::complex<double> chi1 = thrust::complex<double> (nh * p[1]/sqp0p3, -p[2]/sqp0p3); 
+  thrust::complex<double> chi1 = thrust::complex<double> (nh * pvec[1]/sqp0p3, -pvec[2]/sqp0p3); 
   thrust::complex<double> zero = thrust::complex<double> (0.00, 0.00);
   
-  fo[2]=(NH== 1)*chi0 + (NH==-1)*zero;
-  fo[3]=(NH== 1)*chi1 + (NH==-1)*zero;
-  fo[4]=(NH== 1)*zero + (NH==-1)*chi1;
-  fo[5]=(NH== 1)*zero + (NH==-1)*chi0;
+  fo[2]=(nh== 1)*chi0 + (nh==-1)*zero;
+  fo[3]=(nh== 1)*chi1 + (nh==-1)*zero;
+  fo[4]=(nh== 1)*zero + (nh==-1)*chi1;
+  fo[5]=(nh== 1)*zero + (nh==-1)*chi0;
 
   return; 
 }
