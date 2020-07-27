@@ -745,7 +745,8 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[4][3],
 CPPProcess::CPPProcess(int numiterations, int gpublocks, int gputhreads, 
 bool verbose, bool debug)
 : m_numiterations(numiterations), gpu_nblocks(gpublocks), 
-gpu_nthreads(gputhreads), dim(gpu_nblocks * gpu_nthreads) 
+gpu_nthreads(gputhreads), m_verbose(verbose), m_debug(debug), 
+dim(gpu_nblocks * gpu_nthreads) 
 {
 
 
@@ -774,8 +775,10 @@ void CPPProcess::initProc(string param_card_name)
   SLHAReader slha(param_card_name); 
   pars->setIndependentParameters(slha); 
   pars->setIndependentCouplings(); 
-  pars->printIndependentParameters(); 
-  pars->printIndependentCouplings(); 
+  if (m_verbose) {
+    pars->printIndependentParameters();
+    pars->printIndependentCouplings();
+  }
   pars->setDependentParameters(); 
   pars->setDependentCouplings(); 
   // Set external particle masses for this matrix element
