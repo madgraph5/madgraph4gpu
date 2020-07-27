@@ -774,10 +774,10 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[4][3],
   thrust::complex<double> amp[2]; 
   // Calculate wavefunctions for all processes
   thrust::complex<double> w[5][6]; 
-  oxxxxx(local_mom[0], 0., cHel[ihel][0], -1, w[0]); 
+  opzxxx(local_mom[0], 0., cHel[ihel][0], -1, w[0]); 
   imzxxx(local_mom[1], cHel[ihel][1], +1, w[1]); 
-  ixxxxx(local_mom[2], 0., cHel[ihel][2], -1, w[2]); 
-  oxxxxx(local_mom[3], 0., cHel[ihel][3], +1, w[3]); 
+  imzxxx(local_mom[2], 0., cHel[ihel][2], -1, w[2]); 
+  opzxxx(local_mom[3], 0., cHel[ihel][3], +1, w[3]); 
   FFV1P0_3(w[1], w[0], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[4]);
   // Amplitude(s) for diagram number 1
