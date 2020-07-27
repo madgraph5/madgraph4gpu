@@ -1,4 +1,5 @@
 #include <algorithm> // perf stats
+#include <cassert>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -19,6 +20,7 @@ inline void gpuAssert3(cudaError_t code, const char *file, int line,
                        bool abort = true) {
   if (code != cudaSuccess) {
     printf("GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+    if ( abort ) assert( code == cudaSuccess );
   }
 }
 
