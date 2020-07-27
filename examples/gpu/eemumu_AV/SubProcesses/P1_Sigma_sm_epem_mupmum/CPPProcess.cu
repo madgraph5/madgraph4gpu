@@ -709,7 +709,7 @@ void FFV2_4_3( CONST thrust::complex<double> F1[],
 #include <iostream> 
 #include <thrust/complex.h> 
 
-using namespace MG5_sm; 
+//using namespace MG5_sm; 
 
 //==========================================================================
 // Class member functions for calculating the matrix elements for
@@ -722,6 +722,9 @@ __constant__ int cHel[16][4];
 __constant__ double cIPC[6];  // coupling ?
 __constant__ double cIPD[2]; 
 
+
+namespace MG5_sm 
+{
 
 __device__ void printComplex6( const thrust::complex<double> c6[6], const char* txt )
 {
@@ -794,7 +797,7 @@ void calculate_wavefunctions( int ihel, const double local_mom[4][3], double &ma
 
 }
 
-
+}
 
 CPPProcess::CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose, bool debug )
   : m_numiterations(numiterations)
@@ -849,6 +852,10 @@ void CPPProcess::initProc(string param_card_name)
   cudaMemcpyToSymbol(cIPC, tIPC, 3 * sizeof(thrust::complex<double> )); 
   cudaMemcpyToSymbol(cIPD, tIPD, 2 * sizeof(double)); 
 }
+
+
+namespace MG5_sm 
+{
 
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, part independent of incoming flavour.
@@ -945,6 +952,7 @@ void sigmaKin( const double * allmomenta, double * output )
 
 }
 
+}
 //==========================================================================
 // Private class member functions
 
