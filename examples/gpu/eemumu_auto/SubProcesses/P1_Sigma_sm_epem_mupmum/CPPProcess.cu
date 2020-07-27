@@ -756,7 +756,7 @@ gpu_nthreads(gputhreads), dim(gpu_nblocks * gpu_nthreads)
       1, -1}, {-1, 1, 1, 1}, {1, -1, -1, -1}, {1, -1, -1, 1}, {1, -1, 1, -1},
       {1, -1, 1, 1}, {1, 1, -1, -1}, {1, 1, -1, 1}, {1, 1, 1, -1}, {1, 1, 1,
       1}};
-  cudaMemcpyToSymbol(cHel, tHel, ncomb * nexternal * sizeof(int)); 
+  gpuErrchk3( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(int) ) ); 
   // perm - nodim
   // static int perm[nexternal] = {0, 1, 2, 3};
 }
@@ -788,8 +788,8 @@ void CPPProcess::initProc(string param_card_name)
       pars->GC_59};
   static double tIPD[2] = {pars->mdl_MZ, pars->mdl_WZ}; 
 
-  cudaMemcpyToSymbol(cIPC, tIPC, 3 * sizeof(thrust::complex<double> )); 
-  cudaMemcpyToSymbol(cIPD, tIPD, 2 * sizeof(double)); 
+  gpuErrchk3( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(thrust::complex<double> ) ) );
+  gpuErrchk3( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof(double) ) );
 }
 
 //--------------------------------------------------------------------------

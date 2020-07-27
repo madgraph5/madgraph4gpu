@@ -79,6 +79,7 @@ thrust::complex<double> V3[]);
 #ifndef MG5_Sigma_sm_epem_mupmum_H
 #define MG5_Sigma_sm_epem_mupmum_H
 
+#include <cassert>
 #include <complex> 
 #include <vector> 
 
@@ -87,6 +88,18 @@ thrust::complex<double> V3[]);
 
 #include <thrust/complex.h> 
 
+
+#define gpuErrchk3( code ) \
+  { gpuAssert3( code, __FILE__, __LINE__ ); }
+
+inline void gpuAssert3( cudaError_t code, const char *file, int line, bool abort = true )
+{
+  if ( code != cudaSuccess )
+  {
+    printf( "GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line );
+    if ( abort ) assert( code == cudaSuccess );
+  }
+}
 
 __global__ void sigmaKin(double * allmomenta, double * output); 
 
