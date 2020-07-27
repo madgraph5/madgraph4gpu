@@ -5,7 +5,7 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#include "HelAmps_sm.h"
+//#include "HelAmps_sm.h"
 #include <complex> 
 #include <cmath> 
 #include <iostream> 
@@ -16,7 +16,7 @@ using namespace std;
 namespace MG5_sm 
 {
 
-__device__ void ixxxxx(double pvec[3], double fmass, int nhel, int nsf, 
+__device__ void ixxxxx(const double pvec[3], double fmass, int nhel, int nsf, 
 thrust::complex<double> fi[6]) 
 {
   thrust::complex<double> chi[2]; 
@@ -107,7 +107,7 @@ thrust::complex<double> fi[6])
   return; 
 }
 
-__device__ void txxxxx(double pvec[3], double tmass, int nhel, int nst, 
+__device__ void txxxxx(const double pvec[3], double tmass, int nhel, int nst, 
 thrust::complex<double> tc[18]) 
 {
   thrust::complex<double> ft[6][4], ep[4], em[4], e0[4]; 
@@ -283,7 +283,7 @@ thrust::complex<double> tc[18])
   }
 }
 
-__device__ void vxxxxx(double pvec[3], double vmass, int nhel, int nsv, 
+__device__ void vxxxxx(const double pvec[3], double vmass, int nhel, int nsv, 
 thrust::complex<double> vc[6]) 
 {
   double hel, hel0, pt, pt2, pp, pzpt, emp, sqh; 
@@ -354,7 +354,7 @@ thrust::complex<double> vc[6])
   return; 
 }
 
-__device__ void sxxxxx(double pvec[3], int nss, thrust::complex<double> sc[3]) 
+__device__ void sxxxxx(const double pvec[3], int nss, thrust::complex<double> sc[3]) 
 {
   // double p[4] = {0, pvec[0], pvec[1], pvec[2]};
   // p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]+fmass*fmass);
@@ -366,7 +366,7 @@ __device__ void sxxxxx(double pvec[3], int nss, thrust::complex<double> sc[3])
   return; 
 }
 
-__device__ void oxxxxx(double pvec[3], double fmass, int nhel, int nsf, 
+__device__ void oxxxxx(const double pvec[3], double fmass, int nhel, int nsf, 
 thrust::complex<double> fo[6]) 
 {
   thrust::complex<double> chi[2]; 
@@ -457,7 +457,7 @@ thrust::complex<double> fo[6])
   }
   return; 
 }
-__device__ void FFV2_0(thrust::complex<double> F1[], const
+__device__ void FFV2_0(const thrust::complex<double> F1[], const
 thrust::complex<double> F2[], const thrust::complex<double> V3[], const
 thrust::complex<double> COUP, thrust::complex<double> * vertex)
 {
@@ -469,7 +469,7 @@ thrust::complex<double> COUP, thrust::complex<double> * vertex)
 }
 
 
-__device__ void FFV2_3(thrust::complex<double> F1[], const
+__device__ void FFV2_3(const thrust::complex<double> F1[], const
 thrust::complex<double> F2[], const thrust::complex<double> COUP, const
 double M3, const double W3, thrust::complex<double> V3[])
 {
@@ -501,7 +501,7 @@ double M3, const double W3, thrust::complex<double> V3[])
 }
 
 
-__device__ void FFV4_0(thrust::complex<double> F1[], const
+__device__ void FFV4_0(const thrust::complex<double> F1[], const
 thrust::complex<double> F2[], const thrust::complex<double> V3[], const
 thrust::complex<double> COUP, thrust::complex<double> * vertex)
 {
@@ -516,7 +516,7 @@ thrust::complex<double> COUP, thrust::complex<double> * vertex)
 }
 
 
-__device__ void FFV4_3(thrust::complex<double> F1[], const
+__device__ void FFV4_3(const thrust::complex<double> F1[], const
 thrust::complex<double> F2[], const thrust::complex<double> COUP, const
 double M3, const double W3, thrust::complex<double> V3[])
 {
@@ -556,7 +556,7 @@ double M3, const double W3, thrust::complex<double> V3[])
 }
 
 
-__device__ void FFV1_0(thrust::complex<double> F1[], const
+__device__ void FFV1_0(const thrust::complex<double> F1[], const
 thrust::complex<double> F2[], const thrust::complex<double> V3[], const
 thrust::complex<double> COUP, thrust::complex<double> * vertex)
 {
@@ -570,7 +570,7 @@ thrust::complex<double> COUP, thrust::complex<double> * vertex)
 }
 
 
-__device__ void FFV1P0_3(thrust::complex<double> F1[], const
+__device__ void FFV1P0_3(const thrust::complex<double> F1[], const
 thrust::complex<double> F2[], const thrust::complex<double> COUP, const
 double M3, const double W3, thrust::complex<double> V3[])
 {
@@ -596,7 +596,7 @@ double M3, const double W3, thrust::complex<double> V3[])
 }
 
 
-__device__ void FFV2_4_0(thrust::complex<double> F1[], const
+__device__ void FFV2_4_0(const thrust::complex<double> F1[], const
 thrust::complex<double> F2[], const thrust::complex<double> V3[], const
 thrust::complex<double> COUP1, const thrust::complex<double> COUP2, 
 thrust::complex<double> * vertex)
@@ -613,7 +613,7 @@ thrust::complex<double> * vertex)
 }
 
 
-__device__ void FFV2_4_3(thrust::complex<double> F1[], const
+__device__ void FFV2_4_3(const thrust::complex<double> F1[], const
 thrust::complex<double> F2[], const thrust::complex<double> COUP1, const
 thrust::complex<double> COUP2, const double M3, const double W3, 
 thrust::complex<double> V3[])
@@ -669,13 +669,11 @@ thrust::complex<double> V3[])
 //==========================================================================
 
 #include "CPPProcess.h"
-#include "HelAmps_sm.h"
+//#include "HelAmps_sm.h"
 
 #include <algorithm> 
 #include <iostream> 
 #include <thrust/complex.h> 
-
-using namespace MG5_sm; 
 
 //==========================================================================
 // Class member functions for calculating the matrix elements for
@@ -694,6 +692,7 @@ __constant__ double cIPD[2];
 __device__ void calculate_wavefunctions(int ihel, double local_mom[4][3],
     double &matrix)
 {
+  using namespace MG5_sm; 
   thrust::complex<double> amp[2]; 
   // Calculate wavefunctions for all processes
   thrust::complex<double> w[5][6]; 
@@ -746,7 +745,8 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[4][3],
 CPPProcess::CPPProcess(int numiterations, int gpublocks, int gputhreads, 
 bool verbose, bool debug)
 : m_numiterations(numiterations), gpu_nblocks(gpublocks), 
-gpu_nthreads(gputhreads), dim(gpu_nblocks * gpu_nthreads) 
+gpu_nthreads(gputhreads), m_verbose(verbose), m_debug(debug), 
+dim(gpu_nblocks * gpu_nthreads) 
 {
 
 
@@ -756,7 +756,7 @@ gpu_nthreads(gputhreads), dim(gpu_nblocks * gpu_nthreads)
       1, -1}, {-1, 1, 1, 1}, {1, -1, -1, -1}, {1, -1, -1, 1}, {1, -1, 1, -1},
       {1, -1, 1, 1}, {1, 1, -1, -1}, {1, 1, -1, 1}, {1, 1, 1, -1}, {1, 1, 1,
       1}};
-  cudaMemcpyToSymbol(cHel, tHel, ncomb * nexternal * sizeof(int)); 
+  gpuErrchk3( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(int) ) ); 
   // perm - nodim
   // static int perm[nexternal] = {0, 1, 2, 3};
 }
@@ -772,11 +772,13 @@ void CPPProcess::initProc(string param_card_name)
 {
   // Instantiate the model class and set parameters that stay fixed during run
   pars = Parameters_sm::getInstance(); 
-  SLHAReader slha(param_card_name); 
+  SLHAReader slha(param_card_name, m_verbose); 
   pars->setIndependentParameters(slha); 
   pars->setIndependentCouplings(); 
-  pars->printIndependentParameters(); 
-  pars->printIndependentCouplings(); 
+  if (m_verbose) {
+    pars->printIndependentParameters();
+    pars->printIndependentCouplings();
+  }
   pars->setDependentParameters(); 
   pars->setDependentCouplings(); 
   // Set external particle masses for this matrix element
@@ -788,8 +790,8 @@ void CPPProcess::initProc(string param_card_name)
       pars->GC_59};
   static double tIPD[2] = {pars->mdl_MZ, pars->mdl_WZ}; 
 
-  cudaMemcpyToSymbol(cIPC, tIPC, 3 * sizeof(thrust::complex<double> )); 
-  cudaMemcpyToSymbol(cIPD, tIPD, 2 * sizeof(double)); 
+  gpuErrchk3( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(thrust::complex<double> ) ) );
+  gpuErrchk3( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof(double) ) );
 }
 
 //--------------------------------------------------------------------------
