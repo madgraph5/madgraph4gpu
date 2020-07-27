@@ -810,7 +810,8 @@ CPPProcess::CPPProcess( int numiterations, int gpublocks, int gputhreads, bool v
 
 
   // Helicities for the process - nodim
-  static const int tHel[ncomb][nexternal] = {{-1, -1, -1, -1}, {-1, -1, -1, 1},
+  //static
+    const int tHel[ncomb][nexternal] = {{-1, -1, -1, -1}, {-1, -1, -1, 1},
       {-1, -1, 1, -1}, {-1, -1, 1, 1}, {-1, 1, -1, -1}, {-1, 1, -1, 1}, {-1, 1,
       1, -1}, {-1, 1, 1, 1}, {1, -1, -1, -1}, {1, -1, -1, 1}, {1, -1, 1, -1},
       {1, -1, 1, 1}, {1, 1, -1, -1}, {1, 1, -1, 1}, {1, 1, 1, -1}, {1, 1, 1,
@@ -845,10 +846,10 @@ void CPPProcess::initProc(string param_card_name)
   mME.push_back(pars->ZERO); 
   mME.push_back(pars->ZERO); 
   mME.push_back(pars->ZERO); 
-  static thrust::complex<double> tIPC[3] = {pars->GC_3, pars->GC_50,
-      pars->GC_59};
-  static double tIPD[2] = {pars->mdl_MZ, pars->mdl_WZ}; 
-
+  //static thrust::complex<double> tIPC[3] = {pars->GC_3, pars->GC_50, pars->GC_59};
+  //static double tIPD[2] = {pars->mdl_MZ, pars->mdl_WZ}; 
+  const thrust::complex<double> tIPC[3] = {pars->GC_3, pars->GC_50, pars->GC_59};
+  const double tIPD[2] = {pars->mdl_MZ, pars->mdl_WZ}; 
   cudaMemcpyToSymbol(cIPC, tIPC, 3 * sizeof(thrust::complex<double> )); 
   cudaMemcpyToSymbol(cIPD, tIPD, 2 * sizeof(double)); 
 }
