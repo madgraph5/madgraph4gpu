@@ -93,6 +93,10 @@ int main(int argc, char **argv) {
 
   std::vector<double> matrixelementvector;
 
+  int num_bytes = 3*4*dim * sizeof(double);
+  double *allmomenta = 0;
+  gpuErrchk3( cudaMalloc( (void**)&allmomenta, num_bytes ) );
+
   for (int x = 0; x < numiter; ++x) {
     // Get phase space point
     std::vector<std::vector<double *>> p =
@@ -106,11 +110,6 @@ int main(int argc, char **argv) {
         }
       }
     }
-
-    //new
-    int num_bytes = 3*4*dim * sizeof(double);
-    double *allmomenta = 0;
-    gpuErrchk3( cudaMalloc( (void**)&allmomenta, num_bytes ) );
     gpuErrchk3( cudaMemcpy( allmomenta, lp, num_bytes, cudaMemcpyHostToDevice ) );
 
     //gpuErrchk3(cudaMemcpy3D(&tdp));
@@ -183,7 +182,6 @@ int main(int argc, char **argv) {
         delete[] & (**jt);
       }
     }
-    gpuErrchk3( cudaFree( allmomenta ) );
   }
 
   if (!(verbose || debug || perf)) {
@@ -242,6 +240,7 @@ int main(int argc, char **argv) {
   }
   delete[] lp;
 
+  gpuErrchk3( cudaFree( allmomenta ) );
   gpuErrchk3( cudaFree( meDevPtr ) );
 
   gpuErrchk3( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
