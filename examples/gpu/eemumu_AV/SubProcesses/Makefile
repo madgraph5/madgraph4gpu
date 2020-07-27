@@ -11,7 +11,8 @@ CXX=g++
 MAKEDEBUG=
 
 main=check.exe
-cu_objects=CPPProcess.o check_sa.o
+#cu_objects=CPPProcess.o check_sa.o
+cu_objects=check_sa.o
 cxx_objects=
 
 # Assuming uname is available, detect if architecture is power

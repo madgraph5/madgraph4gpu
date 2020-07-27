@@ -7,8 +7,10 @@
 #include <unistd.h>
 #include <vector>
 
-#include "CPPProcess.h"
 //#include "HelAmps_sm.h"
+
+//#include "CPPProcess.h"
+#include "CPPProcess.cu"
 
 #include "rambo.h"
 #include "timer.h"

@@ -574,7 +574,7 @@ void FFV4_3( const thrust::complex<double> F1[],
   */
 
 
-#define CONST
+#define CONST const
 
 __device__ 
 void FFV1_0( CONST thrust::complex<double> F1[], 
