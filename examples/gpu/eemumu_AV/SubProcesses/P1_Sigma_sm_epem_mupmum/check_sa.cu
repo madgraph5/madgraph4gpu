@@ -24,10 +24,8 @@ inline void gpuAssert3( cudaError_t code, const char* file, int line, bool abort
   }
 }
 
-inline void gpuErrchk3( cudaError_t code, bool abort = true )
-{ 
-  gpuAssert3( code, __FILE__, __LINE__ ); 
-}
+#define gpuErrchk3(code) \
+  { gpuAssert3( code, __FILE__, __LINE__ ); }
 
 bool is_number( const char *s )
 {
