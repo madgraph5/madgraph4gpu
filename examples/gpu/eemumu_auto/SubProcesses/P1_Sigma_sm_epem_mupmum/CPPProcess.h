@@ -29,51 +29,37 @@ __device__ void txxxxx(double p[4], double tmass, int nhel, int nst,
 __device__ void vxxxxx(double p[4], double vmass, int nhel, int nsv,
                        mg5Complex v[6]);
 
-__device__ void FFV2_0(mg5Complex F1[],
-                       const mg5Complex F2[],
-                       const mg5Complex V3[],
-                       const mg5Complex COUP,
+__device__ void FFV2_0(mg5Complex F1[], const mg5Complex F2[],
+                       const mg5Complex V3[], const mg5Complex COUP,
                        mg5Complex *vertex);
 
-__device__ void FFV2_3(mg5Complex F1[],
-                       const mg5Complex F2[],
-                       const mg5Complex COUP, const double M3,
-                       const double W3, mg5Complex V3[]);
+__device__ void FFV2_3(mg5Complex F1[], const mg5Complex F2[],
+                       const mg5Complex COUP, const double M3, const double W3,
+                       mg5Complex V3[]);
 
-__device__ void FFV4_0(mg5Complex F1[],
-                       const mg5Complex F2[],
-                       const mg5Complex V3[],
-                       const mg5Complex COUP,
+__device__ void FFV4_0(mg5Complex F1[], const mg5Complex F2[],
+                       const mg5Complex V3[], const mg5Complex COUP,
                        mg5Complex *vertex);
 
-__device__ void FFV4_3(mg5Complex F1[],
-                       const mg5Complex F2[],
-                       const mg5Complex COUP, const double M3,
-                       const double W3, mg5Complex V3[]);
+__device__ void FFV4_3(mg5Complex F1[], const mg5Complex F2[],
+                       const mg5Complex COUP, const double M3, const double W3,
+                       mg5Complex V3[]);
 
-__device__ void FFV1_0(mg5Complex F1[],
-                       const mg5Complex F2[],
-                       const mg5Complex V3[],
-                       const mg5Complex COUP,
+__device__ void FFV1_0(mg5Complex F1[], const mg5Complex F2[],
+                       const mg5Complex V3[], const mg5Complex COUP,
                        mg5Complex *vertex);
 
-__device__ void FFV1P0_3(mg5Complex F1[],
-                         const mg5Complex F2[],
+__device__ void FFV1P0_3(mg5Complex F1[], const mg5Complex F2[],
                          const mg5Complex COUP, const double M3,
                          const double W3, mg5Complex V3[]);
 
-__device__ void FFV2_4_0(mg5Complex F1[],
-                         const mg5Complex F2[],
-                         const mg5Complex V3[],
-                         const mg5Complex COUP1,
-                         const mg5Complex COUP2,
-                         mg5Complex *vertex);
+__device__ void FFV2_4_0(mg5Complex F1[], const mg5Complex F2[],
+                         const mg5Complex V3[], const mg5Complex COUP1,
+                         const mg5Complex COUP2, mg5Complex *vertex);
 
-__device__ void FFV2_4_3(mg5Complex F1[],
-                         const mg5Complex F2[],
-                         const mg5Complex COUP1,
-                         const mg5Complex COUP2, const double M3,
-                         const double W3, mg5Complex V3[]);
+__device__ void FFV2_4_3(mg5Complex F1[], const mg5Complex F2[],
+                         const mg5Complex COUP1, const mg5Complex COUP2,
+                         const double M3, const double W3, mg5Complex V3[]);
 
 } // end namespace MG5_sm
 
@@ -93,8 +79,6 @@ __device__ void FFV2_4_3(mg5Complex F1[],
 #include <vector>
 
 #include "Parameters_sm.h"
-
-#include <thrust/complex.h>
 
 __global__ void sigmaKin(double *allmomenta, double *output);
 

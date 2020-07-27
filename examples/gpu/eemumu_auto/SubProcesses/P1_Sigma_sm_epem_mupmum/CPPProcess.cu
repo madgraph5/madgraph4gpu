@@ -563,7 +563,6 @@ __device__ void FFV2_4_3(mg5Complex F1[], const mg5Complex F2[],
 
 #include <algorithm>
 #include <iostream>
-#include <thrust/complex.h>
 
 using namespace MG5_sm;
 
