@@ -6,6 +6,7 @@
 // GPU Template
 //==========================================================================
 
+/*
 #ifndef HelAmps_sm_H
 #define HelAmps_sm_H
 
@@ -69,6 +70,8 @@ thrust::complex<double> V3[]);
 
 #endif  // HelAmps_sm_H
 
+*/
+
 //==========================================================================
 // This file has been automatically generated for C++ Standalone by
 // MadGraph5_aMC@NLO v. 2.7.3.py3, 2020-06-28
@@ -88,8 +91,8 @@ thrust::complex<double> V3[]);
 #include <thrust/complex.h> 
 
 
-__global__
-void sigmaKin( const double* allmomenta, double* output ); 
+//__global__
+//void sigmaKin( const double* allmomenta, double* output ); 
 
 //==========================================================================
 // A class for calculating the matrix elements for
