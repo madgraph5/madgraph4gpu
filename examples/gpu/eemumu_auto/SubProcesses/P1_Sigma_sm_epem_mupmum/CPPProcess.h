@@ -17,50 +17,50 @@ using namespace std;
 
 namespace MG5_sm 
 {
-__device__ void oxxxxx(double p[4], double fmass, int nhel, int nsf, 
+__device__ void oxxxxx(const double p[3], double fmass, int nhel, int nsf, 
 thrust::complex<double> fo[6]); 
 
-__device__ void sxxxxx(double p[4], int nss, thrust::complex<double> sc[3]); 
+__device__ void sxxxxx(const double p[3], int nss, thrust::complex<double> sc[3]); 
 
-__device__ void ixxxxx(double p[4], double fmass, int nhel, int nsf, 
+__device__ void ixxxxx(const double p[3], double fmass, int nhel, int nsf, 
 thrust::complex<double> fi[6]); 
 
-__device__ void txxxxx(double p[4], double tmass, int nhel, int nst, 
+__device__ void txxxxx(const double p[3], double tmass, int nhel, int nst, 
 thrust::complex<double> fi[18]); 
 
-__device__ void vxxxxx(double p[4], double vmass, int nhel, int nsv, 
+__device__ void vxxxxx(const double p[3], double vmass, int nhel, int nsv, 
 thrust::complex<double> v[6]); 
 
-__device__ void FFV2_0(thrust::complex<double> F1[], const
+__device__ void FFV2_0(const thrust::complex<double> F1[], const
 thrust::complex<double> F2[], const thrust::complex<double> V3[], const
 thrust::complex<double> COUP, thrust::complex<double> * vertex); 
 
-__device__ void FFV2_3(thrust::complex<double> F1[], const
+__device__ void FFV2_3(const thrust::complex<double> F1[], const
 thrust::complex<double> F2[], const thrust::complex<double> COUP, const
 double M3, const double W3, thrust::complex<double> V3[]); 
 
-__device__ void FFV4_0(thrust::complex<double> F1[], const
+__device__ void FFV4_0(const thrust::complex<double> F1[], const
 thrust::complex<double> F2[], const thrust::complex<double> V3[], const
 thrust::complex<double> COUP, thrust::complex<double> * vertex); 
 
-__device__ void FFV4_3(thrust::complex<double> F1[], const
+__device__ void FFV4_3(const thrust::complex<double> F1[], const
 thrust::complex<double> F2[], const thrust::complex<double> COUP, const
 double M3, const double W3, thrust::complex<double> V3[]); 
 
-__device__ void FFV1_0(thrust::complex<double> F1[], const
+__device__ void FFV1_0(const thrust::complex<double> F1[], const
 thrust::complex<double> F2[], const thrust::complex<double> V3[], const
 thrust::complex<double> COUP, thrust::complex<double> * vertex); 
 
-__device__ void FFV1P0_3(thrust::complex<double> F1[], const
+__device__ void FFV1P0_3(const thrust::complex<double> F1[], const
 thrust::complex<double> F2[], const thrust::complex<double> COUP, const
 double M3, const double W3, thrust::complex<double> V3[]); 
 
-__device__ void FFV2_4_0(thrust::complex<double> F1[], const
+__device__ void FFV2_4_0(const thrust::complex<double> F1[], const
 thrust::complex<double> F2[], const thrust::complex<double> V3[], const
 thrust::complex<double> COUP1, const thrust::complex<double> COUP2, 
 thrust::complex<double> * vertex); 
 
-__device__ void FFV2_4_3(thrust::complex<double> F1[], const
+__device__ void FFV2_4_3(const thrust::complex<double> F1[], const
 thrust::complex<double> F2[], const thrust::complex<double> COUP1, const
 thrust::complex<double> COUP2, const double M3, const double W3, 
 thrust::complex<double> V3[]); 
@@ -79,6 +79,7 @@ thrust::complex<double> V3[]);
 #ifndef MG5_Sigma_sm_epem_mupmum_H
 #define MG5_Sigma_sm_epem_mupmum_H
 
+#include <cassert>
 #include <complex> 
 #include <vector> 
 
@@ -87,6 +88,18 @@ thrust::complex<double> V3[]);
 
 #include <thrust/complex.h> 
 
+
+#define gpuErrchk3( code ) \
+  { gpuAssert3( code, __FILE__, __LINE__ ); }
+
+inline void gpuAssert3( cudaError_t code, const char *file, int line, bool abort = true )
+{
+  if ( code != cudaSuccess )
+  {
+    printf( "GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line );
+    if ( abort ) assert( code == cudaSuccess );
+  }
+}
 
 __global__ void sigmaKin(double * allmomenta, double * output); 
 
