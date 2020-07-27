@@ -5,7 +5,7 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#include "HelAmps_sm.h"
+//#include "HelAmps_sm.h"
 #include <complex> 
 #include <cmath> 
 #include <iostream> 
@@ -669,7 +669,7 @@ thrust::complex<double> V3[])
 //==========================================================================
 
 #include "CPPProcess.h"
-#include "HelAmps_sm.h"
+//#include "HelAmps_sm.h"
 
 #include <algorithm> 
 #include <iostream> 
