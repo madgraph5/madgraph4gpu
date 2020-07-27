@@ -241,4 +241,5 @@ int main(int argc, char **argv) {
   }
   delete[] lp;
 
+  gpuErrchk3( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
 }
