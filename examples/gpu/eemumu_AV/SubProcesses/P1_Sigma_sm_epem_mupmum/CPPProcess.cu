@@ -42,8 +42,8 @@ __device__ void printDouble4( const double p[4], const char* txt )
 
 // Evaluate |M|^2 for each subprocess
 
-__device__ void calculate_wavefunctions(int ihel, double local_mom[4][3],
-    double &matrix)
+__device__
+void calculate_wavefunctions( int ihel, const double local_mom[4][3], double &matrix )
 {
   thrust::complex<double> amp[2]; 
   // Calculate wavefunctions for all processes
