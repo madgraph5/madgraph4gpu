@@ -19,14 +19,14 @@ namespace MG5_sm
 __device__ void ipzxxx(double pvec[3], int nhel, int nsf, thrust::complex<double> fi[6]) 
 {
 
-  double p[4] = {0, pvec[0], pvec[1], pvec[2]}; 
-  p[0] = sqrt(p[3] * p[3] + fmass * fmass);
+  //double p[4] = {0, pvec[0], pvec[1], pvec[2]}; 
+  //p[0] = p[3];
   
-  double SQP0P3 = sqrt(p[0]+p[3])*(float)(nSF);
+  double SQP0P3 = sqrt(2.*pvec[3])*(float)(nSF);
   int   NH = nHEL*nSF;
 
-  fi[0] = thrust::complex<double>(p[0]*(double)(nSF),
-                                  p[3]*(double)(nSF));
+  fi[0] = thrust::complex<double>(pvec[3]*(double)(nSF),
+                                  pvec[3]*(double)(nSF));
   fi[1] = thrust::complex<double>(0.,0.);
 
   thrust::complex<double> CZERO   = thrust::complex<double>(0.0,   0.0);
@@ -43,18 +43,18 @@ __device__ void ipzxxx(double pvec[3], int nhel, int nsf, thrust::complex<double
 __device__ void imzxxx(double pvec[3], int nhel, int nsf, thrust::complex<double> fi[6])
 {
 
-  double p[4] = {0, pvec[0], pvec[1], pvec[2]};
-  p[0] = sqrt(p[3] * p[3] + fmass * fmass);
+  //double p[4] = {0, pvec[0], pvec[1], pvec[2]};
+  //p[0] = -p[3];
 
-  double SQP0P3 = sqrt(p[0]+p[3])*(float)(nSF);
+  //double SQP0P3 = sqrt(p[0]+p[3])*(float)(nSF);
   int   NH = nHEL*nSF;
 
-  fi[0] = thrust::complex<double>(p[0]*(double)(nSF),
-       	       	       	       	  p[3]*(double)(nSF));
+  fi[0] = thrust::complex<double>(-pvec[3]*(double)(nSF),
+       	       	       	       	  pvec[3]*(double)(nSF));
   fi[1] = thrust::complex<double>(0.,0.);
 
   thrust::complex<double> CZERO   = thrust::complex<double>(0.0,   0.0);
-  thrust::complex<double> CHI = thrust::complex<double>(nHEL*sqrt(2.0*p[0]), 0.0);
+  thrust::complex<double> CHI = thrust::complex<double>(nHEL*sqrt(-2.0*pvec[3]), 0.0);
 
     fi[2]=(NH== 1)*CZERO   + (NH==-1)*CHI;
     fi[3]=CZERO;
@@ -419,14 +419,14 @@ __device__ void sxxxxx(double pvec[3], int nss, thrust::complex<double> sc[3])
 
 __device__ void opzxxx(double pvec[3], int nhel, int nsf, 
 thrust::complex<double> fo[6]) 
-void oxxxx1(float* p, int nHEL, int nSF, cmplx* fo)
 {
-    double SQP0P3=sqrt(p[0]+p[3])*(double)(nSF);
+    // p = {pvec[3], 0, 0 , pvec[3]}
+    double SQP0P3=sqrt(2.*pvec[3])*(double)(nSF);
     int     NH=nhel*nSF;
     cmplx CZERO   = thrust::complex<double>(0., 0.);
 
-    fo[0] = thrust::complex<double>(p[0]*(float)(nSF),
-                    p[3]*(float)(nSF));
+    fo[0] = thrust::complex<double>(pvec[3]*(float)(nSF),
+                    pvec[3]*(float)(nSF));
     fo[1] = CZERO;
 
     //cmplx CHI     = thrust::complex<double>(NH*p[1]*(1.0/SQP0P3),
