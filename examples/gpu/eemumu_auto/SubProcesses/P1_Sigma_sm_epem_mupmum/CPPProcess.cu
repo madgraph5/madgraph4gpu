@@ -5,6 +5,7 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
+//
 #include "HelAmps_sm.h"
 #include <cmath>
 #include <complex>
@@ -50,7 +51,7 @@ __device__ void ixxxxx(double pvec[3], double fmass, int nhel, int nsf,
       if (pp3 == 0.0) {
         chi[1] = make_mg5Complex(-nh, 0);
       } else {
-        chi[1] = make_mg5Complex(nh * p[1], p[2] / sqrt(2.0 * pp * pp3));
+        chi[1] = make_mg5Complex(nh * p[1], p[2]) / sqrt(2.0 * pp * pp3);
       }
       fi[2] = sfomega[0] * chi[im];
       fi[3] = sfomega[0] * chi[ip];
@@ -67,7 +68,7 @@ __device__ void ixxxxx(double pvec[3], double fmass, int nhel, int nsf,
     if (sqp0p3 == 0.0) {
       chi[1] = make_mg5Complex(-nhel * sqrt(2.0 * p[0]), 0.0);
     } else {
-      chi[1] = make_mg5Complex(nh * p[1], p[2] / sqp0p3);
+      chi[1] = make_mg5Complex(nh * p[1], p[2]) / sqp0p3;
     }
     if (nh == 1) {
       fi[2] = make_mg5Complex(0.0, 0.0);
