@@ -12,11 +12,17 @@ trace=$logs/eemumuAV_`date +%m%d_%H%M`
 ( time ${cmd} ) 2>&1 | tee ${trace}.txt
 if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
   /usr/local/cuda-11.0/bin/ncu --set full -o ${trace} ${cmd}
-  /usr/local/cuda-10.1/bin/nsys profile -o ${trace} ${cmd}
+  ###/usr/local/cuda-10.1/bin/nsys profile -o ${trace} ${cmd}
+  ###/usr/local/cuda-10.2/bin/nsys profile -o ${trace} ${cmd}
+  ###/cvmfs/sft.cern.ch/lcg/releases/cuda/10.2-9d877/x86_64-centos7-gcc62-opt/bin/nsys profile -o ${trace} ${cmd}
+  /cvmfs/sft.cern.ch/lcg/releases/cuda/11.0RC-d9c38/x86_64-centos7-gcc62-opt/bin/nsys profile -o ${trace} ${cmd}
   echo ""
   echo "TO ANALYSE TRACE FILES:"
   echo "  /usr/local/cuda-11.0/bin/ncu-ui &"
-  echo "  /usr/local/cuda-10.1/bin/nsight-sys &"
+  ###echo "  /usr/local/cuda-10.1/bin/nsight-sys &"
+  ###echo "  /usr/local/cuda-10.2/bin/nsight-sys &"
+  ###/cvmfs/sft.cern.ch/lcg/releases/cuda/10.2-9d877/x86_64-centos7-gcc62-opt/bin/nsight-sys &
+  /cvmfs/sft.cern.ch/lcg/releases/cuda/11.0RC-d9c38/x86_64-centos7-gcc62-opt/bin/nsight-sys &
 else
   ncu --set full -o ${trace} ${cmd}
   nsys profile -o ${trace} ${cmd}
