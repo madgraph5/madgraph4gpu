@@ -16,15 +16,14 @@ using namespace std;
 namespace MG5_sm 
 {
 
-__device__ void ixxxxx(const double pvec[3], double fmass, int nhel, int nsf, 
+__device__ void ixxxxx(const double pvec[4], double fmass, int nhel, int nsf, 
 thrust::complex<double> fi[6]) 
 {
   thrust::complex<double> chi[2]; 
   double sf[2], sfomega[2], omega[2], pp, pp3, sqp0p3, sqm[2]; 
   int ip, im, nh; 
 
-  double p[4] = {0, pvec[0], pvec[1], pvec[2]}; 
-  p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3] + fmass * fmass); 
+  const double* p = pvec;
   fi[0] = thrust::complex<double> (-p[0] * nsf, -p[3] * nsf); 
   fi[1] = thrust::complex<double> (-p[1] * nsf, -p[2] * nsf); 
   nh = nhel * nsf; 
@@ -107,15 +106,14 @@ thrust::complex<double> fi[6])
   return; 
 }
 
-__device__ void txxxxx(const double pvec[3], double tmass, int nhel, int nst, 
+__device__ void txxxxx(const double pvec[4], double tmass, int nhel, int nst, 
 thrust::complex<double> tc[18]) 
 {
   thrust::complex<double> ft[6][4], ep[4], em[4], e0[4]; 
   double pt, pt2, pp, pzpt, emp, sqh, sqs; 
   int i, j; 
 
-  double p[4] = {0, pvec[0], pvec[1], pvec[2]}; 
-  p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3] + tmass * tmass); 
+  const double* p = pvec;
   sqh = sqrt(0.5); 
   sqs = sqrt(0.5/3); 
 
@@ -283,14 +281,13 @@ thrust::complex<double> tc[18])
   }
 }
 
-__device__ void vxxxxx(const double pvec[3], double vmass, int nhel, int nsv, 
+__device__ void vxxxxx(const double pvec[4], double vmass, int nhel, int nsv, 
 thrust::complex<double> vc[6]) 
 {
   double hel, hel0, pt, pt2, pp, pzpt, emp, sqh; 
   int nsvahl; 
 
-  double p[4] = {0, pvec[0], pvec[1], pvec[2]}; 
-  p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3] + vmass * vmass); 
+  const double* p = pvec;
 
   sqh = sqrt(0.5); 
   hel = double(nhel); 
@@ -354,10 +351,9 @@ thrust::complex<double> vc[6])
   return; 
 }
 
-__device__ void sxxxxx(const double pvec[3], int nss, thrust::complex<double> sc[3]) 
+__device__ void sxxxxx(const double pvec[4], int nss, thrust::complex<double> sc[3]) 
 {
-  // double p[4] = {0, pvec[0], pvec[1], pvec[2]};
-  // p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]+fmass*fmass);
+  // const double* p = pvec;
   double p[4] = {0, 0, 0, 0}; 
   printf("scalar not supported so far. to do: fix mass issue"); 
   sc[2] = thrust::complex<double> (1.00, 0.00); 
@@ -366,15 +362,14 @@ __device__ void sxxxxx(const double pvec[3], int nss, thrust::complex<double> sc
   return; 
 }
 
-__device__ void oxxxxx(const double pvec[3], double fmass, int nhel, int nsf, 
+__device__ void oxxxxx(const double pvec[4], double fmass, int nhel, int nsf, 
 thrust::complex<double> fo[6]) 
 {
   thrust::complex<double> chi[2]; 
   double sf[2], sfomeg[2], omega[2], pp, pp3, sqp0p3, sqm[2]; 
   int nh, ip, im; 
 
-  double p[4] = {0, pvec[0], pvec[1], pvec[2]}; 
-  p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3] + fmass * fmass); 
+  const double* p = pvec;
 
   fo[0] = thrust::complex<double> (p[0] * nsf, p[3] * nsf); 
   fo[1] = thrust::complex<double> (p[1] * nsf, p[2] * nsf); 
@@ -689,7 +684,7 @@ __constant__ double cIPD[2];
 
 // Evaluate |M|^2 for each subprocess
 
-__device__ void calculate_wavefunctions(int ihel, double local_mom[4][3],
+__device__ void calculate_wavefunctions(int ihel, double local_mom[4][4],
     double &matrix)
 {
   using namespace MG5_sm; 
@@ -798,7 +793,7 @@ void CPPProcess::initProc(string param_card_name)
 // Evaluate |M|^2, part independent of incoming flavour.
 
 __global__ 
-void sigmaKin( const double* allmomenta, // input[npar=4][np3=3][ndim=gpublocks*gputhreads] 
+void sigmaKin( const double* allmomenta, // input[npar=4][np4=4][ndim=gpublocks*gputhreads] 
                double* output ) // output[ndim]
 {
   // Set the parameters which change event by event
@@ -813,9 +808,9 @@ void sigmaKin( const double* allmomenta, // input[npar=4][np3=3][ndim=gpublocks*
 
   const int ndim = blockDim.x * gridDim.x; // (previously was: DIM)
   const int npar = 4; // hardcoded for this process (eemumu): npar=4
-  const int np3 = 3; // dimension of 3-momenta (px,py,pz): energy from rambo is ignored (mass is known)
+  const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
 
-  double local_m[npar][np3]; 
+  double local_m[npar][np4]; 
 
   // for (int i=0; i<20;i++) printf(" %f ", allmomenta[i]);
   // printf("\n");
@@ -823,10 +818,10 @@ void sigmaKin( const double* allmomenta, // input[npar=4][np3=3][ndim=gpublocks*
 
   for (int ipar = 0; ipar < npar; ipar++ )
   {
-    for (int ip3 = 0; ip3 < np3; ip3++ )
+    for (int ip4 = 0; ip4 < np4; ip4++ )
     {
-      local_m[ipar][ip3] = allmomenta[ipar*np3*ndim + ip3*ndim + tid]; 
-      // printf(" %f ", local_m[ipar][ip3]);
+      local_m[ipar][ip4] = allmomenta[ipar*np4*ndim + ip4*ndim + tid]; 
+      // printf(" %f ", local_m[ipar][ip4]);
     }
     // printf("\n");
   }

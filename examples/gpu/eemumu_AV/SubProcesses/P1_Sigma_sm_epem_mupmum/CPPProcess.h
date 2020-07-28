@@ -17,18 +17,18 @@ using namespace std;
 
 namespace MG5_sm 
 {
-__device__ void oxxxxx(const double p[3], double fmass, int nhel, int nsf, 
+__device__ void oxxxxx(const double p[4], double fmass, int nhel, int nsf, 
 thrust::complex<double> fo[6]); 
 
-__device__ void sxxxxx(const double p[3], int nss, thrust::complex<double> sc[3]); 
+__device__ void sxxxxx(const double p[4], int nss, thrust::complex<double> sc[3]); 
 
-__device__ void ixxxxx(const double p[3], double fmass, int nhel, int nsf, 
+__device__ void ixxxxx(const double p[4], double fmass, int nhel, int nsf, 
 thrust::complex<double> fi[6]); 
 
-__device__ void txxxxx(const double p[3], double tmass, int nhel, int nst, 
+__device__ void txxxxx(const double p[4], double tmass, int nhel, int nst, 
 thrust::complex<double> fi[18]); 
 
-__device__ void vxxxxx(const double p[3], double vmass, int nhel, int nsv, 
+__device__ void vxxxxx(const double p[4], double vmass, int nhel, int nsv, 
 thrust::complex<double> v[6]); 
 
 __device__ void FFV2_0(const thrust::complex<double> F1[], const

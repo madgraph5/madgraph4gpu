@@ -86,10 +86,10 @@ int main(int argc, char **argv) {
   // Memory structures for input momenta and output matrix elements on host and device
   const int ndim = gpublocks * gputhreads;
   const int npar = process.nexternal; // for this process (eemumu): npar=4
-  const int np3 = 3; // dimension of 3-momenta (px,py,pz): energy from rambo is ignored (mass is known)
+  const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
 
-  double* hstMomenta = new double[npar*np3*ndim]; // SOA[npar][np3][ndim] (previously was: lp)
-  int nbytesMomenta = np3*npar*ndim * sizeof(double);
+  double* hstMomenta = new double[npar*np4*ndim]; // SOA[npar][np4][ndim] (previously was: lp)
+  int nbytesMomenta = np4*npar*ndim * sizeof(double);
   double* devMomenta = 0; // (previously was: allMomenta)
   gpuErrchk3( cudaMalloc( &devMomenta, nbytesMomenta ) );
 
@@ -105,16 +105,16 @@ int main(int argc, char **argv) {
     //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
     // Get a vector of ndim phase space points
     double weight; // dummy in this test application
-    std::vector<std::vector<double *>> rmbMomenta = // AOS[ndim][npar][np3+1] (previously was: p)
+    std::vector<std::vector<double *>> rmbMomenta = // AOS[ndim][npar][np4] (previously was: p)
       get_momenta(process.ninitial, energy, process.getMasses(), weight, ndim); // SLOW!
     //std::cout << "Got momenta" << std::endl;
 
     // Set momenta for this event by copying them from the rambo output
     for (int idim = 0; idim < ndim; ++idim)
       for (int ipar = 0; ipar < npar; ++ipar)
-        for (int ip3 = 0; ip3 < np3; ++ip3)
-          hstMomenta[ipar*ndim*np3 + ip3*ndim + idim] = // SOA[npar][np3][ndim]
-            rmbMomenta[idim][ipar][1+ip3]; // energy from rambo is ignored (mass is known)
+        for (int ip4 = 0; ip4 < np4; ++ip4)
+          hstMomenta[ipar*ndim*np4 + ip4*ndim + idim] = // SOA[npar][np4][ndim]
+            rmbMomenta[idim][ipar][ip4];
     gpuErrchk3( cudaMemcpy( devMomenta, hstMomenta, nbytesMomenta, cudaMemcpyHostToDevice ) );
 
    //process.preSigmaKin();
