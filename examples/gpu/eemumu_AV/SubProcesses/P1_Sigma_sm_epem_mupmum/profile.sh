@@ -18,11 +18,9 @@ if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
   /cvmfs/sft.cern.ch/lcg/releases/cuda/11.0RC-d9c38/x86_64-centos7-gcc62-opt/bin/nsys profile -o ${trace} ${cmd}
   echo ""
   echo "TO ANALYSE TRACE FILES:"
-  echo "  /usr/local/cuda-11.0/bin/ncu-ui &"
-  ###echo "  /usr/local/cuda-10.1/bin/nsight-sys &"
-  ###echo "  /usr/local/cuda-10.2/bin/nsight-sys &"
-  ###/cvmfs/sft.cern.ch/lcg/releases/cuda/10.2-9d877/x86_64-centos7-gcc62-opt/bin/nsight-sys &
-  /cvmfs/sft.cern.ch/lcg/releases/cuda/11.0RC-d9c38/x86_64-centos7-gcc62-opt/bin/nsight-sys &
+  ###echo "  ncu-ui &"
+  ###echo "  nsight-sys &"
+  echo "  Launch the Nsight Compute or Nsight System GUI from Windows"
 else
   ncu --set full -o ${trace} ${cmd}
   nsys profile -o ${trace} ${cmd}
