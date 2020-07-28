@@ -83,19 +83,19 @@ int main(int argc, char **argv) {
 
   const int meGeVexponent = -(2 * process.nexternal - 8);
 
-  // Local Memory
+  // Memory structures for input momenta and output matrix elements on host and device
   const int ndim = gpublocks * gputhreads;
   const int npar = process.nexternal; // for this process (eemumu): npar=4
   const int np3 = 3; // dimension of 3-momenta (px,py,pz): energy from rambo is ignored (mass is known)
 
-  double* hstMomenta = new double[npar*np3*ndim]; // SOA[npar][np3][ndim]
+  double* hstMomenta = new double[npar*np3*ndim]; // SOA[npar][np3][ndim] (previously was: lp)
   int nbytesMomenta = np3*npar*ndim * sizeof(double);
-  double* devMomenta = 0; // device momenta
+  double* devMomenta = 0; // (previously was: allMomenta)
   gpuErrchk3( cudaMalloc( &devMomenta, nbytesMomenta ) );
 
-  double* hstMEs = new double[ndim];
+  double* hstMEs = new double[ndim]; // (previously was: meHostPtr)
   int nbytesMEs = ndim * sizeof(double);
-  double* devMEs = 0;
+  double* devMEs = 0; // (previously was: meDevPtr)
   gpuErrchk3( cudaMalloc( &devMEs, nbytesMEs ) );
 
   std::vector<double> matrixelementvector;
@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
     //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
     // Get a vector of ndim phase space points
     double weight; // dummy in this test application
-    std::vector<std::vector<double *>> rmbMomenta = // AOS[ndim][npar][np3+1]
+    std::vector<std::vector<double *>> rmbMomenta = // AOS[ndim][npar][np3+1] (previously was: p)
       get_momenta(process.ninitial, energy, process.getMasses(), weight, ndim); // SLOW!
     //std::cout << "Got momenta" << std::endl;
 
