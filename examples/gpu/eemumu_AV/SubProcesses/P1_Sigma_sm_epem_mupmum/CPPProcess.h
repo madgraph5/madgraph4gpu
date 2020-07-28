@@ -101,7 +101,7 @@ inline void gpuAssert3( cudaError_t code, const char *file, int line, bool abort
   }
 }
 
-__global__ void sigmaKin(double * allmomenta, double * output); 
+__global__ void sigmaKin( const double* allmomenta, double* output ); 
 
 //==========================================================================
 // A class for calculating the matrix elements for

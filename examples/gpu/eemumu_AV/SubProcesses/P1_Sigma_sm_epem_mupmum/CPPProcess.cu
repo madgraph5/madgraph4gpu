@@ -797,7 +797,9 @@ void CPPProcess::initProc(string param_card_name)
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, part independent of incoming flavour.
 
-__global__ void sigmaKin(double * allmomenta, double * output) 
+__global__ 
+void sigmaKin( const double* allmomenta, // input[npar=4][np3=3][ndim=gpublocks*gputhreads] 
+               double* output ) // output[ndim]
 {
   // Set the parameters which change event by event
   // Need to discuss this with Stefan
@@ -806,36 +808,28 @@ __global__ void sigmaKin(double * allmomenta, double * output)
 
   // Reset color flows
 
-  // for (int xx = 0; xx < 384; ++xx) {
   const int nprocesses = 1; 
   int tid = blockIdx.x * blockDim.x + threadIdx.x; 
 
-  // char *devPtr = (char *)tp.ptr;
-  // size_t dpt = tp.pitch;
-  // size_t slicePitch = dpt * 4;
+  const int ndim = blockDim.x * gridDim.x; // (previously was: DIM)
+  const int npar = 4; // hardcoded for this process (eemumu): npar=4
+  const int np3 = 3; // dimension of 3-momenta (px,py,pz): energy from rambo is ignored (mass is known)
 
-  // char *dps = devPtr + dim * slicePitch;
-  double matrix_element[nprocesses]; 
+  double local_m[npar][np3]; 
 
-  thrust::complex<double> amp[2]; 
-
-  double local_m[4][3]; 
-  int DIM = blockDim.x * gridDim.x; 
-  // for (int i=0; i<20;i++){
-  // printf(" %f ", allmomenta[i]);
-  // }
+  // for (int i=0; i<20;i++) printf(" %f ", allmomenta[i]);
   // printf("\n");
-  // printf("DIM is %i/%i\n", tid, DIM);
-  for (int i = 0; i < 4; i++ )
+  // printf("ndim is %i/%i\n", tid, ndim);
+
+  for (int ipar = 0; ipar < npar; ipar++ )
   {
-    for (int j = 0; j < 3; j++ )
+    for (int ip3 = 0; ip3 < np3; ip3++ )
     {
-      local_m[i][j] = allmomenta[i * 3 * DIM + j * DIM + tid]; 
-      // printf(" %f ", local_m[i][j]);
+      local_m[ipar][ip3] = allmomenta[ipar*np3*ndim + ip3*ndim + tid]; 
+      // printf(" %f ", local_m[ipar][ip3]);
     }
     // printf("\n");
   }
-
 
   // Local variables and constants
   const int ncomb = 16; 
@@ -851,39 +845,37 @@ __global__ void sigmaKin(double * allmomenta, double * output)
   // 1},{-1,1,1,-1},{-1,1,1,1},{1,-1,-1,-1},{1,-1,-1,1},{1,-1,1,-1},{1,-1,1,1},{
   // 1,1,-1,-1},{1,1,-1,1},{1,1,1,-1},{1,1,1,1}};
   // Denominators: spins, colors and identical particles
-  const int denominators[1] = {4}; 
-
+  const int denominators[1] = {4};
 
   // Reset the matrix elements
-  for(int i = 0; i < nprocesses; i++ )
+  double matrix_element[nprocesses];
+  for(int iproc = 0; iproc < nprocesses; iproc++ )
   {
-    matrix_element[i] = 0.; 
+    matrix_element[iproc] = 0.; 
   }
+
   // Define permutation
   // int perm[nexternal];
   // for(int i = 0; i < nexternal; i++){
   // perm[i]=i;
   // }
 
-
   for (int ihel = 0; ihel < ncomb; ihel++ )
   {
     calculate_wavefunctions(ihel, local_m, matrix_element[0]); 
   }
 
-
-  for (int i = 0; i < nprocesses; ++ i)
+  for (int iproc = 0; iproc < nprocesses; ++iproc)
   {
-    matrix_element[i] /= denominators[i]; 
-  }
-  for (int i = 0; i < nprocesses; ++ i)
-  {
-    output[i * nprocesses + tid] = matrix_element[i]; 
-    // printf("output %i %i %i %f", tid, i, i*nprocesses+tid,
-    // output[i*nprocesses+tid]);
-
+    matrix_element[iproc] /= denominators[iproc]; 
   }
 
+  for (int iproc = 0; iproc < nprocesses; ++iproc)
+  {
+    output[iproc*nprocesses + tid] = matrix_element[iproc]; 
+    // printf("output %i %i %i %f", tid, iproc, iproc*nprocesses+tid,
+    // output[iproc*nprocesses+tid]);
+  }
 
 }
 
