@@ -85,9 +85,8 @@ double rn(int idummy) {
   return ran;
 }
 
-std::vector<std::vector<double *>> get_momenta(int ninitial, double energy,
-                                               std::vector<double> masses,
-                                               double &wgt, int dim) {
+std::vector<std::vector<double *>>
+get_momenta(int ninitial, double energy, const std::vector<double> masses, double &wgt, int dim) {
   //---- auxiliary function to change convention between MadGraph5_aMC@NLO and
   // rambo
   //---- four momenta.
@@ -158,7 +157,8 @@ std::vector<std::vector<double *>> get_momenta(int ninitial, double energy,
   return p2;
 }
 
-std::vector<double *> rambo(double et, std::vector<double> &xm, double &wt) {
+std::vector<double *>
+rambo(double et, const std::vector<double> &xm, double &wt) {
   /**********************************************************************
    *                       rambo                                         *
    *    ra(ndom)  m(omenta)  b(eautifully)  o(rganized)                  *
