@@ -241,8 +241,8 @@ int main(int argc, char **argv) {
               << "MaxMatrixElemValue    = " << *maxelem << " GeV^" << meGeVexponent << std::endl;
   }
   delete[] lp;
-  gpuErrchk3( cudaFree( allmomenta ) );
-  gpuErrchk3( cudaFree( meDevPtr ) );
+  //gpuErrchk3( cudaFree( allmomenta ) );
+  //gpuErrchk3( cudaFree( meDevPtr ) );
   gpuErrchk3( cudaDeviceReset() );
 
 

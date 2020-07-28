@@ -10,6 +10,8 @@
 
 #include <complex> 
 #include <vector> 
+#include <cassert> 
+
 
 
 #include "Parameters_sm.h"

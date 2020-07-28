@@ -1370,7 +1370,7 @@ dim(gpu_nblocks * gpu_nthreads)
       -1}, {1, 1, -1, 1, 1, 1}, {1, 1, 1, -1, -1, -1}, {1, 1, 1, -1, -1, 1},
       {1, 1, 1, -1, 1, -1}, {1, 1, 1, -1, 1, 1}, {1, 1, 1, 1, -1, -1}, {1, 1,
       1, 1, -1, 1}, {1, 1, 1, 1, 1, -1}, {1, 1, 1, 1, 1, 1}};
-  gpuErrchk3(cudaMemcpyToSymbol(cHel, tHel, ncomb * nexternal * sizeof(int)); )
+  gpuErrchk3(cudaMemcpyToSymbol(cHel, tHel, ncomb * nexternal * sizeof(int))); 
   // perm - nodim
   // static int perm[nexternal] = {0, 1, 2, 3};
 }
