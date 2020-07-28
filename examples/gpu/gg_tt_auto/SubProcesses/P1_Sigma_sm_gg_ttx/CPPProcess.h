@@ -16,10 +16,7 @@
 
 #include <thrust/complex.h> 
 
-#define gpuErrchk3(code) \
-{
-  gpuAssert3(code, __FILE__, __LINE__); 
-}
+#define gpuErrchk3(code) {gpuAssert3(code, __FILE__, __LINE__);}
 
 inline void gpuAssert3(cudaError_t code, const char * file, int line, bool
     abort = true)

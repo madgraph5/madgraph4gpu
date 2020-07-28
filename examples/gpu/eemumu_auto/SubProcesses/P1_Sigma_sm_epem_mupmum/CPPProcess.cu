@@ -6,15 +6,13 @@
 //==========================================================================
 
 #include "CPPProcess.h"
-#include "HelAmps_sm.h"
+#include "../../src/HelAmps_sm.h"
 
 #include <algorithm> 
 #include <iostream> 
 #include <thrust/complex.h> 
 
 #include "../../src/HelAmps_sm.cu"
-
-using namespace MG5_sm; 
 
 //==========================================================================
 // Class member functions for calculating the matrix elements for
@@ -37,6 +35,7 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[4][3],
   const int ncolor = 1; 
   thrust::complex<double> jamp[ncolor]; 
   // Calculate wavefunctions for all processes
+  using namespace MG5_sm; 
   thrust::complex<double> w[5][6]; 
   for(int i = 0; i < 1; i++ )
   {
