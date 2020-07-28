@@ -1,5 +1,4 @@
 #include <algorithm> // perf stats
-#include <cassert>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -15,23 +14,21 @@
 
 #define TIMERTYPE std::chrono::high_resolution_clock
 
-bool is_number( const char *s )
-{
+bool is_number(const char *s) {
   const char *t = s;
-  while ( *t != '\0' && isdigit(*t) ) ++t;
+  while (*t != '\0' && isdigit(*t))
+    ++t;
   return strlen(s) == t - s;
 }
 
-int usage( char* argv0, int ret = 1 ) 
-{
+int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0 
             << " [--verbose|-v] [--debug|-d] [--performance|-p]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl;
   return ret;
 }
 
-int main( int argc, char **argv ) 
-{
+int main(int argc, char **argv) {
   bool verbose = false, debug = false, perf = false;
   int niter = 0;
   int gpublocks = 1;
@@ -41,18 +38,17 @@ int main( int argc, char **argv )
   std::vector<float> wavetimes;
 
 
-  for ( int argn = 1; argn < argc; ++argn ) 
-  {
-    if ( strcmp(argv[argn], "--verbose" ) == 0 || strcmp( argv[argn], "-v" ) == 0 )
+  for (int argn = 1; argn < argc; ++argn) {
+    if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
       verbose = true;
-    else if ( strcmp(argv[argn], "--debug" ) == 0 ||
-              strcmp(argv[argn], "-d" ) == 0)
+    else if (strcmp(argv[argn], "--debug") == 0 ||
+             strcmp(argv[argn], "-d") == 0)
       debug = true;
-    else if ( strcmp(argv[argn], "--performance" ) == 0 ||
-              strcmp(argv[argn], "-p" ) == 0)
+    else if (strcmp(argv[argn], "--performance") == 0 ||
+             strcmp(argv[argn], "-p") == 0)
       perf = true;
-    else if ( is_number(argv[argn]) )
-      numvec.push_back( atoi(argv[argn]) );
+    else if (is_number(argv[argn]))
+      numvec.push_back(atoi(argv[argn]));
     else
       return usage(argv[0]);
   }
@@ -71,22 +67,21 @@ int main( int argc, char **argv )
     return usage(argv[0]);
 
   //std::cout << "Calling cudaFree... " << std::endl;
-  gpuErrchk3( cudaFree(0) ); // SLOW!
+  gpuErrchk3( cudaFree( 0 ) ); // SLOW!
   //std::cout << "Calling cudaFree... done" << std::endl;
 
   if (verbose)
     std::cout << "# iterations: " << niter << std::endl;
 
   // Create a process object
-  CPPProcess process( niter, gpublocks, gputhreads, verbose, debug );
+  CPPProcess process(niter, gpublocks, gputhreads, verbose, debug);
 
   // Read param_card and set parameters
-  process.initProc( "../../Cards/param_card.dat" );
+  process.initProc("../../Cards/param_card.dat");
 
   const double energy = 1500;
 
   const int meGeVexponent = -(2 * process.nexternal - 8);
-
 
   // Local Memory
   const int ndim = gpublocks * gputhreads;
@@ -105,9 +100,7 @@ int main( int argc, char **argv )
 
   std::vector<double> matrixelementvector;
 
-
-  for ( int iiter = 0; iiter < niter; ++iiter ) 
-  {
+  for (int iiter = 0; iiter < niter; ++iiter) {
 
     //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
     // Get a vector of ndim phase space points
@@ -177,7 +170,6 @@ int main( int argc, char **argv )
           if (perf)
             matrixelementvector.push_back(hstMEs[iproc*1 + idim]);
         }
-
         if (verbose)
           std::cout << std::string(80, '-') << std::endl;
       }
@@ -252,5 +244,5 @@ int main( int argc, char **argv )
   delete[] hstMomenta;
   gpuErrchk3( cudaFree( devMEs ) );
   gpuErrchk3( cudaFree( devMomenta ) );
-
+  gpuErrchk3( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
 }
