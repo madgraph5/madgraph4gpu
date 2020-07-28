@@ -9,7 +9,7 @@
 #include "CPPProcess.h"
 //#include "HelAmps_sm.h"
 
-#include "rambo.h"
+#include "vrambo.h"
 #include "timer.h"
 
 #define TIMERTYPE std::chrono::high_resolution_clock
