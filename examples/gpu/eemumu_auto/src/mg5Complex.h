@@ -52,8 +52,7 @@ inline __host__ __device__ cuDoubleComplex make_mg5Complex(double r, double i) {
   return make_cuDoubleComplex(r, i);
 }
 
-inline __host__ __device__ cuDoubleComplex
-make_mg5Complex2(std::complex<double> c) {
+inline __host__ cuDoubleComplex make_mg5Complex2(std::complex<double> c) {
   return make_cuDoubleComplex(c.real(), c.imag());
 }
 
