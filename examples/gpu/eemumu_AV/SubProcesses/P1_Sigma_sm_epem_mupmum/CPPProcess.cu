@@ -687,20 +687,6 @@ __constant__ double cIPC[6];  // coupling ?
 __constant__ double cIPD[2]; 
 
 
-__device__ void printComplex6( const thrust::complex<double> c6[6], const char* txt )
-{
-  for (int i=0; i<6; i++)
-    printf("%s[%i]=(%f,%f)\n", txt, i, c6[i].real(), c6[i].imag());
-}
-
-__device__ void printDouble4( const double p[4], const char* txt )
-{
-  //for (int i=0; i<4; i++) printf("%s[%i]=%f\n", txt, i, p[i]);
-  printf("%s[0..3] = ", txt);
-  for (int i=0; i<4; i++) printf("%f ", p[i]);
-  printf("\n");
-}
-
 // Evaluate |M|^2 for each subprocess
 
 __device__ void calculate_wavefunctions(int ihel, double local_mom[4][3],
@@ -724,9 +710,6 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[4][3],
   // Amplitude(s) for diagram number 2
   FFV2_4_0(w[2], w[3], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
       thrust::complex<double> (cIPC[4], cIPC[5]), &amp[1]);
-
-  //printf("DEBUG0: amp0=(%f,%f) amp1=(%f,%f)\n", amp[0].real(), amp[0].imag(), amp[1].real(), amp[1].imag());
-
   // double CPPProcess::matrix_1_epem_mupmum() {
   int i, j; 
   // Local variables
@@ -750,8 +733,6 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[4][3],
       ztemp = ztemp + cf[i][j] * jamp[j]; 
     matrix = matrix + (ztemp * conj(jamp[i])).real()/denom[i]; 
   }
-
-  //printf("DEBUG0: ME=%f\n", matrix);
 
   // Store the leading color flows for choice of color
   // for(i=0;i < ncolor; i++)
@@ -885,7 +866,6 @@ __global__ void sigmaKin(double * allmomenta, double * output)
   // }
 
 
-  //printf("\n\nblock (%i / %i), thread (%i)\n\n", blockIdx.x, blockDim.x, threadIdx.x);
   for (int ihel = 0; ihel < ncomb; ihel++ )
   {
     calculate_wavefunctions(ihel, local_m, matrix_element[0]); 
@@ -903,7 +883,7 @@ __global__ void sigmaKin(double * allmomenta, double * output)
     // output[i*nprocesses+tid]);
 
   }
-  //printf("DEBUG: ME=%f\n", matrix_element[0]);
+
 
 }
 
