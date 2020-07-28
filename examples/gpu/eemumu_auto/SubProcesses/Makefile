@@ -20,7 +20,9 @@ ifeq ($(UNAME_P),ppc64le)
     CUFLAGS+= -Xcompiler -mno-float128
 endif
 
-all: check
+all:
+	cd ../../src && make
+	make check
 
 check: $(main)
 
