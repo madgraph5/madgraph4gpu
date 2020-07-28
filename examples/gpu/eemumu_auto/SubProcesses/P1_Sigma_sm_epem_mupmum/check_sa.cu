@@ -7,10 +7,11 @@
 #include <vector>
 
 #include "CPPProcess.h"
-//#include "HelAmps_sm.h"
+#include "HelAmps_sm.h"
 
 #include "rambo.h"
 #include "timer.h"
+
 
 #define TIMERTYPE std::chrono::high_resolution_clock
 
@@ -64,7 +65,7 @@ int main(int argc, char **argv) {
   if (numiter == 0)
     return usage(argv[0]);
 
-  gpuErrchk3( cudaFree( 0 ) );
+  gpuErrchk3(cudaFree(0));
   if (verbose)
     std::cout << "# iterations: " << numiter << std::endl;
 
@@ -88,14 +89,10 @@ int main(int argc, char **argv) {
   double* meHostPtr = new double[dim*1];
   double *meDevPtr =0;
   int num_bytes_back = 1 * dim * sizeof(double);
-  gpuErrchk3( cudaMalloc( (void**)&meDevPtr, num_bytes_back ) );
+  gpuErrchk3(cudaMalloc((void**)&meDevPtr, num_bytes_back));
 
 
   std::vector<double> matrixelementvector;
-
-  int num_bytes = 3*4*dim * sizeof(double);
-  double *allmomenta = 0;
-  gpuErrchk3( cudaMalloc( (void**)&allmomenta, num_bytes ) );
 
   for (int x = 0; x < numiter; ++x) {
     // Get phase space point
@@ -110,7 +107,12 @@ int main(int argc, char **argv) {
         }
       }
     }
-    gpuErrchk3( cudaMemcpy( allmomenta, lp, num_bytes, cudaMemcpyHostToDevice ) );
+
+    //new
+    int num_bytes = 3*4*dim * sizeof(double);
+    double *allmomenta = 0;
+    gpuErrchk3(cudaMalloc((void**)&allmomenta, num_bytes));
+    gpuErrchk3(cudaMemcpy(allmomenta,lp,num_bytes,cudaMemcpyHostToDevice));
 
     //gpuErrchk3(cudaMemcpy3D(&tdp));
 
@@ -128,7 +130,7 @@ int main(int argc, char **argv) {
     //gpuErrchk3(cudaMemcpy2D(meHostPtr, sizeof(double), meDevPtr, mePitch,
     //                        sizeof(double), dim, cudaMemcpyDeviceToHost));
 
-    gpuErrchk3( cudaMemcpy( meHostPtr, meDevPtr, 1 * dim*sizeof(double), cudaMemcpyDeviceToHost ) );
+   gpuErrchk3(cudaMemcpy(meHostPtr, meDevPtr, 1 * dim*sizeof(double), cudaMemcpyDeviceToHost));
 
     if (verbose)
       std::cout << "***********************************" << std::endl
@@ -239,9 +241,9 @@ int main(int argc, char **argv) {
               << "MaxMatrixElemValue    = " << *maxelem << " GeV^" << meGeVexponent << std::endl;
   }
   delete[] lp;
-
   gpuErrchk3( cudaFree( allmomenta ) );
   gpuErrchk3( cudaFree( meDevPtr ) );
+  gpuErrchk3( cudaDeviceReset() );
 
-  gpuErrchk3( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
+
 }
