@@ -827,25 +827,27 @@ __global__ void sigmaKin(double * allmomenta, double * output)
   // printf("DIM is %i/%i\n", tid, DIM);
   const int ncomb = 16;
 //  int mid = tid % 12;
-//  if (tid <12){
-//  int i = tid/4;
-//  int j = (tid/4)%3;
-//  local_m[i][j] = allmomenta[i * 3 * (DIM/ncomb) + j * (DIM/ncomb) + (tid/ncomb)];
-//  }	  
-  for (int i = 0; i < 4; i++ )
-  {
-   for (int j = 0; j < 3; j++ )
-    {
-      local_m[i][j] = allmomenta[i * 3 * (DIM/ncomb) + j * (DIM/ncomb) + (tid/ncomb)]; 
-      //if (tid == 0){
-      //    printf(" %f ", local_m[i][j]);
-      //}
-    }
-//    if (tid == 0){
-//    printf("\n");}
-  }
-
+  if (tid <12){
+    int i = tid/3;
+    int j = tid%3;
+  local_m[i][j] = allmomenta[i * 3 * (DIM/ncomb) + j * (DIM/ncomb) + (tid/ncomb)];
+  //printf("%i %i %i\n", tid, i, j);
+  }	  
   __syncthreads();
+  //for (int i = 0; i < 4; i++ )
+  //{
+  // for (int j = 0; j < 3; j++ )
+  //  {
+//      local_m[i][j] = allmomenta[i * 3 * (DIM/ncomb) + j * (DIM/ncomb) + (tid/ncomb)]; 
+  //    if (tid == 0){
+  //        printf(" %f ", local_m[i][j]);
+   //   }
+   // }
+   // if (tid == 0){
+   // printf("\n");}
+  //}
+
+  //__syncthreads();
   // Local variables and constants
   // const int ncomb = 16; 
   // static bool goodhel[ncomb] = {ncomb * false};
