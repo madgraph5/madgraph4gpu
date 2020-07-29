@@ -91,13 +91,6 @@ int main(int argc, char **argv) {
 
   double* rnarray = new double[nparf*np4*ndim]; // can be SOA or AOS
 
-#ifdef RAMBO_USES_SOA
-  //double (*rmbMomenta)[np4][ndim] = new double[npar][np4][ndim]; // SOA[npar][np4][ndim] (previously was: p)
-  double* rmbMomenta = new double[npar*np4*ndim]; // SOA[npar][np4][ndim] (previously was: p)
-#else
-  double (*rmbMomenta)[npar][np4] = new double[ndim][npar][np4]; // AOS[ndim][npar][np4] (previously was: p)
-#endif
-
   double* hstMomenta = new double[npar*np4*ndim]; // SOA[npar][np4][ndim] (previously was: lp)
   int nbytesMomenta = np4*npar*ndim * sizeof(double);
   double* devMomenta = 0; // (previously was: allMomenta)
@@ -107,6 +100,14 @@ int main(int argc, char **argv) {
   int nbytesMEs = ndim * sizeof(double);
   double* devMEs = 0; // (previously was: meDevPtr)
   gpuErrchk3( cudaMalloc( &devMEs, nbytesMEs ) );
+
+#ifdef RAMBO_USES_SOA
+  ////double (*rmbMomenta)[np4][ndim] = new double[npar][np4][ndim]; // SOA[npar][np4][ndim] (previously was: p)
+  //double* rmbMomenta = new double[npar*np4*ndim]; // SOA[npar][np4][ndim] (previously was: p)
+  double* rmbMomenta = hstMomenta; // same structure, no need to copy
+#else
+  double (*rmbMomenta)[npar][np4] = new double[ndim][npar][np4]; // AOS[ndim][npar][np4] (previously was: p)
+#endif
 
   std::vector<double> matrixelementvector;
 
@@ -128,20 +129,16 @@ int main(int argc, char **argv) {
     get_momenta( process.ninitial, energy, masses, rnarray, (double*)rmbMomenta, weights, npar, ndim );
     //std::cout << "Got momenta" << std::endl;
 
-    // Set momenta for this event by copying them from the rambo output
+#ifdef RAMBO_USES_SOA
+    // Use momenta from rambo as they are (no need to copy)
+#else
+    // Set SOA momenta for this event by copying them from the rambo AOS output
     for (int idim = 0; idim < ndim; ++idim)
       for (int ipar = 0; ipar < npar; ++ipar)
         for (int ip4 = 0; ip4 < np4; ++ip4)
-        {
-#ifdef RAMBO_USES_SOA
-          hstMomenta[ipar*ndim*np4 + ip4*ndim + idim] = // SOA[npar][np4][ndim]
-            //rmbMomenta[ipar][ip4][idim]; // SOA[npar][np4][ndim]
-            rmbMomenta[ipar*ndim*np4 + ip4*ndim + idim]; // SOA[npar][np4][ndim]
-#else
           hstMomenta[ipar*ndim*np4 + ip4*ndim + idim] = // SOA[npar][np4][ndim]
             rmbMomenta[idim][ipar][ip4]; // AOS[ndim][npar][np4]
 #endif
-        }
     gpuErrchk3( cudaMemcpy( devMomenta, hstMomenta, nbytesMomenta, cudaMemcpyHostToDevice ) );
 
     // STEP 3 OF 3
