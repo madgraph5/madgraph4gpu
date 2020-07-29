@@ -164,8 +164,9 @@ void rambo( const double energy, // input: energy
    *    p      = final-state particle momenta ( dim=(nexternal-nincoming,4) ) *
    *    wt     = weight of the event                                          *
    ****************************************************************************/  
-  double q[nparf][4];
-  double z[nparf], r[4], b[3], p2[nparf], xmf2[nparf], e[nparf], v[nparf];
+  const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
+  double q[nparf][np4];
+  double z[nparf], r[np4], b[np4-1], p2[nparf], xmf2[nparf], e[nparf], v[nparf];
   int iwarn[5] = {0,0,0,0,0};
   static double acc = 1e-14;
   static int itmax = 6, ibegin = 0;
@@ -214,14 +215,14 @@ void rambo( const double energy, // input: energy
     q[iparf][1] = q[iparf][0] * s * sin(f);
   }
   // calculate the parameters of the conformal transformation
-  for (int i4 = 0; i4 < 4; i4++)
+  for (int i4 = 0; i4 < np4; i4++)
     r[i4] = 0.;
   for (int iparf = 0; iparf < nparf; iparf++) {
-    for (int i4 = 0; i4 < 4; i4++)
+    for (int i4 = 0; i4 < np4; i4++)
       r[i4] = r[i4] + q[iparf][i4];
   }
   double rmas = sqrt(pow(r[0], 2) - pow(r[3], 2) - pow(r[2], 2) - pow(r[1], 2));
-  for (int i4 = 1; i4 < 4; i4++)
+  for (int i4 = 1; i4 < np4; i4++)
     b[i4-1] = -r[i4] / rmas;
   double g = r[0] / rmas;
   double a = 1. / (1. + g);
@@ -230,7 +231,7 @@ void rambo( const double energy, // input: energy
   // transform the q's conformally into the p's
   for (int iparf = 0; iparf < nparf; iparf++) {
     double bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
-    for (int i4 = 1; i4 < 4; i4++)
+    for (int i4 = 1; i4 < np4; i4++)
       p[iparf][i4] = x * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
     p[iparf][0] = x * (g * q[iparf][0] + bq);
   }
@@ -285,7 +286,7 @@ void rambo( const double energy, // input: energy
   }
   for (int iparf = 0; iparf < nparf; iparf++) {
     v[iparf] = x * p[iparf][0];
-    for (int i4 = 1; i4 < 4; i4++)
+    for (int i4 = 1; i4 < np4; i4++)
       p[iparf][i4] = x * p[iparf][i4];
     p[iparf][0] = e[iparf];
   }
