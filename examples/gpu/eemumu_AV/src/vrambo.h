@@ -1,5 +1,5 @@
-//#undef RAMBO_USES_SOA
-#define RAMBO_USES_SOA 1 // presently fails check_sa.cu "error: expression must have a constant value"
+#undef RAMBO_USES_SOA
+//#define RAMBO_USES_SOA 1 // presently fails check_sa.cu "error: expression must have a constant value"
 
 // Auxiliary function to change convention between MadGraph5_aMC@NLO and rambo four momenta
 // Draw random momenta and the corresponding weights for nevt events
