@@ -9,13 +9,13 @@
 //get_momenta(int ninitial, double energy, const std::vector<double> masses, double &wgt, int nevt) {
 
 // Auxiliary function to change convention between MadGraph5_aMC@NLO and rambo four momenta.
-void get_momenta( int ninitial, 
-                  double energy, 
+void get_momenta( const int ninitial,    // input: #particles_initial
+                  const double energy,   // input: energy
                   const double masses[], // input: masses[npar]
                   double momenta1d[],    // output: momenta[nevt][npar][4] as an AOS
                   double wgts[],         // output: wgts[nevt]
-                  int npar,              // input: #particles (==nexternal==nfinal+ninitial)
-                  int nevt )             // input: #events
+                  const int npar,        // input: #particles (==nexternal==nfinal+ninitial)
+                  const int nevt )       // input: #events
 {
   const int nexternal = npar;
   const int nfinal = nexternal - ninitial;
@@ -80,8 +80,7 @@ void get_momenta( int ninitial,
       // #Initial==2, #Final==1
       if (nfinal == 1) {
         // Momenta for the outgoing particle
-        energy = m1;
-        momenta[ievt][2][0] = energy;
+        momenta[ievt][2][0] = m1;
         momenta[ievt][2][1] = 0;
         momenta[ievt][2][2] = 0;
         momenta[ievt][2][3] = 0;
