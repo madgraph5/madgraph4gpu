@@ -88,7 +88,11 @@ int main(int argc, char **argv) {
   const int npar = process.nexternal; // for this process (eemumu): npar=4
   const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
 
+#ifdef RAMBO_USES_SOA
+  double (*rmbMomenta)[np4][ndim] = new double[npar][np4][ndim]; // AOS[ndim][npar][np4] (previously was: p)
+#else
   double (*rmbMomenta)[npar][np4] = new double[ndim][npar][np4]; // AOS[ndim][npar][np4] (previously was: p)
+#endif
 
   double* hstMomenta = new double[npar*np4*ndim]; // SOA[npar][np4][ndim] (previously was: lp)
   int nbytesMomenta = np4*npar*ndim * sizeof(double);
@@ -118,8 +122,16 @@ int main(int argc, char **argv) {
     for (int idim = 0; idim < ndim; ++idim)
       for (int ipar = 0; ipar < npar; ++ipar)
         for (int ip4 = 0; ip4 < np4; ++ip4)
+        {
+#ifdef RAMBO_USES_SOA
+          hstMomenta[ipar*ndim*np4 + ip4*ndim + idim] = // SOA[npar][np4][ndim]
+            rmbMomenta[ipar][ip4][idim]; // SOA[npar][np4][ndim]
+#else
           hstMomenta[ipar*ndim*np4 + ip4*ndim + idim] = // SOA[npar][np4][ndim]
             rmbMomenta[idim][ipar][ip4]; // AOS[ndim][npar][np4]
+#endif
+        }
+
     gpuErrchk3( cudaMemcpy( devMomenta, hstMomenta, nbytesMomenta, cudaMemcpyHostToDevice ) );
 
    //process.preSigmaKin();

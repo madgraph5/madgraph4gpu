@@ -11,7 +11,8 @@
 void get_momenta( const int ninitial,    // input: #particles_initial
                   const double energy,   // input: energy
                   const double masses[], // input: masses[npar]
-                  double momenta1d[],    // output: momenta[nevt][npar][4] as an AOS
+                  //double momenta1d[],    // output: momenta[nevt][npar][4] as an AOS
+                  double momenta1d[],    // output: momenta[npar][4][nevt] as a SOA
                   double wgts[],         // output: wgts[nevt]
                   const int npar,        // input: #particles (==nexternal==nfinal+ninitial)
                   const int nevt )       // input: #events
@@ -21,16 +22,27 @@ void get_momenta( const int ninitial,    // input: #particles_initial
   const double m1 = masses[0];
 
   const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
-  double (*momenta)[npar][np4] = (double (*)[npar][np4]) momenta1d; // cast to multiD array pointer
+#ifdef RAMBO_USES_SOA
+  double (*momenta)[np4][nevt] = (double (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
+#else
+  double (*momenta)[npar][np4] = (double (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOS)
+#endif
 
   // #Initial==1
   if (ninitial == 1) {
     for (int ievt = 0; ievt < nevt; ++ievt) {
       // Momenta for the incoming particle
+#ifdef RAMBO_USES_SOA
+      momenta[0][0][ievt] = m1;
+      momenta[0][1][ievt] = 0;
+      momenta[0][2][ievt] = 0;
+      momenta[0][3][ievt] = 0;
+#else
       momenta[ievt][0][0] = m1;
       momenta[ievt][0][1] = 0;
       momenta[ievt][0][2] = 0;
       momenta[ievt][0][3] = 0;
+#endif
       // Momenta for the outgoing particles
       const double* massesf = masses+ninitial; // skip the first ninitial masses
       double pf_rambo[nparf][np4]; // rambo draws random momenta only for final-state particles
@@ -38,7 +50,13 @@ void get_momenta( const int ninitial,    // input: #particles_initial
       rambo( m1, massesf, pf_rambo, wgt, nparf ); // NB input 'energy' is ignored for ninitial==1
       for (int iparf = 0; iparf < nparf; ++iparf) // loop over npar-ninitial particles from rambo
         for (int ip4 = 0; ip4 < np4; ++ip4)
+        {
+#ifdef RAMBO_USES_SOA
+          momenta[iparf+ninitial][ip4][ievt] = pf_rambo[iparf][ip4];
+#else
           momenta[ievt][iparf+ninitial][ip4] = pf_rambo[iparf][ip4];
+#endif
+        }
       // Event weight
       wgts[ievt] = wgt;
     }
@@ -62,6 +80,16 @@ void get_momenta( const int ninitial,    // input: #particles_initial
     const double energy2 = sqrt(pow(mom, 2) + pow(m2, 2));
     for (int ievt = 0; ievt < nevt; ++ievt) {
       // Momenta for the incoming particles
+#ifdef RAMBO_USES_SOA
+      momenta[0][0][ievt] = energy1;
+      momenta[0][1][ievt] = 0;
+      momenta[0][2][ievt] = 0;
+      momenta[0][3][ievt] = mom;
+      momenta[1][0][ievt] = energy2;
+      momenta[1][1][ievt] = 0;
+      momenta[1][2][ievt] = 0;
+      momenta[1][3][ievt] = -mom;
+#else
       momenta[ievt][0][0] = energy1;
       momenta[ievt][0][1] = 0;
       momenta[ievt][0][2] = 0;
@@ -70,13 +98,21 @@ void get_momenta( const int ninitial,    // input: #particles_initial
       momenta[ievt][1][1] = 0;
       momenta[ievt][1][2] = 0;
       momenta[ievt][1][3] = -mom;
+#endif
       // #Initial==2, #Final==1
       if (nparf == 1) {
         // Momenta for the outgoing particle
+#ifdef RAMBO_USES_SOA
+        momenta[2][0][ievt] = m1;
+        momenta[2][1][ievt] = 0;
+        momenta[2][2][ievt] = 0;
+        momenta[2][3][ievt] = 0;
+#else
         momenta[ievt][2][0] = m1;
         momenta[ievt][2][1] = 0;
         momenta[ievt][2][2] = 0;
         momenta[ievt][2][3] = 0;
+#endif
         // Event weight
         wgts[ievt] = 1;
       }
@@ -89,7 +125,13 @@ void get_momenta( const int ninitial,    // input: #particles_initial
         rambo( energy, massesf, pf_rambo, wgt, nparf );
         for (int iparf = 0; iparf < nparf; ++iparf) // loop over npar-ninitial particles from rambo
           for (int ip4 = 0; ip4 < np4; ++ip4)
+          {
+#ifdef RAMBO_USES_SOA
+            momenta[iparf+ninitial][ip4][ievt] = pf_rambo[iparf][ip4];
+#else
             momenta[ievt][iparf+ninitial][ip4] = pf_rambo[iparf][ip4];
+#endif
+          }
         // Event weight
         wgts[ievt] = wgt;
       }
