@@ -37,7 +37,7 @@ void get_momenta( const int ninitial,    // input: #particles_initial
       // Momenta for the outgoing particles
       std::vector<double> finalmasses;
       for (int ipar = 0; ipar < npar-ninitial; ++ipar) // loop over npar-ninitial particles from rambo
-        finalmasses.push_back( masses[ipar] );
+        finalmasses.push_back( masses[ipar+ninitial] ); // skip the first ninitial masses
       double wgt;
       std::vector<double *> p_rambo = rambo(m1, finalmasses, wgt);
       for (int ipar = 0; ipar < npar-ninitial; ++ipar) // loop over npar-ninitial particles from rambo
@@ -93,7 +93,7 @@ void get_momenta( const int ninitial,    // input: #particles_initial
         // Momenta for the outgoing particles
         std::vector<double> finalmasses;
         for (int ipar = 0; ipar < npar-ninitial; ++ipar) // loop over npar-ninitial particles from rambo
-          finalmasses.push_back( masses[ipar] );
+          finalmasses.push_back( masses[ipar+ninitial] ); // skip the first ninitial masses
         double wgt;
         std::vector<double *> p_rambo = rambo(energy, finalmasses, wgt);
         for (int ipar = 0; ipar < npar-ninitial; ++ipar) // loop over npar-ninitial particles from rambo
