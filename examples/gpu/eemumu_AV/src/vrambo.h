@@ -1,8 +1,3 @@
-//#include <vector>
-
-//std::vector<std::vector<double *>> // output is an AOS: momenta[nevt][nexternal][4]
-//get_momenta(int ninitial, double energy, const std::vector<double> masses, double &wgt, int nevt);
-
 // Auxiliary function to change convention between MadGraph5_aMC@NLO and rambo four momenta
 // Draw random momenta and the corresponding weights for nevt events
 // Both initial-state and final-state particle momenta and masses are considered
@@ -13,9 +8,6 @@ void get_momenta( const int ninitial,    // input: #particles_initial
                   double wgts[],         // output: weights[nevt]
                   const int npar,        // input: #particles (==nexternal==nfinal+ninitial)
                   const int nevt );      // input: #events
-
-//std::vector<double *>  // output is a struct: momenta[npar-ninitial][4]
-//rambo(double et, const std::vector<double> &xm, double &wt);
 
 // Draw random momenta and the corresponding weight for a single event
 // Only final-state particle momenta and masses are considered
