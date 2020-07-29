@@ -94,6 +94,10 @@ int main(int argc, char **argv) {
 
   std::vector<double> matrixelementvector;
 
+  const int num_bytes = 3*4*dim * sizeof(double);
+  double *allmomenta = 0;
+  gpuErrchk3(cudaMalloc((void**)&allmomenta, num_bytes));
+
   for (int x = 0; x < numiter; ++x) {
     // Get phase space point
     std::vector<std::vector<double *>> p =
@@ -109,9 +113,6 @@ int main(int argc, char **argv) {
     }
 
     //new
-    int num_bytes = 3*4*dim * sizeof(double);
-    double *allmomenta = 0;
-    gpuErrchk3(cudaMalloc((void**)&allmomenta, num_bytes));
     gpuErrchk3(cudaMemcpy(allmomenta,lp,num_bytes,cudaMemcpyHostToDevice));
 
     //gpuErrchk3(cudaMemcpy3D(&tdp));
@@ -241,8 +242,8 @@ int main(int argc, char **argv) {
               << "MaxMatrixElemValue    = " << *maxelem << " GeV^" << meGeVexponent << std::endl;
   }
   delete[] lp;
-  //gpuErrchk3( cudaFree( allmomenta ) );
-  //gpuErrchk3( cudaFree( meDevPtr ) );
+  gpuErrchk3( cudaFree( allmomenta ) );
+  gpuErrchk3( cudaFree( meDevPtr ) );
   gpuErrchk3( cudaDeviceReset() );
 
 
