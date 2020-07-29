@@ -88,6 +88,8 @@ int main(int argc, char **argv) {
   const int npar = process.nexternal; // for this process (eemumu): npar=4
   const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
 
+  double (*rmbMomenta)[npar][np4] = new double[ndim][npar][np4]; // AOS[ndim][npar][np4] (previously was: p)
+
   double* hstMomenta = new double[npar*np4*ndim]; // SOA[npar][np4][ndim] (previously was: lp)
   int nbytesMomenta = np4*npar*ndim * sizeof(double);
   double* devMomenta = 0; // (previously was: allMomenta)
@@ -100,13 +102,16 @@ int main(int argc, char **argv) {
 
   std::vector<double> matrixelementvector;
 
+  double masses[npar];  
+  for (int ipar = 0; ipar < npar; ++ipar) // loop over nexternal particles
+    masses[ipar] = process.getMasses()[ipar];
+
   for (int iiter = 0; iiter < niter; ++iiter) {
 
     //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
     // Get a vector of ndim phase space points
-    double weight; // dummy in this test application
-    std::vector<std::vector<double *>> rmbMomenta = // AOS[ndim][npar][np4] (previously was: p)
-      get_momenta(process.ninitial, energy, process.getMasses(), weight, ndim); // SLOW!
+    double weights[ndim]; // dummy in this test application
+    get_momenta( process.ninitial, energy, masses, (double*)rmbMomenta, weights, npar, ndim );
     //std::cout << "Got momenta" << std::endl;
 
     // Set momenta for this event by copying them from the rambo output
@@ -114,7 +119,7 @@ int main(int argc, char **argv) {
       for (int ipar = 0; ipar < npar; ++ipar)
         for (int ip4 = 0; ip4 < np4; ++ip4)
           hstMomenta[ipar*ndim*np4 + ip4*ndim + idim] = // SOA[npar][np4][ndim]
-            rmbMomenta[idim][ipar][ip4];
+            rmbMomenta[idim][ipar][ip4]; // AOS[ndim][npar][np4]
     gpuErrchk3( cudaMemcpy( devMomenta, hstMomenta, nbytesMomenta, cudaMemcpyHostToDevice ) );
 
    //process.preSigmaKin();
@@ -176,14 +181,6 @@ int main(int argc, char **argv) {
     } else if (!debug) {
       std::cout << ".";
     }
-
-    for (std::vector<std::vector<double *>>::iterator it = rmbMomenta.begin();
-         it != rmbMomenta.end(); ++it) {
-      for (std::vector<double *>::iterator jt = it->begin(); jt != it->end();
-           ++jt) {
-        delete[] & (**jt);
-      }
-    }
   }
 
   if (!(verbose || debug || perf)) {
@@ -242,6 +239,7 @@ int main(int argc, char **argv) {
   }
 
   delete[] hstMomenta;
+  delete[] rmbMomenta;
   gpuErrchk3( cudaFree( devMEs ) );
   gpuErrchk3( cudaFree( devMomenta ) );
   gpuErrchk3( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
