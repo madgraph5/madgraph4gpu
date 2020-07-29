@@ -16,8 +16,11 @@ using namespace std;
 namespace MG5_sm 
 {
 
-__device__ void ixxxxx(const double pvec[4], double fmass, int nhel, int nsf, 
-thrust::complex<double> fi[6]) 
+__device__ void ixxxxx(const double pvec[4], 
+                       const double fmass, 
+                       const int nhel, 
+                       const int nsf, 
+                       thrust::complex<double> fi[6]) 
 {
   thrust::complex<double> chi[2]; 
   double sf[2], sfomega[2], omega[2], pp, pp3, sqp0p3, sqm[2]; 
@@ -106,8 +109,11 @@ thrust::complex<double> fi[6])
   return; 
 }
 
-__device__ void txxxxx(const double pvec[4], double tmass, int nhel, int nst, 
-thrust::complex<double> tc[18]) 
+__device__ void txxxxx(const double pvec[4], 
+                       const double tmass, 
+                       const int nhel, 
+                       const int nst, 
+                       thrust::complex<double> tc[18]) 
 {
   thrust::complex<double> ft[6][4], ep[4], em[4], e0[4]; 
   double pt, pt2, pp, pzpt, emp, sqh, sqs; 
@@ -281,8 +287,11 @@ thrust::complex<double> tc[18])
   }
 }
 
-__device__ void vxxxxx(const double pvec[4], double vmass, int nhel, int nsv, 
-thrust::complex<double> vc[6]) 
+__device__ void vxxxxx(const double pvec[4], 
+                       const double vmass, 
+                       const int nhel, 
+                       const int nsv, 
+                       thrust::complex<double> vc[6]) 
 {
   double hel, hel0, pt, pt2, pp, pzpt, emp, sqh; 
   int nsvahl; 
@@ -351,7 +360,9 @@ thrust::complex<double> vc[6])
   return; 
 }
 
-__device__ void sxxxxx(const double pvec[4], int nss, thrust::complex<double> sc[3]) 
+__device__ void sxxxxx(const double pvec[4], 
+                       const int nss, 
+                       thrust::complex<double> sc[3]) 
 {
   // const double* p = pvec;
   double p[4] = {0, 0, 0, 0}; 
@@ -362,8 +373,11 @@ __device__ void sxxxxx(const double pvec[4], int nss, thrust::complex<double> sc
   return; 
 }
 
-__device__ void oxxxxx(const double pvec[4], double fmass, int nhel, int nsf, 
-thrust::complex<double> fo[6]) 
+__device__ void oxxxxx(const double pvec[4], 
+                       const double fmass, 
+                       const int nhel, 
+                       const int nsf, 
+                       thrust::complex<double> fo[6]) 
 {
   thrust::complex<double> chi[2]; 
   double sf[2], sfomeg[2], omega[2], pp, pp3, sqp0p3, sqm[2]; 
@@ -452,9 +466,11 @@ thrust::complex<double> fo[6])
   }
   return; 
 }
-__device__ void FFV2_0(const thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> V3[], const
-thrust::complex<double> COUP, thrust::complex<double> * vertex)
+__device__ void FFV2_0(const thrust::complex<double> F1[], 
+                       const thrust::complex<double> F2[], 
+                       const thrust::complex<double> V3[], 
+                       const thrust::complex<double> COUP, 
+                       thrust::complex<double> * vertex)
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
   thrust::complex<double> TMP0; 
@@ -464,9 +480,12 @@ thrust::complex<double> COUP, thrust::complex<double> * vertex)
 }
 
 
-__device__ void FFV2_3(const thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> COUP, const
-double M3, const double W3, thrust::complex<double> V3[])
+__device__ void FFV2_3(const thrust::complex<double> F1[], 
+                       const thrust::complex<double> F2[], 
+                       const thrust::complex<double> COUP, 
+                       const double M3, 
+                       const double W3, 
+                       thrust::complex<double> V3[])
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
   double OM3; 
@@ -496,9 +515,11 @@ double M3, const double W3, thrust::complex<double> V3[])
 }
 
 
-__device__ void FFV4_0(const thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> V3[], const
-thrust::complex<double> COUP, thrust::complex<double> * vertex)
+__device__ void FFV4_0(const thrust::complex<double> F1[], 
+                       const thrust::complex<double> F2[], 
+                       const thrust::complex<double> V3[], 
+                       const thrust::complex<double> COUP, 
+                       thrust::complex<double> * vertex)
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
   thrust::complex<double> TMP0; 
@@ -511,9 +532,12 @@ thrust::complex<double> COUP, thrust::complex<double> * vertex)
 }
 
 
-__device__ void FFV4_3(const thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> COUP, const
-double M3, const double W3, thrust::complex<double> V3[])
+__device__ void FFV4_3(const thrust::complex<double> F1[], 
+                       const thrust::complex<double> F2[], 
+                       const thrust::complex<double> COUP, 
+                       const double M3, 
+                       const double W3, 
+                       thrust::complex<double> V3[])
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
   double OM3; 
@@ -551,9 +575,11 @@ double M3, const double W3, thrust::complex<double> V3[])
 }
 
 
-__device__ void FFV1_0(const thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> V3[], const
-thrust::complex<double> COUP, thrust::complex<double> * vertex)
+__device__ void FFV1_0(const thrust::complex<double> F1[], 
+                       const thrust::complex<double> F2[], 
+                       const thrust::complex<double> V3[], 
+                       const thrust::complex<double> COUP, 
+                       thrust::complex<double> * vertex)
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
   thrust::complex<double> TMP4; 
@@ -565,9 +591,12 @@ thrust::complex<double> COUP, thrust::complex<double> * vertex)
 }
 
 
-__device__ void FFV1P0_3(const thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> COUP, const
-double M3, const double W3, thrust::complex<double> V3[])
+__device__ void FFV1P0_3(const thrust::complex<double> F1[], 
+                         const thrust::complex<double> F2[], 
+                         const thrust::complex<double> COUP, 
+                         const double M3, 
+                         const double W3, 
+                         thrust::complex<double> V3[])
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
   double P3[4]; 
@@ -591,10 +620,12 @@ double M3, const double W3, thrust::complex<double> V3[])
 }
 
 
-__device__ void FFV2_4_0(const thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> V3[], const
-thrust::complex<double> COUP1, const thrust::complex<double> COUP2, 
-thrust::complex<double> * vertex)
+__device__ void FFV2_4_0(const thrust::complex<double> F1[], 
+                         const thrust::complex<double> F2[], 
+                         const thrust::complex<double> V3[], 
+                         const thrust::complex<double> COUP1, 
+                         const thrust::complex<double> COUP2, 
+                         thrust::complex<double> * vertex)
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
   thrust::complex<double> TMP0; 
@@ -608,10 +639,13 @@ thrust::complex<double> * vertex)
 }
 
 
-__device__ void FFV2_4_3(const thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> COUP1, const
-thrust::complex<double> COUP2, const double M3, const double W3, 
-thrust::complex<double> V3[])
+__device__ void FFV2_4_3(const thrust::complex<double> F1[], 
+                         const thrust::complex<double> F2[], 
+                         const thrust::complex<double> COUP1, 
+                         const thrust::complex<double> COUP2, 
+                         const double M3, 
+                         const double W3, 
+                         thrust::complex<double> V3[])
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
   double OM3; 

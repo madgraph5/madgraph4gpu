@@ -17,53 +17,87 @@ using namespace std;
 
 namespace MG5_sm 
 {
-__device__ void oxxxxx(const double p[4], double fmass, int nhel, int nsf, 
-thrust::complex<double> fo[6]); 
+  __device__ void oxxxxx(const double p[4], 
+                         const double fmass, 
+                         const int nhel, 
+                         const int nsf, 
+                         thrust::complex<double> fo[6]); 
+  
+  __device__ void sxxxxx(const double p[4], 
+                         const int nss, 
+                         thrust::complex<double> sc[3]); 
+  
+  __device__ void ixxxxx(const double p[4], 
+                         const double fmass, 
+                         const int nhel, 
+                         const int nsf, 
+                         thrust::complex<double> fi[6]); 
+  
+  __device__ void txxxxx(const double p[4], 
+                         const double tmass, 
+                         const int nhel, 
+                         const int nst, 
+                         thrust::complex<double> fi[18]); 
+  
+  __device__ void vxxxxx(const double p[4], 
+                         const double vmass, 
+                         const int nhel, 
+                         const int nsv, 
+                         thrust::complex<double> v[6]); 
+  
+  __device__ void FFV2_0(const thrust::complex<double> F1[], 
+                         const thrust::complex<double> F2[], 
+                         const thrust::complex<double> V3[], 
+                         const thrust::complex<double> COUP, 
+                         thrust::complex<double> * vertex); 
 
-__device__ void sxxxxx(const double p[4], int nss, thrust::complex<double> sc[3]); 
+  __device__ void FFV2_3(const thrust::complex<double> F1[], 
+                         const thrust::complex<double> F2[], 
+                         const thrust::complex<double> COUP, 
+                         const double M3, 
+                         const double W3, 
+                         thrust::complex<double> V3[]); 
 
-__device__ void ixxxxx(const double p[4], double fmass, int nhel, int nsf, 
-thrust::complex<double> fi[6]); 
+  __device__ void FFV4_0(const thrust::complex<double> F1[], 
+                         const thrust::complex<double> F2[], 
+                         const thrust::complex<double> V3[], 
+                         const thrust::complex<double> COUP, 
+                         thrust::complex<double> * vertex); 
 
-__device__ void txxxxx(const double p[4], double tmass, int nhel, int nst, 
-thrust::complex<double> fi[18]); 
+  __device__ void FFV4_3(const thrust::complex<double> F1[], 
+                         const thrust::complex<double> F2[], 
+                         const thrust::complex<double> COUP, 
+                         const double M3, 
+                         const double W3, 
+                         thrust::complex<double> V3[]); 
 
-__device__ void vxxxxx(const double p[4], double vmass, int nhel, int nsv, 
-thrust::complex<double> v[6]); 
+  __device__ void FFV1_0(const thrust::complex<double> F1[], 
+                         const thrust::complex<double> F2[], 
+                         const thrust::complex<double> V3[], 
+                         const thrust::complex<double> COUP, 
+                         thrust::complex<double> * vertex); 
 
-__device__ void FFV2_0(const thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> V3[], const
-thrust::complex<double> COUP, thrust::complex<double> * vertex); 
+  __device__ void FFV1P0_3(const thrust::complex<double> F1[], 
+                           const thrust::complex<double> F2[], 
+                           const thrust::complex<double> COUP, 
+                           const double M3, 
+                           const double W3, 
+                           thrust::complex<double> V3[]); 
 
-__device__ void FFV2_3(const thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> COUP, const
-double M3, const double W3, thrust::complex<double> V3[]); 
+  __device__ void FFV2_4_0(const thrust::complex<double> F1[], 
+                           const thrust::complex<double> F2[], 
+                           const thrust::complex<double> V3[], 
+                           const thrust::complex<double> COUP1, 
+                           const thrust::complex<double> COUP2, 
+                           thrust::complex<double> * vertex); 
 
-__device__ void FFV4_0(const thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> V3[], const
-thrust::complex<double> COUP, thrust::complex<double> * vertex); 
-
-__device__ void FFV4_3(const thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> COUP, const
-double M3, const double W3, thrust::complex<double> V3[]); 
-
-__device__ void FFV1_0(const thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> V3[], const
-thrust::complex<double> COUP, thrust::complex<double> * vertex); 
-
-__device__ void FFV1P0_3(const thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> COUP, const
-double M3, const double W3, thrust::complex<double> V3[]); 
-
-__device__ void FFV2_4_0(const thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> V3[], const
-thrust::complex<double> COUP1, const thrust::complex<double> COUP2, 
-thrust::complex<double> * vertex); 
-
-__device__ void FFV2_4_3(const thrust::complex<double> F1[], const
-thrust::complex<double> F2[], const thrust::complex<double> COUP1, const
-thrust::complex<double> COUP2, const double M3, const double W3, 
-thrust::complex<double> V3[]); 
+  __device__ void FFV2_4_3(const thrust::complex<double> F1[], 
+                           const thrust::complex<double> F2[], 
+                           const thrust::complex<double> COUP1, 
+                           const thrust::complex<double> COUP2, 
+                           const double M3, 
+                           const double W3, 
+                           thrust::complex<double> V3[]); 
 
 }  // end namespace MG5_sm
 
