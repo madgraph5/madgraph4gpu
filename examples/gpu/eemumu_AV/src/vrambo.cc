@@ -96,7 +96,7 @@ void get_momenta( int ninitial,
         for (int ipar = 0; ipar < npar-ninitial; ++ipar) // loop over npar-ninitial particles from rambo
           finalmasses.push_back( masses[ipar] );
         double wgt;
-        std::vector<double *> p_rambo = rambo(m1, finalmasses, wgt);
+        std::vector<double *> p_rambo = rambo(energy, finalmasses, wgt);
         for (int ipar = 0; ipar < npar-ninitial; ++ipar) // loop over npar-ninitial particles from rambo
           for (int ip4 = 0; ip4 < np4; ++ip4)
             momenta[ievt][ipar+ninitial][ip4] = p_rambo[ipar][ip4];
