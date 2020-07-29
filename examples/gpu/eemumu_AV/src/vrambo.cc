@@ -43,22 +43,9 @@ void get_momenta( const int ninitial,    // input: #particles_initial
       momenta[ievt][0][2] = 0;
       momenta[ievt][0][3] = 0;
 #endif
-      // Momenta for the outgoing particles
-      const double* massesf = masses+ninitial; // skip the first ninitial masses
-      double pf_rambo[nparf][np4]; // rambo draws random momenta only for final-state particles
-      double wgt;
-      rambo( m1, massesf, pf_rambo, wgt, nparf ); // NB input 'energy' is ignored for ninitial==1
-      for (int iparf = 0; iparf < nparf; ++iparf) // loop over npar-ninitial particles from rambo
-        for (int ip4 = 0; ip4 < np4; ++ip4)
-        {
-#ifdef RAMBO_USES_SOA
-          momenta[iparf+ninitial][ip4][ievt] = pf_rambo[iparf][ip4];
-#else
-          momenta[ievt][iparf+ninitial][ip4] = pf_rambo[iparf][ip4];
-#endif
-        }
-      // Event weight
-      wgts[ievt] = wgt;
+      // Momenta for the outgoing particles and event weight
+      vrambo( ninitial, m1, // NB input 'energy' is ignored for ninitial==1
+              masses, (double*)momenta, wgts, npar, nevt, ievt );
     }
     return;
   }
@@ -118,28 +105,15 @@ void get_momenta( const int ninitial,    // input: #particles_initial
       }
       // #Initial==2, #Final>1
       else {
-        // Momenta for the outgoing particles
-        const double* massesf = masses+ninitial; // skip the first ninitial masses
-        double pf_rambo[nparf][np4]; // rambo draws random momenta only for final-state particles
-        double wgt;
-        rambo( energy, massesf, pf_rambo, wgt, nparf );
-        for (int iparf = 0; iparf < nparf; ++iparf) // loop over npar-ninitial particles from rambo
-          for (int ip4 = 0; ip4 < np4; ++ip4)
-          {
-#ifdef RAMBO_USES_SOA
-            momenta[iparf+ninitial][ip4][ievt] = pf_rambo[iparf][ip4];
-#else
-            momenta[ievt][iparf+ninitial][ip4] = pf_rambo[iparf][ip4];
-#endif
-          }
-        // Event weight
-        wgts[ievt] = wgt;
+        // Momenta for the outgoing particles and event weight
+        vrambo( ninitial, energy, masses, (double*)momenta, wgts, npar, nevt, ievt );
       }
     }
     return;
   }
 }
 
+/*
 // Draw random momenta and the corresponding weight for a single event
 // Only final-state particle momenta and masses are considered
 void rambo( const double energy, // input: energy
@@ -147,6 +121,28 @@ void rambo( const double energy, // input: energy
             double p[][4],       // output: momenta[nparf][4] as struct
             double& wt,          // output: weight
             const int nparf )    // input: #particles_final (==nfinal==nexternal-ninitial)
+{
+  // TODO...
+}
+*/
+
+
+// Draw random momenta and the corresponding weight for event ievt out of nevt
+// *** NB: vrambo only uses final-state masses and fills in final-state momenta,
+// *** however the input masses array and output momenta array include initial-state particles
+// Only final-state particle momenta and masses are considered
+void vrambo( const int ninitial,     // input: #particles_initial
+             const double energy,    // input: energy
+             const double masses[],  // input: masses[npar] 
+#ifdef RAMBO_USES_SOA
+             double momenta1d[],     // output: momenta[npar][4][nevt] as a SOA
+#else
+             double momenta1d[],     // output: momenta[nevt][npar][4] as an AOS
+#endif
+             double wgts[],          // output: weights[nevt]
+             const int npar,         // input: #particles (==nexternal==nfinal+ninitial)
+             const int nevt,         // input: #events
+             const int ievt )        // input: event ID to be written out out of #events
 {
   /****************************************************************************
    *                       rambo                                              *
@@ -164,7 +160,17 @@ void rambo( const double energy, // input: energy
    *    p      = final-state particle momenta ( dim=(nexternal-nincoming,4) ) *
    *    wt     = weight of the event                                          *
    ****************************************************************************/  
+  const int nparf = npar - ninitial;
+
   const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
+#ifdef RAMBO_USES_SOA
+  double (*momenta)[np4][nevt] = (double (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
+#else
+  double (*momenta)[npar][np4] = (double (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOS)
+#endif
+  double& wt = wgts[ievt];
+  const double* xmf = masses+ninitial; // skip the first ninitial masses
+
   double q[nparf][np4];
   double z[nparf], r[np4], b[np4-1], p2[nparf], xmf2[nparf], e[nparf], v[nparf];
   int iwarn[5] = {0,0,0,0,0};
@@ -228,12 +234,18 @@ void rambo( const double energy, // input: energy
   double a = 1. / (1. + g);
   double x = energy / rmas;
 
-  // transform the q's conformally into the p's
+  // transform the q's conformally into the p's (i.e. the 'momenta')
   for (int iparf = 0; iparf < nparf; iparf++) {
     double bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
+#ifdef RAMBO_USES_SOA
     for (int i4 = 1; i4 < np4; i4++)
-      p[iparf][i4] = x * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
-    p[iparf][0] = x * (g * q[iparf][0] + bq);
+      momenta[iparf+ninitial][i4][ievt] = x * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
+    momenta[iparf+ninitial][0][ievt] = x * (g * q[iparf][0] + bq);
+#else
+    for (int i4 = 1; i4 < np4; i4++)
+      momenta[ievt][iparf+ninitial][i4] = x * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
+    momenta[ievt][iparf+ninitial][0] = x * (g * q[iparf][0] + bq);
+#endif
   }
 
   // calculate weight and possible warnings (NB return log of weight)
@@ -260,7 +272,11 @@ void rambo( const double energy, // input: energy
   double xmax = sqrt(1. - pow(xmft / energy, 2));
   for (int iparf = 0; iparf < nparf; iparf++) {
     xmf2[iparf] = pow(xmf[iparf], 2);
-    p2[iparf] = pow(p[iparf][0], 2);
+#ifdef RAMBO_USES_SOA
+    p2[iparf] = pow(momenta[iparf+ninitial][0][ievt], 2);
+#else
+    p2[iparf] = pow(momenta[ievt][iparf+ninitial][0], 2);
+#endif
   }
   int iter = 0;
   x = xmax;
@@ -284,11 +300,19 @@ void rambo( const double energy, // input: energy
     }
     x = x - f0 / (x * g0);
   }
+
   for (int iparf = 0; iparf < nparf; iparf++) {
-    v[iparf] = x * p[iparf][0];
+#ifdef RAMBO_USES_SOA
+    v[iparf] = x * momenta[iparf+ninitial][0][ievt];
     for (int i4 = 1; i4 < np4; i4++)
-      p[iparf][i4] = x * p[iparf][i4];
-    p[iparf][0] = e[iparf];
+      momenta[iparf+ninitial][i4][ievt] = x * momenta[iparf+ninitial][i4][ievt];
+    momenta[iparf+ninitial][0][ievt] = e[iparf];
+#else
+    v[iparf] = x * momenta[ievt][iparf+ninitial][0];
+    for (int i4 = 1; i4 < np4; i4++)
+      momenta[ievt][iparf+ninitial][i4] = x * momenta[ievt][iparf+ninitial][i4];
+    momenta[ievt][iparf+ninitial][0] = e[iparf];
+#endif
   }
 
   // calculate the mass-effect weight factor
