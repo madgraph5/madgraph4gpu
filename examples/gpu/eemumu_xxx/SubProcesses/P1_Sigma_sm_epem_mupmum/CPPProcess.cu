@@ -39,11 +39,11 @@ __device__ void imzxxx(double pvec[3], int nhel, int nsf, thrust::complex<double
   // ASSUMPTION FMASS == 0
   // PX = PY = 0
   // E = -P3 (E>0)
-
+  //printf("p3 %f", pvec[2]);
   fi[0] = thrust::complex<double> (pvec[2] * nsf, -pvec[2] * nsf); 
   fi[1] = thrust::complex<double> (0., 0.);
   int nh = nhel * nsf; 
-  thrust::complex<double>  chi = thrust::complex<double> (nhel * sqrt(-2.0 * pvec[2]), 0.0); 
+  thrust::complex<double>  chi = thrust::complex<double> (-nhel * sqrt(-2.0 * pvec[2]), 0.0); 
 
   fi[2]=(nh== 1)*fi[1]   + (nh==-1)*chi;
   fi[3]=fi[1];
@@ -60,15 +60,15 @@ __device__ void ixzxxx(double pvec[3],  int nhel, int nsf, thrust::complex<doubl
   //double sf[2], sfomega[2], omega[2], pp, pp3, sqp0p3, sqm[2]; 
   //int ip, im, nh;
   float p[4] = {0, (float) pvec[0], (float) pvec[1], (float) pvec[2]};
-  float E = sqrtf(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
+  p[0] = sqrtf(p[3] * p[3] + p[1] * p[1] + p[2] * p[2]);
 
-  fi[0] = thrust::complex<double> (-E * nsf, -pvec[2] * nsf); 
+  fi[0] = thrust::complex<double> (-p[0] * nsf, -pvec[2] * nsf); 
   fi[1] = thrust::complex<double> (-pvec[0] * nsf, -pvec[1] * nsf); 
   int nh = nhel * nsf;
   
-  float sqp0p3 = sqrtf(E + p[2]) * nsf; 
+  float sqp0p3 = sqrtf(p[0] + p[3]) * nsf; 
   thrust::complex<float> chi0 = thrust::complex<float> (sqp0p3, 0.0); 
-  thrust::complex<float> chi1 = thrust::complex<float> (nh * p[0]/sqp0p3, p[1]/sqp0p3); 
+  thrust::complex<float> chi1 = thrust::complex<float> (nh * p[1]/sqp0p3, p[2]/sqp0p3); 
   thrust::complex<float> CZERO = thrust::complex<float>(0.,0.);
     
   fi[2]=(nh== 1)*CZERO   + (nh==-1)*chi1;
@@ -473,15 +473,15 @@ __device__ void oxzxxx(double pvec[3], int nhel, int nsf, thrust::complex<double
   // PT > 0
 
   float p[4] = {0, (float) pvec[0], (float) pvec[1], (float) pvec[2]}; 
-  float  E = sqrtf(p[1] * p[1] + p[2] * p[2] + p[0] * p[0]); 
+  p[0] = sqrtf(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]); 
 
-  fo[0] = thrust::complex<double> (E * nsf, pvec[2] * nsf); 
+  fo[0] = thrust::complex<double> (p[0] * nsf, pvec[2] * nsf); 
   fo[1] = thrust::complex<double> (pvec[0] * nsf, pvec[1] * nsf); 
   int nh = nhel * nsf; 
 
-  float sqp0p3 = sqrtf(E + pvec[2]) * nsf; 
+  float sqp0p3 = sqrtf(p[0] + p[3]) * nsf; 
   thrust::complex<float> chi0 = thrust::complex<float> (sqp0p3, 0.00); 
-  thrust::complex<float> chi1 = thrust::complex<float> (nh * p[0]/sqp0p3, -p[1]/sqp0p3); 
+  thrust::complex<float> chi1 = thrust::complex<float> (nh * p[1]/sqp0p3, -p[2]/sqp0p3); 
   thrust::complex<float> zero = thrust::complex<float> (0.00, 0.00);
   
   fo[2]=(nh== 1)*chi0 + (nh==-1)*zero;
@@ -827,28 +827,31 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[4][3],
   imzxxx(local_mom[1], cHel[ihel][1], +1, w[1]); 
   ixzxxx(local_mom[2], cHel[ihel][2], -1, w[2]); 
   oxzxxx(local_mom[3], cHel[ihel][3], +1, w[3]); 
+  /*
   //oxxxxx(local_mom[0], 0. ,cHel[ihel][0], -1, w[4]);
   //ixxxxx(local_mom[1], 0., cHel[ihel][1], +1, w[4]);
-  //int to_print=1;
-  //printf("w%i = (%f %f) (%f %f) (%f %f) (%f %f) (%f %f) (%f %f)\n",to_print,
-  //		  w[to_print][0].real(),w[to_print][0].imag(),
-//	          w[to_print][1].real(),w[to_print][1].imag(),
-//	          w[to_print][2].real(),w[to_print][2].imag(),
-//	          w[to_print][3].real(),w[to_print][3].imag(),
-//	          w[to_print][4].real(),w[to_print][4].imag(),
-//	          w[to_print][5].real(),w[to_print][5].imag());
-  //to_print=4;
-  //printf("w4 = (%f %f) (%f %f) (%f %f) (%f %f) (%f %f) (%f %f)\n",
-  //                w[to_print][0].real(),w[to_print][0].imag(),
-  //                w[to_print][1].real(),w[to_print][1].imag(),
-  //                w[to_print][2].real(),w[to_print][2].imag(),
-  //                w[to_print][3].real(),w[to_print][3].imag(),
-  //                w[to_print][4].real(),w[to_print][4].imag(),
-  //                w[to_print][5].real(),w[to_print][5].imag());
+  ixxxxx(local_mom[2],0., cHel[ihel][2], -1, w[4]);
+  int to_print=2;
+  printf("w%i = (%f %f) (%f %f) (%f %f) (%f %f) (%f %f) (%f %f)\n",to_print,
+  		  w[to_print][0].real(),w[to_print][0].imag(),
+	          w[to_print][1].real(),w[to_print][1].imag(),
+	          w[to_print][2].real(),w[to_print][2].imag(),
+	          w[to_print][3].real(),w[to_print][3].imag(),
+	          w[to_print][4].real(),w[to_print][4].imag(),
+	          w[to_print][5].real(),w[to_print][5].imag());
+  //ixxxxx(local_mom[to_print], 0., cHel[ihel][to_print], -1, w[4]);
+  to_print=4;
+  printf("w4 = (%f %f) (%f %f) (%f %f) (%f %f) (%f %f) (%f %f)\n",
+                  w[to_print][0].real(),w[to_print][0].imag(),
+                  w[to_print][1].real(),w[to_print][1].imag(),
+                  w[to_print][2].real(),w[to_print][2].imag(),
+                  w[to_print][3].real(),w[to_print][3].imag(),
+                  w[to_print][4].real(),w[to_print][4].imag(),
+                  w[to_print][5].real(),w[to_print][5].imag());
   //ixxxxx(local_mom[1], 0., cHel[ihel][1], +1, w[4]);
   //ixxxxx(local_mom[2],0., cHel[ihel][2], -1, w[4]);
   //oxxxxx(local_mom[3],0., cHel[ihel][3], +1, w[4]);
-  
+  */
   FFV1P0_3(w[1], w[0], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
       w[4]);
   // Amplitude(s) for diagram number 1
