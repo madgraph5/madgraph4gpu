@@ -1,13 +1,9 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
-#include <vector>
 
 #include "vrambo.h"
 #include "Random.h"
-
-//std::vector<std::vector<double *>> // output is an AOS: momenta[nevt][nexternal][4]
-//get_momenta(int ninitial, double energy, const std::vector<double> masses, double &wgt, int nevt) {
 
 // Auxiliary function to change convention between MadGraph5_aMC@NLO and rambo four momenta.
 // Draw random momenta and the corresponding weights for nevt events
@@ -102,9 +98,6 @@ void get_momenta( const int ninitial,    // input: #particles_initial
   }
 }
 
-//std::vector<double *>  // output is a struct: momenta[npar-ninitial][4]
-//rambo(double et, const std::vector<double> &xm, double &wt) {
-
 // Draw random momenta and the corresponding weight for a single event
 // Only final-state particle momenta and masses are considered
 void rambo( const double energy, // input: energy
@@ -131,7 +124,7 @@ void rambo( const double energy, // input: energy
    ****************************************************************************/  
   double q[nparf][4];
   double z[nparf], r[4], b[3], p2[nparf], xmf2[nparf], e[nparf], v[nparf];
-  static std::vector<int> iwarn(5, 0);
+  int iwarn[5] = {0,0,0,0,0};
   static double acc = 1e-14;
   static int itmax = 6, ibegin = 0;
   static double twopi = 8. * atan(1.);
