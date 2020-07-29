@@ -44,6 +44,14 @@ thrust::complex<double> fi[6]);
 __device__ void vxxxxx(const double p[3], double vmass, int nhel, int nsv, 
 thrust::complex<double> v[6]); 
 
+__device__ void FFV1_0(const thrust::complex<double> F1[], const
+    thrust::complex<double> F2[], const thrust::complex<double> V3[], const
+    thrust::complex<double> COUP, thrust::complex<double> * vertex);
+
+__device__ void FFV1P0_3(const thrust::complex<double> F1[], const
+    thrust::complex<double> F2[], const thrust::complex<double> COUP, const
+    double M3, const double W3, thrust::complex<double> V3[]);
+
 __device__ void FFV2_0(const thrust::complex<double> F1[], const
     thrust::complex<double> F2[], const thrust::complex<double> V3[], const
     thrust::complex<double> COUP, thrust::complex<double> * vertex);
@@ -57,14 +65,6 @@ __device__ void FFV4_0(const thrust::complex<double> F1[], const
     thrust::complex<double> COUP, thrust::complex<double> * vertex);
 
 __device__ void FFV4_3(const thrust::complex<double> F1[], const
-    thrust::complex<double> F2[], const thrust::complex<double> COUP, const
-    double M3, const double W3, thrust::complex<double> V3[]);
-
-__device__ void FFV1_0(const thrust::complex<double> F1[], const
-    thrust::complex<double> F2[], const thrust::complex<double> V3[], const
-    thrust::complex<double> COUP, thrust::complex<double> * vertex);
-
-__device__ void FFV1P0_3(const thrust::complex<double> F1[], const
     thrust::complex<double> F2[], const thrust::complex<double> COUP, const
     double M3, const double W3, thrust::complex<double> V3[]);
 
