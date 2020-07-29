@@ -156,7 +156,7 @@ void rambo( const double energy, // input: energy
    *    authors:  s.d. ellis,  r. kleiss,  w.j. stirling                      *
    *    this is version 1.0 -  written by r. kleiss                           *
    *    -- adjusted by hans kuijf, weights are logarithmic (1990-08-20)       *
-   *    -- adjusted by andrea valassi, remove std::vectors (2020-07-29)       *
+   *    -- adjusted by madgraph@sheffield_gpu_hackathon team (2020-07-29)     *
    *                                                                          *
    *    nparf  = number of final-state particles ( =nexternal-nincoming )     *
    *    energy = total centre-of-mass energy                                  *
