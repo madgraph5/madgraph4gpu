@@ -85,8 +85,11 @@ int main(int argc, char **argv) {
 
   // Memory structures for input momenta and output matrix elements on host and device
   const int ndim = gpublocks * gputhreads;
-  const int npar = process.nexternal; // for this process (eemumu): npar=4
+  const int npar = process.nexternal; // for this process (eemumu): npar=4 (e+, e-, mu+, mu-)
+  const int nparf = npar - process.ninitial; // for this process (eemumu): nparf=2 (mu+, mu-)
   const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
+
+  double* rnarray = new double[nparf*np4*ndim]; // can be SOA or AOS
 
 #ifdef RAMBO_USES_SOA
   //double (*rmbMomenta)[np4][ndim] = new double[npar][np4][ndim]; // SOA[npar][np4][ndim] (previously was: p)
@@ -112,11 +115,17 @@ int main(int argc, char **argv) {
     masses[ipar] = process.getMasses()[ipar];
 
   for (int iiter = 0; iiter < niter; ++iiter) {
-
     //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
-    // Get a vector of ndim phase space points
+    
+    // STEP 1 OF 3
+    // Generate all relevant numbers to build ndim events (i.e. ndim phase space points)
+    generateRnArray( rnarray, nparf, ndim );
+    //std::cout << "Got random numbers" << std::endl;
+
+    // STEP 2 OF 3
+    // Map random numbers to particle momenta for each of ndim events
     double weights[ndim]; // dummy in this test application
-    get_momenta( process.ninitial, energy, masses, (double*)rmbMomenta, weights, npar, ndim );
+    get_momenta( process.ninitial, energy, masses, rnarray, (double*)rmbMomenta, weights, npar, ndim );
     //std::cout << "Got momenta" << std::endl;
 
     // Set momenta for this event by copying them from the rambo output
@@ -133,18 +142,12 @@ int main(int argc, char **argv) {
             rmbMomenta[idim][ipar][ip4]; // AOS[ndim][npar][np4]
 #endif
         }
-
     gpuErrchk3( cudaMemcpy( devMomenta, hstMomenta, nbytesMomenta, cudaMemcpyHostToDevice ) );
 
-   //process.preSigmaKin();
+    // STEP 3 OF 3
+    // Evaluate matrix elements for all ndim events
+    if (perf) timer.Start();
 
-    if (perf) {
-      timer.Start();
-    }
-
-    // Evaluate matrix element
-    // later process.sigmaKin(ncomb, goodhel, ntry, sum_hel, ngood, igood,
-    // jhel);
     sigmaKin<<<gpublocks, gputhreads>>>(devMomenta,  devMEs);//, debug, verbose);
     gpuErrchk3( cudaPeekAtLastError() );
 
@@ -272,6 +275,7 @@ int main(int argc, char **argv) {
               << "MaxMatrixElemValue    = " << *maxelem << " GeV^" << meGeVexponent << std::endl;
   }
 
+  delete[] rnarray;
   delete[] hstMomenta;
   delete[] rmbMomenta;
   gpuErrchk3( cudaFree( devMEs ) );
