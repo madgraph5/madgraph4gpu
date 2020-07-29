@@ -89,7 +89,8 @@ int main(int argc, char **argv) {
   const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
 
 #ifdef RAMBO_USES_SOA
-  double (*rmbMomenta)[np4][ndim] = new double[npar][np4][ndim]; // AOS[ndim][npar][np4] (previously was: p)
+  //double (*rmbMomenta)[np4][ndim] = new double[npar][np4][ndim]; // SOA[npar][np4][ndim] (previously was: p)
+  double* rmbMomenta = new double[npar*np4*ndim]; // SOA[npar][np4][ndim] (previously was: p)
 #else
   double (*rmbMomenta)[npar][np4] = new double[ndim][npar][np4]; // AOS[ndim][npar][np4] (previously was: p)
 #endif
@@ -125,7 +126,8 @@ int main(int argc, char **argv) {
         {
 #ifdef RAMBO_USES_SOA
           hstMomenta[ipar*ndim*np4 + ip4*ndim + idim] = // SOA[npar][np4][ndim]
-            rmbMomenta[ipar][ip4][idim]; // SOA[npar][np4][ndim]
+            //rmbMomenta[ipar][ip4][idim]; // SOA[npar][np4][ndim]
+            rmbMomenta[ipar*ndim*np4 + ip4*ndim + idim]; // SOA[npar][np4][ndim]
 #else
           hstMomenta[ipar*ndim*np4 + ip4*ndim + idim] = // SOA[npar][np4][ndim]
             rmbMomenta[idim][ipar][ip4]; // AOS[ndim][npar][np4]
@@ -166,6 +168,23 @@ int main(int argc, char **argv) {
         if (verbose) {
           std::cout << "Momenta:" << std::endl;
           for (int ipar = 0; ipar < npar; ipar++)
+          {
+#ifdef RAMBO_USES_SOA
+            std::cout << std::setw(4) << ipar + 1
+                      << setiosflags(std::ios::scientific)
+  //<< std::setw(14) << rmbMomenta[ipar][0][idim]
+                      << std::setw(14) << rmbMomenta[ipar*ndim*np4 + 0*ndim + idim]
+                      << setiosflags(std::ios::scientific)
+  //<< std::setw(14) << rmbMomenta[ipar][1][idim]
+                      << std::setw(14) << rmbMomenta[ipar*ndim*np4 + 1*ndim + idim]
+                      << setiosflags(std::ios::scientific)
+  //<< std::setw(14) << rmbMomenta[ipar][2][idim]
+                      << std::setw(14) << rmbMomenta[ipar*ndim*np4 + 2*ndim + idim]
+                      << setiosflags(std::ios::scientific)
+  //<< std::setw(14) << rmbMomenta[ipar][3][idim]
+                      << std::setw(14) << rmbMomenta[ipar*ndim*np4 + 3*ndim + idim]
+                      << std::endl;
+#else
             std::cout << std::setw(4) << ipar + 1
                       << setiosflags(std::ios::scientific)
                       << std::setw(14) << rmbMomenta[idim][ipar][0]
@@ -174,7 +193,10 @@ int main(int argc, char **argv) {
                       << setiosflags(std::ios::scientific)
                       << std::setw(14) << rmbMomenta[idim][ipar][2]
                       << setiosflags(std::ios::scientific)
-                      << std::setw(14) << rmbMomenta[idim][ipar][3] << std::endl;
+                      << std::setw(14) << rmbMomenta[idim][ipar][3]
+                      << std::endl;
+#endif
+          }
           std::cout << std::string(80, '-') << std::endl;
         }
 
