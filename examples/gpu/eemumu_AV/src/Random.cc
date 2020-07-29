@@ -59,18 +59,14 @@ void Random::rmarin(int ij, int kl) {
   jranmr = 33;
 }
 
-double rn(int idummy) {
+double rn(int /*idummy*/) {
   static Random rand;
   double ran;
   static int init = 1;
-  // Prevent unused variable warning
-  if (false)
-    idummy = idummy;
   if (init == 1) {
     init = 0;
     rand.rmarin(1802, 9373);
   }
-
   while (true) {
     ran = rand.ranmar();
     if (ran > 1e-16)
