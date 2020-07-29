@@ -192,10 +192,12 @@ thrust::complex<double> fi[6])
   int nh = nhel * nsf; 
   // if (fmass != 0.0) {
   float pp = sqrtf(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]); 
+  float omega[2]; 
   omega[0] = sqrtf(p[0] + pp); 
   omega[1] = fmass/omega[0]; 
-  ip = (1 + nh)/2; 
-  im = (1 - nh)/2; 
+  int ip = (1 + nh)/2; 
+  int im = (1 - nh)/2; 
+  float sfomega[2]; 
   sfomega[0] = (1 + nsf + (1 - nsf) * nh) * omega[ip]/2.; 
   sfomega[1] = (1 + nsf - (1 - nsf) * nh) * omega[im]/2.; 
   float pp3 = pp + p[3]; 
@@ -456,7 +458,7 @@ thrust::complex<double> vc[6])
   // ASSUME PT = 0
   // ASSUME E = -Pz (E>0)
 
-  // float p[4] = {0, pvec[0], pvec[1], pvec[2]};
+  // float p[4] = {0, (float) pvec[0], (float) pvec[1], (float) pvec[2]};
   // p[0] = -p[3];
 
   vc[0] = thrust::complex<double> (-pvec[2] * nsv, pvec[2] * nsv); 
@@ -473,7 +475,7 @@ thrust::complex<double> vc[6])
   // double hel, hel0, pt, pt2, pp, pzpt, emp, sqh;
   // int nsvahl;
 
-  float p[4] = {0, pvec[0], pvec[1], pvec[2]}; 
+  float p[4] = {0, (float) pvec[0], (float) pvec[1], (float) pvec[2]}; 
   p[0] = sqrtf(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]); 
 
   vc[0] = thrust::complex<double> (p[0] * nsv, pvec[2] * nsv); 
@@ -485,7 +487,7 @@ thrust::complex<double> vc[6])
   float pzpt = p[3]/(p[0] * pt) * sqrtf(0.5f) * nhel; 
   vc[3] = thrust::complex<double> (-p[1] * pzpt, -nsv * p[2]/pt * sqh); 
   vc[4] = thrust::complex<double> (-p[2] * pzpt, nsv * p[1]/pt * sqh); 
-  vc[5] = thrust::complex<double> (nhel * pt/pp * sqh, 0.0); 
+  vc[5] = thrust::complex<double> (nhel * pt/p[0] * sqh, 0.0); 
 }
 
 __device__ void sxxxxx(const double pvec[3], double smass, int nss,
@@ -783,11 +785,11 @@ __device__ void VVV1P0_1(const thrust::complex<double> V2[], const
   P1[1] = -V1[1].real(); 
   P1[2] = -V1[1].imag(); 
   P1[3] = -V1[0].imag(); 
-  TMP4 = (V2[2] * P3[0] - V2[3] * P3[1] - V2[4] * P3[2] - V2[5] * P3[3]); 
   TMP1 = (V3[2] * P1[0] - V3[3] * P1[1] - V3[4] * P1[2] - V3[5] * P1[3]); 
+  TMP2 = (V3[2] * P2[0] - V3[3] * P2[1] - V3[4] * P2[2] - V3[5] * P2[3]); 
   TMP5 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]); 
   TMP3 = (P1[0] * V2[2] - P1[1] * V2[3] - P1[2] * V2[4] - P1[3] * V2[5]); 
-  TMP2 = (V3[2] * P2[0] - V3[3] * P2[1] - V3[4] * P2[2] - V3[5] * P2[3]); 
+  TMP4 = (V2[2] * P3[0] - V2[3] * P3[1] - V2[4] * P3[2] - V2[5] * P3[3]); 
   denom = COUP/((P1[0] * P1[0]) - (P1[1] * P1[1]) - (P1[2] * P1[2]) - (P1[3] *
       P1[3]) - M1 * (M1 - cI * W1));
   V1[2] = denom * (TMP5 * (-cI * (P2[0]) + cI * (P3[0])) + (V2[2] * (-cI *

@@ -44,13 +44,10 @@ thrust::complex<double> fi[6]);
 __device__ void vxxxxx(const double p[3], double vmass, int nhel, int nsv, 
 thrust::complex<double> v[6]); 
 
-__device__ void VVV1_0(const thrust::complex<double> V1[], const
-    thrust::complex<double> V2[], const thrust::complex<double> V3[], const
-    thrust::complex<double> COUP, thrust::complex<double> * vertex);
-
-__device__ void VVV1P0_1(const thrust::complex<double> V2[], const
-    thrust::complex<double> V3[], const thrust::complex<double> COUP, const
-    double M1, const double W1, thrust::complex<double> V1[]);
+__device__ void VVVV4P0_1(const thrust::complex<double> V2[], const
+    thrust::complex<double> V3[], const thrust::complex<double> V4[], const
+    thrust::complex<double> COUP, const double M1, const double W1,
+    thrust::complex<double> V1[]);
 
 __device__ void FFV1_0(const thrust::complex<double> F1[], const
     thrust::complex<double> F2[], const thrust::complex<double> V3[], const
@@ -73,12 +70,15 @@ __device__ void VVVV1P0_1(const thrust::complex<double> V2[], const
     thrust::complex<double> COUP, const double M1, const double W1,
     thrust::complex<double> V1[]);
 
-__device__ void VVVV3P0_1(const thrust::complex<double> V2[], const
-    thrust::complex<double> V3[], const thrust::complex<double> V4[], const
-    thrust::complex<double> COUP, const double M1, const double W1,
-    thrust::complex<double> V1[]);
+__device__ void VVV1_0(const thrust::complex<double> V1[], const
+    thrust::complex<double> V2[], const thrust::complex<double> V3[], const
+    thrust::complex<double> COUP, thrust::complex<double> * vertex);
 
-__device__ void VVVV4P0_1(const thrust::complex<double> V2[], const
+__device__ void VVV1P0_1(const thrust::complex<double> V2[], const
+    thrust::complex<double> V3[], const thrust::complex<double> COUP, const
+    double M1, const double W1, thrust::complex<double> V1[]);
+
+__device__ void VVVV3P0_1(const thrust::complex<double> V2[], const
     thrust::complex<double> V3[], const thrust::complex<double> V4[], const
     thrust::complex<double> COUP, const double M1, const double W1,
     thrust::complex<double> V1[]);

@@ -192,10 +192,12 @@ thrust::complex<double> fi[6])
   int nh = nhel * nsf; 
   // if (fmass != 0.0) {
   float pp = sqrtf(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]); 
+  float omega[2]; 
   omega[0] = sqrtf(p[0] + pp); 
   omega[1] = fmass/omega[0]; 
-  ip = (1 + nh)/2; 
-  im = (1 - nh)/2; 
+  int ip = (1 + nh)/2; 
+  int im = (1 - nh)/2; 
+  float sfomega[2]; 
   sfomega[0] = (1 + nsf + (1 - nsf) * nh) * omega[ip]/2.; 
   sfomega[1] = (1 + nsf - (1 - nsf) * nh) * omega[im]/2.; 
   float pp3 = pp + p[3]; 
@@ -456,7 +458,7 @@ thrust::complex<double> vc[6])
   // ASSUME PT = 0
   // ASSUME E = -Pz (E>0)
 
-  // float p[4] = {0, pvec[0], pvec[1], pvec[2]};
+  // float p[4] = {0, (float) pvec[0], (float) pvec[1], (float) pvec[2]};
   // p[0] = -p[3];
 
   vc[0] = thrust::complex<double> (-pvec[2] * nsv, pvec[2] * nsv); 
@@ -473,7 +475,7 @@ thrust::complex<double> vc[6])
   // double hel, hel0, pt, pt2, pp, pzpt, emp, sqh;
   // int nsvahl;
 
-  float p[4] = {0, pvec[0], pvec[1], pvec[2]}; 
+  float p[4] = {0, (float) pvec[0], (float) pvec[1], (float) pvec[2]}; 
   p[0] = sqrtf(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]); 
 
   vc[0] = thrust::complex<double> (p[0] * nsv, pvec[2] * nsv); 
@@ -485,7 +487,7 @@ thrust::complex<double> vc[6])
   float pzpt = p[3]/(p[0] * pt) * sqrtf(0.5f) * nhel; 
   vc[3] = thrust::complex<double> (-p[1] * pzpt, -nsv * p[2]/pt * sqh); 
   vc[4] = thrust::complex<double> (-p[2] * pzpt, nsv * p[1]/pt * sqh); 
-  vc[5] = thrust::complex<double> (nhel * pt/pp * sqh, 0.0); 
+  vc[5] = thrust::complex<double> (nhel * pt/p[0] * sqh, 0.0); 
 }
 
 __device__ void sxxxxx(const double pvec[3], double smass, int nss,
@@ -748,10 +750,10 @@ __device__ void FFV4_0(const thrust::complex<double> F1[], const
   thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
   thrust::complex<double> TMP3; 
   thrust::complex<double> TMP4; 
-  TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
-      F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
   TMP4 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
       F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
+  TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
+      F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
   (*vertex) = COUP * (-1.) * (+cI * (TMP3) + 2. * cI * (TMP4)); 
 }
 
@@ -804,10 +806,10 @@ __device__ void FFV2_4_0(const thrust::complex<double> F1[], const
   thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
   thrust::complex<double> TMP3; 
   thrust::complex<double> TMP4; 
-  TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
-      F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
   TMP4 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
       F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
+  TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
+      F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
   (*vertex) = (-1.) * (COUP2 * (+cI * (TMP3) + 2. * cI * (TMP4)) + cI * (TMP3 *
       COUP1));
 }
