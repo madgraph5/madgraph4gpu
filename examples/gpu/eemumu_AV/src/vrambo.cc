@@ -5,8 +5,9 @@
 #include "vrambo.h"
 #include "Random.h"
 
+// Output is an AOS: momenta[nevt][nexternal][4]
 std::vector<std::vector<double *>>
-get_momenta(int ninitial, double energy, const std::vector<double> masses, double &wgt, int dim) {
+get_momenta(int ninitial, double energy, const std::vector<double> masses, double &wgt, int nevt){
   //---- auxiliary function to change convention between MadGraph5_aMC@NLO and
   // rambo
   //---- four momenta.
@@ -17,7 +18,7 @@ get_momenta(int ninitial, double energy, const std::vector<double> masses, doubl
   std::vector<std::vector<double *>> p2;
 
   if (ninitial == 1) {
-    for (int d = 0; d < dim; ++d) {
+    for (int ievt = 0; ievt < nevt; ++ievt) {
       // Momenta for the incoming particle
       std::vector<double *> p(1, new double[4]);
       p[0][0] = m1;
@@ -50,7 +51,7 @@ get_momenta(int ninitial, double energy, const std::vector<double> masses, doubl
   double energy1 = sqrt(pow(mom, 2) + pow(m1, 2));
   double energy2 = sqrt(pow(mom, 2) + pow(m2, 2));
   // Set momenta for incoming particles
-  for (int d = 0; d < dim; ++d) {
+  for (int ievt = 0; ievt < nevt; ++ievt) {
 
     std::vector<double *> p(1, new double[4]);
     p[0][0] = energy1;
