@@ -68,10 +68,12 @@ get_momenta(int ninitial, double energy, const std::vector<double> masses, doubl
         wgt = 1;
         p2.push_back(p);
       }
-      std::vector<double> finalmasses(++(++masses.begin()), masses.end());
-      std::vector<double *> p_rambo = rambo(energy, finalmasses, wgt);
-      p.insert(++(++p.begin()), p_rambo.begin(), p_rambo.end());
-      p2.push_back(p);
+      else {
+        std::vector<double> finalmasses(++(++masses.begin()), masses.end());
+        std::vector<double *> p_rambo = rambo(energy, finalmasses, wgt);
+        p.insert(++(++p.begin()), p_rambo.begin(), p_rambo.end());
+        p2.push_back(p);
+      }
     }
     return p2;
   }
