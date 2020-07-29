@@ -663,9 +663,9 @@ void CPPProcess::initProc(string param_card_name) {
   mME.push_back(pars->ZERO);
   mME.push_back(pars->ZERO);
   mME.push_back(pars->ZERO);
-  static mg5Complex tIPC[3] = {make_mg5Complex2(pars->GC_3),
-                               make_mg5Complex2(pars->GC_50),
-                               make_mg5Complex2(pars->GC_59)};
+  static mg5Complex tIPC[3] = {make_mg5Complex(pars->GC_3),
+                               make_mg5Complex(pars->GC_50),
+                               make_mg5Complex(pars->GC_59)};
   static double tIPD[2] = {pars->mdl_MZ, pars->mdl_WZ};
 
   cudaMemcpyToSymbol(cIPC, tIPC, 3 * sizeof(mg5Complex));
