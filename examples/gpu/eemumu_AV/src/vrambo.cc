@@ -5,19 +5,19 @@
 #include "vrambo.h"
 #include "Random.h"
 
-// Output is an AOS: momenta[nevt][nexternal][4]
-std::vector<std::vector<double *>>
-get_momenta(int ninitial, double energy, const std::vector<double> masses, double &wgt, int nevt){
-  //---- auxiliary function to change convention between MadGraph5_aMC@NLO and
-  // rambo
-  //---- four momenta.
-  int nexternal = masses.size();
-  int nfinal = nexternal - ninitial;
-  double e2 = pow(energy, 2);
-  double m1 = masses[0];
-  std::vector<std::vector<double *>> p2;
+// Auxiliary function to change convention between MadGraph5_aMC@NLO and
+// rambo four momenta.
+std::vector<std::vector<double *>> // output is an AOS: momenta[nevt][nexternal][4]
+get_momenta(int ninitial, double energy, const std::vector<double> masses, double &wgt, int nevt) {
 
+  const int nexternal = masses.size();
+  const int nfinal = nexternal - ninitial;
+  const double e2 = pow(energy, 2);
+  const double m1 = masses[0];
+
+  // #Initial==1
   if (ninitial == 1) {
+    std::vector<std::vector<double *>> p2;
     for (int ievt = 0; ievt < nevt; ++ievt) {
       // Momenta for the incoming particle
       std::vector<double *> p(1, new double[4]);
@@ -25,7 +25,6 @@ get_momenta(int ninitial, double energy, const std::vector<double> masses, doubl
       p[0][1] = 0.;
       p[0][2] = 0.;
       p[0][3] = 0.;
-
       std::vector<double> finalmasses(++masses.begin(), masses.end());
       std::vector<double *> p_rambo = rambo(m1, finalmasses, wgt);
       p.insert(++p.begin(), p_rambo.begin(), p_rambo.end());
@@ -34,48 +33,48 @@ get_momenta(int ninitial, double energy, const std::vector<double> masses, doubl
     return p2;
   }
 
+  // #Initial>2 (error)
   else if (ninitial != 2) {
     std::cout << "Rambo needs 1 or 2 incoming particles" << std::endl;
     exit(-1);
   }
 
-  if (nfinal == 1)
-    energy = m1;
-
-  double m2 = masses[1];
-
-  double mom =
+  // #Initial==2
+  else {
+    double m2 = masses[1];
+    double mom =
       sqrt((pow(e2, 2) - 2 * e2 * pow(m1, 2) + pow(m1, 4) -
             2 * e2 * pow(m2, 2) - 2 * pow(m1, 2) * pow(m2, 2) + pow(m2, 4)) /
            (4 * e2));
-  double energy1 = sqrt(pow(mom, 2) + pow(m1, 2));
-  double energy2 = sqrt(pow(mom, 2) + pow(m2, 2));
-  // Set momenta for incoming particles
-  for (int ievt = 0; ievt < nevt; ++ievt) {
-
-    std::vector<double *> p(1, new double[4]);
-    p[0][0] = energy1;
-    p[0][1] = 0;
-    p[0][2] = 0;
-    p[0][3] = mom;
-    p.push_back(new double[4]);
-    p[1][0] = energy2;
-    p[1][1] = 0;
-    p[1][2] = 0;
-    p[1][3] = -mom;
-
-    if (nfinal == 1) {
+    double energy1 = sqrt(pow(mom, 2) + pow(m1, 2));
+    double energy2 = sqrt(pow(mom, 2) + pow(m2, 2));
+    // Set momenta for incoming particles
+    std::vector<std::vector<double *>> p2;
+    for (int ievt = 0; ievt < nevt; ++ievt) {
+      std::vector<double *> p(1, new double[4]);
+      p[0][0] = energy1;
+      p[0][1] = 0;
+      p[0][2] = 0;
+      p[0][3] = mom;
       p.push_back(new double[4]);
-      p[2][0] = energy;
-      wgt = 1;
+      p[1][0] = energy2;
+      p[1][1] = 0;
+      p[1][2] = 0;
+      p[1][3] = -mom;
+      if (nfinal == 1) {
+        energy = m1;
+        p.push_back(new double[4]);
+        p[2][0] = energy;
+        wgt = 1;
+        p2.push_back(p);
+      }
+      std::vector<double> finalmasses(++(++masses.begin()), masses.end());
+      std::vector<double *> p_rambo = rambo(energy, finalmasses, wgt);
+      p.insert(++(++p.begin()), p_rambo.begin(), p_rambo.end());
       p2.push_back(p);
     }
-    std::vector<double> finalmasses(++(++masses.begin()), masses.end());
-    std::vector<double *> p_rambo = rambo(energy, finalmasses, wgt);
-    p.insert(++(++p.begin()), p_rambo.begin(), p_rambo.end());
-    p2.push_back(p);
+    return p2;
   }
-  return p2;
 }
 
 std::vector<double *>
