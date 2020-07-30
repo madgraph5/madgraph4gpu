@@ -273,6 +273,7 @@ int main(int argc, char **argv) {
   }
 
   delete[] rnarray;
+  delete[] hstMEs;
   delete[] hstMomenta;
   delete[] rmbMomenta;
   gpuErrchk3( cudaFree( devMEs ) );
