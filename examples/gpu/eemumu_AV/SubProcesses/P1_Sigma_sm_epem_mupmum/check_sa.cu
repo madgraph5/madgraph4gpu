@@ -91,13 +91,17 @@ int main(int argc, char **argv) {
 
   double* rnarray = new double[nparf*np4*ndim]; // can be SOA or AOS
 
-  double* hstMomenta = new double[npar*np4*ndim]; // SOA[npar][np4][ndim] (previously was: lp)
   int nbytesMomenta = np4*npar*ndim * sizeof(double);
+  double* hstMomenta = new double[npar*np4*ndim]; // SOA[npar][np4][ndim] (previously was: lp)
+  //double* hstMomenta = 0; // SOA[npar][np4][ndim] (previously was: lp)
+  //gpuErrchk3( cudaMallocHost( &hstMomenta, nbytesMomenta ) );
   double* devMomenta = 0; // (previously was: allMomenta)
   gpuErrchk3( cudaMalloc( &devMomenta, nbytesMomenta ) );
 
-  double* hstMEs = new double[ndim]; // (previously was: meHostPtr)
   int nbytesMEs = ndim * sizeof(double);
+  double* hstMEs = new double[ndim]; // (previously was: meHostPtr)
+  //double* hstMEs = 0; // (previously was: meHostPtr)
+  //gpuErrchk3( cudaMallocHost( &hstMEs, nbytesMEs ) );
   double* devMEs = 0; // (previously was: meDevPtr)
   gpuErrchk3( cudaMalloc( &devMEs, nbytesMEs ) );
 
@@ -273,10 +277,18 @@ int main(int argc, char **argv) {
   }
 
   delete[] rnarray;
+
+#ifndef RAMBO_USES_SOA
+  delete[] rmbMomenta;
+#endif
+
   delete[] hstMEs;
   delete[] hstMomenta;
-  delete[] rmbMomenta;
+  //gpuErrchk3( cudaFreeHost( hstMEs ) );
+  //gpuErrchk3( cudaFreeHost( hstMomenta ) );
+
   gpuErrchk3( cudaFree( devMEs ) );
   gpuErrchk3( cudaFree( devMomenta ) );
+
   gpuErrchk3( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
 }
