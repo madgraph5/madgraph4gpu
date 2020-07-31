@@ -829,13 +829,15 @@ void CPPProcess::initProc(string param_card_name)
 // Evaluate |M|^2, part independent of incoming flavour.
 
 __global__ 
-#if defined MGONGPU_LAYOUT_SOA
-// SOA: allmomenta[npar][np4][ndim]
+#if defined MGONGPU_LAYOUT_ASA
+// AOSOA: allmomenta[npag][npar][np4][nepp] where nevt=npag*nepp
+#elif defined MGONGPU_LAYOUT_SOA
+// SOA: allmomenta[npar][np4][ndim] where nevt=ndim=gpublocks*gputhreads
 #elif defined MGONGPU_LAYOUT_AOS
-// AOS: allmomenta[ndim][npar][np4]
+// AOS: allmomenta[ndim][npar][np4] where nevt=ndim=gpublocks*gputhreads
 #endif
-void sigmaKin( const double* allmomenta, // input[(npar=4)*(np4=4)*(ndim=gpublocks*gputhreads)]
-               double* output ) // output[ndim]
+void sigmaKin( const double* allmomenta, // input[(npar=4)*(np4=4)*(nevt)]
+               double* output ) // output[nevt]
 {
   // Set the parameters which change event by event
   // Need to discuss this with Stefan

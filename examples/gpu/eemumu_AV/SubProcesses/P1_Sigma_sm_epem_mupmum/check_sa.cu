@@ -28,6 +28,7 @@ int usage(char* argv0, int ret = 1) {
 
 int main(int argc, char **argv) 
 {
+  using namespace mgOnGpu;
 
   // READ COMMAND LINE ARGUMENTS
   bool verbose = false;
@@ -67,6 +68,17 @@ int main(int argc, char **argv)
   if (niter == 0)
     return usage(argv[0]);
 
+  const int ndim = gpublocks * gputhreads; // number of events (threads) in one iteration
+//#if defined MGONGPU_LAYOUT_ASA
+  if ( gpublocks>1 && gputhreads>=nepp && gputhreads%nepp != 0 )
+  {
+    std::cout << "ERROR! #threads/block should be a multiple of " << nepp << std::endl;
+    std::cout << "(unless #blocks/grid is 1 and #threads/block is < " << nepp << ")" << std::endl;
+    return usage(argv[0]);
+  }
+  const int npag = ( ndim>nepp ? ndim/nepp : 1 ); // number of ASA pages needed for ndim events
+//#endif
+
   if (verbose)
     std::cout << "# iterations: " << niter << std::endl;
 
@@ -101,26 +113,39 @@ int main(int argc, char **argv)
   timermap.start( alloKey );
 
   // Memory structures for input momenta and output matrix elements on host and device
-  const int ndim = gpublocks * gputhreads;
   const int npar = process.nexternal; // for this process (eemumu): npar=4 (e+, e-, mu+, mu-)
   const int nparf = npar - process.ninitial; // for this process (eemumu): nparf=2 (mu+, mu-)
   const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
 
-  double* rnarray = new double[nparf*np4*ndim]; // can be SOA or AOS
-
-  int nbytesMomenta = np4*npar*ndim * sizeof(double);
-  //double* hstMomenta = new double[npar*np4*ndim]; // can be SOA or AOS (previously was: lp)
 #if defined MGONGPU_LAYOUT_SOA
+  double* rnarray = new double[npag*nparf*np4*nepp]; // AOSOA[npag][npar][np4][nepp]
+#elif defined MGONGPU_LAYOUT_SOA
+  double* rnarray = new double[nparf*np4*ndim]; // SOA[npar][np4][ndim]
+#elif defined MGONGPU_LAYOUT_AOS
+  double* rnarray = new double[nparf*np4*ndim]; // AOS[ndim][npar][np4]
+#endif
+
+#if defined MGONGPU_LAYOUT_ASA
+  const int nbytesMomenta = npag*np4*npar*epp * sizeof(double);
+  double* hstMomenta = 0; // AOSOA[npag][npar][np4][nepp] (previously was: lp)
+#elif defined MGONGPU_LAYOUT_SOA
+  const int nbytesMomenta = np4*npar*ndim * sizeof(double);
   double* hstMomenta = 0; // SOA[npar][np4][ndim] (previously was: lp)
 #elif defined MGONGPU_LAYOUT_AOS
+  const int nbytesMomenta = np4*npar*ndim * sizeof(double);
   double* hstMomenta = 0; // AOS[ndim][npar][np4] (previously was: lp)
 #endif
   gpuErrchk3( cudaMallocHost( &hstMomenta, nbytesMomenta ) );
   double* devMomenta = 0; // (previously was: allMomenta)
   gpuErrchk3( cudaMalloc( &devMomenta, nbytesMomenta ) );
 
-  int nbytesMEs = ndim * sizeof(double);
-  //double* hstMEs = new double[ndim]; // (previously was: meHostPtr)
+#if defined MGONGPU_LAYOUT_ASA
+  const int nbytesMEs = npag*nepp * sizeof(double);
+#elif defined MGONGPU_LAYOUT_SOA
+  const int nbytesMEs = ndim * sizeof(double);
+#elif defined MGONGPU_LAYOUT_AOS
+  const int nbytesMEs = ndim * sizeof(double);
+#endif
   double* hstMEs = 0; // (previously was: meHostPtr)
   gpuErrchk3( cudaMallocHost( &hstMEs, nbytesMEs ) );
   double* devMEs = 0; // (previously was: meDevPtr)
@@ -199,34 +224,60 @@ int main(int argc, char **argv)
 
     if (verbose || perf)
     {
-      for (int idim = 0; idim < ndim; ++idim) 
+#if defined MGONGPU_LAYOUT_ASA      
+      const int nepi = npag*nepp; // events per iteration
+#elif defined MGONGPU_LAYOUT_SOA
+      const int nepi = ndim; // events per iteration
+#elif defined MGONGPU_LAYOUT_AOS
+      const int nepi = ndim; // events per iteration
+#endif
+      for (int iepi = 0; iepi < nepi; ++iepi) 
       {
+#if defined MGONGPU_LAYOUT_ASA
+        const int ipag = iepi/nepp; // #eventpage in this iteration
+        const int iepp = iepi%nepp; // #event in the current eventpage in this iteration
+#elif defined MGONGPU_LAYOUT_SOA
+        const int idim = iepi; // #event in this iteration
+#elif defined MGONGPU_LAYOUT_AOS
+        const int idim = iepi; // #event in this iteration
+#endif
         if (verbose) 
         {
           std::cout << "Momenta:" << std::endl;
           for (int ipar = 0; ipar < npar; ipar++)
           {
-#if defined MGONGPU_LAYOUT_SOA
+#if defined MGONGPU_LAYOUT_ASA
             std::cout << std::setw(4) << ipar + 1
-                      << setiosflags(std::ios::scientific)
-                      << std::setw(14) << hstMomenta[ipar*ndim*np4 + 0*ndim + idim] // SOA[ipar][0][idim]
-                      << setiosflags(std::ios::scientific)
-                      << std::setw(14) << hstMomenta[ipar*ndim*np4 + 1*ndim + idim] // SOA[ipar][1][idim]
-                      << setiosflags(std::ios::scientific)
-                      << std::setw(14) << hstMomenta[ipar*ndim*np4 + 2*ndim + idim] // SOA[ipar][2][idim]
-                      << setiosflags(std::ios::scientific)
-                      << std::setw(14) << hstMomenta[ipar*ndim*np4 + 3*ndim + idim] // SOA[ipar][3][idim]
+                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << hstMomenta[ipar*ndim*np4 + 0*ndim + idim] // AOSOA[ipag][ipar][0][iepp]
+                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << hstMomenta[ipar*ndim*np4 + 1*ndim + idim] // AOSOA[ipag][ipar][1][iepp]
+                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << hstMomenta[ipar*ndim*np4 + 2*ndim + idim] // AOSOA[ipag][ipar][2][iepp]
+                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << hstMomenta[ipar*ndim*np4 + 3*ndim + idim] // AOSOA[ipag][ipar][3][iepp]
+                      << std::endl;
+#elif defined MGONGPU_LAYOUT_SOA
+            std::cout << std::setw(4) << ipar + 1
+                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << hstMomenta[ipar*ndim*np4 + 0*ndim + idim] // SOA[ipar][0][idim]
+                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << hstMomenta[ipar*ndim*np4 + 1*ndim + idim] // SOA[ipar][1][idim]
+                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << hstMomenta[ipar*ndim*np4 + 2*ndim + idim] // SOA[ipar][2][idim]
+                      << setiosflags(std::ios::scientific) << std::setw(14)
+                      << hstMomenta[ipar*ndim*np4 + 3*ndim + idim] // SOA[ipar][3][idim]
                       << std::endl;
 #elif defined MGONGPU_LAYOUT_AOS
             std::cout << std::setw(4) << ipar + 1
-                      << setiosflags(std::ios::scientific)
-                      << std::setw(14) << hstMomenta[idim*npar*np4 + ipar*np4 + 0] // AOS[idim][ipar][0]
-                      << setiosflags(std::ios::scientific)
-                      << std::setw(14) << hstMomenta[idim*npar*np4 + ipar*np4 + 1] // AOS[idim][ipar][1]
-                      << setiosflags(std::ios::scientific)
-                      << std::setw(14) << hstMomenta[idim*npar*np4 + ipar*np4 + 2] // AOS[idim][ipar][2]
-                      << setiosflags(std::ios::scientific)
-                      << std::setw(14) << hstMomenta[idim*npar*np4 + ipar*np4 + 3] // AOS[idim][ipar][3]
+                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << hstMomenta[idim*npar*np4 + ipar*np4 + 0] // AOS[idim][ipar][0]
+                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << hstMomenta[idim*npar*np4 + ipar*np4 + 1] // AOS[idim][ipar][1]
+                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << hstMomenta[idim*npar*np4 + ipar*np4 + 2] // AOS[idim][ipar][2]
+                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << hstMomenta[idim*npar*np4 + ipar*np4 + 3] // AOS[idim][ipar][3]
                       << std::endl;
 #endif
           }
@@ -295,7 +346,9 @@ int main(int argc, char **argv)
               << "NumThreadsPerBlock    = " << gputhreads << std::endl
               << "NumBlocksPerGrid      = " << gpublocks << std::endl
               << "-----------------------------------" << std::endl
-#if defined MGONGPU_LAYOUT_SOA
+#if defined MGONGPU_LAYOUT_ASA
+              << "Memory layout         = AOSOA " << std::endl
+#elif defined MGONGPU_LAYOUT_SOA
               << "Memory layout         = SOA " << std::endl
 #elif defined MGONGPU_LAYOUT_AOS
               << "Memory layout         = AOS " << std::endl
