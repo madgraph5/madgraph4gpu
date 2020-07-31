@@ -24,7 +24,7 @@ __device__ void ixxxxx(const double pvec[4],
                        thrust::complex<double> fi[6]) 
 {
   thrust::complex<double> chi[2]; 
-  double sf[2], sfomega[2], omega[2], sqp0p3; 
+  double sfomega[2], omega[2], sqp0p3; 
   const double* p = pvec;
   fi[0] = thrust::complex<double> (-p[0] * nsf, -p[3] * nsf); 
   fi[1] = thrust::complex<double> (-p[1] * nsf, -p[2] * nsf); 
@@ -46,8 +46,11 @@ __device__ void ixxxxx(const double pvec[4],
     }
     else
     {
-      sf[0] = (1 + nsf + (1 - nsf) * nh) * 0.5; 
-      sf[1] = (1 + nsf - (1 - nsf) * nh) * 0.5; 
+      const double sf[2] =
+        {
+          (1 + nsf + (1 - nsf) * nh) * 0.5,
+          (1 + nsf - (1 - nsf) * nh) * 0.5
+        };      
       omega[0] = sqrt(p[0] + pp); 
       omega[1] = fmass/omega[0]; 
       const int ip = (1 + nh)/2; 
@@ -386,7 +389,7 @@ __device__ void oxxxxx(const double pvec[4],
                        thrust::complex<double> fo[6]) 
 {
   thrust::complex<double> chi[2]; 
-  double sf[2], sfomeg[2], omega[2], sqp0p3;
+  double sfomeg[2], omega[2], sqp0p3;
   const double* p = pvec;
 
   fo[0] = thrust::complex<double> (p[0] * nsf, p[3] * nsf); 
@@ -410,8 +413,11 @@ __device__ void oxxxxx(const double pvec[4],
     else
     {
       //pp = min(p[0], sqrt((p[1] * p[1]) + (p[2] * p[2]) + (p[3] * p[3]))); // DUPLICATE!
-      sf[0] = double(1 + nsf + (1 - nsf) * nh) * 0.5; 
-      sf[1] = double(1 + nsf - (1 - nsf) * nh) * 0.5; 
+      const double sf[2] =
+        {
+          (1 + nsf + (1 - nsf) * nh) * 0.5,
+          (1 + nsf - (1 - nsf) * nh) * 0.5
+        };
       omega[0] = sqrt(p[0] + pp); 
       omega[1] = fmass/omega[0]; 
       const int ip = (1 + nh)/2; 
