@@ -1,0 +1,7 @@
+#ifndef MGONGPUCONFIG_H 
+#define MGONGPUCONFIG_H 1
+
+#undef RAMBO_USES_SOA
+//#define RAMBO_USES_SOA 1
+
+#endif // MGONGPUCONFIG_H

@@ -317,6 +317,12 @@ int main(int argc, char **argv)
               << "NumThreadsPerBlock    = " << gputhreads << std::endl
               << "NumBlocksPerGrid      = " << gpublocks << std::endl
               << "-----------------------------------" << std::endl
+#ifdef RAMBO_USES_SOA
+              << "Memory layout (rambo) = SOA" << std::endl
+#else
+              << "Memory layout (rambo) = AOS" << std::endl
+#endif
+              << "-----------------------------------" << std::endl
               << "NumberOfEntries       = " << num_wts << std::endl
               << std::scientific
               << "TotalTimeInWaveFuncs  = " << sum << " sec" << std::endl
