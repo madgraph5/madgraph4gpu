@@ -24,7 +24,7 @@ __device__ void ixxxxx(const double pvec[4],
                        thrust::complex<double> fi[6]) 
 {
   thrust::complex<double> chi[2]; 
-  double sf[2], sfomega[2], omega[2], sqp0p3, sqm[2]; 
+  double sf[2], sfomega[2], omega[2], sqp0p3; 
   const double* p = pvec;
   fi[0] = thrust::complex<double> (-p[0] * nsf, -p[3] * nsf); 
   fi[1] = thrust::complex<double> (-p[1] * nsf, -p[2] * nsf); 
@@ -34,6 +34,7 @@ __device__ void ixxxxx(const double pvec[4],
     const double pp = min(p[0], sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3])); 
     if (pp == 0.0)
     {
+      double sqm[2];
       sqm[0] = sqrt(std::abs(fmass)); 
       sqm[1] = (fmass < 0) ? - abs(sqm[0]) : abs(sqm[0]); 
       const int ip = (1 + nh)/2; 
@@ -385,7 +386,7 @@ __device__ void oxxxxx(const double pvec[4],
                        thrust::complex<double> fo[6]) 
 {
   thrust::complex<double> chi[2]; 
-  double sf[2], sfomeg[2], omega[2], sqp0p3, sqm[2];
+  double sf[2], sfomeg[2], omega[2], sqp0p3;
   const double* p = pvec;
 
   fo[0] = thrust::complex<double> (p[0] * nsf, p[3] * nsf); 
@@ -396,6 +397,7 @@ __device__ void oxxxxx(const double pvec[4],
     const double pp = min(p[0], sqrt((p[1] * p[1]) + (p[2] * p[2]) + (p[3] * p[3]))); 
     if (pp == 0.000)
     {
+      double sqm[2];
       sqm[0] = sqrt(std::abs(fmass)); 
       sqm[1] = (fmass < 0) ? - abs(sqm[0]) : abs(sqm[0]); 
       const int ip = -((1 - nh)/2) * nhel; 
