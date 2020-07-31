@@ -26,9 +26,8 @@ __device__ void imzxxxM0(const double pvec[4],
   fi[0] = thrust::complex<double> (-pvec[0] * nsf, -pvec[3] * nsf); 
   fi[1] = thrust::complex<double> (-pvec[1] * nsf, -pvec[2] * nsf); 
   const int nh = nhel * nsf; 
-  // ASSUMPTION FMASS == 0
-  // PX = PY = 0
-  // E = -P3 (E>0)
+  // ASSUMPTIONS FMASS = 0 and
+  // (PX = PY = 0 and E = -P3 > 0)
   {
     const thrust::complex<double> chi0( 0, 0 );
     const thrust::complex<double> chi1( -nhel * sqrt(2 * pvec[0]), 0 ); 
@@ -60,8 +59,8 @@ __device__ void ixzxxxM0(const double pvec[4],
   fi[0] = thrust::complex<double> (-pvec[0] * nsf, -pvec[3] * nsf); 
   fi[1] = thrust::complex<double> (-pvec[1] * nsf, -pvec[2] * nsf); 
   const int nh = nhel * nsf; 
-  // ASSUMPTION FMASS == 0
-  // Px and Py are not zero
+  // ASSUMPTIONS FMASS = 0 and
+  // (PX and PY are not 0)
   {
     const double sqp0p3 = sqrt( pvec[0] + pvec[3] ) * nsf; 
     const thrust::complex<double> chi0( sqp0p3, 0.0 );
@@ -498,50 +497,43 @@ __device__ void sxxxxx(const double pvec[4],
 }
   */
 
-__device__ void opzxxx(double pvec[3], int nhel, int nsf, 
-thrust::complex<double> fo[6]) 
+
+__device__ void oxzxxxM0(const double pvec[4], 
+                         //const double fmass, 
+                         const int nhel, 
+                         const int nsf, 
+                         thrust::complex<double> fo[6]) 
 {
-  // ASSUMPTIONS FMASS =0
-  // PX = PY =0
-  // E = PZ 
-  fo[0] = thrust::complex<double> (pvec[2] * nsf, pvec[2] * nsf); 
-  fo[1] = thrust::complex<double> (0., 0.); 
-  int nh = nhel * nsf;
-  
-  thrust::complex<double> CSQP0P3 = thrust::complex<double> (sqrt(2.* pvec[2]) * nsf, 0.00); 
-    
-    fo[2]=(nh== 1)*CSQP0P3 + (nh==-1)*fo[1];
-    fo[3]=fo[1];
-    fo[4]=fo[1];
-    fo[5]=(nh== 1)*fo[1]   + (nh==-1)*CSQP0P3;
-}
-
-
-__device__ void oxzxxx(double pvec[3], int nhel, int nsf, thrust::complex<double> fo[6]) 
-{
-  // ASSUMPTIONS FMASS =0
-  // PT > 0
-
-  float p[4] = {0, (float) pvec[0], (float) pvec[1], (float) pvec[2]}; 
-  p[0] = sqrtf(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]); 
-
-  fo[0] = thrust::complex<double> (p[0] * nsf, pvec[2] * nsf); 
-  fo[1] = thrust::complex<double> (pvec[0] * nsf, pvec[1] * nsf); 
-  int nh = nhel * nsf; 
-
-  float sqp0p3 = sqrtf(p[0] + p[3]) * nsf; 
-  thrust::complex<float> chi0 = thrust::complex<float> (sqp0p3, 0.00); 
-  thrust::complex<float> chi1 = thrust::complex<float> (nh * p[1]/sqp0p3, -p[2]/sqp0p3); 
-  thrust::complex<float> zero = thrust::complex<float> (0.00, 0.00);
-  
-  fo[2]=(nh== 1)*chi0 + (nh==-1)*zero;
-  fo[3]=(nh== 1)*chi1 + (nh==-1)*zero;
-  fo[4]=(nh== 1)*zero + (nh==-1)*chi1;
-  fo[5]=(nh== 1)*zero + (nh==-1)*chi0;
-
+  fo[0] = thrust::complex<double> (pvec[0] * nsf, pvec[3] * nsf); 
+  fo[1] = thrust::complex<double> (pvec[1] * nsf, pvec[2] * nsf); 
+  const int nh = nhel * nsf; 
+  // ASSUMPTIONS FMASS = 0 and
+  // EITHER (Px and Py are not zero)
+  // OR (PX = PY = 0 and E = P3 > 0)
+  {
+    const double sqp0p3 = sqrt( pvec[0] + pvec[3] ) * nsf;
+    const thrust::complex<double> chi0( sqp0p3, 0.0 );
+    const thrust::complex<double> chi1( nh * pvec[1] / sqp0p3, -pvec[2] / sqp0p3 );
+    if (nh == 1)
+    {
+      fo[2] = chi0; 
+      fo[3] = chi1; 
+      fo[4] = thrust::complex<double> ( 0, 0 ); 
+      fo[5] = thrust::complex<double> ( 0, 0 ); 
+    }
+    else
+    {
+      fo[2] = thrust::complex<double> ( 0, 0 ); 
+      fo[3] = thrust::complex<double> ( 0, 0 ); 
+      fo[4] = chi1; 
+      fo[5] = chi0; 
+    }
+  }
   return; 
 }
 
+
+  /*
 __device__ void oxxxxxM0(const double pvec[4], 
                          //const double fmass, 
                          const int nhel, 
@@ -589,6 +581,8 @@ __device__ void oxxxxxM0(const double pvec[4],
   }
   return; 
 }
+  */
+
 
   /*
 __device__ void oxxxxx(const double pvec[4], 
@@ -939,8 +933,8 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[4][4],
   thrust::complex<double> w[5][6]; 
 
   //MG5_sm::oxxxxx(local_mom[0], 0., cHel[ihel][0], -1, w[0]); 
-  MG5_sm::oxxxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]); 
-  //MG5_sm::opzxxx(local_mom[0], cHel[ihel][0], -1, w[0]); 
+  //MG5_sm::oxxxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]); 
+  MG5_sm::oxzxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]); 
 
   //MG5_sm::ixxxxx(local_mom[1], 0., cHel[ihel][1], +1, w[1]); 
   //MG5_sm::ixxxxxM0(local_mom[1], cHel[ihel][1], +1, w[1]); 
@@ -951,8 +945,8 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[4][4],
   MG5_sm::ixzxxxM0(local_mom[2], cHel[ihel][2], -1, w[2]);
 
   //MG5_sm::oxxxxx(local_mom[3], 0., cHel[ihel][3], +1, w[3]); 
-  MG5_sm::oxxxxxM0(local_mom[3], cHel[ihel][3], +1, w[3]); 
-  //MG5_sm::oxzxxx(local_mom[3], cHel[ihel][3], +1, w[3]); 
+  //MG5_sm::oxxxxxM0(local_mom[3], cHel[ihel][3], +1, w[3]); 
+  MG5_sm::oxzxxxM0(local_mom[3], cHel[ihel][3], +1, w[3]); 
 
   MG5_sm::FFV1P0_3(w[1], w[0], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0., w[4]);
   // Amplitude(s) for diagram number 1
