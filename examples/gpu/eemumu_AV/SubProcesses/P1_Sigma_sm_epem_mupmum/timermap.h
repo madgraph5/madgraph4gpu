@@ -50,8 +50,22 @@ namespace mgOnGpu
     // Dump the overall results
     void dump()
     {
+      // Improve key formatting
+      const std::string totalKey = "TOTAL";
+      size_t maxsize = 0;
       for ( auto ip : m_partitions )
-        std::cout << ip.first << " : " << ip.second << std::endl;
+        maxsize = std::max( maxsize, ip.first.size() );
+      maxsize = std::max( maxsize, totalKey.size() );
+      // Compute the overall total
+      float total = 0;
+      for ( auto ip : m_partitions )
+        total += ip.second;
+      // Dump partitions and the overall total 
+      for ( auto ip : m_partitions )
+        std::cout << std::setw(maxsize) << ip.first << " : " 
+                  << std::fixed << std::setw(8) << ip.second << " sec" << std::endl;
+      std::cout << std::setw(maxsize) << totalKey << " : " 
+                << std::fixed << std::setw(8) << total << " sec" << std::endl;
     }
 
   private:

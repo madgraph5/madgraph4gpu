@@ -26,15 +26,17 @@ int usage(char* argv0, int ret = 1) {
   return ret;
 }
 
-int main(int argc, char **argv) {
-  bool verbose = false, debug = false, perf = false;
+int main(int argc, char **argv) 
+{
+
+  // READ COMMAND LINE ARGUMENTS
+  bool verbose = false;
+  bool debug = false;
+  bool perf = false;
   int niter = 0;
   int gpublocks = 1;
   int gputhreads = 1;
   std::vector<int> numvec;
-  mgOnGpu::TimerMap timermap;
-  std::vector<float> wavetimes;
-
 
   for (int argn = 1; argn < argc; ++argn) {
     if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
@@ -50,6 +52,7 @@ int main(int argc, char **argv) {
     else
       return usage(argv[0]);
   }
+
   int veclen = numvec.size();
   if (veclen == 3) {
     gpublocks = numvec[0];
@@ -64,12 +67,25 @@ int main(int argc, char **argv) {
   if (niter == 0)
     return usage(argv[0]);
 
+  if (verbose)
+    std::cout << "# iterations: " << niter << std::endl;
+
+  // *** START THE NEW TIMERS ***
+  mgOnGpu::TimerMap timermap;
+
+  // === STEP 0 - INITIALISE
+
+  // --- 00. Initialise cuda (call cudaFree to ease cuda profile analysis)
+  const std::string cdfrKey = "00 CudaFree";
+  timermap.start( cdfrKey );
+
   //std::cout << "Calling cudaFree... " << std::endl;
   gpuErrchk3( cudaFree( 0 ) ); // SLOW!
   //std::cout << "Calling cudaFree... done" << std::endl;
 
-  if (verbose)
-    std::cout << "# iterations: " << niter << std::endl;
+  // --- 0a. Initialise physics process
+  const std::string procKey = "0a InitProc";
+  timermap.start( procKey );
 
   // Create a process object
   CPPProcess process(niter, gpublocks, gputhreads, verbose, debug);
@@ -78,8 +94,11 @@ int main(int argc, char **argv) {
   process.initProc("../../Cards/param_card.dat");
 
   const double energy = 1500;
-
   const int meGeVexponent = -(2 * process.nexternal - 8);
+
+  // --- 0b. Allocate memory structures
+  const std::string alloKey = "0  MemAlloc";
+  timermap.start( alloKey );
 
   // Memory structures for input momenta and output matrix elements on host and device
   const int ndim = gpublocks * gputhreads;
@@ -111,11 +130,12 @@ int main(int argc, char **argv) {
   double (*rmbMomenta)[npar][np4] = new double[ndim][npar][np4]; // AOS[ndim][npar][np4] (previously was: p)
 #endif
 
-  std::vector<double> matrixelementvector;
-
   double masses[npar];  
   for (int ipar = 0; ipar < npar; ++ipar) // loop over nexternal particles
     masses[ipar] = process.getMasses()[ipar];
+
+  std::vector<float> wavetimes;
+  std::vector<double> matrixelementvector;
 
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
@@ -125,13 +145,17 @@ int main(int argc, char **argv) {
   {
     //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
     
-    // STEP 1 OF 3
+    // === STEP 1 OF 3
     // Generate all relevant numbers to build ndim events (i.e. ndim phase space points)
+    const std::string rngnKey = "1  RnNumGen";
+    timermap.start( rngnKey );
     generateRnArray( rnarray, nparf, ndim );
     //std::cout << "Got random numbers" << std::endl;
 
-    // STEP 2 OF 3
+    // === STEP 2 OF 3
     // Map random numbers to particle momenta for each of ndim events
+    const std::string rambKey = "2  RamboMap";
+    timermap.start( rambKey );
     double weights[ndim]; // dummy in this test application
     get_momenta( process.ninitial, energy, masses, rnarray, (double*)rmbMomenta, weights, npar, ndim );
     //std::cout << "Got momenta" << std::endl;
@@ -140,6 +164,8 @@ int main(int argc, char **argv) {
     // Use momenta from rambo as they are (no need to copy)
 #else
     // Set SOA momenta for this event by copying them from the rambo AOS output
+    const std::string atosKey = "2b AOStoSOA";
+    timermap.start( rambKey );
     for (int idim = 0; idim < ndim; ++idim)
       for (int ipar = 0; ipar < npar; ++ipar)
         for (int ip4 = 0; ip4 < np4; ++ip4)
@@ -147,43 +173,41 @@ int main(int argc, char **argv) {
             rmbMomenta[idim][ipar][ip4]; // AOS[ndim][npar][np4]
 #endif
 
-    // STEP 3 OF 3
+    // === STEP 3 OF 3
     // Evaluate matrix elements for all ndim events
     // 3a. Copy momenta from host to device
     // 3b. Evaluate MEs on the device
     // 3c. Copy MEs back from device to host
 
-    // *** START THE NEW TIMERS ***
-    // 3a. CopyHToD: new timer
-    const std::string htodKey = "CopyHToD";
+    // --- 3a. CopyHToD
+    const std::string htodKey = "3a CopyHToD";
     timermap.start( htodKey );
 
-    // 3a. CopyHToD
     gpuErrchk3( cudaMemcpy( devMomenta, hstMomenta, nbytesMomenta, cudaMemcpyHostToDevice ) );
 
-    // 3b. SigmaKin: new timer
-    const std::string skinKey = "SigmaKin";
-    timermap.start( skinKey );
     // *** START THE OLD TIMER ***
     float gputime = 0;
 
-    // 3b. SigmaKin
+    // --- 3b. SigmaKin
+    const std::string skinKey = "3b SigmaKin";
+    timermap.start( skinKey );
+
     sigmaKin<<<gpublocks, gputhreads>>>(devMomenta,  devMEs);//, debug, verbose);
     gpuErrchk3( cudaPeekAtLastError() );
 
-    // 3c. CopyDToH: new timer
-    const std::string dtohKey = "CopyDToH";
+    // --- 3c. CopyDToH
+    const std::string dtohKey = "3c CopyDToH";
     gputime += timermap.start( dtohKey );
 
-    // 3c. CopyDToH
     gpuErrchk3( cudaMemcpy( hstMEs, devMEs, nbytesMEs, cudaMemcpyDeviceToHost ) );
 
-    // 3c. CopyDToH: new timer
-    // *** STOP THE NEW TIMERS ***
+    // === STEP 9 FINALISE
+    // --- 9a Dump within the loop
     // *** STOP THE OLD TIMER ***
-    gputime += timermap.stop();
+    const std::string loopKey = "9a DumpLoop";
+    gputime += timermap.start(loopKey);
     wavetimes.push_back( gputime );
-    
+
     if (verbose)
     {
       std::cout << "***********************************" << std::endl
@@ -254,12 +278,15 @@ int main(int argc, char **argv) {
   // *** END MAIN LOOP ON #ITERATIONS ***
   // **************************************
 
+  // === STEP 9 FINALISE
+  // --- 9b Dump after the loop
+  const std::string dumpKey = "9b DumpAll ";
+  timermap.start(dumpKey);
+
   if (!(verbose || debug || perf)) 
   {
     std::cout << std::endl;
   }
-
-  timermap.dump();
 
   if (perf) 
   {
@@ -313,6 +340,10 @@ int main(int argc, char **argv) {
               << "MaxMatrixElemValue    = " << *maxelem << " GeV^" << meGeVexponent << std::endl;
   }
 
+  // --- 9c Free memory structures
+  const std::string freeKey = "9c MemFree ";
+  timermap.start( freeKey );
+
   delete[] rnarray;
 
 #ifndef RAMBO_USES_SOA
@@ -328,4 +359,13 @@ int main(int argc, char **argv) {
   gpuErrchk3( cudaFree( devMomenta ) );
 
   gpuErrchk3( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
+
+  // *** STOP THE NEW TIMERS ***
+  timermap.stop();  
+  if (perf)
+  {
+    std::cout << "***********************************" << std::endl;
+    timermap.dump();
+    std::cout << "***********************************" << std::endl;
+  }
 }
