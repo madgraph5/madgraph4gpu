@@ -110,6 +110,7 @@ __device__ void ixxxxx(const double pvec[4],
   return; 
 }
 
+  /*
 __device__ void txxxxx(const double pvec[4], 
                        const double tmass, 
                        const int nhel, 
@@ -287,7 +288,9 @@ __device__ void txxxxx(const double pvec[4],
       tc[j * 4 + i + 2] = ft[j][i]; 
   }
 }
+  */
 
+  /*
 __device__ void vxxxxx(const double pvec[4], 
                        const double vmass, 
                        const int nhel, 
@@ -360,7 +363,9 @@ __device__ void vxxxxx(const double pvec[4],
   }
   return; 
 }
+  */
 
+  /*
 __device__ void sxxxxx(const double pvec[4], 
                        const int nss, 
                        thrust::complex<double> sc[3]) 
@@ -373,6 +378,7 @@ __device__ void sxxxxx(const double pvec[4],
   sc[1] = thrust::complex<double> (p[1] * nss, p[2] * nss); 
   return; 
 }
+  */
 
 __device__ void oxxxxx(const double pvec[4], 
                        const double fmass, 
