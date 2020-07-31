@@ -97,7 +97,7 @@ int main(int argc, char **argv)
   const int meGeVexponent = -(2 * process.nexternal - 8);
 
   // --- 0b. Allocate memory structures
-  const std::string alloKey = "0  MemAlloc";
+  const std::string alloKey = "0b MemAlloc";
   timermap.start( alloKey );
 
   // Memory structures for input momenta and output matrix elements on host and device
