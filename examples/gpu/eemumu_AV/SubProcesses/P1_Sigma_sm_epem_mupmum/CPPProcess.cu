@@ -736,14 +736,11 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[4][4],
   // Amplitude(s) for diagram number 2
   MG5_sm::FFV2_4_0(w[2], w[3], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
                    thrust::complex<double> (cIPC[4], cIPC[5]), &amp[1]);
-  // double CPPProcess::matrix_1_epem_mupmum() {
-  int i, j; 
-  // Local variables
 
-  // const int ngraphs = 2;
   const int ncolor = 1; 
   thrust::complex<double> ztemp; 
   thrust::complex<double> jamp[ncolor]; 
+
   // The color matrix;
   static const double denom[ncolor] = {1}; 
   static const double cf[ncolor][ncolor] = {{1}}; 
@@ -752,12 +749,12 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[4][4],
   jamp[0] = -amp[0] - amp[1]; 
 
   // Sum and square the color flows to get the matrix element
-  for(i = 0; i < ncolor; i++ )
+  for(int icol = 0; icol < ncolor; icol++ )
   {
     ztemp = 0.; 
-    for(j = 0; j < ncolor; j++ )
-      ztemp = ztemp + cf[i][j] * jamp[j]; 
-    matrix = matrix + (ztemp * conj(jamp[i])).real()/denom[i]; 
+    for(int jcol = 0; jcol < ncolor; jcol++ )
+      ztemp = ztemp + cf[icol][jcol] * jamp[jcol]; 
+    matrix = matrix + (ztemp * conj(jamp[icol])).real()/denom[icol]; 
   }
 
   // Store the leading color flows for choice of color
