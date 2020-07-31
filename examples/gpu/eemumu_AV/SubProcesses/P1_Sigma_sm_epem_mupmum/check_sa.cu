@@ -69,15 +69,14 @@ int main(int argc, char **argv)
     return usage(argv[0]);
 
   const int ndim = gpublocks * gputhreads; // number of events (threads) in one iteration
-//#if defined MGONGPU_LAYOUT_ASA
-  if ( gpublocks>1 && gputhreads>=nepp && gputhreads%nepp != 0 )
+#if defined MGONGPU_LAYOUT_ASA
+  if ( gputhreads%nepp != 0 )
   {
     std::cout << "ERROR! #threads/block should be a multiple of " << nepp << std::endl;
-    std::cout << "(unless #blocks/grid is 1 and #threads/block is < " << nepp << ")" << std::endl;
     return usage(argv[0]);
   }
-  const int npag = ( ndim>nepp ? ndim/nepp : 1 ); // number of ASA pages needed for ndim events
-//#endif
+  const int npag = ndim/nepp; // number of ASA pages needed for ndim events
+#endif
 
   if (verbose)
     std::cout << "# iterations: " << niter << std::endl;
@@ -117,35 +116,27 @@ int main(int argc, char **argv)
   const int nparf = npar - process.ninitial; // for this process (eemumu): nparf=2 (mu+, mu-)
   const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
 
-#if defined MGONGPU_LAYOUT_SOA
-  double* rnarray = new double[npag*nparf*np4*nepp]; // AOSOA[npag][npar][np4][nepp]
+#if defined MGONGPU_LAYOUT_ASA
+  double* rnarray = new double[npag*np4*ndim*nepp]; // AOSOA[npag][npar][np4][nepp] (NB: ndim=npag*nepp)
 #elif defined MGONGPU_LAYOUT_SOA
   double* rnarray = new double[nparf*np4*ndim]; // SOA[npar][np4][ndim]
 #elif defined MGONGPU_LAYOUT_AOS
   double* rnarray = new double[nparf*np4*ndim]; // AOS[ndim][npar][np4]
 #endif
 
+  const int nbytesMomenta = np4*npar*ndim * sizeof(double); // (NB: ndim=npag*nepp for ASA layouts)
 #if defined MGONGPU_LAYOUT_ASA
-  const int nbytesMomenta = npag*np4*npar*epp * sizeof(double);
   double* hstMomenta = 0; // AOSOA[npag][npar][np4][nepp] (previously was: lp)
 #elif defined MGONGPU_LAYOUT_SOA
-  const int nbytesMomenta = np4*npar*ndim * sizeof(double);
   double* hstMomenta = 0; // SOA[npar][np4][ndim] (previously was: lp)
 #elif defined MGONGPU_LAYOUT_AOS
-  const int nbytesMomenta = np4*npar*ndim * sizeof(double);
   double* hstMomenta = 0; // AOS[ndim][npar][np4] (previously was: lp)
 #endif
   gpuErrchk3( cudaMallocHost( &hstMomenta, nbytesMomenta ) );
   double* devMomenta = 0; // (previously was: allMomenta)
   gpuErrchk3( cudaMalloc( &devMomenta, nbytesMomenta ) );
 
-#if defined MGONGPU_LAYOUT_ASA
-  const int nbytesMEs = npag*nepp * sizeof(double);
-#elif defined MGONGPU_LAYOUT_SOA
-  const int nbytesMEs = ndim * sizeof(double);
-#elif defined MGONGPU_LAYOUT_AOS
-  const int nbytesMEs = ndim * sizeof(double);
-#endif
+  const int nbytesMEs = ndim * sizeof(double); //  (NB: ndim=npag*nepp for ASA layouts)
   double* hstMEs = 0; // (previously was: meHostPtr)
   gpuErrchk3( cudaMallocHost( &hstMEs, nbytesMEs ) );
   double* devMEs = 0; // (previously was: meDevPtr)
