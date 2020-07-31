@@ -467,6 +467,8 @@ __device__ void oxxxxx(const double pvec[4],
   }
   return; 
 }
+
+  /*
 __device__ void FFV2_0(const thrust::complex<double> F1[], 
                        const thrust::complex<double> F2[], 
                        const thrust::complex<double> V3[], 
@@ -479,8 +481,9 @@ __device__ void FFV2_0(const thrust::complex<double> F1[],
   F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5]))); 
   (*vertex) = COUP * - cI * TMP0; 
 }
+  */
 
-
+  /*
 __device__ void FFV2_3(const thrust::complex<double> F1[], 
                        const thrust::complex<double> F2[], 
                        const thrust::complex<double> COUP, 
@@ -514,8 +517,9 @@ __device__ void FFV2_3(const thrust::complex<double> F1[],
   V3[5] = denom * (-cI) * (-F1[2] * F2[4] - P3[3] * OM3 * TMP1 + F1[3] * 
   F2[5]); 
 }
+  */
 
-
+  /*
 __device__ void FFV4_0(const thrust::complex<double> F1[], 
                        const thrust::complex<double> F2[], 
                        const thrust::complex<double> V3[], 
@@ -531,8 +535,9 @@ __device__ void FFV4_0(const thrust::complex<double> F1[],
   F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5]))); 
   (*vertex) = COUP * (-1.) * (+cI * (TMP0) + 2. * cI * (TMP2)); 
 }
+  */
 
-
+  /*
 __device__ void FFV4_3(const thrust::complex<double> F1[], 
                        const thrust::complex<double> F2[], 
                        const thrust::complex<double> COUP, 
@@ -574,7 +579,7 @@ __device__ void FFV4_3(const thrust::complex<double> F1[],
   (+1./2. * (F1[2] * F2[4]) - 1./2. * (F1[3] * F2[5]) - F1[4] * F2[2] + 
   F1[5] * F2[3])); 
 }
-
+  */
 
 __device__ void FFV1_0(const thrust::complex<double> F1[], 
                        const thrust::complex<double> F2[], 
