@@ -10,9 +10,7 @@
 //#include "HelAmps_sm.h"
 
 #include "vrambo.h"
-#include "timer.h"
-
-#define TIMERTYPE std::chrono::high_resolution_clock
+#include "timermap.h"
 
 bool is_number(const char *s) {
   const char *t = s;
@@ -34,7 +32,7 @@ int main(int argc, char **argv) {
   int gpublocks = 1;
   int gputhreads = 1;
   std::vector<int> numvec;
-  Timer<TIMERTYPE> timer;
+  mgOnGpu::TimerMap timermap;
   std::vector<float> wavetimes;
 
 
@@ -119,7 +117,12 @@ int main(int argc, char **argv) {
   for (int ipar = 0; ipar < npar; ++ipar) // loop over nexternal particles
     masses[ipar] = process.getMasses()[ipar];
 
-  for (int iiter = 0; iiter < niter; ++iiter) {
+  // **************************************
+  // *** START MAIN LOOP ON #ITERATIONS ***
+  // **************************************
+
+  for (int iiter = 0; iiter < niter; ++iiter)
+  {
     //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
     
     // STEP 1 OF 3
@@ -143,33 +146,57 @@ int main(int argc, char **argv) {
           hstMomenta[ipar*ndim*np4 + ip4*ndim + idim] = // SOA[npar][np4][ndim]
             rmbMomenta[idim][ipar][ip4]; // AOS[ndim][npar][np4]
 #endif
-    gpuErrchk3( cudaMemcpy( devMomenta, hstMomenta, nbytesMomenta, cudaMemcpyHostToDevice ) );
 
     // STEP 3 OF 3
     // Evaluate matrix elements for all ndim events
-    if (perf) timer.Start();
+    // 3a. Copy momenta from host to device
+    // 3b. Evaluate MEs on the device
+    // 3c. Copy MEs back from device to host
 
+    // *** START THE NEW TIMERS ***
+    // 3a. CopyHToD: new timer
+    const std::string htodKey = "CopyHToD";
+    timermap.start( htodKey );
+
+    // 3a. CopyHToD
+    gpuErrchk3( cudaMemcpy( devMomenta, hstMomenta, nbytesMomenta, cudaMemcpyHostToDevice ) );
+
+    // 3b. SigmaKin: new timer
+    const std::string skinKey = "SigmaKin";
+    timermap.start( skinKey );
+    // *** START THE OLD TIMER ***
+    float gputime = 0;
+
+    // 3b. SigmaKin
     sigmaKin<<<gpublocks, gputhreads>>>(devMomenta,  devMEs);//, debug, verbose);
     gpuErrchk3( cudaPeekAtLastError() );
 
+    // 3c. CopyDToH: new timer
+    const std::string dtohKey = "CopyDToH";
+    gputime += timermap.start( dtohKey );
+
+    // 3c. CopyDToH
     gpuErrchk3( cudaMemcpy( hstMEs, devMEs, nbytesMEs, cudaMemcpyDeviceToHost ) );
 
+    // 3c. CopyDToH: new timer
+    // *** STOP THE NEW TIMERS ***
+    // *** STOP THE OLD TIMER ***
+    gputime += timermap.stop();
+    wavetimes.push_back( gputime );
+    
     if (verbose)
+    {
       std::cout << "***********************************" << std::endl
                 << "Iteration #" << iiter+1 << " of " << niter << std::endl;
-
-    if (perf) {
-      float gputime = timer.GetDuration();
-      wavetimes.push_back(gputime);
-      if (verbose)
-        std::cout << "Wave function time: " << gputime << std::endl;
+      if (perf) std::cout << "Wave function time: " << gputime << std::endl;
     }
 
-    if (verbose || perf) {
-
-      for (int idim = 0; idim < ndim; ++idim) {
-
-        if (verbose) {
+    if (verbose || perf)
+    {
+      for (int idim = 0; idim < ndim; ++idim) 
+      {
+        if (verbose) 
+        {
           std::cout << "Momenta:" << std::endl;
           for (int ipar = 0; ipar < npar; ipar++)
           {
@@ -216,16 +243,26 @@ int main(int argc, char **argv) {
         if (verbose)
           std::cout << std::string(80, '-') << std::endl;
       }
-    } else if (!debug) {
+    } 
+    else if (!debug) 
+    {
       std::cout << ".";
     }
   }
 
-  if (!(verbose || debug || perf)) {
+  // **************************************
+  // *** END MAIN LOOP ON #ITERATIONS ***
+  // **************************************
+
+  if (!(verbose || debug || perf)) 
+  {
     std::cout << std::endl;
   }
 
-  if (perf) {
+  timermap.dump();
+
+  if (perf) 
+  {
     float sum = std::accumulate(wavetimes.begin(), wavetimes.end(), 0.0);
     int num_wts = wavetimes.size();
     float mean = sum / num_wts;
