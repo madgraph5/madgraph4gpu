@@ -649,43 +649,42 @@ __device__ void FFV2_4_3(const thrust::complex<double> F1[],
                          const double W3, 
                          thrust::complex<double> V3[])
 {
-  thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
-  double OM3; 
-  double P3[4]; 
-  thrust::complex<double> TMP1; 
-  thrust::complex<double> TMP3; 
-  thrust::complex<double> denom; 
-  OM3 = 0.; 
-  if (M3 != 0.)
-    OM3 = 1./(M3 * M3); 
+  const thrust::complex<double> cI = thrust::complex<double> (0., 1.); 
+  double OM3 = 0.; 
+  if (M3 != 0.) OM3 = 1./(M3 * M3); 
   V3[0] = +F1[0] + F2[0]; 
-  V3[1] = +F1[1] + F2[1]; 
-  P3[0] = -V3[0].real(); 
-  P3[1] = -V3[1].real(); 
-  P3[2] = -V3[1].imag(); 
-  P3[3] = -V3[0].imag(); 
-  TMP1 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) + 
-  F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3]))); 
-  TMP3 = (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) + 
-  F1[5] * (F2[2] * (-P3[1] + cI * (P3[2])) + F2[3] * (P3[0] + P3[3]))); 
-  denom = 1./((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * 
-  P3[3]) - M3 * (M3 - cI * W3)); 
-  V3[2] = denom * (-2. * cI) * (COUP2 * (OM3 * - 1./2. * P3[0] * (TMP1 + 2. * 
-  (TMP3)) + (+1./2. * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] + 
-  F1[5] * F2[3])) + 1./2. * (COUP1 * (F1[2] * F2[4] + F1[3] * F2[5] - P3[0]
-   * OM3 * TMP1))); 
-  V3[3] = denom * (-2. * cI) * (COUP2 * (OM3 * - 1./2. * P3[1] * (TMP1 + 2. * 
-  (TMP3)) + (-1./2. * (F1[2] * F2[5] + F1[3] * F2[4]) + F1[4] * F2[3] + 
-  F1[5] * F2[2])) - 1./2. * (COUP1 * (F1[2] * F2[5] + F1[3] * F2[4] + P3[1]
-   * OM3 * TMP1))); 
-  V3[4] = denom * cI * (COUP2 * (OM3 * P3[2] * (TMP1 + 2. * (TMP3)) + (+cI * 
-  (F1[2] * F2[5]) - cI * (F1[3] * F2[4]) - 2. * cI * (F1[4] * F2[3]) + 2. * 
-  cI * (F1[5] * F2[2]))) + COUP1 * (+cI * (F1[2] * F2[5]) - cI * (F1[3] * 
-  F2[4]) + P3[2] * OM3 * TMP1)); 
-  V3[5] = denom * 2. * cI * (COUP2 * (OM3 * 1./2. * P3[3] * (TMP1 + 2. * 
-  (TMP3)) + (+1./2. * (F1[2] * F2[4]) - 1./2. * (F1[3] * F2[5]) - F1[4] * 
-  F2[2] + F1[5] * F2[3])) + 1./2. * (COUP1 * (F1[2] * F2[4] + P3[3] * OM3 * 
-  TMP1 - F1[3] * F2[5]))); 
+  V3[1] = +F1[1] + F2[1];
+  const double P3[4] = { -V3[0].real(), 
+                         -V3[1].real(), 
+                         -V3[1].imag(),
+                         -V3[0].imag() };  
+  const thrust::complex<double> TMP1 = 
+    (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) + 
+     F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
+  const thrust::complex<double> TMP3 = 
+    (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) + 
+     F1[5] * (F2[2] * (-P3[1] + cI * (P3[2])) + F2[3] * (P3[0] + P3[3]))); 
+  const thrust::complex<double> denom = 
+    1./((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - 
+        (P3[3] * P3[3]) - M3 * (M3 - cI * W3)); 
+  V3[2] = denom * (-2. * cI) * 
+    (COUP2 * (OM3 * - 1./2. * P3[0] * (TMP1 + 2. * (TMP3)) 
+              + (+1./2. * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] + F1[5] * F2[3])) 
+     + 1./2. * (COUP1 * (F1[2] * F2[4] + F1[3] * F2[5] - P3[0] * OM3 * TMP1))); 
+  V3[3] = denom * (-2. * cI) * 
+    (COUP2 * (OM3 * - 1./2. * P3[1] * (TMP1 + 2. * (TMP3)) 
+              + (-1./2. * (F1[2] * F2[5] + F1[3] * F2[4]) + F1[4] * F2[3] + F1[5] * F2[2])) 
+     - 1./2. * (COUP1 * (F1[2] * F2[5] + F1[3] * F2[4] + P3[1] * OM3 * TMP1))); 
+  V3[4] = denom * cI * 
+    (COUP2 * (OM3 * P3[2] * (TMP1 + 2. * (TMP3)) 
+              + (+cI * (F1[2] * F2[5]) - cI * (F1[3] * F2[4]) 
+                 - 2. * cI * (F1[4] * F2[3]) 
+                 + 2. * cI * (F1[5] * F2[2]))) 
+     + COUP1 * (+cI * (F1[2] * F2[5]) - cI * (F1[3] * F2[4]) + P3[2] * OM3 * TMP1)); 
+  V3[5] = denom * 2. * cI * 
+    (COUP2 * (OM3 * 1./2. * P3[3] * (TMP1 + 2. * (TMP3)) + 
+              (+1./2. * (F1[2] * F2[4]) - 1./2. * (F1[3] * F2[5]) - F1[4] * F2[2] + F1[5] * F2[3])) 
+     + 1./2. * (COUP1 * (F1[2] * F2[4] + P3[3] * OM3 * TMP1 - F1[3] * F2[5]))); 
 }
 
 
