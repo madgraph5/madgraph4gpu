@@ -39,10 +39,10 @@ $(LIBDIR)/lib$(MODELLIB).a:
 check_sa.o: check_sa.cu *.h ../../src/*.h
 	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
 
-%.o : %.cu %.h
+%.o : %.cu %.h ../../src/*.h
 	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
 
-%.o : %.cc %.h
+%.o : %.cc %.h ../../src/*.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 $(main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects)
