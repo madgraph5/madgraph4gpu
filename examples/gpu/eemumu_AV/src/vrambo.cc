@@ -12,12 +12,15 @@
 void get_momenta( const int ninitial,     // input: #particles_initial
                   const double energy,    // input: energy
                   const double masses[],  // input: masses[npar]
-#if defined MGONGPU_LAYOUT_SOA
-                  const double rnarray[], // input: randomnumbers[nparf][4][nevt] in [0,1] as an SOA
-                  double momenta1d[],     // output: momenta[npar][4][nevt] as a SOA
+#if defined MGONGPU_LAYOUT_ASA
+                  const double rnarray[], // input: randomnumbers in [0,1] as AOSOA[npag][nparf][4][nepp]
+                  double momenta1d[],     // output: momenta as AOSOA[npag][npar][4][nepp] 
+#elif defined MGONGPU_LAYOUT_SOA
+                  const double rnarray[], // input: randomnumbers in [0,1] as SOA[nparf][4][nevt]
+                  double momenta1d[],     // output: momenta as SOA[npar][4][nevt] 
 #elif defined MGONGPU_LAYOUT_AOS
-                  const double rnarray[], // input: randomnumbers[nevt][nparf][4] in [0,1] as an AOS
-                  double momenta1d[],     // output: momenta[nevt][npar][4] as an AOS
+                  const double rnarray[], // input: randomnumbers in [0,1] as SOA[nevt][nparf][4]
+                  double momenta1d[],     // output: momenta as AOS[nevt][npar][4]
 #endif
                   double wgts[],          // output: wgts[nevt]
                   const int npar,         // input: #particles (==nexternal==nfinal+ninitial)
@@ -28,7 +31,12 @@ void get_momenta( const int ninitial,     // input: #particles_initial
   const double m1 = masses[0];
 
   const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
-#if defined MGONGPU_LAYOUT_SOA
+
+#if defined MGONGPU_LAYOUT_ASA
+  using mgOnGpu::nepp;
+  const int npag = nevt/nepp; // number of ASA pages needed for nevt events
+  double (*momenta)[npar][np4][nepp] = (double (*)[npar][np4][nepp]) momenta1d; // cast to multiD array pointer (AOSOA)
+#elif defined MGONGPU_LAYOUT_SOA
   double (*momenta)[np4][nevt] = (double (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
 #elif defined MGONGPU_LAYOUT_AOS
   double (*momenta)[npar][np4] = (double (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOS)
@@ -38,7 +46,14 @@ void get_momenta( const int ninitial,     // input: #particles_initial
   if (ninitial == 1) {
     for (int ievt = 0; ievt < nevt; ++ievt) {
       // Momenta for the incoming particle
-#if defined MGONGPU_LAYOUT_SOA
+#if defined MGONGPU_LAYOUT_ASA
+      const int ipag = ievt/nepp; // #eventpage in this iteration
+      const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
+      momenta[ipag][0][0][iepp] = m1;
+      momenta[ipag][0][1][iepp] = 0;
+      momenta[ipag][0][2][iepp] = 0;
+      momenta[ipag][0][3][iepp] = 0;
+#elif defined MGONGPU_LAYOUT_SOA
       momenta[0][0][ievt] = m1;
       momenta[0][1][ievt] = 0;
       momenta[0][2][ievt] = 0;
@@ -73,7 +88,18 @@ void get_momenta( const int ninitial,     // input: #particles_initial
     const double energy2 = sqrt(pow(mom, 2) + pow(m2, 2));
     for (int ievt = 0; ievt < nevt; ++ievt) {
       // Momenta for the incoming particles
-#if defined MGONGPU_LAYOUT_SOA
+#if defined MGONGPU_LAYOUT_ASA
+      const int ipag = ievt/nepp; // #eventpage in this iteration
+      const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
+      momenta[ipag][0][0][iepp] = energy1;
+      momenta[ipag][0][1][iepp] = 0;
+      momenta[ipag][0][2][iepp] = 0;
+      momenta[ipag][0][3][iepp] = mom;
+      momenta[ipag][1][0][iepp] = energy2;
+      momenta[ipag][1][1][iepp] = 0;
+      momenta[ipag][1][2][iepp] = 0;
+      momenta[ipag][1][3][iepp] = -mom;
+#elif defined MGONGPU_LAYOUT_SOA
       momenta[0][0][ievt] = energy1;
       momenta[0][1][ievt] = 0;
       momenta[0][2][ievt] = 0;
@@ -95,7 +121,14 @@ void get_momenta( const int ninitial,     // input: #particles_initial
       // #Initial==2, #Final==1
       if (nparf == 1) {
         // Momenta for the outgoing particle
-#if defined MGONGPU_LAYOUT_SOA
+#if defined MGONGPU_LAYOUT_ASA
+        const int ipag = ievt/nepp; // #eventpage in this iteration
+        const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
+        momenta[ipag][0][0][iepp] = m1;
+        momenta[ipag][0][1][iepp] = 0;
+        momenta[ipag][0][2][iepp] = 0;
+        momenta[ipag][0][3][iepp] = 0;
+#elif defined MGONGPU_LAYOUT_SOA
         momenta[2][0][ievt] = m1;
         momenta[2][1][ievt] = 0;
         momenta[2][2][ievt] = 0;
@@ -126,12 +159,15 @@ void get_momenta( const int ninitial,     // input: #particles_initial
 void vrambo( const int ninitial,       // input: #particles_initial
              const double energy,      // input: energy
              const double masses[],    // input: masses[npar] 
-#if defined MGONGPU_LAYOUT_SOA
-             const double rnarray1d[], // input: randomnumbers[nparf][4][nevt] in [0,1] as an SOA
-             double momenta1d[],       // output: momenta[npar][4][nevt] as a SOA
+#if defined MGONGPU_LAYOUT_ASA
+             const double rnarray1d[], // input: randomnumbers in [0,1] as AOSOA[npag][nparf][4][nepp]
+             double momenta1d[],       // output: momenta as AOSOA[npag][npar][4][nepp] 
+#elif defined MGONGPU_LAYOUT_SOA
+             const double rnarray1d[], // input: randomnumbers in [0,1] as SOA[nparf][4][nevt]
+             double momenta1d[],       // output: momenta as SOA[npar][4][nevt] 
 #elif defined MGONGPU_LAYOUT_AOS
-             const double rnarray1d[], // input: randomnumbers[nevt][nparf][4] in [0,1] as an AOS
-             double momenta1d[],       // output: momenta[nevt][npar][4] as an AOS
+             const double rnarray1d[], // input: randomnumbers in [0,1] as SOA[nevt][nparf][4]
+             double momenta1d[],       // output: momenta as AOS[nevt][npar][4]
 #endif
              double wgts[],            // output: weights[nevt]
              const int npar,           // input: #particles (==nexternal==nfinal+ninitial)
@@ -154,10 +190,19 @@ void vrambo( const int ninitial,       // input: #particles_initial
    *    p      = final-state particle momenta ( dim=(nexternal-nincoming,4) ) *
    *    wt     = weight of the event                                          *
    ****************************************************************************/  
-  const int nparf = npar - ninitial;
+      
+#if defined MGONGPU_LAYOUT_ASA
+  using mgOnGpu::nepp;
+  const int ipag = ievt/nepp; // #eventpage in this iteration
+  const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
+#endif
 
+  const int nparf = npar - ninitial;
   const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
-#if defined MGONGPU_LAYOUT_SOA
+#if defined MGONGPU_LAYOUT_ASA
+  double (*rnarray)[nparf][np4][nevt] = (double (*)[nparf][np4][nevt]) rnarray1d; // cast to multiD array pointer (AOSOA)
+  double (*momenta)[npar][np4][nepp] = (double (*)[npar][np4][nepp]) momenta1d; // cast to multiD array pointer (AOSOA)
+#elif defined MGONGPU_LAYOUT_SOA
   double (*rnarray)[np4][nevt] = (double (*)[np4][nevt]) rnarray1d; // cast to multiD array pointer (SOA)
   double (*momenta)[np4][nevt] = (double (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
 #elif defined MGONGPU_LAYOUT_AOS
@@ -205,7 +250,12 @@ void vrambo( const int ninitial,       // input: #particles_initial
 
   // generate n massless momenta in infinite phase space
   for (int iparf = 0; iparf < nparf; iparf++) {
-#if defined MGONGPU_LAYOUT_SOA
+#if defined MGONGPU_LAYOUT_ASA
+    const double r1 = rnarray[ipag][iparf][0][iepp];
+    const double r2 = rnarray[ipag][iparf][1][iepp];
+    const double r3 = rnarray[ipag][iparf][2][iepp];
+    const double r4 = rnarray[ipag][iparf][3][iepp];
+#elif defined MGONGPU_LAYOUT_SOA
     const double r1 = rnarray[iparf][0][ievt];
     const double r2 = rnarray[iparf][1][ievt];
     const double r3 = rnarray[iparf][2][ievt];
@@ -241,7 +291,11 @@ void vrambo( const int ninitial,       // input: #particles_initial
   // transform the q's conformally into the p's (i.e. the 'momenta')
   for (int iparf = 0; iparf < nparf; iparf++) {
     double bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
-#if defined MGONGPU_LAYOUT_SOA
+#if defined MGONGPU_LAYOUT_ASA
+    for (int i4 = 1; i4 < np4; i4++)
+      momenta[ipag][iparf+ninitial][i4][iepp] = x * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
+    momenta[ipag][iparf+ninitial][0][iepp] = x * (g * q[iparf][0] + bq);
+#elif defined MGONGPU_LAYOUT_SOA
     for (int i4 = 1; i4 < np4; i4++)
       momenta[iparf+ninitial][i4][ievt] = x * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
     momenta[iparf+ninitial][0][ievt] = x * (g * q[iparf][0] + bq);
@@ -276,7 +330,9 @@ void vrambo( const int ninitial,       // input: #particles_initial
   double xmax = sqrt(1. - pow(xmft / energy, 2));
   for (int iparf = 0; iparf < nparf; iparf++) {
     xmf2[iparf] = pow(xmf[iparf], 2);
-#if defined MGONGPU_LAYOUT_SOA
+#if defined MGONGPU_LAYOUT_ASA
+    p2[iparf] = pow(momenta[ipag][iparf+ninitial][0][iepp], 2);
+#elif defined MGONGPU_LAYOUT_SOA
     p2[iparf] = pow(momenta[iparf+ninitial][0][ievt], 2);
 #elif defined MGONGPU_LAYOUT_AOS
     p2[iparf] = pow(momenta[ievt][iparf+ninitial][0], 2);
@@ -306,7 +362,12 @@ void vrambo( const int ninitial,       // input: #particles_initial
   }
 
   for (int iparf = 0; iparf < nparf; iparf++) {
-#if defined MGONGPU_LAYOUT_SOA
+#if defined MGONGPU_LAYOUT_ASA
+    v[iparf] = x * momenta[ipag][iparf+ninitial][0][iepp];
+    for (int i4 = 1; i4 < np4; i4++)
+      momenta[ipag][iparf+ninitial][i4][iepp] = x * momenta[ipag][iparf+ninitial][i4][iepp];
+    momenta[ipag][iparf+ninitial][0][iepp] = e[iparf];
+#elif defined MGONGPU_LAYOUT_SOA
     v[iparf] = x * momenta[iparf+ninitial][0][ievt];
     for (int i4 = 1; i4 < np4; i4++)
       momenta[iparf+ninitial][i4][ievt] = x * momenta[iparf+ninitial][i4][ievt];
@@ -344,28 +405,39 @@ void vrambo( const int ninitial,       // input: #particles_initial
 }
 
 // Generate the random numbers needed to process nevt events in rambo
-#if defined MGONGPU_LAYOUT_SOA
-void generateRnArray( double rnarray1d[], // output: randomnumbers[nparf][4][nevt] in [0,1] as an SOA
+// Generate the random numbers needed to process nevt events in rambo
+#if defined MGONGPU_LAYOUT_ASA
+// AOSOA: rnarray[npag][npar][np4][nepp] where nevt=npag*nepp
+#elif defined MGONGPU_LAYOUT_SOA
+// SOA: rnarray[npar][np4][nevt]
+#elif defined MGONGPU_LAYOUT_AOS
+// AOS: rnarray[nevt][npar][np4]
+#endif
+void generateRnArray( double rnarray1d[], // output: randomnumbers in [0,1]
                       const int nparf,    // input: #particles_final
                       const int nevt )    // input: #events
 {
   const int np4 = 4; // 4 random numbers (like the dimension of 4-momenta) are needed for each particle
-  double (*rnarray)[np4][nevt] = (double (*)[np4][nevt]) rnarray1d; // cast to multiD array pointer (AOS)
+#if defined MGONGPU_LAYOUT_ASA
+  using mgOnGpu::nepp;
+  const int npag = nevt/nepp; // number of ASA pages needed for nevt events
+  double (*rnarray)[nparf][np4][nepp] = (double (*)[nparf][np4][nepp]) rnarray1d; // cast to multiD array pointer (AOSOA)
+  for (int ipag = 0; ipag < npag; ipag++)
+    for (int iparf = 0; iparf < nparf; iparf++)
+      for (int ip4 = 0; ip4 < np4; ++ip4)
+        for (int iepp = 0; iepp < nevt; ++iepp)
+          rnarray[ipag][iparf][ip4][iepp] = rn(0); // AOSOA[npag][nparf][np4][nepp]
+#elif defined MGONGPU_LAYOUT_SOA
+  double (*rnarray)[np4][nevt] = (double (*)[np4][nevt]) rnarray1d; // cast to multiD array pointer (SOA)
   for (int iparf = 0; iparf < nparf; iparf++)
     for (int ip4 = 0; ip4 < np4; ++ip4)
       for (int ievt = 0; ievt < nevt; ++ievt)
         rnarray[iparf][ip4][ievt] = rn(0); // SOA[nparf][np4][nevt]
-}
 #elif defined MGONGPU_LAYOUT_AOS
-void generateRnArray( double rnarray1d[], // output: randomnumbers[nevt][nparf][4] in [0,1] as an AOS
-                      const int nparf,    // input: #particles_final
-                      const int nevt )    // input: #events
-{
-  const int np4 = 4; // 4 random numbers (like the dimension of 4-momenta) are needed for each particle
-  double (*rnarray)[nparf][np4] = (double (*)[nparf][np4]) rnarray1d; // cast to multiD array pointer (SOA)
+  double (*rnarray)[nparf][np4] = (double (*)[nparf][np4]) rnarray1d; // cast to multiD array pointer (AOS)
   for (int ievt = 0; ievt < nevt; ++ievt)
     for (int iparf = 0; iparf < nparf; iparf++)
       for (int ip4 = 0; ip4 < np4; ++ip4)
         rnarray[ievt][iparf][ip4] = rn(0); // AOS[nevt][nparf][np4]
-}
 #endif
+}

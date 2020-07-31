@@ -28,8 +28,6 @@ int usage(char* argv0, int ret = 1) {
 
 int main(int argc, char **argv)
 {
-  using namespace mgOnGpu;
-
   // READ COMMAND LINE ARGUMENTS
   bool verbose = false;
   bool debug = false;
@@ -70,6 +68,7 @@ int main(int argc, char **argv)
 
   const int ndim = gpublocks * gputhreads; // number of events (threads) in one iteration
 #if defined MGONGPU_LAYOUT_ASA
+  using mgOnGpu::nepp;
   if ( gputhreads%nepp != 0 )
   {
     std::cout << "ERROR! #threads/block should be a multiple of " << nepp << std::endl;
@@ -218,8 +217,8 @@ int main(int argc, char **argv)
       for (int idim = 0; idim < ndim; ++idim) // Loop over all events in this iteration
       {
 #if defined MGONGPU_LAYOUT_ASA
-        const int ipag = iepi/nepp; // #eventpage in this iteration
-        const int iepp = iepi%nepp; // #event in the current eventpage in this iteration
+        const int ipag = idim/nepp; // #eventpage in this iteration
+        const int iepp = idim%nepp; // #event in the current eventpage in this iteration
 #endif
         if (verbose)
         {
@@ -229,13 +228,13 @@ int main(int argc, char **argv)
 #if defined MGONGPU_LAYOUT_ASA
             std::cout << std::setw(4) << ipar + 1
                       << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipar*ndim*np4 + 0*ndim + idim] // AOSOA[ipag][ipar][0][iepp]
+                      << hstMomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + 0*nepp + iepp] // AOSOA[ipag][ipar][0][iepp]
                       << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipar*ndim*np4 + 1*ndim + idim] // AOSOA[ipag][ipar][1][iepp]
+                      << hstMomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + 1*nepp + iepp] // AOSOA[ipag][ipar][1][iepp]
                       << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipar*ndim*np4 + 2*ndim + idim] // AOSOA[ipag][ipar][2][iepp]
+                      << hstMomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + 2*nepp + iepp] // AOSOA[ipag][ipar][2][iepp]
                       << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipar*ndim*np4 + 3*ndim + idim] // AOSOA[ipag][ipar][3][iepp]
+                      << hstMomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + 3*nepp + iepp] // AOSOA[ipag][ipar][3][iepp]
                       << std::endl;
 #elif defined MGONGPU_LAYOUT_SOA
             std::cout << std::setw(4) << ipar + 1

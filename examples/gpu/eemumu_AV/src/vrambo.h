@@ -7,16 +7,19 @@
 void get_momenta( const int ninitial,     // input: #particles_initial
                   const double energy,    // input: energy
                   const double masses[],  // input: masses[npar]
-#if defined MGONGPU_LAYOUT_SOA
-                  const double rnarray[], // input: randomnumbers[nparf][4][nevt] in [0,1] as an SOA
-                  double momenta1d[],     // output: momenta[npar][4][nevt] as a SOA
+#if defined MGONGPU_LAYOUT_ASA
+                  const double rnarray[], // input: randomnumbers in [0,1] as AOSOA[npag][nparf][4][nepp]
+                  double momenta1d[],     // output: momenta as AOSOA[npag][npar][4][nepp] 
+#elif defined MGONGPU_LAYOUT_SOA
+                  const double rnarray[], // input: randomnumbers in [0,1] as SOA[nparf][4][nevt]
+                  double momenta1d[],     // output: momenta as SOA[npar][4][nevt] 
 #elif defined MGONGPU_LAYOUT_AOS
-                  const double rnarray[], // input: randomnumbers[nevt][nparf][4] in [0,1] as an AOS
-                  double momenta1d[],     // output: momenta[nevt][npar][4] as an AOS
+                  const double rnarray[], // input: randomnumbers in [0,1] as SOA[nevt][nparf][4]
+                  double momenta1d[],     // output: momenta as AOS[nevt][npar][4]
 #endif
                   double wgts[],          // output: weights[nevt]
                   const int npar,         // input: #particles (==nexternal==nfinal+ninitial)
-                  const int nevt );       // input: #events
+                  const int nevt );       // input: #events (==ndim=gputhread*gpublocks)
 
 // Draw random momenta and the corresponding weight for event ievt out of nevt
 // *** NB: vrambo only uses final-state masses and fills in final-state momenta,
@@ -25,12 +28,15 @@ void get_momenta( const int ninitial,     // input: #particles_initial
 void vrambo( const int ninitial,       // input: #particles_initial
              const double energy,      // input: energy
              const double masses[],    // input: masses[npar] 
-#if defined MGONGPU_LAYOUT_SOA
-             const double rnarray1d[], // input: randomnumbers[nparf][4][nevt] in [0,1] as an SOA
-             double momenta1d[],       // output: momenta[npar][4][nevt] as a SOA
+#if defined MGONGPU_LAYOUT_ASA
+             const double rnarray1d[], // input: randomnumbers in [0,1] as AOSOA[npag][nparf][4][nepp]
+             double momenta1d[],       // output: momenta as AOSOA[npag][npar][4][nepp] 
+#elif defined MGONGPU_LAYOUT_SOA
+             const double rnarray1d[], // input: randomnumbers in [0,1] as SOA[nparf][4][nevt]
+             double momenta1d[],       // output: momenta as SOA[npar][4][nevt] 
 #elif defined MGONGPU_LAYOUT_AOS
-             const double rnarray1d[], // input: randomnumbers[nevt][nparf][4] in [0,1] as an AOS
-             double momenta1d[],       // output: momenta[nevt][npar][4] as an AOS
+             const double rnarray1d[], // input: randomnumbers in [0,1] as SOA[nevt][nparf][4]
+             double momenta1d[],       // output: momenta as AOS[nevt][npar][4]
 #endif
              double wgts[],            // output: weights[nevt]
              const int npar,           // input: #particles (==nexternal==nfinal+ninitial)
@@ -38,12 +44,13 @@ void vrambo( const int ninitial,       // input: #particles_initial
              const int ievt );         // input: event ID to be written out out of #events
 
 // Generate the random numbers needed to process nevt events in rambo
-#if defined MGONGPU_LAYOUT_SOA
-void generateRnArray( double rnarray[], // output: randomnumbers[nparf][4][nevt] in [0,1] as an SOA
-                      const int nparf,  // input: #particles_final
-                      const int nevt ); // input: #events
+#if defined MGONGPU_LAYOUT_ASA
+// AOSOA: rnarray[npag][npar][np4][nepp] where nevt=npag*nepp
+#elif defined MGONGPU_LAYOUT_SOA
+// SOA: rnarray[npar][np4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
-void generateRnArray( double rnarray[], // output: randomnumbers[nevt][nparf][4] in [0,1] as an AOS
+// AOS: rnarray[nevt][npar][np4]
+#endif
+void generateRnArray( double rnarray[], // output: randomnumbers in [0,1]
                       const int nparf,  // input: #particles_final
                       const int nevt ); // input: #events
-#endif

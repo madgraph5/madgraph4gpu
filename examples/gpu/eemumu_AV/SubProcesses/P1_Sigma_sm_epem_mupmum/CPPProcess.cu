@@ -699,27 +699,26 @@ __device__ void FFV2_4_3(const thrust::complex<double> F1[],
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#include "CPPProcess.h"
-//#include "HelAmps_sm.h"
-
 #include <algorithm> 
 #include <iostream> 
 #include <thrust/complex.h> 
+
+#include "CPPProcess.h"
 
 //==========================================================================
 // Class member functions for calculating the matrix elements for
 // Process: e+ e- > mu+ mu- WEIGHTED<=4 @1
 
 __constant__ int cHel[16][4]; 
+
 // __constant__ double cmME[4]; value hardcoded now
 // extern __constant__ int cPerm[4];
-// 
+
 __constant__ double cIPC[6];  // coupling ?
 __constant__ double cIPD[2]; 
 
 
 // Evaluate |M|^2 for each subprocess
-
 __device__ void calculate_wavefunctions(int ihel, double local_mom[4][4],
     double &matrix)
 {
@@ -830,70 +829,54 @@ void CPPProcess::initProc(string param_card_name)
 
 __global__ 
 #if defined MGONGPU_LAYOUT_ASA
-// AOSOA: allmomenta[npag][npar][np4][nepp] where nevt=npag*nepp
+// AOSOA: allmomenta[npag][npar][np4][nepp] where ndim=npag*nepp
 #elif defined MGONGPU_LAYOUT_SOA
-// SOA: allmomenta[npar][np4][ndim] where nevt=ndim=gpublocks*gputhreads
+// SOA: allmomenta[npar][np4][ndim]
 #elif defined MGONGPU_LAYOUT_AOS
-// AOS: allmomenta[ndim][npar][np4] where nevt=ndim=gpublocks*gputhreads
+// AOS: allmomenta[ndim][npar][np4]
 #endif
-void sigmaKin( const double* allmomenta, // input[(npar=4)*(np4=4)*(nevt)]
+void sigmaKin( const double* allmomenta, // input[(npar=4)*(np4=4)*(ndim=gpublocks*gputhreads)]
                double* output ) // output[nevt]
 {
   // Set the parameters which change event by event
   // Need to discuss this with Stefan
   // pars->setDependentParameters();
   // pars->setDependentCouplings();
-
   // Reset color flows
-
-  const int nprocesses = 1; 
-  int tid = blockIdx.x * blockDim.x + threadIdx.x; 
 
   const int npar = 4; // hardcoded for this process (eemumu): npar=4
   const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
 
-  double local_m[npar][np4]; 
+  const int idim = blockIdx.x * blockDim.x + threadIdx.x; // event# == threadid (previously was: tid)
 
-#if defined MGONGPU_LAYOUT_SOA
+  double local_m[npar][np4];
+#if defined MGONGPU_LAYOUT_ASA
+  using mgOnGpu::nepp;
+  const int ipag = idim/nepp; // #eventpage in this iteration
+  const int iepp = idim%nepp; // #event in the current eventpage in this iteration
+  // ASA: allmomenta[npag][npar][np4][nepp]
+  for (int ipar = 0; ipar < npar; ipar++ )
+    for (int ip4 = 0; ip4 < np4; ip4++ )
+      local_m[ipar][ip4] = allmomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + ip4*nepp + iepp]; // AOSOA[ipag][ipar][ip4][iepp]
+#elif defined MGONGPU_LAYOUT_SOA
   const int ndim = blockDim.x * gridDim.x; // (previously was: DIM)
   // SOA: allmomenta[npar][np4][ndim]
   for (int ipar = 0; ipar < npar; ipar++ )
-  {
     for (int ip4 = 0; ip4 < np4; ip4++ )
-    {
-      local_m[ipar][ip4] = allmomenta[ipar*np4*ndim + ip4*ndim + tid]; // SOA[ipar][ip4][tid]
-      // printf(" %f ", local_m[ipar][ip4]);
-    }
-    // printf("\n");
-  }
+      local_m[ipar][ip4] = allmomenta[ipar*np4*ndim + ip4*ndim + idim]; // SOA[ipar][ip4][idim]
 #elif defined MGONGPU_LAYOUT_AOS
   // AOS: allmomenta[ndim][npar][np4]
   for (int ipar = 0; ipar < npar; ipar++ )
-  {
     for (int ip4 = 0; ip4 < np4; ip4++ )
-    {
-      local_m[ipar][ip4] = allmomenta[tid*npar*np4 + ipar*np4 + ip4]; // AOS[tid][ipar][ip4]
-      // printf(" %f ", local_m[ipar][ip4]);
-    }
-    // printf("\n");
-  }
+      local_m[ipar][ip4] = allmomenta[idim*npar*np4 + ipar*np4 + ip4]; // AOS[idim][ipar][ip4]
 #endif
 
-  // Local variables and constants
-  const int ncomb = 16; 
-  // static bool goodhel[ncomb] = {ncomb * false};
-  // static int ntry = 0, sum_hel = 0, ngood = 0;
-  // static int igood[ncomb];
-  // static int jhel;
-  // std::complex<double> **wfs;
-  // double t[1];
-  // Helicities for the process
-  // static const int helicities[ncomb][nexternal] =
-  // {{-1,-1,-1,-1},{-1,-1,-1,1},{-1,-1,1,-1},{-1,-1,1,1},{-1,1,-1,-1},{-1,1,-1,
-  // 1},{-1,1,1,-1},{-1,1,1,1},{1,-1,-1,-1},{1,-1,-1,1},{1,-1,1,-1},{1,-1,1,1},{
-  // 1,1,-1,-1},{1,1,-1,1},{1,1,1,-1},{1,1,1,1}};
+  // Helicity combinations
+  const int ncomb = 16;
+
   // Denominators: spins, colors and identical particles
-  const int denominators[1] = {4};
+  const int nprocesses = 1;
+  const int denominators[nprocesses] = {4};
 
   // Reset the matrix elements
   double matrix_element[nprocesses];
@@ -901,12 +884,6 @@ void sigmaKin( const double* allmomenta, // input[(npar=4)*(np4=4)*(nevt)]
   {
     matrix_element[iproc] = 0.; 
   }
-
-  // Define permutation
-  // int perm[nexternal];
-  // for(int i = 0; i < nexternal; i++){
-  // perm[i]=i;
-  // }
 
   for (int ihel = 0; ihel < ncomb; ihel++ )
   {
@@ -920,16 +897,9 @@ void sigmaKin( const double* allmomenta, // input[(npar=4)*(np4=4)*(nevt)]
 
   for (int iproc = 0; iproc < nprocesses; ++iproc)
   {
-    output[iproc*nprocesses + tid] = matrix_element[iproc]; 
-    // printf("output %i %i %i %f", tid, iproc, iproc*nprocesses+tid,
-    // output[iproc*nprocesses+tid]);
+    output[iproc*nprocesses + idim] = matrix_element[iproc]; 
   }
 
 }
 
-//==========================================================================
-// Private class member functions
-
 //--------------------------------------------------------------------------
-
-
