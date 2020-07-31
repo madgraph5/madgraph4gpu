@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <vector>
 
-#include "mgOnGpuConfig.h" // check if MGONGPU_USES_AOS
+#include "mgOnGpuConfig.h"
 #include "vrambo.h"
 
 #include "CPPProcess.h"
@@ -110,9 +110,9 @@ int main(int argc, char **argv)
 
   int nbytesMomenta = np4*npar*ndim * sizeof(double);
   //double* hstMomenta = new double[npar*np4*ndim]; // can be SOA or AOS (previously was: lp)
-#ifndef MGONGPU_USES_AOS
+#if defined MGONGPU_LAYOUT_SOA
   double* hstMomenta = 0; // SOA[npar][np4][ndim] (previously was: lp)
-#else
+#elif defined MGONGPU_LAYOUT_AOS
   double* hstMomenta = 0; // AOS[ndim][npar][np4] (previously was: lp)
 #endif
   gpuErrchk3( cudaMallocHost( &hstMomenta, nbytesMomenta ) );
@@ -206,7 +206,7 @@ int main(int argc, char **argv)
           std::cout << "Momenta:" << std::endl;
           for (int ipar = 0; ipar < npar; ipar++)
           {
-#ifndef MGONGPU_USES_AOS
+#if defined MGONGPU_LAYOUT_SOA
             std::cout << std::setw(4) << ipar + 1
                       << setiosflags(std::ios::scientific)
                       << std::setw(14) << hstMomenta[ipar*ndim*np4 + 0*ndim + idim] // SOA[ipar][0][idim]
@@ -217,7 +217,7 @@ int main(int argc, char **argv)
                       << setiosflags(std::ios::scientific)
                       << std::setw(14) << hstMomenta[ipar*ndim*np4 + 3*ndim + idim] // SOA[ipar][3][idim]
                       << std::endl;
-#else
+#elif defined MGONGPU_LAYOUT_AOS
             std::cout << std::setw(4) << ipar + 1
                       << setiosflags(std::ios::scientific)
                       << std::setw(14) << hstMomenta[idim*npar*np4 + ipar*np4 + 0] // AOS[idim][ipar][0]
@@ -295,10 +295,10 @@ int main(int argc, char **argv)
               << "NumThreadsPerBlock    = " << gputhreads << std::endl
               << "NumBlocksPerGrid      = " << gpublocks << std::endl
               << "-----------------------------------" << std::endl
-#ifndef MGONGPU_USES_AOS
-              << "Memory layout         = SOA" << std::endl
-#else
-              << "Memory layout         = AOS" << std::endl
+#if defined MGONGPU_LAYOUT_SOA
+              << "Memory layout         = SOA " << std::endl
+#elif defined MGONGPU_LAYOUT_AOS
+              << "Memory layout         = AOS " << std::endl
 #endif
               << "-----------------------------------" << std::endl
               << "NumberOfEntries       = " << num_wts << std::endl

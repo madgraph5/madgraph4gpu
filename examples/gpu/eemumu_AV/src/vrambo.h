@@ -1,4 +1,4 @@
-#include "mgOnGpuConfig.h" // check if MGONGPU_USES_AOS
+#include "mgOnGpuConfig.h"
 
 // Auxiliary function to change convention between MadGraph5_aMC@NLO and rambo four momenta
 // Draw random momenta and the corresponding weights for nevt events
@@ -7,10 +7,10 @@
 void get_momenta( const int ninitial,     // input: #particles_initial
                   const double energy,    // input: energy
                   const double masses[],  // input: masses[npar]
-#ifndef MGONGPU_USES_AOS
+#if defined MGONGPU_LAYOUT_SOA
                   const double rnarray[], // input: randomnumbers[nparf][4][nevt] in [0,1] as an SOA
                   double momenta1d[],     // output: momenta[npar][4][nevt] as a SOA
-#else
+#elif defined MGONGPU_LAYOUT_AOS
                   const double rnarray[], // input: randomnumbers[nevt][nparf][4] in [0,1] as an AOS
                   double momenta1d[],     // output: momenta[nevt][npar][4] as an AOS
 #endif
@@ -25,10 +25,10 @@ void get_momenta( const int ninitial,     // input: #particles_initial
 void vrambo( const int ninitial,       // input: #particles_initial
              const double energy,      // input: energy
              const double masses[],    // input: masses[npar] 
-#ifndef MGONGPU_USES_AOS
+#if defined MGONGPU_LAYOUT_SOA
              const double rnarray1d[], // input: randomnumbers[nparf][4][nevt] in [0,1] as an SOA
              double momenta1d[],       // output: momenta[npar][4][nevt] as a SOA
-#else
+#elif defined MGONGPU_LAYOUT_AOS
              const double rnarray1d[], // input: randomnumbers[nevt][nparf][4] in [0,1] as an AOS
              double momenta1d[],       // output: momenta[nevt][npar][4] as an AOS
 #endif
@@ -38,11 +38,11 @@ void vrambo( const int ninitial,       // input: #particles_initial
              const int ievt );         // input: event ID to be written out out of #events
 
 // Generate the random numbers needed to process nevt events in rambo
-#ifndef MGONGPU_USES_AOS
+#if defined MGONGPU_LAYOUT_SOA
 void generateRnArray( double rnarray[], // output: randomnumbers[nparf][4][nevt] in [0,1] as an SOA
                       const int nparf,  // input: #particles_final
                       const int nevt ); // input: #events
-#else
+#elif defined MGONGPU_LAYOUT_AOS
 void generateRnArray( double rnarray[], // output: randomnumbers[nevt][nparf][4] in [0,1] as an AOS
                       const int nparf,  // input: #particles_final
                       const int nevt ); // input: #events

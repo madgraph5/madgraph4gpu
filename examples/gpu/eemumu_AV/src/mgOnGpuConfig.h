@@ -1,7 +1,7 @@
 #ifndef MGONGPUCONFIG_H 
 #define MGONGPUCONFIG_H 1
 
-#undef MGONGPU_USES_AOS
-//#define MGONGPU_USES_AOS 1 // by default use SOA: comment out to use AOS
+#define MGONGPU_LAYOUT_SOA 1
+//#define MGONGPU_LAYOUT_AOS 1
 
 #endif // MGONGPUCONFIG_H

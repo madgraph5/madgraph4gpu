@@ -13,7 +13,7 @@
 #include <thrust/complex.h> 
 using namespace std; 
 
-#include "mgOnGpuConfig.h" // check if MGONGPU_USES_AOS
+#include "mgOnGpuConfig.h"
 
 namespace MG5_sm 
 {
@@ -829,9 +829,9 @@ void CPPProcess::initProc(string param_card_name)
 // Evaluate |M|^2, part independent of incoming flavour.
 
 __global__ 
-#ifndef MGONGPU_USES_AOS
+#if defined MGONGPU_LAYOUT_SOA
 // SOA: allmomenta[npar][np4][ndim]
-#else
+#elif defined MGONGPU_LAYOUT_AOS
 // AOS: allmomenta[ndim][npar][np4]
 #endif
 void sigmaKin( const double* allmomenta, // input[(npar=4)*(np4=4)*(ndim=gpublocks*gputhreads)]
@@ -852,7 +852,7 @@ void sigmaKin( const double* allmomenta, // input[(npar=4)*(np4=4)*(ndim=gpubloc
 
   double local_m[npar][np4]; 
 
-#ifndef MGONGPU_USES_AOS
+#if defined MGONGPU_LAYOUT_SOA
   const int ndim = blockDim.x * gridDim.x; // (previously was: DIM)
   // SOA: allmomenta[npar][np4][ndim]
   for (int ipar = 0; ipar < npar; ipar++ )
@@ -864,7 +864,7 @@ void sigmaKin( const double* allmomenta, // input[(npar=4)*(np4=4)*(ndim=gpubloc
     }
     // printf("\n");
   }
-#else
+#elif defined MGONGPU_LAYOUT_AOS
   // AOS: allmomenta[ndim][npar][np4]
   for (int ipar = 0; ipar < npar; ipar++ )
   {
