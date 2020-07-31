@@ -36,7 +36,7 @@ debug: check
 $(LIBDIR)/lib$(MODELLIB).a:
 	@cd ../../src && make $(MAKEDEBUG)
 
-check_sa.o: check_sa.cu *.h
+check_sa.o: check_sa.cu *.h ../../src/*.h
 	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
 
 %.o : %.cu %.h
