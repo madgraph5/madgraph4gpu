@@ -6,6 +6,7 @@
 // GPU Template
 //==========================================================================
 
+/*
 #ifndef HelAmps_sm_H
 #define HelAmps_sm_H
 
@@ -99,6 +100,7 @@ namespace MG5_sm
 }  // end namespace MG5_sm
 
 #endif  // HelAmps_sm_H
+*/
 
 //==========================================================================
 // This file has been automatically generated for C++ Standalone by
