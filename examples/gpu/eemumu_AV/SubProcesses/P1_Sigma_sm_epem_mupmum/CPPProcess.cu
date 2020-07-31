@@ -24,7 +24,7 @@ __device__ void ixxxxx(const double pvec[4],
                        thrust::complex<double> fi[6]) 
 {
   thrust::complex<double> chi[2]; 
-  double sfomega[2], omega[2], sqp0p3; 
+  double sfomega[2], sqp0p3; 
   fi[0] = thrust::complex<double> (-pvec[0] * nsf, -pvec[3] * nsf); 
   fi[1] = thrust::complex<double> (-pvec[1] * nsf, -pvec[2] * nsf); 
   const int nh = nhel * nsf; 
@@ -50,6 +50,7 @@ __device__ void ixxxxx(const double pvec[4],
           (1 + nsf + (1 - nsf) * nh) * 0.5,
           (1 + nsf - (1 - nsf) * nh) * 0.5
         };      
+      double omega[2];
       omega[0] = sqrt(pvec[0] + pp); 
       omega[1] = fmass/omega[0]; 
       const int ip = (1 + nh)/2; 
@@ -388,7 +389,7 @@ __device__ void oxxxxx(const double pvec[4],
                        thrust::complex<double> fo[6]) 
 {
   thrust::complex<double> chi[2]; 
-  double sfomeg[2], omega[2], sqp0p3;
+  double sfomeg[2], sqp0p3;
   fo[0] = thrust::complex<double> (pvec[0] * nsf, pvec[3] * nsf); 
   fo[1] = thrust::complex<double> (pvec[1] * nsf, pvec[2] * nsf); 
   const int nh = nhel * nsf; 
@@ -415,6 +416,7 @@ __device__ void oxxxxx(const double pvec[4],
           (1 + nsf + (1 - nsf) * nh) * 0.5,
           (1 + nsf - (1 - nsf) * nh) * 0.5
         };
+      double omega[2];
       omega[0] = sqrt(pvec[0] + pp); 
       omega[1] = fmass/omega[0]; 
       const int ip = (1 + nh)/2; 
