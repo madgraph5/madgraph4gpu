@@ -10,10 +10,7 @@
 #define HelAmps_sm_H
 
 #include <cmath> 
-#include <thrust/complex.h> 
-
-
-using namespace std; 
+#include <thrust/complex.h>
 
 namespace MG5_sm 
 {
