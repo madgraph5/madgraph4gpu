@@ -12,7 +12,7 @@
 void get_momenta( const int ninitial,     // input: #particles_initial
                   const double energy,    // input: energy
                   const double masses[],  // input: masses[npar]
-#ifdef RAMBO_USES_SOA
+#ifndef RAMBO_USES_AOS
                   const double rnarray[], // input: randomnumbers[nparf][4][nevt] in [0,1] as an SOA
                   double momenta1d[],     // output: momenta[npar][4][nevt] as a SOA
 #else
@@ -28,7 +28,7 @@ void get_momenta( const int ninitial,     // input: #particles_initial
   const double m1 = masses[0];
 
   const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
-#ifdef RAMBO_USES_SOA
+#ifndef RAMBO_USES_AOS
   double (*momenta)[np4][nevt] = (double (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
 #else
   double (*momenta)[npar][np4] = (double (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOS)
@@ -38,7 +38,7 @@ void get_momenta( const int ninitial,     // input: #particles_initial
   if (ninitial == 1) {
     for (int ievt = 0; ievt < nevt; ++ievt) {
       // Momenta for the incoming particle
-#ifdef RAMBO_USES_SOA
+#ifndef RAMBO_USES_AOS
       momenta[0][0][ievt] = m1;
       momenta[0][1][ievt] = 0;
       momenta[0][2][ievt] = 0;
@@ -73,7 +73,7 @@ void get_momenta( const int ninitial,     // input: #particles_initial
     const double energy2 = sqrt(pow(mom, 2) + pow(m2, 2));
     for (int ievt = 0; ievt < nevt; ++ievt) {
       // Momenta for the incoming particles
-#ifdef RAMBO_USES_SOA
+#ifndef RAMBO_USES_AOS
       momenta[0][0][ievt] = energy1;
       momenta[0][1][ievt] = 0;
       momenta[0][2][ievt] = 0;
@@ -95,7 +95,7 @@ void get_momenta( const int ninitial,     // input: #particles_initial
       // #Initial==2, #Final==1
       if (nparf == 1) {
         // Momenta for the outgoing particle
-#ifdef RAMBO_USES_SOA
+#ifndef RAMBO_USES_AOS
         momenta[2][0][ievt] = m1;
         momenta[2][1][ievt] = 0;
         momenta[2][2][ievt] = 0;
@@ -126,7 +126,7 @@ void get_momenta( const int ninitial,     // input: #particles_initial
 void vrambo( const int ninitial,       // input: #particles_initial
              const double energy,      // input: energy
              const double masses[],    // input: masses[npar] 
-#ifdef RAMBO_USES_SOA
+#ifndef RAMBO_USES_AOS
              const double rnarray1d[], // input: randomnumbers[nparf][4][nevt] in [0,1] as an SOA
              double momenta1d[],       // output: momenta[npar][4][nevt] as a SOA
 #else
@@ -157,7 +157,7 @@ void vrambo( const int ninitial,       // input: #particles_initial
   const int nparf = npar - ninitial;
 
   const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
-#ifdef RAMBO_USES_SOA
+#ifndef RAMBO_USES_AOS
   double (*rnarray)[np4][nevt] = (double (*)[np4][nevt]) rnarray1d; // cast to multiD array pointer (SOA)
   double (*momenta)[np4][nevt] = (double (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
 #else
@@ -205,7 +205,7 @@ void vrambo( const int ninitial,       // input: #particles_initial
 
   // generate n massless momenta in infinite phase space
   for (int iparf = 0; iparf < nparf; iparf++) {
-#ifdef RAMBO_USES_SOA
+#ifndef RAMBO_USES_AOS
     const double r1 = rnarray[iparf][0][ievt];
     const double r2 = rnarray[iparf][1][ievt];
     const double r3 = rnarray[iparf][2][ievt];
@@ -241,7 +241,7 @@ void vrambo( const int ninitial,       // input: #particles_initial
   // transform the q's conformally into the p's (i.e. the 'momenta')
   for (int iparf = 0; iparf < nparf; iparf++) {
     double bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
-#ifdef RAMBO_USES_SOA
+#ifndef RAMBO_USES_AOS
     for (int i4 = 1; i4 < np4; i4++)
       momenta[iparf+ninitial][i4][ievt] = x * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
     momenta[iparf+ninitial][0][ievt] = x * (g * q[iparf][0] + bq);
@@ -276,7 +276,7 @@ void vrambo( const int ninitial,       // input: #particles_initial
   double xmax = sqrt(1. - pow(xmft / energy, 2));
   for (int iparf = 0; iparf < nparf; iparf++) {
     xmf2[iparf] = pow(xmf[iparf], 2);
-#ifdef RAMBO_USES_SOA
+#ifndef RAMBO_USES_AOS
     p2[iparf] = pow(momenta[iparf+ninitial][0][ievt], 2);
 #else
     p2[iparf] = pow(momenta[ievt][iparf+ninitial][0], 2);
@@ -306,7 +306,7 @@ void vrambo( const int ninitial,       // input: #particles_initial
   }
 
   for (int iparf = 0; iparf < nparf; iparf++) {
-#ifdef RAMBO_USES_SOA
+#ifndef RAMBO_USES_AOS
     v[iparf] = x * momenta[iparf+ninitial][0][ievt];
     for (int i4 = 1; i4 < np4; i4++)
       momenta[iparf+ninitial][i4][ievt] = x * momenta[iparf+ninitial][i4][ievt];
@@ -344,7 +344,7 @@ void vrambo( const int ninitial,       // input: #particles_initial
 }
 
 // Generate the random numbers needed to process nevt events in rambo
-#ifdef RAMBO_USES_SOA
+#ifndef RAMBO_USES_AOS
 void generateRnArray( double rnarray1d[], // output: randomnumbers[nparf][4][nevt] in [0,1] as an SOA
                       const int nparf,    // input: #particles_final
                       const int nevt )    // input: #events
