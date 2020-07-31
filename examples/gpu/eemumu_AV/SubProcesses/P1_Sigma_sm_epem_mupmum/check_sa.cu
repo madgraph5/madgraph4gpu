@@ -215,22 +215,11 @@ int main(int argc, char **argv)
 
     if (verbose || perf)
     {
-#if defined MGONGPU_LAYOUT_ASA      
-      const int nepi = npag*nepp; // events per iteration
-#elif defined MGONGPU_LAYOUT_SOA
-      const int nepi = ndim; // events per iteration
-#elif defined MGONGPU_LAYOUT_AOS
-      const int nepi = ndim; // events per iteration
-#endif
-      for (int iepi = 0; iepi < nepi; ++iepi) 
+      for (int idim = 0; idim < ndim; ++idim) // Loop over all events in this iteration
       {
 #if defined MGONGPU_LAYOUT_ASA
         const int ipag = iepi/nepp; // #eventpage in this iteration
         const int iepp = iepi%nepp; // #event in the current eventpage in this iteration
-#elif defined MGONGPU_LAYOUT_SOA
-        const int idim = iepi; // #event in this iteration
-#elif defined MGONGPU_LAYOUT_AOS
-        const int idim = iepi; // #event in this iteration
 #endif
         if (verbose) 
         {
