@@ -721,24 +721,21 @@ __constant__ double cIPD[2];
 __device__ void calculate_wavefunctions(int ihel, double local_mom[4][4],
     double &matrix)
 {
-  using namespace MG5_sm; 
   thrust::complex<double> amp[2]; 
   // Calculate wavefunctions for all processes
   thrust::complex<double> w[5][6]; 
-  oxxxxx(local_mom[0], 0., cHel[ihel][0], -1, w[0]); 
-  ixxxxx(local_mom[1], 0., cHel[ihel][1], +1, w[1]); 
-  ixxxxx(local_mom[2], 0., cHel[ihel][2], -1, w[2]); 
-  oxxxxx(local_mom[3], 0., cHel[ihel][3], +1, w[3]); 
-  FFV1P0_3(w[1], w[0], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0.,
-      w[4]);
+  MG5_sm::oxxxxx(local_mom[0], 0., cHel[ihel][0], -1, w[0]); 
+  MG5_sm::ixxxxx(local_mom[1], 0., cHel[ihel][1], +1, w[1]); 
+  MG5_sm::ixxxxx(local_mom[2], 0., cHel[ihel][2], -1, w[2]); 
+  MG5_sm::oxxxxx(local_mom[3], 0., cHel[ihel][3], +1, w[3]); 
+  MG5_sm::FFV1P0_3(w[1], w[0], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0., w[4]);
   // Amplitude(s) for diagram number 1
-  FFV1_0(w[2], w[3], w[4], thrust::complex<double> (cIPC[0], cIPC[1]),
-      &amp[0]);
-  FFV2_4_3(w[1], w[0], thrust::complex<double> (cIPC[2], cIPC[3]),
-      thrust::complex<double> (cIPC[4], cIPC[5]), cIPD[0], cIPD[1], w[4]);
+  MG5_sm::FFV1_0(w[2], w[3], w[4], thrust::complex<double> (cIPC[0], cIPC[1]), &amp[0]);
+  MG5_sm::FFV2_4_3(w[1], w[0], thrust::complex<double> (cIPC[2], cIPC[3]), 
+                   thrust::complex<double> (cIPC[4], cIPC[5]), cIPD[0], cIPD[1], w[4]);
   // Amplitude(s) for diagram number 2
-  FFV2_4_0(w[2], w[3], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
-      thrust::complex<double> (cIPC[4], cIPC[5]), &amp[1]);
+  MG5_sm::FFV2_4_0(w[2], w[3], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
+                   thrust::complex<double> (cIPC[4], cIPC[5]), &amp[1]);
   // double CPPProcess::matrix_1_epem_mupmum() {
   int i, j; 
   // Local variables
