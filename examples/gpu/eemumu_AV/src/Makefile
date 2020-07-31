@@ -29,10 +29,10 @@ debug: $(target)
 # sr fixme #
 # not sure including the cuda includes here is a good idea...
 # ... needed for thrust/complex which in principal is a C++ class
-%.o : %.cc %.h
+%.o : %.cc *.h
 	$(CXX)  $(CPPFLAGS) $(CXXFLAGS) -I$(CUINC) -c $< -o $@
 
-%.o : %.cu %.h
+%.o : %.cu *.h
 	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
 
 
