@@ -165,7 +165,7 @@ int main(int argc, char **argv)
 #else
     // Set SOA momenta for this event by copying them from the rambo AOS output
     const std::string atosKey = "2b AOStoSOA";
-    timermap.start( rambKey );
+    timermap.start( atosKey );
     for (int idim = 0; idim < ndim; ++idim)
       for (int ipar = 0; ipar < npar; ++ipar)
         for (int ip4 = 0; ip4 < np4; ++ip4)
