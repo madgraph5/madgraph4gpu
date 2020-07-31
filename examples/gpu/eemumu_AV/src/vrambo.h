@@ -45,11 +45,11 @@ void vrambo( const int ninitial,       // input: #particles_initial
 
 // Generate the random numbers needed to process nevt events in rambo
 #if defined MGONGPU_LAYOUT_ASA
-// AOSOA: rnarray[npag][npar][np4][nepp] where nevt=npag*nepp
+// AOSOA: rnarray[npag][nparf][np4][nepp] where nevt=npag*nepp
 #elif defined MGONGPU_LAYOUT_SOA
-// SOA: rnarray[npar][np4][nevt]
+// SOA: rnarray[nparf][np4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
-// AOS: rnarray[nevt][npar][np4]
+// AOS: rnarray[nevt][nparf][np4]
 #endif
 void generateRnArray( double rnarray[], // output: randomnumbers in [0,1]
                       const int nparf,  // input: #particles_final

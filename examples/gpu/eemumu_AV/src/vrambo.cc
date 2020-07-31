@@ -124,10 +124,10 @@ void get_momenta( const int ninitial,     // input: #particles_initial
 #if defined MGONGPU_LAYOUT_ASA
         const int ipag = ievt/nepp; // #eventpage in this iteration
         const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
-        momenta[ipag][0][0][iepp] = m1;
-        momenta[ipag][0][1][iepp] = 0;
-        momenta[ipag][0][2][iepp] = 0;
-        momenta[ipag][0][3][iepp] = 0;
+        momenta[ipag][2][0][iepp] = m1;
+        momenta[ipag][2][1][iepp] = 0;
+        momenta[ipag][2][2][iepp] = 0;
+        momenta[ipag][2][3][iepp] = 0;
 #elif defined MGONGPU_LAYOUT_SOA
         momenta[2][0][ievt] = m1;
         momenta[2][1][ievt] = 0;
@@ -200,7 +200,7 @@ void vrambo( const int ninitial,       // input: #particles_initial
   const int nparf = npar - ninitial;
   const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
 #if defined MGONGPU_LAYOUT_ASA
-  double (*rnarray)[nparf][np4][nevt] = (double (*)[nparf][np4][nevt]) rnarray1d; // cast to multiD array pointer (AOSOA)
+  double (*rnarray)[nparf][np4][nepp] = (double (*)[nparf][np4][nepp]) rnarray1d; // cast to multiD array pointer (AOSOA)
   double (*momenta)[npar][np4][nepp] = (double (*)[npar][np4][nepp]) momenta1d; // cast to multiD array pointer (AOSOA)
 #elif defined MGONGPU_LAYOUT_SOA
   double (*rnarray)[np4][nevt] = (double (*)[np4][nevt]) rnarray1d; // cast to multiD array pointer (SOA)
@@ -405,13 +405,12 @@ void vrambo( const int ninitial,       // input: #particles_initial
 }
 
 // Generate the random numbers needed to process nevt events in rambo
-// Generate the random numbers needed to process nevt events in rambo
 #if defined MGONGPU_LAYOUT_ASA
-// AOSOA: rnarray[npag][npar][np4][nepp] where nevt=npag*nepp
+// AOSOA: rnarray[npag][nparf][np4][nepp] where nevt=npag*nepp
 #elif defined MGONGPU_LAYOUT_SOA
-// SOA: rnarray[npar][np4][nevt]
+// SOA: rnarray[nparf][np4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
-// AOS: rnarray[nevt][npar][np4]
+// AOS: rnarray[nevt][nparf][np4]
 #endif
 void generateRnArray( double rnarray1d[], // output: randomnumbers in [0,1]
                       const int nparf,    // input: #particles_final
@@ -425,7 +424,7 @@ void generateRnArray( double rnarray1d[], // output: randomnumbers in [0,1]
   for (int ipag = 0; ipag < npag; ipag++)
     for (int iparf = 0; iparf < nparf; iparf++)
       for (int ip4 = 0; ip4 < np4; ++ip4)
-        for (int iepp = 0; iepp < nevt; ++iepp)
+        for (int iepp = 0; iepp < nepp; ++iepp)
           rnarray[ipag][iparf][ip4][iepp] = rn(0); // AOSOA[npag][nparf][np4][nepp]
 #elif defined MGONGPU_LAYOUT_SOA
   double (*rnarray)[np4][nevt] = (double (*)[np4][nevt]) rnarray1d; // cast to multiD array pointer (SOA)

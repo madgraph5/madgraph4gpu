@@ -116,7 +116,7 @@ int main(int argc, char **argv)
   const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
 
 #if defined MGONGPU_LAYOUT_ASA
-  double* rnarray = new double[npag*np4*ndim*nepp]; // AOSOA[npag][npar][np4][nepp] (NB: ndim=npag*nepp)
+  double* rnarray = new double[npag*nparf*np4*nepp]; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
 #elif defined MGONGPU_LAYOUT_SOA
   double* rnarray = new double[nparf*np4*ndim]; // SOA[npar][np4][ndim]
 #elif defined MGONGPU_LAYOUT_AOS
