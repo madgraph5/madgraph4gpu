@@ -17,50 +17,74 @@
 namespace MG5_sm 
 {
 
-__device__ void imzxxx(double pvec[3], int nhel, int nsf, thrust::complex<double> fi[6])
+__device__ void imzxxxM0(const double pvec[4], 
+                         //const double fmass, 
+                         const int nhel, 
+                         const int nsf, 
+                         thrust::complex<double> fi[6]) 
 {
+  fi[0] = thrust::complex<double> (-pvec[0] * nsf, -pvec[3] * nsf); 
+  fi[1] = thrust::complex<double> (-pvec[1] * nsf, -pvec[2] * nsf); 
+  const int nh = nhel * nsf; 
   // ASSUMPTION FMASS == 0
   // PX = PY = 0
   // E = -P3 (E>0)
-  //printf("p3 %f", pvec[2]);
-  fi[0] = thrust::complex<double> (pvec[2] * nsf, -pvec[2] * nsf); 
-  fi[1] = thrust::complex<double> (0., 0.);
-  int nh = nhel * nsf; 
-  thrust::complex<double>  chi = thrust::complex<double> (-nhel * sqrt(-2.0 * pvec[2]), 0.0); 
-
-  fi[2]=(nh== 1)*fi[1]   + (nh==-1)*chi;
-  fi[3]=fi[1];
-  fi[4]=fi[1];
-  fi[5]=(nh== 1)*chi   + (nh==-1)*fi[1];
-}
-
-__device__ void ixzxxx(double pvec[3],  int nhel, int nsf, thrust::complex<double> fi[6]) 
-{
-  // ASSUMPTIONS: FMASS == 0
-  // Px and Py are not zero
-  
-  //thrust::complex<double> chi[2]; 
-  //double sf[2], sfomega[2], omega[2], pp, pp3, sqp0p3, sqm[2]; 
-  //int ip, im, nh;
-  float p[4] = {0, (float) pvec[0], (float) pvec[1], (float) pvec[2]};
-  p[0] = sqrtf(p[3] * p[3] + p[1] * p[1] + p[2] * p[2]);
-
-  fi[0] = thrust::complex<double> (-p[0] * nsf, -pvec[2] * nsf); 
-  fi[1] = thrust::complex<double> (-pvec[0] * nsf, -pvec[1] * nsf); 
-  int nh = nhel * nsf;
-  
-  float sqp0p3 = sqrtf(p[0] + p[3]) * nsf; 
-  thrust::complex<float> chi0 = thrust::complex<float> (sqp0p3, 0.0); 
-  thrust::complex<float> chi1 = thrust::complex<float> (nh * p[1]/sqp0p3, p[2]/sqp0p3); 
-  thrust::complex<float> CZERO = thrust::complex<float>(0.,0.);
-    
-  fi[2]=(nh== 1)*CZERO   + (nh==-1)*chi1;
-  fi[3]=(nh== 1)*CZERO   + (nh==-1)*chi0;
-  fi[4]=(nh== 1)*chi0    + (nh==-1)*CZERO;
-  fi[5]=(nh== 1)*chi1    + (nh==-1)*CZERO;
+  {
+    const thrust::complex<double> chi0( 0, 0 );
+    const thrust::complex<double> chi1( -nhel * sqrt(2 * pvec[0]), 0 ); 
+    if (nh == 1)
+    {
+      fi[2] = thrust::complex<double> (0, 0); 
+      fi[3] = thrust::complex<double> (0, 0); 
+      fi[4] = chi0; 
+      fi[5] = chi1; 
+    }
+    else
+    {
+      fi[2] = chi1; 
+      fi[3] = chi0; 
+      fi[4] = thrust::complex<double> (0, 0); 
+      fi[5] = thrust::complex<double> (0, 0); 
+    }
+  }
   return; 
 }
 
+
+__device__ void ixzxxxM0(const double pvec[4], 
+                         //const double fmass, 
+                         const int nhel, 
+                         const int nsf, 
+                         thrust::complex<double> fi[6]) 
+{
+  fi[0] = thrust::complex<double> (-pvec[0] * nsf, -pvec[3] * nsf); 
+  fi[1] = thrust::complex<double> (-pvec[1] * nsf, -pvec[2] * nsf); 
+  const int nh = nhel * nsf; 
+  // ASSUMPTION FMASS == 0
+  // Px and Py are not zero
+  {
+    const double sqp0p3 = sqrt( pvec[0] + pvec[3] ) * nsf; 
+    const thrust::complex<double> chi0( sqp0p3, 0.0 );
+    const thrust::complex<double> chi1( nh * pvec[1] / sqp0p3, pvec[2] / sqp0p3 );
+    if (nh == 1)
+    {
+      fi[2] = thrust::complex<double> (0, 0); 
+      fi[3] = thrust::complex<double> (0, 0); 
+      fi[4] = chi0; 
+      fi[5] = chi1; 
+    }
+    else
+    {
+      fi[2] = chi1; 
+      fi[3] = chi0; 
+      fi[4] = thrust::complex<double> (0, 0); 
+      fi[5] = thrust::complex<double> (0, 0); 
+    }
+  }
+  return; 
+}
+
+  /*
 __device__ void ixxxxxM0(const double pvec[4], 
                          //const double fmass, 
                          const int nhel, 
@@ -108,6 +132,7 @@ __device__ void ixxxxxM0(const double pvec[4],
   }
   return; 
 }
+  */
 
   /*
 __device__ void ixxxxx(const double pvec[4], 
@@ -918,12 +943,12 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[4][4],
   //MG5_sm::opzxxx(local_mom[0], cHel[ihel][0], -1, w[0]); 
 
   //MG5_sm::ixxxxx(local_mom[1], 0., cHel[ihel][1], +1, w[1]); 
-  MG5_sm::ixxxxxM0(local_mom[1], cHel[ihel][1], +1, w[1]); 
-  //MG5_sm::imzxxx(local_mom[1], cHel[ihel][1], +1, w[1]); 
+  //MG5_sm::ixxxxxM0(local_mom[1], cHel[ihel][1], +1, w[1]); 
+  MG5_sm::imzxxxM0(local_mom[1], cHel[ihel][1], +1, w[1]); 
 
   //MG5_sm::ixxxxx(local_mom[2], 0., cHel[ihel][2], -1, w[2]);
-  MG5_sm::ixxxxxM0(local_mom[2], cHel[ihel][2], -1, w[2]);
-  //MG5_sm::ixzxxx(local_mom[2], cHel[ihel][2], -1, w[2]); 
+  //MG5_sm::ixxxxxM0(local_mom[2], cHel[ihel][2], -1, w[2]);
+  MG5_sm::ixzxxxM0(local_mom[2], cHel[ihel][2], -1, w[2]);
 
   //MG5_sm::oxxxxx(local_mom[3], 0., cHel[ihel][3], +1, w[3]); 
   MG5_sm::oxxxxxM0(local_mom[3], cHel[ihel][3], +1, w[3]); 
