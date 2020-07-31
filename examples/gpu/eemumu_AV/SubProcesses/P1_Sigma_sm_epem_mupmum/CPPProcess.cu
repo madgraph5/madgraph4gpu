@@ -13,6 +13,8 @@
 #include <thrust/complex.h> 
 using namespace std; 
 
+#include "mgOnGpuConfig.h" // check if MGONGPU_USES_AOS
+
 namespace MG5_sm 
 {
 
@@ -827,7 +829,12 @@ void CPPProcess::initProc(string param_card_name)
 // Evaluate |M|^2, part independent of incoming flavour.
 
 __global__ 
-void sigmaKin( const double* allmomenta, // input[npar=4][np4=4][ndim=gpublocks*gputhreads] 
+#ifndef MGONGPU_USES_AOS
+// SOA: allmomenta[npar][np4][ndim]
+#else
+// AOS: allmomenta[ndim][npar][np4]
+#endif
+void sigmaKin( const double* allmomenta, // input[(npar=4)*(np4=4)*(ndim=gpublocks*gputhreads)]
                double* output ) // output[ndim]
 {
   // Set the parameters which change event by event
@@ -840,25 +847,35 @@ void sigmaKin( const double* allmomenta, // input[npar=4][np4=4][ndim=gpublocks*
   const int nprocesses = 1; 
   int tid = blockIdx.x * blockDim.x + threadIdx.x; 
 
-  const int ndim = blockDim.x * gridDim.x; // (previously was: DIM)
   const int npar = 4; // hardcoded for this process (eemumu): npar=4
   const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
 
   double local_m[npar][np4]; 
 
-  // for (int i=0; i<20;i++) printf(" %f ", allmomenta[i]);
-  // printf("\n");
-  // printf("ndim is %i/%i\n", tid, ndim);
-
+#ifndef MGONGPU_USES_AOS
+  const int ndim = blockDim.x * gridDim.x; // (previously was: DIM)
+  // SOA: allmomenta[npar][np4][ndim]
   for (int ipar = 0; ipar < npar; ipar++ )
   {
     for (int ip4 = 0; ip4 < np4; ip4++ )
     {
-      local_m[ipar][ip4] = allmomenta[ipar*np4*ndim + ip4*ndim + tid]; 
+      local_m[ipar][ip4] = allmomenta[ipar*np4*ndim + ip4*ndim + tid]; // SOA[ipar][ip4][tid]
       // printf(" %f ", local_m[ipar][ip4]);
     }
     // printf("\n");
   }
+#else
+  // AOS: allmomenta[ndim][npar][np4]
+  for (int ipar = 0; ipar < npar; ipar++ )
+  {
+    for (int ip4 = 0; ip4 < np4; ip4++ )
+    {
+      local_m[ipar][ip4] = allmomenta[tid*npar*np4 + ipar*np4 + ip4]; // AOS[tid][ipar][ip4]
+      // printf(" %f ", local_m[ipar][ip4]);
+    }
+    // printf("\n");
+  }
+#endif
 
   // Local variables and constants
   const int ncomb = 16; 

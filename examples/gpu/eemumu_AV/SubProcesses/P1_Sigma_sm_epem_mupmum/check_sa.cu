@@ -6,10 +6,10 @@
 #include <unistd.h>
 #include <vector>
 
-#include "CPPProcess.h"
-//#include "HelAmps_sm.h"
-
+#include "mgOnGpuConfig.h" // check if MGONGPU_USES_AOS
 #include "vrambo.h"
+
+#include "CPPProcess.h"
 #include "timermap.h"
 
 bool is_number(const char *s) {
@@ -109,8 +109,12 @@ int main(int argc, char **argv)
   double* rnarray = new double[nparf*np4*ndim]; // can be SOA or AOS
 
   int nbytesMomenta = np4*npar*ndim * sizeof(double);
-  //double* hstMomenta = new double[npar*np4*ndim]; // SOA[npar][np4][ndim] (previously was: lp)
+  //double* hstMomenta = new double[npar*np4*ndim]; // can be SOA or AOS (previously was: lp)
+#ifndef MGONGPU_USES_AOS
   double* hstMomenta = 0; // SOA[npar][np4][ndim] (previously was: lp)
+#else
+  double* hstMomenta = 0; // AOS[ndim][npar][np4] (previously was: lp)
+#endif
   gpuErrchk3( cudaMallocHost( &hstMomenta, nbytesMomenta ) );
   double* devMomenta = 0; // (previously was: allMomenta)
   gpuErrchk3( cudaMalloc( &devMomenta, nbytesMomenta ) );
@@ -121,14 +125,6 @@ int main(int argc, char **argv)
   gpuErrchk3( cudaMallocHost( &hstMEs, nbytesMEs ) );
   double* devMEs = 0; // (previously was: meDevPtr)
   gpuErrchk3( cudaMalloc( &devMEs, nbytesMEs ) );
-
-#ifndef MGONGPU_USES_AOS
-  ////double (*rmbMomenta)[np4][ndim] = new double[npar][np4][ndim]; // SOA[npar][np4][ndim] (previously was: p)
-  //double* rmbMomenta = new double[npar*np4*ndim]; // SOA[npar][np4][ndim] (previously was: p)
-  double* rmbMomenta = hstMomenta; // same structure, no need to copy
-#else
-  double (*rmbMomenta)[npar][np4] = new double[ndim][npar][np4]; // AOS[ndim][npar][np4] (previously was: p)
-#endif
 
   double masses[npar];  
   for (int ipar = 0; ipar < npar; ++ipar) // loop over nexternal particles
@@ -157,21 +153,8 @@ int main(int argc, char **argv)
     const std::string rambKey = "2  RamboMap";
     timermap.start( rambKey );
     double weights[ndim]; // dummy in this test application
-    get_momenta( process.ninitial, energy, masses, rnarray, (double*)rmbMomenta, weights, npar, ndim );
+    get_momenta( process.ninitial, energy, masses, rnarray, hstMomenta, weights, npar, ndim );
     //std::cout << "Got momenta" << std::endl;
-
-#ifndef MGONGPU_USES_AOS
-    // Use momenta from rambo as they are (no need to copy)
-#else
-    // Set SOA momenta for this event by copying them from the rambo AOS output
-    const std::string atosKey = "2b AOStoSOA";
-    timermap.start( atosKey );
-    for (int idim = 0; idim < ndim; ++idim)
-      for (int ipar = 0; ipar < npar; ++ipar)
-        for (int ip4 = 0; ip4 < np4; ++ip4)
-          hstMomenta[ipar*ndim*np4 + ip4*ndim + idim] = // SOA[npar][np4][ndim]
-            rmbMomenta[idim][ipar][ip4]; // AOS[ndim][npar][np4]
-#endif
 
     // === STEP 3 OF 3
     // Evaluate matrix elements for all ndim events
@@ -182,7 +165,6 @@ int main(int argc, char **argv)
     // --- 3a. CopyHToD
     const std::string htodKey = "3a CopyHToD";
     timermap.start( htodKey );
-
     gpuErrchk3( cudaMemcpy( devMomenta, hstMomenta, nbytesMomenta, cudaMemcpyHostToDevice ) );
 
     // *** START THE OLD TIMER ***
@@ -227,28 +209,24 @@ int main(int argc, char **argv)
 #ifndef MGONGPU_USES_AOS
             std::cout << std::setw(4) << ipar + 1
                       << setiosflags(std::ios::scientific)
-  //<< std::setw(14) << rmbMomenta[ipar][0][idim]
-                      << std::setw(14) << rmbMomenta[ipar*ndim*np4 + 0*ndim + idim]
+                      << std::setw(14) << hstMomenta[ipar*ndim*np4 + 0*ndim + idim] // SOA[ipar][0][idim]
                       << setiosflags(std::ios::scientific)
-  //<< std::setw(14) << rmbMomenta[ipar][1][idim]
-                      << std::setw(14) << rmbMomenta[ipar*ndim*np4 + 1*ndim + idim]
+                      << std::setw(14) << hstMomenta[ipar*ndim*np4 + 1*ndim + idim] // SOA[ipar][1][idim]
                       << setiosflags(std::ios::scientific)
-  //<< std::setw(14) << rmbMomenta[ipar][2][idim]
-                      << std::setw(14) << rmbMomenta[ipar*ndim*np4 + 2*ndim + idim]
+                      << std::setw(14) << hstMomenta[ipar*ndim*np4 + 2*ndim + idim] // SOA[ipar][2][idim]
                       << setiosflags(std::ios::scientific)
-  //<< std::setw(14) << rmbMomenta[ipar][3][idim]
-                      << std::setw(14) << rmbMomenta[ipar*ndim*np4 + 3*ndim + idim]
+                      << std::setw(14) << hstMomenta[ipar*ndim*np4 + 3*ndim + idim] // SOA[ipar][3][idim]
                       << std::endl;
 #else
             std::cout << std::setw(4) << ipar + 1
                       << setiosflags(std::ios::scientific)
-                      << std::setw(14) << rmbMomenta[idim][ipar][0]
+                      << std::setw(14) << hstMomenta[idim*npar*np4 + ipar*np4 + 0] // AOS[idim][ipar][0]
                       << setiosflags(std::ios::scientific)
-                      << std::setw(14) << rmbMomenta[idim][ipar][1]
+                      << std::setw(14) << hstMomenta[idim*npar*np4 + ipar*np4 + 1] // AOS[idim][ipar][1]
                       << setiosflags(std::ios::scientific)
-                      << std::setw(14) << rmbMomenta[idim][ipar][2]
+                      << std::setw(14) << hstMomenta[idim*npar*np4 + ipar*np4 + 2] // AOS[idim][ipar][2]
                       << setiosflags(std::ios::scientific)
-                      << std::setw(14) << rmbMomenta[idim][ipar][3]
+                      << std::setw(14) << hstMomenta[idim*npar*np4 + ipar*np4 + 3] // AOS[idim][ipar][3]
                       << std::endl;
 #endif
           }
@@ -318,9 +296,9 @@ int main(int argc, char **argv)
               << "NumBlocksPerGrid      = " << gpublocks << std::endl
               << "-----------------------------------" << std::endl
 #ifndef MGONGPU_USES_AOS
-              << "Memory layout (rambo) = SOA" << std::endl
+              << "Memory layout         = SOA" << std::endl
 #else
-              << "Memory layout (rambo) = AOS" << std::endl
+              << "Memory layout         = AOS" << std::endl
 #endif
               << "-----------------------------------" << std::endl
               << "NumberOfEntries       = " << num_wts << std::endl
@@ -351,10 +329,6 @@ int main(int argc, char **argv)
   timermap.start( freeKey );
 
   delete[] rnarray;
-
-#ifdef MGONGPU_USES_AOS
-  delete[] rmbMomenta;
-#endif
 
   //delete[] hstMEs;
   //delete[] hstMomenta;
