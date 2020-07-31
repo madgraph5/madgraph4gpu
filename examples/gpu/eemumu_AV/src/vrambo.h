@@ -1,4 +1,4 @@
-#include "mgOnGpuConfig.h" // check if RAMBO_USES_AOS
+#include "mgOnGpuConfig.h" // check if MGONGPU_USES_AOS
 
 // Auxiliary function to change convention between MadGraph5_aMC@NLO and rambo four momenta
 // Draw random momenta and the corresponding weights for nevt events
@@ -7,7 +7,7 @@
 void get_momenta( const int ninitial,     // input: #particles_initial
                   const double energy,    // input: energy
                   const double masses[],  // input: masses[npar]
-#ifndef RAMBO_USES_AOS
+#ifndef MGONGPU_USES_AOS
                   const double rnarray[], // input: randomnumbers[nparf][4][nevt] in [0,1] as an SOA
                   double momenta1d[],     // output: momenta[npar][4][nevt] as a SOA
 #else
@@ -25,7 +25,7 @@ void get_momenta( const int ninitial,     // input: #particles_initial
 void vrambo( const int ninitial,       // input: #particles_initial
              const double energy,      // input: energy
              const double masses[],    // input: masses[npar] 
-#ifndef RAMBO_USES_AOS
+#ifndef MGONGPU_USES_AOS
              const double rnarray1d[], // input: randomnumbers[nparf][4][nevt] in [0,1] as an SOA
              double momenta1d[],       // output: momenta[npar][4][nevt] as a SOA
 #else
@@ -38,7 +38,7 @@ void vrambo( const int ninitial,       // input: #particles_initial
              const int ievt );         // input: event ID to be written out out of #events
 
 // Generate the random numbers needed to process nevt events in rambo
-#ifndef RAMBO_USES_AOS
+#ifndef MGONGPU_USES_AOS
 void generateRnArray( double rnarray[], // output: randomnumbers[nparf][4][nevt] in [0,1] as an SOA
                       const int nparf,  // input: #particles_final
                       const int nevt ); // input: #events

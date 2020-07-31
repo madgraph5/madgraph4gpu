@@ -122,7 +122,7 @@ int main(int argc, char **argv)
   double* devMEs = 0; // (previously was: meDevPtr)
   gpuErrchk3( cudaMalloc( &devMEs, nbytesMEs ) );
 
-#ifndef RAMBO_USES_AOS
+#ifndef MGONGPU_USES_AOS
   ////double (*rmbMomenta)[np4][ndim] = new double[npar][np4][ndim]; // SOA[npar][np4][ndim] (previously was: p)
   //double* rmbMomenta = new double[npar*np4*ndim]; // SOA[npar][np4][ndim] (previously was: p)
   double* rmbMomenta = hstMomenta; // same structure, no need to copy
@@ -160,7 +160,7 @@ int main(int argc, char **argv)
     get_momenta( process.ninitial, energy, masses, rnarray, (double*)rmbMomenta, weights, npar, ndim );
     //std::cout << "Got momenta" << std::endl;
 
-#ifndef RAMBO_USES_AOS
+#ifndef MGONGPU_USES_AOS
     // Use momenta from rambo as they are (no need to copy)
 #else
     // Set SOA momenta for this event by copying them from the rambo AOS output
@@ -224,7 +224,7 @@ int main(int argc, char **argv)
           std::cout << "Momenta:" << std::endl;
           for (int ipar = 0; ipar < npar; ipar++)
           {
-#ifndef RAMBO_USES_AOS
+#ifndef MGONGPU_USES_AOS
             std::cout << std::setw(4) << ipar + 1
                       << setiosflags(std::ios::scientific)
   //<< std::setw(14) << rmbMomenta[ipar][0][idim]
@@ -317,7 +317,7 @@ int main(int argc, char **argv)
               << "NumThreadsPerBlock    = " << gputhreads << std::endl
               << "NumBlocksPerGrid      = " << gpublocks << std::endl
               << "-----------------------------------" << std::endl
-#ifndef RAMBO_USES_AOS
+#ifndef MGONGPU_USES_AOS
               << "Memory layout (rambo) = SOA" << std::endl
 #else
               << "Memory layout (rambo) = AOS" << std::endl
@@ -352,7 +352,7 @@ int main(int argc, char **argv)
 
   delete[] rnarray;
 
-#ifdef RAMBO_USES_AOS
+#ifdef MGONGPU_USES_AOS
   delete[] rmbMomenta;
 #endif
 
