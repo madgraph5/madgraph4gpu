@@ -20,13 +20,13 @@ bool is_number(const char *s) {
 }
 
 int usage(char* argv0, int ret = 1) {
-  std::cout << "Usage: " << argv0 
+  std::cout << "Usage: " << argv0
             << " [--verbose|-v] [--debug|-d] [--performance|-p]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl;
   return ret;
 }
 
-int main(int argc, char **argv) 
+int main(int argc, char **argv)
 {
   using namespace mgOnGpu;
 
@@ -142,7 +142,7 @@ int main(int argc, char **argv)
   double* devMEs = 0; // (previously was: meDevPtr)
   gpuErrchk3( cudaMalloc( &devMEs, nbytesMEs ) );
 
-  double masses[npar];  
+  double masses[npar];
   for (int ipar = 0; ipar < npar; ++ipar) // loop over nexternal particles
     masses[ipar] = process.getMasses()[ipar];
 
@@ -156,7 +156,7 @@ int main(int argc, char **argv)
   for (int iiter = 0; iiter < niter; ++iiter)
   {
     //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
-    
+
     // === STEP 1 OF 3
     // Generate all relevant numbers to build ndim events (i.e. ndim phase space points)
     const std::string rngnKey = "1  RnNumGen";
@@ -221,42 +221,42 @@ int main(int argc, char **argv)
         const int ipag = iepi/nepp; // #eventpage in this iteration
         const int iepp = iepi%nepp; // #event in the current eventpage in this iteration
 #endif
-        if (verbose) 
+        if (verbose)
         {
           std::cout << "Momenta:" << std::endl;
           for (int ipar = 0; ipar < npar; ipar++)
           {
 #if defined MGONGPU_LAYOUT_ASA
             std::cout << std::setw(4) << ipar + 1
-                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << setiosflags(std::ios::scientific) << std::setw(14)
                       << hstMomenta[ipar*ndim*np4 + 0*ndim + idim] // AOSOA[ipag][ipar][0][iepp]
-                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << setiosflags(std::ios::scientific) << std::setw(14)
                       << hstMomenta[ipar*ndim*np4 + 1*ndim + idim] // AOSOA[ipag][ipar][1][iepp]
-                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << setiosflags(std::ios::scientific) << std::setw(14)
                       << hstMomenta[ipar*ndim*np4 + 2*ndim + idim] // AOSOA[ipag][ipar][2][iepp]
-                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << setiosflags(std::ios::scientific) << std::setw(14)
                       << hstMomenta[ipar*ndim*np4 + 3*ndim + idim] // AOSOA[ipag][ipar][3][iepp]
                       << std::endl;
 #elif defined MGONGPU_LAYOUT_SOA
             std::cout << std::setw(4) << ipar + 1
-                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << setiosflags(std::ios::scientific) << std::setw(14)
                       << hstMomenta[ipar*ndim*np4 + 0*ndim + idim] // SOA[ipar][0][idim]
-                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << setiosflags(std::ios::scientific) << std::setw(14)
                       << hstMomenta[ipar*ndim*np4 + 1*ndim + idim] // SOA[ipar][1][idim]
-                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << setiosflags(std::ios::scientific) << std::setw(14)
                       << hstMomenta[ipar*ndim*np4 + 2*ndim + idim] // SOA[ipar][2][idim]
                       << setiosflags(std::ios::scientific) << std::setw(14)
                       << hstMomenta[ipar*ndim*np4 + 3*ndim + idim] // SOA[ipar][3][idim]
                       << std::endl;
 #elif defined MGONGPU_LAYOUT_AOS
             std::cout << std::setw(4) << ipar + 1
-                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << setiosflags(std::ios::scientific) << std::setw(14)
                       << hstMomenta[idim*npar*np4 + ipar*np4 + 0] // AOS[idim][ipar][0]
-                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << setiosflags(std::ios::scientific) << std::setw(14)
                       << hstMomenta[idim*npar*np4 + ipar*np4 + 1] // AOS[idim][ipar][1]
-                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << setiosflags(std::ios::scientific) << std::setw(14)
                       << hstMomenta[idim*npar*np4 + ipar*np4 + 2] // AOS[idim][ipar][2]
-                      << setiosflags(std::ios::scientific) << std::setw(14) 
+                      << setiosflags(std::ios::scientific) << std::setw(14)
                       << hstMomenta[idim*npar*np4 + ipar*np4 + 3] // AOS[idim][ipar][3]
                       << std::endl;
 #endif
@@ -268,7 +268,7 @@ int main(int argc, char **argv)
         for (int iproc = 0; iproc < process.nprocesses; iproc++) {
           if (verbose)
             std::cout << " Matrix element = "
-                      //	 << setiosflags(ios::fixed) << setprecision(17)
+              //   << setiosflags(ios::fixed) << setprecision(17)
                       << hstMEs[iproc*1 + idim] << " GeV^" << meGeVexponent << std::endl;
           if (perf)
             matrixelementvector.push_back(hstMEs[iproc*1 + idim]);
@@ -276,8 +276,8 @@ int main(int argc, char **argv)
         if (verbose)
           std::cout << std::string(80, '-') << std::endl;
       }
-    } 
-    else if (!debug) 
+    }
+    else if (!debug)
     {
       std::cout << ".";
     }
@@ -292,12 +292,12 @@ int main(int argc, char **argv)
   const std::string dumpKey = "9b DumpAll ";
   timermap.start(dumpKey);
 
-  if (!(verbose || debug || perf)) 
+  if (!(verbose || debug || perf))
   {
     std::cout << std::endl;
   }
 
-  if (perf) 
+  if (perf)
   {
     float sum = std::accumulate(wavetimes.begin(), wavetimes.end(), 0.0);
     int num_wts = wavetimes.size();
@@ -306,20 +306,20 @@ int main(int argc, char **argv)
                                       wavetimes.begin(), 0.0);
     float stdev = std::sqrt(sq_sum / num_wts - mean * mean);
     std::vector<float>::iterator mintime =
-        std::min_element(wavetimes.begin(), wavetimes.end());
+      std::min_element(wavetimes.begin(), wavetimes.end());
     std::vector<float>::iterator maxtime =
-        std::max_element(wavetimes.begin(), wavetimes.end());
+      std::max_element(wavetimes.begin(), wavetimes.end());
 
     int num_mes = matrixelementvector.size();
     float sumelem = std::accumulate(matrixelementvector.begin(), matrixelementvector.end(), 0.0);
     float meanelem = sumelem / num_mes;
-    float sqselem = std::inner_product(matrixelementvector.begin(), matrixelementvector.end(), 
+    float sqselem = std::inner_product(matrixelementvector.begin(), matrixelementvector.end(),
                                        matrixelementvector.begin(), 0.0);
     float stdelem = std::sqrt(sqselem / num_mes - meanelem * meanelem);
     std::vector<double>::iterator maxelem = std::max_element(
-        matrixelementvector.begin(), matrixelementvector.end());
+                                                             matrixelementvector.begin(), matrixelementvector.end());
     std::vector<double>::iterator minelem = std::min_element(
-        matrixelementvector.begin(), matrixelementvector.end());
+                                                             matrixelementvector.begin(), matrixelementvector.end());
 
     std::cout << "***********************************" << std::endl
               << "NumIterations         = " << niter << std::endl
@@ -374,7 +374,7 @@ int main(int argc, char **argv)
   gpuErrchk3( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
 
   // *** STOP THE NEW TIMERS ***
-  timermap.stop();  
+  timermap.stop();
   if (perf)
   {
     std::cout << "***********************************" << std::endl;
