@@ -14,10 +14,10 @@ void get_momenta( const int ninitial,     // input: #particles_initial
                   const double masses[],  // input: masses[npar]
 #if defined MGONGPU_LAYOUT_ASA
                   const double rnarray[], // input: randomnumbers in [0,1] as AOSOA[npag][nparf][4][nepp]
-                  double momenta1d[],     // output: momenta as AOSOA[npag][npar][4][nepp] 
+                  double momenta1d[],     // output: momenta as AOSOA[npag][npar][4][nepp]
 #elif defined MGONGPU_LAYOUT_SOA
                   const double rnarray[], // input: randomnumbers in [0,1] as SOA[nparf][4][nevt]
-                  double momenta1d[],     // output: momenta as SOA[npar][4][nevt] 
+                  double momenta1d[],     // output: momenta as SOA[npar][4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
                   const double rnarray[], // input: randomnumbers in [0,1] as SOA[nevt][nparf][4]
                   double momenta1d[],     // output: momenta as AOS[nevt][npar][4]
@@ -144,7 +144,7 @@ void get_momenta( const int ninitial,     // input: #particles_initial
         // Event weight
         wgts[ievt] = 1;
       }
-    }  
+    }
     // #Initial==2, #Final>1
     else {
       // Momenta for the outgoing particles and event weight
@@ -160,13 +160,13 @@ void get_momenta( const int ninitial,     // input: #particles_initial
 // The number of final-state particles is nparf = npar - ninitial
 void vrambo( const int ninitial,       // input: #particles_initial
              const double energy,      // input: energy
-             const double masses[],    // input: masses[npar] 
+             const double masses[],    // input: masses[npar]
 #if defined MGONGPU_LAYOUT_ASA
              const double rnarray1d[], // input: randomnumbers in [0,1] as AOSOA[npag][nparf][4][nepp]
-             double momenta1d[],       // output: momenta as AOSOA[npag][npar][4][nepp] 
+             double momenta1d[],       // output: momenta as AOSOA[npag][npar][4][nepp]
 #elif defined MGONGPU_LAYOUT_SOA
              const double rnarray1d[], // input: randomnumbers in [0,1] as SOA[nparf][4][nevt]
-             double momenta1d[],       // output: momenta as SOA[npar][4][nevt] 
+             double momenta1d[],       // output: momenta as SOA[npar][4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
              const double rnarray1d[], // input: randomnumbers in [0,1] as SOA[nevt][nparf][4]
              double momenta1d[],       // output: momenta as AOS[nevt][npar][4]
@@ -194,215 +194,215 @@ void vrambo( const int ninitial,       // input: #particles_initial
   for (int ievt = 0; ievt < nevt; ++ievt) {
 
 #if defined MGONGPU_LAYOUT_ASA
-  using mgOnGpu::nepp;
-  const int ipag = ievt/nepp; // #eventpage in this iteration
-  const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
+    using mgOnGpu::nepp;
+    const int ipag = ievt/nepp; // #eventpage in this iteration
+    const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
 #endif
 
-  const int nparf = npar - ninitial;
-  const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
+    const int nparf = npar - ninitial;
+    const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
 #if defined MGONGPU_LAYOUT_ASA
-  double (*rnarray)[nparf][np4][nepp] = (double (*)[nparf][np4][nepp]) rnarray1d; // cast to multiD array pointer (AOSOA)
-  double (*momenta)[npar][np4][nepp] = (double (*)[npar][np4][nepp]) momenta1d; // cast to multiD array pointer (AOSOA)
+    double (*rnarray)[nparf][np4][nepp] = (double (*)[nparf][np4][nepp]) rnarray1d; // cast to multiD array pointer (AOSOA)
+    double (*momenta)[npar][np4][nepp] = (double (*)[npar][np4][nepp]) momenta1d; // cast to multiD array pointer (AOSOA)
 #elif defined MGONGPU_LAYOUT_SOA
-  double (*rnarray)[np4][nevt] = (double (*)[np4][nevt]) rnarray1d; // cast to multiD array pointer (SOA)
-  double (*momenta)[np4][nevt] = (double (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
+    double (*rnarray)[np4][nevt] = (double (*)[np4][nevt]) rnarray1d; // cast to multiD array pointer (SOA)
+    double (*momenta)[np4][nevt] = (double (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
 #elif defined MGONGPU_LAYOUT_AOS
-  double (*rnarray)[nparf][np4] = (double (*)[nparf][np4]) rnarray1d; // cast to multiD array pointer (AOS)
-  double (*momenta)[npar][np4] = (double (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOS)
+    double (*rnarray)[nparf][np4] = (double (*)[nparf][np4]) rnarray1d; // cast to multiD array pointer (AOS)
+    double (*momenta)[npar][np4] = (double (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOS)
 #endif
-  double& wt = wgts[ievt];
-  const double* xmf = masses+ninitial; // skip the first ninitial masses
+    double& wt = wgts[ievt];
+    const double* xmf = masses+ninitial; // skip the first ninitial masses
 
-  double q[nparf][np4];
-  double z[nparf], r[np4], b[np4-1], p2[nparf], xmf2[nparf], e[nparf], v[nparf];
-  int iwarn[5] = {0,0,0,0,0};
-  static double acc = 1e-14;
-  static int itmax = 6, ibegin = 0;
-  static double twopi = 8. * atan(1.);
-  static double po2log = log(twopi / 4.);
+    double q[nparf][np4];
+    double z[nparf], r[np4], b[np4-1], p2[nparf], xmf2[nparf], e[nparf], v[nparf];
+    int iwarn[5] = {0,0,0,0,0};
+    static double acc = 1e-14;
+    static int itmax = 6, ibegin = 0;
+    static double twopi = 8. * atan(1.);
+    static double po2log = log(twopi / 4.);
 
-  // initialization step: factorials for the phase space weight
-  if (ibegin == 0) {
-    ibegin = 1;
-    z[1] = po2log;
-    for (int kpar = 2; kpar < nparf; kpar++)
-      z[kpar] = z[kpar - 1] + po2log - 2. * log(double(kpar - 1));
-    for (int kpar = 2; kpar < nparf; kpar++)
-      z[kpar] = (z[kpar] - log(double(kpar)));
-  }
-  // check on the number of particles
-  if (nparf < 1 || nparf > 101) {
-    std::cout << "Too few or many particles: " << nparf << std::endl;
-    exit(-1);
-  }
-  // check whether total energy is sufficient; count nonzero masses
-  double xmft = 0.;
-  int nm = 0;
-  for (int iparf = 0; iparf < nparf; iparf++) {
-    if (xmf[iparf] != 0.)
-      nm = nm + 1;
-    xmft = xmft + abs(xmf[iparf]);
-  }
-  if (xmft > energy) {
-    std::cout << "Too low energy: " << energy << " needed " << xmft << std::endl;
-    exit(-1);
-  }
-  // the parameter values are now accepted
-
-  // generate n massless momenta in infinite phase space
-  for (int iparf = 0; iparf < nparf; iparf++) {
-#if defined MGONGPU_LAYOUT_ASA
-    const double r1 = rnarray[ipag][iparf][0][iepp];
-    const double r2 = rnarray[ipag][iparf][1][iepp];
-    const double r3 = rnarray[ipag][iparf][2][iepp];
-    const double r4 = rnarray[ipag][iparf][3][iepp];
-#elif defined MGONGPU_LAYOUT_SOA
-    const double r1 = rnarray[iparf][0][ievt];
-    const double r2 = rnarray[iparf][1][ievt];
-    const double r3 = rnarray[iparf][2][ievt];
-    const double r4 = rnarray[iparf][3][ievt];
-#elif defined MGONGPU_LAYOUT_AOS
-    const double r1 = rnarray[ievt][iparf][0];
-    const double r2 = rnarray[ievt][iparf][1];
-    const double r3 = rnarray[ievt][iparf][2];
-    const double r4 = rnarray[ievt][iparf][3];
-#endif
-    const double c = 2. * r1 - 1.;
-    const double s = sqrt(1. - c * c);
-    const double f = twopi * r2;
-    q[iparf][0] = -log(r3 * r4);
-    q[iparf][3] = q[iparf][0] * c;
-    q[iparf][2] = q[iparf][0] * s * cos(f);
-    q[iparf][1] = q[iparf][0] * s * sin(f);
-  }
-  // calculate the parameters of the conformal transformation
-  for (int i4 = 0; i4 < np4; i4++)
-    r[i4] = 0.;
-  for (int iparf = 0; iparf < nparf; iparf++) {
-    for (int i4 = 0; i4 < np4; i4++)
-      r[i4] = r[i4] + q[iparf][i4];
-  }
-  double rmas = sqrt(pow(r[0], 2) - pow(r[3], 2) - pow(r[2], 2) - pow(r[1], 2));
-  for (int i4 = 1; i4 < np4; i4++)
-    b[i4-1] = -r[i4] / rmas;
-  double g = r[0] / rmas;
-  double a = 1. / (1. + g);
-  double x = energy / rmas;
-
-  // transform the q's conformally into the p's (i.e. the 'momenta')
-  for (int iparf = 0; iparf < nparf; iparf++) {
-    double bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
-#if defined MGONGPU_LAYOUT_ASA
-    for (int i4 = 1; i4 < np4; i4++)
-      momenta[ipag][iparf+ninitial][i4][iepp] = x * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
-    momenta[ipag][iparf+ninitial][0][iepp] = x * (g * q[iparf][0] + bq);
-#elif defined MGONGPU_LAYOUT_SOA
-    for (int i4 = 1; i4 < np4; i4++)
-      momenta[iparf+ninitial][i4][ievt] = x * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
-    momenta[iparf+ninitial][0][ievt] = x * (g * q[iparf][0] + bq);
-#elif defined MGONGPU_LAYOUT_AOS
-    for (int i4 = 1; i4 < np4; i4++)
-      momenta[ievt][iparf+ninitial][i4] = x * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
-    momenta[ievt][iparf+ninitial][0] = x * (g * q[iparf][0] + bq);
-#endif
-  }
-
-  // calculate weight and possible warnings (NB return log of weight)
-  wt = po2log;
-  if (nparf != 2)
-    wt = (2. * nparf - 4.) * log(energy) + z[nparf-1];
-  if (wt < -180.) {
-    if (iwarn[0] <= 5)
-      std::cout << "Too small wt, risk for underflow: " << wt << std::endl;
-    iwarn[0] = iwarn[0] + 1;
-  }
-  if (wt > 174.) {
-    if (iwarn[1] <= 5)
-      std::cout << "Too large wt, risk for overflow: " << wt << std::endl;
-    iwarn[1] = iwarn[1] + 1;
-  }
-
-  // return for weighted massless momenta
-  if (nm == 0) {
-    continue;
-  }
-
-  // massive particles: rescale the momenta by a factor x
-  double xmax = sqrt(1. - pow(xmft / energy, 2));
-  for (int iparf = 0; iparf < nparf; iparf++) {
-    xmf2[iparf] = pow(xmf[iparf], 2);
-#if defined MGONGPU_LAYOUT_ASA
-    p2[iparf] = pow(momenta[ipag][iparf+ninitial][0][iepp], 2);
-#elif defined MGONGPU_LAYOUT_SOA
-    p2[iparf] = pow(momenta[iparf+ninitial][0][ievt], 2);
-#elif defined MGONGPU_LAYOUT_AOS
-    p2[iparf] = pow(momenta[ievt][iparf+ninitial][0], 2);
-#endif
-  }
-  int iter = 0;
-  x = xmax;
-  double accu = energy * acc;
-  while (true) {
-    double f0 = -energy;
-    double g0 = 0.;
-    double x2 = x * x;
+    // initialization step: factorials for the phase space weight
+    if (ibegin == 0) {
+      ibegin = 1;
+      z[1] = po2log;
+      for (int kpar = 2; kpar < nparf; kpar++)
+        z[kpar] = z[kpar - 1] + po2log - 2. * log(double(kpar - 1));
+      for (int kpar = 2; kpar < nparf; kpar++)
+        z[kpar] = (z[kpar] - log(double(kpar)));
+    }
+    // check on the number of particles
+    if (nparf < 1 || nparf > 101) {
+      std::cout << "Too few or many particles: " << nparf << std::endl;
+      exit(-1);
+    }
+    // check whether total energy is sufficient; count nonzero masses
+    double xmft = 0.;
+    int nm = 0;
     for (int iparf = 0; iparf < nparf; iparf++) {
-      e[iparf] = sqrt(xmf2[iparf] + x2 * p2[iparf]);
-      f0 = f0 + e[iparf];
-      g0 = g0 + p2[iparf] / e[iparf];
+      if (xmf[iparf] != 0.)
+        nm = nm + 1;
+      xmft = xmft + abs(xmf[iparf]);
     }
-    if (abs(f0) <= accu)
-      break;
-    iter = iter + 1;
-    if (iter > itmax) {
-      std::cout << "Too many iterations without desired accuracy: " << itmax
-                << std::endl;
-      break;
+    if (xmft > energy) {
+      std::cout << "Too low energy: " << energy << " needed " << xmft << std::endl;
+      exit(-1);
     }
-    x = x - f0 / (x * g0);
-  }
+    // the parameter values are now accepted
 
-  for (int iparf = 0; iparf < nparf; iparf++) {
+    // generate n massless momenta in infinite phase space
+    for (int iparf = 0; iparf < nparf; iparf++) {
 #if defined MGONGPU_LAYOUT_ASA
-    v[iparf] = x * momenta[ipag][iparf+ninitial][0][iepp];
-    for (int i4 = 1; i4 < np4; i4++)
-      momenta[ipag][iparf+ninitial][i4][iepp] = x * momenta[ipag][iparf+ninitial][i4][iepp];
-    momenta[ipag][iparf+ninitial][0][iepp] = e[iparf];
+      const double r1 = rnarray[ipag][iparf][0][iepp];
+      const double r2 = rnarray[ipag][iparf][1][iepp];
+      const double r3 = rnarray[ipag][iparf][2][iepp];
+      const double r4 = rnarray[ipag][iparf][3][iepp];
 #elif defined MGONGPU_LAYOUT_SOA
-    v[iparf] = x * momenta[iparf+ninitial][0][ievt];
-    for (int i4 = 1; i4 < np4; i4++)
-      momenta[iparf+ninitial][i4][ievt] = x * momenta[iparf+ninitial][i4][ievt];
-    momenta[iparf+ninitial][0][ievt] = e[iparf];
+      const double r1 = rnarray[iparf][0][ievt];
+      const double r2 = rnarray[iparf][1][ievt];
+      const double r3 = rnarray[iparf][2][ievt];
+      const double r4 = rnarray[iparf][3][ievt];
 #elif defined MGONGPU_LAYOUT_AOS
-    v[iparf] = x * momenta[ievt][iparf+ninitial][0];
-    for (int i4 = 1; i4 < np4; i4++)
-      momenta[ievt][iparf+ninitial][i4] = x * momenta[ievt][iparf+ninitial][i4];
-    momenta[ievt][iparf+ninitial][0] = e[iparf];
+      const double r1 = rnarray[ievt][iparf][0];
+      const double r2 = rnarray[ievt][iparf][1];
+      const double r3 = rnarray[ievt][iparf][2];
+      const double r4 = rnarray[ievt][iparf][3];
 #endif
-  }
+      const double c = 2. * r1 - 1.;
+      const double s = sqrt(1. - c * c);
+      const double f = twopi * r2;
+      q[iparf][0] = -log(r3 * r4);
+      q[iparf][3] = q[iparf][0] * c;
+      q[iparf][2] = q[iparf][0] * s * cos(f);
+      q[iparf][1] = q[iparf][0] * s * sin(f);
+    }
+    // calculate the parameters of the conformal transformation
+    for (int i4 = 0; i4 < np4; i4++)
+      r[i4] = 0.;
+    for (int iparf = 0; iparf < nparf; iparf++) {
+      for (int i4 = 0; i4 < np4; i4++)
+        r[i4] = r[i4] + q[iparf][i4];
+    }
+    double rmas = sqrt(pow(r[0], 2) - pow(r[3], 2) - pow(r[2], 2) - pow(r[1], 2));
+    for (int i4 = 1; i4 < np4; i4++)
+      b[i4-1] = -r[i4] / rmas;
+    double g = r[0] / rmas;
+    double a = 1. / (1. + g);
+    double x = energy / rmas;
 
-  // calculate the mass-effect weight factor
-  double wt2 = 1.;
-  double wt3 = 0.;
-  for (int iparf = 0; iparf < nparf; iparf++) {
-    wt2 = wt2 * v[iparf] / e[iparf];
-    wt3 = wt3 + pow(v[iparf], 2) / e[iparf];
-  }
-  double wtm = (2. * nparf - 3.) * log(x) + log(wt2 / wt3 * energy);
+    // transform the q's conformally into the p's (i.e. the 'momenta')
+    for (int iparf = 0; iparf < nparf; iparf++) {
+      double bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
+#if defined MGONGPU_LAYOUT_ASA
+      for (int i4 = 1; i4 < np4; i4++)
+        momenta[ipag][iparf+ninitial][i4][iepp] = x * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
+      momenta[ipag][iparf+ninitial][0][iepp] = x * (g * q[iparf][0] + bq);
+#elif defined MGONGPU_LAYOUT_SOA
+      for (int i4 = 1; i4 < np4; i4++)
+        momenta[iparf+ninitial][i4][ievt] = x * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
+      momenta[iparf+ninitial][0][ievt] = x * (g * q[iparf][0] + bq);
+#elif defined MGONGPU_LAYOUT_AOS
+      for (int i4 = 1; i4 < np4; i4++)
+        momenta[ievt][iparf+ninitial][i4] = x * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
+      momenta[ievt][iparf+ninitial][0] = x * (g * q[iparf][0] + bq);
+#endif
+    }
 
-  // return for weighted massive momenta
-  wt = wt + wtm;
-  if (wt < -180.) {
-    if (iwarn[2] <= 5)
-      std::cout << "Too small wt, risk for underflow: " << wt << std::endl;
-    iwarn[2] = iwarn[2] + 1;
-  }
-  if (wt > 174.) {
-    if (iwarn[3] <= 5)
-      std::cout << "Too large wt, risk for overflow: " << wt << std::endl;
-    iwarn[3] = iwarn[3] + 1;
-  }
+    // calculate weight and possible warnings (NB return log of weight)
+    wt = po2log;
+    if (nparf != 2)
+      wt = (2. * nparf - 4.) * log(energy) + z[nparf-1];
+    if (wt < -180.) {
+      if (iwarn[0] <= 5)
+        std::cout << "Too small wt, risk for underflow: " << wt << std::endl;
+      iwarn[0] = iwarn[0] + 1;
+    }
+    if (wt > 174.) {
+      if (iwarn[1] <= 5)
+        std::cout << "Too large wt, risk for overflow: " << wt << std::endl;
+      iwarn[1] = iwarn[1] + 1;
+    }
+
+    // return for weighted massless momenta
+    if (nm == 0) {
+      continue;
+    }
+
+    // massive particles: rescale the momenta by a factor x
+    double xmax = sqrt(1. - pow(xmft / energy, 2));
+    for (int iparf = 0; iparf < nparf; iparf++) {
+      xmf2[iparf] = pow(xmf[iparf], 2);
+#if defined MGONGPU_LAYOUT_ASA
+      p2[iparf] = pow(momenta[ipag][iparf+ninitial][0][iepp], 2);
+#elif defined MGONGPU_LAYOUT_SOA
+      p2[iparf] = pow(momenta[iparf+ninitial][0][ievt], 2);
+#elif defined MGONGPU_LAYOUT_AOS
+      p2[iparf] = pow(momenta[ievt][iparf+ninitial][0], 2);
+#endif
+    }
+    int iter = 0;
+    x = xmax;
+    double accu = energy * acc;
+    while (true) {
+      double f0 = -energy;
+      double g0 = 0.;
+      double x2 = x * x;
+      for (int iparf = 0; iparf < nparf; iparf++) {
+        e[iparf] = sqrt(xmf2[iparf] + x2 * p2[iparf]);
+        f0 = f0 + e[iparf];
+        g0 = g0 + p2[iparf] / e[iparf];
+      }
+      if (abs(f0) <= accu)
+        break;
+      iter = iter + 1;
+      if (iter > itmax) {
+        std::cout << "Too many iterations without desired accuracy: " << itmax
+                  << std::endl;
+        break;
+      }
+      x = x - f0 / (x * g0);
+    }
+
+    for (int iparf = 0; iparf < nparf; iparf++) {
+#if defined MGONGPU_LAYOUT_ASA
+      v[iparf] = x * momenta[ipag][iparf+ninitial][0][iepp];
+      for (int i4 = 1; i4 < np4; i4++)
+        momenta[ipag][iparf+ninitial][i4][iepp] = x * momenta[ipag][iparf+ninitial][i4][iepp];
+      momenta[ipag][iparf+ninitial][0][iepp] = e[iparf];
+#elif defined MGONGPU_LAYOUT_SOA
+      v[iparf] = x * momenta[iparf+ninitial][0][ievt];
+      for (int i4 = 1; i4 < np4; i4++)
+        momenta[iparf+ninitial][i4][ievt] = x * momenta[iparf+ninitial][i4][ievt];
+      momenta[iparf+ninitial][0][ievt] = e[iparf];
+#elif defined MGONGPU_LAYOUT_AOS
+      v[iparf] = x * momenta[ievt][iparf+ninitial][0];
+      for (int i4 = 1; i4 < np4; i4++)
+        momenta[ievt][iparf+ninitial][i4] = x * momenta[ievt][iparf+ninitial][i4];
+      momenta[ievt][iparf+ninitial][0] = e[iparf];
+#endif
+    }
+
+    // calculate the mass-effect weight factor
+    double wt2 = 1.;
+    double wt3 = 0.;
+    for (int iparf = 0; iparf < nparf; iparf++) {
+      wt2 = wt2 * v[iparf] / e[iparf];
+      wt3 = wt3 + pow(v[iparf], 2) / e[iparf];
+    }
+    double wtm = (2. * nparf - 3.) * log(x) + log(wt2 / wt3 * energy);
+
+    // return for weighted massive momenta
+    wt = wt + wtm;
+    if (wt < -180.) {
+      if (iwarn[2] <= 5)
+        std::cout << "Too small wt, risk for underflow: " << wt << std::endl;
+      iwarn[2] = iwarn[2] + 1;
+    }
+    if (wt > 174.) {
+      if (iwarn[3] <= 5)
+        std::cout << "Too large wt, risk for overflow: " << wt << std::endl;
+      iwarn[3] = iwarn[3] + 1;
+    }
   }
   return;
 }
