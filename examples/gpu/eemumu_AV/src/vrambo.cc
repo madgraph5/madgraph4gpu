@@ -325,7 +325,7 @@ void vrambo( const int ninitial,       // input: #particles_initial
 
   // return for weighted massless momenta
   if (nm == 0) {
-    return;
+    continue;
   }
 
   // massive particles: rescale the momenta by a factor x
