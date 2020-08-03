@@ -1,78 +1,69 @@
-#pragma once 
-#include <stdio.h>
+#ifndef MGONGPUNVTX_H 
+#define MGONGPUNVTX_H 1
 
 // Provides macros for simply use of NVTX, if a compiler macro USE_NVTX is defined.
-// @author Peter Heywood <p.heywood@sheffield.ac.uk>
+// Original author Peter Heywood <p.heywood@sheffield.ac.uk>
+// With a few modifications by Andrea Valassi
+
+//-------------------------------------------
+// NVTX is enabled
+//-------------------------------------------
 
 #ifdef USE_NVTX
 
-// This assumes CUDA 10.0+. Use "nvToolsExt.h" if CUDA < 10, and link against the shared object.
+#include <stdio.h>
+
+// This assumes CUDA 10.0+
 #include "nvtx3/nvToolsExt.h"
 
 // Scope some things into a namespace
 namespace nvtx {
 
-  // Colour palette (ARGB): colour brewer qualitative 8-class Dark2
-  const uint32_t palette[] = { 0xff1b9e77, 0xffd95f02, 0xff7570b3, 0xffe7298a, 0xff66a61e, 0xffe6ab02, 0xffa6761d, 0xff666666};
+  // Colour palette (RGB): https://colorbrewer2.org/#type=qualitative&scheme=Paired&n=12
+  const uint32_t palette[] = { 0xffa6cee3, 0xff1f78b4, 0xffb2df8a, 0xff33a02c, 0xfffb9a99, 0xffe31a1c,
+                               0xfffdbf6f, 0xffff7f00, 0xffcab2d6, 0xff6a3d9a, 0xffffff99, 0xffb15928 };
+  const uint32_t colourCount = sizeof( palette ) / sizeof( uint32_t );
 
-  const uint32_t colourCount = sizeof(palette)/sizeof(uint32_t);
-
-
-  // inline method to push an nvtx range
-  inline void push(const char * str){
-    // Static variable to track the next colour to be used with auto rotation.
-    static uint32_t nextColourIdx = 0;
-
+  // Inline method to push an nvtx range
+  inline void push( const char* str, const uint32_t nextColourIdx )
+  {
     // Get the wrapped colour index
     uint32_t colourIdx = nextColourIdx % colourCount;
     // Build/populate the struct of nvtx event attributes
     nvtxEventAttributes_t eventAttrib = {0};
-    // Generic values
     eventAttrib.version = NVTX_VERSION;
     eventAttrib.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
     eventAttrib.colorType = NVTX_COLOR_ARGB;
     eventAttrib.messageType = NVTX_MESSAGE_TYPE_ASCII;
-    // Selected colour and string
     eventAttrib.color = palette[colourIdx];
     eventAttrib.message.ascii = str;
     // Push the custom event.
-    nvtxRangePushEx(&eventAttrib);
-    // nvtxRangePushA(str);
-    nextColourIdx++;
+    nvtxRangePushEx( &eventAttrib );
   }
 
-  // inline method to pop an nvtx range
-  inline void pop(){
+  // Inline method to pop an nvtx range
+  inline void pop()
+  {
     nvtxRangePop();
   }
 
-  // Class for scope-based automatic popping (harder to make mistakes)
-  class NVTXRange {
-  public:
-    // Constructor, which pushes a named range marker
-    NVTXRange(const char * str){
-      nvtx::push(str);
-    }
-    // Destructor which pops a marker off the nvtx stack (might not atually correspond to the same marker in practice.)
-    ~NVTXRange(){
-      nvtx::pop();
-    }
-  };
-};
-// Macro to construct the range object for use in a scope-based setting.
-#define NVTX_RANGE(str) nvtx::NVTXRange uniq_name_using_macros(str)
+}
 
 // Macro to push an arbitrary nvtx marker
-#define NVTX_PUSH(str) nvtx::push(str)
+#define NVTX_PUSH(str,idx) nvtx::push(str,idx)
 
 // Macro to pop an arbitrary nvtx marker
 #define NVTX_POP() nvtx::pop()
 
+//-------------------------------------------
+// NVTX is not enabled
+//-------------------------------------------
+
 #else
-// Empty macros for when NVTX is not enabled.
-#define NVTX_RANGE(str)
-#define NVTX_PUSH(str)
+
+#define NVTX_PUSH(str,idx)
 #define NVTX_POP()
+
 #endif
 
-
+#endif // MGONGPUNVTX_H 1

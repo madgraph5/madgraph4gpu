@@ -16,7 +16,7 @@ namespace mgOnGpu
 
   public:
 
-    TimerMap() : m_timer(), m_active(""), m_partitions() {}
+    TimerMap() : m_timer(), m_active(""), m_partitionTimers(), m_partitionIds() {}
     virtual ~TimerMap() {}
 
     // Start the timer for a specific partition (key must be a non-empty string)
@@ -29,9 +29,13 @@ namespace mgOnGpu
       // Switch to a new partition
       m_timer.Start();
       m_active = key;
-      if( m_partitions.find(key) == m_partitions.end() ) m_partitions[key] = 0;
+      if( m_partitionTimers.find(key) == m_partitionTimers.end() )
+      {
+        m_partitionIds[key] = m_partitionTimers.size();
+        m_partitionTimers[key] = 0;
+      }
       // Open a new Cuda NVTX range
-      NVTX_PUSH( key.c_str() );
+      NVTX_PUSH( key.c_str(), m_partitionIds[key] );
       // Return last duration
       return last;
     }
@@ -44,7 +48,7 @@ namespace mgOnGpu
       if ( m_active != "" )
       {
         last = m_timer.GetDuration();
-        m_partitions[m_active] += last;
+        m_partitionTimers[m_active] += last;
       }
       // Close the current Cuda NVTX range
       NVTX_POP();
@@ -58,15 +62,15 @@ namespace mgOnGpu
       // Improve key formatting
       const std::string totalKey = "TOTAL";
       size_t maxsize = 0;
-      for ( auto ip : m_partitions )
+      for ( auto ip : m_partitionTimers )
         maxsize = std::max( maxsize, ip.first.size() );
       maxsize = std::max( maxsize, totalKey.size() );
       // Compute the overall total
       float total = 0;
-      for ( auto ip : m_partitions )
+      for ( auto ip : m_partitionTimers )
         total += ip.second;
-      // Dump partitions and the overall total 
-      for ( auto ip : m_partitions )
+      // Dump individual partition timers and the overall total 
+      for ( auto ip : m_partitionTimers )
         std::cout << std::setw(maxsize) << ip.first << " : " 
                   << std::fixed << std::setw(8) << ip.second << " sec" << std::endl;
       std::cout << std::setw(maxsize) << totalKey << " : " 
@@ -77,7 +81,8 @@ namespace mgOnGpu
 
     Timer<TIMERTYPE> m_timer;
     std::string m_active;
-    std::map< std::string, float > m_partitions;
+    std::map< std::string, float > m_partitionTimers;
+    std::map< std::string, uint32_t > m_partitionIds;
 
   };
 
