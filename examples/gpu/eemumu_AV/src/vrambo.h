@@ -21,7 +21,7 @@ void get_momenta( const int ninitial,     // input: #particles_initial
                   const int npar,         // input: #particles (==nexternal==nfinal+ninitial)
                   const int nevt );       // input: #events (==ndim=gputhread*gpublocks)
 
-// Draw random momenta and the corresponding weight for event ievt out of nevt
+// Draw random momenta and the corresponding weight for nevt events.
 // *** NB: vrambo only uses final-state masses and fills in final-state momenta,
 // *** however the input masses array and output momenta array include initial-state particles
 // The number of final-state particles is nparf = npar - ninitial
@@ -40,8 +40,7 @@ void vrambo( const int ninitial,       // input: #particles_initial
 #endif
              double wgts[],            // output: weights[nevt]
              const int npar,           // input: #particles (==nexternal==nfinal+ninitial)
-             const int nevt,           // input: #events
-             const int ievt );         // input: event ID to be written out out of #events
+             const int nevt );         // input: #events
 
 // Generate the random numbers needed to process nevt events in rambo
 #if defined MGONGPU_LAYOUT_ASA

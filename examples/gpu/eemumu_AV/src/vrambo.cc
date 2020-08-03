@@ -64,10 +64,10 @@ void get_momenta( const int ninitial,     // input: #particles_initial
       momenta[ievt][0][2] = 0;
       momenta[ievt][0][3] = 0;
 #endif
-      // Momenta for the outgoing particles and event weight
-      vrambo( ninitial, m1, // NB input 'energy' is ignored for ninitial==1
-              masses, rnarray, (double*)momenta, wgts, npar, nevt, ievt );
     }
+    // Momenta for the outgoing particles and event weight
+    vrambo( ninitial, m1, // NB input 'energy' is ignored for ninitial==1
+            masses, rnarray, (double*)momenta, wgts, npar, nevt );
     return;
   }
 
@@ -86,8 +86,8 @@ void get_momenta( const int ninitial,     // input: #particles_initial
            (4 * e2));
     const double energy1 = sqrt(pow(mom, 2) + pow(m1, 2));
     const double energy2 = sqrt(pow(mom, 2) + pow(m2, 2));
+    // Momenta for the incoming particles
     for (int ievt = 0; ievt < nevt; ++ievt) {
-      // Momenta for the incoming particles
 #if defined MGONGPU_LAYOUT_ASA
       const int ipag = ievt/nepp; // #eventpage in this iteration
       const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
@@ -118,9 +118,11 @@ void get_momenta( const int ninitial,     // input: #particles_initial
       momenta[ievt][1][2] = 0;
       momenta[ievt][1][3] = -mom;
 #endif
-      // #Initial==2, #Final==1
-      if (nparf == 1) {
-        // Momenta for the outgoing particle
+    }
+    // Momenta for the outgoing particles
+    // #Initial==2, #Final==1
+    if (nparf == 1) {
+      for (int ievt = 0; ievt < nevt; ++ievt) {
 #if defined MGONGPU_LAYOUT_ASA
         const int ipag = ievt/nepp; // #eventpage in this iteration
         const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
@@ -142,17 +144,17 @@ void get_momenta( const int ninitial,     // input: #particles_initial
         // Event weight
         wgts[ievt] = 1;
       }
-      // #Initial==2, #Final>1
-      else {
-        // Momenta for the outgoing particles and event weight
-        vrambo( ninitial, energy, masses, rnarray, (double*)momenta, wgts, npar, nevt, ievt );
-      }
+    }  
+    // #Initial==2, #Final>1
+    else {
+      // Momenta for the outgoing particles and event weight
+      vrambo( ninitial, energy, masses, rnarray, (double*)momenta, wgts, npar, nevt );
     }
     return;
   }
 }
 
-// Draw random momenta and the corresponding weight for event ievt out of nevt
+// Draw random momenta and the corresponding weight for nevt events.
 // *** NB: vrambo only uses final-state masses and fills in final-state momenta,
 // *** however the input masses array and output momenta array include initial-state particles
 // The number of final-state particles is nparf = npar - ninitial
@@ -171,8 +173,7 @@ void vrambo( const int ninitial,       // input: #particles_initial
 #endif
              double wgts[],            // output: weights[nevt]
              const int npar,           // input: #particles (==nexternal==nfinal+ninitial)
-             const int nevt,           // input: #events
-             const int ievt )          // input: event ID to be written out out of #events
+             const int nevt )          // input: #events
 {
   /****************************************************************************
    *                       rambo                                              *
@@ -189,8 +190,9 @@ void vrambo( const int ninitial,       // input: #particles_initial
    *    xmf    = final-state particle masses ( dim=nexternal-nincoming )      *
    *    p      = final-state particle momenta ( dim=(nexternal-nincoming,4) ) *
    *    wt     = weight of the event                                          *
-   ****************************************************************************/  
-      
+   ****************************************************************************/
+  for (int ievt = 0; ievt < nevt; ++ievt) {
+
 #if defined MGONGPU_LAYOUT_ASA
   using mgOnGpu::nepp;
   const int ipag = ievt/nepp; // #eventpage in this iteration
@@ -400,6 +402,7 @@ void vrambo( const int ninitial,       // input: #particles_initial
     if (iwarn[3] <= 5)
       std::cout << "Too large wt, risk for overflow: " << wt << std::endl;
     iwarn[3] = iwarn[3] + 1;
+  }
   }
   return;
 }
