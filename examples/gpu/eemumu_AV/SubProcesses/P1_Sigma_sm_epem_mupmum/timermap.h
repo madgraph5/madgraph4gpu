@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 
+#include "nvtx.h"
 #include "timer.h"
 #define TIMERTYPE std::chrono::high_resolution_clock
 
@@ -29,6 +30,8 @@ namespace mgOnGpu
       m_timer.Start();
       m_active = key;
       if( m_partitions.find(key) == m_partitions.end() ) m_partitions[key] = 0;
+      // Open a new Cuda NVTX range
+      NVTX_PUSH( key.c_str() );
       // Return last duration
       return last;
     }
@@ -43,6 +46,8 @@ namespace mgOnGpu
         last = m_timer.GetDuration();
         m_partitions[m_active] += last;
       }
+      // Close the current Cuda NVTX range
+      NVTX_POP();
       // Return last duration
       return last;
     }
