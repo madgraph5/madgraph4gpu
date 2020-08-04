@@ -182,10 +182,10 @@ namespace rambo2toNm0
         const double r3 = rnarray[ipag][iparf][2][iepp];
         const double r4 = rnarray[ipag][iparf][3][iepp];
 #elif defined MGONGPU_LAYOUT_SOA
-        const double r1 = rnarray1d[iparf*np4*nevt + 0*np4 + ievt];
-        const double r2 = rnarray1d[iparf*np4*nevt + 1*np4 + ievt];
-        const double r3 = rnarray1d[iparf*np4*nevt + 2*np4 + ievt];
-        const double r4 = rnarray1d[iparf*np4*nevt + 3*np4 + ievt];
+        const double r1 = rnarray1d[iparf*np4*nevt + 0*nevt + ievt];
+        const double r2 = rnarray1d[iparf*np4*nevt + 1*nevt + ievt];
+        const double r3 = rnarray1d[iparf*np4*nevt + 2*nevt + ievt];
+        const double r4 = rnarray1d[iparf*np4*nevt + 3*nevt + ievt];
 #elif defined MGONGPU_LAYOUT_AOS
         const double r1 = rnarray[ievt][iparf][0];
         const double r2 = rnarray[ievt][iparf][1];
