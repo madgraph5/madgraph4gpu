@@ -158,6 +158,16 @@ int main(int argc, char **argv)
   std::vector<float> wavetimes;
   std::vector<double> matrixelementvector;
 
+  // --- 0c. Create curand generator
+  const std::string cgenKey = "0c CreatGen";
+  timermap.start( cgenKey );
+  curandGenerator_t rnGen;
+#ifdef __CUDACC__
+  grambo2toNm0::createGenerator( &rnGen );
+#else
+  rambo2toNm0::createGenerator( &rnGen );
+#endif
+
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
   // **************************************
@@ -172,9 +182,9 @@ int main(int argc, char **argv)
     const std::string rngnKey = "1a RnNumGen";
     timermap.start( rngnKey );
 #ifdef __CUDACC__
-    grambo2toNm0::generateRnArray( hstRnarray, ndim );
+    grambo2toNm0::generateRnArray( rnGen, hstRnarray, ndim );
 #else
-    rambo2toNm0::generateRnArray( hstRnarray, ndim );
+    rambo2toNm0::generateRnArray( rnGen, hstRnarray, ndim );
 #endif
     //std::cout << "Got random numbers" << std::endl;
 
@@ -411,6 +421,15 @@ int main(int argc, char **argv)
   gpuErrchk3( cudaFree( devRnarray ) );
 
   gpuErrchk3( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
+
+  // --- 9d. Destroy curand generator
+  const std::string dgenKey = "9d DestrGen";
+  timermap.start( dgenKey );
+#ifdef __CUDACC__
+  grambo2toNm0::destroyGenerator( rnGen );
+#else
+  rambo2toNm0::destroyGenerator( rnGen );
+#endif
 
   // *** STOP THE NEW TIMERS ***
   timermap.stop();

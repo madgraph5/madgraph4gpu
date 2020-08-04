@@ -264,70 +264,36 @@ namespace rambo2toNm0
     return;
   }
 
-  // Generate one random number in [0,1] using curand
-  // See https://docs.nvidia.com/cuda/curand/host-api-overview.html#host-api-example
-  double curn()
+  // Create and initialise a curand generator
+  void createGenerator( curandGenerator_t* pgen )
   {
-    static curandGenerator_t gen;
-    static bool first = true;
-    if (first)
-    {
-      first = false;
-      // [NB Timings are for host generation of 32*256*1 events: rn(0) is 0.0012s]
-      curandCheck( curandCreateGeneratorHost( &gen, CURAND_RNG_PSEUDO_MTGP32 ) );          // 0.0021s (FOR FAST TESTS)
-      //curandCheck( curandCreateGeneratorHost( &gen, CURAND_RNG_PSEUDO_XORWOW ) );        // 1.13s
-      //curandCheck( curandCreateGeneratorHost( &gen, CURAND_RNG_PSEUDO_MRG32K3A ) );      // 10.5s (better but slower)
-      //curandCheck( curandCreateGeneratorHost( &gen, CURAND_RNG_PSEUDO_MT19937 ) );       // 43s
-      //curandCheck( curandCreateGeneratorHost( &gen, CURAND_RNG_PSEUDO_PHILOX4_32_10 ) ); // segfaults
-      curandCheck( curandSetPseudoRandomGeneratorSeed( gen, 1234ULL ) );
-    }
-    double hstData[1];
-    curandCheck( curandGenerateUniformDouble( gen, hstData, 1 ) );
-    return *hstData;
+    // [NB Timings are for host generation of 32*256*1 events: rn(0) is 0.0012s]
+    const curandRngType_t type = CURAND_RNG_PSEUDO_MTGP32;          // 0.0021s (FOR FAST TESTS)
+    //const curandRngType_t type = CURAND_RNG_PSEUDO_XORWOW;        // 1.13s
+    //const curandRngType_t type = CURAND_RNG_PSEUDO_MRG32K3A;      // 10.5s (better but slower)
+    //const curandRngType_t type = CURAND_RNG_PSEUDO_MT19937;       // 43s
+    //const curandRngType_t type = CURAND_RNG_PSEUDO_PHILOX4_32_10; // segfaults
+    curandCheck( curandCreateGeneratorHost( pgen, type ) );
+    //curandCheck( curandCreateGenerator( pgen, type ) );
+    curandCheck( curandSetPseudoRandomGeneratorSeed( *pgen, 1234ULL ) );
+    //curandCheck( curandSetGeneratorOrdering( *pgen, CURAND_ORDERING_PSEUDO_LEGACY ) ); // CUDA 11
+    curandCheck( curandSetGeneratorOrdering( *pgen, CURAND_ORDERING_PSEUDO_BEST ) );
   }
 
-  // Generate the random numbers needed to process nevt events in rambo
-#if defined MGONGPU_LAYOUT_ASA
-  // AOSOA: rnarray[npag][nparf][np4][nepp] where nevt=npag*nepp
-#elif defined MGONGPU_LAYOUT_SOA
-  // SOA: rnarray[nparf][np4][nevt]
-#elif defined MGONGPU_LAYOUT_AOS
-  // AOS: rnarray[nevt][nparf][np4]
-#endif
-  void generateRnArray( double rnarray1d[], // output: randomnumbers in [0,1]
-                        const int nevt )    // input: #events
+  // Destroy a curand generator
+  void destroyGenerator( curandGenerator_t gen )
   {
-    const int np4 = 4; // 4 random numbers (like the dimension of 4-momenta) are needed for each particle
-#if defined MGONGPU_LAYOUT_ASA
-    using mgOnGpu::nepp;
-    double (*rnarray)[nparf][np4][nepp] = (double (*)[nparf][np4][nepp]) rnarray1d; // cast to multiD array pointer (AOSOA)
-#elif defined MGONGPU_LAYOUT_SOA
-    // Cast is impossible in CUDA C ("error: expression must have a constant value")
-    //double (*rnarray)[np4][nevt] = (double (*)[np4][nevt]) rnarray1d; // cast to multiD array pointer (SOA)
-#elif defined MGONGPU_LAYOUT_AOS
-    double (*rnarray)[nparf][np4] = (double (*)[nparf][np4]) rnarray1d; // cast to multiD array pointer (AOS)
-#endif
-    // ** START LOOP ON IEVT **
-    for (int ievt = 0; ievt < nevt; ++ievt)
-    {
-#if defined MGONGPU_LAYOUT_ASA
-      const int ipag = ievt/nepp; // #eventpage in this iteration
-      const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
-      for (int iparf = 0; iparf < nparf; iparf++)
-        for (int ip4 = 0; ip4 < np4; ++ip4)
-          rnarray[ipag][iparf][ip4][iepp] = curn(); // AOSOA[npag][nparf][np4][nepp]
-#elif defined MGONGPU_LAYOUT_SOA
-      for (int iparf = 0; iparf < nparf; iparf++)
-        for (int ip4 = 0; ip4 < np4; ++ip4)
-          rnarray1d[iparf*np4*nevt + ip4*nevt + ievt] = curn(); // SOA[nparf][np4][nevt]
-#elif defined MGONGPU_LAYOUT_AOS
-      for (int iparf = 0; iparf < nparf; iparf++)
-        for (int ip4 = 0; ip4 < np4; ++ip4)
-          rnarray[ievt][iparf][ip4] = curn(); // AOS[nevt][nparf][np4]
-#endif
-    }
-    // ** END LOOP ON IEVT **
-    return;
+    curandCheck( curandDestroyGenerator( gen ) );
+  }
+
+  // Bulk-generate (using curand) the random numbers needed to process nevt events in rambo
+  // ** NB: the random numbers are always produced in the same order and are interpreted as an AOSOA
+  // AOSOA: rnarray[npag][nparf][np4][nepp] where nevt=npag*nepp
+  void generateRnArray( curandGenerator_t gen, // input: curand generator
+                        double rnarray1d[],    // output: randomnumbers in [0,1]
+                        const int nevt )       // input: #events
+  {
+    curandCheck( curandGenerateUniformDouble( gen, rnarray1d, np4*nparf*nevt ) );
   }
 
 }
