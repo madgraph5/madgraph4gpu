@@ -6,7 +6,7 @@
 
 #include <cassert>
 #include "curand.h"
-#define curandCheck( code ) \
+#define curandCheck( code )                     \
   { curandAssert( code, __FILE__, __LINE__ ); }
 inline void curandAssert( curandStatus_t code, const char *file, int line, bool abort = true )
 {
@@ -37,7 +37,7 @@ namespace rambo2toNm0
   // Fill in the momenta of the initial particles
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
 #ifdef __CUDACC__
-__global__
+  __global__
 #endif
   void getMomentaInitial( const double energy,    // input: energy
 #if defined MGONGPU_LAYOUT_ASA
@@ -63,14 +63,14 @@ __global__
     const double mom = energy/2;
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
-    for (int ievt = 0; ievt < nevt; ++ievt) 
+    for (int ievt = 0; ievt < nevt; ++ievt)
 #endif
     {
 #ifdef __CUDACC__
       const int idim = blockDim.x * blockIdx.x + threadIdx.x; // 0 to ndim-1
       const int ievt = idim;
       //printf( "getMomentaInitial: ievt %d\n", ievt );
-#endif    
+#endif
 #if defined MGONGPU_LAYOUT_ASA
       const int ipag = ievt/nepp; // #eventpage in this iteration
       const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
@@ -106,7 +106,7 @@ __global__
   }
 
 #ifdef __CUDACC__
-__global__
+  __global__
 #endif
   // Fill in the momenta of the final particles using the RAMBO algorithm
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
@@ -148,14 +148,14 @@ __global__
 
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
-    for (int ievt = 0; ievt < nevt; ++ievt) 
+    for (int ievt = 0; ievt < nevt; ++ievt)
 #endif
     {
 #ifdef __CUDACC__
       const int idim = blockDim.x * blockIdx.x + threadIdx.x; // 0 to ndim-1
       const int ievt = idim;
       //printf( "getMomentaFinal:   ievt %d\n", ievt );
-#endif    
+#endif
 
 #if defined MGONGPU_LAYOUT_ASA
       using mgOnGpu::nepp;
@@ -267,9 +267,9 @@ __global__
   // Generate one random number in [0,1] using curand
   // See https://docs.nvidia.com/cuda/curand/host-api-overview.html#host-api-example
   double curn()
-  {    
+  {
     static curandGenerator_t gen;
-    static bool first = true;   
+    static bool first = true;
     if (first)
     {
       first = false;
@@ -308,7 +308,7 @@ __global__
     double (*rnarray)[nparf][np4] = (double (*)[nparf][np4]) rnarray1d; // cast to multiD array pointer (AOS)
 #endif
     // ** START LOOP ON IEVT **
-    for (int ievt = 0; ievt < nevt; ++ievt) 
+    for (int ievt = 0; ievt < nevt; ++ievt)
     {
 #if defined MGONGPU_LAYOUT_ASA
       const int ipag = ievt/nepp; // #eventpage in this iteration
@@ -317,18 +317,18 @@ __global__
         for (int ip4 = 0; ip4 < np4; ++ip4)
           rnarray[ipag][iparf][ip4][iepp] = curn(); // AOSOA[npag][nparf][np4][nepp]
 #elif defined MGONGPU_LAYOUT_SOA
-    for (int iparf = 0; iparf < nparf; iparf++)
-      for (int ip4 = 0; ip4 < np4; ++ip4)
-        rnarray1d[iparf*np4*nevt + ip4*nevt + ievt] = curn(); // SOA[nparf][np4][nevt]
+      for (int iparf = 0; iparf < nparf; iparf++)
+        for (int ip4 = 0; ip4 < np4; ++ip4)
+          rnarray1d[iparf*np4*nevt + ip4*nevt + ievt] = curn(); // SOA[nparf][np4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
-    for (int iparf = 0; iparf < nparf; iparf++)
-      for (int ip4 = 0; ip4 < np4; ++ip4)
-        rnarray[ievt][iparf][ip4] = curn(); // AOS[nevt][nparf][np4]
+      for (int iparf = 0; iparf < nparf; iparf++)
+        for (int ip4 = 0; ip4 < np4; ++ip4)
+          rnarray[ievt][iparf][ip4] = curn(); // AOS[nevt][nparf][np4]
 #endif
     }
     // ** END LOOP ON IEVT **
     return;
   }
- 
+
 }
 
