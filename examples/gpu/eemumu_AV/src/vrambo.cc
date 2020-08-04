@@ -324,86 +324,88 @@ void vrambo( const int ninitial,       // input: #particles_initial
     }
 
     // return for weighted massless momenta
-    if (nm == 0) {
-      continue;
-    }
+    // nothing else to do in this event if all particles are massless (nm==0)
+    // continue processing only if one or more particles have non-zero masses (nm>1)
+    if (nm > 1) {
 
-    // massive particles: rescale the momenta by a factor x
-    double xmax = sqrt(1. - pow(xmft / energy, 2));
-    for (int iparf = 0; iparf < nparf; iparf++) {
-      xmf2[iparf] = pow(xmf[iparf], 2);
-#if defined MGONGPU_LAYOUT_ASA
-      p2[iparf] = pow(momenta[ipag][iparf+ninitial][0][iepp], 2);
-#elif defined MGONGPU_LAYOUT_SOA
-      p2[iparf] = pow(momenta[iparf+ninitial][0][ievt], 2);
-#elif defined MGONGPU_LAYOUT_AOS
-      p2[iparf] = pow(momenta[ievt][iparf+ninitial][0], 2);
-#endif
-    }
-    int iter = 0;
-    x = xmax;
-    double accu = energy * acc;
-    while (true) {
-      double f0 = -energy;
-      double g0 = 0.;
-      double x2 = x * x;
+      // massive particles: rescale the momenta by a factor x
+      double xmax = sqrt(1. - pow(xmft / energy, 2));
       for (int iparf = 0; iparf < nparf; iparf++) {
-        e[iparf] = sqrt(xmf2[iparf] + x2 * p2[iparf]);
-        f0 = f0 + e[iparf];
-        g0 = g0 + p2[iparf] / e[iparf];
-      }
-      if (abs(f0) <= accu)
-        break;
-      iter = iter + 1;
-      if (iter > itmax) {
-        std::cout << "Too many iterations without desired accuracy: " << itmax
-                  << std::endl;
-        break;
-      }
-      x = x - f0 / (x * g0);
-    }
-
-    for (int iparf = 0; iparf < nparf; iparf++) {
+        xmf2[iparf] = pow(xmf[iparf], 2);
 #if defined MGONGPU_LAYOUT_ASA
-      v[iparf] = x * momenta[ipag][iparf+ninitial][0][iepp];
-      for (int i4 = 1; i4 < np4; i4++)
-        momenta[ipag][iparf+ninitial][i4][iepp] = x * momenta[ipag][iparf+ninitial][i4][iepp];
-      momenta[ipag][iparf+ninitial][0][iepp] = e[iparf];
+        p2[iparf] = pow(momenta[ipag][iparf+ninitial][0][iepp], 2);
 #elif defined MGONGPU_LAYOUT_SOA
-      v[iparf] = x * momenta[iparf+ninitial][0][ievt];
-      for (int i4 = 1; i4 < np4; i4++)
-        momenta[iparf+ninitial][i4][ievt] = x * momenta[iparf+ninitial][i4][ievt];
-      momenta[iparf+ninitial][0][ievt] = e[iparf];
+        p2[iparf] = pow(momenta[iparf+ninitial][0][ievt], 2);
 #elif defined MGONGPU_LAYOUT_AOS
-      v[iparf] = x * momenta[ievt][iparf+ninitial][0];
-      for (int i4 = 1; i4 < np4; i4++)
-        momenta[ievt][iparf+ninitial][i4] = x * momenta[ievt][iparf+ninitial][i4];
-      momenta[ievt][iparf+ninitial][0] = e[iparf];
+        p2[iparf] = pow(momenta[ievt][iparf+ninitial][0], 2);
 #endif
-    }
-
-    // calculate the mass-effect weight factor
-    double wt2 = 1.;
-    double wt3 = 0.;
-    for (int iparf = 0; iparf < nparf; iparf++) {
-      wt2 = wt2 * v[iparf] / e[iparf];
-      wt3 = wt3 + pow(v[iparf], 2) / e[iparf];
-    }
-    double wtm = (2. * nparf - 3.) * log(x) + log(wt2 / wt3 * energy);
-
-    // return for weighted massive momenta
-    wt = wt + wtm;
-    if (wt < -180.) {
-      if (iwarn[2] <= 5)
-        std::cout << "Too small wt, risk for underflow: " << wt << std::endl;
-      iwarn[2] = iwarn[2] + 1;
-    }
-    if (wt > 174.) {
-      if (iwarn[3] <= 5)
-        std::cout << "Too large wt, risk for overflow: " << wt << std::endl;
-      iwarn[3] = iwarn[3] + 1;
+      }
+      int iter = 0;
+      x = xmax;
+      double accu = energy * acc;
+      while (true) {
+        double f0 = -energy;
+        double g0 = 0.;
+        double x2 = x * x;
+        for (int iparf = 0; iparf < nparf; iparf++) {
+          e[iparf] = sqrt(xmf2[iparf] + x2 * p2[iparf]);
+          f0 = f0 + e[iparf];
+          g0 = g0 + p2[iparf] / e[iparf];
+        }
+        if (abs(f0) <= accu)
+          break;
+        iter = iter + 1;
+        if (iter > itmax) {
+          std::cout << "Too many iterations without desired accuracy: " << itmax
+                    << std::endl;
+          break;
+        }
+        x = x - f0 / (x * g0);
+      }
+      
+      for (int iparf = 0; iparf < nparf; iparf++) {
+#if defined MGONGPU_LAYOUT_ASA
+        v[iparf] = x * momenta[ipag][iparf+ninitial][0][iepp];
+        for (int i4 = 1; i4 < np4; i4++)
+          momenta[ipag][iparf+ninitial][i4][iepp] = x * momenta[ipag][iparf+ninitial][i4][iepp];
+        momenta[ipag][iparf+ninitial][0][iepp] = e[iparf];
+#elif defined MGONGPU_LAYOUT_SOA
+        v[iparf] = x * momenta[iparf+ninitial][0][ievt];
+        for (int i4 = 1; i4 < np4; i4++)
+          momenta[iparf+ninitial][i4][ievt] = x * momenta[iparf+ninitial][i4][ievt];
+        momenta[iparf+ninitial][0][ievt] = e[iparf];
+#elif defined MGONGPU_LAYOUT_AOS
+        v[iparf] = x * momenta[ievt][iparf+ninitial][0];
+        for (int i4 = 1; i4 < np4; i4++)
+          momenta[ievt][iparf+ninitial][i4] = x * momenta[ievt][iparf+ninitial][i4];
+        momenta[ievt][iparf+ninitial][0] = e[iparf];
+#endif
+      }
+      
+      // calculate the mass-effect weight factor
+      double wt2 = 1.;
+      double wt3 = 0.;
+      for (int iparf = 0; iparf < nparf; iparf++) {
+        wt2 = wt2 * v[iparf] / e[iparf];
+        wt3 = wt3 + pow(v[iparf], 2) / e[iparf];
+      }
+      double wtm = (2. * nparf - 3.) * log(x) + log(wt2 / wt3 * energy);
+      
+      // return for weighted massive momenta
+      wt = wt + wtm;
+      if (wt < -180.) {
+        if (iwarn[2] <= 5)
+          std::cout << "Too small wt, risk for underflow: " << wt << std::endl;
+        iwarn[2] = iwarn[2] + 1;
+      }
+      if (wt > 174.) {
+        if (iwarn[3] <= 5)
+          std::cout << "Too large wt, risk for overflow: " << wt << std::endl;
+        iwarn[3] = iwarn[3] + 1;
+      }
     }
   }
+  
   return;
 }
 
