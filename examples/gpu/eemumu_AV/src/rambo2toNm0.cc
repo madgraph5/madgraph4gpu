@@ -53,7 +53,8 @@ __global__
     using mgOnGpu::nepp;
     double (*momenta)[npar][np4][nepp] = (double (*)[npar][np4][nepp]) momenta1d; // cast to multiD array pointer (AOSOA)
 #elif defined MGONGPU_LAYOUT_SOA
-    double (*momenta)[np4][nevt] = (double (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
+    // Cast is impossible in CUDA C ("error: expression must have a constant value")
+    //double (*momenta)[np4][nevt] = (double (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
 #elif defined MGONGPU_LAYOUT_AOS
     double (*momenta)[npar][np4] = (double (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOS)
 #endif
@@ -82,14 +83,14 @@ __global__
       momenta[ipag][1][2][iepp] = 0;
       momenta[ipag][1][3][iepp] = -mom;
 #elif defined MGONGPU_LAYOUT_SOA
-      momenta[0][0][ievt] = energy1;
-      momenta[0][1][ievt] = 0;
-      momenta[0][2][ievt] = 0;
-      momenta[0][3][ievt] = mom;
-      momenta[1][0][ievt] = energy2;
-      momenta[1][1][ievt] = 0;
-      momenta[1][2][ievt] = 0;
-      momenta[1][3][ievt] = -mom;
+      momenta1d[0*np4*nevt + 0*nevt + ievt] = energy1;
+      momenta1d[0*np4*nevt + 1*nevt + ievt] = 0;
+      momenta1d[0*np4*nevt + 2*nevt + ievt] = 0;
+      momenta1d[0*np4*nevt + 3*nevt + ievt] = mom;
+      momenta1d[1*np4*nevt + 0*nevt + ievt] = energy2;
+      momenta1d[1*np4*nevt + 1*nevt + ievt] = 0;
+      momenta1d[1*np4*nevt + 2*nevt + ievt] = 0;
+      momenta1d[1*np4*nevt + 3*nevt + ievt] = -mom;
 #elif defined MGONGPU_LAYOUT_AOS
       momenta[ievt][0][0] = energy1;
       momenta[ievt][0][1] = 0;
@@ -163,8 +164,9 @@ __global__
       double (*rnarray)[nparf][np4][nepp] = (double (*)[nparf][np4][nepp]) rnarray1d; // cast to multiD array pointer (AOSOA)
       double (*momenta)[npar][np4][nepp] = (double (*)[npar][np4][nepp]) momenta1d; // cast to multiD array pointer (AOSOA)
 #elif defined MGONGPU_LAYOUT_SOA
-      double (*rnarray)[np4][nevt] = (double (*)[np4][nevt]) rnarray1d; // cast to multiD array pointer (SOA)
-      double (*momenta)[np4][nevt] = (double (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
+      // Cast is impossible in CUDA C ("error: expression must have a constant value")
+      //double (*rnarray)[np4][nevt] = (double (*)[np4][nevt]) rnarray1d; // cast to multiD array pointer (SOA)
+      //double (*momenta)[np4][nevt] = (double (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
 #elif defined MGONGPU_LAYOUT_AOS
       double (*rnarray)[nparf][np4] = (double (*)[nparf][np4]) rnarray1d; // cast to multiD array pointer (AOS)
       double (*momenta)[npar][np4] = (double (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOS)
@@ -180,10 +182,10 @@ __global__
         const double r3 = rnarray[ipag][iparf][2][iepp];
         const double r4 = rnarray[ipag][iparf][3][iepp];
 #elif defined MGONGPU_LAYOUT_SOA
-        const double r1 = rnarray[iparf][0][ievt];
-        const double r2 = rnarray[iparf][1][ievt];
-        const double r3 = rnarray[iparf][2][ievt];
-        const double r4 = rnarray[iparf][3][ievt];
+        const double r1 = rnarray1d[iparf*np4*nevt + 0*np4 + ievt];
+        const double r2 = rnarray1d[iparf*np4*nevt + 1*np4 + ievt];
+        const double r3 = rnarray1d[iparf*np4*nevt + 2*np4 + ievt];
+        const double r4 = rnarray1d[iparf*np4*nevt + 3*np4 + ievt];
 #elif defined MGONGPU_LAYOUT_AOS
         const double r1 = rnarray[ievt][iparf][0];
         const double r2 = rnarray[ievt][iparf][1];
@@ -224,8 +226,8 @@ __global__
         momenta[ipag][iparf+npari][0][iepp] = x0 * (g * q[iparf][0] + bq);
 #elif defined MGONGPU_LAYOUT_SOA
         for (int i4 = 1; i4 < np4; i4++)
-          momenta[iparf+npari][i4][ievt] = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
-        momenta[iparf+npari][0][ievt] = x0 * (g * q[iparf][0] + bq);
+          momenta1d[(iparf+npari)*np4*nevt + i4*nevt + ievt] = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
+        momenta1d[(iparf+npari)*np4*nevt + 0*nevt + ievt] = x0 * (g * q[iparf][0] + bq);
 #elif defined MGONGPU_LAYOUT_AOS
         for (int i4 = 1; i4 < np4; i4++)
           momenta[ievt][iparf+npari][i4] = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
@@ -300,7 +302,8 @@ __global__
     using mgOnGpu::nepp;
     double (*rnarray)[nparf][np4][nepp] = (double (*)[nparf][np4][nepp]) rnarray1d; // cast to multiD array pointer (AOSOA)
 #elif defined MGONGPU_LAYOUT_SOA
-    double (*rnarray)[np4][nevt] = (double (*)[np4][nevt]) rnarray1d; // cast to multiD array pointer (SOA)
+    // Cast is impossible in CUDA C ("error: expression must have a constant value")
+    //double (*rnarray)[np4][nevt] = (double (*)[np4][nevt]) rnarray1d; // cast to multiD array pointer (SOA)
 #elif defined MGONGPU_LAYOUT_AOS
     double (*rnarray)[nparf][np4] = (double (*)[nparf][np4]) rnarray1d; // cast to multiD array pointer (AOS)
 #endif
@@ -316,7 +319,7 @@ __global__
 #elif defined MGONGPU_LAYOUT_SOA
     for (int iparf = 0; iparf < nparf; iparf++)
       for (int ip4 = 0; ip4 < np4; ++ip4)
-        rnarray[iparf][ip4][ievt] = curn(); // SOA[nparf][np4][nevt]
+        rnarray1d[iparf*np4*nevt + ip4*nevt + ievt] = curn(); // SOA[nparf][np4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
     for (int ievt = 0; ievt < nevt; ++ievt)
       for (int iparf = 0; iparf < nparf; iparf++)
