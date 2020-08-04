@@ -180,14 +180,14 @@ int main(int argc, char **argv)
 
     // 1b. Copy rnarray from host to device
     // --- 1a. CopyHToD
-    const std::string htodKey = "1b CopyHToD";
+    const std::string htodKey = "1b CpHTDrnd";
     timermap.start( htodKey );
     gpuErrchk3( cudaMemcpy( devRnarray, hstRnarray, nbytesRnarray, cudaMemcpyHostToDevice ) );
 
     // === STEP 2 OF 3
     // Fill in particle momenta for each of ndim events on the device
 
-    // 2a. Fill in momenta of initial state particles on the device
+    // --- 2a. Fill in momenta of initial state particles on the device
     const std::string riniKey = "2a RamboIni";
     timermap.start( riniKey );
 #ifdef __CUDACC__
@@ -197,7 +197,7 @@ int main(int argc, char **argv)
 #endif
     //std::cout << "Got initial momenta" << std::endl;
 
-    // 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
+    // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
     // (i.e. map random numbers to final-state particle momenta for each of ndim events)
     const std::string rfinKey = "2b RamboFin";
     timermap.start( rfinKey );
@@ -207,6 +207,16 @@ int main(int argc, char **argv)
     rambo2toNm0::getMomentaFinal( energy, hstRnarray, hstMomenta, hstWeights, ndim );
  #endif
     //std::cout << "Got final momenta" << std::endl;
+
+    // --- 2c. CopyDToH Weights
+    const std::string cwgtKey = "2c CpDTHwgt";
+    timermap.start( cwgtKey );
+    gpuErrchk3( cudaMemcpy( hstWeights, devWeights, nbytesWeights, cudaMemcpyDeviceToHost ) );
+
+    // --- 2d. CopyDToH Momenta
+    const std::string cmomKey = "2d CpDTHmom";
+    timermap.start( cmomKey );
+    gpuErrchk3( cudaMemcpy( hstMomenta, devMomenta, nbytesMomenta, cudaMemcpyDeviceToHost ) );
 
     // === STEP 3 OF 3
     // Evaluate matrix elements for all ndim events
@@ -229,16 +239,6 @@ int main(int argc, char **argv)
 
     // *** STOP THE OLD TIMER ***
     gputime += timermap.stop();
-
-    // --- 3c. CopyDToH Momenta
-    const std::string cmomKey = "3c CpDTHmom";
-    timermap.start( cmomKey );
-    gpuErrchk3( cudaMemcpy( hstMomenta, devMomenta, nbytesMomenta, cudaMemcpyDeviceToHost ) );
-
-    // --- 3d. CopyDToH Weights
-    const std::string cwgtKey = "3d CpDTHwgt";
-    timermap.start( cwgtKey );
-    gpuErrchk3( cudaMemcpy( hstWeights, devWeights, nbytesWeights, cudaMemcpyDeviceToHost ) );
 
     // === STEP 9 FINALISE
     // --- 9a Dump within the loop
