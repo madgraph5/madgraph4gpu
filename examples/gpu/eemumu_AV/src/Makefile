@@ -15,7 +15,7 @@ endif
 
 
 target=$(LIBDIR)/libmodel_sm.a
-cxx_objects=Parameters_sm.o read_slha.o vrambo.o Random.o
+cxx_objects=Parameters_sm.o read_slha.o Random.o rambo2toNm0.o
 cu_objects=
 
 all: $(target)

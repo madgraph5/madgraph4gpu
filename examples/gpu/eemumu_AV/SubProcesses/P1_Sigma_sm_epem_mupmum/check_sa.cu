@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "mgOnGpuConfig.h"
-#include "vrambo.h"
+#include "rambo2toNm0.h"
 
 #include "CPPProcess.h"
 #include "timermap.h"
@@ -141,10 +141,6 @@ int main(int argc, char **argv)
   double* devMEs = 0; // (previously was: meDevPtr)
   gpuErrchk3( cudaMalloc( &devMEs, nbytesMEs ) );
 
-  double masses[npar];
-  for (int ipar = 0; ipar < npar; ++ipar) // loop over nexternal particles
-    masses[ipar] = process.getMasses()[ipar];
-
   std::vector<float> wavetimes;
   std::vector<double> matrixelementvector;
 
@@ -160,16 +156,25 @@ int main(int argc, char **argv)
     // Generate all relevant numbers to build ndim events (i.e. ndim phase space points)
     const std::string rngnKey = "1  RnNumGen";
     timermap.start( rngnKey );
-    generateRnArray( rnarray, nparf, ndim );
+    rambo2toNm0::generateRnArray( rnarray, ndim );
     //std::cout << "Got random numbers" << std::endl;
 
     // === STEP 2 OF 3
-    // Map random numbers to particle momenta for each of ndim events
-    const std::string rambKey = "2  RamboMap";
-    timermap.start( rambKey );
+    // Fill in particle momenta for each of ndim events
+
+    // 2a. Fill in momenta of initial state particles 
+    const std::string riniKey = "2a RamboIni";
+    timermap.start( riniKey );
+    rambo2toNm0::getMomentaInitial( energy, hstMomenta, ndim );
+    //std::cout << "Got initial momenta" << std::endl;
+
+    // 2b. Fill in momenta of final state particles using the RAMBO algorithm
+    // (i.e. map random numbers to final-state particle momenta for each of ndim events)
+    const std::string rfinKey = "2b RamboFin";
+    timermap.start( rfinKey );
     double weights[ndim]; // dummy in this test application
-    get_momenta( process.ninitial, energy, masses, rnarray, hstMomenta, weights, npar, ndim );
-    //std::cout << "Got momenta" << std::endl;
+    rambo2toNm0::getMomentaFinal( energy, rnarray, hstMomenta, weights, ndim );
+    //std::cout << "Got final momenta" << std::endl;
 
     // === STEP 3 OF 3
     // Evaluate matrix elements for all ndim events
