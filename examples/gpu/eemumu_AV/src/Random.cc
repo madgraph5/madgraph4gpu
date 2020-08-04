@@ -67,10 +67,13 @@ double rn(int /*idummy*/) {
     init = 0;
     rand.rmarin(1802, 9373);
   }
+  /*
   while (true) {
     ran = rand.ranmar();
     if (ran > 1e-16)
       break;
   }
   return ran;
+  */
+  return rand.ranmar2(); // moved to ranmar2 the iteration to skip values <1e-16
 }
