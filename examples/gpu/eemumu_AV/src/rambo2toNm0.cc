@@ -5,7 +5,6 @@
 #include "mgOnGpuConfig.h"
 #include "Random.h"
 
-#ifdef __CUDACC__
 #include <cassert>
 #include "curand.h"
 #define curandCheck( code ) \
@@ -18,7 +17,6 @@ inline void curandAssert( curandStatus_t code, const char *file, int line, bool 
     if ( abort ) assert( code == CURAND_STATUS_SUCCESS );
   }
 }
-#endif
 
 #ifndef __CUDACC__
 #include "rambo2toNm0.h"
@@ -265,7 +263,6 @@ __global__
     return;
   }
 
-#ifdef __CUDACC__
   // Generate one random number in [0,1] using curand
   // See https://docs.nvidia.com/cuda/curand/host-api-overview.html#host-api-example
   double curn()
@@ -287,11 +284,6 @@ __global__
     curandCheck( curandGenerateUniformDouble( gen, hstData, 1 ) );
     return *hstData;
   }
-#else
-  double curn() {
-    return rn(0);
-  }
-#endif
 
   // Generate the random numbers needed to process nevt events in rambo
 #if defined MGONGPU_LAYOUT_ASA
