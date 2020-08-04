@@ -191,17 +191,52 @@ void vrambo( const int ninitial,       // input: #particles_initial
    *    p      = final-state particle momenta ( dim=(nexternal-nincoming,4) ) *
    *    wt     = weight of the event                                          *
    ****************************************************************************/
-  for (int ievt = 0; ievt < nevt; ++ievt) {
+
+  const double acc = 1e-14;
+  const double twopi = 8. * atan(1.);
+  const double po2log = log(twopi / 4.);
+
+  const int nparf = npar - ninitial;
+  const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
+
+  const double* xmf = masses+ninitial; // skip the first ninitial masses
+
+  // check on the number of particles
+  if (nparf < 1 || nparf > 101) {
+    std::cout << "Too few or many particles: " << nparf << std::endl;
+    exit(-1);
+  }
+
+  // initialization step: factorials for the phase space weight
+  double z[nparf];
+  z[1] = po2log;
+  for (int kpar = 2; kpar < nparf; kpar++)
+    z[kpar] = z[kpar - 1] + po2log - 2. * log(double(kpar - 1));
+  for (int kpar = 2; kpar < nparf; kpar++)
+    z[kpar] = (z[kpar] - log(double(kpar)));
+
+  // check whether total energy is sufficient; count nonzero masses
+  double xmft = 0.;
+  int nm = 0;
+  for (int iparf = 0; iparf < nparf; iparf++) {
+    if (xmf[iparf] != 0.)
+      nm = nm + 1;
+    xmft = xmft + abs(xmf[iparf]);
+  }
+  if (xmft > energy) {
+    std::cout << "Too low energy: " << energy << " needed " << xmft << std::endl;
+    exit(-1);
+  }
+  // the parameter values are now accepted
+
+  // ** START LOOP ON IEVT **
+  for (int ievt = 0; ievt < nevt; ++ievt) 
+  {
 
 #if defined MGONGPU_LAYOUT_ASA
     using mgOnGpu::nepp;
     const int ipag = ievt/nepp; // #eventpage in this iteration
     const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
-#endif
-
-    const int nparf = npar - ninitial;
-    const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
-#if defined MGONGPU_LAYOUT_ASA
     double (*rnarray)[nparf][np4][nepp] = (double (*)[nparf][np4][nepp]) rnarray1d; // cast to multiD array pointer (AOSOA)
     double (*momenta)[npar][np4][nepp] = (double (*)[npar][np4][nepp]) momenta1d; // cast to multiD array pointer (AOSOA)
 #elif defined MGONGPU_LAYOUT_SOA
@@ -212,45 +247,9 @@ void vrambo( const int ninitial,       // input: #particles_initial
     double (*momenta)[npar][np4] = (double (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOS)
 #endif
     double& wt = wgts[ievt];
-    const double* xmf = masses+ninitial; // skip the first ninitial masses
-
-    double q[nparf][np4];
-    double z[nparf], r[np4], b[np4-1], p2[nparf], xmf2[nparf], e[nparf], v[nparf];
-    int iwarn[5] = {0,0,0,0,0};
-    static double acc = 1e-14;
-    static int itmax = 6, ibegin = 0;
-    static double twopi = 8. * atan(1.);
-    static double po2log = log(twopi / 4.);
-
-    // initialization step: factorials for the phase space weight
-    if (ibegin == 0) {
-      ibegin = 1;
-      z[1] = po2log;
-      for (int kpar = 2; kpar < nparf; kpar++)
-        z[kpar] = z[kpar - 1] + po2log - 2. * log(double(kpar - 1));
-      for (int kpar = 2; kpar < nparf; kpar++)
-        z[kpar] = (z[kpar] - log(double(kpar)));
-    }
-    // check on the number of particles
-    if (nparf < 1 || nparf > 101) {
-      std::cout << "Too few or many particles: " << nparf << std::endl;
-      exit(-1);
-    }
-    // check whether total energy is sufficient; count nonzero masses
-    double xmft = 0.;
-    int nm = 0;
-    for (int iparf = 0; iparf < nparf; iparf++) {
-      if (xmf[iparf] != 0.)
-        nm = nm + 1;
-      xmft = xmft + abs(xmf[iparf]);
-    }
-    if (xmft > energy) {
-      std::cout << "Too low energy: " << energy << " needed " << xmft << std::endl;
-      exit(-1);
-    }
-    // the parameter values are now accepted
 
     // generate n massless momenta in infinite phase space
+    double q[nparf][np4];
     for (int iparf = 0; iparf < nparf; iparf++) {
 #if defined MGONGPU_LAYOUT_ASA
       const double r1 = rnarray[ipag][iparf][0][iepp];
@@ -276,18 +275,21 @@ void vrambo( const int ninitial,       // input: #particles_initial
       q[iparf][2] = q[iparf][0] * s * cos(f);
       q[iparf][1] = q[iparf][0] * s * sin(f);
     }
+
     // calculate the parameters of the conformal transformation
+    double r[np4];
+    double b[np4-1];
     for (int i4 = 0; i4 < np4; i4++)
       r[i4] = 0.;
     for (int iparf = 0; iparf < nparf; iparf++) {
       for (int i4 = 0; i4 < np4; i4++)
         r[i4] = r[i4] + q[iparf][i4];
     }
-    double rmas = sqrt(pow(r[0], 2) - pow(r[3], 2) - pow(r[2], 2) - pow(r[1], 2));
+    const double rmas = sqrt(pow(r[0], 2) - pow(r[3], 2) - pow(r[2], 2) - pow(r[1], 2));
     for (int i4 = 1; i4 < np4; i4++)
       b[i4-1] = -r[i4] / rmas;
-    double g = r[0] / rmas;
-    double a = 1. / (1. + g);
+    const double g = r[0] / rmas;
+    const double a = 1. / (1. + g);
     double x = energy / rmas;
 
     // transform the q's conformally into the p's (i.e. the 'momenta')
@@ -308,10 +310,13 @@ void vrambo( const int ninitial,       // input: #particles_initial
 #endif
     }
 
-    // calculate weight and possible warnings (NB return log of weight)
+    // calculate weight (NB return log of weight)
     wt = po2log;
     if (nparf != 2)
       wt = (2. * nparf - 4.) * log(energy) + z[nparf-1];
+
+    // issue warnings if weight is too small or too large
+    static int iwarn[5] = {0,0,0,0,0};
     if (wt < -180.) {
       if (iwarn[0] <= 5)
         std::cout << "Too small wt, risk for underflow: " << wt << std::endl;
@@ -325,9 +330,12 @@ void vrambo( const int ninitial,       // input: #particles_initial
 
     // return for weighted massless momenta
     // nothing else to do in this event if all particles are massless (nm==0)
-    // continue processing only if one or more particles have non-zero masses (nm>1)
-    if (nm > 1) {
 
+    // ** START MASSIVE PARTICLES **
+    // continue processing only if one or more particles have non-zero masses (nm>1) 
+    if (nm > 1) {
+      static int itmax = 6;   
+      double p2[nparf], xmf2[nparf], e[nparf], v[nparf];
       // massive particles: rescale the momenta by a factor x
       double xmax = sqrt(1. - pow(xmft / energy, 2));
       for (int iparf = 0; iparf < nparf; iparf++) {
@@ -361,8 +369,7 @@ void vrambo( const int ninitial,       // input: #particles_initial
           break;
         }
         x = x - f0 / (x * g0);
-      }
-      
+      }      
       for (int iparf = 0; iparf < nparf; iparf++) {
 #if defined MGONGPU_LAYOUT_ASA
         v[iparf] = x * momenta[ipag][iparf+ninitial][0][iepp];
@@ -381,7 +388,6 @@ void vrambo( const int ninitial,       // input: #particles_initial
         momenta[ievt][iparf+ninitial][0] = e[iparf];
 #endif
       }
-      
       // calculate the mass-effect weight factor
       double wt2 = 1.;
       double wt3 = 0.;
@@ -390,7 +396,6 @@ void vrambo( const int ninitial,       // input: #particles_initial
         wt3 = wt3 + pow(v[iparf], 2) / e[iparf];
       }
       double wtm = (2. * nparf - 3.) * log(x) + log(wt2 / wt3 * energy);
-      
       // return for weighted massive momenta
       wt = wt + wtm;
       if (wt < -180.) {
@@ -404,7 +409,10 @@ void vrambo( const int ninitial,       // input: #particles_initial
         iwarn[3] = iwarn[3] + 1;
       }
     }
+    // ** END MASSIVE PARTICLES **
+
   }
+  // ** END LOOP ON IEVT **
   
   return;
 }
