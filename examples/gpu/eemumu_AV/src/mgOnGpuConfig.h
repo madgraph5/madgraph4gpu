@@ -2,8 +2,8 @@
 #define MGONGPUCONFIG_H 1
 
 //#define MGONGPU_LAYOUT_ASA 1
-#define MGONGPU_LAYOUT_SOA 1
-//#define MGONGPU_LAYOUT_AOS 1
+//#define MGONGPU_LAYOUT_SOA 1
+#define MGONGPU_LAYOUT_AOS 1
 
 #if defined MGONGPU_LAYOUT_ASA
 namespace mgOnGpu

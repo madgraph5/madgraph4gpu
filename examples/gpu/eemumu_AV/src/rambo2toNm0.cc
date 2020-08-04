@@ -321,8 +321,8 @@ __global__
       for (int ip4 = 0; ip4 < np4; ++ip4)
         rnarray1d[iparf*np4*nevt + ip4*nevt + ievt] = curn(); // SOA[nparf][np4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
-    for (int ievt = 0; ievt < nevt; ++ievt)
-      for (int iparf = 0; iparf < nparf; iparf++)
+    for (int iparf = 0; iparf < nparf; iparf++)
+      for (int ip4 = 0; ip4 < np4; ++ip4)
         rnarray[ievt][iparf][ip4] = curn(); // AOS[nevt][nparf][np4]
 #endif
     }
