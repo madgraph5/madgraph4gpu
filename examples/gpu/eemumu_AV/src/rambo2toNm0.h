@@ -51,8 +51,8 @@ namespace rambo2toNm0
   // AOS: rnarray[nevt][nparf][np4]
 #endif
   void generateRnArray( double rnarray1d[], // output: randomnumbers in [0,1]
-                        const int nevt );   // input: #events
-
+                        const int nevt,     // input: #events
+                        const int iiter );  // input: iteration#
 }
 
 #endif // RAMBO2TONM0_H 1
