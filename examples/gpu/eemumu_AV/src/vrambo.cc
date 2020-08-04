@@ -290,23 +290,23 @@ void vrambo( const int ninitial,       // input: #particles_initial
       b[i4-1] = -r[i4] / rmas;
     const double g = r[0] / rmas;
     const double a = 1. / (1. + g);
-    double x = energy / rmas;
+    const double x0 = energy / rmas;
 
     // transform the q's conformally into the p's (i.e. the 'momenta')
     for (int iparf = 0; iparf < nparf; iparf++) {
       double bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
 #if defined MGONGPU_LAYOUT_ASA
       for (int i4 = 1; i4 < np4; i4++)
-        momenta[ipag][iparf+ninitial][i4][iepp] = x * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
-      momenta[ipag][iparf+ninitial][0][iepp] = x * (g * q[iparf][0] + bq);
+        momenta[ipag][iparf+ninitial][i4][iepp] = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
+      momenta[ipag][iparf+ninitial][0][iepp] = x0 * (g * q[iparf][0] + bq);
 #elif defined MGONGPU_LAYOUT_SOA
       for (int i4 = 1; i4 < np4; i4++)
-        momenta[iparf+ninitial][i4][ievt] = x * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
-      momenta[iparf+ninitial][0][ievt] = x * (g * q[iparf][0] + bq);
+        momenta[iparf+ninitial][i4][ievt] = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
+      momenta[iparf+ninitial][0][ievt] = x0 * (g * q[iparf][0] + bq);
 #elif defined MGONGPU_LAYOUT_AOS
       for (int i4 = 1; i4 < np4; i4++)
-        momenta[ievt][iparf+ninitial][i4] = x * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
-      momenta[ievt][iparf+ninitial][0] = x * (g * q[iparf][0] + bq);
+        momenta[ievt][iparf+ninitial][i4] = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
+      momenta[ievt][iparf+ninitial][0] = x0 * (g * q[iparf][0] + bq);
 #endif
     }
 
@@ -334,10 +334,9 @@ void vrambo( const int ninitial,       // input: #particles_initial
     // ** START MASSIVE PARTICLES **
     // continue processing only if one or more particles have non-zero masses (nm>1) 
     if (nm > 1) {
-      static int itmax = 6;   
-      double p2[nparf], xmf2[nparf], e[nparf], v[nparf];
       // massive particles: rescale the momenta by a factor x
-      double xmax = sqrt(1. - pow(xmft / energy, 2));
+      double p2[nparf];
+      double xmf2[nparf];
       for (int iparf = 0; iparf < nparf; iparf++) {
         xmf2[iparf] = pow(xmf[iparf], 2);
 #if defined MGONGPU_LAYOUT_ASA
@@ -348,13 +347,17 @@ void vrambo( const int ninitial,       // input: #particles_initial
         p2[iparf] = pow(momenta[ievt][iparf+ninitial][0], 2);
 #endif
       }
+      // iterate to reach the desired accuracy
+      const int itmax = 6;   
+      const double xmax = sqrt(1. - pow(xmft / energy, 2));
+      const double accu = energy * acc;
+      double e[nparf];
+      double x = xmax;
       int iter = 0;
-      x = xmax;
-      double accu = energy * acc;
       while (true) {
         double f0 = -energy;
         double g0 = 0.;
-        double x2 = x * x;
+        const double x2 = x * x;
         for (int iparf = 0; iparf < nparf; iparf++) {
           e[iparf] = sqrt(xmf2[iparf] + x2 * p2[iparf]);
           f0 = f0 + e[iparf];
@@ -370,6 +373,8 @@ void vrambo( const int ninitial,       // input: #particles_initial
         }
         x = x - f0 / (x * g0);
       }      
+      // rescale the momenta by x
+      double v[nparf];
       for (int iparf = 0; iparf < nparf; iparf++) {
 #if defined MGONGPU_LAYOUT_ASA
         v[iparf] = x * momenta[ipag][iparf+ninitial][0][iepp];
