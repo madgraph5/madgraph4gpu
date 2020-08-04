@@ -5,6 +5,21 @@
 #include "mgOnGpuConfig.h"
 #include "Random.h"
 
+#ifdef __CUDACC__
+#include <cassert>
+#include "curand.h"
+#define curandCheck( code ) \
+  { curandAssert( code, __FILE__, __LINE__ ); }
+inline void curandAssert( curandStatus_t code, const char *file, int line, bool abort = true )
+{
+  if ( code != CURAND_STATUS_SUCCESS )
+  {
+    printf( "CurandAssert: %s %d\n", file, line );
+    if ( abort ) assert( code == CURAND_STATUS_SUCCESS );
+  }
+}
+#endif
+
 #ifndef __CUDACC__
 #include "rambo2toNm0.h"
 #endif
@@ -250,6 +265,34 @@ __global__
     return;
   }
 
+#ifdef __CUDACC__
+  // Generate one random number in [0,1] using curand
+  // See https://docs.nvidia.com/cuda/curand/host-api-overview.html#host-api-example
+  double curn()
+  {    
+    static curandGenerator_t gen;
+    static bool first = true;   
+    if (first)
+    {
+      first = false;
+      // [NB Timings are for host generation of 32*256*1 events: rn(0) is 0.0012s]
+      curandCheck( curandCreateGeneratorHost( &gen, CURAND_RNG_PSEUDO_MTGP32 ) );          // 0.0021s (FOR FAST TESTS)
+      //curandCheck( curandCreateGeneratorHost( &gen, CURAND_RNG_PSEUDO_XORWOW ) );        // 1.13s
+      //curandCheck( curandCreateGeneratorHost( &gen, CURAND_RNG_PSEUDO_MRG32K3A ) );      // 10.5s (better but slower)
+      //curandCheck( curandCreateGeneratorHost( &gen, CURAND_RNG_PSEUDO_MT19937 ) );       // 43s
+      //curandCheck( curandCreateGeneratorHost( &gen, CURAND_RNG_PSEUDO_PHILOX4_32_10 ) ); // segfaults
+      curandCheck( curandSetPseudoRandomGeneratorSeed( gen, 1234ULL ) );
+    }
+    double hstData[1];
+    curandCheck( curandGenerateUniformDouble( gen, hstData, 1 ) );
+    return *hstData;
+  }
+#else
+  double curn() {
+    return rn(0);
+  }
+#endif
+
   // Generate the random numbers needed to process nevt events in rambo
 #if defined MGONGPU_LAYOUT_ASA
   // AOSOA: rnarray[npag][nparf][np4][nepp] where nevt=npag*nepp
@@ -270,20 +313,21 @@ __global__
       for (int iparf = 0; iparf < nparf; iparf++)
         for (int ip4 = 0; ip4 < np4; ++ip4)
           for (int iepp = 0; iepp < nepp; ++iepp)
-            rnarray[ipag][iparf][ip4][iepp] = rn(0); // AOSOA[npag][nparf][np4][nepp]
+            rnarray[ipag][iparf][ip4][iepp] = curn(); // AOSOA[npag][nparf][np4][nepp]
 #elif defined MGONGPU_LAYOUT_SOA
     double (*rnarray)[np4][nevt] = (double (*)[np4][nevt]) rnarray1d; // cast to multiD array pointer (SOA)
     for (int iparf = 0; iparf < nparf; iparf++)
       for (int ip4 = 0; ip4 < np4; ++ip4)
         for (int ievt = 0; ievt < nevt; ++ievt)
-          rnarray[iparf][ip4][ievt] = rn(0); // SOA[nparf][np4][nevt]
+          rnarray[iparf][ip4][ievt] = curn(); // SOA[nparf][np4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
     double (*rnarray)[nparf][np4] = (double (*)[nparf][np4]) rnarray1d; // cast to multiD array pointer (AOS)
     for (int ievt = 0; ievt < nevt; ++ievt)
       for (int iparf = 0; iparf < nparf; iparf++)
         for (int ip4 = 0; ip4 < np4; ++ip4)
-          rnarray[ievt][iparf][ip4] = rn(0); // AOS[nevt][nparf][np4]
+          rnarray[ievt][iparf][ip4] = curn(); // AOS[nevt][nparf][np4]
 #endif
   }
 
 }
+

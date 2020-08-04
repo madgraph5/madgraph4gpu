@@ -46,7 +46,7 @@ check_sa.o: check_sa.cu *.h ../../src/*.h ../../src/*.cu
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 $(main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects)
-	$(NVCC)  -o $@ $(cxx_objects) $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) -lcuda
+	$(NVCC)  -o $@ $(cxx_objects) $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) -lcuda -lcurand
 
 .PHONY: clean
 
