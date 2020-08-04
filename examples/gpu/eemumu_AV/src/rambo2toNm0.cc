@@ -298,27 +298,34 @@ __global__
     const int np4 = 4; // 4 random numbers (like the dimension of 4-momenta) are needed for each particle
 #if defined MGONGPU_LAYOUT_ASA
     using mgOnGpu::nepp;
-    const int npag = nevt/nepp; // number of ASA pages needed for nevt events
     double (*rnarray)[nparf][np4][nepp] = (double (*)[nparf][np4][nepp]) rnarray1d; // cast to multiD array pointer (AOSOA)
-    for (int ipag = 0; ipag < npag; ipag++)
-      for (int iparf = 0; iparf < nparf; iparf++)
-        for (int ip4 = 0; ip4 < np4; ++ip4)
-          for (int iepp = 0; iepp < nepp; ++iepp)
-            rnarray[ipag][iparf][ip4][iepp] = curn(); // AOSOA[npag][nparf][np4][nepp]
 #elif defined MGONGPU_LAYOUT_SOA
     double (*rnarray)[np4][nevt] = (double (*)[np4][nevt]) rnarray1d; // cast to multiD array pointer (SOA)
-    for (int iparf = 0; iparf < nparf; iparf++)
-      for (int ip4 = 0; ip4 < np4; ++ip4)
-        for (int ievt = 0; ievt < nevt; ++ievt)
-          rnarray[iparf][ip4][ievt] = curn(); // SOA[nparf][np4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
     double (*rnarray)[nparf][np4] = (double (*)[nparf][np4]) rnarray1d; // cast to multiD array pointer (AOS)
-    for (int ievt = 0; ievt < nevt; ++ievt)
+#endif
+    // ** START LOOP ON IEVT **
+    for (int ievt = 0; ievt < nevt; ++ievt) 
+    {
+#if defined MGONGPU_LAYOUT_ASA
+      const int ipag = ievt/nepp; // #eventpage in this iteration
+      const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
       for (int iparf = 0; iparf < nparf; iparf++)
         for (int ip4 = 0; ip4 < np4; ++ip4)
-          rnarray[ievt][iparf][ip4] = curn(); // AOS[nevt][nparf][np4]
+          rnarray[ipag][iparf][ip4][iepp] = curn(); // AOSOA[npag][nparf][np4][nepp]
+#elif defined MGONGPU_LAYOUT_SOA
+    for (int iparf = 0; iparf < nparf; iparf++)
+      for (int ip4 = 0; ip4 < np4; ++ip4)
+        rnarray[iparf][ip4][ievt] = curn(); // SOA[nparf][np4][nevt]
+#elif defined MGONGPU_LAYOUT_AOS
+    for (int ievt = 0; ievt < nevt; ++ievt)
+      for (int iparf = 0; iparf < nparf; iparf++)
+        rnarray[ievt][iparf][ip4] = curn(); // AOS[nevt][nparf][np4]
 #endif
+    }
+    // ** END LOOP ON IEVT **
+    return;
   }
-
+ 
 }
 
