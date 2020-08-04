@@ -172,9 +172,9 @@ int main(int argc, char **argv)
     const std::string rngnKey = "1a RnNumGen";
     timermap.start( rngnKey );
 #ifdef __CUDACC__
-    grambo2toNm0::generateRnArray( hstRnarray, ndim, iiter );
+    grambo2toNm0::generateRnArray( hstRnarray, ndim );
 #else
-    rambo2toNm0::generateRnArray( hstRnarray, ndim, iiter );
+    rambo2toNm0::generateRnArray( hstRnarray, ndim );
 #endif
     //std::cout << "Got random numbers" << std::endl;
 
