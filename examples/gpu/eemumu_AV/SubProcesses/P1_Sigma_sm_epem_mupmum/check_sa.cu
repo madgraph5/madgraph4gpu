@@ -7,7 +7,12 @@
 #include <vector>
 
 #include "mgOnGpuConfig.h"
+
+#ifdef __CUDACC__
+#include "grambo2toNm0.cu"
+#else
 #include "rambo2toNm0.h"
+#endif
 
 #include "CPPProcess.h"
 #include "timermap.h"
@@ -74,7 +79,6 @@ int main(int argc, char **argv)
     std::cout << "ERROR! #threads/block should be a multiple of " << nepp << std::endl;
     return usage(argv[0]);
   }
-  const int npag = ndim/nepp; // number of ASA pages needed for ndim events
 #endif
 
   if (verbose)
@@ -110,18 +114,22 @@ int main(int argc, char **argv)
   const std::string alloKey = "0b MemAlloc";
   timermap.start( alloKey );
 
-  // Memory structures for input momenta and output matrix elements on host and device
+  // Memory structures for random numbers, momenta, matrix elements and weights on host and device
   const int npar = process.nexternal; // for this process (eemumu): npar=4 (e+, e-, mu+, mu-)
   const int nparf = npar - process.ninitial; // for this process (eemumu): nparf=2 (mu+, mu-)
   const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
 
+  const int nbytesRnarray = np4*nparf*ndim * sizeof(double); // (NB: ndim=npag*nepp for ASA layouts)
 #if defined MGONGPU_LAYOUT_ASA
-  double* rnarray = new double[npag*nparf*np4*nepp]; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
+  double* hstRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
 #elif defined MGONGPU_LAYOUT_SOA
-  double* rnarray = new double[nparf*np4*ndim]; // SOA[npar][np4][ndim]
+  double* hstRnarray = 0; // SOA[npar][np4][ndim]
 #elif defined MGONGPU_LAYOUT_AOS
-  double* rnarray = new double[nparf*np4*ndim]; // AOS[ndim][npar][np4]
+  double* hstRnarray = 0; // AOS[ndim][npar][np4]
 #endif
+  gpuErrchk3( cudaMallocHost( &hstRnarray, nbytesRnarray ) );
+  double* devRnarray = 0;
+  gpuErrchk3( cudaMalloc( &devRnarray, nbytesRnarray ) );
 
   const int nbytesMomenta = np4*npar*ndim * sizeof(double); // (NB: ndim=npag*nepp for ASA layouts)
 #if defined MGONGPU_LAYOUT_ASA
@@ -134,6 +142,12 @@ int main(int argc, char **argv)
   gpuErrchk3( cudaMallocHost( &hstMomenta, nbytesMomenta ) );
   double* devMomenta = 0; // (previously was: allMomenta)
   gpuErrchk3( cudaMalloc( &devMomenta, nbytesMomenta ) );
+
+  const int nbytesWeights = ndim * sizeof(double); //  (NB: ndim=npag*nepp for ASA layouts)
+  double* hstWeights = 0; // (previously was: meHostPtr)
+  gpuErrchk3( cudaMallocHost( &hstWeights, nbytesWeights ) );
+  double* devWeights = 0; // (previously was: meDevPtr)
+  gpuErrchk3( cudaMalloc( &devWeights, nbytesWeights ) );
 
   const int nbytesMEs = ndim * sizeof(double); //  (NB: ndim=npag*nepp for ASA layouts)
   double* hstMEs = 0; // (previously was: meHostPtr)
@@ -153,61 +167,82 @@ int main(int argc, char **argv)
     //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
 
     // === STEP 1 OF 3
-    // Generate all relevant numbers to build ndim events (i.e. ndim phase space points)
-    const std::string rngnKey = "1  RnNumGen";
+
+    // 1a. Generate all relevant numbers to build ndim events (i.e. ndim phase space points) on the host
+    const std::string rngnKey = "1a RnNumGen";
     timermap.start( rngnKey );
-    rambo2toNm0::generateRnArray( rnarray, ndim );
+#ifdef __CUDACC__
+    grambo2toNm0::generateRnArray( hstRnarray, ndim );
+#else
+    rambo2toNm0::generateRnArray( hstRnarray, ndim );
+#endif
     //std::cout << "Got random numbers" << std::endl;
 
-    // === STEP 2 OF 3
-    // Fill in particle momenta for each of ndim events
+    // 1b. Copy rnarray from host to device
+    // --- 1a. CopyHToD
+    const std::string htodKey = "1b CopyHToD";
+    timermap.start( htodKey );
+    gpuErrchk3( cudaMemcpy( devRnarray, hstRnarray, nbytesRnarray, cudaMemcpyHostToDevice ) );
 
-    // 2a. Fill in momenta of initial state particles 
+    // === STEP 2 OF 3
+    // Fill in particle momenta for each of ndim events on the device
+
+    // 2a. Fill in momenta of initial state particles on the device
     const std::string riniKey = "2a RamboIni";
     timermap.start( riniKey );
+#ifdef __CUDACC__
+    grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta, ndim );
+#else
     rambo2toNm0::getMomentaInitial( energy, hstMomenta, ndim );
+#endif
     //std::cout << "Got initial momenta" << std::endl;
 
-    // 2b. Fill in momenta of final state particles using the RAMBO algorithm
+    // 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
     // (i.e. map random numbers to final-state particle momenta for each of ndim events)
     const std::string rfinKey = "2b RamboFin";
     timermap.start( rfinKey );
-    double weights[ndim]; // dummy in this test application
-    rambo2toNm0::getMomentaFinal( energy, rnarray, hstMomenta, weights, ndim );
+#ifdef __CUDACC__
+    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray, devMomenta, devWeights, ndim );
+#else
+    rambo2toNm0::getMomentaFinal( energy, hstRnarray, hstMomenta, hstWeights, ndim );
+ #endif
     //std::cout << "Got final momenta" << std::endl;
 
     // === STEP 3 OF 3
     // Evaluate matrix elements for all ndim events
-    // 3a. Copy momenta from host to device
-    // 3b. Evaluate MEs on the device
-    // 3c. Copy MEs back from device to host
-
-    // --- 3a. CopyHToD
-    const std::string htodKey = "3a CopyHToD";
-    timermap.start( htodKey );
-    gpuErrchk3( cudaMemcpy( devMomenta, hstMomenta, nbytesMomenta, cudaMemcpyHostToDevice ) );
+    // 3a. Evaluate MEs on the device
+    // 3b. Copy MEs back from device to host
 
     // *** START THE OLD TIMER ***
     float gputime = 0;
 
-    // --- 3b. SigmaKin
-    const std::string skinKey = "3b SigmaKin";
+    // --- 3a. SigmaKin
+    const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
-
     sigmaKin<<<gpublocks, gputhreads>>>(devMomenta,  devMEs);//, debug, verbose);
     gpuErrchk3( cudaPeekAtLastError() );
 
-    // --- 3c. CopyDToH
-    const std::string dtohKey = "3c CopyDToH";
-    gputime += timermap.start( dtohKey );
-
+    // --- 3b. CopyDToH MEs
+    const std::string cmesKey = "3b CpDTHmes";
+    gputime += timermap.start( cmesKey );
     gpuErrchk3( cudaMemcpy( hstMEs, devMEs, nbytesMEs, cudaMemcpyDeviceToHost ) );
+
+    // *** STOP THE OLD TIMER ***
+    gputime += timermap.stop();
+
+    // --- 3c. CopyDToH Momenta
+    const std::string cmomKey = "3c CpDTHmom";
+    timermap.start( cmomKey );
+    gpuErrchk3( cudaMemcpy( hstMomenta, devMomenta, nbytesMomenta, cudaMemcpyDeviceToHost ) );
+
+    // --- 3d. CopyDToH Weights
+    const std::string cwgtKey = "3d CpDTHwgt";
+    timermap.start( cwgtKey );
+    gpuErrchk3( cudaMemcpy( hstWeights, devWeights, nbytesWeights, cudaMemcpyDeviceToHost ) );
 
     // === STEP 9 FINALISE
     // --- 9a Dump within the loop
-    // *** STOP THE OLD TIMER ***
     const std::string loopKey = "9a DumpLoop";
-    gputime += timermap.start(loopKey);
     wavetimes.push_back( gputime );
 
     if (verbose)
@@ -365,15 +400,15 @@ int main(int argc, char **argv)
   const std::string freeKey = "9c MemFree ";
   timermap.start( freeKey );
 
-  delete[] rnarray;
-
-  //delete[] hstMEs;
-  //delete[] hstMomenta;
   gpuErrchk3( cudaFreeHost( hstMEs ) );
+  gpuErrchk3( cudaFreeHost( hstWeights ) );
   gpuErrchk3( cudaFreeHost( hstMomenta ) );
+  gpuErrchk3( cudaFreeHost( hstRnarray ) );
 
   gpuErrchk3( cudaFree( devMEs ) );
+  gpuErrchk3( cudaFree( devWeights ) );
   gpuErrchk3( cudaFree( devMomenta ) );
+  gpuErrchk3( cudaFree( devRnarray ) );
 
   gpuErrchk3( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
 
@@ -385,4 +420,6 @@ int main(int argc, char **argv)
     timermap.dump();
     std::cout << "***********************************" << std::endl;
   }
+
+  //std::cout << "ALL OK" << std::endl;
 }

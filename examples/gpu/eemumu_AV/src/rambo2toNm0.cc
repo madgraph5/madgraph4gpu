@@ -3,11 +3,18 @@
 #include <iostream>
 
 #include "mgOnGpuConfig.h"
-#include "rambo2toNm0.h"
 #include "Random.h"
 
+#ifndef __CUDACC__
+#include "rambo2toNm0.h"
+#endif
+
 // Simplified rambo version for 2 to N (with N>=2) processes with massless particles
+#ifdef __CUDACC__
+namespace grambo2toNm0
+#else
 namespace rambo2toNm0
+#endif
 {
   const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
 
@@ -17,6 +24,9 @@ namespace rambo2toNm0
 
   // Fill in the momenta of the initial particles
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
+#ifdef __CUDACC__
+__global__
+#endif
   void getMomentaInitial( const double energy,    // input: energy
 #if defined MGONGPU_LAYOUT_ASA
                           double momenta1d[],     // output: momenta as AOSOA[npag][npar][4][nepp]
@@ -29,7 +39,6 @@ namespace rambo2toNm0
   {
 #if defined MGONGPU_LAYOUT_ASA
     using mgOnGpu::nepp;
-    const int npag = nevt/nepp; // number of ASA pages needed for nevt events
     double (*momenta)[npar][np4][nepp] = (double (*)[npar][np4][nepp]) momenta1d; // cast to multiD array pointer (AOSOA)
 #elif defined MGONGPU_LAYOUT_SOA
     double (*momenta)[np4][nevt] = (double (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
@@ -39,8 +48,16 @@ namespace rambo2toNm0
     const double energy1 = energy/2;
     const double energy2 = energy/2;
     const double mom = energy/2;
+#ifndef __CUDACC__
     // ** START LOOP ON IEVT **
-    for (int ievt = 0; ievt < nevt; ++ievt) {
+    for (int ievt = 0; ievt < nevt; ++ievt) 
+#endif
+    {
+#ifdef __CUDACC__
+      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // 0 to ndim-1
+      const int ievt = idim;
+      //printf( "getMomentaInitial: ievt %d\n", ievt );
+#endif    
 #if defined MGONGPU_LAYOUT_ASA
       const int ipag = ievt/nepp; // #eventpage in this iteration
       const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
@@ -75,6 +92,9 @@ namespace rambo2toNm0
     // ** END LOOP ON IEVT **
   }
 
+#ifdef __CUDACC__
+__global__
+#endif
   // Fill in the momenta of the final particles using the RAMBO algorithm
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
   void getMomentaFinal( const double energy,    // input: energy
@@ -113,9 +133,16 @@ namespace rambo2toNm0
     for (int kpar = 2; kpar < nparf; kpar++)
       z[kpar] = (z[kpar] - log(double(kpar)));
 
+#ifndef __CUDACC__
     // ** START LOOP ON IEVT **
-    for (int ievt = 0; ievt < nevt; ++ievt)
+    for (int ievt = 0; ievt < nevt; ++ievt) 
+#endif
     {
+#ifdef __CUDACC__
+      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // 0 to ndim-1
+      const int ievt = idim;
+      //printf( "getMomentaFinal:   ievt %d\n", ievt );
+#endif    
 
 #if defined MGONGPU_LAYOUT_ASA
       using mgOnGpu::nepp;
@@ -199,6 +226,7 @@ namespace rambo2toNm0
       if (nparf != 2)
         wt = (2. * nparf - 4.) * log(energy) + z[nparf-1];
 
+#ifndef __CUDACC__
       // issue warnings if weight is too small or too large
       static int iwarn[5] = {0,0,0,0,0};
       if (wt < -180.) {
@@ -211,6 +239,7 @@ namespace rambo2toNm0
           std::cout << "Too large wt, risk for overflow: " << wt << std::endl;
         iwarn[1] = iwarn[1] + 1;
       }
+#endif
 
       // return for weighted massless momenta
       // nothing else to do in this event if all particles are massless (nm==0)
@@ -258,5 +287,3 @@ namespace rambo2toNm0
   }
 
 }
-
-
