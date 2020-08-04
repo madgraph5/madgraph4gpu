@@ -110,15 +110,13 @@ namespace rambo2toNm0
 #endif
   // Fill in the momenta of the final particles using the RAMBO algorithm
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
-  void getMomentaFinal( const double energy,    // input: energy
-#if defined MGONGPU_LAYOUT_ASA
+  void getMomentaFinal( const double energy,      // input: energy
                         const double rnarray1d[], // input: randomnumbers in [0,1] as AOSOA[npag][nparf][4][nepp]
+#if defined MGONGPU_LAYOUT_ASA
                         double momenta1d[],       // output: momenta as AOSOA[npag][npar][4][nepp]
 #elif defined MGONGPU_LAYOUT_SOA
-                        const double rnarray1d[], // input: randomnumbers in [0,1] as SOA[nparf][4][nevt]
                         double momenta1d[],       // output: momenta as SOA[npar][4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
-                        const double rnarray1d[], // input: randomnumbers in [0,1] as SOA[nevt][nparf][4]
                         double momenta1d[],       // output: momenta as AOS[nevt][npar][4]
 #endif
                         double wgts[],            // output: weights[nevt]
@@ -157,18 +155,16 @@ namespace rambo2toNm0
       //printf( "getMomentaFinal:   ievt %d\n", ievt );
 #endif
 
-#if defined MGONGPU_LAYOUT_ASA
       using mgOnGpu::nepp;
       const int ipag = ievt/nepp; // #eventpage in this iteration
       const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
       double (*rnarray)[nparf][np4][nepp] = (double (*)[nparf][np4][nepp]) rnarray1d; // cast to multiD array pointer (AOSOA)
+#if defined MGONGPU_LAYOUT_ASA
       double (*momenta)[npar][np4][nepp] = (double (*)[npar][np4][nepp]) momenta1d; // cast to multiD array pointer (AOSOA)
 #elif defined MGONGPU_LAYOUT_SOA
       // Cast is impossible in CUDA C ("error: expression must have a constant value")
-      //double (*rnarray)[np4][nevt] = (double (*)[np4][nevt]) rnarray1d; // cast to multiD array pointer (SOA)
       //double (*momenta)[np4][nevt] = (double (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
 #elif defined MGONGPU_LAYOUT_AOS
-      double (*rnarray)[nparf][np4] = (double (*)[nparf][np4]) rnarray1d; // cast to multiD array pointer (AOS)
       double (*momenta)[npar][np4] = (double (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOS)
 #endif
       double& wt = wgts[ievt];
@@ -176,22 +172,10 @@ namespace rambo2toNm0
       // generate n massless momenta in infinite phase space
       double q[nparf][np4];
       for (int iparf = 0; iparf < nparf; iparf++) {
-#if defined MGONGPU_LAYOUT_ASA
         const double r1 = rnarray[ipag][iparf][0][iepp];
         const double r2 = rnarray[ipag][iparf][1][iepp];
         const double r3 = rnarray[ipag][iparf][2][iepp];
         const double r4 = rnarray[ipag][iparf][3][iepp];
-#elif defined MGONGPU_LAYOUT_SOA
-        const double r1 = rnarray1d[iparf*np4*nevt + 0*nevt + ievt];
-        const double r2 = rnarray1d[iparf*np4*nevt + 1*nevt + ievt];
-        const double r3 = rnarray1d[iparf*np4*nevt + 2*nevt + ievt];
-        const double r4 = rnarray1d[iparf*np4*nevt + 3*nevt + ievt];
-#elif defined MGONGPU_LAYOUT_AOS
-        const double r1 = rnarray[ievt][iparf][0];
-        const double r2 = rnarray[ievt][iparf][1];
-        const double r3 = rnarray[ievt][iparf][2];
-        const double r4 = rnarray[ievt][iparf][3];
-#endif
         const double c = 2. * r1 - 1.;
         const double s = sqrt(1. - c * c);
         const double f = twopi * r2;
