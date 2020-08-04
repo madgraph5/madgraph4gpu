@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "mgOnGpuConfig.h"
-#include "Random.h"
 
 #include <cassert>
 #include "curand.h"
