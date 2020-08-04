@@ -27,8 +27,6 @@ void get_momenta( const int ninitial,     // input: #particles_initial
                   const int nevt )        // input: #events
 {
   const int nparf = npar - ninitial; // (previously was nfinal = nexternal - ninitial)
-  const double e2 = pow(energy, 2);
-  const double m1 = masses[0];
 
   const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
 
@@ -44,6 +42,7 @@ void get_momenta( const int ninitial,     // input: #particles_initial
 
   // #Initial==1
   if (ninitial == 1) {
+    const double m1 = masses[0];
     for (int ievt = 0; ievt < nevt; ++ievt) {
       // Momenta for the incoming particle
 #if defined MGONGPU_LAYOUT_ASA
@@ -79,13 +78,15 @@ void get_momenta( const int ninitial,     // input: #particles_initial
 
   // #Initial==2
   else {
+    const double m1 = masses[0];
     const double m2 = masses[1];
-    const double mom =
-      sqrt((pow(e2, 2) - 2 * e2 * pow(m1, 2) + pow(m1, 4) -
-            2 * e2 * pow(m2, 2) - 2 * pow(m1, 2) * pow(m2, 2) + pow(m2, 4)) /
-           (4 * e2));
-    const double energy1 = sqrt(pow(mom, 2) + pow(m1, 2));
-    const double energy2 = sqrt(pow(mom, 2) + pow(m2, 2));
+    const double e2 = pow(energy, 2);
+    const double mom = sqrt( ( pow(e2, 2) 
+                               - 2 * e2 * pow(m1, 2) + pow(m1, 4) 
+                               - 2 * e2 * pow(m2, 2) + pow(m2, 4)
+                               - 2 * pow(m1, 2) * pow(m2, 2) ) / (4 * e2) );
+    const double energy1 = sqrt( pow(mom, 2) + pow(m1, 2) );
+    const double energy2 = sqrt( pow(mom, 2) + pow(m2, 2) );
     // Momenta for the incoming particles
     for (int ievt = 0; ievt < nevt; ++ievt) {
 #if defined MGONGPU_LAYOUT_ASA
