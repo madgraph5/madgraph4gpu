@@ -87,12 +87,14 @@ int main(int argc, char **argv)
 
   // === STEP 0 - INITIALISE
 
+#ifdef __CUDACC__
   // --- 00. Initialise cuda (call cudaFree to ease cuda profile analysis)
   const std::string cdfrKey = "00 CudaFree";
   timermap.start( cdfrKey );
   //std::cout << "Calling cudaFree... " << std::endl;
   gpuErrchk3( cudaFree( 0 ) ); // SLOW!
   //std::cout << "Calling cudaFree... done" << std::endl;
+#endif
 
   // --- 0a. Initialise physics process
   const std::string procKey = "0a ProcInit";

@@ -12,7 +12,7 @@ MAKEDEBUG=
 
 cu_main=gcheck.exe
 cu_objects=gCPPProcess.o gcheck.o
-cxx_objects=CPPProcess.o
+cxx_objects=CPPProcess.o #check.o
 
 # Assuming uname is available, detect if architecture is power
 UNAME_P := $(shell uname -p)
