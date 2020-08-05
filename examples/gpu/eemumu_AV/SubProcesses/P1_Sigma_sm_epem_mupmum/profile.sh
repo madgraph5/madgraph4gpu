@@ -1,4 +1,16 @@
 #!/bin/bash
+if [ "$1" == "--cc" ]; then
+  cmd="./check.exe -p 64 64 12"
+  tag=cc
+  shift
+else
+  cmd="./gcheck.exe -p 2048 256 12"
+  tag=cu
+fi
+if [ "$1" != "" ]; then
+  echo "Usage: $0 [--cc]"
+  exit 1
+fi
 host=$(hostname)
 if [ "${host%%raplab*}" != "${host}" ]; then
   logs=logs_raplab
@@ -7,8 +19,7 @@ elif [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
 else
   logs=logs
 fi
-cmd="./gcheck.exe -p 2048 256 12"
-trace=$logs/eemumuAV_`date +%m%d_%H%M`
+trace=$logs/eemumuAV_${tag}_`date +%m%d_%H%M`
 ( time ${cmd} ) 2>&1 | tee ${trace}.txt
 if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
   /usr/local/cuda-11.0/bin/ncu --set full -o ${trace} ${cmd}
