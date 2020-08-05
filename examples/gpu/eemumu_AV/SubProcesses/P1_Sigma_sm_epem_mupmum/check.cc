@@ -72,14 +72,12 @@ int main(int argc, char **argv)
     return usage(argv[0]);
 
   const int ndim = gpublocks * gputhreads; // number of events (threads) in one iteration
-#if defined MGONGPU_LAYOUT_ASA
   using mgOnGpu::nepp;
   if ( gputhreads%nepp != 0 )
   {
     std::cout << "ERROR! #threads/block should be a multiple of " << nepp << std::endl;
     return usage(argv[0]);
   }
-#endif
 
   if (verbose)
     std::cout << "# iterations: " << niter << std::endl;
