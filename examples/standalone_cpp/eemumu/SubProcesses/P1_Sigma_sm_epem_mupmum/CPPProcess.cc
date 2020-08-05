@@ -140,6 +140,8 @@ void CPPProcess::sigmaKin(bool ppar) {
     }
   }
 
+  //if ( ntry == 10 ) for (int ihel = 0; ihel < ncomb; ihel++ ) printf( "sigmakin: ihel %2d %d\n", ihel, goodhel[ihel] );
+
   for (int i = 0; i < nprocesses; i++)
     matrix_element[i] /= denominators[i];
 
