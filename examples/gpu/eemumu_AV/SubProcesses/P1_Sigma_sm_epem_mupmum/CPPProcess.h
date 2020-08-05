@@ -121,10 +121,10 @@ namespace MG5_sm
 #include "Parameters_sm.h"
 
 #ifdef __CUDACC__
-#define gpuErrchk3( code )                      \
-  { gpuAssert3( code, __FILE__, __LINE__ ); }
+#define checkCuda( code )                      \
+  { assertCuda( code, __FILE__, __LINE__ ); }
 
-inline void gpuAssert3( cudaError_t code, const char *file, int line, bool abort = true )
+inline void assertCuda( cudaError_t code, const char *file, int line, bool abort = true )
 {
   if ( code != cudaSuccess )
   {

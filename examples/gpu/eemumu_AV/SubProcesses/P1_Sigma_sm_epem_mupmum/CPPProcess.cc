@@ -364,7 +364,7 @@ namespace Proc
         {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
         {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
 #ifdef __CUDACC__
-    gpuErrchk3( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(int) ) );
+    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(int) ) );
 #else
     memcpy( cHel, tHel, ncomb * nexternal * sizeof(int) );
 #endif
@@ -404,8 +404,8 @@ namespace Proc
     static double tIPD[2] = {pars->mdl_MZ, pars->mdl_WZ};
 
 #ifdef __CUDACC__
-    gpuErrchk3( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(dcomplex ) ) );
-    gpuErrchk3( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof(double) ) );
+    checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(dcomplex ) ) );
+    checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof(double) ) );
 #else
     memcpy( cIPC, tIPC, 3 * sizeof(dcomplex ) );
     memcpy( cIPD, tIPD, 2 * sizeof(double) );
