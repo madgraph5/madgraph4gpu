@@ -1,3 +1,6 @@
+#include "mgOnGpuConfig.h"
+using mgOnGpu::dcomplex;
+
 //==========================================================================
 // This file has been automatically generated for C++ Standalone
 // MadGraph5_aMC@NLO v. 2.7.3.py3, 2020-06-28
@@ -11,7 +14,6 @@
 #define HelAmps_sm_H
 
 #include <cmath>
-#include <thrust/complex.h>
 
 namespace MG5_sm
 {
@@ -19,83 +21,83 @@ namespace MG5_sm
                          const double fmass,
                          const int nhel,
                          const int nsf,
-                         thrust::complex<double> fo[6]);
+                         dcomplex fo[6]);
 
   __device__ void sxxxxx(const double p[4],
                          const int nss,
-                         thrust::complex<double> sc[3]);
+                         dcomplex sc[3]);
 
   __device__ void ixxxxx(const double p[4],
                          const double fmass,
                          const int nhel,
                          const int nsf,
-                         thrust::complex<double> fi[6]);
+                         dcomplex fi[6]);
 
   __device__ void txxxxx(const double p[4],
                          const double tmass,
                          const int nhel,
                          const int nst,
-                         thrust::complex<double> fi[18]);
+                         dcomplex fi[18]);
 
   __device__ void vxxxxx(const double p[4],
                          const double vmass,
                          const int nhel,
                          const int nsv,
-                         thrust::complex<double> v[6]);
+                         dcomplex v[6]);
 
-  __device__ void FFV2_0(const thrust::complex<double> F1[],
-                         const thrust::complex<double> F2[],
-                         const thrust::complex<double> V3[],
-                         const thrust::complex<double> COUP,
-                         thrust::complex<double> * vertex);
+  __device__ void FFV2_0(const dcomplex F1[],
+                         const dcomplex F2[],
+                         const dcomplex V3[],
+                         const dcomplex COUP,
+                         dcomplex * vertex);
 
-  __device__ void FFV2_3(const thrust::complex<double> F1[],
-                         const thrust::complex<double> F2[],
-                         const thrust::complex<double> COUP,
+  __device__ void FFV2_3(const dcomplex F1[],
+                         const dcomplex F2[],
+                         const dcomplex COUP,
                          const double M3,
                          const double W3,
-                         thrust::complex<double> V3[]);
+                         dcomplex V3[]);
 
-  __device__ void FFV4_0(const thrust::complex<double> F1[],
-                         const thrust::complex<double> F2[],
-                         const thrust::complex<double> V3[],
-                         const thrust::complex<double> COUP,
-                         thrust::complex<double> * vertex);
+  __device__ void FFV4_0(const dcomplex F1[],
+                         const dcomplex F2[],
+                         const dcomplex V3[],
+                         const dcomplex COUP,
+                         dcomplex * vertex);
 
-  __device__ void FFV4_3(const thrust::complex<double> F1[],
-                         const thrust::complex<double> F2[],
-                         const thrust::complex<double> COUP,
+  __device__ void FFV4_3(const dcomplex F1[],
+                         const dcomplex F2[],
+                         const dcomplex COUP,
                          const double M3,
                          const double W3,
-                         thrust::complex<double> V3[]);
+                         dcomplex V3[]);
 
-  __device__ void FFV1_0(const thrust::complex<double> F1[],
-                         const thrust::complex<double> F2[],
-                         const thrust::complex<double> V3[],
-                         const thrust::complex<double> COUP,
-                         thrust::complex<double> * vertex);
+  __device__ void FFV1_0(const dcomplex F1[],
+                         const dcomplex F2[],
+                         const dcomplex V3[],
+                         const dcomplex COUP,
+                         dcomplex * vertex);
 
-  __device__ void FFV1P0_3(const thrust::complex<double> F1[],
-                           const thrust::complex<double> F2[],
-                           const thrust::complex<double> COUP,
+  __device__ void FFV1P0_3(const dcomplex F1[],
+                           const dcomplex F2[],
+                           const dcomplex COUP,
                            const double M3,
                            const double W3,
-                           thrust::complex<double> V3[]);
+                           dcomplex V3[]);
 
-  __device__ void FFV2_4_0(const thrust::complex<double> F1[],
-                           const thrust::complex<double> F2[],
-                           const thrust::complex<double> V3[],
-                           const thrust::complex<double> COUP1,
-                           const thrust::complex<double> COUP2,
-                           thrust::complex<double> * vertex);
+  __device__ void FFV2_4_0(const dcomplex F1[],
+                           const dcomplex F2[],
+                           const dcomplex V3[],
+                           const dcomplex COUP1,
+                           const dcomplex COUP2,
+                           dcomplex * vertex);
 
-  __device__ void FFV2_4_3(const thrust::complex<double> F1[],
-                           const thrust::complex<double> F2[],
-                           const thrust::complex<double> COUP1,
-                           const thrust::complex<double> COUP2,
+  __device__ void FFV2_4_3(const dcomplex F1[],
+                           const dcomplex F2[],
+                           const dcomplex COUP1,
+                           const dcomplex COUP2,
                            const double M3,
                            const double W3,
-                           thrust::complex<double> V3[]);
+                           dcomplex V3[]);
 
 }  // end namespace MG5_sm
 
@@ -116,11 +118,7 @@ namespace MG5_sm
 #include <complex>
 #include <vector>
 
-
 #include "Parameters_sm.h"
-
-#include <thrust/complex.h>
-
 
 #define gpuErrchk3( code )                      \
   { gpuAssert3( code, __FILE__, __LINE__ ); }
@@ -193,7 +191,7 @@ private:
   static const int wrows = 6;
   // static const int nioparticles = 4;
 
-  thrust::complex<double> * * amp;
+  dcomplex * * amp;
 
 
   // Pointer to the model parameters

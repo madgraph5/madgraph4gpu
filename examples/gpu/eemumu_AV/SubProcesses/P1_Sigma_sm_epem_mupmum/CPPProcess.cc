@@ -5,13 +5,12 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#include <complex>
 #include <cmath>
-#include <iostream>
 #include <cstdlib>
-#include <thrust/complex.h>
+#include <iostream>
 
 #include "mgOnGpuConfig.h"
+using mgOnGpu::dcomplex;
 
 namespace MG5_sm
 {
@@ -20,20 +19,20 @@ namespace MG5_sm
                            //const double fmass,
                            const int nhel,
                            const int nsf,
-                           thrust::complex<double> fi[6])
+                           dcomplex fi[6])
   {
-    fi[0] = thrust::complex<double> (-pvec[0] * nsf, -pvec[3] * nsf);
-    fi[1] = thrust::complex<double> (-pvec[1] * nsf, -pvec[2] * nsf);
+    fi[0] = dcomplex (-pvec[0] * nsf, -pvec[3] * nsf);
+    fi[1] = dcomplex (-pvec[1] * nsf, -pvec[2] * nsf);
     const int nh = nhel * nsf;
     // ASSUMPTIONS FMASS = 0 and
     // (PX = PY = 0 and E = -P3 > 0)
     {
-      const thrust::complex<double> chi0( 0, 0 );
-      const thrust::complex<double> chi1( -nhel * sqrt(2 * pvec[0]), 0 );
+      const dcomplex chi0( 0, 0 );
+      const dcomplex chi1( -nhel * sqrt(2 * pvec[0]), 0 );
       if (nh == 1)
       {
-        fi[2] = thrust::complex<double> (0, 0);
-        fi[3] = thrust::complex<double> (0, 0);
+        fi[2] = dcomplex (0, 0);
+        fi[3] = dcomplex (0, 0);
         fi[4] = chi0;
         fi[5] = chi1;
       }
@@ -41,8 +40,8 @@ namespace MG5_sm
       {
         fi[2] = chi1;
         fi[3] = chi0;
-        fi[4] = thrust::complex<double> (0, 0);
-        fi[5] = thrust::complex<double> (0, 0);
+        fi[4] = dcomplex (0, 0);
+        fi[5] = dcomplex (0, 0);
       }
     }
     return;
@@ -53,21 +52,21 @@ namespace MG5_sm
                            //const double fmass,
                            const int nhel,
                            const int nsf,
-                           thrust::complex<double> fi[6])
+                           dcomplex fi[6])
   {
-    fi[0] = thrust::complex<double> (-pvec[0] * nsf, -pvec[3] * nsf);
-    fi[1] = thrust::complex<double> (-pvec[1] * nsf, -pvec[2] * nsf);
+    fi[0] = dcomplex (-pvec[0] * nsf, -pvec[3] * nsf);
+    fi[1] = dcomplex (-pvec[1] * nsf, -pvec[2] * nsf);
     const int nh = nhel * nsf;
     // ASSUMPTIONS FMASS = 0 and
     // (PX and PY are not 0)
     {
       const double sqp0p3 = sqrt( pvec[0] + pvec[3] ) * nsf;
-      const thrust::complex<double> chi0( sqp0p3, 0.0 );
-      const thrust::complex<double> chi1( nh * pvec[1] / sqp0p3, pvec[2] / sqp0p3 );
+      const dcomplex chi0( sqp0p3, 0.0 );
+      const dcomplex chi1( nh * pvec[1] / sqp0p3, pvec[2] / sqp0p3 );
       if (nh == 1)
       {
-        fi[2] = thrust::complex<double> (0, 0);
-        fi[3] = thrust::complex<double> (0, 0);
+        fi[2] = dcomplex (0, 0);
+        fi[3] = dcomplex (0, 0);
         fi[4] = chi0;
         fi[5] = chi1;
       }
@@ -75,8 +74,8 @@ namespace MG5_sm
       {
         fi[2] = chi1;
         fi[3] = chi0;
-        fi[4] = thrust::complex<double> (0, 0);
-        fi[5] = thrust::complex<double> (0, 0);
+        fi[4] = dcomplex (0, 0);
+        fi[5] = dcomplex (0, 0);
       }
     }
     return;
@@ -88,29 +87,29 @@ namespace MG5_sm
                            //const double fmass,
                            const int nhel,
                            const int nsf,
-                           thrust::complex<double> fo[6])
+                           dcomplex fo[6])
   {
-    fo[0] = thrust::complex<double> (pvec[0] * nsf, pvec[3] * nsf);
-    fo[1] = thrust::complex<double> (pvec[1] * nsf, pvec[2] * nsf);
+    fo[0] = dcomplex (pvec[0] * nsf, pvec[3] * nsf);
+    fo[1] = dcomplex (pvec[1] * nsf, pvec[2] * nsf);
     const int nh = nhel * nsf;
     // ASSUMPTIONS FMASS = 0 and
     // EITHER (Px and Py are not zero)
     // OR (PX = PY = 0 and E = P3 > 0)
     {
       const double sqp0p3 = sqrt( pvec[0] + pvec[3] ) * nsf;
-      const thrust::complex<double> chi0( sqp0p3, 0.0 );
-      const thrust::complex<double> chi1( nh * pvec[1] / sqp0p3, -pvec[2] / sqp0p3 );
+      const dcomplex chi0( sqp0p3, 0.0 );
+      const dcomplex chi1( nh * pvec[1] / sqp0p3, -pvec[2] / sqp0p3 );
       if (nh == 1)
       {
         fo[2] = chi0;
         fo[3] = chi1;
-        fo[4] = thrust::complex<double> ( 0, 0 );
-        fo[5] = thrust::complex<double> ( 0, 0 );
+        fo[4] = dcomplex ( 0, 0 );
+        fo[5] = dcomplex ( 0, 0 );
       }
       else
       {
-        fo[2] = thrust::complex<double> ( 0, 0 );
-        fo[3] = thrust::complex<double> ( 0, 0 );
+        fo[2] = dcomplex ( 0, 0 );
+        fo[3] = dcomplex ( 0, 0 );
         fo[4] = chi1;
         fo[5] = chi0;
       }
@@ -120,14 +119,14 @@ namespace MG5_sm
 
 
 
-  __device__ void FFV1_0(const thrust::complex<double> F1[],
-                         const thrust::complex<double> F2[],
-                         const thrust::complex<double> V3[],
-                         const thrust::complex<double> COUP,
-                         thrust::complex<double> * vertex)
+  __device__ void FFV1_0(const dcomplex F1[],
+                         const dcomplex F2[],
+                         const dcomplex V3[],
+                         const dcomplex COUP,
+                         dcomplex * vertex)
   {
-    const thrust::complex<double> cI = thrust::complex<double> (0., 1.);
-    const thrust::complex<double> TMP4 =
+    const dcomplex cI = dcomplex (0., 1.);
+    const dcomplex TMP4 =
       (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
        (F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])) +
         (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
@@ -136,21 +135,21 @@ namespace MG5_sm
   }
 
 
-  __device__ void FFV1P0_3(const thrust::complex<double> F1[],
-                           const thrust::complex<double> F2[],
-                           const thrust::complex<double> COUP,
+  __device__ void FFV1P0_3(const dcomplex F1[],
+                           const dcomplex F2[],
+                           const dcomplex COUP,
                            const double M3,
                            const double W3,
-                           thrust::complex<double> V3[])
+                           dcomplex V3[])
   {
-    const thrust::complex<double> cI = thrust::complex<double> (0., 1.);
+    const dcomplex cI = dcomplex (0., 1.);
     V3[0] = +F1[0] + F2[0];
     V3[1] = +F1[1] + F2[1];
     const double P3[4] = { -V3[0].real(),
                            -V3[1].real(),
                            -V3[1].imag(),
                            -V3[0].imag() };
-    const thrust::complex<double> denom =
+    const dcomplex denom =
       COUP/((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
     V3[2] = denom * (-cI) * (F1[2] * F2[4] + F1[3] * F2[5] + F1[4] * F2[2] + F1[5] * F2[3]);
     V3[3] = denom * (-cI) * (-F1[2] * F2[5] - F1[3] * F2[4] + F1[4] * F2[3] + F1[5] * F2[2]);
@@ -159,33 +158,33 @@ namespace MG5_sm
   }
 
 
-  __device__ void FFV2_4_0(const thrust::complex<double> F1[],
-                           const thrust::complex<double> F2[],
-                           const thrust::complex<double> V3[],
-                           const thrust::complex<double> COUP1,
-                           const thrust::complex<double> COUP2,
-                           thrust::complex<double> * vertex)
+  __device__ void FFV2_4_0(const dcomplex F1[],
+                           const dcomplex F2[],
+                           const dcomplex V3[],
+                           const dcomplex COUP1,
+                           const dcomplex COUP2,
+                           dcomplex * vertex)
   {
-    const thrust::complex<double> cI = thrust::complex<double> (0., 1.);
-    const thrust::complex<double> TMP2 =
+    const dcomplex cI = dcomplex (0., 1.);
+    const dcomplex TMP2 =
       (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
        F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
-    const thrust::complex<double> TMP0 =
+    const dcomplex TMP0 =
       (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
        F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
     (*vertex) = (-1.) * (COUP2 * (+cI * (TMP0) + 2. * cI * (TMP2)) + cI * (TMP0 * COUP1));
   }
 
 
-  __device__ void FFV2_4_3(const thrust::complex<double> F1[],
-                           const thrust::complex<double> F2[],
-                           const thrust::complex<double> COUP1,
-                           const thrust::complex<double> COUP2,
+  __device__ void FFV2_4_3(const dcomplex F1[],
+                           const dcomplex F2[],
+                           const dcomplex COUP1,
+                           const dcomplex COUP2,
                            const double M3,
                            const double W3,
-                           thrust::complex<double> V3[])
+                           dcomplex V3[])
   {
-    const thrust::complex<double> cI = thrust::complex<double> (0., 1.);
+    const dcomplex cI = dcomplex (0., 1.);
     double OM3 = 0.;
     if (M3 != 0.) OM3 = 1./(M3 * M3);
     V3[0] = +F1[0] + F2[0];
@@ -194,13 +193,13 @@ namespace MG5_sm
                            -V3[1].real(),
                            -V3[1].imag(),
                            -V3[0].imag() };
-    const thrust::complex<double> TMP1 =
+    const dcomplex TMP1 =
       (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
        F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
-    const thrust::complex<double> TMP3 =
+    const dcomplex TMP3 =
       (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) +
        F1[5] * (F2[2] * (-P3[1] + cI * (P3[2])) + F2[3] * (P3[0] + P3[3])));
-    const thrust::complex<double> denom =
+    const dcomplex denom =
       1./((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) -
           (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
     V3[2] = denom * (-2. * cI) *
@@ -236,7 +235,8 @@ namespace MG5_sm
 
 #include <algorithm>
 #include <iostream>
-#include <thrust/complex.h>
+
+#include "mgOnGpuConfig.h"
 
 #include "CPPProcess.h"
 
@@ -257,9 +257,9 @@ __constant__ double cIPD[2];
 __device__ void calculate_wavefunctions(int ihel, double local_mom[4][4],
                                         double &matrix)
 {
-  thrust::complex<double> amp[2];
+  dcomplex amp[2];
   // Calculate wavefunctions for all processes
-  thrust::complex<double> w[5][6];
+  dcomplex w[5][6];
 
   //MG5_sm::oxxxxx(local_mom[0], 0., cHel[ihel][0], -1, w[0]);
   //MG5_sm::oxxxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]);
@@ -277,18 +277,18 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[4][4],
   //MG5_sm::oxxxxxM0(local_mom[3], cHel[ihel][3], +1, w[3]);
   MG5_sm::oxzxxxM0(local_mom[3], cHel[ihel][3], +1, w[3]);
 
-  MG5_sm::FFV1P0_3(w[1], w[0], thrust::complex<double> (cIPC[0], cIPC[1]), 0., 0., w[4]);
+  MG5_sm::FFV1P0_3(w[1], w[0], dcomplex (cIPC[0], cIPC[1]), 0., 0., w[4]);
   // Amplitude(s) for diagram number 1
-  MG5_sm::FFV1_0(w[2], w[3], w[4], thrust::complex<double> (cIPC[0], cIPC[1]), &amp[0]);
-  MG5_sm::FFV2_4_3(w[1], w[0], thrust::complex<double> (cIPC[2], cIPC[3]),
-                   thrust::complex<double> (cIPC[4], cIPC[5]), cIPD[0], cIPD[1], w[4]);
+  MG5_sm::FFV1_0(w[2], w[3], w[4], dcomplex (cIPC[0], cIPC[1]), &amp[0]);
+  MG5_sm::FFV2_4_3(w[1], w[0], dcomplex (cIPC[2], cIPC[3]),
+                   dcomplex (cIPC[4], cIPC[5]), cIPD[0], cIPD[1], w[4]);
   // Amplitude(s) for diagram number 2
-  MG5_sm::FFV2_4_0(w[2], w[3], w[4], thrust::complex<double> (cIPC[2], cIPC[3]),
-                   thrust::complex<double> (cIPC[4], cIPC[5]), &amp[1]);
+  MG5_sm::FFV2_4_0(w[2], w[3], w[4], dcomplex (cIPC[2], cIPC[3]),
+                   dcomplex (cIPC[4], cIPC[5]), &amp[1]);
 
   const int ncolor = 1;
-  thrust::complex<double> ztemp;
-  thrust::complex<double> jamp[ncolor];
+  dcomplex ztemp;
+  dcomplex jamp[ncolor];
 
   // The color matrix;
   static const double denom[ncolor] = {1};
@@ -364,11 +364,11 @@ void CPPProcess::initProc(std::string param_card_name)
   mME.push_back(pars->ZERO);
   mME.push_back(pars->ZERO);
   mME.push_back(pars->ZERO);
-  static thrust::complex<double> tIPC[3] = {pars->GC_3, pars->GC_50,
+  static dcomplex tIPC[3] = {pars->GC_3, pars->GC_50,
                                             pars->GC_59};
   static double tIPD[2] = {pars->mdl_MZ, pars->mdl_WZ};
 
-  gpuErrchk3( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(thrust::complex<double> ) ) );
+  gpuErrchk3( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(dcomplex ) ) );
   gpuErrchk3( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof(double) ) );
 }
 
