@@ -11,7 +11,7 @@ CXX=g++
 MAKEDEBUG=
 
 main=check.exe
-cu_objects=CPPProcess.o check_sa.o
+cu_objects=gCPPProcess.o check_sa.o
 cxx_objects=
 
 # Assuming uname is available, detect if architecture is power
@@ -39,10 +39,10 @@ $(LIBDIR)/lib$(MODELLIB).a:
 check_sa.o: check_sa.cu *.h ../../src/*.h ../../src/*.cu
 	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
 
-%.o : %.cu %.h ../../src/*.h
+%.o : %.cu *.h ../../src/*.h
 	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
 
-%.o : %.cc %.h ../../src/*.h
+%.o : %.cc *.h ../../src/*.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 $(main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects)
