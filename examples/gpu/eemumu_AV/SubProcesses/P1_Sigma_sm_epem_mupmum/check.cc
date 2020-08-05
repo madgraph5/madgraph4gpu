@@ -73,6 +73,7 @@ int main(int argc, char **argv)
     return usage(argv[0]);
 
   const int ndim = gpublocks * gputhreads; // number of events (threads) in one iteration
+
 #if defined MGONGPU_LAYOUT_ASA
   using mgOnGpu::nepp;
   if ( gputhreads%nepp != 0 )
@@ -125,14 +126,27 @@ int main(int argc, char **argv)
   const int nparf = npar - process.ninitial; // for this process (eemumu): nparf=2 (mu+, mu-)
   const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
 
-  const int nRnarray = np4*nparf*ndim; // (NB: ndim=npag*nepp for ASA layouts) 
+  int numstr = 2; // number of cuda streams
+  cudaStream_t streams[numstr];
+
+#ifdef __CUDACC__
+  for (int i = 0; i < numstr; ++i) {
+    cudaStreamCreate(&streams[i]);
+  }
+#endif
+
+  const int nRnarray = np4*nparf*ndim; // (NB: ndim=npag*nepp for ASA layouts)
   const int nbytesRnarray = nRnarray * sizeof(double);
 #ifdef __CUDACC__
-  double* devRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
-  checkCuda( cudaMalloc( &devRnarray, nbytesRnarray ) );
+  double* devRnarray[numstr] = { 0 }; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
+  for (int i = 0; i < numstr; ++i) {
+    checkCuda( cudaMalloc( &devRnarray[i], nbytesRnarray ) );
+  }
 #if defined MGONGPU_CURAND_ONHOST
-  double* hstRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
-  checkCuda( cudaMallocHost( &hstRnarray, nbytesRnarray ) );
+  double* hstRnarray[numstr] = { 0 }; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
+  for (int i = 0; i < numstr; ++i) {
+    checkCuda( cudaMallocHost( &hstRnarray[i], nbytesRnarray ) );
+  }
 #endif
 #else
   double* hstRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
@@ -141,6 +155,8 @@ int main(int argc, char **argv)
 
   const int nMomenta = np4*npar*ndim; // (NB: ndim=npag*nepp for ASA layouts)
   const int nbytesMomenta = nMomenta * sizeof(double);
+
+/*
 #if defined MGONGPU_LAYOUT_ASA
   double* hstMomenta = 0; // AOSOA[npag][npar][np4][nepp] (previously was: lp)
 #elif defined MGONGPU_LAYOUT_SOA
@@ -148,34 +164,43 @@ int main(int argc, char **argv)
 #elif defined MGONGPU_LAYOUT_AOS
   double* hstMomenta = 0; // AOS[ndim][npar][np4] (previously was: lp)
 #endif
+*/
+
 #ifdef __CUDACC__
-  checkCuda( cudaMallocHost( &hstMomenta, nbytesMomenta ) );
-  double* devMomenta = 0; // (previously was: allMomenta)
-  checkCuda( cudaMalloc( &devMomenta, nbytesMomenta ) );
+  double* hstMomenta[numstr] = { 0 };
+  double* devMomenta[numstr] = { 0 }; // (previously was: allMomenta)
+  for (int i = 0; i < numstr; ++i) {
+    checkCuda( cudaMallocHost( &hstMomenta[i], nbytesMomenta ) );
+    checkCuda( cudaMalloc( &devMomenta[i], nbytesMomenta ) );
+  }
 #else
-  hstMomenta = new double[nMomenta]();
+  double * hstMomenta = new double[nMomenta]();
 #endif
 
   const int nWeights = ndim; //  (NB: ndim=npag*nepp for ASA layouts)
   const int nbytesWeights = nWeights * sizeof(double);
-  double* hstWeights = 0; // (previously was: meHostPtr)
 #ifdef __CUDACC__
-  checkCuda( cudaMallocHost( &hstWeights, nbytesWeights ) );
-  double* devWeights = 0; // (previously was: meDevPtr)
-  checkCuda( cudaMalloc( &devWeights, nbytesWeights ) );
+  double* hstWeights[numstr] = { 0 }; // (previously was: meHostPtr)
+  double* devWeights[numstr] = { 0 }; // (previously was: meDevPtr)
+  for (int i = 0; i < numstr; ++i) {
+    checkCuda( cudaMallocHost( &hstWeights[i], nbytesWeights ) );
+    checkCuda( cudaMalloc( &devWeights[i], nbytesWeights ) );
+  }
 #else
-  hstWeights = new double[nWeights]();
+  double * hstWeights = new double[nWeights]();
 #endif
 
   const int nMEs = ndim; //  (NB: ndim=npag*nepp for ASA layouts)
   const int nbytesMEs = nMEs * sizeof(double);
-  double* hstMEs = 0; // (previously was: meHostPtr)
 #ifdef __CUDACC__
-  checkCuda( cudaMallocHost( &hstMEs, nbytesMEs ) );
-  double* devMEs = 0; // (previously was: meDevPtr)
-  checkCuda( cudaMalloc( &devMEs, nbytesMEs ) );
+  double* hstMEs[numstr] = { 0 }; // (previously was: meHostPtr)
+  double* devMEs[numstr] = { 0 }; // (previously was: meDevPtr)
+  for (int i = 0; i < numstr; ++i) {
+    checkCuda( cudaMallocHost( &hstMEs[i], nbytesMEs ) );
+    checkCuda( cudaMalloc( &devMEs[i], nbytesMEs ) );
+  }
 #else
-  hstMEs = new double[nMEs]();
+  double * hstMEs = new double[nMEs]();
 #endif
 
   float* wavetimes = new float[niter]();
@@ -184,10 +209,14 @@ int main(int argc, char **argv)
   // --- 0c. Create curand generator
   const std::string cgenKey = "0c GenCreat";
   timermap.start( cgenKey );
-  curandGenerator_t rnGen;
+
 #ifdef __CUDACC__
-  grambo2toNm0::createGenerator( &rnGen );
+  curandGenerator_t rnGen[numstr];
+  for (int i = 0; i < numstr; ++i) {
+    grambo2toNm0::createGenerator( &rnGen[i] );
+  }
 #else
+  curandGenerator_t rnGen;
   rambo2toNm0::createGenerator( &rnGen );
 #endif
 
@@ -197,193 +226,198 @@ int main(int argc, char **argv)
 
   for (int iiter = 0; iiter < niter; ++iiter)
   {
-    //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
 
-    // === STEP 1 OF 3
+     for (int siter = 0; siter < numstr; ++siter) {
 
-    // --- 1a. Seed curand generator (to get same results on host and device)
-    // [NB This should not be necessary using the host API: "Generation functions
-    // can be called multiple times on the same generator to generate successive
-    // blocks of results. For pseudorandom generators, multiple calls to generation
-    // functions will yield the same result as a single call with a large size."]
-    const std::string sgenKey = "1a GenSeed ";
-    timermap.start( sgenKey );
-    const unsigned long long seed = 20200805;
-#ifdef __CUDACC__
-    grambo2toNm0::seedGenerator( rnGen, seed+iiter );
-#else
-    rambo2toNm0::seedGenerator( rnGen, seed+iiter );
-#endif
 
-    // --- 1b. Generate all relevant numbers to build ndim events (i.e. ndim phase space points) on the host
-    const std::string rngnKey = "1b GenRnGen";
-    timermap.start( rngnKey );
-#ifdef __CUDACC__
-#if defined MGONGPU_CURAND_ONDEVICE
-    grambo2toNm0::generateRnArray( rnGen, devRnarray, ndim );
-#elif defined MGONGPU_CURAND_ONHOST
-    grambo2toNm0::generateRnArray( rnGen, hstRnarray, ndim );
-#endif
-#else
-    rambo2toNm0::generateRnArray( rnGen, hstRnarray, ndim );
-#endif
-    //std::cout << "Got random numbers" << std::endl;
+      //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
 
-#ifdef __CUDACC__
-#if defined MGONGPU_CURAND_ONHOST
-    // --- 1c. Copy rnarray from host to device
-    const std::string htodKey = "1c CpHTDrnd";
-    timermap.start( htodKey );
-    checkCuda( cudaMemcpy( devRnarray, hstRnarray, nbytesRnarray, cudaMemcpyHostToDevice ) );
-#endif
-#endif
+      // === STEP 1 OF 3
 
-    // === STEP 2 OF 3
-    // Fill in particle momenta for each of ndim events on the device
+      // --- 1a. Seed curand generator (to get same results on host and device)
+      // [NB This should not be necessary using the host API: "Generation functions
+      // can be called multiple times on the same generator to generate successive
+      // blocks of results. For pseudorandom generators, multiple calls to generation
+      // functions will yield the same result as a single call with a large size."]
+      const std::string sgenKey = "1a GenSeed ";
+      timermap.start( sgenKey );
+      const unsigned long long seed = 20200805;
+  #ifdef __CUDACC__
+      grambo2toNm0::seedGenerator( rnGen[siter], seed+iiter+siter );
+  #else
+      rambo2toNm0::seedGenerator( rnGen, seed+iiter+siter );
+  #endif
 
-    // --- 2a. Fill in momenta of initial state particles on the device
-    const std::string riniKey = "2a RamboIni";
-    timermap.start( riniKey );
-#ifdef __CUDACC__
-    grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta, ndim );
-#else
-    rambo2toNm0::getMomentaInitial( energy, hstMomenta, ndim );
-#endif
-    //std::cout << "Got initial momenta" << std::endl;
+      // --- 1b. Generate all relevant numbers to build ndim events (i.e. ndim phase space points) on the host
+      const std::string rngnKey = "1b GenRnGen";
+      timermap.start( rngnKey );
+  #ifdef __CUDACC__
+  #if defined MGONGPU_CURAND_ONDEVICE
+      grambo2toNm0::generateRnArray( rnGen[siter], devRnarray[siter], ndim );
+  #elif defined MGONGPU_CURAND_ONHOST
+      grambo2toNm0::generateRnArray( rnGen[siter], hstRnarray[siter], ndim );
+  #endif
+  #else
+      rambo2toNm0::generateRnArray( rnGen, hstRnarray, ndim );
+  #endif
+      //std::cout << "Got random numbers" << std::endl;
 
-    // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
-    // (i.e. map random numbers to final-state particle momenta for each of ndim events)
-    const std::string rfinKey = "2b RamboFin";
-    timermap.start( rfinKey );
-#ifdef __CUDACC__
-    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray, devMomenta, devWeights, ndim );
-#else
-    rambo2toNm0::getMomentaFinal( energy, hstRnarray, hstMomenta, hstWeights, ndim );
-#endif
-    //std::cout << "Got final momenta" << std::endl;
+  #ifdef __CUDACC__
+  #if defined MGONGPU_CURAND_ONHOST
+      // --- 1c. Copy rnarray from host to device
+      const std::string htodKey = "1c CpHTDrnd";
+      timermap.start( htodKey );
+      checkCuda( cudaMemcpy( devRnarray, hstRnarray, nbytesRnarray, cudaMemcpyHostToDevice ) );
+  #endif
+  #endif
 
-#ifdef __CUDACC__
-    // --- 2c. CopyDToH Weights
-    const std::string cwgtKey = "2c CpDTHwgt";
-    timermap.start( cwgtKey );
-    checkCuda( cudaMemcpy( hstWeights, devWeights, nbytesWeights, cudaMemcpyDeviceToHost ) );
+      // === STEP 2 OF 3
+      // Fill in particle momenta for each of ndim events on the device
 
-    // --- 2d. CopyDToH Momenta
-    const std::string cmomKey = "2d CpDTHmom";
-    timermap.start( cmomKey );
-    checkCuda( cudaMemcpy( hstMomenta, devMomenta, nbytesMomenta, cudaMemcpyDeviceToHost ) );
-#endif
+      // --- 2a. Fill in momenta of initial state particles on the device
+      const std::string riniKey = "2a RamboIni";
+      timermap.start( riniKey );
+  #ifdef __CUDACC__
+      grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads, 0, streams[siter]>>>( energy, devMomenta[siter], ndim );
+  #else
+      rambo2toNm0::getMomentaInitial( energy, hstMomenta, ndim );
+  #endif
+      //std::cout << "Got initial momenta" << std::endl;
 
-    // === STEP 3 OF 3
-    // Evaluate matrix elements for all ndim events
-    // 3a. Evaluate MEs on the device
-    // 3b. Copy MEs back from device to host
+      // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
+      // (i.e. map random numbers to final-state particle momenta for each of ndim events)
+      const std::string rfinKey = "2b RamboFin";
+      timermap.start( rfinKey );
+  #ifdef __CUDACC__
+      grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads, 0, streams[siter]>>>( energy, devRnarray[siter], devMomenta[siter], devWeights[siter], ndim );
+  #else
+      rambo2toNm0::getMomentaFinal( energy, hstRnarray, hstMomenta, hstWeights, ndim );
+  #endif
+      //std::cout << "Got final momenta" << std::endl;
 
-    // *** START THE OLD TIMER ***
-    float gputime = 0;
+  #ifdef __CUDACC__
+      // --- 2c. CopyDToH Weights
+      const std::string cwgtKey = "2c CpDTHwgt";
+      timermap.start( cwgtKey );
+      checkCuda( cudaMemcpy( hstWeights[siter], devWeights[siter], nbytesWeights, cudaMemcpyDeviceToHost ) );
 
-    // --- 3a. SigmaKin
-    const std::string skinKey = "3a SigmaKin";
-    timermap.start( skinKey );
-#ifdef __CUDACC__
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta, devMEs);
-    checkCuda( cudaPeekAtLastError() );
-#else
-    Proc::sigmaKin(hstMomenta, hstMEs, ndim);
-#endif
+      // --- 2d. CopyDToH Momenta
+      const std::string cmomKey = "2d CpDTHmom";
+      timermap.start( cmomKey );
+      checkCuda( cudaMemcpy( hstMomenta[siter], devMomenta[siter], nbytesMomenta, cudaMemcpyDeviceToHost ) );
+  #endif
 
-#ifdef __CUDACC__
-    // --- 3b. CopyDToH MEs
-    const std::string cmesKey = "3b CpDTHmes";
-    gputime += timermap.start( cmesKey );
-    checkCuda( cudaMemcpy( hstMEs, devMEs, nbytesMEs, cudaMemcpyDeviceToHost ) );
-#endif
+      // === STEP 3 OF 3
+      // Evaluate matrix elements for all ndim events
+      // 3a. Evaluate MEs on the device
+      // 3b. Copy MEs back from device to host
 
-    // *** STOP THE OLD TIMER ***
-    gputime += timermap.stop();
+      // *** START THE OLD TIMER ***
+      float gputime = 0;
 
-    // === STEP 4 FINALISE LOOP
-    // --- 4a Dump within the loop
-    const std::string loopKey = "4a DumpLoop";
-    timermap.start(loopKey);
-    wavetimes[iiter] = gputime;
+      // --- 3a. SigmaKin
+      const std::string skinKey = "3a SigmaKin";
+      timermap.start( skinKey );
+  #ifdef __CUDACC__
+      gProc::sigmaKin<<<gpublocks, gputhreads, 0, streams[siter]>>>(devMomenta[siter], devMEs[siter]);
+      checkCuda( cudaPeekAtLastError() );
+  #else
+      Proc::sigmaKin(hstMomenta, hstMEs, ndim);
+  #endif
 
-    if (verbose)
-    {
-      std::cout << "***********************************" << std::endl
-                << "Iteration #" << iiter+1 << " of " << niter << std::endl;
-      if (perf) std::cout << "Wave function time: " << gputime << std::endl;
-    }
+  #ifdef __CUDACC__
+      // --- 3b. CopyDToH MEs
+      const std::string cmesKey = "3b CpDTHmes";
+      gputime += timermap.start( cmesKey );
+      checkCuda( cudaMemcpy( hstMEs[siter], devMEs[siter], nbytesMEs, cudaMemcpyDeviceToHost ) );
+  #endif
 
-    if (verbose || perf)
-    {
-      for (int idim = 0; idim < ndim; ++idim) // Loop over all events in this iteration
+      // *** STOP THE OLD TIMER ***
+      gputime += timermap.stop();
+
+      // === STEP 4 FINALISE LOOP
+      // --- 4a Dump within the loop
+      const std::string loopKey = "4a DumpLoop";
+      timermap.start(loopKey);
+      wavetimes[iiter] = gputime;
+
+      if (verbose)
       {
-#if defined MGONGPU_LAYOUT_ASA
-        const int ipag = idim/nepp; // #eventpage in this iteration
-        const int iepp = idim%nepp; // #event in the current eventpage in this iteration
-#endif
-        if (verbose)
-        {
-          std::cout << "Momenta:" << std::endl;
-          for (int ipar = 0; ipar < npar; ipar++)
-          {
-#if defined MGONGPU_LAYOUT_ASA
-            std::cout << std::setw(4) << ipar + 1
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + 0*nepp + iepp] // AOSOA[ipag][ipar][0][iepp]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + 1*nepp + iepp] // AOSOA[ipag][ipar][1][iepp]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + 2*nepp + iepp] // AOSOA[ipag][ipar][2][iepp]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + 3*nepp + iepp] // AOSOA[ipag][ipar][3][iepp]
-                      << std::endl;
-#elif defined MGONGPU_LAYOUT_SOA
-            std::cout << std::setw(4) << ipar + 1
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipar*ndim*np4 + 0*ndim + idim] // SOA[ipar][0][idim]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipar*ndim*np4 + 1*ndim + idim] // SOA[ipar][1][idim]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipar*ndim*np4 + 2*ndim + idim] // SOA[ipar][2][idim]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipar*ndim*np4 + 3*ndim + idim] // SOA[ipar][3][idim]
-                      << std::endl;
-#elif defined MGONGPU_LAYOUT_AOS
-            std::cout << std::setw(4) << ipar + 1
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[idim*npar*np4 + ipar*np4 + 0] // AOS[idim][ipar][0]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[idim*npar*np4 + ipar*np4 + 1] // AOS[idim][ipar][1]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[idim*npar*np4 + ipar*np4 + 2] // AOS[idim][ipar][2]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[idim*npar*np4 + ipar*np4 + 3] // AOS[idim][ipar][3]
-                      << std::endl;
-#endif
-          }
-          std::cout << std::string(80, '-') << std::endl;
-        }
-
-        // Display matrix elements
-        // FIXME: assume process.nprocesses == 1
-        {
-          if (verbose)
-            std::cout << " Matrix element = "
-              //   << setiosflags(ios::fixed) << setprecision(17)
-                      << hstMEs[idim] << " GeV^" << meGeVexponent << std::endl;
-          if (perf)
-            matrixelementvector[iiter*ndim + idim] = hstMEs[idim];
-        }
-
-        if (verbose)
-          std::cout << std::string(80, '-') << std::endl;
+        std::cout << "***********************************" << std::endl
+                  << "Iteration #" << iiter+1 << " of " << niter << std::endl;
+        if (perf) std::cout << "Wave function time: " << gputime << std::endl;
       }
-    }
-    else if (!debug)
-    {
-      std::cout << ".";
+
+      if (verbose || perf)
+      {
+        for (int idim = 0; idim < ndim; ++idim) // Loop over all events in this iteration
+        {
+  #if defined MGONGPU_LAYOUT_ASA
+          const int ipag = idim/nepp; // #eventpage in this iteration
+          const int iepp = idim%nepp; // #event in the current eventpage in this iteration
+  #endif
+          if (verbose)
+          {
+            std::cout << "Momenta:" << std::endl;
+            for (int ipar = 0; ipar < npar; ipar++)
+            {
+  #if defined MGONGPU_LAYOUT_ASA
+              std::cout << std::setw(4) << ipar + 1
+                        << setiosflags(std::ios::scientific) << std::setw(14)
+                        << hstMomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + 0*nepp + iepp] // AOSOA[ipag][ipar][0][iepp]
+                        << setiosflags(std::ios::scientific) << std::setw(14)
+                        << hstMomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + 1*nepp + iepp] // AOSOA[ipag][ipar][1][iepp]
+                        << setiosflags(std::ios::scientific) << std::setw(14)
+                        << hstMomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + 2*nepp + iepp] // AOSOA[ipag][ipar][2][iepp]
+                        << setiosflags(std::ios::scientific) << std::setw(14)
+                        << hstMomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + 3*nepp + iepp] // AOSOA[ipag][ipar][3][iepp]
+                        << std::endl;
+  #elif defined MGONGPU_LAYOUT_SOA
+              std::cout << std::setw(4) << ipar + 1
+                        << setiosflags(std::ios::scientific) << std::setw(14)
+                        << hstMomenta[ipar*ndim*np4 + 0*ndim + idim] // SOA[ipar][0][idim]
+                        << setiosflags(std::ios::scientific) << std::setw(14)
+                        << hstMomenta[ipar*ndim*np4 + 1*ndim + idim] // SOA[ipar][1][idim]
+                        << setiosflags(std::ios::scientific) << std::setw(14)
+                        << hstMomenta[ipar*ndim*np4 + 2*ndim + idim] // SOA[ipar][2][idim]
+                        << setiosflags(std::ios::scientific) << std::setw(14)
+                        << hstMomenta[ipar*ndim*np4 + 3*ndim + idim] // SOA[ipar][3][idim]
+                        << std::endl;
+  #elif defined MGONGPU_LAYOUT_AOS
+              std::cout << std::setw(4) << ipar + 1
+                        << setiosflags(std::ios::scientific) << std::setw(14)
+                        << hstMomenta[idim*npar*np4 + ipar*np4 + 0] // AOS[idim][ipar][0]
+                        << setiosflags(std::ios::scientific) << std::setw(14)
+                        << hstMomenta[idim*npar*np4 + ipar*np4 + 1] // AOS[idim][ipar][1]
+                        << setiosflags(std::ios::scientific) << std::setw(14)
+                        << hstMomenta[idim*npar*np4 + ipar*np4 + 2] // AOS[idim][ipar][2]
+                        << setiosflags(std::ios::scientific) << std::setw(14)
+                        << hstMomenta[idim*npar*np4 + ipar*np4 + 3] // AOS[idim][ipar][3]
+                        << std::endl;
+  #endif
+            }
+            std::cout << std::string(80, '-') << std::endl;
+          }
+
+          // Display matrix elements
+          // FIXME: assume process.nprocesses == 1
+          {
+            if (verbose)
+              std::cout << " Matrix element = "
+                //   << setiosflags(ios::fixed) << setprecision(17)
+                        << hstMEs[idim] << " GeV^" << meGeVexponent << std::endl;
+            // sr if (perf)
+            //   matrixelementvector[iiter*ndim + idim] = hstMEs[siter][idim];
+          }
+
+          if (verbose)
+            std::cout << std::string(80, '-') << std::endl;
+        }
+      }
+      else if (!debug)
+      {
+        std::cout << ".";
+      }
     }
   }
 
@@ -482,7 +516,9 @@ int main(int argc, char **argv)
   const std::string dgenKey = "9b GenDestr";
   timermap.start( dgenKey );
 #ifdef __CUDACC__
-  grambo2toNm0::destroyGenerator( rnGen );
+  for (int i = 0; i < numstr; ++i) {
+    grambo2toNm0::destroyGenerator( rnGen[i] );
+  }
 #else
   rambo2toNm0::destroyGenerator( rnGen );
 #endif
@@ -492,16 +528,18 @@ int main(int argc, char **argv)
   timermap.start( freeKey );
 
 #ifdef __CUDACC__
-  checkCuda( cudaFreeHost( hstMEs ) );
-  checkCuda( cudaFreeHost( hstWeights ) );
-  checkCuda( cudaFreeHost( hstMomenta ) );
+for (int i = 0; i < numstr; ++i) {
+  checkCuda( cudaFreeHost( hstMEs[i] ) );
+  checkCuda( cudaFreeHost( hstWeights[i] ) );
+  checkCuda( cudaFreeHost( hstMomenta[i] ) );
 #if defined MGONGPU_CURAND_ONHOST
-  checkCuda( cudaFreeHost( hstRnarray ) );
+  checkCuda( cudaFreeHost( hstRnarray[i] ) );
 #endif
-  checkCuda( cudaFree( devMEs ) );
-  checkCuda( cudaFree( devWeights ) );
-  checkCuda( cudaFree( devMomenta ) );
-  checkCuda( cudaFree( devRnarray ) );
+  checkCuda( cudaFree( devMEs[i] ) );
+  checkCuda( cudaFree( devWeights[i] ) );
+  checkCuda( cudaFree( devMomenta[i] ) );
+  checkCuda( cudaFree( devRnarray[i] ) );
+}
 #else
   delete[] hstMEs;
   delete[] hstWeights;
