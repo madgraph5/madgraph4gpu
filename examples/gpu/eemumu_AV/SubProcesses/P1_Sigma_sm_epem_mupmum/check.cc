@@ -99,7 +99,11 @@ int main(int argc, char **argv)
   timermap.start( procKey );
 
   // Create a process object
-  CPPProcess process(niter, gpublocks, gputhreads, verbose, debug);
+#ifdef __CUDACC__
+  gProc::CPPProcess process(niter, gpublocks, gputhreads, verbose, debug);
+#else
+  Proc::CPPProcess process(niter, gpublocks, gputhreads, verbose, debug);
+#endif
 
   // Read param_card and set parameters
   process.initProc("../../Cards/param_card.dat");
@@ -258,7 +262,11 @@ int main(int argc, char **argv)
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
-    sigmaKin<<<gpublocks, gputhreads>>>(devMomenta,  devMEs);//, debug, verbose);
+#ifdef __CUDACC__
+    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta,  devMEs);//, debug, verbose);
+#else
+    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta,  devMEs);//, debug, verbose);
+#endif
     gpuErrchk3( cudaPeekAtLastError() );
 
     // --- 3b. CopyDToH MEs
