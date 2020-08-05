@@ -120,6 +120,7 @@ namespace MG5_sm
 
 #include "Parameters_sm.h"
 
+#ifdef __CUDACC__
 #define gpuErrchk3( code )                      \
   { gpuAssert3( code, __FILE__, __LINE__ ); }
 
@@ -131,8 +132,12 @@ inline void gpuAssert3( cudaError_t code, const char *file, int line, bool abort
     if ( abort ) assert( code == cudaSuccess );
   }
 }
+#endif
 
-__global__ void sigmaKin( const double* allmomenta, double* output );
+#ifdef __CUDACC__
+__global__ 
+#endif
+void sigmaKin( const double* allmomenta, double* output );
 
 //==========================================================================
 // A class for calculating the matrix elements for

@@ -6,6 +6,7 @@
 //==========================================================================
 
 #include <cmath>
+#include <cstring>
 #include <cstdlib>
 #include <iostream>
 
@@ -15,11 +16,14 @@ using mgOnGpu::dcomplex;
 namespace MG5_sm
 {
 
-  __device__ void imzxxxM0(const double pvec[4],
-                           //const double fmass,
-                           const int nhel,
-                           const int nsf,
-                           dcomplex fi[6])
+#ifdef __CUDACC__
+  __device__
+#endif
+  void imzxxxM0(const double pvec[4],
+                //const double fmass,
+                const int nhel,
+                const int nsf,
+                dcomplex fi[6])
   {
     fi[0] = dcomplex (-pvec[0] * nsf, -pvec[3] * nsf);
     fi[1] = dcomplex (-pvec[1] * nsf, -pvec[2] * nsf);
@@ -48,11 +52,14 @@ namespace MG5_sm
   }
 
 
-  __device__ void ixzxxxM0(const double pvec[4],
-                           //const double fmass,
-                           const int nhel,
-                           const int nsf,
-                           dcomplex fi[6])
+#ifdef __CUDACC__
+  __device__
+#endif
+  void ixzxxxM0(const double pvec[4],
+                //const double fmass,
+                const int nhel,
+                const int nsf,
+                dcomplex fi[6])
   {
     fi[0] = dcomplex (-pvec[0] * nsf, -pvec[3] * nsf);
     fi[1] = dcomplex (-pvec[1] * nsf, -pvec[2] * nsf);
@@ -82,12 +89,14 @@ namespace MG5_sm
   }
 
 
-
-  __device__ void oxzxxxM0(const double pvec[4],
-                           //const double fmass,
-                           const int nhel,
-                           const int nsf,
-                           dcomplex fo[6])
+#ifdef __CUDACC__
+  __device__
+#endif
+  void oxzxxxM0(const double pvec[4],
+                //const double fmass,
+                const int nhel,
+                const int nsf,
+                dcomplex fo[6])
   {
     fo[0] = dcomplex (pvec[0] * nsf, pvec[3] * nsf);
     fo[1] = dcomplex (pvec[1] * nsf, pvec[2] * nsf);
@@ -118,12 +127,14 @@ namespace MG5_sm
   }
 
 
-
-  __device__ void FFV1_0(const dcomplex F1[],
-                         const dcomplex F2[],
-                         const dcomplex V3[],
-                         const dcomplex COUP,
-                         dcomplex * vertex)
+#ifdef __CUDACC__
+  __device__
+#endif
+  void FFV1_0(const dcomplex F1[],
+              const dcomplex F2[],
+              const dcomplex V3[],
+              const dcomplex COUP,
+              dcomplex * vertex)
   {
     const dcomplex cI = dcomplex (0., 1.);
     const dcomplex TMP4 =
@@ -135,12 +146,15 @@ namespace MG5_sm
   }
 
 
-  __device__ void FFV1P0_3(const dcomplex F1[],
-                           const dcomplex F2[],
-                           const dcomplex COUP,
-                           const double M3,
-                           const double W3,
-                           dcomplex V3[])
+#ifdef __CUDACC__
+  __device__
+#endif
+  void FFV1P0_3(const dcomplex F1[],
+                const dcomplex F2[],
+                const dcomplex COUP,
+                const double M3,
+                const double W3,
+                dcomplex V3[])
   {
     const dcomplex cI = dcomplex (0., 1.);
     V3[0] = +F1[0] + F2[0];
@@ -158,12 +172,15 @@ namespace MG5_sm
   }
 
 
-  __device__ void FFV2_4_0(const dcomplex F1[],
-                           const dcomplex F2[],
-                           const dcomplex V3[],
-                           const dcomplex COUP1,
-                           const dcomplex COUP2,
-                           dcomplex * vertex)
+#ifdef __CUDACC__
+  __device__
+#endif
+  void FFV2_4_0(const dcomplex F1[],
+                const dcomplex F2[],
+                const dcomplex V3[],
+                const dcomplex COUP1,
+                const dcomplex COUP2,
+                dcomplex * vertex)
   {
     const dcomplex cI = dcomplex (0., 1.);
     const dcomplex TMP2 =
@@ -176,13 +193,16 @@ namespace MG5_sm
   }
 
 
-  __device__ void FFV2_4_3(const dcomplex F1[],
-                           const dcomplex F2[],
-                           const dcomplex COUP1,
-                           const dcomplex COUP2,
-                           const double M3,
-                           const double W3,
-                           dcomplex V3[])
+#ifdef __CUDACC__
+  __device__
+#endif
+  void FFV2_4_3(const dcomplex F1[],
+                const dcomplex F2[],
+                const dcomplex COUP1,
+                const dcomplex COUP2,
+                const double M3,
+                const double W3,
+                dcomplex V3[])
   {
     const dcomplex cI = dcomplex (0., 1.);
     double OM3 = 0.;
@@ -244,18 +264,22 @@ namespace MG5_sm
 // Class member functions for calculating the matrix elements for
 // Process: e+ e- > mu+ mu- WEIGHTED<=4 @1
 
+#ifdef __CUDACC__
 __constant__ int cHel[16][4];
-
-// __constant__ double cmME[4]; value hardcoded now
-// extern __constant__ int cPerm[4];
-
 __constant__ double cIPC[6];  // coupling ?
 __constant__ double cIPD[2];
-
+#else
+static int cHel[16][4];
+static double cIPC[6];  // coupling ?
+static double cIPD[2];
+#endif
 
 // Evaluate |M|^2 for each subprocess
-__device__ void calculate_wavefunctions(int ihel, double local_mom[4][4],
-                                        double &matrix)
+#ifdef __CUDACC__
+__device__
+#endif
+void calculate_wavefunctions(int ihel, double local_mom[4][4],
+                             double &matrix)
 {
   dcomplex amp[2];
   // Calculate wavefunctions for all processes
@@ -332,7 +356,11 @@ CPPProcess::CPPProcess(int numiterations,
       {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
       {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
       {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
+#ifdef __CUDACC__
   gpuErrchk3( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(int) ) );
+#else
+  memcpy( cHel, tHel, ncomb * nexternal * sizeof(int) );
+#endif
 }
 
 //--------------------------------------------------------------------------
@@ -365,26 +393,37 @@ void CPPProcess::initProc(std::string param_card_name)
   mME.push_back(pars->ZERO);
   mME.push_back(pars->ZERO);
   static dcomplex tIPC[3] = {pars->GC_3, pars->GC_50,
-                                            pars->GC_59};
+                             pars->GC_59};
   static double tIPD[2] = {pars->mdl_MZ, pars->mdl_WZ};
 
+#ifdef __CUDACC__
   gpuErrchk3( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(dcomplex ) ) );
   gpuErrchk3( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof(double) ) );
+#else
+  memcpy( cIPC, tIPC, 3 * sizeof(dcomplex ) );
+  memcpy( cIPD, tIPD, 2 * sizeof(double) );
+#endif
+
 }
 
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, part independent of incoming flavour.
 
-__global__
-#if defined MGONGPU_LAYOUT_ASA
-// AOSOA: allmomenta[npag][npar][np4][nepp] where ndim=npag*nepp
-#elif defined MGONGPU_LAYOUT_SOA
+// ** NB: allmomenta can have three different layouts
+// ASA: allmomenta[npag][npar][np4][nepp] where ndim=npag*nepp
 // SOA: allmomenta[npar][np4][ndim]
-#elif defined MGONGPU_LAYOUT_AOS
 // AOS: allmomenta[ndim][npar][np4]
+#ifdef __CUDACC__
+__global__
 #endif
-void sigmaKin( const double* allmomenta, // input[(npar=4)*(np4=4)*(ndim=gpublocks*gputhreads)]
-               double* output ) // output[nevt]
+void sigmaKin( const double* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               double* output            // output[nevt]
+#ifdef __CUDACC__
+               // NB: nevt == ndim=gpublocks*gputhreads in CUDA
+#else
+               , const int nevt          // input: #events
+#endif
+               )
 {
   // Set the parameters which change event by event
   // Need to discuss this with Stefan
@@ -395,58 +434,69 @@ void sigmaKin( const double* allmomenta, // input[(npar=4)*(np4=4)*(ndim=gpubloc
   const int npar = 4; // hardcoded for this process (eemumu): npar=4
   const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
 
-  const int idim = blockIdx.x * blockDim.x + threadIdx.x; // event# == threadid (previously was: tid)
-
-  double local_m[npar][np4];
-#if defined MGONGPU_LAYOUT_ASA
-  using mgOnGpu::nepp;
-  const int ipag = idim/nepp; // #eventpage in this iteration
-  const int iepp = idim%nepp; // #event in the current eventpage in this iteration
-  // ASA: allmomenta[npag][npar][np4][nepp]
-  for (int ipar = 0; ipar < npar; ipar++ )
-    for (int ip4 = 0; ip4 < np4; ip4++ )
-      local_m[ipar][ip4] = allmomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + ip4*nepp + iepp]; // AOSOA[ipag][ipar][ip4][iepp]
-#elif defined MGONGPU_LAYOUT_SOA
-  const int ndim = blockDim.x * gridDim.x; // (previously was: DIM)
-  // SOA: allmomenta[npar][np4][ndim]
-  for (int ipar = 0; ipar < npar; ipar++ )
-    for (int ip4 = 0; ip4 < np4; ip4++ )
-      local_m[ipar][ip4] = allmomenta[ipar*np4*ndim + ip4*ndim + idim]; // SOA[ipar][ip4][idim]
-#elif defined MGONGPU_LAYOUT_AOS
-  // AOS: allmomenta[ndim][npar][np4]
-  for (int ipar = 0; ipar < npar; ipar++ )
-    for (int ip4 = 0; ip4 < np4; ip4++ )
-      local_m[ipar][ip4] = allmomenta[idim*npar*np4 + ipar*np4 + ip4]; // AOS[idim][ipar][ip4]
+#ifndef __CUDACC__
+  // ** START LOOP ON IEVT **
+  for (int ievt = 0; ievt < nevt; ++ievt)
+#endif
+  {
+#ifdef __CUDACC__
+    const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
+    const int ievt = idim;
+    //printf( "sigmakin: ievt %d\n", ievt );
 #endif
 
-  // Helicity combinations
-  const int ncomb = 16;
+    double local_m[npar][np4];
+#if defined MGONGPU_LAYOUT_ASA
+    using mgOnGpu::nepp;
+    const int ipag = ievt/nepp; // #eventpage in this iteration
+    const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
+    // ASA: allmomenta[npag][npar][np4][nepp]
+    for (int ipar = 0; ipar < npar; ipar++ )
+      for (int ip4 = 0; ip4 < np4; ip4++ )
+        local_m[ipar][ip4] = allmomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + ip4*nepp + iepp]; // AOSOA[ipag][ipar][ip4][iepp]
+#elif defined MGONGPU_LAYOUT_SOA
+    const int ndim = blockDim.x * gridDim.x; // (previously was: DIM)
+    // SOA: allmomenta[npar][np4][ndim]
+    for (int ipar = 0; ipar < npar; ipar++ )
+      for (int ip4 = 0; ip4 < np4; ip4++ )
+        local_m[ipar][ip4] = allmomenta[ipar*np4*ndim + ip4*ndim + ievt]; // SOA[ipar][ip4][ievt]
+#elif defined MGONGPU_LAYOUT_AOS
+    // AOS: allmomenta[ndim][npar][np4]
+    for (int ipar = 0; ipar < npar; ipar++ )
+      for (int ip4 = 0; ip4 < np4; ip4++ )
+        local_m[ipar][ip4] = allmomenta[ievt*npar*np4 + ipar*np4 + ip4]; // AOS[ievt][ipar][ip4]
+#endif
 
-  // Denominators: spins, colors and identical particles
-  const int nprocesses = 1;
-  const int denominators[nprocesses] = {4};
+    // Helicity combinations
+    const int ncomb = 16;
 
-  // Reset the matrix elements
-  double matrix_element[nprocesses];
-  for(int iproc = 0; iproc < nprocesses; iproc++ )
-  {
-    matrix_element[iproc] = 0.;
+    // Denominators: spins, colors and identical particles
+    const int nprocesses = 1;
+    const int denominators[nprocesses] = {4};
+
+    // Reset the matrix elements
+    double matrix_element[nprocesses];
+    for(int iproc = 0; iproc < nprocesses; iproc++ )
+    {
+      matrix_element[iproc] = 0.;
+    }
+
+    for (int ihel = 0; ihel < ncomb; ihel++ )
+    {
+      calculate_wavefunctions(ihel, local_m, matrix_element[0]);
+    }
+
+    for (int iproc = 0; iproc < nprocesses; ++iproc)
+    {
+      matrix_element[iproc] /= denominators[iproc];
+    }
+
+    for (int iproc = 0; iproc < nprocesses; ++iproc)
+    {
+      output[iproc*nprocesses + ievt] = matrix_element[iproc];
+    }
   }
-
-  for (int ihel = 0; ihel < ncomb; ihel++ )
-  {
-    calculate_wavefunctions(ihel, local_m, matrix_element[0]);
-  }
-
-  for (int iproc = 0; iproc < nprocesses; ++iproc)
-  {
-    matrix_element[iproc] /= denominators[iproc];
-  }
-
-  for (int iproc = 0; iproc < nprocesses; ++iproc)
-  {
-    output[iproc*nprocesses + idim] = matrix_element[iproc];
-  }
+  // ** END LOOP ON IEVT **
 
 }
 
