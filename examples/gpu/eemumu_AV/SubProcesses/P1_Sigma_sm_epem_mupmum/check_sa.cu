@@ -178,9 +178,9 @@ int main(int argc, char **argv)
     //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
 
     // --- 0d. Seed curand generator (to get same results on host and device)
-    // [NB This should not be necessary using the host API: "Generation functions 
-    // can be called multiple times on the same generator to generate successive 
-    // blocks of results. For pseudorandom generators, multiple calls to generation 
+    // [NB This should not be necessary using the host API: "Generation functions
+    // can be called multiple times on the same generator to generate successive
+    // blocks of results. For pseudorandom generators, multiple calls to generation
     // functions will yield the same result as a single call with a large size."]
     const std::string sgenKey = "0d GenSeed ";
     timermap.start( sgenKey );
@@ -238,7 +238,7 @@ int main(int argc, char **argv)
     grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray, devMomenta, devWeights, ndim );
 #else
     rambo2toNm0::getMomentaFinal( energy, hstRnarray, hstMomenta, hstWeights, ndim );
- #endif
+#endif
     //std::cout << "Got final momenta" << std::endl;
 
     // --- 2c. CopyDToH Weights
