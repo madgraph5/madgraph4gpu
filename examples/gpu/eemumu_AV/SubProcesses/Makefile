@@ -10,8 +10,8 @@ NVCC=nvcc
 CXX=g++
 MAKEDEBUG=
 
-cu_main=gcheck.exe
-cu_objects=gCPPProcess.o gcheck.o
+main=check.exe
+cu_objects=CPPProcess.o check_sa.o
 cxx_objects=
 
 # Assuming uname is available, detect if architecture is power
@@ -22,9 +22,9 @@ endif
 
 all:
 	cd ../../src && make
-	make gcheck
+	make check
 
-gcheck: $(cu_main)
+check: $(main)
 
 debug: CXXFLAGS:=$(filter-out -O3,$(CXXFLAGS))
 debug: CXXFLAGS += -g -O0 -DDEBUG2
@@ -36,34 +36,34 @@ debug: check
 $(LIBDIR)/lib$(MODELLIB).a:
 	@cd ../../src && make $(MAKEDEBUG)
 
-gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
+check_sa.o: check_sa.cu *.h ../../src/*.h ../../src/*.cu
 	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
 
-%.o : %.cu *.h ../../src/*.h
+%.o : %.cu %.h ../../src/*.h
 	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
 
-%.o : %.cc *.h ../../src/*.h
+%.o : %.cc %.h ../../src/*.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-$(cu_main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects)
+$(main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects)
 	$(NVCC)  -o $@ $(cxx_objects) $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) -lcuda -lcurand
 
 .PHONY: clean
 
 clean:
 	cd ../../src && make clean
-	rm -f $(cu_main)
+	rm -f $(main)
 	rm -f $(cu_objects) $(cxx_objects)
 
 memcheck: check
-	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes ./gcheck.exe 2 32 2
+	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes ./check.exe 5 5 10
 
 perf: force
 	make clean && make
-	time ./gcheck.exe -p 2048 256 12 && date
+	time ./check.exe -p 1024 16 384 && date
 
 test: force
-	./gcheck.exe -v 1 32 1
+	./check.exe -v 1 1 10
 
 force:
 
