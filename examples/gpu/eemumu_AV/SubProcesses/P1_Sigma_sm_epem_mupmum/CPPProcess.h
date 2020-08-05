@@ -120,7 +120,10 @@ namespace MG5_sm
 
 #include "Parameters_sm.h"
 
+//--------------------------------------------------------------------------
+
 #ifdef __CUDACC__
+
 #define checkCuda( code )                      \
   { assertCuda( code, __FILE__, __LINE__ ); }
 
@@ -132,7 +135,10 @@ inline void assertCuda( cudaError_t code, const char *file, int line, bool abort
     if ( abort ) assert( code == cudaSuccess );
   }
 }
+
 #endif
+
+//--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
 namespace gProc
@@ -140,11 +146,6 @@ namespace gProc
 namespace Proc
 #endif
 {
-
-#ifdef __CUDACC__
-  __global__
-#endif
-  void sigmaKin( const double* allmomenta, double* output );
 
   //==========================================================================
   // A class for calculating the matrix elements for
@@ -216,6 +217,17 @@ namespace Proc
     int id1, id2;
 
   };
+
+  //--------------------------------------------------------------------------
+
+#ifdef __CUDACC__
+  __global__
+  void sigmaKin( const double* allmomenta, double* output );
+#else
+  void sigmaKin( const double* allmomenta, double* output, const int nevt );
+#endif
+
+  //--------------------------------------------------------------------------
 
 }
 

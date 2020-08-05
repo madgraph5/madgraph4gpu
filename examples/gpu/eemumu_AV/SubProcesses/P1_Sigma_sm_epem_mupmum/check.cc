@@ -125,7 +125,8 @@ int main(int argc, char **argv)
   const int nparf = npar - process.ninitial; // for this process (eemumu): nparf=2 (mu+, mu-)
   const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
 
-  const int nbytesRnarray = np4*nparf*ndim * sizeof(double); // (NB: ndim=npag*nepp for ASA layouts) 
+  const int nRnarray = np4*nparf*ndim; // (NB: ndim=npag*nepp for ASA layouts) 
+  const int nbytesRnarray = nRnarray * sizeof(double);
 #ifdef __CUDACC__
   double* devRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
   checkCuda( cudaMalloc( &devRnarray, nbytesRnarray ) );
@@ -135,11 +136,11 @@ int main(int argc, char **argv)
 #endif
 #else
   double* hstRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
-  //checkCuda( cudaMallocHost( &hstRnarray, nbytesRnarray ) );
-  hstRnarray = new double[nbytesRnarray]();
+  hstRnarray = new double[nRnarray]();
 #endif
 
-  const int nbytesMomenta = np4*npar*ndim * sizeof(double); // (NB: ndim=npag*nepp for ASA layouts)
+  const int nMomenta = np4*npar*ndim; // (NB: ndim=npag*nepp for ASA layouts)
+  const int nbytesMomenta = nMomenta * sizeof(double);
 #if defined MGONGPU_LAYOUT_ASA
   double* hstMomenta = 0; // AOSOA[npag][npar][np4][nepp] (previously was: lp)
 #elif defined MGONGPU_LAYOUT_SOA
@@ -147,21 +148,35 @@ int main(int argc, char **argv)
 #elif defined MGONGPU_LAYOUT_AOS
   double* hstMomenta = 0; // AOS[ndim][npar][np4] (previously was: lp)
 #endif
+#ifdef __CUDACC__
   checkCuda( cudaMallocHost( &hstMomenta, nbytesMomenta ) );
   double* devMomenta = 0; // (previously was: allMomenta)
   checkCuda( cudaMalloc( &devMomenta, nbytesMomenta ) );
+#else
+  hstMomenta = new double[nMomenta]();
+#endif
 
-  const int nbytesWeights = ndim * sizeof(double); //  (NB: ndim=npag*nepp for ASA layouts)
+  const int nWeights = ndim; //  (NB: ndim=npag*nepp for ASA layouts)
+  const int nbytesWeights = nWeights * sizeof(double);
   double* hstWeights = 0; // (previously was: meHostPtr)
+#ifdef __CUDACC__
   checkCuda( cudaMallocHost( &hstWeights, nbytesWeights ) );
   double* devWeights = 0; // (previously was: meDevPtr)
   checkCuda( cudaMalloc( &devWeights, nbytesWeights ) );
+#else
+  hstWeights = new double[nWeights]();
+#endif
 
-  const int nbytesMEs = ndim * sizeof(double); //  (NB: ndim=npag*nepp for ASA layouts)
+  const int nMEs = ndim; //  (NB: ndim=npag*nepp for ASA layouts)
+  const int nbytesMEs = nMEs * sizeof(double);
   double* hstMEs = 0; // (previously was: meHostPtr)
+#ifdef __CUDACC__
   checkCuda( cudaMallocHost( &hstMEs, nbytesMEs ) );
   double* devMEs = 0; // (previously was: meDevPtr)
   checkCuda( cudaMalloc( &devMEs, nbytesMEs ) );
+#else
+  hstMEs = new double[nMEs]();
+#endif
 
   float* wavetimes = new float[niter]();
   double* matrixelementvector = new double[niter * ndim * process.nprocesses]();
@@ -247,6 +262,7 @@ int main(int argc, char **argv)
 #endif
     //std::cout << "Got final momenta" << std::endl;
 
+#ifdef __CUDACC__
     // --- 2c. CopyDToH Weights
     const std::string cwgtKey = "2c CpDTHwgt";
     timermap.start( cwgtKey );
@@ -256,6 +272,7 @@ int main(int argc, char **argv)
     const std::string cmomKey = "2d CpDTHmom";
     timermap.start( cmomKey );
     checkCuda( cudaMemcpy( hstMomenta, devMomenta, nbytesMomenta, cudaMemcpyDeviceToHost ) );
+#endif
 
     // === STEP 3 OF 3
     // Evaluate matrix elements for all ndim events
@@ -269,16 +286,18 @@ int main(int argc, char **argv)
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
 #ifdef __CUDACC__
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta,  devMEs);//, debug, verbose);
-#else
-    Proc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta,  devMEs);//, debug, verbose);
-#endif
+    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta, devMEs);
     checkCuda( cudaPeekAtLastError() );
+#else
+    Proc::sigmaKin(hstMomenta, hstMEs, ndim);
+#endif
 
+#ifdef __CUDACC__
     // --- 3b. CopyDToH MEs
     const std::string cmesKey = "3b CpDTHmes";
     gputime += timermap.start( cmesKey );
     checkCuda( cudaMemcpy( hstMEs, devMEs, nbytesMEs, cudaMemcpyDeviceToHost ) );
+#endif
 
     // *** STOP THE OLD TIMER ***
     gputime += timermap.stop();
@@ -472,30 +491,33 @@ int main(int argc, char **argv)
   const std::string freeKey = "9c MemFree ";
   timermap.start( freeKey );
 
+#ifdef __CUDACC__
   checkCuda( cudaFreeHost( hstMEs ) );
   checkCuda( cudaFreeHost( hstWeights ) );
   checkCuda( cudaFreeHost( hstMomenta ) );
-
-  checkCuda( cudaFree( devMEs ) );
-  checkCuda( cudaFree( devWeights ) );
-  checkCuda( cudaFree( devMomenta ) );
-
-#ifdef __CUDACC__
-  checkCuda( cudaFree( devRnarray ) );
 #if defined MGONGPU_CURAND_ONHOST
   checkCuda( cudaFreeHost( hstRnarray ) );
 #endif
+  checkCuda( cudaFree( devMEs ) );
+  checkCuda( cudaFree( devWeights ) );
+  checkCuda( cudaFree( devMomenta ) );
+  checkCuda( cudaFree( devRnarray ) );
 #else
-  checkCuda( cudaFreeHost( hstRnarray ) );
+  delete[] hstMEs;
+  delete[] hstWeights;
+  delete[] hstMomenta;
+  delete[] hstRnarray;
 #endif
 
   delete[] wavetimes;
   delete[] matrixelementvector;
 
+#ifdef __CUDACC__
   // --- 9d. Finalise cuda
   const std::string cdrsKey = "9d CudReset";
   timermap.start( cdrsKey );
   checkCuda( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
+#endif
 
   // *** STOP THE NEW TIMERS ***
   timermap.stop();
