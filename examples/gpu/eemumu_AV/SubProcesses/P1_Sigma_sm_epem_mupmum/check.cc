@@ -267,7 +267,7 @@ int main(int argc, char **argv)
       // --- 1c. Copy rnarray from host to device
       const std::string htodKey = "1c CpHTDrnd";
       timermap.start( htodKey );
-      checkCuda( cudaMemcpy( devRnarray, hstRnarray, nbytesRnarray, cudaMemcpyHostToDevice ) );
+      checkCuda( cudaMemcpy( devRnarray[siter], hstRnarray[siter], nbytesRnarray, cudaMemcpyHostToDevice ) );
   #endif
   #endif
 
@@ -362,6 +362,18 @@ int main(int argc, char **argv)
             for (int ipar = 0; ipar < npar; ipar++)
             {
   #if defined MGONGPU_LAYOUT_ASA
+  #ifdef __CUDACC__
+              std::cout << std::setw(4) << ipar + 1
+                        << setiosflags(std::ios::scientific) << std::setw(14)
+                        << hstMomenta[siter][ipag*npar*np4*nepp + ipar*nepp*np4 + 0*nepp + iepp] // AOSOA[ipag][ipar][0][iepp]
+                        << setiosflags(std::ios::scientific) << std::setw(14)
+                        << hstMomenta[siter][ipag*npar*np4*nepp + ipar*nepp*np4 + 1*nepp + iepp] // AOSOA[ipag][ipar][1][iepp]
+                        << setiosflags(std::ios::scientific) << std::setw(14)
+                        << hstMomenta[siter][ipag*npar*np4*nepp + ipar*nepp*np4 + 2*nepp + iepp] // AOSOA[ipag][ipar][2][iepp]
+                        << setiosflags(std::ios::scientific) << std::setw(14)
+                        << hstMomenta[siter][ipag*npar*np4*nepp + ipar*nepp*np4 + 3*nepp + iepp] // AOSOA[ipag][ipar][3][iepp]
+                        << std::endl;
+  #else
               std::cout << std::setw(4) << ipar + 1
                         << setiosflags(std::ios::scientific) << std::setw(14)
                         << hstMomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + 0*nepp + iepp] // AOSOA[ipag][ipar][0][iepp]
@@ -372,27 +384,28 @@ int main(int argc, char **argv)
                         << setiosflags(std::ios::scientific) << std::setw(14)
                         << hstMomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + 3*nepp + iepp] // AOSOA[ipag][ipar][3][iepp]
                         << std::endl;
+  #endif
   #elif defined MGONGPU_LAYOUT_SOA
               std::cout << std::setw(4) << ipar + 1
                         << setiosflags(std::ios::scientific) << std::setw(14)
-                        << hstMomenta[ipar*ndim*np4 + 0*ndim + idim] // SOA[ipar][0][idim]
+                        << hstMomenta[siter][ipar*ndim*np4 + 0*ndim + idim] // SOA[ipar][0][idim]
                         << setiosflags(std::ios::scientific) << std::setw(14)
-                        << hstMomenta[ipar*ndim*np4 + 1*ndim + idim] // SOA[ipar][1][idim]
+                        << hstMomenta[siter][ipar*ndim*np4 + 1*ndim + idim] // SOA[ipar][1][idim]
                         << setiosflags(std::ios::scientific) << std::setw(14)
-                        << hstMomenta[ipar*ndim*np4 + 2*ndim + idim] // SOA[ipar][2][idim]
+                        << hstMomenta[siter][ipar*ndim*np4 + 2*ndim + idim] // SOA[ipar][2][idim]
                         << setiosflags(std::ios::scientific) << std::setw(14)
-                        << hstMomenta[ipar*ndim*np4 + 3*ndim + idim] // SOA[ipar][3][idim]
+                        << hstMomenta[siter][ipar*ndim*np4 + 3*ndim + idim] // SOA[ipar][3][idim]
                         << std::endl;
   #elif defined MGONGPU_LAYOUT_AOS
               std::cout << std::setw(4) << ipar + 1
                         << setiosflags(std::ios::scientific) << std::setw(14)
-                        << hstMomenta[idim*npar*np4 + ipar*np4 + 0] // AOS[idim][ipar][0]
+                        << hstMomenta[siter][idim*npar*np4 + ipar*np4 + 0] // AOS[idim][ipar][0]
                         << setiosflags(std::ios::scientific) << std::setw(14)
-                        << hstMomenta[idim*npar*np4 + ipar*np4 + 1] // AOS[idim][ipar][1]
+                        << hstMomenta[siter][idim*npar*np4 + ipar*np4 + 1] // AOS[idim][ipar][1]
                         << setiosflags(std::ios::scientific) << std::setw(14)
-                        << hstMomenta[idim*npar*np4 + ipar*np4 + 2] // AOS[idim][ipar][2]
+                        << hstMomenta[siter][idim*npar*np4 + ipar*np4 + 2] // AOS[idim][ipar][2]
                         << setiosflags(std::ios::scientific) << std::setw(14)
-                        << hstMomenta[idim*npar*np4 + ipar*np4 + 3] // AOS[idim][ipar][3]
+                        << hstMomenta[siter][idim*npar*np4 + ipar*np4 + 3] // AOS[idim][ipar][3]
                         << std::endl;
   #endif
             }
@@ -403,9 +416,15 @@ int main(int argc, char **argv)
           // FIXME: assume process.nprocesses == 1
           {
             if (verbose)
+#ifdef __CUDACC__
+              std::cout << " Matrix element = "
+                //   << setiosflags(ios::fixed) << setprecision(17)
+                        << hstMEs[siter][idim] << " GeV^" << meGeVexponent << std::endl;
+#else
               std::cout << " Matrix element = "
                 //   << setiosflags(ios::fixed) << setprecision(17)
                         << hstMEs[idim] << " GeV^" << meGeVexponent << std::endl;
+#endif
             // sr if (perf)
             //   matrixelementvector[iiter*ndim + idim] = hstMEs[siter][idim];
           }
