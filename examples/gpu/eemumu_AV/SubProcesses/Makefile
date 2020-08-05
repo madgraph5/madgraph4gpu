@@ -10,8 +10,8 @@ NVCC=nvcc
 CXX=g++
 MAKEDEBUG=
 
-main=check.exe
-cu_objects=gCPPProcess.o check_sa.o
+main=gcheck.exe
+cu_objects=gCPPProcess.o gcheck.o
 cxx_objects=
 
 # Assuming uname is available, detect if architecture is power
@@ -36,7 +36,7 @@ debug: check
 $(LIBDIR)/lib$(MODELLIB).a:
 	@cd ../../src && make $(MAKEDEBUG)
 
-check_sa.o: check_sa.cu *.h ../../src/*.h ../../src/*.cu
+gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
 	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
 
 %.o : %.cu *.h ../../src/*.h
