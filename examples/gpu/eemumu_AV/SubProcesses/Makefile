@@ -10,7 +10,7 @@ NVCC=nvcc
 CXX=g++
 MAKEDEBUG=
 
-main=gcheck.exe
+cu_main=gcheck.exe
 cu_objects=gCPPProcess.o gcheck.o
 cxx_objects=
 
@@ -22,14 +22,14 @@ endif
 
 all:
 	cd ../../src && make
-	make $(main)
+	make $(cu_main)
 
 debug: CXXFLAGS:=$(filter-out -O3,$(CXXFLAGS))
 debug: CXXFLAGS += -g -O0 -DDEBUG2
 debug: CUFLAGS:=$(filter-out -lineinfo,$(CUFLAGS))
 debug: CUFLAGS += -G
 debug: MAKEDEBUG := debug
-debug: check
+debug: $(cu_main)
 
 $(LIBDIR)/lib$(MODELLIB).a:
 	@cd ../../src && make $(MAKEDEBUG)
@@ -43,25 +43,25 @@ gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
 %.o : %.cc *.h ../../src/*.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-$(main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects)
+$(cu_main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects)
 	$(NVCC)  -o $@ $(cxx_objects) $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) -lcuda -lcurand
 
 .PHONY: clean
 
 clean:
 	cd ../../src && make clean
-	rm -f $(main)
+	rm -f $(cu_main)
 	rm -f $(cu_objects) $(cxx_objects)
 
-memcheck: check
-	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes ./check.exe 5 5 10
+memcheck: $(cu_main)
+	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes ./gcheck.exe 2 32 2
 
 perf: force
 	make clean && make
-	time ./check.exe -p 1024 16 384 && date
+	time ./gcheck.exe -p 2048 256 12 && date
 
 test: force
-	./check.exe -v 1 1 10
+	./gcheck.exe -v 1 32 1
 
 force:
 
