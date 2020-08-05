@@ -155,7 +155,7 @@ int main(int argc, char **argv)
   double* devMEs = 0; // (previously was: meDevPtr)
   gpuErrchk3( cudaMalloc( &devMEs, nbytesMEs ) );
 
-  std::vector<float> wavetimes;
+  float* wavetimes = new float[niter]();
   std::vector<double> matrixelementvector;
 
   // --- 0c. Create curand generator
@@ -275,7 +275,7 @@ int main(int argc, char **argv)
     // === STEP 9 FINALISE
     // --- 9a Dump within the loop
     const std::string loopKey = "9a DumpLoop";
-    wavetimes.push_back( gputime );
+    wavetimes[iiter] = gputime;
 
     if (verbose)
     {
@@ -370,16 +370,20 @@ int main(int argc, char **argv)
 
   if (perf)
   {
-    float sum = std::accumulate(wavetimes.begin(), wavetimes.end(), 0.0);
-    int num_wts = wavetimes.size();
-    float mean = sum / num_wts;
-    float sq_sum = std::inner_product(wavetimes.begin(), wavetimes.end(),
-                                      wavetimes.begin(), 0.0);
-    float stdev = std::sqrt(sq_sum / num_wts - mean * mean);
-    std::vector<float>::iterator mintime =
-      std::min_element(wavetimes.begin(), wavetimes.end());
-    std::vector<float>::iterator maxtime =
-      std::max_element(wavetimes.begin(), wavetimes.end());
+    
+    float sum = 0;
+    float sq_sum = 0;
+    float mintime = wavetimes[0];
+    float maxtime = wavetimes[0];
+    for (int iiter = 0; iiter < niter; ++iiter)
+    {
+      sum += wavetimes[iiter];
+      sq_sum += wavetimes[iiter]*wavetimes[iiter];
+      mintime = std::min( mintime, wavetimes[iiter] );
+      maxtime = std::max( mintime, wavetimes[iiter] );
+    }
+    float mean = sum / niter;
+    float stdev = std::sqrt( sq_sum / niter - mean * mean );
 
     int num_mes = matrixelementvector.size();
     float sumelem = std::accumulate(matrixelementvector.begin(), matrixelementvector.end(), 0.0);
@@ -414,13 +418,13 @@ int main(int argc, char **argv)
               << "Curand generation     = HOST (C++ code)" << std::endl
 #endif
               << "-----------------------------------" << std::endl
-              << "NumberOfEntries       = " << num_wts << std::endl
+              << "NumberOfEntries       = " << niter << std::endl
               << std::scientific
               << "TotalTimeInWaveFuncs  = " << sum << " sec" << std::endl
               << "MeanTimeInWaveFuncs   = " << mean << " sec" << std::endl
               << "StdDevTimeInWaveFuncs = " << stdev << " sec" << std::endl
-              << "MinTimeInWaveFuncs    = " << *mintime << " sec" << std::endl
-              << "MaxTimeInWaveFuncs    = " << *maxtime << " sec" << std::endl
+              << "MinTimeInWaveFuncs    = " << mintime << " sec" << std::endl
+              << "MaxTimeInWaveFuncs    = " << maxtime << " sec" << std::endl
               << "-----------------------------------" << std::endl
               << "ProcessID:            = " << getpid() << std::endl
               << "NProcesses            = " << process.nprocesses << std::endl
@@ -459,6 +463,8 @@ int main(int argc, char **argv)
 #endif
 
   gpuErrchk3( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
+
+  delete[] wavetimes;
 
   // --- 9d. Destroy curand generator
   const std::string dgenKey = "9d GenDestr";
