@@ -39,9 +39,9 @@ int main(int argc, char **argv)
   bool perf = false;
   int niter = 0;
   int gpublocks = 1;
-  int gputhreads = 1;
-  std::vector<int> numvec;
-
+  int gputhreads = 32;
+  int numvec[3] = {0,0,0};
+  int nnum = 0;
   for (int argn = 1; argn < argc; ++argn) {
     if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
       verbose = true;
@@ -51,18 +51,17 @@ int main(int argc, char **argv)
     else if (strcmp(argv[argn], "--performance") == 0 ||
              strcmp(argv[argn], "-p") == 0)
       perf = true;
-    else if (is_number(argv[argn]))
-      numvec.push_back(atoi(argv[argn]));
+    else if (is_number(argv[argn]) && nnum<3)
+      numvec[nnum++] = atoi(argv[argn]);
     else
       return usage(argv[0]);
   }
 
-  int veclen = numvec.size();
-  if (veclen == 3) {
+  if (nnum == 3) {
     gpublocks = numvec[0];
     gputhreads = numvec[1];
     niter = numvec[2];
-  } else if (veclen == 1) {
+  } else if (nnum == 1) {
     niter = numvec[0];
   } else {
     return usage(argv[0]);
