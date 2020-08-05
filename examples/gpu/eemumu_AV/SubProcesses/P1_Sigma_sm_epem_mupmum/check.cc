@@ -427,8 +427,8 @@ int main(int argc, char **argv)
     {
       sumelem += matrixelementvector[imes];
       sqselem += matrixelementvector[imes]*matrixelementvector[imes];
-      minelem = std::min( mintime, (float)matrixelementvector[imes] );
-      maxelem = std::max( mintime, (float)matrixelementvector[imes] );
+      minelem = std::min( minelem, (float)matrixelementvector[imes] );
+      maxelem = std::max( maxelem, (float)matrixelementvector[imes] );
     }
     float meanelem = sumelem / num_mes;
     float stdelem = std::sqrt( sqselem / num_mes - meanelem * meanelem );
