@@ -265,7 +265,7 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
     gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta,  devMEs);//, debug, verbose);
 #else
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta,  devMEs);//, debug, verbose);
+    Proc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta,  devMEs);//, debug, verbose);
 #endif
     gpuErrchk3( cudaPeekAtLastError() );
 
