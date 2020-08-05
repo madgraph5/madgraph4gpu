@@ -22,7 +22,9 @@ fi
 trace=$logs/eemumuAV_${tag}_`date +%m%d_%H%M`
 ( time ${cmd} ) 2>&1 | tee ${trace}.txt
 if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
-  /usr/local/cuda-11.0/bin/ncu --set full -o ${trace} ${cmd}
+  if [ "$tag" == "cu" ]; then
+    /usr/local/cuda-11.0/bin/ncu --set full -o ${trace} ${cmd}
+  fi
   ###/usr/local/cuda-10.1/bin/nsys profile -o ${trace} ${cmd}
   ###/usr/local/cuda-10.2/bin/nsys profile -o ${trace} ${cmd}
   ###/cvmfs/sft.cern.ch/lcg/releases/cuda/10.2-9d877/x86_64-centos7-gcc62-opt/bin/nsys profile -o ${trace} ${cmd}
@@ -33,7 +35,9 @@ if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
   ###echo "  nsight-sys &"
   echo "  Launch the Nsight Compute or Nsight System GUI from Windows"
 else
-  ncu --set full -o ${trace} ${cmd}
+  if [ "$tag" == "cu" ]; then
+    ncu --set full -o ${trace} ${cmd}
+  fi
   nsys profile -o ${trace} ${cmd}
   echo ""
   echo "TO ANALYSE TRACE FILES:"
