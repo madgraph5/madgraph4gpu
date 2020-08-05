@@ -7,13 +7,16 @@ CUARCHFLAGS= -arch=compute_$(CUARCHNUM) #--gpu-architecture=compute_35 --gpu-cod
 CUFLAGS= $(CUARCHFLAGS) -use_fast_math -lineinfo -DUSE_NVTX
 CUINC=/usr/local/cuda/targets/x86_64-linux/include
 LIBFLAGS= -L$(LIBDIR) -l$(MODELLIB)
+CULIBFLAGS= -L/usr/local/cuda/targets/x86_64-linux/lib
 NVCC=nvcc
 CXX=g++
 MAKEDEBUG=
 
 cu_main=gcheck.exe
+cxx_main=check.exe
+
 cu_objects=gCPPProcess.o gcheck.o
-cxx_objects=CPPProcess.o #check.o
+cxx_objects=CPPProcess.o
 
 # Assuming uname is available, detect if architecture is power
 UNAME_P := $(shell uname -p)
@@ -24,6 +27,7 @@ endif
 all:
 	cd ../../src && make
 	make $(cu_main)
+	make $(cxx_main)
 
 debug: CXXFLAGS:=$(filter-out -O3,$(CXXFLAGS))
 debug: CXXFLAGS += -g -O0 -DDEBUG2
@@ -45,7 +49,10 @@ gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(CUINC) -c $< -o $@
 
 $(cu_main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects)
-	$(NVCC)  -o $@ $(cxx_objects) $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) -lcuda -lcurand
+	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) -lcuda -lcurand
+
+$(cxx_main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) check.o
+	$(CXX) -o $@ $(cxx_objects) check.o $(LIBFLAGS) $(CULIBFLAGS) -lcurand
 
 .PHONY: clean
 
