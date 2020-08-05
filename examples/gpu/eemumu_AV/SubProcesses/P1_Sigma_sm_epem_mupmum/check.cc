@@ -5,9 +5,6 @@
 #include <numeric> // perf stats
 #include <unistd.h>
 
-//#include "cuda.h"
-//#include "curand.h"
-
 #include "mgOnGpuConfig.h"
 
 #ifdef __CUDACC__
@@ -29,7 +26,9 @@ bool is_number(const char *s) {
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
             << " [--verbose|-v] [--debug|-d] [--performance|-p]"
-            << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl;
+            << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
+  std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
+  std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl;
   return ret;
 }
 
@@ -447,9 +446,9 @@ int main(int argc, char **argv)
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_CURAND_ONDEVICE
-              << "Curand generation     = DEVICE" << std::endl
+              << "Curand generation     = DEVICE (CUDA code)" << std::endl
 #elif defined MGONGPU_CURAND_ONHOST
-              << "Curand generation     = HOST" << std::endl
+              << "Curand generation     = HOST (CUDA code)" << std::endl
 #endif
 #else
               << "Curand generation     = HOST (C++ code)" << std::endl
