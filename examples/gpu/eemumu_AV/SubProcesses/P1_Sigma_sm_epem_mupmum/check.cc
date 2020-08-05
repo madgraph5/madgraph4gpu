@@ -71,13 +71,21 @@ int main(int argc, char **argv)
   if (niter == 0)
     return usage(argv[0]);
 
-  const int ndim = gpublocks * gputhreads; // number of events (threads) in one iteration
   using mgOnGpu::nepp;
   if ( gputhreads%nepp != 0 )
   {
     std::cout << "ERROR! #threads/block should be a multiple of " << nepp << std::endl;
     return usage(argv[0]);
   }
+
+  using mgOnGpu::ntpbMAX;
+  if ( gputhreads > ntpbMAX )
+  {
+    std::cout << "ERROR! #threads/block should be <= " << ntpbMAX << std::endl;
+    return usage(argv[0]);
+  }
+
+  const int ndim = gpublocks * gputhreads; // number of events (threads) in one iteration
 
   if (verbose)
     std::cout << "# iterations: " << niter << std::endl;

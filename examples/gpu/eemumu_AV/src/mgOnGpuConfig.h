@@ -21,6 +21,10 @@ namespace mgOnGpu
   // Number of Events Per Page in the AOSOA (ASA) structure
   const int nepp = 32; // choose 32, like the number of threads in a warp
 
+  // Maximum number of threads per block
+  // ** NB kernels will statically allocate shared memory for all these threads
+  const int ntpbMAX = 256;
+
   // Complex type
 #ifdef __CUDACC__
   typedef thrust::complex<double> dcomplex;
