@@ -6,9 +6,9 @@
 
 #include <cassert>
 #include "curand.h"
-#define curandCheck( code )                     \
-  { curandAssert( code, __FILE__, __LINE__ ); }
-inline void curandAssert( curandStatus_t code, const char *file, int line, bool abort = true )
+#define checkCurand( code )                     \
+  { assertCurand( code, __FILE__, __LINE__ ); }
+inline void assertCurand( curandStatus_t code, const char *file, int line, bool abort = true )
 {
   if ( code != CURAND_STATUS_SUCCESS )
   {
@@ -259,27 +259,27 @@ namespace rambo2toNm0
     //const curandRngType_t type = CURAND_RNG_PSEUDO_PHILOX4_32_10; // segfaults
 #ifdef __CUDACC__
 #if defined MGONGPU_CURAND_ONDEVICE
-    curandCheck( curandCreateGenerator( pgen, type ) );
+    checkCurand( curandCreateGenerator( pgen, type ) );
 #elif defined MGONGPU_CURAND_ONHOST
-    curandCheck( curandCreateGeneratorHost( pgen, type ) );
+    checkCurand( curandCreateGeneratorHost( pgen, type ) );
 #endif
 #else
-    curandCheck( curandCreateGeneratorHost( pgen, type ) );
+    checkCurand( curandCreateGeneratorHost( pgen, type ) );
 #endif
-    //curandCheck( curandSetGeneratorOrdering( *pgen, CURAND_ORDERING_PSEUDO_LEGACY ) ); // CUDA 11
-    curandCheck( curandSetGeneratorOrdering( *pgen, CURAND_ORDERING_PSEUDO_BEST ) );
+    //checkCurand( curandSetGeneratorOrdering( *pgen, CURAND_ORDERING_PSEUDO_LEGACY ) ); // CUDA 11
+    checkCurand( curandSetGeneratorOrdering( *pgen, CURAND_ORDERING_PSEUDO_BEST ) );
   }
 
   // Seed a curand generator
   void seedGenerator( curandGenerator_t gen, unsigned long long seed )
   {
-    curandCheck( curandSetPseudoRandomGeneratorSeed( gen, seed ) );
+    checkCurand( curandSetPseudoRandomGeneratorSeed( gen, seed ) );
   }
 
   // Destroy a curand generator
   void destroyGenerator( curandGenerator_t gen )
   {
-    curandCheck( curandDestroyGenerator( gen ) );
+    checkCurand( curandDestroyGenerator( gen ) );
   }
 
   // Bulk-generate (using curand) the random numbers needed to process nevt events in rambo
@@ -289,7 +289,7 @@ namespace rambo2toNm0
                         double rnarray1d[],    // output: randomnumbers in [0,1]
                         const int nevt )       // input: #events
   {
-    curandCheck( curandGenerateUniformDouble( gen, rnarray1d, np4*nparf*nevt ) );
+    checkCurand( curandGenerateUniformDouble( gen, rnarray1d, np4*nparf*nevt ) );
   }
 
 }
