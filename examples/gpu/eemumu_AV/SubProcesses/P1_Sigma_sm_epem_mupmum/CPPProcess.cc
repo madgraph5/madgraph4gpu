@@ -335,33 +335,20 @@ namespace Proc
 #endif
 
     dcomplex amp[2];
-    // Calculate wavefunctions for all processes
     dcomplex w[5][6];
 
-    //MG5_sm::oxxxxx(local_mom[0], 0., cHel[ihel][0], -1, w[0]);
-    //MG5_sm::oxxxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]);
     MG5_sm::oxzxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]);
-
-    //MG5_sm::ixxxxx(local_mom[1], 0., cHel[ihel][1], +1, w[1]);
-    //MG5_sm::ixxxxxM0(local_mom[1], cHel[ihel][1], +1, w[1]);
     MG5_sm::imzxxxM0(local_mom[1], cHel[ihel][1], +1, w[1]);
-
-    //MG5_sm::ixxxxx(local_mom[2], 0., cHel[ihel][2], -1, w[2]);
-    //MG5_sm::ixxxxxM0(local_mom[2], cHel[ihel][2], -1, w[2]);
     MG5_sm::ixzxxxM0(local_mom[2], cHel[ihel][2], -1, w[2]);
-
-    //MG5_sm::oxxxxx(local_mom[3], 0., cHel[ihel][3], +1, w[3]);
-    //MG5_sm::oxxxxxM0(local_mom[3], cHel[ihel][3], +1, w[3]);
     MG5_sm::oxzxxxM0(local_mom[3], cHel[ihel][3], +1, w[3]);
 
+    // Diagram 1
     MG5_sm::FFV1P0_3(w[1], w[0], dcomplex (cIPC[0], cIPC[1]), 0., 0., w[4]);
-    // Amplitude(s) for diagram number 1
     MG5_sm::FFV1_0(w[2], w[3], w[4], dcomplex (cIPC[0], cIPC[1]), &amp[0]);
-    MG5_sm::FFV2_4_3(w[1], w[0], dcomplex (cIPC[2], cIPC[3]),
-                     dcomplex (cIPC[4], cIPC[5]), cIPD[0], cIPD[1], w[4]);
-    // Amplitude(s) for diagram number 2
-    MG5_sm::FFV2_4_0(w[2], w[3], w[4], dcomplex (cIPC[2], cIPC[3]),
-                     dcomplex (cIPC[4], cIPC[5]), &amp[1]);
+
+    // Diagram 2
+    MG5_sm::FFV2_4_3(w[1], w[0], dcomplex (cIPC[2], cIPC[3]), dcomplex (cIPC[4], cIPC[5]), cIPD[0], cIPD[1], w[4]);
+    MG5_sm::FFV2_4_0(w[2], w[3], w[4], dcomplex (cIPC[2], cIPC[3]), dcomplex (cIPC[4], cIPC[5]), &amp[1]);
 
     const int ncolor = 1;
     dcomplex ztemp;
