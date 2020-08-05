@@ -20,7 +20,7 @@ bool is_number(const char *s) {
   const char *t = s;
   while (*t != '\0' && isdigit(*t))
     ++t;
-  return strlen(s) == t - s;
+  return (int)strlen(s) == t - s;
 }
 
 int usage(char* argv0, int ret = 1) {
@@ -125,8 +125,8 @@ int main(int argc, char **argv)
   const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
 
   const int nRnarray = np4*nparf*ndim; // (NB: ndim=npag*nepp for ASA layouts) 
-  const int nbytesRnarray = nRnarray * sizeof(double);
 #ifdef __CUDACC__
+  const int nbytesRnarray = nRnarray * sizeof(double);
   double* devRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
   checkCuda( cudaMalloc( &devRnarray, nbytesRnarray ) );
 #if defined MGONGPU_CURAND_ONHOST
@@ -139,7 +139,6 @@ int main(int argc, char **argv)
 #endif
 
   const int nMomenta = np4*npar*ndim; // (NB: ndim=npag*nepp for ASA layouts)
-  const int nbytesMomenta = nMomenta * sizeof(double);
 #if defined MGONGPU_LAYOUT_ASA
   double* hstMomenta = 0; // AOSOA[npag][npar][np4][nepp] (previously was: lp)
 #elif defined MGONGPU_LAYOUT_SOA
@@ -148,6 +147,7 @@ int main(int argc, char **argv)
   double* hstMomenta = 0; // AOS[ndim][npar][np4] (previously was: lp)
 #endif
 #ifdef __CUDACC__
+  const int nbytesMomenta = nMomenta * sizeof(double);
   checkCuda( cudaMallocHost( &hstMomenta, nbytesMomenta ) );
   double* devMomenta = 0; // (previously was: allMomenta)
   checkCuda( cudaMalloc( &devMomenta, nbytesMomenta ) );
@@ -156,9 +156,9 @@ int main(int argc, char **argv)
 #endif
 
   const int nWeights = ndim; //  (NB: ndim=npag*nepp for ASA layouts)
-  const int nbytesWeights = nWeights * sizeof(double);
   double* hstWeights = 0; // (previously was: meHostPtr)
 #ifdef __CUDACC__
+  const int nbytesWeights = nWeights * sizeof(double);
   checkCuda( cudaMallocHost( &hstWeights, nbytesWeights ) );
   double* devWeights = 0; // (previously was: meDevPtr)
   checkCuda( cudaMalloc( &devWeights, nbytesWeights ) );
@@ -167,9 +167,9 @@ int main(int argc, char **argv)
 #endif
 
   const int nMEs = ndim; //  (NB: ndim=npag*nepp for ASA layouts)
-  const int nbytesMEs = nMEs * sizeof(double);
   double* hstMEs = 0; // (previously was: meHostPtr)
 #ifdef __CUDACC__
+  const int nbytesMEs = nMEs * sizeof(double);
   checkCuda( cudaMallocHost( &hstMEs, nbytesMEs ) );
   double* devMEs = 0; // (previously was: meDevPtr)
   checkCuda( cudaMalloc( &devMEs, nbytesMEs ) );

@@ -353,9 +353,9 @@ namespace Proc
     : m_numiterations(numiterations)
     , gpu_nblocks(gpublocks)
     , gpu_nthreads(gputhreads)
+    , dim(gpu_nblocks * gpu_nthreads)
     , m_verbose(verbose)
     , m_debug(debug)
-    , dim(gpu_nblocks * gpu_nthreads)
   {
     // Helicities for the process - nodim
     static const int tHel[ncomb][nexternal] =
