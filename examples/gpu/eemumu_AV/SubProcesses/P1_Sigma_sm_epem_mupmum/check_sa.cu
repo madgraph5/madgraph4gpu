@@ -4,7 +4,6 @@
 #include <iostream>
 #include <numeric> // perf stats
 #include <unistd.h>
-#include <vector>
 
 #include "mgOnGpuConfig.h"
 
@@ -156,7 +155,7 @@ int main(int argc, char **argv)
   gpuErrchk3( cudaMalloc( &devMEs, nbytesMEs ) );
 
   float* wavetimes = new float[niter]();
-  std::vector<double> matrixelementvector;
+  double* matrixelementvector = new double[niter * ndim * process.nprocesses]();
 
   // --- 0c. Create curand generator
   const std::string cgenKey = "0c GenCreat";
@@ -336,14 +335,16 @@ int main(int argc, char **argv)
         }
 
         // Display matrix elements
-        for (int iproc = 0; iproc < process.nprocesses; iproc++) {
+        // FIXME: assume process.nprocesses == 1
+        {
           if (verbose)
             std::cout << " Matrix element = "
               //   << setiosflags(ios::fixed) << setprecision(17)
-                      << hstMEs[iproc*1 + idim] << " GeV^" << meGeVexponent << std::endl;
+                      << hstMEs[idim] << " GeV^" << meGeVexponent << std::endl;
           if (perf)
-            matrixelementvector.push_back(hstMEs[iproc*1 + idim]);
+            matrixelementvector[iiter*ndim + idim] = hstMEs[idim];
         }
+
         if (verbose)
           std::cout << std::string(80, '-') << std::endl;
       }
@@ -370,7 +371,7 @@ int main(int argc, char **argv)
 
   if (perf)
   {
-    
+
     float sum = 0;
     float sq_sum = 0;
     float mintime = wavetimes[0];
@@ -385,16 +386,20 @@ int main(int argc, char **argv)
     float mean = sum / niter;
     float stdev = std::sqrt( sq_sum / niter - mean * mean );
 
-    int num_mes = matrixelementvector.size();
-    float sumelem = std::accumulate(matrixelementvector.begin(), matrixelementvector.end(), 0.0);
+    int num_mes = niter*ndim;
+    float sumelem = 0;
+    float sqselem = 0;
+    float minelem = matrixelementvector[0];
+    float maxelem = matrixelementvector[0];
+    for (int imes = 0; imes < num_mes; ++imes)
+    {
+      sumelem += matrixelementvector[imes];
+      sqselem += matrixelementvector[imes]*matrixelementvector[imes];
+      minelem = std::min( mintime, (float)matrixelementvector[imes] );
+      maxelem = std::max( mintime, (float)matrixelementvector[imes] );
+    }
     float meanelem = sumelem / num_mes;
-    float sqselem = std::inner_product(matrixelementvector.begin(), matrixelementvector.end(),
-                                       matrixelementvector.begin(), 0.0);
-    float stdelem = std::sqrt(sqselem / num_mes - meanelem * meanelem);
-    std::vector<double>::iterator maxelem = std::max_element(
-                                                             matrixelementvector.begin(), matrixelementvector.end());
-    std::vector<double>::iterator minelem = std::min_element(
-                                                             matrixelementvector.begin(), matrixelementvector.end());
+    float stdelem = std::sqrt( sqselem / num_mes - meanelem * meanelem );
 
     std::cout << "***********************************" << std::endl
               << "NumIterations         = " << niter << std::endl
@@ -437,8 +442,8 @@ int main(int argc, char **argv)
               << "MeanMatrixElemValue   = " << meanelem << " GeV^" << meGeVexponent << std::endl
               << "StdErrMatrixElemValue = " << stdelem/sqrt(num_mes) << " GeV^" << meGeVexponent << std::endl
               << "StdDevMatrixElemValue = " << stdelem << " GeV^" << meGeVexponent << std::endl
-              << "MinMatrixElemValue    = " << *minelem << " GeV^" << meGeVexponent << std::endl
-              << "MaxMatrixElemValue    = " << *maxelem << " GeV^" << meGeVexponent << std::endl;
+              << "MinMatrixElemValue    = " << minelem << " GeV^" << meGeVexponent << std::endl
+              << "MaxMatrixElemValue    = " << maxelem << " GeV^" << meGeVexponent << std::endl;
   }
 
   // --- 9c Free memory structures
@@ -465,6 +470,7 @@ int main(int argc, char **argv)
   gpuErrchk3( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
 
   delete[] wavetimes;
+  delete[] matrixelementvector;
 
   // --- 9d. Destroy curand generator
   const std::string dgenKey = "9d GenDestr";
