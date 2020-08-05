@@ -7,8 +7,8 @@
 //#define MGONGPU_LAYOUT_AOS 1
 
 // Curand random number generation
-//#define MGONGPU_CURAND_ONDEVICE 1 // default
-#define MGONGPU_CURAND_ONHOST 1
+#define MGONGPU_CURAND_ONDEVICE 1 // default
+//#define MGONGPU_CURAND_ONHOST 1
 
 namespace mgOnGpu
 {
