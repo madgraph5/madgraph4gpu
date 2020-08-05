@@ -312,28 +312,34 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[4][4],
 
 }
 
+//--------------------------------------------------------------------------
 
-
-CPPProcess::CPPProcess(int numiterations, int gpublocks, int gputhreads,
-                       bool verbose, bool debug)
-  : m_numiterations(numiterations), gpu_nblocks(gpublocks),
-    gpu_nthreads(gputhreads), m_verbose(verbose), m_debug(debug),
-    dim(gpu_nblocks * gpu_nthreads)
+CPPProcess::CPPProcess(int numiterations,
+                       int gpublocks,
+                       int gputhreads,
+                       bool verbose,
+                       bool debug)
+  : m_numiterations(numiterations)
+  , gpu_nblocks(gpublocks)
+  , gpu_nthreads(gputhreads)
+  , m_verbose(verbose)
+  , m_debug(debug)
+  , dim(gpu_nblocks * gpu_nthreads)
 {
-
-
   // Helicities for the process - nodim
-  static const int tHel[ncomb][nexternal] = {{-1, -1, -1, -1}, {-1, -1, -1, 1},
-                                             {-1, -1, 1, -1}, {-1, -1, 1, 1}, {-1, 1, -1, -1}, {-1, 1, -1, 1}, {-1, 1,
-                                                                                                                1, -1}, {-1, 1, 1, 1}, {1, -1, -1, -1}, {1, -1, -1, 1}, {1, -1, 1, -1},
-                                             {1, -1, 1, 1}, {1, 1, -1, -1}, {1, 1, -1, 1}, {1, 1, 1, -1}, {1, 1, 1,
-                                                                                                           1}};
+  static const int tHel[ncomb][nexternal] =
+    { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
+      {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
+      {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
+      {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
   gpuErrchk3( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(int) ) );
-  // perm - nodim
-  // static int perm[nexternal] = {0, 1, 2, 3};
 }
 
+//--------------------------------------------------------------------------
+
 CPPProcess::~CPPProcess() {}
+
+//--------------------------------------------------------------------------
 
 const std::vector<double> &CPPProcess::getMasses() const {return mME;}
 
