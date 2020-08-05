@@ -13,11 +13,9 @@ ifeq ($(UNAME_P),ppc64le)
     CUFLAGS+= -Xcompiler -mno-float128
 endif
 
-
 target=$(LIBDIR)/libmodel_sm.a
-###cxx_objects=Parameters_sm.o read_slha.o rambo2toNm0.o
-cxx_objects=Parameters_sm.o read_slha.o # NB grambo2toNm0.cu must be included (no rdc)
-cu_objects=
+cxx_objects=Parameters_sm.o read_slha.o rambo2toNm0.o 
+cu_objects= # NB grambo2toNm0.cu must be included (no rdc)
 
 all: $(target)
 
