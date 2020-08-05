@@ -98,7 +98,7 @@ int main(int argc, char **argv)
   //std::cout << "Calling cudaFree... done" << std::endl;
 
   // --- 0a. Initialise physics process
-  const std::string procKey = "0a InitProc";
+  const std::string procKey = "0a ProcInit";
   timermap.start( procKey );
 
   // Create a process object
@@ -160,7 +160,7 @@ int main(int argc, char **argv)
   std::vector<double> matrixelementvector;
 
   // --- 0c. Create curand generator
-  const std::string cgenKey = "0c CreatGen";
+  const std::string cgenKey = "0c GenCreat";
   timermap.start( cgenKey );
   curandGenerator_t rnGen;
 #ifdef __CUDACC__
@@ -177,10 +177,24 @@ int main(int argc, char **argv)
   {
     //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
 
+    // --- 0d. Seed curand generator (to get same results on host and device)
+    // [NB This should not be necessary using the host API: "Generation functions 
+    // can be called multiple times on the same generator to generate successive 
+    // blocks of results. For pseudorandom generators, multiple calls to generation 
+    // functions will yield the same result as a single call with a large size."]
+    const std::string sgenKey = "0d GenSeed ";
+    timermap.start( sgenKey );
+    const unsigned long long seed = 20200805;
+#ifdef __CUDACC__
+    grambo2toNm0::seedGenerator( rnGen, seed+iiter );
+#else
+    rambo2toNm0::seedGenerator( rnGen, seed+iiter );
+#endif
+
     // === STEP 1 OF 3
 
     // 1a. Generate all relevant numbers to build ndim events (i.e. ndim phase space points) on the host
-    const std::string rngnKey = "1a RnNumGen";
+    const std::string rngnKey = "1a GenRnGen";
     timermap.start( rngnKey );
 #ifdef __CUDACC__
 #if defined MGONGPU_CURAND_ONDEVICE
@@ -385,11 +399,20 @@ int main(int argc, char **argv)
               << "NumBlocksPerGrid      = " << gpublocks << std::endl
               << "-----------------------------------" << std::endl
 #if defined MGONGPU_LAYOUT_ASA
-              << "Memory layout         = AOSOA " << std::endl
+              << "Momenta memory layout = AOSOA" << std::endl
 #elif defined MGONGPU_LAYOUT_SOA
-              << "Memory layout         = SOA " << std::endl
+              << "Momenta memory layout = SOA" << std::endl
 #elif defined MGONGPU_LAYOUT_AOS
-              << "Memory layout         = AOS " << std::endl
+              << "Momenta memory layout = AOS" << std::endl
+#endif
+#ifdef __CUDACC__
+#if defined MGONGPU_CURAND_ONDEVICE
+              << "Curand generation     = DEVICE" << std::endl
+#elif defined MGONGPU_CURAND_ONHOST
+              << "Curand generation     = HOST" << std::endl
+#endif
+#else
+              << "Curand generation     = HOST (C++ code)" << std::endl
 #endif
               << "-----------------------------------" << std::endl
               << "NumberOfEntries       = " << num_wts << std::endl
@@ -439,7 +462,7 @@ int main(int argc, char **argv)
   gpuErrchk3( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
 
   // --- 9d. Destroy curand generator
-  const std::string dgenKey = "9d DestrGen";
+  const std::string dgenKey = "9d GenDestr";
   timermap.start( dgenKey );
 #ifdef __CUDACC__
   grambo2toNm0::destroyGenerator( rnGen );

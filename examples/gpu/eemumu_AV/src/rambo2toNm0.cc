@@ -266,9 +266,14 @@ namespace rambo2toNm0
 #else
     curandCheck( curandCreateGeneratorHost( pgen, type ) );
 #endif
-    curandCheck( curandSetPseudoRandomGeneratorSeed( *pgen, 1234ULL ) );
     //curandCheck( curandSetGeneratorOrdering( *pgen, CURAND_ORDERING_PSEUDO_LEGACY ) ); // CUDA 11
     curandCheck( curandSetGeneratorOrdering( *pgen, CURAND_ORDERING_PSEUDO_BEST ) );
+  }
+
+  // Seed a curand generator
+  void seedGenerator( curandGenerator_t gen, unsigned long long seed )
+  {
+    curandCheck( curandSetPseudoRandomGeneratorSeed( gen, seed ) );
   }
 
   // Destroy a curand generator
