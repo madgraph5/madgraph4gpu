@@ -7,7 +7,7 @@ elif [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
 else
   logs=logs
 fi
-cmd="./check.exe -p 2048 256 12"
+cmd="./gcheck.exe -p 2048 256 12"
 trace=$logs/eemumuAV_`date +%m%d_%H%M`
 ( time ${cmd} ) 2>&1 | tee ${trace}.txt
 if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
