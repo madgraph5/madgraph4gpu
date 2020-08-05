@@ -271,14 +271,23 @@ namespace Proc
 #endif
 {
 
+  const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
+  const int npar = 4; // #particles is hardcoded for this process (eemumu: npar=4)
+  const int ncomb = 16; // #helicity combinations is hardcoded for this process (eemumu: ncomb=16)
+
 #ifdef __CUDACC__
-  __constant__ int cHel[16][4];
+  __constant__ int cHel[ncomb][npar];
   __constant__ double cIPC[6];  // coupling ?
   __constant__ double cIPD[2];
 #else
-  static int cHel[16][4];
+  static int cHel[ncomb][npar];
   static double cIPC[6];  // coupling ?
   static double cIPD[2];
+#endif
+
+#ifdef __CUDACC__
+  __device__ unsigned long long sigmakin_itry = 0; // first iteration over nevt events
+  __device__ bool sigmakin_goodhel[ncomb] = { false };
 #endif
 
   // Evaluate |M|^2 for each subprocess
@@ -438,15 +447,11 @@ namespace Proc
     // pars->setDependentCouplings();
     // Reset color flows
 
-    const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
-    const int npar = 4; // #particles is hardcoded for this process (eemumu: npar=4)
-
-    const int ncomb = 16; // #helicity combinations is hardcoded for this process (eemumu: ncomb=16)
-
+    const int maxtry = 10;
 #ifndef __CUDACC__
-    static bool first = true; // first iteration over nevt events
-    static bool goodhel[ncomb] = { false };
-#endif    
+    static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
+    static bool sigmakin_goodhel[ncomb] = { false };
+#endif
 
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
@@ -492,23 +497,16 @@ namespace Proc
         matrix_element[iproc] = 0.;
       }
 
-#ifndef __CUDACC__
-      const int maxtry = 10;
       double melast = matrix_element[0];
-#endif
       for (int ihel = 0; ihel < ncomb; ihel++ )
       {
-#ifndef __CUDACC__
-        if ( ( !first || ievt>maxtry ) && !goodhel[ihel] ) continue;
-#endif
+        if ( sigmakin_itry>maxtry && !sigmakin_goodhel[ihel] ) continue;
         calculate_wavefunctions(ihel, local_m, matrix_element[0]); // adds ME for ihel to matrix_element[0]
-#ifndef __CUDACC__
-        if ( first && ievt<=maxtry )
+        if ( sigmakin_itry<=maxtry )
         {
-          if ( !goodhel[ihel] && matrix_element[0]>melast ) goodhel[ihel] = true;
+          if ( !sigmakin_goodhel[ihel] && matrix_element[0]>melast ) sigmakin_goodhel[ihel] = true;
           melast = matrix_element[0];
         }
-#endif
       }
 
       for (int iproc = 0; iproc < nprocesses; ++iproc)
@@ -520,13 +518,20 @@ namespace Proc
       {
         output[iproc*nprocesses + ievt] = matrix_element[iproc];
       }
-    }
-    // ** END LOOP ON IEVT **
 
 #ifndef __CUDACC__
-    //if ( first ) for (int ihel = 0; ihel < ncomb; ihel++ ) printf( "sigmakin: ihelgood %2d %d\n", ihel, goodhel[ihel] );
-    first = false;
+      //if ( sigmakin_itry == maxtry )
+      //  for (int ihel = 0; ihel < ncomb; ihel++ )
+      //    printf( "sigmakin: ihelgood %2d %d\n", ihel, sigmakin_goodhel[ihel] );
+      if ( sigmakin_itry <= maxtry )
+        sigmakin_itry++;
+#else
+      if ( sigmakin_itry <= maxtry )
+        atomicAdd(&sigmakin_itry, 1);
 #endif
+
+    }
+    // ** END LOOP ON IEVT **
 
   }
 
