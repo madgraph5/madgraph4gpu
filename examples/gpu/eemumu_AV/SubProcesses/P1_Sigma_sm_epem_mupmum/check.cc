@@ -5,6 +5,9 @@
 #include <numeric> // perf stats
 #include <unistd.h>
 
+//#include "cuda.h"
+//#include "curand.h"
+
 #include "mgOnGpuConfig.h"
 
 #ifdef __CUDACC__
@@ -122,7 +125,7 @@ int main(int argc, char **argv)
   const int nparf = npar - process.ninitial; // for this process (eemumu): nparf=2 (mu+, mu-)
   const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
 
-  const int nbytesRnarray = np4*nparf*ndim * sizeof(double); // (NB: ndim=npag*nepp for ASA layouts)
+  const int nbytesRnarray = np4*nparf*ndim * sizeof(double); // (NB: ndim=npag*nepp for ASA layouts) 
 #ifdef __CUDACC__
   double* devRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
   checkCuda( cudaMalloc( &devRnarray, nbytesRnarray ) );
@@ -132,7 +135,8 @@ int main(int argc, char **argv)
 #endif
 #else
   double* hstRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
-  checkCuda( cudaMallocHost( &hstRnarray, nbytesRnarray ) );
+  //checkCuda( cudaMallocHost( &hstRnarray, nbytesRnarray ) );
+  hstRnarray = new double[nbytesRnarray]();
 #endif
 
   const int nbytesMomenta = np4*npar*ndim * sizeof(double); // (NB: ndim=npag*nepp for ASA layouts)

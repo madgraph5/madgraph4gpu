@@ -5,6 +5,7 @@ MODELLIB=model_sm
 CXXFLAGS= -O3 -I$(INCDIR) -I.
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM) #--gpu-architecture=compute_35 --gpu-code=sm_35
 CUFLAGS= $(CUARCHFLAGS) -use_fast_math -lineinfo -DUSE_NVTX
+CUINC=/usr/local/cuda/targets/x86_64-linux/include
 LIBFLAGS= -L$(LIBDIR) -l$(MODELLIB)
 NVCC=nvcc
 CXX=g++
@@ -41,7 +42,7 @@ gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
 	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
 
 %.o : %.cc *.h ../../src/*.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(CUINC) -c $< -o $@
 
 $(cu_main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects)
 	$(NVCC)  -o $@ $(cxx_objects) $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) -lcuda -lcurand

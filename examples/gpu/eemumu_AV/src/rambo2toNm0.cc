@@ -2,24 +2,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "mgOnGpuConfig.h"
-
-#include <cassert>
-#include "curand.h"
-#define checkCurand( code )                     \
-  { assertCurand( code, __FILE__, __LINE__ ); }
-inline void assertCurand( curandStatus_t code, const char *file, int line, bool abort = true )
-{
-  if ( code != CURAND_STATUS_SUCCESS )
-  {
-    printf( "CurandAssert: %s %d\n", file, line );
-    if ( abort ) assert( code == CURAND_STATUS_SUCCESS );
-  }
-}
-
-#ifndef __CUDACC__
 #include "rambo2toNm0.h"
-#endif
 
 // Simplified rambo version for 2 to N (with N>=2) processes with massless particles
 #ifdef __CUDACC__
@@ -28,11 +11,8 @@ namespace grambo2toNm0
 namespace rambo2toNm0
 #endif
 {
-  const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
 
-  const int npari = 2; // #particles in the initial state
-  const int nparf = 2; // #particles in the final state
-  const int npar = npari + nparf; // #particles in total
+  //--------------------------------------------------------------------------
 
   // Fill in the momenta of the initial particles
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
@@ -105,11 +85,13 @@ namespace rambo2toNm0
     // ** END LOOP ON IEVT **
   }
 
+  //--------------------------------------------------------------------------
+
+  // Fill in the momenta of the final particles using the RAMBO algorithm
+  // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
 #ifdef __CUDACC__
   __global__
 #endif
-  // Fill in the momenta of the final particles using the RAMBO algorithm
-  // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
   void getMomentaFinal( const double energy,      // input: energy
                         const double rnarray1d[], // input: randomnumbers in [0,1] as AOSOA[npag][nparf][4][nepp]
 #if defined MGONGPU_LAYOUT_ASA
@@ -248,6 +230,8 @@ namespace rambo2toNm0
     return;
   }
 
+  //--------------------------------------------------------------------------
+
   // Create and initialise a curand generator
   void createGenerator( curandGenerator_t* pgen )
   {
@@ -270,17 +254,23 @@ namespace rambo2toNm0
     checkCurand( curandSetGeneratorOrdering( *pgen, CURAND_ORDERING_PSEUDO_BEST ) );
   }
 
+  //--------------------------------------------------------------------------
+
   // Seed a curand generator
   void seedGenerator( curandGenerator_t gen, unsigned long long seed )
   {
     checkCurand( curandSetPseudoRandomGeneratorSeed( gen, seed ) );
   }
 
+  //--------------------------------------------------------------------------
+
   // Destroy a curand generator
   void destroyGenerator( curandGenerator_t gen )
   {
     checkCurand( curandDestroyGenerator( gen ) );
   }
+
+  //--------------------------------------------------------------------------
 
   // Bulk-generate (using curand) the random numbers needed to process nevt events in rambo
   // ** NB: the random numbers are always produced in the same order and are interpreted as an AOSOA
@@ -291,6 +281,8 @@ namespace rambo2toNm0
   {
     checkCurand( curandGenerateUniformDouble( gen, rnarray1d, np4*nparf*nevt ) );
   }
+
+  //--------------------------------------------------------------------------
 
 }
 
