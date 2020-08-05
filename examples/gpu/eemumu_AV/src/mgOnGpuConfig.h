@@ -1,9 +1,14 @@
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
 
+// Memory layout for momenta
 //#define MGONGPU_LAYOUT_ASA 1
 //#define MGONGPU_LAYOUT_SOA 1
 #define MGONGPU_LAYOUT_AOS 1
+
+// Curand random number generation
+//#define MGONGPU_CURAND_ONDEVICE 1
+#define MGONGPU_CURAND_ONHOST 1
 
 namespace mgOnGpu
 {

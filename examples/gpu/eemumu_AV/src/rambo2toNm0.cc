@@ -257,8 +257,15 @@ namespace rambo2toNm0
     //const curandRngType_t type = CURAND_RNG_PSEUDO_MRG32K3A;      // 10.5s (better but slower)
     //const curandRngType_t type = CURAND_RNG_PSEUDO_MT19937;       // 43s
     //const curandRngType_t type = CURAND_RNG_PSEUDO_PHILOX4_32_10; // segfaults
+#ifdef __CUDACC__
+#if defined MGONGPU_CURAND_ONDEVICE
+    curandCheck( curandCreateGenerator( pgen, type ) );
+#elif defined MGONGPU_CURAND_ONHOST
     curandCheck( curandCreateGeneratorHost( pgen, type ) );
-    //curandCheck( curandCreateGenerator( pgen, type ) );
+#endif
+#else
+    curandCheck( curandCreateGeneratorHost( pgen, type ) );
+#endif
     curandCheck( curandSetPseudoRandomGeneratorSeed( *pgen, 1234ULL ) );
     //curandCheck( curandSetGeneratorOrdering( *pgen, CURAND_ORDERING_PSEUDO_LEGACY ) ); // CUDA 11
     curandCheck( curandSetGeneratorOrdering( *pgen, CURAND_ORDERING_PSEUDO_BEST ) );

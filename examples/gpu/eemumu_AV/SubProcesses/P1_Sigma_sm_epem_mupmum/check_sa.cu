@@ -120,16 +120,17 @@ int main(int argc, char **argv)
   const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
 
   const int nbytesRnarray = np4*nparf*ndim * sizeof(double); // (NB: ndim=npag*nepp for ASA layouts)
-#if defined MGONGPU_LAYOUT_ASA
-  double* hstRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
-#elif defined MGONGPU_LAYOUT_SOA
-  double* hstRnarray = 0; // SOA[npar][np4][ndim]
-#elif defined MGONGPU_LAYOUT_AOS
-  double* hstRnarray = 0; // AOS[ndim][npar][np4]
-#endif
-  gpuErrchk3( cudaMallocHost( &hstRnarray, nbytesRnarray ) );
-  double* devRnarray = 0;
+#ifdef __CUDACC__
+  double* devRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
   gpuErrchk3( cudaMalloc( &devRnarray, nbytesRnarray ) );
+#if defined MGONGPU_CURAND_ONHOST
+  double* hstRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
+  gpuErrchk3( cudaMallocHost( &hstRnarray, nbytesRnarray ) );
+#endif
+#else
+  double* hstRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
+  gpuErrchk3( cudaMallocHost( &hstRnarray, nbytesRnarray ) );
+#endif
 
   const int nbytesMomenta = np4*npar*ndim * sizeof(double); // (NB: ndim=npag*nepp for ASA layouts)
 #if defined MGONGPU_LAYOUT_ASA
@@ -182,17 +183,25 @@ int main(int argc, char **argv)
     const std::string rngnKey = "1a RnNumGen";
     timermap.start( rngnKey );
 #ifdef __CUDACC__
+#if defined MGONGPU_CURAND_ONDEVICE
+    grambo2toNm0::generateRnArray( rnGen, devRnarray, ndim );
+#elif defined MGONGPU_CURAND_ONHOST
     grambo2toNm0::generateRnArray( rnGen, hstRnarray, ndim );
+#endif
 #else
     rambo2toNm0::generateRnArray( rnGen, hstRnarray, ndim );
 #endif
     //std::cout << "Got random numbers" << std::endl;
 
+#ifdef __CUDACC__
+#if defined MGONGPU_CURAND_ONHOST
     // 1b. Copy rnarray from host to device
     // --- 1a. CopyHToD
     const std::string htodKey = "1b CpHTDrnd";
     timermap.start( htodKey );
     gpuErrchk3( cudaMemcpy( devRnarray, hstRnarray, nbytesRnarray, cudaMemcpyHostToDevice ) );
+#endif
+#endif
 
     // === STEP 2 OF 3
     // Fill in particle momenta for each of ndim events on the device
@@ -413,12 +422,19 @@ int main(int argc, char **argv)
   gpuErrchk3( cudaFreeHost( hstMEs ) );
   gpuErrchk3( cudaFreeHost( hstWeights ) );
   gpuErrchk3( cudaFreeHost( hstMomenta ) );
-  gpuErrchk3( cudaFreeHost( hstRnarray ) );
 
   gpuErrchk3( cudaFree( devMEs ) );
   gpuErrchk3( cudaFree( devWeights ) );
   gpuErrchk3( cudaFree( devMomenta ) );
+
+#ifdef __CUDACC__
   gpuErrchk3( cudaFree( devRnarray ) );
+#if defined MGONGPU_CURAND_ONHOST
+  gpuErrchk3( cudaFreeHost( hstRnarray ) );
+#endif
+#else
+  gpuErrchk3( cudaFreeHost( hstRnarray ) );
+#endif
 
   gpuErrchk3( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
 
