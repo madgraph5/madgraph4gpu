@@ -446,8 +446,17 @@ int main(int argc, char **argv)
               << "MaxMatrixElemValue    = " << maxelem << " GeV^" << meGeVexponent << std::endl;
   }
 
-  // --- 9c Free memory structures
-  const std::string freeKey = "9c MemFree ";
+  // --- 9c. Destroy curand generator
+  const std::string dgenKey = "9c GenDestr";
+  timermap.start( dgenKey );
+#ifdef __CUDACC__
+  grambo2toNm0::destroyGenerator( rnGen );
+#else
+  rambo2toNm0::destroyGenerator( rnGen );
+#endif
+
+  // --- 9d Free memory structures
+  const std::string freeKey = "9d MemFree ";
   timermap.start( freeKey );
 
   gpuErrchk3( cudaFreeHost( hstMEs ) );
@@ -467,19 +476,13 @@ int main(int argc, char **argv)
   gpuErrchk3( cudaFreeHost( hstRnarray ) );
 #endif
 
-  gpuErrchk3( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
-
   delete[] wavetimes;
   delete[] matrixelementvector;
 
-  // --- 9d. Destroy curand generator
-  const std::string dgenKey = "9d GenDestr";
-  timermap.start( dgenKey );
-#ifdef __CUDACC__
-  grambo2toNm0::destroyGenerator( rnGen );
-#else
-  rambo2toNm0::destroyGenerator( rnGen );
-#endif
+  // --- 9e. Finalise cuda
+  const std::string cdrsKey = "9e CudReset";
+  timermap.start( cdrsKey );
+  gpuErrchk3( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
 
   // *** STOP THE NEW TIMERS ***
   timermap.stop();
