@@ -455,7 +455,7 @@ thrust::complex<double> fo[6])
   return;
 }
 __device__ void FFV2_0(const thrust::complex<double> * __restrict__ F1, const
-thrust::complex<double> * __restrict__ F2, const thrust::complex<double> * __restrict__ V3, const thrust::complex<double> COUP, thrust::complex<double> * vertex)
+thrust::complex<double> * __restrict__ F2, const thrust::complex<double> * __restrict__ V3, const thrust::complex<double> & COUP, thrust::complex<double> * vertex)
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.);
   thrust::complex<double> TMP0;
@@ -466,7 +466,7 @@ thrust::complex<double> * __restrict__ F2, const thrust::complex<double> * __res
 
 
 __device__ void FFV2_3(const thrust::complex<double> * __restrict__ F1, const
-thrust::complex<double> * __restrict__ F2, const thrust::complex<double> COUP, const double M3, const double W3, thrust::complex<double> V3[])
+thrust::complex<double> * __restrict__ F2, const thrust::complex<double> & COUP, const double M3, const double W3, thrust::complex<double> V3[])
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.);
   double OM3;
@@ -497,7 +497,7 @@ thrust::complex<double> * __restrict__ F2, const thrust::complex<double> COUP, c
 
 
 __device__ void FFV4_0(const thrust::complex<double> * __restrict__ F1, const
-thrust::complex<double> * __restrict__ F2, const thrust::complex<double> * __restrict__ V3, const thrust::complex<double> COUP, thrust::complex<double> * vertex)
+thrust::complex<double> * __restrict__ F2, const thrust::complex<double> * __restrict__ V3, const thrust::complex<double> & COUP, thrust::complex<double> * vertex)
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.);
   thrust::complex<double> TMP0;
@@ -511,7 +511,7 @@ thrust::complex<double> * __restrict__ F2, const thrust::complex<double> * __res
 
 
 __device__ void FFV4_3(const thrust::complex<double> * __restrict__ F1, const
-thrust::complex<double> * __restrict__ F2, const thrust::complex<double> COUP, const double M3, const double W3, thrust::complex<double> V3[])
+thrust::complex<double> * __restrict__ F2, const thrust::complex<double> & COUP, const double M3, const double W3, thrust::complex<double> V3[])
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.);
   double OM3;
@@ -550,7 +550,7 @@ thrust::complex<double> * __restrict__ F2, const thrust::complex<double> COUP, c
 
 
 __device__ void FFV1_0(const thrust::complex<double> * __restrict__ F1, const
-thrust::complex<double> * __restrict__ F2, const thrust::complex<double> * __restrict__ V3, const thrust::complex<double> COUP, thrust::complex<double> * vertex)
+thrust::complex<double> * __restrict__ F2, const thrust::complex<double> * __restrict__ V3, const thrust::complex<double> & COUP, thrust::complex<double> * vertex)
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.);
   thrust::complex<double> TMP4;
@@ -563,7 +563,7 @@ thrust::complex<double> * __restrict__ F2, const thrust::complex<double> * __res
 
 
 __device__ void FFV1P0_3(const thrust::complex<double> * __restrict__ F1, const
-thrust::complex<double> * __restrict__ F2, const thrust::complex<double> COUP, const double M3, const double W3, thrust::complex<double> V3[])
+thrust::complex<double> * __restrict__ F2, const thrust::complex<double> & COUP, const double M3, const double W3, thrust::complex<double> V3[])
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.);
   double P3[4];
@@ -588,7 +588,7 @@ thrust::complex<double> * __restrict__ F2, const thrust::complex<double> COUP, c
 
 
 __device__ void FFV2_4_0(const thrust::complex<double> * __restrict__ F1, const
-thrust::complex<double> * __restrict__ F2, const thrust::complex<double> * __restrict__ V3, const thrust::complex<double> COUP1, const thrust::complex<double> COUP2, thrust::complex<double> * vertex)
+thrust::complex<double> * __restrict__ F2, const thrust::complex<double> * __restrict__ V3, const thrust::complex<double> & COUP1, const thrust::complex<double> & COUP2, thrust::complex<double> * vertex)
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.);
   thrust::complex<double> TMP0;
@@ -603,7 +603,7 @@ thrust::complex<double> * __restrict__ F2, const thrust::complex<double> * __res
 
 
 __device__ void FFV2_4_3(const thrust::complex<double> * __restrict__ F1, const
-thrust::complex<double> * __restrict__ F2, const thrust::complex<double> COUP1, const thrust::complex<double> COUP2, const double M3, const double W3,
+thrust::complex<double> * __restrict__ F2, const thrust::complex<double> & COUP1, const thrust::complex<double> & COUP2, const double M3, const double W3,
 thrust::complex<double> V3[])
 {
   thrust::complex<double> cI = thrust::complex<double> (0., 1.);
