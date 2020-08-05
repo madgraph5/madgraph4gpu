@@ -438,8 +438,15 @@ namespace Proc
     // pars->setDependentCouplings();
     // Reset color flows
 
-    const int npar = 4; // hardcoded for this process (eemumu): npar=4
     const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
+    const int npar = 4; // #particles is hardcoded for this process (eemumu: npar=4)
+
+    const int ncomb = 16; // #helicity combinations is hardcoded for this process (eemumu: ncomb=16)
+
+#ifndef __CUDACC__
+    static bool first = true; // first iteration over nevt events
+    static bool goodhel[ncomb] = { false };
+#endif    
 
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
@@ -474,9 +481,6 @@ namespace Proc
           local_m[ipar][ip4] = allmomenta[ievt*npar*np4 + ipar*np4 + ip4]; // AOS[ievt][ipar][ip4]
 #endif
 
-      // Helicity combinations
-      const int ncomb = 16;
-
       // Denominators: spins, colors and identical particles
       const int nprocesses = 1;
       const int denominators[nprocesses] = {4};
@@ -488,9 +492,23 @@ namespace Proc
         matrix_element[iproc] = 0.;
       }
 
+#ifndef __CUDACC__
+      const int maxtry = 10;
+      double melast = matrix_element[0];
+#endif
       for (int ihel = 0; ihel < ncomb; ihel++ )
       {
-        calculate_wavefunctions(ihel, local_m, matrix_element[0]);
+#ifndef __CUDACC__
+        if ( ( !first || ievt>maxtry ) && !goodhel[ihel] ) continue;
+#endif
+        calculate_wavefunctions(ihel, local_m, matrix_element[0]); // adds ME for ihel to matrix_element[0]
+#ifndef __CUDACC__
+        if ( first && ievt<=maxtry )
+        {
+          if ( !goodhel[ihel] && matrix_element[0]>melast ) goodhel[ihel] = true;
+          melast = matrix_element[0];
+        }
+#endif
       }
 
       for (int iproc = 0; iproc < nprocesses; ++iproc)
@@ -504,6 +522,11 @@ namespace Proc
       }
     }
     // ** END LOOP ON IEVT **
+
+#ifndef __CUDACC__
+    //if ( first ) for (int ihel = 0; ihel < ncomb; ihel++ ) printf( "sigmakin: ihelgood %2d %d\n", ihel, goodhel[ihel] );
+    first = false;
+#endif
 
   }
 
