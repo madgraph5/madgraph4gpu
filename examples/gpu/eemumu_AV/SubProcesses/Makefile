@@ -2,7 +2,7 @@ CUARCHNUM=70
 LIBDIR=../../lib
 INCDIR=../../src
 MODELLIB=model_sm
-CXXFLAGS= -O3 -I$(INCDIR) -I.
+CXXFLAGS= -O3 -I$(INCDIR) -I. -DUSE_NVTX
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM) #--gpu-architecture=compute_35 --gpu-code=sm_35
 CUFLAGS= $(CUARCHFLAGS) -use_fast_math -lineinfo -DUSE_NVTX
 CUINC=/usr/local/cuda/targets/x86_64-linux/include
@@ -52,14 +52,13 @@ $(cu_main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects)
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) -lcuda -lcurand
 
 $(cxx_main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) check.o
-	$(CXX) -o $@ $(cxx_objects) check.o $(LIBFLAGS) $(CULIBFLAGS) -lcurand
+	$(CXX) -o $@ $(cxx_objects) check.o -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcurand
 
 .PHONY: clean
 
 clean:
 	cd ../../src && make clean
-	rm -f $(cu_main)
-	rm -f $(cu_objects) $(cxx_objects)
+	rm -f *.o *.exe
 
 memcheck: $(cu_main)
 	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes ./gcheck.exe 2 32 2
