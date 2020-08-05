@@ -90,7 +90,6 @@ int main(int argc, char **argv)
   // --- 00. Initialise cuda (call cudaFree to ease cuda profile analysis)
   const std::string cdfrKey = "00 CudaFree";
   timermap.start( cdfrKey );
-
   //std::cout << "Calling cudaFree... " << std::endl;
   gpuErrchk3( cudaFree( 0 ) ); // SLOW!
   //std::cout << "Calling cudaFree... done" << std::endl;
@@ -175,12 +174,14 @@ int main(int argc, char **argv)
   {
     //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
 
-    // --- 0d. Seed curand generator (to get same results on host and device)
+    // === STEP 1 OF 3
+
+    // --- 1a. Seed curand generator (to get same results on host and device)
     // [NB This should not be necessary using the host API: "Generation functions
     // can be called multiple times on the same generator to generate successive
     // blocks of results. For pseudorandom generators, multiple calls to generation
     // functions will yield the same result as a single call with a large size."]
-    const std::string sgenKey = "0d GenSeed ";
+    const std::string sgenKey = "1a GenSeed ";
     timermap.start( sgenKey );
     const unsigned long long seed = 20200805;
 #ifdef __CUDACC__
@@ -189,10 +190,8 @@ int main(int argc, char **argv)
     rambo2toNm0::seedGenerator( rnGen, seed+iiter );
 #endif
 
-    // === STEP 1 OF 3
-
-    // 1a. Generate all relevant numbers to build ndim events (i.e. ndim phase space points) on the host
-    const std::string rngnKey = "1a GenRnGen";
+    // --- 1b. Generate all relevant numbers to build ndim events (i.e. ndim phase space points) on the host
+    const std::string rngnKey = "1b GenRnGen";
     timermap.start( rngnKey );
 #ifdef __CUDACC__
 #if defined MGONGPU_CURAND_ONDEVICE
@@ -207,9 +206,8 @@ int main(int argc, char **argv)
 
 #ifdef __CUDACC__
 #if defined MGONGPU_CURAND_ONHOST
-    // 1b. Copy rnarray from host to device
-    // --- 1a. CopyHToD
-    const std::string htodKey = "1b CpHTDrnd";
+    // --- 1c. Copy rnarray from host to device
+    const std::string htodKey = "1c CpHTDrnd";
     timermap.start( htodKey );
     gpuErrchk3( cudaMemcpy( devRnarray, hstRnarray, nbytesRnarray, cudaMemcpyHostToDevice ) );
 #endif
@@ -271,9 +269,10 @@ int main(int argc, char **argv)
     // *** STOP THE OLD TIMER ***
     gputime += timermap.stop();
 
-    // === STEP 9 FINALISE
-    // --- 9a Dump within the loop
-    const std::string loopKey = "9a DumpLoop";
+    // === STEP 4 FINALISE LOOP
+    // --- 4a Dump within the loop
+    const std::string loopKey = "4a DumpLoop";
+    timermap.start(loopKey);
     wavetimes[iiter] = gputime;
 
     if (verbose)
@@ -360,8 +359,8 @@ int main(int argc, char **argv)
   // **************************************
 
   // === STEP 9 FINALISE
-  // --- 9b Dump after the loop
-  const std::string dumpKey = "9b DumpAll ";
+  // --- 9a Dump after the loop
+  const std::string dumpKey = "9a DumpAll ";
   timermap.start(dumpKey);
 
   if (!(verbose || debug || perf))
@@ -446,8 +445,8 @@ int main(int argc, char **argv)
               << "MaxMatrixElemValue    = " << maxelem << " GeV^" << meGeVexponent << std::endl;
   }
 
-  // --- 9c. Destroy curand generator
-  const std::string dgenKey = "9c GenDestr";
+  // --- 9b. Destroy curand generator
+  const std::string dgenKey = "9b GenDestr";
   timermap.start( dgenKey );
 #ifdef __CUDACC__
   grambo2toNm0::destroyGenerator( rnGen );
@@ -455,8 +454,8 @@ int main(int argc, char **argv)
   rambo2toNm0::destroyGenerator( rnGen );
 #endif
 
-  // --- 9d Free memory structures
-  const std::string freeKey = "9d MemFree ";
+  // --- 9c Free memory structures
+  const std::string freeKey = "9c MemFree ";
   timermap.start( freeKey );
 
   gpuErrchk3( cudaFreeHost( hstMEs ) );
@@ -479,8 +478,8 @@ int main(int argc, char **argv)
   delete[] wavetimes;
   delete[] matrixelementvector;
 
-  // --- 9e. Finalise cuda
-  const std::string cdrsKey = "9e CudReset";
+  // --- 9d. Finalise cuda
+  const std::string cdrsKey = "9d CudReset";
   timermap.start( cdrsKey );
   gpuErrchk3( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
 
