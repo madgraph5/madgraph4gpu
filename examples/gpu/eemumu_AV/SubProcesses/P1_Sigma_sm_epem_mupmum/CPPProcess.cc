@@ -294,9 +294,46 @@ namespace Proc
 #ifdef __CUDACC__
   __device__
 #endif
-  void calculate_wavefunctions(int ihel, double local_mom[4][4],
-                               double &matrix)
+  // ** NB: allmomenta can have three different layouts
+  // ASA: allmomenta[npag][npar][np4][nepp] where ndim=npag*nepp
+  // SOA: allmomenta[npar][np4][ndim]
+  // AOS: allmomenta[ndim][npar][np4]
+  void calculate_wavefunctions( int ihel, 
+                                const double* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+                                double &matrix
+#ifndef __CUDACC__
+                                , const int ievt
+#endif
+                                )
   {
+#ifdef __CUDACC__
+      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
+      const int ievt = idim;
+      //printf( "sigmakin: ievt %d\n", ievt );
+#endif
+
+      double local_mom[npar][np4];
+#if defined MGONGPU_LAYOUT_ASA
+      using mgOnGpu::nepp;
+      const int ipag = ievt/nepp; // #eventpage in this iteration
+      const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
+      // ASA: allmomenta[npag][npar][np4][nepp]
+      for (int ipar = 0; ipar < npar; ipar++ )
+        for (int ip4 = 0; ip4 < np4; ip4++ )
+          local_mom[ipar][ip4] = allmomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + ip4*nepp + iepp]; // AOSOA[ipag][ipar][ip4][iepp]
+#elif defined MGONGPU_LAYOUT_SOA
+      const int ndim = blockDim.x * gridDim.x; // (previously was: DIM)
+      // SOA: allmomenta[npar][np4][ndim]
+      for (int ipar = 0; ipar < npar; ipar++ )
+        for (int ip4 = 0; ip4 < np4; ip4++ )
+          local_mom[ipar][ip4] = allmomenta[ipar*np4*ndim + ip4*ndim + ievt]; // SOA[ipar][ip4][ievt]
+#elif defined MGONGPU_LAYOUT_AOS
+      // AOS: allmomenta[ndim][npar][np4]
+      for (int ipar = 0; ipar < npar; ipar++ )
+        for (int ip4 = 0; ip4 < np4; ip4++ )
+          local_mom[ipar][ip4] = allmomenta[ievt*npar*np4 + ipar*np4 + ip4]; // AOS[ievt][ipar][ip4]
+#endif
+
     dcomplex amp[2];
     // Calculate wavefunctions for all processes
     dcomplex w[5][6];
@@ -464,28 +501,6 @@ namespace Proc
       //printf( "sigmakin: ievt %d\n", ievt );
 #endif
 
-      double local_m[npar][np4];
-#if defined MGONGPU_LAYOUT_ASA
-      using mgOnGpu::nepp;
-      const int ipag = ievt/nepp; // #eventpage in this iteration
-      const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
-      // ASA: allmomenta[npag][npar][np4][nepp]
-      for (int ipar = 0; ipar < npar; ipar++ )
-        for (int ip4 = 0; ip4 < np4; ip4++ )
-          local_m[ipar][ip4] = allmomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + ip4*nepp + iepp]; // AOSOA[ipag][ipar][ip4][iepp]
-#elif defined MGONGPU_LAYOUT_SOA
-      const int ndim = blockDim.x * gridDim.x; // (previously was: DIM)
-      // SOA: allmomenta[npar][np4][ndim]
-      for (int ipar = 0; ipar < npar; ipar++ )
-        for (int ip4 = 0; ip4 < np4; ip4++ )
-          local_m[ipar][ip4] = allmomenta[ipar*np4*ndim + ip4*ndim + ievt]; // SOA[ipar][ip4][ievt]
-#elif defined MGONGPU_LAYOUT_AOS
-      // AOS: allmomenta[ndim][npar][np4]
-      for (int ipar = 0; ipar < npar; ipar++ )
-        for (int ip4 = 0; ip4 < np4; ip4++ )
-          local_m[ipar][ip4] = allmomenta[ievt*npar*np4 + ipar*np4 + ip4]; // AOS[ievt][ipar][ip4]
-#endif
-
       // Denominators: spins, colors and identical particles
       const int nprocesses = 1;
       const int denominators[nprocesses] = {4};
@@ -501,7 +516,11 @@ namespace Proc
       for (int ihel = 0; ihel < ncomb; ihel++ )
       {
         if ( sigmakin_itry>maxtry && !sigmakin_goodhel[ihel] ) continue;
-        calculate_wavefunctions(ihel, local_m, matrix_element[0]); // adds ME for ihel to matrix_element[0]
+#ifdef __CUDACC__
+        calculate_wavefunctions(ihel, allmomenta, matrix_element[0]); // adds ME for ihel to matrix_element[0]
+#else
+        calculate_wavefunctions(ihel, allmomenta, matrix_element[0], ievt); // adds ME for ihel to matrix_element[0]
+#endif
         if ( sigmakin_itry<=maxtry )
         {
           if ( !sigmakin_goodhel[ihel] && matrix_element[0]>melast ) sigmakin_goodhel[ihel] = true;
