@@ -18,6 +18,16 @@
 
 namespace mgOnGpu
 {
+  // --- Physics process-specific constants that are best declared at compile time
+
+  const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
+
+  const int npari = 2; // #particles in the initial state (incoming): e+ e-
+  const int nparf = 2; // #particles in the final state (outgoing): mu+ mu-
+  const int npar = npari + nparf; // #particles in total (external): e+ e- -> mu+ mu-
+
+  // --- Platform-specific software implementation details
+
   // Maximum number of threads per block
   // ** NB kernels will statically allocate shared memory for all these threads
   const int ntpbMAX = 256;

@@ -277,8 +277,8 @@ namespace gProc
 namespace Proc
 #endif
 {
-  const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
-  const int npar = 4; // #particles is hardcoded for this process (eemumu: npar=4)
+  using mgOnGpu::np4;
+  using mgOnGpu::npar;
   const int ncomb = 16; // #helicity combinations is hardcoded for this process (eemumu: ncomb=16)
 
 #ifdef __CUDACC__

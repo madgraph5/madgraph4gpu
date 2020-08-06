@@ -78,8 +78,8 @@ namespace Proc
 
 
     // Constants for array limits
-    static const int ninitial = 2;
-    static const int nexternal = 4;
+    static const int ninitial = mgOnGpu::npari;
+    static const int nexternal = mgOnGpu::npar;
     static const int nprocesses = 1;
 
   private:

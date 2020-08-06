@@ -31,13 +31,10 @@ namespace rambo2toNm0
 #endif
 {
 
-  //--------------------------------------------------------------------------
-
-  const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
-
-  const int npari = 2; // #particles in the initial state
-  const int nparf = 2; // #particles in the final state
-  const int npar = npari + nparf; // #particles in total
+  using mgOnGpu::np4;
+  using mgOnGpu::npari;
+  using mgOnGpu::nparf;
+  using mgOnGpu::npar;
 
   //--------------------------------------------------------------------------
 

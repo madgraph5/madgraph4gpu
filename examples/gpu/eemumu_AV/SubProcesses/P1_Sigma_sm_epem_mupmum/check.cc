@@ -126,10 +126,9 @@ int main(int argc, char **argv)
   timermap.start( alloKey );
 
   // Memory structures for random numbers, momenta, matrix elements and weights on host and device
-  const int npar = process.nexternal; // for this process (eemumu): npar=4 (e+, e-, mu+, mu-)
-  const int nparf = npar - process.ninitial; // for this process (eemumu): nparf=2 (mu+, mu-)
-  const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
-
+  using mgOnGpu::np4;
+  using mgOnGpu::nparf;
+  using mgOnGpu::npar;
   const int nRnarray = np4*nparf*ndim; // (NB: ndim=npag*nepp for ASA layouts) 
 #ifdef __CUDACC__
   const int nbytesRnarray = nRnarray * sizeof(double);
