@@ -369,6 +369,17 @@ namespace Proc
 #ifdef __CUDACC__
   __device__ unsigned long long sigmakin_itry = 0; // first iteration over nevt events
   __device__ bool sigmakin_goodhel[ncomb] = { false };
+
+#ifdef __CUDACC__
+  //__shared__ dcomplex_v wv[5][6]; // dcomplex_v wv[5][6] gives "dynamic initialization is not supported"
+  //__shared__ double_v wv0[2*5*6]; // dcomplex_v wv[5][6] gives "dynamic initialization is not supported"
+  //dcomplex_v (*wv)[6] = (dcomplex_v (*)[6]) wv0; // dcomplex_v wv[5][6] i.e. dcomplex[5][6][256]
+  //dcomplex_v* wv1 = wv[1];
+  //__device__ double_v wv10[2*6]; // dcomplex_v wv1[6] gives "dynamic initialization is not supported"
+  //__device__ dcomplex_v* wv1 = (dcomplex_v*) wv10; // dcomplex_v wv1[6] i.e. dcomplex[6][256]
+#endif
+
+
 #endif
 
   // Evaluate |M|^2 for each subprocess
@@ -401,16 +412,17 @@ namespace Proc
     dcomplex amp[2];
     dcomplex w[5][6];
 
+ 
 #ifdef __CUDACC__
     //__shared__ dcomplex_v wv[5][6]; // dcomplex_v wv[5][6] gives "dynamic initialization is not supported"
     //__shared__ double_v wv0[2*5*6]; // dcomplex_v wv[5][6] gives "dynamic initialization is not supported"
     //dcomplex_v (*wv)[6] = (dcomplex_v (*)[6]) wv0; // dcomplex_v wv[5][6] i.e. dcomplex[5][6][256]
     //dcomplex_v* wv1 = wv[1];
-
+    
     __shared__ double_v wv10[2*6]; // dcomplex_v wv1[6] gives "dynamic initialization is not supported"
     dcomplex_v* wv1 = (dcomplex_v*) wv10; // dcomplex_v wv1[6] i.e. dcomplex[6][256]
 #endif
-
+    
     MG5_sm::oxzxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]);
 #ifdef __CUDACC__
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, wv1, 1 );
