@@ -64,11 +64,14 @@ namespace MG5_sm
                  const int nhel,
                  const int nsf,
                  dcomplex fi[6],
+#ifndef __CUDACC__
+                 const int ievt,
+#endif
                  const int ipar )          // input: particle# out of npar
   {
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
-    for (int ievt = 0; ievt < nevt; ++ievt)
+    //for (int ievt = 0; ievt < nevt; ++ievt)
 #endif
     {
 #ifdef __CUDACC__
@@ -382,7 +385,11 @@ namespace Proc
 #endif
 
     MG5_sm::oxzxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]);
+#ifdef __CUDACC__
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], 1 );
+#else
+    MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
+#endif
     MG5_sm::ixzxxxM0(local_mom[2], cHel[ihel][2], -1, w[2]);
     MG5_sm::oxzxxxM0(local_mom[3], cHel[ihel][3], +1, w[3]);
 
