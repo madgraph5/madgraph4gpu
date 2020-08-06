@@ -18,6 +18,11 @@ using mgOnGpu::dcomplex_v;
 namespace MG5_sm
 {
 
+#ifndef __CUDACC__
+  // Quick and dirty way to share nevt across all computational kernels
+  int nevt;
+#endif
+
 #ifdef __CUDACC__
   __device__
 #endif
@@ -323,11 +328,16 @@ namespace Proc
         for (int ip4 = 0; ip4 < np4; ip4++ )
           local_mom[ipar][ip4] = allmomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + ip4*nepp + iepp]; // AOSOA[ipag][ipar][ip4][iepp]
 #elif defined MGONGPU_LAYOUT_SOA
+#ifdef __CUDACC__
       const int ndim = blockDim.x * gridDim.x; // (previously was: DIM)
+      const int nevt = ndim;
+#else
+      const int nevt = MG5_sm::nevt;
+#endif
       // SOA: allmomenta[npar][np4][ndim]
       for (int ipar = 0; ipar < npar; ipar++ )
         for (int ip4 = 0; ip4 < np4; ip4++ )
-          local_mom[ipar][ip4] = allmomenta[ipar*np4*ndim + ip4*ndim + ievt]; // SOA[ipar][ip4][ievt]
+          local_mom[ipar][ip4] = allmomenta[ipar*np4*nevt + ip4*nevt + ievt]; // SOA[ipar][ip4][ievt]
 #elif defined MGONGPU_LAYOUT_AOS
       // AOS: allmomenta[ndim][npar][np4]
       for (int ipar = 0; ipar < npar; ipar++ )
@@ -486,6 +496,7 @@ namespace Proc
 #endif
 
 #ifndef __CUDACC__
+    MG5_sm::nevt = nevt;
     // ** START LOOP ON IEVT **
     for (int ievt = 0; ievt < nevt; ++ievt)
 #endif
