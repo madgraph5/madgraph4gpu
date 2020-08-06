@@ -12,6 +12,8 @@
 
 #include "mgOnGpuConfig.h"
 using mgOnGpu::dcomplex;
+using mgOnGpu::double_v;
+using mgOnGpu::dcomplex_v;
 
 namespace MG5_sm
 {
@@ -270,7 +272,6 @@ namespace gProc
 namespace Proc
 #endif
 {
-
   const int np4 = 4; // dimension of 4-momenta (E,px,py,pz): copy all of them from rambo
   const int npar = 4; // #particles is hardcoded for this process (eemumu: npar=4)
   const int ncomb = 16; // #helicity combinations is hardcoded for this process (eemumu: ncomb=16)
@@ -336,6 +337,10 @@ namespace Proc
 
     dcomplex amp[2];
     dcomplex w[5][6];
+
+#ifdef __CUDACC__
+    __shared__ dcomplex_v wv[5][6]; // dynamic initialization is not supported
+#endif
 
     MG5_sm::oxzxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]);
     MG5_sm::imzxxxM0(local_mom[1], cHel[ihel][1], +1, w[1]);
