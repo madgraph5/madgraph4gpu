@@ -24,6 +24,8 @@ namespace MG5_sm
 #endif
 
 
+  //--------------------------------------------------------------------------
+
 #ifdef __CUDACC__
   __device__
 #endif
@@ -42,8 +44,7 @@ namespace MG5_sm
     return allmomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + ip4*nepp + iepp]; // AOSOA[ipag][ipar][ip4][iepp]
 #elif defined MGONGPU_LAYOUT_SOA
 #ifdef __CUDACC__
-    const int ndim = blockDim.x * gridDim.x; // (previously was: DIM)
-    const int nevt = ndim;
+    const int nevt = blockDim.x * gridDim.x;
 #else
     using MG5_sm::nevt;
 #endif
@@ -55,6 +56,7 @@ namespace MG5_sm
 #endif
   }
 
+  //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
   __device__
@@ -67,7 +69,7 @@ namespace MG5_sm
                  dcomplex fi[6],
                  const int ievt,
 #else
-                 dcomplex_v fiv[6],
+                 dcomplex* fiv,          // output: fiv[6*nevt]
 #endif
                  const int ipar )          // input: particle# out of npar
   {
@@ -77,22 +79,31 @@ namespace MG5_sm
 #endif
     {
 #ifdef __CUDACC__
-      const int ieib = threadIdx.x; // event in block
-      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
-      const int ievt = idim;
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid
       //printf( "imzxxxM0: ievt=%d ieib=%d\n", ievt, ieib );
 #endif
       const double& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const double& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const double& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const double& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-#ifndef __CUDACC__
-      fi[0] = dcomplex (-pvec0 * nsf, -pvec3 * nsf);
-      fi[1] = dcomplex (-pvec1 * nsf, -pvec2 * nsf);
+#ifdef __CUDACC__
+      const int nevt = blockDim.x * gridDim.x;
+      dcomplex& fi0 = fiv[0*nevt + ievt];
+      dcomplex& fi1 = fiv[1*nevt + ievt];
+      dcomplex& fi2 = fiv[2*nevt + ievt];
+      dcomplex& fi3 = fiv[3*nevt + ievt];
+      dcomplex& fi4 = fiv[4*nevt + ievt];
+      dcomplex& fi5 = fiv[5*nevt + ievt];
 #else
-      fiv[0][ieib] = dcomplex (-pvec0 * nsf, -pvec3 * nsf);
-      fiv[1][ieib] = dcomplex (-pvec1 * nsf, -pvec2 * nsf);
+      dcomplex& fi0 = fi[0];
+      dcomplex& fi1 = fi[1];
+      dcomplex& fi2 = fi[2];
+      dcomplex& fi3 = fi[3];
+      dcomplex& fi4 = fi[4];
+      dcomplex& fi5 = fi[5];
 #endif
+      fi0 = dcomplex( -pvec0 * nsf, -pvec3 * nsf );
+      fi1 = dcomplex( -pvec1 * nsf, -pvec2 * nsf );
       const int nh = nhel * nsf;
       // ASSUMPTIONS FMASS = 0 and
       // (PX = PY = 0 and E = -P3 > 0)
@@ -101,31 +112,17 @@ namespace MG5_sm
         const dcomplex chi1( -nhel * sqrt(2 * pvec0), 0 );
         if (nh == 1)
         {
-#ifndef __CUDACC__
-          fi[2] = dcomplex (0, 0);
-          fi[3] = dcomplex (0, 0);
-          fi[4] = chi0;
-          fi[5] = chi1;
-#else
-          fiv[2][ieib] = dcomplex (0, 0);
-          fiv[3][ieib] = dcomplex (0, 0);
-          fiv[4][ieib] = chi0;
-          fiv[5][ieib] = chi1;
-#endif
+          fi2 = dcomplex (0, 0);
+          fi3 = dcomplex (0, 0);
+          fi4 = chi0;
+          fi5 = chi1;
         }
         else
         {
-#ifndef __CUDACC__
-          fi[2] = chi1;
-          fi[3] = chi0;
-          fi[4] = dcomplex (0, 0);
-          fi[5] = dcomplex (0, 0);
-#else
-          fiv[2][ieib] = chi1;
-          fiv[3][ieib] = chi0;
-          fiv[4][ieib] = dcomplex (0, 0);
-          fiv[5][ieib] = dcomplex (0, 0);
-#endif
+          fi2 = chi1;
+          fi3 = chi0;
+          fi4 = dcomplex (0, 0);
+          fi5 = dcomplex (0, 0);
         }
       }
     }
@@ -133,6 +130,7 @@ namespace MG5_sm
     return;
   }
 
+  //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
   __device__
@@ -170,6 +168,7 @@ namespace MG5_sm
     return;
   }
 
+  //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
   __device__
@@ -208,6 +207,7 @@ namespace MG5_sm
     return;
   }
 
+  //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
   __device__
@@ -227,6 +227,7 @@ namespace MG5_sm
     (*vertex) = COUP * - cI * TMP4;
   }
 
+  //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
   __device__
@@ -253,6 +254,7 @@ namespace MG5_sm
     V3[5] = denom * (-cI) * (-F1[2] * F2[4] - F1[5] * F2[3] + F1[3] * F2[5] + F1[4] * F2[2]);
   }
 
+  //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
   __device__
@@ -274,6 +276,7 @@ namespace MG5_sm
     (*vertex) = (-1.) * (COUP2 * (+cI * (TMP0) + 2. * cI * (TMP2)) + cI * (TMP0 * COUP1));
   }
 
+  //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
   __device__
@@ -369,18 +372,30 @@ namespace Proc
 #ifdef __CUDACC__
   __device__ unsigned long long sigmakin_itry = 0; // first iteration over nevt events
   __device__ bool sigmakin_goodhel[ncomb] = { false };
+#endif
+
+  //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
-  //__shared__ dcomplex_v wv[5][6]; // dcomplex_v wv[5][6] gives "dynamic initialization is not supported"
-  //__shared__ double_v wv0[2*5*6]; // dcomplex_v wv[5][6] gives "dynamic initialization is not supported"
-  //dcomplex_v (*wv)[6] = (dcomplex_v (*)[6]) wv0; // dcomplex_v wv[5][6] i.e. dcomplex[5][6][256]
-  //dcomplex_v* wv1 = wv[1];
-  __device__ double_v wv10[2*6]; // dcomplex_v wv1[6] gives "dynamic initialization is not supported"
-  __device__ dcomplex_v* wv1 = (dcomplex_v*) wv10; // dcomplex_v wv1[6] i.e. dcomplex[6][256]
+  __device__ dcomplex* wv1;
+
+  void sigmakin_alloc( const int ndim )
+  {
+    dcomplex* devWv1;
+    const int nbytesWv1 = ndim*6*sizeof(dcomplex); // wv1[6][ndim]
+    checkCuda( cudaMalloc( devWv1, nbytesWv1 ) );
+    checkCuda( cudaGetSymbolAddress( (void**)&devWv1, wv1 ) );
+  }
+
+  void sigmakin_free()
+  {
+    dcomplex** devWv1;
+    checkCuda( cudaGetSymbolAddress( (void**)&devWv1, wv1 ) );
+    checkCuda( cudaFreeHost( *devWv1 ) );
+  }
 #endif
 
-
-#endif
+  //--------------------------------------------------------------------------
 
   // Evaluate |M|^2 for each subprocess
 #ifdef __CUDACC__
@@ -401,7 +416,7 @@ namespace Proc
 #ifdef __CUDACC__
     const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
     const int ievt = idim;
-    //printf( "sigmakin: ievt %d\n", ievt );
+    //printf( "calculate_wavefunctions: ievt %d\n", ievt );
 #endif
 
     double local_mom[npar][np4];
@@ -425,9 +440,9 @@ namespace Proc
     
     MG5_sm::oxzxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]);
 #ifdef __CUDACC__
+    const int nevt = blockDim.x * gridDim.x;
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, wv1, 1 );
-    const int ieib = threadIdx.x; // event in block
-    for (int i6=0; i6<6; i6++) w[1][i6] = wv1[i6][ieib];
+    for (int i6=0; i6<6; i6++) w[1][i6] = wv1[i6*nevt + ievt];
 #else
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
 #endif
