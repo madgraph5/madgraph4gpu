@@ -62,14 +62,14 @@ clean:
 	rm -f *.o *.exe
 
 memcheck: $(cu_main)
-	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes ./gcheck.exe 2 32 2
+	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes ./gcheck.exe 2 256 2
 
 perf: force
 	make clean && make
 	time ./gcheck.exe -p 2048 256 12 && date
 
 test: force
-	./gcheck.exe -v 1 32 1
+	./gcheck.exe -v 1 256 1
 
 force:
 
