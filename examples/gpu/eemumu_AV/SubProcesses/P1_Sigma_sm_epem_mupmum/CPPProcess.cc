@@ -357,9 +357,9 @@ namespace Proc
   const int ncomb = 16; // #helicity combinations is hardcoded for this process (eemumu: ncomb=16)
 
 #ifdef __CUDACC__
-  __constant__ int cHel[ncomb][npar];
-  __constant__ double cIPC[6];  // coupling ?
-  __constant__ double cIPD[2];
+  __device__ __constant__ int cHel[ncomb][npar];
+  __device__ __constant__ double cIPC[6];  // coupling ?
+  __device__ __constant__ double cIPD[2];
 #else
   static int cHel[ncomb][npar];
   static double cIPC[6];  // coupling ?
