@@ -295,18 +295,6 @@ int main(int argc, char **argv)
   #endif
       //std::cout << "Got final momenta" << std::endl;
 
-  #ifdef __CUDACC__
-      // --- 2c. CopyDToH Weights
-      const std::string cwgtKey = "2c CpDTHwgt";
-      timermap.start( cwgtKey );
-      checkCuda( cudaMemcpy( hstWeights[siter], devWeights[siter], nbytesWeights, cudaMemcpyDeviceToHost ) );
-
-      // --- 2d. CopyDToH Momenta
-      const std::string cmomKey = "2d CpDTHmom";
-      timermap.start( cmomKey );
-      checkCuda( cudaMemcpy( hstMomenta[siter], devMomenta[siter], nbytesMomenta, cudaMemcpyDeviceToHost ) );
-  #endif
-
       // === STEP 3 OF 3
       // Evaluate matrix elements for all ndim events
       // 3a. Evaluate MEs on the device
@@ -326,11 +314,25 @@ int main(int argc, char **argv)
   #endif
 
   #ifdef __CUDACC__
+      // --- 2c. CopyDToH Weights
+      const std::string cwgtKey = "2c CpDTHwgt";
+      timermap.start( cwgtKey );
+      checkCuda( cudaMemcpyAsync( hstWeights[siter], devWeights[siter], nbytesWeights, cudaMemcpyDeviceToHost ) );
+
+      // --- 2d. CopyDToH Momenta
+      const std::string cmomKey = "2d CpDTHmom";
+      timermap.start( cmomKey );
+      checkCuda( cudaMemcpyAsync( hstMomenta[siter], devMomenta[siter], nbytesMomenta, cudaMemcpyDeviceToHost ) );
+  #endif
+
+  #ifdef __CUDACC__
       // --- 3b. CopyDToH MEs
+      cudaStreamSynchronize(streams[siter]);
       const std::string cmesKey = "3b CpDTHmes";
       gputime += timermap.start( cmesKey );
-      checkCuda( cudaMemcpy( hstMEs[siter], devMEs[siter], nbytesMEs, cudaMemcpyDeviceToHost ) );
+      checkCuda( cudaMemcpyAsync( hstMEs[siter], devMEs[siter], nbytesMEs, cudaMemcpyDeviceToHost ) );
   #endif
+
 
       // *** STOP THE OLD TIMER ***
       gputime += timermap.stop();
