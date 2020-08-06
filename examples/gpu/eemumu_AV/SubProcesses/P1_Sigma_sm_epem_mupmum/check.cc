@@ -444,7 +444,7 @@ int main(int argc, char **argv)
               << "NumBlocksPerGrid      = " << gpublocks << std::endl
               << "-----------------------------------" << std::endl
 #if defined MGONGPU_LAYOUT_ASA
-              << "Momenta memory layout = AOSOA" << std::endl
+              << "Momenta memory layout = AOSOA[" << nepp << "]" << std::endl
 #elif defined MGONGPU_LAYOUT_SOA
               << "Momenta memory layout = SOA" << std::endl
 #elif defined MGONGPU_LAYOUT_AOS
