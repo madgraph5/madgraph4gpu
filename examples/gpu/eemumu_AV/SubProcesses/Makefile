@@ -28,7 +28,7 @@ endif
 all:
 	cd ../../src && make
 	make $(cu_main)
-#make $(cxx_main)
+	make $(cxx_main)
 
 debug: CXXFLAGS:=$(filter-out -O3,$(CXXFLAGS))
 debug: CXXFLAGS += -g -O0 -DDEBUG2
