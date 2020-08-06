@@ -339,7 +339,8 @@ namespace Proc
     dcomplex w[5][6];
 
 #ifdef __CUDACC__
-    __shared__ dcomplex_v wv[5][6]; // dynamic initialization is not supported
+    __shared__ double_v wv0[2*5*6]; // dcomplex_v wv[5][6] gives "dynamic initialization is not supported"
+    dcomplex_v (*wv)[6] = (dcomplex_v (*)[6]) wv0; // dcomplex_v wv[5][6] i.e. dcomplex[5][6][256]
 #endif
 
     MG5_sm::oxzxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]);
@@ -406,6 +407,8 @@ namespace Proc
 #else
     memcpy( cHel, tHel, ncomb * nexternal * sizeof(int) );
 #endif
+    // SANITY CHECK: GPU shared memory usage is based on casts of double[2] to complex
+    assert( sizeof(dcomplex) == 2*sizeof(double) );
   }
 
   //--------------------------------------------------------------------------
