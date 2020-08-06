@@ -402,8 +402,9 @@ namespace Proc
     dcomplex w[5][6];
 
 #ifdef __CUDACC__
-    __shared__ double_v wv0[2*5*6]; // dcomplex_v wv[5][6] gives "dynamic initialization is not supported"
-    dcomplex_v (*wv)[6] = (dcomplex_v (*)[6]) wv0; // dcomplex_v wv[5][6] i.e. dcomplex[5][6][256]
+    __shared__ dcomplex_v wv[5][6]; // dcomplex_v wv[5][6] gives "dynamic initialization is not supported"
+    //__shared__ double_v wv0[2*5*6]; // dcomplex_v wv[5][6] gives "dynamic initialization is not supported"
+    //dcomplex_v (*wv)[6] = (dcomplex_v (*)[6]) wv0; // dcomplex_v wv[5][6] i.e. dcomplex[5][6][256]
     dcomplex_v* wv1 = wv[1];
 
     //__shared__ double_v wv10[2*6]; // dcomplex_v wv1[6] gives "dynamic initialization is not supported"
