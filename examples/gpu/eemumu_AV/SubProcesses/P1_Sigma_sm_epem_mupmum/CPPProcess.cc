@@ -281,6 +281,44 @@ namespace Proc
   using mgOnGpu::npar;
   const int ncomb = 16; // #helicity combinations is hardcoded for this process (eemumu: ncomb=16)
 
+
+#ifdef __CUDACC__
+  __device__
+#endif
+  inline const double& pIparIp4Ievt( const double* allmomenta, // input[(npar=4)*(np4=4)*nevt] 
+                                     const int ipar,
+                                     const int ip4,
+                                     const int ievt )
+  {
+#ifdef __CUDACC__
+    using gProc::npar;
+    using gProc::np4;
+#else
+    using Proc::npar;
+    using Proc::np4;
+#endif
+#if defined MGONGPU_LAYOUT_ASA
+    using mgOnGpu::nepp;
+    const int ipag = ievt/nepp; // #eventpage in this iteration
+    const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
+    // ASA: allmomenta[npag][npar][np4][nepp]
+    return allmomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + ip4*nepp + iepp]; // AOSOA[ipag][ipar][ip4][iepp]
+#elif defined MGONGPU_LAYOUT_SOA
+#ifdef __CUDACC__
+    const int ndim = blockDim.x * gridDim.x; // (previously was: DIM)
+    const int nevt = ndim;
+#else
+    using MG5_sm::nevt;
+#endif
+    // SOA: allmomenta[npar][np4][ndim]
+    return allmomenta[ipar*np4*nevt + ip4*nevt + ievt]; // SOA[ipar][ip4][ievt]
+#elif defined MGONGPU_LAYOUT_AOS
+    // AOS: allmomenta[ndim][npar][np4]
+    return allmomenta[ievt*npar*np4 + ipar*np4 + ip4]; // AOS[ievt][ipar][ip4]
+#endif
+  }  
+
+
 #ifdef __CUDACC__
   __constant__ int cHel[ncomb][npar];
   __constant__ double cIPC[6];  // coupling ?
@@ -319,31 +357,9 @@ namespace Proc
 #endif
 
       double local_mom[npar][np4];
-#if defined MGONGPU_LAYOUT_ASA
-      using mgOnGpu::nepp;
-      const int ipag = ievt/nepp; // #eventpage in this iteration
-      const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
-      // ASA: allmomenta[npag][npar][np4][nepp]
       for (int ipar = 0; ipar < npar; ipar++ )
         for (int ip4 = 0; ip4 < np4; ip4++ )
-          local_mom[ipar][ip4] = allmomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + ip4*nepp + iepp]; // AOSOA[ipag][ipar][ip4][iepp]
-#elif defined MGONGPU_LAYOUT_SOA
-#ifdef __CUDACC__
-      const int ndim = blockDim.x * gridDim.x; // (previously was: DIM)
-      const int nevt = ndim;
-#else
-      const int nevt = MG5_sm::nevt;
-#endif
-      // SOA: allmomenta[npar][np4][ndim]
-      for (int ipar = 0; ipar < npar; ipar++ )
-        for (int ip4 = 0; ip4 < np4; ip4++ )
-          local_mom[ipar][ip4] = allmomenta[ipar*np4*nevt + ip4*nevt + ievt]; // SOA[ipar][ip4][ievt]
-#elif defined MGONGPU_LAYOUT_AOS
-      // AOS: allmomenta[ndim][npar][np4]
-      for (int ipar = 0; ipar < npar; ipar++ )
-        for (int ip4 = 0; ip4 < np4; ip4++ )
-          local_mom[ipar][ip4] = allmomenta[ievt*npar*np4 + ipar*np4 + ip4]; // AOS[ievt][ipar][ip4]
-#endif
+          local_mom[ipar][ip4] = pIparIp4Ievt( allmomenta, ipar, ip4, ievt );
 
     dcomplex amp[2];
     dcomplex w[5][6];
