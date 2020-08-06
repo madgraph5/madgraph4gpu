@@ -28,10 +28,14 @@ namespace mgOnGpu
 
   // Complex type
 #ifdef __CUDACC__
-  typedef thrust::complex<double> dcomplex;
+  typedef thrust::complex<double> dcomplex; // two doubles: RI
 #else
-  typedef std::complex<double> dcomplex;
+  typedef std::complex<double> dcomplex; // two doubles: RI
 #endif
+
+  // Vector types: <type>_v is a <type>[256]
+  typedef double double_v[ntpbMAX];
+  typedef dcomplex dcomplex_v[ntpbMAX]; // RIRIRIRI: eventually move to RRRRIIII?
 
 }
 
