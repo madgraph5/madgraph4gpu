@@ -402,15 +402,18 @@ namespace Proc
     dcomplex w[5][6];
 
 #ifdef __CUDACC__
-    __shared__ double_v wv0[2*5*6]; // dcomplex_v wv[5][6] gives "dynamic initialization is not supported"
-    dcomplex_v (*wv)[6] = (dcomplex_v (*)[6]) wv0; // dcomplex_v wv[5][6] i.e. dcomplex[5][6][256]
+    //__shared__ double_v wv0[2*5*6]; // dcomplex_v wv[5][6] gives "dynamic initialization is not supported"
+    //dcomplex_v (*wv)[6] = (dcomplex_v (*)[6]) wv0; // dcomplex_v wv[5][6] i.e. dcomplex[5][6][256]
+    //__shared__ dcomplex_v wv1[6]; // dcomplex_v wv1[6] gives "dynamic initialization is not supported"
+    __shared__ double_v wv10[2*6]; // dcomplex_v wv1[6] gives "dynamic initialization is not supported"
+    dcomplex_v* wv1 = (dcomplex_v*) wv10; // dcomplex_v wv1[6] i.e. dcomplex[6][256]
 #endif
 
     MG5_sm::oxzxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]);
 #ifdef __CUDACC__
-    MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, wv[1], 1 );
+    MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, wv1, 1 );
     const int ieib = threadIdx.x; // event in block
-    for (int i6=1; i6<6; i6++) w[1][i6] = wv[1][i6][ieib];
+    for (int i6=1; i6<6; i6++) w[1][i6] = wv1[i6][ieib];
 #else
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
 #endif
