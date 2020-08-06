@@ -28,7 +28,7 @@ endif
 all:
 	cd ../../src && make
 	make $(cu_main)
-	make $(cxx_main)
+#make $(cxx_main)
 
 debug: CXXFLAGS:=$(filter-out -O3,$(CXXFLAGS))
 debug: CXXFLAGS += -g -O0 -DDEBUG2
@@ -49,8 +49,8 @@ gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
 %.o : %.cc *.h ../../src/*.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(CUINC) -c $< -o $@
 
-$(cu_main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects)
-	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) -lcuda -lcurand
+$(cu_main): $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
+	$(NVCC) -o $@ $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) -lcuda -lcurand
 
 $(cxx_main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) check.o
 	$(CXX) -o $@ $(cxx_objects) check.o -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcurand
