@@ -59,22 +59,35 @@ namespace MG5_sm
 #ifdef __CUDACC__
   __device__
 #endif
-  void imzxxxM0( const double pvec[4],
+  void imzxxxM0( const double* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                  //const double fmass,
                  const int nhel,
                  const int nsf,
-                 dcomplex fi[6] )
+                 dcomplex fi[6],
+                 const int ipar )          // input: particle# out of npar
   {
-    // ** START LOOP ON IEVT ** (eventually...)
+#ifndef __CUDACC__
+    // ** START LOOP ON IEVT **
+    for (int ievt = 0; ievt < nevt; ++ievt)
+#endif
     {
-      fi[0] = dcomplex (-pvec[0] * nsf, -pvec[3] * nsf);
-      fi[1] = dcomplex (-pvec[1] * nsf, -pvec[2] * nsf);
+#ifdef __CUDACC__
+      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
+      const int ievt = idim;
+      //printf( "imzxxxM0: ievt %d\n", ievt );
+#endif
+      const double& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+      const double& pvec1 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+      const double& pvec2 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+      const double& pvec3 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+      fi[0] = dcomplex (-pvec0 * nsf, -pvec3 * nsf);
+      fi[1] = dcomplex (-pvec1 * nsf, -pvec2 * nsf);
       const int nh = nhel * nsf;
       // ASSUMPTIONS FMASS = 0 and
       // (PX = PY = 0 and E = -P3 > 0)
       {
         const dcomplex chi0( 0, 0 );
-        const dcomplex chi1( -nhel * sqrt(2 * pvec[0]), 0 );
+        const dcomplex chi1( -nhel * sqrt(2 * pvec0), 0 );
         if (nh == 1)
         {
           fi[2] = dcomplex (0, 0);
@@ -369,7 +382,7 @@ namespace Proc
 #endif
 
     MG5_sm::oxzxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]);
-    MG5_sm::imzxxxM0(local_mom[1], cHel[ihel][1], +1, w[1]);
+    MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], 1 );
     MG5_sm::ixzxxxM0(local_mom[2], cHel[ihel][2], -1, w[2]);
     MG5_sm::oxzxxxM0(local_mom[3], cHel[ihel][3], +1, w[3]);
 
