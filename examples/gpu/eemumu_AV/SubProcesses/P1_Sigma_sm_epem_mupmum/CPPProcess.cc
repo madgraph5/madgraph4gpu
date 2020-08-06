@@ -420,7 +420,7 @@ namespace Proc
     //dcomplex_v* wv1 = wv[1];
     
     __shared__ double_v wv10[2*6]; // dcomplex_v wv1[6] gives "dynamic initialization is not supported"
-    dcomplex_v* wv1 = (dcomplex_v*) wv10; // dcomplex_v wv1[6] i.e. dcomplex[6][256]
+    __shared__ dcomplex_v* wv1 = (dcomplex_v*) wv10; // dcomplex_v wv1[6] i.e. dcomplex[6][256]
 #endif
     
     MG5_sm::oxzxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]);
