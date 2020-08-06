@@ -63,9 +63,11 @@ namespace MG5_sm
                  //const double fmass,
                  const int nhel,
                  const int nsf,
-                 dcomplex fi[6],
 #ifndef __CUDACC__
+                 dcomplex fi[6],
                  const int ievt,
+#else
+                 dcomplex_v fiv[6],
 #endif
                  const int ipar )          // input: particle# out of npar
   {
@@ -75,16 +77,22 @@ namespace MG5_sm
 #endif
     {
 #ifdef __CUDACC__
+      const int ieib = threadIdx.x; // event in block
       const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
       const int ievt = idim;
-      //printf( "imzxxxM0: ievt %d\n", ievt );
+      //printf( "imzxxxM0: ievt=%d ieib=%d\n", ievt, ieib );
 #endif
       const double& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const double& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const double& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const double& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+#ifndef __CUDACC__
       fi[0] = dcomplex (-pvec0 * nsf, -pvec3 * nsf);
       fi[1] = dcomplex (-pvec1 * nsf, -pvec2 * nsf);
+#else
+      fiv[0][ieib] = dcomplex (-pvec0 * nsf, -pvec3 * nsf);
+      fiv[1][ieib] = dcomplex (-pvec1 * nsf, -pvec2 * nsf);
+#endif
       const int nh = nhel * nsf;
       // ASSUMPTIONS FMASS = 0 and
       // (PX = PY = 0 and E = -P3 > 0)
@@ -93,17 +101,31 @@ namespace MG5_sm
         const dcomplex chi1( -nhel * sqrt(2 * pvec0), 0 );
         if (nh == 1)
         {
+#ifndef __CUDACC__
           fi[2] = dcomplex (0, 0);
           fi[3] = dcomplex (0, 0);
           fi[4] = chi0;
           fi[5] = chi1;
+#else
+          fiv[2][ieib] = dcomplex (0, 0);
+          fiv[3][ieib] = dcomplex (0, 0);
+          fiv[4][ieib] = chi0;
+          fiv[5][ieib] = chi1;
+#endif
         }
         else
         {
+#ifndef __CUDACC__
           fi[2] = chi1;
           fi[3] = chi0;
           fi[4] = dcomplex (0, 0);
           fi[5] = dcomplex (0, 0);
+#else
+          fiv[2][ieib] = chi1;
+          fiv[3][ieib] = chi0;
+          fiv[4][ieib] = dcomplex (0, 0);
+          fiv[5][ieib] = dcomplex (0, 0);
+#endif
         }
       }
     }
@@ -386,7 +408,9 @@ namespace Proc
 
     MG5_sm::oxzxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]);
 #ifdef __CUDACC__
-    MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], 1 );
+    MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, wv[1], 1 );
+    const int ieib = threadIdx.x; // event in block
+    for (int i6=1; i6<6; i6++) w[1][i6] = wv[1][i6][ieib];
 #else
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
 #endif
