@@ -2,9 +2,10 @@ CUARCHNUM=70
 LIBDIR=../../lib
 INCDIR=../../src
 MODELLIB=model_sm
-CXXFLAGS= -O3 -I$(INCDIR) -I. -DUSE_NVTX -Wall -Wshadow 
+CXXFLAGS= -O3 -I. -I$(INCDIR) -DUSE_NVTX -Wall -Wshadow
+###CXXFLAGS= -O3 -I. -I$(INCDIR) -DUSE_NVTX -Wall -Wshadow -std=c++17 # for structured bindings
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM) #--gpu-architecture=compute_35 --gpu-code=sm_35
-CUFLAGS= -O3 -I$(INCDIR) -I. -DUSE_NVTX $(CUARCHFLAGS) -use_fast_math -lineinfo 
+CUFLAGS= -O3 -I. -I$(INCDIR) -DUSE_NVTX $(CUARCHFLAGS) -use_fast_math -lineinfo 
 CUINC=/usr/local/cuda/targets/x86_64-linux/include
 LIBFLAGS= -L$(LIBDIR) -l$(MODELLIB)
 CULIBFLAGS= -L/usr/local/cuda/targets/x86_64-linux/lib

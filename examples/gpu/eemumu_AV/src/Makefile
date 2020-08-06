@@ -1,7 +1,7 @@
 CUARCHNUM=70
 LIBDIR=../lib
-CXXFLAGS= -O3 -I.
-###CXXFLAGS= -O3 -I. -std=c++17 # for structured bindings 
+CXXFLAGS= -O3 -I. -Wall -Wshadow 
+###CXXFLAGS= -O3 -I. -Wall -Wshadow -std=c++17 # for structured bindings 
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM)
 CUFLAGS= $(CUARCHFLAGS) -use_fast_math -lineinfo -DUSE_NVTX
 CUINC=/usr/local/cuda/targets/x86_64-linux/include
