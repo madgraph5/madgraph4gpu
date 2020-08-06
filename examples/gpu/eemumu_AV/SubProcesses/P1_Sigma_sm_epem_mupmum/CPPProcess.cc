@@ -417,7 +417,7 @@ namespace Proc
 #ifdef __CUDACC__
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, wv1, 1 );
     const int ieib = threadIdx.x; // event in block
-    for (int i6=1; i6<6; i6++) w[1][i6] = wv1[i6][ieib];
+    for (int i6=0; i6<6; i6++) w[1][i6] = wv1[i6][ieib];
 #else
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
 #endif
