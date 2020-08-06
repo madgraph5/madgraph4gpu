@@ -77,9 +77,9 @@ namespace MG5_sm
       //printf( "imzxxxM0: ievt %d\n", ievt );
 #endif
       const double& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
-      const double& pvec1 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
-      const double& pvec2 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
-      const double& pvec3 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+      const double& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
+      const double& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
+      const double& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
       fi[0] = dcomplex (-pvec0 * nsf, -pvec3 * nsf);
       fi[1] = dcomplex (-pvec1 * nsf, -pvec2 * nsf);
       const int nh = nhel * nsf;
