@@ -27,7 +27,7 @@ namespace MG5_sm
 #ifdef __CUDACC__
   __device__
 #endif
-  inline const double& pIparIp4Ievt( const double* allmomenta, // input[(npar=4)*(np4=4)*nevt] 
+  inline const double& pIparIp4Ievt( const double* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                                      const int ipar,
                                      const int ip4,
                                      const int ievt )
@@ -53,41 +53,45 @@ namespace MG5_sm
     // AOS: allmomenta[ndim][npar][np4]
     return allmomenta[ievt*npar*np4 + ipar*np4 + ip4]; // AOS[ievt][ipar][ip4]
 #endif
-  }  
+  }
 
 
 #ifdef __CUDACC__
   __device__
 #endif
-  void imzxxxM0(const double pvec[4],
-                //const double fmass,
-                const int nhel,
-                const int nsf,
-                dcomplex fi[6])
+  void imzxxxM0( const double pvec[4],
+                 //const double fmass,
+                 const int nhel,
+                 const int nsf,
+                 dcomplex fi[6] )
   {
-    fi[0] = dcomplex (-pvec[0] * nsf, -pvec[3] * nsf);
-    fi[1] = dcomplex (-pvec[1] * nsf, -pvec[2] * nsf);
-    const int nh = nhel * nsf;
-    // ASSUMPTIONS FMASS = 0 and
-    // (PX = PY = 0 and E = -P3 > 0)
+    // ** START LOOP ON IEVT ** (eventually...)
     {
-      const dcomplex chi0( 0, 0 );
-      const dcomplex chi1( -nhel * sqrt(2 * pvec[0]), 0 );
-      if (nh == 1)
+      fi[0] = dcomplex (-pvec[0] * nsf, -pvec[3] * nsf);
+      fi[1] = dcomplex (-pvec[1] * nsf, -pvec[2] * nsf);
+      const int nh = nhel * nsf;
+      // ASSUMPTIONS FMASS = 0 and
+      // (PX = PY = 0 and E = -P3 > 0)
       {
-        fi[2] = dcomplex (0, 0);
-        fi[3] = dcomplex (0, 0);
-        fi[4] = chi0;
-        fi[5] = chi1;
-      }
-      else
-      {
-        fi[2] = chi1;
-        fi[3] = chi0;
-        fi[4] = dcomplex (0, 0);
-        fi[5] = dcomplex (0, 0);
+        const dcomplex chi0( 0, 0 );
+        const dcomplex chi1( -nhel * sqrt(2 * pvec[0]), 0 );
+        if (nh == 1)
+        {
+          fi[2] = dcomplex (0, 0);
+          fi[3] = dcomplex (0, 0);
+          fi[4] = chi0;
+          fi[5] = chi1;
+        }
+        else
+        {
+          fi[2] = chi1;
+          fi[3] = chi0;
+          fi[4] = dcomplex (0, 0);
+          fi[5] = dcomplex (0, 0);
+        }
       }
     }
+    // ** END LOOP ON IEVT **
     return;
   }
 
@@ -337,7 +341,7 @@ namespace Proc
   // ASA: allmomenta[npag][npar][np4][nepp] where ndim=npag*nepp
   // SOA: allmomenta[npar][np4][ndim]
   // AOS: allmomenta[ndim][npar][np4]
-  void calculate_wavefunctions( int ihel, 
+  void calculate_wavefunctions( int ihel,
                                 const double* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                                 double &matrix
 #ifndef __CUDACC__
@@ -346,15 +350,15 @@ namespace Proc
                                 )
   {
 #ifdef __CUDACC__
-      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
-      const int ievt = idim;
-      //printf( "sigmakin: ievt %d\n", ievt );
+    const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
+    const int ievt = idim;
+    //printf( "sigmakin: ievt %d\n", ievt );
 #endif
 
-      double local_mom[npar][np4];
-      for (int ipar = 0; ipar < npar; ipar++ )
-        for (int ip4 = 0; ip4 < np4; ip4++ )
-          local_mom[ipar][ip4] = MG5_sm::pIparIp4Ievt( allmomenta, ipar, ip4, ievt );
+    double local_mom[npar][np4];
+    for (int ipar = 0; ipar < npar; ipar++ )
+      for (int ip4 = 0; ip4 < np4; ip4++ )
+        local_mom[ipar][ip4] = MG5_sm::pIparIp4Ievt( allmomenta, ipar, ip4, ievt );
 
     dcomplex amp[2];
     dcomplex w[5][6];
