@@ -4,7 +4,9 @@ if [ "$1" == "--cc" ]; then
   tag=cc
   shift
 else
-  cmd="./gcheck.exe -p 2048 256 12"
+  #cmd="./gcheck.exe -p 2048 256 12"
+  #cmd="./gcheck.exe -p 32 256 768"
+  cmd="./gcheck.exe -p 32 256 12"
   tag=cu
 fi
 if [ "$1" != "" ]; then
