@@ -114,8 +114,8 @@ namespace MG5_sm
         const dcomplex chi1( -nhel * sqrt(2 * pvec0), 0 );
         if (nh == 1)
         {
-          fi2 = dcomplex (0, 0);
-          fi3 = dcomplex (0, 0);
+          fi2 = dcomplex( 0, 0 );
+          fi3 = dcomplex( 0, 0 );
           fi4 = chi0;
           fi5 = chi1;
         }
@@ -123,8 +123,8 @@ namespace MG5_sm
         {
           fi2 = chi1;
           fi3 = chi0;
-          fi4 = dcomplex (0, 0);
-          fi5 = dcomplex (0, 0);
+          fi4 = dcomplex( 0, 0 );
+          fi5 = dcomplex( 0, 0 );
         }
       }
     }
@@ -137,36 +137,74 @@ namespace MG5_sm
 #ifdef __CUDACC__
   __device__
 #endif
-  void ixzxxxM0(const double pvec[4],
-                //const double fmass,
-                const int nhel,
-                const int nsf,
-                dcomplex fi[nw6])
+  void ixzxxxM0( const double* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+                 //const double fmass,
+                 const int nhel,
+                 const int nsf,
+#ifndef __CUDACC__
+                 dcomplex fi[nw6],
+                 const int ievt,
+#else
+                 dcomplex* fiv,            // output: fiv[5 * 6 * #threads_in_block]
+#endif
+                 const int ipar )          // input: particle# out of npar
   {
-    fi[0] = dcomplex (-pvec[0] * nsf, -pvec[3] * nsf);
-    fi[1] = dcomplex (-pvec[1] * nsf, -pvec[2] * nsf);
-    const int nh = nhel * nsf;
-    // ASSUMPTIONS FMASS = 0 and
-    // (PX and PY are not 0)
+#ifndef __CUDACC__
+    // ** START LOOP ON IEVT **
+    //for (int ievt = 0; ievt < nevt; ++ievt)
+#endif
     {
-      const double sqp0p3 = sqrt( pvec[0] + pvec[3] ) * nsf;
-      const dcomplex chi0( sqp0p3, 0.0 );
-      const dcomplex chi1( nh * pvec[1] / sqp0p3, pvec[2] / sqp0p3 );
-      if (nh == 1)
+#ifdef __CUDACC__
+      const int neib = blockDim.x; // number of events (threads) in block
+      const int ieib = threadIdx.x; // index of event (thread) in block
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+      //printf( "imzxxxM0: ievt=%d ieib=%d\n", ievt, ieib );
+#endif
+      const double& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+      const double& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
+      const double& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
+      const double& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+#ifdef __CUDACC__
+      dcomplex& fi0 = fiv[ipar*nw6*neib + 0*neib + ieib];
+      dcomplex& fi1 = fiv[ipar*nw6*neib + 1*neib + ieib];
+      dcomplex& fi2 = fiv[ipar*nw6*neib + 2*neib + ieib];
+      dcomplex& fi3 = fiv[ipar*nw6*neib + 3*neib + ieib];
+      dcomplex& fi4 = fiv[ipar*nw6*neib + 4*neib + ieib];
+      dcomplex& fi5 = fiv[ipar*nw6*neib + 5*neib + ieib];
+#else
+      dcomplex& fi0 = fi[0];
+      dcomplex& fi1 = fi[1];
+      dcomplex& fi2 = fi[2];
+      dcomplex& fi3 = fi[3];
+      dcomplex& fi4 = fi[4];
+      dcomplex& fi5 = fi[5];
+#endif
+      fi0 = dcomplex( -pvec0 * nsf, -pvec3 * nsf );
+      fi1 = dcomplex( -pvec1 * nsf, -pvec2 * nsf );
+      const int nh = nhel * nsf;
+      // ASSUMPTIONS FMASS = 0 and
+      // (PX and PY are not 0)
       {
-        fi[2] = dcomplex (0, 0);
-        fi[3] = dcomplex (0, 0);
-        fi[4] = chi0;
-        fi[5] = chi1;
-      }
-      else
-      {
-        fi[2] = chi1;
-        fi[3] = chi0;
-        fi[4] = dcomplex (0, 0);
-        fi[5] = dcomplex (0, 0);
+        const double sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
+        const dcomplex chi0( sqp0p3, 0 );
+        const dcomplex chi1( nh * pvec1 / sqp0p3, pvec2 / sqp0p3 );
+        if ( nh == 1 )
+        {
+          fi2 = dcomplex( 0, 0 );
+          fi3 = dcomplex( 0, 0 );
+          fi4 = chi0;
+          fi5 = chi1;
+        }
+        else
+        {
+          fi2 = chi1;
+          fi3 = chi0;
+          fi4 = dcomplex( 0, 0 );
+          fi5 = dcomplex( 0, 0 );
+        }
       }
     }
+    // ** END LOOP ON IEVT **
     return;
   }
 
@@ -175,37 +213,75 @@ namespace MG5_sm
 #ifdef __CUDACC__
   __device__
 #endif
-  void oxzxxxM0(const double pvec[4],
-                //const double fmass,
-                const int nhel,
-                const int nsf,
-                dcomplex fo[nw6])
+  void oxzxxxM0( const double* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+                 //const double fmass,
+                 const int nhel,
+                 const int nsf,
+#ifndef __CUDACC__
+                 dcomplex fo[nw6],
+                 const int ievt,
+#else
+                 dcomplex* fov,            // output: fov[5 * 6 * #threads_in_block]
+#endif
+                 const int ipar )          // input: particle# out of npar
   {
-    fo[0] = dcomplex (pvec[0] * nsf, pvec[3] * nsf);
-    fo[1] = dcomplex (pvec[1] * nsf, pvec[2] * nsf);
-    const int nh = nhel * nsf;
-    // ASSUMPTIONS FMASS = 0 and
-    // EITHER (Px and Py are not zero)
-    // OR (PX = PY = 0 and E = P3 > 0)
+#ifndef __CUDACC__
+    // ** START LOOP ON IEVT **
+    //for (int ievt = 0; ievt < nevt; ++ievt)
+#endif
     {
-      const double sqp0p3 = sqrt( pvec[0] + pvec[3] ) * nsf;
-      const dcomplex chi0( sqp0p3, 0.0 );
-      const dcomplex chi1( nh * pvec[1] / sqp0p3, -pvec[2] / sqp0p3 );
-      if (nh == 1)
+#ifdef __CUDACC__
+      const int neib = blockDim.x; // number of events (threads) in block
+      const int ieib = threadIdx.x; // index of event (thread) in block
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+      //printf( "imzxxxM0: ievt=%d ieib=%d\n", ievt, ieib );
+#endif
+      const double& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+      const double& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
+      const double& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
+      const double& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+#ifdef __CUDACC__
+      dcomplex& fo0 = fov[ipar*nw6*neib + 0*neib + ieib];
+      dcomplex& fo1 = fov[ipar*nw6*neib + 1*neib + ieib];
+      dcomplex& fo2 = fov[ipar*nw6*neib + 2*neib + ieib];
+      dcomplex& fo3 = fov[ipar*nw6*neib + 3*neib + ieib];
+      dcomplex& fo4 = fov[ipar*nw6*neib + 4*neib + ieib];
+      dcomplex& fo5 = fov[ipar*nw6*neib + 5*neib + ieib];
+#else
+      dcomplex& fo0 = fo[0];
+      dcomplex& fo1 = fo[1];
+      dcomplex& fo2 = fo[2];
+      dcomplex& fo3 = fo[3];
+      dcomplex& fo4 = fo[4];
+      dcomplex& fo5 = fo[5];
+#endif
+      fo0 = dcomplex( pvec0 * nsf, pvec3 * nsf );
+      fo1 = dcomplex( pvec1 * nsf, pvec2 * nsf );
+      const int nh = nhel * nsf;
+      // ASSUMPTIONS FMASS = 0 and
+      // EITHER (Px and Py are not zero)
+      // OR (PX = PY = 0 and E = P3 > 0)
       {
-        fo[2] = chi0;
-        fo[3] = chi1;
-        fo[4] = dcomplex ( 0, 0 );
-        fo[5] = dcomplex ( 0, 0 );
-      }
-      else
-      {
-        fo[2] = dcomplex ( 0, 0 );
-        fo[3] = dcomplex ( 0, 0 );
-        fo[4] = chi1;
-        fo[5] = chi0;
+        const double sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
+        const dcomplex chi0( sqp0p3, 0 );
+        const dcomplex chi1( nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
+        if( nh == 1 )
+        {
+          fo2 = chi0;
+          fo3 = chi1;
+          fo4 = dcomplex( 0, 0 );
+          fo5 = dcomplex( 0, 0 );
+        }
+        else
+        {
+          fo2 = dcomplex( 0, 0 );
+          fo3 = dcomplex( 0, 0 );
+          fo4 = chi1;
+          fo5 = chi0;
+        }
       }
     }
+    // ** END LOOP ON IEVT **
     return;
   }
 
@@ -475,17 +551,22 @@ namespace Proc
     dcomplex amp[2];
     dcomplex w[nwf][nw6]; // w[5][6]
     
-    MG5_sm::oxzxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]);
 #ifdef __CUDACC__
-    dcomplex* bwf = dwf[iblk]; 
     // eventually move to same AOSOA everywhere, blocks and threads
+    dcomplex* bwf = dwf[iblk]; 
+    MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, bwf, 0 );
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, bwf, 1 );
-    for (int iw6=0; iw6<nw6; iw6++) w[1][iw6] = bwf[1*nw6*neib + iw6*neib + ieib];
+    MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, bwf, 2 );
+    MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, bwf, 3 );
+    for ( int iwf=0; iwf<4; iwf++ ) // only copy the first 4 out of 5 
+      for ( int iw6=0; iw6<nw6; iw6++ ) 
+        w[iwf][iw6] = bwf[iwf*nw6*neib + iw6*neib + ieib];
 #else
+    MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
+    MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
+    MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
 #endif
-    MG5_sm::ixzxxxM0(local_mom[2], cHel[ihel][2], -1, w[2]);
-    MG5_sm::oxzxxxM0(local_mom[3], cHel[ihel][3], +1, w[3]);
 
     // Diagram 1
     MG5_sm::FFV1P0_3(w[1], w[0], dcomplex (cIPC[0], cIPC[1]), 0., 0., w[4]);
