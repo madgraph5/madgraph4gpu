@@ -70,7 +70,11 @@ namespace MG5_sm
                  dcomplex fi[nw6],
                  const int ievt,
 #else
+#if defined MGONGPU_WFMEM_LOCAL
+                 dcomplex fi[nw6],
+#else
                  dcomplex* fiv,            // output: fiv[5 * 6 * #threads_in_block]
+#endif
 #endif
                  const int ipar )          // input: particle# out of npar
   {
@@ -80,16 +84,18 @@ namespace MG5_sm
 #endif
     {
 #ifdef __CUDACC__
+#if !defined MGONGPU_WFMEM_LOCAL
       const int neib = blockDim.x; // number of events (threads) in block
       const int ieib = threadIdx.x; // index of event (thread) in block
+#endif
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "imzxxxM0: ievt=%d ieib=%d\n", ievt, ieib );
+      //printf( "imzxxxM0: ievt=%d ieib=%d\n", ievt, threadIdx.x );
 #endif
       const double& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const double& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const double& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const double& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-#ifdef __CUDACC__
+#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
       dcomplex& fi0 = fiv[ipar*nw6*neib + 0*neib + ieib];
       dcomplex& fi1 = fiv[ipar*nw6*neib + 1*neib + ieib];
       dcomplex& fi2 = fiv[ipar*nw6*neib + 2*neib + ieib];
@@ -145,7 +151,11 @@ namespace MG5_sm
                  dcomplex fi[nw6],
                  const int ievt,
 #else
+#if defined MGONGPU_WFMEM_LOCAL
+                 dcomplex fi[nw6],
+#else
                  dcomplex* fiv,            // output: fiv[5 * 6 * #threads_in_block]
+#endif
 #endif
                  const int ipar )          // input: particle# out of npar
   {
@@ -155,16 +165,18 @@ namespace MG5_sm
 #endif
     {
 #ifdef __CUDACC__
+#if !defined MGONGPU_WFMEM_LOCAL
       const int neib = blockDim.x; // number of events (threads) in block
       const int ieib = threadIdx.x; // index of event (thread) in block
+#endif
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "imzxxxM0: ievt=%d ieib=%d\n", ievt, ieib );
+      //printf( "ixzxxxM0: ievt=%d ieib=%d\n", ievt, threadIdx.x );
 #endif
       const double& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const double& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const double& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const double& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-#ifdef __CUDACC__
+#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
       dcomplex& fi0 = fiv[ipar*nw6*neib + 0*neib + ieib];
       dcomplex& fi1 = fiv[ipar*nw6*neib + 1*neib + ieib];
       dcomplex& fi2 = fiv[ipar*nw6*neib + 2*neib + ieib];
@@ -221,7 +233,11 @@ namespace MG5_sm
                  dcomplex fo[nw6],
                  const int ievt,
 #else
+#if defined MGONGPU_WFMEM_LOCAL
+                 dcomplex fo[nw6],
+#else
                  dcomplex* fov,            // output: fov[5 * 6 * #threads_in_block]
+#endif
 #endif
                  const int ipar )          // input: particle# out of npar
   {
@@ -231,16 +247,18 @@ namespace MG5_sm
 #endif
     {
 #ifdef __CUDACC__
+#if !defined MGONGPU_WFMEM_LOCAL
       const int neib = blockDim.x; // number of events (threads) in block
       const int ieib = threadIdx.x; // index of event (thread) in block
+#endif
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "imzxxxM0: ievt=%d ieib=%d\n", ievt, ieib );
+      //printf( "oxzxxxM0: ievt=%d ieib=%d\n", ievt, threadIdx.x );
 #endif
       const double& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const double& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const double& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const double& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-#ifdef __CUDACC__
+#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
       dcomplex& fo0 = fov[ipar*nw6*neib + 0*neib + ieib];
       dcomplex& fo1 = fov[ipar*nw6*neib + 1*neib + ieib];
       dcomplex& fo2 = fov[ipar*nw6*neib + 2*neib + ieib];
@@ -458,6 +476,7 @@ namespace Proc
   using mgOnGpu::nw6;
 
 #ifdef __CUDACC__
+#if !defined MGONGPU_WFMEM_LOCAL
 
   using mgOnGpu::nbpgMAX;
   // Allocate global or shared memory for the wavefunctions of all (external and internal) particles
@@ -515,6 +534,8 @@ namespace Proc
     dcomplex* bwf = dwf[blockIdx.x]; 
     if ( threadIdx.x == 0 ) free( bwf );
   }
+
+#endif
 #endif
 
   //--------------------------------------------------------------------------
@@ -536,22 +557,19 @@ namespace Proc
                                 )
   {
 #ifdef __CUDACC__
+#if !defined MGONGPU_WFMEM_LOCAL
     const int iblk = blockIdx.x; // index of block in grid
     const int neib = blockDim.x; // number of events (threads) in block
     const int ieib = threadIdx.x; // index of event (thread) in block
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+#endif
+#else
     //printf( "calculate_wavefunctions: ievt %d\n", ievt );
 #endif
 
-    double local_mom[npar][np4];
-    for (int ipar = 0; ipar < npar; ipar++ )
-      for (int ip4 = 0; ip4 < np4; ip4++ )
-        local_mom[ipar][ip4] = MG5_sm::pIparIp4Ievt( allmomenta, ipar, ip4, ievt );
-
     dcomplex amp[2];
-    dcomplex w[nwf][nw6]; // w[5][6]
-    
-#ifdef __CUDACC__
+    dcomplex w[nwf][nw6]; // w[5][6]    
+#ifdef __CUDACC__ 
+#if !defined MGONGPU_WFMEM_LOCAL
     // eventually move to same AOSOA everywhere, blocks and threads
     dcomplex* bwf = dwf[iblk]; 
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, bwf, 0 );
@@ -561,6 +579,12 @@ namespace Proc
     for ( int iwf=0; iwf<4; iwf++ ) // only copy the first 4 out of 5 
       for ( int iw6=0; iw6<nw6; iw6++ ) 
         w[iwf][iw6] = bwf[iwf*nw6*neib + iw6*neib + ieib];
+#else
+    MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], 0 );
+    MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], 1 );
+    MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w[2], 2 );
+    MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w[3], 3 );
+#endif
 #else
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
