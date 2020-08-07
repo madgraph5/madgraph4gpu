@@ -23,6 +23,7 @@ namespace MG5_sm
   int nevt;
 #endif
 
+  using mgOnGpu::nw6;
 
   //--------------------------------------------------------------------------
 
@@ -66,10 +67,10 @@ namespace MG5_sm
                  const int nhel,
                  const int nsf,
 #ifndef __CUDACC__
-                 dcomplex fi[6],
+                 dcomplex fi[nw6],
                  const int ievt,
 #else
-                 dcomplex* fiv1[],         // output: fiv1[#blocks][6 * #threads]
+                 dcomplex* fiv[],          // output: fiv[#blocks][5 * 6 * #threads_in_block]
 #endif
                  const int ipar )          // input: particle# out of npar
   {
@@ -90,12 +91,12 @@ namespace MG5_sm
       const double& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const double& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #ifdef __CUDACC__
-      dcomplex& fi0 = fiv1[iblk][0*neib + ieib];
-      dcomplex& fi1 = fiv1[iblk][1*neib + ieib];
-      dcomplex& fi2 = fiv1[iblk][2*neib + ieib];
-      dcomplex& fi3 = fiv1[iblk][3*neib + ieib];
-      dcomplex& fi4 = fiv1[iblk][4*neib + ieib];
-      dcomplex& fi5 = fiv1[iblk][5*neib + ieib];
+      dcomplex& fi0 = fiv[iblk][ipar*nw6*neib + 0*neib + ieib];
+      dcomplex& fi1 = fiv[iblk][ipar*nw6*neib + 1*neib + ieib];
+      dcomplex& fi2 = fiv[iblk][ipar*nw6*neib + 2*neib + ieib];
+      dcomplex& fi3 = fiv[iblk][ipar*nw6*neib + 3*neib + ieib];
+      dcomplex& fi4 = fiv[iblk][ipar*nw6*neib + 4*neib + ieib];
+      dcomplex& fi5 = fiv[iblk][ipar*nw6*neib + 5*neib + ieib];
 #else
       dcomplex& fi0 = fi[0];
       dcomplex& fi1 = fi[1];
@@ -141,7 +142,7 @@ namespace MG5_sm
                 //const double fmass,
                 const int nhel,
                 const int nsf,
-                dcomplex fi[6])
+                dcomplex fi[nw6])
   {
     fi[0] = dcomplex (-pvec[0] * nsf, -pvec[3] * nsf);
     fi[1] = dcomplex (-pvec[1] * nsf, -pvec[2] * nsf);
@@ -179,7 +180,7 @@ namespace MG5_sm
                 //const double fmass,
                 const int nhel,
                 const int nsf,
-                dcomplex fo[6])
+                dcomplex fo[nw6])
   {
     fo[0] = dcomplex (pvec[0] * nsf, pvec[3] * nsf);
     fo[1] = dcomplex (pvec[1] * nsf, pvec[2] * nsf);
@@ -378,10 +379,16 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
+  using mgOnGpu::nwf;
+  using mgOnGpu::nw6;
+
 #ifdef __CUDACC__
-  // See https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#allocation-persisting-kernel-launches
+
   using mgOnGpu::nbpgMAX;
-  __device__ dcomplex* wv1[nbpgMAX]; // wv1[#blocks][6 * #threads_in_block]
+
+  // Allocate memory for the wavefunctions of all (external and internal) particles
+  // See https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#allocation-persisting-kernel-launches
+  __device__ dcomplex* wf[nbpgMAX]; // wf[#blocks][5 * 6 * #threads_in_block]
 
   __global__
   void sigmakin_alloc( const int ndim )
@@ -389,18 +396,18 @@ namespace Proc
     // Only the first thread in the block does the allocation (we need one allocation per block)
     if ( threadIdx.x == 0 )
     {
-      wv1[blockIdx.x] = (dcomplex*)malloc( 6 * blockDim.x * sizeof(dcomplex) ); // dcomplex wv1[#blocks][6 * #threads_in_block]
-      if ( wv1[blockIdx.x] == NULL )
+      wf[blockIdx.x] = (dcomplex*)malloc( nwf * nw6 * blockDim.x * sizeof(dcomplex) ); // dcomplex wf[#blocks][5 * 6 * #threads_in_block]
+      if ( wf[blockIdx.x] == NULL )
       {
         printf( "ERROR in sigmakin_alloc (block #%4d): malloc failed\n", blockIdx.x );
-        assert( wv1[blockIdx.x] != NULL );
+        assert( wf[blockIdx.x] != NULL );
       }
       //else printf( "INFO in sigmakin_alloc (block #%4d): malloc successful\n", blockIdx.x );
     }    
     __syncthreads();
 
     // All threads in the block should see the allocation by now
-    assert( wv1[blockIdx.x] != NULL );
+    assert( wf[blockIdx.x] != NULL );
   }
   
   __global__
@@ -409,7 +416,7 @@ namespace Proc
     // Only free from one thread!
     // [NB: if this free is missing, cuda-memcheck fails to detect it]
     // [NB: but if free is called twice, cuda-memcheck does detect it]
-    if ( threadIdx.x == 0 ) free( wv1[blockIdx.x] );
+    if ( threadIdx.x == 0 ) free( wf[blockIdx.x] );
   }
 #endif
 
@@ -445,13 +452,13 @@ namespace Proc
         local_mom[ipar][ip4] = MG5_sm::pIparIp4Ievt( allmomenta, ipar, ip4, ievt );
 
     dcomplex amp[2];
-    dcomplex w[5][6];
+    dcomplex w[nwf][nw6]; // w[5][6]
     
     MG5_sm::oxzxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]);
 #ifdef __CUDACC__
     // eventually move to same AOSOA everywhere, blocks and threads
-    MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, wv1, 1 );
-    for (int i6=0; i6<6; i6++) w[1][i6] = wv1[iblk][i6*neib + ieib];
+    MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, wf, 1 );
+    for (int iw6=0; iw6<nw6; iw6++) w[1][iw6] = wf[iblk][1*nw6*neib + iw6*neib + ieib];
 #else
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
 #endif
