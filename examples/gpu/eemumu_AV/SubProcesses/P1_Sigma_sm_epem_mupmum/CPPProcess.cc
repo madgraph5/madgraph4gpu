@@ -389,7 +389,7 @@ namespace Proc
   // Allocate memory for the wavefunctions of all (external and internal) particles
   // See https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#allocation-persisting-kernel-launches
 #if defined MGONGPU_WFMEM_GLOBAL
-  __device__ dcomplex* wf[nbpgMAX]; // wf[#blocks][5 * 6 * #threads_in_block]
+  __device__ dcomplex* gwf[nbpgMAX]; // global wf[#blocks][5 * 6 * #threads_in_block]
 #endif
 
 #if defined MGONGPU_WFMEM_GLOBAL
@@ -401,7 +401,7 @@ namespace Proc
   {
     // Wavefunctions for this block: bwf[5 * 6 * #threads_in_block]
 #if defined MGONGPU_WFMEM_GLOBAL
-    dcomplex*& bwf = wf[blockIdx.x]; 
+    dcomplex*& bwf = gwf[blockIdx.x]; 
 #endif
 
     // Only the first thread in the block does the allocation (we need one allocation per block)
@@ -435,7 +435,7 @@ namespace Proc
     // [NB: if this free is missing, cuda-memcheck fails to detect it]
     // [NB: but if free is called twice, cuda-memcheck does detect it]
 #if defined MGONGPU_WFMEM_GLOBAL
-    dcomplex* bwf = wf[blockIdx.x]; 
+    dcomplex* bwf = gwf[blockIdx.x]; 
 #endif
     if ( threadIdx.x == 0 ) free( bwf );
   }
@@ -477,9 +477,12 @@ namespace Proc
     
     MG5_sm::oxzxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]);
 #ifdef __CUDACC__
+#if defined MGONGPU_WFMEM_GLOBAL
+    dcomplex* bwf = gwf[iblk]; 
+#endif
     // eventually move to same AOSOA everywhere, blocks and threads
-    MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, wf, 1 );
-    for (int iw6=0; iw6<nw6; iw6++) w[1][iw6] = wf[iblk][1*nw6*neib + iw6*neib + ieib];
+    MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, gwf, 1 );
+    for (int iw6=0; iw6<nw6; iw6++) w[1][iw6] = bwf[1*nw6*neib + iw6*neib + ieib];
 #else
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
 #endif
