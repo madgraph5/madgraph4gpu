@@ -38,8 +38,9 @@ namespace mgOnGpu
   //const int ntpbMAX = 8; // FOR DEBUGGING!
 
   // Number of Events Per Page in the AOSOA (ASA) structure
-  //const int nepp = 32; // choose 32, i.e. the number of threads in a warp
-  const int nepp = ntpbMAX; // choose 256, i.e. the max number of threads in a block
+  // ** TODO: this will disappear and become dynamic...
+  const int nepp = 32; // choose 32, i.e. the number of threads in a warp
+  //const int nepp = ntpbMAX; // choose 256, i.e. the max number of threads in a block
 
   // Complex type
 #ifdef __CUDACC__
