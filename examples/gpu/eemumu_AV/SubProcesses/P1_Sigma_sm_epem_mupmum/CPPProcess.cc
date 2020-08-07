@@ -70,7 +70,7 @@ namespace MG5_sm
                  dcomplex fi[nw6],
                  const int ievt,
 #else
-                 dcomplex* fiv[],          // output: fiv[#blocks][5 * 6 * #threads_in_block]
+                 dcomplex* fiv,            // output: fiv[5 * 6 * #threads_in_block]
 #endif
                  const int ipar )          // input: particle# out of npar
   {
@@ -80,7 +80,6 @@ namespace MG5_sm
 #endif
     {
 #ifdef __CUDACC__
-      const int iblk = blockIdx.x; // index of block in grid
       const int neib = blockDim.x; // number of events (threads) in block
       const int ieib = threadIdx.x; // index of event (thread) in block
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
@@ -91,12 +90,12 @@ namespace MG5_sm
       const double& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const double& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #ifdef __CUDACC__
-      dcomplex& fi0 = fiv[iblk][ipar*nw6*neib + 0*neib + ieib];
-      dcomplex& fi1 = fiv[iblk][ipar*nw6*neib + 1*neib + ieib];
-      dcomplex& fi2 = fiv[iblk][ipar*nw6*neib + 2*neib + ieib];
-      dcomplex& fi3 = fiv[iblk][ipar*nw6*neib + 3*neib + ieib];
-      dcomplex& fi4 = fiv[iblk][ipar*nw6*neib + 4*neib + ieib];
-      dcomplex& fi5 = fiv[iblk][ipar*nw6*neib + 5*neib + ieib];
+      dcomplex& fi0 = fiv[ipar*nw6*neib + 0*neib + ieib];
+      dcomplex& fi1 = fiv[ipar*nw6*neib + 1*neib + ieib];
+      dcomplex& fi2 = fiv[ipar*nw6*neib + 2*neib + ieib];
+      dcomplex& fi3 = fiv[ipar*nw6*neib + 3*neib + ieib];
+      dcomplex& fi4 = fiv[ipar*nw6*neib + 4*neib + ieib];
+      dcomplex& fi5 = fiv[ipar*nw6*neib + 5*neib + ieib];
 #else
       dcomplex& fi0 = fi[0];
       dcomplex& fi1 = fi[1];
@@ -481,7 +480,7 @@ namespace Proc
     dcomplex* bwf = gwf[iblk]; 
 #endif
     // eventually move to same AOSOA everywhere, blocks and threads
-    MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, gwf, 1 );
+    MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, bwf, 1 );
     for (int iw6=0; iw6<nw6; iw6++) w[1][iw6] = bwf[1*nw6*neib + iw6*neib + ieib];
 #else
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
