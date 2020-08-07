@@ -69,7 +69,7 @@ namespace MG5_sm
                  dcomplex fi[6],
                  const int ievt,
 #else
-                 dcomplex* fiv,          // output: fiv[6*nevt]
+                 dcomplex* fiv1[],         // output: fiv1[#blocks][6 * #threads]
 #endif
                  const int ipar )          // input: particle# out of npar
   {
@@ -79,7 +79,10 @@ namespace MG5_sm
 #endif
     {
 #ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid
+      const int iblk = blockIdx.x; // index of block in grid
+      const int neib = blockDim.x; // number of events (threads) in block
+      const int ieib = threadIdx.x; // index of event (thread) in block
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "imzxxxM0: ievt=%d ieib=%d\n", ievt, ieib );
 #endif
       const double& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
@@ -87,13 +90,12 @@ namespace MG5_sm
       const double& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const double& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #ifdef __CUDACC__
-      const int nevt = blockDim.x * gridDim.x;
-      dcomplex& fi0 = fiv[0*nevt + ievt];
-      dcomplex& fi1 = fiv[1*nevt + ievt];
-      dcomplex& fi2 = fiv[2*nevt + ievt];
-      dcomplex& fi3 = fiv[3*nevt + ievt];
-      dcomplex& fi4 = fiv[4*nevt + ievt];
-      dcomplex& fi5 = fiv[5*nevt + ievt];
+      dcomplex& fi0 = fiv1[iblk][0*neib + ieib];
+      dcomplex& fi1 = fiv1[iblk][1*neib + ieib];
+      dcomplex& fi2 = fiv1[iblk][2*neib + ieib];
+      dcomplex& fi3 = fiv1[iblk][3*neib + ieib];
+      dcomplex& fi4 = fiv1[iblk][4*neib + ieib];
+      dcomplex& fi5 = fiv1[iblk][5*neib + ieib];
 #else
       dcomplex& fi0 = fi[0];
       dcomplex& fi1 = fi[1];
@@ -377,21 +379,29 @@ namespace Proc
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
-  __device__ dcomplex* wv1;
+  // See https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#allocation-persisting-kernel-launches
+  using mgOnGpu::nbpgMAX;
+  __device__ dcomplex* wv1[nbpgMAX]; // wv1[#blocks][6 * #threads]
 
+  __global__
   void sigmakin_alloc( const int ndim )
   {
-    dcomplex* devWv1;
-    const int nbytesWv1 = ndim*6*sizeof(dcomplex); // wv1[6][ndim]
-    checkCuda( cudaMalloc( devWv1, nbytesWv1 ) );
-    checkCuda( cudaGetSymbolAddress( (void**)&devWv1, wv1 ) );
-  }
+    // Only the first thread in the block does the allocation
+    // since we want only one allocation per block.
+    if ( threadIdx.x == 0 )
+      wv1[blockIdx.x] = (dcomplex*)malloc( 6 * blockDim.x * sizeof(dcomplex) ); // complex wv1[#blocks][6 * #threads]
+    __syncthreads();
 
+    // Check for failure
+    assert( wv1[blockIdx.x] != NULL );
+    //if ( wv1[blockIdx.x] == NULL ) return;
+  }
+  
+  __global__
   void sigmakin_free()
   {
-    dcomplex** devWv1;
-    checkCuda( cudaGetSymbolAddress( (void**)&devWv1, wv1 ) );
-    checkCuda( cudaFreeHost( *devWv1 ) );
+    // Only free from one thread!
+    if ( threadIdx.x == 0 ) free( wv1[blockIdx.x] );
   }
 #endif
 
@@ -426,23 +436,14 @@ namespace Proc
 
     dcomplex amp[2];
     dcomplex w[5][6];
-
- 
-#ifdef __CUDACC__
-    //__shared__ dcomplex_v wv[5][6]; // dcomplex_v wv[5][6] gives "dynamic initialization is not supported"
-    //__shared__ double_v wv0[2*5*6]; // dcomplex_v wv[5][6] gives "dynamic initialization is not supported"
-    //dcomplex_v (*wv)[6] = (dcomplex_v (*)[6]) wv0; // dcomplex_v wv[5][6] i.e. dcomplex[5][6][256]
-    //dcomplex_v* wv1 = wv[1];
-    
-    //__shared__ double_v wv10[2*6]; // dcomplex_v wv1[6] gives "dynamic initialization is not supported"
-    //__shared__ dcomplex_v* wv1 = (dcomplex_v*) wv10; // dcomplex_v wv1[6] i.e. dcomplex[6][256]
-#endif
     
     MG5_sm::oxzxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]);
 #ifdef __CUDACC__
-    const int nevt = blockDim.x * gridDim.x;
+    // eventually move to same AOSOA everywhere, blocks and threads
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, wv1, 1 );
-    for (int i6=0; i6<6; i6++) w[1][i6] = wv1[i6*nevt + ievt];
+    const int iblk = blockIdx.x; // index of block in grid
+    const int nevt = blockDim.x * gridDim.x; // number of events (threads) in grid
+    for (int i6=0; i6<6; i6++) w[1][i6] = wv1[iblk][i6*nevt + ievt];
 #else
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
 #endif

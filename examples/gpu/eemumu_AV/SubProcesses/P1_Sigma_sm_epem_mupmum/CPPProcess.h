@@ -127,12 +127,14 @@ namespace Proc
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
+  __global__
   void sigmakin_alloc( const int ndim );
 #endif
 
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
+  __global__
   void sigmakin_free();
 #endif
 

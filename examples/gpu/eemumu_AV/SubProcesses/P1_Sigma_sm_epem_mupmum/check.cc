@@ -182,13 +182,13 @@ int main(int argc, char **argv)
   hstMEs = new double[nMEs]();
 #endif
 
-#ifdef __CUDACC__
-  gProc::sigmakin_alloc( ndim );
-#endif
-
   float* wavetimes = new float[niter]();
   double* matrixelementvector = new double[niter * ndim * process.nprocesses]();
   
+#ifdef __CUDACC__
+  gProc::sigmakin_alloc<<<gpublocks, gputhreads>>>( ndim );
+#endif
+
   // --- 0c. Create curand generator
   const std::string cgenKey = "0c GenCreat";
   timermap.start( cgenKey );
@@ -500,6 +500,7 @@ int main(int argc, char **argv)
   timermap.start( freeKey );
 
 #ifdef __CUDACC__
+  gProc::sigmakin_free<<<gpublocks, gputhreads>>>();
   checkCuda( cudaFreeHost( hstMEs ) );
   checkCuda( cudaFreeHost( hstWeights ) );
   checkCuda( cudaFreeHost( hstMomenta ) );
@@ -510,7 +511,6 @@ int main(int argc, char **argv)
   checkCuda( cudaFree( devWeights ) );
   checkCuda( cudaFree( devMomenta ) );
   checkCuda( cudaFree( devRnarray ) );
-  gProc::sigmakin_free();
 #else
   delete[] hstMEs;
   delete[] hstWeights;

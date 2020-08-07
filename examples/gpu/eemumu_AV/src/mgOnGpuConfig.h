@@ -28,10 +28,14 @@ namespace mgOnGpu
 
   // --- Platform-specific software implementation details
 
+  // Maximum number of blocks per grid
+  // ** NB Some arrays of pointers will be allocated statically to fit all these blocks
+  // ** (the actual memory for each block will then be allocated dynamically only for existing blocks)
+  const int nbpgMAX = 2048;
+
   // Maximum number of threads per block
-  // ** NB kernels will statically allocate shared memory for all these threads
-  //const int ntpbMAX = 256;
-  const int ntpbMAX = 8; // FOR DEBUGGING!
+  const int ntpbMAX = 256;
+  //const int ntpbMAX = 8; // FOR DEBUGGING!
 
   // Number of Events Per Page in the AOSOA (ASA) structure
   //const int nepp = 32; // choose 32, i.e. the number of threads in a warp
