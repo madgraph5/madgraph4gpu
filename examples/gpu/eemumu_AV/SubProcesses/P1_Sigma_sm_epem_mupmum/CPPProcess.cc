@@ -481,7 +481,7 @@ namespace Proc
   using mgOnGpu::nbpgMAX;
   // Allocate global or shared memory for the wavefunctions of all (external and internal) particles
   // See https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#allocation-persisting-kernel-launches
-  __device__ dcomplex* dwf[nbpgMAX]; // device wf[#blocks][5 * 6 * #threads_in_block]
+  __device__ dcomplex* dwf[nbpgMAX]; // device dwf[#blocks][5 * 6 * #threads_in_block]
 
 #if defined MGONGPU_WFMEM_GLOBAL
   __global__
@@ -502,8 +502,8 @@ namespace Proc
 #if defined MGONGPU_WFMEM_GLOBAL
       bwf = (dcomplex*)malloc( nwf * nw6 * blockDim.x * sizeof(dcomplex) ); // dcomplex bwf[5 * 6 * #threads_in_block]
 #elif defined MGONGPU_WFMEM_SHARED
-      sbwf = (dcomplex*)malloc( nwf * nw6 * blockDim.x * sizeof(dcomplex) ); // dcomplex bwf[5 * 6 * #threads_in_block]
-      bwf = sbwf;
+      sbwf = (dcomplex*)malloc( nwf * nw6 * blockDim.x * sizeof(dcomplex) );
+      bwf = sbwf; // dcomplex bwf[5 * 6 * #threads_in_block]
 #endif
       if ( bwf == NULL )
       {
