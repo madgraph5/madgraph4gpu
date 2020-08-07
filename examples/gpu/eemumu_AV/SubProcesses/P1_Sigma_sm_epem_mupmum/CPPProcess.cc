@@ -395,7 +395,7 @@ namespace Proc
         printf( "ERROR in sigmakin_alloc (block #%4d): malloc failed\n", blockIdx.x );
         assert( wv1[blockIdx.x] != NULL );
       }
-      else printf( "INFO in sigmakin_alloc (block #%4d): malloc successful\n", blockIdx.x );
+      //else printf( "INFO in sigmakin_alloc (block #%4d): malloc successful\n", blockIdx.x );
     }    
     __syncthreads();
 
@@ -407,6 +407,8 @@ namespace Proc
   void sigmakin_free()
   {
     // Only free from one thread!
+    // [NB: if this free is missing, cuda-memcheck fails to detect it]
+    // [NB: but if free is called twice, cuda-memcheck does detect it]
     if ( threadIdx.x == 0 ) free( wv1[blockIdx.x] );
   }
 #endif
