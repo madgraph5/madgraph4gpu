@@ -187,7 +187,7 @@ int main(int argc, char **argv)
   
 #ifdef __CUDACC__
 #if defined MGONGPU_WFMEM_GLOBAL
-  gProc::sigmakin_alloc<<<gpublocks, gputhreads>>>( ndim );
+  gProc::sigmakin_alloc<<<gpublocks, gputhreads>>>();
 #endif
 #endif
 

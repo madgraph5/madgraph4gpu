@@ -127,14 +127,22 @@ namespace Proc
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
+#if defined MGONGPU_WFMEM_GLOBAL
   __global__
-  void sigmakin_alloc( const int ndim );
+#elif defined MGONGPU_WFMEM_SHARED
+  __device__
+#endif
+  void sigmakin_alloc();
 #endif
 
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
+#if defined MGONGPU_WFMEM_GLOBAL
   __global__
+#elif defined MGONGPU_WFMEM_SHARED
+  __device__
+#endif
   void sigmakin_free();
 #endif
 

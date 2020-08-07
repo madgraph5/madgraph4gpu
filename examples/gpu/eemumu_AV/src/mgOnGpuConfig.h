@@ -1,18 +1,18 @@
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
 
-// Memory layout for momenta
+// Memory layout for momenta (CHOOSE ONLY ONE)
 #define MGONGPU_LAYOUT_ASA 1 // default
 //#define MGONGPU_LAYOUT_SOA 1
 //#define MGONGPU_LAYOUT_AOS 1
 
-// Curand random number generation
+// Curand random number generation (CHOOSE ONLY ONE)
 #define MGONGPU_CURAND_ONDEVICE 1 // default
 //#define MGONGPU_CURAND_ONHOST 1
 
-// Use global memory or shared memory for wavefunctions
-#define MGONGPU_WFMEM_GLOBAL 1 // default
-//#define MGONGPU_WFMEM_SHARED 1 // default
+// Use global memory or shared memory for wavefunctions (CHOOSE ONLY ONE)
+//#define MGONGPU_WFMEM_GLOBAL 1 // default
+#define MGONGPU_WFMEM_SHARED 1 // default
 
 #ifdef __CUDACC__
 #include <thrust/complex.h>

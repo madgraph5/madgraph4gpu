@@ -383,29 +383,33 @@ namespace Proc
 
 #ifdef __CUDACC__
 
-#if defined MGONGPU_WFMEM_GLOBAL
   using mgOnGpu::nbpgMAX;
   // Allocate global or shared memory for the wavefunctions of all (external and internal) particles
   // See https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#allocation-persisting-kernel-launches
   __device__ dcomplex* dwf[nbpgMAX]; // device wf[#blocks][5 * 6 * #threads_in_block]
-#endif
 
 #if defined MGONGPU_WFMEM_GLOBAL
   __global__
 #elif defined MGONGPU_WFMEM_SHARED
   __device__
 #endif
-  void sigmakin_alloc( const int ndim )
+  void sigmakin_alloc()
   {
     // Wavefunctions for this block: bwf[5 * 6 * #threads_in_block]
-#if defined MGONGPU_WFMEM_GLOBAL
     dcomplex*& bwf = dwf[blockIdx.x]; 
+#if defined MGONGPU_WFMEM_SHARED
+    __shared__ dcomplex* sbwf;
 #endif
 
     // Only the first thread in the block does the allocation (we need one allocation per block)
     if ( threadIdx.x == 0 )
     {
+#if defined MGONGPU_WFMEM_GLOBAL
       bwf = (dcomplex*)malloc( nwf * nw6 * blockDim.x * sizeof(dcomplex) ); // dcomplex bwf[5 * 6 * #threads_in_block]
+#elif defined MGONGPU_WFMEM_SHARED
+      sbwf = (dcomplex*)malloc( nwf * nw6 * blockDim.x * sizeof(dcomplex) ); // dcomplex bwf[5 * 6 * #threads_in_block]
+      bwf = sbwf;
+#endif
       if ( bwf == NULL )
       {
         printf( "ERROR in sigmakin_alloc (block #%4d): malloc failed\n", blockIdx.x );
@@ -432,9 +436,7 @@ namespace Proc
     // Only free from one thread!
     // [NB: if this free is missing, cuda-memcheck fails to detect it]
     // [NB: but if free is called twice, cuda-memcheck does detect it]
-#if defined MGONGPU_WFMEM_GLOBAL
     dcomplex* bwf = dwf[blockIdx.x]; 
-#endif
     if ( threadIdx.x == 0 ) free( bwf );
   }
 #endif
@@ -475,9 +477,7 @@ namespace Proc
     
     MG5_sm::oxzxxxM0(local_mom[0], cHel[ihel][0], -1, w[0]);
 #ifdef __CUDACC__
-#if defined MGONGPU_WFMEM_GLOBAL
     dcomplex* bwf = dwf[iblk]; 
-#endif
     // eventually move to same AOSOA everywhere, blocks and threads
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, bwf, 1 );
     for (int iw6=0; iw6<nw6; iw6++) w[1][iw6] = bwf[1*nw6*neib + iw6*neib + ieib];
@@ -617,7 +617,6 @@ namespace Proc
     // pars->setDependentParameters();
     // pars->setDependentCouplings();
     // Reset color flows
-
     const int maxtry = 10;
 #ifndef __CUDACC__
     static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
@@ -647,6 +646,11 @@ namespace Proc
         matrix_element[iproc] = 0.;
       }
 
+#ifdef __CUDACC__
+#if defined MGONGPU_WFMEM_SHARED
+      sigmakin_alloc();
+#endif
+#endif
       double melast = matrix_element[0];
       for (int ihel = 0; ihel < ncomb; ihel++ )
       {
@@ -662,6 +666,11 @@ namespace Proc
           melast = matrix_element[0];
         }
       }
+#ifdef __CUDACC__
+#if defined MGONGPU_WFMEM_SHARED
+      sigmakin_free();
+#endif
+#endif
 
       for (int iproc = 0; iproc < nprocesses; ++iproc)
       {
