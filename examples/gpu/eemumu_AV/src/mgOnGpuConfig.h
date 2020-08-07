@@ -10,6 +10,10 @@
 #define MGONGPU_CURAND_ONDEVICE 1 // default
 //#define MGONGPU_CURAND_ONHOST 1
 
+// Use global memory or shared memory for wavefunctions
+#define MGONGPU_WFMEM_GLOBAL 1 // default
+//#define MGONGPU_WFMEM_SHARED 1 // default
+
 #ifdef __CUDACC__
 #include <thrust/complex.h>
 #else

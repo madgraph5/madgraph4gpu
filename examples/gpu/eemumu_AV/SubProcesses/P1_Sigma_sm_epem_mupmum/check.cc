@@ -186,7 +186,9 @@ int main(int argc, char **argv)
   double* matrixelementvector = new double[niter * ndim * process.nprocesses]();
   
 #ifdef __CUDACC__
+#if defined MGONGPU_WFMEM_GLOBAL
   gProc::sigmakin_alloc<<<gpublocks, gputhreads>>>( ndim );
+#endif
 #endif
 
   // --- 0c. Create curand generator
@@ -500,7 +502,9 @@ int main(int argc, char **argv)
   timermap.start( freeKey );
 
 #ifdef __CUDACC__
+#if defined MGONGPU_WFMEM_GLOBAL
   gProc::sigmakin_free<<<gpublocks, gputhreads>>>();
+#endif
   checkCuda( cudaFreeHost( hstMEs ) );
   checkCuda( cudaFreeHost( hstWeights ) );
   checkCuda( cudaFreeHost( hstMomenta ) );

@@ -388,35 +388,56 @@ namespace Proc
 
   // Allocate memory for the wavefunctions of all (external and internal) particles
   // See https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#allocation-persisting-kernel-launches
+#if defined MGONGPU_WFMEM_GLOBAL
   __device__ dcomplex* wf[nbpgMAX]; // wf[#blocks][5 * 6 * #threads_in_block]
+#endif
 
+#if defined MGONGPU_WFMEM_GLOBAL
   __global__
+#elif defined MGONGPU_WFMEM_SHARED
+  __device__
+#endif
   void sigmakin_alloc( const int ndim )
   {
+    // Wavefunctions for this block: bwf[5 * 6 * #threads_in_block]
+#if defined MGONGPU_WFMEM_GLOBAL
+    dcomplex*& bwf = wf[blockIdx.x]; 
+#endif
+
     // Only the first thread in the block does the allocation (we need one allocation per block)
     if ( threadIdx.x == 0 )
     {
-      wf[blockIdx.x] = (dcomplex*)malloc( nwf * nw6 * blockDim.x * sizeof(dcomplex) ); // dcomplex wf[#blocks][5 * 6 * #threads_in_block]
-      if ( wf[blockIdx.x] == NULL )
+      bwf = (dcomplex*)malloc( nwf * nw6 * blockDim.x * sizeof(dcomplex) ); // dcomplex bwf[5 * 6 * #threads_in_block]
+      if ( bwf == NULL )
       {
         printf( "ERROR in sigmakin_alloc (block #%4d): malloc failed\n", blockIdx.x );
-        assert( wf[blockIdx.x] != NULL );
+        assert( bwf != NULL );
       }
       //else printf( "INFO in sigmakin_alloc (block #%4d): malloc successful\n", blockIdx.x );
     }    
     __syncthreads();
 
     // All threads in the block should see the allocation by now
-    assert( wf[blockIdx.x] != NULL );
+    assert( bwf != NULL );
   }
   
+#if defined MGONGPU_WFMEM_GLOBAL
   __global__
+#elif defined MGONGPU_WFMEM_SHARED
+  __device__
+#endif
   void sigmakin_free()
   {
+#if defined MGONGPU_WFMEM_SHARED
+    __syncthreads();
+#endif
     // Only free from one thread!
     // [NB: if this free is missing, cuda-memcheck fails to detect it]
     // [NB: but if free is called twice, cuda-memcheck does detect it]
-    if ( threadIdx.x == 0 ) free( wf[blockIdx.x] );
+#if defined MGONGPU_WFMEM_GLOBAL
+    dcomplex* bwf = wf[blockIdx.x]; 
+#endif
+    if ( threadIdx.x == 0 ) free( bwf );
   }
 #endif
 
