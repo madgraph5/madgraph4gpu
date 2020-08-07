@@ -539,18 +539,11 @@ namespace Proc
     const int iblk = blockIdx.x; // index of block in grid
     const int neib = blockDim.x; // number of events (threads) in block
     const int ieib = threadIdx.x; // index of event (thread) in block
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "calculate_wavefunctions: ievt %d\n", ievt );
 #endif
 
-    double local_mom[npar][np4];
-    for (int ipar = 0; ipar < npar; ipar++ )
-      for (int ip4 = 0; ip4 < np4; ip4++ )
-        local_mom[ipar][ip4] = MG5_sm::pIparIp4Ievt( allmomenta, ipar, ip4, ievt );
-
     dcomplex amp[2];
-    dcomplex w[nwf][nw6]; // w[5][6]
-    
+    dcomplex w[nwf][nw6]; // w[5][6]    
 #ifdef __CUDACC__
     // eventually move to same AOSOA everywhere, blocks and threads
     dcomplex* bwf = dwf[iblk]; 
