@@ -392,9 +392,10 @@ namespace Proc
       wv1[blockIdx.x] = (dcomplex*)malloc( 6 * blockDim.x * sizeof(dcomplex) ); // complex wv1[#blocks][6 * #threads]
       if ( wv1[blockIdx.x] == NULL )
       {
-        printf( "ERROR in sigmakin_alloc: malloc failed\n");
+        printf( "ERROR in sigmakin_alloc (block #%4d): malloc failed\n", blockIdx.x );
         assert( wv1[blockIdx.x] != NULL );
       }
+      else printf( "INFO in sigmakin_alloc (block #%4d): malloc successful\n", blockIdx.x );
     }    
     __syncthreads();
 
