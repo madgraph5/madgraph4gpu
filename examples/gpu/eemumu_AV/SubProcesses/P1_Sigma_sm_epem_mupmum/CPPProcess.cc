@@ -382,6 +382,7 @@ namespace Proc
   // See https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#allocation-persisting-kernel-launches
   using mgOnGpu::nbpgMAX;
   __device__ dcomplex* wv1[nbpgMAX]; // wv1[#blocks][6 * #threads]
+  __device__ bool mallocfailed = false;
 
   __global__
   void sigmakin_alloc( const int ndim )
@@ -389,13 +390,15 @@ namespace Proc
     // Only the first thread in the block does the allocation (we need one allocation per block)
     if ( threadIdx.x == 0 )
     {
+      if ( mallocfailed ) return;
       wv1[blockIdx.x] = (dcomplex*)malloc( 6 * blockDim.x * sizeof(dcomplex) ); // complex wv1[#blocks][6 * #threads]
       if ( wv1[blockIdx.x] == NULL )
       {
         printf( "ERROR in sigmakin_alloc (block #%4d): malloc failed\n", blockIdx.x );
+        mallocfailed = true;
         assert( wv1[blockIdx.x] != NULL );
       }
-      else printf( "INFO in sigmakin_alloc (block #%4d): malloc successful\n", blockIdx.x );
+      //else printf( "INFO in sigmakin_alloc (block #%4d): malloc successful\n", blockIdx.x );
     }    
     __syncthreads();
 
