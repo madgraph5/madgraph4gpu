@@ -381,7 +381,7 @@ namespace Proc
 #ifdef __CUDACC__
   // See https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#allocation-persisting-kernel-launches
   using mgOnGpu::nbpgMAX;
-  __device__ dcomplex* wv1[nbpgMAX]; // wv1[#blocks][6 * #threads]
+  __device__ dcomplex* wv1[nbpgMAX]; // wv1[#blocks][6 * #threads_in_block]
 
   __global__
   void sigmakin_alloc( const int ndim )
@@ -389,7 +389,7 @@ namespace Proc
     // Only the first thread in the block does the allocation (we need one allocation per block)
     if ( threadIdx.x == 0 )
     {
-      wv1[blockIdx.x] = (dcomplex*)malloc( 6 * blockDim.x * sizeof(dcomplex) ); // complex wv1[#blocks][6 * #threads]
+      wv1[blockIdx.x] = (dcomplex*)malloc( 6 * blockDim.x * sizeof(dcomplex) ); // dcomplex wv1[#blocks][6 * #threads_in_block]
       if ( wv1[blockIdx.x] == NULL )
       {
         printf( "ERROR in sigmakin_alloc (block #%4d): malloc failed\n", blockIdx.x );
@@ -432,8 +432,10 @@ namespace Proc
                                 )
   {
 #ifdef __CUDACC__
-    const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
-    const int ievt = idim;
+    const int iblk = blockIdx.x; // index of block in grid
+    const int neib = blockDim.x; // number of events (threads) in block
+    const int ieib = threadIdx.x; // index of event (thread) in block
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "calculate_wavefunctions: ievt %d\n", ievt );
 #endif
 
@@ -449,9 +451,7 @@ namespace Proc
 #ifdef __CUDACC__
     // eventually move to same AOSOA everywhere, blocks and threads
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, wv1, 1 );
-    const int iblk = blockIdx.x; // index of block in grid
-    const int nevt = blockDim.x * gridDim.x; // number of events (threads) in grid
-    for (int i6=0; i6<6; i6++) w[1][i6] = wv1[iblk][i6*nevt + ievt];
+    for (int i6=0; i6<6; i6++) w[1][i6] = wv1[iblk][i6*neib + ieib];
 #else
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
 #endif
