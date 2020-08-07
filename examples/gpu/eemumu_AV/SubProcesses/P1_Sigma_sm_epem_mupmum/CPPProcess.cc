@@ -386,15 +386,20 @@ namespace Proc
   __global__
   void sigmakin_alloc( const int ndim )
   {
-    // Only the first thread in the block does the allocation
-    // since we want only one allocation per block.
+    // Only the first thread in the block does the allocation (we need one allocation per block)
     if ( threadIdx.x == 0 )
+    {
       wv1[blockIdx.x] = (dcomplex*)malloc( 6 * blockDim.x * sizeof(dcomplex) ); // complex wv1[#blocks][6 * #threads]
+      if ( wv1[blockIdx.x] == NULL )
+      {
+        printf( "ERROR in sigmakin_alloc: malloc failed\n");
+        assert( wv1[blockIdx.x] != NULL );
+      }
+    }    
     __syncthreads();
 
-    // Check for failure
+    // All threads in the block should see the allocation by now
     assert( wv1[blockIdx.x] != NULL );
-    //if ( wv1[blockIdx.x] == NULL ) return;
   }
   
   __global__
