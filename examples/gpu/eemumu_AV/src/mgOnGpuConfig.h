@@ -51,7 +51,11 @@ namespace mgOnGpu
   //const int nepp = ntpbMAX; // choose 256, i.e. the max number of threads in a block
   //const int nepp = 4; // FOR DEBUGGING!
 
-  // Complex type
+  // Floating point type: fptype (tflpoint? tfloatpt?)
+  //typedef double fptype; // double precision (8 bytes, fp64)
+  //typedef float fptype; // single precision (4 bytes, fp32)
+
+  // Complex type: cxtype (tcomplex?)
 #ifdef __CUDACC__
   typedef thrust::complex<double> dcomplex; // two doubles: RI
 #else
@@ -59,8 +63,8 @@ namespace mgOnGpu
 #endif
 
   // Vector types: <type>_v is a <type>[256]
-  typedef double double_v[ntpbMAX];
-  typedef dcomplex dcomplex_v[ntpbMAX]; // RIRIRIRI: eventually move to RRRRIIII?
+  //typedef double double_v[ntpbMAX];
+  //typedef dcomplex dcomplex_v[ntpbMAX]; // RIRIRIRI: eventually move to RRRRIIII?
 
 }
 

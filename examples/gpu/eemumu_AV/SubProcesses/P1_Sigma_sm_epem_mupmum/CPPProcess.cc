@@ -12,8 +12,6 @@
 
 #include "mgOnGpuConfig.h"
 using mgOnGpu::dcomplex;
-using mgOnGpu::double_v;
-using mgOnGpu::dcomplex_v;
 
 namespace MG5_sm
 {
