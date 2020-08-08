@@ -1,8 +1,9 @@
-#include <algorithm> // perf stats
+#include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
-#include <numeric> // perf stats
+#include <numeric>
 #include <unistd.h>
 
 #include "mgOnGpuConfig.h"
@@ -428,73 +429,85 @@ int main(int argc, char **argv)
     float mean = sum / niter;
     float stdev = std::sqrt( sq_sum / niter - mean * mean );
 
-    int num_mes = niter*ndim;
+    const int num_mes = niter*ndim;
+    int num_nan = 0;
     float sumelem = 0;
     float sqselem = 0;
     float minelem = matrixelementvector[0];
     float maxelem = matrixelementvector[0];
     for (int imes = 0; imes < num_mes; ++imes)
     {
+      if ( isnan( matrixelementvector[imes] ) )
+      {
+        //std::cout << "WARNING! ME[" << imes << "} is nan" << std::endl;
+        num_nan++;
+        continue;
+      }
       sumelem += matrixelementvector[imes];
       sqselem += matrixelementvector[imes]*matrixelementvector[imes];
       minelem = std::min( minelem, (float)matrixelementvector[imes] );
       maxelem = std::max( maxelem, (float)matrixelementvector[imes] );
     }
-    float meanelem = sumelem / num_mes;
-    float stdelem = std::sqrt( sqselem / num_mes - meanelem * meanelem );
+    float meanelem = sumelem / ( num_mes - num_nan );
+    float stdelem = std::sqrt( sqselem / ( num_mes - num_nan) - meanelem * meanelem );
 
-    std::cout << "*************************************" << std::endl
-              << "NumIterations           = " << niter << std::endl
-              << "NumThreadsPerBlock      = " << gputhreads << std::endl
-              << "NumBlocksPerGrid        = " << gpublocks << std::endl
-              << "-------------------------------------" << std::endl
+    std::cout << "***************************************" << std::endl
+              << "NumIterations             = " << niter << std::endl
+              << "NumThreadsPerBlock        = " << gputhreads << std::endl
+              << "NumBlocksPerGrid          = " << gpublocks << std::endl
+              << "---------------------------------------" << std::endl
+#if defined MGONGPU_FPTYPE_DOUBLE
+              << "FP precision              = DOUBLE (nan=" << num_nan << ")" << std::endl
+#elif defined MGONGPU_FPTYPE_FLOAT
+              << "FP precision              = FLOAT (nan=" << num_nan << ")" << std::endl
+#endif
 #if defined MGONGPU_LAYOUT_ASA
-              << "Momenta memory layout   = AOSOA[" << nepp << "]" << std::endl
+              << "Momenta memory layout     = AOSOA[" << nepp << "]" << std::endl
 #elif defined MGONGPU_LAYOUT_SOA
-              << "Momenta memory layout   = SOA" << std::endl
+              << "Momenta memory layout     = SOA" << std::endl
 #elif defined MGONGPU_LAYOUT_AOS
-              << "Momenta memory layout   = AOS" << std::endl
+              << "Momenta memory layout     = AOS" << std::endl
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_WFMEM_LOCAL
-              << "Wavefunction GPU memory = LOCAL" << std::endl
+              << "Wavefunction GPU memory   = LOCAL" << std::endl
 #elif defined MGONGPU_WFMEM_GLOBAL
-              << "Wavefunction GPU memory = GLOBAL" << std::endl
+              << "Wavefunction GPU memory   = GLOBAL" << std::endl
 #elif defined MGONGPU_WFMEM_SHARED
-              << "Wavefunction GPU memory = SHARED" << std::endl
+              << "Wavefunction GPU memory   = SHARED" << std::endl
 #endif
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_CURAND_ONDEVICE
-              << "Curand generation       = DEVICE (CUDA code)" << std::endl
+              << "Curand generation         = DEVICE (CUDA code)" << std::endl
 #elif defined MGONGPU_CURAND_ONHOST
-              << "Curand generation       = HOST (CUDA code)" << std::endl
+              << "Curand generation         = HOST (CUDA code)" << std::endl
 #endif
 #else
-              << "Curand generation       = HOST (C++ code)" << std::endl
+              << "Curand generation         = HOST (C++ code)" << std::endl
 #endif
-              << "-------------------------------------" << std::endl
-              << "NumberOfEntries         = " << niter << std::endl
+              << "---------------------------------------" << std::endl
+              << "NumberOfEntries           = " << niter << std::endl
               << std::scientific
-              << "TotalTimeInWaveFuncs    = " << sum << " sec" << std::endl
-              << "MeanTimeInWaveFuncs     = " << mean << " sec" << std::endl
-              << "StdDevTimeInWaveFuncs   = " << stdev << " sec" << std::endl
-              << "MinTimeInWaveFuncs      = " << mintime << " sec" << std::endl
-              << "MaxTimeInWaveFuncs      = " << maxtime << " sec" << std::endl
-              << "-------------------------------------" << std::endl
-              << "ProcessID:              = " << getpid() << std::endl
-              << "NProcesses              = " << process.nprocesses << std::endl
-              << "NumMatrixElements       = " << num_mes << std::endl
-              << "MatrixElementsPerSec    = " << num_mes/sum << " sec^-1" << std::endl;
+              << "TotalTimeInWaveFuncs      = " << sum << " sec" << std::endl
+              << "MeanTimeInWaveFuncs       = " << mean << " sec" << std::endl
+              << "StdDevTimeInWaveFuncs     = " << stdev << " sec" << std::endl
+              << "MinTimeInWaveFuncs        = " << mintime << " sec" << std::endl
+              << "MaxTimeInWaveFuncs        = " << maxtime << " sec" << std::endl
+              << "---------------------------------------" << std::endl
+              << "ProcessID:                = " << getpid() << std::endl
+              << "NProcesses                = " << process.nprocesses << std::endl
+              << "NumMatrixElementsComputed = " << num_mes << std::endl
+              << "MatrixElementsPerSec      = " << num_mes/sum << " sec^-1" << std::endl;
 
-    std::cout << "*************************************" << std::endl
-              << "NumMatrixElements       = " << num_mes << std::endl
+    std::cout << "***************************************" << std::endl
+              << "NumMatrixElements(notNan) = " << num_mes - num_nan << std::endl
               << std::scientific
-              << "MeanMatrixElemValue     = " << meanelem << " GeV^" << meGeVexponent << std::endl
-              << "StdErrMatrixElemValue   = " << stdelem/sqrt(num_mes) << " GeV^" << meGeVexponent << std::endl
-              << "StdDevMatrixElemValue   = " << stdelem << " GeV^" << meGeVexponent << std::endl
-              << "MinMatrixElemValue      = " << minelem << " GeV^" << meGeVexponent << std::endl
-              << "MaxMatrixElemValue      = " << maxelem << " GeV^" << meGeVexponent << std::endl;
+              << "MeanMatrixElemValue       = " << meanelem << " GeV^" << meGeVexponent << std::endl
+              << "StdErrMatrixElemValue     = " << stdelem/sqrt(num_mes) << " GeV^" << meGeVexponent << std::endl
+              << "StdDevMatrixElemValue     = " << stdelem << " GeV^" << meGeVexponent << std::endl
+              << "MinMatrixElemValue        = " << minelem << " GeV^" << meGeVexponent << std::endl
+              << "MaxMatrixElemValue        = " << maxelem << " GeV^" << meGeVexponent << std::endl;
   }
 
   // --- 9b. Destroy curand generator
@@ -545,9 +558,9 @@ int main(int argc, char **argv)
   timermap.stop();
   if (perf)
   {
-    std::cout << "*************************************" << std::endl;
+    std::cout << "***************************************" << std::endl;
     timermap.dump();
-    std::cout << "*************************************" << std::endl;
+    std::cout << "***************************************" << std::endl;
   }
 
   //std::cout << "ALL OK" << std::endl;
