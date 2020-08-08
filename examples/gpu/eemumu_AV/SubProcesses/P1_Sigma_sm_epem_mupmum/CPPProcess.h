@@ -1,5 +1,4 @@
 #include "mgOnGpuConfig.h"
-using mgOnGpu::dcomplex;
 
 //==========================================================================
 // This file has been automatically generated for C++ Standalone by
@@ -53,8 +52,7 @@ namespace Proc
   {
   public:
 
-    CPPProcess(int numiterations, int gpublocks, int gputhreads,
-               bool verbose = false, bool debug = false);
+    CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose = false );
 
     ~CPPProcess();
 
@@ -64,7 +62,7 @@ namespace Proc
 
     virtual int code() const {return 1;}
 
-    const std::vector<double> &getMasses() const;
+    const std::vector<fptype> &getMasses() const;
 
     void setInitial(int inid1, int inid2)
     {
@@ -92,23 +90,20 @@ namespace Proc
     // print verbose info
     bool m_verbose;
 
-    // print debug info
-    bool m_debug;
-
     static const int nwavefuncs = 6;
     static const int namplitudes = 2;
     static const int ncomb = 16;
     static const int wrows = 6;
     // static const int nioparticles = 4;
 
-    dcomplex * * amp;
+    cxtype * * amp;
 
 
     // Pointer to the model parameters
     Parameters_sm * pars;
 
     // vector with external particle masses
-    std::vector<double> mME;
+    std::vector<fptype> mME;
 
     // Initial particle ids
     int id1, id2;
@@ -119,9 +114,9 @@ namespace Proc
 
 #ifdef __CUDACC__
   __global__
-  void sigmaKin( const double* allmomenta, double* output );
+  void sigmaKin( const fptype* allmomenta, fptype* output );
 #else
-  void sigmaKin( const double* allmomenta, double* output, const int nevt );
+  void sigmaKin( const fptype* allmomenta, fptype* output, const int nevt );
 #endif
 
   //--------------------------------------------------------------------------

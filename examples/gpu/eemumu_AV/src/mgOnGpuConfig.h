@@ -15,6 +15,10 @@
 //#define MGONGPU_WFMEM_GLOBAL 1
 //#define MGONGPU_WFMEM_SHARED 1
 
+// Floating point precision (CHOOSE ONLY ONE)
+//#define MGONGPU_FPTYPE_DOUBLE 1 // default
+#define MGONGPU_FPTYPE_FLOAT 1
+
 #ifdef __CUDACC__
 #include <thrust/complex.h>
 #else
@@ -51,17 +55,28 @@ namespace mgOnGpu
   //const int nepp = ntpbMAX; // choose 256, i.e. the max number of threads in a block
   //const int nepp = 4; // FOR DEBUGGING!
 
-  // Complex type
+  // Floating point type: fptype (tflpoint? tfloatpt?)
+#if defined MGONGPU_FPTYPE_DOUBLE
+  typedef double fptype; // double precision (8 bytes, fp64)
+#elif defined MGONGPU_FPTYPE_FLOAT
+  typedef float fptype; // single precision (4 bytes, fp32)
+#endif
+
+  // Complex type: cxtype (tcomplex?)
 #ifdef __CUDACC__
-  typedef thrust::complex<double> dcomplex; // two doubles: RI
+  typedef thrust::complex<fptype> cxtype; // two doubles: RI
 #else
-  typedef std::complex<double> dcomplex; // two doubles: RI
+  typedef std::complex<fptype> cxtype; // two doubles: RI
 #endif
 
   // Vector types: <type>_v is a <type>[256]
-  typedef double double_v[ntpbMAX];
-  typedef dcomplex dcomplex_v[ntpbMAX]; // RIRIRIRI: eventually move to RRRRIIII?
+  //typedef double double_v[ntpbMAX];
+  //typedef cxtype cxtype_v[ntpbMAX]; // RIRIRIRI: eventually move to RRRRIIII?
 
 }
+
+// Expose typedefs outside the namespace
+using mgOnGpu::fptype;
+using mgOnGpu::cxtype;
 
 #endif // MGONGPUCONFIG_H

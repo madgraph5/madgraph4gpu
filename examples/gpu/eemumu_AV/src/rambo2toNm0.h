@@ -43,13 +43,13 @@ namespace rambo2toNm0
 #ifdef __CUDACC__
   __global__
 #endif
-  void getMomentaInitial( const double energy,    // input: energy
+  void getMomentaInitial( const fptype energy,    // input: energy
 #if defined MGONGPU_LAYOUT_ASA
-                          double momenta1d[],     // output: momenta as AOSOA[npag][npar][4][nepp]
+                          fptype momenta1d[],     // output: momenta as AOSOA[npag][npar][4][nepp]
 #elif defined MGONGPU_LAYOUT_SOA
-                          double momenta1d[],     // output: momenta as SOA[npar][4][nevt]
+                          fptype momenta1d[],     // output: momenta as SOA[npar][4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
-                          double momenta1d[],     // output: momenta as AOS[nevt][npar][4]
+                          fptype momenta1d[],     // output: momenta as AOS[nevt][npar][4]
 #endif
                           const int nevt );       // input: #events
 
@@ -60,16 +60,16 @@ namespace rambo2toNm0
 #ifdef __CUDACC__
   __global__
 #endif
-  void getMomentaFinal( const double energy,      // input: energy
-                        const double rnarray1d[], // input: randomnumbers in [0,1] as AOSOA[npag][nparf][4][nepp]
+  void getMomentaFinal( const fptype energy,      // input: energy
+                        const fptype rnarray1d[], // input: randomnumbers in [0,1] as AOSOA[npag][nparf][4][nepp]
 #if defined MGONGPU_LAYOUT_ASA
-                        double momenta1d[],       // output: momenta as AOSOA[npag][npar][4][nepp]
+                        fptype momenta1d[],       // output: momenta as AOSOA[npag][npar][4][nepp]
 #elif defined MGONGPU_LAYOUT_SOA
-                        double momenta1d[],       // output: momenta as SOA[npar][4][nevt]
+                        fptype momenta1d[],       // output: momenta as SOA[npar][4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
-                        double momenta1d[],       // output: momenta as AOS[nevt][npar][4]
+                        fptype momenta1d[],       // output: momenta as AOS[nevt][npar][4]
 #endif
-                        double wgts[],            // output: weights[nevt]
+                        fptype wgts[],            // output: weights[nevt]
                         const int nevt );         // input: #events
 
   //--------------------------------------------------------------------------
@@ -93,7 +93,7 @@ namespace rambo2toNm0
   // ** NB: the random numbers are always produced in the same order and are interpreted as an AOSOA
   // AOSOA: rnarray[npag][nparf][np4][nepp] where nevt=npag*nepp
   void generateRnArray( curandGenerator_t gen, // input: curand generator
-                        double rnarray1d[],    // output: randomnumbers in [0,1]
+                        fptype rnarray1d[],    // output: randomnumbers in [0,1]
                         const int nevt );      // input: #events
 
   //--------------------------------------------------------------------------

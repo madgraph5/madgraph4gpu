@@ -1,8 +1,9 @@
-#include <algorithm> // perf stats
+#include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
-#include <numeric> // perf stats
+#include <numeric>
 #include <unistd.h>
 
 #include "mgOnGpuConfig.h"
@@ -110,15 +111,15 @@ int main(int argc, char **argv)
 
   // Create a process object
 #ifdef __CUDACC__
-  gProc::CPPProcess process(niter, gpublocks, gputhreads, verbose, debug);
+  gProc::CPPProcess process( niter, gpublocks, gputhreads, verbose );
 #else
-  Proc::CPPProcess process(niter, gpublocks, gputhreads, verbose, debug);
+  Proc::CPPProcess process( niter, gpublocks, gputhreads, verbose );
 #endif
 
   // Read param_card and set parameters
   process.initProc("../../Cards/param_card.dat");
 
-  const double energy = 1500;
+  const fptype energy = 1500;
   const int meGeVexponent = -(2 * process.nexternal - 8);
 
   // --- 0b. Allocate memory structures
@@ -129,62 +130,62 @@ int main(int argc, char **argv)
   using mgOnGpu::np4;
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
-  const int nRnarray = np4*nparf*ndim; // (NB: ndim=npag*nepp for ASA layouts) 
+  const int nRnarray = np4*nparf*ndim; // (NB: ndim=npag*nepp for ASA layouts)
 #ifdef __CUDACC__
-  const int nbytesRnarray = nRnarray * sizeof(double);
-  double* devRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
+  const int nbytesRnarray = nRnarray * sizeof(fptype);
+  fptype* devRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
   checkCuda( cudaMalloc( &devRnarray, nbytesRnarray ) );
 #if defined MGONGPU_CURAND_ONHOST
-  double* hstRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
+  fptype* hstRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
   checkCuda( cudaMallocHost( &hstRnarray, nbytesRnarray ) );
 #endif
 #else
-  double* hstRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
-  hstRnarray = new double[nRnarray]();
+  fptype* hstRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
+  hstRnarray = new fptype[nRnarray]();
 #endif
 
   const int nMomenta = np4*npar*ndim; // (NB: ndim=npag*nepp for ASA layouts)
 #if defined MGONGPU_LAYOUT_ASA
-  double* hstMomenta = 0; // AOSOA[npag][npar][np4][nepp] (previously was: lp)
+  fptype* hstMomenta = 0; // AOSOA[npag][npar][np4][nepp] (previously was: lp)
 #elif defined MGONGPU_LAYOUT_SOA
-  double* hstMomenta = 0; // SOA[npar][np4][ndim] (previously was: lp)
+  fptype* hstMomenta = 0; // SOA[npar][np4][ndim] (previously was: lp)
 #elif defined MGONGPU_LAYOUT_AOS
-  double* hstMomenta = 0; // AOS[ndim][npar][np4] (previously was: lp)
+  fptype* hstMomenta = 0; // AOS[ndim][npar][np4] (previously was: lp)
 #endif
 #ifdef __CUDACC__
-  const int nbytesMomenta = nMomenta * sizeof(double);
+  const int nbytesMomenta = nMomenta * sizeof(fptype);
   checkCuda( cudaMallocHost( &hstMomenta, nbytesMomenta ) );
-  double* devMomenta = 0; // (previously was: allMomenta)
+  fptype* devMomenta = 0; // (previously was: allMomenta)
   checkCuda( cudaMalloc( &devMomenta, nbytesMomenta ) );
 #else
-  hstMomenta = new double[nMomenta]();
+  hstMomenta = new fptype[nMomenta]();
 #endif
 
   const int nWeights = ndim; //  (NB: ndim=npag*nepp for ASA layouts)
-  double* hstWeights = 0; // (previously was: meHostPtr)
+  fptype* hstWeights = 0; // (previously was: meHostPtr)
 #ifdef __CUDACC__
-  const int nbytesWeights = nWeights * sizeof(double);
+  const int nbytesWeights = nWeights * sizeof(fptype);
   checkCuda( cudaMallocHost( &hstWeights, nbytesWeights ) );
-  double* devWeights = 0; // (previously was: meDevPtr)
+  fptype* devWeights = 0; // (previously was: meDevPtr)
   checkCuda( cudaMalloc( &devWeights, nbytesWeights ) );
 #else
-  hstWeights = new double[nWeights]();
+  hstWeights = new fptype[nWeights]();
 #endif
 
   const int nMEs = ndim; //  (NB: ndim=npag*nepp for ASA layouts)
-  double* hstMEs = 0; // (previously was: meHostPtr)
+  fptype* hstMEs = 0; // (previously was: meHostPtr)
 #ifdef __CUDACC__
-  const int nbytesMEs = nMEs * sizeof(double);
+  const int nbytesMEs = nMEs * sizeof(fptype);
   checkCuda( cudaMallocHost( &hstMEs, nbytesMEs ) );
-  double* devMEs = 0; // (previously was: meDevPtr)
+  fptype* devMEs = 0; // (previously was: meDevPtr)
   checkCuda( cudaMalloc( &devMEs, nbytesMEs ) );
 #else
-  hstMEs = new double[nMEs]();
+  hstMEs = new fptype[nMEs]();
 #endif
 
   float* wavetimes = new float[niter]();
-  double* matrixelementvector = new double[niter * ndim * process.nprocesses]();
-  
+  fptype* matrixelementvector = new fptype[niter * ndim * process.nprocesses]();
+
 #ifdef __CUDACC__
 #if defined MGONGPU_WFMEM_GLOBAL
   gProc::sigmakin_alloc<<<gpublocks, gputhreads>>>();
@@ -391,7 +392,7 @@ int main(int argc, char **argv)
           std::cout << std::string(80, '-') << std::endl;
       }
     }
-    else if (!debug)
+    else if ( !debug )
     {
       std::cout << ".";
     }
@@ -413,7 +414,6 @@ int main(int argc, char **argv)
 
   if (perf)
   {
-
     float sum = 0;
     float sq_sum = 0;
     float mintime = wavetimes[0];
@@ -428,73 +428,86 @@ int main(int argc, char **argv)
     float mean = sum / niter;
     float stdev = std::sqrt( sq_sum / niter - mean * mean );
 
-    int num_mes = niter*ndim;
+    const int num_mes = niter*ndim;
+    int num_nan = 0;
     float sumelem = 0;
     float sqselem = 0;
     float minelem = matrixelementvector[0];
     float maxelem = matrixelementvector[0];
     for (int imes = 0; imes < num_mes; ++imes)
     {
+      if ( isnan( matrixelementvector[imes] ) )
+      {
+        if ( debug ) // only printed out with "-p -d" (matrixelementvector is not filled without -p)
+          std::cout << "WARNING! ME[" << imes << "} is nan" << std::endl;
+        num_nan++;
+        continue;
+      }
       sumelem += matrixelementvector[imes];
       sqselem += matrixelementvector[imes]*matrixelementvector[imes];
       minelem = std::min( minelem, (float)matrixelementvector[imes] );
       maxelem = std::max( maxelem, (float)matrixelementvector[imes] );
     }
-    float meanelem = sumelem / num_mes;
-    float stdelem = std::sqrt( sqselem / num_mes - meanelem * meanelem );
+    float meanelem = sumelem / ( num_mes - num_nan );
+    float stdelem = std::sqrt( sqselem / ( num_mes - num_nan) - meanelem * meanelem );
 
-    std::cout << "*************************************" << std::endl
-              << "NumIterations           = " << niter << std::endl
-              << "NumThreadsPerBlock      = " << gputhreads << std::endl
-              << "NumBlocksPerGrid        = " << gpublocks << std::endl
-              << "-------------------------------------" << std::endl
+    std::cout << "***************************************" << std::endl
+              << "NumIterations             = " << niter << std::endl
+              << "NumThreadsPerBlock        = " << gputhreads << std::endl
+              << "NumBlocksPerGrid          = " << gpublocks << std::endl
+              << "---------------------------------------" << std::endl
+#if defined MGONGPU_FPTYPE_DOUBLE
+              << "FP precision              = DOUBLE (nan=" << num_nan << ")" << std::endl
+#elif defined MGONGPU_FPTYPE_FLOAT
+              << "FP precision              = FLOAT (nan=" << num_nan << ")" << std::endl
+#endif
 #if defined MGONGPU_LAYOUT_ASA
-              << "Momenta memory layout   = AOSOA[" << nepp << "]" << std::endl
+              << "Momenta memory layout     = AOSOA[" << nepp << "]" << std::endl
 #elif defined MGONGPU_LAYOUT_SOA
-              << "Momenta memory layout   = SOA" << std::endl
+              << "Momenta memory layout     = SOA" << std::endl
 #elif defined MGONGPU_LAYOUT_AOS
-              << "Momenta memory layout   = AOS" << std::endl
+              << "Momenta memory layout     = AOS" << std::endl
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_WFMEM_LOCAL
-              << "Wavefunction GPU memory = LOCAL" << std::endl
+              << "Wavefunction GPU memory   = LOCAL" << std::endl
 #elif defined MGONGPU_WFMEM_GLOBAL
-              << "Wavefunction GPU memory = GLOBAL" << std::endl
+              << "Wavefunction GPU memory   = GLOBAL" << std::endl
 #elif defined MGONGPU_WFMEM_SHARED
-              << "Wavefunction GPU memory = SHARED" << std::endl
+              << "Wavefunction GPU memory   = SHARED" << std::endl
 #endif
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_CURAND_ONDEVICE
-              << "Curand generation       = DEVICE (CUDA code)" << std::endl
+              << "Curand generation         = DEVICE (CUDA code)" << std::endl
 #elif defined MGONGPU_CURAND_ONHOST
-              << "Curand generation       = HOST (CUDA code)" << std::endl
+              << "Curand generation         = HOST (CUDA code)" << std::endl
 #endif
 #else
-              << "Curand generation       = HOST (C++ code)" << std::endl
+              << "Curand generation         = HOST (C++ code)" << std::endl
 #endif
-              << "-------------------------------------" << std::endl
-              << "NumberOfEntries         = " << niter << std::endl
+              << "---------------------------------------" << std::endl
+              << "NumberOfEntries           = " << niter << std::endl
               << std::scientific
-              << "TotalTimeInWaveFuncs    = " << sum << " sec" << std::endl
-              << "MeanTimeInWaveFuncs     = " << mean << " sec" << std::endl
-              << "StdDevTimeInWaveFuncs   = " << stdev << " sec" << std::endl
-              << "MinTimeInWaveFuncs      = " << mintime << " sec" << std::endl
-              << "MaxTimeInWaveFuncs      = " << maxtime << " sec" << std::endl
-              << "-------------------------------------" << std::endl
-              << "ProcessID:              = " << getpid() << std::endl
-              << "NProcesses              = " << process.nprocesses << std::endl
-              << "NumMatrixElements       = " << num_mes << std::endl
-              << "MatrixElementsPerSec    = " << num_mes/sum << " sec^-1" << std::endl;
+              << "TotalTimeInWaveFuncs      = " << sum << " sec" << std::endl
+              << "MeanTimeInWaveFuncs       = " << mean << " sec" << std::endl
+              << "StdDevTimeInWaveFuncs     = " << stdev << " sec" << std::endl
+              << "MinTimeInWaveFuncs        = " << mintime << " sec" << std::endl
+              << "MaxTimeInWaveFuncs        = " << maxtime << " sec" << std::endl
+              << "---------------------------------------" << std::endl
+              << "ProcessID:                = " << getpid() << std::endl
+              << "NProcesses                = " << process.nprocesses << std::endl
+              << "NumMatrixElementsComputed = " << num_mes << std::endl
+              << "MatrixElementsPerSec      = " << num_mes/sum << " sec^-1" << std::endl;
 
-    std::cout << "*************************************" << std::endl
-              << "NumMatrixElements       = " << num_mes << std::endl
+    std::cout << "***************************************" << std::endl
+              << "NumMatrixElements(notNan) = " << num_mes - num_nan << std::endl
               << std::scientific
-              << "MeanMatrixElemValue     = " << meanelem << " GeV^" << meGeVexponent << std::endl
-              << "StdErrMatrixElemValue   = " << stdelem/sqrt(num_mes) << " GeV^" << meGeVexponent << std::endl
-              << "StdDevMatrixElemValue   = " << stdelem << " GeV^" << meGeVexponent << std::endl
-              << "MinMatrixElemValue      = " << minelem << " GeV^" << meGeVexponent << std::endl
-              << "MaxMatrixElemValue      = " << maxelem << " GeV^" << meGeVexponent << std::endl;
+              << "MeanMatrixElemValue       = " << meanelem << " GeV^" << meGeVexponent << std::endl
+              << "StdErrMatrixElemValue     = " << stdelem/sqrt(num_mes) << " GeV^" << meGeVexponent << std::endl
+              << "StdDevMatrixElemValue     = " << stdelem << " GeV^" << meGeVexponent << std::endl
+              << "MinMatrixElemValue        = " << minelem << " GeV^" << meGeVexponent << std::endl
+              << "MaxMatrixElemValue        = " << maxelem << " GeV^" << meGeVexponent << std::endl;
   }
 
   // --- 9b. Destroy curand generator
@@ -545,9 +558,9 @@ int main(int argc, char **argv)
   timermap.stop();
   if (perf)
   {
-    std::cout << "*************************************" << std::endl;
+    std::cout << "***************************************" << std::endl;
     timermap.dump();
-    std::cout << "*************************************" << std::endl;
+    std::cout << "***************************************" << std::endl;
   }
 
   //std::cout << "ALL OK" << std::endl;
