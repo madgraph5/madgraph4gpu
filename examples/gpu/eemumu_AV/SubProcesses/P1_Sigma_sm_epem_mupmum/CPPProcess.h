@@ -1,5 +1,5 @@
 #include "mgOnGpuConfig.h"
-using mgOnGpu::dcomplex;
+using mgOnGpu::cxtype;
 
 //==========================================================================
 // This file has been automatically generated for C++ Standalone by
@@ -101,7 +101,7 @@ namespace Proc
     static const int wrows = 6;
     // static const int nioparticles = 4;
 
-    dcomplex * * amp;
+    cxtype * * amp;
 
 
     // Pointer to the model parameters
