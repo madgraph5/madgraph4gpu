@@ -52,8 +52,7 @@ namespace Proc
   {
   public:
 
-    CPPProcess(int numiterations, int gpublocks, int gputhreads,
-               bool verbose = false, bool debug = false);
+    CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose = false );
 
     ~CPPProcess();
 
@@ -90,9 +89,6 @@ namespace Proc
 
     // print verbose info
     bool m_verbose;
-
-    // print debug info
-    bool m_debug;
 
     static const int nwavefuncs = 6;
     static const int namplitudes = 2;

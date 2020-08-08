@@ -629,17 +629,15 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  CPPProcess::CPPProcess(int numiterations,
-                         int gpublocks,
-                         int gputhreads,
-                         bool verbose,
-                         bool debug)
-    : m_numiterations(numiterations)
-    , gpu_nblocks(gpublocks)
-    , gpu_nthreads(gputhreads)
-    , dim(gpu_nblocks * gpu_nthreads)
-    , m_verbose(verbose)
-    , m_debug(debug)
+  CPPProcess::CPPProcess( int numiterations,
+                          int gpublocks,
+                          int gputhreads,
+                          bool verbose )
+    : m_numiterations( numiterations )
+    , gpu_nblocks( gpublocks )
+    , gpu_nthreads( gputhreads )
+    , dim( gpu_nblocks * gpu_nthreads )
+    , m_verbose( verbose )
   {
     // Helicities for the process - nodim
     static const int tHel[ncomb][nexternal] =

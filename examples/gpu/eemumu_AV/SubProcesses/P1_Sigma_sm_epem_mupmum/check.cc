@@ -111,9 +111,9 @@ int main(int argc, char **argv)
 
   // Create a process object
 #ifdef __CUDACC__
-  gProc::CPPProcess process(niter, gpublocks, gputhreads, verbose, debug);
+  gProc::CPPProcess process( niter, gpublocks, gputhreads, verbose );
 #else
-  Proc::CPPProcess process(niter, gpublocks, gputhreads, verbose, debug);
+  Proc::CPPProcess process( niter, gpublocks, gputhreads, verbose );
 #endif
 
   // Read param_card and set parameters
@@ -130,7 +130,7 @@ int main(int argc, char **argv)
   using mgOnGpu::np4;
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
-  const int nRnarray = np4*nparf*ndim; // (NB: ndim=npag*nepp for ASA layouts) 
+  const int nRnarray = np4*nparf*ndim; // (NB: ndim=npag*nepp for ASA layouts)
 #ifdef __CUDACC__
   const int nbytesRnarray = nRnarray * sizeof(fptype);
   fptype* devRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
@@ -185,7 +185,7 @@ int main(int argc, char **argv)
 
   float* wavetimes = new float[niter]();
   fptype* matrixelementvector = new fptype[niter * ndim * process.nprocesses]();
-  
+
 #ifdef __CUDACC__
 #if defined MGONGPU_WFMEM_GLOBAL
   gProc::sigmakin_alloc<<<gpublocks, gputhreads>>>();
@@ -392,7 +392,7 @@ int main(int argc, char **argv)
           std::cout << std::string(80, '-') << std::endl;
       }
     }
-    else if (!debug)
+    else if ( !debug )
     {
       std::cout << ".";
     }
@@ -414,7 +414,6 @@ int main(int argc, char **argv)
 
   if (perf)
   {
-
     float sum = 0;
     float sq_sum = 0;
     float mintime = wavetimes[0];
@@ -439,7 +438,8 @@ int main(int argc, char **argv)
     {
       if ( isnan( matrixelementvector[imes] ) )
       {
-        //std::cout << "WARNING! ME[" << imes << "} is nan" << std::endl;
+        if ( debug ) // only printed out with "-p -d" (matrixelementvector is not filled without -p)
+          std::cout << "WARNING! ME[" << imes << "} is nan" << std::endl;
         num_nan++;
         continue;
       }
