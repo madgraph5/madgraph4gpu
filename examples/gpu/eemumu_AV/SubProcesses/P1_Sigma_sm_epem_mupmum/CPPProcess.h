@@ -1,5 +1,4 @@
 #include "mgOnGpuConfig.h"
-using mgOnGpu::cxtype;
 
 //==========================================================================
 // This file has been automatically generated for C++ Standalone by
@@ -64,7 +63,7 @@ namespace Proc
 
     virtual int code() const {return 1;}
 
-    const std::vector<double> &getMasses() const;
+    const std::vector<fptype> &getMasses() const;
 
     void setInitial(int inid1, int inid2)
     {
@@ -108,7 +107,7 @@ namespace Proc
     Parameters_sm * pars;
 
     // vector with external particle masses
-    std::vector<double> mME;
+    std::vector<fptype> mME;
 
     // Initial particle ids
     int id1, id2;
@@ -119,9 +118,9 @@ namespace Proc
 
 #ifdef __CUDACC__
   __global__
-  void sigmaKin( const double* allmomenta, double* output );
+  void sigmaKin( const fptype* allmomenta, fptype* output );
 #else
-  void sigmaKin( const double* allmomenta, double* output, const int nevt );
+  void sigmaKin( const fptype* allmomenta, fptype* output, const int nevt );
 #endif
 
   //--------------------------------------------------------------------------

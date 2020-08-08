@@ -118,7 +118,7 @@ int main(int argc, char **argv)
   // Read param_card and set parameters
   process.initProc("../../Cards/param_card.dat");
 
-  const double energy = 1500;
+  const fptype energy = 1500;
   const int meGeVexponent = -(2 * process.nexternal - 8);
 
   // --- 0b. Allocate memory structures
@@ -131,59 +131,59 @@ int main(int argc, char **argv)
   using mgOnGpu::npar;
   const int nRnarray = np4*nparf*ndim; // (NB: ndim=npag*nepp for ASA layouts) 
 #ifdef __CUDACC__
-  const int nbytesRnarray = nRnarray * sizeof(double);
-  double* devRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
+  const int nbytesRnarray = nRnarray * sizeof(fptype);
+  fptype* devRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
   checkCuda( cudaMalloc( &devRnarray, nbytesRnarray ) );
 #if defined MGONGPU_CURAND_ONHOST
-  double* hstRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
+  fptype* hstRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
   checkCuda( cudaMallocHost( &hstRnarray, nbytesRnarray ) );
 #endif
 #else
-  double* hstRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
-  hstRnarray = new double[nRnarray]();
+  fptype* hstRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
+  hstRnarray = new fptype[nRnarray]();
 #endif
 
   const int nMomenta = np4*npar*ndim; // (NB: ndim=npag*nepp for ASA layouts)
 #if defined MGONGPU_LAYOUT_ASA
-  double* hstMomenta = 0; // AOSOA[npag][npar][np4][nepp] (previously was: lp)
+  fptype* hstMomenta = 0; // AOSOA[npag][npar][np4][nepp] (previously was: lp)
 #elif defined MGONGPU_LAYOUT_SOA
-  double* hstMomenta = 0; // SOA[npar][np4][ndim] (previously was: lp)
+  fptype* hstMomenta = 0; // SOA[npar][np4][ndim] (previously was: lp)
 #elif defined MGONGPU_LAYOUT_AOS
-  double* hstMomenta = 0; // AOS[ndim][npar][np4] (previously was: lp)
+  fptype* hstMomenta = 0; // AOS[ndim][npar][np4] (previously was: lp)
 #endif
 #ifdef __CUDACC__
-  const int nbytesMomenta = nMomenta * sizeof(double);
+  const int nbytesMomenta = nMomenta * sizeof(fptype);
   checkCuda( cudaMallocHost( &hstMomenta, nbytesMomenta ) );
-  double* devMomenta = 0; // (previously was: allMomenta)
+  fptype* devMomenta = 0; // (previously was: allMomenta)
   checkCuda( cudaMalloc( &devMomenta, nbytesMomenta ) );
 #else
-  hstMomenta = new double[nMomenta]();
+  hstMomenta = new fptype[nMomenta]();
 #endif
 
   const int nWeights = ndim; //  (NB: ndim=npag*nepp for ASA layouts)
-  double* hstWeights = 0; // (previously was: meHostPtr)
+  fptype* hstWeights = 0; // (previously was: meHostPtr)
 #ifdef __CUDACC__
-  const int nbytesWeights = nWeights * sizeof(double);
+  const int nbytesWeights = nWeights * sizeof(fptype);
   checkCuda( cudaMallocHost( &hstWeights, nbytesWeights ) );
-  double* devWeights = 0; // (previously was: meDevPtr)
+  fptype* devWeights = 0; // (previously was: meDevPtr)
   checkCuda( cudaMalloc( &devWeights, nbytesWeights ) );
 #else
-  hstWeights = new double[nWeights]();
+  hstWeights = new fptype[nWeights]();
 #endif
 
   const int nMEs = ndim; //  (NB: ndim=npag*nepp for ASA layouts)
-  double* hstMEs = 0; // (previously was: meHostPtr)
+  fptype* hstMEs = 0; // (previously was: meHostPtr)
 #ifdef __CUDACC__
-  const int nbytesMEs = nMEs * sizeof(double);
+  const int nbytesMEs = nMEs * sizeof(fptype);
   checkCuda( cudaMallocHost( &hstMEs, nbytesMEs ) );
-  double* devMEs = 0; // (previously was: meDevPtr)
+  fptype* devMEs = 0; // (previously was: meDevPtr)
   checkCuda( cudaMalloc( &devMEs, nbytesMEs ) );
 #else
-  hstMEs = new double[nMEs]();
+  hstMEs = new fptype[nMEs]();
 #endif
 
   float* wavetimes = new float[niter]();
-  double* matrixelementvector = new double[niter * ndim * process.nprocesses]();
+  fptype* matrixelementvector = new fptype[niter * ndim * process.nprocesses]();
   
 #ifdef __CUDACC__
 #if defined MGONGPU_WFMEM_GLOBAL

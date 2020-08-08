@@ -11,7 +11,6 @@
 #include <iostream>
 
 #include "mgOnGpuConfig.h"
-using mgOnGpu::cxtype;
 
 namespace MG5_sm
 {
@@ -28,7 +27,7 @@ namespace MG5_sm
 #ifdef __CUDACC__
   __device__
 #endif
-  inline const double& pIparIp4Ievt( const double* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  inline const fptype& pIparIp4Ievt( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                                      const int ipar,
                                      const int ip4,
                                      const int ievt )
@@ -60,8 +59,8 @@ namespace MG5_sm
 #ifdef __CUDACC__
   __device__
 #endif
-  void imzxxxM0( const double* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-                 //const double fmass,
+  void imzxxxM0( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+                 //const fptype fmass,
                  const int nhel,
                  const int nsf,
 #ifndef __CUDACC__
@@ -89,10 +88,10 @@ namespace MG5_sm
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "imzxxxM0: ievt=%d ieib=%d\n", ievt, threadIdx.x );
 #endif
-      const double& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
-      const double& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
-      const double& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
-      const double& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+      const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
+      const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
+      const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
       cxtype& fi0 = fiv[ipar*nw6*neib + 0*neib + ieib];
       cxtype& fi1 = fiv[ipar*nw6*neib + 1*neib + ieib];
@@ -141,8 +140,8 @@ namespace MG5_sm
 #ifdef __CUDACC__
   __device__
 #endif
-  void ixzxxxM0( const double* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-                 //const double fmass,
+  void ixzxxxM0( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+                 //const fptype fmass,
                  const int nhel,
                  const int nsf,
 #ifndef __CUDACC__
@@ -170,10 +169,10 @@ namespace MG5_sm
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "ixzxxxM0: ievt=%d ieib=%d\n", ievt, threadIdx.x );
 #endif
-      const double& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
-      const double& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
-      const double& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
-      const double& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+      const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
+      const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
+      const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
       cxtype& fi0 = fiv[ipar*nw6*neib + 0*neib + ieib];
       cxtype& fi1 = fiv[ipar*nw6*neib + 1*neib + ieib];
@@ -195,7 +194,7 @@ namespace MG5_sm
       // ASSUMPTIONS FMASS = 0 and
       // (PX and PY are not 0)
       {
-        const double sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
+        const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
         const cxtype chi0( sqp0p3, 0 );
         const cxtype chi1( nh * pvec1 / sqp0p3, pvec2 / sqp0p3 );
         if ( nh == 1 )
@@ -223,8 +222,8 @@ namespace MG5_sm
 #ifdef __CUDACC__
   __device__
 #endif
-  void oxzxxxM0( const double* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-                 //const double fmass,
+  void oxzxxxM0( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+                 //const fptype fmass,
                  const int nhel,
                  const int nsf,
 #ifndef __CUDACC__
@@ -252,10 +251,10 @@ namespace MG5_sm
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "oxzxxxM0: ievt=%d ieib=%d\n", ievt, threadIdx.x );
 #endif
-      const double& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
-      const double& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
-      const double& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
-      const double& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+      const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
+      const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
+      const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
       cxtype& fo0 = fov[ipar*nw6*neib + 0*neib + ieib];
       cxtype& fo1 = fov[ipar*nw6*neib + 1*neib + ieib];
@@ -278,7 +277,7 @@ namespace MG5_sm
       // EITHER (Px and Py are not zero)
       // OR (PX = PY = 0 and E = P3 > 0)
       {
-        const double sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
+        const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
         const cxtype chi0( sqp0p3, 0 );
         const cxtype chi1( nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
         if( nh == 1 )
@@ -312,7 +311,7 @@ namespace MG5_sm
               const cxtype COUP,
               cxtype * vertex)
   {
-    const cxtype cI = cxtype (0., 1.);
+    const cxtype cI = cxtype( 0, 1 );
     const cxtype TMP4 =
       (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
        (F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])) +
@@ -329,14 +328,14 @@ namespace MG5_sm
   void FFV1P0_3(const cxtype F1[],
                 const cxtype F2[],
                 const cxtype COUP,
-                const double M3,
-                const double W3,
+                const fptype M3,
+                const fptype W3,
                 cxtype V3[])
   {
-    const cxtype cI = cxtype (0., 1.);
-    V3[0] = +F1[0] + F2[0];
-    V3[1] = +F1[1] + F2[1];
-    const double P3[4] = { -V3[0].real(),
+    const cxtype cI = cxtype( 0, 1 );
+    V3[0] = + F1[0] + F2[0];
+    V3[1] = + F1[1] + F2[1];
+    const fptype P3[4] = { -V3[0].real(),
                            -V3[1].real(),
                            -V3[1].imag(),
                            -V3[0].imag() };
@@ -360,14 +359,16 @@ namespace MG5_sm
                 const cxtype COUP2,
                 cxtype * vertex)
   {
-    const cxtype cI = cxtype (0., 1.);
+    const fptype fp1 = 1;
+    const fptype fp2 = 2;
+    const cxtype cI = cxtype( 0, 1 );
     const cxtype TMP2 =
       (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
        F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
     const cxtype TMP0 =
       (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
        F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
-    (*vertex) = (-1.) * (COUP2 * (+cI * (TMP0) + 2. * cI * (TMP2)) + cI * (TMP0 * COUP1));
+    (*vertex) = -fp1 * (COUP2 * (+cI * (TMP0) + fp2 * cI * (TMP2)) + cI * (TMP0 * COUP1));
   }
 
   //--------------------------------------------------------------------------
@@ -379,16 +380,18 @@ namespace MG5_sm
                 const cxtype F2[],
                 const cxtype COUP1,
                 const cxtype COUP2,
-                const double M3,
-                const double W3,
+                const fptype M3,
+                const fptype W3,
                 cxtype V3[])
   {
-    const cxtype cI = cxtype (0., 1.);
-    double OM3 = 0.;
-    if (M3 != 0.) OM3 = 1./(M3 * M3);
-    V3[0] = +F1[0] + F2[0];
-    V3[1] = +F1[1] + F2[1];
-    const double P3[4] = { -V3[0].real(),
+    const fptype fp1 = 1;
+    const fptype fp2 = 2;
+    const cxtype cI = cxtype( 0, 1 );
+    fptype OM3 = 0;
+    if ( M3 != 0 ) OM3 = fp1 / ( M3 * M3 );
+    V3[0] = + F1[0] + F2[0];
+    V3[1] = + F1[1] + F2[1];
+    const fptype P3[4] = { -V3[0].real(),
                            -V3[1].real(),
                            -V3[1].imag(),
                            -V3[0].imag() };
@@ -399,26 +402,26 @@ namespace MG5_sm
       (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) +
        F1[5] * (F2[2] * (-P3[1] + cI * (P3[2])) + F2[3] * (P3[0] + P3[3])));
     const cxtype denom =
-      1./((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) -
+      fp1 / ((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) -
           (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
-    V3[2] = denom * (-2. * cI) *
-      (COUP2 * (OM3 * - 1./2. * P3[0] * (TMP1 + 2. * (TMP3))
-                + (+1./2. * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] + F1[5] * F2[3]))
-       + 1./2. * (COUP1 * (F1[2] * F2[4] + F1[3] * F2[5] - P3[0] * OM3 * TMP1)));
-    V3[3] = denom * (-2. * cI) *
-      (COUP2 * (OM3 * - 1./2. * P3[1] * (TMP1 + 2. * (TMP3))
-                + (-1./2. * (F1[2] * F2[5] + F1[3] * F2[4]) + F1[4] * F2[3] + F1[5] * F2[2]))
-       - 1./2. * (COUP1 * (F1[2] * F2[5] + F1[3] * F2[4] + P3[1] * OM3 * TMP1)));
+    V3[2] = denom * (-fp2 * cI) *
+      (COUP2 * (OM3 * - fp1/fp2 * P3[0] * (TMP1 + fp2 * (TMP3))
+                + (+fp1/fp2 * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] + F1[5] * F2[3]))
+       + fp1/fp2 * (COUP1 * (F1[2] * F2[4] + F1[3] * F2[5] - P3[0] * OM3 * TMP1)));
+    V3[3] = denom * (-fp2 * cI) *
+      (COUP2 * (OM3 * - fp1/fp2 * P3[1] * (TMP1 + fp2 * (TMP3))
+                + (-fp1/fp2 * (F1[2] * F2[5] + F1[3] * F2[4]) + F1[4] * F2[3] + F1[5] * F2[2]))
+       - fp1/fp2 * (COUP1 * (F1[2] * F2[5] + F1[3] * F2[4] + P3[1] * OM3 * TMP1)));
     V3[4] = denom * cI *
-      (COUP2 * (OM3 * P3[2] * (TMP1 + 2. * (TMP3))
+      (COUP2 * (OM3 * P3[2] * (TMP1 + fp2 * (TMP3))
                 + (+cI * (F1[2] * F2[5]) - cI * (F1[3] * F2[4])
-                   - 2. * cI * (F1[4] * F2[3])
-                   + 2. * cI * (F1[5] * F2[2])))
+                   - fp2 * cI * (F1[4] * F2[3])
+                   + fp2 * cI * (F1[5] * F2[2])))
        + COUP1 * (+cI * (F1[2] * F2[5]) - cI * (F1[3] * F2[4]) + P3[2] * OM3 * TMP1));
-    V3[5] = denom * 2. * cI *
-      (COUP2 * (OM3 * 1./2. * P3[3] * (TMP1 + 2. * (TMP3)) +
-                (+1./2. * (F1[2] * F2[4]) - 1./2. * (F1[3] * F2[5]) - F1[4] * F2[2] + F1[5] * F2[3]))
-       + 1./2. * (COUP1 * (F1[2] * F2[4] + P3[3] * OM3 * TMP1 - F1[3] * F2[5])));
+    V3[5] = denom * fp2 * cI *
+      (COUP2 * (OM3 * fp1/fp2 * P3[3] * (TMP1 + fp2 * (TMP3)) +
+                (+fp1/fp2 * (F1[2] * F2[4]) - fp1/fp2 * (F1[3] * F2[5]) - F1[4] * F2[2] + F1[5] * F2[3]))
+       + fp1/fp2 * (COUP1 * (F1[2] * F2[4] + P3[3] * OM3 * TMP1 - F1[3] * F2[5])));
   }
 
 
@@ -455,12 +458,12 @@ namespace Proc
 
 #ifdef __CUDACC__
   __device__ __constant__ int cHel[ncomb][npar];
-  __device__ __constant__ double cIPC[6];  // coupling ?
-  __device__ __constant__ double cIPD[2];
+  __device__ __constant__ fptype cIPC[6];  // coupling ?
+  __device__ __constant__ fptype cIPD[2];
 #else
   static int cHel[ncomb][npar];
-  static double cIPC[6];  // coupling ?
-  static double cIPD[2];
+  static fptype cIPC[6];  // coupling ?
+  static fptype cIPD[2];
 #endif
 
 #ifdef __CUDACC__
@@ -547,8 +550,8 @@ namespace Proc
   // SOA: allmomenta[npar][np4][ndim]
   // AOS: allmomenta[ndim][npar][np4]
   void calculate_wavefunctions( int ihel,
-                                const double* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-                                double &matrix
+                                const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+                                fptype &matrix
 #ifndef __CUDACC__
                                 , const int ievt
 #endif
@@ -603,8 +606,8 @@ namespace Proc
     cxtype jamp[ncolor];
 
     // The color matrix;
-    static const double denom[ncolor] = {1};
-    static const double cf[ncolor][ncolor] = {{1}};
+    static const fptype denom[ncolor] = {1};
+    static const fptype cf[ncolor][ncolor] = {{1}};
 
     // Calculate color flows
     jamp[0] = -amp[0] - amp[1];
@@ -649,8 +652,8 @@ namespace Proc
 #else
     memcpy( cHel, tHel, ncomb * nexternal * sizeof(int) );
 #endif
-    // SANITY CHECK: GPU shared memory usage is based on casts of double[2] to complex
-    assert( sizeof(cxtype) == 2*sizeof(double) );
+    // SANITY CHECK: GPU shared memory usage is based on casts of fptype[2] to cxtype
+    assert( sizeof(cxtype) == 2*sizeof(fptype) );
   }
 
   //--------------------------------------------------------------------------
@@ -659,7 +662,7 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  const std::vector<double> &CPPProcess::getMasses() const {return mME;}
+  const std::vector<fptype> &CPPProcess::getMasses() const {return mME;}
 
   //--------------------------------------------------------------------------
   // Initialize process.
@@ -682,16 +685,15 @@ namespace Proc
     mME.push_back(pars->ZERO);
     mME.push_back(pars->ZERO);
     mME.push_back(pars->ZERO);
-    static cxtype tIPC[3] = {pars->GC_3, pars->GC_50,
-                               pars->GC_59};
-    static double tIPD[2] = {pars->mdl_MZ, pars->mdl_WZ};
+    static cxtype tIPC[3] = {(cxtype)pars->GC_3, (cxtype)pars->GC_50, (cxtype)pars->GC_59};
+    static fptype tIPD[2] = {(fptype)pars->mdl_MZ, (fptype)pars->mdl_WZ};
 
 #ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(cxtype ) ) );
-    checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof(double) ) );
+    checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof(fptype) ) );
 #else
     memcpy( cIPC, tIPC, 3 * sizeof(cxtype ) );
-    memcpy( cIPD, tIPD, 2 * sizeof(double) );
+    memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
 #endif
 
   }
@@ -706,8 +708,8 @@ namespace Proc
 #ifdef __CUDACC__
   __global__
 #endif
-  void sigmaKin( const double* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-                 double* output            // output[nevt]
+  void sigmaKin( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+                 fptype* output            // output[nevt]
 #ifdef __CUDACC__
                  // NB: nevt == ndim=gpublocks*gputhreads in CUDA
 #else
@@ -743,7 +745,7 @@ namespace Proc
       const int denominators[nprocesses] = {4};
 
       // Reset the matrix elements
-      double matrix_element[nprocesses];
+      fptype matrix_element[nprocesses];
       for(int iproc = 0; iproc < nprocesses; iproc++ )
       {
         matrix_element[iproc] = 0.;
@@ -754,7 +756,7 @@ namespace Proc
       sigmakin_alloc();
 #endif
 #endif
-      double melast = matrix_element[0];
+      fptype melast = matrix_element[0];
       for (int ihel = 0; ihel < ncomb; ihel++ )
       {
         if ( sigmakin_itry>maxtry && !sigmakin_goodhel[ihel] ) continue;

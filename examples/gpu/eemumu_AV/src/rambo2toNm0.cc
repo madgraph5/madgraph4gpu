@@ -19,28 +19,28 @@ namespace rambo2toNm0
 #ifdef __CUDACC__
   __global__
 #endif
-  void getMomentaInitial( const double energy,    // input: energy
+  void getMomentaInitial( const fptype energy,    // input: energy
 #if defined MGONGPU_LAYOUT_ASA
-                          double momenta1d[],     // output: momenta as AOSOA[npag][npar][4][nepp]
+                          fptype momenta1d[],     // output: momenta as AOSOA[npag][npar][4][nepp]
 #elif defined MGONGPU_LAYOUT_SOA
-                          double momenta1d[],     // output: momenta as SOA[npar][4][nevt]
+                          fptype momenta1d[],     // output: momenta as SOA[npar][4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
-                          double momenta1d[],     // output: momenta as AOS[nevt][npar][4]
+                          fptype momenta1d[],     // output: momenta as AOS[nevt][npar][4]
 #endif
                           const int nevt )        // input: #events
   {
 #if defined MGONGPU_LAYOUT_ASA
     using mgOnGpu::nepp;
-    double (*momenta)[npar][np4][nepp] = (double (*)[npar][np4][nepp]) momenta1d; // cast to multiD array pointer (AOSOA)
+    fptype (*momenta)[npar][np4][nepp] = (fptype (*)[npar][np4][nepp]) momenta1d; // cast to multiD array pointer (AOSOA)
 #elif defined MGONGPU_LAYOUT_SOA
     // Cast is impossible in CUDA C ("error: expression must have a constant value")
-    //double (*momenta)[np4][nevt] = (double (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
+    //fptype (*momenta)[np4][nevt] = (fptype (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
 #elif defined MGONGPU_LAYOUT_AOS
-    double (*momenta)[npar][np4] = (double (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOS)
+    fptype (*momenta)[npar][np4] = (fptype (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOS)
 #endif
-    const double energy1 = energy/2;
-    const double energy2 = energy/2;
-    const double mom = energy/2;
+    const fptype energy1 = energy/2;
+    const fptype energy2 = energy/2;
+    const fptype mom = energy/2;
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
     for (int ievt = 0; ievt < nevt; ++ievt)
@@ -92,16 +92,16 @@ namespace rambo2toNm0
 #ifdef __CUDACC__
   __global__
 #endif
-  void getMomentaFinal( const double energy,      // input: energy
-                        const double rnarray1d[], // input: randomnumbers in [0,1] as AOSOA[npag][nparf][4][nepp]
+  void getMomentaFinal( const fptype energy,      // input: energy
+                        const fptype rnarray1d[], // input: randomnumbers in [0,1] as AOSOA[npag][nparf][4][nepp]
 #if defined MGONGPU_LAYOUT_ASA
-                        double momenta1d[],       // output: momenta as AOSOA[npag][npar][4][nepp]
+                        fptype momenta1d[],       // output: momenta as AOSOA[npag][npar][4][nepp]
 #elif defined MGONGPU_LAYOUT_SOA
-                        double momenta1d[],       // output: momenta as SOA[npar][4][nevt]
+                        fptype momenta1d[],       // output: momenta as SOA[npar][4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
-                        double momenta1d[],       // output: momenta as AOS[nevt][npar][4]
+                        fptype momenta1d[],       // output: momenta as AOS[nevt][npar][4]
 #endif
-                        double wgts[],            // output: weights[nevt]
+                        fptype wgts[],            // output: weights[nevt]
                         const int nevt )          // input: #events
   {
     /****************************************************************************
@@ -117,14 +117,14 @@ namespace rambo2toNm0
      ****************************************************************************/
 
     // initialization step: factorials for the phase space weight
-    const double twopi = 8. * atan(1.);
-    const double po2log = log(twopi / 4.);
-    double z[nparf];
+    const fptype twopi = 8. * atan(1.);
+    const fptype po2log = log(twopi / 4.);
+    fptype z[nparf];
     z[1] = po2log;
     for (int kpar = 2; kpar < nparf; kpar++)
-      z[kpar] = z[kpar - 1] + po2log - 2. * log(double(kpar - 1));
+      z[kpar] = z[kpar - 1] + po2log - 2. * log(fptype(kpar - 1));
     for (int kpar = 2; kpar < nparf; kpar++)
-      z[kpar] = (z[kpar] - log(double(kpar)));
+      z[kpar] = (z[kpar] - log(fptype(kpar)));
 
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
@@ -140,27 +140,27 @@ namespace rambo2toNm0
       using mgOnGpu::nepp;
       const int ipag = ievt/nepp; // #eventpage in this iteration
       const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
-      double (*rnarray)[nparf][np4][nepp] = (double (*)[nparf][np4][nepp]) rnarray1d; // cast to multiD array pointer (AOSOA)
+      fptype (*rnarray)[nparf][np4][nepp] = (fptype (*)[nparf][np4][nepp]) rnarray1d; // cast to multiD array pointer (AOSOA)
 #if defined MGONGPU_LAYOUT_ASA
-      double (*momenta)[npar][np4][nepp] = (double (*)[npar][np4][nepp]) momenta1d; // cast to multiD array pointer (AOSOA)
+      fptype (*momenta)[npar][np4][nepp] = (fptype (*)[npar][np4][nepp]) momenta1d; // cast to multiD array pointer (AOSOA)
 #elif defined MGONGPU_LAYOUT_SOA
       // Cast is impossible in CUDA C ("error: expression must have a constant value")
-      //double (*momenta)[np4][nevt] = (double (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
+      //fptype (*momenta)[np4][nevt] = (fptype (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
 #elif defined MGONGPU_LAYOUT_AOS
-      double (*momenta)[npar][np4] = (double (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOS)
+      fptype (*momenta)[npar][np4] = (fptype (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOS)
 #endif
-      double& wt = wgts[ievt];
+      fptype& wt = wgts[ievt];
 
       // generate n massless momenta in infinite phase space
-      double q[nparf][np4];
+      fptype q[nparf][np4];
       for (int iparf = 0; iparf < nparf; iparf++) {
-        const double r1 = rnarray[ipag][iparf][0][iepp];
-        const double r2 = rnarray[ipag][iparf][1][iepp];
-        const double r3 = rnarray[ipag][iparf][2][iepp];
-        const double r4 = rnarray[ipag][iparf][3][iepp];
-        const double c = 2. * r1 - 1.;
-        const double s = sqrt(1. - c * c);
-        const double f = twopi * r2;
+        const fptype r1 = rnarray[ipag][iparf][0][iepp];
+        const fptype r2 = rnarray[ipag][iparf][1][iepp];
+        const fptype r3 = rnarray[ipag][iparf][2][iepp];
+        const fptype r4 = rnarray[ipag][iparf][3][iepp];
+        const fptype c = 2. * r1 - 1.;
+        const fptype s = sqrt(1. - c * c);
+        const fptype f = twopi * r2;
         q[iparf][0] = -log(r3 * r4);
         q[iparf][3] = q[iparf][0] * c;
         q[iparf][2] = q[iparf][0] * s * cos(f);
@@ -168,24 +168,24 @@ namespace rambo2toNm0
       }
 
       // calculate the parameters of the conformal transformation
-      double r[np4];
-      double b[np4-1];
+      fptype r[np4];
+      fptype b[np4-1];
       for (int i4 = 0; i4 < np4; i4++)
         r[i4] = 0.;
       for (int iparf = 0; iparf < nparf; iparf++) {
         for (int i4 = 0; i4 < np4; i4++)
           r[i4] = r[i4] + q[iparf][i4];
       }
-      const double rmas = sqrt(pow(r[0], 2) - pow(r[3], 2) - pow(r[2], 2) - pow(r[1], 2));
+      const fptype rmas = sqrt(pow(r[0], 2) - pow(r[3], 2) - pow(r[2], 2) - pow(r[1], 2));
       for (int i4 = 1; i4 < np4; i4++)
         b[i4-1] = -r[i4] / rmas;
-      const double g = r[0] / rmas;
-      const double a = 1. / (1. + g);
-      const double x0 = energy / rmas;
+      const fptype g = r[0] / rmas;
+      const fptype a = 1. / (1. + g);
+      const fptype x0 = energy / rmas;
 
       // transform the q's conformally into the p's (i.e. the 'momenta')
       for (int iparf = 0; iparf < nparf; iparf++) {
-        double bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
+        fptype bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
 #if defined MGONGPU_LAYOUT_ASA
         for (int i4 = 1; i4 < np4; i4++)
           momenta[ipag][iparf+npari][i4][iepp] = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
@@ -276,10 +276,14 @@ namespace rambo2toNm0
   // ** NB: the random numbers are always produced in the same order and are interpreted as an AOSOA
   // AOSOA: rnarray[npag][nparf][np4][nepp] where nevt=npag*nepp
   void generateRnArray( curandGenerator_t gen, // input: curand generator
-                        double rnarray1d[],    // output: randomnumbers in [0,1]
+                        fptype rnarray1d[],    // output: randomnumbers in [0,1]
                         const int nevt )       // input: #events
   {
+#if defined MGONGPU_FPTYPE_DOUBLE
     checkCurand( curandGenerateUniformDouble( gen, rnarray1d, np4*nparf*nevt ) );
+#elif defined MGONGPU_FPTYPE_FLOAT
+    checkCurand( curandGenerateUniform( gen, rnarray1d, np4*nparf*nevt ) );
+#endif
   }
 
   //--------------------------------------------------------------------------
