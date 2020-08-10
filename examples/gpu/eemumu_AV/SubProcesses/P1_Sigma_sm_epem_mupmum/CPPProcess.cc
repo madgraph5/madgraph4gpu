@@ -730,17 +730,10 @@ namespace Proc
 #endif
                                 )
   {
-#ifdef __CUDACC__
-#if !defined MGONGPU_WFMEM_LOCAL
-    const int neib = blockDim.x; // number of events (threads) in block
-    const int ieib = threadIdx.x; // index of event (thread) in block
-#endif
-#else
+#ifndef __CUDACC__
     //printf( "calculate_wavefunctions: ievt %d\n", ievt );
 #endif
-
     cxtype amp[2];
-    cxtype w[nwf][nw6]; // w[5][6]
 #ifdef __CUDACC__
 #if !defined MGONGPU_WFMEM_LOCAL
     // eventually move to same AOSOA everywhere, blocks and threads
@@ -754,16 +747,15 @@ namespace Proc
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, bwf, 1 );
     MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, bwf, 2 );
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, bwf, 3 );
-    for ( int iwf=0; iwf<4; iwf++ ) // only copy the first 4 out of 5
-      for ( int iw6=0; iw6<nw6; iw6++ )
-        w[iwf][iw6] = bwf[iwf*nw6*neib + iw6*neib + ieib];
-#else
+#else //local
+    cxtype w[nwf][nw6]; // w[5][6]
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], 0 );
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], 1 );
     MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w[2], 2 );
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w[3], 3 );
 #endif
-#else
+#else // cpp, not cuda
+    cxtype w[nwf][nw6]; // w[5][6]
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
     MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
@@ -771,6 +763,7 @@ namespace Proc
 #endif
 
 #if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
+    const int neib = blockDim.x; // number of events (threads) in block
     // Diagram 1
     MG5_sm::FFV1P0_3( &(bwf[1*nw6*neib]), &(bwf[0*nw6*neib]), cxtype( cIPC[0], cIPC[1] ), 0., 0., &(bwf[4*nw6*neib]) );
     MG5_sm::FFV1_0( &(bwf[2*nw6*neib]), &(bwf[3*nw6*neib]), &(bwf[4*nw6*neib]), cxtype( cIPC[0], cIPC[1] ), &amp[0] );
