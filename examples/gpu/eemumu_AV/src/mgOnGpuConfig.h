@@ -12,8 +12,8 @@
 
 // Use global memory or shared memory for wavefunctions (CHOOSE ONLY ONE)
 //#define MGONGPU_WFMEM_LOCAL 1 // default
-//#define MGONGPU_WFMEM_GLOBAL 1
-#define MGONGPU_WFMEM_SHARED 1
+#define MGONGPU_WFMEM_GLOBAL 1
+//#define MGONGPU_WFMEM_SHARED 1
 
 // Floating point precision (CHOOSE ONLY ONE)
 #define MGONGPU_FPTYPE_DOUBLE 1 // default
