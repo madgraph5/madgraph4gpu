@@ -2,9 +2,9 @@
 #define MGONGPUCONFIG_H 1
 
 // Memory layout for momenta (CHOOSE ONLY ONE)
-#define MGONGPU_LAYOUT_ASA 1 // default
+//#define MGONGPU_LAYOUT_ASA 1 // default
 //#define MGONGPU_LAYOUT_SOA 1
-//#define MGONGPU_LAYOUT_AOS 1
+#define MGONGPU_LAYOUT_AOS 1
 
 // Curand random number generation (CHOOSE ONLY ONE)
 #define MGONGPU_CURAND_ONDEVICE 1 // default

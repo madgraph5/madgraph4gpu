@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "rambo2toNm0.h"
+#include "rambo.h"
 
 // Simplified rambo version for 2 to N (with N>=2) processes with massless particles
 #ifdef __CUDACC__

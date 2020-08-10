@@ -15,8 +15,8 @@ ifeq ($(UNAME_P),ppc64le)
 endif
 
 target=$(LIBDIR)/libmodel_sm.a
-cxx_objects=Parameters_sm.o read_slha.o rambo2toNm0.o 
-cu_objects= # NB grambo2toNm0.cu must be included (no rdc)
+cxx_objects=Parameters_sm.o read_slha.o rambo.o 
+cu_objects= # NB grambo.cu must be included (no rdc)
 
 all: $(target)
 

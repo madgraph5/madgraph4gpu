@@ -9,9 +9,9 @@
 #include "mgOnGpuConfig.h"
 
 #ifdef __CUDACC__
-#include "grambo2toNm0.cu"
+#include "grambo.cu"
 #else
-#include "rambo2toNm0.h"
+#include "rambo.h"
 #endif
 
 #include "CPPProcess.h"
