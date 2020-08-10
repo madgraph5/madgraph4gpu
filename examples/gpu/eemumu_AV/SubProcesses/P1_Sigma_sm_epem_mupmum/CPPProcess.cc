@@ -70,7 +70,7 @@ namespace MG5_sm
 #if defined MGONGPU_WFMEM_LOCAL
                  cxtype fi[nw6],
 #else
-                 cxtype* fiv,            // output: fiv[5 * 6 * #threads_in_block]
+                 cxtype* fiv,              // output: wavefunctions[5 * 6 * #threads_in_block]
 #endif
 #endif
                  const int ipar )          // input: particle# out of npar
@@ -151,7 +151,7 @@ namespace MG5_sm
 #if defined MGONGPU_WFMEM_LOCAL
                  cxtype fi[nw6],
 #else
-                 cxtype* fiv,            // output: fiv[5 * 6 * #threads_in_block]
+                 cxtype* fiv,              // output: wavefunctions[5 * 6 * #threads_in_block]
 #endif
 #endif
                  const int ipar )          // input: particle# out of npar
@@ -233,7 +233,7 @@ namespace MG5_sm
 #if defined MGONGPU_WFMEM_LOCAL
                  cxtype fo[nw6],
 #else
-                 cxtype* fov,            // output: fov[5 * 6 * #threads_in_block]
+                 cxtype* fov,              // output: wavefunctions[5 * 6 * #threads_in_block]
 #endif
 #endif
                  const int ipar )          // input: particle# out of npar
@@ -305,19 +305,62 @@ namespace MG5_sm
 #ifdef __CUDACC__
   __device__
 #endif
-  void FFV1_0(const cxtype F1[],
-              const cxtype F2[],
-              const cxtype V3[],
+  void FFV1_0(
+#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
+              const cxtype FAV[],  // input: wavefunctionA[6 * #threads_in_block]
+              const cxtype FBV[],  // input: wavefunctionB[6 * #threads_in_block]
+              const cxtype VCV[],  // input: wavefunctionC[6 * #threads_in_block]
+#else
+              const cxtype FA[],   // input wavefunctionA[6]
+              const cxtype FB[],   // input wavefunctionB[6]
+              const cxtype VC[],   // input wavefunctionC[6]
+#endif
               const cxtype COUP,
-              cxtype * vertex)
+              cxtype* vertex )    // output
   {
+#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
+    const int neib = blockDim.x; // number of events (threads) in block
+    const int ieib = threadIdx.x; // index of event (thread) in block
+    const cxtype& FA2 = FAV[2*neib + ieib];
+    const cxtype& FA3 = FAV[3*neib + ieib];
+    const cxtype& FA4 = FAV[4*neib + ieib];
+    const cxtype& FA5 = FAV[5*neib + ieib];
+    const cxtype& FB2 = FBV[2*neib + ieib];
+    const cxtype& FB3 = FBV[3*neib + ieib];
+    const cxtype& FB4 = FBV[4*neib + ieib];
+    const cxtype& FB5 = FBV[5*neib + ieib];
+    const cxtype& VC2 = VCV[2*neib + ieib];
+    const cxtype& VC3 = VCV[3*neib + ieib];
+    const cxtype& VC4 = VCV[4*neib + ieib];
+    const cxtype& VC5 = VCV[5*neib + ieib];
+#else
+    const cxtype& FA2 = FA[2];
+    const cxtype& FA3 = FA[3];
+    const cxtype& FA4 = FA[4];
+    const cxtype& FA5 = FA[5];
+    const cxtype& FB2 = FB[2];
+    const cxtype& FB3 = FB[3];
+    const cxtype& FB4 = FB[4];
+    const cxtype& FB5 = FB[5];
+    const cxtype& VC2 = VC[2];
+    const cxtype& VC3 = VC[3];
+    const cxtype& VC4 = VC[4];
+    const cxtype& VC5 = VC[5];
+#endif
     const cxtype cI = cxtype( 0, 1 );
     const cxtype TMP4 =
-      (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
-       (F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])) +
-        (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
-         F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])))));
-    (*vertex) = COUP * - cI * TMP4;
+      ( FA2 * ( FB4 * ( VC2 + VC5 ) +
+                FB5 * ( VC3 + cI * ( VC4 ) ) ) +
+        ( FA3 * ( FB4 * ( VC3 - cI * ( VC4) )
+                  + FB5 * ( VC2 - VC5 ) ) +
+          ( FA4 * ( FB2 * ( VC2 - VC5 )
+                    - FB3 * ( VC3 + cI * ( VC4 ) ) ) +
+            FA5 * ( FB2 * ( -VC3 + cI * ( VC4 ) )
+                    + FB3 * ( VC2 + VC5 ) )
+            )
+          )
+        );
+    ( *vertex ) = COUP * ( -cI ) * TMP4;
   }
 
   //--------------------------------------------------------------------------
@@ -325,26 +368,78 @@ namespace MG5_sm
 #ifdef __CUDACC__
   __device__
 #endif
-  void FFV1P0_3(const cxtype F1[],
-                const cxtype F2[],
+  void FFV1P0_3(
+#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
+                const cxtype FAV[],  // input: wavefunctionA[6 * #threads_in_block]
+                const cxtype FBV[],  // input: wavefunctionB[6 * #threads_in_block]
+#else
+                const cxtype FA[],   // input wavefunctionA[6]
+                const cxtype FB[],   // input wavefunctionB[6]
+#endif
                 const cxtype COUP,
                 const fptype M3,
-                const fptype W3,
-                cxtype V3[])
+                const fptype W3
+#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
+                , cxtype VCV[]         // output: wavefunctionC[6 * #threads_in_block]
+#else
+                , cxtype VC[]          // output wavefunctionC[6]
+#endif
+                )
   {
+#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
+    const int neib = blockDim.x; // number of events (threads) in block
+    const int ieib = threadIdx.x; // index of event (thread) in block
+    const cxtype& FA0 = FAV[0*neib + ieib];
+    const cxtype& FA1 = FAV[1*neib + ieib];
+    const cxtype& FA2 = FAV[2*neib + ieib];
+    const cxtype& FA3 = FAV[3*neib + ieib];
+    const cxtype& FA4 = FAV[4*neib + ieib];
+    const cxtype& FA5 = FAV[5*neib + ieib];
+    const cxtype& FB0 = FBV[0*neib + ieib];
+    const cxtype& FB1 = FBV[1*neib + ieib];
+    const cxtype& FB2 = FBV[2*neib + ieib];
+    const cxtype& FB3 = FBV[3*neib + ieib];
+    const cxtype& FB4 = FBV[4*neib + ieib];
+    const cxtype& FB5 = FBV[5*neib + ieib];
+    cxtype& VC0 = VCV[0*neib + ieib];
+    cxtype& VC1 = VCV[1*neib + ieib];
+    cxtype& VC2 = VCV[2*neib + ieib];
+    cxtype& VC3 = VCV[3*neib + ieib];
+    cxtype& VC4 = VCV[4*neib + ieib];
+    cxtype& VC5 = VCV[5*neib + ieib];
+#else
+    const cxtype& FA0 = FA[0];
+    const cxtype& FA1 = FA[1];
+    const cxtype& FA2 = FA[2];
+    const cxtype& FA3 = FA[3];
+    const cxtype& FA4 = FA[4];
+    const cxtype& FA5 = FA[5];
+    const cxtype& FB0 = FB[0];
+    const cxtype& FB1 = FB[1];
+    const cxtype& FB2 = FB[2];
+    const cxtype& FB3 = FB[3];
+    const cxtype& FB4 = FB[4];
+    const cxtype& FB5 = FB[5];
+    cxtype& VC0 = VC[0];
+    cxtype& VC1 = VC[1];
+    cxtype& VC2 = VC[2];
+    cxtype& VC3 = VC[3];
+    cxtype& VC4 = VC[4];
+    cxtype& VC5 = VC[5];
+#endif
     const cxtype cI = cxtype( 0, 1 );
-    V3[0] = + F1[0] + F2[0];
-    V3[1] = + F1[1] + F2[1];
-    const fptype P3[4] = { -V3[0].real(),
-                           -V3[1].real(),
-                           -V3[1].imag(),
-                           -V3[0].imag() };
+    VC0 = + FA0 + FB0;
+    VC1 = + FA1 + FB1;
+    const fptype PPP0 = -VC0.real();
+    const fptype PPP1 = -VC1.real();
+    const fptype PPP2 = -VC1.imag();
+    const fptype PPP3 = -VC0.imag();
     const cxtype denom =
-      COUP/((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
-    V3[2] = denom * (-cI) * (F1[2] * F2[4] + F1[3] * F2[5] + F1[4] * F2[2] + F1[5] * F2[3]);
-    V3[3] = denom * (-cI) * (-F1[2] * F2[5] - F1[3] * F2[4] + F1[4] * F2[3] + F1[5] * F2[2]);
-    V3[4] = denom * (-cI) * (-cI * (F1[2] * F2[5] + F1[5] * F2[2]) + cI * (F1[3] * F2[4] + F1[4] * F2[3]));
-    V3[5] = denom * (-cI) * (-F1[2] * F2[4] - F1[5] * F2[3] + F1[3] * F2[5] + F1[4] * F2[2]);
+      COUP / ( ( PPP0 * PPP0 ) - ( PPP1 * PPP1 ) - ( PPP2 * PPP2 ) - ( PPP3 * PPP3 ) - M3 * ( M3 - cI * W3 ) );
+    VC2 = denom * ( -cI ) * ( FA2 * FB4 + FA3 * FB5 + FA4 * FB2 + FA5 * FB3 );
+    VC3 = denom * ( -cI ) * ( -FA2 * FB5 - FA3 * FB4 + FA4 * FB3 + FA5 * FB2 );
+    VC4 = denom * ( -cI ) * ( -cI * ( FA2 * FB5 + FA5 * FB2 ) + cI * ( FA3 * FB4 + FA4 * FB3 ) );
+    VC5 = denom * ( -cI ) * ( -FA2 * FB4 - FA5 * FB3 + FA3 * FB5 + FA4 * FB2 );
   }
 
   //--------------------------------------------------------------------------
@@ -352,23 +447,59 @@ namespace MG5_sm
 #ifdef __CUDACC__
   __device__
 #endif
-  void FFV2_4_0(const cxtype F1[],
-                const cxtype F2[],
-                const cxtype V3[],
+  void FFV2_4_0(
+#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
+                const cxtype FAV[],  // input: wavefunctionA[6 * #threads_in_block]
+                const cxtype FBV[],  // input: wavefunctionB[6 * #threads_in_block]
+                const cxtype VCV[],  // input: wavefunctionC[6 * #threads_in_block]
+#else
+                const cxtype FA[],   // input wavefunctionA[6]
+                const cxtype FB[],   // input wavefunctionB[6]
+                const cxtype VC[],   // input wavefunctionC[6]
+#endif
                 const cxtype COUP1,
                 const cxtype COUP2,
-                cxtype * vertex)
+                cxtype* vertex )    // output
   {
+#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
+    const int neib = blockDim.x; // number of events (threads) in block
+    const int ieib = threadIdx.x; // index of event (thread) in block
+    const cxtype& FA2 = FAV[2*neib + ieib];
+    const cxtype& FA3 = FAV[3*neib + ieib];
+    const cxtype& FA4 = FAV[4*neib + ieib];
+    const cxtype& FA5 = FAV[5*neib + ieib];
+    const cxtype& FB2 = FBV[2*neib + ieib];
+    const cxtype& FB3 = FBV[3*neib + ieib];
+    const cxtype& FB4 = FBV[4*neib + ieib];
+    const cxtype& FB5 = FBV[5*neib + ieib];
+    const cxtype& VC2 = VCV[2*neib + ieib];
+    const cxtype& VC3 = VCV[3*neib + ieib];
+    const cxtype& VC4 = VCV[4*neib + ieib];
+    const cxtype& VC5 = VCV[5*neib + ieib];
+#else
+    const cxtype& FA2 = FA[2];
+    const cxtype& FA3 = FA[3];
+    const cxtype& FA4 = FA[4];
+    const cxtype& FA5 = FA[5];
+    const cxtype& FB2 = FB[2];
+    const cxtype& FB3 = FB[3];
+    const cxtype& FB4 = FB[4];
+    const cxtype& FB5 = FB[5];
+    const cxtype& VC2 = VC[2];
+    const cxtype& VC3 = VC[3];
+    const cxtype& VC4 = VC[4];
+    const cxtype& VC5 = VC[5];
+#endif
     const fptype fp1 = 1;
     const fptype fp2 = 2;
     const cxtype cI = cxtype( 0, 1 );
     const cxtype TMP2 =
-      (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
-       F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
+      ( FA4 * ( FB2 * ( VC2 - VC5 ) - FB3 * ( VC3 + cI * ( VC4 ) ) ) +
+        FA5 * ( FB2 * ( -VC3 + cI * ( VC4 ) ) + FB3 * ( VC2 + VC5 ) ) );
     const cxtype TMP0 =
-      (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
-       F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
-    (*vertex) = -fp1 * (COUP2 * (+cI * (TMP0) + fp2 * cI * (TMP2)) + cI * (TMP0 * COUP1));
+      ( FA2 * ( FB4 * ( VC2 + VC5 ) + FB5 * ( VC3 + cI * ( VC4 ) ) ) +
+        FA3 * ( FB4 * ( VC3 - cI * ( VC4 ) ) + FB5 * ( VC2 - VC5 ) ) );
+    (*vertex) = -fp1 * ( COUP2 * ( +cI * ( TMP0 ) + fp2 * cI * ( TMP2 ) ) + cI * ( TMP0 * COUP1 ) );
   }
 
   //--------------------------------------------------------------------------
@@ -376,56 +507,108 @@ namespace MG5_sm
 #ifdef __CUDACC__
   __device__
 #endif
-  void FFV2_4_3(const cxtype F1[],
-                const cxtype F2[],
+  void FFV2_4_3(
+#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
+                const cxtype FAV[],  // input: wavefunctionA[6 * #threads_in_block]
+                const cxtype FBV[],  // input: wavefunctionB[6 * #threads_in_block]
+#else
+                const cxtype FA[],   // input wavefunctionA[6]
+                const cxtype FB[],   // input wavefunctionB[6]
+#endif
                 const cxtype COUP1,
                 const cxtype COUP2,
                 const fptype M3,
-                const fptype W3,
-                cxtype V3[])
+                const fptype W3
+#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
+                , cxtype VCV[]         // output: wavefunctionC[6 * #threads_in_block]
+#else
+                , cxtype VC[]          // output wavefunctionC[6]
+#endif
+                )
   {
+#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
+    const int neib = blockDim.x; // number of events (threads) in block
+    const int ieib = threadIdx.x; // index of event (thread) in block
+    const cxtype& FA0 = FAV[0*neib + ieib];
+    const cxtype& FA1 = FAV[1*neib + ieib];
+    const cxtype& FA2 = FAV[2*neib + ieib];
+    const cxtype& FA3 = FAV[3*neib + ieib];
+    const cxtype& FA4 = FAV[4*neib + ieib];
+    const cxtype& FA5 = FAV[5*neib + ieib];
+    const cxtype& FB0 = FBV[0*neib + ieib];
+    const cxtype& FB1 = FBV[1*neib + ieib];
+    const cxtype& FB2 = FBV[2*neib + ieib];
+    const cxtype& FB3 = FBV[3*neib + ieib];
+    const cxtype& FB4 = FBV[4*neib + ieib];
+    const cxtype& FB5 = FBV[5*neib + ieib];
+    cxtype& VC0 = VCV[0*neib + ieib];
+    cxtype& VC1 = VCV[1*neib + ieib];
+    cxtype& VC2 = VCV[2*neib + ieib];
+    cxtype& VC3 = VCV[3*neib + ieib];
+    cxtype& VC4 = VCV[4*neib + ieib];
+    cxtype& VC5 = VCV[5*neib + ieib];
+#else
+    const cxtype& FA0 = FA[0];
+    const cxtype& FA1 = FA[1];
+    const cxtype& FA2 = FA[2];
+    const cxtype& FA3 = FA[3];
+    const cxtype& FA4 = FA[4];
+    const cxtype& FA5 = FA[5];
+    const cxtype& FB0 = FB[0];
+    const cxtype& FB1 = FB[1];
+    const cxtype& FB2 = FB[2];
+    const cxtype& FB3 = FB[3];
+    const cxtype& FB4 = FB[4];
+    const cxtype& FB5 = FB[5];
+    cxtype& VC0 = VC[0];
+    cxtype& VC1 = VC[1];
+    cxtype& VC2 = VC[2];
+    cxtype& VC3 = VC[3];
+    cxtype& VC4 = VC[4];
+    cxtype& VC5 = VC[5];
+#endif
     const fptype fp1 = 1;
     const fptype fp2 = 2;
     const cxtype cI = cxtype( 0, 1 );
     fptype OM3 = 0;
     if ( M3 != 0 ) OM3 = fp1 / ( M3 * M3 );
-    V3[0] = + F1[0] + F2[0];
-    V3[1] = + F1[1] + F2[1];
-    const fptype P3[4] = { -V3[0].real(),
-                           -V3[1].real(),
-                           -V3[1].imag(),
-                           -V3[0].imag() };
+    VC0 = + FA0 + FB0;
+    VC1 = + FA1 + FB1;
+    const fptype PPP0 = -VC0.real();
+    const fptype PPP1 = -VC1.real();
+    const fptype PPP2 = -VC1.imag();
+    const fptype PPP3 = -VC0.imag();
     const cxtype TMP1 =
-      (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
-       F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
+      ( FA2 * ( FB4 * ( PPP0 + PPP3 ) + FB5 * ( PPP1 + cI * ( PPP2 ) ) ) +
+        FA3 * ( FB4 * ( PPP1 - cI * ( PPP2 ) ) + FB5 * ( PPP0 - PPP3 ) ) );
     const cxtype TMP3 =
-      (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) +
-       F1[5] * (F2[2] * (-P3[1] + cI * (P3[2])) + F2[3] * (P3[0] + P3[3])));
+      ( FA4 * ( FB2 * ( PPP0 - PPP3 ) - FB3 * ( PPP1 + cI * ( PPP2 ) ) ) +
+        FA5 * ( FB2 * ( -PPP1 + cI * ( PPP2 ) ) + FB3 * ( PPP0 + PPP3 ) ) );
     const cxtype denom =
-      fp1 / ((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) -
-             (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
-    V3[2] = denom * (-fp2 * cI) *
-      (COUP2 * (OM3 * - fp1/fp2 * P3[0] * (TMP1 + fp2 * (TMP3))
-                + (+fp1/fp2 * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] + F1[5] * F2[3]))
-       + fp1/fp2 * (COUP1 * (F1[2] * F2[4] + F1[3] * F2[5] - P3[0] * OM3 * TMP1)));
-    V3[3] = denom * (-fp2 * cI) *
-      (COUP2 * (OM3 * - fp1/fp2 * P3[1] * (TMP1 + fp2 * (TMP3))
-                + (-fp1/fp2 * (F1[2] * F2[5] + F1[3] * F2[4]) + F1[4] * F2[3] + F1[5] * F2[2]))
-       - fp1/fp2 * (COUP1 * (F1[2] * F2[5] + F1[3] * F2[4] + P3[1] * OM3 * TMP1)));
-    V3[4] = denom * cI *
-      (COUP2 * (OM3 * P3[2] * (TMP1 + fp2 * (TMP3))
-                + (+cI * (F1[2] * F2[5]) - cI * (F1[3] * F2[4])
-                   - fp2 * cI * (F1[4] * F2[3])
-                   + fp2 * cI * (F1[5] * F2[2])))
-       + COUP1 * (+cI * (F1[2] * F2[5]) - cI * (F1[3] * F2[4]) + P3[2] * OM3 * TMP1));
-    V3[5] = denom * fp2 * cI *
-      (COUP2 * (OM3 * fp1/fp2 * P3[3] * (TMP1 + fp2 * (TMP3)) +
-                (+fp1/fp2 * (F1[2] * F2[4]) - fp1/fp2 * (F1[3] * F2[5]) - F1[4] * F2[2] + F1[5] * F2[3]))
-       + fp1/fp2 * (COUP1 * (F1[2] * F2[4] + P3[3] * OM3 * TMP1 - F1[3] * F2[5])));
+      fp1 / ( ( PPP0 * PPP0 ) - ( PPP1 * PPP1 ) - ( PPP2 * PPP2 ) -
+              ( PPP3 * PPP3 ) - M3 * (M3 - cI * W3 ) );
+    VC2 = denom * ( -fp2 * cI ) *
+      ( COUP2 * ( OM3 * ( -fp1/fp2 ) * PPP0 * ( TMP1 + fp2 * ( TMP3 ) )
+                + ( +fp1/fp2 * ( FA2 * FB4 + FA3 * FB5 ) + FA4 * FB2 + FA5 * FB3 ) )
+       + fp1/fp2 * ( COUP1 * ( FA2 * FB4 + FA3 * FB5 - PPP0 * OM3 * TMP1 ) ) );
+    VC3 = denom * ( -fp2 * cI ) *
+      ( COUP2 * ( OM3 * ( -fp1/fp2 ) * PPP1 * ( TMP1 + fp2 * ( TMP3 ) )
+                + ( -fp1/fp2 * ( FA2 * FB5 + FA3 * FB4 ) + FA4 * FB3 + FA5 * FB2 ) )
+       - fp1/fp2 * ( COUP1 * ( FA2 * FB5 + FA3 * FB4 + PPP1 * OM3 * TMP1 ) ) );
+    VC4 = denom * cI *
+      ( COUP2 * ( OM3 * PPP2 * ( TMP1 + fp2 * ( TMP3 ) )
+                + ( +cI * ( FA2 * FB5 ) - cI * ( FA3 * FB4 )
+                   - fp2 * cI * ( FA4 * FB3 )
+                   + fp2 * cI * ( FA5 * FB2 ) ) )
+       + COUP1 * ( +cI * ( FA2 * FB5 ) - cI * ( FA3 * FB4 ) + PPP2 * OM3 * TMP1 ) );
+    VC5 = denom * fp2 * cI *
+      ( COUP2 * ( OM3 * fp1/fp2 * PPP3 * ( TMP1 + fp2 * ( TMP3 ) ) +
+                ( +fp1/fp2 * ( FA2 * FB4 ) - fp1/fp2 * ( FA3 * FB5 ) - FA4 * FB2 + FA5 * FB3 ) )
+       + fp1/fp2 * ( COUP1 * (FA2 * FB4 + PPP3 * OM3 * TMP1 - FA3 * FB5 ) ) );
   }
 
 
-}  // end namespace $(namespace)s_sm
+}  // end namespace
 
 
 //==========================================================================
@@ -547,17 +730,10 @@ namespace Proc
 #endif
                                 )
   {
-#ifdef __CUDACC__
-#if !defined MGONGPU_WFMEM_LOCAL
-    const int neib = blockDim.x; // number of events (threads) in block
-    const int ieib = threadIdx.x; // index of event (thread) in block
-#endif
-#else
+#ifndef __CUDACC__
     //printf( "calculate_wavefunctions: ievt %d\n", ievt );
 #endif
-
     cxtype amp[2];
-    cxtype w[nwf][nw6]; // w[5][6]
 #ifdef __CUDACC__
 #if !defined MGONGPU_WFMEM_LOCAL
     // eventually move to same AOSOA everywhere, blocks and threads
@@ -571,29 +747,39 @@ namespace Proc
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, bwf, 1 );
     MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, bwf, 2 );
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, bwf, 3 );
-    for ( int iwf=0; iwf<4; iwf++ ) // only copy the first 4 out of 5
-      for ( int iw6=0; iw6<nw6; iw6++ )
-        w[iwf][iw6] = bwf[iwf*nw6*neib + iw6*neib + ieib];
-#else
+#else //local
+    cxtype w[nwf][nw6]; // w[5][6]
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], 0 );
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], 1 );
     MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w[2], 2 );
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w[3], 3 );
 #endif
-#else
+#else // cpp, not cuda
+    cxtype w[nwf][nw6]; // w[5][6]
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
     MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
 #endif
 
+#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
+    const int neib = blockDim.x; // number of events (threads) in block
     // Diagram 1
-    MG5_sm::FFV1P0_3(w[1], w[0], cxtype (cIPC[0], cIPC[1]), 0., 0., w[4]);
-    MG5_sm::FFV1_0(w[2], w[3], w[4], cxtype (cIPC[0], cIPC[1]), &amp[0]);
+    MG5_sm::FFV1P0_3( &(bwf[1*nw6*neib]), &(bwf[0*nw6*neib]), cxtype( cIPC[0], cIPC[1] ), 0., 0., &(bwf[4*nw6*neib]) );
+    MG5_sm::FFV1_0( &(bwf[2*nw6*neib]), &(bwf[3*nw6*neib]), &(bwf[4*nw6*neib]), cxtype( cIPC[0], cIPC[1] ), &amp[0] );
 
     // Diagram 2
-    MG5_sm::FFV2_4_3(w[1], w[0], cxtype (cIPC[2], cIPC[3]), cxtype (cIPC[4], cIPC[5]), cIPD[0], cIPD[1], w[4]);
-    MG5_sm::FFV2_4_0(w[2], w[3], w[4], cxtype (cIPC[2], cIPC[3]), cxtype (cIPC[4], cIPC[5]), &amp[1]);
+    MG5_sm::FFV2_4_3( &(bwf[1*nw6*neib]), &(bwf[0*nw6*neib]), cxtype( cIPC[2], cIPC[3] ), cxtype( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], &(bwf[4*nw6*neib]) );
+    MG5_sm::FFV2_4_0( &(bwf[2*nw6*neib]), &(bwf[3*nw6*neib]), &(bwf[4*nw6*neib]), cxtype( cIPC[2], cIPC[3] ), cxtype( cIPC[4], cIPC[5] ), &amp[1] );
+#else
+    // Diagram 1
+    MG5_sm::FFV1P0_3( w[1], w[0], cxtype( cIPC[0], cIPC[1] ), 0., 0., w[4] );
+    MG5_sm::FFV1_0( w[2], w[3], w[4], cxtype( cIPC[0], cIPC[1] ), &amp[0] );
+
+    // Diagram 2
+    MG5_sm::FFV2_4_3( w[1], w[0], cxtype( cIPC[2], cIPC[3] ), cxtype( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
+    MG5_sm::FFV2_4_0( w[2], w[3], w[4], cxtype( cIPC[2], cIPC[3] ), cxtype( cIPC[4], cIPC[5] ), &amp[1] );
+#endif
 
     const int ncolor = 1;
     cxtype ztemp;
