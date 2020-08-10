@@ -403,7 +403,7 @@ namespace MG5_sm
        F1[5] * (F2[2] * (-P3[1] + cI * (P3[2])) + F2[3] * (P3[0] + P3[3])));
     const cxtype denom =
       fp1 / ((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) -
-          (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
+             (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
     V3[2] = denom * (-fp2 * cI) *
       (COUP2 * (OM3 * - fp1/fp2 * P3[0] * (TMP1 + fp2 * (TMP3))
                 + (+fp1/fp2 * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] + F1[5] * F2[3]))
@@ -477,63 +477,53 @@ namespace Proc
   using mgOnGpu::nw6;
 
 #ifdef __CUDACC__
-#if !defined MGONGPU_WFMEM_LOCAL
+#if defined MGONGPU_WFMEM_GLOBAL
 
   using mgOnGpu::nbpgMAX;
   // Allocate global or shared memory for the wavefunctions of all (external and internal) particles
   // See https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#allocation-persisting-kernel-launches
   __device__ cxtype* dwf[nbpgMAX]; // device dwf[#blocks][5 * 6 * #threads_in_block]
 
-#if defined MGONGPU_WFMEM_GLOBAL
   __global__
-#elif defined MGONGPU_WFMEM_SHARED
-  __device__
-#endif
   void sigmakin_alloc()
   {
     // Wavefunctions for this block: bwf[5 * 6 * #threads_in_block]
-    cxtype*& bwf = dwf[blockIdx.x]; 
-#if defined MGONGPU_WFMEM_SHARED
-    __shared__ cxtype* sbwf;
-#endif
+    cxtype*& bwf = dwf[blockIdx.x];
 
     // Only the first thread in the block does the allocation (we need one allocation per block)
     if ( threadIdx.x == 0 )
     {
-#if defined MGONGPU_WFMEM_GLOBAL
       bwf = (cxtype*)malloc( nwf * nw6 * blockDim.x * sizeof(cxtype) ); // cxtype bwf[5 * 6 * #threads_in_block]
-#elif defined MGONGPU_WFMEM_SHARED
-      sbwf = (cxtype*)malloc( nwf * nw6 * blockDim.x * sizeof(cxtype) );
-      bwf = sbwf; // cxtype bwf[5 * 6 * #threads_in_block]
-#endif
       if ( bwf == NULL )
       {
         printf( "ERROR in sigmakin_alloc (block #%4d): malloc failed\n", blockIdx.x );
         assert( bwf != NULL );
       }
       //else printf( "INFO in sigmakin_alloc (block #%4d): malloc successful\n", blockIdx.x );
-    }    
+    }
     __syncthreads();
 
     // All threads in the block should see the allocation by now
     assert( bwf != NULL );
   }
-  
-#if defined MGONGPU_WFMEM_GLOBAL
+
   __global__
-#elif defined MGONGPU_WFMEM_SHARED
-  __device__
-#endif
   void sigmakin_free()
   {
-#if defined MGONGPU_WFMEM_SHARED
-    __syncthreads();
-#endif
     // Only free from one thread!
     // [NB: if this free is missing, cuda-memcheck fails to detect it]
     // [NB: but if free is called twice, cuda-memcheck does detect it]
-    cxtype* bwf = dwf[blockIdx.x]; 
+    cxtype* bwf = dwf[blockIdx.x];
     if ( threadIdx.x == 0 ) free( bwf );
+  }
+
+#elif defined MGONGPU_WFMEM_SHARED
+
+  int sigmakin_sharedmem_nbytes( const int ntpb ) // input: #threads per block
+  {
+    // Wavefunctions for this block: cxtype bwf[5 * 6 * #threads_in_block]
+    const int nbytesBwf = nwf * nw6 * ntpb * sizeof(cxtype);
+    return nbytesBwf;
   }
 
 #endif
@@ -559,7 +549,6 @@ namespace Proc
   {
 #ifdef __CUDACC__
 #if !defined MGONGPU_WFMEM_LOCAL
-    const int iblk = blockIdx.x; // index of block in grid
     const int neib = blockDim.x; // number of events (threads) in block
     const int ieib = threadIdx.x; // index of event (thread) in block
 #endif
@@ -568,17 +557,22 @@ namespace Proc
 #endif
 
     cxtype amp[2];
-    cxtype w[nwf][nw6]; // w[5][6]    
-#ifdef __CUDACC__ 
+    cxtype w[nwf][nw6]; // w[5][6]
+#ifdef __CUDACC__
 #if !defined MGONGPU_WFMEM_LOCAL
     // eventually move to same AOSOA everywhere, blocks and threads
-    cxtype* bwf = dwf[iblk]; 
+#if defined MGONGPU_WFMEM_GLOBAL
+    const int iblk = blockIdx.x; // index of block in grid
+    cxtype* bwf = dwf[iblk];
+#elif defined MGONGPU_WFMEM_SHARED
+    extern __shared__ cxtype bwf[];
+#endif
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, bwf, 0 );
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, bwf, 1 );
     MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, bwf, 2 );
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, bwf, 3 );
-    for ( int iwf=0; iwf<4; iwf++ ) // only copy the first 4 out of 5 
-      for ( int iw6=0; iw6<nw6; iw6++ ) 
+    for ( int iwf=0; iwf<4; iwf++ ) // only copy the first 4 out of 5
+      for ( int iw6=0; iw6<nw6; iw6++ )
         w[iwf][iw6] = bwf[iwf*nw6*neib + iw6*neib + ieib];
 #else
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], 0 );
@@ -749,11 +743,6 @@ namespace Proc
         matrix_element[iproc] = 0.;
       }
 
-#ifdef __CUDACC__
-#if defined MGONGPU_WFMEM_SHARED
-      sigmakin_alloc();
-#endif
-#endif
       fptype melast = matrix_element[0];
       for (int ihel = 0; ihel < ncomb; ihel++ )
       {
@@ -769,11 +758,6 @@ namespace Proc
           melast = matrix_element[0];
         }
       }
-#ifdef __CUDACC__
-#if defined MGONGPU_WFMEM_SHARED
-      sigmakin_free();
-#endif
-#endif
 
       for (int iproc = 0; iproc < nprocesses; ++iproc)
       {

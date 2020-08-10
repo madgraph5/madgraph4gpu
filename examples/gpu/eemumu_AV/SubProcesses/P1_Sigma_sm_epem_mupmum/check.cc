@@ -189,6 +189,8 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
 #if defined MGONGPU_WFMEM_GLOBAL
   gProc::sigmakin_alloc<<<gpublocks, gputhreads>>>();
+#elif defined MGONGPU_WFMEM_SHARED
+  const int nbytesSharedSK = gProc::sigmakin_sharedmem_nbytes(gputhreads);
 #endif
 #endif
 
@@ -297,7 +299,11 @@ int main(int argc, char **argv)
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
 #ifdef __CUDACC__
+#if defined MGONGPU_WFMEM_SHARED
+    gProc::sigmaKin<<<gpublocks, gputhreads, nbytesSharedSK>>>(devMomenta, devMEs);
+#else
     gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta, devMEs);
+#endif
     checkCuda( cudaPeekAtLastError() );
 #else
     Proc::sigmaKin(hstMomenta, hstMEs, ndim);
@@ -474,7 +480,7 @@ int main(int argc, char **argv)
 #elif defined MGONGPU_WFMEM_GLOBAL
               << "Wavefunction GPU memory   = GLOBAL" << std::endl
 #elif defined MGONGPU_WFMEM_SHARED
-              << "Wavefunction GPU memory   = SHARED" << std::endl
+              << "Wavefunction GPU memory   = SHARED (" << nbytesSharedSK/sizeof(char) << " bytes)" << std::endl
 #endif
 #endif
 #ifdef __CUDACC__

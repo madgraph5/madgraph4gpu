@@ -20,7 +20,7 @@
 
 #ifdef __CUDACC__
 
-#define checkCuda( code )                      \
+#define checkCuda( code )                       \
   { assertCuda( code, __FILE__, __LINE__ ); }
 
 inline void assertCuda( cudaError_t code, const char *file, int line, bool abort = true )
@@ -125,9 +125,6 @@ namespace Proc
 #if defined MGONGPU_WFMEM_GLOBAL
   __global__
   void sigmakin_alloc();
-#elif defined MGONGPU_WFMEM_SHARED
-  __device__
-  void sigmakin_alloc();
 #endif
 #endif
 
@@ -137,9 +134,14 @@ namespace Proc
 #if defined MGONGPU_WFMEM_GLOBAL
   __global__
   void sigmakin_free();
-#elif defined MGONGPU_WFMEM_SHARED
-  __device__
-  void sigmakin_free();
+#endif
+#endif
+
+  //--------------------------------------------------------------------------
+
+#ifdef __CUDACC__
+#if defined MGONGPU_WFMEM_SHARED
+  int sigmakin_sharedmem_nbytes( const int ntpb ); // input: #threads per block
 #endif
 #endif
 
