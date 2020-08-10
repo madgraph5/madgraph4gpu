@@ -633,7 +633,7 @@ namespace Proc
     // Diagram 1
     MG5_sm::FFV1P0_3(w[1], w[0], cxtype (cIPC[0], cIPC[1]), 0., 0., w[4]);
 #if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
-    MG5_sm::FFV1_0( bwf+2*nw6*neib, bwf+3*nw6*neib, bwf+4*nw6*neib, cxtype( cIPC[0], cIPC[1] ), &amp[0] );
+    MG5_sm::FFV1_0( &(bwf[2*nw6*neib]), &(bwf[3*nw6*neib]), &(bwf[4*nw6*neib]), cxtype( cIPC[0], cIPC[1] ), &amp[0] );
 #else
     MG5_sm::FFV1_0( w[2], w[3], w[4], cxtype( cIPC[0], cIPC[1] ), &amp[0] );
 #endif
