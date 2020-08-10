@@ -5,13 +5,17 @@ usage(){
   exit 1
 }
 
-# Profile cuda or cpp?
+# Profile cuda or cpp
+# (NB do not exceed 12 iterations: profiling overhead per iteration is huge)
 tag=cu
-args="2048 256 12" # DEFAULT 20.08.06 AND BEFORE
-###args="32 256 12" # FOR LOCAL/GLOBAL/SHARED COMPARISON 20.08.07
+######args="2048 256 12" # DEFAULT 20.08.06 AND BEFORE
+#args="16384 32 12" # NEW DEFAULT 20.08.10 AND BEFORE (allow shared memory comparison - FASTER also on local!)
+######args="32 256 12" # FOR LOCAL/GLOBAL/SHARED COMPARISON 20.08.07 (do not exceed global memory - shared memory bugged)
+args="256 32 12" # FOR LOCAL/GLOBAL/SHARED COMPARISON 20.08.10 (do not exceed shared memory)
 if [ "$1" == "--cc" ]; then
   tag=cc
-  args="64 64 12"
+  ###args="64 64 12"
+  args="256 32 12" # More similar to local/global/shared comparison
   shift
 fi
 
