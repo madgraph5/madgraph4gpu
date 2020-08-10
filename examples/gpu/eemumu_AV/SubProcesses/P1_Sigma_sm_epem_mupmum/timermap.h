@@ -50,6 +50,7 @@ namespace mgOnGpu
         last = m_timer.GetDuration();
         m_partitionTimers[m_active] += last;
       }
+      m_active = "";
       // Close the current Cuda NVTX range
       NVTX_POP();
       // Return last duration
