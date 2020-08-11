@@ -518,8 +518,30 @@ __device__ void FFV2_4_3(mg5Complex F1[], const mg5Complex F2[],
   P3[1] = -real(V3[1]);
   P3[2] = -imag(V3[1]);
   P3[3] = -imag(V3[0]);
+/* org
   TMP1 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
           F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
+
+  TMP1 = (F1-2 * (F2-4 * (P3-0 + P3-3) + F2-5 * (P3-1 + cI * (P3-2))) +
+                  F1-3 * (F2-4 * (P3-1 - cI * (P3-2)) + F2-5 * (P3-0 - P3-3)));
+
+
+*/
+
+  mg5Complex tmpx, tmpy;
+  tmpx = F1[2] * F2[4];
+  TMP1 =        tmpx * P3[0];
+  TMP1 = TMP1 + tmpx * P3[3];
+  tmpx = F1[3] * F2[4];
+  TMP1 = TMP1 + tmpx * P3[1];
+  tmpy = P3[2] * cI;
+  TMP1 = TMP1 - tmpx * tmpy ;
+  tmpx = F1[2] * F2[5];
+  TMP1 = TMP1 + tmpx * tmpy;
+  TMP1 = TMP1 + tmpx * P3[1];
+  //TMP1 = TMP1 + P3[0] * F2[5] * F1[3];
+  //TMP1 = TMP1 - P3[3] * F2[5] * F1[3];
+
   TMP3 = (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) +
           F1[5] * (F2[2] * (-P3[1] + cI * (P3[2])) + F2[3] * (P3[0] + P3[3])));
   denom = 1. / ((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) -
