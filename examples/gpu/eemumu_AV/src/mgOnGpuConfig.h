@@ -22,7 +22,7 @@
 // Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
 #define MGONGPU_CXTYPE_THRUST 1 // default
-//#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~4% slower (4.6E8 against 4.8E8)
+//#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~5% slower (4.75E8 against 5.0E8)
 #endif
 
 namespace mgOnGpu
