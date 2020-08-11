@@ -1,5 +1,3 @@
-#include "mgOnGpuConfig.h"
-
 //==========================================================================
 // This file has been automatically generated for C++ Standalone by
 // MadGraph5_aMC@NLO v. 2.7.3.py3, 2020-06-28
@@ -13,6 +11,9 @@
 #include <cassert>
 #include <complex>
 #include <vector>
+
+#include "mgOnGpuConfig.h"
+#include "mgOnGpuTypes.h"
 
 #include "Parameters_sm.h"
 
