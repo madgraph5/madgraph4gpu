@@ -13,13 +13,13 @@
 //#define MGONGPU_CURAND_ONHOST 1
 
 // Use global memory or shared memory for wavefunctions (CHOOSE ONLY ONE)
-#define MGONGPU_WFMEM_LOCAL 1 // default (~5.00E8)
+//#define MGONGPU_WFMEM_LOCAL 1 // default (~5.00E8)
 //#define MGONGPU_WFMEM_GLOBAL 1
-//#define MGONGPU_WFMEM_SHARED 1
+#define MGONGPU_WFMEM_SHARED 1 // 30% slower (~3.5E8 against 5.0E8)
 
 // Floating point precision (CHOOSE ONLY ONE)
 #define MGONGPU_FPTYPE_DOUBLE 1 // default (~5.00E8)
-//#define MGONGPU_FPTYPE_FLOAT 1 // 2.3x faster (~1.14E9)
+//#define MGONGPU_FPTYPE_FLOAT 1 // 2.3x faster (~1.14E9 against 5.00E8)
 
 // Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
