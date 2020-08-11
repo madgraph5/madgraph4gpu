@@ -34,8 +34,8 @@ namespace MG5_sm
                                      const int ievt )
   {
     using mgOnGpu::np4;
-    using mgOnGpu::npar;
 #if defined MGONGPU_LAYOUT_ASA
+    using mgOnGpu::npar;
     using mgOnGpu::nepp;
     const int ipag = ievt/nepp; // #eventpage in this iteration
     const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
@@ -50,6 +50,7 @@ namespace MG5_sm
     // SOA: allmomenta[npar][np4][ndim]
     return allmomenta[ipar*np4*nevt + ip4*nevt + ievt]; // SOA[ipar][ip4][ievt]
 #elif defined MGONGPU_LAYOUT_AOS
+    using mgOnGpu::npar;
     // AOS: allmomenta[ndim][npar][np4]
     return allmomenta[ievt*npar*np4 + ipar*np4 + ip4]; // AOS[ievt][ipar][ip4]
 #endif
