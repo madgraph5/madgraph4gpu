@@ -1,6 +1,8 @@
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
 
+// ** NB Throughputs (e.g. 5.00E8) are events/sec for "./gcheck.exe -p 16384 32 12"
+
 // Memory layout for momenta (CHOOSE ONLY ONE)
 #define MGONGPU_LAYOUT_ASA 1 // default (~5.00E8) 
 //#define MGONGPU_LAYOUT_SOA 1 // 7% slower (4.65E8 against 5.00E8)
@@ -11,13 +13,13 @@
 //#define MGONGPU_CURAND_ONHOST 1
 
 // Use global memory or shared memory for wavefunctions (CHOOSE ONLY ONE)
-#define MGONGPU_WFMEM_LOCAL 1 // default
+#define MGONGPU_WFMEM_LOCAL 1 // default (~5.00E8)
 //#define MGONGPU_WFMEM_GLOBAL 1
 //#define MGONGPU_WFMEM_SHARED 1
 
 // Floating point precision (CHOOSE ONLY ONE)
-//#define MGONGPU_FPTYPE_DOUBLE 1 // default (~5.00E8)
-#define MGONGPU_FPTYPE_FLOAT 1 // 2.3x faster (~1.14E9)
+#define MGONGPU_FPTYPE_DOUBLE 1 // default (~5.00E8)
+//#define MGONGPU_FPTYPE_FLOAT 1 // 2.3x faster (~1.14E9)
 
 // Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
