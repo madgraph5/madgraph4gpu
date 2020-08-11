@@ -2,9 +2,9 @@
 #define MGONGPUCONFIG_H 1
 
 // Memory layout for momenta (CHOOSE ONLY ONE)
-//#define MGONGPU_LAYOUT_ASA 1 // default
+#define MGONGPU_LAYOUT_ASA 1 // default
 //#define MGONGPU_LAYOUT_SOA 1
-#define MGONGPU_LAYOUT_AOS 1
+//#define MGONGPU_LAYOUT_AOS 1 // 4% slower (4.8E8 against 5.0E8)
 
 // Curand random number generation (CHOOSE ONLY ONE)
 #define MGONGPU_CURAND_ONDEVICE 1 // default
@@ -22,7 +22,7 @@
 // Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
 #define MGONGPU_CXTYPE_THRUST 1 // default
-//#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~4% slower (4.6 against 4.8)
+//#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~4% slower (4.6E8 against 4.8E8)
 #endif
 
 namespace mgOnGpu
