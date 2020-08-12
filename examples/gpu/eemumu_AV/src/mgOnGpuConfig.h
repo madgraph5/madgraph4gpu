@@ -2,7 +2,7 @@
 #define MGONGPUCONFIG_H 1
 
 // ** NB1 Throughputs (e.g. 5.00E8) are events/sec for "./gcheck.exe -p 16384 32 12"
-// ** NB2 Baseline on b7g47n0002 fluctuates (depends on load?): typically, either 5.00E8 or 5.50E8
+// ** NB2 Baseline on b7g47n0002 fluctuates (depends on load?): typically, either ~5.00E8 or ~5.50E8
 
 // Memory layout for momenta (CHOOSE ONLY ONE)
 #define MGONGPU_LAYOUT_ASA 1 // default (~5.00E8) 
