@@ -2,55 +2,37 @@
 #define mg5Complex_h
 
 //#define MG5_COMPLEX_THRUST
+//#define MG5_CMPLX_SINGLE_PREC
+
+#ifdef MG5_CMPLX_SINGLE_PREC
+#define floa_t float
+#else
+#define floa_t double
+#endif
+
 
 #ifdef MG5_COMPLEX_THRUST
 
 #include <thrust/complex.h>
 
-#ifdef MG5_CMPLX_SINGLE_PREC
+#define mg5Complex thrust::complex<floa_t>
 
-#define mg5Complex thrust::complex<float>
-
-inline __host__ __device__ thrust::complex<float> make_mg5Complex(float r,
-                                                                  float i) {
-  return thrust::complex<float>(r, i);
+inline __host__ __device__ thrust::complex<floa_t> make_mg5Complex(floa_t r,
+                                                                   floa_t i) {
+  return thrust::complex<floa_t>(r, i);
 }
 
-inline __host__ thrust::complex<float> make_mg5Complex(std::complex<float> c) {
-  return thrust::complex<float>(c.real(), c.imag());
+inline __host__ thrust::complex<floa_t> make_mg5Complex(std::complex<floa_t> c) {
+  return thrust::complex<floa_t>(c.real(), c.imag());
 }
 
-inline __host__ __device__ float real(thrust::complex<float> c) {
+inline __host__ __device__ floa_t real(thrust::complex<floa_t> c) {
   return c.real();
 }
 
-inline __host__ __device__ float imag(thrust::complex<float> c) {
+inline __host__ __device__ floa_t imag(thrust::complex<floa_t> c) {
   return c.imag();
 }
-
-#else
-
-#define mg5Complex thrust::complex<double>
-
-inline __host__ __device__ thrust::complex<double> make_mg5Complex(float r,
-                                                                   float i) {
-  return thrust::complex<double>(r, i);
-}
-
-inline __host__ thrust::complex<double>
-make_mg5Complex(std::complex<double> c) {
-  return thrust::complex<double>(c.real(), c.imag());
-}
-
-inline __host__ __device__ float real(thrust::complex<double> c) {
-  return c.real();
-}
-
-inline __host__ __device__ float imag(thrust::complex<double> c) {
-  return c.imag();
-}
-
-#endif // MG5_CMPLX_SINGLE_PREC
 
 #else // MG5_COMPLEX_THRUST
 
@@ -58,174 +40,162 @@ inline __host__ __device__ float imag(thrust::complex<double> c) {
 #include <cuComplex.h>
 
 #ifdef MG5_CMPLX_SINGLE_PREC
-
 #define mg5Complex cuFloatComplex
-
-inline __host__ __device__ cuFloatComplex make_mg5Complex(float r, float i) {
-  return make_cuFloatComplex(r, i);
-}
-
-inline __host__ cuFloatComplex make_mg5Complex(std::complex<float> c) {
-  return make_cuFloatComplex(c.real(), c.imag());
-}
-
-inline __host__ __device__ cuFloatComplex operator-(cuFloatComplex c) {
-  return cuCmulf(make_cuFloatComplex(-1, 0), c);
-}
-
-inline __host__ __device__ cuFloatComplex operator+(cuFloatComplex c) {
-  return c;
-}
-
-inline __host__ __device__ cuFloatComplex operator+(cuFloatComplex a,
-                                                    cuFloatComplex b) {
-  return cuCaddf(a, b);
-}
-
-inline __host__ __device__ cuFloatComplex operator+(float a, cuFloatComplex b) {
-  return cuCaddf(make_cuFloatComplex(a, 0), b);
-}
-
-inline __host__ __device__ cuFloatComplex operator+(cuFloatComplex a, float b) {
-  return cuCaddf(a, make_cuFloatComplex(b, 0));
-}
-
-inline __host__ __device__ cuFloatComplex operator-(cuFloatComplex a,
-                                                    cuFloatComplex b) {
-  return cuCsubf(a, b);
-}
-
-inline __host__ __device__ cuFloatComplex operator-(float a, cuFloatComplex b) {
-  return cuCsubf(make_cuFloatComplex(a, 0), b);
-}
-
-inline __host__ __device__ cuFloatComplex operator-(cuFloatComplex a, float b) {
-  return cuCsubf(a, make_cuFloatComplex(b, 0));
-}
-
-inline __host__ __device__ cuFloatComplex operator*(cuFloatComplex a,
-                                                    cuFloatComplex b) {
-  return cuCmulf(a, b);
-}
-
-inline __host__ __device__ cuFloatComplex operator*(float a, cuFloatComplex b) {
-  return cuCmulf(make_cuFloatComplex(a, 0), b);
-}
-
-inline __host__ __device__ cuFloatComplex operator*(cuFloatComplex a, float b) {
-  return cuCmulf(a, make_cuFloatComplex(b, 0));
-}
-
-inline __host__ __device__ cuFloatComplex operator/(cuFloatComplex a,
-                                                    cuFloatComplex b) {
-  return cuCdivf(a, b);
-}
-
-inline __host__ __device__ cuFloatComplex operator/(float a, cuFloatComplex b) {
-  return cuCdivf(make_cuFloatComplex(a, 0), b);
-}
-
-inline __host__ __device__ cuFloatComplex operator/(cuFloatComplex a, float b) {
-  return cuCdivf(a, make_cuFloatComplex(b, 0));
-}
-
-inline __host__ __device__ cuFloatComplex conj(cuFloatComplex c) {
-  return make_cuFloatComplex(cuCrealf(c), -cuCimagf(c));
-}
-
-inline __host__ __device__ float real(cuFloatComplex c) { return cuCrealf(c); }
-
-inline __host__ __device__ float imag(cuFloatComplex c) { return cuCimagf(c); }
-
-#else // MG5_CMPLX_SINGLE_PREC
-
+#else
 #define mg5Complex cuDoubleComplex
+#endif
 
-inline __host__ __device__ cuDoubleComplex make_mg5Complex(double r, double i) {
+inline __host__ __device__ mg5Complex make_mg5Complex(floa_t r, floa_t i) {
+#ifdef MG5_CMPLX_SINGLE_PREC
+  return make_cuFloatComplex(r, i);
+#else
   return make_cuDoubleComplex(r, i);
+#endif
 }
 
-inline __host__ cuDoubleComplex make_mg5Complex(std::complex<double> c) {
+inline __host__ mg5Complex make_mg5Complex(std::complex<floa_t> c) {
+#ifdef MG5_CMPLX_SINGLE_PREC
+  return make_cuFloatComplex(c.real(), c.imag());
+#else
   return make_cuDoubleComplex(c.real(), c.imag());
+#endif
 }
 
-inline __host__ __device__ cuDoubleComplex operator-(cuDoubleComplex c) {
+inline __host__ __device__ mg5Complex operator-(mg5Complex c) {
+#ifdef MG5_CMPLX_SINGLE_PREC
+  return cuCmulf(make_cuFloatComplex(-1, 0), c);
+#else
   return cuCmul(make_cuDoubleComplex(-1, 0), c);
+#endif
 }
 
-inline __host__ __device__ cuDoubleComplex operator+(cuDoubleComplex c) {
+inline __host__ __device__ mg5Complex operator+(mg5Complex c) {
   return c;
 }
 
-inline __host__ __device__ cuDoubleComplex operator+(cuDoubleComplex a,
-                                                     cuDoubleComplex b) {
+inline __host__ __device__ mg5Complex operator+(mg5Complex a,
+                                                mg5Complex b) {
+#ifdef MG5_CMPLX_SINGLE_PREC
+  return cuCaddf(a, b);
+#else
   return cuCadd(a, b);
+#endif
 }
 
-inline __host__ __device__ cuDoubleComplex operator+(double a,
-                                                     cuDoubleComplex b) {
+inline __host__ __device__ mg5Complex operator+(floa_t a, mg5Complex b) {
+#ifdef MG5_CMPLX_SINGLE_PREC
+  return cuCaddf(make_cuFloatComplex(a, 0), b);
+#else
   return cuCadd(make_cuDoubleComplex(a, 0), b);
+#endif
 }
 
-inline __host__ __device__ cuDoubleComplex operator+(cuDoubleComplex a,
-                                                     double b) {
+inline __host__ __device__ mg5Complex operator+(mg5Complex a, floa_t b) {
+#ifdef MG5_CMPLX_SINGLE_PREC
+  return cuCaddf(a, make_cuFloatComplex(b, 0));
+#else
   return cuCadd(a, make_cuDoubleComplex(b, 0));
+#endif
 }
 
-inline __host__ __device__ cuDoubleComplex operator-(cuDoubleComplex a,
-                                                     cuDoubleComplex b) {
+inline __host__ __device__ mg5Complex operator-(mg5Complex a,
+                                                mg5Complex b) {
+#ifdef MG5_CMPLX_SINGLE_PREC
+  return cuCsubf(a, b);
+#else
   return cuCsub(a, b);
+#endif
 }
 
-inline __host__ __device__ cuDoubleComplex operator-(double a,
-                                                     cuDoubleComplex b) {
+inline __host__ __device__ mg5Complex operator-(floa_t a, mg5Complex b) {
+#ifdef MG5_CMPLX_SINGLE_PREC
+  return cuCsubf(make_cuFloatComplex(a, 0), b);
+#else
   return cuCsub(make_cuDoubleComplex(a, 0), b);
+#endif
 }
 
-inline __host__ __device__ cuDoubleComplex operator-(cuDoubleComplex a,
-                                                     double b) {
+inline __host__ __device__ mg5Complex operator-(mg5Complex a, floa_t b) {
+#ifdef MG5_CMPLX_SINGLE_PREC
+  return cuCsubf(a, make_cuFloatComplex(b, 0));
+#else
   return cuCsub(a, make_cuDoubleComplex(b, 0));
+#endif
 }
 
-inline __host__ __device__ cuDoubleComplex operator*(cuDoubleComplex a,
-                                                     cuDoubleComplex b) {
+inline __host__ __device__ mg5Complex operator*(mg5Complex a,
+                                                mg5Complex b) {
+#ifdef MG5_CMPLX_SINGLE_PREC
+  return cuCmulf(a, b);
+#else
   return cuCmul(a, b);
+#endif
 }
 
-inline __host__ __device__ cuDoubleComplex operator*(double a,
-                                                     cuDoubleComplex b) {
+inline __host__ __device__ mg5Complex operator*(floa_t a, mg5Complex b) {
+#ifdef MG5_CMPLX_SINGLE_PREC
+  return cuCmulf(make_cuFloatComplex(a, 0), b);
+#else
   return cuCmul(make_cuDoubleComplex(a, 0), b);
+#endif
 }
 
-inline __host__ __device__ cuDoubleComplex operator*(cuDoubleComplex a,
-                                                     double b) {
+inline __host__ __device__ mg5Complex operator*(mg5Complex a, floa_t b) {
+#ifdef MG5_CMPLX_SINGLE_PREC
+  return cuCmulf(a, make_cuFloatComplex(b, 0));
+#else
   return cuCmul(a, make_cuDoubleComplex(b, 0));
+#endif
 }
 
-inline __host__ __device__ cuDoubleComplex operator/(cuDoubleComplex a,
-                                                     cuDoubleComplex b) {
+inline __host__ __device__ mg5Complex operator/(mg5Complex a,
+                                                mg5Complex b) {
+#ifdef MG5_CMPLX_SINGLE_PREC
+  return cuCdivf(a, b);
+#else
   return cuCdiv(a, b);
+#endif
 }
 
-inline __host__ __device__ cuDoubleComplex operator/(double a,
-                                                     cuDoubleComplex b) {
+inline __host__ __device__ mg5Complex operator/(floa_t a, mg5Complex b) {
+#ifdef MG5_CMPLX_SINGLE_PREC
+  return cuCdivf(make_cuFloatComplex(a, 0), b);
+#else
   return cuCdiv(make_cuDoubleComplex(a, 0), b);
+#endif
 }
 
-inline __host__ __device__ cuDoubleComplex operator/(cuDoubleComplex a,
-                                                     double b) {
+inline __host__ __device__ mg5Complex operator/(mg5Complex a, floa_t b) {
+#ifdef MG5_CMPLX_SINGLE_PREC
+  return cuCdivf(a, make_cuFloatComplex(b, 0));
+#else
   return cuCdiv(a, make_cuDoubleComplex(b, 0));
+#endif
 }
 
-inline __host__ __device__ cuDoubleComplex conj(cuDoubleComplex c) {
+inline __host__ __device__ mg5Complex conj(mg5Complex c) {
+#ifdef MG5_CMPLX_SINGLE_PREC
+  return make_cuFloatComplex(cuCrealf(c), -cuCimagf(c));
+#else
   return make_cuDoubleComplex(cuCreal(c), -cuCimag(c));
+#endif
 }
 
-inline __host__ __device__ double real(cuDoubleComplex c) { return cuCreal(c); }
+inline __host__ __device__ floa_t real(mg5Complex c) {
+#ifdef MG5_CMPLX_SINGLE_PREC
+  return cuCrealf(c);
+#else
+  return cuCreal(c);
+#endif
+}
 
-inline __host__ __device__ double imag(cuDoubleComplex c) { return cuCimag(c); }
-
-#endif // MG5_CMPLX_SINGLE_PREC
+inline __host__ __device__ floa_t imag(mg5Complex c) {
+#ifdef MG5_CMPLX_SINGLE_PREC
+  return cuCimagf(c);
+#else
+  return cuCimag(c);
+#endif
+}
 
 #endif // MG5_COMPLEX_THRUST
 
