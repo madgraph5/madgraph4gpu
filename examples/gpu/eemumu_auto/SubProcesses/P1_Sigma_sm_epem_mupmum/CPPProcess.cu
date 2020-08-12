@@ -15,13 +15,13 @@ using namespace std;
 
 namespace MG5_sm {
 
-__device__ void ixxxxx(double pvec[3], double fmass, int nhel, int nsf,
+__device__ void ixxxxx(floa_t pvec[3], floa_t fmass, int nhel, int nsf,
                        mg5Complex fi[6]) {
   mg5Complex chi[2];
-  double sf[2], sfomega[2], omega[2], pp, pp3, sqp0p3, sqm[2];
+  floa_t sf[2], sfomega[2], omega[2], pp, pp3, sqp0p3, sqm[2];
   int ip, im, nh;
 
-  double p[4] = {0, pvec[0], pvec[1], pvec[2]};
+  floa_t p[4] = {0, pvec[0], pvec[1], pvec[2]};
   p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3] + fmass * fmass);
   fi[0] = make_mg5Complex(-p[0] * nsf, -p[3] * nsf);
   fi[1] = make_mg5Complex(-p[1] * nsf, -p[2] * nsf);
@@ -86,13 +86,13 @@ __device__ void ixxxxx(double pvec[3], double fmass, int nhel, int nsf,
   return;
 }
 
-__device__ void txxxxx(double pvec[3], double tmass, int nhel, int nst,
+__device__ void txxxxx(floa_t pvec[3], floa_t tmass, int nhel, int nst,
                        mg5Complex tc[18]) {
   mg5Complex ft[6][4], ep[4], em[4], e0[4];
-  double pt, pt2, pp, pzpt, emp, sqh, sqs;
+  floa_t pt, pt2, pp, pzpt, emp, sqh, sqs;
   int i, j;
 
-  double p[4] = {0, pvec[0], pvec[1], pvec[2]};
+  floa_t p[4] = {0, pvec[0], pvec[1], pvec[2]};
   p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3] + tmass * tmass);
   sqh = sqrt(0.5);
   sqs = sqrt(0.5 / 3);
@@ -217,16 +217,16 @@ __device__ void txxxxx(double pvec[3], double tmass, int nhel, int nst,
   }
 }
 
-__device__ void vxxxxx(double pvec[3], double vmass, int nhel, int nsv,
+__device__ void vxxxxx(floa_t pvec[3], floa_t vmass, int nhel, int nsv,
                        mg5Complex vc[6]) {
-  double hel, hel0, pt, pt2, pp, pzpt, emp, sqh;
+  floa_t hel, hel0, pt, pt2, pp, pzpt, emp, sqh;
   int nsvahl;
 
-  double p[4] = {0, pvec[0], pvec[1], pvec[2]};
+  floa_t p[4] = {0, pvec[0], pvec[1], pvec[2]};
   p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3] + vmass * vmass);
 
   sqh = sqrt(0.5);
-  hel = double(nhel);
+  hel = floa_t(nhel);
   nsvahl = nsv * std::abs(hel);
   pt2 = (p[1] * p[1]) + (p[2] * p[2]);
   pp = min(p[0], sqrt(pt2 + (p[3] * p[3])));
@@ -273,10 +273,10 @@ __device__ void vxxxxx(double pvec[3], double vmass, int nhel, int nsv,
   return;
 }
 
-__device__ void sxxxxx(double pvec[3], int nss, mg5Complex sc[3]) {
-  // double p[4] = {0, pvec[0], pvec[1], pvec[2]};
+__device__ void sxxxxx(floa_t pvec[3], int nss, mg5Complex sc[3]) {
+  // floa_t p[4] = {0, pvec[0], pvec[1], pvec[2]};
   // p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]+fmass*fmass);
-  double p[4] = {0, 0, 0, 0};
+  floa_t p[4] = {0, 0, 0, 0};
   printf("scalar not supported so far. to do: fix mass issue");
   sc[2] = make_mg5Complex(1.00, 0.00);
   sc[0] = make_mg5Complex(p[0] * nss, p[3] * nss);
@@ -284,13 +284,13 @@ __device__ void sxxxxx(double pvec[3], int nss, mg5Complex sc[3]) {
   return;
 }
 
-__device__ void oxxxxx(double pvec[3], double fmass, int nhel, int nsf,
+__device__ void oxxxxx(floa_t pvec[3], floa_t fmass, int nhel, int nsf,
                        mg5Complex fo[6]) {
   mg5Complex chi[2];
-  double sf[2], sfomeg[2], omega[2], pp, pp3, sqp0p3, sqm[2];
+  floa_t sf[2], sfomeg[2], omega[2], pp, pp3, sqp0p3, sqm[2];
   int nh, ip, im;
 
-  double p[4] = {0, pvec[0], pvec[1], pvec[2]};
+  floa_t p[4] = {0, pvec[0], pvec[1], pvec[2]};
   p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3] + fmass * fmass);
 
   fo[0] = make_mg5Complex(p[0] * nsf, p[3] * nsf);
@@ -309,8 +309,8 @@ __device__ void oxxxxx(double pvec[3], double fmass, int nhel, int nsf,
       fo[5] = make_mg5Complex(ip * sqm[std::abs(im)], 0);
     } else {
       pp = min(p[0], sqrt((p[1] * p[1]) + (p[2] * p[2]) + (p[3] * p[3])));
-      sf[0] = double(1 + nsf + (1 - nsf) * nh) * 0.5;
-      sf[1] = double(1 + nsf - (1 - nsf) * nh) * 0.5;
+      sf[0] = floa_t(1 + nsf + (1 - nsf) * nh) * 0.5;
+      sf[1] = floa_t(1 + nsf - (1 - nsf) * nh) * 0.5;
       omega[0] = sqrt(p[0] + pp);
       omega[1] = fmass / omega[0];
       ip = (1 + nh) / 2;
@@ -366,11 +366,11 @@ __device__ void FFV2_0(mg5Complex F1[], const mg5Complex F2[],
 }
 
 __device__ void FFV2_3(mg5Complex F1[], const mg5Complex F2[],
-                       const mg5Complex COUP, const double M3, const double W3,
+                       const mg5Complex COUP, const floa_t M3, const floa_t W3,
                        mg5Complex V3[]) {
   mg5Complex cI = make_mg5Complex(0., 1.);
-  double OM3;
-  double P3[4];
+  floa_t OM3;
+  floa_t P3[4];
   mg5Complex TMP1;
   mg5Complex denom;
   OM3 = 0.;
@@ -407,11 +407,11 @@ __device__ void FFV4_0(mg5Complex F1[], const mg5Complex F2[],
 }
 
 __device__ void FFV4_3(mg5Complex F1[], const mg5Complex F2[],
-                       const mg5Complex COUP, const double M3, const double W3,
+                       const mg5Complex COUP, const floa_t M3, const floa_t W3,
                        mg5Complex V3[]) {
   mg5Complex cI = make_mg5Complex(0., 1.);
-  double OM3;
-  double P3[4];
+  floa_t OM3;
+  floa_t P3[4];
   mg5Complex TMP1;
   mg5Complex TMP3;
   mg5Complex denom;
@@ -462,10 +462,10 @@ __device__ void FFV1_0(mg5Complex F1[], const mg5Complex F2[],
 }
 
 __device__ void FFV1P0_3(mg5Complex F1[], const mg5Complex F2[],
-                         const mg5Complex COUP, const double M3,
-                         const double W3, mg5Complex V3[]) {
-  mg5Complex cI = make_mg5Complex(0., 1.);
-  double P3[4];
+                         const mg5Complex COUP, const floa_t M3,
+                         const floa_t W3, mg5Complex V3[]) {
+  mg5Complex cI = make_mg5Complex(DECL_NUM(0.), DECL_NUM(1.));
+  floa_t P3[4];
   mg5Complex denom;
   V3[0] = +F1[0] + F2[0];
   V3[1] = +F1[1] + F2[1];
@@ -502,10 +502,10 @@ __device__ void FFV2_4_0(mg5Complex F1[], const mg5Complex F2[],
 
 __device__ void FFV2_4_3(mg5Complex F1[], const mg5Complex F2[],
                          const mg5Complex COUP1, const mg5Complex COUP2,
-                         const double M3, const double W3, mg5Complex V3[]) {
+                         const floa_t M3, const floa_t W3, mg5Complex V3[]) {
   mg5Complex cI = make_mg5Complex(0., 1.);
-  double OM3;
-  double P3[4];
+  floa_t OM3;
+  floa_t P3[4];
   mg5Complex TMP1;
   mg5Complex TMP3;
   mg5Complex denom;
@@ -594,24 +594,24 @@ using namespace MG5_sm;
 // Process: e+ e- > mu+ mu- WEIGHTED<=4 @1
 
 __constant__ int cHel[16][4];
-// __constant__ double cmME[4]; value hardcoded now
+// __constant__ floa_t cmME[4]; value hardcoded now
 // extern __constant__ int cPerm[4];
 //
-__constant__ double cIPC[6]; // coupling ?
-__constant__ double cIPD[2];
+__constant__ floa_t cIPC[6]; // coupling ?
+__constant__ floa_t cIPD[2];
 
 // Evaluate |M|^2 for each subprocess
 
-__device__ void calculate_wavefunctions(int ihel, double local_mom[4][3],
-                                        double &matrix) {
+__device__ void calculate_wavefunctions(int ihel, floa_t local_mom[4][3],
+                                        floa_t &matrix) {
   mg5Complex amp[2];
   // Calculate wavefunctions for all processes
   mg5Complex w[5][6];
-  oxxxxx(local_mom[0], 0., cHel[ihel][0], -1, w[0]);
-  ixxxxx(local_mom[1], 0., cHel[ihel][1], +1, w[1]);
-  ixxxxx(local_mom[2], 0., cHel[ihel][2], -1, w[2]);
-  oxxxxx(local_mom[3], 0., cHel[ihel][3], +1, w[3]);
-  FFV1P0_3(w[1], w[0], make_mg5Complex(cIPC[0], cIPC[1]), 0., 0., w[4]);
+  oxxxxx(local_mom[0], DECL_NUM(0.), cHel[ihel][0], -1, w[0]);
+  ixxxxx(local_mom[1], DECL_NUM(0.), cHel[ihel][1], +1, w[1]);
+  ixxxxx(local_mom[2], DECL_NUM(0.), cHel[ihel][2], -1, w[2]);
+  oxxxxx(local_mom[3], DECL_NUM(0.), cHel[ihel][3], +1, w[3]);
+  FFV1P0_3(w[1], w[0], make_mg5Complex(cIPC[0], cIPC[1]), DECL_NUM(0.), DECL_NUM(0.), w[4]);
   // Amplitude(s) for diagram number 1
   FFV1_0(w[2], w[3], w[4], make_mg5Complex(cIPC[0], cIPC[1]), &amp[0]);
   FFV2_4_3(w[1], w[0], make_mg5Complex(cIPC[2], cIPC[3]),
@@ -619,7 +619,7 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[4][3],
   // Amplitude(s) for diagram number 2
   FFV2_4_0(w[2], w[3], w[4], make_mg5Complex(cIPC[2], cIPC[3]),
            make_mg5Complex(cIPC[4], cIPC[5]), &amp[1]);
-  // double CPPProcess::matrix_1_epem_mupmum() {
+  // floa_t CPPProcess::matrix_1_epem_mupmum() {
   int i, j;
   // Local variables
 
@@ -628,8 +628,8 @@ __device__ void calculate_wavefunctions(int ihel, double local_mom[4][3],
   mg5Complex ztemp;
   mg5Complex jamp[ncolor];
   // The color matrix;
-  static const double denom[ncolor] = {1};
-  static const double cf[ncolor][ncolor] = {{1}};
+  static const floa_t denom[ncolor] = {1};
+  static const floa_t cf[ncolor][ncolor] = {{1}};
 
   // Calculate color flows
   jamp[0] = -amp[0] - amp[1];
@@ -665,7 +665,7 @@ CPPProcess::CPPProcess(int numiterations, int gpublocks, int gputhreads,
 
 CPPProcess::~CPPProcess() {}
 
-const std::vector<double> &CPPProcess::getMasses() const { return mME; }
+const std::vector<floa_t> &CPPProcess::getMasses() const { return mME; }
 
 //--------------------------------------------------------------------------
 // Initialize process.
@@ -685,19 +685,19 @@ void CPPProcess::initProc(string param_card_name) {
   mME.push_back(pars->ZERO);
   mME.push_back(pars->ZERO);
   mME.push_back(pars->ZERO);
-  static mg5Complex tIPC[3] = {make_mg5Complex(pars->GC_3),
-                               make_mg5Complex(pars->GC_50),
-                               make_mg5Complex(pars->GC_59)};
-  static double tIPD[2] = {pars->mdl_MZ, pars->mdl_WZ};
+  static mg5Complex tIPC[3] = {pars->GC_3, // .real(), pars->GC_3.imag(),
+                               pars->GC_50, //.real(), pars->GC_50.imag(),
+                               pars->GC_59}; //.real(), pars->GC_59.imag()};
+  static floa_t tIPD[2] = {pars->mdl_MZ, pars->mdl_WZ};
 
   cudaMemcpyToSymbol(cIPC, tIPC, 3 * sizeof(mg5Complex));
-  cudaMemcpyToSymbol(cIPD, tIPD, 2 * sizeof(double));
+  cudaMemcpyToSymbol(cIPD, tIPD, 2 * sizeof(floa_t));
 }
 
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, part independent of incoming flavour.
 
-__global__ void sigmaKin(double *allmomenta, double *output) {
+__global__ void sigmaKin(floa_t *allmomenta, floa_t *output) {
   // Set the parameters which change event by event
   // Need to discuss this with Stefan
   // pars->setDependentParameters();
@@ -714,11 +714,11 @@ __global__ void sigmaKin(double *allmomenta, double *output) {
   // size_t slicePitch = dpt * 4;
 
   // char *dps = devPtr + dim * slicePitch;
-  double matrix_element[nprocesses];
+  floa_t matrix_element[nprocesses];
 
   mg5Complex amp[2];
 
-  double local_m[4][3];
+  floa_t local_m[4][3];
   int DIM = blockDim.x * gridDim.x;
   // for (int i=0; i<20;i++){
   // printf(" %f ", allmomenta[i]);
@@ -739,8 +739,8 @@ __global__ void sigmaKin(double *allmomenta, double *output) {
   // static int ntry = 0, sum_hel = 0, ngood = 0;
   // static int igood[ncomb];
   // static int jhel;
-  // std::complex<double> **wfs;
-  // double t[1];
+  // std::complex<floa_t> **wfs;
+  // floa_t t[1];
   // Helicities for the process
   // static const int helicities[ncomb][nexternal] =
   // {{-1,-1,-1,-1},{-1,-1,-1,1},{-1,-1,1,-1},{-1,-1,1,1},{-1,1,-1,-1},{-1,1,-1,

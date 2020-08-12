@@ -1,4 +1,5 @@
 #include <vector>
+#include "mg5Complex.h"
 
 class Random {
 public:
@@ -13,8 +14,8 @@ private:
 
 double rn(int idummy);
 
-std::vector<std::vector<double *>> get_momenta(int ninitial, double energy,
-                                               std::vector<double> masses,
+std::vector<std::vector<floa_t *>> get_momenta(int ninitial, double energy,
+                                               std::vector<floa_t> masses,
                                                double &wgt, int dim);
 
-std::vector<double *> rambo(double et, std::vector<double> &xm, double &wt);
+std::vector<floa_t *> rambo(double et, std::vector<floa_t> &xm, double &wt);

@@ -32,7 +32,7 @@ bool is_number(const char *s) {
 }
 
 int usage(char* argv0, int ret = 1) {
-  std::cout << "Usage: " << argv0 
+  std::cout << "Usage: " << argv0
             << " [--verbose|-v] [--debug|-d] [--performance|-p]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl;
   return ret;
@@ -93,11 +93,11 @@ int main(int argc, char **argv) {
 
   // Local Memory
   //typedef double arr_t[4][4];
-  double* lp = new double[4*3*dim];
+  floa_t* lp = new floa_t[4*3*dim];
 
-  double* meHostPtr = new double[dim*1];
-  double *meDevPtr =0;
-  int num_bytes_back = 1 * dim * sizeof(double);
+  floa_t* meHostPtr = new floa_t[dim*1];
+  floa_t *meDevPtr =0;
+  int num_bytes_back = 1 * dim * sizeof(floa_t);
   cudaMalloc((void**)&meDevPtr, num_bytes_back);
 
 
@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
 
   for (int x = 0; x < numiter; ++x) {
     // Get phase space point
-    std::vector<std::vector<double *>> p =
+    std::vector<std::vector<floa_t *>> p =
         get_momenta(process.ninitial, energy, process.getMasses(), weight, dim);
 
     // Set momenta for this event
@@ -118,8 +118,8 @@ int main(int argc, char **argv) {
     }
 
     //new
-    int num_bytes = 3*4*dim * sizeof(double);
-    double *allmomenta = 0;
+    int num_bytes = 3*4*dim * sizeof(floa_t);
+    floa_t *allmomenta = 0;
     cudaMalloc((void**)&allmomenta, num_bytes);
     cudaMemcpy(allmomenta,lp,num_bytes,cudaMemcpyHostToDevice);
 
@@ -139,7 +139,7 @@ int main(int argc, char **argv) {
     //gpuErrchk3(cudaMemcpy2D(meHostPtr, sizeof(double), meDevPtr, mePitch,
     //                        sizeof(double), dim, cudaMemcpyDeviceToHost));
 
-   cudaMemcpy(meHostPtr, meDevPtr, 1 * dim*sizeof(double), cudaMemcpyDeviceToHost);
+   cudaMemcpy(meHostPtr, meDevPtr, 1 * dim*sizeof(floa_t), cudaMemcpyDeviceToHost);
 
     if (verbose)
       std::cout << "***********************************" << std::endl
@@ -186,9 +186,9 @@ int main(int argc, char **argv) {
       std::cout << ".";
     }
 
-    for (std::vector<std::vector<double *>>::iterator it = p.begin();
+    for (std::vector<std::vector<floa_t *>>::iterator it = p.begin();
          it != p.end(); ++it) {
-      for (std::vector<double *>::iterator jt = it->begin(); jt != it->end();
+      for (std::vector<floa_t *>::iterator jt = it->begin(); jt != it->end();
            ++jt) {
         delete[] & (**jt);
       }
@@ -214,7 +214,7 @@ int main(int argc, char **argv) {
     int num_mes = matrixelementvector.size();
     float sumelem = std::accumulate(matrixelementvector.begin(), matrixelementvector.end(), 0.0);
     float meanelem = sumelem / num_mes;
-    float sqselem = std::inner_product(matrixelementvector.begin(), matrixelementvector.end(), 
+    float sqselem = std::inner_product(matrixelementvector.begin(), matrixelementvector.end(),
                                        matrixelementvector.begin(), 0.0);
     float stdelem = std::sqrt(sqselem / num_mes - meanelem * meanelem);
     std::vector<double>::iterator maxelem = std::max_element(

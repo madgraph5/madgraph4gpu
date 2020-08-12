@@ -85,29 +85,29 @@ double rn(int idummy) {
   return ran;
 }
 
-std::vector<std::vector<double *>> get_momenta(int ninitial, double energy,
-                                               std::vector<double> masses,
+std::vector<std::vector<floa_t *>> get_momenta(int ninitial, double energy,
+                                               std::vector<floa_t> masses,
                                                double &wgt, int dim) {
   //---- auxiliary function to change convention between MadGraph5_aMC@NLO and
   // rambo
   //---- four momenta.
   int nexternal = masses.size();
   int nfinal = nexternal - ninitial;
-  double e2 = pow(energy, 2);
-  double m1 = masses[0];
-  std::vector<std::vector<double *>> p2;
+  floa_t e2 = pow(energy, 2);
+  floa_t m1 = masses[0];
+  std::vector<std::vector<floa_t *>> p2;
 
   if (ninitial == 1) {
     for (int d = 0; d < dim; ++d) {
       // Momenta for the incoming particle
-      std::vector<double *> p(1, new double[4]);
+      std::vector<floa_t *> p(1, new floa_t[4]);
       p[0][0] = m1;
       p[0][1] = 0.;
       p[0][2] = 0.;
       p[0][3] = 0.;
 
-      std::vector<double> finalmasses(++masses.begin(), masses.end());
-      std::vector<double *> p_rambo = rambo(m1, finalmasses, wgt);
+      std::vector<floa_t> finalmasses(++masses.begin(), masses.end());
+      std::vector<floa_t *> p_rambo = rambo(m1, finalmasses, wgt);
       p.insert(++p.begin(), p_rambo.begin(), p_rambo.end());
       p2.push_back(p);
     }
@@ -133,32 +133,32 @@ std::vector<std::vector<double *>> get_momenta(int ninitial, double energy,
   // Set momenta for incoming particles
   for (int d = 0; d < dim; ++d) {
 
-    std::vector<double *> p(1, new double[4]);
+    std::vector<floa_t *> p(1, new floa_t[4]);
     p[0][0] = energy1;
     p[0][1] = 0;
     p[0][2] = 0;
     p[0][3] = mom;
-    p.push_back(new double[4]);
+    p.push_back(new floa_t[4]);
     p[1][0] = energy2;
     p[1][1] = 0;
     p[1][2] = 0;
     p[1][3] = -mom;
 
     if (nfinal == 1) {
-      p.push_back(new double[4]);
+      p.push_back(new floa_t[4]);
       p[2][0] = energy;
       wgt = 1;
       p2.push_back(p);
     }
-    std::vector<double> finalmasses(++(++masses.begin()), masses.end());
-    std::vector<double *> p_rambo = rambo(energy, finalmasses, wgt);
+    std::vector<floa_t> finalmasses(++(++masses.begin()), masses.end());
+    std::vector<floa_t *> p_rambo = rambo(energy, finalmasses, wgt);
     p.insert(++(++p.begin()), p_rambo.begin(), p_rambo.end());
     p2.push_back(p);
   }
   return p2;
 }
 
-std::vector<double *> rambo(double et, std::vector<double> &xm, double &wt) {
+std::vector<floa_t *> rambo(double et, std::vector<floa_t> &xm, double &wt) {
   /**********************************************************************
    *                       rambo                                         *
    *    ra(ndom)  m(omenta)  b(eautifully)  o(rganized)                  *
@@ -175,7 +175,7 @@ std::vector<double *> rambo(double et, std::vector<double> &xm, double &wt) {
    *    wt = weight of the event                                         *
    ***********************************************************************/
   int n = xm.size();
-  std::vector<double *> q, p;
+  std::vector<floa_t *> q, p;
   std::vector<double> z(n), r(4), b(3), p2(n), xm2(n), e(n), v(n);
   static std::vector<int> iwarn(5, 0);
   static double acc = 1e-14;
@@ -184,8 +184,8 @@ std::vector<double *> rambo(double et, std::vector<double> &xm, double &wt) {
   static double po2log = log(twopi / 4.);
 
   for (int i = 0; i < n; i++) {
-    q.push_back(new double[4]);
-    p.push_back(new double[4]);
+    q.push_back(new floa_t[4]);
+    p.push_back(new floa_t[4]);
   }
   // initialization step: factorials for the phase space weight
   if (ibegin == 0) {

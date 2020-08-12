@@ -3,8 +3,8 @@ LIBDIR=../../lib
 INCDIR=../../src
 MODELLIB=model_sm
 CXXFLAGS= -O3 -I$(INCDIR) -I.
-CUARCHFLAGS= -arch=compute_$(CUARCHNUM) #--gpu-architecture=compute_35 --gpu-code=sm_35
-CUFLAGS= $(CUARCHFLAGS) -use_fast_math -lineinfo 
+CUARCHFLAGS= -arch=sm_$(CUARCHNUM) # -arch=compute_$(CUARCHNUM) #--gpu-architecture=compute_35 --gpu-code=sm_35
+CUFLAGS= $(CUARCHFLAGS) -use_fast_math -lineinfo
 LIBFLAGS= -L$(LIBDIR) -l$(MODELLIB)
 NVCC=nvcc
 CXX=g++

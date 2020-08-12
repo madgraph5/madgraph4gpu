@@ -1,13 +1,15 @@
 #ifndef mg5Complex_h
 #define mg5Complex_h
 
-//#define MG5_COMPLEX_THRUST
-//#define MG5_CMPLX_SINGLE_PREC
+// #define MG5_COMPLEX_THRUST
+// #define MG5_CMPLX_SINGLE_PREC
 
 #ifdef MG5_CMPLX_SINGLE_PREC
 #define floa_t float
+#define DECL_NUM(X) X##f
 #else
 #define floa_t double
+#define DECL_NUM(X) X
 #endif
 
 

@@ -15,18 +15,18 @@
 using namespace std;
 
 namespace MG5_sm {
-__device__ void oxxxxx(double p[4], double fmass, int nhel, int nsf,
+__device__ void oxxxxx(floa_t p[4], floa_t fmass, int nhel, int nsf,
                        mg5Complex fo[6]);
 
-__device__ void sxxxxx(double p[4], int nss, mg5Complex sc[3]);
+__device__ void sxxxxx(floa_t p[4], int nss, mg5Complex sc[3]);
 
-__device__ void ixxxxx(double p[4], double fmass, int nhel, int nsf,
+__device__ void ixxxxx(floa_t p[4], floa_t fmass, int nhel, int nsf,
                        mg5Complex fi[6]);
 
-__device__ void txxxxx(double p[4], double tmass, int nhel, int nst,
+__device__ void txxxxx(floa_t p[4], floa_t tmass, int nhel, int nst,
                        mg5Complex fi[18]);
 
-__device__ void vxxxxx(double p[4], double vmass, int nhel, int nsv,
+__device__ void vxxxxx(floa_t p[4], floa_t vmass, int nhel, int nsv,
                        mg5Complex v[6]);
 
 __device__ void FFV2_0(mg5Complex F1[], const mg5Complex F2[],
@@ -34,7 +34,7 @@ __device__ void FFV2_0(mg5Complex F1[], const mg5Complex F2[],
                        mg5Complex *vertex);
 
 __device__ void FFV2_3(mg5Complex F1[], const mg5Complex F2[],
-                       const mg5Complex COUP, const double M3, const double W3,
+                       const mg5Complex COUP, const floa_t M3, const floa_t W3,
                        mg5Complex V3[]);
 
 __device__ void FFV4_0(mg5Complex F1[], const mg5Complex F2[],
@@ -42,7 +42,7 @@ __device__ void FFV4_0(mg5Complex F1[], const mg5Complex F2[],
                        mg5Complex *vertex);
 
 __device__ void FFV4_3(mg5Complex F1[], const mg5Complex F2[],
-                       const mg5Complex COUP, const double M3, const double W3,
+                       const mg5Complex COUP, const floa_t M3, const floa_t W3,
                        mg5Complex V3[]);
 
 __device__ void FFV1_0(mg5Complex F1[], const mg5Complex F2[],
@@ -50,8 +50,8 @@ __device__ void FFV1_0(mg5Complex F1[], const mg5Complex F2[],
                        mg5Complex *vertex);
 
 __device__ void FFV1P0_3(mg5Complex F1[], const mg5Complex F2[],
-                         const mg5Complex COUP, const double M3,
-                         const double W3, mg5Complex V3[]);
+                         const mg5Complex COUP, const floa_t M3,
+                         const floa_t W3, mg5Complex V3[]);
 
 __device__ void FFV2_4_0(mg5Complex F1[], const mg5Complex F2[],
                          const mg5Complex V3[], const mg5Complex COUP1,
@@ -59,7 +59,7 @@ __device__ void FFV2_4_0(mg5Complex F1[], const mg5Complex F2[],
 
 __device__ void FFV2_4_3(mg5Complex F1[], const mg5Complex F2[],
                          const mg5Complex COUP1, const mg5Complex COUP2,
-                         const double M3, const double W3, mg5Complex V3[]);
+                         const floa_t M3, const floa_t W3, mg5Complex V3[]);
 
 } // end namespace MG5_sm
 
@@ -80,7 +80,7 @@ __device__ void FFV2_4_3(mg5Complex F1[], const mg5Complex F2[],
 
 #include "Parameters_sm.h"
 
-__global__ void sigmaKin(double *allmomenta, double *output);
+__global__ void sigmaKin(floa_t *allmomenta, floa_t *output);
 
 //==========================================================================
 // A class for calculating the matrix elements for
@@ -99,7 +99,7 @@ public:
 
   virtual int code() const { return 1; }
 
-  const std::vector<double> &getMasses() const;
+  const std::vector<floa_t> &getMasses() const;
 
   void setInitial(int inid1, int inid2) {
     id1 = inid1;
@@ -140,7 +140,7 @@ private:
   Parameters_sm *pars;
 
   // vector with external particle masses
-  std::vector<double> mME;
+  std::vector<floa_t> mME;
 
   // Initial particle ids
   int id1, id2;
