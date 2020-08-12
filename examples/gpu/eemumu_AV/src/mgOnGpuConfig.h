@@ -1,28 +1,31 @@
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
 
+// ** NB1 Throughputs (e.g. 5.00E8) are events/sec for "./gcheck.exe -p 16384 32 12"
+// ** NB2 Baseline on b7g47n0002 fluctuates (depends on load?): typically, either ~5.00E8 or ~5.50E8
+
 // Memory layout for momenta (CHOOSE ONLY ONE)
-#define MGONGPU_LAYOUT_ASA 1 // default
-//#define MGONGPU_LAYOUT_SOA 1
-//#define MGONGPU_LAYOUT_AOS 1
+#define MGONGPU_LAYOUT_ASA 1 // default (~5.00E8) 
+//#define MGONGPU_LAYOUT_SOA 1 // 7% slower (4.65E8 against 5.00E8)
+//#define MGONGPU_LAYOUT_AOS 1 // 4% slower (4.80E8 against 5.00E8)
 
 // Curand random number generation (CHOOSE ONLY ONE)
 #define MGONGPU_CURAND_ONDEVICE 1 // default
 //#define MGONGPU_CURAND_ONHOST 1
 
 // Use global memory or shared memory for wavefunctions (CHOOSE ONLY ONE)
-#define MGONGPU_WFMEM_LOCAL 1 // default
-//#define MGONGPU_WFMEM_GLOBAL 1
-//#define MGONGPU_WFMEM_SHARED 1
+#define MGONGPU_WFMEM_LOCAL 1 // default (~5.00E8)
+//#define MGONGPU_WFMEM_GLOBAL 1 // 30% slower, limited to 256*32 threads (1.18E8 against 1.78E8 for "-p 256 32 12")
+//#define MGONGPU_WFMEM_SHARED 1 // 30% slower, limited to 32 threads/block (~3.5E8 against 5.0E8)
 
 // Floating point precision (CHOOSE ONLY ONE)
-#define MGONGPU_FPTYPE_DOUBLE 1 // default
-//#define MGONGPU_FPTYPE_FLOAT 1
+#define MGONGPU_FPTYPE_DOUBLE 1 // default (~5.00E8)
+//#define MGONGPU_FPTYPE_FLOAT 1 // 2.3x faster (~1.14E9 against 5.00E8)
 
+// Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
-#include <thrust/complex.h>
-#else
-#include <complex>
+#define MGONGPU_CXTYPE_THRUST 1 // default (~5.00E8)
+//#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~5% slower (4.75E8 against 5.00E8)
 #endif
 
 namespace mgOnGpu
@@ -55,28 +58,6 @@ namespace mgOnGpu
   //const int nepp = ntpbMAX; // choose 256, i.e. the max number of threads in a block
   //const int nepp = 4; // FOR DEBUGGING!
 
-  // Floating point type: fptype (tflpoint? tfloatpt?)
-#if defined MGONGPU_FPTYPE_DOUBLE
-  typedef double fptype; // double precision (8 bytes, fp64)
-#elif defined MGONGPU_FPTYPE_FLOAT
-  typedef float fptype; // single precision (4 bytes, fp32)
-#endif
-
-  // Complex type: cxtype (tcomplex?)
-#ifdef __CUDACC__
-  typedef thrust::complex<fptype> cxtype; // two doubles: RI
-#else
-  typedef std::complex<fptype> cxtype; // two doubles: RI
-#endif
-
-  // Vector types: <type>_v is a <type>[256]
-  //typedef double double_v[ntpbMAX];
-  //typedef cxtype cxtype_v[ntpbMAX]; // RIRIRIRI: eventually move to RRRRIIII?
-
 }
-
-// Expose typedefs outside the namespace
-using mgOnGpu::fptype;
-using mgOnGpu::cxtype;
 
 #endif // MGONGPUCONFIG_H

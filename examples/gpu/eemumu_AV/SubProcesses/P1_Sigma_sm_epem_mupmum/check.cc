@@ -7,11 +7,12 @@
 #include <unistd.h>
 
 #include "mgOnGpuConfig.h"
+#include "mgOnGpuTypes.h"
 
 #ifdef __CUDACC__
-#include "grambo2toNm0.cu"
+#include "grambo.cu"
 #else
-#include "rambo2toNm0.h"
+#include "rambo.h"
 #endif
 
 #include "CPPProcess.h"
@@ -467,6 +468,15 @@ int main(int argc, char **argv)
 #elif defined MGONGPU_FPTYPE_FLOAT
               << "FP precision              = FLOAT (nan=" << num_nan << ")" << std::endl
 #endif
+#ifdef __CUDACC__
+#if defined MGONGPU_CXTYPE_CUCOMPLEX
+              << "Complex type              = CUCOMPLEX" << std::endl
+#elif defined MGONGPU_CXTYPE_THRUST
+              << "Complex type              = THRUST::COMPLEX" << std::endl
+#endif
+#else
+              << "Complex type              = STD::COMPLEX" << std::endl
+#endif
 #if defined MGONGPU_LAYOUT_ASA
               << "Momenta memory layout     = AOSOA[" << nepp << "]" << std::endl
 #elif defined MGONGPU_LAYOUT_SOA
@@ -501,8 +511,8 @@ int main(int argc, char **argv)
               << "MinTimeInWaveFuncs        = " << mintime << " sec" << std::endl
               << "MaxTimeInWaveFuncs        = " << maxtime << " sec" << std::endl
               << "---------------------------------------" << std::endl
-              << "ProcessID:                = " << getpid() << std::endl
-              << "NProcesses                = " << process.nprocesses << std::endl
+      //<< "ProcessID:                = " << getpid() << std::endl
+      //<< "NProcesses                = " << process.nprocesses << std::endl
               << "NumMatrixElementsComputed = " << num_mes << std::endl
               << "MatrixElementsPerSec      = " << num_mes/sum << " sec^-1" << std::endl;
 

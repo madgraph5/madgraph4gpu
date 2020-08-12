@@ -6,6 +6,7 @@
 #include "curand.h"
 
 #include "mgOnGpuConfig.h"
+#include "mgOnGpuTypes.h"
 
 //--------------------------------------------------------------------------
 
