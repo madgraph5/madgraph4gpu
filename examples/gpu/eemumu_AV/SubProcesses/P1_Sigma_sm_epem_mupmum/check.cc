@@ -162,6 +162,15 @@ int main(int argc, char **argv)
   hstMomenta = new fptype[nMomenta]();
 #endif
 
+#if defined __CUDACC__ && defined MGONGPU_WFMEM_GLOBAL
+  using mgOnGpu::nwf;
+  using mgOnGpu::nw6;
+  const int nAllWFs = nwf * nw6 * ndim;
+  const int nbytesAllWFs = nAllWFs * sizeof(cxtype);
+  cxtype* devAllWFs = 0; // AOSOA[nblk][nparf][np4][ntpb] (NB: ndim=nblk*ntpb)
+  checkCuda( cudaMalloc( &devAllWFs, nbytesAllWFs ) );
+#endif
+
   const int nWeights = ndim; //  (NB: ndim=npag*nepp for ASA layouts)
   fptype* hstWeights = 0; // (previously was: meHostPtr)
 #ifdef __CUDACC__
@@ -188,9 +197,7 @@ int main(int argc, char **argv)
   fptype* matrixelementvector = new fptype[niter * ndim * process.nprocesses]();
 
 #ifdef __CUDACC__
-#if defined MGONGPU_WFMEM_GLOBAL
-  gProc::sigmakin_alloc<<<gpublocks, gputhreads>>>();
-#elif defined MGONGPU_WFMEM_SHARED
+#if defined MGONGPU_WFMEM_SHARED
   const int nbytesSharedSK = gProc::sigmakin_sharedmem_nbytes(gputhreads);
 #endif
 #endif
@@ -300,7 +307,9 @@ int main(int argc, char **argv)
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
 #ifdef __CUDACC__
-#if defined MGONGPU_WFMEM_SHARED
+#if defined MGONGPU_WFMEM_GLOBAL
+    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta, devMEs, devAllWFs);
+#elif defined MGONGPU_WFMEM_SHARED
     gProc::sigmaKin<<<gpublocks, gputhreads, nbytesSharedSK>>>(devMomenta, devMEs);
 #else
     gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta, devMEs);
@@ -540,9 +549,6 @@ int main(int argc, char **argv)
   timermap.start( freeKey );
 
 #ifdef __CUDACC__
-#if defined MGONGPU_WFMEM_GLOBAL
-  gProc::sigmakin_free<<<gpublocks, gputhreads>>>();
-#endif
   checkCuda( cudaFreeHost( hstMEs ) );
   checkCuda( cudaFreeHost( hstWeights ) );
   checkCuda( cudaFreeHost( hstMomenta ) );
@@ -550,6 +556,9 @@ int main(int argc, char **argv)
   checkCuda( cudaFreeHost( hstRnarray ) );
 #endif
   checkCuda( cudaFree( devMEs ) );
+#if defined MGONGPU_WFMEM_GLOBAL
+  checkCuda( cudaFree( devAllWFs ) );
+#endif
   checkCuda( cudaFree( devWeights ) );
   checkCuda( cudaFree( devMomenta ) );
   checkCuda( cudaFree( devRnarray ) );

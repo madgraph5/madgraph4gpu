@@ -14,8 +14,8 @@
 //#define MGONGPU_CURAND_ONHOST 1
 
 // Use global memory or shared memory for wavefunctions (CHOOSE ONLY ONE)
-#define MGONGPU_WFMEM_LOCAL 1 // default (~5.00E8)
-//#define MGONGPU_WFMEM_GLOBAL 1 // 30% slower, limited to 256*32 threads (1.18E8 against 1.78E8 for "-p 256 32 12")
+//#define MGONGPU_WFMEM_LOCAL 1 // default (~5.00E8)
+#define MGONGPU_WFMEM_GLOBAL 1 // 30% slower, limited to 256*32 threads (1.18E8 against 1.78E8 for "-p 256 32 12")
 //#define MGONGPU_WFMEM_SHARED 1 // 30% slower, limited to 32 threads/block (~3.5E8 against 5.0E8)
 
 // Floating point precision (CHOOSE ONLY ONE)
@@ -46,7 +46,7 @@ namespace mgOnGpu
   // Maximum number of blocks per grid
   // ** NB Some arrays of pointers will be allocated statically to fit all these blocks
   // ** (the actual memory for each block will then be allocated dynamically only for existing blocks)
-  const int nbpgMAX = 2048;
+  //const int nbpgMAX = 2048;
 
   // Maximum number of threads per block
   const int ntpbMAX = 256;
