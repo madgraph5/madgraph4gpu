@@ -115,27 +115,13 @@ namespace Proc
 
 #ifdef __CUDACC__
   __global__
+#if defined MGONGPU_WFMEM_GLOBAL
+  void sigmaKin( const fptype* allmomenta, fptype* output, cxtype* tmpWFs );
+#else
   void sigmaKin( const fptype* allmomenta, fptype* output );
+#endif
 #else
   void sigmaKin( const fptype* allmomenta, fptype* output, const int nevt );
-#endif
-
-  //--------------------------------------------------------------------------
-
-#ifdef __CUDACC__
-#if defined MGONGPU_WFMEM_GLOBAL
-  __global__
-  void sigmakin_alloc();
-#endif
-#endif
-
-  //--------------------------------------------------------------------------
-
-#ifdef __CUDACC__
-#if defined MGONGPU_WFMEM_GLOBAL
-  __global__
-  void sigmakin_free();
-#endif
 #endif
 
   //--------------------------------------------------------------------------

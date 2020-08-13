@@ -661,48 +661,7 @@ namespace Proc
   using mgOnGpu::nwf;
   using mgOnGpu::nw6;
 
-#ifdef __CUDACC__
-#if defined MGONGPU_WFMEM_GLOBAL
-
-  using mgOnGpu::nbpgMAX;
-  // Allocate global or shared memory for the wavefunctions of all (external and internal) particles
-  // See https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#allocation-persisting-kernel-launches
-  __device__ cxtype* dwf[nbpgMAX]; // device dwf[#blocks][5 * 6 * #threads_in_block]
-
-  __global__
-  void sigmakin_alloc()
-  {
-    // Wavefunctions for this block: bwf[5 * 6 * #threads_in_block]
-    cxtype*& bwf = dwf[blockIdx.x];
-
-    // Only the first thread in the block does the allocation (we need one allocation per block)
-    if ( threadIdx.x == 0 )
-    {
-      bwf = (cxtype*)malloc( nwf * nw6 * blockDim.x * sizeof(cxtype) ); // cxtype bwf[5 * 6 * #threads_in_block]
-      if ( bwf == NULL )
-      {
-        printf( "ERROR in sigmakin_alloc (block #%4d): malloc failed\n", blockIdx.x );
-        assert( bwf != NULL );
-      }
-      //else printf( "INFO in sigmakin_alloc (block #%4d): malloc successful\n", blockIdx.x );
-    }
-    __syncthreads();
-
-    // All threads in the block should see the allocation by now
-    assert( bwf != NULL );
-  }
-
-  __global__
-  void sigmakin_free()
-  {
-    // Only free from one thread!
-    // [NB: if this free is missing, cuda-memcheck fails to detect it]
-    // [NB: but if free is called twice, cuda-memcheck does detect it]
-    cxtype* bwf = dwf[blockIdx.x];
-    if ( threadIdx.x == 0 ) free( bwf );
-  }
-
-#elif defined MGONGPU_WFMEM_SHARED
+#if defined __CUDACC__ && defined MGONGPU_WFMEM_SHARED
 
   int sigmakin_sharedmem_nbytes( const int ntpb ) // input: #threads per block
   {
@@ -711,7 +670,6 @@ namespace Proc
     return nbytesBwf;
   }
 
-#endif
 #endif
 
   //--------------------------------------------------------------------------
@@ -726,8 +684,12 @@ namespace Proc
   // AOS: allmomenta[ndim][npar][np4]
   void calculate_wavefunctions( int ihel,
                                 const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-                                fptype &matrix
-#ifndef __CUDACC__
+    fptype &matrix
+#ifdef __CUDACC__
+#if defined MGONGPU_WFMEM_GLOBAL
+                                , cxtype* tmpWFs          // tmp[(nwf=5)*(nw6=6)*(nevt=nblk*ntpb)] 
+#endif
+#else
                                 , const int ievt
 #endif
                                 )
@@ -741,7 +703,8 @@ namespace Proc
     // eventually move to same AOSOA everywhere, blocks and threads
 #if defined MGONGPU_WFMEM_GLOBAL
     const int iblk = blockIdx.x; // index of block in grid
-    cxtype* bwf = dwf[iblk];
+    const int ntpb = blockDim.x; // index of block in grid
+    cxtype* bwf = &tmpWFs[iblk*nwf*nw6*ntpb];
 #elif defined MGONGPU_WFMEM_SHARED
     extern __shared__ cxtype bwf[];
 #endif
@@ -916,6 +879,9 @@ namespace Proc
                  fptype* output            // output[nevt]
 #ifdef __CUDACC__
                  // NB: nevt == ndim=gpublocks*gputhreads in CUDA
+#if defined MGONGPU_WFMEM_GLOBAL
+                 , cxtype* tmpWFs          // tmp[(nwf=5)*(nw6=6)*nevt] 
+#endif
 #else
                  , const int nevt          // input: #events
 #endif
@@ -959,8 +925,13 @@ namespace Proc
       for ( int ihel = 0; ihel < ncomb; ihel++ )
       {
         if ( sigmakin_itry>maxtry && !sigmakin_goodhel[ihel] ) continue;
+        // Adds ME for ihel to matrix_element[0]
 #ifdef __CUDACC__
-        calculate_wavefunctions(ihel, allmomenta, matrix_element[0]); // adds ME for ihel to matrix_element[0]
+#if defined MGONGPU_WFMEM_GLOBAL
+        calculate_wavefunctions(ihel, allmomenta, matrix_element[0], tmpWFs); 
+#else
+        calculate_wavefunctions(ihel, allmomenta, matrix_element[0]); 
+#endif
 #else
         calculate_wavefunctions(ihel, allmomenta, matrix_element[0], ievt); // adds ME for ihel to matrix_element[0]
 #endif
