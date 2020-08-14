@@ -193,7 +193,7 @@ int main(int argc, char **argv)
   hstMEs = new fptype[nMEs]();
 #endif
 
-  float* wavetimes = new float[niter]();
+  double* wavetimes = new double[niter]();
   fptype* matrixelementvector = new fptype[niter * ndim * process.nprocesses]();
 
 #ifdef __CUDACC__
@@ -301,7 +301,7 @@ int main(int argc, char **argv)
     // 3b. Copy MEs back from device to host
 
     // *** START THE OLD TIMER ***
-    float gputime = 0;
+    double gputime = 0;
 
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
@@ -430,10 +430,10 @@ int main(int argc, char **argv)
 
   if (perf)
   {
-    float sum = 0;
-    float sq_sum = 0;
-    float mintime = wavetimes[0];
-    float maxtime = wavetimes[0];
+    double sum = 0;
+    double sq_sum = 0;
+    double mintime = wavetimes[0];
+    double maxtime = wavetimes[0];
     for (int iiter = 0; iiter < niter; ++iiter)
     {
       sum += wavetimes[iiter];
@@ -441,15 +441,15 @@ int main(int argc, char **argv)
       mintime = std::min( mintime, wavetimes[iiter] );
       maxtime = std::max( mintime, wavetimes[iiter] );
     }
-    float mean = sum / niter;
-    float stdev = std::sqrt( sq_sum / niter - mean * mean );
+    double mean = sum / niter;
+    double stdev = std::sqrt( sq_sum / niter - mean * mean );
 
     const int num_mes = niter*ndim;
     int num_nan = 0;
-    float sumelem = 0;
-    float sqselem = 0;
-    float minelem = matrixelementvector[0];
-    float maxelem = matrixelementvector[0];
+    double sumelem = 0;
+    double sqselem = 0;
+    double minelem = matrixelementvector[0];
+    double maxelem = matrixelementvector[0];
     for (int imes = 0; imes < num_mes; ++imes)
     {
       if ( isnan( matrixelementvector[imes] ) )
@@ -461,11 +461,11 @@ int main(int argc, char **argv)
       }
       sumelem += matrixelementvector[imes];
       sqselem += matrixelementvector[imes]*matrixelementvector[imes];
-      minelem = std::min( minelem, (float)matrixelementvector[imes] );
-      maxelem = std::max( maxelem, (float)matrixelementvector[imes] );
+      minelem = std::min( minelem, (double)matrixelementvector[imes] );
+      maxelem = std::max( maxelem, (double)matrixelementvector[imes] );
     }
-    float meanelem = sumelem / ( num_mes - num_nan );
-    float stdelem = std::sqrt( sqselem / ( num_mes - num_nan) - meanelem * meanelem );
+    double meanelem = sumelem / ( num_mes - num_nan );
+    double stdelem = std::sqrt( sqselem / ( num_mes - num_nan) - meanelem * meanelem );
 
     std::cout << "***************************************" << std::endl
               << "NumIterations             = " << niter << std::endl
