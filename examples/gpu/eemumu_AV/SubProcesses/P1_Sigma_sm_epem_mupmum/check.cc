@@ -444,28 +444,60 @@ int main(int argc, char **argv)
     float mean = sum / niter;
     float stdev = std::sqrt( sq_sum / niter - mean * mean );
 
-    const int num_mes = niter*ndim;
-    int num_nan = 0;
+    const int nmes = niter*ndim;
+    int nnan = 0;
     float sumelem = 0;
     float sqselem = 0;
     float minelem = matrixelementvector[0];
     float maxelem = matrixelementvector[0];
-    for (int imes = 0; imes < num_mes; ++imes)
+    float sumelem0 = 0;
+    float sqselem0 = 0;
+    for ( int iiter = 0; iiter < niter; ++iiter )
     {
-      if ( isnan( matrixelementvector[imes] ) )
+      int nnani = 0;
+      float sumelemi = 0;
+      float sqselemi = 0;
+      float minelemi = matrixelementvector[iiter*ndim];
+      float maxelemi = matrixelementvector[iiter*ndim];
+      for ( int idim = 0; idim < ndim; ++idim )
       {
-        if ( debug ) // only printed out with "-p -d" (matrixelementvector is not filled without -p)
-          std::cout << "WARNING! ME[" << imes << "} is nan" << std::endl;
-        num_nan++;
-        continue;
+        const int imes = iiter*ndim + idim;
+        if ( isnan( matrixelementvector[imes] ) )
+        {
+          if ( debug ) // only printed out with "-p -d" (matrixelementvector is not filled without -p)
+            std::cout << "WARNING! ME[" << imes << "} is nan" << std::endl;
+          nnan++;
+          nnani++;
+          continue;
+        }
+        sumelem += matrixelementvector[imes];
+        sqselem += matrixelementvector[imes]*matrixelementvector[imes];
+        minelem = std::min( minelem, (float)matrixelementvector[imes] );
+        maxelem = std::max( maxelem, (float)matrixelementvector[imes] );
+        sumelemi += matrixelementvector[imes];
+        sqselemi += matrixelementvector[imes]*matrixelementvector[imes];
+        minelemi = std::min( minelemi, (float)matrixelementvector[imes] );
+        maxelemi = std::max( maxelemi, (float)matrixelementvector[imes] );
       }
-      sumelem += matrixelementvector[imes];
-      sqselem += matrixelementvector[imes]*matrixelementvector[imes];
-      minelem = std::min( minelem, (float)matrixelementvector[imes] );
-      maxelem = std::max( maxelem, (float)matrixelementvector[imes] );
+      float meanelemi = sumelemi / ( ndim - nnani );
+      float stdelemi = std::sqrt( sqselemi / ( ndim - nnani ) - meanelemi * meanelemi );
+      std::cout << "Iteration #" << iiter << std::endl
+                << "MeanMatrixElemValue       = " << meanelemi << " GeV^" << meGeVexponent << std::endl
+                << "StdDevMatrixElemValue     = " << stdelemi << " GeV^" << meGeVexponent << std::endl;
+      sumelem0 += sumelemi;
+      sqselem0 += sqselemi;
+      std::cout << "sumelem  " << sumelem << std::endl;
+      std::cout << "sumelem0 " << sumelem0 << std::endl;
     }
-    float meanelem = sumelem / ( num_mes - num_nan );
-    float stdelem = std::sqrt( sqselem / ( num_mes - num_nan) - meanelem * meanelem );
+    float meanelem = sumelem / ( nmes - nnan );
+    float stdelem = std::sqrt( sqselem / ( nmes - nnan ) - meanelem * meanelem );
+    float meanelem0 = sumelem0 / ( nmes - nnan );
+    float stdelem0 = std::sqrt( sqselem0 / ( nmes - nnan ) - meanelem0 * meanelem0 );
+    std::cout << "ALL iterations #" << std::endl
+              << "MeanMatrixElemValue       = " << meanelem0 << " GeV^" << meGeVexponent << std::endl
+              << "StdDevMatrixElemValue     = " << stdelem0 << " GeV^" << meGeVexponent << std::endl
+              << "MeanMatrixElemValue       = " << meanelem << " GeV^" << meGeVexponent << std::endl
+              << "StdDevMatrixElemValue     = " << stdelem << " GeV^" << meGeVexponent << std::endl;
 
     std::cout << "***************************************" << std::endl
               << "NumIterations             = " << niter << std::endl
@@ -473,9 +505,9 @@ int main(int argc, char **argv)
               << "NumBlocksPerGrid          = " << gpublocks << std::endl
               << "---------------------------------------" << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
-              << "FP precision              = DOUBLE (nan=" << num_nan << ")" << std::endl
+              << "FP precision              = DOUBLE (nan=" << nnan << ")" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
-              << "FP precision              = FLOAT (nan=" << num_nan << ")" << std::endl
+              << "FP precision              = FLOAT (nan=" << nnan << ")" << std::endl
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_CXTYPE_CUCOMPLEX
@@ -522,14 +554,14 @@ int main(int argc, char **argv)
               << "---------------------------------------" << std::endl
       //<< "ProcessID:                = " << getpid() << std::endl
       //<< "NProcesses                = " << process.nprocesses << std::endl
-              << "NumMatrixElementsComputed = " << num_mes << std::endl
-              << "MatrixElementsPerSec      = " << num_mes/sum << " sec^-1" << std::endl;
+              << "NumMatrixElementsComputed = " << nmes << std::endl
+              << "MatrixElementsPerSec      = " << nmes/sum << " sec^-1" << std::endl;
 
     std::cout << "***************************************" << std::endl
-              << "NumMatrixElements(notNan) = " << num_mes - num_nan << std::endl
+              << "NumMatrixElements(notNan) = " << nmes - nnan << std::endl
               << std::scientific
               << "MeanMatrixElemValue       = " << meanelem << " GeV^" << meGeVexponent << std::endl
-              << "StdErrMatrixElemValue     = " << stdelem/sqrt(num_mes) << " GeV^" << meGeVexponent << std::endl
+              << "StdErrMatrixElemValue     = " << stdelem/sqrt(nmes) << " GeV^" << meGeVexponent << std::endl
               << "StdDevMatrixElemValue     = " << stdelem << " GeV^" << meGeVexponent << std::endl
               << "MinMatrixElemValue        = " << minelem << " GeV^" << meGeVexponent << std::endl
               << "MaxMatrixElemValue        = " << maxelem << " GeV^" << meGeVexponent << std::endl;
