@@ -1,2 +1,2 @@
 # github linguist by default excludes code in an "examples" directory
-examples/* linguist-detectable=true
+examples/gpu/eemumu/src/* linguist-detectable=true
