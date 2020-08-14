@@ -1,3 +1,2 @@
 # github linguist by default excludes code in an "examples" directory
-examples/* linguist-vendored
-jquery.js -linguist-vendored
+examples/* linguist-detectable
