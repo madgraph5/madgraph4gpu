@@ -1,39 +1,55 @@
 #!/bin/bash
 
 usage(){
-  echo "Usage: $0 [--cc] [-p #blocks #threads #iterations]"
+  echo "Usage: $0 [--cc] [-p #blocks #threads #iterations] [-l label]"
   exit 1
 }
 
-# Profile cuda or cpp
-# (NB do not exceed 12 iterations: profiling overhead per iteration is huge)
+# Default options
 tag=cu
-######args="2048 256 12" # DEFAULT 20.08.06 AND BEFORE
-args="16384 32 12" # NEW DEFAULT 20.08.10 AND BEFORE (allow shared memory comparison - FASTER also on local!)
-######args="32 256 12" # FOR LOCAL/GLOBAL/SHARED COMPARISON 20.08.07 (do not exceed global memory - shared memory bugged)
-#args="256 32 12" # FOR LOCAL/GLOBAL/SHARED COMPARISON 20.08.10 (do not exceed shared memory)
-if [ "$1" == "--cc" ]; then
-  tag=cc
-  ###args="64 64 12"
-  args="256 32 12" # More similar to local/global/shared comparison
-  shift
-fi
+cuargs="16384 32 12" # NEW DEFAULT 20.08.10 (faster on local, and allows comparison to global and shared memory)
+ccargs="  256 32 12" # Similar to cuda config, but faster than using "16384 32 12"
+args=
+label=
 
-# Override blocks/threads/iterations
-if [ "$1" == "-p" ]; then
-  if [ "$4" != "" ]; then
-    args="$2 $3 $4"    
-    shift 4
+# Command line arguments
+while [ "$1" != "" ]; do
+  # Profile C++ instead of cuda
+  if [ "$1" == "--cc" ]; then
+    tag=cc
+  # Override blocks/threads/iterations
+  # (NB do not exceed 12 iterations: profiling overhead per iteration is huge)
+  elif [ "$1" == "-p" ]; then
+    if [ "$4" != "" ]; then
+      args="$2 $3 $4"    
+      shift 4
+    else
+      usage
+    fi
+  # Label
+  elif [ "$1" == "-l" ]; then
+    if [ "$2" != "" ]; then
+      label="$2"
+      shift 2
+    else
+      usage
+    fi
+  # Invalid arguments
   else
     usage
   fi
+done
+
+if [ "$label" == "" ]; then
+  echo "ERROR! You must specify a label"
+  usage
 fi
 
-if [ "$1" != "" ]; then usage; fi
-
 if [ "$tag" == "cu" ]; then
+  if [ "$args" == "" ]; then args=$cuargs; fi
   cmd="./gcheck.exe -p $args"
 else
+  if [ "$args" == "" ]; then args=$ccargs; fi
   cmd="./check.exe -p $args"
 fi
 
@@ -50,14 +66,29 @@ else
   logs=logs
 fi
 trace=$logs/eemumuAV_${tag}_`date +%m%d_%H%M`_b${arg1}_t${arg2}_i${arg3}
-( time ${cmd} ) 2>&1 | tee ${trace}.txt
+if [ "$label" != "" ]; then trace=${trace}_${label}; fi
+
+echo
+echo "PROFILE output: ${trace}.*"
+echo
+
+\rm -f ${trace}.*
+
+hostname > ${trace}.txt
+echo "nproc=$(nproc)" >> ${trace}.txt
+echo >> ${trace}.txt
+( time ${cmd} ) 2>&1 | tee -a ${trace}.txt
+nvidia-smi -q -d CLOCK >> ${trace}.txt
+
+# See https://developer.nvidia.com/blog/using-nsight-compute-to-inspect-your-kernels/
+metrics=l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum
+
 if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
   if [ "$tag" == "cu" ]; then
-    /usr/local/cuda-11.0/bin/ncu --set full -o ${trace} ${cmd}
+    /usr/local/cuda-11.0/bin/ncu --set full --metrics ${metrics} -o ${trace} ${cmd}
   fi
   ###/usr/local/cuda-10.1/bin/nsys profile -o ${trace} ${cmd}
   ###/usr/local/cuda-10.2/bin/nsys profile -o ${trace} ${cmd}
-  ###/cvmfs/sft.cern.ch/lcg/releases/cuda/10.2-9d877/x86_64-centos7-gcc62-opt/bin/nsys profile -o ${trace} ${cmd}
   /cvmfs/sft.cern.ch/lcg/releases/cuda/11.0RC-d9c38/x86_64-centos7-gcc62-opt/bin/nsys profile -o ${trace} ${cmd}
   echo ""
   echo "TO ANALYSE TRACE FILES:"
@@ -66,7 +97,7 @@ if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
   echo "  Launch the Nsight Compute or Nsight System GUI from Windows"
 else
   if [ "$tag" == "cu" ]; then
-    ncu --set full -o ${trace} ${cmd}
+    ncu --set full --metrics ${metrics} -o ${trace} ${cmd}
   fi
   nsys profile -o ${trace} ${cmd}
   echo ""
