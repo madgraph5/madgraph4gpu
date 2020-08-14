@@ -80,9 +80,12 @@ echo >> ${trace}.txt
 ( time ${cmd} ) 2>&1 | tee -a ${trace}.txt
 nvidia-smi -q -d CLOCK >> ${trace}.txt
 
+# See https://developer.nvidia.com/blog/using-nsight-compute-to-inspect-your-kernels/
+metrics=l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum
+
 if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
   if [ "$tag" == "cu" ]; then
-    /usr/local/cuda-11.0/bin/ncu --set full -o ${trace} ${cmd}
+    /usr/local/cuda-11.0/bin/ncu --set full --metrics ${metrics} -o ${trace} ${cmd}
   fi
   ###/usr/local/cuda-10.1/bin/nsys profile -o ${trace} ${cmd}
   ###/usr/local/cuda-10.2/bin/nsys profile -o ${trace} ${cmd}
@@ -94,7 +97,7 @@ if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
   echo "  Launch the Nsight Compute or Nsight System GUI from Windows"
 else
   if [ "$tag" == "cu" ]; then
-    ncu --set full -o ${trace} ${cmd}
+    ncu --set full --metrics ${metrics} -o ${trace} ${cmd}
   fi
   nsys profile -o ${trace} ${cmd}
   echo ""
