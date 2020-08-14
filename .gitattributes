@@ -1,2 +1,3 @@
 # github linguist by default assumes documention in an "examples" directory
 examples/** -linguist-documentation
+
