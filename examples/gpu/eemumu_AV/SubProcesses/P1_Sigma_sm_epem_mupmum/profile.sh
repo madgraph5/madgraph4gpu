@@ -89,15 +89,15 @@ metrics=l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_ls
 
 ncu="ncu"
 nsys="nsys"
-ncu-gui="ncu-ui &"
-nsys-gui="nsight-sys &"
+ncugui="ncu-ui &"
+nsysgui="nsight-sys &"
 if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
   ncu=/usr/local/cuda-11.0/bin/ncu
   ###nsys=/usr/local/cuda-10.1/bin/nsys
   ###nsys=/usr/local/cuda-10.2/bin/nsys
   nsys=/cvmfs/sft.cern.ch/lcg/releases/cuda/11.0RC-d9c38/x86_64-centos7-gcc62-opt/bin/nsys
-  ncu-gui="Launch the Nsight Compute GUI from Windows"
-  nsys-gui="Launch the Nsight System GUI from Windows"
+  ncugui="Launch the Nsight Compute GUI from Windows"
+  nsysgui="Launch the Nsight System GUI from Windows"
 fi
 
 if [ "$tag" == "cu" ]; then
@@ -106,8 +106,8 @@ fi
 nsys profile -o ${trace} ${cmd}
 echo ""
 echo "TO ANALYSE TRACE FILES:"
-echo "  ${ncu-gui}"
-echo "  ${nsys-gui}"
+echo "  ${ncugui}"
+echo "  ${nsysgui}"
 
 #echo
 #echo "PROFILING: ${cmd}"
