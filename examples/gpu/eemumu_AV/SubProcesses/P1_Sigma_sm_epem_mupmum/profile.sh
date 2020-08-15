@@ -81,6 +81,9 @@ echo >> ${trace}.txt
 nvidia-smi -q -d CLOCK >> ${trace}.txt
 
 # See https://developer.nvidia.com/blog/using-nsight-compute-to-inspect-your-kernels/
+# These used to be called gld_transactions and global_load_requests
+# See also https://docs.nvidia.com/nsight-compute/2019.5/NsightComputeCli/index.html#nvprof-metric-comparison
+# See also https://stackoverflow.com/questions/60535867
 metrics=l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum
 
 if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
