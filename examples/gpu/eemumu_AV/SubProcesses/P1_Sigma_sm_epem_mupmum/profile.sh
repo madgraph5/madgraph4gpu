@@ -69,7 +69,8 @@ trace=$logs/eemumuAV_${tag}_`date +%m%d_%H%M`_b${arg1}_t${arg2}_i${arg3}
 if [ "$label" != "" ]; then trace=${trace}_${label}; fi
 
 echo
-echo "PROFILE output: ${trace}.*"
+echo "PROFILING: ${cmd}"
+echo "OUTPUT: ${trace}.*"
 echo
 
 \rm -f ${trace}.*
@@ -86,26 +87,30 @@ nvidia-smi -q -d CLOCK >> ${trace}.txt
 # See also https://stackoverflow.com/questions/60535867
 metrics=l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum
 
+ncu="ncu"
+nsys="nsys"
+ncu-gui="ncu-ui &"
+nsys-gui="nsight-sys &"
 if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
-  if [ "$tag" == "cu" ]; then
-    /usr/local/cuda-11.0/bin/ncu --set full --metrics ${metrics} -o ${trace} ${cmd}
-  fi
-  ###/usr/local/cuda-10.1/bin/nsys profile -o ${trace} ${cmd}
-  ###/usr/local/cuda-10.2/bin/nsys profile -o ${trace} ${cmd}
-  /cvmfs/sft.cern.ch/lcg/releases/cuda/11.0RC-d9c38/x86_64-centos7-gcc62-opt/bin/nsys profile -o ${trace} ${cmd}
-  echo ""
-  echo "TO ANALYSE TRACE FILES:"
-  ###echo "  ncu-ui &"
-  ###echo "  nsight-sys &"
-  echo "  Launch the Nsight Compute or Nsight System GUI from Windows"
-else
-  if [ "$tag" == "cu" ]; then
-    ncu --set full --metrics ${metrics} -o ${trace} ${cmd}
-  fi
-  nsys profile -o ${trace} ${cmd}
-  echo ""
-  echo "TO ANALYSE TRACE FILES:"
-  echo "  ncu-ui &"
-  echo "  nsight-sys &"
+  ncu=/usr/local/cuda-11.0/bin/ncu
+  ###nsys=/usr/local/cuda-10.1/bin/nsys
+  ###nsys=/usr/local/cuda-10.2/bin/nsys
+  nsys=/cvmfs/sft.cern.ch/lcg/releases/cuda/11.0RC-d9c38/x86_64-centos7-gcc62-opt/bin/nsys
+  ncu-gui="Launch the Nsight Compute GUI from Windows"
+  nsys-gui="Launch the Nsight System GUI from Windows"
 fi
+
+if [ "$tag" == "cu" ]; then
+  ncu --set full --metrics ${metrics} -o ${trace} ${cmd}
+fi
+nsys profile -o ${trace} ${cmd}
+echo ""
+echo "TO ANALYSE TRACE FILES:"
+echo "  ${ncu-gui}"
+echo "  ${nsys-gui}"
+
+#echo
+#echo "PROFILING: ${cmd}"
+#echo "OUTPUT: ${trace}.*"
+#echo
 
