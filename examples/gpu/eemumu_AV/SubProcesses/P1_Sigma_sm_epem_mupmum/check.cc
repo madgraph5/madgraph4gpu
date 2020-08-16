@@ -73,12 +73,22 @@ int main(int argc, char **argv)
   if (niter == 0)
     return usage(argv[0]);
 
-  using mgOnGpu::nepp;
-  if ( gputhreads%nepp != 0 )
+  // Hardcoded (non-const) for now: eventually will be user-defined
+  //int neppR = 32; // n_events_per_page for rnarray AOSOA (nevt=npagR*neppR)
+  using mgOnGpu::neppR;
+  if ( gputhreads%neppR != 0 )
   {
-    std::cout << "ERROR! #threads/block should be a multiple of " << nepp << std::endl;
+    std::cout << "ERROR! #threads/block should be a multiple of " << neppR << std::endl;
     return usage(argv[0]);
   }
+#if defined MGONGPU_LAYOUT_ASA
+  using mgOnGpu::neppM;
+  if ( gputhreads%neppM != 0 )
+  {
+    std::cout << "ERROR! #threads/block should be a multiple of " << neppM << std::endl;
+    return usage(argv[0]);
+  }
+#endif
 
   using mgOnGpu::ntpbMAX;
   if ( gputhreads > ntpbMAX )
@@ -131,23 +141,23 @@ int main(int argc, char **argv)
   using mgOnGpu::np4;
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
-  const int nRnarray = np4*nparf*ndim; // (NB: ndim=npag*nepp for ASA layouts)
+  const int nRnarray = np4*nparf*ndim; // (NB: ASA layout with ndim=npagR*neppR events per iteration)
 #ifdef __CUDACC__
   const int nbytesRnarray = nRnarray * sizeof(fptype);
-  fptype* devRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
+  fptype* devRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: ndim=npagR*neppR)
   checkCuda( cudaMalloc( &devRnarray, nbytesRnarray ) );
 #if defined MGONGPU_CURAND_ONHOST
-  fptype* hstRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
+  fptype* hstRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: ndim=npagR*neppR)
   checkCuda( cudaMallocHost( &hstRnarray, nbytesRnarray ) );
 #endif
 #else
-  fptype* hstRnarray = 0; // AOSOA[npag][nparf][np4][nepp] (NB: ndim=npag*nepp)
+  fptype* hstRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: ndim=npagR*neppR)
   hstRnarray = new fptype[nRnarray]();
 #endif
 
-  const int nMomenta = np4*npar*ndim; // (NB: ndim=npag*nepp for ASA layouts)
+  const int nMomenta = np4*npar*ndim; // (NB: ndim=npagM*neppM for ASA layouts)
 #if defined MGONGPU_LAYOUT_ASA
-  fptype* hstMomenta = 0; // AOSOA[npag][npar][np4][nepp] (previously was: lp)
+  fptype* hstMomenta = 0; // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
 #elif defined MGONGPU_LAYOUT_SOA
   fptype* hstMomenta = 0; // SOA[npar][np4][ndim] (previously was: lp)
 #elif defined MGONGPU_LAYOUT_AOS
@@ -171,7 +181,7 @@ int main(int argc, char **argv)
   checkCuda( cudaMalloc( &devAllWFs, nbytesAllWFs ) );
 #endif
 
-  const int nWeights = ndim; //  (NB: ndim=npag*nepp for ASA layouts)
+  const int nWeights = ndim;
   fptype* hstWeights = 0; // (previously was: meHostPtr)
 #ifdef __CUDACC__
   const int nbytesWeights = nWeights * sizeof(fptype);
@@ -182,7 +192,7 @@ int main(int argc, char **argv)
   hstWeights = new fptype[nWeights]();
 #endif
 
-  const int nMEs = ndim; //  (NB: ndim=npag*nepp for ASA layouts)
+  const int nMEs = ndim;
   fptype* hstMEs = 0; // (previously was: meHostPtr)
 #ifdef __CUDACC__
   const int nbytesMEs = nMEs * sizeof(fptype);
@@ -347,8 +357,8 @@ int main(int argc, char **argv)
       for (int idim = 0; idim < ndim; ++idim) // Loop over all events in this iteration
       {
 #if defined MGONGPU_LAYOUT_ASA
-        const int ipag = idim/nepp; // #eventpage in this iteration
-        const int iepp = idim%nepp; // #event in the current eventpage in this iteration
+        const int ipagM = idim/neppM; // #eventpage in this iteration
+        const int ieppM = idim%neppM; // #event in the current eventpage in this iteration
 #endif
         if (verbose)
         {
@@ -358,13 +368,13 @@ int main(int argc, char **argv)
 #if defined MGONGPU_LAYOUT_ASA
             std::cout << std::setw(4) << ipar + 1
                       << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + 0*nepp + iepp] // AOSOA[ipag][ipar][0][iepp]
+                      << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
                       << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + 1*nepp + iepp] // AOSOA[ipag][ipar][1][iepp]
+                      << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
                       << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + 2*nepp + iepp] // AOSOA[ipag][ipar][2][iepp]
+                      << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
                       << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + 3*nepp + iepp] // AOSOA[ipag][ipar][3][iepp]
+                      << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
                       << std::endl;
 #elif defined MGONGPU_LAYOUT_SOA
             std::cout << std::setw(4) << ipar + 1
@@ -487,7 +497,7 @@ int main(int argc, char **argv)
               << "Complex type              = STD::COMPLEX" << std::endl
 #endif
 #if defined MGONGPU_LAYOUT_ASA
-              << "Momenta memory layout     = AOSOA[" << nepp << "]" << std::endl
+              << "Momenta memory layout     = AOSOA[" << neppM << "]" << std::endl
 #elif defined MGONGPU_LAYOUT_SOA
               << "Momenta memory layout     = SOA" << std::endl
 #elif defined MGONGPU_LAYOUT_AOS

@@ -36,11 +36,11 @@ namespace MG5_sm
     using mgOnGpu::np4;
 #if defined MGONGPU_LAYOUT_ASA
     using mgOnGpu::npar;
-    using mgOnGpu::nepp;
-    const int ipag = ievt/nepp; // #eventpage in this iteration
-    const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
+    using mgOnGpu::neppM;
+    const int ipagM = ievt/neppM; // #eventpage in this iteration
+    const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
     // ASA: allmomenta[npag][npar][np4][nepp]
-    return allmomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + ip4*nepp + iepp]; // AOSOA[ipag][ipar][ip4][iepp]
+    return allmomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
 #elif defined MGONGPU_LAYOUT_SOA
 #ifdef __CUDACC__
     const int nevt = blockDim.x * gridDim.x;
