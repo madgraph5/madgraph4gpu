@@ -97,7 +97,7 @@ namespace rambo2toNm0
 #endif
   void getMomentaFinal( const fptype energy,      // input: energy
                         const fptype rnarray1d[], // input: randomnumbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
-                        //const int neppR,          // input: n_events_per_page for rnarray AOSOA (nevt=npagR*neppR)
+                        const int neppR,          // input: n_events_per_page for rnarray AOSOA (nevt=npagR*neppR)
 #if defined MGONGPU_LAYOUT_ASA
                         fptype momenta1d[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
 #elif defined MGONGPU_LAYOUT_SOA
@@ -141,10 +141,10 @@ namespace rambo2toNm0
       //printf( "getMomentaFinal:   ievt %d\n", ievt );
 #endif
 
-      using mgOnGpu::neppR;
       const int ipagR = ievt/neppR; // #eventpage in this iteration
       const int ieppR = ievt%neppR; // #event in the current eventpage in this iteration
-      fptype (*rnarray)[nparf][np4][neppR] = (fptype (*)[nparf][np4][neppR]) rnarray1d; // cast to multiD array pointer (AOSOA)
+      // Cast is impossible in CUDA C ("error: expression must have a constant value")
+      //fptype (*rnarray)[nparf][np4][neppR] = (fptype (*)[nparf][np4][neppR]) rnarray1d; // cast to multiD array pointer (AOSOA)
 #if defined MGONGPU_LAYOUT_ASA
       using mgOnGpu::neppM;
       const int ipagM = ievt/neppM; // #eventpage in this iteration
@@ -161,10 +161,10 @@ namespace rambo2toNm0
       // generate n massless momenta in infinite phase space
       fptype q[nparf][np4];
       for (int iparf = 0; iparf < nparf; iparf++) {
-        const fptype r1 = rnarray[ipagR][iparf][0][ieppR];
-        const fptype r2 = rnarray[ipagR][iparf][1][ieppR];
-        const fptype r3 = rnarray[ipagR][iparf][2][ieppR];
-        const fptype r4 = rnarray[ipagR][iparf][3][ieppR];
+        const fptype r1 = rnarray1d[ipagR*nparf*np4*neppR + iparf*np4*neppR + 0*neppR + ieppR]; // rnarray[ipagR][iparf][0][ieppR];
+        const fptype r2 = rnarray1d[ipagR*nparf*np4*neppR + iparf*np4*neppR + 1*neppR + ieppR]; // rnarray[ipagR][iparf][1][ieppR];
+        const fptype r3 = rnarray1d[ipagR*nparf*np4*neppR + iparf*np4*neppR + 2*neppR + ieppR]; // rnarray[ipagR][iparf][2][ieppR];
+        const fptype r4 = rnarray1d[ipagR*nparf*np4*neppR + iparf*np4*neppR + 3*neppR + ieppR]; // rnarray[ipagR][iparf][3][ieppR];
         const fptype c = 2. * r1 - 1.;
         const fptype s = sqrt(1. - c * c);
         const fptype f = twopi * r2;

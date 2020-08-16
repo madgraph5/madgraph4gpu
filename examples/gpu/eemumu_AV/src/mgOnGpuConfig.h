@@ -55,7 +55,7 @@ namespace mgOnGpu
 
   // Number of Events Per Page in the random number AOSOA (ASA) structure
   // ** TODO: this will disappear and become dynamic...
-  const int neppR = 32; // choose 32, i.e. the number of threads in a warp
+  //const int neppR = 32; // choose 32, i.e. the number of threads in a warp
 
 #if defined MGONGPU_LAYOUT_ASA
   // Number of Events Per Page in the momenta AOSOA (ASA) structure
