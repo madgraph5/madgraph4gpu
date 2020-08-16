@@ -47,6 +47,7 @@ namespace rambo2toNm0
   void getMomentaInitial( const fptype energy,    // input: energy
 #if defined MGONGPU_LAYOUT_ASA
                           fptype momenta1d[],     // output: momenta as AOSOA[npagM][npar][4][neppM]
+                          const int neppM,        // input: n_events_per_page for momenta AOSOA (nevt=npagM*neppM)
 #elif defined MGONGPU_LAYOUT_SOA
                           fptype momenta1d[],     // output: momenta as SOA[npar][4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
@@ -66,6 +67,7 @@ namespace rambo2toNm0
                         const int neppR,          // input: n_events_per_page for rnarray AOSOA (nevt=npagR*neppR)
 #if defined MGONGPU_LAYOUT_ASA
                         fptype momenta1d[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
+                        const int neppM,          // input: n_events_per_page for momenta AOSOA (nevt=npagM*neppM)
 #elif defined MGONGPU_LAYOUT_SOA
                         fptype momenta1d[],       // output: momenta as SOA[npar][4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS

@@ -25,6 +25,7 @@ namespace rambo2toNm0
   void getMomentaInitial( const fptype energy,    // input: energy
 #if defined MGONGPU_LAYOUT_ASA
                           fptype momenta1d[],     // output: momenta as AOSOA[npagM][npar][4][neppM]
+                          const int neppM,        // input: n_events_per_page for momenta AOSOA (nevt=npagM*neppM)
 #elif defined MGONGPU_LAYOUT_SOA
                           fptype momenta1d[],     // output: momenta as SOA[npar][4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
@@ -33,8 +34,8 @@ namespace rambo2toNm0
                           const int nevt )        // input: #events
   {
 #if defined MGONGPU_LAYOUT_ASA
-    using mgOnGpu::neppM;
-    fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
+    // Cast is impossible in CUDA C ("error: expression must have a constant value")
+    //fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
 #elif defined MGONGPU_LAYOUT_SOA
     // Cast is impossible in CUDA C ("error: expression must have a constant value")
     //fptype (*momenta)[np4][nevt] = (fptype (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
@@ -57,14 +58,14 @@ namespace rambo2toNm0
 #if defined MGONGPU_LAYOUT_ASA
       const int ipagM = ievt/neppM; // #eventpage in this iteration
       const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-      momenta[ipagM][0][0][ieppM] = energy1;
-      momenta[ipagM][0][1][ieppM] = 0;
-      momenta[ipagM][0][2][ieppM] = 0;
-      momenta[ipagM][0][3][ieppM] = mom;
-      momenta[ipagM][1][0][ieppM] = energy2;
-      momenta[ipagM][1][1][ieppM] = 0;
-      momenta[ipagM][1][2][ieppM] = 0;
-      momenta[ipagM][1][3][ieppM] = -mom;
+      momenta1d[ipagM*npar*np4*neppM + 0*np4*neppM + 0*neppM + ieppM] = energy1; // momenta[ipagM][0][0][ieppM]
+      momenta1d[ipagM*npar*np4*neppM + 0*np4*neppM + 1*neppM + ieppM] = 0;       // momenta[ipagM][0][1][ieppM]
+      momenta1d[ipagM*npar*np4*neppM + 0*np4*neppM + 2*neppM + ieppM] = 0;       // momenta[ipagM][0][2][ieppM]
+      momenta1d[ipagM*npar*np4*neppM + 0*np4*neppM + 3*neppM + ieppM] = mom;     // momenta[ipagM][0][3][ieppM]
+      momenta1d[ipagM*npar*np4*neppM + 1*np4*neppM + 0*neppM + ieppM] = energy2; // momenta[ipagM][1][0][ieppM]
+      momenta1d[ipagM*npar*np4*neppM + 1*np4*neppM + 1*neppM + ieppM] = 0;       // momenta[ipagM][1][1][ieppM]
+      momenta1d[ipagM*npar*np4*neppM + 1*np4*neppM + 2*neppM + ieppM] = 0;       // momenta[ipagM][1][2][ieppM]
+      momenta1d[ipagM*npar*np4*neppM + 1*np4*neppM + 3*neppM + ieppM] = -mom;    // momenta[ipagM][1][3][ieppM]
 #elif defined MGONGPU_LAYOUT_SOA
       momenta1d[0*np4*nevt + 0*nevt + ievt] = energy1;
       momenta1d[0*np4*nevt + 1*nevt + ievt] = 0;
@@ -100,6 +101,7 @@ namespace rambo2toNm0
                         const int neppR,          // input: n_events_per_page for rnarray AOSOA (nevt=npagR*neppR)
 #if defined MGONGPU_LAYOUT_ASA
                         fptype momenta1d[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
+                        const int neppM,          // input: n_events_per_page for momenta AOSOA (nevt=npagM*neppM)
 #elif defined MGONGPU_LAYOUT_SOA
                         fptype momenta1d[],       // output: momenta as SOA[npar][4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
@@ -146,10 +148,10 @@ namespace rambo2toNm0
       // Cast is impossible in CUDA C ("error: expression must have a constant value")
       //fptype (*rnarray)[nparf][np4][neppR] = (fptype (*)[nparf][np4][neppR]) rnarray1d; // cast to multiD array pointer (AOSOA)
 #if defined MGONGPU_LAYOUT_ASA
-      using mgOnGpu::neppM;
       const int ipagM = ievt/neppM; // #eventpage in this iteration
       const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-      fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
+      // Cast is impossible in CUDA C ("error: expression must have a constant value")
+      //fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
 #elif defined MGONGPU_LAYOUT_SOA
       // Cast is impossible in CUDA C ("error: expression must have a constant value")
       //fptype (*momenta)[np4][nevt] = (fptype (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
@@ -195,8 +197,10 @@ namespace rambo2toNm0
         fptype bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
 #if defined MGONGPU_LAYOUT_ASA
         for (int i4 = 1; i4 < np4; i4++)
-          momenta[ipagM][iparf+npari][i4][ieppM] = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
-        momenta[ipagM][iparf+npari][0][ieppM] = x0 * (g * q[iparf][0] + bq);
+          momenta1d[ipagM*npar*np4*neppM + (iparf+npari)*np4*neppM + i4*neppM + ieppM] // momenta[ipagM][iparf+npari][i4][ieppM] 
+            = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
+        momenta1d[ipagM*npar*np4*neppM + (iparf+npari)*np4*neppM + 0*neppM + ieppM] // momenta[ipagM][iparf+npari][0][ieppM]
+          = x0 * (g * q[iparf][0] + bq);
 #elif defined MGONGPU_LAYOUT_SOA
         for (int i4 = 1; i4 < np4; i4++)
           momenta1d[(iparf+npari)*np4*nevt + i4*nevt + ievt] = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));

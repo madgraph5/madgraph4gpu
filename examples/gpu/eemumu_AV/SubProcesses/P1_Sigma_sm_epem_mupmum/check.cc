@@ -81,7 +81,8 @@ int main(int argc, char **argv)
     return usage(argv[0]);
   }
 #if defined MGONGPU_LAYOUT_ASA
-  using mgOnGpu::neppM;
+  // Hardcoded (non-const) for now: eventually will be user-defined
+  int neppM = 32; // n_events_per_page for momenta AOSOA (nevt=npagM*neppM)
   if ( gputhreads%neppM != 0 )
   {
     std::cout << "ERROR! #threads/block should be a multiple of " << neppM << std::endl;
@@ -169,6 +170,14 @@ int main(int argc, char **argv)
   checkCuda( cudaMalloc( &devMomenta, nbytesMomenta ) );
 #else
   hstMomenta = new fptype[nMomenta]();
+#endif
+
+#if defined MGONGPU_LAYOUT_ASA
+#ifdef __CUDACC__
+  gProc::sigmakin_setNeppM( neppM );
+#else
+  Proc::sigmakin_setNeppM( neppM );
+#endif  
 #endif
 
 #if defined __CUDACC__ && defined MGONGPU_WFMEM_GLOBAL
@@ -274,10 +283,18 @@ int main(int argc, char **argv)
     // --- 2a. Fill in momenta of initial state particles on the device
     const std::string riniKey = "2a RamboIni";
     timermap.start( riniKey );
+#if defined MGONGPU_LAYOUT_ASA
+#ifdef __CUDACC__
+    grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta, neppM, ndim );
+#else
+    rambo2toNm0::getMomentaInitial( energy, hstMomenta, neppM, ndim );
+#endif
+#else
 #ifdef __CUDACC__
     grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta, ndim );
 #else
     rambo2toNm0::getMomentaInitial( energy, hstMomenta, ndim );
+#endif
 #endif
     //std::cout << "Got initial momenta" << std::endl;
 
@@ -285,10 +302,18 @@ int main(int argc, char **argv)
     // (i.e. map random numbers to final-state particle momenta for each of ndim events)
     const std::string rfinKey = "2b RamboFin";
     timermap.start( rfinKey );
+#if defined MGONGPU_LAYOUT_ASA
+#ifdef __CUDACC__
+    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray, neppR, devMomenta, neppM, devWeights, ndim );
+#else
+    rambo2toNm0::getMomentaFinal( energy, hstRnarray, neppR, hstMomenta, neppM, hstWeights, ndim );
+#endif
+#else
 #ifdef __CUDACC__
     grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray, neppR, devMomenta, devWeights, ndim );
 #else
     rambo2toNm0::getMomentaFinal( energy, hstRnarray, neppR, hstMomenta, hstWeights, ndim );
+#endif
 #endif
     //std::cout << "Got final momenta" << std::endl;
 
@@ -495,6 +520,7 @@ int main(int argc, char **argv)
 #else
               << "Complex type              = STD::COMPLEX" << std::endl
 #endif
+              << "RanNumb memory layout     = AOSOA[" << neppR << "]" << std::endl
 #if defined MGONGPU_LAYOUT_ASA
               << "Momenta memory layout     = AOSOA[" << neppM << "]" << std::endl
 #elif defined MGONGPU_LAYOUT_SOA
