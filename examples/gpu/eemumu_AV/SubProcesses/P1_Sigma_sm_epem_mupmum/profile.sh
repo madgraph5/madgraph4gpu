@@ -68,6 +68,7 @@ ncu="ncu"
 nsys="nsys"
 ncugui="ncu-ui &"
 nsysgui="nsight-sys &"
+host=$(hostname)
 if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
   ncu=/usr/local/cuda-11.0/bin/ncu
   ###nsys=/usr/local/cuda-10.1/bin/nsys
@@ -95,7 +96,6 @@ if [ "$tag" != "nogui" ]; then
   arg2=$(echo $args | cut -d' ' -f2)
   arg3=$(echo $args | cut -d' ' -f3)
   
-  host=$(hostname)
   if [ "${host%%raplab*}" != "${host}" ]; then
     logs=logs_raplab
   elif [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
