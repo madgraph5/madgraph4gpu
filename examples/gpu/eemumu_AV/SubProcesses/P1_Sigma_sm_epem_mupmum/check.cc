@@ -211,6 +211,7 @@ int main(int argc, char **argv)
   hstMEs = new fptype[nMEs]();
 #endif
 
+  double* rambtimes = new double[niter]();
   double* wavetimes = new double[niter]();
   fptype* matrixelementvector = new fptype[niter * ndim * process.nprocesses]();
 
@@ -280,6 +281,9 @@ int main(int argc, char **argv)
     // === STEP 2 OF 3
     // Fill in particle momenta for each of ndim events on the device
 
+    // *** START THE OLD-STYLE TIMER FOR RAMBO ***
+    double rambtime = 0;
+
     // --- 2a. Fill in momenta of initial state particles on the device
     const std::string riniKey = "2a RamboIni";
     timermap.start( riniKey );
@@ -301,7 +305,7 @@ int main(int argc, char **argv)
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
     // (i.e. map random numbers to final-state particle momenta for each of ndim events)
     const std::string rfinKey = "2b RamboFin";
-    timermap.start( rfinKey );
+    rambtime += timermap.start( rfinKey );
 #if defined MGONGPU_LAYOUT_ASA
 #ifdef __CUDACC__
     grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray, neppR, devMomenta, neppM, devWeights, ndim );
@@ -320,22 +324,25 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
     // --- 2c. CopyDToH Weights
     const std::string cwgtKey = "2c CpDTHwgt";
-    timermap.start( cwgtKey );
+    rambtime += timermap.start( cwgtKey );
     checkCuda( cudaMemcpy( hstWeights, devWeights, nbytesWeights, cudaMemcpyDeviceToHost ) );
 
     // --- 2d. CopyDToH Momenta
     const std::string cmomKey = "2d CpDTHmom";
-    timermap.start( cmomKey );
+    rambtime += timermap.start( cmomKey );
     checkCuda( cudaMemcpy( hstMomenta, devMomenta, nbytesMomenta, cudaMemcpyDeviceToHost ) );
 #endif
+
+    // *** STOP THE OLD-STYLE TIMER FOR RAMBO ***
+    rambtime += timermap.stop();
 
     // === STEP 3 OF 3
     // Evaluate matrix elements for all ndim events
     // 3a. Evaluate MEs on the device
     // 3b. Copy MEs back from device to host
 
-    // *** START THE OLD TIMER ***
-    double gputime = 0;
+    // *** START THE OLD TIMER FOR WAVEFUNCTIONS ***
+    double wavetime = 0;
 
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
@@ -356,24 +363,25 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
     // --- 3b. CopyDToH MEs
     const std::string cmesKey = "3b CpDTHmes";
-    gputime += timermap.start( cmesKey );
+    wavetime += timermap.start( cmesKey );
     checkCuda( cudaMemcpy( hstMEs, devMEs, nbytesMEs, cudaMemcpyDeviceToHost ) );
 #endif
 
-    // *** STOP THE OLD TIMER ***
-    gputime += timermap.stop();
+    // *** STOP THE OLD TIMER FOR WAVEFUNCTIONS ***
+    wavetime += timermap.stop();
 
     // === STEP 4 FINALISE LOOP
     // --- 4a Dump within the loop
     const std::string loopKey = "4a DumpLoop";
     timermap.start(loopKey);
-    wavetimes[iiter] = gputime;
+    rambtimes[iiter] = rambtime;
+    wavetimes[iiter] = wavetime;
 
     if (verbose)
     {
       std::cout << "***********************************" << std::endl
                 << "Iteration #" << iiter+1 << " of " << niter << std::endl;
-      if (perf) std::cout << "Wave function time: " << gputime << std::endl;
+      if (perf) std::cout << "Wave function time: " << wavetime << std::endl;
     }
 
     if (verbose || perf)
@@ -464,19 +472,33 @@ int main(int argc, char **argv)
 
   if (perf)
   {
-    double sum = 0;
-    double sq_sum = 0;
-    double mintime = wavetimes[0];
-    double maxtime = wavetimes[0];
-    for (int iiter = 0; iiter < niter; ++iiter)
+    double sumrtim = 0;
+    double sqsrtim = 0;
+    double minrtim = rambtimes[0];
+    double maxrtim = rambtimes[0];
+    for ( int iiter = 0; iiter < niter; ++iiter )
     {
-      sum += wavetimes[iiter];
-      sq_sum += wavetimes[iiter]*wavetimes[iiter];
-      mintime = std::min( mintime, wavetimes[iiter] );
-      maxtime = std::max( mintime, wavetimes[iiter] );
+      sumrtim += rambtimes[iiter];
+      sqsrtim += rambtimes[iiter]*rambtimes[iiter];
+      minrtim = std::min( minrtim, rambtimes[iiter] );
+      maxrtim = std::max( maxrtim, rambtimes[iiter] );
     }
-    double mean = sum / niter;
-    double stdev = std::sqrt( sq_sum / niter - mean * mean );
+    //double meanrtim = sumrtim / niter; // unused
+    //double stdrtim = std::sqrt( sqsrtim / niter - meanrtim * meanrtim ); // unused
+
+    double sumwtim = 0;
+    double sqswtim = 0;
+    double minwtim = wavetimes[0];
+    double maxwtim = wavetimes[0];
+    for ( int iiter = 0; iiter < niter; ++iiter )
+    {
+      sumwtim += wavetimes[iiter];
+      sqswtim += wavetimes[iiter]*wavetimes[iiter];
+      minwtim = std::min( minwtim, wavetimes[iiter] );
+      maxwtim = std::max( maxwtim, wavetimes[iiter] );
+    }
+    double meanwtim = sumwtim / niter;
+    double stdwtim = std::sqrt( sqswtim / niter - meanwtim * meanwtim );
 
     const int num_mes = niter*ndim;
     int num_nan = 0;
@@ -484,7 +506,7 @@ int main(int argc, char **argv)
     double sqselem = 0;
     double minelem = matrixelementvector[0];
     double maxelem = matrixelementvector[0];
-    for (int imes = 0; imes < num_mes; ++imes)
+    for ( int imes = 0; imes < num_mes; ++imes )
     {
       if ( isnan( matrixelementvector[imes] ) )
       {
@@ -549,16 +571,17 @@ int main(int argc, char **argv)
               << "---------------------------------------" << std::endl
               << "NumberOfEntries           = " << niter << std::endl
               << std::scientific
-              << "TotalTimeInWaveFuncs      = " << sum << " sec" << std::endl
-              << "MeanTimeInWaveFuncs       = " << mean << " sec" << std::endl
-              << "StdDevTimeInWaveFuncs     = " << stdev << " sec" << std::endl
-              << "MinTimeInWaveFuncs        = " << mintime << " sec" << std::endl
-              << "MaxTimeInWaveFuncs        = " << maxtime << " sec" << std::endl
+              << "TotalTimeInWaveFuncs      = " << sumwtim << " sec" << std::endl
+              << "MeanTimeInWaveFuncs       = " << meanwtim << " sec" << std::endl
+              << "StdDevTimeInWaveFuncs     = " << stdwtim << " sec" << std::endl
+              << "MinTimeInWaveFuncs        = " << minwtim << " sec" << std::endl
+              << "MaxTimeInWaveFuncs        = " << maxwtim << " sec" << std::endl
               << "---------------------------------------" << std::endl
       //<< "ProcessID:                = " << getpid() << std::endl
       //<< "NProcesses                = " << process.nprocesses << std::endl
-              << "NumMatrixElementsComputed = " << num_mes << std::endl
-              << "MatrixElementsPerSec      = " << num_mes/sum << " sec^-1" << std::endl;
+              << "TotalEventsComputed       = " << num_mes << std::endl
+              << "RamboEventsPerSec         = " << num_mes/sumrtim << " sec^-1" << std::endl
+              << "MatrixElemEventsPerSec    = " << num_mes/sumwtim << " sec^-1" << std::endl;
 
     std::cout << "***************************************" << std::endl
               << "NumMatrixElements(notNan) = " << num_mes - num_nan << std::endl
@@ -604,6 +627,7 @@ int main(int argc, char **argv)
   delete[] hstRnarray;
 #endif
 
+  delete[] rambtimes;
   delete[] wavetimes;
   delete[] matrixelementvector;
 
