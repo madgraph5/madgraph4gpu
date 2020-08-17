@@ -16,53 +16,26 @@
 namespace MG5_sm
 {
 
-#ifndef __CUDACC__
-  // Quick and dirty way to share nevt across all computational kernels
-  int nevt; // FIXME? add static?
-#endif
-
   using mgOnGpu::nw6;
-
-#if defined MGONGPU_LAYOUT_ASA
-#ifdef __CUDACC__
-  __device__ __constant__ int cNeppM[1];
-#else
-  static int cNeppM[1];
-#endif
-#endif
 
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
   __device__
 #endif
-  inline const fptype& pIparIp4Ievt( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  inline const fptype& pIparIp4Ievt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                      const int ipar,
                                      const int ip4,
                                      const int ievt )
   {
     using mgOnGpu::np4;
-#if defined MGONGPU_LAYOUT_ASA
     using mgOnGpu::npar;
-    using mgOnGpu::neppM; // constant at compile-time
-    //const int neppM = cNeppM[0]; // retrieved at run-time from device constant memory
+    const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
+    fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
     const int ipagM = ievt/neppM; // #eventpage in this iteration
     const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-    // ASA: allmomenta[npag][npar][np4][nepp]
-    return allmomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
-#elif defined MGONGPU_LAYOUT_SOA
-#ifdef __CUDACC__
-    const int nevt = blockDim.x * gridDim.x;
-#else
-    using MG5_sm::nevt;
-#endif
-    // SOA: allmomenta[npar][np4][ndim]
-    return allmomenta[ipar*np4*nevt + ip4*nevt + ievt]; // SOA[ipar][ip4][ievt]
-#elif defined MGONGPU_LAYOUT_AOS
-    using mgOnGpu::npar;
-    // AOS: allmomenta[ndim][npar][np4]
-    return allmomenta[ievt*npar*np4 + ipar*np4 + ip4]; // AOS[ievt][ipar][ip4]
-#endif
+    //return allmomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
+    return momenta[ipagM][ipar][ip4][ieppM];
   }
 
   //--------------------------------------------------------------------------
@@ -690,7 +663,6 @@ namespace Proc
   // ** NB: allmomenta can have three different layouts
   // ASA: allmomenta[npagM][npar][np4][neppM] where ndim=npagM*neppM
   // SOA: allmomenta[npar][np4][ndim]
-  // AOS: allmomenta[ndim][npar][np4]
   void calculate_wavefunctions( int ihel,
                                 const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                                 fptype &matrix            // output: matrix element for this event
@@ -875,25 +847,11 @@ namespace Proc
   }
 
   //--------------------------------------------------------------------------
-
-#if defined MGONGPU_LAYOUT_ASA
-  void sigmakin_setNeppM( const int neppM ) // input: n_events_per_page for momenta AOSOA (nevt=npagM*neppM)
-  {
-#ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( MG5_sm::cNeppM, &neppM, 1 * sizeof(int) ) );
-#else
-    memcpy( MG5_sm::cNeppM, &neppM, 1 * sizeof(int) );
-#endif
-  }  
-#endif
-
-  //--------------------------------------------------------------------------
   // Evaluate |M|^2, part independent of incoming flavour.
 
   // ** NB: allmomenta can have three different layouts
   // ASA: allmomenta[npag][npar][np4][nepp] where ndim=npag*nepp
   // SOA: allmomenta[npar][np4][ndim]
-  // AOS: allmomenta[ndim][npar][np4]
 #ifdef __CUDACC__
   __global__
 #endif
@@ -921,7 +879,6 @@ namespace Proc
 #endif
 
 #ifndef __CUDACC__
-    MG5_sm::nevt = nevt;
     // ** START LOOP ON IEVT **
     for (int ievt = 0; ievt < nevt; ++ievt)
 #endif

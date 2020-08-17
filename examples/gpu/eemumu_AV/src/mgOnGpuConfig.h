@@ -5,9 +5,7 @@
 // ** NB2 Baseline on b7g47n0002 fluctuates (depends on load?): typically, either ~5.00E8 or ~5.50E8
 
 // Memory layout for momenta (CHOOSE ONLY ONE)
-#define MGONGPU_LAYOUT_ASA 1 // default (~5.00E8) 
-//#define MGONGPU_LAYOUT_SOA 1 // 7% slower (4.65E8 against 5.00E8)
-//#define MGONGPU_LAYOUT_AOS 1 // 4% slower (4.80E8 against 5.00E8)
+// AOSOA (ASA) layout is hardcoded: fine-tune it using the nepopR and neppM parameters below
 
 // Curand random number generation (CHOOSE ONLY ONE)
 #define MGONGPU_CURAND_ONDEVICE 1 // default
@@ -54,14 +52,14 @@ namespace mgOnGpu
   //const int ntpbMAX = 8; // FOR DEBUGGING!
 
   // Number of Events Per Page in the random number AOSOA (ASA) structure
-  // ** TODO: this will disappear and become dynamic...
-  const int neppR = 32; // choose 32, i.e. the number of threads in a warp
+  // [NB this is best kept as a compile-time constant: see issue #23]
+  //const int neppR = 1; // *** NB: this is equivalent to AOS ***
+  const int neppR = 32; // DEFAULT: 32, i.e. the number of threads in a warp
 
-#if defined MGONGPU_LAYOUT_ASA
   // Number of Events Per Page in the momenta AOSOA (ASA) structure
-  // ** TODO: this will disappear and become dynamic...
-  const int neppM = 32; // choose 32, i.e. the number of threads in a warp
-#endif
+  // [NB this is best kept as a compile-time constant: see issue #23]
+  //const int neppM = 1; // *** NB: this is equivalent to AOS ***
+  const int neppM = 32; // DEFAULT: 32, i.e. the number of threads in a warp
 
 }
 
