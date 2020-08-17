@@ -113,12 +113,6 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-#if defined MGONGPU_LAYOUT_ASA
-  void sigmakin_setNeppM( const int neppM ); // input: n_events_per_page for momenta AOSOA (nevt=npagM*neppM)
-#endif
-
-  //--------------------------------------------------------------------------
-
 #ifdef __CUDACC__
   __global__
 #if defined MGONGPU_WFMEM_GLOBAL

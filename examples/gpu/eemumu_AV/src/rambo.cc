@@ -25,7 +25,6 @@ namespace rambo2toNm0
   void getMomentaInitial( const fptype energy,    // input: energy
 #if defined MGONGPU_LAYOUT_ASA
                           fptype momenta1d[],     // output: momenta as AOSOA[npagM][npar][4][neppM]
-                          const int neppM,        // input: n_events_per_page for momenta AOSOA (nevt=npagM*neppM)
 #elif defined MGONGPU_LAYOUT_SOA
                           fptype momenta1d[],     // output: momenta as SOA[npar][4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
@@ -34,6 +33,7 @@ namespace rambo2toNm0
                           const int nevt )        // input: #events
   {
 #if defined MGONGPU_LAYOUT_ASA
+    const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
     // Cast is impossible in CUDA C ("error: expression must have a constant value")
     //fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
 #elif defined MGONGPU_LAYOUT_SOA
@@ -100,7 +100,6 @@ namespace rambo2toNm0
                         const fptype rnarray1d[], // input: randomnumbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
 #if defined MGONGPU_LAYOUT_ASA
                         fptype momenta1d[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
-                        const int neppM,          // input: n_events_per_page for momenta AOSOA (nevt=npagM*neppM)
 #elif defined MGONGPU_LAYOUT_SOA
                         fptype momenta1d[],       // output: momenta as SOA[npar][4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
@@ -122,6 +121,9 @@ namespace rambo2toNm0
      ****************************************************************************/
 
     const int neppR = mgOnGpu::neppR; // ASA layout: constant at compile-time
+#if defined MGONGPU_LAYOUT_ASA
+    const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
+#endif
     
     // initialization step: factorials for the phase space weight
     const fptype twopi = 8. * atan(1.);

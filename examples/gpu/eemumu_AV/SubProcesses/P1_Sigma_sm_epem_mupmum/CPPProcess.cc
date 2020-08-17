@@ -23,14 +23,6 @@ namespace MG5_sm
 
   using mgOnGpu::nw6;
 
-#if defined MGONGPU_LAYOUT_ASA
-#ifdef __CUDACC__
-  __device__ __constant__ int cNeppM[1];
-#else
-  static int cNeppM[1];
-#endif
-#endif
-
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
@@ -44,8 +36,7 @@ namespace MG5_sm
     using mgOnGpu::np4;
 #if defined MGONGPU_LAYOUT_ASA
     using mgOnGpu::npar;
-    using mgOnGpu::neppM; // constant at compile-time
-    //const int neppM = cNeppM[0]; // retrieved at run-time from device constant memory
+    const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
     const int ipagM = ievt/neppM; // #eventpage in this iteration
     const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
     // ASA: allmomenta[npag][npar][np4][nepp]
@@ -873,19 +864,6 @@ namespace Proc
 #endif
 
   }
-
-  //--------------------------------------------------------------------------
-
-#if defined MGONGPU_LAYOUT_ASA
-  void sigmakin_setNeppM( const int neppM ) // input: n_events_per_page for momenta AOSOA (nevt=npagM*neppM)
-  {
-#ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( MG5_sm::cNeppM, &neppM, 1 * sizeof(int) ) );
-#else
-    memcpy( MG5_sm::cNeppM, &neppM, 1 * sizeof(int) );
-#endif
-  }  
-#endif
 
   //--------------------------------------------------------------------------
   // Evaluate |M|^2, part independent of incoming flavour.
