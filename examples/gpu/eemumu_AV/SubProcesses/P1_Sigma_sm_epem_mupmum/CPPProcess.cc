@@ -852,12 +852,11 @@ namespace Proc
   void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM]
                  fptype* output            // output: matrixelements[nevt]
 #ifdef __CUDACC__
-                 // NB: nevt == ndim=gpublocks*gputhreads in CUDA
 #if defined MGONGPU_WFMEM_GLOBAL
                  , cxtype* tmpWFs          // tmp[(nwf=5)*(nw6=6)*nevt] 
 #endif
 #else
-                 , const int nevt          // input: #events
+                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                  )
   {

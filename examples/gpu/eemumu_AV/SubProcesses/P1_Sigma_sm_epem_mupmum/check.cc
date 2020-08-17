@@ -94,7 +94,9 @@ int main(int argc, char **argv)
     return usage(argv[0]);
   }
 
-  const int ndim = gpublocks * gputhreads; // number of events (threads) in one iteration
+  const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
+  const int nevt = ndim; // number of events in one iteration == number of GPU threads
+  const int nevtALL = niter*nevt; // total number of ALL events in all iterations
 
   if (verbose)
     std::cout << "# iterations: " << niter << std::endl;
@@ -138,21 +140,21 @@ int main(int argc, char **argv)
   using mgOnGpu::np4;
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
-  const int nRnarray = np4*nparf*ndim; // (NB: ASA layout with ndim=npagR*neppR events per iteration)
+  const int nRnarray = np4*nparf*nevt; // (NB: ASA layout with nevt=npagR*neppR events per iteration)
 #ifdef __CUDACC__
   const int nbytesRnarray = nRnarray * sizeof(fptype);
-  fptype* devRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: ndim=npagR*neppR)
+  fptype* devRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   checkCuda( cudaMalloc( &devRnarray, nbytesRnarray ) );
 #if defined MGONGPU_CURAND_ONHOST
-  fptype* hstRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: ndim=npagR*neppR)
+  fptype* hstRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   checkCuda( cudaMallocHost( &hstRnarray, nbytesRnarray ) );
 #endif
 #else
-  fptype* hstRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: ndim=npagR*neppR)
+  fptype* hstRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   hstRnarray = new fptype[nRnarray]();
 #endif
 
-  const int nMomenta = np4*npar*ndim; // (NB: ndim=npagM*neppM for ASA layouts)
+  const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for ASA layouts)
   fptype* hstMomenta = 0; // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
 #ifdef __CUDACC__
   const int nbytesMomenta = nMomenta * sizeof(fptype);
@@ -166,13 +168,13 @@ int main(int argc, char **argv)
 #if defined __CUDACC__ && defined MGONGPU_WFMEM_GLOBAL
   using mgOnGpu::nwf;
   using mgOnGpu::nw6;
-  const int nAllWFs = nwf * nw6 * ndim;
+  const int nAllWFs = nwf * nw6 * nevt;
   const int nbytesAllWFs = nAllWFs * sizeof(cxtype);
-  cxtype* devAllWFs = 0; // AOSOA[nblk][nparf][np4][ntpb] (NB: ndim=nblk*ntpb)
+  cxtype* devAllWFs = 0; // AOSOA[nblk][nparf][np4][ntpb] (NB: nevt=nblk*ntpb)
   checkCuda( cudaMalloc( &devAllWFs, nbytesAllWFs ) );
 #endif
 
-  const int nWeights = ndim;
+  const int nWeights = nevt;
   fptype* hstWeights = 0; // (previously was: meHostPtr)
 #ifdef __CUDACC__
   const int nbytesWeights = nWeights * sizeof(fptype);
@@ -183,7 +185,7 @@ int main(int argc, char **argv)
   hstWeights = new fptype[nWeights]();
 #endif
 
-  const int nMEs = ndim;
+  const int nMEs = nevt;
   fptype* hstMEs = 0; // (previously was: meHostPtr)
 #ifdef __CUDACC__
   const int nbytesMEs = nMEs * sizeof(fptype);
@@ -196,7 +198,7 @@ int main(int argc, char **argv)
 
   double* rambtimes = new double[niter]();
   double* wavetimes = new double[niter]();
-  fptype* matrixelementvector = new fptype[niter * ndim * process.nprocesses]();
+  fptype* matrixelementALL = new fptype[nevtALL](); // FIXME: assume process.nprocesses == 1
 
 #ifdef __CUDACC__
 #if defined MGONGPU_WFMEM_SHARED
@@ -238,17 +240,17 @@ int main(int argc, char **argv)
     rambo2toNm0::seedGenerator( rnGen, seed+iiter );
 #endif
 
-    // --- 1b. Generate all relevant numbers to build ndim events (i.e. ndim phase space points) on the host
+    // --- 1b. Generate all relevant numbers to build nevt events (i.e. nevt phase space points) on the host
     const std::string rngnKey = "1b GenRnGen";
     timermap.start( rngnKey );
 #ifdef __CUDACC__
 #if defined MGONGPU_CURAND_ONDEVICE
-    grambo2toNm0::generateRnarray( rnGen, devRnarray, ndim );
+    grambo2toNm0::generateRnarray( rnGen, devRnarray, nevt );
 #elif defined MGONGPU_CURAND_ONHOST
-    grambo2toNm0::generateRnarray( rnGen, hstRnarray, ndim );
+    grambo2toNm0::generateRnarray( rnGen, hstRnarray, nevt );
 #endif
 #else
-    rambo2toNm0::generateRnarray( rnGen, hstRnarray, ndim );
+    rambo2toNm0::generateRnarray( rnGen, hstRnarray, nevt );
 #endif
     //std::cout << "Got random numbers" << std::endl;
 
@@ -262,7 +264,7 @@ int main(int argc, char **argv)
 #endif
 
     // === STEP 2 OF 3
-    // Fill in particle momenta for each of ndim events on the device
+    // Fill in particle momenta for each of nevt events on the device
 
     // *** START THE OLD-STYLE TIMER FOR RAMBO ***
     double rambtime = 0;
@@ -273,18 +275,18 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
     grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta );
 #else
-    rambo2toNm0::getMomentaInitial( energy, hstMomenta, ndim );
+    rambo2toNm0::getMomentaInitial( energy, hstMomenta, nevt );
 #endif
     //std::cout << "Got initial momenta" << std::endl;
 
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
-    // (i.e. map random numbers to final-state particle momenta for each of ndim events)
+    // (i.e. map random numbers to final-state particle momenta for each of nevt events)
     const std::string rfinKey = "2b RamboFin";
     rambtime += timermap.start( rfinKey );
 #ifdef __CUDACC__
     grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray, devMomenta, devWeights );
 #else
-    rambo2toNm0::getMomentaFinal( energy, hstRnarray, hstMomenta, hstWeights, ndim );
+    rambo2toNm0::getMomentaFinal( energy, hstRnarray, hstMomenta, hstWeights, nevt );
 #endif
     //std::cout << "Got final momenta" << std::endl;
 
@@ -304,7 +306,7 @@ int main(int argc, char **argv)
     rambtime += timermap.stop();
 
     // === STEP 3 OF 3
-    // Evaluate matrix elements for all ndim events
+    // Evaluate matrix elements for all nevt events
     // 3a. Evaluate MEs on the device
     // 3b. Copy MEs back from device to host
 
@@ -324,7 +326,7 @@ int main(int argc, char **argv)
 #endif
     checkCuda( cudaPeekAtLastError() );
 #else
-    Proc::sigmaKin(hstMomenta, hstMEs, ndim);
+    Proc::sigmaKin(hstMomenta, hstMEs, nevt);
 #endif
 
 #ifdef __CUDACC__
@@ -353,10 +355,10 @@ int main(int argc, char **argv)
 
     if (verbose || perf)
     {
-      for (int idim = 0; idim < ndim; ++idim) // Loop over all events in this iteration
+      for (int ievt = 0; ievt < nevt; ++ievt) // Loop over all events in this iteration
       {
-        const int ipagM = idim/neppM; // #eventpage in this iteration
-        const int ieppM = idim%neppM; // #event in the current eventpage in this iteration
+        const int ipagM = ievt/neppM; // #eventpage in this iteration
+        const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
         if (verbose)
         {
           std::cout << "Momenta:" << std::endl;
@@ -382,9 +384,9 @@ int main(int argc, char **argv)
           if (verbose)
             std::cout << " Matrix element = "
               //   << setiosflags(ios::fixed) << setprecision(17)
-                      << hstMEs[idim] << " GeV^" << meGeVexponent << std::endl;
+                      << hstMEs[ievt] << " GeV^" << meGeVexponent << std::endl;
           if (perf)
-            matrixelementvector[iiter*ndim + idim] = hstMEs[idim];
+            matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt];
         }
 
         if (verbose)
@@ -441,28 +443,27 @@ int main(int argc, char **argv)
     double meanwtim = sumwtim / niter;
     double stdwtim = std::sqrt( sqswtim / niter - meanwtim * meanwtim );
 
-    const int num_mes = niter*ndim;
-    int num_nan = 0;
+    int nnan = 0;
     double sumelem = 0;
     double sqselem = 0;
-    double minelem = matrixelementvector[0];
-    double maxelem = matrixelementvector[0];
-    for ( int imes = 0; imes < num_mes; ++imes )
+    double minelem = matrixelementALL[0];
+    double maxelem = matrixelementALL[0];
+    for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
     {
-      if ( isnan( matrixelementvector[imes] ) )
+      if ( isnan( matrixelementALL[ievtALL] ) )
       {
-        if ( debug ) // only printed out with "-p -d" (matrixelementvector is not filled without -p)
-          std::cout << "WARNING! ME[" << imes << "} is nan" << std::endl;
-        num_nan++;
+        if ( debug ) // only printed out with "-p -d" (matrixelementALL is not filled without -p)
+          std::cout << "WARNING! ME[" << ievtALL << "} is nan" << std::endl;
+        nnan++;
         continue;
       }
-      sumelem += matrixelementvector[imes];
-      sqselem += matrixelementvector[imes]*matrixelementvector[imes];
-      minelem = std::min( minelem, (double)matrixelementvector[imes] );
-      maxelem = std::max( maxelem, (double)matrixelementvector[imes] );
+      sumelem += matrixelementALL[ievtALL];
+      sqselem += matrixelementALL[ievtALL]*matrixelementALL[ievtALL];
+      minelem = std::min( minelem, (double)matrixelementALL[ievtALL] );
+      maxelem = std::max( maxelem, (double)matrixelementALL[ievtALL] );
     }
-    double meanelem = sumelem / ( num_mes - num_nan );
-    double stdelem = std::sqrt( sqselem / ( num_mes - num_nan) - meanelem * meanelem );
+    double meanelem = sumelem / ( nevtALL - nnan );
+    double stdelem = std::sqrt( sqselem / ( nevtALL - nnan) - meanelem * meanelem );
 
     std::cout << "***************************************" << std::endl
               << "NumIterations             = " << niter << std::endl
@@ -470,9 +471,9 @@ int main(int argc, char **argv)
               << "NumBlocksPerGrid          = " << gpublocks << std::endl
               << "---------------------------------------" << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
-              << "FP precision              = DOUBLE (nan=" << num_nan << ")" << std::endl
+              << "FP precision              = DOUBLE (nan=" << nnan << ")" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
-              << "FP precision              = FLOAT (nan=" << num_nan << ")" << std::endl
+              << "FP precision              = FLOAT (nan=" << nnan << ")" << std::endl
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_CXTYPE_CUCOMPLEX
@@ -515,15 +516,15 @@ int main(int argc, char **argv)
               << "---------------------------------------" << std::endl
       //<< "ProcessID:                = " << getpid() << std::endl
       //<< "NProcesses                = " << process.nprocesses << std::endl
-              << "TotalEventsComputed       = " << num_mes << std::endl
-              << "RamboEventsPerSec         = " << num_mes/sumrtim << " sec^-1" << std::endl
-              << "MatrixElemEventsPerSec    = " << num_mes/sumwtim << " sec^-1" << std::endl;
+              << "TotalEventsComputed       = " << nevtALL << std::endl
+              << "RamboEventsPerSec         = " << nevtALL/sumrtim << " sec^-1" << std::endl
+              << "MatrixElemEventsPerSec    = " << nevtALL/sumwtim << " sec^-1" << std::endl;
 
     std::cout << "***************************************" << std::endl
-              << "NumMatrixElements(notNan) = " << num_mes - num_nan << std::endl
+              << "NumMatrixElements(notNan) = " << nevtALL - nnan << std::endl
               << std::scientific
               << "MeanMatrixElemValue       = " << meanelem << " GeV^" << meGeVexponent << std::endl
-              << "StdErrMatrixElemValue     = " << stdelem/sqrt(num_mes) << " GeV^" << meGeVexponent << std::endl
+              << "StdErrMatrixElemValue     = " << stdelem/sqrt(nevtALL) << " GeV^" << meGeVexponent << std::endl
               << "StdDevMatrixElemValue     = " << stdelem << " GeV^" << meGeVexponent << std::endl
               << "MinMatrixElemValue        = " << minelem << " GeV^" << meGeVexponent << std::endl
               << "MaxMatrixElemValue        = " << maxelem << " GeV^" << meGeVexponent << std::endl;
@@ -565,7 +566,7 @@ int main(int argc, char **argv)
 
   delete[] rambtimes;
   delete[] wavetimes;
-  delete[] matrixelementvector;
+  delete[] matrixelementALL;
 
 #ifdef __CUDACC__
   // --- 9d. Finalise cuda

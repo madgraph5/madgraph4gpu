@@ -40,7 +40,7 @@ namespace rambo2toNm0
 #endif
     {
 #ifdef __CUDACC__
-      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // 0 to ndim-1
+      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid
       const int ievt = idim;
       //printf( "getMomentaInitial: ievt %d\n", ievt );
 #endif
@@ -107,7 +107,7 @@ namespace rambo2toNm0
 #endif
     {
 #ifdef __CUDACC__
-      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // 0 to ndim-1
+      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid
       const int ievt = idim;
       //printf( "getMomentaFinal:   ievt %d\n", ievt );
 #endif
