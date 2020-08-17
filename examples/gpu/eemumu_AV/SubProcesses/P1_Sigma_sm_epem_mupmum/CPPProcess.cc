@@ -660,12 +660,9 @@ namespace Proc
 #ifdef __CUDACC__
   __device__
 #endif
-  // ** NB: allmomenta can have three different layouts
-  // ASA: allmomenta[npagM][npar][np4][neppM] where ndim=npagM*neppM
-  // SOA: allmomenta[npar][np4][ndim]
   void calculate_wavefunctions( int ihel,
-                                const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-                                fptype &matrix            // output: matrix element for this event
+                                const fptype* allmomenta, // output: momenta as AOSOA[npagM][npar][4][neppM]
+                                fptype &matrix            // output: one matrix element for this event
 #ifdef __CUDACC__
 #if defined MGONGPU_WFMEM_GLOBAL
                                 , cxtype* tmpWFs          // tmp[(nwf=5)*(nw6=6)*(nevt=nblk*ntpb)] 
@@ -849,14 +846,11 @@ namespace Proc
   //--------------------------------------------------------------------------
   // Evaluate |M|^2, part independent of incoming flavour.
 
-  // ** NB: allmomenta can have three different layouts
-  // ASA: allmomenta[npag][npar][np4][nepp] where ndim=npag*nepp
-  // SOA: allmomenta[npar][np4][ndim]
 #ifdef __CUDACC__
   __global__
 #endif
-  void sigmaKin( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-                 fptype* output            // output[nevt]
+  void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM]
+                 fptype* output            // output: matrixelements[nevt]
 #ifdef __CUDACC__
                  // NB: nevt == ndim=gpublocks*gputhreads in CUDA
 #if defined MGONGPU_WFMEM_GLOBAL
