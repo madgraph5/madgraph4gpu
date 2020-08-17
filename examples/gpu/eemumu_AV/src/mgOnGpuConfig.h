@@ -49,7 +49,6 @@ namespace mgOnGpu
 
   // Maximum number of threads per block
   const int ntpbMAX = 256;
-  //const int ntpbMAX = 8; // FOR DEBUGGING!
 
   // Number of Events Per Page in the random number AOSOA (ASA) structure
   // [NB this is best kept as a compile-time constant: see issue #23]
