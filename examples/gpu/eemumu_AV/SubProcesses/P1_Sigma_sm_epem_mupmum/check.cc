@@ -79,14 +79,13 @@ int main(int argc, char **argv)
     std::cout << "ERROR! #threads/block should be a multiple of " << neppR << std::endl;
     return usage(argv[0]);
   }
-#if defined MGONGPU_LAYOUT_ASA
+
   const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
   if ( gputhreads%neppM != 0 )
   {
     std::cout << "ERROR! #threads/block should be a multiple of " << neppM << std::endl;
     return usage(argv[0]);
   }
-#endif
 
   using mgOnGpu::ntpbMAX;
   if ( gputhreads > ntpbMAX )
@@ -154,11 +153,7 @@ int main(int argc, char **argv)
 #endif
 
   const int nMomenta = np4*npar*ndim; // (NB: ndim=npagM*neppM for ASA layouts)
-#if defined MGONGPU_LAYOUT_ASA
   fptype* hstMomenta = 0; // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
-#elif defined MGONGPU_LAYOUT_SOA
-  fptype* hstMomenta = 0; // SOA[npar][np4][ndim] (previously was: lp)
-#endif
 #ifdef __CUDACC__
   const int nbytesMomenta = nMomenta * sizeof(fptype);
   checkCuda( cudaMallocHost( &hstMomenta, nbytesMomenta ) );
@@ -248,12 +243,12 @@ int main(int argc, char **argv)
     timermap.start( rngnKey );
 #ifdef __CUDACC__
 #if defined MGONGPU_CURAND_ONDEVICE
-    grambo2toNm0::generateRnArray( rnGen, devRnarray, ndim );
+    grambo2toNm0::generateRnarray( rnGen, devRnarray, ndim );
 #elif defined MGONGPU_CURAND_ONHOST
-    grambo2toNm0::generateRnArray( rnGen, hstRnarray, ndim );
+    grambo2toNm0::generateRnarray( rnGen, hstRnarray, ndim );
 #endif
 #else
-    rambo2toNm0::generateRnArray( rnGen, hstRnarray, ndim );
+    rambo2toNm0::generateRnarray( rnGen, hstRnarray, ndim );
 #endif
     //std::cout << "Got random numbers" << std::endl;
 
@@ -360,16 +355,13 @@ int main(int argc, char **argv)
     {
       for (int idim = 0; idim < ndim; ++idim) // Loop over all events in this iteration
       {
-#if defined MGONGPU_LAYOUT_ASA
         const int ipagM = idim/neppM; // #eventpage in this iteration
         const int ieppM = idim%neppM; // #event in the current eventpage in this iteration
-#endif
         if (verbose)
         {
           std::cout << "Momenta:" << std::endl;
           for (int ipar = 0; ipar < npar; ipar++)
           {
-#if defined MGONGPU_LAYOUT_ASA
             std::cout << std::setw(4) << ipar + 1
                       << setiosflags(std::ios::scientific) << std::setw(14)
                       << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
@@ -380,18 +372,6 @@ int main(int argc, char **argv)
                       << setiosflags(std::ios::scientific) << std::setw(14)
                       << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
                       << std::endl;
-#elif defined MGONGPU_LAYOUT_SOA
-            std::cout << std::setw(4) << ipar + 1
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipar*ndim*np4 + 0*ndim + idim] // SOA[ipar][0][idim]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipar*ndim*np4 + 1*ndim + idim] // SOA[ipar][1][idim]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipar*ndim*np4 + 2*ndim + idim] // SOA[ipar][2][idim]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipar*ndim*np4 + 3*ndim + idim] // SOA[ipar][3][idim]
-                      << std::endl;
-#endif
           }
           std::cout << std::string(80, '-') << std::endl;
         }
@@ -504,12 +484,8 @@ int main(int argc, char **argv)
               << "Complex type              = STD::COMPLEX" << std::endl
 #endif
               << "RanNumb memory layout     = AOSOA[" << neppR << "]" << std::endl
-#if defined MGONGPU_LAYOUT_ASA
               << "Momenta memory layout     = AOSOA[" << neppM << "]" 
               << ( neppM == 1 ? " == AOS" : "" ) << std::endl
-#elif defined MGONGPU_LAYOUT_SOA
-              << "Momenta memory layout     = SOA" << std::endl
-#endif
 #ifdef __CUDACC__
 #if defined MGONGPU_WFMEM_LOCAL
               << "Wavefunction GPU memory   = LOCAL" << std::endl
