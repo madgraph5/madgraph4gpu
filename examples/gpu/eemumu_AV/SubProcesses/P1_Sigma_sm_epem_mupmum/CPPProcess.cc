@@ -633,9 +633,11 @@ namespace Proc
   static fptype cIPD[2];
 #endif
 
+#ifndef MGONGPU_DISABLE_GOODHEL
 #ifdef __CUDACC__
   __device__ unsigned long long sigmakin_itry = 0; // first iteration over nevt events
   __device__ bool sigmakin_goodhel[ncomb] = { false };
+#endif
 #endif
 
   //--------------------------------------------------------------------------
@@ -868,10 +870,12 @@ namespace Proc
     // pars->setDependentParameters();
     // pars->setDependentCouplings();
     // Reset color flows
+#ifndef MGONGPU_DISABLE_GOODHEL
     const int maxtry = 10;
 #ifndef __CUDACC__
     static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
     static bool sigmakin_goodhel[ncomb] = { false };
+#endif
 #endif
 
 #ifndef __CUDACC__
@@ -896,10 +900,14 @@ namespace Proc
         matrix_element[iproc] = 0.;
       }
 
+#ifndef MGONGPU_DISABLE_GOODHEL
       fptype melast = 0; // check for good helicities
+#endif
       for ( int ihel = 0; ihel < ncomb; ihel++ )
       {
+#ifndef MGONGPU_DISABLE_GOODHEL
         if ( sigmakin_itry>maxtry && !sigmakin_goodhel[ihel] ) continue;
+#endif
         // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum (over helicities) of |M|^2 for the given event
 #ifdef __CUDACC__
 #if defined MGONGPU_WFMEM_GLOBAL
@@ -910,11 +918,13 @@ namespace Proc
 #else
         calculate_wavefunctions( ihel, allmomenta, matrix_element[0], ievt );
 #endif
+#ifndef MGONGPU_DISABLE_GOODHEL
         if ( sigmakin_itry<=maxtry )
         {
           if ( !sigmakin_goodhel[ihel] && matrix_element[0]>melast ) sigmakin_goodhel[ihel] = true;
           melast = matrix_element[0];
         }
+#endif
       }
 
       for (int iproc = 0; iproc < nprocesses; ++iproc)
@@ -927,6 +937,7 @@ namespace Proc
         output[iproc*nprocesses + ievt] = matrix_element[iproc];
       }
 
+#ifndef MGONGPU_DISABLE_GOODHEL
 #ifndef __CUDACC__
       if ( sigmakin_itry <= maxtry )
         sigmakin_itry++;
@@ -935,7 +946,8 @@ namespace Proc
       //    printf( "sigmakin: ihelgood %2d %d\n", ihel, sigmakin_goodhel[ihel] );
 #else
       if ( sigmakin_itry <= maxtry )
-        atomicAdd(&sigmakin_itry, 1);
+        atomicAdd( &sigmakin_itry, 1 );
+#endif
 #endif
 
     }
