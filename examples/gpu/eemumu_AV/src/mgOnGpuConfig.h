@@ -51,13 +51,17 @@ namespace mgOnGpu
   const int ntpbMAX = 256;
 
   // Number of Events Per Page in the random number AOSOA (ASA) structure
-  // [NB this is best kept as a compile-time constant: see issue #23]
+  // (this is best kept as a compile-time constant: see issue #23)
+  // *** NB Different values of neppR lead to different physics results: the ***
+  // *** same 1d array is generated, but it is interpreted in different ways ***
   //const int neppR = 1; // *** NB: this is equivalent to AOS ***
+  //const int neppR = 4; // FOR TESTS
   const int neppR = 32; // DEFAULT: 32, i.e. the number of threads in a warp
 
   // Number of Events Per Page in the momenta AOSOA (ASA) structure
-  // [NB this is best kept as a compile-time constant: see issue #23]
+  // (this is best kept as a compile-time constant: see issue #23)
   //const int neppM = 1; // *** NB: this is equivalent to AOS ***
+  //const int neppM = 4; // FOR TESTS
   const int neppM = 32; // DEFAULT: 32, i.e. the number of threads in a warp
 
 }

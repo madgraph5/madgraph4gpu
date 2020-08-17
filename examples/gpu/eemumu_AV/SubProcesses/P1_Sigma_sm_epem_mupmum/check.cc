@@ -76,14 +76,14 @@ int main(int argc, char **argv)
   const int neppR = mgOnGpu::neppR; // ASA layout: constant at compile-time
   if ( gputhreads%neppR != 0 )
   {
-    std::cout << "ERROR! #threads/block should be a multiple of " << neppR << std::endl;
+    std::cout << "ERROR! #threads/block should be a multiple of neppR=" << neppR << std::endl;
     return usage(argv[0]);
   }
 
   const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
   if ( gputhreads%neppM != 0 )
   {
-    std::cout << "ERROR! #threads/block should be a multiple of " << neppM << std::endl;
+    std::cout << "ERROR! #threads/block should be a multiple of neppM=" << neppM << std::endl;
     return usage(argv[0]);
   }
 
