@@ -62,7 +62,7 @@ namespace rambo2toNm0
   __global__
 #endif
   void getMomentaFinal( const fptype energy,    // input: energy
-                        const fptype rndnumb[], // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
+                        const fptype rnarray[], // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
                         fptype momenta[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
                         fptype wgts[],          // output: weights[nevt]
                         const int nevt )        // input: #events
@@ -113,10 +113,10 @@ namespace rambo2toNm0
       // generate n massless momenta in infinite phase space
       fptype q[nparf][np4];
       for (int iparf = 0; iparf < nparf; iparf++) {
-        const fptype r1 = rndnumb[ipagR*nparf*np4*neppR + iparf*np4*neppR + 0*neppR + ieppR]; // rndnumb[ipagR][iparf][0][ieppR];
-        const fptype r2 = rndnumb[ipagR*nparf*np4*neppR + iparf*np4*neppR + 1*neppR + ieppR]; // rndnumb[ipagR][iparf][1][ieppR];
-        const fptype r3 = rndnumb[ipagR*nparf*np4*neppR + iparf*np4*neppR + 2*neppR + ieppR]; // rndnumb[ipagR][iparf][2][ieppR];
-        const fptype r4 = rndnumb[ipagR*nparf*np4*neppR + iparf*np4*neppR + 3*neppR + ieppR]; // rndnumb[ipagR][iparf][3][ieppR];
+        const fptype r1 = rnarray[ipagR*nparf*np4*neppR + iparf*np4*neppR + 0*neppR + ieppR]; // rnarray[ipagR][iparf][0][ieppR];
+        const fptype r2 = rnarray[ipagR*nparf*np4*neppR + iparf*np4*neppR + 1*neppR + ieppR]; // rnarray[ipagR][iparf][1][ieppR];
+        const fptype r3 = rnarray[ipagR*nparf*np4*neppR + iparf*np4*neppR + 2*neppR + ieppR]; // rnarray[ipagR][iparf][2][ieppR];
+        const fptype r4 = rnarray[ipagR*nparf*np4*neppR + iparf*np4*neppR + 3*neppR + ieppR]; // rnarray[ipagR][iparf][3][ieppR];
         const fptype c = 2. * r1 - 1.;
         const fptype s = sqrt(1. - c * c);
         const fptype f = twopi * r2;
@@ -227,13 +227,13 @@ namespace rambo2toNm0
   // ** NB: the random numbers are always produced in the same order and are interpreted as an AOSOA
   // AOSOA: rnarray[npagR][nparf][np4][neppR] where nevt=npagR*neppR
   void generateRnarray( curandGenerator_t gen, // input: curand generator
-                        fptype rndnumb[],      // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
+                        fptype rnarray[],      // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
                         const int nevt )       // input: #events
   {
 #if defined MGONGPU_FPTYPE_DOUBLE
-    checkCurand( curandGenerateUniformDouble( gen, rndnumb, np4*nparf*nevt ) );
+    checkCurand( curandGenerateUniformDouble( gen, rnarray, np4*nparf*nevt ) );
 #elif defined MGONGPU_FPTYPE_FLOAT
-    checkCurand( curandGenerateUniform( gen, rndnumb, np4*nparf*nevt ) );
+    checkCurand( curandGenerateUniform( gen, rnarray, np4*nparf*nevt ) );
 #endif
   }
 
