@@ -484,7 +484,8 @@ int main(int argc, char **argv)
 #else
               << "Complex type              = STD::COMPLEX" << std::endl
 #endif
-              << "RanNumb memory layout     = AOSOA[" << neppR << "]" << std::endl
+              << "RanNumb memory layout     = AOSOA[" << neppR << "]"
+              << ( neppR == 1 ? " == AOS" : "" ) << std::endl
               << "Momenta memory layout     = AOSOA[" << neppM << "]" 
               << ( neppM == 1 ? " == AOS" : "" ) << std::endl
 #ifdef __CUDACC__
