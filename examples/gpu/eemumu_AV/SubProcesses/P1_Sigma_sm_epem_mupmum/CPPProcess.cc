@@ -45,7 +45,7 @@ namespace MG5_sm
 #if defined MGONGPU_LAYOUT_ASA
     using mgOnGpu::npar;
     using mgOnGpu::neppM; // constant at compile-time
-    //const int neppM = cNeppM[0]; // retrieved from device constant memory
+    //const int neppM = cNeppM[0]; // retrieved at run-time from device constant memory
     const int ipagM = ievt/neppM; // #eventpage in this iteration
     const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
     // ASA: allmomenta[npag][npar][np4][nepp]
