@@ -112,15 +112,18 @@ namespace Proc
 
 #ifdef __CUDACC__
   __global__
+#endif
+  void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                 fptype* allMEs            // output: allMEs[nevt], final |M|^2 averaged over all helicities
+#ifdef __CUDACC__
 #if defined MGONGPU_WFMEM_GLOBAL
-  void sigmaKin( const fptype* allmomenta, fptype* output, cxtype* tmpWFs );
-#else
-  void sigmaKin( const fptype* allmomenta, fptype* output );
+                 , cxtype* tmpWFs          // tmp[(nwf=5)*(nw6=6)*nevt] 
 #endif
 #else
-  void sigmaKin( const fptype* allmomenta, fptype* output, const int nevt );
+                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
-
+                 );
+  
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
