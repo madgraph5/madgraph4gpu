@@ -158,8 +158,6 @@ int main(int argc, char **argv)
   fptype* hstMomenta = 0; // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
 #elif defined MGONGPU_LAYOUT_SOA
   fptype* hstMomenta = 0; // SOA[npar][np4][ndim] (previously was: lp)
-#elif defined MGONGPU_LAYOUT_AOS
-  fptype* hstMomenta = 0; // AOS[ndim][npar][np4] (previously was: lp)
 #endif
 #ifdef __CUDACC__
   const int nbytesMomenta = nMomenta * sizeof(fptype);
@@ -393,17 +391,6 @@ int main(int argc, char **argv)
                       << setiosflags(std::ios::scientific) << std::setw(14)
                       << hstMomenta[ipar*ndim*np4 + 3*ndim + idim] // SOA[ipar][3][idim]
                       << std::endl;
-#elif defined MGONGPU_LAYOUT_AOS
-            std::cout << std::setw(4) << ipar + 1
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[idim*npar*np4 + ipar*np4 + 0] // AOS[idim][ipar][0]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[idim*npar*np4 + ipar*np4 + 1] // AOS[idim][ipar][1]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[idim*npar*np4 + ipar*np4 + 2] // AOS[idim][ipar][2]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[idim*npar*np4 + ipar*np4 + 3] // AOS[idim][ipar][3]
-                      << std::endl;
 #endif
           }
           std::cout << std::string(80, '-') << std::endl;
@@ -518,11 +505,10 @@ int main(int argc, char **argv)
 #endif
               << "RanNumb memory layout     = AOSOA[" << neppR << "]" << std::endl
 #if defined MGONGPU_LAYOUT_ASA
-              << "Momenta memory layout     = AOSOA[" << neppM << "]" << std::endl
+              << "Momenta memory layout     = AOSOA[" << neppM << "]" 
+              << ( neppM == 1 ? " == AOS" : "" ) << std::endl
 #elif defined MGONGPU_LAYOUT_SOA
               << "Momenta memory layout     = SOA" << std::endl
-#elif defined MGONGPU_LAYOUT_AOS
-              << "Momenta memory layout     = AOS" << std::endl
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_WFMEM_LOCAL

@@ -49,8 +49,6 @@ namespace rambo2toNm0
                           fptype momenta1d[],     // output: momenta as AOSOA[npagM][npar][4][neppM]
 #elif defined MGONGPU_LAYOUT_SOA
                           fptype momenta1d[],     // output: momenta as SOA[npar][4][nevt]
-#elif defined MGONGPU_LAYOUT_AOS
-                          fptype momenta1d[],     // output: momenta as AOS[nevt][npar][4]
 #endif
                           const int nevt );       // input: #events
 
@@ -67,8 +65,6 @@ namespace rambo2toNm0
                         fptype momenta1d[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
 #elif defined MGONGPU_LAYOUT_SOA
                         fptype momenta1d[],       // output: momenta as SOA[npar][4][nevt]
-#elif defined MGONGPU_LAYOUT_AOS
-                        fptype momenta1d[],       // output: momenta as AOS[nevt][npar][4]
 #endif
                         fptype wgts[],            // output: weights[nevt]
                         const int nevt );         // input: #events

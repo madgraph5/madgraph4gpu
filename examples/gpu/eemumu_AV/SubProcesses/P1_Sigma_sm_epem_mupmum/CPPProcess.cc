@@ -49,10 +49,6 @@ namespace MG5_sm
 #endif
     // SOA: allmomenta[npar][np4][ndim]
     return allmomenta[ipar*np4*nevt + ip4*nevt + ievt]; // SOA[ipar][ip4][ievt]
-#elif defined MGONGPU_LAYOUT_AOS
-    using mgOnGpu::npar;
-    // AOS: allmomenta[ndim][npar][np4]
-    return allmomenta[ievt*npar*np4 + ipar*np4 + ip4]; // AOS[ievt][ipar][ip4]
 #endif
   }
 
@@ -681,7 +677,6 @@ namespace Proc
   // ** NB: allmomenta can have three different layouts
   // ASA: allmomenta[npagM][npar][np4][neppM] where ndim=npagM*neppM
   // SOA: allmomenta[npar][np4][ndim]
-  // AOS: allmomenta[ndim][npar][np4]
   void calculate_wavefunctions( int ihel,
                                 const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                                 fptype &matrix            // output: matrix element for this event
@@ -871,7 +866,6 @@ namespace Proc
   // ** NB: allmomenta can have three different layouts
   // ASA: allmomenta[npag][npar][np4][nepp] where ndim=npag*nepp
   // SOA: allmomenta[npar][np4][ndim]
-  // AOS: allmomenta[ndim][npar][np4]
 #ifdef __CUDACC__
   __global__
 #endif

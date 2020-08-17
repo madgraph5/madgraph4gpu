@@ -7,7 +7,6 @@
 // Memory layout for momenta (CHOOSE ONLY ONE)
 #define MGONGPU_LAYOUT_ASA 1 // default (~5.00E8) 
 //#define MGONGPU_LAYOUT_SOA 1 // 7% slower (4.65E8 against 5.00E8)
-//#define MGONGPU_LAYOUT_AOS 1 // 4% slower (4.80E8 against 5.00E8)
 
 // Curand random number generation (CHOOSE ONLY ONE)
 #define MGONGPU_CURAND_ONDEVICE 1 // default
@@ -61,6 +60,7 @@ namespace mgOnGpu
   // Number of Events Per Page in the momenta AOSOA (ASA) structure
   // [NB this is best kept as a compile-time constant: see issue #23]
   const int neppM = 32; // choose 32, i.e. the number of threads in a warp
+  //const int neppM = 1; // *** NB: this is equivalent to AOS ***
 #endif
 
 }
