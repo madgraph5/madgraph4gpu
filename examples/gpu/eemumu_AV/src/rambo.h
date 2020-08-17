@@ -45,7 +45,7 @@ namespace rambo2toNm0
   __global__
 #endif
   void getMomentaInitial( const fptype energy, // input: energy
-                          fptype momenta[],    // output: momenta as AOSOA[npagM][npar][4][neppM]
+                          fptype momenta1d[],  // output: momenta as AOSOA[npagM][npar][4][neppM]
                           const int nevt );    // input: #events
 
   //--------------------------------------------------------------------------
@@ -55,11 +55,11 @@ namespace rambo2toNm0
 #ifdef __CUDACC__
   __global__
 #endif
-  void getMomentaFinal( const fptype energy,    // input: energy
-                        const fptype rnarray[], // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
-                        fptype momenta[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
-                        fptype wgts[],          // output: weights[nevt]
-                        const int nevt );       // input: #events
+  void getMomentaFinal( const fptype energy,      // input: energy
+                        const fptype rnarray1d[], // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
+                        fptype momenta1d[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
+                        fptype wgts[],            // output: weights[nevt]
+                        const int nevt );         // input: #events
 
   //--------------------------------------------------------------------------
 
@@ -82,7 +82,7 @@ namespace rambo2toNm0
   // ** NB: the random numbers are always produced in the same order and are interpreted as an AOSOA
   // AOSOA: rnarray[npagR][nparf][np4][neppR] where nevt=npagR*neppR
   void generateRnarray( curandGenerator_t gen, // input: curand generator
-                        fptype rnarray[],      // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
+                        fptype rnarray1d[],    // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
                         const int nevt );      // input: #events
 
   //--------------------------------------------------------------------------

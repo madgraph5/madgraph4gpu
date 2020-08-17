@@ -23,7 +23,7 @@ namespace MG5_sm
 #ifdef __CUDACC__
   __device__
 #endif
-  inline const fptype& pIparIp4Ievt( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM]
+  inline const fptype& pIparIp4Ievt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                      const int ipar,
                                      const int ip4,
                                      const int ievt )
@@ -31,9 +31,11 @@ namespace MG5_sm
     using mgOnGpu::np4;
     using mgOnGpu::npar;
     const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
+    fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
     const int ipagM = ievt/neppM; // #eventpage in this iteration
     const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-    return allmomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
+    //return allmomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
+    return momenta[ipagM][ipar][ip4][ieppM];
   }
 
   //--------------------------------------------------------------------------
