@@ -27,8 +27,9 @@
 //#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~5% slower (4.75E8 against 5.00E8)
 #endif
 
-// Disable helicity filtering? (DEFAULT: KEEP THIS COMMENTED OUT)
-#define MGONGPU_DISABLE_GOODHEL 1
+// Enable or diable helicity filtering? (CHOOSE ONLY ONE)
+#undef MGONGPU_DISABLE_GOODHEL // default
+//#define MGONGPU_DISABLE_GOODHEL 1
 
 namespace mgOnGpu
 {
