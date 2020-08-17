@@ -54,12 +54,12 @@ namespace mgOnGpu
   //const int ntpbMAX = 8; // FOR DEBUGGING!
 
   // Number of Events Per Page in the random number AOSOA (ASA) structure
-  // ** TODO: this will disappear and become dynamic...
+  // [NB this is best kept as a compile-time constant: see issue #23]
   const int neppR = 32; // choose 32, i.e. the number of threads in a warp
 
 #if defined MGONGPU_LAYOUT_ASA
   // Number of Events Per Page in the momenta AOSOA (ASA) structure
-  // ** TODO: this will disappear and become dynamic...
+  // [NB this is best kept as a compile-time constant: see issue #23]
   const int neppM = 32; // choose 32, i.e. the number of threads in a warp
 #endif
 

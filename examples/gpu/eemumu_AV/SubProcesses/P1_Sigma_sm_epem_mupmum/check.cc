@@ -73,8 +73,7 @@ int main(int argc, char **argv)
   if (niter == 0)
     return usage(argv[0]);
 
-  // Hardcoded (non-const) for now: eventually will be user-defined
-  int neppR = 32; // n_events_per_page for rnarray AOSOA (nevt=npagR*neppR)
+  const int neppR = mgOnGpu::neppR; // ASA layout: constant at compile-time
   if ( gputhreads%neppR != 0 )
   {
     std::cout << "ERROR! #threads/block should be a multiple of " << neppR << std::endl;
@@ -308,15 +307,15 @@ int main(int argc, char **argv)
     rambtime += timermap.start( rfinKey );
 #if defined MGONGPU_LAYOUT_ASA
 #ifdef __CUDACC__
-    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray, neppR, devMomenta, neppM, devWeights, ndim );
+    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray, devMomenta, neppM, devWeights, ndim );
 #else
-    rambo2toNm0::getMomentaFinal( energy, hstRnarray, neppR, hstMomenta, neppM, hstWeights, ndim );
+    rambo2toNm0::getMomentaFinal( energy, hstRnarray, hstMomenta, neppM, hstWeights, ndim );
 #endif
 #else
 #ifdef __CUDACC__
-    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray, neppR, devMomenta, devWeights, ndim );
+    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray, devMomenta, devWeights, ndim );
 #else
-    rambo2toNm0::getMomentaFinal( energy, hstRnarray, neppR, hstMomenta, hstWeights, ndim );
+    rambo2toNm0::getMomentaFinal( energy, hstRnarray, hstMomenta, hstWeights, ndim );
 #endif
 #endif
     //std::cout << "Got final momenta" << std::endl;
