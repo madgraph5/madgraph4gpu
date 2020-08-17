@@ -473,7 +473,7 @@ int main(int argc, char **argv)
       sum += wavetimes[iiter];
       sq_sum += wavetimes[iiter]*wavetimes[iiter];
       mintime = std::min( mintime, wavetimes[iiter] );
-      maxtime = std::max( mintime, wavetimes[iiter] );
+      maxtime = std::max( maxtime, wavetimes[iiter] );
     }
     double mean = sum / niter;
     double stdev = std::sqrt( sq_sum / niter - mean * mean );
