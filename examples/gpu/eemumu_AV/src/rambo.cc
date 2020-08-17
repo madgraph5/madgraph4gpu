@@ -132,8 +132,8 @@ namespace rambo2toNm0
     for (int kpar = 2; kpar < nparf; kpar++)
       z[kpar] = (z[kpar] - log(fptype(kpar)));
 
-    //const int neppR = mgOnGpu::neppR; // constant at compile-time
-    const int neppR = neppRdyn; // retrieved at run-time from function signature
+    const int neppR = mgOnGpu::neppR; // constant at compile-time
+    //const int neppR = neppRdyn; // retrieved at run-time from function signature
     
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
