@@ -1,5 +1,5 @@
-#ifndef RAMBO2TONM0_H
-#define RAMBO2TONM0_H 1
+#ifndef RAMBO_H
+#define RAMBO_H 1
 
 #include <cassert>
 
@@ -46,7 +46,8 @@ namespace rambo2toNm0
 #endif
   void getMomentaInitial( const fptype energy,    // input: energy
 #if defined MGONGPU_LAYOUT_ASA
-                          fptype momenta1d[],     // output: momenta as AOSOA[npag][npar][4][nepp]
+                          fptype momenta1d[],     // output: momenta as AOSOA[npagM][npar][4][neppM]
+                          const int neppM,        // input: n_events_per_page for momenta AOSOA (nevt=npagM*neppM)
 #elif defined MGONGPU_LAYOUT_SOA
                           fptype momenta1d[],     // output: momenta as SOA[npar][4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
@@ -62,9 +63,11 @@ namespace rambo2toNm0
   __global__
 #endif
   void getMomentaFinal( const fptype energy,      // input: energy
-                        const fptype rnarray1d[], // input: randomnumbers in [0,1] as AOSOA[npag][nparf][4][nepp]
+                        const fptype rnarray1d[], // input: randomnumbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
+                        const int neppR,          // input: n_events_per_page for rnarray AOSOA (nevt=npagR*neppR)
 #if defined MGONGPU_LAYOUT_ASA
-                        fptype momenta1d[],       // output: momenta as AOSOA[npag][npar][4][nepp]
+                        fptype momenta1d[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
+                        const int neppM,          // input: n_events_per_page for momenta AOSOA (nevt=npagM*neppM)
 #elif defined MGONGPU_LAYOUT_SOA
                         fptype momenta1d[],       // output: momenta as SOA[npar][4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
@@ -92,7 +95,7 @@ namespace rambo2toNm0
 
   // Bulk-generate (using curand) the random numbers needed to process nevt events in rambo
   // ** NB: the random numbers are always produced in the same order and are interpreted as an AOSOA
-  // AOSOA: rnarray[npag][nparf][np4][nepp] where nevt=npag*nepp
+  // AOSOA: rnarray[npagR][nparf][np4][neppR] where nevt=npagR*neppR
   void generateRnArray( curandGenerator_t gen, // input: curand generator
                         fptype rnarray1d[],    // output: randomnumbers in [0,1]
                         const int nevt );      // input: #events
@@ -101,4 +104,4 @@ namespace rambo2toNm0
 
 }
 
-#endif // RAMBO2TONM0_H 1
+#endif // RAMBO_H 1

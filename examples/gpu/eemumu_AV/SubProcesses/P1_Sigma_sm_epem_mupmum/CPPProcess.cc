@@ -18,10 +18,18 @@ namespace MG5_sm
 
 #ifndef __CUDACC__
   // Quick and dirty way to share nevt across all computational kernels
-  int nevt;
+  int nevt; // FIXME? add static?
 #endif
 
   using mgOnGpu::nw6;
+
+#if defined MGONGPU_LAYOUT_ASA
+#ifdef __CUDACC__
+  __device__ __constant__ int cNeppM[1];
+#else
+  static int cNeppM[1];
+#endif
+#endif
 
   //--------------------------------------------------------------------------
 
@@ -36,11 +44,12 @@ namespace MG5_sm
     using mgOnGpu::np4;
 #if defined MGONGPU_LAYOUT_ASA
     using mgOnGpu::npar;
-    using mgOnGpu::nepp;
-    const int ipag = ievt/nepp; // #eventpage in this iteration
-    const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
+    //using mgOnGpu::neppM; // constant at compile-time
+    const int neppM = cNeppM[0]; // retrieved from device constant memory
+    const int ipagM = ievt/neppM; // #eventpage in this iteration
+    const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
     // ASA: allmomenta[npag][npar][np4][nepp]
-    return allmomenta[ipag*npar*np4*nepp + ipar*nepp*np4 + ip4*nepp + iepp]; // AOSOA[ipag][ipar][ip4][iepp]
+    return allmomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
 #elif defined MGONGPU_LAYOUT_SOA
 #ifdef __CUDACC__
     const int nevt = blockDim.x * gridDim.x;
@@ -679,12 +688,12 @@ namespace Proc
   __device__
 #endif
   // ** NB: allmomenta can have three different layouts
-  // ASA: allmomenta[npag][npar][np4][nepp] where ndim=npag*nepp
+  // ASA: allmomenta[npagM][npar][np4][neppM] where ndim=npagM*neppM
   // SOA: allmomenta[npar][np4][ndim]
   // AOS: allmomenta[ndim][npar][np4]
   void calculate_wavefunctions( int ihel,
                                 const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-    fptype &matrix
+                                fptype &matrix            // output: matrix element for this event
 #ifdef __CUDACC__
 #if defined MGONGPU_WFMEM_GLOBAL
                                 , cxtype* tmpWFs          // tmp[(nwf=5)*(nw6=6)*(nevt=nblk*ntpb)] 
@@ -859,11 +868,24 @@ namespace Proc
     checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(cxtype ) ) );
     checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof(fptype) ) );
 #else
-    memcpy( cIPC, tIPC, 3 * sizeof(cxtype ) );
+    memcpy( cIPC, tIPC, 3 * sizeof(cxtype) );
     memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
 #endif
 
   }
+
+  //--------------------------------------------------------------------------
+
+#if defined MGONGPU_LAYOUT_ASA
+  void sigmakin_setNeppM( const int neppM ) // input: n_events_per_page for momenta AOSOA (nevt=npagM*neppM)
+  {
+#ifdef __CUDACC__
+    checkCuda( cudaMemcpyToSymbol( MG5_sm::cNeppM, &neppM, 1 * sizeof(int) ) );
+#else
+    memcpy( MG5_sm::cNeppM, &neppM, 1 * sizeof(int) );
+#endif
+  }  
+#endif
 
   //--------------------------------------------------------------------------
   // Evaluate |M|^2, part independent of incoming flavour.

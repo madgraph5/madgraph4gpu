@@ -24,7 +24,8 @@ namespace rambo2toNm0
 #endif
   void getMomentaInitial( const fptype energy,    // input: energy
 #if defined MGONGPU_LAYOUT_ASA
-                          fptype momenta1d[],     // output: momenta as AOSOA[npag][npar][4][nepp]
+                          fptype momenta1d[],     // output: momenta as AOSOA[npagM][npar][4][neppM]
+                          const int neppM,        // input: n_events_per_page for momenta AOSOA (nevt=npagM*neppM)
 #elif defined MGONGPU_LAYOUT_SOA
                           fptype momenta1d[],     // output: momenta as SOA[npar][4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
@@ -33,8 +34,8 @@ namespace rambo2toNm0
                           const int nevt )        // input: #events
   {
 #if defined MGONGPU_LAYOUT_ASA
-    using mgOnGpu::nepp;
-    fptype (*momenta)[npar][np4][nepp] = (fptype (*)[npar][np4][nepp]) momenta1d; // cast to multiD array pointer (AOSOA)
+    // Cast is impossible in CUDA C ("error: expression must have a constant value")
+    //fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
 #elif defined MGONGPU_LAYOUT_SOA
     // Cast is impossible in CUDA C ("error: expression must have a constant value")
     //fptype (*momenta)[np4][nevt] = (fptype (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
@@ -55,16 +56,16 @@ namespace rambo2toNm0
       //printf( "getMomentaInitial: ievt %d\n", ievt );
 #endif
 #if defined MGONGPU_LAYOUT_ASA
-      const int ipag = ievt/nepp; // #eventpage in this iteration
-      const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
-      momenta[ipag][0][0][iepp] = energy1;
-      momenta[ipag][0][1][iepp] = 0;
-      momenta[ipag][0][2][iepp] = 0;
-      momenta[ipag][0][3][iepp] = mom;
-      momenta[ipag][1][0][iepp] = energy2;
-      momenta[ipag][1][1][iepp] = 0;
-      momenta[ipag][1][2][iepp] = 0;
-      momenta[ipag][1][3][iepp] = -mom;
+      const int ipagM = ievt/neppM; // #eventpage in this iteration
+      const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+      momenta1d[ipagM*npar*np4*neppM + 0*np4*neppM + 0*neppM + ieppM] = energy1; // momenta[ipagM][0][0][ieppM]
+      momenta1d[ipagM*npar*np4*neppM + 0*np4*neppM + 1*neppM + ieppM] = 0;       // momenta[ipagM][0][1][ieppM]
+      momenta1d[ipagM*npar*np4*neppM + 0*np4*neppM + 2*neppM + ieppM] = 0;       // momenta[ipagM][0][2][ieppM]
+      momenta1d[ipagM*npar*np4*neppM + 0*np4*neppM + 3*neppM + ieppM] = mom;     // momenta[ipagM][0][3][ieppM]
+      momenta1d[ipagM*npar*np4*neppM + 1*np4*neppM + 0*neppM + ieppM] = energy2; // momenta[ipagM][1][0][ieppM]
+      momenta1d[ipagM*npar*np4*neppM + 1*np4*neppM + 1*neppM + ieppM] = 0;       // momenta[ipagM][1][1][ieppM]
+      momenta1d[ipagM*npar*np4*neppM + 1*np4*neppM + 2*neppM + ieppM] = 0;       // momenta[ipagM][1][2][ieppM]
+      momenta1d[ipagM*npar*np4*neppM + 1*np4*neppM + 3*neppM + ieppM] = -mom;    // momenta[ipagM][1][3][ieppM]
 #elif defined MGONGPU_LAYOUT_SOA
       momenta1d[0*np4*nevt + 0*nevt + ievt] = energy1;
       momenta1d[0*np4*nevt + 1*nevt + ievt] = 0;
@@ -96,9 +97,11 @@ namespace rambo2toNm0
   __global__
 #endif
   void getMomentaFinal( const fptype energy,      // input: energy
-                        const fptype rnarray1d[], // input: randomnumbers in [0,1] as AOSOA[npag][nparf][4][nepp]
+                        const fptype rnarray1d[], // input: randomnumbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
+                        const int neppR,          // input: n_events_per_page for rnarray AOSOA (nevt=npagR*neppR)
 #if defined MGONGPU_LAYOUT_ASA
-                        fptype momenta1d[],       // output: momenta as AOSOA[npag][npar][4][nepp]
+                        fptype momenta1d[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
+                        const int neppM,          // input: n_events_per_page for momenta AOSOA (nevt=npagM*neppM)
 #elif defined MGONGPU_LAYOUT_SOA
                         fptype momenta1d[],       // output: momenta as SOA[npar][4][nevt]
 #elif defined MGONGPU_LAYOUT_AOS
@@ -140,12 +143,15 @@ namespace rambo2toNm0
       //printf( "getMomentaFinal:   ievt %d\n", ievt );
 #endif
 
-      using mgOnGpu::nepp;
-      const int ipag = ievt/nepp; // #eventpage in this iteration
-      const int iepp = ievt%nepp; // #event in the current eventpage in this iteration
-      fptype (*rnarray)[nparf][np4][nepp] = (fptype (*)[nparf][np4][nepp]) rnarray1d; // cast to multiD array pointer (AOSOA)
+      const int ipagR = ievt/neppR; // #eventpage in this iteration
+      const int ieppR = ievt%neppR; // #event in the current eventpage in this iteration
+      // Cast is impossible in CUDA C ("error: expression must have a constant value")
+      //fptype (*rnarray)[nparf][np4][neppR] = (fptype (*)[nparf][np4][neppR]) rnarray1d; // cast to multiD array pointer (AOSOA)
 #if defined MGONGPU_LAYOUT_ASA
-      fptype (*momenta)[npar][np4][nepp] = (fptype (*)[npar][np4][nepp]) momenta1d; // cast to multiD array pointer (AOSOA)
+      const int ipagM = ievt/neppM; // #eventpage in this iteration
+      const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+      // Cast is impossible in CUDA C ("error: expression must have a constant value")
+      //fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
 #elif defined MGONGPU_LAYOUT_SOA
       // Cast is impossible in CUDA C ("error: expression must have a constant value")
       //fptype (*momenta)[np4][nevt] = (fptype (*)[np4][nevt]) momenta1d; // cast to multiD array pointer (SOA)
@@ -157,10 +163,10 @@ namespace rambo2toNm0
       // generate n massless momenta in infinite phase space
       fptype q[nparf][np4];
       for (int iparf = 0; iparf < nparf; iparf++) {
-        const fptype r1 = rnarray[ipag][iparf][0][iepp];
-        const fptype r2 = rnarray[ipag][iparf][1][iepp];
-        const fptype r3 = rnarray[ipag][iparf][2][iepp];
-        const fptype r4 = rnarray[ipag][iparf][3][iepp];
+        const fptype r1 = rnarray1d[ipagR*nparf*np4*neppR + iparf*np4*neppR + 0*neppR + ieppR]; // rnarray[ipagR][iparf][0][ieppR];
+        const fptype r2 = rnarray1d[ipagR*nparf*np4*neppR + iparf*np4*neppR + 1*neppR + ieppR]; // rnarray[ipagR][iparf][1][ieppR];
+        const fptype r3 = rnarray1d[ipagR*nparf*np4*neppR + iparf*np4*neppR + 2*neppR + ieppR]; // rnarray[ipagR][iparf][2][ieppR];
+        const fptype r4 = rnarray1d[ipagR*nparf*np4*neppR + iparf*np4*neppR + 3*neppR + ieppR]; // rnarray[ipagR][iparf][3][ieppR];
         const fptype c = 2. * r1 - 1.;
         const fptype s = sqrt(1. - c * c);
         const fptype f = twopi * r2;
@@ -191,8 +197,10 @@ namespace rambo2toNm0
         fptype bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
 #if defined MGONGPU_LAYOUT_ASA
         for (int i4 = 1; i4 < np4; i4++)
-          momenta[ipag][iparf+npari][i4][iepp] = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
-        momenta[ipag][iparf+npari][0][iepp] = x0 * (g * q[iparf][0] + bq);
+          momenta1d[ipagM*npar*np4*neppM + (iparf+npari)*np4*neppM + i4*neppM + ieppM] // momenta[ipagM][iparf+npari][i4][ieppM] 
+            = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
+        momenta1d[ipagM*npar*np4*neppM + (iparf+npari)*np4*neppM + 0*neppM + ieppM] // momenta[ipagM][iparf+npari][0][ieppM]
+          = x0 * (g * q[iparf][0] + bq);
 #elif defined MGONGPU_LAYOUT_SOA
         for (int i4 = 1; i4 < np4; i4++)
           momenta1d[(iparf+npari)*np4*nevt + i4*nevt + ievt] = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
@@ -277,7 +285,7 @@ namespace rambo2toNm0
 
   // Bulk-generate (using curand) the random numbers needed to process nevt events in rambo
   // ** NB: the random numbers are always produced in the same order and are interpreted as an AOSOA
-  // AOSOA: rnarray[npag][nparf][np4][nepp] where nevt=npag*nepp
+  // AOSOA: rnarray[npagR][nparf][np4][neppR] where nevt=npagR*neppR
   void generateRnArray( curandGenerator_t gen, // input: curand generator
                         fptype rnarray1d[],    // output: randomnumbers in [0,1]
                         const int nevt )       // input: #events
