@@ -335,7 +335,7 @@ int main(int argc, char **argv)
     // 3b. Copy MEs back from device to host
 
     // *** START THE OLD TIMER ***
-    double gputime = 0;
+    double wavetime = 0;
 
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
@@ -356,24 +356,24 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
     // --- 3b. CopyDToH MEs
     const std::string cmesKey = "3b CpDTHmes";
-    gputime += timermap.start( cmesKey );
+    wavetime += timermap.start( cmesKey );
     checkCuda( cudaMemcpy( hstMEs, devMEs, nbytesMEs, cudaMemcpyDeviceToHost ) );
 #endif
 
     // *** STOP THE OLD TIMER ***
-    gputime += timermap.stop();
+    wavetime += timermap.stop();
 
     // === STEP 4 FINALISE LOOP
     // --- 4a Dump within the loop
     const std::string loopKey = "4a DumpLoop";
     timermap.start(loopKey);
-    wavetimes[iiter] = gputime;
+    wavetimes[iiter] = wavetime;
 
     if (verbose)
     {
       std::cout << "***********************************" << std::endl
                 << "Iteration #" << iiter+1 << " of " << niter << std::endl;
-      if (perf) std::cout << "Wave function time: " << gputime << std::endl;
+      if (perf) std::cout << "Wave function time: " << wavetime << std::endl;
     }
 
     if (verbose || perf)
