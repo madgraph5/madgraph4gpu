@@ -4,18 +4,16 @@
 // ** NB1 Throughputs (e.g. 5.00E8) are events/sec for "./gcheck.exe -p 16384 32 12"
 // ** NB2 Baseline on b7g47n0002 fluctuates (depends on load?): typically, either ~5.00E8 or ~5.50E8
 
-// Memory layout for momenta (CHOOSE ONLY ONE)
+// Memory layout for momenta: AOSOA, AOS, SOA (CHOOSE ONLY ONE)
 // AOSOA (ASA) layout is hardcoded: fine-tune it using the nepopR and neppM parameters below
 
 // Curand random number generation (CHOOSE ONLY ONE)
 #define MGONGPU_CURAND_ONDEVICE 1 // default
 //#define MGONGPU_CURAND_ONHOST 1
 
-// Use global memory or shared memory for wavefunctions (CHOOSE ONLY ONE)
+// Memory choice for wavefunctions: registries/"local", global, shared (CHOOSE ONLY ONE)
+// Local storage (registries plus spillover to local) is hardcoded: fine tune it using maxrregcount in the Makefile
 // [NB: new throughputs on 1GPU/4CPU system]
-#define MGONGPU_WFMEM_LOCAL 1 // default (~5.7E8 to ~6.3E8)
-//#define MGONGPU_WFMEM_GLOBAL 1 // 70% slower (1.8E8 against 6.3E8)
-//#define MGONGPU_WFMEM_SHARED 1 // 35% slower, limited to 32 threads/block (~3.9E8 against 6.3E8)
 
 // Floating point precision (CHOOSE ONLY ONE)
 #define MGONGPU_FPTYPE_DOUBLE 1 // default (~5.00E8)

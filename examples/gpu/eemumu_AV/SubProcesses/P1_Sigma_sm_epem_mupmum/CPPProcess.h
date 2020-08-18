@@ -113,11 +113,7 @@ namespace Proc
 #ifdef __CUDACC__
   __global__
   void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            bool* isGoodHel           // output: isGoodHel[ncomb] - device array
-#if defined MGONGPU_WFMEM_GLOBAL
-                            , cxtype* tmpWFs          // tmp[(nwf=5)*(nw6=6)*nevt]
-#endif
-                            );
+                            bool* isGoodHel );        // output: isGoodHel[ncomb] - device array
 #endif
 
   //--------------------------------------------------------------------------
@@ -133,22 +129,10 @@ namespace Proc
 #endif
   void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                  fptype* allMEs            // output: allMEs[nevt], final |M|^2 averaged over all helicities
-#ifdef __CUDACC__
-#if defined MGONGPU_WFMEM_GLOBAL
-                 , cxtype* tmpWFs          // tmp[(nwf=5)*(nw6=6)*nevt]
-#endif
-#else
+#ifndef __CUDACC__
                  , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                  );
-
-  //--------------------------------------------------------------------------
-
-#ifdef __CUDACC__
-#if defined MGONGPU_WFMEM_SHARED
-  int sigmakin_sharedmem_nbytes( const int ntpb ); // input: #threads per block
-#endif
-#endif
 
   //--------------------------------------------------------------------------
 

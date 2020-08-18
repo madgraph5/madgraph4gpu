@@ -47,15 +47,9 @@ namespace MG5_sm
                  //const fptype fmass,
                  const int nhel,
                  const int nsf,
+                 cxtype fis[nw6],
 #ifndef __CUDACC__
-                 cxtype fis[nw6],
                  const int ievt,
-#else
-#if defined MGONGPU_WFMEM_LOCAL
-                 cxtype fis[nw6],
-#else
-                 cxtype fiv[],             // output: wavefunctions[5 * 6 * #threads_in_block]
-#endif
 #endif
                  const int ipar )          // input: particle# out of npar
   {
@@ -65,32 +59,19 @@ namespace MG5_sm
 #endif
     {
 #ifdef __CUDACC__
-#if !defined MGONGPU_WFMEM_LOCAL
-      const int neib = blockDim.x; // number of events (threads) in block
-      const int ieib = threadIdx.x; // index of event (thread) in block
-#endif
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "imzxxxM0: ievt=%d ieib=%d\n", ievt, threadIdx.x );
+      //printf( "imzxxxM0: ievt=%d threadId=%d\n", ievt, threadIdx.x );
 #endif
       const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
-      cxtype& fi_0 = fiv[ipar*nw6*neib + 0*neib + ieib];
-      cxtype& fi_1 = fiv[ipar*nw6*neib + 1*neib + ieib];
-      cxtype& fi_2 = fiv[ipar*nw6*neib + 2*neib + ieib];
-      cxtype& fi_3 = fiv[ipar*nw6*neib + 3*neib + ieib];
-      cxtype& fi_4 = fiv[ipar*nw6*neib + 4*neib + ieib];
-      cxtype& fi_5 = fiv[ipar*nw6*neib + 5*neib + ieib];
-#else
       cxtype& fi_0 = fis[0];
       cxtype& fi_1 = fis[1];
       cxtype& fi_2 = fis[2];
       cxtype& fi_3 = fis[3];
       cxtype& fi_4 = fis[4];
       cxtype& fi_5 = fis[5];
-#endif
       fi_0 = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi_1 = cxmake( -pvec1 * nsf, -pvec2 * nsf );
       const int nh = nhel * nsf;
@@ -128,15 +109,9 @@ namespace MG5_sm
                  //const fptype fmass,
                  const int nhel,
                  const int nsf,
+                 cxtype fis[nw6],          // output: wavefunction[6]
 #ifndef __CUDACC__
-                 cxtype fis[nw6],
                  const int ievt,
-#else
-#if defined MGONGPU_WFMEM_LOCAL
-                 cxtype fis[nw6],
-#else
-                 cxtype fiv[],             // output: wavefunctions[5 * 6 * #threads_in_block]
-#endif
 #endif
                  const int ipar )          // input: particle# out of npar
   {
@@ -146,32 +121,19 @@ namespace MG5_sm
 #endif
     {
 #ifdef __CUDACC__
-#if !defined MGONGPU_WFMEM_LOCAL
-      const int neib = blockDim.x; // number of events (threads) in block
-      const int ieib = threadIdx.x; // index of event (thread) in block
-#endif
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "ixzxxxM0: ievt=%d ieib=%d\n", ievt, threadIdx.x );
+      //printf( "ixzxxxM0: ievt=%d threadId=%d\n", ievt, threadIdx.x );
 #endif
       const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
-      cxtype& fi_0 = fiv[ipar*nw6*neib + 0*neib + ieib];
-      cxtype& fi_1 = fiv[ipar*nw6*neib + 1*neib + ieib];
-      cxtype& fi_2 = fiv[ipar*nw6*neib + 2*neib + ieib];
-      cxtype& fi_3 = fiv[ipar*nw6*neib + 3*neib + ieib];
-      cxtype& fi_4 = fiv[ipar*nw6*neib + 4*neib + ieib];
-      cxtype& fi_5 = fiv[ipar*nw6*neib + 5*neib + ieib];
-#else
       cxtype& fi_0 = fis[0];
       cxtype& fi_1 = fis[1];
       cxtype& fi_2 = fis[2];
       cxtype& fi_3 = fis[3];
       cxtype& fi_4 = fis[4];
       cxtype& fi_5 = fis[5];
-#endif
       fi_0 = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi_1 = cxmake( -pvec1 * nsf, -pvec2 * nsf );
       const int nh = nhel * nsf;
@@ -210,15 +172,9 @@ namespace MG5_sm
                  //const fptype fmass,
                  const int nhel,
                  const int nsf,
+                 cxtype fos[nw6],          // output: wavefunction[6]
 #ifndef __CUDACC__
-                 cxtype fos[nw6],
                  const int ievt,
-#else
-#if defined MGONGPU_WFMEM_LOCAL
-                 cxtype fos[nw6],
-#else
-                 cxtype fov[],             // output: wavefunctions[5 * 6 * #threads_in_block]
-#endif
 #endif
                  const int ipar )          // input: particle# out of npar
   {
@@ -228,32 +184,19 @@ namespace MG5_sm
 #endif
     {
 #ifdef __CUDACC__
-#if !defined MGONGPU_WFMEM_LOCAL
-      const int neib = blockDim.x; // number of events (threads) in block
-      const int ieib = threadIdx.x; // index of event (thread) in block
-#endif
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "oxzxxxM0: ievt=%d ieib=%d\n", ievt, threadIdx.x );
+      //printf( "oxzxxxM0: ievt=%d threadId=%d\n", ievt, threadIdx.x );
 #endif
       const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
-      cxtype& fo_0 = fov[ipar*nw6*neib + 0*neib + ieib];
-      cxtype& fo_1 = fov[ipar*nw6*neib + 1*neib + ieib];
-      cxtype& fo_2 = fov[ipar*nw6*neib + 2*neib + ieib];
-      cxtype& fo_3 = fov[ipar*nw6*neib + 3*neib + ieib];
-      cxtype& fo_4 = fov[ipar*nw6*neib + 4*neib + ieib];
-      cxtype& fo_5 = fov[ipar*nw6*neib + 5*neib + ieib];
-#else
       cxtype& fo_0 = fos[0];
       cxtype& fo_1 = fos[1];
       cxtype& fo_2 = fos[2];
       cxtype& fo_3 = fos[3];
       cxtype& fo_4 = fos[4];
       cxtype& fo_5 = fos[5];
-#endif
       fo_0 = cxmake( pvec0 * nsf, pvec3 * nsf );
       fo_1 = cxmake( pvec1 * nsf, pvec2 * nsf );
       const int nh = nhel * nsf;
@@ -289,35 +232,12 @@ namespace MG5_sm
 #ifdef __CUDACC__
   __device__
 #endif
-  void FFV1_0(
-#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
-              const cxtype F1V[],  // input: wavefunctionA[6 * #threads_in_block]
-              const cxtype F2V[],  // input: wavefunctionB[6 * #threads_in_block]
-              const cxtype V3V[],  // input: wavefunctionC[6 * #threads_in_block]
-#else
-              const cxtype F1S[],   // input wavefunctionA[6]
-              const cxtype F2S[],   // input wavefunctionB[6]
-              const cxtype V3S[],   // input wavefunctionC[6]
-#endif
-              const cxtype COUP,
-              cxtype* vertex )    // output
+  void FFV1_0( const cxtype F1S[],   // input wavefunction1[6]
+               const cxtype F2S[],   // input wavefunction2[6]
+               const cxtype V3S[],   // input wavefunction3[6]
+               const cxtype COUP,
+               cxtype* vertex )      // output
   {
-#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
-    const int neib = blockDim.x; // number of events (threads) in block
-    const int ieib = threadIdx.x; // index of event (thread) in block
-    const cxtype& F1_2 = F1V[2*neib + ieib];
-    const cxtype& F1_3 = F1V[3*neib + ieib];
-    const cxtype& F1_4 = F1V[4*neib + ieib];
-    const cxtype& F1_5 = F1V[5*neib + ieib];
-    const cxtype& F2_2 = F2V[2*neib + ieib];
-    const cxtype& F2_3 = F2V[3*neib + ieib];
-    const cxtype& F2_4 = F2V[4*neib + ieib];
-    const cxtype& F2_5 = F2V[5*neib + ieib];
-    const cxtype& V3_2 = V3V[2*neib + ieib];
-    const cxtype& V3_3 = V3V[3*neib + ieib];
-    const cxtype& V3_4 = V3V[4*neib + ieib];
-    const cxtype& V3_5 = V3V[5*neib + ieib];
-#else
     const cxtype& F1_2 = F1S[2];
     const cxtype& F1_3 = F1S[3];
     const cxtype& F1_4 = F1S[4];
@@ -330,7 +250,6 @@ namespace MG5_sm
     const cxtype& V3_3 = V3S[3];
     const cxtype& V3_4 = V3S[4];
     const cxtype& V3_5 = V3S[5];
-#endif
     const cxtype cI = cxmake( 0, 1 );
     const cxtype TMP4 =
       ( F1_2 * ( F2_4 * ( V3_2 + V3_5 ) +
@@ -352,46 +271,13 @@ namespace MG5_sm
 #ifdef __CUDACC__
   __device__
 #endif
-  void FFV1P0_3(
-#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
-                const cxtype F1V[],  // input: wavefunctionA[6 * #threads_in_block]
-                const cxtype F2V[],  // input: wavefunctionB[6 * #threads_in_block]
-#else
-                const cxtype F1S[],   // input wavefunctionA[6]
-                const cxtype F2S[],   // input wavefunctionB[6]
-#endif
-                const cxtype COUP,
-                const fptype M3,
-                const fptype W3
-#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
-                , cxtype V3V[]         // output: wavefunctionC[6 * #threads_in_block]
-#else
-                , cxtype V3S[]          // output wavefunctionC[6]
-#endif
-                )
+  void FFV1P0_3( const cxtype F1S[],   // input wavefunction1[6]
+                 const cxtype F2S[],   // input wavefunction2[6]
+                 const cxtype COUP,
+                 const fptype M3,
+                 const fptype W3, 
+                 cxtype V3S[] )        // output wavefunction3[6]
   {
-#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
-    const int neib = blockDim.x; // number of events (threads) in block
-    const int ieib = threadIdx.x; // index of event (thread) in block
-    const cxtype& F1_0 = F1V[0*neib + ieib];
-    const cxtype& F1_1 = F1V[1*neib + ieib];
-    const cxtype& F1_2 = F1V[2*neib + ieib];
-    const cxtype& F1_3 = F1V[3*neib + ieib];
-    const cxtype& F1_4 = F1V[4*neib + ieib];
-    const cxtype& F1_5 = F1V[5*neib + ieib];
-    const cxtype& F2_0 = F2V[0*neib + ieib];
-    const cxtype& F2_1 = F2V[1*neib + ieib];
-    const cxtype& F2_2 = F2V[2*neib + ieib];
-    const cxtype& F2_3 = F2V[3*neib + ieib];
-    const cxtype& F2_4 = F2V[4*neib + ieib];
-    const cxtype& F2_5 = F2V[5*neib + ieib];
-    cxtype& V3_0 = V3V[0*neib + ieib];
-    cxtype& V3_1 = V3V[1*neib + ieib];
-    cxtype& V3_2 = V3V[2*neib + ieib];
-    cxtype& V3_3 = V3V[3*neib + ieib];
-    cxtype& V3_4 = V3V[4*neib + ieib];
-    cxtype& V3_5 = V3V[5*neib + ieib];
-#else
     const cxtype& F1_0 = F1S[0];
     const cxtype& F1_1 = F1S[1];
     const cxtype& F1_2 = F1S[2];
@@ -410,7 +296,6 @@ namespace MG5_sm
     cxtype& V3_3 = V3S[3];
     cxtype& V3_4 = V3S[4];
     cxtype& V3_5 = V3S[5];
-#endif
     const cxtype cI = cxmake( 0, 1 );
     V3_0 = + F1_0 + F2_0;
     V3_1 = + F1_1 + F2_1;
@@ -431,36 +316,13 @@ namespace MG5_sm
 #ifdef __CUDACC__
   __device__
 #endif
-  void FFV2_4_0(
-#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
-                const cxtype F1V[],  // input: wavefunctionA[6 * #threads_in_block]
-                const cxtype F2V[],  // input: wavefunctionB[6 * #threads_in_block]
-                const cxtype V3V[],  // input: wavefunctionC[6 * #threads_in_block]
-#else
-                const cxtype F1S[],   // input wavefunctionA[6]
-                const cxtype F2S[],   // input wavefunctionB[6]
-                const cxtype V3S[],   // input wavefunctionC[6]
-#endif
-                const cxtype COUP1,
-                const cxtype COUP2,
-                cxtype* vertex )    // output
+  void FFV2_4_0( const cxtype F1S[],   // input wavefunction1[6]
+                 const cxtype F2S[],   // input wavefunction2[6]
+                 const cxtype V3S[],   // input wavefunction3[6]
+                 const cxtype COUP1,
+                 const cxtype COUP2,
+                 cxtype* vertex )      // output
   {
-#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
-    const int neib = blockDim.x; // number of events (threads) in block
-    const int ieib = threadIdx.x; // index of event (thread) in block
-    const cxtype& F1_2 = F1V[2*neib + ieib];
-    const cxtype& F1_3 = F1V[3*neib + ieib];
-    const cxtype& F1_4 = F1V[4*neib + ieib];
-    const cxtype& F1_5 = F1V[5*neib + ieib];
-    const cxtype& F2_2 = F2V[2*neib + ieib];
-    const cxtype& F2_3 = F2V[3*neib + ieib];
-    const cxtype& F2_4 = F2V[4*neib + ieib];
-    const cxtype& F2_5 = F2V[5*neib + ieib];
-    const cxtype& V3_2 = V3V[2*neib + ieib];
-    const cxtype& V3_3 = V3V[3*neib + ieib];
-    const cxtype& V3_4 = V3V[4*neib + ieib];
-    const cxtype& V3_5 = V3V[5*neib + ieib];
-#else
     const cxtype& F1_2 = F1S[2];
     const cxtype& F1_3 = F1S[3];
     const cxtype& F1_4 = F1S[4];
@@ -473,7 +335,6 @@ namespace MG5_sm
     const cxtype& V3_3 = V3S[3];
     const cxtype& V3_4 = V3S[4];
     const cxtype& V3_5 = V3S[5];
-#endif
     const fptype fp1 = 1;
     const fptype fp2 = 2;
     const cxtype cI = cxmake( 0, 1 );
@@ -491,47 +352,14 @@ namespace MG5_sm
 #ifdef __CUDACC__
   __device__
 #endif
-  void FFV2_4_3(
-#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
-                const cxtype F1V[],  // input: wavefunctionA[6 * #threads_in_block]
-                const cxtype F2V[],  // input: wavefunctionB[6 * #threads_in_block]
-#else
-                const cxtype F1S[],   // input wavefunctionA[6]
-                const cxtype F2S[],   // input wavefunctionB[6]
-#endif
-                const cxtype COUP1,
-                const cxtype COUP2,
-                const fptype M3,
-                const fptype W3
-#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
-                , cxtype V3V[]         // output: wavefunctionC[6 * #threads_in_block]
-#else
-                , cxtype V3S[]          // output wavefunctionC[6]
-#endif
-                )
+  void FFV2_4_3( const cxtype F1S[],   // input wavefunction1[6]
+                 const cxtype F2S[],   // input wavefunction2[6]
+                 const cxtype COUP1,
+                 const cxtype COUP2,
+                 const fptype M3,
+                 const fptype W3, 
+                 cxtype V3S[] )        // output wavefunction3[6]
   {
-#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
-    const int neib = blockDim.x; // number of events (threads) in block
-    const int ieib = threadIdx.x; // index of event (thread) in block
-    const cxtype& F1_0 = F1V[0*neib + ieib];
-    const cxtype& F1_1 = F1V[1*neib + ieib];
-    const cxtype& F1_2 = F1V[2*neib + ieib];
-    const cxtype& F1_3 = F1V[3*neib + ieib];
-    const cxtype& F1_4 = F1V[4*neib + ieib];
-    const cxtype& F1_5 = F1V[5*neib + ieib];
-    const cxtype& F2_0 = F2V[0*neib + ieib];
-    const cxtype& F2_1 = F2V[1*neib + ieib];
-    const cxtype& F2_2 = F2V[2*neib + ieib];
-    const cxtype& F2_3 = F2V[3*neib + ieib];
-    const cxtype& F2_4 = F2V[4*neib + ieib];
-    const cxtype& F2_5 = F2V[5*neib + ieib];
-    cxtype& V3_0 = V3V[0*neib + ieib];
-    cxtype& V3_1 = V3V[1*neib + ieib];
-    cxtype& V3_2 = V3V[2*neib + ieib];
-    cxtype& V3_3 = V3V[3*neib + ieib];
-    cxtype& V3_4 = V3V[4*neib + ieib];
-    cxtype& V3_5 = V3V[5*neib + ieib];
-#else
     const cxtype& F1_0 = F1S[0];
     const cxtype& F1_1 = F1S[1];
     const cxtype& F1_2 = F1S[2];
@@ -550,7 +378,6 @@ namespace MG5_sm
     cxtype& V3_3 = V3S[3];
     cxtype& V3_4 = V3S[4];
     cxtype& V3_5 = V3S[5];
-#endif
     const fptype fp1 = 1;
     const fptype fp2 = 2;
     const cxtype cI = cxmake( 0, 1 );
@@ -642,15 +469,6 @@ namespace Proc
   using mgOnGpu::nwf;
   using mgOnGpu::nw6;
 
-#if defined __CUDACC__ && defined MGONGPU_WFMEM_SHARED
-  int sigmakin_sharedmem_nbytes( const int ntpb ) // input: #threads per block
-  {
-    // Wavefunctions for this block: cxtype bwf[5 * 6 * #threads_in_block]
-    const int nbytesBwf = nwf * nw6 * ntpb * sizeof(cxtype);
-    return nbytesBwf;
-  }
-#endif
-
   //--------------------------------------------------------------------------
 
   // Evaluate |M|^2 for each subprocess
@@ -661,11 +479,7 @@ namespace Proc
   void calculate_wavefunctions( int ihel,
                                 const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                                 fptype &meHelSum          // input AND output: running sum of |M|^2 over all helicities for this event
-#ifdef __CUDACC__
-#if defined MGONGPU_WFMEM_GLOBAL
-                                , cxtype* tmpWFs          // tmp[(nwf=5)*(nw6=6)*(nevt=nblk*ntpb)] 
-#endif
-#else
+#ifndef __CUDACC__
                                 , const int ievt
 #endif
                                 )
@@ -674,68 +488,18 @@ namespace Proc
     //printf( "calculate_wavefunctions: ievt %d\n", ievt );
 #endif
     cxtype amp[2];
-#ifdef __CUDACC__
-#if !defined MGONGPU_WFMEM_LOCAL
-    // eventually move to same AOSOA everywhere, blocks and threads
-#if defined MGONGPU_WFMEM_GLOBAL
-    const int iblk = blockIdx.x; // index of block in grid
-    const int ntpb = blockDim.x; // index of block in grid
-    cxtype* bwf = &tmpWFs[iblk*nwf*nw6*ntpb];
-#elif defined MGONGPU_WFMEM_SHARED
-    extern __shared__ cxtype bwf[];
-#endif
-    MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, bwf, 0 );
-    MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, bwf, 1 );
-    MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, bwf, 2 );
-    MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, bwf, 3 );
-#else //local
     cxtype w[nwf][nw6]; // w[5][6]
+#ifdef __CUDACC__
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], 0 );
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], 1 );
     MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w[2], 2 );
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w[3], 3 );
-#endif
-#else // cpp, not cuda
-    cxtype w[nwf][nw6]; // w[5][6]
+#else
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
     MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
 #endif
-
-#if defined __CUDACC__ && !defined MGONGPU_WFMEM_LOCAL
-    const int neib = blockDim.x; // number of events (threads) in block
-
-    // Diagram 1
-    MG5_sm::FFV1P0_3( &(bwf[1*nw6*neib]),
-                      &(bwf[0*nw6*neib]),
-                      cxmake( cIPC[0], cIPC[1] ),
-                      0.,
-                      0.,
-                      &(bwf[4*nw6*neib]) );
-
-    MG5_sm::FFV1_0( &(bwf[2*nw6*neib]),
-                    &(bwf[3*nw6*neib]),
-                    &(bwf[4*nw6*neib]),
-                    cxmake( cIPC[0], cIPC[1] ),
-                    &amp[0] );
-
-    // Diagram 2
-    MG5_sm::FFV2_4_3( &(bwf[1*nw6*neib]),
-                      &(bwf[0*nw6*neib]),
-                      cxmake( cIPC[2], cIPC[3] ),
-                      cxmake( cIPC[4], cIPC[5] ),
-                      cIPD[0],
-                      cIPD[1],
-                      &(bwf[4*nw6*neib]) );
-
-    MG5_sm::FFV2_4_0( &(bwf[2*nw6*neib]),
-                      &(bwf[3*nw6*neib]),
-                      &(bwf[4*nw6*neib]),
-                      cxmake( cIPC[2], cIPC[3] ),
-                      cxmake( cIPC[4], cIPC[5] ),
-                      &amp[1] );
-#else
 
     // Diagram 1
     MG5_sm::FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
@@ -744,8 +508,6 @@ namespace Proc
     // Diagram 2
     MG5_sm::FFV2_4_3( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
     MG5_sm::FFV2_4_0( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[1] );
-
-#endif
 
     const int ncolor = 1;
     cxtype jamp[ncolor];
@@ -849,11 +611,7 @@ namespace Proc
 #ifdef __CUDACC__
   __global__
   void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            bool* isGoodHel           // output: isGoodHel[ncomb] - device array
-#if defined MGONGPU_WFMEM_GLOBAL
-                            , cxtype* tmpWFs          // tmp[(nwf=5)*(nw6=6)*nevt] 
-#endif
-                            )
+                            bool* isGoodHel )         // output: isGoodHel[ncomb] - device array
   {
     const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
     fptype meHelSum[nprocesses] = { 0 }; // all zeros
@@ -861,11 +619,7 @@ namespace Proc
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
-#if defined MGONGPU_WFMEM_GLOBAL
-      calculate_wavefunctions( ihel, allmomenta, meHelSum[0], tmpWFs ); 
-#else
       calculate_wavefunctions( ihel, allmomenta, meHelSum[0] ); 
-#endif
       if ( meHelSum[0]>meHelSumLast ) isGoodHel[ihel] = true;
       meHelSumLast = meHelSum[0];
     }
@@ -901,11 +655,7 @@ namespace Proc
 #endif
   void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                  fptype* allMEs            // output: allMEs[nevt], final |M|^2 averaged over all helicities
-#ifdef __CUDACC__
-#if defined MGONGPU_WFMEM_GLOBAL
-                 , cxtype* tmpWFs          // tmp[(nwf=5)*(nw6=6)*nevt] 
-#endif
-#else
+#ifndef __CUDACC__
                  , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                  )
@@ -944,11 +694,7 @@ namespace Proc
       for ( int ighel = 0; ighel < cNGoodHel[0]; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
-#if defined MGONGPU_WFMEM_GLOBAL
-        calculate_wavefunctions( ihel, allmomenta, meHelSum[0], tmpWFs ); 
-#else
         calculate_wavefunctions( ihel, allmomenta, meHelSum[0] ); 
-#endif
       }
 #else
       // C++ - compute good helicities within this loop

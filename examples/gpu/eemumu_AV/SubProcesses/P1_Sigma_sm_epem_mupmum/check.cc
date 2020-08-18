@@ -165,15 +165,6 @@ int main(int argc, char **argv)
   hstMomenta = new fptype[nMomenta]();
 #endif
 
-#if defined __CUDACC__ && defined MGONGPU_WFMEM_GLOBAL
-  using mgOnGpu::nwf;
-  using mgOnGpu::nw6;
-  const int nAllWFs = nwf * nw6 * nevt;
-  const int nbytesAllWFs = nAllWFs * sizeof(cxtype);
-  cxtype* devAllWFs = 0; // AOSOA[nblk][nparf][np4][ntpb] (NB: nevt=nblk*ntpb)
-  checkCuda( cudaMalloc( &devAllWFs, nbytesAllWFs ) );
-#endif
-
 #ifdef __CUDACC__
   using mgOnGpu::ncomb;
   const int nbytesIsGoodHel = ncomb * sizeof(bool);
@@ -208,12 +199,6 @@ int main(int argc, char **argv)
   double* rambtimes = new double[niter]();
   double* wavetimes = new double[niter]();
   fptype* matrixelementALL = new fptype[nevtALL](); // FIXME: assume process.nprocesses == 1
-
-#ifdef __CUDACC__
-#if defined MGONGPU_WFMEM_SHARED
-  const int nbytesSharedSK = gProc::sigmakin_sharedmem_nbytes(gputhreads);
-#endif
-#endif
 
   // --- 0c. Create curand generator
   const std::string cgenKey = "0c GenCreat";
@@ -329,13 +314,7 @@ int main(int argc, char **argv)
       timermap.start( ghelKey );
       
       // ... 3a1. Compute good helicity mask on the device
-#if defined MGONGPU_WFMEM_GLOBAL
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta, devIsGoodHel, devAllWFs);
-#elif defined MGONGPU_WFMEM_SHARED
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads, nbytesSharedSK>>>(devMomenta, devIsGoodHel);
-#else
       gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta, devIsGoodHel);
-#endif
       checkCuda( cudaPeekAtLastError() );
       
       // ... 3a2. Copy back good helicity mask to the host
@@ -353,13 +332,7 @@ int main(int argc, char **argv)
     const std::string skinKey = "3b SigmaKin";
     timermap.start( skinKey );
 #ifdef __CUDACC__
-#if defined MGONGPU_WFMEM_GLOBAL
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta, devMEs, devAllWFs);
-#elif defined MGONGPU_WFMEM_SHARED
-    gProc::sigmaKin<<<gpublocks, gputhreads, nbytesSharedSK>>>(devMomenta, devMEs);
-#else
     gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta, devMEs);
-#endif
     checkCuda( cudaPeekAtLastError() );
 #else
     Proc::sigmaKin(hstMomenta, hstMEs, nevt);
@@ -525,13 +498,7 @@ int main(int argc, char **argv)
               << "Momenta memory layout     = AOSOA[" << neppM << "]" 
               << ( neppM == 1 ? " == AOS" : "" ) << std::endl
 #ifdef __CUDACC__
-#if defined MGONGPU_WFMEM_LOCAL
               << "Wavefunction GPU memory   = LOCAL" << std::endl
-#elif defined MGONGPU_WFMEM_GLOBAL
-              << "Wavefunction GPU memory   = GLOBAL" << std::endl
-#elif defined MGONGPU_WFMEM_SHARED
-              << "Wavefunction GPU memory   = SHARED (" << nbytesSharedSK/sizeof(char) << " bytes)" << std::endl
-#endif
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_CURAND_ONDEVICE
@@ -589,9 +556,6 @@ int main(int argc, char **argv)
   checkCuda( cudaFreeHost( hstRnarray ) );
 #endif
   checkCuda( cudaFree( devMEs ) );
-#if defined MGONGPU_WFMEM_GLOBAL
-  checkCuda( cudaFree( devAllWFs ) );
-#endif
   checkCuda( cudaFree( devIsGoodHel ) );
   checkCuda( cudaFree( devWeights ) );
   checkCuda( cudaFree( devMomenta ) );
