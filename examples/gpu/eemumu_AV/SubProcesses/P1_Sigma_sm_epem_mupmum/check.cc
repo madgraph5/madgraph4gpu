@@ -331,6 +331,8 @@ int main(int argc, char **argv)
       // ... 3a1. Compute good helicity mask on the device
 #if defined MGONGPU_WFMEM_GLOBAL
       gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta, devIsGoodHel, devAllWFs);
+#elif defined MGONGPU_WFMEM_SHARED
+      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads, nbytesSharedSK>>>(devMomenta, devIsGoodHel);
 #else
       gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta, devIsGoodHel);
 #endif
@@ -580,6 +582,7 @@ int main(int argc, char **argv)
 
 #ifdef __CUDACC__
   checkCuda( cudaFreeHost( hstMEs ) );
+  checkCuda( cudaFreeHost( hstIsGoodHel ) );
   checkCuda( cudaFreeHost( hstWeights ) );
   checkCuda( cudaFreeHost( hstMomenta ) );
 #if defined MGONGPU_CURAND_ONHOST
@@ -589,6 +592,7 @@ int main(int argc, char **argv)
 #if defined MGONGPU_WFMEM_GLOBAL
   checkCuda( cudaFree( devAllWFs ) );
 #endif
+  checkCuda( cudaFree( devIsGoodHel ) );
   checkCuda( cudaFree( devWeights ) );
   checkCuda( cudaFree( devMomenta ) );
   checkCuda( cudaFree( devRnarray ) );

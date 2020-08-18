@@ -8,8 +8,10 @@ usage(){
 
 # Default options
 tag=cu
-cuargs="16384 32 12" # NEW DEFAULT 20.08.10 (faster on local, and allows comparison to global and shared memory)
-ccargs="  256 32 12" # Similar to cuda config, but faster than using "16384 32 12"
+###cuargs="16384 32 12" # NEW DEFAULT 20.08.10 (faster on local, and allows comparison to global and shared memory)
+###ccargs="  256 32 12" # Similar to cuda config, but faster than using "16384 32 12"
+cuargs="16384 32 2" # faster tests
+ccargs="  256 32 2" # faster tests
 args=
 label=
 

@@ -881,6 +881,7 @@ namespace Proc
     int goodHel[ncomb] = { 0 }; 
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
+      //std::cout << "sigmaKin_setGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
       if ( isGoodHel[ihel] )
       {
         goodHel[nGoodHel[0]] = ihel;
@@ -937,7 +938,6 @@ namespace Proc
 
       // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
       fptype meHelSum[nprocesses] = { 0 }; // all zeros
-
 
 #ifdef __CUDACC__
       // CUDA - using precomputed good helicities
