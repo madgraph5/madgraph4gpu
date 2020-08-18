@@ -938,7 +938,6 @@ namespace Proc
       // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
       fptype meHelSum[nprocesses] = { 0 }; // all zeros
 
-
 #ifdef __CUDACC__
       // CUDA - using precomputed good helicities
       for ( int ighel = 0; ighel < cNGoodHel[0]; ighel++ )
