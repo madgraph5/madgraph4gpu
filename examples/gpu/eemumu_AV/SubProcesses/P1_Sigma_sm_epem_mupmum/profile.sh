@@ -86,6 +86,9 @@ fi
 # See also https://stackoverflow.com/questions/60535867
 metrics=l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum
 
+# Add registers
+metrics+=,launch__registers_per_thread
+
 # GUI analysis
 if [ "$tag" != "nogui" ]; then
 
