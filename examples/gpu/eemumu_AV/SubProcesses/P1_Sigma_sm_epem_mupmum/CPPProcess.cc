@@ -509,13 +509,17 @@ namespace Proc
     //const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
 #endif
 
+    const cxtype cIPC01 = cxmake( cIPC[0], cIPC[1] );
+    const cxtype cIPC23 = cxmake( cIPC[2], cIPC[3] );
+    const cxtype cIPC45 = cxmake( cIPC[4], cIPC[5] );
+    
     // Diagram 1
-    MG5_sm::FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
-    MG5_sm::FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
+    MG5_sm::FFV1P0_3( w[1], w[0], cIPC01, 0., 0., w[4] );
+    MG5_sm::FFV1_0( w[2], w[3], w[4], cIPC01, &amp[0] );
 
     // Diagram 2
-    MG5_sm::FFV2_4_3( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
-    MG5_sm::FFV2_4_0( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[1] );
+    MG5_sm::FFV2_4_3( w[1], w[0], cIPC23, cIPC45, cIPD[0], cIPD[1], w[4] );
+    MG5_sm::FFV2_4_0( w[2], w[3], w[4], cIPC23, cIPC45, &amp[1] );
 
     const int ncolor = 1;
     cxtype jamp[ncolor];
