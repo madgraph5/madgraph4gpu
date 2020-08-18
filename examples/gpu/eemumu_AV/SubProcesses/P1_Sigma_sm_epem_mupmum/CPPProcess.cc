@@ -521,8 +521,8 @@ namespace Proc
     cxtype jamp[ncolor];
 
     // The color matrix;
-    static const fptype denom[ncolor] = {1};
-    static const fptype cf[ncolor][ncolor] = {{1}};
+    const fptype denom[ncolor] = {1};
+    const fptype cf[ncolor][ncolor] = {{1}};
 
     // Calculate color flows
     // (compute M as the sum of the invariant amplitudes for all Feynman diagrams)
@@ -558,7 +558,7 @@ namespace Proc
     , m_verbose( verbose )
   {
     // Helicities for the process - nodim
-    static const int tHel[ncomb][nexternal] =
+    const int tHel[ncomb][nexternal] =
       { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
         {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
         {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
@@ -601,8 +601,8 @@ namespace Proc
     mME.push_back(pars->ZERO);
     mME.push_back(pars->ZERO);
     mME.push_back(pars->ZERO);
-    static cxtype tIPC[3] = { cxmake( pars->GC_3 ), cxmake( pars->GC_50 ), cxmake( pars->GC_59 ) };
-    static fptype tIPD[2] = { (fptype)pars->mdl_MZ, (fptype)pars->mdl_WZ };
+    const cxtype tIPC[3] = { cxmake( pars->GC_3 ), cxmake( pars->GC_50 ), cxmake( pars->GC_59 ) };
+    const fptype tIPD[2] = { (fptype)pars->mdl_MZ, (fptype)pars->mdl_WZ };
 
     //std::cout << std::setprecision(17) << "tIPC[0] = " << tIPC[0] << std::endl;
     //std::cout << std::setprecision(17) << "tIPC[1] = " << tIPC[1] << std::endl;
