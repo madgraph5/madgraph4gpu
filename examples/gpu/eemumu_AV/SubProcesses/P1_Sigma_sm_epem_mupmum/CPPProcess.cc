@@ -275,7 +275,7 @@ namespace MG5_sm
                  const cxtype F2S[],   // input wavefunction2[6]
                  const cxtype COUP,
                  const fptype M3,
-                 const fptype W3, 
+                 const fptype W3,
                  cxtype V3S[] )        // output wavefunction3[6]
   {
     const cxtype& F1_0 = F1S[0];
@@ -357,7 +357,7 @@ namespace MG5_sm
                  const cxtype COUP1,
                  const cxtype COUP2,
                  const fptype M3,
-                 const fptype W3, 
+                 const fptype W3,
                  cxtype V3S[] )        // output wavefunction3[6]
   {
     const cxtype& F1_0 = F1S[0];
@@ -448,7 +448,7 @@ namespace Proc
 {
   using mgOnGpu::np4; // 4: the dimension of 4-momenta (E,px,py,pz)
   using mgOnGpu::npar; // 4: #particles in total (external), e+ e- -> mu+ mu-
-  using mgOnGpu::ncomb; // 16: #helicity combinations, 2(spin up/down for fermions)**4(npar) 
+  using mgOnGpu::ncomb; // 16: #helicity combinations, 2(spin up/down for fermions)**4(npar)
 
 #ifdef __CUDACC__
   __device__ __constant__ int cHel[ncomb][npar];
@@ -619,7 +619,7 @@ namespace Proc
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
-      calculate_wavefunctions( ihel, allmomenta, meHelSum[0] ); 
+      calculate_wavefunctions( ihel, allmomenta, meHelSum[0] );
       if ( meHelSum[0]>meHelSumLast ) isGoodHel[ihel] = true;
       meHelSumLast = meHelSum[0];
     }
@@ -632,7 +632,7 @@ namespace Proc
   void sigmaKin_setGoodHel( const bool* isGoodHel ) // input: isGoodHel[ncomb] - host array
   {
     int nGoodHel[1] = { 0 };
-    int goodHel[ncomb] = { 0 }; 
+    int goodHel[ncomb] = { 0 };
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       //std::cout << "sigmaKin_setGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
@@ -644,7 +644,7 @@ namespace Proc
     }
     checkCuda( cudaMemcpyToSymbol( cNGoodHel, nGoodHel, sizeof(int) ) );
     checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb*sizeof(int) ) );
-  }  
+  }
 #endif
 
   //--------------------------------------------------------------------------
@@ -694,7 +694,7 @@ namespace Proc
       for ( int ighel = 0; ighel < cNGoodHel[0]; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
-        calculate_wavefunctions( ihel, allmomenta, meHelSum[0] ); 
+        calculate_wavefunctions( ihel, allmomenta, meHelSum[0] );
       }
 #else
       // C++ - compute good helicities within this loop
