@@ -580,6 +580,7 @@ int main(int argc, char **argv)
 
 #ifdef __CUDACC__
   checkCuda( cudaFreeHost( hstMEs ) );
+  checkCuda( cudaFreeHost( hstIsGoodHel ) );
   checkCuda( cudaFreeHost( hstWeights ) );
   checkCuda( cudaFreeHost( hstMomenta ) );
 #if defined MGONGPU_CURAND_ONHOST
@@ -589,6 +590,7 @@ int main(int argc, char **argv)
 #if defined MGONGPU_WFMEM_GLOBAL
   checkCuda( cudaFree( devAllWFs ) );
 #endif
+  checkCuda( cudaFree( devIsGoodHel ) );
   checkCuda( cudaFree( devWeights ) );
   checkCuda( cudaFree( devMomenta ) );
   checkCuda( cudaFree( devRnarray ) );
