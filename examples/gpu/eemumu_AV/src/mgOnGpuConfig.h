@@ -14,8 +14,8 @@
 // Use global memory or shared memory for wavefunctions (CHOOSE ONLY ONE)
 // [NB: new throughputs on 1GPU/4CPU system]
 //#define MGONGPU_WFMEM_LOCAL 1 // default (~5.7E8 to ~6.3E8)
-//#define MGONGPU_WFMEM_GLOBAL 1 // 70% slower (1.8E8 against 6.3E8)
-#define MGONGPU_WFMEM_SHARED 1 // 35% slower, limited to 32 threads/block (~3.9E8 against 6.3E8)
+#define MGONGPU_WFMEM_GLOBAL 1 // 70% slower (1.8E8 against 6.3E8)
+//#define MGONGPU_WFMEM_SHARED 1 // 35% slower, limited to 32 threads/block (~3.9E8 against 6.3E8)
 
 // Floating point precision (CHOOSE ONLY ONE)
 #define MGONGPU_FPTYPE_DOUBLE 1 // default (~5.00E8)
