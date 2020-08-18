@@ -40,6 +40,8 @@ namespace mgOnGpu
 
   const int nwf = 5; // #wavefunctions: npar (4 external) + 1 (internal, reused for gamma and Z)
 
+  const int ncomb = 16; // #helicity combinations: 16=2(spin up/down for fermions)**4(npar) 
+
   // --- Platform-specific software implementation details
 
   // Maximum number of blocks per grid
@@ -49,17 +51,28 @@ namespace mgOnGpu
 
   // Maximum number of threads per block
   const int ntpbMAX = 256;
-  //const int ntpbMAX = 8; // FOR DEBUGGING!
 
   // Number of Events Per Page in the random number AOSOA (ASA) structure
-  // [NB this is best kept as a compile-time constant: see issue #23]
-  //const int neppR = 1; // *** NB: this is equivalent to AOS ***
-  const int neppR = 32; // DEFAULT: 32, i.e. the number of threads in a warp
+  // (this is best kept as a compile-time constant: see issue #23)
+  // *** NB Different values of neppR lead to different physics results: the ***
+  // *** same 1d array is generated, but it is interpreted in different ways ***
+#if defined MGONGPU_FPTYPE_DOUBLE
+  const int neppR = 4; // DEFAULT: one 32-byte cache line contains 4 doubles as sizeof(double) is 8 bytes
+#elif defined MGONGPU_FPTYPE_FLOAT
+  const int neppR = 8; // DEFAULT: one 32-byte cache line contains 8 floats as sizeof(float) is 4 bytes
+#endif
+  //const int neppR = 1;  // *** NB: this is equivalent to AOS ***
+  //const int neppR = 32; // older default
 
   // Number of Events Per Page in the momenta AOSOA (ASA) structure
-  // [NB this is best kept as a compile-time constant: see issue #23]
-  //const int neppM = 1; // *** NB: this is equivalent to AOS ***
-  const int neppM = 32; // DEFAULT: 32, i.e. the number of threads in a warp
+  // (this is best kept as a compile-time constant: see issue #23)
+#if defined MGONGPU_FPTYPE_DOUBLE
+  const int neppM = 4; // DEFAULT: one 32-byte cache line contains 4 doubles as sizeof(double) is 8 bytes
+#elif defined MGONGPU_FPTYPE_FLOAT
+  const int neppM = 8; // DEFAULT: one 32-byte cache line contains 8 floats as sizeof(float) is 4 bytes
+#endif
+  //const int neppM = 1;  // *** NB: this is equivalent to AOS ***
+  //const int neppM = 32; // older default
 
 }
 

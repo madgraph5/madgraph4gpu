@@ -58,8 +58,11 @@ namespace rambo2toNm0
   void getMomentaFinal( const fptype energy,      // input: energy
                         const fptype rnarray1d[], // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
                         fptype momenta1d[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
-                        fptype wgts[],            // output: weights[nevt]
-                        const int nevt );         // input: #events
+                        fptype wgts[]             // output: weights[nevt]
+#ifndef __CUDACC__
+                        , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#endif
+                        );
 
   //--------------------------------------------------------------------------
 

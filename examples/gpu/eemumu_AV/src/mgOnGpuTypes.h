@@ -39,10 +39,6 @@ namespace mgOnGpu
   typedef std::complex<fptype> cxtype; // two doubles: RI
 #endif
 
-  // Vector types: <type>_v is a <type>[256]
-  //typedef double double_v[ntpbMAX];
-  //typedef cxtype cxtype_v[ntpbMAX]; // RIRIRIRI: eventually move to RRRRIIII?
-
 }
 
 // Expose typedefs and operators outside the namespace

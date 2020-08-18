@@ -60,7 +60,6 @@ namespace Proc
     // Initialize process.
     virtual void initProc(std::string param_card_name);
 
-
     virtual int code() const {return 1;}
 
     const std::vector<fptype> &getMasses() const;
@@ -75,30 +74,28 @@ namespace Proc
 
     int getNIOParticles() const {return nexternal;}
 
-
     // Constants for array limits
     static const int ninitial = mgOnGpu::npari;
     static const int nexternal = mgOnGpu::npar;
-    static const int nprocesses = 1;
+    //static const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
 
   private:
+
     int m_numiterations;
+
     // gpu variables
     int gpu_nblocks;
     int gpu_nthreads;
-    int dim;  // gpu_nblocks * gpu_nthreads;
+    int dim; // gpu_nblocks * gpu_nthreads;
 
-    // print verbose info
-    bool m_verbose;
+    bool m_verbose; // print verbose info
 
     static const int nwavefuncs = 6;
     static const int namplitudes = 2;
     static const int ncomb = 16;
     static const int wrows = 6;
-    // static const int nioparticles = 4;
 
-    cxtype * * amp;
-
+    cxtype** amp;
 
     // Pointer to the model parameters
     Parameters_sm * pars;
@@ -115,14 +112,35 @@ namespace Proc
 
 #ifdef __CUDACC__
   __global__
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                            bool* isGoodHel           // output: isGoodHel[ncomb] - device array
 #if defined MGONGPU_WFMEM_GLOBAL
-  void sigmaKin( const fptype* allmomenta, fptype* output, cxtype* tmpWFs );
-#else
-  void sigmaKin( const fptype* allmomenta, fptype* output );
+                            , cxtype* tmpWFs          // tmp[(nwf=5)*(nw6=6)*nevt]
+#endif
+                            );
+#endif
+
+  //--------------------------------------------------------------------------
+
+#ifdef __CUDACC__
+  void sigmaKin_setGoodHel( const bool* isGoodHel ); // input: isGoodHel[ncomb] - host array
+#endif
+
+  //--------------------------------------------------------------------------
+
+#ifdef __CUDACC__
+  __global__
+#endif
+  void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                 fptype* allMEs            // output: allMEs[nevt], final |M|^2 averaged over all helicities
+#ifdef __CUDACC__
+#if defined MGONGPU_WFMEM_GLOBAL
+                 , cxtype* tmpWFs          // tmp[(nwf=5)*(nw6=6)*nevt]
 #endif
 #else
-  void sigmaKin( const fptype* allmomenta, fptype* output, const int nevt );
+                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
+                 );
 
   //--------------------------------------------------------------------------
 

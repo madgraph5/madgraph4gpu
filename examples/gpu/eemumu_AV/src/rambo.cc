@@ -23,8 +23,11 @@ namespace rambo2toNm0
   __global__
 #endif
   void getMomentaInitial( const fptype energy, // input: energy
-                          fptype momenta1d[],  // output: momenta as AOSOA[npagM][npar][4][neppM]
-                          const int nevt )     // input: #events
+                          fptype momenta1d[]   // output: momenta as AOSOA[npagM][npar][4][neppM]
+#ifndef __CUDACC__
+                          , const int nevt     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#endif
+                          )
   {
     const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
     fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
@@ -37,7 +40,7 @@ namespace rambo2toNm0
 #endif
     {
 #ifdef __CUDACC__
-      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // 0 to ndim-1
+      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid
       const int ievt = idim;
       //printf( "getMomentaInitial: ievt %d\n", ievt );
 #endif
@@ -65,8 +68,11 @@ namespace rambo2toNm0
   void getMomentaFinal( const fptype energy,      // input: energy
                         const fptype rnarray1d[], // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
                         fptype momenta1d[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
-                        fptype wgts[],            // output: weights[nevt]
-                        const int nevt )          // input: #events
+                        fptype wgts[]             // output: weights[nevt]
+#ifndef __CUDACC__
+                        , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#endif
+                        )
   {
     /****************************************************************************
      *                       rambo                                              *
@@ -101,7 +107,7 @@ namespace rambo2toNm0
 #endif
     {
 #ifdef __CUDACC__
-      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // 0 to ndim-1
+      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid
       const int ievt = idim;
       //printf( "getMomentaFinal:   ievt %d\n", ievt );
 #endif
