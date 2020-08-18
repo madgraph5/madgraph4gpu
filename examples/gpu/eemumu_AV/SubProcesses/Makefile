@@ -6,7 +6,8 @@ CXXFLAGS= -O3 -I. -I$(INCDIR) -DUSE_NVTX -Wall -Wshadow
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM)
 CUFLAGS= -O3 -I. -I$(INCDIR) -DUSE_NVTX $(CUARCHFLAGS) -use_fast_math -lineinfo
 ###CUFLAGS+= --maxrregcount 128 # peak throughput 7.6E8 instead of 6.8E8
-CUFLAGS+= --maxrregcount 64
+CUFLAGS+= --maxrregcount 96 # ?
+###CUFLAGS+= --maxrregcount 64 # throughput degrades to 1.8E8
 CUINC=/usr/local/cuda/targets/x86_64-linux/include
 LIBFLAGS= -L$(LIBDIR) -l$(MODELLIB)
 CULIBFLAGS= -L/usr/local/cuda/targets/x86_64-linux/lib
