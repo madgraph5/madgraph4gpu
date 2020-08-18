@@ -619,25 +619,22 @@ namespace gProc
 namespace Proc
 #endif
 {
-  using mgOnGpu::np4;
-  using mgOnGpu::npar;
-  const int ncomb = 16; // #helicity combinations is hardcoded for this process (eemumu: ncomb=16)
+  using mgOnGpu::np4; // 4: the dimension of 4-momenta (E,px,py,pz)
+  using mgOnGpu::npar; // 4: #particles in total (external), e+ e- -> mu+ mu-
+  using mgOnGpu::ncomb; // 16: #helicity combinations, 2(spin up/down for fermions)**4(npar) 
 
 #ifdef __CUDACC__
   __device__ __constant__ int cHel[ncomb][npar];
   __device__ __constant__ fptype cIPC[6];  // coupling ?
   __device__ __constant__ fptype cIPD[2];
+  __device__ __constant__ int cNGoodHel[1];
+  __device__ __constant__ int cGoodHel[ncomb];
 #else
   static int cHel[ncomb][npar];
   static fptype cIPC[6];  // coupling ?
   static fptype cIPD[2];
-#endif
-
-#ifndef MGONGPU_DISABLE_GOODHEL
-#ifdef __CUDACC__
-  __device__ unsigned long long sigmakin_itry = 0; // first iteration over nevt events
-  __device__ bool sigmakin_goodhel[ncomb] = { false };
-#endif
+  //static int cNGoodHel[1];
+  //static int cGoodHel[ncomb];
 #endif
 
   //--------------------------------------------------------------------------
@@ -646,14 +643,12 @@ namespace Proc
   using mgOnGpu::nw6;
 
 #if defined __CUDACC__ && defined MGONGPU_WFMEM_SHARED
-
   int sigmakin_sharedmem_nbytes( const int ntpb ) // input: #threads per block
   {
     // Wavefunctions for this block: cxtype bwf[5 * 6 * #threads_in_block]
     const int nbytesBwf = nwf * nw6 * ntpb * sizeof(cxtype);
     return nbytesBwf;
   }
-
 #endif
 
   //--------------------------------------------------------------------------
@@ -850,6 +845,54 @@ namespace Proc
   }
 
   //--------------------------------------------------------------------------
+
+#ifdef __CUDACC__
+  __global__
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                            bool* isGoodHel           // output: isGoodHel[ncomb] - device array
+#if defined MGONGPU_WFMEM_GLOBAL
+                            , cxtype* tmpWFs          // tmp[(nwf=5)*(nw6=6)*nevt] 
+#endif
+                            )
+  {
+    const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
+    fptype meHelSum[nprocesses] = { 0 }; // all zeros
+    fptype meHelSumLast = 0;
+    for ( int ihel = 0; ihel < ncomb; ihel++ )
+    {
+      // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
+#if defined MGONGPU_WFMEM_GLOBAL
+      calculate_wavefunctions( ihel, allmomenta, meHelSum[0], tmpWFs ); 
+#else
+      calculate_wavefunctions( ihel, allmomenta, meHelSum[0] ); 
+#endif
+      if ( meHelSum[0]>meHelSumLast ) isGoodHel[ihel] = true;
+      meHelSumLast = meHelSum[0];
+    }
+  }
+#endif
+
+  //--------------------------------------------------------------------------
+
+#ifdef __CUDACC__
+  void sigmaKin_setGoodHel( const bool* isGoodHel ) // input: isGoodHel[ncomb] - host array
+  {
+    int nGoodHel[1] = { 0 };
+    int goodHel[ncomb] = { 0 }; 
+    for ( int ihel = 0; ihel < ncomb; ihel++ )
+    {
+      if ( isGoodHel[ihel] )
+      {
+        goodHel[nGoodHel[0]] = ihel;
+        nGoodHel[0]++;
+      }
+    }
+    checkCuda( cudaMemcpyToSymbol( cNGoodHel, nGoodHel, sizeof(int) ) );
+    checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb*sizeof(int) ) );
+  }  
+#endif
+
+  //--------------------------------------------------------------------------
   // Evaluate |M|^2, part independent of incoming flavour
 
 #ifdef __CUDACC__
@@ -871,12 +914,10 @@ namespace Proc
     // pars->setDependentParameters();
     // pars->setDependentCouplings();
     // Reset color flows
-#ifndef MGONGPU_DISABLE_GOODHEL
-    const int maxtry = 10;
 #ifndef __CUDACC__
+    const int maxtry = 10;
     static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
     static bool sigmakin_goodhel[ncomb] = { false };
-#endif
 #endif
 
 #ifndef __CUDACC__
@@ -895,64 +936,52 @@ namespace Proc
       const int denominators[nprocesses] = { 4 };
 
       // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
-      fptype meHelSum[nprocesses];
-      for( int iproc = 0; iproc < nprocesses; iproc++ )
-      {
-        meHelSum[iproc] = 0.;
-      }
+      fptype meHelSum[nprocesses] = { 0 }; // all zeros
 
-#ifndef MGONGPU_DISABLE_GOODHEL
-      fptype meHelSumLast = 0; // check for good helicities
-#endif
-      for ( int ihel = 0; ihel < ncomb; ihel++ )
-      {
-#ifndef MGONGPU_DISABLE_GOODHEL
-        if ( sigmakin_itry>maxtry && !sigmakin_goodhel[ihel] ) continue;
-#endif
-        // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
+
 #ifdef __CUDACC__
+      // CUDA - using precomputed good helicities
+      for ( int ighel = 0; ighel < cNGoodHel[0]; ighel++ )
+      {
+        const int ihel = cGoodHel[ighel];
 #if defined MGONGPU_WFMEM_GLOBAL
         calculate_wavefunctions( ihel, allmomenta, meHelSum[0], tmpWFs ); 
 #else
         calculate_wavefunctions( ihel, allmomenta, meHelSum[0] ); 
 #endif
+      }
 #else
+      // C++ - compute good helicities within this loop
+      fptype meHelSumLast = 0; // check for good helicities
+      for ( int ihel = 0; ihel < ncomb; ihel++ )
+      {
+        if ( sigmakin_itry>maxtry && !sigmakin_goodhel[ihel] ) continue;
+        // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
         calculate_wavefunctions( ihel, allmomenta, meHelSum[0], ievt );
-#endif
-#ifndef MGONGPU_DISABLE_GOODHEL
         if ( sigmakin_itry<=maxtry )
         {
           if ( !sigmakin_goodhel[ihel] && meHelSum[0]>meHelSumLast ) sigmakin_goodhel[ihel] = true;
           meHelSumLast = meHelSum[0];
         }
-#endif
       }
+#endif
 
       // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
       // [NB 'sum over final spins, average over initial spins', eg see
       // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
       for (int iproc = 0; iproc < nprocesses; ++iproc)
-      {
         meHelSum[iproc] /= denominators[iproc];
-      }
 
       // Set the final average |M|^2 for this event in the output array for all events
       for (int iproc = 0; iproc < nprocesses; ++iproc)
-      {
         allMEs[iproc*nprocesses + ievt] = meHelSum[iproc];
-      }
 
-#ifndef MGONGPU_DISABLE_GOODHEL
 #ifndef __CUDACC__
       if ( sigmakin_itry <= maxtry )
         sigmakin_itry++;
       //if ( sigmakin_itry == maxtry )
       //  for (int ihel = 0; ihel < ncomb; ihel++ )
       //    printf( "sigmakin: ihelgood %2d %d\n", ihel, sigmakin_goodhel[ihel] );
-#else
-      if ( sigmakin_itry <= maxtry )
-        atomicAdd( &sigmakin_itry, 1 );
-#endif
 #endif
 
     }

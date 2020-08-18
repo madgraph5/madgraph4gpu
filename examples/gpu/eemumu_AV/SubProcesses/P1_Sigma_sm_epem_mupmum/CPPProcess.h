@@ -87,7 +87,7 @@ namespace Proc
     int gpu_nblocks;
     int gpu_nthreads;
     int dim; // gpu_nblocks * gpu_nthreads;
-    
+
     bool m_verbose; // print verbose info
 
     static const int nwavefuncs = 6;
@@ -112,18 +112,36 @@ namespace Proc
 
 #ifdef __CUDACC__
   __global__
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                            bool* isGoodHel           // output: isGoodHel[ncomb] - device array
+#if defined MGONGPU_WFMEM_GLOBAL
+                            , cxtype* tmpWFs          // tmp[(nwf=5)*(nw6=6)*nevt]
+#endif
+                            );
+#endif
+
+  //--------------------------------------------------------------------------
+
+#ifdef __CUDACC__
+  void sigmaKin_setGoodHel( const bool* isGoodHel ); // input: isGoodHel[ncomb] - host array
+#endif
+
+  //--------------------------------------------------------------------------
+
+#ifdef __CUDACC__
+  __global__
 #endif
   void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                  fptype* allMEs            // output: allMEs[nevt], final |M|^2 averaged over all helicities
 #ifdef __CUDACC__
 #if defined MGONGPU_WFMEM_GLOBAL
-                 , cxtype* tmpWFs          // tmp[(nwf=5)*(nw6=6)*nevt] 
+                 , cxtype* tmpWFs          // tmp[(nwf=5)*(nw6=6)*nevt]
 #endif
 #else
                  , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                  );
-  
+
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__

@@ -27,10 +27,6 @@
 //#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~5% slower (4.75E8 against 5.00E8)
 #endif
 
-// Enable or diable helicity filtering? (CHOOSE ONLY ONE)
-#undef MGONGPU_DISABLE_GOODHEL // default
-//#define MGONGPU_DISABLE_GOODHEL 1
-
 namespace mgOnGpu
 {
   // --- Physics process-specific constants that are best declared at compile time
@@ -43,6 +39,8 @@ namespace mgOnGpu
   const int npar = npari + nparf; // #particles in total (external): e+ e- -> mu+ mu-
 
   const int nwf = 5; // #wavefunctions: npar (4 external) + 1 (internal, reused for gamma and Z)
+
+  const int ncomb = 16; // #helicity combinations: 16=2(spin up/down for fermions)**4(npar) 
 
   // --- Platform-specific software implementation details
 

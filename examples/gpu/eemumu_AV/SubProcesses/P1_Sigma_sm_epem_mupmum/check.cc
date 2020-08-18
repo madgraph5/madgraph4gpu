@@ -174,6 +174,15 @@ int main(int argc, char **argv)
   checkCuda( cudaMalloc( &devAllWFs, nbytesAllWFs ) );
 #endif
 
+#ifdef __CUDACC__
+  using mgOnGpu::ncomb;
+  const int nbytesIsGoodHel = ncomb * sizeof(bool);
+  bool* hstIsGoodHel = 0;
+  checkCuda( cudaMallocHost( &hstIsGoodHel, nbytesIsGoodHel ) );
+  bool* devIsGoodHel = 0;
+  checkCuda( cudaMalloc( &devIsGoodHel, nbytesIsGoodHel ) );
+#endif
+
   const int nWeights = nevt;
   fptype* hstWeights = 0; // (previously was: meHostPtr)
 #ifdef __CUDACC__
@@ -307,14 +316,39 @@ int main(int argc, char **argv)
 
     // === STEP 3 OF 3
     // Evaluate matrix elements for all nevt events
-    // 3a. Evaluate MEs on the device
-    // 3b. Copy MEs back from device to host
+    // 3a. (Only on the first iteration) Get good helicities
+    // 3b. Evaluate MEs on the device
+    // 3c. Copy MEs back from device to host
+
+
+    // --- 3a. SGoodHel
+#ifdef __CUDACC__
+    if ( iiter == 0 )
+    {    
+      const std::string ghelKey = "3a SGoodHel";
+      timermap.start( ghelKey );
+      
+      // ... 3a1. Compute good helicity mask on the device
+#if defined MGONGPU_WFMEM_GLOBAL
+      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta, devIsGoodHel, devAllWFs);
+#else
+      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta, devIsGoodHel);
+#endif
+      checkCuda( cudaPeekAtLastError() );
+      
+      // ... 3a2. Copy back good helicity mask to the host
+      checkCuda( cudaMemcpy( hstIsGoodHel, devIsGoodHel, nbytesIsGoodHel, cudaMemcpyDeviceToHost ) );
+      
+      // ... 3a3. Copy back good helicity list to constant memory on the device
+      gProc::sigmaKin_setGoodHel(hstIsGoodHel);
+    }
+#endif
 
     // *** START THE OLD TIMER FOR WAVEFUNCTIONS ***
     double wavetime = 0;
 
-    // --- 3a. SigmaKin
-    const std::string skinKey = "3a SigmaKin";
+    // --- 3b. SigmaKin
+    const std::string skinKey = "3b SigmaKin";
     timermap.start( skinKey );
 #ifdef __CUDACC__
 #if defined MGONGPU_WFMEM_GLOBAL
@@ -330,8 +364,8 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef __CUDACC__
-    // --- 3b. CopyDToH MEs
-    const std::string cmesKey = "3b CpDTHmes";
+    // --- 3c. CopyDToH MEs
+    const std::string cmesKey = "3c CpDTHmes";
     wavetime += timermap.start( cmesKey );
     checkCuda( cudaMemcpy( hstMEs, devMEs, nbytesMEs, cudaMemcpyDeviceToHost ) );
 #endif
