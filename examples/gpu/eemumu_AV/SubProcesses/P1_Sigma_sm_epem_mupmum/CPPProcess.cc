@@ -452,13 +452,11 @@ namespace Proc
   using mgOnGpu::ncomb; // 16: #helicity combinations, 2(spin up/down for fermions)**4(npar)
 
 #ifdef __CUDACC__
-  __device__ __constant__ int cHel[ncomb][npar];
+  //__device__ __constant__ int cHel[ncomb][npar];
   //__device__ __constant__ fptype cIPC[6];
   //__device__ __constant__ fptype cIPD[2];
   __device__ __constant__ int cNGoodHel[1];
   __device__ __constant__ int cGoodHel[ncomb];
-  //const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 }; // DOES NOT BUILD
-  //const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 }; // DOES NOT BUILD
 #else
   static int cHel[ncomb][npar];
   static fptype cIPC[6];
@@ -490,8 +488,20 @@ namespace Proc
 #ifndef __CUDACC__
     //printf( "calculate_wavefunctions: ievt %d\n", ievt );
 #endif
+
+#ifdef __CUDACC__
+    const int cHel[ncomb][npar] =
+      { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
+        {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
+        {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
+        {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
+    const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
+    const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
+#endif
+
     cxtype amp[2];
     cxtype w[nwf][nw6]; // w[5][6]
+
 #ifdef __CUDACC__
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], 0 );
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], 1 );
@@ -502,11 +512,6 @@ namespace Proc
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
     MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
-#endif
-
-#ifdef __CUDACC__
-    const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
-    const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
 #endif
 
     // Diagram 1
@@ -557,15 +562,21 @@ namespace Proc
     , dim( gpu_nblocks * gpu_nthreads )
     , m_verbose( verbose )
   {
+#ifdef __CUDACC__
+    // Helicities for the process - nodim
+    //const int tHel[ncomb][nexternal] =
+    //  { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
+    //    {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
+    //    {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
+    //    {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
+    //checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(int) ) );
+#else
     // Helicities for the process - nodim
     const int tHel[ncomb][nexternal] =
       { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
         {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
         {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
         {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
-#ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(int) ) );
-#else
     memcpy( cHel, tHel, ncomb * nexternal * sizeof(int) );
 #endif
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
