@@ -881,6 +881,7 @@ namespace Proc
     int goodHel[ncomb] = { 0 }; 
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
+      //std::cout << "sigmaKin_setGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
       if ( isGoodHel[ihel] )
       {
         goodHel[nGoodHel[0]] = ihel;

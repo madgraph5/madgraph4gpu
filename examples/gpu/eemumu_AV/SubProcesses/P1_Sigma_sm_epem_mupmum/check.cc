@@ -330,9 +330,9 @@ int main(int argc, char **argv)
       
       // ... 3a1. Compute good helicity mask on the device
 #if defined MGONGPU_WFMEM_GLOBAL
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads, nbytesSharedSK>>>(devMomenta, devIsGoodHel, devAllWFs);
+      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta, devIsGoodHel, devAllWFs);
 #elif defined MGONGPU_WFMEM_SHARED
-      gProc::sigmaKin<<<gpublocks, gputhreads, nbytesSharedSK>>>(devMomenta, devMEs);
+      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads, nbytesSharedSK>>>(devMomenta, devIsGoodHel);
 #else
       gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta, devIsGoodHel);
 #endif
