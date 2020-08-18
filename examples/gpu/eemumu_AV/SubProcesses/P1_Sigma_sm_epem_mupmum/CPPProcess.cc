@@ -8,6 +8,7 @@
 #include <cmath>
 #include <cstring>
 #include <cstdlib>
+#include <iomanip>
 #include <iostream>
 
 #include "mgOnGpuConfig.h"
@@ -452,13 +453,15 @@ namespace Proc
 
 #ifdef __CUDACC__
   __device__ __constant__ int cHel[ncomb][npar];
-  __device__ __constant__ fptype cIPC[6];  // coupling ?
+  __device__ __constant__ fptype cIPC[6];
   __device__ __constant__ fptype cIPD[2];
   __device__ __constant__ int cNGoodHel[1];
   __device__ __constant__ int cGoodHel[ncomb];
+  //const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 }; // DOES NOT BUILD
+  //const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 }; // DOES NOT BUILD
 #else
   static int cHel[ncomb][npar];
-  static fptype cIPC[6];  // coupling ?
+  static fptype cIPC[6];
   static fptype cIPD[2];
   //static int cNGoodHel[1];
   //static int cGoodHel[ncomb];
@@ -499,6 +502,11 @@ namespace Proc
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
     MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
+#endif
+
+#ifdef __CUDACC__
+    //const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
+    //const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
 #endif
 
     // Diagram 1
@@ -595,6 +603,12 @@ namespace Proc
     mME.push_back(pars->ZERO);
     static cxtype tIPC[3] = { cxmake( pars->GC_3 ), cxmake( pars->GC_50 ), cxmake( pars->GC_59 ) };
     static fptype tIPD[2] = { (fptype)pars->mdl_MZ, (fptype)pars->mdl_WZ };
+
+    //std::cout << std::setprecision(17) << "tIPC[0] = " << tIPC[0] << std::endl;
+    //std::cout << std::setprecision(17) << "tIPC[1] = " << tIPC[1] << std::endl;
+    //std::cout << std::setprecision(17) << "tIPC[2] = " << tIPC[2] << std::endl;
+    //std::cout << std::setprecision(17) << "tIPD[0] = " << tIPD[0] << std::endl;
+    //std::cout << std::setprecision(17) << "tIPD[1] = " << tIPD[1] << std::endl;
 
 #ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(cxtype ) ) );
