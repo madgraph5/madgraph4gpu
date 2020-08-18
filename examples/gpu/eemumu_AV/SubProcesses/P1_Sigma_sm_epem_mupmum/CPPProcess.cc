@@ -461,8 +461,6 @@ namespace Proc
   static int cHel[ncomb][npar];
   static fptype cIPC[6];
   static fptype cIPD[2];
-  //static int cNGoodHel[1];
-  //static int cGoodHel[ncomb];
 #endif
 
   //--------------------------------------------------------------------------
