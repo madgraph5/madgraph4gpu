@@ -80,6 +80,11 @@ if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
   nsysgui="Launch the Nsight System GUI from Windows"
 fi
 
+# Set the ncu sampling period (default is auto)
+# The value is in the range [0..31], the actual period is 2**(5+value) cycles. 
+###ncu="${ncu} --sampling-interval 0"  # MAX sampling frequency
+###ncu="${ncu} --sampling-interval 31" # MIN sampling frequency
+
 # See https://developer.nvidia.com/blog/using-nsight-compute-to-inspect-your-kernels/
 # These used to be called gld_transactions and global_load_requests
 # See also https://docs.nvidia.com/nsight-compute/2019.5/NsightComputeCli/index.html#nvprof-metric-comparison
@@ -125,8 +130,14 @@ if [ "$tag" != "nogui" ]; then
   nvidia-smi -q -d CLOCK >> ${trace}.txt
   
   if [ "$tag" == "cu" ]; then
+    echo
+    echo "${ncu} --set full --metrics ${metrics} -o ${trace} ${cmd}"
+    echo
     ${ncu} --set full --metrics ${metrics} -o ${trace} ${cmd}
   fi
+  echo
+  echo "${nsys} profile -o ${trace} ${cmd}"
+  echo
   ${nsys} profile -o ${trace} ${cmd}
   echo ""
   echo "TO ANALYSE TRACE FILES:"
