@@ -27,8 +27,8 @@
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
 #ifdef __CUDACC__
-//#undef MGONGPU_NSIGHT_DEBUG // default
-#define MGONGPU_NSIGHT_DEBUG 1
+#undef MGONGPU_NSIGHT_DEBUG // default
+//#define MGONGPU_NSIGHT_DEBUG 1
 #endif
 
 namespace mgOnGpu
