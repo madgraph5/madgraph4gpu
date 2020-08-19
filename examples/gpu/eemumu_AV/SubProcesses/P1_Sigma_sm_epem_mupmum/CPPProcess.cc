@@ -14,6 +14,8 @@
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 
+mgDebugDeclare();
+
 namespace MG5_sm
 {
 
@@ -54,6 +56,7 @@ namespace MG5_sm
 #endif
                  const int ipar )          // input: particle# out of npar
   {
+    mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
     //for (int ievt = 0; ievt < nevt; ++ievt)
@@ -98,6 +101,7 @@ namespace MG5_sm
       }
     }
     // ** END LOOP ON IEVT **
+    mgDebug( 1, __FUNCTION__ );
     return;
   }
 
@@ -116,6 +120,7 @@ namespace MG5_sm
 #endif
                  const int ipar )          // input: particle# out of npar
   {
+    mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
     //for (int ievt = 0; ievt < nevt; ++ievt)
@@ -161,6 +166,7 @@ namespace MG5_sm
       }
     }
     // ** END LOOP ON IEVT **
+    mgDebug( 1, __FUNCTION__ );
     return;
   }
 
@@ -179,6 +185,7 @@ namespace MG5_sm
 #endif
                  const int ipar )          // input: particle# out of npar
   {
+    mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
     //for (int ievt = 0; ievt < nevt; ++ievt)
@@ -225,6 +232,7 @@ namespace MG5_sm
       }
     }
     // ** END LOOP ON IEVT **
+    mgDebug( 1, __FUNCTION__ );
     return;
   }
 
@@ -239,6 +247,7 @@ namespace MG5_sm
                const cxtype COUP,
                cxtype* vertex )      // output
   {
+    mgDebug( 0, __FUNCTION__ );
     const cxtype& F1_2 = F1S[2];
     const cxtype& F1_3 = F1S[3];
     const cxtype& F1_4 = F1S[4];
@@ -265,6 +274,8 @@ namespace MG5_sm
           )
         );
     ( *vertex ) = COUP * ( -cI ) * TMP4;
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
@@ -279,6 +290,7 @@ namespace MG5_sm
                  const fptype W3,
                  cxtype V3S[] )        // output wavefunction3[6]
   {
+    mgDebug( 0, __FUNCTION__ );
     const cxtype& F1_0 = F1S[0];
     const cxtype& F1_1 = F1S[1];
     const cxtype& F1_2 = F1S[2];
@@ -310,6 +322,8 @@ namespace MG5_sm
     V3_3 = denom * ( -cI ) * ( -F1_2 * F2_5 - F1_3 * F2_4 + F1_4 * F2_3 + F1_5 * F2_2 );
     V3_4 = denom * ( -cI ) * ( -cI * ( F1_2 * F2_5 + F1_5 * F2_2 ) + cI * ( F1_3 * F2_4 + F1_4 * F2_3 ) );
     V3_5 = denom * ( -cI ) * ( -F1_2 * F2_4 - F1_5 * F2_3 + F1_3 * F2_5 + F1_4 * F2_2 );
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
@@ -324,6 +338,7 @@ namespace MG5_sm
                  const cxtype COUP2,
                  cxtype* vertex )      // output
   {
+    mgDebug( 0, __FUNCTION__ );
     const cxtype& F1_2 = F1S[2];
     const cxtype& F1_3 = F1S[3];
     const cxtype& F1_4 = F1S[4];
@@ -346,6 +361,8 @@ namespace MG5_sm
       ( F1_2 * ( F2_4 * ( V3_2 + V3_5 ) + F2_5 * ( V3_3 + cI * ( V3_4 ) ) ) +
         F1_3 * ( F2_4 * ( V3_3 - cI * ( V3_4 ) ) + F2_5 * ( V3_2 - V3_5 ) ) );
     (*vertex) = -fp1 * ( COUP2 * ( +cI * ( TMP0 ) + fp2 * cI * ( TMP2 ) ) + cI * ( TMP0 * COUP1 ) );
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
@@ -361,6 +378,7 @@ namespace MG5_sm
                  const fptype W3,
                  cxtype V3S[] )        // output wavefunction3[6]
   {
+    mgDebug( 0, __FUNCTION__ );
     const cxtype& F1_0 = F1S[0];
     const cxtype& F1_1 = F1S[1];
     const cxtype& F1_2 = F1S[2];
@@ -417,6 +435,8 @@ namespace MG5_sm
       ( COUP2 * ( OM3 * fp1/fp2 * PPP3 * ( TMP1 + fp2 * ( TMP3 ) ) +
                   ( +fp1/fp2 * ( F1_2 * F2_4 ) - fp1/fp2 * ( F1_3 * F2_5 ) - F1_4 * F2_2 + F1_5 * F2_3 ) )
         + fp1/fp2 * ( COUP1 * ( F1_2 * F2_4 + PPP3 * OM3 * TMP1 - F1_3 * F2_5 ) ) );
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
 
@@ -483,6 +503,7 @@ namespace Proc
 #endif
                                 )
   {
+    mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     //printf( "calculate_wavefunctions: ievt %d\n", ievt );
 #endif
@@ -546,6 +567,8 @@ namespace Proc
     // for(i=0;i < ncolor; i++)
     // jamp2[0][i] += cxreal( jamp[i]*conj( jamp[i] ) );
 
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
@@ -684,6 +707,7 @@ namespace Proc
 #endif
                  )
   {
+    mgDebugInitialise();
     // Set the parameters which change event by event
     // Need to discuss this with Stefan
     // pars->setDependentParameters();
@@ -756,6 +780,7 @@ namespace Proc
 
     }
     // ** END LOOP ON IEVT **
+    mgDebugFinalise();
 
   }
 

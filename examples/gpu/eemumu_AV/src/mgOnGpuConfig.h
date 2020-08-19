@@ -25,6 +25,12 @@
 //#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~5% slower (4.75E8 against 5.00E8)
 #endif
 
+// Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
+#ifdef __CUDACC__
+//#undef MGONGPU_NSIGHT_DEBUG // default
+#define MGONGPU_NSIGHT_DEBUG 1
+#endif
+
 namespace mgOnGpu
 {
   // --- Physics process-specific constants that are best declared at compile time
@@ -38,7 +44,7 @@ namespace mgOnGpu
 
   const int nwf = 5; // #wavefunctions: npar (4 external) + 1 (internal, reused for gamma and Z)
 
-  const int ncomb = 16; // #helicity combinations: 16=2(spin up/down for fermions)**4(npar) 
+  const int ncomb = 16; // #helicity combinations: 16=2(spin up/down for fermions)**4(npar)
 
   // --- Platform-specific software implementation details
 
@@ -73,5 +79,27 @@ namespace mgOnGpu
   //const int neppM = 32; // older default
 
 }
+
+// Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
+// Arguments (not used so far): text is __FUNCTION__, code is 0 (start) or 1 (end)
+#if defined __CUDACC__ && defined MGONGPU_NSIGHT_DEBUG
+#define mgDebugDeclare() \
+  __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
+#define mgDebugInitialise() \
+  { mgDebugCounter[threadIdx.x]=0; }
+#define mgDebug( code, text ) \
+  { mgDebugCounter[threadIdx.x] += 1; }
+#define mgDebugFinalise() \
+  { if ( blockIdx.x == 0 && threadIdx.x == 0 ) printf( "MGDEBUG: counter=%f\n", mgDebugCounter[threadIdx.x] ); }
+#else
+#define mgDebugDeclare() \
+  /*noop*/
+#define mgDebugInitialise() \
+  { /*noop*/ }
+#define mgDebug( code, text ) \
+  { /*noop*/ }
+#define mgDebugFinalise() \
+  { /*noop*/ }
+#endif
 
 #endif // MGONGPUCONFIG_H
