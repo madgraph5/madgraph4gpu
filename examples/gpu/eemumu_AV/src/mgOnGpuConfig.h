@@ -1,8 +1,8 @@
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
 
-// ** NB1 Throughputs (e.g. 5.00E8) are events/sec for "./gcheck.exe -p 16384 32 12"
-// ** NB2 Baseline on b7g47n0002 fluctuates (depends on load?): typically, either ~5.00E8 or ~5.50E8
+// ** NB1 Throughputs (e.g. 6.8E8) are events/sec for "./gcheck.exe -p 65536 128 12"
+// ** NB2 Baseline on b7g47n0004 fluctuates (probably depends on load on other VMs)
 
 // Memory layout for momenta: AOSOA, AOS, SOA (CHOOSE ONLY ONE)
 // AOSOA (ASA) layout is hardcoded: fine-tune it using the nepopR and neppM parameters below
@@ -16,13 +16,13 @@
 // [NB: new throughputs on 1GPU/4CPU system]
 
 // Floating point precision (CHOOSE ONLY ONE)
-#define MGONGPU_FPTYPE_DOUBLE 1 // default (~5.00E8)
-//#define MGONGPU_FPTYPE_FLOAT 1 // 2.3x faster (~1.14E9 against 5.00E8)
+#define MGONGPU_FPTYPE_DOUBLE 1 // default (~6.8E8)
+//#define MGONGPU_FPTYPE_FLOAT 1 // 2.4x faster (~1.64E9 against 6.8E8)
 
 // Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
-#define MGONGPU_CXTYPE_THRUST 1 // default (~5.00E8)
-//#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~5% slower (4.75E8 against 5.00E8)
+#define MGONGPU_CXTYPE_THRUST 1 // default (~6.8E8)
+//#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~5% slower (6.5E8 against 6.8E8)
 #endif
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
