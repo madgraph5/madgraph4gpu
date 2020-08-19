@@ -332,7 +332,11 @@ int main(int argc, char **argv)
     const std::string skinKey = "3b SigmaKin";
     timermap.start( skinKey );
 #ifdef __CUDACC__
+#ifndef MGONGPU_NSIGHT_DEBUG
     gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta, devMEs);
+#else
+    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta, devMEs);
+#endif
     checkCuda( cudaPeekAtLastError() );
 #else
     Proc::sigmaKin(hstMomenta, hstMEs, nevt);

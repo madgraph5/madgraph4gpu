@@ -8,10 +8,13 @@
 #include <cmath>
 #include <cstring>
 #include <cstdlib>
+#include <iomanip>
 #include <iostream>
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
+
+mgDebugDeclare();
 
 namespace MG5_sm
 {
@@ -53,6 +56,7 @@ namespace MG5_sm
 #endif
                  const int ipar )          // input: particle# out of npar
   {
+    mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
     //for (int ievt = 0; ievt < nevt; ++ievt)
@@ -97,6 +101,7 @@ namespace MG5_sm
       }
     }
     // ** END LOOP ON IEVT **
+    mgDebug( 1, __FUNCTION__ );
     return;
   }
 
@@ -115,6 +120,7 @@ namespace MG5_sm
 #endif
                  const int ipar )          // input: particle# out of npar
   {
+    mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
     //for (int ievt = 0; ievt < nevt; ++ievt)
@@ -160,6 +166,7 @@ namespace MG5_sm
       }
     }
     // ** END LOOP ON IEVT **
+    mgDebug( 1, __FUNCTION__ );
     return;
   }
 
@@ -178,6 +185,7 @@ namespace MG5_sm
 #endif
                  const int ipar )          // input: particle# out of npar
   {
+    mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
     //for (int ievt = 0; ievt < nevt; ++ievt)
@@ -224,6 +232,7 @@ namespace MG5_sm
       }
     }
     // ** END LOOP ON IEVT **
+    mgDebug( 1, __FUNCTION__ );
     return;
   }
 
@@ -238,6 +247,7 @@ namespace MG5_sm
                const cxtype COUP,
                cxtype* vertex )      // output
   {
+    mgDebug( 0, __FUNCTION__ );
     const cxtype& F1_2 = F1S[2];
     const cxtype& F1_3 = F1S[3];
     const cxtype& F1_4 = F1S[4];
@@ -264,6 +274,8 @@ namespace MG5_sm
           )
         );
     ( *vertex ) = COUP * ( -cI ) * TMP4;
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
@@ -275,9 +287,10 @@ namespace MG5_sm
                  const cxtype F2S[],   // input wavefunction2[6]
                  const cxtype COUP,
                  const fptype M3,
-                 const fptype W3, 
+                 const fptype W3,
                  cxtype V3S[] )        // output wavefunction3[6]
   {
+    mgDebug( 0, __FUNCTION__ );
     const cxtype& F1_0 = F1S[0];
     const cxtype& F1_1 = F1S[1];
     const cxtype& F1_2 = F1S[2];
@@ -309,6 +322,8 @@ namespace MG5_sm
     V3_3 = denom * ( -cI ) * ( -F1_2 * F2_5 - F1_3 * F2_4 + F1_4 * F2_3 + F1_5 * F2_2 );
     V3_4 = denom * ( -cI ) * ( -cI * ( F1_2 * F2_5 + F1_5 * F2_2 ) + cI * ( F1_3 * F2_4 + F1_4 * F2_3 ) );
     V3_5 = denom * ( -cI ) * ( -F1_2 * F2_4 - F1_5 * F2_3 + F1_3 * F2_5 + F1_4 * F2_2 );
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
@@ -323,6 +338,7 @@ namespace MG5_sm
                  const cxtype COUP2,
                  cxtype* vertex )      // output
   {
+    mgDebug( 0, __FUNCTION__ );
     const cxtype& F1_2 = F1S[2];
     const cxtype& F1_3 = F1S[3];
     const cxtype& F1_4 = F1S[4];
@@ -345,6 +361,8 @@ namespace MG5_sm
       ( F1_2 * ( F2_4 * ( V3_2 + V3_5 ) + F2_5 * ( V3_3 + cI * ( V3_4 ) ) ) +
         F1_3 * ( F2_4 * ( V3_3 - cI * ( V3_4 ) ) + F2_5 * ( V3_2 - V3_5 ) ) );
     (*vertex) = -fp1 * ( COUP2 * ( +cI * ( TMP0 ) + fp2 * cI * ( TMP2 ) ) + cI * ( TMP0 * COUP1 ) );
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
@@ -357,9 +375,10 @@ namespace MG5_sm
                  const cxtype COUP1,
                  const cxtype COUP2,
                  const fptype M3,
-                 const fptype W3, 
+                 const fptype W3,
                  cxtype V3S[] )        // output wavefunction3[6]
   {
+    mgDebug( 0, __FUNCTION__ );
     const cxtype& F1_0 = F1S[0];
     const cxtype& F1_1 = F1S[1];
     const cxtype& F1_2 = F1S[2];
@@ -416,6 +435,8 @@ namespace MG5_sm
       ( COUP2 * ( OM3 * fp1/fp2 * PPP3 * ( TMP1 + fp2 * ( TMP3 ) ) +
                   ( +fp1/fp2 * ( F1_2 * F2_4 ) - fp1/fp2 * ( F1_3 * F2_5 ) - F1_4 * F2_2 + F1_5 * F2_3 ) )
         + fp1/fp2 * ( COUP1 * ( F1_2 * F2_4 + PPP3 * OM3 * TMP1 - F1_3 * F2_5 ) ) );
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
 
@@ -448,20 +469,18 @@ namespace Proc
 {
   using mgOnGpu::np4; // 4: the dimension of 4-momenta (E,px,py,pz)
   using mgOnGpu::npar; // 4: #particles in total (external), e+ e- -> mu+ mu-
-  using mgOnGpu::ncomb; // 16: #helicity combinations, 2(spin up/down for fermions)**4(npar) 
+  using mgOnGpu::ncomb; // 16: #helicity combinations, 2(spin up/down for fermions)**4(npar)
 
 #ifdef __CUDACC__
   __device__ __constant__ int cHel[ncomb][npar];
-  __device__ __constant__ fptype cIPC[6];  // coupling ?
-  __device__ __constant__ fptype cIPD[2];
+  //__device__ __constant__ fptype cIPC[6];
+  //__device__ __constant__ fptype cIPD[2];
   __device__ __constant__ int cNGoodHel[1];
   __device__ __constant__ int cGoodHel[ncomb];
 #else
   static int cHel[ncomb][npar];
-  static fptype cIPC[6];  // coupling ?
+  static fptype cIPC[6];
   static fptype cIPD[2];
-  //static int cNGoodHel[1];
-  //static int cGoodHel[ncomb];
 #endif
 
   //--------------------------------------------------------------------------
@@ -484,11 +503,24 @@ namespace Proc
 #endif
                                 )
   {
+    mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     //printf( "calculate_wavefunctions: ievt %d\n", ievt );
 #endif
+
+#ifdef __CUDACC__
+    //const int cHel[ncomb][npar] =
+    //  { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
+    //    {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
+    //    {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
+    //    {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
+    const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
+    const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
+#endif
+
     cxtype amp[2];
     cxtype w[nwf][nw6]; // w[5][6]
+
 #ifdef __CUDACC__
     MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], 0 );
     MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], 1 );
@@ -513,8 +545,8 @@ namespace Proc
     cxtype jamp[ncolor];
 
     // The color matrix;
-    static const fptype denom[ncolor] = {1};
-    static const fptype cf[ncolor][ncolor] = {{1}};
+    const fptype denom[ncolor] = {1};
+    const fptype cf[ncolor][ncolor] = {{1}};
 
     // Calculate color flows
     // (compute M as the sum of the invariant amplitudes for all Feynman diagrams)
@@ -535,6 +567,8 @@ namespace Proc
     // for(i=0;i < ncolor; i++)
     // jamp2[0][i] += cxreal( jamp[i]*conj( jamp[i] ) );
 
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
@@ -549,15 +583,21 @@ namespace Proc
     , dim( gpu_nblocks * gpu_nthreads )
     , m_verbose( verbose )
   {
+#ifdef __CUDACC__
     // Helicities for the process - nodim
-    static const int tHel[ncomb][nexternal] =
+    const int tHel[ncomb][nexternal] =
       { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
         {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
         {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
         {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
-#ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(int) ) );
 #else
+    // Helicities for the process - nodim
+    const int tHel[ncomb][nexternal] =
+      { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
+        {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
+        {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
+        {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
     memcpy( cHel, tHel, ncomb * nexternal * sizeof(int) );
 #endif
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
@@ -593,17 +633,24 @@ namespace Proc
     mME.push_back(pars->ZERO);
     mME.push_back(pars->ZERO);
     mME.push_back(pars->ZERO);
-    static cxtype tIPC[3] = { cxmake( pars->GC_3 ), cxmake( pars->GC_50 ), cxmake( pars->GC_59 ) };
-    static fptype tIPD[2] = { (fptype)pars->mdl_MZ, (fptype)pars->mdl_WZ };
 
 #ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(cxtype ) ) );
-    checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof(fptype) ) );
+    //const cxtype tIPC[3] = { cxmake( pars->GC_3 ), cxmake( pars->GC_50 ), cxmake( pars->GC_59 ) };
+    //const fptype tIPD[2] = { (fptype)pars->mdl_MZ, (fptype)pars->mdl_WZ };
+    //checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(cxtype ) ) );
+    //checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof(fptype) ) );
 #else
+    const cxtype tIPC[3] = { cxmake( pars->GC_3 ), cxmake( pars->GC_50 ), cxmake( pars->GC_59 ) };
+    const fptype tIPD[2] = { (fptype)pars->mdl_MZ, (fptype)pars->mdl_WZ };
     memcpy( cIPC, tIPC, 3 * sizeof(cxtype) );
     memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
 #endif
 
+    //std::cout << std::setprecision(17) << "tIPC[0] = " << tIPC[0] << std::endl;
+    //std::cout << std::setprecision(17) << "tIPC[1] = " << tIPC[1] << std::endl;
+    //std::cout << std::setprecision(17) << "tIPC[2] = " << tIPC[2] << std::endl;
+    //std::cout << std::setprecision(17) << "tIPD[0] = " << tIPD[0] << std::endl;
+    //std::cout << std::setprecision(17) << "tIPD[1] = " << tIPD[1] << std::endl;
   }
 
   //--------------------------------------------------------------------------
@@ -619,7 +666,7 @@ namespace Proc
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
-      calculate_wavefunctions( ihel, allmomenta, meHelSum[0] ); 
+      calculate_wavefunctions( ihel, allmomenta, meHelSum[0] );
       if ( meHelSum[0]>meHelSumLast ) isGoodHel[ihel] = true;
       meHelSumLast = meHelSum[0];
     }
@@ -632,7 +679,7 @@ namespace Proc
   void sigmaKin_setGoodHel( const bool* isGoodHel ) // input: isGoodHel[ncomb] - host array
   {
     int nGoodHel[1] = { 0 };
-    int goodHel[ncomb] = { 0 }; 
+    int goodHel[ncomb] = { 0 };
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       //std::cout << "sigmaKin_setGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
@@ -644,7 +691,7 @@ namespace Proc
     }
     checkCuda( cudaMemcpyToSymbol( cNGoodHel, nGoodHel, sizeof(int) ) );
     checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb*sizeof(int) ) );
-  }  
+  }
 #endif
 
   //--------------------------------------------------------------------------
@@ -660,6 +707,7 @@ namespace Proc
 #endif
                  )
   {
+    mgDebugInitialise();
     // Set the parameters which change event by event
     // Need to discuss this with Stefan
     // pars->setDependentParameters();
@@ -694,7 +742,7 @@ namespace Proc
       for ( int ighel = 0; ighel < cNGoodHel[0]; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
-        calculate_wavefunctions( ihel, allmomenta, meHelSum[0] ); 
+        calculate_wavefunctions( ihel, allmomenta, meHelSum[0] );
       }
 #else
       // C++ - compute good helicities within this loop
@@ -732,6 +780,7 @@ namespace Proc
 
     }
     // ** END LOOP ON IEVT **
+    mgDebugFinalise();
 
   }
 
