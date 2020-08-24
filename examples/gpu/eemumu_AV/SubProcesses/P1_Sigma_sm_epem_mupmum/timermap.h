@@ -62,7 +62,9 @@ namespace mgOnGpu
     {
       // Improve key formatting
       const std::string totalKey = "TOTAL      ";
-      const std::string total2Key = "TOTAL(n-2) ";
+      const std::string totalBut2Key = "TOTAL(n-2) ";
+      const std::string total123Key = "TOTAL(123) ";
+      const std::string total23Key = "TOTAL(23)  ";
       size_t maxsize = 0;
       for ( auto ip : m_partitionTimers )
         maxsize = std::max( maxsize, ip.first.size() );
@@ -70,11 +72,15 @@ namespace mgOnGpu
       // Compute the overall total
       size_t ipart = 0;
       float total = 0;
-      float total2 = 0;
+      float totalBut2 = 0;
+      float total123 = 0;
+      float total23 = 0;
       for ( auto ip : m_partitionTimers )
       {
         total += ip.second;
-        if ( ipart != 0 && ipart+1 != m_partitionTimers.size() ) total2 += ip.second;
+        if ( ipart != 0 && ipart+1 != m_partitionTimers.size() ) totalBut2 += ip.second;
+        if ( ip.first[0] == '1' || ip.first[0] == '2' || ip.first[0] == '3' ) total123 += ip.second;
+        if ( ip.first[0] == '2' || ip.first[0] == '3' ) total23 += ip.second;
         ipart++;
       }      
       // Dump individual partition timers and the overall total 
@@ -83,8 +89,12 @@ namespace mgOnGpu
                   << std::fixed << std::setw(8) << ip.second << " sec" << std::endl;
       std::cout << std::setw(maxsize) << totalKey << " : " 
                 << std::fixed << std::setw(8) << total << " sec" << std::endl;
-      std::cout << std::setw(maxsize) << total2Key << " : " 
-                << std::fixed << std::setw(8) << total2 << " sec" << std::endl;
+      std::cout << std::setw(maxsize) << totalBut2Key << " : " 
+                << std::fixed << std::setw(8) << totalBut2 << " sec" << std::endl;
+      std::cout << std::setw(maxsize) << total123Key << " : " 
+                << std::fixed << std::setw(8) << total123 << " sec" << std::endl;
+      std::cout << std::setw(maxsize) << total23Key << " : " 
+                << std::fixed << std::setw(8) << total23 << " sec" << std::endl;
     }
 
   private:
