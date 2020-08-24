@@ -463,7 +463,7 @@ int main(int argc, char **argv)
     double maxelem = matrixelementALL[0];
     for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
     {
-      if ( isnan( matrixelementALL[ievtALL] ) )
+      if ( std::isnan( matrixelementALL[ievtALL] ) )
       {
         if ( debug ) // only printed out with "-p -d" (matrixelementALL is not filled without -p)
           std::cout << "WARNING! ME[" << ievtALL << "} is nan" << std::endl;
