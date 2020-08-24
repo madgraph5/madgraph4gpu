@@ -590,7 +590,7 @@ namespace Proc
         {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
         {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
         {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
-    checkCuda( cudaMemcpyToSymbol( cHel, &tHel, ncomb * nexternal * sizeof(int) ) );
+    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(int) ) );
 #else
     // Helicities for the process - nodim
     const int tHel[ncomb][nexternal] =
