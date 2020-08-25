@@ -1,4 +1,4 @@
-CUARCHNUM=61
+CUARCHNUM=70
 LIBDIR=../../lib
 INCDIR=../../src
 MODELLIB=model_sm

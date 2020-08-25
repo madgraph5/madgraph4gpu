@@ -16,7 +16,6 @@ class ReadData():
         localdict = {}
         command = None
         for line in self.fh.readlines():
-            print line
             if line.find('check.exe') != -1:
                 command = line
             if line.find('***********************************') != -1:
