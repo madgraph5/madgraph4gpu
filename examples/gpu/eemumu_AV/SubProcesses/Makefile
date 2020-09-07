@@ -1,5 +1,5 @@
 CUARCHNUM=70
-#CUARCHNUM=61 (For Pascal Architecture Cards)
+#CUARCHNUM=61 #(For Pascal Architecture Cards)
 LIBDIR=../../lib
 INCDIR=../../src
 MODELLIB=model_sm
