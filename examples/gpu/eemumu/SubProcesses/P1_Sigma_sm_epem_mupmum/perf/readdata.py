@@ -52,5 +52,6 @@ class ReadData():
 if __name__ == '__main__':
     r = ReadData('20200402-perf-test-run2.txt')
     v = r.genData()
+    print v
     print len(v)
     print v[-1].keys()
