@@ -553,7 +553,30 @@ int main(int argc, char **argv)
     if(json){
       std::ofstream jsonFile;
       std::string perffile = std::to_string(date) + "-perf-test-run" + std::to_string(run) + ".json";
-      jsonFile.open("./perf/data/" + perffile, std::ios_base::app);
+      perffile = "./perf/data/" + perffile;
+
+      //Checks if file exists
+      std::ifstream fileCheck;
+      bool fileExists = false;
+      fileCheck.open(perffile);
+      if(fileCheck){
+        fileExists = true;
+        fileCheck.close();
+      }
+      
+      jsonFile.open(perffile, std::ios_base::app);
+      
+      if(!fileExists){
+        jsonFile << "[" << std::endl;
+      }
+      else{
+        //deleting the last bracket and outputting a ", "
+        std::string temp = "truncate -s-1 " + perffile;
+        const char *command = temp.c_str();
+        system(command);
+        jsonFile << ", " << std::endl;
+      }
+      
       jsonFile << "{" << std::endl
       << "\"NumIterations\": " << niter << ", " << std::endl
       << "\"NumThreadsPerBlock\": " << gputhreads << ", " << std::endl
@@ -590,27 +613,28 @@ int main(int argc, char **argv)
 #endif
       << "\"NumberOfEntries\": " << niter << ", " << std::endl
       //<< std::scientific //Not sure about this
-      << "\"TotalTimeInWaveFuncs\": "  << sumwtim << " sec" << ", " << std::endl
-      << "\"MeanTimeInWaveFuncs\": "  << meanwtim << " sec" << ", " << std::endl
-      << "\"StdDevTimeInWaveFuncs\": " << stdwtim << " sec" << ", " << std::endl
-      << "\"MinTimeInWaveFuncs\": " << minwtim << " sec" << ", " << std::endl
-      << "\"MaxTimeInWaveFuncs\": " << maxwtim << " sec" << ", " << std::endl
+      << "\"TotalTimeInWaveFuncs\": "  << "\"" << std::to_string(sumwtim) << " sec" << "\"" << ", " << std::endl
+      << "\"MeanTimeInWaveFuncs\": "  << "\"" << std::to_string(meanwtim) << " sec" << "\"" << ", " << std::endl
+      << "\"StdDevTimeInWaveFuncs\": " << "\"" << std::to_string(stdwtim) << " sec" << "\"" << ", " << std::endl
+      << "\"MinTimeInWaveFuncs\": " << "\"" << std::to_string(minwtim) << " sec" << "\"" << ", " << std::endl
+      << "\"MaxTimeInWaveFuncs\": " << "\"" << std::to_string(maxwtim) << " sec" << "\"" << ", " << std::endl
 
 //<< "ProcessID:                = " << getpid() << std::endl
 //<< "NProcesses                = " << process.nprocesses << std::endl
       << "\"TotalEventsComputed\": " << nevtALL << ", " << std::endl
-      << "\"RamboEventsPerSec\": " << nevtALL/sumrtim << " sec^-1" << ", " << std::endl
-      << "\"MatrixElemEventsPerSec\": " << nevtALL/sumwtim << " sec^-1" << ", " << std::endl
+      << "\"RamboEventsPerSec\": " << "\"" << std::to_string(nevtALL/sumrtim) << " sec^-1" << "\"" << ", " << std::endl
+      << "\"MatrixElemEventsPerSec\": " << "\"" << std::to_string(nevtALL/sumwtim) << " sec^-1" << "\"" << ", " << std::endl
 
 
       << "\"NumMatrixElements(notNan)\": " << nevtALL - nnan << ", " << std::endl
       << std::scientific
-      << "\"MeanMatrixElemValue\": " << meanelem << " GeV^" << meGeVexponent << ", " << std::endl
-      << "\"StdErrMatrixElemValue\": " << stdelem/sqrt(nevtALL) << " GeV^" << meGeVexponent << ", " << std::endl
-      << "\"StdDevMatrixElemValue\": " << stdelem << " GeV^" << meGeVexponent << ", " << std::endl
-      << "\"MinMatrixElemValue\": " << minelem << " GeV^" << meGeVexponent << ", " << std::endl
-      << "\"MaxMatrixElemValue\": " << maxelem << " GeV^" << meGeVexponent << "}," << std::endl
-      << "}";
+      << "\"MeanMatrixElemValue\": " << "\"" << std::to_string(meanelem) << " GeV^" << std::to_string(meGeVexponent) << "\"" << ", " << std::endl
+      << "\"StdErrMatrixElemValue\": " << "\"" << std::to_string(stdelem/sqrt(nevtALL)) << " GeV^" << std::to_string(meGeVexponent) << "\"" << ", " << std::endl
+      << "\"StdDevMatrixElemValue\": " << "\"" << std::to_string(stdelem) << " GeV^" << std::to_string(meGeVexponent) << "\"" << ", " << std::endl
+      << "\"MinMatrixElemValue\": " << "\"" << std::to_string(minelem) << " GeV^" << std::to_string(meGeVexponent) << "\"" << ", " << std::endl
+      << "\"MaxMatrixElemValue\": " << "\"" << std::to_string(maxelem) << " GeV^" << std::to_string(meGeVexponent) <<  "\"" << std::endl
+      << "}" << std::endl
+      << "]";
       jsonFile.close();
     }
   }
