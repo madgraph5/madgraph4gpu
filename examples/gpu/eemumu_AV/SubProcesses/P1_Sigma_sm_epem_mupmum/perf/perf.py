@@ -136,7 +136,7 @@ class Perf():
             for y in self.dataDict2D[d]:
                 ysublist.append(y)  # y[0]
             ysublist = sorted(ysublist, key=itemgetter(0), reverse=True)            
-            ysublist[0][0] = ysublist[0][0]/d #Temporary conversion for total time for events -> events per sec
+            ysublist[0][0] = d/ysublist[0][0] #Temporary conversion for total time for events -> events per sec
             print ysublist
             ylabels.append([x[1] for x in ysublist])
             ylist.append([x[0] for x in ysublist])
@@ -147,13 +147,15 @@ class Perf():
 
         ax.set_xticks(xlist)
         ax.set_xlabel('%s * %s' % (self.axesn[0], self.axesn[1]))
-        ax.set_ylabel('%s / %s' % (self.axesn[2], "TotalEventsComputed"))
+        ax.set_ylabel('%s / %s' % ("TotalEventsComputed", self.axesn[2]))
         ax.set_yscale('log')
         ax.set_xticklabels(dims, {'rotation': 45})
         ax.yaxis.set_major_formatter(ScalarFormatter())
         plt.ticklabel_format(axis="y", style="sci",scilimits=(0,0))
         xpos = 1
-        for y in ylabels:
+	'''
+	#Commenting only for the current example due to an overlap of the product labels        
+	for y in ylabels:
             xstr = ''
             for x in y:
                 # xstr += x.replace('/', '\n')
@@ -162,8 +164,8 @@ class Perf():
             ax.text(xpos, 0.25, xstr, {'fontsize': 'xx-small', 'ha': 'center',
                                        'va': 'bottom'})
             xpos += 1
-        
-        plt.show()
+	'''    
+	plt.show()
        
 
 def print_keys(loc, date, run):
