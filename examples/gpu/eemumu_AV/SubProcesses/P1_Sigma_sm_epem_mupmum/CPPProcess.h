@@ -11,6 +11,8 @@
 #include <cassert>
 #include <complex>
 #include <vector>
+#include <fstream>
+#include <iostream>
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"

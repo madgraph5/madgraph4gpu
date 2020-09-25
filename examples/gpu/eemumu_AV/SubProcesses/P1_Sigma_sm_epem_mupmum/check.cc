@@ -5,6 +5,8 @@
 #include <iostream>
 #include <numeric>
 #include <unistd.h>
+#include <fstream>
+#include <string>
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
@@ -27,7 +29,7 @@ bool is_number(const char *s) {
 
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
-            << " [--verbose|-v] [--debug|-d] [--performance|-p]"
+            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl;
@@ -40,11 +42,15 @@ int main(int argc, char **argv)
   bool verbose = false;
   bool debug = false;
   bool perf = false;
+  bool json = false;
   int niter = 0;
   int gpublocks = 1;
   int gputhreads = 32;
-  int numvec[3] = {0,0,0};
+  int date;
+  int run;
+  int numvec[5] = {0,0,0};
   int nnum = 0;
+
   for (int argn = 1; argn < argc; ++argn) {
     if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
       verbose = true;
@@ -54,16 +60,23 @@ int main(int argc, char **argv)
     else if (strcmp(argv[argn], "--performance") == 0 ||
              strcmp(argv[argn], "-p") == 0)
       perf = true;
-    else if (is_number(argv[argn]) && nnum<3)
+    else if (strcmp(argv[argn], "--json") == 0 ||
+             strcmp(argv[argn], "-j") == 0)
+      json = true;
+    else if (is_number(argv[argn]) && nnum<5)
       numvec[nnum++] = atoi(argv[argn]);
     else
       return usage(argv[0]);
   }
 
-  if (nnum == 3) {
+  if (nnum == 3 || nnum == 5) {
     gpublocks = numvec[0];
     gputhreads = numvec[1];
     niter = numvec[2];
+    if (nnum == 5){
+      date = numvec[3];
+      run = numvec[4];
+    }
   } else if (nnum == 1) {
     niter = numvec[0];
   } else {
@@ -463,7 +476,7 @@ int main(int argc, char **argv)
     double maxelem = matrixelementALL[0];
     for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
     {
-      if ( isnan( matrixelementALL[ievtALL] ) )
+      if ( std::isnan( matrixelementALL[ievtALL] ) )
       {
         if ( debug ) // only printed out with "-p -d" (matrixelementALL is not filled without -p)
           std::cout << "WARNING! ME[" << ievtALL << "} is nan" << std::endl;
@@ -536,7 +549,97 @@ int main(int argc, char **argv)
               << "StdDevMatrixElemValue     = " << stdelem << " GeV^" << meGeVexponent << std::endl
               << "MinMatrixElemValue        = " << minelem << " GeV^" << meGeVexponent << std::endl
               << "MaxMatrixElemValue        = " << maxelem << " GeV^" << meGeVexponent << std::endl;
+    
+    if(json){
+      std::ofstream jsonFile;
+      std::string perffile = std::to_string(date) + "-perf-test-run" + std::to_string(run) + ".json";
+      perffile = "./perf/data/" + perffile;
+
+      //Checks if file exists
+      std::ifstream fileCheck;
+      bool fileExists = false;
+      fileCheck.open(perffile);
+      if(fileCheck){
+        fileExists = true;
+        fileCheck.close();
+      }
+      
+      jsonFile.open(perffile, std::ios_base::app);
+      
+      if(!fileExists){
+        jsonFile << "[" << std::endl;
+      }
+      else{
+        //deleting the last bracket and outputting a ", "
+        std::string temp = "truncate -s-1 " + perffile;
+        const char *command = temp.c_str();
+        system(command);
+        jsonFile << ", " << std::endl;
+      }
+      
+      jsonFile << "{" << std::endl
+      << "\"NumIterations\": " << niter << ", " << std::endl
+      << "\"NumThreadsPerBlock\": " << gputhreads << ", " << std::endl
+      << "\"NumBlocksPerGrid\": " << gpublocks << ", " << std::endl
+#if defined MGONGPU_FPTYPE_DOUBLE
+      << "\"FP precision\": " << "\"DOUBLE (nan=" << nnan << ")\"" << ", " << std::endl
+#elif defined MGONGPU_FPTYPE_FLOAT
+      << "\"FP precision\": " << "FLOAT (nan=" << nnan << ")" << ", " << std::endl
+#endif
+#ifdef __CUDACC__
+#if defined MGONGPU_CXTYPE_CUCOMPLEX
+      << "\"Complex type\": " << "\"CUCOMPLEX\"" << ", " << std::endl
+#elif defined MGONGPU_CXTYPE_THRUST
+      << "\"Complex type\": " << "\"THRUST::COMPLEX\"" << ", " << std::endl
+#endif
+#else
+      << "\"Complex type\": " << "\"STD::COMPLEX\"" << ", " << std::endl
+#endif
+      << "\"RanNumb memory layout\": " << "\"AOSOA[" << neppR << "]\""
+      << ( neppR == 1 ? " == AOS" : "" ) << ", " << std::endl
+      << "\"Momenta memory layout\": " << "\"AOSOA[" << neppM << "]\""
+      << ( neppM == 1 ? " == AOS" : "" ) << ", " << std::endl
+#ifdef __CUDACC__
+      << "\"Wavefunction GPU memory\": " << "\"LOCAL\"" << ", " << std::endl
+#endif
+#ifdef __CUDACC__
+#if defined MGONGPU_CURAND_ONDEVICE
+      << "\"Curand generation\": " << "\"DEVICE (CUDA code)\"" << ", " << std::endl
+#elif defined MGONGPU_CURAND_ONHOST
+      << "\"Curand generation\": " << "\"HOST (CUDA code)\"" << ", " << std::endl
+#endif
+#else
+      << "\"Curand generation\": " << "\"HOST (C++ code)\"" << ", " << std::endl
+#endif
+      << "\"NumberOfEntries\": " << niter << ", " << std::endl
+      //<< std::scientific //Not sure about this
+      << "\"TotalTimeInWaveFuncs\": "  << "\"" << std::to_string(sumwtim) << " sec" << "\"" << ", " << std::endl
+      << "\"MeanTimeInWaveFuncs\": "  << "\"" << std::to_string(meanwtim) << " sec" << "\"" << ", " << std::endl
+      << "\"StdDevTimeInWaveFuncs\": " << "\"" << std::to_string(stdwtim) << " sec" << "\"" << ", " << std::endl
+      << "\"MinTimeInWaveFuncs\": " << "\"" << std::to_string(minwtim) << " sec" << "\"" << ", " << std::endl
+      << "\"MaxTimeInWaveFuncs\": " << "\"" << std::to_string(maxwtim) << " sec" << "\"" << ", " << std::endl
+
+//<< "ProcessID:                = " << getpid() << std::endl
+//<< "NProcesses                = " << process.nprocesses << std::endl
+      << "\"TotalEventsComputed\": " << nevtALL << ", " << std::endl
+      << "\"RamboEventsPerSec\": " << "\"" << std::to_string(nevtALL/sumrtim) << " sec^-1" << "\"" << ", " << std::endl
+      << "\"MatrixElemEventsPerSec\": " << "\"" << std::to_string(nevtALL/sumwtim) << " sec^-1" << "\"" << ", " << std::endl
+
+
+      << "\"NumMatrixElements(notNan)\": " << nevtALL - nnan << ", " << std::endl
+      << std::scientific
+      << "\"MeanMatrixElemValue\": " << "\"" << std::to_string(meanelem) << " GeV^" << std::to_string(meGeVexponent) << "\"" << ", " << std::endl
+      << "\"StdErrMatrixElemValue\": " << "\"" << std::to_string(stdelem/sqrt(nevtALL)) << " GeV^" << std::to_string(meGeVexponent) << "\"" << ", " << std::endl
+      << "\"StdDevMatrixElemValue\": " << "\"" << std::to_string(stdelem) << " GeV^" << std::to_string(meGeVexponent) << "\"" << ", " << std::endl
+      << "\"MinMatrixElemValue\": " << "\"" << std::to_string(minelem) << " GeV^" << std::to_string(meGeVexponent) << "\"" << ", " << std::endl
+      << "\"MaxMatrixElemValue\": " << "\"" << std::to_string(maxelem) << " GeV^" << std::to_string(meGeVexponent) <<  "\"" << std::endl
+      << "}" << std::endl
+      << "]";
+      jsonFile.close();
+    }
   }
+
+  
 
   // --- 9b. Destroy curand generator
   const std::string dgenKey = "9b GenDestr";
