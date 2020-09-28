@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from optparse import OptionParser
 from datetime import datetime
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
@@ -8,7 +10,6 @@ import copy
 import sys
 import json
 from operator import itemgetter
-
 
 
 class Perf():
@@ -22,11 +23,11 @@ class Perf():
         self.axesr = [xrem, yrem]  # remove outer bands from axes
         self.axesv = [[], [], []]
         self.data = self.prepData(readJson)
-     
+
     def prepData(self, jsonData):
         for data in jsonData:
             for i in data:
-                if isinstance(data[i], type(u'test')):
+                if isinstance(data[i], type('test')):
                     idx = -1
                     if data[i].find("sec") != -1:
                         idx = data[i].find("sec")
@@ -34,13 +35,12 @@ class Perf():
                         idx = data[i].find("GeV")
 
                     if idx != -1:
-                        data[i] = float(data[i][:idx-1])
-                        
+                        data[i] = float(data[i][:idx - 1])
         return jsonData
-    
+
     def prepAxes3D(self):
         for d in self.data:
-            ks = d.keys()
+            ks = list(d.keys())
             for ax in self.axesn:
                 idx = self.axesn.index(ax)
                 axlist = self.axesv[idx]
@@ -86,7 +86,7 @@ class Perf():
         x_data, y_data = np.meshgrid(np.arange(data_array.shape[1]),
                                      np.arange(data_array.shape[0]))
         xticks = x_data[0]
-        yticks = np.array(range(len(y_data)))
+        yticks = np.array(list(range(len(y_data))))
         x_data = x_data.flatten()
         y_data = y_data.flatten()
         z_data = data_array.flatten()
@@ -122,25 +122,25 @@ class Perf():
             else:
                 self.dataDict2D[dim].append(vallist)
 
-
     def plot2D(self):
         self.prepData2D()
 
-        dims = self.dataDict2D.keys()
+        dims = list(self.dataDict2D.keys())
         dims.sort()
-        xlist = range(1, len(dims) + 1)
+        xlist = list(range(1, len(dims) + 1))
         ylist = []
         ylabels = []
         for d in dims:
             ysublist = []
             for y in self.dataDict2D[d]:
                 ysublist.append(y)  # y[0]
-            ysublist = sorted(ysublist, key=itemgetter(0), reverse=True)            
-            ysublist[0][0] = d/ysublist[0][0] #Temporary conversion for total time for events -> events per sec
-            print ysublist
+            ysublist = sorted(ysublist, key=itemgetter(0), reverse=True)
+            # Temporary conversion for total time for events -> events per sec
+            ysublist[0][0] = d / ysublist[0][0]
+            print(ysublist)
             ylabels.append([x[1] for x in ysublist])
             ylist.append([x[0] for x in ysublist])
-        
+
         fig, ax = plt.subplots()
         for xe, ye in zip(xlist, ylist):
             ax.scatter([xe] * len(ye), ye, s=20, marker='.', edgecolors='none')
@@ -151,32 +151,32 @@ class Perf():
         ax.set_yscale('log')
         ax.set_xticklabels(dims, {'rotation': 45})
         ax.yaxis.set_major_formatter(ScalarFormatter())
-        plt.ticklabel_format(axis="y", style="sci",scilimits=(0,0))
+        plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
+        '''
+        # Commenting only for the current example due to an overlap of the
+        # product labels
         xpos = 1
-	'''
-	#Commenting only for the current example due to an overlap of the product labels        
-	for y in ylabels:
-            xstr = ''
-            for x in y:
-                # xstr += x.replace('/', '\n')
-                xstr += x
-                xstr += '\n'
-            ax.text(xpos, 0.25, xstr, {'fontsize': 'xx-small', 'ha': 'center',
-                                       'va': 'bottom'})
-            xpos += 1
-	'''    
-	plt.show()
-       
+        for y in ylabels:
+                xstr = ''
+                for x in y:
+                    # xstr += x.replace('/', '\n')
+                    xstr += x
+                    xstr += '\n'
+                ax.text(xpos, 0.25, xstr, {'fontsize': 'xx-small',
+                                           'ha': 'center',
+                                           'va': 'bottom'})
+                xpos += 1
+        '''
+        plt.show()
+
 
 def print_keys(loc, date, run):
     perffile = '%s/%s-perf-test-run%s.json' % (loc, date, run)
     data = open(perffile, 'r')
     readJson = json.loads(data.read())
     data.close()
-    for k in readJson[0].keys():
+    for k in list(readJson[0].keys()):
         print(k)
-
-
 
 
 if __name__ == '__main__':
@@ -223,7 +223,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     if (len(ar) == 1 and ar[0].upper() not in plotnames) or len(ar) > 1:
-        print parser.print_help()
+        print(parser.print_help())
         sys.exit(1)
     elif len(ar) == 1:
         plot = ar[0].upper()
