@@ -4,6 +4,7 @@ from optparse import OptionParser
 from datetime import datetime
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 from matplotlib.ticker import ScalarFormatter
 import numpy as np
 import copy
@@ -116,7 +117,7 @@ class Perf():
             zval = d[zname]
             dim = xval * yval
             tick = '%s/%s' % (str(xval), str(yval))
-            vallist = [zval, tick]
+            vallist = [float(str(zval).split()[0]), tick]
             if dim not in self.dataDict2D:
                 self.dataDict2D[dim] = [vallist]
             else:
@@ -125,48 +126,67 @@ class Perf():
     def plot2D(self):
         self.prepData2D()
 
+        cmap = {'32': 'red', '64': 'orange', '128': 'blue', '256': 'green'}
+        smap = {'32': 20, '64': 40, '128': 80, '256': 160}
+
         dims = list(self.dataDict2D.keys())
         dims.sort()
         xlist = list(range(1, len(dims) + 1))
         ylist = []
+        clist = []
+        slist = []
         ylabels = []
         for d in dims:
             ysublist = []
             for y in self.dataDict2D[d]:
                 ysublist.append(y)  # y[0]
             ysublist = sorted(ysublist, key=itemgetter(0), reverse=True)
+            clist.append([cmap[x[1].split('/')[0]] for x in ysublist])
+            slist.append([smap[x[1].split('/')[0]] for x in ysublist])
             # Temporary conversion for total time for events -> events per sec
-            ysublist[0][0] = d / ysublist[0][0]
-            print(ysublist)
+            # ysublist[0][0] = d / ysublist[0][0]
             ylabels.append([x[1] for x in ysublist])
             ylist.append([x[0] for x in ysublist])
 
         fig, ax = plt.subplots()
-        for xe, ye in zip(xlist, ylist):
-            ax.scatter([xe] * len(ye), ye, s=20, marker='.', edgecolors='none')
+        print(xlist)
+        print(ylist)
+        for xe, ye, ce, se in zip(xlist, ylist, clist, slist):
+            ax.scatter([xe] * len(ye), ye, s=se, facecolors='none', edgecolors=ce)
 
         ax.set_xticks(xlist)
         ax.set_xlabel('%s * %s' % (self.axesn[0], self.axesn[1]))
-        ax.set_ylabel('%s / %s' % ("TotalEventsComputed", self.axesn[2]))
-        ax.set_yscale('log')
-        ax.set_xticklabels(dims, {'rotation': 45})
+        ax.set_ylabel('%s' % (self.axesn[2]))
+        # ax.set_yscale('log')
+        ax.set_xticklabels(dims, rotation=45)
         ax.yaxis.set_major_formatter(ScalarFormatter())
         plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
-        '''
         # Commenting only for the current example due to an overlap of the
         # product labels
-        xpos = 1
-        for y in ylabels:
-                xstr = ''
-                for x in y:
-                    # xstr += x.replace('/', '\n')
-                    xstr += x
-                    xstr += '\n'
-                ax.text(xpos, 0.25, xstr, {'fontsize': 'xx-small',
-                                           'ha': 'center',
-                                           'va': 'bottom'})
-                xpos += 1
-        '''
+        # xpos = 1
+        # for y in ylabels:
+        #     xstr = ''
+        #     for x in y:
+        #         # xstr += x.replace('/', '\n')
+        #         xstr += x
+        #         xstr += '\n'
+        #     ax.text(xpos, 1, xstr, {'fontsize': 'xx-small',
+        #                             'ha': 'center',
+        #                             'va': 'bottom'})
+        #     xpos += 1
+
+        import matplotlib.patches as mpatches
+        from matplotlib.lines import Line2D
+
+        handlelist = []
+        for k in cmap:
+            handlelist.append(plt.scatter([],[], s=smap[k], marker='o',
+                                          color=cmap[k], facecolor='none'))
+
+        print(handlelist)
+        plt.legend(handlelist, [str(x) for x in cmap.keys()], title="# threads / block")
+
+
         plt.show()
 
 
