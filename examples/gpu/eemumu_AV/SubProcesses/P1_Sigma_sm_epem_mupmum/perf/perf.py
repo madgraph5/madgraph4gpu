@@ -4,7 +4,7 @@ from optparse import OptionParser
 from datetime import datetime
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
+from matplotlib import cm
 from matplotlib.ticker import ScalarFormatter
 import numpy as np
 import copy
@@ -152,7 +152,8 @@ class Perf():
         print(xlist)
         print(ylist)
         for xe, ye, ce, se in zip(xlist, ylist, clist, slist):
-            ax.scatter([xe] * len(ye), ye, s=se, facecolors='none', edgecolors=ce)
+            ax.scatter([xe] * len(ye), ye, s=se, facecolors='none',
+                       edgecolors=ce)
 
         ax.set_xticks(xlist)
         ax.set_xlabel('%s * %s' % (self.axesn[0], self.axesn[1]))
@@ -175,20 +176,99 @@ class Perf():
         #                             'va': 'bottom'})
         #     xpos += 1
 
-        import matplotlib.patches as mpatches
-        from matplotlib.lines import Line2D
-
         handlelist = []
         for k in cmap:
-            handlelist.append(plt.scatter([],[], s=smap[k], marker='o',
+            handlelist.append(plt.scatter([], [], s=smap[k], marker='o',
                                           color=cmap[k], facecolor='none'))
 
         print(handlelist)
-        plt.legend(handlelist, [str(x) for x in cmap.keys()], title="# threads / block")
-
+        plt.legend(handlelist, [str(x) for x in cmap.keys()],
+                   title="# threads / block")
 
         plt.show()
 
+    def plotStack(self, threads=32):
+        collist = ['Purples', 'Blues', 'Greens', 'Oranges', 'Reds', 'Greys']
+        # collist = ['tab20b', 'tab20c']
+
+        bars = {}
+        blocks = []
+        for d in self.data:
+            if d['NumThreadsPerBlock'] == threads:
+                blocks.append(d['NumBlocksPerGrid'])
+                for k in d:
+                    if k[0].isdigit():
+                        if k not in bars:
+                            bars[k] = []
+
+        barks = list(bars.keys())
+        barks.sort()
+        blocks.sort()
+
+        for d in self.data:
+            if d['NumThreadsPerBlock'] == threads:
+                for b in barks:
+                    if b in d:
+                        bars[b].append(d[b])
+                    else:
+                        bars[b].append(0)
+
+        ind = np.arange(len(bars[barks[0]]))
+        width = 0.35
+
+        plts = []
+        ci = -1
+        cj = 0.5
+        plts.append(plt.bar(ind, bars[barks[0]], width, edgecolor='black',
+                            color='white'))
+        bot = [0] * len(bars[barks[0]])
+        for i in range(1, len(barks)):
+            colcod = barks[i][:2]
+            if colcod[1] == 'a':
+                ci += 1
+                cj = 0.5
+            else:
+                cj += 0.1
+            print(colcod, ci, cj, bot[-1], barks[i])
+            col = cm.get_cmap(collist[ci])(cj)
+            sumlist = []
+            for (l1, l2) in zip(bot, bars[barks[i - 1]]):
+                sumlist.append(l1 + l2)
+            bot = sumlist
+            plts.append(plt.bar(ind, bars[barks[i]], width,
+                        bottom=bot, color=col, edgecolor=col))
+
+        plt.ylabel('seconds')
+        plts.reverse()
+        barks.reverse()
+        plt.xticks(ind, [str(x) for x in blocks], rotation=45)
+        plt.legend([x[0] for x in plts], barks)
+
+        plt.show()
+
+
+# import numpy as np
+# import matplotlib.pyplot as plt
+#
+# N = 5
+# menMeans = (20, 35, 30, 35, 27)
+# womenMeans = (25, 32, 34, 20, 25)
+# menStd = (2, 3, 4, 1, 2)
+# womenStd = (3, 5, 2, 3, 3)
+# ind = np.arange(N)    # the x locations for the groups
+# width = 0.35       # the width of the bars: can also be len(x) sequence
+#
+# p1 = plt.bar(ind, menMeans, width, yerr=menStd)
+# p2 = plt.bar(ind, womenMeans, width,
+#              bottom=menMeans, yerr=womenStd)
+#
+# plt.ylabel('Scores')
+# plt.title('Scores by group and gender')
+# plt.xticks(ind, ('G1', 'G2', 'G3', 'G4', 'G5'))
+# plt.yticks(np.arange(0, 81, 10))
+# plt.legend((p1[0], p2[0]), ('Men', 'Women'))
+#
+# plt.show()
 
 def print_keys(loc, date, run):
     perffile = '%s/%s-perf-test-run%s.json' % (loc, date, run)
@@ -228,7 +308,7 @@ if __name__ == '__main__':
 
     (op, ar) = parser.parse_args()
 
-    plotnames = ['2D', '3D']
+    plotnames = ['2D', '3D', 'STACK']
     plot = '2D'
 
     xrm = 0
@@ -253,3 +333,5 @@ if __name__ == '__main__':
         p.plot3D()
     if plot == '2D':
         p.plot2D()
+    if plot == 'STACK':
+        p.plotStack()
