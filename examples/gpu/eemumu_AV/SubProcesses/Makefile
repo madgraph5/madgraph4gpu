@@ -5,6 +5,7 @@ INCDIR=../../src
 MODELLIB=model_sm
 CXXFLAGS= -O3 -I. -I$(INCDIR) -DUSE_NVTX -Wall -Wshadow
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM)
+# CUARCHFLAGS= -gencode arch=compute_$(CUARCHNUM),code=sm_$(CUARCHNUM)
 CUFLAGS= -O3 -I. -I$(INCDIR) -DUSE_NVTX $(CUARCHFLAGS) -use_fast_math -lineinfo 
 # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
 ###CUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
@@ -38,9 +39,10 @@ all:
 debug: CXXFLAGS:=$(filter-out -O3,$(CXXFLAGS))
 debug: CXXFLAGS += -g -O0 -DDEBUG2
 debug: CUFLAGS:=$(filter-out -lineinfo,$(CUFLAGS))
-debug: CUFLAGS += -G
+debug: CUFLAGS:=$(filter-out -O3,$(CUFLAGS))
+debug: CUFLAGS += -g -G
 debug: MAKEDEBUG := debug
-debug: $(cu_main)
+debug: $(cu_main) $(cxx_main)
 
 $(LIBDIR)/lib$(MODELLIB).a:
 	@cd ../../src && make $(MAKEDEBUG)
