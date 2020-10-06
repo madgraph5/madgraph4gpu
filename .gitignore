@@ -8,7 +8,10 @@
 *.local.log
 *.local
 *~
-/local/
+local/
 
 # profiling
 profile_*
+
+# perf data
+*-perf-test-run*.json
