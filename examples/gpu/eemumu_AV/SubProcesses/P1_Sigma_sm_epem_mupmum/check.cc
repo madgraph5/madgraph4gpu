@@ -572,8 +572,9 @@ int main(int argc, char **argv)
       else{
         //deleting the last bracket and outputting a ", "
         std::string temp = "truncate -s-1 " + perffile;
+        std::string path = "/bin" + temp;
         const char *command = temp.c_str();
-        system(command);
+        execlp(path.c_str(), command, NULL);
         jsonFile << ", " << std::endl;
       }
       
