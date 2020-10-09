@@ -430,7 +430,6 @@ int main(int argc, char **argv)
   // **************************************
 
   // === STEP 9 FINALISE
-
   // --- 9a. Destroy curand generator
   const std::string dgenKey = "9a GenDestr";
   timermap.start( dgenKey );
