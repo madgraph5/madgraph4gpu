@@ -13,7 +13,6 @@
 
 #ifdef __CUDACC__
 #include "grambo.cu"
-#include <cuda_runtime.h>
 #else
 #include "rambo.h"
 #endif
