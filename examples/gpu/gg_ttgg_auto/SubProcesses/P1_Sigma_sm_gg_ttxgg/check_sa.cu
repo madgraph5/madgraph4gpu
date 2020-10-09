@@ -159,7 +159,6 @@ int main(int argc, char **argv) {
     
     if(cudaGraph) {
       if(!sigmaKinGraphCreated){
-        std::cout << "YaY!!" << std::endl;
         cudaStreamBeginCapture(stream, cudaStreamCaptureModeGlobal);
         sigmaKin<<<gpublocks, gputhreads>>>(allmomenta,  meDevPtr);//, debug, verbose);
         cudaStreamEndCapture(stream, &graph);
