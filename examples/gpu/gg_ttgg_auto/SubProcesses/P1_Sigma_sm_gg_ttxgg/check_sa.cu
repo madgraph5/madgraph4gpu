@@ -5,6 +5,8 @@
 #include <numeric> // perf stats
 #include <unistd.h>
 #include <vector>
+#include <fstream>
+#include <string>
 
 #include "CPPProcess.h"
 #include "HelAmps_sm.h"
@@ -33,17 +35,27 @@ bool is_number(const char *s) {
 
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0 
-            << " [--verbose|-v] [--debug|-d] [--performance|-p]"
+            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--cudaGraph|-cG]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl;
   return ret;
 }
 
 int main(int argc, char **argv) {
   bool verbose = false, debug = false, perf = false;
+  bool json = false;
+  bool cudaGraph = false;
+  int date;
+  int run;
+
   int numiter = 0, gpublocks = 1, gputhreads = 1;
   std::vector<int> numvec;
   Timer<TIMERTYPE> timer;
   std::vector<float> wavetimes;
+
+  bool sigmaKinGraphCreated = false;
+  cudaGraph_t graph;
+  cudaGraphExec_t instance;
+  cudaStream_t stream;
 
 
   for (int argn = 1; argn < argc; ++argn) {
@@ -55,16 +67,26 @@ int main(int argc, char **argv) {
     else if (strcmp(argv[argn], "--performance") == 0 ||
              strcmp(argv[argn], "-p") == 0)
       perf = true;
+    else if (strcmp(argv[argn], "--json") == 0 ||
+             strcmp(argv[argn], "-j") == 0)
+      json = true;
+    else if (strcmp(argv[argn], "--cudaGraph") == 0 ||
+             strcmp(argv[argn], "-cG") == 0)
+      cudaGraph = true;
     else if (is_number(argv[argn]))
       numvec.push_back(atoi(argv[argn]));
     else
       return usage(argv[0]);
   }
   int veclen = numvec.size();
-  if (veclen == 3) {
+  if (veclen == 3 || veclen == 5) {
     gpublocks = numvec[0];
     gputhreads = numvec[1];
     numiter = numvec[2];
+    if (veclen == 5){
+      date = numvec[3];
+      run = numvec[4];
+    }
   } else if (veclen == 1) {
     numiter = numvec[0];
   } else {
@@ -134,8 +156,27 @@ int main(int argc, char **argv) {
     // Evaluate matrix element
     // later process.sigmaKin(ncomb, goodhel, ntry, sum_hel, ngood, igood,
     // jhel);
-    sigmaKin<<<gpublocks, gputhreads>>>(allmomenta,  meDevPtr);//, debug, verbose);
-    gpuErrchk3( cudaPeekAtLastError() );
+    
+    if(cudaGraph) {
+      if(!sigmaKinGraphCreated){
+        std::cout << "YaY!!" << std::endl;
+        cudaStreamBeginCapture(stream, cudaStreamCaptureModeGlobal);
+        sigmaKin<<<gpublocks, gputhreads>>>(allmomenta,  meDevPtr);//, debug, verbose);
+        cudaStreamEndCapture(stream, &graph);
+        cudaGraphInstantiate(&instance, graph, NULL, NULL, 0);
+        sigmaKinGraphCreated = true;
+        }
+        cudaGraphLaunch(instance, stream);
+        cudaStreamSynchronize(stream);
+
+        if(!sigmaKinGraphCreated)
+        gpuErrchk3( cudaPeekAtLastError() ); 
+        }
+    else {
+      sigmaKin<<<gpublocks, gputhreads>>>(allmomenta,  meDevPtr);//, debug, verbose);
+      gpuErrchk3( cudaPeekAtLastError() );  
+    }
+    
     //gpuErrchk3(cudaMemcpy2D(meHostPtr, sizeof(double), meDevPtr, mePitch,
     //                        sizeof(double), dim, cudaMemcpyDeviceToHost));
 
@@ -248,6 +289,59 @@ int main(int argc, char **argv) {
               << "StdDevMatrixElemValue = " << stdelem << " GeV^" << meGeVexponent << std::endl
               << "MinMatrixElemValue    = " << *minelem << " GeV^" << meGeVexponent << std::endl
               << "MaxMatrixElemValue    = " << *maxelem << " GeV^" << meGeVexponent << std::endl;
+
+    if(json){
+      std::ofstream jsonFile;
+      std::string perffile = std::to_string(date) + "-perf-test-run" + std::to_string(run) + ".json";
+      perffile = "./perf/data/" + perffile;
+
+      //Checks if file exists
+      std::ifstream fileCheck;
+      bool fileExists = false;
+      fileCheck.open(perffile);
+      if(fileCheck){
+        fileExists = true;
+        fileCheck.close();
+      }
+      
+      jsonFile.open(perffile, std::ios_base::app);
+      
+      if(!fileExists){
+        jsonFile << "[" << std::endl;
+      }
+      else{
+        //deleting the last bracket and outputting a ", "
+        std::string temp = "truncate -s-1 " + perffile;
+        const char *command = temp.c_str();
+        system(command);
+        jsonFile << ", " << std::endl;
+      }
+      
+      jsonFile << "{" << std::endl
+      << "\"NumIterations\": " << numiter << ", " << std::endl
+      << "\"NumThreadsPerBlock\": " << gputhreads << ", " << std::endl
+      << "\"NumBlocksPerGrid\": " << gpublocks << ", " << std::endl
+      << "\"NumberOfEntries\": " << num_wts << ", " << std::endl
+      << std::scientific
+      << "\"TotalTimeInWaveFuncs\": "  << "\"" << std::to_string(sum) << " sec" << "\"" << ", " << std::endl
+      << "\"MeanTimeInWaveFuncs\": "  << "\"" << std::to_string(mean) << " sec" << "\"" << ", " << std::endl
+      << "\"StdDevTimeInWaveFuncs\": " << "\"" << std::to_string(stdev) << " sec" << "\"" << ", " << std::endl
+      << "\"MinTimeInWaveFuncs\": " << "\"" << std::to_string(*mintime) << " sec" << "\"" << ", " << std::endl
+      << "\"MaxTimeInWaveFuncs\": " << "\"" << std::to_string(*maxtime) << " sec" << "\"" << ", " << std::endl
+      << "\"ProcessID\": " << getpid() << ", " << std::endl
+      << "\"NProcesses\": " << process.nprocesses << ", " << std::endl
+      << "\"NumMatrixElements\": " << num_mes << ", " << std::endl
+      << "\"MatrixElemEventsPerSec\": " << "\"" << std::to_string(num_mes/sum) << " sec^-1" << "\"" << ", " << std::endl
+      << std::scientific
+      << "\"MeanMatrixElemValue\": " << "\"" << std::to_string(meanelem) << " GeV^" << std::to_string(meGeVexponent) << "\"" << ", " << std::endl
+      << "\"StdErrMatrixElemValue\": " << "\"" << std::to_string(stdelem/sqrt(num_mes)) << " GeV^" << std::to_string(meGeVexponent) << "\"" << ", " << std::endl
+      << "\"StdDevMatrixElemValue\": " << "\"" << std::to_string(stdelem) << " GeV^" << std::to_string(meGeVexponent) << "\"" << ", " << std::endl
+      << "\"MinMatrixElemValue\": " << "\"" << std::to_string(*minelem) << " GeV^" << std::to_string(meGeVexponent) << "\"" << ", " << std::endl
+      << "\"MaxMatrixElemValue\": " << "\"" << std::to_string(*maxelem) << " GeV^" << std::to_string(meGeVexponent) <<  "\"" << std::endl
+      << "}" << std::endl
+      << "]";
+      jsonFile.close();
+    }          
   }
   delete[] lp;
 
