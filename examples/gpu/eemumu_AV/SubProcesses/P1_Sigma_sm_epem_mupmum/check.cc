@@ -20,6 +20,10 @@
 #include "CPPProcess.h"
 #include "timermap.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+
+
 bool is_number(const char *s) {
   const char *t = s;
   while (*t != '\0' && isdigit(*t))
@@ -29,7 +33,7 @@ bool is_number(const char *s) {
 
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
-            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j]"
+            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--cudaGraph|-cG]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl;
@@ -43,13 +47,19 @@ int main(int argc, char **argv)
   bool debug = false;
   bool perf = false;
   bool json = false;
+  bool cudaGraph = false;
   int niter = 0;
   int gpublocks = 1;
   int gputhreads = 32;
   int date;
   int run;
-  int numvec[5] = {0,0,0};
+  int numvec[5] = {0};
   int nnum = 0;
+
+  bool sigmaKinGraphCreated = false;
+  cudaGraph_t graph;
+  cudaGraphExec_t instance;
+  cudaStream_t stream;
 
   for (int argn = 1; argn < argc; ++argn) {
     if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
@@ -63,6 +73,9 @@ int main(int argc, char **argv)
     else if (strcmp(argv[argn], "--json") == 0 ||
              strcmp(argv[argn], "-j") == 0)
       json = true;
+    else if (strcmp(argv[argn], "--cudaGraph") == 0 ||
+    strcmp(argv[argn], "-cG") == 0)
+      cudaGraph = true;
     else if (is_number(argv[argn]) && nnum<5)
       numvec[nnum++] = atoi(argv[argn]);
     else
@@ -320,6 +333,8 @@ int main(int argc, char **argv)
 
 
     // --- 3a. SGoodHel
+
+    //Cuda graph test implementation
 #ifdef __CUDACC__
     if ( iiter == 0 )
     {    
@@ -344,16 +359,41 @@ int main(int argc, char **argv)
     // --- 3b. SigmaKin
     const std::string skinKey = "3b SigmaKin";
     timermap.start( skinKey );
-#ifdef __CUDACC__
-#ifndef MGONGPU_NSIGHT_DEBUG
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta, devMEs);
-#else
-    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta, devMEs);
-#endif
+
+if(cudaGraph) {
+  #ifdef __CUDACC__
+      if(!sigmaKinGraphCreated){
+        cudaStreamBeginCapture(stream, cudaStreamCaptureModeGlobal);
+        #ifndef MGONGPU_NSIGHT_DEBUG
+              gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta, devMEs);
+        #else
+              gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta, devMEs);
+        #endif
+        cudaStreamEndCapture(stream, &graph);
+        cudaGraphInstantiate(&instance, graph, NULL, NULL, 0);
+        sigmaKinGraphCreated = true;
+        }
+        cudaGraphLaunch(instance, stream);
+        cudaStreamSynchronize(stream);
+
+        if(!sigmaKinGraphCreated)
+          checkCuda( cudaPeekAtLastError() );  
+  #else
+      Proc::sigmaKin(hstMomenta, hstMEs, nevt);
+  #endif
+}
+else {
+  #ifdef __CUDACC__
+    #ifndef MGONGPU_NSIGHT_DEBUG
+      gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta, devMEs);
+    #else
+      gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta, devMEs);
+    #endif
     checkCuda( cudaPeekAtLastError() );
-#else
+  #else
     Proc::sigmaKin(hstMomenta, hstMEs, nevt);
-#endif
+  #endif
+}
 
 #ifdef __CUDACC__
     // --- 3c. CopyDToH MEs
@@ -371,6 +411,7 @@ int main(int argc, char **argv)
     timermap.start(loopKey);
     rambtimes[iiter] = rambtime;
     wavetimes[iiter] = wavetime;
+    
 
     if (verbose)
     {
@@ -572,9 +613,8 @@ int main(int argc, char **argv)
       else{
         //deleting the last bracket and outputting a ", "
         std::string temp = "truncate -s-1 " + perffile;
-        std::string path = "/bin" + temp;
         const char *command = temp.c_str();
-        execlp(path.c_str(), command, NULL);
+        system(command);
         jsonFile << ", " << std::endl;
       }
       
@@ -613,7 +653,7 @@ int main(int argc, char **argv)
       << "\"Curand generation\": " << "\"HOST (C++ code)\"" << ", " << std::endl
 #endif
       << "\"NumberOfEntries\": " << niter << ", " << std::endl
-      //<< std::scientific //Not sure about this
+      << std::scientific
       << "\"TotalTimeInWaveFuncs\": "  << "\"" << std::to_string(sumwtim) << " sec" << "\"" << ", " << std::endl
       << "\"MeanTimeInWaveFuncs\": "  << "\"" << std::to_string(meanwtim) << " sec" << "\"" << ", " << std::endl
       << "\"StdDevTimeInWaveFuncs\": " << "\"" << std::to_string(stdwtim) << " sec" << "\"" << ", " << std::endl
@@ -697,3 +737,5 @@ int main(int argc, char **argv)
 
   //std::cout << "ALL OK" << std::endl;
 }
+
+#pragma GCC diagnostic pop
