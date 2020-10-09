@@ -13,6 +13,7 @@
 
 #ifdef __CUDACC__
 #include "grambo.cu"
+#include <cuda_runtime.h>
 #else
 #include "rambo.h"
 #endif
@@ -333,8 +334,6 @@ int main(int argc, char **argv)
 
 
     // --- 3a. SGoodHel
-
-    //Cuda graph test implementation
 #ifdef __CUDACC__
     if ( iiter == 0 )
     {
@@ -375,6 +374,7 @@ if(cudaGraph) {
         }
         cudaGraphLaunch(instance, stream);
         cudaStreamSynchronize(stream);
+        
 
         if(!sigmaKinGraphCreated)
           checkCuda( cudaPeekAtLastError() );  
