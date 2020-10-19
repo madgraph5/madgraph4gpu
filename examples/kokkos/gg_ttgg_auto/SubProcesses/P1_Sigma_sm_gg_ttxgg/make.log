@@ -1,0 +1,12 @@
+make[1]: Entering directory '/home/jchilders/git/madgraph4gpu/examples/kokkos/gg_ttgg_auto/src'
+g++   -O3 -I. -I/usr/local/cuda/targets/x86_64-linux/include -c Parameters_sm.cc -o Parameters_sm.o
+g++   -O3 -I. -I/usr/local/cuda/targets/x86_64-linux/include -c read_slha.cc -o read_slha.o
+g++   -O3 -I. -I/usr/local/cuda/targets/x86_64-linux/include -c rambo.cc -o rambo.o
+if [ ! -d ../lib ]; then mkdir ../lib; fi
+ar cru ../lib/libmodel_sm.a Parameters_sm.o read_slha.o rambo.o 
+ar: `u' modifier ignored since `D' is the default (see `U')
+ranlib ../lib/libmodel_sm.a
+make[1]: Leaving directory '/home/jchilders/git/madgraph4gpu/examples/kokkos/gg_ttgg_auto/src'
+nvcc  -O3 -I../../src -I. -arch=compute_75  -use_fast_math -lineinfo -c CPPProcess.cu -o CPPProcess.o
+nvcc  -O3 -I../../src -I. -arch=compute_75  -use_fast_math -lineinfo -c check_sa.cu -o check_sa.o
+nvcc  -o check.exe  CPPProcess.o check_sa.o -L../../lib -lmodel_sm -arch=compute_75  -lcuda
