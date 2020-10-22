@@ -15,7 +15,7 @@
 namespace MG5_sm 
 {
 
-__device__ void ixxxxx(constdouble * pvec, double fmass, int nhel, int nsf, 
+__device__ void ixxxxx(const double * pvec, double fmass, int nhel, int nsf, 
 thrust::complex<double> fi[6]) 
 {
   thrust::complex<double> chi[2]; 
