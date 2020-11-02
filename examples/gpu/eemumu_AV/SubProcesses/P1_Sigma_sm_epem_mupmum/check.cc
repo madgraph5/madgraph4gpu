@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <fstream>
 #include <string>
+#include <CL/sycl.hpp>
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
@@ -104,6 +105,14 @@ int main(int argc, char **argv)
   if ( gputhreads > ntpbMAX )
   {
     std::cout << "ERROR! #threads/block should be <= " << ntpbMAX << std::endl;
+    return usage(argv[0]);
+  }
+
+  cl::sycl::queue q; 
+  cl::sycl::device device = q.get_device();
+  int max_cus = device.get_info<cl::sycl::info::device::max_compute_units>();
+  if ( gputhreads > max_cus){
+    std::cout << "ERROR! #threads/block should be <= " << max_cus << std::endl;
     return usage(argv[0]);
   }
 
@@ -216,11 +225,11 @@ int main(int argc, char **argv)
   // --- 0c. Create curand generator
   const std::string cgenKey = "0c GenCreat";
   timermap.start( cgenKey );
-  curandGenerator_t rnGen;
+  //curandGenerator_t rnGen;
 #ifdef __CUDACC__
   grambo2toNm0::createGenerator( &rnGen );
 #else
-  rambo2toNm0::createGenerator( &rnGen );
+  //rambo2toNm0::createGenerator( &rnGen );
 #endif
 
   // **************************************
@@ -244,7 +253,8 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
     grambo2toNm0::seedGenerator( rnGen, seed+iiter );
 #else
-    rambo2toNm0::seedGenerator( rnGen, seed+iiter );
+    //rambo2toNm0::seedGenerator( rnGen, seed+iiter );
+    srand(seed+iiter);
 #endif
 
     // --- 1b. Generate all relevant numbers to build nevt events (i.e. nevt phase space points) on the host
@@ -257,8 +267,12 @@ int main(int argc, char **argv)
     grambo2toNm0::generateRnarray( rnGen, hstRnarray, nevt );
 #endif
 #else
-    rambo2toNm0::generateRnarray( rnGen, hstRnarray, nevt );
+    //rambo2toNm0::generateRnarray( rnGen, hstRnarray, nevt );
+    for ( int i = 0; i < nevt; i++ ){
+      hstRnarray[i] = rand();
+    }
 #endif
+
     //std::cout << "Got random numbers" << std::endl;
 
 #ifdef __CUDACC__
@@ -352,7 +366,38 @@ int main(int argc, char **argv)
 #endif
     checkCuda( cudaPeekAtLastError() );
 #else
-    Proc::sigmaKin(hstMomenta, hstMEs, nevt);
+    cl::sycl::range<1> range{(unsigned long)gputhreads};
+    //double* matrix_element[dim];
+ 
+    q.submit([&](cl::sycl::handler& cgh){
+    /*
+
+      // Put here so that it captures the instance
+      double lp[1][4][4];
+      // Set momenta for this event
+      for (int d = 0; d < 1; ++d) {
+        for (int i = 0; i < 4; ++i) {
+          for (int j = 0; j < 4; ++j) {
+            lp[d][i][j] = p[d][i][j];
+          }
+        }
+      }
+      std::complex<double> IPC[3];
+      IPC[0] = process.IPC[0];
+      IPC[1] = process.IPC[1];
+      IPC[2] = process.IPC[2];
+      double IPD[2];
+      IPD[0] = process.IPD[0];
+      IPD[1] = process.IPD[1]; 
+
+      process.preSigmaKin();
+       */
+    cgh.parallel_for<class my_kernel>(range,
+                                         [=] (cl::sycl::id<1> idx) {
+       Proc::sigmaKin (hstMomenta, hstMEs, nevt);
+      }); // End parallel_for
+    }); // End submit
+    q.wait();
 #endif
 
 #ifdef __CUDACC__
@@ -436,7 +481,7 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
   grambo2toNm0::destroyGenerator( rnGen );
 #else
-  rambo2toNm0::destroyGenerator( rnGen );
+  //rambo2toNm0::destroyGenerator( rnGen );
 #endif
 
   // --- 9b Free memory structures

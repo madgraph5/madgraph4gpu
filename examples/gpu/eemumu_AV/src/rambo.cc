@@ -189,7 +189,7 @@ namespace rambo2toNm0
   }
 
   //--------------------------------------------------------------------------
-
+/*
   // Create and initialise a curand generator
   void createGenerator( curandGenerator_t* pgen )
   {
@@ -242,7 +242,7 @@ namespace rambo2toNm0
 #elif defined MGONGPU_FPTYPE_FLOAT
     checkCurand( curandGenerateUniform( gen, rnarray1d, np4*nparf*nevt ) );
 #endif
-  }
+  }*/
 
   //--------------------------------------------------------------------------
 

@@ -3,13 +3,16 @@
 
 #include <cassert>
 
+#ifdef __CUDACC__
 #include "curand.h"
+#endif
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 
 //--------------------------------------------------------------------------
 
+#ifdef __CUDACC__
 #define checkCurand( code )                     \
   { assertCurand( code, __FILE__, __LINE__ ); }
 
@@ -21,6 +24,7 @@ inline void assertCurand( curandStatus_t code, const char *file, int line, bool 
     if ( abort ) assert( code == CURAND_STATUS_SUCCESS );
   }
 }
+#endif
 
 //--------------------------------------------------------------------------
 
@@ -67,26 +71,26 @@ namespace rambo2toNm0
   //--------------------------------------------------------------------------
 
   // Create and initialise a curand generator
-  void createGenerator( curandGenerator_t* pgen );
+  //void createGenerator( curandGenerator_t* pgen );
 
   //--------------------------------------------------------------------------
   
   // Seed a curand generator
-  void seedGenerator( curandGenerator_t gen, unsigned long long seed );
+  //void seedGenerator( curandGenerator_t gen, unsigned long long seed );
   
   //--------------------------------------------------------------------------
 
   // Destroy a curand generator
-  void destroyGenerator( curandGenerator_t gen );
+  //void destroyGenerator( curandGenerator_t gen );
 
   //--------------------------------------------------------------------------
 
   // Bulk-generate (using curand) the random numbers needed to process nevt events in rambo
   // ** NB: the random numbers are always produced in the same order and are interpreted as an AOSOA
   // AOSOA: rnarray[npagR][nparf][np4][neppR] where nevt=npagR*neppR
-  void generateRnarray( curandGenerator_t gen, // input: curand generator
-                        fptype rnarray1d[],    // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
-                        const int nevt );      // input: #events
+  //void generateRnarray( curandGenerator_t gen, // input: curand generator
+  //                      fptype rnarray1d[],    // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
+  //                      const int nevt );      // input: #events
 
   //--------------------------------------------------------------------------
 
