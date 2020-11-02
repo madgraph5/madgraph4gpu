@@ -46,9 +46,9 @@ int main(int argc, char **argv)
   int niter = 0;
   int gpublocks = 1;
   int gputhreads = 32;
-  int date;
-  int run;
-  int numvec[5] = {0,0,0};
+  int jsondate = 0;
+  int jsonrun = 0;
+  int numvec[5] = {0,0,0,0,0};
   int nnum = 0;
 
   for (int argn = 1; argn < argc; ++argn) {
@@ -74,8 +74,8 @@ int main(int argc, char **argv)
     gputhreads = numvec[1];
     niter = numvec[2];
     if (nnum == 5){
-      date = numvec[3];
-      run = numvec[4];
+      jsondate = numvec[3];
+      jsonrun = numvec[4];
     }
   } else if (nnum == 1) {
     niter = numvec[0];
@@ -596,7 +596,7 @@ int main(int argc, char **argv)
 
     if(json) {
       std::ofstream jsonFile;
-      std::string perffile = std::to_string(date) + "-perf-test-run" + std::to_string(run) + ".json";
+      std::string perffile = std::to_string(jsondate) + "-perf-test-run" + std::to_string(jsonrun) + ".json";
       perffile = "./perf/data/" + perffile;
 
       //Checks if file exists
