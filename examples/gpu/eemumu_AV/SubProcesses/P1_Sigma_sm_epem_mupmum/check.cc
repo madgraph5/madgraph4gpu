@@ -370,28 +370,7 @@ int main(int argc, char **argv)
     //double* matrix_element[dim];
  
     q.submit([&](cl::sycl::handler& cgh){
-    /*
 
-      // Put here so that it captures the instance
-      double lp[1][4][4];
-      // Set momenta for this event
-      for (int d = 0; d < 1; ++d) {
-        for (int i = 0; i < 4; ++i) {
-          for (int j = 0; j < 4; ++j) {
-            lp[d][i][j] = p[d][i][j];
-          }
-        }
-      }
-      std::complex<double> IPC[3];
-      IPC[0] = process.IPC[0];
-      IPC[1] = process.IPC[1];
-      IPC[2] = process.IPC[2];
-      double IPD[2];
-      IPD[0] = process.IPD[0];
-      IPD[1] = process.IPD[1]; 
-
-      process.preSigmaKin();
-       */
     cgh.parallel_for<class my_kernel>(range,
                                          [=] (cl::sycl::id<1> idx) {
        Proc::sigmaKin (hstMomenta, hstMEs, nevt);
