@@ -32,7 +32,8 @@ int usage(char* argv0, int ret = 1) {
             << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
-  std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl;
+  std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
+  std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
   return ret;
 }
 
@@ -407,8 +408,7 @@ int main(int argc, char **argv)
             std::cout << " Matrix element = "
               //   << setiosflags(ios::fixed) << setprecision(17)
                       << hstMEs[ievt] << " GeV^" << meGeVexponent << std::endl;
-          if (perf)
-            matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt];
+          matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt];
         }
 
         if (verbose)
