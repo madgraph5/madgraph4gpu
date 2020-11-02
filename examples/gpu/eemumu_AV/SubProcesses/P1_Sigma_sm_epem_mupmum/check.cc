@@ -1,12 +1,12 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <numeric>
-#include <unistd.h>
-#include <fstream>
 #include <string>
+#include <unistd.h>
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
@@ -46,9 +46,9 @@ int main(int argc, char **argv)
   int niter = 0;
   int gpublocks = 1;
   int gputhreads = 32;
-  int date;
-  int run;
-  int numvec[5] = {0,0,0};
+  int jsondate = 0;
+  int jsonrun = 0;
+  int numvec[5] = {0,0,0,0,0};
   int nnum = 0;
 
   for (int argn = 1; argn < argc; ++argn) {
@@ -74,8 +74,8 @@ int main(int argc, char **argv)
     gputhreads = numvec[1];
     niter = numvec[2];
     if (nnum == 5){
-      date = numvec[3];
-      run = numvec[4];
+      jsondate = numvec[3];
+      jsonrun = numvec[4];
     }
   } else if (nnum == 1) {
     niter = numvec[0];
@@ -318,21 +318,17 @@ int main(int argc, char **argv)
     // 3b. Evaluate MEs on the device
     // 3c. Copy MEs back from device to host
 
-
     // --- 3a. SGoodHel
 #ifdef __CUDACC__
     if ( iiter == 0 )
     {
       const std::string ghelKey = "3a SGoodHel";
       timermap.start( ghelKey );
-
       // ... 3a1. Compute good helicity mask on the device
       gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta, devIsGoodHel);
       checkCuda( cudaPeekAtLastError() );
-
       // ... 3a2. Copy back good helicity mask to the host
       checkCuda( cudaMemcpy( hstIsGoodHel, devIsGoodHel, nbytesIsGoodHel, cudaMemcpyDeviceToHost ) );
-
       // ... 3a3. Copy back good helicity list to constant memory on the device
       gProc::sigmaKin_setGoodHel(hstIsGoodHel);
     }
@@ -429,59 +425,11 @@ int main(int argc, char **argv)
   // *** END MAIN LOOP ON #ITERATIONS ***
   // **************************************
 
-  // === STEP 9 FINALISE
-  // --- 9a. Destroy curand generator
-  const std::string dgenKey = "9a GenDestr";
-  timermap.start( dgenKey );
-#ifdef __CUDACC__
-  grambo2toNm0::destroyGenerator( rnGen );
-#else
-  rambo2toNm0::destroyGenerator( rnGen );
-#endif
+  // === STEP 8 ANALYSIS
+  // --- 8a Analysis: compute stats after the loop
+  const std::string statKey = "8a CompStat";
+  timermap.start(statKey);
 
-  // --- 9b Free memory structures
-  const std::string freeKey = "9b MemFree ";
-  timermap.start( freeKey );
-
-#ifdef __CUDACC__
-  checkCuda( cudaFreeHost( hstMEs ) );
-  checkCuda( cudaFreeHost( hstIsGoodHel ) );
-  checkCuda( cudaFreeHost( hstWeights ) );
-  checkCuda( cudaFreeHost( hstMomenta ) );
-#if defined MGONGPU_CURAND_ONHOST
-  checkCuda( cudaFreeHost( hstRnarray ) );
-#endif
-  checkCuda( cudaFree( devMEs ) );
-  checkCuda( cudaFree( devIsGoodHel ) );
-  checkCuda( cudaFree( devWeights ) );
-  checkCuda( cudaFree( devMomenta ) );
-  checkCuda( cudaFree( devRnarray ) );
-#else
-  delete[] hstMEs;
-  delete[] hstWeights;
-  delete[] hstMomenta;
-  delete[] hstRnarray;
-#endif
-
-#ifdef __CUDACC__
-  // --- 9c. Finalise cuda
-  const std::string cdrsKey = "9c CudReset";
-  timermap.start( cdrsKey );
-  checkCuda( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
-#endif
-
-
-// --- 9d Dump after the loop
-const std::string dumpKey = "9d DumpScrn";
-timermap.start(dumpKey);
-
-if (!(verbose || debug || perf))
-{
-  std::cout << std::endl;
-}
-
-if (perf)
-{
   double sumrtim = 0;
   double sqsrtim = 0;
   double minrtim = rambtimes[0];
@@ -532,71 +480,130 @@ if (perf)
   double meanelem = sumelem / ( nevtALL - nnan );
   double stdelem = std::sqrt( sqselem / ( nevtALL - nnan) - meanelem * meanelem );
 
-  std::cout << "***************************************" << std::endl
-            << "NumIterations             = " << niter << std::endl
-            << "NumThreadsPerBlock        = " << gputhreads << std::endl
-            << "NumBlocksPerGrid          = " << gpublocks << std::endl
-            << "---------------------------------------" << std::endl
+  // === STEP 9 FINALISE
+  // --- 9a. Destroy curand generator
+  const std::string dgenKey = "9a GenDestr";
+  timermap.start( dgenKey );
+#ifdef __CUDACC__
+  grambo2toNm0::destroyGenerator( rnGen );
+#else
+  rambo2toNm0::destroyGenerator( rnGen );
+#endif
+
+  // --- 9b Free memory structures
+  const std::string freeKey = "9b MemFree ";
+  timermap.start( freeKey );
+
+#ifdef __CUDACC__
+  checkCuda( cudaFreeHost( hstMEs ) );
+  checkCuda( cudaFreeHost( hstIsGoodHel ) );
+  checkCuda( cudaFreeHost( hstWeights ) );
+  checkCuda( cudaFreeHost( hstMomenta ) );
+#if defined MGONGPU_CURAND_ONHOST
+  checkCuda( cudaFreeHost( hstRnarray ) );
+#endif
+  checkCuda( cudaFree( devMEs ) );
+  checkCuda( cudaFree( devIsGoodHel ) );
+  checkCuda( cudaFree( devWeights ) );
+  checkCuda( cudaFree( devMomenta ) );
+  checkCuda( cudaFree( devRnarray ) );
+#else
+  delete[] hstMEs;
+  delete[] hstWeights;
+  delete[] hstMomenta;
+  delete[] hstRnarray;
+#endif
+
+  delete[] rambtimes;
+  delete[] wavetimes;
+  delete[] matrixelementALL;
+
+#ifdef __CUDACC__
+  // --- 9c. Finalise cuda
+  const std::string cdrsKey = "9c CudReset";
+  timermap.start( cdrsKey );
+  checkCuda( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
+#endif
+
+  // --- 9d Dump to screen
+  const std::string dumpKey = "9d DumpScrn";
+  timermap.start(dumpKey);
+
+  if (!(verbose || debug || perf))
+  {
+    std::cout << std::endl;
+  }
+
+  if (perf)
+  {
+    std::cout << "***************************************" << std::endl
+              << "NumIterations             = " << niter << std::endl
+              << "NumThreadsPerBlock        = " << gputhreads << std::endl
+              << "NumBlocksPerGrid          = " << gpublocks << std::endl
+              << "---------------------------------------" << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
-            << "FP precision              = DOUBLE (nan=" << nnan << ")" << std::endl
+              << "FP precision              = DOUBLE (nan=" << nnan << ")" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
-            << "FP precision              = FLOAT (nan=" << nnan << ")" << std::endl
+              << "FP precision              = FLOAT (nan=" << nnan << ")" << std::endl
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_CXTYPE_CUCOMPLEX
-            << "Complex type              = CUCOMPLEX" << std::endl
+              << "Complex type              = CUCOMPLEX" << std::endl
 #elif defined MGONGPU_CXTYPE_THRUST
-            << "Complex type              = THRUST::COMPLEX" << std::endl
+              << "Complex type              = THRUST::COMPLEX" << std::endl
 #endif
 #else
-            << "Complex type              = STD::COMPLEX" << std::endl
+              << "Complex type              = STD::COMPLEX" << std::endl
 #endif
-            << "RanNumb memory layout     = AOSOA[" << neppR << "]"
-            << ( neppR == 1 ? " == AOS" : "" ) << std::endl
-            << "Momenta memory layout     = AOSOA[" << neppM << "]"
-            << ( neppM == 1 ? " == AOS" : "" ) << std::endl
+              << "RanNumb memory layout     = AOSOA[" << neppR << "]"
+              << ( neppR == 1 ? " == AOS" : "" ) << std::endl
+              << "Momenta memory layout     = AOSOA[" << neppM << "]"
+              << ( neppM == 1 ? " == AOS" : "" ) << std::endl
 #ifdef __CUDACC__
-            << "Wavefunction GPU memory   = LOCAL" << std::endl
+              << "Wavefunction GPU memory   = LOCAL" << std::endl
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_CURAND_ONDEVICE
-            << "Curand generation         = DEVICE (CUDA code)" << std::endl
+              << "Curand generation         = DEVICE (CUDA code)" << std::endl
 #elif defined MGONGPU_CURAND_ONHOST
-            << "Curand generation         = HOST (CUDA code)" << std::endl
+              << "Curand generation         = HOST (CUDA code)" << std::endl
 #endif
 #else
-            << "Curand generation         = HOST (C++ code)" << std::endl
+              << "Curand generation         = HOST (C++ code)" << std::endl
 #endif
-            << "---------------------------------------" << std::endl
-            << "NumberOfEntries           = " << niter << std::endl
-            << std::scientific
-            << "TotalTimeInWaveFuncs      = " << sumwtim << " sec" << std::endl
-            << "MeanTimeInWaveFuncs       = " << meanwtim << " sec" << std::endl
-            << "StdDevTimeInWaveFuncs     = " << stdwtim << " sec" << std::endl
-            << "MinTimeInWaveFuncs        = " << minwtim << " sec" << std::endl
-            << "MaxTimeInWaveFuncs        = " << maxwtim << " sec" << std::endl
-            << "---------------------------------------" << std::endl
-    //<< "ProcessID:                = " << getpid() << std::endl
-    //<< "NProcesses                = " << process.nprocesses << std::endl
-            << "TotalEventsComputed       = " << nevtALL << std::endl
-            << "RamboEventsPerSec         = " << nevtALL/sumrtim << " sec^-1" << std::endl
-            << "MatrixElemEventsPerSec    = " << nevtALL/sumwtim << " sec^-1" << std::endl;
+              << "---------------------------------------" << std::endl
+              << "NumberOfEntries           = " << niter << std::endl
+              << std::scientific
+              << "TotalTimeInWaveFuncs      = " << sumwtim << " sec" << std::endl
+              << "MeanTimeInWaveFuncs       = " << meanwtim << " sec" << std::endl
+              << "StdDevTimeInWaveFuncs     = " << stdwtim << " sec" << std::endl
+              << "MinTimeInWaveFuncs        = " << minwtim << " sec" << std::endl
+              << "MaxTimeInWaveFuncs        = " << maxwtim << " sec" << std::endl
+              << "---------------------------------------" << std::endl
+      //<< "ProcessID:                = " << getpid() << std::endl
+      //<< "NProcesses                = " << process.nprocesses << std::endl
+              << "TotalEventsComputed       = " << nevtALL << std::endl
+              << "RamboEventsPerSec         = " << nevtALL/sumrtim << " sec^-1" << std::endl
+              << "MatrixElemEventsPerSec    = " << nevtALL/sumwtim << " sec^-1" << std::endl;
 
-  std::cout << "***************************************" << std::endl
-            << "NumMatrixElements(notNan) = " << nevtALL - nnan << std::endl
-            << std::scientific
-            << "MeanMatrixElemValue       = " << meanelem << " GeV^" << meGeVexponent << std::endl
-            << "StdErrMatrixElemValue     = " << stdelem/sqrt(nevtALL) << " GeV^" << meGeVexponent << std::endl
-            << "StdDevMatrixElemValue     = " << stdelem << " GeV^" << meGeVexponent << std::endl
-            << "MinMatrixElemValue        = " << minelem << " GeV^" << meGeVexponent << std::endl
-            << "MaxMatrixElemValue        = " << maxelem << " GeV^" << meGeVexponent << std::endl;
+    std::cout << "***************************************" << std::endl
+              << "NumMatrixElements(notNan) = " << nevtALL - nnan << std::endl
+              << std::scientific
+              << "MeanMatrixElemValue       = " << meanelem << " GeV^" << meGeVexponent << std::endl
+              << "StdErrMatrixElemValue     = " << stdelem/sqrt(nevtALL) << " GeV^" << meGeVexponent << std::endl
+              << "StdDevMatrixElemValue     = " << stdelem << " GeV^" << meGeVexponent << std::endl
+              << "MinMatrixElemValue        = " << minelem << " GeV^" << meGeVexponent << std::endl
+              << "MaxMatrixElemValue        = " << maxelem << " GeV^" << meGeVexponent << std::endl;
+  }
 
+  // --- 9e Dump to json
   const std::string jsonKey = "9e DumpJson";
   timermap.start(jsonKey);
 
-  if(json) {
+  if(json)
+  {
     std::ofstream jsonFile;
-    std::string perffile = std::to_string(date) + "-perf-test-run" + std::to_string(run) + ".json";
+    std::string perffile = std::to_string(jsondate) + "-perf-test-run" + std::to_string(jsonrun) + ".json";
     perffile = "./perf/data/" + perffile;
 
     //Checks if file exists
@@ -622,97 +629,84 @@ if (perf)
     }
 
     jsonFile << "{" << std::endl
-    << "\"NumIterations\": " << niter << ", " << std::endl
-    << "\"NumThreadsPerBlock\": " << gputhreads << ", " << std::endl
-    << "\"NumBlocksPerGrid\": " << gpublocks << ", " << std::endl
-  #if defined MGONGPU_FPTYPE_DOUBLE
-    << "\"FP precision\": "
-    << "\"DOUBLE (nan=" << nnan << ")\"," << std::endl
-  #elif defined MGONGPU_FPTYPE_FLOAT
-    << "\"FP precision\": " << "FLOAT (nan=" << nnan << ")," << std::endl
-  #endif
-  << "\"Complex type\": "
-  #ifdef __CUDACC__
-  #if defined MGONGPU_CXTYPE_CUCOMPLEX
-    << "\"CUCOMPLEX\"," << std::endl
-  #elif defined MGONGPU_CXTYPE_THRUST
-    << "\"THRUST::COMPLEX\"," << std::endl
-  #endif
-  #else
-    << "\"STD::COMPLEX\"," << std::endl
-  #endif
-    << "\"RanNumb memory layout\": " << "\"AOSOA[" << neppR << "]\""
-    << ( neppR == 1 ? " == AOS" : "" ) << ", " << std::endl
-    << "\"Momenta memory layout\": " << "\"AOSOA[" << neppM << "]\""
-    << ( neppM == 1 ? " == AOS" : "" ) << ", " << std::endl
-  #ifdef __CUDACC__
-    << "\"Wavefunction GPU memory\": " << "\"LOCAL\"," << std::endl
-  #endif
-    << "\"Curand generation\": "
-  #ifdef __CUDACC__
-  #if defined MGONGPU_CURAND_ONDEVICE
-    << "\"DEVICE (CUDA code)\"," << std::endl
-  #elif defined MGONGPU_CURAND_ONHOST
-    << "\"HOST (CUDA code)\"," << std::endl
-  #endif
-  #else
-    << "\"HOST (C++ code)\"," << std::endl
-  #endif
-    << "\"NumberOfEntries\": " << niter << "," << std::endl
-    //<< std::scientific //Not sure about this
-    << "\"TotalTimeInWaveFuncs\": "
-    << "\"" << std::to_string(sumwtim) << " sec\"," << std::endl
-    << "\"MeanTimeInWaveFuncs\": "
-    << "\"" << std::to_string(meanwtim) << " sec\"," << std::endl
-    << "\"StdDevTimeInWaveFuncs\": "
-    << "\"" << std::to_string(stdwtim) << " sec\"," << std::endl
-    << "\"MinTimeInWaveFuncs\": "
-    << "\"" << std::to_string(minwtim) << " sec\"," << std::endl
-    << "\"MaxTimeInWaveFuncs\": "
-    << "\"" << std::to_string(maxwtim) << " sec\"," << std::endl
+             << "\"NumIterations\": " << niter << ", " << std::endl
+             << "\"NumThreadsPerBlock\": " << gputhreads << ", " << std::endl
+             << "\"NumBlocksPerGrid\": " << gpublocks << ", " << std::endl
+#if defined MGONGPU_FPTYPE_DOUBLE
+             << "\"FP precision\": "
+             << "\"DOUBLE (nan=" << nnan << ")\"," << std::endl
+#elif defined MGONGPU_FPTYPE_FLOAT
+             << "\"FP precision\": " << "FLOAT (nan=" << nnan << ")," << std::endl
+#endif
+             << "\"Complex type\": "
+#ifdef __CUDACC__
+#if defined MGONGPU_CXTYPE_CUCOMPLEX
+             << "\"CUCOMPLEX\"," << std::endl
+#elif defined MGONGPU_CXTYPE_THRUST
+             << "\"THRUST::COMPLEX\"," << std::endl
+#endif
+#else
+             << "\"STD::COMPLEX\"," << std::endl
+#endif
+             << "\"RanNumb memory layout\": " << "\"AOSOA[" << neppR << "]\""
+             << ( neppR == 1 ? " == AOS" : "" ) << ", " << std::endl
+             << "\"Momenta memory layout\": " << "\"AOSOA[" << neppM << "]\""
+             << ( neppM == 1 ? " == AOS" : "" ) << ", " << std::endl
+#ifdef __CUDACC__
+             << "\"Wavefunction GPU memory\": " << "\"LOCAL\"," << std::endl
+#endif
+             << "\"Curand generation\": "
+#ifdef __CUDACC__
+#if defined MGONGPU_CURAND_ONDEVICE
+             << "\"DEVICE (CUDA code)\"," << std::endl
+#elif defined MGONGPU_CURAND_ONHOST
+             << "\"HOST (CUDA code)\"," << std::endl
+#endif
+#else
+             << "\"HOST (C++ code)\"," << std::endl
+#endif
+             << "\"NumberOfEntries\": " << niter << "," << std::endl
+      //<< std::scientific // Not sure about this
+             << "\"TotalTimeInWaveFuncs\": "
+             << "\"" << std::to_string(sumwtim) << " sec\"," << std::endl
+             << "\"MeanTimeInWaveFuncs\": "
+             << "\"" << std::to_string(meanwtim) << " sec\"," << std::endl
+             << "\"StdDevTimeInWaveFuncs\": "
+             << "\"" << std::to_string(stdwtim) << " sec\"," << std::endl
+             << "\"MinTimeInWaveFuncs\": "
+             << "\"" << std::to_string(minwtim) << " sec\"," << std::endl
+             << "\"MaxTimeInWaveFuncs\": "
+             << "\"" << std::to_string(maxwtim) << " sec\"," << std::endl
+      //<< "ProcessID:                = " << getpid() << std::endl
+      //<< "NProcesses                = " << process.nprocesses << std::endl
+             << "\"TotalEventsComputed\": " << nevtALL << "," << std::endl
+             << "\"RamboEventsPerSec\": "
+             << "\"" << std::to_string(nevtALL/sumrtim) << " sec^-1\"," << std::endl
+             << "\"MatrixElemEventsPerSec\": "
+             << "\"" << std::to_string(nevtALL/sumwtim) << " sec^-1\"," << std::endl
+             << "\"NumMatrixElements(notNan)\": " << nevtALL - nnan << "," << std::endl
+             << std::scientific
+             << "\"MeanMatrixElemValue\": "
+             << "\"" << std::to_string(meanelem) << " GeV^"
+             << std::to_string(meGeVexponent) << "\"," << std::endl
+             << "\"StdErrMatrixElemValue\": "
+             << "\"" << std::to_string(stdelem/sqrt(nevtALL)) << " GeV^"
+             << std::to_string(meGeVexponent) << "\"," << std::endl
+             << "\"StdDevMatrixElemValue\": "
+             << "\"" << std::to_string(stdelem)
+             << " GeV^" << std::to_string(meGeVexponent) << "\"," << std::endl
+             << "\"MinMatrixElemValue\": "
+             << "\"" << std::to_string(minelem) << " GeV^"
+             << std::to_string(meGeVexponent) << "\"," << std::endl
+             << "\"MaxMatrixElemValue\": "
+             << "\"" << std::to_string(maxelem) << " GeV^"
+             << std::to_string(meGeVexponent) <<  "\"," << std::endl;
 
-  //<< "ProcessID:                = " << getpid() << std::endl
-  //<< "NProcesses                = " << process.nprocesses << std::endl
-    << "\"TotalEventsComputed\": " << nevtALL << "," << std::endl
-    << "\"RamboEventsPerSec\": "
-    << "\"" << std::to_string(nevtALL/sumrtim) << " sec^-1\"," << std::endl
-    << "\"MatrixElemEventsPerSec\": "
-    << "\"" << std::to_string(nevtALL/sumwtim) << " sec^-1\"," << std::endl
-
-
-    << "\"NumMatrixElements(notNan)\": " << nevtALL - nnan << "," << std::endl
-    << std::scientific
-    << "\"MeanMatrixElemValue\": "
-    << "\"" << std::to_string(meanelem) << " GeV^"
-    << std::to_string(meGeVexponent) << "\"," << std::endl
-    << "\"StdErrMatrixElemValue\": "
-    << "\"" << std::to_string(stdelem/sqrt(nevtALL)) << " GeV^"
-    << std::to_string(meGeVexponent) << "\"," << std::endl
-    << "\"StdDevMatrixElemValue\": "
-    << "\"" << std::to_string(stdelem)
-    << " GeV^" << std::to_string(meGeVexponent) << "\"," << std::endl
-    << "\"MinMatrixElemValue\": "
-    << "\"" << std::to_string(minelem) << " GeV^"
-    << std::to_string(meGeVexponent) << "\"," << std::endl
-    << "\"MaxMatrixElemValue\": "
-    << "\"" << std::to_string(maxelem) << " GeV^"
-    << std::to_string(meGeVexponent) <<  "\"," << std::endl;
-
-    timermap.dump(jsonFile, true);
+    timermap.dump(jsonFile, true); // NB For the active json timer this dumps a partial total
 
     jsonFile << "}" << std::endl << "]";
     jsonFile.close();
   }
-}
-
-const std::string jsonKey = "9e FinalDel";
-timermap.start(jsonKey);
-
-delete[] rambtimes;
-delete[] wavetimes;
-delete[] matrixelementALL;
-
-
 
   // *** STOP THE NEW TIMERS ***
   timermap.stop();
