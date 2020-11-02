@@ -379,11 +379,11 @@ int main(int argc, char **argv)
 
     for (int ievt = 0; ievt < nevt; ++ievt) // Loop over all events in this iteration
     {
-      const int ipagM = ievt/neppM; // #eventpage in this iteration
-      const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
       if (verbose)
       {
         // Display momenta
+        const int ipagM = ievt/neppM; // #eventpage in this iteration
+        const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
         std::cout << "Momenta:" << std::endl;
         for (int ipar = 0; ipar < npar; ipar++)
         {
@@ -400,14 +400,13 @@ int main(int argc, char **argv)
         }
         std::cout << std::string(80, '-') << std::endl;
         // Display matrix elements
-        // FIXME: assume process.nprocesses == 1
         std::cout << " Matrix element = "
           //   << setiosflags(ios::fixed) << setprecision(17)
-                  << hstMEs[ievt] << " GeV^" << meGeVexponent << std::endl;
+                  << hstMEs[ievt] << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
         std::cout << std::string(80, '-') << std::endl;
       }
       // Fill the array with ALL MEs
-      matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt];
+      matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt]; // FIXME: assume process.nprocesses == 1
     }
 
     if (!(verbose || debug || perf))
