@@ -34,6 +34,7 @@ int usage(char* argv0, int ret = 1) {
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
   std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
+  std::cout << "The '-d' flag only controls if nan's emit warnings" << std::endl;
   return ret;
 }
 
@@ -376,49 +377,44 @@ int main(int argc, char **argv)
       if (perf) std::cout << "Wave function time: " << wavetime << std::endl;
     }
 
-    if (verbose || perf)
+    for (int ievt = 0; ievt < nevt; ++ievt) // Loop over all events in this iteration
     {
-      for (int ievt = 0; ievt < nevt; ++ievt) // Loop over all events in this iteration
+      const int ipagM = ievt/neppM; // #eventpage in this iteration
+      const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+      if (verbose)
       {
-        const int ipagM = ievt/neppM; // #eventpage in this iteration
-        const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-        if (verbose)
+        // Display momenta
+        std::cout << "Momenta:" << std::endl;
+        for (int ipar = 0; ipar < npar; ipar++)
         {
-          std::cout << "Momenta:" << std::endl;
-          for (int ipar = 0; ipar < npar; ipar++)
-          {
-            std::cout << std::setw(4) << ipar + 1
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
-                      << std::endl;
-          }
-          std::cout << std::string(80, '-') << std::endl;
+          std::cout << std::setw(4) << ipar + 1
+                    << setiosflags(std::ios::scientific) << std::setw(14)
+                    << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
+                    << setiosflags(std::ios::scientific) << std::setw(14)
+                    << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
+                    << setiosflags(std::ios::scientific) << std::setw(14)
+                    << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
+                    << setiosflags(std::ios::scientific) << std::setw(14)
+                    << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
+                    << std::endl;
         }
-
+        std::cout << std::string(80, '-') << std::endl;
         // Display matrix elements
         // FIXME: assume process.nprocesses == 1
-        {
-          if (verbose)
-            std::cout << " Matrix element = "
-              //   << setiosflags(ios::fixed) << setprecision(17)
-                      << hstMEs[ievt] << " GeV^" << meGeVexponent << std::endl;
-          matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt];
-        }
-
-        if (verbose)
-          std::cout << std::string(80, '-') << std::endl;
+        std::cout << " Matrix element = "
+          //   << setiosflags(ios::fixed) << setprecision(17)
+                  << hstMEs[ievt] << " GeV^" << meGeVexponent << std::endl;
+        std::cout << std::string(80, '-') << std::endl;
       }
+      // Fill the array with ALL MEs
+      matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt];
     }
-    else if ( !debug )
+
+    if (!(verbose || debug || perf))
     {
       std::cout << ".";
     }
+
   }
 
   // **************************************
