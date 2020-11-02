@@ -4,6 +4,7 @@ LIBDIR=../../lib
 INCDIR=../../src
 MODELLIB=model_sm
 CXXFLAGS= -O3 -I. -I$(INCDIR) -DUSE_NVTX -Wall -Wshadow
+###CXXFLAGS= -O2 -I. -I$(INCDIR) -DUSE_NVTX -Wall -Wshadow
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM)
 # CUARCHFLAGS= -gencode arch=compute_$(CUARCHNUM),code=sm_$(CUARCHNUM)
 CUFLAGS= -O3 -I. -I$(INCDIR) -DUSE_NVTX $(CUARCHFLAGS) -use_fast_math -lineinfo 

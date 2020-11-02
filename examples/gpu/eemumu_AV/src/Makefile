@@ -1,6 +1,7 @@
 CUARCHNUM=70
 LIBDIR=../lib
 CXXFLAGS= -O3 -I. -DUSE_NVTX -Wall -Wshadow 
+###CXXFLAGS= -O2 -I. -DUSE_NVTX -Wall -Wshadow 
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM)
 CUFLAGS= -O3 -I. -DUSE_NVTX $(CUARCHFLAGS) -use_fast_math -lineinfo
 CUINC=/usr/local/cuda/targets/x86_64-linux/include
