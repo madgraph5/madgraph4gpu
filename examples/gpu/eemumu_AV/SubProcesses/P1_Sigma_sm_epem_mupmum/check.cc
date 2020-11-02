@@ -214,6 +214,7 @@ int main(int argc, char **argv)
   double* rambtimes = new double[niter]();
   double* wavetimes = new double[niter]();
   fptype* matrixelementALL = new fptype[nevtALL](); // FIXME: assume process.nprocesses == 1
+  fptype* weightALL = new fptype[nevtALL]();
 
   // --- 0c. Create curand generator
   const std::string cgenKey = "0c GenCreat";
@@ -405,8 +406,9 @@ int main(int argc, char **argv)
                   << hstMEs[ievt] << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
         std::cout << std::string(80, '-') << std::endl;
       }
-      // Fill the array with ALL MEs
+      // Fill the arrays with ALL MEs and weights
       matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt]; // FIXME: assume process.nprocesses == 1
+      weightALL[iiter*nevt + ievt] = hstWeights[ievt];
     }
 
     if (!(verbose || debug || perf))
@@ -458,6 +460,10 @@ int main(int argc, char **argv)
   double sqselem = 0;
   double minelem = matrixelementALL[0];
   double maxelem = matrixelementALL[0];
+  double sumweig = 0;
+  double sqsweig = 0;
+  double minweig = weightALL[0];
+  double maxweig = weightALL[0];
   for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
     if ( std::isnan( matrixelementALL[ievtALL] ) )
@@ -471,9 +477,15 @@ int main(int argc, char **argv)
     sqselem += matrixelementALL[ievtALL]*matrixelementALL[ievtALL];
     minelem = std::min( minelem, (double)matrixelementALL[ievtALL] );
     maxelem = std::max( maxelem, (double)matrixelementALL[ievtALL] );
+    sumweig += weightALL[ievtALL];
+    sqsweig += weightALL[ievtALL]*weightALL[ievtALL];
+    minweig = std::min( minweig, (double)weightALL[ievtALL] );
+    maxweig = std::max( maxweig, (double)weightALL[ievtALL] );
   }
   double meanelem = sumelem / ( nevtALL - nnan );
   double stdelem = std::sqrt( sqselem / ( nevtALL - nnan) - meanelem * meanelem );
+  double meanweig = sumweig / ( nevtALL - nnan );
+  double stdweig = std::sqrt( sqsweig / ( nevtALL - nnan) - meanweig * meanweig );
 
   // === STEP 9 FINALISE
   // --- 9a. Destroy curand generator
@@ -512,6 +524,7 @@ int main(int argc, char **argv)
   delete[] rambtimes;
   delete[] wavetimes;
   delete[] matrixelementALL;
+  delete[] weightALL;
 
 #ifdef __CUDACC__
   // --- 9c. Finalise cuda
@@ -588,7 +601,12 @@ int main(int argc, char **argv)
               << "StdErrMatrixElemValue     = " << stdelem/sqrt(nevtALL) << " GeV^" << meGeVexponent << std::endl
               << "StdDevMatrixElemValue     = " << stdelem << " GeV^" << meGeVexponent << std::endl
               << "MinMatrixElemValue        = " << minelem << " GeV^" << meGeVexponent << std::endl
-              << "MaxMatrixElemValue        = " << maxelem << " GeV^" << meGeVexponent << std::endl;
+              << "MaxMatrixElemValue        = " << maxelem << " GeV^" << meGeVexponent << std::endl
+              << "MeanWeight                = " << meanweig << std::endl
+              << "StdErrWeight              = " << stdweig/sqrt(nevtALL) << std::endl
+              << "StdDevWeight              = " << stdweig << std::endl
+              << "MinWeight                 = " << minweig << std::endl
+              << "MaxWeight                 = " << maxweig << std::endl;
   }
 
   // --- 9e Dump to json
