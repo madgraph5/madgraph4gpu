@@ -85,6 +85,46 @@ double rn(int idummy) {
   return ran;
 }
 
+
+bool pass_cuts(const std::vector<double*>& pout){
+  // return true if the events pass the cuts. (fails if not)
+  // two cut are implemented
+  // - pt cut on gluon (particle 3 and 4): 20 GeV
+  // - delta_R between the gluon (0.1)
+
+  // pt cut on first gluon
+  double pt2 =pout[2][1]*pout[2][1] + pout[2][2]*pout[2][2];
+  if (pt2 < 400){
+    return false;
+  }
+  
+  // pt cut on second gluon
+  pt2 =pout[3][1]*pout[3][1] + pout[3][2]*pout[3][2];
+  if (pt2 < 400){
+    return false;
+  }  
+   
+  //delta_R between the gluon
+  // delta_R**2 = delta_phi**2 + delta_eta**2
+  // computing delta_phi first
+  double denom = sqrt(pout[2][1]*pout[2][1] + pout[2][2]*pout[2][2]) * sqrt(pout[3][1]*pout[3][1] + pout[3][2]*pout[3][2]);
+  double delta_phi = acos((pout[2][1]*pout[3][1] + pout[2][2]*pout[3][2]) / DENOM);
+  
+  // computing delta_eta (note rap1/2 are not lorentz invariant but the difference is.
+  // This evaluates rapidity in the center of mass frame (not the same as lab frame)
+  double rap1 = 0.5 * log( (pout[2][0] + pout[2][3])/(pout[2][0] - pout[2][3]));
+  double rap2 = 0.5 * log( (pout[3][0] + pout[3][3])/(pout[3][0] - pout[3][3]));
+
+  //computing deltaR and check bounds
+  double delta_rap2 = delta_phi*delta_phi + (rap1 -rap2) * (rap1 - rap2);
+  if (delta_rap2 < 0.01){
+    return false;
+  }
+    
+  
+  return true;
+}
+
 std::vector<std::vector<double *>> get_momenta(int ninitial, double energy,
                                                std::vector<double> masses,
                                                double &wgt, int dim) {
@@ -98,7 +138,9 @@ std::vector<std::vector<double *>> get_momenta(int ninitial, double energy,
   std::vector<std::vector<double *>> p2;
 
   if (ninitial == 1) {
-    for (int d = 0; d < dim; ++d) {
+    int done = 0
+      while (done < dim){  
+			 //    for (int d = 0; d < dim; ++d) {
       // Momenta for the incoming particle
       std::vector<double *> p(1, new double[4]);
       p[0][0] = m1;
@@ -108,8 +150,11 @@ std::vector<std::vector<double *>> get_momenta(int ninitial, double energy,
 
       std::vector<double> finalmasses(++masses.begin(), masses.end());
       std::vector<double *> p_rambo = rambo(m1, finalmasses, wgt);
-      p.insert(++p.begin(), p_rambo.begin(), p_rambo.end());
-      p2.push_back(p);
+      if (pass_cuts(p_rampbo)){
+	p.insert(++p.begin(), p_rambo.begin(), p_rambo.end());
+	p2.push_back(p);
+	done++; 
+      }
     }
     return p2;
   }
