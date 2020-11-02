@@ -598,27 +598,26 @@ int main(int argc, char **argv)
 
   if(json)
   {
-    std::ofstream jsonFile;
-    std::string perffile = std::to_string(jsondate) + "-perf-test-run" + std::to_string(jsonrun) + ".json";
-    perffile = "./perf/data/" + perffile;
+    std::string jsonFileName = std::to_string(jsondate) + "-perf-test-run" + std::to_string(jsonrun) + ".json";
+    jsonFileName = "./perf/data/" + jsonFileName;
 
     //Checks if file exists
     std::ifstream fileCheck;
     bool fileExists = false;
-    fileCheck.open(perffile);
+    fileCheck.open(jsonFileName);
     if(fileCheck){
       fileExists = true;
       fileCheck.close();
     }
 
-    jsonFile.open(perffile, std::ios_base::app);
-
+    std::ofstream jsonFile;
+    jsonFile.open(jsonFileName, std::ios_base::app);
     if(!fileExists){
       jsonFile << "[" << std::endl;
     }
     else{
       //deleting the last bracket and outputting a ", "
-      std::string temp = "truncate -s-1 " + perffile;
+      std::string temp = "truncate -s-1 " + jsonFileName;
       const char *command = temp.c_str();
       system(command);
       jsonFile << ", " << std::endl;
