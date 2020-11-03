@@ -1,7 +1,0 @@
-nvidia-smi dmon -i 3 -d 10 -s pucvmet -o DT | tee nvidia-smi-dmon.txt
-
-nvidia-smi pmon -i 3 -d 10 -s mu -o DT | tee nvidia-smi-pmon.txt
-
-while true; do clear && echo `grep "\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*" 20200404-perf-test-run1.txt  | wc -l` von `cat 20200404-params-run1.txt | wc -l` "  -  "| tr \\n " " && date && sleep 60 ; done
-
-sh run-perf-test.sh 20200404-params-run1.txt | tee 20200404-perf-test-run1.txt
