@@ -23,9 +23,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
   __device__
-#endif
   inline const fptype& pIparIp4Ievt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                      const int ipar,
                                      const int ip4,
@@ -45,9 +43,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
   __device__
-#endif
   void imzxxxM0( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                  //const fptype fmass,
                  const int nhel,
@@ -109,9 +105,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
   __device__
-#endif
   void ixzxxxM0( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                  //const fptype fmass,
                  const int nhel,
@@ -174,9 +168,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
   __device__
-#endif
   void oxzxxxM0( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                  //const fptype fmass,
                  const int nhel,
@@ -240,9 +232,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
   __device__
-#endif
   void FFV1_0( const cxtype F1S[],   // input wavefunction1[6]
                const cxtype F2S[],   // input wavefunction2[6]
                const cxtype V3S[],   // input wavefunction3[6]
@@ -282,9 +272,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
   __device__
-#endif
   void FFV1P0_3( const cxtype F1S[],   // input wavefunction1[6]
                  const cxtype F2S[],   // input wavefunction2[6]
                  const cxtype COUP,
@@ -330,9 +318,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
   __device__
-#endif
   void FFV2_4_0( const cxtype F1S[],   // input wavefunction1[6]
                  const cxtype F2S[],   // input wavefunction2[6]
                  const cxtype V3S[],   // input wavefunction3[6]
@@ -369,9 +355,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
   __device__
-#endif
   void FFV2_4_3( const cxtype F1S[],   // input wavefunction1[6]
                  const cxtype F2S[],   // input wavefunction2[6]
                  const cxtype COUP1,
@@ -494,9 +478,7 @@ namespace Proc
 
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
-#ifdef __CUDACC__
   __device__
-#endif
   void calculate_wavefunctions( int ihel,
                                 const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                                 fptype &meHelSum          // input AND output: running sum of |M|^2 over all helicities for this event
@@ -699,9 +681,7 @@ namespace Proc
   //--------------------------------------------------------------------------
   // Evaluate |M|^2, part independent of incoming flavour
 
-#ifdef __CUDACC__
   __global__
-#endif
   void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                  fptype* allMEs            // output: allMEs[nevt], final |M|^2 averaged over all helicities
 #ifndef __CUDACC__

@@ -102,4 +102,10 @@ namespace mgOnGpu
   { /*noop*/ }
 #endif
 
+// Define empty CUDA declaration specifiers for C++
+#ifndef __CUDACC__
+#define __global__
+#define __device__
+#endif
+
 #endif // MGONGPUCONFIG_H
