@@ -195,12 +195,8 @@ namespace rambo2toNm0
     //const curandRngType_t type = CURAND_RNG_PSEUDO_MRG32K3A;      // 0.71s    | 0.0012s  (better but slower, especially in c++)
     //const curandRngType_t type = CURAND_RNG_PSEUDO_MT19937;       // 21s      | 0.021s
     //const curandRngType_t type = CURAND_RNG_PSEUDO_PHILOX4_32_10; // 0.024s   | 0.00026s (used to segfault?)
-#ifdef __CUDACC__
-#if defined MGONGPU_CURAND_ONDEVICE
+#if defined __CUDACC__ and defined MGONGPU_CURAND_ONDEVICE
     checkCurand( curandCreateGenerator( pgen, type ) );
-#elif defined MGONGPU_CURAND_ONHOST
-    checkCurand( curandCreateGeneratorHost( pgen, type ) );
-#endif
 #else
     checkCurand( curandCreateGeneratorHost( pgen, type ) );
 #endif

@@ -157,19 +157,19 @@ int main(int argc, char **argv)
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
   const int nRnarray = np4*nparf*nevt; // (NB: ASA layout with nevt=npagR*neppR events per iteration)
+  fptype* hstRnarray = nullptr; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+
 #ifdef __CUDACC__
   const int nbytesRnarray = nRnarray * sizeof(fptype);
   fptype* devRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   checkCuda( cudaMalloc( &devRnarray, nbytesRnarray ) );
 #if defined MGONGPU_CURAND_ONHOST
-  fptype* hstRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   checkCuda( cudaMallocHost( &hstRnarray, nbytesRnarray ) );
 #endif
-#else
-  fptype* hstRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-  hstRnarray = new fptype[nRnarray]();
 #endif
-
+  if (!hstRnarray) {
+    hstRnarray = new fptype[nRnarray]();
+  }
   const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for ASA layouts)
   fptype* hstMomenta = 0; // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
 #ifdef __CUDACC__
@@ -254,24 +254,27 @@ int main(int argc, char **argv)
     // --- 1b. Generate all relevant numbers to build nevt events (i.e. nevt phase space points) on the host
     const std::string rngnKey = "1b GenRnGen";
     timermap.start( rngnKey );
+    fptype* hstRn = nullptr;
 #ifdef __CUDACC__
 #if defined MGONGPU_CURAND_ONDEVICE
     grambo2toNm0::generateRnarray( rnGen, devRnarray, nevt );
 #elif defined MGONGPU_CURAND_ONHOST
     grambo2toNm0::generateRnarray( rnGen, hstRnarray, nevt );
+    hstRn = hstRnarray;
 #endif
 #else
     rambo2toNm0::generateRnarray( rnGen, hstRnarray, nevt );
+    hstRn = hstRnarray;
 #endif
     //std::cout << "Got random numbers" << std::endl;
 
 #ifdef __CUDACC__
-#if defined MGONGPU_CURAND_ONHOST
     // --- 1c. Copy rnarray from host to device
     const std::string htodKey = "1c CpHTDrnd";
     timermap.start( htodKey );
-    checkCuda( cudaMemcpy( devRnarray, hstRnarray, nbytesRnarray, cudaMemcpyHostToDevice ) );
-#endif
+    if (hstRn) {
+      checkCuda( cudaMemcpy( devRnarray, hstRn, nbytesRnarray, cudaMemcpyHostToDevice ) );
+    }
 #endif
 
     // === STEP 2 OF 3
@@ -297,7 +300,7 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
     grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray, devMomenta, devWeights );
 #else
-    rambo2toNm0::getMomentaFinal( energy, hstRnarray, hstMomenta, hstWeights, nevt );
+    rambo2toNm0::getMomentaFinal( energy, hstRn, hstMomenta, hstWeights, nevt );
 #endif
     //std::cout << "Got final momenta" << std::endl;
 
