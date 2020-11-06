@@ -19,6 +19,7 @@
 
 #include "CPPProcess.h"
 #include "timermap.h"
+#include "CommonRandomNumbers.h"
 
 bool is_number(const char *s) {
   const char *t = s;
@@ -159,6 +160,11 @@ int main(int argc, char **argv)
   const int nRnarray = np4*nparf*nevt; // (NB: ASA layout with nevt=npagR*neppR events per iteration)
   fptype* hstRnarray = nullptr; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
 
+  std::vector<std::promise<std::vector<fptype>>> commonRandomPromises;
+  if (MGONGPU_COMMONRAND_ONHOST) {
+    CommonRandomNumbers::startGenerateAsync(commonRandomPromises, nRnarray, niter);
+  }
+
 #ifdef __CUDACC__
   const int nbytesRnarray = nRnarray * sizeof(fptype);
   fptype* devRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
@@ -167,7 +173,7 @@ int main(int argc, char **argv)
   checkCuda( cudaMallocHost( &hstRnarray, nbytesRnarray ) );
 #endif
 #endif
-  if (!hstRnarray) {
+  if (!hstRnarray && commonRandomPromises.empty()) {
     hstRnarray = new fptype[nRnarray]();
   }
   const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for ASA layouts)
@@ -255,17 +261,26 @@ int main(int argc, char **argv)
     const std::string rngnKey = "1b GenRnGen";
     timermap.start( rngnKey );
     fptype* hstRn = nullptr;
+    std::vector<double> commonRandomNumbers;
+
+    if (MGONGPU_COMMONRAND_ONHOST) {
+      commonRandomNumbers = commonRandomPromises[iiter].get_future().get();
+      hstRn = commonRandomNumbers.data();
+      assert( nRnarray == static_cast<int>(commonRandomNumbers.size()) );
+    } else {
 #ifdef __CUDACC__
 #if defined MGONGPU_CURAND_ONDEVICE
-    grambo2toNm0::generateRnarray( rnGen, devRnarray, nevt );
+      grambo2toNm0::generateRnarray( rnGen, devRnarray, nevt );
 #elif defined MGONGPU_CURAND_ONHOST
-    grambo2toNm0::generateRnarray( rnGen, hstRnarray, nevt );
-    hstRn = hstRnarray;
+      grambo2toNm0::generateRnarray( rnGen, hstRnarray, nevt );
+      hstRn = hstRnarray;
 #endif
 #else
-    rambo2toNm0::generateRnarray( rnGen, hstRnarray, nevt );
-    hstRn = hstRnarray;
+      rambo2toNm0::generateRnarray( rnGen, hstRnarray, nevt );
+      hstRn = hstRnarray;
 #endif
+    }
+
     //std::cout << "Got random numbers" << std::endl;
 
 #ifdef __CUDACC__

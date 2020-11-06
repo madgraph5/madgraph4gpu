@@ -1,7 +1,7 @@
 CUARCHNUM=70
 #CUARCHNUM=61 #(For Pascal Architecture Cards)
 LIBDIR=../../lib
-INCDIRS=-I. -I../../src
+INCDIRS=-I. -I../../src -I../../../../../tools/
 MODELLIB=model_sm
 CXXFLAGS= -O3 $(INCDIRS) -DUSE_NVTX -Wall -Wshadow
 ###CXXFLAGS= -O2 $(INCDIRS) -DUSE_NVTX -Wall -Wshadow
@@ -61,7 +61,7 @@ $(cu_main): $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
 	$(NVCC) -o $@ $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) -lcuda -lcurand
 
 $(cxx_main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) check.o
-	$(CXX) -o $@ $(cxx_objects) check.o -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcurand
+	$(CXX) -o $@ $(cxx_objects) check.o -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) -lcurand
 
 .PHONY: clean
 
