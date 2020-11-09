@@ -16,3 +16,6 @@ profile_*
 # perf data
 *-perf-test-run*.json
 ***/perf/params*.txt
+
+# googletest
+tools/googletest
