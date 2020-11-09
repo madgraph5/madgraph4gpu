@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <numeric>
 #include <string>
 #include <unistd.h>
@@ -40,6 +41,36 @@ int usage(char* argv0, int ret = 1) {
   std::cout << "The '-d' flag only controls if nan's emit warnings" << std::endl;
   return ret;
 }
+
+#ifdef __CUDACC__
+template<typename T = fptype>
+struct CudaDevDeleter {
+  void operator()(T* mem) {
+    checkCuda( cudaFree( mem ) );
+  }
+};
+template<typename T = fptype>
+std::unique_ptr<T, CudaDevDeleter<T>> devMakeUnique(std::size_t N) {
+  T* tmp = nullptr;
+  checkCuda( cudaMalloc( &tmp, N * sizeof(T) ) );
+  return std::unique_ptr<T, CudaDevDeleter<T>>{ tmp };
+}
+template<typename T = fptype>
+struct CudaHstDeleter {
+  void operator()(T* mem) {
+    checkCuda( cudaFreeHost( mem ) );
+  }
+};
+template<typename T = fptype>
+std::unique_ptr<T[], CudaHstDeleter<T>> hstMakeUnique(std::size_t N) {
+  T* tmp = nullptr;
+  checkCuda( cudaMallocHost( &tmp, N * sizeof(T) ) );
+  return std::unique_ptr<T[], CudaHstDeleter<T>>{ tmp };
+};
+#else
+template<typename T = fptype>
+std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{ new T[N] }; };
+#endif
 
 int main(int argc, char **argv)
 {
@@ -131,6 +162,16 @@ int main(int argc, char **argv)
   //std::cout << "Calling cudaFree... " << std::endl;
   checkCuda( cudaFree( 0 ) ); // SLOW!
   //std::cout << "Calling cudaFree... done" << std::endl;
+
+  // --- Book the tear down at the end of main:
+  struct CudaTearDown {
+    CudaTearDown(bool print) : _print(print) { }
+    ~CudaTearDown() {
+      if ( _print ) std::cout << "Calling cudaDeviceReset()." << std::endl;
+      checkCuda( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
+    }
+    bool _print{false};
+  } cudaTearDown(debug);
 #endif
 
   // --- 0a. Initialise physics process
@@ -159,71 +200,41 @@ int main(int argc, char **argv)
   using mgOnGpu::np4;
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
+  using mgOnGpu::ncomb; // Number of helicity combinations
   const int nRnarray = np4*nparf*nevt; // (NB: ASA layout with nevt=npagR*neppR events per iteration)
-
-#ifdef __CUDACC__
-  const int nbytesRnarray = nRnarray * sizeof(fptype);
-  fptype* devRnarray = nullptr; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-  checkCuda( cudaMalloc( &devRnarray, nbytesRnarray ) );
-#if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
-  fptype* hstRnarray = nullptr; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-  checkCuda( cudaMallocHost( &hstRnarray, nbytesRnarray ) ); // pinned memory
-#endif
-#else
-  fptype* hstRnarray = nullptr; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-  hstRnarray = new fptype[nRnarray]();
-#ifdef MGONGPU_COMMONRAND_ONHOST
-  const int nbytesRnarray = nRnarray * sizeof(fptype);
-#endif
-#endif
-
   const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for ASA layouts)
-  fptype* hstMomenta = nullptr; // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
-#ifdef __CUDACC__
-  const int nbytesMomenta = nMomenta * sizeof(fptype);
-  checkCuda( cudaMallocHost( &hstMomenta, nbytesMomenta ) );
-  fptype* devMomenta = nullptr; // (previously was: allMomenta)
-  checkCuda( cudaMalloc( &devMomenta, nbytesMomenta ) );
-#else
-  hstMomenta = new fptype[nMomenta]();
-#endif
-
-#ifdef __CUDACC__
-  using mgOnGpu::ncomb;
-  const int nbytesIsGoodHel = ncomb * sizeof(bool);
-  bool* hstIsGoodHel = nullptr;
-  checkCuda( cudaMallocHost( &hstIsGoodHel, nbytesIsGoodHel ) );
-  bool* devIsGoodHel = nullptr;
-  checkCuda( cudaMalloc( &devIsGoodHel, nbytesIsGoodHel ) );
-#endif
-
   const int nWeights = nevt;
-  fptype* hstWeights = nullptr; // (previously was: meHostPtr)
+  const int nMEs     = nevt;
+
+#if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST or not defined __CUDACC__
+  auto hstRnarray   = hstMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+#endif
+  auto hstMomenta   = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
+  auto hstIsGoodHel = hstMakeUnique<bool  >( ncomb );
+  auto hstWeights   = hstMakeUnique<fptype>( nWeights ); // (previously was: meHostPtr)
+  auto hstMEs       = hstMakeUnique<fptype>( nMEs ); // (previously was: meHostPtr)
+
 #ifdef __CUDACC__
+  auto devRnarray   = devMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+  auto devMomenta   = devMakeUnique<fptype>( nMomenta ); // (previously was: allMomenta)
+  auto devIsGoodHel = devMakeUnique<bool  >( ncomb );
+  auto devWeights   = devMakeUnique<fptype>( nWeights ); // (previously was: meDevPtr)
+  auto devMEs       = devMakeUnique<fptype>( nMEs ); // (previously was: meDevPtr)
+
+#if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
+  const int nbytesRnarray = nRnarray * sizeof(fptype);
+#endif
+  const int nbytesMomenta = nMomenta * sizeof(fptype);
+  const int nbytesIsGoodHel = ncomb * sizeof(bool);
   const int nbytesWeights = nWeights * sizeof(fptype);
-  checkCuda( cudaMallocHost( &hstWeights, nbytesWeights ) );
-  fptype* devWeights = nullptr; // (previously was: meDevPtr)
-  checkCuda( cudaMalloc( &devWeights, nbytesWeights ) );
-#else
-  hstWeights = new fptype[nWeights]();
-#endif
-
-  const int nMEs = nevt;
-  fptype* hstMEs = nullptr; // (previously was: meHostPtr)
-#ifdef __CUDACC__
   const int nbytesMEs = nMEs * sizeof(fptype);
-  checkCuda( cudaMallocHost( &hstMEs, nbytesMEs ) );
-  fptype* devMEs = nullptr; // (previously was: meDevPtr)
-  checkCuda( cudaMalloc( &devMEs, nbytesMEs ) );
-#else
-  hstMEs = new fptype[nMEs]();
 #endif
 
-  double* genrtimes = new double[niter]();
-  double* rambtimes = new double[niter]();
-  double* wavetimes = new double[niter]();
-  fptype* matrixelementALL = new fptype[nevtALL](); // FIXME: assume process.nprocesses == 1
-  fptype* weightALL = new fptype[nevtALL]();
+  std::unique_ptr<double[]> genrtimes( new double[niter] );
+  std::unique_ptr<double[]> rambtimes( new double[niter] );
+  std::unique_ptr<double[]> wavetimes( new double[niter] );
+  std::unique_ptr<fptype[]> matrixelementALL( new fptype[nevtALL] ); // FIXME: assume process.nprocesses == 1
+  std::unique_ptr<fptype[]> weightALL( new fptype[nevtALL] );
 
   // --- 0c. Create curand or common generator
   const std::string cgenKey = "0c GenCreat";
@@ -274,18 +285,18 @@ int main(int argc, char **argv)
     const std::string rngnKey = "1b GenRnGen";
     timermap.start( rngnKey );
 #ifdef MGONGPU_COMMONRAND_ONHOST
-    std::vector<double> commonRandomNumbers = commonRandomPromises[iiter].get_future().get();
-    assert( nRnarray == static_cast<int>(commonRandomNumbers.size()) );
+    std::vector<double> commonRnd = commonRandomPromises[iiter].get_future().get();
+    assert( nRnarray == static_cast<int>( commonRnd.size() ) );
     // NB (PR #45): memcpy is strictly needed only in CUDA (copy to pinned memory), but keep it also in C++ for consistency
     memcpy( hstRnarray, commonRandomNumbers.data(), nbytesRnarray );
 #elif defined __CUDACC__
 #ifdef MGONGPU_CURAND_ONDEVICE
-    grambo2toNm0::generateRnarray( rnGen, devRnarray, nevt );
+    grambo2toNm0::generateRnarray( rnGen, devRnarray.get(), nevt );
 #elif defined MGONGPU_CURAND_ONHOST
-    grambo2toNm0::generateRnarray( rnGen, hstRnarray, nevt );
+    grambo2toNm0::generateRnarray( rnGen, hstRnarray.get(), nevt );
 #endif
 #else
-    rambo2toNm0::generateRnarray( rnGen, hstRnarray, nevt );
+    rambo2toNm0::generateRnarray( rnGen, hstRnarray.get(), nevt );
 #endif
     //std::cout << "Got random numbers" << std::endl;
 
@@ -295,7 +306,7 @@ int main(int argc, char **argv)
     const std::string htodKey = "1c CpHTDrnd";
     genrtime += timermap.start( htodKey );
     // NB (PR #45): this cudaMemcpy would involve an intermediate memcpy to pinned memory, if hstRnarray was not already cudaMalloc'ed
-    checkCuda( cudaMemcpy( devRnarray, hstRnarray, nbytesRnarray, cudaMemcpyHostToDevice ) );
+    checkCuda( cudaMemcpy( devRnarray.get(), hstRnarray.get(), nbytesRnarray, cudaMemcpyHostToDevice ) );
 #endif
 #endif
 
@@ -312,9 +323,9 @@ int main(int argc, char **argv)
     const std::string riniKey = "2a RamboIni";
     timermap.start( riniKey );
 #ifdef __CUDACC__
-    grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta );
+    grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta.get() );
 #else
-    rambo2toNm0::getMomentaInitial( energy, hstMomenta, nevt );
+    rambo2toNm0::getMomentaInitial( energy, hstMomenta.get(), nevt );
 #endif
     //std::cout << "Got initial momenta" << std::endl;
 
@@ -323,9 +334,9 @@ int main(int argc, char **argv)
     const std::string rfinKey = "2b RamboFin";
     rambtime += timermap.start( rfinKey );
 #ifdef __CUDACC__
-    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray, devMomenta, devWeights );
+    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.get(), devMomenta.get(), devWeights.get() );
 #else
-    rambo2toNm0::getMomentaFinal( energy, hstRnarray, hstMomenta, hstWeights, nevt );
+    rambo2toNm0::getMomentaFinal( energy, hstRnarray.get(), hstMomenta.get(), hstWeights.get(), nevt );
 #endif
     //std::cout << "Got final momenta" << std::endl;
 
@@ -333,12 +344,12 @@ int main(int argc, char **argv)
     // --- 2c. CopyDToH Weights
     const std::string cwgtKey = "2c CpDTHwgt";
     rambtime += timermap.start( cwgtKey );
-    checkCuda( cudaMemcpy( hstWeights, devWeights, nbytesWeights, cudaMemcpyDeviceToHost ) );
+    checkCuda( cudaMemcpy( hstWeights.get(), devWeights.get(), nbytesWeights, cudaMemcpyDeviceToHost ) );
 
     // --- 2d. CopyDToH Momenta
     const std::string cmomKey = "2d CpDTHmom";
     rambtime += timermap.start( cmomKey );
-    checkCuda( cudaMemcpy( hstMomenta, devMomenta, nbytesMomenta, cudaMemcpyDeviceToHost ) );
+    checkCuda( cudaMemcpy( hstMomenta.get(), devMomenta.get(), nbytesMomenta, cudaMemcpyDeviceToHost ) );
 #endif
 
     // *** STOP THE OLD-STYLE TIMER FOR RAMBO ***
@@ -357,12 +368,12 @@ int main(int argc, char **argv)
       const std::string ghelKey = "0d SGoodHel";
       timermap.start( ghelKey );
       // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta, devIsGoodHel);
+      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.get(), devIsGoodHel.get());
       checkCuda( cudaPeekAtLastError() );
       // ... 0d2. Copy back good helicity mask to the host
-      checkCuda( cudaMemcpy( hstIsGoodHel, devIsGoodHel, nbytesIsGoodHel, cudaMemcpyDeviceToHost ) );
+      checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(), nbytesIsGoodHel, cudaMemcpyDeviceToHost ) );
       // ... 0d3. Copy back good helicity list to constant memory on the device
-      gProc::sigmaKin_setGoodHel(hstIsGoodHel);
+      gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
     }
 #endif
 
@@ -374,20 +385,20 @@ int main(int argc, char **argv)
     timermap.start( skinKey );
 #ifdef __CUDACC__
 #ifndef MGONGPU_NSIGHT_DEBUG
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta, devMEs);
+    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.get(), devMEs.get());
 #else
-    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta, devMEs);
+    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.get(), devMEs.get());
 #endif
     checkCuda( cudaPeekAtLastError() );
 #else
-    Proc::sigmaKin(hstMomenta, hstMEs, nevt);
+    Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), nevt);
 #endif
 
 #ifdef __CUDACC__
     // --- 3b. CopyDToH MEs
     const std::string cmesKey = "3b CpDTHmes";
     wavetime += timermap.start( cmesKey );
-    checkCuda( cudaMemcpy( hstMEs, devMEs, nbytesMEs, cudaMemcpyDeviceToHost ) );
+    checkCuda( cudaMemcpy( hstMEs.get(), devMEs.get(), nbytesMEs, cudaMemcpyDeviceToHost ) );
 #endif
 
     // *** STOP THE OLD TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
@@ -548,45 +559,8 @@ int main(int argc, char **argv)
 #endif
 #endif
 
-  // --- 9b Free memory structures
-  const std::string freeKey = "9b MemFree ";
-  timermap.start( freeKey );
-
-#ifdef __CUDACC__
-  checkCuda( cudaFreeHost( hstMEs ) );
-  checkCuda( cudaFreeHost( hstIsGoodHel ) );
-  checkCuda( cudaFreeHost( hstWeights ) );
-  checkCuda( cudaFreeHost( hstMomenta ) );
-#ifndef MGONGPU_CURAND_ONDEVICE
-  checkCuda( cudaFreeHost( hstRnarray ) );
-#endif
-  checkCuda( cudaFree( devMEs ) );
-  checkCuda( cudaFree( devIsGoodHel ) );
-  checkCuda( cudaFree( devWeights ) );
-  checkCuda( cudaFree( devMomenta ) );
-  checkCuda( cudaFree( devRnarray ) );
-#else
-  delete[] hstMEs;
-  delete[] hstWeights;
-  delete[] hstMomenta;
-  delete[] hstRnarray;
-#endif
-
-  delete[] genrtimes;
-  delete[] rambtimes;
-  delete[] wavetimes;
-  delete[] matrixelementALL;
-  delete[] weightALL;
-
-#ifdef __CUDACC__
-  // --- 9c. Finalise cuda
-  const std::string cdrsKey = "9c CudReset";
-  timermap.start( cdrsKey );
-  checkCuda( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
-#endif
-
-  // --- 9d Dump to screen
-  const std::string dumpKey = "9d DumpScrn";
+  // --- 9b Dump to screen
+  const std::string dumpKey = "9b DumpScrn";
   timermap.start(dumpKey);
 
   if (!(verbose || debug || perf))
@@ -680,8 +654,8 @@ int main(int argc, char **argv)
               << std::defaultfloat; // default format: affects all floats
   }
 
-  // --- 9e Dump to json
-  const std::string jsonKey = "9e DumpJson";
+  // --- 9c Dump to json
+  const std::string jsonKey = "9c DumpJson";
   timermap.start(jsonKey);
 
   if(json)
