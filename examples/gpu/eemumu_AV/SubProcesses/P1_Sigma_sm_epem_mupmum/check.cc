@@ -212,6 +212,7 @@ int main(int argc, char **argv)
   hstMEs = new fptype[nMEs]();
 #endif
 
+  double* genrtimes = new double[niter]();
   double* rambtimes = new double[niter]();
   double* wavetimes = new double[niter]();
   fptype* matrixelementALL = new fptype[nevtALL](); // FIXME: assume process.nprocesses == 1
@@ -237,6 +238,9 @@ int main(int argc, char **argv)
 
     // === STEP 1 OF 3
 
+    // *** START THE OLD-STYLE TIMER FOR RANDOM GEN ***
+    double genrtime = 0;
+
     // --- 1a. Seed curand generator (to get same results on host and device)
     // [NB This should not be necessary using the host API: "Generation functions
     // can be called multiple times on the same generator to generate successive
@@ -253,7 +257,7 @@ int main(int argc, char **argv)
 
     // --- 1b. Generate all relevant numbers to build nevt events (i.e. nevt phase space points) on the host
     const std::string rngnKey = "1b GenRnGen";
-    timermap.start( rngnKey );
+    genrtime += timermap.start( rngnKey );
 #ifdef __CUDACC__
 #if defined MGONGPU_CURAND_ONDEVICE
     grambo2toNm0::generateRnarray( rnGen, devRnarray, nevt );
@@ -269,10 +273,13 @@ int main(int argc, char **argv)
 #if defined MGONGPU_CURAND_ONHOST
     // --- 1c. Copy rnarray from host to device
     const std::string htodKey = "1c CpHTDrnd";
-    timermap.start( htodKey );
+    genrtime += timermap.start( htodKey );
     checkCuda( cudaMemcpy( devRnarray, hstRnarray, nbytesRnarray, cudaMemcpyHostToDevice ) );
 #endif
 #endif
+
+    // *** STOP THE OLD-STYLE TIMER FOR RANDOM GEN ***
+    genrtime += timermap.stop();
 
     // === STEP 2 OF 3
     // Fill in particle momenta for each of nevt events on the device
@@ -369,6 +376,7 @@ int main(int argc, char **argv)
     // --- 4a Dump within the loop
     const std::string loopKey = "4a DumpLoop";
     timermap.start(loopKey);
+    genrtimes[iiter] = genrtime;
     rambtimes[iiter] = rambtime;
     wavetimes[iiter] = wavetime;
 
@@ -425,6 +433,18 @@ int main(int argc, char **argv)
   // --- 8a Analysis: compute stats after the loop
   const std::string statKey = "8a CompStat";
   timermap.start(statKey);
+
+  double sumgtim = 0;
+  double sqsgtim = 0;
+  double mingtim = genrtimes[0];
+  double maxgtim = genrtimes[0];
+  for ( int iiter = 0; iiter < niter; ++iiter )
+  {
+    sumgtim += genrtimes[iiter];
+    sqsgtim += genrtimes[iiter]*genrtimes[iiter];
+    mingtim = std::min( mingtim, genrtimes[iiter] );
+    maxgtim = std::max( maxgtim, genrtimes[iiter] );
+  }
 
   double sumrtim = 0;
   double sqsrtim = 0;
@@ -529,6 +549,7 @@ int main(int argc, char **argv)
   delete[] hstRnarray;
 #endif
 
+  delete[] genrtimes;
   delete[] rambtimes;
   delete[] wavetimes;
   delete[] matrixelementALL;
@@ -590,7 +611,9 @@ int main(int argc, char **argv)
               << "-----------------------------------------------------------------------" << std::endl
               << "NumberOfEntries            = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
-              << "TotalTimeIn[Rambo+ME]  (23)= ( " << sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotTimeIn[Rnd+Rmb+ME] (123)= ( " << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotTimeIn[Rambo+ME]    (23)= ( " << sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTimeInRndNumGen    (1)= ( " << sumgtim << std::string(16, ' ') << " )  sec" << std::endl
               << "TotalTimeInRambo        (2)= ( " << sumrtim << std::string(16, ' ') << " )  sec" << std::endl
               << "TotalTimeInMatrixElems  (3)= ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
               << "MeanTimeInMatrixElems      = ( " << meanwtim << std::string(16, ' ') << " )  sec" << std::endl
@@ -601,7 +624,11 @@ int main(int argc, char **argv)
       //<< "ProcessID:                 = " << getpid() << std::endl
       //<< "NProcesses                 = " << process.nprocesses << std::endl
               << "TotalEventsComputed        = " << nevtALL << std::endl
-              << "[Rambo+ME]EventsPerSec (23)= ( " << nevtALL/(sumrtim+sumwtim)
+              << "[Rnd+Rmb+ME]EvtPerSec (123)= ( " << nevtALL/(sumgtim+sumrtim+sumwtim)
+              << std::string(16, ' ') << " )  sec^-1" << std::endl
+              << "[Rmb+ME]EvtPerSec      (23)= ( " << nevtALL/(sumrtim+sumwtim)
+              << std::string(16, ' ') << " )  sec^-1" << std::endl
+              << "RndNumbGenEventsPerSec  (1)= ( " << nevtALL/sumgtim
               << std::string(16, ' ') << " )  sec^-1" << std::endl
               << "RamboEventsPerSec       (2)= ( " << nevtALL/sumrtim
               << std::string(16, ' ') << " )  sec^-1" << std::endl

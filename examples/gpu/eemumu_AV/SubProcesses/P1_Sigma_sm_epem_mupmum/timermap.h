@@ -66,6 +66,7 @@ namespace mgOnGpu
       //const std::string totalBut2Key = "TOTAL (n-2)";
       const std::string total123Key = "TOTAL (123)";
       const std::string total23Key = "TOTAL  (23)";
+      const std::string total1Key = "TOTAL   (1)";
       const std::string total2Key = "TOTAL   (2)";
       const std::string total3Key = "TOTAL   (3)";
       size_t maxsize = 0;
@@ -78,6 +79,7 @@ namespace mgOnGpu
       //float totalBut2 = 0;
       float total123 = 0;
       float total23 = 0;
+      float total1 = 0;
       float total2 = 0;
       float total3 = 0;
       for ( auto ip : m_partitionTimers )
@@ -86,6 +88,7 @@ namespace mgOnGpu
         //if ( ipart != 0 && ipart+1 != m_partitionTimers.size() ) totalBut2 += ip.second;
         if ( ip.first[0] == '1' || ip.first[0] == '2' || ip.first[0] == '3' ) total123 += ip.second;
         if ( ip.first[0] == '2' || ip.first[0] == '3' ) total23 += ip.second;
+        if ( ip.first[0] == '1' ) total1 += ip.second;
         if ( ip.first[0] == '2' ) total2 += ip.second;
         if ( ip.first[0] == '3' ) total3 += ip.second;
         ipart++;
@@ -116,6 +119,8 @@ namespace mgOnGpu
              << std::setw(12) << total123 << " sec" << std::endl
              << std::setw(maxsize) << total23Key << " : "
              << std::setw(12) << total23 << " sec" << std::endl
+             << std::setw(maxsize) << total1Key << " : "
+             << std::setw(12) << total1 << " sec" << std::endl
              << std::setw(maxsize) << total2Key << " : "
              << std::setw(12) << total2 << " sec" << std::endl
              << std::setw(maxsize) << total3Key << " : "
