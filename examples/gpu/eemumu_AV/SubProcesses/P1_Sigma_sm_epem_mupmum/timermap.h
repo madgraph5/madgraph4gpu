@@ -62,11 +62,13 @@ namespace mgOnGpu
     void dump(std::ostream& ostr = std::cout, bool json=false)
     {
       // Improve key formatting
-      const std::string totalKey = "TOTAL      "; // "TOTAL(ANY) "?
-      //const std::string totalBut2Key = "TOTAL(n-2) ";
-      const std::string total123Key = "TOTAL(123) ";
-      const std::string total23Key = "TOTAL(23)  ";
-      const std::string total3Key = "TOTAL(3)   ";
+      const std::string totalKey = "TOTAL      "; // "TOTAL (ANY)"?
+      //const std::string totalBut2Key = "TOTAL (n-2)";
+      const std::string total123Key = "TOTAL (123)";
+      const std::string total23Key = "TOTAL  (23)";
+      const std::string total1Key = "TOTAL   (1)";
+      const std::string total2Key = "TOTAL   (2)";
+      const std::string total3Key = "TOTAL   (3)";
       size_t maxsize = 0;
       for ( auto ip : m_partitionTimers )
         maxsize = std::max( maxsize, ip.first.size() );
@@ -77,6 +79,8 @@ namespace mgOnGpu
       //float totalBut2 = 0;
       float total123 = 0;
       float total23 = 0;
+      float total1 = 0;
+      float total2 = 0;
       float total3 = 0;
       for ( auto ip : m_partitionTimers )
       {
@@ -84,32 +88,44 @@ namespace mgOnGpu
         //if ( ipart != 0 && ipart+1 != m_partitionTimers.size() ) totalBut2 += ip.second;
         if ( ip.first[0] == '1' || ip.first[0] == '2' || ip.first[0] == '3' ) total123 += ip.second;
         if ( ip.first[0] == '2' || ip.first[0] == '3' ) total23 += ip.second;
+        if ( ip.first[0] == '1' ) total1 += ip.second;
+        if ( ip.first[0] == '2' ) total2 += ip.second;
         if ( ip.first[0] == '3' ) total3 += ip.second;
         ipart++;
       }
       // Dump individual partition timers and the overall total
       if (json) {
         std::string s1 = "\"", s2 = "\" : \"", s3 = " sec\",";
+        ostr << std::setprecision(6); // set precision (default=6): affects all floats
+        ostr << std::fixed; // fixed format: affects all floats
         for ( auto ip : m_partitionTimers )
           ostr << s1 << ip.first << s2 << ip.second << s3 << std::endl;
         ostr << s1 << totalKey << s2 << total << s3 << std::endl
              << s1 << total123Key << s2 << total123 << s3 << std::endl
              << s1 << total23Key << s2 << total23 << s3 << std::endl
-             << s1 << total3Key << s2 << total3 << "sec \"" << std::endl;
+             << s1 << total3Key << s2 << total3 << " sec \"" << std::endl;
+        ostr << std::defaultfloat; // default format: affects all floats
       }
       else {
+        // NB: 'setw' affects only the next field (of any type)
+        ostr << std::setprecision(6); // set precision (default=6): affects all floats
+        ostr << std::fixed; // fixed format: affects all floats
         for ( auto ip : m_partitionTimers )
           ostr << std::setw(maxsize) << ip.first << " : "
-               << std::fixed << std::setw(8) << ip.second << " sec"
-               << std::endl;
+               << std::setw(12) << ip.second << " sec" << std::endl;
         ostr << std::setw(maxsize) << totalKey << " : "
-             << std::fixed << std::setw(8) << total << " sec" << std::endl
+             << std::setw(12) << total << " sec" << std::endl
              << std::setw(maxsize) << total123Key << " : "
-             << std::fixed << std::setw(8) << total123 << " sec" << std::endl
+             << std::setw(12) << total123 << " sec" << std::endl
              << std::setw(maxsize) << total23Key << " : "
-             << std::fixed << std::setw(8) << total23 << " sec" << std::endl
+             << std::setw(12) << total23 << " sec" << std::endl
+             << std::setw(maxsize) << total1Key << " : "
+             << std::setw(12) << total1 << " sec" << std::endl
+             << std::setw(maxsize) << total2Key << " : "
+             << std::setw(12) << total2 << " sec" << std::endl
              << std::setw(maxsize) << total3Key << " : "
-             << std::fixed << std::setw(8) << total3 << " sec" << std::endl;
+             << std::setw(12) << total3 << " sec" << std::endl;
+        ostr << std::defaultfloat; // default format: affects all floats
       }
     }
 

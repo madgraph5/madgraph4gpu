@@ -218,6 +218,7 @@ int main(int argc, char **argv)
   hstMEs = new fptype[nMEs]();
 #endif
 
+  double* genrtimes = new double[niter]();
   double* rambtimes = new double[niter]();
   double* wavetimes = new double[niter]();
   fptype* matrixelementALL = new fptype[nevtALL](); // FIXME: assume process.nprocesses == 1
@@ -243,6 +244,9 @@ int main(int argc, char **argv)
 
     // === STEP 1 OF 3
 
+    // *** START THE OLD-STYLE TIMER FOR RANDOM GEN ***
+    double genrtime = 0;
+
     // --- 1a. Seed curand generator (to get same results on host and device)
     // [NB This should not be necessary using the host API: "Generation functions
     // can be called multiple times on the same generator to generate successive
@@ -259,7 +263,7 @@ int main(int argc, char **argv)
 
     // --- 1b. Generate all relevant numbers to build nevt events (i.e. nevt phase space points) on the host
     const std::string rngnKey = "1b GenRnGen";
-    timermap.start( rngnKey );
+    genrtime += timermap.start( rngnKey );
     fptype* hstRn = nullptr;
     std::vector<double> commonRandomNumbers;
 
@@ -286,11 +290,14 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
     // --- 1c. Copy rnarray from host to device
     const std::string htodKey = "1c CpHTDrnd";
-    timermap.start( htodKey );
+    genrtime += timermap.start( htodKey );
     if (hstRn) {
       checkCuda( cudaMemcpy( devRnarray, hstRn, nbytesRnarray, cudaMemcpyHostToDevice ) );
     }
 #endif
+
+    // *** STOP THE OLD-STYLE TIMER FOR RANDOM GEN ***
+    genrtime += timermap.stop();
 
     // === STEP 2 OF 3
     // Fill in particle momenta for each of nevt events on the device
@@ -336,31 +343,31 @@ int main(int argc, char **argv)
 
     // === STEP 3 OF 3
     // Evaluate matrix elements for all nevt events
-    // 3a. (Only on the first iteration) Get good helicities
-    // 3b. Evaluate MEs on the device
-    // 3c. Copy MEs back from device to host
+    // 0d. (Only on the first iteration) Get good helicities [renamed as 0d: this is initialisation!]
+    // 3a. Evaluate MEs on the device
+    // 3b. Copy MEs back from device to host
 
-    // --- 3a. SGoodHel
+    // --- 0d. SGoodHel
 #ifdef __CUDACC__
     if ( iiter == 0 )
     {
-      const std::string ghelKey = "3a SGoodHel";
+      const std::string ghelKey = "0d SGoodHel";
       timermap.start( ghelKey );
-      // ... 3a1. Compute good helicity mask on the device
+      // ... 0d1. Compute good helicity mask on the device
       gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta, devIsGoodHel);
       checkCuda( cudaPeekAtLastError() );
-      // ... 3a2. Copy back good helicity mask to the host
+      // ... 0d2. Copy back good helicity mask to the host
       checkCuda( cudaMemcpy( hstIsGoodHel, devIsGoodHel, nbytesIsGoodHel, cudaMemcpyDeviceToHost ) );
-      // ... 3a3. Copy back good helicity list to constant memory on the device
+      // ... 0d3. Copy back good helicity list to constant memory on the device
       gProc::sigmaKin_setGoodHel(hstIsGoodHel);
     }
 #endif
 
-    // *** START THE OLD TIMER FOR WAVEFUNCTIONS ***
+    // *** START THE OLD TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     double wavetime = 0;
 
-    // --- 3b. SigmaKin
-    const std::string skinKey = "3b SigmaKin";
+    // --- 3a. SigmaKin
+    const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
 #ifdef __CUDACC__
 #ifndef MGONGPU_NSIGHT_DEBUG
@@ -374,25 +381,26 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef __CUDACC__
-    // --- 3c. CopyDToH MEs
-    const std::string cmesKey = "3c CpDTHmes";
+    // --- 3b. CopyDToH MEs
+    const std::string cmesKey = "3b CpDTHmes";
     wavetime += timermap.start( cmesKey );
     checkCuda( cudaMemcpy( hstMEs, devMEs, nbytesMEs, cudaMemcpyDeviceToHost ) );
 #endif
 
-    // *** STOP THE OLD TIMER FOR WAVEFUNCTIONS ***
+    // *** STOP THE OLD TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wavetime += timermap.stop();
 
     // === STEP 4 FINALISE LOOP
     // --- 4a Dump within the loop
     const std::string loopKey = "4a DumpLoop";
     timermap.start(loopKey);
+    genrtimes[iiter] = genrtime;
     rambtimes[iiter] = rambtime;
     wavetimes[iiter] = wavetime;
 
     if (verbose)
     {
-      std::cout << "***********************************" << std::endl
+      std::cout << "***********************************************************************" << std::endl
                 << "Iteration #" << iiter+1 << " of " << niter << std::endl;
       if (perf) std::cout << "Wave function time: " << wavetime << std::endl;
     }
@@ -407,21 +415,19 @@ int main(int argc, char **argv)
         std::cout << "Momenta:" << std::endl;
         for (int ipar = 0; ipar < npar; ipar++)
         {
-          std::cout << std::setw(4) << ipar + 1
-                    << setiosflags(std::ios::scientific) << std::setw(14)
-                    << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
-                    << setiosflags(std::ios::scientific) << std::setw(14)
-                    << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
-                    << setiosflags(std::ios::scientific) << std::setw(14)
-                    << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
-                    << setiosflags(std::ios::scientific) << std::setw(14)
-                    << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
-                    << std::endl;
+          // NB: 'setw' affects only the next field (of any type)
+          std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
+                    << std::setw(4) << ipar + 1
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
+                    << std::endl
+                    << std::defaultfloat; // default format: affects all floats
         }
         std::cout << std::string(80, '-') << std::endl;
         // Display matrix elements
         std::cout << " Matrix element = "
-          //   << setiosflags(ios::fixed) << setprecision(17)
                   << hstMEs[ievt] << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
         std::cout << std::string(80, '-') << std::endl;
       }
@@ -446,6 +452,18 @@ int main(int argc, char **argv)
   const std::string statKey = "8a CompStat";
   timermap.start(statKey);
 
+  double sumgtim = 0;
+  double sqsgtim = 0;
+  double mingtim = genrtimes[0];
+  double maxgtim = genrtimes[0];
+  for ( int iiter = 0; iiter < niter; ++iiter )
+  {
+    sumgtim += genrtimes[iiter];
+    sqsgtim += genrtimes[iiter]*genrtimes[iiter];
+    mingtim = std::min( mingtim, genrtimes[iiter] );
+    maxgtim = std::max( maxgtim, genrtimes[iiter] );
+  }
+
   double sumrtim = 0;
   double sqsrtim = 0;
   double minrtim = rambtimes[0];
@@ -457,8 +475,6 @@ int main(int argc, char **argv)
     minrtim = std::min( minrtim, rambtimes[iiter] );
     maxrtim = std::max( maxrtim, rambtimes[iiter] );
   }
-  //double meanrtim = sumrtim / niter; // unused
-  //double stdrtim = std::sqrt( sqsrtim / niter - meanrtim * meanrtim ); // unused
 
   double sumwtim = 0;
   double sqswtim = 0;
@@ -475,16 +491,13 @@ int main(int argc, char **argv)
   double stdwtim = std::sqrt( sqswtim / niter - meanwtim * meanwtim );
 
   int nnan = 0;
-  double sumelem = 0;
-  double sqselem = 0;
   double minelem = matrixelementALL[0];
   double maxelem = matrixelementALL[0];
-  double sumweig = 0;
-  double sqsweig = 0;
   double minweig = weightALL[0];
   double maxweig = weightALL[0];
   for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
+    // Compute min/max
     if ( std::isnan( matrixelementALL[ievtALL] ) )
     {
       if ( debug ) // only printed out with "-p -d" (matrixelementALL is not filled without -p)
@@ -492,19 +505,33 @@ int main(int argc, char **argv)
       nnan++;
       continue;
     }
-    sumelem += matrixelementALL[ievtALL];
-    sqselem += matrixelementALL[ievtALL]*matrixelementALL[ievtALL];
     minelem = std::min( minelem, (double)matrixelementALL[ievtALL] );
     maxelem = std::max( maxelem, (double)matrixelementALL[ievtALL] );
-    sumweig += weightALL[ievtALL];
-    sqsweig += weightALL[ievtALL]*weightALL[ievtALL];
     minweig = std::min( minweig, (double)weightALL[ievtALL] );
     maxweig = std::max( maxweig, (double)weightALL[ievtALL] );
   }
-  double meanelem = sumelem / ( nevtALL - nnan );
-  double stdelem = std::sqrt( sqselem / ( nevtALL - nnan) - meanelem * meanelem );
-  double meanweig = sumweig / ( nevtALL - nnan );
-  double stdweig = std::sqrt( sqsweig / ( nevtALL - nnan) - meanweig * meanweig );
+  double sumelemdiff = 0;
+  double sumweigdiff = 0;
+  for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
+  {
+    // Compute mean from the sum of diff to min
+    if ( std::isnan( matrixelementALL[ievtALL] ) ) continue;
+    sumelemdiff += ( matrixelementALL[ievtALL] - minelem );
+    sumweigdiff += ( weightALL[ievtALL] - minweig );
+  }
+  double meanelem = minelem + sumelemdiff / ( nevtALL - nnan );
+  double meanweig = minweig + sumweigdiff / ( nevtALL - nnan );
+  double sqselemdiff = 0;
+  double sqsweigdiff = 0;
+  for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
+  {
+    // Compute stddev from the squared sum of diff to mean
+    if ( std::isnan( matrixelementALL[ievtALL] ) ) continue;
+    sqselemdiff += std::pow( matrixelementALL[ievtALL] - meanelem, 2 );
+    sqsweigdiff += std::pow( weightALL[ievtALL] - meanweig, 2 );
+  }
+  double stdelem = std::sqrt( sqselemdiff / ( nevtALL - nnan ) );
+  double stdweig = std::sqrt( sqsweigdiff / ( nevtALL - nnan ) );
 
   // === STEP 9 FINALISE
   // --- 9a. Destroy curand generator
@@ -540,6 +567,7 @@ int main(int argc, char **argv)
   delete[] hstRnarray;
 #endif
 
+  delete[] genrtimes;
   delete[] rambtimes;
   delete[] wavetimes;
   delete[] matrixelementALL;
@@ -563,69 +591,82 @@ int main(int argc, char **argv)
 
   if (perf)
   {
-    std::cout << "***************************************" << std::endl
-              << "NumIterations             = " << niter << std::endl
-              << "NumThreadsPerBlock        = " << gputhreads << std::endl
-              << "NumBlocksPerGrid          = " << gpublocks << std::endl
-              << "---------------------------------------" << std::endl
+    std::cout << "***********************************************************************" << std::endl
+              << "NumBlocksPerGrid           = " << gpublocks << std::endl
+              << "NumThreadsPerBlock         = " << gputhreads << std::endl
+              << "NumIterations              = " << niter << std::endl
+              << "-----------------------------------------------------------------------" << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
-              << "FP precision              = DOUBLE (nan=" << nnan << ")" << std::endl
+              << "FP precision               = DOUBLE (nan=" << nnan << ")" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
-              << "FP precision              = FLOAT (nan=" << nnan << ")" << std::endl
+              << "FP precision               = FLOAT (nan=" << nnan << ")" << std::endl
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_CXTYPE_CUCOMPLEX
-              << "Complex type              = CUCOMPLEX" << std::endl
+              << "Complex type               = CUCOMPLEX" << std::endl
 #elif defined MGONGPU_CXTYPE_THRUST
-              << "Complex type              = THRUST::COMPLEX" << std::endl
+              << "Complex type               = THRUST::COMPLEX" << std::endl
 #endif
 #else
-              << "Complex type              = STD::COMPLEX" << std::endl
+              << "Complex type               = STD::COMPLEX" << std::endl
 #endif
-              << "RanNumb memory layout     = AOSOA[" << neppR << "]"
+              << "RanNumb memory layout      = AOSOA[" << neppR << "]"
               << ( neppR == 1 ? " == AOS" : "" ) << std::endl
-              << "Momenta memory layout     = AOSOA[" << neppM << "]"
+              << "Momenta memory layout      = AOSOA[" << neppM << "]"
               << ( neppM == 1 ? " == AOS" : "" ) << std::endl
 #ifdef __CUDACC__
-              << "Wavefunction GPU memory   = LOCAL" << std::endl
+              << "Wavefunction GPU memory    = LOCAL" << std::endl
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_CURAND_ONDEVICE
-              << "Curand generation         = DEVICE (CUDA code)" << std::endl
+              << "Curand generation          = DEVICE (CUDA code)" << std::endl
 #elif defined MGONGPU_CURAND_ONHOST
-              << "Curand generation         = HOST (CUDA code)" << std::endl
+              << "Curand generation          = HOST (CUDA code)" << std::endl
 #endif
 #else
-              << "Curand generation         = HOST (C++ code)" << std::endl
+              << "Curand generation          = HOST (C++ code)" << std::endl
 #endif
-              << "---------------------------------------" << std::endl
-              << "NumberOfEntries           = " << niter << std::endl
-              << std::scientific
-              << "TotalTimeInWaveFuncs      = " << sumwtim << " sec" << std::endl
-              << "MeanTimeInWaveFuncs       = " << meanwtim << " sec" << std::endl
-              << "StdDevTimeInWaveFuncs     = " << stdwtim << " sec" << std::endl
-              << "MinTimeInWaveFuncs        = " << minwtim << " sec" << std::endl
-              << "MaxTimeInWaveFuncs        = " << maxwtim << " sec" << std::endl
-              << "---------------------------------------" << std::endl
-      //<< "ProcessID:                = " << getpid() << std::endl
-      //<< "NProcesses                = " << process.nprocesses << std::endl
-              << "TotalEventsComputed       = " << nevtALL << std::endl
-              << "RamboEventsPerSec         = " << nevtALL/sumrtim << " sec^-1" << std::endl
-              << "MatrixElemEventsPerSec    = " << nevtALL/sumwtim << " sec^-1" << std::endl;
-
-    std::cout << "***************************************" << std::endl
-              << "NumMatrixElements(notNan) = " << nevtALL - nnan << std::endl
-              << std::scientific
-              << "MeanMatrixElemValue       = " << meanelem << " GeV^" << meGeVexponent << std::endl
-              << "StdErrMatrixElemValue     = " << stdelem/sqrt(nevtALL) << " GeV^" << meGeVexponent << std::endl
-              << "StdDevMatrixElemValue     = " << stdelem << " GeV^" << meGeVexponent << std::endl
-              << "MinMatrixElemValue        = " << minelem << " GeV^" << meGeVexponent << std::endl
-              << "MaxMatrixElemValue        = " << maxelem << " GeV^" << meGeVexponent << std::endl
-              << "MeanWeight                = " << meanweig << std::endl
-              << "StdErrWeight              = " << stdweig/sqrt(nevtALL) << std::endl
-              << "StdDevWeight              = " << stdweig << std::endl
-              << "MinWeight                 = " << minweig << std::endl
-              << "MaxWeight                 = " << maxweig << std::endl;
+              << "-----------------------------------------------------------------------" << std::endl
+              << "NumberOfEntries            = " << niter << std::endl
+              << std::scientific // fixed format: affects all floats (default precision: 6)
+              << "TotalTime[Rnd+Rmb+ME] (123)= ( " << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTime[Rambo+ME]    (23)= ( " << sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTime[RndNumGen]    (1)= ( " << sumgtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTime[Rambo]        (2)= ( " << sumrtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTime[MatrixElems]  (3)= ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "MeanTimeInMatrixElems      = ( " << meanwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "[Min,Max]TimeInMatrixElems = [ " << minwtim
+              << " ,  " << maxwtim << " ]  sec" << std::endl
+      //<< "StdDevTimeInWaveFuncs      = ( " << stdwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "-----------------------------------------------------------------------" << std::endl
+      //<< "ProcessID:                 = " << getpid() << std::endl
+      //<< "NProcesses                 = " << process.nprocesses << std::endl
+              << "TotalEventsComputed        = " << nevtALL << std::endl
+              << "EvtsPerSec[Rnd+Rmb+ME](123)= ( " << nevtALL/(sumgtim+sumrtim+sumwtim)
+              << std::string(16, ' ') << " )  sec^-1" << std::endl
+              << "EvtsPerSec[Rmb+ME]     (23)= ( " << nevtALL/(sumrtim+sumwtim)
+              << std::string(16, ' ') << " )  sec^-1" << std::endl
+      //<< "EvtsPerSec[RndNumbGen]   (1)= ( " << nevtALL/sumgtim
+      //<< std::string(16, ' ') << " )  sec^-1" << std::endl
+      //<< "EvtsPerSec[Rambo]        (2)= ( " << nevtALL/sumrtim
+      //<< std::string(16, ' ') << " )  sec^-1" << std::endl
+              << "EvtsPerSec[MatrixElems] (3)= ( " << nevtALL/sumwtim
+              << std::string(16, ' ') << " )  sec^-1" << std::endl
+              << std::defaultfloat; // default format: affects all floats
+    std::cout << "***********************************************************************" << std::endl
+              << "NumMatrixElements(notNan)  = " << nevtALL - nnan << std::endl
+              << std::scientific // fixed format: affects all floats (default precision: 6)
+              << "MeanMatrixElemValue        = ( " << meanelem
+              << " +- " << stdelem/sqrt(nevtALL - nnan) << " )  GeV^" << meGeVexponent << std::endl // standard error
+              << "[Min,Max]MatrixElemValue   = [ " << minelem
+              << " ,  " << maxelem << " ]  GeV^" << meGeVexponent << std::endl
+              << "StdDevMatrixElemValue      = ( " << stdelem << std::string(16, ' ') << " )  GeV^" << meGeVexponent << std::endl
+              << "MeanWeight                 = ( " << meanweig
+              << " +- " << stdweig/sqrt(nevtALL - nnan) << " )" << std::endl // standard error
+              << "[Min,Max]Weight            = [ " << minweig
+              << " ,  " << maxweig << " ]" << std::endl
+              << "StdDevWeight               = ( " << stdweig << std::string(16, ' ') << " )" << std::endl
+              << std::defaultfloat; // default format: affects all floats
   }
 
   // --- 9e Dump to json
@@ -743,9 +784,9 @@ int main(int argc, char **argv)
   timermap.stop();
   if (perf)
   {
-    std::cout << "***************************************" << std::endl;
+    std::cout << "***********************************************************************" << std::endl;
     timermap.dump();
-    std::cout << "***************************************" << std::endl;
+    std::cout << "***********************************************************************" << std::endl;
   }
 
   //std::cout << "ALL OK" << std::endl;
