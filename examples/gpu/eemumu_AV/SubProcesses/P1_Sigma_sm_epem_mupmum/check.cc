@@ -632,7 +632,7 @@ int main(int argc, char **argv)
 #endif
 #else
 #if defined MGONGPU_COMMONRAND_ONHOST
-              << "Random number generation   = COMMON RANDOM HOST (C++ code)" << std::endl
+              << "Random number generation   = COMMON RANDOM (C++ code)" << std::endl
 #else
               << "Random number generation   = CURAND (C++ code)" << std::endl
 #endif
