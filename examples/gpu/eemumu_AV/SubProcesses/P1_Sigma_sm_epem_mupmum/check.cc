@@ -588,13 +588,13 @@ int main(int argc, char **argv)
               << "Curand generation         = HOST (C++ code)" << std::endl
 #endif
               << "---------------------------------------" << std::endl
-              << "NumberOfEntries           = " << niter << std::endl
+              << "NumberOfEntries           =   " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
-              << "TotalTimeInWaveFuncs      = " << sumwtim << " sec" << std::endl
-              << "MeanTimeInWaveFuncs       = " << meanwtim << " sec" << std::endl
-              << "StdDevTimeInWaveFuncs     = " << stdwtim << " sec" << std::endl
-              << "MinTimeInWaveFuncs        = " << minwtim << " sec" << std::endl
-              << "MaxTimeInWaveFuncs        = " << maxwtim << " sec" << std::endl
+              << "TotalTimeInWaveFuncs      = ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "MeanTimeInWaveFuncs       = ( " << meanwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "[Min,Max]TimeInWaveFuncs  = [ " << minwtim
+              << " ,  " << maxwtim << " ]  sec" << std::endl
+              << "StdDevTimeInWaveFuncs     = ( " << stdwtim << std::string(16, ' ') << " )  sec" << std::endl
               << "---------------------------------------" << std::endl
       //<< "ProcessID:                = " << getpid() << std::endl
       //<< "NProcesses                = " << process.nprocesses << std::endl
@@ -607,16 +607,16 @@ int main(int argc, char **argv)
               << "NumMatrixElements(notNan) = " << nevtALL - nnan << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
       //<< std::setprecision( std::numeric_limits<long double>::digits10 + 1 ) // set (non-default) precision
-              << "MeanMatrixElemValue       = " << meanelem << " GeV^" << meGeVexponent << std::endl
-              << "StdErrMatrixElemValue     = " << stdelem/sqrt(nevtALL) << " GeV^" << meGeVexponent << std::endl
-              << "StdDevMatrixElemValue     = " << stdelem << " GeV^" << meGeVexponent << std::endl
-              << "MinMatrixElemValue        = " << minelem << " GeV^" << meGeVexponent << std::endl
-              << "MaxMatrixElemValue        = " << maxelem << " GeV^" << meGeVexponent << std::endl
-              << "MeanWeight                = " << meanweig << std::endl
-              << "StdErrWeight              = " << stdweig/sqrt(nevtALL) << std::endl
-              << "StdDevWeight              = " << stdweig << std::endl
-              << "MinWeight                 = " << minweig << std::endl
-              << "MaxWeight                 = " << maxweig << std::endl
+              << "MeanMatrixElemValue       = ( " << meanelem
+              << " +- " << stdelem/sqrt(nevtALL - nnan) << " )  GeV^" << meGeVexponent << std::endl // standard error
+              << "[Min,Max]MatrixElemValue  = [ " << minelem
+              << " ,  " << maxelem << " ]  GeV^" << meGeVexponent << std::endl
+              << "StdDevMatrixElemValue     = ( " << stdelem << std::string(16, ' ') << " )  GeV^" << meGeVexponent << std::endl
+              << "MeanWeight                = ( " << meanweig
+              << " +- " << stdweig/sqrt(nevtALL - nnan) << " )" << std::endl // standard error
+              << "[Min,Max]Weight           = [ " << minweig
+              << " ,  " << maxweig << " ]" << std::endl
+              << "StdDevWeight              = ( " << stdweig << std::string(16, ' ') << " )" << std::endl
       //<< std::setprecision( 6 ); // set (default=6) precision
               << std::defaultfloat; // default format: affects all floats
   }
