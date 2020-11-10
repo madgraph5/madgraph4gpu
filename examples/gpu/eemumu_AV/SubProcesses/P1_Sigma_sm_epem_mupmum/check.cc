@@ -163,14 +163,14 @@ int main(int argc, char **argv)
 
 #ifdef __CUDACC__
   const int nbytesRnarray = nRnarray * sizeof(fptype);
-  fptype* devRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+  fptype* devRnarray = nullptr; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   checkCuda( cudaMalloc( &devRnarray, nbytesRnarray ) );
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
-  fptype* hstRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+  fptype* hstRnarray = nullptr; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   checkCuda( cudaMallocHost( &hstRnarray, nbytesRnarray ) ); // pinned memory
 #endif
 #else
-  fptype* hstRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+  fptype* hstRnarray = nullptr; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   hstRnarray = new fptype[nRnarray]();
 #ifdef MGONGPU_COMMONRAND_ONHOST
   const int nbytesRnarray = nRnarray * sizeof(fptype);
@@ -178,11 +178,11 @@ int main(int argc, char **argv)
 #endif
 
   const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for ASA layouts)
-  fptype* hstMomenta = 0; // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
+  fptype* hstMomenta = nullptr; // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
 #ifdef __CUDACC__
   const int nbytesMomenta = nMomenta * sizeof(fptype);
   checkCuda( cudaMallocHost( &hstMomenta, nbytesMomenta ) );
-  fptype* devMomenta = 0; // (previously was: allMomenta)
+  fptype* devMomenta = nullptr; // (previously was: allMomenta)
   checkCuda( cudaMalloc( &devMomenta, nbytesMomenta ) );
 #else
   hstMomenta = new fptype[nMomenta]();
@@ -191,29 +191,29 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
   using mgOnGpu::ncomb;
   const int nbytesIsGoodHel = ncomb * sizeof(bool);
-  bool* hstIsGoodHel = 0;
+  bool* hstIsGoodHel = nullptr;
   checkCuda( cudaMallocHost( &hstIsGoodHel, nbytesIsGoodHel ) );
-  bool* devIsGoodHel = 0;
+  bool* devIsGoodHel = nullptr;
   checkCuda( cudaMalloc( &devIsGoodHel, nbytesIsGoodHel ) );
 #endif
 
   const int nWeights = nevt;
-  fptype* hstWeights = 0; // (previously was: meHostPtr)
+  fptype* hstWeights = nullptr; // (previously was: meHostPtr)
 #ifdef __CUDACC__
   const int nbytesWeights = nWeights * sizeof(fptype);
   checkCuda( cudaMallocHost( &hstWeights, nbytesWeights ) );
-  fptype* devWeights = 0; // (previously was: meDevPtr)
+  fptype* devWeights = nullptr; // (previously was: meDevPtr)
   checkCuda( cudaMalloc( &devWeights, nbytesWeights ) );
 #else
   hstWeights = new fptype[nWeights]();
 #endif
 
   const int nMEs = nevt;
-  fptype* hstMEs = 0; // (previously was: meHostPtr)
+  fptype* hstMEs = nullptr; // (previously was: meHostPtr)
 #ifdef __CUDACC__
   const int nbytesMEs = nMEs * sizeof(fptype);
   checkCuda( cudaMallocHost( &hstMEs, nbytesMEs ) );
-  fptype* devMEs = 0; // (previously was: meDevPtr)
+  fptype* devMEs = nullptr; // (previously was: meDevPtr)
   checkCuda( cudaMalloc( &devMEs, nbytesMEs ) );
 #else
   hstMEs = new fptype[nMEs]();
