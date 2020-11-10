@@ -456,15 +456,15 @@ int main(int argc, char **argv)
 
   int nnan = 0;
   double sumelem = 0;
-  double sqselem = 0;
   double minelem = matrixelementALL[0];
   double maxelem = matrixelementALL[0];
   double sumweig = 0;
-  double sqsweig = 0;
   double minweig = weightALL[0];
   double maxweig = weightALL[0];
   for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
+    // Compute min/max
+    // Compute mean from the sum
     if ( std::isnan( matrixelementALL[ievtALL] ) )
     {
       if ( debug ) // only printed out with "-p -d" (matrixelementALL is not filled without -p)
@@ -473,29 +473,25 @@ int main(int argc, char **argv)
       continue;
     }
     sumelem += matrixelementALL[ievtALL];
-    sqselem += matrixelementALL[ievtALL]*matrixelementALL[ievtALL];
     minelem = std::min( minelem, (double)matrixelementALL[ievtALL] );
     maxelem = std::max( maxelem, (double)matrixelementALL[ievtALL] );
     sumweig += weightALL[ievtALL];
-    sqsweig += weightALL[ievtALL]*weightALL[ievtALL];
     minweig = std::min( minweig, (double)weightALL[ievtALL] );
     maxweig = std::max( maxweig, (double)weightALL[ievtALL] );
   }
   double meanelem = sumelem / ( nevtALL - nnan );
-  double stdelem = std::sqrt( sqselem / ( nevtALL - nnan ) - meanelem * meanelem );
-  double meanweig = sumweig / ( nevtALL - nnan );
-  double stdweig = std::sqrt( sqsweig / ( nevtALL - nnan ) - meanweig * meanweig );
-  
+  double meanweig = sumweig / ( nevtALL - nnan );  
   double sqselemdiff = 0;
   double sqsweigdiff = 0;
   for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
+    // Compute stddev from the squared sum of diff to mean 
     if ( std::isnan( matrixelementALL[ievtALL] ) ) continue;
     sqselemdiff += std::pow( matrixelementALL[ievtALL] - meanelem, 2 );
     sqsweigdiff += std::pow( weightALL[ievtALL] - meanweig, 2 );
   }
-  double stdelem2 = std::sqrt( sqselemdiff / ( nevtALL - nnan ) );
-  double stdweig2 = std::sqrt( sqsweigdiff / ( nevtALL - nnan ) );  
+  double stdelem = std::sqrt( sqselemdiff / ( nevtALL - nnan ) );
+  double stdweig = std::sqrt( sqsweigdiff / ( nevtALL - nnan ) );  
 
   // === STEP 9 FINALISE
   // --- 9a. Destroy curand generator
@@ -608,17 +604,15 @@ int main(int argc, char **argv)
     std::cout << "***************************************" << std::endl
               << "NumMatrixElements(notNan) = " << nevtALL - nnan << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
+              << std::setprecision( std::numeric_limits<long double>::digits10 + 1 ) // set (non-default) precision
               << "MeanMatrixElemValue       = " << meanelem << " GeV^" << meGeVexponent << std::endl
               << "StdErrMatrixElemValue     = " << stdelem/sqrt(nevtALL) << " GeV^" << meGeVexponent << std::endl
               << "StdDevMatrixElemValue     = " << stdelem << " GeV^" << meGeVexponent << std::endl
-              << "StdDevMatrixElemValue2    = " << stdelem2 << " GeV^" << meGeVexponent << std::endl
               << "MinMatrixElemValue        = " << minelem << " GeV^" << meGeVexponent << std::endl
               << "MaxMatrixElemValue        = " << maxelem << " GeV^" << meGeVexponent << std::endl
-              << std::setprecision( std::numeric_limits<long double>::digits10 + 1 ) // set (non-default) precision
               << "MeanWeight                = " << meanweig << std::endl
               << "StdErrWeight              = " << stdweig/sqrt(nevtALL) << std::endl
               << "StdDevWeight              = " << stdweig << std::endl
-              << "StdDevWeight2             = " << stdweig2 << std::endl
               << "MinWeight                 = " << minweig << std::endl
               << "MaxWeight                 = " << maxweig << std::endl
               << std::defaultfloat // default format: affects all floats
