@@ -160,9 +160,9 @@ int main(int argc, char **argv)
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
   const int nRnarray = np4*nparf*nevt; // (NB: ASA layout with nevt=npagR*neppR events per iteration)
+  const int nbytesRnarray = nRnarray * sizeof(fptype);
 
 #ifdef __CUDACC__
-  const int nbytesRnarray = nRnarray * sizeof(fptype);
   fptype* devRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   checkCuda( cudaMalloc( &devRnarray, nbytesRnarray ) );
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
@@ -274,7 +274,7 @@ int main(int argc, char **argv)
     std::vector<double> commonRandomNumbers = commonRandomPromises[iiter].get_future().get();
     assert( nRnarray == static_cast<int>(commonRandomNumbers.size()) );
     // NB (PR #45): memcpy is strictly needed only in CUDA (copy to pinned memory), but keep it also in C++ for consistency
-    memcpy( hstRnarray, commonRandomNumbers.data(), nRnarray );
+    memcpy( hstRnarray, commonRandomNumbers.data(), nbytesRnarray );
 #elif defined __CUDACC__
 #ifdef MGONGPU_CURAND_ONDEVICE
     grambo2toNm0::generateRnarray( rnGen, devRnarray, nevt );
