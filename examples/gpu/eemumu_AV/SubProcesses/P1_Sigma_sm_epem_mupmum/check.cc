@@ -318,22 +318,22 @@ int main(int argc, char **argv)
 
     // === STEP 3 OF 3
     // Evaluate matrix elements for all nevt events
-    // 3a. (Only on the first iteration) Get good helicities
-    // 3b. Evaluate MEs on the device
-    // 3c. Copy MEs back from device to host
+    // 0d. (Only on the first iteration) Get good helicities [renamed as 0d: this is initialisation!]
+    // 3a. Evaluate MEs on the device
+    // 3b. Copy MEs back from device to host
 
-    // --- 3a. SGoodHel
+    // --- 0d. SGoodHel
 #ifdef __CUDACC__
     if ( iiter == 0 )
     {
-      const std::string ghelKey = "3a SGoodHel";
+      const std::string ghelKey = "0d SGoodHel";
       timermap.start( ghelKey );
-      // ... 3a1. Compute good helicity mask on the device
+      // ... 0d1. Compute good helicity mask on the device
       gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta, devIsGoodHel);
       checkCuda( cudaPeekAtLastError() );
-      // ... 3a2. Copy back good helicity mask to the host
+      // ... 0d2. Copy back good helicity mask to the host
       checkCuda( cudaMemcpy( hstIsGoodHel, devIsGoodHel, nbytesIsGoodHel, cudaMemcpyDeviceToHost ) );
-      // ... 3a3. Copy back good helicity list to constant memory on the device
+      // ... 0d3. Copy back good helicity list to constant memory on the device
       gProc::sigmaKin_setGoodHel(hstIsGoodHel);
     }
 #endif
@@ -341,8 +341,8 @@ int main(int argc, char **argv)
     // *** START THE OLD TIMER FOR WAVEFUNCTIONS ***
     double wavetime = 0;
 
-    // --- 3b. SigmaKin
-    const std::string skinKey = "3b SigmaKin";
+    // --- 3a. SigmaKin
+    const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
 #ifdef __CUDACC__
 #ifndef MGONGPU_NSIGHT_DEBUG
@@ -356,8 +356,8 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef __CUDACC__
-    // --- 3c. CopyDToH MEs
-    const std::string cmesKey = "3c CpDTHmes";
+    // --- 3b. CopyDToH MEs
+    const std::string cmesKey = "3b CpDTHmes";
     wavetime += timermap.start( cmesKey );
     checkCuda( cudaMemcpy( hstMEs, devMEs, nbytesMEs, cudaMemcpyDeviceToHost ) );
 #endif
