@@ -90,26 +90,32 @@ namespace mgOnGpu
       // Dump individual partition timers and the overall total
       if (json) {
         std::string s1 = "\"", s2 = "\" : \"", s3 = " sec\",";
+        ostr << std::setprecision(6); // precision (default=6): affects all floats
+        ostr << std::fixed; // fixed format: affects all floats
         for ( auto ip : m_partitionTimers )
           ostr << s1 << ip.first << s2 << ip.second << s3 << std::endl;
         ostr << s1 << totalKey << s2 << total << s3 << std::endl
              << s1 << total123Key << s2 << total123 << s3 << std::endl
              << s1 << total23Key << s2 << total23 << s3 << std::endl
-             << s1 << total3Key << s2 << total3 << "sec \"" << std::endl;
+             << s1 << total3Key << s2 << total3 << " sec \"" << std::endl;
+        ostr << std::defaultfloat; // default format: affects all floats
       }
       else {
+        // NB: 'setw' affects only the next field (of any type)
+        ostr << std::setprecision(6); // precision (default=6): affects all floats
+        ostr << std::fixed; // fixed format: affects all floats
         for ( auto ip : m_partitionTimers )
           ostr << std::setw(maxsize) << ip.first << " : "
-               << std::fixed << std::setw(8) << ip.second << " sec"
-               << std::endl;
+               << std::setw(12) << ip.second << " sec" << std::endl;
         ostr << std::setw(maxsize) << totalKey << " : "
-             << std::fixed << std::setw(8) << total << " sec" << std::endl
+             << std::setw(12) << total << " sec" << std::endl
              << std::setw(maxsize) << total123Key << " : "
-             << std::fixed << std::setw(8) << total123 << " sec" << std::endl
+             << std::setw(12) << total123 << " sec" << std::endl
              << std::setw(maxsize) << total23Key << " : "
-             << std::fixed << std::setw(8) << total23 << " sec" << std::endl
+             << std::setw(12) << total23 << " sec" << std::endl
              << std::setw(maxsize) << total3Key << " : "
-             << std::fixed << std::setw(8) << total3 << " sec" << std::endl;
+             << std::setw(12) << total3 << " sec" << std::endl;
+        ostr << std::defaultfloat; // default format: affects all floats
       }
     }
 
