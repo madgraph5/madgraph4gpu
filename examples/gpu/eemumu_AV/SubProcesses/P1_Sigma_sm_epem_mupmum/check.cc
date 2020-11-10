@@ -594,7 +594,7 @@ int main(int argc, char **argv)
               << "MeanTimeInWaveFuncs       = ( " << meanwtim << std::string(16, ' ') << " )  sec" << std::endl
               << "[Min,Max]TimeInWaveFuncs  = [ " << minwtim
               << " ,  " << maxwtim << " ]  sec" << std::endl
-              << "StdDevTimeInWaveFuncs     = ( " << stdwtim << std::string(16, ' ') << " )  sec" << std::endl
+      //<< "StdDevTimeInWaveFuncs     = ( " << stdwtim << std::string(16, ' ') << " )  sec" << std::endl
               << "---------------------------------------" << std::endl
       //<< "ProcessID:                = " << getpid() << std::endl
       //<< "NProcesses                = " << process.nprocesses << std::endl
@@ -602,11 +602,9 @@ int main(int argc, char **argv)
               << "RamboEventsPerSec         = " << nevtALL/sumrtim << " sec^-1" << std::endl
               << "MatrixElemEventsPerSec    = " << nevtALL/sumwtim << " sec^-1" << std::endl
               << std::defaultfloat; // default format: affects all floats
-
     std::cout << "***************************************" << std::endl
               << "NumMatrixElements(notNan) = " << nevtALL - nnan << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
-      //<< std::setprecision( std::numeric_limits<long double>::digits10 + 1 ) // set (non-default) precision
               << "MeanMatrixElemValue       = ( " << meanelem
               << " +- " << stdelem/sqrt(nevtALL - nnan) << " )  GeV^" << meGeVexponent << std::endl // standard error
               << "[Min,Max]MatrixElemValue  = [ " << minelem
@@ -617,7 +615,6 @@ int main(int argc, char **argv)
               << "[Min,Max]Weight           = [ " << minweig
               << " ,  " << maxweig << " ]" << std::endl
               << "StdDevWeight              = ( " << stdweig << std::string(16, ' ') << " )" << std::endl
-      //<< std::setprecision( 6 ); // set (default=6) precision
               << std::defaultfloat; // default format: affects all floats
   }
 
