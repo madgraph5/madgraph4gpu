@@ -537,10 +537,12 @@ int main(int argc, char **argv)
   // --- 9a. Destroy curand generator
   const std::string dgenKey = "9a GenDestr";
   timermap.start( dgenKey );
+#ifndef MGONGPU_COMMONRAND_ONHOST
 #ifdef __CUDACC__
   grambo2toNm0::destroyGenerator( rnGen );
 #else
   rambo2toNm0::destroyGenerator( rnGen );
+#endif
 #endif
 
   // --- 9b Free memory structures
