@@ -484,9 +484,9 @@ int main(int argc, char **argv)
     maxweig = std::max( maxweig, (double)weightALL[ievtALL] );
   }
   double meanelem = sumelem / ( nevtALL - nnan );
-  double stdelem = std::sqrt( sqselem / ( nevtALL - nnan) - meanelem * meanelem );
+  double stdelem = std::sqrt( sqselem / ( nevtALL - nnan ) - meanelem * meanelem );
   double meanweig = sumweig / ( nevtALL - nnan );
-  double stdweig = std::sqrt( sqsweig / ( nevtALL - nnan) - meanweig * meanweig );
+  double stdweig = std::sqrt( sqsweig / ( nevtALL - nnan ) - meanweig * meanweig );
 
   // === STEP 9 FINALISE
   // --- 9a. Destroy curand generator
@@ -582,7 +582,7 @@ int main(int argc, char **argv)
 #endif
               << "---------------------------------------" << std::endl
               << "NumberOfEntries           = " << niter << std::endl
-              << std::scientific
+              << std::scientific // fixed format: affects all floats (default precision: 6)
               << "TotalTimeInWaveFuncs      = " << sumwtim << " sec" << std::endl
               << "MeanTimeInWaveFuncs       = " << meanwtim << " sec" << std::endl
               << "StdDevTimeInWaveFuncs     = " << stdwtim << " sec" << std::endl
@@ -593,7 +593,8 @@ int main(int argc, char **argv)
       //<< "NProcesses                = " << process.nprocesses << std::endl
               << "TotalEventsComputed       = " << nevtALL << std::endl
               << "RamboEventsPerSec         = " << nevtALL/sumrtim << " sec^-1" << std::endl
-              << "MatrixElemEventsPerSec    = " << nevtALL/sumwtim << " sec^-1" << std::endl;
+              << "MatrixElemEventsPerSec    = " << nevtALL/sumwtim << " sec^-1" << std::endl
+              << std::defaultfloat; // default format: affects all floats
 
     std::cout << "***************************************" << std::endl
               << "NumMatrixElements(notNan) = " << nevtALL - nnan << std::endl
@@ -603,11 +604,13 @@ int main(int argc, char **argv)
               << "StdDevMatrixElemValue     = " << stdelem << " GeV^" << meGeVexponent << std::endl
               << "MinMatrixElemValue        = " << minelem << " GeV^" << meGeVexponent << std::endl
               << "MaxMatrixElemValue        = " << maxelem << " GeV^" << meGeVexponent << std::endl
+              << std::setprecision( std::numeric_limits<long double>::digits10 + 1 )
               << "MeanWeight                = " << meanweig << std::endl
               << "StdErrWeight              = " << stdweig/sqrt(nevtALL) << std::endl
               << "StdDevWeight              = " << stdweig << std::endl
               << "MinWeight                 = " << minweig << std::endl
-              << "MaxWeight                 = " << maxweig << std::endl;
+              << "MaxWeight                 = " << maxweig << std::endl
+              << std::defaultfloat << std::setprecision( 6 );
   }
 
   // --- 9e Dump to json
