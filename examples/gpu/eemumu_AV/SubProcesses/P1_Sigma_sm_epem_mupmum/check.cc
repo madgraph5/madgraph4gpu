@@ -611,11 +611,11 @@ int main(int argc, char **argv)
               << "-----------------------------------------------------------------------" << std::endl
               << "NumberOfEntries            = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
-              << "TotTimeIn[Rnd+Rmb+ME] (123)= ( " << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "TotTimeIn[Rambo+ME]    (23)= ( " << sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "TotalTimeInRndNumGen    (1)= ( " << sumgtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "TotalTimeInRambo        (2)= ( " << sumrtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "TotalTimeInMatrixElems  (3)= ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTime[Rnd+Rmb+ME] (123)= ( " << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTime[Rambo+ME]    (23)= ( " << sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTime[RndNumGen]    (1)= ( " << sumgtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTime[Rambo]        (2)= ( " << sumrtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTime[MatrixElems]  (3)= ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
               << "MeanTimeInMatrixElems      = ( " << meanwtim << std::string(16, ' ') << " )  sec" << std::endl
               << "[Min,Max]TimeInMatrixElems = [ " << minwtim
               << " ,  " << maxwtim << " ]  sec" << std::endl
@@ -624,15 +624,15 @@ int main(int argc, char **argv)
       //<< "ProcessID:                 = " << getpid() << std::endl
       //<< "NProcesses                 = " << process.nprocesses << std::endl
               << "TotalEventsComputed        = " << nevtALL << std::endl
-              << "[Rnd+Rmb+ME]EvtPerSec (123)= ( " << nevtALL/(sumgtim+sumrtim+sumwtim)
+              << "EvtsPerSec[Rnd+Rmb+ME](123)= ( " << nevtALL/(sumgtim+sumrtim+sumwtim)
               << std::string(16, ' ') << " )  sec^-1" << std::endl
-              << "[Rmb+ME]EvtPerSec      (23)= ( " << nevtALL/(sumrtim+sumwtim)
+              << "EvtsPerSec[Rmb+ME]     (23)= ( " << nevtALL/(sumrtim+sumwtim)
               << std::string(16, ' ') << " )  sec^-1" << std::endl
-              << "RndNumbGenEventsPerSec  (1)= ( " << nevtALL/sumgtim
-              << std::string(16, ' ') << " )  sec^-1" << std::endl
-              << "RamboEventsPerSec       (2)= ( " << nevtALL/sumrtim
-              << std::string(16, ' ') << " )  sec^-1" << std::endl
-              << "MatrixElemEventsPerSec  (3)= ( " << nevtALL/sumwtim
+      //<< "EvtsPerSec[RndNumbGen]   (1)= ( " << nevtALL/sumgtim
+      //<< std::string(16, ' ') << " )  sec^-1" << std::endl
+      //<< "EvtsPerSec[Rambo]        (2)= ( " << nevtALL/sumrtim
+      //<< std::string(16, ' ') << " )  sec^-1" << std::endl
+              << "EvtsPerSec[MatrixElems] (3)= ( " << nevtALL/sumwtim
               << std::string(16, ' ') << " )  sec^-1" << std::endl
               << std::defaultfloat; // default format: affects all floats
     std::cout << "***********************************************************************" << std::endl
