@@ -1,13 +1,13 @@
 CUARCHNUM=70
 #CUARCHNUM=61 #(For Pascal Architecture Cards)
 LIBDIR=../../lib
-INCDIR=../../src
+INCDIRS=-I. -I../../src -I../../../../../tools/
 MODELLIB=model_sm
-CXXFLAGS= -O3 -I. -I$(INCDIR) -DUSE_NVTX -Wall -Wshadow
-###CXXFLAGS= -O2 -I. -I$(INCDIR) -DUSE_NVTX -Wall -Wshadow
+CXXFLAGS= -O3 $(INCDIRS) -DUSE_NVTX -Wall -Wshadow
+###CXXFLAGS= -O2 $(INCDIRS) -DUSE_NVTX -Wall -Wshadow
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM)
 # CUARCHFLAGS= -gencode arch=compute_$(CUARCHNUM),code=sm_$(CUARCHNUM)
-CUFLAGS= -O3 -I. -I$(INCDIR) -DUSE_NVTX $(CUARCHFLAGS) -use_fast_math -lineinfo 
+CUFLAGS= -O3 $(INCDIRS) -DUSE_NVTX $(CUARCHFLAGS) -use_fast_math -lineinfo
 # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
 ###CUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
 ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
@@ -61,7 +61,7 @@ $(cu_main): $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
 	$(NVCC) -o $@ $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) -lcuda -lcurand
 
 $(cxx_main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) check.o
-	$(CXX) -o $@ $(cxx_objects) check.o -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcurand
+	$(CXX) -o $@ $(cxx_objects) check.o -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) -lcurand
 
 .PHONY: clean
 
