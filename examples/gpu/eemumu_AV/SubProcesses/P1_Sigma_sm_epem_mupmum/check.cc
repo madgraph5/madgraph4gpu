@@ -17,9 +17,11 @@
 #include "rambo.h"
 #endif
 
+#ifdef MGONGPU_COMMONRAND_ONHOST
+#include "CommonRandomNumbers.h"
+#endif
 #include "CPPProcess.h"
 #include "timermap.h"
-#include "CommonRandomNumbers.h"
 
 bool is_number(const char *s) {
   const char *t = s;
@@ -158,30 +160,29 @@ int main(int argc, char **argv)
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
   const int nRnarray = np4*nparf*nevt; // (NB: ASA layout with nevt=npagR*neppR events per iteration)
-  fptype* hstRnarray = nullptr; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-
-  std::vector<std::promise<std::vector<fptype>>> commonRandomPromises;
-  if (MGONGPU_COMMONRAND_ONHOST) {
-    CommonRandomNumbers::startGenerateAsync(commonRandomPromises, nRnarray, niter);
-  }
 
 #ifdef __CUDACC__
   const int nbytesRnarray = nRnarray * sizeof(fptype);
-  fptype* devRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+  fptype* devRnarray = nullptr; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   checkCuda( cudaMalloc( &devRnarray, nbytesRnarray ) );
-#if defined MGONGPU_CURAND_ONHOST
-  checkCuda( cudaMallocHost( &hstRnarray, nbytesRnarray ) );
+#if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
+  fptype* hstRnarray = nullptr; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+  checkCuda( cudaMallocHost( &hstRnarray, nbytesRnarray ) ); // pinned memory
+#endif
+#else
+  fptype* hstRnarray = nullptr; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+  hstRnarray = new fptype[nRnarray]();
+#ifdef MGONGPU_COMMONRAND_ONHOST
+  const int nbytesRnarray = nRnarray * sizeof(fptype);
 #endif
 #endif
-  if (!hstRnarray && commonRandomPromises.empty()) {
-    hstRnarray = new fptype[nRnarray]();
-  }
+
   const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for ASA layouts)
-  fptype* hstMomenta = 0; // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
+  fptype* hstMomenta = nullptr; // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
 #ifdef __CUDACC__
   const int nbytesMomenta = nMomenta * sizeof(fptype);
   checkCuda( cudaMallocHost( &hstMomenta, nbytesMomenta ) );
-  fptype* devMomenta = 0; // (previously was: allMomenta)
+  fptype* devMomenta = nullptr; // (previously was: allMomenta)
   checkCuda( cudaMalloc( &devMomenta, nbytesMomenta ) );
 #else
   hstMomenta = new fptype[nMomenta]();
@@ -190,29 +191,29 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
   using mgOnGpu::ncomb;
   const int nbytesIsGoodHel = ncomb * sizeof(bool);
-  bool* hstIsGoodHel = 0;
+  bool* hstIsGoodHel = nullptr;
   checkCuda( cudaMallocHost( &hstIsGoodHel, nbytesIsGoodHel ) );
-  bool* devIsGoodHel = 0;
+  bool* devIsGoodHel = nullptr;
   checkCuda( cudaMalloc( &devIsGoodHel, nbytesIsGoodHel ) );
 #endif
 
   const int nWeights = nevt;
-  fptype* hstWeights = 0; // (previously was: meHostPtr)
+  fptype* hstWeights = nullptr; // (previously was: meHostPtr)
 #ifdef __CUDACC__
   const int nbytesWeights = nWeights * sizeof(fptype);
   checkCuda( cudaMallocHost( &hstWeights, nbytesWeights ) );
-  fptype* devWeights = 0; // (previously was: meDevPtr)
+  fptype* devWeights = nullptr; // (previously was: meDevPtr)
   checkCuda( cudaMalloc( &devWeights, nbytesWeights ) );
 #else
   hstWeights = new fptype[nWeights]();
 #endif
 
   const int nMEs = nevt;
-  fptype* hstMEs = 0; // (previously was: meHostPtr)
+  fptype* hstMEs = nullptr; // (previously was: meHostPtr)
 #ifdef __CUDACC__
   const int nbytesMEs = nMEs * sizeof(fptype);
   checkCuda( cudaMallocHost( &hstMEs, nbytesMEs ) );
-  fptype* devMEs = 0; // (previously was: meDevPtr)
+  fptype* devMEs = nullptr; // (previously was: meDevPtr)
   checkCuda( cudaMalloc( &devMEs, nbytesMEs ) );
 #else
   hstMEs = new fptype[nMEs]();
@@ -224,14 +225,19 @@ int main(int argc, char **argv)
   fptype* matrixelementALL = new fptype[nevtALL](); // FIXME: assume process.nprocesses == 1
   fptype* weightALL = new fptype[nevtALL]();
 
-  // --- 0c. Create curand generator
+  // --- 0c. Create curand or common generator
   const std::string cgenKey = "0c GenCreat";
   timermap.start( cgenKey );
+#ifdef MGONGPU_COMMONRAND_ONHOST
+  std::vector<std::promise<std::vector<fptype>>> commonRandomPromises;
+  CommonRandomNumbers::startGenerateAsync(commonRandomPromises, nRnarray, niter);
+#else
   curandGenerator_t rnGen;
 #ifdef __CUDACC__
   grambo2toNm0::createGenerator( &rnGen );
 #else
   rambo2toNm0::createGenerator( &rnGen );
+#endif
 #endif
 
   // **************************************
@@ -247,6 +253,7 @@ int main(int argc, char **argv)
     // *** START THE OLD-STYLE TIMER FOR RANDOM GEN ***
     double genrtime = 0;
 
+#if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_CURAND_ONDEVICE
     // --- 1a. Seed curand generator (to get same results on host and device)
     // [NB This should not be necessary using the host API: "Generation functions
     // can be called multiple times on the same generator to generate successive
@@ -260,40 +267,36 @@ int main(int argc, char **argv)
 #else
     rambo2toNm0::seedGenerator( rnGen, seed+iiter );
 #endif
+    genrtime += timermap.stop();
+#endif
 
     // --- 1b. Generate all relevant numbers to build nevt events (i.e. nevt phase space points) on the host
     const std::string rngnKey = "1b GenRnGen";
-    genrtime += timermap.start( rngnKey );
-    fptype* hstRn = nullptr;
-    std::vector<double> commonRandomNumbers;
-
-    if (MGONGPU_COMMONRAND_ONHOST) {
-      commonRandomNumbers = commonRandomPromises[iiter].get_future().get();
-      hstRn = commonRandomNumbers.data();
-      assert( nRnarray == static_cast<int>(commonRandomNumbers.size()) );
-    } else {
-#ifdef __CUDACC__
-#if defined MGONGPU_CURAND_ONDEVICE
-      grambo2toNm0::generateRnarray( rnGen, devRnarray, nevt );
+    timermap.start( rngnKey );
+#ifdef MGONGPU_COMMONRAND_ONHOST
+    std::vector<double> commonRandomNumbers = commonRandomPromises[iiter].get_future().get();
+    assert( nRnarray == static_cast<int>(commonRandomNumbers.size()) );
+    // NB (PR #45): memcpy is strictly needed only in CUDA (copy to pinned memory), but keep it also in C++ for consistency
+    memcpy( hstRnarray, commonRandomNumbers.data(), nbytesRnarray );
+#elif defined __CUDACC__
+#ifdef MGONGPU_CURAND_ONDEVICE
+    grambo2toNm0::generateRnarray( rnGen, devRnarray, nevt );
 #elif defined MGONGPU_CURAND_ONHOST
-      grambo2toNm0::generateRnarray( rnGen, hstRnarray, nevt );
-      hstRn = hstRnarray;
+    grambo2toNm0::generateRnarray( rnGen, hstRnarray, nevt );
 #endif
 #else
-      rambo2toNm0::generateRnarray( rnGen, hstRnarray, nevt );
-      hstRn = hstRnarray;
+    rambo2toNm0::generateRnarray( rnGen, hstRnarray, nevt );
 #endif
-    }
-
     //std::cout << "Got random numbers" << std::endl;
 
 #ifdef __CUDACC__
+#ifndef MGONGPU_CURAND_ONDEVICE
     // --- 1c. Copy rnarray from host to device
     const std::string htodKey = "1c CpHTDrnd";
     genrtime += timermap.start( htodKey );
-    if (hstRn) {
-      checkCuda( cudaMemcpy( devRnarray, hstRn, nbytesRnarray, cudaMemcpyHostToDevice ) );
-    }
+    // NB (PR #45): this cudaMemcpy would involve an intermediate memcpy to pinned memory, if hstRnarray was not already cudaMalloc'ed
+    checkCuda( cudaMemcpy( devRnarray, hstRnarray, nbytesRnarray, cudaMemcpyHostToDevice ) );
+#endif
 #endif
 
     // *** STOP THE OLD-STYLE TIMER FOR RANDOM GEN ***
@@ -322,7 +325,7 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
     grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray, devMomenta, devWeights );
 #else
-    rambo2toNm0::getMomentaFinal( energy, hstRn, hstMomenta, hstWeights, nevt );
+    rambo2toNm0::getMomentaFinal( energy, hstRnarray, hstMomenta, hstWeights, nevt );
 #endif
     //std::cout << "Got final momenta" << std::endl;
 
@@ -537,10 +540,12 @@ int main(int argc, char **argv)
   // --- 9a. Destroy curand generator
   const std::string dgenKey = "9a GenDestr";
   timermap.start( dgenKey );
+#ifndef MGONGPU_COMMONRAND_ONHOST
 #ifdef __CUDACC__
   grambo2toNm0::destroyGenerator( rnGen );
 #else
   rambo2toNm0::destroyGenerator( rnGen );
+#endif
 #endif
 
   // --- 9b Free memory structures
@@ -552,7 +557,7 @@ int main(int argc, char **argv)
   checkCuda( cudaFreeHost( hstIsGoodHel ) );
   checkCuda( cudaFreeHost( hstWeights ) );
   checkCuda( cudaFreeHost( hstMomenta ) );
-#if defined MGONGPU_CURAND_ONHOST
+#ifndef MGONGPU_CURAND_ONDEVICE
   checkCuda( cudaFreeHost( hstRnarray ) );
 #endif
   checkCuda( cudaFree( devMEs ) );
@@ -618,13 +623,19 @@ int main(int argc, char **argv)
               << "Wavefunction GPU memory    = LOCAL" << std::endl
 #endif
 #ifdef __CUDACC__
-#if defined MGONGPU_CURAND_ONDEVICE
-              << "Curand generation          = DEVICE (CUDA code)" << std::endl
+#if defined MGONGPU_COMMONRAND_ONHOST
+              << "Random number generation   = COMMON RANDOM HOST (CUDA code)" << std::endl
+#elif defined MGONGPU_CURAND_ONDEVICE
+              << "Random number generation   = CURAND DEVICE (CUDA code)" << std::endl
 #elif defined MGONGPU_CURAND_ONHOST
-              << "Curand generation          = HOST (CUDA code)" << std::endl
+              << "Random number generation   = CURAND HOST (CUDA code)" << std::endl
 #endif
 #else
-              << "Curand generation          = HOST (C++ code)" << std::endl
+#if defined MGONGPU_COMMONRAND_ONHOST
+              << "Random number generation   = COMMON RANDOM (C++ code)" << std::endl
+#else
+              << "Random number generation   = CURAND (C++ code)" << std::endl
+#endif
 #endif
               << "-----------------------------------------------------------------------" << std::endl
               << "NumberOfEntries            = " << niter << std::endl
