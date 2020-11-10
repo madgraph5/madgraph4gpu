@@ -160,9 +160,9 @@ int main(int argc, char **argv)
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
   const int nRnarray = np4*nparf*nevt; // (NB: ASA layout with nevt=npagR*neppR events per iteration)
-  const int nbytesRnarray = nRnarray * sizeof(fptype);
 
 #ifdef __CUDACC__
+  const int nbytesRnarray = nRnarray * sizeof(fptype);
   fptype* devRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   checkCuda( cudaMalloc( &devRnarray, nbytesRnarray ) );
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
@@ -172,6 +172,9 @@ int main(int argc, char **argv)
 #else
   fptype* hstRnarray = 0; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   hstRnarray = new fptype[nRnarray]();
+#ifdef MGONGPU_COMMONRAND_ONHOST
+  const int nbytesRnarray = nRnarray * sizeof(fptype);
+#endif
 #endif
 
   const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for ASA layouts)
