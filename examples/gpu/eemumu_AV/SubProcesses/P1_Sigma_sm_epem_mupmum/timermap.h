@@ -90,7 +90,7 @@ namespace mgOnGpu
       // Dump individual partition timers and the overall total
       if (json) {
         std::string s1 = "\"", s2 = "\" : \"", s3 = " sec\",";
-        ostr << std::setprecision(6); // precision (default=6): affects all floats
+        ostr << std::setprecision(6); // set precision (default=6): affects all floats
         ostr << std::fixed; // fixed format: affects all floats
         for ( auto ip : m_partitionTimers )
           ostr << s1 << ip.first << s2 << ip.second << s3 << std::endl;
@@ -102,7 +102,7 @@ namespace mgOnGpu
       }
       else {
         // NB: 'setw' affects only the next field (of any type)
-        ostr << std::setprecision(6); // precision (default=6): affects all floats
+        ostr << std::setprecision(6); // set precision (default=6): affects all floats
         ostr << std::fixed; // fixed format: affects all floats
         for ( auto ip : m_partitionTimers )
           ostr << std::setw(maxsize) << ip.first << " : "

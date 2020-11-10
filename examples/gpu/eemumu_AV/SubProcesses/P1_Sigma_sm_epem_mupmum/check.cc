@@ -389,21 +389,19 @@ int main(int argc, char **argv)
         std::cout << "Momenta:" << std::endl;
         for (int ipar = 0; ipar < npar; ipar++)
         {
-          std::cout << std::setw(4) << ipar + 1
-                    << setiosflags(std::ios::scientific) << std::setw(14)
-                    << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
-                    << setiosflags(std::ios::scientific) << std::setw(14)
-                    << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
-                    << setiosflags(std::ios::scientific) << std::setw(14)
-                    << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
-                    << setiosflags(std::ios::scientific) << std::setw(14)
-                    << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
-                    << std::endl;
+          // NB: 'setw' affects only the next field (of any type)
+          std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
+                    << std::setw(4) << ipar + 1
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
+                    << std::endl
+                    << std::defaultfloat; // default format: affects all floats
         }
         std::cout << std::string(80, '-') << std::endl;
         // Display matrix elements
         std::cout << " Matrix element = "
-          //   << setiosflags(ios::fixed) << setprecision(17)
                   << hstMEs[ievt] << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
         std::cout << std::string(80, '-') << std::endl;
       }
@@ -598,19 +596,20 @@ int main(int argc, char **argv)
 
     std::cout << "***************************************" << std::endl
               << "NumMatrixElements(notNan) = " << nevtALL - nnan << std::endl
-              << std::scientific
+              << std::scientific // fixed format: affects all floats (default precision: 6)
               << "MeanMatrixElemValue       = " << meanelem << " GeV^" << meGeVexponent << std::endl
               << "StdErrMatrixElemValue     = " << stdelem/sqrt(nevtALL) << " GeV^" << meGeVexponent << std::endl
               << "StdDevMatrixElemValue     = " << stdelem << " GeV^" << meGeVexponent << std::endl
               << "MinMatrixElemValue        = " << minelem << " GeV^" << meGeVexponent << std::endl
               << "MaxMatrixElemValue        = " << maxelem << " GeV^" << meGeVexponent << std::endl
-              << std::setprecision( std::numeric_limits<long double>::digits10 + 1 )
+              << std::setprecision( std::numeric_limits<long double>::digits10 + 1 ) // set (non-default) precision
               << "MeanWeight                = " << meanweig << std::endl
               << "StdErrWeight              = " << stdweig/sqrt(nevtALL) << std::endl
               << "StdDevWeight              = " << stdweig << std::endl
               << "MinWeight                 = " << minweig << std::endl
               << "MaxWeight                 = " << maxweig << std::endl
-              << std::defaultfloat << std::setprecision( 6 );
+              << std::defaultfloat // default format: affects all floats
+              << std::setprecision( 6 ); // set (default=6) precision
   }
 
   // --- 9e Dump to json
