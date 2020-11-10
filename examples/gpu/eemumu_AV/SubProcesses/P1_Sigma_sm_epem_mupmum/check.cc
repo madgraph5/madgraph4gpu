@@ -485,6 +485,17 @@ int main(int argc, char **argv)
   double stdelem = std::sqrt( sqselem / ( nevtALL - nnan ) - meanelem * meanelem );
   double meanweig = sumweig / ( nevtALL - nnan );
   double stdweig = std::sqrt( sqsweig / ( nevtALL - nnan ) - meanweig * meanweig );
+  
+  double sqselemdiff = 0;
+  double sqsweigdiff = 0;
+  for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
+  {
+    if ( std::isnan( matrixelementALL[ievtALL] ) ) continue;
+    sqselemdiff += std::pow( matrixelementALL[ievtALL] - meanelem, 2 );
+    sqsweigdiff += std::pow( weightALL[ievtALL] - meanweig, 2 );
+  }
+  double stdelem2 = std::sqrt( sqselemdiff / ( nevtALL - nnan ) );
+  double stdweig2 = std::sqrt( sqsweigdiff / ( nevtALL - nnan ) );  
 
   // === STEP 9 FINALISE
   // --- 9a. Destroy curand generator
@@ -600,12 +611,14 @@ int main(int argc, char **argv)
               << "MeanMatrixElemValue       = " << meanelem << " GeV^" << meGeVexponent << std::endl
               << "StdErrMatrixElemValue     = " << stdelem/sqrt(nevtALL) << " GeV^" << meGeVexponent << std::endl
               << "StdDevMatrixElemValue     = " << stdelem << " GeV^" << meGeVexponent << std::endl
+              << "StdDevMatrixElemValue2    = " << stdelem2 << " GeV^" << meGeVexponent << std::endl
               << "MinMatrixElemValue        = " << minelem << " GeV^" << meGeVexponent << std::endl
               << "MaxMatrixElemValue        = " << maxelem << " GeV^" << meGeVexponent << std::endl
               << std::setprecision( std::numeric_limits<long double>::digits10 + 1 ) // set (non-default) precision
               << "MeanWeight                = " << meanweig << std::endl
               << "StdErrWeight              = " << stdweig/sqrt(nevtALL) << std::endl
               << "StdDevWeight              = " << stdweig << std::endl
+              << "StdDevWeight2             = " << stdweig2 << std::endl
               << "MinWeight                 = " << minweig << std::endl
               << "MaxWeight                 = " << maxweig << std::endl
               << std::defaultfloat // default format: affects all floats
