@@ -10,7 +10,7 @@
 // Curand random number generation (CHOOSE ONLY ONE)
 #define MGONGPU_CURAND_ONDEVICE 1 // default
 //#define MGONGPU_CURAND_ONHOST 1
-#define MGONGPU_COMMONRAND_ONHOST false
+#define MGONGPU_COMMONRAND_ONHOST true
 
 // Memory choice for wavefunctions: registries/"local", global, shared (CHOOSE ONLY ONE)
 // Local storage (registries plus spillover to local) is hardcoded: fine tune it using maxrregcount in the Makefile
