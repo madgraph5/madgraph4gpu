@@ -553,9 +553,9 @@ int main(int argc, char **argv)
   if (perf)
   {
     std::cout << "***********************************************************************" << std::endl
-              << "NumIterations              = " << niter << std::endl
-              << "NumThreadsPerBlock         = " << gputhreads << std::endl
               << "NumBlocksPerGrid           = " << gpublocks << std::endl
+              << "NumThreadsPerBlock         = " << gputhreads << std::endl
+              << "NumIterations              = " << niter << std::endl
               << "-----------------------------------------------------------------------" << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
               << "FP precision               = DOUBLE (nan=" << nnan << ")" << std::endl
@@ -588,9 +588,11 @@ int main(int argc, char **argv)
               << "Curand generation          = HOST (C++ code)" << std::endl
 #endif
               << "-----------------------------------------------------------------------" << std::endl
-              << "NumberOfEntries            =   " << niter << std::endl
+              << "NumberOfEntries            = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
-              << "TotalTimeInMatrixElems     = ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTimeIn[Rambo+ME]  (23)= ( " << sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTimeInRambo        (2)= ( " << sumrtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTimeInMatrixElems  (3)= ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
               << "MeanTimeInMatrixElems      = ( " << meanwtim << std::string(16, ' ') << " )  sec" << std::endl
               << "[Min,Max]TimeInMatrixElems = [ " << minwtim
               << " ,  " << maxwtim << " ]  sec" << std::endl
@@ -599,8 +601,12 @@ int main(int argc, char **argv)
       //<< "ProcessID:                 = " << getpid() << std::endl
       //<< "NProcesses                 = " << process.nprocesses << std::endl
               << "TotalEventsComputed        = " << nevtALL << std::endl
-              << "RamboEventsPerSec          = " << nevtALL/sumrtim << " sec^-1" << std::endl
-              << "MatrixElemEventsPerSec     = " << nevtALL/sumwtim << " sec^-1" << std::endl
+              << "[Rambo+ME]EventsPerSec (23)= ( " << nevtALL/(sumrtim+sumwtim)
+              << std::string(16, ' ') << " )  sec^-1" << std::endl
+              << "RamboEventsPerSec       (2)= ( " << nevtALL/sumrtim
+              << std::string(16, ' ') << " )  sec^-1" << std::endl
+              << "MatrixElemEventsPerSec  (3)= ( " << nevtALL/sumwtim
+              << std::string(16, ' ') << " )  sec^-1" << std::endl
               << std::defaultfloat; // default format: affects all floats
     std::cout << "***********************************************************************" << std::endl
               << "NumMatrixElements(notNan)  = " << nevtALL - nnan << std::endl
