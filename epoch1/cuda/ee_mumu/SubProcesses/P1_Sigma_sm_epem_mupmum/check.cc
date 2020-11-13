@@ -33,7 +33,7 @@ bool is_number(const char *s) {
 
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
-            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j]"
+            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--file|-f <file to dump events to>]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
@@ -86,6 +86,7 @@ int main(int argc, char **argv)
   int jsonrun = 0;
   int numvec[5] = {0,0,0,0,0};
   int nnum = 0;
+  std::string dumpFileName;
 
   for (int argn = 1; argn < argc; ++argn) {
     if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
@@ -99,6 +100,14 @@ int main(int argc, char **argv)
     else if (strcmp(argv[argn], "--json") == 0 ||
              strcmp(argv[argn], "-j") == 0)
       json = true;
+    else if (strcmp(argv[argn], "--file") == 0 ||
+             strcmp(argv[argn], "-f") == 0)
+    {
+      ++argn;
+      if (argn >= argc || is_number(argv[argn]))
+        return usage(argv[0]);
+      dumpFileName = argv[argn];
+    }
     else if (is_number(argv[argn]) && nnum<5)
       numvec[nnum++] = atoi(argv[argn]);
     else
@@ -141,6 +150,12 @@ int main(int argc, char **argv)
   {
     std::cout << "ERROR! #threads/block should be <= " << ntpbMAX << std::endl;
     return usage(argv[0]);
+  }
+
+  std::ofstream dumpFile;
+  if ( !dumpFileName.empty() )
+  {
+    dumpFile.open(dumpFileName, std::ios::trunc);
   }
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
@@ -421,29 +436,50 @@ int main(int argc, char **argv)
 
     for (int ievt = 0; ievt < nevt; ++ievt) // Loop over all events in this iteration
     {
-      if (verbose)
-      {
-        // Display momenta
-        const int ipagM = ievt/neppM; // #eventpage in this iteration
-        const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-        std::cout << "Momenta:" << std::endl;
+      auto getMomentum = [&](std::size_t evtNo, int particle, int component) {
+        assert(component < mgOnGpu::np4);
+        assert(particle  < mgOnGpu::npar);
+        const auto page  = evtNo / neppM; // #eventpage in this iteration
+        const auto ieppM = evtNo % neppM; // #event in the current eventpage in this iteration
+        return hstMomenta[page * npar*np4*neppM + particle * neppM*np4 + component * neppM + ieppM];
+      };
+      auto dumpParticles = [&](std::ostream& stream, std::size_t evtNo, unsigned precision) {
+        const auto width = precision + 8;
         for (int ipar = 0; ipar < npar; ipar++)
         {
           // NB: 'setw' affects only the next field (of any type)
-          std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
-                    << std::setw(4) << ipar + 1
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
-                    << std::endl
-                    << std::defaultfloat; // default format: affects all floats
+          stream << std::scientific // fixed format: affects all floats (default precision: 6)
+                 << std::setprecision(precision)
+                 << std::setw(4) << ipar + 1
+                 << std::setw(width) << getMomentum(ievt, ipar, 0)
+                 << std::setw(width) << getMomentum(ievt, ipar, 1)
+                 << std::setw(width) << getMomentum(ievt, ipar, 2)
+                 << std::setw(width) << getMomentum(ievt, ipar, 3)
+                 << std::endl
+                 << std::defaultfloat; // default format: affects all floats
         }
+      };
+
+      if (verbose)
+      {
+        // Display momenta
+        std::cout << "Momenta:" << std::endl;
+        dumpParticles(std::cout, ievt, 6);
         std::cout << std::string(80, '-') << std::endl;
+
         // Display matrix elements
         std::cout << " Matrix element = "
                   << hstMEs[ievt] << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
         std::cout << std::string(80, '-') << std::endl;
+      }
+
+      if (dumpFile.is_open())
+      {
+        dumpFile << "Event " << std::setw(8) << ievt << "  "
+                 << "Batch " << std::setw(4) << iiter << "\n";
+        dumpParticles(dumpFile, ievt, 15);
+        // Dump matrix element
+        dumpFile << std::setw(4) << "ME" << std::scientific << std::setw(15+8) << hstMEs[ievt] << std::endl << std::defaultfloat;
       }
       // Fill the arrays with ALL MEs and weights
       matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt]; // FIXME: assume process.nprocesses == 1
