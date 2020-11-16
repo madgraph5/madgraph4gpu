@@ -3,11 +3,11 @@ CUARCHNUM=70
 LIBDIR=../../lib
 INCDIRS=-I. -I../../src -I../../../../../tools/
 MODELLIB=model_sm
-CXXFLAGS= -O3 $(INCDIRS) -DUSE_NVTX -Wall -Wshadow
+CXXFLAGS= -O3 $(INCDIRS) -DUSE_NVTX -Wall -Wshadow ${MGONGPU_CONFIG}
 ###CXXFLAGS= -O2 $(INCDIRS) -DUSE_NVTX -Wall -Wshadow
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM)
 # CUARCHFLAGS= -gencode arch=compute_$(CUARCHNUM),code=sm_$(CUARCHNUM)
-CUFLAGS= -O3 $(INCDIRS) -DUSE_NVTX $(CUARCHFLAGS) -use_fast_math -lineinfo
+CUFLAGS= -O3 $(INCDIRS) -DUSE_NVTX $(CUARCHFLAGS) -use_fast_math -lineinfo ${MGONGPU_CONFIG}
 # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
 ###CUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
 ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
