@@ -285,10 +285,10 @@ int main(int argc, char **argv)
     const std::string rngnKey = "1b GenRnGen";
     timermap.start( rngnKey );
 #ifdef MGONGPU_COMMONRAND_ONHOST
-    std::vector<double> commonRnd = commonRandomPromises[iiter].get_future().get();
+    std::vector<fptype> commonRnd = commonRandomPromises[iiter].get_future().get();
     assert( nRnarray == static_cast<int>( commonRnd.size() ) );
     // NB (PR #45): memcpy is strictly needed only in CUDA (copy to pinned memory), but keep it also in C++ for consistency
-    memcpy( hstRnarray, commonRandomNumbers.data(), nbytesRnarray );
+    memcpy( hstRnarray.get(), commonRnd.data(), nRnarray * sizeof(fptype) );
 #elif defined __CUDACC__
 #ifdef MGONGPU_CURAND_ONDEVICE
     grambo2toNm0::generateRnarray( rnGen, devRnarray.get(), nevt );
