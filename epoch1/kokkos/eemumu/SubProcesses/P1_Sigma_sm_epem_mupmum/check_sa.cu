@@ -7,22 +7,12 @@
 #include <vector>
 
 #include "CPPProcess.h"
-#include "HelAmps_sm.h"
+//#include "HelAmps_sm.h"
 
 #include "rambo.h"
 #include "timer.h"
 
 #include "Kokkos_Core.hpp"
-
-#define gpuErrchk3(ans)                                                        \
-  { gpuAssert3((ans), __FILE__, __LINE__); }
-
-inline void gpuAssert3(cudaError_t code, const char *file, int line,
-                       bool abort = true) {
-  if (code != cudaSuccess) {
-    printf("GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
-  }
-}
 
 #define TIMERTYPE std::chrono::high_resolution_clock
 
@@ -81,51 +71,36 @@ int main(int argc, char **argv) {
     std::cout << "# iterations: " << numiter << std::endl;
   { // start Kokkos View space
     // Create a process object
-    CPPProcess<Kokkos::DefaultExecutionSpace> process(numiter, gpublocks, gputhreads, verbose, debug);
+    CPPProcess<Kokkos::DefaultExecutionSpace> process(numiter, gpublocks, gputhreads);
 
     // Read param_card and set parameters
     process.initProc("../../Cards/param_card.dat");
 
     double energy = 1500;
+    double weight;
 
     int meGeVexponent = -(2 * process.nexternal - 8);
-
     int dim = gpublocks * gputhreads;
-
-    // Local Memory
-    //typedef double arr_t[6][4];
-    // double* lp = new double[6*3*dim];
 
     Kokkos::View<double*,Kokkos::DefaultExecutionSpace> meDevPtr("meDevPtr",dim*1);
     auto meHostPtr = Kokkos::create_mirror_view(meDevPtr);
 
     std::vector<double> matrixelementvector;
-    
+
     for (int x = 0; x < numiter; ++x) {
-      Kokkos::View<double*,Kokkos::DefaultExecutionSpace> d_wgt("d_wgt",dim);
-      auto h_wgt = Kokkos::create_mirror_view(d_wgt);
       // printf("iter %d of %d\n",x,numiter);
       // Get phase space point
-      auto p = get_momenta(process.ninitial, process.nexternal, energy, process.cmME, d_wgt, dim);
+      auto p = get_momenta(process.ninitial, process.nexternal, energy, process.cmME, weight, dim);
 
       // Set momenta for this event
       // for (int d = 0; d < dim; ++d) {
-      //   for (int i = 0; i < 6; ++i) {
-      //     for (int j = 0; j < 3; ++j) {
-      //       lp[i*dim*3+j*dim+d] = p(d,i,1+j);
+      //   for (int i = 0; i < 4; ++i) {
+      //     for (int j = 0; j < 4; ++j) {
+      //       printf(" p[%d][%d][%d] = %f",d,i,j,p(d,i,j));
       //     }
+      //     printf("\n");
       //   }
       // }
-
-      //new
-      // int num_bytes = 3*6*dim * sizeof(double);
-      // double *allmomenta = 0;
-      // cudaMalloc((void**)&allmomenta, num_bytes);
-      // cudaMemcpy(allmomenta,lp,num_bytes,cudaMemcpyHostToDevice);
-
-      //gpuErrchk3(cudaMemcpy3D(&tdp));
-
-     //process.preSigmaKin();
 
       if (perf) {
         timer.Start();
@@ -139,8 +114,6 @@ int main(int argc, char **argv) {
       Kokkos::deep_copy(hp,p);
 
       Kokkos::deep_copy(meHostPtr,meDevPtr);
-
-
 
       if (verbose)
         std::cout << "***********************************" << std::endl
@@ -245,7 +218,6 @@ int main(int argc, char **argv) {
                 << "MaxMatrixElemValue    = " << *maxelem << " GeV^" << meGeVexponent << std::endl;
     }
 
-    // delete[] lp;
   } // end Kokkos View Space
   Kokkos::finalize();
 }
