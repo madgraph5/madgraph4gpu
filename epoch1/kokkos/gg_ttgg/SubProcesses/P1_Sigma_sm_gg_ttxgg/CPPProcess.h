@@ -17,9 +17,6 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-
-
-
 #include "Parameters_sm.h"
 #include "Kokkos_Core.hpp"
 #include "Kokkos_Complex.hpp"
@@ -115,7 +112,6 @@ Kokkos::complex<double> fi[6])
 
   return; 
 }
-
 
 template<typename Stride, typename Device, typename MemSpace>
 KOKKOS_FUNCTION void txxxxx(Kokkos::View<double*,Stride,Device,MemSpace> pvec, double tmass, int nhel, int nst, 
@@ -294,7 +290,6 @@ Kokkos::complex<double> tc[18])
   }
 }
 
-
 template<typename Stride, typename Device, typename MemSpace>
 KOKKOS_FUNCTION void vxxxxx(Kokkos::View<double*,Stride,Device,MemSpace> pvec, 
     double vmass, int nhel, int nsv, Kokkos::complex<double> vc[6]) 
@@ -358,8 +353,8 @@ KOKKOS_FUNCTION void vxxxxx(Kokkos::View<double*,Stride,Device,MemSpace> pvec,
       vc[4] = Kokkos::complex<double> (-p[2] * pzpt, nsv * p[1]/pt * sqh); 
     }
     else
-    { 
-      vc[3] = Kokkos::complex<double> (-hel * sqh, 0.0);  
+    {
+      vc[3] = Kokkos::complex<double> (-hel * sqh, 0.0);
       vc[4] = 
       Kokkos::complex<double> (0.0, nsv * (p[3] < 0) ? - abs(sqh) : abs(sqh)); 
     }
@@ -367,11 +362,10 @@ KOKKOS_FUNCTION void vxxxxx(Kokkos::View<double*,Stride,Device,MemSpace> pvec,
   return; 
 }
 
-
 template<typename Stride, typename Device, typename MemSpace>
 KOKKOS_FUNCTION void sxxxxx(Kokkos::View<double*,Stride,Device,MemSpace> pvec, int nss, Kokkos::complex<double> sc[3]) 
 {
-  // double p[4] = {0, pvec[0], pvec[1], pvec[2]};
+  // double p[4] = {0, pvec(1), pvec(2), pvec(3)};
   // p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]+fmass*fmass);
   double p[4] = {0, 0, 0, 0}; 
   printf("scalar not supported so far. to do: fix mass issue"); 
@@ -820,7 +814,7 @@ KOKKOS_FUNCTION void VVV1P0_1(Kokkos::complex<double> V2[],
   V1[3] = denom * (TMP1 * (-cI * (P2[1]) + cI * (P3[1])) + (V2[3] * (-cI * 
   (TMP7) + cI * (TMP8)) + V3[3] * (+cI * (TMP9) - cI * (TMP10)))); 
   V1[4] = denom * (TMP1 * (-cI * (P2[2]) + cI * (P3[2])) + (V2[4] * (-cI * 
-  (TMP7) + cI * (TMP8)) + V3[4] * (+cI * (TMP9) - cI * (TMP10)))); 
+  (TMP7) + cI * (TMP8)) + V3[4] * (+cI * (TMP9) - cI * (TMP10))));
   V1[5] = denom * (TMP1 * (-cI * (P2[3]) + cI * (P3[3])) + (V2[5] * (-cI * 
   (TMP7) + cI * (TMP8)) + V3[5] * (+cI * (TMP9) - cI * (TMP10)))); 
 }
@@ -1966,8 +1960,8 @@ class CPPProcess
         -1, -1, -1, -1}, {1, 1, -1, -1, -1, 1}, {1, 1, -1, -1, 1, -1}, {1, 1, -1,
         -1, 1, 1}, {1, 1, -1, 1, -1, -1}, {1, 1, -1, 1, -1, 1}, {1, 1, -1, 1, 1,
         -1}, {1, 1, -1, 1, 1, 1}, {1, 1, 1, -1, -1, -1}, {1, 1, 1, -1, -1, 1},
-        {1, 1, 1, -1, 1, -1}, {1, 1, 1, -1, 1, 1}, {1, 1, 1, 1, -1, -1},
-      };
+        {1, 1, 1, -1, 1, -1}, {1, 1, 1, -1, 1, 1}, {1, 1, 1, 1, -1, -1},{1, 1,
+      1, 1, -1, 1}, {1, 1, 1, 1, 1, -1}, {1, 1, 1, 1, 1, 1}};
       for(int i=0;i<ncomb;++i)
         for(int j=0;j<nexternal;++j){
             hHel(i,j) = tHel[i][j];

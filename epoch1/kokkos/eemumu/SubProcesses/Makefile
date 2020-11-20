@@ -11,7 +11,7 @@ CXX=g++
 MAKEDEBUG=
 
 main=check.exe
-cu_objects=check_sa.o  
+cu_objects=check_sa.o
 cxx_objects=
 
 # Assuming uname is available, detect if architecture is power
@@ -20,7 +20,9 @@ ifeq ($(UNAME_P),ppc64le)
     CUFLAGS+= -Xcompiler -mno-float128
 endif
 
-all: check
+all:
+	cd ../../src && make
+	make check
 
 check: $(main)
 
@@ -34,14 +36,14 @@ debug: check
 $(LIBDIR)/lib$(MODELLIB).a:
 	@cd ../../src && make $(MAKEDEBUG)
 
-check_sa.o: check_sa.cu ../../src/rambo.h CPPProcess.h
-	$(NVCC) -c $< -o $@ $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS)
+check_sa.o: check_sa.cu ../../src/rambo.h
+	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
 
 %.o : %.cu %.h
-	$(NVCC) -c $< -o $@ $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS)
+	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
 
 %.o : %.cc %.h
-	$(CXX) -c $< -o $@ $(CPPFLAGS) $(CXXFLAGS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 $(main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects)
 	$(NVCC)  -o $@ $(cxx_objects) $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) -lcuda
