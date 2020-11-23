@@ -1,12 +1,23 @@
-CUARCHNUM=70
-LIBDIR=../lib
-CXXFLAGS= -O3 -I. -DUSE_NVTX -Wall -Wshadow ${MGONGPU_CONFIG}
-###CXXFLAGS= -O2 -I. -DUSE_NVTX -Wall -Wshadow 
-CUARCHFLAGS= -arch=compute_$(CUARCHNUM)
-CUFLAGS= -O3 -I. -DUSE_NVTX $(CUARCHFLAGS) -use_fast_math -lineinfo ${MGONGPU_CONFIG}
-CUINC=/usr/local/cuda/targets/x86_64-linux/include
-NVCC=nvcc
-CXX=g++
+INCFLAGS = -I.
+OPTFLAGS = -O3
+CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow $(MGONGPU_CONFIG)
+LIBDIR   = ../lib
+LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
+CXX     ?= g++
+
+#Export CUDA_HOME to select a cuda installation
+ifndef CUDA_HOME
+  NVCC ?= $(shell which nvcc 2>/dev/null)
+  ifneq ($(NVCC),)
+    # NVCC is in the PATH or set explicitly
+    CUDA_HOME  = $(patsubst %bin/nvcc,%,$(NVCC))
+    CUDA_HOME := $(warning No CUDA_HOME exported. Using "$(CUDA_HOME)") $(CUDA_HOME)
+  endif
+endif
+
+ifdef CUDA_HOME
+  CUINC = -I$(CUDA_HOME)/include/
+endif
 
 # Assuming uname is available, detect if architecture is power
 UNAME_P := $(shell uname -p)
@@ -20,15 +31,14 @@ cu_objects= # NB grambo.cu must be included by gcheck.cu (no rdc)
 
 all: $(target)
 
-debug: CXXFLAGS:=$(filter-out -O3,$(CXXFLAGS))
-debug: CUFLAGS:=$(filter-out -lineinfo,$(CUFLAGS))
-debug: CXXFLAGS += -g -O0 -DDEBUG2
+debug: OPTFLAGS = -g -O0 -DDEBUG2
+debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
 debug: CUFLAGS += -G
 debug: $(target)
 
 # NB: cuda includes are needed in the C++ code for curand.h
 %.o : %.cc *.h
-	$(CXX)  $(CPPFLAGS) $(CXXFLAGS) -I$(CUINC) -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
 #%.o : %.cu *.h
 #	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
