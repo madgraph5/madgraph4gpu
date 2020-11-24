@@ -37,6 +37,9 @@ else
     export MGONGPU_CONFIG = -DMGONGPU_COMMONRAND_ONHOST
   endif
 endif
+
+GTESTLIBDIR = $(TOOLSDIR)/googletest/build/lib/
+GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 MAKEDEBUG=
 
 cxx_main=check.exe
@@ -48,7 +51,7 @@ ifeq ($(UNAME_P),ppc64le)
     CUFLAGS+= -Xcompiler -mno-float128
 endif
 
-all: ../../src $(cu_main) $(cxx_main)
+all: ../../src $(cu_main) $(cxx_main) runTest.exe
 
 debug: OPTFLAGS = -g -O0 -DDEBUG2
 debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
@@ -73,6 +76,27 @@ $(cu_main): gcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
 
 $(cxx_main): check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+
+
+runTest.o:   $(GTESTLIBS)
+runTest.exe: $(GTESTLIBS)
+runTest.exe: INCFLAGS += -I$(TOOLSDIR)/googletest/googletest/include/
+runTest.exe: LIBFLAGS += -L$(GTESTLIBDIR)/ -lgtest -lgtest_main
+ifeq ($(NVCC),)
+runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
+	$(CXX) -o $@ $(cxx_objects) runTest.o $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+else
+runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
+	ln -sf runTest.cc runTest_tmp.cu
+	$(NVCC) -o $@ $(cxx_objects) runTest.o $(cu_objects) runTest_tmp.cu $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda
+	unlink runTest_tmp.cu
+endif
+
+$(GTESTLIBS):
+	$(MAKE) -C $(TOOLSDIR)
+
+check: runTest.exe
+	./runTest.exe
 
 .PHONY: clean
 
