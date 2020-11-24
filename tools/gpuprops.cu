@@ -140,8 +140,6 @@ public:
     for (auto i : allprops.front())
       maxwidth = std::max(i.first.length(), maxwidth);
 
-    std::cout << maxwidth << std::endl;
-
     for (auto p : allprops ) {
       std::cout << "DeviceID: " << did << std::endl;
       for (auto i : p) {
