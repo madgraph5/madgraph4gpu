@@ -45,6 +45,8 @@ else
   endif
 endif
 
+GTESTLIBDIR = $(TOOLSDIR)/googletest/build/lib/
+GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 MAKEDEBUG=
 
 cxx_main=check.exe
@@ -56,7 +58,7 @@ ifeq ($(UNAME_P),ppc64le)
     CUFLAGS+= -Xcompiler -mno-float128
 endif
 
-all: ../../src $(cu_main) $(cxx_main)
+all: ../../src $(cu_main) $(cxx_main) runTest.exe
 
 debug: OPTFLAGS = -g -O0 -DDEBUG2
 debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
@@ -81,6 +83,20 @@ $(cu_main): gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
 
 $(cxx_main): check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+
+
+runTest.o:   $(GTESTLIBS)
+runTest.exe: $(GTESTLIBS)
+runTest.exe: INCFLAGS += -I$(TOOLSDIR)/googletest/googletest/include/
+runTest.exe: LIBFLAGS += -L$(GTESTLIBDIR)/ -lgtest -lgtest_main
+runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
+	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) $< -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+
+$(GTESTLIBS):
+	$(MAKE) -C $(TOOLSDIR)
+
+check: runTest.exe
+	./runTest.exe
 
 .PHONY: clean
 
