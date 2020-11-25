@@ -1,11 +1,18 @@
 #ifndef MGONGPUCOMPLEX_H
 #define MGONGPUCOMPLEX_H 1
 
+#define DPCT_USM_LEVEL_NONE
+#include <CL/sycl.hpp>
+#include <dpct/dpct.hpp>
 #include "mgOnGpuConfig.h"
 
-#ifdef __CUDACC__
+#ifdef CL_SYCL_LANGUAGE_VERSION
 #if defined MGONGPU_CXTYPE_THRUST
-#include <thrust/complex.h>
+#include <dpct/dpl_utils.hpp>
+#include <oneapi/dpl/execution>
+#include <oneapi/dpl/algorithm>
+#include <complex>
+
 #elif defined MGONGPU_CXTYPE_CUCOMPLEX
 #include <complex>
 #include <cuComplex.h>
@@ -27,9 +34,9 @@ namespace mgOnGpu
 #endif
 
   // Complex type: cxtype
-#ifdef __CUDACC__ // cuda
+#ifdef CL_SYCL_LANGUAGE_VERSION // cuda
 #if defined MGONGPU_CXTYPE_THRUST
-  typedef thrust::complex<fptype> cxtype; // two doubles: RI
+  typedef std::complex<fptype> cxtype; // two doubles: RI
 #elif defined MGONGPU_FPTYPE_DOUBLE
   typedef cuDoubleComplex cxtype;
 #elif defined MGONGPU_FPTYPE_FLOAT
@@ -51,7 +58,7 @@ using mgOnGpu::cxtype;
 // CUDA
 //------------------------------
 
-#ifdef __CUDACC__ // cuda
+#ifdef CL_SYCL_LANGUAGE_VERSION // cuda
 
 //------------------------------
 // CUDA - using thrust::complex
@@ -64,25 +71,25 @@ using mgOnGpu::cxtype;
 // thrust::complex<float>
 //+++++++++++++++++++++++++
 
-inline __host__ __device__
+inline 
 cxtype cxmake( const fptype& r, const fptype& i )
 {
   return cxtype( r, i ); // thrust::complex<fptype> constructor
 }
 
-inline __host__ __device__
+inline 
 fptype cxreal( const cxtype& c )
 {
   return c.real(); // thrust::complex<fptype>::real()
 }
 
-inline __host__ __device__
+inline 
 fptype cximag( const cxtype& c )
 {
   return c.imag(); // thrust::complex<fptype>::imag()
 }
 
-inline __host__ __device__
+inline 
 const cxtype& cxmake( const cxtype& c )
 {
   return c;

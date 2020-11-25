@@ -1,3 +1,6 @@
+#define DPCT_USM_LEVEL_NONE
+#include <CL/sycl.hpp>
+#include <dpct/dpct.hpp>
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
 
@@ -11,9 +14,9 @@
 // If one of these macros has been set from outside with e.g. -DMGONGPU_CURAND_ONHOST, nothing happens.
 #if not defined MGONGPU_CURAND_ONDEVICE and not defined MGONGPU_CURAND_ONHOST and not defined MGONGPU_COMMONRAND_ONHOST
 // Curand random number generation (CHOOSE ONLY ONE)
-#define MGONGPU_CURAND_ONDEVICE 1 // default (curand: CUDA on device, C++ on host)
+//#define MGONGPU_CURAND_ONDEVICE 1 // default (curand: CUDA on device, C++ on host)
 //#define MGONGPU_CURAND_ONHOST 1 // (curand: CUDA on host, C++ on host)
-//#define MGONGPU_COMMONRAND_ONHOST 1 // (common rand: CUDA on host, C++ on host)
+#define MGONGPU_COMMONRAND_ONHOST 1 // (common rand: CUDA on host, C++ on host)
 #endif
 
 // Memory choice for wavefunctions: registries/"local", global, shared (CHOOSE ONLY ONE)
@@ -25,13 +28,13 @@
 //#define MGONGPU_FPTYPE_FLOAT 1 // 2.4x faster (~1.64E9 against 6.8E8)
 
 // Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
-#ifdef __CUDACC__
+#ifdef CL_SYCL_LANGUAGE_VERSION
 #define MGONGPU_CXTYPE_THRUST 1 // default (~6.8E8)
 //#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~5% slower (6.5E8 against 6.8E8)
 #endif
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
-#ifdef __CUDACC__
+#ifdef CL_SYCL_LANGUAGE_VERSION
 #undef MGONGPU_NSIGHT_DEBUG // default
 //#define MGONGPU_NSIGHT_DEBUG 1
 #endif
@@ -87,7 +90,7 @@ namespace mgOnGpu
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
 // Arguments (not used so far): text is __FUNCTION__, code is 0 (start) or 1 (end)
-#if defined __CUDACC__ && defined MGONGPU_NSIGHT_DEBUG
+#if defined CL_SYCL_LANGUAGE_VERSION && defined MGONGPU_NSIGHT_DEBUG
 #define mgDebugDeclare() \
   __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
 #define mgDebugInitialise() \
@@ -108,7 +111,7 @@ namespace mgOnGpu
 #endif
 
 // Define empty CUDA declaration specifiers for C++
-#ifndef __CUDACC__
+#ifndef CL_SYCL_LANGUAGE_VERSION
 #define __global__
 #define __device__
 #endif

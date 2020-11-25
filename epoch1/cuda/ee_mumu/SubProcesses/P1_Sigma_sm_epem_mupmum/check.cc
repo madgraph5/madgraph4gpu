@@ -1,3 +1,6 @@
+#define DPCT_USM_LEVEL_NONE
+#include <CL/sycl.hpp>
+#include <dpct/dpct.hpp>
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -12,8 +15,8 @@
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 
-#ifdef __CUDACC__
-#include "grambo.cu"
+#ifdef CL_SYCL_LANGUAGE_VERSION
+#include "grambo.dp.cpp"
 #else
 #include "rambo.h"
 #endif
@@ -42,29 +45,45 @@ int usage(char* argv0, int ret = 1) {
   return ret;
 }
 
-#ifdef __CUDACC__
+#ifdef CL_SYCL_LANGUAGE_VERSION
 template<typename T = fptype>
 struct CudaDevDeleter {
   void operator()(T* mem) {
-    checkCuda( cudaFree( mem ) );
+    /*
+    DPCT1003:1: Migrated API does not return error code. (*, 0) is inserted. You
+    may need to rewrite this code.
+    */
+    checkCuda((dpct::dpct_free(mem), 0));
   }
 };
 template<typename T = fptype>
 std::unique_ptr<T, CudaDevDeleter<T>> devMakeUnique(std::size_t N) {
   T* tmp = nullptr;
-  checkCuda( cudaMalloc( &tmp, N * sizeof(T) ) );
+  /*
+  DPCT1003:2: Migrated API does not return error code. (*, 0) is inserted. You
+  may need to rewrite this code.
+  */
+  checkCuda((tmp = (T *)dpct::dpct_malloc(N * sizeof(T)), 0));
   return std::unique_ptr<T, CudaDevDeleter<T>>{ tmp };
 }
 template<typename T = fptype>
 struct CudaHstDeleter {
   void operator()(T* mem) {
-    checkCuda( cudaFreeHost( mem ) );
+    /*
+    DPCT1003:3: Migrated API does not return error code. (*, 0) is inserted. You
+    may need to rewrite this code.
+    */
+    checkCuda((free(mem), 0));
   }
 };
 template<typename T = fptype>
 std::unique_ptr<T[], CudaHstDeleter<T>> hstMakeUnique(std::size_t N) {
   T* tmp = nullptr;
-  checkCuda( cudaMallocHost( &tmp, N * sizeof(T) ) );
+  /*
+  DPCT1003:4: Migrated API does not return error code. (*, 0) is inserted. You
+  may need to rewrite this code.
+  */
+  checkCuda((tmp = (T *)malloc(N * sizeof(T)), 0));
   return std::unique_ptr<T[], CudaHstDeleter<T>>{ tmp };
 };
 #else
@@ -74,6 +93,8 @@ std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{
 
 int main(int argc, char **argv)
 {
+    dpct::device_ext &dev_ct1 = dpct::get_current_device();
+    sycl::queue &q_ct1 = dev_ct1.default_queue();
   // READ COMMAND LINE ARGUMENTS
   bool verbose = false;
   bool debug = false;
@@ -155,12 +176,16 @@ int main(int argc, char **argv)
 
   // === STEP 0 - INITIALISE
 
-#ifdef __CUDACC__
+#ifdef CL_SYCL_LANGUAGE_VERSION
   // --- 00. Initialise cuda (call cudaFree to ease cuda profile analysis)
   const std::string cdfrKey = "00 CudaFree";
   timermap.start( cdfrKey );
   //std::cout << "Calling cudaFree... " << std::endl;
-  checkCuda( cudaFree( 0 ) ); // SLOW!
+  /*
+  DPCT1003:5: Migrated API does not return error code. (*, 0) is inserted. You
+  may need to rewrite this code.
+  */
+  checkCuda((dpct::dpct_free(0), 0)); // SLOW!
   //std::cout << "Calling cudaFree... done" << std::endl;
 
   // --- Book the tear down at the end of main:
@@ -168,7 +193,12 @@ int main(int argc, char **argv)
     CudaTearDown(bool print) : _print(print) { }
     ~CudaTearDown() {
       if ( _print ) std::cout << "Calling cudaDeviceReset()." << std::endl;
-      checkCuda( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
+      /*
+      DPCT1003:6: Migrated API does not return error code. (*, 0) is inserted.
+      You may need to rewrite this code.
+      */
+      checkCuda((dpct::get_current_device().reset(),
+                 0)); // this is needed by cuda-memcheck --leak-check full
     }
     bool _print{false};
   } cudaTearDown(debug);
@@ -179,7 +209,7 @@ int main(int argc, char **argv)
   timermap.start( procKey );
 
   // Create a process object
-#ifdef __CUDACC__
+#ifdef CL_SYCL_LANGUAGE_VERSION
   gProc::CPPProcess process( niter, gpublocks, gputhreads, verbose );
 #else
   Proc::CPPProcess process( niter, gpublocks, gputhreads, verbose );
@@ -206,7 +236,8 @@ int main(int argc, char **argv)
   const int nWeights = nevt;
   const int nMEs     = nevt;
 
-#if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST or not defined __CUDACC__
+#if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST or      \
+    not defined CL_SYCL_LANGUAGE_VERSION
   auto hstRnarray   = hstMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
 #endif
   auto hstMomenta   = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
@@ -214,7 +245,7 @@ int main(int argc, char **argv)
   auto hstWeights   = hstMakeUnique<fptype>( nWeights ); // (previously was: meHostPtr)
   auto hstMEs       = hstMakeUnique<fptype>( nMEs ); // (previously was: meHostPtr)
 
-#ifdef __CUDACC__
+#ifdef CL_SYCL_LANGUAGE_VERSION
   auto devRnarray   = devMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   auto devMomenta   = devMakeUnique<fptype>( nMomenta ); // (previously was: allMomenta)
   auto devIsGoodHel = devMakeUnique<bool  >( ncomb );
@@ -300,13 +331,19 @@ int main(int argc, char **argv)
 #endif
     //std::cout << "Got random numbers" << std::endl;
 
-#ifdef __CUDACC__
+#ifdef CL_SYCL_LANGUAGE_VERSION
 #ifndef MGONGPU_CURAND_ONDEVICE
     // --- 1c. Copy rnarray from host to device
     const std::string htodKey = "1c CpHTDrnd";
     genrtime += timermap.start( htodKey );
     // NB (PR #45): this cudaMemcpy would involve an intermediate memcpy to pinned memory, if hstRnarray was not already cudaMalloc'ed
-    checkCuda( cudaMemcpy( devRnarray.get(), hstRnarray.get(), nbytesRnarray, cudaMemcpyHostToDevice ) );
+    /*
+    DPCT1003:7: Migrated API does not return error code. (*, 0) is inserted. You
+    may need to rewrite this code.
+    */
+    checkCuda((dpct::dpct_memcpy(devRnarray.get(), hstRnarray.get(),
+                                 nbytesRnarray, dpct::host_to_device),
+               0));
 #endif
 #endif
 
@@ -322,8 +359,36 @@ int main(int argc, char **argv)
     // --- 2a. Fill in momenta of initial state particles on the device
     const std::string riniKey = "2a RamboIni";
     timermap.start( riniKey );
-#ifdef __CUDACC__
-    grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta.get() );
+#ifdef CL_SYCL_LANGUAGE_VERSION
+    /*
+    DPCT1049:8: The workgroup size passed to the SYCL kernel may exceed the
+    limit. To get the device limit, query info::device::max_work_group_size.
+    Adjust the workgroup size if needed.
+    */
+    {
+      std::pair<dpct::buffer_t, size_t> devMomenta_get_buf_ct1 =
+          dpct::get_buffer_and_offset(devMomenta.get());
+      size_t devMomenta_get_offset_ct1 = devMomenta_get_buf_ct1.second;
+      q_ct1.submit([&](sycl::handler &cgh) {
+        // accessors to device memory
+        auto devMomenta_get_acc_ct1 =
+            devMomenta_get_buf_ct1.first
+                .get_access<sycl::access::mode::read_write>(cgh);
+
+        cgh.parallel_for(
+            sycl::nd_range<3>(sycl::range<3>(1, 1, gpublocks) *
+                                  sycl::range<3>(1, 1, gputhreads),
+                              sycl::range<3>(1, 1, gputhreads)),
+            [=](sycl::nd_item<3> item_ct1) {
+              std::unique_ptr<
+                  double, CudaDevDeleter<double>>::pointerdevMomenta_get_ct1 =
+                  (std::unique_ptr<double, CudaDevDeleter<double>>::pointer)(
+                      &devMomenta_get_acc_ct1[0] + devMomenta_get_offset_ct1);
+              grambo2toNm0::getMomentaInitial(energy, devMomenta_get_ct1,
+                                              item_ct1);
+            });
+      });
+    }
 #else
     rambo2toNm0::getMomentaInitial( energy, hstMomenta.get(), nevt );
 #endif
@@ -333,23 +398,83 @@ int main(int argc, char **argv)
     // (i.e. map random numbers to final-state particle momenta for each of nevt events)
     const std::string rfinKey = "2b RamboFin";
     rambtime += timermap.start( rfinKey );
-#ifdef __CUDACC__
-    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.get(), devMomenta.get(), devWeights.get() );
+#ifdef CL_SYCL_LANGUAGE_VERSION
+    /*
+    DPCT1049:9: The workgroup size passed to the SYCL kernel may exceed the
+    limit. To get the device limit, query info::device::max_work_group_size.
+    Adjust the workgroup size if needed.
+    */
+    {
+      std::pair<dpct::buffer_t, size_t> devRnarray_get_buf_ct1 =
+          dpct::get_buffer_and_offset(devRnarray.get());
+      size_t devRnarray_get_offset_ct1 = devRnarray_get_buf_ct1.second;
+      std::pair<dpct::buffer_t, size_t> devMomenta_get_buf_ct2 =
+          dpct::get_buffer_and_offset(devMomenta.get());
+      size_t devMomenta_get_offset_ct2 = devMomenta_get_buf_ct2.second;
+      std::pair<dpct::buffer_t, size_t> devWeights_get_buf_ct3 =
+          dpct::get_buffer_and_offset(devWeights.get());
+      size_t devWeights_get_offset_ct3 = devWeights_get_buf_ct3.second;
+      q_ct1.submit([&](sycl::handler &cgh) {
+        // accessors to device memory
+        auto devRnarray_get_acc_ct1 =
+            devRnarray_get_buf_ct1.first
+                .get_access<sycl::access::mode::read_write>(cgh);
+        auto devMomenta_get_acc_ct2 =
+            devMomenta_get_buf_ct2.first
+                .get_access<sycl::access::mode::read_write>(cgh);
+        auto devWeights_get_acc_ct3 =
+            devWeights_get_buf_ct3.first
+                .get_access<sycl::access::mode::read_write>(cgh);
+
+        cgh.parallel_for(
+            sycl::nd_range<3>(sycl::range<3>(1, 1, gpublocks) *
+                                  sycl::range<3>(1, 1, gputhreads),
+                              sycl::range<3>(1, 1, gputhreads)),
+            [=](sycl::nd_item<3> item_ct1) {
+              const double *devRnarray_get_ct1 =
+                  (const double *)(&devRnarray_get_acc_ct1[0] +
+                                   devRnarray_get_offset_ct1);
+              std::unique_ptr<
+                  double, CudaDevDeleter<double>>::pointerdevMomenta_get_ct2 =
+                  (std::unique_ptr<double, CudaDevDeleter<double>>::pointer)(
+                      &devMomenta_get_acc_ct2[0] + devMomenta_get_offset_ct2);
+              std::unique_ptr<
+                  double, CudaDevDeleter<double>>::pointerdevWeights_get_ct3 =
+                  (std::unique_ptr<double, CudaDevDeleter<double>>::pointer)(
+                      &devWeights_get_acc_ct3[0] + devWeights_get_offset_ct3);
+              grambo2toNm0::getMomentaFinal(energy, devRnarray_get_ct1,
+                                            devMomenta_get_ct2,
+                                            devWeights_get_ct3, item_ct1);
+            });
+      });
+    }
 #else
     rambo2toNm0::getMomentaFinal( energy, hstRnarray.get(), hstMomenta.get(), hstWeights.get(), nevt );
 #endif
     //std::cout << "Got final momenta" << std::endl;
 
-#ifdef __CUDACC__
+#ifdef CL_SYCL_LANGUAGE_VERSION
     // --- 2c. CopyDToH Weights
     const std::string cwgtKey = "2c CpDTHwgt";
     rambtime += timermap.start( cwgtKey );
-    checkCuda( cudaMemcpy( hstWeights.get(), devWeights.get(), nbytesWeights, cudaMemcpyDeviceToHost ) );
+    /*
+    DPCT1003:10: Migrated API does not return error code. (*, 0) is inserted.
+    You may need to rewrite this code.
+    */
+    checkCuda((dpct::dpct_memcpy(hstWeights.get(), devWeights.get(),
+                                 nbytesWeights, dpct::device_to_host),
+               0));
 
     // --- 2d. CopyDToH Momenta
     const std::string cmomKey = "2d CpDTHmom";
     rambtime += timermap.start( cmomKey );
-    checkCuda( cudaMemcpy( hstMomenta.get(), devMomenta.get(), nbytesMomenta, cudaMemcpyDeviceToHost ) );
+    /*
+    DPCT1003:11: Migrated API does not return error code. (*, 0) is inserted.
+    You may need to rewrite this code.
+    */
+    checkCuda((dpct::dpct_memcpy(hstMomenta.get(), devMomenta.get(),
+                                 nbytesMomenta, dpct::device_to_host),
+               0));
 #endif
 
     // *** STOP THE OLD-STYLE TIMER FOR RAMBO ***
@@ -362,16 +487,71 @@ int main(int argc, char **argv)
     // 3b. Copy MEs back from device to host
 
     // --- 0d. SGoodHel
-#ifdef __CUDACC__
+#ifdef CL_SYCL_LANGUAGE_VERSION
     if ( iiter == 0 )
     {
       const std::string ghelKey = "0d SGoodHel";
       timermap.start( ghelKey );
       // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.get(), devIsGoodHel.get());
-      checkCuda( cudaPeekAtLastError() );
+      /*
+      DPCT1049:12: The workgroup size passed to the SYCL kernel may exceed the
+      limit. To get the device limit, query info::device::max_work_group_size.
+      Adjust the workgroup size if needed.
+      */
+      {
+        std::pair<dpct::buffer_t, size_t> devMomenta_get_buf_ct0 =
+            dpct::get_buffer_and_offset(devMomenta.get());
+        size_t devMomenta_get_offset_ct0 = devMomenta_get_buf_ct0.second;
+        std::pair<dpct::buffer_t, size_t> devIsGoodHel_get_buf_ct1 =
+            dpct::get_buffer_and_offset(devIsGoodHel.get());
+        size_t devIsGoodHel_get_offset_ct1 = devIsGoodHel_get_buf_ct1.second;
+        q_ct1.submit([&](sycl::handler &cgh) {
+          extern dpct::global_memory<int, 2> cHel;
+
+          // init global memory
+          cHel.init();
+
+          // accessors to device memory
+          auto cHel_acc_ct1 = cHel.get_access(cgh);
+          auto devMomenta_get_acc_ct0 =
+              devMomenta_get_buf_ct0.first
+                  .get_access<sycl::access::mode::read_write>(cgh);
+          auto devIsGoodHel_get_acc_ct1 =
+              devIsGoodHel_get_buf_ct1.first
+                  .get_access<sycl::access::mode::read_write>(cgh);
+
+          cgh.parallel_for(
+              sycl::nd_range<3>(sycl::range<3>(1, 1, gpublocks) *
+                                    sycl::range<3>(1, 1, gputhreads),
+                                sycl::range<3>(1, 1, gputhreads)),
+              [=](sycl::nd_item<3> item_ct1) {
+                const mgOnGpu::fptype *devMomenta_get_ct0 =
+                    (const mgOnGpu::fptype *)(&devMomenta_get_acc_ct0[0] +
+                                              devMomenta_get_offset_ct0);
+                std::unique_ptr<
+                    bool, CudaDevDeleter<bool>>::pointerdevIsGoodHel_get_ct1 =
+                    (std::unique_ptr<bool, CudaDevDeleter<bool>>::pointer)(
+                        &devIsGoodHel_get_acc_ct1[0] +
+                        devIsGoodHel_get_offset_ct1);
+                gProc::sigmaKin_getGoodHel(
+                    devMomenta_get_ct0, devIsGoodHel_get_ct1, item_ct1,
+                    dpct::accessor<int, dpct::device, 2>(cHel_acc_ct1));
+              });
+        });
+      }
+      /*
+      DPCT1010:13: SYCL uses exceptions to report errors and does not use the
+      error codes. The call was replaced with 0. You need to rewrite this code.
+      */
+      checkCuda(0);
       // ... 0d2. Copy back good helicity mask to the host
-      checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(), nbytesIsGoodHel, cudaMemcpyDeviceToHost ) );
+      /*
+      DPCT1003:14: Migrated API does not return error code. (*, 0) is inserted.
+      You may need to rewrite this code.
+      */
+      checkCuda((dpct::dpct_memcpy(hstIsGoodHel.get(), devIsGoodHel.get(),
+                                   nbytesIsGoodHel, dpct::device_to_host),
+                 0));
       // ... 0d3. Copy back good helicity list to constant memory on the device
       gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
     }
@@ -383,22 +563,84 @@ int main(int argc, char **argv)
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
-#ifdef __CUDACC__
+#ifdef CL_SYCL_LANGUAGE_VERSION
 #ifndef MGONGPU_NSIGHT_DEBUG
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.get(), devMEs.get());
+    /*
+    DPCT1049:15: The workgroup size passed to the SYCL kernel may exceed the
+    limit. To get the device limit, query info::device::max_work_group_size.
+    Adjust the workgroup size if needed.
+    */
+    {
+      std::pair<dpct::buffer_t, size_t> devMomenta_get_buf_ct0 =
+          dpct::get_buffer_and_offset(devMomenta.get());
+      size_t devMomenta_get_offset_ct0 = devMomenta_get_buf_ct0.second;
+      std::pair<dpct::buffer_t, size_t> devMEs_get_buf_ct1 =
+          dpct::get_buffer_and_offset(devMEs.get());
+      size_t devMEs_get_offset_ct1 = devMEs_get_buf_ct1.second;
+      q_ct1.submit([&](sycl::handler &cgh) {
+        extern dpct::global_memory<int, 2> cHel;
+        extern dpct::global_memory<int, 1> cNGoodHel;
+        extern dpct::global_memory<int, 1> cGoodHel;
+
+        // init global memory
+        cHel.init();
+        cNGoodHel.init();
+        cGoodHel.init();
+
+        // accessors to device memory
+        auto cHel_acc_ct1 = cHel.get_access(cgh);
+        auto cNGoodHel_acc_ct1 = cNGoodHel.get_access(cgh);
+        auto cGoodHel_acc_ct1 = cGoodHel.get_access(cgh);
+        auto devMomenta_get_acc_ct0 =
+            devMomenta_get_buf_ct0.first
+                .get_access<sycl::access::mode::read_write>(cgh);
+        auto devMEs_get_acc_ct1 =
+            devMEs_get_buf_ct1.first.get_access<sycl::access::mode::read_write>(
+                cgh);
+
+        cgh.parallel_for(
+            sycl::nd_range<3>(sycl::range<3>(1, 1, gpublocks) *
+                                  sycl::range<3>(1, 1, gputhreads),
+                              sycl::range<3>(1, 1, gputhreads)),
+            [=](sycl::nd_item<3> item_ct1) {
+              const mgOnGpu::fptype *devMomenta_get_ct0 =
+                  (const mgOnGpu::fptype *)(&devMomenta_get_acc_ct0[0] +
+                                            devMomenta_get_offset_ct0);
+              std::unique_ptr<double,
+                              CudaDevDeleter<double>>::pointerdevMEs_get_ct1 =
+                  (std::unique_ptr<double, CudaDevDeleter<double>>::pointer)(
+                      &devMEs_get_acc_ct1[0] + devMEs_get_offset_ct1);
+              gProc::sigmaKin(
+                  devMomenta_get_ct0, devMEs_get_ct1, item_ct1,
+                  dpct::accessor<int, dpct::device, 2>(cHel_acc_ct1),
+                  cNGoodHel_acc_ct1.get_pointer(),
+                  cGoodHel_acc_ct1.get_pointer());
+            });
+      });
+    }
 #else
     gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.get(), devMEs.get());
 #endif
-    checkCuda( cudaPeekAtLastError() );
+    /*
+    DPCT1010:16: SYCL uses exceptions to report errors and does not use the
+    error codes. The call was replaced with 0. You need to rewrite this code.
+    */
+    checkCuda(0);
 #else
     Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), nevt);
 #endif
 
-#ifdef __CUDACC__
+#ifdef CL_SYCL_LANGUAGE_VERSION
     // --- 3b. CopyDToH MEs
     const std::string cmesKey = "3b CpDTHmes";
     wavetime += timermap.start( cmesKey );
-    checkCuda( cudaMemcpy( hstMEs.get(), devMEs.get(), nbytesMEs, cudaMemcpyDeviceToHost ) );
+    /*
+    DPCT1003:17: Migrated API does not return error code. (*, 0) is inserted.
+    You may need to rewrite this code.
+    */
+    checkCuda((dpct::dpct_memcpy(hstMEs.get(), devMEs.get(), nbytesMEs,
+                                 dpct::device_to_host),
+               0));
 #endif
 
     // *** STOP THE OLD TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
@@ -474,8 +716,8 @@ int main(int argc, char **argv)
   {
     sumgtim += genrtimes[iiter];
     sqsgtim += genrtimes[iiter]*genrtimes[iiter];
-    mingtim = std::min( mingtim, genrtimes[iiter] );
-    maxgtim = std::max( maxgtim, genrtimes[iiter] );
+    mingtim = std::min(mingtim, genrtimes[iiter]);
+    maxgtim = std::max(maxgtim, genrtimes[iiter]);
   }
 
   double sumrtim = 0;
@@ -486,8 +728,8 @@ int main(int argc, char **argv)
   {
     sumrtim += rambtimes[iiter];
     sqsrtim += rambtimes[iiter]*rambtimes[iiter];
-    minrtim = std::min( minrtim, rambtimes[iiter] );
-    maxrtim = std::max( maxrtim, rambtimes[iiter] );
+    minrtim = std::min(minrtim, rambtimes[iiter]);
+    maxrtim = std::max(maxrtim, rambtimes[iiter]);
   }
 
   double sumwtim = 0;
@@ -498,11 +740,11 @@ int main(int argc, char **argv)
   {
     sumwtim += wavetimes[iiter];
     sqswtim += wavetimes[iiter]*wavetimes[iiter];
-    minwtim = std::min( minwtim, wavetimes[iiter] );
-    maxwtim = std::max( maxwtim, wavetimes[iiter] );
+    minwtim = std::min(minwtim, wavetimes[iiter]);
+    maxwtim = std::max(maxwtim, wavetimes[iiter]);
   }
   double meanwtim = sumwtim / niter;
-  double stdwtim = std::sqrt( sqswtim / niter - meanwtim * meanwtim );
+  double stdwtim = std::sqrt(sqswtim / niter - meanwtim * meanwtim);
 
   int nnan = 0;
   double minelem = matrixelementALL[0];
@@ -512,24 +754,24 @@ int main(int argc, char **argv)
   for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
     // Compute min/max
-    if ( std::isnan( matrixelementALL[ievtALL] ) )
+    if (std::isnan(matrixelementALL[ievtALL]))
     {
       if ( debug ) // only printed out with "-p -d" (matrixelementALL is not filled without -p)
         std::cout << "WARNING! ME[" << ievtALL << "} is nan" << std::endl;
       nnan++;
       continue;
     }
-    minelem = std::min( minelem, (double)matrixelementALL[ievtALL] );
-    maxelem = std::max( maxelem, (double)matrixelementALL[ievtALL] );
-    minweig = std::min( minweig, (double)weightALL[ievtALL] );
-    maxweig = std::max( maxweig, (double)weightALL[ievtALL] );
+    minelem = std::min(minelem, (double)matrixelementALL[ievtALL]);
+    maxelem = std::max(maxelem, (double)matrixelementALL[ievtALL]);
+    minweig = std::min(minweig, (double)weightALL[ievtALL]);
+    maxweig = std::max(maxweig, (double)weightALL[ievtALL]);
   }
   double sumelemdiff = 0;
   double sumweigdiff = 0;
   for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
     // Compute mean from the sum of diff to min
-    if ( std::isnan( matrixelementALL[ievtALL] ) ) continue;
+    if (std::isnan(matrixelementALL[ievtALL])) continue;
     sumelemdiff += ( matrixelementALL[ievtALL] - minelem );
     sumweigdiff += ( weightALL[ievtALL] - minweig );
   }
@@ -540,12 +782,12 @@ int main(int argc, char **argv)
   for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
     // Compute stddev from the squared sum of diff to mean
-    if ( std::isnan( matrixelementALL[ievtALL] ) ) continue;
-    sqselemdiff += std::pow( matrixelementALL[ievtALL] - meanelem, 2 );
-    sqsweigdiff += std::pow( weightALL[ievtALL] - meanweig, 2 );
+    if (std::isnan(matrixelementALL[ievtALL])) continue;
+    sqselemdiff += std::pow(matrixelementALL[ievtALL] - meanelem, 2);
+    sqsweigdiff += std::pow(weightALL[ievtALL] - meanweig, 2);
   }
-  double stdelem = std::sqrt( sqselemdiff / ( nevtALL - nnan ) );
-  double stdweig = std::sqrt( sqsweigdiff / ( nevtALL - nnan ) );
+  double stdelem = std::sqrt(sqselemdiff / (nevtALL - nnan));
+  double stdweig = std::sqrt(sqsweigdiff / (nevtALL - nnan));
 
   // === STEP 9 FINALISE
   // --- 9a. Destroy curand generator
@@ -570,39 +812,46 @@ int main(int argc, char **argv)
 
   if (perf)
   {
-    std::cout << "***********************************************************************" << std::endl
-              << "NumBlocksPerGrid           = " << gpublocks << std::endl
-              << "NumThreadsPerBlock         = " << gputhreads << std::endl
-              << "NumIterations              = " << niter << std::endl
-              << "-----------------------------------------------------------------------" << std::endl
+    std::cout
+        << "*******************************************************************"
+           "****"
+        << std::endl
+        << "NumBlocksPerGrid           = " << gpublocks << std::endl
+        << "NumThreadsPerBlock         = " << gputhreads << std::endl
+        << "NumIterations              = " << niter << std::endl
+        << "-------------------------------------------------------------------"
+           "----"
+        << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
-              << "FP precision               = DOUBLE (nan=" << nnan << ")" << std::endl
+        << "FP precision               = DOUBLE (nan=" << nnan << ")"
+        << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
               << "FP precision               = FLOAT (nan=" << nnan << ")" << std::endl
 #endif
-#ifdef __CUDACC__
+#ifdef CL_SYCL_LANGUAGE_VERSION
 #if defined MGONGPU_CXTYPE_CUCOMPLEX
-              << "Complex type               = CUCOMPLEX" << std::endl
+        << "Complex type               = CUCOMPLEX" << std::endl
 #elif defined MGONGPU_CXTYPE_THRUST
-              << "Complex type               = THRUST::COMPLEX" << std::endl
+        << "Complex type               = THRUST::COMPLEX" << std::endl
 #endif
 #else
               << "Complex type               = STD::COMPLEX" << std::endl
 #endif
-              << "RanNumb memory layout      = AOSOA[" << neppR << "]"
-              << ( neppR == 1 ? " == AOS" : "" ) << std::endl
-              << "Momenta memory layout      = AOSOA[" << neppM << "]"
-              << ( neppM == 1 ? " == AOS" : "" ) << std::endl
-#ifdef __CUDACC__
-              << "Wavefunction GPU memory    = LOCAL" << std::endl
+        << "RanNumb memory layout      = AOSOA[" << neppR << "]"
+        << (neppR == 1 ? " == AOS" : "") << std::endl
+        << "Momenta memory layout      = AOSOA[" << neppM << "]"
+        << (neppM == 1 ? " == AOS" : "") << std::endl
+#ifdef CL_SYCL_LANGUAGE_VERSION
+        << "Wavefunction GPU memory    = LOCAL" << std::endl
 #endif
-#ifdef __CUDACC__
+#ifdef CL_SYCL_LANGUAGE_VERSION
 #if defined MGONGPU_COMMONRAND_ONHOST
-              << "Random number generation   = COMMON RANDOM HOST (CUDA code)" << std::endl
+        << "Random number generation   = COMMON RANDOM HOST (CUDA code)"
+        << std::endl
 #elif defined MGONGPU_CURAND_ONDEVICE
-              << "Random number generation   = CURAND DEVICE (CUDA code)" << std::endl
+        << "Random number generation   = CURAND DEVICE (CUDA code)" << std::endl
 #elif defined MGONGPU_CURAND_ONHOST
-              << "Random number generation   = CURAND HOST (CUDA code)" << std::endl
+        << "Random number generation   = CURAND HOST (CUDA code)" << std::endl
 #endif
 #else
 #if defined MGONGPU_COMMONRAND_ONHOST
@@ -611,46 +860,69 @@ int main(int argc, char **argv)
               << "Random number generation   = CURAND (C++ code)" << std::endl
 #endif
 #endif
-              << "-----------------------------------------------------------------------" << std::endl
-              << "NumberOfEntries            = " << niter << std::endl
-              << std::scientific // fixed format: affects all floats (default precision: 6)
-              << "TotalTime[Rnd+Rmb+ME] (123)= ( " << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "TotalTime[Rambo+ME]    (23)= ( " << sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "TotalTime[RndNumGen]    (1)= ( " << sumgtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "TotalTime[Rambo]        (2)= ( " << sumrtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "TotalTime[MatrixElems]  (3)= ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "MeanTimeInMatrixElems      = ( " << meanwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "[Min,Max]TimeInMatrixElems = [ " << minwtim
-              << " ,  " << maxwtim << " ]  sec" << std::endl
-      //<< "StdDevTimeInWaveFuncs      = ( " << stdwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "-----------------------------------------------------------------------" << std::endl
-      //<< "ProcessID:                 = " << getpid() << std::endl
-      //<< "NProcesses                 = " << process.nprocesses << std::endl
-              << "TotalEventsComputed        = " << nevtALL << std::endl
-              << "EvtsPerSec[Rnd+Rmb+ME](123)= ( " << nevtALL/(sumgtim+sumrtim+sumwtim)
-              << std::string(16, ' ') << " )  sec^-1" << std::endl
-              << "EvtsPerSec[Rmb+ME]     (23)= ( " << nevtALL/(sumrtim+sumwtim)
-              << std::string(16, ' ') << " )  sec^-1" << std::endl
-      //<< "EvtsPerSec[RndNumbGen]   (1)= ( " << nevtALL/sumgtim
-      //<< std::string(16, ' ') << " )  sec^-1" << std::endl
-      //<< "EvtsPerSec[Rambo]        (2)= ( " << nevtALL/sumrtim
-      //<< std::string(16, ' ') << " )  sec^-1" << std::endl
-              << "EvtsPerSec[MatrixElems] (3)= ( " << nevtALL/sumwtim
-              << std::string(16, ' ') << " )  sec^-1" << std::endl
-              << std::defaultfloat; // default format: affects all floats
-    std::cout << "***********************************************************************" << std::endl
+        << "-------------------------------------------------------------------"
+           "----"
+        << std::endl
+        << "NumberOfEntries            = " << niter << std::endl
+        << std::scientific // fixed format: affects all floats (default
+                           // precision: 6)
+        << "TotalTime[Rnd+Rmb+ME] (123)= ( " << sumgtim + sumrtim + sumwtim
+        << std::string(16, ' ') << " )  sec" << std::endl
+        << "TotalTime[Rambo+ME]    (23)= ( " << sumrtim + sumwtim
+        << std::string(16, ' ') << " )  sec" << std::endl
+        << "TotalTime[RndNumGen]    (1)= ( " << sumgtim << std::string(16, ' ')
+        << " )  sec" << std::endl
+        << "TotalTime[Rambo]        (2)= ( " << sumrtim << std::string(16, ' ')
+        << " )  sec" << std::endl
+        << "TotalTime[MatrixElems]  (3)= ( " << sumwtim << std::string(16, ' ')
+        << " )  sec" << std::endl
+        << "MeanTimeInMatrixElems      = ( " << meanwtim << std::string(16, ' ')
+        << " )  sec" << std::endl
+        << "[Min,Max]TimeInMatrixElems = [ " << minwtim << " ,  " << maxwtim
+        << " ]  sec"
+        << std::endl
+        //<< "StdDevTimeInWaveFuncs      = ( " << stdwtim << std::string(16, '
+        //') << " )  sec" << std::endl
+        << "-------------------------------------------------------------------"
+           "----"
+        << std::endl
+        //<< "ProcessID:                 = " << getpid() << std::endl
+        //<< "NProcesses                 = " << process.nprocesses << std::endl
+        << "TotalEventsComputed        = " << nevtALL << std::endl
+        << "EvtsPerSec[Rnd+Rmb+ME](123)= ( "
+        << nevtALL / (sumgtim + sumrtim + sumwtim) << std::string(16, ' ')
+        << " )  sec^-1" << std::endl
+        << "EvtsPerSec[Rmb+ME]     (23)= ( " << nevtALL / (sumrtim + sumwtim)
+        << std::string(16, ' ') << " )  sec^-1"
+        << std::endl
+        //<< "EvtsPerSec[RndNumbGen]   (1)= ( " << nevtALL/sumgtim
+        //<< std::string(16, ' ') << " )  sec^-1" << std::endl
+        //<< "EvtsPerSec[Rambo]        (2)= ( " << nevtALL/sumrtim
+        //<< std::string(16, ' ') << " )  sec^-1" << std::endl
+        << "EvtsPerSec[MatrixElems] (3)= ( " << nevtALL / sumwtim
+        << std::string(16, ' ') << " )  sec^-1" << std::endl
+        << std::defaultfloat; // default format: affects all floats
+    std::cout << "*************************************************************"
+                 "**********"
+              << std::endl
               << "NumMatrixElements(notNan)  = " << nevtALL - nnan << std::endl
-              << std::scientific // fixed format: affects all floats (default precision: 6)
-              << "MeanMatrixElemValue        = ( " << meanelem
-              << " +- " << stdelem/sqrt(nevtALL - nnan) << " )  GeV^" << meGeVexponent << std::endl // standard error
-              << "[Min,Max]MatrixElemValue   = [ " << minelem
-              << " ,  " << maxelem << " ]  GeV^" << meGeVexponent << std::endl
-              << "StdDevMatrixElemValue      = ( " << stdelem << std::string(16, ' ') << " )  GeV^" << meGeVexponent << std::endl
-              << "MeanWeight                 = ( " << meanweig
-              << " +- " << stdweig/sqrt(nevtALL - nnan) << " )" << std::endl // standard error
-              << "[Min,Max]Weight            = [ " << minweig
-              << " ,  " << maxweig << " ]" << std::endl
-              << "StdDevWeight               = ( " << stdweig << std::string(16, ' ') << " )" << std::endl
+              << std::scientific // fixed format: affects all floats (default
+                                 // precision: 6)
+              << "MeanMatrixElemValue        = ( " << meanelem << " +- "
+              << stdelem / sqrt(nevtALL - nnan) << " )  GeV^" << meGeVexponent
+              << std::endl // standard error
+              << "[Min,Max]MatrixElemValue   = [ " << minelem << " ,  "
+              << maxelem << " ]  GeV^" << meGeVexponent << std::endl
+              << "StdDevMatrixElemValue      = ( " << stdelem
+              << std::string(16, ' ') << " )  GeV^" << meGeVexponent
+              << std::endl
+              << "MeanWeight                 = ( " << meanweig << " +- "
+              << stdweig / sqrt(nevtALL - nnan) << " )"
+              << std::endl // standard error
+              << "[Min,Max]Weight            = [ " << minweig << " ,  "
+              << maxweig << " ]" << std::endl
+              << "StdDevWeight               = ( " << stdweig
+              << std::string(16, ' ') << " )" << std::endl
               << std::defaultfloat; // default format: affects all floats
   }
 
@@ -685,79 +957,88 @@ int main(int argc, char **argv)
       jsonFile << ", " << std::endl;
     }
 
-    jsonFile << "{" << std::endl
-             << "\"NumIterations\": " << niter << ", " << std::endl
-             << "\"NumThreadsPerBlock\": " << gputhreads << ", " << std::endl
-             << "\"NumBlocksPerGrid\": " << gpublocks << ", " << std::endl
+    jsonFile
+        << "{" << std::endl
+        << "\"NumIterations\": " << niter << ", " << std::endl
+        << "\"NumThreadsPerBlock\": " << gputhreads << ", " << std::endl
+        << "\"NumBlocksPerGrid\": " << gpublocks << ", " << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
-             << "\"FP precision\": "
-             << "\"DOUBLE (nan=" << nnan << ")\"," << std::endl
+        << "\"FP precision\": "
+        << "\"DOUBLE (nan=" << nnan << ")\"," << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
-             << "\"FP precision\": " << "FLOAT (nan=" << nnan << ")," << std::endl
+        << "\"FP precision\": "
+        << "FLOAT (nan=" << nnan << ")," << std::endl
 #endif
-             << "\"Complex type\": "
-#ifdef __CUDACC__
+        << "\"Complex type\": "
+#ifdef CL_SYCL_LANGUAGE_VERSION
 #if defined MGONGPU_CXTYPE_CUCOMPLEX
-             << "\"CUCOMPLEX\"," << std::endl
+        << "\"CUCOMPLEX\"," << std::endl
 #elif defined MGONGPU_CXTYPE_THRUST
-             << "\"THRUST::COMPLEX\"," << std::endl
+        << "\"THRUST::COMPLEX\"," << std::endl
 #endif
 #else
-             << "\"STD::COMPLEX\"," << std::endl
+        << "\"STD::COMPLEX\"," << std::endl
 #endif
-             << "\"RanNumb memory layout\": " << "\"AOSOA[" << neppR << "]\""
-             << ( neppR == 1 ? " == AOS" : "" ) << ", " << std::endl
-             << "\"Momenta memory layout\": " << "\"AOSOA[" << neppM << "]\""
-             << ( neppM == 1 ? " == AOS" : "" ) << ", " << std::endl
-#ifdef __CUDACC__
-             << "\"Wavefunction GPU memory\": " << "\"LOCAL\"," << std::endl
+        << "\"RanNumb memory layout\": "
+        << "\"AOSOA[" << neppR << "]\"" << (neppR == 1 ? " == AOS" : "") << ", "
+        << std::endl
+        << "\"Momenta memory layout\": "
+        << "\"AOSOA[" << neppM << "]\"" << (neppM == 1 ? " == AOS" : "") << ", "
+        << std::endl
+#ifdef CL_SYCL_LANGUAGE_VERSION
+        << "\"Wavefunction GPU memory\": "
+        << "\"LOCAL\"," << std::endl
 #endif
-             << "\"Curand generation\": "
-#ifdef __CUDACC__
+        << "\"Curand generation\": "
+#ifdef CL_SYCL_LANGUAGE_VERSION
 #if defined MGONGPU_CURAND_ONDEVICE
-             << "\"DEVICE (CUDA code)\"," << std::endl
+        << "\"DEVICE (CUDA code)\"," << std::endl
 #elif defined MGONGPU_CURAND_ONHOST
-             << "\"HOST (CUDA code)\"," << std::endl
+        << "\"HOST (CUDA code)\"," << std::endl
 #endif
 #else
-             << "\"HOST (C++ code)\"," << std::endl
+        << "\"HOST (C++ code)\"," << std::endl
 #endif
-             << "\"NumberOfEntries\": " << niter << "," << std::endl
-      //<< std::scientific // Not sure about this
-             << "\"TotalTimeInWaveFuncs\": "
-             << "\"" << std::to_string(sumwtim) << " sec\"," << std::endl
-             << "\"MeanTimeInWaveFuncs\": "
-             << "\"" << std::to_string(meanwtim) << " sec\"," << std::endl
-             << "\"StdDevTimeInWaveFuncs\": "
-             << "\"" << std::to_string(stdwtim) << " sec\"," << std::endl
-             << "\"MinTimeInWaveFuncs\": "
-             << "\"" << std::to_string(minwtim) << " sec\"," << std::endl
-             << "\"MaxTimeInWaveFuncs\": "
-             << "\"" << std::to_string(maxwtim) << " sec\"," << std::endl
-      //<< "ProcessID:                = " << getpid() << std::endl
-      //<< "NProcesses                = " << process.nprocesses << std::endl
-             << "\"TotalEventsComputed\": " << nevtALL << "," << std::endl
-             << "\"RamboEventsPerSec\": "
-             << "\"" << std::to_string(nevtALL/sumrtim) << " sec^-1\"," << std::endl
-             << "\"MatrixElemEventsPerSec\": "
-             << "\"" << std::to_string(nevtALL/sumwtim) << " sec^-1\"," << std::endl
-             << "\"NumMatrixElements(notNan)\": " << nevtALL - nnan << "," << std::endl
-             << std::scientific
-             << "\"MeanMatrixElemValue\": "
-             << "\"" << std::to_string(meanelem) << " GeV^"
-             << std::to_string(meGeVexponent) << "\"," << std::endl
-             << "\"StdErrMatrixElemValue\": "
-             << "\"" << std::to_string(stdelem/sqrt(nevtALL)) << " GeV^"
-             << std::to_string(meGeVexponent) << "\"," << std::endl
-             << "\"StdDevMatrixElemValue\": "
-             << "\"" << std::to_string(stdelem)
-             << " GeV^" << std::to_string(meGeVexponent) << "\"," << std::endl
-             << "\"MinMatrixElemValue\": "
-             << "\"" << std::to_string(minelem) << " GeV^"
-             << std::to_string(meGeVexponent) << "\"," << std::endl
-             << "\"MaxMatrixElemValue\": "
-             << "\"" << std::to_string(maxelem) << " GeV^"
-             << std::to_string(meGeVexponent) <<  "\"," << std::endl;
+        << "\"NumberOfEntries\": " << niter << ","
+        << std::endl
+        //<< std::scientific // Not sure about this
+        << "\"TotalTimeInWaveFuncs\": "
+        << "\"" << std::to_string(sumwtim) << " sec\"," << std::endl
+        << "\"MeanTimeInWaveFuncs\": "
+        << "\"" << std::to_string(meanwtim) << " sec\"," << std::endl
+        << "\"StdDevTimeInWaveFuncs\": "
+        << "\"" << std::to_string(stdwtim) << " sec\"," << std::endl
+        << "\"MinTimeInWaveFuncs\": "
+        << "\"" << std::to_string(minwtim) << " sec\"," << std::endl
+        << "\"MaxTimeInWaveFuncs\": "
+        << "\"" << std::to_string(maxwtim) << " sec\","
+        << std::endl
+        //<< "ProcessID:                = " << getpid() << std::endl
+        //<< "NProcesses                = " << process.nprocesses << std::endl
+        << "\"TotalEventsComputed\": " << nevtALL << "," << std::endl
+        << "\"RamboEventsPerSec\": "
+        << "\"" << std::to_string(nevtALL / sumrtim) << " sec^-1\","
+        << std::endl
+        << "\"MatrixElemEventsPerSec\": "
+        << "\"" << std::to_string(nevtALL / sumwtim) << " sec^-1\","
+        << std::endl
+        << "\"NumMatrixElements(notNan)\": " << nevtALL - nnan << ","
+        << std::endl
+        << std::scientific << "\"MeanMatrixElemValue\": "
+        << "\"" << std::to_string(meanelem) << " GeV^"
+        << std::to_string(meGeVexponent) << "\"," << std::endl
+        << "\"StdErrMatrixElemValue\": "
+        << "\"" << std::to_string(stdelem / sqrt(nevtALL)) << " GeV^"
+        << std::to_string(meGeVexponent) << "\"," << std::endl
+        << "\"StdDevMatrixElemValue\": "
+        << "\"" << std::to_string(stdelem) << " GeV^"
+        << std::to_string(meGeVexponent) << "\"," << std::endl
+        << "\"MinMatrixElemValue\": "
+        << "\"" << std::to_string(minelem) << " GeV^"
+        << std::to_string(meGeVexponent) << "\"," << std::endl
+        << "\"MaxMatrixElemValue\": "
+        << "\"" << std::to_string(maxelem) << " GeV^"
+        << std::to_string(meGeVexponent) << "\"," << std::endl;
 
     timermap.dump(jsonFile, true); // NB For the active json timer this dumps a partial total
 

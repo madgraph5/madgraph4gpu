@@ -8,6 +8,9 @@
 #ifndef MG5_Sigma_sm_epem_mupmum_H
 #define MG5_Sigma_sm_epem_mupmum_H
 
+#define DPCT_USM_LEVEL_NONE
+#include <CL/sycl.hpp>
+#include <dpct/dpct.hpp>
 #include <cassert>
 #include <complex>
 #include <vector>
@@ -21,25 +24,20 @@
 
 //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef CL_SYCL_LANGUAGE_VERSION
 
 #define checkCuda( code )                       \
   { assertCuda( code, __FILE__, __LINE__ ); }
 
-inline void assertCuda( cudaError_t code, const char *file, int line, bool abort = true )
+inline void assertCuda(int code, const char *file, int line, bool abort = true)
 {
-  if ( code != cudaSuccess )
-  {
-    printf( "GPUassert: %s %s:%d\n", cudaGetErrorString(code), file, line );
-    if ( abort ) assert( code == cudaSuccess );
-  }
 }
 
 #endif
 
 //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef CL_SYCL_LANGUAGE_VERSION
 namespace gProc
 #else
 namespace Proc
@@ -112,27 +110,36 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
-  __global__
+#ifdef CL_SYCL_LANGUAGE_VERSION
+  SYCL_EXTERNAL
   void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            bool* isGoodHel );        // output: isGoodHel[ncomb] - device array
+                            bool* isGoodHel,
+                            sycl::nd_item<3> item_ct1,
+                            dpct::accessor<int, dpct::device, 2> cHel );        // output: isGoodHel[ncomb] - device array
 #endif
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef CL_SYCL_LANGUAGE_VERSION
   void sigmaKin_setGoodHel( const bool* isGoodHel ); // input: isGoodHel[ncomb] - host array
 #endif
 
   //--------------------------------------------------------------------------
 
-  __global__
-  void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                 fptype* allMEs            // output: allMEs[nevt], final |M|^2 averaged over all helicities
-#ifndef __CUDACC__
-                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+  SYCL_EXTERNAL
+  void sigmaKin(const fptype *allmomenta, // input: momenta as
+                                          // AOSOA[npagM][npar][4][neppM] with
+                                          // nevt=npagM*neppM
+                fptype *allMEs, sycl::nd_item<3> item_ct1,
+                dpct::accessor<int, dpct::device, 2> cHel, int *cNGoodHel,
+                int *cGoodHel // output: allMEs[nevt], final |M|^2 averaged over
+                              // all helicities
+#ifndef CL_SYCL_LANGUAGE_VERSION
+                ,
+                const int nevt // input: #events (for cuda: nevt == ndim ==
+                               // gpublocks*gputhreads)
 #endif
-                 );
+  );
 
   //--------------------------------------------------------------------------
 

@@ -1,6 +1,9 @@
 #ifndef MGONGPUTIMERMAP_H
 #define MGONGPUTIMERMAP_H 1
 
+#define DPCT_USM_LEVEL_NONE
+#include <CL/sycl.hpp>
+#include <dpct/dpct.hpp>
 #include <cassert>
 #include <map>
 #include <string>
@@ -71,8 +74,8 @@ namespace mgOnGpu
       const std::string total3Key = "TOTAL   (3)";
       size_t maxsize = 0;
       for ( auto ip : m_partitionTimers )
-        maxsize = std::max( maxsize, ip.first.size() );
-      maxsize = std::max( maxsize, totalKey.size() );
+        maxsize = std::max(maxsize, ip.first.size());
+      maxsize = std::max(maxsize, totalKey.size());
       // Compute the overall total
       size_t ipart = 0;
       float total = 0;

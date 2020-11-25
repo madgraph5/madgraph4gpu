@@ -1,3 +1,6 @@
+#define DPCT_USM_LEVEL_NONE
+#include <CL/sycl.hpp>
+#include <dpct/dpct.hpp>
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
@@ -8,7 +11,7 @@
 #include "rambo.h"
 
 // Simplified rambo version for 2 to N (with N>=2) processes with massless particles
-#ifdef __CUDACC__
+#ifdef CL_SYCL_LANGUAGE_VERSION
 namespace grambo2toNm0
 #else
 namespace rambo2toNm0
@@ -19,10 +22,11 @@ namespace rambo2toNm0
 
   // Fill in the momenta of the initial particles
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
-  __global__
+  
   void getMomentaInitial( const fptype energy, // input: energy
-                          fptype momenta1d[]   // output: momenta as AOSOA[npagM][npar][4][neppM]
-#ifndef __CUDACC__
+                          fptype momenta1d[],
+                          sycl::nd_item<3> item_ct1   // output: momenta as AOSOA[npagM][npar][4][neppM]
+#ifndef CL_SYCL_LANGUAGE_VERSION
                           , const int nevt     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                           )
@@ -32,13 +36,13 @@ namespace rambo2toNm0
     const fptype energy1 = energy/2;
     const fptype energy2 = energy/2;
     const fptype mom = energy/2;
-#ifndef __CUDACC__
+#ifndef CL_SYCL_LANGUAGE_VERSION
     // ** START LOOP ON IEVT **
     for (int ievt = 0; ievt < nevt; ++ievt)
 #endif
     {
-#ifdef __CUDACC__
-      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid
+#ifdef CL_SYCL_LANGUAGE_VERSION
+      const int idim = item_ct1.get_local_range().get(2) * item_ct1.get_group(2) + item_ct1.get_local_id(2); // event# == threadid
       const int ievt = idim;
       //printf( "getMomentaInitial: ievt %d\n", ievt );
 #endif
@@ -60,12 +64,13 @@ namespace rambo2toNm0
 
   // Fill in the momenta of the final particles using the RAMBO algorithm
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
-  __global__
+  
   void getMomentaFinal( const fptype energy,      // input: energy
                         const fptype rnarray1d[], // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
                         fptype momenta1d[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
-                        fptype wgts[]             // output: weights[nevt]
-#ifndef __CUDACC__
+                        fptype wgts[],
+                        sycl::nd_item<3> item_ct1             // output: weights[nevt]
+#ifndef CL_SYCL_LANGUAGE_VERSION
                         , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                         )
@@ -88,22 +93,22 @@ namespace rambo2toNm0
     fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
     
     // initialization step: factorials for the phase space weight
-    const fptype twopi = 8. * atan(1.);
-    const fptype po2log = log(twopi / 4.);
+    const fptype twopi = 8. * sycl::atan(1.);
+    const fptype po2log = sycl::log(twopi / 4.);
     fptype z[nparf];
     z[1] = po2log;
     for (int kpar = 2; kpar < nparf; kpar++)
-      z[kpar] = z[kpar - 1] + po2log - 2. * log(fptype(kpar - 1));
+      z[kpar] = z[kpar - 1] + po2log - 2. * sycl::log((double)(fptype(kpar - 1)));
     for (int kpar = 2; kpar < nparf; kpar++)
-      z[kpar] = (z[kpar] - log(fptype(kpar)));
+      z[kpar] = (z[kpar] - sycl::log((double)fptype(kpar)));
 
-#ifndef __CUDACC__
+#ifndef CL_SYCL_LANGUAGE_VERSION
     // ** START LOOP ON IEVT **
     for (int ievt = 0; ievt < nevt; ++ievt)
 #endif
     {
-#ifdef __CUDACC__
-      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid
+#ifdef CL_SYCL_LANGUAGE_VERSION
+      const int idim = item_ct1.get_local_range().get(2) * item_ct1.get_group(2) + item_ct1.get_local_id(2); // event# == threadid
       const int ievt = idim;
       //printf( "getMomentaFinal:   ievt %d\n", ievt );
 #endif
@@ -123,12 +128,12 @@ namespace rambo2toNm0
         const fptype r3 = rnarray[ipagR][iparf][2][ieppR];
         const fptype r4 = rnarray[ipagR][iparf][3][ieppR];
         const fptype c = 2. * r1 - 1.;
-        const fptype s = sqrt(1. - c * c);
+        const fptype s = sycl::sqrt(1. - c * c);
         const fptype f = twopi * r2;
-        q[iparf][0] = -log(r3 * r4);
+        q[iparf][0] = -sycl::log(r3 * r4);
         q[iparf][3] = q[iparf][0] * c;
-        q[iparf][2] = q[iparf][0] * s * cos(f);
-        q[iparf][1] = q[iparf][0] * s * sin(f);
+        q[iparf][2] = q[iparf][0] * s * sycl::cos((double)f);
+        q[iparf][1] = q[iparf][0] * s * sycl::sin((double)f);
       }
 
       // calculate the parameters of the conformal transformation
@@ -140,7 +145,7 @@ namespace rambo2toNm0
         for (int i4 = 0; i4 < np4; i4++)
           r[i4] = r[i4] + q[iparf][i4];
       }
-      const fptype rmas = sqrt(pow(r[0], 2) - pow(r[3], 2) - pow(r[2], 2) - pow(r[1], 2));
+      const fptype rmas = sycl::sqrt(r[0] * r[0] - r[3] * r[3] - r[2] * r[2] - r[1] * r[1]);
       for (int i4 = 1; i4 < np4; i4++)
         b[i4-1] = -r[i4] / rmas;
       const fptype g = r[0] / rmas;
@@ -158,9 +163,9 @@ namespace rambo2toNm0
       // calculate weight (NB return log of weight)
       wt = po2log;
       if (nparf != 2)
-        wt = (2. * nparf - 4.) * log(energy) + z[nparf-1];
+        wt = (2. * nparf - 4.) * sycl::log((double)energy) + z[nparf-1];
 
-#ifndef __CUDACC__
+#ifndef CL_SYCL_LANGUAGE_VERSION
       // issue warnings if weight is too small or too large
       static int iwarn[5] = {0,0,0,0,0};
       if (wt < -180.) {
