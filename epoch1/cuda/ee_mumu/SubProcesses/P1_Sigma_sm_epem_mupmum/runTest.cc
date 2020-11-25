@@ -160,8 +160,116 @@ struct CPUTest : public BaseTest {
 };
 #endif
 
+#ifdef __CUDACC__
+struct CUDATest : public BaseTest {
+  // Reset the device when our test goes out of scope. Note that this should happen after
+  // the frees, i.e. be declared before the pointers to device memory.
+  struct DeviceReset {
+    ~DeviceReset() {
+      checkCuda( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
+    }
+  } deviceResetter;
 
+  unique_ptr_host<fptype> hstRnarray;
+  unique_ptr_host<fptype> hstMomenta;
+  unique_ptr_host<bool  > hstIsGoodHel;
+  unique_ptr_host<fptype> hstWeights;
+  unique_ptr_host<fptype> hstMEs;
+
+  unique_ptr_dev<fptype> devRnarray;
+  unique_ptr_dev<fptype> devMomenta;
+  unique_ptr_dev<bool  > devIsGoodHel;
+  unique_ptr_dev<fptype> devWeights;
+  unique_ptr_dev<fptype> devMEs;
+
+  gProc::CPPProcess process;
+
+  // Create a process object
+  // Read param_card and set parameters
+  // ** WARNING EVIL EVIL **
+  // The CPPProcess constructor has side effects on the globals Proc::cHel, which is needed in ME calculations.
+  // Don't remove!
+  CUDATest() :
+  BaseTest(),
+  process(niter, gpublocks, gputhreads, /*verbose=*/false)
+  {
+    process.initProc("../../Cards/param_card.dat");
+
+    checkCuda( cudaFree( 0 ) ); // SLOW!
+
+    // --- 0b. Allocate memory structures
+    // Memory structures for random numbers, momenta, matrix elements and weights on host and device
+    hstRnarray   = hstMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+    hstMomenta   = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
+    hstIsGoodHel = hstMakeUnique<bool  >( mgOnGpu::ncomb );
+    hstWeights   = hstMakeUnique<fptype>( nWeights ); // (previously was: meHostPtr)
+    hstMEs       = hstMakeUnique<fptype>( nMEs ); // (previously was: meHostPtr)
+
+    devRnarray   = devMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+    devMomenta   = devMakeUnique<fptype>( nMomenta ); // (previously was: allMomenta)
+    devIsGoodHel = devMakeUnique<bool  >( mgOnGpu::ncomb );
+    devWeights   = devMakeUnique<fptype>( nWeights ); // (previously was: meDevPtr)
+    devMEs       = devMakeUnique<fptype>( nMEs ); // (previously was: meDevPtr)
+  }
+
+  virtual ~CUDATest() { }
+
+  void prepareRandomNumbers(int iiter) override {
+    std::vector<fptype> rnd = CommonRandomNumbers::generate<fptype>(nRnarray, 1337 + iiter);
+    std::copy(rnd.begin(), rnd.end(), hstRnarray.get());
+    checkCuda( cudaMemcpy( devRnarray.get(), hstRnarray.get(), nRnarray * sizeof(decltype(devRnarray)::element_type), cudaMemcpyHostToDevice ) );
+  }
+
+
+  void prepareMomenta(fptype energy) override {
+    // --- 2a. Fill in momenta of initial state particles on the device
+    grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta.get() );
+
+    // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
+    // (i.e. map random numbers to final-state particle momenta for each of nevt events)
+    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.get(), devMomenta.get(), devWeights.get() );
+
+    // --- 2c. CopyDToH Weights
+    checkCuda( cudaMemcpy( hstWeights.get(), devWeights.get(), nWeights * sizeof(decltype(hstWeights)::element_type), cudaMemcpyDeviceToHost ) );
+
+    // --- 2d. CopyDToH Momenta
+    checkCuda( cudaMemcpy( hstMomenta.get(), devMomenta.get(), nMomenta * sizeof(decltype(hstMomenta)::element_type), cudaMemcpyDeviceToHost ) );
+  }
+
+  void runSigmaKin(std::size_t iiter) override {
+    // --- 0d. SGoodHel
+    if ( iiter == 0 )
+    {
+      // ... 0d1. Compute good helicity mask on the device
+      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.get(), devIsGoodHel.get());
+      checkCuda( cudaPeekAtLastError() );
+      // ... 0d2. Copy back good helicity mask to the host
+      checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(), mgOnGpu::ncomb * sizeof(decltype(hstIsGoodHel)::element_type), cudaMemcpyDeviceToHost ) );
+      // ... 0d3. Copy back good helicity list to constant memory on the device
+      gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
+    }
+
+    // --- 3a. SigmaKin
+#ifndef MGONGPU_NSIGHT_DEBUG
+    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.get(), devMEs.get());
+#else
+    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.get(), devMEs.get());
+#endif
+    checkCuda( cudaPeekAtLastError() );
+
+    // --- 3b. CopyDToH MEs
+    checkCuda( cudaMemcpy( hstMEs.get(), devMEs.get(), nMEs * sizeof(decltype(hstMEs)::element_type), cudaMemcpyDeviceToHost ) );
+  }
+
+};
+#endif
+
+
+#ifdef __CUDACC__
+TEST_F(CUDATest, eemumu)
+#else
 TEST_F(CPUTest, eemumu)
+#endif
 {
   // Set to dump events:
   constexpr bool dumpEvents = false;
