@@ -85,6 +85,24 @@ namespace MG5_sm
 // 
 // 
 
+__device__ void VVVV1_0(const cxtype V1[], const cxtype V2[], const cxtype
+    V3[], const cxtype V4[], const cxtype COUP, cxtype * vertex);
+
+__device__ void VVVV1P0_1(const cxtype V2[], const cxtype V3[], const cxtype
+    V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[]);
+
+__device__ void VVV1_0(const cxtype V1[], const cxtype V2[], const cxtype V3[],
+    const cxtype COUP, cxtype * vertex);
+
+__device__ void VVV1P0_1(const cxtype V2[], const cxtype V3[], const cxtype
+    COUP, const fptype M1, const fptype W1, cxtype V1[]);
+
+__device__ void VVVV3_0(const cxtype V1[], const cxtype V2[], const cxtype
+    V3[], const cxtype V4[], const cxtype COUP, cxtype * vertex);
+
+__device__ void VVVV3P0_1(const cxtype V2[], const cxtype V3[], const cxtype
+    V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[]);
+
 __device__ void FFV1_0(const cxtype F1[], const cxtype F2[], const cxtype V3[],
     const cxtype COUP, cxtype * vertex);
 
@@ -101,24 +119,6 @@ __device__ void VVVV4_0(const cxtype V1[], const cxtype V2[], const cxtype
     V3[], const cxtype V4[], const cxtype COUP, cxtype * vertex);
 
 __device__ void VVVV4P0_1(const cxtype V2[], const cxtype V3[], const cxtype
-    V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[]);
-
-__device__ void VVVV3_0(const cxtype V1[], const cxtype V2[], const cxtype
-    V3[], const cxtype V4[], const cxtype COUP, cxtype * vertex);
-
-__device__ void VVVV3P0_1(const cxtype V2[], const cxtype V3[], const cxtype
-    V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[]);
-
-__device__ void VVV1_0(const cxtype V1[], const cxtype V2[], const cxtype V3[],
-    const cxtype COUP, cxtype * vertex);
-
-__device__ void VVV1P0_1(const cxtype V2[], const cxtype V3[], const cxtype
-    COUP, const fptype M1, const fptype W1, cxtype V1[]);
-
-__device__ void VVVV1_0(const cxtype V1[], const cxtype V2[], const cxtype
-    V3[], const cxtype V4[], const cxtype COUP, cxtype * vertex);
-
-__device__ void VVVV1P0_1(const cxtype V2[], const cxtype V3[], const cxtype
     V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[]);
 
 }  // end namespace MG5_sm
