@@ -519,10 +519,6 @@ namespace Proc
       //printf( "calculate_wavefunctions: ievt %d\n", ievt );
 #endif
 
-      // Write into the output allMEs directly (instead of using a local variable and copying it back to allMEs)
-      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-      fptype& meHelSum = allMEs[ievt];
-
       // Local variables for the given ievt
       cxtype amp[2];
       cxtype w[nwf][nw6]; // w[5][6]
@@ -566,14 +562,15 @@ namespace Proc
         for( int jcol = 0; jcol < ncolor; jcol++ )
           ztemp += cf[icol][jcol] * jamp[jcol];
         // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
-        meHelSum += cxreal( ztemp * conj( jamp[icol] ) ) / denom[icol];
+        // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+        allMEs[ievt] += cxreal( ztemp * conj( jamp[icol] ) ) / denom[icol];
       }
 
       // Store the leading color flows for choice of color
       // for(i=0;i < ncolor; i++)
       // jamp2[0][i] += cxreal( jamp[i]*conj( jamp[i] ) );
 
-      //printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, meHelSum );
+      //printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt] );
     }
 
     mgDebug( 1, __FUNCTION__ );
@@ -673,14 +670,13 @@ namespace Proc
     const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
     const int ievt = idim;
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-    fptype& meHelSum = allMEs[ievt];
-    fptype meHelSumLast = 0;
+    fptype allMEsLast = 0;
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to running sum of |M|^2 over helicities for the given event(s)
       calculate_wavefunctions( ihel, allmomenta, allMEs );
-      if ( meHelSum > meHelSumLast && !isGoodHel[ihel] ) isGoodHel[ihel] = true;
-      meHelSumLast = meHelSum;
+      if ( allMEs[ievt] > allMEsLast && !isGoodHel[ihel] ) isGoodHel[ihel] = true;
+      allMEsLast = allMEs[ievt]; // running sum up to helicity ihel for event ievt
     }
   }
 #else
@@ -777,10 +773,9 @@ namespace Proc
     for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
-      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-      fptype& meHelSum = allMEs[ievt];
       // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
-      meHelSum = 0; // all zeros
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      allMEs[ievt] = 0; // all zeros
     }
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
@@ -800,12 +795,11 @@ namespace Proc
     for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
-      // FIXME: assume process.nprocesses == 1 for the moment
-      fptype& meHelSum = allMEs[ievt];
       // Get the final |M|^2 as an average over helicities/colors of running sum of |M|^2 over helicities for the given event
       // [NB 'sum over final spins, average over initial spins', eg see
       // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
-      meHelSum /= denominators;
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      allMEs[ievt] /= denominators;
     }
 
     // ** END LOOP ON IEVT **
