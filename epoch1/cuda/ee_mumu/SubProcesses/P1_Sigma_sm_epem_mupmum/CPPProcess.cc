@@ -504,54 +504,58 @@ namespace Proc
     const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
 #endif
 
-    cxtype amp[2];
-    cxtype w[nwf][nw6]; // w[5][6]
+    // This brace will be needed to move the event loop here in c++...
+    {
+      cxtype amp[2];
+      cxtype w[nwf][nw6]; // w[5][6]
 
 #ifdef __CUDACC__
-    MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], 0 );
-    MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], 1 );
-    MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w[2], 2 );
-    MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w[3], 3 );
+      MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], 0 );
+      MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], 1 );
+      MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w[2], 2 );
+      MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w[3], 3 );
 #else
-    MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
-    MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
-    MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
-    MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
+      MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
+      MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
+      MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
+      MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
 #endif
 
-    // Diagram 1
-    MG5_sm::FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
-    MG5_sm::FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
+      // Diagram 1
+      MG5_sm::FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
+      MG5_sm::FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
 
-    // Diagram 2
-    MG5_sm::FFV2_4_3( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
-    MG5_sm::FFV2_4_0( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[1] );
+      // Diagram 2
+      MG5_sm::FFV2_4_3( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
+      MG5_sm::FFV2_4_0( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[1] );
 
-    const int ncolor = 1;
-    cxtype jamp[ncolor];
+      const int ncolor = 1;
+      cxtype jamp[ncolor];
 
-    // The color matrix;
-    const fptype denom[ncolor] = {1};
-    const fptype cf[ncolor][ncolor] = {{1}};
+      // The color matrix;
+      const fptype denom[ncolor] = {1};
+      const fptype cf[ncolor][ncolor] = {{1}};
 
-    // Calculate color flows
-    // (compute M as the sum of the invariant amplitudes for all Feynman diagrams)
-    jamp[0] = -amp[0] - amp[1];
+      // Calculate color flows
+      // (compute M as the sum of the invariant amplitudes for all Feynman diagrams)
+      jamp[0] = -amp[0] - amp[1];
 
-    // Sum and square the color flows to get the matrix element
-    // (compute |M|^2 by squaring |M|, taking into account colours)
-    for( int icol = 0; icol < ncolor; icol++ )
-    {
-      cxtype ztemp = cxmake( 0, 0 );
-      for( int jcol = 0; jcol < ncolor; jcol++ )
-        ztemp = ztemp + cf[icol][jcol] * jamp[jcol];
-      // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
-      meHelSum = meHelSum + cxreal( ztemp * conj( jamp[icol] ) ) / denom[icol];
+      // Sum and square the color flows to get the matrix element
+      // (compute |M|^2 by squaring |M|, taking into account colours)
+      for( int icol = 0; icol < ncolor; icol++ )
+      {
+        cxtype ztemp = cxmake( 0, 0 );
+        for( int jcol = 0; jcol < ncolor; jcol++ )
+          ztemp = ztemp + cf[icol][jcol] * jamp[jcol];
+        // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
+        meHelSum = meHelSum + cxreal( ztemp * conj( jamp[icol] ) ) / denom[icol];
+      }
+
+      // Store the leading color flows for choice of color
+      // for(i=0;i < ncolor; i++)
+      // jamp2[0][i] += cxreal( jamp[i]*conj( jamp[i] ) );
+
     }
-
-    // Store the leading color flows for choice of color
-    // for(i=0;i < ncolor; i++)
-    // jamp2[0][i] += cxreal( jamp[i]*conj( jamp[i] ) );
 
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -712,6 +716,7 @@ namespace Proc
     // ** START LOOP ON IEVT **
     for (int ievt = 0; ievt < nevt; ++ievt)
 #endif
+      // This brace is a relic from the time the event loop was here in c++: keep it for the moment...
     {
 #ifdef __CUDACC__
       const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
