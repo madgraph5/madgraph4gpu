@@ -57,7 +57,7 @@ namespace MG5_sm
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
-    //for (int ievt = 0; ievt < nevt; ++ievt)
+    //for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
 #ifdef __CUDACC__
@@ -119,7 +119,7 @@ namespace MG5_sm
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
-    //for (int ievt = 0; ievt < nevt; ++ievt)
+    //for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
 #ifdef __CUDACC__
@@ -182,7 +182,7 @@ namespace MG5_sm
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
-    //for (int ievt = 0; ievt < nevt; ++ievt)
+    //for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
 #ifdef __CUDACC__
@@ -469,6 +469,10 @@ namespace Proc
   static int cHel[ncomb][npar];
   static fptype cIPC[6];
   static fptype cIPD[2];
+  // FIXME: assume process.nprocesses == 1 for the moment
+  //static int cNGoodHel[1];
+  static int cNGoodHel;
+  static int cGoodHel[ncomb];
 #endif
 
   //--------------------------------------------------------------------------
@@ -505,14 +509,8 @@ namespace Proc
 #endif
 
 #ifndef __CUDACC__
-    const int sigmakin_maxtry = 10;
-    static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
-    static bool sigmakin_goodhel[ncomb] = { false };
-#endif
-
-#ifndef __CUDACC__
     // ** START LOOP ON IEVT **
-    for (int ievt = 0; ievt < nevt; ++ievt)
+    for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
 #ifdef __CUDACC__
@@ -524,12 +522,6 @@ namespace Proc
       // Write into the output allMEs directly (instead of using a local variable and copying it back to allMEs)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
       fptype& meHelSum = allMEs[ievt];
-
-#ifndef __CUDACC__
-      // C++ - compute good helicities within this event loop
-      fptype meHelSumLast = 0; // check for good helicities
-      if ( sigmakin_itry>sigmakin_maxtry && !sigmakin_goodhel[ihel] ) continue;
-#endif
 
       // Local variables for the given ievt
       cxtype amp[2];
@@ -581,22 +573,7 @@ namespace Proc
       // for(i=0;i < ncolor; i++)
       // jamp2[0][i] += cxreal( jamp[i]*conj( jamp[i] ) );
 
-#ifndef __CUDACC__
-      // C++ - compute good helicities within this event loop
-      if ( sigmakin_itry<=sigmakin_maxtry )
-      {
-        if ( !sigmakin_goodhel[ihel] && meHelSum>meHelSumLast ) sigmakin_goodhel[ihel] = true;
-        // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to running sum of |M|^2 over helicities for the given event
-        meHelSumLast = meHelSum;
-      }
-      if ( sigmakin_itry <= sigmakin_maxtry ) sigmakin_itry++;
-      //if ( sigmakin_itry == sigmakin_maxtry )
-      //  for (int ihel = 0; ihel < ncomb; ihel++ )
-      //    printf( "sigmakin: ihelgood %2d %d\n", ihel, sigmakin_goodhel[ihel] );
-
       //printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, meHelSum );
-#endif
-
     }
 
     mgDebug( 1, __FUNCTION__ );
@@ -695,23 +672,46 @@ namespace Proc
   {
     const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
     const int ievt = idim;
-    // Write into the output allMEs directly (instead of using a local variable and copying it back to allMEs)
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     fptype& meHelSum = allMEs[ievt];
     fptype meHelSumLast = 0;
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
-      // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to running sum of |M|^2 over helicities for the given event
+      // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to running sum of |M|^2 over helicities for the given event(s)
       calculate_wavefunctions( ihel, allmomenta, allMEs );
       if ( meHelSum > meHelSumLast ) isGoodHel[ihel] = true;
       meHelSumLast = meHelSum;
+    }
+  }
+#else
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                            fptype* allMEs,           // output: allMEs[nevt], final |M|^2 averaged over all helicities
+                            bool* isGoodHel           // output: isGoodHel[ncomb] - device array
+                            , const int nevt )        // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+  {
+    const int maxtry0 = 10;
+    fptype allMEsLast[maxtry0] = { 0 };
+    const int maxtry = std::min( maxtry0, nevt ); // avoid invalid memory access if nevt<maxtry0
+    for ( int ievt = 0; ievt < maxtry; ++ievt )
+    {
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      allMEs[ievt] = 0; // all zeros
+    }
+    for ( int ihel = 0; ihel < ncomb; ihel++ )
+    {
+      calculate_wavefunctions( ihel, allmomenta, allMEs, maxtry );
+      for ( int ievt = 0; ievt < maxtry; ++ievt )
+      {
+        // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+        if ( allMEs[ievt] > allMEsLast[ievt] ) isGoodHel[ihel] = true;
+        allMEsLast[ievt] = allMEs[ievt]; // running sum up to helicity ihel
+      }
     }
   }
 #endif
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
   void sigmaKin_setGoodHel( const bool* isGoodHel ) // input: isGoodHel[ncomb] - host array
   {
     // FIXME: assume process.nprocesses == 1 for the moment
@@ -727,10 +727,14 @@ namespace Proc
         nGoodHel++;
       }
     }
+#ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cNGoodHel, &nGoodHel, sizeof(int) ) );
     checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb*sizeof(int) ) );
-  }
+#else
+    cNGoodHel = nGoodHel;
+    for ( int ihel = 0; ihel < ncomb; ihel++ ) cGoodHel[ihel] = goodHel[ihel];
 #endif
+  }
 
   //--------------------------------------------------------------------------
   // Evaluate |M|^2, part independent of incoming flavour
@@ -765,7 +769,7 @@ namespace Proc
 
     // PART 0 - INITIALISATION (before calculate_wavefunctions)
 #ifndef __CUDACC__
-    for (int ievt = 0; ievt < nevt; ++ievt)
+    for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
@@ -775,24 +779,20 @@ namespace Proc
     }
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
-#ifdef __CUDACC__
-    // CUDA - using precomputed good helicities
+    // (in both CUDA and C++, using precomputed good helicities)
     for ( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
+#ifdef __CUDACC__
       calculate_wavefunctions( ihel, allmomenta, allMEs );
-    }
 #else
-    // C++ - compute good helicities within the event loop in calculate_wavefunctions
-    for ( int ihel = 0; ihel < ncomb; ihel++ )
-    {
       calculate_wavefunctions( ihel, allmomenta, allMEs, nevt );
-    }
 #endif
+    }
 
     // PART 2 - FINALISATION (after calculate_wavefunctions)
 #ifndef __CUDACC__
-    for (int ievt = 0; ievt < nevt; ++ievt)
+    for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
       // FIXME: assume process.nprocesses == 1 for the moment
