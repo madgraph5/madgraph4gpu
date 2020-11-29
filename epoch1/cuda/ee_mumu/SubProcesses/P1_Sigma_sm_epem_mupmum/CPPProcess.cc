@@ -504,12 +504,6 @@ namespace Proc
     const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
 #endif
 
-    // Denominators: spins, colors and identical particles
-    // FIXME: assume process.nprocesses == 1 for the moment
-    //const int nprocesses = 1;
-    //const int denominators[nprocesses] = { 4 };
-    const int denominators = 4;
-
 #ifndef __CUDACC__
     const int sigmakin_maxtry = 10;
     static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
@@ -530,10 +524,6 @@ namespace Proc
       // Write into the output allMEs directly (instead of using a local variable and copying it back to allMEs)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
       fptype& meHelSum = allMEs[ievt];
-
-      // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
-      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-      meHelSum = 0; // all zeros
 
 #ifndef __CUDACC__
       // C++ - compute good helicities within this event loop
@@ -582,22 +572,14 @@ namespace Proc
       {
         cxtype ztemp = cxmake( 0, 0 );
         for( int jcol = 0; jcol < ncolor; jcol++ )
-          ztemp = ztemp + cf[icol][jcol] * jamp[jcol];
+          ztemp += cf[icol][jcol] * jamp[jcol];
         // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
-        meHelSum = meHelSum + cxreal( ztemp * conj( jamp[icol] ) ) / denom[icol];
+        meHelSum += cxreal( ztemp * conj( jamp[icol] ) ) / denom[icol];
       }
 
       // Store the leading color flows for choice of color
       // for(i=0;i < ncolor; i++)
       // jamp2[0][i] += cxreal( jamp[i]*conj( jamp[i] ) );
-
-      // Get the final |M|^2 as an average over helicities/colors of running sum of |M|^2 over helicities for the given event
-      // [NB 'sum over final spins, average over initial spins', eg see
-      // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
-      // FIXME: assume process.nprocesses == 1 for the moment
-      //for (int iproc = 0; iproc < nprocesses; ++iproc)
-      //  meHelSum[iproc] /= denominators[iproc];
-      meHelSum /= denominators;
 
 #ifndef __CUDACC__
       // C++ - compute good helicities within this event loop
@@ -769,24 +751,69 @@ namespace Proc
     // pars->setDependentCouplings();
     // Reset color flows
 
-    // This brace is a relic from the time the event loop was here in c++: keep it for the moment...
+    // PART 0 - RESET
+#ifndef __CUDACC__
+    // ** START LOOP ON IEVT **
+    for (int ievt = 0; ievt < nevt; ++ievt)
+#endif
     {
 #ifdef __CUDACC__
-      // CUDA - using precomputed good helicities
-      for ( int ighel = 0; ighel < cNGoodHel; ighel++ )
-      {
-        const int ihel = cGoodHel[ighel];
-        calculate_wavefunctions( ihel, allmomenta, allMEs );
-      }
+      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
+      const int ievt = idim;
+#endif
+      fptype& meHelSum = allMEs[ievt];
+      // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      meHelSum = 0; // all zeros
+    }
+
+    // PART 1 - CALCULATE WAVEFUNCTIONS
+#ifdef __CUDACC__
+    // CUDA - using precomputed good helicities
+    for ( int ighel = 0; ighel < cNGoodHel; ighel++ )
+    {
+      const int ihel = cGoodHel[ighel];
+      calculate_wavefunctions( ihel, allmomenta, allMEs );
+    }
 #else
-      // C++ - compute good helicities within the event loop in calculate_wavefunctions
-      for ( int ihel = 0; ihel < ncomb; ihel++ )
-      {
-        calculate_wavefunctions( ihel, allmomenta, allMEs, nevt );
-      }
+    // C++ - compute good helicities within the event loop in calculate_wavefunctions
+    for ( int ihel = 0; ihel < ncomb; ihel++ )
+    {
+      calculate_wavefunctions( ihel, allmomenta, allMEs, nevt );
+    }
 #endif
 
+    // PART 2 - POST-PROCESSING
+#ifndef __CUDACC__
+    // ** START LOOP ON IEVT **
+    for (int ievt = 0; ievt < nevt; ++ievt)
+#endif
+    {
+#ifdef __CUDACC__
+      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
+      const int ievt = idim;
+      //printf( "sigmakin: ievt %d\n", ievt );
+#endif
+
+      // Write into the output allMEs directly (instead of using a local variable and copying it back to allMEs)
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      fptype& meHelSum = allMEs[ievt];
+
+      // Denominators: spins, colors and identical particles
+      // FIXME: assume process.nprocesses == 1 for the moment
+      //const int nprocesses = 1;
+      //const int denominators[nprocesses] = { 4 };
+      const int denominators = 4;
+
+      // Get the final |M|^2 as an average over helicities/colors of running sum of |M|^2 over helicities for the given event
+      // [NB 'sum over final spins, average over initial spins', eg see
+      // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
+      // FIXME: assume process.nprocesses == 1 for the moment
+      //for (int iproc = 0; iproc < nprocesses; ++iproc)
+      //  meHelSum[iproc] /= denominators[iproc];
+      meHelSum /= denominators;
     }
+
     // ** END LOOP ON IEVT **
     mgDebugFinalise();
 
