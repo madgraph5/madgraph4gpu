@@ -725,10 +725,13 @@ namespace Proc
       //const int denominators[nprocesses] = { 4 };
       const int denominators = 4;
 
+      // Write into the output allMEs directly (instead of using a local variable and copying it back to allMEs)
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      fptype& meHelSum = allMEs[ievt];
+
       // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
-      // FIXME: assume process.nprocesses == 1 for the moment
-      //fptype meHelSum[nprocesses] = { 0 }; // all zeros
-      fptype meHelSum = 0; // all zeros
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      meHelSum = 0; // all zeros
 
 #ifdef __CUDACC__
       // CUDA - using precomputed good helicities
@@ -760,12 +763,6 @@ namespace Proc
       //for (int iproc = 0; iproc < nprocesses; ++iproc)
       //  meHelSum[iproc] /= denominators[iproc];
       meHelSum /= denominators;
-
-      // Set the final average |M|^2 for this event in the output array for all events
-      // FIXME: assume process.nprocesses == 1 for the moment
-      //for (int iproc = 0; iproc < nprocesses; ++iproc)
-      //  allMEs[iproc*nprocesses + ievt] = meHelSum[iproc];
-      allMEs[ievt] = meHelSum;
 
 #ifndef __CUDACC__
       if ( sigmakin_itry <= maxtry )
