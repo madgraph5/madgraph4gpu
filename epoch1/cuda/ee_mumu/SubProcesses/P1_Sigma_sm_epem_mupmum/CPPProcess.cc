@@ -13,7 +13,6 @@
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
-#include "mgOnGpuVectors.h"
 
 mgDebugDeclare();
 
@@ -49,45 +48,32 @@ namespace MG5_sm
                  //const fptype fmass,
                  const int nhel,
                  const int nsf,
-#ifdef __CUDACC__
-                 cxtype fis[nw6],          // output: wavefunction[6]
-#else
-                 cxtype_v fis_v[nw6],      // output: wavefunction[6]
-                 const int ipagV,
+                 cxtype fis[nw6],
+#ifndef __CUDACC__
+                 const int ievt,
 #endif
                  const int ipar )          // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
-    // ** START LOOP ON IEPPV **
-    for ( int ieppV = 0; ieppV < neppV; ++ieppV )
+    // ** START LOOP ON IEVT **
+    //for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "imzxxxM0: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-#else
-      const int ievt = ipagV*neppV + ieppV;
 #endif
       const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-#ifdef __CUDACC__
       cxtype& fi_0 = fis[0];
       cxtype& fi_1 = fis[1];
       cxtype& fi_2 = fis[2];
       cxtype& fi_3 = fis[3];
       cxtype& fi_4 = fis[4];
       cxtype& fi_5 = fis[5];
-#else
-      cxtype& fi_0 = fis_v[0][ieppV];
-      cxtype& fi_1 = fis_v[1][ieppV];
-      cxtype& fi_2 = fis_v[2][ieppV];
-      cxtype& fi_3 = fis_v[3][ieppV];
-      cxtype& fi_4 = fis_v[4][ieppV];
-      cxtype& fi_5 = fis_v[5][ieppV];
-#endif
       fi_0 = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi_1 = cxmake( -pvec1 * nsf, -pvec2 * nsf );
       const int nh = nhel * nsf;
@@ -124,45 +110,32 @@ namespace MG5_sm
                  //const fptype fmass,
                  const int nhel,
                  const int nsf,
-#ifdef __CUDACC__
                  cxtype fis[nw6],          // output: wavefunction[6]
-#else
-                 cxtype_v fis_v[nw6],      // output: wavefunction[6]
-                 const int ipagV,
+#ifndef __CUDACC__
+                 const int ievt,
 #endif
                  const int ipar )          // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
-    // ** START LOOP ON IEPPV **
-    for ( int ieppV = 0; ieppV < neppV; ++ieppV )
+    // ** START LOOP ON IEVT **
+    //for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "ixzxxxM0: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-#else
-      const int ievt = ipagV*neppV + ieppV;
 #endif
       const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-#ifdef __CUDACC__
       cxtype& fi_0 = fis[0];
       cxtype& fi_1 = fis[1];
       cxtype& fi_2 = fis[2];
       cxtype& fi_3 = fis[3];
       cxtype& fi_4 = fis[4];
       cxtype& fi_5 = fis[5];
-#else
-      cxtype& fi_0 = fis_v[0][ieppV];
-      cxtype& fi_1 = fis_v[1][ieppV];
-      cxtype& fi_2 = fis_v[2][ieppV];
-      cxtype& fi_3 = fis_v[3][ieppV];
-      cxtype& fi_4 = fis_v[4][ieppV];
-      cxtype& fi_5 = fis_v[5][ieppV];
-#endif
       fi_0 = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi_1 = cxmake( -pvec1 * nsf, -pvec2 * nsf );
       const int nh = nhel * nsf;
@@ -200,45 +173,32 @@ namespace MG5_sm
                  //const fptype fmass,
                  const int nhel,
                  const int nsf,
-#ifdef __CUDACC__
                  cxtype fos[nw6],          // output: wavefunction[6]
-#else
-                 cxtype_v fos_v[nw6],      // output: wavefunction[6]
-                 const int ipagV,
+#ifndef __CUDACC__
+                 const int ievt,
 #endif
                  const int ipar )          // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
-    // ** START LOOP ON IEPPV **
-    for ( int ieppV = 0; ieppV < neppV; ++ieppV )
+    // ** START LOOP ON IEVT **
+    //for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "oxzxxxM0: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-#else
-      const int ievt = ipagV*neppV + ieppV;
 #endif
       const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-#ifdef __CUDACC__
       cxtype& fo_0 = fos[0];
       cxtype& fo_1 = fos[1];
       cxtype& fo_2 = fos[2];
       cxtype& fo_3 = fos[3];
       cxtype& fo_4 = fos[4];
       cxtype& fo_5 = fos[5];
-#else
-      cxtype& fo_0 = fos_v[0][ieppV];
-      cxtype& fo_1 = fos_v[1][ieppV];
-      cxtype& fo_2 = fos_v[2][ieppV];
-      cxtype& fo_3 = fos_v[3][ieppV];
-      cxtype& fo_4 = fos_v[4][ieppV];
-      cxtype& fo_5 = fos_v[5][ieppV];
-#endif
       fo_0 = cxmake( pvec0 * nsf, pvec3 * nsf );
       fo_1 = cxmake( pvec1 * nsf, pvec2 * nsf );
       const int nh = nhel * nsf;
@@ -548,95 +508,69 @@ namespace Proc
     const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
 #endif
 
-#ifdef __CUDACC__
-    // Local variables for the given event (ievt)
-    //cxtype amp[2];
-    cxtype w[nwf][nw6]; // w[5][6]
-#else
-    // Local variables for the given event page (ipagV)
-    //cxtype_v amp[2];
-    cxtype_v w_v[nwf][nw6]; // w_v[5][6]
-#endif
-
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
-    //for ( int ievt = 0; ievt < nevt; ++ievt )
-    const int npagV = nevt / neppV;
-    // ** START LOOP ON IPAGV **
-    for ( int ipagV = 0; ipagV < npagV; ++ipagV )
+    for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
+      // Local variables for the given ievt
+      cxtype amp[2];
+      cxtype w[nwf][nw6]; // w[5][6]
+
 #ifdef __CUDACC__
       MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], 0 );
       MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], 1 );
       MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w[2], 2 );
       MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w[3], 3 );
 #else
-      MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w_v[0], ipagV, 0 );
-      MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w_v[1], ipagV, 1 );
-      MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w_v[2], ipagV, 2 );
-      MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w_v[3], ipagV, 3 );
+      MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
+      MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
+      MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
+      MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
 #endif
 
-#ifndef __CUDACC__
-      // ** START LOOP ON IEPPV **
-      for ( int ieppV = 0; ieppV < neppV; ++ieppV )
-#endif
-      {
-        // Local variables for the given event (ievt)
-        cxtype amp[2];
-#ifndef __CUDACC__
-        const int ievt = ipagV*neppV + ieppV;
-        // Local variables for the given event (ievt)
-        cxtype w[nwf][nw6]; // w[5][6]
-        for ( int iwf = 0; iwf < nwf; ++iwf )
-          for ( int iw6 = 0; iw6 < nw6; ++iw6 )
-            w[iwf][iw6] = w_v[iwf][iw6][ieppV];
-#endif
+      // Diagram 1
+      MG5_sm::FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
+      MG5_sm::FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
 
-        // Diagram 1
-        MG5_sm::FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
-        MG5_sm::FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
+      // Diagram 2
+      MG5_sm::FFV2_4_3( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
+      MG5_sm::FFV2_4_0( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[1] );
 
-        // Diagram 2
-        MG5_sm::FFV2_4_3( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
-        MG5_sm::FFV2_4_0( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[1] );
+      const int ncolor = 1;
+      cxtype jamp[ncolor];
 
-        const int ncolor = 1;
-        cxtype jamp[ncolor];
+      // The color matrix;
+      const fptype denom[ncolor] = {1};
+      const fptype cf[ncolor][ncolor] = {{1}};
 
-        // The color matrix;
-        const fptype denom[ncolor] = {1};
-        const fptype cf[ncolor][ncolor] = {{1}};
-
-        // Calculate color flows
-        // (compute M as the sum of the invariant amplitudes for all Feynman diagrams)
-        jamp[0] = -amp[0] - amp[1];
+      // Calculate color flows
+      // (compute M as the sum of the invariant amplitudes for all Feynman diagrams)
+      jamp[0] = -amp[0] - amp[1];
 
 #ifdef __CUDACC__
-        const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
-        const int ievt = idim;
-        //printf( "calculate_wavefunctions: ievt %d\n", ievt );
+      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
+      const int ievt = idim;
+      //printf( "calculate_wavefunctions: ievt %d\n", ievt );
 #endif
 
-        // Sum and square the color flows to get the matrix element
-        // (compute |M|^2 by squaring |M|, taking into account colours)
-        for( int icol = 0; icol < ncolor; icol++ )
-        {
-          cxtype ztemp = cxmake( 0, 0 );
-          for( int jcol = 0; jcol < ncolor; jcol++ )
-            ztemp += cf[icol][jcol] * jamp[jcol];
-          // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
-          // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-          allMEs[ievt] += cxreal( ztemp * conj( jamp[icol] ) ) / denom[icol];
-        }
-
-        // Store the leading color flows for choice of color
-        // for(i=0;i < ncolor; i++)
-        // jamp2[0][i] += cxreal( jamp[i]*conj( jamp[i] ) );
-
-        //printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt] );
+      // Sum and square the color flows to get the matrix element
+      // (compute |M|^2 by squaring |M|, taking into account colours)
+      for( int icol = 0; icol < ncolor; icol++ )
+      {
+        cxtype ztemp = cxmake( 0, 0 );
+        for( int jcol = 0; jcol < ncolor; jcol++ )
+          ztemp += cf[icol][jcol] * jamp[jcol];
+        // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
+        // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+        allMEs[ievt] += cxreal( ztemp * conj( jamp[icol] ) ) / denom[icol];
       }
+
+      // Store the leading color flows for choice of color
+      // for(i=0;i < ncolor; i++)
+      // jamp2[0][i] += cxreal( jamp[i]*conj( jamp[i] ) );
+
+      //printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt] );
     }
 
     mgDebug( 1, __FUNCTION__ );
