@@ -1,5 +1,5 @@
-#ifndef MGONGPUCOMPLEX_H
-#define MGONGPUCOMPLEX_H 1
+#ifndef MGONGPUTYPES_H
+#define MGONGPUTYPES_H 1
 
 #include "mgOnGpuConfig.h"
 
@@ -322,4 +322,4 @@ cxtype cxmake( const std::complex<double>& c ) // std::complex to std::complex (
 
 #endif  // END cuda/c++
 
-#endif // MGONGPUCOMPLEX_H
+#endif // MGONGPUTYPES_H
