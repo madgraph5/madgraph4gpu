@@ -513,12 +513,6 @@ namespace Proc
     for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
-#ifdef __CUDACC__
-      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
-      const int ievt = idim;
-      //printf( "calculate_wavefunctions: ievt %d\n", ievt );
-#endif
-
       // Local variables for the given ievt
       cxtype amp[2];
       cxtype w[nwf][nw6]; // w[5][6]
@@ -553,6 +547,12 @@ namespace Proc
       // Calculate color flows
       // (compute M as the sum of the invariant amplitudes for all Feynman diagrams)
       jamp[0] = -amp[0] - amp[1];
+
+#ifdef __CUDACC__
+      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
+      const int ievt = idim;
+      //printf( "calculate_wavefunctions: ievt %d\n", ievt );
+#endif
 
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
