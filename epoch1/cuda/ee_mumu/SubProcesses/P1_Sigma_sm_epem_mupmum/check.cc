@@ -507,7 +507,7 @@ int main(int argc, char **argv)
     maxwtim = std::max( maxwtim, wavetimes[iiter] );
   }
   double meanwtim = sumwtim / niter;
-  double stdwtim = std::sqrt( sqswtim / niter - meanwtim * meanwtim );
+  //double stdwtim = std::sqrt( sqswtim / niter - meanwtim * meanwtim );
 
   int nnan = 0;
   double minelem = matrixelementALL[0];
