@@ -24,14 +24,14 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+#ifdef __CUDACC__
   __device__
   inline const fptype& pIparIp4Ievt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                      const int ipar,
                                      const int ip4,
                                      const int ievt )
   {
-    //mapping for the various scheme AOS, OSA, ...
-
+    // mapping for the various schemes (AOSOA, AOS, SOA...)
     using mgOnGpu::np4;
     using mgOnGpu::npar;
     const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
@@ -41,6 +41,20 @@ namespace MG5_sm
     //return allmomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
     return momenta[ipagM][ipar][ip4][ieppM];
   }
+#else
+  inline const fptype_v& pIparIp4Ipag( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
+                                       const int ipar,
+                                       const int ip4,
+                                       const int ipagM )
+  {
+    // mapping for the various schemes (AOSOA, AOS, SOA...)
+    using mgOnGpu::np4;
+    using mgOnGpu::npar;
+    const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
+    fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
+    return (const fptype_v&)momenta[ipagM][ipar][ip4];
+  }
+#endif
 
   //--------------------------------------------------------------------------
 
@@ -60,19 +74,22 @@ namespace MG5_sm
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     // ** START LOOP ON IEPPV **
-    for ( int ieppV = 0; ieppV < neppV; ++ieppV )
+    //for ( int ieppV = 0; ieppV < neppV; ++ieppV )
 #endif
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "imzxxxM0: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-#else
-      const int ievt = ipagV*neppV + ieppV;
-#endif
       const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+#else
+      const fptype_v& pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
+      const fptype_v& pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
+      const fptype_v& pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
+      const fptype_v& pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+#endif
 #ifdef __CUDACC__
       cxtype& fi_0 = fis[0];
       cxtype& fi_1 = fis[1];
@@ -81,12 +98,12 @@ namespace MG5_sm
       cxtype& fi_4 = fis[4];
       cxtype& fi_5 = fis[5];
 #else
-      cxtype& fi_0 = fis_v[0][ieppV];
-      cxtype& fi_1 = fis_v[1][ieppV];
-      cxtype& fi_2 = fis_v[2][ieppV];
-      cxtype& fi_3 = fis_v[3][ieppV];
-      cxtype& fi_4 = fis_v[4][ieppV];
-      cxtype& fi_5 = fis_v[5][ieppV];
+      cxtype_v& fi_0 = fis_v[0];
+      cxtype_v& fi_1 = fis_v[1];
+      cxtype_v& fi_2 = fis_v[2];
+      cxtype_v& fi_3 = fis_v[3];
+      cxtype_v& fi_4 = fis_v[4];
+      cxtype_v& fi_5 = fis_v[5];
 #endif
       fi_0 = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi_1 = cxmake( -pvec1 * nsf, -pvec2 * nsf );
@@ -94,12 +111,17 @@ namespace MG5_sm
       // ASSUMPTIONS FMASS = 0 and
       // (PX = PY = 0 and E = -P3 > 0)
       {
-        const cxtype chi0 = cxmake( 0, 0 );
+#ifdef __CUDACC__
+        const cxtype chi0 = cxmake00();
         const cxtype chi1 = cxmake( -nhel * sqrt(2 * pvec0), 0 );
+#else
+        const cxtype_v chi0 = cxmake00();
+        const cxtype_v chi1 = cxmaker0( -nhel * sqrt(2 * pvec0) );
+#endif
         if (nh == 1)
         {
-          fi_2 = cxmake( 0, 0 );
-          fi_3 = cxmake( 0, 0 );
+          fi_2 = cxmake00();
+          fi_3 = cxmake00();
           fi_4 = chi0;
           fi_5 = chi1;
         }
@@ -107,8 +129,8 @@ namespace MG5_sm
         {
           fi_2 = chi1;
           fi_3 = chi0;
-          fi_4 = cxmake( 0, 0 );
-          fi_5 = cxmake( 0, 0 );
+          fi_4 = cxmake00();
+          fi_5 = cxmake00();
         }
       }
     }
@@ -135,19 +157,22 @@ namespace MG5_sm
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     // ** START LOOP ON IEPPV **
-    for ( int ieppV = 0; ieppV < neppV; ++ieppV )
+    //for ( int ieppV = 0; ieppV < neppV; ++ieppV )
 #endif
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "ixzxxxM0: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-#else
-      const int ievt = ipagV*neppV + ieppV;
-#endif
       const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+#else
+      const fptype_v& pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
+      const fptype_v& pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
+      const fptype_v& pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
+      const fptype_v& pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+#endif
 #ifdef __CUDACC__
       cxtype& fi_0 = fis[0];
       cxtype& fi_1 = fis[1];
@@ -156,12 +181,12 @@ namespace MG5_sm
       cxtype& fi_4 = fis[4];
       cxtype& fi_5 = fis[5];
 #else
-      cxtype& fi_0 = fis_v[0][ieppV];
-      cxtype& fi_1 = fis_v[1][ieppV];
-      cxtype& fi_2 = fis_v[2][ieppV];
-      cxtype& fi_3 = fis_v[3][ieppV];
-      cxtype& fi_4 = fis_v[4][ieppV];
-      cxtype& fi_5 = fis_v[5][ieppV];
+      cxtype_v& fi_0 = fis_v[0];
+      cxtype_v& fi_1 = fis_v[1];
+      cxtype_v& fi_2 = fis_v[2];
+      cxtype_v& fi_3 = fis_v[3];
+      cxtype_v& fi_4 = fis_v[4];
+      cxtype_v& fi_5 = fis_v[5];
 #endif
       fi_0 = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi_1 = cxmake( -pvec1 * nsf, -pvec2 * nsf );
@@ -169,13 +194,19 @@ namespace MG5_sm
       // ASSUMPTIONS FMASS = 0 and
       // (PX and PY are not 0)
       {
+#ifdef __CUDACC__
         const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
         const cxtype chi0 = cxmake( sqp0p3, 0 );
         const cxtype chi1 = cxmake( nh * pvec1 / sqp0p3, pvec2 / sqp0p3 );
+#else
+        const fptype_v sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
+        const cxtype_v chi0 = cxmaker0( sqp0p3 );
+        const cxtype_v chi1 = cxmake( nh * pvec1 / sqp0p3, pvec2 / sqp0p3 );
+#endif
         if ( nh == 1 )
         {
-          fi_2 = cxmake( 0, 0 );
-          fi_3 = cxmake( 0, 0 );
+          fi_2 = cxmake00();
+          fi_3 = cxmake00();
           fi_4 = chi0;
           fi_5 = chi1;
         }
@@ -183,8 +214,8 @@ namespace MG5_sm
         {
           fi_2 = chi1;
           fi_3 = chi0;
-          fi_4 = cxmake( 0, 0 );
-          fi_5 = cxmake( 0, 0 );
+          fi_4 = cxmake00();
+          fi_5 = cxmake00();
         }
       }
     }
@@ -211,19 +242,22 @@ namespace MG5_sm
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     // ** START LOOP ON IEPPV **
-    for ( int ieppV = 0; ieppV < neppV; ++ieppV )
+    //for ( int ieppV = 0; ieppV < neppV; ++ieppV )
 #endif
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "oxzxxxM0: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-#else
-      const int ievt = ipagV*neppV + ieppV;
-#endif
       const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+#else
+      const fptype_v& pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
+      const fptype_v& pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
+      const fptype_v& pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
+      const fptype_v& pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+#endif
 #ifdef __CUDACC__
       cxtype& fo_0 = fos[0];
       cxtype& fo_1 = fos[1];
@@ -232,12 +266,12 @@ namespace MG5_sm
       cxtype& fo_4 = fos[4];
       cxtype& fo_5 = fos[5];
 #else
-      cxtype& fo_0 = fos_v[0][ieppV];
-      cxtype& fo_1 = fos_v[1][ieppV];
-      cxtype& fo_2 = fos_v[2][ieppV];
-      cxtype& fo_3 = fos_v[3][ieppV];
-      cxtype& fo_4 = fos_v[4][ieppV];
-      cxtype& fo_5 = fos_v[5][ieppV];
+      cxtype_v& fo_0 = fos_v[0];
+      cxtype_v& fo_1 = fos_v[1];
+      cxtype_v& fo_2 = fos_v[2];
+      cxtype_v& fo_3 = fos_v[3];
+      cxtype_v& fo_4 = fos_v[4];
+      cxtype_v& fo_5 = fos_v[5];
 #endif
       fo_0 = cxmake( pvec0 * nsf, pvec3 * nsf );
       fo_1 = cxmake( pvec1 * nsf, pvec2 * nsf );
@@ -246,20 +280,26 @@ namespace MG5_sm
       // EITHER (Px and Py are not zero)
       // OR (PX = PY = 0 and E = P3 > 0)
       {
+#ifdef __CUDACC__
         const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
         const cxtype chi0 = cxmake( sqp0p3, 0 );
         const cxtype chi1 = cxmake( nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
+#else
+        const fptype_v sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
+        const cxtype_v chi0 = cxmaker0( sqp0p3 );
+        const cxtype_v chi1 = cxmake( nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
+#endif
         if( nh == 1 )
         {
           fo_2 = chi0;
           fo_3 = chi1;
-          fo_4 = cxmake( 0, 0 );
-          fo_5 = cxmake( 0, 0 );
+          fo_4 = cxmake00();
+          fo_5 = cxmake00();
         }
         else
         {
-          fo_2 = cxmake( 0, 0 );
-          fo_3 = cxmake( 0, 0 );
+          fo_2 = cxmake00();
+          fo_3 = cxmake00();
           fo_4 = chi1;
           fo_5 = chi0;
         }
