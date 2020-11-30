@@ -69,7 +69,7 @@ std::unique_ptr<T[], CudaHstDeleter<T>> hstMakeUnique(std::size_t N) {
 };
 #else
 template<typename T = fptype>
-std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{ new T[N] }; };
+std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{ new T[N]() }; };
 #endif
 
 int main(int argc, char **argv)
