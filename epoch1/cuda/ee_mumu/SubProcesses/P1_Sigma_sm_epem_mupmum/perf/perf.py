@@ -126,6 +126,12 @@ class Perf():
     def plot2D(self):
         self.prepData2D()
 
+        # use this value to plot a flat line for the cpu values to compare with
+        cpuval = 0
+        # cpuval = 79766.84    # tot
+        # cpuval = 427251.1  # rmb + me
+        # cpuval = 472578.7    # me
+
         cmap = {'32': 'red', '64': 'orange', '128': 'blue', '256': 'green'}
         smap = {'32': 20, '64': 40, '128': 80, '256': 160}
 
@@ -152,13 +158,16 @@ class Perf():
         print(xlist)
         print(ylist)
         for xe, ye, ce, se in zip(xlist, ylist, clist, slist):
+            print([xe] * len(ye))
             ax.scatter([xe] * len(ye), ye, s=se, facecolors='none',
                        edgecolors=ce)
+            if cpuval:
+                ax.scatter(xe, cpuval, marker='+', c='dimgrey')
 
         ax.set_xticks(xlist)
         ax.set_xlabel('%s * %s' % (self.axesn[0], self.axesn[1]))
         ax.set_ylabel('%s' % (self.axesn[2]))
-        # ax.set_yscale('log')
+        ax.set_yscale('log')
         ax.set_xticklabels(dims, rotation=45)
         ax.yaxis.set_major_formatter(ScalarFormatter())
         plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
