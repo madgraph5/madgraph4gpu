@@ -184,6 +184,8 @@ namespace rambo2toNm0
     return;
   }
 
+
+#if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_CURAND_ONDEVICE
   //--------------------------------------------------------------------------
 
   // Create and initialise a curand generator
@@ -237,6 +239,7 @@ namespace rambo2toNm0
   }
 
   //--------------------------------------------------------------------------
+#endif
 
 }
 

@@ -8,7 +8,7 @@
 template <typename ExecSpace>
 Kokkos::View<double***,ExecSpace> get_momenta(const int ninitial,const int nexternal,const double energy,
                                   Kokkos::View<double*,ExecSpace> masses,
-                                  Kokkos::View<double*,ExecSpace> wgt, int dim) {
+                                  double &wgt, int dim) {
   //---- auxiliary function to change convention between MadGraph5_aMC@NLO and
   // rambo
   //---- four momenta.
@@ -27,6 +27,11 @@ Kokkos::View<double***,ExecSpace> get_momenta(const int ninitial,const int nexte
   auto h_ninitial = Kokkos::create_mirror_view(d_ninitial);
   h_ninitial() = ninitial;
   Kokkos::deep_copy(d_nfinal,h_ninitial);
+
+  Kokkos::View<double,ExecSpace> d_wgt("d_wgt");
+  auto h_wgt = Kokkos::create_mirror_view(d_wgt);
+  h_wgt() = wgt;
+  Kokkos::deep_copy(d_wgt,h_wgt);
   
   Kokkos::View<double***,ExecSpace> d_p("d_p",dim,nexternal,4);
   Kokkos::parallel_for("p_init",dim,KOKKOS_LAMBDA(const int& i){
@@ -96,7 +101,7 @@ Kokkos::View<double***,ExecSpace> get_momenta(const int ninitial,const int nexte
        *    p  = particle momenta ( dim=(4,nexternal-nincoming) )            *
        *    wt = weight of the event                                         *
        ***********************************************************************/
-      constexpr int n_outgoing = 4; // TODO: hardcoded, really needs to be (nexternal - ninitial);
+      constexpr int n_outgoing = 2; // TODO: hardcoded, really needs to be (nexternal - ninitial);
       double z[n_outgoing], r[4] = {0.,0.,0.,0.}, b[3] = {0.,0.,0.}, p2[n_outgoing];
       double xm2[n_outgoing], e[n_outgoing], v[n_outgoing];
       for(int j = 0;j<n_outgoing;++j){
@@ -169,21 +174,18 @@ Kokkos::View<double***,ExecSpace> get_momenta(const int ninitial,const int nexte
         p[j][0] = x * (g * q[j][0] + bq);
       }
 
-      // for (int j = 0; j < n_outgoing; j++)
-      //   printf("q[%d] = %10.2e %10.2e %10.2e %10.2e \n",j,q[j][0],q[j][1],q[j][2],q[j][3]);
-
       // calculate weight and possible warnings
-      wgt(i) = po2log;
+      d_wgt() = po2log;
       if (n_outgoing != 2)
-        wgt(i) = (2. * n_outgoing - 4.) * log(d_energy()) + z[n_outgoing - 1];
-      if (wgt(i) < -180.) {
+        d_wgt() = (2. * n_outgoing - 4.) * log(d_energy()) + z[n_outgoing - 1];
+      if (d_wgt() < -180.) {
         if (iwarn(0) <= 5)
-        	printf("Too small wt, risk for underflow: %f\n",wgt(i));
+        	printf("Too small wt, risk for underflow: %f\n",d_wgt());
         Kokkos::atomic_fetch_add(&iwarn(0),1);
       }
-      if (wgt(i) > 174.) {
+      if (d_wgt() > 174.) {
         if (iwarn(1) <= 5)
-          printf("Too large wt, risk for overflow: %f\n",wgt(i));
+          printf("Too large wt, risk for overflow: %f\n",d_wgt());
         Kokkos::atomic_fetch_add(&iwarn(1),1);
       }
 
@@ -225,11 +227,15 @@ Kokkos::View<double***,ExecSpace> get_momenta(const int ninitial,const int nexte
         x = x - f0 / (x * g0);
       }
 
-      for (int i = 0; i < n_outgoing; i++) {
-        v[i] = x * p[i][0];
-        for (int k = 1; k < 4; k++)
-          p[i][k] = x * p[i][k];
-        p[i][0] = e[i];
+      for (int j = 0; j < n_outgoing; j++) {
+        v[j] = x * p[j][0];
+        for (int k = 0; k < 4; k++){
+          if(k>0)
+            p[j][k] = x * p[j][k];
+          printf("i = %03d  p[%03d][%03d] = %10.5f\n",i,j,k,p[j][k]);
+          d_p(i,j+d_ninitial(),k) = p[j][k];
+        }
+        p[j][0] = e[j];
       }
 
       // calculate the mass-effect weight factor
@@ -242,23 +248,23 @@ Kokkos::View<double***,ExecSpace> get_momenta(const int ninitial,const int nexte
       double wtm = (2. * n_outgoing - 3.) * log(x) + log(wt2 / wt3 * d_energy());
 
       // return for  weighted massive momenta
-      wgt(i) = wgt(i) + wtm;
-      if (wgt(i) < -180.) {
+      d_wgt() = d_wgt() + wtm;
+      if (d_wgt() < -180.) {
         if (iwarn(2) <= 5)
-    	   printf("Too small wt, risk for underflow: %f\n",wgt(i));
+    	   printf("Too small wt, risk for underflow: %f\n",d_wgt());
         Kokkos::atomic_fetch_add(&iwarn(2),1);
       }
-      if (wgt(i) > 174.) {
+      if (d_wgt() > 174.) {
         if (iwarn(3) <= 5)
-    	  printf("Too large wt, risk for overflow: %f\n",wgt(i));
+    	  printf("Too large wt, risk for overflow: %f\n",d_wgt());
         Kokkos::atomic_fetch_add(&iwarn(3),1);
       }
 
       for (int j = 0; j < n_outgoing; j++)
         for (int k = 0; k < 4; k++)
           d_p(i,j+d_ninitial(),k) = p[j][k];
-      // printf("i = %d  wgt(i) = %10.2e\n",i,wgt(i));
-    });
 
+    });
   return d_p;
+
 }

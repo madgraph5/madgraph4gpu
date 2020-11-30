@@ -1,11 +1,10 @@
-CUARCHNUM=70
+CUARCHNUM=75
 LIBDIR=../lib
-CXXFLAGS= -O3 -I. -DUSE_NVTX -Wall -Wshadow ${MGONGPU_CONFIG}
-###CXXFLAGS= -O2 -I. -DUSE_NVTX -Wall -Wshadow 
-CUARCHFLAGS= -arch=compute_$(CUARCHNUM)
-CUFLAGS= -O3 -I. -DUSE_NVTX $(CUARCHFLAGS) -use_fast_math -lineinfo ${MGONGPU_CONFIG}
+CXXFLAGS= -O3 -I. -I/home/jchilders/git/kokkos/install/include --openmp --std=c++17
+CUARCHFLAGS= -arch=compute_$(CUARCHNUM) --expt-extended-lambda --expt-relaxed-constexpr
+CUFLAGS= $(CUARCHFLAGS) -use_fast_math -lineinfo
 CUINC=/usr/local/cuda/targets/x86_64-linux/include
-NVCC=nvcc
+NVCC=/home/jchilders/git/kokkos/bin/nvcc_wrapper
 CXX=g++
 
 # Assuming uname is available, detect if architecture is power
@@ -14,9 +13,10 @@ ifeq ($(UNAME_P),ppc64le)
     CUFLAGS+= -Xcompiler -mno-float128
 endif
 
+
 target=$(LIBDIR)/libmodel_sm.a
-cxx_objects=Parameters_sm.o read_slha.o rambo.o 
-cu_objects= # NB grambo.cu must be included by gcheck.cu (no rdc)
+cxx_objects=Parameters_sm.o read_slha.o rambo.o
+cu_objects=
 
 all: $(target)
 
@@ -26,12 +26,15 @@ debug: CXXFLAGS += -g -O0 -DDEBUG2
 debug: CUFLAGS += -G
 debug: $(target)
 
-# NB: cuda includes are needed in the C++ code for curand.h
-%.o : %.cc *.h
+# sr fixme #
+# not sure including the cuda includes here is a good idea...
+# ... needed for thrust/complex which in principal is a C++ class
+%.o : %.cc %.h
 	$(CXX)  $(CPPFLAGS) $(CXXFLAGS) -I$(CUINC) -c $< -o $@
 
-#%.o : %.cu *.h
-#	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
+%.o : %.cu %.h
+	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
+
 
 $(target): $(cxx_objects) $(cu_objects)
 	if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi

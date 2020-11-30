@@ -108,7 +108,7 @@ bool pass_cuts(const std::vector<double*>& pout){
   // delta_R**2 = delta_phi**2 + delta_eta**2
   // computing delta_phi first
   double denom = sqrt(pout[2][1]*pout[2][1] + pout[2][2]*pout[2][2]) * sqrt(pout[3][1]*pout[3][1] + pout[3][2]*pout[3][2]);
-  double delta_phi = acos((pout[2][1]*pout[3][1] + pout[2][2]*pout[3][2]) / DENOM);
+  double delta_phi = acos((pout[2][1]*pout[3][1] + pout[2][2]*pout[3][2]) / denom);
   
   // computing delta_eta (note rap1/2 are not lorentz invariant but the difference is.
   // This evaluates rapidity in the center of mass frame (not the same as lab frame)
@@ -138,7 +138,7 @@ std::vector<std::vector<double *>> get_momenta(int ninitial, double energy,
   std::vector<std::vector<double *>> p2;
 
   if (ninitial == 1) {
-    int done = 0
+    int done = 0;
       while (done < dim){  
 			 //    for (int d = 0; d < dim; ++d) {
       // Momenta for the incoming particle
@@ -150,7 +150,7 @@ std::vector<std::vector<double *>> get_momenta(int ninitial, double energy,
 
       std::vector<double> finalmasses(++masses.begin(), masses.end());
       std::vector<double *> p_rambo = rambo(m1, finalmasses, wgt);
-      if (pass_cuts(p_rampbo)){
+      if (pass_cuts(p_rambo)){
 	p.insert(++p.begin(), p_rambo.begin(), p_rambo.end());
 	p2.push_back(p);
 	done++; 
