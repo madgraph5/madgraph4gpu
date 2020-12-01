@@ -99,15 +99,31 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   oxzxxx(allmomenta, cHel[ihel][3], +1, w[3], ievt, 3); 
 #endif 
 
-  FFV1P0_3(w[1], w[0], cxtype(cIPC[0], cIPC[1]), 0., 0., w[4]); 
+  FFV1P0_3(allmomenta, w[1], 2, w[0], 1, cxtype(cIPC[0], cIPC[1]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[4]); 
   // Amplitude(s) for diagram number 1
-  FFV1_0(w[2], w[3], w[4], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  FFV1_0(allmomenta, w[2], 4, w[3], 8, w[4], 3, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += -amp[0]; 
-  FFV2_4_3(w[1], w[0], cxtype(cIPC[2], cIPC[3]), cxtype(cIPC[4], cIPC[5]),
-      cIPD[0], cIPD[1], w[4]);
+  FFV2_4_3(allmomenta, w[1], 2, w[0], 1, cxtype(cIPC[2], cIPC[3]),
+      cxtype(cIPC[4], cIPC[5]), cIPD[0], cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[4]); 
   // Amplitude(s) for diagram number 2
-  FFV2_4_0(w[2], w[3], w[4], cxtype(cIPC[2], cIPC[3]), cxtype(cIPC[4],
-      cIPC[5]), &amp[0]);
+  FFV2_4_0(allmomenta, w[2], 4, w[3], 8, w[4], 3, cxtype(cIPC[2], cIPC[3]),
+      cxtype(cIPC[4], cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += -amp[0]; 
   // double CPPProcess::matrix_1_epem_mupmum() {
 

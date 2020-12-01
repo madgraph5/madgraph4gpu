@@ -113,10 +113,23 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   vxxxxx(allmomenta, 0., cHel[ihel][5], +1, w[5], ievt, 5); 
 #endif 
 
-  VVV1P0_1(w[0], w[1], cxtype(cIPC[0], cIPC[1]), 0., 0., w[6]); 
-  FFV1P0_3(w[3], w[2], cxtype(cIPC[2], cIPC[3]), 0., 0., w[7]); 
+  VVV1P0_1(allmomenta, w[0], 1, w[1], 2, cxtype(cIPC[0], cIPC[1]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[6]); 
+  FFV1P0_3(allmomenta, w[3], 8, w[2], 4, cxtype(cIPC[2], cIPC[3]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[7]); 
   // Amplitude(s) for diagram number 1
-  VVVV1_0(w[6], w[7], w[4], w[5], cxtype(cIPC[4], cIPC[5]), &amp[0]); 
+  VVVV1_0(allmomenta, w[6], 3, w[7], 12, w[4], 16, w[5], 32, cxtype(cIPC[4],
+      cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +cxtype(0, 1) * amp[0]; 
   jamp[1] += -cxtype(0, 1) * amp[0]; 
   jamp[6] += -cxtype(0, 1) * amp[0]; 
@@ -125,7 +138,12 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[17] += +cxtype(0, 1) * amp[0]; 
   jamp[22] += +cxtype(0, 1) * amp[0]; 
   jamp[23] += -cxtype(0, 1) * amp[0]; 
-  VVVV3_0(w[6], w[7], w[4], w[5], cxtype(cIPC[4], cIPC[5]), &amp[0]); 
+  VVVV3_0(allmomenta, w[6], 3, w[7], 12, w[4], 16, w[5], 32, cxtype(cIPC[4],
+      cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +cxtype(0, 1) * amp[0]; 
   jamp[6] += -cxtype(0, 1) * amp[0]; 
   jamp[12] += -cxtype(0, 1) * amp[0]; 
@@ -134,7 +152,12 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[20] += +cxtype(0, 1) * amp[0]; 
   jamp[22] += +cxtype(0, 1) * amp[0]; 
   jamp[23] += -cxtype(0, 1) * amp[0]; 
-  VVVV4_0(w[6], w[7], w[4], w[5], cxtype(cIPC[4], cIPC[5]), &amp[0]); 
+  VVVV4_0(allmomenta, w[6], 3, w[7], 12, w[4], 16, w[5], 32, cxtype(cIPC[4],
+      cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[1] += +cxtype(0, 1) * amp[0]; 
   jamp[7] += -cxtype(0, 1) * amp[0]; 
   jamp[12] += -cxtype(0, 1) * amp[0]; 
@@ -143,9 +166,17 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[17] += -cxtype(0, 1) * amp[0]; 
   jamp[18] += -cxtype(0, 1) * amp[0]; 
   jamp[20] += +cxtype(0, 1) * amp[0]; 
-  VVV1P0_1(w[6], w[4], cxtype(cIPC[0], cIPC[1]), 0., 0., w[8]); 
+  VVV1P0_1(allmomenta, w[6], 3, w[4], 16, cxtype(cIPC[0], cIPC[1]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[8]); 
   // Amplitude(s) for diagram number 2
-  VVV1_0(w[7], w[5], w[8], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[7], 12, w[5], 32, w[8], 19, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +cxtype(0, 1) * amp[0]; 
   jamp[6] += -cxtype(0, 1) * amp[0]; 
   jamp[12] += -cxtype(0, 1) * amp[0]; 
@@ -154,9 +185,17 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[20] += +cxtype(0, 1) * amp[0]; 
   jamp[22] += +cxtype(0, 1) * amp[0]; 
   jamp[23] += -cxtype(0, 1) * amp[0]; 
-  VVV1P0_1(w[6], w[5], cxtype(cIPC[0], cIPC[1]), 0., 0., w[9]); 
+  VVV1P0_1(allmomenta, w[6], 3, w[5], 32, cxtype(cIPC[0], cIPC[1]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[9]); 
   // Amplitude(s) for diagram number 3
-  VVV1_0(w[7], w[4], w[9], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[7], 12, w[4], 16, w[9], 35, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[1] += +cxtype(0, 1) * amp[0]; 
   jamp[7] += -cxtype(0, 1) * amp[0]; 
   jamp[12] += -cxtype(0, 1) * amp[0]; 
@@ -165,9 +204,17 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[17] += -cxtype(0, 1) * amp[0]; 
   jamp[18] += -cxtype(0, 1) * amp[0]; 
   jamp[20] += +cxtype(0, 1) * amp[0]; 
-  VVV1P0_1(w[4], w[5], cxtype(cIPC[0], cIPC[1]), 0., 0., w[10]); 
+  VVV1P0_1(allmomenta, w[4], 16, w[5], 32, cxtype(cIPC[0], cIPC[1]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[10]); 
   // Amplitude(s) for diagram number 4
-  VVV1_0(w[6], w[7], w[10], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[6], 3, w[7], 12, w[10], 48, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +cxtype(0, 1) * amp[0]; 
   jamp[1] += -cxtype(0, 1) * amp[0]; 
   jamp[6] += -cxtype(0, 1) * amp[0]; 
@@ -176,287 +223,644 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[17] += +cxtype(0, 1) * amp[0]; 
   jamp[22] += +cxtype(0, 1) * amp[0]; 
   jamp[23] += -cxtype(0, 1) * amp[0]; 
-  FFV1_1(w[2], w[4], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[11]); 
-  FFV1_2(w[3], w[6], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[12]); 
+  FFV1_1(allmomenta, w[2], 4, w[4], 16, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[11]); 
+  FFV1_2(allmomenta, w[3], 8, w[6], 3, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[12]); 
   // Amplitude(s) for diagram number 5
-  FFV1_0(w[12], w[11], w[5], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[12], 11, w[11], 20, w[5], 32, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[16] += +cxtype(0, 1) * amp[0]; 
   jamp[17] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 6
-  FFV1_0(w[3], w[11], w[9], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[11], 20, w[9], 35, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[12] += +amp[0]; 
   jamp[14] += -amp[0]; 
   jamp[16] += -amp[0]; 
   jamp[17] += +amp[0]; 
-  FFV1_2(w[3], w[5], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[13]); 
+  FFV1_2(allmomenta, w[3], 8, w[5], 32, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[13]); 
   // Amplitude(s) for diagram number 7
-  FFV1_0(w[13], w[11], w[6], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[13], 40, w[11], 20, w[6], 3, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[12] += +cxtype(0, 1) * amp[0]; 
   jamp[14] += -cxtype(0, 1) * amp[0]; 
-  FFV1_1(w[2], w[5], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[14]); 
+  FFV1_1(allmomenta, w[2], 4, w[5], 32, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[14]); 
   // Amplitude(s) for diagram number 8
-  FFV1_0(w[12], w[14], w[4], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[12], 11, w[14], 36, w[4], 16, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[22] += +cxtype(0, 1) * amp[0]; 
   jamp[23] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 9
-  FFV1_0(w[3], w[14], w[8], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[14], 36, w[8], 19, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[18] += +amp[0]; 
   jamp[20] += -amp[0]; 
   jamp[22] += -amp[0]; 
   jamp[23] += +amp[0]; 
-  FFV1_2(w[3], w[4], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[15]); 
+  FFV1_2(allmomenta, w[3], 8, w[4], 16, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[15]); 
   // Amplitude(s) for diagram number 10
-  FFV1_0(w[15], w[14], w[6], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[15], 24, w[14], 36, w[6], 3, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[18] += +cxtype(0, 1) * amp[0]; 
   jamp[20] += -cxtype(0, 1) * amp[0]; 
-  FFV1_1(w[2], w[6], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[16]); 
+  FFV1_1(allmomenta, w[2], 4, w[6], 3, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[16]); 
   // Amplitude(s) for diagram number 11
-  FFV1_0(w[15], w[16], w[5], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[15], 24, w[16], 7, w[5], 32, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[1] += +cxtype(0, 1) * amp[0]; 
   jamp[7] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 12
-  FFV1_0(w[15], w[2], w[9], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[15], 24, w[2], 4, w[9], 35, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[1] += +amp[0]; 
   jamp[7] += -amp[0]; 
   jamp[18] += -amp[0]; 
   jamp[20] += +amp[0]; 
   // Amplitude(s) for diagram number 13
-  FFV1_0(w[13], w[16], w[4], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[13], 40, w[16], 7, w[4], 16, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +cxtype(0, 1) * amp[0]; 
   jamp[6] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 14
-  FFV1_0(w[13], w[2], w[8], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[13], 40, w[2], 4, w[8], 19, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +amp[0]; 
   jamp[6] += -amp[0]; 
   jamp[12] += -amp[0]; 
   jamp[14] += +amp[0]; 
   // Amplitude(s) for diagram number 15
-  FFV1_0(w[3], w[16], w[10], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[16], 7, w[10], 48, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +amp[0]; 
   jamp[1] += -amp[0]; 
   jamp[6] += -amp[0]; 
   jamp[7] += +amp[0]; 
   // Amplitude(s) for diagram number 16
-  FFV1_0(w[12], w[2], w[10], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[12], 11, w[2], 4, w[10], 48, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[16] += +amp[0]; 
   jamp[17] += -amp[0]; 
   jamp[22] += -amp[0]; 
   jamp[23] += +amp[0]; 
-  FFV1_1(w[2], w[0], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[12]); 
-  FFV1_2(w[3], w[1], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[16]); 
-  FFV1_1(w[12], w[4], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[8]); 
+  FFV1_1(allmomenta, w[2], 4, w[0], 1, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[12]); 
+  FFV1_2(allmomenta, w[3], 8, w[1], 2, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[16]); 
+  FFV1_1(allmomenta, w[12], 5, w[4], 16, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[8]); 
   // Amplitude(s) for diagram number 17
-  FFV1_0(w[16], w[8], w[5], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[16], 10, w[8], 21, w[5], 32, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[3] += -amp[0]; 
-  FFV1_1(w[12], w[5], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[9]); 
+  FFV1_1(allmomenta, w[12], 5, w[5], 32, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[9]); 
   // Amplitude(s) for diagram number 18
-  FFV1_0(w[16], w[9], w[4], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[16], 10, w[9], 37, w[4], 16, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[5] += -amp[0]; 
   // Amplitude(s) for diagram number 19
-  FFV1_0(w[16], w[12], w[10], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[16], 10, w[12], 5, w[10], 48, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[3] += +cxtype(0, 1) * amp[0]; 
   jamp[5] += -cxtype(0, 1) * amp[0]; 
-  VVV1P0_1(w[1], w[4], cxtype(cIPC[0], cIPC[1]), 0., 0., w[6]); 
-  FFV1P0_3(w[3], w[12], cxtype(cIPC[2], cIPC[3]), 0., 0., w[17]); 
+  VVV1P0_1(allmomenta, w[1], 2, w[4], 16, cxtype(cIPC[0], cIPC[1]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[6]); 
+  FFV1P0_3(allmomenta, w[3], 8, w[12], 5, cxtype(cIPC[2], cIPC[3]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[17]); 
   // Amplitude(s) for diagram number 20
-  VVV1_0(w[6], w[5], w[17], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[6], 18, w[5], 32, w[17], 13, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +amp[0]; 
   jamp[2] += -amp[0]; 
   jamp[4] += -amp[0]; 
   jamp[5] += +amp[0]; 
   // Amplitude(s) for diagram number 21
-  FFV1_0(w[3], w[9], w[6], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[9], 37, w[6], 18, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[4] += +cxtype(0, 1) * amp[0]; 
   jamp[5] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 22
-  FFV1_0(w[13], w[12], w[6], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[13], 40, w[12], 5, w[6], 18, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +cxtype(0, 1) * amp[0]; 
   jamp[2] += -cxtype(0, 1) * amp[0]; 
-  VVV1P0_1(w[1], w[5], cxtype(cIPC[0], cIPC[1]), 0., 0., w[18]); 
+  VVV1P0_1(allmomenta, w[1], 2, w[5], 32, cxtype(cIPC[0], cIPC[1]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[18]); 
   // Amplitude(s) for diagram number 23
-  VVV1_0(w[18], w[4], w[17], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[18], 34, w[4], 16, w[17], 13, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[1] += +amp[0]; 
   jamp[2] += -amp[0]; 
   jamp[3] += +amp[0]; 
   jamp[4] += -amp[0]; 
   // Amplitude(s) for diagram number 24
-  FFV1_0(w[3], w[8], w[18], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[8], 21, w[18], 34, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[2] += +cxtype(0, 1) * amp[0]; 
   jamp[3] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 25
-  FFV1_0(w[15], w[12], w[18], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[15], 24, w[12], 5, w[18], 34, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[1] += +cxtype(0, 1) * amp[0]; 
   jamp[4] += -cxtype(0, 1) * amp[0]; 
-  FFV1_1(w[12], w[1], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[19]); 
+  FFV1_1(allmomenta, w[12], 5, w[1], 2, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[19]); 
   // Amplitude(s) for diagram number 26
-  FFV1_0(w[15], w[19], w[5], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[15], 24, w[19], 7, w[5], 32, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[1] += -amp[0]; 
   // Amplitude(s) for diagram number 27
-  FFV1_0(w[15], w[9], w[1], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[15], 24, w[9], 37, w[1], 2, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[4] += -amp[0]; 
   // Amplitude(s) for diagram number 28
-  FFV1_0(w[13], w[19], w[4], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[13], 40, w[19], 7, w[4], 16, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += -amp[0]; 
   // Amplitude(s) for diagram number 29
-  FFV1_0(w[13], w[8], w[1], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[13], 40, w[8], 21, w[1], 2, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[2] += -amp[0]; 
   // Amplitude(s) for diagram number 30
-  FFV1_0(w[3], w[19], w[10], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[19], 7, w[10], 48, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +cxtype(0, 1) * amp[0]; 
   jamp[1] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 31
-  VVV1_0(w[1], w[10], w[17], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[1], 2, w[10], 48, w[17], 13, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +amp[0]; 
   jamp[1] += -amp[0]; 
   jamp[3] += -amp[0]; 
   jamp[5] += +amp[0]; 
-  VVVV1P0_1(w[1], w[4], w[5], cxtype(cIPC[4], cIPC[5]), 0., 0., w[17]); 
-  VVVV3P0_1(w[1], w[4], w[5], cxtype(cIPC[4], cIPC[5]), 0., 0., w[19]); 
-  VVVV4P0_1(w[1], w[4], w[5], cxtype(cIPC[4], cIPC[5]), 0., 0., w[8]); 
+  VVVV1P0_1(allmomenta, w[1], 2, w[4], 16, w[5], 32, cxtype(cIPC[4], cIPC[5]),
+      0., 0.,
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[17]); 
+  VVVV3P0_1(allmomenta, w[1], 2, w[4], 16, w[5], 32, cxtype(cIPC[4], cIPC[5]),
+      0., 0.,
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[19]); 
+  VVVV4P0_1(allmomenta, w[1], 2, w[4], 16, w[5], 32, cxtype(cIPC[4], cIPC[5]),
+      0., 0.,
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[8]); 
   // Amplitude(s) for diagram number 32
-  FFV1_0(w[3], w[12], w[17], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[12], 5, w[17], 50, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +amp[0]; 
   jamp[1] += -amp[0]; 
   jamp[3] += -amp[0]; 
   jamp[5] += +amp[0]; 
-  FFV1_0(w[3], w[12], w[19], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[12], 5, w[19], 50, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[1] += -amp[0]; 
   jamp[2] += +amp[0]; 
   jamp[3] += -amp[0]; 
   jamp[4] += +amp[0]; 
-  FFV1_0(w[3], w[12], w[8], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[12], 5, w[8], 50, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += -amp[0]; 
   jamp[2] += +amp[0]; 
   jamp[4] += +amp[0]; 
   jamp[5] += -amp[0]; 
-  FFV1_2(w[3], w[0], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[12]); 
-  FFV1_1(w[2], w[1], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[9]); 
-  FFV1_2(w[12], w[4], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[20]); 
+  FFV1_2(allmomenta, w[3], 8, w[0], 1, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[12]); 
+  FFV1_1(allmomenta, w[2], 4, w[1], 2, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[9]); 
+  FFV1_2(allmomenta, w[12], 9, w[4], 16, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[20]); 
   // Amplitude(s) for diagram number 33
-  FFV1_0(w[20], w[9], w[5], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[20], 25, w[9], 6, w[5], 32, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[11] += -amp[0]; 
-  FFV1_2(w[12], w[5], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[21]); 
+  FFV1_2(allmomenta, w[12], 9, w[5], 32, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[21]); 
   // Amplitude(s) for diagram number 34
-  FFV1_0(w[21], w[9], w[4], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[21], 41, w[9], 6, w[4], 16, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[9] += -amp[0]; 
   // Amplitude(s) for diagram number 35
-  FFV1_0(w[12], w[9], w[10], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[12], 9, w[9], 6, w[10], 48, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[9] += +cxtype(0, 1) * amp[0]; 
   jamp[11] += -cxtype(0, 1) * amp[0]; 
-  FFV1P0_3(w[12], w[2], cxtype(cIPC[2], cIPC[3]), 0., 0., w[22]); 
+  FFV1P0_3(allmomenta, w[12], 9, w[2], 4, cxtype(cIPC[2], cIPC[3]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[22]); 
   // Amplitude(s) for diagram number 36
-  VVV1_0(w[6], w[5], w[22], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[6], 18, w[5], 32, w[22], 13, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[9] += +amp[0]; 
   jamp[15] += -amp[0]; 
   jamp[21] += -amp[0]; 
   jamp[23] += +amp[0]; 
   // Amplitude(s) for diagram number 37
-  FFV1_0(w[21], w[2], w[6], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[21], 41, w[2], 4, w[6], 18, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[9] += +cxtype(0, 1) * amp[0]; 
   jamp[15] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 38
-  FFV1_0(w[12], w[14], w[6], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[12], 9, w[14], 36, w[6], 18, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[21] += +cxtype(0, 1) * amp[0]; 
   jamp[23] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 39
-  VVV1_0(w[18], w[4], w[22], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[18], 34, w[4], 16, w[22], 13, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[11] += +amp[0]; 
   jamp[15] += -amp[0]; 
   jamp[17] += +amp[0]; 
   jamp[21] += -amp[0]; 
   // Amplitude(s) for diagram number 40
-  FFV1_0(w[20], w[2], w[18], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[20], 25, w[2], 4, w[18], 34, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[11] += +cxtype(0, 1) * amp[0]; 
   jamp[21] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 41
-  FFV1_0(w[12], w[11], w[18], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[12], 9, w[11], 20, w[18], 34, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[15] += +cxtype(0, 1) * amp[0]; 
   jamp[17] += -cxtype(0, 1) * amp[0]; 
-  FFV1_2(w[12], w[1], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[23]); 
+  FFV1_2(allmomenta, w[12], 9, w[1], 2, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[23]); 
   // Amplitude(s) for diagram number 42
-  FFV1_0(w[23], w[11], w[5], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[23], 11, w[11], 20, w[5], 32, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[17] += -amp[0]; 
   // Amplitude(s) for diagram number 43
-  FFV1_0(w[21], w[11], w[1], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[21], 41, w[11], 20, w[1], 2, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[15] += -amp[0]; 
   // Amplitude(s) for diagram number 44
-  FFV1_0(w[23], w[14], w[4], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[23], 11, w[14], 36, w[4], 16, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[23] += -amp[0]; 
   // Amplitude(s) for diagram number 45
-  FFV1_0(w[20], w[14], w[1], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[20], 25, w[14], 36, w[1], 2, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[21] += -amp[0]; 
   // Amplitude(s) for diagram number 46
-  FFV1_0(w[23], w[2], w[10], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[23], 11, w[2], 4, w[10], 48, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[17] += +cxtype(0, 1) * amp[0]; 
   jamp[23] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 47
-  VVV1_0(w[1], w[10], w[22], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[1], 2, w[10], 48, w[22], 13, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[9] += +amp[0]; 
   jamp[11] += -amp[0]; 
   jamp[17] += -amp[0]; 
   jamp[23] += +amp[0]; 
   // Amplitude(s) for diagram number 48
-  FFV1_0(w[12], w[2], w[17], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[12], 9, w[2], 4, w[17], 50, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[9] += +amp[0]; 
   jamp[11] += -amp[0]; 
   jamp[17] += -amp[0]; 
   jamp[23] += +amp[0]; 
-  FFV1_0(w[12], w[2], w[19], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[12], 9, w[2], 4, w[19], 50, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[11] += -amp[0]; 
   jamp[15] += +amp[0]; 
   jamp[17] += -amp[0]; 
   jamp[21] += +amp[0]; 
-  FFV1_0(w[12], w[2], w[8], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[12], 9, w[2], 4, w[8], 50, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[9] += -amp[0]; 
   jamp[15] += +amp[0]; 
   jamp[21] += +amp[0]; 
   jamp[23] += -amp[0]; 
-  VVV1P0_1(w[0], w[4], cxtype(cIPC[0], cIPC[1]), 0., 0., w[12]); 
-  FFV1_2(w[3], w[12], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[22]); 
+  VVV1P0_1(allmomenta, w[0], 1, w[4], 16, cxtype(cIPC[0], cIPC[1]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[12]); 
+  FFV1_2(allmomenta, w[3], 8, w[12], 17, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[22]); 
   // Amplitude(s) for diagram number 49
-  FFV1_0(w[22], w[9], w[5], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[22], 25, w[9], 6, w[5], 32, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[10] += +cxtype(0, 1) * amp[0]; 
   jamp[11] += -cxtype(0, 1) * amp[0]; 
-  VVV1P0_1(w[12], w[5], cxtype(cIPC[0], cIPC[1]), 0., 0., w[23]); 
+  VVV1P0_1(allmomenta, w[12], 17, w[5], 32, cxtype(cIPC[0], cIPC[1]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[23]); 
   // Amplitude(s) for diagram number 50
-  FFV1_0(w[3], w[9], w[23], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[9], 6, w[23], 49, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[6] += +amp[0]; 
   jamp[8] += -amp[0]; 
   jamp[10] += -amp[0]; 
   jamp[11] += +amp[0]; 
   // Amplitude(s) for diagram number 51
-  FFV1_0(w[13], w[9], w[12], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[13], 40, w[9], 6, w[12], 17, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[6] += +cxtype(0, 1) * amp[0]; 
   jamp[8] += -cxtype(0, 1) * amp[0]; 
-  FFV1_1(w[2], w[12], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[20]); 
+  FFV1_1(allmomenta, w[2], 4, w[12], 17, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[20]); 
   // Amplitude(s) for diagram number 52
-  FFV1_0(w[16], w[20], w[5], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[16], 10, w[20], 21, w[5], 32, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[3] += +cxtype(0, 1) * amp[0]; 
   jamp[13] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 53
-  FFV1_0(w[16], w[2], w[23], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[16], 10, w[2], 4, w[23], 49, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[3] += +amp[0]; 
   jamp[13] += -amp[0]; 
   jamp[19] += -amp[0]; 
   jamp[22] += +amp[0]; 
   // Amplitude(s) for diagram number 54
-  FFV1_0(w[16], w[14], w[12], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[16], 10, w[14], 36, w[12], 17, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[19] += +cxtype(0, 1) * amp[0]; 
   jamp[22] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 55
-  FFV1_0(w[3], w[20], w[18], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[20], 21, w[18], 34, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[2] += +amp[0]; 
   jamp[3] += -amp[0]; 
   jamp[12] += -amp[0]; 
   jamp[13] += +amp[0]; 
   // Amplitude(s) for diagram number 56
-  FFV1_0(w[22], w[2], w[18], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[22], 25, w[2], 4, w[18], 34, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[10] += +amp[0]; 
   jamp[11] += -amp[0]; 
   jamp[20] += -amp[0]; 
   jamp[21] += +amp[0]; 
   // Amplitude(s) for diagram number 57
-  VVV1_0(w[12], w[18], w[7], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[12], 17, w[18], 34, w[7], 12, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[2] += -cxtype(0, 1) * amp[0]; 
   jamp[3] += +cxtype(0, 1) * amp[0]; 
   jamp[10] += +cxtype(0, 1) * amp[0]; 
@@ -466,7 +870,12 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[20] += -cxtype(0, 1) * amp[0]; 
   jamp[21] += +cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 58
-  VVVV1_0(w[12], w[1], w[7], w[5], cxtype(cIPC[4], cIPC[5]), &amp[0]); 
+  VVVV1_0(allmomenta, w[12], 17, w[1], 2, w[7], 12, w[5], 32, cxtype(cIPC[4],
+      cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[2] += +cxtype(0, 1) * amp[0]; 
   jamp[6] += -cxtype(0, 1) * amp[0]; 
   jamp[8] += +cxtype(0, 1) * amp[0]; 
@@ -475,7 +884,12 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[20] += +cxtype(0, 1) * amp[0]; 
   jamp[21] += -cxtype(0, 1) * amp[0]; 
   jamp[22] += +cxtype(0, 1) * amp[0]; 
-  VVVV3_0(w[12], w[1], w[7], w[5], cxtype(cIPC[4], cIPC[5]), &amp[0]); 
+  VVVV3_0(allmomenta, w[12], 17, w[1], 2, w[7], 12, w[5], 32, cxtype(cIPC[4],
+      cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[2] += +cxtype(0, 1) * amp[0]; 
   jamp[3] += -cxtype(0, 1) * amp[0]; 
   jamp[10] += -cxtype(0, 1) * amp[0]; 
@@ -484,7 +898,12 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[13] += +cxtype(0, 1) * amp[0]; 
   jamp[20] += +cxtype(0, 1) * amp[0]; 
   jamp[21] += -cxtype(0, 1) * amp[0]; 
-  VVVV4_0(w[12], w[1], w[7], w[5], cxtype(cIPC[4], cIPC[5]), &amp[0]); 
+  VVVV4_0(allmomenta, w[12], 17, w[1], 2, w[7], 12, w[5], 32, cxtype(cIPC[4],
+      cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[3] += -cxtype(0, 1) * amp[0]; 
   jamp[6] += +cxtype(0, 1) * amp[0]; 
   jamp[8] += -cxtype(0, 1) * amp[0]; 
@@ -493,9 +912,17 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[13] += +cxtype(0, 1) * amp[0]; 
   jamp[19] += +cxtype(0, 1) * amp[0]; 
   jamp[22] += -cxtype(0, 1) * amp[0]; 
-  VVV1P0_1(w[12], w[1], cxtype(cIPC[0], cIPC[1]), 0., 0., w[21]); 
+  VVV1P0_1(allmomenta, w[12], 17, w[1], 2, cxtype(cIPC[0], cIPC[1]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[21]); 
   // Amplitude(s) for diagram number 59
-  VVV1_0(w[7], w[5], w[21], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[7], 12, w[5], 32, w[21], 19, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[2] += +cxtype(0, 1) * amp[0]; 
   jamp[6] += -cxtype(0, 1) * amp[0]; 
   jamp[8] += +cxtype(0, 1) * amp[0]; 
@@ -505,7 +932,11 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[21] += -cxtype(0, 1) * amp[0]; 
   jamp[22] += +cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 60
-  VVV1_0(w[1], w[7], w[23], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[1], 2, w[7], 12, w[23], 49, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[3] += -cxtype(0, 1) * amp[0]; 
   jamp[6] += +cxtype(0, 1) * amp[0]; 
   jamp[8] += -cxtype(0, 1) * amp[0]; 
@@ -515,71 +946,141 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[19] += +cxtype(0, 1) * amp[0]; 
   jamp[22] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 61
-  FFV1_0(w[3], w[14], w[21], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[14], 36, w[21], 19, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[19] += +amp[0]; 
   jamp[20] += -amp[0]; 
   jamp[21] += +amp[0]; 
   jamp[22] += -amp[0]; 
   // Amplitude(s) for diagram number 62
-  FFV1_0(w[22], w[14], w[1], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[22], 25, w[14], 36, w[1], 2, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[20] += +cxtype(0, 1) * amp[0]; 
   jamp[21] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 63
-  FFV1_0(w[13], w[2], w[21], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[13], 40, w[2], 4, w[21], 19, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[2] += +amp[0]; 
   jamp[6] += -amp[0]; 
   jamp[8] += +amp[0]; 
   jamp[12] += -amp[0]; 
   // Amplitude(s) for diagram number 64
-  FFV1_0(w[13], w[20], w[1], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[13], 40, w[20], 21, w[1], 2, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[2] += +cxtype(0, 1) * amp[0]; 
   jamp[12] += -cxtype(0, 1) * amp[0]; 
-  VVV1P0_1(w[0], w[5], cxtype(cIPC[0], cIPC[1]), 0., 0., w[20]); 
-  FFV1_2(w[3], w[20], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[21]); 
+  VVV1P0_1(allmomenta, w[0], 1, w[5], 32, cxtype(cIPC[0], cIPC[1]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[20]); 
+  FFV1_2(allmomenta, w[3], 8, w[20], 33, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[21]); 
   // Amplitude(s) for diagram number 65
-  FFV1_0(w[21], w[9], w[4], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[21], 41, w[9], 6, w[4], 16, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[8] += +cxtype(0, 1) * amp[0]; 
   jamp[9] += -cxtype(0, 1) * amp[0]; 
-  VVV1P0_1(w[20], w[4], cxtype(cIPC[0], cIPC[1]), 0., 0., w[22]); 
+  VVV1P0_1(allmomenta, w[20], 33, w[4], 16, cxtype(cIPC[0], cIPC[1]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[22]); 
   // Amplitude(s) for diagram number 66
-  FFV1_0(w[3], w[9], w[22], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[9], 6, w[22], 49, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[7] += +amp[0]; 
   jamp[8] += -amp[0]; 
   jamp[9] += +amp[0]; 
   jamp[10] += -amp[0]; 
   // Amplitude(s) for diagram number 67
-  FFV1_0(w[15], w[9], w[20], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[15], 24, w[9], 6, w[20], 33, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[7] += +cxtype(0, 1) * amp[0]; 
   jamp[10] += -cxtype(0, 1) * amp[0]; 
-  FFV1_1(w[2], w[20], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[23]); 
+  FFV1_1(allmomenta, w[2], 4, w[20], 33, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[23]); 
   // Amplitude(s) for diagram number 68
-  FFV1_0(w[16], w[23], w[4], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[16], 10, w[23], 37, w[4], 16, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[5] += +cxtype(0, 1) * amp[0]; 
   jamp[19] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 69
-  FFV1_0(w[16], w[2], w[22], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[16], 10, w[2], 4, w[22], 49, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[5] += +amp[0]; 
   jamp[13] += -amp[0]; 
   jamp[16] += +amp[0]; 
   jamp[19] += -amp[0]; 
   // Amplitude(s) for diagram number 70
-  FFV1_0(w[16], w[11], w[20], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[16], 10, w[11], 20, w[20], 33, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[13] += +cxtype(0, 1) * amp[0]; 
   jamp[16] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 71
-  FFV1_0(w[3], w[23], w[6], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[23], 37, w[6], 18, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[4] += +amp[0]; 
   jamp[5] += -amp[0]; 
   jamp[18] += -amp[0]; 
   jamp[19] += +amp[0]; 
   // Amplitude(s) for diagram number 72
-  FFV1_0(w[21], w[2], w[6], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[21], 41, w[2], 4, w[6], 18, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[8] += +amp[0]; 
   jamp[9] += -amp[0]; 
   jamp[14] += -amp[0]; 
   jamp[15] += +amp[0]; 
   // Amplitude(s) for diagram number 73
-  VVV1_0(w[20], w[6], w[7], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[20], 33, w[6], 18, w[7], 12, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[4] += -cxtype(0, 1) * amp[0]; 
   jamp[5] += +cxtype(0, 1) * amp[0]; 
   jamp[8] += +cxtype(0, 1) * amp[0]; 
@@ -589,7 +1090,12 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[18] += +cxtype(0, 1) * amp[0]; 
   jamp[19] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 74
-  VVVV1_0(w[20], w[1], w[7], w[4], cxtype(cIPC[4], cIPC[5]), &amp[0]); 
+  VVVV1_0(allmomenta, w[20], 33, w[1], 2, w[7], 12, w[4], 16, cxtype(cIPC[4],
+      cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[4] += +cxtype(0, 1) * amp[0]; 
   jamp[7] += -cxtype(0, 1) * amp[0]; 
   jamp[10] += +cxtype(0, 1) * amp[0]; 
@@ -598,7 +1104,12 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[15] += -cxtype(0, 1) * amp[0]; 
   jamp[16] += +cxtype(0, 1) * amp[0]; 
   jamp[18] += -cxtype(0, 1) * amp[0]; 
-  VVVV3_0(w[20], w[1], w[7], w[4], cxtype(cIPC[4], cIPC[5]), &amp[0]); 
+  VVVV3_0(allmomenta, w[20], 33, w[1], 2, w[7], 12, w[4], 16, cxtype(cIPC[4],
+      cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[4] += +cxtype(0, 1) * amp[0]; 
   jamp[5] += -cxtype(0, 1) * amp[0]; 
   jamp[8] += -cxtype(0, 1) * amp[0]; 
@@ -607,7 +1118,12 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[15] += -cxtype(0, 1) * amp[0]; 
   jamp[18] += -cxtype(0, 1) * amp[0]; 
   jamp[19] += +cxtype(0, 1) * amp[0]; 
-  VVVV4_0(w[20], w[1], w[7], w[4], cxtype(cIPC[4], cIPC[5]), &amp[0]); 
+  VVVV4_0(allmomenta, w[20], 33, w[1], 2, w[7], 12, w[4], 16, cxtype(cIPC[4],
+      cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[5] += -cxtype(0, 1) * amp[0]; 
   jamp[7] += +cxtype(0, 1) * amp[0]; 
   jamp[8] += -cxtype(0, 1) * amp[0]; 
@@ -616,9 +1132,17 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[13] += +cxtype(0, 1) * amp[0]; 
   jamp[16] += -cxtype(0, 1) * amp[0]; 
   jamp[19] += +cxtype(0, 1) * amp[0]; 
-  VVV1P0_1(w[20], w[1], cxtype(cIPC[0], cIPC[1]), 0., 0., w[12]); 
+  VVV1P0_1(allmomenta, w[20], 33, w[1], 2, cxtype(cIPC[0], cIPC[1]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[12]); 
   // Amplitude(s) for diagram number 75
-  VVV1_0(w[7], w[4], w[12], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[7], 12, w[4], 16, w[12], 35, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[4] += +cxtype(0, 1) * amp[0]; 
   jamp[7] += -cxtype(0, 1) * amp[0]; 
   jamp[10] += +cxtype(0, 1) * amp[0]; 
@@ -628,7 +1152,11 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[16] += +cxtype(0, 1) * amp[0]; 
   jamp[18] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 76
-  VVV1_0(w[1], w[7], w[22], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[1], 2, w[7], 12, w[22], 49, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[5] += -cxtype(0, 1) * amp[0]; 
   jamp[7] += +cxtype(0, 1) * amp[0]; 
   jamp[8] += -cxtype(0, 1) * amp[0]; 
@@ -638,78 +1166,181 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[16] += -cxtype(0, 1) * amp[0]; 
   jamp[19] += +cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 77
-  FFV1_0(w[3], w[11], w[12], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[11], 20, w[12], 35, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[13] += +amp[0]; 
   jamp[14] += -amp[0]; 
   jamp[15] += +amp[0]; 
   jamp[16] += -amp[0]; 
   // Amplitude(s) for diagram number 78
-  FFV1_0(w[21], w[11], w[1], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[21], 41, w[11], 20, w[1], 2, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[14] += +cxtype(0, 1) * amp[0]; 
   jamp[15] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 79
-  FFV1_0(w[15], w[2], w[12], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[15], 24, w[2], 4, w[12], 35, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[4] += +amp[0]; 
   jamp[7] += -amp[0]; 
   jamp[10] += +amp[0]; 
   jamp[18] += -amp[0]; 
   // Amplitude(s) for diagram number 80
-  FFV1_0(w[15], w[23], w[1], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[15], 24, w[23], 37, w[1], 2, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[4] += +cxtype(0, 1) * amp[0]; 
   jamp[18] += -cxtype(0, 1) * amp[0]; 
-  FFV1_1(w[9], w[0], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[23]); 
+  FFV1_1(allmomenta, w[9], 6, w[0], 1, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[23]); 
   // Amplitude(s) for diagram number 81
-  FFV1_0(w[15], w[23], w[5], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[15], 24, w[23], 7, w[5], 32, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[7] += -amp[0]; 
-  FFV1_2(w[15], w[0], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[12]); 
+  FFV1_2(allmomenta, w[15], 24, w[0], 1, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[12]); 
   // Amplitude(s) for diagram number 82
-  FFV1_0(w[12], w[9], w[5], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[12], 25, w[9], 6, w[5], 32, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[10] += -amp[0]; 
   // Amplitude(s) for diagram number 83
-  FFV1_0(w[13], w[23], w[4], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[13], 40, w[23], 7, w[4], 16, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[6] += -amp[0]; 
-  FFV1_2(w[13], w[0], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[21]); 
+  FFV1_2(allmomenta, w[13], 40, w[0], 1, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[21]); 
   // Amplitude(s) for diagram number 84
-  FFV1_0(w[21], w[9], w[4], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[21], 41, w[9], 6, w[4], 16, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[8] += -amp[0]; 
   // Amplitude(s) for diagram number 85
-  FFV1_0(w[3], w[23], w[10], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[23], 7, w[10], 48, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[6] += +cxtype(0, 1) * amp[0]; 
   jamp[7] += -cxtype(0, 1) * amp[0]; 
-  VVV1P0_1(w[0], w[10], cxtype(cIPC[0], cIPC[1]), 0., 0., w[23]); 
+  VVV1P0_1(allmomenta, w[0], 1, w[10], 48, cxtype(cIPC[0], cIPC[1]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[23]); 
   // Amplitude(s) for diagram number 86
-  FFV1_0(w[3], w[9], w[23], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[9], 6, w[23], 49, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[6] += +amp[0]; 
   jamp[7] += -amp[0]; 
   jamp[9] += -amp[0]; 
   jamp[11] += +amp[0]; 
-  FFV1_2(w[16], w[0], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[22]); 
+  FFV1_2(allmomenta, w[16], 10, w[0], 1, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[22]); 
   // Amplitude(s) for diagram number 87
-  FFV1_0(w[22], w[11], w[5], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[22], 11, w[11], 20, w[5], 32, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[16] += -amp[0]; 
-  FFV1_1(w[11], w[0], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[20]); 
+  FFV1_1(allmomenta, w[11], 20, w[0], 1, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[20]); 
   // Amplitude(s) for diagram number 88
-  FFV1_0(w[16], w[20], w[5], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[16], 10, w[20], 21, w[5], 32, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[13] += -amp[0]; 
   // Amplitude(s) for diagram number 89
-  FFV1_0(w[22], w[14], w[4], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[22], 11, w[14], 36, w[4], 16, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[22] += -amp[0]; 
-  FFV1_1(w[14], w[0], cxtype(cIPC[2], cIPC[3]), cIPD[0], cIPD[1], w[24]); 
+  FFV1_1(allmomenta, w[14], 36, w[0], 1, cxtype(cIPC[2], cIPC[3]), cIPD[0],
+      cIPD[1],
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[24]); 
   // Amplitude(s) for diagram number 90
-  FFV1_0(w[16], w[24], w[4], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[16], 10, w[24], 37, w[4], 16, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[19] += -amp[0]; 
   // Amplitude(s) for diagram number 91
-  FFV1_0(w[22], w[2], w[10], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[22], 11, w[2], 4, w[10], 48, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[16] += +cxtype(0, 1) * amp[0]; 
   jamp[22] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 92
-  FFV1_0(w[16], w[2], w[23], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[16], 10, w[2], 4, w[23], 49, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[3] += +amp[0]; 
   jamp[5] += -amp[0]; 
   jamp[16] += -amp[0]; 
   jamp[22] += +amp[0]; 
   // Amplitude(s) for diagram number 93
-  VVVV1_0(w[0], w[6], w[7], w[5], cxtype(cIPC[4], cIPC[5]), &amp[0]); 
+  VVVV1_0(allmomenta, w[0], 1, w[6], 18, w[7], 12, w[5], 32, cxtype(cIPC[4],
+      cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +cxtype(0, 1) * amp[0]; 
   jamp[2] += -cxtype(0, 1) * amp[0]; 
   jamp[8] += -cxtype(0, 1) * amp[0]; 
@@ -718,7 +1349,12 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[19] += +cxtype(0, 1) * amp[0]; 
   jamp[21] += +cxtype(0, 1) * amp[0]; 
   jamp[23] += -cxtype(0, 1) * amp[0]; 
-  VVVV3_0(w[0], w[6], w[7], w[5], cxtype(cIPC[4], cIPC[5]), &amp[0]); 
+  VVVV3_0(allmomenta, w[0], 1, w[6], 18, w[7], 12, w[5], 32, cxtype(cIPC[4],
+      cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +cxtype(0, 1) * amp[0]; 
   jamp[2] += -cxtype(0, 1) * amp[0]; 
   jamp[4] += -cxtype(0, 1) * amp[0]; 
@@ -727,7 +1363,12 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[15] += +cxtype(0, 1) * amp[0]; 
   jamp[21] += +cxtype(0, 1) * amp[0]; 
   jamp[23] += -cxtype(0, 1) * amp[0]; 
-  VVVV4_0(w[0], w[6], w[7], w[5], cxtype(cIPC[4], cIPC[5]), &amp[0]); 
+  VVVV4_0(allmomenta, w[0], 1, w[6], 18, w[7], 12, w[5], 32, cxtype(cIPC[4],
+      cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[4] += -cxtype(0, 1) * amp[0]; 
   jamp[5] += +cxtype(0, 1) * amp[0]; 
   jamp[8] += +cxtype(0, 1) * amp[0]; 
@@ -736,9 +1377,17 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[15] += +cxtype(0, 1) * amp[0]; 
   jamp[18] += +cxtype(0, 1) * amp[0]; 
   jamp[19] += -cxtype(0, 1) * amp[0]; 
-  VVV1P0_1(w[0], w[6], cxtype(cIPC[0], cIPC[1]), 0., 0., w[22]); 
+  VVV1P0_1(allmomenta, w[0], 1, w[6], 18, cxtype(cIPC[0], cIPC[1]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[22]); 
   // Amplitude(s) for diagram number 94
-  VVV1_0(w[7], w[5], w[22], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[7], 12, w[5], 32, w[22], 19, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +cxtype(0, 1) * amp[0]; 
   jamp[2] += -cxtype(0, 1) * amp[0]; 
   jamp[8] += -cxtype(0, 1) * amp[0]; 
@@ -747,9 +1396,17 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[19] += +cxtype(0, 1) * amp[0]; 
   jamp[21] += +cxtype(0, 1) * amp[0]; 
   jamp[23] += -cxtype(0, 1) * amp[0]; 
-  VVV1P0_1(w[0], w[7], cxtype(cIPC[0], cIPC[1]), 0., 0., w[25]); 
+  VVV1P0_1(allmomenta, w[0], 1, w[7], 12, cxtype(cIPC[0], cIPC[1]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[25]); 
   // Amplitude(s) for diagram number 95
-  VVV1_0(w[6], w[5], w[25], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[6], 18, w[5], 32, w[25], 13, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +cxtype(0, 1) * amp[0]; 
   jamp[2] += -cxtype(0, 1) * amp[0]; 
   jamp[4] += -cxtype(0, 1) * amp[0]; 
@@ -759,27 +1416,48 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[21] += +cxtype(0, 1) * amp[0]; 
   jamp[23] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 96
-  FFV1_0(w[3], w[14], w[22], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[14], 36, w[22], 19, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[18] += +amp[0]; 
   jamp[19] += -amp[0]; 
   jamp[21] += -amp[0]; 
   jamp[23] += +amp[0]; 
   // Amplitude(s) for diagram number 97
-  FFV1_0(w[3], w[24], w[6], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[24], 37, w[6], 18, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[18] += +cxtype(0, 1) * amp[0]; 
   jamp[19] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 98
-  FFV1_0(w[13], w[2], w[22], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[13], 40, w[2], 4, w[22], 19, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +amp[0]; 
   jamp[2] += -amp[0]; 
   jamp[8] += -amp[0]; 
   jamp[14] += +amp[0]; 
   // Amplitude(s) for diagram number 99
-  FFV1_0(w[21], w[2], w[6], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[21], 41, w[2], 4, w[6], 18, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[8] += +cxtype(0, 1) * amp[0]; 
   jamp[14] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 100
-  VVVV1_0(w[0], w[18], w[7], w[4], cxtype(cIPC[4], cIPC[5]), &amp[0]); 
+  VVVV1_0(allmomenta, w[0], 1, w[18], 34, w[7], 12, w[4], 16, cxtype(cIPC[4],
+      cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[1] += +cxtype(0, 1) * amp[0]; 
   jamp[4] += -cxtype(0, 1) * amp[0]; 
   jamp[10] += -cxtype(0, 1) * amp[0]; 
@@ -788,7 +1466,12 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[15] += +cxtype(0, 1) * amp[0]; 
   jamp[17] += -cxtype(0, 1) * amp[0]; 
   jamp[20] += +cxtype(0, 1) * amp[0]; 
-  VVVV3_0(w[0], w[18], w[7], w[4], cxtype(cIPC[4], cIPC[5]), &amp[0]); 
+  VVVV3_0(allmomenta, w[0], 1, w[18], 34, w[7], 12, w[4], 16, cxtype(cIPC[4],
+      cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[1] += +cxtype(0, 1) * amp[0]; 
   jamp[2] += -cxtype(0, 1) * amp[0]; 
   jamp[3] += +cxtype(0, 1) * amp[0]; 
@@ -797,7 +1480,12 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[15] += +cxtype(0, 1) * amp[0]; 
   jamp[17] += -cxtype(0, 1) * amp[0]; 
   jamp[21] += +cxtype(0, 1) * amp[0]; 
-  VVVV4_0(w[0], w[18], w[7], w[4], cxtype(cIPC[4], cIPC[5]), &amp[0]); 
+  VVVV4_0(allmomenta, w[0], 1, w[18], 34, w[7], 12, w[4], 16, cxtype(cIPC[4],
+      cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[2] += -cxtype(0, 1) * amp[0]; 
   jamp[3] += +cxtype(0, 1) * amp[0]; 
   jamp[10] += +cxtype(0, 1) * amp[0]; 
@@ -806,9 +1494,17 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[13] += -cxtype(0, 1) * amp[0]; 
   jamp[20] += -cxtype(0, 1) * amp[0]; 
   jamp[21] += +cxtype(0, 1) * amp[0]; 
-  VVV1P0_1(w[0], w[18], cxtype(cIPC[0], cIPC[1]), 0., 0., w[6]); 
+  VVV1P0_1(allmomenta, w[0], 1, w[18], 34, cxtype(cIPC[0], cIPC[1]), 0., 0., 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[6]); 
   // Amplitude(s) for diagram number 101
-  VVV1_0(w[7], w[4], w[6], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[7], 12, w[4], 16, w[6], 35, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[1] += +cxtype(0, 1) * amp[0]; 
   jamp[4] += -cxtype(0, 1) * amp[0]; 
   jamp[10] += -cxtype(0, 1) * amp[0]; 
@@ -818,7 +1514,11 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[17] += -cxtype(0, 1) * amp[0]; 
   jamp[20] += +cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 102
-  VVV1_0(w[18], w[4], w[25], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[18], 34, w[4], 16, w[25], 13, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[1] += +cxtype(0, 1) * amp[0]; 
   jamp[2] += -cxtype(0, 1) * amp[0]; 
   jamp[3] += +cxtype(0, 1) * amp[0]; 
@@ -828,27 +1528,48 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[17] += -cxtype(0, 1) * amp[0]; 
   jamp[21] += +cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 103
-  FFV1_0(w[3], w[11], w[6], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[11], 20, w[6], 35, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[12] += +amp[0]; 
   jamp[13] += -amp[0]; 
   jamp[15] += -amp[0]; 
   jamp[17] += +amp[0]; 
   // Amplitude(s) for diagram number 104
-  FFV1_0(w[3], w[20], w[18], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[20], 21, w[18], 34, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[12] += +cxtype(0, 1) * amp[0]; 
   jamp[13] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 105
-  FFV1_0(w[15], w[2], w[6], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[15], 24, w[2], 4, w[6], 35, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[1] += +amp[0]; 
   jamp[4] += -amp[0]; 
   jamp[10] += -amp[0]; 
   jamp[20] += +amp[0]; 
   // Amplitude(s) for diagram number 106
-  FFV1_0(w[12], w[2], w[18], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[12], 25, w[2], 4, w[18], 34, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[10] += +cxtype(0, 1) * amp[0]; 
   jamp[20] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 107
-  VVVV1_0(w[0], w[1], w[7], w[10], cxtype(cIPC[4], cIPC[5]), &amp[0]); 
+  VVVV1_0(allmomenta, w[0], 1, w[1], 2, w[7], 12, w[10], 48, cxtype(cIPC[4],
+      cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +cxtype(0, 1) * amp[0]; 
   jamp[1] += -cxtype(0, 1) * amp[0]; 
   jamp[6] += -cxtype(0, 1) * amp[0]; 
@@ -857,7 +1578,12 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[17] += +cxtype(0, 1) * amp[0]; 
   jamp[22] += +cxtype(0, 1) * amp[0]; 
   jamp[23] += -cxtype(0, 1) * amp[0]; 
-  VVVV3_0(w[0], w[1], w[7], w[10], cxtype(cIPC[4], cIPC[5]), &amp[0]); 
+  VVVV3_0(allmomenta, w[0], 1, w[1], 2, w[7], 12, w[10], 48, cxtype(cIPC[4],
+      cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +cxtype(0, 1) * amp[0]; 
   jamp[1] += -cxtype(0, 1) * amp[0]; 
   jamp[3] += -cxtype(0, 1) * amp[0]; 
@@ -866,7 +1592,12 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[11] += +cxtype(0, 1) * amp[0]; 
   jamp[17] += +cxtype(0, 1) * amp[0]; 
   jamp[23] += -cxtype(0, 1) * amp[0]; 
-  VVVV4_0(w[0], w[1], w[7], w[10], cxtype(cIPC[4], cIPC[5]), &amp[0]); 
+  VVVV4_0(allmomenta, w[0], 1, w[1], 2, w[7], 12, w[10], 48, cxtype(cIPC[4],
+      cIPC[5]),
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[3] += -cxtype(0, 1) * amp[0]; 
   jamp[5] += +cxtype(0, 1) * amp[0]; 
   jamp[6] += +cxtype(0, 1) * amp[0]; 
@@ -876,7 +1607,11 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[16] += +cxtype(0, 1) * amp[0]; 
   jamp[22] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 108
-  VVV1_0(w[1], w[10], w[25], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[1], 2, w[10], 48, w[25], 13, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +cxtype(0, 1) * amp[0]; 
   jamp[1] += -cxtype(0, 1) * amp[0]; 
   jamp[3] += -cxtype(0, 1) * amp[0]; 
@@ -886,7 +1621,11 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[17] += +cxtype(0, 1) * amp[0]; 
   jamp[23] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 109
-  VVV1_0(w[1], w[7], w[23], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[1], 2, w[7], 12, w[23], 49, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[3] += -cxtype(0, 1) * amp[0]; 
   jamp[5] += +cxtype(0, 1) * amp[0]; 
   jamp[6] += +cxtype(0, 1) * amp[0]; 
@@ -896,22 +1635,57 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[16] += +cxtype(0, 1) * amp[0]; 
   jamp[22] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 110
-  FFV1_0(w[13], w[20], w[1], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[13], 40, w[20], 21, w[1], 2, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[12] += -amp[0]; 
   // Amplitude(s) for diagram number 111
-  FFV1_0(w[21], w[11], w[1], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[21], 41, w[11], 20, w[1], 2, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[14] += -amp[0]; 
   // Amplitude(s) for diagram number 112
-  FFV1_0(w[15], w[24], w[1], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[15], 24, w[24], 37, w[1], 2, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[18] += -amp[0]; 
   // Amplitude(s) for diagram number 113
-  FFV1_0(w[12], w[14], w[1], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[12], 25, w[14], 36, w[1], 2, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[20] += -amp[0]; 
-  VVVV1P0_1(w[0], w[1], w[4], cxtype(cIPC[4], cIPC[5]), 0., 0., w[12]); 
-  VVVV3P0_1(w[0], w[1], w[4], cxtype(cIPC[4], cIPC[5]), 0., 0., w[24]); 
-  VVVV4P0_1(w[0], w[1], w[4], cxtype(cIPC[4], cIPC[5]), 0., 0., w[21]); 
+  VVVV1P0_1(allmomenta, w[0], 1, w[1], 2, w[4], 16, cxtype(cIPC[4], cIPC[5]),
+      0., 0.,
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[12]); 
+  VVVV3P0_1(allmomenta, w[0], 1, w[1], 2, w[4], 16, cxtype(cIPC[4], cIPC[5]),
+      0., 0.,
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[24]); 
+  VVVV4P0_1(allmomenta, w[0], 1, w[1], 2, w[4], 16, cxtype(cIPC[4], cIPC[5]),
+      0., 0.,
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[21]); 
   // Amplitude(s) for diagram number 114
-  VVV1_0(w[12], w[7], w[5], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[12], 19, w[7], 12, w[5], 32, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +cxtype(0, 1) * amp[0]; 
   jamp[2] += -cxtype(0, 1) * amp[0]; 
   jamp[8] += -cxtype(0, 1) * amp[0]; 
@@ -920,7 +1694,11 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[19] += +cxtype(0, 1) * amp[0]; 
   jamp[21] += +cxtype(0, 1) * amp[0]; 
   jamp[23] += -cxtype(0, 1) * amp[0]; 
-  VVV1_0(w[24], w[7], w[5], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[24], 19, w[7], 12, w[5], 32, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[2] += -cxtype(0, 1) * amp[0]; 
   jamp[6] += +cxtype(0, 1) * amp[0]; 
   jamp[8] += -cxtype(0, 1) * amp[0]; 
@@ -929,7 +1707,11 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[20] += -cxtype(0, 1) * amp[0]; 
   jamp[21] += +cxtype(0, 1) * amp[0]; 
   jamp[22] += -cxtype(0, 1) * amp[0]; 
-  VVV1_0(w[21], w[7], w[5], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[21], 19, w[7], 12, w[5], 32, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += -cxtype(0, 1) * amp[0]; 
   jamp[6] += +cxtype(0, 1) * amp[0]; 
   jamp[12] += +cxtype(0, 1) * amp[0]; 
@@ -939,42 +1721,85 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[22] += -cxtype(0, 1) * amp[0]; 
   jamp[23] += +cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 115
-  FFV1_0(w[3], w[14], w[12], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[14], 36, w[12], 19, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[18] += +amp[0]; 
   jamp[19] += -amp[0]; 
   jamp[21] += -amp[0]; 
   jamp[23] += +amp[0]; 
-  FFV1_0(w[3], w[14], w[24], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[14], 36, w[24], 19, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[19] += -amp[0]; 
   jamp[20] += +amp[0]; 
   jamp[21] += -amp[0]; 
   jamp[22] += +amp[0]; 
-  FFV1_0(w[3], w[14], w[21], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[14], 36, w[21], 19, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[18] += -amp[0]; 
   jamp[20] += +amp[0]; 
   jamp[22] += +amp[0]; 
   jamp[23] += -amp[0]; 
   // Amplitude(s) for diagram number 116
-  FFV1_0(w[13], w[2], w[12], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[13], 40, w[2], 4, w[12], 19, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +amp[0]; 
   jamp[2] += -amp[0]; 
   jamp[8] += -amp[0]; 
   jamp[14] += +amp[0]; 
-  FFV1_0(w[13], w[2], w[24], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[13], 40, w[2], 4, w[24], 19, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[2] += -amp[0]; 
   jamp[6] += +amp[0]; 
   jamp[8] += -amp[0]; 
   jamp[12] += +amp[0]; 
-  FFV1_0(w[13], w[2], w[21], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[13], 40, w[2], 4, w[21], 19, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += -amp[0]; 
   jamp[6] += +amp[0]; 
   jamp[12] += +amp[0]; 
   jamp[14] += -amp[0]; 
-  VVVV1P0_1(w[0], w[1], w[5], cxtype(cIPC[4], cIPC[5]), 0., 0., w[21]); 
-  VVVV3P0_1(w[0], w[1], w[5], cxtype(cIPC[4], cIPC[5]), 0., 0., w[13]); 
-  VVVV4P0_1(w[0], w[1], w[5], cxtype(cIPC[4], cIPC[5]), 0., 0., w[24]); 
+  VVVV1P0_1(allmomenta, w[0], 1, w[1], 2, w[5], 32, cxtype(cIPC[4], cIPC[5]),
+      0., 0.,
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[21]); 
+  VVVV3P0_1(allmomenta, w[0], 1, w[1], 2, w[5], 32, cxtype(cIPC[4], cIPC[5]),
+      0., 0.,
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[13]); 
+  VVVV4P0_1(allmomenta, w[0], 1, w[1], 2, w[5], 32, cxtype(cIPC[4], cIPC[5]),
+      0., 0.,
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[24]); 
   // Amplitude(s) for diagram number 117
-  VVV1_0(w[21], w[7], w[4], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[21], 35, w[7], 12, w[4], 16, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[1] += +cxtype(0, 1) * amp[0]; 
   jamp[4] += -cxtype(0, 1) * amp[0]; 
   jamp[10] += -cxtype(0, 1) * amp[0]; 
@@ -983,7 +1808,11 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[15] += +cxtype(0, 1) * amp[0]; 
   jamp[17] += -cxtype(0, 1) * amp[0]; 
   jamp[20] += +cxtype(0, 1) * amp[0]; 
-  VVV1_0(w[13], w[7], w[4], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[13], 35, w[7], 12, w[4], 16, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[4] += -cxtype(0, 1) * amp[0]; 
   jamp[7] += +cxtype(0, 1) * amp[0]; 
   jamp[10] += -cxtype(0, 1) * amp[0]; 
@@ -992,7 +1821,11 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[15] += +cxtype(0, 1) * amp[0]; 
   jamp[16] += -cxtype(0, 1) * amp[0]; 
   jamp[18] += +cxtype(0, 1) * amp[0]; 
-  VVV1_0(w[24], w[7], w[4], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[24], 35, w[7], 12, w[4], 16, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[1] += -cxtype(0, 1) * amp[0]; 
   jamp[7] += +cxtype(0, 1) * amp[0]; 
   jamp[12] += +cxtype(0, 1) * amp[0]; 
@@ -1002,74 +1835,141 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[18] += +cxtype(0, 1) * amp[0]; 
   jamp[20] += -cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 118
-  FFV1_0(w[3], w[11], w[21], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[11], 20, w[21], 35, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[12] += +amp[0]; 
   jamp[13] += -amp[0]; 
   jamp[15] += -amp[0]; 
   jamp[17] += +amp[0]; 
-  FFV1_0(w[3], w[11], w[13], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[11], 20, w[13], 35, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[13] += -amp[0]; 
   jamp[14] += +amp[0]; 
   jamp[15] += -amp[0]; 
   jamp[16] += +amp[0]; 
-  FFV1_0(w[3], w[11], w[24], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[11], 20, w[24], 35, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[12] += -amp[0]; 
   jamp[14] += +amp[0]; 
   jamp[16] += +amp[0]; 
   jamp[17] += -amp[0]; 
   // Amplitude(s) for diagram number 119
-  FFV1_0(w[15], w[2], w[21], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[15], 24, w[2], 4, w[21], 35, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[1] += +amp[0]; 
   jamp[4] += -amp[0]; 
   jamp[10] += -amp[0]; 
   jamp[20] += +amp[0]; 
-  FFV1_0(w[15], w[2], w[13], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[15], 24, w[2], 4, w[13], 35, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[4] += -amp[0]; 
   jamp[7] += +amp[0]; 
   jamp[10] += -amp[0]; 
   jamp[18] += +amp[0]; 
-  FFV1_0(w[15], w[2], w[24], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[15], 24, w[2], 4, w[24], 35, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[1] += -amp[0]; 
   jamp[7] += +amp[0]; 
   jamp[18] += +amp[0]; 
   jamp[20] += -amp[0]; 
-  VVVV1P0_1(w[0], w[4], w[5], cxtype(cIPC[4], cIPC[5]), 0., 0., w[24]); 
-  VVVV3P0_1(w[0], w[4], w[5], cxtype(cIPC[4], cIPC[5]), 0., 0., w[15]); 
-  VVVV4P0_1(w[0], w[4], w[5], cxtype(cIPC[4], cIPC[5]), 0., 0., w[13]); 
+  VVVV1P0_1(allmomenta, w[0], 1, w[4], 16, w[5], 32, cxtype(cIPC[4], cIPC[5]),
+      0., 0.,
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[24]); 
+  VVVV3P0_1(allmomenta, w[0], 1, w[4], 16, w[5], 32, cxtype(cIPC[4], cIPC[5]),
+      0., 0.,
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[15]); 
+  VVVV4P0_1(allmomenta, w[0], 1, w[4], 16, w[5], 32, cxtype(cIPC[4], cIPC[5]),
+      0., 0.,
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  w[13]); 
   // Amplitude(s) for diagram number 120
-  FFV1_0(w[3], w[9], w[24], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[9], 6, w[24], 49, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[6] += +amp[0]; 
   jamp[7] += -amp[0]; 
   jamp[9] += -amp[0]; 
   jamp[11] += +amp[0]; 
-  FFV1_0(w[3], w[9], w[15], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[9], 6, w[15], 49, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[7] += -amp[0]; 
   jamp[8] += +amp[0]; 
   jamp[9] += -amp[0]; 
   jamp[10] += +amp[0]; 
-  FFV1_0(w[3], w[9], w[13], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[3], 8, w[9], 6, w[13], 49, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[6] += -amp[0]; 
   jamp[8] += +amp[0]; 
   jamp[10] += +amp[0]; 
   jamp[11] += -amp[0]; 
   // Amplitude(s) for diagram number 121
-  FFV1_0(w[16], w[2], w[24], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[16], 10, w[2], 4, w[24], 49, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[3] += +amp[0]; 
   jamp[5] += -amp[0]; 
   jamp[16] += -amp[0]; 
   jamp[22] += +amp[0]; 
-  FFV1_0(w[16], w[2], w[15], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[16], 10, w[2], 4, w[15], 49, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[5] += -amp[0]; 
   jamp[13] += +amp[0]; 
   jamp[16] += -amp[0]; 
   jamp[19] += +amp[0]; 
-  FFV1_0(w[16], w[2], w[13], cxtype(cIPC[2], cIPC[3]), &amp[0]); 
+  FFV1_0(allmomenta, w[16], 10, w[2], 4, w[13], 49, cxtype(cIPC[2], cIPC[3]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[3] += -amp[0]; 
   jamp[13] += +amp[0]; 
   jamp[19] += +amp[0]; 
   jamp[22] += -amp[0]; 
   // Amplitude(s) for diagram number 122
-  VVV1_0(w[24], w[1], w[7], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[24], 49, w[1], 2, w[7], 12, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[3] += -cxtype(0, 1) * amp[0]; 
   jamp[5] += +cxtype(0, 1) * amp[0]; 
   jamp[6] += +cxtype(0, 1) * amp[0]; 
@@ -1078,7 +1978,11 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[11] += +cxtype(0, 1) * amp[0]; 
   jamp[16] += +cxtype(0, 1) * amp[0]; 
   jamp[22] += -cxtype(0, 1) * amp[0]; 
-  VVV1_0(w[15], w[1], w[7], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[15], 49, w[1], 2, w[7], 12, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[5] += +cxtype(0, 1) * amp[0]; 
   jamp[7] += -cxtype(0, 1) * amp[0]; 
   jamp[8] += +cxtype(0, 1) * amp[0]; 
@@ -1087,7 +1991,11 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[13] += -cxtype(0, 1) * amp[0]; 
   jamp[16] += +cxtype(0, 1) * amp[0]; 
   jamp[19] += -cxtype(0, 1) * amp[0]; 
-  VVV1_0(w[13], w[1], w[7], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[13], 49, w[1], 2, w[7], 12, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[3] += +cxtype(0, 1) * amp[0]; 
   jamp[6] += -cxtype(0, 1) * amp[0]; 
   jamp[8] += +cxtype(0, 1) * amp[0]; 
@@ -1097,7 +2005,11 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[19] += -cxtype(0, 1) * amp[0]; 
   jamp[22] += +cxtype(0, 1) * amp[0]; 
   // Amplitude(s) for diagram number 123
-  VVV1_0(w[0], w[17], w[7], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[0], 1, w[17], 50, w[7], 12, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += -cxtype(0, 1) * amp[0]; 
   jamp[1] += +cxtype(0, 1) * amp[0]; 
   jamp[3] += +cxtype(0, 1) * amp[0]; 
@@ -1106,7 +2018,11 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[11] += -cxtype(0, 1) * amp[0]; 
   jamp[17] += -cxtype(0, 1) * amp[0]; 
   jamp[23] += +cxtype(0, 1) * amp[0]; 
-  VVV1_0(w[0], w[19], w[7], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[0], 1, w[19], 50, w[7], 12, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[1] += +cxtype(0, 1) * amp[0]; 
   jamp[2] += -cxtype(0, 1) * amp[0]; 
   jamp[3] += +cxtype(0, 1) * amp[0]; 
@@ -1115,7 +2031,11 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   jamp[15] += +cxtype(0, 1) * amp[0]; 
   jamp[17] += -cxtype(0, 1) * amp[0]; 
   jamp[21] += +cxtype(0, 1) * amp[0]; 
-  VVV1_0(w[0], w[8], w[7], cxtype(cIPC[0], cIPC[1]), &amp[0]); 
+  VVV1_0(allmomenta, w[0], 1, w[8], 50, w[7], 12, cxtype(cIPC[0], cIPC[1]), 
+#ifndef __CUDACC__
+  ievt, 
+#endif
+  &amp[0]); 
   jamp[0] += +cxtype(0, 1) * amp[0]; 
   jamp[2] += -cxtype(0, 1) * amp[0]; 
   jamp[4] += -cxtype(0, 1) * amp[0]; 
