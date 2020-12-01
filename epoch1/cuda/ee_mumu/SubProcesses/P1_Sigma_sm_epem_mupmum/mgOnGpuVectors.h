@@ -47,7 +47,7 @@ cxtype_v cxmake( const fptype_v& r, const fptype_v& i )
 inline
 cxtype_v cxmake00()
 {
-  return cxtype_v{ 0 };
+  return cxtype_v{ fptype_v{0}, fptype_v{0} };
 }
 
 inline
