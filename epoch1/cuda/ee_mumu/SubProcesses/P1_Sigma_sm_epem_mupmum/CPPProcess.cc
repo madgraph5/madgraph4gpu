@@ -85,6 +85,7 @@ namespace MG5_sm
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
+      //printf( "imzxxxM0: ipagV=%d\n", ipagV );
       const fptype_v& pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
       const fptype_v& pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
       const fptype_v& pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
@@ -168,6 +169,7 @@ namespace MG5_sm
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
+      //printf( "ixzxxxM0: ipagV=%d\n", ipagV );
       const fptype_v& pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
       const fptype_v& pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
       const fptype_v& pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
@@ -253,10 +255,12 @@ namespace MG5_sm
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
+      //printf( "oxzxxxM0: ipagV=%d\n", ipagV );
       const fptype_v& pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
       const fptype_v& pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
       const fptype_v& pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
       const fptype_v& pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      printf( "oxzxxxM0: hallo1\n" );
 #endif
 #ifdef __CUDACC__
       cxtype& fo_0 = fos[0];
@@ -266,6 +270,7 @@ namespace MG5_sm
       cxtype& fo_4 = fos[4];
       cxtype& fo_5 = fos[5];
 #else
+      printf( "oxzxxxM0: hallo2\n" );
       cxtype_v& fo_0 = (cxtype_v&)fos_v[0];
       cxtype_v& fo_1 = (cxtype_v&)fos_v[1];
       cxtype_v& fo_2 = (cxtype_v&)fos_v[2];
@@ -273,7 +278,9 @@ namespace MG5_sm
       cxtype_v& fo_4 = (cxtype_v&)fos_v[4];
       cxtype_v& fo_5 = (cxtype_v&)fos_v[5];
 #endif
-      fo_0 = cxmake( pvec0 * nsf, pvec3 * nsf );
+      printf( "oxzxxxM0: hallo3\n" );
+      fo_0 = cxmake( pvec0 * nsf, pvec3 * nsf ); // this causes the General Protection Fault
+      printf( "oxzxxxM0: hallo4\n" );
       fo_1 = cxmake( pvec1 * nsf, pvec2 * nsf );
       const int nh = nhel * nsf;
       // ASSUMPTIONS FMASS = 0 and
@@ -575,7 +582,7 @@ namespace Proc
   {
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
-    //printf( "calculate_wavefunctions: ievt %d\n", ievt );
+    //printf( "calculate_wavefunctions: nevt %d\n", nevt );
 #endif
 
 #ifdef __CUDACC__
