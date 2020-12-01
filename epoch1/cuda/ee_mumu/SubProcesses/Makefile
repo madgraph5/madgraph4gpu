@@ -1,7 +1,9 @@
 LIBDIR =../../lib
 INCDIRS=-I. -I../../src -I../../../../../tools/
 MODELLIB=model_sm
-CXXFLAGS= -O3 -std=c++11 $(INCDIRS) $(USE_NVTX) -Wall -Wshadow -Wextra ${MGONGPU_CONFIG} -march=native
+CXXFLAGS= -O3 -std=c++11 $(INCDIRS) $(USE_NVTX) -Wall -Wshadow -Wextra ${MGONGPU_CONFIG}
+#CXXFLAGS+= -march=native
+CXXFLAGS+= -march=core-avx2
 LIBFLAGS= -L$(LIBDIR) -l$(MODELLIB)
 CXX=g++
 NVCC?=$(shell which nvcc)

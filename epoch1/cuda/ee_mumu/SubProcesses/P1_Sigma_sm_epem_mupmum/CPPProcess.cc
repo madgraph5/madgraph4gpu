@@ -66,7 +66,7 @@ namespace MG5_sm
 #ifdef __CUDACC__
                  cxtype fis[nw6],          // output: wavefunction[6]
 #else
-                 cxtype_v fis_v[nw6],      // output: wavefunction[6]
+                 cxtype fis_v[nw6][neppV], // output: wavefunction[6][neppV]
                  const int ipagV,
 #endif
                  const int ipar )          // input: particle# out of npar
@@ -98,12 +98,12 @@ namespace MG5_sm
       cxtype& fi_4 = fis[4];
       cxtype& fi_5 = fis[5];
 #else
-      cxtype_v& fi_0 = fis_v[0];
-      cxtype_v& fi_1 = fis_v[1];
-      cxtype_v& fi_2 = fis_v[2];
-      cxtype_v& fi_3 = fis_v[3];
-      cxtype_v& fi_4 = fis_v[4];
-      cxtype_v& fi_5 = fis_v[5];
+      cxtype_v& fi_0 = (cxtype_v&)fis_v[0];
+      cxtype_v& fi_1 = (cxtype_v&)fis_v[1];
+      cxtype_v& fi_2 = (cxtype_v&)fis_v[2];
+      cxtype_v& fi_3 = (cxtype_v&)fis_v[3];
+      cxtype_v& fi_4 = (cxtype_v&)fis_v[4];
+      cxtype_v& fi_5 = (cxtype_v&)fis_v[5];
 #endif
       fi_0 = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi_1 = cxmake( -pvec1 * nsf, -pvec2 * nsf );
@@ -149,7 +149,7 @@ namespace MG5_sm
 #ifdef __CUDACC__
                  cxtype fis[nw6],          // output: wavefunction[6]
 #else
-                 cxtype_v fis_v[nw6],      // output: wavefunction[6]
+                 cxtype fis_v[nw6][neppV], // output: wavefunction[6][neppV]
                  const int ipagV,
 #endif
                  const int ipar )          // input: particle# out of npar
@@ -181,12 +181,12 @@ namespace MG5_sm
       cxtype& fi_4 = fis[4];
       cxtype& fi_5 = fis[5];
 #else
-      cxtype_v& fi_0 = fis_v[0];
-      cxtype_v& fi_1 = fis_v[1];
-      cxtype_v& fi_2 = fis_v[2];
-      cxtype_v& fi_3 = fis_v[3];
-      cxtype_v& fi_4 = fis_v[4];
-      cxtype_v& fi_5 = fis_v[5];
+      cxtype_v& fi_0 = (cxtype_v&)fis_v[0];
+      cxtype_v& fi_1 = (cxtype_v&)fis_v[1];
+      cxtype_v& fi_2 = (cxtype_v&)fis_v[2];
+      cxtype_v& fi_3 = (cxtype_v&)fis_v[3];
+      cxtype_v& fi_4 = (cxtype_v&)fis_v[4];
+      cxtype_v& fi_5 = (cxtype_v&)fis_v[5];
 #endif
       fi_0 = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi_1 = cxmake( -pvec1 * nsf, -pvec2 * nsf );
@@ -234,7 +234,7 @@ namespace MG5_sm
 #ifdef __CUDACC__
                  cxtype fos[nw6],          // output: wavefunction[6]
 #else
-                 cxtype_v fos_v[nw6],      // output: wavefunction[6]
+                 cxtype fos_v[nw6][neppV], // output: wavefunction[6][neppV]
                  const int ipagV,
 #endif
                  const int ipar )          // input: particle# out of npar
@@ -266,12 +266,12 @@ namespace MG5_sm
       cxtype& fo_4 = fos[4];
       cxtype& fo_5 = fos[5];
 #else
-      cxtype_v& fo_0 = fos_v[0];
-      cxtype_v& fo_1 = fos_v[1];
-      cxtype_v& fo_2 = fos_v[2];
-      cxtype_v& fo_3 = fos_v[3];
-      cxtype_v& fo_4 = fos_v[4];
-      cxtype_v& fo_5 = fos_v[5];
+      cxtype_v& fo_0 = (cxtype_v&)fos_v[0];
+      cxtype_v& fo_1 = (cxtype_v&)fos_v[1];
+      cxtype_v& fo_2 = (cxtype_v&)fos_v[2];
+      cxtype_v& fo_3 = (cxtype_v&)fos_v[3];
+      cxtype_v& fo_4 = (cxtype_v&)fos_v[4];
+      cxtype_v& fo_5 = (cxtype_v&)fos_v[5];
 #endif
       fo_0 = cxmake( pvec0 * nsf, pvec3 * nsf );
       fo_1 = cxmake( pvec1 * nsf, pvec2 * nsf );
@@ -595,7 +595,8 @@ namespace Proc
 #else
     // Local variables for the given event page (ipagV)
     //cxtype_v amp[2];
-    cxtype_v w_v[nwf][nw6]; // w_v[5][6]
+    //cxtype_v w_v[nwf][nw6]; // w_v[5][6]
+    cxtype w_v[nwf][nw6][neppV]; // w_v[5][6]
 #endif
 
 #ifndef __CUDACC__
