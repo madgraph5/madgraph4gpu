@@ -279,8 +279,11 @@ namespace MG5_sm
       cxtype_v& fo_5 = (cxtype_v&)fos_v[5];
 #endif
       printf( "oxzxxxM0: hallo3\n" );
-      fo_0 = cxmake( pvec0 * nsf, pvec3 * nsf ); // this causes the General Protection Fault
-      printf( "oxzxxxM0: hallo4\n" );
+      //fo_0 = cxmake( pvec0 * nsf, pvec3 * nsf ); // this causes the General Protection Fault
+      auto fo0 = cxmake( pvec0 * nsf, pvec3 * nsf );
+      printf( "oxzxxxM0: hallo3bis\n" ); // this is normally always reached
+      fo_0 = fo0; // this causes the General Protection Fault
+      printf( "oxzxxxM0: hallo4\n" ); // this is generally (not always) not reached
       fo_1 = cxmake( pvec1 * nsf, pvec2 * nsf );
       const int nh = nhel * nsf;
       // ASSUMPTIONS FMASS = 0 and
