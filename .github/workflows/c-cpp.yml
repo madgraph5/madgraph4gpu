@@ -12,7 +12,20 @@ jobs:
     defaults:
       run:
         working-directory: epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum
-
+    steps:
+    - uses: actions/checkout@v2
+    - name: make gtest
+      working-directory: tools
+      run: make
+    - name: make
+      run: make
+    - name: make check
+      run: make check
+  epoch2_eemumu:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum
     steps:
     - uses: actions/checkout@v2
     - name: make gtest
