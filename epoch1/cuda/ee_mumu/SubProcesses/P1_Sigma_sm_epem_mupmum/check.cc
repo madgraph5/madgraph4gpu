@@ -570,6 +570,15 @@ int main(int argc, char **argv)
 
   if (perf)
   {
+#ifndef __CUDACC__
+    // Get the output of "nproc --all" (https://stackoverflow.com/a/478960)
+    std::string nprocall;
+    std::array<char, 128> nprocbuf;
+    std::unique_ptr<FILE, decltype(&pclose)> nprocpipe( popen( "nproc --all", "r" ), pclose );
+    if ( !nprocpipe ) throw std::runtime_error("`nproc --all` failed?");
+    while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get()) != nullptr ) nprocall += nprocbuf.data();
+#endif
+    // Dump all configuration parameters and all results
     std::cout << "***********************************************************************" << std::endl
               << "NumBlocksPerGrid           = " << gpublocks << std::endl
               << "NumThreadsPerBlock         = " << gputhreads << std::endl
@@ -612,6 +621,12 @@ int main(int argc, char **argv)
 #endif
 #endif
               << "-----------------------------------------------------------------------" << std::endl
+#ifndef __CUDACC__
+              << "${OMP_NUM_THREADS}         = " 
+              << ( getenv("OMP_NUM_THREADS") != NULL ? getenv("OMP_NUM_THREADS") : "[not set]" ) << std::endl
+              << "$(nproc --all)             = " << nprocall // this already includes a newline
+              << "-----------------------------------------------------------------------" << std::endl
+#endif
               << "NumberOfEntries            = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
               << "TotalTime[Rnd+Rmb+ME] (123)= ( " << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
