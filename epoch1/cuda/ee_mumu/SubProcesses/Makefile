@@ -124,7 +124,7 @@ test: force
 info:
 ifdef CUDA_HOME
 	$(NVCC) --version
-	echo ""
+	@echo ""
 endif
 	$(CXX) --version
 
