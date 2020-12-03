@@ -703,6 +703,7 @@ namespace Proc
 
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
+#pragma omp parallel for
     for (int ievt = 0; ievt < nevt; ++ievt)
 #endif
     {
