@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <cstdlib>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -39,6 +40,10 @@ int usage(char* argv0, int ret = 1) {
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
   std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
   std::cout << "The '-d' flag only controls if nan's emit warnings" << std::endl;
+#ifndef __CUDACC__
+  std::cout << std::endl << "Use the OMP_NUM_THREADS environment variable to control OMP multi-threading" << std::endl;
+  std::cout << "(OMP multithreading will be disabled if OMP_NUM_THREADS is not set)" << std::endl;
+#endif
   return ret;
 }
 
@@ -571,6 +576,8 @@ int main(int argc, char **argv)
   if (perf)
   {
 #ifndef __CUDACC__
+    // Set OMP_NUM_THREADS equal to 1 if it is not yet set
+    if ( getenv( "OMP_NUM_THREADS" ) == NULL ) setenv( "OMP_NUM_THREADS", "1", 0 );
     // Get the output of "nproc --all" (https://stackoverflow.com/a/478960)
     std::string nprocall;
     std::array<char, 128> nprocbuf;
@@ -619,14 +626,9 @@ int main(int argc, char **argv)
 #else
               << "Random number generation   = CURAND (C++ code)" << std::endl
 #endif
+              << "OMP threads / maxthreads   = " << getenv("OMP_NUM_THREADS") << " / " << nprocall // includes a newline
 #endif
               << "-----------------------------------------------------------------------" << std::endl
-#ifndef __CUDACC__
-              << "${OMP_NUM_THREADS}         = " 
-              << ( getenv("OMP_NUM_THREADS") != NULL ? getenv("OMP_NUM_THREADS") : "[not set]" ) << std::endl
-              << "$(nproc --all)             = " << nprocall // this already includes a newline
-              << "-----------------------------------------------------------------------" << std::endl
-#endif
               << "NumberOfEntries            = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
               << "TotalTime[Rnd+Rmb+ME] (123)= ( " << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
