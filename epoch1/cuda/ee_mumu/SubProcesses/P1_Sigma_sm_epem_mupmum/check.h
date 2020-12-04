@@ -5,8 +5,16 @@
 #include <string>
 #include <vector>
 
-int gcheck( int argc, char **argv, std::string& out, std::vector<double>& stats ); // from gcheck.cu (compiled with nvcc)
+// from gcheck.cu (compiled with nvcc)
+int gcheck( int argc,
+            char **argv,
+            std::string& out,
+            std::vector<double>& stats );
 
-int check( int argc, char **argv, std::string& out, std::vector<double>& stats ); // from check.cc (compiled with g++)
+// from check.cc (compiled with g++)
+int check( int argc,
+           char **argv,
+           std::string& out,
+           std::vector<double>& stats );
 
 #endif // CHECK_H
