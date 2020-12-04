@@ -1,0 +1,56 @@
+LIBDIR=../../lib
+INCDIR=../../src
+MODELLIB=model_sm
+CXXFLAGS= -O3 -I. -I$(INCDIR) -std=c++17 -use_fast_math -Wall -Wshadow
+LIBFLAGS= -L$(LIBDIR) -l$(MODELLIB) -lpthread -fopenmp
+CXX=g++
+MAKEDEBUG=
+
+# alpaka/cupla defined
+ALPINC ?= /data/dhsmith/alpaka-training/alpaka-install/include
+CUPLAINC ?= /data/dhsmith/cupla/include
+CUPLASRC ?= /data/dhsmith/cupla/src
+CUPLAFLAGS ?= -DALPAKA_ACC_CPU_B_OMP2_T_SEQ_ENABLED -fopenmp
+BOOSTINC ?= /usr/include/boost169
+
+cxx_main=check.exe
+
+cupla_objects=cupla/common.o cupla/device.o cupla/event.o cupla/memory.o cupla/stream.o cupla/manager/Driver.o
+cxx_objects=$(cupla_objects)
+
+all:
+	cd ../../src && make ALPINC="$(ALPINC)" CUPLAINC="$(CUPLAINC)" CUPLAFLAGS="$(CUPLAFLAGS)" BOOSTINC="$(BOOSTINC)"
+	mkdir -p cupla/manager
+	make $(cxx_main)
+
+debug: CXXFLAGS:=$(filter-out -O3,$(CXXFLAGS))
+debug: CXXFLAGS += -g -O0 -DDEBUG2
+debug: MAKEDEBUG := debug
+debug: $(cxx_main)
+
+$(LIBDIR)/lib$(MODELLIB).a:
+	@cd ../../src && make $(MAKEDEBUG)
+
+cupla/%.o: $(CUPLASRC)/%.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(ALPINC) -I$(CUPLAINC) -I$(BOOSTINC) $(CUPLAFLAGS) -c $< -o $@
+
+%.o : %.cc *.h ../../src/*.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(ALPINC) -I$(CUPLAINC) -I$(BOOSTINC) $(CUPLAFLAGS) -c $< -o $@
+
+$(cxx_main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) check.o
+	$(CXX) -o $@ $(cxx_objects) check.o -ldl $(LIBFLAGS)
+
+.PHONY: clean
+
+clean:
+	cd ../../src && make clean
+	rm -f *.o *.exe cupla/*.o cupla/manager/*.o
+
+perf: force
+	make clean && make
+	time ./check.exe -p 16348 32 12 && date
+
+test: force
+	./check.exe -v 1 32 1
+
+force:
