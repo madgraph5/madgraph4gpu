@@ -96,15 +96,15 @@ runTest.o:   $(GTESTLIBS)
 runTest.exe: $(GTESTLIBS)
 runTest.exe: INCFLAGS += -I$(TOOLSDIR)/googletest/googletest/include/
 runTest.exe: LIBFLAGS += -L$(GTESTLIBDIR)/ -lgtest -lgtest_main
-#ifeq ($(NVCC),)
-#runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
-#	$(CXX) -o $@ $(cxx_objects) runTest.o $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
-#else
-#runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
-#	ln -sf runTest.cc runTest_tmp.cu
-#	$(NVCC) -o $@ $(cxx_objects) runTest.o $(cu_objects) runTest_tmp.cu $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda
-#	unlink runTest_tmp.cu
-#endif
+ifeq ($(NVCC),)
+runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
+	$(CXX) -o $@ $(cxx_objects) runTest.o $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+else
+runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
+	ln -sf runTest.cc runTest_tmp.cu
+	$(NVCC) -o $@ $(cxx_objects) runTest.o $(cu_objects) runTest_tmp.cu $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
+	unlink runTest_tmp.cu
+endif
 
 $(GTESTLIBS):
 	$(MAKE) -C $(TOOLSDIR)
