@@ -9,12 +9,14 @@
 int gcheck( int argc,
             char **argv,
             std::string& out,
-            std::vector<double>& stats );
+            std::vector<double>& stats,
+            const std::string& tag = "" );
 
 // from check.cc (compiled with g++)
 int check( int argc,
            char **argv,
            std::string& out,
-           std::vector<double>& stats );
+           std::vector<double>& stats,
+           const std::string& tag = "" );
 
 #endif // CHECK_H
