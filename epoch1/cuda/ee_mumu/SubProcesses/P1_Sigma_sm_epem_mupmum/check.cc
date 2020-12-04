@@ -8,6 +8,7 @@
 #include <memory>
 #include <numeric>
 #include <string>
+#include <vector>
 #include <unistd.h>
 
 #include "mgOnGpuConfig.h"
@@ -78,9 +79,9 @@ std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{
 #endif
 
 #ifdef __CUDACC__
-int gcheck( int argc, char **argv, std::string& out )
+int gcheck( int argc, char **argv, std::string& out, std::vector<double>& stats )
 #else
-int check( int argc, char **argv, std::string& out )
+int check( int argc, char **argv, std::string& out, std::vector<double>& stats )
 #endif
 {
   std::stringstream outStream;
@@ -819,7 +820,13 @@ int check( int argc, char **argv, std::string& out )
     outStream << "***********************************************************************" << std::endl;
   }
 
-  //std::cout << "ALL OK" << std::endl;
+  // Prepare the outputs
   out = outStream.str();
+  stats.push_back( nevtALL );
+  stats.push_back( sumgtim );
+  stats.push_back( sumrtim );
+  stats.push_back( sumwtim );
+
+  //std::cout << "ALL OK" << std::endl;
   return 0;
 }
