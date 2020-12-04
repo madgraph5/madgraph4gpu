@@ -64,6 +64,39 @@ cxtype_v cxmake0i( const fptype_v& i )
 }
 */
 
+// DEBUG - START
+void print( const fptype& f )
+{
+  std::cout << f << std::endl;
+}
+
+void print( const fptype_v& v )
+{
+  std::cout << "{ " << v[0];
+  for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
+  std::cout << " }" << std::endl;
+}
+
+std::string str( const cxtype& c )
+{
+  std::stringstream ss;
+  ss << "[" << cxreal(c) << "," << cximag(c) << "]";
+  return ss.str();
+}
+
+void print( const cxtype& c )
+{
+  std::cout << str(c) << std::endl;
+}
+
+void print( const cxtype_v& v )
+{
+  std::cout << "{ " << str( v[0] );
+  for ( int i=1; i<neppV; i++ ) std::cout << ", " << str( v[i] ) << " }";
+  std::cout << std::endl;
+}
+// DEBUG - END
+
 #else
 
 inline __device__
