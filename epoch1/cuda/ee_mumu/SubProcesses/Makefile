@@ -70,19 +70,19 @@ $(LIBDIR)/lib$(MODELLIB).a:
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
 gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
-	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
+	$(NVCC) $(CUFLAGS) -c $< -o $@
 
 %.o : %.cu *.h ../../src/*.h
-	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
+	$(NVCC) $(CUFLAGS) -c $< -o $@
 
 %.o : %.cc *.h ../../src/*.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
 $(cu_main): gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
 	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
 
 $(cxx_main): check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
-	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+	$(CXX) $< -o $@ $(cxx_objects) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
 
 runTest.o:   $(GTESTLIBS)
@@ -91,11 +91,11 @@ runTest.exe: INCFLAGS += -I$(TOOLSDIR)/googletest/googletest/include/
 runTest.exe: LIBFLAGS += -L$(GTESTLIBDIR)/ -lgtest -lgtest_main
 ifeq ($(NVCC),)
 runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
-	$(CXX) -o $@ $(cxx_objects) runTest.o $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+	$(CXX) -o $@ $(cxx_objects) runTest.o $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
 runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
 	ln -sf runTest.cc runTest_tmp.cu
-	$(NVCC) -o $@ $(cxx_objects) runTest.o $(cu_objects) runTest_tmp.cu $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
+	$(NVCC) -o $@ $(cxx_objects) runTest.o $(cu_objects) runTest_tmp.cu $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 	unlink runTest_tmp.cu
 endif
 
