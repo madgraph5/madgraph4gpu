@@ -25,14 +25,14 @@
 #include "CPPProcess.h"
 #include "timermap.h"
 
-bool is_number(const char *s) {
+inline bool is_number(const char *s) {
   const char *t = s;
   while (*t != '\0' && isdigit(*t))
     ++t;
   return (int)strlen(s) == t - s;
 }
 
-int usage(char* argv0, int ret = 1) {
+inline int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
             << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;

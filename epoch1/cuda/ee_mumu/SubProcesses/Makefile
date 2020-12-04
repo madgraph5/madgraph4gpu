@@ -35,6 +35,7 @@ ifdef CUDA_HOME
 
   cu_main     = gcheck.exe
   cu_objects  = gCPPProcess.o
+  het_main    = hcheck.exe
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   NVCC       := $(warning No cuda found. Export CUDA_HOME to compile with cuda)
@@ -58,7 +59,7 @@ ifeq ($(UNAME_P),ppc64le)
     CUFLAGS+= -Xcompiler -mno-float128
 endif
 
-all: ../../src $(cu_main) $(cxx_main) runTest.exe
+all: ../../src $(cu_main) $(cxx_main) $(het_main) runTest.exe
 
 debug: OPTFLAGS = -g -O0 -DDEBUG2
 debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
@@ -85,6 +86,10 @@ $(cu_main): gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) gmain.cc
 # This is built with g++ and linked with objects compiled with g++
 $(cxx_main): check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) cmain.cc
 	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) cmain.cc
+
+# This is built with nvcc and linked with objects compiled with nvcc or g++
+$(het_main): gcheck.o check.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) $(cxx_objects) hmain.cc
+	$(NVCC) gcheck.o check.o -o $@ $(cu_objects) $(cxx_objects) $(CUARCHFLAGS) -lgomp $(LIBFLAGS) $(CULIBFLAGS) hmain.cc
 
 
 runTest.o:   $(GTESTLIBS)
