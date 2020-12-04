@@ -1,5 +1,5 @@
 LIBDIR   = ../../lib
-TOOLSDIR = ../../../../../tools/
+TOOLSDIR = ../../../../../tools
 INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
 OPTFLAGS = -O3
