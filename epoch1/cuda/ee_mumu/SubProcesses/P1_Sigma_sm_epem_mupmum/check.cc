@@ -79,10 +79,19 @@ std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{
 #endif
 
 #ifdef __CUDACC__
-int gcheck( int argc, char **argv, std::string& out, std::vector<double>& stats, const std::string& tag )
+int gcheck
 #else
-  int check( int argc, char **argv, std::string& out, std::vector<double>& stats, const std::string& tag )
+int check
 #endif
+( int argc, 
+  char **argv, 
+  std::string& out, 
+  std::vector<double>& stats, 
+  const std::string& tag
+#ifdef __CUDACC__
+  , const int niter_multiplier
+#endif
+)
 {
   std::stringstream outStream;
   // READ COMMAND LINE ARGUMENTS
@@ -132,6 +141,10 @@ int gcheck( int argc, char **argv, std::string& out, std::vector<double>& stats,
 
   if (niter == 0)
     return usage(argv[0]);
+
+#ifdef __CUDACC__
+  niter *= niter_multiplier; // quick hack for heterogenous CPU+GPU prototyping
+#endif
 
   const int neppR = mgOnGpu::neppR; // ASA layout: constant at compile-time
   if ( gputhreads%neppR != 0 )
@@ -288,10 +301,11 @@ int gcheck( int argc, char **argv, std::string& out, std::vector<double>& stats,
     const std::string sgenKey = "1a GenSeed ";
     timermap.start( sgenKey );
     const unsigned long long seed = 20200805;
-#ifdef __CUDACC__
-    grambo2toNm0::seedGenerator( rnGen, seed+iiter );
+#ifdef __CUDACC__    
+    // quick hack for heterogenous CPU+GPU prototyping: use different seeds if a GPU multiplier exists
+    grambo2toNm0::seedGenerator( rnGen, seed + iiter + ( niter_multiplier==1 ? 0 : niter ) );
 #else
-    rambo2toNm0::seedGenerator( rnGen, seed+iiter );
+    rambo2toNm0::seedGenerator( rnGen, seed + iiter );
 #endif
     genrtime += timermap.stop();
 #endif

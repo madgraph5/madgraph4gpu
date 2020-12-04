@@ -9,7 +9,9 @@ int main( int argc, char **argv )
   std::string gpuOut;
   std::vector<double> gpuStats;
   int gpuStatus;
-  std::thread gpuThread( [&]{ gpuStatus = gcheck( argc, argv, gpuOut, gpuStats, "(GPU) " ); });
+  //int gpuMult = 1; // GPU processes same #events as CPU, with same random seeds
+  int gpuMult = 100; // GPU processes 100x #events as CPU, with different random seeds
+  std::thread gpuThread( [&]{ gpuStatus = gcheck( argc, argv, gpuOut, gpuStats, "(GPU) ", gpuMult ); });
 
   std::string cpuOut;
   std::vector<double> cpuStats;
@@ -31,6 +33,7 @@ int main( int argc, char **argv )
 
   std::string tag = "(HET) ";
   std::cout << "----------------------------------------------------------------------------" << std::endl
+            << tag << "TotalEventsComputed        = " << nevtALL << std::endl
             << std::scientific // fixed format: affects all floats (default precision: 6)
             << tag << "TotalTime[Rnd+Rmb+ME] (123)= ( "
             << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
@@ -40,7 +43,6 @@ int main( int argc, char **argv )
             << tag << "TotalTime[Rambo]        (2)= ( " << sumrtim << std::string(16, ' ') << " )  sec" << std::endl
             << tag << "TotalTime[MatrixElems]  (3)= ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
             << "----------------------------------------------------------------------------" << std::endl
-            << tag << "TotalEventsComputed        = " << nevtALL << std::endl
             << tag << "EvtsPerSec[Rnd+Rmb+ME](123)= ( " << nevtALL/(sumgtim+sumrtim+sumwtim)
             << std::string(16, ' ') << " )  sec^-1" << std::endl
             << tag << "EvtsPerSec[Rmb+ME]     (23)= ( " << nevtALL/(sumrtim+sumwtim)
