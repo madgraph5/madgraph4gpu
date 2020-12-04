@@ -77,7 +77,11 @@ template<typename T = fptype>
 std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{ new T[N]() }; };
 #endif
 
-int main(int argc, char **argv)
+#ifdef __CUDACC__
+int gcheck(int argc, char **argv)
+#else
+int check(int argc, char **argv)
+#endif
 {
   // READ COMMAND LINE ARGUMENTS
   bool verbose = false;

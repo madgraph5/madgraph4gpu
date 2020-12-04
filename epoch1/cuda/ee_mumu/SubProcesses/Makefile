@@ -78,11 +78,11 @@ gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
 %.o : %.cc *.h ../../src/*.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
-$(cu_main): gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
-	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
+$(cu_main): gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) gmain.cc
+	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) gmain.cc
 
-$(cxx_main): check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
-	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+$(cxx_main): check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) cmain.cc
+	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) cmain.cc
 
 
 runTest.o:   $(GTESTLIBS)
