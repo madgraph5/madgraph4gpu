@@ -78,11 +78,12 @@ std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{
 #endif
 
 #ifdef __CUDACC__
-int gcheck(int argc, char **argv)
+int gcheck( int argc, char **argv, std::string& out )
 #else
-int check(int argc, char **argv)
+int check( int argc, char **argv, std::string& out )
 #endif
 {
+  std::stringstream outStream;
   // READ COMMAND LINE ARGUMENTS
   bool verbose = false;
   bool debug = false;
@@ -590,7 +591,7 @@ int check(int argc, char **argv)
     while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get()) != nullptr ) nprocall += nprocbuf.data();
 #endif
     // Dump all configuration parameters and all results
-    std::cout << "***********************************************************************" << std::endl
+    outStream << "***********************************************************************" << std::endl
               << "NumBlocksPerGrid           = " << gpublocks << std::endl
               << "NumThreadsPerBlock         = " << gputhreads << std::endl
               << "NumIterations              = " << niter << std::endl
@@ -660,7 +661,7 @@ int check(int argc, char **argv)
               << "EvtsPerSec[MatrixElems] (3)= ( " << nevtALL/sumwtim
               << std::string(16, ' ') << " )  sec^-1" << std::endl
               << std::defaultfloat; // default format: affects all floats
-    std::cout << "***********************************************************************" << std::endl
+    outStream << "***********************************************************************" << std::endl
               << "NumMatrixElements(notNan)  = " << nevtALL - nnan << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
               << "MeanMatrixElemValue        = ( " << meanelem
@@ -809,11 +810,12 @@ int check(int argc, char **argv)
   timermap.stop();
   if (perf)
   {
-    std::cout << "***********************************************************************" << std::endl;
-    timermap.dump();
-    std::cout << "***********************************************************************" << std::endl;
+    outStream << "***********************************************************************" << std::endl;
+    timermap.dump( outStream );
+    outStream << "***********************************************************************" << std::endl;
   }
 
   //std::cout << "ALL OK" << std::endl;
+  out = outStream.str();
   return 0;
 }
