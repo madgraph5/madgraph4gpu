@@ -362,41 +362,49 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+#ifdef __CUDACC__
+  typedef fptype fptypeV;
+  typedef cxtype cxtypeV;
+#else
+  typedef fptype_v fptypeV;
+  typedef cxtype_v cxtypeV;
+#endif
+
   __device__
-  void FFV1P0_3( const cxtype F1S[],   // input wavefunction1[6]
-                 const cxtype F2S[],   // input wavefunction2[6]
+  void FFV1P0_3( const cxtypeV F1S[],     // input wavefunction1[6]
+                 const cxtypeV F2S[],     // input wavefunction2[6]
                  const cxtype COUP,
                  const fptype M3,
                  const fptype W3,
-                 cxtype V3S[] )        // output wavefunction3[6]
+                 cxtypeV V3S[] )          // output wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype& F1_0 = F1S[0];
-    const cxtype& F1_1 = F1S[1];
-    const cxtype& F1_2 = F1S[2];
-    const cxtype& F1_3 = F1S[3];
-    const cxtype& F1_4 = F1S[4];
-    const cxtype& F1_5 = F1S[5];
-    const cxtype& F2_0 = F2S[0];
-    const cxtype& F2_1 = F2S[1];
-    const cxtype& F2_2 = F2S[2];
-    const cxtype& F2_3 = F2S[3];
-    const cxtype& F2_4 = F2S[4];
-    const cxtype& F2_5 = F2S[5];
-    cxtype& V3_0 = V3S[0];
-    cxtype& V3_1 = V3S[1];
-    cxtype& V3_2 = V3S[2];
-    cxtype& V3_3 = V3S[3];
-    cxtype& V3_4 = V3S[4];
-    cxtype& V3_5 = V3S[5];
-    const cxtype cI = cxmake( 0, 1 );
+    const cxtypeV& F1_0 = F1S[0];
+    const cxtypeV& F1_1 = F1S[1];
+    const cxtypeV& F1_2 = F1S[2];
+    const cxtypeV& F1_3 = F1S[3];
+    const cxtypeV& F1_4 = F1S[4];
+    const cxtypeV& F1_5 = F1S[5];
+    const cxtypeV& F2_0 = F2S[0];
+    const cxtypeV& F2_1 = F2S[1];
+    const cxtypeV& F2_2 = F2S[2];
+    const cxtypeV& F2_3 = F2S[3];
+    const cxtypeV& F2_4 = F2S[4];
+    const cxtypeV& F2_5 = F2S[5];
+    cxtypeV& V3_0 = V3S[0];
+    cxtypeV& V3_1 = V3S[1];
+    cxtypeV& V3_2 = V3S[2];
+    cxtypeV& V3_3 = V3S[3];
+    cxtypeV& V3_4 = V3S[4];
+    cxtypeV& V3_5 = V3S[5];
+    const cxtypeV cI = cxvmake( cxmake( 0, 1 ) );
     V3_0 = + F1_0 + F2_0;
     V3_1 = + F1_1 + F2_1;
-    const fptype PPP0 = -cxreal( V3_0 );
-    const fptype PPP1 = -cxreal( V3_1 );
-    const fptype PPP2 = -cximag( V3_1 );
-    const fptype PPP3 = -cximag( V3_0 );
-    const cxtype denom =
+    const fptypeV PPP0 = -cxreal( V3_0 );
+    const fptypeV PPP1 = -cxreal( V3_1 );
+    const fptypeV PPP2 = -cximag( V3_1 );
+    const fptypeV PPP3 = -cximag( V3_0 );
+    const cxtypeV denom =
       COUP / ( ( PPP0 * PPP0 ) - ( PPP1 * PPP1 ) - ( PPP2 * PPP2 ) - ( PPP3 * PPP3 ) - M3 * ( M3 - cI * W3 ) );
     V3_2 = denom * ( -cI ) * ( F1_2 * F2_4 + F1_3 * F2_5 + F1_4 * F2_2 + F1_5 * F2_3 );
     V3_3 = denom * ( -cI ) * ( -F1_2 * F2_5 - F1_3 * F2_4 + F1_4 * F2_3 + F1_5 * F2_2 );
@@ -633,6 +641,14 @@ namespace Proc
       {
         // Local variables for the given event (ievt)
         cxtype amp[2];
+
+        // Diagram 1
+#ifdef __CUDACC__
+        MG5_sm::FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] ); // compute w[4]
+#else
+        MG5_sm::FFV1P0_3( w_v[1], w_v[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_v[4] ); // compute w[4]
+#endif
+
 #ifndef __CUDACC__
         const int ievt = ipagV*neppV + ieppV;
         // Local variables for the given event (ievt)
@@ -642,8 +658,6 @@ namespace Proc
             w[iwf][iw6] = w_v[iwf][iw6][ieppV];
 #endif
 
-        // Diagram 1
-        MG5_sm::FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
         MG5_sm::FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
 
         // Diagram 2

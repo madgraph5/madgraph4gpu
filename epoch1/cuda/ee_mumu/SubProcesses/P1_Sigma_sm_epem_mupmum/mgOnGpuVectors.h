@@ -47,6 +47,14 @@ fptype_v fpvmake( const fptype v[neppV] )
 
 // Operators for cxtype_v
 inline
+cxtype_v cxvmake( const cxtype c )
+{
+  cxtype_v out;
+  for ( int i=0; i<neppV; i++ ) out[i]=c;
+  return out;
+}
+
+inline
 cxtype_v cxmake( const fptype_v& r, const fptype_v& i )
 {
   return cxtype_v{ r, i };
@@ -71,6 +79,115 @@ cxtype_v cxmake0i( const fptype_v& i )
   return cxtype_v{ fptype_v{0}, i };
 }
 */
+
+inline
+const fptype_v& cxreal( const cxtype_v& c )
+{
+  return c.real; // returns by reference
+}
+
+inline
+const fptype_v& cximag( const cxtype_v& c )
+{
+  return c.imag; // returns by reference
+}
+
+inline
+cxtype_v operator+( const cxtype_v& a, const cxtype_v& b )
+{
+  return cxmake( a.real + b.real, a.imag + b.imag );
+}
+
+inline
+const cxtype_v& operator+( const cxtype_v& a )
+{
+  return a;
+}
+
+inline
+cxtype_v operator-( const cxtype_v& a, const cxtype_v& b )
+{
+  return cxmake( a.real - b.real, a.imag - b.imag );
+}
+
+inline
+cxtype_v& operator-( const cxtype_v& a )
+{
+  return -a;
+}
+
+inline
+cxtype_v operator-( const fptype& a, const cxtype_v& b )
+{
+  return cxmake( a - b.real, - b.imag );
+}
+
+inline
+cxtype_v operator-( const cxtype_v& a, const fptype& b )
+{
+  return cxmake( a.real - b, a.imag );
+}
+
+inline
+cxtype_v operator-( const fptype_v& a, const cxtype_v& b )
+{
+  return cxmake( a - b.real, - b.imag );
+}
+
+inline
+cxtype_v operator-( const cxtype_v& a, const fptype_v& b )
+{
+  return cxmake( a.real - b, a.imag );
+}
+
+inline
+cxtype_v operator*( const cxtype_v& a, const cxtype_v& b )
+{
+  return cxmake( a.real * b.real - a.imag * b.imag, a.imag * b.real + a.real * b.imag );
+}
+
+inline
+cxtype_v operator*( const fptype& a, const cxtype_v& b )
+{
+  return cxmake( a * b.real, a * b.imag );
+}
+
+inline
+cxtype_v operator*( const cxtype_v& a, const fptype& b )
+{
+  return cxmake( a.real * b, a.imag * b );
+}
+
+inline
+cxtype_v operator/( const cxtype_v& a, const cxtype_v& b )
+{
+  fptype_v bnorm = b.real*b.real + b.imag*b.imag;
+  return cxmake( ( a.real * b.real + a.imag * b.imag ) / bnorm, 
+                 ( a.imag * b.real - a.real * b.imag ) / bnorm );
+}
+
+inline
+cxtype_v operator/( const cxtype& a, const cxtype_v& b )
+{
+  fptype_v bnorm = b.real*b.real + b.imag*b.imag;
+  return cxmake( ( cxreal( a ) * b.real + cximag( a ) * b.imag ) / bnorm, 
+                 ( cximag( a ) * b.real - cxreal( a ) * b.imag ) / bnorm );
+}
+
+/*
+inline
+cxtype_v operator/( const fptype& a, const cxtype_v& b )
+{
+  fptype_v bnorm = b.real*b.real + b.imag*b.imag;
+  return cxmake( ( a * b.real ) / bnorm, ( - a * b.imag ) / bnorm );
+}
+*/
+
+inline
+cxtype_v operator/( const cxtype_v& a, const fptype& b )
+{
+  return cxmake( a.real / b, a.imag / b );
+}
 
 // DEBUG - START
 void print( const fptype& f )
@@ -108,18 +225,24 @@ void print( const cxtype_v& v )
 #else
 
 inline __device__
+const cxtype& cxvmake( const cxtype& c )
+{
+  return c;
+}
+
+inline __device__
 cxtype cxmake00()
 {
   return cxmake( 0, 0 );
 }
 
-/*
-inline
+inline __device__
 cxtype cxmaker0( const fptype& r )
 {
   return cxtype( r, 0 );
 }
 
+/*
 inline
 cxtype cxmake0i( const fptype& i )
 {
