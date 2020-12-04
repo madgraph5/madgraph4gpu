@@ -3,35 +3,12 @@
 #include <iomanip>
 #include <thread>
 
-// This is compiled with g++ and linked with objects compiled with nvcc or g++
-int main( int argc, char **argv )
+void dumptime( const std::string& tag,
+               const int nevtALL,
+               const double sumgtim,
+               const double sumrtim,
+               const double sumwtim )
 {
-  std::string gpuOut;
-  std::vector<double> gpuStats;
-  int gpuStatus;
-  //int gpuMult = 1; // GPU processes same #events as CPU, with same random seeds
-  int gpuMult = 100; // GPU processes 100x #events as CPU, with different random seeds
-  std::thread gpuThread( [&]{ gpuStatus = gcheck( argc, argv, gpuOut, gpuStats, "(GPU) ", gpuMult ); });
-
-  std::string cpuOut;
-  std::vector<double> cpuStats;
-  int cpuStatus;
-  std::thread cpuThread( [&]{ cpuStatus = check( argc, argv, cpuOut, cpuStats, "(CPU) " ); });
-
-  gpuThread.join();
-  std::cout << gpuOut;
-  //for ( auto& stat : gpuStats ) std::cout << stat << std::endl;
-
-  cpuThread.join();
-  std::cout << cpuOut;
-  //for ( auto& stat : cpuStats ) std::cout << stat << std::endl;
-
-  int nevtALL = (int)(cpuStats[0]+gpuStats[0]);
-  double sumgtim = cpuStats[1]+gpuStats[1];
-  double sumrtim = cpuStats[2]+gpuStats[2];
-  double sumwtim = cpuStats[3]+gpuStats[3];
-
-  std::string tag = "(HET) ";
   std::cout << "----------------------------------------------------------------------------" << std::endl
             << tag << "TotalEventsComputed        = " << nevtALL << std::endl
             << std::scientific // fixed format: affects all floats (default precision: 6)
@@ -42,15 +19,79 @@ int main( int argc, char **argv )
             << tag << "TotalTime[RndNumGen]    (1)= ( " << sumgtim << std::string(16, ' ') << " )  sec" << std::endl
             << tag << "TotalTime[Rambo]        (2)= ( " << sumrtim << std::string(16, ' ') << " )  sec" << std::endl
             << tag << "TotalTime[MatrixElems]  (3)= ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
-            << "----------------------------------------------------------------------------" << std::endl
-            << tag << "EvtsPerSec[Rnd+Rmb+ME](123)= ( " << nevtALL/(sumgtim+sumrtim+sumwtim)
-            << std::string(16, ' ') << " )  sec^-1" << std::endl
-            << tag << "EvtsPerSec[Rmb+ME]     (23)= ( " << nevtALL/(sumrtim+sumwtim)
-            << std::string(16, ' ') << " )  sec^-1" << std::endl
-            << tag << "EvtsPerSec[MatrixElems] (3)= ( " << nevtALL/sumwtim
-            << std::string(16, ' ') << " )  sec^-1" << std::endl
             << std::defaultfloat // default format: affects all floats
             << "----------------------------------------------------------------------------" << std::endl;
+}
+
+void dumptput( const std::string& tag,
+               const int nevtALL,
+               const double tputgrw,
+               const double tputrw,
+               const double tputw )
+{
+  std::cout << tag << "TotalEventsComputed        = " << nevtALL << std::endl
+            << std::scientific // fixed format: affects all floats (default precision: 6)
+            << tag << "EvtsPerSec[Rnd+Rmb+ME](123)= ( " << tputgrw
+            << std::string(16, ' ') << " )  sec^-1" << std::endl
+            << tag << "EvtsPerSec[Rmb+ME]     (23)= ( " << tputrw
+            << std::string(16, ' ') << " )  sec^-1" << std::endl
+            << tag << "EvtsPerSec[MatrixElems] (3)= ( " << tputw
+            << std::string(16, ' ') << " )  sec^-1" << std::endl
+            << std::defaultfloat // default format: affects all floats
+            << "****************************************************************************" << std::endl;
+}
+
+// This is compiled with g++ and linked with objects compiled with nvcc or g++
+int main( int argc, char **argv )
+{
+  std::string gpuOut;
+  std::vector<double> gpuStats;
+  int gpuStatus;
+  //int gpuMult = 1; // GPU processes same #events as CPU, with same random seeds
+  int gpuMult = 70; // GPU processes 70x #events as CPU, with different random seeds
+  std::string gpuTag = "(GPU) ";
+  std::thread gpuThread( [&]{ gpuStatus = gcheck( argc, argv, gpuOut, gpuStats, gpuTag, gpuMult ); });
+
+  std::string cpuOut;
+  std::vector<double> cpuStats;
+  int cpuStatus;
+  std::string cpuTag = "(CPU) ";
+  std::thread cpuThread( [&]{ cpuStatus = check( argc, argv, cpuOut, cpuStats, cpuTag ); });
+
+  gpuThread.join();
+  std::cout << gpuOut;
+
+  cpuThread.join();
+  std::cout << cpuOut;
+
+  int gpuNevtALL = (int)(gpuStats[0]);
+  double gpuSumgtim = gpuStats[1];
+  double gpuSumrtim = gpuStats[2];
+  double gpuSumwtim = gpuStats[3];
+
+  dumptime( gpuTag, gpuNevtALL, gpuSumgtim, gpuSumrtim, gpuSumwtim );
+  double gpuTputgrw = gpuNevtALL/(gpuSumgtim+gpuSumrtim+gpuSumwtim);
+  double gpuTputrw  = gpuNevtALL/(gpuSumrtim+gpuSumwtim);
+  double gpuTputw   = gpuNevtALL/(gpuSumwtim);
+  dumptput( gpuTag, gpuNevtALL, gpuTputgrw, gpuTputrw, gpuTputw );
+
+  int cpuNevtALL = (int)(cpuStats[0]);
+  double cpuSumgtim = cpuStats[1];
+  double cpuSumrtim = cpuStats[2];
+  double cpuSumwtim = cpuStats[3];
+
+  dumptime( cpuTag, cpuNevtALL, cpuSumgtim, cpuSumrtim, cpuSumwtim );
+  double cpuTputgrw = cpuNevtALL/(cpuSumgtim+cpuSumrtim+cpuSumwtim);
+  double cpuTputrw  = cpuNevtALL/(cpuSumrtim+cpuSumwtim);
+  double cpuTputw   = cpuNevtALL/(cpuSumwtim);
+  dumptput( cpuTag, cpuNevtALL, cpuTputgrw, cpuTputrw, cpuTputw );
+
+  std::string hetTag = "(HET) ";
+  int hetNevtALL = gpuNevtALL+cpuNevtALL;
+  double hetTputgrw = gpuTputgrw+cpuTputgrw;
+  double hetTputrw  = gpuTputrw+cpuTputrw;
+  double hetTputw   = gpuTputw+cpuTputw;
+  dumptput( hetTag, hetNevtALL, hetTputgrw, hetTputrw, hetTputw );
 
   if ( gpuStatus != 0 ) return 1;
   if ( cpuStatus != 0 ) return 2;
