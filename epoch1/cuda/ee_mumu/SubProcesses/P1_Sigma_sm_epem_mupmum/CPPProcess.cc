@@ -34,25 +34,32 @@ namespace MG5_sm
     // mapping for the various schemes (AOSOA, AOS, SOA...)
     using mgOnGpu::np4;
     using mgOnGpu::npar;
-    const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
+    const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
     fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
     const int ipagM = ievt/neppM; // #eventpage in this iteration
     const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
     //return allmomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
+    //printf( "%f\n", momenta[ipagM][ipar][ip4][ieppM] );    
     return momenta[ipagM][ipar][ip4][ieppM];
   }
 #else
-  inline const fptype_v& pIparIp4Ipag( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
-                                       const int ipar,
-                                       const int ip4,
-                                       const int ipagM )
+  // NB: return by value for the moment
+  // NB: may be optimized, but should allocate momenta1d as an fptype_v upfront in check.cc...
+  inline const fptype_v pIparIp4Ipag( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
+                                      const int ipar,
+                                      const int ip4,
+                                      const int ipagM )
   {
     // mapping for the various schemes (AOSOA, AOS, SOA...)
     using mgOnGpu::np4;
     using mgOnGpu::npar;
-    const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
+    // NB: assumes neppV (fptype_v vector size) equals neppM (AOSOA layout vector size)
+    const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
     fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
-    return (const fptype_v&)momenta[ipagM][ipar][ip4];
+    //const fptype_v v = (const fptype_v&)momenta[ipagM][ipar][ip4]; // builds but eventually CRASHES!
+    const fptype_v v = fpvmake( momenta[ipagM][ipar][ip4] );
+    //print( v );
+    return v;
   }
 #endif
 
@@ -66,7 +73,8 @@ namespace MG5_sm
 #ifdef __CUDACC__
                  cxtype fis[nw6],          // output: wavefunction[6]
 #else
-                 cxtype fis_v[nw6][neppV], // output: wavefunction[6][neppV]
+                 cxtype_v fis_v[nw6],      // output: wavefunction[6][RRRRIIII]
+                 //fptype_v fis_v[nw6][2],   // output: wavefunction[6][RRRRIIII]
                  const int ipagV,
 #endif
                  const int ipar )          // input: particle# out of npar
@@ -86,10 +94,10 @@ namespace MG5_sm
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
       //printf( "imzxxxM0: ipagV=%d\n", ipagV );
-      const fptype_v& pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
-      const fptype_v& pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
-      const fptype_v& pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
-      const fptype_v& pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_v pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
+      const fptype_v pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
+      const fptype_v pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
+      const fptype_v pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
 #endif
 #ifdef __CUDACC__
       cxtype& fi_0 = fis[0];
@@ -150,7 +158,8 @@ namespace MG5_sm
 #ifdef __CUDACC__
                  cxtype fis[nw6],          // output: wavefunction[6]
 #else
-                 cxtype fis_v[nw6][neppV], // output: wavefunction[6][neppV]
+                 cxtype_v fis_v[nw6],      // output: wavefunction[6][RRRRIIII]
+                 //fptype_v fis_v[nw6][2],   // output: wavefunction[6][RRRRIIII]
                  const int ipagV,
 #endif
                  const int ipar )          // input: particle# out of npar
@@ -170,10 +179,10 @@ namespace MG5_sm
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
       //printf( "ixzxxxM0: ipagV=%d\n", ipagV );
-      const fptype_v& pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
-      const fptype_v& pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
-      const fptype_v& pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
-      const fptype_v& pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_v pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
+      const fptype_v pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
+      const fptype_v pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
+      const fptype_v pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
 #endif
 #ifdef __CUDACC__
       cxtype& fi_0 = fis[0];
@@ -236,7 +245,8 @@ namespace MG5_sm
 #ifdef __CUDACC__
                  cxtype fos[nw6],          // output: wavefunction[6]
 #else
-                 cxtype fos_v[nw6][neppV], // output: wavefunction[6][neppV]
+                 cxtype_v fos_v[nw6],      // output: wavefunction[6][RRRRIIII]
+                 //fptype_v fos_v[nw6][2],   // output: wavefunction[6][RRRRIIII]
                  const int ipagV,
 #endif
                  const int ipar )          // input: particle# out of npar
@@ -256,11 +266,10 @@ namespace MG5_sm
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
       //printf( "oxzxxxM0: ipagV=%d\n", ipagV );
-      const fptype_v& pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
-      const fptype_v& pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
-      const fptype_v& pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
-      const fptype_v& pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
-      printf( "oxzxxxM0: hallo1\n" );
+      const fptype_v pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
+      const fptype_v pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
+      const fptype_v pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
+      const fptype_v pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
 #endif
 #ifdef __CUDACC__
       cxtype& fo_0 = fos[0];
@@ -270,7 +279,6 @@ namespace MG5_sm
       cxtype& fo_4 = fos[4];
       cxtype& fo_5 = fos[5];
 #else
-      printf( "oxzxxxM0: hallo2\n" );
       cxtype_v& fo_0 = (cxtype_v&)fos_v[0];
       cxtype_v& fo_1 = (cxtype_v&)fos_v[1];
       cxtype_v& fo_2 = (cxtype_v&)fos_v[2];
@@ -278,12 +286,7 @@ namespace MG5_sm
       cxtype_v& fo_4 = (cxtype_v&)fos_v[4];
       cxtype_v& fo_5 = (cxtype_v&)fos_v[5];
 #endif
-      printf( "oxzxxxM0: hallo3\n" );
-      //fo_0 = cxmake( pvec0 * nsf, pvec3 * nsf ); // this causes the General Protection Fault
-      auto fo0 = cxmake( pvec0 * nsf, pvec3 * nsf );
-      printf( "oxzxxxM0: hallo3bis\n" ); // this is normally always reached
-      fo_0 = fo0; // this causes the General Protection Fault
-      printf( "oxzxxxM0: hallo4\n" ); // this is generally (not always) not reached
+      fo_0 = cxmake( pvec0 * nsf, pvec3 * nsf ); // this used to cause the General Protection Fault
       fo_1 = cxmake( pvec1 * nsf, pvec2 * nsf );
       const int nh = nhel * nsf;
       // ASSUMPTIONS FMASS = 0 and
@@ -605,8 +608,8 @@ namespace Proc
 #else
     // Local variables for the given event page (ipagV)
     //cxtype_v amp[2];
-    //cxtype_v w_v[nwf][nw6]; // w_v[5][6]
-    cxtype w_v[nwf][nw6][neppV]; // w_v[5][6]
+    cxtype_v w_v[nwf][nw6]; // w_v[5][6]
+    //cxtype w_v[nwf][nw6][neppV]; // w_v[5][6]
 #endif
 
 #ifndef __CUDACC__

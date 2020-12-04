@@ -37,6 +37,14 @@ fptype_v sqrt( const fptype_v& v )
   return out;
 }
 
+inline
+fptype_v fpvmake( const fptype v[neppV] )
+{
+  fptype_v out;
+  for ( int i=0; i<neppV; i++ ) out[i]=v[i];
+  return out;
+}
+
 // Operators for cxtype_v
 inline
 cxtype_v cxmake( const fptype_v& r, const fptype_v& i )
