@@ -78,9 +78,11 @@ gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
 %.o : %.cc *.h ../../src/*.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
+# This is built with nvcc and linked with objects compiled with nvcc or g++
 $(cu_main): gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) gmain.cc
 	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) gmain.cc
 
+# This is built with g++ and linked with objects compiled with g++
 $(cxx_main): check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) cmain.cc
 	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) cmain.cc
 
