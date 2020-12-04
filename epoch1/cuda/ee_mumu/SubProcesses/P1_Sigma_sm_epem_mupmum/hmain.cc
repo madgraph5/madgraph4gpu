@@ -1,11 +1,7 @@
-#include <iomanip>
-#include <iostream>
-#include <string>
-#include <thread>
-#include <vector>
+#include "check.h"
 
-int gcheck( int argc, char **argv, std::string& out, std::vector<double>& stats ); // from gcheck.cu (compiled with nvcc)
-int check( int argc, char **argv, std::string& out, std::vector<double>& stats ); // from check.cc (compiled with g++)
+#include <iomanip>
+#include <thread>
 
 // This is compiled with g++ and linked with objects compiled with nvcc or g++
 int main( int argc, char **argv )

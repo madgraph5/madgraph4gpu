@@ -1,9 +1,4 @@
-#include <iostream>
-#include <string>
-#include <vector>
-
-int gcheck( int argc, char **argv, std::string& out, std::vector<double>& stats ); // from gcheck.cu (compiled with nvcc)
-int check( int argc, char **argv, std::string& out, std::vector<double>& stats ); // from check.cc (compiled with g++)
+#include "check.h"
 
 // This is built with nvcc and linked with objects compiled with nvcc or g++
 int main( int argc, char **argv )

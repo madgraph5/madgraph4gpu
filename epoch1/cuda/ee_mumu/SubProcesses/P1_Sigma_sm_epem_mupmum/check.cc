@@ -1,3 +1,5 @@
+#include "check.h"
+
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -7,8 +9,6 @@
 #include <iostream>
 #include <memory>
 #include <numeric>
-#include <string>
-#include <vector>
 #include <unistd.h>
 
 #include "mgOnGpuConfig.h"
