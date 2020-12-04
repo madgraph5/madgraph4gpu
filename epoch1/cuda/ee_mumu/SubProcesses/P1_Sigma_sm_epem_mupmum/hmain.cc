@@ -1,3 +1,4 @@
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <thread>
@@ -26,6 +27,29 @@ int main( int argc, char **argv )
   cpuThread.join();
   std::cout << cpuOut;
   //for ( auto& stat : cpuStats ) std::cout << stat << std::endl;
+
+  int nevtALL = (int)(cpuStats[0]+gpuStats[0]);
+  double sumgtim = cpuStats[1]+gpuStats[1];
+  double sumrtim = cpuStats[2]+gpuStats[2];
+  double sumwtim = cpuStats[3]+gpuStats[3];
+  
+  std::cout << "-----------------------------------------------------------------------" << std::endl
+            << std::scientific // fixed format: affects all floats (default precision: 6)
+            << "TotalTime[Rnd+Rmb+ME] (123)= ( " << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+            << "TotalTime[Rambo+ME]    (23)= ( " << sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+            << "TotalTime[RndNumGen]    (1)= ( " << sumgtim << std::string(16, ' ') << " )  sec" << std::endl
+            << "TotalTime[Rambo]        (2)= ( " << sumrtim << std::string(16, ' ') << " )  sec" << std::endl
+            << "TotalTime[MatrixElems]  (3)= ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+            << "-----------------------------------------------------------------------" << std::endl
+            << "TotalEventsComputed        = " << nevtALL << std::endl
+            << "EvtsPerSec[Rnd+Rmb+ME](123)= ( " << nevtALL/(sumgtim+sumrtim+sumwtim)
+            << std::string(16, ' ') << " )  sec^-1" << std::endl
+            << "EvtsPerSec[Rmb+ME]     (23)= ( " << nevtALL/(sumrtim+sumwtim)
+            << std::string(16, ' ') << " )  sec^-1" << std::endl
+            << "EvtsPerSec[MatrixElems] (3)= ( " << nevtALL/sumwtim
+            << std::string(16, ' ') << " )  sec^-1" << std::endl
+            << std::defaultfloat // default format: affects all floats  
+            << "-----------------------------------------------------------------------" << std::endl;
 
   if ( gpuStatus != 0 ) return 1;
   if ( cpuStatus != 0 ) return 2;
