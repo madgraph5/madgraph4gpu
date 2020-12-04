@@ -161,7 +161,11 @@ int check( int argc, char **argv, std::string& out )
     std::cout << "# iterations: " << niter << std::endl;
 
   // *** START THE NEW TIMERS ***
-  mgOnGpu::TimerMap timermap;
+#ifdef __CUDACC__
+  mgOnGpu::TimerMap timermap( "(GPU) " );
+#else
+  mgOnGpu::TimerMap timermap( "(CPU) " );
+#endif
 
   // === STEP 0 - INITIALISE
 

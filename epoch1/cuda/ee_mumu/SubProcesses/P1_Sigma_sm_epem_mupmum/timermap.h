@@ -17,7 +17,7 @@ namespace mgOnGpu
 
   public:
 
-    TimerMap() : m_timer(), m_active(""), m_partitionTimers(), m_partitionIds() {}
+    TimerMap( const std::string& tag="" ) : m_timer(), m_tag(tag), m_active(""), m_partitionTimers(), m_partitionIds() {}
     virtual ~TimerMap() {}
 
     // Start the timer for a specific partition (key must be a non-empty string)
@@ -111,19 +111,19 @@ namespace mgOnGpu
         ostr << std::setprecision(6); // set precision (default=6): affects all floats
         ostr << std::fixed; // fixed format: affects all floats
         for ( auto ip : m_partitionTimers )
-          ostr << std::setw(maxsize) << ip.first << " : "
+          ostr << m_tag << std::setw(maxsize) << ip.first << " : "
                << std::setw(12) << ip.second << " sec" << std::endl;
-        ostr << std::setw(maxsize) << totalKey << " : "
+        ostr << m_tag << std::setw(maxsize) << totalKey << " : "
              << std::setw(12) << total << " sec" << std::endl
-             << std::setw(maxsize) << total123Key << " : "
+             << m_tag << std::setw(maxsize) << total123Key << " : "
              << std::setw(12) << total123 << " sec" << std::endl
-             << std::setw(maxsize) << total23Key << " : "
+             << m_tag << std::setw(maxsize) << total23Key << " : "
              << std::setw(12) << total23 << " sec" << std::endl
-             << std::setw(maxsize) << total1Key << " : "
+             << m_tag << std::setw(maxsize) << total1Key << " : "
              << std::setw(12) << total1 << " sec" << std::endl
-             << std::setw(maxsize) << total2Key << " : "
+             << m_tag << std::setw(maxsize) << total2Key << " : "
              << std::setw(12) << total2 << " sec" << std::endl
-             << std::setw(maxsize) << total3Key << " : "
+             << m_tag << std::setw(maxsize) << total3Key << " : "
              << std::setw(12) << total3 << " sec" << std::endl;
         ostr << std::defaultfloat; // default format: affects all floats
       }
@@ -132,6 +132,7 @@ namespace mgOnGpu
   private:
 
     Timer<TIMERTYPE> m_timer;
+    std::string m_tag;
     std::string m_active;
     std::map< std::string, float > m_partitionTimers;
     std::map< std::string, uint32_t > m_partitionIds;
