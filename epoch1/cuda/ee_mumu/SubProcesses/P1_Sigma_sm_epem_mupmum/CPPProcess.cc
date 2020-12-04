@@ -600,13 +600,10 @@ namespace Proc
 
 #ifdef __CUDACC__
     // Local variables for the given event (ievt)
-    //cxtype amp[2];
     cxtype w[nwf][nw6]; // w[5][6]
 #else
     // Local variables for the given event page (ipagV)
-    //cxtype_v amp[2];
     cxtype_v w_v[nwf][nw6]; // w_v[5][6]
-    //cxtype w_v[nwf][nw6][neppV]; // w_v[5][6]
 #endif
 
 #ifndef __CUDACC__
