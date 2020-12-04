@@ -614,9 +614,6 @@ int check(int argc, char **argv)
               << "Momenta memory layout      = AOSOA[" << neppM << "]"
               << ( neppM == 1 ? " == AOS" : "" ) << std::endl
 #ifdef __CUDACC__
-              << "Wavefunction GPU memory    = LOCAL" << std::endl
-#endif
-#ifdef __CUDACC__
 #if defined MGONGPU_COMMONRAND_ONHOST
               << "Random number generation   = COMMON RANDOM HOST (CUDA code)" << std::endl
 #elif defined MGONGPU_CURAND_ONDEVICE
@@ -630,6 +627,10 @@ int check(int argc, char **argv)
 #else
               << "Random number generation   = CURAND (C++ code)" << std::endl
 #endif
+#endif
+#ifdef __CUDACC__
+              << "Wavefunction GPU memory    = LOCAL" << std::endl
+#else
               << "OMP threads / maxthreads   = " << getenv("OMP_NUM_THREADS") << " / " << nprocall // includes a newline
 #endif
               << "-----------------------------------------------------------------------" << std::endl
