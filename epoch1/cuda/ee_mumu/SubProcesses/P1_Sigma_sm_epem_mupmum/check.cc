@@ -596,9 +596,9 @@ int check(int argc, char **argv)
               << "NumIterations              = " << niter << std::endl
               << "-----------------------------------------------------------------------" << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
-              << "FP precision               = DOUBLE (nan=" << nnan << ")" << std::endl
+              << "FP precision               = DOUBLE" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
-              << "FP precision               = FLOAT (nan=" << nnan << ")" << std::endl
+              << "FP precision               = FLOAT" << std::endl
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_CXTYPE_CUCOMPLEX
@@ -634,7 +634,7 @@ int check(int argc, char **argv)
               << "OMP threads / maxthreads   = " << getenv("OMP_NUM_THREADS") << " / " << nprocall // includes a newline
 #endif
               << "-----------------------------------------------------------------------" << std::endl
-              << "NumberOfEntries            = " << niter << std::endl
+              << "NumIterations              = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
               << "TotalTime[Rnd+Rmb+ME] (123)= ( " << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
               << "TotalTime[Rambo+ME]    (23)= ( " << sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
@@ -648,7 +648,7 @@ int check(int argc, char **argv)
               << "-----------------------------------------------------------------------" << std::endl
       //<< "ProcessID:                 = " << getpid() << std::endl
       //<< "NProcesses                 = " << process.nprocesses << std::endl
-              << "TotalEventsComputed        = " << nevtALL << std::endl
+              << "TotalEventsComputed        = " << nevtALL << " (nan=" << nnan << ")" << std::endl
               << "EvtsPerSec[Rnd+Rmb+ME](123)= ( " << nevtALL/(sumgtim+sumrtim+sumwtim)
               << std::string(16, ' ') << " )  sec^-1" << std::endl
               << "EvtsPerSec[Rmb+ME]     (23)= ( " << nevtALL/(sumrtim+sumwtim)
@@ -712,10 +712,9 @@ int check(int argc, char **argv)
              << "\"NumThreadsPerBlock\": " << gputhreads << ", " << std::endl
              << "\"NumBlocksPerGrid\": " << gpublocks << ", " << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
-             << "\"FP precision\": "
-             << "\"DOUBLE (nan=" << nnan << ")\"," << std::endl
+             << "\"FP precision\": " << "\"DOUBLE\"," << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
-             << "\"FP precision\": " << "FLOAT (nan=" << nnan << ")," << std::endl
+             << "\"FP precision\": " << "\"FLOAT\"," << std::endl
 #endif
              << "\"Complex type\": "
 #ifdef __CUDACC__
@@ -773,7 +772,7 @@ int check(int argc, char **argv)
       //<< "ProcessID:                = " << getpid() << std::endl
       //<< "NProcesses                = " << process.nprocesses << std::endl
              << "\"TotalEventsComputed\": " << nevtALL << "," << std::endl
-
+             << "\"nan\": " << nnan << "," << std::endl
              << "\"EvtsPerSec[Rnd+Rmb+ME](123)\": \""
              << std::to_string(nevtALL/(sumgtim+sumrtim+sumwtim))
              << " sec^-1\"," << std::endl
