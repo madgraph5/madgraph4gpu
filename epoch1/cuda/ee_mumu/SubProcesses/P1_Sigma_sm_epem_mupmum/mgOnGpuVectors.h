@@ -15,10 +15,17 @@ namespace mgOnGpu
 
   // --- Type definitions (using vector compiler extensions: need -march=native)
   typedef fptype fptype_v __attribute__ ((vector_size (neppV * sizeof(fptype)))); // RRRR
+  struct cxtype_ref
+  {
+    fptype& real, imag; // RI
+    operator cxtype() const { return cxmake( real, imag ); }
+    cxtype_ref& operator=( const cxtype& c ) { real=cxreal( c ); imag = cximag( c ); return *this; }
+  };
   struct cxtype_v
   {
     fptype_v real, imag; // RRRRIIII
-    cxtype operator[]( size_t i ) const { return cxmake( real[i], imag[i] ); }
+    //cxtype operator[]( size_t i ) const { return cxmake( real[i], imag[i] ); } // error-prone: NOT a reference!
+    cxtype_ref operator[]( size_t i ) const { return cxtype_ref{ real[i], imag[i] }; }
   };
 
 }
@@ -27,6 +34,39 @@ namespace mgOnGpu
 using mgOnGpu::neppV;
 using mgOnGpu::fptype_v;
 using mgOnGpu::cxtype_v;
+
+// DEBUG - START
+void print( const fptype& f )
+{
+  std::cout << f << std::endl;
+}
+
+void print( const fptype_v& v )
+{
+  std::cout << "{ " << v[0];
+  for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
+  std::cout << " }" << std::endl;
+}
+
+std::string str( const cxtype& c )
+{
+  std::stringstream ss;
+  ss << "[" << cxreal(c) << "," << cximag(c) << "]";
+  return ss.str();
+}
+
+void print( const cxtype& c )
+{
+  std::cout << str(c) << std::endl;
+}
+
+void print( const cxtype_v& v )
+{
+  std::cout << "{ " << str( v[0] );
+  for ( int i=1; i<neppV; i++ ) std::cout << ", " << str( v[i] );
+  std::cout << " }" << std::endl;
+}
+// DEBUG - END
 
 // Operators for fptype_v
 inline
@@ -49,8 +89,10 @@ fptype_v fpvmake( const fptype v[neppV] )
 inline
 cxtype_v cxvmake( const cxtype c )
 {
+  print( c );
   cxtype_v out;
   for ( int i=0; i<neppV; i++ ) out[i]=c;
+  print( out );
   return out;
 }
 
@@ -188,39 +230,6 @@ cxtype_v operator/( const cxtype_v& a, const fptype& b )
 {
   return cxmake( a.real / b, a.imag / b );
 }
-
-// DEBUG - START
-void print( const fptype& f )
-{
-  std::cout << f << std::endl;
-}
-
-void print( const fptype_v& v )
-{
-  std::cout << "{ " << v[0];
-  for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
-  std::cout << " }" << std::endl;
-}
-
-std::string str( const cxtype& c )
-{
-  std::stringstream ss;
-  ss << "[" << cxreal(c) << "," << cximag(c) << "]";
-  return ss.str();
-}
-
-void print( const cxtype& c )
-{
-  std::cout << str(c) << std::endl;
-}
-
-void print( const cxtype_v& v )
-{
-  std::cout << "{ " << str( v[0] );
-  for ( int i=1; i<neppV; i++ ) std::cout << ", " << str( v[i] ) << " }";
-  std::cout << std::endl;
-}
-// DEBUG - END
 
 #else
 
