@@ -322,28 +322,39 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Scalar-or-vector types: scalar in CUDA, vector in C++
+#ifdef __CUDACC__
+  typedef fptype fptype_sv;
+  typedef cxtype cxtype_sv;
+#else
+  typedef fptype_v fptype_sv;
+  typedef cxtype_v cxtype_sv;
+#endif
+
+  //--------------------------------------------------------------------------
+
   __device__
-  void FFV1_0( const cxtype F1S[],   // input wavefunction1[6]
-               const cxtype F2S[],   // input wavefunction2[6]
-               const cxtype V3S[],   // input wavefunction3[6]
+  void FFV1_0( const cxtype_sv F1S[],   // input wavefunction1[6]
+               const cxtype_sv F2S[],   // input wavefunction2[6]
+               const cxtype_sv V3S[],   // input wavefunction3[6]
                const cxtype COUP,
-               cxtype* vertex )      // output
+               cxtype_sv vertex[] )     // output
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype& F1_2 = F1S[2];
-    const cxtype& F1_3 = F1S[3];
-    const cxtype& F1_4 = F1S[4];
-    const cxtype& F1_5 = F1S[5];
-    const cxtype& F2_2 = F2S[2];
-    const cxtype& F2_3 = F2S[3];
-    const cxtype& F2_4 = F2S[4];
-    const cxtype& F2_5 = F2S[5];
-    const cxtype& V3_2 = V3S[2];
-    const cxtype& V3_3 = V3S[3];
-    const cxtype& V3_4 = V3S[4];
-    const cxtype& V3_5 = V3S[5];
+    const cxtype_sv& F1_2 = F1S[2];
+    const cxtype_sv& F1_3 = F1S[3];
+    const cxtype_sv& F1_4 = F1S[4];
+    const cxtype_sv& F1_5 = F1S[5];
+    const cxtype_sv& F2_2 = F2S[2];
+    const cxtype_sv& F2_3 = F2S[3];
+    const cxtype_sv& F2_4 = F2S[4];
+    const cxtype_sv& F2_5 = F2S[5];
+    const cxtype_sv& V3_2 = V3S[2];
+    const cxtype_sv& V3_3 = V3S[3];
+    const cxtype_sv& V3_4 = V3S[4];
+    const cxtype_sv& V3_5 = V3S[5];
     const cxtype cI = cxmake( 0, 1 );
-    const cxtype TMP4 =
+    const cxtype_sv TMP4 =
       ( F1_2 * ( F2_4 * ( V3_2 + V3_5 ) +
                  F2_5 * ( V3_3 + cI * ( V3_4 ) ) ) +
         ( F1_3 * ( F2_4 * ( V3_3 - cI * ( V3_4) )
@@ -359,17 +370,6 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
-
-  //--------------------------------------------------------------------------
-
-  // Scalar-or-vector types: scalar in CUDA, vector in C++
-#ifdef __CUDACC__
-  typedef fptype fptype_sv;
-  typedef cxtype cxtype_sv;
-#else
-  typedef fptype_v fptype_sv;
-  typedef cxtype_v cxtype_sv;
-#endif
 
   //--------------------------------------------------------------------------
 
@@ -612,9 +612,11 @@ namespace Proc
 #ifdef __CUDACC__
     // Local variables for the given event (ievt)
     cxtype w[nwf][nw6]; // w[5][6]
+    cxtype amp[2];
 #else
     // Local variables for the given event page (ipagV)
     cxtype_v w_v[nwf][nw6]; // w_v[5][6]
+    cxtype_v amp_v[2];
 #endif
 
 #ifndef __CUDACC__
@@ -638,29 +640,29 @@ namespace Proc
 #endif
 
 #ifndef __CUDACC__
-      MG5_sm::FFV1P0_3( w_v[1], w_v[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_v[4] ); // compute w[4]
+      MG5_sm::FFV1P0_3( w_v[1], w_v[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_v[4] ); // compute w_v[4]
+      MG5_sm::FFV1_0( w_v[2], w_v[3], w_v[4], cxmake( cIPC[0], cIPC[1] ), &amp_v[0] ); // compute amp_v[4]
       // ** START LOOP ON IEPPV **
       for ( int ieppV = 0; ieppV < neppV; ++ieppV )
 #endif
       {
-        // Local variables for the given event (ievt)
-        cxtype amp[2];
-
         // Diagram 1
 #ifdef __CUDACC__
         MG5_sm::FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] ); // compute w[4]
+        MG5_sm::FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] ); // compute amp[0]
 #endif
 
 #ifndef __CUDACC__
         const int ievt = ipagV*neppV + ieppV;
         // Local variables for the given event (ievt)
         cxtype w[nwf][nw6]; // w[5][6]
+        cxtype amp[2];
         for ( int iwf = 0; iwf < nwf; ++iwf )
           for ( int iw6 = 0; iw6 < nw6; ++iw6 )
             w[iwf][iw6] = w_v[iwf][iw6][ieppV];
+        amp[0] = amp_v[0][ieppV];
+        amp[1] = amp_v[1][ieppV];
 #endif
-
-        MG5_sm::FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
 
         // Diagram 2
         MG5_sm::FFV2_4_3( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
