@@ -6,7 +6,11 @@
 #include <string>
 #include <fstream>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #include "nvtx.h"
+#pragma GCC diagnostic pop
+
 #include "timer.h"
 #define TIMERTYPE std::chrono::high_resolution_clock
 
