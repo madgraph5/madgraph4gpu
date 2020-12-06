@@ -381,7 +381,6 @@ namespace MG5_sm
                  cxtypeV V3S[] )          // output wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
-    printf( "FFV1P0_3: hallo1\n" );
     const cxtypeV& F1_0 = F1S[0];
     const cxtypeV& F1_1 = F1S[1];
     const cxtypeV& F1_2 = F1S[2];
@@ -394,44 +393,22 @@ namespace MG5_sm
     const cxtypeV& F2_3 = F2S[3];
     const cxtypeV& F2_4 = F2S[4];
     const cxtypeV& F2_5 = F2S[5];
-    printf( "FFV1P0_3: hallo2\n" );
     cxtypeV& V3_0 = V3S[0];
     cxtypeV& V3_1 = V3S[1];
     cxtypeV& V3_2 = V3S[2];
     cxtypeV& V3_3 = V3S[3];
     cxtypeV& V3_4 = V3S[4];
     cxtypeV& V3_5 = V3S[5];
-    printf( "FFV1P0_3: hallo3\n" );
     const cxtypeV cI = cxvmake( cxmake( 0, 1 ) );
-    print( cxmake( 0, 1 ) );
-    print( cI );
     V3_0 = + F1_0 + F2_0;
     V3_1 = + F1_1 + F2_1;
     const fptypeV PPP0 = -cxreal( V3_0 );
     const fptypeV PPP1 = -cxreal( V3_1 );
     const fptypeV PPP2 = -cximag( V3_1 );
     const fptypeV PPP3 = -cximag( V3_0 );
-    printf( "FFV1P0_3: hallo4\n" );
-    print( PPP0 );
-    print( PPP1 );
-    print( PPP2 );
-    print( PPP3 );
     const cxtypeV denom =
       COUP / ( ( PPP0 * PPP0 ) - ( PPP1 * PPP1 ) - ( PPP2 * PPP2 ) - ( PPP3 * PPP3 ) - M3 * ( M3 - cI * W3 ) );
-    printf( "FFV1P0_3: hallo5\n" );
-    print( denom );
-    //V3_2 = denom * ( -cI ) * ( F1_2 * F2_4 + F1_3 * F2_5 + F1_4 * F2_2 + F1_5 * F2_3 );
-    print( cI );
-    print( -cI ); // HANGS?
-    auto V3_2a = denom * ( -cI );
-    printf( "FFV1P0_3: hallo5a\n" );
-    print( V3_2a );
-    auto V3_2b = ( F1_2 * F2_4 + F1_3 * F2_5 + F1_4 * F2_2 + F1_5 * F2_3 );
-    printf( "FFV1P0_3: hallo5b\n" );
-    print( V3_2b );
-    V3_2 = V3_2a * V3_2b;
-    printf( "FFV1P0_3: hallo6\n" );
-    print( V3_2 );
+    V3_2 = denom * ( -cI ) * ( F1_2 * F2_4 + F1_3 * F2_5 + F1_4 * F2_2 + F1_5 * F2_3 );
     V3_3 = denom * ( -cI ) * ( -F1_2 * F2_5 - F1_3 * F2_4 + F1_4 * F2_3 + F1_5 * F2_2 );
     V3_4 = denom * ( -cI ) * ( -cI * ( F1_2 * F2_5 + F1_5 * F2_2 ) + cI * ( F1_3 * F2_4 + F1_4 * F2_3 ) );
     V3_5 = denom * ( -cI ) * ( -F1_2 * F2_4 - F1_5 * F2_3 + F1_3 * F2_5 + F1_4 * F2_2 );
@@ -647,7 +624,6 @@ namespace Proc
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif
     {
-      printf( "calculate_wavefunctions: hallo1\n" );
 #ifdef __CUDACC__
       MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], 0 );
       MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], 1 );
@@ -659,11 +635,9 @@ namespace Proc
       MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w_v[2], ipagV, 2 );
       MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w_v[3], ipagV, 3 );
 #endif
-      printf( "calculate_wavefunctions: hallo2\n" );
 
 #ifndef __CUDACC__
       MG5_sm::FFV1P0_3( w_v[1], w_v[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_v[4] ); // compute w[4]
-      printf( "calculate_wavefunctions: hallo3\n" );
       // ** START LOOP ON IEPPV **
       for ( int ieppV = 0; ieppV < neppV; ++ieppV )
 #endif
@@ -675,7 +649,6 @@ namespace Proc
 #ifdef __CUDACC__
         MG5_sm::FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] ); // compute w[4]
 #endif
-        printf( "calculate_wavefunctions: hallo4\n" );
 
 #ifndef __CUDACC__
         const int ievt = ipagV*neppV + ieppV;
