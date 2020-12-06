@@ -15,17 +15,36 @@ namespace mgOnGpu
 
   // --- Type definitions (using vector compiler extensions: need -march=native)
   typedef fptype fptype_v __attribute__ ((vector_size (neppV * sizeof(fptype)))); // RRRR
-  struct cxtype_ref
+
+  class cxtype_ref
   {
-    fptype &real, &imag; // RI
-    operator cxtype() const { return cxmake( real, imag ); }
-    cxtype_ref& operator=( const cxtype& c ) { real=cxreal( c ); imag = cximag( c ); return *this; }
+  public:
+    cxtype_ref() = delete;
+    cxtype_ref( const cxtype_ref& ) = delete;
+    cxtype_ref( cxtype_ref&& ) = default;
+    cxtype_ref( fptype& r, fptype& i ) : m_real{r}, m_imag{i} {}
+    cxtype_ref& operator=( const cxtype_ref& ) = delete;
+    cxtype_ref& operator=( cxtype_ref&& ) = delete;    
+    cxtype_ref& operator=( const cxtype& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; }
+    operator cxtype() const { return cxmake( m_real, m_imag ); }
+  private:
+    fptype &m_real, &m_imag; // RI
   };
-  struct cxtype_v
+
+  class cxtype_v
   {
-    fptype_v real, imag; // RRRRIIII
-    //cxtype operator[]( size_t i ) const { return cxmake( real[i], imag[i] ); } // error-prone: NOT a reference!
-    cxtype_ref operator[]( size_t i ) const { return cxtype_ref{ real[i], imag[i] }; }
+  public:
+    cxtype_v() : m_real{0}, m_imag{0} {}
+    cxtype_v( const cxtype_v&  ) = default;
+    cxtype_v( cxtype_v&&  ) = default;
+    cxtype_v( const fptype_v& r, const fptype_v& i ) : m_real{r}, m_imag{i} {}
+    cxtype_v& operator=( const cxtype_v& ) = default;
+    cxtype_v& operator=( cxtype_v&& ) = default;
+    cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); }
+    const fptype_v& real() const { return m_real; }
+    const fptype_v& imag() const { return m_imag; }
+  private:
+    fptype_v m_real, m_imag; // RRRRIIII
   };
 
 }
@@ -91,7 +110,14 @@ cxtype_v cxvmake( const cxtype c )
 {
   print( c );
   cxtype_v out;
-  for ( int i=0; i<neppV; i++ ) out[i]=c;
+  for ( int i=0; i<neppV; i++ )
+  {
+    std::cout << "START" << std::endl;
+    print( c );
+    out[i] = c;
+    print( out[i] );
+    std::cout << "END" << std::endl;
+  }
   print( out );
   return out;
 }
@@ -125,19 +151,19 @@ cxtype_v cxmake0i( const fptype_v& i )
 inline
 const fptype_v& cxreal( const cxtype_v& c )
 {
-  return c.real; // returns by reference
+  return c.real(); // returns by reference
 }
 
 inline
 const fptype_v& cximag( const cxtype_v& c )
 {
-  return c.imag; // returns by reference
+  return c.imag(); // returns by reference
 }
 
 inline
 cxtype_v operator+( const cxtype_v& a, const cxtype_v& b )
 {
-  return cxmake( a.real + b.real, a.imag + b.imag );
+  return cxmake( a.real() + b.real(), a.imag() + b.imag() );
 }
 
 inline
@@ -149,7 +175,7 @@ const cxtype_v& operator+( const cxtype_v& a )
 inline
 cxtype_v operator-( const cxtype_v& a, const cxtype_v& b )
 {
-  return cxmake( a.real - b.real, a.imag - b.imag );
+  return cxmake( a.real() - b.real(), a.imag() - b.imag() );
 }
 
 inline
@@ -161,74 +187,74 @@ cxtype_v& operator-( const cxtype_v& a )
 inline
 cxtype_v operator-( const fptype& a, const cxtype_v& b )
 {
-  return cxmake( a - b.real, - b.imag );
+  return cxmake( a - b.real(), - b.imag() );
 }
 
 inline
 cxtype_v operator-( const cxtype_v& a, const fptype& b )
 {
-  return cxmake( a.real - b, a.imag );
+  return cxmake( a.real() - b, a.imag() );
 }
 
 inline
 cxtype_v operator-( const fptype_v& a, const cxtype_v& b )
 {
-  return cxmake( a - b.real, - b.imag );
+  return cxmake( a - b.real(), - b.imag() );
 }
 
 inline
 cxtype_v operator-( const cxtype_v& a, const fptype_v& b )
 {
-  return cxmake( a.real - b, a.imag );
+  return cxmake( a.real() - b, a.imag() );
 }
 
 inline
 cxtype_v operator*( const cxtype_v& a, const cxtype_v& b )
 {
-  return cxmake( a.real * b.real - a.imag * b.imag, a.imag * b.real + a.real * b.imag );
+  return cxmake( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
 }
 
 inline
 cxtype_v operator*( const fptype& a, const cxtype_v& b )
 {
-  return cxmake( a * b.real, a * b.imag );
+  return cxmake( a * b.real(), a * b.imag() );
 }
 
 inline
 cxtype_v operator*( const cxtype_v& a, const fptype& b )
 {
-  return cxmake( a.real * b, a.imag * b );
+  return cxmake( a.real() * b, a.imag() * b );
 }
 
 inline
 cxtype_v operator/( const cxtype_v& a, const cxtype_v& b )
 {
-  fptype_v bnorm = b.real*b.real + b.imag*b.imag;
-  return cxmake( ( a.real * b.real + a.imag * b.imag ) / bnorm, 
-                 ( a.imag * b.real - a.real * b.imag ) / bnorm );
+  fptype_v bnorm = b.real()*b.real() + b.imag()*b.imag();
+  return cxmake( ( a.real() * b.real() + a.imag() * b.imag() ) / bnorm,
+                 ( a.imag() * b.real() - a.real() * b.imag() ) / bnorm );
 }
 
 inline
 cxtype_v operator/( const cxtype& a, const cxtype_v& b )
 {
-  fptype_v bnorm = b.real*b.real + b.imag*b.imag;
-  return cxmake( ( cxreal( a ) * b.real + cximag( a ) * b.imag ) / bnorm, 
-                 ( cximag( a ) * b.real - cxreal( a ) * b.imag ) / bnorm );
+  fptype_v bnorm = b.real()*b.real() + b.imag()*b.imag();
+  return cxmake( ( cxreal( a ) * b.real() + cximag( a ) * b.imag() ) / bnorm,
+                 ( cximag( a ) * b.real() - cxreal( a ) * b.imag() ) / bnorm );
 }
 
 /*
 inline
 cxtype_v operator/( const fptype& a, const cxtype_v& b )
 {
-  fptype_v bnorm = b.real*b.real + b.imag*b.imag;
-  return cxmake( ( a * b.real ) / bnorm, ( - a * b.imag ) / bnorm );
+  fptype_v bnorm = b.real()*b.real() + b.imag()*b.imag();
+  return cxmake( ( a * b.real() ) / bnorm, ( - a * b.imag() ) / bnorm );
 }
 */
 
 inline
 cxtype_v operator/( const cxtype_v& a, const fptype& b )
 {
-  return cxmake( a.real / b, a.imag / b );
+  return cxmake( a.real() / b, a.imag() / b );
 }
 
 #else
