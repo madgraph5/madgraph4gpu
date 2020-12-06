@@ -17,7 +17,7 @@ namespace mgOnGpu
   typedef fptype fptype_v __attribute__ ((vector_size (neppV * sizeof(fptype)))); // RRRR
   struct cxtype_ref
   {
-    fptype& real, imag; // RI
+    fptype &real, &imag; // RI
     operator cxtype() const { return cxmake( real, imag ); }
     cxtype_ref& operator=( const cxtype& c ) { real=cxreal( c ); imag = cximag( c ); return *this; }
   };
