@@ -56,7 +56,7 @@ namespace MG5_sm
     // NB: assumes neppV (fptype_v vector size) equals neppM (AOSOA layout vector size)
     const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
     fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
-    return fpvmake( momenta[ipagM][ipar][ip4] ); // return by value
+    return fpmake_v( momenta[ipagM][ipar][ip4] ); // return by value
   }
 #endif
 
@@ -400,7 +400,7 @@ namespace MG5_sm
     cxtype_sv& V3_3 = V3S[3];
     cxtype_sv& V3_4 = V3S[4];
     cxtype_sv& V3_5 = V3S[5];
-    const cxtype_sv cI = cxvmake( cxmake( 0, 1 ) );
+    const cxtype cI = cxmake( 0, 1 );
     V3_0 = + F1_0 + F2_0;
     V3_1 = + F1_1 + F2_1;
     const fptype_sv PPP0 = -cxreal( V3_0 );
