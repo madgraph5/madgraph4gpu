@@ -9,11 +9,7 @@ namespace mgOnGpu
 {
   const int neppV = neppM;
 
-  // --- Type definitions
-  //typedef fptype fptype_v[neppV]; // RRRR
-  //typedef cxtype cxtype_v[neppV]; // RIRIRIRI (not RRRRIIII)
-
-  // --- Type definitions (using vector compiler extensions: need -march=native)
+  // --- Type definition (using vector compiler extensions: need -march=...)
   typedef fptype fptype_v __attribute__ ((vector_size (neppV * sizeof(fptype)))); // RRRR
 
   class cxtype_ref
@@ -24,13 +20,14 @@ namespace mgOnGpu
     cxtype_ref( cxtype_ref&& ) = default;
     cxtype_ref( fptype& r, fptype& i ) : m_real{r}, m_imag{i} {}
     cxtype_ref& operator=( const cxtype_ref& ) = delete;
-    cxtype_ref& operator=( cxtype_ref&& ) = delete;    
+    cxtype_ref& operator=( cxtype_ref&& ) = delete;
     cxtype_ref& operator=( const cxtype& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; }
     operator cxtype() const { return cxmake( m_real, m_imag ); }
   private:
     fptype &m_real, &m_imag; // RI
   };
 
+  // --- Type definition (using vector compiler extensions: need -march=...)
   class cxtype_v
   {
   public:
