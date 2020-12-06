@@ -1,6 +1,10 @@
 #ifndef MGONGPUVECTORS_H
 #define MGONGPUVECTORS_H 1
 
+//------------------------------
+// Vector types - C++
+//------------------------------
+
 #ifndef __CUDACC__
 
 #include "mgOnGpuTypes.h"
@@ -51,38 +55,35 @@ using mgOnGpu::neppV;
 using mgOnGpu::fptype_v;
 using mgOnGpu::cxtype_v;
 
-// DEBUG - START
-void print( const fptype& f )
+// Printout to stream for user defined types
+inline std::ostream& operator<<( std::ostream& out, const fptype_v& v )
 {
-  std::cout << f << std::endl;
-}
-
-void print( const fptype_v& v )
-{
-  std::cout << "{ " << v[0];
+  out << "{ " << v[0];
   for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
-  std::cout << " }" << std::endl;
+  out << " }";
+  return out;
 }
 
-std::string str( const cxtype& c )
+inline std::ostream& operator<<( std::ostream& out, const cxtype& c )
 {
-  std::stringstream ss;
-  ss << "[" << cxreal(c) << "," << cximag(c) << "]";
-  return ss.str();
+  out << "[" << cxreal(c) << "," << cximag(c) << "]";
+  //out << cxreal(c) << "+i" << cximag(c);
+  return out;
 }
 
-void print( const cxtype& c )
+inline std::ostream& operator<<( std::ostream& out, const cxtype_v& v )
 {
-  std::cout << str(c) << std::endl;
+  out << "{ " << v[0];
+  for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
+  out << " }";
+  return out;
 }
 
-void print( const cxtype_v& v )
-{
-  std::cout << "{ " << str( v[0] );
-  for ( int i=1; i<neppV; i++ ) std::cout << ", " << str( v[i] );
-  std::cout << " }" << std::endl;
-}
-// DEBUG - END
+// Printout to std::cout for user defined types
+inline void print( const fptype& f ) { std::cout << f << std::endl; }
+inline void print( const fptype_v& v ) { std::cout << v << std::endl; }
+inline void print( const cxtype& c ) { std::cout << c << std::endl; }
+inline void print( const cxtype_v& v ) { std::cout << v << std::endl; }
 
 // Operators for fptype_v
 inline
@@ -97,7 +98,7 @@ inline
 fptype_v fpvmake( const fptype v[neppV] )
 {
   fptype_v out;
-  for ( int i=0; i<neppV; i++ ) out[i]=v[i];
+  for ( int i=0; i<neppV; i++ ) out[i] = v[i];
   return out;
 }
 
@@ -105,17 +106,8 @@ fptype_v fpvmake( const fptype v[neppV] )
 inline
 cxtype_v cxvmake( const cxtype c )
 {
-  print( c );
   cxtype_v out;
-  for ( int i=0; i<neppV; i++ )
-  {
-    std::cout << "START" << std::endl;
-    print( c );
-    out[i] = c;
-    print( out[i] );
-    std::cout << "END" << std::endl;
-  }
-  print( out );
+  for ( int i=0; i<neppV; i++ ) out[i] = c;
   return out;
 }
 
@@ -254,7 +246,15 @@ cxtype_v operator/( const cxtype_v& a, const fptype& b )
   return cxmake( a.real() / b, a.imag() / b );
 }
 
+//------------------------------
+// Vector types - CUDA
+//------------------------------
+
 #else
+
+// Printout to std::cout for user defined types
+inline __device__ void print( const fptype& f ){ printf( "%f\n", f ); }
+inline __device__ void print( const cxtype& c ){ printf( "[%f, %f]\n", cxreal(c), cximag(c) ); }
 
 inline __device__
 const cxtype& cxvmake( const cxtype& c )

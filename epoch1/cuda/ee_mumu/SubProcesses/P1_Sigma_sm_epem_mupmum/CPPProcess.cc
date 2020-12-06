@@ -365,8 +365,6 @@ namespace MG5_sm
 #ifdef __CUDACC__
   typedef fptype fptypeV;
   typedef cxtype cxtypeV;
-  __device__ void print( const fptype& ){}
-  __device__ void print( const cxtype& ){}
 #else
   typedef fptype_v fptypeV;
   typedef cxtype_v cxtypeV;
