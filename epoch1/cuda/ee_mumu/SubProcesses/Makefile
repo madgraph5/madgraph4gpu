@@ -1,9 +1,9 @@
 LIBDIR   = ../../lib
-TOOLSDIR = ../../../../../tools/
+TOOLSDIR = ../../../../../tools
 INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
 OPTFLAGS = -O3
-CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow $(MGONGPU_CONFIG)
+CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(MGONGPU_CONFIG)
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
@@ -124,7 +124,7 @@ test: force
 info:
 ifdef CUDA_HOME
 	$(NVCC) --version
-	echo ""
+	@echo ""
 endif
 	$(CXX) --version
 
