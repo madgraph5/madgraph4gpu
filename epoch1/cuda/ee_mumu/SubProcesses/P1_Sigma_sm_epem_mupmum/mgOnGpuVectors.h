@@ -176,15 +176,15 @@ cxtype_v operator-( const cxtype_v& a, const cxtype_v& b )
 }
 
 inline
-cxtype_v& operator-( const cxtype_v& a )
-{
-  return -a;
-}
-
-inline
 cxtype_v operator-( const fptype& a, const cxtype_v& b )
 {
   return cxmake( a - b.real(), - b.imag() );
+}
+
+inline
+cxtype_v operator-( const cxtype_v& a )
+{
+  return 0 - a;
 }
 
 inline
