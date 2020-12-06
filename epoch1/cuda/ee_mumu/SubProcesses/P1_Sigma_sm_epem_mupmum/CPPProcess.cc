@@ -39,7 +39,7 @@ namespace MG5_sm
     const int ipagM = ievt/neppM; // #eventpage in this iteration
     const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
     //return allmomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
-    //printf( "%f\n", momenta[ipagM][ipar][ip4][ieppM] );    
+    //printf( "%f\n", momenta[ipagM][ipar][ip4][ieppM] );
     return momenta[ipagM][ipar][ip4][ieppM];
   }
 #else
@@ -422,7 +422,7 @@ namespace MG5_sm
     print( denom );
     //V3_2 = denom * ( -cI ) * ( F1_2 * F2_4 + F1_3 * F2_5 + F1_4 * F2_2 + F1_5 * F2_3 );
     print( cI );
-    print( -cI );
+    print( -cI ); // HANGS?
     auto V3_2a = denom * ( -cI );
     printf( "FFV1P0_3: hallo5a\n" );
     print( V3_2a );
