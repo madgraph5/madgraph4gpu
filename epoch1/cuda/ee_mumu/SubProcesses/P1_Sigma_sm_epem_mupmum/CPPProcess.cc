@@ -362,49 +362,52 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Scalar-or-vector types: scalar in CUDA, vector in C++
 #ifdef __CUDACC__
-  typedef fptype fptypeV;
-  typedef cxtype cxtypeV;
+  typedef fptype fptype_sv;
+  typedef cxtype cxtype_sv;
 #else
-  typedef fptype_v fptypeV;
-  typedef cxtype_v cxtypeV;
+  typedef fptype_v fptype_sv;
+  typedef cxtype_v cxtype_sv;
 #endif
 
+  //--------------------------------------------------------------------------
+
   __device__
-  void FFV1P0_3( const cxtypeV F1S[],     // input wavefunction1[6]
-                 const cxtypeV F2S[],     // input wavefunction2[6]
+  void FFV1P0_3( const cxtype_sv F1S[],     // input wavefunction1[6]
+                 const cxtype_sv F2S[],     // input wavefunction2[6]
                  const cxtype COUP,
                  const fptype M3,
                  const fptype W3,
-                 cxtypeV V3S[] )          // output wavefunction3[6]
+                 cxtype_sv V3S[] )          // output wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtypeV& F1_0 = F1S[0];
-    const cxtypeV& F1_1 = F1S[1];
-    const cxtypeV& F1_2 = F1S[2];
-    const cxtypeV& F1_3 = F1S[3];
-    const cxtypeV& F1_4 = F1S[4];
-    const cxtypeV& F1_5 = F1S[5];
-    const cxtypeV& F2_0 = F2S[0];
-    const cxtypeV& F2_1 = F2S[1];
-    const cxtypeV& F2_2 = F2S[2];
-    const cxtypeV& F2_3 = F2S[3];
-    const cxtypeV& F2_4 = F2S[4];
-    const cxtypeV& F2_5 = F2S[5];
-    cxtypeV& V3_0 = V3S[0];
-    cxtypeV& V3_1 = V3S[1];
-    cxtypeV& V3_2 = V3S[2];
-    cxtypeV& V3_3 = V3S[3];
-    cxtypeV& V3_4 = V3S[4];
-    cxtypeV& V3_5 = V3S[5];
-    const cxtypeV cI = cxvmake( cxmake( 0, 1 ) );
+    const cxtype_sv& F1_0 = F1S[0];
+    const cxtype_sv& F1_1 = F1S[1];
+    const cxtype_sv& F1_2 = F1S[2];
+    const cxtype_sv& F1_3 = F1S[3];
+    const cxtype_sv& F1_4 = F1S[4];
+    const cxtype_sv& F1_5 = F1S[5];
+    const cxtype_sv& F2_0 = F2S[0];
+    const cxtype_sv& F2_1 = F2S[1];
+    const cxtype_sv& F2_2 = F2S[2];
+    const cxtype_sv& F2_3 = F2S[3];
+    const cxtype_sv& F2_4 = F2S[4];
+    const cxtype_sv& F2_5 = F2S[5];
+    cxtype_sv& V3_0 = V3S[0];
+    cxtype_sv& V3_1 = V3S[1];
+    cxtype_sv& V3_2 = V3S[2];
+    cxtype_sv& V3_3 = V3S[3];
+    cxtype_sv& V3_4 = V3S[4];
+    cxtype_sv& V3_5 = V3S[5];
+    const cxtype_sv cI = cxvmake( cxmake( 0, 1 ) );
     V3_0 = + F1_0 + F2_0;
     V3_1 = + F1_1 + F2_1;
-    const fptypeV PPP0 = -cxreal( V3_0 );
-    const fptypeV PPP1 = -cxreal( V3_1 );
-    const fptypeV PPP2 = -cximag( V3_1 );
-    const fptypeV PPP3 = -cximag( V3_0 );
-    const cxtypeV denom =
+    const fptype_sv PPP0 = -cxreal( V3_0 );
+    const fptype_sv PPP1 = -cxreal( V3_1 );
+    const fptype_sv PPP2 = -cximag( V3_1 );
+    const fptype_sv PPP3 = -cximag( V3_0 );
+    const cxtype_sv denom =
       COUP / ( ( PPP0 * PPP0 ) - ( PPP1 * PPP1 ) - ( PPP2 * PPP2 ) - ( PPP3 * PPP3 ) - M3 * ( M3 - cI * W3 ) );
     V3_2 = denom * ( -cI ) * ( F1_2 * F2_4 + F1_3 * F2_5 + F1_4 * F2_2 + F1_5 * F2_3 );
     V3_3 = denom * ( -cI ) * ( -F1_2 * F2_5 - F1_3 * F2_4 + F1_4 * F2_3 + F1_5 * F2_2 );
