@@ -77,12 +77,13 @@ namespace mgOnGpu
   // *** same 1d array is generated, but it is interpreted in different ways ***
 #ifdef __CUDACC__
   // DEFAULT: one 32-byte GPU cache line contains 4 doubles (8-byte) or 8 floats (4-byte)
-  const int neppR = 32/sizeof(fptype); // DEFAULT: 4 (MGONGPU_FPTYPE_DOUBLE) or 8 (MGONGPU_FPTYPE_FLOAT)
+  const int neppR = 32/sizeof(fptype); // default (32-byte cache line): 4 (MGONGPU_FPTYPE_DOUBLE) or 8 (MGONGPU_FPTYPE_FLOAT)
   //const int neppR = 1;  // *** NB: this is equivalent to AOS ***
   //const int neppR = 32; // older default
 #else
   // DEFAULT: one 256-bit (32-byte) AVX2-CPU register contains 4 doubles (8-byte) or 8 floats (4-byte)
-  const int neppR = 32/sizeof(fptype); // DEFAULT: 4 (MGONGPU_FPTYPE_DOUBLE) or 8 (MGONGPU_FPTYPE_FLOAT)
+  //const int neppR = 32/sizeof(fptype); // default (AVX2): 4 (MGONGPU_FPTYPE_DOUBLE) or 8 (MGONGPU_FPTYPE_FLOAT)
+  const int neppR = 2*32/sizeof(fptype); // test (AVX512): 8 (MGONGPU_FPTYPE_DOUBLE) or 16 (MGONGPU_FPTYPE_FLOAT)
 #endif
 
   // Number of Events Per Page in the momenta AOSOA memory layout
