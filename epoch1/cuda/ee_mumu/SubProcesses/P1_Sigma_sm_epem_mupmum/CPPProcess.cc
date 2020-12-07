@@ -5,6 +5,7 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
+#include <cassert>
 #include <cmath>
 #include <cstring>
 #include <cstdlib>
@@ -53,9 +54,9 @@ namespace MG5_sm
     // mapping for the various schemes (AOSOA, AOS, SOA...)
     using mgOnGpu::np4;
     using mgOnGpu::npar;
-    // NB: assumes neppV (fptype_v vector size) equals neppM (AOSOA layout vector size)
     const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
     fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
+    assert( neppV == neppM ); // NB: assume neppV (fptype_v vector size) equals neppM (AOSOA layout vector size)
     return fpmake_v( momenta[ipagM][ipar][ip4] ); // return by value
   }
 #endif
