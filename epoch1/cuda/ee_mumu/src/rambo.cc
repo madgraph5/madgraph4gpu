@@ -27,7 +27,7 @@ namespace rambo2toNm0
 #endif
                           )
   {
-    const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
+    const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
     fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
     const fptype energy1 = energy/2;
     const fptype energy2 = energy/2;
@@ -82,9 +82,9 @@ namespace rambo2toNm0
      *                                                                          *
      ****************************************************************************/
 
-    const int neppR = mgOnGpu::neppR; // ASA layout: constant at compile-time
+    const int neppR = mgOnGpu::neppR; // AOSOA layout: constant at compile-time
     fptype (*rnarray)[nparf][np4][neppR] = (fptype (*)[nparf][np4][neppR]) rnarray1d; // cast to multiD array pointer (AOSOA)
-    const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
+    const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
     fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
     
     // initialization step: factorials for the phase space weight

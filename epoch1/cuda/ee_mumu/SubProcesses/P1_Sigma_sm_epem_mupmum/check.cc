@@ -122,14 +122,14 @@ int main(int argc, char **argv)
   if (niter == 0)
     return usage(argv[0]);
 
-  const int neppR = mgOnGpu::neppR; // ASA layout: constant at compile-time
+  const int neppR = mgOnGpu::neppR; // AOSOA layout: constant at compile-time
   if ( gputhreads%neppR != 0 )
   {
     std::cout << "ERROR! #threads/block should be a multiple of neppR=" << neppR << std::endl;
     return usage(argv[0]);
   }
 
-  const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
+  const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
   if ( gputhreads%neppM != 0 )
   {
     std::cout << "ERROR! #threads/block should be a multiple of neppM=" << neppM << std::endl;
@@ -201,8 +201,8 @@ int main(int argc, char **argv)
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
   using mgOnGpu::ncomb; // Number of helicity combinations
-  const int nRnarray = np4*nparf*nevt; // (NB: ASA layout with nevt=npagR*neppR events per iteration)
-  const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for ASA layouts)
+  const int nRnarray = np4*nparf*nevt; // (NB: AOSOA layout with nevt=npagR*neppR events per iteration)
+  const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for AOSOA layouts)
   const int nWeights = nevt;
   const int nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
 

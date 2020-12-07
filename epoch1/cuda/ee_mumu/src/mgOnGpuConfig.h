@@ -61,7 +61,7 @@ namespace mgOnGpu
   // Maximum number of threads per block
   const int ntpbMAX = 256;
 
-  // Number of Events Per Page in the random number AOSOA (ASA) structure
+  // Number of Events Per Page in the random number AOSOA structure
   // (this is best kept as a compile-time constant: see issue #23)
   // *** NB Different values of neppR lead to different physics results: the ***
   // *** same 1d array is generated, but it is interpreted in different ways ***
@@ -73,7 +73,7 @@ namespace mgOnGpu
   //const int neppR = 1;  // *** NB: this is equivalent to AOS ***
   //const int neppR = 32; // older default
 
-  // Number of Events Per Page in the momenta AOSOA (ASA) structure
+  // Number of Events Per Page in the momenta AOSOA structure
   // (this is best kept as a compile-time constant: see issue #23)
 #if defined MGONGPU_FPTYPE_DOUBLE
   const int neppM = 4; // DEFAULT: one 32-byte cache line contains 4 doubles as sizeof(double) is 8 bytes

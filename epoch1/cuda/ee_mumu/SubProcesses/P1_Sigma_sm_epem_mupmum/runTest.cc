@@ -87,14 +87,14 @@ class BaseTest : public ::testing::Test {
   static constexpr unsigned gputhreads = 32;
   static constexpr std::size_t nevt = gpublocks * gputhreads;
 
-  const std::size_t nRnarray; // (NB: ASA layout with nevt=npagR*neppR events per iteration)
-  const std::size_t nMomenta; // (NB: nevt=npagM*neppM for ASA layouts)
+  const std::size_t nRnarray; // (NB: AOSOA layout with nevt=npagR*neppR events per iteration)
+  const std::size_t nMomenta; // (NB: nevt=npagM*neppM for AOSOA layouts)
   const std::size_t nWeights;
   const std::size_t nMEs;
 
   BaseTest() :
-    nRnarray{ mgOnGpu::np4 * mgOnGpu::nparf * nevt }, // (NB: ASA layout with nevt=npagR*neppR events per iteration)
-    nMomenta{ mgOnGpu::np4 * mgOnGpu::npar  * nevt },// (NB: nevt=npagM*neppM for ASA layouts)
+    nRnarray{ mgOnGpu::np4 * mgOnGpu::nparf * nevt }, // (NB: AOSOA layout with nevt=npagR*neppR events per iteration)
+    nMomenta{ mgOnGpu::np4 * mgOnGpu::npar  * nevt },// (NB: nevt=npagM*neppM for AOSOA layouts)
     nWeights{ nevt },
     nMEs    { nevt }
   { }
@@ -278,10 +278,10 @@ TEST_F(CPUTest, eemumu)
       "";
   const std::string refFileName = "dump_CPUTest.eemumu.txt";
 
-  const int neppR = mgOnGpu::neppR; // ASA layout: constant at compile-time
+  const int neppR = mgOnGpu::neppR; // AOSOA layout: constant at compile-time
   static_assert( gputhreads%neppR == 0, "ERROR! #threads/block should be a multiple of neppR" );
 
-  const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
+  const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
   static_assert( gputhreads%neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
 
   using mgOnGpu::ntpbMAX;
