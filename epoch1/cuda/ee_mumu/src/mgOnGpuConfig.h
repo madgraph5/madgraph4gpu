@@ -71,24 +71,39 @@ namespace mgOnGpu
   // Maximum number of threads per block
   const int ntpbMAX = 256;
 
-  // Number of Events Per Page in the random number AOSOA memory layout
-  // (this is best kept as a compile-time constant: see issue #23)
-  // *** NB Different values of neppR lead to different physics results: the ***
-  // *** same 1d array is generated, but it is interpreted in different ways ***
-#ifdef __CUDACC__
-  // DEFAULT: one 32-byte GPU cache line contains 4 doubles (8-byte) or 8 floats (4-byte)
-  const int neppR = 32/sizeof(fptype); // default (32-byte cache line): 4 (MGONGPU_FPTYPE_DOUBLE) or 8 (MGONGPU_FPTYPE_FLOAT)
-  //const int neppR = 1;  // *** NB: this is equivalent to AOS ***
-  //const int neppR = 32; // older default
-#else
-  // DEFAULT: one 256-bit (32-byte) AVX2-CPU register contains 4 doubles (8-byte) or 8 floats (4-byte)
-  //const int neppR = 32/sizeof(fptype); // default (AVX2): 4 (MGONGPU_FPTYPE_DOUBLE) or 8 (MGONGPU_FPTYPE_FLOAT)
-  const int neppR = 2*32/sizeof(fptype); // test (AVX512): 8 (MGONGPU_FPTYPE_DOUBLE) or 16 (MGONGPU_FPTYPE_FLOAT)
-#endif
+  // Vector sizes for AOSOA memory layouts (GPU coalesced memory access, CPU SIMD vectorization)
+  // (these are all best kept as a compile-time constants: see issue #23)
 
   // Number of Events Per Page in the momenta AOSOA memory layout
-  // (this is best kept as a compile-time constant: see issue #23)
-  const int neppM = neppR;
+#ifdef __CUDACC__
+  // -----------------------------------------------------------------------------------------
+  // --- GPUs: neppM must be a power of 2 times the number of fptype's in a 32-byte cacheline
+  // --- This is relevant to ensure coalesced access to momenta in global memory
+  // --- Note that neppR is set equal to neppM (it could differ, in principle)
+  // -----------------------------------------------------------------------------------------
+  //const int neppM = 64/sizeof(fptype); // 2x 32-byte GPU cache lines: 8 (DOUBLE) or 16 (FLOAT)
+  const int neppM = 32/sizeof(fptype); // (DEFAULT) 32-byte GPU cache line: 4 (DOUBLE) or 8 (FLOAT)
+  //const int neppM = 1;  // *** NB: this is equivalent to AOS ***
+  //const int neppM = 32; // older default
+#else
+  // -----------------------------------------------------------------------------------------
+  // --- CPUs: neppV must be exactly equal to the number of fptype's in a vector register
+  // --- Note that neppV is set equal to neppM (this is hardcoded in the logic of the code)
+  // -----------------------------------------------------------------------------------------
+#ifdef __AVX512F__
+  const int neppM = 64/sizeof(fptype); // AVX512 (256-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
+#else
+#ifndef __AVX2__
+#error AVX2 is not enabled: have you switched on -mavx2 in both Makefiles?
+#endif
+  const int neppM = 32/sizeof(fptype); // (DEFAULT) AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT)
+#endif
+#endif
+
+  // Number of Events Per Page in the random number AOSOA memory layout
+  // *** NB Different values of neppM lead to different physics results: the ***
+  // *** same 1d array is generated, but it is interpreted in different ways ***
+  const int neppR = neppM;
 
 }
 
@@ -98,22 +113,22 @@ using mgOnGpu::fptype;
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
 // Arguments (not used so far): text is __FUNCTION__, code is 0 (start) or 1 (end)
 #if defined __CUDACC__ && defined MGONGPU_NSIGHT_DEBUG
-#define mgDebugDeclare() \
+#define mgDebugDeclare()                              \
   __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
-#define mgDebugInitialise() \
+#define mgDebugInitialise()                     \
   { mgDebugCounter[threadIdx.x]=0; }
-#define mgDebug( code, text ) \
+#define mgDebug( code, text )                   \
   { mgDebugCounter[threadIdx.x] += 1; }
-#define mgDebugFinalise() \
+#define mgDebugFinalise()                                               \
   { if ( blockIdx.x == 0 && threadIdx.x == 0 ) printf( "MGDEBUG: counter=%f\n", mgDebugCounter[threadIdx.x] ); }
 #else
-#define mgDebugDeclare() \
+#define mgDebugDeclare()                        \
   /*noop*/
-#define mgDebugInitialise() \
+#define mgDebugInitialise()                     \
   { /*noop*/ }
-#define mgDebug( code, text ) \
+#define mgDebug( code, text )                   \
   { /*noop*/ }
-#define mgDebugFinalise() \
+#define mgDebugFinalise()                       \
   { /*noop*/ }
 #endif
 
