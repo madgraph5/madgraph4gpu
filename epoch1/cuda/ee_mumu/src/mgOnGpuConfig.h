@@ -96,11 +96,7 @@ namespace mgOnGpu
 #ifdef __AVX2__
   const int neppM = 32/sizeof(fptype); // (DEFAULT) AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT)
 #else
-#ifdef __SSE4_2__
-  const int neppM = 16/sizeof(fptype); // SSE (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT)
-#else
   const int neppM = 1;  // *** NB: this is equivalent to AOS ***
-#endif
 #endif
 #endif
 #endif

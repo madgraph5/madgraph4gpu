@@ -1,7 +1,6 @@
 INCFLAGS = -I.
 OPTFLAGS = -O3
 CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(MGONGPU_CONFIG)
-CXXFLAGS+= -msse4
 ###CXXFLAGS+= -mavx2 # DEFAULT!
 ###CXXFLAGS+= -mavx512f -mavx512cd -mprefer-vector-width=512 # see https://stackoverflow.com/a/52543573
 LIBDIR   = ../lib
