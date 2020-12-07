@@ -71,27 +71,23 @@ namespace mgOnGpu
   // Maximum number of threads per block
   const int ntpbMAX = 256;
 
-  // Number of Events Per Page in the random number AOSOA structure
+  // Number of Events Per Page in the random number AOSOA memory layout
   // (this is best kept as a compile-time constant: see issue #23)
   // *** NB Different values of neppR lead to different physics results: the ***
   // *** same 1d array is generated, but it is interpreted in different ways ***
-#if defined MGONGPU_FPTYPE_DOUBLE
-  const int neppR = 4; // DEFAULT: one 32-byte cache line contains 4 doubles as sizeof(double) is 8 bytes
-#elif defined MGONGPU_FPTYPE_FLOAT
-  const int neppR = 8; // DEFAULT: one 32-byte cache line contains 8 floats as sizeof(float) is 4 bytes
-#endif
+#ifdef __CUDACC__
+  // DEFAULT: one 32-byte GPU cache line contains 4 doubles (8-byte) or 8 floats (4-byte)
+  const int neppR = 32/sizeof(fptype); // DEFAULT: 4 (MGONGPU_FPTYPE_DOUBLE) or 8 (MGONGPU_FPTYPE_FLOAT)
   //const int neppR = 1;  // *** NB: this is equivalent to AOS ***
   //const int neppR = 32; // older default
-
-  // Number of Events Per Page in the momenta AOSOA structure
-  // (this is best kept as a compile-time constant: see issue #23)
-#if defined MGONGPU_FPTYPE_DOUBLE
-  const int neppM = 4; // DEFAULT: one 32-byte cache line contains 4 doubles as sizeof(double) is 8 bytes
-#elif defined MGONGPU_FPTYPE_FLOAT
-  const int neppM = 8; // DEFAULT: one 32-byte cache line contains 8 floats as sizeof(float) is 4 bytes
+#else
+  // DEFAULT: one 256-bit (32-byte) AVX2-CPU register contains 4 doubles (8-byte) or 8 floats (4-byte)
+  const int neppR = 32/sizeof(fptype); // DEFAULT: 4 (MGONGPU_FPTYPE_DOUBLE) or 8 (MGONGPU_FPTYPE_FLOAT)
 #endif
-  //const int neppM = 1;  // *** NB: this is equivalent to AOS ***
-  //const int neppM = 32; // older default
+
+  // Number of Events Per Page in the momenta AOSOA memory layout
+  // (this is best kept as a compile-time constant: see issue #23)
+  const int neppM = neppR;
 
 }
 
