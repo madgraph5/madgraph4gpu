@@ -103,6 +103,7 @@ namespace mgOnGpu
   // Number of Events Per Page in the random number AOSOA memory layout
   // *** NB Different values of neppM lead to different physics results: the ***
   // *** same 1d array is generated, but it is interpreted in different ways ***
+  // *** (DEFAULT is AVX2 on CPUs, same 32-byte as GPUs, as fast as AVX512)  ***
   const int neppR = neppM;
 
 }

@@ -4,9 +4,9 @@ INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
 OPTFLAGS = -O3
 CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(MGONGPU_CONFIG)
-###CXXFLAGS+= -march=core-avx2 # OR -mavx2
-CXXFLAGS+= -march=native # OR -mavx512f -mavx512cd
-CXXFLAGS+= -mprefer-vector-width=512 # see https://stackoverflow.com/a/52543573
+CXXFLAGS+= -march=core-avx2 # OR -mavx2
+###CXXFLAGS+= -march=native # OR -mavx512f -mavx512cd
+###CXXFLAGS+= -mprefer-vector-width=512 # see https://stackoverflow.com/a/52543573
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
