@@ -14,7 +14,7 @@ namespace mgOnGpu
   const int neppV = neppM;
 
   // --- Type definition (using vector compiler extensions: need -march=...)
-  typedef fptype fptype_v alignas(neppV*sizeof(fptype)) __attribute__ ((vector_size (neppV*sizeof(fptype)))); // RRRR
+  typedef fptype fptype_v __attribute__ ((vector_size (neppV*sizeof(fptype)))); // RRRR
 
   class cxtype_ref
   {
