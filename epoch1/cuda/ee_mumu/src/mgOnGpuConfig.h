@@ -61,7 +61,6 @@ namespace mgOnGpu
   // Maximum number of threads per block
   const int ntpbMAX = 256;
 
-#ifdef __CUDACC__
   // Number of Events Per Page in the random number AOSOA (ASA) structure
   // (this is best kept as a compile-time constant: see issue #23)
   // *** NB Different values of neppR lead to different physics results: the ***
@@ -77,34 +76,13 @@ namespace mgOnGpu
   // Number of Events Per Page in the momenta AOSOA (ASA) structure
   // (this is best kept as a compile-time constant: see issue #23)
 #if defined MGONGPU_FPTYPE_DOUBLE
-  const int neppM = 8; // DEFAULT: AVX512 registers (512bits = 64bytes) contain 8 8-byte doubles
+  const int neppM = 4; // DEFAULT: one 32-byte cache line contains 4 doubles as sizeof(double) is 8 bytes
 #elif defined MGONGPU_FPTYPE_FLOAT
-  const int neppM = 16; // DEFAULT: AVX512 registers (512bits = 64bytes) contain 16 4-byte floats
+  const int neppM = 8; // DEFAULT: one 32-byte cache line contains 8 floats as sizeof(float) is 4 bytes
 #endif
   //const int neppM = 1;  // *** NB: this is equivalent to AOS ***
   //const int neppM = 32; // older default
-#else
-  // Number of Events Per Page in the random number AOSOA (ASA) structure
-  // (this is best kept as a compile-time constant: see issue #23)
-  // *** NB Different values of neppR lead to different physics results: the ***
-  // *** same 1d array is generated, but it is interpreted in different ways ***
-#if defined MGONGPU_FPTYPE_DOUBLE
-  const int neppR = 8; // DEFAULT: AVX512 registers (512bits = 64bytes) contain 8 8-byte doubles
-#elif defined MGONGPU_FPTYPE_FLOAT
-  const int neppR = 16; // DEFAULT: AVX512 registers (512bits = 64bytes) contain 16 4-byte floats
-#endif
-  //const int neppR = 1;  // *** NB: this is equivalent to AOS ***
 
-  // Number of Events Per Page in the momenta AOSOA (ASA) structure
-  // (this is best kept as a compile-time constant: see issue #23)
-#if defined MGONGPU_FPTYPE_DOUBLE
-  const int neppM = 8; // DEFAULT: AVX512
-#elif defined MGONGPU_FPTYPE_FLOAT
-  const int neppM = 16; // DEFAULT: AVX512
-#endif
-  //const int neppM = 1;  // *** NB: this is equivalent to AOS ***
-  //const int neppM = 32; // older default
-#endif
 }
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
