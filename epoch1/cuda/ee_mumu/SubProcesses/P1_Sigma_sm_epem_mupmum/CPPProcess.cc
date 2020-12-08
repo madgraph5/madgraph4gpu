@@ -816,7 +816,7 @@ namespace Proc
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to running sum of |M|^2 over helicities for the given event(s)
       calculate_wavefunctions( ihel, allmomenta, allMEs );
-      if ( allMEs[ievt] > allMEsLast && !isGoodHel[ihel] ) isGoodHel[ihel] = true;
+      if ( allMEs[ievt] != allMEsLast && !isGoodHel[ihel] ) isGoodHel[ihel] = true;
       allMEsLast = allMEs[ievt]; // running sum up to helicity ihel for event ievt
     }
   }
@@ -841,7 +841,7 @@ namespace Proc
       for ( int ievt = 0; ievt < maxtry; ++ievt )
       {
         // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-        if ( allMEs[ievt] > allMEsLast[ievt] && !isGoodHel[ihel] )
+        if ( allMEs[ievt] != allMEsLast[ievt] && !isGoodHel[ihel] )
         {
           isGoodHel[ihel] = true;
           //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
