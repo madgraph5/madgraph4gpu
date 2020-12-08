@@ -624,6 +624,13 @@ namespace Proc
     cxtype_v amp_v[2];
 #endif
 
+    // The number of colors
+    const int ncolor = 1;
+
+    // The color matrix
+    const fptype denom[ncolor] = {1};
+    const fptype cf[ncolor][ncolor] = {{1}};
+
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
     //for ( int ievt = 0; ievt < nevt; ++ievt )
@@ -677,12 +684,7 @@ namespace Proc
 #endif
 #endif
 
-        const int ncolor = 1;
         cxtype jamp[ncolor];
-
-        // The color matrix;
-        const fptype denom[ncolor] = {1};
-        const fptype cf[ncolor][ncolor] = {{1}};
 
         // Calculate color flows
         // (compute M as the sum of the invariant amplitudes for all Feynman diagrams)
