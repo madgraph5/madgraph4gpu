@@ -46,10 +46,14 @@ namespace MG5_sm
 #else
   // NB: return by value for the moment
   // NB: may be optimized, but should allocate momenta1d as an fptype_v upfront in check.cc...
-  inline const fptype_v pIparIp4Ipag( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
-                                      const int ipar,
-                                      const int ip4,
-                                      const int ipagM )
+  inline
+#if defined __AVX512F__ || defined __AVX2__
+  const
+#endif
+  fptype_v pIparIp4Ipag( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
+                         const int ipar,
+                         const int ip4,
+                         const int ipagM )
   {
     // mapping for the various schemes (AOSOA, AOS, SOA...)
     using mgOnGpu::np4;
@@ -664,9 +668,13 @@ namespace Proc
 #ifndef __CUDACC__
         const int ievt = ipagV*neppV + ieppV;
         // Local variables for the given event (ievt)
+#if defined __AVX512F__ || defined __AVX2__
         cxtype amp[2];
         amp[0] = amp_v[0][ieppV];
         amp[1] = amp_v[1][ieppV];
+#else
+        cxtype* amp = amp_v;
+#endif
 #endif
 
         const int ncolor = 1;

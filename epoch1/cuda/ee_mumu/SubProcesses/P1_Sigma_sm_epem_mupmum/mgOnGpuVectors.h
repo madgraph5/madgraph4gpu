@@ -11,6 +11,8 @@
 
 namespace mgOnGpu
 {
+#if defined __AVX512F__ || defined __AVX2__
+
   const int neppV = neppM;
 
   // --- Type definition (using vector compiler extensions: need -march=...)
@@ -48,6 +50,13 @@ namespace mgOnGpu
     fptype_v m_real, m_imag; // RRRRIIII
   };
 
+#else
+
+  const int neppV = 1; // Note: also neppM is equal to 1
+  typedef fptype fptype_v; // scalar
+  typedef cxtype cxtype_v; // scalar
+
+#endif
 }
 
 // Expose typedefs outside the namespace
@@ -56,6 +65,7 @@ using mgOnGpu::fptype_v;
 using mgOnGpu::cxtype_v;
 
 // Printout to stream for user defined types
+#if defined __AVX512F__ || defined __AVX2__
 inline std::ostream& operator<<( std::ostream& out, const fptype_v& v )
 {
   out << "{ " << v[0];
@@ -63,6 +73,7 @@ inline std::ostream& operator<<( std::ostream& out, const fptype_v& v )
   out << " }";
   return out;
 }
+#endif
 
 inline std::ostream& operator<<( std::ostream& out, const cxtype& c )
 {
@@ -71,6 +82,7 @@ inline std::ostream& operator<<( std::ostream& out, const cxtype& c )
   return out;
 }
 
+#if defined __AVX512F__ || defined __AVX2__
 inline std::ostream& operator<<( std::ostream& out, const cxtype_v& v )
 {
   out << "{ " << v[0];
@@ -78,14 +90,23 @@ inline std::ostream& operator<<( std::ostream& out, const cxtype_v& v )
   out << " }";
   return out;
 }
+#endif
 
 // Printout to std::cout for user defined types
 inline void print( const fptype& f ) { std::cout << f << std::endl; }
+
+#if defined __AVX512F__ || defined __AVX2__
 inline void print( const fptype_v& v ) { std::cout << v << std::endl; }
+#endif
+
 inline void print( const cxtype& c ) { std::cout << c << std::endl; }
+
+#if defined __AVX512F__ || defined __AVX2__
 inline void print( const cxtype_v& v ) { std::cout << v << std::endl; }
+#endif
 
 // Operators for fptype_v
+#if defined __AVX512F__ || defined __AVX2__
 inline
 fptype_v sqrt( const fptype_v& v )
 {
@@ -93,7 +114,9 @@ fptype_v sqrt( const fptype_v& v )
   for ( int i=0; i<neppV; i++ ) out[i]=sqrt(v[i]);
   return out;
 }
+#endif
 
+#if defined __AVX512F__ || defined __AVX2__
 inline
 fptype_v fpmake_v( const fptype v[neppV] )
 {
@@ -101,6 +124,13 @@ fptype_v fpmake_v( const fptype v[neppV] )
   for ( int i=0; i<neppV; i++ ) out[i] = v[i];
   return out;
 }
+#else
+inline
+const fptype_v& fpmake_v( const fptype v[neppV] )
+{
+  return v[0];
+}
+#endif
 
 // Operators for cxtype_v
 /*
@@ -113,11 +143,13 @@ cxtype_v cxmake_v( const cxtype c )
 }
 */
 
+#if defined __AVX512F__ || defined __AVX2__
 inline
 cxtype_v cxmake( const fptype_v& r, const fptype_v& i )
 {
   return cxtype_v{ r, i };
 }
+#endif
 
 inline
 cxtype_v cxmake00()
@@ -139,6 +171,7 @@ cxtype_v cxmake0i( const fptype_v& i )
 }
 */
 
+#if defined __AVX512F__ || defined __AVX2__
 inline
 const fptype_v& cxreal( const cxtype_v& c )
 {
@@ -301,6 +334,7 @@ cxtype_v operator/( const cxtype_v& a, const fptype& b )
 {
   return cxmake( a.real() / b, a.imag() / b );
 }
+#endif
 
 //------------------------------
 // Vector types - CUDA
