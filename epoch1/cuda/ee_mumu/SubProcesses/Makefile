@@ -6,7 +6,7 @@ OPTFLAGS = -O3
 CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(MGONGPU_CONFIG)
 ###CXXFLAGS+= -mavx2 # DEFAULT!
 ###CXXFLAGS+= -march=core-avx2 # DEFAULT!
-###CXXFLAGS+= -mavx512f -mavx512cd -mprefer-vector-width=512 # see https://stackoverflow.com/a/52543573
+CXXFLAGS+= -mavx512f -mavx512cd -mprefer-vector-width=512 # see https://stackoverflow.com/a/52543573
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
