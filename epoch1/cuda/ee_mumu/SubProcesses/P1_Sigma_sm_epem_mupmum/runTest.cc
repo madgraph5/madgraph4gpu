@@ -1,5 +1,6 @@
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
+#include "mgOnGpuVectors.h"
 
 #include "CommonRandomNumbers.h"
 #include "CPPProcess.h"
@@ -109,11 +110,11 @@ class BaseTest : public ::testing::Test {
 struct CPUTest : public BaseTest {
   Proc::CPPProcess process;
 
-  unique_ptr_host<fptype> hstRnarray;
-  unique_ptr_host<fptype> hstMomenta;
-  unique_ptr_host<bool  > hstIsGoodHel;
-  unique_ptr_host<fptype> hstWeights;
-  unique_ptr_host<fptype> hstMEs;
+  unique_ptr_host<fptype   > hstRnarray;
+  unique_ptr_host<fptype_sv> hstMomenta;
+  unique_ptr_host<bool     > hstIsGoodHel;
+  unique_ptr_host<fptype   > hstWeights;
+  unique_ptr_host<fptype   > hstMEs;
 
   // Create a process object
   // Read param_card and set parameters
@@ -128,11 +129,11 @@ struct CPUTest : public BaseTest {
 
     // --- 0b. Allocate memory structures
     // Memory structures for random numbers, momenta, matrix elements and weights on host and device
-    hstRnarray   = hstMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-    hstMomenta   = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
-    hstIsGoodHel = hstMakeUnique<bool  >( mgOnGpu::ncomb );
-    hstWeights   = hstMakeUnique<fptype>( nWeights ); // (previously was: meHostPtr)
-    hstMEs       = hstMakeUnique<fptype>( nMEs ); // (previously was: meHostPtr)
+    hstRnarray   = hstMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+    hstMomenta   = hstMakeUnique<fptype_sv>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
+    hstIsGoodHel = hstMakeUnique<bool     >( mgOnGpu::ncomb );
+    hstWeights   = hstMakeUnique<fptype   >( nWeights ); // (previously was: meHostPtr)
+    hstMEs       = hstMakeUnique<fptype   >( nMEs ); // (previously was: meHostPtr)
   }
   virtual ~CPUTest() { }
 
@@ -320,7 +321,11 @@ TEST_F(CPUTest, eemumu)
         assert(particle  < mgOnGpu::npar);
         const auto page  = evtNo / neppM; // #eventpage in this iteration
         const auto ieppM = evtNo % neppM; // #event in the current eventpage in this iteration
-        return hstMomenta[page * mgOnGpu::npar*mgOnGpu::np4*neppM + particle * neppM*mgOnGpu::np4 + component * neppM + ieppM];
+#ifdef __CUDACC__
+        return hstMomenta[page*mgOnGpu::npar*mgOnGpu::np4*neppM + particle*mgOnGpu::np4*neppM + component*neppM + ieppM];
+#else
+        return hstMomenta[page*mgOnGpu::npar*mgOnGpu::np4 + particle*mgOnGpu::np4 + component][ieppM];
+#endif
       };
       auto dumpParticles = [&](std::ostream& stream, std::size_t evtNo, unsigned precision, bool dumpReference)
       {

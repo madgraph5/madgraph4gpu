@@ -44,33 +44,43 @@ int usage(char* argv0, int ret = 1) {
 }
 
 #ifdef __CUDACC__
+
 template<typename T = fptype>
 struct CudaDevDeleter {
   void operator()(T* mem) {
     checkCuda( cudaFree( mem ) );
   }
 };
+
 template<typename T = fptype>
 std::unique_ptr<T, CudaDevDeleter<T>> devMakeUnique(std::size_t N) {
   T* tmp = nullptr;
   checkCuda( cudaMalloc( &tmp, N * sizeof(T) ) );
   return std::unique_ptr<T, CudaDevDeleter<T>>{ tmp };
 }
+
 template<typename T = fptype>
 struct CudaHstDeleter {
   void operator()(T* mem) {
     checkCuda( cudaFreeHost( mem ) );
   }
 };
+
 template<typename T = fptype>
 std::unique_ptr<T[], CudaHstDeleter<T>> hstMakeUnique(std::size_t N) {
   T* tmp = nullptr;
   checkCuda( cudaMallocHost( &tmp, N * sizeof(T) ) );
   return std::unique_ptr<T[], CudaHstDeleter<T>>{ tmp };
 };
+
 #else
+
 template<typename T = fptype>
 std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{ new T[N]() }; };
+
+template<>
+std::unique_ptr<fptype_v[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<fptype_v[]>{ new fptype_v[N/neppV]() }; };
+
 #endif
 
 int main(int argc, char **argv)
@@ -208,19 +218,19 @@ int main(int argc, char **argv)
   const int nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
 
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST or not defined __CUDACC__
-  auto hstRnarray   = hstMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+  auto hstRnarray   = hstMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
 #endif
-  auto hstMomenta   = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
-  auto hstIsGoodHel = hstMakeUnique<bool  >( ncomb );
-  auto hstWeights   = hstMakeUnique<fptype>( nWeights ); // (previously was: meHostPtr)
-  auto hstMEs       = hstMakeUnique<fptype>( nMEs ); // (previously was: meHostPtr)
+  auto hstMomenta   = hstMakeUnique<fptype_sv>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
+  auto hstIsGoodHel = hstMakeUnique<bool     >( ncomb );
+  auto hstWeights   = hstMakeUnique<fptype   >( nWeights ); // (previously was: meHostPtr)
+  auto hstMEs       = hstMakeUnique<fptype   >( nMEs ); // (previously was: meHostPtr)
 
 #ifdef __CUDACC__
-  auto devRnarray   = devMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-  auto devMomenta   = devMakeUnique<fptype>( nMomenta ); // (previously was: allMomenta)
-  auto devIsGoodHel = devMakeUnique<bool  >( ncomb );
-  auto devWeights   = devMakeUnique<fptype>( nWeights ); // (previously was: meDevPtr)
-  auto devMEs       = devMakeUnique<fptype>( nMEs ); // (previously was: meDevPtr)
+  auto devRnarray   = devMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+  auto devMomenta   = devMakeUnique<fptype   >( nMomenta ); // (previously was: allMomenta)
+  auto devIsGoodHel = devMakeUnique<bool     >( ncomb );
+  auto devWeights   = devMakeUnique<fptype   >( nWeights ); // (previously was: meDevPtr)
+  auto devMEs       = devMakeUnique<fptype   >( nMEs ); // (previously was: meDevPtr)
 
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
   const int nbytesRnarray = nRnarray * sizeof(fptype);

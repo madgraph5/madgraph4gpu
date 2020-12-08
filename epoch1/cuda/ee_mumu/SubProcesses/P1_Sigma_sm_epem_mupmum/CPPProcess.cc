@@ -50,7 +50,7 @@ namespace MG5_sm
 #if defined __AVX512F__ || defined __AVX2__
   const
 #endif
-  fptype_v pIparIp4Ipag( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
+  fptype_v pIparIp4Ipag( const fptype_v* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                          const int ipar,
                          const int ip4,
                          const int ipagM )
@@ -59,27 +59,27 @@ namespace MG5_sm
     using mgOnGpu::np4;
     using mgOnGpu::npar;
     const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
-    assert( neppV == neppM ); // NB: assume neppV (fptype_v vector size) equals neppM (AOSOA layout vector size)
-    return fpmake_v( momenta[ipagM][ipar][ip4] ); // return by value
+    fptype_v (*momenta)[npar][np4] = (fptype_v (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOSOA)
+    assert( neppV == neppM ); // NB: assume neppV (fptype_v vector size) equals neppM (AOSOA layout vector size) [DO WE?]
+    return momenta[ipagM][ipar][ip4]; // return by value
   }
 #endif
 
   //--------------------------------------------------------------------------
 
   __device__
-  void imzxxxM0( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void imzxxxM0( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                  //const fptype fmass,
                  const short nhel,
                  const short nsf,
 #ifdef __CUDACC__
-                 cxtype fis[nw6],          // output: wavefunction[6]
+                 cxtype fis[nw6],             // output: wavefunction[6]
 #else
-                 cxtype_v fis_v[nw6],      // output: wavefunction[6][RRRRIIII]
-                 //fptype_v fis_v[nw6][2],   // output: wavefunction[6][RRRRIIII]
+                 cxtype_v fis_v[nw6],         // output: wavefunction[6][RRRRIIII]
+                 //fptype_v fis_v[nw6][2],    // output: wavefunction[6][RRRRIIII]
                  const int ipagV,
 #endif
-                 const int ipar )          // input: particle# out of npar
+                 const int ipar )             // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
@@ -153,18 +153,18 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void ixzxxxM0( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void ixzxxxM0( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                  //const fptype fmass,
                  const short nhel,
                  const short nsf,
 #ifdef __CUDACC__
-                 cxtype fis[nw6],          // output: wavefunction[6]
+                 cxtype fis[nw6],             // output: wavefunction[6]
 #else
-                 cxtype_v fis_v[nw6],      // output: wavefunction[6][RRRRIIII]
-                 //fptype_v fis_v[nw6][2],   // output: wavefunction[6][RRRRIIII]
+                 cxtype_v fis_v[nw6],         // output: wavefunction[6][RRRRIIII]
+                 //fptype_v fis_v[nw6][2],    // output: wavefunction[6][RRRRIIII]
                  const int ipagV,
 #endif
-                 const int ipar )          // input: particle# out of npar
+                 const int ipar )             // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
@@ -240,18 +240,18 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void oxzxxxM0( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void oxzxxxM0( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                  //const fptype fmass,
                  const short nhel,
                  const short nsf,
 #ifdef __CUDACC__
-                 cxtype fos[nw6],          // output: wavefunction[6]
+                 cxtype fos[nw6],             // output: wavefunction[6]
 #else
-                 cxtype_v fos_v[nw6],      // output: wavefunction[6][RRRRIIII]
-                 //fptype_v fos_v[nw6][2],   // output: wavefunction[6][RRRRIIII]
+                 cxtype_v fos_v[nw6],         // output: wavefunction[6][RRRRIIII]
+                 //fptype_v fos_v[nw6][2],    // output: wavefunction[6][RRRRIIII]
                  const int ipagV,
 #endif
-                 const int ipar )          // input: particle# out of npar
+                 const int ipar )             // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
@@ -581,10 +581,10 @@ namespace Proc
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
   __device__
   void calculate_wavefunctions( int ihel,
-                                const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                                fptype* allMEs            // output: allMEs[nevt], final |M|^2 averaged over all helicities
+                                const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                                fptype* allMEs               // output: allMEs[nevt], final |M|^2 averaged over all helicities
 #ifndef __CUDACC__
-                                , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                                , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                                 )
   {
@@ -797,9 +797,9 @@ namespace Proc
 
 #ifdef __CUDACC__
   __global__
-  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            fptype* allMEs,           // output: allMEs[nevt], final |M|^2 averaged over all helicities
-                            bool* isGoodHel )         // output: isGoodHel[ncomb] - device array
+  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                            fptype* allMEs,              // output: allMEs[nevt], final |M|^2 averaged over all helicities
+                            bool* isGoodHel )            // output: isGoodHel[ncomb] - device array
   {
     const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
     const int ievt = idim;
@@ -814,10 +814,10 @@ namespace Proc
     }
   }
 #else
-  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            fptype* allMEs,           // output: allMEs[nevt], final |M|^2 averaged over all helicities
-                            bool* isGoodHel           // output: isGoodHel[ncomb] - device array
-                            , const int nevt )        // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                            fptype* allMEs,              // output: allMEs[nevt], final |M|^2 averaged over all helicities
+                            bool* isGoodHel              // output: isGoodHel[ncomb] - device array
+                            , const int nevt )           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
     const int maxtry0 = ( neppV > 10 ? neppV : 10 ); // 10, but at least neppV (otherwise the npagV loop does not even start)
     fptype allMEsLast[maxtry0] = { 0 };
@@ -876,10 +876,10 @@ namespace Proc
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
   __global__
-  void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                 fptype* allMEs            // output: allMEs[nevt], final |M|^2 averaged over all helicities
+  void sigmaKin( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                 fptype* allMEs               // output: allMEs[nevt], final |M|^2 averaged over all helicities
 #ifndef __CUDACC__
-                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                 , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                  )
   {

@@ -1,6 +1,8 @@
 #ifndef MGONGPUVECTORS_H
 #define MGONGPUVECTORS_H 1
 
+#include <iostream>
+
 //------------------------------
 // Vector types - C++
 //------------------------------
