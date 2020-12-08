@@ -614,6 +614,13 @@ namespace Proc
     const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
 #endif
 
+    // The number of colors
+    const int ncolor = 1;
+
+    // The color matrix
+    const fptype denom[ncolor] = {1};
+    const fptype cf[ncolor][ncolor] = {{1}};
+
 #ifdef __CUDACC__
     // Local variables for the given event (ievt)
     cxtype w[nwf][nw6]; // w[5][6]
@@ -623,13 +630,6 @@ namespace Proc
     cxtype_v w_v[nwf][nw6]; // w_v[5][6]
     cxtype_v amp_v[2];
 #endif
-
-    // The number of colors
-    const int ncolor = 1;
-
-    // The color matrix
-    const fptype denom[ncolor] = {1};
-    const fptype cf[ncolor][ncolor] = {{1}};
 
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
