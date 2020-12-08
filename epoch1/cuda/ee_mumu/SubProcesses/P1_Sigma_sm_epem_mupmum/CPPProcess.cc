@@ -826,9 +826,9 @@ namespace Proc
                             bool* isGoodHel           // output: isGoodHel[ncomb] - device array
                             , const int nevt )        // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
-    const int maxtry0 = 10;
+    const int maxtry0 = ( neppV > 10 ? neppV : 10 ); // 10, but at least neppV (otherwise the npagV loop does not even start)
     fptype allMEsLast[maxtry0] = { 0 };
-    const int maxtry = std::min( maxtry0, nevt ); // avoid invalid memory access if nevt<maxtry0
+    const int maxtry = std::min( maxtry0, nevt ); // 10, but at most nevt (avoid invalid memory access if nevt<maxtry0)
     for ( int ievt = 0; ievt < maxtry; ++ievt )
     {
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
