@@ -90,14 +90,12 @@ namespace mgOnGpu
   // --- CPUs: neppV must be exactly equal to the number of fptype's in a vector register
   // --- Note that neppV is set equal to neppM (this is hardcoded in the logic of the code)
   // -----------------------------------------------------------------------------------------
-#ifdef __AVX512F__
+#if defined __AVX512F__
   const int neppM = 64/sizeof(fptype); // AVX512 (256-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
-#else
-#ifdef __AVX2__
+#elif defined __AVX2__
   const int neppM = 32/sizeof(fptype); // (DEFAULT) AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT)
 #else
   const int neppM = 1;  // *** NB: this is equivalent to AOS ***
-#endif
 #endif
 #endif
 
