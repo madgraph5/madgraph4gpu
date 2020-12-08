@@ -1,3 +1,6 @@
+#ifdef SYCL_LANGUAGE_VERSION
+#include <CL/sycl.hpp>
+#endif
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -74,6 +77,7 @@ std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{
 
 int main(int argc, char **argv)
 {
+  sycl::queue q_ct1{ sycl::cpu_selector{} };
   // READ COMMAND LINE ARGUMENTS
   bool verbose = false;
   bool debug = false;
@@ -201,19 +205,21 @@ int main(int argc, char **argv)
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
   using mgOnGpu::ncomb; // Number of helicity combinations
-  const int nRnarray = np4*nparf*nevt; // (NB: ASA layout with nevt=npagR*neppR events per iteration)
-  const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for ASA layouts)
-  const int nWeights = nevt;
-  const int nMEs     = nevt;
+  const unsigned int nRnarray = np4*nparf*nevt; // (NB: ASA layout with nevt=npagR*neppR events per iteration)
+  const unsigned int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for ASA layouts)
+  const unsigned int nWeights = nevt;
+  const unsigned int nMEs     = nevt;
 
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST or not defined __CUDACC__
   auto hstRnarray   = hstMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
 #endif
-  auto hstMomenta   = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
-  auto hstIsGoodHel = hstMakeUnique<bool  >( ncomb );
-  auto hstWeights   = hstMakeUnique<fptype>( nWeights ); // (previously was: meHostPtr)
-  auto hstMEs       = hstMakeUnique<fptype>( nMEs ); // (previously was: meHostPtr)
-
+  sycl::buffer<fptype, 1, sycl::buffer_allocator> Momenta_buffer{sycl::range<1>{nMomenta}};
+  sycl::buffer<bool, 1, sycl::buffer_allocator> IsGoodHel_buffer{sycl::range<1>{ncomb}};
+  sycl::buffer<fptype, 1, sycl::buffer_allocator> Weights_buffer{sycl::range<1>{nWeights}};
+  sycl::buffer<fptype, 1, sycl::buffer_allocator> MEs_buffer{sycl::range<1>{nMEs}};
+  sycl::buffer<int, 2, sycl::buffer_allocator> cHel_buffer{sycl::range<2>{ncomb,npar}};
+  sycl::buffer<int, 1, sycl::buffer_allocator> cNGoodHel_buffer{sycl::range<1>{1}};
+  sycl::buffer<int, 1, sycl::buffer_allocator> cGoodHel_buffer{sycl::range<1>{ncomb}};
 #ifdef __CUDACC__
   auto devRnarray   = devMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   auto devMomenta   = devMakeUnique<fptype>( nMomenta ); // (previously was: allMomenta)
@@ -322,8 +328,21 @@ int main(int argc, char **argv)
     // --- 2a. Fill in momenta of initial state particles on the device
     const std::string riniKey = "2a RamboIni";
     timermap.start( riniKey );
-#ifdef __CUDACC__
-    grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta.get() );
+#ifdef SYCL_LANGUAGE_VERSION
+    {
+      q_ct1.submit([&](sycl::handler &cgh) {
+        auto devMomenta_acc = Momenta_buffer.get_access<sycl::access::mode::read_write>(cgh);
+        cgh.parallel_for(
+            sycl::nd_range<3>(sycl::range<3>(1, 1, gpublocks) *
+                                  sycl::range<3>(1, 1, gputhreads),
+                              sycl::range<3>(1, 1, gputhreads)),
+            [=](sycl::nd_item<3> item_ct1) {
+              auto devMomenta_ptr = devMomenta_acc.get_pointer();
+              rambo2toNm0::getMomentaInitial(energy, devMomenta_ptr, item_ct1);
+            });
+      });
+      q_ct1.wait();
+    }
 #else
     rambo2toNm0::getMomentaInitial( energy, hstMomenta.get(), nevt );
 #endif
@@ -333,8 +352,29 @@ int main(int argc, char **argv)
     // (i.e. map random numbers to final-state particle momenta for each of nevt events)
     const std::string rfinKey = "2b RamboFin";
     rambtime += timermap.start( rfinKey );
-#ifdef __CUDACC__
-    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.get(), devMomenta.get(), devWeights.get() );
+#ifdef SYCL_LANGUAGE_VERSION
+    {
+      sycl::buffer Rnarray_buffer{hstRnarray.get(), sycl::range{nRnarray}};
+      q_ct1.submit([&](sycl::handler &cgh) {
+        auto devRnarray_acc = Rnarray_buffer.get_access<sycl::access::mode::read>(cgh);
+        auto devMomenta_acc = Momenta_buffer.get_access<sycl::access::mode::read_write>(cgh);
+        auto devWeights_acc = Weights_buffer.get_access<sycl::access::mode::write>(cgh);
+        cgh.parallel_for(
+            sycl::nd_range<3>(sycl::range<3>(1, 1, gpublocks) *
+                                  sycl::range<3>(1, 1, gputhreads),
+                              sycl::range<3>(1, 1, gputhreads)),
+            [=](sycl::nd_item<3> item_ct1) {
+              auto devRnarray_ptr = devRnarray_acc.get_pointer();
+              auto devWeights_ptr = devWeights_acc.get_pointer();
+              auto devMomenta_ptr = devMomenta_acc.get_pointer();
+              rambo2toNm0::getMomentaFinal(energy, devRnarray_ptr,
+                                            devMomenta_ptr,
+                                            devWeights_ptr, item_ct1);
+            });
+      });
+    q_ct1.wait();
+
+    }
 #else
     rambo2toNm0::getMomentaFinal( energy, hstRnarray.get(), hstMomenta.get(), hstWeights.get(), nevt );
 #endif
@@ -346,10 +386,12 @@ int main(int argc, char **argv)
     rambtime += timermap.start( cwgtKey );
     checkCuda( cudaMemcpy( hstWeights.get(), devWeights.get(), nbytesWeights, cudaMemcpyDeviceToHost ) );
 
+
     // --- 2d. CopyDToH Momenta
     const std::string cmomKey = "2d CpDTHmom";
     rambtime += timermap.start( cmomKey );
     checkCuda( cudaMemcpy( hstMomenta.get(), devMomenta.get(), nbytesMomenta, cudaMemcpyDeviceToHost ) );
+
 #endif
 
     // *** STOP THE OLD-STYLE TIMER FOR RAMBO ***
@@ -362,18 +404,39 @@ int main(int argc, char **argv)
     // 3b. Copy MEs back from device to host
 
     // --- 0d. SGoodHel
-#ifdef __CUDACC__
+#ifdef SYCL_LANGUAGE_VERSION
     if ( iiter == 0 )
     {
       const std::string ghelKey = "0d SGoodHel";
       timermap.start( ghelKey );
       // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.get(), devIsGoodHel.get());
-      checkCuda( cudaPeekAtLastError() );
+      {
+        q_ct1.submit([&](sycl::handler &cgh) {
+          auto devcHel_acc = cHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
+          auto devMomenta_acc = Momenta_buffer.get_access<sycl::access::mode::read_write>(cgh);
+          auto devIsGoodHel_acc = IsGoodHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
+          cgh.parallel_for(
+              sycl::nd_range<3>(sycl::range<3>(1, 1, gpublocks) *
+                                    sycl::range<3>(1, 1, gputhreads),
+                                sycl::range<3>(1, 1, gputhreads)),
+              [=](sycl::nd_item<3> item_ct1) {
+                auto devMomenta_ptr = devMomenta_acc.get_pointer();
+                auto devIsGoodHel_ptr = devIsGoodHel_acc.get_pointer();
+                Proc::sigmaKin_getGoodHel(
+                devMomenta_ptr, devIsGoodHel_ptr, item_ct1, devcHel_acc);
+              });
+        });
+      q_ct1.wait();
+      }
       // ... 0d2. Copy back good helicity mask to the host
-      checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(), nbytesIsGoodHel, cudaMemcpyDeviceToHost ) );
+      sycl::host_accessor IsGoodHel_acc{IsGoodHel_buffer};
+      sycl::host_accessor cNGoodHel_acc{cNGoodHel_buffer};
+      sycl::host_accessor cGoodHel_acc{cGoodHel_buffer};
+      auto IsGoodHel_ptr = IsGoodHel_acc.get_pointer();
+      auto cNGoodHel_ptr = cNGoodHel_acc.get_pointer();
+      auto cGoodHel_ptr = cGoodHel_acc.get_pointer();
+      Proc::sigmaKin_setGoodHel(IsGoodHel_ptr, cNGoodHel_ptr, cGoodHel_ptr) ;
       // ... 0d3. Copy back good helicity list to constant memory on the device
-      gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
     }
 #endif
 
@@ -383,22 +446,41 @@ int main(int argc, char **argv)
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
-#ifdef __CUDACC__
+#ifdef SYCL_LANGUAGE_VERSION
 #ifndef MGONGPU_NSIGHT_DEBUG
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.get(), devMEs.get());
+    {
+      q_ct1.submit([&](sycl::handler &cgh) {
+        auto cHel_acc = cHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
+        auto cNGoodHel_acc = cNGoodHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
+        auto cGoodHel_acc = cGoodHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
+        auto devMomenta_acc = Momenta_buffer.get_access<sycl::access::mode::read_write>(cgh);
+        auto devMEs_acc = MEs_buffer.get_access<sycl::access::mode::read_write>(cgh);
+        cgh.parallel_for(
+            sycl::nd_range<3>(sycl::range<3>(1, 1, gpublocks) *
+                                  sycl::range<3>(1, 1, gputhreads),
+                              sycl::range<3>(1, 1, gputhreads)),
+            [=](sycl::nd_item<3> item_ct1) {
+                auto devMomenta_ptr = devMomenta_acc.get_pointer();
+                auto devMEs_ptr = devMEs_acc.get_pointer();
+                auto cNGoodHel_ptr = cNGoodHel_acc.get_pointer();
+                auto cGoodHel_ptr = cGoodHel_acc.get_pointer();
+                Proc::sigmaKin(
+                devMomenta_ptr, devMEs_ptr, item_ct1, cHel_acc, cNGoodHel_ptr, cGoodHel_ptr);
+              });
+      });
+    q_ct1.wait();
+    }
 #else
     gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.get(), devMEs.get());
 #endif
-    checkCuda( cudaPeekAtLastError() );
 #else
     Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), nevt);
 #endif
 
-#ifdef __CUDACC__
+#ifdef SYCL_LANGUAGE_VERSION
     // --- 3b. CopyDToH MEs
     const std::string cmesKey = "3b CpDTHmes";
     wavetime += timermap.start( cmesKey );
-    checkCuda( cudaMemcpy( hstMEs.get(), devMEs.get(), nbytesMEs, cudaMemcpyDeviceToHost ) );
 #endif
 
     // *** STOP THE OLD TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
@@ -419,6 +501,9 @@ int main(int argc, char **argv)
       if (perf) std::cout << "Wave function time: " << wavetime << std::endl;
     }
 
+    sycl::host_accessor Weights{Weights_buffer};
+    sycl::host_accessor Momenta{Momenta_buffer};
+    sycl::host_accessor MEs{MEs_buffer};
     for (int ievt = 0; ievt < nevt; ++ievt) // Loop over all events in this iteration
     {
       if (verbose)
@@ -432,22 +517,22 @@ int main(int argc, char **argv)
           // NB: 'setw' affects only the next field (of any type)
           std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
                     << std::setw(4) << ipar + 1
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
+                    << std::setw(14) << Momenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
+                    << std::setw(14) << Momenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
+                    << std::setw(14) << Momenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
+                    << std::setw(14) << Momenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
                     << std::endl
                     << std::defaultfloat; // default format: affects all floats
         }
         std::cout << std::string(80, '-') << std::endl;
         // Display matrix elements
         std::cout << " Matrix element = "
-                  << hstMEs[ievt] << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
+                  << MEs[ievt] << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
         std::cout << std::string(80, '-') << std::endl;
       }
       // Fill the arrays with ALL MEs and weights
-      matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt]; // FIXME: assume process.nprocesses == 1
-      weightALL[iiter*nevt + ievt] = hstWeights[ievt];
+      matrixelementALL[iiter*nevt + ievt] = MEs[ievt]; // FIXME: assume process.nprocesses == 1
+      weightALL[iiter*nevt + ievt] = Weights[ievt];
     }
 
     if (!(verbose || debug || perf))
@@ -580,7 +665,7 @@ int main(int argc, char **argv)
 #elif defined MGONGPU_FPTYPE_FLOAT
               << "FP precision               = FLOAT (nan=" << nnan << ")" << std::endl
 #endif
-#ifdef __CUDACC__
+#ifdef SYCL_LANGUAGE_VERSION
 #if defined MGONGPU_CXTYPE_CUCOMPLEX
               << "Complex type               = CUCOMPLEX" << std::endl
 #elif defined MGONGPU_CXTYPE_THRUST
@@ -593,10 +678,10 @@ int main(int argc, char **argv)
               << ( neppR == 1 ? " == AOS" : "" ) << std::endl
               << "Momenta memory layout      = AOSOA[" << neppM << "]"
               << ( neppM == 1 ? " == AOS" : "" ) << std::endl
-#ifdef __CUDACC__
+#ifdef SYCL_LANGUAGE_VERSION
               << "Wavefunction GPU memory    = LOCAL" << std::endl
 #endif
-#ifdef __CUDACC__
+#ifdef SYCL_LANGUAGE_VERSION
 #if defined MGONGPU_COMMONRAND_ONHOST
               << "Random number generation   = COMMON RANDOM HOST (CUDA code)" << std::endl
 #elif defined MGONGPU_CURAND_ONDEVICE
