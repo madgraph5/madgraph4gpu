@@ -8,6 +8,9 @@
 #ifndef MG5_Sigma_sm_epem_mupmum_H
 #define MG5_Sigma_sm_epem_mupmum_H
 
+#ifdef SYCL_LANGUAGE_VERSION
+#include <CL/sycl.hpp>
+#endif
 #include <cassert>
 #include <complex>
 #include <vector>
@@ -112,24 +115,31 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
-  __global__
+#ifdef SYCL_LANGUAGE_VERSION
+  SYCL_EXTERNAL
   void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            bool* isGoodHel );        // output: isGoodHel[ncomb] - device array
+                            bool* isGoodHel,          // output: isGoodHel[ncomb] - device array
+                            sycl::nd_item<3> item_ct1,
+                            const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel
+                          );
 #endif
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
-  void sigmaKin_setGoodHel( const bool* isGoodHel ); // input: isGoodHel[ncomb] - host array
+#ifdef SYCL_LANGUAGE_VERSION
+  void sigmaKin_setGoodHel( const bool* isGoodHel, int* cNGoodHel_ptr, int* cGoodHel_ptr); // input: isGoodHel[ncomb] - host array
 #endif
 
   //--------------------------------------------------------------------------
 
-  __global__
+  SYCL_EXTERNAL
   void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                 fptype* allMEs            // output: allMEs[nevt], final |M|^2 averaged over all helicities
-#ifndef __CUDACC__
+                 fptype* allMEs             // output: allMEs[nevt], final |M|^2 averaged over all helicities
+                 , sycl::nd_item<3> item_ct1,
+                 const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel,
+                 int *cNGoodHel,
+                 int *cGoodHel 
+#ifndef SYCL_LANGUAGE_VERSION
                  , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                  );
