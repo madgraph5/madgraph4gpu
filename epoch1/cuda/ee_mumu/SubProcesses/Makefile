@@ -4,8 +4,8 @@ INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
 OPTFLAGS = -O3
 CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(MGONGPU_CONFIG)
-###CXXFLAGS+= -march=core-avx2 # AVX2 (DEFAULT!)
-CXXFLAGS+= -march=native # AVX512F
+CXXFLAGS+= -march=core-avx2 # AVX2 (DEFAULT!)
+###CXXFLAGS+= -march=native # AVX512F
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
