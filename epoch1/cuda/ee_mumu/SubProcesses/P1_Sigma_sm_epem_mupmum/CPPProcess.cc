@@ -625,10 +625,12 @@ namespace Proc
     // Local variables for the given event (ievt)
     cxtype w[nwf][nw6]; // w[5][6]
     cxtype amp[2];
+    cxtype jamp[ncolor];
 #else
     // Local variables for the given event page (ipagV)
     cxtype_v w_v[nwf][nw6]; // w_v[5][6]
     cxtype_v amp_v[2];
+    cxtype_v jamp_v[ncolor];
 #endif
 
 #ifndef __CUDACC__
@@ -658,6 +660,9 @@ namespace Proc
       // Diagram 2
       MG5_sm::FFV2_4_3( w_v[1], w_v[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w_v[4] );
       MG5_sm::FFV2_4_0( w_v[2], w_v[3], w_v[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp_v[1] );
+      // Calculate color flows
+      // (compute M as the sum of the invariant amplitudes for all Feynman diagrams)
+      jamp_v[0] = -amp_v[0] - amp_v[1];
       // ** START LOOP ON IEPPV **
       for ( int ieppV = 0; ieppV < neppV; ++ieppV )
 #endif
@@ -676,21 +681,18 @@ namespace Proc
         const int ievt = ipagV*neppV + ieppV;
         // Local variables for the given event (ievt)
 #if defined __AVX512F__ || defined __AVX2__
-        cxtype amp[2];
-        amp[0] = amp_v[0][ieppV];
-        amp[1] = amp_v[1][ieppV];
-#else
-        cxtype* amp = amp_v;
-#endif
-#endif
-
         cxtype jamp[ncolor];
+        jamp[0] = jamp_v[0][ieppV];
+#else
+        cxtype* jamp = jamp_v;
+#endif
+#endif
 
+#ifdef __CUDACC__
         // Calculate color flows
         // (compute M as the sum of the invariant amplitudes for all Feynman diagrams)
         jamp[0] = -amp[0] - amp[1];
 
-#ifdef __CUDACC__
         const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
         const int ievt = idim;
         //printf( "calculate_wavefunctions: ievt %d\n", ievt );
