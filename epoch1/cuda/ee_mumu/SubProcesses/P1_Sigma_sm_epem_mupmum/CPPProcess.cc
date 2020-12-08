@@ -70,8 +70,8 @@ namespace MG5_sm
   __device__
   void imzxxxM0( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                  //const fptype fmass,
-                 const int nhel,
-                 const int nsf,
+                 const short nhel,
+                 const short nsf,
 #ifdef __CUDACC__
                  cxtype fis[nw6],          // output: wavefunction[6]
 #else
@@ -118,7 +118,7 @@ namespace MG5_sm
 #endif
       fi_0 = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi_1 = cxmake( -pvec1 * nsf, -pvec2 * nsf );
-      const int nh = nhel * nsf;
+      const short nh = nhel * nsf;
       // ASSUMPTIONS FMASS = 0 and
       // (PX = PY = 0 and E = -P3 > 0)
       {
@@ -127,7 +127,7 @@ namespace MG5_sm
         const cxtype chi1 = cxmake( -nhel * sqrt(2 * pvec0), 0 );
 #else
         const cxtype_v chi0 = cxmake00();
-        const cxtype_v chi1 = cxmaker0( -nhel * sqrt(2 * pvec0) );
+        const cxtype_v chi1 = cxmaker0( (short)(-nhel) * sqrt(2 * pvec0) );
 #endif
         if (nh == 1)
         {
@@ -155,8 +155,8 @@ namespace MG5_sm
   __device__
   void ixzxxxM0( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                  //const fptype fmass,
-                 const int nhel,
-                 const int nsf,
+                 const short nhel,
+                 const short nsf,
 #ifdef __CUDACC__
                  cxtype fis[nw6],          // output: wavefunction[6]
 #else
@@ -203,7 +203,7 @@ namespace MG5_sm
 #endif
       fi_0 = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi_1 = cxmake( -pvec1 * nsf, -pvec2 * nsf );
-      const int nh = nhel * nsf;
+      const short nh = nhel * nsf;
       // ASSUMPTIONS FMASS = 0 and
       // (PX and PY are not 0)
       {
@@ -242,8 +242,8 @@ namespace MG5_sm
   __device__
   void oxzxxxM0( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                  //const fptype fmass,
-                 const int nhel,
-                 const int nsf,
+                 const short nhel,
+                 const short nsf,
 #ifdef __CUDACC__
                  cxtype fos[nw6],          // output: wavefunction[6]
 #else
@@ -290,7 +290,7 @@ namespace MG5_sm
 #endif
       fo_0 = cxmake( pvec0 * nsf, pvec3 * nsf ); // this used to cause the General Protection Fault
       fo_1 = cxmake( pvec1 * nsf, pvec2 * nsf );
-      const int nh = nhel * nsf;
+      const short nh = nhel * nsf;
       // ASSUMPTIONS FMASS = 0 and
       // EITHER (Px and Py are not zero)
       // OR (PX = PY = 0 and E = P3 > 0)
@@ -572,7 +572,7 @@ namespace Proc
   __device__ __constant__ int cNGoodHel;
   __device__ __constant__ int cGoodHel[ncomb];
 #else
-  static int cHel[ncomb][npar];
+  static short cHel[ncomb][npar];
   static fptype cIPC[6];
   static fptype cIPD[2];
   // FIXME: assume process.nprocesses == 1 for the moment
@@ -740,12 +740,12 @@ namespace Proc
     checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(int) ) );
 #else
     // Helicities for the process - nodim
-    const int tHel[ncomb][nexternal] =
+    const short tHel[ncomb][nexternal] =
       { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
         {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
         {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
         {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
-    memcpy( cHel, tHel, ncomb * nexternal * sizeof(int) );
+    memcpy( cHel, tHel, ncomb * nexternal * sizeof(short) );
 #endif
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
     assert( sizeof(cxtype) == 2*sizeof(fptype) );
