@@ -374,4 +374,15 @@ cxtype cxmake0i( const fptype& i )
 
 #endif
 
+// Scalar-or-vector types: scalar in CUDA, vector in C++
+#ifdef __CUDACC__
+typedef fptype fptype_sv;
+typedef cxtype cxtype_sv;
+#else
+typedef fptype_v fptype_sv;
+typedef cxtype_v cxtype_sv;
+#endif
+
+//--------------------------------------------------------------------------
+
 #endif // MGONGPUVECTORS_H

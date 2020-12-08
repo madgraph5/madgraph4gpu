@@ -327,17 +327,6 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  // Scalar-or-vector types: scalar in CUDA, vector in C++
-#ifdef __CUDACC__
-  typedef fptype fptype_sv;
-  typedef cxtype cxtype_sv;
-#else
-  typedef fptype_v fptype_sv;
-  typedef cxtype_v cxtype_sv;
-#endif
-
-  //--------------------------------------------------------------------------
-
   __device__
   void FFV1_0( const cxtype_sv F1S[],   // input wavefunction1[6]
                const cxtype_sv F2S[],   // input wavefunction2[6]
