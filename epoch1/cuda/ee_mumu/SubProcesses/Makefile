@@ -71,13 +71,13 @@ $(LIBDIR)/lib$(MODELLIB).a:
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
 gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
-	$(NVCC) $(CUFLAGS) -c $< -o $@
+	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 %.o : %.cu *.h ../../src/*.h
-	$(NVCC) $(CUFLAGS) -c $< -o $@
+	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 %.o : %.cc *.h ../../src/*.h
-	$(CXX) $(CXXFLAGS) $(CUINC) -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
 # This is built with nvcc and linked with objects compiled with nvcc or g++
 $(cu_main): gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) gmain.cc
@@ -85,7 +85,7 @@ $(cu_main): gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) gmain.cc
 
 # This is built with g++ and linked with objects compiled with g++
 $(cxx_main): check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) cmain.cc
-	$(CXX) $< -o $@ $(cxx_objects) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) cmain.cc
+	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) cmain.cc
 
 # This is built with nvcc and linked with objects compiled with nvcc or g++
 $(het_main): gcheck.o check.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) $(cxx_objects) hmain.cc
@@ -98,11 +98,11 @@ runTest.exe: INCFLAGS += -I$(TOOLSDIR)/googletest/googletest/include/
 runTest.exe: LIBFLAGS += -L$(GTESTLIBDIR)/ -lgtest -lgtest_main
 ifeq ($(NVCC),)
 runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
-	$(CXX) -o $@ $(cxx_objects) runTest.o $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+	$(CXX) -o $@ $(cxx_objects) runTest.o $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
 runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
 	ln -sf runTest.cc runTest_tmp.cu
-	$(NVCC) -o $@ $(cxx_objects) runTest.o $(cu_objects) runTest_tmp.cu $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
+	$(NVCC) -o $@ $(cxx_objects) runTest.o $(cu_objects) runTest_tmp.cu $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 	unlink runTest_tmp.cu
 endif
 
