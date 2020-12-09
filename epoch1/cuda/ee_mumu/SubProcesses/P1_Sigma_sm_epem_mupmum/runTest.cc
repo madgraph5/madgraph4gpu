@@ -322,7 +322,7 @@ TEST_F(CPUTest, eemumu)
         const auto ieppM = evtNo % neppM; // #event in the current eventpage in this iteration
         return hstMomenta[page * mgOnGpu::npar*mgOnGpu::np4*neppM + particle * neppM*mgOnGpu::np4 + component * neppM + ieppM];
       };
-      auto dumpParticles = [&](std::ostream& stream, std::size_t evtNo, unsigned precision, bool dumpReference)
+      auto dumpParticles = [&](std::ostream& stream, unsigned precision, bool dumpReference)
       {
         const auto width = precision + 8;
         for (int ipar = 0; ipar < mgOnGpu::npar; ipar++)
@@ -352,10 +352,11 @@ TEST_F(CPUTest, eemumu)
         }
       };
 
-      if (dumpFile.is_open()) {
+      if (dumpEvents) {
+        ASSERT_TRUE(dumpFile.is_open());
         dumpFile << "Event " << std::setw(8) << ievt << "  "
                  << "Batch " << std::setw(4) << iiter << "\n";
-        dumpParticles(dumpFile, ievt, 15, false);
+        dumpParticles(dumpFile, 15, false);
         // Dump matrix element
         dumpFile << std::setw(4) << "ME" << std::scientific << std::setw(15+8) << hstMEs[ievt] << "\n" << std::endl << std::defaultfloat;
         continue;
@@ -364,7 +365,7 @@ TEST_F(CPUTest, eemumu)
       // This trace will only be printed in case of failures:
       std::stringstream eventTrace;
       eventTrace << "In comparing event " << ievt << " from iteration " << iiter << "\n";
-      dumpParticles(eventTrace, ievt, 15, true);
+      dumpParticles(eventTrace, 15, true);
       eventTrace << std::setw(4) << "ME"   << std::scientific << std::setw(15+8) << hstMEs[ievt] << "\n"
                  << std::setw(4) << "r.ME" << std::scientific << std::setw(15+8) << referenceData[iiter].MEs[ievt] << std::endl << std::defaultfloat;
       SCOPED_TRACE(eventTrace.str());
