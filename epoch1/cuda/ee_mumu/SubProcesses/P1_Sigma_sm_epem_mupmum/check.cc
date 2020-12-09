@@ -92,7 +92,7 @@ int check_omp_threads( bool debug ) // returns the number of OMP threads
     {
       std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
       std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
-      std::cout << "DEBUG: ${OMP_NUM_THREADS}    = '" << ompnthr << "'" << std::endl;
+      std::cout << "DEBUG: ${OMP_NUM_THREADS}    = '" << ( ompnthr == 0 ? "[not set]" : ompnthr ) << "'" << std::endl;
     }
     if ( ompnthr == NULL || std::string(ompnthr).find_first_not_of("0123456789") != std::string::npos || atol( ompnthr ) == 0 )
     {
