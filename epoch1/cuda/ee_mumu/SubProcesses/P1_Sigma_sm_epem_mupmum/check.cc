@@ -151,16 +151,21 @@ int main(int argc, char **argv)
 
 #ifndef __CUDACC__
   // Set OMP_NUM_THREADS equal to 1 if it is not yet set
-  if ( debug ) std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
-  if ( debug ) std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
-  if ( getenv( "OMP_NUM_THREADS" ) == NULL )
+  char* ompnthr = getenv( "OMP_NUM_THREADS" );
+  if ( debug )
   {
-    if ( debug ) std::cout << "WARNING! OMP_NUM_THREADS is not set: will use only 1 thread" << std::endl;
+    std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
+    std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
+    std::cout << "DEBUG: ${OMP_NUM_THREADS}    = '" << ompnthr << "'" << std::endl;
+  }
+  if ( ompnthr == NULL || std::string(ompnthr).find_first_not_of("0123456789") != std::string::npos || atol( ompnthr ) == 0 )
+  {
+    if ( ompnthr != NULL ) std::cout << "WARNING! OMP_NUM_THREADS is invalid: will use only 1 thread" << std::endl;
+    else if ( debug ) std::cout << "DEBUG: OMP_NUM_THREADS is not set: will use only 1 thread" << std::endl;
     omp_set_num_threads( 1 ); // https://stackoverflow.com/a/22816325
     if ( debug ) std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
     if ( debug ) std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
   }
-  else if ( debug ) std::cout << "DEBUG: ${OMP_NUM_THREADS}    = " << getenv( "OMP_NUM_THREADS" ) << std::endl;
 #endif
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
@@ -639,7 +644,7 @@ int main(int argc, char **argv)
 #else
               << "Random number generation   = CURAND (C++ code)" << std::endl
 #endif
-              << "OMP threads / maxthreads   = " << omp_get_max_threads() << " / " << nprocall // includes a newline
+              << "OMPthreads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
 #endif
               << "-----------------------------------------------------------------------" << std::endl
               << "NumberOfEntries            = " << niter << std::endl
