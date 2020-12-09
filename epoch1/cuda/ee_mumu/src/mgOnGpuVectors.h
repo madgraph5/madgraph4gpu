@@ -36,7 +36,7 @@ namespace mgOnGpu
   };
 
   // --- Type definition (using vector compiler extensions: need -march=...)
-  class alignas(2*sizeof(fptype_v)) cxtype_v
+  class cxtype_v // no need for "class alignas(2*sizeof(fptype_v)) cxtype_v"
   {
   public:
     cxtype_v() : m_real{0}, m_imag{0} {}
