@@ -40,7 +40,7 @@ int usage(char* argv0, int ret = 1) {
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
   std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
-  std::cout << "The '-d' flag only controls if nan's emit warnings" << std::endl;
+  std::cout << "The '-d' flag only enables nan warnings and OMP debugging" << std::endl;
 #ifndef __CUDACC__
   std::cout << std::endl << "Use the OMP_NUM_THREADS environment variable to control OMP multi-threading" << std::endl;
   std::cout << "(OMP multithreading will be disabled if OMP_NUM_THREADS is not set)" << std::endl;
@@ -151,11 +151,16 @@ int main(int argc, char **argv)
 
 #ifndef __CUDACC__
   // Set OMP_NUM_THREADS equal to 1 if it is not yet set
+  if ( debug ) std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
+  if ( debug ) std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
   if ( getenv( "OMP_NUM_THREADS" ) == NULL )
   {
-    std::cout << "WARNING! OMP_NUM_THREADS is not set: will use only 1 thread" << std::endl;
+    if ( debug ) std::cout << "WARNING! OMP_NUM_THREADS is not set: will use only 1 thread" << std::endl;
     omp_set_num_threads( 1 ); // https://stackoverflow.com/a/22816325
+    if ( debug ) std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
+    if ( debug ) std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
   }
+  else if ( debug ) std::cout << "DEBUG: ${OMP_NUM_THREADS}    = " << getenv( "OMP_NUM_THREADS" ) << std::endl;
 #endif
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
@@ -634,7 +639,7 @@ int main(int argc, char **argv)
 #else
               << "Random number generation   = CURAND (C++ code)" << std::endl
 #endif
-              << "OMP threads / maxthreads   = " << omp_get_num_threads() << " / " << nprocall // includes a newline
+              << "OMP threads / maxthreads   = " << omp_get_max_threads() << " / " << nprocall // includes a newline
 #endif
               << "-----------------------------------------------------------------------" << std::endl
               << "NumberOfEntries            = " << niter << std::endl
