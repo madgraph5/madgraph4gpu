@@ -1,6 +1,6 @@
 INCFLAGS = -I.
 OPTFLAGS = -O3
-CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(MGONGPU_CONFIG)
+CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra -fopenmp $(MGONGPU_CONFIG)
 CXXFLAGS+= -march=core-avx2 # AVX2 (DEFAULT!)
 ###CXXFLAGS+= -march=native # AVX512F
 LIBDIR   = ../lib

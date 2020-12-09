@@ -623,10 +623,9 @@ namespace Proc
 #endif
 
 #ifndef __CUDACC__
-    // ** START LOOP ON IEVT **
-    //for ( int ievt = 0; ievt < nevt; ++ievt )
     const int npagV = nevt / neppV;
     // ** START LOOP ON IPAGV **
+#pragma omp parallel for
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif
     {
