@@ -19,6 +19,7 @@
 #include <iostream>
 #include <numeric>
 #include <string>
+#include <type_traits>
 #include <unistd.h>
 
 #include <gtest/gtest.h>
@@ -84,7 +85,7 @@ class BaseTest : public ::testing::Test {
 
   static constexpr unsigned niter = 2;
   static constexpr unsigned gpublocks = 2;
-  static constexpr unsigned gputhreads = 32;
+  static constexpr unsigned gputhreads = 128;
   static constexpr std::size_t nevt = gpublocks * gputhreads;
 
   const std::size_t nRnarray; // (NB: ASA layout with nevt=npagR*neppR events per iteration)
@@ -273,9 +274,14 @@ TEST_F(CPUTest, eemumu)
 {
   // Set to dump events:
   constexpr bool dumpEvents = false;
-  const std::string dumpFileName = dumpEvents ?
-      std::string("dump_") + testing::UnitTest::GetInstance()->current_test_info()->test_suite_name() + "." + testing::UnitTest::GetInstance()->current_test_info()->name() + ".txt" :
-      "";
+  constexpr fptype toleranceMomenta = std::is_same<fptype, double>::value ? 5.E-12 : 1.E-5;
+  constexpr fptype toleranceMEs     = std::is_same<fptype, double>::value ? 1.E-7  : 1.E-5;
+
+  const std::string dumpFileName = std::string("dump_")
+      + testing::UnitTest::GetInstance()->current_test_info()->test_suite_name()
+      + "."
+      + testing::UnitTest::GetInstance()->current_test_info()->name()
+      + ".txt";
   const std::string refFileName = "dump_CPUTest.eemumu.txt";
 
   const int neppR = mgOnGpu::neppR; // ASA layout: constant at compile-time
@@ -288,7 +294,7 @@ TEST_F(CPUTest, eemumu)
   static_assert( gputhreads <= ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
 
   std::ofstream dumpFile;
-  if ( !dumpFileName.empty() )
+  if ( dumpEvents )
   {
     dumpFile.open(dumpFileName, std::ios::trunc);
   }
@@ -362,6 +368,9 @@ TEST_F(CPUTest, eemumu)
         continue;
       }
 
+      ASSERT_GT(referenceData.size(), iiter) << "Don't have enough reference data for iteration " << iiter << ". Ref file:" << refFileName;
+      ASSERT_GT(referenceData[iiter].MEs.size(), ievt) << "Don't have enough reference events for iteration " << iiter << " event " << ievt << ".\nRef file: " << refFileName;
+
       // This trace will only be printed in case of failures:
       std::stringstream eventTrace;
       eventTrace << "In comparing event " << ievt << " from iteration " << iiter << "\n";
@@ -374,7 +383,6 @@ TEST_F(CPUTest, eemumu)
 
 
       // Compare Momenta
-      const fptype toleranceMomenta = 200. * std::pow(10., -std::numeric_limits<fptype>::digits10);
       for (unsigned int ipar = 0; ipar < mgOnGpu::npar; ++ipar) {
         std::stringstream momentumErrors;
         for (unsigned int icomp = 0; icomp < mgOnGpu::np4; ++icomp) {
@@ -392,7 +400,6 @@ TEST_F(CPUTest, eemumu)
       }
 
       // Compare ME:
-      const fptype toleranceMEs = 500. * std::pow(10., -std::numeric_limits<fptype>::digits10);
       EXPECT_NEAR(hstMEs[ievt], referenceData[iiter].MEs[ievt], toleranceMEs * referenceData[iiter].MEs[ievt]);
     }
 
