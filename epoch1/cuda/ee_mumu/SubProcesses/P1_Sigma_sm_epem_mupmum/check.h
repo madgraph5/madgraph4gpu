@@ -20,4 +20,10 @@ int check( int argc,
            std::vector<double>& stats,
            const std::string& tag = "" );
 
+// from check.cc (compiled with g++)
+int check_omp_threads( bool debug = false ); // returns the number of OMP threads
+
+// from check.cc (compiled with g++)
+const std::string check_nprocall(); // returns the output of `nproc --all`
+
 #endif // CHECK_H

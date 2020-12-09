@@ -80,20 +80,62 @@ template<typename T = fptype>
 std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{ new T[N]() }; };
 #endif
 
+#ifndef __CUDACC__
+int check_omp_threads( bool debug ) // returns the number of OMP threads
+{
+  static int nthreadsomp = 0;
+  if ( nthreadsomp == 0 ) // nthreadsomp will be >= 1 after the first execution
+  {
+    // Set OMP_NUM_THREADS equal to 1 if it is not yet set
+    char* ompnthr = getenv( "OMP_NUM_THREADS" );
+    if ( debug )
+    {
+      std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
+      std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
+      std::cout << "DEBUG: ${OMP_NUM_THREADS}    = '" << ompnthr << "'" << std::endl;
+    }
+    if ( ompnthr == NULL || std::string(ompnthr).find_first_not_of("0123456789") != std::string::npos || atol( ompnthr ) == 0 )
+    {
+      if ( ompnthr != NULL ) std::cout << "WARNING! OMP_NUM_THREADS is invalid: will use only 1 thread" << std::endl;
+      else if ( debug ) std::cout << "DEBUG: OMP_NUM_THREADS is not set: will use only 1 thread" << std::endl;
+      omp_set_num_threads( 1 ); // https://stackoverflow.com/a/22816325
+      if ( debug ) std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
+      if ( debug ) std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
+    }
+    nthreadsomp = omp_get_max_threads();
+    assert( nthreadsomp > 0 ); // sanity check to avoid infinite loops...
+  }
+  return nthreadsomp;
+}
+#endif
+
+#ifndef __CUDACC__
+const std::string check_nprocall() // returns the output of `nproc --all`
+{
+  // Get the output of "nproc --all" (https://stackoverflow.com/a/478960)
+  std::string nprocall;
+  std::array<char, 128> nprocbuf;
+  std::unique_ptr<FILE, decltype(&pclose)> nprocpipe( popen( "nproc --all", "r" ), pclose );
+  if ( !nprocpipe ) throw std::runtime_error("`nproc --all` failed?");
+  while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get()) != nullptr ) nprocall += nprocbuf.data();
+  return nprocall;
+}
+#endif
+
 #ifdef __CUDACC__
 int gcheck
 #else
 int check
 #endif
-( int argc, 
-  char **argv, 
-  std::string& out, 
-  std::vector<double>& stats, 
+( int argc,
+  char **argv,
+  std::string& out,
+  std::vector<double>& stats,
   const std::string& tag
 #ifdef __CUDACC__
   , const int niter_multiplier
 #endif
-)
+  )
 {
   std::stringstream outStream;
   // READ COMMAND LINE ARGUMENTS
@@ -171,21 +213,7 @@ int check
 
 #ifndef __CUDACC__
   // Set OMP_NUM_THREADS equal to 1 if it is not yet set
-  char* ompnthr = getenv( "OMP_NUM_THREADS" );
-  if ( debug )
-  {
-    std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
-    std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
-    std::cout << "DEBUG: ${OMP_NUM_THREADS}    = '" << ompnthr << "'" << std::endl;
-  }
-  if ( ompnthr == NULL || std::string(ompnthr).find_first_not_of("0123456789") != std::string::npos || atol( ompnthr ) == 0 )
-  {
-    if ( ompnthr != NULL ) std::cout << "WARNING! OMP_NUM_THREADS is invalid: will use only 1 thread" << std::endl;
-    else if ( debug ) std::cout << "DEBUG: OMP_NUM_THREADS is not set: will use only 1 thread" << std::endl;
-    omp_set_num_threads( 1 ); // https://stackoverflow.com/a/22816325
-    if ( debug ) std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
-    if ( debug ) std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
-  }
+  check_omp_threads( debug );
 #endif
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
@@ -322,7 +350,7 @@ int check
     const std::string sgenKey = "1a GenSeed ";
     timermap.start( sgenKey );
     const unsigned long long seed = 20200805;
-#ifdef __CUDACC__    
+#ifdef __CUDACC__
     // quick hack for heterogenous CPU+GPU prototyping: use different seeds if a GPU multiplier exists
     grambo2toNm0::seedGenerator( rnGen, seed + iiter + ( niter_multiplier==1 ? 0 : niter ) );
 #else
@@ -621,12 +649,8 @@ int check
   if (perf)
   {
 #ifndef __CUDACC__
-    // Get the output of "nproc --all" (https://stackoverflow.com/a/478960)
-    std::string nprocall;
-    std::array<char, 128> nprocbuf;
-    std::unique_ptr<FILE, decltype(&pclose)> nprocpipe( popen( "nproc --all", "r" ), pclose );
-    if ( !nprocpipe ) throw std::runtime_error("`nproc --all` failed?");
-    while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get()) != nullptr ) nprocall += nprocbuf.data();
+    // Get the output of "nproc --all"
+    std::string nprocall = check_nprocall();
 #endif
     // Dump all configuration parameters and all results
     outStream << "*****************************************************************************" << std::endl
