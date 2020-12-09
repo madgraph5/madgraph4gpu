@@ -610,6 +610,18 @@ namespace Proc
     const fptype denom[ncolor] = {1};
     const fptype cf[ncolor][ncolor] = {{1}};
 
+#ifdef __CUDACC__
+    // Local variables for the given event (ievt)
+    cxtype w[nwf][nw6]; // w[5][6]
+    cxtype amp[2];
+    cxtype jamp[ncolor];
+#else
+    // Local variables for the given event page (ipagV)
+    cxtype_v w_v[nwf][nw6]; // w_v[5][6]
+    cxtype_v amp_v[2];
+    cxtype_v jamp_v[ncolor];
+#endif
+
 #ifndef __CUDACC__
     const int npagV = nevt / neppV;
     // ** START LOOP ON IPAGV **
@@ -617,18 +629,6 @@ namespace Proc
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif
     {
-#ifdef __CUDACC__
-      // Local variables for the given event (ievt)
-      cxtype w[nwf][nw6]; // w[5][6]
-      cxtype amp[2];
-      cxtype jamp[ncolor];
-#else
-      // Local variables for the given event page (ipagV)
-      cxtype_v w_v[nwf][nw6]; // w_v[5][6]
-      cxtype_v amp_v[2];
-      cxtype_v jamp_v[ncolor];
-#endif
-
 #ifdef __CUDACC__
       MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], 0 );
       MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], 1 );
