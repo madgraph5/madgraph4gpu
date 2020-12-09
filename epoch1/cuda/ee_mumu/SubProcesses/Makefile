@@ -3,7 +3,7 @@ TOOLSDIR = ../../../../../tools
 INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
 OPTFLAGS = -O3
-CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(MGONGPU_CONFIG)
+CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra -fopenmp $(MGONGPU_CONFIG)
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
@@ -95,7 +95,7 @@ runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
 else
 runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
 	ln -sf runTest.cc runTest_tmp.cu
-	$(NVCC) -o $@ $(cxx_objects) runTest.o $(cu_objects) runTest_tmp.cu $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda
+	$(NVCC) -o $@ $(cxx_objects) runTest.o $(cu_objects) runTest_tmp.cu $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 	unlink runTest_tmp.cu
 endif
 
