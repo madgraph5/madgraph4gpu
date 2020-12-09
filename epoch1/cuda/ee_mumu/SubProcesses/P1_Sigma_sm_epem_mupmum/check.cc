@@ -464,7 +464,7 @@ int check
 
     if (verbose)
     {
-      std::cout << "****************************************************************************" << std::endl
+      std::cout << "*****************************************************************************" << std::endl
                 << "Iteration #" << iiter+1 << " of " << niter << std::endl;
       if (perf) std::cout << "Wave function time: " << wavetime << std::endl;
     }
@@ -489,11 +489,11 @@ int check
                     << std::endl
                     << std::defaultfloat; // default format: affects all floats
         }
-        std::cout << std::string(76, '-') << std::endl;
+        std::cout << std::string(77, '-') << std::endl;
         // Display matrix elements
         std::cout << " Matrix element = "
                   << hstMEs[ievt] << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
-        std::cout << std::string(76, '-') << std::endl;
+        std::cout << std::string(77, '-') << std::endl;
       }
       // Fill the arrays with ALL MEs and weights
       matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt]; // FIXME: assume process.nprocesses == 1
@@ -629,11 +629,11 @@ int check
     while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get()) != nullptr ) nprocall += nprocbuf.data();
 #endif
     // Dump all configuration parameters and all results
-    outStream << "****************************************************************************" << std::endl
+    outStream << "*****************************************************************************" << std::endl
               << tag << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << tag << "NumThreadsPerBlock          = " << gputhreads << std::endl
               << tag << "NumIterations               = " << niter << std::endl
-              << "----------------------------------------------------------------------------" << std::endl
+              << "-----------------------------------------------------------------------------" << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
               << tag << "FP precision                = DOUBLE" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
@@ -672,7 +672,7 @@ int check
 #else
               << tag << "OMP threads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
 #endif
-              << "----------------------------------------------------------------------------" << std::endl
+              << "-----------------------------------------------------------------------------" << std::endl
               << tag << "NumIterations               = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
               << tag << "TotalTime[Rnd+Rmb+ME] (123) = ( "
@@ -686,7 +686,7 @@ int check
               << tag << "[Min,Max]TimeInMatrixElems  = [ " << minwtim
               << " ,  " << maxwtim << " ]  sec" << std::endl
       //<< "StdDevTimeInWaveFuncs       = ( " << stdwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "----------------------------------------------------------------------------" << std::endl
+              << "-----------------------------------------------------------------------------" << std::endl
       //<< "ProcessID:                  = " << getpid() << std::endl
       //<< "NProcesses                  = " << process.nprocesses << std::endl
               << tag << "TotalEventsComputed         = " << nevtALL << " (nan=" << nnan << ")" << std::endl
@@ -701,7 +701,7 @@ int check
               << tag << "EvtsPerSec[MatrixElems] (3) = ( " << nevtALL/sumwtim
               << std::string(16, ' ') << " )  sec^-1" << std::endl
               << std::defaultfloat; // default format: affects all floats
-    outStream << "****************************************************************************" << std::endl
+    outStream << "*****************************************************************************" << std::endl
               << tag << "NumMatrixElements(notNan)   = " << nevtALL - nnan << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
               << tag << "MeanMatrixElemValue         = ( " << meanelem
@@ -851,9 +851,9 @@ int check
   timermap.stop();
   if (perf)
   {
-    outStream << "****************************************************************************" << std::endl;
+    outStream << "*****************************************************************************" << std::endl;
     timermap.dump( outStream );
-    outStream << "****************************************************************************" << std::endl;
+    outStream << "*****************************************************************************" << std::endl;
   }
 
   // Prepare the outputs

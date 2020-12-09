@@ -9,7 +9,7 @@ void dumptime( const std::string& tag,
                const double sumrtim,
                const double sumwtim )
 {
-  std::cout << "----------------------------------------------------------------------------" << std::endl
+  std::cout << "-----------------------------------------------------------------------------" << std::endl
             << tag << "TotalEventsComputed        = " << nevtALL << std::endl
             << std::scientific // fixed format: affects all floats (default precision: 6)
             << tag << "TotalTime[Rnd+Rmb+ME] (123)= ( "
@@ -20,7 +20,7 @@ void dumptime( const std::string& tag,
             << tag << "TotalTime[Rambo]        (2)= ( " << sumrtim << std::string(16, ' ') << " )  sec" << std::endl
             << tag << "TotalTime[MatrixElems]  (3)= ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
             << std::defaultfloat // default format: affects all floats
-            << "----------------------------------------------------------------------------" << std::endl;
+            << "-----------------------------------------------------------------------------" << std::endl;
 }
 
 void dumptput( const std::string& tag,
@@ -38,7 +38,7 @@ void dumptput( const std::string& tag,
             << tag << "EvtsPerSec[MatrixElems] (3)= ( " << tputw
             << std::string(16, ' ') << " )  sec^-1" << std::endl
             << std::defaultfloat // default format: affects all floats
-            << "****************************************************************************" << std::endl;
+            << "*****************************************************************************" << std::endl;
 }
 
 // This is compiled with g++ and linked with objects compiled with nvcc or g++
