@@ -9,6 +9,8 @@
 #include <iostream>
 #include <memory>
 #include <numeric>
+#include <omp.h>
+#include <string>
 #include <unistd.h>
 
 #include "mgOnGpuConfig.h"
@@ -40,7 +42,7 @@ inline int usage(char* argv0, int ret = 1) {
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
   std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
-  std::cout << "The '-d' flag only controls if nan's emit warnings" << std::endl;
+  std::cout << "The '-d' flag only enables nan warnings and OMP debugging" << std::endl;
 #ifndef __CUDACC__
   std::cout << std::endl << "Use the OMP_NUM_THREADS environment variable to control OMP multi-threading" << std::endl;
   std::cout << "(OMP multithreading will be disabled if OMP_NUM_THREADS is not set)" << std::endl;
@@ -166,6 +168,25 @@ int check
     std::cout << "ERROR! #threads/block should be <= " << ntpbMAX << std::endl;
     return usage(argv[0]);
   }
+
+#ifndef __CUDACC__
+  // Set OMP_NUM_THREADS equal to 1 if it is not yet set
+  char* ompnthr = getenv( "OMP_NUM_THREADS" );
+  if ( debug )
+  {
+    std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
+    std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
+    std::cout << "DEBUG: ${OMP_NUM_THREADS}    = '" << ompnthr << "'" << std::endl;
+  }
+  if ( ompnthr == NULL || std::string(ompnthr).find_first_not_of("0123456789") != std::string::npos || atol( ompnthr ) == 0 )
+  {
+    if ( ompnthr != NULL ) std::cout << "WARNING! OMP_NUM_THREADS is invalid: will use only 1 thread" << std::endl;
+    else if ( debug ) std::cout << "DEBUG: OMP_NUM_THREADS is not set: will use only 1 thread" << std::endl;
+    omp_set_num_threads( 1 ); // https://stackoverflow.com/a/22816325
+    if ( debug ) std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
+    if ( debug ) std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
+  }
+#endif
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
   const int nevt = ndim; // number of events in one iteration == number of GPU threads
@@ -600,8 +621,6 @@ int check
   if (perf)
   {
 #ifndef __CUDACC__
-    // Set OMP_NUM_THREADS equal to 1 if it is not yet set
-    if ( getenv( "OMP_NUM_THREADS" ) == NULL ) setenv( "OMP_NUM_THREADS", "1", 0 );
     // Get the output of "nproc --all" (https://stackoverflow.com/a/478960)
     std::string nprocall;
     std::array<char, 128> nprocbuf;
@@ -611,92 +630,91 @@ int check
 #endif
     // Dump all configuration parameters and all results
     outStream << "****************************************************************************" << std::endl
-              << tag << "NumBlocksPerGrid           = " << gpublocks << std::endl
-              << tag << "NumThreadsPerBlock         = " << gputhreads << std::endl
-              << tag << "NumIterations              = " << niter << std::endl
+              << tag << "NumBlocksPerGrid            = " << gpublocks << std::endl
+              << tag << "NumThreadsPerBlock          = " << gputhreads << std::endl
+              << tag << "NumIterations               = " << niter << std::endl
               << "----------------------------------------------------------------------------" << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
-              << tag << "FP precision               = DOUBLE" << std::endl
+              << tag << "FP precision                = DOUBLE" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
-              << tag << "FP precision               = FLOAT" << std::endl
+              << tag << "FP precision                = FLOAT" << std::endl
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_CXTYPE_CUCOMPLEX
-              << tag << "Complex type               = CUCOMPLEX" << std::endl
+              << tag << "Complex type                = CUCOMPLEX" << std::endl
 #elif defined MGONGPU_CXTYPE_THRUST
-              << tag << "Complex type               = THRUST::COMPLEX" << std::endl
+              << tag << "Complex type                = THRUST::COMPLEX" << std::endl
 #endif
 #else
-              << tag << "Complex type               = STD::COMPLEX" << std::endl
+              << tag << "Complex type                = STD::COMPLEX" << std::endl
 #endif
-              << tag << "RanNumb memory layout      = AOSOA[" << neppR << "]"
+              << tag << "RanNumb memory layout       = AOSOA[" << neppR << "]"
               << ( neppR == 1 ? " == AOS" : "" ) << std::endl
-              << tag << "Momenta memory layout      = AOSOA[" << neppM << "]"
+              << tag << "Momenta memory layout       = AOSOA[" << neppM << "]"
               << ( neppM == 1 ? " == AOS" : "" ) << std::endl
 #ifdef __CUDACC__
 #if defined MGONGPU_COMMONRAND_ONHOST
-              << tag << "Random number generation   = COMMON RANDOM HOST (CUDA code)" << std::endl
+              << tag << "Random number generation    = COMMON RANDOM HOST (CUDA code)" << std::endl
 #elif defined MGONGPU_CURAND_ONDEVICE
-              << tag << "Random number generation   = CURAND DEVICE (CUDA code)" << std::endl
+              << tag << "Random number generation    = CURAND DEVICE (CUDA code)" << std::endl
 #elif defined MGONGPU_CURAND_ONHOST
-              << tag << "Random number generation   = CURAND HOST (CUDA code)" << std::endl
+              << tag << "Random number generation    = CURAND HOST (CUDA code)" << std::endl
 #endif
 #else
 #if defined MGONGPU_COMMONRAND_ONHOST
-              << tag << "Random number generation   = COMMON RANDOM (C++ code)" << std::endl
+              << tag << "Random number generation    = COMMON RANDOM (C++ code)" << std::endl
 #else
-              << tag << "Random number generation   = CURAND (C++ code)" << std::endl
+              << tag << "Random number generation    = CURAND (C++ code)" << std::endl
 #endif
 #endif
 #ifdef __CUDACC__
-              << tag << "Wavefunction GPU memory    = LOCAL" << std::endl
+              << tag << "Wavefunction GPU memory     = LOCAL" << std::endl
 #else
-              << tag << "OMP threads / maxthreads   = "
-              << getenv("OMP_NUM_THREADS") << " / " << nprocall // includes a newline
+              << tag << "OMP threads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
 #endif
               << "----------------------------------------------------------------------------" << std::endl
-              << tag << "NumIterations              = " << niter << std::endl
+              << tag << "NumIterations               = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
-              << tag << "TotalTime[Rnd+Rmb+ME] (123)= ( "
+              << tag << "TotalTime[Rnd+Rmb+ME] (123) = ( "
               << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << tag << "TotalTime[Rambo+ME]    (23)= ( "
+              << tag << "TotalTime[Rambo+ME]    (23) = ( "
               << sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << tag << "TotalTime[RndNumGen]    (1)= ( " << sumgtim << std::string(16, ' ') << " )  sec" << std::endl
-              << tag << "TotalTime[Rambo]        (2)= ( " << sumrtim << std::string(16, ' ') << " )  sec" << std::endl
-              << tag << "TotalTime[MatrixElems]  (3)= ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << tag << "MeanTimeInMatrixElems      = ( " << meanwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << tag << "[Min,Max]TimeInMatrixElems = [ " << minwtim
+              << tag << "TotalTime[RndNumGen]    (1) = ( " << sumgtim << std::string(16, ' ') << " )  sec" << std::endl
+              << tag << "TotalTime[Rambo]        (2) = ( " << sumrtim << std::string(16, ' ') << " )  sec" << std::endl
+              << tag << "TotalTime[MatrixElems]  (3) = ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << tag << "MeanTimeInMatrixElems       = ( " << meanwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << tag << "[Min,Max]TimeInMatrixElems  = [ " << minwtim
               << " ,  " << maxwtim << " ]  sec" << std::endl
-      //<< "StdDevTimeInWaveFuncs      = ( " << stdwtim << std::string(16, ' ') << " )  sec" << std::endl
+      //<< "StdDevTimeInWaveFuncs       = ( " << stdwtim << std::string(16, ' ') << " )  sec" << std::endl
               << "----------------------------------------------------------------------------" << std::endl
-      //<< "ProcessID:                 = " << getpid() << std::endl
-      //<< "NProcesses                 = " << process.nprocesses << std::endl
-              << tag << "TotalEventsComputed        = " << nevtALL << " (nan=" << nnan << ")" << std::endl
-              << tag << "EvtsPerSec[Rnd+Rmb+ME](123)= ( " << nevtALL/(sumgtim+sumrtim+sumwtim)
+      //<< "ProcessID:                  = " << getpid() << std::endl
+      //<< "NProcesses                  = " << process.nprocesses << std::endl
+              << tag << "TotalEventsComputed         = " << nevtALL << " (nan=" << nnan << ")" << std::endl
+              << tag << "EvtsPerSec[Rnd+Rmb+ME](123) = ( " << nevtALL/(sumgtim+sumrtim+sumwtim)
               << std::string(16, ' ') << " )  sec^-1" << std::endl
-              << tag << "EvtsPerSec[Rmb+ME]     (23)= ( " << nevtALL/(sumrtim+sumwtim)
+              << tag << "EvtsPerSec[Rmb+ME]     (23) = ( " << nevtALL/(sumrtim+sumwtim)
               << std::string(16, ' ') << " )  sec^-1" << std::endl
-      //<< tag << "EvtsPerSec[RndNumbGen]   (1)= ( " << nevtALL/sumgtim
+      //<< tag << "EvtsPerSec[RndNumbGen]   (1) = ( " << nevtALL/sumgtim
       //<< std::string(16, ' ') << " )  sec^-1" << std::endl
-      //<< tag << "EvtsPerSec[Rambo]        (2)= ( " << nevtALL/sumrtim
+      //<< tag << "EvtsPerSec[Rambo]        (2) = ( " << nevtALL/sumrtim
       //<< std::string(16, ' ') << " )  sec^-1" << std::endl
-              << tag << "EvtsPerSec[MatrixElems] (3)= ( " << nevtALL/sumwtim
+              << tag << "EvtsPerSec[MatrixElems] (3) = ( " << nevtALL/sumwtim
               << std::string(16, ' ') << " )  sec^-1" << std::endl
               << std::defaultfloat; // default format: affects all floats
     outStream << "****************************************************************************" << std::endl
-              << tag << "NumMatrixElements(notNan)  = " << nevtALL - nnan << std::endl
+              << tag << "NumMatrixElements(notNan)   = " << nevtALL - nnan << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
-              << tag << "MeanMatrixElemValue        = ( " << meanelem
+              << tag << "MeanMatrixElemValue         = ( " << meanelem
               << " +- " << stdelem/sqrt(nevtALL - nnan) << " )  GeV^" << meGeVexponent << std::endl // standard error
-              << tag << "[Min,Max]MatrixElemValue   = [ " << minelem
+              << tag << "[Min,Max]MatrixElemValue    = [ " << minelem
               << " ,  " << maxelem << " ]  GeV^" << meGeVexponent << std::endl
-              << tag << "StdDevMatrixElemValue      = ( " << stdelem
+              << tag << "StdDevMatrixElemValue       = ( " << stdelem
               << std::string(16, ' ') << " )  GeV^" << meGeVexponent << std::endl
-              << tag << "MeanWeight                 = ( " << meanweig
+              << tag << "MeanWeight                  = ( " << meanweig
               << " +- " << stdweig/sqrt(nevtALL - nnan) << " )" << std::endl // standard error
-              << tag << "[Min,Max]Weight            = [ " << minweig
+              << tag << "[Min,Max]Weight             = [ " << minweig
               << " ,  " << maxweig << " ]" << std::endl
-              << tag << "StdDevWeight               = ( " << stdweig << std::string(16, ' ') << " )" << std::endl
+              << tag << "StdDevWeight                = ( " << stdweig << std::string(16, ' ') << " )" << std::endl
               << std::defaultfloat; // default format: affects all floats
   }
 
