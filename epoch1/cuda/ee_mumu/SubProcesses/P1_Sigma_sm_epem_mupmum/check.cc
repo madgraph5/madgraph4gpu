@@ -7,6 +7,7 @@
 #include <iostream>
 #include <memory>
 #include <numeric>
+#include <omp.h>
 #include <string>
 #include <unistd.h>
 
@@ -147,6 +148,15 @@ int main(int argc, char **argv)
     std::cout << "ERROR! #threads/block should be <= " << ntpbMAX << std::endl;
     return usage(argv[0]);
   }
+
+#ifndef __CUDACC__
+  // Set OMP_NUM_THREADS equal to 1 if it is not yet set
+  if ( getenv( "OMP_NUM_THREADS" ) == NULL )
+  {
+    std::cout << "WARNING! OMP_NUM_THREADS is not set: will use only 1 thread" << std::endl;
+    omp_set_num_threads( 1 ); // https://stackoverflow.com/a/22816325
+  }
+#endif
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
   const int nevt = ndim; // number of events in one iteration == number of GPU threads
@@ -576,8 +586,6 @@ int main(int argc, char **argv)
   if (perf)
   {
 #ifndef __CUDACC__
-    // Set OMP_NUM_THREADS equal to 1 if it is not yet set
-    if ( getenv( "OMP_NUM_THREADS" ) == NULL ) setenv( "OMP_NUM_THREADS", "1", 0 );
     // Get the output of "nproc --all" (https://stackoverflow.com/a/478960)
     std::string nprocall;
     std::array<char, 128> nprocbuf;
@@ -626,7 +634,7 @@ int main(int argc, char **argv)
 #else
               << "Random number generation   = CURAND (C++ code)" << std::endl
 #endif
-              << "OMP threads / maxthreads   = " << getenv("OMP_NUM_THREADS") << " / " << nprocall // includes a newline
+              << "OMP threads / maxthreads   = " << omp_get_num_threads() << " / " << nprocall // includes a newline
 #endif
               << "-----------------------------------------------------------------------" << std::endl
               << "NumberOfEntries            = " << niter << std::endl
