@@ -18,7 +18,11 @@ namespace mgOnGpu
   const int neppV = neppM;
 
   // --- Type definition (using vector compiler extensions: need -march=...)
+#ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
+  typedef fptype fptype_v __attribute__ ((ext_vector_type(neppV))); // RRRR
+#else
   typedef fptype fptype_v __attribute__ ((vector_size (neppV*sizeof(fptype)))); // RRRR
+#endif
 
   class cxtype_ref
   {
