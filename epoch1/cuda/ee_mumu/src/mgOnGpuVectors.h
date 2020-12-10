@@ -45,7 +45,13 @@ namespace mgOnGpu
     cxtype_v( const fptype_v& r, const fptype_v& i ) : m_real{r}, m_imag{i} {}
     cxtype_v& operator=( const cxtype_v& ) = default;
     cxtype_v& operator=( cxtype_v&& ) = default;
-    cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); }
+
+    // clang build fails: [] is a value not a ref?
+    //cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); }
+
+    // clang build crashes (probably because [] is a value not a ref)
+    cxtype_ref operator[]( size_t i ) const { return cxtype_ref( (fptype&)(m_real[i]), (fptype&)(m_imag[i]) ); }
+
     const fptype_v& real() const { return m_real; }
     const fptype_v& imag() const { return m_imag; }
   private:
