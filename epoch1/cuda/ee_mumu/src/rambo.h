@@ -47,8 +47,11 @@ namespace rambo2toNm0
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
   __global__
   void getMomentaInitial( const fptype energy,   // input: energy
-                          fptype_sv momenta1d[], // output: momenta as AOSOA[npagM][npar][4][neppM]
-                          const int nevt );      // input: #events
+                          fptype_sv momenta1d[]  // output: momenta as AOSOA[npagM][npar][4][neppM]
+#ifndef __CUDACC__
+                          , const int nevt       // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#endif
+                          );
 
   //--------------------------------------------------------------------------
 
@@ -71,10 +74,10 @@ namespace rambo2toNm0
   void createGenerator( curandGenerator_t* pgen );
 
   //--------------------------------------------------------------------------
-  
+
   // Seed a curand generator
   void seedGenerator( curandGenerator_t gen, unsigned long long seed );
-  
+
   //--------------------------------------------------------------------------
 
   // Destroy a curand generator
