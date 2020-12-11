@@ -5,16 +5,16 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
+#include "mgOnGpuConfig.h"
+#include "mgOnGpuTypes.h"
+#include "mgOnGpuVectors.h"
+
 #include <cassert>
 #include <cmath>
 #include <cstring>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
-
-#include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
-#include "mgOnGpuVectors.h"
 
 mgDebugDeclare();
 
