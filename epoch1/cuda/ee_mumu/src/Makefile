@@ -1,6 +1,7 @@
 INCFLAGS = -I.
 OPTFLAGS = -O3
-CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra -fopenmp $(MGONGPU_CONFIG)
+OMPFLAGS?= -fopenmp
+CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
 LIBDIR   = ../lib
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++

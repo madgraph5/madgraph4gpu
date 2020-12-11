@@ -3,7 +3,8 @@ TOOLSDIR = ../../../../../tools
 INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
 OPTFLAGS = -O3
-CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra -fopenmp $(MGONGPU_CONFIG)
+OMPFLAGS?= -fopenmp
+CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
@@ -26,7 +27,8 @@ ifdef CUDA_HOME
   # CUARCHFLAGS= -gencode arch=compute_$(CUARCHNUM),code=sm_$(CUARCHNUM)
   CUINC       = -I$(CUDA_HOME)/include/
   CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcuda -lcurand
-  CUFLAGS= $(OPTFLAGS) -std=c++14 $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math -lineinfo $(MGONGPU_CONFIG)
+  CUOPTFLAGS  = -lineinfo
+  CUFLAGS= $(OPTFLAGS) $(CUOPTFLAGS) -std=c++14 $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math $(MGONGPU_CONFIG)
   # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
@@ -61,9 +63,8 @@ endif
 
 all: ../../src $(cu_main) $(cxx_main) $(het_main) runTest.exe
 
-debug: OPTFLAGS = -g -O0 -DDEBUG2
-debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
-debug: CUFLAGS += -G
+debug: OPTFLAGS   = -g -O0 -DDEBUG2
+debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all
 
