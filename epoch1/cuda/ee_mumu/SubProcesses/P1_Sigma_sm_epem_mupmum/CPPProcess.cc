@@ -566,7 +566,11 @@ namespace Proc
 #ifndef __CUDACC__
     const int npagV = nevt / neppV;
     // ** START LOOP ON IPAGV **
-#pragma omp parallel for private ( w_v, amp_v, jamp_v )
+    // - default(none): no variables are shared by default
+    // - shared: as the name says
+    // - private: give each thread its own copy, without initialising
+    // - firstprivate: give each thread its own copy, and initialise with value from outside
+#pragma omp parallel for default(none) shared(ihel,allmomenta,allMEs,cHel,cIPC,cIPD,denom,cf) private (w_v,amp_v,jamp_v)
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif
     {
