@@ -47,10 +47,10 @@ namespace MG5_sm
   // NB: return by value for the moment
   // NB: may be optimized, but should allocate momenta1d as an fptype_v upfront in check.cc...
   inline
-  const fptype_sv& pIparIp4Ipag( const fptype_sv* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
-                                 const int ipar,
-                                 const int ip4,
-                                 const int ipagM )
+  const fptype_sv pIparIp4Ipag( const fptype_sv* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
+                                const int ipar,
+                                const int ip4,
+                                const int ipagM )
   {
     // mapping for the various schemes (AOSOA, AOS, SOA...)
     using mgOnGpu::np4;
@@ -58,7 +58,7 @@ namespace MG5_sm
     const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
     const fptype_sv (*momenta)[npar][np4] = (const fptype_sv (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOSOA)
     assert( neppV == neppM ); // NB: assume neppV (fptype_v vector size) equals neppM (AOSOA layout vector size) [DO WE?]
-    return momenta[ipagM][ipar][ip4]; // return by const reference
+    return momenta[ipagM][ipar][ip4]; // return by value
   }
 #endif
 
