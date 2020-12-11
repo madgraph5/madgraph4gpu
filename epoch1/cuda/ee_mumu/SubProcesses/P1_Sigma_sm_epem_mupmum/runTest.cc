@@ -326,11 +326,16 @@ TEST_F(CPUTest, eemumu)
         assert(component < mgOnGpu::np4);
         assert(particle  < mgOnGpu::npar);
         const auto page  = evtNo / neppM; // #eventpage in this iteration
-        const auto ieppM = evtNo % neppM; // #event in the current eventpage in this iteration
 #ifdef __CUDACC__
+        const auto ieppM = evtNo % neppM; // #event in the current eventpage in this iteration
         return hstMomenta[page*mgOnGpu::npar*mgOnGpu::np4*neppM + particle*mgOnGpu::np4*neppM + component*neppM + ieppM];
 #else
+#if defined __AVX512F__ || defined __AVX2__
+        const auto ieppM = evtNo % neppM; // #event in the current eventpage in this iteration
         return hstMomenta[page*mgOnGpu::npar*mgOnGpu::np4 + particle*mgOnGpu::np4 + component][ieppM];
+#else
+        return hstMomenta[page*mgOnGpu::npar*mgOnGpu::np4 + particle*mgOnGpu::np4 + component];
+#endif
 #endif
       };
       auto dumpParticles = [&](std::ostream& stream, unsigned precision, bool dumpReference)
