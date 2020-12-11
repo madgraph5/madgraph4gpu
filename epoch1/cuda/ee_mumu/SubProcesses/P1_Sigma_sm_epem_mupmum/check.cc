@@ -642,18 +642,19 @@ int main(int argc, char **argv)
               << "Complex type                = STD::COMPLEX" << std::endl
 #endif
               << "RanNumb memory layout       = AOSOA[" << neppR << "]"
-              << ( neppR == 1 ? " == AOS" : "" ) << std::endl
+              << ( neppR == 1 ? " == AOS" : "" ) 
+              << " [HARDCODED FOR REPRODUCIBILITY]" << std::endl
               << "Momenta memory layout       = AOSOA[" << neppM << "]"
               << ( neppM == 1 ? " == AOS" : "" ) << std::endl
 #ifdef __CUDACC__
-              << "Wavefunction GPU memory     = LOCAL" << std::endl
+      //<< "Wavefunction GPU memory     = LOCAL" << std::endl
 #else
 #if defined __AVX512F__
               << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (AVX512F)" << std:: endl
 #elif defined __AVX2__
               << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (AVX2)" << std:: endl
 #else
-              << "Internal loops fptype_sv    = SCALAR (no SIMD)" << std:: endl
+              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] == SCALAR (no SIMD)" << std:: endl
 #endif
 #endif
 #ifdef __CUDACC__
@@ -771,7 +772,7 @@ int main(int argc, char **argv)
              << "\"Momenta memory layout\": " << "\"AOSOA[" << neppM << "]\""
              << ( neppM == 1 ? " == AOS" : "" ) << ", " << std::endl
 #ifdef __CUDACC__
-             << "\"Wavefunction GPU memory\": " << "\"LOCAL\"," << std::endl
+      //<< "\"Wavefunction GPU memory\": " << "\"LOCAL\"," << std::endl
 #endif
              << "\"Curand generation\": "
 #ifdef __CUDACC__

@@ -79,7 +79,7 @@ namespace mgOnGpu
   // -----------------------------------------------------------------------------------------
   // --- GPUs: neppM must be a power of 2 times the number of fptype's in a 32-byte cacheline
   // --- This is relevant to ensure coalesced access to momenta in global memory
-  // --- Note that neppR is set equal to neppM (it could differ, in principle)
+  // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
   // -----------------------------------------------------------------------------------------
   //const int neppM = 64/sizeof(fptype); // 2x 32-byte GPU cache lines: 8 (DOUBLE) or 16 (FLOAT)
   const int neppM = 32/sizeof(fptype); // (DEFAULT) 32-byte GPU cache line: 4 (DOUBLE) or 8 (FLOAT)
@@ -87,8 +87,10 @@ namespace mgOnGpu
   //const int neppM = 32; // older default
 #else
   // -----------------------------------------------------------------------------------------
-  // --- CPUs: neppV must be exactly equal to the number of fptype's in a vector register
-  // --- Note that neppV is set equal to neppM (this is hardcoded in the logic of the code)
+  // --- CPUs: neppM must be exactly equal to the number of fptype's in a vector register
+  // --- (DEFAULT is AVX2 on CPUs, same 32-byte as GPUs, as fast as AVX512)
+  // --- The logic of the code requires the size neppV of fptype_v to be equal to neppM
+  // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
   // -----------------------------------------------------------------------------------------
 #if defined __AVX512F__
   const int neppM = 64/sizeof(fptype); // AVX512 (256-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
@@ -100,10 +102,10 @@ namespace mgOnGpu
 #endif
 
   // Number of Events Per Page in the random number AOSOA memory layout
-  // *** NB Different values of neppM lead to different physics results: the ***
+  // *** NB Different values of neppR lead to different physics results: the ***
   // *** same 1d array is generated, but it is interpreted in different ways ***
-  // *** (DEFAULT is AVX2 on CPUs, same 32-byte as GPUs, as fast as AVX512)  ***
-  const int neppR = neppM;
+  const int neppR = 8; // HARDCODED TO GIVE ALWAYS THE SAME PHYSICS RESULTS!
+  //const int neppR = neppM; // same value as neppM: physics results may change!
 
 }
 

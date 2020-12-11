@@ -43,6 +43,7 @@ namespace MG5_sm
   }
 #else
   // Return by value: it seems a tiny bit faster than returning a reference (both for scalar and vector), not clear why
+  // NB: this assumes that neppV == neppM!
   inline fptype_sv pIparIp4Ipag( const fptype_sv* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                  const int ipar,
                                  const int ip4,
@@ -51,8 +52,6 @@ namespace MG5_sm
     // mapping for the various schemes (AOSOA, AOS, SOA...)
     using mgOnGpu::np4;
     using mgOnGpu::npar;
-    const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    assert( neppV == neppM ); // NB: assume neppV (fptype_v vector size) equals neppM (AOSOA layout vector size)
     //printf( "%f\n", momenta1d[ipagM*npar*np4 + ipar*np4 + ip4] );
     return momenta1d[ipagM*npar*np4 + ipar*np4 + ip4]; // AOSOA[ipagM][ipar][ip4][ieppM]
   }
@@ -683,6 +682,10 @@ namespace Proc
 #endif
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
     assert( sizeof(cxtype) == 2*sizeof(fptype) );
+#ifndef __CUDACC__
+    // SANITY CHECK: momenta AOSOA uses vectors with the same size as fptype_v
+    assert( neppV == mgOnGpu::neppM );
+#endif
   }
 
   //--------------------------------------------------------------------------
