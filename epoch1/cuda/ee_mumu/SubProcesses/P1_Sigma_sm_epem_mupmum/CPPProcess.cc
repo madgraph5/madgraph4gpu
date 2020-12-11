@@ -39,25 +39,23 @@ namespace MG5_sm
     fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
     const int ipagM = ievt/neppM; // #eventpage in this iteration
     const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-    //return allmomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
+    //return momenta1d[ipagM*npar*np4*neppM + ipar*neppM*np4 + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
     //printf( "%f\n", momenta[ipagM][ipar][ip4][ieppM] );
     return momenta[ipagM][ipar][ip4][ieppM];
   }
 #else
-  // NB: return by value for the moment
-  // NB: may be optimized, but should allocate momenta1d as an fptype_v upfront in check.cc...
-  inline
-  const fptype_sv pIparIp4Ipag( const fptype_sv* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
-                                const int ipar,
-                                const int ip4,
-                                const int ipagM )
+  // Return by value: it seems a tiny bit faster than returning a reference (both for scalar and vector), not clear why
+  inline fptype_sv pIparIp4Ipag( const fptype_sv* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
+                                 const int ipar,
+                                 const int ip4,
+                                 const int ipagM )
   {
     // mapping for the various schemes (AOSOA, AOS, SOA...)
     using mgOnGpu::np4;
     using mgOnGpu::npar;
     const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
     const fptype_sv (*momenta)[npar][np4] = (const fptype_sv (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOSOA)
-    assert( neppV == neppM ); // NB: assume neppV (fptype_v vector size) equals neppM (AOSOA layout vector size) [DO WE?]
+    assert( neppV == neppM ); // NB: assume neppV (fptype_v vector size) equals neppM (AOSOA layout vector size)
     return momenta[ipagM][ipar][ip4]; // return by value
   }
 #endif
@@ -93,10 +91,10 @@ namespace MG5_sm
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
       //printf( "imzxxxM0: ipagV=%d\n", ipagV );
-      const fptype_sv& pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
-      const fptype_sv& pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
-      const fptype_sv& pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
-      const fptype_sv& pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
+      const fptype_sv pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
+      const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
+      const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
 #endif
 #ifdef __CUDACC__
       cxtype& fi_0 = fis[0];
@@ -178,10 +176,10 @@ namespace MG5_sm
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
       //printf( "ixzxxxM0: ipagV=%d\n", ipagV );
-      const fptype_sv& pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
-      const fptype_sv& pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
-      const fptype_sv& pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
-      const fptype_sv& pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
+      const fptype_sv pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
+      const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
+      const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
 #endif
 #ifdef __CUDACC__
       cxtype& fi_0 = fis[0];
@@ -265,10 +263,10 @@ namespace MG5_sm
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
       //printf( "oxzxxxM0: ipagV=%d\n", ipagV );
-      const fptype_sv& pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
-      const fptype_sv& pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
-      const fptype_sv& pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
-      const fptype_sv& pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
+      const fptype_sv pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
+      const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
+      const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
 #endif
 #ifdef __CUDACC__
       cxtype& fo_0 = fos[0];
