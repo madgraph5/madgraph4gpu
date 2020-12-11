@@ -67,11 +67,8 @@ namespace MG5_sm
                  //const fptype fmass,
                  const short nhel,
                  const short nsf,
-#ifdef __CUDACC__
-                 cxtype fis[nw6],             // output: wavefunction[6]
-#else
-                 cxtype_sv fis_v[nw6],        // output: wavefunction[6][RRRRIIII]
-                 //fptype_v fis_v[nw6][2],    // output: wavefunction[6][RRRRIIII]
+                 cxtype_sv fis[nw6],          // output: wavefunction[6]
+#ifndef __CUDACC__
                  const int ipagV,
 #endif
                  const int ipar )             // input: particle# out of npar
@@ -92,21 +89,12 @@ namespace MG5_sm
       const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
       const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
 #endif
-#ifdef __CUDACC__
-      cxtype& fi_0 = fis[0];
-      cxtype& fi_1 = fis[1];
-      cxtype& fi_2 = fis[2];
-      cxtype& fi_3 = fis[3];
-      cxtype& fi_4 = fis[4];
-      cxtype& fi_5 = fis[5];
-#else
-      cxtype_sv& fi_0 = (cxtype_sv&)fis_v[0];
-      cxtype_sv& fi_1 = (cxtype_sv&)fis_v[1];
-      cxtype_sv& fi_2 = (cxtype_sv&)fis_v[2];
-      cxtype_sv& fi_3 = (cxtype_sv&)fis_v[3];
-      cxtype_sv& fi_4 = (cxtype_sv&)fis_v[4];
-      cxtype_sv& fi_5 = (cxtype_sv&)fis_v[5];
-#endif
+      cxtype_sv& fi_0 = fis[0];
+      cxtype_sv& fi_1 = fis[1];
+      cxtype_sv& fi_2 = fis[2];
+      cxtype_sv& fi_3 = fis[3];
+      cxtype_sv& fi_4 = fis[4];
+      cxtype_sv& fi_5 = fis[5];
       fi_0 = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi_1 = cxmake( -pvec1 * nsf, -pvec2 * nsf );
       const short nh = nhel * nsf;
@@ -136,7 +124,6 @@ namespace MG5_sm
         }
       }
     }
-    // ** END LOOP ON IEVT **
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -148,11 +135,8 @@ namespace MG5_sm
                  //const fptype fmass,
                  const short nhel,
                  const short nsf,
-#ifdef __CUDACC__
-                 cxtype fis[nw6],             // output: wavefunction[6]
-#else
-                 cxtype_sv fis_v[nw6],        // output: wavefunction[6][RRRRIIII]
-                 //fptype_v fis_v[nw6][2],    // output: wavefunction[6][RRRRIIII]
+                 cxtype_sv fis[nw6],          // output: wavefunction[6]
+#ifndef __CUDACC__
                  const int ipagV,
 #endif
                  const int ipar )             // input: particle# out of npar
@@ -173,21 +157,12 @@ namespace MG5_sm
       const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
       const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
 #endif
-#ifdef __CUDACC__
-      cxtype& fi_0 = fis[0];
-      cxtype& fi_1 = fis[1];
-      cxtype& fi_2 = fis[2];
-      cxtype& fi_3 = fis[3];
-      cxtype& fi_4 = fis[4];
-      cxtype& fi_5 = fis[5];
-#else
-      cxtype_sv& fi_0 = (cxtype_sv&)fis_v[0];
-      cxtype_sv& fi_1 = (cxtype_sv&)fis_v[1];
-      cxtype_sv& fi_2 = (cxtype_sv&)fis_v[2];
-      cxtype_sv& fi_3 = (cxtype_sv&)fis_v[3];
-      cxtype_sv& fi_4 = (cxtype_sv&)fis_v[4];
-      cxtype_sv& fi_5 = (cxtype_sv&)fis_v[5];
-#endif
+      cxtype_sv& fi_0 = fis[0];
+      cxtype_sv& fi_1 = fis[1];
+      cxtype_sv& fi_2 = fis[2];
+      cxtype_sv& fi_3 = fis[3];
+      cxtype_sv& fi_4 = fis[4];
+      cxtype_sv& fi_5 = fis[5];
       fi_0 = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi_1 = cxmake( -pvec1 * nsf, -pvec2 * nsf );
       const short nh = nhel * nsf;
@@ -219,7 +194,6 @@ namespace MG5_sm
         }
       }
     }
-    // ** END LOOP ON IEVT **
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -231,11 +205,8 @@ namespace MG5_sm
                  //const fptype fmass,
                  const short nhel,
                  const short nsf,
-#ifdef __CUDACC__
-                 cxtype fos[nw6],             // output: wavefunction[6]
-#else
-                 cxtype_sv fos_v[nw6],        // output: wavefunction[6][RRRRIIII]
-                 //fptype_v fos_v[nw6][2],    // output: wavefunction[6][RRRRIIII]
+                 cxtype_sv fos[nw6],          // output: wavefunction[6]
+#ifndef __CUDACC__
                  const int ipagV,
 #endif
                  const int ipar )             // input: particle# out of npar
@@ -256,21 +227,12 @@ namespace MG5_sm
       const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
       const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
 #endif
-#ifdef __CUDACC__
-      cxtype& fo_0 = fos[0];
-      cxtype& fo_1 = fos[1];
-      cxtype& fo_2 = fos[2];
-      cxtype& fo_3 = fos[3];
-      cxtype& fo_4 = fos[4];
-      cxtype& fo_5 = fos[5];
-#else
-      cxtype_sv& fo_0 = (cxtype_sv&)fos_v[0];
-      cxtype_sv& fo_1 = (cxtype_sv&)fos_v[1];
-      cxtype_sv& fo_2 = (cxtype_sv&)fos_v[2];
-      cxtype_sv& fo_3 = (cxtype_sv&)fos_v[3];
-      cxtype_sv& fo_4 = (cxtype_sv&)fos_v[4];
-      cxtype_sv& fo_5 = (cxtype_sv&)fos_v[5];
-#endif
+      cxtype_sv& fo_0 = fos[0];
+      cxtype_sv& fo_1 = fos[1];
+      cxtype_sv& fo_2 = fos[2];
+      cxtype_sv& fo_3 = fos[3];
+      cxtype_sv& fo_4 = fos[4];
+      cxtype_sv& fo_5 = fos[5];
       fo_0 = cxmake( pvec0 * nsf, pvec3 * nsf ); // this used to cause the General Protection Fault
       fo_1 = cxmake( pvec1 * nsf, pvec2 * nsf );
       const short nh = nhel * nsf;
@@ -303,7 +265,6 @@ namespace MG5_sm
         }
       }
     }
-    // ** END LOOP ON IEVT **
     mgDebug( 1, __FUNCTION__ );
     return;
   }
