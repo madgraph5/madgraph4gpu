@@ -18,4 +18,4 @@ profile_*
 ***/perf/params*.txt
 
 # googletest
-tools/googletest
+test/googletest
