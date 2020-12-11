@@ -36,12 +36,10 @@ namespace MG5_sm
     using mgOnGpu::np4;
     using mgOnGpu::npar;
     const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
     const int ipagM = ievt/neppM; // #eventpage in this iteration
     const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-    //return momenta1d[ipagM*npar*np4*neppM + ipar*neppM*np4 + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
-    //printf( "%f\n", momenta[ipagM][ipar][ip4][ieppM] );
-    return momenta[ipagM][ipar][ip4][ieppM];
+    //printf( "%f\n", momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
+    return momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
   }
 #else
   // Return by value: it seems a tiny bit faster than returning a reference (both for scalar and vector), not clear why
@@ -54,9 +52,9 @@ namespace MG5_sm
     using mgOnGpu::np4;
     using mgOnGpu::npar;
     const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    const fptype_sv (*momenta)[npar][np4] = (const fptype_sv (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOSOA)
     assert( neppV == neppM ); // NB: assume neppV (fptype_v vector size) equals neppM (AOSOA layout vector size)
-    return momenta[ipagM][ipar][ip4]; // return by value
+    //printf( "%f\n", momenta1d[ipagM*npar*np4 + ipar*np4 + ip4] );
+    return momenta1d[ipagM*npar*np4 + ipar*np4 + ip4]; // AOSOA[ipagM][ipar][ip4][ieppM]
   }
 #endif
 
