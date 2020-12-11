@@ -77,10 +77,6 @@ namespace MG5_sm
                  const int ipar )             // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-#ifndef __CUDACC__
-    // ** START LOOP ON IEPPV **
-    //for ( int ieppV = 0; ieppV < neppV; ++ieppV )
-#endif
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
@@ -162,10 +158,6 @@ namespace MG5_sm
                  const int ipar )             // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-#ifndef __CUDACC__
-    // ** START LOOP ON IEPPV **
-    //for ( int ieppV = 0; ieppV < neppV; ++ieppV )
-#endif
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
@@ -249,10 +241,6 @@ namespace MG5_sm
                  const int ipar )             // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-#ifndef __CUDACC__
-    // ** START LOOP ON IEPPV **
-    //for ( int ieppV = 0; ieppV < neppV; ++ieppV )
-#endif
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
