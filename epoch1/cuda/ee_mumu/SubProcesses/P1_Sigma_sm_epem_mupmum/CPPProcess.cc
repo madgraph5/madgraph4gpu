@@ -47,21 +47,18 @@ namespace MG5_sm
   // NB: return by value for the moment
   // NB: may be optimized, but should allocate momenta1d as an fptype_v upfront in check.cc...
   inline
-#if defined __AVX512F__ || defined __AVX2__
-  const
-#endif
-  fptype_v pIparIp4Ipag( const fptype_v* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
-                         const int ipar,
-                         const int ip4,
-                         const int ipagM )
+  const fptype_sv& pIparIp4Ipag( const fptype_sv* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
+                                 const int ipar,
+                                 const int ip4,
+                                 const int ipagM )
   {
     // mapping for the various schemes (AOSOA, AOS, SOA...)
     using mgOnGpu::np4;
     using mgOnGpu::npar;
     const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    fptype_v (*momenta)[npar][np4] = (fptype_v (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOSOA)
+    const fptype_sv (*momenta)[npar][np4] = (const fptype_sv (*)[npar][np4]) momenta1d; // cast to multiD array pointer (AOSOA)
     assert( neppV == neppM ); // NB: assume neppV (fptype_v vector size) equals neppM (AOSOA layout vector size) [DO WE?]
-    return momenta[ipagM][ipar][ip4]; // return by value
+    return momenta[ipagM][ipar][ip4]; // return by const reference
   }
 #endif
 
@@ -75,7 +72,7 @@ namespace MG5_sm
 #ifdef __CUDACC__
                  cxtype fis[nw6],             // output: wavefunction[6]
 #else
-                 cxtype_v fis_v[nw6],         // output: wavefunction[6][RRRRIIII]
+                 cxtype_sv fis_v[nw6],        // output: wavefunction[6][RRRRIIII]
                  //fptype_v fis_v[nw6][2],    // output: wavefunction[6][RRRRIIII]
                  const int ipagV,
 #endif
@@ -96,10 +93,10 @@ namespace MG5_sm
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
       //printf( "imzxxxM0: ipagV=%d\n", ipagV );
-      const fptype_v pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
-      const fptype_v pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
-      const fptype_v pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
-      const fptype_v pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_sv& pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
+      const fptype_sv& pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
+      const fptype_sv& pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
+      const fptype_sv& pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
 #endif
 #ifdef __CUDACC__
       cxtype& fi_0 = fis[0];
@@ -109,12 +106,12 @@ namespace MG5_sm
       cxtype& fi_4 = fis[4];
       cxtype& fi_5 = fis[5];
 #else
-      cxtype_v& fi_0 = (cxtype_v&)fis_v[0];
-      cxtype_v& fi_1 = (cxtype_v&)fis_v[1];
-      cxtype_v& fi_2 = (cxtype_v&)fis_v[2];
-      cxtype_v& fi_3 = (cxtype_v&)fis_v[3];
-      cxtype_v& fi_4 = (cxtype_v&)fis_v[4];
-      cxtype_v& fi_5 = (cxtype_v&)fis_v[5];
+      cxtype_sv& fi_0 = (cxtype_sv&)fis_v[0];
+      cxtype_sv& fi_1 = (cxtype_sv&)fis_v[1];
+      cxtype_sv& fi_2 = (cxtype_sv&)fis_v[2];
+      cxtype_sv& fi_3 = (cxtype_sv&)fis_v[3];
+      cxtype_sv& fi_4 = (cxtype_sv&)fis_v[4];
+      cxtype_sv& fi_5 = (cxtype_sv&)fis_v[5];
 #endif
       fi_0 = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi_1 = cxmake( -pvec1 * nsf, -pvec2 * nsf );
@@ -126,8 +123,8 @@ namespace MG5_sm
         const cxtype chi0 = cxmake00();
         const cxtype chi1 = cxmake( -nhel * sqrt(2 * pvec0), 0 );
 #else
-        const cxtype_v chi0 = cxmake00();
-        const cxtype_v chi1 = cxmaker0( (short)(-nhel) * sqrt(2 * pvec0) );
+        const cxtype_sv chi0 = cxmake00();
+        const cxtype_sv chi1 = cxmaker0( (short)(-nhel) * sqrt(2 * pvec0) );
 #endif
         if (nh == 1)
         {
@@ -160,7 +157,7 @@ namespace MG5_sm
 #ifdef __CUDACC__
                  cxtype fis[nw6],             // output: wavefunction[6]
 #else
-                 cxtype_v fis_v[nw6],         // output: wavefunction[6][RRRRIIII]
+                 cxtype_sv fis_v[nw6],        // output: wavefunction[6][RRRRIIII]
                  //fptype_v fis_v[nw6][2],    // output: wavefunction[6][RRRRIIII]
                  const int ipagV,
 #endif
@@ -181,10 +178,10 @@ namespace MG5_sm
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
       //printf( "ixzxxxM0: ipagV=%d\n", ipagV );
-      const fptype_v pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
-      const fptype_v pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
-      const fptype_v pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
-      const fptype_v pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_sv& pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
+      const fptype_sv& pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
+      const fptype_sv& pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
+      const fptype_sv& pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
 #endif
 #ifdef __CUDACC__
       cxtype& fi_0 = fis[0];
@@ -194,12 +191,12 @@ namespace MG5_sm
       cxtype& fi_4 = fis[4];
       cxtype& fi_5 = fis[5];
 #else
-      cxtype_v& fi_0 = (cxtype_v&)fis_v[0];
-      cxtype_v& fi_1 = (cxtype_v&)fis_v[1];
-      cxtype_v& fi_2 = (cxtype_v&)fis_v[2];
-      cxtype_v& fi_3 = (cxtype_v&)fis_v[3];
-      cxtype_v& fi_4 = (cxtype_v&)fis_v[4];
-      cxtype_v& fi_5 = (cxtype_v&)fis_v[5];
+      cxtype_sv& fi_0 = (cxtype_sv&)fis_v[0];
+      cxtype_sv& fi_1 = (cxtype_sv&)fis_v[1];
+      cxtype_sv& fi_2 = (cxtype_sv&)fis_v[2];
+      cxtype_sv& fi_3 = (cxtype_sv&)fis_v[3];
+      cxtype_sv& fi_4 = (cxtype_sv&)fis_v[4];
+      cxtype_sv& fi_5 = (cxtype_sv&)fis_v[5];
 #endif
       fi_0 = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi_1 = cxmake( -pvec1 * nsf, -pvec2 * nsf );
@@ -212,9 +209,9 @@ namespace MG5_sm
         const cxtype chi0 = cxmake( sqp0p3, 0 );
         const cxtype chi1 = cxmake( nh * pvec1 / sqp0p3, pvec2 / sqp0p3 );
 #else
-        const fptype_v sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
-        const cxtype_v chi0 = cxmaker0( sqp0p3 );
-        const cxtype_v chi1 = cxmake( nh * pvec1 / sqp0p3, pvec2 / sqp0p3 );
+        const fptype_sv sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
+        const cxtype_sv chi0 = cxmaker0( sqp0p3 );
+        const cxtype_sv chi1 = cxmake( nh * pvec1 / sqp0p3, pvec2 / sqp0p3 );
 #endif
         if ( nh == 1 )
         {
@@ -247,7 +244,7 @@ namespace MG5_sm
 #ifdef __CUDACC__
                  cxtype fos[nw6],             // output: wavefunction[6]
 #else
-                 cxtype_v fos_v[nw6],         // output: wavefunction[6][RRRRIIII]
+                 cxtype_sv fos_v[nw6],        // output: wavefunction[6][RRRRIIII]
                  //fptype_v fos_v[nw6][2],    // output: wavefunction[6][RRRRIIII]
                  const int ipagV,
 #endif
@@ -268,10 +265,10 @@ namespace MG5_sm
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
       //printf( "oxzxxxM0: ipagV=%d\n", ipagV );
-      const fptype_v pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
-      const fptype_v pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
-      const fptype_v pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
-      const fptype_v pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_sv& pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
+      const fptype_sv& pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
+      const fptype_sv& pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
+      const fptype_sv& pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
 #endif
 #ifdef __CUDACC__
       cxtype& fo_0 = fos[0];
@@ -281,12 +278,12 @@ namespace MG5_sm
       cxtype& fo_4 = fos[4];
       cxtype& fo_5 = fos[5];
 #else
-      cxtype_v& fo_0 = (cxtype_v&)fos_v[0];
-      cxtype_v& fo_1 = (cxtype_v&)fos_v[1];
-      cxtype_v& fo_2 = (cxtype_v&)fos_v[2];
-      cxtype_v& fo_3 = (cxtype_v&)fos_v[3];
-      cxtype_v& fo_4 = (cxtype_v&)fos_v[4];
-      cxtype_v& fo_5 = (cxtype_v&)fos_v[5];
+      cxtype_sv& fo_0 = (cxtype_sv&)fos_v[0];
+      cxtype_sv& fo_1 = (cxtype_sv&)fos_v[1];
+      cxtype_sv& fo_2 = (cxtype_sv&)fos_v[2];
+      cxtype_sv& fo_3 = (cxtype_sv&)fos_v[3];
+      cxtype_sv& fo_4 = (cxtype_sv&)fos_v[4];
+      cxtype_sv& fo_5 = (cxtype_sv&)fos_v[5];
 #endif
       fo_0 = cxmake( pvec0 * nsf, pvec3 * nsf ); // this used to cause the General Protection Fault
       fo_1 = cxmake( pvec1 * nsf, pvec2 * nsf );
@@ -300,9 +297,9 @@ namespace MG5_sm
         const cxtype chi0 = cxmake( sqp0p3, 0 );
         const cxtype chi1 = cxmake( nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
 #else
-        const fptype_v sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
-        const cxtype_v chi0 = cxmaker0( sqp0p3 );
-        const cxtype_v chi1 = cxmake( nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
+        const fptype_sv sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
+        const cxtype_sv chi0 = cxmaker0( sqp0p3 );
+        const cxtype_sv chi1 = cxmake( nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
 #endif
         if( nh == 1 )
         {
@@ -617,15 +614,15 @@ namespace Proc
     cxtype jamp[ncolor];
 #else
     // Local variables for the given event page (ipagV)
-    cxtype_v w_v[nwf][nw6]; // w_v[5][6]
-    cxtype_v amp_v[2];
-    cxtype_v jamp_v[ncolor];
+    cxtype_sv w_v[nwf][nw6]; // w_v[5][6]
+    cxtype_sv amp_v[2];
+    cxtype_sv jamp_v[ncolor];
 #endif
 
 #ifndef __CUDACC__
     const int npagV = nevt / neppV;
     // ** START LOOP ON IPAGV **
-#pragma omp parallel for private ( w_v, amp_v, jamp_v ) 
+#pragma omp parallel for private ( w_v, amp_v, jamp_v )
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif
     {

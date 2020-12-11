@@ -55,16 +55,16 @@ namespace mgOnGpu
 #else
 
   const int neppV = 1; // Note: also neppM is equal to 1
-  typedef fptype fptype_v; // scalar
-  typedef cxtype cxtype_v; // scalar
 
 #endif
 }
 
 // Expose typedefs outside the namespace
 using mgOnGpu::neppV;
+#if defined __AVX512F__ || defined __AVX2__
 using mgOnGpu::fptype_v;
 using mgOnGpu::cxtype_v;
+#endif
 
 // Printout to stream for user defined types
 #if defined __AVX512F__ || defined __AVX2__
@@ -126,12 +126,14 @@ fptype_v fpmake_v( const fptype v[neppV] )
   for ( int i=0; i<neppV; i++ ) out[i] = v[i];
   return out;
 }
+/*
 #else
 inline
 const fptype_v& fpmake_v( const fptype v[neppV] )
 {
   return v[0];
 }
+*/
 #endif
 
 // Operators for cxtype_v
@@ -151,7 +153,6 @@ cxtype_v cxmake( const fptype_v& r, const fptype_v& i )
 {
   return cxtype_v{ r, i };
 }
-#endif
 
 inline
 cxtype_v cxmake00()
@@ -164,6 +165,22 @@ cxtype_v cxmaker0( const fptype_v& r )
 {
   return cxtype_v{ r, fptype_v{0} };
 }
+
+#else
+
+inline
+cxtype cxmake00()
+{
+  return cxtype{ fptype{0}, fptype{0} };
+}
+
+inline
+cxtype cxmaker0( const fptype& r )
+{
+  return cxtype{ r, fptype{0} };
+}
+
+#endif
 
 /*
 inline
@@ -376,13 +393,16 @@ cxtype cxmake0i( const fptype& i )
 
 #endif
 
-// Scalar-or-vector types: scalar in CUDA, vector in C++
+// Scalar-or-vector types: scalar in CUDA, vector or scalar in C++
 #ifdef __CUDACC__
 typedef fptype fptype_sv;
 typedef cxtype cxtype_sv;
-#else
+#elif defined __AVX512F__ || defined __AVX2__
 typedef fptype_v fptype_sv;
 typedef cxtype_v cxtype_sv;
+#else
+typedef fptype fptype_sv;
+typedef cxtype cxtype_sv;
 #endif
 
 //--------------------------------------------------------------------------

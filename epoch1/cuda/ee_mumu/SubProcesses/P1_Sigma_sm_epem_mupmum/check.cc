@@ -84,8 +84,10 @@ std::unique_ptr<T[], CudaHstDeleter<T>> hstMakeUnique(std::size_t N) {
 template<typename T = fptype>
 std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{ new T[N]() }; };
 
+#if defined __AVX512F__ || defined __AVX2__
 template<>
 std::unique_ptr<fptype_v[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<fptype_v[]>{ new fptype_v[N/neppV]() }; };
+#endif
 
 #endif
 
