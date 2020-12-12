@@ -1,16 +1,27 @@
-LIBDIR   = ../../lib
+LIBDIR   = ../../lib/build.$(TAG)
 TOOLSDIR = ../../../../../tools
 INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
 OPTFLAGS = -O3
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
 OMPFLAGS?= -fopenmp
-CXXFLAGS+= -march=core-avx2 # AVX2 (DEFAULT!)
-###CXXFLAGS+= -march=native # AVX512F
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
-#Export CUDA_HOME to select a cuda installation
+# AVX choice (example: "make AVX=none")
+AVX ?= avx2
+ifeq ($(AVX),avx2)
+CXXFLAGS+= -march=core-avx2 # AVX2 (DEFAULT!)
+else ifeq ($(AVX),avx512)
+CXXFLAGS+= -march=native # AVX512F
+else ifneq ($(AVX),none)
+$(error Unknown AVX='$(AVX)': only 'avx2', 'avx512' and 'none' are supported)
+endif
+
+# Build tag (path to the build directory)
+TAG = $(AVX)
+
+# Export CUDA_HOME to select a cuda installation
 ifndef CUDA_HOME
   NVCC ?= $(shell which nvcc 2>/dev/null)
   ifneq ($(NVCC),)
@@ -27,8 +38,8 @@ ifdef CUDA_HOME
   USE_NVTX?=-DUSE_NVTX
   CUARCHFLAGS= -arch=compute_$(CUARCHNUM)
   # CUARCHFLAGS= -gencode arch=compute_$(CUARCHNUM),code=sm_$(CUARCHNUM)
-  CUINC       = -I$(CUDA_HOME)/include/
-  CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcuda -lcurand
+  CUINC       = -I$(CUDA_HOME)/include
+  CULIBFLAGS  = -L$(CUDA_HOME)/lib64 -lcuda -lcurand
   CUOPTFLAGS  = -lineinfo
   CUFLAGS= $(OPTFLAGS) $(CUOPTFLAGS) -std=c++14 $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math $(MGONGPU_CONFIG)
   # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
@@ -36,9 +47,8 @@ ifdef CUDA_HOME
   ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
-
-  cu_main     = gcheck.exe
-  cu_objects  = gCPPProcess.o
+  cu_main     = build.$(TAG)/gcheck.exe
+  cu_objects  = build.$(TAG)/gCPPProcess.o
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   NVCC       := $(warning No cuda found. Export CUDA_HOME to compile with cuda)
@@ -49,12 +59,14 @@ else
   endif
 endif
 
-GTESTLIBDIR = $(TOOLSDIR)/googletest/build/lib/
+GTESTLIBDIR = $(TOOLSDIR)/googletest/build/lib
 GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 MAKEDEBUG=
 
-cxx_main=check.exe
-cxx_objects=CPPProcess.o
+cxx_main=build.$(TAG)/check.exe
+cxx_objects=build.$(TAG)/CPPProcess.o
+
+testmain=build.$(TAG)/runTest.exe
 
 # Assuming uname is available, detect if architecture is power
 UNAME_P := $(shell uname -p)
@@ -62,7 +74,7 @@ ifeq ($(UNAME_P),ppc64le)
     CUFLAGS+= -Xcompiler -mno-float128
 endif
 
-all: ../../src $(cu_main) $(cxx_main) runTest.exe
+all.$(TAG): ../../src $(cu_main) $(cxx_main) $(testmain)
 
 debug: OPTFLAGS   = -g -O0 -DDEBUG2
 debug: CUOPTFLAGS = -G
@@ -70,59 +82,63 @@ debug: MAKEDEBUG := debug
 debug: all
 
 $(LIBDIR)/lib$(MODELLIB).a:
-	$(MAKE) -C ../../src $(MAKEDEBUG)
+	$(MAKE) -C ../../src AVX=$(AVX) $(MAKEDEBUG)
 
-gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
+build.$(TAG)/gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
+	if [ ! -d build.$(TAG) ]; then mkdir build.$(TAG); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
-%.o : %.cu *.h ../../src/*.h
+build.$(TAG)/%.o : %.cu *.h ../../src/*.h
+	if [ ! -d build.$(TAG) ]; then mkdir build.$(TAG); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
-%.o : %.cc *.h ../../src/*.h
+build.$(TAG)/%.o : %.cc *.h ../../src/*.h
+	if [ ! -d build.$(TAG) ]; then mkdir build.$(TAG); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
-$(cu_main): gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
+$(cu_main): build.$(TAG)/gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
 	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
 
-$(cxx_main): check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
+$(cxx_main): build.$(TAG)/check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
+build.$(TAG)/runTest.o: $(GTESTLIBS)
 
-runTest.o:   $(GTESTLIBS)
-runTest.exe: $(GTESTLIBS)
-runTest.exe: INCFLAGS += -I$(TOOLSDIR)/googletest/googletest/include/
-runTest.exe: LIBFLAGS += -L$(GTESTLIBDIR)/ -lgtest -lgtest_main
+$(testmain): $(GTESTLIBS)
+$(testmain): INCFLAGS += -I$(TOOLSDIR)/googletest/googletest/include
+$(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
 ifeq ($(NVCC),)
-runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
-	$(CXX) -o $@ $(cxx_objects) runTest.o $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+$(testmain): build.$(TAG)/runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
+	$(CXX) -o $@ $(cxx_objects) build.$(TAG)/runTest.o $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
-runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
+$(testmain): build.$(TAG)/runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
 	ln -sf runTest.cc runTest_tmp.cu
-	$(NVCC) -o $@ $(cxx_objects) runTest.o $(cu_objects) runTest_tmp.cu $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
+	$(NVCC) -o $@ $(cxx_objects) build.$(TAG)/runTest.o $(cu_objects) runTest_tmp.cu $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 	unlink runTest_tmp.cu
 endif
 
 $(GTESTLIBS):
 	$(MAKE) -C $(TOOLSDIR)
 
-check: runTest.exe
-	./runTest.exe
+check: $(testmain)
+	$(testmain)
 
 .PHONY: clean
 
 clean:
-	make -C ../../src clean
-	rm -f *.o *.exe
+	make -C ../../src AVX=$(AVX) clean
+	rm -rf build.$(TAG)
+#	rm -f build.$(TAG)/*.o build.$(TAG)/*.exe
 
 memcheck: $(cu_main)
-	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes ./gcheck.exe 2 32 2
+	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes build.$(TAG)/gcheck.exe 2 32 2
 
 perf: force
 	make clean && make
-	time ./gcheck.exe -p 16348 32 12 && date
+	time build.$(TAG)/gcheck.exe -p 16348 32 12 && date
 
 test: force
-	./gcheck.exe -v 1 32 1
+	build.$(TAG)/gcheck.exe -v 1 32 1
 
 info:
 ifdef CUDA_HOME
