@@ -1,6 +1,6 @@
 LIBDIR   = ../../lib
 TOOLSDIR = ../../../../../tools/
-TESTDIR  = ../../../../../test
+TESTDIR  = ../../../../../test/
 INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
 OPTFLAGS = -O3
@@ -25,7 +25,8 @@ ifdef CUDA_HOME
   CUARCHFLAGS= -arch=compute_$(CUARCHNUM)
   CUINC       = -I$(CUDA_HOME)/include/
   CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcuda -lcurand
-  CUFLAGS= $(OPTFLAGS) -std=c++14 $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math -lineinfo $(MGONGPU_CONFIG)
+  CUOPTFLAGS  = -lineinfo
+  CUFLAGS     = $(OPTFLAGS) $(CUOPTFLAGS) -std=c++14 $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math $(MGONGPU_CONFIG)
 
   cu_main     = gcheck.exe
   cu_objects  = gCPPProcess.o
@@ -54,9 +55,8 @@ endif
 
 all: ../../src $(cu_main) $(cxx_main) runTest.exe
 
-debug: OPTFLAGS = -g -O0 -DDEBUG2
-debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
-debug: CUFLAGS += -G
+debug: OPTFLAGS   = -g -O0 -DDEBUG2
+debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all
 
@@ -105,7 +105,7 @@ check: runTest.exe
 .PHONY: clean
 
 clean:
-	cd ../../src && make clean
+	make -C ../../src clean
 	rm -f *.o *.exe
 
 distclean: clean
@@ -125,7 +125,7 @@ test: force
 info:
 ifdef CUDA_HOME
 	$(NVCC) --version
-	echo ""
+	@echo ""
 endif
 	$(CXX) --version
 
