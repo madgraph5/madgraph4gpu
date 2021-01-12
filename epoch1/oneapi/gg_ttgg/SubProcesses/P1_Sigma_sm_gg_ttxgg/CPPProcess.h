@@ -1732,7 +1732,7 @@ class sigmaKin {
 		m_cIPD(cIPD)
 		{}
 	
-	void operator()(sycl::nd_item<3> item){
+	void operator()(sycl::nd_item<3> item) const {
 
 		// Set the parameters which change event by event
 		// Need to discuss this with Stefan
