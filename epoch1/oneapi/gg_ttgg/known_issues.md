@@ -1,0 +1,3 @@
+The function `ranmar` within rambo is not thread safe. Variables jranmr and iranmr are shared in a thread and the equal to zero check can fail due to a race condition where the value becomes less than zero. This causes negative values within square root functions when calculating the ME, leading to a segmentation fault. This is present in the original CUDA, so left as-is to be true to the original code. The ranmar function has been removed from epoch 2 code.
+
+This issue tracked in git issue [#79](https://github.com/madgraph5/madgraph4gpu/issues/79).
