@@ -73,6 +73,8 @@ c
 
       call printout()
 
+c     loop here (sr)
+
       CALL GET_MOMENTA(SQRTS,PMASS,P)	
 c
 c	  write the information on the four momenta 
@@ -97,6 +99,7 @@ c
       write (*,*) "Matrix element = ", MATELEM, " GeV^",-(2*nexternal-8)	
       write (*,*) "-----------------------------------------------------------------------------"
 
+c     end loop (sr) (remove write statements)
 
 cc
 cc      Copy down here (or read in) the four momenta as a string. 
@@ -163,7 +166,7 @@ C         LOCAL
          mom=dsqrt(mom)
          e1=DSQRT(mom**2+m1**2)
          e2=DSQRT(mom**2+m2**2)
-         write (*,*) e1+e2,mom
+c        write (*,*) e1+e2,mom (sr)
 
          if(nincoming.eq.2) then
 
