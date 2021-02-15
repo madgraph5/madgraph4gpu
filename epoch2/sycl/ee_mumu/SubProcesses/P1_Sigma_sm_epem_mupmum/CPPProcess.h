@@ -14,7 +14,6 @@
 #ifdef SYCL_LANGUAGE_VERSION
 #include <CL/sycl.hpp>
 #endif
-#include <cassert>
 #include <complex>
 #include <vector>
 #include <cassert>
