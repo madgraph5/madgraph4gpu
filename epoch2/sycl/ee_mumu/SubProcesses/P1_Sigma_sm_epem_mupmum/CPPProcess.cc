@@ -54,11 +54,11 @@ using mgOnGpu::nw6;
 // of |M|^2 over helicities for the given event
 
 void calculate_wavefunctions(int ihel, const fptype *allmomenta,
-                             fptype &meHelSum
-                             , sycl::nd_item<3> item_ct1,
-                              const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel
+    fptype &meHelSum
+    , sycl::nd_item<3> item_ct1,
+    const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel
 #ifndef SYCL_LANGUAGE_VERSION
-                             , const int ievt
+    , const int ievt
 #endif
 )
 {
@@ -105,7 +105,6 @@ void calculate_wavefunctions(int ihel, const fptype *allmomenta,
 #else
   oxzxxx(allmomenta, cHel[ihel][3], +1, w[3], ievt, 3); 
 #endif 
-
 
   FFV1P0_3(w[1], w[0], cxtype(cIPC[0], cIPC[1]), 0., 0., w[4]); 
   // Amplitude(s) for diagram number 1
@@ -227,7 +226,6 @@ const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel )
   {
     // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running
     // sum of |M|^2 over helicities for the given event
-    calculate_wavefunctions(ihel, allmomenta, meHelSum[0], item_ct1, cHel);
     calculate_wavefunctions(ihel, allmomenta, meHelSum[0], item_ct1, cHel);
     if (meHelSum[0] != meHelSumLast)
     {

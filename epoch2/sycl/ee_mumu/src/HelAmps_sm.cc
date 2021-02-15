@@ -78,17 +78,17 @@ sycl::nd_item<3> item_ct1)
   int ip, im, nh; 
 
   fptype p[4] = {0, pvec1, pvec2, pvec3}; 
-  p[0] = sycl::sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3] + fmass * fmass);
+  p[0] = sycl::sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3] + fmass * fmass); 
   fi[0] = cxtype(-p[0] * nsf, -p[3] * nsf); 
   fi[1] = cxtype(-p[1] * nsf, -p[2] * nsf); 
   nh = nhel * nsf; 
   if (fmass != 0.0)
   {
-    pp = sycl::min((double)(p[0]), sycl::sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]));
+    pp = sycl::min(p[0], sycl::sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3])); 
     if (pp == 0.0)
     {
-      sqm[0] = sycl::sqrt(sycl::fabs(fmass));
-      sqm[1] = (fmass < 0) ? -sycl::fabs(sqm[0]) : sycl::fabs(sqm[0]);
+      sqm[0] = sycl::sqrt(sycl::abs(fmass)); 
+      sqm[1] = (fmass < 0) ? - sycl::abs(sqm[0]) : abs(sqm[0]); 
       ip = (1 + nh)/2; 
       im = (1 - nh)/2; 
       fi[2] = ip * sqm[ip]; 
@@ -100,14 +100,14 @@ sycl::nd_item<3> item_ct1)
     {
       sf[0] = (1 + nsf + (1 - nsf) * nh) * 0.5; 
       sf[1] = (1 + nsf - (1 - nsf) * nh) * 0.5; 
-      omega[0] = sycl::sqrt(p[0] + pp);
+      omega[0] = sycl::sqrt(p[0] + pp); 
       omega[1] = fmass/omega[0]; 
       ip = (1 + nh)/2; 
       im = (1 - nh)/2; 
       sfomega[0] = sf[0] * omega[ip]; 
       sfomega[1] = sf[1] * omega[im]; 
-      pp3 = sycl::max((double)(pp + p[3]), 0.0);
-      chi[0] = cxtype(sycl::sqrt(pp3 * 0.5 / pp), 0);
+      pp3 = sycl::max(pp + p[3], 0.0); 
+      chi[0] = cxtype(sycl::sqrt(pp3 * 0.5/pp), 0); 
       if (pp3 == 0.0)
       {
         chi[1] = cxtype(-nh, 0); 
@@ -115,7 +115,7 @@ sycl::nd_item<3> item_ct1)
       else
       {
         chi[1] = 
-        cxtype(nh * p[1], p[2]) / sycl::sqrt(2.0 * pp * pp3);
+        cxtype(nh * p[1], p[2])/sycl::sqrt(2.0 * pp * pp3); 
       }
       fi[2] = sfomega[0] * chi[im]; 
       fi[3] = sfomega[0] * chi[ip]; 
@@ -131,12 +131,12 @@ sycl::nd_item<3> item_ct1)
     }
     else
     {
-      sqp0p3 = sycl::sqrt(sycl::max((double)(p[0] + p[3]), 0.0)) * nsf;
+      sqp0p3 = sycl::sqrt(sycl::max(p[0] + p[3], 0.0)) * nsf; 
     }
     chi[0] = cxtype(sqp0p3, 0.0); 
     if (sqp0p3 == 0.0)
     {
-      chi[1] = cxtype(-nhel * sycl::sqrt(2.0 * p[0]), 0.0);
+      chi[1] = cxtype(-nhel * sycl::sqrt(2.0 * p[0]), 0.0); 
     }
     else
     {
@@ -184,7 +184,7 @@ sycl::nd_item<3> item_ct1)
   fi[1] = cxtype (0., 0.); 
   int nh = nhel * nsf; 
 
-  cxtype sqp0p3 = cxtype(sycl::sqrt(2. * pvec3) * nsf, 0.);
+  cxtype sqp0p3 = cxtype(sycl::sqrt(2. * pvec3) * nsf, 0.); 
 
   fi[2] = fi[1]; 
   if(nh == 1)
@@ -221,7 +221,8 @@ sycl::nd_item<3> item_ct1)
   fi[0] = cxtype (pvec3 * nsf, -pvec3 * nsf); 
   fi[1] = cxtype (0., 0.); 
   int nh = nhel * nsf; 
-  cxtype chi = cxtype(-nhel * sycl::sqrt(-2.0 * pvec3), 0.0);
+  cxtype chi = cxtype (-nhel * sycl::sqrt(-2.0 * pvec3), 0.0); 
+
 
   fi[3] = fi[1]; 
   fi[4] = fi[1]; 
@@ -269,7 +270,7 @@ sycl::nd_item<3> item_ct1)
   fi[1] = cxtype (-pvec0 * nsf, -pvec1 * nsf); 
   int nh = nhel * nsf; 
 
-  float sqp0p3 = sycl::sqrt((float)(pvec0 + pvec3)) * nsf;
+  float sqp0p3 = sqrtf(pvec0 + pvec3) * nsf; 
   cxtype chi0 = cxtype (sqp0p3, 0.0); 
   cxtype chi1 = cxtype (nh * pvec1/sqp0p3, pvec2/sqp0p3); 
   cxtype CZERO = cxtype(0., 0.); 
@@ -303,7 +304,7 @@ const int ipar,  // input: particle# out of npar
 sycl::nd_item<3> item_ct1)
 {
   fptype hel, hel0, pt, pt2, pp, pzpt, emp, sqh; 
-  int nsvahl;
+  int nsvahl; 
 
 #ifdef SYCL_LANGUAGE_VERSION
   const int ievt = item_ct1.get_local_range().get(2) * item_ct1.get_group(2) + item_ct1.get_local_id(2); // index of event (thread) in grid
@@ -316,19 +317,19 @@ sycl::nd_item<3> item_ct1)
   const fptype& p2 = pIparIp4Ievt(allmomenta, ipar, 2, ievt); 
   const fptype& p3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt); 
   // fptype p[4] = {0, pvec[0], pvec[1], pvec[2]};
-  // p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]+vmass*vmass);
+  // p[0] = sycl::sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]+vmass*vmass);
 
-  sqh = sycl::sqrt(0.5);
-  hel = fptype(nhel);
-  nsvahl = nsv * sycl::fabs(hel);
-  pt2 = (p1 * p1) + (p2 * p2);
-  pp = sycl::min((double)p0, sycl::sqrt(pt2 + (p3 * p3)));
-  pt = sycl::min((double)pp, sycl::sqrt((double)pt2));
+  sqh = sycl::sqrt(0.5); 
+  hel = fptype(nhel); 
+  nsvahl = nsv * sycl::abs(hel); 
+  pt2 = (p1 * p1) + (p2 * p2); 
+  pp = sycl::min(p0, sycl::sqrt(pt2 + (p3 * p3))); 
+  pt = sycl::min(pp, sycl::sqrt(pt2)); 
   vc[0] = cxtype(p0 * nsv, p3 * nsv); 
   vc[1] = cxtype(p1 * nsv, p2 * nsv); 
   if (vmass != 0.0)
   {
-    hel0 = 1.0 - sycl::fabs(hel);
+    hel0 = 1.0 - sycl::abs(hel); 
     if (pp == 0.0)
     {
       vc[2] = cxtype(0.0, 0.0); 
@@ -352,16 +353,16 @@ sycl::nd_item<3> item_ct1)
       }
       else
       {
-        vc[3] = cxtype(-hel * sqh, 0.0);
-        vc[4] =
-            cxtype(0.0, nsvahl * (p3 < 0) ? -sycl::fabs(sqh) : sycl::fabs(sqh));
+        vc[3] = cxtype(-hel * sqh, 0.0); 
+        vc[4] = cxtype(0.0, nsvahl * (p3 < 0) ? - sycl::abs(sqh)
+        : sycl::abs(sqh)); 
       }
     }
   }
   else
   {
     // pp = p0;
-    pt = sycl::sqrt((p1 * p1) + (p2 * p2));
+    pt = sycl::sqrt((p1 * p1) + (p2 * p2)); 
     vc[2] = cxtype(0.0, 0.0); 
     vc[5] = cxtype(hel * pt/p0 * sqh, 0.0); 
     if (pt != 0.0)
@@ -372,8 +373,9 @@ sycl::nd_item<3> item_ct1)
     }
     else
     {
-      vc[3] = cxtype(-hel * sqh, 0.0);
-      vc[4] = cxtype(0.0, nsv * (p3 < 0) ? -sycl::fabs(sqh) : sycl::fabs(sqh));
+      vc[3] = cxtype(-hel * sqh, 0.0); 
+      vc[4] = 
+      cxtype(0.0, nsv * (p3 < 0) ? - sycl::abs(sqh) : abs(sqh)); 
     }
   }
   return; 
@@ -397,7 +399,7 @@ sycl::nd_item<3> item_ct1)
   const fptype& p2 = pIparIp4Ievt(allmomenta, ipar, 2, ievt); 
   const fptype& p3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt); 
   // fptype p[4] = {0, pvec[0], pvec[1], pvec[2]};
-  // p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]+smass*smass);
+  // p[0] = sycl::sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]+smass*smass);
   sc[2] = cxtype(1.00, 0.00); 
   sc[0] = cxtype(p0 * nss, p3 * nss); 
   sc[1] = cxtype(p1 * nss, p2 * nss); 
@@ -431,44 +433,45 @@ sycl::nd_item<3> item_ct1)
   const fptype& p3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt); 
 
   // fptype p[4] = {0, pvec[0], pvec[1], pvec[2]};
-  // p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]+fmass*fmass);
+  // p[0] = sycl::sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]+fmass*fmass);
 
   fo[0] = cxtype(p0 * nsf, p3 * nsf); 
   fo[1] = cxtype(p1 * nsf, p2 * nsf); 
   nh = nhel * nsf; 
   if (fmass != 0.000)
   {
-    pp = sycl::min((double)p0, sycl::sqrt((p1 * p1) + (p2 * p2) + (p3 * p3)));
+    pp = sycl::min(p0, sycl::sqrt((p1 * p1) + (p2 * p2) + (p3 * p3))); 
     if (pp == 0.000)
     {
-      sqm[0] = sycl::sqrt(sycl::fabs(fmass));
-      sqm[1] = (fmass < 0) ? -sycl::fabs(sqm[0]) : sycl::fabs(sqm[0]);
+      sqm[0] = sycl::sqrt(sycl::abs(fmass)); 
+      sqm[1] = (fmass < 0) ? - sycl::abs(sqm[0]) : abs(sqm[0]); 
       ip = -((1 - nh)/2) * nhel; 
-      im = (1 + nh)/2 * nhel;
-      fo[2] = im * sqm[sycl::abs(ip)];
-      fo[3] = ip * nsf * sqm[sycl::abs(ip)];
-      fo[4] = im * nsf * sqm[sycl::abs(im)];
-      fo[5] = ip * sqm[sycl::abs(im)];
+      im = (1 + nh)/2 * nhel; 
+      fo[2] = im * sqm[sycl::abs(ip)]; 
+      fo[3] = ip * nsf * sqm[sycl::abs(ip)]; 
+      fo[4] = im * nsf * sqm[sycl::abs(im)]; 
+      fo[5] = ip * sqm[sycl::abs(im)]; 
     }
     else
     {
       sf[0] = fptype(1 + nsf + (1 - nsf) * nh) * 0.5; 
-      sf[1] = fptype(1 + nsf - (1 - nsf) * nh) * 0.5;
-      omega[0] = sycl::sqrt(p0 + pp);
+      sf[1] = fptype(1 + nsf - (1 - nsf) * nh) * 0.5; 
+      omega[0] = sycl::sqrt(p0 + pp); 
       omega[1] = fmass/omega[0]; 
       ip = (1 + nh)/2; 
       im = (1 - nh)/2; 
       sfomeg[0] = sf[0] * omega[ip]; 
-      sfomeg[1] = sf[1] * omega[im];
-      pp3 = sycl::max((double)(pp + p3), 0.00);
-      chi[0] = cxtype(sycl::sqrt(pp3 * 0.5 / pp), 0.00);
+      sfomeg[1] = sf[1] * omega[im]; 
+      pp3 = sycl::max(pp + p3, 0.00); 
+      chi[0] = cxtype(sycl::sqrt(pp3 * 0.5/pp), 0.00); 
       if (pp3 == 0.00)
       {
         chi[1] = cxtype(-nh, 0.00); 
       }
       else
       {
-        chi[1] = cxtype(nh * p1, -p2) / sycl::sqrt(2.0 * pp * pp3);
+        chi[1] = 
+        cxtype(nh * p1, -p2)/sycl::sqrt(2.0 * pp * pp3); 
       }
       fo[2] = sfomeg[1] * chi[im]; 
       fo[3] = sfomeg[1] * chi[ip]; 
@@ -484,12 +487,12 @@ sycl::nd_item<3> item_ct1)
     }
     else
     {
-      sqp0p3 = sycl::sqrt(sycl::max((double)(p0 + p3), 0.00)) * nsf;
+      sqp0p3 = sycl::sqrt(sycl::max(p0 + p3, 0.00)) * nsf; 
     }
     chi[0] = cxtype(sqp0p3, 0.00); 
     if (sqp0p3 == 0.000)
     {
-      chi[1] = cxtype(-nhel, 0.00) * sycl::sqrt(2.0 * p0);
+      chi[1] = cxtype(-nhel, 0.00) * sycl::sqrt(2.0 * p0); 
     }
     else
     {
@@ -533,9 +536,10 @@ sycl::nd_item<3> item_ct1)
 
   fo[0] = cxtype (pvec3 * nsf, pvec3 * nsf); 
   fo[1] = cxtype (0., 0.); 
-  int nh = nhel * nsf;
+  int nh = nhel * nsf; 
 
-  cxtype CSQP0P3 = cxtype(sycl::sqrt(2. * pvec3) * nsf, 0.00);
+  cxtype CSQP0P3 = cxtype (sycl::sqrt(2. * pvec3) * nsf, 0.00); 
+
 
   fo[3] = fo[1]; 
   fo[4] = fo[1]; 
@@ -570,8 +574,8 @@ sycl::nd_item<3> item_ct1)
   const fptype& pvec3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt); 
   fo[0] = cxtype (-pvec3 * nsf, pvec3 * nsf); 
   fo[1] = cxtype (0., 0.); 
-  int nh = nhel * nsf;
-  cxtype chi = cxtype(-nhel, 0.00) * sycl::sqrt(-2.0 * pvec3);
+  int nh = nhel * nsf; 
+  cxtype chi = cxtype (-nhel, 0.00) * sycl::sqrt(-2.0 * pvec3); 
 
   if(nh == 1)
   {
@@ -615,9 +619,9 @@ sycl::nd_item<3> item_ct1)
 
   fo[0] = cxtype (p0 * nsf, p3 * nsf); 
   fo[1] = cxtype (p1 * nsf, p2 * nsf); 
-  int nh = nhel * nsf;
+  int nh = nhel * nsf; 
 
-  float sqp0p3 = sycl::sqrt((float)(p0 + p3)) * nsf;
+  float sqp0p3 = sqrtf(p0 + p3) * nsf; 
   cxtype chi0 = cxtype (sqp0p3, 0.00); 
   cxtype chi1 = cxtype (nh * p1/sqp0p3, -p2/sqp0p3); 
   cxtype zero = cxtype (0.00, 0.00); 

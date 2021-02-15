@@ -126,32 +126,33 @@ class CPPProcess
 
 
 
+//--------------------------------------------------------------------------
 #ifdef SYCL_LANGUAGE_VERSION
-  SYCL_EXTERNAL
-  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            bool* isGoodHel,          // output: isGoodHel[ncomb] - device array
-                            sycl::nd_item<3> item_ct1,
-                            const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel
-                          );
+SYCL_EXTERNAL
+void sigmaKin_getGoodHel(const fptype * allmomenta,  // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+bool * isGoodHel,  // output: isGoodHel[ncomb] - device array
+sycl::nd_item<3> item_ct1,
+const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel
+);
 #endif
 
 //--------------------------------------------------------------------------
 
 #ifdef SYCL_LANGUAGE_VERSION
-  void sigmaKin_setGoodHel( const bool* isGoodHel, int* cNGoodHel_ptr, int* cGoodHel_ptr); // input: isGoodHel[ncomb] - host array
+void sigmaKin_setGoodHel(const bool * isGoodHel, int * cNGoodHel_ptr, int* cGoodHel_ptr);  // input: isGoodHel[ncomb] - host array
 #endif
 
 //--------------------------------------------------------------------------
 
-  SYCL_EXTERNAL
-  void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                 fptype* allMEs             // output: allMEs[nevt], final |M|^2 averaged over all helicities
-                 , sycl::nd_item<3> item_ct1,
-                 const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel,
-                 int *cNGoodHel,
-                 int *cGoodHel 
+SYCL_EXTERNAL
+void sigmaKin(const fptype * allmomenta,  // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+fptype * allMEs  // output: allMEs[nevt], final |M|^2 averaged over all helicities
+, sycl::nd_item<3> item_ct1,
+const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel,
+int *cNGoodHel,
+int *cGoodHel 
 #ifndef SYCL_LANGUAGE_VERSION
-                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+, const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
 ); 
 

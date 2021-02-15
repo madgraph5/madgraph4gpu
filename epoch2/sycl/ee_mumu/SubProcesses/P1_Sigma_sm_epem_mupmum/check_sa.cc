@@ -78,6 +78,12 @@ std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{
 int main(int argc, char **argv)
 {
   sycl::queue q_ct1{ sycl::cpu_selector{} };
+  auto device = q_ct1.get_device();
+  std::cout << "Selected " << device.get_info<sycl::info::device::name>()
+            << " on platform "
+            << device.get_info<sycl::info::device::platform>().get_info<sycl::info::platform::name>()
+            << std::endl;
+
   // READ COMMAND LINE ARGUMENTS
   bool verbose = false;
   bool debug = false;
@@ -390,7 +396,6 @@ int main(int argc, char **argv)
     const std::string cmomKey = "2d CpDTHmom";
     rambtime += timermap.start( cmomKey );
     checkCuda( cudaMemcpy( hstMomenta.get(), devMomenta.get(), nbytesMomenta, cudaMemcpyDeviceToHost ) );
-
 #endif
 
     // *** STOP THE OLD-STYLE TIMER FOR RAMBO ***
@@ -500,9 +505,9 @@ int main(int argc, char **argv)
       if (perf) std::cout << "Wave function time: " << wavetime << std::endl;
     }
 
-    sycl::host_accessor Weights{Weights_buffer};
-    sycl::host_accessor Momenta{Momenta_buffer};
-    sycl::host_accessor MEs{MEs_buffer};
+    sycl::host_accessor hstWeights{Weights_buffer};
+    sycl::host_accessor hstMomenta{Momenta_buffer};
+    sycl::host_accessor hstMEs{MEs_buffer};
     for (int ievt = 0; ievt < nevt; ++ievt) // Loop over all events in this iteration
     {
       if (verbose)
@@ -516,22 +521,22 @@ int main(int argc, char **argv)
           // NB: 'setw' affects only the next field (of any type)
           std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
                     << std::setw(4) << ipar + 1
-                    << std::setw(14) << Momenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
-                    << std::setw(14) << Momenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
-                    << std::setw(14) << Momenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
-                    << std::setw(14) << Momenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
                     << std::endl
                     << std::defaultfloat; // default format: affects all floats
         }
         std::cout << std::string(80, '-') << std::endl;
         // Display matrix elements
         std::cout << " Matrix element = "
-                  << MEs[ievt] << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
+                  << hstMEs[ievt] << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
         std::cout << std::string(80, '-') << std::endl;
       }
       // Fill the arrays with ALL MEs and weights
-      matrixelementALL[iiter*nevt + ievt] = MEs[ievt]; // FIXME: assume process.nprocesses == 1
-      weightALL[iiter*nevt + ievt] = Weights[ievt];
+      matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt]; // FIXME: assume process.nprocesses == 1
+      weightALL[iiter*nevt + ievt] = hstWeights[ievt];
     }
 
     if (!(verbose || debug || perf))

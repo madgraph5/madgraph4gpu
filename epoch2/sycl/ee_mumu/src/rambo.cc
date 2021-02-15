@@ -98,9 +98,9 @@ namespace rambo2toNm0
     fptype z[nparf];
     z[1] = po2log;
     for (int kpar = 2; kpar < nparf; kpar++)
-      z[kpar] = z[kpar - 1] + po2log - 2. * sycl::log((double)(fptype(kpar - 1)));
+      z[kpar] = z[kpar - 1] + po2log - 2. * sycl::log(fptype(kpar - 1));
     for (int kpar = 2; kpar < nparf; kpar++)
-      z[kpar] = (z[kpar] - sycl::log((double)fptype(kpar)));
+      z[kpar] = (z[kpar] - sycl::log(fptype(kpar)));
 
 #ifndef SYCL_LANGUAGE_VERSION
     // ** START LOOP ON IEVT **
@@ -132,8 +132,8 @@ namespace rambo2toNm0
         const fptype f = twopi * r2;
         q[iparf][0] = -sycl::log(r3 * r4);
         q[iparf][3] = q[iparf][0] * c;
-        q[iparf][2] = q[iparf][0] * s * sycl::cos((double)f);
-        q[iparf][1] = q[iparf][0] * s * sycl::sin((double)f);
+        q[iparf][2] = q[iparf][0] * s * sycl::cos(f);
+        q[iparf][1] = q[iparf][0] * s * sycl::sin(f);
       }
 
       // calculate the parameters of the conformal transformation
@@ -163,7 +163,7 @@ namespace rambo2toNm0
       // calculate weight (NB return log of weight)
       wt = po2log;
       if (nparf != 2)
-        wt = (2. * nparf - 4.) * sycl::log((double)energy) + z[nparf-1];
+        wt = (2. * nparf - 4.) * sycl::log(energy) + z[nparf-1];
 
 #ifndef SYCL_LANGUAGE_VERSION
       // issue warnings if weight is too small or too large
