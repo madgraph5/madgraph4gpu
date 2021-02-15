@@ -5,9 +5,9 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#define DPCT_USM_LEVEL_NONE
+#ifdef SYCL_LANGUAGE_VERSION
 #include <CL/sycl.hpp>
-#include <dpct/dpct.hpp>
+#endif
 #include <cmath>
 #include <cstring>
 #include <cstdlib>
