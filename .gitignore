@@ -9,9 +9,12 @@
 *.local
 *~
 local/
+*.log
 
 # profiling
 profile_*
+*.qdrep
+*.sqlite
 
 # perf data
 *-perf-test-run*.json
