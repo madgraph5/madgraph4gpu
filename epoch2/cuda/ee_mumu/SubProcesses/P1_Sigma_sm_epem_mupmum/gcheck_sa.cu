@@ -386,6 +386,7 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
 #ifndef MGONGPU_NSIGHT_DEBUG
     gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.get(), devMEs.get());
+    cudaDeviceSynchronize();
 #else
     gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.get(), devMEs.get());
 #endif
@@ -393,6 +394,7 @@ int main(int argc, char **argv)
 #else
     Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), nevt);
 #endif
+
 
 #ifdef __CUDACC__
     // --- 3b. CopyDToH MEs

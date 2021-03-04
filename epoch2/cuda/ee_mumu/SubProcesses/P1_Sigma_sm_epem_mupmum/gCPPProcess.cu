@@ -212,7 +212,7 @@ bool * isGoodHel)  // output: isGoodHel[ncomb] - device array
 {
   const int nprocesses = 1;  // FIXME: assume process.nprocesses == 1
   fptype meHelSum[nprocesses] = {0};  // all zeros
-  fptype meHelSumLast = 0; 
+  fptype meHelSumLast = 0;
   for (int ihel = 0; ihel < ncomb; ihel++ )
   {
     // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running
@@ -220,8 +220,8 @@ bool * isGoodHel)  // output: isGoodHel[ncomb] - device array
     calculate_wavefunctions(ihel, allmomenta, meHelSum[0]); 
     if (meHelSum[0] != meHelSumLast)
     {
-      isGoodHel[ihel] = true; 
-      meHelSumLast = meHelSum[0]; 
+      isGoodHel[ihel] = true;
+      meHelSumLast = meHelSum[0];
     }
   }
 }
