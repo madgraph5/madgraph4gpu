@@ -318,7 +318,7 @@ C     ----------
           enddo
         Enddo
       ENDDO
-
+      call counters_end()
       END
 
 
