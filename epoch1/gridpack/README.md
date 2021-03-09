@@ -92,3 +92,17 @@ Then generate 100 unweighted events
   ./run.sh 100 1
 ```
 
+## EEMUMU gridpack: time performance for unweighted event generation
+
+On itscrd70, generating a variable number of unweighted events
+```
+  time ./run.sh <nunw> 1234
+```
+gives the following approximate performance
+
+|   nunw |  real |  user |  sys |
+|   ---: |  ---: |  ---: | ---: |
+|   1000 |  2.1s |  0.9s | 0.2s |
+|  10000 | 12.6s |  9.9s | 1.1s |
+| 100000 | 90.9s | 79.4s | 7.6s |
+
