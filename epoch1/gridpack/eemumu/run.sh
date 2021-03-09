@@ -60,4 +60,10 @@ else
     rm -rf Events Cards P* *.dat randinit &> /dev/null
 fi
 echo "write ./events.lhe.gz"
+
+echo "*** madevent/SubProcesses/P1_ll_ll/G1/counters_log.txt:"
+cat madevent/SubProcesses/P1_ll_ll/G1/counters_log.txt
+echo "*** madevent/SubProcesses/P1_ll_ll/G2/counters_log.txt:"
+cat madevent/SubProcesses/P1_ll_ll/G2/counters_log.txt
+
 exit
