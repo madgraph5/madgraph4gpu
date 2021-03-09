@@ -44,10 +44,12 @@ PROCESS= driver.o myamp.o genps.o unwgt.o setcuts.o get_color.o \
 
 SYMMETRY = symmetry.o idenparts.o 
 
+CCPPCUDA = counters.o
+
 # Binaries
 
-$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX)
-	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES)
+$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX) $(CCPPCUDA)
+	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(CCPPCUDA) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES)
 
 $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES)
@@ -67,6 +69,10 @@ $(LIBDIR)libpdf.$(libext):
 # Add source so that the compiler finds the DiscreteSampler module.
 %.o: %.f
 	$(FC) $(FFLAGS) -c $< -I../../Source/
+
+# C and C++ functions
+%.o: %.c
+	$(CC) $(CFLAGS) -c $<
 
 # Dependencies
 
