@@ -253,6 +253,7 @@ C     1 ColorOne()
 C     ----------
 C     BEGIN CODE
 C     ----------
+      call counters_start()
       if (first) then
         first=.false.
         IF(ZERO.ne.0d0) fk_ZERO = SIGN(MAX(ABS(ZERO), ABS(ZERO
