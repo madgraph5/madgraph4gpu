@@ -666,44 +666,24 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
     Kokkos::View<double**,Stride,Device,MemSpace> local_mom,
     Kokkos::View<double*,ExecSpace> cIPD,
     Kokkos::View<Kokkos::complex<double>*,ExecSpace> cIPC,
-    double& matrix,
-    long int* times)
+    double& matrix)
 {
   Kokkos::complex<double> amp[2]; 
   // Calculate wavefunctions for all processes
   Kokkos::complex<double> w[5][6];
-  auto start_time = clock();
   oxxxxx(Kokkos::subview(local_mom,0,Kokkos::ALL), 0., cHel(0), -1, w[0]);
-  times[0] = clock() - start_time;
-  start_time = clock();
   ixxxxx(Kokkos::subview(local_mom,1,Kokkos::ALL), 0., cHel(1), +1, w[1]); 
-  times[1] = clock() - start_time;
-  start_time = clock();
   ixxxxx(Kokkos::subview(local_mom,2,Kokkos::ALL), 0., cHel(2), -1, w[2]); 
-  times[2] = clock() - start_time;
-  start_time = clock();
   oxxxxx(Kokkos::subview(local_mom,3,Kokkos::ALL), 0., cHel(3), +1, w[3]); 
-  times[3] = clock() - start_time;
-  start_time = clock();
-  FFV1P0_3(w[1], w[0], cIPC(0), 0., 0., w[4]);
+  
   // Amplitude(s) for diagram number 1
-  times[4] = clock() - start_time;
-  start_time = clock();
+  FFV1P0_3(w[1], w[0], cIPC(0), 0., 0., w[4]);
   FFV1_0(w[2], w[3], w[4], cIPC(0), &amp[0]);
-  times[5] = clock() - start_time;
-  start_time = clock();
-  FFV2_4_3(w[1], w[0], cIPC(1), cIPC(2), cIPD(0), cIPD(1), w[4]);
+  
   // Amplitude(s) for diagram number 2
-  times[6] = clock() - start_time;
-  start_time = clock();
-  FFV2_4_0(w[2], w[3], w[4], cIPC(1),
-      cIPC(2), &amp[1]);
-  times[7] = clock() - start_time;
-  start_time = clock();
-  // double CPPProcess::matrix_1_epem_mupmum() {
-  int i, j; 
-  // Local variables
-
+  FFV2_4_3(w[1], w[0], cIPC(1), cIPC(2), cIPD(0), cIPD(1), w[4]);
+  FFV2_4_0(w[2], w[3], w[4], cIPC(1), cIPC(2), &amp[1]);
+  
   // const int ngraphs = 2;
   const int ncolor = 1; 
   Kokkos::complex<double> ztemp; 
@@ -716,10 +696,10 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
   jamp[0] = -amp[0] - amp[1];
 
   // Sum and square the color flows to get the matrix element
-  for(i = 0; i < ncolor; i++ )
+  for(int i = 0; i < ncolor; i++ )
   {
     ztemp = 0.; 
-    for(j = 0; j < ncolor; j++ )
+    for(int j = 0; j < ncolor; j++ )
       ztemp = ztemp + cf[i][j] * jamp[j]; 
     matrix = matrix + (ztemp * conj(jamp[i])).real()/denom[i]; 
   }
@@ -790,44 +770,13 @@ void sigmaKin(Kokkos::View<double***,ExecSpace> momenta,
     // }
 
     auto local_mom = Kokkos::subview(momenta,tid,Kokkos::ALL,Kokkos::ALL);
-
-    double sum[10] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
-    double sum2[10] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
-    long int n[10] = {0,0,0,0,0,0,0,0,0,0};
     for (int ihel = 0; ihel < ncomb; ++ihel)
     {
       auto local_cHel = Kokkos::subview(cHel,ihel,Kokkos::ALL);
-      auto start_time = clock();
       // printf("tid = %d ihel = %d cHel[%d][0] = %d matrix = %7e\n",tid,ihel,ihel,local_cHel(0),matrix_element[0]);
-      long int times[10];
-      calculate_wavefunctions(local_cHel, local_mom, cIPD, cIPC, matrix_element[0],times);
-      auto end_time = clock();
-      auto run_time = end_time - start_time;
+      calculate_wavefunctions(local_cHel, local_mom, cIPD, cIPC, matrix_element[0]);
       
-      for(int ii=0;ii<10;++ii){
-        auto frac = double(times[ii]) / int(run_time);
-        sum[ii] += frac;
-        sum2[ii] += frac*frac;
-        n[ii] += 1;
-      }
     }
-    double mean[10] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
-    double sigma[10] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
-    for(int ii=0;ii<10;++ii){
-      mean[ii] = sum[ii] / n[ii];
-      sigma[ii] = sqrt( (1./n[ii]) * sum2[ii] - mean[ii] * mean[ii]);
-    }
-
-    printf("tid = %d time = %7.4f +/- %7.4f; %7.4f +/- %7.4f; %7.4f +/- %7.4f; %7.4f +/- %7.4f; %7.4f +/- %7.4f; %7.4f +/- %7.4f; %7.4f +/- %7.4f; %7.4f +/- %7.4f;\n",tid,
-        mean[0],sigma[0],
-        mean[1],sigma[1],
-        mean[2],sigma[2],
-        mean[3],sigma[3],
-        mean[4],sigma[4],
-        mean[5],sigma[5],
-        mean[6],sigma[6],
-        mean[7],sigma[7]);
-
 
     for (int i = 0; i < nprocesses; ++ i)
     {
