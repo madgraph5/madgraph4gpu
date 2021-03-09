@@ -3,27 +3,27 @@
 
 static int counters_counter = 0;
 
-int counters_initialise_()
+void counters_initialise_()
 {
   FILE *f;
   f = fopen( "counters_log.txt", "w" );
   fprintf( f, "__CPP Initialise counters\n" );
   fclose( f );
-  return( 1 );
+  return;
 }
 
-int counters_start_()
+void counters_start_()
 {
   counters_counter++;
-  return( 1 );
+  return;
 }
 
-int counters_finalise_()
+void counters_finalise_()
 {
   FILE *f;
   f = fopen( "counters_log.txt", "a" );
   fprintf( f, "__CPP Finalise counters\n" );
   fprintf( f, "__CPP Total counter = %d\n", counters_counter );
   fclose( f );
-  return( 1 );
+  return;
 }
