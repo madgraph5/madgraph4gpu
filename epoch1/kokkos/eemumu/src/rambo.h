@@ -191,7 +191,6 @@ Kokkos::View<double***,ExecSpace> get_momenta(const int ninitial,const int nexte
 
       // return for weighted massless momenta
       if (nm == 0) {
-        printf("weighted massless momenta\n");
         for (int j = 0; j < n_outgoing; j++)
           for (int k = 0; k < 4; k++)
             d_p(i,j+d_ninitial(),k) = p[j][k];
