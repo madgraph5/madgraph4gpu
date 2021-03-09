@@ -106,3 +106,17 @@ gives the following approximate performance
 |  10000 | 12.6s |  9.9s | 1.1s |
 | 100000 | 90.9s | 79.4s | 7.6s |
 
+### Flamegraph
+
+A flamegraph produced with the following script for 100k events
+```
+  ./flgrAV time ./run.sh 100000 1234
+```
+is shown below. 
+
+<img src="eemumu/eemumu_madevent_100Kunw.png"  width="1200"/>
+
+The execution took 80s of user CPU time. The sampling rate is set at 1kHz, so 80k frames were collected. 
+- Note that the `matrix1_` function, where the matrix element (ME) is computed, only took 4.8k frames, i.e. 4.8s of user CPU time.
+- Note also that the unweighting efficiency, as seen in the gridpack creation step, is approximately 1.6k/28k. This means that, to generate 10k unweighted events, approximately 175k MEs were computed.
+- This gives an approximate throughput of 175k/4.8s i.e. 3.7E4 MEs per second for this Fortran implementation. 
