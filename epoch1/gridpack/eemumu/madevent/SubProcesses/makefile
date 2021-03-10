@@ -71,8 +71,8 @@ $(LIBDIR)libpdf.$(libext):
 	$(FC) $(FFLAGS) -c $< -I../../Source/
 
 # C and C++ functions
-%.o: %.c
-	$(CC) $(CFLAGS) -c $<
+%.o: %.cpp
+	$(CXX) $(CFLAGS) -c $<
 
 # Dependencies
 
