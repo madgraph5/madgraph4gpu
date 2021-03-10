@@ -40,7 +40,7 @@ set -x
 ###sudo LD_LIBRARY_PATH=$ldlp perf record -o perf.data -F ${frq} ${all} -g -- ${cmd}
 perf record -o perf.data -F ${frq} ${all} -g -- ${cmd}
 perf script -i perf.data | stackcollapse-perf.pl > perf.fold
-flamegraph.pl --minwidth 1 perf.fold > ${psvg}
+flamegraph.pl --minwidth 2 perf.fold > ${psvg}
 
 ###ls -ltr perf.*
 
