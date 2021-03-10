@@ -163,6 +163,7 @@ The execution took 86s of user CPU time. The sampling rate is set at 1kHz, so 86
 
 ## EEMUMU gridpack: time performance for unweighted event generation (3)
 
+
 A further test consisted in rebuilding the code using gcc/gfortran 8.3.0 instead of 4.8.5. 
 The compiler was set up from /cvmfs using the [setupGcc8.sh](./setupGcc8.sh) script.
 This gave almost a factor two speedup to the Fortran implementation on the same node:
@@ -172,4 +173,16 @@ This gave almost a factor two speedup to the Fortran implementation on the same 
 |   1000 |   2.4s |  0.9s | 0.2s |       4019, 4019 | 0.007s, 0.007s |  5.81E5/s, 5.88E5/s |
 |  10000 |  18.3s |  9.9s | 1.1s |   124019, 124019 | 0.209s, 0.209s |  5.94E5/s, 5.94E5/s |
 | 100000 |  94.7s | 80.2s | 7.6s | 1020019, 1020019 | 1.742s, 1.720s |  5.86E5/s, 5.93E5/s |
+
+Similarly, the test was repeated using gcc/gfortran 9.2.0.
+The compiler was set up from /cvmfs using the [setupGcc9.sh](./setupGcc9.sh) script.
+This gave slightly worse performances for MATRIX1:
+
+|   nunw |   real |  user |  sys |    MATRIX1 calls |  MATRIX1 times | MATRIX1 throughputs |
+|   ---: |   ---: |  ---: | ---: |             ---: |           ---: |                ---: |
+|   1000 |   1.8s |  0.9s | 0.2s |       4019, 4019 | 0.008s, 0.008s |  5.31E5/s, 5.36E5/s |
+|  10000 |  13.0s | 10.3s | 1.1s |   124019, 124019 | 0.227s, 0.229s |  5.46E5/s, 5.41E5/s |
+| 100000 |  97.9s | 83.2s | 7.8s | 1020019, 1020019 | 1.877s, 1.891s |  5.43E5/s, 5.39E5/s |
+
+This must be further analysed with flamegraphs.
 
