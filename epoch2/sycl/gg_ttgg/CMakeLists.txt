@@ -29,7 +29,7 @@ set(CMAKE_THREAD_LIBS_INIT "-lpthread")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 add_executable(check_sa.exe ${SOURCES})
-target_compile_options(check_sa.exe PRIVATE -O0 -g -fsycl -fsycl-unnamed-lambda -ferror-limit=1 -Wall -pthread)
+target_compile_options(check_sa.exe PRIVATE -g -fsycl -fsycl-unnamed-lambda -ferror-limit=1 -Wall -pthread)
 target_link_libraries(check_sa.exe PRIVATE sycl -fsycl)
 
 

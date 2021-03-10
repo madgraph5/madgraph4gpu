@@ -39,9 +39,9 @@ __device__ __constant__ fptype cIPD[2];
 __device__ __constant__ int cNGoodHel[1]; 
 __device__ __constant__ int cGoodHel[ncomb]; 
 #else
-static int cHel[ncomb][npar]; 
-static fptype cIPC[6]; 
-static fptype cIPD[2]; 
+//static int cHel[ncomb][npar]; 
+//static fptype cIPC[6]; 
+//static fptype cIPD[2]; 
 #endif
 
 //--------------------------------------------------------------------------
@@ -56,7 +56,7 @@ using mgOnGpu::nw6;
 void calculate_wavefunctions(int ihel, const fptype *allmomenta,
     fptype &meHelSum
     , sycl::nd_item<3> item_ct1,
-    const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel
+    const sycl::accessor<int, 2, sycl::access::mode::read> devcHel_acc
 #ifndef SYCL_LANGUAGE_VERSION
     , const int ievt
 #endif
@@ -80,44 +80,44 @@ void calculate_wavefunctions(int ihel, const fptype *allmomenta,
   }
 
 #ifdef SYCL_LANGUAGE_VERSION
-  vxxxxx(allmomenta, 0., cHel[ihel][0], -1, w[0], 0, item_ct1);
+  vxxxxx(allmomenta, 0., devcHel_acc[ihel][0], -1, w[0], 0, item_ct1);
 #else
-  vxxxxx(allmomenta, 0., cHel[ihel][0], -1, w[0], ievt, 0); 
+  vxxxxx(allmomenta, 0., devcHel_acc[ihel][0], -1, w[0], ievt, 0); 
 #endif 
 
 
 #ifdef SYCL_LANGUAGE_VERSION
-  vxxxxx(allmomenta, 0., cHel[ihel][1], -1, w[1], 1, item_ct1);
+  vxxxxx(allmomenta, 0., devcHel_acc[ihel][1], -1, w[1], 1, item_ct1);
 #else
-  vxxxxx(allmomenta, 0., cHel[ihel][1], -1, w[1], ievt, 1); 
+  vxxxxx(allmomenta, 0., devcHel_acc[ihel][1], -1, w[1], ievt, 1); 
 #endif 
 
 
 #ifdef SYCL_LANGUAGE_VERSION
-  oxxxxx(allmomenta, cIPD[0], cHel[ihel][2], +1, w[2], 2, item_ct1);
+  oxxxxx(allmomenta, cIPD[0], devcHel_acc[ihel][2], +1, w[2], 2, item_ct1);
 #else
-  oxxxxx(allmomenta, cIPD[0], cHel[ihel][2], +1, w[2], ievt, 2); 
+  oxxxxx(allmomenta, cIPD[0], devcHel_acc[ihel][2], +1, w[2], ievt, 2); 
 #endif 
 
 
 #ifdef SYCL_LANGUAGE_VERSION
-  ixxxxx(allmomenta, cIPD[0], cHel[ihel][3], -1, w[3], 3, item_ct1);
+  ixxxxx(allmomenta, cIPD[0], devcHel_acc[ihel][3], -1, w[3], 3, item_ct1);
 #else
-  ixxxxx(allmomenta, cIPD[0], cHel[ihel][3], -1, w[3], ievt, 3); 
+  ixxxxx(allmomenta, cIPD[0], devcHel_acc[ihel][3], -1, w[3], ievt, 3); 
 #endif 
 
 
 #ifdef SYCL_LANGUAGE_VERSION
-  vxxxxx(allmomenta, 0., cHel[ihel][4], +1, w[4], 4, item_ct1);
+  vxxxxx(allmomenta, 0., devcHel_acc[ihel][4], +1, w[4], 4, item_ct1);
 #else
-  vxxxxx(allmomenta, 0., cHel[ihel][4], +1, w[4], ievt, 4); 
+  vxxxxx(allmomenta, 0., devcHel_acc[ihel][4], +1, w[4], ievt, 4); 
 #endif 
 
 
 #ifdef SYCL_LANGUAGE_VERSION
-  vxxxxx(allmomenta, 0., cHel[ihel][5], +1, w[5], 5, item_ct1);
+  vxxxxx(allmomenta, 0., devcHel_acc[ihel][5], +1, w[5], 5, item_ct1);
 #else
-  vxxxxx(allmomenta, 0., cHel[ihel][5], +1, w[5], ievt, 5); 
+  vxxxxx(allmomenta, 0., devcHel_acc[ihel][5], +1, w[5], ievt, 5); 
 #endif 
 
   VVV1P0_1(w[0], w[1], cxtype(cIPC[0], cIPC[1]), 0., 0., w[6]); 
@@ -1285,7 +1285,7 @@ SYCL_EXTERNAL
 void sigmaKin_getGoodHel(const fptype * allmomenta,  // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
 bool * isGoodHel  // output: isGoodHel[ncomb] - device array
 , sycl::nd_item<3> item_ct1,
-const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel )
+const sycl::accessor<int, 2, sycl::access::mode::read> devcHel_acc )
 {
   const int nprocesses = 1;  // FIXME: assume process.nprocesses == 1
   fptype meHelSum[nprocesses] = {0};  // all zeros
@@ -1294,7 +1294,7 @@ const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel )
   {
     // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running
     // sum of |M|^2 over helicities for the given event
-    calculate_wavefunctions(ihel, allmomenta, meHelSum[0], item_ct1, cHel);
+    calculate_wavefunctions(ihel, allmomenta, meHelSum[0], item_ct1, devcHel_acc);
     if (meHelSum[0] != meHelSumLast)
     {
       isGoodHel[ihel] = true; 
@@ -1333,7 +1333,7 @@ void sigmaKin_setGoodHel(const bool * isGoodHel, int* cNGoodHel, int* cGoodHel) 
 SYCL_EXTERNAL
 void sigmaKin( const fptype* allmomenta, fptype* allMEs
 , sycl::nd_item<3> item_ct1,
-const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel,
+const sycl::accessor<int, 2, sycl::access::mode::read> devcHel_acc,
 int *cNGoodHel,
 int *cGoodHel
 #ifndef SYCL_LANGUAGE_VERSION
@@ -1389,7 +1389,7 @@ int *cGoodHel
     for (int ighel = 0; ighel < cNGoodHel[0]; ighel++ )
     {
       const int ihel = cGoodHel[ighel]; 
-      calculate_wavefunctions(ihel, allmomenta, meHelSum[0], item_ct1, cHel); 
+      calculate_wavefunctions(ihel, allmomenta, meHelSum[0], item_ct1, devcHel_acc); 
     }
 #else
     // C++ - compute good helicities within this loop

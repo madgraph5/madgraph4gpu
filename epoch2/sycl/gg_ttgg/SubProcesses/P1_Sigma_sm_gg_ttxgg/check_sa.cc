@@ -223,7 +223,7 @@ int main(int argc, char **argv)
   sycl::buffer<bool, 1, sycl::buffer_allocator> IsGoodHel_buffer{sycl::range<1>{ncomb}};
   sycl::buffer<fptype, 1, sycl::buffer_allocator> Weights_buffer{sycl::range<1>{nWeights}};
   sycl::buffer<fptype, 1, sycl::buffer_allocator> MEs_buffer{sycl::range<1>{nMEs}};
-  sycl::buffer<int, 2, sycl::buffer_allocator> cHel_buffer{sycl::range<2>{ncomb,npar}};
+  sycl::buffer cHel_buffer{(const int*)Proc::cHel, sycl::range<2>{ncomb,npar}};
   sycl::buffer<int, 1, sycl::buffer_allocator> cNGoodHel_buffer{sycl::range<1>{1}};
   sycl::buffer<int, 1, sycl::buffer_allocator> cGoodHel_buffer{sycl::range<1>{ncomb}};
 #ifdef __CUDACC__
@@ -416,7 +416,7 @@ int main(int argc, char **argv)
       // ... 0d1. Compute good helicity mask on the device
       {
         q_ct1.submit([&](sycl::handler &cgh) {
-          auto devcHel_acc = cHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
+          auto devcHel_acc = cHel_buffer.get_access<sycl::access::mode::read>(cgh);
           auto devMomenta_acc = Momenta_buffer.get_access<sycl::access::mode::read_write>(cgh);
           auto devIsGoodHel_acc = IsGoodHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
           cgh.parallel_for(
@@ -454,7 +454,7 @@ int main(int argc, char **argv)
 #ifndef MGONGPU_NSIGHT_DEBUG
     {
       q_ct1.submit([&](sycl::handler &cgh) {
-        auto cHel_acc = cHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
+        auto cHel_acc = cHel_buffer.get_access<sycl::access::mode::read>(cgh);
         auto cNGoodHel_acc = cNGoodHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
         auto cGoodHel_acc = cGoodHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
         auto devMomenta_acc = Momenta_buffer.get_access<sycl::access::mode::read_write>(cgh);
