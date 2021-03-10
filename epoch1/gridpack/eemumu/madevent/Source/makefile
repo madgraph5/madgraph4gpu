@@ -117,6 +117,7 @@ clean:
 	cd DHELAS; make clean; cd ..
 	cd CERNLIB; make clean; cd ..
 	cd MODEL; make clean; cd ..
+	cd BIAS/dummy; make clean; cd ../..
 	if [ -d $(CUTTOOLSDIR) ]; then cd $(CUTTOOLSDIR); make clean; cd ..; fi
 	if [ -d $(IREGIDIR) ]; then cd $(IREGIDIR); make clean; cd ..; fi
 	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make clean; cd -; done;
