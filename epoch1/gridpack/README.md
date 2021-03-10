@@ -160,3 +160,16 @@ is shown below.
 
 The execution took 86s of user CPU time. The sampling rate is set at 1kHz, so 86k frames were collected. 
 - The `MATRIX1_` function, where MEs are computed, took 6.9k frames, i.e. 6.9s of user CPU time. Out of these, 2.1s are an overhead from the counter start/stop functions. The actual ME calculation probably took 4.8s, as previously estimated. Hence, the previous throughput estimate of 4.2E5/s seems correct.
+
+## EEMUMU gridpack: time performance for unweighted event generation (3)
+
+A further test consisted in rebuilding the code using gcc/gfortran 8.3.0 instead of 4.8.5. 
+The compiler was set up from /cvmfs using the [setupGcc8.sh](./setupGcc8.sh) script.
+This gave almost a factor two speedup to the Fortran implementation on the same node:
+
+|   nunw |   real |  user |  sys |    MATRIX1 calls |  MATRIX1 times | MATRIX1 throughputs |
+|   ---: |   ---: |  ---: | ---: |             ---: |           ---: |                ---: |
+|   1000 |   2.4s |  0.9s | 0.2s |       4019, 4019 | 0.007s, 0.007s |  5.81E5/s, 5.88E5/s |
+|  10000 |  18.3s |  9.9s | 1.1s |   124019, 124019 | 0.209s, 0.209s |  5.94E5/s, 5.94E5/s |
+| 100000 |  94.7s | 80.2s | 7.6s | 1020019, 1020019 | 1.742s, 1.720s |  5.86E5/s, 5.93E5/s |
+
