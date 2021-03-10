@@ -24,10 +24,10 @@ extern "C"
     return;
   }
 
-  void counters_start_()
+  void counters_start_( char* key )
   {
     counters_counter1++;
-    timermap.start( "function" );
+    timermap.start( std::string( key ) );
     return;
   }
 
