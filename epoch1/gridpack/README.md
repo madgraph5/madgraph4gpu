@@ -19,7 +19,7 @@ It is complemented with the following patches for a few python3 bugs:
 
 ## Python version
 
-Python 3.8 was used from /cvmfs using the (setupPython38.sh)[setupPython38.sh] script.
+Python 3.8 was used from /cvmfs using the [setupPython38.sh](./setupPython38.sh) script.
 
 ## EEMUMU gridpack creation
 
