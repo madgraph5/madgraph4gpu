@@ -71,15 +71,16 @@ $(LIBDIR)libpdf.$(libext):
 	$(FC) $(FFLAGS) -c $< -I../../Source/
 
 # C and C++ functions
+CXXFLAGS = -std=c++11 $(USE_NVTX) -Wshadow -Wextra
 %.o: %.cpp
-	$(CXX) $(CFLAGS) -c $<
+	$(CXX) $(CXXFLAGS) -c $<
 
 # Dependencies
 
 driver.f: genps.inc
 symmetry.o: genps.inc nexternal.inc configs.inc run_config.inc
 genps.o: genps.inc nexternal.inc configs.inc
-dummy_fct.0: run.inc genps.inc
+dummy_fct.o: run.inc genps.inc
 cuts.o: genps.inc nexternal.inc pmass.inc
 setcuts.o: genps.inc run_config.inc
 invarients.o: genps.inc nexternal.inc
@@ -91,6 +92,7 @@ addmothers.o: genps.inc nexternal.inc symswap.inc message.inc
 unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
 	 run_config.inc
 initcluster.o: message.inc
+counters.o: timer.h simpletimermap.h
 
 clean:
 	$(RM) *.o gensym madevent madevent_forhel

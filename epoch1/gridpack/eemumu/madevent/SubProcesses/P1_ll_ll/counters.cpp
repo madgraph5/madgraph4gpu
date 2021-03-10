@@ -1,3 +1,6 @@
+#include "simpletimermap.h"
+
+#include <fstream>
 #include <stdio.h>
 
 // NB1: The C functions counters_xxx_ in this file are called by Fortran code
@@ -11,38 +14,36 @@
 extern "C"
 {
 
+  static mgOnGpu::SimpleTimerMap timermap;
+
   static int counters_counter1 = 0;
   static int counters_counter2 = 0;
 
   void counters_initialise_()
   {
-    FILE *f;
-    f = fopen( "counters_log.txt", "w" );
-    fprintf( f, "__CPP Initialise counters\n" );
-    fclose( f );
     return;
   }
 
   void counters_start_()
   {
     counters_counter1++;
+    timermap.start( "function" );
     return;
   }
 
   void counters_end_()
   {
     counters_counter2++;
+    timermap.stop();
     return;
   }
 
   void counters_finalise_()
   {
-    FILE *f;
-    f = fopen( "counters_log.txt", "a" );
-    fprintf( f, "__CPP Finalise counters\n" );
-    fprintf( f, "__CPP Total counter1 = %d\n", counters_counter1 );
-    fprintf( f, "__CPP Total counter2 = %d\n", counters_counter2 );
-    fclose( f );
+    std::fstream fstr;
+    fstr.open( "counters_log.txt", std::fstream::out | std::fstream::trunc );
+    timermap.simpledump( fstr );
+    fstr.close();
     return;
   }
 
