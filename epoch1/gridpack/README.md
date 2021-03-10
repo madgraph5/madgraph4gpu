@@ -119,7 +119,7 @@ is shown below.
 <img src="eemumu/eemumu_madevent_100Kunw.png"  width="1200"/>
 
 The execution took 80s of user CPU time. The sampling rate is set at 1kHz, so 80k frames were collected. 
-- Note that the `MATRIX1_` function, where matrix elements (ME) are computed, only took 4.8k frames, i.e. 4.8s of user CPU time.
+- Note that the `MATRIX1_` function, where matrix elements (MEs) are computed, only took 4.8k frames, i.e. 4.8s of user CPU time.
 - Note also that the unweighting efficiency, as seen in the gridpack creation step, is approximately 1.6k/28k. This means that, to generate 100k unweighted events, approximately 1.75M MEs were computed.
 - This gives an approximate throughput of 1.75M/4.8s i.e. 3.7E5 MEs per second for this Fortran implementation. 
 
@@ -163,6 +163,6 @@ is shown below.
 <img src="eemumu/eemumu_madevent_100Kunw2.png"  width="1200"/>
 
 The execution took 86s of user CPU time. The sampling rate is set at 1kHz, so 86k frames were collected. 
-- The `MATRIX1_` function, where matrix elements (ME) are computed, took 8.0k frames, i.e. 8.0s of user CPU time. Out of these, 3.0k frames, i.e. 3.0s, are an overhead from the counter start/stop functions.
+- The `MATRIX1_` function, where MEs are computed, took 8.0k frames, i.e. 8.0s of user CPU time. Out of these, 3.0k frames, i.e. 3.0s, are an overhead from the counter start/stop functions.
 
 
