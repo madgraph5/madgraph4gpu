@@ -1,7 +1,10 @@
-#include "simpletimermap.h"
+#include "timer.h"
+#define TIMERTYPE std::chrono::high_resolution_clock
 
-#include <fstream>
 #include <stdio.h>
+
+#undef COUNTERS_USETIMER
+#define COUNTERS_USETIMER 1 // comment out to disable timers and keep only counters
 
 // NB1: The C functions counters_xxx_ in this file are called by Fortran code
 // Hence the trailing "_": 'call counters_end()' links to counters_end_
@@ -13,37 +16,52 @@
 
 extern "C"
 {
-
-  static mgOnGpu::SimpleTimerMap timermap;
-
-  static int counters_counter1 = 0;
-  static int counters_counter2 = 0;
+#ifdef COUNTERS_USETIMER
+  static mgOnGpu::Timer<TIMERTYPE> program_timer;
+  static float program_totaltime = 0;
+  static mgOnGpu::Timer<TIMERTYPE> matrix1_timer;
+  static float matrix1_totaltime = 0;
+#endif
+  static int matrix1_counter = 0;
 
   void counters_initialise_()
   {
+#ifdef COUNTERS_USETIMER
+    program_timer.Start();
+#endif
     return;
   }
 
-  void counters_start_( char* key )
+  void counters_matrix1_start_()
   {
-    counters_counter1++;
-    timermap.start( std::string( key ) );
+    matrix1_counter++;
+#ifdef COUNTERS_USETIMER
+    matrix1_timer.Start();
+#endif
     return;
   }
 
-  void counters_end_()
+  void counters_matrix1_stop_()
   {
-    counters_counter2++;
-    timermap.stop();
+#ifdef COUNTERS_USETIMER
+    matrix1_totaltime += matrix1_timer.GetDuration();
+#endif
     return;
   }
 
   void counters_finalise_()
   {
-    std::fstream fstr;
-    fstr.open( "counters_log.txt", std::fstream::out | std::fstream::trunc );
-    timermap.simpledump( fstr );
-    fstr.close();
+    FILE *f;
+    f = fopen( "counters_log.txt", "w" );
+#ifdef COUNTERS_USETIMER
+    program_totaltime += program_timer.GetDuration();
+    fprintf( f, "PROGRAM : %9.4fs\n", program_totaltime );
+    fprintf( f, "MATRIX1 : %9.4fs for %8d calls => throughput is %8.2E calls/s\n",
+             matrix1_totaltime, matrix1_counter, matrix1_counter/matrix1_totaltime );
+#else
+    fprintf( f, "MATRIX1 : %8d calls\n", matrix1_counter );
+#endif
+    fclose( f );
     return;
   }
 

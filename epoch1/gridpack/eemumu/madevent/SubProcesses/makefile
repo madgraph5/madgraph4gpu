@@ -92,7 +92,7 @@ addmothers.o: genps.inc nexternal.inc symswap.inc message.inc
 unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
 	 run_config.inc
 initcluster.o: message.inc
-counters.o: timer.h simpletimermap.h
+counters.o: timer.h
 
 clean:
 	$(RM) *.o gensym madevent madevent_forhel
