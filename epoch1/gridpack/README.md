@@ -116,7 +116,7 @@ The numbers of MATRIX1 calls indicate the number of phase space points before un
 
 ### Flamegraph (1)
 
-A flamegraph produced with the following script for 100k events
+A flamegraph produced with the following command (using the [flgrAV](./flgrAV) script) for 100k events
 ```
   ../flgrAV time ./run.sh 100000 1234
 ```
@@ -150,7 +150,7 @@ The overhead, however, is much larger for the MATRIX1 calls themselves, which ar
 
 ### Flamegraph (2)
 
-A flamegraph produced with the following script for 100k events
+A flamegraph produced with the following command for 100k events
 ```
   ../flgrAV time ./run.sh 100000 1234
 ```
@@ -185,7 +185,7 @@ This gave slightly worse performances for MATRIX1:
 
 ### Flamegraph (3)
 
-A flamegraph produced with the following script for 100k events
+A flamegraph produced with the following command for 100k events
 ```
   ../flgrAV time ./run.sh 100000 1234
 ```
