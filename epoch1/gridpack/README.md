@@ -122,7 +122,7 @@ A flamegraph produced with the following script for 100k events
 ```
 is shown below. 
 
-<img src="eemumu/eemumu_madevent_100Kunw-bis.png"  width="1200"/>
+<img src="eemumu/plots/100k-plot1-gcc4-notimer.png"  width="1200"/>
 
 The execution took 80s of user CPU time. The sampling rate is set at 1kHz, so 80k frames were collected. 
 - Note that the `MATRIX1_` function, where matrix elements (MEs) are computed, only took 4.8k frames, i.e. 4.8s of user CPU time.
@@ -156,13 +156,12 @@ A flamegraph produced with the following script for 100k events
 ```
 is shown below. 
 
-<img src="eemumu/eemumu_madevent_100Kunw-bis2.png"  width="1200"/>
+<img src="eemumu/plots/100k-plot2-gcc4-timer.png"  width="1200"/>
 
-The execution took 86s of user CPU time. The sampling rate is set at 1kHz, so 86k frames were collected. 
-- The `MATRIX1_` function, where MEs are computed, took 6.9k frames, i.e. 6.9s of user CPU time. Out of these, 2.1s are an overhead from the counter start/stop functions. The actual ME calculation probably took 4.8s, as previously estimated. Hence, the previous throughput estimate of 4.2E5/s seems correct.
+The execution took 86s of user CPU time (86k sampling frames).
+- The `MATRIX1_` function, where MEs are computed, took 6.9s (6.9k frames). Out of these, 2.1s are an overhead from the counter start/stop functions. The actual ME calculation probably took 4.8s, as previously estimated. Hence, the previous throughput estimate of 4.2E5/s seems correct.
 
 ## EEMUMU gridpack: time performance for unweighted event generation (3)
-
 
 A further test consisted in rebuilding the code using gcc/gfortran 8.3.0 instead of 4.8.5. 
 The compiler was set up from /cvmfs using the [setupGcc8.sh](./setupGcc8.sh) script.
@@ -184,5 +183,16 @@ This gave slightly worse performances for MATRIX1:
 |  10000 |  13.0s | 10.3s | 1.1s |   124019, 124019 | 0.227s, 0.229s |  5.46E5/s, 5.41E5/s |
 | 100000 |  97.9s | 83.2s | 7.8s | 1020019, 1020019 | 1.877s, 1.891s |  5.43E5/s, 5.39E5/s |
 
-This must be further analysed with flamegraphs.
+### Flamegraph (3)
 
+A flamegraph produced with the following script for 100k events
+```
+  ../flgrAV time ./run.sh 100000 1234
+```
+is shown below for the gcc/gfortran 8.3.0 test. 
+(The flamegraph for gcc/gfortran 9.2.0 looks similar and has not been saved).
+
+<img src="eemumu/plots/100k-plot3-gcc8-timer.png"  width="1200"/>
+
+The execution took 80s of user CPU time (80k sampling frames).
+- The `MATRIX1_` function, where MEs are computed, took 3.6s (3.6k frames). The overhead from the counter stop function is minimal. The estimate of 5.9E5 MEs/s seems reasonable.
