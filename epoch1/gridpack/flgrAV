@@ -1,0 +1,50 @@
+#! /bin/bash
+
+fgdir=/afs/cern.ch/user/a/avalassi/GPU2020/FlameGraph2021/FlameGraph
+
+all= # default: do NOT profile all cpus
+if [ "$1" == "-a" ]; then
+  all=-a
+  shift
+fi
+
+frq=1000 # default sampling frequency: 1000 Hertz (1000 frames == 1 second!)
+if [ "$1" == "-F" ] && [ "$2" != "" ]; then
+  frq="$2"
+  shift 2
+fi
+
+tag= # default name: perf.svg, else perf-${tag}.svg
+if [ "$1" == "-t" ] && [ "$2" != "" ]; then
+  tag="-$2"
+  shift 2
+fi
+
+if ! [[ "$frq" =~ ^[0-9]+$ ]] || [ "$1" == "" ] || [ "$1" != "${1#-F}" ]; then
+  echo "Usage: $0 [-a] [-F <Hertz>] <command> [<arguments>]"
+  exit 1
+fi
+cmd="$*"
+
+ldlp=$LD_LIBRARY_PATH
+
+###export PERL5LIB=${fgdir}
+export PATH=${fgdir}:${PATH}
+
+###psvg=perf.svg
+tag=-$(basename $(hostname) .cern.ch)${tag}
+psvg=perf${tag}.svg
+
+set -x
+
+###sudo LD_LIBRARY_PATH=$ldlp perf record -o perf.data -F ${frq} ${all} -g -- ${cmd}
+perf record -o perf.data -F ${frq} ${all} -g -- ${cmd}
+perf script -i perf.data | stackcollapse-perf.pl > perf.fold
+flamegraph.pl --minwidth 2 perf.fold > ${psvg}
+
+###ls -ltr perf.*
+
+\cp ${psvg} ~/EOS/tmpEOS
+###eog ${psvg} &
+
+###perf report --stdio
