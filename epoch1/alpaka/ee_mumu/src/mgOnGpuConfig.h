@@ -62,22 +62,30 @@ namespace mgOnGpu
   // (this is best kept as a compile-time constant: see issue #23)
   // *** NB Different values of neppR lead to different physics results: the ***
   // *** same 1d array is generated, but it is interpreted in different ways ***
+#if defined FORCE_AOS
+  const int neppR = 1;  // *** NB: this is equivalent to AOS ***
+#else
 #if defined MGONGPU_FPTYPE_DOUBLE
-//  const int neppR = 4; // DEFAULT: one 32-byte cache line contains 4 doubles as sizeof(double) is 8 bytes
+  const int neppR = 4; // DEFAULT: one 32-byte cache line contains 4 doubles as sizeof(double) is 8 bytes
 #elif defined MGONGPU_FPTYPE_FLOAT
-//  const int neppR = 8; // DEFAULT: one 32-byte cache line contains 8 floats as sizeof(float) is 4 bytes
+  const int neppR = 8; // DEFAULT: one 32-byte cache line contains 8 floats as sizeof(float) is 4 bytes
 #endif
-const int neppR = 1;  // *** NB: this is equivalent to AOS ***
+#endif
+  //const int neppR = 1;  // *** NB: this is equivalent to AOS ***
   //const int neppR = 32; // older default
 
   // Number of Events Per Page in the momenta AOSOA (ASA) structure
   // (this is best kept as a compile-time constant: see issue #23)
+#if defined FORCE_AOS
+  const int neppM = 1;  // *** NB: this is equivalent to AOS ***
+#else
 #if defined MGONGPU_FPTYPE_DOUBLE
-//  const int neppM = 4; // DEFAULT: one 32-byte cache line contains 4 doubles as sizeof(double) is 8 bytes
+  const int neppM = 4; // DEFAULT: one 32-byte cache line contains 4 doubles as sizeof(double) is 8 bytes
 #elif defined MGONGPU_FPTYPE_FLOAT
-//  const int neppM = 8; // DEFAULT: one 32-byte cache line contains 8 floats as sizeof(float) is 4 bytes
+  const int neppM = 8; // DEFAULT: one 32-byte cache line contains 8 floats as sizeof(float) is 4 bytes
 #endif
-const int neppM = 1;  // *** NB: this is equivalent to AOS ***
+#endif
+  //const int neppM = 1;  // *** NB: this is equivalent to AOS ***
   //const int neppM = 32; // older default
 
 }
@@ -86,7 +94,7 @@ const int neppM = 1;  // *** NB: this is equivalent to AOS ***
 // Arguments (not used so far): text is __FUNCTION__, code is 0 (start) or 1 (end)
 #if defined __CUDACC__ && defined MGONGPU_NSIGHT_DEBUG
 #define mgDebugDeclare() \
-  __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
+sharedMemExtern( mgDebugCounter, float );
 #define mgDebugInitialise() \
   { mgDebugCounter[threadIdx.x]=0; }
 #define mgDebug( code, text ) \
