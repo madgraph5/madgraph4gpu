@@ -1,5 +1,17 @@
 #!/bin/bash
 
+if [ "$1" == "-keeplog" ]; then
+  \cp ./madevent/bin/internal/gen_ximprove_keeplogT.py ./madevent/bin/internal/gen_ximprove.py
+  shift
+else
+  \cp ./madevent/bin/internal/gen_ximprove_keeplogF.py ./madevent/bin/internal/gen_ximprove.py
+fi
+
+if [ "$1" == "-h" ] || [ "$2" == "" ] || [ "$4" != "" ]; then
+  echo "Usage: $0 [-keeplog] <num_events> <iseed> [granularity]"
+  exit 1
+fi
+
 #############################################################################
 #                                                                          ##
 #                    MadGraph/MadEvent                                     ##
@@ -65,5 +77,7 @@ echo "*** madevent/SubProcesses/P1_ll_ll/G1/counters_log.txt:"
 cat madevent/SubProcesses/P1_ll_ll/G1/counters_log.txt
 echo "*** madevent/SubProcesses/P1_ll_ll/G2/counters_log.txt:"
 cat madevent/SubProcesses/P1_ll_ll/G2/counters_log.txt
+
+\cp ./madevent/bin/internal/gen_ximprove_keeplogF.py ./madevent/bin/internal/gen_ximprove.py
 
 exit
