@@ -614,10 +614,14 @@ Kokkos::complex<double> * vertex)
 }
 
 
-KOKKOS_FUNCTION void FFV2_4_3(const Kokkos::complex<double> F1[], const
-Kokkos::complex<double> F2[], const Kokkos::complex<double> COUP1, const
-Kokkos::complex<double> COUP2, const double M3, const double W3, 
-Kokkos::complex<double> V3[])
+KOKKOS_FUNCTION void FFV2_4_3(
+   const Kokkos::complex<double> F1[], 
+   const Kokkos::complex<double> F2[],
+   const Kokkos::complex<double>& COUP1,
+   const Kokkos::complex<double>& COUP2,
+   const double M3,
+   const double W3, 
+   Kokkos::complex<double> V3[])
 {
   Kokkos::complex<double> cI = Kokkos::complex<double> (0., 1.); 
   double OM3; 
@@ -662,10 +666,10 @@ Kokkos::complex<double> V3[])
 // Evaluate |M|^2 for each subprocess
 template <typename Stride, typename Device, typename MemSpace, typename ExecSpace>
 KOKKOS_FUNCTION void calculate_wavefunctions(
-    Kokkos::View<int*,Stride,Device,MemSpace> cHel,
-    Kokkos::View<double**,Stride,Device,MemSpace> local_mom,
-    Kokkos::View<double*,ExecSpace> cIPD,
-    Kokkos::View<Kokkos::complex<double>*,ExecSpace> cIPC,
+    const Kokkos::View<int*,Stride,Device,MemSpace>& cHel,
+    const Kokkos::View<double**,Stride,Device,MemSpace>& local_mom,
+    const Kokkos::View<double*,ExecSpace>& cIPD,
+    const Kokkos::View<Kokkos::complex<double>*,ExecSpace>& cIPC,
     double& matrix)
 {
   Kokkos::complex<double> amp[2]; 
@@ -713,8 +717,8 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, part independent of incoming flavour.
 template <typename ExecSpace>
-void sigmaKin(Kokkos::View<double***,ExecSpace> momenta, 
-    Kokkos::View<double*,ExecSpace> output,
+void sigmaKin(Kokkos::View<double***,ExecSpace>& momenta, 
+    Kokkos::View<double*,ExecSpace>& output,
     Kokkos::View<int**,ExecSpace> cHel,
     Kokkos::View<double*,ExecSpace> cIPD,
     Kokkos::View<Kokkos::complex<double>*,ExecSpace> cIPC,
