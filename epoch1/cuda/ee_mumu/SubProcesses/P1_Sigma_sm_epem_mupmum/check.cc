@@ -646,6 +646,7 @@ int main(int argc, char **argv)
               << "Random number generation    = CURAND (C++ code)" << std::endl
 #endif
               << "OMP threads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
+              << "MatrixElements compiler     = " << process.getCompiler() << std::endl
 #endif
               << "-----------------------------------------------------------------------" << std::endl
               << "NumberOfEntries             = " << niter << std::endl

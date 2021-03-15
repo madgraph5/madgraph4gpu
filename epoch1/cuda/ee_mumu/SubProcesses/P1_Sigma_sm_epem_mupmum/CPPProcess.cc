@@ -30,7 +30,7 @@ namespace MG5_sm
                                      const int ievt )
   {
     //mapping for the various scheme AOS, OSA, ...
-    
+
     using mgOnGpu::np4;
     using mgOnGpu::npar;
     const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
@@ -636,6 +636,22 @@ namespace Proc
     //std::cout << std::setprecision(17) << "tIPD[0] = " << tIPD[0] << std::endl;
     //std::cout << std::setprecision(17) << "tIPD[1] = " << tIPD[1] << std::endl;
   }
+
+  //--------------------------------------------------------------------------
+
+  // Retrieve the compiler that was used to build this module
+#ifndef __CUDACC__
+  const std::string CPPProcess::getCompiler()
+  {
+    std::stringstream out;
+#if defined __GNUC__ && defined __GNUC_MINOR__ && defined __GNUC_PATCHLEVEL__
+    out << "gcc (GCC) " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
+#else
+    out << "UNKNOWKN";
+#endif
+    return out.str();
+  }
+#endif
 
   //--------------------------------------------------------------------------
 
