@@ -647,6 +647,7 @@ int main(int argc, char **argv)
 #endif
               << "OMP threads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
 #endif
+              << "MatrixElements compiler     = " << process.getCompiler() << std::endl
               << "-----------------------------------------------------------------------" << std::endl
               << "NumberOfEntries             = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
