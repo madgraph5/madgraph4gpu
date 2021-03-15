@@ -15,6 +15,7 @@ local/
 profile_*
 *.qdrep
 *.sqlite
+*.ncu-rep
 
 # perf data
 *-perf-test-run*.json
