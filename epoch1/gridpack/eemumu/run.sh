@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$1" == "-cleanstart" ]; then
+  ./cleanRun.sh
+  shift
+fi
+
 if [ "$1" == "-keeplog" ]; then
   \cp ./madevent/bin/internal/gen_ximprove_keeplogT.py ./madevent/bin/internal/gen_ximprove.py
   shift
@@ -8,7 +13,7 @@ else
 fi
 
 if [ "$1" == "-h" ] || [ "$2" == "" ] || [ "$4" != "" ]; then
-  echo "Usage: $0 [-keeplog] <num_events> <iseed> [granularity]"
+  echo "Usage: $0 [-cleanstart] [-keeplog] <num_events> <iseed> [granularity]"
   exit 1
 fi
 
