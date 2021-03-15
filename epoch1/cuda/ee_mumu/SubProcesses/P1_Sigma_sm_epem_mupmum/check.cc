@@ -646,8 +646,8 @@ int main(int argc, char **argv)
               << "Random number generation    = CURAND (C++ code)" << std::endl
 #endif
               << "OMP threads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
-              << "MatrixElements compiler     = " << process.getCompiler() << std::endl
 #endif
+              << "MatrixElements compiler     = " << process.getCompiler() << std::endl
               << "-----------------------------------------------------------------------" << std::endl
               << "NumberOfEntries             = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)

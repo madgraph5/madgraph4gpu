@@ -640,18 +640,24 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   // Retrieve the compiler that was used to build this module
-#ifndef __CUDACC__
   const std::string CPPProcess::getCompiler()
   {
     std::stringstream out;
+#ifdef __CUDACC__
+#if defined __CUDACC_VER_MAJOR__ && defined __CUDACC_VER_MINOR__ && defined __CUDACC_VER_BUILD__
+    out << "nvcc " << __CUDACC_VER_MAJOR__ << "." << __CUDACC_VER_MINOR__ << "." << __CUDACC_VER_BUILD__;
+#else
+    out << "nvcc UNKNOWN";
+#endif
+#else
 #if defined __GNUC__ && defined __GNUC_MINOR__ && defined __GNUC_PATCHLEVEL__
     out << "gcc (GCC) " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
 #else
-    out << "UNKNOWKN";
+    out << "gcc UNKNOWKN";
+#endif
 #endif
     return out.str();
   }
-#endif
 
   //--------------------------------------------------------------------------
 
