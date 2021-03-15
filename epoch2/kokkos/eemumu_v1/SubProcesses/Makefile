@@ -36,7 +36,7 @@ debug: check
 $(LIBDIR)/lib$(MODELLIB).a:
 	@cd ../../src && make $(MAKEDEBUG)
 
-check_sa.o: check_sa.cu ../../src/rambo.h CPPProcess.h
+check_sa.o: check_sa.cu ../../src/rambo.h ../../src/random_generator.h CPPProcess.h
 	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
 
 %.o : %.cu %.h
