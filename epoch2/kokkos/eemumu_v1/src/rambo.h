@@ -9,7 +9,7 @@ template <typename ExecSpace>
 void get_initial_momenta(
                         Kokkos::View<double***,ExecSpace> d_p,
                         const int nexternal,const double energy,
-                        Kokkos::View<double*,ExecSpace> masses,
+                        const Kokkos::View<double*,ExecSpace>& masses,
                         const int& league_size,
                         const int& team_size){
   
@@ -40,10 +40,10 @@ void get_initial_momenta(
 
 template <typename ExecSpace>
 void get_final_momenta(const int ninitial,const int nexternal,const double energy,
-                       Kokkos::View<double*,ExecSpace> masses,
-                       Kokkos::View<double ***,ExecSpace> d_p,
-                       Kokkos::View<double **,ExecSpace> random_numbers,
-                       Kokkos::View<double,ExecSpace> d_wgt,
+                       const Kokkos::View<double*,ExecSpace>& masses,
+                       Kokkos::View<double ***,ExecSpace>& d_p,
+                       const Kokkos::View<double **,ExecSpace>& random_numbers,
+                       Kokkos::View<double,ExecSpace>& d_wgt,
                        const int& league_size,
                        const int& team_size) {
 
