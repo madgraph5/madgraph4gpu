@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <vector>
 
+#include <nvToolsExt.h> 
+
 #include "CPPProcess.h"
 #include "random_generator.h"
 #include "rambo.h"
@@ -89,6 +91,9 @@ int main(int argc, char **argv) {
     get_initial_momenta(p,process.nexternal,energy,process.cmME,league_size,team_size);
     auto h_p = Kokkos::create_mirror_view(p);
 
+    // init random number generator pool
+    auto rand_pool = init_random_generator();
+
     CalcMean ave_me;
     CalcMean tmr_rand;
     CalcMean tmr_dcpA;
@@ -101,34 +106,46 @@ int main(int argc, char **argv) {
       // printf("iter %d of %d\n",x,numiter);
       // Get phase space point
       // Kokkos::Timer ptimer;
+      nvtxRangePush("fill_random_numbers_2d");
       lptimer.reset();
-      fill_random_numbers_2d(random_numbers,events_per_iter,4*(process.nexternal - process.ninitial));
+      fill_random_numbers_2d(random_numbers,events_per_iter,4*(process.nexternal - process.ninitial), rand_pool, league_size, team_size);
       Kokkos::DefaultExecutionSpace().fence();
       tmr_rand.add_value(lptimer.seconds());
-
+      nvtxRangePop();
+      
+      nvtxRangePush("get_initial_momenta");
       lptimer.reset();
       Kokkos::deep_copy(p,h_p);
       tmr_dcpA.add_value(lptimer.seconds());
-
+      nvtxRangePop();
+      
+      nvtxRangePush("get_final_momenta");
       lptimer.reset();
       get_final_momenta(process.ninitial, process.nexternal, energy, process.cmME, p, random_numbers, d_wgt, league_size, team_size);
       Kokkos::DefaultExecutionSpace().fence();
       tmr_mom.add_value(lptimer.seconds());
+      nvtxRangePop();
       
-
+      nvtxRangePush("sigmaKin");
       lptimer.reset();
       sigmaKin(p, meDevPtr, process.cHel, process.cIPD, process.cIPC, league_size, team_size);//, debug, verbose);
       Kokkos::DefaultExecutionSpace().fence();
       tmr_skin.add_value(lptimer.seconds());
+      nvtxRangePop();
       
+      nvtxRangePush("copy_momenta_DtoH");
       lptimer.reset();
       Kokkos::deep_copy(h_p,p);
       tmr_dcpB.add_value(lptimer.seconds());
+      nvtxRangePop();
       
+      nvtxRangePush("copy_matrixEl_DtoH");
       lptimer.reset();
       Kokkos::deep_copy(meHostPtr,meDevPtr);
       tmr_dcpC.add_value(lptimer.seconds());
-      
+      nvtxRangePop();
+
+      nvtxRangePush("reporting");
       if (verbose)
         std::cout << "***********************************" << std::endl
                   << "Iteration #" << x+1 << " of " << numiter << std::endl;
@@ -166,6 +183,7 @@ int main(int argc, char **argv) {
       } else if (!debug) {
         std::cout << ".";
       }
+      nvtxRangePop();
 
     } // end for numiter
 
