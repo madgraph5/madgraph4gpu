@@ -77,7 +77,7 @@ std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{
 
 int main(int argc, char **argv)
 {
-  sycl::queue q_ct1{ sycl::cpu_selector{} };
+  sycl::queue q_ct1{ sycl::gpu_selector{} };
   auto device = q_ct1.get_device();
   std::cout << "Selected " << device.get_info<sycl::info::device::name>()
             << " on platform "

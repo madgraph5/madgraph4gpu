@@ -11,6 +11,8 @@
 #include <complex>
 
 #include "read_slha.h"
+#include "extras.h"
+
 using namespace std; 
 
 class Parameters_sm
@@ -30,14 +32,14 @@ class Parameters_sm
         mdl_sw, mdl_g1, mdl_gw, mdl_vev, mdl_vev__exp__2, mdl_lam, mdl_yb,
         mdl_yt, mdl_ytau, mdl_muH, mdl_ee__exp__2, mdl_sw__exp__2,
         mdl_cw__exp__2;
-    std::complex<double> mdl_complexi, mdl_I1x33, mdl_I2x33, mdl_I3x33,
+    extras::complex mdl_complexi, mdl_I1x33, mdl_I2x33, mdl_I3x33,
         mdl_I4x33;
     // Model parameters dependent on aS
     double mdl_sqrt__aS, G, mdl_G__exp__2; 
     // Model couplings independent of aS
 
     // Model couplings dependent on aS
-    std::complex<double> GC_10, GC_11, GC_12; 
+    extras::complex GC_10, GC_11, GC_12; 
 
     // Set parameters that are unchanged during the run
     void setIndependentParameters(SLHAReader& slha); 

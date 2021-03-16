@@ -11,7 +11,7 @@
 #include <cuComplex.h>
 #endif
 #else
-#include <complex>
+#include "extras.h"
 #endif
 
 namespace mgOnGpu
@@ -36,7 +36,7 @@ namespace mgOnGpu
   typedef cuFloatComplex cxtype;
 #endif
 #else // c++
-  typedef std::complex<fptype> cxtype; // two doubles: RI
+  typedef extras::complex cxtype; // two doubles: RI
 #endif
 
 }
@@ -314,7 +314,7 @@ const cxtype& cxmake( const cxtype& c ) // std::complex to std::complex (float-t
 
 #if defined MGONGPU_FPTYPE_FLOAT
 inline
-cxtype cxmake( const std::complex<double>& c ) // std::complex to std::complex (cast double-to-float)
+cxtype cxmake( const complex<double>& c ) // std::complex to std::complex (cast double-to-float)
 {
   return cxmake( (fptype)c.real(), (fptype)c.imag() );
 }

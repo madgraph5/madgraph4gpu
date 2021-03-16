@@ -16,6 +16,7 @@
 
 #include "CPPProcess.h"
 #include "HelAmps_sm.cc"
+#include "extras.h"
 
 //==========================================================================
 // Class member functions for calculating the matrix elements for
@@ -42,6 +43,9 @@ __device__ __constant__ int cGoodHel[ncomb];
 //static int cHel[ncomb][npar]; 
 //static fptype cIPC[6]; 
 //static fptype cIPD[2]; 
+int cHel[ncomb][npar]; 
+fptype cIPC[6]; 
+fptype cIPD[2]; 
 #endif
 
 //--------------------------------------------------------------------------
@@ -1233,7 +1237,7 @@ dim(gpu_nblocks * gpu_nthreads)
 #endif
 
   // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
-  assert(sizeof(cxtype) == 2 * sizeof(fptype)); 
+  //assert(sizeof(cxtype) == 2 * sizeof(fptype)); 
 }
 
 CPPProcess::~CPPProcess() {}
