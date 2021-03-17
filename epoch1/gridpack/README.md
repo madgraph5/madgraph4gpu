@@ -4,7 +4,7 @@ This directory contains a (modified) MG5aMC gridpack for ee to mumu.
 
 It contains all relevant Fortran code including MadEvent and all relevant data files.
 
-## MG5aMC version and installation (2021.03.09)
+## MG5aMC version and installation [2021.03.09]
 
 The gridpack was created from a MG5aMC 2.9.2 installation in
   /eos/home-a/avalassi/2021/MG5aMC/2.9.2/
@@ -165,7 +165,7 @@ The execution took 86s of user CPU time (86k sampling frames).
 
 A further test consisted in rebuilding the code using gcc/gfortran 8.3.0 instead of 4.8.5. 
 The compiler was set up from /cvmfs using the [setupGcc8.sh](./setupGcc8.sh) script.
-This gave almost a factor two speedup to the Fortran implementation on the same node:
+This gave almost a factor 2 speedup to the Fortran implementation on the same node:
 
 |   nunw |   real |  user |  sys |    MATRIX1 calls |  MATRIX1 times | MATRIX1 throughputs |
 |   ---: |   ---: |  ---: | ---: |             ---: |           ---: |                ---: |
@@ -196,3 +196,32 @@ is shown below for the gcc/gfortran 8.3.0 test.
 
 The execution took 80s of user CPU time (80k sampling frames).
 - The `MATRIX1_` function, where MEs are computed, took 3.6s (3.6k frames). The overhead from the counter stop function is minimal. The estimate of 5.9E5 MEs/s seems reasonable.
+
+## EEMUMU gridpack: time performance for unweighted event generation (4) [2021.03.17]
+
+In the C++ developments, it has been observed that switching on "fast math" speeds up the calculation 
+by a factor 2 to 3 (see github issue https://github.com/madgraph5/madgraph4gpu/issues/117).
+This is because fast math speeds up complex number arithmetics, for instance by breaking IEEE compliance
+for abnormal situations involving NaN and Inf results.
+
+Fast math has therefore been turned on also in the Fortran gridpack.
+This was actually a recommendation from the MG5aMC authors.
+In particular, the "-ffast-math" flag has been added to ALOHA_FLAG for the build 
+of ALOHA/HELAS routines, while "-O3" has been added globally to FFLAGs.
+
+This gave a factor 2.5 speedup in the Fortran implementation on gcc8.
+
+|   nunw |   real |  user |  sys |    MATRIX1 calls |  MATRIX1 times | MATRIX1 throughputs |
+|   ---: |   ---: |  ---: | ---: |             ---: |           ---: |                ---: |
+|   1000 |   1.9s |  0.8s | 0.2s |       4019, 4019 | 0.003s, 0.003s |  1.49E6/s, 1.49E6/s |
+|  10000 |  12.8s |  8.3s | 1.1s |   124019, 124019 | 0.082s, 0.082s |  1.51E6/s, 1.52E6/s |
+| 100000 |  79.6s | 66.7s | 7.6s | 1020019, 1020019 | 0.680s, 0.674s |  1.50E5/s, 1.51E6/s |
+
+This also gave a factor 3 speedup in the Fortran implementation on gcc9.
+The throughput on gcc8 and gcc9 is now essentially the same.
+
+|   nunw |   real |  user |  sys |    MATRIX1 calls |  MATRIX1 times | MATRIX1 throughputs |
+|   ---: |   ---: |  ---: | ---: |             ---: |           ---: |                ---: |
+|   1000 |   2.5s |  0.8s | 0.2s |       4019, 4019 | 0.003s, 0.003s |  1.48E6/s, 1.48E6/s |
+|  10000 |  11.7s |  8.4s | 1.1s |   124019, 124019 | 0.083s, 0.083s |  1.50E6/s, 1.49E6/s |
+| 100000 |  80.4s | 67.2s | 7.7s | 1020019, 1020019 | 0.682s, 0.676s |  1.50E5/s, 1.51E6/s |
