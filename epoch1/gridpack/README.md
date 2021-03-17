@@ -230,7 +230,7 @@ The throughput on gcc8 and gcc9 is now essentially the same.
 
 A flamegraph produced with the following command for 10k events
 ```
-  ../flgrAV time ./run.sh 10000 1234
+  ../flgrAV -h 30 time ./run.sh 10000 1234
 ```
 is shown below for the gcc/gfortran 9.2.0 test with the -ffast-math and -O3 compiler flags.
 
