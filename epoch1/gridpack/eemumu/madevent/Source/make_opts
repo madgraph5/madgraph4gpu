@@ -22,6 +22,11 @@ endif
 
 FFLAGS += $(GLOBAL_FLAG)
 
+# AV switch on fast math only where it is recommended and -O3 everywhere
+# This gains an overall factor 2.5 speedup in MATRIX for e+e- to mu+mu-
+ALOHA_FLAG+=-ffast-math
+FFLAGS+=-O3
+
 # REMOVE MACFLAG IF NOT ON MAC OR FOR F2PY
 UNAME := $(shell uname -s)
 ifdef f2pymode

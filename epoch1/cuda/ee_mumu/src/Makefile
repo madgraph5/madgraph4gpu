@@ -2,6 +2,7 @@ INCFLAGS = -I.
 OPTFLAGS = -O3
 OMPFLAGS?= -fopenmp
 CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
+CXXFLAGS+= -ffast-math # see issue #117
 LIBDIR   = ../lib
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
