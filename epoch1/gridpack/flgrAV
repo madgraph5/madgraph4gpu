@@ -14,6 +14,12 @@ if [ "$1" == "-F" ] && [ "$2" != "" ]; then
   shift 2
 fi
 
+maxheight= # default max height: unlimited
+if [ "$1" == "-h" ] && [ "$2" != "" ]; then
+  maxheight="$2"
+  shift 2
+fi
+
 tag= # default name: perf.svg, else perf-${tag}.svg
 if [ "$1" == "-t" ] && [ "$2" != "" ]; then
   tag="-$2"
@@ -21,7 +27,7 @@ if [ "$1" == "-t" ] && [ "$2" != "" ]; then
 fi
 
 if ! [[ "$frq" =~ ^[0-9]+$ ]] || [ "$1" == "" ] || [ "$1" != "${1#-F}" ]; then
-  echo "Usage: $0 [-a] [-F <Hertz>] <command> [<arguments>]"
+  echo "Usage: $0 [-a] [-F <Hertz>] [-h <maxheight>] [-t <tag>] <command> [<arguments>]"
   exit 1
 fi
 cmd="$*"
@@ -39,7 +45,12 @@ set -x
 
 perf record -o perf.data -F ${frq} ${all} --call-graph dwarf -g -- ${cmd}
 perf script -i perf.data | stackcollapse-perf.pl > perf.fold
-flamegraph.pl --minwidth 2 perf.fold > ${psvg}
+if [ "$maxheight" == "" ]; then
+  cat perf.fold > perf.fold2
+else
+  cat perf.fold | awk -vh=$maxheight '{nf=split($0,a,";"); if (nf<=h){print $1, $2} else {printf a[1]; for (i=2;i<=h;i++) printf ";"a[i]; printf ";STOP[%d>%d] %d\n",nf,h,$2}}' > perf.fold2
+fi
+flamegraph.pl --minwidth 2 perf.fold2 > ${psvg}
 
 ###ls -ltr perf.*
 
