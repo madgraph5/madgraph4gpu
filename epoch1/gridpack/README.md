@@ -225,3 +225,22 @@ The throughput on gcc8 and gcc9 is now essentially the same.
 |   1000 |   2.5s |  0.8s | 0.2s |       4019, 4019 | 0.003s, 0.003s |  1.48E6/s, 1.48E6/s |
 |  10000 |  11.7s |  8.4s | 1.1s |   124019, 124019 | 0.083s, 0.083s |  1.50E6/s, 1.49E6/s |
 | 100000 |  80.4s | 67.2s | 7.7s | 1020019, 1020019 | 0.682s, 0.676s |  1.50E5/s, 1.51E6/s |
+
+### Flamegraph (4) [2021.03.17]
+
+A flamegraph produced with the following command for 10k events
+```
+  ../flgrAV time ./run.sh 10000 1234
+```
+is shown below for the gcc/gfortran 9.2.0 test with the -ffast-math and -O3 compiler flags.
+
+<img src="eemumu/plots/10k-plot4-gcc9-fastmath-timer.png"  width="1200"/>
+
+Note that flgrAV script has been updated in the meantime to produce better flamegraphs.
+The "--call-graph dwarf" has been added and the full stack is always captured.
+Since this can be very deep (more than 90 frames in this example), the height is limited to 30.
+The plot had to be limited to 10k events (not 100k, unlike the previous 3 plots)
+because perf cannot successfully record the required information, which is much more than before.
+
+The execution took 8.5s of user CPU time (8.5k sampling frames).
+- The `MATRIX1_` function, where MEs are computed, took 0.15s (152 frames).
