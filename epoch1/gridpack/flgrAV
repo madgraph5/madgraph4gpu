@@ -43,13 +43,22 @@ psvg=perf${tag}.svg
 
 set -x
 
+# The default value of -m seems to be 16 (use -v to display "mmap size 69632B")
+# Increase #pages (must be a power of 2) to avoid "Check IO/CPU overload" or "lost n chunks"
+# Try 128 as 256 fails with "Consider increasing /proc/sys/kernel/perf_event_mlock_kb"
+# But this does not solve my issue, keep using the default
+###perf record -m 128 -o perf.data -F ${frq} ${all} --call-graph dwarf -g -- ${cmd}
+
 perf record -o perf.data -F ${frq} ${all} --call-graph dwarf -g -- ${cmd}
+
 perf script -i perf.data | stackcollapse-perf.pl > perf.fold
+
 if [ "$maxheight" == "" ]; then
   cat perf.fold > perf.fold2
 else
-  cat perf.fold | awk -vh=$maxheight '{nf=split($0,a,";"); if (nf<=h){print $1, $2} else {printf a[1]; for (i=2;i<=h;i++) printf ";"a[i]; printf ";STOP[%d>%d] %d\n",nf,h,$2}}' > perf.fold2
+  cat perf.fold | awk -vh=$maxheight '{nf=split($0,a,";"); if (nf<=h){print $0} else {printf a[1]; for (i=2;i<=h;i++) printf ";"a[i]; printf ";STOP[%d>%d] %d\n",nf,h,$NF}}' > perf.fold2
 fi
+
 flamegraph.pl --minwidth 2 perf.fold2 > ${psvg}
 
 ###ls -ltr perf.*
