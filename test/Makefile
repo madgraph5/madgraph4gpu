@@ -19,4 +19,4 @@ gtest: googletest/build
 
 clean:
 	rm -rf googletest
-	rm src/*.o
+	rm -f src/*.o
