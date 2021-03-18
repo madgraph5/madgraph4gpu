@@ -34,7 +34,7 @@ ifndef CUDA_HOME
   endif
 endif
 
-ifdef CUDA_HOME
+ifneq ($(wildcard $(CUDA_HOME)/.),)
   NVCC = $(CUDA_HOME)/bin/nvcc
   CUARCHNUM=70
   #CUARCHNUM=61 #(For Pascal Architecture Cards)
@@ -54,7 +54,7 @@ ifdef CUDA_HOME
   cu_objects  = build.$(TAG)/gCPPProcess.o
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
-  NVCC       := $(warning No cuda found. Export CUDA_HOME to compile with cuda)
+  NVCC       := $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
   USE_NVTX   :=
   CULIBFLAGS :=
   ifndef MGONGPU_CONFIG
@@ -146,7 +146,7 @@ test: force
 	build.$(TAG)/gcheck.exe -v 1 32 1
 
 info:
-ifdef CUDA_HOME
+ifneq ($(wildcard $(CUDA_HOME)/.),)
 	$(NVCC) --version
 	@echo ""
 endif

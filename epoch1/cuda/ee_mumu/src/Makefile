@@ -31,7 +31,7 @@ ifndef CUDA_HOME
   endif
 endif
 
-ifdef CUDA_HOME
+ifneq ($(wildcard $(CUDA_HOME)/.),)
   CUINC = -I$(CUDA_HOME)/include
 endif
 
@@ -48,8 +48,8 @@ cu_objects= # NB grambo.cu must be included by gcheck.cu (no rdc)
 all.$(TAG): $(target)
 
 debug: OPTFLAGS = -g -O0 -DDEBUG2
-debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
-debug: CUFLAGS += -G
+#debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
+#debug: CUFLAGS += -G
 debug: $(target)
 
 # NB: cuda includes are needed in the C++ code for curand.h
@@ -61,9 +61,9 @@ build.$(TAG)/%.o : %.cc *.h
 #	if [ ! -d build.$(TAG) ]; then mkdir build.$(TAG); fi
 #	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
-$(target): $(cxx_objects) $(cu_objects)
+$(target): $(cxx_objects) #$(cu_objects)
 	if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
-	$(AR) cru $@ $(cxx_objects) $(cu_objects)
+	$(AR) cru $@ $(cxx_objects) #$(cu_objects)
 	ranlib $(target)
 
 .PHONY: clean
