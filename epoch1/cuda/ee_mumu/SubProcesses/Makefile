@@ -1,10 +1,13 @@
 LIBDIR   = ../../lib/build.$(TAG)
 TOOLSDIR = ../../../../../tools
+TESTDIR  = ../../../../../test
 INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
-OPTFLAGS = -O3
-CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
+OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
 OMPFLAGS?= -fopenmp
+CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
+CXXFLAGS+= -ffast-math # see issue #117
+###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
@@ -59,7 +62,7 @@ else
   endif
 endif
 
-GTESTLIBDIR = $(TOOLSDIR)/googletest/build/lib
+GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
 GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 MAKEDEBUG=
 
@@ -102,23 +105,22 @@ $(cu_main): build.$(TAG)/gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
 $(cxx_main): build.$(TAG)/check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
-build.$(TAG)/runTest.o: $(GTESTLIBS)
-
 $(testmain): $(GTESTLIBS)
-$(testmain): INCFLAGS += -I$(TOOLSDIR)/googletest/googletest/include
+$(testmain): INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(testmain): INCFLAGS += -I$(TESTDIR)/include
 $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
 ifeq ($(NVCC),)
-$(testmain): build.$(TAG)/runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
-	$(CXX) -o $@ $(cxx_objects) build.$(TAG)/runTest.o $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+$(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) build.$(TAG)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(GTESTLIBS) $(TESTDIR)/include/*.h
+	$(CXX) -o $@ $(cxx_objects) build.$(TAG)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
-$(testmain): build.$(TAG)/runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
-	ln -sf runTest.cc runTest_tmp.cu
-	$(NVCC) -o $@ $(cxx_objects) build.$(TAG)/runTest.o $(cu_objects) runTest_tmp.cu $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
-	unlink runTest_tmp.cu
+build.$(TAG)/runTest_cu.o: runTest.cc
+	$(NVCC) -o build.$(TAG)/runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
+$(testmain): runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) build.$(TAG)/runTest_cu.o $(GTESTLIBS) $(TESTDIR)/include/*.h
+	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) build.$(TAG)/runTest_cu.o $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
 
 $(GTESTLIBS):
-	$(MAKE) -C $(TOOLSDIR)
+	$(MAKE) -C $(TESTDIR)
 
 check: $(testmain)
 	$(testmain)
@@ -129,6 +131,10 @@ clean:
 	make -C ../../src AVX=$(AVX) clean
 	rm -rf build.$(TAG)
 #	rm -f build.$(TAG)/*.o build.$(TAG)/*.exe
+
+distclean: clean
+	make -C $(TOOLSDIR) clean
+	make -C $(TESTDIR) clean
 
 memcheck: $(cu_main)
 	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes build.$(TAG)/gcheck.exe 2 32 2

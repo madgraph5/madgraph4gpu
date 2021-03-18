@@ -82,6 +82,9 @@ namespace Proc
     static const int nexternal = mgOnGpu::npar;
     //static const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
 
+    // Retrieve the compiler that was used to build this module
+    static const std::string getCompiler();
+
   private:
 
     int m_numiterations;

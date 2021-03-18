@@ -117,7 +117,13 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  void sigmaKin_setGoodHel( const bool* isGoodHel ); // input: isGoodHel[ncomb] - host array
+  struct sigmaKin_setGoodHel
+  {
+    template< typename T_Acc >
+    ALPAKA_FN_ACC
+    void operator()( T_Acc const &acc,
+                     const bool* isGoodHel ) const;  // input: isGoodHel[ncomb] - device array
+  };
 
   //--------------------------------------------------------------------------
 

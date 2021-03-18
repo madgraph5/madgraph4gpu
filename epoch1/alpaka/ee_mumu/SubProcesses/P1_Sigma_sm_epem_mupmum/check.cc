@@ -42,8 +42,8 @@ int main(int argc, char **argv)
   int niter = 0;
   int gpublocks = 1;
   int gputhreads = 32;
-  int date;
-  int run;
+  int date = 0;
+  int run = 0;
   int numvec[5] = {0,0,0};
   int nnum = 0;
 
@@ -162,8 +162,6 @@ int main(int argc, char **argv)
 
   using mgOnGpu::ncomb;
   const int nbytesIsGoodHel = ncomb * sizeof(bool);
-  bool* hstIsGoodHel = 0;
-  checkCupla( cuplaMallocHost( (void**)&hstIsGoodHel, nbytesIsGoodHel ) );
   bool* devIsGoodHel = 0;
   checkCupla( cuplaMalloc( (void**)&devIsGoodHel, nbytesIsGoodHel ) );
 
@@ -272,16 +270,19 @@ int main(int argc, char **argv)
     {    
       const std::string ghelKey = "3a SGoodHel";
       timermap.start( ghelKey );
+
+      {
+        const bool iv[ncomb] = { false };
+        checkCupla( cuplaMemcpy( devIsGoodHel, iv, sizeof(iv), cuplaMemcpyHostToDevice ) );
+      }
       
       // ... 3a1. Compute good helicity mask on the device
       CUPLA_KERNEL(Proc::sigmaKin_getGoodHel)(gpublocks, gputhreads)(devMomenta, devIsGoodHel);
       checkCupla( cuplaPeekAtLastError() );
       
-      // ... 3a2. Copy back good helicity mask to the host
-      checkCupla( cuplaMemcpy( hstIsGoodHel, devIsGoodHel, nbytesIsGoodHel, cuplaMemcpyDeviceToHost ) );
-      
-      // ... 3a3. Copy back good helicity list to constant memory on the device
-      Proc::sigmaKin_setGoodHel(hstIsGoodHel);
+      // ... 3a3. Copy good helicity mask to global memory on the device
+      CUPLA_KERNEL(Proc::sigmaKin_setGoodHel)(1, 1)(devIsGoodHel);
+      checkCupla( cuplaPeekAtLastError() );
     }
 
     // *** START THE OLD TIMER FOR WAVEFUNCTIONS ***
@@ -290,6 +291,7 @@ int main(int argc, char **argv)
     // --- 3b. SigmaKin
     const std::string skinKey = "3b SigmaKin";
     timermap.start( skinKey );
+
 #ifndef MGONGPU_NSIGHT_DEBUG
     CUPLA_KERNEL(Proc::sigmaKin)(gpublocks, gputhreads)(devMomenta, devMEs);
 #else
@@ -588,7 +590,6 @@ int main(int argc, char **argv)
   timermap.start( freeKey );
 
   checkCupla( cuplaFreeHost( hstMEs ) );
-  checkCupla( cuplaFreeHost( hstIsGoodHel ) );
   checkCupla( cuplaFreeHost( hstWeights ) );
   checkCupla( cuplaFreeHost( hstMomenta ) );
 #if defined MGONGPU_RAND_ONHOST
