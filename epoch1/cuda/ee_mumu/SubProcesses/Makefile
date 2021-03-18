@@ -64,6 +64,7 @@ endif
 
 GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
 GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
+
 MAKEDEBUG=
 
 cxx_main=build.$(TAG)/check.exe
@@ -105,12 +106,11 @@ $(cu_main): build.$(TAG)/gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
 $(cxx_main): build.$(TAG)/check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
-$(testmain): $(GTESTLIBS)
 $(testmain): INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
 $(testmain): INCFLAGS += -I$(TESTDIR)/include
 $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
 ifeq ($(NVCC),)
-$(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) build.$(TAG)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(GTESTLIBS) $(TESTDIR)/include/*.h
+$(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS) build.$(TAG)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
 	$(CXX) -o $@ $(cxx_objects) build.$(TAG)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
 $(testmain) build.$(TAG)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS) $(TESTDIR)/include/*.h
