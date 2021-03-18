@@ -34,7 +34,7 @@ ifndef CUDA_HOME
   endif
 endif
 
-ifneq ($(wildcard $(CUDA_HOME)/.),)
+ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
   CUARCHNUM=70
   #CUARCHNUM=61 #(For Pascal Architecture Cards)
@@ -146,7 +146,7 @@ test: force
 	build.$(TAG)/gcheck.exe -v 1 32 1
 
 info:
-ifneq ($(wildcard $(CUDA_HOME)/.),)
+ifneq ($(NVCC),)
 	$(NVCC) --version
 	@echo ""
 endif
