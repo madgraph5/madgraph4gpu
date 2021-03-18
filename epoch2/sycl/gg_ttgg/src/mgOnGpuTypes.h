@@ -36,7 +36,7 @@ namespace mgOnGpu
   typedef cuFloatComplex cxtype;
 #endif
 #else // c++
-  typedef extras::complex cxtype; // two doubles: RI
+  typedef extras::complex<double> cxtype; // two doubles: RI
 #endif
 
 }
@@ -321,5 +321,41 @@ cxtype cxmake( const complex<double>& c ) // std::complex to std::complex (cast 
 #endif
 
 #endif  // END cuda/c++
+
+inline SYCL_EXTERNAL
+cxtype operator+( const cxtype a )
+{
+  return a;
+}
+
+inline SYCL_EXTERNAL
+cxtype operator-( const cxtype& a )
+{
+  return cxmake( -cxreal(a), -cximag(a) );
+}
+
+inline SYCL_EXTERNAL
+cxtype operator+( const fptype& a, const cxtype& b )
+{
+  return cxmake( a, 0 ) + b;
+}
+
+inline SYCL_EXTERNAL
+cxtype operator-( const fptype& a, const cxtype& b )
+{
+  return cxmake( a, 0 ) - b;
+}
+
+inline SYCL_EXTERNAL
+cxtype operator*( const fptype& a, const cxtype& b )
+{
+  return cxmake( a, 0 ) * b;
+}
+
+inline SYCL_EXTERNAL
+cxtype conj( const cxtype& c )
+{
+  return cxmake( cxreal( c ), -cximag( c ) );
+}
 
 #endif // MGONGPUCOMPLEX_H
