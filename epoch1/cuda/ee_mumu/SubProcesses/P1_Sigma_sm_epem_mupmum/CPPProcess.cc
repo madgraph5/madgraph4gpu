@@ -570,7 +570,7 @@ namespace Proc
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
-#pragma omp parallel for default(none) shared(ihel,allmomenta,allMEs,cHel,cIPC,cIPD,denom,cf) private (w_v,amp_v,jamp_v)
+#pragma omp parallel for default(none) shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel,npagV) private (amp_v,jamp_v,w_v)
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif
     {
