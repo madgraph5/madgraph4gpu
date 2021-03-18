@@ -113,9 +113,8 @@ ifeq ($(NVCC),)
 $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) build.$(TAG)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(GTESTLIBS) $(TESTDIR)/include/*.h
 	$(CXX) -o $@ $(cxx_objects) build.$(TAG)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
-build.$(TAG)/runTest_cu.o: runTest.cc
+$(testmain) build.$(TAG)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS) $(TESTDIR)/include/*.h
 	$(NVCC) -o build.$(TAG)/runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
-$(testmain): runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) build.$(TAG)/runTest_cu.o $(GTESTLIBS) $(TESTDIR)/include/*.h
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) build.$(TAG)/runTest_cu.o $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
 
