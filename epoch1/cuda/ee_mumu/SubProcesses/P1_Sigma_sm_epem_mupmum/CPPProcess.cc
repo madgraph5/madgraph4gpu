@@ -44,11 +44,11 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void imzxxxM0( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void imzxxxM0( const fptype* __restrict__ allmomenta, // input[(npar=4)*(np4=4)*nevt]
                  //const fptype fmass,
                  const int nhel,
                  const int nsf,
-                 cxtype fis[nw6],
+                 cxtype __restrict__ fis[nw6],
 #ifndef __CUDACC__
                  const int ievt,
 #endif
@@ -106,11 +106,11 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void ixzxxxM0( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void ixzxxxM0( const __restrict__ fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                  //const fptype fmass,
                  const int nhel,
                  const int nsf,
-                 cxtype fis[nw6],          // output: wavefunction[6]
+                 cxtype __restrict__ fis[nw6],          // output: wavefunction[6]
 #ifndef __CUDACC__
                  const int ievt,
 #endif
@@ -169,11 +169,11 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void oxzxxxM0( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void oxzxxxM0( const __restrict__ fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                  //const fptype fmass,
                  const int nhel,
                  const int nsf,
-                 cxtype fos[nw6],          // output: wavefunction[6]
+                 cxtype __restrict__ fos[nw6],          // output: wavefunction[6]
 #ifndef __CUDACC__
                  const int ievt,
 #endif
@@ -233,11 +233,11 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV1_0( const cxtype F1S[],   // input wavefunction1[6]
-               const cxtype F2S[],   // input wavefunction2[6]
-               const cxtype V3S[],   // input wavefunction3[6]
-               const cxtype COUP,
-               cxtype* vertex )      // output
+  void FFV1_0( const __restrict__ cxtype F1S[],   // input wavefunction1[6]
+               const __restrict__ cxtype F2S[],   // input wavefunction2[6]
+               const __restrict__ cxtype V3S[],   // input wavefunction3[6]
+               const __restrict__ cxtype COUP,
+               cxtype* __restrict__ vertex )      // output
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype& F1_2 = F1S[2];
@@ -273,12 +273,12 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV1P0_3( const cxtype F1S[],   // input wavefunction1[6]
-                 const cxtype F2S[],   // input wavefunction2[6]
-                 const cxtype COUP,
+  void FFV1P0_3( const __restrict__ cxtype F1S[],   // input wavefunction1[6]
+                 const __restrict__ cxtype F2S[],   // input wavefunction2[6]
+                 const __restrict__ cxtype COUP,
                  const fptype M3,
                  const fptype W3,
-                 cxtype V3S[] )        // output wavefunction3[6]
+                 cxtype __restrict__ V3S[] )        // output wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype& F1_0 = F1S[0];
@@ -319,12 +319,12 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV2_4_0( const cxtype F1S[],   // input wavefunction1[6]
-                 const cxtype F2S[],   // input wavefunction2[6]
-                 const cxtype V3S[],   // input wavefunction3[6]
-                 const cxtype COUP1,
-                 const cxtype COUP2,
-                 cxtype* vertex )      // output
+  void FFV2_4_0( const __restrict__ cxtype F1S[],   // input wavefunction1[6]
+                 const __restrict__ cxtype F2S[],   // input wavefunction2[6]
+                 const __restrict__ cxtype V3S[],   // input wavefunction3[6]
+                 const __restrict__ cxtype COUP1,
+                 const __restrict__ cxtype COUP2,
+                 cxtype* __restrict__ vertex )      // output
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype& F1_2 = F1S[2];
@@ -356,13 +356,13 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV2_4_3( const cxtype F1S[],   // input wavefunction1[6]
-                 const cxtype F2S[],   // input wavefunction2[6]
-                 const cxtype COUP1,
-                 const cxtype COUP2,
+  void FFV2_4_3( const __restrict__ cxtype F1S[],   // input wavefunction1[6]
+                 const __restrict__ cxtype F2S[],   // input wavefunction2[6]
+                 const __restrict__ cxtype COUP1,
+                 const __restrict__ cxtype COUP2,
                  const fptype M3,
                  const fptype W3,
-                 cxtype V3S[] )        // output wavefunction3[6]
+                 cxtype __restrict__ V3S[] )        // output wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype& F1_0 = F1S[0];
@@ -480,7 +480,7 @@ namespace Proc
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
   __device__
   void calculate_wavefunctions( int ihel,
-                                const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                                const __restrict__ fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                                 fptype &meHelSum          // input AND output: running sum of |M|^2 over all helicities for this event
 #ifndef __CUDACC__
                                 , const int ievt
@@ -704,8 +704,8 @@ namespace Proc
   // Evaluate |M|^2, part independent of incoming flavour
 
   __global__
-  void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                 fptype* allMEs            // output: allMEs[nevt], final |M|^2 averaged over all helicities
+  void sigmaKin( const fptype* __restrict__ allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                 fptype* __restrict__ allMEs            // output: allMEs[nevt], final |M|^2 averaged over all helicities
 #ifndef __CUDACC__
                  , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
