@@ -82,7 +82,7 @@ all.$(TAG): ../../src $(cu_main) $(cxx_main) $(testmain)
 debug: OPTFLAGS   = -g -O0 -DDEBUG2
 debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
-debug: all
+debug: all.$(TAG)
 
 $(LIBDIR)/lib$(MODELLIB).a:
 	$(MAKE) -C ../../src AVX=$(AVX) $(MAKEDEBUG)
