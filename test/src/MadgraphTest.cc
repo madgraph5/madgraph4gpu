@@ -65,7 +65,7 @@ TEST_P(MadgraphTestDouble, eemumu)
 {
   // Set to dump events:
   constexpr bool dumpEvents = false;
-  constexpr fptype toleranceMomenta = std::is_same<fptype, double>::value ? 5.E-12 : 1.E-5;
+  constexpr fptype toleranceMomenta = std::is_same<fptype, double>::value ? 8.E-11 : 1.E-5;
   constexpr fptype toleranceMEs     = std::is_same<fptype, double>::value ? 1.E-6  : 1.E-5;
   constexpr fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
 
