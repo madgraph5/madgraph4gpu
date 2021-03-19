@@ -8,7 +8,7 @@ CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow $(MGONG
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
-#Export CUDA_HOME to select a cuda installation
+# If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
   NVCC ?= $(shell which nvcc 2>/dev/null)
   ifneq ($(NVCC),)
@@ -18,7 +18,7 @@ ifndef CUDA_HOME
   endif
 endif
 
-ifdef CUDA_HOME
+ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
   CUARCHNUM=70
   USE_NVTX?=-DUSE_NVTX
@@ -32,7 +32,7 @@ ifdef CUDA_HOME
   cu_objects  = gCPPProcess.o
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
-  NVCC       := $(warning No cuda found. Export CUDA_HOME to compile with cuda)
+  NVCC       := $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
   USE_NVTX   :=
   CULIBFLAGS :=
   ifndef MGONGPU_CONFIG

@@ -5,7 +5,7 @@ LIBDIR   = ../lib
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
-#Export CUDA_HOME to select a cuda installation
+# If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
   NVCC ?= $(shell which nvcc 2>/dev/null)
   ifneq ($(NVCC),)

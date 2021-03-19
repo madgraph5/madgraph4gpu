@@ -24,7 +24,7 @@ endif
 # Build tag (path to the build directory)
 TAG = $(AVX)
 
-# Export CUDA_HOME to select a cuda installation
+# If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
   NVCC ?= $(shell which nvcc 2>/dev/null)
   ifneq ($(NVCC),)
