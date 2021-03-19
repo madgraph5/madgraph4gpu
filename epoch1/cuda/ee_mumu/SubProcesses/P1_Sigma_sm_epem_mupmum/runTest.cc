@@ -65,7 +65,15 @@ struct CPUTest : public CUDA_CPU_TestBase {
     rambo2toNm0::getMomentaFinal( energy, hstRnarray.get(), hstMomenta.get(), hstWeights.get(), nevt );
   }
 
-  void runSigmaKin(std::size_t /*iiter*/) override {
+  void runSigmaKin(std::size_t iiter) override {
+    // --- 0d. SGoodHel
+    if ( iiter == 0 )
+    {
+      // ... 0d1. Compute good helicity mask on the host
+      Proc::sigmaKin_getGoodHel(hstMomenta.get(), hstMEs.get(), hstIsGoodHel.get(), nevt);
+      // ... 0d2. Copy back good helicity list to static memory on the host
+      Proc::sigmaKin_setGoodHel(hstIsGoodHel.get());
+    }
     // --- 3a. SigmaKin
     Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), nevt);
   }
