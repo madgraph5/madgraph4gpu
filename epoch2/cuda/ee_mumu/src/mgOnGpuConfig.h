@@ -61,20 +61,9 @@ namespace mgOnGpu
   // Maximum number of threads per block
   const int ntpbMAX = 256;
 
-  // Number of Events Per Page in the random number AOSOA (ASA) structure
-  // (this is best kept as a compile-time constant: see issue #23)
-  // *** NB Different values of neppR lead to different physics results: the ***
-  // *** same 1d array is generated, but it is interpreted in different ways ***
-#if defined MGONGPU_FPTYPE_DOUBLE
-  const int neppR = 4; // DEFAULT: one 32-byte cache line contains 4 doubles as sizeof(double) is 8 bytes
-#elif defined MGONGPU_FPTYPE_FLOAT
-  const int neppR = 8; // DEFAULT: one 32-byte cache line contains 8 floats as sizeof(float) is 4 bytes
-#endif
-  //const int neppR = 1;  // *** NB: this is equivalent to AOS ***
-  //const int neppR = 32; // older default
-
   // Number of Events Per Page in the momenta AOSOA (ASA) structure
   // (this is best kept as a compile-time constant: see issue #23)
+  // Note that neppR is hardcoded and may differ from neppM on some platforms
 #if defined MGONGPU_FPTYPE_DOUBLE
   const int neppM = 4; // DEFAULT: one 32-byte cache line contains 4 doubles as sizeof(double) is 8 bytes
 #elif defined MGONGPU_FPTYPE_FLOAT
@@ -82,6 +71,12 @@ namespace mgOnGpu
 #endif
   //const int neppM = 1;  // *** NB: this is equivalent to AOS ***
   //const int neppM = 32; // older default
+
+  // Number of Events Per Page in the random number AOSOA memory layout
+  // *** NB Different values of neppR lead to different physics results: the ***
+  // *** same 1d array is generated, but it is interpreted in different ways ***
+  const int neppR = 8; // HARDCODED TO GIVE ALWAYS THE SAME PHYSICS RESULTS!
+  //const int neppR = neppM; // same value as neppM: physics results may change!
 
 }
 
