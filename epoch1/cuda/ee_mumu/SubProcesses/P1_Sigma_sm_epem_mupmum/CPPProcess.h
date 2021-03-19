@@ -87,7 +87,7 @@ namespace Proc
 
   private:
 
-    int m_numiterations;
+    //int m_numiterations;
 
     // gpu variables
     int gpu_nblocks;
