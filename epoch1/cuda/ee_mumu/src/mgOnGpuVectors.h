@@ -13,7 +13,7 @@
 
 namespace mgOnGpu
 {
-#if defined __AVX512F__ || defined __AVX2__
+#ifdef MGONGPU_CPPSIMD
 
   const int neppV = neppM;
 
@@ -74,13 +74,13 @@ namespace mgOnGpu
 
 // Expose typedefs outside the namespace
 using mgOnGpu::neppV;
-#if defined __AVX512F__ || defined __AVX2__
+#ifdef MGONGPU_CPPSIMD
 using mgOnGpu::fptype_v;
 using mgOnGpu::cxtype_v;
 #endif
 
 // Printout to stream for user defined types
-#if defined __AVX512F__ || defined __AVX2__
+#ifdef MGONGPU_CPPSIMD
 inline std::ostream& operator<<( std::ostream& out, const fptype_v& v )
 {
   out << "{ " << v[0];
@@ -97,7 +97,7 @@ inline std::ostream& operator<<( std::ostream& out, const cxtype& c )
   return out;
 }
 
-#if defined __AVX512F__ || defined __AVX2__
+#ifdef MGONGPU_CPPSIMD
 inline std::ostream& operator<<( std::ostream& out, const cxtype_v& v )
 {
   out << "{ " << v[0];
@@ -110,18 +110,18 @@ inline std::ostream& operator<<( std::ostream& out, const cxtype_v& v )
 // Printout to std::cout for user defined types
 inline void print( const fptype& f ) { std::cout << f << std::endl; }
 
-#if defined __AVX512F__ || defined __AVX2__
+#ifdef MGONGPU_CPPSIMD
 inline void print( const fptype_v& v ) { std::cout << v << std::endl; }
 #endif
 
 inline void print( const cxtype& c ) { std::cout << c << std::endl; }
 
-#if defined __AVX512F__ || defined __AVX2__
+#ifdef MGONGPU_CPPSIMD
 inline void print( const cxtype_v& v ) { std::cout << v << std::endl; }
 #endif
 
 // Operators for fptype_v
-#if defined __AVX512F__ || defined __AVX2__
+#ifdef MGONGPU_CPPSIMD
 inline
 fptype_v sqrt( const fptype_v& v )
 {
@@ -131,7 +131,7 @@ fptype_v sqrt( const fptype_v& v )
 }
 #endif
 
-#if defined __AVX512F__ || defined __AVX2__
+#ifdef MGONGPU_CPPSIMD
 inline
 fptype_v fpmake_v( const fptype v[neppV] )
 {
@@ -160,7 +160,7 @@ cxtype_v cxmake_v( const cxtype c )
 }
 */
 
-#if defined __AVX512F__ || defined __AVX2__
+#ifdef MGONGPU_CPPSIMD
 inline
 cxtype_v cxmake( const fptype_v& r, const fptype_v& i )
 {
@@ -203,7 +203,7 @@ cxtype_v cxmake0i( const fptype_v& i )
 }
 */
 
-#if defined __AVX512F__ || defined __AVX2__
+#ifdef MGONGPU_CPPSIMD
 inline
 const fptype_v& cxreal( const cxtype_v& c )
 {
@@ -410,7 +410,7 @@ cxtype cxmake0i( const fptype& i )
 #ifdef __CUDACC__
 typedef fptype fptype_sv;
 typedef cxtype cxtype_sv;
-#elif defined __AVX512F__ || defined __AVX2__
+#elif defined MGONGPU_CPPSIMD
 typedef fptype_v fptype_sv;
 typedef cxtype_v cxtype_sv;
 #else

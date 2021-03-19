@@ -613,7 +613,7 @@ namespace Proc
 #ifndef __CUDACC__
         const int ievt = ipagV*neppV + ieppV;
         // Local variables for the given event (ievt)
-#if defined __AVX512F__ || defined __AVX2__
+#ifdef MGONGPU_CPPSIMD
         cxtype jamp[ncolor];
         jamp[0] = jamp_v[0][ieppV];
 #else
@@ -753,6 +753,13 @@ namespace Proc
 #else
     out << "nvcc UNKNOWN";
 #endif
+#elif defined __clang__
+#if defined __clang_major__ && defined __clang_minor__ && defined __clang_patchlevel__
+    out << "clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
+#else
+    out << "gcc UNKNOWKN";
+#endif
+
 #else
 #if defined __GNUC__ && defined __GNUC_MINOR__ && defined __GNUC_PATCHLEVEL__
     out << "gcc (GCC) " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;

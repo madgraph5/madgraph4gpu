@@ -76,6 +76,7 @@ namespace mgOnGpu
 
   // Number of Events Per Page in the momenta AOSOA memory layout
 #ifdef __CUDACC__
+#undef MGONGPU_CPPSIMD
   // -----------------------------------------------------------------------------------------
   // --- GPUs: neppM must be a power of 2 times the number of fptype's in a 32-byte cacheline
   // --- This is relevant to ensure coalesced access to momenta in global memory
@@ -92,11 +93,17 @@ namespace mgOnGpu
   // --- The logic of the code requires the size neppV of fptype_v to be equal to neppM
   // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
   // -----------------------------------------------------------------------------------------
-#if defined __AVX512F__
+#if defined __clang__ // CANNOT USE VECTOR COMPILER EXTENSIONS ON CLANG (YET?)
+#undef MGONGPU_CPPSIMD
+  const int neppM = 1;  // *** NB: this is equivalent to AOS ***
+#elif defined __AVX512F__
+#define MGONGPU_CPPSIMD 1
   const int neppM = 64/sizeof(fptype); // AVX512 (256-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
 #elif defined __AVX2__
+#define MGONGPU_CPPSIMD 1
   const int neppM = 32/sizeof(fptype); // (DEFAULT) AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT)
 #else
+#undef MGONGPU_CPPSIMD
   const int neppM = 1;  // *** NB: this is equivalent to AOS ***
 #endif
 #endif

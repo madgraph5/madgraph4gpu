@@ -85,7 +85,7 @@ std::unique_ptr<T[], CudaHstDeleter<T>> hstMakeUnique(std::size_t N) {
 template<typename T = fptype>
 std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{ new T[N]() }; };
 
-#if defined __AVX512F__ || defined __AVX2__
+#ifdef MGONGPU_CPPSIMD
 template<>
 std::unique_ptr<fptype_v[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<fptype_v[]>{ new fptype_v[N/neppV]() }; };
 #endif
@@ -476,7 +476,7 @@ int main(int argc, char **argv)
           // NB: 'setw' affects only the next field (of any type)
           std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
                     << std::setw(4) << ipar + 1
-#ifdef __CUDACC__
+#if defined __CUDACC__ || defined __clang__
                     << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
                     << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
                     << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
@@ -661,8 +661,10 @@ int main(int argc, char **argv)
               << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (AVX512F)" << std:: endl
 #elif defined __AVX2__
               << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (AVX2)" << std:: endl
-#else
+#elif !defined MGONGPU_CPPSIMD
               << "Internal loops fptype_sv    = VECTOR[" << neppV << "] == SCALAR (no SIMD)" << std:: endl
+#else
+#error Internal error: unknown SIMD build configuration 
 #endif
 #endif
 #ifdef __CUDACC__
