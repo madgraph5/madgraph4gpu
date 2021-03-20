@@ -148,7 +148,7 @@ cleanall:
 	make AVX=avx2 clean; make -C ../../src AVX=avx2 clean
 	make AVX=avx512 clean; make -C ../../src AVX=avx512 clean
 
-distclean: clean
+distclean: cleanall
 	make -C $(TOOLSDIR) clean
 	make -C $(TESTDIR) clean
 
