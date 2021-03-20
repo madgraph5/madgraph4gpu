@@ -142,7 +142,11 @@ check: $(testmain)
 clean:
 	make -C ../../src AVX=$(AVX) clean
 	rm -rf build.$(TAG)
-#	rm -f build.$(TAG)/*.o build.$(TAG)/*.exe
+
+cleanall:
+	make AVX=none clean; make -C ../../src AVX=none clean
+	make AVX=avx2 clean; make -C ../../src AVX=avx2 clean
+	make AVX=avx512 clean; make -C ../../src AVX=avx512 clean
 
 distclean: clean
 	make -C $(TOOLSDIR) clean
