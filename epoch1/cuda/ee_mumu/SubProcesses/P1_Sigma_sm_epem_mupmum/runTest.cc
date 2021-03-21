@@ -79,11 +79,18 @@ struct CPUTest : public CUDA_CPU_TestBase {
   }
 
   double getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
-    assert(component < mgOnGpu::np4);
-    assert(particle  < mgOnGpu::npar);
-    const auto ipagM = evtNo / mgOnGpu::neppM; // #eventpage in this iteration
-    const auto ieppM = evtNo % mgOnGpu::neppM; // #event in the current eventpage in this iteration
-    return hstMomenta[ipagM * mgOnGpu::npar * mgOnGpu::np4 + particle * mgOnGpu::np4 + component][ieppM];
+    using mgOnGpu::np4;
+    using mgOnGpu::npar;
+    using mgOnGpu::neppM;
+    assert(component < np4);
+    assert(particle  < npar);
+    const auto ipagM = evtNo / neppM; // #eventpage in this iteration
+    const auto ieppM = evtNo % neppM; // #event in the current eventpage in this iteration
+#ifndef MGONGPU_CPPSIMD
+    return hstMomenta[ipagM*npar*np4*neppM + particle*np4*neppM + component*neppM + ieppM];
+#else
+    return hstMomenta[ipagM*npar*np4 + particle*np4 + component][ieppM];
+#endif
   };
 
   double getMatrixElement(std::size_t evtNo) const override {
