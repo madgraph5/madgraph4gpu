@@ -86,7 +86,7 @@ namespace Proc
 
   private:
 
-    int m_numiterations;
+    //int m_numiterations;
 
     // gpu variables
     int gpu_nblocks;
@@ -100,7 +100,7 @@ namespace Proc
     static const int ncomb = 16;
     static const int wrows = 6;
 
-    cxtype** amp;
+    //cxtype** amp;
 
     // Pointer to the model parameters
     Parameters_sm * pars;

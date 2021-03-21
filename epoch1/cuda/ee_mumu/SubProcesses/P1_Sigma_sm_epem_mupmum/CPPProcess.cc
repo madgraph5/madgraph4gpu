@@ -557,15 +557,15 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  CPPProcess::CPPProcess( int numiterations,
+  CPPProcess::CPPProcess( int /*numiterations*/,
                           int gpublocks,
                           int gputhreads,
                           bool verbose )
-    : m_numiterations( numiterations )
-    , gpu_nblocks( gpublocks )
-    , gpu_nthreads( gputhreads )
-    , dim( gpu_nblocks * gpu_nthreads )
-    , m_verbose( verbose )
+    : //m_numiterations( numiterations ), 
+      gpu_nblocks( gpublocks ), 
+      gpu_nthreads( gputhreads ), 
+      dim( gpu_nblocks * gpu_nthreads ), 
+      m_verbose( verbose )
   {
 #ifdef __CUDACC__
     // Helicities for the process - nodim
