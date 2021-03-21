@@ -109,6 +109,10 @@ $(cxx_main): build.$(TAG)/check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 $(testmain): INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
 $(testmain): INCFLAGS += -I$(TESTDIR)/include
 $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
+ifneq ($(findstring clang++,$(CXX)),)
+$(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(CXX))
+endif
+
 ifeq ($(NVCC),)
 $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS) build.$(TAG)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
 	$(CXX) -o $@ $(cxx_objects) build.$(TAG)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
