@@ -124,11 +124,7 @@ $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS) build.$(TAG)
 else
 $(testmain) build.$(TAG)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS) $(TESTDIR)/include/*.h
 	$(NVCC) -o build.$(TAG)/runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
-ifneq ($(findstring clang++,$(CXX)),)
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) build.$(TAG)/runTest_cu.o $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
-else
-	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) build.$(TAG)/runTest_cu.o $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
-endif
 endif
 
 $(GTESTLIBS):
