@@ -98,7 +98,8 @@ namespace mgOnGpu
   const int neppM = 1;  // *** NB: this is equivalent to AOS ***
 #elif defined __AVX512F__
 #define MGONGPU_CPPSIMD 1
-  const int neppM = 64/sizeof(fptype); // AVX512 (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
+  //const int neppM = 64/sizeof(fptype); // AVX512 (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
+  const int neppM = 32/sizeof(fptype); // AVX512 with 256 vector width (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT)
 #elif defined __AVX2__
 #define MGONGPU_CPPSIMD 1
   const int neppM = 32/sizeof(fptype); // (DEFAULT) AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT)
