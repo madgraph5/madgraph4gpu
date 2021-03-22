@@ -713,17 +713,80 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
 
 }
 
+// Kokkos::View<double ***, ExecSpace> &, 
+// Kokkos::View<int **, ExecSpace>, 
+// Kokkos::View<double *, ExecSpace>, 
+// Kokkos::View<Kokkos::complex<double> *, ExecSpace>, 
+// Kokkos::View<int *, ExecSpace>, 
+// Kokkos::View<int *, ExecSpace>, 
+// const int &, 
+// const int &, 
+// const int &
+
+template <typename ExecSpace>
+void sigmaKin_setup(
+    const Kokkos::View<double***,ExecSpace>& momenta,
+    const Kokkos::View<int**,ExecSpace>& cHel,
+    const Kokkos::View<double*,ExecSpace>& cIPD,
+    const Kokkos::View<Kokkos::complex<double>*,ExecSpace>& cIPC,
+    Kokkos::View<int*,ExecSpace>& iGoodHel,
+    Kokkos::View<int*,ExecSpace>& nGoodHel,
+    const int& ncomb,
+    const int& league_size,
+    const int& team_size) 
+{
+  Kokkos::View<int*,ExecSpace> isGoodHel("isGoodHel",ncomb); // has to be constant index, but should be `ncomb`
+  
+  using member_type = typename Kokkos::TeamPolicy<ExecSpace>::member_type;
+  Kokkos::TeamPolicy<ExecSpace> policy( league_size, team_size );
+  Kokkos::parallel_for(__func__,policy, 
+  KOKKOS_LAMBDA(member_type team_member){
+    const int tid = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
+
+    const int nprocesses = 1;  // FIXME: assume process.nprocesses == 1
+    double matrix_element[nprocesses] = {0};  // all zeros
+    double meHelSumLast = 0;
+
+    auto local_mom = Kokkos::subview(momenta,tid,Kokkos::ALL,Kokkos::ALL);
+    for (int ihel = 0; ihel < ncomb; ++ihel)
+    {
+      auto local_cHel = Kokkos::subview(cHel,ihel,Kokkos::ALL);
+      calculate_wavefunctions(local_cHel, local_mom, cIPD, cIPC, matrix_element[0]);
+      if (matrix_element[0] != meHelSumLast)
+      {
+        isGoodHel(ihel) = true;
+        meHelSumLast = matrix_element[0];
+      }
+    }
+  });
+
+  Kokkos::parallel_for(__func__,Kokkos::RangePolicy<ExecSpace>(0,1),
+  KOKKOS_LAMBDA(const int& i){
+    for(int ihel=0; ihel < ncomb; ++ihel){
+
+      if(isGoodHel(ihel)){
+        iGoodHel(nGoodHel(0)) = ihel;
+        nGoodHel(0)++;
+      }
+
+    }
+  });
+}
+
 
 //--------------------------------------------------------------------------
 // Evaluate |M|^2, part independent of incoming flavour.
 template <typename ExecSpace>
-void sigmaKin(Kokkos::View<double***,ExecSpace>& momenta, 
+void sigmaKin(const Kokkos::View<double***,ExecSpace>& momenta, 
     Kokkos::View<double*,ExecSpace>& output,
-    Kokkos::View<int**,ExecSpace> cHel,
-    Kokkos::View<double*,ExecSpace> cIPD,
-    Kokkos::View<Kokkos::complex<double>*,ExecSpace> cIPC,
+    const Kokkos::View<int**,ExecSpace>& cHel,
+    const Kokkos::View<double*,ExecSpace>& cIPD,
+    const Kokkos::View<Kokkos::complex<double>*,ExecSpace>& cIPC,
+    const Kokkos::View<int*,ExecSpace>& iGoodHel,
+    const Kokkos::View<int*,ExecSpace>& nGoodHel,
+    const int& ncomb,
     const int& league_size,
-    const int& team_size) 
+    const int& team_size)
 {
   using member_type = typename Kokkos::TeamPolicy<ExecSpace>::member_type;
   Kokkos::TeamPolicy<ExecSpace> policy( league_size, team_size );
@@ -743,10 +806,6 @@ void sigmaKin(Kokkos::View<double***,ExecSpace>& momenta,
 
     // Kokkos::complex<double> amp[2]; 
 
-
-
-    // Local variables and constants
-    const int ncomb = 16; 
     // static bool goodhel[ncomb] = {ncomb * false};
     // static int ntry = 0, sum_hel = 0, ngood = 0;
     // static int igood[ncomb];
@@ -774,9 +833,10 @@ void sigmaKin(Kokkos::View<double***,ExecSpace>& momenta,
     // }
 
     auto local_mom = Kokkos::subview(momenta,tid,Kokkos::ALL,Kokkos::ALL);
-    for (int ihel = 0; ihel < ncomb; ++ihel)
-    {
-      auto local_cHel = Kokkos::subview(cHel,ihel,Kokkos::ALL);
+    for (int ighel = 0; ighel < nGoodHel(0); ighel++ )
+    { 
+      // printf("%10d -> %10d \n",ighel,iGoodHel(ighel));
+      auto local_cHel = Kokkos::subview(cHel,iGoodHel(ighel),Kokkos::ALL);
       // printf("tid = %d ihel = %d cHel[%d][0] = %d matrix = %7e\n",tid,ihel,ihel,local_cHel(0),matrix_element[0]);
       calculate_wavefunctions(local_cHel, local_mom, cIPD, cIPC, matrix_element[0]);
       
