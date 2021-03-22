@@ -1,60 +1,54 @@
-CUARCHNUM=75
-LIBDIR=../../lib
+KOKKOSPATH_CUDA=/home/jchilders/git/kokkos/install
+KOKKOSPATH_OMP=/home/jchilders/git/kokkos/install_openmp
+
 INCDIR=../../src
-MODELLIB=model_sm
-KOKKOSPATH=/home/jchilders/git/kokkos/install
-CXXFLAGS= -O3 -ffast-math -I$(INCDIR) -I. -I$(KOKKOSPATH)/include --openmp --std=c++17
-CUARCHFLAGS= -arch=compute_$(CUARCHNUM) --expt-extended-lambda --expt-relaxed-constexpr
-CUFLAGS= $(CUARCHFLAGS) -use_fast_math
-LIBFLAGS= -L$(LIBDIR) -l$(MODELLIB) /$(KOKKOSPATH)/lib/libkokkoscore.a --openmp -lnvToolsExt
-NVCC=$(KOKKOSPATH)/bin/nvcc_wrapper
+CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++17 --openmp
+LDFLAGS=--openmp
+
+CUDA_ARCH_NUM=75
+NVCC=$(KOKKOSPATH_CUDA)/bin/nvcc_wrapper
+CUDA_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_CUDA)/include -arch=compute_$(CUDA_ARCH_NUM) --expt-extended-lambda --expt-relaxed-constexpr -use_fast_math
+CUDA_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_CUDA)/lib/libkokkoscore.a -lnvToolsExt
+
 CXX=g++
-MAKEDEBUG=
 
-main=check.exe
-cu_objects=check_sa.o
-cxx_objects=
+OPENMP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_OMP)/include
+OPENMP_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_OMP)/lib/libkokkoscore.a -ldl
 
-# Assuming uname is available, detect if architecture is power
-UNAME_P := $(shell uname -p)
-ifeq ($(UNAME_P),ppc64le)
-    CUFLAGS+= -Xcompiler -mno-float128
-endif
+cuda_exe=ccheck.exe
+cuda_obj=ccheck_sa.o
+openmp_exe=ocheck.exe
+openmp_obj=ocheck_sa.o
+libmodel_sa=../../lib/libmodel_sa.a
 
-all:
-	cd ../../src && make
-	make check
+all: cuda openmp
 
-check: $(main)
 
-debug: CXXFLAGS:=$(filter-out -O3,$(CXXFLAGS))
-debug: CXXFLAGS += -g -O0 -DDEBUG2
-debug: CUFLAGS:=$(filter-out -lineinfo,$(CUFLAGS))
-debug: CUFLAGS += -G
-debug: MAKEDEBUG := debug
-debug: check
+cuda:
+	make -C ../../src
+	make $(cuda_exe)
+openmp: 
+	make -C ../../src
+	make $(openmp_exe)
 
-$(LIBDIR)/lib$(MODELLIB).a:
-	@cd ../../src && make $(MAKEDEBUG)
 
-check_sa.o: check_sa.cu ../../src/rambo.h ../../src/random_generator.h CPPProcess.h
-	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
+$(cuda_obj): check_sa.cpp ../../src/rambo.h ../../src/random_generator.h CPPProcess.h
+	$(NVCC) -c $< -o $@ $(CUDA_CXXFLAGS)
 
-%.o : %.cu %.h
-	$(NVCC) $(CPPFLAGS) $(CXXFLAGS) $(CUFLAGS) -c $< -o $@
+$(cuda_exe): $(cuda_obj) $(libmodel_sa)
+	$(NVCC)  $(cuda_obj) -o $@ $(CUDA_LDFLAGS) $(libmodel_sa)
 
-%.o : %.cc %.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+$(openmp_obj): check_sa.cpp ../../src/rambo.h ../../src/random_generator.h CPPProcess.h
+	$(CXX) -c $< -o $@ $(OPENMP_CXXFLAGS)
 
-$(main): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects)
-	$(NVCC)  -o $@ $(cxx_objects) $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) -lcuda
+$(openmp_exe): $(openmp_obj) $(libmodel_sa)
+	$(CXX) $(openmp_obj) -o $@ $(OPENMP_LDFLAGS) $(libmodel_sa)
 
 .PHONY: clean
 
 clean:
-	cd ../../src && make clean
-	rm -f $(main)
-	rm -f $(cu_objects) $(cxx_objects)
+	make -C ../../src clean
+	rm -f $(cuda_obj) $(cuda_exe) $(openmp_obj) $(openmp_exe)
 
 memcheck: check
 	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes ./check.exe 5 5 10

@@ -3,11 +3,12 @@
 This version was derived from the epoch1 Kokkos version. Key features:
 * uses shared memory objects for momenta, weights, etc. 
 * dedicated Random Number generator from Kokkos WITH memory cache
-* new style rambo with `get_initial_momenta` and `get_final_momenta`, momenta stored in cache, uses a `parallel_for(TeamPolicy)` inside
+* new style rambo with `get_initial_momenta` and `get_final_momenta`, uses a `parallel_for(TeamPolicy)` inside
 * sigmaKin uses monolithic `parallel_for(TeamPolicy)`
 
-Build the source by editing `src/Makefile` and `SubProcesses/P1_sigma_sm_epem_mupmum/Makefile`. Need to set `KOKKOSPATH` and `CUARCHNUM` (compute architecture).
+Build the source against CUDA and/or OpenMP by editing `src/Makefile` and `SubProcesses/P1_sigma_sm_epem_mupmum/Makefile`. Need to set `KOKKOSPATH_CUDA`, `KOKKOSPATH_OMP` and `CUDA_ARCH_NUM` (compute architecture).
 Then run `make` inside `SubProcesses/P1_sigma_sm_epem_mupmum/Makefile`
+One can also only build the CUDA or OpenMP versions with `make cuda` or `make openmp`.
 
 Profiling this shows:
 * `generate_random()` takes 0.077ms
@@ -15,7 +16,7 @@ Profiling this shows:
 * `sigmaKin()` takes 11.1ms
 * Total time for 1 iteration: 15ms
 
-## GTX 2070
+## GTX 2070 running Kokkos CUDA Version
 
 ```
 > ./check.exe -p 1000 256 100
@@ -86,6 +87,53 @@ copy matrix_element   = 6.390500e-07 +/- 3.886275e-08 seconds
 full iteration        = 8.504003e-02 +/- 3.492964e-02 seconds
 total time: 8.556520e+00
 ```
+
+## GTX 2070 running OpenMP version
+```
+-> export OMP_NUM_THREADS=64;./ocheck.exe -p $(( 256000 / $OMP_NUM_THREADS )) $OMP_NUM_THREADS 100
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For unit testing set OMP_PROC_BIND=false
+Kokkos::OpenMP::initialize WARNING: You are likely oversubscribing your CPU cores.
+                                    Detected: 12 cores per node.
+                                    Detected: 1 MPI_ranks per node.
+                                    Requested: 64 threads per process.
+Opened slha file ../../Cards/param_card.dat for reading
+***********************************
+NumIterations         = 100
+NumThreadsPerBlock    = 64
+NumBlocksPerGrid      = 4000
+-----------------------------------
+TotalTimeInWaveFuncs  = 5.726495e+01 sec
+MeanTimeInWaveFuncs   = 5.726495e-01 sec
+StdDevTimeInWaveFuncs = 8.226839e-02 sec
+MinTimeInWaveFuncs    = 4.799600e-01 sec
+MaxTimeInWaveFuncs    = 1.245278e+00 sec
+-----------------------------------
+ProcessID:            = 34985
+NProcesses            = 1
+NumMatrixElements     = 25600000
+MatrixElementsPerSec  = 4.470448e+05 sec^-1
+***********************************
+NumMatrixElements     = 25600000
+MeanMatrixElemValue   = 1.252550e-02 GeV^0
+StdErrMatrixElemValue = 1.725479e-06 GeV^0
+StdDevMatrixElemValue = 8.730309e-03 GeV^0
+MinMatrixElemValue    = 6.071582e-03 GeV^0
+MaxMatrixElemValue    = 3.374926e-02 GeV^0
+***********************************
+fill_random_numbers   = 5.399807e-01 +/- 4.495470e-02 seconds
+get_initial_momenta   = 5.360466e-01 +/- 4.466969e-02 seconds
+get_final_momenta     = 5.406816e-01 +/- 3.863776e-02 seconds
+copy weights          = 8.439896e-07 +/- 1.146274e-07 seconds
+copy momenta          = 5.732799e-07 +/- 9.457919e-08 seconds
+sigmaKin              = 5.726495e-01 +/- 8.226839e-02 seconds
+copy matrix_element   = 1.155050e-06 +/- 1.516596e-07 seconds
+full iteration        = 2.190087e+00 +/- 1.228588e-01 seconds
+total time: 2.190111e+02
+```
+
 
 ## GTX 2070 running CUDA version in `epoch2/cuda/eemumu`
 ```

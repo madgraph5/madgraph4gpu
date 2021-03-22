@@ -6,13 +6,26 @@
 #include <unistd.h>
 #include <vector>
 
-#include <nvToolsExt.h> 
-
 #include "CPPProcess.h"
 #include "random_generator.h"
 #include "rambo.h"
 #include "Kokkos_Core.hpp"
 #include "CalcMean.h"
+
+#ifdef __CUDACC__
+#include <nvToolsExt.h> 
+#else
+
+void nvtxRangePush(const char* text){
+  return;
+}
+
+void nvtxRangePop(void){
+  return;
+}
+
+#endif
+
 
 bool is_number(const char *s) {
   const char *t = s;

@@ -9,6 +9,12 @@
 #include "Parameters_sm.h"
 #include "Kokkos_Core.hpp"
 #include "Kokkos_Complex.hpp"
+#ifndef __CUDACC__
+#include <cmath>
+using std::min;
+using std::max;
+using std::sqrt;
+#endif
 
 
 template<typename Stride, typename Device, typename MemSpace>
