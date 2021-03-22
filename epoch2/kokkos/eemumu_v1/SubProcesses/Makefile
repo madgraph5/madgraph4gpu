@@ -2,11 +2,12 @@ CUARCHNUM=75
 LIBDIR=../../lib
 INCDIR=../../src
 MODELLIB=model_sm
-CXXFLAGS= -O3 -I$(INCDIR) -I. -I/home/jchilders/git/kokkos/install/include --openmp --std=c++17
+KOKKOSPATH=/home/jchilders/git/kokkos/install
+CXXFLAGS= -O3 -ffast-math -I$(INCDIR) -I. -I$(KOKKOSPATH)/include --openmp --std=c++17
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM) --expt-extended-lambda --expt-relaxed-constexpr
-CUFLAGS= $(CUARCHFLAGS) -use_fast_math -lineinfo
-LIBFLAGS= -L$(LIBDIR) -l$(MODELLIB) /home/jchilders/git/kokkos/install/lib/libkokkoscore.a --openmp -lnvToolsExt
-NVCC=/home/jchilders/git/kokkos/bin/nvcc_wrapper
+CUFLAGS= $(CUARCHFLAGS) -use_fast_math
+LIBFLAGS= -L$(LIBDIR) -l$(MODELLIB) /$(KOKKOSPATH)/lib/libkokkoscore.a --openmp -lnvToolsExt
+NVCC=$(KOKKOSPATH)/bin/nvcc_wrapper
 CXX=g++
 MAKEDEBUG=
 
