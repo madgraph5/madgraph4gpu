@@ -15,12 +15,14 @@ $(warning Setting AVX='$(AVX)' for clang builds)
 else
 AVX ?= avx2
 endif
-ifeq ($(AVX),avx2)
+ifeq ($(AVX),sse42)
+CXXFLAGS+= -march=nehalem # SSE4.2
+else ifeq ($(AVX),avx2)
 CXXFLAGS+= -march=core-avx2 # AVX2 (DEFAULT!)
 else ifeq ($(AVX),avx512)
 CXXFLAGS+= -march=native # AVX512F
 else ifneq ($(AVX),none)
-$(error Unknown AVX='$(AVX)': only 'avx2', 'avx512' and 'none' are supported)
+$(error Unknown AVX='$(AVX)': only 'sse42', 'avx2', 'avx512' and 'none' are supported)
 endif
 
 # Build tag (path to the build directory)
@@ -75,4 +77,3 @@ $(target): $(cxx_objects) #$(cu_objects)
 
 clean:
 	rm -rf build.$(TAG) $(LIBDIR)
-#	rm -f $(cxx_objects) $(cu_objects) $(target)

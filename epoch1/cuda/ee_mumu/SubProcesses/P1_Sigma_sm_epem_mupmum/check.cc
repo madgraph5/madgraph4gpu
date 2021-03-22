@@ -661,6 +661,8 @@ int main(int argc, char **argv)
               << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (AVX512F)" << std:: endl
 #elif defined __AVX2__
               << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (AVX2)" << std:: endl
+#elif defined __SSE4_2__
+              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (SSE4.2)" << std:: endl
 #elif !defined MGONGPU_CPPSIMD
               << "Internal loops fptype_sv    = VECTOR[" << neppV << "] == SCALAR (no SIMD)" << std:: endl
 #else

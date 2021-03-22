@@ -18,12 +18,14 @@ $(warning Setting AVX='$(AVX)' for clang builds)
 else
 AVX ?= avx2
 endif
-ifeq ($(AVX),avx2)
+ifeq ($(AVX),sse42)
+CXXFLAGS+= -march=nehalem # SSE4.2
+else ifeq ($(AVX),avx2)
 CXXFLAGS+= -march=core-avx2 # AVX2 (DEFAULT!)
 else ifeq ($(AVX),avx512)
 CXXFLAGS+= -march=native # AVX512F
 else ifneq ($(AVX),none)
-$(error Unknown AVX='$(AVX)': only 'avx2', 'avx512' and 'none' are supported)
+$(error Unknown AVX='$(AVX)': only 'sse42', 'avx2', 'avx512' and 'none' are supported)
 endif
 
 # Build tag (path to the build directory)
@@ -141,6 +143,7 @@ clean:
 
 cleanall:
 	make AVX=none clean; make -C ../../src AVX=none clean
+	make AVX=sse42 clean; make -C ../../src AVX=sse42 clean
 	make AVX=avx2 clean; make -C ../../src AVX=avx2 clean
 	make AVX=avx512 clean; make -C ../../src AVX=avx512 clean
 
