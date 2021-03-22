@@ -1,10 +1,11 @@
 CUARCHNUM=75
 LIBDIR=../lib
-CXXFLAGS= -O3 -I. -I/home/jchilders/git/kokkos/install/include --openmp --std=c++17
+KOKKOSPATH=/home/jchilders/git/kokkos/install
+CXXFLAGS= -O3 -ffast-math -I. -I$(KOKKOSPATH)/include --openmp --std=c++17
 CUARCHFLAGS= -arch=compute_$(CUARCHNUM) --expt-extended-lambda --expt-relaxed-constexpr
-CUFLAGS= $(CUARCHFLAGS) -use_fast_math -lineinfo
+CUFLAGS= $(CUARCHFLAGS) -use_fast_math 
 CUINC=/usr/local/cuda/targets/x86_64-linux/include
-NVCC=/home/jchilders/git/kokkos/bin/nvcc_wrapper
+NVCC=$(KOKKOSPATH)/bin/nvcc_wrapper
 CXX=g++
 
 # Assuming uname is available, detect if architecture is power
