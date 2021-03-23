@@ -13,14 +13,14 @@ ifneq ($(findstring clang++,$(CXX)),)
 AVX := none
 $(warning Setting AVX='$(AVX)' for clang builds)
 else
-AVX ?= avx2
+AVX ?= avx512
 endif
 ifeq ($(AVX),sse42)
 CXXFLAGS+= -march=nehalem # SSE4.2
 else ifeq ($(AVX),avx2)
-CXXFLAGS+= -march=haswell # AVX2 (was core-avx2 in previous versions of gcc - DEFAULT!)
+CXXFLAGS+= -march=haswell # AVX2 (was core-avx2 in previous versions of gcc)
 else ifeq ($(AVX),avx512)
-CXXFLAGS+= -march=skylake-avx512 # AVX512F with 256 width
+CXXFLAGS+= -march=skylake-avx512 # AVX512F with 256 width (DEFAULT!)
 else ifneq ($(AVX),none)
 $(error Unknown AVX='$(AVX)': only 'sse42', 'avx2', 'avx512' and 'none' are supported)
 endif
