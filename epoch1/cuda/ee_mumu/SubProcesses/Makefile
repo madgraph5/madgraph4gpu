@@ -23,7 +23,7 @@ CXXFLAGS+= -march=nehalem # SSE4.2
 else ifeq ($(AVX),avx2)
 CXXFLAGS+= -march=core-avx2 # AVX2 (DEFAULT!)
 else ifeq ($(AVX),avx512)
-CXXFLAGS+= -mavx512f -mprefer-vector-width=256 # AVX512F with 256 width
+CXXFLAGS+= -mavx512f # AVX512F with 256 width
 else ifneq ($(AVX),none)
 $(error Unknown AVX='$(AVX)': only 'sse42', 'avx2', 'avx512' and 'none' are supported)
 endif
