@@ -27,6 +27,7 @@ openmp_obj=ocheck_sa.o
 iris_exe=icheck.exe
 iris_obj=icheck.o
 libmodel_sa=../../lib/libmodel_sa.a
+iris_libmodel_sa=../../lib/libmodel_sa_iris.a
 
 all: cuda openmp iris
 
@@ -57,7 +58,7 @@ $(openmp_exe): $(openmp_obj) $(libmodel_sa)
 $(iris_obj): check_sa.cpp ../../src/rambo.h ../../src/random_generator.h CPPProcess.h
 	$(IPCX) -c $< -o $@ $(IRIS_CXXFLAGS)
 
-$(iris_exe): $(iris_obj) $(libmodel_sa)
+$(iris_exe): $(iris_obj) $(iris_libmodel_sa)
 	$(IPCX) $(iris_obj) -o $@ $(IRIS_LDFLAGS) $(libmodel_sa)
 
 
