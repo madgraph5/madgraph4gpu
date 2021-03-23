@@ -1,27 +1,34 @@
-KOKKOSPATH_CUDA=/home/jchilders/git/kokkos/install
-KOKKOSPATH_OMP=/home/jchilders/git/kokkos/install_openmp
+KOKKOSPATH_CUDA=/home/parton/git/kokkos/install_v100
+KOKKOSPATH_OMP=/home/parton/git/kokkos/install_omp
+KOKKOSPATH_IRIS=/home/psteinbr/shared/gold/install
 
 INCDIR=../../src
-CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++17 --openmp
-LDFLAGS=--openmp
+CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++17
+LDFLAGS=
 
-CUDA_ARCH_NUM=75
+CUDA_ARCH_NUM=70
 NVCC=$(KOKKOSPATH_CUDA)/bin/nvcc_wrapper
-CUDA_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_CUDA)/include -arch=compute_$(CUDA_ARCH_NUM) --expt-extended-lambda --expt-relaxed-constexpr -use_fast_math
-CUDA_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_CUDA)/lib/libkokkoscore.a -lnvToolsExt
+CUDA_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_CUDA)/include -arch=compute_$(CUDA_ARCH_NUM) --expt-extended-lambda --expt-relaxed-constexpr -use_fast_math --openmp
+CUDA_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_CUDA)/lib64/libkokkoscore.a -lnvToolsExt --openmp
 
 CXX=g++
+IPCX=icpx
 
-OPENMP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_OMP)/include
-OPENMP_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_OMP)/lib/libkokkoscore.a -ldl
+OPENMP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_OMP)/include --openmp
+OPENMP_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_OMP)/lib64/libkokkoscore.a -ldl --openmp
+
+IRIS_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_IRIS)/include -fiopenmp -fopenmp-targets=spir64 
+IRIS_LDFLAGS=$(LDFLAGS) -L $(KOKKOSPATH_IRIS)/lib64 -lkokkoscore -fiopenmp -fopenmp-targets=spir64
 
 cuda_exe=ccheck.exe
 cuda_obj=ccheck_sa.o
 openmp_exe=ocheck.exe
 openmp_obj=ocheck_sa.o
+iris_exe=icheck.exe
+iris_obj=icheck.o
 libmodel_sa=../../lib/libmodel_sa.a
 
-all: cuda openmp
+all: cuda openmp iris
 
 
 cuda:
@@ -30,6 +37,9 @@ cuda:
 openmp: 
 	make -C ../../src
 	make $(openmp_exe)
+iris:
+	make -C ../../src iris
+	make $(iris_exe)
 
 
 $(cuda_obj): check_sa.cpp ../../src/rambo.h ../../src/random_generator.h CPPProcess.h
@@ -44,11 +54,18 @@ $(openmp_obj): check_sa.cpp ../../src/rambo.h ../../src/random_generator.h CPPPr
 $(openmp_exe): $(openmp_obj) $(libmodel_sa)
 	$(CXX) $(openmp_obj) -o $@ $(OPENMP_LDFLAGS) $(libmodel_sa)
 
+$(iris_obj): check_sa.cpp ../../src/rambo.h ../../src/random_generator.h CPPProcess.h
+	$(IPCX) -c $< -o $@ $(IRIS_CXXFLAGS)
+
+$(iris_exe): $(iris_obj) $(libmodel_sa)
+	$(IPCX) $(iris_obj) -o $@ $(IRIS_LDFLAGS) $(libmodel_sa)
+
+
 .PHONY: clean
 
 clean:
 	make -C ../../src clean
-	rm -f $(cuda_obj) $(cuda_exe) $(openmp_obj) $(openmp_exe)
+	rm -f $(cuda_obj) $(cuda_exe) $(openmp_obj) $(openmp_exe) $(iris_exe) $(iris_obj)
 
 memcheck: check
 	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes ./check.exe 5 5 10
