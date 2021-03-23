@@ -21,7 +21,7 @@ endif
 ifeq ($(AVX),sse42)
 CXXFLAGS+= -march=nehalem # SSE4.2
 else ifeq ($(AVX),avx2)
-CXXFLAGS+= -march=core-avx2 # AVX2 (DEFAULT!)
+CXXFLAGS+= -march=haswell # AVX2 (was core-avx2 in previous versions of gcc - DEFAULT!)
 else ifeq ($(AVX),avx512)
 CXXFLAGS+= -march=skylake-avx512 # AVX512F with 256 width
 else ifneq ($(AVX),none)
