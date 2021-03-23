@@ -181,7 +181,7 @@ int main(int argc, char **argv)
     if ( debug ) std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
   }
 
-  // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the requested AVX  
+  // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the requested AVX
 #if defined __AVX512F__
   if ( ! __builtin_cpu_supports( "avx512f" ) )
   {
@@ -671,7 +671,7 @@ int main(int argc, char **argv)
               << "Complex type                = STD::COMPLEX" << std::endl
 #endif
               << "RanNumb memory layout       = AOSOA[" << neppR << "]"
-              << ( neppR == 1 ? " == AOS" : "" ) 
+              << ( neppR == 1 ? " == AOS" : "" )
               << " [HARDCODED FOR REPRODUCIBILITY]" << std::endl
               << "Momenta memory layout       = AOSOA[" << neppM << "]"
               << ( neppM == 1 ? " == AOS" : "" ) << std::endl
@@ -687,7 +687,7 @@ int main(int argc, char **argv)
 #elif !defined MGONGPU_CPPSIMD
               << "Internal loops fptype_sv    = VECTOR[" << neppV << "] == SCALAR (no SIMD)" << std:: endl
 #else
-#error Internal error: unknown SIMD build configuration 
+#error Internal error: unknown SIMD build configuration
 #endif
 #endif
 #ifdef __CUDACC__
