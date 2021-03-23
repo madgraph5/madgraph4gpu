@@ -180,6 +180,27 @@ int main(int argc, char **argv)
     if ( debug ) std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
     if ( debug ) std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
   }
+
+  // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the requested AVX  
+#if defined __AVX512F__
+  if ( ! __builtin_cpu_supports( "avx512f" ) )
+  {
+    std::cout << "ERROR! The application is built for avx512f but the host system does not support it" << std::endl;
+    return 1;
+  }
+#elif defined __AVX2__
+  if ( ! __builtin_cpu_supports( "avx2" ) )
+  {
+    std::cout << "ERROR! The application is built for avx2 but the host system does not support it" << std::endl;
+    return 1;
+  }
+#elif defined __SSE4_2__
+  if ( ! __builtin_cpu_supports( "sse4.2" ) )
+  {
+    std::cout << "ERROR! The application is built for sse4.2 but the host system does not support it" << std::endl;
+    return 1;
+  }
+#endif
 #endif
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
