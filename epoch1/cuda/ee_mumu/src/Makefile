@@ -11,12 +11,15 @@ CXX     ?= g++
 # AVX choice (example: "make AVX=none")
 ifneq ($(findstring clang++,$(CXX)),)
 AVX := none
-$(warning Setting AVX='$(AVX)' for clang builds)
+$(warning Using AVX='$(AVX)' for clang builds)
+else ifneq ($(AVX),)
+$(info Using AVX='$(AVX)' according to user input)
 else ifneq ($(shell grep -c avx512f /proc/cpuinfo),0)
-AVX ?= avx512
+AVX := avx512
+$(info Using AVX='$(AVX)' as no user input exists)
 else
-AVX ?= avx2
-$(warning Setting AVX='$(AVX)' as this host does not support avx512f)
+AVX := avx2
+$(warning Using AVX='$(AVX)' as no user input exists and host does not support avx512f)
 endif
 
 # Set the build flags appropriate to each AVX
