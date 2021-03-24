@@ -15,9 +15,14 @@ CXX     ?= g++
 ifneq ($(findstring clang++,$(CXX)),)
 AVX := none
 $(warning Setting AVX='$(AVX)' for clang builds)
-else
+else ifneq ($(shell grep -c avx512f /proc/cpuinfo),0)
 AVX ?= avx512
+else
+AVX ?= avx2
+$(warning Setting AVX='$(AVX)' as this host does not support avx512f)
 endif
+
+# Set the build flags appropriate to each AVX
 ifeq ($(AVX),sse42)
 AVXFLAGS := -march=nehalem # SSE4.2
 else ifeq ($(AVX),avx2)
