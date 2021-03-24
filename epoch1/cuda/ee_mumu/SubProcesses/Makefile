@@ -154,6 +154,12 @@ clean:
 	make -C ../../src AVX=$(AVX) clean
 	rm -rf build.$(TAG)
 
+avxall:
+	make AVX=none
+	make AVX=sse42
+	make AVX=avx2
+	make AVX=avx512
+
 cleanall:
 	make AVX=none clean; make -C ../../src AVX=none clean
 	make AVX=sse42 clean; make -C ../../src AVX=sse42 clean
