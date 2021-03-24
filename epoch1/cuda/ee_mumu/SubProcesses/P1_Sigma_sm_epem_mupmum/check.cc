@@ -780,7 +780,8 @@ int main(int argc, char **argv)
       //deleting the last bracket and outputting a ", "
       std::string temp = "truncate -s-1 " + jsonFileName;
       const char *command = temp.c_str();
-      system(command);
+      if ( system(command) != 0 )
+        std::cout << "WARNING! Command '" << temp << "' failed" << std::endl;
       jsonFile << ", " << std::endl;
     }
 
