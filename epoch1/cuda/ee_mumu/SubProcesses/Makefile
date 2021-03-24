@@ -18,7 +18,7 @@ $(warning Setting AVX='$(AVX)' for clang builds)
 else ifneq ($(shell grep -c avx512f /proc/cpuinfo),0)
 AVX ?= avx512
 else
-AVX ?= avx2
+AVX := avx2
 $(warning Setting AVX='$(AVX)' as this host does not support avx512f)
 endif
 
