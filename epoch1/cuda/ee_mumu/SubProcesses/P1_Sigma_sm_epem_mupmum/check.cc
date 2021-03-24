@@ -181,9 +181,8 @@ int main(int argc, char **argv)
     if ( debug ) std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
   }
 
-  /*
-  // DISABLED FOR THE MOMENT - this must be moved to an encapsulated function with separate build flags
   // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the requested AVX
+  // [NB: this prevents a crash on pmpe04 but not on some github CI nodes]
 #if defined __AVX512F__
   if ( ! __builtin_cpu_supports( "avx512f" ) )
   {
@@ -203,7 +202,6 @@ int main(int argc, char **argv)
     return 1;
   }
 #endif
-  */
 #endif
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
