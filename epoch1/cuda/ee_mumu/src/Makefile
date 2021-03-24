@@ -13,10 +13,10 @@ ifneq ($(findstring clang++,$(CXX)),)
 AVX := none
 $(warning Using AVX='$(AVX)' for clang builds)
 else ifneq ($(AVX),)
-$(info Using AVX='$(AVX)' according to user input)
+#$(info Using AVX='$(AVX)' according to user input)
 else ifneq ($(shell grep -c avx512f /proc/cpuinfo),0)
 AVX := avx512
-$(info Using AVX='$(AVX)' as no user input exists)
+#$(info Using AVX='$(AVX)' as no user input exists)
 else
 AVX := avx2
 $(warning Using AVX='$(AVX)' as no user input exists and host does not support avx512f)
