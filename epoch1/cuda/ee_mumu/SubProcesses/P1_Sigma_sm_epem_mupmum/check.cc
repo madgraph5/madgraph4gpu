@@ -183,24 +183,21 @@ int main(int argc, char **argv)
 
   // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the requested AVX
   // [NB: this prevents a crash on pmpe04 but not on some github CI nodes]
+#define avxfail( tag )                                                  \
+  {                                                                     \
+    if ( ! __builtin_cpu_supports( tag ) )                              \
+    {                                                                   \
+      std::cout << "ERROR! The application is built for " << tag        \
+                << " but the host does not support it" << std::endl;    \
+      return 1;                                                         \
+    }                                                                   \
+  };
 #if defined __AVX512F__
-  if ( ! __builtin_cpu_supports( "avx512f" ) )
-  {
-    std::cout << "ERROR! The application is built for avx512f but the host system does not support it" << std::endl;
-    return 1;
-  }
+  avxfail( "avx512f" );
 #elif defined __AVX2__
-  if ( ! __builtin_cpu_supports( "avx2" ) )
-  {
-    std::cout << "ERROR! The application is built for avx2 but the host system does not support it" << std::endl;
-    return 1;
-  }
+  avxfail( "avx2" );
 #elif defined __SSE4_2__
-  if ( ! __builtin_cpu_supports( "sse4.2" ) )
-  {
-    std::cout << "ERROR! The application is built for sse4.2 but the host system does not support it" << std::endl;
-    return 1;
-  }
+  avxfail( "sse4.2" );
 #endif
 #endif
 
