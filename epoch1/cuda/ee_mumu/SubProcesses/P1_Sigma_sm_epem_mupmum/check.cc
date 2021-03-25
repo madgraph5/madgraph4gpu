@@ -183,22 +183,29 @@ int main(int argc, char **argv)
 
   // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the requested AVX
   // [NB: this prevents a crash on pmpe04 but not on some github CI nodes]
-#define avxfail( tag )                                                  \
-  {                                                                     \
-    if ( ! __builtin_cpu_supports( tag ) )                              \
-    {                                                                   \
-      std::cout << "ERROR! The application is built for " << tag        \
-                << " but the host does not support it" << std::endl;    \
-      return 1;                                                         \
-    }                                                                   \
-  };
+  auto supportsAvx = [](){
 #if defined __AVX512F__
-  avxfail( "avx512f" );
+    bool ok = __builtin_cpu_supports( "avx512f" );
+    const std::string tag = "skylake-avx512 (AVX512F)";
 #elif defined __AVX2__
-  avxfail( "avx2" );
+    bool ok = __builtin_cpu_supports( "avx2" );
+    const std::string tag = "haswell (AVX2)";
 #elif defined __SSE4_2__
-  avxfail( "sse4.2" );
+    bool ok = __builtin_cpu_supports( "sse4.2" );
+    const std::string tag = "nehalem (SSE4.2)";
+#else
+    bool ok = true;
+    const std::string tag = "none";
 #endif
+    if ( tag == "none" )
+      std::cout << "INFO: The application does not require the host to support any AVX feature" << std::endl;
+    else if ( ok )
+      std::cout << "INFO: The application is built for " << tag << " and the host supports it" << std::endl;
+    else
+      std::cout << "ERROR! The application is built for " << tag << " but the host does not support it" << std::endl;
+    return ok;
+  };
+  if ( ! supportsAvx() ) return 1;
 #endif
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
