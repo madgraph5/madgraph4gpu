@@ -9,6 +9,7 @@
 #include <memory>
 #include <numeric>
 #include <omp.h>
+#include <stdio.h>
 #include <string>
 #include <unistd.h>
 
@@ -90,12 +91,8 @@ template<>
 std::unique_ptr<fptype_v[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<fptype_v[]>{ new fptype_v[N/neppV]() }; };
 #endif
 
-// CPU dispatch based on the host processor's AVX features
-// See https://attractivechaos.wordpress.com/2017/09/04/on-cpu-dispatch/
-// See https://gcc.gnu.org/wiki/FunctionMultiVersioning
-// This replaces previous implementations:
-// - a first implementation based on __builtin_cpu_supports which worked but only partly
-// - a second attempt based on "__declspec( cpu_dispatch" which did not build with gcc (icc only? see https://software.intel.com/content/www/us/en/develop/articles/how-to-manually-target-2nd-generation-intel-core-processors-with-support-for-intel-avx.html)
+// Dispatch implementation code for different processor versions (see https://software.intel.com/content/www/us/en/develop/articles/how-to-manually-target-2nd-generation-intel-core-processors-with-support-for-intel-avx.html)
+// This replaces a previous implementation based on __builtin_cpu_supports
 bool supportsAvxMsg( const std::string& tag, bool ok )
 {
   if ( ok )
@@ -107,16 +104,22 @@ bool supportsAvxMsg( const std::string& tag, bool ok )
   return ok;
 };
 #if defined __AVX512F__
-__attribute__ ((target ("arch=skylake-avx512" ))) bool supportsAvx(){ return supportsAvxMsg( "skylake-avx512 (AVX512F)", true ); }
-__attribute__ ((target ("default"))) bool supportsAvx() { return supportsAvxMsg( "skylake-avx512 (AVX512F)", false ); }
+__declspec( cpu_dispatch( generic, skylake-avx512 ) ) bool supportsAvx() {}; // stub
+__declspec( cpu_specific( generic ) ) bool supportsAvx() { return supportsAvxMsg( "skylake-avx512 (AVX512F)", false ) };
+__declspec( cpu_specific( skylake-avx512 ) ) void supportsAvx(){ return supportsAvxMsg( "skylake-avx512 (AVX512F)", true ) };
 #elif defined __AVX2__
-__attribute__ ((target ("default"))) bool supportsAvx() { return supportsAvxMsg( "haswell (AVX2)", false ); }
-__attribute__ ((target ("arch=haswell" ))) bool supportsAvx(){ return supportsAvxMsg( "haswell (AVX2)", true ); }
+__declspec( cpu_dispatch( generic, haswell ) ) bool supportsAvx() {}; // stub
+__declspec( cpu_specific( generic ) ) bool supportsAvx() { return supportsAvxMsg( "haswell (AVX2)", false ) };
+__declspec( cpu_specific( haswell ) ) void supportsAvx(){ return supportsAvxMsg( "haswell (AVX2)", true ) };
 #elif defined __SSE4_2__
-__attribute__ ((target ("default"))) bool supportsAvx() { return supportsAvxMsg( "nehalem (SSE4.2)", false ); }
-__attribute__ ((target ("arch=nehalem" ))) bool supportsAvx(){ return supportsAvxMsg( "nehalem (SSE4.2)", true ); }
+__declspec( cpu_dispatch( generic, nehalem ) ) bool supportsAvx() {}; // stub
+__declspec( cpu_specific( generic ) ) bool supportsAvx() { return supportsAvxMsg( "nehalem (SSE4.2)", false ) };
+__declspec( cpu_specific( nehalem ) ) void supportsAvx(){ return supportsAvxMsg( "nehalem (SSE4.2)", true ) };
 #else
-bool supportsAvx(){ std::cout << "INFO: The application does not require any AVX feature" << std::endl; return true; }
+bool supportsAvx()
+{
+  std::cout << "INFO: The application does not require any AVX feature" << std::endl;
+}
 #endif
 
 #endif
