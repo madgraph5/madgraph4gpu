@@ -123,6 +123,12 @@ test: force
 	./gcheck.exe -v 1 32 1
 
 info:
+	@hostname
+	@cat /proc/cpuinfo | grep "model name" | sort -u
+	@cat /proc/cpuinfo | grep "flags" | sort -u
+	@cat /proc/cpuinfo | grep "cpu cores" | sort -u
+	@cat /proc/cpuinfo | grep "physical id" | sort -u
+	@echo ""
 ifdef CUDA_HOME
 	$(NVCC) --version
 	@echo ""
