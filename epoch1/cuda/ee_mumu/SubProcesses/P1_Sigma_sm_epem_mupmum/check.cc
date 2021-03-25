@@ -9,6 +9,7 @@
 #include <memory>
 #include <numeric>
 #include <omp.h>
+#include <stdio.h>
 #include <string>
 #include <unistd.h>
 
@@ -88,6 +89,37 @@ std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{
 #ifdef MGONGPU_CPPSIMD
 template<>
 std::unique_ptr<fptype_v[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<fptype_v[]>{ new fptype_v[N/neppV]() }; };
+#endif
+
+// Dispatch implementation code for different processor versions (see https://software.intel.com/content/www/us/en/develop/articles/how-to-manually-target-2nd-generation-intel-core-processors-with-support-for-intel-avx.html)
+// This replaces a previous implementation based on __builtin_cpu_supports
+bool supportsAvxMsg( const std::string& tag, bool ok )
+{
+  if ( ok )
+    std::cout << "INFO: The application is built for " << tag
+              << " and the host supports it" << std::endl;
+  else
+    std::cout << "ERROR! The application is built for " << tag
+              << " but the host does not support it" << std::endl;
+  return ok;
+};
+#if defined __AVX512F__
+__declspec( cpu_dispatch( generic, skylake-avx512 ) ) bool supportsAvx() {}; // stub
+__declspec( cpu_specific( generic ) ) bool supportsAvx() { return supportsAvxMsg( "skylake-avx512 (AVX512F)", false ) };
+__declspec( cpu_specific( skylake-avx512 ) ) void supportsAvx(){ return supportsAvxMsg( "skylake-avx512 (AVX512F)", true ) };
+#elif defined __AVX2__
+__declspec( cpu_dispatch( generic, haswell ) ) bool supportsAvx() {}; // stub
+__declspec( cpu_specific( generic ) ) bool supportsAvx() { return supportsAvxMsg( "haswell (AVX2)", false ) };
+__declspec( cpu_specific( haswell ) ) void supportsAvx(){ return supportsAvxMsg( "haswell (AVX2)", true ) };
+#elif defined __SSE4_2__
+__declspec( cpu_dispatch( generic, nehalem ) ) bool supportsAvx() {}; // stub
+__declspec( cpu_specific( generic ) ) bool supportsAvx() { return supportsAvxMsg( "nehalem (SSE4.2)", false ) };
+__declspec( cpu_specific( nehalem ) ) void supportsAvx(){ return supportsAvxMsg( "nehalem (SSE4.2)", true ) };
+#else
+bool supportsAvx()
+{
+  std::cout << "INFO: The application does not require any AVX feature" << std::endl;
+}
 #endif
 
 #endif
@@ -182,23 +214,7 @@ int main(int argc, char **argv)
   }
 
   // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the requested AVX
-  // [NB: this prevents a crash on pmpe04 but not on some github CI nodes]
-#define avxfail( tag )                                                  \
-  {                                                                     \
-    if ( ! __builtin_cpu_supports( tag ) )                              \
-    {                                                                   \
-      std::cout << "ERROR! The application is built for " << tag        \
-                << " but the host does not support it" << std::endl;    \
-      return 1;                                                         \
-    }                                                                   \
-  };
-#if defined __AVX512F__
-  avxfail( "avx512f" );
-#elif defined __AVX2__
-  avxfail( "avx2" );
-#elif defined __SSE4_2__
-  avxfail( "sse4.2" );
-#endif
+  if ( ! supportsAvx() ) return 1;
 #endif
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
