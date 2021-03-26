@@ -717,17 +717,7 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
   // for(i=0;i < ncolor; i++)
   // jamp2[0][i] += real(jamp[i]*conj(jamp[i]));
 
-}
-
-// Kokkos::View<double ***, ExecSpace> &, 
-// Kokkos::View<int **, ExecSpace>, 
-// Kokkos::View<double *, ExecSpace>, 
-// Kokkos::View<Kokkos::complex<double> *, ExecSpace>, 
-// Kokkos::View<int *, ExecSpace>, 
-// Kokkos::View<int *, ExecSpace>, 
-// const int &, 
-// const int &, 
-// const int &
+} // end calculate_wavefunction()
 
 template <typename ExecSpace>
 void sigmaKin_setup(
@@ -800,48 +790,14 @@ void sigmaKin(const Kokkos::View<double***,ExecSpace>& momenta,
   KOKKOS_LAMBDA(member_type team_member){
     const int tid = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
 
-    // Reset color flows
+    const int nprocesses = 1;
+    double matrix_element[nprocesses] = {0};
+    const int denominators[1] = {4};
 
-    const int nprocesses = 1; 
-
-    double matrix_element[nprocesses];
-    for(int i = 0; i < nprocesses; i++ )
-    {
-      matrix_element[i] = 0.;
-    } 
-
-    // Kokkos::complex<double> amp[2]; 
-
-    // static bool goodhel[ncomb] = {ncomb * false};
-    // static int ntry = 0, sum_hel = 0, ngood = 0;
-    // static int igood[ncomb];
-    // static int jhel;
-    // std::complex<double> **wfs;
-    // double t[1];
-    // Helicities for the process
-    // static const int helicities[ncomb][nexternal] =
-    // {{-1,-1,-1,-1},{-1,-1,-1,1},{-1,-1,1,-1},{-1,-1,1,1},{-1,1,-1,-1},{-1,1,-1,
-    // 1},{-1,1,1,-1},{-1,1,1,1},{1,-1,-1,-1},{1,-1,-1,1},{1,-1,1,-1},{1,-1,1,1},{
-    // 1,1,-1,-1},{1,1,-1,1},{1,1,1,-1},{1,1,1,1}};
-    // Denominators: spins, colors and identical particles
-    const int denominators[1] = {4}; 
-
-
-    // Reset the matrix elements
-    for(int i = 0; i < nprocesses; i++ )
-    {
-      matrix_element[i] = 0.; 
-    }
-    // Define permutation
-    // int perm[nexternal];
-    // for(int i = 0; i < nexternal; i++){
-    // perm[i]=i;
-    // }
 
     auto local_mom = Kokkos::subview(momenta,tid,Kokkos::ALL,Kokkos::ALL);
-    for (int ighel = 0; ighel < nGoodHel(0); ighel++ )
-    { 
-      // printf("%10d -> %10d \n",ighel,iGoodHel(ighel));
+    for (int ighel = 0; ighel < nGoodHel(0); ++ighel )
+    {
       auto local_cHel = Kokkos::subview(cHel,iGoodHel(ighel),Kokkos::ALL);
       // printf("tid = %d ihel = %d cHel[%d][0] = %d matrix = %7e\n",tid,ihel,ihel,local_cHel(0),matrix_element[0]);
       calculate_wavefunctions(local_cHel, local_mom, cIPD, cIPC, matrix_element[0]);
