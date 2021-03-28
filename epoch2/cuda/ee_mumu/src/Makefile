@@ -15,10 +15,9 @@ ifndef CUDA_HOME
   endif
 endif
 
-ifeq ($(NVCC),)
+ifneq ($(NVCC),)
   CUINC = -I$(CUDA_HOME)/include
 endif
-
 
 # Assuming uname is available, detect if architecture is power
 UNAME_P := $(shell uname -p)
