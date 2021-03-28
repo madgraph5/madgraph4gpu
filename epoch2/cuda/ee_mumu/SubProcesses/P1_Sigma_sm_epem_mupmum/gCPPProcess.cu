@@ -6,7 +6,7 @@
 //==========================================================================
 
 
-#include "../../src/HelAmps_sm.cu"
+#include "../../src/HelAmps_sm.cc"
 
 
 #include <algorithm>
