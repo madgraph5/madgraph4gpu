@@ -14,7 +14,7 @@
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuConfig.h"
 
-#include "gCPPProcess.h"
+#include "CPPProcess.h"
 
 //==========================================================================
 // Class member functions for calculating the matrix elements for

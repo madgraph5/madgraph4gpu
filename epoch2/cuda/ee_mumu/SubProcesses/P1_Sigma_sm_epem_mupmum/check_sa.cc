@@ -21,7 +21,7 @@
 #ifdef MGONGPU_COMMONRAND_ONHOST
 #include "CommonRandomNumbers.h"
 #endif
-#include "gCPPProcess.h"
+#include "CPPProcess.h"
 #include "timermap.h"
 
 bool is_number(const char *s) {
