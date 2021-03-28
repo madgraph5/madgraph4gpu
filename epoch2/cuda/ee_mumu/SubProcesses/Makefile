@@ -63,7 +63,7 @@ debug: all
 $(LIBDIR)/lib$(MODELLIB).a:
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
-gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h ../../src/*.cu
+gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 %.o : %.cu *.h ../../src/*.h
@@ -72,10 +72,10 @@ gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h ../../src/*.cu
 %.o : %.cc *.h ../../src/*.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
-$(cu_main): gcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
+$(cu_main): gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
 	$(NVCC) $< -o $@ $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) $(CULIBFLAGS)
 
-$(cxx_main): check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
+$(cxx_main): check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
 
