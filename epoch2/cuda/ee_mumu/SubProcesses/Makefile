@@ -1,6 +1,6 @@
 LIBDIR   = ../../lib
-TOOLSDIR = ../../../../../tools/
-TESTDIR  = ../../../../../test/
+TOOLSDIR = ../../../../../tools
+TESTDIR  = ../../../../../test
 INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
 OPTFLAGS = -O3
@@ -18,7 +18,7 @@ ifndef CUDA_HOME
   endif
 endif
 
-ifdef CUDA_HOME
+ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
   CUARCHNUM=70
   USE_NVTX?=-DUSE_NVTX
@@ -32,7 +32,7 @@ ifdef CUDA_HOME
   cu_objects  = gCPPProcess.o
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
-  NVCC       := $(warning No cuda found. Export CUDA_HOME to compile with cuda)
+  NVCC       := $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
   USE_NVTX   :=
   CULIBFLAGS :=
   ifndef MGONGPU_CONFIG
@@ -123,7 +123,7 @@ test: force
 	./gcheck.exe -v 1 32 1
 
 info:
-ifdef CUDA_HOME
+ifneq ($(NVCC),)
 	$(NVCC) --version
 	@echo ""
 endif
