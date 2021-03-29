@@ -1,0 +1,167 @@
+#!/bin/bash
+
+#==============================================================================
+
+function cleanFile {
+
+  which indent > /dev/null 2>&1 
+  if [ "$?" != "0" ]; then
+    echo "ERROR! no 'indent' tool in PATH!"
+    return
+  fi  
+
+  which uncrustify > /dev/null 2>&1 
+  if [ "$?" != "0" ]; then
+    echo "ERROR! no 'uncrustify' tool in PATH!"
+    return
+  fi  
+
+  if [ "$1" == "" ] || [ "$2" != "" ]; then
+    echo "ERROR! Function cleanFile requires one argument ( file )"
+    return
+  fi
+  file=$1
+  echo Clean file \'${file}\'
+  if [ xxx`echo $file | egrep '_tmp\.(h|cpp|py)$'` != xxx ]; then
+    echo Skip temporary file \'${file}\'
+    return
+  else  
+    if [ "$quiet" != "1" ]; then echo Rename and clean file \'${file}\'; fi
+  fi
+  fileold=${file}
+  file=`echo ${file} | sed "s|\.cpp$|_tmp\.cpp|" | sed "s|\.h$|_tmp\.h|" | sed "s|\.py$|_tmp\.py|"`
+  \cp ${fileold} ${file}
+  if [ "$quiet" != "1" ]; then echo Clean file \'${file}\'; fi
+
+  #----------------------------------------------------------------------------
+  # Step 1a: indent
+  # Options for indent
+  # -npro : ignore the indent.pro user's profile 
+  # -npcs : 'f(' instead of 'f ('
+  # -prs: '( a )' instead of '(a)' [but also '(  )' instead of '()']
+  #----------------------------------------------------------------------------
+  ###if [ "$quiet" != "1" ]; then echo Clean file \'${file}\' \: indent; fi
+  ###indent -pro -npcs -prs ${file}
+
+  #----------------------------------------------------------------------------
+  # Step 1b: sed (fix problems introduced by indent)
+  # - replace '(  )' by '()' to fix overcorrection of 'indent -prs'
+  #----------------------------------------------------------------------------
+  ###if [ "$quiet" != "1" ]; then echo Clean file \'${file}\' \: sed; fi
+  ###cat ${file} | sed 's|(  )|()|' > ${file}.tmp; \mv ${file}.tmp ${file}
+
+  #----------------------------------------------------------------------------
+  # Step 2a: uncrustify
+  #----------------------------------------------------------------------------
+  ###cat ${file} # FOR TESTS!
+  \mv ${file} ${file}.tmp
+  cat ${file}.tmp \
+  | sed 's|\*///$|*/|' \
+  | sed "s|/\* COOLCPPCLEAN-NOINDENT-START \*/|/*COOLCPPCLEAN-NOINDENT-START|"\
+  | sed "s|/\* COOLCPPCLEAN-NOINDENT-END \*/|COOLCPPCLEAN-NOINDENT-END*/|"\
+  > ${file}
+  scr_uc=${scrdir}/coolCppClean_uncrustify.cfg
+  ###scr_uc=${scrdir}/coolCppClean_uncr_def055.cfg # FOR COMPARISON!
+  if [ "${file%.py}" != "${file}" ]; then
+    echo "WARNING: will not uncrustify python file '${file}'"
+  elif [ "$quiet" == "1" ]; then
+    uncrustify -c ${scr_uc} -l CPP --replace ${file} > /dev/null 2>&1 
+  else 
+    echo Clean file \'${file}\' \: uncrustify
+    uncrustify -c ${scr_uc} -l CPP --replace ${file}
+  fi
+  ###uncrustify -s -L0-80 -c ${scr_uc} -l CPP --replace ${file} # DEBUG MSGS!
+  \mv ${file} ${file}.tmp
+  cat ${file}.tmp \
+  | sed "s|/\*COOLCPPCLEAN-NOINDENT-START|/* COOLCPPCLEAN-NOINDENT-START */|"\
+  | sed "s|COOLCPPCLEAN-NOINDENT-END\*/|/* COOLCPPCLEAN-NOINDENT-END */|"\
+  > ${file}
+  \rm ${file}.tmp
+
+  #----------------------------------------------------------------------------
+  # Step 2b: sed (fix problems introduced by uncrustify)
+  # - replace 'std ::string' by 'std::string' to fix a bug in the tokenizer
+  #----------------------------------------------------------------------------
+  if [ "${file%.py}" == "${file}" ]; then
+    if [ "$quiet" != "1" ]; then echo Clean file \'${file}\' \: sed; fi
+    cat ${file} | sed 's|std ::string|std::string|' > ${file}.tmp
+    \mv ${file}.tmp ${file}
+  fi
+
+  #----------------------------------------------------------------------------
+  # Step 3a: prepare for emacs
+  # - replace trailing "*/" by "*///" to avoid problems with following comments
+  #----------------------------------------------------------------------------
+  \mv ${file} ${file}.tmp
+  cat ${file}.tmp | sed 's|\*/$|*///|' > ${file}
+  \rm ${file}.tmp
+
+  #----------------------------------------------------------------------------
+  # Step 3b: emacs
+  # This step is the last so that manual M-x clean in emacs changes nothing!
+  # See http://community.livejournal.com/emacs/10446.html
+  # See http://www.cslab.pepperdine.edu/warford/BatchIndentationEmacs.html
+  #----------------------------------------------------------------------------
+  ###cat ${file} # FOR TESTS!
+  scr_el=${scrdir}/coolCppClean_emacs.el
+  if [ "${file%.py}" == "${file}" ]; then emacsclean=emacs-cppclean; else emacsclean=emacs-pyclean; fi
+  if [ "${file%.py}" != "${file}" ] && [ "$includepython" != "1" ]; then
+    echo "WARNING: will not clean python file '${file}' (use \"$0 --include-python\")"
+  elif [ "$quiet" == "1" ]; then
+    emacs ${file} -batch -l ${scr_el} -f ${emacsclean} > /dev/null 2>&1 
+  else
+    echo Clean file \'${file}\' \: ${emacsclean}
+    emacs ${file} -batch -l ${scr_el} -f ${emacsclean}
+  fi
+
+  #----------------------------------------------------------------------------
+  # Final step: cleanup and compare if needed
+  #----------------------------------------------------------------------------
+  ###cat ${file} # FOR TESTS!
+  if [ "$quiet" != "1" ]; then echo Clean file \'${file}\' \: DONE\!; fi
+  echo "Compare NEW '${file}' and OLD '${fileold}' : START"
+  echo diff ${file} ${fileold}
+  diff ${file} ${fileold}
+  echo "Compare NEW '${file}' and OLD '${fileold}' : END"
+  \rm -f ${file}.unc-backup*
+  \mv ${file} ${fileold} # DISABLE THIS FOR TESTS!
+}
+
+#==============================================================================
+
+if [ "$1" == "" ]; then
+  echo "Usage: $0 (file1|dir1) [(file2|dir2)...]"
+  exit 1
+fi
+scrdir=`which $0`; scrdir=`dirname ${scrdir}`
+
+quiet=1  # QUIET
+#quiet=0 # VERBOSE
+
+includepython=0
+
+while [ "$1" != "" ]; do
+  if [ "$1" == "--include-python" ]; then
+    includepython=1
+  elif [ -d $1 ]; then
+    #thefiles=`cd $1; ls *.h *.cpp */*.h */*.cpp */*/*.h */*/*.cpp */*/*/*.h */*/*/*.cpp 2> /dev/null`
+    #thefiles=`cd $1; ls *.h *.cpp */*.h */*.cpp */*/*.h */*/*.cpp */*/*/*.h */*/*/*.cpp | grep -v CoralServerProxy 2> /dev/null`
+    thefiles=`cd $1; ls *.h *.c *.cpp *.py */*.h */*.c */*.cpp */*.py */*/*.h */*/*.c */*/*.cpp */*/*.py */*/*/*.h */*/*/*.c */*/*/*.cpp */*/*/*.py | grep -v CoralServerProxy 2> /dev/null`
+    echo Clean files \'${thefiles}\' in directory \'$1\'
+    for thefile in ${thefiles}; do
+      thefile=${1}/${thefile}
+      cleanFile ${thefile}
+    done
+  elif [ -e $1 ]; then
+    thefile=$1
+    if [ "${thefile%.h}" != "${thefile}" ] || [ "${thefile%.c}" != "${thefile}" ] || [ "${thefile%.cpp}" != "${thefile}" ] || [ "${thefile%.py}" != "${thefile}" ]; then 
+      cleanFile ${thefile}
+    else
+      echo "WARNING! File '${thefile}' is not a C, C++ or Python file"
+    fi
+  else
+    echo "ERROR! File or directory $1 does not exist"
+    ###exit 1
+  fi
+  shift
+done

@@ -1,0 +1,59 @@
+The tool does two things:
+
+1. A first pass with uncrustify, tuned to do minimal changes initially.
+Most settings are the default hardcoded settings, the others have been tuned
+to make sure the result converges (the tool should not add spaces each time).
+
+We can still build a few more rules in the future into uncrustify, such as 
+'if()\n{' rather than 'if(){\n', or 'char* i' rather than 'char *i'. Other 
+rules, like 'sort #includes alphabetically', are beyond the scope of this tool.
+
+2. The second pass is a batch clean with emacs. It is based on the old LHCb 
+emacs 'M-x clean' command, largely reflecting the well documented formatting 
+conventions of LHCb. This only reindents the code (line by line, without 
+touching the line splitting) and removes trailing whitespaces on each line.
+
+The emacs pass is the last phase so that if you use emacs with these 
+settings (or another editor with similar settings, like the vim circulated 
+by Martin), then every time you save you automatically have the right 
+indentation. In fact also uncrustify does some indentation, but most of it 
+is overwritten by the emacs phase, so no need to tune that too much.
+
+The LHCb emacs have been modified to change the indentation of comments.
+- Comments starting with two stars, /** ... */, are indented.
+  These are meant to be used for multi-line class description comments, 
+  where each comment line starts with one *.
+- Comments starting with a single star, /* ... */, are not indented.
+  These are meant to comment out areas of code and preserve code formatting,
+- Real code enclosed between /* COOLCPPCLEAN-NOINDENT-START */ and 
+  /* COOLCPPCLEAN-NOINDENT-END */ tags is not indented, i.e. is treated like
+  a comment. This is useful to work around bugs of uncrustify or of this tool.
+
+All of COOL (except two contrib Utilities - ACE and VerificationClient)
+has been processed through this tool, committed and tagged.
+The results are converging and already show some esthetic improvement.
+This will then be used on the CORAL_SERVER code.
+
+===============================================================================
+
+Details for uncrustify.
+
+This version of uncrustify is tuned to result in no large change
+(eg no splitting of lines and realignments of if/else and for blocks),
+but it already results in a few useful improvements, such as
+- Remove spaces: 'void  f()' becomes 'void f()'
+- Remove spaces: 'f();  // comment' becomes 'f(); // comment'
+- Remove spaces: 'typedef a  b;' becomes 'typedef a b;'
+- Remove spaces: 'static A  a;' becomes 'static A a;'
+- Add spaces: 'class A: B' becomes 'class A : B'
+- Add spaces: 'default: ...' becomes 'default : ...'
+- Add spaces: 'if ( ... ){' becomes 'if ( ... ) {'
+- Add spaces: 'catch( ... ){' becomes 'catch( ... ) {'
+- Add spaces: '{/* noop */ }' becomes '{ /* noop */ }'
+- Align all trailing comments to the code rather than to each other
+- Force exactly one newline at the end of the file
+- Force exactly one whitespace before trailing continuation characters "\"
+I tuned the configuration file a few times until I tested that the process
+converges to a stable results (a second run does not change the code!).
+
+===============================================================================
