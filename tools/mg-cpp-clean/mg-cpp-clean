@@ -140,10 +140,10 @@ function cleanFile {
   #----------------------------------------------------------------------------
   ###cat ${file} # FOR TESTS!
   if [ "$quiet" != "1" ]; then echo Clean file \'${file}\' \: DONE\!; fi
-  echo "Compare NEW '${file}' and OLD '${fileold}' : START"
-  echo diff ${file} ${fileold}
-  diff ${file} ${fileold}
-  echo "Compare NEW '${file}' and OLD '${fileold}' : END"
+  echo "Compare OLD '${fileold}' and NEW '${file}' : START"
+  echo diff ${fileold} ${file}
+  diff ${fileold} ${file}
+  echo "Compare OLD '${fileold}' and NEW '${file}' : END"
   \rm -f ${file}.unc-backup*
   \mv ${file} ${fileold} # DISABLE THIS FOR TESTS!
 }
