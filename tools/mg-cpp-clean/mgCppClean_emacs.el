@@ -27,7 +27,7 @@
   )
 
 ;;============================================================================
-;;  COOL customisations
+;;  MG customisations
 ;;============================================================================
 
 (defun myindent-buffer ()
@@ -40,8 +40,8 @@
     (setq pmax (point-min)) 
     (setq commentstart "/*")
     (setq commentend "*/")
-    (setq skipstart (concat commentstart " COOLCPPCLEAN-NOINDENT-START " commentend))
-    (setq skipend (concat commentstart " COOLCPPCLEAN-NOINDENT-END " commentend))
+    (setq skipstart (concat commentstart " MGCPPCLEAN-NOINDENT-START " commentend))
+    (setq skipend (concat commentstart " MGCPPCLEAN-NOINDENT-END " commentend))
     (setq pskip nil)
     (setq indcstart (concat commentstart "*")) ;; INDENT COMMENTS STARTING WITH "/**"!
     (message "Indent buffer (excluding comments) from %d to %d..." (point-min) (point-max))
