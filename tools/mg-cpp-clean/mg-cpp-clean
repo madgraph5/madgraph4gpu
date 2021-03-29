@@ -16,8 +16,8 @@ function cleanFile {
     return
   fi  
 
-  scr_uc=${scrdir}/coolCppClean_uncrustify.cfg
-  ###scr_uc=${scrdir}/coolCppClean_uncr_def055.cfg # FOR COMPARISON!
+  scr_uc=${scrdir}/mgCppClean_uncrustify.cfg
+  ###scr_uc=${scrdir}/mgCppClean_uncr_def055.cfg # FOR COMPARISON!
   if [ ! -f ${scr_uc} ]; then
     echo "ERROR! file ${scr_uc} not found!"
     return
@@ -29,7 +29,7 @@ function cleanFile {
     return
   fi  
 
-  scr_el=${scrdir}/coolCppClean_emacs.el
+  scr_el=${scrdir}/mgCppClean_emacs.el
   if [ ! -f ${scr_el} ]; then
     echo "ERROR! file ${scr_el} not found!"
     return
@@ -75,8 +75,8 @@ function cleanFile {
   \mv ${file} ${file}.tmp
   cat ${file}.tmp \
   | sed 's|\*///$|*/|' \
-  | sed "s|/\* COOLCPPCLEAN-NOINDENT-START \*/|/*COOLCPPCLEAN-NOINDENT-START|"\
-  | sed "s|/\* COOLCPPCLEAN-NOINDENT-END \*/|COOLCPPCLEAN-NOINDENT-END*/|"\
+  | sed "s|/\* MGCPPCLEAN-NOINDENT-START \*/|/*MGCPPCLEAN-NOINDENT-START|"\
+  | sed "s|/\* MGCPPCLEAN-NOINDENT-END \*/|MGCPPCLEAN-NOINDENT-END*/|"\
   > ${file}
   if [ "${file%.py}" != "${file}" ]; then
     echo "WARNING: will not uncrustify python file '${file}'"
@@ -89,8 +89,8 @@ function cleanFile {
   ###uncrustify -s -L0-80 -c ${scr_uc} -l CPP --replace ${file} # DEBUG MSGS!
   \mv ${file} ${file}.tmp
   cat ${file}.tmp \
-  | sed "s|/\*COOLCPPCLEAN-NOINDENT-START|/* COOLCPPCLEAN-NOINDENT-START */|"\
-  | sed "s|COOLCPPCLEAN-NOINDENT-END\*/|/* COOLCPPCLEAN-NOINDENT-END */|"\
+  | sed "s|/\*MGCPPCLEAN-NOINDENT-START|/* MGCPPCLEAN-NOINDENT-START */|"\
+  | sed "s|MGCPPCLEAN-NOINDENT-END\*/|/* MGCPPCLEAN-NOINDENT-END */|"\
   > ${file}
   \rm ${file}.tmp
 

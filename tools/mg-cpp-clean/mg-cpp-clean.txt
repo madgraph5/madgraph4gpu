@@ -1,3 +1,13 @@
+AV 2021.03.29
+
+The mg-cpp-clean tool is derived with minimal changes from coolCppClean.
+This was a tool that had been developed around 2010-2015 for the COOL project.
+
+This file has been adapted from that downloaded from
+https://gitlab.cern.ch/lcgcool/cool/-/raw/master/src/config/cmt/coolCppClean.txt
+
+===============================================================================
+
 The tool does two things:
 
 1. A first pass with uncrustify, tuned to do minimal changes initially.
@@ -14,9 +24,9 @@ conventions of LHCb. This only reindents the code (line by line, without
 touching the line splitting) and removes trailing whitespaces on each line.
 
 The emacs pass is the last phase so that if you use emacs with these 
-settings (or another editor with similar settings, like the vim circulated 
-by Martin), then every time you save you automatically have the right 
-indentation. In fact also uncrustify does some indentation, but most of it 
+settings (or another editor with similar settings, like vim),
+then every time you save you automatically have the right indentation.
+In fact also uncrustify does some indentation, but most of it
 is overwritten by the emacs phase, so no need to tune that too much.
 
 The LHCb emacs have been modified to change the indentation of comments.
@@ -25,14 +35,9 @@ The LHCb emacs have been modified to change the indentation of comments.
   where each comment line starts with one *.
 - Comments starting with a single star, /* ... */, are not indented.
   These are meant to comment out areas of code and preserve code formatting,
-- Real code enclosed between /* COOLCPPCLEAN-NOINDENT-START */ and 
-  /* COOLCPPCLEAN-NOINDENT-END */ tags is not indented, i.e. is treated like
+- Real code enclosed between /* MGCPPCLEAN-NOINDENT-START */ and 
+  /* MGCPPCLEAN-NOINDENT-END */ tags is not indented, i.e. is treated like
   a comment. This is useful to work around bugs of uncrustify or of this tool.
-
-All of COOL (except two contrib Utilities - ACE and VerificationClient)
-has been processed through this tool, committed and tagged.
-The results are converging and already show some esthetic improvement.
-This will then be used on the CORAL_SERVER code.
 
 ===============================================================================
 
