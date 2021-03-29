@@ -52,43 +52,43 @@
       (if pmax 
           ;; Start of comment found: look for indented comments and noindent sections
           (progn
-            ;;(message "DEBUG: '%s' found at %d" commentstart pmax)
+            (message "DEBUG: '%s' found at %d" commentstart pmax)
             ;; Start of comment found: is this the start of an indented comment?
             (backward-char 2)
             (setq pindc (search-forward indcstart (point-max) t) )
-            ;;(if pindc (message "DEBUG: '%s' found at %d" indcstart pindc))
+            (if pindc (message "DEBUG: '%s' found at %d" indcstart pindc))
             (if pindc
                 ;; The start of an indented comment was found: is it here?
                 (if (not (= (- pindc pmax) (- (length indcstart) 2))) 
                     (progn 
                       (setq pindc nil)
-                      ;;(message "DEBUG: '%s' ignored" indcstart)
+                      (message "DEBUG: '%s' ignored" indcstart)
                       (goto-char pmax) )
                   ) 
               )
-            ;;(if pindc (message "DEBUG: '%s' confirmed at %d" indcstart pindc))
+            (if pindc (message "DEBUG: '%s' confirmed at %d" indcstart pindc))
             ;; Start of comment found: is this the start of a noindent section?
             (if pindc ()
               (progn
                 (backward-char 2)
                 (setq pskip (search-forward skipstart (point-max) t) )
-                ;;(if pskip (message "DEBUG: '%s' found at %d" skipstart pskip)) 
+                (if pskip (message "DEBUG: '%s' found at %d" skipstart pskip)) 
                 )
               (if pskip 
                   ;; The start of a noindent section was found: is it here?
                   (if (not (= (- pskip pmax) (- (length skipstart) 2))) 
                       (progn 
                         (setq pskip nil)
-                        ;;(message "DEBUG: '%s' ignored" skipstart)
+                        (message "DEBUG: '%s' ignored" skipstart)
                         (goto-char pmax) )
                     ) 
                 )
-              ;;(if pskip (message "DEBUG: '%s' confirmed at %d" skipstart pskip)) 
+              (if pskip (message "DEBUG: '%s' confirmed at %d" skipstart pskip)) 
               )
             ) 
         ;; No comment found: break the loop
         (progn 
-          ;;(message "DEBUG: '%s' not found: break the loop" commentstart)
+          (message "DEBUG: '%s' not found: break the loop" commentstart)
           (setq pmax (point-max)) 
           (setq pskip nil) ) )
       ;; Indent until the start of the comment (or the end of the buffer)
@@ -98,7 +98,7 @@
       (if (or pindc (>= pmax (point-max)))
           ;; No start of comment/noindent, or indented comment: no need to match end
           (progn 
-            ;;(message "DEBUG: no need to find matching '%s'" commentend) 
+            (message "DEBUG: no need to find matching '%s'" commentend) 
             )
         ;; Start of comment or noindent found: look for the matching end
         (progn
@@ -112,7 +112,7 @@
                 (setq pmax (point-max))
                 (message "WARNING: matching '%s' not found" tagend) )
             ;; The end was found
-            ;;(message "DEBUG: matching '%s' found at %d" tagend pmin) 
+            (message "DEBUG: matching '%s' found at %d" tagend pmin) 
             )
           )
         )
