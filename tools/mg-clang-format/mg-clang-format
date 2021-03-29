@@ -1,0 +1,3 @@
+#!/bin/bash
+source /cvmfs/sft.cern.ch/lcg/releases/clang/8.0.0-ed577/x86_64-slc6/setup.sh
+exec /cvmfs/sft.cern.ch/lcg/releases/clang/8.0.0-ed577/x86_64-slc6/bin/clang-format "$@"
