@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#quiet=1  # QUIET
+quiet=0 # VERBOSE
+
 #==============================================================================
 
 function cleanFile {
@@ -46,7 +49,7 @@ function cleanFile {
     echo Skip temporary file \'${file}\'
     return
   fi
-  if [ "$quiet" != "1" ]; then echo Rename and clean file \'${file}\'; fi
+  if [ "$quiet" != "1" ]; then echo Rename and clean file \'${file}\'; ls -l ${file}; fi
   fileold=${file}
   file=`echo ${file} | sed "s|\.h$|_tmp\.h|" | sed "s|\.cc$|_tmp\.cc|" | sed "s|\.cpp$|_tmp\.cpp|" | sed "s|\.py$|_tmp\.py|"`
   \cp ${fileold} ${file}
@@ -127,6 +130,7 @@ function cleanFile {
     emacs ${file} -batch -l ${scr_el} -f ${emacsclean} > /dev/null 2>&1 
   else
     echo Clean file \'${file}\' \: ${emacsclean}
+    ls -l ${file}
     emacs ${file} -batch -l ${scr_el} -f ${emacsclean}
   fi
 
@@ -150,9 +154,6 @@ if [ "$1" == "" ]; then
   exit 1
 fi
 scrdir=`which $0`; scrdir=`dirname ${scrdir}`
-
-#quiet=1  # QUIET
-quiet=0 # VERBOSE
 
 includepython=0
 
