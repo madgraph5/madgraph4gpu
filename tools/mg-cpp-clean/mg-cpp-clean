@@ -77,11 +77,11 @@ function cleanFile {
   #----------------------------------------------------------------------------
   ###cat ${file} # FOR TESTS!
   \mv ${file} ${file}.tmp
+  ###cat ${file}.tmp | sed 's|\*///$|*/|' > ${file}; \mv ${file} ${file}.tmp # WHY??
   cat ${file}.tmp \
-  | sed 's|\*///$|*/|' \
-  | sed "s|/\* MGCPPCLEAN-NOINDENT-START \*/|/*MGCPPCLEAN-NOINDENT-START|"\
-  | sed "s|/\* MGCPPCLEAN-NOINDENT-END \*/|MGCPPCLEAN-NOINDENT-END*/|"\
-  > ${file}
+    | sed "s|/\* MGCPPCLEAN-NOINDENT-START \*/|/*MGCPPCLEAN-NOINDENT-START|" \
+    | sed "s|/\* MGCPPCLEAN-NOINDENT-END \*/|MGCPPCLEAN-NOINDENT-END*/|" \
+    > ${file}
   if [ "${file%.py}" != "${file}" ]; then
     echo "WARNING: will not uncrustify python file '${file}'"
   elif [ "$quiet" == "1" ]; then
@@ -112,9 +112,9 @@ function cleanFile {
   # Step 3a: prepare for emacs
   # - replace trailing "*/" by "*///" to avoid problems with following comments
   #----------------------------------------------------------------------------
-  \mv ${file} ${file}.tmp
-  cat ${file}.tmp | sed 's|\*/$|*///|' > ${file}
-  \rm ${file}.tmp
+  ###\mv ${file} ${file}.tmp
+  ###cat ${file}.tmp | sed 's|\*/$|*///|' > ${file} # WHY??
+  ###\rm ${file}.tmp
 
   #----------------------------------------------------------------------------
   # Step 3b: emacs
