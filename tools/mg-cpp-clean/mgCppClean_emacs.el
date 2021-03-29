@@ -30,14 +30,18 @@
 ;;  MG customisations
 ;;============================================================================
 
+;; To check the cursor position: C-X =
+;; NB: point-max changes dynamically when buffers are indented (minor bug found in 2021)
+
 (defun myindent-buffer ()
   "Indent buffer excluding comments."
   (interactive)
   (save-excursion
-    (let (pmin pmax commentstart commentend skipstart skipend pskip indcstart pindc))
+    (let (pmin pmax pdone commentstart commentend skipstart skipend pskip indcstart pindc))
     (goto-char (point-min))
     (setq pmin (point-min))
     (setq pmax (point-min)) 
+    (setq pdone nil) 
     (setq commentstart "/*")
     (setq commentend "*/")
     (setq skipstart (concat commentstart " MGCPPCLEAN-NOINDENT-START " commentend))
@@ -90,13 +94,15 @@
         (progn 
           (message "DEBUG: '%s' not found: break the loop" commentstart)
           (setq pmax (point-max)) 
+          (setq pdone 1) ;; fix bug
           (setq pskip nil) ) )
       ;; Indent until the start of the comment (or the end of the buffer)
       ;;(if (not pindc) (message "Indent from %d to %d" pmin pmax))
       (if (not pindc) (indent-region pmin pmax nil) )
       ;; 2. LOOK FOR END OF COMMENT (OR END OF NOINDENT SECTION)
-      (if (or pindc (>= pmax (point-max)))
-          ;; No start of comment/noindent, or indented comment: no need to match end
+      ;;(if (or pindc (>= pmax (point-max))) ;; bug
+      (if (or pdone pindc) ;; fix bug
+         ;; No start of comment/noindent, or indented comment: no need to match end
           (progn 
             (message "DEBUG: no need to find matching '%s'" commentend) 
             )
@@ -110,6 +116,7 @@
               ;; The end was not found (BAD C++ CODE!): break the loop
               (progn
                 (setq pmax (point-max))
+                (setq pdone 2) ;; fix bug
                 (message "WARNING: matching '%s' not found" tagend) )
             ;; The end was found
             (message "DEBUG: matching '%s' found at %d" tagend pmin) 
