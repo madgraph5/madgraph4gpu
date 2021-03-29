@@ -49,7 +49,9 @@
     (setq pskip nil)
     (setq indcstart (concat commentstart "*")) ;; INDENT COMMENTS STARTING WITH "/**"!
     (message "Indent buffer (excluding comments) from %d to %d..." (point-min) (point-max))
-    (while (< pmax (point-max))
+    ;;(while (< pmax (point-max)) ;; bug
+    (while (and (not pdone) (< pmax (point-max))) ;; fix bug
+      (message "DEBUG: looping pmax=%d point-max=%d pdone=%s" pmax (point-max) pdone)
       ;; 1. LOOK FOR START OF COMMENT (OR START OF NOINDENT SECTION)
       (setq pindc nil)
       (setq pmax (search-forward commentstart (point-max) t))
