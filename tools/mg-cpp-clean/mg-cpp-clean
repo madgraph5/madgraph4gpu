@@ -4,15 +4,34 @@
 
 function cleanFile {
 
-  which indent > /dev/null 2>&1 
-  if [ "$?" != "0" ]; then
-    echo "ERROR! no 'indent' tool in PATH!"
-    return
-  fi  
+  #which indent > /dev/null 2>&1 
+  #if [ "$?" != "0" ]; then
+  #  echo "ERROR! no 'indent' tool in PATH!"
+  #  return
+  #fi  
 
   which uncrustify > /dev/null 2>&1 
   if [ "$?" != "0" ]; then
     echo "ERROR! no 'uncrustify' tool in PATH!"
+    return
+  fi  
+
+  scr_uc=${scrdir}/coolCppClean_uncrustify.cfg
+  ###scr_uc=${scrdir}/coolCppClean_uncr_def055.cfg # FOR COMPARISON!
+  if [ ! -f ${scr_uc} ]; then
+    echo "ERROR! file ${scr_uc} not found!"
+    return
+  fi  
+
+  which emacs > /dev/null 2>&1 
+  if [ "$?" != "0" ]; then
+    echo "ERROR! no 'emacs' tool in PATH!"
+    return
+  fi  
+
+  scr_el=${scrdir}/coolCppClean_emacs.el
+  if [ ! -f ${scr_el} ]; then
+    echo "ERROR! file ${scr_el} not found!"
     return
   fi  
 
@@ -22,14 +41,13 @@ function cleanFile {
   fi
   file=$1
   echo Clean file \'${file}\'
-  if [ xxx`echo $file | egrep '_tmp\.(h|cpp|py)$'` != xxx ]; then
+  if [ xxx`echo $file | egrep '_tmp\.(h|cc|cpp|py)$'` != xxx ]; then
     echo Skip temporary file \'${file}\'
     return
-  else  
-    if [ "$quiet" != "1" ]; then echo Rename and clean file \'${file}\'; fi
   fi
+  if [ "$quiet" != "1" ]; then echo Rename and clean file \'${file}\'; fi
   fileold=${file}
-  file=`echo ${file} | sed "s|\.cpp$|_tmp\.cpp|" | sed "s|\.h$|_tmp\.h|" | sed "s|\.py$|_tmp\.py|"`
+  file=`echo ${file} | sed "s|\.h$|_tmp\.h|" | sed "s|\.cc$|_tmp\.cc|" | sed "s|\.cpp$|_tmp\.cpp|" | sed "s|\.py$|_tmp\.py|"`
   \cp ${fileold} ${file}
   if [ "$quiet" != "1" ]; then echo Clean file \'${file}\'; fi
 
@@ -60,8 +78,6 @@ function cleanFile {
   | sed "s|/\* COOLCPPCLEAN-NOINDENT-START \*/|/*COOLCPPCLEAN-NOINDENT-START|"\
   | sed "s|/\* COOLCPPCLEAN-NOINDENT-END \*/|COOLCPPCLEAN-NOINDENT-END*/|"\
   > ${file}
-  scr_uc=${scrdir}/coolCppClean_uncrustify.cfg
-  ###scr_uc=${scrdir}/coolCppClean_uncr_def055.cfg # FOR COMPARISON!
   if [ "${file%.py}" != "${file}" ]; then
     echo "WARNING: will not uncrustify python file '${file}'"
   elif [ "$quiet" == "1" ]; then
@@ -103,7 +119,6 @@ function cleanFile {
   # See http://www.cslab.pepperdine.edu/warford/BatchIndentationEmacs.html
   #----------------------------------------------------------------------------
   ###cat ${file} # FOR TESTS!
-  scr_el=${scrdir}/coolCppClean_emacs.el
   if [ "${file%.py}" == "${file}" ]; then emacsclean=emacs-cppclean; else emacsclean=emacs-pyclean; fi
   if [ "${file%.py}" != "${file}" ] && [ "$includepython" != "1" ]; then
     echo "WARNING: will not clean python file '${file}' (use \"$0 --include-python\")"
@@ -135,8 +150,8 @@ if [ "$1" == "" ]; then
 fi
 scrdir=`which $0`; scrdir=`dirname ${scrdir}`
 
-quiet=1  # QUIET
-#quiet=0 # VERBOSE
+#quiet=1  # QUIET
+quiet=0 # VERBOSE
 
 includepython=0
 
@@ -154,10 +169,10 @@ while [ "$1" != "" ]; do
     done
   elif [ -e $1 ]; then
     thefile=$1
-    if [ "${thefile%.h}" != "${thefile}" ] || [ "${thefile%.c}" != "${thefile}" ] || [ "${thefile%.cpp}" != "${thefile}" ] || [ "${thefile%.py}" != "${thefile}" ]; then 
+    if [ "${thefile%.h}" != "${thefile}" ] || [ "${thefile%.cc}" != "${thefile}" ] || [ "${thefile%.cpp}" != "${thefile}" ] || [ "${thefile%.py}" != "${thefile}" ]; then 
       cleanFile ${thefile}
     else
-      echo "WARNING! File '${thefile}' is not a C, C++ or Python file"
+      echo "WARNING! File '${thefile}' is not a C++ or Python file"
     fi
   else
     echo "ERROR! File or directory $1 does not exist"
