@@ -50,7 +50,7 @@
     (setq indcstart (concat commentstart "*")) ;; INDENT COMMENTS STARTING WITH "/**"!
     (message "Indent buffer (excluding comments) from %d to %d..." (point-min) (point-max))
     ;;(while (< pmax (point-max)) ;; bug
-    (while (and (not pdone) (< pmax (point-max))) ;; fix bug
+    (while (not pdone) ;; fix bug
       (message "DEBUG: looping pmax=%d point-max=%d pdone=%s" pmax (point-max) pdone)
       ;; 1. LOOK FOR START OF COMMENT (OR START OF NOINDENT SECTION)
       (setq pindc nil)
@@ -99,7 +99,7 @@
           (setq pdone 1) ;; fix bug
           (setq pskip nil) ) )
       ;; Indent until the start of the comment (or the end of the buffer)
-      ;;(if (not pindc) (message "Indent from %d to %d" pmin pmax))
+      (if (not pindc) (message "DEBUG: Indent from %d to %d" pmin pmax))
       (if (not pindc) (indent-region pmin pmax nil) )
       ;; 2. LOOK FOR END OF COMMENT (OR END OF NOINDENT SECTION)
       ;;(if (or pindc (>= pmax (point-max))) ;; bug
@@ -126,6 +126,7 @@
           )
         )
       )
+    (message "DEBUG: looping completed pmax=%d point-max=%d pdone=%s" pmax (point-max) pdone)
     (message "Indent buffer (excluding comments) from %d to %d... done" (point-min) (point-max))
     )
   )
