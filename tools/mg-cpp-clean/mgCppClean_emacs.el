@@ -52,11 +52,11 @@
       (if pmax 
           ;; Start of comment found: look for indented comments and noindent sections
           (progn
-            (message "DEBUG: '%s' found at %d" commentstart pmax)
+            (message "DEBUG: commentstart '%s' found at %d" commentstart pmax)
             ;; Start of comment found: is this the start of an indented comment?
             (backward-char 2)
             (setq pindc (search-forward indcstart (point-max) t) )
-            (if pindc (message "DEBUG: '%s' found at %d" indcstart pindc))
+            (if pindc (message "DEBUG: indcstart '%s' found at %d" indcstart pindc))
             (if pindc
                 ;; The start of an indented comment was found: is it here?
                 (if (not (= (- pindc pmax) (- (length indcstart) 2))) 
@@ -72,7 +72,7 @@
               (progn
                 (backward-char 2)
                 (setq pskip (search-forward skipstart (point-max) t) )
-                (if pskip (message "DEBUG: '%s' found at %d" skipstart pskip)) 
+                (if pskip (message "DEBUG: skipstart '%s' found at %d" skipstart pskip)) 
                 )
               (if pskip 
                   ;; The start of a noindent section was found: is it here?
