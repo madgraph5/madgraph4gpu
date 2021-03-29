@@ -19,9 +19,10 @@ function cleanFile {
     return
   fi  
 
-  scr_uc=${scrdir}/mgCppClean_uncr055.cfg
-  ###scr_uc=${scrdir}/mgCppClean_uncr055_default.cfg # FOR COMPARISON!
+  scr_uc=${scrdir}/mgCppClean_uncr064.cfg # MG/NEW (uncrustify 0.64)
   ###scr_uc=${scrdir}/mgCppClean_uncr064_default.cfg # FOR COMPARISON!
+  ###scr_uc=${scrdir}/mgCppClean_uncr055.cfg # MG/OLD (uncrustify 0.55)
+  ###scr_uc=${scrdir}/mgCppClean_uncr055_default.cfg # FOR COMPARISON!
   if [ ! -f ${scr_uc} ]; then
     echo "ERROR! file ${scr_uc} not found!"
     return
