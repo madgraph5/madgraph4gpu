@@ -1,12 +1,12 @@
 //==========================================================================
 // This file has been automatically generated for C++ by
-// MadGraph5_aMC@NLO v. 2.7.3.py3, 2020-06-28
+// MadGraph5_aMC@NLO v. 2.8.2, 2020-10-30
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#include <iostream> 
-#include <iomanip> 
+#include <iostream>
+#include <iomanip>
 #include "Parameters_sm.h"
 
 // Initialize static instance
@@ -216,9 +216,8 @@ void Parameters_sm::printDependentParameters()
   std::cout << std::setw(20) <<  "mdl_G__exp__2 " <<  "= " <<
       std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_G__exp__2 << std::endl;
 }
+
 void Parameters_sm::printDependentCouplings()
 {
   std::cout <<  "sm model couplings dependent on event kinematics:" << std::endl;
 }
-
-
