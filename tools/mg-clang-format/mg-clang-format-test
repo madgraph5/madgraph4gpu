@@ -1,0 +1,14 @@
+#!/bin/bash
+if [ "$1" == "" ] || [ "$2" != "" ]; then
+  echo "Usage: $0 <filepath>"
+  exit 1
+fi
+file=$1
+git checkout $file
+mg-clang-format -i $file
+git diff $file
+echo
+echo "git difftool $file &"
+echo
+echo "Lines in git diff output: $(git diff $file | wc -l)"
+
