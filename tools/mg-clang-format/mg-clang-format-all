@@ -1,0 +1,42 @@
+#!/bin/bash
+
+if [ "$1" == "" ] || [ "$1" == "-h" ]; then
+  echo "Usage: $(basename $0) [-dump-config] [-style=<style>] (file1|dir1) [(file2|dir2)...]"
+  exit 1
+fi
+
+dump=
+style=
+files=
+while [ "$1" != "" ]; do
+  if [ "$1" == "-dump-config" ]; then
+    dump=$1
+    shift
+  elif [ "${1#-style=}" != "$1" ]; then
+    style=$1
+    shift
+  elif [ -f $1 ] || [ -d $1 ]; then
+    files="$files $(find $1 -type f -name '*.h')"
+    files="$files $(find $1 -type f -name '*.cc')"
+    files="$files $(find $1 -type f -name '*.cpp')"
+    files="$files $(find $1 -type f -name '*.py')"
+    shift
+  else
+    echo "ERROR! File or directory $1 does not exist"
+    exit 1
+  fi
+done
+
+files=$(echo $files | tr " " "\n")
+echo -e "About to format files:\n$files"
+
+for file in $files; do
+  echo -e "\nAbout to format file: '$file'"
+  filenew=${file}.tmp
+  \cp ${file} ${filenew}
+  mg-clang-format -i ${filenew}
+  echo "Compare OLD '${file}' and NEW '${filenew}' : START"
+  echo diff ${file} ${filenew}
+  diff ${file} ${filenew}
+  echo "Compare OLD '${file}' and NEW '${filenew}' : END"
+done
