@@ -1,8 +1,5 @@
 #!/bin/bash
 
-#quiet=1  # QUIET
-quiet=0 # VERBOSE
-
 #==============================================================================
 
 function cleanFile {
@@ -151,16 +148,18 @@ function cleanFile {
 #==============================================================================
 
 if [ "$1" == "" ]; then
-  echo "Usage: $0 (file1|dir1) [(file2|dir2)...]"
+  echo "Usage: $(basename $0) [-v] (file1|dir1) [(file2|dir2)...]"
   exit 1
 fi
 scrdir=`which $0`; scrdir=`dirname ${scrdir}`
 
+quiet=1  # QUIET
 includepython=0
-
 while [ "$1" != "" ]; do
   if [ "$1" == "--include-python" ]; then
     includepython=1
+  elif [ "$1" == "-v" ]; then
+    quiet=0 # VERBOSE
   elif [ -d $1 ]; then
     #thefiles=`cd $1; ls *.h *.cpp */*.h */*.cpp */*/*.h */*/*.cpp */*/*/*.h */*/*/*.cpp 2> /dev/null`
     #thefiles=`cd $1; ls *.h *.cpp */*.h */*.cpp */*/*.h */*/*.cpp */*/*/*.h */*/*/*.cpp | grep -v CoralServerProxy 2> /dev/null`
