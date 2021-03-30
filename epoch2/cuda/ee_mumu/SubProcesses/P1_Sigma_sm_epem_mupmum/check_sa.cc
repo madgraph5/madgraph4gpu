@@ -1,1 +1,0 @@
-gcheck_sa.cu

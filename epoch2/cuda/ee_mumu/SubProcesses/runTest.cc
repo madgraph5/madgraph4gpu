@@ -4,7 +4,7 @@
 #include "MadgraphTest.h"
 
 #include "CommonRandomNumbers.h"
-#include "gCPPProcess.h"
+#include "CPPProcess.h"
 #include "Memory.h"
 #ifdef __CUDACC__
 #include "grambo.cu"

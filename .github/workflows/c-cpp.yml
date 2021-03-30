@@ -14,6 +14,8 @@ jobs:
         working-directory: epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum
     steps:
     - uses: actions/checkout@v2
+    - name: make info
+      run: make info
     - name: make
       run: make
     - name: make check
@@ -33,6 +35,8 @@ jobs:
         working-directory: epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum
     steps:
     - uses: actions/checkout@v2
+    - name: make info
+      run: make info
     - name: make
       run: make
     - name: make check
@@ -44,6 +48,8 @@ jobs:
         working-directory: epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum
     steps:
     - uses: actions/checkout@v2
+    - name: make info
+      run: make info
     - name: make
       run: make
     - name: make check
