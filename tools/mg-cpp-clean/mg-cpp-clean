@@ -73,37 +73,43 @@ function cleanFile {
   #----------------------------------------------------------------------------
   # Step 2a: uncrustify
   #----------------------------------------------------------------------------
-  ###cat ${file} # FOR TESTS!
-  \mv ${file} ${file}.tmp
-  ###cat ${file}.tmp | sed 's|\*///$|*/|' > ${file}; \mv ${file} ${file}.tmp # WHY??
-  cat ${file}.tmp \
-    | sed "s|/\* MGCPPCLEAN-NOINDENT-START \*/|/*MGCPPCLEAN-NOINDENT-START|" \
-    | sed "s|/\* MGCPPCLEAN-NOINDENT-END \*/|MGCPPCLEAN-NOINDENT-END*/|" \
-    > ${file}
-  if [ "${file%.py}" != "${file}" ]; then
-    echo "WARNING: will not uncrustify python file '${file}'"
-  elif [ "$quiet" == "1" ]; then
-    uncrustify -c ${scr_uc} -l CPP --replace ${file} > /dev/null 2>&1 
-  else 
-    echo Clean file \'${file}\' \: uncrustify
-    uncrustify -c ${scr_uc} -l CPP --replace ${file}
-  fi
-  ###uncrustify -s -L0-80 -c ${scr_uc} -l CPP --replace ${file} # DEBUG MSGS!
-  \mv ${file} ${file}.tmp
-  cat ${file}.tmp \
-  | sed "s|/\*MGCPPCLEAN-NOINDENT-START|/* MGCPPCLEAN-NOINDENT-START */|"\
+  if [ "$dounc" == "1" ]; then
+    ###cat ${file} # FOR TESTS!
+    \mv ${file} ${file}.tmp
+    ###cat ${file}.tmp | sed 's|\*///$|*/|' > ${file}; \mv ${file} ${file}.tmp # WHY??
+    cat ${file}.tmp \
+      | sed "s|/\* MGCPPCLEAN-NOINDENT-START \*/|/*MGCPPCLEAN-NOINDENT-START|" \
+      | sed "s|/\* MGCPPCLEAN-NOINDENT-END \*/|MGCPPCLEAN-NOINDENT-END*/|" \
+      > ${file}
+    if [ "${file%.py}" != "${file}" ]; then
+      echo "WARNING: will not uncrustify python file '${file}'"
+    elif [ "$quiet" == "1" ]; then
+      uncrustify -c ${scr_uc} -l CPP --replace ${file} > /dev/null 2>&1 
+    else 
+      echo Clean file \'${file}\' \: uncrustify
+      uncrustify -c ${scr_uc} -l CPP --replace ${file}
+    fi
+    ###uncrustify -s -L0-80 -c ${scr_uc} -l CPP --replace ${file} # DEBUG MSGS!
+    \mv ${file} ${file}.tmp
+    cat ${file}.tmp \
+      | sed "s|/\*MGCPPCLEAN-NOINDENT-START|/* MGCPPCLEAN-NOINDENT-START */|"\
   | sed "s|MGCPPCLEAN-NOINDENT-END\*/|/* MGCPPCLEAN-NOINDENT-END */|"\
   > ${file}
-  \rm ${file}.tmp
+    \rm ${file}.tmp
+  else
+    echo "WARNING: will not uncrustify '${file}' (use \"$0 -unc\")"
+  fi
 
   #----------------------------------------------------------------------------
   # Step 2b: sed (fix problems introduced by uncrustify)
   # - replace 'std ::string' by 'std::string' to fix a bug in the tokenizer
   #----------------------------------------------------------------------------
-  if [ "${file%.py}" == "${file}" ]; then
-    if [ "$quiet" != "1" ]; then echo Clean file \'${file}\' \: sed; fi
-    cat ${file} | sed 's|std ::string|std::string|' > ${file}.tmp
-    \mv ${file}.tmp ${file}
+  if [ "$dounc" == "1" ]; then
+    if [ "${file%.py}" == "${file}" ]; then
+      if [ "$quiet" != "1" ]; then echo Clean file \'${file}\' \: sed; fi
+      cat ${file} | sed 's|std ::string|std::string|' > ${file}.tmp
+      \mv ${file}.tmp ${file}
+    fi
   fi
 
   #----------------------------------------------------------------------------
@@ -122,8 +128,8 @@ function cleanFile {
   #----------------------------------------------------------------------------
   ###cat ${file} # FOR TESTS!
   if [ "${file%.py}" == "${file}" ]; then emacsclean=emacs-cppclean; else emacsclean=emacs-pyclean; fi
-  if [ "${file%.py}" != "${file}" ] && [ "$includepython" != "1" ]; then
-    echo "WARNING: will not clean python file '${file}' (use \"$0 --include-python\")"
+  if [ "${file%.py}" != "${file}" ] && [ "$dopyt" != "1" ]; then
+    echo "WARNING: will not clean python file '${file}' (use \"$0 -pyt\")"
   elif [ "$quiet" == "1" ]; then
     emacs ${file} -batch -l ${scr_el} -f ${emacsclean} > /dev/null 2>&1 
   else
@@ -148,37 +154,41 @@ function cleanFile {
 #==============================================================================
 
 if [ "$1" == "" ]; then
-  echo "Usage: $(basename $0) [-v] (file1|dir1) [(file2|dir2)...]"
+  echo "Usage: $(basename $0) [-v] [-unc] [-pyt] (file1|dir1) [(file2|dir2)...]"
   exit 1
 fi
 scrdir=`which $0`; scrdir=`dirname ${scrdir}`
 
+files=
 quiet=1  # QUIET
-includepython=0
+dounc=0 # do not uncrustify
+dopyt=0 # do not include .py
 while [ "$1" != "" ]; do
-  if [ "$1" == "--include-python" ]; then
-    includepython=1
-  elif [ "$1" == "-v" ]; then
+  if [ "$1" == "-v" ]; then
     quiet=0 # VERBOSE
-  elif [ -d $1 ]; then
-    #thefiles=`cd $1; ls *.h *.cpp */*.h */*.cpp */*/*.h */*/*.cpp */*/*/*.h */*/*/*.cpp 2> /dev/null`
-    #thefiles=`cd $1; ls *.h *.cpp */*.h */*.cpp */*/*.h */*/*.cpp */*/*/*.h */*/*/*.cpp | grep -v CoralServerProxy 2> /dev/null`
-    thefiles=`cd $1; ls *.h *.c *.cpp *.py */*.h */*.c */*.cpp */*.py */*/*.h */*/*.c */*/*.cpp */*/*.py */*/*/*.h */*/*/*.c */*/*/*.cpp */*/*/*.py | grep -v CoralServerProxy 2> /dev/null`
-    echo Clean files \'${thefiles}\' in directory \'$1\'
-    for thefile in ${thefiles}; do
-      thefile=${1}/${thefile}
-      cleanFile ${thefile}
-    done
-  elif [ -e $1 ]; then
-    thefile=$1
-    if [ "${thefile%.h}" != "${thefile}" ] || [ "${thefile%.cc}" != "${thefile}" ] || [ "${thefile%.cpp}" != "${thefile}" ] || [ "${thefile%.py}" != "${thefile}" ]; then 
-      cleanFile ${thefile}
-    else
-      echo "WARNING! File '${thefile}' is not a C++ or Python file"
-    fi
+    shift
+  elif [ "$1" == "-unc" ]; then
+    dounc=1 # do uncrustify
+    shift
+  elif [ "$1" == "-pyt" ]; then
+    dopyt=1 # do include .py
+    shift
+  elif [ -f $1 ] || [ -d $1 ]; then
+    files="$files $(find $1 -type f -name '*.h')"
+    files="$files $(find $1 -type f -name '*.cc')"
+    files="$files $(find $1 -type f -name '*.cpp')"
+    if [ "$dopyt" == "1" ]; then files="$files $(find $1 -type f -name '*.py')"; fi
+    shift
   else
     echo "ERROR! File or directory $1 does not exist"
-    ###exit 1
+    exit 1
   fi
-  shift
+done
+
+files=$(echo $files | tr " " "\n")
+echo -e "About to clean files:\n$files"
+
+for file in $files; do
+  echo -e "\nAbout to clean file: '$file'"
+  cleanFile ${file}
 done
