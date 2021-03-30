@@ -81,9 +81,12 @@ namespace Proc
     static const int nexternal = mgOnGpu::npar;
     //static const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
 
+    // Retrieve the compiler that was used to build this module
+    static const std::string getCompiler();
+
   private:
 
-    int m_numiterations;
+    //int m_numiterations;
 
     // gpu variables
     int gpu_nblocks;
@@ -97,7 +100,7 @@ namespace Proc
     static const int ncomb = 16;
     static const int wrows = 6;
 
-    cxtype** amp;
+    //cxtype** amp;
 
     // Pointer to the model parameters
     Parameters_sm * pars;

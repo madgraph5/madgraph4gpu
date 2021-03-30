@@ -2,11 +2,13 @@ INCFLAGS = -I.
 OPTFLAGS = -O3
 OMPFLAGS?= -fopenmp
 CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
+CXXFLAGS+= -ffast-math # see issue #117
+###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 LIBDIR   = ../lib
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
-#Export CUDA_HOME to select a cuda installation
+# If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
   NVCC ?= $(shell which nvcc 2>/dev/null)
   ifneq ($(NVCC),)
@@ -16,8 +18,8 @@ ifndef CUDA_HOME
   endif
 endif
 
-ifdef CUDA_HOME
-  CUINC = -I$(CUDA_HOME)/include/
+ifeq ($(NVCC),)
+  CUINC = -I$(CUDA_HOME)/include
 endif
 
 # Assuming uname is available, detect if architecture is power
@@ -33,8 +35,8 @@ cu_objects= # NB grambo.cu must be included by gcheck.cu (no rdc)
 all: $(target)
 
 debug: OPTFLAGS = -g -O0 -DDEBUG2
-debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
-debug: CUFLAGS += -G
+#debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
+#debug: CUFLAGS += -G
 debug: $(target)
 
 # NB: cuda includes are needed in the C++ code for curand.h
@@ -44,9 +46,9 @@ debug: $(target)
 #%.o : %.cu *.h
 #	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
-$(target): $(cxx_objects) $(cu_objects)
-	if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi
-	$(AR) cru $@ $(cxx_objects) $(cu_objects)
+$(target): $(cxx_objects) #$(cu_objects)
+	if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
+	$(AR) cru $@ $(cxx_objects) #$(cu_objects)
 	ranlib $(target)
 
 .PHONY: clean

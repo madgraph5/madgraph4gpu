@@ -1,10 +1,13 @@
 LIBDIR   = ../../lib
 TOOLSDIR = ../../../../../tools
+TESTDIR  = ../../../../../test
 INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
-OPTFLAGS = -O3
+OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
 OMPFLAGS?= -fopenmp
 CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
+CXXFLAGS+= -ffast-math # see issue #117
+###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
@@ -18,7 +21,7 @@ ifndef CUDA_HOME
   endif
 endif
 
-ifdef CUDA_HOME
+ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
   CUARCHNUM=70
   #CUARCHNUM=61 #(For Pascal Architecture Cards)
@@ -40,7 +43,7 @@ ifdef CUDA_HOME
   het_main    = hcheck.exe
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
-  NVCC       := $(warning No cuda found. Export CUDA_HOME to compile with cuda)
+  NVCC       := $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
   USE_NVTX   :=
   CULIBFLAGS :=
   ifndef MGONGPU_CONFIG
@@ -48,7 +51,7 @@ else
   endif
 endif
 
-GTESTLIBDIR = $(TOOLSDIR)/googletest/build/lib/
+GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
 GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 MAKEDEBUG=
 
@@ -95,20 +98,27 @@ $(het_main): gcheck.o check.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) $(cxx_obj
 
 runTest.o:   $(GTESTLIBS)
 runTest.exe: $(GTESTLIBS)
-runTest.exe: INCFLAGS += -I$(TOOLSDIR)/googletest/googletest/include/
+runTest.exe: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include/
+runTest.exe: INCFLAGS += -I$(TESTDIR)/include/
 runTest.exe: LIBFLAGS += -L$(GTESTLIBDIR)/ -lgtest -lgtest_main
+runTest.exe: runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
+runTest.exe: cxx_objects += runTest.o $(TESTDIR)/src/MadgraphTest.o
+runTest.exe: cu_objects  += runTest_cu.o
+ifneq ($(findstring clang++,$(CXX)),)
+runTest.exe: LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(CXX))
+endif
+
 ifeq ($(NVCC),)
-runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
-	$(CXX) -o $@ $(cxx_objects) runTest.o $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+runTest.exe: $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
+	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
-runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
-	ln -sf runTest.cc runTest_tmp.cu
-	$(NVCC) -o $@ $(cxx_objects) runTest.o $(cu_objects) runTest_tmp.cu $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
-	unlink runTest_tmp.cu
+runTest.exe runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
+	$(NVCC) -o runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
+	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
 
 $(GTESTLIBS):
-	$(MAKE) -C $(TOOLSDIR)
+	$(MAKE) -C $(TESTDIR)
 
 check: runTest.exe
 	./runTest.exe
@@ -118,6 +128,10 @@ check: runTest.exe
 clean:
 	make -C ../../src clean
 	rm -f *.o *.exe
+
+distclean: clean
+	make -C $(TOOLSDIR) clean
+	make -C $(TESTDIR) clean
 
 memcheck: $(cu_main)
 	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes ./gcheck.exe 2 32 2
@@ -130,7 +144,13 @@ test: force
 	./gcheck.exe -v 1 32 1
 
 info:
-ifdef CUDA_HOME
+	@hostname
+	@cat /proc/cpuinfo | grep "model name" | sort -u
+	@cat /proc/cpuinfo | grep "flags" | sort -u
+	@cat /proc/cpuinfo | grep "cpu cores" | sort -u
+	@cat /proc/cpuinfo | grep "physical id" | sort -u
+	@echo ""
+ifneq ($(NVCC),)
 	$(NVCC) --version
 	@echo ""
 endif

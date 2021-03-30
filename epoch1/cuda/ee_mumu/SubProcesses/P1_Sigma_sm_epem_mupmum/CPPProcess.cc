@@ -30,7 +30,7 @@ namespace MG5_sm
                                      const int ievt )
   {
     //mapping for the various scheme AOS, OSA, ...
-    
+
     using mgOnGpu::np4;
     using mgOnGpu::npar;
     const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
@@ -557,15 +557,15 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  CPPProcess::CPPProcess( int numiterations,
+  CPPProcess::CPPProcess( int /*numiterations*/,
                           int gpublocks,
                           int gputhreads,
                           bool verbose )
-    : m_numiterations( numiterations )
-    , gpu_nblocks( gpublocks )
-    , gpu_nthreads( gputhreads )
-    , dim( gpu_nblocks * gpu_nthreads )
-    , m_verbose( verbose )
+    : //m_numiterations( numiterations ), 
+      gpu_nblocks( gpublocks ), 
+      gpu_nthreads( gputhreads ), 
+      dim( gpu_nblocks * gpu_nthreads ), 
+      m_verbose( verbose )
   {
 #ifdef __CUDACC__
     // Helicities for the process - nodim
@@ -635,6 +635,28 @@ namespace Proc
     //std::cout << std::setprecision(17) << "tIPC[2] = " << tIPC[2] << std::endl;
     //std::cout << std::setprecision(17) << "tIPD[0] = " << tIPD[0] << std::endl;
     //std::cout << std::setprecision(17) << "tIPD[1] = " << tIPD[1] << std::endl;
+  }
+
+  //--------------------------------------------------------------------------
+
+  // Retrieve the compiler that was used to build this module
+  const std::string CPPProcess::getCompiler()
+  {
+    std::stringstream out;
+#ifdef __CUDACC__
+#if defined __CUDACC_VER_MAJOR__ && defined __CUDACC_VER_MINOR__ && defined __CUDACC_VER_BUILD__
+    out << "nvcc " << __CUDACC_VER_MAJOR__ << "." << __CUDACC_VER_MINOR__ << "." << __CUDACC_VER_BUILD__;
+#else
+    out << "nvcc UNKNOWN";
+#endif
+#else
+#if defined __GNUC__ && defined __GNUC_MINOR__ && defined __GNUC_PATCHLEVEL__
+    out << "gcc (GCC) " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
+#else
+    out << "gcc UNKNOWKN";
+#endif
+#endif
+    return out.str();
   }
 
   //--------------------------------------------------------------------------

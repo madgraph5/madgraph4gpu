@@ -692,11 +692,13 @@ int check
               << tag << "Random number generation    = CURAND (C++ code)" << std::endl
 #endif
 #endif
+
 #ifdef __CUDACC__
               << tag << "Wavefunction GPU memory     = LOCAL" << std::endl
 #else
               << tag << "OMP threads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
 #endif
+              << tag << "MatrixElements compiler     = " << process.getCompiler() << std::endl
               << "-----------------------------------------------------------------------------" << std::endl
               << tag << "NumIterations               = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)

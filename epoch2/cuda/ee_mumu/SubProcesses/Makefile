@@ -1,5 +1,6 @@
 LIBDIR   = ../../lib
-TOOLSDIR = ../../../../../tools/
+TOOLSDIR = ../../../../../tools
+TESTDIR  = ../../../../../test
 INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
 OPTFLAGS = -O3
@@ -17,20 +18,21 @@ ifndef CUDA_HOME
   endif
 endif
 
-ifdef CUDA_HOME
+ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
   CUARCHNUM=70
   USE_NVTX?=-DUSE_NVTX
   CUARCHFLAGS= -arch=compute_$(CUARCHNUM)
   CUINC       = -I$(CUDA_HOME)/include/
   CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcuda -lcurand
-  CUFLAGS= $(OPTFLAGS) -std=c++14 $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math -lineinfo $(MGONGPU_CONFIG)
+  CUOPTFLAGS  = -lineinfo
+  CUFLAGS     = $(OPTFLAGS) $(CUOPTFLAGS) -std=c++14 $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math $(MGONGPU_CONFIG)
 
   cu_main     = gcheck.exe
   cu_objects  = gCPPProcess.o
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
-  NVCC       := $(warning No cuda found. Export CUDA_HOME to compile with cuda)
+  NVCC       := $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
   USE_NVTX   :=
   CULIBFLAGS :=
   ifndef MGONGPU_CONFIG
@@ -38,7 +40,7 @@ else
   endif
 endif
 
-GTESTLIBDIR = $(TOOLSDIR)/googletest/build/lib/
+GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
 GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 MAKEDEBUG=
 
@@ -53,16 +55,15 @@ endif
 
 all: ../../src $(cu_main) $(cxx_main) runTest.exe
 
-debug: OPTFLAGS = -g -O0 -DDEBUG2
-debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
-debug: CUFLAGS += -G
+debug: OPTFLAGS   = -g -O0 -DDEBUG2
+debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all
 
 $(LIBDIR)/lib$(MODELLIB).a:
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
-gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h ../../src/*.cu
+gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 %.o : %.cu *.h ../../src/*.h
@@ -71,29 +72,32 @@ gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h ../../src/*.cu
 %.o : %.cc *.h ../../src/*.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
-$(cu_main): gcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
+$(cu_main): gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
 	$(NVCC) $< -o $@ $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) $(CULIBFLAGS)
 
-$(cxx_main): check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
+$(cxx_main): check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
 
 runTest.o:   $(GTESTLIBS)
 runTest.exe: $(GTESTLIBS)
-runTest.exe: INCFLAGS += -I$(TOOLSDIR)/googletest/googletest/include/
+runTest.exe: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include/
+runTest.exe: INCFLAGS += -I$(TESTDIR)/include/
 runTest.exe: LIBFLAGS += -L$(GTESTLIBDIR)/ -lgtest -lgtest_main
+runTest.exe: runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
+runTest.exe: cxx_objects += runTest.o $(TESTDIR)/src/MadgraphTest.o
+runTest.exe: cu_objects  += runTest_cu.o
 ifeq ($(NVCC),)
-runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
-	$(CXX) -o $@ $(cxx_objects) runTest.o $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+runTest.exe: $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
+	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
-runTest.exe: runTest.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
-	ln -sf runTest.cc runTest_tmp.cu
-	$(NVCC) -o $@ $(cxx_objects) runTest.o $(cu_objects) runTest_tmp.cu $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda
-	unlink runTest_tmp.cu
+runTest.exe runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
+	$(NVCC) -o runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
+	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
 
 $(GTESTLIBS):
-	$(MAKE) -C $(TOOLSDIR)
+	$(MAKE) -C $(TESTDIR)
 
 check: runTest.exe
 	./runTest.exe
@@ -101,8 +105,12 @@ check: runTest.exe
 .PHONY: clean
 
 clean:
-	cd ../../src && make clean
+	make -C ../../src clean
 	rm -f *.o *.exe
+
+distclean: clean
+	make -C $(TOOLSDIR) clean
+	make -C $(TESTDIR) clean
 
 memcheck: $(cu_main)
 	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes ./gcheck.exe 2 32 2
@@ -115,9 +123,9 @@ test: force
 	./gcheck.exe -v 1 32 1
 
 info:
-ifdef CUDA_HOME
+ifneq ($(NVCC),)
 	$(NVCC) --version
-	echo ""
+	@echo ""
 endif
 	$(CXX) --version
 
