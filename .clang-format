@@ -41,7 +41,7 @@ Cpp11BracedListStyle: true # keep default: do not add extra spaces in {+1, -1, +
 IndentCaseLabels: true # keep default
 IndentPPDirectives: None # keep default
 IndentWidth: 2 # keep default
-IndentWrappedFunctionNames: false # keep default
+IndentWrappedFunctionNames: false # keep default (NB it does indent inline/global before type however)
 KeepEmptyLinesAtTheStartOfBlocks: false # keep default
 MaxEmptyLinesToKeep: 1 # keep default
 NamespaceIndentation: All # was None
