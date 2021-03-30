@@ -25,6 +25,8 @@ ColumnLimit: 130 # was 80
 ###CommentPragmas: '.*' # was '^ IWYU pragma:' (do not modify any comment!)
 CompactNamespaces: false # keep default
 ###ConstructorInitializerAllOnOneLineOrOnePerLine: true # keep default
+ConstructorInitializerIndentWidth: 2 # was 4
+ContinuationIndentWidth: 2 # was 4
 Cpp11BracedListStyle: true # keep default: do not add extra spaces in {+1, -1, +1, -1}
 ###DerivePointerAlignment: false # was true
 ##IncludeBlocks: Regroup # was Preserve
