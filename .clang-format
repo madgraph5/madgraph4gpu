@@ -7,7 +7,7 @@ AccessModifierOffset: -2 # was -1
 AlignConsecutiveAssignments: false # keep default
 AlignConsecutiveDeclarations: false # keep default
 AlignEscapedNewlines: DontAlign # was Left (certainly not Right with 130 columns)
-AlignTrailingComments: false # was true
+###AlignTrailingComments: false # was true
 AllowShortBlocksOnASingleLine: true # was false
 AllowShortCaseLabelsOnASingleLine: true # was false
 AlwaysBreakAfterReturnType: None # keep default
@@ -22,6 +22,7 @@ BreakConstructorInitializersBeforeComma: true # was false
 BreakConstructorInitializers: BeforeComma # was BeforeColon
 BreakInheritanceList: BeforeComma # was BeforeColon
 ColumnLimit: 130 # was 80
+###CommentPragmas: '.*' # was '^ IWYU pragma:' (do not modify any comment!)
 CompactNamespaces: false # keep default
 ###ConstructorInitializerAllOnOneLineOrOnePerLine: true # keep default
 Cpp11BracedListStyle: true # keep default: do not add extra spaces in {+1, -1, +1, -1}
@@ -41,6 +42,7 @@ IndentWrappedFunctionNames: false # keep default
 KeepEmptyLinesAtTheStartOfBlocks: false # keep default
 MaxEmptyLinesToKeep: 1 # keep default
 NamespaceIndentation: All # was None
+###PenaltyBreakComment: 300 # keep default (no impact even if > PenaltyExcessCharacter?)
 ###PenaltyExcessCharacter: 1000000 # keep default
 ###PointerAlignment: Left # keep default (no impact unless DerivePointerAlignment is false?)
 ReflowComments: false # was true
