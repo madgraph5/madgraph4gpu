@@ -7,6 +7,7 @@ AccessModifierOffset: -2 # was -1
 AlignConsecutiveAssignments: false # keep default
 AlignConsecutiveDeclarations: false # keep default
 AlignEscapedNewlines: DontAlign # was Left (certainly not Right with 130 columns)
+AlignOperands: false # was true
 ###AlignTrailingComments: false # was true
 AllowShortBlocksOnASingleLine: true # was false
 AllowShortCaseLabelsOnASingleLine: true # was false
