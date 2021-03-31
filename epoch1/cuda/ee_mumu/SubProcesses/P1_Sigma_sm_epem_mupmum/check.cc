@@ -34,20 +34,22 @@ bool is_number(const char *s) {
   return (int)strlen(s) == t - s;
 }
 
-bool me_is_nan( fptype me, bool debug=false )
+void debug_me_is_nan( fptype me, int ievtALL )
 {
-  if ( debug )
-  {
-    std::cout << "DEBUG: ME=" << me
-              << " isnan=" << std::isnan( me )
-              << " isfinite=" << std::isfinite( me )
-              << " isnormal=" << std::isnormal( me )
-              << " is0=" << ( me == 0 )
-              << " is1=" << ( me == 1 )
-              << "abs(ME)=" << std::abs( me )
-              << " isnan=" << std::isnan( std::abs( me ) )
-              << std::endl;
-  }
+  std::cout << "DEBUG[" << ievtALL << "]"
+            << " ME=" << me
+            << " isnan=" << std::isnan( me )
+            << " isfinite=" << std::isfinite( me )
+            << " isnormal=" << std::isnormal( me )
+            << " is0=" << ( me == 0 )
+            << " is1=" << ( me == 1 )
+            << " abs(ME)=" << std::abs( me )
+            << " isnan=" << std::isnan( std::abs( me ) )
+            << std::endl;
+}
+
+bool me_is_nan( fptype me )
+{
   if ( std::isnan( me ) ) return true;
   if ( ( me == 0 ) && ( me == 1 ) ) return true;
   return false;
@@ -557,11 +559,14 @@ int main(int argc, char **argv)
   double maxweig = weightALL[0];
   for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
+    // Debug nan issues
+    if ( ievtALL == 5473927 ) // this ME is nan only with fast math
+      debug_me_is_nan( matrixelementALL[ievtALL], ievtALL );
+    if ( ievtALL == 310744 ) // this ME is nan both with and without fast math
+      debug_me_is_nan( matrixelementALL[ievtALL], ievtALL );
     // Compute min/max
     if ( matrixelementALL[ievtALL] == 0 ) nzero++;
-    const bool debugNan = false;
-    //const bool debugNan = ( ievtALL == 310744 ); // debug nan issues
-    if ( me_is_nan( matrixelementALL[ievtALL], debugNan ) )
+    if ( me_is_nan( matrixelementALL[ievtALL] ) )
     {
       if ( debug ) // only printed out with "-p -d" (matrixelementALL is not filled without -p)
         std::cout << "WARNING! ME[" << ievtALL << "] is nan" << std::endl;
