@@ -34,6 +34,25 @@ bool is_number(const char *s) {
   return (int)strlen(s) == t - s;
 }
 
+bool me_is_nan( fptype me, bool debug=false )
+{
+  if ( debug )
+  {
+    std::cout << "DEBUG: ME=" << me
+              << " isnan=" << std::isnan( me )
+              << " isfinite=" << std::isfinite( me )
+              << " isnormal=" << std::isnormal( me )
+              << " is0=" << ( me == 0 )
+              << " is1=" << ( me == 1 )
+              << "abs(ME)=" << std::abs( me )
+              << " isnan=" << std::isnan( std::abs( me ) )
+              << std::endl;
+  }
+  if ( std::isnan( me ) ) return true;
+  if ( ( me == 0 ) && ( me == 1 ) ) return true;
+  return false;
+}
+
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
             << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j]"
@@ -531,6 +550,7 @@ int main(int argc, char **argv)
   //double stdwtim = std::sqrt( sqswtim / niter - meanwtim * meanwtim );
 
   int nnan = 0;
+  int nzero = 0;
   double minelem = matrixelementALL[0];
   double maxelem = matrixelementALL[0];
   double minweig = weightALL[0];
@@ -538,10 +558,13 @@ int main(int argc, char **argv)
   for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
     // Compute min/max
-    if ( std::isnan( matrixelementALL[ievtALL] ) )
+    if ( matrixelementALL[ievtALL] == 0 ) nzero++;
+    const bool debugNan = false;
+    //const bool debugNan = ( ievtALL == 310744 ); // debug nan issues
+    if ( me_is_nan( matrixelementALL[ievtALL], debugNan ) )
     {
       if ( debug ) // only printed out with "-p -d" (matrixelementALL is not filled without -p)
-        std::cout << "WARNING! ME[" << ievtALL << "} is nan" << std::endl;
+        std::cout << "WARNING! ME[" << ievtALL << "] is nan" << std::endl;
       nnan++;
       continue;
     }
@@ -555,7 +578,7 @@ int main(int argc, char **argv)
   for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
     // Compute mean from the sum of diff to min
-    if ( std::isnan( matrixelementALL[ievtALL] ) ) continue;
+    if ( me_is_nan( matrixelementALL[ievtALL] ) ) continue;
     sumelemdiff += ( matrixelementALL[ievtALL] - minelem );
     sumweigdiff += ( weightALL[ievtALL] - minweig );
   }
@@ -566,7 +589,7 @@ int main(int argc, char **argv)
   for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
     // Compute stddev from the squared sum of diff to mean
-    if ( std::isnan( matrixelementALL[ievtALL] ) ) continue;
+    if ( me_is_nan( matrixelementALL[ievtALL] ) ) continue;
     sqselemdiff += std::pow( matrixelementALL[ievtALL] - meanelem, 2 );
     sqsweigdiff += std::pow( weightALL[ievtALL] - meanweig, 2 );
   }
@@ -611,9 +634,9 @@ int main(int argc, char **argv)
               << "NumIterations               = " << niter << std::endl
               << "-----------------------------------------------------------------------" << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
-              << "FP precision                = DOUBLE (nan=" << nnan << ")" << std::endl
+              << "FP precision                = DOUBLE (nan=" << nnan << ", zero=" << nzero << " )" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
-              << "FP precision                = FLOAT (nan=" << nnan << ")" << std::endl
+              << "FP precision                = FLOAT (nan=" << nnan << ", zero=" << nzero << ")" << std::endl
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_CXTYPE_CUCOMPLEX
