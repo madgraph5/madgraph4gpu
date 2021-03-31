@@ -1,3 +1,5 @@
+#include "epoch_process_id.h"
+
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 
@@ -11,6 +13,7 @@
 #else
 #include "rambo.h"
 #endif
+
 
 
 
@@ -202,16 +205,24 @@ struct CUDATest : public CUDA_CPU_TestBase {
 #endif
 
 
+// Use two levels of macros to force stringification at the right level
+// (see https://gcc.gnu.org/onlinedocs/gcc-3.0.1/cpp_3.html#SEC17 and https://stackoverflow.com/a/3419392)
+// Google macro is in https://github.com/google/googletest/blob/master/googletest/include/gtest/gtest-param-test.h
+#define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name )        \
+  INSTANTIATE_TEST_SUITE_P( prefix,                                     \
+                            test_suite_name,                            \
+                            testing::Values( [](){ return new CPUTest; } ) );
+#define MG_INSTANTIATE_TEST_SUITE_GPU( prefix, test_suite_name )        \
+  INSTANTIATE_TEST_SUITE_P( prefix,                                     \
+                            test_suite_name,                            \
+                            testing::Values( [](){ return new CUDATest; } ) );
+
 #if defined MGONGPU_FPTYPE_DOUBLE
 
 #ifdef __CUDACC__
-INSTANTIATE_TEST_SUITE_P(EP1_CUDA_GPU, MadgraphTestDouble,
-    testing::Values( [](){ return new CUDATest; } )
-);
+MG_INSTANTIATE_TEST_SUITE_GPU( MG_EPOCH_PROCESS_ID, MadgraphTestDouble );
 #else
-INSTANTIATE_TEST_SUITE_P(EP1_CUDA_CPU, MadgraphTestDouble,
-    testing::Values([](){ return new CPUTest; })
-);
+MG_INSTANTIATE_TEST_SUITE_CPU( MG_EPOCH_PROCESS_ID, MadgraphTestDouble );
 #endif
 
 #else
