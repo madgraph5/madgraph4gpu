@@ -588,10 +588,10 @@ int main(int argc, char **argv)
   double maxweig = weightALL[0];
   for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
-    // The following events are problematic in a run with "-p 2048 256 12 -d"
-    // - check.exe/gcc: ME[310744,451171,3007871,3163868,4471038,5473927] with fast math
-    // - check.exe/nvcc: ME[578162,1725762,2163579,5407629,5435532,6014690] with fast math
-    // - gcheck.exe/nvcc: ME[596016,1446938] with fast math
+    // The following events are abnormal in a run with "-p 2048 256 12 -d"
+    // - check.exe/commonrand: ME[310744,451171,3007871,3163868,4471038,5473927] with fast math
+    // - check.exe/curand: ME[578162,1725762,2163579,5407629,5435532,6014690] with fast math
+    // - gcheck.exe/curand: ME[596016,1446938] with fast math
     // Debug NaN/abnormal issues
     //if ( ievtALL == 310744 ) // this ME is abnormal both with and without fast math
     //  debug_me_is_abnormal( matrixelementALL[ievtALL], ievtALL );
