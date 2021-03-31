@@ -2,7 +2,7 @@ INCFLAGS = -I.
 OPTFLAGS = -O3
 OMPFLAGS?= -fopenmp
 CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
-#CXXFLAGS+= -ffast-math # see issue #117
+CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 LIBDIR   = ../lib
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
