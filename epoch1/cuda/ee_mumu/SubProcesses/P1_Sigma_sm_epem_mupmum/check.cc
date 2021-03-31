@@ -34,10 +34,31 @@ bool is_number(const char *s) {
   return (int)strlen(s) == t - s;
 }
 
-void debug_me_is_nan( fptype me, int ievtALL )
+// Disabling fast math is essential here, otherwise results are undefined
+// See https://stackoverflow.com/a/40702790 about the __attribute__ syntax
+__attribute__((optimize("-fno-fast-math")))
+bool me_is_nan( const fptype& me )
+{
+  if ( std::isnan( me ) ) return true;
+  if ( me != me ) return true;
+  return false;
+}
+
+__attribute__((optimize("-fno-fast-math")))
+bool me_is_zero( const fptype& me )
+{
+  if ( me == 0 ) return true;
+  return false;
+}
+
+__attribute__((optimize("-fno-fast-math")))
+void debug_me_is_nan( const fptype& me, int ievtALL )
 {
   std::cout << "DEBUG[" << ievtALL << "]"
             << " ME=" << me
+            << " (me==me)=" << ( me == me )
+            << " (me==me+1)=" << ( me == me+1 )
+            << " meisnan=" << me_is_nan( me )
             << " isnan=" << std::isnan( me )
             << " isfinite=" << std::isfinite( me )
             << " isnormal=" << std::isnormal( me )
@@ -46,13 +67,6 @@ void debug_me_is_nan( fptype me, int ievtALL )
             << " abs(ME)=" << std::abs( me )
             << " isnan=" << std::isnan( std::abs( me ) )
             << std::endl;
-}
-
-bool me_is_nan( fptype me )
-{
-  if ( std::isnan( me ) ) return true;
-  if ( ( me == 0 ) && ( me == 1 ) ) return true;
-  return false;
 }
 
 int usage(char* argv0, int ret = 1) {
@@ -560,12 +574,12 @@ int main(int argc, char **argv)
   for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
     // Debug nan issues
-    if ( ievtALL == 5473927 ) // this ME is nan only with fast math
-      debug_me_is_nan( matrixelementALL[ievtALL], ievtALL );
     if ( ievtALL == 310744 ) // this ME is nan both with and without fast math
       debug_me_is_nan( matrixelementALL[ievtALL], ievtALL );
+    if ( ievtALL == 5473927 ) // this ME is nan only with fast math
+      debug_me_is_nan( matrixelementALL[ievtALL], ievtALL );
     // Compute min/max
-    if ( matrixelementALL[ievtALL] == 0 ) nzero++;
+    if ( me_is_zero( matrixelementALL[ievtALL] ) ) nzero++;
     if ( me_is_nan( matrixelementALL[ievtALL] ) )
     {
       if ( debug ) // only printed out with "-p -d" (matrixelementALL is not filled without -p)
