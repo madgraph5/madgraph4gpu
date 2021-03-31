@@ -37,28 +37,43 @@ bool is_number(const char *s) {
 // Disabling fast math is essential here, otherwise results are undefined
 // See https://stackoverflow.com/a/40702790 about the __attribute__ syntax
 __attribute__((optimize("-fno-fast-math")))
-bool me_is_nan( const fptype& me )
+bool fp_is_abnormal( const fptype& fp )
 {
-  if ( std::isnan( me ) ) return true;
-  if ( me != me ) return true;
+  if ( std::isnan( fp ) ) return true;
+  if ( fp != fp ) return true;
   return false;
 }
 
 __attribute__((optimize("-fno-fast-math")))
-bool me_is_zero( const fptype& me )
+bool fp_is_zero( const fptype& fp )
 {
-  if ( me == 0 ) return true;
+  if ( fp == 0 ) return true;
   return false;
 }
 
+// See https://en.cppreference.com/w/cpp/numeric/math/FP_categories
 __attribute__((optimize("-fno-fast-math")))
-void debug_me_is_nan( const fptype& me, int ievtALL )
+const char* fp_show_class( const fptype& fp )
+{
+  switch( std::fpclassify( fp ) ) {
+  case FP_INFINITE:  return "Inf";
+  case FP_NAN:       return "NaN";
+  case FP_NORMAL:    return "normal";
+  case FP_SUBNORMAL: return "subnormal";
+  case FP_ZERO:      return "zero";
+  default:           return "unknown";
+  }
+}
+
+__attribute__((optimize("-fno-fast-math")))
+void debug_me_is_abnormal( const fptype& me, int ievtALL )
 {
   std::cout << "DEBUG[" << ievtALL << "]"
             << " ME=" << me
+            << " fpisabnormal=" << fp_is_abnormal( me )
+            << " fpclass=" << fp_show_class( me )
             << " (me==me)=" << ( me == me )
             << " (me==me+1)=" << ( me == me+1 )
-            << " meisnan=" << me_is_nan( me )
             << " isnan=" << std::isnan( me )
             << " isfinite=" << std::isfinite( me )
             << " isnormal=" << std::isnormal( me )
@@ -76,7 +91,7 @@ int usage(char* argv0, int ret = 1) {
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
   std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
-  std::cout << "The '-d' flag only enables nan warnings and OMP debugging" << std::endl;
+  std::cout << "The '-d' flag only enables NaN/abnormal warnings and OMP debugging" << std::endl;
 #ifndef __CUDACC__
   std::cout << std::endl << "Use the OMP_NUM_THREADS environment variable to control OMP multi-threading" << std::endl;
   std::cout << "(OMP multithreading will be disabled if OMP_NUM_THREADS is not set)" << std::endl;
@@ -565,7 +580,7 @@ int main(int argc, char **argv)
   double meanwtim = sumwtim / niter;
   //double stdwtim = std::sqrt( sqswtim / niter - meanwtim * meanwtim );
 
-  int nnan = 0;
+  int nabn = 0;
   int nzero = 0;
   double minelem = matrixelementALL[0];
   double maxelem = matrixelementALL[0];
@@ -573,18 +588,18 @@ int main(int argc, char **argv)
   double maxweig = weightALL[0];
   for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
-    // Debug nan issues
-    if ( ievtALL == 310744 ) // this ME is nan both with and without fast math
-      debug_me_is_nan( matrixelementALL[ievtALL], ievtALL );
-    if ( ievtALL == 5473927 ) // this ME is nan only with fast math
-      debug_me_is_nan( matrixelementALL[ievtALL], ievtALL );
+    // Debug NaN/abnormal issues
+    if ( ievtALL == 310744 ) // this ME is abnormal both with and without fast math
+      debug_me_is_abnormal( matrixelementALL[ievtALL], ievtALL );
+    if ( ievtALL == 5473927 ) // this ME is abnormal only with fast math
+      debug_me_is_abnormal( matrixelementALL[ievtALL], ievtALL );
     // Compute min/max
-    if ( me_is_zero( matrixelementALL[ievtALL] ) ) nzero++;
-    if ( me_is_nan( matrixelementALL[ievtALL] ) )
+    if ( fp_is_zero( matrixelementALL[ievtALL] ) ) nzero++;
+    if ( fp_is_abnormal( matrixelementALL[ievtALL] ) )
     {
       if ( debug ) // only printed out with "-p -d" (matrixelementALL is not filled without -p)
-        std::cout << "WARNING! ME[" << ievtALL << "] is nan" << std::endl;
-      nnan++;
+        std::cout << "WARNING! ME[" << ievtALL << "] is NaN/abnormal" << std::endl;
+      nabn++;
       continue;
     }
     minelem = std::min( minelem, (double)matrixelementALL[ievtALL] );
@@ -597,23 +612,23 @@ int main(int argc, char **argv)
   for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
     // Compute mean from the sum of diff to min
-    if ( me_is_nan( matrixelementALL[ievtALL] ) ) continue;
+    if ( fp_is_abnormal( matrixelementALL[ievtALL] ) ) continue;
     sumelemdiff += ( matrixelementALL[ievtALL] - minelem );
     sumweigdiff += ( weightALL[ievtALL] - minweig );
   }
-  double meanelem = minelem + sumelemdiff / ( nevtALL - nnan );
-  double meanweig = minweig + sumweigdiff / ( nevtALL - nnan );
+  double meanelem = minelem + sumelemdiff / ( nevtALL - nabn );
+  double meanweig = minweig + sumweigdiff / ( nevtALL - nabn );
   double sqselemdiff = 0;
   double sqsweigdiff = 0;
   for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
     // Compute stddev from the squared sum of diff to mean
-    if ( me_is_nan( matrixelementALL[ievtALL] ) ) continue;
+    if ( fp_is_abnormal( matrixelementALL[ievtALL] ) ) continue;
     sqselemdiff += std::pow( matrixelementALL[ievtALL] - meanelem, 2 );
     sqsweigdiff += std::pow( weightALL[ievtALL] - meanweig, 2 );
   }
-  double stdelem = std::sqrt( sqselemdiff / ( nevtALL - nnan ) );
-  double stdweig = std::sqrt( sqsweigdiff / ( nevtALL - nnan ) );
+  double stdelem = std::sqrt( sqselemdiff / ( nevtALL - nabn ) );
+  double stdweig = std::sqrt( sqsweigdiff / ( nevtALL - nabn ) );
 
   // === STEP 9 FINALISE
   // --- 9a. Destroy curand generator
@@ -653,9 +668,9 @@ int main(int argc, char **argv)
               << "NumIterations               = " << niter << std::endl
               << "-----------------------------------------------------------------------" << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
-              << "FP precision                = DOUBLE (nan=" << nnan << ", zero=" << nzero << " )" << std::endl
+              << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << " )" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
-              << "FP precision                = FLOAT (nan=" << nnan << ", zero=" << nzero << ")" << std::endl
+              << "FP precision                = FLOAT (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_CXTYPE_CUCOMPLEX
@@ -718,15 +733,15 @@ int main(int argc, char **argv)
               << std::string(16, ' ') << " )  sec^-1" << std::endl
               << std::defaultfloat; // default format: affects all floats
     std::cout << "***********************************************************************" << std::endl
-              << "NumMatrixElements(notNan)   = " << nevtALL - nnan << std::endl
+              << "NumMatrixElems(notAbnormal) = " << nevtALL - nabn << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
               << "MeanMatrixElemValue         = ( " << meanelem
-              << " +- " << stdelem/sqrt(nevtALL - nnan) << " )  GeV^" << meGeVexponent << std::endl // standard error
+              << " +- " << stdelem/sqrt(nevtALL - nabn) << " )  GeV^" << meGeVexponent << std::endl // standard error
               << "[Min,Max]MatrixElemValue    = [ " << minelem
               << " ,  " << maxelem << " ]  GeV^" << meGeVexponent << std::endl
               << "StdDevMatrixElemValue       = ( " << stdelem << std::string(16, ' ') << " )  GeV^" << meGeVexponent << std::endl
               << "MeanWeight                  = ( " << meanweig
-              << " +- " << stdweig/sqrt(nevtALL - nnan) << " )" << std::endl // standard error
+              << " +- " << stdweig/sqrt(nevtALL - nabn) << " )" << std::endl // standard error
               << "[Min,Max]Weight             = [ " << minweig
               << " ,  " << maxweig << " ]" << std::endl
               << "StdDevWeight                = ( " << stdweig << std::string(16, ' ') << " )" << std::endl
@@ -769,10 +784,9 @@ int main(int argc, char **argv)
              << "\"NumThreadsPerBlock\": " << gputhreads << ", " << std::endl
              << "\"NumBlocksPerGrid\": " << gpublocks << ", " << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
-             << "\"FP precision\": "
-             << "\"DOUBLE (nan=" << nnan << ")\"," << std::endl
+             << "\"FP precision\": " << "\"DOUBLE (NaN/abnormal=" << nabn << ")\"," << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
-             << "\"FP precision\": " << "FLOAT (nan=" << nnan << ")," << std::endl
+             << "\"FP precision\": " << "\"FLOAT (NaN/abnormal=" << nabn << ")\"," << std::endl
 #endif
              << "\"Complex type\": "
 #ifdef __CUDACC__
@@ -839,7 +853,7 @@ int main(int argc, char **argv)
              << std::endl
              << "\"EvtsPerSec[MatrixElems] (3)\": \""
              << std::to_string(nevtALL/sumwtim) << " sec^-1\"," << std::endl
-             << "\"NumMatrixElements(notNan)\": " << nevtALL - nnan << "," << std::endl
+             << "\"NumMatrixElems(notAbnormal)\": " << nevtALL - nabn << "," << std::endl
              << std::scientific
              << "\"MeanMatrixElemValue\": "
              << "\"" << std::to_string(meanelem) << " GeV^"
