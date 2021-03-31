@@ -243,7 +243,7 @@ int main(int argc, char **argv)
   struct CudaTearDown {
     CudaTearDown(bool print) : _print(print) { }
     ~CudaTearDown() {
-      if ( _print ) std::cout << "Calling cudaDeviceReset()." << std::endl;
+      //if ( _print ) std::cout << "Calling cudaDeviceReset()." << std::endl;
       checkCuda( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
     }
     bool _print{false};
@@ -588,11 +588,15 @@ int main(int argc, char **argv)
   double maxweig = weightALL[0];
   for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
   {
+    // The following events are problematic in a run with "-p 2048 256 12 -d"
+    // - check.exe/gcc: ME[310744,451171,3007871,3163868,4471038,5473927] with fast math
+    // - check.exe/nvcc: ME[578162,1725762,2163579,5407629,5435532,6014690] with fast math
+    // - gcheck.exe/nvcc: ME[596016,1446938] with fast math
     // Debug NaN/abnormal issues
-    if ( ievtALL == 310744 ) // this ME is abnormal both with and without fast math
-      debug_me_is_abnormal( matrixelementALL[ievtALL], ievtALL );
-    if ( ievtALL == 5473927 ) // this ME is abnormal only with fast math
-      debug_me_is_abnormal( matrixelementALL[ievtALL], ievtALL );
+    //if ( ievtALL == 310744 ) // this ME is abnormal both with and without fast math
+    //  debug_me_is_abnormal( matrixelementALL[ievtALL], ievtALL );
+    //if ( ievtALL == 5473927 ) // this ME is abnormal only with fast math
+    //  debug_me_is_abnormal( matrixelementALL[ievtALL], ievtALL );
     // Compute min/max
     if ( fp_is_zero( matrixelementALL[ievtALL] ) ) nzero++;
     if ( fp_is_abnormal( matrixelementALL[ievtALL] ) )
