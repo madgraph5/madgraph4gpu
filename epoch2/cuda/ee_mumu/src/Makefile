@@ -1,6 +1,9 @@
 INCFLAGS = -I.
 OPTFLAGS = -O3
-CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow $(MGONGPU_CONFIG)
+OMPFLAGS?= -fopenmp
+CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
+CXXFLAGS+= -ffast-math # see issue #117
+###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 LIBDIR   = ../lib
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
@@ -21,10 +24,10 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
 endif
 
 # Assuming uname is available, detect if architecture is power
-UNAME_P := $(shell uname -p)
-ifeq ($(UNAME_P),ppc64le)
-  CUFLAGS+= -Xcompiler -mno-float128
-endif
+#UNAME_P := $(shell uname -p)
+#ifeq ($(UNAME_P),ppc64le)
+#  CUFLAGS+= -Xcompiler -mno-float128
+#endif
 
 target=$(LIBDIR)/libmodel_sm.a
 cxx_objects=Parameters_sm.o read_slha.o rambo.o 
