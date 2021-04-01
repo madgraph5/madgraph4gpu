@@ -26,6 +26,10 @@
 #include "CPPProcess.h"
 #include "timermap.h"
 
+#include "epoch_process_id.h"
+#define STRINGIFY(s) #s
+#define XSTRINGIFY(s) STRINGIFY(s)
+
 bool is_number(const char *s) {
   const char *t = s;
   while (*t != '\0' && isdigit(*t))
@@ -716,6 +720,7 @@ int main(int argc, char **argv)
 #endif
     // Dump all configuration parameters and all results
     std::cout << "***********************************************************************" << std::endl
+              << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << std::endl
               << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << "NumThreadsPerBlock          = " << gputhreads << std::endl
               << "NumIterations               = " << niter << std::endl
