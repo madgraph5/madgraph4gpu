@@ -721,15 +721,9 @@ int check
               << tag << "NumIterations               = " << niter << std::endl
               << "-----------------------------------------------------------------------------" << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
-<<<<<<< HEAD
-              << tag << "FP precision                = DOUBLE" << std::endl
+              << tag << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << " )" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
-              << tag << "FP precision                = FLOAT" << std::endl
-=======
-              << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << " )" << std::endl
-#elif defined MGONGPU_FPTYPE_FLOAT
-              << "FP precision                = FLOAT (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
->>>>>>> upstream/master
+              << tag << "FP precision                = FLOAT (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_CXTYPE_CUCOMPLEX
@@ -795,32 +789,18 @@ int check
               << tag << "EvtsPerSec[MatrixElems] (3) = ( " << nevtALL/sumwtim
               << std::string(16, ' ') << " )  sec^-1" << std::endl
               << std::defaultfloat; // default format: affects all floats
-<<<<<<< HEAD
-    outStream << "*****************************************************************************" << std::endl
-              << tag << "NumMatrixElements(notNan)   = " << nevtALL - nnan << std::endl
+    std::cout << "***********************************************************************" << std::endl
+              << tag << "NumMatrixElems(notAbnormal) = " << nevtALL - nabn << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
               << tag << "MeanMatrixElemValue         = ( " << meanelem
-              << " +- " << stdelem/sqrt(nevtALL - nnan) << " )  GeV^" << meGeVexponent << std::endl // standard error
+              << " +- " << stdelem/sqrt(nevtALL - nabn) << " )  GeV^" << meGeVexponent << std::endl // standard error
               << tag << "[Min,Max]MatrixElemValue    = [ " << minelem
               << " ,  " << maxelem << " ]  GeV^" << meGeVexponent << std::endl
               << tag << "StdDevMatrixElemValue       = ( " << stdelem
               << std::string(16, ' ') << " )  GeV^" << meGeVexponent << std::endl
               << tag << "MeanWeight                  = ( " << meanweig
-              << " +- " << stdweig/sqrt(nevtALL - nnan) << " )" << std::endl // standard error
-              << tag << "[Min,Max]Weight             = [ " << minweig
-=======
-    std::cout << "***********************************************************************" << std::endl
-              << "NumMatrixElems(notAbnormal) = " << nevtALL - nabn << std::endl
-              << std::scientific // fixed format: affects all floats (default precision: 6)
-              << "MeanMatrixElemValue         = ( " << meanelem
-              << " +- " << stdelem/sqrt(nevtALL - nabn) << " )  GeV^" << meGeVexponent << std::endl // standard error
-              << "[Min,Max]MatrixElemValue    = [ " << minelem
-              << " ,  " << maxelem << " ]  GeV^" << meGeVexponent << std::endl
-              << "StdDevMatrixElemValue       = ( " << stdelem << std::string(16, ' ') << " )  GeV^" << meGeVexponent << std::endl
-              << "MeanWeight                  = ( " << meanweig
               << " +- " << stdweig/sqrt(nevtALL - nabn) << " )" << std::endl // standard error
-              << "[Min,Max]Weight             = [ " << minweig
->>>>>>> upstream/master
+              << tag << "[Min,Max]Weight             = [ " << minweig
               << " ,  " << maxweig << " ]" << std::endl
               << tag << "StdDevWeight                = ( " << stdweig << std::string(16, ' ') << " )" << std::endl
               << std::defaultfloat; // default format: affects all floats
@@ -862,15 +842,9 @@ int check
              << "\"NumThreadsPerBlock\": " << gputhreads << ", " << std::endl
              << "\"NumBlocksPerGrid\": " << gpublocks << ", " << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
-<<<<<<< HEAD
-             << "\"FP precision\": " << "\"DOUBLE\"," << std::endl
-#elif defined MGONGPU_FPTYPE_FLOAT
-             << "\"FP precision\": " << "\"FLOAT\"," << std::endl
-=======
              << "\"FP precision\": " << "\"DOUBLE (NaN/abnormal=" << nabn << ")\"," << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
              << "\"FP precision\": " << "\"FLOAT (NaN/abnormal=" << nabn << ")\"," << std::endl
->>>>>>> upstream/master
 #endif
              << "\"Complex type\": "
 #ifdef __CUDACC__
