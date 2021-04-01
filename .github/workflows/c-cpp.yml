@@ -49,11 +49,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: make info
-      run: make info
+      run: source /opt/rh/gcc-toolset-9/enable; make info
     - name: make
-      run: make
+      run: source /opt/rh/gcc-toolset-9/enable; make
     - name: make check
-      run: make check
+      run: source /opt/rh/gcc-toolset-9/enable; make check
   epoch2_eemumu_GPU:
     runs-on: self-hosted
     defaults:
@@ -62,8 +62,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: make info
-      run: make info
+      run: source /opt/rh/gcc-toolset-9/enable; make info
     - name: make
-      run: make
+      run: source /opt/rh/gcc-toolset-9/enable; make
     - name: make check
-      run: make check
+      run: source /opt/rh/gcc-toolset-9/enable; make check
