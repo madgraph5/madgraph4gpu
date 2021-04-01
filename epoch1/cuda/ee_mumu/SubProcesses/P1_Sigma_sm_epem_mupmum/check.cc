@@ -39,7 +39,7 @@ inline bool is_number(const char *s) {
 // Disabling fast math is essential here, otherwise results are undefined
 // See https://stackoverflow.com/a/40702790 about the __attribute__ syntax
 __attribute__((optimize("-fno-fast-math")))
-bool fp_is_abnormal( const fptype& fp )
+inline bool fp_is_abnormal( const fptype& fp )
 {
   if ( std::isnan( fp ) ) return true;
   if ( fp != fp ) return true;
@@ -47,7 +47,7 @@ bool fp_is_abnormal( const fptype& fp )
 }
 
 __attribute__((optimize("-fno-fast-math")))
-bool fp_is_zero( const fptype& fp )
+inline bool fp_is_zero( const fptype& fp )
 {
   if ( fp == 0 ) return true;
   return false;
@@ -55,7 +55,7 @@ bool fp_is_zero( const fptype& fp )
 
 // See https://en.cppreference.com/w/cpp/numeric/math/FP_categories
 __attribute__((optimize("-fno-fast-math")))
-const char* fp_show_class( const fptype& fp )
+inline const char* fp_show_class( const fptype& fp )
 {
   switch( std::fpclassify( fp ) ) {
   case FP_INFINITE:  return "Inf";
@@ -68,7 +68,7 @@ const char* fp_show_class( const fptype& fp )
 }
 
 __attribute__((optimize("-fno-fast-math")))
-void debug_me_is_abnormal( const fptype& me, int ievtALL )
+inline void debug_me_is_abnormal( const fptype& me, int ievtALL )
 {
   std::cout << "DEBUG[" << ievtALL << "]"
             << " ME=" << me
@@ -86,7 +86,7 @@ void debug_me_is_abnormal( const fptype& me, int ievtALL )
             << std::endl;
 }
 
-int usage(char* argv0, int ret = 1) {
+inline int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
             << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
@@ -777,7 +777,7 @@ int check
               << "-----------------------------------------------------------------------------" << std::endl
       //<< "ProcessID:                  = " << getpid() << std::endl
       //<< "NProcesses                  = " << process.nprocesses << std::endl
-              << tag << "TotalEventsComputed         = " << nevtALL << " (nan=" << nnan << ")" << std::endl
+              << tag << "TotalEventsComputed         = " << nevtALL << " (NaN/abnormal=" << nabn << ")" << std::endl
               << tag << "EvtsPerSec[Rnd+Rmb+ME](123) = ( " << nevtALL/(sumgtim+sumrtim+sumwtim)
               << std::string(16, ' ') << " )  sec^-1" << std::endl
               << tag << "EvtsPerSec[Rmb+ME]     (23) = ( " << nevtALL/(sumrtim+sumwtim)
@@ -902,7 +902,7 @@ int check
       //<< "ProcessID:                = " << getpid() << std::endl
       //<< "NProcesses                = " << process.nprocesses << std::endl
              << "\"TotalEventsComputed\": " << nevtALL << "," << std::endl
-             << "\"nan\": " << nnan << "," << std::endl
+             << "\"NaN/abnormal\": " << nabn << "," << std::endl
              << "\"EvtsPerSec[Rnd+Rmb+ME](123)\": \""
              << std::to_string(nevtALL/(sumgtim+sumrtim+sumwtim))
              << " sec^-1\"," << std::endl
