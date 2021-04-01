@@ -50,14 +50,15 @@ ifndef CUDA_HOME
   endif
 endif
 
-ifeq ($(NVCC),)
-  CUINC = -I$(CUDA_HOME)/include
+ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
+  NVCC = $(CUDA_HOME)/bin/nvcc
+  CUINC = -I$(CUDA_HOME)/include/
 endif
 
 # Assuming uname is available, detect if architecture is power
 UNAME_P := $(shell uname -p)
 ifeq ($(UNAME_P),ppc64le)
-    CUFLAGS+= -Xcompiler -mno-float128
+  CUFLAGS+= -Xcompiler -mno-float128
 endif
 
 target=$(LIBDIR)/libmodel_sm.a
