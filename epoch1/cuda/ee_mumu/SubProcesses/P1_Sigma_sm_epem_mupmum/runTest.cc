@@ -14,7 +14,7 @@
 
 
 
-struct CUDA_CPU_TestBase : public TestDriverBase<double> {
+struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
   static_assert( gputhreads%mgOnGpu::neppR == 0, "ERROR! #threads/block should be a multiple of neppR" );
   static_assert( gputhreads%mgOnGpu::neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
   static_assert( gputhreads <= mgOnGpu::ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
@@ -90,7 +90,7 @@ struct CPUTest : public CUDA_CPU_TestBase {
 
 
 
-  double getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
+  fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
     using mgOnGpu::np4;
     using mgOnGpu::npar;
     using mgOnGpu::neppM;
@@ -105,7 +105,7 @@ struct CPUTest : public CUDA_CPU_TestBase {
 #endif
   };
 
-  double getMatrixElement(std::size_t evtNo) const override {
+  fptype getMatrixElement(std::size_t evtNo) const override {
     return hstMEs[evtNo];
   }
 };
@@ -202,7 +202,7 @@ struct CUDATest : public CUDA_CPU_TestBase {
   }
 
 
-  double getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
+  fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
     assert(component < mgOnGpu::np4);
     assert(particle  < mgOnGpu::npar);
     const auto page  = evtNo / mgOnGpu::neppM; // #eventpage in this iteration
@@ -210,12 +210,14 @@ struct CUDATest : public CUDA_CPU_TestBase {
     return hstMomenta[page * mgOnGpu::npar*mgOnGpu::np4*mgOnGpu::neppM + particle * mgOnGpu::neppM*mgOnGpu::np4 + component * mgOnGpu::neppM + ieppM];
   };
 
-  double getMatrixElement(std::size_t evtNo) const override {
+  fptype getMatrixElement(std::size_t evtNo) const override {
     return hstMEs[evtNo];
   }
 };
 #endif
 
+
+#if defined MGONGPU_FPTYPE_DOUBLE
 
 #ifdef __CUDACC__
 INSTANTIATE_TEST_SUITE_P(EP1_CUDA_GPU, MadgraphTestDouble,
@@ -227,4 +229,9 @@ INSTANTIATE_TEST_SUITE_P(EP1_CUDA_CPU, MadgraphTestDouble,
 );
 #endif
 
+#else
+
+#warning runTest.cc has not been ported to single precision yet (issue #143)
+
+#endif
 
