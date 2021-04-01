@@ -54,7 +54,7 @@ namespace MG5_sm
 #endif
                const int ipar )  // input: particle# out of npar
   {
-    mgDebug(0, __FUNCTION__);
+    mgDebug( 0, __FUNCTION__ );
 #ifdef __CUDACC__
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
 #endif
@@ -150,7 +150,7 @@ namespace MG5_sm
       }
     }
     //** END LOOP ON IEVT **
-    mgDebug(1, __FUNCTION__);
+    mgDebug( 1, __FUNCTION__ );
     return;
   }
 
@@ -166,6 +166,7 @@ namespace MG5_sm
 #endif
                const int ipar ) // input: particle# out of npar
   {
+    mgDebug( 0, __FUNCTION__ );
     // ASSUMPTION FMASS == 0
     // PX = PY = 0
     // E = P3 (E>0)
@@ -190,6 +191,8 @@ namespace MG5_sm
       fi[4] = fi[1];
     }
     fi[5] = fi[1];
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
@@ -204,6 +207,7 @@ namespace MG5_sm
 #endif
                const int ipar )  // input: particle# out of npar
   {
+    mgDebug( 0, __FUNCTION__ );
     // ASSUMPTION FMASS == 0
     // PX = PY = 0
     // E = -P3 (E>0)
@@ -228,6 +232,8 @@ namespace MG5_sm
       fi[2] = chi;
       fi[5] = fi[1];
     }
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
@@ -242,6 +248,7 @@ namespace MG5_sm
 #endif
                const int ipar )  // input: particle# out of npar
   {
+    mgDebug( 0, __FUNCTION__ );
     // ASSUMPTIONS: FMASS == 0
     // Px and Py are not zero
     // cxtype chi[2];
@@ -277,6 +284,7 @@ namespace MG5_sm
       fi[4] = CZERO;
       fi[5] = CZERO;
     }
+    mgDebug( 1, __FUNCTION__ );
     return;
   }
 
@@ -293,6 +301,7 @@ namespace MG5_sm
 #endif
                const int ipar )  // input: particle# out of npar
   {
+    mgDebug( 0, __FUNCTION__ );
     fptype hel, hel0, pt, pt2, pp, pzpt, emp, sqh;
     int nsvahl;
 #ifdef __CUDACC__
@@ -365,6 +374,7 @@ namespace MG5_sm
           cxtype(0.0, nsv * (p3 < 0) ? - abs(sqh) : abs(sqh));
       }
     }
+    mgDebug( 1, __FUNCTION__ );
     return;
   }
 
@@ -381,6 +391,7 @@ namespace MG5_sm
 #endif
                const int ipar )
   {
+    mgDebug( 0, __FUNCTION__ );
 #ifdef __CUDACC__
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
 #endif
@@ -393,6 +404,7 @@ namespace MG5_sm
     sc[2] = cxtype(1.00, 0.00);
     sc[0] = cxtype(p0 * nss, p3 * nss);
     sc[1] = cxtype(p1 * nss, p2 * nss);
+    mgDebug( 1, __FUNCTION__ );
     return;
   }
 
@@ -409,6 +421,7 @@ namespace MG5_sm
 #endif
                const int ipar )  // input: particle# out of npar
   {
+    mgDebug( 0, __FUNCTION__ );
 #ifdef __CUDACC__
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
 #endif
@@ -503,6 +516,7 @@ namespace MG5_sm
         fo[5] = chi[0];
       }
     }
+    mgDebug( 1, __FUNCTION__ );
     return;
   }
 
@@ -518,6 +532,7 @@ namespace MG5_sm
 #endif
                const int ipar )  // input: particle# out of npar
   {
+    mgDebug( 0, __FUNCTION__ );
     // ASSUMPTIONS FMASS =0
     // PX = PY =0
     // E = PZ
@@ -541,6 +556,8 @@ namespace MG5_sm
       fo[2] = fo[1];
       fo[5] = CSQP0P3;
     }
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
@@ -555,6 +572,7 @@ namespace MG5_sm
 #endif
                const int ipar )  // input: particle# out of npar
   {
+    mgDebug( 0, __FUNCTION__ );
     // ASSUMPTIONS FMASS =0
     // PX = PY =0
     // E = -PZ (E>0)
@@ -580,6 +598,7 @@ namespace MG5_sm
       fo[4] = chi;
       fo[5] = chi;
     }
+    mgDebug( 1, __FUNCTION__ );
     return;
   }
 
@@ -595,6 +614,7 @@ namespace MG5_sm
 #endif
                const int ipar )  // input: particle# out of npar
   {
+    mgDebug( 0, __FUNCTION__ );
     // ASSUMPTIONS FMASS =0
     // PT > 0
 #ifdef __CUDACC__
@@ -627,6 +647,7 @@ namespace MG5_sm
       fo[4] = chi1;
       fo[5] = chi0;
     }
+    mgDebug( 1, __FUNCTION__ );
     return;
   }
 
@@ -639,6 +660,7 @@ namespace MG5_sm
                const cxtype COUP,
                cxtype* vertex )
   {
+    mgDebug( 0, __FUNCTION__ );
     cxtype cI = cxtype(0., 1.);
     cxtype TMP0;
     TMP0 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
@@ -646,6 +668,8 @@ namespace MG5_sm
              (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
               F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])))));
     (*vertex) = COUP * - cI * TMP0;
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
@@ -658,6 +682,7 @@ namespace MG5_sm
                  const fptype W3,
                  cxtype V3[] )
   {
+    mgDebug( 0, __FUNCTION__ );
     cxtype cI = cxtype(0., 1.);
     fptype P3[4];
     cxtype denom;
@@ -676,6 +701,8 @@ namespace MG5_sm
                                                                            * F2[4] + F1[4] * F2[3]));
     V3[5] = denom * (-cI) * (-F1[2] * F2[4] - F1[5] * F2[3] + F1[3] * F2[5] +
                              F1[4] * F2[2]);
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
@@ -686,11 +713,14 @@ namespace MG5_sm
                           const cxtype COUP,
                           cxtype* vertex )
   {
+    mgDebug( 0, __FUNCTION__ );
     cxtype cI = cxtype(0., 1.);
     cxtype TMP1;
     TMP1 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
             F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
     (*vertex) = COUP * - cI * TMP1;
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
@@ -702,6 +732,7 @@ namespace MG5_sm
                           const fptype W3,
                           cxtype V3[] )
   {
+    mgDebug( 0, __FUNCTION__ );
     cxtype cI = cxtype(0., 1.);
     fptype OM3;
     fptype P3[4];
@@ -723,6 +754,8 @@ namespace MG5_sm
     V3[3] = denom * (-cI) * (-F1[2] * F2[5] - F1[3] * F2[4] - P3[1] * OM3 * TMP2);
     V3[4] = denom * (-cI) * (-cI * (F1[2] * F2[5]) + cI * (F1[3] * F2[4]) - P3[2] * OM3 * TMP2);
     V3[5] = denom * (-cI) * (-F1[2] * F2[4] - P3[3] * OM3 * TMP2 + F1[3] * F2[5]);
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
@@ -734,6 +767,7 @@ namespace MG5_sm
                const cxtype COUP,
                cxtype* vertex )
   {
+    mgDebug( 0, __FUNCTION__ );
     cxtype cI = cxtype(0., 1.);
     cxtype TMP3;
     cxtype TMP4;
@@ -742,6 +776,8 @@ namespace MG5_sm
     TMP4 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
             F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
     (*vertex) = COUP * (-1.) * (+cI * (TMP3) + 2. * cI * (TMP4));
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
@@ -754,6 +790,7 @@ namespace MG5_sm
                const fptype W3,
                cxtype V3[] )
   {
+    mgDebug( 0, __FUNCTION__ );
     cxtype cI = cxtype(0., 1.);
     fptype OM3;
     fptype P3[4];
@@ -783,6 +820,8 @@ namespace MG5_sm
                                 (F1[4] * F2[3]) + cI * (F1[5] * F2[2])));
     V3[5] = denom * 2. * cI * (OM3 * 1./2. * P3[3] * (TMP2 + 2. * (TMP5)) +
                                (+1./2. * (F1[2] * F2[4]) - 1./2. * (F1[3] * F2[5]) - F1[4] * F2[2] + F1[5] * F2[3]));
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
@@ -795,6 +834,7 @@ namespace MG5_sm
                  const cxtype COUP2,
                  cxtype* vertex )
   {
+    mgDebug( 0, __FUNCTION__ );
     cxtype cI = cxtype(0., 1.);
     cxtype TMP3;
     cxtype TMP4;
@@ -803,6 +843,8 @@ namespace MG5_sm
     TMP4 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
             F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
     (*vertex) = (-1.) * (COUP2 * (+cI * (TMP3) + 2. * cI * (TMP4)) + cI * (TMP3 * COUP1));
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
@@ -816,6 +858,7 @@ namespace MG5_sm
                  const fptype W3,
                  cxtype V3[] )
   {
+    mgDebug( 0, __FUNCTION__ );
     cxtype cI = cxtype(0., 1.);
     fptype OM3;
     fptype P3[4];
@@ -852,6 +895,8 @@ namespace MG5_sm
       (COUP2 * (OM3 * 1./2. * P3[3] * (TMP2 + 2. * (TMP5)) +
                 (+1./2. * (F1[2] * F2[4]) - 1./2. * (F1[3] * F2[5]) - F1[4] * F2[2] + F1[5] * F2[3])) +
        1./2. * (COUP1 * (F1[2] * F2[4] + P3[3] * OM3 * TMP2 - F1[3] * F2[5])));
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
 }  // end namespace
@@ -918,7 +963,7 @@ namespace Proc
                                           )
   {
     using namespace MG5_sm;
-    mgDebug(0, __FUNCTION__);
+    mgDebug( 0, __FUNCTION__ );
     cxtype amp[1];  // was 2
     const int ncolor = 1;
     cxtype jamp[ncolor];
@@ -991,7 +1036,7 @@ namespace Proc
     // for(i=0;i < ncolor; i++)
     // jamp2[0][i] += real(jamp[i]*conj(jamp[i]));
 
-    mgDebug(1, __FUNCTION__);
+    mgDebug( 1, __FUNCTION__ );
     return;
   }
 
