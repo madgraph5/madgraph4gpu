@@ -1,10 +1,8 @@
 #include "check.h"
 
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <cstring>
-#include <cstdlib>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -881,7 +879,6 @@ int check
 #endif
              << "\"NumberOfEntries\": " << niter << "," << std::endl
       //<< std::scientific // Not sure about this
-
              << "\"TotalTime[Rnd+Rmb+ME] (123)\": \""
              << std::to_string(sumgtim+sumrtim+sumwtim) << " sec\","
              << std::endl

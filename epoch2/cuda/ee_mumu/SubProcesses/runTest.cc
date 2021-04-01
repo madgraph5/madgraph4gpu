@@ -1,3 +1,5 @@
+#include "epoch_process_id.h"
+
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 
@@ -14,7 +16,8 @@
 
 
 
-struct CUDA_CPU_TestBase : public TestDriverBase<double> {
+
+struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
   static_assert( gputhreads%mgOnGpu::neppR == 0, "ERROR! #threads/block should be a multiple of neppR" );
   static_assert( gputhreads%mgOnGpu::neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
   static_assert( gputhreads <= mgOnGpu::ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
@@ -82,7 +85,7 @@ struct CPUTest : public CUDA_CPU_TestBase {
 
 
 
-  double getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
+  fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
     assert(component < mgOnGpu::np4);
     assert(particle  < mgOnGpu::npar);
     const auto page  = evtNo / mgOnGpu::neppM; // #eventpage in this iteration
@@ -90,7 +93,7 @@ struct CPUTest : public CUDA_CPU_TestBase {
     return hstMomenta[page * mgOnGpu::npar*mgOnGpu::np4*mgOnGpu::neppM + particle * mgOnGpu::neppM*mgOnGpu::np4 + component * mgOnGpu::neppM + ieppM];
   };
 
-  double getMatrixElement(std::size_t evtNo) const override {
+  fptype getMatrixElement(std::size_t evtNo) const override {
     return hstMEs[evtNo];
   }
 };
@@ -187,7 +190,7 @@ struct CUDATest : public CUDA_CPU_TestBase {
   }
 
 
-  double getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
+  fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
     assert(component < mgOnGpu::np4);
     assert(particle  < mgOnGpu::npar);
     const auto page  = evtNo / mgOnGpu::neppM; // #eventpage in this iteration
@@ -195,21 +198,40 @@ struct CUDATest : public CUDA_CPU_TestBase {
     return hstMomenta[page * mgOnGpu::npar*mgOnGpu::np4*mgOnGpu::neppM + particle * mgOnGpu::neppM*mgOnGpu::np4 + component * mgOnGpu::neppM + ieppM];
   };
 
-  double getMatrixElement(std::size_t evtNo) const override {
+  fptype getMatrixElement(std::size_t evtNo) const override {
     return hstMEs[evtNo];
   }
 };
 #endif
 
 
+// Use two levels of macros to force stringification at the right level
+// (see https://gcc.gnu.org/onlinedocs/gcc-3.0.1/cpp_3.html#SEC17 and https://stackoverflow.com/a/3419392)
+// Google macro is in https://github.com/google/googletest/blob/master/googletest/include/gtest/gtest-param-test.h
+#define TESTID_CPU(s) s##_CPU
+#define XTESTID_CPU(s) TESTID_CPU(s)
+#define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name )        \
+  INSTANTIATE_TEST_SUITE_P( prefix,                                     \
+                            test_suite_name,                            \
+                            testing::Values( [](){ return new CPUTest; } ) );
+#define TESTID_GPU(s) s##_GPU
+#define XTESTID_GPU(s) TESTID_GPU(s)
+#define MG_INSTANTIATE_TEST_SUITE_GPU( prefix, test_suite_name )        \
+  INSTANTIATE_TEST_SUITE_P( prefix,                                     \
+                            test_suite_name,                            \
+                            testing::Values( [](){ return new CUDATest; } ) );
+
+#if defined MGONGPU_FPTYPE_DOUBLE
+
 #ifdef __CUDACC__
-INSTANTIATE_TEST_SUITE_P(EP2_CUDA_GPU, MadgraphTestDouble,
-    testing::Values( [](){ return new CUDATest; } )
-);
+MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU(MG_EPOCH_PROCESS_ID), MadgraphTestDouble );
 #else
-INSTANTIATE_TEST_SUITE_P(EP2_CUDA_CPU, MadgraphTestDouble,
-    testing::Values([](){ return new CPUTest; })
-);
+MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU(MG_EPOCH_PROCESS_ID), MadgraphTestDouble );
 #endif
 
+#else
+
+#warning runTest.cc has not been ported to single precision yet (issue #143)
+
+#endif
 
