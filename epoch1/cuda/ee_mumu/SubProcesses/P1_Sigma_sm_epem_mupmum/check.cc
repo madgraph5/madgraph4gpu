@@ -1,8 +1,6 @@
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <cstring>
-#include <cstdlib>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -863,7 +861,6 @@ int main(int argc, char **argv)
 #endif
              << "\"NumberOfEntries\": " << niter << "," << std::endl
       //<< std::scientific // Not sure about this
-
              << "\"TotalTime[Rnd+Rmb+ME] (123)\": \""
              << std::to_string(sumgtim+sumrtim+sumwtim) << " sec\","
              << std::endl
@@ -884,7 +881,6 @@ int main(int argc, char **argv)
       //<< "ProcessID:                = " << getpid() << std::endl
       //<< "NProcesses                = " << process.nprocesses << std::endl
              << "\"TotalEventsComputed\": " << nevtALL << "," << std::endl
-
              << "\"EvtsPerSec[Rnd+Rmb+ME](123)\": \""
              << std::to_string(nevtALL/(sumgtim+sumrtim+sumwtim))
              << " sec^-1\"," << std::endl
