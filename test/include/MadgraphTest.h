@@ -50,8 +50,8 @@ class TestDriverBase {
   // ------------------------------------------------
   // Interface for retrieving info from madgraph
   // ------------------------------------------------
-  virtual double getMomentum(std::size_t evtNo, unsigned int particleNo, unsigned int component) const = 0;
-  virtual double getMatrixElement(std::size_t evtNo) const = 0;
+  virtual fptype getMomentum(std::size_t evtNo, unsigned int particleNo, unsigned int component) const = 0;
+  virtual fptype getMatrixElement(std::size_t evtNo) const = 0;
 
 
   // ------------------------------------------------
