@@ -3,8 +3,11 @@ TOOLSDIR = ../../../../../tools
 TESTDIR  = ../../../../../test
 INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
-OPTFLAGS = -O3
-CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow $(MGONGPU_CONFIG)
+OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
+OMPFLAGS?= -fopenmp
+CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
+CXXFLAGS+= -ffast-math # see issue #117
+###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
@@ -21,13 +24,19 @@ endif
 ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
   CUARCHNUM=70
-  USE_NVTX?=-DUSE_NVTX
-  CUARCHFLAGS= -arch=compute_$(CUARCHNUM)
+  ###CUARCHNUM=61 # (For Pascal Architecture Cards)
+  USE_NVTX ?=-DUSE_NVTX
+  CUARCHFLAGS = -arch=compute_$(CUARCHNUM)
+  ###CUARCHFLAGS = -gencode arch=compute_$(CUARCHNUM),code=sm_$(CUARCHNUM)
   CUINC       = -I$(CUDA_HOME)/include/
   CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcuda -lcurand
   CUOPTFLAGS  = -lineinfo
   CUFLAGS     = $(OPTFLAGS) $(CUOPTFLAGS) -std=c++14 $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math $(MGONGPU_CONFIG)
-
+  # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
+  ###CUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
+  ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
+  ###CUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
+  ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
   cu_main     = gcheck.exe
   cu_objects  = gCPPProcess.o
 else
@@ -73,7 +82,7 @@ gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
 $(cu_main): gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
-	$(NVCC) $< -o $@ $(cu_objects) $(LIBFLAGS) $(CUARCHFLAGS) $(CULIBFLAGS)
+	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
 
 $(cxx_main): check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
@@ -87,6 +96,10 @@ runTest.exe: LIBFLAGS += -L$(GTESTLIBDIR)/ -lgtest -lgtest_main
 runTest.exe: runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
 runTest.exe: cxx_objects += runTest.o $(TESTDIR)/src/MadgraphTest.o
 runTest.exe: cu_objects  += runTest_cu.o
+ifneq ($(findstring clang++,$(CXX)),)
+runTest.exe: LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(CXX))
+endif
+
 ifeq ($(NVCC),)
 runTest.exe: $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
@@ -123,6 +136,12 @@ test: force
 	./gcheck.exe -v 1 32 1
 
 info:
+	@hostname
+	@cat /proc/cpuinfo | grep "model name" | sort -u
+	@cat /proc/cpuinfo | grep "flags" | sort -u
+	@cat /proc/cpuinfo | grep "cpu cores" | sort -u
+	@cat /proc/cpuinfo | grep "physical id" | sort -u
+	@echo ""
 ifneq ($(NVCC),)
 	$(NVCC) --version
 	@echo ""
