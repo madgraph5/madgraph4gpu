@@ -150,7 +150,7 @@ namespace MG5_sm
         fi[5] = cxtype(0.0, 0.0);
       }
     }
-    //** END LOOP ON IEVT **
+    // +++ END LOOP ON IEVT +++
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -214,7 +214,7 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
-    // ** START LOOP ON IEVT **
+    // +++ START LOOP ON IEVT +++
     //for (int ievt = 0; ievt < nevt; ++ievt)
 #endif
     {
@@ -256,7 +256,7 @@ namespace MG5_sm
         }
       }
     }
-    // ** END LOOP ON IEVT **
+    // +++ END LOOP ON IEVT +++
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -276,7 +276,7 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
-    // ** START LOOP ON IEVT **
+    // +++ START LOOP ON IEVT +++
     //for (int ievt = 0; ievt < nevt; ++ievt)
 #endif
     {
@@ -319,7 +319,7 @@ namespace MG5_sm
         }
       }
     }
-    // ** END LOOP ON IEVT **
+    // +++ END LOOP ON IEVT +++
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -663,7 +663,7 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
-    // ** START LOOP ON IEVT **
+    // +++ START LOOP ON IEVT +++
     //for (int ievt = 0; ievt < nevt; ++ievt)
 #endif
     {
@@ -707,7 +707,7 @@ namespace MG5_sm
         }
       }
     }
-    // ** END LOOP ON IEVT **
+    // +++ END LOOP ON IEVT +++
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -1206,7 +1206,7 @@ namespace Proc
 #endif
 
 #ifndef __CUDACC__
-    // ** START LOOP ON IEVT **
+    // +++ START LOOP ON IEVT +++
     // - default(none): No variables are shared by default
     // - shared(...): As the name says
     // - firstprivate: give each thread its own copy, and initialise with value from outside
@@ -1270,7 +1270,7 @@ namespace Proc
 #endif
 
     }
-    // ** END LOOP ON IEVT **
+    // +++ END LOOP ON IEVT +++
     mgDebugFinalise();
 
   }

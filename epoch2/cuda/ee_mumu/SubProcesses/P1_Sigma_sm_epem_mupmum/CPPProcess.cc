@@ -150,7 +150,7 @@ namespace MG5_sm
         fi[5] = cxtype(0.0, 0.0);
       }
     }
-    //** END LOOP ON IEVT **
+    // +++ END LOOP ON IEVT +++
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -1222,7 +1222,7 @@ namespace Proc
     // Reset color flows
 
 #ifndef __CUDACC__
-    //** START LOOP ON IEVT **
+    // +++ START LOOP ON IEVT +++
     for (int ievt = 0; ievt < nevt; ++ ievt)
 #endif
     {
@@ -1290,7 +1290,7 @@ namespace Proc
       // for (int ihel = 0; ihel < ncomb; ihel++ )
       // printf( "sigmakin: ihelgood %2d %d\n", ihel, sigmakin_goodhel[ihel] );
 #endif
-      //** END LOOP ON IEVT **
+      // +++ END LOOP ON IEVT +++
       mgDebugFinalise();
 
     }
