@@ -150,7 +150,6 @@ namespace MG5_sm
         fi[5] = cxtype(0.0, 0.0);
       }
     }
-    // +++ END LOOP ON IEVT +++
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -216,26 +215,33 @@ namespace MG5_sm
     // PX = PY = 0
     // E = -P3 (E>0)
     // printf("p3 %f", pvec[2]);
-#ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
+#ifndef __CUDACC__
+    // +++ START LOOP ON IEVT +++
+    //for (int ievt = 0; ievt < nevt; ++ievt)
 #endif
-    const fptype& pvec3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt);
-    fi[0] = cxtype (pvec3 * nsf, -pvec3 * nsf);
-    fi[1] = cxtype (0., 0.);
-    int nh = nhel * nsf;
-    cxtype chi = cxtype (-nhel * sqrt(-2.0 * pvec3), 0.0);
-    fi[3] = fi[1];
-    fi[4] = fi[1];
-    if (nh == 1)
     {
-      fi[2] = fi[1];
-      fi[5] = chi;
+#ifdef __CUDACC__
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
+#endif
+      const fptype& pvec3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt);
+      fi[0] = cxtype (pvec3 * nsf, -pvec3 * nsf);
+      fi[1] = cxtype (0., 0.);
+      int nh = nhel * nsf;
+      cxtype chi = cxtype (-nhel * sqrt(-2.0 * pvec3), 0.0);
+      fi[3] = fi[1];
+      fi[4] = fi[1];
+      if (nh == 1)
+      {
+        fi[2] = fi[1];
+        fi[5] = chi;
+      }
+      else
+      {
+        fi[2] = chi;
+        fi[5] = fi[1];
+      }
     }
-    else
-    {
-      fi[2] = chi;
-      fi[5] = fi[1];
-    }
+    // +++ END LOOP ON IEVT +++
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -258,36 +264,43 @@ namespace MG5_sm
     // cxtype chi[2];
     // fptype sf[2], sfomega[2], omega[2], pp, pp3, sqp0p3, sqm[2];
     // int ip, im, nh;
-#ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
+#ifndef __CUDACC__
+    // +++ START LOOP ON IEVT +++
+    //for (int ievt = 0; ievt < nevt; ++ievt)
 #endif
-    const fptype& pvec0 = pIparIp4Ievt(allmomenta, ipar, 0, ievt);
-    const fptype& pvec1 = pIparIp4Ievt(allmomenta, ipar, 1, ievt);
-    const fptype& pvec2 = pIparIp4Ievt(allmomenta, ipar, 2, ievt);
-    const fptype& pvec3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt);
-    // fptype p[4] = {(float), (float) pvec[0], (float) pvec[1], (float) pvec[2]};
-    // p[0] = sqrtf(p[3] * p[3] + p[1] * p[1] + p[2] * p[2]);
-    fi[0] = cxtype (-pvec0 * nsf, -pvec2 * nsf);
-    fi[1] = cxtype (-pvec0 * nsf, -pvec1 * nsf);
-    int nh = nhel * nsf;
-    float sqp0p3 = sqrtf(pvec0 + pvec3) * nsf;
-    cxtype chi0 = cxtype (sqp0p3, 0.0);
-    cxtype chi1 = cxtype (nh * pvec1/sqp0p3, pvec2/sqp0p3);
-    cxtype CZERO = cxtype(0., 0.);
-    if (nh == 1)
     {
-      fi[2] = CZERO;
-      fi[3] = CZERO;
-      fi[4] = chi0;
-      fi[5] = chi1;
+#ifdef __CUDACC__
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
+#endif
+      const fptype& pvec0 = pIparIp4Ievt(allmomenta, ipar, 0, ievt);
+      const fptype& pvec1 = pIparIp4Ievt(allmomenta, ipar, 1, ievt);
+      const fptype& pvec2 = pIparIp4Ievt(allmomenta, ipar, 2, ievt);
+      const fptype& pvec3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt);
+      // fptype p[4] = {(float), (float) pvec[0], (float) pvec[1], (float) pvec[2]};
+      // p[0] = sqrtf(p[3] * p[3] + p[1] * p[1] + p[2] * p[2]);
+      fi[0] = cxtype (-pvec0 * nsf, -pvec2 * nsf);
+      fi[1] = cxtype (-pvec0 * nsf, -pvec1 * nsf);
+      int nh = nhel * nsf;
+      float sqp0p3 = sqrtf(pvec0 + pvec3) * nsf;
+      cxtype chi0 = cxtype (sqp0p3, 0.0);
+      cxtype chi1 = cxtype (nh * pvec1/sqp0p3, pvec2/sqp0p3);
+      cxtype CZERO = cxtype(0., 0.);
+      if (nh == 1)
+      {
+        fi[2] = CZERO;
+        fi[3] = CZERO;
+        fi[4] = chi0;
+        fi[5] = chi1;
+      }
+      else
+      {
+        fi[2] = chi1;
+        fi[3] = chi0;
+        fi[4] = CZERO;
+        fi[5] = CZERO;
+      }
     }
-    else
-    {
-      fi[2] = chi1;
-      fi[3] = chi0;
-      fi[4] = CZERO;
-      fi[5] = CZERO;
-    }
+    // +++ END LOOP ON IEVT +++
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -546,26 +559,33 @@ namespace MG5_sm
     // ASSUMPTIONS FMASS =0
     // PX = PY =0
     // E = PZ
-#ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
+#ifndef __CUDACC__
+    // +++ START LOOP ON IEVT +++
+    //for (int ievt = 0; ievt < nevt; ++ievt)
 #endif
-    const fptype& pvec3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt);
-    fo[0] = cxtype (pvec3 * nsf, pvec3 * nsf);
-    fo[1] = cxtype (0., 0.);
-    int nh = nhel * nsf;
-    cxtype CSQP0P3 = cxtype (sqrt(2. * pvec3) * nsf, 0.00);
-    fo[3] = fo[1];
-    fo[4] = fo[1];
-    if (nh == 1)
     {
-      fo[2] = CSQP0P3;
-      fo[5] = fo[1];
+#ifdef __CUDACC__
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
+#endif
+      const fptype& pvec3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt);
+      fo[0] = cxtype (pvec3 * nsf, pvec3 * nsf);
+      fo[1] = cxtype (0., 0.);
+      int nh = nhel * nsf;
+      cxtype CSQP0P3 = cxtype (sqrt(2. * pvec3) * nsf, 0.00);
+      fo[3] = fo[1];
+      fo[4] = fo[1];
+      if (nh == 1)
+      {
+        fo[2] = CSQP0P3;
+        fo[5] = fo[1];
+      }
+      else
+      {
+        fo[2] = fo[1];
+        fo[5] = CSQP0P3;
+      }
     }
-    else
-    {
-      fo[2] = fo[1];
-      fo[5] = CSQP0P3;
-    }
+    // +++ END LOOP ON IEVT +++
     mgDebug( 1, __FUNCTION__ );
     return;
   }

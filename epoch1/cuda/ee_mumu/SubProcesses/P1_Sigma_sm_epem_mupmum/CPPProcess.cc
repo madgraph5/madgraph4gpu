@@ -166,7 +166,6 @@ namespace MG5_sm
         fi[5] = cxtype(0.0, 0.0);
       }
     }
-    // +++ END LOOP ON IEVT +++
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -618,26 +617,33 @@ namespace MG5_sm
     // ASSUMPTIONS FMASS =0
     // PX = PY =0
     // E = PZ
-#ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
+#ifndef __CUDACC__
+    // +++ START LOOP ON IEVT +++
+    //for (int ievt = 0; ievt < nevt; ++ievt)
 #endif
-    const fptype& pvec3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt);
-    fo[0] = cxtype (pvec3 * nsf, pvec3 * nsf);
-    fo[1] = cxtype (0., 0.);
-    int nh = nhel * nsf;
-    cxtype CSQP0P3 = cxtype (sqrt(2. * pvec3) * nsf, 0.00);
-    fo[3] = fo[1];
-    fo[4] = fo[1];
-    if (nh == 1)
     {
-      fo[2] = CSQP0P3;
-      fo[5] = fo[1];
+#ifdef __CUDACC__
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
+#endif
+      const fptype& pvec3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt);
+      fo[0] = cxtype (pvec3 * nsf, pvec3 * nsf);
+      fo[1] = cxtype (0., 0.);
+      int nh = nhel * nsf;
+      cxtype CSQP0P3 = cxtype (sqrt(2. * pvec3) * nsf, 0.00);
+      fo[3] = fo[1];
+      fo[4] = fo[1];
+      if (nh == 1)
+      {
+        fo[2] = CSQP0P3;
+        fo[5] = fo[1];
+      }
+      else
+      {
+        fo[2] = fo[1];
+        fo[5] = CSQP0P3;
+      }
     }
-    else
-    {
-      fo[2] = fo[1];
-      fo[5] = CSQP0P3;
-    }
+    // +++ END LOOP ON IEVT +++
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -1158,11 +1164,11 @@ namespace Proc
                           int gpublocks,
                           int gputhreads,
                           bool verbose )
-    : //m_numiterations( numiterations ), 
-      gpu_nblocks( gpublocks ), 
-      gpu_nthreads( gputhreads ), 
-      dim( gpu_nblocks * gpu_nthreads ), 
-      m_verbose( verbose )
+    : //m_numiterations( numiterations ),
+    gpu_nblocks( gpublocks ),
+    gpu_nthreads( gputhreads ),
+    dim( gpu_nblocks * gpu_nthreads ),
+    m_verbose( verbose )
   {
 #ifdef __CUDACC__
     // Helicities for the process - nodim
