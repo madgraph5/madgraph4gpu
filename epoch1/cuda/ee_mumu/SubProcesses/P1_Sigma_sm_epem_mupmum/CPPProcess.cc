@@ -166,7 +166,7 @@ namespace MG5_sm
         fi[5] = cxtype(0.0, 0.0);
       }
     }
-    //** END LOOP ON IEVT **
+    // +++ END LOOP ON IEVT +++
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -229,6 +229,10 @@ namespace MG5_sm
                const int ipar )             // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
+#ifndef __CUDACC__
+    // +++ START LOOP ON IEVT +++
+    //for (int ievt = 0; ievt < nevt; ++ievt)
+#endif
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
@@ -279,6 +283,7 @@ namespace MG5_sm
         }
       }
     }
+    // +++ END LOOP ON IEVT +++
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -297,6 +302,10 @@ namespace MG5_sm
                const int ipar )             // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
+#ifndef __CUDACC__
+    // +++ START LOOP ON IEVT +++
+    //for (int ievt = 0; ievt < nevt; ++ievt)
+#endif
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
@@ -349,6 +358,7 @@ namespace MG5_sm
         }
       }
     }
+    // +++ END LOOP ON IEVT +++
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -691,6 +701,10 @@ namespace MG5_sm
                const int ipar )             // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
+#ifndef __CUDACC__
+    // +++ START LOOP ON IEVT +++
+    //for (int ievt = 0; ievt < nevt; ++ievt)
+#endif
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
@@ -744,6 +758,7 @@ namespace MG5_sm
         }
       }
     }
+    // +++ END LOOP ON IEVT +++
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -1362,6 +1377,7 @@ namespace Proc
 #endif
 
     // PART 0 - INITIALISATION (before calculate_wavefunctions)
+
 #ifndef __CUDACC__
     for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
@@ -1394,8 +1410,6 @@ namespace Proc
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
       allMEs[ievt] /= denominators;
     }
-
-    // ** END LOOP ON IEVT **
     mgDebugFinalise();
   }
 
