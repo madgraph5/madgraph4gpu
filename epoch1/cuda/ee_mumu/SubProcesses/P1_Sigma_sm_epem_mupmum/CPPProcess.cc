@@ -169,9 +169,7 @@ namespace MG5_sm
                const int ipar ) // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-    // ASSUMPTION FMASS == 0
-    // PX = PY = 0
-    // E = P3 (E>0)
+    // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
 #ifdef __CUDACC__
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
 #endif
@@ -212,6 +210,7 @@ namespace MG5_sm
                const int ipar )          // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
+    // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
 #ifndef __CUDACC__
     // +++ START LOOP ON IEVT +++
     //for (int ievt = 0; ievt < nevt; ++ievt)
@@ -234,8 +233,7 @@ namespace MG5_sm
       fi_0 = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi_1 = cxmake( -pvec1 * nsf, -pvec2 * nsf );
       const int nh = nhel * nsf;
-      // ASSUMPTIONS FMASS = 0 and
-      // (PX = PY = 0 and E = -P3 > 0)
+      // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       {
         const cxtype chi0 = cxmake( 0, 0 );
         const cxtype chi1 = cxmake( -nhel * sqrt(2 * pvec0), 0 );
@@ -274,6 +272,7 @@ namespace MG5_sm
                const int ipar )          // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
+    // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
 #ifndef __CUDACC__
     // +++ START LOOP ON IEVT +++
     //for (int ievt = 0; ievt < nevt; ++ievt)
@@ -296,8 +295,7 @@ namespace MG5_sm
       fi_0 = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi_1 = cxmake( -pvec1 * nsf, -pvec2 * nsf );
       const int nh = nhel * nsf;
-      // ASSUMPTIONS FMASS = 0 and
-      // (PX and PY are not 0)
+      // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
       {
         const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
         const cxtype chi0 = cxmake( sqp0p3, 0 );
@@ -575,9 +573,7 @@ namespace MG5_sm
                const int ipar )  // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-    // ASSUMPTIONS FMASS =0
-    // PX = PY =0
-    // E = PZ
+    // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
 #ifndef __CUDACC__
     // +++ START LOOP ON IEVT +++
     //for (int ievt = 0; ievt < nevt; ++ievt)
@@ -624,9 +620,7 @@ namespace MG5_sm
                const int ipar )  // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-    // ASSUMPTIONS FMASS =0
-    // PX = PY =0
-    // E = -PZ (E>0)
+    // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
 #ifdef __CUDACC__
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
 #endif
@@ -690,9 +684,7 @@ namespace MG5_sm
       fo_0 = cxmake( pvec0 * nsf, pvec3 * nsf );
       fo_1 = cxmake( pvec1 * nsf, pvec2 * nsf );
       const int nh = nhel * nsf;
-      // ASSUMPTIONS FMASS = 0 and
-      // EITHER (Px and Py are not zero)
-      // OR (PX = PY = 0 and E = P3 > 0)
+      // ASSUMPTIONS: (FMASS == 0) and ( either (PT > 0) or (PX == PY == 0 and E == +PZ > 0) )
       {
         const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
         const cxtype chi0 = cxmake( sqp0p3, 0 );

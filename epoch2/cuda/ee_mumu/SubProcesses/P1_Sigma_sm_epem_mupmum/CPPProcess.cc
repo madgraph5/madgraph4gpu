@@ -169,9 +169,7 @@ namespace MG5_sm
                const int ipar ) // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-    // ASSUMPTION FMASS == 0
-    // PX = PY = 0
-    // E = P3 (E>0)
+    // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
 #ifdef __CUDACC__
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
 #endif
@@ -211,10 +209,7 @@ namespace MG5_sm
                const int ipar )  // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-    // ASSUMPTION FMASS == 0
-    // PX = PY = 0
-    // E = -P3 (E>0)
-    // printf("p3 %f", pvec[2]);
+    // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
 #ifndef __CUDACC__
     // +++ START LOOP ON IEVT +++
     //for (int ievt = 0; ievt < nevt; ++ievt)
@@ -259,11 +254,7 @@ namespace MG5_sm
                const int ipar )  // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-    // ASSUMPTIONS: FMASS == 0
-    // Px and Py are not zero
-    // cxtype chi[2];
-    // fptype sf[2], sfomega[2], omega[2], pp, pp3, sqp0p3, sqm[2];
-    // int ip, im, nh;
+    // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
 #ifndef __CUDACC__
     // +++ START LOOP ON IEVT +++
     //for (int ievt = 0; ievt < nevt; ++ievt)
@@ -556,9 +547,7 @@ namespace MG5_sm
                const int ipar )  // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-    // ASSUMPTIONS FMASS =0
-    // PX = PY =0
-    // E = PZ
+    // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
 #ifndef __CUDACC__
     // +++ START LOOP ON IEVT +++
     //for (int ievt = 0; ievt < nevt; ++ievt)
@@ -604,9 +593,7 @@ namespace MG5_sm
                const int ipar )  // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-    // ASSUMPTIONS FMASS =0
-    // PX = PY =0
-    // E = -PZ (E>0)
+    // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
 #ifdef __CUDACC__
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
 #endif
@@ -647,8 +634,7 @@ namespace MG5_sm
                const int ipar )  // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-    // ASSUMPTIONS FMASS =0
-    // PT > 0
+    // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
 #ifdef __CUDACC__
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
 #endif
