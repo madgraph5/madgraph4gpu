@@ -669,7 +669,11 @@ int main(int argc, char **argv)
 #endif
     // Dump all configuration parameters and all results
     std::cout << "***********************************************************************" << std::endl
-              << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << std::endl
+#ifdef __CUDACC__
+              << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CUDA" << std::endl
+#else
+              << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CPP" << std::endl
+#endif
               << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << "NumThreadsPerBlock          = " << gputhreads << std::endl
               << "NumIterations               = " << niter << std::endl
