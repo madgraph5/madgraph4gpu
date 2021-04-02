@@ -27,6 +27,10 @@
 #include "CPPProcess.h"
 #include "timermap.h"
 
+#include "epoch_process_id.h"
+#define STRINGIFY(s) #s
+#define XSTRINGIFY(s) STRINGIFY(s)
+
 inline bool is_number(const char *s) {
   const char *t = s;
   while (*t != '\0' && isdigit(*t))
@@ -713,11 +717,16 @@ int check
     std::string nprocall = check_nprocall();
 #endif
     // Dump all configuration parameters and all results
-    outStream << "*****************************************************************************" << std::endl
+    outStream << "***********************************************************************" << std::endl
+#ifdef __CUDACC__
+              << tag << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CUDA" << std::endl
+#else
+              << tag << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CPP" << std::endl
+#endif
               << tag << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << tag << "NumThreadsPerBlock          = " << gputhreads << std::endl
               << tag << "NumIterations               = " << niter << std::endl
-              << "-----------------------------------------------------------------------------" << std::endl
+              << "-----------------------------------------------------------------------" << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
               << tag << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << " )" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT

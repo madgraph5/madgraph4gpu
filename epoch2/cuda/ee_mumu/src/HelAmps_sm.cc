@@ -1,3 +1,5 @@
+/*
+
 //==========================================================================
 // This file has been automatically generated for C++ Standalone by
 // MadGraph5_aMC@NLO v. 2.8.2, 2020-10-30
@@ -817,4 +819,4 @@ __device__ void FFV2_4_3(const cxtype F1[], const cxtype F2[], const cxtype
 
 }  // end namespace $(namespace)s_sm
 
-
+*/
