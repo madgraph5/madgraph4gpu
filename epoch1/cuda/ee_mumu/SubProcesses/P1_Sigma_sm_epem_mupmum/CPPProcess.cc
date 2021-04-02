@@ -60,27 +60,27 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void imzxxxM0( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-                 //const fptype fmass,
-                 const short nhel,
-                 const short nsf,
-                 cxtype_sv fis[nw6],          // output: wavefunction[6]
+  void imzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               //const fptype fmass,
+               const short nhel,
+               const short nsf,
+               cxtype_sv fis[nw6],          // output: wavefunction[6]
 #ifndef __CUDACC__
-                 const int ipagV,
+               const int ipagV,
 #endif
-                 const int ipar )             // input: particle# out of npar
+               const int ipar )             // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "imzxxxM0: ievt=%d threadId=%d\n", ievt, threadIdx.x );
+      //printf( "imzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
-      //printf( "imzxxxM0: ipagV=%d\n", ipagV );
+      //printf( "imzxxx: ipagV=%d\n", ipagV );
       const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
       const fptype_sv pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
       const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
@@ -128,27 +128,27 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void ixzxxxM0( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-                 //const fptype fmass,
-                 const short nhel,
-                 const short nsf,
-                 cxtype_sv fis[nw6],          // output: wavefunction[6]
+  void ixzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               //const fptype fmass,
+               const short nhel,
+               const short nsf,
+               cxtype_sv fis[nw6],          // output: wavefunction[6]
 #ifndef __CUDACC__
-                 const int ipagV,
+               const int ipagV,
 #endif
-                 const int ipar )             // input: particle# out of npar
+               const int ipar )             // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "ixzxxxM0: ievt=%d threadId=%d\n", ievt, threadIdx.x );
+      //printf( "ixzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
-      //printf( "ixzxxxM0: ipagV=%d\n", ipagV );
+      //printf( "ixzxxx: ipagV=%d\n", ipagV );
       const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
       const fptype_sv pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
       const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
@@ -198,27 +198,27 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void oxzxxxM0( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-                 //const fptype fmass,
-                 const short nhel,
-                 const short nsf,
-                 cxtype_sv fos[nw6],          // output: wavefunction[6]
+  void oxzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               //const fptype fmass,
+               const short nhel,
+               const short nsf,
+               cxtype_sv fos[nw6],          // output: wavefunction[6]
 #ifndef __CUDACC__
-                 const int ipagV,
+               const int ipagV,
 #endif
-                 const int ipar )             // input: particle# out of npar
+               const int ipar )             // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "oxzxxxM0: ievt=%d threadId=%d\n", ievt, threadIdx.x );
+      //printf( "oxzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
-      //printf( "oxzxxxM0: ipagV=%d\n", ipagV );
+      //printf( "oxzxxx: ipagV=%d\n", ipagV );
       const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
       const fptype_sv pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
       const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
@@ -575,15 +575,15 @@ namespace Proc
 #endif
     {
 #ifdef __CUDACC__
-      MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w[0], 0 );
-      MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w[1], 1 );
-      MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w[2], 2 );
-      MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w[3], 3 );
+      MG5_sm::oxzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0 );
+      MG5_sm::imzxxx( allmomenta, cHel[ihel][1], +1, w[1], 1 );
+      MG5_sm::ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], 2 );
+      MG5_sm::oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3 );
 #else
-      MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][0], -1, w_v[0], ipagV, 0 );
-      MG5_sm::imzxxxM0( allmomenta, cHel[ihel][1], +1, w_v[1], ipagV, 1 );
-      MG5_sm::ixzxxxM0( allmomenta, cHel[ihel][2], -1, w_v[2], ipagV, 2 );
-      MG5_sm::oxzxxxM0( allmomenta, cHel[ihel][3], +1, w_v[3], ipagV, 3 );
+      MG5_sm::oxzxxx( allmomenta, cHel[ihel][0], -1, w_v[0], ipagV, 0 );
+      MG5_sm::imzxxx( allmomenta, cHel[ihel][1], +1, w_v[1], ipagV, 1 );
+      MG5_sm::ixzxxx( allmomenta, cHel[ihel][2], -1, w_v[2], ipagV, 2 );
+      MG5_sm::oxzxxx( allmomenta, cHel[ihel][3], +1, w_v[3], ipagV, 3 );
 #endif
 
 #ifndef __CUDACC__
