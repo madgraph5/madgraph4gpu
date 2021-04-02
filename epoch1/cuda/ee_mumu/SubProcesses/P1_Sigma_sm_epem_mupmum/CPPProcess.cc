@@ -216,7 +216,7 @@ namespace MG5_sm
 
   __device__
   void imzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               //const fptype fmass,
+               //const fptype fmass,        // ASSUME fmass==0
                const short nhel,
                const short nsf,
                cxtype_sv fis[nw6],          // output: wavefunction[6]
@@ -289,7 +289,7 @@ namespace MG5_sm
 
   __device__
   void ixzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               //const fptype fmass,
+               //const fptype fmass,        // ASSUME fmass==0
                const short nhel,
                const short nsf,
                cxtype_sv fis[nw6],          // output: wavefunction[6]
@@ -691,7 +691,7 @@ namespace MG5_sm
 
   __device__
   void oxzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               //const fptype fmass,
+               //const fptype fmass,        // ASSUME fmass==0
                const short nhel,
                const short nsf,
                cxtype_sv fos[nw6],          // output: wavefunction[6]
@@ -701,6 +701,7 @@ namespace MG5_sm
                const int ipar )             // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
+    // ASSUMPTIONS: (FMASS == 0) and ( either (PT > 0) or (PX == PY == 0 and E == +PZ > 0) )
 #ifndef __CUDACC__
     // +++ START LOOP ON IEVT +++
     //for (int ievt = 0; ievt < nevt; ++ievt)
