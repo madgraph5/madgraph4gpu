@@ -1198,7 +1198,7 @@ namespace Proc
     memcpy( cHel, tHel, ncomb * nexternal * sizeof(int) );
 #endif
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
-    assert( sizeof(cxtype) == 2*sizeof(fptype) );
+    assert( sizeof(cxtype) == 2 * sizeof(fptype) );
   }
 
   //--------------------------------------------------------------------------
@@ -1243,7 +1243,6 @@ namespace Proc
     memcpy( cIPC, tIPC, 3 * sizeof(cxtype) );
     memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
 #endif
-
     //std::cout << std::setprecision(17) << "tIPC[0] = " << tIPC[0] << std::endl;
     //std::cout << std::setprecision(17) << "tIPC[1] = " << tIPC[1] << std::endl;
     //std::cout << std::setprecision(17) << "tIPC[2] = " << tIPC[2] << std::endl;

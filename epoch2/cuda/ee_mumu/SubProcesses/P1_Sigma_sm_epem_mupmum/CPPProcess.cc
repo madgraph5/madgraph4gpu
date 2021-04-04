@@ -217,7 +217,8 @@ namespace MG5_sm
 #endif
     {
 #ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+      //printf( "imzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
 #endif
       const fptype& pvec3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt);
       fi[0] = cxtype (pvec3 * nsf, -pvec3 * nsf);
@@ -263,7 +264,8 @@ namespace MG5_sm
 #endif
     {
 #ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+      //printf( "ixzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
 #endif
       const fptype& pvec0 = pIparIp4Ievt(allmomenta, ipar, 0, ievt);
       const fptype& pvec1 = pIparIp4Ievt(allmomenta, ipar, 1, ievt);
@@ -683,11 +685,11 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV1_0( const cxtype F1[],   // input wavefunction1[6]
-               const cxtype F2[],   // input wavefunction2[6]
-               const cxtype V3[],   // input wavefunction3[6]
+  void FFV1_0( const cxtype F1[],    // input wavefunction1[6]
+               const cxtype F2[],    // input wavefunction2[6]
+               const cxtype V3[],    // input wavefunction3[6]
                const cxtype COUP,
-               cxtype* vertex )     // output
+               cxtype* vertex )      // output
   {
     mgDebug( 0, __FUNCTION__ );
     cxtype cI = cxtype(0., 1.);
@@ -866,12 +868,12 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV2_4_0( const cxtype F1[],
-                 const cxtype F2[],
-                 const cxtype V3[],
+  void FFV2_4_0( const cxtype F1[],    // input wavefunction1[6]
+                 const cxtype F2[],    // input wavefunction2[6]
+                 const cxtype V3[],    // input wavefunction3[6]
                  const cxtype COUP1,
                  const cxtype COUP2,
-                 cxtype* vertex )
+                 cxtype* vertex )      // output
   {
     mgDebug( 0, __FUNCTION__ );
     cxtype cI = cxtype(0., 1.);
@@ -889,13 +891,13 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV2_4_3( const cxtype F1[],
-                 const cxtype F2[],
+  void FFV2_4_3( const cxtype F1[],   // input wavefunction1[6]
+                 const cxtype F2[],   // input wavefunction2[6]
                  const cxtype COUP1,
                  const cxtype COUP2,
                  const fptype M3,
                  const fptype W3,
-                 cxtype V3[] )
+                 cxtype V3[] )        // output wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
     cxtype cI = cxtype(0., 1.);
@@ -996,8 +998,8 @@ namespace Proc
 
   __device__
   void calculate_wavefunctions( int ihel,
-                                const fptype * allmomenta,
-                                fptype &meHelSum
+                                const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                                fptype &meHelSum          // input AND output: running sum of |M|^2 over all helicities for this event
 #ifndef __CUDACC__
                                 , const int ievt
 #endif
@@ -1005,6 +1007,9 @@ namespace Proc
   {
     using namespace MG5_sm;
     mgDebug( 0, __FUNCTION__ );
+#ifndef __CUDACC__
+    //printf( "calculate_wavefunctions: ievt %d\n", ievt );
+#endif
     cxtype amp[1];  // was 2
     const int ncolor = 1;
     cxtype jamp[ncolor];
@@ -1065,17 +1070,17 @@ namespace Proc
 
 
     // Sum and square the color flows to get the matrix element
-    for(int icol = 0; icol < ncolor; icol++ )
+    for( int icol = 0; icol < ncolor; icol++ )
     {
-      cxtype ztemp = cxmake(0, 0);
-      for(int jcol = 0; jcol < ncolor; jcol++ )
+      cxtype ztemp = cxmake( 0, 0 );
+      for( int jcol = 0; jcol < ncolor; jcol++ )
         ztemp = ztemp + cf[icol][jcol] * jamp[jcol];
-      meHelSum = meHelSum + cxreal(ztemp * conj(jamp[icol]))/denom[icol];
+      meHelSum = meHelSum + cxreal( ztemp * conj( jamp[icol] ) ) / denom[icol];
     }
 
     // Store the leading color flows for choice of color
     // for(i=0;i < ncolor; i++)
-    // jamp2[0][i] += real(jamp[i]*conj(jamp[i]));
+    // jamp2[0][i] += cxreal( jamp[i]*conj( jamp[i] ) );
 
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -1083,28 +1088,30 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  CPPProcess::CPPProcess(int numiterations, int gpublocks, int gputhreads,
-                         bool verbose, bool debug)
-    : m_numiterations(numiterations), gpu_nblocks(gpublocks),
-      gpu_nthreads(gputhreads), m_verbose(verbose),
-      dim(gpu_nblocks * gpu_nthreads)
+  CPPProcess::CPPProcess( int numiterations,
+                          int gpublocks,
+                          int gputhreads,
+                          bool verbose,
+                          bool debug )
+    : m_numiterations( numiterations ),
+      gpu_nblocks( gpublocks ),
+      gpu_nthreads( gputhreads ),
+      m_verbose( verbose ),
+      dim( gpu_nblocks * gpu_nthreads )
   {
-
-
     // Helicities for the process - nodim
-    static const int tHel[ncomb][nexternal] = {{-1, -1, -1, -1}, {-1, -1, -1, 1},
-                                               {-1, -1, 1, -1}, {-1, -1, 1, 1}, {-1, 1, -1, -1}, {-1, 1, -1, 1}, {-1, 1,
-                                                                                                                  1, -1}, {-1, 1, 1, 1}, {1, -1, -1, -1}, {1, -1, -1, 1}, {1, -1, 1, -1},
-                                               {1, -1, 1, 1}, {1, 1, -1, -1}, {1, 1, -1, 1}, {1, 1, 1, -1}, {1, 1, 1,
-                                                                                                             1}};
+    static const int tHel[ncomb][nexternal] =
+      { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
+        {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
+        {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
+        {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
 #ifdef __CUDACC__
     checkCuda(cudaMemcpyToSymbol(cHel, tHel, ncomb * nexternal * sizeof(int)));
 #else
     memcpy(cHel, tHel, ncomb * nexternal * sizeof(int));
 #endif
-
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
-    assert(sizeof(cxtype) == 2 * sizeof(fptype));
+    assert( sizeof(cxtype) == 2 * sizeof(fptype) );
   }
 
   //--------------------------------------------------------------------------
@@ -1142,13 +1149,17 @@ namespace Proc
     static double tIPD[2] = {pars->mdl_MZ, pars->mdl_WZ};
 
 #ifdef __CUDACC__
-    checkCuda(cudaMemcpyToSymbol(cIPC, tIPC, 3 * sizeof(cxtype)));
-    checkCuda(cudaMemcpyToSymbol(cIPD, tIPD, 2 * sizeof(fptype)));
+    checkCuda(cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(cxtype)) );
+    checkCuda(cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof(fptype)) );
 #else
-    memcpy(cIPC, tIPC, 3 * sizeof(cxtype));
-    memcpy(cIPD, tIPD, 2 * sizeof(fptype));
+    memcpy( cIPC, tIPC, 3 * sizeof(cxtype) );
+    memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
 #endif
-
+    //std::cout << std::setprecision(17) << "tIPC[0] = " << tIPC[0] << std::endl;
+    //std::cout << std::setprecision(17) << "tIPC[1] = " << tIPC[1] << std::endl;
+    //std::cout << std::setprecision(17) << "tIPC[2] = " << tIPC[2] << std::endl;
+    //std::cout << std::setprecision(17) << "tIPD[0] = " << tIPD[0] << std::endl;
+    //std::cout << std::setprecision(17) << "tIPD[1] = " << tIPD[1] << std::endl;
   }
 
   //--------------------------------------------------------------------------
