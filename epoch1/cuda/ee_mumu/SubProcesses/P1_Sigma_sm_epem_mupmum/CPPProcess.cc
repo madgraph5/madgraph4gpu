@@ -850,6 +850,135 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  /*
+  __device__
+  void FFV2_0( const cxtype F1[],   // input wavefunction1[6]
+               const cxtype F2[],   // input wavefunction2[6]
+               const cxtype V3[],   // input wavefunction3[6]
+               const cxtype COUP,
+               cxtype* vertex )     // output
+  {
+    mgDebug( 0, __FUNCTION__ );
+    cxtype cI = cxtype(0., 1.);
+    cxtype TMP1;
+    TMP1 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
+            F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
+    (*vertex) = COUP * - cI * TMP1;
+    mgDebug( 1, __FUNCTION__ );
+    return;
+  }
+  */
+
+  //--------------------------------------------------------------------------
+
+  /*
+  __device__
+  void FFV2_3( const cxtype F1[],   // input wavefunction1[6]
+               const cxtype F2[],   // input wavefunction2[6]
+               const cxtype COUP,
+               const fptype M3,
+               const fptype W3,
+               cxtype V3[] )        // output wavefunction3[6]
+  {
+    mgDebug( 0, __FUNCTION__ );
+    cxtype cI = cxtype(0., 1.);
+    fptype OM3;
+    fptype P3[4];
+    cxtype TMP2;
+    cxtype denom;
+    OM3 = 0.;
+    if (M3 != 0.)
+      OM3 = 1./(M3 * M3);
+    V3[0] = +F1[0] + F2[0];
+    V3[1] = +F1[1] + F2[1];
+    P3[0] = -V3[0].real();
+    P3[1] = -V3[1].real();
+    P3[2] = -V3[1].imag();
+    P3[3] = -V3[0].imag();
+    TMP2 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
+            F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
+    denom = COUP/((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
+    V3[2] = denom * (-cI) * (F1[2] * F2[4] + F1[3] * F2[5] - P3[0] * OM3 * TMP2);
+    V3[3] = denom * (-cI) * (-F1[2] * F2[5] - F1[3] * F2[4] - P3[1] * OM3 * TMP2);
+    V3[4] = denom * (-cI) * (-cI * (F1[2] * F2[5]) + cI * (F1[3] * F2[4]) - P3[2] * OM3 * TMP2);
+    V3[5] = denom * (-cI) * (-F1[2] * F2[4] - P3[3] * OM3 * TMP2 + F1[3] * F2[5]);
+    mgDebug( 1, __FUNCTION__ );
+    return;
+  }
+  */
+
+  //--------------------------------------------------------------------------
+
+  /*
+  __device__
+  void FFV4_0( const cxtype F1[],
+               const cxtype F2[],
+               const cxtype V3[],
+               const cxtype COUP,
+               cxtype* vertex )
+  {
+    mgDebug( 0, __FUNCTION__ );
+    cxtype cI = cxtype(0., 1.);
+    cxtype TMP3;
+    cxtype TMP4;
+    TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
+            F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
+    TMP4 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
+            F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
+    (*vertex) = COUP * (-1.) * (+cI * (TMP3) + 2. * cI * (TMP4));
+    mgDebug( 1, __FUNCTION__ );
+    return;
+  }
+  */
+
+  //--------------------------------------------------------------------------
+
+  /*
+  __device__
+  void FFV4_3( const cxtype F1[],
+               const cxtype F2[],
+               const cxtype COUP,
+               const fptype M3,
+               const fptype W3,
+               cxtype V3[] )
+  {
+    mgDebug( 0, __FUNCTION__ );
+    cxtype cI = cxtype(0., 1.);
+    fptype OM3;
+    fptype P3[4];
+    cxtype TMP2;
+    cxtype TMP5;
+    cxtype denom;
+    OM3 = 0.;
+    if (M3 != 0.)
+      OM3 = 1./(M3 * M3);
+    V3[0] = +F1[0] + F2[0];
+    V3[1] = +F1[1] + F2[1];
+    P3[0] = -V3[0].real();
+    P3[1] = -V3[1].real();
+    P3[2] = -V3[1].imag();
+    P3[3] = -V3[0].imag();
+    TMP5 = (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) +
+            F1[5] * (F2[2] * (-P3[1] + cI * (P3[2])) + F2[3] * (P3[0] + P3[3])));
+    TMP2 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
+            F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
+    denom = COUP/((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
+    V3[2] = denom * (-2. * cI) * (OM3 * - 1./2. * P3[0] * (TMP2 + 2. * (TMP5)) +
+                                  (+1./2. * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] + F1[5] * F2[3]));
+    V3[3] = denom * (-2. * cI) * (OM3 * - 1./2. * P3[1] * (TMP2 + 2. * (TMP5)) +
+                                  (-1./2. * (F1[2] * F2[5] + F1[3] * F2[4]) + F1[4] * F2[3] + F1[5] * F2[2]));
+    V3[4] = denom * 2. * cI * (OM3 * 1./2. * P3[2] * (TMP2 + 2. * (TMP5)) +
+                               (+1./2. * cI * (F1[2] * F2[5]) - 1./2. * cI * (F1[3] * F2[4]) - cI *
+                                (F1[4] * F2[3]) + cI * (F1[5] * F2[2])));
+    V3[5] = denom * 2. * cI * (OM3 * 1./2. * P3[3] * (TMP2 + 2. * (TMP5)) +
+                               (+1./2. * (F1[2] * F2[4]) - 1./2. * (F1[3] * F2[5]) - F1[4] * F2[2] + F1[5] * F2[3]));
+    mgDebug( 1, __FUNCTION__ );
+    return;
+  }
+  */
+
+  //--------------------------------------------------------------------------
+
   __device__
   void FFV2_4_0( const cxtype_sv F1S[],   // input wavefunction1[6]
                  const cxtype_sv F2S[],   // input wavefunction2[6]
