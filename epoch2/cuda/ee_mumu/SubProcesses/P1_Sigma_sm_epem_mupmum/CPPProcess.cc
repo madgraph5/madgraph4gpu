@@ -1307,10 +1307,10 @@ namespace Proc
       //  for (int ihel = 0; ihel < ncomb; ihel++ )
       //    printf( "sigmakin: ihelgood %2d %d\n", ihel, sigmakin_goodhel[ihel] );
 #endif
-      // +++ END LOOP ON IEVT +++
-      mgDebugFinalise();
 
     }
+    // +++ END LOOP ON IEVT +++
+    mgDebugFinalise();
 
   }
 
