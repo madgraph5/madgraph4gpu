@@ -1086,9 +1086,7 @@ namespace MG5_sm
     return;
   }
 
-
 }  // end namespace
-
 
 //==========================================================================
 // This file has been automatically generated for C++ Standalone by
@@ -1097,10 +1095,13 @@ namespace MG5_sm
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
+//#include "../../src/HelAmps_sm.cc"
+
 #include <algorithm>
 #include <iostream>
 
 #include "mgOnGpuConfig.h"
+#include "mgOnGpuTypes.h"
 
 #include "CPPProcess.h"
 
@@ -1115,8 +1116,8 @@ namespace Proc
 #endif
 {
   using mgOnGpu::np4; // 4: the dimension of 4-momenta (E,px,py,pz)
-  using mgOnGpu::npar; // 4: #particles in total (external), e+ e- -> mu+ mu-
-  using mgOnGpu::ncomb; // 16: #helicity combinations, 2(spin up/down for fermions)**4(npar)
+  using mgOnGpu::npar; // number of particles in total (initial + final)
+  using mgOnGpu::ncomb; // number of helicity combinations
 
 #ifdef __CUDACC__
   __device__ __constant__ int cHel[ncomb][npar];
@@ -1144,7 +1145,9 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   // Evaluate |M|^2 for each subprocess
-  // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
+  // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum
+  // of |M|^2 over helicities for the given event
+
   __device__
   void calculate_wavefunctions( int ihel,
                                 const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
@@ -1335,7 +1338,8 @@ namespace Proc
     SLHAReader slha(param_card_name, m_verbose);
     pars->setIndependentParameters(slha);
     pars->setIndependentCouplings();
-    if (m_verbose) {
+    if (m_verbose)
+    {
       pars->printIndependentParameters();
       pars->printIndependentCouplings();
     }
