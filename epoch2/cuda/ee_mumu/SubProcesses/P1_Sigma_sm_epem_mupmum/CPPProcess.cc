@@ -947,14 +947,13 @@ namespace MG5_sm
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-
 //#include "../../src/HelAmps_sm.cc"
-
 
 #include <algorithm>
 #include <iostream>
-#include "mgOnGpuTypes.h"
+
 #include "mgOnGpuConfig.h"
+#include "mgOnGpuTypes.h"
 
 #include "CPPProcess.h"
 
@@ -968,10 +967,9 @@ namespace gProc
 namespace Proc
 #endif
 {
-
-  using mgOnGpu::np4;  // 4: the dimension of 4-momenta (E,px,py,pz)
-  using mgOnGpu::npar;  // number of particles in total (initial + final)
-  using mgOnGpu::ncomb;  // number of helicity combinations
+  using mgOnGpu::np4; // 4: the dimension of 4-momenta (E,px,py,pz)
+  using mgOnGpu::npar; // number of particles in total (initial + final)
+  using mgOnGpu::ncomb; // number of helicity combinations
 
 #ifdef __CUDACC__
   __device__ __constant__ int cHel[ncomb][npar];
@@ -986,20 +984,24 @@ namespace Proc
 #endif
 
   //--------------------------------------------------------------------------
+
   using mgOnGpu::nwf;
   using mgOnGpu::nw6;
+
   //--------------------------------------------------------------------------
 
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum
   // of |M|^2 over helicities for the given event
 
-  __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
-                                          fptype &meHelSum
+  __device__
+  void calculate_wavefunctions( int ihel,
+                                const fptype * allmomenta,
+                                fptype &meHelSum
 #ifndef __CUDACC__
-                                          , const int ievt
+                                , const int ievt
 #endif
-                                          )
+                                )
   {
     using namespace MG5_sm;
     mgDebug( 0, __FUNCTION__ );
@@ -1079,7 +1081,7 @@ namespace Proc
     return;
   }
 
-
+  //--------------------------------------------------------------------------
 
   CPPProcess::CPPProcess(int numiterations, int gpublocks, int gputhreads,
                          bool verbose, bool debug)
@@ -1105,7 +1107,11 @@ namespace Proc
     assert(sizeof(cxtype) == 2 * sizeof(fptype));
   }
 
+  //--------------------------------------------------------------------------
+
   CPPProcess::~CPPProcess() {}
+
+  //--------------------------------------------------------------------------
 
   const std::vector<fptype> &CPPProcess::getMasses() const {return mME;}
 
@@ -1322,17 +1328,8 @@ namespace Proc
 
     }
 
-    //--------------------------------------------------------------------------
-
   }
 
-
+  //--------------------------------------------------------------------------
 
 }
-
-//==========================================================================
-// Private class member functions
-
-//--------------------------------------------------------------------------
-
-
