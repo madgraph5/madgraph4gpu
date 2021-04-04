@@ -1198,7 +1198,7 @@ namespace Proc
     memcpy( cHel, tHel, ncomb * nexternal * sizeof(int) );
 #endif
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
-    assert( sizeof(cxtype) == 2*sizeof(fptype) );
+    assert( sizeof(cxtype) == 2 * sizeof(fptype) );
   }
 
   //--------------------------------------------------------------------------
@@ -1243,7 +1243,6 @@ namespace Proc
     memcpy( cIPC, tIPC, 3 * sizeof(cxtype) );
     memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
 #endif
-
     //std::cout << std::setprecision(17) << "tIPC[0] = " << tIPC[0] << std::endl;
     //std::cout << std::setprecision(17) << "tIPC[1] = " << tIPC[1] << std::endl;
     //std::cout << std::setprecision(17) << "tIPC[2] = " << tIPC[2] << std::endl;
@@ -1285,9 +1284,10 @@ namespace Proc
     fptype meHelSumLast = 0;
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
-      // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
+      // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running
+      // sum of |M|^2 over helicities for the given event
       calculate_wavefunctions( ihel, allmomenta, meHelSum[0] );
-      if ( meHelSum[0]>meHelSumLast ) isGoodHel[ihel] = true;
+      if ( meHelSum[0] > meHelSumLast ) isGoodHel[ihel] = true;
       meHelSumLast = meHelSum[0];
     }
   }
@@ -1331,6 +1331,7 @@ namespace Proc
     // pars->setDependentParameters();
     // pars->setDependentCouplings();
     // Reset color flows
+    // start sigmakin_lines
 #ifndef __CUDACC__
     const int maxtry = 10;
     static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
@@ -1372,26 +1373,33 @@ namespace Proc
       fptype meHelSumLast = 0; // check for good helicities
       for ( int ihel = 0; ihel < ncomb; ihel++ )
       {
-        if ( sigmakin_itry>maxtry && !sigmakin_goodhel[ihel] ) continue;
-        // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
+        if ( sigmakin_itry > maxtry && !sigmakin_goodhel[ihel] ) continue;
+        // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running
+        // sum of |M|^2 over helicities for the given event
         calculate_wavefunctions( ihel, allmomenta, meHelSum[0], ievt );
-        if ( sigmakin_itry<=maxtry )
+        if ( sigmakin_itry <= maxtry )
         {
-          if ( !sigmakin_goodhel[ihel] && meHelSum[0]>meHelSumLast ) sigmakin_goodhel[ihel] = true;
+          if ( !sigmakin_goodhel[ihel] && meHelSum[0] > meHelSumLast )
+            sigmakin_goodhel[ihel] = true;
           meHelSumLast = meHelSum[0];
         }
       }
 #endif
 
-      // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
+      // Get the final |M|^2 as an average over helicities/colors of the running
+      // sum of |M|^2 over helicities for the given event
       // [NB 'sum over final spins, average over initial spins', eg see
       // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
-      for (int iproc = 0; iproc < nprocesses; ++iproc)
+      for ( int iproc = 0; iproc < nprocesses; ++iproc )
+      {
         meHelSum[iproc] /= denominators[iproc];
+      }
 
       // Set the final average |M|^2 for this event in the output array for all events
-      for (int iproc = 0; iproc < nprocesses; ++iproc)
-        allMEs[iproc*nprocesses + ievt] = meHelSum[iproc];
+      for ( int iproc = 0; iproc < nprocesses; ++iproc )
+      {
+        allMEs[iproc * nprocesses + ievt] = meHelSum[iproc];
+      }
 
 #ifndef __CUDACC__
       if ( sigmakin_itry <= maxtry )
