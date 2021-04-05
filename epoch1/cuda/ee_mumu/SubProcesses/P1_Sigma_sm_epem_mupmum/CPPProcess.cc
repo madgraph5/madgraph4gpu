@@ -18,11 +18,6 @@ mgDebugDeclare();
 
 namespace MG5_sm
 {
-
-  using mgOnGpu::nw6;
-
-  //--------------------------------------------------------------------------
-
   __device__
   inline const fptype& pIparIp4Ievt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                      const int ipar,
@@ -49,7 +44,7 @@ namespace MG5_sm
                const fptype fmass,
                const int nhel,
                const int nsf,
-               cxtype fi[6],
+               cxtype* fi,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
 #endif
@@ -162,7 +157,7 @@ namespace MG5_sm
   void ipzxxx( const fptype * allmomenta,
                const int nhel,
                const int nsf,
-               cxtype fi[6],
+               cxtype* fi,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
 #endif
@@ -203,7 +198,7 @@ namespace MG5_sm
                //const fptype fmass,     // ASSUME fmass==0
                const int nhel,
                const int nsf,
-               cxtype fis[nw6],
+               cxtype* fis,              // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
 #endif
@@ -265,7 +260,7 @@ namespace MG5_sm
                //const fptype fmass,     // ASSUME fmass==0
                const int nhel,
                const int nsf,
-               cxtype fis[nw6],          // output: wavefunction[6]
+               cxtype* fis,              // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
 #endif
@@ -329,7 +324,7 @@ namespace MG5_sm
                const fptype vmass,
                const int nhel,
                const int nsv,
-               cxtype vc[6],
+               cxtype* vc,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
 #endif
@@ -453,7 +448,7 @@ namespace MG5_sm
                const fptype fmass,
                const int nhel,
                const int nsf,
-               cxtype fo[6],
+               cxtype* fo,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
 #endif
@@ -566,7 +561,7 @@ namespace MG5_sm
   void opzxxx( const fptype* allmomenta,
                const int nhel,
                const int nsf,
-               cxtype fo[6],
+               cxtype* fo,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
 #endif
@@ -613,7 +608,7 @@ namespace MG5_sm
   void omzxxx( const fptype* allmomenta,
                const int nhel,
                const int nsf,
-               cxtype fo[6],
+               cxtype* fo,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
 #endif
@@ -655,7 +650,7 @@ namespace MG5_sm
                //const fptype fmass,     // ASSUME fmass==0
                const int nhel,
                const int nsf,
-               cxtype fos[nw6],          // output: wavefunction[6]
+               cxtype* fos,              // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
 #endif
@@ -718,7 +713,7 @@ namespace MG5_sm
                const cxtype F2S[],   // input wavefunction2[6]
                const cxtype V3S[],   // input wavefunction3[6]
                const cxtype COUP,
-               cxtype* vertex )      // output
+               cxtype* vertex )      // output: amplitude
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype& F1_2 = F1S[2];
@@ -805,7 +800,7 @@ namespace MG5_sm
                const cxtype F2[],   // input wavefunction2[6]
                const cxtype V3[],   // input wavefunction3[6]
                const cxtype COUP,
-               cxtype* vertex )     // output
+               cxtype* vertex )     // output: amplitude
   {
     mgDebug( 0, __FUNCTION__ );
     cxtype cI = cxtype(0., 1.);
@@ -934,7 +929,7 @@ namespace MG5_sm
                  const cxtype V3S[],   // input wavefunction3[6]
                  const cxtype COUP1,
                  const cxtype COUP2,
-                 cxtype* vertex )      // output
+                 cxtype* vertex )      // output: amplitude
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype& F1_2 = F1S[2];
@@ -1068,6 +1063,9 @@ namespace Proc
   using mgOnGpu::npar; // number of particles in total (initial + final)
   using mgOnGpu::ncomb; // number of helicity combinations
 
+  const int nwf = 5; // #wavefunctions: npar (4 external) + 1 (internal, reused for gamma and Z)
+  const int nw6 = 6; // dimension of each wavefunction (see KEK 91-11)
+
 #ifdef __CUDACC__
   __device__ __constant__ int cHel[ncomb][npar];
   //__device__ __constant__ fptype cIPC[6];
@@ -1079,11 +1077,6 @@ namespace Proc
   static fptype cIPC[6];
   static fptype cIPD[2];
 #endif
-
-  //--------------------------------------------------------------------------
-
-  using mgOnGpu::nwf;
-  using mgOnGpu::nw6;
 
   //--------------------------------------------------------------------------
 
