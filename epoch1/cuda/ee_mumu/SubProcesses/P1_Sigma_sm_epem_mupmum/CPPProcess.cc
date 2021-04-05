@@ -1093,6 +1093,7 @@ namespace Proc
 #endif
                                 )
   {
+    using namespace MG5_sm;
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     //printf( "calculate_wavefunctions: ievt %d\n", ievt );
@@ -1112,24 +1113,24 @@ namespace Proc
     cxtype w[nwf][nw6]; // w[5][6]
 
 #ifdef __CUDACC__
-    MG5_sm::oxzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0 );
-    MG5_sm::imzxxx( allmomenta, cHel[ihel][1], +1, w[1], 1 );
-    MG5_sm::ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], 2 );
-    MG5_sm::oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3 );
+    oxzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0 );
+    imzxxx( allmomenta, cHel[ihel][1], +1, w[1], 1 );
+    ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], 2 );
+    oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3 );
 #else
-    MG5_sm::oxzxxx( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
-    MG5_sm::imzxxx( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
-    MG5_sm::ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
-    MG5_sm::oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
+    oxzxxx( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
+    imzxxx( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
+    ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
+    oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
 #endif
 
     // Diagram 1
-    MG5_sm::FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
-    MG5_sm::FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
+    FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
+    FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
 
     // Diagram 2
-    MG5_sm::FFV2_4_3( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
-    MG5_sm::FFV2_4_0( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[1] );
+    FFV2_4_3( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
+    FFV2_4_0( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[1] );
 
     const int ncolor = 1;
     cxtype jamp[ncolor];
