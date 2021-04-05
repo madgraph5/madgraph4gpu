@@ -46,7 +46,7 @@ namespace MG5_sm
   /*
   __device__
   void ixxxxx( const fptype* allmomenta,
-               const fptype& fmass,
+               const fptype fmass,
                const int nhel,
                const int nsf,
                cxtype fi[6],
@@ -326,7 +326,7 @@ namespace MG5_sm
   /*
   __device__
   void vxxxxx( const fptype* allmomenta,
-               const fptype& vmass,
+               const fptype vmass,
                const int nhel,
                const int nsv,
                cxtype vc[6],
@@ -418,7 +418,7 @@ namespace MG5_sm
   /*
   __device__
   void sxxxxx( const fptype* allmomenta,
-               const fptype& smass,
+               const fptype smass,
                const int nhel,
                const int nss,
                cxtype sc[3],
@@ -450,7 +450,7 @@ namespace MG5_sm
   /*
   __device__
   void oxxxxx( const fptype* allmomenta,
-               const fptype& fmass,
+               const fptype fmass,
                const int nhel,
                const int nsf,
                cxtype fo[6],
