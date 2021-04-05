@@ -1099,6 +1099,9 @@ namespace Proc
     //printf( "calculate_wavefunctions: ievt %d\n", ievt );
 #endif
 
+    cxtype amp[2];
+    cxtype w[nwf][nw6]; // w[5][6]
+
 #ifdef __CUDACC__
     //const int cHel[ncomb][npar] =
     //  { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
@@ -1109,27 +1112,36 @@ namespace Proc
     const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
 #endif
 
-    cxtype amp[2];
-    cxtype w[nwf][nw6]; // w[5][6]
-
 #ifdef __CUDACC__
     oxzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0 );
-    imzxxx( allmomenta, cHel[ihel][1], +1, w[1], 1 );
-    ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], 2 );
-    oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3 );
 #else
     oxzxxx( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
+#endif
+
+#ifdef __CUDACC__
+    imzxxx( allmomenta, cHel[ihel][1], +1, w[1], 1 );
+#else
     imzxxx( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
+#endif
+
+#ifdef __CUDACC__
+    ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], 2 );
+#else
     ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
+#endif
+
+#ifdef __CUDACC__
+    oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3 );
+#else
     oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
 #endif
 
-    // Diagram 1
     FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
+    // Amplitude(s) for diagram number 1
     FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
 
-    // Diagram 2
     FFV2_4_3( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
+    // Amplitude(s) for diagram number 2
     FFV2_4_0( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[1] );
 
     const int ncolor = 1;
