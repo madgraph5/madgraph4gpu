@@ -1198,37 +1198,52 @@ namespace Proc
     {
 #ifdef __CUDACC__
       oxzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0 );
-      imzxxx( allmomenta, cHel[ihel][1], +1, w[1], 1 );
-      ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], 2 );
-      oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3 );
 #else
       oxzxxx( allmomenta, cHel[ihel][0], -1, w_v[0], ipagV, 0 );
+#endif
+
+#ifdef __CUDACC__
+      imzxxx( allmomenta, cHel[ihel][1], +1, w[1], 1 );
+#else
       imzxxx( allmomenta, cHel[ihel][1], +1, w_v[1], ipagV, 1 );
+#endif
+
+#ifdef __CUDACC__
+      ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], 2 );
+#else
       ixzxxx( allmomenta, cHel[ihel][2], -1, w_v[2], ipagV, 2 );
+#endif
+
+#ifdef __CUDACC__
+      oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3 );
+#else
       oxzxxx( allmomenta, cHel[ihel][3], +1, w_v[3], ipagV, 3 );
 #endif
 
 #ifndef __CUDACC__
-      // Diagram 1
       FFV1P0_3( w_v[1], w_v[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_v[4] );
+      // Amplitude(s) for diagram number 1
       FFV1_0( w_v[2], w_v[3], w_v[4], cxmake( cIPC[0], cIPC[1] ), &amp_v[0] );
-      // Diagram 2
+
       FFV2_4_3( w_v[1], w_v[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w_v[4] );
+      // Amplitude(s) for diagram number 2
       FFV2_4_0( w_v[2], w_v[3], w_v[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp_v[1] );
+
       // Calculate color flows
       // (compute M as the sum of the invariant amplitudes for all Feynman diagrams)
       jamp_v[0] = -amp_v[0] - amp_v[1];
+
       // ** START LOOP ON IEPPV **
       for ( int ieppV = 0; ieppV < neppV; ++ieppV )
 #endif
       {
 #ifdef __CUDACC__
-        // Diagram 1
-        FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] ); // compute w[4]
-        FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] ); // compute amp[0]
+        FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
+        // Amplitude(s) for diagram number 1
+        FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
 
-        // Diagram 2
         FFV2_4_3( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
+        // Amplitude(s) for diagram number 2
         FFV2_4_0( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[1] );
 #endif
 
