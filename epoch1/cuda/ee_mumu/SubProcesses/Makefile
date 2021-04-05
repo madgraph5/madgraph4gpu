@@ -140,9 +140,9 @@ ifeq ($(NVCC),)
 $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS) build.$(TAG)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
 	$(CXX) -o $@ $(cxx_objects) build.$(TAG)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
-$(testmain) build.$(TAG)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS) $(TESTDIR)/include/*.h
+$(testmain) build.$(TAG)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS) $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
 	$(NVCC) -o build.$(TAG)/runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
-	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) build.$(TAG)/runTest_cu.o $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
+	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) build.$(TAG)/runTest_cu.o $(TESTDIR)/src/MadgraphTest.o $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
 
 $(GTESTLIBS):
