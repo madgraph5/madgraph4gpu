@@ -1220,14 +1220,12 @@ namespace Proc
       FFV1P0_3( w_v[1], w_v[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_v[4] );
       // Amplitude(s) for diagram number 1
       FFV1_0( w_v[2], w_v[3], w_v[4], cxmake( cIPC[0], cIPC[1] ), &amp_v[0] );
-      //jamp_v[0] -= amp_v[0];
-      jamp_v[0] = jamp_v[0] - amp_v[0];
+      jamp_v[0] -= amp_v[0];
 
       FFV2_4_3( w_v[1], w_v[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w_v[4] );
       // Amplitude(s) for diagram number 2
       FFV2_4_0( w_v[2], w_v[3], w_v[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp_v[0] );
-      //jamp_v[0] -= amp_v[0];
-      jamp_v[0] = jamp_v[0] - amp_v[0];
+      jamp_v[0] -= amp_v[0];
 
       // ** START LOOP ON IEPPV **
       for ( int ieppV = 0; ieppV < neppV; ++ieppV )
