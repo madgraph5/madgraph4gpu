@@ -47,8 +47,8 @@ namespace MG5_sm
   __device__
   void ixxxxx( const fptype* allmomenta,
                const fptype& fmass,
-               const int& nhel,
-               const int& nsf,
+               const int nhel,
+               const int nsf,
                cxtype fi[6],
 #ifndef __CUDACC__
                const int ievt,
@@ -160,8 +160,8 @@ namespace MG5_sm
   /*
   __device__
   void ipzxxx( const fptype * allmomenta,
-               const int& nhel,
-               const int& nsf,
+               const int nhel,
+               const int nsf,
                cxtype fi[6],
 #ifndef __CUDACC__
                const int ievt,
@@ -201,8 +201,8 @@ namespace MG5_sm
   __device__
   void imzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,     // ASSUME fmass==0
-               const int& nhel,
-               const int& nsf,
+               const int nhel,
+               const int nsf,
                cxtype fi[6],
 #ifndef __CUDACC__
                const int ievt,
@@ -248,8 +248,8 @@ namespace MG5_sm
   __device__
   void ixzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,     // ASSUME fmass==0
-               const int& nhel,
-               const int& nsf,
+               const int nhel,
+               const int nsf,
                cxtype fi[6],             // output: wavefunction[6]
 #ifndef __CUDACC__
                const int ievt,
@@ -306,8 +306,8 @@ namespace MG5_sm
   __device__
   void vxxxxx( const fptype* allmomenta,
                const fptype& vmass,
-               const int& nhel,
-               const int& nsv,
+               const int nhel,
+               const int nsv,
                cxtype vc[6],
 #ifndef __CUDACC__
                const int ievt,
@@ -398,8 +398,8 @@ namespace MG5_sm
   __device__
   void sxxxxx( const fptype* allmomenta,
                const fptype& smass,
-               const int& nhel,
-               const int& nss,
+               const int nhel,
+               const int nss,
                cxtype sc[3],
 #ifndef __CUDACC__
                const int ievt,
@@ -430,8 +430,8 @@ namespace MG5_sm
   __device__
   void oxxxxx( const fptype* allmomenta,
                const fptype& fmass,
-               const int& nhel,
-               const int& nsf,
+               const int nhel,
+               const int nsf,
                cxtype fo[6],
 #ifndef __CUDACC__
                const int ievt,
@@ -542,8 +542,8 @@ namespace MG5_sm
 
   __device__
   void opzxxx( const fptype* allmomenta,
-               const int& nhel,
-               const int& nsf,
+               const int nhel,
+               const int nsf,
                cxtype fo[6],
 #ifndef __CUDACC__
                const int ievt,
@@ -588,8 +588,8 @@ namespace MG5_sm
   /*
   __device__
   void omzxxx( const fptype* allmomenta,
-               const int& nhel,
-               const int& nsf,
+               const int nhel,
+               const int nsf,
                cxtype fo[6],
 #ifndef __CUDACC__
                const int ievt,
@@ -630,8 +630,8 @@ namespace MG5_sm
   __device__
   void oxzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,     // ASSUME fmass==0
-               const int& nhel,
-               const int& nsf,
+               const int nhel,
+               const int nsf,
                cxtype fo[6],             // output: wavefunction[6]
 #ifndef __CUDACC__
                const int ievt,
