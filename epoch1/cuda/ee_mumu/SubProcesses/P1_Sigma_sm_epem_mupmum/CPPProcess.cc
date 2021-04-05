@@ -198,7 +198,7 @@ namespace MG5_sm
                //const fptype fmass,     // ASSUME fmass==0
                const int nhel,
                const int nsf,
-               cxtype* fis,              // output: wavefunction[(nw6==6)]
+               cxtype* fi,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
 #endif
@@ -219,12 +219,12 @@ namespace MG5_sm
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-      cxtype& fi_0 = fis[0];
-      cxtype& fi_1 = fis[1];
-      cxtype& fi_2 = fis[2];
-      cxtype& fi_3 = fis[3];
-      cxtype& fi_4 = fis[4];
-      cxtype& fi_5 = fis[5];
+      cxtype& fi_0 = fi[0];
+      cxtype& fi_1 = fi[1];
+      cxtype& fi_2 = fi[2];
+      cxtype& fi_3 = fi[3];
+      cxtype& fi_4 = fi[4];
+      cxtype& fi_5 = fi[5];
       fi_0 = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi_1 = cxmake( -pvec1 * nsf, -pvec2 * nsf );
       const int nh = nhel * nsf;
@@ -260,7 +260,7 @@ namespace MG5_sm
                //const fptype fmass,     // ASSUME fmass==0
                const int nhel,
                const int nsf,
-               cxtype* fis,              // output: wavefunction[(nw6==6)]
+               cxtype* fi,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
 #endif
@@ -281,12 +281,12 @@ namespace MG5_sm
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-      cxtype& fi_0 = fis[0];
-      cxtype& fi_1 = fis[1];
-      cxtype& fi_2 = fis[2];
-      cxtype& fi_3 = fis[3];
-      cxtype& fi_4 = fis[4];
-      cxtype& fi_5 = fis[5];
+      cxtype& fi_0 = fi[0];
+      cxtype& fi_1 = fi[1];
+      cxtype& fi_2 = fi[2];
+      cxtype& fi_3 = fi[3];
+      cxtype& fi_4 = fi[4];
+      cxtype& fi_5 = fi[5];
       fi_0 = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi_1 = cxmake( -pvec1 * nsf, -pvec2 * nsf );
       const int nh = nhel * nsf;
@@ -650,7 +650,7 @@ namespace MG5_sm
                //const fptype fmass,     // ASSUME fmass==0
                const int nhel,
                const int nsf,
-               cxtype* fos,              // output: wavefunction[(nw6==6)]
+               cxtype* fo,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
 #endif
@@ -671,12 +671,12 @@ namespace MG5_sm
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-      cxtype& fo_0 = fos[0];
-      cxtype& fo_1 = fos[1];
-      cxtype& fo_2 = fos[2];
-      cxtype& fo_3 = fos[3];
-      cxtype& fo_4 = fos[4];
-      cxtype& fo_5 = fos[5];
+      cxtype& fo_0 = fo[0];
+      cxtype& fo_1 = fo[1];
+      cxtype& fo_2 = fo[2];
+      cxtype& fo_3 = fo[3];
+      cxtype& fo_4 = fo[4];
+      cxtype& fo_5 = fo[5];
       fo_0 = cxmake( pvec0 * nsf, pvec3 * nsf );
       fo_1 = cxmake( pvec1 * nsf, pvec2 * nsf );
       const int nh = nhel * nsf;
