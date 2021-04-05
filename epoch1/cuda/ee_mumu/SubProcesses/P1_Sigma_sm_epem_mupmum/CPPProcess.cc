@@ -1139,12 +1139,12 @@ namespace Proc
     FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
     // Amplitude(s) for diagram number 1
     FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
-    jamp[0] += -amp[0];
+    jamp[0] -= amp[0];
 
     FFV2_4_3( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
     // Amplitude(s) for diagram number 2
     FFV2_4_0( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[0] );
-    jamp[0] += -amp[0];
+    jamp[0] -= amp[0];
 
     // The color matrix
     const fptype denom[ncolor] = {1};
