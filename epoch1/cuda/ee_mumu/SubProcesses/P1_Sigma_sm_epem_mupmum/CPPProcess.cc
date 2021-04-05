@@ -760,25 +760,25 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV1_0( const cxtype_sv F1S[],   // input wavefunction1[6]
-               const cxtype_sv F2S[],   // input wavefunction2[6]
-               const cxtype_sv V3S[],   // input wavefunction3[6]
+  void FFV1_0( const cxtype_sv F1[],   // input: wavefunction1[6]
+               const cxtype_sv F2[],   // input: wavefunction2[6]
+               const cxtype_sv V3[],   // input: wavefunction3[6]
                const cxtype COUP,
-               cxtype_sv* vertex )      // output amplitude
+               cxtype_sv* vertex )     // output: amplitude
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype_sv& F1_2 = F1S[2];
-    const cxtype_sv& F1_3 = F1S[3];
-    const cxtype_sv& F1_4 = F1S[4];
-    const cxtype_sv& F1_5 = F1S[5];
-    const cxtype_sv& F2_2 = F2S[2];
-    const cxtype_sv& F2_3 = F2S[3];
-    const cxtype_sv& F2_4 = F2S[4];
-    const cxtype_sv& F2_5 = F2S[5];
-    const cxtype_sv& V3_2 = V3S[2];
-    const cxtype_sv& V3_3 = V3S[3];
-    const cxtype_sv& V3_4 = V3S[4];
-    const cxtype_sv& V3_5 = V3S[5];
+    const cxtype_sv& F1_2 = F1[2];
+    const cxtype_sv& F1_3 = F1[3];
+    const cxtype_sv& F1_4 = F1[4];
+    const cxtype_sv& F1_5 = F1[5];
+    const cxtype_sv& F2_2 = F2[2];
+    const cxtype_sv& F2_3 = F2[3];
+    const cxtype_sv& F2_4 = F2[4];
+    const cxtype_sv& F2_5 = F2[5];
+    const cxtype_sv& V3_2 = V3[2];
+    const cxtype_sv& V3_3 = V3[3];
+    const cxtype_sv& V3_4 = V3[4];
+    const cxtype_sv& V3_5 = V3[5];
     const cxtype cI = cxmake( 0, 1 );
     const cxtype_sv TMP4 =
       ( F1_2 * ( F2_4 * ( V3_2 + V3_5 ) +
@@ -800,32 +800,32 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV1P0_3( const cxtype_sv F1S[],     // input wavefunction1[6]
-                 const cxtype_sv F2S[],     // input wavefunction2[6]
+  void FFV1P0_3( const cxtype_sv F1[],     // input: wavefunction1[6]
+                 const cxtype_sv F2[],     // input: wavefunction2[6]
                  const cxtype COUP,
                  const fptype M3,
                  const fptype W3,
-                 cxtype_sv V3S[] )          // output wavefunction3[6]
+                 cxtype_sv V3[] )          // output: wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype_sv& F1_0 = F1S[0];
-    const cxtype_sv& F1_1 = F1S[1];
-    const cxtype_sv& F1_2 = F1S[2];
-    const cxtype_sv& F1_3 = F1S[3];
-    const cxtype_sv& F1_4 = F1S[4];
-    const cxtype_sv& F1_5 = F1S[5];
-    const cxtype_sv& F2_0 = F2S[0];
-    const cxtype_sv& F2_1 = F2S[1];
-    const cxtype_sv& F2_2 = F2S[2];
-    const cxtype_sv& F2_3 = F2S[3];
-    const cxtype_sv& F2_4 = F2S[4];
-    const cxtype_sv& F2_5 = F2S[5];
-    cxtype_sv& V3_0 = V3S[0];
-    cxtype_sv& V3_1 = V3S[1];
-    cxtype_sv& V3_2 = V3S[2];
-    cxtype_sv& V3_3 = V3S[3];
-    cxtype_sv& V3_4 = V3S[4];
-    cxtype_sv& V3_5 = V3S[5];
+    const cxtype_sv& F1_0 = F1[0];
+    const cxtype_sv& F1_1 = F1[1];
+    const cxtype_sv& F1_2 = F1[2];
+    const cxtype_sv& F1_3 = F1[3];
+    const cxtype_sv& F1_4 = F1[4];
+    const cxtype_sv& F1_5 = F1[5];
+    const cxtype_sv& F2_0 = F2[0];
+    const cxtype_sv& F2_1 = F2[1];
+    const cxtype_sv& F2_2 = F2[2];
+    const cxtype_sv& F2_3 = F2[3];
+    const cxtype_sv& F2_4 = F2[4];
+    const cxtype_sv& F2_5 = F2[5];
+    cxtype_sv& V3_0 = V3[0];
+    cxtype_sv& V3_1 = V3[1];
+    cxtype_sv& V3_2 = V3[2];
+    cxtype_sv& V3_3 = V3[3];
+    cxtype_sv& V3_4 = V3[4];
+    cxtype_sv& V3_5 = V3[5];
     const cxtype cI = cxmake( 0, 1 );
     V3_0 = + F1_0 + F2_0;
     V3_1 = + F1_1 + F2_1;
@@ -847,9 +847,9 @@ namespace MG5_sm
 
   /*
   __device__
-  void FFV2_0( const cxtype F1[],   // input wavefunction1[6]
-               const cxtype F2[],   // input wavefunction2[6]
-               const cxtype V3[],   // input wavefunction3[6]
+  void FFV2_0( const cxtype F1[],   // input: wavefunction1[6]
+               const cxtype F2[],   // input: wavefunction2[6]
+               const cxtype V3[],   // input: wavefunction3[6]
                const cxtype COUP,
                cxtype* vertex )     // output: amplitude
   {
@@ -868,12 +868,12 @@ namespace MG5_sm
 
   /*
   __device__
-  void FFV2_3( const cxtype F1[],   // input wavefunction1[6]
-               const cxtype F2[],   // input wavefunction2[6]
+  void FFV2_3( const cxtype F1[],   // input: wavefunction1[6]
+               const cxtype F2[],   // input: wavefunction2[6]
                const cxtype COUP,
                const fptype M3,
                const fptype W3,
-               cxtype V3[] )        // output wavefunction3[6]
+               cxtype V3[] )        // output: wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
     cxtype cI = cxtype(0., 1.);
@@ -975,26 +975,26 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV2_4_0( const cxtype_sv F1S[],   // input wavefunction1[6]
-                 const cxtype_sv F2S[],   // input wavefunction2[6]
-                 const cxtype_sv V3S[],   // input wavefunction3[6]
+  void FFV2_4_0( const cxtype_sv F1[],   // input: wavefunction1[6]
+                 const cxtype_sv F2[],   // input: wavefunction2[6]
+                 const cxtype_sv V3[],   // input: wavefunction3[6]
                  const cxtype COUP1,
                  const cxtype COUP2,
-                 cxtype_sv* vertex )      // output: amplitude
+                 cxtype_sv* vertex )     // output: amplitude
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype_sv& F1_2 = F1S[2];
-    const cxtype_sv& F1_3 = F1S[3];
-    const cxtype_sv& F1_4 = F1S[4];
-    const cxtype_sv& F1_5 = F1S[5];
-    const cxtype_sv& F2_2 = F2S[2];
-    const cxtype_sv& F2_3 = F2S[3];
-    const cxtype_sv& F2_4 = F2S[4];
-    const cxtype_sv& F2_5 = F2S[5];
-    const cxtype_sv& V3_2 = V3S[2];
-    const cxtype_sv& V3_3 = V3S[3];
-    const cxtype_sv& V3_4 = V3S[4];
-    const cxtype_sv& V3_5 = V3S[5];
+    const cxtype_sv& F1_2 = F1[2];
+    const cxtype_sv& F1_3 = F1[3];
+    const cxtype_sv& F1_4 = F1[4];
+    const cxtype_sv& F1_5 = F1[5];
+    const cxtype_sv& F2_2 = F2[2];
+    const cxtype_sv& F2_3 = F2[3];
+    const cxtype_sv& F2_4 = F2[4];
+    const cxtype_sv& F2_5 = F2[5];
+    const cxtype_sv& V3_2 = V3[2];
+    const cxtype_sv& V3_3 = V3[3];
+    const cxtype_sv& V3_4 = V3[4];
+    const cxtype_sv& V3_5 = V3[5];
     const fptype fp1 = 1;
     const fptype fp2 = 2;
     const cxtype cI = cxmake( 0, 1 );
@@ -1012,33 +1012,33 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV2_4_3( const cxtype_sv F1S[],   // input wavefunction1[6]
-                 const cxtype_sv F2S[],   // input wavefunction2[6]
+  void FFV2_4_3( const cxtype_sv F1[],   // input: wavefunction1[6]
+                 const cxtype_sv F2[],   // input: wavefunction2[6]
                  const cxtype COUP1,
                  const cxtype COUP2,
                  const fptype M3,
                  const fptype W3,
-                 cxtype_sv V3S[] )        // output wavefunction3[6]
+                 cxtype_sv V3[] )        // output: wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype_sv& F1_0 = F1S[0];
-    const cxtype_sv& F1_1 = F1S[1];
-    const cxtype_sv& F1_2 = F1S[2];
-    const cxtype_sv& F1_3 = F1S[3];
-    const cxtype_sv& F1_4 = F1S[4];
-    const cxtype_sv& F1_5 = F1S[5];
-    const cxtype_sv& F2_0 = F2S[0];
-    const cxtype_sv& F2_1 = F2S[1];
-    const cxtype_sv& F2_2 = F2S[2];
-    const cxtype_sv& F2_3 = F2S[3];
-    const cxtype_sv& F2_4 = F2S[4];
-    const cxtype_sv& F2_5 = F2S[5];
-    cxtype_sv& V3_0 = V3S[0];
-    cxtype_sv& V3_1 = V3S[1];
-    cxtype_sv& V3_2 = V3S[2];
-    cxtype_sv& V3_3 = V3S[3];
-    cxtype_sv& V3_4 = V3S[4];
-    cxtype_sv& V3_5 = V3S[5];
+    const cxtype_sv& F1_0 = F1[0];
+    const cxtype_sv& F1_1 = F1[1];
+    const cxtype_sv& F1_2 = F1[2];
+    const cxtype_sv& F1_3 = F1[3];
+    const cxtype_sv& F1_4 = F1[4];
+    const cxtype_sv& F1_5 = F1[5];
+    const cxtype_sv& F2_0 = F2[0];
+    const cxtype_sv& F2_1 = F2[1];
+    const cxtype_sv& F2_2 = F2[2];
+    const cxtype_sv& F2_3 = F2[3];
+    const cxtype_sv& F2_4 = F2[4];
+    const cxtype_sv& F2_5 = F2[5];
+    cxtype_sv& V3_0 = V3[0];
+    cxtype_sv& V3_1 = V3[1];
+    cxtype_sv& V3_2 = V3[2];
+    cxtype_sv& V3_3 = V3[3];
+    cxtype_sv& V3_4 = V3[4];
+    cxtype_sv& V3_5 = V3[5];
     const fptype fp1 = 1;
     const fptype fp2 = 2;
     const cxtype cI = cxmake( 0, 1 );
