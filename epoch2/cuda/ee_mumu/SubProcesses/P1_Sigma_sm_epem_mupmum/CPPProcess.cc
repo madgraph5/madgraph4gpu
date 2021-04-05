@@ -1199,11 +1199,8 @@ namespace Proc
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running
       // sum of |M|^2 over helicities for the given event
       calculate_wavefunctions( ihel, allmomenta, meHelSum[0] );
-      if ( meHelSum[0] != meHelSumLast )
-      {
-        isGoodHel[ihel] = true;
-        meHelSumLast = meHelSum[0];
-      }
+      if ( meHelSum[0] != meHelSumLast ) isGoodHel[ihel] = true;
+      meHelSumLast = meHelSum[0];
     }
   }
 #endif
