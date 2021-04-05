@@ -1034,18 +1034,17 @@ namespace Proc
     // Calculate color flows
     // (compute M as the sum of the invariant amplitudes for all Feynman diagrams)
     const int ncolor = 1;
-    cxtype jamp[ncolor];
-    for( int icolor = 0; icolor < ncolor; icolor++ ) jamp[icolor] = cxmake( 0, 0 );
+    cxtype jamp[ncolor] = {};
 
     FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
     // Amplitude(s) for diagram number 1
     FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
-    jamp[0] += -amp[0];
+    jamp[0] -= amp[0];
 
     FFV2_4_3( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
     // Amplitude(s) for diagram number 2
     FFV2_4_0( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[0] );
-    jamp[0] += -amp[0];
+    jamp[0] -= amp[0];
 
     // The color matrix
     static const double denom[ncolor] = {1};

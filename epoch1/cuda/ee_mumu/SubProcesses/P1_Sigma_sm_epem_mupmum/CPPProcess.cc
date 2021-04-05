@@ -1172,14 +1172,13 @@ namespace Proc
     // Local variables for the given event (ievt)
     cxtype w[nwf][nw6]; // w[5][6]
     cxtype amp[1]; // was 2
-    cxtype jamp[ncolor]; // sum of the invariant amplitudes for all Feynman diagrams
-    for( int icolor = 0; icolor < ncolor; icolor++ ) jamp[icolor] = cxmake00();
+    cxtype jamp[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams
 #else
     // Local variables for the given event page (ipagV)
     cxtype_sv w_v[nwf][nw6]; // w_v[5][6]
     cxtype_sv amp_v[1]; // was 2
-    cxtype_sv jamp_v[ncolor]; // sum of the invariant amplitudes for all Feynman diagrams
-    for( int icolor = 0; icolor < ncolor; icolor++ ) jamp_v[icolor] = cxmake00();
+    cxtype_sv jamp_v[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams
+    //for( int icolor = 0; icolor < ncolor; icolor++ ) jamp_v[icolor] = cxmake00();
 #endif
 
 #ifndef __CUDACC__
@@ -1221,14 +1220,14 @@ namespace Proc
       FFV1P0_3( w_v[1], w_v[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_v[4] );
       // Amplitude(s) for diagram number 1
       FFV1_0( w_v[2], w_v[3], w_v[4], cxmake( cIPC[0], cIPC[1] ), &amp_v[0] );
-      //jamp_v[0] += -amp_v[0];
-      jamp_v[0] = jamp_v[0] + ( -amp_v[0] );
+      //jamp_v[0] -= amp_v[0];
+      jamp_v[0] = jamp_v[0] - amp_v[0];
 
       FFV2_4_3( w_v[1], w_v[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w_v[4] );
       // Amplitude(s) for diagram number 2
       FFV2_4_0( w_v[2], w_v[3], w_v[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp_v[0] );
-      //jamp_v[0] += -amp_v[0];
-      jamp_v[0] = jamp_v[0] + ( -amp_v[0] );
+      //jamp_v[0] -= amp_v[0];
+      jamp_v[0] = jamp_v[0] - amp_v[0];
 
       // ** START LOOP ON IEPPV **
       for ( int ieppV = 0; ieppV < neppV; ++ieppV )
@@ -1238,12 +1237,12 @@ namespace Proc
         FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
         // Amplitude(s) for diagram number 1
         FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
-        jamp[0] += -amp[0];
+        jamp[0] -= amp[0];
 
         FFV2_4_3( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
         // Amplitude(s) for diagram number 2
         FFV2_4_0( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[0] );
-        jamp[0] += -amp[0];
+        jamp[0] -= amp[0];
 #endif
 
 #ifdef __CUDACC__
