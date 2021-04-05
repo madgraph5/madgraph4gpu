@@ -1172,13 +1172,10 @@ namespace Proc
     // Local variables for the given event (ievt)
     cxtype w[nwf][nw6]; // w[5][6]
     cxtype amp[1]; // was 2
-    cxtype jamp[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams
 #else
     // Local variables for the given event page (ipagV)
     cxtype_sv w_v[nwf][nw6]; // w_v[5][6]
     cxtype_sv amp_v[1]; // was 2
-    cxtype_sv jamp_v[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams
-    //for( int icolor = 0; icolor < ncolor; icolor++ ) jamp_v[icolor] = cxmake00();
 #endif
 
 #ifndef __CUDACC__
@@ -1188,7 +1185,7 @@ namespace Proc
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel,npagV) private (amp_v,jamp_v,w_v)
+#pragma omp parallel for default(none) shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel,npagV) private (amp_v,w_v)
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif
     {
@@ -1214,6 +1211,14 @@ namespace Proc
       oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3 );
 #else
       oxzxxx( allmomenta, cHel[ihel][3], +1, w_v[3], ipagV, 3 );
+#endif
+
+#ifdef __CUDACC__
+      // Local variables for the given event (ievt)
+      cxtype jamp[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams
+#else
+      // Local variables for the given event page (ipagV)
+      cxtype_sv jamp_v[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams
 #endif
 
 #ifndef __CUDACC__
