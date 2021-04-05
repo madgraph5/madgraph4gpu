@@ -108,9 +108,11 @@ runTest.exe: LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(CXX))
 endif
 
 ifeq ($(NVCC),)
+# Link only runTest.o
 runTest.exe: $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
+# Link both runTest.o and runTest_cu.o
 runTest.exe runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
 	$(NVCC) -o runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp

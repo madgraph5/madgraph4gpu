@@ -1093,57 +1093,64 @@ namespace Proc
 #endif
                                 )
   {
+    using namespace MG5_sm;
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     //printf( "calculate_wavefunctions: ievt %d\n", ievt );
 #endif
 
+    cxtype w[nwf][nw6]; // w[5][6]
+    cxtype amp[1]; // was 2
+
 #ifdef __CUDACC__
-    //const int cHel[ncomb][npar] =
-    //  { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
-    //    {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
-    //    {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
-    //    {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
     const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
     const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
 #endif
 
-    cxtype amp[2];
-    cxtype w[nwf][nw6]; // w[5][6]
-
 #ifdef __CUDACC__
-    MG5_sm::oxzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0 );
-    MG5_sm::imzxxx( allmomenta, cHel[ihel][1], +1, w[1], 1 );
-    MG5_sm::ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], 2 );
-    MG5_sm::oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3 );
+    oxzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0 );
 #else
-    MG5_sm::oxzxxx( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
-    MG5_sm::imzxxx( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
-    MG5_sm::ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
-    MG5_sm::oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
+    oxzxxx( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
 #endif
 
-    // Diagram 1
-    MG5_sm::FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
-    MG5_sm::FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
+#ifdef __CUDACC__
+    imzxxx( allmomenta, cHel[ihel][1], +1, w[1], 1 );
+#else
+    imzxxx( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
+#endif
 
-    // Diagram 2
-    MG5_sm::FFV2_4_3( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
-    MG5_sm::FFV2_4_0( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[1] );
+#ifdef __CUDACC__
+    ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], 2 );
+#else
+    ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
+#endif
 
-    const int ncolor = 1;
-    cxtype jamp[ncolor];
-
-    // The color matrix;
-    const fptype denom[ncolor] = {1};
-    const fptype cf[ncolor][ncolor] = {{1}};
+#ifdef __CUDACC__
+    oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3 );
+#else
+    oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
+#endif
 
     // Calculate color flows
     // (compute M as the sum of the invariant amplitudes for all Feynman diagrams)
-    jamp[0] = -amp[0] - amp[1];
+    const int ncolor = 1;
+    cxtype jamp[ncolor] = {};
 
-    // Sum and square the color flows to get the matrix element
-    // (compute |M|^2 by squaring |M|, taking into account colours)
+    FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
+    // Amplitude(s) for diagram number 1
+    FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
+    jamp[0] -= amp[0];
+
+    FFV2_4_3( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
+    // Amplitude(s) for diagram number 2
+    FFV2_4_0( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[0] );
+    jamp[0] -= amp[0];
+
+    // The color matrix
+    const fptype denom[ncolor] = {1};
+    const fptype cf[ncolor][ncolor] = {{1}};
+
+    // Sum and square the color flows to get the matrix element |M|^2 
     for( int icol = 0; icol < ncolor; icol++ )
     {
       cxtype ztemp = cxmake( 0, 0 );
