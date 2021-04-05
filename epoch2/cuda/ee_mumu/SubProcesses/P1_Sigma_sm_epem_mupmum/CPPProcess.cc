@@ -680,9 +680,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV1_0( const cxtype F1[],    // input wavefunction1[6]
-               const cxtype F2[],    // input wavefunction2[6]
-               const cxtype V3[],    // input wavefunction3[6]
+  void FFV1_0( const cxtype F1[],    // input: wavefunction1[6]
+               const cxtype F2[],    // input: wavefunction2[6]
+               const cxtype V3[],    // input: wavefunction3[6]
                const cxtype COUP,
                cxtype* vertex )      // output: amplitude
   {
@@ -701,8 +701,8 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV1P0_3( const cxtype F1[],   // input wavefunction1[6]
-                 const cxtype F2[],   // input wavefunction2[6]
+  void FFV1P0_3( const cxtype F1[],   // input: wavefunction1[6]
+                 const cxtype F2[],   // input: wavefunction2[6]
                  const cxtype COUP,
                  const fptype M3,
                  const fptype W3,
@@ -735,9 +735,9 @@ namespace MG5_sm
 
   /*
   __device__
-  void FFV2_0( const cxtype F1[],   // input wavefunction1[6]
-               const cxtype F2[],   // input wavefunction2[6]
-               const cxtype V3[],   // input wavefunction3[6]
+  void FFV2_0( const cxtype F1[],   // input: wavefunction1[6]
+               const cxtype F2[],   // input: wavefunction2[6]
+               const cxtype V3[],   // input: wavefunction3[6]
                const cxtype COUP,
                cxtype* vertex )     // output: amplitude
   {
@@ -756,12 +756,12 @@ namespace MG5_sm
 
   /*
   __device__
-  void FFV2_3( const cxtype F1[],   // input wavefunction1[6]
-               const cxtype F2[],   // input wavefunction2[6]
+  void FFV2_3( const cxtype F1[],   // input: wavefunction1[6]
+               const cxtype F2[],   // input: wavefunction2[6]
                const cxtype COUP,
                const fptype M3,
                const fptype W3,
-               cxtype V3[] )        // output wavefunction3[6]
+               cxtype V3[] )        // output: wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
     cxtype cI = cxtype(0., 1.);
@@ -863,9 +863,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV2_4_0( const cxtype F1[],    // input wavefunction1[6]
-                 const cxtype F2[],    // input wavefunction2[6]
-                 const cxtype V3[],    // input wavefunction3[6]
+  void FFV2_4_0( const cxtype F1[],    // input: wavefunction1[6]
+                 const cxtype F2[],    // input: wavefunction2[6]
+                 const cxtype V3[],    // input: wavefunction3[6]
                  const cxtype COUP1,
                  const cxtype COUP2,
                  cxtype* vertex )      // output: amplitude
@@ -886,13 +886,13 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV2_4_3( const cxtype F1[],   // input wavefunction1[6]
-                 const cxtype F2[],   // input wavefunction2[6]
+  void FFV2_4_3( const cxtype F1[],   // input: wavefunction1[6]
+                 const cxtype F2[],   // input: wavefunction2[6]
                  const cxtype COUP1,
                  const cxtype COUP2,
                  const fptype M3,
                  const fptype W3,
-                 cxtype V3[] )        // output wavefunction3[6]
+                 cxtype V3[] )        // output: wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
     cxtype cI = cxtype(0., 1.);
