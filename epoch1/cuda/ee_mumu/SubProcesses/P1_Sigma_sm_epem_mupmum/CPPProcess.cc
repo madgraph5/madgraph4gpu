@@ -752,6 +752,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  /*
   __device__
   void oxzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,     // ASSUME fmass==0
@@ -806,6 +807,64 @@ namespace MG5_sm
           fo_4 = chi1;
           fo_5 = chi0;
         }
+      }
+    }
+    // +++ END LOOP ON IEVT +++
+    mgDebug( 1, __FUNCTION__ );
+    return;
+  }
+  */
+
+  //--------------------------------------------------------------------------
+
+  __device__
+  void oxzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               //const fptype fmass,     // ASSUME fmass==0
+               const int nhel,
+               const int nsf,
+               cxtype* fo,               // output: wavefunction[(nw6==6)]
+#ifndef __CUDACC__
+               const int ievt,
+#endif
+               const int ipar )          // input: particle# out of npar
+  {
+    mgDebug( 0, __FUNCTION__ );
+    // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
+#ifndef __CUDACC__
+    // +++ START LOOP ON IEVT +++
+    //for ( int ievt = 0; ievt < nevt; ++ievt )
+#endif
+    {
+#ifdef __CUDACC__
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+      //printf( "oxzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
+#endif
+      const fptype& p0 = pIparIp4Ievt(allmomenta, ipar, 0, ievt);
+      const fptype& p1 = pIparIp4Ievt(allmomenta, ipar, 1, ievt);
+      const fptype& p2 = pIparIp4Ievt(allmomenta, ipar, 2, ievt);
+      const fptype& p3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt);
+      // float p[4] = {0, (float) pvec[0], (float) pvec[1], (float) pvec[2]};
+      // p[0] = sqrtf(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]);
+      fo[0] = cxtype (p0 * nsf, p3 * nsf);
+      fo[1] = cxtype (p1 * nsf, p2 * nsf);
+      int nh = nhel * nsf;
+      float sqp0p3 = sqrtf(p0 + p3) * nsf;
+      cxtype chi0 = cxtype (sqp0p3, 0.00);
+      cxtype chi1 = cxtype (nh * p1/sqp0p3, -p2/sqp0p3);
+      cxtype zero = cxtype (0.00, 0.00);
+      if(nh == 1)
+      {
+        fo[2] = chi0;
+        fo[3] = chi1;
+        fo[4] = zero;
+        fo[5] = zero;
+      }
+      else
+      {
+        fo[2] = zero;
+        fo[3] = zero;
+        fo[4] = chi1;
+        fo[5] = chi0;
       }
     }
     // +++ END LOOP ON IEVT +++
