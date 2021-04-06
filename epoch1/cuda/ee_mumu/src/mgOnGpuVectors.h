@@ -174,23 +174,6 @@ cxtype_v cxmake( const fptype& r, const fptype_v& i )
 }
 
 inline
-cxtype_v cxmake00()
-{
-  return cxtype_v{ fptype_v{0}, fptype_v{0} };
-}
-
-#else
-
-inline
-cxtype cxmake00()
-{
-  return cxtype{ fptype{0}, fptype{0} };
-}
-
-#endif
-
-#ifdef MGONGPU_CPPSIMD
-inline
 const fptype_v& cxreal( const cxtype_v& c )
 {
   return c.real(); // returns by reference
@@ -372,12 +355,6 @@ const cxtype& cxvmake( const cxtype& c )
 }
 */
 
-inline __device__
-cxtype cxmake00()
-{
-  return cxmake( 0, 0 );
-}
-
 #endif
 
 // Scalar-or-vector types: scalar in CUDA, vector or scalar in C++
@@ -390,6 +367,15 @@ typedef cxtype_v cxtype_sv;
 #else
 typedef fptype fptype_sv;
 typedef cxtype cxtype_sv;
+#endif
+
+// Scalar-or-vector zeros: scalar in CUDA, vector or scalar in C++
+#ifdef __CUDACC__
+inline __device__ cxtype cxmake00(){ return cxmake( 0, 0 ); }
+#elif defined MGONGPU_CPPSIMD
+inline cxtype_v cxmake00(){ return cxtype_v{ fptype_v{0}, fptype_v{0} }; }
+#else
+inline cxtype cxmake00(){ return cxtype{ fptype{0}, fptype{0} }; }
 #endif
 
 //--------------------------------------------------------------------------
