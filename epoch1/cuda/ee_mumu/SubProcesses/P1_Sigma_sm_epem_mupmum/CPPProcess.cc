@@ -596,14 +596,15 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void opzxxx( const fptype* allmomenta,
-               const int nhel,
-               const int nsf,
-               cxtype* fo,               // output: wavefunction[(nw6==6)]
+  void opzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               //const fptype fmass,        // ASSUME fmass==0
+               const short nhel,
+               const short nsf,
+               cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
-               const int ievt,
+               const int ipagV,
 #endif
-               const int ipar )  // input: particle# out of npar
+               const int ipar )             // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
     // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
@@ -614,15 +615,19 @@ namespace MG5_sm
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
+      //printf( "opzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
+      const fptype_sv& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+#else
+      //printf( "opzxxx: ipagV=%d\n", ipagV );
+      const fptype_sv& pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
 #endif
-      const fptype& pvec3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt);
-      fo[0] = cxtype (pvec3 * nsf, pvec3 * nsf);
-      fo[1] = cxtype (0., 0.);
-      int nh = nhel * nsf;
-      cxtype CSQP0P3 = cxtype (sqrt(2. * pvec3) * nsf, 0.00);
+      fo[0] = cxmake( pvec3 * nsf, pvec3 * nsf );
+      fo[1] = cxmake00();
+      const short nh = nhel * nsf;
+      const cxtype_sv CSQP0P3 = cxmaker0( sqrt( 2 * pvec3 ) * nsf );
       fo[3] = fo[1];
       fo[4] = fo[1];
-      if (nh == 1)
+      if( nh == 1 )
       {
         fo[2] = CSQP0P3;
         fo[5] = fo[1];
