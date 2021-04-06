@@ -20,8 +20,14 @@ pushd ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >&
 popd >& /dev/null
 
 for exe in $exes; do
+  unset OMP_NUM_THREADS
   echo "-------------------------------------------------------------------------"
   # For TIMEFORMAT see https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
   TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | egrep '(Process|fptype_sv|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|TOTAL       :)'
+  if [ "${exe%%/check*}" != "${exe}" ]; then 
+    export OMP_NUM_THREADS=$(nproc --all)
+    echo "-------------------------------------------------------------------------"
+    TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | egrep '(Process|fptype_sv|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|TOTAL       :)'
+  fi
 done
 echo "-------------------------------------------------------------------------"
