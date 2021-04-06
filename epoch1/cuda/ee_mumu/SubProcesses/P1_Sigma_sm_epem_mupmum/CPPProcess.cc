@@ -1068,8 +1068,8 @@ namespace Proc
 
 #ifdef __CUDACC__
   __device__ __constant__ int cHel[ncomb][npar];
-  //__device__ __constant__ fptype cIPC[6];
-  //__device__ __constant__ fptype cIPD[2];
+  __device__ __constant__ fptype cIPC[6];
+  __device__ __constant__ fptype cIPD[2];
   __device__ __constant__ int cNGoodHel[1];
   __device__ __constant__ int cGoodHel[ncomb];
 #else
@@ -1102,10 +1102,10 @@ namespace Proc
     cxtype w[nwf][nw6]; // w[5][6]
     cxtype amp[1]; // was 2
 
-#ifdef __CUDACC__
-    const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
-    const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
-#endif
+    // For CUDA performance, this is ~better: fewer registers, even if no throughput increase (issue #39)
+    // However, physics parameters like masses and couplings must be read from user parameter files
+    //const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
+    //const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
 
 #ifdef __CUDACC__
     oxzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0 );
@@ -1220,20 +1220,21 @@ namespace Proc
     }
     pars->setDependentParameters();
     pars->setDependentCouplings();
+
     // Set external particle masses for this matrix element
     mME.push_back(pars->ZERO);
     mME.push_back(pars->ZERO);
     mME.push_back(pars->ZERO);
     mME.push_back(pars->ZERO);
 
+    // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
+    // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
+    static const cxtype tIPC[3] = { cxmake( pars->GC_3 ), cxmake( pars->GC_50 ), cxmake( pars->GC_59 ) };
+    static const fptype tIPD[2] = { (fptype)pars->mdl_MZ, (fptype)pars->mdl_WZ };
 #ifdef __CUDACC__
-    //const cxtype tIPC[3] = { cxmake( pars->GC_3 ), cxmake( pars->GC_50 ), cxmake( pars->GC_59 ) };
-    //const fptype tIPD[2] = { (fptype)pars->mdl_MZ, (fptype)pars->mdl_WZ };
-    //checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(cxtype ) ) );
-    //checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof(fptype) ) );
+    checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(cxtype) ) );
+    checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof(fptype) ) );
 #else
-    const cxtype tIPC[3] = { cxmake( pars->GC_3 ), cxmake( pars->GC_50 ), cxmake( pars->GC_59 ) };
-    const fptype tIPD[2] = { (fptype)pars->mdl_MZ, (fptype)pars->mdl_WZ };
     memcpy( cIPC, tIPC, 3 * sizeof(cxtype) );
     memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
 #endif
