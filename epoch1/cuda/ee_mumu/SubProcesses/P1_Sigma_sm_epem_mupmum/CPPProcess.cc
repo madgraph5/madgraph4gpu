@@ -595,7 +595,6 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  /*
   __device__
   void opzxxx( const fptype* allmomenta,
                const int nhel,
@@ -638,7 +637,6 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
-  */
 
   //--------------------------------------------------------------------------
 
@@ -1193,9 +1191,9 @@ namespace Proc
 #endif
     {
 #ifdef __CUDACC__
-      oxzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0 );
+      opzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0 );
 #else
-      oxzxxx( allmomenta, cHel[ihel][0], -1, w_v[0], ipagV, 0 );
+      opzxxx( allmomenta, cHel[ihel][0], -1, w_v[0], ipagV, 0 );
 #endif
 
 #ifdef __CUDACC__
