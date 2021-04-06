@@ -1303,21 +1303,15 @@ namespace Proc
     dim( gpu_nblocks * gpu_nthreads ),
     m_verbose( verbose )
   {
-#ifdef __CUDACC__
-    // Helicities for the process - nodim
-    const int tHel[ncomb][nexternal] =
-      { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
-        {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
-        {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
-        {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
-    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(int) ) );
-#else
     // Helicities for the process - nodim
     const short tHel[ncomb][nexternal] =
       { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
         {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
         {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
         {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
+#ifdef __CUDACC__
+    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(short) ) );
+#else
     memcpy( cHel, tHel, ncomb * nexternal * sizeof(short) );
 #endif
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype

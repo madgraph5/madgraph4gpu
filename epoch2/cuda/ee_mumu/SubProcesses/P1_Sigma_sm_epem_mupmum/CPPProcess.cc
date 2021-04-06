@@ -1050,7 +1050,7 @@ namespace Proc
     static const double denom[ncolor] = {1};
     static const double cf[ncolor][ncolor] = {{1}};
 
-    // Sum and square the color flows to get the matrix element |M|^2 
+    // Sum and square the color flows to get the matrix element |M|^2
     for( int icol = 0; icol < ncolor; icol++ )
     {
       cxtype ztemp = cxmake( 0, 0 );
@@ -1088,9 +1088,9 @@ namespace Proc
         {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
         {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
 #ifdef __CUDACC__
-    checkCuda(cudaMemcpyToSymbol(cHel, tHel, ncomb * nexternal * sizeof(int)));
+    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(int) ) );
 #else
-    memcpy(cHel, tHel, ncomb * nexternal * sizeof(int));
+    memcpy( cHel, tHel, ncomb * nexternal * sizeof(int) );
 #endif
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
     assert( sizeof(cxtype) == 2 * sizeof(fptype) );
