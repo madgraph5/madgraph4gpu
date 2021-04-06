@@ -1118,7 +1118,7 @@ namespace Proc
   const int nw6 = 6; // dimension of each wavefunction (see KEK 91-11)
 
 #ifdef __CUDACC__
-  __device__ __constant__ int cHel[ncomb][npar];
+  __device__ __constant__ short cHel[ncomb][npar];
   //__device__ __constant__ fptype cIPC[6];
   //__device__ __constant__ fptype cIPD[2];
   // FIXME: assume process.nprocesses == 1 for the moment
