@@ -400,7 +400,8 @@ namespace MG5_sm
       fi[0] = cxtype (-pvec0 * nsf, -pvec2 * nsf);
       fi[1] = cxtype (-pvec0 * nsf, -pvec1 * nsf);
       int nh = nhel * nsf;
-      float sqp0p3 = sqrtf(pvec0 + pvec3) * nsf;
+      //float sqp0p3 = sqrtf(pvec0 + pvec3) * nsf; // AV to OM: why force a float here?
+      fptype sqp0p3 = sqrt(pvec0 + pvec3) * nsf;
       cxtype chi0 = cxtype (sqp0p3, 0.0);
       cxtype chi1 = cxtype (nh * pvec1/sqp0p3, pvec2/sqp0p3);
       cxtype CZERO = cxtype(0., 0.);
