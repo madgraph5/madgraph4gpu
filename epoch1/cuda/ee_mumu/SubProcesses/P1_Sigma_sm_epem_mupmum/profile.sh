@@ -1,17 +1,19 @@
 #!/bin/bash
 
 usage(){
-  echo "Usage (GUI analysis): $0 [-cc] [-l label] [-p #blocks #threads #iterations]"
+  echo "Usage (GUI analysis): $0 -l label [-cc] [-p #blocks #threads #iterations]"
   echo "Usage (CL analysis):  $0 -nogui [-p #blocks #threads #iterations]"
   exit 1
 }
 
 # Default options
 tag=cu
-###cuargs="16384 32 12" # NEW DEFAULT 20.08.10 (faster on local, and allows comparison to global and shared memory)
+###cuargs="16384 32 12" # NEW DEFAULT 2020.08.10 (faster on local, and allows comparison to global and shared memory)
 ###ccargs="  256 32 12" # Similar to cuda config, but faster than using "16384 32 12"
-cuargs="16384 32 2" # faster tests
-ccargs="  256 32 2" # faster tests
+##cuargs="16384 32 2" # faster tests
+##ccargs="  256 32 2" # faster tests
+cuargs="2048 256 1" # NEW DEFAULT 2021.04.06 (matches "-p 2048 256 12" but only one iteration)
+ccargs="2048 256 1" # NEW DEFAULT 2021.04.06 (matches "-p 2048 256 12" but only one iteration)
 args=
 label=
 
@@ -23,7 +25,7 @@ while [ "$1" != "" ]; do
       tag=cc
       shift
     else
-      echo "ERROR! Incompaticle options -gui and -cc"
+      echo "ERROR! Incompatible options -gui and -cc"
       usage
     fi
   # Fast no-GUI profiling with ncu
@@ -32,7 +34,7 @@ while [ "$1" != "" ]; do
       tag=nogui
       shift
     else
-      echo "ERROR! Incompaticle options -gui and -cc"
+      echo "ERROR! Incompatible options -gui and -cc"
       usage
     fi
   # Override blocks/threads/iterations
@@ -151,6 +153,7 @@ else
   echo "PROFILING: ${cmd}"
   echo "${ncu} --metrics ${metrics} ${cmd}"
   echo
-  ${ncu} --metrics ${metrics} ${cmd}
+  echo sudo LD_LIBRARY_PATH=${LD_LIBRARY_PATH} $(which ${ncu}) --metrics ${metrics}  --target-processes all ${cmd}
+  sudo LD_LIBRARY_PATH=${LD_LIBRARY_PATH} $(which ${ncu}) --metrics ${metrics}  --target-processes all ${cmd}
 
 fi
