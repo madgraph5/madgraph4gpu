@@ -863,15 +863,15 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void oxzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               //const fptype fmass,     // ASSUME fmass==0
-               const int nhel,
-               const int nsf,
-               cxtype* fo,               // output: wavefunction[(nw6==6)]
+  void oxzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               //const fptype fmass,        // ASSUME fmass==0
+               const short nhel,
+               const short nsf,
+               cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
-               const int ievt,
+               const int ipagV,
 #endif
-               const int ipar )          // input: particle# out of npar
+               const int ipar )             // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
     // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
@@ -883,31 +883,35 @@ namespace MG5_sm
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "oxzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
+      const fptype& p0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+      const fptype& p1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
+      const fptype& p2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
+      const fptype& p3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+#else
+      //printf( "oxzxxx: ipagV=%d\n", ipagV );
+      const fptype_sv p0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
+      const fptype_sv p1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
+      const fptype_sv p2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
+      const fptype_sv p3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
 #endif
-      const fptype& p0 = pIparIp4Ievt(allmomenta, ipar, 0, ievt);
-      const fptype& p1 = pIparIp4Ievt(allmomenta, ipar, 1, ievt);
-      const fptype& p2 = pIparIp4Ievt(allmomenta, ipar, 2, ievt);
-      const fptype& p3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt);
-      // float p[4] = {0, (float) pvec[0], (float) pvec[1], (float) pvec[2]};
-      // p[0] = sqrtf(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]);
-      fo[0] = cxtype (p0 * nsf, p3 * nsf);
-      fo[1] = cxtype (p1 * nsf, p2 * nsf);
-      int nh = nhel * nsf;
-      float sqp0p3 = sqrtf(p0 + p3) * nsf;
-      cxtype chi0 = cxtype (sqp0p3, 0.00);
-      cxtype chi1 = cxtype (nh * p1/sqp0p3, -p2/sqp0p3);
-      cxtype zero = cxtype (0.00, 0.00);
-      if(nh == 1)
+      fo[0] = cxmake( p0 * nsf, p3 * nsf );
+      fo[1] = cxmake( p1 * nsf, p2 * nsf );
+      const short nh = nhel * nsf;
+      //const float_sv sqp0p3 = sqrtf( p0 + p3 ) * nsf; // AV to OM: why force a float here?
+      const fptype_sv sqp0p3 = sqrt( p0 + p3 ) * nsf;
+      const cxtype_sv chi0 = cxmake( sqp0p3, 0 );
+      const cxtype_sv chi1 = cxmake( nh * p1/sqp0p3, -p2/sqp0p3 );
+      if ( nh == 1 )
       {
         fo[2] = chi0;
         fo[3] = chi1;
-        fo[4] = zero;
-        fo[5] = zero;
+        fo[4] = cxzero_sv();
+        fo[5] = cxzero_sv();
       }
       else
       {
-        fo[2] = zero;
-        fo[3] = zero;
+        fo[2] = cxzero_sv();
+        fo[3] = cxzero_sv();
         fo[4] = chi1;
         fo[5] = chi0;
       }
