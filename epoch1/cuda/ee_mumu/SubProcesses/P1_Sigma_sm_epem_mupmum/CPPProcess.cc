@@ -208,7 +208,7 @@ namespace MG5_sm
     // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
 #ifndef __CUDACC__
     // +++ START LOOP ON IEVT +++
-    //for (int ievt = 0; ievt < nevt; ++ievt)
+    //for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
 #ifdef __CUDACC__
@@ -270,7 +270,7 @@ namespace MG5_sm
     // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
 #ifndef __CUDACC__
     // +++ START LOOP ON IEVT +++
-    //for (int ievt = 0; ievt < nevt; ++ievt)
+    //for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
 #ifdef __CUDACC__
@@ -571,7 +571,7 @@ namespace MG5_sm
     // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
 #ifndef __CUDACC__
     // +++ START LOOP ON IEVT +++
-    //for (int ievt = 0; ievt < nevt; ++ievt)
+    //for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
 #ifdef __CUDACC__
@@ -660,7 +660,7 @@ namespace MG5_sm
     // ASSUMPTIONS: (FMASS == 0) and ( either (PT > 0) or (PX == PY == 0 and E == +PZ > 0) )
 #ifndef __CUDACC__
     // +++ START LOOP ON IEVT +++
-    //for (int ievt = 0; ievt < nevt; ++ievt)
+    //for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
 #ifdef __CUDACC__
@@ -1339,7 +1339,7 @@ namespace Proc
     // - firstprivate: give each thread its own copy, and initialise with value from outside
     // This means that each thread computes its own good helicity states. Before, this was implicitly shared, i.e. race condition.
 #pragma omp parallel for default(none) shared(allmomenta, allMEs) firstprivate(sigmakin_itry, sigmakin_goodhel, nevt)
-    for (int ievt = 0; ievt < nevt; ++ievt)
+    for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
 #ifdef __CUDACC__
