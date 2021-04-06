@@ -1150,7 +1150,7 @@ namespace Proc
     const fptype denom[ncolor] = {1};
     const fptype cf[ncolor][ncolor] = {{1}};
 
-    // Sum and square the color flows to get the matrix element |M|^2 
+    // Sum and square the color flows to get the matrix element |M|^2
     for( int icol = 0; icol < ncolor; icol++ )
     {
       cxtype ztemp = cxmake( 0, 0 );
@@ -1180,21 +1180,15 @@ namespace Proc
     dim( gpu_nblocks * gpu_nthreads ),
     m_verbose( verbose )
   {
-#ifdef __CUDACC__
     // Helicities for the process - nodim
     const int tHel[ncomb][nexternal] =
       { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
         {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
         {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
         {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
+#ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(int) ) );
 #else
-    // Helicities for the process - nodim
-    const int tHel[ncomb][nexternal] =
-      { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
-        {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
-        {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
-        {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
     memcpy( cHel, tHel, ncomb * nexternal * sizeof(int) );
 #endif
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
