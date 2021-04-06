@@ -439,11 +439,10 @@ namespace MG5_sm
       const fptype_sv sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
       const cxtype_sv chi0 = cxmake( sqp0p3, 0 );
       const cxtype_sv chi1 = cxmake( nh * pvec1/sqp0p3, pvec2/sqp0p3 );
-      const cxtype_sv CZERO = cxzero_sv();
       if ( nh == 1 )
       {
-        fi[2] = CZERO;
-        fi[3] = CZERO;
+        fi[2] = cxzero_sv();
+        fi[3] = cxzero_sv();
         fi[4] = chi0;
         fi[5] = chi1;
       }
@@ -451,8 +450,8 @@ namespace MG5_sm
       {
         fi[2] = chi1;
         fi[3] = chi0;
-        fi[4] = CZERO;
-        fi[5] = CZERO;
+        fi[4] = cxzero_sv();
+        fi[5] = cxzero_sv();
       }
     }
     // +++ END LOOP ON IEVT +++
