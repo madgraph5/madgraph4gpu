@@ -1082,7 +1082,7 @@ namespace Proc
       dim( gpu_nblocks * gpu_nthreads )
   {
     // Helicities for the process - nodim
-    static const int tHel[ncomb][nexternal] =
+    const int tHel[ncomb][nexternal] =
       { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
         {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
         {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
