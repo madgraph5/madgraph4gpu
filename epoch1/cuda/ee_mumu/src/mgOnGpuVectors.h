@@ -133,28 +133,20 @@ fptype_v sqrt( const fptype_v& v )
 }
 #endif
 
-#ifdef MGONGPU_CPPSIMD
+/*
 inline
-fptype_v fpmake_v( const fptype v[neppV] )
+fptype_v fpvmake( const fptype v[neppV] )
 {
   fptype_v out;
   for ( int i=0; i<neppV; i++ ) out[i] = v[i];
   return out;
 }
-/*
-#else
-inline
-const fptype_v& fpmake_v( const fptype v[neppV] )
-{
-  return v[0];
-}
 */
-#endif
 
 // Operators for cxtype_v
 /*
 inline
-cxtype_v cxmake_v( const cxtype c )
+cxtype_v cxvmake( const cxtype c )
 {
   cxtype_v out;
   for ( int i=0; i<neppV; i++ ) out[i] = c;
@@ -372,11 +364,13 @@ cxtype_v operator/( const cxtype_v& a, const fptype& b )
 inline __device__ void print( const fptype& f ){ printf( "%f\n", f ); }
 inline __device__ void print( const cxtype& c ){ printf( "[%f, %f]\n", cxreal(c), cximag(c) ); }
 
+/*
 inline __device__
 const cxtype& cxvmake( const cxtype& c )
 {
   return c;
 }
+*/
 
 inline __device__
 cxtype cxmake00()
