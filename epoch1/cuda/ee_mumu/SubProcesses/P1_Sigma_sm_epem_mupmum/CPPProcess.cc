@@ -252,14 +252,9 @@ namespace MG5_sm
       const short nh = nhel * nsf;
       // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       {
-#ifdef __CUDACC__
-        const cxtype chi0 = cxzero_sv();
-        const cxtype chi1 = cxmake( -nhel * sqrt(2 * pvec0), 0 );
-#else
         const cxtype_sv chi0 = cxzero_sv();
-        const cxtype_sv chi1 = cxmake( (short)(-nhel) * sqrt(2 * pvec0), 0 );
-#endif
-        if (nh == 1)
+        const cxtype_sv chi1 = cxmake( -nhel * sqrt(2 * pvec0), 0 );
+        if ( nh == 1 )
         {
           fi_2 = cxzero_sv();
           fi_3 = cxzero_sv();
@@ -325,15 +320,9 @@ namespace MG5_sm
       const short nh = nhel * nsf;
       // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
       {
-#ifdef __CUDACC__
-        const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
-        const cxtype chi0 = cxmake( sqp0p3, 0 );
-        const cxtype chi1 = cxmake( nh * pvec1 / sqp0p3, pvec2 / sqp0p3 );
-#else
         const fptype_sv sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
         const cxtype_sv chi0 = cxmake( sqp0p3, 0 );
         const cxtype_sv chi1 = cxmake( nh * pvec1 / sqp0p3, pvec2 / sqp0p3 );
-#endif
         if ( nh == 1 )
         {
           fi_2 = cxzero_sv();
@@ -730,16 +719,10 @@ namespace MG5_sm
       const short nh = nhel * nsf;
       // ASSUMPTIONS: (FMASS == 0) and ( either (PT > 0) or (PX == PY == 0 and E == +PZ > 0) )
       {
-#ifdef __CUDACC__
-        const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
-        const cxtype chi0 = cxmake( sqp0p3, 0 );
-        const cxtype chi1 = cxmake( nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
-#else
         const fptype_sv sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
         const cxtype_sv chi0 = cxmake( sqp0p3, 0 );
         const cxtype_sv chi1 = cxmake( nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
-#endif
-        if( nh == 1 )
+        if ( nh == 1 )
         {
           fo_2 = chi0;
           fo_3 = chi1;
