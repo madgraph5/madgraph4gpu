@@ -7,7 +7,13 @@ exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mup
 exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
 
 for exe in $exes; do
+  unset OMP_NUM_THREADS
   # For TIMEFORMAT see https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
-  TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | egrep -i '(process|EvtsPerSec\[Matrix|MeanMatrix|TOTAL       :)'
+  TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | egrep -i '(process|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|TOTAL       :)'
   echo "-------------------------------------------------------------------------"
+  if [ "${exe%%/check*}" != "${exe}" ]; then 
+    export OMP_NUM_THREADS=$(nproc --all)
+    TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | egrep -i '(process|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|TOTAL       :)'
+    echo "-------------------------------------------------------------------------"
+  fi
 done
