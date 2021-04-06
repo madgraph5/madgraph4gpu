@@ -1052,8 +1052,8 @@ namespace Proc
     jamp[0] -= amp[0];
 
     // The color matrix
-    static const double denom[ncolor] = {1};
-    static const double cf[ncolor][ncolor] = {{1}};
+    const fptype denom[ncolor] = {1};
+    const fptype cf[ncolor][ncolor] = {{1}};
 
     // Sum and square the color flows to get the matrix element |M|^2
     for( int icol = 0; icol < ncolor; icol++ )
