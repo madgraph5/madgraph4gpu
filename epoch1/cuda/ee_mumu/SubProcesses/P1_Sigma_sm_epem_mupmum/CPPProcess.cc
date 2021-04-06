@@ -257,7 +257,7 @@ namespace MG5_sm
         const cxtype chi1 = cxmake( -nhel * sqrt(2 * pvec0), 0 );
 #else
         const cxtype_sv chi0 = cxmake00();
-        const cxtype_sv chi1 = cxmaker0( (short)(-nhel) * sqrt(2 * pvec0) );
+        const cxtype_sv chi1 = cxmake( (short)(-nhel) * sqrt(2 * pvec0), 0 );
 #endif
         if (nh == 1)
         {
@@ -331,7 +331,7 @@ namespace MG5_sm
         const cxtype chi1 = cxmake( nh * pvec1 / sqp0p3, pvec2 / sqp0p3 );
 #else
         const fptype_sv sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
-        const cxtype_sv chi0 = cxmaker0( sqp0p3 );
+        const cxtype_sv chi0 = cxmake( sqp0p3, 0 );
         const cxtype_sv chi1 = cxmake( nh * pvec1 / sqp0p3, pvec2 / sqp0p3 );
 #endif
         if ( nh == 1 )
@@ -624,7 +624,7 @@ namespace MG5_sm
       fo[0] = cxmake( pvec3 * nsf, pvec3 * nsf );
       fo[1] = cxmake00();
       const short nh = nhel * nsf;
-      const cxtype_sv CSQP0P3 = cxmaker0( sqrt( 2 * pvec3 ) * nsf );
+      const cxtype_sv CSQP0P3 = cxmake( sqrt( 2 * pvec3 ) * nsf, 0 );
       fo[3] = fo[1];
       fo[4] = fo[1];
       if( nh == 1 )
@@ -736,7 +736,7 @@ namespace MG5_sm
         const cxtype chi1 = cxmake( nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
 #else
         const fptype_sv sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
-        const cxtype_sv chi0 = cxmaker0( sqp0p3 );
+        const cxtype_sv chi0 = cxmake( sqp0p3, 0 );
         const cxtype_sv chi1 = cxmake( nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
 #endif
         if( nh == 1 )

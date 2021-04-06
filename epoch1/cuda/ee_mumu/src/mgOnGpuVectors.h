@@ -170,15 +170,21 @@ cxtype_v cxmake( const fptype_v& r, const fptype_v& i )
 }
 
 inline
-cxtype_v cxmake00()
+cxtype_v cxmake( const fptype_v& r, const fptype& i )
 {
-  return cxtype_v{ fptype_v{0}, fptype_v{0} };
+  return cxtype_v{ r, fptype_v{i} };
 }
 
 inline
-cxtype_v cxmaker0( const fptype_v& r )
+cxtype_v cxmake( const fptype& r, const fptype_v& i )
 {
-  return cxtype_v{ r, fptype_v{0} };
+  return cxtype_v{ fptype_v{r}, i };
+}
+
+inline
+cxtype_v cxmake00()
+{
+  return cxtype_v{ fptype_v{0}, fptype_v{0} };
 }
 
 #else
@@ -189,21 +195,7 @@ cxtype cxmake00()
   return cxtype{ fptype{0}, fptype{0} };
 }
 
-inline
-cxtype cxmaker0( const fptype& r )
-{
-  return cxtype{ r, fptype{0} };
-}
-
 #endif
-
-/*
-inline
-cxtype_v cxmake0i( const fptype_v& i )
-{
-  return cxtype_v{ fptype_v{0}, i };
-}
-*/
 
 #ifdef MGONGPU_CPPSIMD
 inline
@@ -391,20 +383,6 @@ cxtype cxmake00()
 {
   return cxmake( 0, 0 );
 }
-
-inline __device__
-cxtype cxmaker0( const fptype& r )
-{
-  return cxtype( r, 0 );
-}
-
-/*
-inline
-cxtype cxmake0i( const fptype& i )
-{
-  return cxmake( 0, i );
-}
-*/
 
 #endif
 
