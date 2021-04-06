@@ -848,7 +848,8 @@ namespace MG5_sm
       fo[0] = cxtype (p0 * nsf, p3 * nsf);
       fo[1] = cxtype (p1 * nsf, p2 * nsf);
       int nh = nhel * nsf;
-      float sqp0p3 = sqrtf(p0 + p3) * nsf;
+      //float sqp0p3 = sqrtf(p0 + p3) * nsf; // AV to OM: why force a float here?
+      fptype sqp0p3 = sqrt(p0 + p3) * nsf;
       cxtype chi0 = cxtype (sqp0p3, 0.00);
       cxtype chi1 = cxtype (nh * p1/sqp0p3, -p2/sqp0p3);
       cxtype zero = cxtype (0.00, 0.00);
