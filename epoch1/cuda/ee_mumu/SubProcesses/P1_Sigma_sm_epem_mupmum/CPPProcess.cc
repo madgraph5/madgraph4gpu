@@ -253,16 +253,16 @@ namespace MG5_sm
       // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       {
 #ifdef __CUDACC__
-        const cxtype chi0 = cxmake00();
+        const cxtype chi0 = cxzero_sv();
         const cxtype chi1 = cxmake( -nhel * sqrt(2 * pvec0), 0 );
 #else
-        const cxtype_sv chi0 = cxmake00();
+        const cxtype_sv chi0 = cxzero_sv();
         const cxtype_sv chi1 = cxmake( (short)(-nhel) * sqrt(2 * pvec0), 0 );
 #endif
         if (nh == 1)
         {
-          fi_2 = cxmake00();
-          fi_3 = cxmake00();
+          fi_2 = cxzero_sv();
+          fi_3 = cxzero_sv();
           fi_4 = chi0;
           fi_5 = chi1;
         }
@@ -270,8 +270,8 @@ namespace MG5_sm
         {
           fi_2 = chi1;
           fi_3 = chi0;
-          fi_4 = cxmake00();
-          fi_5 = cxmake00();
+          fi_4 = cxzero_sv();
+          fi_5 = cxzero_sv();
         }
       }
     }
@@ -336,8 +336,8 @@ namespace MG5_sm
 #endif
         if ( nh == 1 )
         {
-          fi_2 = cxmake00();
-          fi_3 = cxmake00();
+          fi_2 = cxzero_sv();
+          fi_3 = cxzero_sv();
           fi_4 = chi0;
           fi_5 = chi1;
         }
@@ -345,8 +345,8 @@ namespace MG5_sm
         {
           fi_2 = chi1;
           fi_3 = chi0;
-          fi_4 = cxmake00();
-          fi_5 = cxmake00();
+          fi_4 = cxzero_sv();
+          fi_5 = cxzero_sv();
         }
       }
     }
@@ -622,7 +622,7 @@ namespace MG5_sm
       const fptype_sv& pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
 #endif
       fo[0] = cxmake( pvec3 * nsf, pvec3 * nsf );
-      fo[1] = cxmake00();
+      fo[1] = cxzero_sv();
       const short nh = nhel * nsf;
       const cxtype_sv CSQP0P3 = cxmake( sqrt( 2 * pvec3 ) * nsf, 0 );
       fo[3] = fo[1];
@@ -743,13 +743,13 @@ namespace MG5_sm
         {
           fo_2 = chi0;
           fo_3 = chi1;
-          fo_4 = cxmake00();
-          fo_5 = cxmake00();
+          fo_4 = cxzero_sv();
+          fo_5 = cxzero_sv();
         }
         else
         {
-          fo_2 = cxmake00();
-          fo_3 = cxmake00();
+          fo_2 = cxzero_sv();
+          fo_3 = cxzero_sv();
           fo_4 = chi1;
           fo_5 = chi0;
         }
