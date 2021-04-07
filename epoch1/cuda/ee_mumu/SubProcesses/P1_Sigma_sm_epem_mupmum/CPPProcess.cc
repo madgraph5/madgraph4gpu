@@ -275,8 +275,6 @@ namespace MG5_sm
                const int ipar )          // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-    fptype hel, hel0, pt, pt2, pp, pzpt, emp, sqh;
-    int nsvahl;
 #ifdef __CUDACC__
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
 #else
@@ -286,63 +284,58 @@ namespace MG5_sm
     const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
     const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
     const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-    sqh = sqrt(0.5);
-    hel = fptype(nhel);
-    nsvahl = nsv * std::abs(hel);
-    pt2 = (pvec1 * pvec1) + (pvec2 * pvec2);
-    pp = min(pvec0, sqrt(pt2 + (pvec3 * pvec3)));
-    pt = min(pp, sqrt(pt2));
-    vc[0] = cxtype(pvec0 * nsv, pvec3 * nsv);
-    vc[1] = cxtype(pvec1 * nsv, pvec2 * nsv);
-    if (vmass != 0.0)
+    const fptype sqh = sqrt( 0.5 );
+    const fptype hel = nhel;
+    vc[0] = cxmake( pvec0 * nsv, pvec3 * nsv );
+    vc[1] = cxmake( pvec1 * nsv, pvec2 * nsv );
+    if ( vmass != 0 )
     {
-      hel0 = 1.0 - std::abs(hel);
-      if (pp == 0.0)
+      const int nsvahl = nsv * std::abs( hel );
+      const fptype pt2 = ( pvec1 * pvec1 ) + ( pvec2 * pvec2 );
+      const fptype pp = min( pvec0, sqrt( pt2 + ( pvec3 * pvec3 ) ) );
+      const fptype pt = min( pp, sqrt( pt2 ) );
+      const fptype hel0 = 1. - std::abs( hel );
+      if ( pp == 0. )
       {
-        vc[2] = cxtype(0.0, 0.0);
-        vc[3] = cxtype(-hel * sqh, 0.0);
-        vc[4] = cxtype(0.0, nsvahl * sqh);
-        vc[5] = cxtype(hel0, 0.0);
+        vc[2] = cxmake( 0, 0 );
+        vc[3] = cxmake( -hel * sqh, 0 );
+        vc[4] = cxmake( 0, nsvahl * sqh );
+        vc[5] = cxmake( hel0, 0 );
       }
       else
       {
-        emp = pvec0/(vmass * pp);
-        vc[2] = cxtype(hel0 * pp/vmass, 0.0);
-        vc[5] =
-          cxtype(hel0 * pvec3 * emp + hel * pt/pp * sqh, 0.0);
-        if (pt != 0.0)
+        const fptype emp = pvec0 / ( vmass * pp );
+        vc[2] = cxmake( hel0 * pp / vmass, 0 );
+        vc[5] = cxmake( hel0 * pvec3 * emp + hel * pt / pp * sqh, 0 );
+        if ( pt != 0. )
         {
-          pzpt = pvec3/(pp * pt) * sqh * hel;
-          vc[3] = cxtype(hel0 * pvec1 * emp - pvec1 * pzpt,
-                         - nsvahl * pvec2/pt * sqh);
-          vc[4] = cxtype(hel0 * pvec2 * emp - pvec2 * pzpt,
-                         nsvahl * pvec1/pt * sqh);
+          const fptype pzpt = pvec3 / ( pp * pt ) * sqh * hel;
+          vc[3] = cxmake( hel0 * pvec1 * emp - pvec1 * pzpt, - nsvahl * pvec2 / pt * sqh );
+          vc[4] = cxmake( hel0 * pvec2 * emp - pvec2 * pzpt, nsvahl * pvec1 / pt * sqh );
         }
         else
         {
-          vc[3] = cxtype(-hel * sqh, 0.0);
-          vc[4] = cxtype(0.0, nsvahl * (pvec3 < 0) ? - abs(sqh)
-                         : abs(sqh));
+          vc[3] = cxmake( -hel * sqh, 0. );
+          vc[4] = cxmake( 0., nsvahl * ( pvec3 < 0 ) ? - abs( sqh ) : abs( sqh ) );
         }
       }
     }
     else
     {
-      // pp = pvec0;
-      pt = sqrt((pvec1 * pvec1) + (pvec2 * pvec2));
-      vc[2] = cxtype(0.0, 0.0);
-      vc[5] = cxtype(hel * pt/pvec0 * sqh, 0.0);
-      if (pt != 0.0)
+      //pp = pvec0;
+      const fptype pt = sqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) );
+      vc[2] = cxmake( 0, 0 );
+      vc[5] = cxmake( hel * pt / pvec0 * sqh, 0 );
+      if ( pt != 0 )
       {
-        pzpt = pvec3/(pvec0 * pt) * sqh * hel;
-        vc[3] = cxtype(-pvec1 * pzpt, -nsv * pvec2/pt * sqh);
-        vc[4] = cxtype(-pvec2 * pzpt, nsv * pvec1/pt * sqh);
+        const fptype pzpt = pvec3 / ( pvec0 * pt ) * sqh * hel;
+        vc[3] = cxmake( -pvec1 * pzpt, -nsv * pvec2 / pt * sqh );
+        vc[4] = cxmake( -pvec2 * pzpt, nsv * pvec1 / pt * sqh );
       }
       else
       {
-        vc[3] = cxtype(-hel * sqh, 0.0);
-        vc[4] =
-          cxtype(0.0, nsv * (pvec3 < 0) ? - abs(sqh) : abs(sqh));
+        vc[3] = cxmake( -hel * sqh, 0 );
+        vc[4] = cxmake( 0, nsv * ( pvec3 < 0 ) ? -abs( sqh ) : abs( sqh ) );
       }
     }
     mgDebug( 1, __FUNCTION__ );
