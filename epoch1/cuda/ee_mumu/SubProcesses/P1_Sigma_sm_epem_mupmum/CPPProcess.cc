@@ -1292,26 +1292,21 @@ namespace MG5_sm
                  cxtype V3[] )        // output: wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
-    cxtype cI = cxtype(0., 1.);
-    fptype OM3;
-    fptype P3[4];
-    cxtype TMP2;
-    cxtype TMP5;
-    cxtype denom;
-    OM3 = 0.;
-    if (M3 != 0.)
-      OM3 = 1./(M3 * M3);
+    const cxtype cI = cxmake( 0, 1 );
+    fptype OM3 = 0;
+    if (M3 != 0.) OM3 = 1./(M3 * M3);
     V3[0] = +F1[0] + F2[0];
     V3[1] = +F1[1] + F2[1];
+    fptype P3[4];
     P3[0] = -V3[0].real();
     P3[1] = -V3[1].real();
     P3[2] = -V3[1].imag();
     P3[3] = -V3[0].imag();
-    TMP5 = (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) +
-            F1[5] * (F2[2] * (-P3[1] + cI * (P3[2])) + F2[3] * (P3[0] + P3[3])));
-    TMP2 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
-            F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
-    denom = 1./((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
+    const cxtype TMP5 = (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) +
+                         F1[5] * (F2[2] * (-P3[1] + cI * (P3[2])) + F2[3] * (P3[0] + P3[3])));
+    const cxtype TMP2 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
+                         F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
+    const cxtype denom = 1./((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
     V3[2] = denom * (-2. * cI) *
       (COUP2 * (OM3 * - 1./2. * P3[0] * (TMP2 + 2. * (TMP5)) +
                 (+1./2. * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] + F1[5] * F2[3])) +
