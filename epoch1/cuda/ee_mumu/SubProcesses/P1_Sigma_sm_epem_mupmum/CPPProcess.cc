@@ -875,48 +875,6 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  /*
-  __device__
-  void FFV1_0( const cxtype F1[],    // input: wavefunction1[6]
-               const cxtype F2[],    // input: wavefunction2[6]
-               const cxtype V3[],    // input: wavefunction3[6]
-               const cxtype COUP,
-               cxtype* vertex )      // output: amplitude
-  {
-    mgDebug( 0, __FUNCTION__ );
-    const cxtype& F1_2 = F1[2];
-    const cxtype& F1_3 = F1[3];
-    const cxtype& F1_4 = F1[4];
-    const cxtype& F1_5 = F1[5];
-    const cxtype& F2_2 = F2[2];
-    const cxtype& F2_3 = F2[3];
-    const cxtype& F2_4 = F2[4];
-    const cxtype& F2_5 = F2[5];
-    const cxtype& V3_2 = V3[2];
-    const cxtype& V3_3 = V3[3];
-    const cxtype& V3_4 = V3[4];
-    const cxtype& V3_5 = V3[5];
-    const cxtype cI = cxmake( 0, 1 );
-    const cxtype TMP4 =
-      ( F1_2 * ( F2_4 * ( V3_2 + V3_5 ) +
-                 F2_5 * ( V3_3 + cI * ( V3_4 ) ) ) +
-        ( F1_3 * ( F2_4 * ( V3_3 - cI * ( V3_4) )
-                   + F2_5 * ( V3_2 - V3_5 ) ) +
-          ( F1_4 * ( F2_2 * ( V3_2 - V3_5 )
-                     - F2_3 * ( V3_3 + cI * ( V3_4 ) ) ) +
-            F1_5 * ( F2_2 * ( -V3_3 + cI * ( V3_4 ) )
-                     + F2_3 * ( V3_2 + V3_5 ) )
-            )
-          )
-        );
-    ( *vertex ) = COUP * ( -cI ) * TMP4;
-    mgDebug( 1, __FUNCTION__ );
-    return;
-  }
-  */
-
-  //--------------------------------------------------------------------------
-
   __device__
   void FFV1_0( const cxtype F1[],    // input: wavefunction1[6]
                const cxtype F2[],    // input: wavefunction2[6]
@@ -934,54 +892,6 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
-
-  //--------------------------------------------------------------------------
-
-  /*
-  __device__
-  void FFV1P0_3( const cxtype F1[],   // input: wavefunction1[6]
-                 const cxtype F2[],   // input: wavefunction2[6]
-                 const cxtype COUP,
-                 const fptype M3,
-                 const fptype W3,
-                 cxtype V3[] )        // output: wavefunction3[6]
-  {
-    mgDebug( 0, __FUNCTION__ );
-    const cxtype& F1_0 = F1[0];
-    const cxtype& F1_1 = F1[1];
-    const cxtype& F1_2 = F1[2];
-    const cxtype& F1_3 = F1[3];
-    const cxtype& F1_4 = F1[4];
-    const cxtype& F1_5 = F1[5];
-    const cxtype& F2_0 = F2[0];
-    const cxtype& F2_1 = F2[1];
-    const cxtype& F2_2 = F2[2];
-    const cxtype& F2_3 = F2[3];
-    const cxtype& F2_4 = F2[4];
-    const cxtype& F2_5 = F2[5];
-    cxtype& V3_0 = V3[0];
-    cxtype& V3_1 = V3[1];
-    cxtype& V3_2 = V3[2];
-    cxtype& V3_3 = V3[3];
-    cxtype& V3_4 = V3[4];
-    cxtype& V3_5 = V3[5];
-    const cxtype cI = cxmake( 0, 1 );
-    V3_0 = + F1_0 + F2_0;
-    V3_1 = + F1_1 + F2_1;
-    const fptype PPP0 = -cxreal( V3_0 );
-    const fptype PPP1 = -cxreal( V3_1 );
-    const fptype PPP2 = -cximag( V3_1 );
-    const fptype PPP3 = -cximag( V3_0 );
-    const cxtype denom =
-      COUP / ( ( PPP0 * PPP0 ) - ( PPP1 * PPP1 ) - ( PPP2 * PPP2 ) - ( PPP3 * PPP3 ) - M3 * ( M3 - cI * W3 ) );
-    V3_2 = denom * ( -cI ) * ( F1_2 * F2_4 + F1_3 * F2_5 + F1_4 * F2_2 + F1_5 * F2_3 );
-    V3_3 = denom * ( -cI ) * ( -F1_2 * F2_5 - F1_3 * F2_4 + F1_4 * F2_3 + F1_5 * F2_2 );
-    V3_4 = denom * ( -cI ) * ( -cI * ( F1_2 * F2_5 + F1_5 * F2_2 ) + cI * ( F1_3 * F2_4 + F1_4 * F2_3 ) );
-    V3_5 = denom * ( -cI ) * ( -F1_2 * F2_4 - F1_5 * F2_3 + F1_3 * F2_5 + F1_4 * F2_2 );
-    mgDebug( 1, __FUNCTION__ );
-    return;
-  }
-  */
 
   //--------------------------------------------------------------------------
 
@@ -1112,45 +1022,6 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  /*
-  __device__
-  void FFV2_4_0( const cxtype F1[],    // input: wavefunction1[6]
-                 const cxtype F2[],    // input: wavefunction2[6]
-                 const cxtype V3[],    // input: wavefunction3[6]
-                 const cxtype COUP1,
-                 const cxtype COUP2,
-                 cxtype* vertex )      // output: amplitude
-  {
-    mgDebug( 0, __FUNCTION__ );
-    const cxtype& F1_2 = F1[2];
-    const cxtype& F1_3 = F1[3];
-    const cxtype& F1_4 = F1[4];
-    const cxtype& F1_5 = F1[5];
-    const cxtype& F2_2 = F2[2];
-    const cxtype& F2_3 = F2[3];
-    const cxtype& F2_4 = F2[4];
-    const cxtype& F2_5 = F2[5];
-    const cxtype& V3_2 = V3[2];
-    const cxtype& V3_3 = V3[3];
-    const cxtype& V3_4 = V3[4];
-    const cxtype& V3_5 = V3[5];
-    const fptype fp1 = 1;
-    const fptype fp2 = 2;
-    const cxtype cI = cxmake( 0, 1 );
-    const cxtype TMP2 =
-      ( F1_4 * ( F2_2 * ( V3_2 - V3_5 ) - F2_3 * ( V3_3 + cI * ( V3_4 ) ) ) +
-        F1_5 * ( F2_2 * ( -V3_3 + cI * ( V3_4 ) ) + F2_3 * ( V3_2 + V3_5 ) ) );
-    const cxtype TMP0 =
-      ( F1_2 * ( F2_4 * ( V3_2 + V3_5 ) + F2_5 * ( V3_3 + cI * ( V3_4 ) ) ) +
-        F1_3 * ( F2_4 * ( V3_3 - cI * ( V3_4 ) ) + F2_5 * ( V3_2 - V3_5 ) ) );
-    (*vertex) = -fp1 * ( COUP2 * ( +cI * ( TMP0 ) + fp2 * cI * ( TMP2 ) ) + cI * ( TMP0 * COUP1 ) );
-    mgDebug( 1, __FUNCTION__ );
-    return;
-  }
-  */
-
-  //--------------------------------------------------------------------------
-
   __device__
   void FFV2_4_0( const cxtype F1[],    // input: wavefunction1[6]
                  const cxtype F2[],    // input: wavefunction2[6]
@@ -1170,80 +1041,6 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
-
-  //--------------------------------------------------------------------------
-
-  /*
-  __device__
-  void FFV2_4_3( const cxtype F1[],   // input: wavefunction1[6]
-                 const cxtype F2[],   // input: wavefunction2[6]
-                 const cxtype COUP1,
-                 const cxtype COUP2,
-                 const fptype M3,
-                 const fptype W3,
-                 cxtype V3[] )        // output: wavefunction3[6]
-  {
-    mgDebug( 0, __FUNCTION__ );
-    const cxtype& F1_0 = F1[0];
-    const cxtype& F1_1 = F1[1];
-    const cxtype& F1_2 = F1[2];
-    const cxtype& F1_3 = F1[3];
-    const cxtype& F1_4 = F1[4];
-    const cxtype& F1_5 = F1[5];
-    const cxtype& F2_0 = F2[0];
-    const cxtype& F2_1 = F2[1];
-    const cxtype& F2_2 = F2[2];
-    const cxtype& F2_3 = F2[3];
-    const cxtype& F2_4 = F2[4];
-    const cxtype& F2_5 = F2[5];
-    cxtype& V3_0 = V3[0];
-    cxtype& V3_1 = V3[1];
-    cxtype& V3_2 = V3[2];
-    cxtype& V3_3 = V3[3];
-    cxtype& V3_4 = V3[4];
-    cxtype& V3_5 = V3[5];
-    const fptype fp1 = 1;
-    const fptype fp2 = 2;
-    const cxtype cI = cxmake( 0, 1 );
-    fptype OM3 = 0;
-    if ( M3 != 0 ) OM3 = fp1 / ( M3 * M3 );
-    V3_0 = + F1_0 + F2_0;
-    V3_1 = + F1_1 + F2_1;
-    const fptype PPP0 = -cxreal( V3_0 );
-    const fptype PPP1 = -cxreal( V3_1 );
-    const fptype PPP2 = -cximag( V3_1 );
-    const fptype PPP3 = -cximag( V3_0 );
-    const cxtype TMP1 =
-      ( F1_2 * ( F2_4 * ( PPP0 + PPP3 ) + F2_5 * ( PPP1 + cI * ( PPP2 ) ) ) +
-        F1_3 * ( F2_4 * ( PPP1 - cI * ( PPP2 ) ) + F2_5 * ( PPP0 - PPP3 ) ) );
-    const cxtype TMP3 =
-      ( F1_4 * ( F2_2 * ( PPP0 - PPP3 ) - F2_3 * ( PPP1 + cI * ( PPP2 ) ) ) +
-        F1_5 * ( F2_2 * ( -PPP1 + cI * ( PPP2 ) ) + F2_3 * ( PPP0 + PPP3 ) ) );
-    const cxtype denom =
-      fp1 / ( ( PPP0 * PPP0 ) - ( PPP1 * PPP1 ) - ( PPP2 * PPP2 ) -
-              ( PPP3 * PPP3 ) - M3 * (M3 - cI * W3 ) );
-    V3_2 = denom * ( -fp2 * cI ) *
-      ( COUP2 * ( OM3 * ( -fp1/fp2 ) * PPP0 * ( TMP1 + fp2 * ( TMP3 ) )
-                  + ( +fp1/fp2 * ( F1_2 * F2_4 + F1_3 * F2_5 ) + F1_4 * F2_2 + F1_5 * F2_3 ) )
-        + fp1/fp2 * ( COUP1 * ( F1_2 * F2_4 + F1_3 * F2_5 - PPP0 * OM3 * TMP1 ) ) );
-    V3_3 = denom * ( -fp2 * cI ) *
-      ( COUP2 * ( OM3 * ( -fp1/fp2 ) * PPP1 * ( TMP1 + fp2 * ( TMP3 ) )
-                  + ( -fp1/fp2 * ( F1_2 * F2_5 + F1_3 * F2_4 ) + F1_4 * F2_3 + F1_5 * F2_2 ) )
-        - fp1/fp2 * ( COUP1 * ( F1_2 * F2_5 + F1_3 * F2_4 + PPP1 * OM3 * TMP1 ) ) );
-    V3_4 = denom * cI *
-      ( COUP2 * ( OM3 * PPP2 * ( TMP1 + fp2 * ( TMP3 ) )
-                  + ( +cI * ( F1_2 * F2_5 ) - cI * ( F1_3 * F2_4 )
-                      - fp2 * cI * ( F1_4 * F2_3 )
-                      + fp2 * cI * ( F1_5 * F2_2 ) ) )
-        + COUP1 * ( +cI * ( F1_2 * F2_5 ) - cI * ( F1_3 * F2_4 ) + PPP2 * OM3 * TMP1 ) );
-    V3_5 = denom * fp2 * cI *
-      ( COUP2 * ( OM3 * fp1/fp2 * PPP3 * ( TMP1 + fp2 * ( TMP3 ) ) +
-                  ( +fp1/fp2 * ( F1_2 * F2_4 ) - fp1/fp2 * ( F1_3 * F2_5 ) - F1_4 * F2_2 + F1_5 * F2_3 ) )
-        + fp1/fp2 * ( COUP1 * ( F1_2 * F2_4 + PPP3 * OM3 * TMP1 - F1_3 * F2_5 ) ) );
-    mgDebug( 1, __FUNCTION__ );
-    return;
-  }
-  */
 
   //--------------------------------------------------------------------------
 
