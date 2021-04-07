@@ -38,7 +38,6 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  /*
   __device__
   void ixxxxx( const fptype* allmomenta,
                const fptype fmass,
@@ -148,11 +147,9 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
-  */
 
   //--------------------------------------------------------------------------
 
-  /*
   __device__
   void ipzxxx( const fptype * allmomenta,
                const int nhel,
@@ -189,7 +186,6 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
-  */
 
   //--------------------------------------------------------------------------
 
@@ -298,7 +294,6 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  /*
   __device__
   void vxxxxx( const fptype* allmomenta,
                const fptype vmass,
@@ -386,11 +381,9 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
-  */
 
   //--------------------------------------------------------------------------
 
-  /*
   __device__
   void sxxxxx( const fptype* allmomenta,
                const fptype smass,
@@ -418,11 +411,9 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
-  */
 
   //--------------------------------------------------------------------------
 
-  /*
   __device__
   void oxxxxx( const fptype* allmomenta,
                const fptype fmass,
@@ -532,7 +523,6 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
-  */
 
   //--------------------------------------------------------------------------
 
@@ -581,7 +571,6 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  /*
   __device__
   void omzxxx( const fptype* allmomenta,
                const int nhel,
@@ -619,7 +608,6 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
-  */
 
   //--------------------------------------------------------------------------
 
