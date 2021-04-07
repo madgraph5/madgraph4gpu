@@ -60,13 +60,13 @@ namespace MG5_sm
     const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
     const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
     const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-    const fptype p[4] = { sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 + fmass * fmass ), pvec1, pvec2, pvec3 };
-    fi[0] = cxmake( -p[0] * nsf, -p[3] * nsf );
-    fi[1] = cxmake( -p[1] * nsf, -p[2] * nsf );
+    const fptype p0 = sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 );
+    fi[0] = cxmake( -p0 * nsf, -pvec3 * nsf );
+    fi[1] = cxmake( -pvec1 * nsf, -pvec2 * nsf );
     const int nh = nhel * nsf;
     if ( fmass != 0. )
     {
-      const fptype pp = min( p[0], sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3] ) );
+      const fptype pp = min( p0, sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ) );
       if ( pp == 0. )
       {
         fptype sqm[2] = { sqrt( std::abs( fmass ) ), 0 };
@@ -81,14 +81,14 @@ namespace MG5_sm
       else
       {
         const fptype sf[2] = { (1 + nsf + (1 - nsf) * nh) * 0.5, (1 + nsf - (1 - nsf) * nh) * 0.5 };
-        fptype omega[2] = { sqrt( p[0] + pp ), 0 };
+        fptype omega[2] = { sqrt( p0 + pp ), 0 };
         omega[1] = fmass / omega[0];
         const int ip = ( 1 + nh ) / 2;
         const int im = ( 1 - nh ) / 2;
         const fptype sfomega[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
-        const fptype pp3 = max( pp + p[3], 0. );
+        const fptype pp3 = max( pp + pvec3, 0. );
         const cxtype chi[2] = { cxmake( sqrt ( pp3 * 0.5 / pp ), 0 ), 
-                               ( pp3 == 0. ? cxmake( -nh, 0 ) : cxmake( nh * p[1], p[2] ) / sqrt( 2. * pp * pp3 ) ) };
+                               ( pp3 == 0. ? cxmake( -nh, 0 ) : cxmake( nh * pvec1, pvec2 ) / sqrt( 2. * pp * pp3 ) ) };
         fi[2] = sfomega[0] * chi[im];
         fi[3] = sfomega[0] * chi[ip];
         fi[4] = sfomega[1] * chi[im];
@@ -97,9 +97,9 @@ namespace MG5_sm
     }
     else
     {
-      const fptype sqp0p3 = ( p[1] == 0. and p[2] == 0. and p[3] < 0. ? 0. : sqrt( max( p[0] + p[3], 0. ) ) * nsf );
+      const fptype sqp0p3 = ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0. ? 0. : sqrt( max( p0 + pvec3, 0. ) ) * nsf );
       const cxtype chi[2] = { cxmake( sqp0p3, 0. ),
-                              ( sqp0p3 == 0. ? cxmake( -nhel * sqrt( 2. * p[0] ), 0. ) : cxmake( nh * p[1], p[2] ) / sqp0p3 ) };
+                              ( sqp0p3 == 0. ? cxmake( -nhel * sqrt( 2. * p0 ), 0. ) : cxmake( nh * pvec1, pvec2 ) / sqp0p3 ) };
       if ( nh == 1 )
       {
         fi[2] = cxmake( 0, 0 );
