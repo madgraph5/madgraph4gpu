@@ -923,11 +923,11 @@ namespace Proc
     //const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
 
 #ifdef __CUDACC__
-    //opzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0 );
-    oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w[0], 0 );
+    opzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0 );
+    //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w[0], 0 ); // tested ok (much slower)
 #else
-    //opzxxx( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
-    oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w[0], ievt, 0 );
+    opzxxx( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
+    //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w[0], ievt, 0 ); // tested ok (slower)
 #endif
 
 #ifdef __CUDACC__
@@ -937,17 +937,19 @@ namespace Proc
 #endif
 
 #ifdef __CUDACC__
-    ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], 2 );
+    //ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], 2 );
+    ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w[2], 2 );
 #else
-    ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
+    //ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
+    ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w[2], ievt, 2 );
 #endif
 
 #ifdef __CUDACC__
-    //oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3 );
-    oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w[3], 3 );
+    oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3 );
+    //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w[3], 3 ); // tested ok (slower)
 #else
-    //oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
-    oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w[3], ievt, 3 );
+    oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
+    //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w[3], ievt, 3 ); // tested ok (slower)
 #endif
 
     // Calculate color flows
