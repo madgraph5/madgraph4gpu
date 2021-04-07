@@ -1161,7 +1161,7 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI( 0, 1 );
-    // Note: computing TMP4 before TMP3 increases C++ speed by ~1%
+    // Note: inverting the order and computing TMP4 before TMP3 has increased C++ speed by ~1%
     const cxtype TMP4 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
                          F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
     const cxtype TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
@@ -1262,10 +1262,11 @@ namespace MG5_sm
     V3[0] = +F1[0] + F2[0];
     V3[1] = +F1[1] + F2[1];
     const fptype P3[4] = { -cxreal( V3[0] ), -cxreal( V3[1] ), -cximag( V3[1] ), -cximag( V3[0] ) };
-    const cxtype TMP5 = (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) +
-                         F1[5] * (F2[2] * (-P3[1] + cI * (P3[2])) + F2[3] * (P3[0] + P3[3])));
+    // Note: inverting the order and computing TMP2 before TMP5 has increased C++ speed by ~0.5%
     const cxtype TMP2 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
                          F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
+    const cxtype TMP5 = (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) +
+                         F1[5] * (F2[2] * (-P3[1] + cI * (P3[2])) + F2[3] * (P3[0] + P3[3])));
     const cxtype denom = 1./((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
     V3[2] = denom * (-2. * cI) *
       (COUP2 * (OM3 * - 1./2. * P3[0] * (TMP2 + 2. * (TMP5)) +
