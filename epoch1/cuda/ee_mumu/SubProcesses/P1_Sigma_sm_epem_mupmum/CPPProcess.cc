@@ -975,9 +975,11 @@ namespace Proc
 #endif
 
 #ifdef __CUDACC__
-    oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3 );
+    //oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3 );
+    oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w[3], 3 );
 #else
-    oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
+    //oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
+    oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w[3], ievt, 3 );
 #endif
 
     // Calculate color flows
