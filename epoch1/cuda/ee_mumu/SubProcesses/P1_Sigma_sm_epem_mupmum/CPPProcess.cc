@@ -923,7 +923,6 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  /*
   __device__
   void FFV1_0( const cxtype_sv F1[],   // input: wavefunction1[6]
                const cxtype_sv F2[],   // input: wavefunction2[6]
@@ -961,10 +960,10 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
-  */
 
   //--------------------------------------------------------------------------
 
+  /*
   __device__
   void FFV1_0( const cxtype F1[],    // input: wavefunction1[6]
                const cxtype F2[],    // input: wavefunction2[6]
@@ -983,10 +982,11 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
+  */
 
   //--------------------------------------------------------------------------
 
-  /*
+  __device__
   void FFV1P0_3( const cxtype_sv F1[],     // input: wavefunction1[6]
                  const cxtype_sv F2[],     // input: wavefunction2[6]
                  const cxtype COUP,
@@ -1029,10 +1029,10 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
-  */
 
   //--------------------------------------------------------------------------
 
+  /*
   __device__
   void FFV1P0_3( const cxtype F1[],   // input: wavefunction1[6]
                  const cxtype F2[],   // input: wavefunction2[6]
@@ -1063,6 +1063,7 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
+  */
 
   //--------------------------------------------------------------------------
 
@@ -1195,7 +1196,6 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  /*
   __device__
   void FFV2_4_0( const cxtype_sv F1[],   // input: wavefunction1[6]
                  const cxtype_sv F2[],   // input: wavefunction2[6]
@@ -1230,10 +1230,10 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
-  */
 
   //--------------------------------------------------------------------------
 
+  /*
   __device__
   void FFV2_4_0( const cxtype F1[],    // input: wavefunction1[6]
                  const cxtype F2[],    // input: wavefunction2[6]
@@ -1254,10 +1254,10 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
+  */
 
   //--------------------------------------------------------------------------
 
-  /*
   __device__
   void FFV2_4_3( const cxtype_sv F1[],   // input: wavefunction1[6]
                  const cxtype_sv F2[],   // input: wavefunction2[6]
@@ -1327,10 +1327,10 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
-  */
 
   //--------------------------------------------------------------------------
 
+  /*
   __device__
   void FFV2_4_3( const cxtype F1[],   // input: wavefunction1[6]
                  const cxtype F2[],   // input: wavefunction2[6]
@@ -1380,6 +1380,7 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
+  */
 
 }  // end namespace
 
