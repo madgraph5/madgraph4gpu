@@ -87,8 +87,8 @@ namespace MG5_sm
         const int im = ( 1 - nh ) / 2;
         const fptype sfomega[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
         const fptype pp3 = max( pp + pvec3, 0. );
-        const cxtype chi[2] = { cxmake( sqrt ( pp3 * 0.5 / pp ), 0 ), 
-                               ( pp3 == 0. ? cxmake( -nh, 0 ) : cxmake( nh * pvec1, pvec2 ) / sqrt( 2. * pp * pp3 ) ) };
+        const cxtype chi[2] = { cxmake( sqrt ( pp3 * 0.5 / pp ), 0 ),
+                                ( pp3 == 0. ? cxmake( -nh, 0 ) : cxmake( nh * pvec1, pvec2 ) / sqrt( 2. * pp * pp3 ) ) };
         fi[2] = sfomega[0] * chi[im];
         fi[3] = sfomega[0] * chi[ip];
         fi[4] = sfomega[1] * chi[im];
@@ -282,20 +282,18 @@ namespace MG5_sm
 #else
     using std::min;
 #endif
-    const fptype& p0 = pIparIp4Ievt(allmomenta, ipar, 0, ievt);
-    const fptype& p1 = pIparIp4Ievt(allmomenta, ipar, 1, ievt);
-    const fptype& p2 = pIparIp4Ievt(allmomenta, ipar, 2, ievt);
-    const fptype& p3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt);
-    // fptype p[4] = {0, pvec[0], pvec[1], pvec[2]};
-    // p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]+vmass*vmass);
+    const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+    const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
+    const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
+    const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
     sqh = sqrt(0.5);
     hel = fptype(nhel);
     nsvahl = nsv * std::abs(hel);
-    pt2 = (p1 * p1) + (p2 * p2);
-    pp = min(p0, sqrt(pt2 + (p3 * p3)));
+    pt2 = (pvec1 * pvec1) + (pvec2 * pvec2);
+    pp = min(pvec0, sqrt(pt2 + (pvec3 * pvec3)));
     pt = min(pp, sqrt(pt2));
-    vc[0] = cxtype(p0 * nsv, p3 * nsv);
-    vc[1] = cxtype(p1 * nsv, p2 * nsv);
+    vc[0] = cxtype(pvec0 * nsv, pvec3 * nsv);
+    vc[1] = cxtype(pvec1 * nsv, pvec2 * nsv);
     if (vmass != 0.0)
     {
       hel0 = 1.0 - std::abs(hel);
@@ -308,43 +306,43 @@ namespace MG5_sm
       }
       else
       {
-        emp = p0/(vmass * pp);
+        emp = pvec0/(vmass * pp);
         vc[2] = cxtype(hel0 * pp/vmass, 0.0);
         vc[5] =
-          cxtype(hel0 * p3 * emp + hel * pt/pp * sqh, 0.0);
+          cxtype(hel0 * pvec3 * emp + hel * pt/pp * sqh, 0.0);
         if (pt != 0.0)
         {
-          pzpt = p3/(pp * pt) * sqh * hel;
-          vc[3] = cxtype(hel0 * p1 * emp - p1 * pzpt,
-                         - nsvahl * p2/pt * sqh);
-          vc[4] = cxtype(hel0 * p2 * emp - p2 * pzpt,
-                         nsvahl * p1/pt * sqh);
+          pzpt = pvec3/(pp * pt) * sqh * hel;
+          vc[3] = cxtype(hel0 * pvec1 * emp - pvec1 * pzpt,
+                         - nsvahl * pvec2/pt * sqh);
+          vc[4] = cxtype(hel0 * pvec2 * emp - pvec2 * pzpt,
+                         nsvahl * pvec1/pt * sqh);
         }
         else
         {
           vc[3] = cxtype(-hel * sqh, 0.0);
-          vc[4] = cxtype(0.0, nsvahl * (p3 < 0) ? - abs(sqh)
+          vc[4] = cxtype(0.0, nsvahl * (pvec3 < 0) ? - abs(sqh)
                          : abs(sqh));
         }
       }
     }
     else
     {
-      // pp = p0;
-      pt = sqrt((p1 * p1) + (p2 * p2));
+      // pp = pvec0;
+      pt = sqrt((pvec1 * pvec1) + (pvec2 * pvec2));
       vc[2] = cxtype(0.0, 0.0);
-      vc[5] = cxtype(hel * pt/p0 * sqh, 0.0);
+      vc[5] = cxtype(hel * pt/pvec0 * sqh, 0.0);
       if (pt != 0.0)
       {
-        pzpt = p3/(p0 * pt) * sqh * hel;
-        vc[3] = cxtype(-p1 * pzpt, -nsv * p2/pt * sqh);
-        vc[4] = cxtype(-p2 * pzpt, nsv * p1/pt * sqh);
+        pzpt = pvec3/(pvec0 * pt) * sqh * hel;
+        vc[3] = cxtype(-pvec1 * pzpt, -nsv * pvec2/pt * sqh);
+        vc[4] = cxtype(-pvec2 * pzpt, nsv * pvec1/pt * sqh);
       }
       else
       {
         vc[3] = cxtype(-hel * sqh, 0.0);
         vc[4] =
-          cxtype(0.0, nsv * (p3 < 0) ? - abs(sqh) : abs(sqh));
+          cxtype(0.0, nsv * (pvec3 < 0) ? - abs(sqh) : abs(sqh));
       }
     }
     mgDebug( 1, __FUNCTION__ );
@@ -368,13 +366,13 @@ namespace MG5_sm
 #ifdef __CUDACC__
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
 #endif
-    const fptype& p0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
-    const fptype& p1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
-    const fptype& p2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
-    const fptype& p3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+    const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+    const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
+    const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
+    const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
     sc[2] = cxmake( 1., 0. );
-    sc[0] = cxmake( p0 * nss, p3 * nss );
-    sc[1] = cxmake( p1 * nss, p2 * nss );
+    sc[0] = cxmake( pvec0 * nss, pvec3 * nss );
+    sc[1] = cxmake( pvec1 * nss, pvec2 * nss );
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -400,16 +398,16 @@ namespace MG5_sm
     using std::min;
     using std::max;
 #endif
-    const fptype& p0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
-    const fptype& p1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
-    const fptype& p2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
-    const fptype& p3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-    fo[0] = cxtype(p0 * nsf, p3 * nsf);
-    fo[1] = cxtype(p1 * nsf, p2 * nsf);
+    const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+    const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
+    const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
+    const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+    fo[0] = cxtype( pvec0 * nsf, pvec3 * nsf );
+    fo[1] = cxtype( pvec1 * nsf, pvec2 * nsf );
     const int nh = nhel * nsf;
     if ( fmass != 0. )
     {
-      const fptype pp = min( p0, sqrt( ( p1 * p1 ) + ( p2 * p2 ) + ( p3 * p3 ) ) );
+      const fptype pp = min( pvec0, sqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) + ( pvec3 * pvec3 ) ) );
       if ( pp == 0. )
       {
         fptype sqm[2] = { sqrt( std::abs( fmass ) ), 0 };
@@ -425,14 +423,14 @@ namespace MG5_sm
       {
         const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * 0.5,
                                fptype( 1 + nsf - ( 1 - nsf ) * nh ) * 0.5 };
-        fptype omega[2] = { sqrt( p0 + pp ), 0 };
+        fptype omega[2] = { sqrt( pvec0 + pp ), 0 };
         omega[1] = fmass / omega[0];
         const int ip = ( 1 + nh ) / 2;
         const int im = ( 1 - nh ) / 2;
         const fptype sfomeg[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
-        const fptype pp3 = max( pp + p3, 0. );
+        const fptype pp3 = max( pp + pvec3, 0. );
         const cxtype chi[2] = { cxmake( sqrt( pp3 * 0.5 / pp ), 0. ),
-                                ( ( pp3 == 0. ) ? cxmake( -nh, 0. ) : cxmake( nh * p1, -p2 ) / sqrt( 2. * pp * pp3 ) ) };
+                                ( ( pp3 == 0. ) ? cxmake( -nh, 0. ) : cxmake( nh * pvec1, -pvec2 ) / sqrt( 2. * pp * pp3 ) ) };
         fo[2] = sfomeg[1] * chi[im];
         fo[3] = sfomeg[1] * chi[ip];
         fo[4] = sfomeg[0] * chi[im];
@@ -441,9 +439,11 @@ namespace MG5_sm
     }
     else
     {
-      const fptype sqp0p3 = ( ( p1 == 0. ) and ( p2 == 0. ) and ( p3 < 0. ) ? 0. : sqrt( max( p0 + p3, 0. ) ) * nsf );
+      const fptype sqp0p3 = ( ( pvec1 == 0. ) and ( pvec2 == 0. ) and ( pvec3 < 0. )
+                              ? 0. : sqrt( max( pvec0 + pvec3, 0. ) ) * nsf );
       const cxtype chi[2] = { cxmake( sqp0p3, 0. ),
-                              ( ( sqp0p3 == 0. ) ? cxmake( -nhel, 0. ) * sqrt( 2. * p0 ) : cxmake( nh * p1, -p2 ) / sqp0p3 ) };
+                              ( ( sqp0p3 == 0. ) ? cxmake( -nhel, 0. ) * sqrt( 2. * pvec0 )
+                                : cxmake( nh * pvec1, -pvec2 ) / sqp0p3 ) };
       if ( nh == 1 )
       {
         fo[2] = chi[0];
@@ -572,17 +572,17 @@ namespace MG5_sm
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "oxzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
 #endif
-      const fptype& p0 = pIparIp4Ievt(allmomenta, ipar, 0, ievt);
-      const fptype& p1 = pIparIp4Ievt(allmomenta, ipar, 1, ievt);
-      const fptype& p2 = pIparIp4Ievt(allmomenta, ipar, 2, ievt);
-      const fptype& p3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt);
-      fo[0] = cxmake( p0 * nsf, p3 * nsf );
-      fo[1] = cxmake( p1 * nsf, p2 * nsf );
+      const fptype& pvec0 = pIparIp4Ievt(allmomenta, ipar, 0, ievt);
+      const fptype& pvec1 = pIparIp4Ievt(allmomenta, ipar, 1, ievt);
+      const fptype& pvec2 = pIparIp4Ievt(allmomenta, ipar, 2, ievt);
+      const fptype& pvec3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt);
+      fo[0] = cxmake( pvec0 * nsf, pvec3 * nsf );
+      fo[1] = cxmake( pvec1 * nsf, pvec2 * nsf );
       const int nh = nhel * nsf;
-      //const float sqp0p3 = sqrtf(p0 + p3) * nsf; // AV to OM: why force a float here?
-      const fptype sqp0p3 = sqrt( p0 + p3 ) * nsf;
+      //const float sqp0p3 = sqrtf( pvec0 + pvec3 ) * nsf; // AV to OM: why force a float here?
+      const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
       const cxtype chi0 = cxmake( sqp0p3, 0 );
-      const cxtype chi1 = cxmake( nh * p1 / sqp0p3, -p2 / sqp0p3 );
+      const cxtype chi1 = cxmake( nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
       const cxtype zero = cxmake( 0, 0 );
       if ( nh == 1 )
       {
