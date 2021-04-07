@@ -1297,11 +1297,7 @@ namespace MG5_sm
     if (M3 != 0.) OM3 = 1./(M3 * M3);
     V3[0] = +F1[0] + F2[0];
     V3[1] = +F1[1] + F2[1];
-    fptype P3[4];
-    P3[0] = -V3[0].real();
-    P3[1] = -V3[1].real();
-    P3[2] = -V3[1].imag();
-    P3[3] = -V3[0].imag();
+    const fptype P3[4] = { -V3[0].real(), -V3[1].real(), -V3[1].imag(), -V3[0].imag() };
     const cxtype TMP5 = (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) +
                          F1[5] * (F2[2] * (-P3[1] + cI * (P3[2])) + F2[3] * (P3[0] + P3[3])));
     const cxtype TMP2 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
