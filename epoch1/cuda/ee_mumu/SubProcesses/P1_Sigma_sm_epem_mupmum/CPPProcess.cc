@@ -896,19 +896,19 @@ namespace Proc
 #endif
 
 #ifdef __CUDACC__
-    //imzxxx( allmomenta, cHel[ihel][1], +1, w[1], 1 );
-    ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w[1], 1 ); // tested ok (slower)
+    imzxxx( allmomenta, cHel[ihel][1], +1, w[1], 1 );
+    //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w[1], 1 ); // tested ok (slower)
 #else
-    //imzxxx( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
-    ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w[1], ievt, 1 ); // tested ok (a bit slower)
+    imzxxx( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
+    //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w[1], ievt, 1 ); // tested ok (a bit slower)
 #endif
 
 #ifdef __CUDACC__
-    //ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], 2 );
-    ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w[2], 2 ); // tested ok (a bit slower)
+    ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], 2 );
+    //ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w[2], 2 ); // tested ok (a bit slower)
 #else
-    //ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
-    ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w[2], ievt, 2 ); // tested ok (a bit slower)
+    ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
+    //ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w[2], ievt, 2 ); // tested ok (a bit slower)
 #endif
 
 #ifdef __CUDACC__
