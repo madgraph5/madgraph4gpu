@@ -957,9 +957,11 @@ namespace Proc
     //const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
 
 #ifdef __CUDACC__
-    opzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0 );
+    //opzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0 );
+    oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w[0], 0 );
 #else
-    opzxxx( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
+    //opzxxx( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
+    oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w[0], ievt, 0 );
 #endif
 
 #ifdef __CUDACC__
