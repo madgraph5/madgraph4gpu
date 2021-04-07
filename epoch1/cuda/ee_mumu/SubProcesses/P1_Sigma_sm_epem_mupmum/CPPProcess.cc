@@ -80,7 +80,7 @@ namespace MG5_sm
       }
       else
       {
-        const fptype sf[2] = { (1 + nsf + (1 - nsf) * nh) * 0.5, (1 + nsf - (1 - nsf) * nh) * 0.5 };
+        const fptype sf[2] = { ( 1 + nsf + ( 1 - nsf ) * nh ) * 0.5, ( 1 + nsf - ( 1 - nsf ) * nh ) * 0.5 };
         fptype omega[2] = { sqrt( p0 + pp ), 0 };
         omega[1] = fmass / omega[0];
         const int ip = ( 1 + nh ) / 2;
@@ -233,8 +233,8 @@ namespace MG5_sm
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-      fi[0] = cxtype (-pvec0 * nsf, -pvec2 * nsf);
-      fi[1] = cxtype (-pvec0 * nsf, -pvec1 * nsf);
+      fi[0] = cxmake( -pvec0 * nsf, -pvec2 * nsf );
+      fi[1] = cxmake( -pvec0 * nsf, -pvec1 * nsf );
       const int nh = nhel * nsf;
       //const float sqp0p3 = sqrtf(pvec0 + pvec3) * nsf; // AV to OM: why force a float here?
       const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
@@ -395,8 +395,8 @@ namespace MG5_sm
     const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
     const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
     const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-    fo[0] = cxtype( pvec0 * nsf, pvec3 * nsf );
-    fo[1] = cxtype( pvec1 * nsf, pvec2 * nsf );
+    fo[0] = cxmake( pvec0 * nsf, pvec3 * nsf );
+    fo[1] = cxmake( pvec1 * nsf, pvec2 * nsf );
     const int nh = nhel * nsf;
     if ( fmass != 0. )
     {
@@ -407,10 +407,10 @@ namespace MG5_sm
         sqm[1] = ( fmass < 0 ? - abs( sqm[0] ) : abs( sqm[0] ) );
         const int ip = -( ( 1 - nh ) / 2 ) * nhel;
         const int im = ( 1 + nh ) / 2 * nhel;
-        fo[2] = im * sqm[std::abs(ip)];
-        fo[3] = ip * nsf * sqm[std::abs(ip)];
-        fo[4] = im * nsf * sqm[std::abs(im)];
-        fo[5] = ip * sqm[std::abs(im)];
+        fo[2] = im * sqm[std::abs( ip )];
+        fo[3] = ip * nsf * sqm[std::abs( ip )];
+        fo[4] = im * nsf * sqm[std::abs( im )];
+        fo[5] = ip * sqm[std::abs( im )];
       }
       else
       {
@@ -423,7 +423,8 @@ namespace MG5_sm
         const fptype sfomeg[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
         const fptype pp3 = max( pp + pvec3, 0. );
         const cxtype chi[2] = { cxmake( sqrt( pp3 * 0.5 / pp ), 0. ),
-                                ( ( pp3 == 0. ) ? cxmake( -nh, 0. ) : cxmake( nh * pvec1, -pvec2 ) / sqrt( 2. * pp * pp3 ) ) };
+                                ( ( pp3 == 0. ) ? cxmake( -nh, 0. )
+                                  : cxmake( nh * pvec1, -pvec2 ) / sqrt( 2. * pp * pp3 ) ) };
         fo[2] = sfomeg[1] * chi[im];
         fo[3] = sfomeg[1] * chi[ip];
         fo[4] = sfomeg[0] * chi[im];
@@ -441,13 +442,13 @@ namespace MG5_sm
       {
         fo[2] = chi[0];
         fo[3] = chi[1];
-        fo[4] = cxtype( 0, 0 );
-        fo[5] = cxtype( 0, 0 );
+        fo[4] = cxmake( 0, 0 );
+        fo[5] = cxmake( 0, 0 );
       }
       else
       {
-        fo[2] = cxtype( 0, 0 );
-        fo[3] = cxtype( 0, 0 );
+        fo[2] = cxmake( 0, 0 );
+        fo[3] = cxmake( 0, 0 );
         fo[4] = chi[1];
         fo[5] = chi[0];
       }
@@ -482,7 +483,7 @@ namespace MG5_sm
       fo[0] = cxmake( pvec3 * nsf, pvec3 * nsf );
       fo[1] = cxmake( 0, 0 );
       const int nh = nhel * nsf;
-      const cxtype CSQP0P3 = cxmake( sqrt( 2. * pvec3 ) * nsf, 0. );
+      const cxtype CSQP0P3 = cxmake( sqrt( 2. * pvec3 ) * nsf, 0 );
       fo[3] = fo[1];
       fo[4] = fo[1];
       if ( nh == 1 )
