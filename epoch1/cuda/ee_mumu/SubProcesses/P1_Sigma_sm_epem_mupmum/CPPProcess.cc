@@ -931,9 +931,11 @@ namespace Proc
 #endif
 
 #ifdef __CUDACC__
-    imzxxx( allmomenta, cHel[ihel][1], +1, w[1], 1 );
+    //imzxxx( allmomenta, cHel[ihel][1], +1, w[1], 1 );
+    ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w[1], 1 );
 #else
-    imzxxx( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
+    //imzxxx( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
+    ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w[1], ievt, 1 );
 #endif
 
 #ifdef __CUDACC__
