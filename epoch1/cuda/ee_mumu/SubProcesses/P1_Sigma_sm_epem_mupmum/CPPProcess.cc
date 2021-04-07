@@ -57,9 +57,9 @@ namespace MG5_sm
     using std::max;
     using std::min;
 #endif
-    const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
-    const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
-    const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+    const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt ); // not a ref (fewer registers!?)
+    const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt ); // not a ref (fewer registers!?)
+    const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt ); // not a ref (fewer registers!?)
     const fptype p0 = sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 );
     fi[0] = cxmake( -p0 * nsf, -pvec3 * nsf );
     fi[1] = cxmake( -pvec1 * nsf, -pvec2 * nsf );
