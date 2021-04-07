@@ -1197,10 +1197,11 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI = cxmake( 0, 1 );
-    const cxtype TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
-                         F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
+    // Note: computing TMP4 before TMP3 increases C++ speed by ~1%
     const cxtype TMP4 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
                          F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
+    const cxtype TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
+                         F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
     (*vertex) = ( -1. ) * (COUP2 * (+cI * (TMP3) + 2. * cI * (TMP4)) + cI * (TMP3 * COUP1));
     mgDebug( 1, __FUNCTION__ );
     return;
