@@ -57,7 +57,7 @@ namespace MG5_sm
     using std::max;
     using std::min;
 #endif
-    // const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+    //const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
     const fptype& pvec1 = pIparIp4Ievt(allmomenta, ipar, 1, ievt);
     const fptype& pvec2 = pIparIp4Ievt(allmomenta, ipar, 2, ievt);
     const fptype& pvec3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt);
