@@ -316,7 +316,7 @@ namespace MG5_sm
         else
         {
           vc[3] = cxmake( -hel * sqh, 0. );
-          vc[4] = cxmake( 0., nsvahl * ( pvec3 < 0 ) ? - abs( sqh ) : abs( sqh ) );
+          vc[4] = cxmake( 0., nsvahl * ( pvec3 < 0 ? - abs( sqh ) : abs( sqh ) ) ); // FIXME? was build warning
         }
       }
     }
@@ -335,7 +335,7 @@ namespace MG5_sm
       else
       {
         vc[3] = cxmake( -hel * sqh, 0 );
-        vc[4] = cxmake( 0, nsv * ( pvec3 < 0 ) ? -abs( sqh ) : abs( sqh ) );
+        vc[4] = cxmake( 0, nsv * ( pvec3 < 0 ? -abs( sqh ) : abs( sqh ) ) ); // FIXME? was build warning
       }
     }
     mgDebug( 1, __FUNCTION__ );
