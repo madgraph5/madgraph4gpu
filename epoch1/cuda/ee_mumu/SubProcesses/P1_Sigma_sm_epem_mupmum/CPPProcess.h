@@ -1,9 +1,11 @@
 //==========================================================================
 // This file has been automatically generated for C++ Standalone by
-// MadGraph5_aMC@NLO v. 2.7.3.py3, 2020-06-28
+// MadGraph5_aMC@NLO v. 2.8.2, 2020-10-30
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
+
+#include "../../src/HelAmps_sm.h"
 
 #ifndef MG5_Sigma_sm_epem_mupmum_H
 #define MG5_Sigma_sm_epem_mupmum_H
@@ -11,7 +13,6 @@
 #include <cassert>
 #include <complex>
 #include <vector>
-#include <fstream>
 #include <iostream>
 
 #include "mgOnGpuConfig.h"
@@ -56,61 +57,53 @@ namespace Proc
   {
   public:
 
-    CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose = false );
+    // Constructor (from command line arguments)
+    CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose = false, bool debug = false );
 
+    // Destructor
     ~CPPProcess();
 
-    // Initialize process.
-    virtual void initProc(std::string param_card_name);
-
-    virtual int code() const {return 1;}
-
-    const std::vector<fptype> &getMasses() const;
-
-    void setInitial(int inid1, int inid2)
-    {
-      id1 = inid1;
-      id2 = inid2;
-    }
-
-    int getDim() const {return dim;}
-
-    int getNIOParticles() const {return nexternal;}
-
-    // Constants for array limits
-    static const int ninitial = mgOnGpu::npari;
-    static const int nexternal = mgOnGpu::npar;
-    //static const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
+    // Initialize process (read model parameters from file)
+    virtual void initProc( const std::string& param_card_name );
 
     // Retrieve the compiler that was used to build this module
     static const std::string getCompiler();
 
-  private:
+    // Other methods of this instance (???)
+    //const std::vector<fptype>& getMasses() const { return m_masses; }
+    //virtual int code() const{ return 1; }
+    //void setInitial( int inid1, int inid2 ){ id1 = inid1; id2 = inid2; }
+    //int getDim() const { return dim; }
+    //int getNIOParticles() const { return nexternal; }
 
-    //int m_numiterations;
+  public:
 
-    // gpu variables
-    int gpu_nblocks;
-    int gpu_nthreads;
-    int dim; // gpu_nblocks * gpu_nthreads;
-
-    bool m_verbose; // print verbose info
-
+    // Hardcoded parameters for this process (constant class variables)
+    static const int ninitial = mgOnGpu::npari;
+    static const int nexternal = mgOnGpu::npar;
+    //static const int nioparticles = 4;
+    //static const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
     static const int nwavefuncs = 6;
     static const int namplitudes = 2;
     static const int ncomb = 16;
-    static const int wrows = 6;
+    //static const int wrows = 6; // ???
 
-    //cxtype** amp;
+  private:
 
-    // Pointer to the model parameters
-    Parameters_sm * pars;
+    // Command line arguments (constructor)
+    int m_numiterations; // number of iterations (each iteration has nblocks*nthreads events)
+    int m_ngpublocks; // number of GPU blocks in one grid (i.e. one iteration)
+    int m_ngputhreads; // number of GPU threads in a block
+    bool m_verbose;
+    bool m_debug;
 
-    // vector with external particle masses
-    std::vector<fptype> mME;
+    // Physics model parameters to be read from file (initProc function)
+    Parameters_sm* m_pars;
+    std::vector<fptype> m_masses; // external particle masses
 
-    // Initial particle ids
-    int id1, id2;
+    // Other variables of this instance (???)
+    //int id1, id2; // initial particle ids
+    //cxtype** amp; // ???
 
   };
 
