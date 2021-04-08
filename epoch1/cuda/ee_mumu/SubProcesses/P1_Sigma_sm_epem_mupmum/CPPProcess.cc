@@ -1,6 +1,6 @@
 //==========================================================================
 // This file has been automatically generated for C++ Standalone by
-// MadGraph5_aMC@NLO v. 2.7.3.py3, 2020-06-28
+// MadGraph5_aMC@NLO v. 2.8.2, 2020-10-30
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -827,7 +827,7 @@ namespace MG5_sm
 
 //==========================================================================
 // This file has been automatically generated for C++ Standalone by
-// MadGraph5_aMC@NLO v. 2.7.3.py3, 2020-06-28
+// MadGraph5_aMC@NLO v. 2.8.2, 2020-10-30
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -971,15 +971,18 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  CPPProcess::CPPProcess( int /*numiterations*/,
-                          int gpublocks,
-                          int gputhreads,
-                          bool verbose )
-    : //m_numiterations( numiterations ),
-    gpu_nblocks( gpublocks ),
-    gpu_nthreads( gputhreads ),
-    dim( gpu_nblocks * gpu_nthreads ),
-    m_verbose( verbose )
+  CPPProcess::CPPProcess( int numiterations,
+                          int ngpublocks,
+                          int ngputhreads,
+                          bool verbose,
+                          bool debug )
+    : m_numiterations( numiterations )
+    , m_ngpublocks( ngpublocks )
+    , m_ngputhreads( ngputhreads )
+    , m_verbose( verbose )
+    , m_debug( debug )
+    , m_pars( 0 )
+    , m_masses()
   {
     // Helicities for the process - nodim
     const int tHel[ncomb][nexternal] =
@@ -1002,36 +1005,31 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  const std::vector<fptype> &CPPProcess::getMasses() const {return mME;}
-
-  //--------------------------------------------------------------------------
-  // Initialize process.
-
-  void CPPProcess::initProc(std::string param_card_name)
+  void CPPProcess::initProc( const std::string& param_card_name )
   {
     // Instantiate the model class and set parameters that stay fixed during run
-    pars = Parameters_sm::getInstance();
-    SLHAReader slha(param_card_name, m_verbose);
-    pars->setIndependentParameters(slha);
-    pars->setIndependentCouplings();
-    if (m_verbose)
+    m_pars = Parameters_sm::getInstance();
+    SLHAReader slha( param_card_name, m_verbose );
+    m_pars->setIndependentParameters( slha );
+    m_pars->setIndependentCouplings();
+    if ( m_verbose )
     {
-      pars->printIndependentParameters();
-      pars->printIndependentCouplings();
+      m_pars->printIndependentParameters();
+      m_pars->printIndependentCouplings();
     }
-    pars->setDependentParameters();
-    pars->setDependentCouplings();
+    m_pars->setDependentParameters();
+    m_pars->setDependentCouplings();
 
     // Set external particle masses for this matrix element
-    mME.push_back(pars->ZERO);
-    mME.push_back(pars->ZERO);
-    mME.push_back(pars->ZERO);
-    mME.push_back(pars->ZERO);
+    m_masses.push_back( m_pars->ZERO );
+    m_masses.push_back( m_pars->ZERO );
+    m_masses.push_back( m_pars->ZERO );
+    m_masses.push_back( m_pars->ZERO );
 
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
-    static const cxtype tIPC[3] = { cxmake( pars->GC_3 ), cxmake( pars->GC_50 ), cxmake( pars->GC_59 ) };
-    static const fptype tIPD[2] = { (fptype)pars->mdl_MZ, (fptype)pars->mdl_WZ };
+    const cxtype tIPC[3] = { cxmake( m_pars->GC_3 ), cxmake( m_pars->GC_50 ), cxmake( m_pars->GC_59 ) };
+    const fptype tIPD[2] = { (fptype)m_pars->mdl_MZ, (fptype)m_pars->mdl_WZ };
 #ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(cxtype) ) );
     checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof(fptype) ) );
