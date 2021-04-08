@@ -67,12 +67,12 @@ namespace MG5_sm
                const int ipar )          // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-#ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
-#endif
 #ifndef __CUDACC__
     using std::max;
     using std::min;
+#endif
+#ifdef __CUDACC__
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
 #endif
     const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt ); // not a ref (fewer registers!?)
     const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt ); // not a ref (fewer registers!?)
@@ -149,8 +149,8 @@ namespace MG5_sm
 #endif
                const int ipar )          // input: particle# out of npar
   {
-    mgDebug( 0, __FUNCTION__ );
     // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
+    mgDebug( 0, __FUNCTION__ );
 #ifdef __CUDACC__
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
 #endif
@@ -188,8 +188,8 @@ namespace MG5_sm
 #endif
                const int ipar )          // input: particle# out of npar
   {
-    mgDebug( 0, __FUNCTION__ );
     // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
+    mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     // +++ START LOOP ON IEVT +++
     //for ( int ievt = 0; ievt < nevt; ++ievt )
@@ -235,8 +235,8 @@ namespace MG5_sm
 #endif
                const int ipar )          // input: particle# out of npar
   {
-    mgDebug( 0, __FUNCTION__ );
     // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
+    mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     // +++ START LOOP ON IEVT +++
     //for ( int ievt = 0; ievt < nevt; ++ievt )
@@ -292,10 +292,11 @@ namespace MG5_sm
                const int ipar )          // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
+#ifndef __CUDACC__
+    using std::min;
+#endif
 #ifdef __CUDACC__
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
-#else
-    using std::min;
 #endif
     const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
     const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
@@ -401,12 +402,12 @@ namespace MG5_sm
                const int ipar )          // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-#ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
-#endif
 #ifndef __CUDACC__
     using std::min;
     using std::max;
+#endif
+#ifdef __CUDACC__
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
 #endif
     const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
     const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
@@ -486,8 +487,8 @@ namespace MG5_sm
 #endif
                const int ipar )          // input: particle# out of npar
   {
-    mgDebug( 0, __FUNCTION__ );
     // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
+    mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     // +++ START LOOP ON IEVT +++
     //for ( int ievt = 0; ievt < nevt; ++ievt )
@@ -531,8 +532,8 @@ namespace MG5_sm
 #endif
                const int ipar )          // input: particle# out of npar
   {
-    mgDebug( 0, __FUNCTION__ );
     // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
+    mgDebug( 0, __FUNCTION__ );
 #ifdef __CUDACC__
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
 #endif
@@ -572,8 +573,8 @@ namespace MG5_sm
 #endif
                const int ipar )          // input: particle# out of npar
   {
-    mgDebug( 0, __FUNCTION__ );
     // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
+    mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     // +++ START LOOP ON IEVT +++
     //for ( int ievt = 0; ievt < nevt; ++ievt )
