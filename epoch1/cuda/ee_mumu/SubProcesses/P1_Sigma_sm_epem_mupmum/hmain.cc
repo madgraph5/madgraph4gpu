@@ -49,13 +49,31 @@ void dumptput( const std::string& tag,
 // This is compiled using g++, and then linked using nvcc with objects compiled using nvcc or g++
 int main( int argc, char **argv )
 {
+  int nthreadsomp = check_omp_threads(); // this is always > 0
+
   std::string gpuOut;
   std::vector<double> gpuStats;
   int gpuStatus;
   //int gpuMult = 1; // GPU processes same #events as CPU, with same random seeds
-  int gpuMult = 72; // GPU processes 72x #events as CPU, with different random seeds
-  int nthreadsomp = check_omp_threads(); // this is always > 0
-  gpuMult /= nthreadsomp; // reduce the number of GPU iterations if several OMP threads are used on the CPU
+  int gpuMult = 192;
+  //int gpuMult = 144;
+  //int gpuMult = 72;
+  if ( gpuMult > 1 )
+  {
+    // GPU processes processes gpuMult x #events as CPU, with different random seeds
+#if defined __AVX512F__
+    // Reduce the number of GPU iterations if SIMD is used on the CPU
+    gpuMult /= 4;
+#elif defined __AVX2__
+    // Reduce the number of GPU iterations if SIMD is used on the CPU
+    gpuMult /= 4;
+#elif defined __SSE4_2__
+    // Reduce the number of GPU iterations if SIMD is used on the CPU
+    gpuMult /= 2;
+#endif
+    // Reduce the number of GPU iterations if several OMP threads are used on the CPU
+    gpuMult /= nthreadsomp;
+  }
   std::string gpuTag = "(GPU) ";
   std::thread gpuThread( [&]{ gpuStatus = gcheck( argc, argv, gpuOut, gpuStats, gpuTag, gpuMult ); });
 
