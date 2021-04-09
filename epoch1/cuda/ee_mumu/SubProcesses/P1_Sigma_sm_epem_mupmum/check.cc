@@ -1,6 +1,7 @@
 #include "check.h"
 
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <cstring>
 #include <fstream>
@@ -89,18 +90,23 @@ inline void debug_me_is_abnormal( const fptype& me, int ievtALL )
             << std::endl;
 }
 
-inline int usage(char* argv0, int ret = 1) {
-  std::cout << "Usage: " << argv0
-            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j]"
-            << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
-  std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
-  std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
-  std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
-  std::cout << "The '-d' flag only enables NaN/abnormal warnings and OMP debugging" << std::endl;
+inline int usage( char* argv0, int ret = 1 )
+{
+  static std::atomic<int> counter( 0 );
+  if ( ++counter == 1 )
+  {
+    std::cout << "Usage: " << argv0
+              << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j]"
+              << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
+    std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
+    std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
+    std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
+    std::cout << "The '-d' flag only enables NaN/abnormal warnings and OMP debugging" << std::endl;
 #ifndef __CUDACC__
-  std::cout << std::endl << "Use the OMP_NUM_THREADS environment variable to control OMP multi-threading" << std::endl;
-  std::cout << "(OMP multithreading will be disabled if OMP_NUM_THREADS is not set)" << std::endl;
+    std::cout << std::endl << "Use the OMP_NUM_THREADS environment variable to control OMP multi-threading" << std::endl;
+    std::cout << "(OMP multithreading will be disabled if OMP_NUM_THREADS is not set)" << std::endl;
 #endif
+  }
   return ret;
 }
 
