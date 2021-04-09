@@ -276,6 +276,7 @@ int check
   check_omp_threads( debug );
 #endif
 
+#ifndef __CUDACC__
   // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the requested AVX
   // [NB: this prevents a crash on pmpe04 but not on some github CI nodes]
   auto supportsAvx = [](){
@@ -293,14 +294,15 @@ int check
     const std::string avxtag = "none";
 #endif
     if ( avxtag == "none" )
-      std::cout << "INFO: The application does not require the host to support any AVX feature" << std::endl;
+      std::cout << "INFO: CPU/C++ module does not require host to support any AVX feature" << std::endl;
     else if ( ok )
-      std::cout << "INFO: The application is built for " << avxtag << " and the host supports it" << std::endl;
+      std::cout << "INFO: CPU/C++ module is built for " << avxtag << " and host supports it" << std::endl;
     else
-      std::cout << "ERROR! The application is built for " << avxtag << " but the host does not support it" << std::endl;
+      std::cout << "ERROR! CPU/C++ module is built for " << avxtag << " but host does not support it" << std::endl;
     return ok;
   };
   if ( ! supportsAvx() ) return 1;
+#endif
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
   const int nevt = ndim; // number of events in one iteration == number of GPU threads
