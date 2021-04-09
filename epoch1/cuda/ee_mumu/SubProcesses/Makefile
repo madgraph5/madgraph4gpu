@@ -111,6 +111,7 @@ endif
 all.$(TAG): checktag ../../src $(cu_main) $(cxx_main) $(testmain)
 
 checktag:
+	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	@echo $(TAG) > $(BUILDDIR)/build.tag_new
 	@if [ ! -e $(BUILDDIR)/build.tag ]; then mv -f $(BUILDDIR)/build.tag_new $(BUILDDIR)/build.tag; elif ! cmp -s $(BUILDDIR)/build.tag_new $(BUILDDIR)/build.tag; then echo -e "Cannot build for tag=$(TAG) as old build exists for tag=`cat $(BUILDDIR)/build.tag`\nPlease run 'make clean' first"; exit 1; fi
 
@@ -123,19 +124,19 @@ $(LIBDIR)/lib$(MODELLIB).a:
 	$(MAKE) -C ../../src AVX=$(AVX) $(MAKEDEBUG)
 
 $(BUILDDIR)/gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
-	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
-	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 #$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
-#	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+#	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 #	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(AVXFLAGS) $(CUINC) -c $< -o $@
 
 $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
-	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
 $(cu_main): $(BUILDDIR)/gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)

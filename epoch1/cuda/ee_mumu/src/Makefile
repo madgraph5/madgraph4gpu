@@ -79,6 +79,7 @@ cu_objects= # NB grambo.cu must be included by gcheck.cu (no rdc)
 all.$(TAG): checktag $(target)
 
 checktag:
+	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	@echo $(TAG) > $(BUILDDIR)/build.tag_new
 	@if [ ! -e $(BUILDDIR)/build.tag ]; then mv -f $(BUILDDIR)/build.tag_new $(BUILDDIR)/build.tag; elif ! cmp -s $(BUILDDIR)/build.tag_new $(BUILDDIR)/build.tag; then echo -e "Cannot build for tag=$(TAG) as old build exists for tag=`cat $(BUILDDIR)/build.tag`\nPlease run 'make clean' first"; exit 1; fi
 
@@ -89,15 +90,15 @@ debug: $(target)
 
 # NB: cuda includes are needed in the C++ code for curand.h
 $(BUILDDIR)/%.o : %.cc *.h
-	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
 #$(BUILDDIR)/%.o : %.cu *.h
-#	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+#	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 #	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 $(target): $(cxx_objects) #$(cu_objects)
-	if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
+	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
 	$(AR) cru $@ $(cxx_objects) #$(cu_objects)
 	ranlib $(target)
 
