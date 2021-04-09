@@ -15,15 +15,15 @@ ifneq ($(findstring clang++,$(CXX)),)
 override AVX = none
 $(warning Using AVX='$(AVX)' for clang builds)
 else ifneq ($(AVX),)
-#$(info Using AVX='$(AVX)' according to user input)
+###$(info Using AVX='$(AVX)' according to user input)
 else ifneq ($(shell grep -c avx512f /proc/cpuinfo),0)
 override AVX = avx512
-#$(info Using AVX='$(AVX)' as no user input exists)
+###$(info Using AVX='$(AVX)' as no user input exists)
 else
 override AVX = avx2
 $(warning Using AVX='$(AVX)' as no user input exists and host does not support avx512f)
 endif
-$(info AVX=$(AVX))
+###$(info AVX=$(AVX))
 
 # Set the build flags appropriate to each AVX
 ifeq ($(AVX),sse42)
@@ -51,7 +51,8 @@ else
 override BUILDDIR = .
 override LIBDIR   = ../../lib
 endif
-$(info BUILDDIR=$(BUILDDIR))
+###$(info BUILDDIR=$(BUILDDIR))
+$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
 
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
@@ -111,7 +112,7 @@ all.$(TAG): checktag ../../src $(cu_main) $(cxx_main) $(testmain)
 
 checktag:
 	@echo $(TAG) > $(BUILDDIR)/build.tag_new
-	@if [ ! -e $(BUILDDIR)/build.tag ]; then mv -f $(BUILDDIR)/build.tag_new $(BUILDDIR)/build.tag; elif ! cmp -s $(BUILDDIR)/build.tag_new $(BUILDDIR)/build.tag; then echo "ERROR! Cannot build for tag=$(TAG) as old build exists for tag=`cat $(BUILDDIR)/build.tag`"; exit 1; fi
+	@if [ ! -e $(BUILDDIR)/build.tag ]; then mv -f $(BUILDDIR)/build.tag_new $(BUILDDIR)/build.tag; elif ! cmp -s $(BUILDDIR)/build.tag_new $(BUILDDIR)/build.tag; then echo -e "Cannot build for tag=$(TAG) as old build exists for tag=`cat $(BUILDDIR)/build.tag`\nPlease run 'make clean' first"; exit 1; fi
 
 debug: OPTFLAGS   = -g -O0 -DDEBUG2
 debug: CUOPTFLAGS = -G
@@ -184,16 +185,25 @@ else
 endif
 
 avxall:
+	@echo
 	make USEBUILDDIR=1 AVX=none
+	@echo
 	make USEBUILDDIR=1 AVX=sse42
+	@echo
 	make USEBUILDDIR=1 AVX=avx2
+	@echo
 	make USEBUILDDIR=1 AVX=avx512
 
 cleanall:
+	@echo
 	make clean
+	@echo
 	make USEBUILDDIR=1 AVX=none clean; make -C ../../src USEBUILDDIR=1 AVX=none clean
+	@echo
 	make USEBUILDDIR=1 AVX=sse42 clean; make -C ../../src USEBUILDDIR=1 AVX=sse42 clean
+	@echo
 	make USEBUILDDIR=1 AVX=avx2 clean; make -C ../../src USEBUILDDIR=1 AVX=avx2 clean
+	@echo
 	make USEBUILDDIR=1 AVX=avx512 clean; make -C ../../src USEBUILDDIR=1 AVX=avx512 clean
 
 distclean: cleanall
