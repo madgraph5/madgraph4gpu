@@ -182,19 +182,6 @@ int check_omp_threads( bool debug ) // returns the number of OMP threads
 }
 #endif
 
-#ifndef __CUDACC__
-const std::string check_nprocall() // returns the output of `nproc --all`
-{
-  // Get the output of "nproc --all" (https://stackoverflow.com/a/478960)
-  std::string nprocall;
-  std::array<char, 128> nprocbuf;
-  std::unique_ptr<FILE, decltype(&pclose)> nprocpipe( popen( "nproc --all", "r" ), pclose );
-  if ( !nprocpipe ) throw std::runtime_error("`nproc --all` failed?");
-  while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get()) != nullptr ) nprocall += nprocbuf.data();
-  return nprocall;
-}
-#endif
-
 #ifdef __CUDACC__
 int gcheck
 #else
@@ -770,10 +757,6 @@ int check
 
   if (perf)
   {
-#ifndef __CUDACC__
-    // Get the output of "nproc --all"
-    std::string nprocall = check_nprocall();
-#endif
     // Dump all configuration parameters and all results
     outStream << "***********************************************************************" << std::endl
 #ifdef __CUDACC__
@@ -838,7 +821,7 @@ int check
 #ifdef __CUDACC__
               << tag << "Wavefunction GPU memory     = LOCAL" << std::endl
 #else
-              << tag << "OMP threads / `nproc --all` = " << check_omp_threads() << " / " << nprocall // includes a newline
+              << tag << "OMP threads / `nproc --all` = " << check_omp_threads() << " / " << nprocall() << std::endl
 #endif
               << tag << "MatrixElements compiler     = " << process.getCompiler() << std::endl
               << "-----------------------------------------------------------------------------" << std::endl

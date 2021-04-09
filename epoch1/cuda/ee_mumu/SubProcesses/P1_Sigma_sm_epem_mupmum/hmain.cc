@@ -32,8 +32,7 @@ void dumptput( const std::string& tag,
 {
   if ( nthreadsomp > 0 )
   {
-    std::string nprocall = check_nprocall();
-    std::cout << tag << "OMP threads / `nproc --all` = " << nthreadsomp << " / " << nprocall; // includes a newline
+    std::cout << tag << "OMP threads / `nproc --all` = " << nthreadsomp << " / " << nprocall() << std::endl;
   }
   std::cout << tag << "TotalEventsComputed         = " << nevtALL << std::endl
             << std::scientific // fixed format: affects all floats (default precision: 6)

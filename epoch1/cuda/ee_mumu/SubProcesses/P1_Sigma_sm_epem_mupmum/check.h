@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <thread>
 #include <vector>
 
 // implemented in gheck.cu (compiled with nvcc)
@@ -31,10 +32,9 @@ int check_omp_threads( bool debug = false ); // returns the number of OMP thread
 //#warning CUDA defined
 #endif
 
-// implemented in check.cc (compiled with g++)
-// used by cmain/gmain/hmain.cc (compiled using g++)
+// used by check.cc and hmain.cc (compiled using g++)
 #ifndef __CUDACC__
-const std::string check_nprocall(); // returns the output of `nproc --all`
+inline int nprocall(){ return std::thread::hardware_concurrency(); }
 #endif
 
 #endif // CHECK_H
