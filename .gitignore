@@ -3,6 +3,8 @@
 *.a
 *.exe
 *.pyc
+***/SubProcesses/***/check
+
 
 # other
 *.local.log
