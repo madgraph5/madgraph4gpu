@@ -89,34 +89,37 @@ int main( int argc, char **argv )
   cpuThread.join();
   std::cout << cpuOut;
 
-  int gpuNevtALL = (int)(gpuStats[0]);
-  double gpuSumgtim = gpuStats[1];
-  double gpuSumrtim = gpuStats[2];
-  double gpuSumwtim = gpuStats[3];
+  if ( !gpuStats.empty() && !cpuStats.empty() )
+  {
+    int gpuNevtALL = (int)(gpuStats[0]);
+    double gpuSumgtim = gpuStats[1];
+    double gpuSumrtim = gpuStats[2];
+    double gpuSumwtim = gpuStats[3];
+    
+    int cpuNevtALL = (int)(cpuStats[0]);
+    double cpuSumgtim = cpuStats[1];
+    double cpuSumrtim = cpuStats[2];
+    double cpuSumwtim = cpuStats[3];
 
-  dumptime( gpuTag, gpuNevtALL, gpuSumgtim, gpuSumrtim, gpuSumwtim );
-  double gpuTputgrw = gpuNevtALL/(gpuSumgtim+gpuSumrtim+gpuSumwtim);
-  double gpuTputrw  = gpuNevtALL/(gpuSumrtim+gpuSumwtim);
-  double gpuTputw   = gpuNevtALL/(gpuSumwtim);
-  dumptput( gpuTag, gpuNevtALL, gpuTputgrw, gpuTputrw, gpuTputw, 0 );
+    dumptime( gpuTag, gpuNevtALL, gpuSumgtim, gpuSumrtim, gpuSumwtim );
+    double gpuTputgrw = gpuNevtALL/(gpuSumgtim+gpuSumrtim+gpuSumwtim);
+    double gpuTputrw  = gpuNevtALL/(gpuSumrtim+gpuSumwtim);
+    double gpuTputw   = gpuNevtALL/(gpuSumwtim);
+    dumptput( gpuTag, gpuNevtALL, gpuTputgrw, gpuTputrw, gpuTputw, 0 );
 
-  int cpuNevtALL = (int)(cpuStats[0]);
-  double cpuSumgtim = cpuStats[1];
-  double cpuSumrtim = cpuStats[2];
-  double cpuSumwtim = cpuStats[3];
-
-  dumptime( cpuTag, cpuNevtALL, cpuSumgtim, cpuSumrtim, cpuSumwtim );
-  double cpuTputgrw = cpuNevtALL/(cpuSumgtim+cpuSumrtim+cpuSumwtim);
-  double cpuTputrw  = cpuNevtALL/(cpuSumrtim+cpuSumwtim);
-  double cpuTputw   = cpuNevtALL/(cpuSumwtim);
-  dumptput( cpuTag, cpuNevtALL, cpuTputgrw, cpuTputrw, cpuTputw, nthreadsomp );
-
-  std::string hetTag = "(HET) ";
-  int hetNevtALL = gpuNevtALL+cpuNevtALL;
-  double hetTputgrw = gpuTputgrw+cpuTputgrw;
-  double hetTputrw  = gpuTputrw+cpuTputrw;
-  double hetTputw   = gpuTputw+cpuTputw;
-  dumptput( hetTag, hetNevtALL, hetTputgrw, hetTputrw, hetTputw, 0 );
+    dumptime( cpuTag, cpuNevtALL, cpuSumgtim, cpuSumrtim, cpuSumwtim );
+    double cpuTputgrw = cpuNevtALL/(cpuSumgtim+cpuSumrtim+cpuSumwtim);
+    double cpuTputrw  = cpuNevtALL/(cpuSumrtim+cpuSumwtim);
+    double cpuTputw   = cpuNevtALL/(cpuSumwtim);
+    dumptput( cpuTag, cpuNevtALL, cpuTputgrw, cpuTputrw, cpuTputw, nthreadsomp );
+  
+    std::string hetTag = "(HET) ";
+    int hetNevtALL = gpuNevtALL+cpuNevtALL;
+    double hetTputgrw = gpuTputgrw+cpuTputgrw;
+    double hetTputrw  = gpuTputrw+cpuTputrw;
+    double hetTputw   = gpuTputw+cpuTputw;
+    dumptput( hetTag, hetNevtALL, hetTputgrw, hetTputrw, hetTputw, 0 );
+  }
 
   if ( gpuStatus != 0 ) return 1;
   if ( cpuStatus != 0 ) return 2;
