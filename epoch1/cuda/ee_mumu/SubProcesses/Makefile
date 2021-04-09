@@ -1,4 +1,3 @@
-LIBDIR   = ../../lib/build.$(TAG)
 TOOLSDIR = ../../../../../tools
 TESTDIR  = ../../../../../test
 INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
@@ -24,6 +23,7 @@ else
 override AVX = avx2
 $(warning Using AVX='$(AVX)' as no user input exists and host does not support avx512f)
 endif
+$(info AVX=$(AVX))
 
 # Set the build flags appropriate to each AVX
 ifeq ($(AVX),sse42)
@@ -40,8 +40,18 @@ endif
 # For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations
 CXXFLAGS+= $(AVXFLAGS)
 
-# Build tag (path to the build directory)
-TAG = $(AVX)
+# Build tag (defines target and path to the optional build directory)
+override TAG = $(AVX)
+
+# Build directory: current directory by default, or build.$(TAG) if USEBUILDDIR==1
+ifeq ($(USEBUILDDIR),1)
+override BUILDDIR = build.$(TAG)
+override LIBDIR   = ../../lib/$(BUILDDIR)
+else
+override BUILDDIR = .
+override LIBDIR   = ../../lib
+endif
+$(info BUILDDIR=$(BUILDDIR))
 
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
@@ -69,8 +79,8 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
-  cu_main     = build.$(TAG)/gcheck.exe
-  cu_objects  = build.$(TAG)/gCPPProcess.o
+  cu_main     = $(BUILDDIR)/gcheck.exe
+  cu_objects  = $(BUILDDIR)/gCPPProcess.o
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   NVCC       := $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
@@ -86,10 +96,10 @@ GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 
 MAKEDEBUG=
 
-cxx_main=build.$(TAG)/check.exe
-cxx_objects=build.$(TAG)/CPPProcess.o
+cxx_main=$(BUILDDIR)/check.exe
+cxx_objects=$(BUILDDIR)/CPPProcess.o
 
-testmain=build.$(TAG)/runTest.exe
+testmain=$(BUILDDIR)/runTest.exe
 
 # Assuming uname is available, detect if architecture is power
 UNAME_P := $(shell uname -p)
@@ -107,36 +117,36 @@ debug: all.$(TAG)
 $(LIBDIR)/lib$(MODELLIB).a:
 	$(MAKE) -C ../../src AVX=$(AVX) $(MAKEDEBUG)
 
-build.$(TAG)/gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
-	if [ ! -d build.$(TAG) ]; then mkdir build.$(TAG); fi
+$(BUILDDIR)/gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
+	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
-build.$(TAG)/%.o : %.cu *.h ../../src/*.h
-	if [ ! -d build.$(TAG) ]; then mkdir build.$(TAG); fi
+$(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
+	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
-#build.$(TAG)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
-#	if [ ! -d build.$(TAG) ]; then mkdir build.$(TAG); fi
+#$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
+#	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 #	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(AVXFLAGS) $(CUINC) -c $< -o $@
 
-build.$(TAG)/%.o : %.cc *.h ../../src/*.h
-	if [ ! -d build.$(TAG) ]; then mkdir build.$(TAG); fi
+$(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
+	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
-$(cu_main): build.$(TAG)/gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
+$(cu_main): $(BUILDDIR)/gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
 	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
 
-$(cxx_main): build.$(TAG)/check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
+$(cxx_main): $(BUILDDIR)/check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
-build.$(TAG)/runTest.o: $(GTESTLIBS)
+$(BUILDDIR)/runTest.o: $(GTESTLIBS)
 $(testmain): $(GTESTLIBS)
 $(testmain): INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
 $(testmain): INCFLAGS += -I$(TESTDIR)/include
 $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
-$(testmain): build.$(TAG)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
-$(testmain): cxx_objects += build.$(TAG)/runTest.o $(TESTDIR)/src/MadgraphTest.o
-$(testmain): cu_objects  += build.$(TAG)/runTest_cu.o
+$(testmain): $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
+$(testmain): cxx_objects += $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o
+$(testmain): cu_objects  += $(BUILDDIR)/runTest_cu.o
 ifneq ($(findstring clang++,$(CXX)),)
 $(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(CXX))
 endif
@@ -147,8 +157,8 @@ $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
 # Link both runTest.o and runTest_cu.o
-$(testmain) build.$(TAG)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
-	$(NVCC) -o build.$(TAG)/runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
+$(testmain) $(BUILDDIR)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
+	$(NVCC) -o $(BUILDDIR)/runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
 
@@ -162,33 +172,38 @@ check: $(testmain)
 
 clean:
 	make -C ../../src AVX=$(AVX) clean
-	rm -rf build.$(TAG)
+ifneq ($(BUILDDIR),.)
+	rm -rf $(BUILDDIR)
+else
+	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+endif
 
 avxall:
-	make AVX=none
-	make AVX=sse42
-	make AVX=avx2
-	make AVX=avx512
+	make USEBUILDDIR=1 AVX=none
+	make USEBUILDDIR=1 AVX=sse42
+	make USEBUILDDIR=1 AVX=avx2
+	make USEBUILDDIR=1 AVX=avx512
 
 cleanall:
-	make AVX=none clean; make -C ../../src AVX=none clean
-	make AVX=sse42 clean; make -C ../../src AVX=sse42 clean
-	make AVX=avx2 clean; make -C ../../src AVX=avx2 clean
-	make AVX=avx512 clean; make -C ../../src AVX=avx512 clean
+	make clean
+	make USEBUILDDIR=1 AVX=none clean; make -C ../../src USEBUILDDIR=1 AVX=none clean
+	make USEBUILDDIR=1 AVX=sse42 clean; make -C ../../src USEBUILDDIR=1 AVX=sse42 clean
+	make USEBUILDDIR=1 AVX=avx2 clean; make -C ../../src USEBUILDDIR=1 AVX=avx2 clean
+	make USEBUILDDIR=1 AVX=avx512 clean; make -C ../../src USEBUILDDIR=1 AVX=avx512 clean
 
 distclean: cleanall
 	make -C $(TOOLSDIR) clean
 	make -C $(TESTDIR) clean
 
 memcheck: $(cu_main)
-	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes build.$(TAG)/gcheck.exe 2 32 2
+	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes $(BUILDDIR)/gcheck.exe 2 32 2
 
 perf: force
 	make clean && make
-	time build.$(TAG)/gcheck.exe -p 16348 32 12 && date
+	time $(BUILDDIR)/gcheck.exe -p 16348 32 12 && date
 
 test: force
-	build.$(TAG)/gcheck.exe -v 1 32 1
+	$(BUILDDIR)/gcheck.exe -v 1 32 1
 
 info:
 	@hostname

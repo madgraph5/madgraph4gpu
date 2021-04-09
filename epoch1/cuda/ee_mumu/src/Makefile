@@ -4,7 +4,6 @@ OMPFLAGS?= -fopenmp
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
 CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
-LIBDIR   = ../lib/build.$(TAG)
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
@@ -21,6 +20,7 @@ else
 AVX := avx2
 $(warning Using AVX='$(AVX)' as no user input exists and host does not support avx512f)
 endif
+$(info AVX=$(AVX))
 
 # Set the build flags appropriate to each AVX
 ifeq ($(AVX),sse42)
@@ -37,8 +37,18 @@ endif
 # For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations
 CXXFLAGS+= $(AVXFLAGS)
 
-# Build tag (path to the build directory)
-TAG = $(AVX)
+# Build tag (defines target and path to the optional build directory)
+override TAG = $(AVX)
+
+# Build directory: current directory by default, or build.$(TAG) if USEBUILDDIR==1
+ifeq ($(USEBUILDDIR),1)
+override BUILDDIR = build.$(TAG)
+override LIBDIR   = ../lib/$(BUILDDIR)
+else
+override BUILDDIR = .
+override LIBDIR   = ../lib
+endif
+$(info BUILDDIR=$(BUILDDIR))
 
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
@@ -62,7 +72,7 @@ endif
 #endif
 
 target=$(LIBDIR)/libmodel_sm.a
-cxx_objects=$(addprefix build.$(TAG)/, Parameters_sm.o read_slha.o rambo.o)
+cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o rambo.o)
 cu_objects= # NB grambo.cu must be included by gcheck.cu (no rdc)
 
 all.$(TAG): $(target)
@@ -73,12 +83,12 @@ debug: OPTFLAGS = -g -O0 -DDEBUG2
 debug: $(target)
 
 # NB: cuda includes are needed in the C++ code for curand.h
-build.$(TAG)/%.o : %.cc *.h
-	if [ ! -d build.$(TAG) ]; then mkdir build.$(TAG); fi
+$(BUILDDIR)/%.o : %.cc *.h
+	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
-#build.$(TAG)/%.o : %.cu *.h
-#	if [ ! -d build.$(TAG) ]; then mkdir build.$(TAG); fi
+#$(BUILDDIR)/%.o : %.cu *.h
+#	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 #	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 $(target): $(cxx_objects) #$(cu_objects)
@@ -89,4 +99,8 @@ $(target): $(cxx_objects) #$(cu_objects)
 .PHONY: clean
 
 clean:
-	rm -rf build.$(TAG) $(LIBDIR)
+ifneq ($(BUILDDIR),.)
+	rm -rf $(LIBDIR) $(BUILDDIR)
+else
+	rm -rf $(LIBDIR) $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+endif
