@@ -5,7 +5,8 @@
 #include <string>
 #include <vector>
 
-// from gcheck.cu (compiled with nvcc)
+// implemented in gheck.cu (compiled with nvcc)
+// used by gmain/hmain.cc (compiled using g++)
 int gcheck( int argc,
             char **argv,
             std::string& out,
@@ -13,17 +14,27 @@ int gcheck( int argc,
             const std::string& tag = "",
             const int niter_multiplier = 1 ); // only for the GPU
 
-// from check.cc (compiled with g++)
+// implemented in check.cc (compiled with g++)
+// used by cmain/hmain.cc (compiled using g++)
 int check( int argc,
            char **argv,
            std::string& out,
            std::vector<double>& stats,
            const std::string& tag = "" );
 
-// from check.cc (compiled with g++)
+// implemented in check.cc (compiled with g++)
+// used by cmain/gmain/hmain.cc (compiled using g++)
+#ifndef __CUDACC__
+//#warning CUDA not defined
 int check_omp_threads( bool debug = false ); // returns the number of OMP threads
+#else
+//#warning CUDA defined
+#endif
 
-// from check.cc (compiled with g++)
+// implemented in check.cc (compiled with g++)
+// used by cmain/gmain/hmain.cc (compiled using g++)
+#ifndef __CUDACC__
 const std::string check_nprocall(); // returns the output of `nproc --all`
+#endif
 
 #endif // CHECK_H

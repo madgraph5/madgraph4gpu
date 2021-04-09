@@ -47,7 +47,7 @@ void dumptput( const std::string& tag,
             << "*****************************************************************************" << std::endl;
 }
 
-// This is compiled with g++ and linked with objects compiled with nvcc or g++
+// This is compiled using g++, and then linked using nvcc with objects compiled using nvcc or g++
 int main( int argc, char **argv )
 {
   std::string gpuOut;

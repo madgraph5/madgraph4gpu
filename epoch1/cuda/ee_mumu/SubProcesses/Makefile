@@ -124,17 +124,17 @@ build.$(TAG)/%.o : %.cc *.h ../../src/*.h
 	if [ ! -d build.$(TAG) ]; then mkdir build.$(TAG); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
-# This is built with nvcc and linked with objects compiled with nvcc or g++
-$(cu_main): build.$(TAG)/gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) gmain.cc
-	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) gmain.cc
+# NB: gmain.o is compiled using g++; gmain.exe is linked using nvcc with objects compiled using nvcc or g++
+$(cu_main): build.$(TAG)/gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) build.$(TAG)/gmain.o
+	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) build.$(TAG)/gmain.o
 
-# This is built with g++ and linked with objects compiled with g++
-$(cxx_main): build.$(TAG)/check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) cmain.cc
-	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) cmain.cc
+# NB: cmain.o is compiled using g++; cmain.exe is linked using g++ with objects compiled using g++
+$(cxx_main): build.$(TAG)/check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) build.$(TAG)/cmain.o
+	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) build.$(TAG)/cmain.o
 
-# This is built with nvcc and linked with objects compiled with nvcc or g++
-$(het_main): build.$(TAG)/gcheck.o build.$(TAG)/check.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) $(cxx_objects) hmain.cc
-	$(NVCC) build.$(TAG)/gcheck.o build.$(TAG)/check.o -o $@ $(cu_objects) $(cxx_objects) $(CUARCHFLAGS) -lgomp $(LIBFLAGS) $(CULIBFLAGS) hmain.cc
+# NB: hmain.o is compiled using g++; hmain.exe is linked using nvcc with objects compiled using nvcc or g++
+$(het_main): build.$(TAG)/gcheck.o build.$(TAG)/check.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) $(cxx_objects) build.$(TAG)/hmain.o
+	$(NVCC) build.$(TAG)/gcheck.o build.$(TAG)/check.o -o $@ $(cu_objects) $(cxx_objects) $(CUARCHFLAGS) -lgomp $(LIBFLAGS) $(CULIBFLAGS) build.$(TAG)/hmain.o
 
 build.$(TAG)/runTest.o: $(GTESTLIBS)
 $(testmain): $(GTESTLIBS)

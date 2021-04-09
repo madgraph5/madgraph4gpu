@@ -1,6 +1,6 @@
 #include "check.h"
 
-// This is built with nvcc and linked with objects compiled with nvcc or g++
+// This is compiled using g++, and then linked using nvcc with objects compiled using nvcc or g++
 int main( int argc, char **argv )
 {
   std::string gpuOut;
