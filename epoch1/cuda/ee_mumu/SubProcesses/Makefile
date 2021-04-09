@@ -13,26 +13,26 @@ CXX     ?= g++
 
 # AVX choice (example: "make AVX=none")
 ifneq ($(findstring clang++,$(CXX)),)
-AVX := none
+override AVX = none
 $(warning Using AVX='$(AVX)' for clang builds)
 else ifneq ($(AVX),)
 #$(info Using AVX='$(AVX)' according to user input)
 else ifneq ($(shell grep -c avx512f /proc/cpuinfo),0)
-AVX := avx512
+override AVX = avx512
 #$(info Using AVX='$(AVX)' as no user input exists)
 else
-AVX := avx2
+override AVX = avx2
 $(warning Using AVX='$(AVX)' as no user input exists and host does not support avx512f)
 endif
 
 # Set the build flags appropriate to each AVX
 ifeq ($(AVX),sse42)
-AVXFLAGS := -march=nehalem # SSE4.2
+override AVXFLAGS = -march=nehalem # SSE4.2
 else ifeq ($(AVX),avx2)
-AVXFLAGS := -march=haswell # AVX2 (was -march=core-avx2 in previous versions of gcc)
+override AVXFLAGS = -march=haswell # AVX2 (was -march=core-avx2 in previous versions of gcc)
 else ifeq ($(AVX),avx512)
 # NB: -mprefer-vector-width=256 is not needed (fptype_v assumes 256 anyway) but is a safer option
-AVXFLAGS := -march=skylake-avx512 -mprefer-vector-width=256 # AVX512F with 256 width (DEFAULT!)
+override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512F with 256 width (DEFAULT!)
 else ifneq ($(AVX),none)
 $(error Unknown AVX='$(AVX)': only 'sse42', 'avx2', 'avx512' and 'none' are supported)
 endif
