@@ -107,7 +107,11 @@ ifeq ($(UNAME_P),ppc64le)
     CUFLAGS+= -Xcompiler -mno-float128
 endif
 
-all.$(TAG): ../../src $(cu_main) $(cxx_main) $(testmain)
+all.$(TAG): checktag ../../src $(cu_main) $(cxx_main) $(testmain)
+
+checktag:
+	@echo $(TAG) > $(BUILDDIR)/build.tag_new
+	@if [ ! -e $(BUILDDIR)/build.tag ]; then mv -f $(BUILDDIR)/build.tag_new $(BUILDDIR)/build.tag; elif ! cmp -s $(BUILDDIR)/build.tag_new $(BUILDDIR)/build.tag; then echo "ERROR! Cannot build for tag=$(TAG) as old build exists for tag=`cat $(BUILDDIR)/build.tag`"; exit 1; fi
 
 debug: OPTFLAGS   = -g -O0 -DDEBUG2
 debug: CUOPTFLAGS = -G
@@ -172,6 +176,7 @@ check: $(testmain)
 
 clean:
 	make -C ../../src AVX=$(AVX) clean
+	rm -f $(BUILDDIR)/build.tag $(BUILDDIR)/build.tag_new
 ifneq ($(BUILDDIR),.)
 	rm -rf $(BUILDDIR)
 else

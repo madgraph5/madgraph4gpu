@@ -75,7 +75,11 @@ target=$(LIBDIR)/libmodel_sm.a
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o rambo.o)
 cu_objects= # NB grambo.cu must be included by gcheck.cu (no rdc)
 
-all.$(TAG): $(target)
+all.$(TAG): checktag $(target)
+
+checktag:
+	@echo $(TAG) > $(BUILDDIR)/build.tag_new
+	@if [ ! -e $(BUILDDIR)/build.tag ]; then mv -f $(BUILDDIR)/build.tag_new $(BUILDDIR)/build.tag; elif ! cmp -s $(BUILDDIR)/build.tag_new $(BUILDDIR)/build.tag; then echo "ERROR! Cannot build for tag=$(TAG) as old build exists for tag=`cat $(BUILDDIR)/build.tag`"; exit 1; fi
 
 debug: OPTFLAGS = -g -O0 -DDEBUG2
 #debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
