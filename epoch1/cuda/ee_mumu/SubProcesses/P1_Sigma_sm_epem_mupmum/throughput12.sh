@@ -39,7 +39,11 @@ function runExe() {
   exe=$1
   ###echo "runExe $exe OMP=$OMP_NUM_THREADS"
   # For TIMEFORMAT see https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
-  TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | egrep '(Process|fptype_sv|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|TOTAL       :)'
+  if [ "${exe%%/hcheck*}" != "${exe}" ]; then 
+    TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | grep -v NaN | egrep '(Process|fptype_sv|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|TOTAL       :|TotalEventsComputed)' | sort -k"2.1,2.6" -r | uniq 
+  else
+    TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | egrep '(Process|fptype_sv|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|TOTAL       :)'
+  fi
 }
 
 function runNcu() {
