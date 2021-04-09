@@ -150,6 +150,7 @@ std::unique_ptr<fptype_v[]> hstMakeUnique(std::size_t N) { return std::unique_pt
 int check_omp_threads( bool debug ) // returns the number of OMP threads
 {
   static int nthreadsomp = 0;
+  std::cout << "INFO: __check_omp_threads (start): " << nthreadsomp << ", " << omp_get_max_threads() << std::endl;
   if ( nthreadsomp == 0 ) // nthreadsomp will be >= 1 after the first execution
   {
     // Set OMP_NUM_THREADS equal to 1 if it is not yet set
@@ -171,6 +172,7 @@ int check_omp_threads( bool debug ) // returns the number of OMP threads
     nthreadsomp = omp_get_max_threads();
     assert( nthreadsomp > 0 ); // sanity check to avoid infinite loops...
   }
+  std::cout << "INFO: __check_omp_threads (end):   " << nthreadsomp << ", " << omp_get_max_threads() << std::endl;
   return nthreadsomp;
 }
 #endif
