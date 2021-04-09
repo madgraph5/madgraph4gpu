@@ -150,7 +150,7 @@ std::unique_ptr<fptype_v[]> hstMakeUnique(std::size_t N) { return std::unique_pt
 int check_omp_threads( bool debug ) // returns the number of OMP threads
 {
   static int nthreadsomp = 0;
-  std::cout << "INFO: __check_omp_threads (1): " << nthreadsomp << ", " << omp_get_max_threads() << std::endl;
+  //std::cout << "INFO: __check_omp_threads (1): " << nthreadsomp << ", " << omp_get_max_threads() << std::endl;
   if ( nthreadsomp == 0 ) // nthreadsomp will be >= 1 after the first execution
   {
     if ( debug )
@@ -175,9 +175,9 @@ int check_omp_threads( bool debug ) // returns the number of OMP threads
     assert( nthreadsomp > 0 ); // sanity check to avoid infinite loops...
   }
   // Repeat the omp_set_num_threads at every call (in HET applications, this is once in the CPU thread and once in the GPU thread)
-  std::cout << "INFO: __check_omp_threads (2): " << nthreadsomp << ", " << omp_get_max_threads() << std::endl;
+  //std::cout << "INFO: __check_omp_threads (2): " << nthreadsomp << ", " << omp_get_max_threads() << std::endl;
   omp_set_num_threads( nthreadsomp ); // https://stackoverflow.com/a/22816325
-  std::cout << "INFO: __check_omp_threads (3): " << nthreadsomp << ", " << omp_get_max_threads() << std::endl;
+  //std::cout << "INFO: __check_omp_threads (3): " << nthreadsomp << ", " << omp_get_max_threads() << std::endl;
   return nthreadsomp;
 }
 #endif
