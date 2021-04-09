@@ -1,3 +1,5 @@
+#include "check.h"
+
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -30,7 +32,7 @@
 #define STRINGIFY(s) #s
 #define XSTRINGIFY(s) STRINGIFY(s)
 
-bool is_number(const char *s) {
+inline bool is_number(const char *s) {
   const char *t = s;
   while (*t != '\0' && isdigit(*t))
     ++t;
@@ -40,7 +42,7 @@ bool is_number(const char *s) {
 // Disabling fast math is essential here, otherwise results are undefined
 // See https://stackoverflow.com/a/40702790 about the __attribute__ syntax
 __attribute__((optimize("-fno-fast-math")))
-bool fp_is_abnormal( const fptype& fp )
+inline bool fp_is_abnormal( const fptype& fp )
 {
   if ( std::isnan( fp ) ) return true;
   if ( fp != fp ) return true;
@@ -48,7 +50,7 @@ bool fp_is_abnormal( const fptype& fp )
 }
 
 __attribute__((optimize("-fno-fast-math")))
-bool fp_is_zero( const fptype& fp )
+inline bool fp_is_zero( const fptype& fp )
 {
   if ( fp == 0 ) return true;
   return false;
@@ -56,7 +58,7 @@ bool fp_is_zero( const fptype& fp )
 
 // See https://en.cppreference.com/w/cpp/numeric/math/FP_categories
 __attribute__((optimize("-fno-fast-math")))
-const char* fp_show_class( const fptype& fp )
+inline const char* fp_show_class( const fptype& fp )
 {
   switch( std::fpclassify( fp ) ) {
   case FP_INFINITE:  return "Inf";
@@ -69,7 +71,7 @@ const char* fp_show_class( const fptype& fp )
 }
 
 __attribute__((optimize("-fno-fast-math")))
-void debug_me_is_abnormal( const fptype& me, int ievtALL )
+inline void debug_me_is_abnormal( const fptype& me, int ievtALL )
 {
   std::cout << "DEBUG[" << ievtALL << "]"
             << " ME=" << me
@@ -87,7 +89,7 @@ void debug_me_is_abnormal( const fptype& me, int ievtALL )
             << std::endl;
 }
 
-int usage(char* argv0, int ret = 1) {
+inline int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
             << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
@@ -144,8 +146,64 @@ std::unique_ptr<fptype_v[]> hstMakeUnique(std::size_t N) { return std::unique_pt
 
 #endif
 
-int main(int argc, char **argv)
+#ifndef __CUDACC__
+int check_omp_threads( bool debug ) // returns the number of OMP threads
 {
+  static int nthreadsomp = 0;
+  if ( nthreadsomp == 0 ) // nthreadsomp will be >= 1 after the first execution
+  {
+    // Set OMP_NUM_THREADS equal to 1 if it is not yet set
+    char* ompnthr = getenv( "OMP_NUM_THREADS" );
+    if ( debug )
+    {
+      std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
+      std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
+      std::cout << "DEBUG: ${OMP_NUM_THREADS}    = '" << ( ompnthr == 0 ? "[not set]" : ompnthr ) << "'" << std::endl;
+    }
+    if ( ompnthr == NULL || std::string(ompnthr).find_first_not_of("0123456789") != std::string::npos || atol( ompnthr ) == 0 )
+    {
+      if ( ompnthr != NULL ) std::cout << "WARNING! OMP_NUM_THREADS is invalid: will use only 1 thread" << std::endl;
+      else if ( debug ) std::cout << "DEBUG: OMP_NUM_THREADS is not set: will use only 1 thread" << std::endl;
+      omp_set_num_threads( 1 ); // https://stackoverflow.com/a/22816325
+      if ( debug ) std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
+      if ( debug ) std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
+    }
+    nthreadsomp = omp_get_max_threads();
+    assert( nthreadsomp > 0 ); // sanity check to avoid infinite loops...
+  }
+  return nthreadsomp;
+}
+#endif
+
+#ifndef __CUDACC__
+const std::string check_nprocall() // returns the output of `nproc --all`
+{
+  // Get the output of "nproc --all" (https://stackoverflow.com/a/478960)
+  std::string nprocall;
+  std::array<char, 128> nprocbuf;
+  std::unique_ptr<FILE, decltype(&pclose)> nprocpipe( popen( "nproc --all", "r" ), pclose );
+  if ( !nprocpipe ) throw std::runtime_error("`nproc --all` failed?");
+  while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get()) != nullptr ) nprocall += nprocbuf.data();
+  return nprocall;
+}
+#endif
+
+#ifdef __CUDACC__
+int gcheck
+#else
+int check
+#endif
+( int argc,
+  char **argv,
+  std::string& out,
+  std::vector<double>& stats,
+  const std::string& tag
+#ifdef __CUDACC__
+  , const int niter_multiplier
+#endif
+  )
+{
+  std::stringstream outStream;
   // READ COMMAND LINE ARGUMENTS
   bool verbose = false;
   bool debug = false;
@@ -194,6 +252,10 @@ int main(int argc, char **argv)
   if (niter == 0)
     return usage(argv[0]);
 
+#ifdef __CUDACC__
+  niter *= niter_multiplier; // quick hack for heterogenous CPU+GPU prototyping
+#endif
+
   const int neppR = mgOnGpu::neppR; // AOSOA layout: constant at compile-time
   if ( gputhreads%neppR != 0 )
   {
@@ -217,48 +279,34 @@ int main(int argc, char **argv)
 
 #ifndef __CUDACC__
   // Set OMP_NUM_THREADS equal to 1 if it is not yet set
-  char* ompnthr = getenv( "OMP_NUM_THREADS" );
-  if ( debug )
-  {
-    std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
-    std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
-    std::cout << "DEBUG: ${OMP_NUM_THREADS}    = '" << ( ompnthr == 0 ? "[not set]" : ompnthr ) << "'" << std::endl;
-  }
-  if ( ompnthr == NULL || std::string(ompnthr).find_first_not_of("0123456789") != std::string::npos || atol( ompnthr ) == 0 )
-  {
-    if ( ompnthr != NULL ) std::cout << "WARNING! OMP_NUM_THREADS is invalid: will use only 1 thread" << std::endl;
-    else if ( debug ) std::cout << "DEBUG: OMP_NUM_THREADS is not set: will use only 1 thread" << std::endl;
-    omp_set_num_threads( 1 ); // https://stackoverflow.com/a/22816325
-    if ( debug ) std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
-    if ( debug ) std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
-  }
+  check_omp_threads( debug );
+#endif
 
   // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the requested AVX
   // [NB: this prevents a crash on pmpe04 but not on some github CI nodes]
   auto supportsAvx = [](){
 #if defined __AVX512F__
     bool ok = __builtin_cpu_supports( "avx512f" );
-    const std::string tag = "skylake-avx512 (AVX512F)";
+    const std::string avxtag = "skylake-avx512 (AVX512F)";
 #elif defined __AVX2__
     bool ok = __builtin_cpu_supports( "avx2" );
-    const std::string tag = "haswell (AVX2)";
+    const std::string avxtag = "haswell (AVX2)";
 #elif defined __SSE4_2__
     bool ok = __builtin_cpu_supports( "sse4.2" );
-    const std::string tag = "nehalem (SSE4.2)";
+    const std::string avxtag = "nehalem (SSE4.2)";
 #else
     bool ok = true;
-    const std::string tag = "none";
+    const std::string avxtag = "none";
 #endif
-    if ( tag == "none" )
+    if ( avxtag == "none" )
       std::cout << "INFO: The application does not require the host to support any AVX feature" << std::endl;
     else if ( ok )
-      std::cout << "INFO: The application is built for " << tag << " and the host supports it" << std::endl;
+      std::cout << "INFO: The application is built for " << avxtag << " and the host supports it" << std::endl;
     else
-      std::cout << "ERROR! The application is built for " << tag << " but the host does not support it" << std::endl;
+      std::cout << "ERROR! The application is built for " << avxtag << " but the host does not support it" << std::endl;
     return ok;
   };
   if ( ! supportsAvx() ) return 1;
-#endif
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
   const int nevt = ndim; // number of events in one iteration == number of GPU threads
@@ -268,7 +316,11 @@ int main(int argc, char **argv)
     std::cout << "# iterations: " << niter << std::endl;
 
   // *** START THE NEW TIMERS ***
-  mgOnGpu::TimerMap timermap;
+#ifdef __CUDACC__
+  mgOnGpu::TimerMap timermap( tag );
+#else
+  mgOnGpu::TimerMap timermap( tag );
+#endif
 
   // === STEP 0 - INITIALISE
 
@@ -391,9 +443,10 @@ int main(int argc, char **argv)
     timermap.start( sgenKey );
     const unsigned long long seed = 20200805;
 #ifdef __CUDACC__
-    grambo2toNm0::seedGenerator( rnGen, seed+iiter );
+    // quick hack for heterogenous CPU+GPU prototyping: use different seeds if a GPU multiplier exists
+    grambo2toNm0::seedGenerator( rnGen, seed + iiter + ( niter_multiplier==1 ? 0 : niter ) );
 #else
-    rambo2toNm0::seedGenerator( rnGen, seed+iiter );
+    rambo2toNm0::seedGenerator( rnGen, seed + iiter );
 #endif
     genrtime += timermap.stop();
 #endif
@@ -536,7 +589,7 @@ int main(int argc, char **argv)
 
     if (verbose)
     {
-      std::cout << "***********************************************************************" << std::endl
+      std::cout << "*****************************************************************************" << std::endl
                 << "Iteration #" << iiter+1 << " of " << niter << std::endl;
       if (perf) std::cout << "Wave function time: " << wavetime << std::endl;
     }
@@ -568,11 +621,11 @@ int main(int argc, char **argv)
                     << std::endl
                     << std::defaultfloat; // default format: affects all floats
         }
-        std::cout << std::string(80, '-') << std::endl;
+        std::cout << std::string(77, '-') << std::endl;
         // Display matrix elements
         std::cout << " Matrix element = "
                   << hstMEs[ievt] << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
-        std::cout << std::string(80, '-') << std::endl;
+        std::cout << std::string(77, '-') << std::endl;
       }
       // Fill the arrays with ALL MEs and weights
       matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt]; // FIXME: assume process.nprocesses == 1
@@ -711,115 +764,119 @@ int main(int argc, char **argv)
   if (perf)
   {
 #ifndef __CUDACC__
-    // Get the output of "nproc --all" (https://stackoverflow.com/a/478960)
-    std::string nprocall;
-    std::array<char, 128> nprocbuf;
-    std::unique_ptr<FILE, decltype(&pclose)> nprocpipe( popen( "nproc --all", "r" ), pclose );
-    if ( !nprocpipe ) throw std::runtime_error("`nproc --all` failed?");
-    while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get()) != nullptr ) nprocall += nprocbuf.data();
+    // Get the output of "nproc --all"
+    std::string nprocall = check_nprocall();
 #endif
     // Dump all configuration parameters and all results
-    std::cout << "***********************************************************************" << std::endl
+    outStream << "***********************************************************************" << std::endl
 #ifdef __CUDACC__
-              << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CUDA" << std::endl
+              << tag << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CUDA" << std::endl
 #else
-              << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CPP" << std::endl
+              << tag << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CPP" << std::endl
 #endif
-              << "NumBlocksPerGrid            = " << gpublocks << std::endl
-              << "NumThreadsPerBlock          = " << gputhreads << std::endl
-              << "NumIterations               = " << niter << std::endl
+              << tag << "NumBlocksPerGrid            = " << gpublocks << std::endl
+              << tag << "NumThreadsPerBlock          = " << gputhreads << std::endl
+              << tag << "NumIterations               = " << niter << std::endl
               << "-----------------------------------------------------------------------" << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
-              << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << " )" << std::endl
+              << tag << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << " )" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
-              << "FP precision                = FLOAT (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
+              << tag << "FP precision                = FLOAT (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_CXTYPE_CUCOMPLEX
-              << "Complex type                = CUCOMPLEX" << std::endl
+              << tag << "Complex type                = CUCOMPLEX" << std::endl
 #elif defined MGONGPU_CXTYPE_THRUST
-              << "Complex type                = THRUST::COMPLEX" << std::endl
+              << tag << "Complex type                = THRUST::COMPLEX" << std::endl
 #endif
 #else
-              << "Complex type                = STD::COMPLEX" << std::endl
+              << tag << "Complex type                = STD::COMPLEX" << std::endl
 #endif
-              << "RanNumb memory layout       = AOSOA[" << neppR << "]"
+              << tag << "RanNumb memory layout       = AOSOA[" << neppR << "]"
               << ( neppR == 1 ? " == AOS" : "" )
               << " [HARDCODED FOR REPRODUCIBILITY]" << std::endl
-              << "Momenta memory layout       = AOSOA[" << neppM << "]"
+              << tag << "Momenta memory layout       = AOSOA[" << neppM << "]"
               << ( neppM == 1 ? " == AOS" : "" ) << std::endl
 #ifdef __CUDACC__
       //<< "Wavefunction GPU memory     = LOCAL" << std::endl
 #else
 #if defined __AVX512F__
-              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (AVX512F)" << std:: endl
+              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (AVX512F)" << std:: endl
 #elif defined __AVX2__
-              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (AVX2)" << std:: endl
+              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (AVX2)" << std:: endl
 #elif defined __SSE4_2__
-              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (SSE4.2)" << std:: endl
+              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (SSE4.2)" << std:: endl
 #elif !defined MGONGPU_CPPSIMD
-              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] == SCALAR (no SIMD)" << std:: endl
+              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV << "] == SCALAR (no SIMD)" << std:: endl
 #else
 #error Internal error: unknown SIMD build configuration
 #endif
 #endif
 #ifdef __CUDACC__
 #if defined MGONGPU_COMMONRAND_ONHOST
-              << "Random number generation    = COMMON RANDOM HOST (CUDA code)" << std::endl
+              << tag << "Random number generation    = COMMON RANDOM HOST (CUDA code)" << std::endl
 #elif defined MGONGPU_CURAND_ONDEVICE
-              << "Random number generation    = CURAND DEVICE (CUDA code)" << std::endl
+              << tag << "Random number generation    = CURAND DEVICE (CUDA code)" << std::endl
 #elif defined MGONGPU_CURAND_ONHOST
-              << "Random number generation    = CURAND HOST (CUDA code)" << std::endl
+              << tag << "Random number generation    = CURAND HOST (CUDA code)" << std::endl
 #endif
 #else
 #if defined MGONGPU_COMMONRAND_ONHOST
-              << "Random number generation    = COMMON RANDOM (C++ code)" << std::endl
+              << tag << "Random number generation    = COMMON RANDOM (C++ code)" << std::endl
 #else
-              << "Random number generation    = CURAND (C++ code)" << std::endl
+              << tag << "Random number generation    = CURAND (C++ code)" << std::endl
 #endif
-              << "OMP threads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
 #endif
-              << "MatrixElements compiler     = " << process.getCompiler() << std::endl
-              << "-----------------------------------------------------------------------" << std::endl
-              << "NumberOfEntries             = " << niter << std::endl
+
+#ifdef __CUDACC__
+              << tag << "Wavefunction GPU memory     = LOCAL" << std::endl
+#else
+              << tag << "OMP threads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
+#endif
+              << tag << "MatrixElements compiler     = " << process.getCompiler() << std::endl
+              << "-----------------------------------------------------------------------------" << std::endl
+              << tag << "NumIterations               = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
-              << "TotalTime[Rnd+Rmb+ME] (123) = ( " << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "TotalTime[Rambo+ME]    (23) = ( " << sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "TotalTime[RndNumGen]    (1) = ( " << sumgtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "TotalTime[Rambo]        (2) = ( " << sumrtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "TotalTime[MatrixElems]  (3) = ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "MeanTimeInMatrixElems       = ( " << meanwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "[Min,Max]TimeInMatrixElems  = [ " << minwtim
+              << tag << "TotalTime[Rnd+Rmb+ME] (123) = ( "
+              << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << tag << "TotalTime[Rambo+ME]    (23) = ( "
+              << sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << tag << "TotalTime[RndNumGen]    (1) = ( " << sumgtim << std::string(16, ' ') << " )  sec" << std::endl
+              << tag << "TotalTime[Rambo]        (2) = ( " << sumrtim << std::string(16, ' ') << " )  sec" << std::endl
+              << tag << "TotalTime[MatrixElems]  (3) = ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << tag << "MeanTimeInMatrixElems       = ( " << meanwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << tag << "[Min,Max]TimeInMatrixElems  = [ " << minwtim
               << " ,  " << maxwtim << " ]  sec" << std::endl
       //<< "StdDevTimeInWaveFuncs       = ( " << stdwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "-----------------------------------------------------------------------" << std::endl
+              << "-----------------------------------------------------------------------------" << std::endl
       //<< "ProcessID:                  = " << getpid() << std::endl
       //<< "NProcesses                  = " << process.nprocesses << std::endl
-              << "TotalEventsComputed         = " << nevtALL << std::endl
-              << "EvtsPerSec[Rnd+Rmb+ME](123) = ( " << nevtALL/(sumgtim+sumrtim+sumwtim)
+              << tag << "TotalEventsComputed         = " << nevtALL << " (NaN/abnormal=" << nabn << ")" << std::endl
+              << tag << "EvtsPerSec[Rnd+Rmb+ME](123) = ( " << nevtALL/(sumgtim+sumrtim+sumwtim)
               << std::string(16, ' ') << " )  sec^-1" << std::endl
-              << "EvtsPerSec[Rmb+ME]     (23) = ( " << nevtALL/(sumrtim+sumwtim)
+              << tag << "EvtsPerSec[Rmb+ME]     (23) = ( " << nevtALL/(sumrtim+sumwtim)
               << std::string(16, ' ') << " )  sec^-1" << std::endl
-      //<< "EvtsPerSec[RndNumbGen]   (1) = ( " << nevtALL/sumgtim
+      //<< tag << "EvtsPerSec[RndNumbGen]   (1) = ( " << nevtALL/sumgtim
       //<< std::string(16, ' ') << " )  sec^-1" << std::endl
-      //<< "EvtsPerSec[Rambo]        (2) = ( " << nevtALL/sumrtim
+      //<< tag << "EvtsPerSec[Rambo]        (2) = ( " << nevtALL/sumrtim
       //<< std::string(16, ' ') << " )  sec^-1" << std::endl
-              << "EvtsPerSec[MatrixElems] (3) = ( " << nevtALL/sumwtim
+              << tag << "EvtsPerSec[MatrixElems] (3) = ( " << nevtALL/sumwtim
               << std::string(16, ' ') << " )  sec^-1" << std::endl
               << std::defaultfloat; // default format: affects all floats
-    std::cout << "***********************************************************************" << std::endl
-              << "NumMatrixElems(notAbnormal) = " << nevtALL - nabn << std::endl
+    outStream << "***********************************************************************" << std::endl
+              << tag << "NumMatrixElems(notAbnormal) = " << nevtALL - nabn << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
-              << "MeanMatrixElemValue         = ( " << meanelem
+              << tag << "MeanMatrixElemValue         = ( " << meanelem
               << " +- " << stdelem/sqrt(nevtALL - nabn) << " )  GeV^" << meGeVexponent << std::endl // standard error
-              << "[Min,Max]MatrixElemValue    = [ " << minelem
+              << tag << "[Min,Max]MatrixElemValue    = [ " << minelem
               << " ,  " << maxelem << " ]  GeV^" << meGeVexponent << std::endl
-              << "StdDevMatrixElemValue       = ( " << stdelem << std::string(16, ' ') << " )  GeV^" << meGeVexponent << std::endl
-              << "MeanWeight                  = ( " << meanweig
+              << tag << "StdDevMatrixElemValue       = ( " << stdelem
+              << std::string(16, ' ') << " )  GeV^" << meGeVexponent << std::endl
+              << tag << "MeanWeight                  = ( " << meanweig
               << " +- " << stdweig/sqrt(nevtALL - nabn) << " )" << std::endl // standard error
-              << "[Min,Max]Weight             = [ " << minweig
+              << tag << "[Min,Max]Weight             = [ " << minweig
               << " ,  " << maxweig << " ]" << std::endl
-              << "StdDevWeight                = ( " << stdweig << std::string(16, ' ') << " )" << std::endl
+              << tag << "StdDevWeight                = ( " << stdweig << std::string(16, ' ') << " )" << std::endl
               << std::defaultfloat; // default format: affects all floats
   }
 
@@ -919,6 +976,7 @@ int main(int argc, char **argv)
       //<< "ProcessID:                = " << getpid() << std::endl
       //<< "NProcesses                = " << process.nprocesses << std::endl
              << "\"TotalEventsComputed\": " << nevtALL << "," << std::endl
+             << "\"NaN/abnormal\": " << nabn << "," << std::endl
              << "\"EvtsPerSec[Rnd+Rmb+ME](123)\": \""
              << std::to_string(nevtALL/(sumgtim+sumrtim+sumwtim))
              << " sec^-1\"," << std::endl
@@ -955,10 +1013,17 @@ int main(int argc, char **argv)
   timermap.stop();
   if (perf)
   {
-    std::cout << "***********************************************************************" << std::endl;
-    timermap.dump();
-    std::cout << "***********************************************************************" << std::endl;
+    outStream << "*****************************************************************************" << std::endl;
+    timermap.dump( outStream );
+    outStream << "*****************************************************************************" << std::endl;
   }
+
+  // Prepare the outputs
+  out = outStream.str();
+  stats.push_back( nevtALL );
+  stats.push_back( sumgtim );
+  stats.push_back( sumrtim );
+  stats.push_back( sumwtim );
 
   //std::cout << "ALL OK" << std::endl;
   return 0;

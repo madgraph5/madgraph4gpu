@@ -71,6 +71,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
   cu_main     = build.$(TAG)/gcheck.exe
   cu_objects  = build.$(TAG)/gCPPProcess.o
+  het_main    = build.$(TAG)/hcheck.exe
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   NVCC       := $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
@@ -97,7 +98,7 @@ ifeq ($(UNAME_P),ppc64le)
     CUFLAGS+= -Xcompiler -mno-float128
 endif
 
-all.$(TAG): ../../src $(cu_main) $(cxx_main) $(testmain)
+all.$(TAG): ../../src $(cu_main) $(cxx_main) $(het_main) $(testmain)
 
 debug: OPTFLAGS   = -g -O0 -DDEBUG2
 debug: CUOPTFLAGS = -G
@@ -123,11 +124,17 @@ build.$(TAG)/%.o : %.cc *.h ../../src/*.h
 	if [ ! -d build.$(TAG) ]; then mkdir build.$(TAG); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
-$(cu_main): build.$(TAG)/gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
-	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
+# This is built with nvcc and linked with objects compiled with nvcc or g++
+$(cu_main): build.$(TAG)/gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) gmain.cc
+	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) gmain.cc
 
-$(cxx_main): build.$(TAG)/check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
-	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+# This is built with g++ and linked with objects compiled with g++
+$(cxx_main): build.$(TAG)/check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) cmain.cc
+	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) cmain.cc
+
+# This is built with nvcc and linked with objects compiled with nvcc or g++
+$(het_main): build.$(TAG)/gcheck.o build.$(TAG)/check.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) $(cxx_objects) hmain.cc
+	$(NVCC) build.$(TAG)/gcheck.o build.$(TAG)/check.o -o $@ $(cu_objects) $(cxx_objects) $(CUARCHFLAGS) -lgomp $(LIBFLAGS) $(CULIBFLAGS) hmain.cc
 
 build.$(TAG)/runTest.o: $(GTESTLIBS)
 $(testmain): $(GTESTLIBS)
