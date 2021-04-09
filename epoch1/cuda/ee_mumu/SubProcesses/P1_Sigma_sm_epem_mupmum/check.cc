@@ -831,7 +831,7 @@ int check
 #ifdef __CUDACC__
               << tag << "Wavefunction GPU memory     = LOCAL" << std::endl
 #else
-              << tag << "OMP threads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
+              << tag << "OMP threads / `nproc --all` = " << check_omp_threads() << " / " << nprocall // includes a newline
 #endif
               << tag << "MatrixElements compiler     = " << process.getCompiler() << std::endl
               << "-----------------------------------------------------------------------------" << std::endl
