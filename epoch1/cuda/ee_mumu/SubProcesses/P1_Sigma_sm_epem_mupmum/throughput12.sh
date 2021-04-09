@@ -1,13 +1,16 @@
 #!/bin/bash
 
-omp=0
+omp=1 # new default: OMP only for epoch1
 if [ "$1" == "-omp" ]; then
-  omp=1
+  omp=2
+  shift
+elif [ "$1" == "-noomp" ]; then
+  omp=0
   shift
 fi
 
 if [ "$1" != "" ]; then
-  echo "Usage: $0 [-omp]"
+  echo "Usage: $0 [-omp|-noomp]"
   exit 1
 fi
 
@@ -32,17 +35,38 @@ pushd ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >&
   make
 popd >& /dev/null
 
+function runExe() {
+  exe=$1
+  ###echo "runExe $exe OMP=$OMP_NUM_THREADS"
+  # For TIMEFORMAT see https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
+  TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | egrep '(Process|fptype_sv|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|TOTAL       :)'
+}
+
+function runNcu() {
+  exe=$1
+  ###echo "runExe $exe OMP=$OM_NUM_THREADS (NCU)"
+  sudo LD_LIBRARY_PATH=${LD_LIBRARY_PATH} $(which ncu) --metrics launch__registers_per_thread --target-processes all -k "sigmaKinE" --kernel-regex-base mangled --print-kernel-base mangled $exe -p 2048 256 1 | egrep '(sigmaKin|registers)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17}'
+}
+
 for exe in $exes; do
   echo "-------------------------------------------------------------------------"
   unset OMP_NUM_THREADS
-  # For TIMEFORMAT see https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
-  TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | egrep '(Process|fptype_sv|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|TOTAL       :)'
-  if [ "${omp}" == "1" ] && [ "${exe%%/check*}" != "${exe}" ]; then 
-    echo "-------------------------------------------------------------------------"
+  if [ "${exe%%/hcheck*}" != "${exe}" ]; then 
     export OMP_NUM_THREADS=$(nproc --all)
-    TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | egrep '(Process|fptype_sv|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|TOTAL       :)'
+  fi
+  runExe $exe
+  if [ "${exe%%/check*}" != "${exe}" ]; then 
+    if [ "${omp}" != "0" ] && [ "${exe%%/epoch1*}" != "${exe}" ]; then 
+      echo "-------------------------------------------------------------------------"
+      export OMP_NUM_THREADS=$(nproc --all)
+      runExe $exe
+    elif [ "${omp}" == "2" ] && [ "${exe%%/epoch2*}" != "${exe}" ]; then 
+      echo "-------------------------------------------------------------------------"
+      export OMP_NUM_THREADS=$(nproc --all)
+      runExe $exe
+    fi
   elif [ "${exe%%/gcheck*}" != "${exe}" ]; then 
-    sudo LD_LIBRARY_PATH=${LD_LIBRARY_PATH} $(which ncu) --metrics launch__registers_per_thread --target-processes all -k "sigmaKinE" --kernel-regex-base mangled --print-kernel-base mangled $exe -p 2048 256 1 | egrep '(sigmaKin|registers)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17}'
+    runNcu $exe
   fi
 done
 echo "-------------------------------------------------------------------------"
