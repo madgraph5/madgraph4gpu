@@ -16,6 +16,7 @@ namespace MG5_sm
 {
   //--------------------------------------------------------------------------
 
+  /*
   __device__
   void ixxxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,
@@ -83,14 +84,15 @@ namespace MG5_sm
 
   __device__
   void sxxxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               const fptype /*smass*/,   // WARNING: unused???
-               const int /*nhel*/,       // WARNING: unused???
+               const fptype,             // WARNING: smass unused???
+               const int,                // WARNING: nhel unused???
                const int nss,
                cxtype sc[3],             // output: wavefunction[3] - not [6], this is for scalars
 #ifndef __CUDACC__
                const int ievt,
 #endif
                const int ipar );         // input: particle# out of npar
+
   //--------------------------------------------------------------------------
 
   __device__
@@ -139,6 +141,7 @@ namespace MG5_sm
                const int ievt,
 #endif
                const int ipar );         // input: particle# out of npar
+*/
 
   //--------------------------------------------------------------------------
 
