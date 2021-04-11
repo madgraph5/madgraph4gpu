@@ -14,8 +14,15 @@
 #include "rambo.h"
 #endif
 
-
-
+#ifdef __CUDACC__
+template<typename T = fptype>
+using unique_ptr_dev = std::unique_ptr<T, CudaDevDeleter<T>>;
+template<typename T = fptype>
+using unique_ptr_host = std::unique_ptr<T[], CudaHstDeleter<T>>;
+#else
+template<typename T = fptype>
+using unique_ptr_host = std::unique_ptr<T[]>;
+#endif
 
 struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
   static_assert( gputhreads%mgOnGpu::neppR == 0, "ERROR! #threads/block should be a multiple of neppR" );
