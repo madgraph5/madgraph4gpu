@@ -11,6 +11,7 @@
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
+#include "mgOnGpuVectors.h"
 
 namespace MG5_sm
 {
@@ -142,6 +143,58 @@ namespace MG5_sm
 #endif
                const int ipar );         // input: particle# out of npar
 */
+
+  //--------------------------------------------------------------------------
+
+  __device__
+  void imzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               //const fptype fmass,        // ASSUME fmass==0
+               const short nhel,
+               const short nsf,
+               cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
+#ifndef __CUDACC__
+               const int ipagV,
+#endif
+               const int ipar );            // input: particle# out of npar
+
+  //--------------------------------------------------------------------------
+
+  __device__
+  void ixzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               //const fptype fmass,        // ASSUME fmass==0
+               const short nhel,
+               const short nsf,
+               cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
+#ifndef __CUDACC__
+               const int ipagV,
+#endif
+               const int ipar );            // input: particle# out of npar
+
+  //--------------------------------------------------------------------------
+
+  __device__
+  void opzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               //const fptype fmass,        // ASSUME fmass==0
+               const short nhel,
+               const short nsf,
+               cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
+#ifndef __CUDACC__
+               const int ipagV,
+#endif
+               const int ipar );            // input: particle# out of npar
+
+  //--------------------------------------------------------------------------
+
+  __device__
+  void oxzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               //const fptype fmass,        // ASSUME fmass==0
+               const short nhel,
+               const short nsf,
+               cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
+#ifndef __CUDACC__
+               const int ipagV,
+#endif
+               const int ipar );            // input: particle# out of npar
 
   //--------------------------------------------------------------------------
 
