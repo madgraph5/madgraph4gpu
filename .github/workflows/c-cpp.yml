@@ -7,17 +7,6 @@ on:
     branches: [ master ]
 
 jobs:
-  epoch1_eemumu:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum
-    steps:
-    - uses: actions/checkout@v2
-    - name: make
-      run: make
-    - name: make check
-      run: make check
   debug_builds:
     runs-on: ubuntu-latest
     steps:
@@ -26,6 +15,19 @@ jobs:
       run: make -C epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum debug
     - name: make epoch2
       run: make -C epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum debug
+  epoch1_eemumu:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum
+    steps:
+    - uses: actions/checkout@v2
+    - name: make info
+      run: make info
+    - name: make
+      run: make
+    - name: make check
+      run: make check
   epoch2_eemumu:
     runs-on: ubuntu-latest
     defaults:
@@ -33,10 +35,25 @@ jobs:
         working-directory: epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum
     steps:
     - uses: actions/checkout@v2
+    - name: make info
+      run: make info
     - name: make
       run: make
     - name: make check
       run: make check
+  epoch1_eemumu_GPU:
+    runs-on: self-hosted
+    defaults:
+      run:
+        working-directory: epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum
+    steps:
+    - uses: actions/checkout@v2
+    - name: make info
+      run: source /opt/rh/gcc-toolset-9/enable; make info
+    - name: make
+      run: source /opt/rh/gcc-toolset-9/enable; make
+    - name: make check
+      run: source /opt/rh/gcc-toolset-9/enable; make check
   epoch2_eemumu_GPU:
     runs-on: self-hosted
     defaults:
@@ -44,7 +61,9 @@ jobs:
         working-directory: epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum
     steps:
     - uses: actions/checkout@v2
+    - name: make info
+      run: source /opt/rh/gcc-toolset-9/enable; make info
     - name: make
-      run: make
+      run: source /opt/rh/gcc-toolset-9/enable; make
     - name: make check
-      run: make check
+      run: source /opt/rh/gcc-toolset-9/enable; make check

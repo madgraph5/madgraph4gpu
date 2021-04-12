@@ -1,6 +1,6 @@
 //==========================================================================
 // This file has been automatically generated for C++
-// MadGraph5_aMC@NLO v. 2.7.3.py3, 2020-06-28
+// MadGraph5_aMC@NLO v. 2.8.2, 2020-10-30
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -8,7 +8,7 @@
 #ifndef Parameters_sm_H
 #define Parameters_sm_H
 
-#include <complex> 
+#include <complex>
 
 #include "read_slha.h"
 
@@ -61,5 +61,5 @@ class Parameters_sm
     static Parameters_sm * instance; 
 }; 
 
-#endif  // Parameters_sm_H
+#endif // Parameters_sm_H
 

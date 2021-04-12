@@ -25,7 +25,7 @@ namespace MG5_sm
 
   template< typename T_Acc >
   ALPAKA_FN_ACC
-  inline const fptype& pIparIp4Ievt( T_Acc const &acc,
+  inline const fptype& pIparIp4Ievt( __attribute__((unused)) T_Acc const &acc,
                                      const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                      const int ipar,
                                      const int ip4,
@@ -75,7 +75,7 @@ namespace MG5_sm
       // (PX = PY = 0 and E = -P3 > 0)
       {
         const cxtype chi0 = cxmake( 0, 0 );
-        const cxtype chi1 = cxmake( -nhel * sqrt(2 * pvec0), 0 );
+        const cxtype chi1 = cxmake( -nhel * sqrt(acc, 2 * pvec0), 0 );
         if (nh == 1)
         {
           fi_2 = cxmake( 0, 0 );
@@ -130,7 +130,7 @@ namespace MG5_sm
       // ASSUMPTIONS FMASS = 0 and
       // (PX and PY are not 0)
       {
-        const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
+        const fptype sqp0p3 = sqrt( acc, pvec0 + pvec3 ) * nsf;
         const cxtype chi0 = cxmake( sqp0p3, 0 );
         const cxtype chi1 = cxmake( nh * pvec1 / sqp0p3, pvec2 / sqp0p3 );
         if ( nh == 1 )
@@ -188,7 +188,7 @@ namespace MG5_sm
       // EITHER (Px and Py are not zero)
       // OR (PX = PY = 0 and E = P3 > 0)
       {
-        const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
+        const fptype sqp0p3 = sqrt( acc, pvec0 + pvec3 ) * nsf;
         const cxtype chi0 = cxmake( sqp0p3, 0 );
         const cxtype chi1 = cxmake( nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
         if( nh == 1 )
@@ -216,7 +216,7 @@ namespace MG5_sm
 
   template< typename T_Acc >
   ALPAKA_FN_ACC
-  void FFV1_0( T_Acc const &acc,
+  void FFV1_0( __attribute__((unused)) T_Acc const &acc,
                const cxtype F1S[],   // input wavefunction1[6]
                const cxtype F2S[],   // input wavefunction2[6]
                const cxtype V3S[],   // input wavefunction3[6]
@@ -258,7 +258,7 @@ namespace MG5_sm
 
   template< typename T_Acc >
   ALPAKA_FN_ACC
-  void FFV1P0_3( T_Acc const &acc,
+  void FFV1P0_3( __attribute__((unused)) T_Acc const &acc,
                  const cxtype F1S[],   // input wavefunction1[6]
                  const cxtype F2S[],   // input wavefunction2[6]
                  const cxtype COUP,
@@ -306,7 +306,7 @@ namespace MG5_sm
 
   template< typename T_Acc >
   ALPAKA_FN_ACC
-  void FFV2_4_0( T_Acc const &acc,
+  void FFV2_4_0( __attribute__((unused)) T_Acc const &acc,
                  const cxtype F1S[],   // input wavefunction1[6]
                  const cxtype F2S[],   // input wavefunction2[6]
                  const cxtype V3S[],   // input wavefunction3[6]
@@ -345,7 +345,7 @@ namespace MG5_sm
 
   template< typename T_Acc >
   ALPAKA_FN_ACC
-  void FFV2_4_3( T_Acc const &acc,
+  void FFV2_4_3( __attribute__((unused)) T_Acc const &acc,
                  const cxtype F1S[],   // input wavefunction1[6]
                  const cxtype F2S[],   // input wavefunction2[6]
                  const cxtype COUP1,
@@ -443,11 +443,17 @@ namespace Proc
   using mgOnGpu::npar; // 4: #particles in total (external), e+ e- -> mu+ mu-
   using mgOnGpu::ncomb; // 16: #helicity combinations, 2(spin up/down for fermions)**4(npar)
 
-  ALPAKA_STATIC_ACC_MEM_CONSTANT int cHel[ncomb][npar];
+  // Helicities for the process - nodim
+  ALPAKA_STATIC_ACC_MEM_CONSTANT int cHel[ncomb][npar] =
+      { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
+        {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
+        {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
+        {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
   //__device__ __constant__ fptype cIPC[6];
   //__device__ __constant__ fptype cIPD[2];
-  ALPAKA_STATIC_ACC_MEM_CONSTANT int cNGoodHel[1];
-  ALPAKA_STATIC_ACC_MEM_CONSTANT int cGoodHel[ncomb];
+// CONSTANT -> GLOBAL
+  ALPAKA_STATIC_ACC_MEM_GLOBAL int cNGoodHel[1];
+  ALPAKA_STATIC_ACC_MEM_GLOBAL int cGoodHel[ncomb];
 
   //--------------------------------------------------------------------------
 
@@ -468,7 +474,6 @@ namespace Proc
                                 )
   {
     mgDebug( 0, __FUNCTION__ );
-
     //const int cHel[ncomb][npar] =
     //  { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
     //    {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
@@ -535,14 +540,6 @@ namespace Proc
     , dim( gpu_nblocks * gpu_nthreads )
     , m_verbose( verbose )
   {
-    // Helicities for the process - nodim
-    const int tHel[ncomb][nexternal] =
-      { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
-        {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
-        {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
-        {+1, +1, -1, -1}, {+1, +1, -1, +1}, {+1, +1, +1, -1}, {+1, +1, +1, +1} };
-    checkCupla( cuplaMemcpy( cHel, tHel, ncomb * nexternal * sizeof(int), cuplaMemcpyHostToDevice ) );
-
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
     assert( sizeof(cxtype) == 2*sizeof(fptype) );
   }
@@ -611,7 +608,10 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  void sigmaKin_setGoodHel( const bool* isGoodHel ) // input: isGoodHel[ncomb] - host array
+  template< typename T_Acc >
+  ALPAKA_FN_ACC
+  void sigmaKin_setGoodHel::operator()( __attribute__((unused)) T_Acc const &acc,
+                                        const bool* isGoodHel ) const // input: isGoodHel[ncomb] - device array
   {
     int nGoodHel[1] = { 0 };
     int goodHel[ncomb] = { 0 };
@@ -624,8 +624,11 @@ namespace Proc
         nGoodHel[0]++;
       }
     }
-    checkCupla( cuplaMemcpy( cNGoodHel, nGoodHel, sizeof(int), cuplaMemcpyHostToDevice ) );
-    checkCupla( cuplaMemcpy( cGoodHel, goodHel, ncomb*sizeof(int), cuplaMemcpyHostToDevice ) );
+    cNGoodHel[0] = nGoodHel[0];
+    for ( int ihel = 0; ihel < ncomb; ihel++ )
+    {
+      cGoodHel[ihel] = goodHel[ihel];
+    }
   }
 
   //--------------------------------------------------------------------------
