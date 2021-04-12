@@ -31,16 +31,17 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
   // Fill in the input momenta
   const int nMomenta = np4*npar*nevt;
   auto hstMomenta = hstMakeUnique<fptype_sv>( nMomenta ); // AOSOA[npagM][npar=4][np4=4][neppM]
-  const fptype par0[np4*nevt] { // AOS[nevt][np4]
-    500, 0, 0, 500, // #0 (m=0 pT=0 E=pz>0)
-      500, 0, 0, -500, // #1 (m=0 pT=0 E=-pz>0)
-      500, 300, 400, 0, // #2 (m=0 pT>0 pz=0)
-      500, 180, 240, 400, // #3 (m=0 pT>0 pz>0)
-      500, 180, 240, -400, // #4 (m=0 pT>0 pz<0)
-      500., 0., 0., 0., // #5 (m=50>0 pT=0 pz=0)
-      500, 0, 0, -300, // #6 (m=40>0 pT=0 pz<0)
+  const fptype par0[np4 * nevt]                           // AOS[nevt][np4]
+    {
+      500,  0,    0,    500,   // #0 (m=0 pT=0 E=pz>0)
+      500,  0,    0,    -500,  // #1 (m=0 pT=0 E=-pz>0)
+      500,  300,  400,  0,     // #2 (m=0 pT>0 pz=0)
+      500,  180,  240,  400,   // #3 (m=0 pT>0 pz>0)
+      500,  180,  240,  -400,  // #4 (m=0 pT>0 pz<0)
+      500., 0.,   0.,   0.,    // #5 (m=50>0 pT=0 pz=0)
+      500,  0,    0,    -300,  // #6 (m=40>0 pT=0 pz<0)
       500., 180., 192., -144., // #7 (m=40>0 pT>0 pz<0)
-      };
+    };
   fptype mass0[nevt]{};
   bool ispzgt0[nevt]{};
   bool ispzlt0[nevt]{};
@@ -73,7 +74,7 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
   // Expected output wavefunctions
   std::vector< std::array<fptype,12> > expwfs;
 #include "testxxx_cc_ref.txt" // expwfs.push_back( {...} );
-  std::string dumpFileName = "testxxx_cc_ref.txt";
+  std::string dumpFileName = "testxxx_cc_ref.txt.new";
   // Compute the output wavefunctions
   // Dump new reference file if requested
   using namespace MG5_sm;
@@ -101,7 +102,7 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
     dumpFile << std::defaultfloat;
   };
   int itest = 0; // index on the expected output vector
-  auto testwf6 = [&]( const cxtype wf[6], const char* xxx, int ievt ) {
+  auto testwf6 = [&]( const cxtype_sv wf[6], const char* xxx, int ievt ) {
     if ( dumpEvents ) dumpwf6( wf, xxx, ievt );
     if ( testEvents )
     {
@@ -141,14 +142,14 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
       //const fptype fmass = mass0[ievt];
       //ixxxxx( hstMomenta.get(), fmass, ihel, nsf, outwf, ievt, ipar );
       //testwf6( outwf, "ixxxxx", ievt );
-      itest++;
+      itest++; // SKIP
     }
     // Test ipzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
     if ( mass0[ievt] == 0 && ispzgt0[ievt] )
     {
       //ipzxxx( hstMomenta.get(), ihel, nsf, outwf, ievt, ipar );
       //testwf6( outwf, "ipzxxx", ievt );
-      itest++;
+      itest++; // SKIP
     }
     // Test imzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
     if ( mass0[ievt] == 0 && ispzlt0[ievt] )
@@ -157,50 +158,55 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
       imzxxx( hstMomenta.get(), ihel, nsf, outwf, ipagM, ipar );
       testwf6( outwf, "imzxxx", ievt );
     }
-    /*
     // Test ixzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
     if ( mass0[ievt] == 0 && isptgt0[ievt] )
     {
-      ixzxxx( hstMomenta.get(), ihel, nsf, outwf, ievt, ipar );
-      testwf6( outwf, "ixzxxx", ievt );
+      //ixzxxx( hstMomenta.get(), ihel, nsf, outwf, ievt, ipar );
+      //testwf6( outwf, "ixzxxx", ievt );
+      itest++; // SKIP
     }
     // Test vxxxxx - NO ASSUMPTIONS
     {
-      const fptype vmass = mass0[ievt];
-      vxxxxx( hstMomenta.get(), vmass, ihel, nsf, outwf, ievt, ipar );
-      testwf6( outwf, "vxxxxx", ievt );
+      //const fptype vmass = mass0[ievt];
+      //vxxxxx( hstMomenta.get(), vmass, ihel, nsf, outwf, ievt, ipar );
+      //testwf6( outwf, "vxxxxx", ievt );
+      itest++; // SKIP
     }
     // Test sxxxxx - NO ASSUMPTIONS
     {
-      const fptype smass = mass0[ievt];
-      sxxxxx( hstMomenta.get(), smass, ihel, nsf, outwf, ievt, ipar );
-      testwf6( outwf, "sxxxxx", ievt );
+      //const fptype smass = mass0[ievt];
+      //sxxxxx( hstMomenta.get(), smass, ihel, nsf, outwf, ievt, ipar );
+      //testwf6( outwf, "sxxxxx", ievt );
+      itest++; // SKIP
     }
     // Test oxxxxx - NO ASSUMPTIONS
     {
-      const fptype fmass = mass0[ievt];
-      oxxxxx( hstMomenta.get(), fmass, ihel, nsf, outwf, ievt, ipar );
-      testwf6( outwf, "oxxxxx", ievt );
+      //const fptype fmass = mass0[ievt];
+      //oxxxxx( hstMomenta.get(), fmass, ihel, nsf, outwf, ievt, ipar );
+      //testwf6( outwf, "oxxxxx", ievt );
+      itest++; // SKIP
     }
     // Test opzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
     if ( mass0[ievt] == 0 && ispzgt0[ievt] )
     {
-      opzxxx( hstMomenta.get(), ihel, nsf, outwf, ievt, ipar );
-      testwf6( outwf, "opzxxx", ievt );
+      //opzxxx( hstMomenta.get(), ihel, nsf, outwf, ievt, ipar );
+      //testwf6( outwf, "opzxxx", ievt );
+      itest++; // SKIP
     }
     // Test omzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
     if ( mass0[ievt] == 0 && ispzlt0[ievt] )
     {
-      omzxxx( hstMomenta.get(), ihel, nsf, outwf, ievt, ipar );
-      testwf6( outwf, "omzxxx", ievt );
+      //omzxxx( hstMomenta.get(), ihel, nsf, outwf, ievt, ipar );
+      //testwf6( outwf, "omzxxx", ievt );
+      itest++; // SKIP
     }
     // Test oxzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
     if ( mass0[ievt] == 0 && isptgt0[ievt] )
     {
-      oxzxxx( hstMomenta.get(), ihel, nsf, outwf, ievt, ipar );
-      testwf6( outwf, "oxzxxx", ievt );
+      //oxzxxx( hstMomenta.get(), ihel, nsf, outwf, ievt, ipar );
+      //testwf6( outwf, "oxzxxx", ievt );
+      itest++; // SKIP
     }
-    */
   }
   if ( dumpEvents )
   {
