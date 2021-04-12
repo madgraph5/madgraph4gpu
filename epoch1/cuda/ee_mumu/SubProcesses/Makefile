@@ -157,9 +157,9 @@ ifneq ($(findstring clang++,$(CXX)),)
 $(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(CXX))
 endif
 
-#$(BUILDDIR)/testxxx.o:   $(GTESTLIBS)
-#$(testmain): $(BUILDDIR)/testxxx.o
-#$(testmain): cxx_objects += $(BUILDDIR)/testxxx.o # Comment out this line to skip the test of xxx functions
+$(BUILDDIR)/testxxx.o:   $(GTESTLIBS)
+$(testmain): $(BUILDDIR)/testxxx.o
+$(testmain): cxx_objects += $(BUILDDIR)/testxxx.o # Comment out this line to skip the test of xxx functions
 
 ifeq ($(NVCC),)
 # Link only runTest.o
