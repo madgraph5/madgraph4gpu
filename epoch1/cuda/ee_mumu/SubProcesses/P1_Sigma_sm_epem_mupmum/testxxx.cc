@@ -106,7 +106,8 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
     if ( dumpEvents ) dumpwf6( wf, xxx, ievt );
     if ( testEvents )
     {
-      std::cout << "Testing " << itest << ": " << xxx << " #" << ievt << std::endl;
+      std::cout << "Testing " << std::setw(3) << itest << ": ";
+      std::cout << xxx << " #" << ievt << std::endl;
       std::array<fptype,12>& expwf = expwfs[itest];
 #ifdef MGONGPU_CPPSIMD
       const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
@@ -161,9 +162,9 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
     // Test ixzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
     if ( mass0[ievt] == 0 && isptgt0[ievt] )
     {
-      //ixzxxx( hstMomenta.get(), ihel, nsf, outwf, ievt, ipar );
-      //testwf6( outwf, "ixzxxx", ievt );
-      itest++; // SKIP
+      const int ipagM = ievt/neppM; // #eventpage in this iteration
+      ixzxxx( hstMomenta.get(), ihel, nsf, outwf, ipagM, ipar );
+      testwf6( outwf, "ixzxxx", ievt );
     }
     // Test vxxxxx - NO ASSUMPTIONS
     {
@@ -189,9 +190,9 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
     // Test opzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
     if ( mass0[ievt] == 0 && ispzgt0[ievt] )
     {
-      //opzxxx( hstMomenta.get(), ihel, nsf, outwf, ievt, ipar );
-      //testwf6( outwf, "opzxxx", ievt );
-      itest++; // SKIP
+      const int ipagM = ievt/neppM; // #eventpage in this iteration
+      opzxxx( hstMomenta.get(), ihel, nsf, outwf, ipagM, ipar );
+      testwf6( outwf, "opzxxx", ievt );
     }
     // Test omzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
     if ( mass0[ievt] == 0 && ispzlt0[ievt] )
@@ -203,9 +204,9 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
     // Test oxzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
     if ( mass0[ievt] == 0 && isptgt0[ievt] )
     {
-      //oxzxxx( hstMomenta.get(), ihel, nsf, outwf, ievt, ipar );
-      //testwf6( outwf, "oxzxxx", ievt );
-      itest++; // SKIP
+      const int ipagM = ievt/neppM; // #eventpage in this iteration
+      oxzxxx( hstMomenta.get(), ihel, nsf, outwf, ipagM, ipar );
+      testwf6( outwf, "oxzxxx", ievt );
     }
   }
   if ( dumpEvents )
