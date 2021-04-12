@@ -28,48 +28,50 @@ namespace MG5_sm
                const int ievt,
 #endif
                const int ipar );         // input: particle# out of npar
+  */
 
   //--------------------------------------------------------------------------
 
   __device__
-  void ipzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               //const fptype fmass,     // ASSUME fmass==0
+  void ipzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               //const fptype fmass,        // ASSUME fmass==0
                const int nhel,
                const int nsf,
-               cxtype* fi,               // output: wavefunction[(nw6==6)]
+               cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
-               const int ievt,
+               const int ipagV,
 #endif
-               const int ipar );         // input: particle# out of npar
+               const int ipar );            // input: particle# out of npar
 
   //--------------------------------------------------------------------------
 
   __device__
-  void imzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               //const fptype fmass,     // ASSUME fmass==0
+  void imzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               //const fptype fmass,        // ASSUME fmass==0
                const int nhel,
                const int nsf,
-               cxtype* fi,               // output: wavefunction[(nw6==6)]
+               cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
-               const int ievt,
+               const int ipagV,
 #endif
-               const int ipar );         // input: particle# out of npar
+               const int ipar );            // input: particle# out of npar
 
   //--------------------------------------------------------------------------
 
   __device__
-  void ixzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               //const fptype fmass,     // ASSUME fmass==0
+  void ixzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               //const fptype fmass,        // ASSUME fmass==0
                const int nhel,
                const int nsf,
-               cxtype* fi,               // output: wavefunction[(nw6==6)]
+               cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
-               const int ievt,
+               const int ipagV,
 #endif
-               const int ipar );         // input: particle# out of npar
+               const int ipar );            // input: particle# out of npar
 
   //--------------------------------------------------------------------------
 
+  /*
   __device__
   void vxxxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype vmass,
@@ -106,46 +108,50 @@ namespace MG5_sm
                const int ievt,
 #endif
                const int ipar );         // input: particle# out of npar
+  */
 
   //--------------------------------------------------------------------------
 
   __device__
-  void opzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void opzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               //const fptype fmass,        // ASSUME fmass==0
                const int nhel,
                const int nsf,
-               cxtype* fo,               // output: wavefunction[(nw6==6)]
+               cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
-               const int ievt,
+               const int ipagV,
 #endif
-               const int ipar );         // input: particle# out of npar
+               const int ipar );            // input: particle# out of npar
 
   //--------------------------------------------------------------------------
 
   __device__
-  void omzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void omzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               //const fptype fmass,        // ASSUME fmass==0
                const int nhel,
                const int nsf,
-               cxtype* fo,               // output: wavefunction[(nw6==6)]
+               cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
-               const int ievt,
+               const int ipagV,
 #endif
-               const int ipar );         // input: particle# out of npar
+               const int ipar );            // input: particle# out of npar
+
   //--------------------------------------------------------------------------
 
   __device__
-  void oxzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               //const fptype fmass,     // ASSUME fmass==0
+  void oxzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               //const fptype fmass,        // ASSUME fmass==0
                const int nhel,
                const int nsf,
-               cxtype* fo,               // output: wavefunction[(nw6==6)]
+               cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
-               const int ievt,
+               const int ipagV,
 #endif
-               const int ipar );         // input: particle# out of npar
-*/
+               const int ipar );            // input: particle# out of npar
 
   //--------------------------------------------------------------------------
 
+  /*
   __device__
   void imzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,        // ASSUME fmass==0
@@ -195,6 +201,7 @@ namespace MG5_sm
                const int ipagV,
 #endif
                const int ipar );            // input: particle# out of npar
+  */
 
   //--------------------------------------------------------------------------
 

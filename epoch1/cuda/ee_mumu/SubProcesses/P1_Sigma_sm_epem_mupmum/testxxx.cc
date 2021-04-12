@@ -148,9 +148,9 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
     // Test ipzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
     if ( mass0[ievt] == 0 && ispzgt0[ievt] )
     {
-      //ipzxxx( hstMomenta.get(), ihel, nsf, outwf, ievt, ipar );
-      //testwf6( outwf, "ipzxxx", ievt );
-      itest++; // SKIP
+      const int ipagM = ievt/neppM; // #eventpage in this iteration
+      ipzxxx( hstMomenta.get(), ihel, nsf, outwf, ipagM, ipar );
+      testwf6( outwf, "ipzxxx", ievt );
     }
     // Test imzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
     if ( mass0[ievt] == 0 && ispzlt0[ievt] )
@@ -197,9 +197,9 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
     // Test omzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
     if ( mass0[ievt] == 0 && ispzlt0[ievt] )
     {
-      //omzxxx( hstMomenta.get(), ihel, nsf, outwf, ievt, ipar );
-      //testwf6( outwf, "omzxxx", ievt );
-      itest++; // SKIP
+      const int ipagM = ievt/neppM; // #eventpage in this iteration
+      omzxxx( hstMomenta.get(), ihel, nsf, outwf, ipagM, ipar );
+      testwf6( outwf, "omzxxx", ievt );
     }
     // Test oxzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
     if ( mass0[ievt] == 0 && isptgt0[ievt] )
