@@ -418,7 +418,10 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
       //std::cout << "Testing " << itest << ": " << xxx << " #" << ievt << std::endl;
       std::array<fptype,12>& expwf = expwfs[itest];
       for ( int iwf6 = 0; iwf6<nwf6; iwf6++ )
+      {
         EXPECT_NEAR( wf[iwf6].real(), expwf[iwf6*2], std::abs( expwf[iwf6*2] * toleranceXXXs ) );
+        EXPECT_NEAR( wf[iwf6].imag(), expwf[iwf6*2+1], std::abs( expwf[iwf6*2+1] * toleranceXXXs ) );
+      }
     }
     itest++;
   };
