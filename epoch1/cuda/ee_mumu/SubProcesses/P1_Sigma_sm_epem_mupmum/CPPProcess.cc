@@ -54,34 +54,40 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  /*
   __device__
-  void ixxxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void ixxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,
                const int nhel,
                const int nsf,
-               cxtype* fi,               // output: wavefunction[(nw6==6)]
+               cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
-               const int ievt,
+               const int ipagV,
 #endif
-               const int ipar )          // input: particle# out of npar
+               const int ipar )             // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
 #ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+      //printf( "ixxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
+      const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
+      const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
+      const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+#else
+      //printf( "ixxxxx: ipagV=%d\n", ipagV );
+      const fptype_sv pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
+      const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
+      const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
 #endif
-      const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt ); // not a ref (fewer registers!?)
-      const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt ); // not a ref (fewer registers!?)
-      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt ); // not a ref (fewer registers!?)
-      const fptype p0 = sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 );
+      const fptype_sv p0 = sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 );
       fi[0] = cxmake( -p0 * nsf, -pvec3 * nsf );
       fi[1] = cxmake( -pvec1 * nsf, -pvec2 * nsf );
       const int nh = nhel * nsf;
       if ( fmass != 0. )
       {
-        const fptype pp = fpmin( p0, sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ) );
+        const fptype_sv pp = fpmin( p0, sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ) );
+#ifndef MGONGPU_CPPSIMD
         if ( pp == 0. )
         {
           // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs! 
@@ -111,16 +117,48 @@ namespace MG5_sm
           fi[4] = sfomega[1] * chi[im];
           fi[5] = sfomega[1] * chi[ip];
         }
+#else
+        const int ip = ( 1 + nh ) / 2;
+        const int im = ( 1 - nh ) / 2;
+        // Branch A: pp == 0.
+        // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs! 
+        fptype sqm[2] = { sqrt( std::abs( fmass ) ), 0 }; // possibility of negative fermion masses (NB: SCALAR!)
+        sqm[1] = ( fmass < 0 ? -sqm[0] : sqm[0] ); // AV: removed an abs here (as above)...
+        const cxtype fiA_2 = ip * sqm[ip]; // scalar cxtype: real part initialised from fptype, imag part = 0
+        const cxtype fiA_3 = im * nsf * sqm[ip]; // scalar cxtype: real part initialised from fptype, imag part = 0
+        const cxtype fiA_4 = ip * nsf * sqm[im]; // scalar cxtype: real part initialised from fptype, imag part = 0
+        const cxtype fiA_5 = im * sqm[im]; // scalar cxtype: real part initialised from fptype, imag part = 0
+        // Branch B: pp != 0.
+        const fptype sf[2] = { ( 1 + nsf + ( 1 - nsf ) * nh ) * 0.5, ( 1 + nsf - ( 1 - nsf ) * nh ) * 0.5 };
+        fptype_v omega[2] = { sqrt( p0 + pp ), 0 };
+        omega[1] = fmass / omega[0];
+        const fptype_v sfomega[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
+        const fptype_v pp3 = fpmax( pp + pvec3, 0 );
+        const cxtype_v chi[2] = { cxmake( sqrt ( pp3 * 0.5 / pp ), 0 ),
+          cxternary( ( pp3 == 0. ), cxmake( -nh, 0 ), cxmake( nh * pvec1, pvec2 ) / sqrt( 2. * pp * pp3 ) ) };
+        const cxtype_v fiB_2 = sfomega[0] * chi[im];
+        const cxtype_v fiB_3 = sfomega[0] * chi[ip];
+        const cxtype_v fiB_4 = sfomega[1] * chi[im];
+        const cxtype_v fiB_5 = sfomega[1] * chi[ip];
+        // Choose between the results from branch A and branch B
+        const bool_v mask = ( pp == 0. );
+        fi[2] = cxternary( mask, fiA_2, fiB_2 );
+        fi[3] = cxternary( mask, fiA_3, fiB_3 );
+        fi[4] = cxternary( mask, fiA_4, fiB_4 );
+        fi[5] = cxternary( mask, fiA_5, fiB_5 );
+#endif
       }
       else
       {
-        const fptype sqp0p3 = ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0. ? 0. : sqrt( fpmax( p0 + pvec3, 0. ) ) * nsf );
-        const cxtype chi[2] = { cxmake( sqp0p3, 0. ),
-                                ( sqp0p3 == 0. ? cxmake( -nhel * sqrt( 2. * p0 ), 0. ) : cxmake( nh * pvec1, pvec2 ) / sqp0p3 ) };
+        const fptype_sv sqp0p3 = ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0.
+                                   ? 0. : sqrt( fpmax( p0 + pvec3, 0. ) ) * nsf );
+        const cxtype_sv chi[2] = { cxmake( sqp0p3, 0. ), cxternary( ( sqp0p3 == 0. ),
+                                                                    cxmake( -nhel * sqrt( 2. * p0 ), 0. ),
+                                                                    cxmake( nh * pvec1, pvec2 ) / sqp0p3 ) };
         if ( nh == 1 )
         {
-          fi[2] = cxmake( 0, 0 );
-          fi[3] = cxmake( 0, 0 );
+          fi[2] = cxzero_sv();
+          fi[3] = cxzero_sv();
           fi[4] = chi[0];
           fi[5] = chi[1];
         }
@@ -128,8 +166,8 @@ namespace MG5_sm
         {
           fi[2] = chi[1];
           fi[3] = chi[0];
-          fi[4] = cxmake( 0, 0 );
-          fi[5] = cxmake( 0, 0 );
+          fi[4] = cxzero_sv();
+          fi[5] = cxzero_sv();
         }
       }
     }
@@ -137,7 +175,6 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
-  */
 
   //--------------------------------------------------------------------------
 

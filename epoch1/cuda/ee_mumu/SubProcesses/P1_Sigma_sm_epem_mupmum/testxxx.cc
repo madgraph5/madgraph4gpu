@@ -81,29 +81,29 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
   const int nwf6 = 6;
   std::ofstream dumpFile;
   if ( dumpEvents ) dumpFile.open( dumpFileName, std::ios::trunc );
-  auto dumpwf6 = [&]( const cxtype_sv wf[6], const char* xxx, int ievt ) {
-    dumpFile << std::setprecision(15) << std::scientific;
-    dumpFile << "  expwfs.push_back( {";
-    dumpFile << "                                   // ---------" << std::endl;
+  auto dumpwf6 = [&]( std::ostream& out, const cxtype_sv wf[6], const char* xxx, int ievt ) {
+    out << std::setprecision(15) << std::scientific;
+    out << "  expwfs.push_back( {";
+    out << "                                   // ---------" << std::endl;
     for ( int iwf6 = 0; iwf6<nwf6; iwf6++ )
     {
 #ifdef MGONGPU_CPPSIMD
       const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-      dumpFile << std::setw(26) << cxreal( wf[iwf6][ieppM] ) << ", ";
-      dumpFile << std::setw(22) << cximag( wf[iwf6][ieppM] );
+      out << std::setw(26) << cxreal( wf[iwf6][ieppM] ) << ", ";
+      out << std::setw(22) << cximag( wf[iwf6][ieppM] );
 #else
-      dumpFile << std::setw(26) << wf[iwf6].real();
-      dumpFile << ", " << std::setw(22) << wf[iwf6].imag();
+      out << std::setw(26) << wf[iwf6].real();
+      out << ", " << std::setw(22) << wf[iwf6].imag();
 #endif
-      if ( iwf6 < nwf6-1 ) dumpFile << ",    ";
-      else dumpFile << " } );";
-      dumpFile << " // " << xxx << " #" << ievt << std::endl;
+      if ( iwf6 < nwf6-1 ) out << ",    ";
+      else out << " } );";
+      out << " // " << xxx << " #" << ievt << std::endl;
     }
-    dumpFile << std::defaultfloat;
+    out << std::defaultfloat;
   };
   int itest = 0; // index on the expected output vector
   auto testwf6 = [&]( const cxtype_sv wf[6], const char* xxx, int ievt ) {
-    if ( dumpEvents ) dumpwf6( wf, xxx, ievt );
+    if ( dumpEvents ) dumpwf6( dumpFile, wf, xxx, ievt );
     if ( testEvents )
     {
       std::cout << "Testing " << std::setw(3) << itest << ": ";
@@ -128,7 +128,6 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
   };
   const int ihel = +1;
   const int nsf = -1;
-  //cxtype outwf[6];
   cxtype_sv outwf[6];
   for ( int ievt=0; ievt<nevt; ievt++ )
   {
@@ -140,10 +139,10 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
     }
     // Test ixxxxx - NO ASSUMPTIONS
     {
-      //const fptype fmass = mass0[ievt];
-      //ixxxxx( hstMomenta.get(), fmass, ihel, nsf, outwf, ievt, ipar );
-      //testwf6( outwf, "ixxxxx", ievt );
-      itest++; // SKIP
+      const fptype fmass = mass0[ievt];
+      const int ipagM = ievt/neppM; // #eventpage in this iteration
+      ixxxxx( hstMomenta.get(), fmass, ihel, nsf, outwf, ipagM, ipar );
+      testwf6( outwf, "ixxxxx", ievt );
     }
     // Test ipzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
     if ( mass0[ievt] == 0 && ispzgt0[ievt] )
