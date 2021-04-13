@@ -387,6 +387,14 @@ fptype_v fpternary( const bool_v& mask, const fptype& a, const fptype_v& b )
 }
 
 inline
+fptype_v fpternary( const bool_v& mask, const fptype& a, const fptype& b )
+{
+  fptype_v out;
+  for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a : b );
+  return out;
+}
+
+inline
 cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype_v& b )
 {
   cxtype_v out;
@@ -407,6 +415,14 @@ cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype_v& b )
 {
   cxtype_v out;
   for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a : b[i] );
+  return out;
+}
+
+inline
+cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype& b )
+{
+  cxtype_v out;
+  for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a : b );
   return out;
 }
 

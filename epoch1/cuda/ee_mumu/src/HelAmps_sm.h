@@ -69,33 +69,33 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  /*
   __device__
-  void vxxxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void vxxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype vmass,
                const int nhel,
                const int nsv,
-               cxtype* vc,               // output: wavefunction[(nw6==6)]
+               cxtype_sv* vc,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
-               const int ievt,
+               const int ipagV,
 #endif
-               const int ipar );         // input: particle# out of npar
+               const int ipar );            // input: particle# out of npar
 
   //--------------------------------------------------------------------------
 
   __device__
-  void sxxxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               const fptype,             // WARNING: smass unused???
-               const int,                // WARNING: nhel unused???
+  void sxxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               const fptype,                // WARNING: "smass" unused???
+               const int,                   // WARNING: "nhel" unused???
                const int nss,
-               cxtype sc[3],             // output: wavefunction[3] - not [6], this is for scalars
+               cxtype_sv sc[3],             // output: wavefunction[3] - not [6], this is for scalars
 #ifndef __CUDACC__
-               const int ievt,
+               const int ipagV,
 #endif
-               const int ipar );         // input: particle# out of npar
+               const int ipar );            // input: particle# out of npar
 
   //--------------------------------------------------------------------------
 
+  /*
   __device__
   void oxxxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,

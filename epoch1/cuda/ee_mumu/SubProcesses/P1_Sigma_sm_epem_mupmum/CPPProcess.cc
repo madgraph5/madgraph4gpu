@@ -120,7 +120,7 @@ namespace MG5_sm
 #else
         const int ip = ( 1 + nh ) / 2;
         const int im = ( 1 - nh ) / 2;
-        // Branch A: pp == 0.
+        // Branch A: pp == 0. 
         // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs! 
         fptype sqm[2] = { sqrt( std::abs( fmass ) ), 0 }; // possibility of negative fermion masses (NB: SCALAR!)
         sqm[1] = ( fmass < 0 ? -sqm[0] : sqm[0] ); // AV: removed an abs here (as above)...
@@ -135,7 +135,9 @@ namespace MG5_sm
         const fptype_v sfomega[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
         const fptype_v pp3 = fpmax( pp + pvec3, 0 );
         const cxtype_v chi[2] = { cxmake( sqrt ( pp3 * 0.5 / pp ), 0 ),
-          cxternary( ( pp3 == 0. ), cxmake( -nh, 0 ), cxmake( nh * pvec1, pvec2 ) / sqrt( 2. * pp * pp3 ) ) };
+                                  cxternary( ( pp3 == 0. ),
+                                             cxmake( -nh, 0 ),
+                                             cxmake( nh * pvec1, pvec2 ) / sqrt( 2. * pp * pp3 ) ) };
         const cxtype_v fiB_2 = sfomega[0] * chi[im];
         const cxtype_v fiB_3 = sfomega[0] * chi[ip];
         const cxtype_v fiB_4 = sfomega[1] * chi[im];
@@ -330,39 +332,46 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  /*
   __device__
-  void vxxxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void vxxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype vmass,
                const int nhel,
                const int nsv,
-               cxtype* vc,               // output: wavefunction[(nw6==6)]
+               cxtype_sv* vc,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
-               const int ievt,
+               const int ipagV,
 #endif
-               const int ipar )          // input: particle# out of npar
+               const int ipar )             // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
 #ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
-#endif
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+      //printf( "vxxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-      const fptype sqh = sqrt( 0.5 );
+#else
+      //printf( "vxxxxx: ipagV=%d\n", ipagV );
+      const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
+      const fptype_sv pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
+      const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
+      const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+#endif
+      const fptype sqh = sqrt( 0.5 ); // AV this is > 0!
       const fptype hel = nhel;
       vc[0] = cxmake( pvec0 * nsv, pvec3 * nsv );
       vc[1] = cxmake( pvec1 * nsv, pvec2 * nsv );
       if ( vmass != 0 )
       {
         const int nsvahl = nsv * std::abs( hel );
-        const fptype pt2 = ( pvec1 * pvec1 ) + ( pvec2 * pvec2 );
-        const fptype pp = fpmin( pvec0, sqrt( pt2 + ( pvec3 * pvec3 ) ) );
-        const fptype pt = fpmin( pp, sqrt( pt2 ) );
+        const fptype_sv pt2 = ( pvec1 * pvec1 ) + ( pvec2 * pvec2 );
+        const fptype_sv pp = fpmin( pvec0, sqrt( pt2 + ( pvec3 * pvec3 ) ) );
+        const fptype_sv pt = fpmin( pp, sqrt( pt2 ) );
         const fptype hel0 = 1. - std::abs( hel );
+#ifndef MGONGPU_CPPSIMD
         if ( pp == 0. )
         {
           vc[2] = cxmake( 0, 0 );
@@ -385,16 +394,43 @@ namespace MG5_sm
           {
             vc[3] = cxmake( -hel * sqh, 0. );
             // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
-            vc[4] = cxmake( 0., nsvahl * ( pvec3 < 0 ? -std::abs( sqh ) : std::abs( sqh ) ) );
+            //vc[4] = cxmake( 0., nsvahl * ( pvec3 < 0 ? -std::abs( sqh ) : std::abs( sqh ) ) ); // AV: why abs here anyway?
+            vc[4] = cxmake( 0., nsvahl * ( pvec3 < 0 ? -sqh : sqh ) ); // AV: removed an abs here...
           }
         }
+#else
+        // Branch A: pp == 0.
+        const cxtype vcA_2 = cxmake( 0, 0 );
+        const cxtype vcA_3 = cxmake( -hel * sqh, 0 );
+        const cxtype vcA_4 = cxmake( 0, nsvahl * sqh );
+        const cxtype vcA_5 = cxmake( hel0, 0 );
+        // Branch B: pp != 0.
+        const fptype_v emp = pvec0 / ( vmass * pp );
+        const cxtype_v vcB_2 = cxmake( hel0 * pp / vmass, 0 );
+        const cxtype_v vcB_5 = cxmake( hel0 * pvec3 * emp + hel * pt / pp * sqh, 0 );
+        // Branch B1: pp != 0. and pt != 0.
+        const fptype_v pzpt = pvec3 / ( pp * pt ) * sqh * hel;
+        const cxtype_v vcB1_3 = cxmake( hel0 * pvec1 * emp - pvec1 * pzpt, - nsvahl * pvec2 / pt * sqh );
+        const cxtype_v vcB1_4 = cxmake( hel0 * pvec2 * emp - pvec2 * pzpt, nsvahl * pvec1 / pt * sqh );
+        // Branch B2: pp != 0. and pt == 0.
+        const cxtype vcB2_3 = cxmake( -hel * sqh, 0. );
+        const cxtype_v vcB2_4 = cxmake( 0., nsvahl * fpternary( ( pvec3 < 0 ), -sqh, sqh ) ); // AV: removed an abs here...
+        // Choose between the results from branch A and branch B (and from branch B1 and branch B2)
+        const bool_v mask = ( pp == 0. );
+        const bool_v maskB = ( pt != 0. );
+        vc[2] = cxternary( mask, vcA_2, vcB_2 );
+        vc[3] = cxternary( mask, vcA_3, cxternary( maskB, vcB1_3, vcB2_3 ) );
+        vc[4] = cxternary( mask, vcA_4, cxternary( maskB, vcB1_4, vcB2_4 ) );
+        vc[5] = cxternary( mask, vcA_5, vcB_5 );
+#endif
       }
       else
       {
-        //pp = pvec0;
-        const fptype pt = sqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) );
-        vc[2] = cxmake( 0, 0 );
+        //pp = pvec0; // AV this was already commented out - what is this?
+        const fptype_sv pt = sqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) );
+        vc[2] = cxzero_sv();
         vc[5] = cxmake( hel * pt / pvec0 * sqh, 0 );
+#ifndef MGONGPU_CPPSIMD
         if ( pt != 0 )
         {
           const fptype pzpt = pvec3 / ( pvec0 * pt ) * sqh * hel;
@@ -405,8 +441,22 @@ namespace MG5_sm
         {
           vc[3] = cxmake( -hel * sqh, 0 );
           // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs! 
-          vc[4] = cxmake( 0, nsv * ( pvec3 < 0 ? -std::abs( sqh ) : std::abs( sqh ) ) );
+          //vc[4] = cxmake( 0, nsv * ( pvec3 < 0 ? -std::abs( sqh ) : std::abs( sqh ) ) ); // AV why abs here anyway?
+          vc[4] = cxmake( 0, nsv * ( pvec3 < 0 ? -sqh : sqh ) ); // AV: removed an abs here...
         }
+#else
+        // Branch A: pt != 0.
+        const fptype_v pzpt = pvec3 / ( pvec0 * pt ) * sqh * hel;
+        const cxtype_v vcA_3 = cxmake( -pvec1 * pzpt, -nsv * pvec2 / pt * sqh );
+        const cxtype_v vcA_4 = cxmake( -pvec2 * pzpt, nsv * pvec1 / pt * sqh );
+        // Branch B: pt == 0.
+        const cxtype vcB_3 = cxmake( -hel * sqh, 0 );
+        const cxtype_v vcB_4 = cxmake( 0, nsv * fpternary( ( pvec3 < 0 ), -sqh, sqh ) ); // AV: removed an abs here...
+        // Choose between the results from branch A and branch B
+        const bool_v mask = ( pt != 0. );
+        vc[3] = cxternary( mask, vcA_3, vcB_3 );
+        vc[4] = cxternary( mask, vcA_4, vcB_4 );
+#endif
       }
     }
     // +++ END EVENT LOOP (where necessary) +++
@@ -417,27 +467,34 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void sxxxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               const fptype,             // WARNING: "smass" unused???
-               const int,                // WARNING: "nhel" unused???
+  void sxxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+               const fptype,                // WARNING: "smass" unused???
+               const int,                   // WARNING: "nhel" unused???
                const int nss,
-               cxtype sc[3],             // output: wavefunction[3] - not [6], this is for scalars
+               cxtype_sv sc[3],             // output: wavefunction[3] - not [6], this is for scalars
 #ifndef __CUDACC__
-               const int ievt,
+               const int ipagV,
 #endif
-               const int ipar )          // input: particle# out of npar
+               const int ipar )             // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
 #ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
-#endif
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+      //printf( "sxxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-      sc[2] = cxmake( 1., 0. );
+#else
+      //printf( "sxxxxx: ipagV=%d\n", ipagV );
+      const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
+      const fptype_sv pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
+      const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
+      const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+#endif
+      sc[2] = cxmake( 1 + fptype_sv{0}, 0 );
       sc[0] = cxmake( pvec0 * nss, pvec3 * nss );
       sc[1] = cxmake( pvec1 * nss, pvec2 * nss );
     }
@@ -448,6 +505,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  /*
   __device__
   void oxxxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,

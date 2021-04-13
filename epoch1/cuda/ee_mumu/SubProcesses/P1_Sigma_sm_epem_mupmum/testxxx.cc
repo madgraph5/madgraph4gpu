@@ -167,17 +167,19 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
     }
     // Test vxxxxx - NO ASSUMPTIONS
     {
-      //const fptype vmass = mass0[ievt];
-      //vxxxxx( hstMomenta.get(), vmass, ihel, nsf, outwf, ievt, ipar );
-      //testwf6( outwf, "vxxxxx", ievt );
-      itest++; // SKIP
+      const fptype vmass = mass0[ievt];
+      const int ipagM = ievt/neppM; // #eventpage in this iteration
+      vxxxxx( hstMomenta.get(), vmass, ihel, nsf, outwf, ipagM, ipar );
+      testwf6( outwf, "vxxxxx", ievt );
+      //itest++; // SKIP
     }
     // Test sxxxxx - NO ASSUMPTIONS
     {
-      //const fptype smass = mass0[ievt];
-      //sxxxxx( hstMomenta.get(), smass, ihel, nsf, outwf, ievt, ipar );
-      //testwf6( outwf, "sxxxxx", ievt );
-      itest++; // SKIP
+      const fptype smass = mass0[ievt];
+      const int ipagM = ievt/neppM; // #eventpage in this iteration
+      sxxxxx( hstMomenta.get(), smass, ihel, nsf, outwf, ipagM, ipar );
+      testwf6( outwf, "sxxxxx", ievt );
+      //itest++; // SKIP
     }
     // Test oxxxxx - NO ASSUMPTIONS
     {
