@@ -100,6 +100,7 @@ runTest.exe: LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(CXX))
 endif
 
 testxxx.o:   $(GTESTLIBS)
+testxxx.o:   testxxx_cc_ref.txt
 runTest.exe: testxxx.o
 runTest.exe: cxx_objects += testxxx.o # Comment out this line to skip the test of xxx functions
 
