@@ -183,10 +183,11 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
     }
     // Test oxxxxx - NO ASSUMPTIONS
     {
-      //const fptype fmass = mass0[ievt];
-      //oxxxxx( hstMomenta.get(), fmass, ihel, nsf, outwf, ievt, ipar );
-      //testwf6( outwf, "oxxxxx", ievt );
-      itest++; // SKIP
+      const fptype fmass = mass0[ievt];
+      const int ipagM = ievt/neppM; // #eventpage in this iteration
+      oxxxxx( hstMomenta.get(), fmass, ihel, nsf, outwf, ipagM, ipar );
+      testwf6( outwf, "oxxxxx", ievt );
+      //itest++; // SKIP
     }
     // Test opzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
     if ( mass0[ievt] == 0 && ispzgt0[ievt] )
