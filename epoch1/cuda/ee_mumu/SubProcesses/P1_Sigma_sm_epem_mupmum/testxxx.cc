@@ -106,7 +106,7 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
     if ( dumpEvents ) dumpwf6( dumpFile, wf, xxx, ievt );
     if ( testEvents )
     {
-      std::cout << "Testing " << std::setw(3) << itest << ": ";
+      //std::cout << "Testing " << std::setw(3) << itest << ": ";
       std::cout << xxx << " #" << ievt << std::endl;
       std::array<fptype,12>& expwf = expwfs[itest];
 #ifdef MGONGPU_CPPSIMD
@@ -171,7 +171,6 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
       const int ipagM = ievt/neppM; // #eventpage in this iteration
       vxxxxx( hstMomenta.get(), vmass, ihel, nsf, outwf, ipagM, ipar );
       testwf6( outwf, "vxxxxx", ievt );
-      //itest++; // SKIP
     }
     // Test sxxxxx - NO ASSUMPTIONS
     {
@@ -179,7 +178,6 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
       const int ipagM = ievt/neppM; // #eventpage in this iteration
       sxxxxx( hstMomenta.get(), smass, ihel, nsf, outwf, ipagM, ipar );
       testwf6( outwf, "sxxxxx", ievt );
-      //itest++; // SKIP
     }
     // Test oxxxxx - NO ASSUMPTIONS
     {
@@ -187,7 +185,6 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
       const int ipagM = ievt/neppM; // #eventpage in this iteration
       oxxxxx( hstMomenta.get(), fmass, ihel, nsf, outwf, ipagM, ipar );
       testwf6( outwf, "oxxxxx", ievt );
-      //itest++; // SKIP
     }
     // Test opzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
     if ( mass0[ievt] == 0 && ispzgt0[ievt] )
