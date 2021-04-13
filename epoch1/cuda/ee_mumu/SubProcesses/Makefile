@@ -159,6 +159,7 @@ $(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(CXX))
 endif
 
 $(BUILDDIR)/testxxx.o:   $(GTESTLIBS)
+$(BUILDDIR)/testxxx.o:   testxxx_cc_ref.txt
 $(testmain): $(BUILDDIR)/testxxx.o
 $(testmain): cxx_objects += $(BUILDDIR)/testxxx.o # Comment out this line to skip the test of xxx functions
 
