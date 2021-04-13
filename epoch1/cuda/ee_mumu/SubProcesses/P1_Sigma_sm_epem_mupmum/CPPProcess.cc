@@ -5,7 +5,6 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#include <cmath>
 #include <cstring>
 #include <cstdlib>
 #include <iomanip>
@@ -50,10 +49,6 @@ namespace MG5_sm
                const int ipar )          // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-#ifndef __CUDACC__
-    using std::max;
-    using std::min;
-#endif
     // +++ START EVENT LOOP (where necessary) +++
     {
 #ifdef __CUDACC__
@@ -68,7 +63,7 @@ namespace MG5_sm
       const int nh = nhel * nsf;
       if ( fmass != 0. )
       {
-        const fptype pp = min( p0, sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ) );
+        const fptype pp = fpmin( p0, sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ) );
         if ( pp == 0. )
         {
           // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs! 
@@ -90,7 +85,7 @@ namespace MG5_sm
           const int ip = ( 1 + nh ) / 2;
           const int im = ( 1 - nh ) / 2;
           const fptype sfomega[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
-          const fptype pp3 = max( pp + pvec3, 0. );
+          const fptype pp3 = fpmax( pp + pvec3, 0. );
           const cxtype chi[2] = { cxmake( sqrt ( pp3 * 0.5 / pp ), 0 ),
                                   ( pp3 == 0. ? cxmake( -nh, 0 ) : cxmake( nh * pvec1, pvec2 ) / sqrt( 2. * pp * pp3 ) ) };
           fi[2] = sfomega[0] * chi[im];
@@ -101,7 +96,7 @@ namespace MG5_sm
       }
       else
       {
-        const fptype sqp0p3 = ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0. ? 0. : sqrt( max( p0 + pvec3, 0. ) ) * nsf );
+        const fptype sqp0p3 = ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0. ? 0. : sqrt( fpmax( p0 + pvec3, 0. ) ) * nsf );
         const cxtype chi[2] = { cxmake( sqp0p3, 0. ),
                                 ( sqp0p3 == 0. ? cxmake( -nhel * sqrt( 2. * p0 ), 0. ) : cxmake( nh * pvec1, pvec2 ) / sqp0p3 ) };
         if ( nh == 1 )
@@ -279,9 +274,6 @@ namespace MG5_sm
                const int ipar )          // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-#ifndef __CUDACC__
-    using std::min;
-#endif
     // +++ START EVENT LOOP (where necessary) +++
     {
 #ifdef __CUDACC__
@@ -299,8 +291,8 @@ namespace MG5_sm
       {
         const int nsvahl = nsv * std::abs( hel );
         const fptype pt2 = ( pvec1 * pvec1 ) + ( pvec2 * pvec2 );
-        const fptype pp = min( pvec0, sqrt( pt2 + ( pvec3 * pvec3 ) ) );
-        const fptype pt = min( pp, sqrt( pt2 ) );
+        const fptype pp = fpmin( pvec0, sqrt( pt2 + ( pvec3 * pvec3 ) ) );
+        const fptype pt = fpmin( pp, sqrt( pt2 ) );
         const fptype hel0 = 1. - std::abs( hel );
         if ( pp == 0. )
         {
@@ -399,10 +391,6 @@ namespace MG5_sm
                const int ipar )          // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-#ifndef __CUDACC__
-    using std::min;
-    using std::max;
-#endif
     // +++ START EVENT LOOP (where necessary) +++
     {
 #ifdef __CUDACC__
@@ -417,7 +405,7 @@ namespace MG5_sm
       const int nh = nhel * nsf;
       if ( fmass != 0. )
       {
-        const fptype pp = min( pvec0, sqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) + ( pvec3 * pvec3 ) ) );
+        const fptype pp = fpmin( pvec0, sqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) + ( pvec3 * pvec3 ) ) );
         if ( pp == 0. )
         {
           // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs! 
@@ -440,7 +428,7 @@ namespace MG5_sm
           const int ip = ( 1 + nh ) / 2;
           const int im = ( 1 - nh ) / 2;
           const fptype sfomeg[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
-          const fptype pp3 = max( pp + pvec3, 0. );
+          const fptype pp3 = fpmax( pp + pvec3, 0. );
           const cxtype chi[2] = { cxmake( sqrt( pp3 * 0.5 / pp ), 0. ),
                                   ( ( pp3 == 0. ) ? cxmake( -nh, 0. )
                                     : cxmake( nh * pvec1, -pvec2 ) / sqrt( 2. * pp * pp3 ) ) };
@@ -453,7 +441,7 @@ namespace MG5_sm
       else
       {
         const fptype sqp0p3 = ( ( pvec1 == 0. ) and ( pvec2 == 0. ) and ( pvec3 < 0. )
-                                ? 0. : sqrt( max( pvec0 + pvec3, 0. ) ) * nsf );
+                                ? 0. : sqrt( fpmax( pvec0 + pvec3, 0. ) ) * nsf );
         const cxtype chi[2] = { cxmake( sqp0p3, 0. ),
                                 ( ( sqp0p3 == 0. ) ? cxmake( -nhel, 0. ) * sqrt( 2. * pvec0 )
                                   : cxmake( nh * pvec1, -pvec2 ) / sqp0p3 ) };
