@@ -71,8 +71,10 @@ namespace MG5_sm
         const fptype pp = min( p0, sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ) );
         if ( pp == 0. )
         {
-          fptype sqm[2] = { sqrt( std::abs( fmass ) ), 0 };
-          sqm[1] = ( fmass < 0 ? - abs( sqm[0] ) : abs( sqm[0] ) );
+          // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs! 
+          fptype sqm[2] = { sqrt( std::abs( fmass ) ), 0 }; // possibility of negative fermion masses
+          //sqm[1] = ( fmass < 0 ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why is abs needed here anyway?
+          sqm[1] = ( fmass < 0 ? -sqm[0] : sqm[0] ); // AV: removed an abs here...
           const int ip = ( 1 + nh ) / 2;
           const int im = ( 1 - nh ) / 2;
           fi[2] = ip * sqm[ip];
@@ -321,7 +323,8 @@ namespace MG5_sm
           else
           {
             vc[3] = cxmake( -hel * sqh, 0. );
-            vc[4] = cxmake( 0., nsvahl * ( pvec3 < 0 ? - abs( sqh ) : abs( sqh ) ) ); // FIXME? was build warning
+            // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
+            vc[4] = cxmake( 0., nsvahl * ( pvec3 < 0 ? -std::abs( sqh ) : std::abs( sqh ) ) );
           }
         }
       }
@@ -340,7 +343,8 @@ namespace MG5_sm
         else
         {
           vc[3] = cxmake( -hel * sqh, 0 );
-          vc[4] = cxmake( 0, nsv * ( pvec3 < 0 ? -abs( sqh ) : abs( sqh ) ) ); // FIXME? was build warning
+          // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs! 
+          vc[4] = cxmake( 0, nsv * ( pvec3 < 0 ? -std::abs( sqh ) : std::abs( sqh ) ) );
         }
       }
     }
@@ -416,8 +420,10 @@ namespace MG5_sm
         const fptype pp = min( pvec0, sqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) + ( pvec3 * pvec3 ) ) );
         if ( pp == 0. )
         {
-          fptype sqm[2] = { sqrt( std::abs( fmass ) ), 0 };
-          sqm[1] = ( fmass < 0 ? - abs( sqm[0] ) : abs( sqm[0] ) );
+          // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs! 
+          fptype sqm[2] = { sqrt( std::abs( fmass ) ), 0 }; // possibility of negative fermion masses
+          //sqm[1] = ( fmass < 0 ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why is abs needed here anyway?
+          sqm[1] = ( fmass < 0 ? -sqm[0] : sqm[0] ); // AV: removed an abs here...
           const int ip = -( ( 1 - nh ) / 2 ) * nhel;
           const int im = ( 1 + nh ) / 2 * nhel;
           fo[2] = im * sqm[std::abs( ip )];
