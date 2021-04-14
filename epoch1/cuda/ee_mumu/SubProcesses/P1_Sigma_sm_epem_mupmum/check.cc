@@ -27,6 +27,7 @@
 #include "CommonRandomNumbers.h"
 #endif
 #include "CPPProcess.h"
+#include "Memory.h"
 #include "timermap.h"
 
 #include "epoch_process_id.h"
@@ -109,48 +110,6 @@ inline int usage( char* argv0, int ret = 1 )
   }
   return ret;
 }
-
-#ifdef __CUDACC__
-
-template<typename T = fptype>
-struct CudaDevDeleter {
-  void operator()(T* mem) {
-    checkCuda( cudaFree( mem ) );
-  }
-};
-
-template<typename T = fptype>
-std::unique_ptr<T, CudaDevDeleter<T>> devMakeUnique(std::size_t N) {
-  T* tmp = nullptr;
-  checkCuda( cudaMalloc( &tmp, N * sizeof(T) ) );
-  return std::unique_ptr<T, CudaDevDeleter<T>>{ tmp };
-}
-
-template<typename T = fptype>
-struct CudaHstDeleter {
-  void operator()(T* mem) {
-    checkCuda( cudaFreeHost( mem ) );
-  }
-};
-
-template<typename T = fptype>
-std::unique_ptr<T[], CudaHstDeleter<T>> hstMakeUnique(std::size_t N) {
-  T* tmp = nullptr;
-  checkCuda( cudaMallocHost( &tmp, N * sizeof(T) ) );
-  return std::unique_ptr<T[], CudaHstDeleter<T>>{ tmp };
-};
-
-#else
-
-template<typename T = fptype>
-std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{ new T[N]() }; };
-
-#ifdef MGONGPU_CPPSIMD
-template<>
-std::unique_ptr<fptype_v[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<fptype_v[]>{ new fptype_v[N/neppV]() }; };
-#endif
-
-#endif
 
 #ifndef __CUDACC__
 int check_omp_threads( bool debug ) // returns the number of OMP threads

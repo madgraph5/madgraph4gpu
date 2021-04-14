@@ -109,12 +109,13 @@ ifeq ($(UNAME_P),ppc64le)
     CUFLAGS+= -Xcompiler -mno-float128
 endif
 
-all.$(TAG): checktag ../../src $(cu_main) $(cxx_main) $(het_main) $(testmain)
+all.$(TAG): $(BUILDDIR)/build.tag_$(TAG) ../../src $(cu_main) $(cxx_main) $(het_main) $(testmain)
 
-checktag:
-	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
-	@echo $(TAG) > $(BUILDDIR)/build.tag_new
-	@if [ ! -e $(BUILDDIR)/build.tag ]; then mv -f $(BUILDDIR)/build.tag_new $(BUILDDIR)/build.tag; elif ! cmp -s $(BUILDDIR)/build.tag_new $(BUILDDIR)/build.tag; then echo -e "Cannot build for tag=$(TAG) as old build exists for tag=`cat $(BUILDDIR)/build.tag`\nPlease run 'make clean' first"; exit 1; fi
+override oldtags=`find $(BUILDDIR) -maxdepth 1 -name 'build.tag_*' ! -name 'build.tag_$(TAG)'`
+$(BUILDDIR)/build.tag_$(TAG):
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir $(BUILDDIR)"; mkdir $(BUILDDIR); fi
+	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first or consider using 'make USEBUILDDIR=1 AVX=$(AVX)'"; exit 1; fi
+	@touch $(BUILDDIR)/build.tag_$(TAG)
 
 debug: OPTFLAGS   = -g -O0 -DDEBUG2
 debug: CUOPTFLAGS = -G
@@ -164,6 +165,11 @@ ifneq ($(findstring clang++,$(CXX)),)
 $(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(CXX))
 endif
 
+$(BUILDDIR)/testxxx.o:   $(GTESTLIBS)
+$(BUILDDIR)/testxxx.o:   testxxx_cc_ref.txt
+$(testmain): $(BUILDDIR)/testxxx.o
+$(testmain): cxx_objects += $(BUILDDIR)/testxxx.o # Comment out this line to skip the test of xxx functions
+
 ifeq ($(NVCC),)
 # Link only runTest.o
 $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS) 
@@ -185,7 +191,7 @@ check: $(testmain)
 
 clean:
 	make -C ../../src AVX=$(AVX) clean
-	rm -f $(BUILDDIR)/build.tag $(BUILDDIR)/build.tag_new
+	rm -f $(BUILDDIR)/build.tag*
 ifneq ($(BUILDDIR),.)
 	rm -rf $(BUILDDIR)
 else

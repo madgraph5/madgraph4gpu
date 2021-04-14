@@ -87,7 +87,6 @@ $(cu_main): gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
 $(cxx_main): check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
-
 runTest.o:   $(GTESTLIBS)
 runTest.exe: $(GTESTLIBS)
 runTest.exe: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include/
@@ -99,6 +98,11 @@ runTest.exe: cu_objects  += runTest_cu.o
 ifneq ($(findstring clang++,$(CXX)),)
 runTest.exe: LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(CXX))
 endif
+
+testxxx.o:   $(GTESTLIBS)
+testxxx.o:   testxxx_cc_ref.txt
+runTest.exe: testxxx.o
+runTest.exe: cxx_objects += testxxx.o # Comment out this line to skip the test of xxx functions
 
 ifeq ($(NVCC),)
 # Link only runTest.o

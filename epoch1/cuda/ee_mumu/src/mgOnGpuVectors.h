@@ -32,7 +32,7 @@ namespace mgOnGpu
     cxtype_ref( cxtype_ref&& ) = default;
     cxtype_ref( fptype& r, fptype& i ) : m_real{r}, m_imag{i} {}
     cxtype_ref& operator=( const cxtype_ref& ) = delete;
-    cxtype_ref& operator=( cxtype_ref&& ) = delete;
+    cxtype_ref& operator=( cxtype_ref&& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // for cxternary
     cxtype_ref& operator=( const cxtype& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; }
     operator cxtype() const { return cxmake( m_real, m_imag ); }
   private:
@@ -67,6 +67,13 @@ namespace mgOnGpu
     fptype_v m_real, m_imag; // RRRRIIII
   };
 
+  // --- Type definition (using vector compiler extensions: need -march=...)
+#ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
+  typedef long int bool_v __attribute__ ((ext_vector_type(neppV))); // bbbb
+#else
+  typedef long int bool_v __attribute__ ((vector_size (neppV*sizeof(long int)))); // bbbb
+#endif
+
 #else
 
   const int neppV = 1; // Note: also neppM is equal to 1
@@ -79,10 +86,19 @@ using mgOnGpu::neppV;
 #ifdef MGONGPU_CPPSIMD
 using mgOnGpu::fptype_v;
 using mgOnGpu::cxtype_v;
+using mgOnGpu::bool_v;
 #endif
 
 // Printout to stream for user defined types
 #ifdef MGONGPU_CPPSIMD
+inline std::ostream& operator<<( std::ostream& out, const bool_v& v )
+{
+  out << "{ " << v[0];
+  for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
+  out << " }";
+  return out;
+}
+
 inline std::ostream& operator<<( std::ostream& out, const fptype_v& v )
 {
   out << "{ " << v[0];
@@ -131,7 +147,6 @@ fptype_v sqrt( const fptype_v& v )
   for ( int i=0; i<neppV; i++ ) out[i]=sqrt(v[i]);
   return out;
 }
-#endif
 
 /*
 inline
@@ -142,8 +157,10 @@ fptype_v fpvmake( const fptype v[neppV] )
   return out;
 }
 */
+#endif
 
 // Operators for cxtype_v
+#ifdef MGONGPU_CPPSIMD
 /*
 inline
 cxtype_v cxvmake( const cxtype c )
@@ -154,7 +171,6 @@ cxtype_v cxvmake( const cxtype c )
 }
 */
 
-#ifdef MGONGPU_CPPSIMD
 inline
 cxtype_v cxmake( const fptype_v& r, const fptype_v& i )
 {
@@ -331,10 +347,139 @@ cxtype_v operator/( const fptype& a, const cxtype_v& b )
 */
 
 inline
+cxtype_v operator/( const cxtype_v& a, const fptype_v& b )
+{
+  return cxmake( a.real() / b, a.imag() / b );
+}
+
+inline
 cxtype_v operator/( const cxtype_v& a, const fptype& b )
 {
   return cxmake( a.real() / b, a.imag() / b );
 }
+#endif
+
+// Operators for bool_v
+#ifdef MGONGPU_CPPSIMD
+
+inline
+fptype_v fpternary( const bool_v& mask, const fptype_v& a, const fptype_v& b )
+{
+  fptype_v out;
+  for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a[i] : b[i] );
+  return out;
+}
+
+inline
+fptype_v fpternary( const bool_v& mask, const fptype_v& a, const fptype& b )
+{
+  fptype_v out;
+  for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a[i] : b );
+  return out;
+}
+
+inline
+fptype_v fpternary( const bool_v& mask, const fptype& a, const fptype_v& b )
+{
+  fptype_v out;
+  for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a : b[i] );
+  return out;
+}
+
+inline
+fptype_v fpternary( const bool_v& mask, const fptype& a, const fptype& b )
+{
+  fptype_v out;
+  for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a : b );
+  return out;
+}
+
+inline
+cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype_v& b )
+{
+  cxtype_v out;
+  for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a[i] : b[i] );
+  return out;
+}
+
+inline
+cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype& b )
+{
+  cxtype_v out;
+  for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a[i] : b );
+  return out;
+}
+
+inline
+cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype_v& b )
+{
+  cxtype_v out;
+  for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a : b[i] );
+  return out;
+}
+
+inline
+cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype& b )
+{
+  cxtype_v out;
+  for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a : b );
+  return out;
+}
+
+inline
+fptype_v fpmax( const fptype_v& a, const fptype_v& b )
+{
+  return fpternary( ( b < a ), a, b );
+}
+
+inline
+fptype_v fpmax( const fptype_v& a, const fptype& b )
+{
+  return fpternary( ( b < a ), a, b );
+}
+
+/*
+inline
+fptype_v fpmax( const fptype& a, const fptype_v& b )
+{
+  return fpternary( ( b < a ), a, b );
+}
+*/
+
+inline
+fptype_v fpmin( const fptype_v& a, const fptype_v& b )
+{
+  return fpternary( ( a < b ), a, b );
+}
+
+/*
+inline
+fptype_v fpmin( const fptype_v& a, const fptype& b )
+{
+  return fpternary( ( a < b ), a, b );
+}
+
+inline
+fptype_v fpmin( const fptype& a, const fptype_v& b )
+{
+  return fpternary( ( a < b ), a, b );
+}
+*/
+
+#else
+
+inline
+fptype fpternary( const bool& mask, const fptype& a, const fptype& b )
+{
+  return ( mask ? a : b );
+}
+
+inline
+cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
+{
+  return ( mask ? a : b );
+}
+
 #endif
 
 //------------------------------
@@ -355,16 +500,33 @@ const cxtype& cxvmake( const cxtype& c )
 }
 */
 
+inline __host__ __device__
+fptype fpternary( const bool& mask, const fptype& a, const fptype& b )
+{
+  return ( mask ? a : b );
+}
+
+inline __host__ __device__
+cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
+{
+  return ( mask ? a : b );
+}
+
 #endif
+
+//--------------------------------------------------------------------------
 
 // Scalar-or-vector types: scalar in CUDA, vector or scalar in C++
 #ifdef __CUDACC__
+typedef bool bool_sv;
 typedef fptype fptype_sv;
 typedef cxtype cxtype_sv;
 #elif defined MGONGPU_CPPSIMD
+typedef bool_v bool_sv;
 typedef fptype_v fptype_sv;
 typedef cxtype_v cxtype_sv;
 #else
+typedef bool bool_sv;
 typedef fptype fptype_sv;
 typedef cxtype cxtype_sv;
 #endif

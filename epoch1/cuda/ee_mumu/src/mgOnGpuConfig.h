@@ -145,6 +145,7 @@ using mgOnGpu::fptype;
 // Define empty CUDA declaration specifiers for C++
 #ifndef __CUDACC__
 #define __global__
+//#define __host__
 #define __device__
 #endif
 
