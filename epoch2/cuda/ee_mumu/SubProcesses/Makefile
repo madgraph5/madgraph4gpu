@@ -127,6 +127,8 @@ clean:
 	make -C ../../src clean
 	rm -f *.o *.exe
 
+cleanall: clean
+
 distclean: clean
 	make -C $(TOOLSDIR) clean
 	make -C $(TESTDIR) clean
