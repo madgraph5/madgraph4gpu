@@ -219,6 +219,7 @@ namespace MG5_sm
                  cxtype V3[] );       // output: wavefunction3[6]
 
   //--------------------------------------------------------------------------
-} // end namespace MG5_sm
+
+} // end namespace
 
 #endif // HelAmps_sm_H

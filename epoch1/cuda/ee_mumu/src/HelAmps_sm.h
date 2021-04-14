@@ -147,60 +147,6 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  /*
-  __device__
-  void imzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               //const fptype fmass,        // ASSUME fmass==0
-               const short nhel,
-               const short nsf,
-               cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
-#endif
-               const int ipar );            // input: particle# out of npar
-
-  //--------------------------------------------------------------------------
-
-  __device__
-  void ixzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               //const fptype fmass,        // ASSUME fmass==0
-               const short nhel,
-               const short nsf,
-               cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
-#endif
-               const int ipar );            // input: particle# out of npar
-
-  //--------------------------------------------------------------------------
-
-  __device__
-  void opzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               //const fptype fmass,        // ASSUME fmass==0
-               const short nhel,
-               const short nsf,
-               cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
-#endif
-               const int ipar );            // input: particle# out of npar
-
-  //--------------------------------------------------------------------------
-
-  __device__
-  void oxzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               //const fptype fmass,        // ASSUME fmass==0
-               const short nhel,
-               const short nsf,
-               cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
-#endif
-               const int ipar );            // input: particle# out of npar
-  */
-
-  //--------------------------------------------------------------------------
-
   __device__
   void FFV1_0( const cxtype F1[],    // input: wavefunction1[6]
                const cxtype F2[],    // input: wavefunction2[6]
@@ -278,6 +224,7 @@ namespace MG5_sm
                  cxtype V3[] );       // output: wavefunction3[6]
 
   //--------------------------------------------------------------------------
-} // end namespace MG5_sm
+
+} // end namespace
 
 #endif // HelAmps_sm_H
