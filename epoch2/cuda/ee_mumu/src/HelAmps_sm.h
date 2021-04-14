@@ -19,8 +19,8 @@ namespace MG5_sm
   __device__
   void ixxxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,
-               const int nhel,
-               const int nsf,
+               const int nhel,           // input: -1 or +1 (helicity of fermion)
+               const int nsf,            // input: +1 (particle) or -1 (antiparticle)
                cxtype* fi,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
@@ -32,8 +32,8 @@ namespace MG5_sm
   __device__
   void ipzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,     // ASSUME fmass==0
-               const int nhel,
-               const int nsf,
+               const int nhel,           // input: -1 or +1 (helicity of fermion)
+               const int nsf,            // input: +1 (particle) or -1 (antiparticle)
                cxtype* fi,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
@@ -45,8 +45,8 @@ namespace MG5_sm
   __device__
   void imzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,     // ASSUME fmass==0
-               const int nhel,
-               const int nsf,
+               const int nhel,           // input: -1 or +1 (helicity of fermion)
+               const int nsf,            // input: +1 (particle) or -1 (antiparticle)
                cxtype* fi,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
@@ -58,8 +58,8 @@ namespace MG5_sm
   __device__
   void ixzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,     // ASSUME fmass==0
-               const int nhel,
-               const int nsf,
+               const int nhel,           // input: -1 or +1 (helicity of fermion)
+               const int nsf,            // input: +1 (particle) or -1 (antiparticle)
                cxtype* fi,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
@@ -71,8 +71,8 @@ namespace MG5_sm
   __device__
   void vxxxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype vmass,
-               const int nhel,
-               const int nsv,
+               const int nhel,           // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
+               const int nsv,            // input: +1 (final) or -1 (initial)
                cxtype* vc,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
@@ -83,9 +83,9 @@ namespace MG5_sm
 
   __device__
   void sxxxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               const fptype,             // WARNING: "smass" unused???
-               const int,                // WARNING: "nhel" unused???
-               const int nss,
+               const fptype,             // WARNING: "smass" unused
+               const int,                // WARNING: "nhel" unused (scalar: no helicity)
+               const int nss,            // input: +1 (final) or -1 (initial)
                cxtype sc[3],             // output: wavefunction[3] - not [6], this is for scalars
 #ifndef __CUDACC__
                const int ievt,
@@ -96,8 +96,8 @@ namespace MG5_sm
   __device__
   void oxxxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,
-               const int nhel,
-               const int nsf,
+               const int nhel,           // input: -1 or +1 (helicity of fermion)
+               const int nsf,            // input: +1 (particle) or -1 (antiparticle)
                cxtype* fo,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
@@ -108,8 +108,8 @@ namespace MG5_sm
 
   __device__
   void opzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               const int nhel,
-               const int nsf,
+               const int nhel,           // input: -1 or +1 (helicity of fermion)
+               const int nsf,            // input: +1 (particle) or -1 (antiparticle)
                cxtype* fo,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
@@ -120,8 +120,8 @@ namespace MG5_sm
 
   __device__
   void omzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               const int nhel,
-               const int nsf,
+               const int nhel,           // input: -1 or +1 (helicity of fermion)
+               const int nsf,            // input: +1 (particle) or -1 (antiparticle)
                cxtype* fo,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
@@ -132,8 +132,8 @@ namespace MG5_sm
   __device__
   void oxzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,     // ASSUME fmass==0
-               const int nhel,
-               const int nsf,
+               const int nhel,           // input: -1 or +1 (helicity of fermion)
+               const int nsf,            // input: +1 (particle) or -1 (antiparticle)
                cxtype* fo,               // output: wavefunction[(nw6==6)]
 #ifndef __CUDACC__
                const int ievt,
