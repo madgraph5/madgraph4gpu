@@ -107,7 +107,7 @@ TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), testxxx )
     if ( testEvents )
     {
       //std::cout << "Testing " << std::setw(3) << itest << ": ";
-      std::cout << xxx << " #" << ievt << std::endl;
+      //std::cout << xxx << " #" << ievt << std::endl;
       std::array<fptype,12>& expwf = expwfs[itest];
 #ifdef MGONGPU_CPPSIMD
       const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
