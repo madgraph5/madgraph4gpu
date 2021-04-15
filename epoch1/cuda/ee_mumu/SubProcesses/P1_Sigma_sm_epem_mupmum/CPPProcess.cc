@@ -97,8 +97,9 @@ namespace MG5_sm
       else
       {
         const fptype sqp0p3 = ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0. ? 0. : sqrt( fpmax( p0 + pvec3, 0. ) ) * nsf );
-        const cxtype chi[2] = { cxmake( sqp0p3, 0. ),
-                                ( sqp0p3 == 0. ? cxmake( -nhel * sqrt( 2. * p0 ), 0. ) : cxmake( nh * pvec1, pvec2 ) / sqp0p3 ) };
+        const cxtype chi[2] = { cxmake( sqp0p3, 0. ), ( sqp0p3 == 0. ?
+                                                        cxmake( -nhel * sqrt( 2. * p0 ), 0. ) :
+                                                        cxmake( nh * pvec1, pvec2 ) / sqp0p3 ) };
         if ( nh == 1 )
         {
           fi[2] = cxmake( 0, 0 );
