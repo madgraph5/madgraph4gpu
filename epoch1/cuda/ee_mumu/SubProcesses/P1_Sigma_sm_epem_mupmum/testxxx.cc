@@ -182,7 +182,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       {
         ixzxxx( hstMomenta.get(), nhel, nsp, outwf, ievt, ipar );
         testwf6( outwf, "ixzxxx", ievt, nsp, 0 );
-        testwf6two( outwf, outwfI, "ixzxxx", ievt );
+        //testwf6two( outwf, outwfI, "ixzxxx", ievt );
       }
       // Test vxxxxx - NO ASSUMPTIONS
       {
@@ -220,7 +220,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       {
         omzxxx( hstMomenta.get(), nhel, nsp, outwf, ievt, ipar );
         testwf6( outwf, "omzxxx", ievt, nsp, 0 );
-        //testwf6two( outwf, outwfO, "omzxxx", ievt );
+        testwf6two( outwf, outwfO, "omzxxx", ievt );
       }
       // Test oxzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
       if ( mass0[ievt] == 0 && isptgt0[ievt] )
