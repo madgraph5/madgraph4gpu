@@ -23,8 +23,7 @@ namespace MG5_sm
                                      const int ip4,
                                      const int ievt )
   {
-    //mapping for the various scheme AOS, OSA, ...
-
+    // mapping for the various schemes (AOSOA, AOS, SOA...)
     using mgOnGpu::np4;
     using mgOnGpu::npar;
     const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
