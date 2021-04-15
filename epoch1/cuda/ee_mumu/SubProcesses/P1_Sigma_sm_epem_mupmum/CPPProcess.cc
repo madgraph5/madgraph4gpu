@@ -242,7 +242,7 @@ namespace MG5_sm
       fi[0] = cxmake( -pvec0 * nsf, -pvec3 * nsf ); // AV: BUG FIX
       fi[1] = cxmake( -pvec1 * nsf, -pvec2 * nsf ); // AV: BUG FIX
       const int nh = nhel * nsf;
-      //const float sqp0p3 = sqrtf( pvec0 + pvec3 ) * nsf; // AV to OM: why force a float here?
+      //const float sqp0p3 = sqrtf( pvec0 + pvec3 ) * nsf; // AV: why force a float here?
       const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
       const cxtype chi0 = cxmake( sqp0p3, 0. );
       const cxtype chi1 = cxmake( nh * pvec1/sqp0p3, pvec2/sqp0p3 );
@@ -590,7 +590,7 @@ namespace MG5_sm
       fo[0] = cxmake( pvec0 * nsf, pvec3 * nsf );
       fo[1] = cxmake( pvec1 * nsf, pvec2 * nsf );
       const int nh = nhel * nsf;
-      //const float sqp0p3 = sqrtf( pvec0 + pvec3 ) * nsf; // AV to OM: why force a float here?
+      //const float sqp0p3 = sqrtf( pvec0 + pvec3 ) * nsf; // AV: why force a float here?
       const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
       const cxtype chi0 = cxmake( sqp0p3, 0. );
       const cxtype chi1 = cxmake( nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
