@@ -54,18 +54,17 @@ namespace MG5_sm
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
 #endif
-      const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt ); // not a ref (fewer registers!?)
       const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt ); // not a ref (fewer registers!?)
       const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt ); // not a ref (fewer registers!?)
       const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt ); // not a ref (fewer registers!?)
-      //const fptype p0 = sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ); // AV: BUG?! (NOT AS IN THE FORTRAN)
-      const fptype& p0 = pvec0; // AV: BUG FIX (DO AS IN THE FORTRAN)
-      fi[0] = cxmake( -p0 * nsf, -pvec3 * nsf );
+      //const fptype pvec0 = sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ); // AV: BUG?! (NOT AS IN THE FORTRAN)
+      const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt ); // AV: BUG FIX (DO AS IN THE FORTRAN)
+      fi[0] = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi[1] = cxmake( -pvec1 * nsf, -pvec2 * nsf );
       const int nh = nhel * nsf;
       if ( fmass != 0. )
       {
-        const fptype pp = fpmin( p0, sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ) );
+        const fptype pp = fpmin( pvec0, sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ) );
         if ( pp == 0. )
         {
           // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs! 
@@ -82,7 +81,7 @@ namespace MG5_sm
         else
         {
           const fptype sf[2] = { ( 1 + nsf + ( 1 - nsf ) * nh ) * 0.5, ( 1 + nsf - ( 1 - nsf ) * nh ) * 0.5 };
-          fptype omega[2] = { sqrt( p0 + pp ), 0 };
+          fptype omega[2] = { sqrt( pvec0 + pp ), 0 };
           omega[1] = fmass / omega[0];
           const int ip = ( 1 + nh ) / 2; // NB: Fortran is (3+nh)/2 because first indexes are 1,2 and not 0,1
           const int im = ( 1 - nh ) / 2; // NB: Fortran is (3-nh)/2 because first indexes are 1,2 and not 0,1
@@ -98,9 +97,10 @@ namespace MG5_sm
       }
       else
       {
-        const fptype sqp0p3 = ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0. ? 0. : sqrt( fpmax( p0 + pvec3, 0. ) ) * nsf );
+        const fptype sqp0p3 = ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0. ?
+                                0. : sqrt( fpmax( pvec0 + pvec3, 0. ) ) * nsf );
         const cxtype chi[2] = { cxmake( sqp0p3, 0. ), ( sqp0p3 == 0. ?
-                                                        cxmake( -nhel * sqrt( 2. * p0 ), 0. ) :
+                                                        cxmake( -nhel * sqrt( 2. * pvec0 ), 0. ) :
                                                         cxmake( nh * pvec1, pvec2 ) / sqp0p3 ) };
         if ( nh == 1 )
         {
