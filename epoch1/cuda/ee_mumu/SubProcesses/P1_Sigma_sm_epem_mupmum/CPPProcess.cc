@@ -71,14 +71,13 @@ namespace MG5_sm
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "ixxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
-      const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
-      const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-      //const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt ); // not a ref (fewer registers!?)
-      //const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt ); // not a ref (fewer registers!?)
-      //const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt ); // not a ref (fewer registers!?)
+      // AV: copying by value (not by ref) seems faster in cuda, in spite of more registers used
+      // AV: copying by value (not by ref) seems irrelevant, or slightly slower, in c++
+      const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
+      const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
+      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
       //const fptype pvec0 = sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ); // AV: BUG?! (NOT AS IN THE FORTRAN)
-      const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt ); // AV: BUG FIX (DO AS IN THE FORTRAN)
+      const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt ); // AV: BUG FIX (DO AS IN THE FORTRAN)
 #else
       //printf( "ixxxxx: ipagV=%d\n", ipagV );
       const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
@@ -205,7 +204,8 @@ namespace MG5_sm
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "ipzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      // AV: copy by value (not by ref) as this seems faster in cuda for other functions
+      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
       //printf( "ipzxxx: ipagV=%d\n", ipagV );
       const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
@@ -252,7 +252,8 @@ namespace MG5_sm
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "imzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      // AV: copying by value (not by ref) seems to give the same performance in both cuda and c++
+      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
       //printf( "imzxxx: ipagV=%d\n", ipagV );
       const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
@@ -299,10 +300,11 @@ namespace MG5_sm
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "ixzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
-      const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
-      const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
-      const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      // AV: copying by value (not by ref) seems to give the same performance in both cuda and c++
+      const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+      const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
+      const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
+      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
       //printf( "ixzxxx: ipagV=%d\n", ipagV );
       const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
@@ -358,10 +360,11 @@ namespace MG5_sm
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "vxxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
-      const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
-      const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
-      const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      // AV: copy by value (not by ref) as this seems faster in cuda for other functions
+      const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+      const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
+      const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
+      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
       //printf( "vxxxxx: ipagV=%d\n", ipagV );
       const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
@@ -492,10 +495,11 @@ namespace MG5_sm
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "sxxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
-      const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
-      const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
-      const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      // AV: copy by value (not by ref) as this seems faster in cuda for other functions
+      const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+      const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
+      const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
+      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
       //printf( "sxxxxx: ipagV=%d\n", ipagV );
       const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
@@ -531,10 +535,12 @@ namespace MG5_sm
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "oxxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
-      const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
-      const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
-      const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      // AV: copying by value (not by ref) seems faster in cuda, in spite of more registers used
+      // AV: copying by value (not by ref) seems irrelevant, or slightly faster, in c++
+      const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+      const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
+      const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
+      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
       //printf( "oxxxxx: ipagV=%d\n", ipagV );
       const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
@@ -664,7 +670,8 @@ namespace MG5_sm
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "opzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      // AV: copying by value (not by ref) seems to give the same performance in both cuda and c++
+      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
       //printf( "opzxxx: ipagV=%d\n", ipagV );
       const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
@@ -710,7 +717,8 @@ namespace MG5_sm
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "ipzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      // AV: copy by value (not by ref) as this seems faster in cuda for other functions
+      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
       //printf( "ipzxxx: ipagV=%d\n", ipagV );
       const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
@@ -760,10 +768,11 @@ namespace MG5_sm
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "oxzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
-      const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
-      const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
-      const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      // AV: copying by value (not by ref) seems to give the same performance in both cuda and c++
+      const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+      const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
+      const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
+      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
 #else
       //printf( "oxzxxx: ipagV=%d\n", ipagV );
       const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
