@@ -111,9 +111,11 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       std::array<fptype, 12>& expwf = expwfs[itest];
       for ( int iwf6 = 0; iwf6 < nwf6; iwf6++ )
       {
-        EXPECT_NEAR( wf[iwf6].real(), expwf[iwf6 * 2], std::abs( expwf[iwf6 * 2] * toleranceXXXs ) )
+        const fptype expReal = expwf[iwf6*2];
+        const fptype expImag = expwf[iwf6*2+1];
+        EXPECT_NEAR( cxreal( wf[iwf6] ), expReal, std::abs( expReal * toleranceXXXs ) )
           << " itest=" << itest << ": " << xxx << "#" << ievt;
-        EXPECT_NEAR( wf[iwf6].imag(), expwf[iwf6 * 2 + 1], std::abs( expwf[iwf6 * 2 + 1] * toleranceXXXs ) )
+        EXPECT_NEAR( cximag( wf[iwf6] ), expImag, std::abs( expImag * toleranceXXXs ) )
           << " itest=" << itest << ": " << xxx << "#" << ievt;
       }
     }
