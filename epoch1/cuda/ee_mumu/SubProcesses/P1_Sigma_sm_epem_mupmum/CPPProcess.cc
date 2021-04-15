@@ -198,17 +198,17 @@ namespace MG5_sm
       fi[1] = cxmake( 0., 0. );
       const int nh = nhel * nsf;
       const cxtype chi = cxmake( -nhel * sqrt( -2. * pvec3 ), 0. );
-      fi[3] = fi[1];
-      fi[4] = fi[1];
+      fi[3] = cxmake( 0., 0. );
+      fi[4] = cxmake( 0., 0. );
       if ( nh == 1 )
       {
-        fi[2] = fi[1];
+        fi[2] = cxmake( 0., 0. );
         fi[5] = chi;
       }
       else
       {
         fi[2] = chi;
-        fi[5] = fi[1];
+        fi[5] = cxmake( 0., 0. );
       }
     }
     // +++ END EVENT LOOP (where necessary) +++
@@ -251,11 +251,10 @@ namespace MG5_sm
       const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
       const cxtype chi0 = cxmake( sqp0p3, 0. );
       const cxtype chi1 = cxmake( nh * pvec1/sqp0p3, pvec2/sqp0p3 );
-      const cxtype CZERO = cxmake( 0., 0. );
       if ( nh == 1 )
       {
-        fi[2] = CZERO;
-        fi[3] = CZERO;
+        fi[2] = cxmake( 0., 0. );
+        fi[3] = cxmake( 0., 0. );
         fi[4] = chi0;
         fi[5] = chi1;
       }
@@ -263,8 +262,8 @@ namespace MG5_sm
       {
         fi[2] = chi1;
         fi[3] = chi0;
-        fi[4] = CZERO;
-        fi[5] = CZERO;
+        fi[4] = cxmake( 0., 0. );
+        fi[5] = cxmake( 0., 0. );
       }
     }
     // +++ END EVENT LOOP (where necessary) +++
@@ -508,18 +507,18 @@ namespace MG5_sm
       fo[0] = cxmake( pvec3 * nsf, pvec3 * nsf );
       fo[1] = cxmake( 0., 0. );
       const int nh = nhel * nsf;
-      const cxtype CSQP0P3 = cxmake( sqrt( 2. * pvec3 ) * nsf, 0. );
-      fo[3] = fo[1];
-      fo[4] = fo[1];
+      const cxtype csqp0p3 = cxmake( sqrt( 2. * pvec3 ) * nsf, 0. );
+      fo[3] = cxmake( 0., 0. );
+      fo[4] = cxmake( 0., 0. );
       if ( nh == 1 )
       {
-        fo[2] = CSQP0P3;
-        fo[5] = fo[1];
+        fo[2] = csqp0p3;
+        fo[5] = cxmake( 0., 0. );
       }
       else
       {
-        fo[2] = fo[1];
-        fo[5] = CSQP0P3;
+        fo[2] = cxmake( 0., 0. );
+        fo[5] = csqp0p3;
       }
     }
     // +++ END EVENT LOOP (where necessary) +++
@@ -554,18 +553,18 @@ namespace MG5_sm
       const cxtype chi1 = cxmake( -nhel, 0. ) * sqrt( -2. * pvec3 );
       if ( nh == 1 )
       {
-        fo[2] = fo[1];
+        fo[2] = cxmake( 0., 0. );
         fo[3] = chi1;
-        fo[4] = fo[1];
-        fo[5] = fo[1];
+        fo[4] = cxmake( 0., 0. );
+        fo[5] = cxmake( 0., 0. );
       }
       else
       {
-        fo[2] = fo[1];
-        fo[3] = fo[1];
+        fo[2] = cxmake( 0., 0. );
+        fo[3] = cxmake( 0., 0. );
         fo[4] = chi1;
         //fo[5] = chi1; // AV: BUG!
-        fo[5] = fo[1]; // AV: BUG FIX
+        fo[5] = cxmake( 0., 0. ); // AV: BUG FIX
       }
     }
     // +++ END EVENT LOOP (where necessary) +++
@@ -606,18 +605,17 @@ namespace MG5_sm
       const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
       const cxtype chi0 = cxmake( sqp0p3, 0. );
       const cxtype chi1 = cxmake( nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
-      const cxtype zero = cxmake( 0., 0. );
       if ( nh == 1 )
       {
         fo[2] = chi0;
         fo[3] = chi1;
-        fo[4] = zero;
-        fo[5] = zero;
+        fo[4] = cxmake( 0., 0. );
+        fo[5] = cxmake( 0., 0. );
       }
       else
       {
-        fo[2] = zero;
-        fo[3] = zero;
+        fo[2] = cxmake( 0., 0. );
+        fo[3] = cxmake( 0., 0. );
         fo[4] = chi1;
         fo[5] = chi0;
       }
