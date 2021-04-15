@@ -142,13 +142,13 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
         testwf6( outwf, "ixxxxx", ievt, nsp, -fmass );
       }
       // Test ipzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
-      if ( mass0[ievt] == 0 && ispzgt0[ievt] )
+      if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzgt0[ievt] )
       {
         ipzxxx( hstMomenta.get(), nhel, nsp, outwf, ievt, ipar );
         testwf6( outwf, "ipzxxx", ievt, nsp, 0 );
       }
       // Test imzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
-      if ( mass0[ievt] == 0 && ispzlt0[ievt] )
+      if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
         imzxxx( hstMomenta.get(), nhel, nsp, outwf, ievt, ipar );
         testwf6( outwf, "imzxxx", ievt, nsp, 0 );
@@ -184,13 +184,13 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
         testwf6( outwf, "oxxxxx", ievt, nsp, -fmass );
       }
       // Test opzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
-      if ( mass0[ievt] == 0 && ispzgt0[ievt] )
+      if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzgt0[ievt] )
       {
         opzxxx( hstMomenta.get(), nhel, nsp, outwf, ievt, ipar );
         testwf6( outwf, "opzxxx", ievt, nsp, 0 );
       }
       // Test omzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
-      if ( mass0[ievt] == 0 && ispzlt0[ievt] )
+      if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
         omzxxx( hstMomenta.get(), nhel, nsp, outwf, ievt, ipar );
         testwf6( outwf, "omzxxx", ievt, nsp, 0 );
