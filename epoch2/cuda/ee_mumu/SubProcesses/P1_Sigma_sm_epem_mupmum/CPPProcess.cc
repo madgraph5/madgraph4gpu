@@ -97,8 +97,9 @@ namespace MG5_sm
       else
       {
         const fptype sqp0p3 = ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0. ? 0. : sqrt( fpmax( p0 + pvec3, 0. ) ) * nsf );
-        const cxtype chi[2] = { cxmake( sqp0p3, 0. ),
-                                ( sqp0p3 == 0. ? cxmake( -nhel * sqrt( 2. * p0 ), 0. ) : cxmake( nh * pvec1, pvec2 ) / sqp0p3 ) };
+        const cxtype chi[2] = { cxmake( sqp0p3, 0. ), ( sqp0p3 == 0. ?
+                                                        cxmake( -nhel * sqrt( 2. * p0 ), 0. ) :
+                                                        cxmake( nh * pvec1, pvec2 ) / sqp0p3 ) };
         if ( nh == 1 )
         {
           fi[2] = cxmake( 0, 0 );
@@ -232,8 +233,10 @@ namespace MG5_sm
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-      fi[0] = cxmake( -pvec0 * nsf, -pvec2 * nsf );
-      fi[1] = cxmake( -pvec0 * nsf, -pvec1 * nsf );
+      //fi[0] = cxmake( -pvec0 * nsf, -pvec2 * nsf ); // AV: BUG! not the same as ixxxxx
+      //fi[1] = cxmake( -pvec0 * nsf, -pvec1 * nsf ); // AV: BUG! not the same as ixxxxx
+      fi[0] = cxmake( -pvec0 * nsf, -pvec3 * nsf ); // AV: BUG FIX
+      fi[1] = cxmake( -pvec1 * nsf, -pvec2 * nsf ); // AV: BUG FIX
       const int nh = nhel * nsf;
       //const float sqp0p3 = sqrtf(pvec0 + pvec3) * nsf; // AV to OM: why force a float here?
       const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
@@ -527,17 +530,17 @@ namespace MG5_sm
     // +++ START EVENT LOOP (where necessary) +++
     {
 #ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
 #endif
-      const fptype& pvec3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt);
-      fo[0] = cxtype (-pvec3 * nsf, pvec3 * nsf);
-      fo[1] = cxtype (0., 0.);
+      const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      fo[0] = cxmake( -pvec3 * nsf, pvec3 * nsf ); // remember pvec0 == -pvec3
+      fo[1] = cxmake( 0, 0 );
       const int nh = nhel * nsf;
-      const cxtype chi = cxmake( -nhel, 0. ) * sqrt( -2. * pvec3 );
+      const cxtype chi1 = cxmake( -nhel, 0. ) * sqrt( -2. * pvec3 );
       if ( nh == 1 )
       {
         fo[2] = fo[1];
-        fo[3] = chi;
+        fo[3] = chi1;
         fo[4] = fo[1];
         fo[5] = fo[1];
       }
@@ -545,8 +548,9 @@ namespace MG5_sm
       {
         fo[2] = fo[1];
         fo[3] = fo[1];
-        fo[4] = chi;
-        fo[5] = chi;
+        fo[4] = chi1;
+        //fo[5] = chi1; // AV: BUG!
+        fo[5] = fo[1]; // AV: BUG FIX
       }
     }
     // +++ END EVENT LOOP (where necessary) +++

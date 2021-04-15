@@ -110,31 +110,61 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     if ( dumpEvents ) dumpwf6( dumpFile, wf, xxx, ievt, nsp, mass );
     if ( testEvents )
     {
-      //std::cout << "Testing " << std::setw(3) << itest << ": ";
-      //std::cout << xxx << " #" << ievt << std::endl;
-      std::array<fptype,12>& expwf = expwfs[itest];
+      //std::cout << "Testing " << std::setw(3) << itest << ": " << xxx << " #" << ievt << std::endl;
+      std::array<fptype, 12>& expwf = expwfs[itest];
+      for ( int iwf6 = 0; iwf6<nwf6; iwf6++ )
+      {
+        const fptype expReal = expwf[iwf6*2];
+        const fptype expImag = expwf[iwf6*2+1];
 #ifdef MGONGPU_CPPSIMD
-      const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-      for ( int iwf6 = 0; iwf6<nwf6; iwf6++ )
-      {
-        EXPECT_NEAR( cxreal( wf[iwf6][ieppM] ), expwf[iwf6*2], std::abs( expwf[iwf6*2] * toleranceXXXs ) )
+        const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+        EXPECT_NEAR( cxreal( wf[iwf6][ieppM] ), expReal, std::abs( expReal * toleranceXXXs ) )
           << " itest=" << itest << ": " << xxx << "#" << ievt;
-        EXPECT_NEAR( cximag( wf[iwf6][ieppM] ), expwf[iwf6*2+1], std::abs( expwf[iwf6*2+1] * toleranceXXXs ) )
+        EXPECT_NEAR( cximag( wf[iwf6][ieppM] ), expImag, std::abs( expImag * toleranceXXXs ) )
           << " itest=" << itest << ": " << xxx << "#" << ievt;
-      }
 #else
-      for ( int iwf6 = 0; iwf6<nwf6; iwf6++ )
-      {
-        EXPECT_NEAR( wf[iwf6].real(), expwf[iwf6*2], std::abs( expwf[iwf6*2] * toleranceXXXs ) )
+        EXPECT_NEAR( cxreal( wf[iwf6] ), expReal, std::abs( expReal * toleranceXXXs ) )
           << " itest=" << itest << ": " << xxx << "#" << ievt;
-        EXPECT_NEAR( wf[iwf6].imag(), expwf[iwf6*2+1], std::abs( expwf[iwf6*2+1] * toleranceXXXs ) )
+        EXPECT_NEAR( cximag( wf[iwf6] ), expImag, std::abs( expImag * toleranceXXXs ) )
           << " itest=" << itest << ": " << xxx << "#" << ievt;
-      }
 #endif
+      }
     }
     itest++;
   };
+  auto testwf6two = [&]( const cxtype_sv wf[6], const cxtype_sv expwf[6], const char* xxx, int ievt ) {
+    if ( testEvents )
+    {
+      const std::string xxxFull( xxx[0] == 'i' ? "ixxxxx" : "oxxxxx" );      
+      //std::cout << "Testing " << std::setw(3) << itest << ": ";
+      //std::cout << xxx << " #" << ievt << " against " << xxxFull << std::endl;
+      ////for ( int iwf6 = 0; iwf6<nwf6; iwf6++ ) std::cout << wf[iwf6] << std::endl;
+      ////std::cout << "against" << std::endl;
+      ////for ( int iwf6 = 0; iwf6<nwf6; iwf6++ ) std::cout << expwf[iwf6] << std::endl;
+      for ( int iwf6 = 0; iwf6<nwf6; iwf6++ )
+      {
+#ifdef MGONGPU_CPPSIMD
+        const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+        const fptype expReal = cxreal( expwf[iwf6][ieppM] );
+        const fptype expImag = cximag( expwf[iwf6][ieppM] );
+        EXPECT_NEAR( cxreal( wf[iwf6][ieppM] ), expReal, std::abs( expReal * toleranceXXXs ) )
+          << " itest=" << itest << ": " << xxx << "#" << ievt << " against " << xxxFull;
+        EXPECT_NEAR( cximag( wf[iwf6][ieppM] ), expImag, std::abs( expImag * toleranceXXXs ) )
+          << " itest=" << itest << ": " << xxx << "#" << ievt << " against " << xxxFull;
+#else
+        const fptype expReal = cxreal( expwf[iwf6] );
+        const fptype expImag = cximag( expwf[iwf6] );
+        EXPECT_NEAR( cxreal( wf[iwf6] ), expReal, std::abs( expReal * toleranceXXXs ) )
+          << " itest=" << itest << ": " << xxx << "#" << ievt << " against " << xxxFull;
+        EXPECT_NEAR( cximag( wf[iwf6] ), expImag, std::abs( expImag * toleranceXXXs ) )
+          << " itest=" << itest << ": " << xxx << "#" << ievt << " against " << xxxFull;
+#endif
+      }
+    }
+  };
   const int nhel = 1;
+  cxtype_sv outwfI[6]; // last result of ixxxxx (mass==0)
+  cxtype_sv outwfO[6]; // last result of oxxxxx (mass==0)
   cxtype_sv outwf[6];
   for ( auto nsp : { -1, +1 } ) // antifermion/fermion (or initial/final for scalar and vector)
   {
@@ -150,23 +180,25 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       {
         const fptype fmass = mass0[ievt];
         const int ipagM = ievt/neppM; // #eventpage in this iteration
-        ixxxxx( hstMomenta.get(), fmass, nhel, nsp, outwf, ipagM, ipar );
-        testwf6( outwf, "ixxxxx", ievt, nsp, fmass );
-        ixxxxx( hstMomenta.get(), -fmass, nhel, nsp, outwf, ipagM, ipar );
-        testwf6( outwf, "ixxxxx", ievt, nsp, -fmass );
+        ixxxxx( hstMomenta.get(), fmass, nhel, nsp, outwfI, ipagM, ipar );
+        testwf6( outwfI, "ixxxxx", ievt, nsp, fmass );
+        ixxxxx( hstMomenta.get(), -fmass, nhel, nsp, outwfI, ipagM, ipar );
+        testwf6( outwfI, "ixxxxx", ievt, nsp, -fmass );
       }
       // Test ipzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
-      if ( mass0[ievt] == 0 && ispzgt0[ievt] )
+      if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzgt0[ievt] )
       {
         const int ipagM = ievt/neppM; // #eventpage in this iteration
         ipzxxx( hstMomenta.get(), nhel, nsp, outwf, ipagM, ipar );
+        testwf6two( outwf, outwfI, "ipzxxx", ievt );
         testwf6( outwf, "ipzxxx", ievt, nsp, 0 );
       }
       // Test imzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
-      if ( mass0[ievt] == 0 && ispzlt0[ievt] )
+      if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
         const int ipagM = ievt/neppM; // #eventpage in this iteration
         imzxxx( hstMomenta.get(), nhel, nsp, outwf, ipagM, ipar );
+        testwf6two( outwf, outwfI, "imzxxx", ievt );
         testwf6( outwf, "imzxxx", ievt, nsp, 0 );
       }
       // Test ixzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
@@ -174,6 +206,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       {
         const int ipagM = ievt/neppM; // #eventpage in this iteration
         ixzxxx( hstMomenta.get(), nhel, nsp, outwf, ipagM, ipar );
+        testwf6two( outwf, outwfI, "ixzxxx", ievt );
         testwf6( outwf, "ixzxxx", ievt, nsp, 0 );
       }
       // Test vxxxxx - NO ASSUMPTIONS
@@ -198,23 +231,25 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       {
         const fptype fmass = mass0[ievt];
         const int ipagM = ievt/neppM; // #eventpage in this iteration
-        oxxxxx( hstMomenta.get(), fmass, nhel, nsp, outwf, ipagM, ipar );
-        testwf6( outwf, "oxxxxx", ievt, nsp, fmass );
-        oxxxxx( hstMomenta.get(), -fmass, nhel, nsp, outwf, ipagM, ipar );
-        testwf6( outwf, "oxxxxx", ievt, nsp, -fmass );
+        oxxxxx( hstMomenta.get(), fmass, nhel, nsp, outwfO, ipagM, ipar );
+        testwf6( outwfO, "oxxxxx", ievt, nsp, fmass );
+        oxxxxx( hstMomenta.get(), -fmass, nhel, nsp, outwfO, ipagM, ipar );
+        testwf6( outwfO, "oxxxxx", ievt, nsp, -fmass );
       }
       // Test opzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
-      if ( mass0[ievt] == 0 && ispzgt0[ievt] )
+      if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzgt0[ievt] )
       {
         const int ipagM = ievt/neppM; // #eventpage in this iteration
         opzxxx( hstMomenta.get(), nhel, nsp, outwf, ipagM, ipar );
+        testwf6two( outwf, outwfO, "opzxxx", ievt );
         testwf6( outwf, "opzxxx", ievt, nsp, 0 );
       }
       // Test omzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
-      if ( mass0[ievt] == 0 && ispzlt0[ievt] )
+      if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
         const int ipagM = ievt/neppM; // #eventpage in this iteration
         omzxxx( hstMomenta.get(), nhel, nsp, outwf, ipagM, ipar );
+        testwf6two( outwf, outwfO, "omzxxx", ievt );
         testwf6( outwf, "omzxxx", ievt, nsp, 0 );
       }
       // Test oxzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
@@ -222,6 +257,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       {
         const int ipagM = ievt/neppM; // #eventpage in this iteration
         oxzxxx( hstMomenta.get(), nhel, nsp, outwf, ipagM, ipar );
+        testwf6two( outwf, outwfO, "oxzxxx", ievt );
         testwf6( outwf, "oxzxxx", ievt, nsp, 0 );
       }
     }
