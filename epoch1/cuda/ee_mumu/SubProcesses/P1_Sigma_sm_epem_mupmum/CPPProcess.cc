@@ -98,8 +98,8 @@ namespace MG5_sm
           fptype sqm[2] = { sqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
           //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
           sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
-          const int ip = ( 1 + nh ) / 2;
-          const int im = ( 1 - nh ) / 2;
+          const int ip = ( 1 + nh ) / 2; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
+          const int im = ( 1 - nh ) / 2; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
           fi[2] = ip * sqm[ip];
           fi[3] = im * nsf * sqm[ip];
           fi[4] = ip * nsf * sqm[im];
@@ -107,11 +107,12 @@ namespace MG5_sm
         }
         else
         {
-          const fptype sf[2] = { ( 1 + nsf + ( 1 - nsf ) * nh ) * 0.5, ( 1 + nsf - ( 1 - nsf ) * nh ) * 0.5 };
+          const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * 0.5,
+                                 fptype( 1 + nsf - ( 1 - nsf ) * nh ) * 0.5 };
           fptype omega[2] = { sqrt( pvec0 + pp ), 0. };
           omega[1] = fmass / omega[0];
-          const int ip = ( 1 + nh ) / 2; // NB: Fortran is (3+nh)/2 because first indexes are 1,2 and not 0,1
-          const int im = ( 1 - nh ) / 2; // NB: Fortran is (3-nh)/2 because first indexes are 1,2 and not 0,1
+          const int ip = ( 1 + nh ) / 2; // NB: Fortran is (3+nh)/2 because omega(2) has indexes 1,2 and not 0,1
+          const int im = ( 1 - nh ) / 2; // NB: Fortran is (3-nh)/2 because omega(2) has indexes 1,2 and not 0,1
           const fptype sfomega[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
           const fptype pp3 = fpmax( pp + pvec3, 0. );
           const cxtype chi[2] = { cxmake( sqrt ( pp3 * 0.5 / pp ), 0. ),
@@ -262,17 +263,17 @@ namespace MG5_sm
       fi[1] = cxzero_sv();
       const int nh = nhel * nsf;
       const cxtype_sv chi = cxmake( -nhel * sqrt( -2. * pvec3 ), 0. );
-      fi[3] = fi[1];
-      fi[4] = fi[1];
+      fi[3] = cxzero_sv();
+      fi[4] = cxzero_sv();
       if ( nh == 1 )
       {
-        fi[2] = fi[1];
+        fi[2] = cxzero_sv();
         fi[5] = chi;
       }
       else
       {
         fi[2] = chi;
-        fi[5] = fi[1];
+        fi[5] = cxzero_sv();
       }
     }
     // +++ END EVENT LOOP (where necessary) +++
@@ -399,7 +400,7 @@ namespace MG5_sm
           if ( pt != 0. )
           {
             const fptype pzpt = pvec3 / ( pp * pt ) * sqh * hel;
-            vc[3] = cxmake( hel0 * pvec1 * emp - pvec1 * pzpt, - nsvahl * pvec2 / pt * sqh );
+            vc[3] = cxmake( hel0 * pvec1 * emp - pvec1 * pzpt, -nsvahl * pvec2 / pt * sqh );
             vc[4] = cxmake( hel0 * pvec2 * emp - pvec2 * pzpt, nsvahl * pvec1 / pt * sqh );
           }
           else
@@ -438,14 +439,14 @@ namespace MG5_sm
       }
       else
       {
-        //pp = pvec0; // AV this was already commented out - what is this?
+        const fptype_sv& pp = pvec0; // NB: rewrite the following  as in Fortran, using pp instead of pvec0
         const fptype_sv pt = sqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) );
         vc[2] = cxzero_sv();
-        vc[5] = cxmake( hel * pt / pvec0 * sqh, 0. );
+        vc[5] = cxmake( hel * pt / pp * sqh, 0. );
 #ifndef MGONGPU_CPPSIMD
         if ( pt != 0. )
         {
-          const fptype pzpt = pvec3 / ( pvec0 * pt ) * sqh * hel;
+          const fptype pzpt = pvec3 / ( pp * pt ) * sqh * hel;
           vc[3] = cxmake( -pvec1 * pzpt, -nsv * pvec2 / pt * sqh );
           vc[4] = cxmake( -pvec2 * pzpt, nsv * pvec1 / pt * sqh );
         }
@@ -458,7 +459,7 @@ namespace MG5_sm
         }
 #else
         // Branch A: pt != 0.
-        const fptype_v pzpt = pvec3 / ( pvec0 * pt ) * sqh * hel;
+        const fptype_v pzpt = pvec3 / ( pp * pt ) * sqh * hel;
         const cxtype_v vcA_3 = cxmake( -pvec1 * pzpt, -nsv * pvec2 / pt * sqh );
         const cxtype_v vcA_4 = cxmake( -pvec2 * pzpt, nsv * pvec1 / pt * sqh );
         // Branch B: pt == 0.
@@ -480,8 +481,8 @@ namespace MG5_sm
 
   __device__
   void sxxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               const fptype,                // WARNING: "smass" unused
-               const int,                   // WARNING: "nhel" unused (scalar: no helicity)
+               const fptype,                // WARNING: "smass" unused (missing in Fortran)
+               const int,                   // WARNING: "nhel" unused (missing in Fortran) - scalar has no helicity
                const int nss,               // input: +1 (final) or -1 (initial)
                cxtype_sv sc[3],             // output: wavefunction[3] - not [6], this is for scalars
 #ifndef __CUDACC__
@@ -561,8 +562,8 @@ namespace MG5_sm
           fptype sqm[2] = { sqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
           //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
           sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
-          const int ip = -( ( 1 - nh ) / 2 ) * nhel;
-          const int im = ( 1 + nh ) / 2 * nhel;
+          const int ip = -( ( 1 - nh ) / 2 ) * nhel; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
+          const int im = ( 1 + nh ) / 2 * nhel; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
           fo[2] = im * sqm[std::abs( ip )];
           fo[3] = ip * nsf * sqm[std::abs( ip )];
           fo[4] = im * nsf * sqm[std::abs( im )];
@@ -574,8 +575,8 @@ namespace MG5_sm
                                  fptype( 1 + nsf - ( 1 - nsf ) * nh ) * 0.5 };
           fptype omega[2] = { sqrt( pvec0 + pp ), 0. };
           omega[1] = fmass / omega[0];
-          const int ip = ( 1 + nh ) / 2;
-          const int im = ( 1 - nh ) / 2;
+          const int ip = ( 1 + nh ) / 2; // NB: Fortran is (3+nh)/2 because omega(2) has indexes 1,2 and not 0,1
+          const int im = ( 1 - nh ) / 2; // NB: Fortran is (3-nh)/2 because omega(2) has indexes 1,2 and not 0,1
           const fptype sfomeg[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
           const fptype pp3 = fpmax( pp + pvec3, 0. );
           const cxtype chi[2] = { cxmake( sqrt( pp3 * 0.5 / pp ), 0. ),
@@ -679,18 +680,18 @@ namespace MG5_sm
       fo[0] = cxmake( pvec3 * nsf, pvec3 * nsf );
       fo[1] = cxzero_sv();
       const int nh = nhel * nsf;
-      const cxtype_sv CSQP0P3 = cxmake( sqrt( 2. * pvec3 ) * nsf, 0. );
-      fo[3] = fo[1];
-      fo[4] = fo[1];
+      const cxtype_sv csqp0p3 = cxmake( sqrt( 2. * pvec3 ) * nsf, 0. );
+      fo[3] = cxzero_sv();
+      fo[4] = cxzero_sv();
       if ( nh == 1 )
       {
-        fo[2] = CSQP0P3;
-        fo[5] = fo[1];
+        fo[2] = csqp0p3;
+        fo[5] = cxzero_sv();
       }
       else
       {
-        fo[2] = fo[1];
-        fo[5] = CSQP0P3;
+        fo[2] = cxzero_sv();
+        fo[5] = csqp0p3;
       }
     }
     // +++ END EVENT LOOP (where necessary) +++
@@ -729,18 +730,18 @@ namespace MG5_sm
       const cxtype_sv chi1 = cxmake( -nhel, 0. ) * sqrt( -2. * pvec3 );
       if ( nh == 1 )
       {
-        fo[2] = fo[1];
+        fo[2] = cxzero_sv();
         fo[3] = chi1;
-        fo[4] = fo[1];
-        fo[5] = fo[1];
+        fo[4] = cxzero_sv();
+        fo[5] = cxzero_sv();
       }
       else
       {
-        fo[2] = fo[1];
-        fo[3] = fo[1];
+        fo[2] = cxzero_sv();
+        fo[3] = cxzero_sv();
         fo[4] = chi1;
         //fo[5] = chi1; // AV: BUG!
-        fo[5] = fo[1]; // AV: BUG FIX
+        fo[5] = cxzero_sv(); // AV: BUG FIX
       }
     }
     // +++ END EVENT LOOP (where necessary) +++
