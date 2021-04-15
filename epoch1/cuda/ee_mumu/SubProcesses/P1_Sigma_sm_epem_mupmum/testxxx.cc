@@ -168,7 +168,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       {
         ipzxxx( hstMomenta.get(), nhel, nsp, outwf, ievt, ipar );
         testwf6( outwf, "ipzxxx", ievt, nsp, 0 );
-        testwf6two( outwf, outwfI, "ipzxxx", ievt );
+        //testwf6two( outwf, outwfI, "ipzxxx", ievt );
       }
       // Test imzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
@@ -182,7 +182,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       {
         ixzxxx( hstMomenta.get(), nhel, nsp, outwf, ievt, ipar );
         testwf6( outwf, "ixzxxx", ievt, nsp, 0 );
-        //testwf6two( outwf, outwfI, "ixzxxx", ievt );
+        testwf6two( outwf, outwfI, "ixzxxx", ievt );
       }
       // Test vxxxxx - NO ASSUMPTIONS
       {
@@ -213,7 +213,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       {
         opzxxx( hstMomenta.get(), nhel, nsp, outwf, ievt, ipar );
         testwf6( outwf, "opzxxx", ievt, nsp, 0 );
-        testwf6two( outwf, outwfO, "opzxxx", ievt );
+        //testwf6two( outwf, outwfO, "opzxxx", ievt );
       }
       // Test omzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )

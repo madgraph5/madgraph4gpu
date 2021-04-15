@@ -233,8 +233,10 @@ namespace MG5_sm
       const fptype& pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype& pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype& pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-      fi[0] = cxmake( -pvec0 * nsf, -pvec2 * nsf );
-      fi[1] = cxmake( -pvec0 * nsf, -pvec1 * nsf );
+      //fi[0] = cxmake( -pvec0 * nsf, -pvec2 * nsf ); // AV: BUG! not the same as ixxxxx
+      //fi[1] = cxmake( -pvec0 * nsf, -pvec1 * nsf ); // AV: BUG! not the same as ixxxxx
+      fi[0] = cxmake( -pvec0 * nsf, -pvec3 * nsf ); // AV: BUG FIX
+      fi[1] = cxmake( -pvec1 * nsf, -pvec2 * nsf ); // AV: BUG FIX
       const int nh = nhel * nsf;
       //const float sqp0p3 = sqrtf(pvec0 + pvec3) * nsf; // AV to OM: why force a float here?
       const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
