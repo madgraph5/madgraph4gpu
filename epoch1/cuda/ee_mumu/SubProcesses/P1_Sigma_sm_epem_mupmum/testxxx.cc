@@ -107,7 +107,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     if ( dumpEvents ) dumpwf6( wf, xxx, ievt, nsp, mass );
     if ( testEvents )
     {
-      std::cout << "Testing " << std::setw(3) << itest << ": " << xxx << " #" << ievt << std::endl;
+      //std::cout << "Testing " << std::setw(3) << itest << ": " << xxx << " #" << ievt << std::endl;
       std::array<fptype, 12>& expwf = expwfs[itest];
       for ( int iwf6 = 0; iwf6 < nwf6; iwf6++ )
       {
@@ -125,8 +125,8 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     if ( testEvents )
     {
       const std::string xxxFull( xxx[0] == 'i' ? "ixxxxx" : "oxxxxx" );      
-      std::cout << "Testing " << std::setw(3) << itest << ": ";
-      std::cout << xxx << " #" << ievt << " against " << xxxFull << std::endl;
+      //std::cout << "Testing " << std::setw(3) << itest << ": ";
+      //std::cout << xxx << " #" << ievt << " against " << xxxFull << std::endl;
       ////for ( int iwf6 = 0; iwf6<nwf6; iwf6++ ) std::cout << wf[iwf6] << std::endl;
       ////std::cout << "against" << std::endl;
       ////for ( int iwf6 = 0; iwf6<nwf6; iwf6++ ) std::cout << expwf[iwf6] << std::endl;
