@@ -84,8 +84,8 @@ namespace MG5_sm
 
   __device__
   void sxxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               const fptype,                // WARNING: "smass" unused
-               const int,                   // WARNING: "nhel" unused (scalar: no helicity)
+               const fptype,                // WARNING: "smass" unused (missing in Fortran)
+               const int,                   // WARNING: "nhel" unused (missing in Fortran) - scalar has no helicity
                const int nss,               // input: +1 (final) or -1 (initial)
                cxtype_sv sc[3],             // output: wavefunction[3] - not [6], this is for scalars
 #ifndef __CUDACC__
