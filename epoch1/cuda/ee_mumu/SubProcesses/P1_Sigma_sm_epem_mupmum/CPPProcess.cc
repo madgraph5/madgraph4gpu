@@ -54,10 +54,12 @@ namespace MG5_sm
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x;  // index of event (thread) in grid
 #endif
+      const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt ); // not a ref (fewer registers!?)
       const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt ); // not a ref (fewer registers!?)
       const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt ); // not a ref (fewer registers!?)
       const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt ); // not a ref (fewer registers!?)
-      const fptype p0 = sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 );
+      //const fptype p0 = sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ); // AV: BUG?! (NOT AS IN THE FORTRAN)
+      const fptype& p0 = pvec0; // AV: BUG FIX (DO AS IN THE FORTRAN)
       fi[0] = cxmake( -p0 * nsf, -pvec3 * nsf );
       fi[1] = cxmake( -pvec1 * nsf, -pvec2 * nsf );
       const int nh = nhel * nsf;
