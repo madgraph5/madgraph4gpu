@@ -84,8 +84,8 @@ namespace MG5_sm
           const fptype sf[2] = { ( 1 + nsf + ( 1 - nsf ) * nh ) * 0.5, ( 1 + nsf - ( 1 - nsf ) * nh ) * 0.5 };
           fptype omega[2] = { sqrt( p0 + pp ), 0 };
           omega[1] = fmass / omega[0];
-          const int ip = ( 1 + nh ) / 2;
-          const int im = ( 1 - nh ) / 2;
+          const int ip = ( 1 + nh ) / 2; // NB: Fortran is (3+nh)/2 because first indexes are 1,2 and not 0,1
+          const int im = ( 1 - nh ) / 2; // NB: Fortran is (3-nh)/2 because first indexes are 1,2 and not 0,1
           const fptype sfomega[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
           const fptype pp3 = fpmax( pp + pvec3, 0. );
           const cxtype chi[2] = { cxmake( sqrt ( pp3 * 0.5 / pp ), 0 ),
