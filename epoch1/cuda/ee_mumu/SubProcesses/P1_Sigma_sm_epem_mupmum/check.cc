@@ -710,14 +710,14 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
       //<< "Wavefunction GPU memory     = LOCAL" << std::endl
 #else
-#if defined __AVX512F__
+#if !defined MGONGPU_CPPSIMD
+              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (no SIMD i.e. scalar)" << std:: endl
+#elif defined __AVX512F__
               << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (AVX512F)" << std:: endl
 #elif defined __AVX2__
               << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (AVX2)" << std:: endl
 #elif defined __SSE4_2__
               << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (SSE4.2)" << std:: endl
-#elif !defined MGONGPU_CPPSIMD
-              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] == SCALAR (no SIMD)" << std:: endl
 #else
 #error Internal error: unknown SIMD build configuration
 #endif
