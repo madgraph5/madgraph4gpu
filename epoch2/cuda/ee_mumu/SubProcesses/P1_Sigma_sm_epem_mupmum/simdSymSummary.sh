@@ -77,7 +77,7 @@ function mainSummarizeSyms() {
 
   # Final report
   filename=$file
-  if [ "$stripdir" == "1" ]; then filename=$(basename $file); fi
+  if [ "$stripdir" == "1" ]; then filename=$(basename $file)
   printf "=== Symbols in $filename === (~sse4:%5d) (avx2:%5d) (512y:%5d) (512z:%5d)\n" $cntsse4 $cntavx2 $cnt512y $cnt512z
 
 }
