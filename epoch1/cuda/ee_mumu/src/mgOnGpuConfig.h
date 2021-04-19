@@ -86,26 +86,29 @@ namespace mgOnGpu
 #else
   // -----------------------------------------------------------------------------------------
   // --- CPUs: neppM must be exactly equal to the number of fptype's in a vector register
-  // --- (DEFAULT is AVX2 on CPUs, same 32-byte as GPUs, as fast as AVX512)
+  // --- [DEFAULT is 256-width AVX512 aka "512y" on CPUs, 32-byte as GPUs, faster than AVX2]
   // --- The logic of the code requires the size neppV of fptype_v to be equal to neppM
   // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
   // -----------------------------------------------------------------------------------------
 #if defined __clang__ // CANNOT USE VECTOR COMPILER EXTENSIONS ON CLANG (YET?)
 #undef MGONGPU_CPPSIMD
-  const int neppM = 1;  // *** NB: this is equivalent to AOS ***
-#elif defined __AVX512F__
+  const int neppM = 1;  // "none" i.e. no SIMD (*** NB: this is equivalent to AOS ***)
+#elif defined __AVX512VL__
 #define MGONGPU_CPPSIMD 1
-  //const int neppM = 64/sizeof(fptype); // AVX512 (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
-  const int neppM = 32/sizeof(fptype); // AVX512 with 256 vector width (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT)
+#ifdef MGONGPU_PVW512
+  const int neppM = 64/sizeof(fptype); // "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
+#else
+  const int neppM = 32/sizeof(fptype); // "512y" AVX512 with 256 width (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [DEFAULT!]
+#endif
 #elif defined __AVX2__
 #define MGONGPU_CPPSIMD 1
-  const int neppM = 32/sizeof(fptype); // (DEFAULT) AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT)
+  const int neppM = 32/sizeof(fptype); // "avx2" AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT)
 #elif defined __SSE4_2__
 #define MGONGPU_CPPSIMD 1
-  const int neppM = 16/sizeof(fptype); // SSE4.2 (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT)
+  const int neppM = 16/sizeof(fptype); // "sse4" SSE4.2 (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT)
 #else
 #undef MGONGPU_CPPSIMD
-  const int neppM = 1;  // *** NB: this is equivalent to AOS ***
+  const int neppM = 1;  // "none" i.e. no SIMD (*** NB: this is equivalent to AOS ***)
 #endif
 #endif
 

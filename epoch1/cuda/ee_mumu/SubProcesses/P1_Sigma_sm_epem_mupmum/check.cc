@@ -195,9 +195,9 @@ int main(int argc, char **argv)
   // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the requested AVX
   // [NB: this prevents a crash on pmpe04 but not on some github CI nodes]
   auto supportsAvx = [](){
-#if defined __AVX512F__
-    bool ok = __builtin_cpu_supports( "avx512f" );
-    const std::string tag = "skylake-avx512 (AVX512F)";
+#if defined __AVX512VL__
+    bool ok = __builtin_cpu_supports( "avx512vl" );
+    const std::string tag = "skylake-avx512 (AVX512VL)";
 #elif defined __AVX2__
     bool ok = __builtin_cpu_supports( "avx2" );
     const std::string tag = "haswell (AVX2)";
@@ -495,7 +495,7 @@ int main(int argc, char **argv)
 
     if (verbose)
     {
-      std::cout << "***********************************************************************" << std::endl
+      std::cout << "************************************************************************" << std::endl
                 << "Iteration #" << iiter+1 << " of " << niter << std::endl;
       if (perf) std::cout << "Wave function time: " << wavetime << std::endl;
     }
@@ -678,7 +678,7 @@ int main(int argc, char **argv)
     while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get()) != nullptr ) nprocall += nprocbuf.data();
 #endif
     // Dump all configuration parameters and all results
-    std::cout << "***********************************************************************" << std::endl
+    std::cout << "***************************************************************************" << std::endl
 #ifdef __CUDACC__
               << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CUDA" << std::endl
 #else
@@ -687,7 +687,7 @@ int main(int argc, char **argv)
               << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << "NumThreadsPerBlock          = " << gputhreads << std::endl
               << "NumIterations               = " << niter << std::endl
-              << "-----------------------------------------------------------------------" << std::endl
+              << "---------------------------------------------------------------------------" << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
               << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << " )" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
@@ -711,13 +711,17 @@ int main(int argc, char **argv)
       //<< "Wavefunction GPU memory     = LOCAL" << std::endl
 #else
 #if !defined MGONGPU_CPPSIMD
-              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (no SIMD i.e. scalar)" << std:: endl
-#elif defined __AVX512F__
-              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (AVX512F)" << std:: endl
+              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('none': scalar, no SIMD)" << std::endl
+#elif defined __AVX512VL__
+#ifdef MGONGPU_PVW512
+              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('512z': AVX512, 512 vector width)" << std::endl
+#else
+              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('512y': AVX512, 256 vector width)" << std::endl
+#endif
 #elif defined __AVX2__
-              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (AVX2)" << std:: endl
+              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('avx2': AVX2, 256 vector width)" << std::endl
 #elif defined __SSE4_2__
-              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (SSE4.2)" << std:: endl
+              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('sse4': SSE4.2, 128 vector width)" << std::endl
 #else
 #error Internal error: unknown SIMD build configuration
 #endif
@@ -739,7 +743,7 @@ int main(int argc, char **argv)
               << "OMP threads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
 #endif
               << "MatrixElements compiler     = " << process.getCompiler() << std::endl
-              << "-----------------------------------------------------------------------" << std::endl
+              << "---------------------------------------------------------------------------" << std::endl
               << "NumberOfEntries             = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
               << "TotalTime[Rnd+Rmb+ME] (123) = ( " << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
@@ -751,7 +755,7 @@ int main(int argc, char **argv)
               << "[Min,Max]TimeInMatrixElems  = [ " << minwtim
               << " ,  " << maxwtim << " ]  sec" << std::endl
       //<< "StdDevTimeInWaveFuncs       = ( " << stdwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "-----------------------------------------------------------------------" << std::endl
+              << "---------------------------------------------------------------------------" << std::endl
       //<< "ProcessID:                  = " << getpid() << std::endl
       //<< "NProcesses                  = " << process.nprocesses << std::endl
               << "TotalEventsComputed         = " << nevtALL << std::endl
@@ -766,7 +770,7 @@ int main(int argc, char **argv)
               << "EvtsPerSec[MatrixElems] (3) = ( " << nevtALL/sumwtim
               << std::string(16, ' ') << " )  sec^-1" << std::endl
               << std::defaultfloat; // default format: affects all floats
-    std::cout << "***********************************************************************" << std::endl
+    std::cout << "***************************************************************************" << std::endl
               << "NumMatrixElems(notAbnormal) = " << nevtALL - nabn << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
               << "MeanMatrixElemValue         = ( " << meanelem
@@ -914,9 +918,9 @@ int main(int argc, char **argv)
   timermap.stop();
   if (perf)
   {
-    std::cout << "***********************************************************************" << std::endl;
+    std::cout << "***************************************************************************" << std::endl;
     timermap.dump();
-    std::cout << "***********************************************************************" << std::endl;
+    std::cout << "***************************************************************************" << std::endl;
   }
 
   //std::cout << "ALL OK" << std::endl;

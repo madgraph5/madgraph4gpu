@@ -6,24 +6,41 @@ if [ "$1" == "-omp" ]; then
   shift
 fi
 
+avxall=0
+if [ "$1" == "-avxall" ]; then
+  avxall=1
+  shift
+fi
+
 if [ "$1" != "" ]; then
-  echo "Usage: $0 [-omp]"
+  echo "Usage: $0 [-omp] [-avxall]"
   exit 1
 fi
 
 exes=
 exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none/check.exe"
 exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none/gcheck.exe"
-exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.avx512/check.exe"
-exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.avx512/gcheck.exe"
+if [ "${avxall}" == "1" ]; then 
+  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.sse4/check.exe"
+  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.avx2/check.exe"
+fi
+exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y/check.exe"
+if [ "${avxall}" == "1" ]; then 
+  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z/check.exe"
+else
+  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y/gcheck.exe"
+fi
 exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/check.exe"
 exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
 
 export USEBUILDDIR=1
 pushd ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
   pwd
-  make AVX=avx512
   make AVX=none
+  if [ "${avxall}" == "1" ]; then make AVX=sse4; fi
+  if [ "${avxall}" == "1" ]; then make AVX=avx2; fi
+  make AVX=512y
+  if [ "${avxall}" == "1" ]; then make AVX=512z; fi
 popd >& /dev/null
 
 pushd ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
