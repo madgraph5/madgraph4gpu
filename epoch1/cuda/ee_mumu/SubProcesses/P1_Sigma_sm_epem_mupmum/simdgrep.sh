@@ -76,7 +76,7 @@ function mainCountSyms() {
 function listSyms() {
   if [ "$dump" == "" ] || [ ! -e $dump ]; then echo "ERROR! File '$dump' not found"; exit 1; fi 
   # Use cut -f3- to print only the assembly code after two leading fields separated by tabs
-  cat $dump | awk '/^ +[[:xdigit:]]+:\t/' | cut -f3- | egrep '(x|y|z)mm' | sed -r 's/ .*%(x|y|z)mm.*/ %\1mm/g' | sort | uniq -c | awk '{printf "%15s %4s %5d\n",$2,$3,$1}' | sort
+  cat $dump | awk '/^ +[[:xdigit:]]+:\t/' | cut -f3- | egrep '(x|y|z)mm' | sed -r 's/ .*%(x|y|z)mm.*/ %\1mm/g' | sort | uniq -c | awk '{printf "%4s %-15s %5d\n",$3,$2,$1}' | sort -k 1,2
 }
 
 ###dump=$1 && listSyms # for debugging
@@ -117,7 +117,7 @@ function mainCompareSyms() {
     file=./build.$avx/CPPProcess.o
     fileSymsRaw=$file.symlist.raw
     fileSyms=$file.symlist
-    cat $fileSymsRaw | awk -vall=$allSymList -vfmt="%15s %4s %5d\n" -vtot=0 '{f1=$1; f2=$2; f3=$3; tot+=f3; while(f3>0){getline < all; if($1==f1 && $2==f2){printf fmt,$1,$2,f3; f3=0} else {printf fmt,$1,$2,0}}} END{printf fmt,"TOTAL","",tot}' > $fileSyms
+    cat $fileSymsRaw | awk -vall=$allSymList -vfmt="%4s %15s %5d\n" -vtot=0 -veof=1 '{f1=$1; f2=$2; f3=$3; tot+=f3; while(f3>0){getline < all; if($1==f1 && $2==f2){printf fmt,$1,$2,f3; f3=0} else {printf fmt,$1,$2,0}}} END{while(getline < all){printf fmt,$1,$2,0};printf fmt,"TOTAL","",tot}' > $fileSyms
     ls -l $fileSyms
   done
 }
