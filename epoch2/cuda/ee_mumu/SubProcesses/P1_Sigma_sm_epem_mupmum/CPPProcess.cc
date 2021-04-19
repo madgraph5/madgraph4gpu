@@ -81,15 +81,15 @@ namespace MG5_sm
         }
         else
         {
-          const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * 0.5,
-                                 fptype( 1 + nsf - ( 1 - nsf ) * nh ) * 0.5 };
+          const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * (fptype)0.5,
+                                 fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
           fptype omega[2] = { fpsqrt( pvec0 + pp ), 0. };
           omega[1] = fmass / omega[0];
           const int ip = ( 1 + nh ) / 2; // NB: Fortran is (3+nh)/2 because omega(2) has indexes 1,2 and not 0,1
           const int im = ( 1 - nh ) / 2; // NB: Fortran is (3-nh)/2 because omega(2) has indexes 1,2 and not 0,1
           const fptype sfomega[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
           const fptype pp3 = fpmax( pp + pvec3, 0. );
-          const cxtype chi[2] = { cxmake( fpsqrt ( pp3 * 0.5 / pp ), 0. ),
+          const cxtype chi[2] = { cxmake( fpsqrt ( pp3 * (fptype)0.5 / pp ), 0. ),
                                   ( pp3 == 0. ?
                                     cxmake( -nh, 0. ) :
                                     cxmake( nh * pvec1, pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) };
@@ -438,15 +438,15 @@ namespace MG5_sm
         }
         else
         {
-          const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * 0.5,
-                                 fptype( 1 + nsf - ( 1 - nsf ) * nh ) * 0.5 };
+          const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * (fptype)0.5,
+                                 fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
           fptype omega[2] = { fpsqrt( pvec0 + pp ), 0. };
           omega[1] = fmass / omega[0];
           const int ip = ( 1 + nh ) / 2; // NB: Fortran is (3+nh)/2 because omega(2) has indexes 1,2 and not 0,1
           const int im = ( 1 - nh ) / 2; // NB: Fortran is (3-nh)/2 because omega(2) has indexes 1,2 and not 0,1
           const fptype sfomeg[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
           const fptype pp3 = fpmax( pp + pvec3, 0. );
-          const cxtype chi[2] = { cxmake( fpsqrt( pp3 * 0.5 / pp ), 0. ),
+          const cxtype chi[2] = { cxmake( fpsqrt( pp3 * (fptype)0.5 / pp ), 0. ),
                                   ( ( pp3 == 0. ) ? cxmake( -nh, 0. )
                                     : cxmake( nh * pvec1, -pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) };
           fo[2] = sfomeg[1] * chi[im];
