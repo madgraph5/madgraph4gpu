@@ -30,12 +30,13 @@
 # Env: $dump must point to the objdump file
 function countSyms() {
   if [ "$dump" == "" ] || [ ! -e $dump ]; then echo "ERROR! File '$dump' not found"; exit 1; fi 
-  for sym in $*; do
-    printf "(%16s : %3d) " $sym $(cat $dump | egrep $sym | wc -l)
+  for sym in "$@"; do
+    # Use cut -f3- to print only the assembly code after two leading fields separated by tabs
+    printf "(%24s : %4d) " "'$sym'" $(cat $dump | awk '/^ +[[:xdigit:]]+:\t/' | cut -f3- | egrep "$sym" | wc -l)
   done; printf "\n"
 }
 
-###dump=$1 && countSyms # for debugging
+#dump=$1; shift; countSyms $* # for debugging (./simdgrep.sh ./build.none/CPPProcess.o.objdump 'addsd.*xmm')
 
 #----------------------------------------------------------------------------------------------
 
@@ -51,23 +52,24 @@ function mainCountSyms() {
   dump=${file}.objdump
   objdump -d -C $file > ${dump}
   # Count symbols in selected file
-  single=0
-  double=1
-  if [ "$single" == "1" ]; then
-    countSyms 'addss.*xmm' 'addps.*xmm' 'vaddps.*ymm' 'vaddps.*zmm'
-    countSyms 'mulss.*xmm' 'mulps.*xmm' 'vmulps.*ymm' 'vmulps.*zmm'
-    countSyms '==========' 'vfmadd...ps.*xmm' 'vfmadd...ps.*ymm' 'vfmadd...ps.*zmm'
-  fi
-  if [ "$double" == "1" ]; then
-    countSyms 'addsd.*xmm' 'addpd.*xmm' 'vaddpd.*ymm' 'vaddpd.*zmm'
-    countSyms 'mulsd.*xmm' 'mulpd.*xmm' 'vmulpd.*ymm' 'vmulpd.*zmm'
-    countSyms 'subsd.*xmm' 'subpd.*xmm' 'vsubpd.*ymm' 'vsubpd.*zmm'
-    countSyms 'movasd.*xmm' 'movapd.*xmm' 'vmovapd.*ymm' 'vmovapd.*zmm'
-    countSyms '==========' 'vfmadd...pd.*xmm' 'vfmadd...pd.*ymm' 'vfmadd...pd.*zmm'
-  fi
+  countSyms '^[^v].*ss.*xmm' '^[^v].*sd.*xmm'
+  countSyms '^[^v].*ps.*xmm' '^[^v].*pd.*xmm'
+  countSyms '^v.*ps.*xmm' '^v.*pd.*xmm'
+  countSyms '^v.*ps.*ymm' '^v.*pd.*ymm'
+  ###countSyms '===' '^vpcmp[n]*eqq.*(x|y)mm'
+  countSyms '===' '^vpcmpeqq.*(x|y)mm'
+  countSyms '===' '^vpcmpneqq.*(x|y)mm'
+  countSyms '^v.*32x2.*(x|y)mm' '^v.*64x2.*(x|y)mm'
+  ###countSyms '^v.*32x2.*xmm' '^v.*64x2.*xmm'
+  ###countSyms '^v.*32x2.*ymm' '^v.*64x2.*ymm'
+  countSyms '^v.*dqa32.*(x|y)mm' '^v.*dqa64.*(x|y)mm'
+  ###countSyms '^v.*dqa32.*xmm' '^v.*dqa64.*xmm'
+  ###countSyms '^v.*dqa32.*ymm' '^v.*dqa64.*ymm'
+  countSyms '^v.*zmm' '^v.*zmm'
+  ###countSyms '^v.*ps.*zmm' '^v.*pd.*zmm'
 }
 
-#mainCountSyms $*
+mainCountSyms $*
 
 #----------------------------------------------------------------------------------------------
 
@@ -79,7 +81,7 @@ function listSyms() {
   cat $dump | awk '/^ +[[:xdigit:]]+:\t/' | cut -f3- | egrep '(x|y|z)mm' | sed -r 's/ .*%(x|y|z)mm.*/ %\1mm/g' | sort | uniq -c | awk '{printf "%4s %-15s %5d\n",$3,$2,$1}' | sort -k 1,2
 }
 
-###dump=$1 && listSyms # for debugging
+###dump=$1; shift; listSyms $* # for debugging
 
 #----------------------------------------------------------------------------------------------
 
@@ -122,7 +124,7 @@ function mainCompareSyms() {
   done
 }
 
-mainCompareSyms
+#mainCompareSyms
 
 #----------------------------------------------------------------------------------------------
 
