@@ -26,7 +26,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
   using mgOnGpu::neppM;
   using mgOnGpu::np4;
   using mgOnGpu::npar;
-  const int nevt = 16; // 12 independent tests plus 4 duplicates (need a multiple of 8 on AVX '512z'!)
+  const int nevt = 16; // 12 independent tests plus 4 duplicates (need a multiple of 8 for floats or for '512z')
   assert( nevt % neppM == 0 ); // nevt must be a multiple of neppM
   // Fill in the input momenta
   const int nMomenta = np4 * npar * nevt;

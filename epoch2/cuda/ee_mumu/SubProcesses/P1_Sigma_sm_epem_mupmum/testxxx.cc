@@ -20,13 +20,13 @@
 TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
 {
   constexpr bool dumpEvents = false;  // dump the expected output of the test?
-  constexpr bool testEvents = true; // run the test?
+  constexpr bool testEvents = !dumpEvents; // run the test?
   constexpr fptype toleranceXXXs = std::is_same<fptype, double>::value ? 1.E-15 : 1.E-5;
   // Constant parameters
   using mgOnGpu::neppM;
   using mgOnGpu::np4;
   using mgOnGpu::npar;
-  const int nevt = 12;
+  const int nevt = 16; // 12 independent tests plus 4 duplicates (need a multiple of 8 for floats or for '512z')
   assert( nevt % neppM == 0 ); // nevt must be a multiple of neppM
   // Fill in the input momenta
   const int nMomenta = np4 * npar * nevt;
@@ -46,6 +46,10 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     500, -240, -180, 0,    // #9 (m=40>0 pT>0 pz=0)
     500, 180,  192,  144,  // #10 (m=40>0 pT>0 pz>0)
     500, 180,  192,  -144, // #11 (m=40>0 pT>0 pz<0)
+    500, 0,    0,    500,  // DUPLICATE #12 == #0 (m=0 pT=0 E=pz>0)
+    500, 0,    0,    -500, // DUPLICATE #13 == #1 (m=0 pT=0 -E=pz<0)
+    500, 300,  400,  0,    // DUPLICATE #14 == #2 (m=0 pT>0 pz=0)
+    500, 180,  240,  400   // DUPLICATE #15 == #3 (m=0 pT>0 pz>0)
   };
   fptype mass0[nevt]{};
   bool ispzgt0[nevt]{};
