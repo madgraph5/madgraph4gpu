@@ -635,12 +635,12 @@ namespace MG5_sm
                cxtype* vertex )      // output: amplitude
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype cI( 0., 1. );
-    const cxtype TMP0 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
-                         (F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])) +
-                          (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
-                           F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])))));
-    (*vertex) = COUP * - cI * TMP0;
+    const cxtype cxI( 0., 1. );
+    const cxtype TMP0 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cxI * (V3[4]))) +
+                         (F1[3] * (F2[4] * (V3[3] - cxI * (V3[4])) + F2[5] * (V3[2] - V3[5])) +
+                          (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cxI * (V3[4]))) +
+                           F1[5] * (F2[2] * (-V3[3] + cxI * (V3[4])) + F2[3] * (V3[2] + V3[5])))));
+    (*vertex) = COUP * - cxI * TMP0;
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -656,15 +656,15 @@ namespace MG5_sm
                  cxtype V3[] )        // output: wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype cI( 0., 1. );
+    const cxtype cxI( 0., 1. );
     V3[0] = +F1[0] + F2[0];
     V3[1] = +F1[1] + F2[1];
     const fptype P3[4] = { -cxreal( V3[0] ), -cxreal( V3[1] ), -cximag( V3[1] ), -cximag( V3[0] ) };
-    const cxtype denom = COUP/((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
-    V3[2] = denom * (-cI) * (F1[2] * F2[4] + F1[3] * F2[5] + F1[4] * F2[2] + F1[5] * F2[3]);
-    V3[3] = denom * (-cI) * (-F1[2] * F2[5] - F1[3] * F2[4] + F1[4] * F2[3] + F1[5] * F2[2]);
-    V3[4] = denom * (-cI) * (-cI * (F1[2] * F2[5] + F1[5] * F2[2]) + cI * (F1[3] * F2[4] + F1[4] * F2[3]));
-    V3[5] = denom * (-cI) * (-F1[2] * F2[4] - F1[5] * F2[3] + F1[3] * F2[5] + F1[4] * F2[2]);
+    const cxtype denom = COUP/((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * P3[3]) - M3 * (M3 - cxI * W3));
+    V3[2] = denom * (-cxI) * (F1[2] * F2[4] + F1[3] * F2[5] + F1[4] * F2[2] + F1[5] * F2[3]);
+    V3[3] = denom * (-cxI) * (-F1[2] * F2[5] - F1[3] * F2[4] + F1[4] * F2[3] + F1[5] * F2[2]);
+    V3[4] = denom * (-cxI) * (-cxI * (F1[2] * F2[5] + F1[5] * F2[2]) + cxI * (F1[3] * F2[4] + F1[4] * F2[3]));
+    V3[5] = denom * (-cxI) * (-F1[2] * F2[4] - F1[5] * F2[3] + F1[3] * F2[5] + F1[4] * F2[2]);
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -679,10 +679,10 @@ namespace MG5_sm
                cxtype* vertex )     // output: amplitude
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype cI( 0., 1. );
-    const cxtype TMP1 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
-                         F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
-    (*vertex) = COUP * - cI * TMP1;
+    const cxtype cxI( 0., 1. );
+    const cxtype TMP1 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cxI * (V3[4]))) +
+                         F1[3] * (F2[4] * (V3[3] - cxI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
+    (*vertex) = COUP * - cxI * TMP1;
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -698,18 +698,18 @@ namespace MG5_sm
                cxtype V3[] )        // output: wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype cI( 0., 1. );
+    const cxtype cxI( 0., 1. );
     const fptype OM3 = ( M3 != 0. ? 1. / ( M3 * M3 ) : 0. );
     V3[0] = +F1[0] + F2[0];
     V3[1] = +F1[1] + F2[1];
     const fptype P3[4] = { -cxreal( V3[0] ), -cxreal( V3[1] ), -cximag( V3[1] ), -cximag( V3[0] ) };
-    const cxtype TMP2 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
-                         F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
-    const cxtype denom = COUP/((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
-    V3[2] = denom * (-cI) * (F1[2] * F2[4] + F1[3] * F2[5] - P3[0] * OM3 * TMP2);
-    V3[3] = denom * (-cI) * (-F1[2] * F2[5] - F1[3] * F2[4] - P3[1] * OM3 * TMP2);
-    V3[4] = denom * (-cI) * (-cI * (F1[2] * F2[5]) + cI * (F1[3] * F2[4]) - P3[2] * OM3 * TMP2);
-    V3[5] = denom * (-cI) * (-F1[2] * F2[4] - P3[3] * OM3 * TMP2 + F1[3] * F2[5]);
+    const cxtype TMP2 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cxI * (P3[2]))) +
+                         F1[3] * (F2[4] * (P3[1] - cxI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
+    const cxtype denom = COUP/((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * P3[3]) - M3 * (M3 - cxI * W3));
+    V3[2] = denom * (-cxI) * (F1[2] * F2[4] + F1[3] * F2[5] - P3[0] * OM3 * TMP2);
+    V3[3] = denom * (-cxI) * (-F1[2] * F2[5] - F1[3] * F2[4] - P3[1] * OM3 * TMP2);
+    V3[4] = denom * (-cxI) * (-cxI * (F1[2] * F2[5]) + cxI * (F1[3] * F2[4]) - P3[2] * OM3 * TMP2);
+    V3[5] = denom * (-cxI) * (-F1[2] * F2[4] - P3[3] * OM3 * TMP2 + F1[3] * F2[5]);
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -724,14 +724,14 @@ namespace MG5_sm
                cxtype* vertex )
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype cI( 0., 1. );
+    const cxtype cxI( 0., 1. );
     constexpr fptype one( 1. );
     constexpr fptype two( 2. );
-    const cxtype TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
-                         F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
-    const cxtype TMP4 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
-                         F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
-    (*vertex) = COUP * (-one) * (+cI * (TMP3) + two * cI * (TMP4));
+    const cxtype TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cxI * (V3[4]))) +
+                         F1[3] * (F2[4] * (V3[3] - cxI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
+    const cxtype TMP4 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cxI * (V3[4]))) +
+                         F1[5] * (F2[2] * (-V3[3] + cxI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
+    (*vertex) = COUP * (-one) * (+cxI * (TMP3) + two * cxI * (TMP4));
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -747,26 +747,26 @@ namespace MG5_sm
                cxtype V3[] )
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype cI( 0., 1. );
+    const cxtype cxI( 0., 1. );
     constexpr fptype two( 2. );
     constexpr fptype half( 1. / 2. );
     const fptype OM3 = ( M3 != 0. ? 1. / ( M3 * M3 ) : 0. );
     V3[0] = +F1[0] + F2[0];
     V3[1] = +F1[1] + F2[1];
     const fptype P3[4] = { -cxreal( V3[0] ), -cxreal( V3[1] ), -cximag( V3[1] ), -cximag( V3[0] ) };
-    const cxtype TMP5 = (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) +
-                         F1[5] * (F2[2] * (-P3[1] + cI * (P3[2])) + F2[3] * (P3[0] + P3[3])));
-    const cxtype TMP2 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
-                         F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
-    const cxtype denom = COUP/((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
-    V3[2] = denom * (-two * cI) * (OM3 * - half * P3[0] * (TMP2 + two * (TMP5)) +
+    const cxtype TMP5 = (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cxI * (P3[2]))) +
+                         F1[5] * (F2[2] * (-P3[1] + cxI * (P3[2])) + F2[3] * (P3[0] + P3[3])));
+    const cxtype TMP2 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cxI * (P3[2]))) +
+                         F1[3] * (F2[4] * (P3[1] - cxI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
+    const cxtype denom = COUP/((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * P3[3]) - M3 * (M3 - cxI * W3));
+    V3[2] = denom * (-two * cxI) * (OM3 * - half * P3[0] * (TMP2 + two * (TMP5)) +
                                   (+half * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] + F1[5] * F2[3]));
-    V3[3] = denom * (-two * cI) * (OM3 * - half * P3[1] * (TMP2 + two * (TMP5)) +
+    V3[3] = denom * (-two * cxI) * (OM3 * - half * P3[1] * (TMP2 + two * (TMP5)) +
                                   (-half * (F1[2] * F2[5] + F1[3] * F2[4]) + F1[4] * F2[3] + F1[5] * F2[2]));
-    V3[4] = denom * two * cI * (OM3 * half * P3[2] * (TMP2 + two * (TMP5)) +
-                               (+half * cI * (F1[2] * F2[5]) - half * cI * (F1[3] * F2[4]) - cI *
-                                (F1[4] * F2[3]) + cI * (F1[5] * F2[2])));
-    V3[5] = denom * two * cI * (OM3 * half * P3[3] * (TMP2 + two * (TMP5)) +
+    V3[4] = denom * two * cxI * (OM3 * half * P3[2] * (TMP2 + two * (TMP5)) +
+                               (+half * cxI * (F1[2] * F2[5]) - half * cxI * (F1[3] * F2[4]) - cxI *
+                                (F1[4] * F2[3]) + cxI * (F1[5] * F2[2])));
+    V3[5] = denom * two * cxI * (OM3 * half * P3[3] * (TMP2 + two * (TMP5)) +
                                (+half * (F1[2] * F2[4]) - half * (F1[3] * F2[5]) - F1[4] * F2[2] + F1[5] * F2[3]));
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -783,15 +783,15 @@ namespace MG5_sm
                  cxtype* vertex )      // output: amplitude
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype cI( 0., 1. );
+    const cxtype cxI( 0., 1. );
     constexpr fptype one( 1. );
     constexpr fptype two( 2. );
     // Note: inverting the order and computing TMP4 before TMP3 has increased C++ speed by ~1%
-    const cxtype TMP4 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
-                         F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
-    const cxtype TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
-                         F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
-    (*vertex) = ( -one ) * (COUP2 * (+cI * (TMP3) + two * cI * (TMP4)) + cI * (TMP3 * COUP1));
+    const cxtype TMP4 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cxI * (V3[4]))) +
+                         F1[5] * (F2[2] * (-V3[3] + cxI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
+    const cxtype TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cxI * (V3[4]))) +
+                         F1[3] * (F2[4] * (V3[3] - cxI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
+    (*vertex) = ( -one ) * (COUP2 * (+cxI * (TMP3) + two * cxI * (TMP4)) + cxI * (TMP3 * COUP1));
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -808,7 +808,7 @@ namespace MG5_sm
                  cxtype V3[] )        // output: wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype cI( 0., 1. );
+    const cxtype cxI( 0., 1. );
     constexpr fptype one( 1. );
     constexpr fptype two( 2. );
     constexpr fptype half( 1. / 2. );
@@ -817,24 +817,24 @@ namespace MG5_sm
     V3[1] = +F1[1] + F2[1];
     const fptype P3[4] = { -cxreal( V3[0] ), -cxreal( V3[1] ), -cximag( V3[1] ), -cximag( V3[0] ) };
     // Note: inverting the order and computing TMP2 before TMP5 has increased C++ speed by ~0.5%
-    const cxtype TMP2 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
-                         F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
-    const cxtype TMP5 = (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) +
-                         F1[5] * (F2[2] * (-P3[1] + cI * (P3[2])) + F2[3] * (P3[0] + P3[3])));
-    const cxtype denom = one/((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
-    V3[2] = denom * (-two * cI) *
+    const cxtype TMP2 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cxI * (P3[2]))) +
+                         F1[3] * (F2[4] * (P3[1] - cxI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
+    const cxtype TMP5 = (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cxI * (P3[2]))) +
+                         F1[5] * (F2[2] * (-P3[1] + cxI * (P3[2])) + F2[3] * (P3[0] + P3[3])));
+    const cxtype denom = one/((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * P3[3]) - M3 * (M3 - cxI * W3));
+    V3[2] = denom * (-two * cxI) *
       (COUP2 * (OM3 * - half * P3[0] * (TMP2 + two * (TMP5)) +
                 (+half * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] + F1[5] * F2[3])) +
        half * (COUP1 * (F1[2] * F2[4] + F1[3] * F2[5] - P3[0] * OM3 * TMP2)));
-    V3[3] = denom * (-two * cI) *
+    V3[3] = denom * (-two * cxI) *
       (COUP2 * (OM3 * - half * P3[1] * (TMP2 + two * (TMP5)) +
                 (-half * (F1[2] * F2[5] + F1[3] * F2[4]) + F1[4] * F2[3] + F1[5] * F2[2])) -
        half * (COUP1 * (F1[2] * F2[5] + F1[3] * F2[4] + P3[1] * OM3 * TMP2)));
-    V3[4] = denom * cI *
+    V3[4] = denom * cxI *
       (COUP2 * (OM3 * P3[2] * (TMP2 + two * (TMP5)) +
-                (+cI * (F1[2] * F2[5]) - cI * (F1[3] * F2[4]) - two * cI * (F1[4] * F2[3]) + two * cI * (F1[5] * F2[2]))) +
-       COUP1 * (+cI * (F1[2] * F2[5]) - cI * (F1[3] * F2[4]) + P3[2] * OM3 * TMP2));
-    V3[5] = denom * two * cI *
+                (+cxI * (F1[2] * F2[5]) - cxI * (F1[3] * F2[4]) - two * cxI * (F1[4] * F2[3]) + two * cxI * (F1[5] * F2[2]))) +
+       COUP1 * (+cxI * (F1[2] * F2[5]) - cxI * (F1[3] * F2[4]) + P3[2] * OM3 * TMP2));
+    V3[5] = denom * two * cxI *
       (COUP2 * (OM3 * half * P3[3] * (TMP2 + two * (TMP5)) +
                 (+half * (F1[2] * F2[4]) - half * (F1[3] * F2[5]) - F1[4] * F2[2] + F1[5] * F2[3])) +
        half * (COUP1 * (F1[2] * F2[4] + P3[3] * OM3 * TMP2 - F1[3] * F2[5])));
