@@ -60,7 +60,8 @@ std::map<unsigned int, ReferenceData> readReferenceData(const std::string& refFi
   return referenceData;
 }
 
-void MadgraphTestDouble::madgraphTestBody_eemumu()
+template<typename Fptype>
+void MadgraphTestFptype<Fptype>::madgraphTestBody_eemumu()
 {
   // Set to dump events:
   constexpr bool dumpEvents = false;
@@ -84,7 +85,7 @@ void MadgraphTestDouble::madgraphTestBody_eemumu()
 
   // Read reference data
   std::map<unsigned int, ReferenceData> referenceData = readReferenceData(refFileName);
-  ASSERT_FALSE(HasFailure()); // It doesn't make any sense to continue if we couldn't read the reference file.
+  ASSERT_FALSE(TestWithParamFptype::HasFailure()); // It doesn't make any sense to continue if we couldn't read the reference file.
 
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
@@ -98,7 +99,7 @@ void MadgraphTestDouble::madgraphTestBody_eemumu()
     testDriver->runSigmaKin(iiter);
 
     // --- Run checks on all events produced in this iteration
-    for (std::size_t ievt = 0; ievt < testDriver->nevt && !HasFailure(); ++ievt)
+    for (std::size_t ievt = 0; ievt < testDriver->nevt && !TestWithParamFptype::HasFailure(); ++ievt)
     {
       if (dumpEvents) {
         ASSERT_TRUE(dumpFile.is_open()) << dumpFileName;

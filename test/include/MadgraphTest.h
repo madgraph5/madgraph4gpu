@@ -88,13 +88,16 @@ class TestDriverBase {
 };
 
 // Test class that's using the driver to run the test(s) below.
-class MadgraphTestDouble : public testing::TestWithParam<std::function<TestDriverBase<double>*()>> {
+template<typename Fptype>
+class MadgraphTestFptype : public testing::TestWithParam<std::function<TestDriverBase<Fptype>*()>> {
 protected:
-  using Fptype = double;
   std::unique_ptr<TestDriverBase<Fptype>> testDriver;
+  using TestWithParamFptype = testing::TestWithParam<std::function<TestDriverBase<Fptype>*()>>;
 public:
-  MadgraphTestDouble() : TestWithParam(), testDriver{ GetParam()() } {}
+  MadgraphTestFptype() : TestWithParamFptype(), testDriver{ TestWithParamFptype::GetParam()() } {}
   void madgraphTestBody_eemumu();
 };
+
+typedef MadgraphTestFptype<double> MadgraphTestDouble;
 
 #endif /* MADGRAPHTEST_H_ */
