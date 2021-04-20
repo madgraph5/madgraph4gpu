@@ -98,6 +98,8 @@ public:
   void madgraphTestBody_eemumu();
 };
 
+typedef MadgraphTestFptype<float> MadgraphTestFloat;
+
 typedef MadgraphTestFptype<double> MadgraphTestDouble;
 
 #endif /* MADGRAPHTEST_H_ */

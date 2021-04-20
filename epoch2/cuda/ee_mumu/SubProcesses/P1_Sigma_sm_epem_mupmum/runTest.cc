@@ -231,7 +231,11 @@ MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU(MG_EPOCH_PROCESS_ID), MadgraphTestDou
 
 #else
 
-#warning runTest.cc has not been ported to single precision yet (issue #143)
+#ifdef __CUDACC__
+MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU(MG_EPOCH_PROCESS_ID), MadgraphTestFloat );
+#else
+MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU(MG_EPOCH_PROCESS_ID), MadgraphTestFloat );
+#endif
 
 #endif
 
