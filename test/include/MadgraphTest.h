@@ -94,6 +94,7 @@ protected:
   std::unique_ptr<TestDriverBase<Fptype>> testDriver;
 public:
   MadgraphTestDouble() : TestWithParam(), testDriver{ GetParam()() } {}
+  void madgraphTestBody_eemumu();
 };
 
 #endif /* MADGRAPHTEST_H_ */

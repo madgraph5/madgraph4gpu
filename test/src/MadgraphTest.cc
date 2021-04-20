@@ -60,8 +60,7 @@ std::map<unsigned int, ReferenceData> readReferenceData(const std::string& refFi
   return referenceData;
 }
 
-
-TEST_P(MadgraphTestDouble, eemumu)
+void MadgraphTestDouble::madgraphTestBody_eemumu()
 {
   // Set to dump events:
   constexpr bool dumpEvents = false;
@@ -156,5 +155,10 @@ TEST_P(MadgraphTestDouble, eemumu)
           toleranceMEs * referenceData[iiter].MEs[ievt]);
     }
   }
+}
+
+TEST_P(MadgraphTestDouble, eemumu)
+{
+  madgraphTestBody_eemumu();
 }
 
