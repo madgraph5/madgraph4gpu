@@ -65,9 +65,9 @@ TEST_P(MadgraphTestDouble, eemumu)
 {
   // Set to dump events:
   constexpr bool dumpEvents = false;
-  constexpr fptype toleranceMomenta = std::is_same<fptype, double>::value ? 5.E-12 : 1.E-5;
-  constexpr fptype toleranceMEs     = std::is_same<fptype, double>::value ? 1.E-6  : 1.E-5;
-  constexpr fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
+  constexpr Fptype toleranceMomenta = std::is_same<Fptype, double>::value ? 5.E-12 : 1.E-5;
+  constexpr Fptype toleranceMEs     = std::is_same<Fptype, double>::value ? 1.E-6  : 1.E-5;
+  constexpr Fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
 
   std::string dumpFileName = std::string("dump_")
       + testing::UnitTest::GetInstance()->current_test_info()->name()
@@ -86,7 +86,6 @@ TEST_P(MadgraphTestDouble, eemumu)
   // Read reference data
   std::map<unsigned int, ReferenceData> referenceData = readReferenceData(refFileName);
   ASSERT_FALSE(HasFailure()); // It doesn't make any sense to continue if we couldn't read the reference file.
-
 
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
@@ -113,23 +112,26 @@ TEST_P(MadgraphTestDouble, eemumu)
         continue;
       }
 
-
       // Check that we have the required reference data
-      ASSERT_GT(referenceData.size(), iiter) << "Don't have enough reference data for iteration " << iiter << ". Ref file:" << refFileName;
-      ASSERT_GT(referenceData[iiter].MEs.size(), ievt)     << "Don't have enough reference MEs for iteration " << iiter << " event " << ievt << ".\nRef file: " << refFileName;
-      ASSERT_GT(referenceData[iiter].momenta.size(), ievt) << "Don't have enough reference momenta for iteration " << iiter << " event " << ievt << ".\nRef file: " << refFileName;
-      ASSERT_GE(referenceData[iiter].momenta[ievt].size(), testDriver->nparticle) << "Don't have enough reference particles for iteration " << iiter << " event " << ievt << ".\nRef file: " << refFileName;
-
+      ASSERT_GT(referenceData.size(), iiter)
+        << "Don't have enough reference data for iteration " << iiter << ". Ref file:" << refFileName;
+      ASSERT_GT(referenceData[iiter].MEs.size(), ievt)
+        << "Don't have enough reference MEs for iteration " << iiter << " event " << ievt << ".\nRef file: " << refFileName;
+      ASSERT_GT(referenceData[iiter].momenta.size(), ievt)
+        << "Don't have enough reference momenta for iteration " << iiter << " event " << ievt << ".\nRef file: " << refFileName;
+      ASSERT_GE(referenceData[iiter].momenta[ievt].size(), testDriver->nparticle)
+        << "Don't have enough reference particles for iteration " << iiter << " event " << ievt << ".\nRef file: " << refFileName;
 
       // This trace will help to understand the event that is being checked.
       // It will only be printed in case of failures:
       std::stringstream eventTrace;
       eventTrace << "In comparing event " << ievt << " from iteration " << iiter << "\n";
       testDriver->dumpParticles(eventTrace, ievt, testDriver->nparticle, 15, referenceData[iiter]);
-      eventTrace << std::setw(4) << "ME"   << std::scientific << std::setw(15+8) << testDriver->getMatrixElement(ievt) << "\n"
-                 << std::setw(4) << "r.ME" << std::scientific << std::setw(15+8) << referenceData[iiter].MEs[ievt] << std::endl << std::defaultfloat;
+      eventTrace << std::setw(4) << "ME"   << std::scientific << std::setw(15+8)
+                 << testDriver->getMatrixElement(ievt) << "\n"
+                 << std::setw(4) << "r.ME" << std::scientific << std::setw(15+8)
+                 << referenceData[iiter].MEs[ievt] << std::endl << std::defaultfloat;
       SCOPED_TRACE(eventTrace.str());
-
 
       // Compare Momenta
       for (unsigned int ipar = 0; ipar < testDriver->nparticle; ++ipar) {
@@ -147,7 +149,6 @@ TEST_P(MadgraphTestDouble, eemumu)
         }
         ASSERT_TRUE(momentumErrors.str().empty()) << momentumErrors.str();
       }
-
 
       // Compare ME:
       EXPECT_NEAR(testDriver->getMatrixElement(ievt),

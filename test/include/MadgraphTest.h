@@ -32,10 +32,9 @@ std::map<unsigned int, ReferenceData> readReferenceData(const std::string& refFi
  *   <test code>
  * }
  */
-template<typename FpType>
+template<typename Fptype>
 class TestDriverBase {
  public:
-  using fptype = FpType;
   unsigned int nparticle = 4;
   static constexpr unsigned int np4 = 4;
   static constexpr unsigned int niter = 2;
@@ -46,23 +45,22 @@ class TestDriverBase {
   TestDriverBase() { }
   virtual ~TestDriverBase() { }
 
-
   // ------------------------------------------------
   // Interface for retrieving info from madgraph
   // ------------------------------------------------
-  virtual fptype getMomentum(std::size_t evtNo, unsigned int particleNo, unsigned int component) const = 0;
-  virtual fptype getMatrixElement(std::size_t evtNo) const = 0;
-
+  virtual Fptype getMomentum(std::size_t evtNo, unsigned int particleNo, unsigned int component) const = 0;
+  virtual Fptype getMatrixElement(std::size_t evtNo) const = 0;
 
   // ------------------------------------------------
   // Interface for steering madgraph run
   // ------------------------------------------------
   virtual void prepareRandomNumbers(unsigned int iiter) = 0;
-  virtual void prepareMomenta(fptype energy) = 0;
+  virtual void prepareMomenta(Fptype energy) = 0;
   virtual void runSigmaKin(std::size_t iiter) = 0;
 
   // Print the requested event into the stream. If the reference data has enough events, it will be printed as well.
-  void dumpParticles(std::ostream& stream, std::size_t ievt, unsigned int numParticles, unsigned int nDigit, const ReferenceData& referenceData)
+  void dumpParticles(std::ostream& stream, std::size_t ievt, unsigned int numParticles,
+                     unsigned int nDigit, const ReferenceData& referenceData)
   {
     const auto width = nDigit + 8;
     for (unsigned int ipar = 0; ipar < numParticles; ipar++)
@@ -89,22 +87,13 @@ class TestDriverBase {
   };
 };
 
-
 // Test class that's using the driver to run the test(s) below.
 class MadgraphTestDouble : public testing::TestWithParam<std::function<TestDriverBase<double>*()>> {
 protected:
-  using fptype = double;
-  using TestDriver_t = TestDriverBase<fptype>;
-  std::unique_ptr<TestDriverBase<fptype>> testDriver;
-
-
+  using Fptype = double;
+  std::unique_ptr<TestDriverBase<Fptype>> testDriver;
 public:
-  MadgraphTestDouble() :
-    TestWithParam(),
-    testDriver{ GetParam()() }
-  { }
+  MadgraphTestDouble() : TestWithParam(), testDriver{ GetParam()() } {}
 };
-
-
 
 #endif /* MADGRAPHTEST_H_ */
