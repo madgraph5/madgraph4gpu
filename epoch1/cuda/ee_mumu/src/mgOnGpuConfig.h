@@ -90,7 +90,7 @@ namespace mgOnGpu
   // --- The logic of the code requires the size neppV of fptype_v to be equal to neppM
   // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
   // -----------------------------------------------------------------------------------------
-#if defined __clang__ // CANNOT USE VECTOR COMPILER EXTENSIONS ON CLANG (YET?)
+#if defined __aclang__ // CANNOT USE VECTOR COMPILER EXTENSIONS ON CLANG (YET?)
 #undef MGONGPU_CPPSIMD
   const int neppM = 1;  // "none" i.e. no SIMD (*** NB: this is equivalent to AOS ***)
 #elif defined __AVX512VL__
