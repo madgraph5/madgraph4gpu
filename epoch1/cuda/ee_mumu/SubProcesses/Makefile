@@ -11,7 +11,7 @@ LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
 # AVX choice (example: "make AVX=none")
-ifneq ($(findstring clang++,$(CXX)),)
+ifeq ($(shell basename $(CXX)),clang++)
 override AVX = none
 $(warning Using AVX='$(AVX)' for clang builds)
 else ifneq ($(AVX),)
@@ -160,7 +160,7 @@ $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
 $(testmain): $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
 $(testmain): cxx_objects += $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o
 $(testmain): cu_objects  += $(BUILDDIR)/runTest_cu.o
-ifneq ($(findstring clang++,$(CXX)),)
+ifeq ($(shell basename $(CXX)),clang++)
 $(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(CXX))
 endif
 

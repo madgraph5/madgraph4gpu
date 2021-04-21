@@ -95,7 +95,7 @@ runTest.exe: LIBFLAGS += -L$(GTESTLIBDIR)/ -lgtest -lgtest_main
 runTest.exe: runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
 runTest.exe: cxx_objects += runTest.o $(TESTDIR)/src/MadgraphTest.o
 runTest.exe: cu_objects  += runTest_cu.o
-ifneq ($(findstring clang++,$(CXX)),)
+ifeq ($(shell basename $(CXX)),clang++)
 runTest.exe: LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(CXX))
 endif
 

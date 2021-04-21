@@ -8,7 +8,7 @@ LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
 # AVX choice (example: "make AVX=none")
-ifneq ($(findstring clang++,$(CXX)),)
+ifeq ($(shell basename $(CXX)),clang++)
 override AVX = none
 $(warning Using AVX='$(AVX)' for clang builds)
 else ifneq ($(AVX),)
