@@ -1153,11 +1153,13 @@ namespace Proc
 
 #ifndef __CUDACC__
     // +++ START LOOP ON IEVT +++
+#if not defined __clang__ or __clang_major__ < 11 // workaround for missing omp in clang11 (SPI-1875)
     // - default(none): No variables are shared by default
     // - shared(...): As the name says
     // - firstprivate: give each thread its own copy, and initialise with value from outside
     // This means that each thread computes its own good helicity states. Before, this was implicitly shared, i.e. race condition.
 #pragma omp parallel for default(none) shared(allmomenta, allMEs) firstprivate(sigmakin_itry, sigmakin_goodhel, nevt)
+#endif
     for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {

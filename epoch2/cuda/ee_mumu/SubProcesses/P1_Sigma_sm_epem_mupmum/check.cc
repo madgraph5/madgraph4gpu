@@ -6,9 +6,12 @@
 #include <iostream>
 #include <memory>
 #include <numeric>
-#include <omp.h>
 #include <string>
 #include <unistd.h>
+
+#if not defined __clang__ or __clang_major__ < 11 // workaround for missing omp in clang11 (SPI-1875)
+#include <omp.h>
+#endif
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
@@ -95,8 +98,10 @@ int usage(char* argv0, int ret = 1) {
   std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
   std::cout << "The '-d' flag only enables NaN/abnormal warnings and OMP debugging" << std::endl;
 #ifndef __CUDACC__
+#if not defined __clang__ or __clang_major__ < 11 // workaround for missing omp in clang11 (SPI-1875)
   std::cout << std::endl << "Use the OMP_NUM_THREADS environment variable to control OMP multi-threading" << std::endl;
   std::cout << "(OMP multithreading will be disabled if OMP_NUM_THREADS is not set)" << std::endl;
+#endif
 #endif
   return ret;
 }
@@ -203,6 +208,7 @@ int main(int argc, char **argv)
   }
 
 #ifndef __CUDACC__
+#if not defined __clang__ or __clang_major__ < 11 // workaround for missing omp in clang11 (SPI-1875)
   // Set OMP_NUM_THREADS equal to 1 if it is not yet set
   char* ompnthr = getenv( "OMP_NUM_THREADS" );
   if ( debug )
@@ -219,6 +225,7 @@ int main(int argc, char **argv)
     if ( debug ) std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
     if ( debug ) std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
   }
+#endif
 #endif
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
@@ -713,7 +720,9 @@ int main(int argc, char **argv)
 #else
               << "Random number generation    = CURAND (C++ code)" << std::endl
 #endif
+#if not defined __clang__ or __clang_major__ < 11 // workaround for missing omp in clang11 (SPI-1875)
               << "OMP threads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
+#endif
 #endif
               << "MatrixElements compiler     = " << process.getCompiler() << std::endl
               << "-----------------------------------------------------------------------" << std::endl
