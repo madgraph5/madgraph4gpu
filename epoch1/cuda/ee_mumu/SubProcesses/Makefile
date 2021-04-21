@@ -124,7 +124,7 @@ debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
 
-$(LIBDIR)/lib$(MODELLIB).a:
+$(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src AVX=$(AVX) $(MAKEDEBUG)
 
 $(BUILDDIR)/gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
