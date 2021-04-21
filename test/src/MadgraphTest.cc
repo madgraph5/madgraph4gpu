@@ -65,7 +65,7 @@ void MadgraphTestFptype<Fptype>::madgraphTestBody_eemumu()
 {
   // Set to dump events:
   constexpr bool dumpEvents = false;
-  constexpr Fptype toleranceMomenta = std::is_same<Fptype, double>::value ? 5.E-12 : 3.E-2;
+  constexpr Fptype toleranceMomenta = std::is_same<Fptype, double>::value ? 5.E-11 : 3.E-2;
   constexpr Fptype toleranceMEs     = std::is_same<Fptype, double>::value ? 1.E-6  : 1.E-3;
   constexpr Fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
 
