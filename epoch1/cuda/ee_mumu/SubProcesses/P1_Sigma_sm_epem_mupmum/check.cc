@@ -9,7 +9,7 @@
 #include <string>
 #include <unistd.h>
 
-#if not defined __clang__ or __clang_major__ < 11 // workaround for missing omp in clang11 (SPI-1875)
+#ifdef _OPENMP
 #include <omp.h>
 #endif
 
@@ -98,7 +98,7 @@ int usage(char* argv0, int ret = 1) {
   std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
   std::cout << "The '-d' flag only enables NaN/abnormal warnings and OMP debugging" << std::endl;
 #ifndef __CUDACC__
-#if not defined __clang__ or __clang_major__ < 11 // workaround for missing omp in clang11 (SPI-1875)
+#ifdef _OPENMP
   std::cout << std::endl << "Use the OMP_NUM_THREADS environment variable to control OMP multi-threading" << std::endl;
   std::cout << "(OMP multithreading will be disabled if OMP_NUM_THREADS is not set)" << std::endl;
 #endif
@@ -208,7 +208,7 @@ int main(int argc, char **argv)
   }
 
 #ifndef __CUDACC__
-#if not defined __clang__ or __clang_major__ < 11 // workaround for missing omp in clang11 (SPI-1875)
+#ifdef _OPENMP
   // Set OMP_NUM_THREADS equal to 1 if it is not yet set
   char* ompnthr = getenv( "OMP_NUM_THREADS" );
   if ( debug )
@@ -720,7 +720,7 @@ int main(int argc, char **argv)
 #else
               << "Random number generation    = CURAND (C++ code)" << std::endl
 #endif
-#if not defined __clang__ or __clang_major__ < 11 // workaround for missing omp in clang11 (SPI-1875)
+#ifdef _OPENMP
               << "OMP threads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
 #endif
 #endif
