@@ -18,6 +18,7 @@ exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mup
 exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
 
 for exe in $exes; do
+  if [ ! -f $exe ]; then continue; fi
   echo "-------------------------------------------------------------------------"
   unset OMP_NUM_THREADS
   # For TIMEFORMAT see https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
