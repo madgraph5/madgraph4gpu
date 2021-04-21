@@ -83,8 +83,8 @@ all.$(TAG): checktag $(target)
 
 checktag:
 	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
-	@echo $(TAG) > $(BUILDDIR)/build.tag_new
-	@if [ ! -e $(BUILDDIR)/build.tag ]; then mv -f $(BUILDDIR)/build.tag_new $(BUILDDIR)/build.tag; elif ! cmp -s $(BUILDDIR)/build.tag_new $(BUILDDIR)/build.tag; then echo -e "Cannot build for tag=$(TAG) as old build exists for tag=`cat $(BUILDDIR)/build.tag`\nPlease run 'make clean' first"; exit 1; fi
+	@echo $(TAG) > $(BUILDDIR)/.build.tag_new
+	@if [ ! -e $(BUILDDIR)/.build.tag ]; then mv -f $(BUILDDIR)/.build.tag_new $(BUILDDIR)/.build.tag; elif ! cmp -s $(BUILDDIR)/.build.tag_new $(BUILDDIR)/.build.tag; then echo -e "Cannot build for tag=$(TAG) as old build exists for tag=`cat $(BUILDDIR)/.build.tag`\nPlease run 'make clean' first"; exit 1; fi
 
 debug: OPTFLAGS = -g -O0 -DDEBUG2
 #debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
@@ -108,7 +108,7 @@ $(target): $(cxx_objects) #$(cu_objects)
 .PHONY: clean
 
 clean:
-	rm -f $(BUILDDIR)/build.tag $(BUILDDIR)/build.tag_new
+	rm -f $(BUILDDIR)/.build.tag $(BUILDDIR)/.build.tag_new
 ifneq ($(BUILDDIR),.)
 	rm -rf $(LIBDIR) $(BUILDDIR)
 else
