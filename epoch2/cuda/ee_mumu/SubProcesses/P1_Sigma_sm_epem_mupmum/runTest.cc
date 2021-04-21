@@ -60,8 +60,8 @@ struct CPUTest : public CUDA_CPU_TestBase {
   virtual ~CPUTest() { }
 
   void prepareRandomNumbers(unsigned int iiter) override {
-    std::vector<fptype> rnd = CommonRandomNumbers::generate<fptype>(nRnarray, 1337 + iiter);
-    std::copy(rnd.begin(), rnd.end(), hstRnarray.get());
+    std::vector<double> rnd = CommonRandomNumbers::generate<double>(nRnarray, 1337 + iiter); // NB: HARDCODED DOUBLE!
+    std::copy(rnd.begin(), rnd.end(), hstRnarray.get()); // NB: this may imply a conversion from double to float
   }
 
   void prepareMomenta(fptype energy) override {
@@ -135,8 +135,8 @@ struct CUDATest : public CUDA_CPU_TestBase {
   virtual ~CUDATest() { }
 
   void prepareRandomNumbers(unsigned int iiter) override {
-    std::vector<fptype> rnd = CommonRandomNumbers::generate<fptype>(nRnarray, 1337 + iiter);
-    std::copy(rnd.begin(), rnd.end(), hstRnarray.get());
+    std::vector<double> rnd = CommonRandomNumbers::generate<double>(nRnarray, 1337 + iiter); // NB: HARDCODED DOUBLE!
+    std::copy(rnd.begin(), rnd.end(), hstRnarray.get()); // NB: this may imply a conversion from double to float
     checkCuda( cudaMemcpy( devRnarray.get(), hstRnarray.get(),
                            nRnarray * sizeof(decltype(devRnarray)::element_type), cudaMemcpyHostToDevice ) );
   }
