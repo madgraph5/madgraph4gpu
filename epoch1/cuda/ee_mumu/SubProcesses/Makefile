@@ -125,7 +125,6 @@ debug: MAKEDEBUG := debug
 debug: all.$(TAG)
 
 ../../src/$(BUILDDIR)/.build.tag_$(TAG):
-	echo $@
 	$(MAKE) -C ../../src AVX=$(AVX) $(MAKEDEBUG)
 
 $(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
