@@ -69,7 +69,7 @@ debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all
 
-$(LIBDIR)/lib$(MODELLIB).a:
+$(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
 gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu

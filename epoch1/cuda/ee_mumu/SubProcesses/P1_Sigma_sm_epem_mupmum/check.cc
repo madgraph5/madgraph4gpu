@@ -245,9 +245,9 @@ int check
   // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the requested AVX
   // [NB: this prevents a crash on pmpe04 but not on some github CI nodes]
   auto supportsAvx = [](){
-#if defined __AVX512F__
-    bool ok = __builtin_cpu_supports( "avx512f" );
-    const std::string avxtag = "skylake-avx512 (AVX512F)";
+#if defined __AVX512VL__
+    bool ok = __builtin_cpu_supports( "avx512vl" );
+    const std::string avxtag = "skylake-avx512 (AVX512VL)";
 #elif defined __AVX2__
     bool ok = __builtin_cpu_supports( "avx2" );
     const std::string avxtag = "haswell (AVX2)";
@@ -725,7 +725,7 @@ int check
   if (perf)
   {
     // Dump all configuration parameters and all results
-    outStream << "***********************************************************************" << std::endl
+    outStream << "***************************************************************************" << std::endl
 #ifdef __CUDACC__
               << tag << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CUDA" << std::endl
 #else
@@ -734,7 +734,7 @@ int check
               << tag << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << tag << "NumThreadsPerBlock          = " << gputhreads << std::endl
               << tag << "NumIterations               = " << niter << std::endl
-              << "-----------------------------------------------------------------------" << std::endl
+              << "---------------------------------------------------------------------------" << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
               << tag << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << " )" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
@@ -757,14 +757,18 @@ int check
 #ifdef __CUDACC__
       //<< "Wavefunction GPU memory     = LOCAL" << std::endl
 #else
-#if defined __AVX512F__
-              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (AVX512F)" << std:: endl
+#if !defined MGONGPU_CPPSIMD
+              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('none': scalar, no SIMD)" << std::endl
+#elif defined __AVX512VL__
+#ifdef MGONGPU_PVW512
+              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('512z': AVX512, 512 vector width)" << std::endl
+#else
+              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('512y': AVX512, 256 vector width)" << std::endl
+#endif
 #elif defined __AVX2__
-              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (AVX2)" << std:: endl
+              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('avx2': AVX2, 256 vector width)" << std::endl
 #elif defined __SSE4_2__
-              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV << "] (SSE4.2)" << std:: endl
-#elif !defined MGONGPU_CPPSIMD
-              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV << "] == SCALAR (no SIMD)" << std:: endl
+              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('sse4': SSE4.2, 128 vector width)" << std::endl
 #else
 #error Internal error: unknown SIMD build configuration
 #endif
@@ -784,7 +788,6 @@ int check
               << tag << "Random number generation    = CURAND (C++ code)" << std::endl
 #endif
 #endif
-
 #ifdef __CUDACC__
               << tag << "Wavefunction GPU memory     = LOCAL" << std::endl
 #else
@@ -820,7 +823,7 @@ int check
               << tag << "EvtsPerSec[MatrixElems] (3) = ( " << nevtALL/sumwtim
               << std::string(16, ' ') << " )  sec^-1" << std::endl
               << std::defaultfloat; // default format: affects all floats
-    outStream << "***********************************************************************" << std::endl
+    outStream << "***************************************************************************" << std::endl
               << tag << "NumMatrixElems(notAbnormal) = " << nevtALL - nabn << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
               << tag << "MeanMatrixElemValue         = ( " << meanelem

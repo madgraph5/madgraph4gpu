@@ -141,10 +141,10 @@ inline void print( const cxtype_v& v ) { std::cout << v << std::endl; }
 // Operators for fptype_v
 #ifdef MGONGPU_CPPSIMD
 inline
-fptype_v sqrt( const fptype_v& v )
+fptype_v fpsqrt( const fptype_v& v )
 {
   fptype_v out;
-  for ( int i=0; i<neppV; i++ ) out[i]=sqrt(v[i]);
+  for ( int i=0; i<neppV; i++ ) out[i]=fpsqrt(v[i]);
   return out;
 }
 

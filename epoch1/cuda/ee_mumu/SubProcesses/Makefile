@@ -16,25 +16,28 @@ override AVX = none
 $(warning Using AVX='$(AVX)' for clang builds)
 else ifneq ($(AVX),)
 ###$(info Using AVX='$(AVX)' according to user input)
-else ifneq ($(shell grep -c avx512f /proc/cpuinfo),0)
-override AVX = avx512
+else ifneq ($(shell grep -c avx512vl /proc/cpuinfo),0)
+override AVX = 512y
 ###$(info Using AVX='$(AVX)' as no user input exists)
 else
 override AVX = avx2
-$(warning Using AVX='$(AVX)' as no user input exists and host does not support avx512f)
+$(warning Using AVX='$(AVX)' as no user input exists and host does not support avx512vl)
 endif
 ###$(info AVX=$(AVX))
 
 # Set the build flags appropriate to each AVX
-ifeq ($(AVX),sse42)
-override AVXFLAGS = -march=nehalem # SSE4.2
+# [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
+# [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
+ifeq ($(AVX),sse4)
+override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
 else ifeq ($(AVX),avx2)
-override AVXFLAGS = -march=haswell # AVX2 (was -march=core-avx2 in previous versions of gcc)
-else ifeq ($(AVX),avx512)
-# NB: -mprefer-vector-width=256 is not needed (fptype_v assumes 256 anyway) but is a safer option
-override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512F with 256 width (DEFAULT!)
+override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers)
+else ifeq ($(AVX),512y)
+override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT!]
+else ifeq ($(AVX),512z)
+override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
 else ifneq ($(AVX),none)
-$(error Unknown AVX='$(AVX)': only 'sse42', 'avx2', 'avx512' and 'none' are supported)
+$(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
 endif
 
 # For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations
@@ -122,7 +125,7 @@ debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
 
-$(LIBDIR)/lib$(MODELLIB).a:
+$(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src AVX=$(AVX) $(MAKEDEBUG)
 
 $(BUILDDIR)/gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
@@ -202,11 +205,13 @@ avxall:
 	@echo
 	make USEBUILDDIR=1 AVX=none
 	@echo
-	make USEBUILDDIR=1 AVX=sse42
+	make USEBUILDDIR=1 AVX=sse4
 	@echo
 	make USEBUILDDIR=1 AVX=avx2
 	@echo
-	make USEBUILDDIR=1 AVX=avx512
+	make USEBUILDDIR=1 AVX=512y
+	@echo
+	make USEBUILDDIR=1 AVX=512z
 
 cleanall:
 	@echo
@@ -214,11 +219,13 @@ cleanall:
 	@echo
 	make USEBUILDDIR=1 AVX=none clean; make -C ../../src USEBUILDDIR=1 AVX=none clean
 	@echo
-	make USEBUILDDIR=1 AVX=sse42 clean; make -C ../../src USEBUILDDIR=1 AVX=sse42 clean
+	make USEBUILDDIR=1 AVX=sse4 clean; make -C ../../src USEBUILDDIR=1 AVX=sse4 clean
 	@echo
 	make USEBUILDDIR=1 AVX=avx2 clean; make -C ../../src USEBUILDDIR=1 AVX=avx2 clean
 	@echo
-	make USEBUILDDIR=1 AVX=avx512 clean; make -C ../../src USEBUILDDIR=1 AVX=avx512 clean
+	make USEBUILDDIR=1 AVX=512y clean; make -C ../../src USEBUILDDIR=1 AVX=512y clean
+	@echo
+	make USEBUILDDIR=1 AVX=512z clean; make -C ../../src USEBUILDDIR=1 AVX=512z clean
 
 distclean: cleanall
 	make -C $(TOOLSDIR) clean
