@@ -239,3 +239,11 @@ MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU(MG_EPOCH_PROCESS_ID), MadgraphTestFlo
 
 #endif
 
+// Add a dummy test just to check the linking (related to issue #143)
+/*
+#ifdef __CUDACC__
+TEST( XTESTID_GPU(MG_EPOCH_PROCESS_ID), dummy ){}
+#else
+TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), dummy ){}
+#endif
+*/
