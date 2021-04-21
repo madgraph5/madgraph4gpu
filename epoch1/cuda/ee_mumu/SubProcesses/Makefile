@@ -11,7 +11,7 @@ LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
 # AVX choice (example: "make AVX=none")
-ifneq ($(findstring clang++,$(CXX)),)
+ifeq ($(shell basename $(CXX)),aclang++)
 override AVX = none
 $(warning Using AVX='$(AVX)' for clang builds)
 else ifneq ($(AVX),)
@@ -111,20 +111,23 @@ ifeq ($(UNAME_P),ppc64le)
     CUFLAGS+= -Xcompiler -mno-float128
 endif
 
-all.$(TAG): $(BUILDDIR)/build.tag_$(TAG) ../../src $(cu_main) $(cxx_main) $(testmain)
+all.$(TAG): ../../src/$(BUILDDIR)/.build.tag_$(TAG) $(BUILDDIR)/.build.tag_$(TAG) $(cu_main) $(cxx_main) $(testmain)
 
-override oldtags=`find $(BUILDDIR) -maxdepth 1 -name 'build.tag_*' ! -name 'build.tag_$(TAG)'`
-$(BUILDDIR)/build.tag_$(TAG):
+override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.tag_*' ! -name '.build.tag_$(TAG)'`
+$(BUILDDIR)/.build.tag_$(TAG):
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir $(BUILDDIR)"; mkdir $(BUILDDIR); fi
 	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first or consider using 'make USEBUILDDIR=1 AVX=$(AVX)'"; exit 1; fi
-	@touch $(BUILDDIR)/build.tag_$(TAG)
+	@touch $(BUILDDIR)/.build.tag_$(TAG)
 
 debug: OPTFLAGS   = -g -O0 -DDEBUG2
 debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
 
-$(LIBDIR)/lib$(MODELLIB).a:
+../../src/$(BUILDDIR)/.build.tag_$(TAG):
+	$(MAKE) -C ../../src AVX=$(AVX) $(MAKEDEBUG)
+
+$(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src AVX=$(AVX) $(MAKEDEBUG)
 
 $(BUILDDIR)/gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
@@ -157,7 +160,7 @@ $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
 $(testmain): $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
 $(testmain): cxx_objects += $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o
 $(testmain): cu_objects  += $(BUILDDIR)/runTest_cu.o
-ifneq ($(findstring clang++,$(CXX)),)
+ifeq ($(shell basename $(CXX)),clang++)
 $(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(CXX))
 endif
 
@@ -172,6 +175,7 @@ $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
 # Link both runTest.o and runTest_cu.o
+# (todo? avoid multiple targets and '&', this needs the latest make 4.3, see https://stackoverflow.com/a/60232515)
 $(testmain) $(BUILDDIR)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
 	$(NVCC) -o $(BUILDDIR)/runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
@@ -187,7 +191,7 @@ check: $(testmain)
 
 clean:
 	make -C ../../src AVX=$(AVX) clean
-	rm -f $(BUILDDIR)/build.tag*
+	rm -f $(BUILDDIR)/.build.tag*
 ifneq ($(BUILDDIR),.)
 	rm -rf $(BUILDDIR)
 else

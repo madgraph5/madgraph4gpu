@@ -14,16 +14,14 @@
 #include "rambo.h"
 #endif
 
-
-
-
 struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
+
   static_assert( gputhreads%mgOnGpu::neppR == 0, "ERROR! #threads/block should be a multiple of neppR" );
   static_assert( gputhreads%mgOnGpu::neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
   static_assert( gputhreads <= mgOnGpu::ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
 
-  const std::size_t nRnarray{ mgOnGpu::np4 * mgOnGpu::nparf * nevt }; // (NB: ASA layout with nevt=npagR*neppR events per iteration)
-  const std::size_t nMomenta{ mgOnGpu::np4 * mgOnGpu::npar  * nevt }; // (NB: nevt=npagM*neppM for ASA layouts)
+  const std::size_t nRnarray{ mgOnGpu::np4 * mgOnGpu::nparf * nevt }; // AOSOA layout with nevt=npagR*neppR events per iteration
+  const std::size_t nMomenta{ mgOnGpu::np4 * mgOnGpu::npar  * nevt }; // AOSOA layout with nevt=npagM*neppM events per iteration
   const std::size_t nWeights{ nevt };
   const std::size_t nMEs    { nevt };
 
@@ -35,15 +33,15 @@ struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
 
 };
 
-
 #ifndef __CUDACC__
 struct CPUTest : public CUDA_CPU_TestBase {
+
   Proc::CPPProcess process;
 
   // --- 0b. Allocate memory structures
   // Memory structures for random numbers, momenta, matrix elements and weights on host and device
-  unique_ptr_host<fptype> hstRnarray  { hstMakeUnique<fptype>( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-  unique_ptr_host<fptype> hstMomenta  { hstMakeUnique<fptype>( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
+  unique_ptr_host<fptype> hstRnarray  { hstMakeUnique<fptype>( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR] (nevt=npagR*neppR)
+  unique_ptr_host<fptype> hstMomenta  { hstMakeUnique<fptype>( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM] (nevt=npagM*neppM)
   unique_ptr_host<bool  > hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) };
   unique_ptr_host<fptype> hstWeights  { hstMakeUnique<fptype>( nWeights ) };
   unique_ptr_host<fptype> hstMEs      { hstMakeUnique<fptype>( nMEs ) };
@@ -61,47 +59,43 @@ struct CPUTest : public CUDA_CPU_TestBase {
   }
   virtual ~CPUTest() { }
 
-
   void prepareRandomNumbers(unsigned int iiter) override {
-    std::vector<fptype> rnd = CommonRandomNumbers::generate<fptype>(nRnarray, 1337 + iiter);
-    std::copy(rnd.begin(), rnd.end(), hstRnarray.get());
+    std::vector<double> rnd = CommonRandomNumbers::generate<double>(nRnarray, 1337 + iiter); // NB: HARDCODED DOUBLE!
+    std::copy(rnd.begin(), rnd.end(), hstRnarray.get()); // NB: this may imply a conversion from double to float
   }
-
 
   void prepareMomenta(fptype energy) override {
     // --- 2a. Fill in momenta of initial state particles on the device
     rambo2toNm0::getMomentaInitial( energy, hstMomenta.get(), nevt );
-
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
     // (i.e. map random numbers to final-state particle momenta for each of nevt events)
     rambo2toNm0::getMomentaFinal( energy, hstRnarray.get(), hstMomenta.get(), hstWeights.get(), nevt );
   }
-
 
   void runSigmaKin(std::size_t /*iiter*/) override {
     // --- 3a. SigmaKin
     Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), nevt);
   }
 
-
-
   fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
     assert(component < mgOnGpu::np4);
     assert(particle  < mgOnGpu::npar);
     const auto page  = evtNo / mgOnGpu::neppM; // #eventpage in this iteration
     const auto ieppM = evtNo % mgOnGpu::neppM; // #event in the current eventpage in this iteration
-    return hstMomenta[page * mgOnGpu::npar*mgOnGpu::np4*mgOnGpu::neppM + particle * mgOnGpu::neppM*mgOnGpu::np4 + component * mgOnGpu::neppM + ieppM];
+    return hstMomenta[page * mgOnGpu::npar*mgOnGpu::np4*mgOnGpu::neppM +
+                      particle * mgOnGpu::neppM*mgOnGpu::np4 + component * mgOnGpu::neppM + ieppM];
   };
 
   fptype getMatrixElement(std::size_t evtNo) const override {
     return hstMEs[evtNo];
   }
+
 };
 #endif
 
-
 #ifdef __CUDACC__
 struct CUDATest : public CUDA_CPU_TestBase {
+
   // Reset the device when our test goes out of scope. Note that this should happen after
   // the frees, i.e. be declared before the pointers to device memory.
   struct DeviceReset {
@@ -112,18 +106,17 @@ struct CUDATest : public CUDA_CPU_TestBase {
 
   // --- 0b. Allocate memory structures
   // Memory structures for random numbers, momenta, matrix elements and weights on host and device
-  unique_ptr_host<fptype> hstRnarray  { hstMakeUnique<fptype>( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-  unique_ptr_host<fptype> hstMomenta  { hstMakeUnique<fptype>( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
+  unique_ptr_host<fptype> hstRnarray  { hstMakeUnique<fptype>( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR] (nevt=npagR*neppR)
+  unique_ptr_host<fptype> hstMomenta  { hstMakeUnique<fptype>( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM] (nevt=npagM*neppM)
   unique_ptr_host<bool  > hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) };
   unique_ptr_host<fptype> hstWeights  { hstMakeUnique<fptype>( nWeights ) };
   unique_ptr_host<fptype> hstMEs      { hstMakeUnique<fptype>( nMEs ) };
 
-
-  unique_ptr_dev<fptype> devRnarray  { devMakeUnique<fptype>( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-  unique_ptr_dev<fptype> devMomenta  { devMakeUnique<fptype>( nMomenta ) }; // (previously was: allMomenta)
+  unique_ptr_dev<fptype> devRnarray  { devMakeUnique<fptype>( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR] (nevt=npagR*neppR)
+  unique_ptr_dev<fptype> devMomenta  { devMakeUnique<fptype>( nMomenta ) };
   unique_ptr_dev<bool  > devIsGoodHel{ devMakeUnique<bool  >( mgOnGpu::ncomb ) };
-  unique_ptr_dev<fptype> devWeights  { devMakeUnique<fptype>( nWeights ) }; // (previously was: meDevPtr)
-  unique_ptr_dev<fptype> devMEs      { devMakeUnique<fptype>( nMEs )     }; // (previously was: meDevPtr)
+  unique_ptr_dev<fptype> devWeights  { devMakeUnique<fptype>( nWeights ) };
+  unique_ptr_dev<fptype> devMEs      { devMakeUnique<fptype>( nMEs )     };
 
   gProc::CPPProcess process;
 
@@ -138,31 +131,29 @@ struct CUDATest : public CUDA_CPU_TestBase {
   {
     process.initProc("../../Cards/param_card.dat");
   }
+
   virtual ~CUDATest() { }
 
-
   void prepareRandomNumbers(unsigned int iiter) override {
-    std::vector<fptype> rnd = CommonRandomNumbers::generate<fptype>(nRnarray, 1337 + iiter);
-    std::copy(rnd.begin(), rnd.end(), hstRnarray.get());
-    checkCuda( cudaMemcpy( devRnarray.get(), hstRnarray.get(), nRnarray * sizeof(decltype(devRnarray)::element_type), cudaMemcpyHostToDevice ) );
+    std::vector<double> rnd = CommonRandomNumbers::generate<double>(nRnarray, 1337 + iiter); // NB: HARDCODED DOUBLE!
+    std::copy(rnd.begin(), rnd.end(), hstRnarray.get()); // NB: this may imply a conversion from double to float
+    checkCuda( cudaMemcpy( devRnarray.get(), hstRnarray.get(),
+                           nRnarray * sizeof(decltype(devRnarray)::element_type), cudaMemcpyHostToDevice ) );
   }
-
 
   void prepareMomenta(fptype energy) override {
     // --- 2a. Fill in momenta of initial state particles on the device
     grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta.get() );
-
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
     // (i.e. map random numbers to final-state particle momenta for each of nevt events)
     grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.get(), devMomenta.get(), devWeights.get() );
-
     // --- 2c. CopyDToH Weights
-    checkCuda( cudaMemcpy( hstWeights.get(), devWeights.get(), nWeights * sizeof(decltype(hstWeights)::element_type), cudaMemcpyDeviceToHost ) );
-
+    checkCuda( cudaMemcpy( hstWeights.get(), devWeights.get(),
+                           nWeights * sizeof(decltype(hstWeights)::element_type), cudaMemcpyDeviceToHost ) );
     // --- 2d. CopyDToH Momenta
-    checkCuda( cudaMemcpy( hstMomenta.get(), devMomenta.get(), nMomenta * sizeof(decltype(hstMomenta)::element_type), cudaMemcpyDeviceToHost ) );
+    checkCuda( cudaMemcpy( hstMomenta.get(), devMomenta.get(),
+                           nMomenta * sizeof(decltype(hstMomenta)::element_type), cudaMemcpyDeviceToHost ) );
   }
-
 
   void runSigmaKin(std::size_t iiter) override {
     // --- 0d. SGoodHel
@@ -172,7 +163,8 @@ struct CUDATest : public CUDA_CPU_TestBase {
       gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.get(), devIsGoodHel.get());
       checkCuda( cudaPeekAtLastError() );
       // ... 0d2. Copy back good helicity mask to the host
-      checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(), mgOnGpu::ncomb * sizeof(decltype(hstIsGoodHel)::element_type), cudaMemcpyDeviceToHost ) );
+      checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(),
+                             mgOnGpu::ncomb * sizeof(decltype(hstIsGoodHel)::element_type), cudaMemcpyDeviceToHost ) );
       // ... 0d3. Copy back good helicity list to constant memory on the device
       gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
     }
@@ -189,21 +181,21 @@ struct CUDATest : public CUDA_CPU_TestBase {
     checkCuda( cudaMemcpy( hstMEs.get(), devMEs.get(), nMEs * sizeof(decltype(hstMEs)::element_type), cudaMemcpyDeviceToHost ) );
   }
 
-
   fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
     assert(component < mgOnGpu::np4);
     assert(particle  < mgOnGpu::npar);
     const auto page  = evtNo / mgOnGpu::neppM; // #eventpage in this iteration
     const auto ieppM = evtNo % mgOnGpu::neppM; // #event in the current eventpage in this iteration
-    return hstMomenta[page * mgOnGpu::npar*mgOnGpu::np4*mgOnGpu::neppM + particle * mgOnGpu::neppM*mgOnGpu::np4 + component * mgOnGpu::neppM + ieppM];
+    return hstMomenta[page * mgOnGpu::npar*mgOnGpu::np4*mgOnGpu::neppM +
+                      particle * mgOnGpu::neppM*mgOnGpu::np4 + component * mgOnGpu::neppM + ieppM];
   };
 
   fptype getMatrixElement(std::size_t evtNo) const override {
     return hstMEs[evtNo];
   }
+
 };
 #endif
-
 
 // Use two levels of macros to force stringification at the right level
 // (see https://gcc.gnu.org/onlinedocs/gcc-3.0.1/cpp_3.html#SEC17 and https://stackoverflow.com/a/3419392)
@@ -231,7 +223,19 @@ MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU(MG_EPOCH_PROCESS_ID), MadgraphTestDou
 
 #else
 
-#warning runTest.cc has not been ported to single precision yet (issue #143)
+#ifdef __CUDACC__
+MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU(MG_EPOCH_PROCESS_ID), MadgraphTestFloat );
+#else
+MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU(MG_EPOCH_PROCESS_ID), MadgraphTestFloat );
+#endif
 
 #endif
 
+// Add a dummy test just to check the linking (related to issue #143)
+/*
+#ifdef __CUDACC__
+TEST( XTESTID_GPU(MG_EPOCH_PROCESS_ID), dummy ){}
+#else
+TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), dummy ){}
+#endif
+*/

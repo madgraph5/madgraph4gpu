@@ -58,18 +58,18 @@ namespace MG5_sm
       const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-      //const fptype pvec0 = sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ); // AV: BUG?! (NOT AS IN THE FORTRAN)
+      //const fptype pvec0 = fpsqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ); // AV: BUG?! (NOT AS IN THE FORTRAN)
       const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt ); // AV: BUG FIX (DO AS IN THE FORTRAN)
       fi[0] = cxmake( -pvec0 * nsf, -pvec3 * nsf );
       fi[1] = cxmake( -pvec1 * nsf, -pvec2 * nsf );
       const int nh = nhel * nsf;
       if ( fmass != 0. )
       {
-        const fptype pp = fpmin( pvec0, sqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ) );
+        const fptype pp = fpmin( pvec0, fpsqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ) );
         if ( pp == 0. )
         {
           // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs! 
-          fptype sqm[2] = { sqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
+          fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
           //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
           sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
           const int ip = ( 1 + nh ) / 2; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
@@ -81,18 +81,18 @@ namespace MG5_sm
         }
         else
         {
-          const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * 0.5,
-                                 fptype( 1 + nsf - ( 1 - nsf ) * nh ) * 0.5 };
-          fptype omega[2] = { sqrt( pvec0 + pp ), 0. };
+          const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * (fptype)0.5,
+                                 fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
+          fptype omega[2] = { fpsqrt( pvec0 + pp ), 0. };
           omega[1] = fmass / omega[0];
           const int ip = ( 1 + nh ) / 2; // NB: Fortran is (3+nh)/2 because omega(2) has indexes 1,2 and not 0,1
           const int im = ( 1 - nh ) / 2; // NB: Fortran is (3-nh)/2 because omega(2) has indexes 1,2 and not 0,1
           const fptype sfomega[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
           const fptype pp3 = fpmax( pp + pvec3, 0. );
-          const cxtype chi[2] = { cxmake( sqrt ( pp3 * 0.5 / pp ), 0. ),
+          const cxtype chi[2] = { cxmake( fpsqrt ( pp3 * (fptype)0.5 / pp ), 0. ),
                                   ( pp3 == 0. ?
                                     cxmake( -nh, 0. ) :
-                                    cxmake( nh * pvec1, pvec2 ) / sqrt( 2. * pp * pp3 ) ) };
+                                    cxmake( nh * pvec1, pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) };
           fi[2] = sfomega[0] * chi[im];
           fi[3] = sfomega[0] * chi[ip];
           fi[4] = sfomega[1] * chi[im];
@@ -102,9 +102,9 @@ namespace MG5_sm
       else
       {
         const fptype sqp0p3 = ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0. ?
-                                0. : sqrt( fpmax( pvec0 + pvec3, 0. ) ) * nsf );
+                                0. : fpsqrt( fpmax( pvec0 + pvec3, 0. ) ) * nsf );
         const cxtype chi[2] = { cxmake( sqp0p3, 0. ), ( sqp0p3 == 0. ?
-                                                        cxmake( -nhel * sqrt( 2. * pvec0 ), 0. ) :
+                                                        cxmake( -nhel * fpsqrt( 2. * pvec0 ), 0. ) :
                                                         cxmake( nh * pvec1, pvec2 ) / sqp0p3 ) };
         if ( nh == 1 )
         {
@@ -152,7 +152,7 @@ namespace MG5_sm
       fi[0] = cxmake( -pvec3 * nsf, -pvec3 * nsf );
       fi[1] = cxmake( 0., 0. );
       const int nh = nhel * nsf;
-      const cxtype sqp0p3 = cxmake( sqrt( 2. * pvec3 ) * nsf, 0. );
+      const cxtype sqp0p3 = cxmake( fpsqrt( 2. * pvec3 ) * nsf, 0. );
       fi[2] = fi[1];
       if( nh == 1 )
       {
@@ -197,7 +197,7 @@ namespace MG5_sm
       fi[0] = cxmake( pvec3 * nsf, -pvec3 * nsf );
       fi[1] = cxmake( 0., 0. );
       const int nh = nhel * nsf;
-      const cxtype chi = cxmake( -nhel * sqrt( -2. * pvec3 ), 0. );
+      const cxtype chi = cxmake( -nhel * fpsqrt( -2. * pvec3 ), 0. );
       fi[3] = cxmake( 0., 0. );
       fi[4] = cxmake( 0., 0. );
       if ( nh == 1 )
@@ -248,7 +248,7 @@ namespace MG5_sm
       fi[1] = cxmake( -pvec1 * nsf, -pvec2 * nsf ); // AV: BUG FIX
       const int nh = nhel * nsf;
       //const float sqp0p3 = sqrtf( pvec0 + pvec3 ) * nsf; // AV: why force a float here?
-      const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
+      const fptype sqp0p3 = fpsqrt( pvec0 + pvec3 ) * nsf;
       const cxtype chi0 = cxmake( sqp0p3, 0. );
       const cxtype chi1 = cxmake( nh * pvec1/sqp0p3, pvec2/sqp0p3 );
       if ( nh == 1 )
@@ -295,7 +295,7 @@ namespace MG5_sm
       const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
       const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
       const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
-      const fptype sqh = sqrt( 0.5 );
+      const fptype sqh = fpsqrt( 0.5 );
       const fptype hel = nhel;
       vc[0] = cxmake( pvec0 * nsv, pvec3 * nsv );
       vc[1] = cxmake( pvec1 * nsv, pvec2 * nsv );
@@ -303,8 +303,8 @@ namespace MG5_sm
       {
         const int nsvahl = nsv * std::abs( hel );
         const fptype pt2 = ( pvec1 * pvec1 ) + ( pvec2 * pvec2 );
-        const fptype pp = fpmin( pvec0, sqrt( pt2 + ( pvec3 * pvec3 ) ) );
-        const fptype pt = fpmin( pp, sqrt( pt2 ) );
+        const fptype pp = fpmin( pvec0, fpsqrt( pt2 + ( pvec3 * pvec3 ) ) );
+        const fptype pt = fpmin( pp, fpsqrt( pt2 ) );
         const fptype hel0 = 1. - std::abs( hel );
         if ( pp == 0. )
         {
@@ -336,7 +336,7 @@ namespace MG5_sm
       else
       {
         const fptype& pp = pvec0; // NB: rewrite the following  as in Fortran, using pp instead of pvec0
-        const fptype pt = sqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) );
+        const fptype pt = fpsqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) );
         vc[2] = cxmake( 0., 0. );
         vc[5] = cxmake( hel * pt / pp * sqh, 0. );
         if ( pt != 0. )
@@ -422,11 +422,11 @@ namespace MG5_sm
       const int nh = nhel * nsf;
       if ( fmass != 0. )
       {
-        const fptype pp = fpmin( pvec0, sqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) + ( pvec3 * pvec3 ) ) );
+        const fptype pp = fpmin( pvec0, fpsqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) + ( pvec3 * pvec3 ) ) );
         if ( pp == 0. )
         {
           // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs! 
-          fptype sqm[2] = { sqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
+          fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
           //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
           sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
           const int ip = -( ( 1 - nh ) / 2 ) * nhel; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
@@ -438,17 +438,17 @@ namespace MG5_sm
         }
         else
         {
-          const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * 0.5,
-                                 fptype( 1 + nsf - ( 1 - nsf ) * nh ) * 0.5 };
-          fptype omega[2] = { sqrt( pvec0 + pp ), 0. };
+          const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * (fptype)0.5,
+                                 fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
+          fptype omega[2] = { fpsqrt( pvec0 + pp ), 0. };
           omega[1] = fmass / omega[0];
           const int ip = ( 1 + nh ) / 2; // NB: Fortran is (3+nh)/2 because omega(2) has indexes 1,2 and not 0,1
           const int im = ( 1 - nh ) / 2; // NB: Fortran is (3-nh)/2 because omega(2) has indexes 1,2 and not 0,1
           const fptype sfomeg[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
           const fptype pp3 = fpmax( pp + pvec3, 0. );
-          const cxtype chi[2] = { cxmake( sqrt( pp3 * 0.5 / pp ), 0. ),
+          const cxtype chi[2] = { cxmake( fpsqrt( pp3 * (fptype)0.5 / pp ), 0. ),
                                   ( ( pp3 == 0. ) ? cxmake( -nh, 0. )
-                                    : cxmake( nh * pvec1, -pvec2 ) / sqrt( 2. * pp * pp3 ) ) };
+                                    : cxmake( nh * pvec1, -pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) };
           fo[2] = sfomeg[1] * chi[im];
           fo[3] = sfomeg[1] * chi[ip];
           fo[4] = sfomeg[0] * chi[im];
@@ -458,9 +458,9 @@ namespace MG5_sm
       else
       {
         const fptype sqp0p3 = ( ( pvec1 == 0. ) and ( pvec2 == 0. ) and ( pvec3 < 0. )
-                                ? 0. : sqrt( fpmax( pvec0 + pvec3, 0. ) ) * nsf );
+                                ? 0. : fpsqrt( fpmax( pvec0 + pvec3, 0. ) ) * nsf );
         const cxtype chi[2] = { cxmake( sqp0p3, 0. ),
-                                ( ( sqp0p3 == 0. ) ? cxmake( -nhel, 0. ) * sqrt( 2. * pvec0 )
+                                ( ( sqp0p3 == 0. ) ? cxmake( -nhel, 0. ) * fpsqrt( 2. * pvec0 )
                                   : cxmake( nh * pvec1, -pvec2 ) / sqp0p3 ) };
         if ( nh == 1 )
         {
@@ -507,7 +507,7 @@ namespace MG5_sm
       fo[0] = cxmake( pvec3 * nsf, pvec3 * nsf );
       fo[1] = cxmake( 0., 0. );
       const int nh = nhel * nsf;
-      const cxtype csqp0p3 = cxmake( sqrt( 2. * pvec3 ) * nsf, 0. );
+      const cxtype csqp0p3 = cxmake( fpsqrt( 2. * pvec3 ) * nsf, 0. );
       fo[3] = cxmake( 0., 0. );
       fo[4] = cxmake( 0., 0. );
       if ( nh == 1 )
@@ -550,7 +550,7 @@ namespace MG5_sm
       fo[0] = cxmake( -pvec3 * nsf, pvec3 * nsf ); // remember pvec0 == -pvec3
       fo[1] = cxmake( 0., 0. );
       const int nh = nhel * nsf;
-      const cxtype chi1 = cxmake( -nhel, 0. ) * sqrt( -2. * pvec3 );
+      const cxtype chi1 = cxmake( -nhel, 0. ) * fpsqrt( -2. * pvec3 );
       if ( nh == 1 )
       {
         fo[2] = cxmake( 0., 0. );
@@ -602,7 +602,7 @@ namespace MG5_sm
       fo[1] = cxmake( pvec1 * nsf, pvec2 * nsf );
       const int nh = nhel * nsf;
       //const float sqp0p3 = sqrtf( pvec0 + pvec3 ) * nsf; // AV: why force a float here?
-      const fptype sqp0p3 = sqrt( pvec0 + pvec3 ) * nsf;
+      const fptype sqp0p3 = fpsqrt( pvec0 + pvec3 ) * nsf;
       const cxtype chi0 = cxmake( sqp0p3, 0. );
       const cxtype chi1 = cxmake( nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
       if ( nh == 1 )
@@ -725,11 +725,13 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI( 0., 1. );
+    constexpr fptype one( 1. );
+    constexpr fptype two( 2. );
     const cxtype TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
                          F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
     const cxtype TMP4 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
                          F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
-    (*vertex) = COUP * (-1.) * (+cI * (TMP3) + 2. * cI * (TMP4));
+    (*vertex) = COUP * (-one) * (+cI * (TMP3) + two * cI * (TMP4));
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -746,6 +748,8 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI( 0., 1. );
+    constexpr fptype two( 2. );
+    constexpr fptype half( 1. / 2. );
     const fptype OM3 = ( M3 != 0. ? 1. / ( M3 * M3 ) : 0. );
     V3[0] = +F1[0] + F2[0];
     V3[1] = +F1[1] + F2[1];
@@ -755,15 +759,15 @@ namespace MG5_sm
     const cxtype TMP2 = (F1[2] * (F2[4] * (P3[0] + P3[3]) + F2[5] * (P3[1] + cI * (P3[2]))) +
                          F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
     const cxtype denom = COUP/((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
-    V3[2] = denom * (-2. * cI) * (OM3 * - 1./2. * P3[0] * (TMP2 + 2. * (TMP5)) +
-                                  (+1./2. * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] + F1[5] * F2[3]));
-    V3[3] = denom * (-2. * cI) * (OM3 * - 1./2. * P3[1] * (TMP2 + 2. * (TMP5)) +
-                                  (-1./2. * (F1[2] * F2[5] + F1[3] * F2[4]) + F1[4] * F2[3] + F1[5] * F2[2]));
-    V3[4] = denom * 2. * cI * (OM3 * 1./2. * P3[2] * (TMP2 + 2. * (TMP5)) +
-                               (+1./2. * cI * (F1[2] * F2[5]) - 1./2 * cI * (F1[3] * F2[4]) - cI *
+    V3[2] = denom * (-two * cI) * (OM3 * - half * P3[0] * (TMP2 + two * (TMP5)) +
+                                  (+half * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] + F1[5] * F2[3]));
+    V3[3] = denom * (-two * cI) * (OM3 * - half * P3[1] * (TMP2 + two * (TMP5)) +
+                                  (-half * (F1[2] * F2[5] + F1[3] * F2[4]) + F1[4] * F2[3] + F1[5] * F2[2]));
+    V3[4] = denom * two * cI * (OM3 * half * P3[2] * (TMP2 + two * (TMP5)) +
+                               (+half * cI * (F1[2] * F2[5]) - half * cI * (F1[3] * F2[4]) - cI *
                                 (F1[4] * F2[3]) + cI * (F1[5] * F2[2])));
-    V3[5] = denom * 2. * cI * (OM3 * 1./2. * P3[3] * (TMP2 + 2. * (TMP5)) +
-                               (+1./2. * (F1[2] * F2[4]) - 1./2. * (F1[3] * F2[5]) - F1[4] * F2[2] + F1[5] * F2[3]));
+    V3[5] = denom * two * cI * (OM3 * half * P3[3] * (TMP2 + two * (TMP5)) +
+                               (+half * (F1[2] * F2[4]) - half * (F1[3] * F2[5]) - F1[4] * F2[2] + F1[5] * F2[3]));
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -780,12 +784,14 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI( 0., 1. );
+    constexpr fptype one( 1. );
+    constexpr fptype two( 2. );
     // Note: inverting the order and computing TMP4 before TMP3 has increased C++ speed by ~1%
     const cxtype TMP4 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
                          F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
     const cxtype TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
                          F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
-    (*vertex) = ( -1. ) * (COUP2 * (+cI * (TMP3) + 2. * cI * (TMP4)) + cI * (TMP3 * COUP1));
+    (*vertex) = ( -one ) * (COUP2 * (+cI * (TMP3) + two * cI * (TMP4)) + cI * (TMP3 * COUP1));
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -803,6 +809,9 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI( 0., 1. );
+    constexpr fptype one( 1. );
+    constexpr fptype two( 2. );
+    constexpr fptype half( 1. / 2. );
     const fptype OM3 = ( M3 != 0. ? 1. / ( M3 * M3 ) : 0. );
     V3[0] = +F1[0] + F2[0];
     V3[1] = +F1[1] + F2[1];
@@ -812,23 +821,23 @@ namespace MG5_sm
                          F1[3] * (F2[4] * (P3[1] - cI * (P3[2])) + F2[5] * (P3[0] - P3[3])));
     const cxtype TMP5 = (F1[4] * (F2[2] * (P3[0] - P3[3]) - F2[3] * (P3[1] + cI * (P3[2]))) +
                          F1[5] * (F2[2] * (-P3[1] + cI * (P3[2])) + F2[3] * (P3[0] + P3[3])));
-    const cxtype denom = 1./((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
-    V3[2] = denom * (-2. * cI) *
-      (COUP2 * (OM3 * - 1./2. * P3[0] * (TMP2 + 2. * (TMP5)) +
-                (+1./2. * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] + F1[5] * F2[3])) +
-       1./2. * (COUP1 * (F1[2] * F2[4] + F1[3] * F2[5] - P3[0] * OM3 * TMP2)));
-    V3[3] = denom * (-2. * cI) *
-      (COUP2 * (OM3 * - 1./2. * P3[1] * (TMP2 + 2. * (TMP5)) +
-                (-1./2. * (F1[2] * F2[5] + F1[3] * F2[4]) + F1[4] * F2[3] + F1[5] * F2[2])) -
-       1./2. * (COUP1 * (F1[2] * F2[5] + F1[3] * F2[4] + P3[1] * OM3 * TMP2)));
+    const cxtype denom = one/((P3[0] * P3[0]) - (P3[1] * P3[1]) - (P3[2] * P3[2]) - (P3[3] * P3[3]) - M3 * (M3 - cI * W3));
+    V3[2] = denom * (-two * cI) *
+      (COUP2 * (OM3 * - half * P3[0] * (TMP2 + two * (TMP5)) +
+                (+half * (F1[2] * F2[4] + F1[3] * F2[5]) + F1[4] * F2[2] + F1[5] * F2[3])) +
+       half * (COUP1 * (F1[2] * F2[4] + F1[3] * F2[5] - P3[0] * OM3 * TMP2)));
+    V3[3] = denom * (-two * cI) *
+      (COUP2 * (OM3 * - half * P3[1] * (TMP2 + two * (TMP5)) +
+                (-half * (F1[2] * F2[5] + F1[3] * F2[4]) + F1[4] * F2[3] + F1[5] * F2[2])) -
+       half * (COUP1 * (F1[2] * F2[5] + F1[3] * F2[4] + P3[1] * OM3 * TMP2)));
     V3[4] = denom * cI *
-      (COUP2 * (OM3 * P3[2] * (TMP2 + 2. * (TMP5)) +
-                (+cI * (F1[2] * F2[5]) - cI * (F1[3] * F2[4]) - 2. * cI * (F1[4] * F2[3]) + 2. * cI * (F1[5] * F2[2]))) +
+      (COUP2 * (OM3 * P3[2] * (TMP2 + two * (TMP5)) +
+                (+cI * (F1[2] * F2[5]) - cI * (F1[3] * F2[4]) - two * cI * (F1[4] * F2[3]) + two * cI * (F1[5] * F2[2]))) +
        COUP1 * (+cI * (F1[2] * F2[5]) - cI * (F1[3] * F2[4]) + P3[2] * OM3 * TMP2));
-    V3[5] = denom * 2. * cI *
-      (COUP2 * (OM3 * 1./2. * P3[3] * (TMP2 + 2. * (TMP5)) +
-                (+1./2 * (F1[2] * F2[4]) - 1./2. * (F1[3] * F2[5]) - F1[4] * F2[2] + F1[5] * F2[3])) +
-       1./2. * (COUP1 * (F1[2] * F2[4] + P3[3] * OM3 * TMP2 - F1[3] * F2[5])));
+    V3[5] = denom * two * cI *
+      (COUP2 * (OM3 * half * P3[3] * (TMP2 + two * (TMP5)) +
+                (+half * (F1[2] * F2[4]) - half * (F1[3] * F2[5]) - F1[4] * F2[2] + F1[5] * F2[3])) +
+       half * (COUP1 * (F1[2] * F2[4] + P3[3] * OM3 * TMP2 - F1[3] * F2[5])));
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -1065,6 +1074,12 @@ namespace Proc
     out << "nvcc " << __CUDACC_VER_MAJOR__ << "." << __CUDACC_VER_MINOR__ << "." << __CUDACC_VER_BUILD__;
 #else
     out << "nvcc UNKNOWN";
+#endif
+#elif defined __clang__
+#if defined __clang_major__ && defined __clang_minor__ && defined __clang_patchlevel__
+    out << "clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
+#else
+    out << "clang UNKNOWKN";
 #endif
 #else
 #if defined __GNUC__ && defined __GNUC_MINOR__ && defined __GNUC_PATCHLEVEL__

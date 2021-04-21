@@ -68,6 +68,12 @@ const fptype& fpmin( const fptype& a, const fptype& b )
   return ( ( a < b ) ? a : b );
 }
 
+inline __host__ __device__
+fptype fpsqrt( const fptype& f )
+{
+  return sqrt( f );
+}
+
 #else // c++
 
 inline
@@ -80,6 +86,16 @@ inline
 const fptype& fpmin( const fptype& a, const fptype& b )
 {
   return std::min( a, b );
+}
+
+inline
+fptype fpsqrt( const fptype& f )
+{
+#if defined MGONGPU_FPTYPE_FLOAT
+  return sqrtf( f );
+#else
+  return sqrt( f );
+#endif
 }
 
 #endif

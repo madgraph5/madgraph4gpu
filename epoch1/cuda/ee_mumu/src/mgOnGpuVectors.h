@@ -70,8 +70,10 @@ namespace mgOnGpu
   // --- Type definition (using vector compiler extensions: need -march=...)
 #ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
   typedef long int bool_v __attribute__ ((ext_vector_type(neppV))); // bbbb
-#else
+#elif defined MGONGPU_FPTYPE_DOUBLE
   typedef long int bool_v __attribute__ ((vector_size (neppV*sizeof(long int)))); // bbbb
+#elif defined MGONGPU_FPTYPE_FLOAT
+  typedef int bool_v __attribute__ ((vector_size (neppV*sizeof(int)))); // bbbb
 #endif
 
 #else
@@ -141,10 +143,10 @@ inline void print( const cxtype_v& v ) { std::cout << v << std::endl; }
 // Operators for fptype_v
 #ifdef MGONGPU_CPPSIMD
 inline
-fptype_v sqrt( const fptype_v& v )
+fptype_v fpsqrt( const fptype_v& v )
 {
   fptype_v out;
-  for ( int i=0; i<neppV; i++ ) out[i]=sqrt(v[i]);
+  for ( int i=0; i<neppV; i++ ) out[i]=fpsqrt(v[i]);
   return out;
 }
 
