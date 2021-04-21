@@ -111,7 +111,7 @@ ifeq ($(UNAME_P),ppc64le)
     CUFLAGS+= -Xcompiler -mno-float128
 endif
 
-all.$(TAG): $(BUILDDIR)/.build.tag_$(TAG) ../../src $(cu_main) $(cxx_main) $(testmain)
+all.$(TAG): ../../src/.build.tag_$(TAG) $(BUILDDIR)/.build.tag_$(TAG) $(cu_main) $(cxx_main) $(testmain)
 
 override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.tag_*' ! -name '.build.tag_$(TAG)'`
 $(BUILDDIR)/.build.tag_$(TAG):
@@ -123,6 +123,9 @@ debug: OPTFLAGS   = -g -O0 -DDEBUG2
 debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
+
+../../src/.build.tag_$(TAG):
+	$(MAKE) -C ../../src AVX=$(AVX) $(MAKEDEBUG)
 
 $(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src AVX=$(AVX) $(MAKEDEBUG)

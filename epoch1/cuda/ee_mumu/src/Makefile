@@ -79,12 +79,13 @@ target=$(LIBDIR)/libmodel_sm.a
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o rambo.o)
 cu_objects= # NB grambo.cu must be included by gcheck.cu (no rdc)
 
-all.$(TAG): checktag $(target)
+all.$(TAG): $(BUILDDIR)/.build.tag_$(TAG) $(target)
 
-checktag:
-	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
-	@echo $(TAG) > $(BUILDDIR)/.build.tag_new
-	@if [ ! -e $(BUILDDIR)/.build.tag ]; then mv -f $(BUILDDIR)/.build.tag_new $(BUILDDIR)/.build.tag; elif ! cmp -s $(BUILDDIR)/.build.tag_new $(BUILDDIR)/.build.tag; then echo -e "Cannot build for tag=$(TAG) as old build exists for tag=`cat $(BUILDDIR)/.build.tag`\nPlease run 'make clean' first"; exit 1; fi
+override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.tag_*' ! -name '.build.tag_$(TAG)'`
+$(BUILDDIR)/.build.tag_$(TAG):
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir $(BUILDDIR)"; mkdir $(BUILDDIR); fi
+	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first or consider using 'make USEBUILDDIR=1 AVX=$(AVX)'"; exit 1; fi
+	@touch $(BUILDDIR)/.build.tag_$(TAG)
 
 debug: OPTFLAGS = -g -O0 -DDEBUG2
 #debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
@@ -108,7 +109,7 @@ $(target): $(cxx_objects) #$(cu_objects)
 .PHONY: clean
 
 clean:
-	rm -f $(BUILDDIR)/.build.tag $(BUILDDIR)/.build.tag_new
+	rm -f $(BUILDDIR)/.build.tag
 ifneq ($(BUILDDIR),.)
 	rm -rf $(LIBDIR) $(BUILDDIR)
 else
