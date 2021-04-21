@@ -163,3 +163,7 @@ TEST_P(MadgraphTestDouble, eemumu)
   madgraphTestBody_eemumu();
 }
 
+TEST_P(MadgraphTestFloat, eemumu)
+{
+  madgraphTestBody_eemumu();
+}
