@@ -109,7 +109,7 @@ $(target): $(cxx_objects) #$(cu_objects)
 .PHONY: clean
 
 clean:
-	rm -f $(BUILDDIR)/.build.tag
+	rm -f $(BUILDDIR)/.build.tag*
 ifneq ($(BUILDDIR),.)
 	rm -rf $(LIBDIR) $(BUILDDIR)
 else
