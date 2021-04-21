@@ -40,8 +40,13 @@ bool is_number(const char *s) {
 }
 
 // Disabling fast math is essential here, otherwise results are undefined
-// See https://stackoverflow.com/a/40702790 about the __attribute__ syntax
+// See https://stackoverflow.com/a/40702790 about __attribute__ on gcc
+// See https://stackoverflow.com/a/32292725 about __attribute__ on clang
+#ifdef __clang__
+__attribute__((optnone))
+#else
 __attribute__((optimize("-fno-fast-math")))
+#endif
 bool fp_is_abnormal( const fptype& fp )
 {
   if ( std::isnan( fp ) ) return true;
@@ -49,7 +54,11 @@ bool fp_is_abnormal( const fptype& fp )
   return false;
 }
 
+#ifdef __clang__
+__attribute__((optnone))
+#else
 __attribute__((optimize("-fno-fast-math")))
+#endif
 bool fp_is_zero( const fptype& fp )
 {
   if ( fp == 0 ) return true;
@@ -57,7 +66,11 @@ bool fp_is_zero( const fptype& fp )
 }
 
 // See https://en.cppreference.com/w/cpp/numeric/math/FP_categories
+#ifdef __clang__
+__attribute__((optnone))
+#else
 __attribute__((optimize("-fno-fast-math")))
+#endif
 const char* fp_show_class( const fptype& fp )
 {
   switch( std::fpclassify( fp ) ) {
@@ -70,7 +83,11 @@ const char* fp_show_class( const fptype& fp )
   }
 }
 
+#ifdef __clang__
+__attribute__((optnone))
+#else
 __attribute__((optimize("-fno-fast-math")))
+#endif
 void debug_me_is_abnormal( const fptype& me, int ievtALL )
 {
   std::cout << "DEBUG[" << ievtALL << "]"
