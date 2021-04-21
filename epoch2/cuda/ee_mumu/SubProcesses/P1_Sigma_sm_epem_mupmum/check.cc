@@ -6,9 +6,12 @@
 #include <iostream>
 #include <memory>
 #include <numeric>
-#include <omp.h>
 #include <string>
 #include <unistd.h>
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
@@ -37,8 +40,13 @@ bool is_number(const char *s) {
 }
 
 // Disabling fast math is essential here, otherwise results are undefined
-// See https://stackoverflow.com/a/40702790 about the __attribute__ syntax
+// See https://stackoverflow.com/a/40702790 about __attribute__ on gcc
+// See https://stackoverflow.com/a/32292725 about __attribute__ on clang
+#ifdef __clang__
+__attribute__((optnone))
+#else
 __attribute__((optimize("-fno-fast-math")))
+#endif
 bool fp_is_abnormal( const fptype& fp )
 {
   if ( std::isnan( fp ) ) return true;
@@ -46,7 +54,11 @@ bool fp_is_abnormal( const fptype& fp )
   return false;
 }
 
+#ifdef __clang__
+__attribute__((optnone))
+#else
 __attribute__((optimize("-fno-fast-math")))
+#endif
 bool fp_is_zero( const fptype& fp )
 {
   if ( fp == 0 ) return true;
@@ -54,7 +66,11 @@ bool fp_is_zero( const fptype& fp )
 }
 
 // See https://en.cppreference.com/w/cpp/numeric/math/FP_categories
+#ifdef __clang__
+__attribute__((optnone))
+#else
 __attribute__((optimize("-fno-fast-math")))
+#endif
 const char* fp_show_class( const fptype& fp )
 {
   switch( std::fpclassify( fp ) ) {
@@ -67,7 +83,11 @@ const char* fp_show_class( const fptype& fp )
   }
 }
 
+#ifdef __clang__
+__attribute__((optnone))
+#else
 __attribute__((optimize("-fno-fast-math")))
+#endif
 void debug_me_is_abnormal( const fptype& me, int ievtALL )
 {
   std::cout << "DEBUG[" << ievtALL << "]"
@@ -95,8 +115,10 @@ int usage(char* argv0, int ret = 1) {
   std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
   std::cout << "The '-d' flag only enables NaN/abnormal warnings and OMP debugging" << std::endl;
 #ifndef __CUDACC__
+#ifdef _OPENMP
   std::cout << std::endl << "Use the OMP_NUM_THREADS environment variable to control OMP multi-threading" << std::endl;
   std::cout << "(OMP multithreading will be disabled if OMP_NUM_THREADS is not set)" << std::endl;
+#endif
 #endif
   return ret;
 }
@@ -203,6 +225,7 @@ int main(int argc, char **argv)
   }
 
 #ifndef __CUDACC__
+#ifdef _OPENMP
   // Set OMP_NUM_THREADS equal to 1 if it is not yet set
   char* ompnthr = getenv( "OMP_NUM_THREADS" );
   if ( debug )
@@ -219,6 +242,7 @@ int main(int argc, char **argv)
     if ( debug ) std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
     if ( debug ) std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
   }
+#endif
 #endif
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
@@ -713,7 +737,9 @@ int main(int argc, char **argv)
 #else
               << "Random number generation    = CURAND (C++ code)" << std::endl
 #endif
+#ifdef _OPENMP
               << "OMP threads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
+#endif
 #endif
               << "MatrixElements compiler     = " << process.getCompiler() << std::endl
               << "-----------------------------------------------------------------------" << std::endl

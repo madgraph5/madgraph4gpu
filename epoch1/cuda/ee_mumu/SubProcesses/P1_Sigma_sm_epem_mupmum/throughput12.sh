@@ -62,6 +62,7 @@ if [ "$clang" != "0" ]; then pattern="${pattern}|compiler"; fi
 pattern="(${pattern})"
 
 for exe in $exes; do
+  if [ ! -f $exe ]; then continue; fi
   echo "-------------------------------------------------------------------------"
   unset OMP_NUM_THREADS
   # For TIMEFORMAT see https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html

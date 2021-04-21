@@ -10,6 +10,14 @@ CXXFLAGS+= -ffast-math # see issue #117
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
+# Disable OpenMP for clang 11.0.0 (workaround for SPI-1875)
+# NB: "#ifdef _OPENMP" is valid if -fopenmp is present
+# [No need to also remove -lgomp from cuda runTest: cuda is currently disabled for clang11]
+ifeq ($(shell $(CXX) --version | head -1),clang version 11.0.0)
+override OMPFLAGS=
+$(warning Disabling OpenMP for clang 11.0.0)
+endif
+
 # AVX choice (example: "make AVX=none")
 ifeq ($(shell basename $(CXX)),aclang++)
 override AVX = none

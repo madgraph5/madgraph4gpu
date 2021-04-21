@@ -1129,11 +1129,13 @@ namespace Proc
 #ifndef __CUDACC__
     const int npagV = nevt / neppV;
     // ** START LOOP ON IPAGV **
+#ifdef _OPENMP
     // - default(none): no variables are shared by default
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
 #pragma omp parallel for default(none) shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel,npagV) private (amp_v,w_v)
+#endif
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif
     {
@@ -1470,7 +1472,6 @@ namespace Proc
 #endif
 
     // PART 0 - INITIALISATION (before calculate_wavefunctions)
-
 #ifndef __CUDACC__
     for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
