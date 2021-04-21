@@ -70,8 +70,10 @@ namespace mgOnGpu
   // --- Type definition (using vector compiler extensions: need -march=...)
 #ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
   typedef long int bool_v __attribute__ ((ext_vector_type(neppV))); // bbbb
-#else
+#elif defined MGONGPU_FPTYPE_DOUBLE
   typedef long int bool_v __attribute__ ((vector_size (neppV*sizeof(long int)))); // bbbb
+#elif defined MGONGPU_FPTYPE_FLOAT
+  typedef int bool_v __attribute__ ((vector_size (neppV*sizeof(int)))); // bbbb
 #endif
 
 #else
