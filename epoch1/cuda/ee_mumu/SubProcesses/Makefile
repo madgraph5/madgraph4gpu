@@ -11,6 +11,14 @@ CXXFLAGS+= -ffast-math # see issue #117
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
+# Disable OpenMP for clang 11.0.0 (workaround for SPI-1875)
+# NB: "#ifdef _OPENMP" is valid if -fopenmp is present
+# [No need to also remove -lgomp from cuda runTest: cuda is currently disabled for clang11]
+ifeq ($(shell $(CXX) --version | head -1),clang version 11.0.0)
+override OMPFLAGS=
+$(warning Disabling OpenMP for clang 11.0.0)
+endif
+
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
   NVCC ?= $(shell which nvcc 2>/dev/null)
@@ -95,7 +103,7 @@ runTest.exe: LIBFLAGS += -L$(GTESTLIBDIR)/ -lgtest -lgtest_main
 runTest.exe: runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
 runTest.exe: cxx_objects += runTest.o $(TESTDIR)/src/MadgraphTest.o
 runTest.exe: cu_objects  += runTest_cu.o
-ifneq ($(findstring clang++,$(CXX)),)
+ifeq ($(shell basename $(CXX)),clang++)
 runTest.exe: LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(CXX))
 endif
 
