@@ -1343,9 +1343,8 @@ namespace Proc
 #if defined __clang_major__ && defined __clang_minor__ && defined __clang_patchlevel__
     out << "clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
 #else
-    out << "gcc UNKNOWKN";
+    out << "clang UNKNOWKN";
 #endif
-
 #else
 #if defined __GNUC__ && defined __GNUC_MINOR__ && defined __GNUC_PATCHLEVEL__
     out << "gcc (GCC) " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
