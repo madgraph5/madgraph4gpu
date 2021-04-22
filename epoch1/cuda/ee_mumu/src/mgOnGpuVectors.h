@@ -24,6 +24,13 @@ namespace mgOnGpu
   typedef fptype fptype_v __attribute__ ((vector_size (neppV*sizeof(fptype)))); // RRRR
 #endif
 
+#ifdef __clang__
+#undef MGONGPU_HAS_CXTYPE_REF
+#else
+#define MGONGPU_HAS_CXTYPE_REF 1
+#endif
+
+#ifdef MGONGPU_HAS_CXTYPE_REF
   class cxtype_ref
   {
   public:
@@ -38,6 +45,7 @@ namespace mgOnGpu
   private:
     fptype &m_real, &m_imag; // RI
   };
+#endif
 
   // --- Type definition (using vector compiler extensions: need -march=...)
   class cxtype_v // no need for "class alignas(2*sizeof(fptype_v)) cxtype_v"
@@ -51,15 +59,14 @@ namespace mgOnGpu
     cxtype_v& operator=( cxtype_v&& ) = default;
     //cxtype_v& operator+=( const cxtype_v& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
     cxtype_v& operator-=( const cxtype_v& c ){ m_real -= c.real(); m_imag -= c.imag(); return *this; }
-
-#ifdef __clang__
+#ifdef MGONGPU_HAS_CXTYPE_REF
+    cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); }
+#else
     // NB: In clang, [] is a value, not a ref ("non-const reference cannot bind to vector element")
     // See https://stackoverflow.com/questions/26554829
-    cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); } // build fails
-#else
-    cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); }
+    // Return a cxtype by value - apparently this is enough??
+    cxtype operator[]( size_t i ) const { return cxtype( m_real[i], m_imag[i] ); }
 #endif
-
     const fptype_v& real() const { return m_real; }
     const fptype_v& imag() const { return m_imag; }
   private:
