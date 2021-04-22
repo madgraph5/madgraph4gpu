@@ -53,10 +53,9 @@ namespace mgOnGpu
     cxtype_v& operator-=( const cxtype_v& c ){ m_real -= c.real(); m_imag -= c.imag(); return *this; }
 
 #ifdef __clang__
-    // ERROR! clang build fails: [] is a value not a ref?
-    //cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); }
-    // ERROR! clang build crashes (probably because [] is a value not a ref)
-    cxtype_ref operator[]( size_t i ) const { return cxtype_ref( (fptype&)(m_real[i]), (fptype&)(m_imag[i]) ); }
+    // NB: In clang, [] is a value, not a ref ("non-const reference cannot bind to vector element")
+    // See https://stackoverflow.com/questions/26554829
+    cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); } // build fails
 #else
     cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); }
 #endif
