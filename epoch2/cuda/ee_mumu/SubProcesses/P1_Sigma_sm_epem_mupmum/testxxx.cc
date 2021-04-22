@@ -146,9 +146,9 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     }
   };
   const int nhel = 1;
-  cxtype outwfI[6]; // last result of ixxxxx (mass==0)
-  cxtype outwfO[6]; // last result of oxxxxx (mass==0)
-  cxtype outwf[6];
+  cxtype outwfI[6]{}; // last result of ixxxxx (mass==0)
+  cxtype outwfO[6]{}; // last result of oxxxxx (mass==0)
+  cxtype outwf[6]{};
   for ( auto nsp : { -1, +1 } ) // antifermion/fermion (or initial/final for scalar and vector)
   {
     for ( int ievt = 0; ievt < nevt; ievt++ )
