@@ -120,18 +120,21 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       {
         const fptype expReal = expwf[iwf6*2];
         const fptype expImag = expwf[iwf6*2+1];
+        if ( true )
+        {
 #ifdef MGONGPU_CPPSIMD
-        const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-        EXPECT_NEAR( cxreal( wf[iwf6][ieppM] ), expReal, std::abs( expReal * toleranceXXXs ) )
-          << " itest=" << itest << ": " << xxx << "#" << ievt;
-        EXPECT_NEAR( cximag( wf[iwf6][ieppM] ), expImag, std::abs( expImag * toleranceXXXs ) )
-          << " itest=" << itest << ": " << xxx << "#" << ievt;
+          const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+          EXPECT_NEAR( cxreal( wf[iwf6][ieppM] ), expReal, std::abs( expReal * toleranceXXXs ) )
+            << " itest=" << itest << ": " << xxx << "#" << ievt;
+          EXPECT_NEAR( cximag( wf[iwf6][ieppM] ), expImag, std::abs( expImag * toleranceXXXs ) )
+            << " itest=" << itest << ": " << xxx << "#" << ievt;
 #else
-        EXPECT_NEAR( cxreal( wf[iwf6] ), expReal, std::abs( expReal * toleranceXXXs ) )
-          << " itest=" << itest << ": " << xxx << "#" << ievt;
-        EXPECT_NEAR( cximag( wf[iwf6] ), expImag, std::abs( expImag * toleranceXXXs ) )
-          << " itest=" << itest << ": " << xxx << "#" << ievt;
+          EXPECT_NEAR( cxreal( wf[iwf6] ), expReal, std::abs( expReal * toleranceXXXs ) )
+            << " itest=" << itest << ": " << xxx << "#" << ievt;
+          EXPECT_NEAR( cximag( wf[iwf6] ), expImag, std::abs( expImag * toleranceXXXs ) )
+            << " itest=" << itest << ": " << xxx << "#" << ievt;
 #endif
+        }
       }
     }
     itest++;
@@ -147,22 +150,25 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       ////for ( int iwf6 = 0; iwf6<nwf6; iwf6++ ) std::cout << expwf[iwf6] << std::endl;
       for ( int iwf6 = 0; iwf6<nwf6; iwf6++ )
       {
+        if ( true )
+        {
 #ifdef MGONGPU_CPPSIMD
-        const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-        const fptype expReal = cxreal( expwf[iwf6][ieppM] );
-        const fptype expImag = cximag( expwf[iwf6][ieppM] );
-        EXPECT_NEAR( cxreal( wf[iwf6][ieppM] ), expReal, std::abs( expReal * toleranceXXXs ) )
-          << " itest=" << itest << ": " << xxx << "#" << ievt << " against " << xxxFull;
-        EXPECT_NEAR( cximag( wf[iwf6][ieppM] ), expImag, std::abs( expImag * toleranceXXXs ) )
-          << " itest=" << itest << ": " << xxx << "#" << ievt << " against " << xxxFull;
+          const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+          const fptype expReal = cxreal( expwf[iwf6][ieppM] );
+          const fptype expImag = cximag( expwf[iwf6][ieppM] );
+          EXPECT_NEAR( cxreal( wf[iwf6][ieppM] ), expReal, std::abs( expReal * toleranceXXXs ) )
+            << " itest=" << itest << ": " << xxx << "#" << ievt << " against " << xxxFull;
+          EXPECT_NEAR( cximag( wf[iwf6][ieppM] ), expImag, std::abs( expImag * toleranceXXXs ) )
+            << " itest=" << itest << ": " << xxx << "#" << ievt << " against " << xxxFull;
 #else
-        const fptype expReal = cxreal( expwf[iwf6] );
-        const fptype expImag = cximag( expwf[iwf6] );
-        EXPECT_NEAR( cxreal( wf[iwf6] ), expReal, std::abs( expReal * toleranceXXXs ) )
-          << " itest=" << itest << ": " << xxx << "#" << ievt << " against " << xxxFull;
-        EXPECT_NEAR( cximag( wf[iwf6] ), expImag, std::abs( expImag * toleranceXXXs ) )
-          << " itest=" << itest << ": " << xxx << "#" << ievt << " against " << xxxFull;
+          const fptype expReal = cxreal( expwf[iwf6] );
+          const fptype expImag = cximag( expwf[iwf6] );
+          EXPECT_NEAR( cxreal( wf[iwf6] ), expReal, std::abs( expReal * toleranceXXXs ) )
+            << " itest=" << itest << ": " << xxx << "#" << ievt << " against " << xxxFull;
+          EXPECT_NEAR( cximag( wf[iwf6] ), expImag, std::abs( expImag * toleranceXXXs ) )
+            << " itest=" << itest << ": " << xxx << "#" << ievt << " against " << xxxFull;
 #endif
+        }
       }
     }
   };
