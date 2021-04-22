@@ -167,9 +167,9 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     }
   };
   const int nhel = 1;
-  cxtype_sv outwfI[6]; // last result of ixxxxx (mass==0)
-  cxtype_sv outwfO[6]; // last result of oxxxxx (mass==0)
-  cxtype_sv outwf[6];
+  cxtype_sv outwfI[6]{}; // last result of ixxxxx (mass==0)
+  cxtype_sv outwfO[6]{}; // last result of oxxxxx (mass==0)
+  cxtype_sv outwf[6]{};
   for ( auto nsp : { -1, +1 } ) // antifermion/fermion (or initial/final for scalar and vector)
   {
     for ( int ievt = 0; ievt < nevt; ievt++ )
@@ -225,11 +225,12 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test sxxxxx - NO ASSUMPTIONS
       {
         const fptype smass = mass0[ievt];
+        cxtype_sv outwf3[6]{}; // NB: only 3 are filled by sxxxxx, but 6 are compared!
         const int ipagM = ievt/neppM; // #eventpage in this iteration
-        sxxxxx( hstMomenta.get(), smass, nhel, nsp, outwf, ipagM, ipar );
-        testwf6( outwf, "sxxxxx", ievt, nsp, smass );
-        sxxxxx( hstMomenta.get(), -smass, nhel, nsp, outwf, ipagM, ipar );
-        testwf6( outwf, "sxxxxx", ievt, nsp, -smass );
+        sxxxxx( hstMomenta.get(), smass, nhel, nsp, outwf3, ipagM, ipar );
+        testwf6( outwf3, "sxxxxx", ievt, nsp, smass );
+        sxxxxx( hstMomenta.get(), -smass, nhel, nsp, outwf3, ipagM, ipar );
+        testwf6( outwf3, "sxxxxx", ievt, nsp, -smass );
       }
       // Test oxxxxx - NO ASSUMPTIONS
       {
