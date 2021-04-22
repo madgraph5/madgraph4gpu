@@ -24,6 +24,9 @@ namespace mgOnGpu
   typedef fptype fptype_v __attribute__ ((vector_size (neppV*sizeof(fptype)))); // RRRR
 #endif
 
+#ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
+  /*
+  // Reference to complex RI in the RRRRIIII complex vector
   class cxtype_ref
   {
   public:
@@ -38,7 +41,7 @@ namespace mgOnGpu
   private:
     fptype &m_real, &m_imag; // RI
   };
-
+  */
   // --- Type definition (using vector compiler extensions: need -march=...)
   class cxtype_v // no need for "class alignas(2*sizeof(fptype_v)) cxtype_v"
   {
@@ -51,20 +54,50 @@ namespace mgOnGpu
     cxtype_v& operator=( cxtype_v&& ) = default;
     //cxtype_v& operator+=( const cxtype_v& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
     cxtype_v& operator-=( const cxtype_v& c ){ m_real -= c.real(); m_imag -= c.imag(); return *this; }
-
-#ifdef __clang__
-    // NB: In clang, [] is a value, not a ref ("non-const reference cannot bind to vector element")
-    // See https://stackoverflow.com/questions/26554829
-    cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); } // build fails
-#else
-    cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); }
-#endif
-
     const fptype_v& real() const { return m_real; }
     const fptype_v& imag() const { return m_imag; }
+    cxtype operator[]( size_t i ) const { return cxtype( m_real[i], m_imag[i] ); } // return by value
   private:
     fptype_v m_real, m_imag; // RRRRIIII
   };
+#else
+  // Reference to complex RI in the RRRRIIII complex vector
+  class cxtype_ref
+  {
+  public:
+    cxtype_ref() = delete;
+    cxtype_ref( const cxtype_ref& ) = delete;
+    cxtype_ref( cxtype_ref&& ) = default;
+    cxtype_ref( fptype& r, fptype& i ) : m_real{r}, m_imag{i} {}
+    cxtype_ref& operator=( const cxtype_ref& ) = delete;
+    cxtype_ref& operator=( cxtype_ref&& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // for cxternary
+    cxtype_ref& operator=( const cxtype& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; }
+    operator cxtype() const { return cxmake( m_real, m_imag ); }
+  private:
+    fptype &m_real, &m_imag; // RI
+  };
+  // --- Type definition (using vector compiler extensions: need -march=...)
+  class cxtype_v // no need for "class alignas(2*sizeof(fptype_v)) cxtype_v"
+  {
+  public:
+    cxtype_v() : m_real{0}, m_imag{0} {}
+    cxtype_v( const cxtype_v&  ) = default;
+    cxtype_v( cxtype_v&&  ) = default;
+    cxtype_v( const fptype_v& r, const fptype_v& i ) : m_real{r}, m_imag{i} {}
+    cxtype_v& operator=( const cxtype_v& ) = default;
+    cxtype_v& operator=( cxtype_v&& ) = default;
+    //cxtype_v& operator+=( const cxtype_v& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
+    cxtype_v& operator-=( const cxtype_v& c ){ m_real -= c.real(); m_imag -= c.imag(); return *this; }
+    const fptype_v& real() const { return m_real; }
+    const fptype_v& imag() const { return m_imag; }
+    // The following works for gcc but not for clang
+    // In clang, [] is a value, not a ref ("non-const reference cannot bind to vector element")
+    // See https://stackoverflow.com/questions/26554829
+    cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); }
+  private:
+    fptype_v m_real, m_imag; // RRRRIIII
+  };
+#endif
 
   // --- Type definition (using vector compiler extensions: need -march=...)
 #ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
