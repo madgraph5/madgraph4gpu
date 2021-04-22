@@ -1,10 +1,5 @@
 #!/bin/bash
 
-clang=0
-if [ "$(basename ${CXX})" == "clang++" ]; then 
-  clang=1
-fi
-
 omp=0
 if [ "$1" == "-omp" ]; then
   omp=1
@@ -52,7 +47,7 @@ pushd ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >&
 popd >& /dev/null
 
 pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|FP precision|TOTAL       :"
-if [ "$clang" != "0" ]; then pattern="${pattern}|compiler"; fi
+# Optionally add other patterns here for some specific configurations (e.g. clang)
 pattern="(${pattern})"
 
 for exe in $exes; do
