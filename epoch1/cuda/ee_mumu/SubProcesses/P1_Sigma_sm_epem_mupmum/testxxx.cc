@@ -199,10 +199,11 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test sxxxxx - NO ASSUMPTIONS
       {
         const fptype smass = mass0[ievt];
-        sxxxxx( hstMomenta.get(), smass, nhel, nsp, outwf, ievt, ipar );
-        testwf6( outwf, "sxxxxx", ievt, nsp, smass );
-        sxxxxx( hstMomenta.get(), -smass, nhel, nsp, outwf, ievt, ipar );
-        testwf6( outwf, "sxxxxx", ievt, nsp, -smass );
+        cxtype outwf3[6]{}; // NB: only 3 are filled by sxxxxx, but 6 are compared!
+        sxxxxx( hstMomenta.get(), smass, nhel, nsp, outwf3, ievt, ipar );
+        testwf6( outwf3, "sxxxxx", ievt, nsp, smass );
+        sxxxxx( hstMomenta.get(), -smass, nhel, nsp, outwf3, ievt, ipar );
+        testwf6( outwf3, "sxxxxx", ievt, nsp, -smass );
       }
       // Test oxxxxx - NO ASSUMPTIONS
       {
