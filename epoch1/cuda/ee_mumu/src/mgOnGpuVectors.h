@@ -25,6 +25,10 @@ namespace mgOnGpu
 #endif
 
 #ifdef __clang__
+  // Return a cxtype by value in operator[] instead of by reference?
+  // This is needed in clang, where [] is a value, not a ref
+  // ("non-const reference cannot bind to vector element")
+  // See also https://stackoverflow.com/questions/26554829
 #undef MGONGPU_HAS_CXTYPE_REF
 #else
 #define MGONGPU_HAS_CXTYPE_REF 1
@@ -62,9 +66,6 @@ namespace mgOnGpu
 #ifdef MGONGPU_HAS_CXTYPE_REF
     cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); }
 #else
-    // NB: In clang, [] is a value, not a ref ("non-const reference cannot bind to vector element")
-    // See https://stackoverflow.com/questions/26554829
-    // Return a cxtype by value - apparently this is enough??
     cxtype operator[]( size_t i ) const { return cxtype( m_real[i], m_imag[i] ); }
 #endif
     const fptype_v& real() const { return m_real; }
