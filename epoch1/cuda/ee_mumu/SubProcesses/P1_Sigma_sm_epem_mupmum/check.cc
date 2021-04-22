@@ -701,6 +701,13 @@ int main(int argc, char **argv)
     if ( !nprocpipe ) throw std::runtime_error("`nproc --all` failed?");
     while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get()) != nullptr ) nprocall += nprocbuf.data();
 #endif
+#ifdef MGONGPU_CPPSIMD
+#ifdef MGONGPU_HAS_CXTYPE_REF
+    const std::string cxtref = " [cxtype_ref=YES]";
+#else
+    const std::string cxtref = " [cxtype_ref=NO]";
+#endif
+#endif
     // Dump all configuration parameters and all results
     std::cout << "***************************************************************************" << std::endl
 #ifdef __CUDACC__
@@ -735,17 +742,22 @@ int main(int argc, char **argv)
       //<< "Wavefunction GPU memory     = LOCAL" << std::endl
 #else
 #if !defined MGONGPU_CPPSIMD
-              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('none': scalar, no SIMD)" << std::endl
+              << "Internal loops fptype_sv    = SCALAR ('none': ~vector[" << neppV
+              << "], no SIMD)" << std::endl
 #elif defined __AVX512VL__
 #ifdef MGONGPU_PVW512
-              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('512z': AVX512, 512 vector width)" << std::endl
+              << "Internal loops fptype_sv    = VECTOR[" << neppV 
+              << "] ('512z': AVX512, 512bit)" << cxtref << std::endl
 #else
-              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('512y': AVX512, 256 vector width)" << std::endl
+              << "Internal loops fptype_sv    = VECTOR[" << neppV
+              << "] ('512y': AVX512, 256bit)" << cxtref << std::endl
 #endif
 #elif defined __AVX2__
-              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('avx2': AVX2, 256 vector width)" << std::endl
+              << "Internal loops fptype_sv    = VECTOR[" << neppV
+              << "] ('avx2': AVX2, 256bit)" << cxtref << std::endl
 #elif defined __SSE4_2__
-              << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('sse4': SSE4.2, 128 vector width)" << std::endl
+              << "Internal loops fptype_sv    = VECTOR[" << neppV
+              << "] ('sse4': SSE4.2, 128bit)" << cxtref << std::endl
 #else
 #error Internal error: unknown SIMD build configuration
 #endif
