@@ -13,11 +13,7 @@ fi
 
 avxall=0
 if [ "$1" == "-avxall" ]; then
-  if [ "$clang" == "0" ]; then
-    avxall=1
-  else
-    echo "WARNING! option '-avxall' is ignored for clang builds"
-  fi
+  avxall=1
   shift
 fi
 
@@ -33,9 +29,7 @@ if [ "${avxall}" == "1" ]; then
   exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.sse4/check.exe"
   exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.avx2/check.exe"
 fi
-if [ "$clang" == "0" ]; then
-  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y/check.exe"
-fi
+exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y/check.exe"
 if [ "${avxall}" == "1" ]; then 
   exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z/check.exe"
 fi
@@ -48,7 +42,7 @@ pushd ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >&
   make AVX=none
   if [ "${avxall}" == "1" ]; then make AVX=sse4; fi
   if [ "${avxall}" == "1" ]; then make AVX=avx2; fi
-  if [ "$clang" == "0" ]; then make AVX=512y; fi
+  make AVX=512y
   if [ "${avxall}" == "1" ]; then make AVX=512z; fi
 popd >& /dev/null
 
