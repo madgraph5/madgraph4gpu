@@ -694,9 +694,11 @@ int main(int argc, char **argv)
     // Dump all configuration parameters and all results
     std::cout << "***********************************************************************" << std::endl
 #ifdef __CUDACC__
-              << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CUDA" << std::endl
+              << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CUDA"
+              << " [" << process.getCompiler() << "]" << std::endl
 #else
-              << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CPP" << std::endl
+              << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CPP"
+              << " [" << process.getCompiler() << "]" << std::endl
 #endif
               << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << "NumThreadsPerBlock          = " << gputhreads << std::endl
@@ -741,7 +743,7 @@ int main(int argc, char **argv)
               << "OMP threads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
 #endif
 #endif
-              << "MatrixElements compiler     = " << process.getCompiler() << std::endl
+      //<< "MatrixElements compiler     = " << process.getCompiler() << std::endl
               << "-----------------------------------------------------------------------" << std::endl
               << "NumberOfEntries             = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
