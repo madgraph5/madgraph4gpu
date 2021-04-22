@@ -18,7 +18,7 @@ exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mup
 exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
 
 pattern="Process|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|FP precision|TOTAL       :"
-if [ "$clang" != "0" ]; then pattern="${pattern}|compiler"; fi
+# Optionally add other patterns here for some specific configurations (e.g. clang)
 pattern="(${pattern})"
 
 for exe in $exes; do
