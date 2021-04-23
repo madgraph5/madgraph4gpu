@@ -143,6 +143,9 @@ $(BUILDDIR)/gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
 	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
+$(BUILDDIR)/CPPProcess.o : ../../src/HelAmps_sm.cc
+$(BUILDDIR)/gCPPProcess.o : ../../src/HelAmps_sm.cc
+
 $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@

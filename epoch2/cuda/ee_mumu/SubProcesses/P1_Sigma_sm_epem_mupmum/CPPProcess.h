@@ -5,8 +5,6 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#include "../../src/HelAmps_sm.h"
-
 #ifndef MG5_Sigma_sm_epem_mupmum_H
 #define MG5_Sigma_sm_epem_mupmum_H
 

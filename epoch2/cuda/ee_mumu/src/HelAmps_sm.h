@@ -181,21 +181,21 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV4_0( const cxtype F1[],
-               const cxtype F2[],
-               const cxtype V3[],
+  void FFV4_0( const cxtype F1[],  // input: wavefunction1[6]
+               const cxtype F2[],  // input: wavefunction2[6]
+               const cxtype V3[],  // input: wavefunction3[6]
                const cxtype COUP,
-               cxtype* vertex );
+               cxtype* vertex );   // output: amplitude
   
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV4_3( const cxtype F1[],
-               const cxtype F2[],
+  void FFV4_3( const cxtype F1[],   // input: wavefunction1[6]
+               const cxtype F2[],   // input: wavefunction2[6]
                const cxtype COUP,
                const fptype M3,
                const fptype W3,
-               cxtype V3[] );
+               cxtype V3[] );       // output: wavefunction3[6]
 
   //--------------------------------------------------------------------------
 
