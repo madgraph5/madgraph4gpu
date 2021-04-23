@@ -130,7 +130,7 @@ namespace MG5_sm
         // Branch A: pp == 0.
         // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
         fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0 }; // possibility of negative fermion masses (NB: SCALAR!)
-        sqm[1] = ( fmass < 0 ? -sqm[0] : sqm[0] ); // AV: removed an abs here (as above)...
+        sqm[1] = ( fmass < 0 ? -sqm[0] : sqm[0] ); // AV: removed an abs here (as above)
         const cxtype fiA_2 = ip * sqm[ip]; // scalar cxtype: real part initialised from fptype, imag part = 0
         const cxtype fiA_3 = im * nsf * sqm[ip]; // scalar cxtype: real part initialised from fptype, imag part = 0
         const cxtype fiA_4 = ip * nsf * sqm[im]; // scalar cxtype: real part initialised from fptype, imag part = 0
@@ -428,7 +428,7 @@ namespace MG5_sm
         const cxtype_v vcB1_4 = cxmake( hel0 * pvec2 * emp - pvec2 * pzpt, (fptype)nsvahl * pvec1 / pt * sqh );
         // Branch B2: pp != 0. and pt == 0.
         const cxtype vcB2_3 = cxmake( -hel * sqh, 0. );
-        const cxtype_v vcB2_4 = cxmake( 0., (fptype)nsvahl * fpternary( ( pvec3 < 0 ), -sqh, sqh ) ); // AV: removed an abs here...
+        const cxtype_v vcB2_4 = cxmake( 0., (fptype)nsvahl * fpternary( ( pvec3 < 0 ), -sqh, sqh ) ); // AV: removed an abs here
         // Choose between the results from branch A and branch B (and from branch B1 and branch B2)
         const bool_v mask = ( pp == 0. );
         const bool_v maskB = ( pt != 0. );
@@ -465,7 +465,7 @@ namespace MG5_sm
         const cxtype_v vcA_4 = cxmake( -pvec2 * pzpt, (fptype)nsv * pvec1 / pt * sqh );
         // Branch B: pt == 0.
         const cxtype vcB_3 = cxmake( -(fptype)hel * sqh, 0 );
-        const cxtype_v vcB_4 = cxmake( 0, (fptype)nsv * fpternary( ( pvec3 < 0 ), -sqh, sqh ) ); // AV: removed an abs here...
+        const cxtype_v vcB_4 = cxmake( 0, (fptype)nsv * fpternary( ( pvec3 < 0 ), -sqh, sqh ) ); // AV: removed an abs here
         // Choose between the results from branch A and branch B
         const bool_v mask = ( pt != 0. );
         vc[3] = cxternary( mask, vcA_3, vcB_3 );
@@ -592,7 +592,7 @@ namespace MG5_sm
         // Branch A: pp == 0.
         // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
         fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0 }; // possibility of negative fermion masses
-        sqm[1] = ( fmass < 0 ? -sqm[0] : sqm[0] ); // AV: removed an abs here (as above)...
+        sqm[1] = ( fmass < 0 ? -sqm[0] : sqm[0] ); // AV: removed an abs here (as above)
         const int ipA = -( ( 1 - nh ) / 2 ) * nhel;
         const int imA = ( 1 + nh ) / 2 * nhel;
         const cxtype foA_2 = imA * sqm[std::abs( ipA )];
@@ -1219,7 +1219,11 @@ namespace Proc
         // Local variables for the given event (ievt)
 #ifdef MGONGPU_CPPSIMD
         cxtype jamp[ncolor];
+#ifdef MGONGPU_HAS_CXTYPE_REF
         jamp[0] = jamp_v[0][ieppV];
+#else
+        jamp[0] = cxmake( jamp_v[0].real()[ieppV], jamp_v[0].imag()[ieppV] );
+#endif
 #else
         cxtype* jamp = jamp_v;
 #endif
