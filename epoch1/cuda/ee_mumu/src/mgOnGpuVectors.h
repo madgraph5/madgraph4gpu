@@ -30,8 +30,8 @@ namespace mgOnGpu
   // See also https://stackoverflow.com/questions/26554829
 #undef MGONGPU_HAS_CXTYPE_REF // clang default
 #else
-  //#define MGONGPU_HAS_CXTYPE_REF 1 // gcc default
-#undef MGONGPU_HAS_CXTYPE_REF // gcc test
+#define MGONGPU_HAS_CXTYPE_REF 1 // gcc default
+  //#undef MGONGPU_HAS_CXTYPE_REF // gcc test
 #endif
 
 #ifdef MGONGPU_HAS_CXTYPE_REF
