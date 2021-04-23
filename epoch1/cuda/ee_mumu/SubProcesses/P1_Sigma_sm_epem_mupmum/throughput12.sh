@@ -43,7 +43,7 @@ pushd ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >&
   make AVX=none
   if [ "${avxall}" == "1" ]; then make AVX=sse4; fi
   if [ "${avxall}" == "1" ]; then make AVX=avx2; fi
-  make AVX=512y
+  make AVX=512y # NB: for HET tests, consider 512y the fastest, even if for clang avx2 is slightly better...
   if [ "${avxall}" == "1" ]; then make AVX=512z; fi
 popd >& /dev/null
 
@@ -55,11 +55,13 @@ popd >& /dev/null
 function runExe() {
   exe=$1
   ###echo "runExe $exe OMP=$OMP_NUM_THREADS"
+  pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|FP precision|TOTAL       :"
   # For TIMEFORMAT see https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
   if [ "${exe%%/hcheck*}" != "${exe}" ]; then 
-    TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | grep -v NaN | egrep '(Process|fptype_sv|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|TOTAL       :|TotalEventsComputed)' | sort -k"2.1,2.6" -r | uniq 
+    pattern="${pattern}|TotalEventsComputed"
+    TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | grep -v NaN | egrep "(${pattern})" | sort -k"2.1,2.6" -r | uniq 
   else
-    TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | egrep '(Process|fptype_sv|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|TOTAL       :)'
+    TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | egrep "(${pattern})"
   fi
 }
 
@@ -71,6 +73,7 @@ function runNcu() {
 }
 
 for exe in $exes; do
+  if [ ! -f $exe ]; then continue; fi
   echo "-------------------------------------------------------------------------"
   unset OMP_NUM_THREADS
   if [ "${exe%%/hcheck*}" != "${exe}" ]; then 

@@ -9,9 +9,12 @@
 #include <iostream>
 #include <memory>
 #include <numeric>
-#include <omp.h>
 #include <string>
 #include <unistd.h>
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
@@ -42,25 +45,38 @@ inline bool is_number(const char *s) {
 }
 
 // Disabling fast math is essential here, otherwise results are undefined
-// See https://stackoverflow.com/a/40702790 about the __attribute__ syntax
-__attribute__((optimize("-fno-fast-math")))
-inline bool fp_is_abnormal( const fptype& fp )
+// See https://stackoverflow.com/a/40702790 about __attribute__ on gcc
+// See https://stackoverflow.com/a/32292725 about __attribute__ on clang
+#ifdef __clang__
+inline __attribute__((optnone))
+#else
+inline __attribute__((optimize("-fno-fast-math")))
+#endif
+bool fp_is_abnormal( const fptype& fp )
 {
   if ( std::isnan( fp ) ) return true;
   if ( fp != fp ) return true;
   return false;
 }
 
-__attribute__((optimize("-fno-fast-math")))
-inline bool fp_is_zero( const fptype& fp )
+#ifdef __clang__
+inline __attribute__((optnone))
+#else
+inline __attribute__((optimize("-fno-fast-math")))
+#endif
+bool fp_is_zero( const fptype& fp )
 {
   if ( fp == 0 ) return true;
   return false;
 }
 
 // See https://en.cppreference.com/w/cpp/numeric/math/FP_categories
-__attribute__((optimize("-fno-fast-math")))
-inline const char* fp_show_class( const fptype& fp )
+#ifdef __clang__
+inline __attribute__((optnone))
+#else
+inline __attribute__((optimize("-fno-fast-math")))
+#endif
+const char* fp_show_class( const fptype& fp )
 {
   switch( std::fpclassify( fp ) ) {
   case FP_INFINITE:  return "Inf";
@@ -72,8 +88,12 @@ inline const char* fp_show_class( const fptype& fp )
   }
 }
 
-__attribute__((optimize("-fno-fast-math")))
-inline void debug_me_is_abnormal( const fptype& me, int ievtALL )
+#ifdef __clang__
+inline __attribute__((optnone))
+#else
+inline __attribute__((optimize("-fno-fast-math")))
+#endif
+void debug_me_is_abnormal( const fptype& me, int ievtALL )
 {
   std::cout << "DEBUG[" << ievtALL << "]"
             << " ME=" << me
@@ -104,8 +124,10 @@ inline int usage( char* argv0, int ret = 1 )
     std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
     std::cout << "The '-d' flag only enables NaN/abnormal warnings and OMP debugging" << std::endl;
 #ifndef __CUDACC__
+#ifdef _OPENMP
     std::cout << std::endl << "Use the OMP_NUM_THREADS environment variable to control OMP multi-threading" << std::endl;
     std::cout << "(OMP multithreading will be disabled if OMP_NUM_THREADS is not set)" << std::endl;
+#endif
 #endif
   }
   return ret;
@@ -237,6 +259,7 @@ int check
   }
 
 #ifndef __CUDACC__
+#ifdef _OPENMP
   // Set OMP_NUM_THREADS equal to 1 if it is not yet set
   check_omp_threads( debug );
 #endif
@@ -267,6 +290,7 @@ int check
     return ok;
   };
   if ( ! supportsAvx() ) return 1;
+#endif
 #endif
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
@@ -724,12 +748,21 @@ int check
 
   if (perf)
   {
+#ifdef MGONGPU_CPPSIMD
+#ifdef MGONGPU_HAS_CXTYPE_REF
+    const std::string cxtref = " [cxtype_ref=YES]";
+#else
+    const std::string cxtref = " [cxtype_ref=NO]";
+#endif
+#endif
     // Dump all configuration parameters and all results
     outStream << "***************************************************************************" << std::endl
 #ifdef __CUDACC__
-              << tag << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CUDA" << std::endl
+              << tag << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CUDA"
+              << " [" << process.getCompiler() << "]" << std::endl
 #else
-              << tag << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CPP" << std::endl
+              << tag << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CPP"
+              << " [" << process.getCompiler() << "]" << std::endl
 #endif
               << tag << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << tag << "NumThreadsPerBlock          = " << gputhreads << std::endl
@@ -758,17 +791,22 @@ int check
       //<< "Wavefunction GPU memory     = LOCAL" << std::endl
 #else
 #if !defined MGONGPU_CPPSIMD
-              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('none': scalar, no SIMD)" << std::endl
+              << tag << "Internal loops fptype_sv    = SCALAR ('none': ~vector[" << neppV
+              << "], no SIMD)" << std::endl
 #elif defined __AVX512VL__
 #ifdef MGONGPU_PVW512
-              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('512z': AVX512, 512 vector width)" << std::endl
+              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV 
+              << "] ('512z': AVX512, 512bit)" << cxtref << std::endl
 #else
-              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('512y': AVX512, 256 vector width)" << std::endl
+              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV
+              << "] ('512y': AVX512, 256bit)" << cxtref << std::endl
 #endif
 #elif defined __AVX2__
-              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('avx2': AVX2, 256 vector width)" << std::endl
+              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV
+              << "] ('avx2': AVX2, 256bit)" << cxtref << std::endl
 #elif defined __SSE4_2__
-              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV << "] ('sse4': SSE4.2, 128 vector width)" << std::endl
+              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV
+              << "] ('sse4': SSE4.2, 128bit)" << cxtref << std::endl
 #else
 #error Internal error: unknown SIMD build configuration
 #endif
@@ -787,15 +825,13 @@ int check
 #else
               << tag << "Random number generation    = CURAND (C++ code)" << std::endl
 #endif
-#endif
-#ifdef __CUDACC__
-              << tag << "Wavefunction GPU memory     = LOCAL" << std::endl
-#else
+#ifdef _OPENMP
               << tag << "OMP threads / `nproc --all` = " << check_omp_threads() << " / " << nprocall() << std::endl
 #endif
-              << tag << "MatrixElements compiler     = " << process.getCompiler() << std::endl
+#endif
+          //<< tag << "MatrixElements compiler     = " << process.getCompiler() << std::endl
               << "-----------------------------------------------------------------------------" << std::endl
-              << tag << "NumIterations               = " << niter << std::endl
+              << tag << "NumIterations               = " << niter << std::endl // was NumberOfEntries
               << std::scientific // fixed format: affects all floats (default precision: 6)
               << tag << "TotalTime[Rnd+Rmb+ME] (123) = ( "
               << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl

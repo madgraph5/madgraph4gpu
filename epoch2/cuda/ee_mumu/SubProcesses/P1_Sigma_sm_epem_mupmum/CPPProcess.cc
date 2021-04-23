@@ -1075,6 +1075,12 @@ namespace Proc
 #else
     out << "nvcc UNKNOWN";
 #endif
+#elif defined __clang__
+#if defined __clang_major__ && defined __clang_minor__ && defined __clang_patchlevel__
+    out << "clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
+#else
+    out << "clang UNKNOWKN";
+#endif
 #else
 #if defined __GNUC__ && defined __GNUC_MINOR__ && defined __GNUC_PATCHLEVEL__
     out << "gcc (GCC) " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
@@ -1153,11 +1159,13 @@ namespace Proc
 
 #ifndef __CUDACC__
     // +++ START LOOP ON IEVT +++
+#ifdef _OPENMP
     // - default(none): No variables are shared by default
     // - shared(...): As the name says
     // - firstprivate: give each thread its own copy, and initialise with value from outside
     // This means that each thread computes its own good helicity states. Before, this was implicitly shared, i.e. race condition.
 #pragma omp parallel for default(none) shared(allmomenta, allMEs) firstprivate(sigmakin_itry, sigmakin_goodhel, nevt)
+#endif
     for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {

@@ -24,6 +24,18 @@ namespace mgOnGpu
   typedef fptype fptype_v __attribute__ ((vector_size (neppV*sizeof(fptype)))); // RRRR
 #endif
 
+#ifdef __clang__
+  // If set: return a pair of (fptype&, fptype&) by non-const reference in cxtype_v::operator[]
+  // This is forbidden in clang ("non-const reference cannot bind to vector element")
+  // See also https://stackoverflow.com/questions/26554829
+#undef MGONGPU_HAS_CXTYPE_REF // clang default
+#else
+#define MGONGPU_HAS_CXTYPE_REF 1 // gcc default
+  //#undef MGONGPU_HAS_CXTYPE_REF // gcc test
+#endif
+
+#ifdef MGONGPU_HAS_CXTYPE_REF
+  // NB: the alternative "clang" implementation is simpler: it simply does not have class cxtype_ref
   class cxtype_ref
   {
   public:
@@ -38,6 +50,7 @@ namespace mgOnGpu
   private:
     fptype &m_real, &m_imag; // RI
   };
+#endif
 
   // --- Type definition (using vector compiler extensions: need -march=...)
   class cxtype_v // no need for "class alignas(2*sizeof(fptype_v)) cxtype_v"
@@ -51,16 +64,11 @@ namespace mgOnGpu
     cxtype_v& operator=( cxtype_v&& ) = default;
     //cxtype_v& operator+=( const cxtype_v& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
     cxtype_v& operator-=( const cxtype_v& c ){ m_real -= c.real(); m_imag -= c.imag(); return *this; }
-
-#ifdef __clang__
-    // ERROR! clang build fails: [] is a value not a ref?
-    //cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); }
-    // ERROR! clang build crashes (probably because [] is a value not a ref)
-    cxtype_ref operator[]( size_t i ) const { return cxtype_ref( (fptype&)(m_real[i]), (fptype&)(m_imag[i]) ); }
-#else
+#ifdef MGONGPU_HAS_CXTYPE_REF
+    // NB: the alternative "clang" implementation is simpler: it simply does not have any operator[]
+    // NB: ** do NOT implement operator[] to return a value: it does not fail the build (why?) and gives unexpected results! **
     cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); }
 #endif
-
     const fptype_v& real() const { return m_real; }
     const fptype_v& imag() const { return m_imag; }
   private:
@@ -69,12 +77,20 @@ namespace mgOnGpu
 
   // --- Type definition (using vector compiler extensions: need -march=...)
 #ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
+#if defined MGONGPU_FPTYPE_DOUBLE
   typedef long int bool_v __attribute__ ((ext_vector_type(neppV))); // bbbb
-#else
+#elif defined MGONGPU_FPTYPE_FLOAT
+  typedef int bool_v __attribute__ ((ext_vector_type(neppV))); // bbbb
+#endif
+#else // gcc
+#if defined MGONGPU_FPTYPE_DOUBLE
   typedef long int bool_v __attribute__ ((vector_size (neppV*sizeof(long int)))); // bbbb
+#elif defined MGONGPU_FPTYPE_FLOAT
+  typedef int bool_v __attribute__ ((vector_size (neppV*sizeof(int)))); // bbbb
+#endif
 #endif
 
-#else
+#else // MGONGPU_CPPSIMD not defined
 
   const int neppV = 1; // Note: also neppM is equal to 1
 
@@ -118,8 +134,13 @@ inline std::ostream& operator<<( std::ostream& out, const cxtype& c )
 #ifdef MGONGPU_CPPSIMD
 inline std::ostream& operator<<( std::ostream& out, const cxtype_v& v )
 {
+#ifdef MGONGPU_HAS_CXTYPE_REF
   out << "{ " << v[0];
   for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
+#else
+  out << "{ " << cxmake( v.real()[0], v.imag()[0] );
+  for ( int i=1; i<neppV; i++ ) std::cout << ", " << cxmake( v.real()[i], v.imag()[i] );
+#endif
   out << " }";
   return out;
 }
@@ -397,33 +418,73 @@ fptype_v fpternary( const bool_v& mask, const fptype& a, const fptype& b )
 inline
 cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype_v& b )
 {
+#ifdef MGONGPU_HAS_CXTYPE_REF
   cxtype_v out;
   for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a[i] : b[i] );
   return out;
+#else
+  fptype_v outr, outi;
+  for ( int i=0; i<neppV; i++ )
+  {
+    outr[i] = ( mask[i] ? a.real()[i] : b.real()[i] );
+    outi[i] = ( mask[i] ? a.imag()[i] : b.imag()[i] );
+  }
+  return cxmake( outr, outi );
+#endif
 }
 
 inline
 cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype& b )
 {
+#ifdef MGONGPU_HAS_CXTYPE_REF
   cxtype_v out;
   for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a[i] : b );
   return out;
+#else
+  fptype_v outr, outi;
+  for ( int i=0; i<neppV; i++ )
+  {
+    outr[i] = ( mask[i] ? a.real()[i] : b.real() );
+    outi[i] = ( mask[i] ? a.imag()[i] : b.imag() );
+  }
+  return cxmake( outr, outi );
+#endif
 }
 
 inline
 cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype_v& b )
 {
+#ifdef MGONGPU_HAS_CXTYPE_REF
   cxtype_v out;
   for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a : b[i] );
   return out;
+#else
+  fptype_v outr, outi;
+  for ( int i=0; i<neppV; i++ )
+  {
+    outr[i] = ( mask[i] ? a.real() : b.real()[i] );
+    outi[i] = ( mask[i] ? a.imag() : b.imag()[i] );
+  }
+  return cxmake( outr, outi );
+#endif
 }
 
 inline
 cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype& b )
 {
+#ifdef MGONGPU_HAS_CXTYPE_REF
   cxtype_v out;
   for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a : b );
   return out;
+#else
+  fptype_v outr, outi;
+  for ( int i=0; i<neppV; i++ )
+  {
+    outr[i] = ( mask[i] ? a.real() : b.real() );
+    outi[i] = ( mask[i] ? a.imag() : b.imag() );
+  }
+  return cxmake( outr, outi );
+#endif
 }
 
 inline

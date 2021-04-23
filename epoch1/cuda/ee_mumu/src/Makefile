@@ -8,17 +8,18 @@ LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
 # AVX choice (example: "make AVX=none")
-ifneq ($(findstring clang++,$(CXX)),)
-override AVX = none
-$(warning Using AVX='$(AVX)' for clang builds)
-else ifneq ($(AVX),)
+ifneq ($(AVX),)
 ###$(info Using AVX='$(AVX)' according to user input)
-else ifneq ($(shell grep -c avx512vl /proc/cpuinfo),0)
+else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
 override AVX = 512y
 ###$(info Using AVX='$(AVX)' as no user input exists)
 else
 override AVX = avx2
-$(warning Using AVX='$(AVX)' as no user input exists and host does not support avx512vl)
+ifneq ($(shell grep -m1 -c avx512vl /proc/cpuinfo),1)
+$(warning Using AVX='$(AVX)' because host does not support avx512vl)
+else
+$(warning Using AVX='$(AVX)' because this is faster than avx512vl for clang)
+endif
 endif
 ###$(info AVX=$(AVX))
 
@@ -28,9 +29,9 @@ endif
 ifeq ($(AVX),sse4)
 override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
 else ifeq ($(AVX),avx2)
-override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers)
+override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
 else ifeq ($(AVX),512y)
-override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT!]
+override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
 else ifeq ($(AVX),512z)
 override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
 else ifneq ($(AVX),none)
@@ -79,12 +80,13 @@ target=$(LIBDIR)/libmodel_sm.a
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o rambo.o)
 cu_objects= # NB grambo.cu must be included by gcheck.cu (no rdc)
 
-all.$(TAG): checktag $(target)
+all.$(TAG): $(BUILDDIR)/.build.tag_$(TAG) $(target)
 
-checktag:
-	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
-	@echo $(TAG) > $(BUILDDIR)/build.tag_new
-	@if [ ! -e $(BUILDDIR)/build.tag ]; then mv -f $(BUILDDIR)/build.tag_new $(BUILDDIR)/build.tag; elif ! cmp -s $(BUILDDIR)/build.tag_new $(BUILDDIR)/build.tag; then echo -e "Cannot build for tag=$(TAG) as old build exists for tag=`cat $(BUILDDIR)/build.tag`\nPlease run 'make clean' first"; exit 1; fi
+override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.tag_*' ! -name '.build.tag_$(TAG)'`
+$(BUILDDIR)/.build.tag_$(TAG):
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir $(BUILDDIR)"; mkdir $(BUILDDIR); fi
+	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first or consider using 'make USEBUILDDIR=1 AVX=$(AVX)'"; exit 1; fi
+	@touch $(BUILDDIR)/.build.tag_$(TAG)
 
 debug: OPTFLAGS = -g -O0 -DDEBUG2
 #debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
@@ -108,7 +110,7 @@ $(target): $(cxx_objects) #$(cu_objects)
 .PHONY: clean
 
 clean:
-	rm -f $(BUILDDIR)/build.tag $(BUILDDIR)/build.tag_new
+	rm -f $(BUILDDIR)/.build.tag*
 ifneq ($(BUILDDIR),.)
 	rm -rf $(LIBDIR) $(BUILDDIR)
 else
