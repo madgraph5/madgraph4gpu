@@ -10,7 +10,7 @@ CXX     ?= g++
 # AVX choice (example: "make AVX=none")
 ifneq ($(AVX),)
 ###$(info Using AVX='$(AVX)' according to user input)
-else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang++),1)
+else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
 override AVX = 512y
 ###$(info Using AVX='$(AVX)' as no user input exists)
 else
