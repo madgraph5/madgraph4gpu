@@ -5,8 +5,6 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#include "../../src/HelAmps_sm.h"
-
 #ifndef MG5_Sigma_sm_epem_mupmum_H
 #define MG5_Sigma_sm_epem_mupmum_H
 
@@ -17,6 +15,7 @@
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
+#include "mgOnGpuVectors.h"
 
 #include "Parameters_sm.h"
 
@@ -75,6 +74,13 @@ namespace Proc
     //int getDim() const { return dim; }
     //int getNIOParticles() const { return nexternal; }
 
+    // Accessors (unused so far: add them to fix a clang build warning)
+    int numiterations() const { return m_numiterations; }
+    int gpublocks() const { return m_ngpublocks; }
+    int gputhreads() const { return m_ngputhreads; }
+    //bool verbose() const { return m_verbose; }
+    bool debug() const { return m_debug; }
+
   public:
 
     // Hardcoded parameters for this process (constant class variables)
@@ -110,27 +116,30 @@ namespace Proc
 
 #ifdef __CUDACC__
   __global__
-  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            bool* isGoodHel );        // output: isGoodHel[ncomb] - device array
 #endif
+  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                            fptype* allMEs,              // output: allMEs[nevt], final |M|^2 averaged over all helicities
+                            bool* isGoodHel              // output: isGoodHel[ncomb] - device array
+#ifndef __CUDACC__
+                            , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#endif
+                            );
 
-  //--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
   void sigmaKin_setGoodHel( const bool* isGoodHel ); // input: isGoodHel[ncomb] - host array
-#endif
 
-  //--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 
   __global__
-  void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                 fptype* allMEs            // output: allMEs[nevt], final |M|^2 averaged over all helicities
+  void sigmaKin( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                 fptype* allMEs               // output: allMEs[nevt], final |M|^2 averaged over all helicities
 #ifndef __CUDACC__
-                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                 , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                  );
 
-  //--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 
 }
 

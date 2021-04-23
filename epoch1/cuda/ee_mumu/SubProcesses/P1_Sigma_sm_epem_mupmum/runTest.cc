@@ -14,6 +14,16 @@
 #include "rambo.h"
 #endif
 
+#ifdef __CUDACC__
+template<typename T = fptype>
+using unique_ptr_dev = std::unique_ptr<T, CudaDevDeleter<T>>;
+template<typename T = fptype>
+using unique_ptr_host = std::unique_ptr<T[], CudaHstDeleter<T>>;
+#else
+template<typename T = fptype>
+using unique_ptr_host = std::unique_ptr<T[]>;
+#endif
+
 struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
 
   static_assert( gputhreads%mgOnGpu::neppR == 0, "ERROR! #threads/block should be a multiple of neppR" );
@@ -40,11 +50,11 @@ struct CPUTest : public CUDA_CPU_TestBase {
 
   // --- 0b. Allocate memory structures
   // Memory structures for random numbers, momenta, matrix elements and weights on host and device
-  unique_ptr_host<fptype> hstRnarray  { hstMakeUnique<fptype>( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR] (nevt=npagR*neppR)
-  unique_ptr_host<fptype> hstMomenta  { hstMakeUnique<fptype>( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM] (nevt=npagM*neppM)
-  unique_ptr_host<bool  > hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) };
-  unique_ptr_host<fptype> hstWeights  { hstMakeUnique<fptype>( nWeights ) };
-  unique_ptr_host<fptype> hstMEs      { hstMakeUnique<fptype>( nMEs ) };
+  unique_ptr_host<fptype   > hstRnarray  { hstMakeUnique<fptype   >( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR]
+  unique_ptr_host<fptype_sv> hstMomenta  { hstMakeUnique<fptype_sv>( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM]
+  unique_ptr_host<bool     > hstIsGoodHel{ hstMakeUnique<bool     >( mgOnGpu::ncomb ) };
+  unique_ptr_host<fptype   > hstWeights  { hstMakeUnique<fptype   >( nWeights ) };
+  unique_ptr_host<fptype   > hstMEs      { hstMakeUnique<fptype   >( nMEs ) };
 
   // Create a process object
   // Read param_card and set parameters
@@ -72,18 +82,33 @@ struct CPUTest : public CUDA_CPU_TestBase {
     rambo2toNm0::getMomentaFinal( energy, hstRnarray.get(), hstMomenta.get(), hstWeights.get(), nevt );
   }
 
-  void runSigmaKin(std::size_t /*iiter*/) override {
+  void runSigmaKin(std::size_t iiter) override {
+    // --- 0d. SGoodHel
+    if ( iiter == 0 )
+    {
+      // ... 0d1. Compute good helicity mask on the host
+      Proc::sigmaKin_getGoodHel(hstMomenta.get(), hstMEs.get(), hstIsGoodHel.get(), nevt);
+      // ... 0d2. Copy back good helicity list to static memory on the host
+      Proc::sigmaKin_setGoodHel(hstIsGoodHel.get());
+    }
+
     // --- 3a. SigmaKin
     Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), nevt);
   }
 
   fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
-    assert(component < mgOnGpu::np4);
-    assert(particle  < mgOnGpu::npar);
-    const auto page  = evtNo / mgOnGpu::neppM; // #eventpage in this iteration
-    const auto ieppM = evtNo % mgOnGpu::neppM; // #event in the current eventpage in this iteration
-    return hstMomenta[page * mgOnGpu::npar*mgOnGpu::np4*mgOnGpu::neppM +
-                      particle * mgOnGpu::neppM*mgOnGpu::np4 + component * mgOnGpu::neppM + ieppM];
+    using mgOnGpu::np4;
+    using mgOnGpu::npar;
+    using mgOnGpu::neppM;
+    assert(component < np4);
+    assert(particle  < npar);
+    const auto ipagM = evtNo / neppM; // #eventpage in this iteration
+    const auto ieppM = evtNo % neppM; // #event in the current eventpage in this iteration
+#ifndef MGONGPU_CPPSIMD
+    return hstMomenta[ipagM*npar*np4*neppM + particle*np4*neppM + component*neppM + ieppM];
+#else
+    return hstMomenta[ipagM*npar*np4 + particle*np4 + component][ieppM];
+#endif
   };
 
   fptype getMatrixElement(std::size_t evtNo) const override {
@@ -160,7 +185,7 @@ struct CUDATest : public CUDA_CPU_TestBase {
     if ( iiter == 0 )
     {
       // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.get(), devIsGoodHel.get());
+      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.get(), devMEs.get(), devIsGoodHel.get());
       checkCuda( cudaPeekAtLastError() );
       // ... 0d2. Copy back good helicity mask to the host
       checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(),

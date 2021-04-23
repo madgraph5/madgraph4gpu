@@ -5,8 +5,6 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#include "../../src/HelAmps_sm.h"
-
 #ifndef MG5_Sigma_sm_epem_mupmum_H
 #define MG5_Sigma_sm_epem_mupmum_H
 
@@ -74,6 +72,13 @@ namespace Proc
     //void setInitial( int inid1, int inid2 ){ id1 = inid1; id2 = inid2; }
     //int getDim() const { return dim; }
     //int getNIOParticles() const { return nexternal; }
+
+    // Accessors (unused so far: add them to fix a clang build warning)
+    int numiterations() const { return m_numiterations; }
+    int gpublocks() const { return m_ngpublocks; }
+    int gputhreads() const { return m_ngputhreads; }
+    //bool verbose() const { return m_verbose; }
+    bool debug() const { return m_debug; }
 
   public:
 

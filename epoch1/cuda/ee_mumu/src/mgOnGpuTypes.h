@@ -1,5 +1,5 @@
-#ifndef MGONGPUCOMPLEX_H
-#define MGONGPUCOMPLEX_H 1
+#ifndef MGONGPUTYPES_H
+#define MGONGPUTYPES_H 1
 
 #include "mgOnGpuConfig.h"
 
@@ -20,13 +20,6 @@ namespace mgOnGpu
 
   // --- Type definitions
 
-  // Floating point type: fptype
-#if defined MGONGPU_FPTYPE_DOUBLE
-  typedef double fptype; // double precision (8 bytes, fp64)
-#elif defined MGONGPU_FPTYPE_FLOAT
-  typedef float fptype; // single precision (4 bytes, fp32)
-#endif
-
   // Complex type: cxtype
 #ifdef __CUDACC__ // cuda
 #if defined MGONGPU_CXTYPE_THRUST
@@ -43,7 +36,6 @@ namespace mgOnGpu
 }
 
 // Expose typedefs and operators outside the namespace
-using mgOnGpu::fptype;
 using mgOnGpu::cxtype;
 
 // --- Functions and operators for floating point types
@@ -385,4 +377,4 @@ cxtype cxmake( const std::complex<double>& c ) // std::complex to std::complex (
 
 #endif  // END cuda/c++
 
-#endif // MGONGPUCOMPLEX_H
+#endif // MGONGPUTYPES_H
