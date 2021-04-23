@@ -769,7 +769,7 @@ int check
               << tag << "NumIterations               = " << niter << std::endl
               << "---------------------------------------------------------------------------" << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
-              << tag << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << " )" << std::endl
+              << tag << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
               << tag << "FP precision                = FLOAT (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #endif

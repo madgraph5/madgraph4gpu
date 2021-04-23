@@ -705,7 +705,7 @@ int main(int argc, char **argv)
               << "NumIterations               = " << niter << std::endl
               << "-----------------------------------------------------------------------" << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
-              << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << " )" << std::endl
+              << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
               << "FP precision                = FLOAT (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #endif

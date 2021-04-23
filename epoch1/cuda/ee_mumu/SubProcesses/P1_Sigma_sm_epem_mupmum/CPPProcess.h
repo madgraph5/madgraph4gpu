@@ -5,8 +5,6 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#include "../../src/HelAmps_sm.h"
-
 #ifndef MG5_Sigma_sm_epem_mupmum_H
 #define MG5_Sigma_sm_epem_mupmum_H
 
@@ -129,17 +127,17 @@ namespace Proc
 
 //--------------------------------------------------------------------------
 
-void sigmaKin_setGoodHel( const bool* isGoodHel ); // input: isGoodHel[ncomb] - host array
+  void sigmaKin_setGoodHel( const bool* isGoodHel ); // input: isGoodHel[ncomb] - host array
 
 //--------------------------------------------------------------------------
 
-__global__
-void sigmaKin( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-               fptype* allMEs               // output: allMEs[nevt], final |M|^2 averaged over all helicities
+  __global__
+  void sigmaKin( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                 fptype* allMEs               // output: allMEs[nevt], final |M|^2 averaged over all helicities
 #ifndef __CUDACC__
-               , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                 , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
-               );
+                 );
 
 //--------------------------------------------------------------------------
 
