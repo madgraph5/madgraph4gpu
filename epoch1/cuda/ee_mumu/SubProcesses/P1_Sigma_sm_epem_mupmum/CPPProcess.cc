@@ -1081,12 +1081,10 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   // Evaluate |M|^2 for each subprocess
-  // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum
-  // of |M|^2 over helicities for the given event
-
+  // NB: calculate_wavefunctions ADDS |M|^2 for given ihel to running sum of |M|^2 over helicities for given event(s)
   __device__
   void calculate_wavefunctions( int ihel,
-                                const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                                const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
                                 fptype* allMEs               // output: allMEs[nevt], final |M|^2 averaged over all helicities
 #ifndef __CUDACC__
                                 , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
@@ -1236,7 +1234,7 @@ namespace Proc
           cxtype ztemp = cxmake( 0., 0. );
           for( int jcol = 0; jcol < ncolor; jcol++ )
             ztemp += cf[icol][jcol] * jamp[jcol];
-          // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
+          // NB: calculate_wavefunctions ADDS |M|^2 for given ihel to running sum of |M|^2 over helicities for given event(s)
           // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
           allMEs[ievt] += cxreal( ztemp * conj( jamp[icol] ) ) / denom[icol];
         }
@@ -1365,7 +1363,7 @@ namespace Proc
 
 #ifdef __CUDACC__
   __global__
-  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
                             fptype* allMEs,              // output: allMEs[nevt], final |M|^2 averaged over all helicities
                             bool* isGoodHel )            // output: isGoodHel[ncomb] - device array
   {
@@ -1375,7 +1373,7 @@ namespace Proc
     fptype allMEsLast = 0;
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
-      // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to running sum of |M|^2 over helicities for the given event(s)
+      // NB: calculate_wavefunctions ADDS |M|^2 for given ihel to running sum of |M|^2 over helicities for given event(s)
       calculate_wavefunctions( ihel, allmomenta, allMEs );
       if ( allMEs[ievt] != allMEsLast )
       {
@@ -1386,7 +1384,7 @@ namespace Proc
     }
   }
 #else
-  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
                             fptype* allMEs,              // output: allMEs[nevt], final |M|^2 averaged over all helicities
                             bool* isGoodHel              // output: isGoodHel[ncomb] - device array
                             , const int nevt )           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
@@ -1448,7 +1446,7 @@ namespace Proc
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
   __global__
-  void sigmaKin( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+  void sigmaKin( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
                  fptype* allMEs               // output: allMEs[nevt], final |M|^2 averaged over all helicities
 #ifndef __CUDACC__
                  , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
