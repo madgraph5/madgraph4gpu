@@ -104,6 +104,19 @@ else
   endif
 endif
 
+# Enable ccache if USECCACHE=1
+ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
+override CXX:=ccache $(CXX)
+endif
+ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
+override AR:=ccache $(AR)
+endif
+ifneq ($(NVCC),)
+ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
+override NVCC:=ccache $(NVCC)
+endif
+endif
+
 GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
 GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 
@@ -172,8 +185,8 @@ $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
 $(testmain): $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
 $(testmain): cxx_objects += $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o
 $(testmain): cu_objects  += $(BUILDDIR)/runTest_cu.o
-ifeq ($(shell basename $(CXX)),clang++)
-$(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(CXX))
+ifneq ($(shell $(CXX) --version | grep ^clang),)
+$(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(shell which $(CXX) | tail -1))
 endif
 
 $(BUILDDIR)/testxxx.o:   $(GTESTLIBS)
@@ -257,6 +270,10 @@ info:
 	@cat /proc/cpuinfo | grep "cpu cores" | sort -u
 	@cat /proc/cpuinfo | grep "physical id" | sort -u
 	@echo ""
+ifeq ($(USECCACHE),1)
+	ccache --version | head -1
+	@echo ""
+endif
 ifneq ($(NVCC),)
 	$(NVCC) --version
 	@echo ""
