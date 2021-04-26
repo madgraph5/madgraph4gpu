@@ -23,6 +23,17 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   CUINC = -I$(CUDA_HOME)/include/
 endif
 
+# Enable ccache if USECCACHE=1
+ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
+override CXX:=ccache $(CXX)
+endif
+ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
+override AR:=ccache $(AR)
+endif
+ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
+override NVCC:=ccache $(NVCC)
+endif
+
 # Assuming uname is available, detect if architecture is power
 #UNAME_P := $(shell uname -p)
 #ifeq ($(UNAME_P),ppc64le)
