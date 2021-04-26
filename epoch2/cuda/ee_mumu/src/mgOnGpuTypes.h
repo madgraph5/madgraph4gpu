@@ -11,6 +11,7 @@
 #include <cuComplex.h>
 #endif
 #else
+#include <cmath>
 #include <complex>
 #endif
 
@@ -44,6 +45,68 @@ namespace mgOnGpu
 // Expose typedefs and operators outside the namespace
 using mgOnGpu::fptype;
 using mgOnGpu::cxtype;
+
+// --- Functions and operators for floating point types
+
+#ifdef __CUDACC__ // cuda
+
+/*
+inline __host__ __device__
+fptype fpmax( const fptype& a, const fptype& b )
+{
+  return max( a, b );
+}
+
+inline __host__ __device__
+fptype fpmin( const fptype& a, const fptype& b )
+{
+  return min( a, b );
+}
+*/
+
+inline __host__ __device__
+const fptype& fpmax( const fptype& a, const fptype& b )
+{
+  return ( ( b < a ) ? a : b );
+}
+
+inline __host__ __device__
+const fptype& fpmin( const fptype& a, const fptype& b )
+{
+  return ( ( a < b ) ? a : b );
+}
+
+inline __host__ __device__
+fptype fpsqrt( const fptype& f )
+{
+  return sqrt( f );
+}
+
+#else // c++
+
+inline
+const fptype& fpmax( const fptype& a, const fptype& b )
+{
+  return std::max( a, b );
+}
+
+inline
+const fptype& fpmin( const fptype& a, const fptype& b )
+{
+  return std::min( a, b );
+}
+
+inline
+fptype fpsqrt( const fptype& f )
+{
+#if defined MGONGPU_FPTYPE_FLOAT
+  return sqrtf( f );
+#else
+  return sqrt( f );
+#endif
+}
+
+#endif
 
 // --- Functions and operators for complex types
 

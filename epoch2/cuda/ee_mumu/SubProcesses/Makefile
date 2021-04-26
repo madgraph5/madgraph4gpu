@@ -11,7 +11,15 @@ CXXFLAGS+= -ffast-math # see issue #117
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
-#Export CUDA_HOME to select a cuda installation
+# Disable OpenMP for clang 11.0.0 (workaround for SPI-1875)
+# NB: "#ifdef _OPENMP" is valid if -fopenmp is present
+# [No need to also remove -lgomp from cuda runTest: cuda is currently disabled for clang11]
+ifeq ($(shell $(CXX) --version | head -1),clang version 11.0.0)
+override OMPFLAGS=
+$(warning Disabling OpenMP for clang 11.0.0)
+endif
+
+# If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
   NVCC ?= $(shell which nvcc 2>/dev/null)
   ifneq ($(NVCC),)
@@ -69,11 +77,14 @@ debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all
 
-$(LIBDIR)/lib$(MODELLIB).a:
+$(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
 gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
+
+CPPProcess.o : ../../src/HelAmps_sm.cc
+gCPPProcess.o : ../../src/HelAmps_sm.cc
 
 %.o : %.cu *.h ../../src/*.h
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
@@ -87,7 +98,6 @@ $(cu_main): gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
 $(cxx_main): check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
-
 runTest.o:   $(GTESTLIBS)
 runTest.exe: $(GTESTLIBS)
 runTest.exe: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include/
@@ -96,9 +106,14 @@ runTest.exe: LIBFLAGS += -L$(GTESTLIBDIR)/ -lgtest -lgtest_main
 runTest.exe: runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
 runTest.exe: cxx_objects += runTest.o $(TESTDIR)/src/MadgraphTest.o
 runTest.exe: cu_objects  += runTest_cu.o
-ifneq ($(findstring clang++,$(CXX)),)
+ifeq ($(shell basename $(CXX)),clang++)
 runTest.exe: LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(CXX))
 endif
+
+testxxx.o:   $(GTESTLIBS)
+testxxx.o:   testxxx_cc_ref.txt
+runTest.exe: testxxx.o
+runTest.exe: cxx_objects += testxxx.o # Comment out this line to skip the test of xxx functions
 
 ifeq ($(NVCC),)
 # Link only runTest.o
@@ -106,6 +121,7 @@ runTest.exe: $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
 # Link both runTest.o and runTest_cu.o
+# (todo? avoid multiple targets and '&', this needs the latest make 4.3, see https://stackoverflow.com/a/60232515)
 runTest.exe runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
 	$(NVCC) -o runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
@@ -122,6 +138,8 @@ check: runTest.exe
 clean:
 	make -C ../../src clean
 	rm -f *.o *.exe
+
+cleanall: clean
 
 distclean: clean
 	make -C $(TOOLSDIR) clean

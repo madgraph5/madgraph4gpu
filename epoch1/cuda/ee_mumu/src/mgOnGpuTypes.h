@@ -1,5 +1,5 @@
-#ifndef MGONGPUCOMPLEX_H
-#define MGONGPUCOMPLEX_H 1
+#ifndef MGONGPUTYPES_H
+#define MGONGPUTYPES_H 1
 
 #include "mgOnGpuConfig.h"
 
@@ -11,6 +11,7 @@
 #include <cuComplex.h>
 #endif
 #else
+#include <cmath>
 #include <complex>
 #endif
 
@@ -18,13 +19,6 @@ namespace mgOnGpu
 {
 
   // --- Type definitions
-
-  // Floating point type: fptype
-#if defined MGONGPU_FPTYPE_DOUBLE
-  typedef double fptype; // double precision (8 bytes, fp64)
-#elif defined MGONGPU_FPTYPE_FLOAT
-  typedef float fptype; // single precision (4 bytes, fp32)
-#endif
 
   // Complex type: cxtype
 #ifdef __CUDACC__ // cuda
@@ -42,8 +36,69 @@ namespace mgOnGpu
 }
 
 // Expose typedefs and operators outside the namespace
-using mgOnGpu::fptype;
 using mgOnGpu::cxtype;
+
+// --- Functions and operators for floating point types
+
+#ifdef __CUDACC__ // cuda
+
+/*
+inline __host__ __device__
+fptype fpmax( const fptype& a, const fptype& b )
+{
+  return max( a, b );
+}
+
+inline __host__ __device__
+fptype fpmin( const fptype& a, const fptype& b )
+{
+  return min( a, b );
+}
+*/
+
+inline __host__ __device__
+const fptype& fpmax( const fptype& a, const fptype& b )
+{
+  return ( ( b < a ) ? a : b );
+}
+
+inline __host__ __device__
+const fptype& fpmin( const fptype& a, const fptype& b )
+{
+  return ( ( a < b ) ? a : b );
+}
+
+inline __host__ __device__
+fptype fpsqrt( const fptype& f )
+{
+  return sqrt( f );
+}
+
+#else // c++
+
+inline
+const fptype& fpmax( const fptype& a, const fptype& b )
+{
+  return std::max( a, b );
+}
+
+inline
+const fptype& fpmin( const fptype& a, const fptype& b )
+{
+  return std::min( a, b );
+}
+
+inline
+fptype fpsqrt( const fptype& f )
+{
+#if defined MGONGPU_FPTYPE_FLOAT
+  return sqrtf( f );
+#else
+  return sqrt( f );
+#endif
+}
+
+#endif
 
 // --- Functions and operators for complex types
 
@@ -322,4 +377,4 @@ cxtype cxmake( const std::complex<double>& c ) // std::complex to std::complex (
 
 #endif  // END cuda/c++
 
-#endif // MGONGPUCOMPLEX_H
+#endif // MGONGPUTYPES_H
