@@ -50,6 +50,7 @@ pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|FP precisio
 # Optionally add other patterns here for some specific configurations (e.g. clang)
 pattern="(${pattern})"
 
+echo -e "\nOn $HOSTNAME:"
 for exe in $exes; do
   if [ ! -f $exe ]; then continue; fi
   echo "-------------------------------------------------------------------------"

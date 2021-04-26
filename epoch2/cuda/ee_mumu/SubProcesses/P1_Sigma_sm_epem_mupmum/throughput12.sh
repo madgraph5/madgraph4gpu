@@ -21,6 +21,7 @@ pattern="Process|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|FP precision|TOTAL   
 # Optionally add other patterns here for some specific configurations (e.g. clang)
 pattern="(${pattern})"
 
+echo -e "\nOn $HOSTNAME:"
 for exe in $exes; do
   if [ ! -f $exe ]; then continue; fi
   echo "-------------------------------------------------------------------------"
