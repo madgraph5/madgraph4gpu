@@ -111,8 +111,10 @@ endif
 ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
 override AR:=ccache $(AR)
 endif
+ifneq ($(NVCC),)
 ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
 override NVCC:=ccache $(NVCC)
+endif
 endif
 
 GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
