@@ -185,8 +185,8 @@ $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
 $(testmain): $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
 $(testmain): cxx_objects += $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o
 $(testmain): cu_objects  += $(BUILDDIR)/runTest_cu.o
-ifeq ($(shell basename $(CXX)),clang++)
-$(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(CXX))
+ifneq ($(shell $(CXX) --version | grep ^clang),)
+$(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(shell which $(CXX) | tail -1))
 endif
 
 $(BUILDDIR)/testxxx.o:   $(GTESTLIBS)
