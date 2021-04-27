@@ -49,6 +49,7 @@ popd >& /dev/null
 pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|FP precision|TOTAL       :"
 # Optionally add other patterns here for some specific configurations (e.g. clang)
 pattern="${pattern}|CUCOMPLEX"
+pattern="${pattern}|COMMON RANDOM"
 pattern="(${pattern})"
 
 echo -e "\nOn $HOSTNAME:"
