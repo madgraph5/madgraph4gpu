@@ -6,6 +6,8 @@
 #include <thread>
 #include <vector>
 
+#define SEP79 79
+
 // implemented in gheck.cu (compiled with nvcc)
 // used by gmain/hmain.cc (compiled using g++)
 int gcheck( int argc,
