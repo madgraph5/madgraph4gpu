@@ -10,16 +10,12 @@ CXX     ?= g++
 # AVX choice (example: "make AVX=none")
 ifneq ($(AVX),)
 ###$(info Using AVX='$(AVX)' according to user input)
-else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
+else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo),1)
 override AVX = 512y
 ###$(info Using AVX='$(AVX)' as no user input exists)
 else
 override AVX = avx2
-ifneq ($(shell grep -m1 -c avx512vl /proc/cpuinfo),1)
 $(warning Using AVX='$(AVX)' because host does not support avx512vl)
-else
-$(warning Using AVX='$(AVX)' because this is faster than avx512vl for clang)
-endif
 endif
 ###$(info AVX=$(AVX))
 
@@ -29,9 +25,9 @@ endif
 ifeq ($(AVX),sse4)
 override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
 else ifeq ($(AVX),avx2)
-override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
+override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers)
 else ifeq ($(AVX),512y)
-override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
+override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT]
 else ifeq ($(AVX),512z)
 override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
 else ifneq ($(AVX),none)
