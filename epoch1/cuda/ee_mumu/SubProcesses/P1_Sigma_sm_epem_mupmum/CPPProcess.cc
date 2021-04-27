@@ -151,6 +151,26 @@ namespace Proc
       jamp_sv[0] -= amp_sv[0];
       // --- END   Compute amplitudes for all diagrams ---
 
+      // --- START Color matrix algebra ---      
+      // Sum and square the color flows to get the matrix element
+      // (compute |M|^2 by squaring |M|, taking into account colours)
+      fptype_sv deltaMEs = { 0 }; // all zeros
+      for( int icol = 0; icol < ncolor; icol++ )
+      {
+        cxtype_sv ztemp_sv = cxzero_sv();
+        for( int jcol = 0; jcol < ncolor; jcol++ )
+          ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
+        deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];        
+      }
+      // --- END   Color matrix algebra ---      
+
+      // Store the leading color flows for choice of color
+      // (NB: jamp2_sv must be an array of fptype_sv)
+      // for( int icol = 0; icol < ncolor; icol++ )
+      // jamp2_sv[0][icol] += cxreal( jamp_sv[icol]*cxconj( jamp_sv[icol] ) );
+
+      // NB: calculate_wavefunctions ADDS |M|^2 for given ihel to running sum of |M|^2 over helicities for given event(s)
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifndef __CUDACC__
       // ** START LOOP ON IEPPV **
       for ( int ieppV = 0; ieppV < neppV; ++ieppV )
@@ -158,42 +178,18 @@ namespace Proc
       {
 #ifdef __CUDACC__
         const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-        //printf( "calculate_wavefunctions: ievt %d\n", ievt );
 #else
         const int ievt = ipagV*neppV + ieppV;
+#endif
         //printf( "calculate_wavefunctions: ievt %d\n", ievt );
-#endif
-
-        // Local variables for the given event (ievt)
 #ifdef MGONGPU_CPPSIMD
-        cxtype jamp[ncolor];
-#ifdef MGONGPU_HAS_CXTYPE_REF
-        jamp[0] = jamp_sv[0][ieppV];
+        allMEs[ievt] += deltaMEs[ieppV];
 #else
-        jamp[0] = cxmake( jamp_sv[0].real()[ieppV], jamp_sv[0].imag()[ieppV] );
+        allMEs[ievt] += deltaMEs;
 #endif
-#else
-        cxtype* jamp = jamp_sv;
-#endif
-
-        // Sum and square the color flows to get the matrix element
-        // (compute |M|^2 by squaring |M|, taking into account colours)
-        for( int icol = 0; icol < ncolor; icol++ )
-        {
-          cxtype ztemp = cxmake( 0., 0. );
-          for( int jcol = 0; jcol < ncolor; jcol++ )
-            ztemp += cf[icol][jcol] * jamp[jcol];
-          // NB: calculate_wavefunctions ADDS |M|^2 for given ihel to running sum of |M|^2 over helicities for given event(s)
-          // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-          allMEs[ievt] += cxreal( ztemp * cxconj( jamp[icol] ) ) / denom[icol];
-        }
-
-        // Store the leading color flows for choice of color
-        // for(i=0;i < ncolor; i++)
-        // jamp2[0][i] += cxreal( jamp[i]*cxconj( jamp[i] ) );
-
-        //printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt] );
+        //printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievtOrPagV] );
       }
+
     }
 
     mgDebug( 1, __FUNCTION__ );
