@@ -424,18 +424,22 @@ namespace Proc
 #endif
 
     // PART 0 - INITIALISATION (before calculate_wavefunctions)
+    // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
+    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+#ifdef MGONGPU_CPPSIMD
+    const int npagV = nevt/neppV;    
+    for ( int ipagV = 0; ipagV < npagV; ++ipagV )
+    {
+      allMEs[ipagV] = fptype_v{0}; // all zeros
+    }
+#else
 #ifndef __CUDACC__
     for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
-      // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
-      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-#ifndef MGONGPU_CPPSIMD
       allMEs[ievt] = 0; // all zeros
-#else
-      allMEs[ievt/neppV][ievt%neppV] = 0; // all zeros
-#endif
     }
+#endif
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
@@ -450,20 +454,23 @@ namespace Proc
     }
 
     // PART 2 - FINALISATION (after calculate_wavefunctions)
+    // Get the final |M|^2 as an average over helicities/colors of running sum of |M|^2 over helicities for the given event
+    // [NB 'sum over final spins, average over initial spins', eg see
+    // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
+    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+#ifdef MGONGPU_CPPSIMD
+    for ( int ipagV = 0; ipagV < npagV; ++ipagV )
+    {
+      allMEs[ipagV] /= denominators;
+    }
+#else
 #ifndef __CUDACC__
     for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
-      // Get the final |M|^2 as an average over helicities/colors of running sum of |M|^2 over helicities for the given event
-      // [NB 'sum over final spins, average over initial spins', eg see
-      // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
-      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-#ifndef MGONGPU_CPPSIMD
       allMEs[ievt] /= denominators;
-#else
-      allMEs[ievt/neppV][ievt%neppV] /= denominators;
-#endif
     }
+#endif
     mgDebugFinalise();
   }
 
