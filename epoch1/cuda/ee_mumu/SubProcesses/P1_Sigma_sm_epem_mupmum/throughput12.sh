@@ -1,27 +1,24 @@
 #!/bin/bash
 
 omp=0
-if [ "$1" == "-omp" ]; then
-  omp=1
-  shift
-fi
-
 avxall=0
-if [ "$1" == "-avxall" ]; then
-  avxall=1
-  shift
-fi
-
 ep2=0
-if [ "$1" == "-ep2" ]; then
-  ep2=1
-  shift
-fi
 
-if [ "$1" != "" ]; then
-  echo "Usage: $0 [-omp] [-avxall] [-ep2]"
-  exit 1
-fi
+while [ "$1" != "" ]; do
+  if [ "$1" == "-omp" ]; then
+    omp=1
+    shift
+  elif [ "$1" == "-avxall" ]; then
+    avxall=1
+    shift
+  elif [ "$1" == "-ep2" ]; then
+    ep2=1
+    shift
+  else
+    echo "Usage: $0 [-omp] [-avxall] [-ep2]"
+    exit 1
+  fi
+done
 
 exes=
 exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none/check.exe"
