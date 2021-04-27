@@ -7,16 +7,9 @@ OMPFLAGS?= -fopenmp
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
 CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
+###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
-
-# Disable OpenMP for clang 11.0.0 (workaround for SPI-1875)
-# NB: "#ifdef _OPENMP" is valid if -fopenmp is present
-# [No need to also remove -lgomp from cuda runTest: cuda is currently disabled for clang11]
-ifeq ($(shell $(CXX) --version | head -1),clang version 11.0.0)
-override OMPFLAGS=
-$(warning Disabling OpenMP for clang 11.0.0)
-endif
 
 # AVX choice (example: "make AVX=none")
 ifneq ($(AVX),)
@@ -105,6 +98,19 @@ else
   endif
 endif
 
+# Enable ccache if USECCACHE=1
+ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
+override CXX:=ccache $(CXX)
+endif
+ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
+override AR:=ccache $(AR)
+endif
+ifneq ($(NVCC),)
+ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
+override NVCC:=ccache $(NVCC)
+endif
+endif
+
 GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
 GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 
@@ -179,8 +185,8 @@ $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
 $(testmain): $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
 $(testmain): cxx_objects += $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o
 $(testmain): cu_objects  += $(BUILDDIR)/runTest_cu.o
-ifeq ($(shell basename $(CXX)),clang++)
-$(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(CXX))
+ifneq ($(shell $(CXX) --version | grep ^clang),)
+$(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(shell which $(CXX) | tail -1))
 endif
 
 $(BUILDDIR)/testxxx.o:   $(GTESTLIBS)
@@ -199,6 +205,9 @@ $(testmain) $(BUILDDIR)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(
 	$(NVCC) -o $(BUILDDIR)/runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
+
+$(TESTDIR)/src/MadgraphTest.o: $(TESTDIR)/src/MadgraphTest.cc $(TESTDIR)/include/*.h
+	$(MAKE) -C $(TESTDIR)
 
 $(GTESTLIBS):
 	$(MAKE) -C $(TESTDIR)
@@ -264,6 +273,10 @@ info:
 	@cat /proc/cpuinfo | grep "cpu cores" | sort -u
 	@cat /proc/cpuinfo | grep "physical id" | sort -u
 	@echo ""
+ifeq ($(USECCACHE),1)
+	ccache --version | head -1
+	@echo ""
+endif
 ifneq ($(NVCC),)
 	$(NVCC) --version
 	@echo ""

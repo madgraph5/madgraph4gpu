@@ -3,7 +3,7 @@ CXXFLAGS += -Igoogletest/googletest/include/ -std=c++11
 all: gtest src/MadgraphTest.o
 
 %.o: %.cc include/*.h
-	$(CXX) $< -c -o $@ $(CPPFLAGS) $(CXXFLAGS) -Iinclude/
+	$(CXX) $< -g -c -o $@ $(CPPFLAGS) $(CXXFLAGS) -Iinclude/
 
 .PHONY: gtest
 

@@ -56,6 +56,9 @@ function runExe() {
   exe=$1
   ###echo "runExe $exe OMP=$OMP_NUM_THREADS"
   pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|FP precision|TOTAL       :"
+  # Optionally add other patterns here for some specific configurations (e.g. clang)
+  pattern="${pattern}|CUCOMPLEX"
+  pattern="${pattern}|COMMON RANDOM"
   # For TIMEFORMAT see https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
   if [ "${exe%%/hcheck*}" != "${exe}" ]; then 
     pattern="${pattern}|TotalEventsComputed"
@@ -68,10 +71,10 @@ function runExe() {
 function runNcu() {
   exe=$1
   ###echo "runExe $exe OMP=$OM_NUM_THREADS (NCU)"
-  ###sudo LD_LIBRARY_PATH=${LD_LIBRARY_PATH} $(which ncu) --metrics launch__registers_per_thread --target-processes all -k "sigmaKinE" --kernel-regex-base mangled --print-kernel-base mangled $exe -p 2048 256 1 | egrep '(sigmaKin|registers)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17}'
-  $(which ncu) --metrics launch__registers_per_thread --target-processes all -k "sigmaKinE" --kernel-regex-base mangled --print-kernel-base mangled $exe -p 2048 256 1 | egrep '(sigmaKin|registers)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17}'
+  $(which ncu) --metrics launch__registers_per_thread --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe -p 2048 256 1 | egrep '(sigmaKin|registers)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17}'
 }
 
+echo -e "\nOn $HOSTNAME:"
 for exe in $exes; do
   if [ ! -f $exe ]; then continue; fi
   echo "-------------------------------------------------------------------------"

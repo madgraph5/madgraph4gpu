@@ -39,8 +39,7 @@ namespace rambo2toNm0
 #endif
     {
 #ifdef __CUDACC__
-      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid
-      const int ievt = idim;
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "getMomentaInitial: ievt %d\n", ievt );
 #endif
       const int ipagM = ievt/neppM; // #eventpage in this iteration
@@ -104,8 +103,7 @@ namespace rambo2toNm0
 #endif
     {
 #ifdef __CUDACC__
-      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid
-      const int ievt = idim;
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "getMomentaFinal:   ievt %d\n", ievt );
 #endif
 
@@ -212,6 +210,7 @@ namespace rambo2toNm0
   // Seed a curand generator
   void seedGenerator( curandGenerator_t gen, unsigned long long seed )
   {
+    //printf( "seedGenerator: seed %lld\n", seed );
     checkCurand( curandSetPseudoRandomGeneratorSeed( gen, seed ) );
   }
 
@@ -237,6 +236,7 @@ namespace rambo2toNm0
 #elif defined MGONGPU_FPTYPE_FLOAT
     checkCurand( curandGenerateUniform( gen, rnarray1d, np4*nparf*nevt ) );
 #endif
+    //for ( int i=0; i<8; i++ ) printf( "%f %f %f %f\n", rnarray1d[i*4], rnarray1d[i*4+1], rnarray1d[i*4+2], rnarray1d[i*4+3] );
   }
 
   //--------------------------------------------------------------------------

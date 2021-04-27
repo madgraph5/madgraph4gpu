@@ -28,10 +28,11 @@ namespace mgOnGpu
   // If set: return a pair of (fptype&, fptype&) by non-const reference in cxtype_v::operator[]
   // This is forbidden in clang ("non-const reference cannot bind to vector element")
   // See also https://stackoverflow.com/questions/26554829
+  //#define MGONGPU_HAS_CXTYPE_REF 1 // clang test (compilation fails also on clang 12.0, issue #182)
 #undef MGONGPU_HAS_CXTYPE_REF // clang default
 #else
 #define MGONGPU_HAS_CXTYPE_REF 1 // gcc default
-  //#undef MGONGPU_HAS_CXTYPE_REF // gcc test
+  //#undef MGONGPU_HAS_CXTYPE_REF // gcc test (very slightly slower? issue #172)
 #endif
 
 #ifdef MGONGPU_HAS_CXTYPE_REF
@@ -62,7 +63,7 @@ namespace mgOnGpu
     cxtype_v( const fptype_v& r, const fptype_v& i ) : m_real{r}, m_imag{i} {}
     cxtype_v& operator=( const cxtype_v& ) = default;
     cxtype_v& operator=( cxtype_v&& ) = default;
-    //cxtype_v& operator+=( const cxtype_v& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
+    cxtype_v& operator+=( const cxtype_v& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
     cxtype_v& operator-=( const cxtype_v& c ){ m_real -= c.real(); m_imag -= c.imag(); return *this; }
 #ifdef MGONGPU_HAS_CXTYPE_REF
     // NB: the alternative "clang" implementation is simpler: it simply does not have any operator[]
@@ -220,6 +221,12 @@ inline
 const fptype_v& cximag( const cxtype_v& c )
 {
   return c.imag(); // returns by reference
+}
+
+inline
+const cxtype_v cxconj( const cxtype_v& c )
+{
+  return cxmake( c.real(), -c.imag() );
 }
 
 inline
