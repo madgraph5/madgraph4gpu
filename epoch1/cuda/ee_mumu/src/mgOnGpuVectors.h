@@ -28,10 +28,11 @@ namespace mgOnGpu
   // If set: return a pair of (fptype&, fptype&) by non-const reference in cxtype_v::operator[]
   // This is forbidden in clang ("non-const reference cannot bind to vector element")
   // See also https://stackoverflow.com/questions/26554829
+  //#define MGONGPU_HAS_CXTYPE_REF 1 // clang test (compilation fails also on clang 12.0, issue #182)
 #undef MGONGPU_HAS_CXTYPE_REF // clang default
 #else
 #define MGONGPU_HAS_CXTYPE_REF 1 // gcc default
-  //#undef MGONGPU_HAS_CXTYPE_REF // gcc test
+  //#undef MGONGPU_HAS_CXTYPE_REF // gcc test (very slightly slower? issue #172)
 #endif
 
 #ifdef MGONGPU_HAS_CXTYPE_REF
