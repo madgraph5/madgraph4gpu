@@ -309,17 +309,17 @@ int main(int argc, char **argv)
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST or not defined __CUDACC__
   auto hstRnarray   = hstMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
 #endif
-  auto hstMomenta   = hstMakeUnique<fptype_sv>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
+  auto hstMomenta   = hstMakeUnique<fptype_sv>( nMomenta ); // AOSOA[npagM][npar][np4][neppM]
   auto hstIsGoodHel = hstMakeUnique<bool     >( ncomb );
-  auto hstWeights   = hstMakeUnique<fptype   >( nWeights ); // (previously was: meHostPtr)
-  auto hstMEs       = hstMakeUnique<fptype   >( nMEs ); // (previously was: meHostPtr)
+  auto hstWeights   = hstMakeUnique<fptype   >( nWeights );
+  auto hstMEs       = hstMakeUnique<fptype   >( nMEs );
 
 #ifdef __CUDACC__
   auto devRnarray   = devMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-  auto devMomenta   = devMakeUnique<fptype   >( nMomenta ); // (previously was: allMomenta)
+  auto devMomenta   = devMakeUnique<fptype   >( nMomenta ); // AOSOA[npagM][npar][np4][neppM]
   auto devIsGoodHel = devMakeUnique<bool     >( ncomb );
-  auto devWeights   = devMakeUnique<fptype   >( nWeights ); // (previously was: meDevPtr)
-  auto devMEs       = devMakeUnique<fptype   >( nMEs ); // (previously was: meDevPtr)
+  auto devWeights   = devMakeUnique<fptype   >( nWeights );
+  auto devMEs       = devMakeUnique<fptype   >( nMEs );
 
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
   const int nbytesRnarray = nRnarray * sizeof(fptype);
