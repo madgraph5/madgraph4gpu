@@ -185,12 +185,12 @@ namespace Proc
             ztemp += cf[icol][jcol] * jamp[jcol];
           // NB: calculate_wavefunctions ADDS |M|^2 for given ihel to running sum of |M|^2 over helicities for given event(s)
           // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-          allMEs[ievt] += cxreal( ztemp * conj( jamp[icol] ) ) / denom[icol];
+          allMEs[ievt] += cxreal( ztemp * cxconj( jamp[icol] ) ) / denom[icol];
         }
 
         // Store the leading color flows for choice of color
         // for(i=0;i < ncolor; i++)
-        // jamp2[0][i] += cxreal( jamp[i]*conj( jamp[i] ) );
+        // jamp2[0][i] += cxreal( jamp[i]*cxconj( jamp[i] ) );
 
         //printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt] );
       }

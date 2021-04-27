@@ -223,7 +223,7 @@ const fptype_v& cximag( const cxtype_v& c )
 }
 
 inline
-const cxtype_v conj( const cxtype_v& c )
+const cxtype_v cxconj( const cxtype_v& c )
 {
   return cxmake( c.real(), -c.imag() );
 }

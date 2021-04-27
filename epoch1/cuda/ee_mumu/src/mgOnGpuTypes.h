@@ -138,6 +138,12 @@ fptype cximag( const cxtype& c )
 }
 
 inline __host__ __device__
+cxtype cxconj( const cxtype& c )
+{
+  return conj( c ); // conj( thrust::complex<fptype> )
+}
+
+inline __host__ __device__
 const cxtype& cxmake( const cxtype& c )
 {
   return c;
@@ -319,7 +325,7 @@ cxtype operator/( const cxtype& a, const fptype& b )
 }
 
 inline __host__ __device__
-cxtype conj( const cxtype& c )
+cxtype cxconj( const cxtype& c )
 {
   return cxmake( cxreal( c ), -cximag( c ) );
 }
@@ -359,6 +365,12 @@ inline
 fptype cximag( const cxtype& c )
 {
   return c.imag(); // std::complex<fptype>::imag()
+}
+
+inline
+cxtype cxconj( const cxtype& c )
+{
+  return conj( c ); // conj( std::complex<fptype> )
 }
 
 inline
