@@ -246,9 +246,21 @@ cxtype operator+( const cxtype& a, const cxtype& b )
 }
 
 inline __host__ __device__
+cxtype& operator+=( cxtype& a, const cxtype& b )
+{
+  a = cuCaddf( a, b ); return a;
+}
+
+inline __host__ __device__
 cxtype operator-( const cxtype& a, const cxtype& b )
 {
   return cuCsubf( a, b );
+}
+
+inline __host__ __device__
+cxtype& operator-=( cxtype& a, const cxtype& b )
+{
+  a = cuCsubf( a, b ); return a;
 }
 
 inline __host__ __device__

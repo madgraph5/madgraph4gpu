@@ -21,8 +21,8 @@
 // [NB: new throughputs on 1GPU/4CPU system]
 
 // Floating point precision (CHOOSE ONLY ONE)
-#define MGONGPU_FPTYPE_DOUBLE 1 // default (~6.8E8)
-//#define MGONGPU_FPTYPE_FLOAT 1 // 2.4x faster (~1.64E9 against 6.8E8)
+//#define MGONGPU_FPTYPE_DOUBLE 1 // default (~6.8E8)
+#define MGONGPU_FPTYPE_FLOAT 1 // 2.4x faster (~1.64E9 against 6.8E8)
 
 // Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
