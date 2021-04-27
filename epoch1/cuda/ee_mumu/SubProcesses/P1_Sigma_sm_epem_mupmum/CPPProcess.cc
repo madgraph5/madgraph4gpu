@@ -157,8 +157,7 @@ namespace Proc
 #endif
       {
 #ifdef __CUDACC__
-        const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
-        const int ievt = idim;
+        const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
         //printf( "calculate_wavefunctions: ievt %d\n", ievt );
 #else
         const int ievt = ipagV*neppV + ieppV;
@@ -317,8 +316,7 @@ namespace Proc
                             fptype* allMEs,              // output: allMEs[nevt], final |M|^2 averaged over helicities
                             bool* isGoodHel )            // output: isGoodHel[ncomb] - device array
   {
-    const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
-    const int ievt = idim;
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     fptype allMEsLast = 0;
     for ( int ihel = 0; ihel < ncomb; ihel++ )
@@ -418,8 +416,7 @@ namespace Proc
 
 #ifdef __CUDACC__
     // Remember: in CUDA this is a kernel for one event, in c++ this processes n events
-    const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
-    const int ievt = idim;
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "sigmakin: ievt %d\n", ievt );
 #endif
 
