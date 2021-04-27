@@ -21,8 +21,8 @@ while [ "$1" != "" ]; do
 done
 
 exes=
-exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none/check.exe"
 exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none/gcheck.exe"
+exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none/check.exe"
 if [ "${avxall}" == "1" ]; then 
   exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.sse4/check.exe"
   exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.avx2/check.exe"
@@ -32,8 +32,8 @@ if [ "${avxall}" == "1" ]; then
   exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z/check.exe"
 fi
 if [ "${ep2}" == "1" ]; then 
-  exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/check.exe"
   exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
+  exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/check.exe"
 fi
 
 export USEBUILDDIR=1
@@ -58,8 +58,13 @@ function runExe() {
   # Optionally add other patterns here for some specific configurations (e.g. clang)
   pattern="${pattern}|CUCOMPLEX"
   pattern="${pattern}|COMMON RANDOM"
+  # -- Older version using time
   # For TIMEFORMAT see https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
-  TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | egrep "(${pattern})"
+  ###TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | egrep "(${pattern})"
+  # -- Newer version using perf stat
+  pattern="${pattern}|instructions|cycles"
+  pattern="${pattern}|elapsed"
+  perf stat $exe -p 2048 256 12 2>&1 | egrep "(${pattern})" | grep -v "Performance counter stats"
 }
 
 function runNcu() {
