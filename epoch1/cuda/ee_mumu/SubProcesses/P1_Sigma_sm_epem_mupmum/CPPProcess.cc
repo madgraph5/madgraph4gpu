@@ -80,15 +80,10 @@ namespace Proc
     const fptype denom[ncolor] = {1};
     const fptype cf[ncolor][ncolor] = {{1}};
 
-#ifdef __CUDACC__
-    // Local variables for the given event (ievt)
-    cxtype w[nwf][nw6]; // w[5][6]
-    cxtype amp[1]; // was 2
-#else
-    // Local variables for the given event page (ipagV)
-    cxtype_sv w_v[nwf][nw6]; // w_v[5][6]
-    cxtype_sv amp_v[1]; // was 2
-#endif
+    // Local variables for the given CUDA event (ievt)
+    // Local variables for the given C++ event page (ipagV)
+    cxtype_sv w_sv[nwf][nw6]; // w_v[5][6]
+    cxtype_sv amp_sv[1]; // was 2
 
     // For CUDA performance, this is ~better: fewer registers, even if no throughput increase (issue #39)
     // However, physics parameters like masses and couplings must be read from user parameter files
@@ -103,78 +98,64 @@ namespace Proc
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel,npagV) private (amp_v,w_v)
+#pragma omp parallel for default(none) shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel,npagV) private (amp_sv,w_sv)
 #endif
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif
     {
 #ifdef __CUDACC__
-      opzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0 );
-      //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w[0], 0 ); // tested ok (much slower)
+      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 );
+      //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 ); // tested ok (much slower)
 #else
-      opzxxx( allmomenta, cHel[ihel][0], -1, w_v[0], ipagV, 0 );
-      //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w[0], ievt, 0 ); // tested ok (slower)
+      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], ipagV, 0 );
+      //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], ipagV, 0 ); // tested ok (slower)
 #endif
 
 #ifdef __CUDACC__
-      imzxxx( allmomenta, cHel[ihel][1], +1, w[1], 1 );
-      //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w[1], 1 ); // tested ok (slower)
+      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 );
+      //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w_sv[1], 1 ); // tested ok (slower)
 #else
-      imzxxx( allmomenta, cHel[ihel][1], +1, w_v[1], ipagV, 1 );
-      //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w[1], ievt, 1 ); // tested ok (a bit slower)
+      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], ipagV, 1 );
+      //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w_sv[1], ipagV, 1 ); // tested ok (a bit slower)
 #endif
 
 #ifdef __CUDACC__
-      ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], 2 );
-      //ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w[2], 2 ); // tested ok (a bit slower)
+      ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 );
+      //ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w_sv[2], 2 ); // tested ok (a bit slower)
 #else
-      ixzxxx( allmomenta, cHel[ihel][2], -1, w_v[2], ipagV, 2 );
-      //ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w[2], ievt, 2 ); // tested ok (a bit slower)
+      ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], ipagV, 2 );
+      //ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w_sv[2], ipagV, 2 ); // tested ok (a bit slower)
 #endif
 
 #ifdef __CUDACC__
-      oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3 );
-      //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w[3], 3 ); // tested ok (a bit slower)
+      oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 );
+      //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w_sv[3], 3 ); // tested ok (a bit slower)
 #else
-      oxzxxx( allmomenta, cHel[ihel][3], +1, w_v[3], ipagV, 3 );
-      //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w[3], ievt, 3 ); // tested ok (a bit slower)
+      oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], ipagV, 3 );
+      //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w_sv[3], ipagV, 3 ); // tested ok (a bit slower)
 #endif
 
-#ifdef __CUDACC__
-      // Local variables for the given event (ievt)
-      cxtype jamp[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams
-#else
-      // Local variables for the given event page (ipagV)
-      cxtype_sv jamp_v[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams
-#endif
+      // Local variables for the given CUDA event (ievt)
+      // Local variables for the given C++ event page (ipagV)
+      cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams
+
+      // --- START Compute amplitudes for all diagrams ---
+      FFV1P0_3( w_sv[1], w_sv[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );
+      // Amplitude(s) for diagram number 1
+      FFV1_0( w_sv[2], w_sv[3], w_sv[4], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      jamp_sv[0] -= amp_sv[0];
+
+      FFV2_4_3( w_sv[1], w_sv[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w_sv[4] );
+      // Amplitude(s) for diagram number 2
+      FFV2_4_0( w_sv[2], w_sv[3], w_sv[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      jamp_sv[0] -= amp_sv[0];
+      // --- END   Compute amplitudes for all diagrams ---
 
 #ifndef __CUDACC__
-      FFV1P0_3( w_v[1], w_v[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_v[4] );
-      // Amplitude(s) for diagram number 1
-      FFV1_0( w_v[2], w_v[3], w_v[4], cxmake( cIPC[0], cIPC[1] ), &amp_v[0] );
-      jamp_v[0] -= amp_v[0];
-
-      FFV2_4_3( w_v[1], w_v[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w_v[4] );
-      // Amplitude(s) for diagram number 2
-      FFV2_4_0( w_v[2], w_v[3], w_v[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp_v[0] );
-      jamp_v[0] -= amp_v[0];
-
       // ** START LOOP ON IEPPV **
       for ( int ieppV = 0; ieppV < neppV; ++ieppV )
 #endif
       {
-#ifdef __CUDACC__
-        FFV1P0_3( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
-        // Amplitude(s) for diagram number 1
-        FFV1_0( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
-        jamp[0] -= amp[0];
-
-        FFV2_4_3( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
-        // Amplitude(s) for diagram number 2
-        FFV2_4_0( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[0] );
-        jamp[0] -= amp[0];
-#endif
-
 #ifdef __CUDACC__
         const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
         const int ievt = idim;
@@ -184,18 +165,16 @@ namespace Proc
         //printf( "calculate_wavefunctions: ievt %d\n", ievt );
 #endif
 
-#ifndef __CUDACC__
         // Local variables for the given event (ievt)
 #ifdef MGONGPU_CPPSIMD
         cxtype jamp[ncolor];
 #ifdef MGONGPU_HAS_CXTYPE_REF
-        jamp[0] = jamp_v[0][ieppV];
+        jamp[0] = jamp_sv[0][ieppV];
 #else
-        jamp[0] = cxmake( jamp_v[0].real()[ieppV], jamp_v[0].imag()[ieppV] );
+        jamp[0] = cxmake( jamp_sv[0].real()[ieppV], jamp_sv[0].imag()[ieppV] );
 #endif
 #else
-        cxtype* jamp = jamp_v;
-#endif
+        cxtype* jamp = jamp_sv;
 #endif
 
         // Sum and square the color flows to get the matrix element
