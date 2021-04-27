@@ -39,8 +39,7 @@ namespace rambo2toNm0
 #endif
     {
 #ifdef __CUDACC__
-      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid
-      const int ievt = idim;
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "getMomentaInitial: ievt %d\n", ievt );
 #endif
       const int ipagM = ievt/neppM; // #eventpage in this iteration
@@ -104,8 +103,7 @@ namespace rambo2toNm0
 #endif
     {
 #ifdef __CUDACC__
-      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid
-      const int ievt = idim;
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "getMomentaFinal:   ievt %d\n", ievt );
 #endif
 

@@ -138,6 +138,12 @@ fptype cximag( const cxtype& c )
 }
 
 inline __host__ __device__
+cxtype cxconj( const cxtype& c )
+{
+  return conj( c ); // conj( thrust::complex<fptype> )
+}
+
+inline __host__ __device__
 const cxtype& cxmake( const cxtype& c )
 {
   return c;
@@ -180,9 +186,21 @@ cxtype operator+( const cxtype& a, const cxtype& b )
 }
 
 inline __host__ __device__
+cxtype& operator+=( cxtype& a, const cxtype& b )
+{
+  a = cuCadd( a, b ); return a;
+}
+
+inline __host__ __device__
 cxtype operator-( const cxtype& a, const cxtype& b )
 {
   return cuCsub( a, b );
+}
+
+inline __host__ __device__
+cxtype& operator-=( cxtype& a, const cxtype& b )
+{
+  a = cuCsub( a, b ); return a;
 }
 
 inline __host__ __device__
@@ -228,9 +246,21 @@ cxtype operator+( const cxtype& a, const cxtype& b )
 }
 
 inline __host__ __device__
+cxtype& operator+=( cxtype& a, const cxtype& b )
+{
+  a = cuCaddf( a, b ); return a;
+}
+
+inline __host__ __device__
 cxtype operator-( const cxtype& a, const cxtype& b )
 {
   return cuCsubf( a, b );
+}
+
+inline __host__ __device__
+cxtype& operator-=( cxtype& a, const cxtype& b )
+{
+  a = cuCsubf( a, b ); return a;
 }
 
 inline __host__ __device__
@@ -319,7 +349,7 @@ cxtype operator/( const cxtype& a, const fptype& b )
 }
 
 inline __host__ __device__
-cxtype conj( const cxtype& c )
+cxtype cxconj( const cxtype& c )
 {
   return cxmake( cxreal( c ), -cximag( c ) );
 }
@@ -359,6 +389,12 @@ inline
 fptype cximag( const cxtype& c )
 {
   return c.imag(); // std::complex<fptype>::imag()
+}
+
+inline
+cxtype cxconj( const cxtype& c )
+{
+  return conj( c ); // conj( std::complex<fptype> )
 }
 
 inline

@@ -54,7 +54,7 @@ struct CPUTest : public CUDA_CPU_TestBase {
   unique_ptr_host<fptype_sv> hstMomenta  { hstMakeUnique<fptype_sv>( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM]
   unique_ptr_host<bool     > hstIsGoodHel{ hstMakeUnique<bool     >( mgOnGpu::ncomb ) };
   unique_ptr_host<fptype   > hstWeights  { hstMakeUnique<fptype   >( nWeights ) };
-  unique_ptr_host<fptype   > hstMEs      { hstMakeUnique<fptype   >( nMEs ) };
+  unique_ptr_host<fptype_sv> hstMEs      { hstMakeUnique<fptype_sv>( nMEs ) }; // AOSOA[npagM][neppM]
 
   // Create a process object
   // Read param_card and set parameters
@@ -111,8 +111,12 @@ struct CPUTest : public CUDA_CPU_TestBase {
 #endif
   };
 
-  fptype getMatrixElement(std::size_t evtNo) const override {
-    return hstMEs[evtNo];
+  fptype getMatrixElement(std::size_t ievt) const override {
+#ifndef MGONGPU_CPPSIMD
+    return hstMEs[ievt];
+#else
+    return hstMEs[ievt/neppV][ievt%neppV];
+#endif
   }
 
 };

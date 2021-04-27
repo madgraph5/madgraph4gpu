@@ -62,7 +62,7 @@ namespace mgOnGpu
     cxtype_v( const fptype_v& r, const fptype_v& i ) : m_real{r}, m_imag{i} {}
     cxtype_v& operator=( const cxtype_v& ) = default;
     cxtype_v& operator=( cxtype_v&& ) = default;
-    //cxtype_v& operator+=( const cxtype_v& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
+    cxtype_v& operator+=( const cxtype_v& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
     cxtype_v& operator-=( const cxtype_v& c ){ m_real -= c.real(); m_imag -= c.imag(); return *this; }
 #ifdef MGONGPU_HAS_CXTYPE_REF
     // NB: the alternative "clang" implementation is simpler: it simply does not have any operator[]
@@ -220,6 +220,12 @@ inline
 const fptype_v& cximag( const cxtype_v& c )
 {
   return c.imag(); // returns by reference
+}
+
+inline
+const cxtype_v cxconj( const cxtype_v& c )
+{
+  return cxmake( c.real(), -c.imag() );
 }
 
 inline
