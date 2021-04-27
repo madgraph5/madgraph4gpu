@@ -12,8 +12,14 @@ if [ "$1" == "-avxall" ]; then
   shift
 fi
 
+ep2=0
+if [ "$1" == "-ep2" ]; then
+  ep2=1
+  shift
+fi
+
 if [ "$1" != "" ]; then
-  echo "Usage: $0 [-omp] [-avxall]"
+  echo "Usage: $0 [-omp] [-avxall] [-ep2]"
   exit 1
 fi
 
@@ -28,8 +34,10 @@ exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mup
 if [ "${avxall}" == "1" ]; then 
   exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z/check.exe"
 fi
-exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/check.exe"
-exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
+if [ "${ep2}" == "1" ]; then 
+  exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/check.exe"
+  exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
+fi
 
 export USEBUILDDIR=1
 pushd ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
