@@ -519,7 +519,7 @@ int main(int argc, char **argv)
 
     if (verbose)
     {
-      std::cout << "************************************************************************" << std::endl
+      std::cout << std::string(79, '*') << std::endl
                 << "Iteration #" << iiter+1 << " of " << niter << std::endl;
       if (perf) std::cout << "Wave function time: " << wavetime << std::endl;
     }
@@ -551,7 +551,7 @@ int main(int argc, char **argv)
                     << std::endl
                     << std::defaultfloat; // default format: affects all floats
         }
-        std::cout << std::string(80, '-') << std::endl;
+        std::cout << std::string(79, '-') << std::endl;
         // Display matrix elements
         std::cout << " Matrix element = "
 #ifndef MGONGPU_CPPSIMD
@@ -560,7 +560,7 @@ int main(int argc, char **argv)
                   << hstMEs[ievt/neppM][ievt%neppM]
 #endif
                   << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
-        std::cout << std::string(80, '-') << std::endl;
+        std::cout << std::string(79, '-') << std::endl;
       }
       // Fill the arrays with ALL MEs and weights
 #ifndef MGONGPU_CPPSIMD
@@ -718,7 +718,7 @@ int main(int argc, char **argv)
 #endif
 #endif
     // Dump all configuration parameters and all results
-    std::cout << "***************************************************************************" << std::endl
+    std::cout << std::string(79, '*') << std::endl
 #ifdef __CUDACC__
               << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CUDA"
               << " [" << process.getCompiler() << "]" << std::endl
@@ -729,7 +729,7 @@ int main(int argc, char **argv)
               << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << "NumThreadsPerBlock          = " << gputhreads << std::endl
               << "NumIterations               = " << niter << std::endl
-              << "---------------------------------------------------------------------------" << std::endl
+              << std::string(79, '-') << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
               << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
@@ -792,7 +792,7 @@ int main(int argc, char **argv)
 #endif
 #endif
       //<< "MatrixElements compiler     = " << process.getCompiler() << std::endl
-              << "---------------------------------------------------------------------------" << std::endl
+              << std::string(79, '-') << std::endl
               << "NumberOfEntries             = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
               << "TotalTime[Rnd+Rmb+ME] (123) = ( " << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
@@ -804,7 +804,7 @@ int main(int argc, char **argv)
               << "[Min,Max]TimeInMatrixElems  = [ " << minwtim
               << " ,  " << maxwtim << " ]  sec" << std::endl
       //<< "StdDevTimeInWaveFuncs       = ( " << stdwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "---------------------------------------------------------------------------" << std::endl
+              << std::string(79, '-') << std::endl
       //<< "ProcessID:                  = " << getpid() << std::endl
       //<< "NProcesses                  = " << process.nprocesses << std::endl
               << "TotalEventsComputed         = " << nevtALL << std::endl
@@ -819,7 +819,7 @@ int main(int argc, char **argv)
               << "EvtsPerSec[MatrixElems] (3) = ( " << nevtALL/sumwtim
               << std::string(16, ' ') << " )  sec^-1" << std::endl
               << std::defaultfloat; // default format: affects all floats
-    std::cout << "***************************************************************************" << std::endl
+    std::cout << std::string(79, '*') << std::endl
               << "NumMatrixElems(notAbnormal) = " << nevtALL - nabn << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
               << "MeanMatrixElemValue         = ( " << meanelem
@@ -967,9 +967,9 @@ int main(int argc, char **argv)
   timermap.stop();
   if (perf)
   {
-    std::cout << "***************************************************************************" << std::endl;
+    std::cout << std::string(79, '*') << std::endl;
     timermap.dump();
-    std::cout << "***************************************************************************" << std::endl;
+    std::cout << std::string(79, '*') << std::endl;
   }
 
   //std::cout << "ALL OK" << std::endl;
