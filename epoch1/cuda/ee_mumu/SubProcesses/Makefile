@@ -206,6 +206,9 @@ $(testmain) $(BUILDDIR)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
 
+$(TESTDIR)/src/MadgraphTest.o: $(TESTDIR)/src/MadgraphTest.cc $(TESTDIR)/include/*.h
+	$(MAKE) -C $(TESTDIR)
+
 $(GTESTLIBS):
 	$(MAKE) -C $(TESTDIR)
 
