@@ -35,7 +35,18 @@ while [ "$1" != "" ]; do
 done
 
 exes=
+
+#===============================
+# CUDA (epoch1 and epoch2)
+#===============================
 exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none/gcheck.exe"
+if [ "${ep2}" == "1" ]; then 
+  exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
+fi
+
+#===============================
+# C++ (epoch1 and epoch2)
+#===============================
 if [ "${cpp}" == "1" ]; then 
   exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none/check.exe"
 fi
@@ -50,7 +61,6 @@ if [ "${avxall}" == "1" ]; then
   exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z/check.exe"
 fi
 if [ "${ep2}" == "1" ]; then 
-  exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
   if [ "${cpp}" == "1" ]; then 
     exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/check.exe"
   fi
@@ -93,10 +103,16 @@ function runNcu() {
   $(which ncu) --metrics launch__registers_per_thread --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe -p 2048 256 1 | egrep '(sigmaKin|registers)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17}'
 }
 
+lastExe=
 echo -e "\nOn $HOSTNAME:"
 for exe in $exes; do
   if [ ! -f $exe ]; then continue; fi
-  echo "-------------------------------------------------------------------------"
+  if [ "$(basename $exe)" != "$lastExe" ]; then
+    echo "========================================================================="
+    lastExe=$(basename $exe)
+  else
+    echo "-------------------------------------------------------------------------"
+  fi
   unset OMP_NUM_THREADS
   runExe $exe
   if [ "${exe%%/check*}" != "${exe}" ]; then 
@@ -110,4 +126,4 @@ for exe in $exes; do
     runNcu $exe
   fi
 done
-echo "-------------------------------------------------------------------------"
+echo "========================================================================="
