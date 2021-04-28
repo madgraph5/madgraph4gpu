@@ -20,6 +20,7 @@ mgDebugDeclare();
 
 namespace MG5_sm
 {
+
 #ifdef __CUDACC__
   // Return by value: this seems irrelevant for performance, but will ease refactoring
   __device__
@@ -50,6 +51,52 @@ namespace MG5_sm
     using mgOnGpu::npar;
     //printf( "%f\n", momenta1d[ipagM*npar*np4 + ipar*np4 + ip4] );
     return momenta1d[ipagM*npar*np4 + ipar*np4 + ip4]; // AOSOA[ipagM][ipar][ip4][ieppM]
+  }
+#endif
+
+  //--------------------------------------------------------------------------
+
+  struct p4type_sv
+  {
+    fptype_sv p0;
+    fptype_sv p1;
+    fptype_sv p2;
+    fptype_sv p3;
+  };
+
+#ifdef __CUDACC__
+  // Return four momenta for a given event or event page
+  // Returning them by value (not by reference) seems irrelevant for performance, but allows a simpler code structure
+  __device__ inline p4type_sv
+  p4IparIevt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
+              const int ipar,
+              const int ievt )
+  {
+    using mgOnGpu::np4;
+    using mgOnGpu::npar;
+    const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+    const int ipagM = ievt / neppM;   // #eventpage in this iteration
+    const int ieppM = ievt % neppM;   // #event in the current eventpage in this iteration
+    return p4type_sv{momenta1d[ipagM * npar * np4 * neppM + ipar * np4 * neppM + 0 * neppM + ieppM],
+                     momenta1d[ipagM * npar * np4 * neppM + ipar * np4 * neppM + 1 * neppM + ieppM],
+                     momenta1d[ipagM * npar * np4 * neppM + ipar * np4 * neppM + 2 * neppM + ieppM],
+                     momenta1d[ipagM * npar * np4 * neppM + ipar * np4 * neppM + 3 * neppM + ieppM]};
+  }
+#else
+  // Return four momenta for a given event or event page
+  // Returning them by value (not by reference) seems a bit faster both for scalars and vectors
+  // NB: this assumes that neppV == neppM!
+  inline p4type_sv
+  p4IparIpag( const fptype_sv* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
+              const int ipar,
+              const int ipagM )
+  {
+    using mgOnGpu::np4;
+    using mgOnGpu::npar;
+    return p4type_sv{momenta1d[ipagM * npar * np4 + ipar * np4 + 0],
+                     momenta1d[ipagM * npar * np4 + ipar * np4 + 0],
+                     momenta1d[ipagM * npar * np4 + ipar * np4 + 0],
+                     momenta1d[ipagM * npar * np4 + ipar * np4 + 0]};
   }
 #endif
 
@@ -300,6 +347,7 @@ namespace MG5_sm
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
+      /*
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "ixzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
@@ -315,6 +363,19 @@ namespace MG5_sm
       const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
       const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
 #endif
+      */
+#ifdef __CUDACC__
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+      //printf( "ixzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
+      const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
+#else
+      //printf( "ixzxxx: ipagV=%d\n", ipagV );
+      const p4type_sv p4vec = p4IparIpag( allmomenta, ipar, ipagV );
+#endif
+      const fptype_sv& pvec0 = p4vec.p0;
+      const fptype_sv& pvec1 = p4vec.p1;
+      const fptype_sv& pvec2 = p4vec.p2;
+      const fptype_sv& pvec3 = p4vec.p3;
       //fi[0] = cxmake( -pvec0 * nsf, -pvec2 * nsf ); // AV: BUG! not the same as ixxxxx
       //fi[1] = cxmake( -pvec0 * nsf, -pvec1 * nsf ); // AV: BUG! not the same as ixxxxx
       fi[0] = cxmake( -pvec0 * (fptype)nsf, -pvec3 * (fptype)nsf ); // AV: BUG FIX
