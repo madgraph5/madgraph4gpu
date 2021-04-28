@@ -3,37 +3,57 @@
 omp=0
 avxall=0
 ep2=0
+cpp=1
+
+function usage()
+{
+  echo "Usage: $0 [-omp] [-avxall] [-ep2]"
+  echo "Usage: $0 [-nocpp] [-ep2]"
+  exit 1
+}
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-omp" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
     omp=1
     shift
   elif [ "$1" == "-avxall" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options -avxall and -nocpp are incompatible"; usage; fi
     avxall=1
+    shift
+  elif [ "$1" == "-nocpp" ]; then
+    if [ "${avxall}" == "1" ]; then echo "ERROR! Options -avxall and -nocpp are incompatible"; usage; fi
+    if [ "${omp}" == "1" ]; then echo "ERROR! Options -avxall and -nocpp are incompatible"; usage; fi
+    cpp=0
     shift
   elif [ "$1" == "-ep2" ]; then
     ep2=1
     shift
   else
-    echo "Usage: $0 [-omp] [-avxall] [-ep2]"
-    exit 1
+    usage
   fi
 done
 
 exes=
 exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none/gcheck.exe"
-exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none/check.exe"
+if [ "${cpp}" == "1" ]; then 
+  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none/check.exe"
+fi
 if [ "${avxall}" == "1" ]; then 
   exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.sse4/check.exe"
   exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.avx2/check.exe"
 fi
-exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y/check.exe"
+if [ "${cpp}" == "1" ]; then 
+  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y/check.exe"
+fi
 if [ "${avxall}" == "1" ]; then 
   exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z/check.exe"
 fi
 if [ "${ep2}" == "1" ]; then 
   exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
-  exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/check.exe"
+  if [ "${cpp}" == "1" ]; then 
+    exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/check.exe"
+  fi
 fi
 
 export USEBUILDDIR=1
