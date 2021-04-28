@@ -829,6 +829,7 @@ namespace MG5_sm
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
+      /*
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "oxzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
@@ -844,6 +845,19 @@ namespace MG5_sm
       const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
       const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
 #endif
+      */
+#ifdef __CUDACC__
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+      //printf( "oxzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
+      const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
+#else
+      //printf( "oxzxxx: ipagV=%d\n", ipagV );
+      const p4type_sv p4vec = p4IparIpag( allmomenta, ipar, ipagV );
+#endif
+      const fptype_sv& pvec0 = p4vec.p0;
+      const fptype_sv& pvec1 = p4vec.p1;
+      const fptype_sv& pvec2 = p4vec.p2;
+      const fptype_sv& pvec3 = p4vec.p3;
       fo[0] = cxmake( pvec0 * (fptype)nsf, pvec3 * (fptype)nsf );
       fo[1] = cxmake( pvec1 * (fptype)nsf, pvec2 * (fptype)nsf );
       const int nh = nhel * nsf;
