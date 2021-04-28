@@ -94,9 +94,9 @@ namespace MG5_sm
     using mgOnGpu::np4;
     using mgOnGpu::npar;
     return p4type_sv{momenta1d[ipagM * npar * np4 + ipar * np4 + 0],
-                     momenta1d[ipagM * npar * np4 + ipar * np4 + 0],
-                     momenta1d[ipagM * npar * np4 + ipar * np4 + 0],
-                     momenta1d[ipagM * npar * np4 + ipar * np4 + 0]};
+                     momenta1d[ipagM * npar * np4 + ipar * np4 + 1],
+                     momenta1d[ipagM * npar * np4 + ipar * np4 + 2],
+                     momenta1d[ipagM * npar * np4 + ipar * np4 + 3]};
   }
 #endif
 
