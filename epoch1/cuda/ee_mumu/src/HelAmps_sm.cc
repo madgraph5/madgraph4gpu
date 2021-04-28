@@ -21,11 +21,12 @@ mgDebugDeclare();
 namespace MG5_sm
 {
 #ifdef __CUDACC__
+  // Return by value: this seems irrelevant for performance, but will ease refactoring
   __device__
-  inline const fptype& pIparIp4Ievt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
-                                     const int ipar,
-                                     const int ip4,
-                                     const int ievt )
+  inline fptype pIparIp4Ievt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
+                              const int ipar,
+                              const int ip4,
+                              const int ievt )
   {
     // mapping for the various schemes (AOSOA, AOS, SOA...)
     using mgOnGpu::np4;
