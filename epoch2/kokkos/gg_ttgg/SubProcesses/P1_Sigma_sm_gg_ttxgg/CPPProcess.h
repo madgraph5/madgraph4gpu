@@ -1954,8 +1954,8 @@ class CPPProcess
         SLHAReader slha(param_card_name); 
         pars->setIndependentParameters(slha); 
         pars->setIndependentCouplings(); 
-        pars->printIndependentParameters(); 
-        pars->printIndependentCouplings(); 
+        // pars->printIndependentParameters(); 
+        // pars->printIndependentCouplings(); 
         pars->setDependentParameters(); 
         pars->setDependentCouplings(); 
         // Set external particle masses for this matrix element
