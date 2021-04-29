@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
     CalcMean tmr_cpyME;
     CalcMean tmr_dumploop;
     CalcMean tmr_iter;
-    int time_SGoodHel = 0;
+    float time_SGoodHel = 0;
     for (int x = 0; x < numiter; ++x) {
       // printf("iter %d of %d\n",x,numiter);
       // Get phase space point
@@ -182,7 +182,7 @@ int main(int argc, char **argv) {
         nvtxRangePush("0d_SGoodHel");
         lptimer.reset();
         sigmaKin_setup(p, process.cHel, process.cIPD, process.cIPC, iGoodHel, nGoodHel, process.ncomb, league_size, team_size);
-        float time_SGoodHel = lptimer.seconds();
+        time_SGoodHel = lptimer.seconds();
         nvtxRangePop();
       }
       
@@ -253,50 +253,52 @@ int main(int argc, char **argv) {
     if (perf) {
       
 
-      std::cout << "***********************************" << std::endl
-                << "NumIterations         = " << numiter << std::endl
-                << "NumThreadsPerBlock    = " << team_size << std::endl
-                << "NumBlocksPerGrid      = " << league_size << std::endl
-                << "-----------------------------------" << std::endl
-                << std::scientific
-                << "TotalTimeInWaveFuncs  = " << tmr_skin.sum() << " sec" << std::endl
-                << "MeanTimeInWaveFuncs   = " << tmr_skin.mean() << " sec" << std::endl
-                << "StdDevTimeInWaveFuncs = " << tmr_skin.sigma() << " sec" << std::endl
-                << "MinTimeInWaveFuncs    = " << tmr_skin.min() << " sec" << std::endl
-                << "MaxTimeInWaveFuncs    = " << tmr_skin.max() << " sec" << std::endl
-                << "-----------------------------------" << std::endl
-                << "ProcessID:            = " << getpid() << std::endl
-                << "NProcesses            = " << process.nprocesses << std::endl
-                << "NumMatrixElements     = " << ave_me.n() << std::endl
-                << "MatrixElementsPerSec  = " << ave_me.n()/tmr_skin.sum() << " sec^-1" << std::endl;
+      printf("**********************************************************************\n");
+      printf("NumIterations               = %8d\n",numiter);
+      printf("NumThreadsPerBlock          = %8d\n",team_size);
+      printf("NumBlocksPerGrid            = %8d\n",league_size);
+      printf("----------------------------------------------------------------------\n");
+      printf("FP Precision                = DOUBLE\n");
+      printf("Complex type                = KOKKOS::COMPLEX\n");
+      printf("Random number generator     = Kokkos Device Side\n");
+      printf("----------------------------------------------------------------------\n");
+      printf("TotalTimeInWaveFuncs        = %8.6f sec\n",tmr_skin.sum());
+      printf("MeanTimeInWaveFuncs         = %8.6f sec\n",tmr_skin.mean());
+      printf("StdDevTimeInWaveFuncs       = %8.6f sec\n",tmr_skin.sigma());
+      printf("MinTimeInWaveFuncs          = %8.6f sec\n",tmr_skin.min());
+      printf("MaxTimeInWaveFuncs          = %8.6f sec\n",tmr_skin.max());
+      printf("----------------------------------------------------------------------\n");
+      printf("NProcesses                  =  %8d \n",process.nprocesses);
+      printf("NumMatrixElements           =  %8d \n",ave_me.n());
+      printf("EventsPerSec[MatrixEls]     =  %8.6e / sec\n",ave_me.n()/tmr_skin.sum());
 
-      std::cout << "***********************************" << std::endl
-                << "NumMatrixElements     = " << ave_me.n() << std::endl
-                << std::scientific
-                << "MeanMatrixElemValue   = " << ave_me.mean() << " GeV^" << meGeVexponent << std::endl
-                << "StdErrMatrixElemValue = " << ave_me.sigma()/sqrt(ave_me.n()) << " GeV^" << meGeVexponent << std::endl
-                << "StdDevMatrixElemValue = " << ave_me.sigma() << " GeV^" << meGeVexponent << std::endl
-                << "MinMatrixElemValue    = " << ave_me.min() << " GeV^" << meGeVexponent << std::endl
-                << "MaxMatrixElemValue    = " << ave_me.max() << " GeV^" << meGeVexponent << std::endl;
+      printf("**********************************************************************\n");
+      printf("NumMatrixElements           =  %8d \n",ave_me.n());
+      printf("MeanMatrixElemValue         = (%8.6e +/- %8.6e ) GeV^%d \n",ave_me.mean(),ave_me.sigma()/sqrt(ave_me.n()),meGeVexponent);
+      printf("[Min,Max]MatrixElemValue    = (%8.6e +/- %8.6e ) GeV^%d \n",ave_me.min(),ave_me.max(),meGeVexponent);
+      printf("StdDevMatrixElemValue       =  %8.6e GeV^%d \n",ave_me.sigma(),meGeVexponent);
 
-      std::cout << "***********************************" << std::endl
+      printf("**********************************************************************\n");
+      printf("0a_ProcInit           = %8.6f seconds\n",time_procInit);
+      printf("0b_MemAlloc           = %8.6f seconds\n",time_memAlloc);
+      printf("0c_GenCreat           = %8.6f seconds\n",time_genCreat);
+      printf("0d_SGoodHel           = %8.6f seconds\n",time_SGoodHel);
 
-                << "0a_ProcInit           = " << time_procInit << " seconds\n"
-                << "0b_MemAlloc           = " << time_memAlloc << " seconds\n"
-                << "0c_GenCreat           = " << time_genCreat << " seconds\n"
-                << "0d_SGoodHel           = " << time_SGoodHel << " seconds\n"
-                << "1a_1b_1c_GenSeed      = " << tmr_rand.mean()    << " +/- " << tmr_rand.sigma()    << " seconds\n"
-                << "2a_RamboIni           = " << tmr_momini.mean()  << " +/- " << tmr_momini.sigma()  << " seconds\n"
-                << "2b_RamboFin           = " << tmr_momfin.mean()  << " +/- " << tmr_momfin.sigma()  << " seconds\n"
-                << "2c_CpDTHwgt           = " << tmr_cpyWgt.mean()  << " +/- " << tmr_cpyWgt.sigma()  << " seconds\n"
-                << "2d_CpDTHmom           = " << tmr_cpyMom.mean()  << " +/- " << tmr_cpyMom.sigma()  << " seconds\n"
-                << "3a_SigmaKin           = " << tmr_skin.mean()    << " +/- " << tmr_skin.sigma()    << " seconds\n"
-                << "3b_CpDTHmes           = " << tmr_cpyME.mean()   << " +/- " << tmr_cpyME.sigma()   << " seconds\n"
-                << "4a_DumpLoop           = " << tmr_iter.mean()    << " +/- " << tmr_iter.sigma()    << " seconds\n"
-                << "8a_9a_DumpStat        = " << lptimer.seconds()  << " seconds\n";
+      printf("1a_1b_1c_GenSeed      = %8.6f +/- %8.6f seconds\n",tmr_rand.mean(),tmr_rand.sigma());
+      printf("2a_RamboIni           = %8.6f +/- %8.6f seconds\n",tmr_momini.mean(),tmr_momini.sigma());
+      printf("2b_RamboFin           = %8.6f +/- %8.6f seconds\n",tmr_momfin.mean(),tmr_momfin.sigma());
+      printf("2c_CpDTHwgt           = %8.6f +/- %8.6f seconds\n",tmr_cpyWgt.mean(),tmr_cpyWgt.sigma());
+      printf("2d_CpDTHmom           = %8.6f +/- %8.6f seconds\n",tmr_cpyMom.mean(),tmr_cpyMom.sigma());
+      printf("3a_SigmaKin           = %8.6f +/- %8.6f seconds\n",tmr_skin.mean(),tmr_skin.sigma());
+      printf("3b_CpDTHmes           = %8.6f +/- %8.6f seconds\n",tmr_cpyME.mean(),tmr_cpyME.sigma());
+      printf("4a_DumpLoop           = %8.6f +/- %8.6f seconds\n",tmr_dumploop.mean(),tmr_dumploop.sigma());
+
+      printf("8a_9a_DumpStat        = %8.6f seconds\n",lptimer.seconds());
+      printf("**********************************************************************\n");
+
     }
-
-    printf("total time: %e\n",total_time.seconds());
+    printf("iteration time        = %10.3f +/- %10.3f seconds\n",tmr_iter.mean(),tmr_iter.sigma());
+    printf("total time            = %10.3f seconds\n",total_time.seconds());
   } // end Kokkos View Space
   Kokkos::finalize();
 }
