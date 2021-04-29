@@ -1,15 +1,15 @@
-KOKKOSPATH_CUDA=/home/jchilders/git/kokkos/install
-KOKKOSPATH_OMP=/home/jchilders/git/kokkos/install_openmp
-KOKKOSPATH_IRIS=/home/psteinbr/shared/gold/install
+KOKKOSPATH_CUDA ?= /home/parton/git/kokkos/install_a100
+KOKKOSPATH_OMP ?= /home/parton/git/kokkos/install_openmp
+KOKKOSPATH_IRIS ?= /home/psteinbr/shared/gold/install
 
 INCDIR=../../src
 CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++17
 LDFLAGS=
 
-CUDA_ARCH_NUM=70
+CUDA_ARCH_NUM ?= 80
 NVCC=$(KOKKOSPATH_CUDA)/bin/nvcc_wrapper
 CUDA_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_CUDA)/include -arch=compute_$(CUDA_ARCH_NUM) --expt-extended-lambda --expt-relaxed-constexpr -use_fast_math --openmp
-CUDA_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_CUDA)/lib/libkokkoscore.a -lnvToolsExt --openmp
+CUDA_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_CUDA)/lib64/libkokkoscore.a -lnvToolsExt --openmp
 
 CXX=g++
 IPCX=icpx
