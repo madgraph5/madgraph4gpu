@@ -59,7 +59,7 @@ $(iris_obj): check_sa.cpp ../../src/rambo.h ../../src/random_generator.h CPPProc
 	$(IPCX) -c $< -o $@ $(IRIS_CXXFLAGS)
 
 $(iris_exe): $(iris_obj) $(iris_libmodel_sa)
-	$(IPCX) $(iris_obj) -o $@ $(IRIS_LDFLAGS) $(libmodel_sa)
+	$(IPCX) $(iris_obj) -o $@ $(IRIS_LDFLAGS) $(iris_libmodel_sa)
 
 
 .PHONY: clean
