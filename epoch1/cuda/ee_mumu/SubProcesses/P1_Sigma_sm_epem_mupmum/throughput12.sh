@@ -38,18 +38,20 @@ fi
 
 export USEBUILDDIR=1
 pushd ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
-  pwd
-  make AVX=none
-  if [ "${avxall}" == "1" ]; then make AVX=sse4; fi
-  if [ "${avxall}" == "1" ]; then make AVX=avx2; fi
-  make AVX=512y # always consider 512y as the reference, even if for clang avx2 is slightly faster...
-  if [ "${avxall}" == "1" ]; then make AVX=512z; fi
+pwd
+make AVX=none
+if [ "${avxall}" == "1" ]; then make AVX=sse4; fi
+if [ "${avxall}" == "1" ]; then make AVX=avx2; fi
+make AVX=512y # always consider 512y as the reference, even if for clang avx2 is slightly faster...
+if [ "${avxall}" == "1" ]; then make AVX=512z; fi
 popd >& /dev/null
 
-pushd ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
+if [ "${ep2}" == "1" ]; then 
+  pushd ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
   pwd
   make
-popd >& /dev/null
+  popd >& /dev/null
+fi
 
 function runExe() {
   exe=$1
