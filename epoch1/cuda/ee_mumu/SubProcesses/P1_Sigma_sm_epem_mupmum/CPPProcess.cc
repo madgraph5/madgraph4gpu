@@ -98,7 +98,11 @@ namespace Proc
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
+#if not defined __clang__ && defined __GNUC__ && __GNUC__ < 9
+#pragma omp parallel for default(none) shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel) private (amp_sv,w_sv)
+#else
 #pragma omp parallel for default(none) shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel,npagV) private (amp_sv,w_sv)
+#endif
 #endif
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif
