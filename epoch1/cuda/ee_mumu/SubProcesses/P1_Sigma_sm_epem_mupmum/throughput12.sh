@@ -58,13 +58,16 @@ function runExe() {
   # Optionally add other patterns here for some specific configurations (e.g. clang)
   pattern="${pattern}|CUCOMPLEX"
   pattern="${pattern}|COMMON RANDOM"
-  # -- Older version using time
-  # For TIMEFORMAT see https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
-  ###TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | egrep "(${pattern})"
-  # -- Newer version using perf stat
-  pattern="${pattern}|instructions|cycles"
-  pattern="${pattern}|elapsed"
-  perf stat $exe -p 2048 256 12 2>&1 | egrep "(${pattern})" | grep -v "Performance counter stats"
+  if perf --version >& /dev/null; then
+    # -- Newer version using perf stat
+    pattern="${pattern}|instructions|cycles"
+    pattern="${pattern}|elapsed"
+    perf stat $exe -p 2048 256 12 2>&1 | egrep "(${pattern})" | grep -v "Performance counter stats"
+  else
+    # -- Older version using time
+    # For TIMEFORMAT see https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
+    TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | egrep "(${pattern})"
+  fi
 }
 
 function runNcu() {
