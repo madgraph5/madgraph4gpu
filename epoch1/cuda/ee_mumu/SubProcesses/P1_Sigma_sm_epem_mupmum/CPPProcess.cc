@@ -465,14 +465,14 @@ namespace Proc
 #ifdef MGONGPU_CPPSIMD
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
-      allMEs[ipagV] /= denominators;
+      allMEs[ipagV] /= (fptype)denominators;
     }
 #else
 #ifndef __CUDACC__
     for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
-      allMEs[ievt] /= denominators;
+      allMEs[ievt] /= (fptype)denominators;
     }
 #endif
     mgDebugFinalise();
