@@ -76,7 +76,7 @@ function runNcu() {
   $(which ncu) --metrics launch__registers_per_thread --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe -p 2048 256 1 | egrep '(sigmaKin|registers)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17}'
 }
 
-echo -e "\nOn $HOSTNAME:"
+echo -e "\nOn $HOSTNAME ($(nvidia-smi -L | awk '{print $5}')):"
 for exe in $exes; do
   if [ ! -f $exe ]; then continue; fi
   echo "-------------------------------------------------------------------------"
