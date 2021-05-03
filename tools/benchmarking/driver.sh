@@ -1,7 +1,8 @@
 #!/bin/bash
 
 avx=none
-jts="[1,1] [1,4] [1,16] [4,1] [16,1]"
+jts="[1,1]"
+###jts="[1,1] [1,4] [1,16] [4,1] [16,1]"
 ###jts=""; for j in 1 2 4 8 16 32; do for t in 1 2 4 8 16 32; do if [ $((j*t)) -le 32 ]; then jts="$jts [$j,$t]"; fi; done; done 
 
 srcDir=$(pwd)
@@ -61,6 +62,7 @@ if ! calc -v >& /dev/null; then echo "ERROR! please install calc"; exit 1; fi
 
 tstDir=$(pwd)/BMKTST
 ###\rm -rf ${tstDir}
+\rm -rf ${tstDir}/${tstName}*
 mkdir -p ${tstDir}
 
 \rm -f ${tstDir}/alljts.${avx}
@@ -88,12 +90,20 @@ function runjob {
   jobno=${1}; shift
   if [ "${DEBUG}" == "1" ]; then echo c0 ${jobno} `pwd -P`; fi
   if [ ! -d ${jobno} ]; then mkdir ${jobno}; fi
-  log=$(cd ${jobno}; pwd)/log.txt
+  logtxt=$(cd ${jobno}; pwd)/log.txt
+  memtxt=$(cd ${jobno}; pwd)/mem.txt
   cd ${srcDir}
   if [ "${DEBUG}" == "1" ]; then echo c1 ${jobno} `pwd -P`; fi
   ###echo "DUMMY TEST!"
   ###$exe -p 2048 256 1 | egrep '(OMP threads|TotalEventsComputed|TOTAL   \(3\))'
-  date > ${log}; $exe -p 2048 256 40 >> ${log}; date >> ${log}
+  date > ${logtxt}
+  if which lbsmaps >& /dev/null; then
+    interval=2000 #2s (2k ms)
+    lbsmaps -i ${interval} -o ${memtxt} ${exe} -p 2048 256 40 2>&1 | egrep -v '(Arg\[|Running Command)' >> ${logtxt}
+  else
+    ${exe} -p 2048 256 40 >> ${logtxt}
+  fi
+  date >> ${logtxt}
   if [ "${DEBUG}" == "1" ]; then echo c2 ${jobno} `pwd -P`; fi
 }
 
