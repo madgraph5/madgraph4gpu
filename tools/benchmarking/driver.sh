@@ -1,7 +1,15 @@
 #!/bin/bash
 
 DEBUG=0
-###DEBUG=1
+while [ "$1" != "" ]; do
+  if [ "$1" == "-d" ]; then
+    DEBUG=1
+    shift
+  else
+    echo "Usage: $0 [-d]"
+    exit 1
+  fi
+done
 
 tstName="check-test"
 exe=./build.none/check.exe 
@@ -71,8 +79,9 @@ function runjob {
   if [ ! -d ${jobno} ]; then mkdir ${jobno}; fi
   cd ${jobno}
   if [ "${DEBUG}" == "1" ]; then echo c1 ${1} `pwd -P`; fi
-  ###$exe -p 2048 256 1 | egrep '(OMP threads|TotalEventsComputed|TOTAL   \(3\))'
   echo "DUMMY TEST!"
+  ###$exe -p 2048 256 1 | egrep '(OMP threads|TotalEventsComputed|TOTAL   \(3\))'
+  ###date > log.txt; $exe -p 2048 256 1 >> log.txt; date >> log.txt
   if [ "${DEBUG}" == "1" ]; then echo c2 ${1} `pwd -P`; fi
 }
 
