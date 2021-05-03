@@ -13,12 +13,25 @@ function killExe() {
   if [ "$procs" != "" ]; then
     echo Killing $exeName processes $procs
     echo "$procs" | xargs kill -9
-    exit 1
+    return 1
   else
     echo No $exeName processes to kill
-    exit 0
+    return 0
   fi
 }
+
+function killAndWait() {
+  for i in `seq 1 5`; do
+    if ! killExe; then
+      echo "WARNING! ${tstName} killed: sleep and try again ($i/5)"
+      sleep 5
+    else
+      break
+    fi
+  done
+}
+
+killAndWait
 
 #--- [lhcb-knl-scripts] from createTEST.sh ----
 
@@ -129,14 +142,7 @@ for jt in `cat alljts`; do
     echo `date`: WAITING NO LONGER
     if [ -f WAITING ]; then
       echo `date`: STOP WAITING
-      for i in `seq 1 5`; do
-        if ! killExe; then
-          echo "WARNING! ${tstName} killed: sleep and try again ($i/5)"
-          sleep 5
-        else
-          break
-        fi
-      done
+      killAndWait
       if ps $waiterPid > /dev/null; then kill -9 $waiterPid; fi
     fi
     echo a2 `pwd -P`
