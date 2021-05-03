@@ -1,11 +1,12 @@
 #!/bin/bash
 
-jts="[1,1] [1,4]"
+avx=none
+jts="[1,1] [1,4] [1,16] [4,1] [16,1]"
+###jts=""; for j in 1 2 4 8 16 32; do for t in 1 2 4 8 16 32; do if [ $((j*t)) -le 32 ]; then jts="$jts [$j,$t]"; fi; done; done 
 
 srcDir=$(pwd)
-exe=${srcDir}/build.none/check.exe 
-
-tstName="check-test"
+exe=${srcDir}/build.${avx}/check.exe 
+tstName="check-test.${avx}"
 
 #--- command line arguments ---
 
@@ -62,11 +63,11 @@ tstDir=$(pwd)/BMKTST
 ###\rm -rf ${tstDir}
 mkdir -p ${tstDir}
 
-\rm -f ${tstDir}/alljts
+\rm -f ${tstDir}/alljts.${avx}
 space=""
 for jt in $jts; do
   jt=${jt:1:-1}; t=${jt#*,}; j=${jt%,*}
-  echo -n "$space"$(printf '%03i/%03i' $j $t) >> ${tstDir}/alljts
+  echo -n "$space"$(printf '%03i/%03i' $j $t) >> ${tstDir}/alljts.${avx}
   space=" "
 done
 
@@ -85,14 +86,14 @@ done
 
 function runjob {
   jobno=${1}; shift
-  log=$(cd ${jobno}; pwd)/log.txt
   if [ "${DEBUG}" == "1" ]; then echo c0 ${jobno} `pwd -P`; fi
   if [ ! -d ${jobno} ]; then mkdir ${jobno}; fi
+  log=$(cd ${jobno}; pwd)/log.txt
   cd ${srcDir}
   if [ "${DEBUG}" == "1" ]; then echo c1 ${jobno} `pwd -P`; fi
   ###echo "DUMMY TEST!"
   ###$exe -p 2048 256 1 | egrep '(OMP threads|TotalEventsComputed|TOTAL   \(3\))'
-  date > ${log}; $exe -p 2048 256 1 >> ${log}; date >> ${log}
+  date > ${log}; $exe -p 2048 256 40 >> ${log}; date >> ${log}
   if [ "${DEBUG}" == "1" ]; then echo c2 ${jobno} `pwd -P`; fi
 }
 
@@ -115,11 +116,11 @@ function runandwait {
 
 cd ${tstDir}
 
-testfile=tests.txt
+testfile=tests.txt.${avx}
 \rm -f ${testfile}
 touch ${testfile}
 
-for jt in `cat alljts`; do
+for jt in `cat alljts.${avx}`; do
   j=${jt%/*}
   t=${jt#*/}
   echo
@@ -155,11 +156,11 @@ for jt in `cat alljts`; do
           break
         fi
         echo `date`": WAITING ($i/$timeout)"
-        sleep 10
+        sleep 5
       fi
-      for i2 in `seq 1 5`; do
+      for i2 in `seq 1 11`; do
 	if [ -f WAITING ]; then
-	  sleep 10
+	  sleep 5
 	fi
       done
     done
