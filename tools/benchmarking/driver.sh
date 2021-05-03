@@ -1,5 +1,14 @@
 #!/bin/bash
 
+jts="[1,1] [1,4]"
+
+srcDir=$(pwd)
+exe=${srcDir}/build.none/check.exe 
+
+tstName="check-test"
+
+#--- command line arguments ---
+
 DEBUG=0
 KILLONLY=0
 while [ "$1" != "" ]; do
@@ -14,11 +23,6 @@ while [ "$1" != "" ]; do
     exit 1
   fi
 done
-
-tstName="check-test"
-
-srcDir=$(pwd)
-exe=${srcDir}/build.none/check.exe 
 
 #--- [lhcb-knl-scripts] from kill.sh ----
 
@@ -57,8 +61,6 @@ if ! calc -v >& /dev/null; then echo "ERROR! please install calc"; exit 1; fi
 tstDir=$(pwd)/BMKTST
 ###\rm -rf ${tstDir}
 mkdir -p ${tstDir}
-
-jts="[1,1] [1,4]"
 
 \rm -f ${tstDir}/alljts
 space=""
@@ -129,6 +131,7 @@ for jt in `cat alljts`; do
     cd ${wDir}
     if [ "${DEBUG}" == "1" ]; then echo a1 `pwd -P`; fi
     \rm -f WAITING
+    export OMP_NUM_THREADS=${t}
     ( runandwait ) &
     waiterPid=$! # See https://stackoverflow.com/a/10028986
     while [ ! -f WAITING ]; do sleep 1; done
