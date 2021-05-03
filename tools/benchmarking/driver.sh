@@ -1,9 +1,13 @@
 #!/bin/bash
 
 DEBUG=0
+KILLONLY=0
 while [ "$1" != "" ]; do
   if [ "$1" == "-d" ]; then
     DEBUG=1
+    shift
+  elif [ "$1" == "-k" ]; then
+    KILLONLY=1
     shift
   else
     echo "Usage: $0 [-d]"
@@ -43,6 +47,8 @@ function killAndWait() {
 }
 
 killAndWait
+
+if [ "${KILLONLY}" == "1" ]; then exit 0; fi
 
 #--- [lhcb-knl-scripts] from createTEST.sh ----
 
