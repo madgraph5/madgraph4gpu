@@ -16,7 +16,9 @@ while [ "$1" != "" ]; do
 done
 
 tstName="check-test"
-exe=./build.none/check.exe 
+
+srcDir=$(pwd)
+exe=${srcDir}/build.none/check.exe 
 
 #--- [lhcb-knl-scripts] from kill.sh ----
 
@@ -80,15 +82,16 @@ done
 #--- [lhcb-knl-scripts] from run.sh ----
 
 function runjob {
-  if [ "${DEBUG}" == "1" ]; then echo c0 ${1} `pwd -P`; fi
-  jobno=${1}
+  jobno=${1}; shift
+  log=$(cd ${jobno}; pwd)/log.txt
+  if [ "${DEBUG}" == "1" ]; then echo c0 ${jobno} `pwd -P`; fi
   if [ ! -d ${jobno} ]; then mkdir ${jobno}; fi
-  cd ${jobno}
-  if [ "${DEBUG}" == "1" ]; then echo c1 ${1} `pwd -P`; fi
-  echo "DUMMY TEST!"
+  cd ${srcDir}
+  if [ "${DEBUG}" == "1" ]; then echo c1 ${jobno} `pwd -P`; fi
+  ###echo "DUMMY TEST!"
   ###$exe -p 2048 256 1 | egrep '(OMP threads|TotalEventsComputed|TOTAL   \(3\))'
-  ###date > log.txt; $exe -p 2048 256 1 >> log.txt; date >> log.txt
-  if [ "${DEBUG}" == "1" ]; then echo c2 ${1} `pwd -P`; fi
+  date > ${log}; $exe -p 2048 256 1 >> ${log}; date >> ${log}
+  if [ "${DEBUG}" == "1" ]; then echo c2 ${jobno} `pwd -P`; fi
 }
 
 function runandwait {
