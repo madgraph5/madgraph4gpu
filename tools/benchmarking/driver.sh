@@ -1,5 +1,8 @@
 #!/bin/bash
 
+DEBUG=0
+###DEBUG=1
+
 tstName="check-test"
 exe=./build.none/check.exe 
 
@@ -63,19 +66,19 @@ done
 #--- [lhcb-knl-scripts] from run.sh ----
 
 function runjob {
-  echo c0 ${1} `pwd -P`
+  if [ "${DEBUG}" == "1" ]; then echo c0 ${1} `pwd -P`; fi
   jobno=${1}
   if [ ! -d ${jobno} ]; then mkdir ${jobno}; fi
   cd ${jobno}
-  echo c1 ${1} `pwd -P`
+  if [ "${DEBUG}" == "1" ]; then echo c1 ${1} `pwd -P`; fi
   ###$exe -p 2048 256 1 | egrep '(OMP threads|TotalEventsComputed|TOTAL   \(3\))'
   echo "DUMMY TEST!"
-  echo c2 ${1} `pwd -P`
+  if [ "${DEBUG}" == "1" ]; then echo c2 ${1} `pwd -P`; fi
 }
 
 function runandwait {
-  echo b0 `pwd -P`
-  echo `date` STARTING jobs  
+  if [ "${DEBUG}" == "1" ]; then echo b0 `pwd -P`; fi
+  echo `date`: STARTING jobs  
   for x in `seq \`cat njobs.txt\``; do
     runjob ${x} &
   done
@@ -86,8 +89,8 @@ function runandwait {
   sleep 5
   wait
   \rm -f WAITING
-  echo `date` FINISHED jobs  
-  echo b1 `pwd -P`
+  echo `date`: FINISHED jobs  
+  if [ "${DEBUG}" == "1" ]; then echo b1 `pwd -P`; fi
 }
 
 cd ${tstDir}
@@ -100,13 +103,13 @@ for jt in `cat alljts`; do
   j=${jt%/*}
   t=${jt#*/}
   echo
-  echo `date` starting jobs=${j}, threads=${t}
+  echo `date`: starting jobs=${j}, threads=${t}
   wDir=${tstName}.j${j}.t${t}
   if [ -e ${wDir} ]; then
-    echo a0 `pwd -P`
+    if [ "${DEBUG}" == "1" ]; then echo a0 `pwd -P`; fi
     echo j${j}.t${t} >> ${testfile}
     cd ${wDir}
-    echo a1 `pwd -P`
+    if [ "${DEBUG}" == "1" ]; then echo a1 `pwd -P`; fi
     \rm -f WAITING
     ( runandwait ) &
     waiterPid=$! # See https://stackoverflow.com/a/10028986
@@ -145,10 +148,10 @@ for jt in `cat alljts`; do
       killAndWait
       if ps $waiterPid > /dev/null; then kill -9 $waiterPid; fi
     fi
-    echo a2 `pwd -P`
+    if [ "${DEBUG}" == "1" ]; then echo a2 `pwd -P`; fi
     cd ${tstDir}
-    echo a3 `pwd -P`
+    if [ "${DEBUG}" == "1" ]; then echo a3 `pwd -P`; fi
   fi
-  echo `date` finished jobs=${j}, thrs=${t}
+  echo `date`: finished jobs=${j}, thrs=${t}
 done
 
