@@ -10,15 +10,13 @@ while [ "$1" != "" ]; do
     KILLONLY=1
     shift
   else
-    echo "Usage: $0 [-d]"
+    echo "Usage: $0 [-d] [-k]"
     exit 1
   fi
 done
 
 tstName="check-test"
 exe=./build.none/check.exe 
-
-if ! calc -v >& /dev/null; then echo "ERROR! please install calc"; exit 1; fi
 
 #--- [lhcb-knl-scripts] from kill.sh ----
 
@@ -49,6 +47,8 @@ function killAndWait() {
 killAndWait
 
 if [ "${KILLONLY}" == "1" ]; then exit 0; fi
+
+if ! calc -v >& /dev/null; then echo "ERROR! please install calc"; exit 1; fi
 
 #--- [lhcb-knl-scripts] from createTEST.sh ----
 
