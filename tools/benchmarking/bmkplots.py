@@ -179,17 +179,21 @@ def processMemdata(njob, nthr, memdata, debug=False):
     memsum_njob_nthr[njob][nthr] = [sumrss, sumpss, sumswp]
     ###print 'Running2', memsum_njob_nthr
     
-def processFiles(rundir, debug=False):
+def processFiles(rundir, avx='none', debug=False):
     ###debug=True
     if not os.path.isdir(rundir):
         print 'Unknown directory', rundir
         return
     # GO THROUGH ALL TESTS IN RUNDIR AND FILL TIMSUM_NJOB_NTHR AND MEMSUM_NJOB_NTHR
+    global timsum_njob_nthr
+    global memsum_njob_nthr
+    timsum_njob_nthr = {}
+    memsum_njob_nthr = {}
     print 'Processing files in', rundir
     curlist = os.listdir(rundir)
     curlist.sort()
     for d in curlist:
-        if d.find('check-test.none.') != -1: # e.g. check-test.none.j002.t004
+        if d.find('check-test.'+avx+'.') != -1: # e.g. check-test.none.j002.t004
             dl = d.split('.')
             njob = int(dl[-2][-3:])
             nthr = int(dl[-1][-3:])
@@ -249,8 +253,9 @@ def processFiles(rundir, debug=False):
                 
 #------------------------------------------------------------------------------
 
-def plot(rundir, debug=False):
-    processFiles(rundir, debug)
+# Compare MT and ST for many njobs (eg with no simd)
+def plot1(rundir, debug=False):
+    processFiles(rundir, debug=debug)
     # Create figure with two plots
     import matplotlib
     matplotlib.use('agg')
@@ -331,6 +336,114 @@ def plot(rundir, debug=False):
 
 #---------------------------------------
 
+# Compare various simd ST options for many njobs
+def plot2(rundir, avxs, debug=False):
+    # Loop through files for different avx
+    global timsum_njob_nthr
+    global memsum_njob_nthr
+    timsum_avx_njob_nthr = {} # x[avx,njob,nthr] = [avgtot, avgtot1, avgtot2, avgtot3, sumnevt] -> avg times and sum nevt over all jobs
+    memsum_avx_njob_nthr = {} # x[avx,njob,nthr] = [sumrss, sumpss, sumswap] -> sum over all jobs (and threads/processes of MT/MP jobs)
+    allnjob2 = []
+    allnthr2 = []
+    for avx in avxs:
+        processFiles(rundir+'.'+avx, avx, debug)
+        timsum_avx_njob_nthr[avx] = timsum_njob_nthr
+        memsum_avx_njob_nthr[avx] = memsum_njob_nthr
+        allnjobtmp = sorted(timsum_njob_nthr)
+        allnjob2 += allnjobtmp
+        for njob in allnjobtmp: allnthr2 += sorted(timsum_njob_nthr[njob])
+    allnjob2 = list(set(allnjob2)) # unique items
+    allnthr2 = list(set(allnthr2)) # unique items
+    # Create figure with two plots
+    import matplotlib
+    matplotlib.use('agg')
+    import matplotlib.pyplot as plt
+    fig = plt.figure(figsize=(12,6))
+    ax1 = fig.add_subplot(121)
+    ax2 = fig.add_subplot(122)
+    # First plot: throughput
+    nthr = 1 # only ST
+    tput1_avx = {} # throughput with 1 ST job for different AVX
+    tcol1_avx = {} # colors of throughput plots for different AVX
+    ax1.set_xlabel('Level of parallelism (number of ST jobs)')
+    ax1.set_ylabel('Node throughput (E6 events per second)')
+    for avx in avxs:
+        timsum_njob_nthr = timsum_avx_njob_nthr[avx]
+        npars = []
+        tputs = []
+        for njob in sorted(allnjob2):
+            if njob not in timsum_njob_nthr: continue
+            if nthr not in timsum_njob_nthr[njob]: continue
+            npar = nthr*njob
+            tput = timsum_njob_nthr[njob][nthr][4] / timsum_njob_nthr[njob][nthr][3] / 1E6
+            npars.append(npar)
+            tputs.append(tput)
+            if njob == 1: tput1_avx[avx] = tput
+        p = ax1.plot(npars, tputs, marker='o', label=avx)
+        tcol1_avx[avx] = p[0].get_color()
+    # Second plot: memory
+    nthr = 1 # only ST
+    ax2.set_xlabel('Level of parallelism (number of ST jobs)')
+    ax2.set_ylabel('Total PSS memory (GB)')
+    for avx in avxs:
+        memsum_njob_nthr = memsum_avx_njob_nthr[avx]
+        npars = []
+        mpsss = []
+        for njob in sorted(allnjob2):
+            if njob not in memsum_njob_nthr: continue
+            if nthr not in memsum_njob_nthr[njob]: continue
+            npar = nthr*njob
+            mpss = memsum_njob_nthr[njob][nthr][1]/1000
+            npars.append(npar)
+            mpsss.append(mpss)
+        ax2.plot(npars, mpsss, marker='o', label=avx)
+    # Decorate both plots 
+    title='SIMD mode'
+    loc = 'right'
+    ax1.legend(loc=loc, title=title)
+    loc = 'lower right'
+    ax2.legend(loc=loc, title=title)
+    node = 'pmpe'
+    if node == 'pmpe' :
+        ftitle = 'check.exe scalability on pmpe04 (2x 8-core 2.4GHz Haswell with 2x HT)'
+        fig.suptitle(ftitle)
+        nodet = 'VARIOUS SIMD MODES'
+        ax1.set_title(nodet)
+        ax2.set_title(nodet)
+        xmax=54
+        ymax1=110
+        ymax2=80
+        ax1.axis([0,xmax,0,ymax1])
+        ax2.axis([0,xmax,0,ymax2])
+        xht=16
+        ax1.axvline(xht, color='black', ls=':')
+        ax1.axvline(xht*2, color='black', ls='-.')
+        ax1.text(xht/2, 0.92*ymax1, 'No HT', ha='center', va='center', size=15)
+        ax1.text(xht*3/2, 0.92*ymax1, '2x HT', ha='center', va='center', size=15)
+        ax1.text(xmax/2+xht, 0.92*ymax1, 'Overcommit', ha='center', va='center', size=15)
+        for avx in avxs:
+            tput1 = tput1_avx[avx]
+            tcol1 = tcol1_avx[avx]
+            ax1.plot( [0,xht], [0,xht*tput1], marker='', ls=':', lw=2, color=tcol1 )
+        ax2.axhline(y=64, color='black', ls='-')
+        ax2.text(xmax/2+xht/2, 64*1.05, 'MAXIMUM MEMORY: 64 GB', ha='center', va='center', size=12)
+        ax2.axvline(xht, color='black', ls=':')
+        ax2.axvline(xht*2, color='black', ls='-.')
+        ax2.text(xht/2, 0.92*ymax2, 'No HT', ha='center', va='center', size=15)
+        ax2.text(xht*3/2, 0.92*ymax2, '2x HT', ha='center', va='center', size=15)
+        ax2.text(xmax/2+xht, 0.92*ymax2, 'Overcommit', ha='center', va='center', size=15)
+    # Save and show the figure
+    # NB: savefig may issue WARNING 'Unable to parse the pattern' (https://bugzilla.redhat.com/show_bug.cgi?id=1653300)
+    print 'Please ignore the warning "Unable to parse the pattern"'
+    save = rundir + '.none/' + node + '-simd.png'
+    fig.savefig(save, format='png', bbox_inches="tight")
+    from subprocess import Popen
+    ###Popen(['eog', '-w', save])
+    Popen(['display', save])
+    print 'Plot successfully completed'
+
+#---------------------------------------
+
 if __name__ == '__main__':
 
     ###parseMemXml('BMKTST/check-test.none.j016.t001/1/mem.txt', debug=False)
@@ -339,5 +452,9 @@ if __name__ == '__main__':
 
     ###processFiles('BMKTST', debug=True)
     ###processFiles('BMKTST', debug=False)
+    ###processFiles('BMKTST.sse4', avx='sse4', debug=False)
+    ###processFiles('BMKTST.avx2', avx='avx2', debug=True)
 
-    plot('BMKTST', debug=False)
+    #plot1('BMKTST', debug=False)
+
+    plot2('BMKTST', ['none', 'sse4', 'avx2'], debug=False)
