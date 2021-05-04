@@ -311,7 +311,7 @@ def plot(rundir, debug=False):
         ax1.axvline(xht*2, color='black', ls='-.')
         ax1.text(xht/2, 0.92*ymax1, 'No HT', ha='center', va='center', size=15)
         ax1.text(xht*3/2, 0.92*ymax1, '2x HT', ha='center', va='center', size=15)
-        ax1.text(xht*3, 0.92*ymax1, 'Overcommit', ha='center', va='center', size=15)
+        ax1.text(xmax/2+xht, 0.92*ymax1, 'Overcommit', ha='center', va='center', size=15)
         ax2.axhline(y=64, color='black', ls='-')
         ax2.text(xmax/2+xht/2, 64*1.05, 'MAXIMUM MEMORY: 64 GB', ha='center', va='center', size=12)
         ax2.axvline(xht, color='black', ls=':')
@@ -325,7 +325,8 @@ def plot(rundir, debug=False):
     save = rundir + '/' + node + '-nosimd.png'
     fig.savefig(save, format='png', bbox_inches="tight")
     from subprocess import Popen
-    Popen(['eog', '-w', save])
+    ###Popen(['eog', '-w', save])
+    Popen(['display', save])
     print 'Plot successfully completed'
 
 #---------------------------------------
