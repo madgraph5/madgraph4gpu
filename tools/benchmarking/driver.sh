@@ -1,9 +1,11 @@
 #!/bin/bash
 
 avx=none
-jts="[1,1]"
+
+###jts="[1,1]"
 ###jts="[1,1] [1,4] [1,16] [4,1] [16,1]"
-###jts=""; for j in 1 2 4 8 16 32; do for t in 1 2 4 8 16 32; do if [ $((j*t)) -le 32 ]; then jts="$jts [$j,$t]"; fi; done; done 
+###jts="[32,1]"
+jts=""; for j in 1 2 4 8 16 32; do for t in 1 2 4 8 16 32; do if [ $((j*t)) -le 32 ]; then jts="$jts [$j,$t]"; fi; done; done 
 
 srcDir=$(pwd)
 exe=${srcDir}/build.${avx}/check.exe 
@@ -146,7 +148,7 @@ for jt in `cat alljts.${avx}`; do
     ( runandwait ) &
     waiterPid=$! # See https://stackoverflow.com/a/10028986
     while [ ! -f WAITING ]; do sleep 1; done
-    timeout=1 # 1 minute
+    timeout=2 # 2 minutes
     echo `date`": INFO: TIMEOUT $timeout minutes"
     for i in `seq 1 $timeout`; do
       if [ -f WAITING ]; then
