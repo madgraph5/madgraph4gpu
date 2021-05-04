@@ -1,11 +1,20 @@
 #!/bin/bash
 
+# For tests and debugging
 avx=none
-
-###jts="[1,1]"
+jts="[1,1]"
 ###jts="[1,1] [1,4] [1,16] [4,1] [16,1]"
 ###jts="[32,1]"
-jts=""; for j in 1 2 4 8 16 32; do for t in 1 2 4 8 16 32; do if [ $((j*t)) -le 32 ]; then jts="$jts [$j,$t]"; fi; done; done 
+
+# For nosimd plots
+###avx=none
+###jts=""; for j in 1 2 4 8 16 32; do for t in 1 2 4 8 16 32; do if [ $((j*t)) -le 32 ]; then jts="$jts [$j,$t]"; fi; done; done 
+
+# For simd plots including overcommit
+#avx=none
+#avx=sse4
+#avx=avx2
+#jts=""; for j in 1 2 4 8 16 32 48; do for t in 1; do if [ $((j*t)) -le 64 ]; then jts="$jts [$j,$t]"; fi; done; done 
 
 srcDir=$(pwd)
 exe=${srcDir}/build.${avx}/check.exe 
@@ -62,7 +71,9 @@ if ! calc -v >& /dev/null; then echo "ERROR! please install calc"; exit 1; fi
 
 #--- [lhcb-knl-scripts] from createTEST.sh ----
 
-tstDir=$(pwd)/BMKTST
+###tstDir=$(pwd)/BMKTST
+tstDir=$(pwd)/BMKTST.${avx}
+
 ###\rm -rf ${tstDir}
 \rm -rf ${tstDir}/${tstName}*
 mkdir -p ${tstDir}
