@@ -18,7 +18,8 @@ LIBDIR  = ../../lib/
 
 BASIC_OBJS = aloha_functions.o
 
-FFLAGS += $(ALOHA_FLAF)
+#FFLAGS += $(ALOHA_FLAF) # AV bug https://bugs.launchpad.net/mg5amcnlo/+bug/1919477
+FFLAGS += $(ALOHA_FLAG)
 
 include ./aloha_file.inc
 

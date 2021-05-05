@@ -27,7 +27,7 @@
 // Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
 #define MGONGPU_CXTYPE_THRUST 1 // default (~6.8E8)
-//#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~5 percent slower (6.5E8 against 6.8E8)
+//#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~5% slower (6.5E8 against 6.8E8)
 #endif
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
@@ -41,13 +41,10 @@ namespace mgOnGpu
   // --- Physics process-specific constants that are best declared at compile time
 
   const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
-  const int nw6 = 6; // dimension of each wavefunction (see KEK 91-11)
 
   const int npari = 2; // #particles in the initial state (incoming): e+ e-
   const int nparf = 2; // #particles in the final state (outgoing): mu+ mu-
   const int npar = npari + nparf; // #particles in total (external): e+ e- -> mu+ mu-
-
-  const int nwf = 5; // #wavefunctions: npar (4 external) + 1 (internal, reused for gamma and Z)
 
   const int ncomb = 16; // #helicity combinations: 16=2(spin up/down for fermions)**4(npar)
 
@@ -61,20 +58,9 @@ namespace mgOnGpu
   // Maximum number of threads per block
   const int ntpbMAX = 256;
 
-  // Number of Events Per Page in the random number AOSOA (ASA) structure
-  // (this is best kept as a compile-time constant: see issue #23)
-  // *** NB Different values of neppR lead to different physics results: the ***
-  // *** same 1d array is generated, but it is interpreted in different ways ***
-#if defined MGONGPU_FPTYPE_DOUBLE
-  const int neppR = 4; // DEFAULT: one 32-byte cache line contains 4 doubles as sizeof(double) is 8 bytes
-#elif defined MGONGPU_FPTYPE_FLOAT
-  const int neppR = 8; // DEFAULT: one 32-byte cache line contains 8 floats as sizeof(float) is 4 bytes
-#endif
-  //const int neppR = 1;  // *** NB: this is equivalent to AOS ***
-  //const int neppR = 32; // older default
-
   // Number of Events Per Page in the momenta AOSOA (ASA) structure
   // (this is best kept as a compile-time constant: see issue #23)
+  // Note that neppR is hardcoded and may differ from neppM on some platforms
 #if defined MGONGPU_FPTYPE_DOUBLE
   const int neppM = 4; // DEFAULT: one 32-byte cache line contains 4 doubles as sizeof(double) is 8 bytes
 #elif defined MGONGPU_FPTYPE_FLOAT
@@ -82,6 +68,11 @@ namespace mgOnGpu
 #endif
   //const int neppM = 1;  // *** NB: this is equivalent to AOS ***
   //const int neppM = 32; // older default
+
+  // Number of Events Per Page in the random number AOSOA memory layout
+  // *** NB Different values of neppR lead to different physics results: the ***
+  // *** same 1d array is generated, but it is interpreted in different ways ***
+  const int neppR = 8; // HARDCODED TO GIVE ALWAYS THE SAME PHYSICS RESULTS!
 
 }
 
@@ -110,6 +101,7 @@ namespace mgOnGpu
 // Define empty CUDA declaration specifiers for C++
 #ifndef __CUDACC__
 #define __global__
+//#define __host__
 #define __device__
 #endif
 

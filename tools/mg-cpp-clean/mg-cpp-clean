@@ -1,0 +1,194 @@
+#!/bin/bash
+
+#==============================================================================
+
+function cleanFile {
+
+  #which indent > /dev/null 2>&1 
+  #if [ "$?" != "0" ]; then
+  #  echo "ERROR! no 'indent' tool in PATH!"
+  #  return
+  #fi  
+
+  which uncrustify > /dev/null 2>&1 
+  if [ "$?" != "0" ]; then
+    echo "ERROR! no 'uncrustify' tool in PATH!"
+    return
+  fi  
+
+  scr_uc=${scrdir}/mgCppClean_uncr064.cfg # MG/NEW (uncrustify 0.64)
+  ###scr_uc=${scrdir}/mgCppClean_uncr064_default.cfg # FOR COMPARISON!
+  ###scr_uc=${scrdir}/mgCppClean_uncr055.cfg # MG/OLD (uncrustify 0.55)
+  ###scr_uc=${scrdir}/mgCppClean_uncr055_default.cfg # FOR COMPARISON!
+  if [ ! -f ${scr_uc} ]; then
+    echo "ERROR! file ${scr_uc} not found!"
+    return
+  fi  
+
+  which emacs > /dev/null 2>&1 
+  if [ "$?" != "0" ]; then
+    echo "ERROR! no 'emacs' tool in PATH!"
+    return
+  fi  
+
+  scr_el=${scrdir}/mgCppClean_emacs.el
+  if [ ! -f ${scr_el} ]; then
+    echo "ERROR! file ${scr_el} not found!"
+    return
+  fi  
+
+  if [ "$1" == "" ] || [ "$2" != "" ]; then
+    echo "ERROR! Function cleanFile requires one argument ( file )"
+    return
+  fi
+  file=$1
+  echo Clean file \'${file}\'
+  if [ xxx`echo $file | egrep '_tmp\.(h|cc|cpp|py)$'` != xxx ]; then
+    echo Skip temporary file \'${file}\'
+    return
+  fi
+  if [ "$quiet" != "1" ]; then echo Rename and clean file \'${file}\'; ls -l ${file}; fi
+  fileold=${file}
+  file=`echo ${file} | sed "s|\.h$|_tmp\.h|" | sed "s|\.cc$|_tmp\.cc|" | sed "s|\.cpp$|_tmp\.cpp|" | sed "s|\.py$|_tmp\.py|"`
+  \cp ${fileold} ${file}
+  if [ "$quiet" != "1" ]; then echo Clean file \'${file}\'; fi
+
+  #----------------------------------------------------------------------------
+  # Step 1a: indent
+  # Options for indent
+  # -npro : ignore the indent.pro user's profile 
+  # -npcs : 'f(' instead of 'f ('
+  # -prs: '( a )' instead of '(a)' [but also '(  )' instead of '()']
+  #----------------------------------------------------------------------------
+  ###if [ "$quiet" != "1" ]; then echo Clean file \'${file}\' \: indent; fi
+  ###indent -pro -npcs -prs ${file}
+
+  #----------------------------------------------------------------------------
+  # Step 1b: sed (fix problems introduced by indent)
+  # - replace '(  )' by '()' to fix overcorrection of 'indent -prs'
+  #----------------------------------------------------------------------------
+  ###if [ "$quiet" != "1" ]; then echo Clean file \'${file}\' \: sed; fi
+  ###cat ${file} | sed 's|(  )|()|' > ${file}.tmp; \mv ${file}.tmp ${file}
+
+  #----------------------------------------------------------------------------
+  # Step 2a: uncrustify
+  #----------------------------------------------------------------------------
+  if [ "$dounc" == "1" ]; then
+    ###cat ${file} # FOR TESTS!
+    \mv ${file} ${file}.tmp
+    ###cat ${file}.tmp | sed 's|\*///$|*/|' > ${file}; \mv ${file} ${file}.tmp # WHY??
+    cat ${file}.tmp \
+      | sed "s|/\* MGCPPCLEAN-NOINDENT-START \*/|/*MGCPPCLEAN-NOINDENT-START|" \
+      | sed "s|/\* MGCPPCLEAN-NOINDENT-END \*/|MGCPPCLEAN-NOINDENT-END*/|" \
+      > ${file}
+    if [ "${file%.py}" != "${file}" ]; then
+      echo "WARNING: will not uncrustify python file '${file}'"
+    elif [ "$quiet" == "1" ]; then
+      uncrustify -c ${scr_uc} -l CPP --replace ${file} > /dev/null 2>&1 
+    else 
+      echo Clean file \'${file}\' \: uncrustify
+      uncrustify -c ${scr_uc} -l CPP --replace ${file}
+    fi
+    ###uncrustify -s -L0-80 -c ${scr_uc} -l CPP --replace ${file} # DEBUG MSGS!
+    \mv ${file} ${file}.tmp
+    cat ${file}.tmp \
+      | sed "s|/\*MGCPPCLEAN-NOINDENT-START|/* MGCPPCLEAN-NOINDENT-START */|"\
+  | sed "s|MGCPPCLEAN-NOINDENT-END\*/|/* MGCPPCLEAN-NOINDENT-END */|"\
+  > ${file}
+    \rm ${file}.tmp
+  else
+    echo "WARNING: will not uncrustify '${file}' (use \"$0 -unc\")"
+  fi
+
+  #----------------------------------------------------------------------------
+  # Step 2b: sed (fix problems introduced by uncrustify)
+  # - replace 'std ::string' by 'std::string' to fix a bug in the tokenizer
+  #----------------------------------------------------------------------------
+  if [ "$dounc" == "1" ]; then
+    if [ "${file%.py}" == "${file}" ]; then
+      if [ "$quiet" != "1" ]; then echo Clean file \'${file}\' \: sed; fi
+      cat ${file} | sed 's|std ::string|std::string|' > ${file}.tmp
+      \mv ${file}.tmp ${file}
+    fi
+  fi
+
+  #----------------------------------------------------------------------------
+  # Step 3a: prepare for emacs
+  # - replace trailing "*/" by "*///" to avoid problems with following comments
+  #----------------------------------------------------------------------------
+  ###\mv ${file} ${file}.tmp
+  ###cat ${file}.tmp | sed 's|\*/$|*///|' > ${file} # WHY??
+  ###\rm ${file}.tmp
+
+  #----------------------------------------------------------------------------
+  # Step 3b: emacs
+  # This step is the last so that manual M-x clean in emacs changes nothing!
+  # See http://community.livejournal.com/emacs/10446.html
+  # See http://www.cslab.pepperdine.edu/warford/BatchIndentationEmacs.html
+  #----------------------------------------------------------------------------
+  ###cat ${file} # FOR TESTS!
+  if [ "${file%.py}" == "${file}" ]; then emacsclean=emacs-cppclean; else emacsclean=emacs-pyclean; fi
+  if [ "${file%.py}" != "${file}" ] && [ "$dopyt" != "1" ]; then
+    echo "WARNING: will not clean python file '${file}' (use \"$0 -pyt\")"
+  elif [ "$quiet" == "1" ]; then
+    emacs ${file} -batch -l ${scr_el} -f ${emacsclean} > /dev/null 2>&1 
+  else
+    echo Clean file \'${file}\' \: ${emacsclean}
+    ls -l ${file}
+    emacs ${file} -batch -l ${scr_el} -f ${emacsclean}
+  fi
+
+  #----------------------------------------------------------------------------
+  # Final step: cleanup and compare if needed
+  #----------------------------------------------------------------------------
+  ###cat ${file} # FOR TESTS!
+  if [ "$quiet" != "1" ]; then echo Clean file \'${file}\' \: DONE\!; fi
+  echo "Compare OLD '${fileold}' and NEW '${file}' : START"
+  echo diff ${fileold} ${file}
+  diff ${fileold} ${file}
+  echo "Compare OLD '${fileold}' and NEW '${file}' : END"
+  \rm -f ${file}.unc-backup*
+  \mv ${file} ${fileold} # DISABLE THIS FOR TESTS!
+}
+
+#==============================================================================
+
+if [ "$1" == "" ]; then
+  echo "Usage: $(basename $0) [-v] [-unc] [-pyt] (file1|dir1) [(file2|dir2)...]"
+  exit 1
+fi
+scrdir=`which $0`; scrdir=`dirname ${scrdir}`
+
+files=
+quiet=1  # QUIET
+dounc=0 # do not uncrustify
+dopyt=0 # do not include .py
+while [ "$1" != "" ]; do
+  if [ "$1" == "-v" ]; then
+    quiet=0 # VERBOSE
+    shift
+  elif [ "$1" == "-unc" ]; then
+    dounc=1 # do uncrustify
+    shift
+  elif [ "$1" == "-pyt" ]; then
+    dopyt=1 # do include .py
+    shift
+  elif [ -f $1 ] || [ -d $1 ]; then
+    files="$files $(find $1 -type f -name '*.h')"
+    files="$files $(find $1 -type f -name '*.cc')"
+    files="$files $(find $1 -type f -name '*.cpp')"
+    if [ "$dopyt" == "1" ]; then files="$files $(find $1 -type f -name '*.py')"; fi
+    shift
+  else
+    echo "ERROR! File or directory $1 does not exist"
+    exit 1
+  fi
+done
+
+files=$(echo $files | tr " " "\n")
+echo -e "About to clean files:\n$files"
+
+for file in $files; do
+  echo -e "\nAbout to clean file: '$file'"
+  cleanFile ${file}
+done

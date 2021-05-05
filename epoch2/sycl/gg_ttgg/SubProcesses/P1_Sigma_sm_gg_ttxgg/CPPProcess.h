@@ -8,9 +8,12 @@
 
 #include "../../src/HelAmps_sm.h"
 
-#ifndef MG5_Sigma_sm_epem_mupmum_H
-#define MG5_Sigma_sm_epem_mupmum_H
+#ifndef MG5_Sigma_sm_gg_ttxgg_H
+#define MG5_Sigma_sm_gg_ttxgg_H
 
+#ifdef SYCL_LANGUAGE_VERSION
+#include <CL/sycl.hpp>
+#endif
 #include <complex>
 #include <vector>
 #include <cassert>
@@ -21,6 +24,9 @@
 
 
 #include "Parameters_sm.h"
+
+using mgOnGpu::npar;  // number of particles in total (initial + final)
+using mgOnGpu::ncomb;  // number of helicity combinations
 
 //--------------------------------------------------------------------------
 
@@ -48,10 +54,14 @@ namespace gProc
 namespace Proc
 #endif
 {
+  
+extern int cHel[ncomb][npar];
+extern fptype cIPC[6]; 
+extern fptype cIPD[2];  
 
 //==========================================================================
 // A class for calculating the matrix elements for
-// Process: e+ e- > mu+ mu- WEIGHTED<=4 @1
+// Process: g g > t t~ g g WEIGHTED<=4 @1
 //--------------------------------------------------------------------------
 
 class CPPProcess
@@ -101,10 +111,10 @@ class CPPProcess
     bool m_debug; 
 
     static const int nwavefuncs = 6; 
-    static const int namplitudes = 2; 
-    static const int ncomb = 16; 
-    static const int wrows = 6; 
-    // static const int nioparticles = 4;
+    static const int namplitudes = 159; 
+    static const int ncomb = 64; 
+    static const int wrows = 63; 
+    // static const int nioparticles = 6;
 
     cxtype** amp; 
 
@@ -123,29 +133,36 @@ class CPPProcess
 
 
 //--------------------------------------------------------------------------
-#ifdef __CUDACC__
-__global__
+#ifdef SYCL_LANGUAGE_VERSION
+SYCL_EXTERNAL
 void sigmaKin_getGoodHel(const fptype * allmomenta,  // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-bool * isGoodHel);  // output: isGoodHel[ncomb] - device array
+bool * isGoodHel,  // output: isGoodHel[ncomb] - device array
+sycl::nd_item<3> item_ct1,
+const sycl::accessor<int, 2, sycl::access::mode::read> cHel
+);
 #endif
 
 //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
-void sigmaKin_setGoodHel(const bool * isGoodHel);  // input: isGoodHel[ncomb] - host array
+#ifdef SYCL_LANGUAGE_VERSION
+void sigmaKin_setGoodHel(const bool * isGoodHel, int * cNGoodHel_ptr, int* cGoodHel_ptr);  // input: isGoodHel[ncomb] - host array
 #endif
 
 //--------------------------------------------------------------------------
 
-__global__
+SYCL_EXTERNAL
 void sigmaKin(const fptype * allmomenta,  // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
 fptype * allMEs  // output: allMEs[nevt], final |M|^2 averaged over all helicities
-#ifndef __CUDACC__
-, const int nevt  // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+, sycl::nd_item<3> item_ct1,
+const sycl::accessor<int, 2, sycl::access::mode::read> cHel,
+int *cNGoodHel,
+int *cGoodHel 
+#ifndef SYCL_LANGUAGE_VERSION
+, const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
 ); 
 
 //--------------------------------------------------------------------------
 }
 
-#endif // MG5_Sigma_sm_epem_mupmum_H
+#endif // MG5_Sigma_sm_gg_ttxgg_H

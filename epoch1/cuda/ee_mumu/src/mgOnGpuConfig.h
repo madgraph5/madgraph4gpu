@@ -38,16 +38,23 @@
 
 namespace mgOnGpu
 {
+
+  // --- Type definitions
+
+  // Floating point type: fptype
+#if defined MGONGPU_FPTYPE_DOUBLE
+  typedef double fptype; // double precision (8 bytes, fp64)
+#elif defined MGONGPU_FPTYPE_FLOAT
+  typedef float fptype; // single precision (4 bytes, fp32)
+#endif
+
   // --- Physics process-specific constants that are best declared at compile time
 
   const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
-  const int nw6 = 6; // dimension of each wavefunction (see KEK 91-11)
 
   const int npari = 2; // #particles in the initial state (incoming): e+ e-
   const int nparf = 2; // #particles in the final state (outgoing): mu+ mu-
   const int npar = npari + nparf; // #particles in total (external): e+ e- -> mu+ mu-
-
-  const int nwf = 5; // #wavefunctions: npar (4 external) + 1 (internal, reused for gamma and Z)
 
   const int ncomb = 16; // #helicity combinations: 16=2(spin up/down for fermions)**4(npar)
 
@@ -61,55 +68,83 @@ namespace mgOnGpu
   // Maximum number of threads per block
   const int ntpbMAX = 256;
 
-  // Number of Events Per Page in the random number AOSOA (ASA) structure
-  // (this is best kept as a compile-time constant: see issue #23)
-  // *** NB Different values of neppR lead to different physics results: the ***
-  // *** same 1d array is generated, but it is interpreted in different ways ***
-#if defined MGONGPU_FPTYPE_DOUBLE
-  const int neppR = 4; // DEFAULT: one 32-byte cache line contains 4 doubles as sizeof(double) is 8 bytes
-#elif defined MGONGPU_FPTYPE_FLOAT
-  const int neppR = 8; // DEFAULT: one 32-byte cache line contains 8 floats as sizeof(float) is 4 bytes
-#endif
-  //const int neppR = 1;  // *** NB: this is equivalent to AOS ***
-  //const int neppR = 32; // older default
+  // Vector sizes for AOSOA memory layouts (GPU coalesced memory access, CPU SIMD vectorization)
+  // (these are all best kept as a compile-time constants: see issue #23)
 
-  // Number of Events Per Page in the momenta AOSOA (ASA) structure
-  // (this is best kept as a compile-time constant: see issue #23)
-#if defined MGONGPU_FPTYPE_DOUBLE
-  const int neppM = 4; // DEFAULT: one 32-byte cache line contains 4 doubles as sizeof(double) is 8 bytes
-#elif defined MGONGPU_FPTYPE_FLOAT
-  const int neppM = 8; // DEFAULT: one 32-byte cache line contains 8 floats as sizeof(float) is 4 bytes
-#endif
+  // Number of Events Per Page in the momenta AOSOA memory layout
+#ifdef __CUDACC__
+#undef MGONGPU_CPPSIMD
+  // -----------------------------------------------------------------------------------------
+  // --- GPUs: neppM must be a power of 2 times the number of fptype's in a 32-byte cacheline
+  // --- This is relevant to ensure coalesced access to momenta in global memory
+  // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
+  // -----------------------------------------------------------------------------------------
+  //const int neppM = 64/sizeof(fptype); // 2x 32-byte GPU cache lines: 8 (DOUBLE) or 16 (FLOAT)
+  const int neppM = 32/sizeof(fptype); // (DEFAULT) 32-byte GPU cache line: 4 (DOUBLE) or 8 (FLOAT)
   //const int neppM = 1;  // *** NB: this is equivalent to AOS ***
   //const int neppM = 32; // older default
+#else
+  // -----------------------------------------------------------------------------------------
+  // --- CPUs: neppM must be exactly equal to the number of fptype's in a vector register
+  // --- [DEFAULT is 256-width AVX512 aka "512y" on CPUs, 32-byte as GPUs, faster than AVX2]
+  // --- The logic of the code requires the size neppV of fptype_v to be equal to neppM
+  // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
+  // -----------------------------------------------------------------------------------------
+#if defined __AVX512VL__
+#define MGONGPU_CPPSIMD 1
+#ifdef MGONGPU_PVW512
+  const int neppM = 64/sizeof(fptype); // "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
+#else
+  const int neppM = 32/sizeof(fptype); // "512y" AVX512 with 256 width (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [gcc DEFAULT]
+#endif
+#elif defined __AVX2__
+#define MGONGPU_CPPSIMD 1
+  const int neppM = 32/sizeof(fptype); // "avx2" AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [clang DEFAULT]
+#elif defined __SSE4_2__
+#define MGONGPU_CPPSIMD 1
+  const int neppM = 16/sizeof(fptype); // "sse4" SSE4.2 (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT)
+#else
+#undef MGONGPU_CPPSIMD
+  const int neppM = 1;  // "none" i.e. no SIMD (*** NB: this is equivalent to AOS ***)
+#endif
+#endif
+
+  // Number of Events Per Page in the random number AOSOA memory layout
+  // *** NB Different values of neppR lead to different physics results: the ***
+  // *** same 1d array is generated, but it is interpreted in different ways ***
+  const int neppR = 8; // HARDCODED TO GIVE ALWAYS THE SAME PHYSICS RESULTS!
 
 }
+
+// Expose typedefs and operators outside the namespace
+using mgOnGpu::fptype;
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
 // Arguments (not used so far): text is __FUNCTION__, code is 0 (start) or 1 (end)
 #if defined __CUDACC__ && defined MGONGPU_NSIGHT_DEBUG
-#define mgDebugDeclare() \
+#define mgDebugDeclare()                              \
   __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
-#define mgDebugInitialise() \
+#define mgDebugInitialise()                     \
   { mgDebugCounter[threadIdx.x]=0; }
-#define mgDebug( code, text ) \
+#define mgDebug( code, text )                   \
   { mgDebugCounter[threadIdx.x] += 1; }
-#define mgDebugFinalise() \
+#define mgDebugFinalise()                                               \
   { if ( blockIdx.x == 0 && threadIdx.x == 0 ) printf( "MGDEBUG: counter=%f\n", mgDebugCounter[threadIdx.x] ); }
 #else
-#define mgDebugDeclare() \
+#define mgDebugDeclare()                        \
   /*noop*/
-#define mgDebugInitialise() \
+#define mgDebugInitialise()                     \
   { /*noop*/ }
-#define mgDebug( code, text ) \
+#define mgDebug( code, text )                   \
   { /*noop*/ }
-#define mgDebugFinalise() \
+#define mgDebugFinalise()                       \
   { /*noop*/ }
 #endif
 
 // Define empty CUDA declaration specifiers for C++
 #ifndef __CUDACC__
 #define __global__
+//#define __host__
 #define __device__
 #endif
 

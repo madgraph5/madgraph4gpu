@@ -1,6 +1,6 @@
 //==========================================================================
 // This file has been automatically generated for C++ Standalone by
-// MadGraph5_aMC@NLO v. 2.7.3.py3, 2020-06-28
+// MadGraph5_aMC@NLO v. 2.8.2, 2020-10-30
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -11,11 +11,11 @@
 #include <cassert>
 #include <complex>
 #include <vector>
-#include <fstream>
 #include <iostream>
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
+#include "mgOnGpuVectors.h"
 
 #include "Parameters_sm.h"
 
@@ -55,58 +55,60 @@ namespace Proc
   {
   public:
 
-    CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose = false );
+    // Constructor (from command line arguments)
+    CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose = false, bool debug = false );
 
+    // Destructor
     ~CPPProcess();
 
-    // Initialize process.
-    virtual void initProc(std::string param_card_name);
+    // Initialize process (read model parameters from file)
+    virtual void initProc( const std::string& param_card_name );
 
-    virtual int code() const {return 1;}
+    // Retrieve the compiler that was used to build this module
+    static const std::string getCompiler();
 
-    const std::vector<fptype> &getMasses() const;
+    // Other methods of this instance (???)
+    //const std::vector<fptype>& getMasses() const { return m_masses; }
+    //virtual int code() const{ return 1; }
+    //void setInitial( int inid1, int inid2 ){ id1 = inid1; id2 = inid2; }
+    //int getDim() const { return dim; }
+    //int getNIOParticles() const { return nexternal; }
 
-    void setInitial(int inid1, int inid2)
-    {
-      id1 = inid1;
-      id2 = inid2;
-    }
+    // Accessors (unused so far: add them to fix a clang build warning)
+    int numiterations() const { return m_numiterations; }
+    int gpublocks() const { return m_ngpublocks; }
+    int gputhreads() const { return m_ngputhreads; }
+    //bool verbose() const { return m_verbose; }
+    bool debug() const { return m_debug; }
 
-    int getDim() const {return dim;}
+  public:
 
-    int getNIOParticles() const {return nexternal;}
-
-    // Constants for array limits
+    // Hardcoded parameters for this process (constant class variables)
     static const int ninitial = mgOnGpu::npari;
     static const int nexternal = mgOnGpu::npar;
+    //static const int nioparticles = 4;
     //static const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
-
-  private:
-
-    int m_numiterations;
-
-    // gpu variables
-    int gpu_nblocks;
-    int gpu_nthreads;
-    int dim; // gpu_nblocks * gpu_nthreads;
-
-    bool m_verbose; // print verbose info
-
     static const int nwavefuncs = 6;
     static const int namplitudes = 2;
     static const int ncomb = 16;
-    static const int wrows = 6;
+    //static const int wrows = 6; // ???
 
-    cxtype** amp;
+  private:
 
-    // Pointer to the model parameters
-    Parameters_sm * pars;
+    // Command line arguments (constructor)
+    int m_numiterations; // number of iterations (each iteration has nblocks*nthreads events)
+    int m_ngpublocks; // number of GPU blocks in one grid (i.e. one iteration)
+    int m_ngputhreads; // number of GPU threads in a block
+    bool m_verbose;
+    bool m_debug;
 
-    // vector with external particle masses
-    std::vector<fptype> mME;
+    // Physics model parameters to be read from file (initProc function)
+    Parameters_sm* m_pars;
+    std::vector<fptype> m_masses; // external particle masses
 
-    // Initial particle ids
-    int id1, id2;
+    // Other variables of this instance (???)
+    //int id1, id2; // initial particle ids
+    //cxtype** amp; // ???
 
   };
 
@@ -114,27 +116,30 @@ namespace Proc
 
 #ifdef __CUDACC__
   __global__
-  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            bool* isGoodHel );        // output: isGoodHel[ncomb] - device array
 #endif
+  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                            fptype_sv* allMEs,           // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
+                            bool* isGoodHel              // output: isGoodHel[ncomb] - device array
+#ifndef __CUDACC__
+                            , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#endif
+                            );
 
-  //--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
   void sigmaKin_setGoodHel( const bool* isGoodHel ); // input: isGoodHel[ncomb] - host array
-#endif
 
-  //--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 
   __global__
-  void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                 fptype* allMEs            // output: allMEs[nevt], final |M|^2 averaged over all helicities
+  void sigmaKin( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                 fptype_sv* allMEs            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
 #ifndef __CUDACC__
-                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                 , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                  );
 
-  //--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 
 }
 
