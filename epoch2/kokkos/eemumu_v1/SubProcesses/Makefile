@@ -1,13 +1,13 @@
-KOKKOSPATH_CUDA=/home/parton/git/kokkos/install_v100
-KOKKOSPATH_OMP=/home/parton/git/kokkos/install_omp
-KOKKOSPATH_IRIS=/home/psteinbr/shared/gold/install
-KOKKOSPATH_HIP=/home/parton/git/kokkos/install_mi50
+KOKKOSPATH_CUDA ?= /home/parton/git/kokkos/install_v100
+KOKKOSPATH_OMP ?= /home/parton/git/kokkos/install_omp
+KOKKOSPATH_IRIS ?= /home/psteinbr/shared/gold/install
+KOKKOSPATH_HIP ?= /home/parton/git/kokkos/install_mi50
 
 INCDIR=../../src
 CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++17
 LDFLAGS=
 
-CUDA_ARCH_NUM=70
+CUDA_ARCH_NUM ?= 70
 NVCC=$(KOKKOSPATH_CUDA)/bin/nvcc_wrapper
 CUDA_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_CUDA)/include -arch=compute_$(CUDA_ARCH_NUM) --expt-extended-lambda --expt-relaxed-constexpr -use_fast_math --openmp
 CUDA_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_CUDA)/lib64/libkokkoscore.a -lnvToolsExt --openmp
@@ -25,7 +25,6 @@ IRIS_LDFLAGS=$(LDFLAGS) -L $(KOKKOSPATH_IRIS)/lib64 -lkokkoscore -fiopenmp -fope
 
 HIP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_HIP)/include -fopenmp -fno-gpu-rdc --amdgpu-target=gfx906
 HIP_LDFLAGS=$(LDFLAGS) -L $(KOKKOSPATH_HIP)/lib64  -lkokkoscore -ldl -fopenmp 
-
 
 cuda_exe=ccheck.exe
 cuda_obj=ccheck_sa.o
