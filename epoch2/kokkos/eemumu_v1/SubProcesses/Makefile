@@ -1,6 +1,7 @@
 KOKKOSPATH_CUDA=/home/parton/git/kokkos/install_v100
 KOKKOSPATH_OMP=/home/parton/git/kokkos/install_omp
 KOKKOSPATH_IRIS=/home/psteinbr/shared/gold/install
+KOKKOSPATH_HIP=/home/parton/git/kokkos/install_mi50
 
 INCDIR=../../src
 CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++17
@@ -13,6 +14,8 @@ CUDA_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_CUDA)/lib64/libkokkoscore.a -lnvToolsExt --
 
 CXX=g++
 IPCX=icpx
+CLANG=clang++
+HIPCC=hipcc
 
 OPENMP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_OMP)/include --openmp
 OPENMP_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_OMP)/lib64/libkokkoscore.a -ldl --openmp
@@ -20,16 +23,23 @@ OPENMP_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_OMP)/lib64/libkokkoscore.a -ldl --openmp
 IRIS_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_IRIS)/include -fiopenmp -fopenmp-targets=spir64 
 IRIS_LDFLAGS=$(LDFLAGS) -L $(KOKKOSPATH_IRIS)/lib64 -lkokkoscore -fiopenmp -fopenmp-targets=spir64
 
+HIP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_HIP)/include -fopenmp -fno-gpu-rdc --amdgpu-target=gfx906
+HIP_LDFLAGS=$(LDFLAGS) -L $(KOKKOSPATH_HIP)/lib64  -lkokkoscore -ldl -fopenmp 
+
+
 cuda_exe=ccheck.exe
 cuda_obj=ccheck_sa.o
 openmp_exe=ocheck.exe
 openmp_obj=ocheck_sa.o
 iris_exe=icheck.exe
 iris_obj=icheck.o
+hip_exe=hcheck.exe
+hip_obj=hcheck.o
 libmodel_sa=../../lib/libmodel_sa.a
 iris_libmodel_sa=../../lib/libmodel_sa_iris.a
+hip_libmodel_sa=../../lib/libmodel_sa_hip.a
 
-all: cuda openmp iris
+all: cuda openmp iris hip
 
 
 cuda:
@@ -41,7 +51,9 @@ openmp:
 iris:
 	make -C ../../src iris
 	make $(iris_exe)
-
+hip:
+	make -C ../../src hip
+	make $(hip_exe)
 
 $(cuda_obj): check_sa.cpp ../../src/rambo.h ../../src/random_generator.h CPPProcess.h
 	$(NVCC) -c $< -o $@ $(CUDA_CXXFLAGS)
@@ -61,12 +73,17 @@ $(iris_obj): check_sa.cpp ../../src/rambo.h ../../src/random_generator.h CPPProc
 $(iris_exe): $(iris_obj) $(iris_libmodel_sa)
 	$(IPCX) $(iris_obj) -o $@ $(IRIS_LDFLAGS) $(iris_libmodel_sa)
 
+$(hip_obj): check_sa.cpp ../../src/rambo.h ../../src/random_generator.h CPPProcess.h
+	$(HIPCC) -c $< -o $@ $(HIP_CXXFLAGS)
+
+$(hip_exe): $(hip_obj) $(hip_libmodel_sa)
+	$(HIPCC) $(hip_obj) -o $@ $(HIP_LDFLAGS) $(hip_libmodel_sa)
 
 .PHONY: clean
 
 clean:
 	make -C ../../src clean
-	rm -f $(cuda_obj) $(cuda_exe) $(openmp_obj) $(openmp_exe) $(iris_exe) $(iris_obj)
+	rm -f $(cuda_obj) $(cuda_exe) $(openmp_obj) $(openmp_exe) $(iris_exe) $(iris_obj) $(hip_exe) $(hip_obj)
 
 memcheck: check
 	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes ./check.exe 5 5 10

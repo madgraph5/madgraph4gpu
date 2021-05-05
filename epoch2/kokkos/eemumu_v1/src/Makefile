@@ -1,20 +1,26 @@
 
 CXX=gcc
 ICPX=icpx
+CLANG=clang++
+HIPCC=hipcc
 
 CXXFLAGS=-O3 -ffast-math --std=c++17
 
 LIBDIR=../lib
 gen_lib=$(LIBDIR)/libmodel_sa.a
 iris_lib=$(LIBDIR)/libmodel_sa_iris.a
+hip_lib=$(LIBDIR)/libmodel_sa_hip.a
 cxx_objects=Parameters_sm.o read_slha.o
 iris_objs=iParameters_sm.o iread_slha.o
+hip_objs=hParameters_sm.o hread_slha.o
 
 all: generic
 
 generic: $(gen_lib)
 
 iris: $(iris_lib)
+
+hip: $(hip_lib)
 
 %.o : %.cc %.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -35,6 +41,20 @@ $(iris_lib): iParameters_sm.o iread_slha.o
 	if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi
 	$(AR) cru $@ $^
 	ranlib $@
+
+hParameters_sm.o: Parameters_sm.cc Parameters_sm.h
+	$(HIPCC) $(CXXFLAGS) -c $< -o $@
+
+hread_slha.o: read_slha.cc read_slha.h
+	$(HIPCC) $(CXXFLAGS) -c $< -o $@
+
+
+$(hip_lib): hParameters_sm.o hread_slha.o
+	if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi
+	$(AR) cru $@ $^
+	ranlib $@
+
+
 
 .PHONY: clean
 
