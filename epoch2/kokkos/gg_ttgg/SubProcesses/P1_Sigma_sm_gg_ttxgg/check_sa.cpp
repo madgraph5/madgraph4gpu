@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
     lptimer.reset();
     CPPProcess<Kokkos::DefaultExecutionSpace> process(numiter, league_size, team_size);
 
-    // Read param_card and set parame"0a ProcInit"ters
+    // Read param_card and set parameters
     process.initProc("../../Cards/param_card.dat");
 
     double energy = 1500;
@@ -130,16 +130,16 @@ int main(int argc, char **argv) {
     auto time_genCreat = lptimer.seconds();
     nvtxRangePop();
 
-    CalcMean ave_me;
-    CalcMean tmr_rand;
-    CalcMean tmr_momini;
-    CalcMean tmr_momfin;
-    CalcMean tmr_cpyMom;
-    CalcMean tmr_cpyWgt;
-    CalcMean tmr_skin;
-    CalcMean tmr_cpyME;
-    CalcMean tmr_dumploop;
-    CalcMean tmr_iter;
+    CalcMean<float,unsigned int> ave_me;
+    CalcMean<float,unsigned int> tmr_rand;
+    CalcMean<float,unsigned int> tmr_momini;
+    CalcMean<float,unsigned int> tmr_momfin;
+    CalcMean<float,unsigned int> tmr_cpyMom;
+    CalcMean<float,unsigned int> tmr_cpyWgt;
+    CalcMean<float,unsigned int> tmr_skin;
+    CalcMean<float,unsigned int> tmr_cpyME;
+    CalcMean<float,unsigned int> tmr_dumploop;
+    CalcMean<float,unsigned int> tmr_iter;
     float time_SGoodHel = 0;
     for (int x = 0; x < numiter; ++x) {
       // printf("iter %d of %d\n",x,numiter);
