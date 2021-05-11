@@ -72,7 +72,7 @@ pwd
 make AVX=none
 if [ "${avxall}" == "1" ]; then make AVX=sse4; fi
 if [ "${avxall}" == "1" ]; then make AVX=avx2; fi
-make AVX=512y # always consider 512y as the reference, even if for clang avx2 is slightly faster...
+if [ "${cpp}" == "1" ]; then make AVX=512y; fi # always consider 512y as the C++ reference, even if for clang avx2 is slightly faster
 if [ "${avxall}" == "1" ]; then make AVX=512z; fi
 popd >& /dev/null
 
