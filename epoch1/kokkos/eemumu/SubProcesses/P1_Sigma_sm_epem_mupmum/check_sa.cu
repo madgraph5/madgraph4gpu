@@ -71,6 +71,7 @@ int main(int argc, char **argv) {
     std::cout << "# iterations: " << numiter << std::endl;
   { // start Kokkos View space
     // Create a process object
+    Kokkos::Timer total_time;
     CPPProcess<Kokkos::DefaultExecutionSpace> process(numiter, gpublocks, gputhreads);
 
     // Read param_card and set parameters
@@ -90,7 +91,9 @@ int main(int argc, char **argv) {
     for (int x = 0; x < numiter; ++x) {
       // printf("iter %d of %d\n",x,numiter);
       // Get phase space point
+      // Kokkos::Timer ptimer;
       auto p = get_momenta(process.ninitial, process.nexternal, energy, process.cmME, weight, dim);
+      // printf("momenta: %e\n",ptimer.seconds());
 
       // Set momenta for this event
       // for (int d = 0; d < dim; ++d) {
@@ -108,12 +111,17 @@ int main(int argc, char **argv) {
       // Evaluate matrix element
       // later process.sigmaKin(ncomb, goodhel, ntry, sum_hel, ngood, igood,
       // jhel);
+      // Kokkos::Timer sk_timer;
       sigmaKin(p, meDevPtr, process.cHel, process.cIPD, process.cIPC, dim);//, debug, verbose);
+      // Kokkos::DefaultExecutionSpace().fence();
+      // printf("sk func time: %e\n",sk_timer.seconds());
 
+      // Kokkos::Timer copy_timer;
       auto hp = Kokkos::create_mirror_view(p);
-      Kokkos::deep_copy(hp,p);
+      // Kokkos::deep_copy(hp,p);
 
       Kokkos::deep_copy(meHostPtr,meDevPtr);
+      // printf("copy time: %e\n",copy_timer.seconds());
 
       if (verbose)
         std::cout << "***********************************" << std::endl
@@ -218,6 +226,7 @@ int main(int argc, char **argv) {
                 << "MaxMatrixElemValue    = " << *maxelem << " GeV^" << meGeVexponent << std::endl;
     }
 
+    printf("total time: %e\n",total_time.seconds());
   } // end Kokkos View Space
   Kokkos::finalize();
 }
