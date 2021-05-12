@@ -16,6 +16,10 @@
 
 #include "CPPProcess.h"
 
+// Test ncu metrics for CUDA thread divergence
+//#undef MGONGPU_TEST_DIVERGENCE
+#define MGONGPU_TEST_DIVERGENCE 1
+
 //==========================================================================
 // Class member functions for calculating the matrix elements for
 // Process: e+ e- > mu+ mu- WEIGHTED<=4 @1
@@ -108,8 +112,15 @@ namespace Proc
 #endif
     {
 #ifdef __CUDACC__
+#ifndef MGONGPU_TEST_DIVERGENCE
       opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 );
       //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 ); // tested ok (much slower)
+#else
+      if ( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 ==0 )
+        opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 );
+      else
+        oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 ); // tested ok (much slower)
+#endif
 #else
       opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], ipagV, 0 );
       //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], ipagV, 0 ); // tested ok (slower)
