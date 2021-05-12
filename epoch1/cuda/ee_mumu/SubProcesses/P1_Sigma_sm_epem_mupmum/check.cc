@@ -550,6 +550,7 @@ int check
     gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.get(), devMEs.get());
 #endif
     checkCuda( cudaPeekAtLastError() );
+    checkCuda( cudaDeviceSynchronize() );
 #else
     Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), nevt);
 #endif

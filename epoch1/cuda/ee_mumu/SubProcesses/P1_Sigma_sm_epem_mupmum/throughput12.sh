@@ -1,88 +1,211 @@
 #!/bin/bash
 
+set +x
+
 omp=1 # new default: OMP only for epoch1
-if [ "$1" == "-omp" ]; then
-  omp=2
-  shift
-elif [ "$1" == "-noomp" ]; then
-  omp=0
-  shift
-fi
-
 avxall=0
-if [ "$1" == "-avxall" ]; then
-  avxall=1
-  shift
-fi
+ep2=0
+cpp=1
+het=1
+ab3=0
+ggttgg=0
+verbose=0
 
-if [ "$1" != "" ]; then
-  echo "Usage: $0 [-omp|-noomp] [-avxall]"
+function usage()
+{
+  echo "Usage: $0 [-nocpp|[-omp|-noomp][-avxall]] [-nohet] [-ep2] [-3a3b] [-ggttgg] [-v]"
   exit 1
-fi
+}
+
+while [ "$1" != "" ]; do
+  if [ "$1" == "-omp" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
+    if [ "${omp}" == "0" ]; then echo "ERROR! Options -omp and -noomp are incompatible"; usage; fi
+    omp=2
+    shift
+  elif [ "$1" == "-noomp" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options -noomp and -nocpp are incompatible"; usage; fi
+    if [ "${omp}" == "2" ]; then echo "ERROR! Options -omp and -noomp are incompatible"; usage; fi
+    omp=0
+    shift
+  elif [ "$1" == "-avxall" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options -avxall and -nocpp are incompatible"; usage; fi
+    avxall=1
+    shift
+  elif [ "$1" == "-nocpp" ]; then
+    if [ "${avxall}" == "1" ]; then echo "ERROR! Options -avxall and -nocpp are incompatible"; usage; fi
+    if [ "${omp}" == "2" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
+    cpp=0
+    shift
+  elif [ "$1" == "-nohet" ]; then
+    het=0
+    shift
+  elif [ "$1" == "-ep2" ]; then
+    ep2=1
+    shift
+  elif [ "$1" == "-3a3b" ]; then
+    ab3=1
+    shift
+  elif [ "$1" == "-ggttgg" ]; then
+    ggttgg=1
+    shift
+  elif [ "$1" == "-v" ]; then
+    verbose=1
+    shift
+  else
+    usage
+  fi
+done
 
 exes=
-exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none/check.exe"
+
+#=====================================
+# CUDA (eemumu/epoch1, eemumu/epoch2)
+#=====================================
 exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none/gcheck.exe"
-###exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none/hcheck.exe"
+if [ "${ep2}" == "1" ]; then 
+  exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
+fi
+
+#=====================================
+# C++ (eemumu/epoch1, eemumu/epoch2)
+#=====================================
+if [ "${cpp}" == "1" ]; then 
+  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none/check.exe"
+fi
 if [ "${avxall}" == "1" ]; then 
   exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.sse4/check.exe"
   exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.avx2/check.exe"
 fi
-exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y/check.exe"
-###exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y/gcheck.exe"
-exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y/hcheck.exe"
+if [ "${cpp}" == "1" ]; then 
+  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y/check.exe"
+fi
 if [ "${avxall}" == "1" ]; then 
   exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z/check.exe"
 fi
-exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/check.exe"
-exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
+if [ "${ep2}" == "1" ]; then 
+  if [ "${cpp}" == "1" ]; then 
+    exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/check.exe"
+  fi
+fi
+
+#=====================================
+# Het CUDA/C++ (eemumu/epoch1)
+#=====================================
+if [ "${het}" == "1" ]; then 
+  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y/hcheck.exe"
+fi
+
+#=====================================
+# CUDA (ggttgg/epoch2)
+#=====================================
+if [ "${ggttgg}" == "1" ]; then 
+  exes="$exes ../../../../../epoch2/cuda/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/gcheck.exe"
+fi
+
+#=====================================
+# C++ (ggttgg/epoch2)
+#=====================================
+if [ "${ggttgg}" == "1" ]; then 
+  if [ "${cpp}" == "1" ]; then 
+    exes="$exes ../../../../../epoch2/cuda/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/check.exe"
+  fi
+fi
 
 export USEBUILDDIR=1
 pushd ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
-  pwd
-  make AVX=none
-  if [ "${avxall}" == "1" ]; then make AVX=sse4; fi
-  if [ "${avxall}" == "1" ]; then make AVX=avx2; fi
-  make AVX=512y # NB: for HET tests, consider 512y the fastest, even if for clang avx2 is slightly better...
-  if [ "${avxall}" == "1" ]; then make AVX=512z; fi
+pwd
+make AVX=none
+if [ "${avxall}" == "1" ]; then make AVX=sse4; fi
+if [ "${avxall}" == "1" ]; then make AVX=avx2; fi
+if [ "${cpp}" == "1" ] || [ "${het}" == "1" ]; then make AVX=512y; fi # always take 512y as C++ reference, even if avx2 slighly faster for clang
+if [ "${avxall}" == "1" ]; then make AVX=512z; fi
 popd >& /dev/null
 
-pushd ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
+if [ "${ep2}" == "1" ]; then 
+  pushd ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
   pwd
   make
-popd >& /dev/null
+  popd >& /dev/null
+fi
+
+if [ "${ggttgg}" == "1" ]; then 
+  pushd ../../../../../epoch2/cuda/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg >& /dev/null
+  pwd
+  make
+  popd >& /dev/null
+fi
 
 function runExe() {
   exe=$1
+  args="$2"
   ###echo "runExe $exe OMP=$OMP_NUM_THREADS"
   pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|FP precision|TOTAL       :"
   # Optionally add other patterns here for some specific configurations (e.g. clang)
   pattern="${pattern}|CUCOMPLEX"
   pattern="${pattern}|COMMON RANDOM"
-  # For TIMEFORMAT see https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
-  if [ "${exe%%/hcheck*}" != "${exe}" ]; then 
-    pattern="${pattern}|TotalEventsComputed"
-    TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | grep -v NaN | egrep "(${pattern})" | sort -k"2.1,2.6" -r | uniq 
+  if [ "${ab3}" == "1" ]; then pattern="${pattern}|3a|3b"; fi
+  if perf --version >& /dev/null; then
+    # -- Newer version using perf stat
+    pattern="${pattern}|instructions|cycles"
+    pattern="${pattern}|elapsed"
+    if [ "${exe%%/hcheck*}" != "${exe}" ]; then 
+      if [ "${verbose}" == "1" ]; then set -x; fi
+      perf stat $exe $args 2>&1 | grep -v NaN | egrep "(${pattern})" | grep -v "Performance counter stats" | sed 's/^ /----- /g' | sort -k"2.1,2.6" -r | uniq 
+      set +x
+    else
+      if [ "${verbose}" == "1" ]; then set -x; fi
+      perf stat $exe $args 2>&1 | egrep "(${pattern})" | grep -v "Performance counter stats" | sed 's/^ /----- /g'
+      set +x
+    fi
   else
-    TIMEFORMAT=$'real\t%3lR' && time $exe -p 2048 256 12 2>&1 | egrep "(${pattern})"
+    # -- Older version using time
+    # For TIMEFORMAT see https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
+    if [ "${exe%%/hcheck*}" != "${exe}" ]; then 
+      pattern="${pattern}|TotalEventsComputed"
+      if [ "${verbose}" == "1" ]; then set -x; fi
+      TIMEFORMAT=$'real\t%3lR' && time $exe $args 2>&1 | grep -v NaN | egrep "(${pattern})" | sort -k"2.1,2.6" -r | uniq 
+      set +x
+    else 
+      if [ "${verbose}" == "1" ]; then set -x; fi
+      TIMEFORMAT=$'real\t%3lR' && time $exe $args 2>&1 | egrep "(${pattern})"
+      set +x
+    fi
   fi
 }
 
 function runNcu() {
   exe=$1
+  args="$2"
   ###echo "runExe $exe OMP=$OM_NUM_THREADS (NCU)"
-  $(which ncu) --metrics launch__registers_per_thread --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe -p 2048 256 1 | egrep '(sigmaKin|registers)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17}'
+  if [ "${verbose}" == "1" ]; then set -x; fi
+  $(which ncu) --metrics launch__registers_per_thread --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe $args | egrep '(sigmaKin|registers)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17}'
+  set +x
 }
 
-echo -e "\nOn $HOSTNAME:"
+lastExe=
+echo -e "\nOn $HOSTNAME ($(nvidia-smi -L | awk '{print $5}')):"
 for exe in $exes; do
   if [ ! -f $exe ]; then continue; fi
-  echo "-------------------------------------------------------------------------"
+  if [ "${exe%%/gg_ttgg*}" != "${exe}" ]; then 
+    # This is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
+    exeArgs="-p 64 256 1"
+    ncuArgs="-p 64 256 1"
+  else
+    exeArgs="-p 2048 256 12"
+    ncuArgs="-p 2048 256 1"
+  fi
+  if [ "$(basename $exe)" != "$lastExe" ]; then
+    echo "========================================================================="
+    lastExe=$(basename $exe)
+  else
+    echo "-------------------------------------------------------------------------"
+  fi
   unset OMP_NUM_THREADS
   if [ "${exe%%/hcheck*}" != "${exe}" ]; then 
     export OMP_NUM_THREADS=$(nproc --all)
   fi
-  runExe $exe
+  runExe $exe "$exeArgs"
   if [ "${exe%%/check*}" != "${exe}" ]; then 
     obj=${exe%%/check*}/CPPProcess.o; ./simdSymSummary.sh -stripdir ${obj}
     if [ "${omp}" != "0" ] && [ "${exe%%/epoch1*}" != "${exe}" ]; then 
@@ -92,10 +215,10 @@ for exe in $exes; do
     elif [ "${omp}" == "2" ] && [ "${exe%%/epoch2*}" != "${exe}" ]; then 
       echo "-------------------------------------------------------------------------"
       export OMP_NUM_THREADS=$(nproc --all)
-      runExe $exe
+      runExe $exe "$exeArgs"
     fi
   elif [ "${exe%%/gcheck*}" != "${exe}" ]; then 
-    runNcu $exe
+    runNcu $exe "$ncuArgs"
   fi
 done
-echo "-------------------------------------------------------------------------"
+echo "========================================================================="
