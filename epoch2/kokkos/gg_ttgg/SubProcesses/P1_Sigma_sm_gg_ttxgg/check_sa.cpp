@@ -5,6 +5,7 @@
 #include <numeric> // perf stats
 #include <unistd.h>
 #include <vector>
+#include <fstream>
 
 #include "CPPProcess.h"
 #include "random_generator.h"
@@ -249,7 +250,8 @@ int main(int argc, char **argv) {
     }
     nvtxRangePush("8a_9a_DumpStat");
     lptimer.reset();
-
+    std::ofstream fout("output_data.txt");
+    fout << "{" << std::endl;
     if (perf) {
       
 
@@ -270,13 +272,19 @@ int main(int argc, char **argv) {
       printf("----------------------------------------------------------------------\n");
       printf("NProcesses                  =  %8d \n",process.nprocesses);
       printf("NumMatrixElements           =  %8d \n",ave_me.n());
-      printf("EventsPerSec[MatrixEls]     =  %8.6e / sec\n",ave_me.n()/tmr_skin.sum());
+      auto me_per_sec = ave_me.n() / tmr_skin.sum();
+      printf("EventsPerSec[MatrixEls]     =  %8.6e / sec\n",me_per_sec);
+      fout << "\"me_per_sec\": " << me_per_sec << "," << std::endl;
 
       printf("**********************************************************************\n");
       printf("NumMatrixElements           =  %8d \n",ave_me.n());
+      fout << "\"num_me\": " << ave_me.n() << "," << std::endl;
       printf("MeanMatrixElemValue         = (%8.6e +/- %8.6e ) GeV^%d \n",ave_me.mean(),ave_me.sigma()/sqrt(ave_me.n()),meGeVexponent);
+      fout << "\"mean_me\": " << ave_me.mean() << "," << std::endl;
+      fout << "\"me_error\": " << ave_me.sigma()/sqrt(ave_me.n()) << "," << std::endl;
       printf("[Min,Max]MatrixElemValue    = (%8.6e +/- %8.6e ) GeV^%d \n",ave_me.min(),ave_me.max(),meGeVexponent);
       printf("StdDevMatrixElemValue       =  %8.6e GeV^%d \n",ave_me.sigma(),meGeVexponent);
+      fout << "\"me_stdev\": " << ave_me.sigma() << "," << std::endl;
 
       printf("**********************************************************************\n");
       printf("0a_ProcInit           = %8.6f seconds\n",time_procInit);
@@ -299,6 +307,7 @@ int main(int argc, char **argv) {
     }
     printf("iteration time        = %10.3f +/- %10.3f seconds\n",tmr_iter.mean(),tmr_iter.sigma());
     printf("total time            = %10.3f seconds\n",total_time.seconds());
+    fout << "\"total_time\": " << total_time.seconds() << std::endl << "}\n";
   } // end Kokkos View Space
   Kokkos::finalize();
 }
