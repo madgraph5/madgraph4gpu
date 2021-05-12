@@ -115,6 +115,7 @@ if [ "$tag" != "nogui" ]; then
   else
     logs=logs
   fi
+  if [ ! -d $logs ]; then mkdir -p $logs; fi
   trace=$logs/eemumuAV_${tag}_`date +%m%d_%H%M`_b${arg1}_t${arg2}_i${arg3}
   if [ "$label" != "" ]; then trace=${trace}_${label}; fi
   
