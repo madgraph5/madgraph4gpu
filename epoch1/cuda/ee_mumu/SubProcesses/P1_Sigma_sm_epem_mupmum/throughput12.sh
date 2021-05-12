@@ -8,11 +8,12 @@ ep2=0
 cpp=1
 ab3=0
 ggttgg=0
+div=0
 verbose=0
 
 function usage()
 {
-  echo "Usage: $0 [-nocpp|[-omp][-avxall]] [-ep2] [-3a3b] [-ggttgg] [-v]"
+  echo "Usage: $0 [-nocpp|[-omp][-avxall]] [-ep2] [-3a3b] [-ggttgg] [-div] [-v]"
   exit 1
 }
 
@@ -38,6 +39,9 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-ggttgg" ]; then
     ggttgg=1
+    shift
+  elif [ "$1" == "-div" ]; then
+    div=1
     shift
   elif [ "$1" == "-v" ]; then
     verbose=1
@@ -122,7 +126,7 @@ fi
 function runExe() {
   exe=$1
   args="$2"
-  ###echo "runExe $exe OMP=$OMP_NUM_THREADS"
+  ###echo "runExe $exe $args OMP=$OMP_NUM_THREADS"
   pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|FP precision|TOTAL       :"
   # Optionally add other patterns here for some specific configurations (e.g. clang)
   pattern="${pattern}|CUCOMPLEX"
@@ -147,9 +151,18 @@ function runExe() {
 function runNcu() {
   exe=$1
   args="$2"
-  ###echo "runExe $exe OMP=$OM_NUM_THREADS (NCU)"
+  ###echo "runNcu $exe $args OMP=$OMP_NUM_THREADS"
   if [ "${verbose}" == "1" ]; then set -x; fi
   $(which ncu) --metrics launch__registers_per_thread --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe $args | egrep '(sigmaKin|registers)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17}'
+  set +x
+}
+
+function runNcuDiv() {
+  exe=$1
+  args="$2"
+  ###echo "runNcuDiv $exe $args OMP=$OMP_NUM_THREADS"
+  if [ "${verbose}" == "1" ]; then set -x; fi
+  $(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe $args | egrep '(sigmaKin| sm)' | tr "\n" " " | awk '{printf "%s %s %s %-51s %s\n", $1, $2, $3, $15, $17$16; printf "%29s: %-51s %s\n", "", $18, $19; printf "%29s: %-51s %s\n", "", $22, $23; printf "%29s: %-51s %s\n", "", $20, $21; printf "%29s: %-51s %s\n", "", $24, $26}'
   set +x
 }
 
@@ -182,6 +195,9 @@ for exe in $exes; do
     fi
   elif [ "${exe%%/gcheck*}" != "${exe}" ]; then 
     runNcu $exe "$ncuArgs"
+    if [ "${div}" == "1" ]; then 
+      runNcuDiv $exe "$ncuArgs"
+    fi
   fi
 done
 echo "========================================================================="
