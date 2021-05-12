@@ -62,9 +62,7 @@ const int ipar)  // input: particle# out of npar
   using std::min; 
 #endif
 
-
-
-  // const fptype& pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
+  const fptype& pvec0 = pIparIp4Ievt(allmomenta, ipar, 0, ievt);
   const fptype& pvec1 = pIparIp4Ievt(allmomenta, ipar, 1, ievt); 
   const fptype& pvec2 = pIparIp4Ievt(allmomenta, ipar, 2, ievt); 
   const fptype& pvec3 = pIparIp4Ievt(allmomenta, ipar, 3, ievt); 
@@ -74,7 +72,8 @@ const int ipar)  // input: particle# out of npar
   int ip, im, nh; 
 
   fptype p[4] = {0, pvec1, pvec2, pvec3}; 
-  p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3] + fmass * fmass); 
+  //p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3] + fmass * fmass); // AV: BUG?! (NOT AS IN THE FORTRAN)
+  p[0] = pvec0; // AV: BUG FIX (DO AS IN THE FORTRAN)
   fi[0] = cxtype(-p[0] * nsf, -p[3] * nsf); 
   fi[1] = cxtype(-p[1] * nsf, -p[2] * nsf); 
   nh = nhel * nsf; 
