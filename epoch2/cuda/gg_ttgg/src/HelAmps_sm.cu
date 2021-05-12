@@ -84,7 +84,8 @@ const int ipar)  // input: particle# out of npar
     if (pp == 0.0)
     {
       sqm[0] = sqrt(std::abs(fmass)); 
-      sqm[1] = (fmass < 0) ? - abs(sqm[0]) : abs(sqm[0]); 
+      //sqm[1] = (fmass < 0) ? - abs(sqm[0]) : abs(sqm[0]); // BUG issue #198
+      sqm[1] = (fmass < 0) ? -sqm[0] : sqm[0];
       ip = (1 + nh)/2; 
       im = (1 - nh)/2; 
       fi[2] = ip * sqm[ip]; 
@@ -344,8 +345,8 @@ const int ipar)  // input: particle# out of npar
       else
       {
         vc[3] = cxtype(-hel * sqh, 0.0); 
-        vc[4] = cxtype(0.0, nsvahl * (p3 < 0) ? - abs(sqh)
-        : abs(sqh)); 
+        //vc[4] = cxtype(0.0, nsvahl * (p3 < 0) ? - abs(sqh) : abs(sqh)); // BUG issue #198
+        vc[4] = cxtype(0.0, nsvahl * (p3 < 0) ? -sqh : sqh);
       }
     }
   }
@@ -364,8 +365,8 @@ const int ipar)  // input: particle# out of npar
     else
     {
       vc[3] = cxtype(-hel * sqh, 0.0); 
-      vc[4] = 
-      cxtype(0.0, nsv * (p3 < 0) ? - abs(sqh) : abs(sqh)); 
+      //vc[4] = cxtype(0.0, nsv * (p3 < 0) ? - abs(sqh) : abs(sqh)); // BUG issue #198
+      vc[4] = cxtype(0.0, nsv * (p3 < 0) ? -sqh : sqh);
     }
   }
   return; 
@@ -430,7 +431,8 @@ const int ipar)  // input: particle# out of npar
     if (pp == 0.000)
     {
       sqm[0] = sqrt(std::abs(fmass)); 
-      sqm[1] = (fmass < 0) ? - abs(sqm[0]) : abs(sqm[0]); 
+      //sqm[1] = (fmass < 0) ? - abs(sqm[0]) : abs(sqm[0]); // BUG issue #198
+      sqm[1] = (fmass < 0) ? -sqm[0] : sqm[0];
       ip = -((1 - nh)/2) * nhel; 
       im = (1 + nh)/2 * nhel; 
       fo[2] = im * sqm[std::abs(ip)]; 
