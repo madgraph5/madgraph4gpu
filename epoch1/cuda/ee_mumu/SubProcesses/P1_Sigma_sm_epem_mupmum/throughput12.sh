@@ -4,11 +4,11 @@ omp=0
 avxall=0
 ep2=0
 cpp=1
+ab3=0
 
 function usage()
 {
-  echo "Usage: $0 [-omp] [-avxall] [-ep2]"
-  echo "Usage: $0 [-nocpp] [-ep2]"
+  echo "Usage: $0 [-nocpp|[-omp][-avxall]] [-ep2] [-3a3b]"
   exit 1
 }
 
@@ -28,6 +28,9 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-ep2" ]; then
     ep2=1
+    shift
+  elif [ "$1" == "-3a3b" ]; then
+    ab3=1
     shift
   else
     usage
@@ -90,6 +93,7 @@ function runExe() {
   # Optionally add other patterns here for some specific configurations (e.g. clang)
   pattern="${pattern}|CUCOMPLEX"
   pattern="${pattern}|COMMON RANDOM"
+  if [ "${ab3}" == "1" ]; then pattern="${pattern}|3a|3b"; fi
   if perf --version >& /dev/null; then
     # -- Newer version using perf stat
     pattern="${pattern}|instructions|cycles"
