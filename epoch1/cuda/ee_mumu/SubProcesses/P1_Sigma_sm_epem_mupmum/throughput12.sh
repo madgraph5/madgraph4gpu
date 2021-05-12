@@ -161,7 +161,7 @@ function runNcu() {
 # Profile divergenece metrics more in detail
 function runNcuDiv() {
   exe=$1
-  args="$2"
+  args="-p 1 32 1"
   ###echo "runNcuDiv $exe $args OMP=$OMP_NUM_THREADS"
   if [ "${verbose}" == "1" ]; then set -x; fi
   $(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe $args | egrep '(sigmaKin| sm)' | tr "\n" " " | awk '{printf "%29s: %-51s %s\n", "", $18, $19; printf "%29s: %-51s %s\n", "", $22, $23; printf "%29s: %-51s %s\n", "", $20, $21; printf "%29s: %-51s %s\n", "", $24, $26}'
@@ -198,7 +198,7 @@ for exe in $exes; do
   elif [ "${exe%%/gcheck*}" != "${exe}" ]; then 
     runNcu $exe "$ncuArgs"
     if [ "${div}" == "1" ]; then 
-      runNcuDiv $exe "$ncuArgs"
+      runNcuDiv $exe
     fi
   fi
 done
