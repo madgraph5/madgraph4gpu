@@ -250,7 +250,7 @@ int main(int argc, char **argv) {
     }
     nvtxRangePush("8a_9a_DumpStat");
     lptimer.reset();
-    std::ofstream fout("output_data.txt");
+    std::ofstream fout("output_data.json");
     fout << "{" << std::endl;
     if (perf) {
       
