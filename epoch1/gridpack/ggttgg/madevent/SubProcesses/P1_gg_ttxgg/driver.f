@@ -73,6 +73,10 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 
       include 'coupl.inc'
 
+c
+c     initialise C and C++ modules
+c
+      call counters_initialise()
 C-----
 C  BEGIN CODE
 C----- 
@@ -201,6 +205,10 @@ c      write(*,*) 'Final xsec: ',xsec
       rewind(lun)
 
       close(lun)
+c
+c     finalise C and C++ modules
+c
+      call counters_finalise()
       end
 
 c     $B$ get_user_params $B$ ! tag for MadWeight

@@ -44,10 +44,12 @@ PROCESS= driver.o myamp.o genps.o unwgt.o setcuts.o get_color.o \
 
 SYMMETRY = symmetry.o idenparts.o 
 
+CCPPCUDA = counters.o
+
 # Binaries
 
-$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX)
-	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES)
+$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX) $(CCPPCUDA)
+	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(CCPPCUDA) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES)
 
 $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES)
@@ -70,6 +72,11 @@ $(MATRIX): %.o: %.f
 %.o: %.f
 	$(FC) $(FFLAGS) -c $< -I../../Source/
 
+# C and C++ functions
+CXXFLAGS = -std=c++11 $(USE_NVTX) -Wshadow -Wextra
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $<
+
 # Dependencies
 
 driver.f: genps.inc
@@ -87,6 +94,7 @@ addmothers.o: genps.inc nexternal.inc symswap.inc message.inc
 unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
 	 run_config.inc
 initcluster.o: message.inc
+counters.o: timer.h
 
 clean:
 	$(RM) *.o gensym madevent madevent_forhel

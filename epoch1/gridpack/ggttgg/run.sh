@@ -1,5 +1,22 @@
 #!/bin/bash
 
+if [ "$1" == "-cleanstart" ]; then
+  ./cleanRun.sh
+  shift
+fi
+
+if [ "$1" == "-keeplog" ]; then
+  \cp ./madevent/bin/internal/gen_ximprove_keeplogT.py ./madevent/bin/internal/gen_ximprove.py
+  shift
+else
+  \cp ./madevent/bin/internal/gen_ximprove_keeplogF.py ./madevent/bin/internal/gen_ximprove.py
+fi
+
+if [ "$1" == "-h" ] || [ "$2" == "" ] || [ "$4" != "" ]; then
+  echo "Usage: $0 [-cleanstart] [-keeplog] <num_events> <iseed> [granularity]"
+  exit 1
+fi
+
 #############################################################################
 #                                                                          ##
 #                    MadGraph/MadEvent                                     ##
@@ -60,4 +77,14 @@ else
     rm -rf Events Cards P* *.dat randinit &> /dev/null
 fi
 echo "write ./events.lhe.gz"
+
+for Gdir in madevent/SubProcesses/P1_*/G*; do
+  log=$Gdir/counters_log.txt
+  ###echo "*** $log:"; if [ -f $log ]; then cat $log; else echo "<not found>"; fi
+  if [ -f $log ]; then printf "%-5s " $(basename $Gdir); cat $log | grep 'MATRIX1'; fi
+done
+cat madevent/SubProcesses/P1_*/G*/counters_log.txt | grep MATRIX1 | awk 'BEGIN{stot=0;ctot=0};{stot+=substr($3,0,length($3)-1);ctot+=$5};END{printf "TOTAL MATRIX1 : %9.4fs for %8d calls => throughput is %8.2E calls/s\n",stot,ctot,ctot/stot}'
+
+\cp ./madevent/bin/internal/gen_ximprove_keeplogF.py ./madevent/bin/internal/gen_ximprove.py
+
 exit
