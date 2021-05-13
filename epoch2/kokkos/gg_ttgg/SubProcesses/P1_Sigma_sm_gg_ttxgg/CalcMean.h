@@ -3,21 +3,22 @@
 #include <cmath>
 #include <limits>
 
+template <typename float_precision,typename decimal_precision>
 class CalcMean{
 private:
-   float m_mean;
-   float m_sigma;
-   float m_sum;
-   float m_sum2;
-   float m_min;
-   float m_max;
-   unsigned int m_n;
+   float_precision m_mean;
+   float_precision m_sigma;
+   float_precision m_sum;
+   float_precision m_sum2;
+   float_precision m_min;
+   float_precision m_max;
+   decimal_precision m_n;
 public:
    CalcMean(void):m_mean(0.),m_sigma(0.),
-      m_sum(0.),m_sum2(0.),m_n(0),m_min(std::numeric_limits<float>::max()),
-      m_max(std::numeric_limits<float>::min()){};
+      m_sum(0.),m_sum2(0.),m_n(0),m_min(std::numeric_limits<float_precision>::max()),
+      m_max(std::numeric_limits<float_precision>::min()){};
 
-   void add_value(float value){
+   void add_value(float_precision value){
       m_n += 1;
       m_sum += value;
       m_sum2 += value*value;
@@ -27,17 +28,17 @@ public:
       if(value > m_max) m_max = value;
    }
 
-   float mean(){
+   float_precision mean(){
       if(m_mean != 0)
          return m_mean;
       if(m_n == 0)
          return 0;
 
-      m_mean = float(m_sum)/float(m_n);
+      m_mean = float_precision(m_sum)/float_precision(m_n);
       return m_mean;
    }
 
-   float sigma(){
+   float_precision sigma(){
       if(m_sigma != 0)
          return m_sigma;
       if(m_n == 0)
@@ -47,17 +48,17 @@ public:
       return m_sigma;
    }
 
-   int n(){return m_n;};
-   void n(int value){m_n = value;};
+   decimal_precision n(){return m_n;};
+   void n(decimal_precision value){m_n = value;};
 
-   float sum(){return m_sum;};
-   void sum(float value){m_sum = value;};
+   float_precision sum(){return m_sum;};
+   void sum(float_precision value){m_sum = value;};
 
-   float sum2(){return m_sum2;}
-   void sum2(float value){m_sum2 = value;};
+   float_precision sum2(){return m_sum2;}
+   void sum2(float_precision value){m_sum2 = value;};
 
-   float min(){return m_min;};
-   float max(){return m_max;};
+   float_precision min(){return m_min;};
+   float_precision max(){return m_max;};
 
 };
 
