@@ -159,6 +159,7 @@ function runNcu() {
 }
 
 # Profile divergence metrics more in detail
+# See https://www.pgroup.com/resources/docs/18.10/pdf/pgi18profug.pdf
 # See https://docs.nvidia.com/gameworks/content/developertools/desktop/analysis/report/cudaexperiments/kernellevel/branchstatistics.htm
 # See https://docs.nvidia.com/gameworks/content/developertools/desktop/analysis/report/cudaexperiments/sourcelevel/divergentbranch.htm
 function runNcuDiv() {
