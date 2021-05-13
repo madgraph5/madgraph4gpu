@@ -17,8 +17,8 @@
 #include "CPPProcess.h"
 
 // Test ncu metrics for CUDA thread divergence
-//#undef MGONGPU_TEST_DIVERGENCE
-#define MGONGPU_TEST_DIVERGENCE 1
+#undef MGONGPU_TEST_DIVERGENCE
+//#define MGONGPU_TEST_DIVERGENCE 1
 
 //==========================================================================
 // Class member functions for calculating the matrix elements for
