@@ -362,6 +362,7 @@ KOKKOS_FUNCTION void sxxxxx(Kokkos::View<double*,Stride,Device,MemSpace> pvec, i
 {
   // double p[4] = {0, pvec(1), pvec(2), pvec(3)};
   // p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]+fmass*fmass);
+  // scalar not supported so far. to do: fix mass issue
   double p[4] = {0, 0, 0, 0}; 
   printf("scalar not supported so far. to do: fix mass issue"); 
   sc[2] = Kokkos::complex<double> (1.00, 0.00); 
