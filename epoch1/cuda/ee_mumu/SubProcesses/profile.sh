@@ -63,9 +63,11 @@ done
 if [ "$tag" == "cc" ]; then
   if [ "$args" == "" ]; then args=$ccargs; fi
   cmd="./check.exe -p $args"
+  make
 else
   if [ "$args" == "" ]; then args=$cuargs; fi
   cmd="./gcheck.exe -p $args"
+  make
 fi
 
 ncu="ncu"
@@ -87,14 +89,18 @@ fi
 ###ncu="${ncu} --sampling-interval 0"  # MAX sampling frequency
 ###ncu="${ncu} --sampling-interval 31" # MIN sampling frequency
 
+# METRICS FOR COALESCED MEMROY ACCESS (AOSOA etc)
 # See https://developer.nvidia.com/blog/using-nsight-compute-to-inspect-your-kernels/
 # These used to be called gld_transactions and global_load_requests
 # See also https://docs.nvidia.com/nsight-compute/2019.5/NsightComputeCli/index.html#nvprof-metric-comparison
 # See also https://stackoverflow.com/questions/60535867
 metrics=l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum
 
-# Add registers
+# METRICS FOR REGISTER PRESSURE
 metrics+=,launch__registers_per_thread
+
+# METRICS FOR DIVERGENCE
+metrics+=,sm__sass_average_branch_targets_threads_uniform.pct
 
 # GUI analysis
 if [ "$tag" != "nogui" ]; then
@@ -115,6 +121,7 @@ if [ "$tag" != "nogui" ]; then
   else
     logs=logs
   fi
+  if [ ! -d $logs ]; then mkdir -p $logs; fi
   trace=$logs/eemumuAV_${tag}_`date +%m%d_%H%M`_b${arg1}_t${arg2}_i${arg3}
   if [ "$label" != "" ]; then trace=${trace}_${label}; fi
   

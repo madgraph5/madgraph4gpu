@@ -65,6 +65,9 @@ $(LIBDIR)/lib$(MODELLIB).a:
 gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h ../../src/*.cu
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
+CPPProcess.o : ../../src/HelAmps_sm.cu
+gCPPProcess.o : ../../src/HelAmps_sm.cu
+
 %.o : %.cu *.h ../../src/*.h
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 

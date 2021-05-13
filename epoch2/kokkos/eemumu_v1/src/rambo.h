@@ -1,91 +1,62 @@
 #include <vector>
 #include "Kokkos_Core.hpp"
-#include "random_generator.h"
+
 
 #define PI 3.14159265358628
 #define ACC 1e-14
 
 template <typename ExecSpace>
-Kokkos::View<double***,ExecSpace> get_momenta(const int ninitial,const int nexternal,const double energy,
-                                  Kokkos::View<double*,ExecSpace> masses,
-                                  double &wgt, int dim) {
-  //---- auxiliary function to change convention between MadGraph5_aMC@NLO and
-  // rambo
-  //---- four momenta.
-  int nfinal = nexternal - ninitial;
-  Kokkos::View<double,ExecSpace> d_energy("d_energy");
-  auto h_energy = Kokkos::create_mirror_view(d_energy);
-  h_energy() = energy;
-  Kokkos::deep_copy(d_energy,h_energy);
-
-  Kokkos::View<int,ExecSpace> d_nfinal("d_nfinal");
-  auto h_nfinal = Kokkos::create_mirror_view(d_nfinal);
-  h_nfinal() = nfinal;
-  Kokkos::deep_copy(d_nfinal,h_nfinal);
-
-  Kokkos::View<int,ExecSpace> d_ninitial("d_ninitial");
-  auto h_ninitial = Kokkos::create_mirror_view(d_ninitial);
-  h_ninitial() = ninitial;
-  Kokkos::deep_copy(d_nfinal,h_ninitial);
-
-  Kokkos::View<double,ExecSpace> d_wgt("d_wgt");
-  auto h_wgt = Kokkos::create_mirror_view(d_wgt);
-  h_wgt() = wgt;
-  Kokkos::deep_copy(d_wgt,h_wgt);
+void get_initial_momenta(
+                        Kokkos::View<double***,ExecSpace> d_p,
+                        const int nexternal,const double energy,
+                        const Kokkos::View<double*,ExecSpace>& masses,
+                        const int& league_size,
+                        const int& team_size){
   
-  Kokkos::View<double***,ExecSpace> d_p("d_p",dim,nexternal,4);
-  Kokkos::parallel_for("p_init",dim,KOKKOS_LAMBDA(const int& i){
-    for(int j=0;j<nexternal;++j)
-      for(int k=0;k<4;++k)
-        d_p(i,j,k) = 0;
-  });
+  using member_type = typename Kokkos::TeamPolicy<ExecSpace>::member_type;
+  Kokkos::TeamPolicy<ExecSpace> policy( league_size, team_size );
+  Kokkos::parallel_for(__func__,policy, 
+  KOKKOS_LAMBDA(member_type team_member){
+    const int tid = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
 
-  auto h_masses = Kokkos::create_mirror_view(masses);
-  Kokkos::deep_copy(h_masses,masses);
-
-  auto e2 = pow(energy,2);
-
-  double mom = sqrt((pow(e2, 2) - 2 * e2 * pow(h_masses(0), 2) + pow(h_masses(0), 4) -
-          2 * e2 * pow(h_masses(0), 2) - 2 * pow(h_masses(0), 2) * pow(h_masses(1), 2) + pow(h_masses(1), 4)) /
+      auto e2 = pow(energy,2);
+      double mom = sqrt((pow(e2, 2) - 2 * e2 * pow(masses(0), 2) + pow(masses(0), 4) -
+          2 * e2 * pow(masses(0), 2) - 2 * pow(masses(0), 2) * pow(masses(1), 2) + pow(masses(1), 4)) /
          (4 * e2));
-  auto energy1 = sqrt(pow(mom, 2) + pow(h_masses(0), 2));
-  auto energy2 = sqrt(pow(mom, 2) + pow(h_masses(1), 2));
+      auto energy1 = sqrt(pow(mom, 2) + pow(masses(0), 2));
+      auto energy2 = sqrt(pow(mom, 2) + pow(masses(1), 2));
 
-  Kokkos::View<double**,ExecSpace> d_inp("d_inp",nexternal,4);
-  auto h_inp = Kokkos::create_mirror_view(d_inp);
+      for(int j=0;j<nexternal;++j)
+        for(int k=0;k<4;++k)
+          d_p(tid,j,k) = 0.;
+      // particle 1
+      d_p(tid,0,0) = energy1;
+      d_p(tid,0,3) = mom;
+      // particle 2
+      d_p(tid,1,0) = energy2;
+      d_p(tid,1,3) = -mom;
+    });
+}
 
-  for(int i=0;i<nexternal;++i)
-    for(int j=0;j<4;++j)
-      h_inp(i,j) = 0;
-
-  h_inp(0,0) = energy1;
-  h_inp(0,3) = mom;
-
-  h_inp(1,0) = energy2;
-  h_inp(1,3) = -mom;
-
-  Kokkos::deep_copy(d_inp,h_inp);
-  // printf("getting random numbers\n");
-  auto random_numbers = get_random_numbers<ExecSpace>(dim,4*nfinal);
-  auto h_rns = Kokkos::create_mirror_view(random_numbers);
-  Kokkos::deep_copy(h_rns,random_numbers);
+template <typename ExecSpace>
+void get_final_momenta(const int ninitial,const int nexternal,const double energy,
+                       const Kokkos::View<double*,ExecSpace>& masses,
+                       Kokkos::View<double ***,ExecSpace>& d_p,
+                       const Kokkos::View<double **,ExecSpace>& random_numbers,
+                       Kokkos::View<double,ExecSpace>& d_wgt,
+                       const int& league_size,
+                       const int& team_size) {
 
   Kokkos::View<int*,ExecSpace> iwarn("iwarn",5);
-  Kokkos::parallel_for("init_iwarn",Kokkos::RangePolicy<ExecSpace>(0,5),
-    KOKKOS_LAMBDA(const int& i){
-      iwarn(i) = 0;
-    });
   
-  // printf("initialize momenta\n");
-  // Set momenta for incoming particles
-  Kokkos::parallel_for("get_momenta_ninitial",Kokkos::RangePolicy<ExecSpace>(0,dim),
-    KOKKOS_LAMBDA(const int& i){
+  using member_type = typename Kokkos::TeamPolicy<ExecSpace>::member_type;
+  Kokkos::TeamPolicy<ExecSpace> policy( league_size, team_size );
+  Kokkos::parallel_for(__func__,policy, 
+    KOKKOS_LAMBDA(member_type team_member){
+      const int i = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
 
-      d_p(i,0,0) = d_inp(0,0);
-      d_p(i,0,3) = d_inp(0,3);
-      d_p(i,1,0) = d_inp(1,0);
-      d_p(i,1,3) = d_inp(1,3);
-      
+      auto lp = Kokkos::subview(d_p,i,Kokkos::ALL,Kokkos::ALL);
+
       /**********************************************************************
        *                       rambo                                         *
        *    ra(ndom)  m(omenta)  b(eautifully)  o(rganized)                  *
@@ -101,7 +72,7 @@ Kokkos::View<double***,ExecSpace> get_momenta(const int ninitial,const int nexte
        *    p  = particle momenta ( dim=(4,nexternal-nincoming) )            *
        *    wt = weight of the event                                         *
        ***********************************************************************/
-      constexpr int n_outgoing = 2; // TODO: hardcoded, really needs to be (nexternal - ninitial);
+      constexpr int n_outgoing = 2; // TODO: hardcoded due to compiler not allowing dynamic array creation, really needs to be (nexternal - ninitial);
       double z[n_outgoing], r[4] = {0.,0.,0.,0.}, b[3] = {0.,0.,0.}, p2[n_outgoing];
       double xm2[n_outgoing], e[n_outgoing], v[n_outgoing];
       for(int j = 0;j<n_outgoing;++j){
@@ -132,8 +103,8 @@ Kokkos::View<double***,ExecSpace> get_momenta(const int ninitial,const int nexte
           nm = nm + 1;
         xmt = xmt + abs(masses(j+ninitial));
       }
-      if (xmt > d_energy()) {
-        printf("Too low energy: %f needed %f\n",d_energy(),xmt);
+      if (xmt > energy) {
+        printf("Too low energy: %f needed %f\n",energy,xmt);
         return;
       }
 
@@ -164,7 +135,7 @@ Kokkos::View<double***,ExecSpace> get_momenta(const int ninitial,const int nexte
         b[j - 1] = -r[j] / rmas;
       double g = r[0] / rmas;
       double a = 1. / (1. + g);
-      double x = d_energy() / rmas;
+      double x = energy / rmas;
       
       // transform the q's conformally into the p's
       for (int j = 0; j < n_outgoing; j++) {
@@ -177,7 +148,7 @@ Kokkos::View<double***,ExecSpace> get_momenta(const int ninitial,const int nexte
       // calculate weight and possible warnings
       d_wgt() = po2log;
       if (n_outgoing != 2)
-        d_wgt() = (2. * n_outgoing - 4.) * log(d_energy()) + z[n_outgoing - 1];
+        d_wgt() = (2. * n_outgoing - 4.) * log(energy) + z[n_outgoing - 1];
       if (d_wgt() < -180.) {
         if (iwarn(0) <= 5)
         	printf("Too small wt, risk for underflow: %f\n",d_wgt());
@@ -193,12 +164,12 @@ Kokkos::View<double***,ExecSpace> get_momenta(const int ninitial,const int nexte
       if (nm == 0) {
         for (int j = 0; j < n_outgoing; j++)
           for (int k = 0; k < 4; k++)
-            d_p(i,j+d_ninitial(),k) = p[j][k];
+            lp(j+ninitial,k) = p[j][k];
         return;
       }
 
       // massive particles: rescale the momenta by a factor x
-      double xmax = sqrt(1. - pow(xmt / d_energy(), 2));
+      double xmax = sqrt(1. - pow(xmt / energy, 2));
       for (int j = 0; j < n_outgoing; j++) {
         xm2[j] = pow(masses(j+ninitial), 2);
         p2[j] = pow(p[j][0], 2);
@@ -206,9 +177,9 @@ Kokkos::View<double***,ExecSpace> get_momenta(const int ninitial,const int nexte
 
       int iter = 0;
       x = xmax;
-      double accu = d_energy() * ACC;
+      double accu = energy * ACC;
       while (true) {
-        double f0 = -d_energy();
+        double f0 = -energy;
         double g0 = 0.;
         double x2 = x * x;
         for (int j = 0; j < n_outgoing; j++) {
@@ -232,7 +203,7 @@ Kokkos::View<double***,ExecSpace> get_momenta(const int ninitial,const int nexte
           if(k>0)
             p[j][k] = x * p[j][k];
           printf("i = %03d  p[%03d][%03d] = %10.5f\n",i,j,k,p[j][k]);
-          d_p(i,j+d_ninitial(),k) = p[j][k];
+          lp(j+ninitial,k) = p[j][k];
         }
         p[j][0] = e[j];
       }
@@ -244,7 +215,7 @@ Kokkos::View<double***,ExecSpace> get_momenta(const int ninitial,const int nexte
         wt2 = wt2 * v[j] / e[j];
         wt3 = wt3 + pow(v[j], 2) / e[j];
       }
-      double wtm = (2. * n_outgoing - 3.) * log(x) + log(wt2 / wt3 * d_energy());
+      double wtm = (2. * n_outgoing - 3.) * log(x) + log(wt2 / wt3 * energy);
 
       // return for  weighted massive momenta
       d_wgt() = d_wgt() + wtm;
@@ -261,9 +232,8 @@ Kokkos::View<double***,ExecSpace> get_momenta(const int ninitial,const int nexte
 
       for (int j = 0; j < n_outgoing; j++)
         for (int k = 0; k < 4; k++)
-          d_p(i,j+d_ninitial(),k) = p[j][k];
+          lp(j+ninitial,k) = p[j][k];
 
     });
-  return d_p;
 
 }
