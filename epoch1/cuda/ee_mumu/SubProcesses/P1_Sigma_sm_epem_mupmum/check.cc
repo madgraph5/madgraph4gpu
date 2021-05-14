@@ -34,6 +34,8 @@
 #define STRINGIFY(s) #s
 #define XSTRINGIFY(s) STRINGIFY(s)
 
+#define SEP79 79
+
 bool is_number(const char *s) {
   const char *t = s;
   while (*t != '\0' && isdigit(*t))
@@ -309,17 +311,17 @@ int main(int argc, char **argv)
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST or not defined __CUDACC__
   auto hstRnarray   = hstMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
 #endif
-  auto hstMomenta   = hstMakeUnique<fptype_sv>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
+  auto hstMomenta   = hstMakeUnique<fptype_sv>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
   auto hstIsGoodHel = hstMakeUnique<bool     >( ncomb );
-  auto hstWeights   = hstMakeUnique<fptype   >( nWeights ); // (previously was: meHostPtr)
-  auto hstMEs       = hstMakeUnique<fptype   >( nMEs ); // (previously was: meHostPtr)
+  auto hstWeights   = hstMakeUnique<fptype   >( nWeights );
+  auto hstMEs       = hstMakeUnique<fptype_sv>( nMEs ); // AOSOA[npagM][neppM] (NB: nevt=npagM*neppM)
 
 #ifdef __CUDACC__
   auto devRnarray   = devMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-  auto devMomenta   = devMakeUnique<fptype   >( nMomenta ); // (previously was: allMomenta)
+  auto devMomenta   = devMakeUnique<fptype   >( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
   auto devIsGoodHel = devMakeUnique<bool     >( ncomb );
-  auto devWeights   = devMakeUnique<fptype   >( nWeights ); // (previously was: meDevPtr)
-  auto devMEs       = devMakeUnique<fptype   >( nMEs ); // (previously was: meDevPtr)
+  auto devWeights   = devMakeUnique<fptype   >( nWeights );
+  auto devMEs       = devMakeUnique<fptype   >( nMEs ); // AOSOA[npagM][neppM] (NB: nevt=npagM*neppM)
 
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
   const int nbytesRnarray = nRnarray * sizeof(fptype);
@@ -495,6 +497,7 @@ int main(int argc, char **argv)
     gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.get(), devMEs.get());
 #endif
     checkCuda( cudaPeekAtLastError() );
+    checkCuda( cudaDeviceSynchronize() );
 #else
     Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), nevt);
 #endif
@@ -519,7 +522,7 @@ int main(int argc, char **argv)
 
     if (verbose)
     {
-      std::cout << "************************************************************************" << std::endl
+      std::cout << std::string(SEP79, '*') << std::endl
                 << "Iteration #" << iiter+1 << " of " << niter << std::endl;
       if (perf) std::cout << "Wave function time: " << wavetime << std::endl;
     }
@@ -551,14 +554,23 @@ int main(int argc, char **argv)
                     << std::endl
                     << std::defaultfloat; // default format: affects all floats
         }
-        std::cout << std::string(80, '-') << std::endl;
+        std::cout << std::string(SEP79, '-') << std::endl;
         // Display matrix elements
         std::cout << " Matrix element = "
-                  << hstMEs[ievt] << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
-        std::cout << std::string(80, '-') << std::endl;
+#ifndef MGONGPU_CPPSIMD
+                  << hstMEs[ievt]
+#else
+                  << hstMEs[ievt/neppM][ievt%neppM]
+#endif
+                  << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
+        std::cout << std::string(SEP79, '-') << std::endl;
       }
       // Fill the arrays with ALL MEs and weights
+#ifndef MGONGPU_CPPSIMD
       matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt]; // FIXME: assume process.nprocesses == 1
+#else
+      matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt/neppM][ievt%neppM]; // FIXME: assume process.nprocesses == 1
+#endif
       weightALL[iiter*nevt + ievt] = hstWeights[ievt];
     }
 
@@ -709,7 +721,7 @@ int main(int argc, char **argv)
 #endif
 #endif
     // Dump all configuration parameters and all results
-    std::cout << "***************************************************************************" << std::endl
+    std::cout << std::string(SEP79, '*') << std::endl
 #ifdef __CUDACC__
               << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CUDA"
               << " [" << process.getCompiler() << "]" << std::endl
@@ -720,7 +732,7 @@ int main(int argc, char **argv)
               << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << "NumThreadsPerBlock          = " << gputhreads << std::endl
               << "NumIterations               = " << niter << std::endl
-              << "---------------------------------------------------------------------------" << std::endl
+              << std::string(SEP79, '-') << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
               << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
@@ -783,7 +795,7 @@ int main(int argc, char **argv)
 #endif
 #endif
       //<< "MatrixElements compiler     = " << process.getCompiler() << std::endl
-              << "---------------------------------------------------------------------------" << std::endl
+              << std::string(SEP79, '-') << std::endl
               << "NumberOfEntries             = " << niter << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
               << "TotalTime[Rnd+Rmb+ME] (123) = ( " << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
@@ -795,7 +807,7 @@ int main(int argc, char **argv)
               << "[Min,Max]TimeInMatrixElems  = [ " << minwtim
               << " ,  " << maxwtim << " ]  sec" << std::endl
       //<< "StdDevTimeInWaveFuncs       = ( " << stdwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "---------------------------------------------------------------------------" << std::endl
+              << std::string(SEP79, '-') << std::endl
       //<< "ProcessID:                  = " << getpid() << std::endl
       //<< "NProcesses                  = " << process.nprocesses << std::endl
               << "TotalEventsComputed         = " << nevtALL << std::endl
@@ -810,7 +822,7 @@ int main(int argc, char **argv)
               << "EvtsPerSec[MatrixElems] (3) = ( " << nevtALL/sumwtim
               << std::string(16, ' ') << " )  sec^-1" << std::endl
               << std::defaultfloat; // default format: affects all floats
-    std::cout << "***************************************************************************" << std::endl
+    std::cout << std::string(SEP79, '*') << std::endl
               << "NumMatrixElems(notAbnormal) = " << nevtALL - nabn << std::endl
               << std::scientific // fixed format: affects all floats (default precision: 6)
               << "MeanMatrixElemValue         = ( " << meanelem
@@ -958,9 +970,9 @@ int main(int argc, char **argv)
   timermap.stop();
   if (perf)
   {
-    std::cout << "***************************************************************************" << std::endl;
+    std::cout << std::string(SEP79, '*') << std::endl;
     timermap.dump();
-    std::cout << "***************************************************************************" << std::endl;
+    std::cout << std::string(SEP79, '*') << std::endl;
   }
 
   //std::cout << "ALL OK" << std::endl;

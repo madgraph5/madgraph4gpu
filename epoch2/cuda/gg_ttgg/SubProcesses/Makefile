@@ -4,6 +4,7 @@ INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
 OPTFLAGS = -O3
 CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow $(MGONGPU_CONFIG)
+CXXFLAGS+= -ffast-math # see issue #117
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
@@ -64,6 +65,9 @@ $(LIBDIR)/lib$(MODELLIB).a:
 
 gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h ../../src/*.cu
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
+
+CPPProcess.o : ../../src/HelAmps_sm.cu
+gCPPProcess.o : ../../src/HelAmps_sm.cu
 
 %.o : %.cu *.h ../../src/*.h
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@

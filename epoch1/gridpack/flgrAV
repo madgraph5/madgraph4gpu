@@ -51,6 +51,10 @@ set -x
 
 perf record -o perf.data -F ${frq} ${all} --call-graph dwarf -g -- ${cmd}
 
+# Try to avoid skidding! https://indico.cern.ch/event/980497/contributions/4130271
+###perf record -e cycles:pp -o perf.data -F ${frq} ${all} --call-graph dwarf -g -- ${cmd}
+###perf record -e cycles:pp -o perf.data -F ${frq} ${all} --call-graph fp -g -- ${cmd}
+
 perf script -i perf.data | stackcollapse-perf.pl > perf.fold
 
 if [ "$maxheight" == "" ]; then

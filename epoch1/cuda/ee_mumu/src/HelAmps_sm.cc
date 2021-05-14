@@ -100,10 +100,10 @@ namespace MG5_sm
           sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
           const int ip = ( 1 + nh ) / 2; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
           const int im = ( 1 - nh ) / 2; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
-          fi[2] = ip * sqm[ip];
-          fi[3] = im * nsf * sqm[ip];
-          fi[4] = ip * nsf * sqm[im];
-          fi[5] = im * sqm[im];
+          fi[2] = cxmake( ip * sqm[ip], 0 );          
+          fi[3] = cxmake( im * nsf * sqm[ip], 0 );
+          fi[4] = cxmake( ip * nsf * sqm[im], 0 );
+          fi[5] = cxmake( im * sqm[im], 0 );
         }
         else
         {
@@ -565,10 +565,10 @@ namespace MG5_sm
           sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
           const int ip = -( ( 1 - nh ) / 2 ) * nhel; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
           const int im = ( 1 + nh ) / 2 * nhel; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
-          fo[2] = im * sqm[std::abs( ip )];
-          fo[3] = ip * nsf * sqm[std::abs( ip )];
-          fo[4] = im * nsf * sqm[std::abs( im )];
-          fo[5] = ip * sqm[std::abs( im )];
+          fo[2] = cxmake( im * sqm[std::abs( ip )], 0 );
+          fo[3] = cxmake( ip * nsf * sqm[std::abs( ip )], 0 );
+          fo[4] = cxmake( im * nsf * sqm[std::abs( im )], 0 );
+          fo[5] = cxmake( ip * sqm[std::abs( im )], 0 );
         }
         else
         {
@@ -819,7 +819,7 @@ namespace MG5_sm
                cxtype_sv* vertex )     // output: amplitude
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype cI( 0., 1. );
+    const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP0 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
                             (F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])) +
                              (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
@@ -840,7 +840,7 @@ namespace MG5_sm
                  cxtype_sv V3[] )          // output: wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype cI( 0., 1. );
+    const cxtype cI = cxmake( 0., 1. );
     V3[0] = +F1[0] + F2[0];
     V3[1] = +F1[1] + F2[1];
     const fptype_sv P3[4] = { -cxreal( V3[0] ), -cxreal( V3[1] ), -cximag( V3[1] ), -cximag( V3[0] ) };
@@ -863,7 +863,7 @@ namespace MG5_sm
                cxtype_sv* vertex )     // output: amplitude
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype cI( 0., 1. );
+    const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP1 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
                             F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
     (*vertex) = COUP * - cI * TMP1;
@@ -882,7 +882,7 @@ namespace MG5_sm
                cxtype_sv V3[] )        // output: wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype cI( 0., 1. );
+    const cxtype cI = cxmake( 0., 1. );
     const fptype OM3 = ( M3 != 0. ? 1. / ( M3 * M3 ) : 0. );
     V3[0] = +F1[0] + F2[0];
     V3[1] = +F1[1] + F2[1];
@@ -908,7 +908,7 @@ namespace MG5_sm
                cxtype_sv* vertex )     // output: amplitude
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype cI( 0., 1. );
+    const cxtype cI = cxmake( 0., 1. );
     constexpr fptype one( 1. );
     constexpr fptype two( 2. );
     const cxtype_sv TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
@@ -931,7 +931,7 @@ namespace MG5_sm
                cxtype_sv V3[] )        // output: wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype cI( 0., 1. );
+    const cxtype cI = cxmake( 0., 1. );
     constexpr fptype two( 2. );
     constexpr fptype half( 1. / 2. );
     const fptype OM3 = ( M3 != 0. ? 1. / ( M3 * M3 ) : 0. );
@@ -967,7 +967,7 @@ namespace MG5_sm
                  cxtype_sv* vertex )     // output: amplitude
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype cI( 0., 1. );
+    const cxtype cI = cxmake( 0., 1. );
     constexpr fptype one( 1. );
     constexpr fptype two( 2. );
     // Note: inverting the order and computing TMP4 before TMP3 has increased C++ speed by ~1%
@@ -992,7 +992,7 @@ namespace MG5_sm
                  cxtype_sv V3[] )        // output: wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype cI( 0., 1. );
+    const cxtype cI = cxmake( 0., 1. );
     constexpr fptype one( 1. );
     constexpr fptype two( 2. );
     constexpr fptype half( 1. / 2. );
