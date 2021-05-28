@@ -873,15 +873,15 @@ int check
               << tag << "MeanTimeInMatrixElems       = ( " << meanwtim << std::string(16, ' ') << " )  sec" << std::endl
               << tag << "[Min,Max]TimeInMatrixElems  = [ " << minwtim
               << " ,  " << maxwtim << " ]  sec" << std::endl
-      //<< "StdDevTimeInMatrixElems     = ( " << stdwtim << std::string(16, ' ') << " )  sec" << std::endl
-              << "TotalTime[MECalcOnly]  (3a) = ( " << sumw3atim << std::string(16, ' ') << " )  sec" << std::endl
-              << "MeanTimeInMECalcOnly        = ( " << meanw3atim << std::string(16, ' ') << " )  sec" << std::endl
-              << "[Min,Max]TimeInMECalcOnly   = [ " << minw3atim
+      //<< tag << "StdDevTimeInMatrixElems     = ( " << stdwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << tag << "TotalTime[MECalcOnly]  (3a) = ( " << sumw3atim << std::string(16, ' ') << " )  sec" << std::endl
+              << tag << "MeanTimeInMECalcOnly        = ( " << meanw3atim << std::string(16, ' ') << " )  sec" << std::endl
+              << tag << "[Min,Max]TimeInMECalcOnly   = [ " << minw3atim
               << " ,  " << maxw3atim << " ]  sec" << std::endl
-      //<< "StdDevTimeInMECalcOnly      = ( " << stdw3atim << std::string(16, ' ') << " )  sec" << std::endl
+      //<< tag << "StdDevTimeInMECalcOnly      = ( " << stdw3atim << std::string(16, ' ') << " )  sec" << std::endl
               << std::string(SEP79, '-') << std::endl
-      //<< "ProcessID:                  = " << getpid() << std::endl
-      //<< "NProcesses                  = " << process.nprocesses << std::endl
+      //<< tag << "ProcessID:                  = " << getpid() << std::endl
+      //<< tag << "NProcesses                  = " << process.nprocesses << std::endl
               << tag << "TotalEventsComputed         = " << nevtALL << " (NaN/abnormal=" << nabn << ")" << std::endl
               << tag << "EvtsPerSec[Rnd+Rmb+ME](123) = ( " << nevtALL/(sumgtim+sumrtim+sumwtim)
               << std::string(16, ' ') << " )  sec^-1" << std::endl
@@ -893,7 +893,7 @@ int check
       //<< std::string(16, ' ') << " )  sec^-1" << std::endl
               << tag << "EvtsPerSec[MatrixElems] (3) = ( " << nevtALL/sumwtim
               << std::string(16, ' ') << " )  sec^-1" << std::endl
-              << "EvtsPerSec[MECalcOnly] (3a) = ( " << nevtALL/sumw3atim
+              << tag << "EvtsPerSec[MECalcOnly] (3a) = ( " << nevtALL/sumw3atim
               << std::string(16, ' ') << " )  sec^-1" << std::endl
               << std::defaultfloat; // default format: affects all floats
     outStream << std::string(SEP79, '*') << std::endl
