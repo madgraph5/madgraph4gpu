@@ -506,17 +506,16 @@ int main(int argc, char **argv)
 
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wv3atime += timermap.stop(); // calc only
+    wavetime += wv3atime; // calc plus copy
 
 #ifdef __CUDACC__
     // --- 3b. CopyDToH MEs
     const std::string cmesKey = "3b CpDTHmes";
-    wavetime += wv3atime;
     timermap.start( cmesKey );
     checkCuda( cudaMemcpy( hstMEs.get(), devMEs.get(), nbytesMEs, cudaMemcpyDeviceToHost ) );
-#endif
-
     // *** STOP THE OLD OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wavetime += timermap.stop(); // calc plus copy
+#endif
 
     // === STEP 4 FINALISE LOOP
     // --- 4a Dump within the loop
