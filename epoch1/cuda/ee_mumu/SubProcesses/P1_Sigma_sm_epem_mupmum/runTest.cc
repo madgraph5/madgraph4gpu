@@ -51,10 +51,10 @@ struct CPUTest : public CUDA_CPU_TestBase {
   // --- 0b. Allocate memory structures
   // Memory structures for random numbers, momenta, matrix elements and weights on host and device
   unique_ptr_host<fptype   > hstRnarray  { hstMakeUnique<fptype   >( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR]
-  unique_ptr_host<fptype_sv> hstMomenta  { hstMakeUnique<fptype_sv>( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM]
+  unique_ptr_host<fptype   > hstMomenta  { hstMakeUnique<fptype   >( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM]
   unique_ptr_host<bool     > hstIsGoodHel{ hstMakeUnique<bool     >( mgOnGpu::ncomb ) };
   unique_ptr_host<fptype   > hstWeights  { hstMakeUnique<fptype   >( nWeights ) };
-  unique_ptr_host<fptype_sv> hstMEs      { hstMakeUnique<fptype_sv>( nMEs ) }; // AOSOA[npagM][neppM]
+  unique_ptr_host<fptype_sv> hstMEs      { hstMakeUnique<fptype_sv>( nMEs ) }; // AOSOA[npagV][neppV]
 
   // Create a process object
   // Read param_card and set parameters
@@ -104,11 +104,14 @@ struct CPUTest : public CUDA_CPU_TestBase {
     assert(particle  < npar);
     const auto ipagM = evtNo / neppM; // #eventpage in this iteration
     const auto ieppM = evtNo % neppM; // #event in the current eventpage in this iteration
+    return hstMomenta[ipagM*npar*np4*neppM + particle*np4*neppM + component*neppM + ieppM];
+    /*
 #ifndef MGONGPU_CPPSIMD
     return hstMomenta[ipagM*npar*np4*neppM + particle*np4*neppM + component*neppM + ieppM];
 #else
     return hstMomenta[ipagM*npar*np4 + particle*np4 + component][ieppM];
 #endif
+    */
   };
 
   fptype getMatrixElement(std::size_t ievt) const override {
