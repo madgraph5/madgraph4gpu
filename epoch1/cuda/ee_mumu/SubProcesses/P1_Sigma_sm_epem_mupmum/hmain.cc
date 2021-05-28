@@ -7,7 +7,8 @@ void dumptime( const std::string& tag,
                const int nevtALL,
                const double sumgtim,
                const double sumrtim,
-               const double sumwtim )
+               const double sumwtim,
+               const double sumw3atim )
 {
   std::cout << std::string(SEP79, '-') << std::endl
             << tag << "TotalEventsComputed         = " << nevtALL << std::endl
@@ -19,6 +20,7 @@ void dumptime( const std::string& tag,
             << tag << "TotalTime[RndNumGen]    (1) = ( " << sumgtim << std::string(16, ' ') << " )  sec" << std::endl
             << tag << "TotalTime[Rambo]        (2) = ( " << sumrtim << std::string(16, ' ') << " )  sec" << std::endl
             << tag << "TotalTime[MatrixElems]  (3) = ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+            << tag << "TotalTime[MECalcOnly]  (3a) = ( " << sumw3atim << std::string(16, ' ') << " )  sec" << std::endl
             << std::defaultfloat // default format: affects all floats
             << std::string(SEP79, '-') << std::endl;
 }
@@ -28,6 +30,7 @@ void dumptput( const std::string& tag,
                const double tputgrw,
                const double tputrw,
                const double tputw,
+               const double tputw3a,
                const int nthreadsomp ) // >0 for CPU, 0 for GPU and HET
 {
   if ( nthreadsomp > 0 )
@@ -41,6 +44,8 @@ void dumptput( const std::string& tag,
             << tag << "EvtsPerSec[Rmb+ME]     (23) = ( " << tputrw
             << std::string(16, ' ') << " )  sec^-1" << std::endl
             << tag << "EvtsPerSec[MatrixElems] (3) = ( " << tputw
+            << std::string(16, ' ') << " )  sec^-1" << std::endl
+            << tag << "EvtsPerSec[MECalcOnly] (3a) = ( " << tputw3a
             << std::string(16, ' ') << " )  sec^-1" << std::endl
             << std::defaultfloat // default format: affects all floats
             << std::string(SEP79, '*') << std::endl;
@@ -95,30 +100,35 @@ int main( int argc, char **argv )
     double gpuSumgtim = gpuStats[1];
     double gpuSumrtim = gpuStats[2];
     double gpuSumwtim = gpuStats[3];
+    double gpuSumw3atim = gpuStats[4];
     
     int cpuNevtALL = (int)(cpuStats[0]);
     double cpuSumgtim = cpuStats[1];
     double cpuSumrtim = cpuStats[2];
     double cpuSumwtim = cpuStats[3];
+    double cpuSumw3atim = cpuStats[4];
 
-    dumptime( gpuTag, gpuNevtALL, gpuSumgtim, gpuSumrtim, gpuSumwtim );
+    dumptime( gpuTag, gpuNevtALL, gpuSumgtim, gpuSumrtim, gpuSumwtim, gpuSumw3atim );
     double gpuTputgrw = gpuNevtALL/(gpuSumgtim+gpuSumrtim+gpuSumwtim);
     double gpuTputrw  = gpuNevtALL/(gpuSumrtim+gpuSumwtim);
     double gpuTputw   = gpuNevtALL/(gpuSumwtim);
-    dumptput( gpuTag, gpuNevtALL, gpuTputgrw, gpuTputrw, gpuTputw, 0 );
+    double gpuTputw3a = gpuNevtALL/(gpuSumw3atim);
+    dumptput( gpuTag, gpuNevtALL, gpuTputgrw, gpuTputrw, gpuTputw, gpuTputw3a, 0 );
 
-    dumptime( cpuTag, cpuNevtALL, cpuSumgtim, cpuSumrtim, cpuSumwtim );
+    dumptime( cpuTag, cpuNevtALL, cpuSumgtim, cpuSumrtim, cpuSumwtim, cpuSumw3atim );
     double cpuTputgrw = cpuNevtALL/(cpuSumgtim+cpuSumrtim+cpuSumwtim);
     double cpuTputrw  = cpuNevtALL/(cpuSumrtim+cpuSumwtim);
     double cpuTputw   = cpuNevtALL/(cpuSumwtim);
-    dumptput( cpuTag, cpuNevtALL, cpuTputgrw, cpuTputrw, cpuTputw, nthreadsomp );
+    double cpuTputw3a = cpuNevtALL/(cpuSumw3atim);
+    dumptput( cpuTag, cpuNevtALL, cpuTputgrw, cpuTputrw, cpuTputw, cpuTputw3a, nthreadsomp );
   
     std::string hetTag = "(HET) ";
     int hetNevtALL = gpuNevtALL+cpuNevtALL;
     double hetTputgrw = gpuTputgrw+cpuTputgrw;
     double hetTputrw  = gpuTputrw+cpuTputrw;
     double hetTputw   = gpuTputw+cpuTputw;
-    dumptput( hetTag, hetNevtALL, hetTputgrw, hetTputrw, hetTputw, 0 );
+    double hetTputw3a = gpuTputw3a+cpuTputw3a;
+    dumptput( hetTag, hetNevtALL, hetTputgrw, hetTputrw, hetTputw, hetTputw3a, 0 );
   }
 
   if ( gpuStatus != 0 ) return 1;

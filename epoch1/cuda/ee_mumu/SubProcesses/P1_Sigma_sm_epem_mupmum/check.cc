@@ -1057,6 +1057,7 @@ int check
   stats.push_back( sumgtim );
   stats.push_back( sumrtim );
   stats.push_back( sumwtim );
+  stats.push_back( sumw3atim );
 
   //std::cout << "ALL OK" << std::endl;
   return 0;
