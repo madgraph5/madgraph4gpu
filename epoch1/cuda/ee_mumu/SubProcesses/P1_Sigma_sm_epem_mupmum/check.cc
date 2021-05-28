@@ -311,7 +311,13 @@ int main(int argc, char **argv)
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST or not defined __CUDACC__
   auto hstRnarray   = hstMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
 #endif
-  auto hstMomenta   = hstMakeUnique<fptype   >( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
+  //auto hstMomenta   = hstMakeUnique<fptype   >( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
+  auto hstMomentaV  = hstMakeUnique<fptype_sv>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
+  struct obsptr { fptype* ptr; 
+    obsptr( fptype* arg ) : ptr( arg ){}; 
+    fptype* get() { return ptr; };
+    fptype& operator[]( size_t i ) { return *(ptr+i); } }; // observer pointer
+  obsptr hstMomenta( reinterpret_cast<fptype*>( hstMomentaV.get() ) );
   auto hstIsGoodHel = hstMakeUnique<bool     >( ncomb );
   auto hstWeights   = hstMakeUnique<fptype   >( nWeights );
   auto hstMEs       = hstMakeUnique<fptype_sv>( nMEs ); // AOSOA[npagV][neppV] (NB: nevt=npagV*neppV)
