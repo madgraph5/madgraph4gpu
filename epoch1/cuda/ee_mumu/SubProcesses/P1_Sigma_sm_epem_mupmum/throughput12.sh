@@ -127,8 +127,9 @@ function runExe() {
   exe=$1
   args="$2"
   ###echo "runExe $exe $args OMP=$OMP_NUM_THREADS"
-  pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[Matrix|MeanMatrix|FP precision|TOTAL       :"
+  pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[MECalc|MeanMatrix|FP precision|TOTAL       :"
   # Optionally add other patterns here for some specific configurations (e.g. clang)
+  if [ "${exe%%/gcheck*}" != "${exe}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
   pattern="${pattern}|CUCOMPLEX"
   pattern="${pattern}|COMMON RANDOM"
   if [ "${ab3}" == "1" ]; then pattern="${pattern}|3a|3b"; fi
