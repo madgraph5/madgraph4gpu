@@ -387,6 +387,7 @@ int check
   std::unique_ptr<double[]> genrtimes( new double[niter] );
   std::unique_ptr<double[]> rambtimes( new double[niter] );
   std::unique_ptr<double[]> wavetimes( new double[niter] );
+  std::unique_ptr<double[]> wv3atimes( new double[niter] );
   std::unique_ptr<fptype[]> matrixelementALL( new fptype[nevtALL] ); // FIXME: assume process.nprocesses == 1
   std::unique_ptr<fptype[]> weightALL( new fptype[nevtALL] );
 
@@ -537,8 +538,9 @@ int check
 #endif
     }
 
-    // *** START THE OLD TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
-    double wavetime = 0;
+    // *** START THE OLD-STYLE TIMERS FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
+    double wavetime = 0; // calc plus copy
+    double wv3atime = 0; // calc only
 
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
@@ -555,15 +557,18 @@ int check
     Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), nevt);
 #endif
 
+    // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
+    wv3atime += timermap.stop(); // calc only
+    wavetime += wv3atime; // calc plus copy
+
 #ifdef __CUDACC__
     // --- 3b. CopyDToH MEs
     const std::string cmesKey = "3b CpDTHmes";
-    wavetime += timermap.start( cmesKey );
+    timermap.start( cmesKey );
     checkCuda( cudaMemcpy( hstMEs.get(), devMEs.get(), nbytesMEs, cudaMemcpyDeviceToHost ) );
+    // *** STOP THE OLD OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
+    wavetime += timermap.stop(); // calc plus copy
 #endif
-
-    // *** STOP THE OLD TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
-    wavetime += timermap.stop();
 
     // === STEP 4 FINALISE LOOP
     // --- 4a Dump within the loop
@@ -572,6 +577,7 @@ int check
     genrtimes[iiter] = genrtime;
     rambtimes[iiter] = rambtime;
     wavetimes[iiter] = wavetime;
+    wv3atimes[iiter] = wv3atime;
 
     if (verbose)
     {
@@ -680,6 +686,20 @@ int check
   }
   double meanwtim = sumwtim / niter;
   //double stdwtim = std::sqrt( sqswtim / niter - meanwtim * meanwtim );
+
+  double sumw3atim = 0;
+  double sqsw3atim = 0;
+  double minw3atim = wv3atimes[0];
+  double maxw3atim = wv3atimes[0];
+  for ( int iiter = 0; iiter < niter; ++iiter )
+  {
+    sumw3atim += wv3atimes[iiter];
+    sqsw3atim += wv3atimes[iiter]*wv3atimes[iiter];
+    minw3atim = std::min( minw3atim, wv3atimes[iiter] );
+    maxw3atim = std::max( maxw3atim, wv3atimes[iiter] );
+  }
+  double meanw3atim = sumw3atim / niter;
+  //double stdw3atim = std::sqrt( sqsw3atim / niter - meanw3atim * meanw3atim );
 
   int nabn = 0;
   int nzero = 0;
@@ -853,7 +873,12 @@ int check
               << tag << "MeanTimeInMatrixElems       = ( " << meanwtim << std::string(16, ' ') << " )  sec" << std::endl
               << tag << "[Min,Max]TimeInMatrixElems  = [ " << minwtim
               << " ,  " << maxwtim << " ]  sec" << std::endl
-      //<< "StdDevTimeInWaveFuncs       = ( " << stdwtim << std::string(16, ' ') << " )  sec" << std::endl
+      //<< "StdDevTimeInMatrixElems     = ( " << stdwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTime[MECalcOnly]  (3a) = ( " << sumw3atim << std::string(16, ' ') << " )  sec" << std::endl
+              << "MeanTimeInMECalcOnly        = ( " << meanw3atim << std::string(16, ' ') << " )  sec" << std::endl
+              << "[Min,Max]TimeInMECalcOnly   = [ " << minw3atim
+              << " ,  " << maxw3atim << " ]  sec" << std::endl
+      //<< "StdDevTimeInMECalcOnly      = ( " << stdw3atim << std::string(16, ' ') << " )  sec" << std::endl
               << std::string(SEP79, '-') << std::endl
       //<< "ProcessID:                  = " << getpid() << std::endl
       //<< "NProcesses                  = " << process.nprocesses << std::endl
@@ -867,6 +892,8 @@ int check
       //<< tag << "EvtsPerSec[Rambo]        (2) = ( " << nevtALL/sumrtim
       //<< std::string(16, ' ') << " )  sec^-1" << std::endl
               << tag << "EvtsPerSec[MatrixElems] (3) = ( " << nevtALL/sumwtim
+              << std::string(16, ' ') << " )  sec^-1" << std::endl
+              << "EvtsPerSec[MECalcOnly] (3a) = ( " << nevtALL/sumw3atim
               << std::string(16, ' ') << " )  sec^-1" << std::endl
               << std::defaultfloat; // default format: affects all floats
     outStream << std::string(SEP79, '*') << std::endl
@@ -984,13 +1011,13 @@ int check
              << "\"TotalEventsComputed\": " << nevtALL << "," << std::endl
              << "\"NaN/abnormal\": " << nabn << "," << std::endl
              << "\"EvtsPerSec[Rnd+Rmb+ME](123)\": \""
-             << std::to_string(nevtALL/(sumgtim+sumrtim+sumwtim))
-             << " sec^-1\"," << std::endl
+             << std::to_string(nevtALL/(sumgtim+sumrtim+sumwtim)) << " sec^-1\"," << std::endl
              << "\"EvtsPerSec[Rmb+ME] (23)\": \""
-             << std::to_string(nevtALL/(sumrtim+sumwtim)) << " sec^-1\","
-             << std::endl
+             << std::to_string(nevtALL/(sumrtim+sumwtim)) << " sec^-1\"," << std::endl
              << "\"EvtsPerSec[MatrixElems] (3)\": \""
              << std::to_string(nevtALL/sumwtim) << " sec^-1\"," << std::endl
+             << "\"EvtsPerSec[MECalcOnly] (3)\": \""
+             << std::to_string(nevtALL/sumw3atim) << " sec^-1\"," << std::endl
              << "\"NumMatrixElems(notAbnormal)\": " << nevtALL - nabn << "," << std::endl
              << std::scientific
              << "\"MeanMatrixElemValue\": "
