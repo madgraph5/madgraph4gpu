@@ -234,7 +234,7 @@ for exe in $exes; do
     if [ "${omp}" != "0" ] && [ "${exe%%/epoch1*}" != "${exe}" ]; then 
       echo "-------------------------------------------------------------------------"
       export OMP_NUM_THREADS=$(nproc --all)
-      runExe $exe
+      runExe $exe "$exeArgs"
     elif [ "${omp}" == "2" ] && [ "${exe%%/epoch2*}" != "${exe}" ]; then 
       echo "-------------------------------------------------------------------------"
       export OMP_NUM_THREADS=$(nproc --all)
