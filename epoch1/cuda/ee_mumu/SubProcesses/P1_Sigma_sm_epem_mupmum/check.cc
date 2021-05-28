@@ -311,17 +311,17 @@ int main(int argc, char **argv)
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST or not defined __CUDACC__
   auto hstRnarray   = hstMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
 #endif
-  auto hstMomenta   = hstMakeUnique<fptype_sv>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
+  auto hstMomenta   = hstMakeUnique<fptype   >( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
   auto hstIsGoodHel = hstMakeUnique<bool     >( ncomb );
   auto hstWeights   = hstMakeUnique<fptype   >( nWeights );
-  auto hstMEs       = hstMakeUnique<fptype_sv>( nMEs ); // AOSOA[npagM][neppM] (NB: nevt=npagM*neppM)
+  auto hstMEs       = hstMakeUnique<fptype_sv>( nMEs ); // AOSOA[npagV][neppV] (NB: nevt=npagV*neppV)
 
 #ifdef __CUDACC__
   auto devRnarray   = devMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   auto devMomenta   = devMakeUnique<fptype   >( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
   auto devIsGoodHel = devMakeUnique<bool     >( ncomb );
   auto devWeights   = devMakeUnique<fptype   >( nWeights );
-  auto devMEs       = devMakeUnique<fptype   >( nMEs ); // AOSOA[npagM][neppM] (NB: nevt=npagM*neppM)
+  auto devMEs       = devMakeUnique<fptype   >( nMEs ); // ARRAY[nevt] (NB: nevt=npagV*neppV)
 
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
   const int nbytesRnarray = nRnarray * sizeof(fptype);
@@ -546,6 +546,11 @@ int main(int argc, char **argv)
           // NB: 'setw' affects only the next field (of any type)
           std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
                     << std::setw(4) << ipar + 1
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
+            /*
 #ifndef MGONGPU_CPPSIMD
                     << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
                     << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
@@ -557,6 +562,7 @@ int main(int argc, char **argv)
                     << std::setw(14) << hstMomenta[ipagM*npar*np4 + ipar*np4 + 2][ieppM] // AOSOA[ipagM][ipar][2][ieppM]
                     << std::setw(14) << hstMomenta[ipagM*npar*np4 + ipar*np4 + 3][ieppM] // AOSOA[ipagM][ipar][3][ieppM]
 #endif
+            */
                     << std::endl
                     << std::defaultfloat; // default format: affects all floats
         }
