@@ -28,6 +28,11 @@ FFLAGS += $(GLOBAL_FLAG)
 ALOHA_FLAG+=-ffast-math
 FFLAGS+=-O3
 
+# AV unsuccesful attempts to produce more complete flamegraphs
+# (skidding? see also https://indico.cern.ch/event/980497/contributions/4130271)
+###FFLAGS+=-fno-omit-frame-pointer -g
+###FFLAGS+=-fno-inline
+
 # REMOVE MACFLAG IF NOT ON MAC OR FOR F2PY
 UNAME := $(shell uname -s)
 ifdef f2pymode
