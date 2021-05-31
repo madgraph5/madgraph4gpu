@@ -58,8 +58,10 @@ namespace MG5_sm
     //return *( pVec + ipagV*npar*np4 + ipar*np4 + ip4 ); // AOSOA[ipagM][ipar][ip4][ieppM]
     ////return *( pVec + ipar*np4 + ip4 ); // AOSOA[ipagM][ipar][ip4][ieppM]
     using mgOnGpu::neppM;
+    // See https://stackoverflow.com/a/30226914
+#define IS_ALIGNED(addr,size) ((((size_t)(addr)) % (size)) == 0)
+    assert(IS_ALIGNED(momenta1d, sizeof(fptype)*neppV));
     const fptype_sv* pVec = reinterpret_cast<const fptype_sv*>( momenta1d + ipagV*npar*np4*neppM + ipar*np4*neppM + ip4*neppM );
-    std::cout << "pVec=" << pVec << std::endl;
     return *( pVec );
 #else
     const int ievt = ipagV; // neppV=1 (no SIMD) 
