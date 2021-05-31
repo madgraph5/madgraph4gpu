@@ -176,13 +176,14 @@ function runNcuDiv() {
   set +x
 }
 
-gpuTxt=$(nvidia-smi -L | awk '{print $3,$4,$5}')
+if nvidia-smi -L > /dev/null 2>&1; then gpuTxt=$(nvidia-smi -L | awk '{print $3,$4,$5}'); else gpuTxt=none; fi
 cpuTxt=$(cat /proc/cpuinfo | grep '^model name' | head -1 | awk '{i0=index($0,"Intel"); i1=index($0," @"); print substr($0,i0,i1-i0)}')
 echo -e "\nOn $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
 
 lastExe=
 for exe in $exes; do
   if [ ! -f $exe ]; then continue; fi
+  if [ "${exe%%/gcheck*}" != "${exe}" ] && [ "$gpuTxt" == "none" ]; then continue; fi
   if [ "${exe%%/gg_ttgg*}" != "${exe}" ]; then 
     # This is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
     exeArgs="-p 64 256 1"
