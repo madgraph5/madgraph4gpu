@@ -44,7 +44,7 @@ namespace MG5_sm
                                  const int ipagV )
   {
 #ifdef MGONGPU_CPPSIMD
-    const int ievt0 = ipagV*neppV; // virtual event page ipagV contains the neppV events [ievt0, ievt0+1, ... ievt0+neppV-1]
+    //const int ievt0 = ipagV*neppV; // virtual event page ipagV contains the neppV events [ievt0, ievt0+1, ... ievt0+neppV-1]
     /*
     fptype_v out;
     for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+ieppV );
@@ -53,7 +53,14 @@ namespace MG5_sm
     using mgOnGpu::np4;
     using mgOnGpu::npar;
     //return reinterpret_cast<const fptype_sv*>( momenta1d )[ipagV*npar*np4 + ipar*np4 + ip4]; // AOSOA[ipagM][ipar][ip4][ieppM]
-    return *(reinterpret_cast<const fptype_v*>( &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ) ) ) );
+    //return *(reinterpret_cast<const fptype_sv*>( momenta1d ) + ipagV*npar*np4 + ipar*np4 + ip4 ); // AOSOA[ipagM][ipar][ip4][ieppM]
+    //const fptype_sv* pVec = reinterpret_cast<const fptype_sv*>( momenta1d );
+    //return *( pVec + ipagV*npar*np4 + ipar*np4 + ip4 ); // AOSOA[ipagM][ipar][ip4][ieppM]
+    ////return *( pVec + ipar*np4 + ip4 ); // AOSOA[ipagM][ipar][ip4][ieppM]
+    using mgOnGpu::neppM;
+    const fptype_sv* pVec = reinterpret_cast<const fptype_sv*>( momenta1d + ipagV*npar*np4*neppM + ipar*np4*neppM + ip4*neppM );
+    std::cout << "pVec=" << pVec << std::endl;
+    return *( pVec );
 #else
     const int ievt = ipagV; // neppV=1 (no SIMD) 
     return pIparIp4Ievt( momenta1d, ipar, ip4, ievt ); // NB return by value also a single fptype
