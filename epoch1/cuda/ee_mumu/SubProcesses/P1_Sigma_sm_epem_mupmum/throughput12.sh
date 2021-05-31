@@ -176,8 +176,11 @@ function runNcuDiv() {
   set +x
 }
 
+gpuTxt=$(nvidia-smi -L | awk '{print $3,$4,$5}')
+cpuTxt=$(cat /proc/cpuinfo | grep '^model name' | head -1 | awk '{i0=index($0,"Intel"); i1=index($0," @"); print substr($0,i0,i1-i0)}')
+echo -e "\nOn $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
+
 lastExe=
-echo -e "\nOn $HOSTNAME ($(nvidia-smi -L | awk '{print $5}')):"
 for exe in $exes; do
   if [ ! -f $exe ]; then continue; fi
   if [ "${exe%%/gg_ttgg*}" != "${exe}" ]; then 
