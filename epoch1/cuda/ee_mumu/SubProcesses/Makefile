@@ -2,7 +2,7 @@ TOOLSDIR = ../../../../../tools
 TESTDIR  = ../../../../../test
 INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
-OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
+#OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
 #OMPFLAGS?= -fopenmp
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
 CXXFLAGS+= -ffast-math # see issue #117
