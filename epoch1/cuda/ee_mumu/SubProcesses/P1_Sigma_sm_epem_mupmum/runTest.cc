@@ -21,7 +21,7 @@ template<typename T = fptype>
 using unique_ptr_host = std::unique_ptr<T[], CudaHstDeleter<T>>;
 #else
 template<typename T = fptype>
-using unique_ptr_host = std::unique_ptr<T[]>;
+using unique_ptr_host = std::unique_ptr<T[], CppHstDeleter<T>>;
 #endif
 
 struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
