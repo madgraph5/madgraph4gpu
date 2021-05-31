@@ -132,6 +132,7 @@ function runExe() {
   if [ "${exe%%/gcheck*}" != "${exe}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
   pattern="${pattern}|CUCOMPLEX"
   pattern="${pattern}|COMMON RANDOM"
+  pattern="${pattern}|ERROR"
   if [ "${ab3}" == "1" ]; then pattern="${pattern}|3a|3b"; fi
   if perf --version >& /dev/null; then
     # -- Newer version using perf stat
