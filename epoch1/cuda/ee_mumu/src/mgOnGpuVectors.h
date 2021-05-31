@@ -13,6 +13,9 @@
 
 namespace mgOnGpu
 {
+
+  constexpr size_t cppAlign = 64; // alignment requirement for SIMD vectorization (64-byte i.e. 512-bit)
+
 #ifdef MGONGPU_CPPSIMD
 
   const int neppV = neppM;
