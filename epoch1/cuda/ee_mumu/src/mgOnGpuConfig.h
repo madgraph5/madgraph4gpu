@@ -97,6 +97,7 @@ namespace mgOnGpu
   // --- In practice, neppR, neppM and neppV can now all be different
   // -----------------------------------------------------------------------------------------------
   const int neppM = 64/sizeof(fptype); // maximum CPU vector width (512 bits): 8 (DOUBLE) or 16 (FLOAT)
+  //const int neppM = 32/sizeof(fptype); // lower CPU vector width (256 bits): 4 (DOUBLE) or 8 (FLOAT)
   //const int neppM = 1;  // *** NB: this is equivalent to AOS ***
 #endif
 

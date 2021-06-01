@@ -33,7 +33,7 @@ namespace MG5_sm
     constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
     const int ipagM = ievt/neppM; // #event "M-page"
     const int ieppM = ievt%neppM; // #event in the current event M-page
-    //printf( "%f\n", momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
+    //printf( "%2d %2d %8d %8.3f\n", ipar, ip4, ievt, momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
     return momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
   }
 
@@ -49,7 +49,7 @@ namespace MG5_sm
   {
     const int ievt0 = ipagV*neppV; // virtual event V-page ipagV contains neppV events [ievt0...ievt0+neppV-1]
 #ifdef MGONGPU_CPPSIMD
-    constexpr bool useReinterpretCastIfPossible = true; // FOR PERFORMANCE TESTS
+    constexpr bool useReinterpretCastIfPossible = false; // FOR PERFORMANCE TESTS
     constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
     constexpr bool useReinterpretCast = useReinterpretCastIfPossible && ( neppM >= neppV ) && ( neppM%neppV == 0 );
     // Use c++17 "if constexpr": compile-time branching
@@ -59,16 +59,18 @@ namespace MG5_sm
     }
     else
     {
-      static_assert( useReinterpretCast ); // UNCOMMENT TO FAIL IF REINTERPRET_CAST IS NOT USED
 #if MGONGPU_CPPSIMD == 2
+      //static_assert( useReinterpretCast ); // UNCOMMENT TO FAIL IF REINTERPRET_CAST IS NOT USED
       return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ) };
 #elif MGONGPU_CPPSIMD == 4
+      //static_assert( useReinterpretCast ); // UNCOMMENT TO FAIL IF REINTERPRET_CAST IS NOT USED
       return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+2 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+3 ) };
 #elif MGONGPU_CPPSIMD == 8
+      //static_assert( useReinterpretCast ); // UNCOMMENT TO FAIL IF REINTERPRET_CAST IS NOT USED
       return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+2 ),
@@ -78,6 +80,7 @@ namespace MG5_sm
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+6 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+7 ) };
 #elif MGONGPU_CPPSIMD == 16
+      //static_assert( useReinterpretCast ); // UNCOMMENT TO FAIL IF REINTERPRET_CAST IS NOT USED
       return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+2 ),
@@ -96,6 +99,7 @@ namespace MG5_sm
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+15 ) };
 #else
 #warning Internal error? This code should never be reached!
+      static_assert( useReinterpretCast ); // UNCOMMENT TO FAIL IF REINTERPRET_CAST IS NOT USED
       fptype_v out;
       for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+ieppV );
       return out;
