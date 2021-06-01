@@ -49,7 +49,7 @@ namespace MG5_sm
   {
     const int ievt0 = ipagV*neppV; // virtual event V-page ipagV contains neppV events [ievt0...ievt0+neppV-1]
 #ifdef MGONGPU_CPPSIMD
-    constexpr bool useReinterpretCastIfPossible = false; // FOR PERFORMANCE TESTS
+    constexpr bool useReinterpretCastIfPossible = true; // FOR PERFORMANCE TESTS
     constexpr bool useReinterpretCast = useReinterpretCastIfPossible;
     // Use c++17 "if constexpr": compile-time branching
     if constexpr ( useReinterpretCast )
