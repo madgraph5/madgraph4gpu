@@ -77,12 +77,50 @@ namespace mgOnGpu
   constexpr int cppAlign = 64; // alignment requirement for SIMD vectorization (64-byte i.e. 512-bit)
 #endif
 
+  // C++ SIMD vectorization width (this will be used to set neppV)
+#ifndef __CUDACC__
+#if defined __AVX512VL__
+#ifdef MGONGPU_PVW512
+  // "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
+#ifdef MGONGPU_FPTYPE_DOUBLE
+#define MGONGPU_CPPSIMD 8
+#else
+#define MGONGPU_CPPSIMD 16
+#endif
+#else
+  // "512y" AVX512 with 256 width (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [gcc DEFAULT]
+#ifdef MGONGPU_FPTYPE_DOUBLE
+#define MGONGPU_CPPSIMD 4
+#else
+#define MGONGPU_CPPSIMD 8
+#endif
+#endif
+#elif defined __AVX2__
+  // "avx2" AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [clang DEFAULT]
+#ifdef MGONGPU_FPTYPE_DOUBLE
+#define MGONGPU_CPPSIMD 4
+#else
+#define MGONGPU_CPPSIMD 8
+#endif
+#elif defined __SSE4_2__
+  // "sse4" SSE4.2 (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT)
+#ifdef MGONGPU_FPTYPE_DOUBLE
+#define MGONGPU_CPPSIMD 2
+#else
+#define MGONGPU_CPPSIMD 4
+#endif
+#else
+  // "none" i.e. no SIMD (*** NB: this is equivalent to AOS ***)
+#undef MGONGPU_CPPSIMD
+#endif
+#endif
+
   // Number of Events Per Page in the momenta AOSOA memory layout
   // (these are all best kept as a compile-time constants: see issue #23)
 #ifdef __CUDACC__
 #undef MGONGPU_CPPSIMD
   // -----------------------------------------------------------------------------------------------
-  // --- GPUs: neppM must be a power of 2 times the number of fptype's in a 32-byte cacheline
+  // --- GPUs: neppM is best set to a power of 2 times the number of fptype's in a 32-byte cacheline
   // --- This is relevant to ensure coalesced access to momenta in global memory
   // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
   // -----------------------------------------------------------------------------------------------
@@ -91,14 +129,19 @@ namespace mgOnGpu
   //const int neppM = 1;  // *** NB: this is equivalent to AOS ***
 #else
   // -----------------------------------------------------------------------------------------------
-  // --- CPUs: neppM must be a power of 2 times the number of fptype's (neppV) in a vector register
-  // --- This is relevant to ensure faster access to momenta in C++ memory
+  // --- CPUs: neppM is best set equal to the number of fptype's (neppV) in a vector register
+  // --- This is relevant to ensure faster access to momenta from C++ memory cache lines
   // --- However, neppM is now decoupled from neppV (issue #176) and can be separately hardcoded
   // --- In practice, neppR, neppM and neppV can now all be different
   // -----------------------------------------------------------------------------------------------
-  const int neppM = 64/sizeof(fptype); // maximum CPU vector width (512 bits): 8 (DOUBLE) or 16 (FLOAT)
+#ifdef MGONGPU_CPPSIMD
+  const int neppM = MGONGPU_CPPSIMD; // (DEFAULT) neppM=neppV for optimal performance
+#else
+  const int neppM = 1; // (DEFAULT) neppM=neppV for optimal performance (NB: this is equivalent to AOS)
+#endif
+  //const int neppM = 64/sizeof(fptype); // maximum CPU vector width (512 bits): 8 (DOUBLE) or 16 (FLOAT)
   //const int neppM = 32/sizeof(fptype); // lower CPU vector width (256 bits): 4 (DOUBLE) or 8 (FLOAT)
-  //const int neppM = 1;  // *** NB: this is equivalent to AOS ***
+  //const int neppM = 1; // *** NB: this is equivalent to AOS ***
 #endif
 
   // Number of Events Per Page in the random number AOSOA memory layout
