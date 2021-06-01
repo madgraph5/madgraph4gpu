@@ -117,11 +117,11 @@ namespace Proc
 #ifdef __CUDACC__
   __global__
 #endif
-  void sigmaKin_getGoodHel( const fptype* allmomenta,    // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            fptype_sv* allMEs,           // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
-                            bool* isGoodHel              // output: isGoodHel[ncomb] - device array
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
+                            fptype_sv* allMEs,        // output: allMEs[npagV][neppV], nevt=npagV*neppV, |M|^2 final avg_hel
+                            bool* isGoodHel           // output: isGoodHel[ncomb] - device array
 #ifndef __CUDACC__
-                            , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                            , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                             );
 
@@ -132,10 +132,10 @@ namespace Proc
 //--------------------------------------------------------------------------
 
   __global__
-  void sigmaKin( const fptype* allmomenta,    // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                 fptype_sv* allMEs            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
+  void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                 fptype_sv* allMEs         // output: allMEs[npagV][neppV], nevt=npagV*neppV, |M|^2 final avg_hel
 #ifndef __CUDACC__
-                 , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                  );
 
