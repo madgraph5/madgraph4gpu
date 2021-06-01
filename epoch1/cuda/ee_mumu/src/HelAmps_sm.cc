@@ -41,10 +41,10 @@ namespace MG5_sm
   // Return a SIMD vector of fptype's for neppV events (for the given particle, 4-momentum component and event "V-page")
   // For neppM>=neppV (both being powers of 2), the momentum neppM-AOSOA is reinterpreted in terms of neppV-vectors
   // Strictly speaking, returning by value will only become unavoidable when neppM<neppV (use "if constexpr")
-  inline const fptype_sv& pIparIp4Ipag( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
-                                        const int ipar,
-                                        const int ip4,
-                                        const int ipagV )
+  inline fptype_sv pIparIp4Ipag( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
+                                 const int ipar,
+                                 const int ip4,
+                                 const int ipagV )
   {
     const int ievt0 = ipagV*neppV; // virtual event V-page ipagV contains neppV events [ievt0...ievt0+neppV-1]
     return *reinterpret_cast<const fptype_sv*>( &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ) ) );
