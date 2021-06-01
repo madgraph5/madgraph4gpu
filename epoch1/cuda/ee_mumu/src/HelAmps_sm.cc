@@ -20,7 +20,8 @@ mgDebugDeclare();
 
 namespace MG5_sm
 {
-#ifdef __CUDACC__
+  // Decode momentum AOSOA: compute address of fptype for the given particle, 4-momentum component and event
+  // Return the fptype by reference (equivalent to returning its memory address)
   __device__
   inline const fptype& pIparIp4Ievt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                      const int ipar,
@@ -29,23 +30,24 @@ namespace MG5_sm
   {
     using mgOnGpu::np4;
     using mgOnGpu::npar;
-    const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    const int ipagM = ievt/neppM; // #eventpage in this iteration
-    const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+    constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+    const int ipagM = ievt/neppM; // #event "M-page"
+    const int ieppM = ievt%neppM; // #event in the current event M-page
     //printf( "%f\n", momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
     return momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
   }
-#else
-  // Create a vector of fptype's for neppV events and return it by value
-  // Returning by value is needed for decoupling neppV from neppM (and was just as fast when they were coupled!)
-  inline fptype_sv pIparIp4Ipag( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
-                                 const int ipar,
-                                 const int ip4,
-                                 const int ipagV )
+
+#ifndef __CUDACC__
+  // Return a SIMD vector of fptype's for neppV events (for the given particle, 4-momentum component and event "V-page")
+  // For neppM>=neppV (both being powers of 2), the momentum neppM-AOSOA is reinterpreted in terms of neppV-vectors
+  // Strictly speaking, returning by value will only become unavoidable when neppM<neppV (use "if constexpr")
+  inline const fptype_sv& pIparIp4Ipag( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
+                                        const int ipar,
+                                        const int ip4,
+                                        const int ipagV )
   {
-    using mgOnGpu::np4;
-    using mgOnGpu::npar;
-    return reinterpret_cast<const fptype_sv*>( momenta1d )[ipagV*npar*np4 + ipar*np4 + ip4]; // AOSOA[ipagM][ipar][ip4][ieppM]
+    const int ievt0 = ipagV*neppV; // virtual event V-page ipagV contains neppV events [ievt0...ievt0+neppV-1]
+    return *reinterpret_cast<const fptype_sv*>( &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ) ) );
   }
 #endif
 
