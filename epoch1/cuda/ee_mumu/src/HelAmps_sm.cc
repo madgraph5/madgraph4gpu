@@ -39,8 +39,9 @@ namespace MG5_sm
 
 #ifndef __CUDACC__
   // Return a SIMD vector of fptype's for neppV events (for the given particle, 4-momentum component and event "V-page")
-  // For neppM>=neppV (both being powers of 2), the momentum neppM-AOSOA is reinterpreted in terms of neppV-vectors
-  // Strictly speaking, returning by value will only become unavoidable when neppM<neppV (use "if constexpr")
+  // Return the vector by value: strictly speaking, this is only unavoidable for neppM<neppV (will use "if constexpr")
+  // For neppM>=neppV (both being powers of 2), the momentum neppM-AOSOA is reinterpreted in terms of neppV-vectors:
+  // it could also be returned by reference, but no performance degradation is observed when returning by value
   inline fptype_sv pIparIp4Ipag( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                  const int ipar,
                                  const int ip4,
