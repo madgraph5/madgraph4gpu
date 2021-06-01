@@ -50,7 +50,8 @@ namespace MG5_sm
     const int ievt0 = ipagV*neppV; // virtual event V-page ipagV contains neppV events [ievt0...ievt0+neppV-1]
 #ifdef MGONGPU_CPPSIMD
     constexpr bool useReinterpretCastIfPossible = true; // FOR PERFORMANCE TESTS
-    constexpr bool useReinterpretCast = useReinterpretCastIfPossible;
+    constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+    constexpr bool useReinterpretCast = useReinterpretCastIfPossible && ( neppM >= neppV ) && ( neppM%neppV == 0 );
     // Use c++17 "if constexpr": compile-time branching
     if constexpr ( useReinterpretCast )
     {
@@ -58,6 +59,7 @@ namespace MG5_sm
     }
     else
     {
+      static_assert( useReinterpretCast ); // UNCOMMENT TO FAIL IF REINTERPRET_CAST IS NOT USED
 #if MGONGPU_CPPSIMD == 2
       return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ) };
@@ -93,6 +95,7 @@ namespace MG5_sm
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+14 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+15 ) };
 #else
+#warning Internal error? This code should never be reached!
       fptype_v out;
       for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+ieppV );
       return out;

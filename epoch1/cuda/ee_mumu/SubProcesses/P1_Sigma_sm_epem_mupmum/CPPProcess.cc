@@ -232,10 +232,13 @@ namespace Proc
     memcpy( cHel, tHel, ncomb * nexternal * sizeof(short) );
 #endif
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
-    assert( sizeof(cxtype) == 2 * sizeof(fptype) );
+    static_assert( sizeof(cxtype) == 2 * sizeof(fptype) );
 #ifndef __CUDACC__
-    // SANITY CHECK: momenta AOSOA uses vectors with the same size as fptype_v
-    assert( neppV == mgOnGpu::neppM );
+    // SANITY CHECK: check that neppR, neppM and neppV are powers of two (https://stackoverflow.com/a/108360)
+    auto ispoweroftwo = []( int n ) { return ( n > 0 ) && !( n & ( n - 1 ) ); };
+    static_assert( ispoweroftwo( mgOnGpu::neppR ) );
+    static_assert( ispoweroftwo( mgOnGpu::neppM ) );
+    static_assert( ispoweroftwo( neppV ) );
 #endif
   }
 
