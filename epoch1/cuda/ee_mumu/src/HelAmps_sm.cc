@@ -48,7 +48,22 @@ namespace MG5_sm
                                  const int ipagV )
   {
     const int ievt0 = ipagV*neppV; // virtual event V-page ipagV contains neppV events [ievt0...ievt0+neppV-1]
-    return *reinterpret_cast<const fptype_sv*>( &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ) ) );
+#ifdef MGONGPU_CPPSIMD
+    constexpr bool useReinterpretCastIfPossible = false; // FOR PERFORMANCE TESTS
+    constexpr bool useReinterpretCast = useReinterpretCastIfPossible;
+    if constexpr ( useReinterpretCast )
+    {
+      return *reinterpret_cast<const fptype_sv*>( &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ) ) );
+    }
+    else
+    {
+      fptype_v out;
+      for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+ieppV );
+      return out;
+    }
+#else
+    return pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 );
+#endif
   }
 #endif
 
