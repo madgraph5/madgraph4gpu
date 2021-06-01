@@ -39,7 +39,7 @@ namespace MG5_sm
 
 #ifndef __CUDACC__
   // Return a SIMD vector of fptype's for neppV events (for the given particle, 4-momentum component and event "V-page")
-  // Return the vector by value: strictly speaking, this is only unavoidable for neppM<neppV (will use "if constexpr")
+  // Return the vector by value: strictly speaking, this is only unavoidable for neppM<neppV
   // For neppM>=neppV (both being powers of 2), the momentum neppM-AOSOA is reinterpreted in terms of neppV-vectors:
   // it could also be returned by reference, but no performance degradation is observed when returning by value
   inline fptype_sv pIparIp4Ipag( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
@@ -51,15 +51,52 @@ namespace MG5_sm
 #ifdef MGONGPU_CPPSIMD
     constexpr bool useReinterpretCastIfPossible = false; // FOR PERFORMANCE TESTS
     constexpr bool useReinterpretCast = useReinterpretCastIfPossible;
+    // Use c++17 "if constexpr": compile-time branching
     if constexpr ( useReinterpretCast )
     {
       return *reinterpret_cast<const fptype_sv*>( &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ) ) );
     }
     else
     {
+#if MGONGPU_CPPSIMD == 2
+      return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ) };
+#elif MGONGPU_CPPSIMD == 4
+      return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+2 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+3 ) };
+#elif MGONGPU_CPPSIMD == 8
+      return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+2 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+3 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+4 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+5 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+6 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+7 ) };
+#elif MGONGPU_CPPSIMD == 16
+      return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+2 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+3 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+4 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+5 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+6 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+7 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+8 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+9 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+10 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+11 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+12 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+13 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+14 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+15 ) };
+#else
       fptype_v out;
       for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+ieppV );
       return out;
+#endif
     }
 #else
     return pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 );
