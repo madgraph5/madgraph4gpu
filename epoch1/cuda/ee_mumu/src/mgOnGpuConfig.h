@@ -46,6 +46,8 @@ namespace mgOnGpu
   typedef double fptype; // double precision (8 bytes, fp64)
 #elif defined MGONGPU_FPTYPE_FLOAT
   typedef float fptype; // single precision (4 bytes, fp32)
+#else
+#error One of MGONGPU_FPTYPE_DOUBLE or MGONGPU_FPTYPE_FLOAT must be defined
 #endif
 
   // --- Physics process-specific constants that are best declared at compile time
@@ -94,33 +96,33 @@ namespace mgOnGpu
 #if defined __AVX512VL__
 #ifdef MGONGPU_PVW512
   // "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
-#if defined MGONGPU_FPTYPE_DOUBLE
+#ifdef MGONGPU_FPTYPE_DOUBLE
 #define MGONGPU_CPPSIMD 8
-#elif defined MGONGPU_FPTYPE_FLOAT
+#else
 #define MGONGPU_CPPSIMD 16
 #endif
 #else
   // "512y" AVX512 with 256 width (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [gcc DEFAULT]
-#if defined MGONGPU_FPTYPE_DOUBLE
+#ifdef MGONGPU_FPTYPE_DOUBLE
 #define MGONGPU_CPPSIMD 4
-#elif defined MGONGPU_FPTYPE_FLOAT
+#else
 #define MGONGPU_CPPSIMD 8
 #endif
 #endif
   const int neppM = MGONGPU_CPPSIMD;
 #elif defined __AVX2__
   // "avx2" AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [clang DEFAULT]
-#if defined MGONGPU_FPTYPE_DOUBLE
+#ifdef MGONGPU_FPTYPE_DOUBLE
 #define MGONGPU_CPPSIMD 4
-#elif defined MGONGPU_FPTYPE_FLOAT
+#else
 #define MGONGPU_CPPSIMD 8
 #endif
   const int neppM = MGONGPU_CPPSIMD;
 #elif defined __SSE4_2__
   // "sse4" SSE4.2 (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT)
-#if defined MGONGPU_FPTYPE_DOUBLE
+#ifdef MGONGPU_FPTYPE_DOUBLE
 #define MGONGPU_CPPSIMD 2
-#elif defined MGONGPU_FPTYPE_FLOAT
+#else
 #define MGONGPU_CPPSIMD 4
 #endif
   const int neppM = MGONGPU_CPPSIMD;
