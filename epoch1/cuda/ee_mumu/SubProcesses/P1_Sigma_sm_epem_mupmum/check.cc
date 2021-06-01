@@ -572,7 +572,7 @@ int main(int argc, char **argv)
 #ifndef MGONGPU_CPPSIMD
                   << hstMEs[ievt]
 #else
-                  << hstMEs[ievt/neppM][ievt%neppM]
+                  << hstMEs[ievt/neppV][ievt%neppV]
 #endif
                   << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
         std::cout << std::string(SEP79, '-') << std::endl;
@@ -581,7 +581,7 @@ int main(int argc, char **argv)
 #ifndef MGONGPU_CPPSIMD
       matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt]; // FIXME: assume process.nprocesses == 1
 #else
-      matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt/neppM][ievt%neppM]; // FIXME: assume process.nprocesses == 1
+      matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt/neppV][ievt%neppV]; // FIXME: assume process.nprocesses == 1
 #endif
       weightALL[iiter*nevt + ievt] = hstWeights[ievt];
     }
