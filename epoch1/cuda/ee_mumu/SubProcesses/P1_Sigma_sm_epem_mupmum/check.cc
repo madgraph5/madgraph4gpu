@@ -314,14 +314,14 @@ int main(int argc, char **argv)
   auto hstMomenta   = hstMakeUnique<fptype   >( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
   auto hstIsGoodHel = hstMakeUnique<bool     >( ncomb );
   auto hstWeights   = hstMakeUnique<fptype   >( nWeights );
-  auto hstMEs       = hstMakeUnique<fptype_sv>( nMEs ); // AOSOA[npagV][neppV] (NB: nevt=npagV*neppV)
+  auto hstMEs       = hstMakeUnique<fptype_sv>( nMEs );     // AOSOA[npagV][neppV] (NB: nevt=npagV*neppV)
 
 #ifdef __CUDACC__
   auto devRnarray   = devMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   auto devMomenta   = devMakeUnique<fptype   >( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
   auto devIsGoodHel = devMakeUnique<bool     >( ncomb );
   auto devWeights   = devMakeUnique<fptype   >( nWeights );
-  auto devMEs       = devMakeUnique<fptype   >( nMEs ); // ARRAY[nevt] (NB: nevt=npagV*neppV)
+  auto devMEs       = devMakeUnique<fptype   >( nMEs );     // ARRAY[nevt] (NB: nevt=npagV*neppV)
 
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
   const int nbytesRnarray = nRnarray * sizeof(fptype);

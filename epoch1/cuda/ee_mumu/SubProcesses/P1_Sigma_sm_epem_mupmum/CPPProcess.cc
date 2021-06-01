@@ -103,9 +103,11 @@ namespace Proc
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
 #if not defined __clang__ && defined __GNUC__ && __GNUC__ < 9
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel) private (amp_sv,w_sv)
+#pragma omp parallel for default(none) \
+  shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel,cNGoodHel) private (amp_sv,w_sv)
 #else
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel,npagV) private (amp_sv,w_sv)
+#pragma omp parallel for default(none) \
+  shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel,cNGoodHel,npagV) private (amp_sv,w_sv)
 #endif
 #endif
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
@@ -186,19 +188,20 @@ namespace Proc
 
       // NB: calculate_wavefunctions ADDS |M|^2 for given ihel to running sum of |M|^2 over helicities for given event(s)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-#ifdef MGONGPU_CPPSIMD
-      allMEs[ipagV] += deltaMEs;
-      //printf( "calculate_wavefunction: %6d %2d %f\n", ipagV, ihel, allMEs[ipagV] ); // FIXME
-#else
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-#else
-      const int ievt = ipagV;
-#endif
       allMEs[ievt] += deltaMEs;
-      //printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt] );
+      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt] );
+#else
+      allMEs[ipagV] += deltaMEs;
+#ifdef MGONGPU_CPPSIMD
+      //if ( cNGoodHel > 0 )
+      //  for ( int ieppV=0; ieppV<neppV; ieppV++ )
+      //    printf( "calculate_wavefunction: %6d %2d %f\n", ipagV*neppV+ieppV, ihel, allMEs[ipagV][ieppV] );
+#else
+      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %6d %2d %f\n", ipagV, ihel, allMEs[ipagV] );
 #endif
-
+#endif
     }
 
     mgDebug( 1, __FUNCTION__ );
@@ -449,18 +452,15 @@ namespace Proc
     // PART 0 - INITIALISATION (before calculate_wavefunctions)
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-#ifdef MGONGPU_CPPSIMD
+#ifdef __CUDACC__
+    {
+      allMEs[ievt] = 0; // all zeros
+    }
+#else
     const int npagV = nevt/neppV;    
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
-      allMEs[ipagV] = fptype_v{0}; // all zeros
-    }
-#else
-#ifndef __CUDACC__
-    for ( int ievt = 0; ievt < nevt; ++ievt )
-#endif
-    {
-      allMEs[ievt] = 0; // all zeros
+      allMEs[ipagV] = fptype_sv{0}; // all zeros
     }
 #endif
 
@@ -481,17 +481,14 @@ namespace Proc
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-#ifdef MGONGPU_CPPSIMD
+#ifdef __CUDACC__
+    {
+      allMEs[ievt] /= (fptype)denominators;
+    }
+#else
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
       allMEs[ipagV] /= (fptype)denominators;
-    }
-#else
-#ifndef __CUDACC__
-    for ( int ievt = 0; ievt < nevt; ++ievt )
-#endif
-    {
-      allMEs[ievt] /= (fptype)denominators;
     }
 #endif
     mgDebugFinalise();
