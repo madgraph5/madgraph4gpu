@@ -93,21 +93,40 @@ namespace mgOnGpu
   // -----------------------------------------------------------------------------------------
 #if defined __AVX512VL__
 #ifdef MGONGPU_PVW512
+  // "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
+#if defined MGONGPU_FPTYPE_DOUBLE
 #define MGONGPU_CPPSIMD 8
-  const int neppM = 64/sizeof(fptype); // "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
-#else
-#define MGONGPU_CPPSIMD 4
-  const int neppM = 32/sizeof(fptype); // "512y" AVX512 with 256 width (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [gcc DEFAULT]
+#elif defined MGONGPU_FPTYPE_FLOAT
+#define MGONGPU_CPPSIMD 16
 #endif
-#elif defined __AVX2__
+#else
+  // "512y" AVX512 with 256 width (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [gcc DEFAULT]
+#if defined MGONGPU_FPTYPE_DOUBLE
 #define MGONGPU_CPPSIMD 4
-  const int neppM = 32/sizeof(fptype); // "avx2" AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [clang DEFAULT]
+#elif defined MGONGPU_FPTYPE_FLOAT
+#define MGONGPU_CPPSIMD 8
+#endif
+#endif
+  const int neppM = MGONGPU_CPPSIMD;
+#elif defined __AVX2__
+  // "avx2" AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [clang DEFAULT]
+#if defined MGONGPU_FPTYPE_DOUBLE
+#define MGONGPU_CPPSIMD 4
+#elif defined MGONGPU_FPTYPE_FLOAT
+#define MGONGPU_CPPSIMD 8
+#endif
+  const int neppM = MGONGPU_CPPSIMD;
 #elif defined __SSE4_2__
+  // "sse4" SSE4.2 (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT)
+#if defined MGONGPU_FPTYPE_DOUBLE
 #define MGONGPU_CPPSIMD 2
-  const int neppM = 16/sizeof(fptype); // "sse4" SSE4.2 (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT)
+#elif defined MGONGPU_FPTYPE_FLOAT
+#define MGONGPU_CPPSIMD 4
+#endif
+  const int neppM = MGONGPU_CPPSIMD;
 #else
 #undef MGONGPU_CPPSIMD
-  const int neppM = 1;  // "none" i.e. no SIMD (*** NB: this is equivalent to AOS ***)
+  const int neppM = 1; // "none" i.e. no SIMD (*** NB: this is equivalent to AOS ***)
 #endif
 #endif
 
