@@ -9,11 +9,12 @@ cpp=1
 ab3=0
 ggttgg=0
 div=0
+detailed=0
 verbose=0
 
 function usage()
 {
-  echo "Usage: $0 [-nocpp|[-omp][-avxall]] [-ep2] [-3a3b] [-ggttgg] [-div] [-v]"
+  echo "Usage: $0 [-nocpp|[-omp][-avxall]] [-ep2] [-3a3b] [-ggttgg] [-div] [-detailed] [-v]"
   exit 1
 }
 
@@ -42,6 +43,9 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-div" ]; then
     div=1
+    shift
+  elif [ "$1" == "-detailed" ]; then
+    detailed=1
     shift
   elif [ "$1" == "-v" ]; then
     verbose=1
@@ -138,8 +142,9 @@ function runExe() {
     # -- Newer version using perf stat
     pattern="${pattern}|instructions|cycles"
     pattern="${pattern}|elapsed"
+    if [ "${detailed}" == "1" ]; then pattern="${pattern}|#"; fi
     if [ "${verbose}" == "1" ]; then set -x; fi
-    perf stat $exe $args 2>&1 | egrep "(${pattern})" | grep -v "Performance counter stats"
+    perf stat -d $exe $args 2>&1 | egrep "(${pattern})" | grep -v "Performance counter stats"
     set +x
   else
     # -- Older version using time
