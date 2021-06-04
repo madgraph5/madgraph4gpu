@@ -5,6 +5,7 @@ Created on Mon Mar 22 10:25:46 2021
 
 @author: andy
 """
+from __future__ import print_function
 import platform
 import subprocess
 import os
@@ -14,7 +15,12 @@ import shutil
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.offsetbox import AnchoredText
 import re
+import argparse
+from datetime import date
+from statistics import mean
+
 
 
 class PerformanceTesting:
@@ -22,7 +28,10 @@ class PerformanceTesting:
     configvalues = {}
     cpu = None
     gpus = None
-    
+    product=str()
+    today=date.today()
+    date=today.strftime('%d%m%y')
+    throughput_dict={}
     
     def rootfolfdercreation(self):
         print('Creating root folder\n')
@@ -69,16 +78,6 @@ class PerformanceTesting:
         except OSError:
             print('\nMission failed\nGPU.sh not executed')
  
-        # k = None
-        # while k != 1:
-            
-        #     if os.getcwd() == PerT.root_path:
-        #         self.clone=subprocess.run(['git','clone','https://github.com/madgraph5/madgraph4gpu.git'],capture_output=True)
-        #         print(self.clone)
-        #         k=1
-        #     else:
-        #         os.chdir(PerT.root_path)
-        #         print('Changed directory to '+PerT.root_path)
     
     def gitclone(self):
         print('Execute git clone')
@@ -109,6 +108,12 @@ class PerformanceTesting:
         print('Investigating CPU\n')
         cpu=platform.processor()
         print(f'%s is used as CPU device\n' %cpu)
+        with open('/proc/cpuinfo') as f:
+            for line in f:
+                if line.strip():
+                    if line.rstrip('\n').startswith('model name'):
+                        model_name=line.strip('\n').split(':')[1]
+                        print(model_name)
     
     def GPU(self):
         print('Investigating GPU\n')
@@ -117,6 +122,7 @@ class PerformanceTesting:
         
         self.getHW = subprocess.run(['lshw', '-C', 'display'], capture_output=True)
         self.display_list=str(self.getHW.stdout).split('\\n')
+        print(self.display_list)
         #check which GPUs are installed and print it out
         self.found = False            
         for self.gpu in self.gpu_hw_list:
@@ -127,8 +133,18 @@ class PerformanceTesting:
             else:
                 print(f'Found:     {self.gpu}')
                 PerT.gpus = self.gpu
-                return self.gpu
-        
+                #return self.gpu
+        # Get the product i.e. V100 for NVIDIA
+        for self.gpu in self.gpu_hw_list:
+            # Define index counter
+            self.index =0
+            for display_entry in self.display_list:
+                if self.gpu in display_entry:
+                    # Product is usually one list entry above the vendor entry
+                    PerT.product=self.display_list[self.index-1]
+                    PerT.product=PerT.product.replace('       product: ','')
+                    print('Mounted card: '+PerT.product)
+                self.index+=1
     
                 
     def check_gcheck(self,epoch):
@@ -146,17 +162,26 @@ class PerformanceTesting:
         print('execute make\n')
         self.make=subprocess.run('make')
         
-        #Offer path for json files    
+        # Create json directory path for json files    
         self.path_json = 'perf/data'
-                  
+        shutil.rmtree(self.path_json)
+           
         if os.path.exists(self.path_json): #If path already exists do nothing
-            print('directory perf/data/ already exists. Datas will be overwritten' )
-            
+            shutil.rmtree('perf/data')
+            print('refresh perf/data' )
+            os.makedirs('perf/data',0o777)
         else:
             print('create perf/data')
-            os.makedirs('perf/data') #Create path if not yet existing
-        #Call function for check and gcheck    
+            os.makedirs('perf/data',0o777) #Create path if not yet existing
+        
+            # Call function for check and gcheck    
             print('Create path for data\n'+self.path)  
+        
+        
+        if args.check != None: PerT.check_for_plot(epoch)
+        os.chdir(self.ex_path)
+        shutil.rmtree('perf/data')
+        os.makedirs('perf/data',0o777)
         if self.cg=='check.exe':
             PerT.ex_check(self.ex_path,epoch)
         elif self.cg=='gcheck.exe':
@@ -164,7 +189,40 @@ class PerformanceTesting:
         else:
             print('Something went wrong. gcheck or check could not be executed')
             sys.exit()
-                
+    
+    def check_for_plot(self,epoch):
+        # If CPU values are required this function will bhe executet.
+        # It executes check.exe and calculates the throughput to be added in the plot
+        print('CPU was triggered by command line. Execute check.exe ' )
+        print('WE ARE NOW IN '+os.getcwd())
+        
+        self.i=1
+        while self.i <= args.check:
+            print('Execute check.exe for plot run %s' %(self.i))
+            subprocess.run(['./'+'check.exe','-j','32','32','128','0815',str(self.i)])
+            self.i +=1
+        # Open json files and take the data
+        # Change directory 
+        os.chdir(os.getcwd()+'/perf/data')
+        # List items that will get plotted according to config file
+        list_to_be_print=[item for item in Ev.plot_confi['plots'] if Ev.plot_confi['plots'][item] == 'on'] #item = column name as a str: #item = column name as a str]
+        
+        listoffiles = os.listdir()
+        #throughput_dict={}
+        for print_item in list_to_be_print:
+            temp_list=[]
+            for i in range(len(listoffiles)):
+                file = open(listoffiles[i])
+                file_load=json.load(file)
+                temp_string=file_load[0][print_item]               
+                temp_list.append(int(float(re.findall(r'[\d.]+',temp_string)[0])))
+            PerT.throughput_dict[print_item] = temp_list
+            PerT.throughput_dict[print_item].append(int(mean(temp_list)))
+        os.chdir(PerT.assemblingpath(epoch))
+            #print('Avergae is %i ' %(throughput_dict[print_item][-1]))
+        #print(throughput_dict)
+    
+        
     def ex_check(self,path): #In Progress
         print('Execute check.exe')
         f=open('TestInProgress.txt','w+')
@@ -188,14 +246,40 @@ class PerformanceTesting:
                     i+=1
                 self.blocks =1
             os.remove('TestInProgress.txt')
+            print('Execution of ' +PerT.cg +' complete.\nCopy files to /tmp/profile/data')
+            
+            #Copy directory with json files to /tmp/profile/data
+            shutil.copytree(path+'perf/data',PerT.data_store+'/'+
+                            PerT.cg+'_'+
+                            epoch+'_'+
+                            PerT.configvalues['runfiles']['abstr_layer']+'_'+
+                            PerT.configvalues['runfiles']['process']+'_'+
+                            self.date+'/'+'jsonfiles')
+            print('Copy files from '+ path+ 'perf/data' +' '+'to '+ PerT.data_store)
+            
+            #clean perf/data folder for next run
+            self.folder=os.getcwd()+'/perf/data'
+            for filename in os.listdir(self.folder):
+                file_path = os.path.join(self.folder, filename)
+                try:
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+                except Exception as e:
+                    print('Failed to delete %s. Reason: %s' % (filename, e))
+                            
+                            
         else:
-            print('There is no gcheck')        
+            print('check.exe can not be found')        
         
     def ex_gcheck(self,path,epoch):
         #execute gcheck.exe
         #shutil.rmtree('/tmp/andy/root/madgraph4gpu/epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/perf/data/')
         print('Execute gcheck.exe')
         f=open('TestInProgress.txt','w+')
+        #today=date.today()
+        self.date = PerT.date
         
         self.maxevents = int(PerT.configvalues['variations']['numevents'])
         self.blocks =1
@@ -216,24 +300,23 @@ class PerformanceTesting:
                     self.name = PerT.makename(self.blocks, self.threads, self.iters)
                     
                     subprocess.run(['./'+PerT.cg,'-j',str(self.blocks),str(self.threads),str(self.iters),self.name,str(i)])
-                    # grid size 32 
-                    # grid size 64
-                        #32 2
-                        #64 1
-                    # 128     
+                       
                     self.blocks = self.blocks *2
                     i+=1
                 self.blocks =1
             os.remove('TestInProgress.txt')
             print('Execution of ' +PerT.cg +' complete.\nCopy files to /tmp/profile/data')
             #Copy directory with json files to /tmp/profile/data
-            shutil.copytree(path+'perf/data',PerT.data_store+'/'+
-                            PerT.cg+'_'+
-                            epoch+'_'+
-                            PerT.configvalues['runfiles']['abstr_layer']+'_'+
-                            PerT.configvalues['runfiles']['process'])
-            print('try to copy from '+ path+ 'perf/data' +' '+'to '+ PerT.data_store)
-            
+            try:
+                shutil.copytree(path+'perf/data',PerT.data_store+'/'+
+                                PerT.cg+'_'+
+                                epoch+'_'+
+                                PerT.configvalues['runfiles']['abstr_layer']+'_'+
+                                PerT.configvalues['runfiles']['process']+'_'+
+                                self.date+'/'+'jsonfiles')
+                print('Copy files from '+ path+ 'perf/data' +' '+'to '+ PerT.data_store)
+            except os.error:
+                print('We are in error case. Let us see, if program keeps working')
         else:
             print('There is no gcheck')
             sys.exit()
@@ -317,17 +400,22 @@ class Evaluation:
                     #
                     #dataframetoconvert.loc[val,item]=int(temp_string[:temp_string.rfind('.')])
                     dataframetoconvert.loc[val,item]=float(re.findall(r'[\d.]+',temp_string)[0])
-        dataframetoconvert['NumThreadsPerBlock*NumBlocksPerGrid']=dataframetoconvert['NumThreadsPerBlock']*dataframetoconvert['NumBlocksPerGrid']        
-        dataframetoconvert['NumThreadsPerBlock*NumBlocksPerGrid']=dataframetoconvert['NumThreadsPerBlock*NumBlocksPerGrid'].astype('int')
+        dataframetoconvert['gridsize']=dataframetoconvert['NumThreadsPerBlock']*dataframetoconvert['NumBlocksPerGrid']        
+        dataframetoconvert['gridsize']=dataframetoconvert['gridsize'].astype('int')
         return dataframetoconvert,self.list_to_be_print
 
     def EventsPerSecMatrixElement(self):pass
         
         
     def plots(self,df,plotlist):
-        
+        plot_path=PerT.data_store+'/'+PerT.cg+'_'+epoch+'_'+\
+            PerT.configvalues['runfiles']['abstr_layer']+'_'+\
+            PerT.configvalues['runfiles']['process']+'_'+PerT.date+'/'+\
+            'plots/'
+        os.makedirs(plot_path,0o777) #Create root directory
+                            
         for yaxis in plotlist:   
-            print(yaxis)
+            print('Creation of '+ yaxis)
             plt.style.use('ggplot')
             fig,ax = plt.subplots()
             
@@ -361,8 +449,81 @@ class Evaluation:
                     plt.xticks(df['NumThreadsPerBlock*NumBlocksPerGrid'],fontsize=25)
                     plt.rcParams['ytick.labelsize']=25          
             plt.show()
-            fig.savefig(PerT.assemblingpath()+yaxis)
-
+            fig.savefig(plot_path+yaxis+'.png')
+            print('Plotting complete\n\n')
+            
+    def plots_(self,df,plotlist):
+        plot_path=PerT.data_store+'/'+PerT.cg+'_'+epoch+'_'+\
+            PerT.configvalues['runfiles']['abstr_layer']+'_'+\
+            PerT.configvalues['runfiles']['process']+'_'+PerT.date+'/'+\
+            'plots/'
+        os.makedirs(plot_path,0o777)
+         
+        # plt.cla()
+        # plt.clf()
+                    
+        for yaxis in plotlist:   
+            print('Creation of '+ yaxis)
+            
+            
+            fig = plt.figure()
+            ax = plt.subplot()
+            
+            # Set figure size
+            fig.set_size_inches(18,12)
+           
+            #remove frame
+            ax.spines['right'].set_visible(False)
+            ax.spines['top'].set_visible(False)
+            
+            #enable grid
+            plt.rcParams['grid.linestyle']=':'
+            ax.yaxis.grid()
+            
+            #setup x-axis
+            ax.set_xscale('log')
+            plt.xticks(df['gridsize'])
+            ax.set_xticklabels(df['gridsize'],rotation=75,fontsize=13.5)
+            
+            #setup y-axis
+            #logarithmic
+            plt.ylim((min(df[yaxis])-min(df[yaxis])*0.30),max(df[yaxis])*3)
+            ax.set_yscale('log')
+            plt.yticks(size=13.5)
+            #linear scale
+            #plt.ylim(0,max(df[yaxis])*1.3)
+            
+            #Labels and title
+            plt.xlabel('Gridsize',fontsize=15)
+            plt.ylabel('Troughput\n'+yaxis,fontsize=13.5)
+            plt.title(yaxis,fontsize=15)
+            if args.check != None:
+                df['cpu']=PerT.throughput_dict[yaxis][-1]
+                ax.scatter(df['gridsize'],df['cpu'],label='cpu')
+            for k in sorted(df['NumThreadsPerBlock'].unique(),reverse=True):
+                    
+                    d=df.loc[df['NumThreadsPerBlock']==k]
+                    ax.scatter(
+                        d['gridsize'],
+                        d[yaxis],
+                        label=k,
+                        s=k*2,
+                        c=Ev.color(k),
+                        alpha=Ev.al(k),                        
+                        edgecolors='black'
+                        )
+                    ax.legend(loc='upper left',title='Threads Per Block',prop={'size':15})
+                    plt.xticks(df['gridsize'])
+             
+            # Include TextBox with product information
+            text_box=AnchoredText(PerT.gpus+' '+PerT.product, loc=1,prop=dict(size=15),frameon=False)
+            plt.gca().add_artist(text_box)
+            
+            plt.show()
+            
+            fig.savefig(plot_path+yaxis+'.png')
+            print('Plotting complete\n\n')
+        print('plots are ready to be investigated.\nSee path  %s' %plot_path)
 
     def al(self,value):
         if value == 32:
@@ -389,6 +550,16 @@ class Evaluation:
     
 if __name__ == '__main__':
     
+    # Get command line options
+    parser = argparse.ArgumentParser()
+    # Optional parser if plots are wished
+    parser.add_argument('-p','--plots',help='Generates performance plots and stores them in seperate directory',
+                        action='store_true')
+    parser.add_argument('-c','--check', type=int, help='Defines how many runs check.exe will have and calculates the average of the throughput to include it in the plot')
+    # Optional parser if check.exe shall be executed 5 times
+    
+    args=parser.parse_args()
+    
     PerT = PerformanceTesting()
     Ev = Evaluation()
     
@@ -397,19 +568,40 @@ if __name__ == '__main__':
     
     PerT.rootfolfdercreation()
     
-    
+    # Get CPU information
     PerT.CPU()
+    
+    # Get GPU information
     PerT.GPU()
+    
+    
+    # Execute git clone from https://github.com/madgraph5/madgraph4gpu.git 
     PerT.gitclone()
+    
+    # Get a list of epoch that has to be investigated
     epoch = PerT.configvalues['runfiles']['epoch'].split(';')
+    
+    # Performe permutations and store results in /tmp/profile/data/
     for epoch in epoch:
         
         PerT.check_gcheck(epoch)
+        
+        if args.plots:
+            # Load json files in a DataFrame
+            
+            df_raw=Ev.loadfiles(PerT.assemblingpath(epoch)+'perf/data')
+            
+            
+            # Get a list of plots from config file
+           
+            df_adj_units, plotlist = Ev.convertunits(df_raw)
+           
+            
+            # Plot results
+            print('Plot results')
+            Ev.plots_(df_adj_units,plotlist)
+            
     
     
-    df_raw=Ev.loadfiles(PerT.assemblingpath()+'perf/data')
-    #need path of datas
-    df_adj_units, plotlist = Ev.convertunits(df_raw)
-    Ev.plots(df_adj_units,plotlist)
-    
+   
     
