@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
 import re
 import argparse
-from datetime import date
+from datetime import datetime, date
 from statistics import mean
 
 
@@ -30,7 +30,7 @@ class PerformanceTesting:
     gpus = None
     product=str()
     today=date.today()
-    date=today.strftime('%d%m%y')
+    date="{:%Y_%m_%d_%H_%M_%S}".format(datetime.now())
     throughput_dict={}
     
     def rootfolfdercreation(self):
@@ -164,7 +164,7 @@ class PerformanceTesting:
         
         # Create json directory path for json files    
         self.path_json = 'perf/data'
-        shutil.rmtree(self.path_json)
+        #shutil.rmtree(self.path_json)
            
         if os.path.exists(self.path_json): #If path already exists do nothing
             shutil.rmtree('perf/data')
@@ -208,7 +208,7 @@ class PerformanceTesting:
         list_to_be_print=[item for item in Ev.plot_confi['plots'] if Ev.plot_confi['plots'][item] == 'on'] #item = column name as a str: #item = column name as a str]
         
         listoffiles = os.listdir()
-        #throughput_dict={}
+        
         for print_item in list_to_be_print:
             temp_list=[]
             for i in range(len(listoffiles)):
@@ -499,7 +499,11 @@ class Evaluation:
             plt.title(yaxis,fontsize=15)
             if args.check != None:
                 df['cpu']=PerT.throughput_dict[yaxis][-1]
-                ax.scatter(df['gridsize'],df['cpu'],label='cpu')
+                #label cpu value
+                max_cpu=df['cpu'][0]
+                length=len(str(max_cpu))-1
+                label_maxima=str(round(max_cpu*10**-(length),3))+'e'+str(length)
+                ax.plot(df['gridsize'],df['cpu'],'-ok',label='cpu: '+label_maxima,c='b')
             for k in sorted(df['NumThreadsPerBlock'].unique(),reverse=True):
                     
                     d=df.loc[df['NumThreadsPerBlock']==k]
@@ -520,7 +524,7 @@ class Evaluation:
             plt.gca().add_artist(text_box)
             
             plt.show()
-            
+            # Andere Formate fuer LaTeX?????
             fig.savefig(plot_path+yaxis+'.png')
             print('Plotting complete\n\n')
         print('plots are ready to be investigated.\nSee path  %s' %plot_path)
@@ -555,7 +559,7 @@ if __name__ == '__main__':
     # Optional parser if plots are wished
     parser.add_argument('-p','--plots',help='Generates performance plots and stores them in seperate directory',
                         action='store_true')
-    parser.add_argument('-c','--check', type=int, help='Defines how many runs check.exe will have and calculates the average of the throughput to include it in the plot')
+    parser.add_argument('-c','--check', type=int,help='Defines how many runs check.exe will have and calculates the average of the throughput to include it in the plot\n For example -c 5')
     # Optional parser if check.exe shall be executed 5 times
     
     args=parser.parse_args()
