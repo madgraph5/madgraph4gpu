@@ -148,6 +148,7 @@ namespace mgOnGpu
   // *** NB Different values of neppR lead to different physics results: the ***
   // *** same 1d array is generated, but it is interpreted in different ways ***
   const int neppR = 8; // HARDCODED TO GIVE ALWAYS THE SAME PHYSICS RESULTS!
+  //const int neppR = 1; // AOS (tests of sectors/requests)
 
 }
 

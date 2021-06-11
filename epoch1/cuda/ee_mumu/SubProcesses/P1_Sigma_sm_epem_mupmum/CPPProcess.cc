@@ -115,6 +115,7 @@ namespace Proc
     {
 #ifdef __CUDACC__
 #ifndef MGONGPU_TEST_DIVERGENCE
+      // NB: opzxxx only reads pz (not E,px,py)
       opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 );
       //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 ); // tested ok (much slower)
 #else
@@ -129,6 +130,7 @@ namespace Proc
 #endif
 
 #ifdef __CUDACC__
+      // NB: imzxxx only reads pz (not E,px,py)
       imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 );
       //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w_sv[1], 1 ); // tested ok (slower)
 #else
@@ -137,6 +139,7 @@ namespace Proc
 #endif
 
 #ifdef __CUDACC__
+      // NB: ixzxxx reads all E,px,py,pz
       ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 );
       //ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w_sv[2], 2 ); // tested ok (a bit slower)
 #else
@@ -145,6 +148,7 @@ namespace Proc
 #endif
 
 #ifdef __CUDACC__
+      // NB: oxzxxx reads all E,px,py,pz
       oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 );
       //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w_sv[3], 3 ); // tested ok (a bit slower)
 #else
@@ -474,6 +478,7 @@ namespace Proc
 #else
       calculate_wavefunctions( ihel, allmomenta, allMEs, nevt );
 #endif
+      //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
 
     // PART 2 - FINALISATION (after calculate_wavefunctions)
