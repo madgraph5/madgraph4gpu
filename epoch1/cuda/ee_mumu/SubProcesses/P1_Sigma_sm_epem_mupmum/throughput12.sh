@@ -9,12 +9,13 @@ cpp=1
 ab3=0
 ggttgg=0
 div=0
+req=0
 detailed=0
 verbose=0
 
 function usage()
 {
-  echo "Usage: $0 [-nocpp|[-omp][-avxall]] [-ep2] [-3a3b] [-ggttgg] [-div] [-detailed] [-v]"
+  echo "Usage: $0 [-nocpp|[-omp][-avxall]] [-ep2] [-3a3b] [-ggttgg] [-div] [-req] [-detailed] [-v]"
   exit 1
 }
 
@@ -43,6 +44,9 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-div" ]; then
     div=1
+    shift
+  elif [ "$1" == "-req" ]; then
+    req=1
     shift
   elif [ "$1" == "-detailed" ]; then
     detailed=1
@@ -138,6 +142,7 @@ function runExe() {
   pattern="${pattern}|COMMON RANDOM"
   pattern="${pattern}|ERROR"
   if [ "${ab3}" == "1" ]; then pattern="${pattern}|3a|3b"; fi
+  if [ "${req}" == "1" ]; then pattern="${pattern}|Momenta memory layout"; fi
   if perf --version >& /dev/null; then
     # -- Newer version using perf stat
     pattern="${pattern}|instructions|cycles"
@@ -161,7 +166,11 @@ function runNcu() {
   args="$2"
   ###echo "runNcu $exe $args OMP=$OMP_NUM_THREADS"
   if [ "${verbose}" == "1" ]; then set -x; fi
-  $(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
+  if [ "${req}" == "1" ]; then 
+    $(which ncu) --metrics l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum,launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm|l1tex)' | tr "\n" " " | awk '{print $1, $2, $3, $21, $23; print $1, $2, $3, $24, $26$25; print $1, $2, $3, $16"s", $17, $19"s", $20}'
+  else
+    $(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
+  fi
   set +x
 }
 
