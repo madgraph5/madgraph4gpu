@@ -177,7 +177,7 @@ function runNcu() {
 function runNcuDiv() {
   exe=$1
   args="-p 1 32 1"
-  ###echo "runNcuDiv $exe $args OMP=$OMP_NUM_THREADS"
+  ###echo "runNcuDiv $exe $args"
   if [ "${verbose}" == "1" ]; then set -x; fi
   ###$(which ncu) --query-metrics $exe $args
   ###$(which ncu) --metrics regex:.*branch_targets.* --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe $args
@@ -190,10 +190,13 @@ function runNcuDiv() {
 # Profiles sectors and requests
 function runNcuReq() {
   exe=$1
-  args="-p 1 32 1"
-  ###echo "runNcu $exe $args"
+  ncuArgs="$2"
   if [ "${verbose}" == "1" ]; then set -x; fi
-  $(which ncu) --metrics l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum,launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm|l1tex)' | tr "\n" " " | awk '{print $1, $2, $3, $16"s", $17, $19"s", $20}'
+  for args in "-p 1 1 1" "-p 1 4 1" "-p 1 8 1" "-p 1 32 1" "$ncuArgs"; do
+    ###echo "runNcuReq $exe $args"
+    # NB This will print nothing if $args are invalid (eg "-p 1 4 1" when neppR=8)
+    $(which ncu) --metrics l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum,launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm|l1tex)' | tr "\n" " " | awk -vtag="[$args]" '{print $1, $2, $3, $16"s", $17, $19"s", $20, tag}'
+  done
   set +x
 }
 
@@ -231,7 +234,7 @@ for exe in $exes; do
   elif [ "${exe%%/gcheck*}" != "${exe}" ]; then 
     runNcu $exe "$ncuArgs"
     if [ "${div}" == "1" ]; then runNcuDiv $exe; fi
-    if [ "${req}" == "1" ]; then runNcuReq $exe; fi
+    if [ "${req}" == "1" ]; then runNcuReq $exe "$ncuArgs"; fi
   fi
 done
 echo "========================================================================="
