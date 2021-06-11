@@ -470,7 +470,7 @@ namespace Proc
 #else
       calculate_wavefunctions( ihel, allmomenta, allMEs, nevt );
 #endif
-      if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
+      //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
 
     // PART 2 - FINALISATION (after calculate_wavefunctions)
