@@ -113,8 +113,9 @@ namespace Proc
     {
 #ifdef __CUDACC__
 #ifndef MGONGPU_TEST_DIVERGENCE
-      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 );
-      //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 ); // tested ok (much slower)
+      // NB: opzxxx only reads pz (not E,px,py)
+      //opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 );
+      oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 ); // tested ok (much slower)
 #else
       if ( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
         opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 );
@@ -127,14 +128,16 @@ namespace Proc
 #endif
 
 #ifdef __CUDACC__
-      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 );
-      //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w_sv[1], 1 ); // tested ok (slower)
+      // NB: imzxxx only reads pz (not E,px,py)
+      //imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 );
+      ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w_sv[1], 1 ); // tested ok (slower)
 #else
       imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], ipagV, 1 );
       //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w_sv[1], ipagV, 1 ); // tested ok (a bit slower)
 #endif
 
 #ifdef __CUDACC__
+      // NB: ixzxxx reads all E,px,py,pz
       ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 );
       //ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w_sv[2], 2 ); // tested ok (a bit slower)
 #else
@@ -143,6 +146,7 @@ namespace Proc
 #endif
 
 #ifdef __CUDACC__
+      // NB: oxzxxx reads all E,px,py,pz
       oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 );
       //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w_sv[3], 3 ); // tested ok (a bit slower)
 #else
