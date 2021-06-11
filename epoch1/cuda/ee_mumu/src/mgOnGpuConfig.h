@@ -21,8 +21,8 @@
 // [NB: new throughputs on 1GPU/4CPU system]
 
 // Floating point precision (CHOOSE ONLY ONE)
-//#define MGONGPU_FPTYPE_DOUBLE 1 // default (~6.8E8)
-#define MGONGPU_FPTYPE_FLOAT 1 // 2.4x faster (~1.64E9 against 6.8E8)
+#define MGONGPU_FPTYPE_DOUBLE 1 // default (~6.8E8)
+//#define MGONGPU_FPTYPE_FLOAT 1 // 2.4x faster (~1.64E9 against 6.8E8)
 
 // Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
@@ -81,8 +81,8 @@ namespace mgOnGpu
   // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
   // -----------------------------------------------------------------------------------------
   //const int neppM = 64/sizeof(fptype); // 2x 32-byte GPU cache lines: 8 (DOUBLE) or 16 (FLOAT)
-  //const int neppM = 32/sizeof(fptype); // (DEFAULT) 32-byte GPU cache line: 4 (DOUBLE) or 8 (FLOAT)
-  const int neppM = 1;  // *** NB: this is equivalent to AOS ***
+  const int neppM = 32/sizeof(fptype); // (DEFAULT) 32-byte GPU cache line: 4 (DOUBLE) or 8 (FLOAT)
+  //const int neppM = 1;  // *** NB: this is equivalent to AOS ***
   //const int neppM = 32; // older default
 #else
   // -----------------------------------------------------------------------------------------
