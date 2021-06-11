@@ -114,8 +114,8 @@ namespace Proc
 #ifdef __CUDACC__
 #ifndef MGONGPU_TEST_DIVERGENCE
       // NB: opzxxx only reads pz (not E,px,py)
-      //opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 );
-      oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 ); // tested ok (much slower)
+      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 );
+      //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 ); // tested ok (much slower)
 #else
       if ( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
         opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 );
@@ -129,8 +129,8 @@ namespace Proc
 
 #ifdef __CUDACC__
       // NB: imzxxx only reads pz (not E,px,py)
-      //imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 );
-      ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w_sv[1], 1 ); // tested ok (slower)
+      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 );
+      //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w_sv[1], 1 ); // tested ok (slower)
 #else
       imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], ipagV, 1 );
       //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w_sv[1], ipagV, 1 ); // tested ok (a bit slower)
@@ -470,6 +470,7 @@ namespace Proc
 #else
       calculate_wavefunctions( ihel, allmomenta, allMEs, nevt );
 #endif
+      if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
 
     // PART 2 - FINALISATION (after calculate_wavefunctions)
