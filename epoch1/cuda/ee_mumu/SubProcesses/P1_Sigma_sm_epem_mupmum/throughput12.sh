@@ -142,7 +142,7 @@ function runExe() {
   pattern="${pattern}|COMMON RANDOM"
   pattern="${pattern}|ERROR"
   if [ "${ab3}" == "1" ]; then pattern="${pattern}|3a|3b"; fi
-  if [ "${req}" == "1" ]; then pattern="${pattern}|Momenta memory layout"; fi
+  if [ "${req}" == "1" ]; then pattern="${pattern}|memory layout"; fi
   if perf --version >& /dev/null; then
     # -- Newer version using perf stat
     pattern="${pattern}|instructions|cycles"
@@ -164,13 +164,9 @@ function runExe() {
 function runNcu() {
   exe=$1
   args="$2"
-  ###echo "runNcu $exe $args OMP=$OMP_NUM_THREADS"
+  ###echo "runNcu $exe $args"
   if [ "${verbose}" == "1" ]; then set -x; fi
-  if [ "${req}" == "1" ]; then 
-    $(which ncu) --metrics l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum,launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm|l1tex)' | tr "\n" " " | awk '{print $1, $2, $3, $21, $23; print $1, $2, $3, $24, $26$25; print $1, $2, $3, $16"s", $17, $19"s", $20}'
-  else
-    $(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
-  fi
+  $(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
   set +x
 }
 
@@ -188,6 +184,16 @@ function runNcuDiv() {
   ###$(which ncu) --metrics regex:.*stalled_barrier.* --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe $args
   ###$(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe $args | egrep '(sigmaKin| sm)' | tr "\n" " " | awk '{printf "%29s: %-51s %s\n", "", $18, $19; printf "%29s: %-51s %s\n", "", $22, $23; printf "%29s: %-51s %s\n", "", $20, $21; printf "%29s: %-51s %s\n", "", $24, $26}'
   $(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum,smsp__sass_branch_targets.sum.per_second,smsp__sass_branch_targets_threads_divergent.sum.per_second,smsp__sass_branch_targets_threads_uniform.sum.per_second --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe $args | egrep '(sigmaKin| sm)' | tr "\n" " " | awk '{printf "%29s: %-51s %-10s %s\n", "", $18, $19, $22$21; printf "%29s: %-51s %-10s %s\n", "", $28, $29, $32$31; printf "%29s: %-51s %-10s %s\n", "", $23, $24, $27$26; printf "%29s: %-51s %s\n", "", $33, $35}'
+  set +x
+}
+
+# Profiles sectors and requests
+function runNcuReq() {
+  exe=$1
+  args="-p 1 32 1"
+  ###echo "runNcu $exe $args"
+  if [ "${verbose}" == "1" ]; then set -x; fi
+  $(which ncu) --metrics l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum,launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --print-kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm|l1tex)' | tr "\n" " " | awk '{print $1, $2, $3, $16"s", $17, $19"s", $20}'
   set +x
 }
 
@@ -224,9 +230,8 @@ for exe in $exes; do
     fi
   elif [ "${exe%%/gcheck*}" != "${exe}" ]; then 
     runNcu $exe "$ncuArgs"
-    if [ "${div}" == "1" ]; then 
-      runNcuDiv $exe
-    fi
+    if [ "${div}" == "1" ]; then runNcuDiv $exe; fi
+    if [ "${req}" == "1" ]; then runNcuReq $exe; fi
   fi
 done
 echo "========================================================================="
