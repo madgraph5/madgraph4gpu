@@ -165,6 +165,7 @@ inline void print( const cxtype_v& v ) { std::cout << v << std::endl; }
 inline
 fptype_v fpsqrt( const fptype_v& v )
 {
+  // See https://stackoverflow.com/questions/18921049/gcc-vector-extensions-sqrt
   fptype_v out;
   for ( int i=0; i<neppV; i++ ) out[i]=fpsqrt(v[i]);
   return out;
