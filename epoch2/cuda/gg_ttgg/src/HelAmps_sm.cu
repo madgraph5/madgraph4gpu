@@ -19,8 +19,6 @@ mgDebugDeclare();
 namespace MG5_sm
 {
 
-using mgOnGpu::nw6; 
-
 //--------------------------------------------------------------------------
 
 __device__
