@@ -20,7 +20,6 @@ mgDebugDeclare();
 namespace MG5_sm
 {
 
-#ifdef __CUDACC__
   __device__
   inline const fptype& pIparIp4Ievt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                      const int ipar,
@@ -36,22 +35,23 @@ namespace MG5_sm
     //printf( "%f\n", momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
     return momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
   }
-#else
+
+#ifndef __CUDACC__
   // Return by value: it seems a tiny bit faster than returning a reference (both for scalar and vector), not clear why
-  // NB: this assumes that neppV == neppM!
   inline fptype_sv pIparIp4Ipag( const fptype_sv* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                  const int ipar,
                                  const int ip4,
                                  const int ipagM )
   {
-    // mapping for the various schemes (AOSOA, AOS, SOA...)
-    using mgOnGpu::np4;
-    using mgOnGpu::npar;
-    //printf( "%f\n", momenta1d[ipagM*npar*np4 + ipar*np4 + ip4] );
-    return momenta1d[ipagM*npar*np4 + ipar*np4 + ip4]; // AOSOA[ipagM][ipar][ip4][ieppM]
+#ifndef MGONGPU_CPPSIMD
+    // NB THERE IS NO SIMD YET IN GGTTGG! HENCE ipagM=ievt
+    return pIparIp4Ievt( momenta1d, ipar, ip4, ipagM );
+#else
+#error THERE IS NO SIMD YET IN GGTTGG
+#endif
   }
 #endif
-
+  
   //--------------------------------------------------------------------------
 
   __device__
