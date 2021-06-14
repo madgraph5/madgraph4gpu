@@ -71,6 +71,9 @@ namespace mgOnGpu
   // Maximum number of threads per block
   const int ntpbMAX = 256;
 
+  // There is no vectorization in ggttgg yet...
+#undef MGONGPU_CPPSIMD
+
   // Number of Events Per Page in the random number AOSOA (ASA) structure
   // (this is best kept as a compile-time constant: see issue #23)
   // *** NB Different values of neppR lead to different physics results: the ***
