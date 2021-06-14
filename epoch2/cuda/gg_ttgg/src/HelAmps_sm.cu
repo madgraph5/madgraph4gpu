@@ -941,7 +941,7 @@ const int ipar)  // input: particle# out of npar
       fi[5] = cxtype(0.0, 0.0); 
     }
   }
-  //** END LOOP ON IEVT **
+  //++ END LOOP ON IEVT ++
   mgDebug(1, __FUNCTION__); 
   return; 
 }
