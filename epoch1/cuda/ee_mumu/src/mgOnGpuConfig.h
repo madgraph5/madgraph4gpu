@@ -4,9 +4,6 @@
 // ** NB1 Throughputs (e.g. 6.8E8) are events/sec for "./gcheck.exe -p 65536 128 12"
 // ** NB2 Baseline on b7g47n0004 fluctuates (probably depends on load on other VMs)
 
-// Memory layout for momenta: AOSOA, AOS, SOA (CHOOSE ONLY ONE)
-// AOSOA (ASA) layout is hardcoded: fine-tune it using the nepopR and neppM parameters below
-
 // Choose how random numbers are generated
 // If one of these macros has been set from outside with e.g. -DMGONGPU_CURAND_ONHOST, nothing happens.
 #if not defined MGONGPU_CURAND_ONDEVICE and not defined MGONGPU_CURAND_ONHOST and not defined MGONGPU_COMMONRAND_ONHOST
@@ -15,10 +12,6 @@
 //#define MGONGPU_CURAND_ONHOST 1 // (curand: CUDA on host, C++ on host)
 //#define MGONGPU_COMMONRAND_ONHOST 1 // (common rand: CUDA on host, C++ on host)
 #endif
-
-// Memory choice for wavefunctions: registries/"local", global, shared (CHOOSE ONLY ONE)
-// Local storage (registries plus spillover to local) is hardcoded: fine tune it using maxrregcount in the Makefile
-// [NB: new throughputs on 1GPU/4CPU system]
 
 // Floating point precision (CHOOSE ONLY ONE)
 #define MGONGPU_FPTYPE_DOUBLE 1 // default (~6.8E8)
