@@ -91,11 +91,7 @@ const fptype& fpmin( const fptype& a, const fptype& b )
 inline
 fptype fpsqrt( const fptype& f )
 {
-#if defined MGONGPU_FPTYPE_FLOAT
-  return sqrtf( f );
-#else
-  return sqrt( f );
-#endif
+  return std::sqrt( f );
 }
 
 #endif
