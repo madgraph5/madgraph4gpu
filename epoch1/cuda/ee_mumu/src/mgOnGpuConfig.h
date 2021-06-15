@@ -5,7 +5,7 @@
 // ** NB2 Baseline on b7g47n0004 fluctuates (probably depends on load on other VMs)
 
 // Choose how random numbers are generated
-// If one of these macros has been set from outside with e.g. -DMGONGPU_CURAND_ONHOST, nothing happens.
+// If one of these macros has been set from outside with e.g. -DMGONGPU_COMMONRAND_ONHOST, nothing happens
 #if not defined MGONGPU_CURAND_ONDEVICE and not defined MGONGPU_CURAND_ONHOST and not defined MGONGPU_COMMONRAND_ONHOST
 // Curand random number generation (CHOOSE ONLY ONE)
 #define MGONGPU_CURAND_ONDEVICE 1 // default (curand: CUDA on device, C++ on host)
@@ -13,9 +13,13 @@
 //#define MGONGPU_COMMONRAND_ONHOST 1 // (common rand: CUDA on host, C++ on host)
 #endif
 
+// Choose floating point precision
+// If one of these macros has been set from outside with e.g. -DMGONGPU_FPTYPE_FLOAT, nothing happens
+#if not defined MGONGPU_FPTYPE_DOUBLE and not defined MGONGPU_FPTYPE_FLOAT
 // Floating point precision (CHOOSE ONLY ONE)
 #define MGONGPU_FPTYPE_DOUBLE 1 // default (~6.8E8)
 //#define MGONGPU_FPTYPE_FLOAT 1 // 2.4x faster (~1.64E9 against 6.8E8)
+#endif
 
 // Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
