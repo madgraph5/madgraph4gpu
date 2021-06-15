@@ -121,9 +121,15 @@ $(target): $(cxx_objects) #$(cu_objects)
 .PHONY: clean
 
 clean:
-	rm -f $(BUILDDIR)/.build.tag*
+	rm -rf $(LIBDIR)
 ifneq ($(BUILDDIR),.)
-	rm -rf $(LIBDIR) $(BUILDDIR)
+	rm -rf $(BUILDDIR)
 else
-	rm -rf $(LIBDIR) $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+	rm -f $(BUILDDIR)/.build.tag* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 endif
+
+cleanall:
+	@echo
+	make clean
+	@echo
+	rm -rf build.*

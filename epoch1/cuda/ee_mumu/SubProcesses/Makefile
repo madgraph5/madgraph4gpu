@@ -208,17 +208,6 @@ $(GTESTLIBS):
 check: $(testmain)
 	$(testmain)
 
-.PHONY: clean
-
-clean:
-	make -C ../../src AVX=$(AVX) clean
-	rm -f $(BUILDDIR)/.build.tag*
-ifneq ($(BUILDDIR),.)
-	rm -rf $(BUILDDIR)
-else
-	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
-endif
-
 avxall:
 	@echo
 	make USEBUILDDIR=1 AVX=none
@@ -231,19 +220,22 @@ avxall:
 	@echo
 	make USEBUILDDIR=1 AVX=512z
 
+.PHONY: clean
+
+clean:
+	make -C ../../src AVX=$(AVX) clean
+ifneq ($(BUILDDIR),.)
+	rm -rf $(BUILDDIR)
+else
+	rm -f $(BUILDDIR)/.build.tag* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+endif
+
 cleanall:
 	@echo
 	make clean
 	@echo
-	make USEBUILDDIR=1 AVX=none clean; make -C ../../src USEBUILDDIR=1 AVX=none clean
-	@echo
-	make USEBUILDDIR=1 AVX=sse4 clean; make -C ../../src USEBUILDDIR=1 AVX=sse4 clean
-	@echo
-	make USEBUILDDIR=1 AVX=avx2 clean; make -C ../../src USEBUILDDIR=1 AVX=avx2 clean
-	@echo
-	make USEBUILDDIR=1 AVX=512y clean; make -C ../../src USEBUILDDIR=1 AVX=512y clean
-	@echo
-	make USEBUILDDIR=1 AVX=512z clean; make -C ../../src USEBUILDDIR=1 AVX=512z clean
+	make -C ../../src AVX=$(AVX) cleanall
+	rm -rf build.*	
 
 distclean: cleanall
 	make -C $(TOOLSDIR) clean
