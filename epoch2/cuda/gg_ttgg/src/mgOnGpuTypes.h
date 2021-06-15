@@ -1,5 +1,5 @@
-#ifndef MGONGPUCOMPLEX_H
-#define MGONGPUCOMPLEX_H 1
+#ifndef MGONGPUTYPES_H
+#define MGONGPUTYPES_H 1
 
 #include "mgOnGpuConfig.h"
 
@@ -11,6 +11,7 @@
 #include <cuComplex.h>
 #endif
 #else
+#include <cmath>
 #include <complex>
 #endif
 
@@ -18,13 +19,6 @@ namespace mgOnGpu
 {
 
   // --- Type definitions
-
-  // Floating point type: fptype
-#if defined MGONGPU_FPTYPE_DOUBLE
-  typedef double fptype; // double precision (8 bytes, fp64)
-#elif defined MGONGPU_FPTYPE_FLOAT
-  typedef float fptype; // single precision (4 bytes, fp32)
-#endif
 
   // Complex type: cxtype
 #ifdef __CUDACC__ // cuda
@@ -42,8 +36,71 @@ namespace mgOnGpu
 }
 
 // Expose typedefs and operators outside the namespace
-using mgOnGpu::fptype;
 using mgOnGpu::cxtype;
+
+// --- Functions and operators for floating point types
+
+#ifdef __CUDACC__ // cuda
+
+/*
+inline __host__ __device__
+fptype fpmax( const fptype& a, const fptype& b )
+{
+  return max( a, b );
+}
+
+inline __host__ __device__
+fptype fpmin( const fptype& a, const fptype& b )
+{
+  return min( a, b );
+}
+*/
+
+inline __host__ __device__
+const fptype& fpmax( const fptype& a, const fptype& b )
+{
+  return ( ( b < a ) ? a : b );
+}
+
+inline __host__ __device__
+const fptype& fpmin( const fptype& a, const fptype& b )
+{
+  return ( ( a < b ) ? a : b );
+}
+
+inline __host__ __device__
+fptype fpsqrt( const fptype& f )
+{
+#if defined MGONGPU_FPTYPE_FLOAT
+  // See https://docs.nvidia.com/cuda/cuda-math-api/group__CUDA__MATH__SINGLE.html
+  return sqrtf( f );
+#else
+  // See https://docs.nvidia.com/cuda/cuda-math-api/group__CUDA__MATH__DOUBLE.html
+  return sqrt( f );
+#endif
+}
+
+#else // c++
+
+inline
+const fptype& fpmax( const fptype& a, const fptype& b )
+{
+  return std::max( a, b );
+}
+
+inline
+const fptype& fpmin( const fptype& a, const fptype& b )
+{
+  return std::min( a, b );
+}
+
+inline
+fptype fpsqrt( const fptype& f )
+{
+  return std::sqrt( f );
+}
+
+#endif
 
 // --- Functions and operators for complex types
 
@@ -80,6 +137,12 @@ inline __host__ __device__
 fptype cximag( const cxtype& c )
 {
   return c.imag(); // thrust::complex<fptype>::imag()
+}
+
+inline __host__ __device__
+cxtype cxconj( const cxtype& c )
+{
+  return conj( c ); // conj( thrust::complex<fptype> )
 }
 
 inline __host__ __device__
@@ -125,9 +188,21 @@ cxtype operator+( const cxtype& a, const cxtype& b )
 }
 
 inline __host__ __device__
+cxtype& operator+=( cxtype& a, const cxtype& b )
+{
+  a = cuCadd( a, b ); return a;
+}
+
+inline __host__ __device__
 cxtype operator-( const cxtype& a, const cxtype& b )
 {
   return cuCsub( a, b );
+}
+
+inline __host__ __device__
+cxtype& operator-=( cxtype& a, const cxtype& b )
+{
+  a = cuCsub( a, b ); return a;
 }
 
 inline __host__ __device__
@@ -173,9 +248,21 @@ cxtype operator+( const cxtype& a, const cxtype& b )
 }
 
 inline __host__ __device__
+cxtype& operator+=( cxtype& a, const cxtype& b )
+{
+  a = cuCaddf( a, b ); return a;
+}
+
+inline __host__ __device__
 cxtype operator-( const cxtype& a, const cxtype& b )
 {
   return cuCsubf( a, b );
+}
+
+inline __host__ __device__
+cxtype& operator-=( cxtype& a, const cxtype& b )
+{
+  a = cuCsubf( a, b ); return a;
 }
 
 inline __host__ __device__
@@ -264,7 +351,7 @@ cxtype operator/( const cxtype& a, const fptype& b )
 }
 
 inline __host__ __device__
-cxtype conj( const cxtype& c )
+cxtype cxconj( const cxtype& c )
 {
   return cxmake( cxreal( c ), -cximag( c ) );
 }
@@ -307,6 +394,12 @@ fptype cximag( const cxtype& c )
 }
 
 inline
+cxtype cxconj( const cxtype& c )
+{
+  return conj( c ); // conj( std::complex<fptype> )
+}
+
+inline
 const cxtype& cxmake( const cxtype& c ) // std::complex to std::complex (float-to-float or double-to-double)
 {
   return c;
@@ -322,4 +415,4 @@ cxtype cxmake( const std::complex<double>& c ) // std::complex to std::complex (
 
 #endif  // END cuda/c++
 
-#endif // MGONGPUCOMPLEX_H
+#endif // MGONGPUTYPES_H
