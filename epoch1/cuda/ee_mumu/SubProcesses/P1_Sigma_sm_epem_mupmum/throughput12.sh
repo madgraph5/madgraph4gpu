@@ -10,14 +10,19 @@ ab3=0
 ggttgg=0
 div=0
 req=0
+df="d"
 detailed=0
 verbose=0
 
 function usage()
 {
-  echo "Usage: $0 [-nocpp|[-omp][-avxall]] [-ep2] [-3a3b] [-ggttgg] [-div] [-req] [-detailed] [-v]"
+  echo "Usage: $0 [-nocpp|[-omp][-avxall]] [-ep2] [-3a3b] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-detailed] [-v]"
   exit 1
 }
+
+##########################################################################
+# PART 0 - decode command line arguments
+##########################################################################
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-omp" ]; then
@@ -48,6 +53,14 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-req" ]; then
     req=1
     shift
+  elif [ "$1" == "-flt" ]; then
+    if [ "${df}" == "f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
+    df="d f"
+    shift
+  elif [ "$1" == "-fltonly" ]; then
+    if [ "${df}" == "d f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
+    df="f"
+    shift
   elif [ "$1" == "-detailed" ]; then
     detailed=1
     shift
@@ -58,13 +71,20 @@ while [ "$1" != "" ]; do
     usage
   fi
 done
+###exit 1
+
+##########################################################################
+# PART 1 - compile the list of the executables which should be run
+##########################################################################
 
 exes=
 
 #=====================================
 # CUDA (eemumu/epoch1, eemumu/epoch2)
 #=====================================
-exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none/gcheck.exe"
+for fptype in $df; do
+  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_$fptype/gcheck.exe"
+done
 if [ "${ep2}" == "1" ]; then 
   exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
 fi
@@ -72,19 +92,21 @@ fi
 #=====================================
 # C++ (eemumu/epoch1, eemumu/epoch2)
 #=====================================
-if [ "${cpp}" == "1" ]; then 
-  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none/check.exe"
-fi
-if [ "${avxall}" == "1" ]; then 
-  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.sse4/check.exe"
-  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.avx2/check.exe"
-fi
-if [ "${cpp}" == "1" ]; then 
-  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y/check.exe"
-fi
-if [ "${avxall}" == "1" ]; then 
-  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z/check.exe"
-fi
+for fptype in $df; do
+  if [ "${cpp}" == "1" ]; then 
+    exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_$fptype/check.exe"
+  fi
+  if [ "${avxall}" == "1" ]; then 
+    exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.sse4_$fptype/check.exe"
+    exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.avx2_$fptype/check.exe"
+  fi
+  if [ "${cpp}" == "1" ]; then 
+    exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y_$fptype/check.exe"
+  fi
+  if [ "${avxall}" == "1" ]; then 
+    exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z_$fptype/check.exe"
+  fi
+done
 if [ "${ep2}" == "1" ]; then 
   if [ "${cpp}" == "1" ]; then 
     exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/check.exe"
@@ -107,29 +129,42 @@ if [ "${ggttgg}" == "1" ]; then
   fi
 fi
 
+##########################################################################
+# PART 2 - build the executables which should be run
+##########################################################################
+
 export USEBUILDDIR=1
 pushd ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
 pwd
-make AVX=none
-if [ "${avxall}" == "1" ]; then make AVX=sse4; fi
-if [ "${avxall}" == "1" ]; then make AVX=avx2; fi
-if [ "${cpp}" == "1" ]; then make AVX=512y; fi # always consider 512y as the C++ reference, even if for clang avx2 is slightly faster
-if [ "${avxall}" == "1" ]; then make AVX=512z; fi
+for fptype in $df; do 
+  export FPTYPE=$fptype
+  make AVX=none; echo
+  if [ "${avxall}" == "1" ]; then make AVX=sse4; echo; fi
+  if [ "${avxall}" == "1" ]; then make AVX=avx2; echo; fi
+  if [ "${cpp}" == "1" ]; then make AVX=512y; echo; fi # always take 512y as the C++ reference, even if for clang avx2 is faster
+  if [ "${avxall}" == "1" ]; then make AVX=512z; echo; fi
+done
 popd >& /dev/null
 
 if [ "${ep2}" == "1" ]; then 
   pushd ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
   pwd
-  make
+  make; echo
   popd >& /dev/null
 fi
 
 if [ "${ggttgg}" == "1" ]; then 
   pushd ../../../../../epoch2/cuda/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg >& /dev/null
   pwd
-  make
+  make; echo
   popd >& /dev/null
 fi
+
+export FPTYPE=
+
+##########################################################################
+# PART 3 - run all the executables which should be run
+##########################################################################
 
 function runExe() {
   exe=$1
@@ -202,7 +237,7 @@ function runNcuReq() {
 
 if nvidia-smi -L > /dev/null 2>&1; then gpuTxt=$(nvidia-smi -L | awk '{print $3,$4,$5}'); else gpuTxt=none; fi
 cpuTxt=$(cat /proc/cpuinfo | grep '^model name' | head -1 | awk '{i0=index($0,"Intel"); i1=index($0," @"); print substr($0,i0,i1-i0)}')
-echo -e "\nOn $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
+echo -e "On $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
 
 lastExe=
 for exe in $exes; do
