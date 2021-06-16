@@ -41,12 +41,8 @@ override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 wid
 else ifneq ($(AVX),none)
 $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
 endif
-
-# For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations
+# For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
 CXXFLAGS+= $(AVXFLAGS)
-
-# Build tag (defines target and path to the optional build directory)
-override TAG = $(AVX)
 
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
@@ -85,16 +81,24 @@ else
   endif
 endif
 
-# Build directory: current directory by default, or build.$(TAG) if USEBUILDDIR==1
+# Build directory "short" tag (defines target and path to the optional build directory)
+# (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
+override DIRTAG = $(AVX)
+
+# Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
+# (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
+override TAG = $(AVX)
+
+# Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
-override BUILDDIR = build.$(TAG)
+override BUILDDIR = build.$(DIRTAG)
 override LIBDIR   = ../../lib/$(BUILDDIR)
 else
 override BUILDDIR = .
 override LIBDIR   = ../../lib
 endif
 ###$(info BUILDDIR=$(BUILDDIR))
-$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
+$(info Building in BUILDDIR=$(BUILDDIR) for TAG=$(TAG))
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
