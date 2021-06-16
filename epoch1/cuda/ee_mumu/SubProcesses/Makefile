@@ -4,7 +4,7 @@ INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
 OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
 OMPFLAGS?= -fopenmp
-CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
+CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS)
 CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
@@ -27,6 +27,11 @@ endif
 endif
 ###$(info AVX=$(AVX))
 
+# Set the default RNDGEN (random number generator) choice
+ifeq ($(RNDGEN),)
+override RNDGEN = curdev
+endif
+
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
   NVCC ?= $(shell which nvcc 2>/dev/null)
@@ -46,7 +51,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   CUINC       = -I$(CUDA_HOME)/include/
   CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcuda -lcurand
   CUOPTFLAGS  = -lineinfo
-  CUFLAGS     = $(OPTFLAGS) $(CUOPTFLAGS) -std=c++14 $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math $(MGONGPU_CONFIG)
+  CUFLAGS     = $(OPTFLAGS) $(CUOPTFLAGS) -std=c++14 $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
   # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
@@ -59,9 +64,7 @@ else
   NVCC       := $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
   USE_NVTX   :=
   CULIBFLAGS :=
-  ifndef MGONGPU_CONFIG
-    export MGONGPU_CONFIG = -DMGONGPU_COMMONRAND_ONHOST
-  endif
+  override RNDGEN = common
 endif
 
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
@@ -81,13 +84,29 @@ endif
 # For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
 CXXFLAGS+= $(AVXFLAGS)
 
+# Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=common")
+ifeq ($(RNDGEN),curdev)
+CXXFLAGS += -DMGONGPU_CURAND_ONDEVICE
+CUFLAGS  += -DMGONGPU_CURAND_ONDEVICE
+else ifeq ($(RNDGEN),curhst)
+CXXFLAGS += -DMGONGPU_CURAND_ONHOST
+CUFLAGS  += -DMGONGPU_CURAND_ONHOST
+else ifeq ($(RNDGEN),common)
+CXXFLAGS += -DMGONGPU_COMMONRAND_ONHOST
+CUFLAGS  += -DMGONGPU_COMMONRAND_ONHOST
+else
+$(error Unknown RNDGEN='$(RNDGEN)': only 'curdev', 'curhst' and 'common' are supported)
+endif
+# Export RNDGEN so that it is not necessary to pass it to the src Makefile too
+export RNDGEN
+
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
 override DIRTAG = $(AVX)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-override TAG = $(AVX)
+override TAG = $(AVX)_$(RNDGEN)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
@@ -134,7 +153,7 @@ all.$(TAG): ../../src/$(BUILDDIR)/.build.tag_$(TAG) $(BUILDDIR)/.build.tag_$(TAG
 override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.tag_*' ! -name '.build.tag_$(TAG)'`
 $(BUILDDIR)/.build.tag_$(TAG):
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir $(BUILDDIR)"; mkdir $(BUILDDIR); fi
-	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first or consider using 'make USEBUILDDIR=1 AVX=$(AVX)'"; exit 1; fi
+	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX)' or 'make cleanall'"; exit 1; fi
 	@touch $(BUILDDIR)/.build.tag_$(TAG)
 
 debug: OPTFLAGS   = -g -O0 -DDEBUG2

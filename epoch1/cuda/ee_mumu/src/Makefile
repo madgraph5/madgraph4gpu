@@ -22,7 +22,6 @@ else
 $(warning Using AVX='$(AVX)' because this is faster than avx512vl for clang)
 endif
 endif
-###$(info AVX=$(AVX))
 
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
@@ -41,6 +40,7 @@ endif
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
+###$(info AVX=$(AVX))
 ifeq ($(AVX),sse4)
 override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
 else ifeq ($(AVX),avx2)
@@ -55,13 +55,28 @@ endif
 # For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
 CXXFLAGS+= $(AVXFLAGS)
 
+# Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=common")
+$(info RNDGEN=$(RNDGEN))
+ifeq ($(RNDGEN),curdev)
+CXXFLAGS += -DMGONGPU_CURAND_ONDEVICE
+CUFLAGS  += -DMGONGPU_CURAND_ONDEVICE
+else ifeq ($(RNDGEN),curhst)
+CXXFLAGS += -DMGONGPU_CURAND_ONHOST
+CUFLAGS  += -DMGONGPU_CURAND_ONHOST
+else ifeq ($(RNDGEN),common)
+CXXFLAGS += -DMGONGPU_COMMONRAND_ONHOST
+CUFLAGS  += -DMGONGPU_COMMONRAND_ONHOST
+else
+$(error Unknown RNDGEN='$(RNDGEN)': only 'curdev', 'curhst' and 'common' are supported)
+endif
+
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
 override DIRTAG = $(AVX)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-override TAG = $(AVX)
+override TAG = $(AVX)_$(RNDGEN)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
