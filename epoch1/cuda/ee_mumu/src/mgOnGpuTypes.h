@@ -71,7 +71,13 @@ const fptype& fpmin( const fptype& a, const fptype& b )
 inline __host__ __device__
 fptype fpsqrt( const fptype& f )
 {
+#if defined MGONGPU_FPTYPE_FLOAT
+  // See https://docs.nvidia.com/cuda/cuda-math-api/group__CUDA__MATH__SINGLE.html
+  return sqrtf( f );
+#else
+  // See https://docs.nvidia.com/cuda/cuda-math-api/group__CUDA__MATH__DOUBLE.html
   return sqrt( f );
+#endif
 }
 
 #else // c++
@@ -91,11 +97,7 @@ const fptype& fpmin( const fptype& a, const fptype& b )
 inline
 fptype fpsqrt( const fptype& f )
 {
-#if defined MGONGPU_FPTYPE_FLOAT
-  return sqrtf( f );
-#else
-  return sqrt( f );
-#endif
+  return std::sqrt( f );
 }
 
 #endif
