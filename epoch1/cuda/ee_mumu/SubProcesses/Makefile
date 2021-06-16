@@ -11,7 +11,7 @@ CXXFLAGS+= -ffast-math # see issue #117
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
-# AVX choice (example: "make AVX=none")
+# Set the default AVX (vectorization) choice
 ifneq ($(AVX),)
 ###$(info Using AVX='$(AVX)' according to user input)
 else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
@@ -26,23 +26,6 @@ $(warning Using AVX='$(AVX)' because this is faster than avx512vl for clang)
 endif
 endif
 ###$(info AVX=$(AVX))
-
-# Set the build flags appropriate to each AVX
-# [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
-# [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
-ifeq ($(AVX),sse4)
-override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
-else ifeq ($(AVX),avx2)
-override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-else ifeq ($(AVX),512y)
-override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-else ifeq ($(AVX),512z)
-override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
-else ifneq ($(AVX),none)
-$(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
-endif
-# For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
-CXXFLAGS+= $(AVXFLAGS)
 
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
@@ -81,6 +64,23 @@ else
   endif
 endif
 
+# Set the build flags appropriate to each AVX choice (example: "make AVX=none")
+# [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
+# [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
+ifeq ($(AVX),sse4)
+override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
+else ifeq ($(AVX),avx2)
+override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
+else ifeq ($(AVX),512y)
+override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
+else ifeq ($(AVX),512z)
+override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
+else ifneq ($(AVX),none)
+$(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
+endif
+# For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
+CXXFLAGS+= $(AVXFLAGS)
+
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
 override DIRTAG = $(AVX)
@@ -98,7 +98,7 @@ override BUILDDIR = .
 override LIBDIR   = ../../lib
 endif
 ###$(info BUILDDIR=$(BUILDDIR))
-$(info Building in BUILDDIR=$(BUILDDIR) for TAG=$(TAG))
+$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
