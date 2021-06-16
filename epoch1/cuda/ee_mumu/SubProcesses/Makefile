@@ -151,20 +151,20 @@ ifeq ($(UNAME_P),ppc64le)
     CUFLAGS+= -Xcompiler -mno-float128
 endif
 
-all.$(TAG): ../../src/$(BUILDDIR)/.build.tag_$(TAG) $(BUILDDIR)/.build.tag_$(TAG) $(cu_main) $(cxx_main) $(testmain)
+all.$(TAG): ../../src/$(BUILDDIR)/.build.$(TAG) $(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
 
-override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.tag_*' ! -name '.build.tag_$(TAG)'`
-$(BUILDDIR)/.build.tag_$(TAG):
+override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)'`
+$(BUILDDIR)/.build.$(TAG):
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir $(BUILDDIR)"; mkdir $(BUILDDIR); fi
 	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX)' or 'make cleanall'"; exit 1; fi
-	@touch $(BUILDDIR)/.build.tag_$(TAG)
+	@touch $(BUILDDIR)/.build.$(TAG)
 
 debug: OPTFLAGS   = -g -O0 -DDEBUG2
 debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
 
-../../src/$(BUILDDIR)/.build.tag_$(TAG):
+../../src/$(BUILDDIR)/.build.$(TAG):
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
 $(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
@@ -252,7 +252,7 @@ clean:
 ifneq ($(BUILDDIR),.)
 	rm -rf $(BUILDDIR)
 else
-	rm -f $(BUILDDIR)/.build.tag* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 endif
 
 cleanall:

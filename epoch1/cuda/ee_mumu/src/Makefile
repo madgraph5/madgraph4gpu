@@ -110,13 +110,13 @@ target=$(LIBDIR)/libmodel_sm.a
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o rambo.o)
 cu_objects= # NB grambo.cu must be included by gcheck.cu (no rdc)
 
-all.$(TAG): $(BUILDDIR)/.build.tag_$(TAG) $(target)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(target)
 
-override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.tag_*' ! -name '.build.tag_$(TAG)'`
-$(BUILDDIR)/.build.tag_$(TAG):
+override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)'`
+$(BUILDDIR)/.build.$(TAG):
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir $(BUILDDIR)"; mkdir $(BUILDDIR); fi
 	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first or consider using 'make USEBUILDDIR=1 AVX=$(AVX)'"; exit 1; fi
-	@touch $(BUILDDIR)/.build.tag_$(TAG)
+	@touch $(BUILDDIR)/.build.$(TAG)
 
 debug: OPTFLAGS = -g -O0 -DDEBUG2
 #debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
@@ -144,7 +144,7 @@ clean:
 ifneq ($(BUILDDIR),.)
 	rm -rf $(BUILDDIR)
 else
-	rm -f $(BUILDDIR)/.build.tag* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 endif
 
 cleanall:
