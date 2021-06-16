@@ -44,6 +44,20 @@ CXXFLAGS+= $(AVXFLAGS)
 # Build tag (defines target and path to the optional build directory)
 override TAG = $(AVX)
 
+# If CUDA_HOME is not set, try to set it from the location of nvcc
+ifndef CUDA_HOME
+  NVCC ?= $(shell which nvcc 2>/dev/null)
+  ifneq ($(NVCC),)
+    # NVCC is in the PATH or set explicitly
+    CUDA_HOME  = $(patsubst %bin/nvcc,%,$(NVCC))
+    CUDA_HOME := $(warning No CUDA_HOME exported. Using "$(CUDA_HOME)") $(CUDA_HOME)
+  endif
+endif
+ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
+  NVCC = $(CUDA_HOME)/bin/nvcc
+  CUINC = -I$(CUDA_HOME)/include/
+endif
+
 # Build directory: current directory by default, or build.$(TAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
 override BUILDDIR = build.$(TAG)
@@ -54,21 +68,6 @@ override LIBDIR   = ../lib
 endif
 ###$(info BUILDDIR=$(BUILDDIR))
 ###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
-
-# If CUDA_HOME is not set, try to set it from the location of nvcc
-ifndef CUDA_HOME
-  NVCC ?= $(shell which nvcc 2>/dev/null)
-  ifneq ($(NVCC),)
-    # NVCC is in the PATH or set explicitly
-    CUDA_HOME  = $(patsubst %bin/nvcc,%,$(NVCC))
-    CUDA_HOME := $(warning No CUDA_HOME exported. Using "$(CUDA_HOME)") $(CUDA_HOME)
-  endif
-endif
-
-ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
-  NVCC = $(CUDA_HOME)/bin/nvcc
-  CUINC = -I$(CUDA_HOME)/include/
-endif
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)

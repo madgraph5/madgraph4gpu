@@ -48,17 +48,6 @@ CXXFLAGS+= $(AVXFLAGS)
 # Build tag (defines target and path to the optional build directory)
 override TAG = $(AVX)
 
-# Build directory: current directory by default, or build.$(TAG) if USEBUILDDIR==1
-ifeq ($(USEBUILDDIR),1)
-override BUILDDIR = build.$(TAG)
-override LIBDIR   = ../../lib/$(BUILDDIR)
-else
-override BUILDDIR = .
-override LIBDIR   = ../../lib
-endif
-###$(info BUILDDIR=$(BUILDDIR))
-$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
-
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
   NVCC ?= $(shell which nvcc 2>/dev/null)
@@ -68,7 +57,6 @@ ifndef CUDA_HOME
     CUDA_HOME := $(warning No CUDA_HOME exported. Using "$(CUDA_HOME)") $(CUDA_HOME)
   endif
 endif
-
 ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
   CUARCHNUM=70
@@ -96,6 +84,17 @@ else
     export MGONGPU_CONFIG = -DMGONGPU_COMMONRAND_ONHOST
   endif
 endif
+
+# Build directory: current directory by default, or build.$(TAG) if USEBUILDDIR==1
+ifeq ($(USEBUILDDIR),1)
+override BUILDDIR = build.$(TAG)
+override LIBDIR   = ../../lib/$(BUILDDIR)
+else
+override BUILDDIR = .
+override LIBDIR   = ../../lib
+endif
+###$(info BUILDDIR=$(BUILDDIR))
+$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
