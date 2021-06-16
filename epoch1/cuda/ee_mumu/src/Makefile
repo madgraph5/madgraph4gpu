@@ -8,21 +8,6 @@ CXXFLAGS+= -ffast-math # see issue #117
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
-# Set the default AVX (vectorization) choice
-ifneq ($(AVX),)
-###$(info Using AVX='$(AVX)' according to user input)
-else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
-override AVX = 512y
-###$(info Using AVX='$(AVX)' as no user input exists)
-else
-override AVX = avx2
-ifneq ($(shell grep -m1 -c avx512vl /proc/cpuinfo),1)
-$(warning Using AVX='$(AVX)' because host does not support avx512vl)
-else
-$(warning Using AVX='$(AVX)' because this is faster than avx512vl for clang)
-endif
-endif
-
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
   NVCC ?= $(shell which nvcc 2>/dev/null)
