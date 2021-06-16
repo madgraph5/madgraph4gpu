@@ -204,7 +204,7 @@ function runExe() {
     if [ "${detailed}" == "1" ]; then pattern="${pattern}|#"; fi
     if [ "${exe%%/hcheck*}" != "${exe}" ]; then 
       if [ "${verbose}" == "1" ]; then set -x; fi
-      perf stat $exe $args 2>&1 | grep -v NaN | egrep "(${pattern})" | grep -v "Performance counter stats" | sed 's/^ /----- /g' | sort -k"2.1,2.6" -r | uniq 
+      perf stat $exe $args 2>&1 | grep -v NaN | egrep "(${pattern})" | grep -v "Performance counter stats" | sed 's/^ /----- /g' | sort -k"2.1,2.16" -r | uniq 
       set +x
     else
       if [ "${verbose}" == "1" ]; then set -x; fi
@@ -217,7 +217,7 @@ function runExe() {
     if [ "${exe%%/hcheck*}" != "${exe}" ]; then 
       pattern="${pattern}|TotalEventsComputed"
       if [ "${verbose}" == "1" ]; then set -x; fi
-      TIMEFORMAT=$'real\t%3lR' && time $exe $args 2>&1 | grep -v NaN | egrep "(${pattern})" | sort -k"2.1,2.6" -r | uniq 
+      TIMEFORMAT=$'real\t%3lR' && time $exe $args 2>&1 | grep -v NaN | egrep "(${pattern})" | sort -k"2.1,2.16" -r | uniq 
       set +x
     else 
       if [ "${verbose}" == "1" ]; then set -x; fi
