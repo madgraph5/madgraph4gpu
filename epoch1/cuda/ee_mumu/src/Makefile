@@ -56,7 +56,7 @@ endif
 CXXFLAGS+= $(AVXFLAGS)
 
 # Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=common")
-$(info RNDGEN=$(RNDGEN))
+###$(info RNDGEN=$(RNDGEN))
 ifeq ($(RNDGEN),curdev)
 CXXFLAGS += -DMGONGPU_CURAND_ONDEVICE
 CUFLAGS  += -DMGONGPU_CURAND_ONDEVICE

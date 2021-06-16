@@ -25,7 +25,6 @@ else
 $(warning Using AVX='$(AVX)' because this is faster than avx512vl for clang)
 endif
 endif
-###$(info AVX=$(AVX))
 
 # Set the default RNDGEN (random number generator) choice
 ifeq ($(RNDGEN),)
@@ -70,6 +69,7 @@ endif
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
+$(info AVX=$(AVX))
 ifeq ($(AVX),sse4)
 override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
 else ifeq ($(AVX),avx2)
@@ -83,8 +83,11 @@ $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are
 endif
 # For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
 CXXFLAGS+= $(AVXFLAGS)
+# Export AVX so that it is not necessary to pass it to the src Makefile too
+export AVX
 
 # Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=common")
+$(info RNDGEN=$(RNDGEN))
 ifeq ($(RNDGEN),curdev)
 CXXFLAGS += -DMGONGPU_CURAND_ONDEVICE
 CUFLAGS  += -DMGONGPU_CURAND_ONDEVICE
@@ -162,10 +165,10 @@ debug: MAKEDEBUG := debug
 debug: all.$(TAG)
 
 ../../src/$(BUILDDIR)/.build.tag_$(TAG):
-	$(MAKE) -C ../../src AVX=$(AVX) $(MAKEDEBUG)
+	$(MAKE) -C ../../src $(MAKEDEBUG)
 
 $(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
-	$(MAKE) -C ../../src AVX=$(AVX) $(MAKEDEBUG)
+	$(MAKE) -C ../../src $(MAKEDEBUG)
 
 $(BUILDDIR)/gcheck.o: gcheck.cu *.h ../../src/*.h ../../src/*.cu
 	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
@@ -245,7 +248,7 @@ avxall:
 .PHONY: clean
 
 clean:
-	make -C ../../src AVX=$(AVX) clean
+	make -C ../../src clean
 ifneq ($(BUILDDIR),.)
 	rm -rf $(BUILDDIR)
 else
@@ -256,7 +259,7 @@ cleanall:
 	@echo
 	make clean
 	@echo
-	make -C ../../src AVX=$(AVX) cleanall
+	make -C ../../src cleanall
 	rm -rf build.*	
 
 distclean: cleanall
