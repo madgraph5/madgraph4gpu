@@ -4,11 +4,8 @@
 // ** NB1 Throughputs (e.g. 6.8E8) are events/sec for "./gcheck.exe -p 65536 128 12"
 // ** NB2 Baseline on b7g47n0004 fluctuates (probably depends on load on other VMs)
 
-// Memory layout for momenta: AOSOA, AOS, SOA (CHOOSE ONLY ONE)
-// AOSOA (ASA) layout is hardcoded: fine-tune it using the nepopR and neppM parameters below
-
 // Choose how random numbers are generated
-// If one of these macros has been set from outside with e.g. -DMGONGPU_CURAND_ONHOST, nothing happens.
+// If one of these macros has been set from outside with e.g. -DMGONGPU_COMMONRAND_ONHOST, nothing happens
 #if not defined MGONGPU_CURAND_ONDEVICE and not defined MGONGPU_CURAND_ONHOST and not defined MGONGPU_COMMONRAND_ONHOST
 // Curand random number generation (CHOOSE ONLY ONE)
 #define MGONGPU_CURAND_ONDEVICE 1 // default (curand: CUDA on device, C++ on host)
@@ -16,13 +13,13 @@
 //#define MGONGPU_COMMONRAND_ONHOST 1 // (common rand: CUDA on host, C++ on host)
 #endif
 
-// Memory choice for wavefunctions: registries/"local", global, shared (CHOOSE ONLY ONE)
-// Local storage (registries plus spillover to local) is hardcoded: fine tune it using maxrregcount in the Makefile
-// [NB: new throughputs on 1GPU/4CPU system]
-
+// Choose floating point precision
+// If one of these macros has been set from outside with e.g. -DMGONGPU_FPTYPE_FLOAT, nothing happens
+#if not defined MGONGPU_FPTYPE_DOUBLE and not defined MGONGPU_FPTYPE_FLOAT
 // Floating point precision (CHOOSE ONLY ONE)
 #define MGONGPU_FPTYPE_DOUBLE 1 // default (~6.8E8)
 //#define MGONGPU_FPTYPE_FLOAT 1 // 2.4x faster (~1.64E9 against 6.8E8)
+#endif
 
 // Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
@@ -34,6 +31,27 @@
 #ifdef __CUDACC__
 #undef MGONGPU_NSIGHT_DEBUG // default
 //#define MGONGPU_NSIGHT_DEBUG 1
+#endif
+
+// SANITY CHECKS (random numbers)
+#if defined MGONGPU_CURAND_ONDEVICE and defined MGONGPU_CURAND_ONHOST
+#error You must CHOOSE ONLY ONE of MGONGPU_CURAND_ONDEVICE, MGONGPU_CURAND_ONHOST or MGONGPU_COMMONRAND_ONHOST
+#elif defined MGONGPU_CURAND_ONDEVICE and defined MGONGPU_COMMONRAND_ONHOST
+#error You must CHOOSE ONLY ONE of MGONGPU_CURAND_ONDEVICE, MGONGPU_CURAND_ONHOST or MGONGPU_COMMONRAND_ONHOST
+#elif defined MGONGPU_CURAND_ONHOST and defined MGONGPU_COMMONRAND_ONHOST
+#error You must CHOOSE ONLY ONE of MGONGPU_CURAND_ONDEVICE, MGONGPU_CURAND_ONHOST or MGONGPU_COMMONRAND_ONHOST
+#endif
+
+// SANITY CHECKS (floating point precision)
+#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE_FLOAT
+#error You must CHOOSE ONLY ONE of MGONGPU_FPTYPE_DOUBLE or defined MGONGPU_FPTYPE_FLOAT
+#endif
+
+// SANITY CHECKS (complex number implementation)
+#ifdef __CUDACC__
+#if defined MGONGPU_CXTYPE_THRUST and defined MGONGPU_CXTYPE_CUCOMPLEX
+#error You must CHOOSE ONLY ONE of MGONGPU_CXTYPE_THRUST or MGONGPU_CXTYPE_CUCOMPLEX
+#endif
 #endif
 
 namespace mgOnGpu

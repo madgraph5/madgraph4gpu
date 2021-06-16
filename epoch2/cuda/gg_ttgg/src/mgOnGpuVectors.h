@@ -13,10 +13,9 @@
 
 namespace mgOnGpu
 {
-
 #ifdef MGONGPU_CPPSIMD
 
-  const int neppV = MGONGPU_CPPSIMD;
+  const int neppV = neppM;
 
   // --- Type definition (using vector compiler extensions: need -march=...)
 #ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
@@ -94,7 +93,7 @@ namespace mgOnGpu
 
 #else // MGONGPU_CPPSIMD not defined
 
-  const int neppV = 1;
+  const int neppV = 1; // Note: also neppM is equal to 1
 
 #endif
 }
@@ -112,7 +111,7 @@ using mgOnGpu::bool_v;
 inline std::ostream& operator<<( std::ostream& out, const bool_v& v )
 {
   out << "{ " << v[0];
-  for ( int i=1; i<neppV; i++ ) out << ", " << v[i];
+  for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
   out << " }";
   return out;
 }
@@ -120,7 +119,7 @@ inline std::ostream& operator<<( std::ostream& out, const bool_v& v )
 inline std::ostream& operator<<( std::ostream& out, const fptype_v& v )
 {
   out << "{ " << v[0];
-  for ( int i=1; i<neppV; i++ ) out << ", " << v[i];
+  for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
   out << " }";
   return out;
 }
@@ -138,10 +137,10 @@ inline std::ostream& operator<<( std::ostream& out, const cxtype_v& v )
 {
 #ifdef MGONGPU_HAS_CXTYPE_REF
   out << "{ " << v[0];
-  for ( int i=1; i<neppV; i++ ) out << ", " << v[i];
+  for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
 #else
   out << "{ " << cxmake( v.real()[0], v.imag()[0] );
-  for ( int i=1; i<neppV; i++ ) out << ", " << cxmake( v.real()[i], v.imag()[i] );
+  for ( int i=1; i<neppV; i++ ) std::cout << ", " << cxmake( v.real()[i], v.imag()[i] );
 #endif
   out << " }";
   return out;
