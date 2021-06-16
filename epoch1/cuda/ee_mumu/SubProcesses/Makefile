@@ -12,28 +12,30 @@ LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
 # Set the default AVX (vectorization) choice
-ifneq ($(AVX),)
-###$(info Using AVX='$(AVX)' according to user input)
-else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
-override AVX = 512y
-###$(info Using AVX='$(AVX)' as no user input exists)
+ifeq ($(AVX),)
+  ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
+    override AVX = 512y
+    ###$(info Using AVX='$(AVX)' as no user input exists)
+  else
+    override AVX = avx2
+    ifneq ($(shell grep -m1 -c avx512vl /proc/cpuinfo),1)
+      $(warning Using AVX='$(AVX)' because host does not support avx512vl)
+    else
+      $(warning Using AVX='$(AVX)' because this is faster than avx512vl for clang)
+    endif
+  endif
 else
-override AVX = avx2
-ifneq ($(shell grep -m1 -c avx512vl /proc/cpuinfo),1)
-$(warning Using AVX='$(AVX)' because host does not support avx512vl)
-else
-$(warning Using AVX='$(AVX)' because this is faster than avx512vl for clang)
-endif
+  ###$(info Using AVX='$(AVX)' according to user input)
 endif
 
 # Set the default FPTYPE (floating point type) choice
 ifeq ($(FPTYPE),)
-override FPTYPE = d
+  override FPTYPE = d
 endif
 
 # Set the default RNDGEN (random number generator) choice
 ifeq ($(RNDGEN),)
-override RNDGEN = curdev
+  override RNDGEN = curdev
 endif
 
 # If CUDA_HOME is not set, try to set it from the location of nvcc
@@ -76,50 +78,49 @@ endif
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
 $(info AVX=$(AVX))
 ifeq ($(AVX),sse4)
-override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
+  override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
 else ifeq ($(AVX),avx2)
-override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
+  override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
 else ifeq ($(AVX),512y)
-override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
+  override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
 else ifeq ($(AVX),512z)
-override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
+  override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
 else ifneq ($(AVX),none)
-$(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
+  $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
 endif
 # For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
 CXXFLAGS+= $(AVXFLAGS)
-# Export AVX so that it is not necessary to pass it to the src Makefile too
-export AVX
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
 $(info FPTYPE=$(FPTYPE))
 ifeq ($(FPTYPE),d)
-CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE
-CUFLAGS  += -DMGONGPU_FPTYPE_DOUBLE
+  CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE
+  CUFLAGS  += -DMGONGPU_FPTYPE_DOUBLE
 else ifeq ($(FPTYPE),f)
-CXXFLAGS += -DMGONGPU_FPTYPE_FLOAT
-CUFLAGS  += -DMGONGPU_FPTYPE_FLOAT
+  CXXFLAGS += -DMGONGPU_FPTYPE_FLOAT
+  CUFLAGS  += -DMGONGPU_FPTYPE_FLOAT
 else
-$(error Unknown FPTYPE='$(FPTYPE)': only 'f' and 'd' are supported)
+  $(error Unknown FPTYPE='$(FPTYPE)': only 'f' and 'd' are supported)
 endif
-# Export FPTYPE so that it is not necessary to pass it to the src Makefile too
-export FPTYPE
 
 # Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=common")
 $(info RNDGEN=$(RNDGEN))
 ifeq ($(RNDGEN),curdev)
-CXXFLAGS += -DMGONGPU_CURAND_ONDEVICE
-CUFLAGS  += -DMGONGPU_CURAND_ONDEVICE
+  CXXFLAGS += -DMGONGPU_CURAND_ONDEVICE
+  CUFLAGS  += -DMGONGPU_CURAND_ONDEVICE
 else ifeq ($(RNDGEN),curhst)
-CXXFLAGS += -DMGONGPU_CURAND_ONHOST
-CUFLAGS  += -DMGONGPU_CURAND_ONHOST
+  CXXFLAGS += -DMGONGPU_CURAND_ONHOST
+  CUFLAGS  += -DMGONGPU_CURAND_ONHOST
 else ifeq ($(RNDGEN),common)
-CXXFLAGS += -DMGONGPU_COMMONRAND_ONHOST
-CUFLAGS  += -DMGONGPU_COMMONRAND_ONHOST
+  CXXFLAGS += -DMGONGPU_COMMONRAND_ONHOST
+  CUFLAGS  += -DMGONGPU_COMMONRAND_ONHOST
 else
-$(error Unknown RNDGEN='$(RNDGEN)': only 'curdev', 'curhst' and 'common' are supported)
+  $(error Unknown RNDGEN='$(RNDGEN)': only 'curdev', 'curhst' and 'common' are supported)
 endif
-# Export RNDGEN so that it is not necessary to pass it to the src Makefile too
+
+# Export AVX, FPTYPE, RNDGEN so that it is not necessary to pass them to the src Makefile too
+export AVX
+export FPTYPE
 export RNDGEN
 
 # Build directory "short" tag (defines target and path to the optional build directory)
@@ -132,26 +133,26 @@ override TAG = $(AVX)_$(FPTYPE)_$(RNDGEN)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
-override BUILDDIR = build.$(DIRTAG)
-override LIBDIR   = ../../lib/$(BUILDDIR)
+  override BUILDDIR = build.$(DIRTAG)
+  override LIBDIR   = ../../lib/$(BUILDDIR)
 else
-override BUILDDIR = .
-override LIBDIR   = ../../lib
+  override BUILDDIR = .
+  override LIBDIR   = ../../lib
 endif
 ###$(info BUILDDIR=$(BUILDDIR))
 $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
-override CXX:=ccache $(CXX)
+  override CXX:=ccache $(CXX)
 endif
 ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
-override AR:=ccache $(AR)
+  override AR:=ccache $(AR)
 endif
 ifneq ($(NVCC),)
-ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
-override NVCC:=ccache $(NVCC)
-endif
+  ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
+    override NVCC:=ccache $(NVCC)
+  endif
 endif
 
 GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
