@@ -26,6 +26,11 @@ $(warning Using AVX='$(AVX)' because this is faster than avx512vl for clang)
 endif
 endif
 
+# Set the default FPTYPE (floating point type) choice
+ifeq ($(FPTYPE),)
+override FPTYPE = d
+endif
+
 # Set the default RNDGEN (random number generator) choice
 ifeq ($(RNDGEN),)
 override RNDGEN = curdev
@@ -86,6 +91,20 @@ CXXFLAGS+= $(AVXFLAGS)
 # Export AVX so that it is not necessary to pass it to the src Makefile too
 export AVX
 
+# Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
+$(info FPTYPE=$(FPTYPE))
+ifeq ($(FPTYPE),d)
+CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE
+CUFLAGS  += -DMGONGPU_FPTYPE_DOUBLE
+else ifeq ($(FPTYPE),f)
+CXXFLAGS += -DMGONGPU_FPTYPE_FLOAT
+CUFLAGS  += -DMGONGPU_FPTYPE_FLOAT
+else
+$(error Unknown FPTYPE='$(FPTYPE)': only 'f' and 'd' are supported)
+endif
+# Export FPTYPE so that it is not necessary to pass it to the src Makefile too
+export FPTYPE
+
 # Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=common")
 $(info RNDGEN=$(RNDGEN))
 ifeq ($(RNDGEN),curdev)
@@ -105,11 +124,11 @@ export RNDGEN
 
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
-override DIRTAG = $(AVX)
+override DIRTAG = $(AVX)_$(FPTYPE)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-override TAG = $(AVX)_$(RNDGEN)
+override TAG = $(AVX)_$(FPTYPE)_$(RNDGEN)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
@@ -156,7 +175,7 @@ all.$(TAG): ../../src/$(BUILDDIR)/.build.$(TAG) $(BUILDDIR)/.build.$(TAG) $(cu_m
 override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)'`
 $(BUILDDIR)/.build.$(TAG):
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir $(BUILDDIR)"; mkdir $(BUILDDIR); fi
-	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX)' or 'make cleanall'"; exit 1; fi
+	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
 	@touch $(BUILDDIR)/.build.$(TAG)
 
 debug: OPTFLAGS   = -g -O0 -DDEBUG2
