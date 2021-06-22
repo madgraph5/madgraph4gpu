@@ -43,6 +43,8 @@ int usage(char* argv0, int ret = 1) {
 }
 
 int main(int argc, char **argv) {
+  clock_t start = clock(), end;
+  double cpu_time_used;
   bool verbose = false, debug = false, perf = false;
   int numiter = 0, league_size = 1, team_size = 1;
   std::vector<int> numvec;
@@ -76,10 +78,20 @@ int main(int argc, char **argv) {
 
   if (numiter == 0)
     return usage(argv[0]);
+   
+  end = clock();
+  cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+  std::cout << "command line parsing: " << cpu_time_used << " seconds\n";
+  start = clock();
 
   Kokkos::initialize(argc, argv);
-  if (verbose)
-    std::cout << "# iterations: " << numiter << std::endl;
+  end = clock();
+  
+  cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+  std::cout << "Kokkkos initialize: " << cpu_time_used << " seconds\n";
+  start = clock();
+  
+  std::cout << "# iterations: " << numiter << std::endl;
   { // start Kokkos View space
     // Create a process object
     Kokkos::Timer total_time;
