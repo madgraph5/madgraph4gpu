@@ -31,7 +31,7 @@ endif
 
 ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
-  CUARCHNUM=70
+  CUARCHNUM=80
   ###CUARCHNUM=61 # (For Pascal Architecture Cards)
   USE_NVTX ?=-DUSE_NVTX
   CUARCHFLAGS = -arch=compute_$(CUARCHNUM)
