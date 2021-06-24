@@ -20,7 +20,7 @@ HIPCC=hipcc
 OPENMP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_OMP)/include --openmp
 OPENMP_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_OMP)/lib64/libkokkoscore.a -ldl --openmp
 
-IRIS_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_IRIS)/include -fiopenmp -fopenmp-targets=spir64 
+IRIS_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_IRIS)/include -fiopenmp -fopenmp-targets=spir64 -Wno-parentheses -Wno-openmp-mapping
 IRIS_LDFLAGS=$(LDFLAGS)  $(KOKKOSPATH_IRIS)/lib64/libkokkoscore.a -fiopenmp -fopenmp-targets=spir64
 
 HIP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_HIP)/include -fopenmp -fno-gpu-rdc --amdgpu-target=gfx906
