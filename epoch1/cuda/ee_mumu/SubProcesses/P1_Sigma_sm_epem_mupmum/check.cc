@@ -728,10 +728,10 @@ int main(int argc, char **argv)
 #ifndef __CUDACC__
     // Get the output of "nproc --all" (https://stackoverflow.com/a/478960)
     std::string nprocall;
-    std::array<char, 128> nprocbuf;
     std::unique_ptr<FILE, decltype(&pclose)> nprocpipe( popen( "nproc --all", "r" ), pclose );
-    if ( !nprocpipe ) throw std::runtime_error("`nproc --all` failed?");
-    while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get()) != nullptr ) nprocall += nprocbuf.data();
+    if ( !nprocpipe ) throw std::runtime_error( "`nproc --all` failed?" );
+    std::array<char, 128> nprocbuf;
+    while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get() ) != nullptr ) nprocall += nprocbuf.data();
 #endif
 #ifdef MGONGPU_CPPSIMD
 #ifdef MGONGPU_HAS_CXTYPE_REF
