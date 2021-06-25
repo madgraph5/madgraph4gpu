@@ -311,7 +311,13 @@ ifneq ($(NVCC),)
 	$(NVCC) --version
 	@echo ""
 endif
+ifneq ($(shell $(CXX) --version | grep ^clang),)
+	@echo $(CXX) -v
+	@$(CXX) -v |& egrep -v '(Found|multilib)'
+	@readelf -p .comment `$(CXX) -print-libgcc-file-name` |& grep 'GCC: (GNU)' | grep -v Warning | sort -u | awk '{print "GCC toolchain:",$$5}'
+else
 	$(CXX) --version
+endif
 
 force:
 
