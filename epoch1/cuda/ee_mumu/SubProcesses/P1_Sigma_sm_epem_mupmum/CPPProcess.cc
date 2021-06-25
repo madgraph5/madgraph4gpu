@@ -296,7 +296,7 @@ namespace Proc
   const std::string CPPProcess::getCompiler()
   {
     std::stringstream out;
-    // CUDA (nvcc) version
+    // CUDA version (NVCC)
 #ifdef __CUDACC__
 #if defined __CUDACC_VER_MAJOR__ && defined __CUDACC_VER_MINOR__ && defined __CUDACC_VER_BUILD__
     out << "nvcc " << __CUDACC_VER_MAJOR__ << "." << __CUDACC_VER_MINOR__ << "." << __CUDACC_VER_BUILD__;
@@ -305,11 +305,11 @@ namespace Proc
 #endif
     out << " (";
 #endif
-    // CXX (clang or gcc) version
+    // CLANG version (either as CXX or as host compiler inside NVCC)
 #if defined __clang__
 #if defined __clang_major__ && defined __clang_minor__ && defined __clang_patchlevel__
     out << "clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
-    // Get the clang gcc toolchain
+    // GCC toolchain version inside CLANG
     std::string tchainout;
     std::string tchaincmd = "readelf -p .comment $(${CXX} -print-libgcc-file-name) |& grep 'GCC: (GNU)' | grep -v Warning | sort -u | awk '{print $5}'";
     std::unique_ptr<FILE, decltype(&pclose)> tchainpipe( popen( tchaincmd.c_str(), "r" ), pclose );
@@ -326,6 +326,7 @@ namespace Proc
     out << "clang UNKNOWKN";
 #endif
 #else
+    // GCC version (either as CXX or as host compiler inside NVCC)
 #if defined __GNUC__ && defined __GNUC_MINOR__ && defined __GNUC_PATCHLEVEL__
     out << "gcc " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
 #else
