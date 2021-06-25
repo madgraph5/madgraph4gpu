@@ -22,6 +22,9 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   CUINC = -I$(CUDA_HOME)/include/
 endif
 
+# Set the host compiler for nvcc
+override NVCC := $(NVCC) -ccbin $(CXX)
+
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
