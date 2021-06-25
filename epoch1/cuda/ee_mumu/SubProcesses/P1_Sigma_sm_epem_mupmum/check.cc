@@ -926,20 +926,20 @@ int main(int argc, char **argv)
              << "\"Curand generation\": "
 #ifdef __CUDACC__
 #if defined MGONGPU_COMMONRAND_ONHOST
-             << "\"COMMON RANDOM HOST (CUDA code)\"," << std::endl
+             << "\"COMMON RANDOM HOST (CUDA code)\"," << std::endl;
 #elif defined MGONGPU_CURAND_ONDEVICE
-             << "\"CURAND DEVICE (CUDA code)\"," << std::endl
+             << "\"CURAND DEVICE (CUDA code)\"," << std::endl;
 #elif defined MGONGPU_CURAND_ONHOST
-             << "\"CURAND HOST (CUDA code)\"," << std::endl
+             << "\"CURAND HOST (CUDA code)\"," << std::endl;
 #endif
 #else
 #if defined MGONGPU_COMMONRAND_ONHOST
-             << "\"COMMON RANDOM (C++ code)\"," << std::endl
+             << "\"COMMON RANDOM (C++ code)\"," << std::endl;
 #else
-             << "\"CURAND (C++ code)\"," << std::endl
+             << "\"CURAND (C++ code)\"," << std::endl;
 #endif
 #endif
-             << "\"NumberOfEntries\": " << niter << "," << std::endl
+    jsonFile << "\"NumberOfEntries\": " << niter << "," << std::endl
       //<< std::scientific // Not sure about this
              << "\"TotalTime[Rnd+Rmb+ME] (123)\": \""
              << std::to_string(sumgtim+sumrtim+sumwtim) << " sec\","
