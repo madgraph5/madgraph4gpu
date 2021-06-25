@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cstring>
 #include <iostream>
+#include <memory>
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
@@ -304,6 +305,15 @@ namespace Proc
 #elif defined __clang__
 #if defined __clang_major__ && defined __clang_minor__ && defined __clang_patchlevel__
     out << "clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
+    // Get the clang gcc toolchain
+    std::string tchaincmd = "readelf -p .comment $(${CXX} -print-libgcc-file-name) |& grep 'GCC: (GNU)' | grep -v Warning | sort -u | awk '{print $5}'";
+    std::unique_ptr<FILE, decltype(&pclose)> tchainpipe( popen( tchaincmd.c_str(), "r" ), pclose );
+    if ( !tchainpipe ) throw std::runtime_error( "`readelf ...` failed?" );
+    std::array<char, 128> tchainbuf;
+    std::string tchainout;
+    while ( fgets( tchainbuf.data(), tchainbuf.size(), tchainpipe.get() ) != nullptr ) tchainout += tchainbuf.data();
+    tchainout.pop_back(); // remove trailing newline
+    out << " (gcc " << tchainout << ")";
 #else
     out << "clang UNKNOWKN";
 #endif
