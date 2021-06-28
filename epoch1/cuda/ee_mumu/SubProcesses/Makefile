@@ -40,13 +40,11 @@ endif
 
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
-  NVCC ?= $(shell which nvcc 2>/dev/null)
-  ifneq ($(NVCC),)
-    # NVCC is in the PATH or set explicitly
-    CUDA_HOME  = $(patsubst %bin/nvcc,%,$(NVCC))
-    CUDA_HOME := $(warning No CUDA_HOME exported. Using "$(CUDA_HOME)") $(CUDA_HOME)
-  endif
+  CUDA_HOME = $(patsubst %bin/nvcc,%,$(shell which nvcc 2>/dev/null))
+  $(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
 endif
+
+# Set NVCC as $(CUDA_HOME)/bin/nvcc if it exists
 ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
   CUARCHNUM=70
@@ -68,11 +66,15 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   het_main    = $(BUILDDIR)/hcheck.exe
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
-  NVCC       := $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
+  $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
+  NVCC       := 
   USE_NVTX   :=
   CULIBFLAGS :=
   override RNDGEN = common
 endif
+
+# Set the host compiler for nvcc
+CUFLAGS += -ccbin $(subst ccache ,,$(CXX))
 
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
@@ -147,9 +149,9 @@ $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
   override CXX:=ccache $(CXX)
 endif
-ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
-  override AR:=ccache $(AR)
-endif
+#ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
+#  override AR:=ccache $(AR)
+#endif
 ifneq ($(NVCC),)
   ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
     override NVCC:=ccache $(NVCC)
@@ -310,15 +312,24 @@ info:
 	@cat /proc/cpuinfo | grep "cpu cores" | sort -u
 	@cat /proc/cpuinfo | grep "physical id" | sort -u
 	@echo ""
+	@echo USECCACHE=$(USECCACHE)
 ifeq ($(USECCACHE),1)
 	ccache --version | head -1
-	@echo ""
 endif
+	@echo ""
+	@echo NVCC=$(NVCC)
 ifneq ($(NVCC),)
 	$(NVCC) --version
-	@echo ""
 endif
+	@echo ""
+	@echo CXX=$(CXX)
+ifneq ($(shell $(CXX) --version | grep ^clang),)
+	@echo $(CXX) -v
+	@$(CXX) -v |& egrep -v '(Found|multilib)'
+	@readelf -p .comment `$(CXX) -print-libgcc-file-name` |& grep 'GCC: (GNU)' | grep -v Warning | sort -u | awk '{print "GCC toolchain:",$$5}'
+else
 	$(CXX) --version
+endif
 
 force:
 
