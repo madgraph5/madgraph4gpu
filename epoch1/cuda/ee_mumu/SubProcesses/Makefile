@@ -148,9 +148,9 @@ $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
   override CXX:=ccache $(CXX)
 endif
-ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
-  override AR:=ccache $(AR)
-endif
+#ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
+#  override AR:=ccache $(AR)
+#endif
 ifneq ($(NVCC),)
   ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
     override NVCC:=ccache $(NVCC)
