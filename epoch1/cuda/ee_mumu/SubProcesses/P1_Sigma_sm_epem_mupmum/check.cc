@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstring>
 #include <fstream>
@@ -728,10 +729,10 @@ int main(int argc, char **argv)
 #ifndef __CUDACC__
     // Get the output of "nproc --all" (https://stackoverflow.com/a/478960)
     std::string nprocall;
-    std::array<char, 128> nprocbuf;
     std::unique_ptr<FILE, decltype(&pclose)> nprocpipe( popen( "nproc --all", "r" ), pclose );
-    if ( !nprocpipe ) throw std::runtime_error("`nproc --all` failed?");
-    while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get()) != nullptr ) nprocall += nprocbuf.data();
+    if ( !nprocpipe ) throw std::runtime_error( "`nproc --all` failed?" );
+    std::array<char, 128> nprocbuf;
+    while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get() ) != nullptr ) nprocall += nprocbuf.data();
 #endif
 #ifdef MGONGPU_CPPSIMD
 #ifdef MGONGPU_HAS_CXTYPE_REF
@@ -926,20 +927,20 @@ int main(int argc, char **argv)
              << "\"Curand generation\": "
 #ifdef __CUDACC__
 #if defined MGONGPU_COMMONRAND_ONHOST
-             << "\"COMMON RANDOM HOST (CUDA code)\"," << std::endl
+             << "\"COMMON RANDOM HOST (CUDA code)\"," << std::endl;
 #elif defined MGONGPU_CURAND_ONDEVICE
-             << "\"CURAND DEVICE (CUDA code)\"," << std::endl
+             << "\"CURAND DEVICE (CUDA code)\"," << std::endl;
 #elif defined MGONGPU_CURAND_ONHOST
-             << "\"CURAND HOST (CUDA code)\"," << std::endl
+             << "\"CURAND HOST (CUDA code)\"," << std::endl;
 #endif
 #else
 #if defined MGONGPU_COMMONRAND_ONHOST
-             << "\"COMMON RANDOM (C++ code)\"," << std::endl
+             << "\"COMMON RANDOM (C++ code)\"," << std::endl;
 #else
-             << "\"CURAND (C++ code)\"," << std::endl
+             << "\"CURAND (C++ code)\"," << std::endl;
 #endif
 #endif
-             << "\"NumberOfEntries\": " << niter << "," << std::endl
+    jsonFile << "\"NumberOfEntries\": " << niter << "," << std::endl
       //<< std::scientific // Not sure about this
              << "\"TotalTime[Rnd+Rmb+ME] (123)\": \""
              << std::to_string(sumgtim+sumrtim+sumwtim) << " sec\","
