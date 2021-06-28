@@ -40,13 +40,11 @@ endif
 
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
-  NVCC ?= $(shell which nvcc 2>/dev/null)
-  ifneq ($(NVCC),)
-    # NVCC is in the PATH or set explicitly
-    CUDA_HOME  = $(patsubst %bin/nvcc,%,$(NVCC))
-    CUDA_HOME := $(warning No CUDA_HOME exported. Using "$(CUDA_HOME)") $(CUDA_HOME)
-  endif
+  CUDA_HOME = $(patsubst %bin/nvcc,%,$(shell which nvcc 2>/dev/null))
+  $(warning CUDA_HOME was not set - try using "$(CUDA_HOME)")
 endif
+
+# Set NVCC as $(CUDA_HOME)/bin/nvcc if it exists
 ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
   CUARCHNUM=70
@@ -67,7 +65,8 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   cu_objects  = $(BUILDDIR)/gCPPProcess.o
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
-  NVCC       := $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
+  $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
+  NVCC       := 
   USE_NVTX   :=
   CULIBFLAGS :=
   override RNDGEN = common
