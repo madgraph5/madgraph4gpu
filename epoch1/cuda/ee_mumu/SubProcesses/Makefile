@@ -306,14 +306,17 @@ info:
 	@cat /proc/cpuinfo | grep "cpu cores" | sort -u
 	@cat /proc/cpuinfo | grep "physical id" | sort -u
 	@echo ""
+	@echo USECCACHE=$(USECCACHE)
 ifeq ($(USECCACHE),1)
 	ccache --version | head -1
-	@echo ""
 endif
+	@echo ""
+	@echo NVCC=$(NVCC)
 ifneq ($(NVCC),)
 	$(NVCC) --version
-	@echo ""
 endif
+	@echo ""
+	@echo CXX=$(CXX)
 ifneq ($(shell $(CXX) --version | grep ^clang),)
 	@echo $(CXX) -v
 	@$(CXX) -v |& egrep -v '(Found|multilib)'
