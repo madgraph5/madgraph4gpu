@@ -41,7 +41,7 @@ endif
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
   CUDA_HOME = $(patsubst %bin/nvcc,%,$(shell which nvcc 2>/dev/null))
-  $(warning CUDA_HOME was not set - try using "$(CUDA_HOME)")
+  $(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
 endif
 
 # Set NVCC as $(CUDA_HOME)/bin/nvcc if it exists

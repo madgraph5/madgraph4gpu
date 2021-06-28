@@ -10,20 +10,23 @@ CXX     ?= g++
 
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
-  NVCC ?= $(shell which nvcc 2>/dev/null)
-  ifneq ($(NVCC),)
-    # NVCC is in the PATH or set explicitly
-    CUDA_HOME  = $(patsubst %bin/nvcc,%,$(NVCC))
-    CUDA_HOME := $(warning No CUDA_HOME exported. Using "$(CUDA_HOME)") $(CUDA_HOME)
-  endif
+  CUDA_HOME = $(patsubst %bin/nvcc,%,$(shell which nvcc 2>/dev/null))
+  #$(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
 endif
+
+# Set NVCC as $(CUDA_HOME)/bin/nvcc if it exists
+# (NB: only CUINC is needed: cuda includes are needed in the C++ code for curand.h)
 ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
-  NVCC = $(CUDA_HOME)/bin/nvcc
+  #NVCC = $(CUDA_HOME)/bin/nvcc
   CUINC = -I$(CUDA_HOME)/include/
+else
+  # No cuda. Switch cuda compilation off and go to common random numbers in C++
+  #$(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
+  NVCC := 
 endif
 
 # Set the host compiler for nvcc
-CUFLAGS += -ccbin $(subst ccache ,,$(CXX))
+#CUFLAGS += -ccbin $(subst ccache ,,$(CXX))
 
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
@@ -47,10 +50,10 @@ CXXFLAGS+= $(AVXFLAGS)
 ###$(info FPTYPE=$(FPTYPE))
 ifeq ($(FPTYPE),d)
   CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE
-  CUFLAGS  += -DMGONGPU_FPTYPE_DOUBLE
+  #CUFLAGS  += -DMGONGPU_FPTYPE_DOUBLE
 else ifeq ($(FPTYPE),f)
   CXXFLAGS += -DMGONGPU_FPTYPE_FLOAT
-  CUFLAGS  += -DMGONGPU_FPTYPE_FLOAT
+  #CUFLAGS  += -DMGONGPU_FPTYPE_FLOAT
 else
   $(error Unknown FPTYPE='$(FPTYPE)': only 'f' and 'd' are supported)
 endif
@@ -59,13 +62,13 @@ endif
 ###$(info RNDGEN=$(RNDGEN))
 ifeq ($(RNDGEN),curdev)
   CXXFLAGS += -DMGONGPU_CURAND_ONDEVICE
-  CUFLAGS  += -DMGONGPU_CURAND_ONDEVICE
+  #CUFLAGS  += -DMGONGPU_CURAND_ONDEVICE
 else ifeq ($(RNDGEN),curhst)
   CXXFLAGS += -DMGONGPU_CURAND_ONHOST
-  CUFLAGS  += -DMGONGPU_CURAND_ONHOST
+  #CUFLAGS  += -DMGONGPU_CURAND_ONHOST
 else ifeq ($(RNDGEN),common)
   CXXFLAGS += -DMGONGPU_COMMONRAND_ONHOST
-  CUFLAGS  += -DMGONGPU_COMMONRAND_ONHOST
+  #CUFLAGS  += -DMGONGPU_COMMONRAND_ONHOST
 else
   $(error Unknown RNDGEN='$(RNDGEN)': only 'curdev', 'curhst' and 'common' are supported)
 endif
@@ -96,9 +99,11 @@ endif
 ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
   override AR:=ccache $(AR)
 endif
-ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
-  override NVCC:=ccache $(NVCC)
-endif
+#ifneq ($(NVCC),)
+#  ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
+#    override NVCC:=ccache $(NVCC)
+#  endif
+#endif
 
 # Assuming uname is available, detect if architecture is power
 #UNAME_P := $(shell uname -p)
@@ -106,9 +111,10 @@ endif
 #  CUFLAGS+= -Xcompiler -mno-float128
 #endif
 
+# NB there are no cuda objects as we avoid rdc (e.g. grambo.cu is included by gcheck.cu)
 target=$(LIBDIR)/libmodel_sm.a
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o rambo.o)
-cu_objects= # NB grambo.cu must be included by gcheck.cu (no rdc)
+cu_objects=
 
 all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(target)
 
@@ -132,9 +138,9 @@ $(BUILDDIR)/%.o : %.cc *.h
 #	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 #	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
-$(target): $(cxx_objects) #$(cu_objects)
+$(target): $(cxx_objects) $(cu_objects)
 	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
-	$(AR) cru $@ $(cxx_objects) #$(cu_objects)
+	$(AR) cru $@ $(cxx_objects) $(cu_objects)
 	ranlib $(target)
 
 .PHONY: clean
