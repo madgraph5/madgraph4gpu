@@ -305,8 +305,12 @@ namespace Proc
 #endif
     out << " (";
 #endif
+    // INTEL_COMPILER version (either as CXX or as host compiler inside NVCC)
+#if defined __INTEL_COMPILER
+    out << "icc " << __INTEL_COMPILER;
+#else
     // CLANG version (either as CXX or as host compiler inside NVCC)
-#if defined __clang__
+#elif defined __clang__
 #if defined __clang_major__ && defined __clang_minor__ && defined __clang_patchlevel__
     out << "clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
     // GCC toolchain version inside CLANG
