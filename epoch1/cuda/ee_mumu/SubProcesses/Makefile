@@ -73,7 +73,7 @@ else
 endif
 
 # Set the host compiler for nvcc
-CUFLAGS += -ccbin $(subst ccache ,,$(CXX))
+CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
 
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
