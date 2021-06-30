@@ -8,6 +8,9 @@ CXXFLAGS+= -ffast-math # see issue #117
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
+# Assuming uname is available, detect if architecture is PowerPC
+UNAME_P := $(shell uname -p)
+
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
   CUDA_HOME = $(patsubst %bin/nvcc,%,$(shell which nvcc 2>/dev/null))
@@ -28,20 +31,31 @@ endif
 # Set the host compiler for nvcc
 #CUFLAGS += -ccbin $(subst ccache ,,$(CXX))
 
+# PowerPC-specific compiler flags
+#ifeq ($(UNAME_P),ppc64le)
+#  CUFLAGS+= -Xcompiler -mno-float128
+#endif
+
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
-###$(info AVX=$(AVX))
-ifeq ($(AVX),sse4)
-  override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
-else ifeq ($(AVX),avx2)
-  override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-else ifeq ($(AVX),512y)
-  override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-else ifeq ($(AVX),512z)
-  override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
-else ifneq ($(AVX),none)
-  $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
+$(info AVX=$(AVX))
+ifeq ($(UNAME_P),ppc64le)
+  ifneq ($(AVX),none)
+    $(error Unknown AVX='$(AVX)': only 'none' is supported on PowerPC for the moment)
+  endif
+else
+  ifeq ($(AVX),sse4)
+    override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
+  else ifeq ($(AVX),avx2)
+    override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
+  else ifeq ($(AVX),512y)
+    override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
+  else ifeq ($(AVX),512z)
+    override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
+  else ifneq ($(AVX),none)
+    $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
+  endif
 endif
 # For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
 CXXFLAGS+= $(AVXFLAGS)
@@ -103,12 +117,6 @@ endif
 #  ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
 #    override NVCC:=ccache $(NVCC)
 #  endif
-#endif
-
-# Assuming uname is available, detect if architecture is power
-#UNAME_P := $(shell uname -p)
-#ifeq ($(UNAME_P),ppc64le)
-#  CUFLAGS+= -Xcompiler -mno-float128
 #endif
 
 # NB there are no cuda objects as we avoid rdc (e.g. grambo.cu is included by gcheck.cu)
