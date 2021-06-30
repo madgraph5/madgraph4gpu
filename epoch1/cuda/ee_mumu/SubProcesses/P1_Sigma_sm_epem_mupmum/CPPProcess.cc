@@ -308,7 +308,6 @@ namespace Proc
     // INTEL_COMPILER version (either as CXX or as host compiler inside NVCC)
 #if defined __INTEL_COMPILER
     out << "icc " << __INTEL_COMPILER;
-#else
     // CLANG version (either as CXX or as host compiler inside NVCC)
 #elif defined __clang__
 #if defined __clang_major__ && defined __clang_minor__ && defined __clang_patchlevel__
