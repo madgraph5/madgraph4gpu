@@ -201,7 +201,10 @@ function runNcu() {
   args="$2"
   ###echo "runNcu $exe $args"
   if [ "${verbose}" == "1" ]; then set -x; fi
-  $(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
+  ###$(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
+  out=$($(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm)' | tr "\n" " ")
+  echo $out | awk -v key="launch__registers_per_thread" '{for (i=1; i<=NF; i++){if ($i==key) value=$(i+2)}; print $1, $2, $3, key, value}'
+  echo $out | awk -v key="sm__sass_average_branch_targets_threads_uniform.pct" '{value="N/A"; for (i=1; i<=NF; i++){if ($i==key) value=$(i+2)$(i+1)}; print $1, $2, $3, key, value}'
   set +x
 }
 
