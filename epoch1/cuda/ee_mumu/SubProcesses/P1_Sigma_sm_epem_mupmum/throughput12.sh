@@ -236,7 +236,12 @@ function runNcuReq() {
 }
 
 if nvidia-smi -L > /dev/null 2>&1; then gpuTxt=$(nvidia-smi -L | awk '{print $3,$4,$5}'); else gpuTxt=none; fi
-cpuTxt=$(cat /proc/cpuinfo | grep '^model name' | head -1 | awk '{i0=index($0,"Intel"); i1=index($0," @"); if (i1>0) {print substr($0,i0,i1-i0)} else {print substr($0,i0)}}')
+unamep=$(uname -p)
+if [ "${unamep}" == "ppc64le" ]; then 
+  cpuTxt=$(cat /proc/cpuinfo | grep ^machine | awk '{print substr($0,index($0,"Power"))", "}')$(cat /proc/cpuinfo | grep ^cpu | head -1 | awk '{print substr($0,index($0,"POWER"))}')
+else
+  cpuTxt=$(cat /proc/cpuinfo | grep '^model name' | head -1 | awk '{i0=index($0,"Intel"); i1=index($0," @"); if (i1>0) {print substr($0,i0,i1-i0)} else {print substr($0,i0)}}')
+fi
 echo -e "On $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
 
 lastExe=
