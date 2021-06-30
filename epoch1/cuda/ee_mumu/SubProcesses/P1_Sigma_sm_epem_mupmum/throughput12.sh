@@ -235,7 +235,7 @@ function runNcuReq() {
   set +x
 }
 
-if nvidia-smi -L > /dev/null 2>&1; then gpuTxt=$(nvidia-smi -L | awk '{print $3,$4,$5}'); else gpuTxt=none; fi
+if nvidia-smi -L > /dev/null 2>&1; then gpuTxt=$(nvidia-smi -L | awk '{print $3,$4}'); else gpuTxt=none; fi
 unamep=$(uname -p)
 if [ "${unamep}" == "ppc64le" ]; then 
   cpuTxt=$(cat /proc/cpuinfo | grep ^machine | awk '{print substr($0,index($0,"Power"))", "}')$(cat /proc/cpuinfo | grep ^cpu | head -1 | awk '{print substr($0,index($0,"POWER"))}')
