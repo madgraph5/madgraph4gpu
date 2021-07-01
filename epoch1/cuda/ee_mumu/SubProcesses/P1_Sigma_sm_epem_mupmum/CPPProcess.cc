@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cstring>
 #include <iostream>
+#include <memory>
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
@@ -113,6 +114,7 @@ namespace Proc
     {
 #ifdef __CUDACC__
 #ifndef MGONGPU_TEST_DIVERGENCE
+      // NB: opzxxx only reads pz (not E,px,py)
       opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 );
       //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 ); // tested ok (much slower)
 #else
@@ -127,6 +129,7 @@ namespace Proc
 #endif
 
 #ifdef __CUDACC__
+      // NB: imzxxx only reads pz (not E,px,py)
       imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 );
       //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w_sv[1], 1 ); // tested ok (slower)
 #else
@@ -135,6 +138,7 @@ namespace Proc
 #endif
 
 #ifdef __CUDACC__
+      // NB: ixzxxx reads all E,px,py,pz
       ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 );
       //ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w_sv[2], 2 ); // tested ok (a bit slower)
 #else
@@ -143,6 +147,7 @@ namespace Proc
 #endif
 
 #ifdef __CUDACC__
+      // NB: oxzxxx reads all E,px,py,pz
       oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 );
       //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w_sv[3], 3 ); // tested ok (a bit slower)
 #else
@@ -291,24 +296,45 @@ namespace Proc
   const std::string CPPProcess::getCompiler()
   {
     std::stringstream out;
+    // CUDA version (NVCC)
 #ifdef __CUDACC__
 #if defined __CUDACC_VER_MAJOR__ && defined __CUDACC_VER_MINOR__ && defined __CUDACC_VER_BUILD__
     out << "nvcc " << __CUDACC_VER_MAJOR__ << "." << __CUDACC_VER_MINOR__ << "." << __CUDACC_VER_BUILD__;
 #else
     out << "nvcc UNKNOWN";
 #endif
-#elif defined __clang__
+    out << " (";
+#endif
+    // CLANG version (either as CXX or as host compiler inside NVCC)
+#if defined __clang__
 #if defined __clang_major__ && defined __clang_minor__ && defined __clang_patchlevel__
     out << "clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
+    // GCC toolchain version inside CLANG
+    std::string tchainout;
+    std::string tchaincmd = "readelf -p .comment $(${CXX} -print-libgcc-file-name) |& grep 'GCC: (GNU)' | grep -v Warning | sort -u | awk '{print $5}'";
+    std::unique_ptr<FILE, decltype(&pclose)> tchainpipe( popen( tchaincmd.c_str(), "r" ), pclose );
+    if ( !tchainpipe ) throw std::runtime_error( "`readelf ...` failed?" );
+    std::array<char, 128> tchainbuf;
+    while ( fgets( tchainbuf.data(), tchainbuf.size(), tchainpipe.get() ) != nullptr ) tchainout += tchainbuf.data();
+    tchainout.pop_back(); // remove trailing newline
+#ifdef __CUDACC__
+    out << ", gcc " << tchainout;
+#else
+    out << " (gcc " << tchainout << ")";
+#endif
 #else
     out << "clang UNKNOWKN";
 #endif
 #else
+    // GCC version (either as CXX or as host compiler inside NVCC)
 #if defined __GNUC__ && defined __GNUC_MINOR__ && defined __GNUC_PATCHLEVEL__
-    out << "gcc (GCC) " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
+    out << "gcc " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
 #else
     out << "gcc UNKNOWKN";
 #endif
+#endif
+#ifdef __CUDACC__
+    out << ")";
 #endif
     return out.str();
   }
@@ -466,6 +492,7 @@ namespace Proc
 #else
       calculate_wavefunctions( ihel, allmomenta, allMEs, nevt );
 #endif
+      //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
 
     // PART 2 - FINALISATION (after calculate_wavefunctions)
