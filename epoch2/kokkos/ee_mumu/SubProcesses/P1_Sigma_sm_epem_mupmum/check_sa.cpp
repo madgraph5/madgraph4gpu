@@ -255,7 +255,7 @@ int main(int argc, char **argv) {
         for (int i = 0; i < process.nprocesses; i++) {
           if (verbose)
             std::cout << " Matrix element = "
-                      //	 << setiosflags(ios::fixed) << setprecision(17)
+                      // << setiosflags(ios::fixed) << setprecision(17)
                       << h_me(i*1 + d) << " GeV^" << meGeVexponent << std::endl;
           
           ave_me.add_value(h_me(i*1 + d));
@@ -268,15 +268,13 @@ int main(int argc, char **argv) {
       }
 
       if (!(verbose || debug || perf))
-      {
         std::cout << ".";
-      }
       nvtxRangePop();
       tmr_dumploop.add_value(lptimer.seconds());
       tmr_iter.add_value(iter_timer.seconds());
     } // end for numiter
-
-    std::cout << "\n";
+    if (!(verbose || debug || perf))
+      std::cout << std::endl;
 
     nvtxRangePush("8a_9a_DumpStat");
     lptimer.reset();
@@ -288,10 +286,8 @@ int main(int argc, char **argv) {
     double tmr_sum_rnd = tmr_rand.sum();
     double tmr_sum_rmb_me = tmr_sum_me + tmr_sum_rmb;
     double tmr_sum_rnd_rmb_me = tmr_sum_me + tmr_sum_rmb + tmr_sum_rnd;
-      
-    if (perf) {
-      
 
+    if (perf) {
       printf("**********************************************************************\n");
       printf("NumBlocksPerGrid            = %8d\n",league_size);
       printf("NumThreadsPerBlock          = %8d\n",team_size);
@@ -309,6 +305,7 @@ int main(int argc, char **argv) {
       printf("TotalTime[MatrixElems]  (3) = ( %.6e ) sec\n",tmr_sum_me);
       printf("MeanTimeInMatrixElems       = ( %.6e ) sec\n",tmr_skin.mean()+tmr_cpyME.mean());
       printf("[Min,Max]TimeInMatrixElems  = [ %.6e , %.6e ] sec\n",tmr_skin.min()+tmr_cpyME.min(),tmr_skin.max()+tmr_cpyME.max());
+
       printf("----------------------------------------------------------------------\n");
       printf("TotalEventsComputed         = %8d\n",nevtALL);
       printf("EvtsPerSec[Rnd+Rmb+ME](123) = ( %.6e ) sec^-1 \n",nevtALL/tmr_sum_rnd_rmb_me);
@@ -316,7 +313,6 @@ int main(int argc, char **argv) {
       printf("EvtsPerSec[MatrixElems] (3) = ( %.6e ) sec^-1 \n",nevtALL/tmr_sum_me);
 
       printf("**********************************************************************\n");
-
       printf("NumMatrixElements(notNan)   = %8d\n",nevtALL);
       printf("MeanMatrixElemValue         = ( %.6e +- %.6e ) GeV^%d\n",ave_me.mean(),ave_me.sigma(),meGeVexponent);
       printf("[Min,Max]MatrixElemValue    = [ %.6e , %.6e ]  GeV^%d\n",ave_me.min(),ave_me.max(),meGeVexponent);
@@ -375,7 +371,6 @@ int main(int argc, char **argv) {
       fout << "}]";
       fout.close();
     }
-
 
     printf("iteration time        = %10.3f +/- %10.3f seconds\n",tmr_iter.mean(),tmr_iter.sigma());
     printf("total time            = %10.3f seconds\n",total_time.seconds());
