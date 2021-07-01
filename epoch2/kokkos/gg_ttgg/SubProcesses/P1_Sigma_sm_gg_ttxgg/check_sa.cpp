@@ -50,7 +50,6 @@ int usage(char* argv0, int ret = 1) {
 
 int main(int argc, char **argv) {
   clock_t start = clock(), end;
-  double cpu_time_used;
   bool verbose = false, debug = false, perf = false, json = false;
   int numiter = 0, league_size = 1, team_size = 1;
   std::vector<int> numvec;
