@@ -51,35 +51,74 @@ function mainSummarizeSyms() {
   fi
   ###ls -l $dumptmp
 
-  # Count and strip AVX512 zmm symbols
-  cnt512z=$(stripSyms '^v.*zmm')
-  ###echo $cnt512z; ls -l $dumptmp
+  unamep=$(uname -p)
+  #--- PPC ---
+  # See https://cdn.openpowerfoundation.org/wp-content/uploads/resources/Intrinsics-Reference_final/Intrinsics-Reference-20200811.pdf
+  if [ "${unamep}" == "ppc64le" ]; then 
 
-  # Count and strip AVX512 ymm/xmm symbols
-  # [NB: these are AVX512VL symbols, i.e. implementing AVX512 on xmm/ymm registers]
-  cnt512y=$(stripSyms '^v.*dqa(32|64).*(x|y)mm' '^v.*(32|64)x2.*(x|y)mm' '^vpcmpneqq.*(x|y)mm')
-  ###echo $cnt512y; ls -l $dumptmp
+    # Exclude all instructions not involving "vs" registers
+    cat $dumptmp | grep " vs" > ${dumptmp}.new
+    \mv ${dumptmp}.new $dumptmp
 
-  # Count and strip AVX2 symbols
-  cntavx2=$(stripSyms '^v.*(x|y)mm')
-  ###echo $cntavx2; ls -l $dumptmp
+    # Count and strip "xv" symbols
+    cntXV=$(stripSyms '^xv.* vs' '^lxv.* vs' '^stxv.* vs')
+    ###echo $cntXV; ls -l $dumptmp
 
-  # Count and strip ~SSE4 symbols
-  ###cntsse4=$(stripSyms '^[^v].*xmm') # 'too many'(*): includes many symbols from "none" build
-  cntsse4=$(stripSyms '^[^v].*p(d|s).*xmm') # okish, representative enough of what sse4/nehalem adds
-  ###cntsse4=$(stripSyms '^(mul|add|sub)p(d|s).*xmm') # too few: should also include moves
-  ###echo $cntsse4; ls -l $dumptmp
+    # Count and strip "xx" symbols
+    cntXX=$(stripSyms '^xx.* vs')
+    ###echo $cntXX; ls -l $dumptmp
 
-  # Is there anything else?...
-  ###cntelse=$(stripSyms '.*(x|y|z)mm') # only makes sense when counting 'too many'(*) as sse4
-  ###echo $cntelse; ls -l $dumptmp
-  ###if [ "$cntelse" != "0" ]; then echo "ERROR! cntelse='$cntelse'"; exit 1; fi 
+    # Count and strip "xs" symbols
+    cntXS=$(stripSyms '^xs.* vs')
+    ###echo $cntXS; ls -l $dumptmp
 
-  # Final report
-  filename=$file
-  if [ "$stripdir" == "1" ]; then filename=$(basename $file); fi
-  printf "=Symbols in $filename= (~sse4:%5d) (avx2:%5d) (512y:%5d) (512z:%5d)\n" $cntsse4 $cntavx2 $cnt512y $cnt512z
+    # Count and strip "mtv" symbols
+    cntMTV=$(stripSyms '^mtv.* vs')
+    ###echo $cntMTV; ls -l $dumptmp
 
+    # Is there anything else?...
+    cntelse=$(stripSyms '.* vs')
+    ###echo $cntelse; ls -l $dumptmp
+    if [ "$cntelse" != "0" ]; then echo "ERROR! cntelse='$cntelse'"; exit 1; fi 
+
+    # Final report
+    filename=$file
+    if [ "$stripdir" == "1" ]; then filename=$(basename $file); fi
+    printf "=Symbols (vs) in $filename= (^mtv:%5d) (^xs:%5d) (^xx:%5d) (^xv:%5d)\n" $cntMTV $cntXS $cntXX $cntXV
+
+  #--- x86 ---
+  else
+
+    # Count and strip AVX512 zmm symbols
+    cnt512z=$(stripSyms '^v.*zmm')
+    ###echo $cnt512z; ls -l $dumptmp
+
+    # Count and strip AVX512 ymm/xmm symbols
+    # [NB: these are AVX512VL symbols, i.e. implementing AVX512 on xmm/ymm registers]
+    cnt512y=$(stripSyms '^v.*dqa(32|64).*(x|y)mm' '^v.*(32|64)x2.*(x|y)mm' '^vpcmpneqq.*(x|y)mm')
+    ###echo $cnt512y; ls -l $dumptmp
+
+    # Count and strip AVX2 symbols
+    cntavx2=$(stripSyms '^v.*(x|y)mm')
+    ###echo $cntavx2; ls -l $dumptmp
+
+    # Count and strip ~SSE4 symbols
+    ###cntsse4=$(stripSyms '^[^v].*xmm') # 'too many'(*): includes many symbols from "none" build
+    cntsse4=$(stripSyms '^[^v].*p(d|s).*xmm') # okish, representative enough of what sse4/nehalem adds
+    ###cntsse4=$(stripSyms '^(mul|add|sub)p(d|s).*xmm') # too few: should also include moves
+    ###echo $cntsse4; ls -l $dumptmp
+
+    # Is there anything else?...
+    ###cntelse=$(stripSyms '.*(x|y|z)mm') # only makes sense when counting 'too many'(*) as sse4
+    ###echo $cntelse; ls -l $dumptmp
+    ###if [ "$cntelse" != "0" ]; then echo "ERROR! cntelse='$cntelse'"; exit 1; fi 
+
+    # Final report
+    filename=$file
+    if [ "$stripdir" == "1" ]; then filename=$(basename $file); fi
+    printf "=Symbols in $filename= (~sse4:%5d) (avx2:%5d) (512y:%5d) (512z:%5d)\n" $cntsse4 $cntavx2 $cnt512y $cnt512z
+
+  fi
 }
 
 mainSummarizeSyms $*
