@@ -81,15 +81,20 @@ endif
 # Set the host compiler for nvcc
 CUFLAGS += -ccbin $(subst ccache ,,$(CXX))
 
-# PowerPC-specific compiler flags
+# PowerPC-specific CXX compiler flags (being reviewed)
+ifeq ($(UNAME_P),ppc64le)
+  CXXFLAGS+= -mcpu=power9 -mtune=power9 # gains ~2-3% both for none and sse4
+  # Throughput references without the extra flags below: none=1.41-1.42E6, sse4=2.15-2.19E6
+  ###CXXFLAGS+= -DNO_WARN_X86_INTRINSICS # no change
+  ###CXXFLAGS+= -fpeel-loops # no change
+  ###CXXFLAGS+= -funroll-loops # gains ~1% for none, loses ~1% for sse4
+  ###CXXFLAGS+= -ftree-vectorize # no change
+  CXXFLAGS+= -flto # would increase to none=4.08-4.12E6, sse4=4.99-5.03E6!
+endif
+
+# PowerPC-specific CUDA compiler flags (to be reviewed!)
 ifeq ($(UNAME_P),ppc64le)
   CUFLAGS+= -Xcompiler -mno-float128
-  # Throughput references without the extra flags below: none=1.36-1.38E6, sse4(-D__SSE4_2__)=2.15-2.16E6
-  ###CXXFLAGS+= -DNO_WARN_X86_INTRINSICS # no improvement
-  #CXXFLAGS+= -fpeel-loops -funroll-loops -ftree-vectorize # none=1.40-1.43E6, sse4=2.09-2.11E6
-  CXXFLAGS+= -mcpu=power9 -mtune=power9 # slightly increases to none=1.41-1.42E6, sse4=2.15-2.19E6
-  #CXXFLAGS+= -flto # increases to none=4.10E6, sse4=4.99E6!
-  #CXXFLAGS+= -fpeel-loops -funroll-loops -ftree-vectorize -mcpu=power9 -mtune=power9
 endif
 
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")

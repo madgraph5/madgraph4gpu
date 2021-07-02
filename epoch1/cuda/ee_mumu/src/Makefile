@@ -31,7 +31,18 @@ endif
 # Set the host compiler for nvcc
 #CUFLAGS += -ccbin $(subst ccache ,,$(CXX))
 
-# PowerPC-specific compiler flags
+# PowerPC-specific CXX compiler flags (being reviewed)
+ifeq ($(UNAME_P),ppc64le)
+  CXXFLAGS+= -mcpu=power9 -mtune=power9 # gains ~2-3% both for none and sse4
+  # Throughput references without the extra flags below: none=1.41-1.42E6, sse4=2.15-2.19E6
+  ###CXXFLAGS+= -DNO_WARN_X86_INTRINSICS # no change
+  ###CXXFLAGS+= -fpeel-loops # no change
+  ###CXXFLAGS+= -funroll-loops # gains ~1% for none, loses ~1% for sse4
+  ###CXXFLAGS+= -ftree-vectorize # no change
+  ###CXXFLAGS+= -flto # BUILD ERROR IF THIS ADDED IN SRC?!
+endif
+
+# PowerPC-specific CUDA compiler flags (to be reviewed!)
 #ifeq ($(UNAME_P),ppc64le)
 #  CUFLAGS+= -Xcompiler -mno-float128
 #endif
