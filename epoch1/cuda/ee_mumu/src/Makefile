@@ -41,8 +41,10 @@ endif
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
 $(info AVX=$(AVX))
 ifeq ($(UNAME_P),ppc64le)
-  ifneq ($(AVX),none)
-    $(error Unknown AVX='$(AVX)': only 'none' is supported on PowerPC for the moment)
+  ifeq ($(AVX),sse4)
+    override AVXFLAGS = -D__SSE4_2__ # Power9 VSX with 128 width (VSR registers)
+  else ifneq ($(AVX),none)
+    $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on PowerPC for the moment)
   endif
 else
   ifeq ($(AVX),sse4)

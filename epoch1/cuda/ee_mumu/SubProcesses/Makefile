@@ -17,7 +17,8 @@ UNAME_P := $(shell uname -p)
 # Set the default AVX (vectorization) choice
 ifeq ($(AVX),)
   ifeq ($(UNAME_P),ppc64le)
-    override AVX = none
+    ###override AVX = none
+    override AVX = sse4
   else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
     override AVX = 512y
     ###$(info Using AVX='$(AVX)' as no user input exists)
@@ -90,8 +91,10 @@ endif
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
 $(info AVX=$(AVX))
 ifeq ($(UNAME_P),ppc64le)
-  ifneq ($(AVX),none)
-    $(error Unknown AVX='$(AVX)': only 'none' is supported on PowerPC for the moment)
+  ifeq ($(AVX),sse4)
+    override AVXFLAGS = -D__SSE4_2__ # Power9 VSX with 128 width (VSR registers)
+  else ifneq ($(AVX),none)
+    $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on PowerPC for the moment)
   endif
 else
   ifeq ($(AVX),sse4)
