@@ -84,6 +84,12 @@ CUFLAGS += -ccbin $(subst ccache ,,$(CXX))
 # PowerPC-specific compiler flags
 ifeq ($(UNAME_P),ppc64le)
   CUFLAGS+= -Xcompiler -mno-float128
+  # Throughput references without the extra flags below: none=1.36-1.38E6, sse4(-D__SSE4_2__)=2.15-2.16E6
+  ###CXXFLAGS+= -DNO_WARN_X86_INTRINSICS # no improvement
+  #CXXFLAGS+= -fpeel-loops -funroll-loops -ftree-vectorize # none=1.40-1.43E6, sse4=2.09-2.11E6
+  CXXFLAGS+= -mcpu=power9 -mtune=power9 # slightly increases to none=1.41-1.42E6, sse4=2.15-2.19E6
+  #CXXFLAGS+= -flto # increases to none=4.10E6, sse4=4.99E6!
+  #CXXFLAGS+= -fpeel-loops -funroll-loops -ftree-vectorize -mcpu=power9 -mtune=power9
 endif
 
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
