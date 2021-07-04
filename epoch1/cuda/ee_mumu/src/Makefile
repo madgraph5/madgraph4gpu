@@ -40,6 +40,8 @@ ifeq ($(UNAME_P),ppc64le)
   ###CXXFLAGS+= -funroll-loops # gains ~1% for none, loses ~1% for sse4
   ###CXXFLAGS+= -ftree-vectorize # no change
   ###CXXFLAGS+= -flto # BUILD ERROR IF THIS ADDED IN SRC?!
+else
+  ###CXXFLAGS+= -flto # BUILD ERROR IF THIS ADDED IN SRC?!
 endif
 
 # PowerPC-specific CUDA compiler flags (to be reviewed!)
