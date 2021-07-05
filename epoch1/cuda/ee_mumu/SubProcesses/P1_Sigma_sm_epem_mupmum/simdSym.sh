@@ -79,6 +79,12 @@ function listSyms() {
 ###dump=$1; shift; listSyms $* # for debugging
 
 function mainListSyms() {
+  # Command line arguments: --disassemble-all?
+  dis=-d
+  if [ "$1" == "-D" ]; then
+    dis=-D
+    shift
+  fi
   # Command line arguments: select file
   if [ "$1" == "" ] || [ "$2" != "" ]; then
     echo "Usage:   $0 <filename>"
@@ -88,7 +94,7 @@ function mainListSyms() {
   file=$1
   # Disassemble selected file
   dump=${file}.objdump
-  objdump -d -C $file > ${dump}
+  objdump $dis -C $file > ${dump}
   # List symbols in selected file
   listSyms
 }
