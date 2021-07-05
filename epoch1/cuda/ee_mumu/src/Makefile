@@ -6,7 +6,10 @@ CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
-CXX     ?= g++
+
+# Note: AR and CXX are implicitly defined if not set externally
+# See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
+RANLIB = ranlib
 
 # Assuming uname is available, detect if architecture is PowerPC
 UNAME_P := $(shell uname -p)
@@ -41,7 +44,9 @@ ifeq ($(UNAME_P),ppc64le)
   ###CXXFLAGS+= -ftree-vectorize # no change
   ###CXXFLAGS+= -flto # BUILD ERROR IF THIS ADDED IN SRC?!
 else
-  ###CXXFLAGS+= -flto # BUILD ERROR IF THIS ADDED IN SRC?!
+  AR=gcc-ar # needed by -flto
+  RANLIB=gcc-ranlib # needed by -flto
+  CXXFLAGS+= -flto # BUILD ERROR IF THIS ADDED IN SRC?!
 endif
 
 # PowerPC-specific CUDA compiler flags (to be reviewed!)
@@ -164,7 +169,7 @@ $(BUILDDIR)/%.o : %.cc *.h
 $(target): $(cxx_objects) $(cu_objects)
 	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
 	$(AR) cru $@ $(cxx_objects) $(cu_objects)
-	ranlib $(target)
+	$(RANLIB) $(target)
 
 .PHONY: clean
 
