@@ -44,9 +44,9 @@ ifeq ($(UNAME_P),ppc64le)
   ###CXXFLAGS+= -ftree-vectorize # no change
   ###CXXFLAGS+= -flto # BUILD ERROR IF THIS ADDED IN SRC?!
 else
-  AR=gcc-ar # needed by -flto
-  RANLIB=gcc-ranlib # needed by -flto
-  CXXFLAGS+= -flto # BUILD ERROR IF THIS ADDED IN SRC?!
+  ###AR=gcc-ar # needed by -flto
+  ###RANLIB=gcc-ranlib # needed by -flto
+  ###CXXFLAGS+= -flto # NB: build error from src/Makefile unless gcc-ar and gcc-ranlib are used
   ######CXXFLAGS+= -fno-semantic-interposition # no benefit (neither alone, nor combined with -flto)
 endif
 
