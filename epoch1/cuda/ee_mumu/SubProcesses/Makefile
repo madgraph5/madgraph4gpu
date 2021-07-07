@@ -92,6 +92,7 @@ ifeq ($(UNAME_P),ppc64le)
   ###CXXFLAGS+= -flto # would increase to none=4.08-4.12E6, sse4=4.99-5.03E6!
 else
   ###CXXFLAGS+= -flto # also on Intel this would increase throughputs by a factor 2 to 4...
+  CXXFLAGS+= -fno-semantic-interposition 
 endif
 
 # PowerPC-specific CUDA compiler flags (to be reviewed!)

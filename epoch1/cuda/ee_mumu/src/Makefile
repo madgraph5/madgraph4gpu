@@ -47,6 +47,7 @@ else
   ###AR=gcc-ar # needed by -flto
   ###RANLIB=gcc-ranlib # needed by -flto
   ###CXXFLAGS+= -flto # BUILD ERROR IF THIS ADDED IN SRC?!
+  CXXFLAGS+= -fno-semantic-interposition 
 endif
 
 # PowerPC-specific CUDA compiler flags (to be reviewed!)
