@@ -831,14 +831,12 @@ class CPPProcess
     CPPProcess(int numiterations, int gpublocks, int gputhreads): 
         m_numiterations(numiterations), gpu_nblocks(gpublocks), 
         gpu_nthreads(gputhreads), 
-        dim(gpu_nblocks * gpu_nthreads) ,
+        dim(gpu_nblocks * gpu_nthreads),
         cHel("cHel",ncomb,nexternal), hHel("hHel",ncomb,nexternal), 
         cmME("cmME",nexternal), hmME("hmME",nexternal),
         cIPC("cIPC",nexternal), hIPC("hIPC",nexternal), 
         cIPD("cIPD",ninitial), hIPD("hIPD",ninitial) {
 
-
-      // Helicities for the process - nodim
       static const int tHel[ncomb][nexternal] = {{-1, -1, -1, -1}, {-1, -1, -1, 1},
           {-1, -1, 1, -1}, {-1, -1, 1, 1}, {-1, 1, -1, -1}, {-1, 1, -1, 1}, {-1, 1,
           1, -1}, {-1, 1, 1, 1}, {1, -1, -1, -1}, {1, -1, -1, 1}, {1, -1, 1, -1},
@@ -852,10 +850,10 @@ class CPPProcess
       Kokkos::deep_copy(cHel,hHel);
     }
 
-    ~CPPProcess() = default; 
+    ~CPPProcess() = default;
 
     // Initialize process.
-    void initProc(std::string param_card_name) 
+    void initProc(const std::string param_card_name)
     {
       // Instantiate the model class and set parameters that stay fixed during run
       pars = Parameters_sm::getInstance(); 
@@ -880,21 +878,6 @@ class CPPProcess
       hIPD(1) = pars->mdl_WZ;
       Kokkos::deep_copy(cIPD,hIPD);
     } 
-
-
-    // virtual int code() const {return 1;}
-
-    // const std::vector<double> &getMasses() const; 
-
-    // void setInitial(int inid1, int inid2) 
-    // {
-    //   id1 = inid1; 
-    //   id2 = inid2; 
-    // }
-
-    // int getDim() const {return dim;}
-
-    // int getNIOParticles() const {return nexternal;}
 
 
     // Constants for array limits
@@ -922,28 +905,15 @@ class CPPProcess
     int gpu_nthreads; 
     int dim;  // gpu_nblocks * gpu_nthreads;
 
-    // print verbose info
-    // bool m_verbose; 
-
-    // print debug info
-    bool m_debug; 
-
-    // static const int nwavefuncs = 6; 
-    // static const int namplitudes = 2; 
-    // static const int ncomb = 16; 
-    // static const int wrows = 6; 
-    // static const int nioparticles = 4;
-
-    // Kokkos::complex<double> * * amp; 
-
-
     // Pointer to the model parameters
     Parameters_sm * pars; 
 
     // vector with external particle masses
     // std::vector<double> mME; 
-
-    // Initial particle ids
-    // int id1, id2; 
-
 };
+
+// Constants for array limits
+template <typename ExecSpace> const int CPPProcess<ExecSpace>::ninitial; 
+template <typename ExecSpace> const int CPPProcess<ExecSpace>::nprocesses; 
+template <typename ExecSpace> const int CPPProcess<ExecSpace>::ncomb; 
+template <typename ExecSpace> const int CPPProcess<ExecSpace>::nexternal;
