@@ -43,6 +43,7 @@ function mainSummarizeSyms() {
 
   # Disassemble selected file
   # Use cut -f3- to print only the assembly code after two leading fields separated by tabs
+  objdump -d -C $file > ${file}.objdump # unnecessary but useful for debugging
   dumptmp=${file}.objdump.tmp
   if [ "$helamps" == "0" ]; then
     objdump -d -C $file | awk '/^ +[[:xdigit:]]+:\t/' | cut -f3- > ${dumptmp}

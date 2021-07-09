@@ -59,6 +59,9 @@ namespace Proc
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for given ihel to running sum of |M|^2 over helicities for given event(s)
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void calculate_wavefunctions( int ihel,
                                 const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
                                 fptype_sv* allMEs            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
@@ -522,7 +525,8 @@ namespace Proc
 
 //==========================================================================
 
-// Strictly speaking, this is only needed for CUDA (to avoid rdc)
+// This was initially added to both C++ and CUDA in order to avoid RDC in CUDA (issue #51)
+// This is now also needed by C++ LTO-like optimizations via inlining (issue #229)
 #include "../../src/HelAmps_sm.cc"
 
 //==========================================================================

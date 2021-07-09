@@ -92,6 +92,7 @@ ifeq ($(UNAME_P),ppc64le)
   ###CXXFLAGS+= -flto # would increase to none=4.08-4.12E6, sse4=4.99-5.03E6!
 else
   ###CXXFLAGS+= -flto # also on Intel this would increase throughputs by a factor 2 to 4...
+  ######CXXFLAGS+= -fno-semantic-interposition # no benefit (neither alone, nor combined with -flto)
 endif
 
 # PowerPC-specific CUDA compiler flags (to be reviewed!)
@@ -229,9 +230,15 @@ $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
+# Apply special build flags only to CPPProcess.cc (-flto)
 #$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
 #	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
-#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(AVXFLAGS) $(CUINC) -c $< -o $@
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -flto $(CUINC) -c $< -o $@
+
+### Apply special build flags only to CPPProcess.cc (AVXFLAGS)
+###$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
+###	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+###	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(AVXFLAGS) $(CUINC) -c $< -o $@
 
 $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi

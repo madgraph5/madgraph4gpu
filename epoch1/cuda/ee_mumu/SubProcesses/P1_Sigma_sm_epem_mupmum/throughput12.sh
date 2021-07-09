@@ -4,8 +4,9 @@ set +x
 
 omp=0
 avxall=0
-ep2=0
 cpp=1
+cuda=1
+ep2=0
 ab3=0
 ggttgg=0
 div=0
@@ -16,7 +17,7 @@ verbose=0
 
 function usage()
 {
-  echo "Usage: $0 [-nocpp|[-omp][-avxall]] [-ep2] [-3a3b] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-detailed] [-v]"
+  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-ep2] [-3a3b] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-detailed] [-v]"
   exit 1
 }
 
@@ -33,9 +34,14 @@ while [ "$1" != "" ]; do
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options -avxall and -nocpp are incompatible"; usage; fi
     avxall=1
     shift
+  elif [ "$1" == "-nocuda" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
+    cuda=0
+    shift
   elif [ "$1" == "-nocpp" ]; then
+    if [ "${omp}" == "1" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
     if [ "${avxall}" == "1" ]; then echo "ERROR! Options -avxall and -nocpp are incompatible"; usage; fi
-    if [ "${omp}" == "1" ]; then echo "ERROR! Options -avxall and -nocpp are incompatible"; usage; fi
+    if [ "${cuda}" == "1" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
     cpp=0
     shift
   elif [ "$1" == "-ep2" ]; then
@@ -82,11 +88,13 @@ exes=
 #=====================================
 # CUDA (eemumu/epoch1, eemumu/epoch2)
 #=====================================
-for fptype in $df; do
-  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_$fptype/gcheck.exe"
-done
-if [ "${ep2}" == "1" ]; then 
-  exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
+if [ "${cuda}" == "1" ]; then
+  for fptype in $df; do
+    exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_$fptype/gcheck.exe"
+  done
+  if [ "${ep2}" == "1" ]; then 
+    exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
+  fi
 fi
 
 #=====================================
@@ -116,8 +124,10 @@ fi
 #=====================================
 # CUDA (ggttgg/epoch2)
 #=====================================
-if [ "${ggttgg}" == "1" ]; then 
-  exes="$exes ../../../../../epoch2/cuda/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/gcheck.exe"
+if [ "${cuda}" == "1" ]; then
+  if [ "${ggttgg}" == "1" ]; then 
+    exes="$exes ../../../../../epoch2/cuda/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/gcheck.exe"
+  fi
 fi
 
 #=====================================
