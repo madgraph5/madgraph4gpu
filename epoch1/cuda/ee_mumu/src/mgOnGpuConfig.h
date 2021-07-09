@@ -29,8 +29,8 @@
 
 // Inline all HelAmps functions? (CHOOSE ONLY ONE)
 // This optimization can gain almost a factor 4 in C++, similar to -flto (issue #229)
-#undef MGONGPU_INLINE_HELAMPS
-//#define MGONGPU_INLINE_HELAMPS 1
+//#undef MGONGPU_INLINE_HELAMPS
+#define MGONGPU_INLINE_HELAMPS 1
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
 #ifdef __CUDACC__
