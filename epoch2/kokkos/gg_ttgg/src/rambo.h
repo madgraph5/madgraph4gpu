@@ -43,7 +43,7 @@ void get_final_momenta(const int ninitial,const int nexternal,const double energ
                        const Kokkos::View<double*,ExecSpace>& masses,
                        Kokkos::View<double ***,ExecSpace>& d_p,
                        const Kokkos::View<double **,ExecSpace>& random_numbers,
-                       Kokkos::View<double,ExecSpace>& d_wgt,
+                       Kokkos::View<double*,ExecSpace>& d_wgt,
                        const int& league_size,
                        const int& team_size) {
 
@@ -141,18 +141,18 @@ void get_final_momenta(const int ninitial,const int nexternal,const double energ
       }
 
       // calculate weight and possible warnings
-      d_wgt() = po2log;
+      d_wgt(i) = po2log;
       if (n_outgoing != 2)
-        d_wgt() = (2. * n_outgoing - 4.) * log(energy) + z[n_outgoing - 1];
+        d_wgt(i) = (2. * n_outgoing - 4.) * log(energy) + z[n_outgoing - 1];
       
-      if (d_wgt() < -180.) {
+      if (d_wgt(i) < -180.) {
         if (iwarn(0) <= 5)
-        	printf("Too small wt, risk for underflow: %f\n",d_wgt());
+        	printf("Too small wt, risk for underflow: %f\n",d_wgt(i));
         Kokkos::atomic_fetch_add(&iwarn(0),1);
       }
-      if (d_wgt() > 174.) {
+      if (d_wgt(i) > 174.) {
         if (iwarn(1) <= 5)
-          printf("Too large wt, risk for overflow: %f\n",d_wgt());
+          printf("Too large wt, risk for overflow: %f\n",d_wgt(i));
         Kokkos::atomic_fetch_add(&iwarn(1),1);
       }
 
@@ -214,15 +214,15 @@ void get_final_momenta(const int ninitial,const int nexternal,const double energ
       double wtm = (2. * n_outgoing - 3.) * log(x) + log(wt2 / wt3 * energy);
 
       // return for  weighted massive momenta
-      d_wgt() = d_wgt() + wtm;
-      if (d_wgt() < -180.) {
+      d_wgt(i) = d_wgt(i) + wtm;
+      if (d_wgt(i) < -180.) {
         if (iwarn(2) <= 5)
-    	   printf("Too small wt, risk for underflow: %f\n",d_wgt());
+    	   printf("Too small wt, risk for underflow: %f\n",d_wgt(i));
         Kokkos::atomic_fetch_add(&iwarn(2),1);
       }
-      if (d_wgt() > 174.) {
+      if (d_wgt(i) > 174.) {
         if (iwarn(3) <= 5)
-    	  printf("Too large wt, risk for overflow: %f\n",d_wgt());
+    	  printf("Too large wt, risk for overflow: %f\n",d_wgt(i));
         Kokkos::atomic_fetch_add(&iwarn(3),1);
       }
 

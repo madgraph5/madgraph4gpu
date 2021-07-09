@@ -8,7 +8,7 @@ all: gtest src/MadgraphTest.o
 .PHONY: gtest
 
 googletest:
-	git clone https://github.com/google/googletest.git -b release-1.10.0 googletest
+	git clone https://github.com/google/googletest.git -b release-1.11.0 googletest
 
 googletest/build: googletest
 	mkdir -p $@

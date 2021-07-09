@@ -362,6 +362,7 @@ KOKKOS_FUNCTION void sxxxxx(Kokkos::View<double*,Stride,Device,MemSpace> pvec, i
 {
   // double p[4] = {0, pvec(1), pvec(2), pvec(3)};
   // p[0] = sqrt(p[1] * p[1] + p[2] * p[2] + p[3] * p[3]+fmass*fmass);
+  // scalar not supported so far. to do: fix mass issue
   double p[4] = {0, 0, 0, 0}; 
   printf("scalar not supported so far. to do: fix mass issue"); 
   sc[2] = Kokkos::complex<double> (1.00, 0.00); 
@@ -1901,8 +1902,10 @@ class CPPProcess
 {
   public:
 
-    CPPProcess(int numiterations, int gpublocks, int gputhreads): m_numiterations(numiterations),
-        gpu_nblocks(gpublocks), gpu_nthreads(gputhreads), dim(gpu_nblocks * gpu_nthreads),
+    CPPProcess(int numiterations, int gpublocks, int gputhreads): 
+        m_numiterations(numiterations), gpu_nblocks(gpublocks), 
+        gpu_nthreads(gputhreads), 
+        dim(gpu_nblocks * gpu_nthreads),
         cHel("cHel",ncomb,nexternal), hHel("hHel",ncomb,nexternal), 
         cmME("cmME",nexternal), hmME("hmME",nexternal),
         cIPC("cIPC",nexternal), hIPC("hIPC",nexternal), 
@@ -1942,20 +1945,11 @@ class CPPProcess
     // Initialize process.
     void initProc(const std::string param_card_name)
     {
-        // Helicities for the process - nodim
-        // Kokkos::parallel_for("CPPProcessInit",Kokkos::RangePolicy<ExecSpace>(0,ncomb),
-        // KOKKOS_CLASS_LAMBDA(int i){
-        //   for(auto j = 0; j < nexternal; ++j)
-        //     cHel(i,j) = (i >> j) & 1;
-        // });
-
         // Instantiate the model class and set parameters that stay fixed during run
         pars = Parameters_sm::getInstance(); 
         SLHAReader slha(param_card_name); 
         pars->setIndependentParameters(slha); 
         pars->setIndependentCouplings(); 
-        // pars->printIndependentParameters(); 
-        // pars->printIndependentCouplings(); 
         pars->setDependentParameters(); 
         pars->setDependentCouplings(); 
         // Set external particle masses for this matrix element
@@ -1977,24 +1971,11 @@ class CPPProcess
         Kokkos::deep_copy(cIPD,hIPD);
     }
 
-    // virtual int code() const {return 1;}
-
-    // void setInitial(int inid1, int inid2)
-    // {
-    //   id1 = inid1;
-    //   id2 = inid2;
-    // }
-
-    // int getDim() const {return dim;}
-
-    // int getNIOParticles() const {return nexternal;}
-
-
     // Constants for array limits
     static const int ninitial = 2; 
-    static const int nprocesses = 1; 
-    static const int ncomb = 64; 
     static const int nexternal = 6; 
+    static const int nprocesses = 1;
+    static const int ncomb = 64; 
 
     Kokkos::View<int**,ExecSpace> cHel;
     typename Kokkos::View<int**,ExecSpace>::HostMirror hHel;
@@ -2014,29 +1995,8 @@ class CPPProcess
     int gpu_nblocks; 
     int gpu_nthreads; 
     int dim;  // gpu_nblocks * gpu_nthreads;
-    // vector with external particle masses
-    // std::vector<double> mME;
-    // Pointer to the model parameters
     Parameters_sm * pars; 
 
-    // // print verbose info
-    // bool m_verbose; 
-
-    // // print debug info
-    // bool m_debug; 
-
-    // static const int nwavefuncs = 6; 
-    // static const int namplitudes = 159; 
-    // static const int wrows = 63; 
-    // // static const int nioparticles = 6;
-
-    // Kokkos::complex<double> * * amp; 
-
-
-
-
-    // // Initial particle ids
-    // int id1, id2; 
 
 };
 
@@ -2044,4 +2004,4 @@ class CPPProcess
 template <typename ExecSpace> const int CPPProcess<ExecSpace>::ninitial; 
 template <typename ExecSpace> const int CPPProcess<ExecSpace>::nprocesses; 
 template <typename ExecSpace> const int CPPProcess<ExecSpace>::ncomb; 
-template <typename ExecSpace> const int CPPProcess<ExecSpace>::nexternal; 
+template <typename ExecSpace> const int CPPProcess<ExecSpace>::nexternal;

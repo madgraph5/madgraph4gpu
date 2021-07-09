@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
     else
       return usage(argv[0]);
   }
-  
+
   int veclen = numvec.size();
   if (veclen == 3 || veclen == 5) {
     league_size = numvec[0];
@@ -278,7 +278,7 @@ int main(int argc, char **argv) {
 
     nvtxRangePush("8a_9a_DumpStat");
     lptimer.reset();
-    
+
     int nevtALL = numiter*events_per_iter;
     // timer sums
     double tmr_sum_me = tmr_skin.sum() + tmr_cpyME.sum();
