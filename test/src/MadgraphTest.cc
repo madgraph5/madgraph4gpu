@@ -167,3 +167,7 @@ TEST_P(MadgraphTestFloat, eemumu)
 {
   madgraphTestBody_eemumu();
 }
+
+// Fix errors in the upgrade of googletest from 1.10.0 to 1.11.0
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(MadgraphTestFloat);
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(MadgraphTestDouble);
