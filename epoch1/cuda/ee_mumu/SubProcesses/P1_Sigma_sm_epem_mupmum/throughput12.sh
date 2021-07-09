@@ -2,9 +2,10 @@
 
 set +x
 
-omp=0
+omp=1 # new default: OMP only for epoch1
 avxall=0
 cpp=1
+het=1
 cuda=1
 ep2=0
 ab3=0
@@ -17,7 +18,7 @@ verbose=0
 
 function usage()
 {
-  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-ep2] [-3a3b] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-detailed] [-v]"
+  echo "Usage: $0 [-nocpp|[-omp|-noomp][-avxall][-nocuda]] [-nohet] [-ep2] [-3a3b] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-detailed] [-v]"
   exit 1
 }
 
@@ -28,7 +29,13 @@ function usage()
 while [ "$1" != "" ]; do
   if [ "$1" == "-omp" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
-    omp=1
+    if [ "${omp}" == "0" ]; then echo "ERROR! Options -omp and -noomp are incompatible"; usage; fi
+    omp=2
+    shift
+  elif [ "$1" == "-noomp" ]; then
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options -noomp and -nocpp are incompatible"; usage; fi
+    if [ "${omp}" == "2" ]; then echo "ERROR! Options -omp and -noomp are incompatible"; usage; fi
+    omp=0
     shift
   elif [ "$1" == "-avxall" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options -avxall and -nocpp are incompatible"; usage; fi
@@ -39,10 +46,13 @@ while [ "$1" != "" ]; do
     cuda=0
     shift
   elif [ "$1" == "-nocpp" ]; then
-    if [ "${omp}" == "1" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
+    if [ "${omp}" == "2" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
     if [ "${avxall}" == "1" ]; then echo "ERROR! Options -avxall and -nocpp are incompatible"; usage; fi
     if [ "${cuda}" == "1" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
     cpp=0
+    shift
+  elif [ "$1" == "-nohet" ]; then
+    het=0
     shift
   elif [ "$1" == "-ep2" ]; then
     ep2=1
@@ -122,6 +132,13 @@ if [ "${ep2}" == "1" ]; then
 fi
 
 #=====================================
+# Het CUDA/C++ (eemumu/epoch1)
+#=====================================
+if [ "${het}" == "1" ]; then 
+  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y_$fptype/hcheck.exe"
+fi
+
+#=====================================
 # CUDA (ggttgg/epoch2)
 #=====================================
 if [ "${cuda}" == "1" ]; then
@@ -146,14 +163,16 @@ fi
 export USEBUILDDIR=1
 pushd ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
 pwd
+
 for fptype in $df; do 
   export FPTYPE=$fptype
   make AVX=none; echo
   if [ "${avxall}" == "1" ]; then make AVX=sse4; echo; fi
   if [ "${avxall}" == "1" ]; then make AVX=avx2; echo; fi
-  if [ "${cpp}" == "1" ]; then make AVX=512y; echo; fi # always take 512y as the C++ reference, even if for clang avx2 is faster
+  if [ "${cpp}" == "1" ] || [ "${het}" == "1" ]; then make AVX=512y; echo; fi # use 512y as C++ ref even if avx2 is faster on clang
   if [ "${avxall}" == "1" ]; then make AVX=512z; echo; fi
 done
+
 popd >& /dev/null
 
 if [ "${ep2}" == "1" ]; then 
@@ -182,7 +201,7 @@ function runExe() {
   ###echo "runExe $exe $args OMP=$OMP_NUM_THREADS"
   pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[MECalc|MeanMatrix|FP precision|TOTAL       :"
   # Optionally add other patterns here for some specific configurations (e.g. clang)
-  if [ "${exe%%/gcheck*}" != "${exe}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
+  if [ "${exe%%/gcheck*}" != "${exe}" ] || [ "${exe%%/hcheck*}" != "${exe}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
   pattern="${pattern}|CUCOMPLEX"
   pattern="${pattern}|COMMON RANDOM"
   pattern="${pattern}|ERROR"
@@ -193,15 +212,28 @@ function runExe() {
     pattern="${pattern}|instructions|cycles"
     pattern="${pattern}|elapsed"
     if [ "${detailed}" == "1" ]; then pattern="${pattern}|#"; fi
-    if [ "${verbose}" == "1" ]; then set -x; fi
-    perf stat -d $exe $args 2>&1 | egrep "(${pattern})" | grep -v "Performance counter stats"
-    set +x
+    if [ "${exe%%/hcheck*}" != "${exe}" ]; then 
+      if [ "${verbose}" == "1" ]; then set -x; fi
+      perf stat $exe $args 2>&1 | grep -v NaN | egrep "(${pattern})" | grep -v "Performance counter stats" | sed 's/^ /----- /g' | sort -k"2.1,2.16" -r | uniq 
+      set +x
+    else
+      if [ "${verbose}" == "1" ]; then set -x; fi
+      perf stat $exe $args 2>&1 | egrep "(${pattern})" | grep -v "Performance counter stats" | sed 's/^ /----- /g'
+      set +x
+    fi
   else
     # -- Older version using time
     # For TIMEFORMAT see https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
-    if [ "${verbose}" == "1" ]; then set -x; fi
-    TIMEFORMAT=$'real\t%3lR' && time $exe $args 2>&1 | egrep "(${pattern})"
-    set +x
+    if [ "${exe%%/hcheck*}" != "${exe}" ]; then 
+      pattern="${pattern}|TotalEventsComputed"
+      if [ "${verbose}" == "1" ]; then set -x; fi
+      TIMEFORMAT=$'real\t%3lR' && time $exe $args 2>&1 | grep -v NaN | egrep "(${pattern})" | sort -k"2.1,2.16" -r | uniq 
+      set +x
+    else 
+      if [ "${verbose}" == "1" ]; then set -x; fi
+      TIMEFORMAT=$'real\t%3lR' && time $exe $args 2>&1 | egrep "(${pattern})"
+      set +x
+    fi
   fi
 }
 
@@ -283,10 +315,17 @@ for exe in $exes; do
     echo "-------------------------------------------------------------------------"
   fi
   unset OMP_NUM_THREADS
+  if [ "${exe%%/hcheck*}" != "${exe}" ]; then 
+    export OMP_NUM_THREADS=$(nproc --all)
+  fi
   runExe $exe "$exeArgs"
   if [ "${exe%%/check*}" != "${exe}" ]; then 
     obj=${exe%%/check*}/CPPProcess.o; ./simdSymSummary.sh -stripdir ${obj}
-    if [ "${omp}" == "1" ]; then 
+    if [ "${omp}" != "0" ] && [ "${exe%%/epoch1*}" != "${exe}" ]; then 
+      echo "-------------------------------------------------------------------------"
+      export OMP_NUM_THREADS=$(nproc --all)
+      runExe $exe "$exeArgs"
+    elif [ "${omp}" == "2" ] && [ "${exe%%/epoch2*}" != "${exe}" ]; then 
       echo "-------------------------------------------------------------------------"
       export OMP_NUM_THREADS=$(nproc --all)
       runExe $exe "$exeArgs"

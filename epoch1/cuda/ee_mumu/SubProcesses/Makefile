@@ -69,6 +69,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
   cu_main     = $(BUILDDIR)/gcheck.exe
   cu_objects  = $(BUILDDIR)/gCPPProcess.o
+  het_main    = $(BUILDDIR)/hcheck.exe
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
@@ -200,7 +201,7 @@ cxx_objects=$(BUILDDIR)/CPPProcess.o
 
 testmain=$(BUILDDIR)/runTest.exe
 
-all.$(TAG): ../../src/$(BUILDDIR)/.build.$(TAG) $(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
+all.$(TAG): ../../src/$(BUILDDIR)/.build.$(TAG) $(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(het_main) $(testmain)
 
 override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)'`
 $(BUILDDIR)/.build.$(TAG):
@@ -244,11 +245,17 @@ $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
-$(cu_main): $(BUILDDIR)/gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
-	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
+# NB: gmain.o is compiled using g++; gmain.exe is linked using nvcc with objects compiled using nvcc or g++
+$(cu_main): $(BUILDDIR)/gcheck.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) $(BUILDDIR)/gmain.o
+	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) $(BUILDDIR)/gmain.o
 
-$(cxx_main): $(BUILDDIR)/check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
-	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+# NB: cmain.o is compiled using g++; cmain.exe is linked using g++ with objects compiled using g++
+$(cxx_main): $(BUILDDIR)/check.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(BUILDDIR)/cmain.o
+	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) $(BUILDDIR)/cmain.o
+
+# NB: hmain.o is compiled using g++; hmain.exe is linked using nvcc with objects compiled using nvcc or g++
+$(het_main): $(BUILDDIR)/gcheck.o $(BUILDDIR)/check.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) $(cxx_objects) $(BUILDDIR)/hmain.o
+	$(NVCC) $(BUILDDIR)/gcheck.o $(BUILDDIR)/check.o -o $@ $(cu_objects) $(cxx_objects) $(CUARCHFLAGS) -lgomp $(LIBFLAGS) $(CULIBFLAGS) $(BUILDDIR)/hmain.o
 
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
 $(testmain): $(GTESTLIBS)
