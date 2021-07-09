@@ -20,35 +20,94 @@ mgDebugDeclare();
 
 namespace MG5_sm
 {
-#ifdef __CUDACC__
+  // Decode momentum AOSOA: compute address of fptype for the given particle, 4-momentum component and event
+  // Return the fptype by reference (equivalent to returning its memory address)
   __device__
   inline const fptype& pIparIp4Ievt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                      const int ipar,
                                      const int ip4,
                                      const int ievt )
   {
-    // mapping for the various schemes (AOSOA, AOS, SOA...)
     using mgOnGpu::np4;
     using mgOnGpu::npar;
-    const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    const int ipagM = ievt/neppM; // #eventpage in this iteration
-    const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-    //printf( "%f\n", momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
+    constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+    const int ipagM = ievt/neppM; // #event "M-page"
+    const int ieppM = ievt%neppM; // #event in the current event M-page
+    //printf( "%2d %2d %8d %8.3f\n", ipar, ip4, ievt, momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
     return momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
   }
-#else
-  // Return by value: it seems a tiny bit faster than returning a reference (both for scalar and vector), not clear why
-  // NB: this assumes that neppV == neppM!
-  inline fptype_sv pIparIp4Ipag( const fptype_sv* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
+
+#ifndef __CUDACC__
+  // Return a SIMD vector of fptype's for neppV events (for the given particle, 4-momentum component and event "V-page")
+  // Return the vector by value: strictly speaking, this is only unavoidable for neppM<neppV
+  // For neppM>=neppV (both being powers of 2), the momentum neppM-AOSOA is reinterpreted in terms of neppV-vectors:
+  // it could also be returned by reference, but no performance degradation is observed when returning by value
+  inline fptype_sv pIparIp4Ipag( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                  const int ipar,
                                  const int ip4,
-                                 const int ipagM )
+                                 const int ipagV )
   {
-    // mapping for the various schemes (AOSOA, AOS, SOA...)
-    using mgOnGpu::np4;
-    using mgOnGpu::npar;
-    //printf( "%f\n", momenta1d[ipagM*npar*np4 + ipar*np4 + ip4] );
-    return momenta1d[ipagM*npar*np4 + ipar*np4 + ip4]; // AOSOA[ipagM][ipar][ip4][ieppM]
+    const int ievt0 = ipagV*neppV; // virtual event V-page ipagV contains neppV events [ievt0...ievt0+neppV-1]
+#ifdef MGONGPU_CPPSIMD
+    constexpr bool useReinterpretCastIfPossible = true; // FOR PERFORMANCE TESTS
+    constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+    constexpr bool useReinterpretCast = useReinterpretCastIfPossible && ( neppM >= neppV ) && ( neppM%neppV == 0 );
+    // Use c++17 "if constexpr": compile-time branching
+    if constexpr ( useReinterpretCast )
+    {
+      return *reinterpret_cast<const fptype_sv*>( &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ) ) );
+    }
+    else
+    {
+#if MGONGPU_CPPSIMD == 2
+      //static_assert( useReinterpretCast ); // UNCOMMENT TO FAIL IF REINTERPRET_CAST IS NOT USED
+      return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ) };
+#elif MGONGPU_CPPSIMD == 4
+      //static_assert( useReinterpretCast ); // UNCOMMENT TO FAIL IF REINTERPRET_CAST IS NOT USED
+      return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+2 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+3 ) };
+#elif MGONGPU_CPPSIMD == 8
+      //static_assert( useReinterpretCast ); // UNCOMMENT TO FAIL IF REINTERPRET_CAST IS NOT USED
+      return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+2 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+3 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+4 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+5 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+6 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+7 ) };
+#elif MGONGPU_CPPSIMD == 16
+      //static_assert( useReinterpretCast ); // UNCOMMENT TO FAIL IF REINTERPRET_CAST IS NOT USED
+      return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+2 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+3 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+4 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+5 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+6 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+7 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+8 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+9 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+10 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+11 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+12 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+13 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+14 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+15 ) };
+#else
+#warning Internal error? This code should never be reached!
+      static_assert( useReinterpretCast ); // UNCOMMENT TO FAIL IF REINTERPRET_CAST IS NOT USED
+      fptype_v out;
+      for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+ieppV );
+      return out;
+#endif
+    }
+#else
+    return pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 );
+#endif
   }
 #endif
 
@@ -58,7 +117,7 @@ namespace MG5_sm
 #ifdef MGONGPU_INLINE_HELAMPS
   inline
 #endif
-  void ixxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void ixxxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
@@ -195,7 +254,7 @@ namespace MG5_sm
 #ifdef MGONGPU_INLINE_HELAMPS
   inline
 #endif
-  void ipzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void ipzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
@@ -246,7 +305,7 @@ namespace MG5_sm
 #ifdef MGONGPU_INLINE_HELAMPS
   inline
 #endif
-  void imzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void imzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
@@ -297,7 +356,7 @@ namespace MG5_sm
 #ifdef MGONGPU_INLINE_HELAMPS
   inline
 #endif
-  void ixzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void ixzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
@@ -361,7 +420,7 @@ namespace MG5_sm
 #ifdef MGONGPU_INLINE_HELAMPS
   inline
 #endif
-  void vxxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void vxxxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const fptype vmass,
                const int nhel,              // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
                const int nsv,               // input: +1 (final) or -1 (initial)
@@ -499,7 +558,7 @@ namespace MG5_sm
 #ifdef MGONGPU_INLINE_HELAMPS
   inline
 #endif
-  void sxxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void sxxxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const fptype,                // WARNING: "smass" unused (missing in Fortran)
                const int,                   // WARNING: "nhel" unused (missing in Fortran) - scalar has no helicity
                const int nss,               // input: +1 (final) or -1 (initial)
@@ -542,7 +601,7 @@ namespace MG5_sm
 #ifdef MGONGPU_INLINE_HELAMPS
   inline
 #endif
-  void oxxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void oxxxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
@@ -680,7 +739,7 @@ namespace MG5_sm
 #ifdef MGONGPU_INLINE_HELAMPS
   inline
 #endif
-  void opzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void opzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
                cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
@@ -730,7 +789,7 @@ namespace MG5_sm
 #ifdef MGONGPU_INLINE_HELAMPS
   inline
 #endif
-  void omzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void omzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
                cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
@@ -783,7 +842,7 @@ namespace MG5_sm
 #ifdef MGONGPU_INLINE_HELAMPS
   inline
 #endif
-  void oxzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void oxzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)

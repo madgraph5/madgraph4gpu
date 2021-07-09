@@ -63,10 +63,10 @@ namespace Proc
   inline
 #endif
   void calculate_wavefunctions( int ihel,
-                                const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
-                                fptype_sv* allMEs            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
+                                const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
+                                fptype_sv* allMEs         // output: allMEs[npagV][neppV], nevt=npagV*neppV, |M|^2 running sum_hel
 #ifndef __CUDACC__
-                                , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                                , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                                 )
   {
@@ -107,9 +107,11 @@ namespace Proc
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
 #if not defined __clang__ && defined __GNUC__ && __GNUC__ < 9
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel) private (amp_sv,w_sv)
+#pragma omp parallel for default(none) \
+  shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel,cNGoodHel) private (amp_sv,w_sv)
 #else
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel,npagV) private (amp_sv,w_sv)
+#pragma omp parallel for default(none) \
+  shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel,cNGoodHel,npagV) private (amp_sv,w_sv)
 #endif
 #endif
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
@@ -194,19 +196,20 @@ namespace Proc
 
       // NB: calculate_wavefunctions ADDS |M|^2 for given ihel to running sum of |M|^2 over helicities for given event(s)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-#ifdef MGONGPU_CPPSIMD
-      allMEs[ipagV] += deltaMEs;
-      //printf( "calculate_wavefunction: %6d %2d %f\n", ipagV, ihel, allMEs[ipagV] ); // FIXME
-#else
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-#else
-      const int ievt = ipagV;
-#endif
       allMEs[ievt] += deltaMEs;
-      //printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt] );
+      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt] );
+#else
+      allMEs[ipagV] += deltaMEs;
+#ifdef MGONGPU_CPPSIMD
+      //if ( cNGoodHel > 0 )
+      //  for ( int ieppV=0; ieppV<neppV; ieppV++ )
+      //    printf( "calculate_wavefunction: %6d %2d %f\n", ipagV*neppV+ieppV, ihel, allMEs[ipagV][ieppV] );
+#else
+      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %6d %2d %f\n", ipagV, ihel, allMEs[ipagV] );
 #endif
-
+#endif
     }
 
     mgDebug( 1, __FUNCTION__ );
@@ -240,10 +243,13 @@ namespace Proc
     memcpy( cHel, tHel, ncomb * nexternal * sizeof(short) );
 #endif
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
-    assert( sizeof(cxtype) == 2 * sizeof(fptype) );
+    static_assert( sizeof(cxtype) == 2 * sizeof(fptype) );
 #ifndef __CUDACC__
-    // SANITY CHECK: momenta AOSOA uses vectors with the same size as fptype_v
-    assert( neppV == mgOnGpu::neppM );
+    // SANITY CHECK: check that neppR, neppM and neppV are powers of two (https://stackoverflow.com/a/108360)
+    auto ispoweroftwo = []( int n ) { return ( n > 0 ) && !( n & ( n - 1 ) ); };
+    static_assert( ispoweroftwo( mgOnGpu::neppR ) );
+    static_assert( ispoweroftwo( mgOnGpu::neppM ) );
+    static_assert( ispoweroftwo( neppV ) );
 #endif
   }
 
@@ -346,9 +352,9 @@ namespace Proc
 
 #ifdef __CUDACC__
   __global__
-  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
-                            fptype_sv* allMEs,           // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
-                            bool* isGoodHel )            // output: isGoodHel[ncomb] - device array
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
+                            fptype_sv* allMEs,        // output: allMEs[npagV][neppV], nevt=npagV*neppV, |M|^2 final avg_hel
+                            bool* isGoodHel )         // output: isGoodHel[ncomb] - device array
   {
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
@@ -366,11 +372,13 @@ namespace Proc
     }
   }
 #else
-  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
-                            fptype_sv* allMEs,           // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
-                            bool* isGoodHel              // output: isGoodHel[ncomb] - device array
-                            , const int nevt )           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
+                            fptype_sv* allMEs,        // output: allMEs[npagV][neppV], nevt=npagV*neppV, |M|^2 final avg_hel
+                            bool* isGoodHel           // output: isGoodHel[ncomb] - device array
+                            , const int nevt )        // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
+    assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment
+    assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment
     const int maxtry0 = ( neppV > 16 ? neppV : 16 ); // 16, but at least neppV (otherwise the npagV loop does not even start)
     fptype allMEsLast[maxtry0] = { 0 };
     const int maxtry = std::min( maxtry0, nevt ); // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
@@ -441,10 +449,10 @@ namespace Proc
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
   __global__
-  void sigmaKin( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
-                 fptype_sv* allMEs            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
+  void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                 fptype_sv* allMEs         // output: allMEs[npagV][neppV], nevt=npagV*neppV, |M|^2 final avg_hel
 #ifndef __CUDACC__
-                 , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                  )
   {
@@ -465,23 +473,23 @@ namespace Proc
     // Remember: in CUDA this is a kernel for one event, in c++ this processes n events
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "sigmakin: ievt %d\n", ievt );
+#else
+    assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment
+    assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment
 #endif
 
     // PART 0 - INITIALISATION (before calculate_wavefunctions)
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-#ifdef MGONGPU_CPPSIMD
+#ifdef __CUDACC__
+    {
+      allMEs[ievt] = 0; // all zeros
+    }
+#else
     const int npagV = nevt/neppV;    
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
-      allMEs[ipagV] = fptype_v{0}; // all zeros
-    }
-#else
-#ifndef __CUDACC__
-    for ( int ievt = 0; ievt < nevt; ++ievt )
-#endif
-    {
-      allMEs[ievt] = 0; // all zeros
+      allMEs[ipagV] = fptype_sv{0}; // all zeros
     }
 #endif
 
@@ -503,17 +511,14 @@ namespace Proc
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-#ifdef MGONGPU_CPPSIMD
+#ifdef __CUDACC__
+    {
+      allMEs[ievt] /= (fptype)denominators;
+    }
+#else
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
       allMEs[ipagV] /= (fptype)denominators;
-    }
-#else
-#ifndef __CUDACC__
-    for ( int ievt = 0; ievt < nevt; ++ievt )
-#endif
-    {
-      allMEs[ievt] /= (fptype)denominators;
     }
 #endif
     mgDebugFinalise();
