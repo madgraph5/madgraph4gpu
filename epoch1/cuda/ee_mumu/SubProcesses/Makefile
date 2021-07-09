@@ -230,9 +230,15 @@ $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
-#$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
-#	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
-#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(AVXFLAGS) $(CUINC) -c $< -o $@
+# Apply special build flags only to CPPProcess.cc (-flto)
+$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
+	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -flto $(CUINC) -c $< -o $@
+
+### Apply special build flags only to CPPProcess.cc (AVXFLAGS)
+###$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
+###	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+###	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(AVXFLAGS) $(CUINC) -c $< -o $@
 
 $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
