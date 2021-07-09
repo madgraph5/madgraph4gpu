@@ -35,7 +35,7 @@ function countSyms() {
     printf "(%24s : %4d) " "'$sym'" $(cat $dump | awk '/^ +[[:xdigit:]]+:\t/' | cut -f3- | egrep "$sym" | wc -l)
   done; printf "\n"
 }
-#dump=$1; shift; countSyms $* # for debugging (./simdgrep.sh ./build.none/CPPProcess.o.objdump 'addsd.*xmm')
+#dump=$1; shift; countSyms $* # for debugging (./simdSym.sh ./build.none/CPPProcess.o.objdump 'addsd.*xmm')
 
 function mainCountSyms() {
   # Command line arguments: select file
@@ -74,11 +74,17 @@ function mainCountSyms() {
 function listSyms() {
   if [ "$dump" == "" ] || [ ! -e $dump ]; then echo "ERROR! File '$dump' not found"; exit 1; fi 
   # Use cut -f3- to print only the assembly code after two leading fields separated by tabs
-  cat $dump | awk '/^ +[[:xdigit:]]+:\t/' | cut -f3- | egrep '(x|y|z)mm' | sed -r 's/ .*%(x|y|z)mm.*/ %\1mm/g' | sort | uniq -c | awk '{printf "%5s %-15s %5d\n",$3,$2,$1}' | sort -k 1,2
+  cat $dump | awk '/^ +[[:xdigit:]]+:\t/' | cut -f3- | egrep '((x|y|z)mm| vs)' | sed -r 's/ .*(%(x|y|z)mm|vs).*/ \1/g' | sort | uniq -c | awk '{printf "%5s %-15s %5d\n",$3,$2,$1}' | sort -k 1,2
 }
 ###dump=$1; shift; listSyms $* # for debugging
 
 function mainListSyms() {
+  # Command line arguments: --disassemble-all?
+  dis=-d
+  if [ "$1" == "-D" ]; then
+    dis=-D
+    shift
+  fi
   # Command line arguments: select file
   if [ "$1" == "" ] || [ "$2" != "" ]; then
     echo "Usage:   $0 <filename>"
@@ -88,7 +94,7 @@ function mainListSyms() {
   file=$1
   # Disassemble selected file
   dump=${file}.objdump
-  objdump -d -C $file > ${dump}
+  objdump $dis -C $file > ${dump}
   # List symbols in selected file
   listSyms
 }

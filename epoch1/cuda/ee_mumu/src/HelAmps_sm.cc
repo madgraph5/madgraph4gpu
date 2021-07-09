@@ -114,6 +114,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void ixxxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,
                const int nhel,              // input: -1 or +1 (helicity of fermion)
@@ -248,6 +251,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void ipzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
@@ -296,6 +302,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void imzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
@@ -344,6 +353,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void ixzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
@@ -405,6 +417,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void vxxxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const fptype vmass,
                const int nhel,              // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
@@ -540,6 +555,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void sxxxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const fptype,                // WARNING: "smass" unused (missing in Fortran)
                const int,                   // WARNING: "nhel" unused (missing in Fortran) - scalar has no helicity
@@ -580,6 +598,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void oxxxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,
                const int nhel,              // input: -1 or +1 (helicity of fermion)
@@ -715,6 +736,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void opzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
@@ -762,6 +786,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void omzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
@@ -812,6 +839,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void oxzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
@@ -871,6 +901,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void FFV1_0( const cxtype_sv F1[],   // input: wavefunction1[6]
                const cxtype_sv F2[],   // input: wavefunction2[6]
                const cxtype_sv V3[],   // input: wavefunction3[6]
@@ -891,6 +924,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void FFV1P0_3( const cxtype_sv F1[],     // input: wavefunction1[6]
                  const cxtype_sv F2[],     // input: wavefunction2[6]
                  const cxtype COUP,
@@ -915,6 +951,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void FFV2_0( const cxtype_sv F1[],   // input: wavefunction1[6]
                const cxtype_sv F2[],   // input: wavefunction2[6]
                const cxtype_sv V3[],   // input: wavefunction3[6]
@@ -933,6 +972,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void FFV2_3( const cxtype_sv F1[],   // input: wavefunction1[6]
                const cxtype_sv F2[],   // input: wavefunction2[6]
                const cxtype COUP,
@@ -960,6 +1002,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void FFV4_0( const cxtype_sv F1[],   // input: wavefunction1[6]
                const cxtype_sv F2[],   // input: wavefunction2[6]
                const cxtype_sv V3[],   // input: wavefunction3[6]
@@ -982,6 +1027,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void FFV4_3( const cxtype_sv F1[],   // input: wavefunction1[6]
                const cxtype_sv F2[],   // input: wavefunction2[6]
                const cxtype_sv COUP,
@@ -1018,6 +1066,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void FFV2_4_0( const cxtype_sv F1[],   // input: wavefunction1[6]
                  const cxtype_sv F2[],   // input: wavefunction2[6]
                  const cxtype_sv V3[],   // input: wavefunction3[6]
@@ -1042,6 +1093,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
+#ifdef MGONGPU_INLINE_HELAMPS
+  inline
+#endif
   void FFV2_4_3( const cxtype_sv F1[],   // input: wavefunction1[6]
                  const cxtype_sv F2[],   // input: wavefunction2[6]
                  const cxtype COUP1,

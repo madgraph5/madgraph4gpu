@@ -6,7 +6,10 @@ CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
-CXX     ?= g++
+
+# Note: AR and CXX are implicitly defined if not set externally
+# See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
+RANLIB = ranlib
 
 # Assuming uname is available, detect if architecture is PowerPC
 UNAME_P := $(shell uname -p)
@@ -31,7 +34,23 @@ endif
 # Set the host compiler for nvcc
 #CUFLAGS += -ccbin $(subst ccache ,,$(CXX))
 
-# PowerPC-specific compiler flags
+# PowerPC-specific CXX compiler flags (being reviewed)
+ifeq ($(UNAME_P),ppc64le)
+  CXXFLAGS+= -mcpu=power9 -mtune=power9 # gains ~2-3% both for none and sse4
+  # Throughput references without the extra flags below: none=1.41-1.42E6, sse4=2.15-2.19E6
+  ###CXXFLAGS+= -DNO_WARN_X86_INTRINSICS # no change
+  ###CXXFLAGS+= -fpeel-loops # no change
+  ###CXXFLAGS+= -funroll-loops # gains ~1% for none, loses ~1% for sse4
+  ###CXXFLAGS+= -ftree-vectorize # no change
+  ###CXXFLAGS+= -flto # BUILD ERROR IF THIS ADDED IN SRC?!
+else
+  ###AR=gcc-ar # needed by -flto
+  ###RANLIB=gcc-ranlib # needed by -flto
+  ###CXXFLAGS+= -flto # NB: build error from src/Makefile unless gcc-ar and gcc-ranlib are used
+  ######CXXFLAGS+= -fno-semantic-interposition # no benefit (neither alone, nor combined with -flto)
+endif
+
+# PowerPC-specific CUDA compiler flags (to be reviewed!)
 #ifeq ($(UNAME_P),ppc64le)
 #  CUFLAGS+= -Xcompiler -mno-float128
 #endif
@@ -41,8 +60,10 @@ endif
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
 $(info AVX=$(AVX))
 ifeq ($(UNAME_P),ppc64le)
-  ifneq ($(AVX),none)
-    $(error Unknown AVX='$(AVX)': only 'none' is supported on PowerPC for the moment)
+  ifeq ($(AVX),sse4)
+    override AVXFLAGS = -D__SSE4_2__ # Power9 VSX with 128 width (VSR registers)
+  else ifneq ($(AVX),none)
+    $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on PowerPC for the moment)
   endif
 else
   ifeq ($(AVX),sse4)
@@ -149,7 +170,7 @@ $(BUILDDIR)/%.o : %.cc *.h
 $(target): $(cxx_objects) $(cu_objects)
 	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
 	$(AR) cru $@ $(cxx_objects) $(cu_objects)
-	ranlib $(target)
+	$(RANLIB) $(target)
 
 .PHONY: clean
 
