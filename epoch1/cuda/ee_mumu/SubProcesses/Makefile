@@ -231,9 +231,9 @@ $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 # Apply special build flags only to CPPProcess.cc (-flto)
-$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -flto $(CUINC) -c $< -o $@
+#$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
+#	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -flto $(CUINC) -c $< -o $@
 
 ### Apply special build flags only to CPPProcess.cc (AVXFLAGS)
 ###$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
