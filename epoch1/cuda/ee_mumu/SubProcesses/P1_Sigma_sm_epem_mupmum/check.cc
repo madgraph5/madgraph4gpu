@@ -276,8 +276,14 @@ int check
     bool ok = __builtin_cpu_supports( "avx2" );
     const std::string avxtag = "haswell (AVX2)";
 #elif defined __SSE4_2__
+#ifdef __PPC__
+    // See https://gcc.gnu.org/onlinedocs/gcc/Basic-PowerPC-Built-in-Functions-Available-on-all-Configurations.html
+    bool ok = __builtin_cpu_supports( "vsx" );
+    const std::string tag = "powerpc vsx (128bit as in SSE4.2)";
+#else
     bool ok = __builtin_cpu_supports( "sse4.2" );
     const std::string avxtag = "nehalem (SSE4.2)";
+#endif
 #else
     bool ok = true;
     const std::string avxtag = "none";
@@ -837,7 +843,11 @@ int check
               << "] ('avx2': AVX2, 256bit)" << cxtref << std::endl
 #elif defined __SSE4_2__
               << tag << "Internal loops fptype_sv    = VECTOR[" << neppV
+#ifdef __PPC__
+              << "] ('sse4': PPC VSX, 128bit)" << cxtref << std::endl
+#else
               << "] ('sse4': SSE4.2, 128bit)" << cxtref << std::endl
+#endif
 #else
 #error Internal error: unknown SIMD build configuration
 #endif
