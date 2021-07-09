@@ -59,9 +59,7 @@ namespace Proc
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for given ihel to running sum of |M|^2 over helicities for given event(s)
   __device__
-#ifdef MGONGPU_INLINE_HELAMPS
-  inline
-#endif
+  INLINE
   void calculate_wavefunctions( int ihel,
                                 const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
                                 fptype_sv* allMEs            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
@@ -69,6 +67,7 @@ namespace Proc
                                 , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                                 )
+  //ALWAYS_INLINE // attributes are not permitted in a function definition
   {
     using namespace MG5_sm;
     mgDebug( 0, __FUNCTION__ );
