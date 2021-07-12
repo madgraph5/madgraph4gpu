@@ -96,7 +96,7 @@ function mainSummarizeSyms() {
 
     # Count and strip AVX512 ymm/xmm symbols
     # [NB: these are AVX512VL symbols, i.e. implementing AVX512 on xmm/ymm registers]
-    cnt512y=$(stripSyms '^v.*dqa(32|64).*(x|y)mm' '^v.*(32|64)x2.*(x|y)mm' '^vpcmpneqq.*(x|y)mm')
+    cnt512y=$(stripSyms '^v.*dqa(32|64).*(x|y)mm' '^v.*(32|64)x2.*(x|y)mm' '^vpcmpneqq.*(x|y)mm' '^vpermi2.*(x|y)mm' '^vblendm.*(x|y)mm' '^vpmovd.*(x|y)mm' '^vrnd.*(x|y)mm')
     ###echo $cnt512y; ls -l $dumptmp
 
     # Count and strip AVX2 symbols
