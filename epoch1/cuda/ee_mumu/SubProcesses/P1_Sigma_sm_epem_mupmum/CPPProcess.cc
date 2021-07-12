@@ -308,11 +308,14 @@ namespace Proc
 #endif
     out << " (";
 #endif
-    // INTEL_COMPILER version (either as CXX or as host compiler inside NVCC)
+    // ICX version (either as CXX or as host compiler inside NVCC)
 #if defined __INTEL_COMPILER
-    out << "icc " << __INTEL_COMPILER;
-    // CLANG version (either as CXX or as host compiler inside NVCC)
-#elif defined __clang__
+#error "icc is no longer supported: please use icx"
+#elif defined __INTEL_LLVM_COMPILER // alternative: __INTEL_CLANG_COMPILER
+    out << "icx " << __INTEL_LLVM_COMPILER << " (";
+#endif
+    // CLANG version (either as CXX or as host compiler inside NVCC or inside ICX)
+#if defined __clang__
 #if defined __clang_major__ && defined __clang_minor__ && defined __clang_patchlevel__
     out << "clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
     // GCC toolchain version inside CLANG
@@ -323,7 +326,7 @@ namespace Proc
     std::array<char, 128> tchainbuf;
     while ( fgets( tchainbuf.data(), tchainbuf.size(), tchainpipe.get() ) != nullptr ) tchainout += tchainbuf.data();
     tchainout.pop_back(); // remove trailing newline
-#ifdef __CUDACC__
+#if defined __CUDACC__ or defined __INTEL_LLVM_COMPILER
     out << ", gcc " << tchainout;
 #else
     out << " (gcc " << tchainout << ")";
@@ -339,7 +342,7 @@ namespace Proc
     out << "gcc UNKNOWKN";
 #endif
 #endif
-#ifdef __CUDACC__
+#if defined __CUDACC__ or defined __INTEL_LLVM_COMPILER
     out << ")";
 #endif
     return out.str();
