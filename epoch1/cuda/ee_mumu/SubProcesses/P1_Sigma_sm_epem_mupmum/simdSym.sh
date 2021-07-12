@@ -98,7 +98,7 @@ function mainListSyms() {
   # List symbols in selected file
   listSyms
 }
-#mainListSyms $*
+mainListSyms $*
 
 #----------------------------------------------------------------------------------------------
 
