@@ -1398,9 +1398,9 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
   Kokkos::complex<double> ztemp; 
   Kokkos::complex<double> jamp[ncolor]; 
   // The color matrix;
-  static const double denom[ncolor] = {54, 54, 54, 54, 54, 54, 54, 54, 54, 54,
+  const double denom[ncolor] = {54, 54, 54, 54, 54, 54, 54, 54, 54, 54,
       54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54};
-  static const double cf[ncolor][ncolor] = {{512, -64, -64, 8, 8, 80, -64, 8,
+  const double cf[ncolor][ncolor] = {{512, -64, -64, 8, 8, 80, -64, 8,
       8, -1, -1, -10, 8, -1, 80, -10, 71, 62, -1, -10, -10, 62, 62, -28}, {-64,
       512, 8, 80, -64, 8, 8, -64, -1, -10, 8, -1, -1, -10, -10, 62, 62, -28, 8,
       -1, 80, -10, 71, 62}, {-64, 8, 512, -64, 80, 8, 8, -1, 80, -10, 71, 62,
