@@ -1,13 +1,13 @@
-KOKKOSPATH_CUDA ?= /home/parton/git/kokkos/install_a100
+KOKKOSPATH_CUDA ?= /home/parton/git/kokkos/install_v100
 KOKKOSPATH_OMP ?= /home/parton/git/kokkos/install_omp
-KOKKOSPATH_IRIS ?= /home/psteinbr/shared/gold/install
+KOKKOSPATH_IRIS ?= $(KOKKOS_HOME)
 KOKKOSPATH_HIP ?= /home/parton/git/kokkos/install_mi50
 
 INCDIR=../../src
-CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++17
+CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++17 
 LDFLAGS=
 
-CUDA_ARCH_NUM ?= 80
+CUDA_ARCH_NUM ?= 70
 NVCC=$(KOKKOSPATH_CUDA)/bin/nvcc_wrapper
 CUDA_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_CUDA)/include -arch=compute_$(CUDA_ARCH_NUM) --expt-extended-lambda --expt-relaxed-constexpr -use_fast_math --openmp
 CUDA_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_CUDA)/lib64/libkokkoscore.a -lnvToolsExt --openmp
@@ -20,8 +20,8 @@ HIPCC=hipcc
 OPENMP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_OMP)/include --openmp
 OPENMP_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_OMP)/lib64/libkokkoscore.a -ldl --openmp
 
-IRIS_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_IRIS)/include -fiopenmp -fopenmp-targets=spir64 -Wno-parentheses -Wno-openmp-mapping
-IRIS_LDFLAGS=$(LDFLAGS)  $(KOKKOSPATH_IRIS)/lib64/libkokkoscore.a -fiopenmp -fopenmp-targets=spir64
+IRIS_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_IRIS)/include -I/soft/restricted/CNDA/sdk/2021.04.30.001/oneapi/compiler/latest/linux/include/sycl -fiopenmp -fopenmp-targets=spir64 -Wno-parentheses -Wno-openmp-mapping
+IRIS_LDFLAGS=$(LDFLAGS)  $(KOKKOSPATH_IRIS)/lib64/libkokkoscore.a -fiopenmp -fopenmp-targets=spir64 -L/soft/restricted/CNDA/sdk/2021.04.30.001/oneapi/compiler/latest/linux/lib/ -lsycl
 
 HIP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_HIP)/include -fopenmp -fno-gpu-rdc --amdgpu-target=gfx906
 HIP_LDFLAGS=$(LDFLAGS) -L $(KOKKOSPATH_HIP)/lib64  -lkokkoscore -ldl -fopenmp 
