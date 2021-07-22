@@ -757,10 +757,14 @@ int main(int argc, char **argv)
     std::cout << std::string(SEP79, '*') << std::endl
 #ifdef __CUDACC__
               << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CUDA"
-              << " [" << process.getCompiler() << "]" << std::endl
 #else
               << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CPP"
-              << " [" << process.getCompiler() << "]" << std::endl
+#endif
+              << " [" << process.getCompiler() << "]"
+#ifdef MGONGPU_INLINE_HELAMPS
+              << " [inlineHel=1]" << std::endl
+#else
+              << " [inlineHel=0]" << std::endl
 #endif
               << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << "NumThreadsPerBlock          = " << gputhreads << std::endl

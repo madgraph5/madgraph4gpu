@@ -21,16 +21,17 @@
 //#define MGONGPU_FPTYPE_FLOAT 1 // 2.4x faster (~1.64E9 against 6.8E8)
 #endif
 
+// Choose whether to inline all HelAmps functions
+// This optimization can gain almost a factor 4 in C++, similar to -flto (issue #229)
+// By default, do not inline, but allow this macros to be set from outside with e.g. -DMGONGPU_INLINE_HELAMPS
+//#undef MGONGPU_INLINE_HELAMPS // default
+////#define MGONGPU_INLINE_HELAMPS 1
+
 // Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
 #define MGONGPU_CXTYPE_THRUST 1 // default (~6.8E8)
 //#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~5% slower (6.5E8 against 6.8E8)
 #endif
-
-// Inline all HelAmps functions? (CHOOSE ONLY ONE)
-// This optimization can gain almost a factor 4 in C++, similar to -flto (issue #229)
-#undef MGONGPU_INLINE_HELAMPS
-//#define MGONGPU_INLINE_HELAMPS 1
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
 #ifdef __CUDACC__
