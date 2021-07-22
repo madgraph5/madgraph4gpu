@@ -301,3 +301,13 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     std::cout << "INFO: New reference data dumped to file '" << dumpFileName << "'" << std::endl;
   }
 }
+
+//==========================================================================
+
+// This is needed if and only if C++ LTO-like inlining optimizations are used in CPPProcess.cc (issue #229)
+#ifdef MGONGPU_INLINE_HELAMPS
+#include "../../src/HelAmps_sm.cc"
+#endif
+
+//==========================================================================
+
