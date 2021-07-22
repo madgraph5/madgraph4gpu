@@ -796,10 +796,14 @@ int check
     outStream << std::string(SEP79, '*') << std::endl
 #ifdef __CUDACC__
               << tag << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CUDA"
-              << " [" << process.getCompiler() << "]" << std::endl
 #else
               << tag << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CPP"
-              << " [" << process.getCompiler() << "]" << std::endl
+#endif
+              << " [" << process.getCompiler() << "]"
+#ifdef MGONGPU_INLINE_HELAMPS
+              << " [inlineHel=1]" << std::endl
+#else
+              << " [inlineHel=0]" << std::endl
 #endif
               << tag << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << tag << "NumThreadsPerBlock          = " << gputhreads << std::endl
