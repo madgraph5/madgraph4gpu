@@ -59,9 +59,7 @@ namespace Proc
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for given ihel to running sum of |M|^2 over helicities for given event(s)
   __device__
-#ifdef MGONGPU_INLINE_HELAMPS
-  inline
-#endif
+  INLINE
   void calculate_wavefunctions( int ihel,
                                 const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
                                 fptype_sv* allMEs         // output: allMEs[npagV][neppV], nevt=npagV*neppV, |M|^2 running sum_hel
@@ -69,6 +67,7 @@ namespace Proc
                                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                                 )
+  //ALWAYS_INLINE // attributes are not permitted in a function definition
   {
     using namespace MG5_sm;
     mgDebug( 0, __FUNCTION__ );
@@ -314,7 +313,13 @@ namespace Proc
 #endif
     out << " (";
 #endif
-    // CLANG version (either as CXX or as host compiler inside NVCC)
+    // ICX version (either as CXX or as host compiler inside NVCC)
+#if defined __INTEL_COMPILER
+#error "icc is no longer supported: please use icx"
+#elif defined __INTEL_LLVM_COMPILER // alternative: __INTEL_CLANG_COMPILER
+    out << "icx " << __INTEL_LLVM_COMPILER << " (";
+#endif
+    // CLANG version (either as CXX or as host compiler inside NVCC or inside ICX)
 #if defined __clang__
 #if defined __clang_major__ && defined __clang_minor__ && defined __clang_patchlevel__
     out << "clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
@@ -326,7 +331,7 @@ namespace Proc
     std::array<char, 128> tchainbuf;
     while ( fgets( tchainbuf.data(), tchainbuf.size(), tchainpipe.get() ) != nullptr ) tchainout += tchainbuf.data();
     tchainout.pop_back(); // remove trailing newline
-#ifdef __CUDACC__
+#if defined __CUDACC__ or defined __INTEL_LLVM_COMPILER
     out << ", gcc " << tchainout;
 #else
     out << " (gcc " << tchainout << ")";
@@ -342,7 +347,7 @@ namespace Proc
     out << "gcc UNKNOWKN";
 #endif
 #endif
-#ifdef __CUDACC__
+#if defined __CUDACC__ or defined __INTEL_LLVM_COMPILER
     out << ")";
 #endif
     return out.str();
