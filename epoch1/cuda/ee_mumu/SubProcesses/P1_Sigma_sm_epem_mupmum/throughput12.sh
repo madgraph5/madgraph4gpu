@@ -150,7 +150,7 @@ fi
 # Het CUDA/C++ (eemumu/epoch1)
 #=====================================
 if [ "${het}" == "1" ]; then 
-  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y_$fptype/hcheck.exe"
+  exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y_${fptype}_inl${helinl}/hcheck.exe"
 fi
 
 #=====================================
