@@ -120,10 +120,10 @@ for helinl in $inl; do
       exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.sse4_${fptype}_inl${helinl}/check.exe"
       exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.avx2_${fptype}_inl${helinl}/check.exe"
     fi
-    if [ "${cpp}" == "1" ]; then 
+    if [ "${cpp}" == "1" ] && [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
       exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y_${fptype}_inl${helinl}/check.exe"
     fi
-    if [ "${avxall}" == "1" ]; then 
+    if [ "${avxall}" == "1" ] && [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
       exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z_${fptype}_inl${helinl}/check.exe"
     fi
   done
@@ -166,8 +166,8 @@ for helinl in $inl; do
     make AVX=none; echo
     if [ "${avxall}" == "1" ]; then make AVX=sse4; echo; fi
     if [ "${avxall}" == "1" ]; then make AVX=avx2; echo; fi
-    if [ "${cpp}" == "1" ]; then make AVX=512y; echo; fi # always take 512y as the C++ reference, even if for clang avx2 is faster
-    if [ "${avxall}" == "1" ]; then make AVX=512z; echo; fi
+    if [ "${cpp}" == "1" ] && [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then make AVX=512y; echo; fi # always take 512y as the C++ reference, even if for clang avx2 is faster (but skip it if not supported!)
+    if [ "${avxall}" == "1" ] && [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then make AVX=512z; echo; fi
   done
 done
 popd >& /dev/null
@@ -276,7 +276,7 @@ unamep=$(uname -p)
 if [ "${unamep}" == "ppc64le" ]; then 
   cpuTxt=$(cat /proc/cpuinfo | grep ^machine | awk '{print substr($0,index($0,"Power"))", "}')$(cat /proc/cpuinfo | grep ^cpu | head -1 | awk '{print substr($0,index($0,"POWER"))}')
 else
-  cpuTxt=$(cat /proc/cpuinfo | grep '^model name' | head -1 | awk '{i0=index($0,"Intel"); i1=index($0," @"); if (i1>0) {print substr($0,i0,i1-i0)} else {print substr($0,i0)}}')
+  cpuTxt=$(cat /proc/cpuinfo | grep '^model name' | head -1 | awk '{i0=index($0,"Intel"); if (i0==0) i0=index($0,"AMD"); i1=index($0," @"); if (i1>0) {print substr($0,i0,i1-i0)} else {print substr($0,i0)}}')
 fi
 echo -e "On $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
 
