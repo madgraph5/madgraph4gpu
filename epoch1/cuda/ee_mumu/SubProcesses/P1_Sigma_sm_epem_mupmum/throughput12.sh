@@ -120,11 +120,13 @@ for helinl in $inl; do
       exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.sse4_${fptype}_inl${helinl}/check.exe"
       exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.avx2_${fptype}_inl${helinl}/check.exe"
     fi
-    if [ "${cpp}" == "1" ] && [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
-      exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y_${fptype}_inl${helinl}/check.exe"
-    fi
-    if [ "${avxall}" == "1" ] && [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
-      exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z_${fptype}_inl${helinl}/check.exe"
+    if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
+      if [ "${cpp}" == "1" ]; then 
+        exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y_${fptype}_inl${helinl}/check.exe"
+      fi
+      if [ "${avxall}" == "1" ]; then 
+        exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z_${fptype}_inl${helinl}/check.exe"
+      fi
     fi
   done
 done
@@ -166,8 +168,10 @@ for helinl in $inl; do
     make AVX=none; echo
     if [ "${avxall}" == "1" ]; then make AVX=sse4; echo; fi
     if [ "${avxall}" == "1" ]; then make AVX=avx2; echo; fi
-    if [ "${cpp}" == "1" ] && [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then make AVX=512y; echo; fi # always take 512y as the C++ reference, even if for clang avx2 is faster (but skip it if not supported!)
-    if [ "${avxall}" == "1" ] && [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then make AVX=512z; echo; fi
+    if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then # skip avx512 if not supported!
+      if [ "${cpp}" == "1" ]; then make AVX=512y; echo; fi # use 512y as C++ ref even if avx2 is faster on clang
+      if [ "${avxall}" == "1" ]; then make AVX=512z; echo; fi
+    fi
   done
 done
 popd >& /dev/null
