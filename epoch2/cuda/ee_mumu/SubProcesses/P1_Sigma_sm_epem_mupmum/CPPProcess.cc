@@ -228,20 +228,20 @@ namespace Proc
     out << "nvcc " << __CUDACC_VER_MAJOR__ << "." << __CUDACC_VER_MINOR__ << "." << __CUDACC_VER_BUILD__;
 #else
     out << "nvcc UNKNOWN";
-#endif
+#endif // __CUDACC_VER_MAJOR__ ...
 #elif defined __clang__
 #if defined __clang_major__ && defined __clang_minor__ && defined __clang_patchlevel__
     out << "clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
 #else
     out << "clang UNKNOWKN";
-#endif
+#endif // __clang_major__ ...
 #else
 #if defined __GNUC__ && defined __GNUC_MINOR__ && defined __GNUC_PATCHLEVEL__
     out << "gcc (GCC) " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
 #else
     out << "gcc UNKNOWKN";
-#endif
-#endif
+#endif // __GNUC__
+#endif // __CUDACC__
     return out.str();
   }
 
@@ -319,9 +319,9 @@ namespace Proc
     // - firstprivate: give each thread its own copy, and initialise with value from outside
     // This means that each thread computes its own good helicity states. Before, this was implicitly shared, i.e. race condition.
 #pragma omp parallel for default(none) shared(allmomenta, allMEs) firstprivate(sigmakin_itry, sigmakin_goodhel, nevt)
-#endif
+#endif // _OPENMP
     for ( int ievt = 0; ievt < nevt; ++ievt )
-#endif
+#endif // __CUDACC__
     {
 #ifdef __CUDACC__
       const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
