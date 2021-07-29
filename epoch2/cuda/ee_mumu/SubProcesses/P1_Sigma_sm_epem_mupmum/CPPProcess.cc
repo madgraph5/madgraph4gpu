@@ -56,7 +56,12 @@ namespace Proc
                                 fptype &meHelSum          // input AND output: running sum of |M|^2 over all helicities for this event
 #ifndef __CUDACC__
                                 , const int ievt
-#endif
+#else
+                                , int gpublocks, int gputhreads
+#ifdef MGONGPU_NSIGHT_DEBUG
+                                , int shmem
+#endif // MGONGPU_NSIGHT_DEBUG
+#endif // __CUDACC__
                                 )
   {
     using namespace MG5_sm;
@@ -74,36 +79,56 @@ namespace Proc
     //const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
 
 #ifdef __CUDACC__
-    opzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0 );
+
+    // Calculate color flows
+    // (compute M as the sum of the invariant amplitudes for all Feynman diagrams)
+    const int ncolor = 1;
+    cxtype jamp[ncolor] = {};
+
+#ifndef MGONGPU_NSIGHT_DEBUG
+    opzxxx<<<gpublocks, gputhreads>>>( allmomenta, cHel[ihel][0], -1, w[0], 0 );
     //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w[0], 0 ); // tested ok (much slower)
+    imzxxx<<<gpublocks, gputhreads>>>( allmomenta, cHel[ihel][1], +1, w[1], 1 );
+    //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w[1], 1 ); // tested ok (slower)
+    ixzxxx<<<gpublocks, gputhreads>>>( allmomenta, cHel[ihel][2], -1, w[2], 2 );
+    //ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w[2], 2 ); // tested ok (a bit slower)
+    oxzxxx<<<gpublocks, gputhreads>>>( allmomenta, cHel[ihel][3], +1, w[3], 3 );
+    //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w[3], 3 ); // tested ok (a bit slower)
+
+    FFV1P0_3<<<gpublocks, gputhreads>>>( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
+    // Amplitude(s) for diagram number 1
+    FFV1_0<<<gpublocks, gputhreads>>>( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
+    jamp[0] -= amp[0];
+
+    FFV2_4_3<<<gpublocks, gputhreads>>>( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
+    // Amplitude(s) for diagram number 2
+    FFV2_4_0<<<gpublocks, gputhreads>>>( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[0] );
+    jamp[0] -= amp[0];
+#else // MGONGPU_NSIGHT_DEBUG
+    opzxxx<<<gpublocks, gputhreads, shmem>>>( allmomenta, cHel[ihel][0], -1, w[0], 0 );
+    imzxxx<<<gpublocks, gputhreads, shmem>>>( allmomenta, cHel[ihel][1], +1, w[1], 1 );
+    ixzxxx<<<gpublocks, gputhreads, shmem>>>( allmomenta, cHel[ihel][2], -1, w[2], 2 );
+    oxzxxx<<<gpublocks, gputhreads, shmem>>>( allmomenta, cHel[ihel][3], +1, w[3], 3 );
+
+    FFV1P0_3<<<gpublocks, gputhreads, shmem>>>( w[1], w[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w[4] );
+    // Amplitude(s) for diagram number 1
+    FFV1_0<<<gpublocks, gputhreads, shmem>>>( w[2], w[3], w[4], cxmake( cIPC[0], cIPC[1] ), &amp[0] );
+    jamp[0] -= amp[0];
+
+    FFV2_4_3<<<gpublocks, gputhreads, shmem>>>( w[1], w[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
+    // Amplitude(s) for diagram number 2
+    FFV2_4_0<<<gpublocks, gputhreads, shmem>>>( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[0] );
+    jamp[0] -= amp[0];
+#endif
 #else
     opzxxx( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
     //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w[0], ievt, 0 ); // tested ok (slower)
-#endif
-
-#ifdef __CUDACC__
-    imzxxx( allmomenta, cHel[ihel][1], +1, w[1], 1 );
-    //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w[1], 1 ); // tested ok (slower)
-#else
     imzxxx( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
     //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w[1], ievt, 1 ); // tested ok (a bit slower)
-#endif
-
-#ifdef __CUDACC__
-    ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], 2 );
-    //ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w[2], 2 ); // tested ok (a bit slower)
-#else
     ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
     //ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w[2], ievt, 2 ); // tested ok (a bit slower)
-#endif
-
-#ifdef __CUDACC__
-    oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3 );
-    //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w[3], 3 ); // tested ok (a bit slower)
-#else
     oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
     //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w[3], ievt, 3 ); // tested ok (a bit slower)
-#endif
 
     // Calculate color flows
     // (compute M as the sum of the invariant amplitudes for all Feynman diagrams)
@@ -119,6 +144,8 @@ namespace Proc
     // Amplitude(s) for diagram number 2
     FFV2_4_0( w[2], w[3], w[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp[0] );
     jamp[0] -= amp[0];
+#endif
+
 
     // The color matrix
     const fptype denom[ncolor] = {1};
@@ -228,20 +255,20 @@ namespace Proc
     out << "nvcc " << __CUDACC_VER_MAJOR__ << "." << __CUDACC_VER_MINOR__ << "." << __CUDACC_VER_BUILD__;
 #else
     out << "nvcc UNKNOWN";
-#endif // __CUDACC_VER_MAJOR__ ...
+#endif
 #elif defined __clang__
 #if defined __clang_major__ && defined __clang_minor__ && defined __clang_patchlevel__
     out << "clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
 #else
     out << "clang UNKNOWKN";
-#endif // __clang_major__ ...
+#endif
 #else
 #if defined __GNUC__ && defined __GNUC_MINOR__ && defined __GNUC_PATCHLEVEL__
     out << "gcc (GCC) " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
 #else
     out << "gcc UNKNOWKN";
-#endif // __GNUC__
-#endif // __CUDACC__
+#endif
+#endif
     return out.str();
   }
 
@@ -290,12 +317,16 @@ namespace Proc
   //--------------------------------------------------------------------------
   // Evaluate |M|^2, part independent of incoming flavour
 
-  __global__
   void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                  fptype* allMEs            // output: allMEs[nevt], final |M|^2 averaged over all helicities
 #ifndef __CUDACC__
                  , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
-#endif
+#else
+                 , int gpublocks, int gputhreads
+#ifdef MGONGPU_NSIGHT_DEBUG
+                 , int shmem
+#endif // MGONGPU_NSIGHT_DEBUG
+#endif // __CUDACC__
                  )
   {
     mgDebugInitialise();
@@ -319,9 +350,9 @@ namespace Proc
     // - firstprivate: give each thread its own copy, and initialise with value from outside
     // This means that each thread computes its own good helicity states. Before, this was implicitly shared, i.e. race condition.
 #pragma omp parallel for default(none) shared(allmomenta, allMEs) firstprivate(sigmakin_itry, sigmakin_goodhel, nevt)
-#endif // _OPENMP
+#endif
     for ( int ievt = 0; ievt < nevt; ++ievt )
-#endif // __CUDACC__
+#endif
     {
 #ifdef __CUDACC__
       const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
@@ -341,7 +372,11 @@ namespace Proc
       for ( int ighel = 0; ighel < cNGoodHel[0]; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
-        calculate_wavefunctions( ihel, allmomenta, meHelSum[0] );
+        calculate_wavefunctions( ihel, allmomenta, meHelSum[0], gpublocks, gputhreads
+#ifdef MGONGPU_NSIGHT_DEBUG
+                                 , int shmem
+#endif // MGONGPU_NSIGHT_DEBUG
+        )
       }
 #else
       // C++ - compute good helicities within this loop

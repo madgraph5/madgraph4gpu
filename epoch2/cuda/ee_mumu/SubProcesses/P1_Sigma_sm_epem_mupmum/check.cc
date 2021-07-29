@@ -487,9 +487,9 @@ int main(int argc, char **argv)
     timermap.start( skinKey );
 #ifdef __CUDACC__
 #ifndef MGONGPU_NSIGHT_DEBUG
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.get(), devMEs.get());
+    gProc::sigmaKin(evMomenta.get(), devMEs.get(), gpublocks, gputhreads);
 #else
-    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.get(), devMEs.get());
+    gProc::sigmaKin(devMomenta.get(), devMEs.get(), gpublocks, gputhreads, ntpbMAX*sizeof(float));
 #endif
     checkCuda( cudaPeekAtLastError() );
 #else
