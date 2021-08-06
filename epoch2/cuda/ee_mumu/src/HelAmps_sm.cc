@@ -35,7 +35,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  __global__
   void ixxxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,
                const int nhel,           // input: -1 or +1 (helicity of fermion)
@@ -67,7 +67,7 @@ namespace MG5_sm
         const fptype pp = fpmin( pvec0, fpsqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ) );
         if ( pp == 0. )
         {
-          // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs! 
+          // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
           fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
           //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
           sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
@@ -128,7 +128,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  __global__
   void ipzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,     // ASSUME fmass==0
                const int nhel,           // input: -1 or +1 (helicity of fermion)
@@ -172,7 +172,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  __global__
   void imzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,     // ASSUME fmass==0
                const int nhel,           // input: -1 or +1 (helicity of fermion)
@@ -217,7 +217,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  __global__
   void ixzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,     // ASSUME fmass==0
                const int nhel,           // input: -1 or +1 (helicity of fermion)
@@ -272,7 +272,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  __global__
   void vxxxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype vmass,
                const int nhel,           // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
@@ -347,7 +347,7 @@ namespace MG5_sm
         else
         {
           vc[3] = cxmake( -hel * sqh, 0. );
-          // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs! 
+          // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
           //vc[4] = cxmake( 0., nsv * ( pvec3 < 0. ? -std::abs( sqh ) : std::abs( sqh ) ) ); // AV: why abs here?
           vc[4] = cxmake( 0., nsv * ( pvec3 < 0. ? -sqh : sqh ) ); // AV: removed an abs here
         }
@@ -360,7 +360,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  __global__
   void sxxxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype,             // WARNING: "smass" unused (missing in Fortran)
                const int,                // WARNING: "nhel" unused (missing in Fortran) - scalar has no helicity
@@ -393,7 +393,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  __global__
   void oxxxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,
                const int nhel,           // input: -1 or +1 (helicity of fermion)
@@ -424,7 +424,7 @@ namespace MG5_sm
         const fptype pp = fpmin( pvec0, fpsqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) + ( pvec3 * pvec3 ) ) );
         if ( pp == 0. )
         {
-          // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs! 
+          // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
           fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
           //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
           sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
@@ -484,7 +484,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  __global__
   void opzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const int nhel,           // input: -1 or +1 (helicity of fermion)
                const int nsf,            // input: +1 (particle) or -1 (antiparticle)
@@ -527,7 +527,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  __global__
   void omzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const int nhel,           // input: -1 or +1 (helicity of fermion)
                const int nsf,            // input: +1 (particle) or -1 (antiparticle)
@@ -573,7 +573,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  __global__
   void oxzxxx( const fptype* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,     // ASSUME fmass==0
                const int nhel,           // input: -1 or +1 (helicity of fermion)
@@ -626,7 +626,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  __global__
   void FFV1_0( const cxtype F1[],    // input: wavefunction1[6]
                const cxtype F2[],    // input: wavefunction2[6]
                const cxtype V3[],    // input: wavefunction3[6]
@@ -646,7 +646,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  __global__
   void FFV1P0_3( const cxtype F1[],   // input: wavefunction1[6]
                  const cxtype F2[],   // input: wavefunction2[6]
                  const cxtype COUP,
@@ -670,7 +670,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  __global__
   void FFV2_0( const cxtype F1[],   // input: wavefunction1[6]
                const cxtype F2[],   // input: wavefunction2[6]
                const cxtype V3[],   // input: wavefunction3[6]
@@ -688,7 +688,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  __global__
   void FFV2_3( const cxtype F1[],   // input: wavefunction1[6]
                const cxtype F2[],   // input: wavefunction2[6]
                const cxtype COUP,
@@ -715,7 +715,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  __global__
   void FFV4_0( const cxtype F1[],  // input: wavefunction1[6]
                const cxtype F2[],  // input: wavefunction2[6]
                const cxtype V3[],  // input: wavefunction3[6]
@@ -737,7 +737,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  __global__
   void FFV4_3( const cxtype F1[],   // input: wavefunction1[6]
                const cxtype F2[],   // input: wavefunction2[6]
                const cxtype COUP,
@@ -773,7 +773,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  __global__
   void FFV2_4_0( const cxtype F1[],    // input: wavefunction1[6]
                  const cxtype F2[],    // input: wavefunction2[6]
                  const cxtype V3[],    // input: wavefunction3[6]
@@ -797,7 +797,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  __global__
   void FFV2_4_3( const cxtype F1[],   // input: wavefunction1[6]
                  const cxtype F2[],   // input: wavefunction2[6]
                  const cxtype COUP1,
