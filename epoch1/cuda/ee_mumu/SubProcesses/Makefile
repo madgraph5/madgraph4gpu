@@ -43,6 +43,11 @@ ifeq ($(FPTYPE),)
   override FPTYPE = d
 endif
 
+# Set the default HELINL (inline helicities?) choice
+ifeq ($(HELINL),)
+  override HELINL = 0
+endif
+
 # Set the default RNDGEN (random number generator) choice
 ifeq ($(RNDGEN),)
   override RNDGEN = curdev
@@ -63,7 +68,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   CUARCHFLAGS = -arch=compute_$(CUARCHNUM)
   ###CUARCHFLAGS = -gencode arch=compute_$(CUARCHNUM),code=sm_$(CUARCHNUM)
   CUINC       = -I$(CUDA_HOME)/include/
-  CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcuda -lcurand
+  CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
   CUOPTFLAGS  = -lineinfo
   CUFLAGS     = $(OPTFLAGS) $(CUOPTFLAGS) -std=c++14 $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
   # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
@@ -142,6 +147,15 @@ else
   $(error Unknown FPTYPE='$(FPTYPE)': only 'f' and 'd' are supported)
 endif
 
+# Set the build flags appropriate to each HELINL choice (example: "make HELINL=1")
+$(info HELINL=$(HELINL))
+ifeq ($(HELINL),1)
+  CXXFLAGS += -DMGONGPU_INLINE_HELAMPS
+  CUFLAGS  += -DMGONGPU_INLINE_HELAMPS
+else ifneq ($(HELINL),0)
+  $(error Unknown HELINL='$(HELINL)': only '0' and '1' are supported)
+endif
+
 # Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=common")
 $(info RNDGEN=$(RNDGEN))
 ifeq ($(RNDGEN),curdev)
@@ -157,18 +171,19 @@ else
   $(error Unknown RNDGEN='$(RNDGEN)': only 'curdev', 'curhst' and 'common' are supported)
 endif
 
-# Export AVX, FPTYPE, RNDGEN so that it is not necessary to pass them to the src Makefile too
+# Export AVX, FPTYPE, HELINL, RNDGEN so that it is not necessary to pass them to the src Makefile too
 export AVX
 export FPTYPE
+export HELINL
 export RNDGEN
 
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
-override DIRTAG = $(AVX)_$(FPTYPE)
+override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-override TAG = $(AVX)_$(FPTYPE)_$(RNDGEN)
+override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_$(RNDGEN)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
