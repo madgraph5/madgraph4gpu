@@ -4,7 +4,7 @@ ICPX=icpx
 CLANG=clang++
 HIPCC=hipcc
 
-CXXFLAGS=-O3 -ffast-math --std=c++17
+CXXFLAGS=-O3 -ffast-math --std=c++17 -lineinfo
 
 LIBDIR=../lib
 gen_lib=$(LIBDIR)/libmodel_sa.a

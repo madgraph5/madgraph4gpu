@@ -1,10 +1,10 @@
-KOKKOSPATH_CUDA ?= /home/parton/git/kokkos/install_v100
-KOKKOSPATH_OMP ?= /home/parton/git/kokkos/install_omp
+KOKKOSPATH_CUDA ?= /home/jchilders/git/kokkos/install_v100
+KOKKOSPATH_OMP ?= /home/jchilders/git/kokkos/install_omp
 KOKKOSPATH_IRIS ?= $(KOKKOS_HOME)
-KOKKOSPATH_HIP ?= /home/parton/git/kokkos/install_mi50
+KOKKOSPATH_HIP ?= /home/jchilders/git/kokkos/install_mi50
 
 INCDIR=../../src
-CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++17 
+CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++17 -lineinfo
 LDFLAGS=
 
 CUDA_ARCH_NUM ?= 70
