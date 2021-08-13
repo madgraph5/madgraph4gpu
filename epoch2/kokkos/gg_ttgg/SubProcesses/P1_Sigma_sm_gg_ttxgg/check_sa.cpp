@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
     // Read param_card and set parameters
     process.initProc("../../Cards/param_card.dat");
 
-    double energy = 1500;
+    constexpr double energy = 1500;
 
     int meGeVexponent = -(2 * process.nexternal - 8);
 
