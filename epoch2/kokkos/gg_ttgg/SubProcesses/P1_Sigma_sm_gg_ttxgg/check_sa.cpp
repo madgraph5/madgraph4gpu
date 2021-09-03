@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
   int numiter = 0, league_size = 1, team_size = 1;
   std::vector<int> numvec;
   std::vector<float> wavetimes;
-  int jsondate = 0;
+  // int jsondate = 0;
   int jsonrun = 0;
 
 
@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
     team_size = numvec[1];
     numiter = numvec[2];
     if (veclen == 5){
-      jsondate = numvec[3];
+      // jsondate = numvec[3];
       jsonrun = numvec[4];
     }
   } else if (veclen == 1) {
