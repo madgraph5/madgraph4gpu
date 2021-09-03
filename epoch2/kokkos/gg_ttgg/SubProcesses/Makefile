@@ -4,7 +4,7 @@ KOKKOSPATH_IRIS ?= $(KOKKOS_HOME)
 KOKKOSPATH_HIP ?= /home/jchilders/git/kokkos/install_mi50
 
 INCDIR=../../src
-CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++17 -lineinfo
+CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++14 -lineinfo
 LDFLAGS=
 
 CUDA_ARCH_NUM ?= 70
