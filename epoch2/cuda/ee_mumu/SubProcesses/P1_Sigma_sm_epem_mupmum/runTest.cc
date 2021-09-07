@@ -160,7 +160,7 @@ struct CUDATest : public CUDA_CPU_TestBase {
     if ( iiter == 0 )
     {
       // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.get(), devIsGoodHel.get());
+      gProc::sigmaKin_getGoodHel(devMomenta.get(), devIsGoodHel.get(), gpublocks, gputhreads);
       checkCuda( cudaPeekAtLastError() );
       // ... 0d2. Copy back good helicity mask to the host
       checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(),
@@ -171,9 +171,9 @@ struct CUDATest : public CUDA_CPU_TestBase {
 
     // --- 3a. SigmaKin
 #ifndef MGONGPU_NSIGHT_DEBUG
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.get(), devMEs.get());
+    gProc::sigmaKin(devMomenta.get(), devMEs.get(), gpublocks, gputhreads);
 #else
-    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.get(), devMEs.get());
+    gProc::sigmaKin(float)>>>(devMomenta.get(), devMEs.get(), gpublocks, gputhreads, ntpbMAX*sizeof(float));
 #endif
     checkCuda( cudaPeekAtLastError() );
 

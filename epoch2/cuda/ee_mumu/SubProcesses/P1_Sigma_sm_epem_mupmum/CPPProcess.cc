@@ -50,7 +50,6 @@ namespace Proc
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum
   // of |M|^2 over helicities for the given event
 
-  __device__
   void calculate_wavefunctions( int ihel,
                                 const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                                 fptype &meHelSum          // input AND output: running sum of |M|^2 over all helicities for this event
@@ -275,9 +274,14 @@ namespace Proc
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
-  __global__
   void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            bool* isGoodHel )         // output: isGoodHel[ncomb] - device array
+                            bool* isGoodHel,          // output: isGoodHel[ncomb] - device array
+                            int gpublocks, int gputhreads
+  #ifdef MGONGPU_NSIGHT_DEBUG
+                            , int shmem
+  #endif // MGONGPU_NSIGHT_DEBUG
+                          )
+
   {
     const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
     fptype meHelSum[nprocesses] = { 0 }; // all zeros
@@ -286,7 +290,11 @@ namespace Proc
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running
       // sum of |M|^2 over helicities for the given event
-      calculate_wavefunctions( ihel, allmomenta, meHelSum[0] );
+      calculate_wavefunctions( ihel, allmomenta, meHelSum[0], gpublocks, gputhreads
+#ifdef MGONGPU_NSIGHT_DEBUG
+                               , int shmem
+#endif // MGONGPU_NSIGHT_DEBUG
+      );
       if ( meHelSum[0] != meHelSumLast ) isGoodHel[ihel] = true;
       meHelSumLast = meHelSum[0];
     }
@@ -350,13 +358,13 @@ namespace Proc
     // - firstprivate: give each thread its own copy, and initialise with value from outside
     // This means that each thread computes its own good helicity states. Before, this was implicitly shared, i.e. race condition.
 #pragma omp parallel for default(none) shared(allmomenta, allMEs) firstprivate(sigmakin_itry, sigmakin_goodhel, nevt)
-#endif
+#endif // _OPENMP
     for ( int ievt = 0; ievt < nevt; ++ievt )
-#endif
     {
-#ifdef __CUDACC__
-      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
-      const int ievt = idim;
+#else
+    {
+      //const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
+      //const int ievt = idim;
       //printf( "sigmakin: ievt %d\n", ievt );
 #endif
 
@@ -376,7 +384,7 @@ namespace Proc
 #ifdef MGONGPU_NSIGHT_DEBUG
                                  , int shmem
 #endif // MGONGPU_NSIGHT_DEBUG
-        )
+        );
       }
 #else
       // C++ - compute good helicities within this loop
@@ -406,10 +414,12 @@ namespace Proc
       }
 
       // Set the final average |M|^2 for this event in the output array for all events
-      for ( int iproc = 0; iproc < nprocesses; ++iproc )
-      {
-        allMEs[iproc * nprocesses + ievt] = meHelSum[iproc];
-      }
+      // !!!!!!!! SR !!!!!! COMMENT OUT FOR THE MOMENT !!!!!
+      // for ( int iproc = 0; iproc < nprocesses; ++iproc )
+      // {
+      //   allMEs[iproc * nprocesses + ievt] = meHelSum[iproc];
+      // }
+      // !!!!!!!! SR !!!!!! COMMENT OUT FOR THE MOMENT !!!!!
 
 #ifndef __CUDACC__
       if ( sigmakin_itry <= maxtry )

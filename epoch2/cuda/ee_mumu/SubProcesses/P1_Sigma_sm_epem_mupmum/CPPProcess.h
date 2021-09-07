@@ -114,9 +114,13 @@ namespace Proc
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
-  __global__
   void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            bool* isGoodHel );        // output: isGoodHel[ncomb] - device array
+                            bool* isGoodHel,          // output: isGoodHel[ncomb] - device array
+                            int gpublocks, int gputhreads
+#ifdef MGONGPU_NSIGHT_DEBUG
+                            , int shmem
+#endif // MGONGPU_NSIGHT_DEBUG
+                          );
 #endif
 
   //--------------------------------------------------------------------------

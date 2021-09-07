@@ -470,7 +470,11 @@ int main(int argc, char **argv)
       const std::string ghelKey = "0d SGoodHel";
       timermap.start( ghelKey );
       // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.get(), devIsGoodHel.get());
+#ifndef MGONGPU_NSIGHT_DEBUG
+      gProc::sigmaKin_getGoodHel(devMomenta.get(), devIsGoodHel.get(), gpublocks, gputhreads);
+#else
+      gProc::sigmaKin_getGoodHel(devMomenta.get(), devIsGoodHel.get(), gpublocks, gputhreads, ntpbMAX*sizeof(float));
+#endif // MGONGPU_NSIGHT_DEBUG
       checkCuda( cudaPeekAtLastError() );
       // ... 0d2. Copy back good helicity mask to the host
       checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(), nbytesIsGoodHel, cudaMemcpyDeviceToHost ) );
