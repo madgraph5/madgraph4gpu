@@ -4,7 +4,7 @@ KOKKOSPATH_INTEL ?= $(KOKKOS_HOME)
 KOKKOSPATH_HIP ?= /home/jchilders/git/kokkos/install_mi50
 
 INCDIR=../../src
-CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++14 -lineinfo
+CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++17 -lineinfo
 LDFLAGS=
 
 CUDA_ARCH_NUM ?= 70
@@ -58,7 +58,7 @@ hip:
 	make $(hip_exe)
 
 $(cuda_obj): check_sa.cpp ../../src/rambo.h ../../src/random_generator.h CPPProcess.h
-	$(NVCC) -c $< -o $@ $(CUDA_CXXFLAGS)
+	$(NVCC) -c $< -o $@ $(CUDA_CXXFLAGS) $(CUDA_COMPLEX)
 
 $(cuda_exe): $(cuda_obj) $(libmodel_sa)
 	$(NVCC)  $(cuda_obj) -o $@ $(CUDA_LDFLAGS) $(libmodel_sa)
