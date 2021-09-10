@@ -8,17 +8,17 @@ CXXFLAGS=-O3 -ffast-math --std=c++14 -lineinfo
 
 LIBDIR=../lib
 gen_lib=$(LIBDIR)/libmodel_sa.a
-iris_lib=$(LIBDIR)/libmodel_sa_iris.a
+intel_lib=$(LIBDIR)/libmodel_sa_intel.a
 hip_lib=$(LIBDIR)/libmodel_sa_hip.a
 cxx_objects=Parameters_sm.o read_slha.o
-iris_objs=iParameters_sm.o iread_slha.o
+intel_objs=iParameters_sm.o iread_slha.o
 hip_objs=hParameters_sm.o hread_slha.o
 
 all: generic
 
 generic: $(gen_lib)
 
-iris: $(iris_lib)
+intel: $(intel_lib)
 
 hip: $(hip_lib)
 
@@ -37,7 +37,7 @@ iread_slha.o: read_slha.cc read_slha.h
 	$(ICPX) $(CXXFLAGS) -c $< -o $@
 
 
-$(iris_lib): iParameters_sm.o iread_slha.o
+$(intel_lib): iParameters_sm.o iread_slha.o
 	if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi
 	$(AR) cru $@ $^
 	ranlib $@
