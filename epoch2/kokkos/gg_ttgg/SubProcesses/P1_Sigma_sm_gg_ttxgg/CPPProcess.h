@@ -8,7 +8,7 @@
 
 #include "Parameters_sm.h"
 #include "Kokkos_Core.hpp"
-#define THRUST_COMPLEX 1
+// #define THRUST_COMPLEX 1
 #ifdef THRUST_COMPLEX
   #include <thrust/complex.h>
   template<typename T>
@@ -561,7 +561,7 @@ KOKKOS_FUNCTION void VVV1P0_1(const complex<double> V2[],
 
 
 template <typename hel_t, typename mom_t, typename ipd_t, typename ipc_t>
-__device__ void calculate_wavefunctions(
+KOKKOS_FUNCTION void calculate_wavefunctions(
     const hel_t& cHel,
     const mom_t& local_mom,
     const ipd_t& cIPD,
@@ -574,7 +574,13 @@ __device__ void calculate_wavefunctions(
   constexpr int ncolor = 24;
   complex<double> jamp[ncolor];
   const complex<double> const_complex(0,1);
-    
+#ifdef THRUST_COMPLEX
+  for(int i = 0; i < ncolor; i++ )
+  {
+    jamp[i] = complex<double>(0., 0.); 
+  }
+#endif
+
   vxxxxx(Kokkos::subview(local_mom,0,Kokkos::ALL), 0., cHel(0), -1, w[0]);
   vxxxxx(Kokkos::subview(local_mom,1,Kokkos::ALL), 0., cHel(1), -1, w[1]);
   oxxxxx(Kokkos::subview(local_mom,2,Kokkos::ALL), cIPD(0), cHel(2), +1, w[2]);
@@ -1770,8 +1776,9 @@ __device__ void calculate_wavefunctions(
   for(int icol = 0;icol < ncolor; ++icol )
   {
     complex<double> ztemp;
-    for(int jcol = 0;jcol < ncolor; ++jcol )
+    for(int jcol = 0;jcol < ncolor; ++jcol ){
       ztemp = ztemp + cf[icol][jcol] * jamp[jcol];
+    }
     matrix = matrix + (ztemp * conj(jamp[icol])).real()/denom[icol];
   }
 } // end calculate_wavefunction()
