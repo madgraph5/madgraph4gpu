@@ -40,7 +40,7 @@ class MY_CPP_Standalone(export_cpp.ProcessExporterGPU):
                         }
     
     oneprocessclass = export_cpp.OneProcessExporterGPU # responsible for P directory
-    #import PLUGIN.TUTO_SA_OUTPUT.model_handling as model_handling
+    #import PLUGIN.CUDACPP_SA_OUTPUT.model_handling as model_handling
     #oneprocessclass = model_handling.OneProcessExporterGPU
     
     # information to find the template file that we want to include from madgraph
@@ -60,7 +60,7 @@ class MY_CPP_Standalone(export_cpp.ProcessExporterGPU):
 
     #For model/aloha exporter (typically not used)
     create_model_class =  export_cpp.UFOModelConverterGPU
-    #import PLUGIN.TUTO_SA_OUTPUT.model_handling as model_handling 
+    #import PLUGIN.CUDACPP_SA_OUTPUT.model_handling as model_handling 
     #create_model_class = model_handling.UFOModelConverterGPU
     
     # typically not defined but usufull for this tutorial the class for writing helas routine

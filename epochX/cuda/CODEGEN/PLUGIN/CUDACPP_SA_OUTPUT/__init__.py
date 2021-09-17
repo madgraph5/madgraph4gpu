@@ -10,8 +10,8 @@
 #    example: new_output = {'myformat': MYCLASS}
 #    madgraph will then allow the command "output myformat PATH"
 #    MYCLASS should inherated of the class madgraph.iolibs.export_v4.VirtualExporter
-import PLUGIN.TUTO_SA_OUTPUT.output as output
-new_output = {'standalone_cuda':output.MY_CPP_Standalone}
+import PLUGIN.CUDACPP_SA_OUTPUT.output as output
+new_output = {'standalone_cudacpp':output.MY_CPP_Standalone}
 
 # 2. Define new way to handle the cluster.
 #    example new_cluster = {'mycluster': MYCLUSTERCLASS}
