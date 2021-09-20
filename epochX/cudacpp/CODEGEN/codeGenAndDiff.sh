@@ -1,18 +1,12 @@
 #!/bin/bash
 
-# Script directory
-SCRDIR=$(cd $(dirname $0); pwd)
-echo SCRDIR=${SCRDIR}
-
-# Make sure that python3 is installed
-if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"; exit 1; fi
-
 #--------------------------------------------------------------------------------------
 
 function codeGenAndDiff()
 {
   proc=$1
   if [ "${proc}" == "$(basename $SCRDIR)" ]; then return; fi # e.g. skip CODEGEN  
+  if [ "${proc}" != "${proc%.BKP}" ]; then return; fi # e.g. skip ee_mumu.BKP
   if [ "${proc}" != "${proc%.NEW}" ]; then return; fi # e.g. skip ee_mumu.NEW
   echo -e "\n================================================================"
   echo -e "\n+++ Generate code for $proc\n"
@@ -38,7 +32,7 @@ function codeGenAndDiff()
   mv ${outproc}_log.txt ${outproc}/
   popd >& /dev/null
   # Move the newly generated code to the output source code directory
-  rm -rf ${OUTDIR}/${proc}.NEW
+  rm -rf ${OUTDIR}/${proc}.BKP ${OUTDIR}/${proc}.NEW
   cp -dpr ${MG5AMC_HOME}/${outproc} ${OUTDIR}/${proc}.NEW
   echo -e "\nOutput source code has been copied to ${OUTDIR}/${proc}.NEW"
   # Compare the newly generated code to the existing one for the specific process
@@ -46,9 +40,32 @@ function codeGenAndDiff()
   pushd ${OUTDIR} >& /dev/null
   diff -rs ${proc}.NEW ${proc}
   popd >& /dev/null 
+  # Replace the existing code by the newly generated code if required
+  if [ "${REPLACE}" == "1" ]; then
+    echo -e "\n+++ Replace existing code for $proc (REPLACE=$REPLACE)\n"
+    mv ${OUTDIR}/${proc} ${OUTDIR}/${proc}.BKP
+    mv ${OUTDIR}/${proc}.NEW ${OUTDIR}/${proc}
+    echo -e "Old code moved to ${OUTDIR}/${proc}.BKP"
+    echo -e "New code moved to ${OUTDIR}/${proc}"
+  fi
 }
 
 #--------------------------------------------------------------------------------------
+
+function usage()
+{
+  echo "Usage: $0 [--noreplace] [<proc1> [... <procN>]]"
+  exit 1
+}
+
+#--------------------------------------------------------------------------------------
+
+# Print command line usage if required
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then usage; fi
+
+# Script directory
+SCRDIR=$(cd $(dirname $0); pwd)
+echo SCRDIR=${SCRDIR}
 
 # Output source code directory for the chosen backend
 OUTDIR=$(dirname $SCRDIR) # e.g. epochX/cudacpp if $SCRDIR=epochX/cudacpp/CODEGEN
@@ -58,7 +75,15 @@ echo OUTDIR=${OUTDIR}
 OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
 echo "OUTBCK=${OUTBCK} (uppercase=${OUTBCK^^})"
 
-# Make sure $MG5AMC_HOME exists
+# Replace code directory and create .BKP? (or alternatively keep code directory in .NEW?)
+REPLACE=1
+if [ "$1" == "--noreplace" ]; then REPLACE=0; shift; fi
+echo REPLACE=${REPLACE}
+
+# Make sure that python3 is installed
+if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"; exit 1; fi
+
+# Make sure that $MG5AMC_HOME exists
 if [ "$MG5AMC_HOME" == "" ]; then echo "ERROR! MG5AMC_HOME is not defined"; exit 1; fi
 echo -e "\nUsing MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
 if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exist"; exit 1; fi
