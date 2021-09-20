@@ -28,8 +28,15 @@ function codeGenAndDiff()
   echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
   cat  ${outproc}.mg
   { time python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
-  cat ${outproc}_log.txt | egrep 'INFO: (Try|Creat|Organiz|Process)'
-  mv ${outproc}_log.txt ${outproc}/
+  if [ -d ${outproc} ]; then
+    cat ${outproc}_log.txt | egrep 'INFO: (Try|Creat|Organiz|Process)'
+    mv ${outproc}_log.txt ${outproc}/
+  else
+    echo "*** ERROR! Code generation failed"
+    cat ${outproc}_log.txt
+    echo "*** ERROR! Code generation failed"
+    exit 1
+  fi
   popd >& /dev/null
   # Move the newly generated code to the output source code directory
   rm -rf ${OUTDIR}/${proc}.BKP ${OUTDIR}/${proc}.NEW
