@@ -88,6 +88,9 @@ if [ "$MG5AMC_HOME" == "" ]; then echo "ERROR! MG5AMC_HOME is not defined"; exit
 echo -e "\nUsing MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
 if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exist"; exit 1; fi
 
+# Remove fragments from previous runs
+rm -rf ${MG5AMC_HOME}/py.py
+
 # Remove and recreate MG5AMC_HOME/PLUGIN
 rm -rf ${MG5AMC_HOME}/PLUGIN
 mkdir ${MG5AMC_HOME}/PLUGIN
