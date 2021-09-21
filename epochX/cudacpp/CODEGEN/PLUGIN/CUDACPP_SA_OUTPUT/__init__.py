@@ -1,3 +1,9 @@
+# Require Python >= 3.8 to ensure that {} dictionaries preserve the order of item insertion
+# (AV: python3.7 would be enough but I test my scripts using python3.8)
+import sys
+minpython = (3, 8)
+if sys.version_info < minpython: sys.exit("ERROR! Python >= %s.%s is required" % minpython)
+
 ## import the required files
 # example: import maddm_interface as maddm_interface # local file
 #          import madgraph.various.cluster as cluster #MG5 distribution file
