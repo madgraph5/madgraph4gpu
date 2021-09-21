@@ -77,7 +77,7 @@ INFO: Creating files in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGE
 INFO: Created files gCPPProcess.h and gCPPProcess.cc in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/. 
 Generated helas calls for 1 subprocesses (2 diagrams) in 0.004 s
 [1;32mDEBUG:  create the model [1;30m[output.py at line 89][0m [0m
-ALOHA: aloha creates routines (starting by FFV2)
+ALOHA: aloha creates routines (starting by FFV1)
 [1;32mDEBUG:  language = [0m cudac [1;30m[aloha_writers.py at line 2444][0m [0m
 [1;32mDEBUG:  language = [0m cudac [1;30m[aloha_writers.py at line 2444][0m [0m
 [1;32mDEBUG:  language = [0m cudac [1;30m[aloha_writers.py at line 2444][0m [0m
@@ -93,6 +93,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/src/. and /data/av
 [1;32mDEBUG:  pass here [1;30m[output.py at line 97][0m [0m
 quit
 
-real	0m1.122s
-user	0m0.967s
-sys	0m0.113s
+real	0m1.322s
+user	0m0.953s
+sys	0m0.117s
