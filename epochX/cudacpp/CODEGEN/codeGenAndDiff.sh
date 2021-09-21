@@ -96,7 +96,17 @@ if [ "$MG5AMC_HOME" == "" ]; then echo "ERROR! MG5AMC_HOME is not defined"; exit
 echo -e "\nUsing MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
 if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exist"; exit 1; fi
 
-# Remove fragments from previous runs
+# Copy MG5AMC patches if any
+patches=$(cd $SCRDIR/MG5aMC_patches/2.7.0_gpu; find . -type f)
+echo -e "Copy MG5aMC_patches/2.7.0_gpu patches..."
+for patch in $patches; do
+  echo cp -dpr $SCRDIR/MG5aMC_patches/2.7.0_gpu/$patch $MG5AMC_HOME/$patch
+  cp -dpr $SCRDIR/MG5aMC_patches/2.7.0_gpu/$patch $MG5AMC_HOME/$patch
+done
+echo -e "Copy MG5aMC_patches/2.7.0_gpu patches... done\n"
+exit 0
+
+# Remove MG5aMC fragments from previous runs
 rm -rf ${MG5AMC_HOME}/py.py
 
 # Remove and recreate MG5AMC_HOME/PLUGIN
