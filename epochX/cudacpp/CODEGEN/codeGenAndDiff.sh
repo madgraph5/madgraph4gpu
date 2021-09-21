@@ -24,6 +24,7 @@ function codeGenAndDiff()
   pushd $MG5AMC_HOME >& /dev/null
   outproc=CODEGEN_${proc}
   \rm -rf ${outproc}*
+  ###echo "set stdout_level DEBUG" >> ${outproc}.mg # does not help (log is essentially identical)
   echo "${cmd}" >> ${outproc}.mg
   echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
   cat  ${outproc}.mg
