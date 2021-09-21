@@ -104,7 +104,6 @@ for patch in $patches; do
   cp -dpr $SCRDIR/MG5aMC_patches/2.7.0_gpu/$patch $MG5AMC_HOME/$patch
 done
 echo -e "Copy MG5aMC_patches/2.7.0_gpu patches... done\n"
-exit 0
 
 # Remove MG5aMC fragments from previous runs
 rm -rf ${MG5AMC_HOME}/py.py
