@@ -93,6 +93,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/src/. and /data/av
 [1;32mDEBUG:  pass here [1;30m[output.py at line 97][0m [0m
 quit
 
-real	0m1.208s
-user	0m1.013s
-sys	0m0.128s
+real	0m1.107s
+user	0m0.964s
+sys	0m0.108s
