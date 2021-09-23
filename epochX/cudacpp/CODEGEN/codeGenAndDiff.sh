@@ -9,14 +9,23 @@ function codeGenAndDiff()
   if [ "${proc}" != "${proc%.BKP}" ]; then return; fi # e.g. skip ee_mumu.BKP
   if [ "${proc}" != "${proc%.NEW}" ]; then return; fi # e.g. skip ee_mumu.NEW
   echo -e "\n================================================================"
-  echo -e "\n+++ Generate code for $proc\n"
+  echo -e "\n+++ Generate code for '$proc'\n"
   # Process-dependent hardcoded configuration
   case "${proc}" in
     ee_mumu)
       cmd="generate e+ e- > mu+ mu-"
       ;;
+    gg_tt)
+      cmd="generate g g > t t~"
+      ;;
+    gg_ttg)
+      cmd="generate g g > t t~ g"
+      ;;
+    gg_ttgg)
+      cmd="generate g g > t t~ g g"
+      ;;
     *)
-      echo "WARNING! Skipping unknown process $proc"
+      echo "WARNING! Skipping unknown process '$proc'"
       return
       ;;
   esac
@@ -49,7 +58,8 @@ function codeGenAndDiff()
   echo -e "\n+++ Compare code for $proc\n"
   if diff -x '*log.txt' -r -c ${proc}.NEW ${proc}; then echo "Generated code is identical"; else echo -e "\nWARNING! Generated code differs"; fi
   echo -e "\n+++ Compare code generation log for $proc\n"
-  diff -c ${proc}.NEW/${outproc}_log.txt ${proc}
+  ###diff -c ${proc}.NEW/${outproc}_log.txt ${proc} # context diff
+  diff ${proc}.NEW/${outproc}_log.txt ${proc} # normal diff
   popd >& /dev/null 
   # Replace the existing code by the newly generated code if required
   if [ "${REPLACE}" == "1" ]; then
@@ -133,6 +143,6 @@ if [ "$procs" == "" ] ; then procs=$(cd $OUTDIR; find . -mindepth 1 -maxdepth 1 
 
 # Iterate through the list of processes to generate
 for proc in $procs; do
-  proc=$(basename $proc)
+  if [ -d $OUTDIR/$proc ]; then proc=$(basename $proc); fi
   codeGenAndDiff $proc
 done
