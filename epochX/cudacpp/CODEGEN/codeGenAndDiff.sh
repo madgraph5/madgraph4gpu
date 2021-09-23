@@ -46,10 +46,10 @@ function codeGenAndDiff()
   echo -e "\nOutput source code has been copied to ${OUTDIR}/${proc}.NEW"
   # Compare the newly generated code to the existing one for the specific process
   pushd ${OUTDIR} >& /dev/null
-  echo -e "\n+++ Compare code generation log for $proc\n"
-  diff ${proc}.NEW/${outproc}_log.txt ${proc}
   echo -e "\n+++ Compare code for $proc\n"
   if diff -x '*log.txt' -r -c ${proc}.NEW ${proc}; then echo "Generated code is identical"; else echo -e "\nWARNING! Generated code differs"; fi
+  echo -e "\n+++ Compare code generation log for $proc\n"
+  diff ${proc}.NEW/${outproc}_log.txt ${proc}
   popd >& /dev/null 
   # Replace the existing code by the newly generated code if required
   if [ "${REPLACE}" == "1" ]; then
