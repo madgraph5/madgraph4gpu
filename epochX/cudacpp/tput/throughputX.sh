@@ -91,6 +91,12 @@ while [ "$1" != "" ]; do
 done
 ###exit 1
 
+# New default: run both eemumu and ggttgg
+if [ "${eemumu}" == "0" ] && [ "${ggttgg}" == "0" ]; then 
+  eemumu=1
+  ggttgg=1
+fi
+
 ##########################################################################
 # PART 1 - compile the list of the executables which should be run
 ##########################################################################
@@ -135,7 +141,7 @@ exes=
 # CUDA (eemumu/epochX)
 #=====================================
 if [ "${cuda}" == "1" ]; then
-  if [ "${ggttgg}" == "1" ]; then 
+  if [ "${eemumu}" == "1" ]; then 
     exes="$exes $topdir/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
   fi
 fi
@@ -170,6 +176,8 @@ fi
 ##########################################################################
 # PART 2 - build the executables which should be run
 ##########################################################################
+
+###echo "exes=$exes"
 
 #export USEBUILDDIR=1
 #pushd $topdir/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
@@ -211,13 +219,16 @@ fi
 function runExe() {
   exe=$1
   args="$2"
-  ###echo "runExe $exe $args OMP=$OMP_NUM_THREADS"
+  echo "runExe $exe $args OMP=$OMP_NUM_THREADS"
   pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[MECalc|MeanMatrix|FP precision|TOTAL       :"
   # Optionally add other patterns here for some specific configurations (e.g. clang)
   if [ "${exe%%/gcheck*}" != "${exe}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
   pattern="${pattern}|CUCOMPLEX"
   pattern="${pattern}|COMMON RANDOM"
   pattern="${pattern}|ERROR"
+  # TEMPORARY! OLD C++/CUDA CODE (START)
+  pattern="${pattern}|EvtsPerSec\[Matrix"
+  # TEMPORARY! OLD C++/CUDA CODE (END)
   if [ "${ab3}" == "1" ]; then pattern="${pattern}|3a|3b"; fi
   if [ "${req}" == "1" ]; then pattern="${pattern}|memory layout"; fi
   if perf --version >& /dev/null; then
@@ -226,6 +237,7 @@ function runExe() {
     pattern="${pattern}|elapsed"
     if [ "${detailed}" == "1" ]; then pattern="${pattern}|#"; fi
     if [ "${verbose}" == "1" ]; then set -x; fi
+    ###perf stat -d $exe $args 2>&1 | grep -v "Performance counter stats"
     perf stat -d $exe $args 2>&1 | egrep "(${pattern})" | grep -v "Performance counter stats"
     set +x
   else
@@ -301,7 +313,8 @@ pushd $topdir/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /de
 
 lastExe=
 for exe in $exes; do
-  if [ ! -f $exe ]; then continue; fi
+  ###if [ ! -f $exe ]; then continue; fi
+  if [ ! -f $exe ]; then echo "Not found: $exe"; continue; fi
   if [ "${exe%%/gcheck*}" != "${exe}" ] && [ "$gpuTxt" == "none" ]; then continue; fi
   if [ "${exe%%/gg_ttgg*}" != "${exe}" ]; then 
     # This is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
