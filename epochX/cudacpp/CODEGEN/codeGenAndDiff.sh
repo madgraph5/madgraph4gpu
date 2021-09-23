@@ -49,7 +49,7 @@ function codeGenAndDiff()
   echo -e "\n+++ Compare code generation log for $proc\n"
   diff ${proc}.NEW/${outproc}_log.txt ${proc}
   echo -e "\n+++ Compare code for $proc\n"
-  if diff -x '*log.txt' -r ${proc}.NEW ${proc}; then echo "Generated code is identical"; else echo -e "\nWARNING! Generated code differs"; fi
+  if diff -x '*log.txt' -r -c ${proc}.NEW ${proc}; then echo "Generated code is identical"; else echo -e "\nWARNING! Generated code differs"; fi
   popd >& /dev/null 
   # Replace the existing code by the newly generated code if required
   if [ "${REPLACE}" == "1" ]; then
