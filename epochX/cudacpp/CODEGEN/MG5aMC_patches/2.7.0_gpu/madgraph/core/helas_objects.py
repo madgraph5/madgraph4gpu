@@ -5614,10 +5614,7 @@ class HelasMultiProcess(base_objects.PhysicsObject):
         for me in self.get('matrix_elements'):
             helas_list.extend(me.get_used_lorentz())
                 
-        # Preserve the order to ensure reproducible code generation
-        # See https://github.com/madgraph5/madgraph4gpu/issues/244
-        ###return list(set(helas_list)) # BUG! random order
-        return list(dict.fromkeys(helas_list)) # OK! preserve order (https://stackoverflow.com/a/17016257)
+        return misc.remove_duplicates_from_list(helas_list)
 
     def get_used_couplings(self):
         """Return a list with all couplings used by this
