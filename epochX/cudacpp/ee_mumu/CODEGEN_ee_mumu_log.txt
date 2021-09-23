@@ -67,8 +67,8 @@ output standalone_cudacpp CODEGEN_ee_mumu
 [1;34mPlugin PLUGIN.CUDACPP_SA_OUTPUT has marked as NOT being validated with this version. 
 It has been validated for the last time with version: 2.4.0[0m
 [1mOutput will be done with PLUGIN: CUDACPP_SA_OUTPUT[0m
-[1;32mDEBUG:  Initialise the exporter [1;30m[output.py at line 72][0m [0m
-[1;32mDEBUG:  initialise the directory [1;30m[output.py at line 77][0m [0m
+[1;32mDEBUG:  Initialise the exporter [1;30m[output.py at line 77][0m [0m
+[1;32mDEBUG:  initialise the directory [1;30m[output.py at line 82][0m [0m
 INFO: Creating subdirectories in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu 
 INFO: Organizing processes into subprocess groups 
 INFO: Generating Helas calls for process: e+ e- > mu+ mu- WEIGHTED<=4 @1 
@@ -78,7 +78,7 @@ INFO: Generating Helas calls for process: e+ e- > mu+ mu- WEIGHTED<=4 @1
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
 INFO: Processing color information for process: e+ e- > mu+ mu- @1 
-[1;32mDEBUG:  create the directory [1;30m[output.py at line 84][0m [0m
+[1;32mDEBUG:  create the directory [1;30m[output.py at line 89][0m [0m
 INFO: Creating files in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum 
 [1;32mDEBUG: only one Matrix-element supported? [0m
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
@@ -87,7 +87,7 @@ INFO: Created files gCPPProcess.h and gCPPProcess.cc in directory /data/avalassi
 Generated helas calls for 1 subprocesses (2 diagrams) in 0.007 s
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
-[1;32mDEBUG:  create the model [1;30m[output.py at line 89][0m [0m
+[1;32mDEBUG:  create the model [1;30m[output.py at line 94][0m [0m
 ALOHA: aloha creates routines (starting by FFV1)
 [1;32mDEBUG:  language = [0m cudac [1;30m[aloha_writers.py at line 2446][0m [0m
 [1;32mDEBUG:  language = [0m cudac [1;30m[aloha_writers.py at line 2446][0m [0m
@@ -101,9 +101,9 @@ INFO: Created files HelAmps_sm.h and HelAmps_sm.cu in directory
 INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/src/. and /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/src/. 
 INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory 
 INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/src/. and /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/src/. 
-[1;32mDEBUG:  pass here [1;30m[output.py at line 97][0m [0m
+[1;32mDEBUG:  pass here [1;30m[output.py at line 102][0m [0m
 quit
 
-real	0m1.110s
-user	0m0.959s
-sys	0m0.117s
+real	0m1.253s
+user	0m0.968s
+sys	0m0.114s
