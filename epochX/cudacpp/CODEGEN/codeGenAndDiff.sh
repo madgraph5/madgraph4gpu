@@ -56,7 +56,7 @@ function codeGenAndDiff()
   # Compare the newly generated code to the existing one for the specific process
   pushd ${OUTDIR} >& /dev/null
   echo -e "\n+++ Compare code for $proc\n"
-  if diff -x '*log.txt' -r -c ${proc}.NEW ${proc}; then echo "Generated code is identical"; else echo -e "\nWARNING! Generated code differs"; fi
+  if diff -x '*log.txt' -x '*.o' -x '*.a' -x '*.exe' -r -c ${proc}.NEW ${proc}; then echo "Generated code is identical"; else echo -e "\nWARNING! Generated code differs"; fi
   echo -e "\n+++ Compare code generation log for $proc\n"
   ###diff -c ${proc}.NEW/${outproc}_log.txt ${proc} # context diff
   diff ${proc}.NEW/${outproc}_log.txt ${proc} # normal diff
