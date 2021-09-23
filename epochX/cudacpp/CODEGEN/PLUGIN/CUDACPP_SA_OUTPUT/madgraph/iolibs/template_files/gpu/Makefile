@@ -51,7 +51,7 @@ ifeq ($(UNAME_P),ppc64le)
     CUFLAGS+= -Xcompiler -mno-float128
 endif
 
-all: ../../src $(cu_main) $(cxx_main) runTest.exe
+all: ../../src $(cu_main) $(cxx_main) #runTest.exe
 
 debug: OPTFLAGS = -g -O0 -DDEBUG2
 debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
