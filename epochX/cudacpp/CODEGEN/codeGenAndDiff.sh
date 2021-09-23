@@ -58,6 +58,10 @@ function codeGenAndDiff()
     mv ${OUTDIR}/${proc}.NEW ${OUTDIR}/${proc}
     echo -e "Old code moved to ${OUTDIR}/${proc}.BKP"
     echo -e "New code moved to ${OUTDIR}/${proc}"
+  else
+    echo -e "\n+++ Keep existing code for $proc (REPLACE=$REPLACE)\n"
+    echo -e "Old code is ${OUTDIR}/${proc}"
+    echo -e "New code is ${OUTDIR}/${proc}.NEW"
   fi
 }
 
@@ -65,7 +69,7 @@ function codeGenAndDiff()
 
 function usage()
 {
-  echo "Usage: $0 [--noreplace] [<proc1> [... <procN>]]"
+  echo "Usage: $0 [--replace|--noreplace] [<proc1> [... <procN>]]"
   exit 1
 }
 
@@ -87,8 +91,12 @@ OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
 echo "OUTBCK=${OUTBCK} (uppercase=${OUTBCK^^})"
 
 # Replace code directory and create .BKP? (or alternatively keep code directory in .NEW?)
-REPLACE=1
-if [ "$1" == "--noreplace" ]; then REPLACE=0; shift; fi
+REPLACE=0
+if [ "$1" == "--replace" ]; then
+  REPLACE=1; shift; 
+elif [ "$1" == "--noreplace" ]; then
+  REPLACE=0; shift;
+fi
 echo REPLACE=${REPLACE}
 
 # Make sure that python3 is installed
