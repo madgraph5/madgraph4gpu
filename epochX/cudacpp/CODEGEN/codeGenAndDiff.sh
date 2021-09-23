@@ -45,9 +45,11 @@ function codeGenAndDiff()
   cp -dpr ${MG5AMC_HOME}/${outproc} ${OUTDIR}/${proc}.NEW
   echo -e "\nOutput source code has been copied to ${OUTDIR}/${proc}.NEW"
   # Compare the newly generated code to the existing one for the specific process
-  echo -e "\n+++ Compare code for $proc\n"
   pushd ${OUTDIR} >& /dev/null
-  diff -rs ${proc}.NEW ${proc}
+  echo -e "\n+++ Compare code generation log for $proc\n"
+  diff ${proc}.NEW/${outproc}_log.txt ${proc}
+  echo -e "\n+++ Compare code for $proc\n"
+  if diff -x '*log.txt' -r ${proc}.NEW ${proc}; then echo "Generated code is identical"; else echo -e "\nWARNING! Generated code differs"; fi
   popd >& /dev/null 
   # Replace the existing code by the newly generated code if required
   if [ "${REPLACE}" == "1" ]; then
