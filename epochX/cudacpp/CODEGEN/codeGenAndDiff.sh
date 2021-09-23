@@ -97,7 +97,7 @@ echo -e "\nUsing MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
 if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exist"; exit 1; fi
 
 # Copy MG5AMC patches if any
-patches=$(cd $SCRDIR/MG5aMC_patches/2.7.0_gpu; find . -type f)
+patches=$(cd $SCRDIR/MG5aMC_patches/2.7.0_gpu; find . -type f -name '*.py')
 echo -e "Copy MG5aMC_patches/2.7.0_gpu patches..."
 for patch in $patches; do
   echo cp -dpr $SCRDIR/MG5aMC_patches/2.7.0_gpu/$patch $MG5AMC_HOME/$patch
