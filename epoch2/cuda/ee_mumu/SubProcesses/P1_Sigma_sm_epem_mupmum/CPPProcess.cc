@@ -87,9 +87,9 @@ namespace Proc
 #ifndef MGONGPU_NSIGHT_DEBUG
     opzxxx<<<gpublocks, gputhreads>>>( allmomenta, cHel[ihel][0], -1, w[0], 0 );
     //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w[0], 0 ); // tested ok (much slower)
-    imzxxx<<<gpublocks, gputhreads>>>( allmomenta, cHel[ihel][1], +1, w[1], 1 );
     //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w[1], 1 ); // tested ok (slower)
     ixzxxx<<<gpublocks, gputhreads>>>( allmomenta, cHel[ihel][2], -1, w[2], 2 );
+    imzxxx<<<gpublocks, gputhreads>>>( allmomenta, cHel[ihel][1], +1, w[1], 1 );
     //ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w[2], 2 ); // tested ok (a bit slower)
     oxzxxx<<<gpublocks, gputhreads>>>( allmomenta, cHel[ihel][3], +1, w[3], 3 );
     //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w[3], 3 ); // tested ok (a bit slower)
