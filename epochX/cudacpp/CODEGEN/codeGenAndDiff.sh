@@ -28,6 +28,7 @@ function codeGenAndDiff()
   echo "${cmd}" >> ${outproc}.mg
   echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
   cat  ${outproc}.mg
+  ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
   { time python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
   if [ -d ${outproc} ]; then
     cat ${outproc}_log.txt | egrep 'INFO: (Try|Creat|Organiz|Process)'
