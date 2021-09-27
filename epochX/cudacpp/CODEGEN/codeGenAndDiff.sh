@@ -65,8 +65,8 @@ function codeGenAndDiff()
   # Replace the existing generated code by the newly generated code if required
   if [ "${REPLACE}" == "1" ]; then
     echo -e "\n+++ Replace existing generated code for $proc (REPLACE=$REPLACE)\n"
-    mv ${OUTDIR}/${proc} ${OUTDIR}/${proc}.BKP
-    mv ${OUTDIR}/${proc}.NEW ${OUTDIR}/${proc}
+    mv ${OUTDIR}/${proc}.auto ${OUTDIR}/${proc}.auto.BKP
+    mv ${OUTDIR}/${proc}.auto.NEW ${OUTDIR}/${proc}.auto
     echo -e "Manually developed code is\n  ${OUTDIR}/${proc}"
     echo -e "Old generated code moved to\n  ${OUTDIR}/${proc}.auto.BKP"
     echo -e "New generated code moved to\n  ${OUTDIR}/${proc}.auto"
