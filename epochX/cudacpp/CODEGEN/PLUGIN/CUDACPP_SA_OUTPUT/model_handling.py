@@ -95,8 +95,10 @@ class  UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
 
         # Write the files
         import madgraph.iolibs.file_writers as writers
-        writers.CPPWriter(model_h_file).writelines(file_h)
-        writers.CPPWriter(model_cc_file).writelines(file_cc)
+        ###writers.CPPWriter(model_h_file).writelines(file_h) # WITH FORMATTING
+        ###writers.CPPWriter(model_cc_file).writelines(file_cc) # WITH FORMATTING
+        writers.FileWriter(model_h_file).writelines(file_h) # WITHOUT FORMATTING
+        writers.FileWriter(model_cc_file).writelines(file_cc) # WITHOUT FORMATTING
 
         import logging
         logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.model_handling')
