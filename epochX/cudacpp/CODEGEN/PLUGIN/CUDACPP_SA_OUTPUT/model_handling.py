@@ -35,6 +35,78 @@ class  UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
     helas_h = pjoin('gpu', 'helas.h')
     helas_cc = pjoin('gpu', 'helas.cu')
 
+    def write_aloha_routines(self):
+        """Generate the hel_amps_model.h and hel_amps_model.cc files, which
+        have the complete set of generalized Helas routines for the model"""
+        
+        if not os.path.isdir(os.path.join(self.dir_path, self.include_dir)):
+            os.makedirs(os.path.join(self.dir_path, self.include_dir))
+        if not os.path.isdir(os.path.join(self.dir_path, self.cc_file_dir)):
+            os.makedirs(os.path.join(self.dir_path, self.cc_file_dir))
+
+        model_h_file = os.path.join(self.dir_path, self.include_dir,
+                                    'HelAmps_%s.h' % self.model_name)
+        model_cc_file = os.path.join(self.dir_path, self.cc_file_dir,
+                                     'HelAmps_%s.%s' % (self.model_name, self.cc_ext))
+
+        replace_dict = {}
+
+        replace_dict['output_name'] = self.output_name
+        replace_dict['info_lines'] = export_cpp.get_mg5_info_lines()
+        replace_dict['namespace'] = self.namespace
+        replace_dict['model_name'] = self.model_name
+
+        # Read in the template .h and .cc files, stripped of compiler
+        # commands and namespaces
+        template_h_files = self.read_aloha_template_files(ext = 'h')
+        template_cc_files = self.read_aloha_template_files(ext = 'cc')
+
+        import aloha.create_aloha as create_aloha
+        aloha_model = create_aloha.AbstractALOHAModel(self.model.get('name'),
+                                                      explicit_combine=True)
+        aloha_model.add_Lorentz_object(self.model.get('lorentz'))
+        
+        if self.wanted_lorentz:
+            aloha_model.compute_subset(self.wanted_lorentz)
+        else:
+            aloha_model.compute_all(save=False, custom_propa=True)
+            
+        for abstracthelas in dict(aloha_model).values():
+            h_rout, cc_rout = abstracthelas.write(output_dir=None, 
+                                                  language=self.aloha_writer, 
+                                                  mode='no_include')
+
+            template_h_files.append(h_rout)
+            template_cc_files.append(cc_rout)
+            
+            #aloha_writer = aloha_writers.ALOHAWriterForCPP(abstracthelas,
+            #                                               self.dir_path)
+            #header = aloha_writer.define_header()
+            #template_h_files.append(self.write_function_declaration(\
+            #                             aloha_writer, header))
+            #template_cc_files.append(self.write_function_definition(\
+            #                              aloha_writer, header))
+
+        replace_dict['function_declarations'] = '\n'.join(template_h_files)
+        replace_dict['function_definitions'] = '\n'.join(template_cc_files)
+
+        file_h = self.read_template_file(self.aloha_template_h) % replace_dict
+        file_cc = self.read_template_file(self.aloha_template_cc) % replace_dict
+
+        # Write the files
+        import madgraph.iolibs.file_writers as writers
+        writers.CPPWriter(model_h_file).writelines(file_h)
+        writers.CPPWriter(model_cc_file).writelines(file_cc)
+
+        import logging
+        logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.model_handling')
+        logger.info("Created files %s and %s in directory" \
+                    % (os.path.split(model_h_file)[-1],
+                       os.path.split(model_cc_file)[-1]))
+        logger.info("%s and %s" % \
+                    (os.path.split(model_h_file)[0],
+                     os.path.split(model_cc_file)[0]))
+
     def read_aloha_template_files(self, ext):
         """Read all ALOHA template files with extension ext, strip them of
         compiler options and namespace options, and return in a list"""
