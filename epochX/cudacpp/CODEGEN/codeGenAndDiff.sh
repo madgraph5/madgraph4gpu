@@ -36,7 +36,7 @@ function codeGenAndDiff()
   cat  ${outproc}.mg
   ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
   { time python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
-  if [ -d ${outproc} ] && ! grep -q Errno ${outproc}_log.txt; then
+  if [ -d ${outproc} ] && ! grep -q "Please report this bug" ${outproc}_log.txt; then
     cat ${outproc}_log.txt | egrep 'INFO: (Try|Creat|Organiz|Process)'
     mv ${outproc}_log.txt ${outproc}/
   else
