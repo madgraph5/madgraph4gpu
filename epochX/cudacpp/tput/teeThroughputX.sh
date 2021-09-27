@@ -3,10 +3,14 @@
 cd $(dirname $0)
 
 if [ "$*" == "" ]; then
-  args="-eemumu -ggttgg"
+  args=""
+  eemumu="-eemumu"
+  ggttgg="-ggttgg"
   auto="-auto"
 else 
   args=
+  eemumu=
+  ggttgg=
   auto=
   for arg in $*; do
     if [ "$arg" == "-auto" ] || [ "$arg" == "-autoonly" ]; then
@@ -15,20 +19,29 @@ else
         exit 1
       fi
       auto=$arg
+    elif [ "$arg" == "-eemumu" ]; then
+      eemumu=$arg
+    elif [ "$arg" == "-ggttgg" ]; then
+      ggttgg=$arg
     else
       args="$args $arg"
     fi  
   done
 fi
+
 echo "args=$args"
+echo "eemumu=$eemumu"
+echo "ggttgg=$ggttgg"
 echo "auto=$auto"
 
-if ! ./throughputX.sh -makeonly $args $auto; then exit 1; fi
+if ! ./throughputX.sh -makeonly $args $eemumu $ggttgg $auto; then exit 1; fi
 
 if [ "$auto" != "-autoonly" ]; then
-  ./throughputX.sh $args | tee throughputX_log.txt
+  if [ "$eemumu" != "" ]; then ./throughputX.sh $eemumu $args | tee throughputX_log_eemumu.txt
+  if [ "$ggttgg" != "" ]; then ./throughputX.sh $ggttgg $args | tee throughputX_log_ggttgg.txt
 fi 
 
 if [ "$auto" == "-auto" ] || [ "$auto" == "-autoonly" ]; then
-  ./throughputX.sh $args -autoonly | tee throughputX_log_auto.txt
+  if [ "$eemumu" != "" ]; then ./throughputX.sh $eemumu $args -autoonly| tee throughputX_log_eemumu_auto.txt
+  if [ "$ggttgg" != "" ]; then ./throughputX.sh $ggttgg $args -autoonly| tee throughputX_log_ggttgg_auto.txt
 fi
