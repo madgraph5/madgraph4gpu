@@ -35,12 +35,27 @@ class  UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
     helas_h = pjoin('gpu', 'helas.h')
     helas_cc = pjoin('gpu', 'helas.cu')
 
+    def read_aloha_template_files(self, ext):
+        """Read all ALOHA template files with extension ext, strip them of
+        compiler options and namespace options, and return in a list"""
+        # Use the plugin's path (for helas_h/cc)
+        ###path = pjoin(MG5DIR, 'aloha','template_files')
+        PLUGINDIR = os.path.dirname( __file__ )
+        path = pjoin(PLUGINDIR, 'aloha', 'template_files')
+        out = []
+        if ext == 'h':
+            out.append(open(pjoin(path, self.helas_h)).read())
+        else:
+            out.append(open(pjoin(path, self.helas_cc)).read())
+        return out
+
     #===============================================================================
     # Global helper methods
     #===============================================================================
     @classmethod
     def read_template_file(cls, filename, classpath=False):
         """Open a template file and return the contents."""
+        # Use the plugin's OneProcessExporterGPU template_path and __template_path (for aloha_template_h/cc)
         return OneProcessExporterGPU.read_template_file(filename, classpath)
 
 
