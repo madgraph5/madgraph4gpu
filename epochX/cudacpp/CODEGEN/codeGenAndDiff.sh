@@ -5,12 +5,8 @@
 function codeGenAndDiff()
 {
   proc=$1
-  if [ "${proc}" == "$(basename $SCRDIR)" ]; then return; fi # e.g. skip CODEGEN  
-  if [ "${proc}" != "${proc%.BKP}" ]; then return; fi # e.g. skip ee_mumu.BKP
-  if [ "${proc}" != "${proc%.NEW}" ]; then return; fi # e.g. skip ee_mumu.NEW
-  echo -e "\n================================================================"
-  echo -e "\n+++ Generate code for '$proc'\n"
   # Process-dependent hardcoded configuration
+  echo -e "\n================================================================"
   case "${proc}" in
     ee_mumu)
       cmd="generate e+ e- > mu+ mu-"
@@ -25,10 +21,11 @@ function codeGenAndDiff()
       cmd="generate g g > t t~ g g"
       ;;
     *)
-      echo "WARNING! Skipping unknown process '$proc'"
+      echo -e "\nWARNING! Skipping unknown process '$proc'"
       return
       ;;
   esac
+  echo -e "\n+++ Generate code for '$proc'\n"
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null
   outproc=CODEGEN_${proc}
@@ -50,28 +47,34 @@ function codeGenAndDiff()
   fi
   popd >& /dev/null
   # Move the newly generated code to the output source code directory
-  rm -rf ${OUTDIR}/${proc}.BKP ${OUTDIR}/${proc}.NEW
-  cp -dpr ${MG5AMC_HOME}/${outproc} ${OUTDIR}/${proc}.NEW
-  echo -e "\nOutput source code has been copied to ${OUTDIR}/${proc}.NEW"
-  # Compare the newly generated code to the existing one for the specific process
+  rm -rf ${OUTDIR}/${proc}.auto.BKP ${OUTDIR}/${proc}.auto.NEW
+  cp -dpr ${MG5AMC_HOME}/${outproc} ${OUTDIR}/${proc}.auto.NEW
+  echo -e "\nOutput source code has been copied to ${OUTDIR}/${proc}.auto.NEW"
+  # Compare the newly generated code to the existing generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
-  echo -e "\n+++ Compare code for $proc\n"
-  if diff -x '*log.txt' -x '*.o' -x '*.a' -x '*.exe' -r -c ${proc}.NEW ${proc}; then echo "Generated code is identical"; else echo -e "\nWARNING! Generated code differs"; fi
-  echo -e "\n+++ Compare code generation log for $proc\n"
-  ###diff -c ${proc}.NEW/${outproc}_log.txt ${proc} # context diff
-  diff ${proc}.NEW/${outproc}_log.txt ${proc} # normal diff
-  popd >& /dev/null 
-  # Replace the existing code by the newly generated code if required
+  echo -e "\n+++ Compare new and old generated code for $proc\n"
+  if diff -x '*log.txt' -x '*.o' -x '*.o.*' -x '*.a' -x '*.exe' -x 'lib' -r -c ${proc}.auto.NEW ${proc}; then echo "New and old generated codes are identical"; else echo -e "\nWARNING! New and old generated codes differ"; fi
+  echo -e "\n+++ Compare new and old code generation log for $proc\n"
+  ###diff -c ${proc}.auto.NEW/${outproc}_log.txt ${proc}.auto # context diff
+  diff ${proc}.auto.NEW/${outproc}_log.txt ${proc}.auto # normal diff
+  popd >& /dev/null
+  # Compare the newly generated code to the existing manually developed code for the specific process
+  pushd ${OUTDIR} >& /dev/null
+  echo -e "\n+++ Compare newly generated code to manually developed code for $proc\n"
+  if diff -x '*log.txt' -x '*.o' -x '*.o.*' -x '*.a' -x '*.exe' -x 'lib' -r -c ${proc}.auto.NEW ${proc}; then echo "Generated and manual codes are identical"; else echo -e "\nWARNING! Generated and manual codes differ"; fi
+  # Replace the existing generated code by the newly generated code if required
   if [ "${REPLACE}" == "1" ]; then
-    echo -e "\n+++ Replace existing code for $proc (REPLACE=$REPLACE)\n"
+    echo -e "\n+++ Replace existing generated code for $proc (REPLACE=$REPLACE)\n"
     mv ${OUTDIR}/${proc} ${OUTDIR}/${proc}.BKP
     mv ${OUTDIR}/${proc}.NEW ${OUTDIR}/${proc}
-    echo -e "Old code moved to ${OUTDIR}/${proc}.BKP"
-    echo -e "New code moved to ${OUTDIR}/${proc}"
+    echo -e "Manually developed code is\n  ${OUTDIR}/${proc}"
+    echo -e "Old generated code moved to\n  ${OUTDIR}/${proc}.auto.BKP"
+    echo -e "New generated code moved to\n  ${OUTDIR}/${proc}.auto"
   else
-    echo -e "\n+++ Keep existing code for $proc (REPLACE=$REPLACE)\n"
-    echo -e "Old code is ${OUTDIR}/${proc}"
-    echo -e "New code is ${OUTDIR}/${proc}.NEW"
+    echo -e "\n+++ Keep existing generated code for $proc (REPLACE=$REPLACE)\n"
+    echo -e "Manually developed code is\n  ${OUTDIR}/${proc}"
+    echo -e "Old generated code is\n  ${OUTDIR}/${proc}.auto"
+    echo -e "New generated code is\n  ${OUTDIR}/${proc}.auto.NEW"
   fi
 }
 
@@ -139,7 +142,7 @@ ls -lR $MG5AMC_HOME/PLUGIN
 # Determine the list of processes to generate
 procs=$*
 ###procs="ee_mumu gg_tt gg_ttg gg_ttgg"
-if [ "$procs" == "" ] ; then procs=$(cd $OUTDIR; find . -mindepth 1 -maxdepth 1 -type d); fi
+if [ "$procs" == "" ] ; then procs=$(cd $OUTDIR; find . -mindepth 1 -maxdepth 1 -type d -name '*.auto' | sed 's/.auto//'); fi
 
 # Iterate through the list of processes to generate
 for proc in $procs; do
