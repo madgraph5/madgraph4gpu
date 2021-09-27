@@ -1,6 +1,6 @@
 //==========================================================================
 // This file has been automatically generated for C++ Standalone by
-// MadGraph5_aMC@NLO v. 2.9.5, 2021-08-22
+// MadGraph5_aMC@NLO v. 2.8.2, 2020-10-30
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -1131,9 +1131,9 @@ __device__ void calculate_wavefunctions(int ihel, const fptype * allmomenta,
   // Local variables
 
   // The color matrix;
-  static const double denom[ncolor] = {54, 54, 54, 54, 54, 54, 54, 54, 54, 54,
+  static const fptype denom[ncolor] = {54, 54, 54, 54, 54, 54, 54, 54, 54, 54,
       54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54};
-  static const double cf[ncolor][ncolor] = {{512, -64, -64, 8, 8, 80, -64, 8,
+  static const fptype cf[ncolor][ncolor] = {{512, -64, -64, 8, 8, 80, -64, 8,
       8, -1, -1, -10, 8, -1, 80, -10, 71, 62, -1, -10, -10, 62, 62, -28}, {-64,
       512, 8, 80, -64, 8, 8, -64, -1, -10, 8, -1, -1, -10, -10, 62, 62, -28, 8,
       -1, 80, -10, 71, 62}, {-64, 8, 512, -64, 80, 8, 8, -1, 80, -10, 71, 62,
@@ -1258,8 +1258,8 @@ void CPPProcess::initProc(string param_card_name)
   mME.push_back(pars->ZERO); 
   mME.push_back(pars->ZERO); 
 
-  static cxtype tIPC[3] = {pars->GC_10, pars->GC_11, pars->GC_12}; 
-  static double tIPD[2] = {pars->mdl_MT, pars->mdl_WT}; 
+  static cxtype tIPC[3] = {cxmake(pars->GC_10), cxmake(pars->GC_11), cxmake(pars->GC_12)}; 
+  static fptype tIPD[2] = {(fptype)pars->mdl_MT, (fptype)pars->mdl_WT}; 
 
 #ifdef __CUDACC__
   checkCuda(cudaMemcpyToSymbol(cIPC, tIPC, 3 * sizeof(cxtype))); 

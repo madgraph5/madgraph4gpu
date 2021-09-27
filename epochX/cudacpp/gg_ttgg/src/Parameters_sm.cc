@@ -1,6 +1,6 @@
 //==========================================================================
 // This file has been automatically generated for C++ by
-// MadGraph5_aMC@NLO v. 2.9.5, 2021-08-22
+// MadGraph5_aMC@NLO v. 2.8.2, 2020-10-30
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -43,8 +43,8 @@ void Parameters_sm::setIndependentParameters(SLHAReader& slha)
   mdl_MTA = slha.get_block_entry("mass", 15, 1.777000e+00); 
   mdl_MT = slha.get_block_entry("mass", 6, 1.730000e+02); 
   mdl_MB = slha.get_block_entry("mass", 5, 4.700000e+00); 
-  mdl_conjg__CKM3x3 = 1.; 
   mdl_conjg__CKM1x1 = 1.; 
+  mdl_conjg__CKM3x3 = 1.; 
   mdl_CKM3x3 = 1.; 
   mdl_complexi = std::complex<double> (0., 1.); 
   mdl_MZ__exp__2 = ((mdl_MZ) * (mdl_MZ)); 
@@ -129,10 +129,10 @@ void Parameters_sm::printIndependentParameters()
       setw(10) << mdl_MT << endl;
   cout << setw(20) <<  "mdl_MB " <<  "= " << setiosflags(ios::scientific) <<
       setw(10) << mdl_MB << endl;
-  cout << setw(20) <<  "mdl_conjg__CKM3x3 " <<  "= " <<
-      setiosflags(ios::scientific) << setw(10) << mdl_conjg__CKM3x3 << endl;
   cout << setw(20) <<  "mdl_conjg__CKM1x1 " <<  "= " <<
       setiosflags(ios::scientific) << setw(10) << mdl_conjg__CKM1x1 << endl;
+  cout << setw(20) <<  "mdl_conjg__CKM3x3 " <<  "= " <<
+      setiosflags(ios::scientific) << setw(10) << mdl_conjg__CKM3x3 << endl;
   cout << setw(20) <<  "mdl_CKM3x3 " <<  "= " << setiosflags(ios::scientific)
       << setw(10) << mdl_CKM3x3 << endl;
   cout << setw(20) <<  "mdl_complexi " <<  "= " << setiosflags(ios::scientific)
