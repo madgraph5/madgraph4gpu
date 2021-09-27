@@ -10,6 +10,7 @@
 #include <cmath> 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
+#include "mgOnGpuVectors.h"
 
 using namespace std;
 

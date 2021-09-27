@@ -22,8 +22,8 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
 
 class  UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
 
-    #aloha_writer = 'cudac' #this was the default mode assigned to GPU 
-    aloha_writer = ALOHAWriterForGPU # this is equivalent to the above line but allow to edit it obviously.
+    ###aloha_writer = 'cudac' #this was the default mode assigned to GPU 
+    aloha_writer = ALOHAWriterForGPU # this is equivalent to the above line but allow to edit it obviously
     cc_ext = 'cu'
     # Template files to use
     #include_dir = '.'
@@ -34,6 +34,14 @@ class  UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
     aloha_template_cc = pjoin('gpu','cpp_hel_amps_cc.inc')
     helas_h = pjoin('gpu', 'helas.h')
     helas_cc = pjoin('gpu', 'helas.cu')
+
+    #===============================================================================
+    # Global helper methods
+    #===============================================================================
+    @classmethod
+    def read_template_file(cls, filename, classpath=False):
+        """Open a template file and return the contents."""
+        return OneProcessExporterGPU.read_template_file(filename, classpath)
 
 
 import madgraph.iolibs.helas_call_writers as helas_call_writers

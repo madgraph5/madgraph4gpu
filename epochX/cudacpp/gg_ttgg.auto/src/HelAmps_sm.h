@@ -12,6 +12,7 @@
 #include <cmath> 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
+#include "mgOnGpuVectors.h"
 
 using namespace std; 
 
@@ -124,3 +125,4 @@ __device__ void VVVV4P0_1(const cxtype V2[], const cxtype V3[], const cxtype
 }  // end namespace MG5_sm
 
 #endif // HelAmps_sm_H
+

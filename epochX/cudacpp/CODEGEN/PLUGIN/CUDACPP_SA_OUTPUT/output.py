@@ -63,10 +63,10 @@ class MY_CPP_Standalone(export_cpp.ProcessExporterGPU):
     template_src_make = pjoin(PLUGINDIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')
     template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','Makefile')
 
-    #For model/aloha exporter (typically not used)
-    create_model_class =  export_cpp.UFOModelConverterGPU
-    #import PLUGIN.CUDACPP_SA_OUTPUT.model_handling as model_handling 
-    #create_model_class = model_handling.UFOModelConverterGPU
+    # For model/aloha exporter (typically not used)
+    ###create_model_class =  export_cpp.UFOModelConverterGPU
+    import PLUGIN.CUDACPP_SA_OUTPUT.model_handling as model_handling 
+    create_model_class = model_handling.UFOModelConverterGPU
     
     # typically not defined but usufull for this tutorial the class for writing helas routine
     #aloha_exporter = None
