@@ -53,7 +53,7 @@ function codeGenAndDiff()
   # Compare the newly generated code to the existing generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
   echo -e "\n+++ Compare new and old generated code for $proc\n"
-  if diff -x '*log.txt' -x '*.o' -x '*.o.*' -x '*.a' -x '*.exe' -x 'lib' -r -c ${proc}.auto.NEW ${proc}; then echo "New and old generated codes are identical"; else echo -e "\nWARNING! New and old generated codes differ"; fi
+  if diff ${BRIEF} -x '*log.txt' -x '*.o' -x '*.o.*' -x '*.a' -x '*.exe' -x 'lib' -r -c ${proc}.auto.NEW ${proc}; then echo "New and old generated codes are identical"; else echo -e "\nWARNING! New and old generated codes differ"; fi
   echo -e "\n+++ Compare new and old code generation log for $proc\n"
   ###diff -c ${proc}.auto.NEW/${outproc}_log.txt ${proc}.auto # context diff
   diff ${proc}.auto.NEW/${outproc}_log.txt ${proc}.auto # normal diff
@@ -61,7 +61,7 @@ function codeGenAndDiff()
   # Compare the newly generated code to the existing manually developed code for the specific process
   pushd ${OUTDIR} >& /dev/null
   echo -e "\n+++ Compare newly generated code to manually developed code for $proc\n"
-  if diff -x '*log.txt' -x '*.o' -x '*.o.*' -x '*.a' -x '*.exe' -x 'lib' -r -c ${proc}.auto.NEW ${proc}; then echo "Generated and manual codes are identical"; else echo -e "\nWARNING! Generated and manual codes differ"; fi
+  if diff ${BRIEF} -x '*log.txt' -x '*.o' -x '*.o.*' -x '*.a' -x '*.exe' -x 'lib' -r -c ${proc}.auto.NEW ${proc}; then echo "Generated and manual codes are identical"; else echo -e "\nWARNING! Generated and manual codes differ"; fi
   # Replace the existing generated code by the newly generated code if required
   if [ "${REPLACE}" == "1" ]; then
     echo -e "\n+++ Replace existing generated code for $proc (REPLACE=$REPLACE)\n"
@@ -82,7 +82,7 @@ function codeGenAndDiff()
 
 function usage()
 {
-  echo "Usage: $0 [--replace|--noreplace] [<proc1> [... <procN>]]"
+  echo "Usage: $0 [--replace|--noreplace] [--brief] [<proc1> [... <procN>]]"
   exit 1
 }
 
@@ -111,6 +111,13 @@ elif [ "$1" == "--noreplace" ]; then
   REPLACE=0; shift;
 fi
 echo REPLACE=${REPLACE}
+
+# Brief diffs?
+BRIEF=
+if [ "$1" == "--brief" ]; then
+  BRIEF=--brief; shift; 
+fi
+echo BRIEF=${BRIEF}
 
 # Make sure that python3 is installed
 if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"; exit 1; fi
