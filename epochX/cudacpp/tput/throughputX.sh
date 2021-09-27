@@ -13,12 +13,14 @@ div=0
 req=0
 df="d"
 inl="0"
+auto="/"
+makeonly=0
 detailed=0
 verbose=0
 
 function usage()
 {
-  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-detailed] [-v]"
+  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-eemumu] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly] [-detailed] [-v]"
   exit 1
 }
 
@@ -79,6 +81,17 @@ while [ "$1" != "" ]; do
     if [ "${inl}" == "0 1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
     inl="1"
     shift
+  elif [ "$1" == "-auto" ]; then
+    if [ "${auto}" == "1" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
+    auto="/ .auto/"
+    shift
+  elif [ "$1" == "-autoonly" ]; then
+    if [ "${auto}" == "/ .auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
+    auto=".auto/"
+    shift
+  elif [ "$1" == "-makeonly" ]; then
+    makeonly=1
+    shift
   elif [ "$1" == "-detailed" ]; then
     detailed=1
     shift
@@ -92,10 +105,10 @@ done
 ###exit 1
 
 # New default: run both eemumu and ggttgg
-if [ "${eemumu}" == "0" ] && [ "${ggttgg}" == "0" ]; then 
-  eemumu=1
-  ggttgg=1
-fi
+###if [ "${eemumu}" == "0" ] && [ "${ggttgg}" == "0" ]; then 
+###  eemumu=1
+###  ggttgg=1
+###fi
 
 ##########################################################################
 # PART 1 - compile the list of the executables which should be run
@@ -103,75 +116,79 @@ fi
 
 exes=
 
-#=====================================
-# CUDA (FUTURE eemumu/epochX)
-#=====================================
-#if [ "${cuda}" == "1" ]; then
-#  for helinl in $inl; do
-#    for fptype in $df; do
-#      exes="$exes $topdir/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_${fptype}_inl${helinl}/gcheck.exe"
-#    done
-#  done
-#fi
+for suf in $auto; do
 
-#=====================================
-# C++ (FUTURE eemumu/epochX)
-#=====================================
-#for helinl in $inl; do
-#  for fptype in $df; do
-#    if [ "${cpp}" == "1" ]; then 
-#      exes="$exes $topdir/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_${fptype}_inl${helinl}/check.exe"
-#    fi
-#    if [ "${avxall}" == "1" ]; then 
-#      exes="$exes $topdir/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.sse4_${fptype}_inl${helinl}/check.exe"
-#      exes="$exes $topdir/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.avx2_${fptype}_inl${helinl}/check.exe"
-#    fi
-#    if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
-#      if [ "${cpp}" == "1" ]; then 
-#        exes="$exes $topdir/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y_${fptype}_inl${helinl}/check.exe"
-#      fi
-#      if [ "${avxall}" == "1" ]; then 
-#        exes="$exes $topdir/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z_${fptype}_inl${helinl}/check.exe"
-#      fi
-#    fi
-#  done
-#done
+  #=====================================
+  # CUDA (FUTURE eemumu/epochX)
+  #=====================================
+  #if [ "${cuda}" == "1" ]; then
+  #  for helinl in $inl; do
+  #    for fptype in $df; do
+  #      exes="$exes $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_${fptype}_inl${helinl}/gcheck.exe"
+  #    done
+  #  done
+  #fi
+  
+  #=====================================
+  # C++ (FUTURE eemumu/epochX)
+  #=====================================
+  #for helinl in $inl; do
+  #  for fptype in $df; do
+  #    if [ "${cpp}" == "1" ]; then 
+  #      exes="$exes $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_${fptype}_inl${helinl}/check.exe"
+  #    fi
+  #    if [ "${avxall}" == "1" ]; then 
+  #      exes="$exes $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum/build.sse4_${fptype}_inl${helinl}/check.exe"
+  #      exes="$exes $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum/build.avx2_${fptype}_inl${helinl}/check.exe"
+  #    fi
+  #    if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
+  #      if [ "${cpp}" == "1" ]; then 
+  #        exes="$exes $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y_${fptype}_inl${helinl}/check.exe"
+  #      fi
+  #      if [ "${avxall}" == "1" ]; then 
+  #        exes="$exes $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z_${fptype}_inl${helinl}/check.exe"
+  #      fi
+  #    fi
+  #  done
+  #done
 
-#=====================================
-# CUDA (eemumu/epochX)
-#=====================================
-if [ "${cuda}" == "1" ]; then
+  #=====================================
+  # CUDA (eemumu/epochX)
+  #=====================================
+  if [ "${cuda}" == "1" ]; then
+    if [ "${eemumu}" == "1" ]; then 
+      exes="$exes $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
+    fi
+  fi
+
+  #=====================================
+  # C++ (eemumu/epochX)
+  #=====================================
   if [ "${eemumu}" == "1" ]; then 
-    exes="$exes $topdir/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
+    if [ "${cpp}" == "1" ]; then 
+      exes="$exes $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum/check.exe"
+    fi
   fi
-fi
 
-#=====================================
-# C++ (eemumu/epochX)
-#=====================================
-if [ "${eemumu}" == "1" ]; then 
-  if [ "${cpp}" == "1" ]; then 
-    exes="$exes $topdir/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/check.exe"
+  #=====================================
+  # CUDA (ggttgg/epoch2)
+  #=====================================
+  if [ "${cuda}" == "1" ]; then
+    if [ "${ggttgg}" == "1" ]; then 
+      exes="$exes $topdir/epochX/cudacpp/gg_ttgg${suf}SubProcesses/P1_Sigma_sm_gg_ttxgg/gcheck.exe"
+    fi
   fi
-fi
 
-#=====================================
-# CUDA (ggttgg/epoch2)
-#=====================================
-if [ "${cuda}" == "1" ]; then
+  #=====================================
+  # C++ (ggttgg/epoch2)
+  #=====================================
   if [ "${ggttgg}" == "1" ]; then 
-    exes="$exes $topdir/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/gcheck.exe"
+    if [ "${cpp}" == "1" ]; then 
+      exes="$exes $topdir/epochX/cudacpp/gg_ttgg${suf}SubProcesses/P1_Sigma_sm_gg_ttxgg/check.exe"
+    fi
   fi
-fi
 
-#=====================================
-# C++ (ggttgg/epoch2)
-#=====================================
-if [ "${ggttgg}" == "1" ]; then 
-  if [ "${cpp}" == "1" ]; then 
-    exes="$exes $topdir/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/check.exe"
-  fi
-fi
+done
 
 ##########################################################################
 # PART 2 - build the executables which should be run
@@ -179,37 +196,45 @@ fi
 
 ###echo "exes=$exes"
 
-#export USEBUILDDIR=1
-#pushd $topdir/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
-#pwd
-#for helinl in $inl; do
-#  export HELINL=$helinl
-#  for fptype in $df; do 
-#    export FPTYPE=$fptype
-#    make AVX=none; echo
-#    if [ "${avxall}" == "1" ]; then make AVX=sse4; echo; fi
-#    if [ "${avxall}" == "1" ]; then make AVX=avx2; echo; fi
-#    if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then # skip avx512 if not supported!
-#      if [ "${cpp}" == "1" ]; then make AVX=512y; echo; fi # use 512y as C++ ref even if avx2 is faster on clang
-#      if [ "${avxall}" == "1" ]; then make AVX=512z; echo; fi
-#    fi
-#  done
-#done
-#popd >& /dev/null
-#export FPTYPE=
+for suf in $auto; do
 
-if [ "${eemumu}" == "1" ]; then 
-  pushd $topdir/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
-  pwd
-  make; echo
-  popd >& /dev/null
-fi
+  #export USEBUILDDIR=1
+  #pushd $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
+  #pwd
+  #for helinl in $inl; do
+  #  export HELINL=$helinl
+  #  for fptype in $df; do 
+  #    export FPTYPE=$fptype
+  #    make AVX=none; echo
+  #    if [ "${avxall}" == "1" ]; then make AVX=sse4; echo; fi
+  #    if [ "${avxall}" == "1" ]; then make AVX=avx2; echo; fi
+  #    if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then # skip avx512 if not supported!
+  #      if [ "${cpp}" == "1" ]; then make AVX=512y; echo; fi # use 512y as C++ ref even if avx2 is faster on clang
+  #      if [ "${avxall}" == "1" ]; then make AVX=512z; echo; fi
+  #    fi
+  #  done
+  #done
+  #popd >& /dev/null
+  #export FPTYPE=
 
-if [ "${ggttgg}" == "1" ]; then 
-  pushd $topdir/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg >& /dev/null
-  pwd
-  make; echo
-  popd >& /dev/null
+  if [ "${eemumu}" == "1" ]; then 
+    pushd $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
+    pwd
+    make; echo
+    popd >& /dev/null
+  fi
+
+  if [ "${ggttgg}" == "1" ]; then 
+    pushd $topdir/epochX/cudacpp/gg_ttgg${suf}SubProcesses/P1_Sigma_sm_gg_ttxgg >& /dev/null
+    pwd
+    make; echo
+    popd >& /dev/null
+  fi
+
+done
+
+if [ "${makeonly}" == "1" ]; then 
+  echo "BUILD COMPLETED - exit"; exit 0
 fi
 
 ##########################################################################
