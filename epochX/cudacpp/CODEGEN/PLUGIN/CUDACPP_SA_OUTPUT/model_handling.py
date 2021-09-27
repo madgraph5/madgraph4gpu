@@ -75,11 +75,12 @@ class GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 
 class OneProcessExporterGPU(export_cpp.OneProcessExporterGPU):
 
-        # Static variables (for inheritance)
+    # Static variables (for inheritance)
     process_dir = '.'
     include_dir = '.'
-    #template_path = os.path.join(_file_path, 'iolibs', 'template_files')
-    #__template_path = os.path.join(_file_path, 'iolibs', 'template_files') 
+    PLUGINDIR = os.path.dirname( __file__ )
+    template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
+    __template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
     process_template_h = 'gpu/process_h.inc'
     process_template_cc = 'gpu/process_cc.inc'
     process_class_template = 'gpu/process_class.inc'
