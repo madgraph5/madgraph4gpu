@@ -50,7 +50,7 @@ class MY_CPP_Standalone(export_cpp.ProcessExporterGPU):
     ###s= MG5DIR + '/madgraph/iolibs/template_files/'
     s= PLUGINDIR + '/madgraph/iolibs/template_files/'
     from_template = {'src': [s+'gpu/rambo.h', s+'gpu/rambo.cc', s+'read_slha.h', s+'read_slha.cc',
-                             s+'gpu/mgOnGpuTypes.h', s+'gpu/grambo.cu'],
+                             s+'gpu/mgOnGpuTypes.h', s+'gpu/mgOnGpuVectors.h', s+'gpu/grambo.cu'],
                     'SubProcesses': [s+'gpu/timer.h', s+'gpu/Makefile', s+'gpu/nvtx.h',
                                      s+'gpu/nvtx.h', s+'gpu/check.cc',
                                      s+'gpu/timermap.h', s+'gpu/profile.sh',
