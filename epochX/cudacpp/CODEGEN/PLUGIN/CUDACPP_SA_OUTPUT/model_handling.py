@@ -123,7 +123,7 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
                 continue
             elif self.offshell:
                 if len(p) != 0 : p.append(' ')
-                p.append('{0}{1}{2}[%(i)s]'.format(signs[i],type,i+1,type))    
+                p.append('{0} {1}{2}[%(i)s]'.format(signs[i],type,i+1,type))    
             if self.declaration.is_used('P%s' % (i+1)):
                 self.get_one_momenta_def(i+1, out)
         # define the resulting momenta
