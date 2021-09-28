@@ -277,7 +277,7 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
                 if nb_str[0] in ['+','-']:
                     file_str.write(nb_str) # eventually (' '+nb_str)?
                 else:
-                    file_str.write(' + ')
+                    file_str.write('+' if first else ' + ')
                     file_str.write(nb_str)
                 file_str.write('*(')
             elif value == -1:

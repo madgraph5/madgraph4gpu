@@ -968,6 +968,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/src/. and /data/av
 [1;32mDEBUG:  pass here [1;30m[output.py at line 102][0m [0m
 quit
 
-real	0m2.741s
-user	0m2.579s
-sys	0m0.142s
+real	0m2.904s
+user	0m2.587s
+sys	0m0.160s
