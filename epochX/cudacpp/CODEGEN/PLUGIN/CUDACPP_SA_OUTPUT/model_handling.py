@@ -99,9 +99,9 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
                         size = 20
                     else:
                         size = 18
-                out.write(' %s %s[%s];\n' % (self.type2def[type], name, size))
+                out.write('  %s %s[%s];\n' % (self.type2def[type], name, size))
             elif (type, name) not in self.call_arg:
-                out.write(' %s %s;\n' % (self.type2def[type], name))               
+                out.write('  %s %s;\n' % (self.type2def[type], name))               
         return out.getvalue()
 
 class  UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
