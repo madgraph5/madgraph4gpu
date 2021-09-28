@@ -19,6 +19,43 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
     type2def['pointer_vertex'] = '*' # using complex<double> * vertex)
     type2def['pointer_coup'] = ''
 
+    def get_declaration_txt(self, add_i=True):
+        """ Prototype for how to write the declaration of variable
+            Include the symmetry line (entry FFV_2)
+        """        
+        from six import StringIO
+        out = StringIO()
+        argument_var = [name for type,name in self.call_arg]
+        # define the complex number CI = 0+1j
+        if add_i:
+            out.write('  ' + self.ci_definition)
+        for type, name in self.declaration.tolist():
+            if type.startswith('list'):
+                type = type[5:]
+                if name.startswith('P'):
+                    size = 4
+                elif not 'tmp' in name:
+                    continue
+                    #should be define in the header
+                elif name[0] in ['F','V']:
+                    if aloha.loop_mode:
+                        size = 8
+                    else:
+                        size = 6
+                elif name[0] == 'S':
+                    if aloha.loop_mode:
+                        size = 5
+                    else:
+                        size = 3
+                elif name[0] in ['R','T']: 
+                    if aloha.loop_mode:
+                        size = 20
+                    else:
+                        size = 18
+                out.write(' %s %s[%s];\n' % (self.type2def[type], name, size))
+            elif (type, name) not in self.call_arg:
+                out.write(' %s %s;\n' % (self.type2def[type], name))               
+        return out.getvalue()
 
 class  UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
 
@@ -52,7 +89,7 @@ class  UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
         replace_dict = {}
 
         replace_dict['output_name'] = self.output_name
-        replace_dict['info_lines'] = export_cpp.get_mg5_info_lines().replace('#','//')
+        replace_dict['info_lines'] = export_cpp.get_mg5_info_lines().replace('# ','//')
         replace_dict['namespace'] = self.namespace
         replace_dict['model_name'] = self.model_name
 
