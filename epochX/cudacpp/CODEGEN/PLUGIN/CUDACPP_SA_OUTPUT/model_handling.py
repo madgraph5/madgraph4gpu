@@ -168,9 +168,10 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
                 operator =''
                 nb = j
                 nb2 = j
+            sign = self.get_P_sign(i) if self.get_P_sign(i) else '+'
             strfile.write(template % {'j':j,'type': type, 'i': i, 
                         'nb': nb, 'nb2': nb2, 'operator':operator,
-                        'sign': self.get_P_sign(i)})
+                        'sign': sign})
 
     def define_expression(self):
         """Write the helicity amplitude in C++ format"""
