@@ -1451,7 +1451,7 @@ __device__ void VVV1_0(const cxtype V1[], const cxtype V2[], const cxtype V3[], 
   TMP6 = (V3[2]*V2[2] - V3[3]*V2[3] - V3[4]*V2[4] - V3[5]*V2[5]);
   TMP7 = (V1[2]*P2[0] - V1[3]*P2[1] - V1[4]*P2[2] - V1[5]*P2[3]);
   TMP8 = (V1[2]*P3[0] - V1[3]*P3[1] - V1[4]*P3[2] - V1[5]*P3[3]);
-  (*vertex) = COUP*(TMP1*(-cI*(TMP0) + cI*(TMP2)) + (TMP3*( + cI*(TMP4)-cI*(TMP5)) + TMP6*(-cI*(TMP7) + cI*(TMP8))));
+  (*vertex) = COUP * (TMP1*(-cI*(TMP0) + cI*(TMP2)) + (TMP3*( + cI*(TMP4)-cI*(TMP5)) + TMP6*(-cI*(TMP7) + cI*(TMP8))));
 }
 
 
@@ -1499,7 +1499,7 @@ __device__ void FFV1_0(const cxtype F1[], const cxtype F2[], const cxtype V3[], 
   cxtype cI = cxtype(0., 1.);
   cxtype TMP9;
   TMP9 = (F1[2]*(F2[4]*(V3[2] + V3[5]) + F2[5]*(V3[3] + cI*(V3[4]))) + (F1[3]*(F2[4]*(V3[3]-cI*(V3[4])) + F2[5]*(V3[2] - V3[5])) + (F1[4]*(F2[2]*(V3[2] - V3[5]) - F2[3]*(V3[3] + cI*(V3[4]))) + F1[5]*(F2[2]*( - V3[3] + cI*(V3[4])) + F2[3]*(V3[2] + V3[5])))));
-  (*vertex) = COUP*-cI * TMP9;
+  (*vertex) = COUP * -cI * TMP9;
 }
 
 
@@ -1571,7 +1571,7 @@ __device__ void VVVV1_0(const cxtype V1[], const cxtype V2[], const cxtype V3[],
   TMP11 = (V2[2]*V4[2] - V2[3]*V4[3] - V2[4]*V4[4] - V2[5]*V4[5]);
   TMP3 = (V3[2]*V1[2] - V3[3]*V1[3] - V3[4]*V1[4] - V3[5]*V1[5]);
   TMP6 = (V3[2]*V2[2] - V3[3]*V2[3] - V3[4]*V2[4] - V3[5]*V2[5]);
-  (*vertex) = COUP*(-cI*(TMP6*TMP10) + cI*(TMP3*TMP11));
+  (*vertex) = COUP * (-cI*(TMP6*TMP10) + cI*(TMP3*TMP11));
 }
 
 
@@ -1609,7 +1609,7 @@ __device__ void VVVV3_0(const cxtype V1[], const cxtype V2[], const cxtype V3[],
   TMP10 = (V1[2]*V4[2] - V1[3]*V4[3] - V1[4]*V4[4] - V1[5]*V4[5]);
   TMP12 = (V3[2]*V4[2] - V3[3]*V4[3] - V3[4]*V4[4] - V3[5]*V4[5]);
   TMP6 = (V3[2]*V2[2] - V3[3]*V2[3] - V3[4]*V2[4] - V3[5]*V2[5]);
-  (*vertex) = COUP*(-cI*(TMP6*TMP10) + cI*(TMP1*TMP12));
+  (*vertex) = COUP * (-cI*(TMP6*TMP10) + cI*(TMP1*TMP12));
 }
 
 
@@ -1647,7 +1647,7 @@ __device__ void VVVV4_0(const cxtype V1[], const cxtype V2[], const cxtype V3[],
   TMP11 = (V2[2]*V4[2] - V2[3]*V4[3] - V2[4]*V4[4] - V2[5]*V4[5]);
   TMP12 = (V3[2]*V4[2] - V3[3]*V4[3] - V3[4]*V4[4] - V3[5]*V4[5]);
   TMP3 = (V3[2]*V1[2] - V3[3]*V1[3] - V3[4]*V1[4] - V3[5]*V1[5]);
-  (*vertex) = COUP*(-cI*(TMP3*TMP11) + cI*(TMP1*TMP12));
+  (*vertex) = COUP * (-cI*(TMP3*TMP11) + cI*(TMP1*TMP12));
 }
 
 
