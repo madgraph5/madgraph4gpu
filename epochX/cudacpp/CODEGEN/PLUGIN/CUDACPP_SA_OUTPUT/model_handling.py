@@ -282,7 +282,7 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
                 file_str.write('*(')
             elif value == -1:
                 add = ' - ' 
-                file_str.write(' - ')
+                file_str.write('-' if first else ' - ')
             elif not first:
                 file_str.write(' + ')
             else:
