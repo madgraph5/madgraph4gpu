@@ -4,6 +4,7 @@ import aloha.aloha_writers as aloha_writers
 import os
 pjoin = os.path.join
 
+import aloha
 from six import StringIO
 
 class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
@@ -103,6 +104,35 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
             elif (type, name) not in self.call_arg:
                 out.write('  %s %s;\n' % (self.type2def[type], name))               
         return out.getvalue()
+
+    def get_one_momenta_def(self, i, strfile):
+        type = self.particles[i-1]
+        if aloha.loop_mode:
+            template ='  P%(i)d[%(j)d] = %(sign)s%(type)s%(i)d[%(nb)d];\n'
+        else:
+            template ='  P%(i)d[%(j)d] = %(sign)s%(type)s%(i)d[%(nb2)d]%(operator)s;\n'
+        nb2 = 0
+        for j in range(4):
+            if not aloha.loop_mode:
+                nb = j 
+                if j == 0: 
+                    assert not aloha.mp_precision 
+                    operator = self.realoperator # not suppose to pass here in mp
+                elif j == 1: 
+                    nb2 += 1
+                elif j == 2:
+                    assert not aloha.mp_precision 
+                    operator = self.imagoperator # not suppose to pass here in mp
+                elif j ==3:
+                    nb2 -= 1
+            else:
+                operator =''
+                nb = j
+                nb2 = j
+            strfile.write(template % {'j':j,'type': type, 'i': i, 
+                        'nb': nb, 'nb2': nb2, 'operator':operator,
+                        'sign': self.get_P_sign(i)})
+
 
 class  UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
 
