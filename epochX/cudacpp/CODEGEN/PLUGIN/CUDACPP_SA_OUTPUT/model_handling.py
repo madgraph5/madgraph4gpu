@@ -271,7 +271,7 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
             file_str.write('(')
         first=True
         for value, obj_list in data.items():
-            add= '+'
+            add= ' + '
             if value not in  [-1,1]:
                 nb_str = self.change_number_format(value)
                 if nb_str[0] in ['+','-']:
@@ -281,7 +281,7 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
                     file_str.write(nb_str)
                 file_str.write('*(')
             elif value == -1:
-                add = '-' 
+                add = ' - ' 
                 file_str.write('-')
             elif not first:
                 file_str.write('+')
