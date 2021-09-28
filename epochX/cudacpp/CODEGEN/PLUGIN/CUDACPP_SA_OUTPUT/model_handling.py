@@ -7,6 +7,7 @@ pjoin = os.path.join
 import aloha
 from six import StringIO
 from collections import defaultdict
+import madgraph.iolibs.file_writers as writers
 
 class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
     
@@ -503,6 +504,45 @@ class OneProcessExporterGPU(export_cpp.OneProcessExporterGPU):
     process_sigmaKin_function_template = 'gpu/process_sigmaKin_function.inc'
     single_process_template = 'gpu/process_matrix.inc'
     cc_ext = 'cu'
+
+    def super_write_process_cc_file(self, writer):
+        """Write the class member definition (.cc) file for the process
+        described by matrix_element"""
+        if writer:
+            if not isinstance(writer, writers.CPPWriter):
+                raise writers.CPPWriter.CPPWriterError(\
+                "writer not CPPWriter")
+        replace_dict = self.get_default_converter()
+        # Extract version number and date from VERSION file
+        info_lines = export_cpp.get_mg5_info_lines()
+        replace_dict['info_lines'] = info_lines
+        # Extract process file name
+        replace_dict['process_file_name'] = self.process_name
+        # Extract model name
+        replace_dict['model_name'] = self.model_name
+        # Extract class function definitions
+        process_function_definitions = \
+                         self.get_process_function_definitions()
+        replace_dict['process_function_definitions'] = \
+                                                   process_function_definitions
+        if writer:
+            file = self.read_template_file(self.process_template_cc) % replace_dict
+            # Write the file
+            writer.writelines(file)
+        else:
+            return replace_dict
+
+    def write_process_cc_file(self, writer):
+        """Write the class member definition (.cc) file for the process
+        described by matrix_element"""                       
+        replace_dict = self.super_write_process_cc_file(False)
+        replace_dict['hel_amps_def'] = "\n#include \"../../src/HelAmps_%s.cu\"" % self.model_name
+        if writer:
+            file = self.read_template_file(self.process_template_cc) % replace_dict
+            # Write the file
+            writer.writelines(file)
+        else:
+            return replace_dict
 
     def get_process_function_definitions(self, write=True):
         """The complete Pythia 8 class definition for the process"""
