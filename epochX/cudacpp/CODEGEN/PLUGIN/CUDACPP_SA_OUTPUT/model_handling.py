@@ -266,7 +266,7 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
                 file_str.write('(%s)' % formatted)
             else:
                 file_str.write(formatted)
-            file_str.write('*(')
+            file_str.write(' * (')
         else:
             file_str.write('(')
         first=True
@@ -296,6 +296,7 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
             total = sum(number)
             file_str.write('+ %s' % self.change_number_format(total))
         file_str.write(')')
+        ###print(file_str.getvalue()) # FOR DEBUGGING
         return file_str.getvalue()
 
 
