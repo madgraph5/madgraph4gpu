@@ -38,6 +38,8 @@ namespace Proc
   __device__ __constant__ fptype cIPD[2];
   __device__ __constant__ int cNGoodHel[1];
   __device__ __constant__ int cGoodHel[ncomb];
+  __device__ cxtype w[nwf][nw6]; // w[5][6]
+  __device__ cxtype amp[1]; // was 2
 #else
   static int cHel[ncomb][npar];
   static fptype cIPC[6];
@@ -67,11 +69,9 @@ namespace Proc
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     //printf( "calculate_wavefunctions: ievt %d\n", ievt );
-#endif
-
     cxtype w[nwf][nw6]; // w[5][6]
     cxtype amp[1]; // was 2
-
+#endif
     // For CUDA performance, this is ~better: fewer registers, even if no throughput increase (issue #39)
     // However, physics parameters like masses and couplings must be read from user parameter files
     //const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
