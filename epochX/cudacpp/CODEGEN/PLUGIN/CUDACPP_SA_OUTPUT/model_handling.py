@@ -172,6 +172,87 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
                         'sign': self.get_P_sign(i)})
 
 
+    def define_expression(self):
+        """Write the helicity amplitude in C++ format"""
+        out = StringIO()
+        if self.routine.contracted:
+            keys = sorted(self.routine.contracted.keys())
+            for name in keys:
+                obj = self.routine.contracted[name]
+                out.write(' %s = %s;\n' % (name, self.write_obj(obj)))
+                self.declaration.add(('complex', name))
+        for name, (fct, objs) in self.routine.fct.items():
+            format = ' %s = %s;\n' % (name, self.get_fct_format(fct))
+            out.write(format % ','.join([self.write_obj(obj) for obj in objs]))
+        numerator = self.routine.expr
+        if not 'Coup(1)' in self.routine.infostr:
+            coup_name = 'COUP'
+        else:
+            coup_name = '%s' % self.change_number_format(1)
+        if not self.offshell:
+            if coup_name == 'COUP':
+                mydict = {'num': self.write_obj(numerator.get_rep([0]))}
+                for c in ['coup', 'vertex']:
+                    if self.type2def['pointer_%s' %c] in ['*']:
+                        mydict['pre_%s' %c] = '(*'
+                        mydict['post_%s' %c] = ')'
+                    else:
+                        mydict['pre_%s' %c] = ''
+                        mydict['post_%s'%c] = ''
+                out.write(' %(pre_vertex)svertex%(post_vertex)s = %(pre_coup)sCOUP%(post_coup)s*%(num)s;\n' %\
+                            mydict)
+            else:
+                mydict= {}
+                if self.type2def['pointer_vertex'] in ['*']:
+                    mydict['pre_vertex'] = '(*'
+                    mydict['post_vertex'] = ')'
+                else:
+                    mydict['pre_vertex'] = ''
+                    mydict['post_vertex'] = ''                 
+                mydict['data'] = self.write_obj(numerator.get_rep([0]))
+                out.write(' %(pre_vertex)svertex%(post_vertex)s = %(data)s;\n' % 
+                          mydict)
+        else:
+            OffShellParticle = '%s%d' % (self.particles[self.offshell-1],\
+                                                                  self.offshell)
+            if 'L' not in self.tag:
+                coeff = 'denom'
+                mydict = {}
+                if self.type2def['pointer_coup'] in ['*']:
+                    mydict['pre_coup'] = '(*'
+                    mydict['post_coup'] = ')'
+                else:
+                    mydict['pre_coup'] = ''
+                    mydict['post_coup'] = ''
+                mydict['coup'] = coup_name
+                mydict['i'] = self.outgoing
+                if not aloha.complex_mass:
+                    if self.routine.denominator:
+                        out.write('  denom = %(pre_coup)s%(coup)s%(post_coup)s/(%(denom)s)\n' % \
+                                  mydict) 
+                    else:
+                        out.write('  denom = %(pre_coup)s%(coup)s%(post_coup)s/((P%(i)s[0]*P%(i)s[0])-(P%(i)s[1]*P%(i)s[1])-(P%(i)s[2]*P%(i)s[2])-(P%(i)s[3]*P%(i)s[3]) - M%(i)s * (M%(i)s -cI* W%(i)s));\n' % \
+                                  mydict)
+                else:
+                    if self.routine.denominator:
+                        raise Exception('modify denominator are not compatible with complex mass scheme')                
+                    out.write('  denom = %(pre_coup)s%(coup)s%(post_coup)s/((P%(i)s[0]*P%(i)s[0])-(P%(i)s[1]*P%(i)s[1])-(P%(i)s[2]*P%(i)s[2])-(P%(i)s[3]*P%(i)s[3]) - (M%(i)s*M%(i)s));\n' % \
+                              mydict)
+                self.declaration.add(('complex','denom'))
+                if aloha.loop_mode:
+                    ptype = 'list_complex'
+                else:
+                    ptype = 'list_double'
+                self.declaration.add((ptype,'P%s' % self.outgoing))
+            else:
+                coeff = 'COUP'
+            for ind in numerator.listindices():
+                out.write('    %s[%d]= %s*%s;\n' % (self.outname, 
+                                        self.pass_to_HELAS(ind), coeff,
+                                        self.write_obj(numerator.get_rep(ind))))
+        return out.getvalue()
+
+
 class  UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
 
     ###aloha_writer = 'cudac' #this was the default mode assigned to GPU 
