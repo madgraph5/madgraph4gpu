@@ -1258,8 +1258,9 @@ void CPPProcess::initProc(string param_card_name)
   mME.push_back(pars->ZERO); 
   mME.push_back(pars->ZERO); 
 
-  static cxtype tIPC[3] = {pars->GC_10, pars->GC_11, pars->GC_12}; 
-  static double tIPD[2] = {pars->mdl_MT, pars->mdl_WT}; 
+  static cxtype tIPC[3] = {cxmake(pars->GC_10), cxmake(pars->GC_11),
+      cxmake(pars->GC_12)};
+  static fptype tIPD[2] = {(fptype)pars->mdl_MT, (fptype)pars->mdl_WT}; 
 
 #ifdef __CUDACC__
   checkCuda(cudaMemcpyToSymbol(cIPC, tIPC, 3 * sizeof(cxtype))); 
