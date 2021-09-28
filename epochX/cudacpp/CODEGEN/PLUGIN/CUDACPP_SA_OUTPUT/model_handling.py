@@ -6,6 +6,7 @@ pjoin = os.path.join
 
 import aloha
 from six import StringIO
+from collections import defaultdict
 
 class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
     
@@ -251,6 +252,51 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
                                         self.pass_to_HELAS(ind), coeff,
                                         self.write_obj(numerator.get_rep(ind))))
         return out.getvalue()
+
+    def write_obj_Add(self, obj, prefactor=True):
+        """Turns addvariable into a string"""
+        data = defaultdict(list)
+        number = []
+        [data[p.prefactor].append(p) if hasattr(p, 'prefactor') else number.append(p)
+             for p in obj]
+        file_str = StringIO()
+        if prefactor and obj.prefactor != 1:
+            formatted = self.change_number_format(obj.prefactor)
+            if formatted.startswith(('+','-')):
+                file_str.write('(%s)' % formatted)
+            else:
+                file_str.write(formatted)
+            file_str.write('*(')
+        else:
+            file_str.write('(')
+        first=True
+        for value, obj_list in data.items():
+            add= '+'
+            if value not in  [-1,1]:
+                nb_str = self.change_number_format(value)
+                if nb_str[0] in ['+','-']:
+                    file_str.write(nb_str)
+                else:
+                    file_str.write('+')
+                    file_str.write(nb_str)
+                file_str.write('*(')
+            elif value == -1:
+                add = '-' 
+                file_str.write('-')
+            elif not first:
+                file_str.write('+')
+            else:
+                file_str.write('')
+            first = False
+            file_str.write(add.join([self.write_obj(obj, prefactor=False) 
+                                                          for obj in obj_list]))
+            if value not in [1,-1]:
+                file_str.write(')')
+        if number:
+            total = sum(number)
+            file_str.write('+ %s' % self.change_number_format(total))
+        file_str.write(')')
+        return file_str.getvalue()
 
 
 class  UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
