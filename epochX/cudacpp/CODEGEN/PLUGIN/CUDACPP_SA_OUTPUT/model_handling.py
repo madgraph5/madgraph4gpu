@@ -23,6 +23,38 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
     type2def['pointer_vertex'] = '*' # using complex<double> * vertex)
     type2def['pointer_coup'] = ''
 
+    def change_number_format(self, number):
+        """Formating the number"""
+        def isinteger(x):
+            try:
+                return int(x) == x
+            except TypeError:
+                return False
+        if isinteger(number):
+            out = '%s.' % (str(int(number)))
+        elif isinstance(number, complex):
+            if number.imag:
+                if number.real:
+                    out = '(%s + %s*cI)' % (self.change_number_format(number.real), \
+                                    self.change_number_format(number.imag))
+                else:
+                    if number.imag == 1:
+                        out = 'cI'
+                    elif number.imag == -1:
+                        out = '-cI'
+                    else: 
+                        out = '%s * cI' % self.change_number_format(number.imag)
+            else:
+                out = '%s' % (self.change_number_format(number.real))
+        else:
+            tmp = Fraction(str(number))
+            tmp = tmp.limit_denominator(100)
+            if not abs(tmp - number) / abs(tmp + number) < 1e-8:
+                out = '%.9f' % (number)
+            else:
+                out = '%s./%s.' % (tmp.numerator, tmp.denominator)
+        return out
+
     def get_header_txt(self, name=None, couplings=None,mode=''):
         """Define the Header of the fortran file. This include
             - function tag
