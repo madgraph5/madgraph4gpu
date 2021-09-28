@@ -199,7 +199,7 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
                     else:
                         mydict['pre_%s' %c] = ''
                         mydict['post_%s'%c] = ''
-                out.write(' %(pre_vertex)svertex%(post_vertex)s = %(pre_coup)sCOUP%(post_coup)s*%(num)s;\n' %\
+                out.write('  %(pre_vertex)svertex%(post_vertex)s = %(pre_coup)sCOUP%(post_coup)s*%(num)s;\n' %\
                             mydict)
             else:
                 mydict= {}
