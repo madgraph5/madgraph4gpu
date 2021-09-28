@@ -179,7 +179,7 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
             keys = sorted(self.routine.contracted.keys())
             for name in keys:
                 obj = self.routine.contracted[name]
-                out.write(' %s = %s;\n' % (name, self.write_obj(obj)))
+                out.write('  %s = %s;\n' % (name, self.write_obj(obj)))
                 self.declaration.add(('complex', name))
         for name, (fct, objs) in self.routine.fct.items():
             format = ' %s = %s;\n' % (name, self.get_fct_format(fct))
