@@ -1475,8 +1475,8 @@ __device__ void VVV1P0_1(const cxtype V2[], const cxtype V3[], const cxtype COUP
   P3[1] = V3[1].real();
   P3[2] = V3[1].imag();
   P3[3] = V3[0].imag();
-  V1[0] = +V2[0]+V3[0];
-  V1[1] = +V2[1]+V3[1];
+  V1[0] = +V2[0] +V3[0];
+  V1[1] = +V2[1] +V3[1];
   P1[0] = -V1[0].real();
   P1[1] = -V1[1].real();
   P1[2] = -V1[1].imag();
@@ -1508,8 +1508,8 @@ __device__ void FFV1_1(const cxtype F2[], const cxtype V3[], const cxtype COUP, 
   cxtype cI = cxtype(0., 1.);
   fptype P1[4];
   cxtype denom;
-  F1[0] = +F2[0]+V3[0];
-  F1[1] = +F2[1]+V3[1];
+  F1[0] = +F2[0] +V3[0];
+  F1[1] = +F2[1] +V3[1];
   P1[0] = -F1[0].real();
   P1[1] = -F1[1].real();
   P1[2] = -F1[1].imag();
@@ -1527,8 +1527,8 @@ __device__ void FFV1_2(const cxtype F1[], const cxtype V3[], const cxtype COUP, 
   cxtype cI = cxtype(0., 1.);
   fptype P2[4];
   cxtype denom;
-  F2[0] = +F1[0]+V3[0];
-  F2[1] = +F1[1]+V3[1];
+  F2[0] = +F1[0] +V3[0];
+  F2[1] = +F1[1] +V3[1];
   P2[0] = -F2[0].real();
   P2[1] = -F2[1].real();
   P2[2] = -F2[1].imag();
@@ -1546,8 +1546,8 @@ __device__ void FFV1P0_3(const cxtype F1[], const cxtype F2[], const cxtype COUP
   cxtype cI = cxtype(0., 1.);
   fptype P3[4];
   cxtype denom;
-  V3[0] = +F1[0]+F2[0];
-  V3[1] = +F1[1]+F2[1];
+  V3[0] = +F1[0] +F2[0];
+  V3[1] = +F1[1] +F2[1];
   P3[0] = -V3[0].real();
   P3[1] = -V3[1].real();
   P3[2] = -V3[1].imag();
@@ -1582,8 +1582,8 @@ __device__ void VVVV1P0_1(const cxtype V2[], const cxtype V3[], const cxtype V4[
   cxtype TMP11;
   cxtype TMP6;
   cxtype denom;
-  V1[0] = +V2[0]+V3[0]+V4[0];
-  V1[1] = +V2[1]+V3[1]+V4[1];
+  V1[0] = +V2[0] +V3[0] +V4[0];
+  V1[1] = +V2[1] +V3[1] +V4[1];
   P1[0] = -V1[0].real();
   P1[1] = -V1[1].real();
   P1[2] = -V1[1].imag();
@@ -1620,8 +1620,8 @@ __device__ void VVVV3P0_1(const cxtype V2[], const cxtype V3[], const cxtype V4[
   cxtype TMP12;
   cxtype TMP6;
   cxtype denom;
-  V1[0] = +V2[0]+V3[0]+V4[0];
-  V1[1] = +V2[1]+V3[1]+V4[1];
+  V1[0] = +V2[0] +V3[0] +V4[0];
+  V1[1] = +V2[1] +V3[1] +V4[1];
   P1[0] = -V1[0].real();
   P1[1] = -V1[1].real();
   P1[2] = -V1[1].imag();
@@ -1658,8 +1658,8 @@ __device__ void VVVV4P0_1(const cxtype V2[], const cxtype V3[], const cxtype V4[
   cxtype TMP11;
   cxtype TMP12;
   cxtype denom;
-  V1[0] = +V2[0]+V3[0]+V4[0];
-  V1[1] = +V2[1]+V3[1]+V4[1];
+  V1[0] = +V2[0] +V3[0] +V4[0];
+  V1[1] = +V2[1] +V3[1] +V4[1];
   P1[0] = -V1[0].real();
   P1[1] = -V1[1].real();
   P1[2] = -V1[1].imag();

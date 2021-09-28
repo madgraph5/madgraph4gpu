@@ -122,6 +122,7 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
                 out_size = self.type_to_size[type] 
                 continue
             elif self.offshell:
+                if len(p) != 0 : p.append(' ')
                 p.append('{0}{1}{2}[%(i)s]'.format(signs[i],type,i+1,type))    
             if self.declaration.is_used('P%s' % (i+1)):
                 self.get_one_momenta_def(i+1, out)
