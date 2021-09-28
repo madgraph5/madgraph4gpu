@@ -52,7 +52,7 @@ class  UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
         replace_dict = {}
 
         replace_dict['output_name'] = self.output_name
-        replace_dict['info_lines'] = export_cpp.get_mg5_info_lines()
+        replace_dict['info_lines'] = export_cpp.get_mg5_info_lines().replace('#','//')
         replace_dict['namespace'] = self.namespace
         replace_dict['model_name'] = self.model_name
 
