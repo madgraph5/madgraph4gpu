@@ -503,3 +503,27 @@ class OneProcessExporterGPU(export_cpp.OneProcessExporterGPU):
     process_sigmaKin_function_template = 'gpu/process_sigmaKin_function.inc'
     single_process_template = 'gpu/process_matrix.inc'
     cc_ext = 'cu'
+    def get_process_function_definitions(self, write=True):
+        """The complete Pythia 8 class definition for the process"""
+        replace_dict = super(export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False)
+        replace_dict['ncouplings'] = len(self.couplings2order)
+        replace_dict['ncouplingstimes2'] = 2 *  replace_dict['ncouplings']
+        replace_dict['nparams'] = len(self.params2order)
+        replace_dict['nmodels'] = replace_dict['nparams'] + replace_dict['ncouplings']
+        replace_dict['coupling_list'] = ' '
+        coupling = [''] * len(self.couplings2order)
+        params = [''] * len(self.params2order)
+        for coup, pos in self.couplings2order.items():
+            coupling[pos] = coup
+        coup_str = "static cxtype tIPC[%s] = {pars->%s};\n"\
+            %(len(self.couplings2order), ',pars->'.join(coupling))
+        for para, pos in self.params2order.items():
+            params[pos] = para            
+        param_str = "static double tIPD[%s] = {pars->%s};\n"\
+            %(len(self.params2order), ',pars->'.join(params))            
+        replace_dict['assign_coupling'] = coup_str + param_str
+        replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "tHel")
+        file = self.read_template_file(self.process_definition_template) %\
+               replace_dict
+        return file
