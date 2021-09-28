@@ -4,6 +4,8 @@ import aloha.aloha_writers as aloha_writers
 import os
 pjoin = os.path.join
 
+from six import StringIO
+
 class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
     
     extension = '.cu'
@@ -13,17 +15,62 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
     ci_definition = 'cxtype cI = cxtype(0., 1.);\n'
     
     type2def = {}    
-    type2def['int'] = 'int '
-    type2def['double'] = 'fptype '
-    type2def['complex'] = 'cxtype '
+    type2def['int'] = 'int'
+    type2def['double'] = 'fptype'
+    type2def['complex'] = 'cxtype'
     type2def['pointer_vertex'] = '*' # using complex<double> * vertex)
     type2def['pointer_coup'] = ''
+
+    def get_header_txt(self, name=None, couplings=None,mode=''):
+        """Define the Header of the fortran file. This include
+            - function tag
+            - definition of variable
+        """
+        if name is None:
+            name = self.name
+        if mode=='':
+            mode = self.mode
+        out = StringIO()
+        # define the type of function and argument
+        if not 'no_include' in mode:
+            out.write('#include \"%s.h\"\n\n' % self.name)
+        args = []
+        for format, argname in self.define_argument_list(couplings):
+            if format.startswith('list'):
+                type = self.type2def[format[5:]]
+                list_arg = '[]'
+            else:
+                type = self.type2def[format]
+                list_arg = ''
+            if argname.startswith('COUP'):
+                point = self.type2def['pointer_coup']
+                args.append('%s %s%s%s'% (type, point, argname, list_arg))
+            else:
+                args.append('%s %s%s'% (type, argname, list_arg))
+        if not self.offshell:
+            output = '%(doublec)s %(pointer_vertex)s vertex' % {
+                'doublec':self.type2def['complex'],
+                'pointer_vertex': self.type2def['pointer_vertex']}
+            #self.declaration.add(('complex','vertex'))
+        else:
+            output = '%(doublec)s %(spin)s%(id)d[]' % {
+                     'doublec': self.type2def['complex'],
+                     'spin': self.particles[self.outgoing -1],
+                     'id': self.outgoing}
+            self.declaration.add(('list_complex', output))
+        out.write('%(prefix)s void %(name)s(const %(args)s, %(output)s)' % \
+                  {'prefix': self.prefix,
+                      'output':output, 'name': name, 'args': ', const '.join(args)})
+        if 'is_h' in mode:
+            out.write(';\n')
+        else:
+            out.write('\n{\n')
+        return out.getvalue() 
 
     def get_declaration_txt(self, add_i=True):
         """ Prototype for how to write the declaration of variable
             Include the symmetry line (entry FFV_2)
         """        
-        from six import StringIO
         out = StringIO()
         argument_var = [name for type,name in self.call_arg]
         # define the complex number CI = 0+1j
