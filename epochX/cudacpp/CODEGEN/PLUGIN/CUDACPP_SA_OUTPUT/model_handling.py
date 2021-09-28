@@ -105,6 +105,43 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
                 out.write('  %s %s;\n' % (self.type2def[type], name))               
         return out.getvalue()
 
+    def get_momenta_txt(self):
+        """Define the Header of the fortran file. This include
+            - momentum conservation
+            - definition of the impulsion"""
+        out = StringIO()
+        # Define all the required momenta
+        p = [] # a list for keeping track how to write the momentum
+        signs = self.get_momentum_conservation_sign()
+        for i,type in enumerate(self.particles):
+            if self.declaration.is_used('OM%s' % (i+1)):
+                out.write("    OM{0} = {1};\n    if (M{0} != {1})\n OM{0}={2}/(M{0}*M{0});\n".format( 
+                         i+1, self.change_number_format(0), self.change_number_format(1)))
+            if i+1 == self.outgoing:
+                out_type = type
+                out_size = self.type_to_size[type] 
+                continue
+            elif self.offshell:
+                p.append('{0}{1}{2}[%(i)s]'.format(signs[i],type,i+1,type))    
+            if self.declaration.is_used('P%s' % (i+1)):
+                self.get_one_momenta_def(i+1, out)
+        # define the resulting momenta
+        if self.offshell:
+            energy_pos = out_size -2
+            type = self.particles[self.outgoing-1]
+            if aloha.loop_mode:
+                size_p = 4
+            else:
+                size_p = 2
+            for i in range(size_p):
+                dict_energy = {'i':i}
+                out.write('  %s%s[%s] = %s;\n' % (type,self.outgoing, i, 
+                                             ''.join(p) % dict_energy))
+            if self.declaration.is_used('P%s' % self.outgoing):
+                self.get_one_momenta_def(self.outgoing, out)
+        # Returning result
+        return out.getvalue()
+
     def get_one_momenta_def(self, i, strfile):
         type = self.particles[i-1]
         if aloha.loop_mode:
