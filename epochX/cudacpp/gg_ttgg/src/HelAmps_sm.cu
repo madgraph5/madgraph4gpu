@@ -1415,8 +1415,7 @@ const int ipar)  // input: particle# out of npar
 */
 //--------------------------------------------------------------------------
 
-__device__ void VVV1_0(const cxtype V1[], const cxtype V2[], const cxtype V3[],
-    const cxtype COUP, cxtype * vertex)
+__device__ void VVV1_0(const cxtype V1[], const cxtype V2[], const cxtype V3[], const cxtype COUP, cxtype * vertex)
 {
   cxtype cI = cxtype(0., 1.);
   fptype P1[4];
@@ -1456,8 +1455,7 @@ __device__ void VVV1_0(const cxtype V1[], const cxtype V2[], const cxtype V3[],
 }
 
 
-__device__ void VVV1P0_1(const cxtype V2[], const cxtype V3[], const cxtype
-    COUP, const fptype M1, const fptype W1, cxtype V1[])
+__device__ void VVV1P0_1(const cxtype V2[], const cxtype V3[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[])
 {
   cxtype cI = cxtype(0., 1.);
   fptype P1[4];
@@ -1496,8 +1494,7 @@ __device__ void VVV1P0_1(const cxtype V2[], const cxtype V3[], const cxtype
 }
 
 
-__device__ void FFV1_0(const cxtype F1[], const cxtype F2[], const cxtype V3[],
-    const cxtype COUP, cxtype * vertex)
+__device__ void FFV1_0(const cxtype F1[], const cxtype F2[], const cxtype V3[], const cxtype COUP, cxtype * vertex)
 {
   cxtype cI = cxtype(0., 1.);
   cxtype TMP12;
@@ -1506,8 +1503,7 @@ __device__ void FFV1_0(const cxtype F1[], const cxtype F2[], const cxtype V3[],
 }
 
 
-__device__ void FFV1_1(const cxtype F2[], const cxtype V3[], const cxtype COUP,
-    const fptype M1, const fptype W1, cxtype F1[])
+__device__ void FFV1_1(const cxtype F2[], const cxtype V3[], const cxtype COUP, const fptype M1, const fptype W1, cxtype F1[])
 {
   constexpr fptype one( 1. );
   cxtype cI = cxtype(0., 1.);
@@ -1527,8 +1523,7 @@ __device__ void FFV1_1(const cxtype F2[], const cxtype V3[], const cxtype COUP,
 }
 
 
-__device__ void FFV1_2(const cxtype F1[], const cxtype V3[], const cxtype COUP,
-    const fptype M2, const fptype W2, cxtype F2[])
+__device__ void FFV1_2(const cxtype F1[], const cxtype V3[], const cxtype COUP, const fptype M2, const fptype W2, cxtype F2[])
 {
   constexpr fptype one( 1. );
   cxtype cI = cxtype(0., 1.);
@@ -1548,8 +1543,7 @@ __device__ void FFV1_2(const cxtype F1[], const cxtype V3[], const cxtype COUP,
 }
 
 
-__device__ void FFV1P0_3(const cxtype F1[], const cxtype F2[], const cxtype
-    COUP, const fptype M3, const fptype W3, cxtype V3[])
+__device__ void FFV1P0_3(const cxtype F1[], const cxtype F2[], const cxtype COUP, const fptype M3, const fptype W3, cxtype V3[])
 {
   cxtype cI = cxtype(0., 1.);
   fptype P3[4];
@@ -1568,8 +1562,7 @@ __device__ void FFV1P0_3(const cxtype F1[], const cxtype F2[], const cxtype
 }
 
 
-__device__ void VVVV1_0(const cxtype V1[], const cxtype V2[], const cxtype
-    V3[], const cxtype V4[], const cxtype COUP, cxtype * vertex)
+__device__ void VVVV1_0(const cxtype V1[], const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, cxtype * vertex)
 {
   cxtype cI = cxtype(0., 1.);
   cxtype TMP10;
@@ -1584,8 +1577,7 @@ __device__ void VVVV1_0(const cxtype V1[], const cxtype V2[], const cxtype
 }
 
 
-__device__ void VVVV1P0_1(const cxtype V2[], const cxtype V3[], const cxtype
-    V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[])
+__device__ void VVVV1P0_1(const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[])
 {
   cxtype cI = cxtype(0., 1.);
   fptype P1[4];
@@ -1608,8 +1600,7 @@ __device__ void VVVV1P0_1(const cxtype V2[], const cxtype V3[], const cxtype
 }
 
 
-__device__ void VVVV3_0(const cxtype V1[], const cxtype V2[], const cxtype
-    V3[], const cxtype V4[], const cxtype COUP, cxtype * vertex)
+__device__ void VVVV3_0(const cxtype V1[], const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, cxtype * vertex)
 {
   cxtype cI = cxtype(0., 1.);
   cxtype TMP1;
@@ -1624,8 +1615,7 @@ __device__ void VVVV3_0(const cxtype V1[], const cxtype V2[], const cxtype
 }
 
 
-__device__ void VVVV3P0_1(const cxtype V2[], const cxtype V3[], const cxtype
-    V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[])
+__device__ void VVVV3P0_1(const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[])
 {
   cxtype cI = cxtype(0., 1.);
   fptype P1[4];
@@ -1648,8 +1638,7 @@ __device__ void VVVV3P0_1(const cxtype V2[], const cxtype V3[], const cxtype
 }
 
 
-__device__ void VVVV4_0(const cxtype V1[], const cxtype V2[], const cxtype
-    V3[], const cxtype V4[], const cxtype COUP, cxtype * vertex)
+__device__ void VVVV4_0(const cxtype V1[], const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, cxtype * vertex)
 {
   cxtype cI = cxtype(0., 1.);
   cxtype TMP1;
@@ -1664,8 +1653,7 @@ __device__ void VVVV4_0(const cxtype V1[], const cxtype V2[], const cxtype
 }
 
 
-__device__ void VVVV4P0_1(const cxtype V2[], const cxtype V3[], const cxtype
-    V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[])
+__device__ void VVVV4P0_1(const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[])
 {
   cxtype cI = cxtype(0., 1.);
   fptype P1[4];
