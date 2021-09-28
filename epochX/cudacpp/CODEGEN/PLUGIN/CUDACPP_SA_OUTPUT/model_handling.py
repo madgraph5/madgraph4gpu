@@ -9,6 +9,9 @@ from six import StringIO
 from collections import defaultdict
 import madgraph.iolibs.file_writers as writers
 
+import logging
+logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.model_handling')
+
 class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
     
     extension = '.cu'
@@ -418,8 +421,6 @@ class  UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
         writers.FileWriter(model_h_file).writelines(file_h) # WITHOUT FORMATTING
         writers.FileWriter(model_cc_file).writelines(file_cc) # WITHOUT FORMATTING
 
-        import logging
-        logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.model_handling')
         logger.info("Created files %s and %s in directory" \
                     % (os.path.split(model_h_file)[-1],
                        os.path.split(model_cc_file)[-1]))
@@ -504,6 +505,25 @@ class OneProcessExporterGPU(export_cpp.OneProcessExporterGPU):
     process_sigmaKin_function_template = 'gpu/process_sigmaKin_function.inc'
     single_process_template = 'gpu/process_matrix.inc'
     cc_ext = 'cu'
+
+    # Methods for generation of process files for C++
+    def _generate_process_files(self):
+        """Generate the .h and .cc files needed for C++, for the
+        processes described by multi_matrix_element"""
+        # Create the files
+        if not os.path.isdir(os.path.join(self.path, self.include_dir)):
+            os.makedirs(os.path.join(self.path, self.include_dir))
+        filename = os.path.join(self.path, self.include_dir,
+                                '%s.h' % self.process_class)
+        self.write_process_h_file(writers.CPPWriter(filename))
+        if not os.path.isdir(os.path.join(self.path, self.process_dir)):
+            os.makedirs(os.path.join(self.path, self.process_dir))
+        filename = os.path.join(self.path, self.process_dir,
+                                '%s.%s' % (self.process_class, self.cc_ext)) 
+        self.write_process_cc_file(writers.CPPWriter(filename))
+        logger.info('Created files %(process)s.h and %(process)s.cc in' % \
+                    {'process': self.process_class} + \
+                    ' directory %(dir)s' % {'dir': os.path.split(filename)[0]})
 
     def super_write_process_cc_file(self, writer):
         """Write the class member definition (.cc) file for the process
