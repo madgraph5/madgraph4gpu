@@ -147,9 +147,9 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
     def get_one_momenta_def(self, i, strfile):
         type = self.particles[i-1]
         if aloha.loop_mode:
-            template ='  P%(i)d[%(j)d] = %(sign)s%(type)s%(i)d[%(nb)d];\n'
+            template ='  P%(i)d[%(j)d] = %(sign)s %(type)s%(i)d[%(nb)d];\n'
         else:
-            template ='  P%(i)d[%(j)d] = %(sign)s%(type)s%(i)d[%(nb2)d]%(operator)s;\n'
+            template ='  P%(i)d[%(j)d] = %(sign)s %(type)s%(i)d[%(nb2)d]%(operator)s;\n'
         nb2 = 0
         for j in range(4):
             if not aloha.loop_mode:
@@ -171,7 +171,6 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
             strfile.write(template % {'j':j,'type': type, 'i': i, 
                         'nb': nb, 'nb2': nb2, 'operator':operator,
                         'sign': self.get_P_sign(i)})
-
 
     def define_expression(self):
         """Write the helicity amplitude in C++ format"""
