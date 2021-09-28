@@ -16,7 +16,8 @@
 
 using namespace std;
 
-namespace MG5_sm {
+namespace MG5_sm
+{
 /*#ifdef __CUDACC__
 
 __device__ void oxxxxx(const fptype p[3], const fptype& fmass, const int& nhel, const int& nsf,

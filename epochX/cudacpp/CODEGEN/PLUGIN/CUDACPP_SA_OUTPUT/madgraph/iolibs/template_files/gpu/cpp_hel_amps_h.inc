@@ -14,7 +14,8 @@
 
 using namespace std;
 
-namespace %(namespace)s_%(model_name)s {
+namespace %(namespace)s_%(model_name)s
+{
 %(function_declarations)s
 } // end namespace %(namespace)s_%(model_name)s
 
