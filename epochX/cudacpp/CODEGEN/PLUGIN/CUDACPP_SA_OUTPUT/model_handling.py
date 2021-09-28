@@ -232,7 +232,7 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
                         out.write('  denom = %(pre_coup)s%(coup)s%(post_coup)s / (%(denom)s)\n' % \
                                   mydict) 
                     else:
-                        out.write('  denom = %(pre_coup)s%(coup)s%(post_coup)s/((P%(i)s[0]*P%(i)s[0])-(P%(i)s[1]*P%(i)s[1])-(P%(i)s[2]*P%(i)s[2])-(P%(i)s[3]*P%(i)s[3]) - M%(i)s * (M%(i)s -cI* W%(i)s));\n' % \
+                        out.write('  denom = %(pre_coup)s%(coup)s%(post_coup)s / ((P%(i)s[0]*P%(i)s[0])-(P%(i)s[1]*P%(i)s[1])-(P%(i)s[2]*P%(i)s[2])-(P%(i)s[3]*P%(i)s[3]) - M%(i)s * (M%(i)s -cI* W%(i)s));\n' % \
                                   mydict)
                 else:
                     if self.routine.denominator:
