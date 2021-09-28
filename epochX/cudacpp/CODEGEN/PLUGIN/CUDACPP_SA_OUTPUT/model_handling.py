@@ -247,7 +247,7 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
             else:
                 coeff = 'COUP'
             for ind in numerator.listindices():
-                out.write('    %s[%d]= %s*%s;\n' % (self.outname, 
+                out.write('  %s[%d]= %s*%s;\n' % (self.outname, 
                                         self.pass_to_HELAS(ind), coeff,
                                         self.write_obj(numerator.get_rep(ind))))
         return out.getvalue()
