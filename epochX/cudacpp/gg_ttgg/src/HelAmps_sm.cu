@@ -1497,9 +1497,9 @@ __device__ void VVV1P0_1(const cxtype V2[], const cxtype V3[], const cxtype COUP
 __device__ void FFV1_0(const cxtype F1[], const cxtype F2[], const cxtype V3[], const cxtype COUP, cxtype * vertex)
 {
   cxtype cI = cxtype(0., 1.);
-  cxtype TMP12;
-  TMP12 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) + (F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])) + (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) + F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])))));
-  (*vertex) = COUP * - cI * TMP12;
+  cxtype TMP9;
+  TMP9 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) + (F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])) + (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) + F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])))));
+  (*vertex) = COUP * - cI * TMP9;
 }
 
 
@@ -1566,14 +1566,14 @@ __device__ void VVVV1_0(const cxtype V1[], const cxtype V2[], const cxtype V3[],
 {
   cxtype cI = cxtype(0., 1.);
   cxtype TMP10;
+  cxtype TMP11;
   cxtype TMP3;
   cxtype TMP6;
-  cxtype TMP9;
+  TMP10 = (V1[2] * V4[2] - V1[3] * V4[3] - V1[4] * V4[4] - V1[5] * V4[5]);
+  TMP11 = (V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5]);
   TMP3 = (V3[2] * V1[2] - V3[3] * V1[3] - V3[4] * V1[4] - V3[5] * V1[5]);
   TMP6 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]);
-  TMP9 = (V1[2] * V4[2] - V1[3] * V4[3] - V1[4] * V4[4] - V1[5] * V4[5]);
-  TMP10 = (V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5]);
-  (*vertex) = COUP * (-cI * (TMP6 * TMP9) + cI * (TMP3 * TMP10));
+  (*vertex) = COUP * (-cI * (TMP6 * TMP10) + cI * (TMP3 * TMP11));
 }
 
 
@@ -1581,8 +1581,8 @@ __device__ void VVVV1P0_1(const cxtype V2[], const cxtype V3[], const cxtype V4[
 {
   cxtype cI = cxtype(0., 1.);
   fptype P1[4];
+  cxtype TMP11;
   cxtype TMP6;
-  cxtype TMP10;
   cxtype denom;
   V1[0] = +V2[0] + V3[0] + V4[0];
   V1[1] = +V2[1] + V3[1] + V4[1];
@@ -1590,13 +1590,13 @@ __device__ void VVVV1P0_1(const cxtype V2[], const cxtype V3[], const cxtype V4[
   P1[1] = -V1[1].real();
   P1[2] = -V1[1].imag();
   P1[3] = -V1[0].imag();
+  TMP11 = (V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5]);
   TMP6 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]);
-  TMP10 = (V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5]);
   denom = COUP/((P1[0] * P1[0]) - (P1[1] * P1[1]) - (P1[2] * P1[2]) - (P1[3] * P1[3]) - M1 * (M1 - cI * W1));
-  V1[2] = denom * (-cI * (TMP6 * V4[2]) + cI * (V3[2] * TMP10));
-  V1[3] = denom * (-cI * (TMP6 * V4[3]) + cI * (V3[3] * TMP10));
-  V1[4] = denom * (-cI * (TMP6 * V4[4]) + cI * (V3[4] * TMP10));
-  V1[5] = denom * (-cI * (TMP6 * V4[5]) + cI * (V3[5] * TMP10));
+  V1[2] = denom * (-cI * (TMP6 * V4[2]) + cI * (V3[2] * TMP11));
+  V1[3] = denom * (-cI * (TMP6 * V4[3]) + cI * (V3[3] * TMP11));
+  V1[4] = denom * (-cI * (TMP6 * V4[4]) + cI * (V3[4] * TMP11));
+  V1[5] = denom * (-cI * (TMP6 * V4[5]) + cI * (V3[5] * TMP11));
 }
 
 
@@ -1604,14 +1604,14 @@ __device__ void VVVV3_0(const cxtype V1[], const cxtype V2[], const cxtype V3[],
 {
   cxtype cI = cxtype(0., 1.);
   cxtype TMP1;
+  cxtype TMP10;
+  cxtype TMP12;
   cxtype TMP6;
-  cxtype TMP9;
-  cxtype TMP11;
   TMP1 = (V2[2] * V1[2] - V2[3] * V1[3] - V2[4] * V1[4] - V2[5] * V1[5]);
+  TMP10 = (V1[2] * V4[2] - V1[3] * V4[3] - V1[4] * V4[4] - V1[5] * V4[5]);
+  TMP12 = (V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5]);
   TMP6 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]);
-  TMP9 = (V1[2] * V4[2] - V1[3] * V4[3] - V1[4] * V4[4] - V1[5] * V4[5]);
-  TMP11 = (V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5]);
-  (*vertex) = COUP * (-cI * (TMP6 * TMP9) + cI * (TMP1 * TMP11));
+  (*vertex) = COUP * (-cI * (TMP6 * TMP10) + cI * (TMP1 * TMP12));
 }
 
 
@@ -1619,8 +1619,8 @@ __device__ void VVVV3P0_1(const cxtype V2[], const cxtype V3[], const cxtype V4[
 {
   cxtype cI = cxtype(0., 1.);
   fptype P1[4];
+  cxtype TMP12;
   cxtype TMP6;
-  cxtype TMP11;
   cxtype denom;
   V1[0] = +V2[0] + V3[0] + V4[0];
   V1[1] = +V2[1] + V3[1] + V4[1];
@@ -1628,13 +1628,13 @@ __device__ void VVVV3P0_1(const cxtype V2[], const cxtype V3[], const cxtype V4[
   P1[1] = -V1[1].real();
   P1[2] = -V1[1].imag();
   P1[3] = -V1[0].imag();
+  TMP12 = (V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5]);
   TMP6 = (V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5]);
-  TMP11 = (V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5]);
   denom = COUP/((P1[0] * P1[0]) - (P1[1] * P1[1]) - (P1[2] * P1[2]) - (P1[3] * P1[3]) - M1 * (M1 - cI * W1));
-  V1[2] = denom * (-cI * (TMP6 * V4[2]) + cI * (V2[2] * TMP11));
-  V1[3] = denom * (-cI * (TMP6 * V4[3]) + cI * (V2[3] * TMP11));
-  V1[4] = denom * (-cI * (TMP6 * V4[4]) + cI * (V2[4] * TMP11));
-  V1[5] = denom * (-cI * (TMP6 * V4[5]) + cI * (V2[5] * TMP11));
+  V1[2] = denom * (-cI * (TMP6 * V4[2]) + cI * (V2[2] * TMP12));
+  V1[3] = denom * (-cI * (TMP6 * V4[3]) + cI * (V2[3] * TMP12));
+  V1[4] = denom * (-cI * (TMP6 * V4[4]) + cI * (V2[4] * TMP12));
+  V1[5] = denom * (-cI * (TMP6 * V4[5]) + cI * (V2[5] * TMP12));
 }
 
 
@@ -1642,14 +1642,14 @@ __device__ void VVVV4_0(const cxtype V1[], const cxtype V2[], const cxtype V3[],
 {
   cxtype cI = cxtype(0., 1.);
   cxtype TMP1;
-  cxtype TMP3;
-  cxtype TMP10;
   cxtype TMP11;
+  cxtype TMP12;
+  cxtype TMP3;
   TMP1 = (V2[2] * V1[2] - V2[3] * V1[3] - V2[4] * V1[4] - V2[5] * V1[5]);
+  TMP11 = (V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5]);
+  TMP12 = (V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5]);
   TMP3 = (V3[2] * V1[2] - V3[3] * V1[3] - V3[4] * V1[4] - V3[5] * V1[5]);
-  TMP10 = (V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5]);
-  TMP11 = (V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5]);
-  (*vertex) = COUP * (-cI * (TMP3 * TMP10) + cI * (TMP1 * TMP11));
+  (*vertex) = COUP * (-cI * (TMP3 * TMP11) + cI * (TMP1 * TMP12));
 }
 
 
@@ -1657,8 +1657,8 @@ __device__ void VVVV4P0_1(const cxtype V2[], const cxtype V3[], const cxtype V4[
 {
   cxtype cI = cxtype(0., 1.);
   fptype P1[4];
-  cxtype TMP10;
   cxtype TMP11;
+  cxtype TMP12;
   cxtype denom;
   V1[0] = +V2[0] + V3[0] + V4[0];
   V1[1] = +V2[1] + V3[1] + V4[1];
@@ -1666,13 +1666,13 @@ __device__ void VVVV4P0_1(const cxtype V2[], const cxtype V3[], const cxtype V4[
   P1[1] = -V1[1].real();
   P1[2] = -V1[1].imag();
   P1[3] = -V1[0].imag();
-  TMP10 = (V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5]);
-  TMP11 = (V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5]);
+  TMP11 = (V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5]);
+  TMP12 = (V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5]);
   denom = COUP/((P1[0] * P1[0]) - (P1[1] * P1[1]) - (P1[2] * P1[2]) - (P1[3] * P1[3]) - M1 * (M1 - cI * W1));
-  V1[2] = denom * (-cI * (V3[2] * TMP10) + cI * (V2[2] * TMP11));
-  V1[3] = denom * (-cI * (V3[3] * TMP10) + cI * (V2[3] * TMP11));
-  V1[4] = denom * (-cI * (V3[4] * TMP10) + cI * (V2[4] * TMP11));
-  V1[5] = denom * (-cI * (V3[5] * TMP10) + cI * (V2[5] * TMP11));
+  V1[2] = denom * (-cI * (V3[2] * TMP11) + cI * (V2[2] * TMP12));
+  V1[3] = denom * (-cI * (V3[3] * TMP11) + cI * (V2[3] * TMP12));
+  V1[4] = denom * (-cI * (V3[4] * TMP11) + cI * (V2[4] * TMP12));
+  V1[5] = denom * (-cI * (V3[5] * TMP11) + cI * (V2[5] * TMP12));
 }
 
 
