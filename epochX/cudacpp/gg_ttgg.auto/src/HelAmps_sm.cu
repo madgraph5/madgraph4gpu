@@ -1,8 +1,8 @@
 //==========================================================================
 // This file has been automatically generated for C++ Standalone by
-#  MadGraph5_aMC@NLO v. 2.9.5, 2021-08-22
-#  By the MadGraph5_aMC@NLO Development Team
-#  Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
+//  MadGraph5_aMC@NLO v. 2.9.5, 2021-08-22
+//  By the MadGraph5_aMC@NLO Development Team
+//  Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
 #include <cmath>
@@ -13,13 +13,13 @@
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
+#include "mgOnGpuVectors.h"
 
 mgDebugDeclare();
 
 namespace MG5_sm
 {
 
-  using mgOnGpu::nw6;
   __device__
   inline const fptype& pIparIp4Ievt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                      const int ipar,
