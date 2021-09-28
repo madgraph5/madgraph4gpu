@@ -1392,3 +1392,5 @@ const int ipar)  // input: particle# out of npar
 }
 */
 //--------------------------------------------------------------------------
+
+constexpr fptype one( 1. );

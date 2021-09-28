@@ -944,7 +944,7 @@ INFO: Creating files in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGE
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
 INFO: Created files gCPPProcess.h and gCPPProcess.cc in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/. 
-Generated helas calls for 1 subprocesses (123 diagrams) in 1.024 s
+Generated helas calls for 1 subprocesses (123 diagrams) in 1.026 s
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
 [1;32mDEBUG:  create the model [1;30m[output.py at line 94][0m [0m
@@ -968,6 +968,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/src/. and /data/av
 [1;32mDEBUG:  pass here [1;30m[output.py at line 102][0m [0m
 quit
 
-real	0m2.845s
-user	0m2.582s
-sys	0m0.124s
+real	0m2.899s
+user	0m2.585s
+sys	0m0.127s

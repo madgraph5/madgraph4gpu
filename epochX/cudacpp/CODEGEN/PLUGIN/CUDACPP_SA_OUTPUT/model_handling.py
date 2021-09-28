@@ -31,7 +31,12 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
             except TypeError:
                 return False
         if isinteger(number):
-            out = '%s.' % (str(int(number)))
+            if number == 1:
+                out = 'one'
+            elif number == -1:
+                out = '-one'
+            else:
+                out = '%s.' % (str(int(number))) # This prints -1 as '-1.'
         elif isinstance(number, complex):
             if number.imag:
                 if number.real:
