@@ -110,9 +110,10 @@ for arg in "$@"; do
     set -- "$@" "$arg"
   fi
 done
+procs=$@
 echo REPLACE=${REPLACE}
 echo BRIEF=${BRIEF}
-echo procs=${@}
+echo procs=${procs}
 
 # Script directory
 SCRDIR=$(cd $(dirname $0); pwd)
@@ -154,7 +155,6 @@ cp -dpr ${SCRDIR}/PLUGIN/${OUTBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
 ls -lR $MG5AMC_HOME/PLUGIN
 
 # Determine the list of processes to generate
-procs=$*
 ###procs="ee_mumu gg_tt gg_ttg gg_ttgg"
 if [ "$procs" == "" ] ; then procs=$(cd $OUTDIR; find . -mindepth 1 -maxdepth 1 -type d -name '*.auto' | sed 's/.auto//'); fi
 
