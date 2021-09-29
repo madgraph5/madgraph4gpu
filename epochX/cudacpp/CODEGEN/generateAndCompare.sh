@@ -89,8 +89,30 @@ function usage()
 
 #--------------------------------------------------------------------------------------
 
-# Print command line usage if required
-if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then usage; fi
+# Replace code directory and create .BKP? (or alternatively keep code directory in .NEW?)
+REPLACE=0
+
+# Brief diffs?
+BRIEF=
+
+# Process command line arguments (https://unix.stackexchange.com/a/258514)
+for arg in "$@"; do
+  shift
+  if [ "$arg" == "-h" ] || [ "$arg" == "--help" ]; then
+    usage; continue; # continue is unnecessary as usage will exit anyway...
+  elif [ "$arg" == "--replace" ]; then
+    REPLACE=1; continue;
+  elif [ "$arg" == "--noreplace" ]; then
+    REPLACE=0; continue;
+  elif [ "$arg" == "--brief" ]; then
+    BRIEF=--brief; continue
+  else
+    set -- "$@" "$arg"
+  fi
+done
+echo REPLACE=${REPLACE}
+echo BRIEF=${BRIEF}
+echo procs=${@}
 
 # Script directory
 SCRDIR=$(cd $(dirname $0); pwd)
@@ -103,22 +125,6 @@ echo OUTDIR=${OUTDIR}
 # Output backend
 OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
 echo "OUTBCK=${OUTBCK} (uppercase=${OUTBCK^^})"
-
-# Replace code directory and create .BKP? (or alternatively keep code directory in .NEW?)
-REPLACE=0
-if [ "$1" == "--replace" ]; then
-  REPLACE=1; shift; 
-elif [ "$1" == "--noreplace" ]; then
-  REPLACE=0; shift;
-fi
-echo REPLACE=${REPLACE}
-
-# Brief diffs?
-BRIEF=
-if [ "$1" == "--brief" ]; then
-  BRIEF=--brief; shift; 
-fi
-echo BRIEF=${BRIEF}
 
 # Make sure that python3 is installed
 if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"; exit 1; fi
