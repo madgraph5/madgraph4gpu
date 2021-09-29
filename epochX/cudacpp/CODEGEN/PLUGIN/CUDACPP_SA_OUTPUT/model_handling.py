@@ -8,6 +8,7 @@ import aloha
 from six import StringIO
 from collections import defaultdict
 import madgraph.iolibs.file_writers as writers
+import madgraph.iolibs.files as files
 
 import logging
 logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.model_handling')
@@ -507,7 +508,7 @@ class OneProcessExporterGPU(export_cpp.OneProcessExporterGPU):
     cc_ext = 'cu'
 
     # Methods for generation of process files for C++
-    def _generate_process_files(self):
+    def super_generate_process_files(self):
         """Generate the .h and .cc files needed for C++, for the
         processes described by multi_matrix_element"""
         # Create the files
@@ -524,6 +525,14 @@ class OneProcessExporterGPU(export_cpp.OneProcessExporterGPU):
         logger.info('Created files %(process)s.h and %(process)s.cc in' % \
                     {'process': self.process_class} + \
                     ' directory %(dir)s' % {'dir': os.path.split(filename)[0]})
+
+    def generate_process_files(self):
+        self.super_generate_process_files()
+        self.edit_check_sa()
+        self.edit_mgonGPU()
+        # add symbolic link for C++
+        files.ln(pjoin(self.path, 'gcheck_sa.cu'), self.path, 'check_sa.cc')
+        files.ln(pjoin(self.path, 'gCPPProcess.cu'), self.path, 'CPPProcess.cc')
 
     def super_write_process_cc_file(self, writer):
         """Write the class member definition (.cc) file for the process
