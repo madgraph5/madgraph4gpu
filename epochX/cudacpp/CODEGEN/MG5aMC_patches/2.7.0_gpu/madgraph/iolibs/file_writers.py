@@ -54,6 +54,7 @@ class FileWriter(io.FileIO):
 
     def __init__(self, name, opt = 'w'):
         """Initialize file to write to"""
+        print('FileWriter %s for %s'%(type(self),name))
         return super(FileWriter, self).__init__(name, opt)
 
     def write(self, line):
