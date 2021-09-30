@@ -29,13 +29,13 @@
 #define checkCuda(code) {assertCuda(code, __FILE__, __LINE__);}
 
 inline void assertCuda(cudaError_t code, const char * file, int line, bool
-    abort = true)
+                       abort = true)
 {
   if (code != cudaSuccess)
   {
-    printf( "GPUassert: %s %s:%d\n", cudaGetErrorString(code), file, line); 
+    printf( "GPUassert: %s %s:%d\n", cudaGetErrorString(code), file, line);
     if (abort)
-      assert(code == cudaSuccess); 
+      assert(code == cudaSuccess);
   }
 }
 
@@ -49,32 +49,32 @@ namespace Proc
 #endif
 {
 
-//==========================================================================
-// A class for calculating the matrix elements for
-// Process: g g > t t~ g g WEIGHTED<=4 @1
-//--------------------------------------------------------------------------
+  //==========================================================================
+  // A class for calculating the matrix elements for
+  // Process: g g > t t~ g g WEIGHTED<=4 @1
+  //--------------------------------------------------------------------------
 
-class CPPProcess
-{
+  class CPPProcess
+  {
   public:
 
-    CPPProcess(int numiterations, int gpublocks, int gputhreads, 
-    bool verbose = false, bool debug = false); 
+    CPPProcess(int numiterations, int gpublocks, int gputhreads,
+               bool verbose = false, bool debug = false);
 
-    ~CPPProcess(); 
+    ~CPPProcess();
 
     // Initialize process.
-    virtual void initProc(std::string param_card_name); 
+    virtual void initProc(std::string param_card_name);
 
 
     virtual int code() const {return 1;}
 
-    const std::vector<fptype> &getMasses() const; 
+    const std::vector<fptype> &getMasses() const;
 
-    void setInitial(int inid1, int inid2) 
+    void setInitial(int inid1, int inid2)
     {
-      id1 = inid1; 
-      id2 = inid2; 
+      id1 = inid1;
+      id2 = inid2;
     }
 
     int getDim() const {return dim;}
@@ -83,69 +83,69 @@ class CPPProcess
 
 
     // Constants for array limits
-    static const int ninitial = mgOnGpu::npari; 
-    static const int nexternal = mgOnGpu::npar; 
+    static const int ninitial = mgOnGpu::npari;
+    static const int nexternal = mgOnGpu::npar;
     // static const int nprocesses = 1;
 
   private:
-    int m_numiterations; 
+    int m_numiterations;
     // gpu variables
-    int gpu_nblocks; 
-    int gpu_nthreads; 
+    int gpu_nblocks;
+    int gpu_nthreads;
     int dim;  // gpu_nblocks * gpu_nthreads;
 
     // print verbose info
-    bool m_verbose; 
+    bool m_verbose;
 
     // print debug info
-    bool m_debug; 
+    bool m_debug;
 
-    static const int nwavefuncs = 6; 
-    static const int namplitudes = 159; 
-    static const int ncomb = 64; 
-    static const int wrows = 63; 
+    static const int nwavefuncs = 6;
+    static const int namplitudes = 159;
+    static const int ncomb = 64;
+    static const int wrows = 63;
     // static const int nioparticles = 6;
 
-    cxtype** amp; 
+    cxtype** amp;
 
 
     // Pointer to the model parameters
-    Parameters_sm * pars; 
+    Parameters_sm * pars;
 
     // vector with external particle masses
-    std::vector<fptype> mME; 
+    std::vector<fptype> mME;
 
     // Initial particle ids
-    int id1, id2; 
+    int id1, id2;
 
-}; 
+  };
 
 
 
-//--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
 #ifdef __CUDACC__
-__global__
-void sigmaKin_getGoodHel(const fptype * allmomenta,  // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-bool * isGoodHel);  // output: isGoodHel[ncomb] - device array
+  __global__
+  void sigmaKin_getGoodHel(const fptype * allmomenta,  // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                           bool * isGoodHel);  // output: isGoodHel[ncomb] - device array
 #endif
 
-//--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
-void sigmaKin_setGoodHel(const bool * isGoodHel);  // input: isGoodHel[ncomb] - host array
+  void sigmaKin_setGoodHel(const bool * isGoodHel);  // input: isGoodHel[ncomb] - host array
 #endif
 
-//--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
 
-__global__
-void sigmaKin(const fptype * allmomenta,  // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-fptype * allMEs  // output: allMEs[nevt], final |M|^2 averaged over all helicities
+  __global__
+  void sigmaKin(const fptype * allmomenta,  // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                fptype * allMEs  // output: allMEs[nevt], final |M|^2 averaged over all helicities
 #ifndef __CUDACC__
-, const int nevt  // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                , const int nevt  // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
-); 
+                );
 
-//--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
 }
 
 #endif // MG5_Sigma_sm_gg_ttxgg_H
