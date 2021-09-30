@@ -886,8 +886,8 @@ INFO: Generating Helas calls for process: g g > t t~ g g WEIGHTED<=4 @1
 INFO: Processing color information for process: g g > t t~ g g @1 
 [1;32mDEBUG:  create the directory [1;30m[output.py at line 89][0m [0m
 INFO: Creating files in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg 
-FileWriter <class 'madgraph.iolibs.file_writers.CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/./gCPPProcess.h
-FileWriter <class 'madgraph.iolibs.file_writers.CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/./gCPPProcess.cu
+FileWriter <class 'madgraph.iolibs.file_writers.FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/./gCPPProcess.h
+FileWriter <class 'madgraph.iolibs.file_writers.FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/./gCPPProcess.cu
 [1;32mDEBUG:  call = [0m vxxxxx(allmomenta,pars->%s, cHel[ihel][%d],%+d,w[%d], %d); [1;30m[helas_call_writers.py at line 1807][0m [0m
 [1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[helas_call_writers.py at line 1808][0m [0m
 [1;32mDEBUG:  call = [0m vxxxxx(allmomenta,pars->%s, cHel[ihel][%d],%+d,w[%d], %d); [1;30m[helas_call_writers.py at line 1807][0m [0m
@@ -946,7 +946,7 @@ FileWriter <class 'madgraph.iolibs.file_writers.CPPWriter'> for /data/avalassi/G
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
 INFO: Created files gCPPProcess.h and gCPPProcess.cc in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/. 
-Generated helas calls for 1 subprocesses (123 diagrams) in 1.023 s
+Generated helas calls for 1 subprocesses (123 diagrams) in 1.029 s
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
 [1;32mDEBUG:  create the model [1;30m[output.py at line 94][0m [0m
@@ -974,6 +974,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/src/. and /data/av
 [1;32mDEBUG:  pass here [1;30m[output.py at line 102][0m [0m
 quit
 
-real	0m3.098s
-user	0m2.588s
-sys	0m0.123s
+real	0m2.594s
+user	0m2.435s
+sys	0m0.140s

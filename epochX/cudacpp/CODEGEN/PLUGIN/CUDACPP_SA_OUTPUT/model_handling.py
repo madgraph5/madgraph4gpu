@@ -516,12 +516,14 @@ class OneProcessExporterGPU(export_cpp.OneProcessExporterGPU):
             os.makedirs(os.path.join(self.path, self.include_dir))
         filename = os.path.join(self.path, self.include_dir,
                                 '%s.h' % self.process_class)
-        self.write_process_h_file(writers.CPPWriter(filename))
+        ###self.write_process_h_file(writers.CPPWriter(filename)) # WITH FORMATTING
+        self.write_process_h_file(writers.FileWriter(filename)) # WITHOUT FORMATTING
         if not os.path.isdir(os.path.join(self.path, self.process_dir)):
             os.makedirs(os.path.join(self.path, self.process_dir))
         filename = os.path.join(self.path, self.process_dir,
                                 '%s.%s' % (self.process_class, self.cc_ext)) 
-        self.write_process_cc_file(writers.CPPWriter(filename))
+        ###self.write_process_cc_file(writers.CPPWriter(filename)) # WITH FORMATTING
+        self.write_process_cc_file(writers.FileWriter(filename)) # WITHOUT FORMATTING
         logger.info('Created files %(process)s.h and %(process)s.cc in' % \
                     {'process': self.process_class} + \
                     ' directory %(dir)s' % {'dir': os.path.split(filename)[0]})
