@@ -27,9 +27,9 @@ namespace Proc
 #endif
 {
 
-  using mgOnGpu::np4;  // 4: the dimension of 4-momenta (E,px,py,pz)
-  using mgOnGpu::npar;  // number of particles in total (initial + final)
-  using mgOnGpu::ncomb;  // number of helicity combinations
+  using mgOnGpu::np4; // 4: the dimension of 4-momenta (E,px,py,pz)
+  using mgOnGpu::npar; // number of particles in total (initial + final)
+  using mgOnGpu::ncomb; // number of helicity combinations
 
 #ifdef __CUDACC__
   __device__ __constant__ int cHel[ncomb][npar];
@@ -1189,14 +1189,13 @@ namespace Proc
 
 
 
-  CPPProcess::CPPProcess(int numiterations, int gpublocks, int gputhreads,
-                         bool verbose, bool debug)
-    : m_numiterations(numiterations), gpu_nblocks(gpublocks),
-      gpu_nthreads(gputhreads), m_verbose(verbose),
-      dim(gpu_nblocks * gpu_nthreads)
+  CPPProcess::CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose, bool debug )
+    : m_numiterations( numiterations )
+    , gpu_nblocks( gpublocks )
+    , gpu_nthreads( gputhreads )
+    , m_verbose( verbose )
+    , dim( gpu_nblocks * gpu_nthreads )
   {
-
-
     // Helicities for the process - nodim
     static const int tHel[ncomb][nexternal] = {{-1, -1, -1, -1, -1, -1}, {-1, -1,
                                                                           -1, -1, -1, 1}, {-1, -1, -1, -1, 1, -1}, {-1, -1, -1, -1, 1, 1}, {-1, -1,
@@ -1220,30 +1219,30 @@ namespace Proc
                                                {1, 1, 1, -1, 1, -1}, {1, 1, 1, -1, 1, 1}, {1, 1, 1, 1, -1, -1}, {1, 1,
                                                                                                                  1, 1, -1, 1}, {1, 1, 1, 1, 1, -1}, {1, 1, 1, 1, 1, 1}};
 #ifdef __CUDACC__
-    checkCuda(cudaMemcpyToSymbol(cHel, tHel, ncomb * nexternal * sizeof(int)));
+    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(int) ) );
 #else
-    memcpy(cHel, tHel, ncomb * nexternal * sizeof(int));
+    memcpy( cHel, tHel, ncomb * nexternal * sizeof(int) );
 #endif
 
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
-    assert(sizeof(cxtype) == 2 * sizeof(fptype));
+    assert( sizeof(cxtype) == 2 * sizeof(fptype) );
   }
 
   CPPProcess::~CPPProcess() {}
 
-  const std::vector<fptype> &CPPProcess::getMasses() const {return mME;}
+  const std::vector<fptype>& CPPProcess::getMasses() const { return mME; }
 
   //--------------------------------------------------------------------------
   // Initialize process.
 
-  void CPPProcess::initProc(string param_card_name)
+  void CPPProcess::initProc( string param_card_name )
   {
     // Instantiate the model class and set parameters that stay fixed during run
     pars = Parameters_sm::getInstance();
-    SLHAReader slha(param_card_name, m_verbose);
-    pars->setIndependentParameters(slha);
+    SLHAReader slha( param_card_name, m_verbose );
+    pars->setIndependentParameters( slha );
     pars->setIndependentCouplings();
-    if (m_verbose)
+    if ( m_verbose )
     {
       pars->printIndependentParameters();
       pars->printIndependentCouplings();
@@ -1251,22 +1250,22 @@ namespace Proc
     pars->setDependentParameters();
     pars->setDependentCouplings();
     // Set external particle masses for this matrix element
-    mME.push_back(pars->ZERO);
-    mME.push_back(pars->ZERO);
-    mME.push_back(pars->mdl_MT);
-    mME.push_back(pars->mdl_MT);
-    mME.push_back(pars->ZERO);
-    mME.push_back(pars->ZERO);
+    mME.push_back( pars->ZERO );
+    mME.push_back( pars->ZERO );
+    mME.push_back( pars->mdl_MT );
+    mME.push_back( pars->mdl_MT );
+    mME.push_back( pars->ZERO );
+    mME.push_back( pars->ZERO );
 
     static cxtype tIPC[3] = {cxmake(pars->GC_10), cxmake(pars->GC_11), cxmake(pars->GC_12)};
     static fptype tIPD[2] = {(fptype)pars->mdl_MT, (fptype)pars->mdl_WT};
 
 #ifdef __CUDACC__
-    checkCuda(cudaMemcpyToSymbol(cIPC, tIPC, 3 * sizeof(cxtype)));
-    checkCuda(cudaMemcpyToSymbol(cIPD, tIPD, 2 * sizeof(fptype)));
+    checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(cxtype) ) );
+    checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof(fptype) ) );
 #else
-    memcpy(cIPC, tIPC, 3 * sizeof(cxtype));
-    memcpy(cIPD, tIPD, 2 * sizeof(fptype));
+    memcpy( cIPC, tIPC, 3 * sizeof(cxtype) );
+    memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
 #endif
 
   }
@@ -1275,18 +1274,18 @@ namespace Proc
 
 #ifdef __CUDACC__
   __global__
-  void sigmaKin_getGoodHel(const fptype * allmomenta,  // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                           bool * isGoodHel)  // output: isGoodHel[ncomb] - device array
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                            bool* isGoodHel )         // output: isGoodHel[ncomb] - device array
   {
-    const int nprocesses = 1;  // FIXME: assume process.nprocesses == 1
-    fptype meHelSum[nprocesses] = {0};  // all zeros
+    const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
+    fptype meHelSum[nprocesses] = { 0 }; // all zeros
     fptype meHelSumLast = 0;
-    for (int ihel = 0; ihel < ncomb; ihel++ )
+    for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running
       // sum of |M|^2 over helicities for the given event
-      calculate_wavefunctions(ihel, allmomenta, meHelSum[0]);
-      if (meHelSum[0] != meHelSumLast)
+      calculate_wavefunctions( ihel, allmomenta, meHelSum[0] );
+      if ( meHelSum[0] != meHelSumLast )
       {
         isGoodHel[ihel] = true;
         meHelSumLast = meHelSum[0];
@@ -1298,59 +1297,50 @@ namespace Proc
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
-  void sigmaKin_setGoodHel(const bool * isGoodHel)  // input: isGoodHel[ncomb] - host array
+  void sigmaKin_setGoodHel( const bool* isGoodHel ) // input: isGoodHel[ncomb] - host array
   {
-    int nGoodHel[1] = {0};
-    int goodHel[ncomb] = {0};
-    for (int ihel = 0; ihel < ncomb; ihel++ )
+    int nGoodHel[1] = { 0 };
+    int goodHel[ncomb] = { 0 };
+    for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
-      // std::cout << "sigmaKin_setGoodHel ihel=" << ihel << ( isGoodHel[ihel] ?
-      // " true" : " false" ) << std::endl;
-      if (isGoodHel[ihel])
+      //std::cout << "sigmaKin_setGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
+      if ( isGoodHel[ihel] )
       {
         goodHel[nGoodHel[0]] = ihel;
         nGoodHel[0]++;
       }
     }
-    checkCuda(cudaMemcpyToSymbol(cNGoodHel, nGoodHel, sizeof(int)));
-    checkCuda(cudaMemcpyToSymbol(cGoodHel, goodHel, ncomb * sizeof(int)));
+    checkCuda( cudaMemcpyToSymbol( cNGoodHel, nGoodHel, sizeof(int) ) );
+    checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb * sizeof(int) ) );
   }
 #endif
 
-
-
   //--------------------------------------------------------------------------
-  // Evaluate |M|^2, part independent of incoming flavour.
+  // Evaluate |M|^2, part independent of incoming flavour
 
-  __global__ void sigmaKin(const fptype * allmomenta, fptype * allMEs
+  __global__ void sigmaKin( const fptype* allmomenta,
+                            fptype* allMEs
 #ifndef __CUDACC__
-                           , const int nevt  // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                            , const int nevt // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
-                           )
+                            )
   {
     // Set the parameters which change event by event
     // Need to discuss this with Stefan
-    // pars->setDependentParameters();
-    // pars->setDependentCouplings();
+    //pars->setDependentParameters();
+    //pars->setDependentCouplings();
 
 #ifndef __CUDACC__
     const int maxtry = 10;
-    static unsigned long long sigmakin_itry = 0;  // first iteration over nevt events
-    static bool sigmakin_goodhel[ncomb] = {false};
+    static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
+    static bool sigmakin_goodhel[ncomb] = { false };
 #endif
 
     // Reset color flows
 
 
-    // start sigmakin_lines
-
-
+    // Start sigmaKin_lines
     mgDebugInitialise();
-    // Set the parameters which change event by event
-    // Need to discuss this with Stefan
-    // pars->setDependentParameters();
-    // pars->setDependentCouplings();
-    // Reset color flows
 
 #ifndef __CUDACC__
     //** START LOOP ON IEVT **
@@ -1438,5 +1428,3 @@ namespace Proc
 // Private class member functions
 
 //--------------------------------------------------------------------------
-
-

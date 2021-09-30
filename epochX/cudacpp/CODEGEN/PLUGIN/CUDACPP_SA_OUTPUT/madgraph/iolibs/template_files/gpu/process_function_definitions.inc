@@ -30,21 +30,22 @@ namespace Proc
   using mgOnGpu::nw6;
   //--------------------------------------------------------------------------
 
-// Evaluate |M|^2 for each subprocess
-// NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
+  // Evaluate |M|^2 for each subprocess
+  // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum
+  // of |M|^2 over helicities for the given event
 
 %(all_sigmaKin)s
 
 
-CPPProcess::CPPProcess(int numiterations, int gpublocks, int gputhreads,
-                       bool verbose, bool debug)
-    : m_numiterations(numiterations), gpu_nblocks(gpublocks),
-      gpu_nthreads(gputhreads), m_verbose(verbose),
-      dim(gpu_nblocks * gpu_nthreads) {
-
-
-  // Helicities for the process - nodim
-  %(all_helicities)s
+  CPPProcess::CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose, bool debug )
+    : m_numiterations( numiterations )
+    , gpu_nblocks( gpublocks )
+    , gpu_nthreads( gputhreads )
+    , m_verbose( verbose )
+    , dim( gpu_nblocks * gpu_nthreads )
+  {
+    // Helicities for the process - nodim
+%(all_helicities)s
 #ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(int) ) );
 #else
@@ -52,42 +53,45 @@ CPPProcess::CPPProcess(int numiterations, int gpublocks, int gputhreads,
 #endif
 
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
-    assert( sizeof(cxtype) == 2*sizeof(fptype) );
-}
+    assert( sizeof(cxtype) == 2 * sizeof(fptype) );
+  }
 
-CPPProcess::~CPPProcess() {}
+  CPPProcess::~CPPProcess() {}
 
-const std::vector<fptype> &CPPProcess::getMasses() const { return mME; }
+  const std::vector<fptype>& CPPProcess::getMasses() const { return mME; }
 
-//--------------------------------------------------------------------------
-// Initialize process. 
-  
-void CPPProcess::initProc(string param_card_name) {
-// Instantiate the model class and set parameters that stay fixed during run
-    pars = Parameters_%(model_name)s::getInstance();
-    SLHAReader slha(param_card_name, m_verbose);
-    pars->setIndependentParameters(slha);
+  //--------------------------------------------------------------------------
+  // Initialize process.
+
+  void CPPProcess::initProc( string param_card_name )
+  {
+    // Instantiate the model class and set parameters that stay fixed during run
+    pars = Parameters_sm::getInstance();
+    SLHAReader slha( param_card_name, m_verbose );
+    pars->setIndependentParameters( slha );
     pars->setIndependentCouplings();
-    if (m_verbose) {
-        pars->printIndependentParameters();
-    	pars->printIndependentCouplings();
+    if ( m_verbose )
+    {
+      pars->printIndependentParameters();
+      pars->printIndependentCouplings();
     }
     pars->setDependentParameters();
     pars->setDependentCouplings();
     %(initProc_lines)s
 
     %(assign_coupling)s
+
 #ifdef __CUDACC__
-    checkCuda(cudaMemcpyToSymbol(cIPC, tIPC, %(ncouplings)i * sizeof(cxtype)));
-    checkCuda(cudaMemcpyToSymbol(cIPD, tIPD, %(nparams)i * sizeof(fptype)));
+    checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, %(ncouplings)i * sizeof(cxtype) ) );
+    checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, %(nparams)i * sizeof(fptype) ) );
 #else
     memcpy( cIPC, tIPC, %(ncouplings)i * sizeof(cxtype) );
     memcpy( cIPD, tIPD, %(nparams)i * sizeof(fptype) );
 #endif
 
-} 
+  }
 
-//--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
   __global__
@@ -99,11 +103,13 @@ void CPPProcess::initProc(string param_card_name) {
     fptype meHelSumLast = 0;
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
-      // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
+      // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running
+      // sum of |M|^2 over helicities for the given event
       calculate_wavefunctions( ihel, allmomenta, meHelSum[0] );
-      if ( meHelSum[0]!=meHelSumLast ){
-         isGoodHel[ihel] = true;
-         meHelSumLast = meHelSum[0];
+      if ( meHelSum[0] != meHelSumLast )
+      {
+        isGoodHel[ihel] = true;
+        meHelSumLast = meHelSum[0];
       }
     }
   }
@@ -126,20 +132,20 @@ void CPPProcess::initProc(string param_card_name) {
       }
     }
     checkCuda( cudaMemcpyToSymbol( cNGoodHel, nGoodHel, sizeof(int) ) );
-    checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb*sizeof(int) ) );
+    checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb * sizeof(int) ) );
   }
 #endif
 
+  //--------------------------------------------------------------------------
+  // Evaluate |M|^2, part independent of incoming flavour
 
-
-//--------------------------------------------------------------------------
-// Evaluate |M|^2, part independent of incoming flavour. 
-
-__global__ void sigmaKin(const fptype * allmomenta, fptype * allMEs
+  __global__ void sigmaKin( const fptype* allmomenta,
+                            fptype* allMEs
 #ifndef __CUDACC__
-                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                            , const int nevt // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
-) { 
+                            )
+  {
     // Set the parameters which change event by event
     // Need to discuss this with Stefan
     //pars->setDependentParameters();
@@ -154,7 +160,7 @@ __global__ void sigmaKin(const fptype * allmomenta, fptype * allMEs
     // Reset color flows
     %(reset_jamp_lines)s
 
-    //start sigmakin_lines
+    // Start sigmaKin_lines
     %(sigmaKin_lines)s
 }
 
