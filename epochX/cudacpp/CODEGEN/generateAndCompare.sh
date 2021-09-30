@@ -53,11 +53,11 @@ function codeGenAndDiff()
   echo -e "\nOutput source code has been copied to ${OUTDIR}/${proc}.auto.NEW"
   # Compare the newly generated code to the existing generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
-  echo -e "\n+++ Compare new and old generated code for $proc\n"
-  if diff ${BRIEF} -x '*log.txt' -x '*.o' -x '*.o.*' -x '*.a' -x '*.exe' -x 'lib' -r -c ${proc}.auto.NEW ${proc}.auto; then echo "New and old generated codes are identical"; else echo -e "\nWARNING! New and old generated codes differ"; fi
   echo -e "\n+++ Compare new and old code generation log for $proc\n"
   ###diff -c ${proc}.auto.NEW/${outproc}_log.txt ${proc}.auto # context diff
   diff ${proc}.auto.NEW/${outproc}_log.txt ${proc}.auto # normal diff
+  echo -e "\n+++ Compare new and old generated code for $proc\n"
+  if diff ${BRIEF} -x '*log.txt' -x '*.o' -x '*.o.*' -x '*.a' -x '*.exe' -x 'lib' -r -c ${proc}.auto.NEW ${proc}.auto; then echo "New and old generated codes are identical"; else echo -e "\nWARNING! New and old generated codes differ"; fi
   popd >& /dev/null
   # Compare the newly generated code to the existing manually developed code for the specific process
   pushd ${OUTDIR} >& /dev/null
@@ -131,7 +131,11 @@ echo "OUTBCK=${OUTBCK} (uppercase=${OUTBCK^^})"
 if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"; exit 1; fi
 
 # Make sure that $MG5AMC_HOME exists
-if [ "$MG5AMC_HOME" == "" ]; then echo "ERROR! MG5AMC_HOME is not defined"; exit 1; fi
+if [ "$MG5AMC_HOME" == "" ]; then
+  echo "ERROR! MG5AMC_HOME is not defined"
+  echo "To download MG5AMC please run 'bzr branch lp:~maddevelopers/mg5amcnlo/2.7.0_gpu'"
+  exit 1
+fi
 echo -e "\nUsing MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
 if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exist"; exit 1; fi
 
@@ -144,13 +148,28 @@ for patch in $patches; do
 done
 echo -e "Copy MG5aMC_patches/2.7.0_gpu patches... done\n"
 
-# Remove MG5aMC fragments from previous runs
+# Remove and recreate MG5AMC_HOME/PLUGIN, remove MG5aMC fragments from previous runs
 rm -rf ${MG5AMC_HOME}/py.py
-
-# Remove and recreate MG5AMC_HOME/PLUGIN
 rm -rf ${MG5AMC_HOME}/PLUGIN
 mkdir ${MG5AMC_HOME}/PLUGIN
 touch ${MG5AMC_HOME}/PLUGIN/__init__.py
+
+# Print MG5amc bazaar info if any
+if bzr --version >& /dev/null; then
+  echo -e "Using $(bzr --version | head -1)"
+  echo -e "Retrieving bzr information about MG5AMC_HOME"
+  if bzr info ${MG5AMC_HOME} 2> /dev/null | grep parent; then
+    echo -e "\n***************** Differences to the current bzr revno '$(bzr revno ${MG5AMC_HOME})' [START]"
+    if bzr diff ${MG5AMC_HOME}; then echo -e "[No differences]"; fi
+    echo -e "***************** Differences to the current bzr revno '$(bzr revno ${MG5AMC_HOME})' [END]\n"
+  else
+    echo -e "WARNING! MG5AMC_HOME is not a bzr branch\n"
+  fi
+else
+  echo -e "WARNING! bzr is not installed: cannot retrieve bzr properties of MG5aMC_HOME\n"
+fi
+
+# Copy the new plugin to MG5AMC_HOME
 cp -dpr ${SCRDIR}/PLUGIN/${OUTBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
 ls -lR $MG5AMC_HOME/PLUGIN
 
