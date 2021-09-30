@@ -545,7 +545,7 @@ class OneProcessExporterGPU(export_cpp.OneProcessExporterGPU):
                 "writer not CPPWriter")
         replace_dict = self.get_default_converter()
         # Extract version number and date from VERSION file
-        info_lines = export_cpp.get_mg5_info_lines()
+        info_lines = export_cpp.get_mg5_info_lines().replace('# ','//')
         replace_dict['info_lines'] = info_lines
         # Extract process file name
         replace_dict['process_file_name'] = self.process_name
