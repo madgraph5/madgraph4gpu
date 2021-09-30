@@ -159,9 +159,14 @@ if bzr --version >& /dev/null; then
   echo -e "Using $(bzr --version | head -1)"
   echo -e "Retrieving bzr information about MG5AMC_HOME"
   if bzr info ${MG5AMC_HOME} 2> /dev/null | grep parent; then
-    echo -e "\n***************** Differences to the current bzr revno '$(bzr revno ${MG5AMC_HOME})' [START]"
+    revno_mg5amc=$(bzr revno ${MG5AMC_HOME})
+    echo -e "Current bzr revno of MG5AMC_HOME is '${revno_mg5amc}'"
+    revno_patches=$(cat $SCRDIR/MG5aMC_patches/2.7.0_gpu/revision.BZR)
+    echo -e "MG5AMC patches in this plugin refer to bzr revno '${revno_patches}'"
+    if [ "${revno_patches}" != "${revno_mg5amc}" ]; then echo -e "\nERROR! bzr revno mismatch!"; exit 1; fi
+    echo -e "\n***************** Differences to the current bzr revno [START]"
     if bzr diff ${MG5AMC_HOME}; then echo -e "[No differences]"; fi
-    echo -e "***************** Differences to the current bzr revno '$(bzr revno ${MG5AMC_HOME})' [END]\n"
+    echo -e "***************** Differences to the current bzr revno [END]\n"
   else
     echo -e "WARNING! MG5AMC_HOME is not a bzr branch\n"
   fi
