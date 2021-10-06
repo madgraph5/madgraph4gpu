@@ -26,6 +26,7 @@ function codeGenAndDiff()
       ;;
   esac
   echo -e "\n+++ Generate code for '$proc'\n"
+  ###exit 0 # FOR DEBUGGING
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null
   outproc=CODEGEN_${proc}
@@ -177,7 +178,8 @@ fi
 
 # Copy the new plugin to MG5AMC_HOME
 cp -dpr ${SCRDIR}/PLUGIN/${OUTBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
-ls -lR $MG5AMC_HOME/PLUGIN
+ls -l ${MG5AMC_HOME}/PLUGIN
+###ls -lR ${MG5AMC_HOME}/PLUGIN
 
 # Determine the list of processes to generate
 ###procs="ee_mumu gg_tt gg_ttg gg_ttgg"
