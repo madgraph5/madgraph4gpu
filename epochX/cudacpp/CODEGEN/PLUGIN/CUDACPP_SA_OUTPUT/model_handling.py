@@ -1,11 +1,12 @@
 import os
-pjoin = os.path.join
-
-import aloha
-from six import StringIO
 from collections import defaultdict
-import madgraph.iolibs.files as files
+from six import StringIO
 
+# AV - use templates for source code, scripts and Makefiles from PLUGINDIR instead of MG5DIR
+###from madgraph import MG5DIR
+PLUGINDIR = os.path.dirname( __file__ )
+
+# AV - create a plugin-specific logger
 import logging
 logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.model_handling')
 
@@ -34,9 +35,10 @@ writers.FileWriter.__init__ = PLUGIN_FileWriter__init__
 
 #------------------------------------------------------------------------------------
 
+import aloha
 import aloha.aloha_writers as aloha_writers
 
-class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
+class CUDACPP_SA_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     
     extension = '.cu'
     prefix ='__device__'
@@ -366,16 +368,17 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
 
 #------------------------------------------------------------------------------------
 
-class UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
+class CUDACPP_SA_UFOModelConverter(export_cpp.UFOModelConverterGPU):
 
     ###aloha_writer = 'cudac' #this was the default mode assigned to GPU 
-    aloha_writer = ALOHAWriterForGPU # this is equivalent to the above line but allow to edit it obviously
+    aloha_writer = CUDACPP_SA_ALOHAWriter # this is equivalent to the above line but allow to edit it obviously
     cc_ext = 'cu'
     # Template files to use
     #include_dir = '.'
     #c_file_dir = '.'
     #param_template_h = 'cpp_model_parameters_h.inc'
     #param_template_cc = 'cpp_model_parameters_cc.inc'
+    pjoin = os.path.join
     aloha_template_h = pjoin('gpu','cpp_hel_amps_h.inc')
     aloha_template_cc = pjoin('gpu','cpp_hel_amps_cc.inc')
     helas_h = pjoin('gpu', 'helas.h')
@@ -457,8 +460,8 @@ class UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
         """Read all ALOHA template files with extension ext, strip them of
         compiler options and namespace options, and return in a list"""
         # Use the plugin's path (for helas_h/cc)
+        pjoin = os.path.join
         ###path = pjoin(MG5DIR, 'aloha','template_files')
-        PLUGINDIR = os.path.dirname( __file__ )
         path = pjoin(PLUGINDIR, 'aloha', 'template_files')
         out = []
         if ext == 'h':
@@ -473,19 +476,18 @@ class UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
     @classmethod
     def read_template_file(cls, filename, classpath=False):
         """Open a template file and return the contents."""
-        # Use the plugin's OneProcessExporterGPU template_path and __template_path (for aloha_template_h/cc)
-        return OneProcessExporterGPU.read_template_file(filename, classpath)
+        # Use the plugin's CUDACPP_SA_OneProcessExporter template_path and __template_path (for aloha_template_h/cc)
+        return CUDACPP_SA_OneProcessExporter.read_template_file(filename, classpath)
 
 #------------------------------------------------------------------------------------
 
 import madgraph.iolibs.helas_call_writers as helas_call_writers
     
-class GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
+class __NOTUSED__CUDACPP_SA_UFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 
     def format_coupling(self, call):
         """Format the coupling so any minus signs are put in front"""
-        return super().format_coupling(call)
-        
+        return super().format_coupling(call)        
 
     def get_external(self,wf, argument):
         """ formatting for ixxxx/ oxxxx /.... type of function (external ones) """
@@ -516,22 +518,34 @@ class GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 
 #------------------------------------------------------------------------------------
 
-class OneProcessExporterGPU(export_cpp.OneProcessExporterGPU):
+import madgraph.iolibs.files as files
 
+class CUDACPP_SA_OneProcessExporter(export_cpp.OneProcessExporterGPU):
+    # Class structure information
+    #  - object
+    #  - OneProcessExporterCPP(object) [in madgraph/iolibs/export_cpp.py]
+    #  - OneProcessExporterGPU(OneProcessExporterCPP) [in madgraph/iolibs/export_cpp.py]
+    #  - CUDACPP_SA_OneProcessExporter(OneProcessExporterGPU)
+    #      This class
+    
     # Static variables (for inheritance)
-    process_dir = '.'
-    include_dir = '.'
-    PLUGINDIR = os.path.dirname( __file__ )
+    ###template_path = os.path.join(_file_path, 'iolibs', 'template_files')
+    ###__template_path = os.path.join(_file_path, 'iolibs', 'template_files') 
     template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
     __template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
-    process_template_h = 'gpu/process_h.inc'
-    process_template_cc = 'gpu/process_cc.inc'
-    process_class_template = 'gpu/process_class.inc'
-    process_definition_template = 'gpu/process_function_definitions.inc'
-    process_wavefunction_template = 'cpp_process_wavefunctions.inc'
-    process_sigmaKin_function_template = 'gpu/process_sigmaKin_function.inc'
-    single_process_template = 'gpu/process_matrix.inc'
-    cc_ext = 'cu'
+
+    # Static variables (for inheritance)
+    # AV - keep defaults from export_cpp.OneProcessExporterGPU
+    ###process_dir = '.'
+    ###include_dir = '.'
+    ###process_template_h = 'gpu/process_h.inc'
+    ###process_template_cc = 'gpu/process_cc.inc'
+    ###process_class_template = 'gpu/process_class.inc'
+    ###process_definition_template = 'gpu/process_function_definitions.inc'
+    ###process_wavefunction_template = 'cpp_process_wavefunctions.inc'
+    ###process_sigmaKin_function_template = 'gpu/process_sigmaKin_function.inc'
+    ###single_process_template = 'gpu/process_matrix.inc'
+    ###cc_ext = 'cu'
 
     # Methods for generation of process files for C++
     def super_generate_process_files(self):
@@ -559,6 +573,7 @@ class OneProcessExporterGPU(export_cpp.OneProcessExporterGPU):
         self.edit_check_sa()
         self.edit_mgonGPU()
         # add symbolic link for C++
+        pjoin = os.path.join
         files.ln(pjoin(self.path, 'gcheck_sa.cu'), self.path, 'check_sa.cc')
         files.ln(pjoin(self.path, 'gCPPProcess.cu'), self.path, 'CPPProcess.cc')
 
@@ -626,7 +641,7 @@ class OneProcessExporterGPU(export_cpp.OneProcessExporterGPU):
                replace_dict
         return file
 
-    # AV - modify OneProcessExporterGPU.get_process_info_lines (replace '# ' by '//')
+    # AV - modify CUDACPP_SA_OneProcessExporter.get_process_info_lines (replace '# Process' by '// Process')
     def get_process_info_lines(self, matrix_element):
         """Return info lines describing the processes for this matrix element"""
         ###return"\n".join([ "# " + process.nice_string().replace('\n', '\n# * ') \
