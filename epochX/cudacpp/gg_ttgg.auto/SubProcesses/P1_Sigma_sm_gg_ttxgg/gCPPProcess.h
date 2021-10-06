@@ -49,7 +49,7 @@ namespace Proc
 
   //==========================================================================
   // A class for calculating the matrix elements for
-# Process: g g > t t~ g g WEIGHTED<=4 @1
+// Process: g g > t t~ g g WEIGHTED<=4 @1
   //--------------------------------------------------------------------------
 
   class CPPProcess

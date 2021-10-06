@@ -1,5 +1,3 @@
-import aloha.aloha_writers as aloha_writers
-
 import os
 pjoin = os.path.join
 
@@ -35,6 +33,8 @@ DEFAULT_FileWriter__init__ = writers.FileWriter.__init__
 writers.FileWriter.__init__ = PLUGIN_FileWriter__init__
 
 #------------------------------------------------------------------------------------
+
+import aloha.aloha_writers as aloha_writers
 
 class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
     
@@ -364,8 +364,9 @@ class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
         ###print(file_str.getvalue()) # FOR DEBUGGING
         return file_str.getvalue()
 
+#------------------------------------------------------------------------------------
 
-class  UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
+class UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
 
     ###aloha_writer = 'cudac' #this was the default mode assigned to GPU 
     aloha_writer = ALOHAWriterForGPU # this is equivalent to the above line but allow to edit it obviously
@@ -475,6 +476,7 @@ class  UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
         # Use the plugin's OneProcessExporterGPU template_path and __template_path (for aloha_template_h/cc)
         return OneProcessExporterGPU.read_template_file(filename, classpath)
 
+#------------------------------------------------------------------------------------
 
 import madgraph.iolibs.helas_call_writers as helas_call_writers
     
@@ -512,6 +514,7 @@ class GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         """
         return super().generate_helas_call(argument)
 
+#------------------------------------------------------------------------------------
 
 class OneProcessExporterGPU(export_cpp.OneProcessExporterGPU):
 
@@ -622,3 +625,13 @@ class OneProcessExporterGPU(export_cpp.OneProcessExporterGPU):
         file = self.read_template_file(self.process_definition_template) %\
                replace_dict
         return file
+
+    # AV - modify OneProcessExporterGPU.get_process_info_lines (replace '# ' by '//')
+    def get_process_info_lines(self, matrix_element):
+        """Return info lines describing the processes for this matrix element"""
+        ###return"\n".join([ "# " + process.nice_string().replace('\n', '\n# * ') \
+        ###                 for process in matrix_element.get('processes')])
+        return"\n".join([ "// " + process.nice_string().replace('\n', '\n// * ') \
+                         for process in matrix_element.get('processes')])
+
+#------------------------------------------------------------------------------------

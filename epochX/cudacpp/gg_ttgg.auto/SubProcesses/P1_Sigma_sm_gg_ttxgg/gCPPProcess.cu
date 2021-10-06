@@ -18,7 +18,7 @@
 
 //==========================================================================
 // Class member functions for calculating the matrix elements for
-# Process: g g > t t~ g g WEIGHTED<=4 @1
+// Process: g g > t t~ g g WEIGHTED<=4 @1
 
 #ifdef __CUDACC__
 namespace gProc
