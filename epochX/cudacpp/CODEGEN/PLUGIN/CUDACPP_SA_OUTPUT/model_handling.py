@@ -6,7 +6,6 @@ pjoin = os.path.join
 import aloha
 from six import StringIO
 from collections import defaultdict
-import madgraph.iolibs.file_writers as writers
 import madgraph.iolibs.files as files
 
 import logging
@@ -14,7 +13,7 @@ logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.model_handling')
 
 #------------------------------------------------------------------------------------
 
-# AV - modify export_cpp.get_mg5_info_lines to replace '# ' by '//')
+# AV - modify export_cpp.get_mg5_info_lines (replace '# ' by '//')
 import madgraph.iolibs.export_cpp as export_cpp
 
 def PLUGIN_get_mg5_info_lines():
@@ -22,6 +21,18 @@ def PLUGIN_get_mg5_info_lines():
 
 DEFAULT_get_mg5_info_lines = export_cpp.get_mg5_info_lines
 export_cpp.get_mg5_info_lines = PLUGIN_get_mg5_info_lines
+
+#------------------------------------------------------------------------------------
+
+# AV - modify writers.FileWriter.__init__ (add a debug printout)
+import madgraph.iolibs.file_writers as writers
+
+def PLUGIN_FileWriter__init__( self, name, opt = 'w' ):
+    print( 'FileWriter %s for %s'%( type(self), name) )
+    return DEFAULT_FileWriter__init__( self, name, opt )
+
+DEFAULT_FileWriter__init__ = writers.FileWriter.__init__
+writers.FileWriter.__init__ = PLUGIN_FileWriter__init__
 
 #------------------------------------------------------------------------------------
 
