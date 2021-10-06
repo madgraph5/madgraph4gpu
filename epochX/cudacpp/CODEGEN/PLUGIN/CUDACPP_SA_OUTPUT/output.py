@@ -1,6 +1,5 @@
 import os
 import madgraph.iolibs.export_cpp as export_cpp
-import madgraph.various.misc as misc
 
 # AV - use templates for source code, scripts and Makefiles from PLUGINDIR instead of MG5DIR
 ###from madgraph import MG5DIR
@@ -8,6 +7,31 @@ PLUGINDIR = os.path.dirname( __file__ )
 
 # AV - model_handling includes custom UFOModelConverter and OneProcessExporter, plus additional patches
 import PLUGIN.CUDACPP_SA_OUTPUT.model_handling as model_handling
+
+#------------------------------------------------------------------------------------
+
+# AV - modify misc.make_unique (remove a printout)
+import madgraph.various.misc as misc
+
+printordering = True
+def PLUGIN_make_unique(input, keepordering=None):
+    "remove duplicate in a list "
+    global printordering
+    if keepordering is None:
+        keepordering = misc.madgraph.ordering
+        if printordering:
+            printordering = False
+            misc.sprint('keepordering (default): %s'%keepordering) # AV - add a printout only in the first call
+    else:
+        misc.sprint('keepordering (argument): %s'%keepordering) # AV - add a printout at every call only if it is an argument	
+    ###sprint(keepordering) # AV - remove the printout at every call
+    if not keepordering:
+        return list(set(input))
+    else:
+        return list(dict.fromkeys(input)) 
+
+DEFAULT_make_unique = misc.make_unique
+misc.make_unique = PLUGIN_make_unique
 
 #------------------------------------------------------------------------------------
 
