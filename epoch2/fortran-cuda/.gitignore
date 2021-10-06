@@ -9,3 +9,8 @@
 **/crossx.html
 results.dat
 **/SubProcesses/randinit
+**/ftn2[56]
+events.lhe
+input_sg.txt
+**/SubProcesses/*/madevent*
+gensym
