@@ -35,6 +35,15 @@ writers.FileWriter.__init__ = PLUGIN_FileWriter__init__
 
 #------------------------------------------------------------------------------------
 
+# AV - replace writers.CPPWriter by PLUGIN_FileWriter
+class PLUGIN_FileWriter(writers.FileWriter):
+    """Default FileWriter with minimal modifications"""
+
+DEFAULT_CPPWriter = writers.CPPWriter
+writers.CPPWriter = PLUGIN_FileWriter
+
+#------------------------------------------------------------------------------------
+
 import aloha
 import aloha.aloha_writers as aloha_writers
 
