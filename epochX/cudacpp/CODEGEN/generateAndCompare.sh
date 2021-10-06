@@ -140,6 +140,25 @@ fi
 echo -e "\nUsing MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
 if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exist"; exit 1; fi
 
+# Print MG5amc bazaar info if any
+if bzr --version >& /dev/null; then
+  echo -e "Using $(bzr --version | head -1)"
+  echo -e "Retrieving bzr information about MG5AMC_HOME"
+  if bzr info ${MG5AMC_HOME} 2> /dev/null | grep parent; then
+    revno_mg5amc=$(bzr revno ${MG5AMC_HOME})
+    echo -e "Current bzr revno of MG5AMC_HOME is '${revno_mg5amc}'"
+    revno_patches=$(cat $SCRDIR/MG5aMC_patches/2.7.0_gpu/revision.BZR)
+    echo -e "Revert MG5AMC_HOME to current bzr revno"
+    bzr revert ${MG5AMC_HOME}
+    echo -e "MG5AMC patches in this plugin refer to bzr revno '${revno_patches}'"
+    if [ "${revno_patches}" != "${revno_mg5amc}" ]; then echo -e "\nERROR! bzr revno mismatch!"; exit 1; fi
+  else
+    echo -e "WARNING! MG5AMC_HOME is not a bzr branch\n"
+  fi
+else
+  echo -e "WARNING! bzr is not installed: cannot retrieve bzr properties of MG5aMC_HOME\n"
+fi
+
 # Copy MG5AMC patches if any
 patches=$(cd $SCRDIR/MG5aMC_patches/2.7.0_gpu; find . -type f -name '*.py')
 echo -e "Copy MG5aMC_patches/2.7.0_gpu patches..."
@@ -158,22 +177,11 @@ touch ${MG5AMC_HOME}/PLUGIN/__init__.py
 
 # Print MG5amc bazaar info if any
 if bzr --version >& /dev/null; then
-  echo -e "Using $(bzr --version | head -1)"
-  echo -e "Retrieving bzr information about MG5AMC_HOME"
   if bzr info ${MG5AMC_HOME} 2> /dev/null | grep parent; then
-    revno_mg5amc=$(bzr revno ${MG5AMC_HOME})
-    echo -e "Current bzr revno of MG5AMC_HOME is '${revno_mg5amc}'"
-    revno_patches=$(cat $SCRDIR/MG5aMC_patches/2.7.0_gpu/revision.BZR)
-    echo -e "MG5AMC patches in this plugin refer to bzr revno '${revno_patches}'"
-    if [ "${revno_patches}" != "${revno_mg5amc}" ]; then echo -e "\nERROR! bzr revno mismatch!"; exit 1; fi
     echo -e "\n***************** Differences to the current bzr revno [START]"
     if bzr diff ${MG5AMC_HOME}; then echo -e "[No differences]"; fi
     echo -e "***************** Differences to the current bzr revno [END]\n"
-  else
-    echo -e "WARNING! MG5AMC_HOME is not a bzr branch\n"
   fi
-else
-  echo -e "WARNING! bzr is not installed: cannot retrieve bzr properties of MG5aMC_HOME\n"
 fi
 
 # Copy the new plugin to MG5AMC_HOME
