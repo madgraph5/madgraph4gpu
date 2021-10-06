@@ -1,4 +1,3 @@
-import madgraph.iolibs.export_cpp as export_cpp
 import aloha.aloha_writers as aloha_writers
 
 import os
@@ -12,6 +11,19 @@ import madgraph.iolibs.files as files
 
 import logging
 logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.model_handling')
+
+#------------------------------------------------------------------------------------
+
+# AV - modify export_cpp.get_mg5_info_lines to replace '# ' by '//')
+import madgraph.iolibs.export_cpp as export_cpp
+
+def PLUGIN_get_mg5_info_lines():
+    return DEFAULT_get_mg5_info_lines().replace('# ','//')    
+
+DEFAULT_get_mg5_info_lines = export_cpp.get_mg5_info_lines
+export_cpp.get_mg5_info_lines = PLUGIN_get_mg5_info_lines
+
+#------------------------------------------------------------------------------------
 
 class ALOHAWriterForGPU(aloha_writers.ALOHAWriterForGPU):
     
@@ -374,7 +386,7 @@ class  UFOModelConverterGPU(export_cpp.UFOModelConverterGPU):
         replace_dict = {}
 
         replace_dict['output_name'] = self.output_name
-        replace_dict['info_lines'] = export_cpp.get_mg5_info_lines().replace('# ','//')
+        replace_dict['info_lines'] = export_cpp.get_mg5_info_lines()
         replace_dict['namespace'] = self.namespace
         replace_dict['model_name'] = self.model_name
 
@@ -545,7 +557,7 @@ class OneProcessExporterGPU(export_cpp.OneProcessExporterGPU):
                 "writer not CPPWriter")
         replace_dict = self.get_default_converter()
         # Extract version number and date from VERSION file
-        info_lines = export_cpp.get_mg5_info_lines().replace('# ','//')
+        info_lines = export_cpp.get_mg5_info_lines()
         replace_dict['info_lines'] = info_lines
         # Extract process file name
         replace_dict['process_file_name'] = self.process_name
