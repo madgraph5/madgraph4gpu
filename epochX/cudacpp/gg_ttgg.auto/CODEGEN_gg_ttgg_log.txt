@@ -62,7 +62,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=4: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ g g WEIGHTED<=4 @1  
 INFO: Process has 123 diagrams 
-1 processes with 123 diagrams generated in 0.209 s
+1 processes with 123 diagrams generated in 0.210 s
 Total: 1 processes with 123 diagrams
 output standalone_cudacpp CODEGEN_gg_ttgg
 [1;34mPlugin PLUGIN.CUDACPP_SA_OUTPUT has marked as NOT being validated with this version. 
@@ -77,8 +77,8 @@ INFO: Generating Helas calls for process: g g > t t~ g g WEIGHTED<=4 @1
 INFO: Processing color information for process: g g > t t~ g g @1 
 [1;32mDEBUG:  Entering CUDACPP_SA_ProcessExporter.generate_subprocess_directory (create the directory) [1;30m[output.py at line 114][0m [0m
 INFO: Creating files in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg 
-FileWriter <class 'madgraph.iolibs.file_writers.FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/./gCPPProcess.h
-FileWriter <class 'madgraph.iolibs.file_writers.FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/./gCPPProcess.cu
+FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/./gCPPProcess.h
+FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/./gCPPProcess.cu
 [1;32mDEBUG:  call = [0m vxxxxx(allmomenta,pars->%s, cHel[ihel][%d],%+d,w[%d], %d); [1;30m[helas_call_writers.py at line 1807][0m [0m
 [1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[helas_call_writers.py at line 1808][0m [0m
 [1;32mDEBUG:  call = [0m vxxxxx(allmomenta,pars->%s, cHel[ihel][%d],%+d,w[%d], %d); [1;30m[helas_call_writers.py at line 1807][0m [0m
@@ -89,7 +89,7 @@ FileWriter <class 'madgraph.iolibs.file_writers.FileWriter'> for /data/avalassi/
 [1;32mDEBUG:  ('ZERO', 5, 1, 5, 5) [1;30m[helas_call_writers.py at line 1808][0m [0m
 [1;32mDEBUG: only one Matrix-element supported? [0m
 INFO: Created files gCPPProcess.h and gCPPProcess.cc in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/. 
-Generated helas calls for 1 subprocesses (123 diagrams) in 0.565 s
+Generated helas calls for 1 subprocesses (123 diagrams) in 0.571 s
 [1;32mDEBUG:  Entering CUDACPP_SA_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 119][0m [0m
 ALOHA: aloha creates routines (starting by VVV1)
 [1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.CUDACPP_SA_ALOHAWriter'> [1;30m[aloha_writers.py at line 2446][0m [0m
@@ -104,8 +104,8 @@ ALOHA: aloha creates routines (starting by VVV1)
 [1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.CUDACPP_SA_ALOHAWriter'> [1;30m[aloha_writers.py at line 2446][0m [0m
 [1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.CUDACPP_SA_ALOHAWriter'> [1;30m[aloha_writers.py at line 2446][0m [0m
 [1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.CUDACPP_SA_ALOHAWriter'> [1;30m[aloha_writers.py at line 2446][0m [0m
-FileWriter <class 'madgraph.iolibs.file_writers.FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/src/./HelAmps_sm.h
-FileWriter <class 'madgraph.iolibs.file_writers.FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/src/./HelAmps_sm.cu
+FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/src/./HelAmps_sm.h
+FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/src/./HelAmps_sm.cu
 INFO: Created files HelAmps_sm.h and HelAmps_sm.cu in directory 
 INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/src/. and /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/src/. 
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/src/./Parameters_sm.h
@@ -115,6 +115,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/src/. and /data/av
 [1;32mDEBUG:  Entering CUDACPP_SA_ProcessExporter.finalize [1;30m[output.py at line 128][0m [0m
 quit
 
-real	0m2.098s
-user	0m1.941s
-sys	0m0.132s
+real	0m2.650s
+user	0m1.952s
+sys	0m0.140s

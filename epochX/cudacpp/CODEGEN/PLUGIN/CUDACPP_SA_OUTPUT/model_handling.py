@@ -40,7 +40,8 @@ class PLUGIN_FileWriter(writers.FileWriter):
     """Default FileWriter with minimal modifications"""
 
 DEFAULT_CPPWriter = writers.CPPWriter
-writers.CPPWriter = PLUGIN_FileWriter
+###writers.CPPWriter = DEFAULT_FileWriter # WITH FORMATTING
+writers.CPPWriter = PLUGIN_FileWriter # WITHOUT FORMATTING
 
 #------------------------------------------------------------------------------------
 
@@ -393,78 +394,6 @@ class CUDACPP_SA_UFOModelConverter(export_cpp.UFOModelConverterGPU):
     helas_h = pjoin('gpu', 'helas.h')
     helas_cc = pjoin('gpu', 'helas.cu')
 
-    def write_aloha_routines(self):
-        """Generate the hel_amps_model.h and hel_amps_model.cc files, which
-        have the complete set of generalized Helas routines for the model"""
-        
-        if not os.path.isdir(os.path.join(self.dir_path, self.include_dir)):
-            os.makedirs(os.path.join(self.dir_path, self.include_dir))
-        if not os.path.isdir(os.path.join(self.dir_path, self.cc_file_dir)):
-            os.makedirs(os.path.join(self.dir_path, self.cc_file_dir))
-
-        model_h_file = os.path.join(self.dir_path, self.include_dir,
-                                    'HelAmps_%s.h' % self.model_name)
-        model_cc_file = os.path.join(self.dir_path, self.cc_file_dir,
-                                     'HelAmps_%s.%s' % (self.model_name, self.cc_ext))
-
-        replace_dict = {}
-
-        replace_dict['output_name'] = self.output_name
-        replace_dict['info_lines'] = export_cpp.get_mg5_info_lines()
-        replace_dict['namespace'] = self.namespace
-        replace_dict['model_name'] = self.model_name
-
-        # Read in the template .h and .cc files, stripped of compiler
-        # commands and namespaces
-        template_h_files = self.read_aloha_template_files(ext = 'h')
-        template_cc_files = self.read_aloha_template_files(ext = 'cc')
-
-        import aloha.create_aloha as create_aloha
-        aloha_model = create_aloha.AbstractALOHAModel(self.model.get('name'),
-                                                      explicit_combine=True)
-        aloha_model.add_Lorentz_object(self.model.get('lorentz'))
-        
-        if self.wanted_lorentz:
-            aloha_model.compute_subset(self.wanted_lorentz)
-        else:
-            aloha_model.compute_all(save=False, custom_propa=True)
-            
-        for abstracthelas in dict(aloha_model).values():
-            h_rout, cc_rout = abstracthelas.write(output_dir=None, 
-                                                  language=self.aloha_writer, 
-                                                  mode='no_include')
-
-            template_h_files.append(h_rout)
-            template_cc_files.append(cc_rout)
-            
-            #aloha_writer = aloha_writers.ALOHAWriterForCPP(abstracthelas,
-            #                                               self.dir_path)
-            #header = aloha_writer.define_header()
-            #template_h_files.append(self.write_function_declaration(\
-            #                             aloha_writer, header))
-            #template_cc_files.append(self.write_function_definition(\
-            #                              aloha_writer, header))
-
-        replace_dict['function_declarations'] = '\n'.join(template_h_files)
-        replace_dict['function_definitions'] = '\n'.join(template_cc_files)
-
-        file_h = self.read_template_file(self.aloha_template_h) % replace_dict
-        file_cc = self.read_template_file(self.aloha_template_cc) % replace_dict
-
-        # Write the files
-        import madgraph.iolibs.file_writers as writers
-        ###writers.CPPWriter(model_h_file).writelines(file_h) # WITH FORMATTING
-        ###writers.CPPWriter(model_cc_file).writelines(file_cc) # WITH FORMATTING
-        writers.FileWriter(model_h_file).writelines(file_h) # WITHOUT FORMATTING
-        writers.FileWriter(model_cc_file).writelines(file_cc) # WITHOUT FORMATTING
-
-        logger.info("Created files %s and %s in directory" \
-                    % (os.path.split(model_h_file)[-1],
-                       os.path.split(model_cc_file)[-1]))
-        logger.info("%s and %s" % \
-                    (os.path.split(model_h_file)[0],
-                     os.path.split(model_cc_file)[0]))
-
     def read_aloha_template_files(self, ext):
         """Read all ALOHA template files with extension ext, strip them of
         compiler options and namespace options, and return in a list"""
@@ -538,6 +467,7 @@ class CUDACPP_SA_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     #      This class
     
     # Static variables (for inheritance)
+    # AV - use template files from PLUGINDIR instead of MG5DIR
     ###template_path = os.path.join(_file_path, 'iolibs', 'template_files')
     ###__template_path = os.path.join(_file_path, 'iolibs', 'template_files') 
     template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
@@ -555,75 +485,6 @@ class CUDACPP_SA_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     ###process_sigmaKin_function_template = 'gpu/process_sigmaKin_function.inc'
     ###single_process_template = 'gpu/process_matrix.inc'
     ###cc_ext = 'cu'
-
-    # Methods for generation of process files for C++
-    def super_generate_process_files(self):
-        """Generate the .h and .cc files needed for C++, for the
-        processes described by multi_matrix_element"""
-        # Create the files
-        if not os.path.isdir(os.path.join(self.path, self.include_dir)):
-            os.makedirs(os.path.join(self.path, self.include_dir))
-        filename = os.path.join(self.path, self.include_dir,
-                                '%s.h' % self.process_class)
-        ###self.write_process_h_file(writers.CPPWriter(filename)) # WITH FORMATTING
-        self.write_process_h_file(writers.FileWriter(filename)) # WITHOUT FORMATTING
-        if not os.path.isdir(os.path.join(self.path, self.process_dir)):
-            os.makedirs(os.path.join(self.path, self.process_dir))
-        filename = os.path.join(self.path, self.process_dir,
-                                '%s.%s' % (self.process_class, self.cc_ext)) 
-        ###self.write_process_cc_file(writers.CPPWriter(filename)) # WITH FORMATTING
-        self.write_process_cc_file(writers.FileWriter(filename)) # WITHOUT FORMATTING
-        logger.info('Created files %(process)s.h and %(process)s.cc in' % \
-                    {'process': self.process_class} + \
-                    ' directory %(dir)s' % {'dir': os.path.split(filename)[0]})
-
-    def generate_process_files(self):
-        self.super_generate_process_files()
-        self.edit_check_sa()
-        self.edit_mgonGPU()
-        # add symbolic link for C++
-        pjoin = os.path.join
-        files.ln(pjoin(self.path, 'gcheck_sa.cu'), self.path, 'check_sa.cc')
-        files.ln(pjoin(self.path, 'gCPPProcess.cu'), self.path, 'CPPProcess.cc')
-
-    def super_write_process_cc_file(self, writer):
-        """Write the class member definition (.cc) file for the process
-        described by matrix_element"""
-        if writer:
-            if not isinstance(writer, writers.CPPWriter):
-                raise writers.CPPWriter.CPPWriterError(\
-                "writer not CPPWriter")
-        replace_dict = self.get_default_converter()
-        # Extract version number and date from VERSION file
-        info_lines = export_cpp.get_mg5_info_lines()
-        replace_dict['info_lines'] = info_lines
-        # Extract process file name
-        replace_dict['process_file_name'] = self.process_name
-        # Extract model name
-        replace_dict['model_name'] = self.model_name
-        # Extract class function definitions
-        process_function_definitions = \
-                         self.get_process_function_definitions()
-        replace_dict['process_function_definitions'] = \
-                                                   process_function_definitions
-        if writer:
-            file = self.read_template_file(self.process_template_cc) % replace_dict
-            # Write the file
-            writer.writelines(file)
-        else:
-            return replace_dict
-
-    def write_process_cc_file(self, writer):
-        """Write the class member definition (.cc) file for the process
-        described by matrix_element"""                       
-        replace_dict = self.super_write_process_cc_file(False)
-        replace_dict['hel_amps_def'] = "\n#include \"../../src/HelAmps_%s.cu\"" % self.model_name
-        if writer:
-            file = self.read_template_file(self.process_template_cc) % replace_dict
-            # Write the file
-            writer.writelines(file)
-        else:
-            return replace_dict
 
     def get_process_function_definitions(self, write=True):
         """The complete Pythia 8 class definition for the process"""
