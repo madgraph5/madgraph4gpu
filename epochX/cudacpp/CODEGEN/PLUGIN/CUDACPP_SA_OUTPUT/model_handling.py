@@ -1,4 +1,6 @@
 import os
+pjoin = os.path.join
+
 from collections import defaultdict
 from six import StringIO
 
@@ -35,7 +37,7 @@ writers.FileWriter.__init__ = PLUGIN_FileWriter__init__
 
 #------------------------------------------------------------------------------------
 
-# AV - replace writers.CPPWriter by PLUGIN_FileWriter
+# AV - replace writers.CPPWriter by PLUGIN_FileWriter (remove formatting)
 class PLUGIN_FileWriter(writers.FileWriter):
     """Default FileWriter with minimal modifications"""
 
@@ -49,32 +51,46 @@ import aloha
 import aloha.aloha_writers as aloha_writers
 
 class CUDACPP_SA_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
+    # Class structure information
+    #  - object
+    #  - WriteALOHA(object) [in aloha/aloha_writers.py]
+    #  - ALOHAWriterForCPP(WriteALOHA) [in aloha/aloha_writers.py]
+    #  - ALOHAWriterForGPU(ALOHAWriterForCPP) [in aloha/aloha_writers.py]
+    #  - CUDACPP_SA_ALOHAWriter(ALOHAWriterForGPU)
+    #      This class
     
-    extension = '.cu'
-    prefix ='__device__'
-    realoperator = '.real()'
-    imagoperator = '.imag()'
-    ci_definition = 'cxtype cI = cxtype(0., 1.);\n'
-    
-    type2def = {}    
-    type2def['int'] = 'int'
-    type2def['double'] = 'fptype'
-    type2def['complex'] = 'cxtype'
+    # AV - keep defaults from aloha_writers.ALOHAWriterForGPU
+    ###extension = '.cu'
+    ###prefix ='__device__'
+    ###realoperator = '.real()'
+    ###imagoperator = '.imag()'
+    ###ci_definition = 'cxtype cI = cxtype(0., 1.);\n'
+    type2def = {}
     type2def['pointer_vertex'] = '*' # using complex<double> * vertex)
     type2def['pointer_coup'] = ''
 
+    # AV - improve formatting
+    ###type2def['int'] = 'int '
+    type2def['int'] = 'int'
+    ###type2def['double'] = 'fptype '
+    type2def['double'] = 'fptype'
+    ###type2def['complex'] = 'cxtype '
+    type2def['complex'] = 'cxtype'
+
+    # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     def change_number_format(self, number):
-        """Formating the number"""
+        """Formatting the number"""
         def isinteger(x):
             try:
                 return int(x) == x
             except TypeError:
                 return False
         if isinteger(number):
+	    ###out = '%s.' % (str(int(number)))
             if number == 1:
-                out = 'one'
+                out = 'one' # AV
             elif number == -1:
-                out = '-one'
+                out = '-one' # AV
             else:
                 out = '%s.' % (str(int(number))) # This prints -1 as '-1.'
         elif isinstance(number, complex):
@@ -100,6 +116,8 @@ class CUDACPP_SA_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 out = '%s./%s.' % (tmp.numerator, tmp.denominator)
         return out
 
+    # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
+    # [NB: this exists in ALOHAWriterForGPU but essentially falls back to ALOHAWriterForCPP]
     def get_header_txt(self, name=None, couplings=None,mode=''):
         """Define the Header of the fortran file. This include
             - function tag
@@ -123,29 +141,34 @@ class CUDACPP_SA_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 list_arg = ''
             if argname.startswith('COUP'):
                 point = self.type2def['pointer_coup']
-                args.append('%s %s%s%s'% (type, point, argname, list_arg))
+                ###args.append('%s%s%s%s'% (type, point, argname, list_arg))
+                args.append('%s %s%s%s'% (type, point, argname, list_arg)) # AV
             else:
-                args.append('%s %s%s'% (type, argname, list_arg))
+                ###args.append('%s%s%s'% (type, argname, list_arg))
+                args.append('%s %s%s'% (type, argname, list_arg)) # AV
         if not self.offshell:
             output = '%(doublec)s %(pointer_vertex)s vertex' % {
                 'doublec':self.type2def['complex'],
                 'pointer_vertex': self.type2def['pointer_vertex']}
-            #self.declaration.add(('complex','vertex'))
         else:
             output = '%(doublec)s %(spin)s%(id)d[]' % {
                      'doublec': self.type2def['complex'],
                      'spin': self.particles[self.outgoing -1],
                      'id': self.outgoing}
             self.declaration.add(('list_complex', output))
+        ###out.write('%(prefix)s void %(name)s(%(args)s,%(output)s)' % \
+        ###          {'prefix': self.prefix,
+        ###              'output':output, 'name': name, 'args': ', '.join(args)})
         out.write('%(prefix)s void %(name)s(const %(args)s, %(output)s)' % \
                   {'prefix': self.prefix,
-                      'output':output, 'name': name, 'args': ', const '.join(args)})
+                      'output':output, 'name': name, 'args': ', const '.join(args)}) # AV - add const
         if 'is_h' in mode:
             out.write(';\n')
         else:
             out.write('\n{\n')
         return out.getvalue() 
 
+    # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     def get_declaration_txt(self, add_i=True):
         """ Prototype for how to write the declaration of variable
             Include the symmetry line (entry FFV_2)
@@ -154,15 +177,15 @@ class CUDACPP_SA_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         argument_var = [name for type,name in self.call_arg]
         # define the complex number CI = 0+1j
         if add_i:
-            out.write('  ' + self.ci_definition)
+            ###out.write(self.ci_definition)
+            out.write('  ' + self.ci_definition) # AV
         for type, name in self.declaration.tolist():
             if type.startswith('list'):
                 type = type[5:]
                 if name.startswith('P'):
                     size = 4
                 elif not 'tmp' in name:
-                    continue
-                    #should be define in the header
+                    continue # should be defined in the header
                 elif name[0] in ['F','V']:
                     if aloha.loop_mode:
                         size = 8
@@ -183,8 +206,9 @@ class CUDACPP_SA_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 out.write('  %s %s;\n' % (self.type2def[type], name))               
         return out.getvalue()
 
+    # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     def get_momenta_txt(self):
-        """Define the Header of the fortran file. This include
+        """Define the Header of the C++ file. This include
             - momentum conservation
             - definition of the impulsion"""
         out = StringIO()
@@ -200,8 +224,9 @@ class CUDACPP_SA_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 out_size = self.type_to_size[type] 
                 continue
             elif self.offshell:
-                if len(p) != 0 : p.append(' ')
-                p.append('{0} {1}{2}[%(i)s]'.format(signs[i],type,i+1,type))    
+                if len(p) != 0 : p.append(' ') # AV
+                ###p.append('{0}{1}{2}[%(i)s]'.format(signs[i],type,i+1,type))
+                p.append('{0} {1}{2}[%(i)s]'.format(signs[i],type,i+1,type)) # AV
             if self.declaration.is_used('P%s' % (i+1)):
                 self.get_one_momenta_def(i+1, out)
         # define the resulting momenta
@@ -214,19 +239,22 @@ class CUDACPP_SA_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 size_p = 2
             for i in range(size_p):
                 dict_energy = {'i':i}
-                out.write('  %s%s[%s] = %s;\n' % (type,self.outgoing, i, 
-                                             ''.join(p) % dict_energy))
+                ###out.write('    %s%s[%s] = %s;\n' % (type,self.outgoing, i, ''.join(p) % dict_energy))
+                out.write('  %s%s[%s] = %s;\n' % (type,self.outgoing, i, ''.join(p) % dict_energy)) # AV
             if self.declaration.is_used('P%s' % self.outgoing):
                 self.get_one_momenta_def(self.outgoing, out)
         # Returning result
         return out.getvalue()
 
+    # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     def get_one_momenta_def(self, i, strfile):
         type = self.particles[i-1]
         if aloha.loop_mode:
-            template ='  P%(i)d[%(j)d] = %(sign)s %(type)s%(i)d[%(nb)d];\n'
+            ###template ='P%(i)d[%(j)d] = %(sign)s%(type)s%(i)d[%(nb)d];\n'
+            template ='  P%(i)d[%(j)d] = %(sign)s %(type)s%(i)d[%(nb)d];\n' # AV
         else:
-            template ='  P%(i)d[%(j)d] = %(sign)s %(type)s%(i)d[%(nb2)d]%(operator)s;\n'
+            ###template ='P%(i)d[%(j)d] = %(sign)s%(type)s%(i)d[%(nb2)d]%(operator)s;\n'
+            template ='  P%(i)d[%(j)d] = %(sign)s %(type)s%(i)d[%(nb2)d]%(operator)s;\n' # AV
         nb2 = 0
         for j in range(4):
             if not aloha.loop_mode:
@@ -245,11 +273,15 @@ class CUDACPP_SA_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 operator =''
                 nb = j
                 nb2 = j
-            sign = self.get_P_sign(i) if self.get_P_sign(i) else '+'
+	    ###strfile.write(template % {'j':j,'type': type, 'i': i, 
+            ###            'nb': nb, 'nb2': nb2, 'operator':operator,
+            ###            'sign': self.get_P_sign(i)})
+            sign = self.get_P_sign(i) if self.get_P_sign(i) else '+' # AV
             strfile.write(template % {'j':j,'type': type, 'i': i, 
                         'nb': nb, 'nb2': nb2, 'operator':operator,
-                        'sign': sign})
+                        'sign': sign}) # AV
 
+    # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     def define_expression(self):
         """Write the helicity amplitude in C++ format"""
         out = StringIO()
@@ -257,7 +289,8 @@ class CUDACPP_SA_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             keys = sorted(self.routine.contracted.keys())
             for name in keys:
                 obj = self.routine.contracted[name]
-                out.write('  %s = %s;\n' % (name, self.write_obj(obj)))
+                ###out.write(' %s = %s;\n' % (name, self.write_obj(obj)))
+                out.write('  %s = %s;\n' % (name, self.write_obj(obj))) # AV
                 self.declaration.add(('complex', name))
         for name, (fct, objs) in self.routine.fct.items():
             format = ' %s = %s;\n' % (name, self.get_fct_format(fct))
@@ -277,8 +310,8 @@ class CUDACPP_SA_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     else:
                         mydict['pre_%s' %c] = ''
                         mydict['post_%s'%c] = ''
-                out.write('  %(pre_vertex)svertex%(post_vertex)s = %(pre_coup)sCOUP%(post_coup)s * %(num)s;\n' %\
-                            mydict)
+                ###out.write(' %(pre_vertex)svertex%(post_vertex)s = %(pre_coup)sCOUP%(post_coup)s*%(num)s;\n' % mydict)
+                out.write('  %(pre_vertex)svertex%(post_vertex)s = %(pre_coup)sCOUP%(post_coup)s * %(num)s;\n' % mydict) # AV
             else:
                 mydict= {}
                 if self.type2def['pointer_vertex'] in ['*']:
@@ -306,16 +339,16 @@ class CUDACPP_SA_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 mydict['i'] = self.outgoing
                 if not aloha.complex_mass:
                     if self.routine.denominator:
-                        out.write('  denom = %(pre_coup)s%(coup)s%(post_coup)s / (%(denom)s)\n' % \
-                                  mydict) 
+                        ###out.write('    denom = %(pre_coup)s%(coup)s%(post_coup)s/(%(denom)s)\n' % mydict) 
+                        out.write('  denom = %(pre_coup)s%(coup)s%(post_coup)s / (%(denom)s)\n' % mydict) # AV
                     else:
-                        out.write('  denom = %(pre_coup)s%(coup)s%(post_coup)s / ((P%(i)s[0]*P%(i)s[0]) - (P%(i)s[1]*P%(i)s[1]) - (P%(i)s[2]*P%(i)s[2]) - (P%(i)s[3]*P%(i)s[3]) - M%(i)s*(M%(i)s-cI*W%(i)s));\n' % \
-                                  mydict)
+                        ###out.write('    denom = %(pre_coup)s%(coup)s%(post_coup)s/((P%(i)s[0]*P%(i)s[0])-(P%(i)s[1]*P%(i)s[1])-(P%(i)s[2]*P%(i)s[2])-(P%(i)s[3]*P%(i)s[3]) - M%(i)s * (M%(i)s -cI* W%(i)s));\n' % mydict)
+                        out.write('  denom = %(pre_coup)s%(coup)s%(post_coup)s / ((P%(i)s[0]*P%(i)s[0]) - (P%(i)s[1]*P%(i)s[1]) - (P%(i)s[2]*P%(i)s[2]) - (P%(i)s[3]*P%(i)s[3]) - M%(i)s*(M%(i)s-cI*W%(i)s));\n' % mydict) # AV
                 else:
                     if self.routine.denominator:
                         raise Exception('modify denominator are not compatible with complex mass scheme')                
-                    out.write('  denom = %(pre_coup)s%(coup)s%(post_coup)s / ((P%(i)s[0]*P%(i)s[0])-(P%(i)s[1]*P%(i)s[1])-(P%(i)s[2]*P%(i)s[2])-(P%(i)s[3]*P%(i)s[3]) - (M%(i)s*M%(i)s));\n' % \
-                              mydict)
+                    ###out.write('    denom = %(pre_coup)s%(coup)s%(post_coup)s/((P%(i)s[0]*P%(i)s[0])-(P%(i)s[1]*P%(i)s[1])-(P%(i)s[2]*P%(i)s[2])-(P%(i)s[3]*P%(i)s[3]) - (M%(i)s*M%(i)s));\n' % mydict)
+                    out.write('  denom = %(pre_coup)s%(coup)s%(post_coup)s / ((P%(i)s[0]*P%(i)s[0])-(P%(i)s[1]*P%(i)s[1])-(P%(i)s[2]*P%(i)s[2])-(P%(i)s[3]*P%(i)s[3]) - (M%(i)s*M%(i)s));\n' % mydict) # AV
                 self.declaration.add(('complex','denom'))
                 if aloha.loop_mode:
                     ptype = 'list_complex'
@@ -325,11 +358,13 @@ class CUDACPP_SA_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             else:
                 coeff = 'COUP'
             for ind in numerator.listindices():
-                out.write('  %s[%d] = %s * %s;\n' % (self.outname, 
+                ###out.write('    %s[%d]= %s*%s;\n' % (self.outname,
+                out.write('  %s[%d] = %s * %s;\n' % (self.outname, # AV
                                         self.pass_to_HELAS(ind), coeff,
                                         self.write_obj(numerator.get_rep(ind))))
         return out.getvalue()
 
+    # AV - modify aloha_writers.WriteALOHA method (improve formatting)
     def write_obj_Add(self, obj, prefactor=True):
         """Turns addvariable into a string"""
         data = defaultdict(list)
@@ -343,7 +378,8 @@ class CUDACPP_SA_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 file_str.write('(%s)' % formatted)
             else:
                 file_str.write(formatted)
-            file_str.write(' * (')
+            ###file_str.write('*(')
+            file_str.write(' * (') # AV
         else:
             file_str.write('(')
         first=True
@@ -352,16 +388,20 @@ class CUDACPP_SA_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             if value not in  [-1,1]:
                 nb_str = self.change_number_format(value)
                 if nb_str[0] in ['+','-']:
-                    file_str.write(nb_str) # eventually (' '+nb_str)?
+                    file_str.write(nb_str) # AV - eventually (' '+nb_str)?
                 else:
-                    file_str.write('+' if first else ' + ')
+                    ###file_str.write('+')
+                    file_str.write('+' if first else ' + ') # AV
                     file_str.write(nb_str)
                 file_str.write('*(')
             elif value == -1:
-                add = ' - ' 
-                file_str.write('-' if first else ' - ')
+                ###add = '-'
+                ###file_str.write('-')
+                add = ' - ' # AV
+                file_str.write('-' if first else ' - ') # AV
             elif not first:
-                file_str.write(' + ')
+                ###file_str.write('+')
+                file_str.write(' + ') # AV
             else:
                 file_str.write('')
             first = False
@@ -373,32 +413,40 @@ class CUDACPP_SA_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             total = sum(number)
             file_str.write('+ %s' % self.change_number_format(total))
         file_str.write(')')
-        ###print(file_str.getvalue()) # FOR DEBUGGING
+        ###print(file_str.getvalue()) # AV - FOR DEBUGGING
         return file_str.getvalue()
 
 #------------------------------------------------------------------------------------
 
 class CUDACPP_SA_UFOModelConverter(export_cpp.UFOModelConverterGPU):
+    # Class structure information
+    #  - object
+    #  - UFOModelConverterCPP(object) [in madgraph/iolibs/export_cpp.py]
+    #  - UFOModelConverterGPU(UFOModelConverterCPP) [in madgraph/iolibs/export_cpp.py]
+    #  - CUDACPP_SA_UFOModelConverter(UFOModelConverterGPU)
+    #      This class
 
-    ###aloha_writer = 'cudac' #this was the default mode assigned to GPU 
+    # AV - keep defaults from export_cpp.UFOModelConverterCPP
+    ###include_dir = '.'
+    ###c_file_dir = '.'
+    ###param_template_h = 'cpp_model_parameters_h.inc'
+    ###param_template_cc = 'cpp_model_parameters_cc.inc'
+
+    # AV - keep defaults from export_cpp.UFOModelConverterGPU
+    ###cc_ext = 'cu'
+    ###aloha_template_h = pjoin('gpu','cpp_hel_amps_h.inc')
+    ###aloha_template_cc = pjoin('gpu','cpp_hel_amps_cc.inc')
+    ###helas_h = pjoin('gpu', 'helas.h')
+    ###helas_cc = pjoin('gpu', 'helas.cu')
+
+    # AV - use a custom ALOHAWriter
+    ###aloha_writer = 'cudac'
     aloha_writer = CUDACPP_SA_ALOHAWriter # this is equivalent to the above line but allow to edit it obviously
-    cc_ext = 'cu'
-    # Template files to use
-    #include_dir = '.'
-    #c_file_dir = '.'
-    #param_template_h = 'cpp_model_parameters_h.inc'
-    #param_template_cc = 'cpp_model_parameters_cc.inc'
-    pjoin = os.path.join
-    aloha_template_h = pjoin('gpu','cpp_hel_amps_h.inc')
-    aloha_template_cc = pjoin('gpu','cpp_hel_amps_cc.inc')
-    helas_h = pjoin('gpu', 'helas.h')
-    helas_cc = pjoin('gpu', 'helas.cu')
 
+    # AV - use template files from PLUGINDIR instead of MG5DIR
     def read_aloha_template_files(self, ext):
         """Read all ALOHA template files with extension ext, strip them of
         compiler options and namespace options, and return in a list"""
-        # Use the plugin's path (for helas_h/cc)
-        pjoin = os.path.join
         ###path = pjoin(MG5DIR, 'aloha','template_files')
         path = pjoin(PLUGINDIR, 'aloha', 'template_files')
         out = []
@@ -408,13 +456,11 @@ class CUDACPP_SA_UFOModelConverter(export_cpp.UFOModelConverterGPU):
             out.append(open(pjoin(path, self.helas_cc)).read())
         return out
 
-    #===============================================================================
-    # Global helper methods
-    #===============================================================================
+    # AV - use the plugin's CUDACPP_SA_OneProcessExporter template_path and __template_path (for aloha_template_h/cc)
     @classmethod
     def read_template_file(cls, filename, classpath=False):
         """Open a template file and return the contents."""
-        # Use the plugin's CUDACPP_SA_OneProcessExporter template_path and __template_path (for aloha_template_h/cc)
+        ###return OneProcessExporterCPP.read_template_file(filename, classpath)
         return CUDACPP_SA_OneProcessExporter.read_template_file(filename, classpath)
 
 #------------------------------------------------------------------------------------
@@ -429,14 +475,6 @@ class CUDACPP_SA_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     #  - CUDACPP_SA_OneProcessExporter(OneProcessExporterGPU)
     #      This class
     
-    # Static variables (for inheritance)
-    # AV - use template files from PLUGINDIR instead of MG5DIR
-    ###template_path = os.path.join(_file_path, 'iolibs', 'template_files')
-    ###__template_path = os.path.join(_file_path, 'iolibs', 'template_files') 
-    template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
-    __template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
-
-    # Static variables (for inheritance)
     # AV - keep defaults from export_cpp.OneProcessExporterGPU
     ###process_dir = '.'
     ###include_dir = '.'
@@ -449,11 +487,18 @@ class CUDACPP_SA_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     ###single_process_template = 'gpu/process_matrix.inc'
     ###cc_ext = 'cu'
 
+    # AV - use template files from PLUGINDIR instead of MG5DIR
+    ###template_path = os.path.join(_file_path, 'iolibs', 'template_files')
+    ###__template_path = os.path.join(_file_path, 'iolibs', 'template_files') 
+    template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
+    __template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
+
+    # AV - modify export_cpp.OneProcessExporterGPU.get_process_function_definitions (fix tIPC and tIPD types in gCPPProcess.cu)
     def get_process_function_definitions(self, write=True):
-        """The complete Pythia 8 class definition for the process"""
+        """The complete class definition for the process"""
         replace_dict = super(export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False)
         replace_dict['ncouplings'] = len(self.couplings2order)
-        replace_dict['ncouplingstimes2'] = 2 *  replace_dict['ncouplings']
+        replace_dict['ncouplingstimes2'] = 2 * replace_dict['ncouplings']
         replace_dict['nparams'] = len(self.params2order)
         replace_dict['nmodels'] = replace_dict['nparams'] + replace_dict['ncouplings']
         replace_dict['coupling_list'] = ' '

@@ -1,7 +1,9 @@
 import os
+pjoin = os.path.join
+
 import madgraph.iolibs.export_cpp as export_cpp
 
-# AV - use templates for source code, scripts and Makefiles from PLUGINDIR instead of MG5DIR
+# AV - use template files from PLUGINDIR instead of MG5DIR
 ###from madgraph import MG5DIR
 PLUGINDIR = os.path.dirname( __file__ )
 
@@ -46,7 +48,7 @@ class CUDACPP_SA_ProcessExporter(export_cpp.ProcessExporterGPU):
     #      This class
     
     # Below are the class variable that are defined in export_v4.VirtualExporter
-    # AV - keep defaults from export_cpp.ProcessExporterGPU
+    # AV - keep defaults from export_v4.VirtualExporter
     # Check status of the directory. Remove it if already exists
     ###check = True 
     # Output type: [Template/dir/None] copy the Template (via copy_template), just create dir or do nothing 
@@ -71,7 +73,7 @@ class CUDACPP_SA_ProcessExporter(export_cpp.ProcessExporterGPU):
     
     # Information to find the template file that we want to include from madgraph
     # you can include additional file from the plugin directory as well
-    # AV - use templates for source code and scripts from PLUGINDIR instead of MG5DIR
+    # AV - use template files from PLUGINDIR instead of MG5DIR
     # AV - add gpu/mgOnGpuVectors.h
     ###s = MG5DIR + '/madgraph/iolibs/template_files/'
     s = PLUGINDIR + '/madgraph/iolibs/template_files/'
@@ -83,8 +85,7 @@ class CUDACPP_SA_ProcessExporter(export_cpp.ProcessExporterGPU):
                                      s+'gpu/perf.py', s+ 'gpu/Memory.h', s + 'gpu/runTest.cc']}
     to_link_in_P = ['Makefile', 'timer.h', 'timermap.h', 'nvtx.h', 'perf.py', 'Memory.h', 'runTest.cc']
 
-    # AV - use templates for Makefiles from PLUGINDIR instead of MG5DIR
-    pjoin = os.path.join
+    # AV - use template files from PLUGINDIR instead of MG5DIR
     ###template_src_make = pjoin(MG5DIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')
     ###template_Sub_make = pjoin(MG5DIR, 'madgraph', 'iolibs', 'template_files','gpu','Makefile')
     template_src_make = pjoin(PLUGINDIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')
