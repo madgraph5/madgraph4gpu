@@ -1,6 +1,11 @@
 *.o
 *.a
+*.mod
 **/__pycache__/
 **/run_[0-9][0-9]
 **/run_[0-9][0-9]_log.txt
 **/HTML/results.pkl
+**/index.html
+**/crossx.html
+results.dat
+**/SubProcesses/randinit
