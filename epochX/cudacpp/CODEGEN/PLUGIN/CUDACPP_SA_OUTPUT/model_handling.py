@@ -419,43 +419,6 @@ class CUDACPP_SA_UFOModelConverter(export_cpp.UFOModelConverterGPU):
 
 #------------------------------------------------------------------------------------
 
-import madgraph.iolibs.helas_call_writers as helas_call_writers
-    
-class __NOTUSED__CUDACPP_SA_UFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
-
-    def format_coupling(self, call):
-        """Format the coupling so any minus signs are put in front"""
-        return super().format_coupling(call)        
-
-    def get_external(self,wf, argument):
-        """ formatting for ixxxx/ oxxxx /.... type of function (external ones) """
-        return super().get_external(wf, argument)
-
-    def generate_helas_call(self, argument):
-        """Routine for automatic generation of C++ Helas calls
-        according to just the spin structure of the interaction.
-
-        First the call string is generated, using a dictionary to go
-        from the spin state of the calling wavefunction and its
-        mothers, or the mothers of the amplitude, to difenrentiate wich call is
-        done.
-
-        Then the call function is generated, as a lambda which fills
-        the call string with the information of the calling
-        wavefunction or amplitude. The call has different structure,
-        depending on the spin of the wavefunction and the number of
-        mothers (multiplicity of the vertex). The mother
-        wavefunctions, when entering the call, must be sorted in the
-        correct way - this is done by the sorted_mothers routine.
-
-        Finally the call function is stored in the relevant
-        dictionary, in order to be able to reuse the function the next
-        time a wavefunction with the same Lorentz structure is needed.
-        """
-        return super().generate_helas_call(argument)
-
-#------------------------------------------------------------------------------------
-
 import madgraph.iolibs.files as files
 
 class CUDACPP_SA_OneProcessExporter(export_cpp.OneProcessExporterGPU):
