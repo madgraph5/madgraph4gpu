@@ -10,7 +10,7 @@ tar -xzf MadLoop5_resources.tar.gz
 fi
 keeplog=false
 if [ "$keeplog" = true ] ; then
-    k=run_01_app.log
+    k=run_04_app.log
 else
     k=/dev/null
 fi
@@ -39,8 +39,8 @@ j=G2g0
           cp ftn26 ftn25
      fi
      # create the input file
-         echo "    2512       9       3" >& input_sg.txt
-         echo "    -1.5757318388042088" >> input_sg.txt
+         echo "    2404       9       3" >& input_sg.txt
+         echo "    -1.599554683975981" >> input_sg.txt
      if [[ ! -e ftn25 ]]; then
          echo "2" >> input_sg.txt   # grid refinement
          echo "1" >> input_sg.txt   # suppress amplitude
@@ -57,7 +57,7 @@ j=G2g0
      for((try=1;try<=16;try+=1)); 
      do
 	 if [ "$keeplog" = true ] ; then
-             /afs/cern.ch/work/r/roiser/sw/madgraph4gpu.full.workflow/3.1.1_lo_vectorization/pp_ttx/SubProcesses/P1_gg_ttx/madevent 2>&1 >> $k <input_sg.txt | tee -a $k;
+             /afs/cern.ch/work/r/roiser/sw/madgraph4gpu/epoch2/fortran-cuda/pp_ttx/SubProcesses/P1_gg_ttx/madevent 2>&1 >> $k <input_sg.txt | tee -a $k;
 	     status_code=${PIPESTATUS[0]};
              if [ -s $k ]
              then
@@ -66,7 +66,7 @@ j=G2g0
 		 echo $try > fail.log 
              fi
 	 else
-	     /afs/cern.ch/work/r/roiser/sw/madgraph4gpu.full.workflow/3.1.1_lo_vectorization/pp_ttx/SubProcesses/P1_gg_ttx/madevent 2>&1 >> log.txt <input_sg.txt | tee -a log.txt;
+	     /afs/cern.ch/work/r/roiser/sw/madgraph4gpu/epoch2/fortran-cuda/pp_ttx/SubProcesses/P1_gg_ttx/madevent 2>&1 >> log.txt <input_sg.txt | tee -a log.txt;
 	     status_code=${PIPESTATUS[0]};
 	     if [ -s log.txt ]
              then
