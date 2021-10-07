@@ -84,7 +84,7 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     from_template = {'src': [s+'gpu/rambo.h', s+'gpu/rambo.cc', s+'read_slha.h', s+'read_slha.cc',
                              s+'gpu/mgOnGpuTypes.h', s+'gpu/mgOnGpuVectors.h', s+'gpu/grambo.cu'],
                     'SubProcesses': [s+'gpu/timer.h', s+'gpu/Makefile', s+'gpu/nvtx.h',
-                                     s+'gpu/nvtx.h', s+'gpu/check.cc',
+                                     s+'gpu/nvtx.h', # s+'gpu/check.cc',
                                      s+'gpu/timermap.h', s+'gpu/profile.sh',
                                      s+'gpu/perf.py', s+ 'gpu/Memory.h', s + 'gpu/runTest.cc']}
     to_link_in_P = ['Makefile', 'timer.h', 'timermap.h', 'nvtx.h', 'perf.py', 'Memory.h', 'runTest.cc']
