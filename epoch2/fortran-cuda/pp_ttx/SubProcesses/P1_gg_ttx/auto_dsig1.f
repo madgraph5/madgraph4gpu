@@ -434,6 +434,7 @@ C     SR --> INJECT CODE
 
       INTEGER IVEC
 
+      call bridge(P_MULTI)
 
 !$OMP PARALLEL
 !$OMP DO
