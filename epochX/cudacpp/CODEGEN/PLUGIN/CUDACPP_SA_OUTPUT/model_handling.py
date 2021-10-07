@@ -467,18 +467,21 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
     def write_parameters(self, params):
         res = super().write_parameters(params)
         if res == '' : res = '// (none)'
+        res = res.replace('\n','\n  ')
         return res
 
     # AV - modify export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_set_parameters(self, params):
         res = super().write_set_parameters(params)
         if res == '' : res = '// (none)'
+        res = res.replace('\n','\n  ')
         return res
 
     # AV - modify export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_print_parameters(self, params):
         res = super().write_print_parameters(params)
         if res == '' : res = '// (none)'
+        res = res.replace('\n','\n  ')
         return res
 
 #------------------------------------------------------------------------------------

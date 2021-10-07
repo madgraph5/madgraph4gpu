@@ -62,7 +62,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=4: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ g g WEIGHTED<=4 @1  
 INFO: Process has 123 diagrams 
-1 processes with 123 diagrams generated in 0.208 s
+1 processes with 123 diagrams generated in 0.209 s
 Total: 1 processes with 123 diagrams
 output standalone_cudacpp CODEGEN_gg_ttgg
 [1;34mPlugin PLUGIN.CUDACPP_SA_OUTPUT has marked as NOT being validated with this version. 
@@ -91,7 +91,7 @@ FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> f
 [1;32mDEBUG:  ('ZERO', 5, 1, 5, 5) [1;30m[helas_call_writers.py at line 1808][0m [0m
 [1;32mDEBUG: only one Matrix-element supported? [0m
 INFO: Created files gCPPProcess.h and gCPPProcess.cc in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/. 
-Generated helas calls for 1 subprocesses (123 diagrams) in 0.571 s
+Generated helas calls for 1 subprocesses (123 diagrams) in 0.566 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 127][0m [0m
 ALOHA: aloha creates routines (starting by VVV1)
 [1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2446][0m [0m
@@ -117,6 +117,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/src/. and /data/av
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 136][0m [0m
 quit
 
-real	0m2.105s
-user	0m1.951s
-sys	0m0.128s
+real	0m2.384s
+user	0m1.966s
+sys	0m0.119s
