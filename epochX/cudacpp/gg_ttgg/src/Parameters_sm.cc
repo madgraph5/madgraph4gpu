@@ -79,6 +79,7 @@ void Parameters_sm::setIndependentParameters(SLHAReader& slha)
 
 void Parameters_sm::setIndependentCouplings()
 {
+  // (none)
 }
 
 void Parameters_sm::setDependentParameters()
@@ -98,7 +99,7 @@ void Parameters_sm::setDependentCouplings()
 // Routines for printing out parameters
 void Parameters_sm::printIndependentParameters()
 {
-  cout <<  "sm model parameters independent of event kinematics:" << endl;
+  cout << "sm model parameters independent of event kinematics:" << endl;
   cout << setw(20) <<  "mdl_WH " <<  "= " << setiosflags(ios::scientific) << setw(10) << mdl_WH << endl;
   cout << setw(20) <<  "mdl_WW " <<  "= " << setiosflags(ios::scientific) << setw(10) << mdl_WW << endl;
   cout << setw(20) <<  "mdl_WZ " <<  "= " << setiosflags(ios::scientific) << setw(10) << mdl_WZ << endl;
@@ -151,12 +152,13 @@ void Parameters_sm::printIndependentParameters()
 
 void Parameters_sm::printIndependentCouplings()
 {
-  cout <<  "sm model couplings independent of event kinematics:" << endl;
+  cout << "sm model couplings independent of event kinematics:" << endl;
+  // (none)
 }
 
 void Parameters_sm::printDependentParameters()
 {
-  cout <<  "sm model parameters dependent on event kinematics:" << endl;
+  cout << "sm model parameters dependent on event kinematics:" << endl;
   cout << setw(20) <<  "mdl_sqrt__aS " <<  "= " << setiosflags(ios::scientific) << setw(10) << mdl_sqrt__aS << endl;
   cout << setw(20) <<  "G " <<  "= " << setiosflags(ios::scientific) << setw(10) << G << endl;
   cout << setw(20) <<  "mdl_G__exp__2 " <<  "= " << setiosflags(ios::scientific) << setw(10) << mdl_G__exp__2 << endl;
@@ -164,7 +166,7 @@ void Parameters_sm::printDependentParameters()
 
 void Parameters_sm::printDependentCouplings()
 {
-  cout <<  "sm model couplings dependent on event kinematics:" << endl;
+  cout << "sm model couplings dependent on event kinematics:" << endl;
   cout << setw(20) <<  "GC_10 " <<  "= " << setiosflags(ios::scientific) << setw(10) << GC_10 << endl;
   cout << setw(20) <<  "GC_11 " <<  "= " << setiosflags(ios::scientific) << setw(10) << GC_11 << endl;
   cout << setw(20) <<  "GC_12 " <<  "= " << setiosflags(ios::scientific) << setw(10) << GC_12 << endl;

@@ -30,7 +30,7 @@ std::complex<double> mdl_complexi,mdl_I1x33,mdl_I2x33,mdl_I3x33,mdl_I4x33;
 double mdl_sqrt__aS,G,mdl_G__exp__2;
 
   // Model couplings independent of aS
-
+// (none)
 
   // Model couplings dependent on aS
 std::complex<double> GC_10,GC_11,GC_12;

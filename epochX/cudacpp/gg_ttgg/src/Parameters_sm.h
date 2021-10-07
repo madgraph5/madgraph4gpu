@@ -30,6 +30,7 @@ public:
   double mdl_sqrt__aS, G, mdl_G__exp__2;
 
   // Model couplings independent of aS
+  // (none)
 
   // Model couplings dependent on aS
   std::complex<double> GC_10, GC_11, GC_12;

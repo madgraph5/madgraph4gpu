@@ -463,6 +463,24 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         ###return OneProcessExporterCPP.read_template_file(filename, classpath)
         return PLUGIN_OneProcessExporter.read_template_file(filename, classpath)
 
+    # AV - modify export_cpp.UFOModelConverterCPP method (improve formatting)
+    def write_parameters(self, params):
+        res = super().write_parameters(params)
+        if res == '' : res = '// (none)'
+        return res
+
+    # AV - modify export_cpp.UFOModelConverterCPP method (improve formatting)
+    def write_set_parameters(self, params):
+        res = super().write_set_parameters(params)
+        if res == '' : res = '// (none)'
+        return res
+
+    # AV - modify export_cpp.UFOModelConverterCPP method (improve formatting)
+    def write_print_parameters(self, params):
+        res = super().write_print_parameters(params)
+        if res == '' : res = '// (none)'
+        return res
+
 #------------------------------------------------------------------------------------
 
 import madgraph.iolibs.files as files

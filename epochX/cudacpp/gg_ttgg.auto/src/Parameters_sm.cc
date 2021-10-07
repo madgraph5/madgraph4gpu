@@ -79,7 +79,7 @@ mdl_cw__exp__2 = ((mdl_cw)*(mdl_cw));
 
 void Parameters_sm::setIndependentCouplings()
 {
-  
+  // (none)
 }
 
 void Parameters_sm::setDependentParameters()
@@ -153,7 +153,7 @@ cout << setw(20) << "mdl_cw__exp__2 " << "= " << setiosflags(ios::scientific) <<
 void Parameters_sm::printIndependentCouplings()
 {
   cout << "sm model couplings independent of event kinematics:" << endl;
-  
+  // (none)
 }
 
 void Parameters_sm::printDependentParameters()
