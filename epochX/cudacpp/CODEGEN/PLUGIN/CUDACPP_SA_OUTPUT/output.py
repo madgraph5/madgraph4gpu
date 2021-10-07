@@ -108,24 +108,24 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     # AV (default from OM's tutorial) - add a debug printout
     def __init__(self, *args, **opts):
         misc.sprint('Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter)')
-        return super(PLUGIN_ProcessExporter, self).__init__(*args, **opts)
+        return super().__init__(*args, **opts)
 
     # AV (default from OM's tutorial) - add a debug printout
     def copy_template(self, model):
         misc.sprint('Entering PLUGIN_ProcessExporter.copy_template (initialise the directory)')
-        return super(PLUGIN_ProcessExporter, self).copy_template(model)
+        return super().copy_template(model)
 
     # AV - add debug printouts (in addition to the default one from OM's tutorial)
     def generate_subprocess_directory(self, subproc_group, fortran_model, me=None):
         misc.sprint('Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory)')
         misc.sprint('  type(subproc_group)=%s'%type(subproc_group)) # e.g. madgraph.core.helas_objects.HelasMatrixElement
         misc.sprint('  type(fortran_model)=%s'%type(fortran_model)) # e.g. madgraph.iolibs.helas_call_writers.GPUFOHelasCallWriter
-        return super(PLUGIN_ProcessExporter, self).generate_subprocess_directory(subproc_group, fortran_model, me)
+        return super().generate_subprocess_directory(subproc_group, fortran_model, me)
 
     # AV (default from OM's tutorial) - add a debug printout
     def convert_model(self, model, wanted_lorentz=[], wanted_coupling=[]):
         misc.sprint('Entering PLUGIN_ProcessExporter.convert_model (create the model)')
-        return super(PLUGIN_ProcessExporter, self).convert_model(model, wanted_lorentz, wanted_coupling)
+        return super().convert_model(model, wanted_lorentz, wanted_coupling)
 
     # AV (default from OM's tutorial) - add a debug printout
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
@@ -134,7 +134,7 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
            MG5options are all the options of the main interface
            outputflags is a list of options provided when doing the output command"""
         misc.sprint('Entering PLUGIN_ProcessExporter.finalize')
-        return super(PLUGIN_ProcessExporter, self).finalize(matrix_element, cmdhistory, MG5options, outputflag)
+        return super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
 
     # AV (default from OM's tutorial) - overload settings and add a debug printout
     def modify_grouping(self, matrix_element):
