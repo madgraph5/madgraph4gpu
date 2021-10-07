@@ -490,6 +490,9 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         file_h, file_cc = super().generate_parameters_class_files()
         file_h = file_h[:-1] # remove extra trailing '\n'
         file_cc = file_cc[:-1] # remove extra trailing '\n'
+        # [NB: there is a minor bug in export_cpp.UFOModelConverterCPP.generate_parameters_class_files
+        # ['independent_couplings' contains dependent parameters, 'dependent parameters' contains independent_couplings]
+        # [This only affects the order in which they are printed out - which is now reversed in the templates]
         return file_h, file_cc
 
 #------------------------------------------------------------------------------------
