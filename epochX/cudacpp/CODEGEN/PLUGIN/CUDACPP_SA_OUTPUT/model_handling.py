@@ -463,28 +463,29 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         ###return OneProcessExporterCPP.read_template_file(filename, classpath)
         return PLUGIN_OneProcessExporter.read_template_file(filename, classpath)
 
-    # AV - modify export_cpp.UFOModelConverterCPP method (improve formatting)
+    # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_parameters(self, params):
         res = super().write_parameters(params)
-        if res == '' : res = '// (none)'
+        if res == '' : res = '  // (none)'
+        else : res = '  ' + res # add leading '  ' after the '// Model' line
         res = res.replace('\n','\n  ')
         return res
 
-    # AV - modify export_cpp.UFOModelConverterCPP method (improve formatting)
+    # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_set_parameters(self, params):
         res = super().write_set_parameters(params)
         if res == '' : res = '// (none)'
         res = res.replace('\n','\n  ')
         return res
 
-    # AV - modify export_cpp.UFOModelConverterCPP method (improve formatting)
+    # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_print_parameters(self, params):
         res = super().write_print_parameters(params)
         if res == '' : res = '// (none)'
         res = res.replace('\n','\n  ')
         return res
 
-    # AV - modify export_cpp.UFOModelConverterCPP method (improve formatting)
+    # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def generate_parameters_class_files(self):
         file_h, file_cc = super().generate_parameters_class_files()
         file_h = file_h[:-1] # remove extra trailing '\n'
