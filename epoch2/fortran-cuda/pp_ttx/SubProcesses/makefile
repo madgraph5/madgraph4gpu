@@ -24,7 +24,7 @@ else
     MADLOOP_LIB =
 endif
 
-LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L../../lib/ -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
+LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L../../lib/ -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias
 
 LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
 
@@ -42,15 +42,17 @@ PROCESS= driver.o myamp.o genps.o unwgt.o setcuts.o get_color.o \
 	 idenparts.o dummy_fct.o \
          $(patsubst %.f,%.o,$(wildcard auto_dsig*.f)) \
 
-SYMMETRY = symmetry.o idenparts.o 
+SYMMETRY = symmetry.o idenparts.o
+
+BRIDGE = fbridge.o
 
 # Binaries
 
-$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX)
-	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
+$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX) $(BRIDGE)
+	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(BRIDGE) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
 
-$(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
-	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
+$(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL) $(BRIDGE)
+	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(BRIDGE) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
 
 gensym: $(SYMMETRY) configs.inc $(LIBDIR)libmodel.$(libext) $(LIBDIR)libgeneric.$(libext)
 	$(FC) -o gensym $(SYMMETRY) -L../../lib/ -lmodel -lgeneric -lpdf $(llhapdf) $(LDFLAGS)
@@ -61,7 +63,7 @@ $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
 $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
 	cd ../../Source; make
 
-$(LIBDIR)libpdf.$(libext): 
+$(LIBDIR)libpdf.$(libext):
 	cd ../../Source/PDF; make
 
 # Add source so that the compiler finds the DiscreteSampler module.
@@ -69,6 +71,9 @@ $(MATRIX): %.o: %.f
 	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -fopenmp
 %.o: %.f
 	$(FC) $(FFLAGS) -c $< -I../../Source/ -fopenmp
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $<
+
 
 # Dependencies
 
@@ -90,3 +95,8 @@ initcluster.o: message.inc
 
 clean:
 	$(RM) *.o gensym madevent madevent_forhel
+
+run: run1
+
+run1: $(PROG)
+	cat G1/input_app.txt | ./$(PROG)
