@@ -15,6 +15,7 @@ ajob*
 **/__pycache__/
 **/SubProcesses/randinit
 **/SubProcesses/*/madevent*
+**/grid_information
 
 // b/c of python ordering bug? May need to be removed again
 **/SubProcesses/P1_*_ttx/Hel/selection
