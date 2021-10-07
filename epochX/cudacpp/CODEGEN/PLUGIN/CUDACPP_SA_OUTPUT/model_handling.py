@@ -563,20 +563,36 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
 
     # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
     def generate_process_files(self):
+        """Generate mgOnGpuConfig.h, gCPPProcess.h/cu, gcheck_sa.cu, CPPProcess.cc link, check_sa.cc link"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.generate_process_files')
         return super().generate_process_files()
 
     # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
     def edit_check_sa(self):
+        """Generate gcheck_sa.cu"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_check_sa')
-        misc.sprint('  template_path=%s'%self.template_path) # look for gpu/check_sa.cu here
+        ###misc.sprint('  template_path=%s'%self.template_path) # look for gpu/check_sa.cu here
         return super().edit_check_sa()
 
     # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
     def edit_mgonGPU(self):
+        """Generate mgOnGpuConfig.h"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_mgonGPU')
-        misc.sprint('  template_path=%s'%self.template_path) # look for gpu/mgOnGpuConfig.h here
+        ###misc.sprint('  template_path=%s'%self.template_path) # look for gpu/mgOnGpuConfig.h here
         return super().edit_mgonGPU()
+
+    # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
+    # [*NB export_cpp.UFOModelConverterGPU.write_process_h_file is not called!*]
+    def write_process_h_file(self, writer):
+        """Generate final gCPPProcess.h"""
+        misc.sprint('Entering PLUGIN_OneProcessExporter.write_process_h_file')
+        return super().write_process_h_file(writer)
+
+    # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
+    def write_process_cc_file(self, writer):
+        """Generate gCPPProcess.cu"""
+        misc.sprint('Entering PLUGIN_OneProcessExporter.write_process_cc_file')
+        return super().write_process_cc_file(writer)
 
 #------------------------------------------------------------------------------------
 
