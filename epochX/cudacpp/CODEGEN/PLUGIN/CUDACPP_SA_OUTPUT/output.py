@@ -102,22 +102,24 @@ class CUDACPP_SA_ProcessExporter(export_cpp.ProcessExporterGPU):
 
     # AV (default from OM's tutorial) - add a debug printout
     def __init__(self, *args, **opts):
-        misc.sprint("Entering CUDACPP_SA_ProcessExporter.__init__ (initialise the exporter)")
+        misc.sprint('Entering CUDACPP_SA_ProcessExporter.__init__ (initialise the exporter)')
         return super(CUDACPP_SA_ProcessExporter, self).__init__(*args, **opts)
 
     # AV (default from OM's tutorial) - add a debug printout
     def copy_template(self, model):
-        misc.sprint("Entering CUDACPP_SA_ProcessExporter.copy_template (initialise the directory)")
+        misc.sprint('Entering CUDACPP_SA_ProcessExporter.copy_template (initialise the directory)')
         return super(CUDACPP_SA_ProcessExporter, self).copy_template(model)
 
-    # AV (default from OM's tutorial) - add a debug printout
+    # AV - add debug printouts (in addition to the default one from OM's tutorial)
     def generate_subprocess_directory(self, subproc_group, fortran_model, me=None):
-        misc.sprint("Entering CUDACPP_SA_ProcessExporter.generate_subprocess_directory (create the directory)")
+        misc.sprint('Entering CUDACPP_SA_ProcessExporter.generate_subprocess_directory (create the directory)')
+        misc.sprint('  type(subproc_group)=%s'%type(subproc_group)) # e.g. madgraph.core.helas_objects.HelasMatrixElement
+        misc.sprint('  type(fortran_model)=%s'%type(fortran_model)) # e.g. madgraph.iolibs.helas_call_writers.GPUFOHelasCallWriter
         return super(CUDACPP_SA_ProcessExporter, self).generate_subprocess_directory(subproc_group, fortran_model, me)
 
     # AV (default from OM's tutorial) - add a debug printout
     def convert_model(self, model, wanted_lorentz=[], wanted_coupling=[]):
-        misc.sprint("Entering CUDACPP_SA_ProcessExporter.convert_model (create the model)")
+        misc.sprint('Entering CUDACPP_SA_ProcessExporter.convert_model (create the model)')
         return super(CUDACPP_SA_ProcessExporter, self).convert_model(model, wanted_lorentz, wanted_coupling)
 
     # AV (default from OM's tutorial) - add a debug printout
@@ -126,7 +128,7 @@ class CUDACPP_SA_ProcessExporter(export_cpp.ProcessExporterGPU):
            cmdhistory is the list of command used so far.
            MG5options are all the options of the main interface
            outputflags is a list of options provided when doing the output command"""
-        misc.sprint("Entering CUDACPP_SA_ProcessExporter.finalize")
+        misc.sprint('Entering CUDACPP_SA_ProcessExporter.finalize')
         return super(CUDACPP_SA_ProcessExporter, self).finalize(matrix_element, cmdhistory, MG5options, outputflag)
 
     # AV (default from OM's tutorial) - overload settings and add a debug printout
@@ -136,7 +138,7 @@ class CUDACPP_SA_ProcessExporter(export_cpp.ProcessExporterGPU):
             - True/False if the matrix_element was modified
             - the new(or old) matrix element"""
         # Irrelevant here since group_mode=False so this function is never called
-        misc.sprint("Entering CUDACPP_SA_ProcessExporter.modify_grouping")
+        misc.sprint('Entering CUDACPP_SA_ProcessExporter.modify_grouping')
         return False, matrix_element
 
 #------------------------------------------------------------------------------------
