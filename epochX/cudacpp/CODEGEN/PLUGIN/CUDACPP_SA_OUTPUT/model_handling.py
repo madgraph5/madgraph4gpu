@@ -484,6 +484,13 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         res = res.replace('\n','\n  ')
         return res
 
+    # AV - modify export_cpp.UFOModelConverterCPP method (improve formatting)
+    def generate_parameters_class_files(self):
+        file_h, file_cc = super().generate_parameters_class_files()
+        file_h = file_h[:-1] # remove extra trailing '\n'
+        file_cc = file_cc[:-1] # remove extra trailing '\n'
+        return file_h, file_cc
+
 #------------------------------------------------------------------------------------
 
 import madgraph.iolibs.files as files

@@ -66,4 +66,3 @@ private:
 };
 
 #endif // Parameters_sm_H
-
