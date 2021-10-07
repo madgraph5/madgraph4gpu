@@ -545,6 +545,15 @@ class CUDACPP_SA_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     #  - CUDACPP_SA_GPUFOHelasCallWriter(GPUFOHelasCallWriter)
     #      This class
 
+    # AV - modify helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
+    def get_matrix_element_calls(self, matrix_element, color_amplitudes):
+        """Return a list of strings, corresponding to the Helas calls for the matrix element"""
+        res = super().get_matrix_element_calls(matrix_element, color_amplitudes)
+        for i, item in enumerate(res):
+            ###print(item) # FOR DEBUGGING
+            if item.startswith('# Amplitude'): res[i]='//'+item[1:] # AV replace '# Amplitude' by '// Amplitude'
+        return res
+
 # AV - use the custom HelasCallWriter
 DEFAULT_GPUFOHelasCallWriter = helas_call_writers.GPUFOHelasCallWriter
 helas_call_writers.GPUFOHelasCallWriter = CUDACPP_SA_GPUFOHelasCallWriter
