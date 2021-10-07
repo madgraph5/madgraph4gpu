@@ -37,14 +37,14 @@ misc.make_unique = PLUGIN_make_unique
 
 #------------------------------------------------------------------------------------
 
-class CUDACPP_SA_ProcessExporter(export_cpp.ProcessExporterGPU):
+class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     # Class structure information
     #  - object
     #  - VirtualExporter(object) [in madgraph/iolibs/export_v4.py]
     #  - ProcessExporterCPP(VirtualExporter) [in madgraph/iolibs/export_cpp.py]
     #  - ProcessExporterGPU(ProcessExporterCPP) [in madgraph/iolibs/export_cpp.py]
     #      Note: only change class attribute
-    #  - CUDACPP_SA_ProcessExporter(ProcessExporterGPU)
+    #  - PLUGIN_ProcessExporter(ProcessExporterGPU)
     #      This class
     
     # Below are the class variable that are defined in export_v4.VirtualExporter
@@ -73,7 +73,7 @@ class CUDACPP_SA_ProcessExporter(export_cpp.ProcessExporterGPU):
 
     # AV - use a custom OneProcessExporter
     ###oneprocessclass = export_cpp.OneProcessExporterGPU # responsible for P directory
-    oneprocessclass = model_handling.CUDACPP_SA_OneProcessExporter
+    oneprocessclass = model_handling.PLUGIN_OneProcessExporter
     
     # Information to find the template file that we want to include from madgraph
     # you can include additional file from the plugin directory as well
@@ -98,34 +98,34 @@ class CUDACPP_SA_ProcessExporter(export_cpp.ProcessExporterGPU):
     # AV - use a custom UFOModelConverter (model/aloha exporter)
     ###create_model_class =  export_cpp.UFOModelConverterGPU
     import PLUGIN.CUDACPP_SA_OUTPUT.model_handling as model_handling 
-    create_model_class = model_handling.CUDACPP_SA_UFOModelConverter
+    create_model_class = model_handling.PLUGIN_UFOModelConverter
     
     # AV - "aloha_exporter" is not used anywhere!
     # (OM: "typically not defined but useful for this tutorial - the class for writing helas routine")
     ###aloha_exporter = None
-    ###aloha_exporter = model_handling.CUDACPP_SA_UFOHelasCallWriter
+    ###aloha_exporter = model_handling.PLUGIN_UFOHelasCallWriter
 
     # AV (default from OM's tutorial) - add a debug printout
     def __init__(self, *args, **opts):
-        misc.sprint('Entering CUDACPP_SA_ProcessExporter.__init__ (initialise the exporter)')
-        return super(CUDACPP_SA_ProcessExporter, self).__init__(*args, **opts)
+        misc.sprint('Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter)')
+        return super(PLUGIN_ProcessExporter, self).__init__(*args, **opts)
 
     # AV (default from OM's tutorial) - add a debug printout
     def copy_template(self, model):
-        misc.sprint('Entering CUDACPP_SA_ProcessExporter.copy_template (initialise the directory)')
-        return super(CUDACPP_SA_ProcessExporter, self).copy_template(model)
+        misc.sprint('Entering PLUGIN_ProcessExporter.copy_template (initialise the directory)')
+        return super(PLUGIN_ProcessExporter, self).copy_template(model)
 
     # AV - add debug printouts (in addition to the default one from OM's tutorial)
     def generate_subprocess_directory(self, subproc_group, fortran_model, me=None):
-        misc.sprint('Entering CUDACPP_SA_ProcessExporter.generate_subprocess_directory (create the directory)')
+        misc.sprint('Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory)')
         misc.sprint('  type(subproc_group)=%s'%type(subproc_group)) # e.g. madgraph.core.helas_objects.HelasMatrixElement
         misc.sprint('  type(fortran_model)=%s'%type(fortran_model)) # e.g. madgraph.iolibs.helas_call_writers.GPUFOHelasCallWriter
-        return super(CUDACPP_SA_ProcessExporter, self).generate_subprocess_directory(subproc_group, fortran_model, me)
+        return super(PLUGIN_ProcessExporter, self).generate_subprocess_directory(subproc_group, fortran_model, me)
 
     # AV (default from OM's tutorial) - add a debug printout
     def convert_model(self, model, wanted_lorentz=[], wanted_coupling=[]):
-        misc.sprint('Entering CUDACPP_SA_ProcessExporter.convert_model (create the model)')
-        return super(CUDACPP_SA_ProcessExporter, self).convert_model(model, wanted_lorentz, wanted_coupling)
+        misc.sprint('Entering PLUGIN_ProcessExporter.convert_model (create the model)')
+        return super(PLUGIN_ProcessExporter, self).convert_model(model, wanted_lorentz, wanted_coupling)
 
     # AV (default from OM's tutorial) - add a debug printout
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
@@ -133,8 +133,8 @@ class CUDACPP_SA_ProcessExporter(export_cpp.ProcessExporterGPU):
            cmdhistory is the list of command used so far.
            MG5options are all the options of the main interface
            outputflags is a list of options provided when doing the output command"""
-        misc.sprint('Entering CUDACPP_SA_ProcessExporter.finalize')
-        return super(CUDACPP_SA_ProcessExporter, self).finalize(matrix_element, cmdhistory, MG5options, outputflag)
+        misc.sprint('Entering PLUGIN_ProcessExporter.finalize')
+        return super(PLUGIN_ProcessExporter, self).finalize(matrix_element, cmdhistory, MG5options, outputflag)
 
     # AV (default from OM's tutorial) - overload settings and add a debug printout
     def modify_grouping(self, matrix_element):
@@ -143,7 +143,7 @@ class CUDACPP_SA_ProcessExporter(export_cpp.ProcessExporterGPU):
             - True/False if the matrix_element was modified
             - the new(or old) matrix element"""
         # Irrelevant here since group_mode=False so this function is never called
-        misc.sprint('Entering CUDACPP_SA_ProcessExporter.modify_grouping')
+        misc.sprint('Entering PLUGIN_ProcessExporter.modify_grouping')
         return False, matrix_element
 
 #------------------------------------------------------------------------------------

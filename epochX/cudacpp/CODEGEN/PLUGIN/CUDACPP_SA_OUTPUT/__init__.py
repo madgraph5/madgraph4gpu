@@ -17,7 +17,7 @@ if sys.version_info < minpython: sys.exit("ERROR! Python >= %s.%s is required" %
 #    madgraph will then allow the command "output myformat PATH"
 #    MYCLASS should inherated of the class madgraph.iolibs.export_v4.VirtualExporter
 import PLUGIN.CUDACPP_SA_OUTPUT.output as output
-new_output = {'standalone_cudacpp':output.CUDACPP_SA_ProcessExporter}
+new_output = {'standalone_cudacpp':output.PLUGIN_ProcessExporter}
 
 # 2. Define new way to handle the cluster.
 #    example new_cluster = {'mycluster': MYCLUSTERCLASS}

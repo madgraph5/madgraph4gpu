@@ -50,13 +50,13 @@ writers.CPPWriter = PLUGIN_FileWriter # WITHOUT FORMATTING
 import aloha
 import aloha.aloha_writers as aloha_writers
 
-class CUDACPP_SA_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
+class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     # Class structure information
     #  - object
     #  - WriteALOHA(object) [in aloha/aloha_writers.py]
     #  - ALOHAWriterForCPP(WriteALOHA) [in aloha/aloha_writers.py]
     #  - ALOHAWriterForGPU(ALOHAWriterForCPP) [in aloha/aloha_writers.py]
-    #  - CUDACPP_SA_ALOHAWriter(ALOHAWriterForGPU)
+    #  - PLUGIN_ALOHAWriter(ALOHAWriterForGPU)
     #      This class
     
     # AV - keep defaults from aloha_writers.ALOHAWriterForGPU
@@ -418,12 +418,12 @@ class CUDACPP_SA_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
 
 #------------------------------------------------------------------------------------
 
-class CUDACPP_SA_UFOModelConverter(export_cpp.UFOModelConverterGPU):
+class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
     # Class structure information
     #  - object
     #  - UFOModelConverterCPP(object) [in madgraph/iolibs/export_cpp.py]
     #  - UFOModelConverterGPU(UFOModelConverterCPP) [in madgraph/iolibs/export_cpp.py]
-    #  - CUDACPP_SA_UFOModelConverter(UFOModelConverterGPU)
+    #  - PLUGIN_UFOModelConverter(UFOModelConverterGPU)
     #      This class
 
     # AV - keep defaults from export_cpp.UFOModelConverterCPP
@@ -441,7 +441,7 @@ class CUDACPP_SA_UFOModelConverter(export_cpp.UFOModelConverterGPU):
 
     # AV - use a custom ALOHAWriter
     ###aloha_writer = 'cudac'
-    aloha_writer = CUDACPP_SA_ALOHAWriter # this is equivalent to the above line but allow to edit it obviously
+    aloha_writer = PLUGIN_ALOHAWriter # this is equivalent to the above line but allow to edit it obviously
 
     # AV - use template files from PLUGINDIR instead of MG5DIR
     def read_aloha_template_files(self, ext):
@@ -456,23 +456,23 @@ class CUDACPP_SA_UFOModelConverter(export_cpp.UFOModelConverterGPU):
             out.append(open(pjoin(path, self.helas_cc)).read())
         return out
 
-    # AV - use the plugin's CUDACPP_SA_OneProcessExporter template_path and __template_path (for aloha_template_h/cc)
+    # AV - use the plugin's PLUGIN_OneProcessExporter template_path and __template_path (for aloha_template_h/cc)
     @classmethod
     def read_template_file(cls, filename, classpath=False):
         """Open a template file and return the contents."""
         ###return OneProcessExporterCPP.read_template_file(filename, classpath)
-        return CUDACPP_SA_OneProcessExporter.read_template_file(filename, classpath)
+        return PLUGIN_OneProcessExporter.read_template_file(filename, classpath)
 
 #------------------------------------------------------------------------------------
 
 import madgraph.iolibs.files as files
 
-class CUDACPP_SA_OneProcessExporter(export_cpp.OneProcessExporterGPU):
+class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     # Class structure information
     #  - object
     #  - OneProcessExporterCPP(object) [in madgraph/iolibs/export_cpp.py]
     #  - OneProcessExporterGPU(OneProcessExporterCPP) [in madgraph/iolibs/export_cpp.py]
-    #  - CUDACPP_SA_OneProcessExporter(OneProcessExporterGPU)
+    #  - PLUGIN_OneProcessExporter(OneProcessExporterGPU)
     #      This class
     
     # AV - keep defaults from export_cpp.OneProcessExporterGPU
@@ -493,7 +493,7 @@ class CUDACPP_SA_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
     __template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
 
-    # AV - modify export_cpp.OneProcessExporterGPU.get_process_function_definitions (fix tIPC and tIPD types in gCPPProcess.cu)
+    # AV - modify export_cpp.OneProcessExporterGPU method (fix tIPC and tIPD types in gCPPProcess.cu)
     def get_process_function_definitions(self, write=True):
         """The complete class definition for the process"""
         replace_dict = super(export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False)
@@ -519,7 +519,7 @@ class CUDACPP_SA_OneProcessExporter(export_cpp.OneProcessExporterGPU):
                replace_dict
         return file
 
-    # AV - modify CUDACPP_SA_OneProcessExporter.get_process_info_lines (replace '# Process' by '// Process')
+    # AV - modify export_cpp.OneProcessExporterGPU method (replace '# Process' by '// Process')
     def get_process_info_lines(self, matrix_element):
         """Return info lines describing the processes for this matrix element"""
         ###return"\n".join([ "# " + process.nice_string().replace('\n', '\n# * ') \
@@ -532,7 +532,7 @@ class CUDACPP_SA_OneProcessExporter(export_cpp.OneProcessExporterGPU):
 import madgraph.iolibs.helas_call_writers as helas_call_writers
 
 # AV - define a custom HelasCallWriter
-class CUDACPP_SA_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
+class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     """ A Custom HelasCallWriter """
     # Class structure information
     #  - object
@@ -542,7 +542,7 @@ class CUDACPP_SA_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     #  - UFOHelasCallWriter(HelasCallWriter) [in madgraph/iolibs/helas_call_writers.py]
     #  - CPPUFOHelasCallWriter(UFOHelasCallWriter) [in madgraph/iolibs/helas_call_writers.py]
     #  - GPUFOHelasCallWriter(CPPUFOHelasCallWriter) [in madgraph/iolibs/helas_call_writers.py]
-    #  - CUDACPP_SA_GPUFOHelasCallWriter(GPUFOHelasCallWriter)
+    #  - PLUGIN_GPUFOHelasCallWriter(GPUFOHelasCallWriter)
     #      This class
 
     # AV - modify helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
@@ -556,6 +556,6 @@ class CUDACPP_SA_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 
 # AV - use the custom HelasCallWriter
 DEFAULT_GPUFOHelasCallWriter = helas_call_writers.GPUFOHelasCallWriter
-helas_call_writers.GPUFOHelasCallWriter = CUDACPP_SA_GPUFOHelasCallWriter
+helas_call_writers.GPUFOHelasCallWriter = PLUGIN_GPUFOHelasCallWriter
 
 #------------------------------------------------------------------------------------
