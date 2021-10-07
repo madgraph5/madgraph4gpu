@@ -2,20 +2,18 @@
 // This file has been automatically generated for C++ Standalone by
 %(info_lines)s
 //==========================================================================
-
 %(helamps_h)s
 
 #ifndef MG5_%(process_file_name)s_H
 #define MG5_%(process_file_name)s_H
 
-#include <complex>
-#include <vector>
 #include <cassert>
+#include <complex>
 #include <iostream>
+#include <vector>
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
-
 
 #include "Parameters_%(model_name)s.h"
 
@@ -25,7 +23,7 @@
 
 #define checkCuda( code ) { assertCuda( code, __FILE__, __LINE__ ); }
 
-inline void assertCuda( cudaError_t code, const char *file, int line, bool abort = true )
+inline void assertCuda( cudaError_t code, const char* file, int line, bool abort = true )
 {
   if ( code != cudaSuccess )
   {
@@ -45,9 +43,8 @@ namespace Proc
 {
 
 %(process_class_definitions)s
-
-
   //--------------------------------------------------------------------------
+
 #ifdef __CUDACC__
   __global__
   void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM

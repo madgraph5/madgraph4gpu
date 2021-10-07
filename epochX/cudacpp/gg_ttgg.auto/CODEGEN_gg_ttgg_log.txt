@@ -96,7 +96,7 @@ FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> f
 INFO: Created files gCPPProcess.h and gCPPProcess.cc in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/. 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 573][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 580][0m [0m
-Generated helas calls for 1 subprocesses (123 diagrams) in 0.578 s
+Generated helas calls for 1 subprocesses (123 diagrams) in 0.566 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 126][0m [0m
 ALOHA: aloha creates routines (starting by VVV1)
 [1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2446][0m [0m
@@ -122,6 +122,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/src/. and /data/av
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 135][0m [0m
 quit
 
-real	0m2.106s
-user	0m1.960s
-sys	0m0.120s
+real	0m2.444s
+user	0m1.962s
+sys	0m0.117s

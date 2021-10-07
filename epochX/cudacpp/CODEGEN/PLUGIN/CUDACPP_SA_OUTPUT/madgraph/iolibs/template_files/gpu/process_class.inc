@@ -1,6 +1,6 @@
   //==========================================================================
   // A class for calculating the matrix elements for
-%(process_lines)s
+  %(process_lines)s
   //--------------------------------------------------------------------------
 
   class CPPProcess

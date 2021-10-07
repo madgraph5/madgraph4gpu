@@ -5,20 +5,18 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-
 #include "../../src/HelAmps_sm.h"
 
 #ifndef MG5_Sigma_sm_gg_ttxgg_H
 #define MG5_Sigma_sm_gg_ttxgg_H
 
-#include <complex>
-#include <vector>
 #include <cassert>
+#include <complex>
 #include <iostream>
+#include <vector>
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
-
 
 #include "Parameters_sm.h"
 
@@ -28,7 +26,7 @@
 
 #define checkCuda( code ) { assertCuda( code, __FILE__, __LINE__ ); }
 
-inline void assertCuda( cudaError_t code, const char *file, int line, bool abort = true )
+inline void assertCuda( cudaError_t code, const char* file, int line, bool abort = true )
 {
   if ( code != cudaSuccess )
   {
@@ -49,7 +47,7 @@ namespace Proc
 
   //==========================================================================
   // A class for calculating the matrix elements for
-// Process: g g > t t~ g g WEIGHTED<=4 @1
+  // Process: g g > t t~ g g WEIGHTED<=4 @1
   //--------------------------------------------------------------------------
 
   class CPPProcess
@@ -119,9 +117,8 @@ namespace Proc
 
   };
 
-
-
   //--------------------------------------------------------------------------
+
 #ifdef __CUDACC__
   __global__
   void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
@@ -148,3 +145,4 @@ namespace Proc
 }
 
 #endif // MG5_Sigma_sm_gg_ttxgg_H
+
