@@ -62,11 +62,15 @@ class CUDACPP_SA_ProcessExporter(export_cpp.ProcessExporterGPU):
     # AV - keep defaults from export_cpp.ProcessExporterGPU
     # Decide which type of merging is used [madevent/madweight]
     ###grouped_mode = False 
-    # Language type: 'v4' for f77, 'cpp' for C++ output
-    ###exporter = 'gpu'
     # Other options
     ###default_opt = {'clean': False, 'complex_mass':False, 'export_format':'madevent', 'mp': False, 'v5_model': True }
     
+    # AV - keep defaults from export_cpp.ProcessExporterGPU
+    # AV - used in MadGraphCmd.do_output to assign export_cpp.ExportCPPFactory to MadGraphCmd._curr_exporter (if cpp or gpu)
+    # AV - used in MadGraphCmd.export to assign helas_call_writers.(CPPUFO|GPUFO)HelasCallWriter to MadGraphCmd._curr_helas_model (if cpp or gpu)
+    # Language type: 'v4' for f77, 'cpp' for C++ output
+    exporter = 'gpu'
+
     # AV - use a custom OneProcessExporter
     ###oneprocessclass = export_cpp.OneProcessExporterGPU # responsible for P directory
     oneprocessclass = model_handling.CUDACPP_SA_OneProcessExporter
@@ -96,7 +100,8 @@ class CUDACPP_SA_ProcessExporter(export_cpp.ProcessExporterGPU):
     import PLUGIN.CUDACPP_SA_OUTPUT.model_handling as model_handling 
     create_model_class = model_handling.CUDACPP_SA_UFOModelConverter
     
-    # Typically not defined but useful for this tutorial - the class for writing helas routine
+    # AV - "aloha_exporter" is not used anywhere!
+    # (OM: "typically not defined but useful for this tutorial - the class for writing helas routine")
     ###aloha_exporter = None
     ###aloha_exporter = model_handling.CUDACPP_SA_UFOHelasCallWriter
 

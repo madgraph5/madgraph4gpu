@@ -528,3 +528,25 @@ class CUDACPP_SA_OneProcessExporter(export_cpp.OneProcessExporterGPU):
                          for process in matrix_element.get('processes')])
 
 #------------------------------------------------------------------------------------
+
+import madgraph.iolibs.helas_call_writers as helas_call_writers
+
+# AV - define a custom HelasCallWriter
+class CUDACPP_SA_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
+    """ A Custom HelasCallWriter """
+    # Class structure information
+    #  - object
+    #  - dict(object) [built-in]
+    #  - PhysicsObject(dict) [in madgraph/core/base_objects.py]
+    #  - HelasCallWriter(base_objects.PhysicsObject) [in madgraph/iolibs/helas_call_writers.py]
+    #  - UFOHelasCallWriter(HelasCallWriter) [in madgraph/iolibs/helas_call_writers.py]
+    #  - CPPUFOHelasCallWriter(UFOHelasCallWriter) [in madgraph/iolibs/helas_call_writers.py]
+    #  - GPUFOHelasCallWriter(CPPUFOHelasCallWriter) [in madgraph/iolibs/helas_call_writers.py]
+    #  - CUDACPP_SA_GPUFOHelasCallWriter(GPUFOHelasCallWriter)
+    #      This class
+
+# AV - use the custom HelasCallWriter
+DEFAULT_GPUFOHelasCallWriter = helas_call_writers.GPUFOHelasCallWriter
+helas_call_writers.GPUFOHelasCallWriter = CUDACPP_SA_GPUFOHelasCallWriter
+
+#------------------------------------------------------------------------------------
