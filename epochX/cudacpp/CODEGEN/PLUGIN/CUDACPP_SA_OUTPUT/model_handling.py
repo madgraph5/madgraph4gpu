@@ -469,6 +469,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         if res == '' : res = '  // (none)'
         else : res = '  ' + res # add leading '  ' after the '// Model' line
         res = res.replace('\n','\n  ')
+        res = res.replace(',',', ')
         return res
 
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
