@@ -499,6 +499,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
 #------------------------------------------------------------------------------------
 
 import madgraph.iolibs.files as files
+import madgraph.various.misc as misc
 
 class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     # Class structure information
@@ -559,6 +560,23 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         ###                 for process in matrix_element.get('processes')])
         return"\n".join([ "// " + process.nice_string().replace('\n', '\n// * ') \
                          for process in matrix_element.get('processes')])
+
+    # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
+    def generate_process_files(self):
+        misc.sprint('Entering PLUGIN_OneProcessExporter.generate_process_files')
+        return super().generate_process_files()
+
+    # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
+    def edit_check_sa(self):
+        misc.sprint('Entering PLUGIN_OneProcessExporter.edit_check_sa')
+        misc.sprint('  template_path=%s'%self.template_path) # look for gpu/check_sa.cu here
+        return super().edit_check_sa()
+
+    # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
+    def edit_mgonGPU(self):
+        misc.sprint('Entering PLUGIN_OneProcessExporter.edit_mgonGPU')
+        misc.sprint('  template_path=%s'%self.template_path) # look for gpu/mgOnGpuConfig.h here
+        return super().edit_mgonGPU()
 
 #------------------------------------------------------------------------------------
 

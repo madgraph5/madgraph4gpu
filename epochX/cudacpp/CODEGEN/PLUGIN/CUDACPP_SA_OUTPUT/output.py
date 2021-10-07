@@ -77,8 +77,8 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     
     # Information to find the template file that we want to include from madgraph
     # you can include additional file from the plugin directory as well
-    # AV - use template files from PLUGINDIR instead of MG5DIR
-    # AV - add gpu/mgOnGpuVectors.h
+    # AV - use template files from PLUGINDIR instead of MG5DIR and add gpu/mgOnGpuVectors.h
+    # [NB: mgOnGpuConfig.h and check_sa.cu are handled through dedicated methods]
     ###s = MG5DIR + '/madgraph/iolibs/template_files/'
     s = PLUGINDIR + '/madgraph/iolibs/template_files/'
     from_template = {'src': [s+'gpu/rambo.h', s+'gpu/rambo.cc', s+'read_slha.h', s+'read_slha.cc',
