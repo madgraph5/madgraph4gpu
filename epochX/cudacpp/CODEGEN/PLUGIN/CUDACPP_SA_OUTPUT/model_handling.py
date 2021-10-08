@@ -707,7 +707,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     # [GPUFOHelasCallWriter.get_external (adding #ifdef CUDA) is called by GPUFOHelasCallWriter.generate_helas_call]
     # [GPUFOHelasCallWriter.generate_helas_call is called by UFOHelasCallWriter.get_wavefunction_call/get_amplitude_call]
     ###findcoupling = re.compile('pars->([-]*[\d\w_]+)\s*,')
-    def format_coupling(self, call):
+    def NOTUSED__format_coupling(self, call):
         """Format the coupling so any minus signs are put in front"""
         import re
         model = self.get('model')
