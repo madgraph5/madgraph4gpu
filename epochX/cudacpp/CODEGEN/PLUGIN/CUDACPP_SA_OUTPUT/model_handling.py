@@ -2,6 +2,7 @@ import os
 pjoin = os.path.join
 
 from collections import defaultdict
+from fractions import Fraction
 from six import StringIO
 
 # AV - use templates for source code, scripts and Makefiles from PLUGINDIR instead of MG5DIR
@@ -660,8 +661,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     @staticmethod
     def coeff(ff_number, frac, is_imaginary, Nc_power, Nc_value=3):
         """Returns a nicely formatted string for the coefficients in JAMP lines"""
-        import fractions
-        total_coeff = ff_number * frac * fractions.Fraction(Nc_value) ** Nc_power
+        total_coeff = ff_number * frac * Fraction(Nc_value) ** Nc_power
         if total_coeff == 1:
             if is_imaginary:
                 ###return '+cxtype(0,1)*'
