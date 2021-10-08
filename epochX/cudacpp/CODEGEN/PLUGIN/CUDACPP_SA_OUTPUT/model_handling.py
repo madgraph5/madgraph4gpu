@@ -676,9 +676,49 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     #      This class
 
     # AV - modify helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
+    def super_get_matrix_element_calls(self, matrix_element, color_amplitudes):
+        """Return a list of strings, corresponding to the Helas calls for the matrix element"""
+        import madgraph.core.helas_objects as helas_objects
+        import madgraph.loop.loop_helas_objects as loop_helas_objects
+        assert isinstance(matrix_element, helas_objects.HelasMatrixElement), \
+               "%s not valid argument for get_matrix_element_calls" % \
+               type(matrix_element)
+        ###import madgraph.iolibs.export_cpp as export_cpp
+        # Do not reuse the wavefunctions for loop matrix elements
+        if isinstance(matrix_element, loop_helas_objects.LoopHelasMatrixElement):
+            return self.get_loop_matrix_element_calls(matrix_element)
+        # Restructure data for easier handling
+        color = {}
+        for njamp, coeff_list in enumerate(color_amplitudes):
+            for coeff, namp in coeff_list:
+                if namp not in color:
+                    color[namp] = {}
+                color[namp][njamp] = coeff
+        me = matrix_element.get('diagrams')
+        matrix_element.reuse_outdated_wavefunctions(me)
+        res = []
+        # Reset jamp
+        res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}'
+                   % len(color_amplitudes))
+        for diagram in matrix_element.get('diagrams'):
+            res.extend([ self.get_wavefunction_call(wf) for \
+                         wf in diagram.get('wavefunctions') ])
+            res.append("# Amplitude(s) for diagram number %d" % 
+                       diagram.get('number'))
+            for amplitude in diagram.get('amplitudes'):
+                namp = amplitude.get('number')
+                amplitude.set('number', 1)
+                res.append(self.get_amplitude_call(amplitude))
+                for njamp, coeff in color[namp].items():
+                    res.append("jamp[%s] += %samp[0];" % 
+                         (njamp, export_cpp.OneProcessExporterGPU.coeff(*coeff)))
+        return res
+
+    # AV - overload helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
     def get_matrix_element_calls(self, matrix_element, color_amplitudes):
         """Return a list of strings, corresponding to the Helas calls for the matrix element"""
-        res = super().get_matrix_element_calls(matrix_element, color_amplitudes)
+        ###res = super().get_matrix_element_calls(matrix_element, color_amplitudes)
+        res = self.super_get_matrix_element_calls(matrix_element, color_amplitudes)
         for i, item in enumerate(res):
             ###print(item) # FOR DEBUGGING
             if item.startswith('# Amplitude'): item='//'+item[1:] # AV replace '# Amplitude' by '// Amplitude'
