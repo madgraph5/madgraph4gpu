@@ -62,7 +62,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=4: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ g g WEIGHTED<=4 @1  
 INFO: Process has 123 diagrams 
-1 processes with 123 diagrams generated in 0.208 s
+1 processes with 123 diagrams generated in 0.211 s
 Total: 1 processes with 123 diagrams
 output standalone_cudacpp CODEGEN_gg_ttgg
 [1mOutput will be done with PLUGIN: CUDACPP_SA_OUTPUT[0m
@@ -120,6 +120,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_ttgg/src/. and /data/av
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 135][0m [0m
 quit
 
-real	0m2.325s
-user	0m1.938s
-sys	0m0.111s
+real	0m2.244s
+user	0m1.930s
+sys	0m0.131s

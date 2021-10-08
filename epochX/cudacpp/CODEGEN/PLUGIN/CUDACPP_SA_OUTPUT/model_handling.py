@@ -717,6 +717,18 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         ###    initProc_lines.append("jamp2[%d] = new double[%d];" % (i, len(colamp))) # AV - this was commented out already
         return "\n".join(initProc_lines)
 
+    # AV - replace the export_cpp.OneProcessExporterCPP method (improve formatting)
+    def get_helicity_matrix(self, matrix_element):
+        """Return the Helicity matrix definition lines for this matrix element"""
+        ###helicity_line = "static const int helicities[ncomb][nexternal] = {";
+        helicity_line = "    static const int helicities[ncomb][nexternal] = {\n      "; # AV
+        helicity_line_list = []
+        for helicities in matrix_element.get_helicity_matrix(allow_reverse=False):
+            ###helicity_line_list.append("{"+",".join(['%d'] * len(helicities)) % tuple(helicities) + "}")
+            helicity_line_list.append( "{" + ", ".join(['%d'] * len(helicities)) % tuple(helicities) + "}" ) # AV
+        ###return helicity_line + ",".join(helicity_line_list) + "};"
+        return helicity_line + ",\n      ".join(helicity_line_list) + "};" # AV
+
 #------------------------------------------------------------------------------------
 
 import madgraph.iolibs.helas_call_writers as helas_call_writers

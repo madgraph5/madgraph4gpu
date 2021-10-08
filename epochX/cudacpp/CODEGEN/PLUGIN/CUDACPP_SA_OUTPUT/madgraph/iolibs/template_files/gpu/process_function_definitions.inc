@@ -49,7 +49,6 @@ namespace Proc
 #else
     memcpy( cHel, tHel, ncomb * nexternal * sizeof(int) );
 #endif
-
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
     assert( sizeof(cxtype) == 2 * sizeof(fptype) );
   }
