@@ -8,22 +8,22 @@ On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S
 =========================================================================
 runExe /afs/cern.ch/user/a/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe -p 2048 256 12 OMP=
 FP precision               = DOUBLE (nan=0)
-EvtsPerSec[MatrixElems] (3)= ( 7.268446e+08                 )  sec^-1
+EvtsPerSec[MatrixElems] (3)= ( 7.436158e+08                 )  sec^-1
 MeanMatrixElemValue        = ( 1.371706e-02 +- 3.270315e-06 )  GeV^0
-TOTAL       :     1.192925 sec
-     1,144,620,525      cycles:u                  #    0.888 GHz                    
-     2,317,054,941      instructions:u            #    2.02  insn per cycle         
-       1.490291123 seconds time elapsed
+TOTAL       :     1.168817 sec
+     1,150,807,226      cycles:u                  #    0.904 GHz                    
+     2,315,049,567      instructions:u            #    2.01  insn per cycle         
+       1.465290375 seconds time elapsed
 ==PROF== Profiling "sigmaKin": launch__registers_per_thread 166
 ==PROF== Profiling "sigmaKin": sm__sass_average_branch_targets_threads_uniform.pct 100%
 =========================================================================
 runExe /afs/cern.ch/user/a/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/check.exe -p 2048 256 12 OMP=
 FP precision               = DOUBLE (nan=0)
-EvtsPerSec[MatrixElems] (3)= ( 1.099775e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3)= ( 1.100102e+06                 )  sec^-1
 MeanMatrixElemValue        = ( 1.371706e-02 +- 3.270315e-06 )  GeV^0
-TOTAL       :     8.076636 sec
-    21,368,499,701      cycles:u                  #    2.641 GHz                    
-    50,479,966,813      instructions:u            #    2.36  insn per cycle         
-       8.094934288 seconds time elapsed
+TOTAL       :     8.136658 sec
+    21,532,075,251      cycles:u                  #    2.642 GHz                    
+    50,479,968,377      instructions:u            #    2.34  insn per cycle         
+       8.154983396 seconds time elapsed
 =Symbols in CPPProcess.o= (~sse4:  525) (avx2:    0) (512y:    0) (512z:    0)
 =========================================================================
