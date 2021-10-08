@@ -527,7 +527,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
     __template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
 
-    # AV - modify export_cpp.OneProcessExporterGPU method (fix tIPC and tIPD types in gCPPProcess.cu)
+    # AV - modify export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
     def get_process_function_definitions(self, write=True):
         """The complete class definition for the process"""
         replace_dict = super(export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False)
@@ -540,18 +540,75 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         params = [''] * len(self.params2order)
         for coup, pos in self.couplings2order.items():
             coupling[pos] = coup
+        ###coup_str = "static cxtype tIPC[%s] = {pars->%s};\n"\
+        ###    %(len(self.couplings2order), ',pars->'.join(coupling))
         coup_str = "static cxtype tIPC[%s] = {cxmake(pars->%s)};\n"\
-            %(len(self.couplings2order), '),cxmake(pars->'.join(coupling))
+            %(len(self.couplings2order), '),cxmake(pars->'.join(coupling)) # AV
         for para, pos in self.params2order.items():
-            params[pos] = para            
+            params[pos] = para
+        ###param_str = "static double tIPD[%s] = {pars->%s};\n"\
+        ###    %(len(self.params2order), ',pars->'.join(params))
         param_str = "static fptype tIPD[%s] = {(fptype)pars->%s};\n"\
-            %(len(self.params2order), ',(fptype)pars->'.join(params))            
+            %(len(self.params2order), ',(fptype)pars->'.join(params)) # AV
         replace_dict['assign_coupling'] = coup_str + param_str
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "tHel")
         file = self.read_template_file(self.process_definition_template) %\
                replace_dict
         return file
+
+    # AV - modify export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
+    def get_all_sigmaKin_lines(self, color_amplitudes, class_name):
+        """Get sigmaKin_process for all subprocesses for gCPPProcess.cu"""
+        ret_lines = []
+        if self.single_helicities:
+            ###ret_lines.append( "__device__ void calculate_wavefunctions(int ihel, const fptype* allmomenta,fptype &meHelSum \n#ifndef __CUDACC__\n                                , const int ievt\n#endif\n                                )\n{" )
+            ###ret_lines.append(" using namespace MG5_%s;" % self.model_name)
+            ###ret_lines.append("mgDebug( 0, __FUNCTION__ );")
+            ###ret_lines.append("cxtype amp[1]; // was %i" % len(self.matrix_elements[0].get_all_amplitudes()))
+            ###ret_lines.append("const int ncolor =  %i;" % len(color_amplitudes[0]))
+            ###ret_lines.append("cxtype jamp[ncolor];")
+            ###ret_lines.append("// Calculate wavefunctions for all processes")
+            ###ret_lines.append("using namespace MG5_%s;" % self.model_name)
+            ret_lines.append('  __device__ void calculate_wavefunctions( int ihel,')
+            indent = ' ' * ( ret_lines[-1].find('(') + 2 )
+            ret_lines.append(indent+'const fptype* allmomenta,')
+            ret_lines.append(indent+'fptype& meHelSum')
+            ret_lines.append('#ifndef __CUDACC__')
+            ret_lines.append(indent+', const int ievt')
+            ret_lines.append('#endif')
+            ret_lines.append(indent+')')
+            ret_lines.append('  {')
+            ret_lines.append('    using namespace MG5_%s;' % self.model_name)
+            ret_lines.append('    mgDebug( 0, __FUNCTION__ );')
+            ret_lines.append('    cxtype amp[1]; // was %i' % len(self.matrix_elements[0].get_all_amplitudes()))
+            ret_lines.append('    const int ncolor = %i;' % len(color_amplitudes[0]))
+            ret_lines.append('    cxtype jamp[ncolor];\n')
+            ret_lines.append('    // Calculate wavefunctions for all processes')
+            helas_calls = self.helas_call_writer.get_matrix_element_calls(\
+                                                    self.matrix_elements[0],
+                                                    color_amplitudes[0]
+                                                    )
+            logger.debug("only one Matrix-element supported?")
+            self.couplings2order = self.helas_call_writer.couplings2order
+            self.params2order = self.helas_call_writer.params2order
+            nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
+            ###ret_lines.append("cxtype w[nwf][nw6];")
+            ret_lines.append('    cxtype w[nwf][nw6];')
+            ret_lines += helas_calls
+        else:
+            ret_lines.extend([self.get_sigmaKin_single_process(i, me) \
+                                  for i, me in enumerate(self.matrix_elements)])
+        ###to_add = [] # AV - what is this for? comment it out
+        ###to_add.extend([self.get_matrix_single_process(i, me,
+        ###                                                 color_amplitudes[i],
+        ###                                                 class_name) \
+        ###                        for i, me in enumerate(self.matrix_elements)])
+        ret_lines.extend([self.get_matrix_single_process(i, me,
+                                                         color_amplitudes[i],
+                                                         class_name) \
+                                for i, me in enumerate(self.matrix_elements)])
+        return "\n".join(ret_lines)
 
     # AV - modify export_cpp.OneProcessExporterGPU method (replace '# Process' by '// Process')
     def get_process_info_lines(self, matrix_element):
@@ -624,7 +681,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         res = super().get_matrix_element_calls(matrix_element, color_amplitudes)
         for i, item in enumerate(res):
             ###print(item) # FOR DEBUGGING
-            if item.startswith('# Amplitude'): res[i]='//'+item[1:] # AV replace '# Amplitude' by '// Amplitude'
+            if item.startswith('# Amplitude'): item='//'+item[1:] # AV replace '# Amplitude' by '// Amplitude'
+            res[i]='    '+item
         return res
 
 # AV - use the custom HelasCallWriter
