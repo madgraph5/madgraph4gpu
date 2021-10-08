@@ -9,7 +9,15 @@ include ../bias_dependencies
 endif
 
 # Definitions
+ifndef CUDA_HOME
+  NVCC ?= $(shell which nvcc 2>/dev/null)
+  ifneq ($(NVCC),)
+    CUDA_HOME  = $(patsubst %bin/nvcc,%,$(NVCC))
+    CUDA_HOME := $(warning No CUDA_HOME exported. Using "$(CUDA_HOME)") $(CUDA_HOME)
+  endif
+endif
 
+NVCC = $(CUDA_HOME)/bin/nvcc
 LIBDIR = ../../lib/
 BINDIR = ../../bin/
 PROG   = madevent
@@ -27,6 +35,7 @@ endif
 LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L../../lib/ -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias
 
 LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
+CULIBS = -L$(CUDA_HOME)/lib64/ -lcudart
 
 # Source files
 
@@ -46,13 +55,15 @@ SYMMETRY = symmetry.o idenparts.o
 
 BRIDGE = fbridge.o
 
+CUDA = transpose.o
+
 # Binaries
 
 $(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX) $(BRIDGE)
-	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(BRIDGE) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
+	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(BRIDGE) $(CUDA) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) $(CULIBS) -fopenmp
 
 $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL) $(BRIDGE)
-	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(BRIDGE) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
+	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(BRIDGE) $(CUDA) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) $(CULIBS) -fopenmp
 
 gensym: $(SYMMETRY) configs.inc $(LIBDIR)libmodel.$(libext) $(LIBDIR)libgeneric.$(libext)
 	$(FC) -o gensym $(SYMMETRY) -L../../lib/ -lmodel -lgeneric -lpdf $(llhapdf) $(LDFLAGS)
@@ -73,6 +84,8 @@ $(MATRIX): %.o: %.f
 	$(FC) $(FFLAGS) -c $< -I../../Source/ -fopenmp
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
+%.o: %.cu
+	$(NVCC) $(CUFLAGS) -c $< -o $@
 
 
 # Dependencies
