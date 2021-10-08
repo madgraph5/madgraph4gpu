@@ -48,20 +48,6 @@ writers.CPPWriter = PLUGIN_FileWriter # WITHOUT FORMATTING
 
 #------------------------------------------------------------------------------------
 
-import aloha.create_aloha as create_aloha
-
-# AV - replace create_aloha.AbstractRoutine by PLUGIN_AbstractRoutine (add a debug printout)
-class PLUGIN_AbstractRoutine(create_aloha.AbstractRoutine):
-    """Default AbstractRoutine with minimal modifications"""
-    def __init__(self, expr, outgoing, spins, name, infostr, denom=None):
-        misc.sprint('Entering PLUGIN_AbstractRoutine for %s'%name)
-        super().__init__(expr, outgoing, spins, name, infostr, denom=denom)
-
-DEFAULT_AbstractRoutine = create_aloha.AbstractRoutine
-create_aloha.AbstractRoutine = PLUGIN_AbstractRoutine
-
-#------------------------------------------------------------------------------------
-
 import aloha
 import aloha.aloha_writers as aloha_writers
 
@@ -479,9 +465,9 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
     ###helas_h = pjoin('gpu', 'helas.h')
     ###helas_cc = pjoin('gpu', 'helas.cu')
 
-    # AV - use a custom ALOHAWriter
-    ###aloha_writer = 'cudac'
-    aloha_writer = PLUGIN_ALOHAWriter # this is equivalent to the above line but allow to edit it obviously
+    # AV - use a custom ALOHAWriter (NB: this is an argument to WriterFactory.__new__, either a string or a class!)
+    ###aloha_writer = 'cudac' # WriterFactory will use ALOHAWriterForGPU
+    aloha_writer = PLUGIN_ALOHAWriter # WriterFactory will use ALOHAWriterForGPU
 
     # AV - use template files from PLUGINDIR instead of MG5DIR
     def read_aloha_template_files(self, ext):
@@ -535,6 +521,63 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         # ['independent_couplings' contains dependent parameters, 'dependent parameters' contains independent_couplings]
         # [This only affects the order in which they are printed out - which is now reversed in the templates]
         return file_h, file_cc
+
+    # AV - replace export_cpp.UFOModelConverterCPP method (add debug printouts)
+    # (This is where the loop over FFV functions takes place - I had a hard time to understand it)
+    # (Note also that write_combined_cc seems to never be called for our eemumu and ggttgg examples)
+    # The calling sequence is the following (understood via MG5_debug after forcing an error by renaming 'write')
+    # - madgraph_interface.py 8369 in finalize => self._curr_exporter.convert_model(self._curr_model
+    # - output.py 127 in convert_model => super().convert_model(model, wanted_lorentz, wanted_coupling)
+    # - export_cpp.py 2503 in convert_model => model_builder.write_files()
+    # - export_cpp.py 128 in write_files => self.write_aloha_routines()
+    # - export_cpp.py 392 in write_aloha_routines => h_rout, cc_rout = abstracthelas.write(output_dir=None,
+    # - create_aloha.py 97 in write => text = writer.write(mode=mode, **opt)
+    #   [this is PLUGIN_ALOHAWriter.write which defaults to ALOHAWriterForCPP.write]
+    #   [therein, cc_text comes from WriteALOHA.write, while h_text comes from get_h_text]
+    def write_aloha_routines(self):
+        """Generate the hel_amps_model.h and hel_amps_model.cc files, which
+        have the complete set of generalized Helas routines for the model"""        
+        import aloha.create_aloha as create_aloha
+        if not os.path.isdir(os.path.join(self.dir_path, self.include_dir)):
+            os.makedirs(os.path.join(self.dir_path, self.include_dir))
+        if not os.path.isdir(os.path.join(self.dir_path, self.cc_file_dir)):
+            os.makedirs(os.path.join(self.dir_path, self.cc_file_dir))
+        model_h_file = os.path.join(self.dir_path, self.include_dir,
+                                    'HelAmps_%s.h' % self.model_name)
+        model_cc_file = os.path.join(self.dir_path, self.cc_file_dir,
+                                     'HelAmps_%s.%s' % (self.model_name, self.cc_ext))
+        replace_dict = {}
+        replace_dict['output_name'] = self.output_name
+        replace_dict['info_lines'] = export_cpp.get_mg5_info_lines()
+        replace_dict['namespace'] = self.namespace
+        replace_dict['model_name'] = self.model_name
+        # Read in the template .h and .cc files, stripped of compiler commands and namespaces
+        template_h_files = self.read_aloha_template_files(ext = 'h')
+        template_cc_files = self.read_aloha_template_files(ext = 'cc')
+        aloha_model = create_aloha.AbstractALOHAModel(self.model.get('name'), explicit_combine=True)
+        aloha_model.add_Lorentz_object(self.model.get('lorentz'))
+        if self.wanted_lorentz:
+            aloha_model.compute_subset(self.wanted_lorentz)
+        else:
+            aloha_model.compute_all(save=False, custom_propa=True)
+        for abstracthelas in dict(aloha_model).values():
+            print(type(abstracthelas), abstracthelas.name) # AV this is the loop on FFV functions
+            h_rout, cc_rout = abstracthelas.write(output_dir=None, language=self.aloha_writer, mode='no_include')
+            template_h_files.append(h_rout)
+            template_cc_files.append(cc_rout)
+        replace_dict['function_declarations'] = '\n'.join(template_h_files)
+        replace_dict['function_definitions'] = '\n'.join(template_cc_files)
+        file_h = self.read_template_file(self.aloha_template_h) % replace_dict
+        file_cc = self.read_template_file(self.aloha_template_cc) % replace_dict
+        # Write the files
+        writers.CPPWriter(model_h_file).writelines(file_h)
+        writers.CPPWriter(model_cc_file).writelines(file_cc)
+        logger.info("Created files %s and %s in directory" \
+                    % (os.path.split(model_h_file)[-1],
+                       os.path.split(model_cc_file)[-1]))
+        logger.info("%s and %s" % \
+                    (os.path.split(model_h_file)[0],
+                     os.path.split(model_cc_file)[0]))
 
 #------------------------------------------------------------------------------------
 
