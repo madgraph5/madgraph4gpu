@@ -48,6 +48,20 @@ writers.CPPWriter = PLUGIN_FileWriter # WITHOUT FORMATTING
 
 #------------------------------------------------------------------------------------
 
+import aloha.create_aloha as create_aloha
+
+# AV - replace create_aloha.AbstractRoutine by PLUGIN_AbstractRoutine (add a debug printout)
+class PLUGIN_AbstractRoutine(create_aloha.AbstractRoutine):
+    """Default AbstractRoutine with minimal modifications"""
+    def __init__(self, expr, outgoing, spins, name, infostr, denom=None):
+        misc.sprint('Entering PLUGIN_AbstractRoutine for %s'%name)
+        super().__init__(expr, outgoing, spins, name, infostr, denom=denom)
+
+DEFAULT_AbstractRoutine = create_aloha.AbstractRoutine
+create_aloha.AbstractRoutine = PLUGIN_AbstractRoutine
+
+#------------------------------------------------------------------------------------
+
 import aloha
 import aloha.aloha_writers as aloha_writers
 
@@ -119,6 +133,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     # [NB: this exists in ALOHAWriterForGPU but essentially falls back to ALOHAWriterForCPP]
+    # [NB: no, actually this exists twice(!) in ForGPU and the 2nd version is not trivial! but I keep the ForCPP version]
     # This affects HelAmps_sm.h and HelAmps_sm.cu
     def get_header_txt(self, name=None, couplings=None,mode=''):
         """Define the Header of the fortran file. This include
