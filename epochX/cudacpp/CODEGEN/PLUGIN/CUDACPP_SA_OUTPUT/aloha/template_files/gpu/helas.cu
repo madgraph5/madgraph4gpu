@@ -1393,4 +1393,4 @@ const int ipar)  // input: particle# out of npar
 */
 //--------------------------------------------------------------------------
 
-constexpr fptype one( 1. );
+__device__ constexpr fptype one( 1. );

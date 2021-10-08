@@ -1415,7 +1415,7 @@ const int ipar)  // input: particle# out of npar
 */
 //--------------------------------------------------------------------------
 
-constexpr fptype one( 1. );
+__device__ constexpr fptype one( 1. );
 
 __device__ void FFV1_0(const cxtype F1[], const cxtype F2[], const cxtype V3[], const cxtype COUP, cxtype * vertex)
 {
