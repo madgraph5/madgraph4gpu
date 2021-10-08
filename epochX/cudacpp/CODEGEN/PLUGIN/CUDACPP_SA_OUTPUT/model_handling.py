@@ -683,6 +683,29 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             res_str = res_str + '*cxtype(0,1)'    
         return res_str + '*'
 
+    # AV - replace the export_cpp.OneProcessExporterCPP method (fix fptype and improve formatting)
+    def get_color_matrix_lines(self, matrix_element):
+        """Return the color matrix definition lines for this matrix element. Split rows in chunks of size n."""
+        import madgraph.core.color_algebra as color
+        if not matrix_element.get('color_matrix'):
+            ###return "\n".join(["static const double denom[1] = {1.};", "static const double cf[1][1] = {1.};"])
+            return "\n".join(["    static const fptype denom[1] = {1.};", "static const fptype cf[1][1] = {1.};"]) # AV
+        else:
+            color_denominators = matrix_element.get('color_matrix').\
+                                                 get_line_denominators()
+            ###denom_string = "static const double denom[ncolor] = {%s};" % ",".join(["%i" % denom for denom in color_denominators])
+            denom_string = "    static const fptype denom[ncolor] = {%s};" % ", ".join(["%i" % denom for denom in color_denominators]) # AV
+            matrix_strings = []
+            my_cs = color.ColorString()
+            for index, denominator in enumerate(color_denominators):
+                # Then write the numerators for the matrix elements
+                num_list = matrix_element.get('color_matrix').get_line_numerators(index, denominator)
+                ###matrix_strings.append("{%s}" % ",".join(["%d" % i for i in num_list]))
+                matrix_strings.append("{%s}" % ", ".join(["%d" % i for i in num_list])) # AV
+            ###matrix_string = "static const double cf[ncolor][ncolor] = {" + ",".join(matrix_strings) + "};"
+            matrix_string = "    static const fptype cf[ncolor][ncolor] = {" + ", ".join(matrix_strings) + "};" # AV
+            return "\n".join([denom_string, matrix_string])
+
 #------------------------------------------------------------------------------------
 
 import madgraph.iolibs.helas_call_writers as helas_call_writers
