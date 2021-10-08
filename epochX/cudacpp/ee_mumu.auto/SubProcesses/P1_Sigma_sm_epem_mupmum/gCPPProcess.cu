@@ -67,7 +67,7 @@ namespace Proc
     cxtype w[nwf][nw6];
     for( int i=0; i<1; i++ ){ jamp[i] = cxtype( 0., 0. ); } // reset jamp (reset color flows)
 
-    // *** DIAGRAM 1 OF 2 *** 
+    // *** DIAGRAM 1 OF 2 ***
 
     // Wavefunction(s) for diagram number 1
 #ifdef __CUDACC__
@@ -100,7 +100,7 @@ namespace Proc
     FFV1_0( w[2], w[3], w[4], cxtype( cIPC[0], cIPC[1] ), &amp[0] );
     jamp[0] += -amp[0];
 
-    // *** DIAGRAM 2 OF 2 *** 
+    // *** DIAGRAM 2 OF 2 ***
 
     // Wavefunction(s) for diagram number 2
     FFV2_4_3( w[1], w[0], cxtype( cIPC[2], cIPC[3] ), cxtype( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );

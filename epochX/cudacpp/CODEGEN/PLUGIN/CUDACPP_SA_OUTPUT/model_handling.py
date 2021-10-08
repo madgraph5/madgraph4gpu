@@ -916,7 +916,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         for diagram in matrix_element.get('diagrams'):
             ###print('DIAGRAM %3d: #wavefunctions=%3d, #diagrams=%3d' %
             ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING
-            res.append('\n    // *** DIAGRAM %d OF %d *** ' % (diagram.get('number'), len(matrix_element.get('diagrams'))) ) # AV
+            res.append('\n    // *** DIAGRAM %d OF %d ***' % (diagram.get('number'), len(matrix_element.get('diagrams'))) ) # AV
             res.append('\n    // Wavefunction(s) for diagram number %d' % diagram.get('number')) # AV
             ###res.extend([ self.get_wavefunction_call(wf) for wf in diagram.get('wavefunctions') ])
             res.extend([ self.format_call(self.get_wavefunction_call(wf)) for wf in diagram.get('wavefunctions') ]) # AV
