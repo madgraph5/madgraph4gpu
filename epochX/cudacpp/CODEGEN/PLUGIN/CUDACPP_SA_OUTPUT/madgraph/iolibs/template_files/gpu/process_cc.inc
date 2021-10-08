@@ -1,5 +1,5 @@
 //==========================================================================
-// This file has been automatically generated for C++ Standalone by
+// This file has been automatically generated for CUDA/C++ standalone by
 %(info_lines)s
 //==========================================================================
 %(hel_amps_def)s

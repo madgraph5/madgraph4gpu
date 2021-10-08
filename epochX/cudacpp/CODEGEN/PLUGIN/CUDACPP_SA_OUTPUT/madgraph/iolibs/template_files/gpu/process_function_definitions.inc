@@ -33,7 +33,6 @@ namespace Proc
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel
   // to the running sum of |M|^2 over helicities for the given event
 %(all_sigmaKin)s
-
   //--------------------------------------------------------------------------
 
   CPPProcess::CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose, bool debug )

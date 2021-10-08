@@ -1,5 +1,5 @@
 //==========================================================================
-// This file has been automatically generated for C++ Standalone by
+// This file has been automatically generated for CUDA/C++ standalone by
 // MadGraph5_aMC@NLO v. 2.8.2, 2020-10-30
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
@@ -25,10 +25,12 @@ namespace gProc
 namespace Proc
 #endif
 {
-
   using mgOnGpu::np4; // 4: the dimension of 4-momenta (E,px,py,pz)
   using mgOnGpu::npar; // number of particles in total (initial + final)
   using mgOnGpu::ncomb; // number of helicity combinations
+
+  using mgOnGpu::nwf;
+  using mgOnGpu::nw6;
 
 #ifdef __CUDACC__
   __device__ __constant__ int cHel[ncomb][npar];
@@ -43,14 +45,10 @@ namespace Proc
 #endif
 
   //--------------------------------------------------------------------------
-  using mgOnGpu::nwf;
-  using mgOnGpu::nw6;
-  //--------------------------------------------------------------------------
 
   // Evaluate |M|^2 for each subprocess
-  // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum
-  // of |M|^2 over helicities for the given event
-
+  // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel
+  // to the running sum of |M|^2 over helicities for the given event
   __device__ void calculate_wavefunctions( int ihel,
                                            const fptype* allmomenta,
                                            fptype& meHelSum
@@ -1862,7 +1860,7 @@ namespace Proc
     return;
   }
 
-
+  //--------------------------------------------------------------------------
 
   CPPProcess::CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose, bool debug )
     : m_numiterations( numiterations )
@@ -1884,13 +1882,17 @@ namespace Proc
     assert( sizeof(cxtype) == 2 * sizeof(fptype) );
   }
 
+  //--------------------------------------------------------------------------
+
   CPPProcess::~CPPProcess() {}
+
+  //--------------------------------------------------------------------------
 
   const std::vector<fptype>& CPPProcess::getMasses() const { return mME; }
 
   //--------------------------------------------------------------------------
-  // Initialize process.
 
+  // Initialize process
   void CPPProcess::initProc( string param_card_name )
   {
     // Instantiate the model class and set parameters that stay fixed during run
@@ -1912,10 +1914,8 @@ namespace Proc
     mME.push_back( pars->mdl_MT );
     mME.push_back( pars->ZERO );
     mME.push_back( pars->ZERO );
-
-    static cxtype tIPC[3] = {cxmake(pars->GC_10), cxmake(pars->GC_11), cxmake(pars->GC_12)};
-    static fptype tIPD[2] = {(fptype)pars->mdl_MT, (fptype)pars->mdl_WT};
-
+    static cxtype tIPC[3] = { cxmake(pars->GC_10), cxmake(pars->GC_11), cxmake(pars->GC_12) };
+    static fptype tIPD[2] = { (fptype)pars->mdl_MT, (fptype)pars->mdl_WT };
 #ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(cxtype) ) );
     checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof(fptype) ) );
@@ -1923,7 +1923,6 @@ namespace Proc
     memcpy( cIPC, tIPC, 3 * sizeof(cxtype) );
     memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
 #endif
-
   }
 
   //--------------------------------------------------------------------------
