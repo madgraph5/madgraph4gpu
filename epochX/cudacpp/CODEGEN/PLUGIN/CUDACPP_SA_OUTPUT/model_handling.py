@@ -715,7 +715,6 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 call = call.replace('pars->%s%s' % (sign, coup), 
                                     '%scxtype(cIPC[%s],cIPC[%s])' % 
                                     (sign, 2*alias[coup],2*alias[coup]+1))
-        ###print('HALLO "%s"'%call)
         return call
 
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
@@ -743,10 +742,15 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
         res.append('for( int i=0; i<%s; i++ ){ jamp[i] = cxtype( 0., 0. ); }' % len(color_amplitudes))
         for diagram in matrix_element.get('diagrams'):
+            ###print('DIAGRAM %3d: #wavefunctions=%3d, #diagrams=%3d' %
+            ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING
+            res.append('\n    // *** DIAGRAM %d OF %d *** ' % (diagram.get('number'), len(matrix_element.get('diagrams'))) ) # AV
+            res.append('\n    // Wavefunction(s) for diagram number %d' % diagram.get('number')) # AV
             res.extend([ self.get_wavefunction_call(wf) for \
                          wf in diagram.get('wavefunctions') ])
+            if len(diagram.get('wavefunctions')) == 0 : res.append('// (none)') # AV
             ###res.append("# Amplitude(s) for diagram number %d" % diagram.get('number'))
-            res.append("// Amplitude(s) for diagram number %d" % diagram.get('number'))
+            res.append("\n    // Amplitude(s) for diagram number %d" % diagram.get('number'))
             for amplitude in diagram.get('amplitudes'):
                 namp = amplitude.get('number')
                 amplitude.set('number', 1)
@@ -754,6 +758,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 for njamp, coeff in color[namp].items():
                     res.append("jamp[%s] += %samp[0];" % 
                          (njamp, export_cpp.OneProcessExporterGPU.coeff(*coeff)))
+            if len(diagram.get('amplitudes')) == 0 : res.append('// (none)') # AV
+        res.append('\n    // *** END OF DIAGRAMS ***' ) # AV
         return res
 
     # AV - overload helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
@@ -764,7 +770,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         for i, item in enumerate(res):
             ###print(item) # FOR DEBUGGING
             if item.startswith('# Amplitude'): item='//'+item[1:] # AV replace '# Amplitude' by '// Amplitude'
-            if not item.startswith('\n') : res[i]='    '+item
+            if not item.startswith('\n') and not item.startswith('#'): res[i]='    '+item
         return res
 
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
@@ -774,7 +780,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     # [GPUFOHelasCallWriter.generate_helas_call is called by UFOHelasCallWriter.get_wavefunction_call/get_amplitude_call]
     def get_external(self,wf, argument):
         ###text = '\n#ifdef __CUDACC__\n    %s    \n#else\n    %s\n#endif \n'
-        text = '\n#ifdef __CUDACC__\n    %s\n#else\n    %s\n#endif' # AV
+        text = '#ifdef __CUDACC__\n    %s\n#else\n    %s\n#endif\n' # AV
         line = self.get_external_line(wf, argument)
         split_line = line.split(',')
         split_line = [ str.lstrip(' ').rstrip(' ') for str in split_line] # AV
