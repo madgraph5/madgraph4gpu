@@ -6,8 +6,8 @@
 //==========================================================================
 
 #include <cmath>
-#include <cstring>
 #include <cstdlib>
+#include <cstring>
 #include <iomanip>
 #include <iostream>
 
@@ -863,8 +863,7 @@ namespace MG5_sm
     cxtype TMP2;
     cxtype denom;
     OM3 = 0.;
-    if (M3 != 0.)
- OM3=one/(M3*M3);
+    if ( M3 != 0. ) OM3 = one / (M3*M3);
     V3[0] = + F1[0] + F2[0];
     V3[1] = + F1[1] + F2[1];
     P3[0] = - V3[0].real();
@@ -902,8 +901,7 @@ namespace MG5_sm
     cxtype TMP5;
     cxtype denom;
     OM3 = 0.;
-    if (M3 != 0.)
- OM3=one/(M3*M3);
+    if ( M3 != 0. ) OM3 = one / (M3*M3);
     V3[0] = + F1[0] + F2[0];
     V3[1] = + F1[1] + F2[1];
     P3[0] = - V3[0].real();
@@ -928,7 +926,7 @@ namespace MG5_sm
     cxtype TMP4;
     TMP3 = (F1[2]*(F2[4]*(V3[2] + V3[5]) + F2[5]*(V3[3] + cI*(V3[4]))) + F1[3]*(F2[4]*(V3[3]-cI*(V3[4])) + F2[5]*(V3[2] - V3[5])));
     TMP4 = (F1[4]*(F2[2]*(V3[2] - V3[5]) - F2[3]*(V3[3] + cI*(V3[4]))) + F1[5]*(F2[2]*(-V3[3] + cI*(V3[4])) + F2[3]*(V3[2] + V3[5])));
- (*vertex) = (-one) * (COUP2*(+cI*(TMP3) + 2. * cI*(TMP4)) + cI*(TMP3*COUP1));
+    (*vertex) = (-one) * (COUP2*(+cI*(TMP3) + 2. * cI*(TMP4)) + cI*(TMP3*COUP1));
   }
 
   //--------------------------------------------------------------------------
@@ -942,8 +940,7 @@ namespace MG5_sm
     cxtype TMP5;
     cxtype denom;
     OM3 = 0.;
-    if (M3 != 0.)
- OM3=one/(M3*M3);
+    if ( M3 != 0. ) OM3 = one / (M3*M3);
     V3[0] = + F1[0] + F2[0];
     V3[1] = + F1[1] + F2[1];
     P3[0] = - V3[0].real();

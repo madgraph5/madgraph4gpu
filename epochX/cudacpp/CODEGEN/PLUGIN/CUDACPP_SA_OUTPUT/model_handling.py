@@ -231,7 +231,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         signs = self.get_momentum_conservation_sign()
         for i,type in enumerate(self.particles):
             if self.declaration.is_used('OM%s' % (i+1)):
-                out.write("    OM{0} = {1};\n    if (M{0} != {1})\n OM{0}={2}/(M{0}*M{0});\n".format( 
+                ###out.write("    OM{0} = {1};\n    if (M{0} != {1})\n OM{0}={2}/(M{0}*M{0});\n".format( 
+                out.write("    OM{0} = {1};\n    if ( M{0} != {1} ) OM{0} = {2} / (M{0}*M{0});\n".format( 
                          i+1, self.change_number_format(0), self.change_number_format(1)))
             if i+1 == self.outgoing:
                 out_type = type
@@ -342,8 +343,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     mydict['pre_vertex'] = ''
                     mydict['post_vertex'] = ''                 
                 mydict['data'] = self.write_obj(numerator.get_rep([0]))
-                out.write(' %(pre_vertex)svertex%(post_vertex)s = %(data)s;\n' % 
-                          mydict)
+                # This affects '(*vertex) = ' in HelAmps_sm.cu
+                ###out.write(' %(pre_vertex)svertex%(post_vertex)s = %(data)s;\n' % mydict)
+                out.write('    %(pre_vertex)svertex%(post_vertex)s = %(data)s;\n' % mydict) # AV
         else:
             OffShellParticle = '%s%d' % (self.particles[self.offshell-1],\
                                                                   self.offshell)
