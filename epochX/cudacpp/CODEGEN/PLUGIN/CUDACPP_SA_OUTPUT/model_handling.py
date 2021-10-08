@@ -792,7 +792,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                     ###res.append("jamp[%s] += %samp[0];" % (njamp, export_cpp.OneProcessExporterGPU.coeff(*coeff)))
                     res.append("jamp[%s] += %samp[0];" % (njamp, PLUGIN_OneProcessExporter.coeff(*coeff)))
             if len(diagram.get('amplitudes')) == 0 : res.append('// (none)') # AV
-        res.append('\n    // *** END OF DIAGRAMS ***' ) # AV
+        ###res.append('\n    // *** END OF DIAGRAMS ***' ) # AV - no longer needed ('COLOR ALGEBRA BELOW')
         return res
 
     # AV - overload helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
