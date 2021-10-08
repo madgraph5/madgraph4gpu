@@ -703,7 +703,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
                 ###matrix_strings.append("{%s}" % ",".join(["%d" % i for i in num_list]))
                 matrix_strings.append("{%s}" % ", ".join(["%d" % i for i in num_list])) # AV
             ###matrix_string = "static const double cf[ncolor][ncolor] = {" + ",".join(matrix_strings) + "};"
-            matrix_string = "    static const fptype cf[ncolor][ncolor] = {" + ", ".join(matrix_strings) + "};" # AV
+            matrix_string = "    static const fptype cf[ncolor][ncolor] = {\n      " + ",\n      ".join(matrix_strings) + "};" # AV
             return "\n".join([denom_string, matrix_string])
 
 #------------------------------------------------------------------------------------
