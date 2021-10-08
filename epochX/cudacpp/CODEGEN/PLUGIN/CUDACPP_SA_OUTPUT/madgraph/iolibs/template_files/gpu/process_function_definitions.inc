@@ -8,10 +8,12 @@ namespace gProc
 namespace Proc
 #endif
 {
-
   using mgOnGpu::np4; // 4: the dimension of 4-momenta (E,px,py,pz)
   using mgOnGpu::npar; // number of particles in total (initial + final)
   using mgOnGpu::ncomb; // number of helicity combinations
+
+  using mgOnGpu::nwf;
+  using mgOnGpu::nw6;
 
 #ifdef __CUDACC__
   __device__ __constant__ int cHel[ncomb][npar];
@@ -26,16 +28,13 @@ namespace Proc
 #endif
 
   //--------------------------------------------------------------------------
-  using mgOnGpu::nwf;
-  using mgOnGpu::nw6;
-  //--------------------------------------------------------------------------
 
   // Evaluate |M|^2 for each subprocess
-  // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum
-  // of |M|^2 over helicities for the given event
-
+  // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel
+  // to the running sum of |M|^2 over helicities for the given event
 %(all_sigmaKin)s
 
+  //--------------------------------------------------------------------------
 
   CPPProcess::CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose, bool debug )
     : m_numiterations( numiterations )
@@ -56,13 +55,17 @@ namespace Proc
     assert( sizeof(cxtype) == 2 * sizeof(fptype) );
   }
 
+  //--------------------------------------------------------------------------
+
   CPPProcess::~CPPProcess() {}
+
+  //--------------------------------------------------------------------------
 
   const std::vector<fptype>& CPPProcess::getMasses() const { return mME; }
 
   //--------------------------------------------------------------------------
-  // Initialize process.
 
+  // Initialize process
   void CPPProcess::initProc( string param_card_name )
   {
     // Instantiate the model class and set parameters that stay fixed during run
@@ -78,9 +81,7 @@ namespace Proc
     pars->setDependentParameters();
     pars->setDependentCouplings();
     %(initProc_lines)s
-
     %(assign_coupling)s
-
 #ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, %(ncouplings)i * sizeof(cxtype) ) );
     checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, %(nparams)i * sizeof(fptype) ) );
@@ -88,7 +89,6 @@ namespace Proc
     memcpy( cIPC, tIPC, %(ncouplings)i * sizeof(cxtype) );
     memcpy( cIPD, tIPD, %(nparams)i * sizeof(fptype) );
 #endif
-
   }
 
   //--------------------------------------------------------------------------

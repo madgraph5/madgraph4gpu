@@ -542,19 +542,18 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             coupling[pos] = coup
         ###coup_str = "static cxtype tIPC[%s] = {pars->%s};\n"\
         ###    %(len(self.couplings2order), ',pars->'.join(coupling))
-        coup_str = "static cxtype tIPC[%s] = {cxmake(pars->%s)};\n"\
-            %(len(self.couplings2order), '),cxmake(pars->'.join(coupling)) # AV
+        coup_str = "static cxtype tIPC[%s] = { cxmake(pars->%s) };\n"\
+            %(len(self.couplings2order), '), cxmake(pars->'.join(coupling)) # AV
         for para, pos in self.params2order.items():
             params[pos] = para
         ###param_str = "static double tIPD[%s] = {pars->%s};\n"\
         ###    %(len(self.params2order), ',pars->'.join(params))
-        param_str = "static fptype tIPD[%s] = {(fptype)pars->%s};\n"\
-            %(len(self.params2order), ',(fptype)pars->'.join(params)) # AV
+        param_str = "    static fptype tIPD[%s] = { (fptype)pars->%s };"\
+            %(len(self.params2order), ', (fptype)pars->'.join(params)) # AV
         replace_dict['assign_coupling'] = coup_str + param_str
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "tHel")
-        file = self.read_template_file(self.process_definition_template) %\
-               replace_dict
+        file = self.read_template_file(self.process_definition_template) % replace_dict
         return file
 
     # AV - modify export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
@@ -705,6 +704,18 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             ###matrix_string = "static const double cf[ncolor][ncolor] = {" + ",".join(matrix_strings) + "};"
             matrix_string = "    static const fptype cf[ncolor][ncolor] = {\n      " + ",\n      ".join(matrix_strings) + "};" # AV
             return "\n".join([denom_string, matrix_string])
+
+    # AV - replace the export_cpp.OneProcessExporterGPU method (improve formatting)
+    def get_initProc_lines(self, matrix_element, color_amplitudes):
+        """Get initProc_lines for function definition for gCPPProcess::initProc"""
+        initProc_lines = []
+        initProc_lines.append("// Set external particle masses for this matrix element")
+        for part in matrix_element.get_external_wavefunctions():
+            ###initProc_lines.append("mME.push_back(pars->%s);" % part.get('mass'))
+            initProc_lines.append("    mME.push_back( pars->%s );" % part.get('mass')) # AV
+        ###for i, colamp in enumerate(color_amplitudes):
+        ###    initProc_lines.append("jamp2[%d] = new double[%d];" % (i, len(colamp))) # AV - this was commented out already
+        return "\n".join(initProc_lines)
 
 #------------------------------------------------------------------------------------
 
