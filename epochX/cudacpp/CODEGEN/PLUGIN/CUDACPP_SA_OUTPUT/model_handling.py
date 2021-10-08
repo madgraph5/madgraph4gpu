@@ -67,7 +67,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     ###imagoperator = '.imag()'
     ###ci_definition = 'cxtype cI = cxtype(0., 1.);\n'
     type2def = {}
-    type2def['pointer_vertex'] = '*' # using complex<double> * vertex)
+    type2def['pointer_vertex'] = '*' # using complex<double>* vertex
     type2def['pointer_coup'] = ''
 
     # AV - improve formatting
@@ -119,6 +119,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     # [NB: this exists in ALOHAWriterForGPU but essentially falls back to ALOHAWriterForCPP]
+    # This affects HelAmps_sm.h and HelAmps_sm.cu
     def get_header_txt(self, name=None, couplings=None,mode=''):
         """Define the Header of the fortran file. This include
             - function tag
@@ -167,10 +168,19 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         if 'is_h' in mode:
             out.write(';\n')
         else:
-            out.write('\n{\n')
+            ###out.write('\n{\n')
+            out.write('\n  {\n') # AV
         return out.getvalue() 
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
+    # This affects HelAmps_sm.cu
+    def get_foot_txt(self):
+        """Prototype for language specific footer"""
+        ###return '}\n'
+        return '  }\n' # AV
+
+    # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
+    # This affects HelAmps_sm.cu
     def get_declaration_txt(self, add_i=True):
         """ Prototype for how to write the declaration of variable
             Include the symmetry line (entry FFV_2)
@@ -180,7 +190,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         # define the complex number CI = 0+1j
         if add_i:
             ###out.write(self.ci_definition)
-            out.write('  ' + self.ci_definition) # AV
+            out.write('    ' + self.ci_definition) # AV
         for type, name in self.declaration.tolist():
             if type.startswith('list'):
                 type = type[5:]
@@ -203,12 +213,13 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                         size = 20
                     else:
                         size = 18
-                out.write('  %s %s[%s];\n' % (self.type2def[type], name, size))
+                out.write('    %s %s[%s];\n' % (self.type2def[type], name, size))
             elif (type, name) not in self.call_arg:
-                out.write('  %s %s;\n' % (self.type2def[type], name))               
+                out.write('    %s %s;\n' % (self.type2def[type], name))               
         return out.getvalue()
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
+    # This affects 'V1[0] = ' in HelAmps_sm.cu
     def get_momenta_txt(self):
         """Define the Header of the C++ file. This include
             - momentum conservation
@@ -242,21 +253,22 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             for i in range(size_p):
                 dict_energy = {'i':i}
                 ###out.write('    %s%s[%s] = %s;\n' % (type,self.outgoing, i, ''.join(p) % dict_energy))
-                out.write('  %s%s[%s] = %s;\n' % (type,self.outgoing, i, ''.join(p) % dict_energy)) # AV
+                out.write('    %s%s[%s] = %s;\n' % (type,self.outgoing, i, ''.join(p) % dict_energy)) # AV
             if self.declaration.is_used('P%s' % self.outgoing):
                 self.get_one_momenta_def(self.outgoing, out)
         # Returning result
         return out.getvalue()
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
+    # This affects 'P1[0] = ' in HelAmps_sm.cu
     def get_one_momenta_def(self, i, strfile):
         type = self.particles[i-1]
         if aloha.loop_mode:
             ###template ='P%(i)d[%(j)d] = %(sign)s%(type)s%(i)d[%(nb)d];\n'
-            template ='  P%(i)d[%(j)d] = %(sign)s %(type)s%(i)d[%(nb)d];\n' # AV
+            template ='    P%(i)d[%(j)d] = %(sign)s %(type)s%(i)d[%(nb)d];\n' # AV
         else:
             ###template ='P%(i)d[%(j)d] = %(sign)s%(type)s%(i)d[%(nb2)d]%(operator)s;\n'
-            template ='  P%(i)d[%(j)d] = %(sign)s %(type)s%(i)d[%(nb2)d]%(operator)s;\n' # AV
+            template ='    P%(i)d[%(j)d] = %(sign)s %(type)s%(i)d[%(nb2)d]%(operator)s;\n' # AV
         nb2 = 0
         for j in range(4):
             if not aloha.loop_mode:
@@ -284,6 +296,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                         'sign': sign}) # AV
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
+    # This affects 'denom = COUP' in HelAmps_sm.cu
+    # This affects 'V1[2] = ' and 'F1[2] = ' in HelAmps_sm.cu
+    # This affects 'TMP0 = ' in HelAmps_sm.cu
+    # This affects '(*vertex) = ' in HelAmps_sm.cu
     def define_expression(self):
         """Write the helicity amplitude in C++ format"""
         out = StringIO()
@@ -291,8 +307,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             keys = sorted(self.routine.contracted.keys())
             for name in keys:
                 obj = self.routine.contracted[name]
+                # This affects 'TMP0 = ' in HelAmps_sm.cu
                 ###out.write(' %s = %s;\n' % (name, self.write_obj(obj)))
-                out.write('  %s = %s;\n' % (name, self.write_obj(obj))) # AV
+                out.write('    %s = %s;\n' % (name, self.write_obj(obj))) # AV
                 self.declaration.add(('complex', name))
         for name, (fct, objs) in self.routine.fct.items():
             format = ' %s = %s;\n' % (name, self.get_fct_format(fct))
@@ -312,8 +329,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     else:
                         mydict['pre_%s' %c] = ''
                         mydict['post_%s'%c] = ''
+                # This affects '(*vertex) = ' in HelAmps_sm.cu
                 ###out.write(' %(pre_vertex)svertex%(post_vertex)s = %(pre_coup)sCOUP%(post_coup)s*%(num)s;\n' % mydict)
-                out.write('  %(pre_vertex)svertex%(post_vertex)s = %(pre_coup)sCOUP%(post_coup)s * %(num)s;\n' % mydict) # AV
+                out.write('    %(pre_vertex)svertex%(post_vertex)s = %(pre_coup)sCOUP%(post_coup)s * %(num)s;\n' % mydict) # AV
             else:
                 mydict= {}
                 if self.type2def['pointer_vertex'] in ['*']:
@@ -341,16 +359,19 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 mydict['i'] = self.outgoing
                 if not aloha.complex_mass:
                     if self.routine.denominator:
+                        # This affects 'denom = COUP' in HelAmps_sm.cu
                         ###out.write('    denom = %(pre_coup)s%(coup)s%(post_coup)s/(%(denom)s)\n' % mydict) 
-                        out.write('  denom = %(pre_coup)s%(coup)s%(post_coup)s / (%(denom)s)\n' % mydict) # AV
+                        out.write('    denom = %(pre_coup)s%(coup)s%(post_coup)s / (%(denom)s)\n' % mydict) # AV
                     else:
+                        # This affects 'denom = COUP' in HelAmps_sm.cu
                         ###out.write('    denom = %(pre_coup)s%(coup)s%(post_coup)s/((P%(i)s[0]*P%(i)s[0])-(P%(i)s[1]*P%(i)s[1])-(P%(i)s[2]*P%(i)s[2])-(P%(i)s[3]*P%(i)s[3]) - M%(i)s * (M%(i)s -cI* W%(i)s));\n' % mydict)
-                        out.write('  denom = %(pre_coup)s%(coup)s%(post_coup)s / ((P%(i)s[0]*P%(i)s[0]) - (P%(i)s[1]*P%(i)s[1]) - (P%(i)s[2]*P%(i)s[2]) - (P%(i)s[3]*P%(i)s[3]) - M%(i)s*(M%(i)s-cI*W%(i)s));\n' % mydict) # AV
+                        out.write('    denom = %(pre_coup)s%(coup)s%(post_coup)s / ((P%(i)s[0]*P%(i)s[0]) - (P%(i)s[1]*P%(i)s[1]) - (P%(i)s[2]*P%(i)s[2]) - (P%(i)s[3]*P%(i)s[3]) - M%(i)s*(M%(i)s-cI*W%(i)s));\n' % mydict) # AV
                 else:
                     if self.routine.denominator:
                         raise Exception('modify denominator are not compatible with complex mass scheme')                
+                    # This affects 'denom = COUP' in HelAmps_sm.cu
                     ###out.write('    denom = %(pre_coup)s%(coup)s%(post_coup)s/((P%(i)s[0]*P%(i)s[0])-(P%(i)s[1]*P%(i)s[1])-(P%(i)s[2]*P%(i)s[2])-(P%(i)s[3]*P%(i)s[3]) - (M%(i)s*M%(i)s));\n' % mydict)
-                    out.write('  denom = %(pre_coup)s%(coup)s%(post_coup)s / ((P%(i)s[0]*P%(i)s[0])-(P%(i)s[1]*P%(i)s[1])-(P%(i)s[2]*P%(i)s[2])-(P%(i)s[3]*P%(i)s[3]) - (M%(i)s*M%(i)s));\n' % mydict) # AV
+                    out.write('    denom = %(pre_coup)s%(coup)s%(post_coup)s / ((P%(i)s[0]*P%(i)s[0])-(P%(i)s[1]*P%(i)s[1])-(P%(i)s[2]*P%(i)s[2])-(P%(i)s[3]*P%(i)s[3]) - (M%(i)s*M%(i)s));\n' % mydict) # AV
                 self.declaration.add(('complex','denom'))
                 if aloha.loop_mode:
                     ptype = 'list_complex'
@@ -360,13 +381,15 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             else:
                 coeff = 'COUP'
             for ind in numerator.listindices():
+                # This affects 'V1[2] = ' and 'F1[2] = ' in HelAmps_sm.cu
                 ###out.write('    %s[%d]= %s*%s;\n' % (self.outname,
-                out.write('  %s[%d] = %s * %s;\n' % (self.outname, # AV
+                out.write('    %s[%d] = %s * %s;\n' % (self.outname, # AV
                                         self.pass_to_HELAS(ind), coeff,
                                         self.write_obj(numerator.get_rep(ind))))
         return out.getvalue()
 
     # AV - modify aloha_writers.WriteALOHA method (improve formatting)
+    # This affects 'V1[2] = ' and 'F1[2] = ' in HelAmps_sm.cu
     def write_obj_Add(self, obj, prefactor=True):
         """Turns addvariable into a string"""
         data = defaultdict(list)
