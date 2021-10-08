@@ -145,4 +145,3 @@ namespace Proc
 }
 
 #endif // MG5_Sigma_sm_gg_ttxgg_H
-

@@ -586,13 +586,19 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     def write_process_h_file(self, writer):
         """Generate final gCPPProcess.h"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.write_process_h_file')
-        return super().write_process_h_file(writer)
+        out = super().write_process_h_file(writer)
+        writer.seek(-1, os.SEEK_CUR)
+        writer.truncate()
+        return out
 
     # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
     def write_process_cc_file(self, writer):
         """Generate gCPPProcess.cu"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.write_process_cc_file')
-        return super().write_process_cc_file(writer)
+        out = super().write_process_cc_file(writer)
+        writer.seek(-1, os.SEEK_CUR)
+        writer.truncate()
+        return out
 
 #------------------------------------------------------------------------------------
 
