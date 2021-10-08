@@ -148,7 +148,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 ###args.append('%s%s%s'% (type, argname, list_arg))
                 args.append('%s %s%s'% (type, argname, list_arg)) # AV
         if not self.offshell:
-            output = '%(doublec)s %(pointer_vertex)s vertex' % {
+            ###output = '%(doublec)s %(pointer_vertex)s vertex' % {
+            output = '%(doublec)s%(pointer_vertex)s vertex' % {
                 'doublec':self.type2def['complex'],
                 'pointer_vertex': self.type2def['pointer_vertex']}
         else:
@@ -160,7 +161,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         ###out.write('%(prefix)s void %(name)s(%(args)s,%(output)s)' % \
         ###          {'prefix': self.prefix,
         ###              'output':output, 'name': name, 'args': ', '.join(args)})
-        out.write('%(prefix)s void %(name)s(const %(args)s, %(output)s)' % \
+        out.write('  %(prefix)s void %(name)s( const %(args)s, %(output)s )' % \
                   {'prefix': self.prefix,
                       'output':output, 'name': name, 'args': ', const '.join(args)}) # AV - add const
         if 'is_h' in mode:
