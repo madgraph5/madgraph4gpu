@@ -747,8 +747,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     # [It would be too complex to modify them in helas_objects.HelasWavefunction/Amplitude.get_call_key]
     @staticmethod
     def format_call(call):
-        ###return call.replace('(','( ').replace(')',' )').replace(',',', ')
-        return call.replace(',',', ')
+        return call.replace('(','( ').replace(')',' )').replace(',',', ')
 
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
     def super_get_matrix_element_calls(self, matrix_element, color_amplitudes):
