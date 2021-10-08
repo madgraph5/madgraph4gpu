@@ -743,6 +743,13 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                                     (sign, 2*alias[coup],2*alias[coup]+1))
         return call
 
+    # AV - new method for formatting wavefunction/amplitude calls
+    # [It would be too complex to modify them in helas_objects.HelasWavefunction/Amplitude.get_call_key]
+    @staticmethod
+    def format_call(call):
+        ###return call.replace('(','( ').replace(')',' )').replace(',',', ')
+        return call.replace(',',', ')
+
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
     def super_get_matrix_element_calls(self, matrix_element, color_amplitudes):
         """Return a list of strings, corresponding to the Helas calls for the matrix element"""
@@ -772,15 +779,16 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING
             res.append('\n    // *** DIAGRAM %d OF %d *** ' % (diagram.get('number'), len(matrix_element.get('diagrams'))) ) # AV
             res.append('\n    // Wavefunction(s) for diagram number %d' % diagram.get('number')) # AV
-            res.extend([ self.get_wavefunction_call(wf) for \
-                         wf in diagram.get('wavefunctions') ])
+            ###res.extend([ self.get_wavefunction_call(wf) for wf in diagram.get('wavefunctions') ])
+            res.extend([ self.format_call(self.get_wavefunction_call(wf)) for wf in diagram.get('wavefunctions') ]) # AV
             if len(diagram.get('wavefunctions')) == 0 : res.append('// (none)') # AV
             ###res.append("# Amplitude(s) for diagram number %d" % diagram.get('number'))
             res.append("\n    // Amplitude(s) for diagram number %d" % diagram.get('number'))
             for amplitude in diagram.get('amplitudes'):
                 namp = amplitude.get('number')
                 amplitude.set('number', 1)
-                res.append(self.get_amplitude_call(amplitude))
+                ###res.append(self.get_amplitude_call(amplitude))
+                res.append(self.format_call(self.get_amplitude_call(amplitude))) # AV
                 for njamp, coeff in color[namp].items():
                     ###res.append("jamp[%s] += %samp[0];" % (njamp, export_cpp.OneProcessExporterGPU.coeff(*coeff)))
                     res.append("jamp[%s] += %samp[0];" % (njamp, PLUGIN_OneProcessExporter.coeff(*coeff)))
@@ -810,11 +818,11 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         line = self.get_external_line(wf, argument)
         split_line = line.split(',')
         split_line = [ str.lstrip(' ').rstrip(' ') for str in split_line] # AV
-        line = ', '.join(split_line) # AV (for CUDA)
+        # (AV join using ',': no need to add a space as this is done by format_call later on)
+        line = ','.join(split_line) # AV (for CUDA)
         ###split_line.insert(-1, ' ievt')
-        ###return text % (line, ','.join(split_line))
         split_line.insert(-1, 'ievt') # AV (for C++)
-        return text % (line, ', '.join(split_line)) # AV
+        return text % (line, ','.join(split_line))
     
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
     # [GPUFOHelasCallWriter.get_external_line is called by GPUFOHelasCallWriter.get_external]
