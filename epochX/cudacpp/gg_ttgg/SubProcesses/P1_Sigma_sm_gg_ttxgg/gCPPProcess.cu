@@ -1,6 +1,6 @@
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
-// MadGraph5_aMC@NLO v. 2.8.2, 2020-10-30
+// MadGraph5_aMC@NLO v. 2.9.5, 2021-08-22
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -65,7 +65,7 @@ namespace Proc
 
     // Calculate wavefunctions for all processes
     cxtype w[nwf][nw6];
-    for( int i=0; i<24; i++ ){ jamp[i] = cxtype( 0., 0. ); }
+    for( int i=0; i<24; i++ ){ jamp[i] = cxtype( 0., 0. ); } // reset jamp (reset color flows)
 
     // *** DIAGRAM 1 OF 123 *** 
 
@@ -2053,8 +2053,6 @@ namespace Proc
     static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
     static bool sigmakin_goodhel[ncomb] = { false };
 #endif
-
-    // Reset color flows
 
     // Start sigmaKin_lines
     mgDebugInitialise();

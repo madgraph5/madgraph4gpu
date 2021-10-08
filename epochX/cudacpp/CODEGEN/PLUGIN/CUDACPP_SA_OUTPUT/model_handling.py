@@ -729,6 +729,13 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         ###return helicity_line + ",".join(helicity_line_list) + "};"
         return helicity_line + ",\n      ".join(helicity_line_list) + "};" # AV
 
+    # AV - overload the export_cpp.OneProcessExporterGPU method (just to add some comments...)
+    def get_reset_jamp_lines(self, color_amplitudes):
+        """Get lines to reset jamps"""
+        ret_lines = super().get_reset_jamp_lines(color_amplitudes)
+        if ret_lines != "" : ret_lines = '    // Reset jamp (reset color flows)\n' + ret_lines # AV THIS SHOULD NEVER HAPPEN!
+        return ret_lines
+
 #------------------------------------------------------------------------------------
 
 import madgraph.iolibs.helas_call_writers as helas_call_writers
@@ -816,9 +823,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         me = matrix_element.get('diagrams')
         matrix_element.reuse_outdated_wavefunctions(me)
         res = []
-        # Reset jamp
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
-        res.append('for( int i=0; i<%s; i++ ){ jamp[i] = cxtype( 0., 0. ); }' % len(color_amplitudes)) # AV
+        res.append('for( int i=0; i<%s; i++ ){ jamp[i] = cxtype( 0., 0. ); } // reset jamp (reset color flows)' % len(color_amplitudes)) # AV
         for diagram in matrix_element.get('diagrams'):
             ###print('DIAGRAM %3d: #wavefunctions=%3d, #diagrams=%3d' %
             ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING

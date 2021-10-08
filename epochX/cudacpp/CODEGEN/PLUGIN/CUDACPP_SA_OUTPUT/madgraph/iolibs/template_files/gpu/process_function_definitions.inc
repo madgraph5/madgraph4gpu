@@ -155,10 +155,7 @@ namespace Proc
     static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
     static bool sigmakin_goodhel[ncomb] = { false };
 #endif
-
-    // Reset color flows
 %(reset_jamp_lines)s
-
     // Start sigmaKin_lines
 %(sigmaKin_lines)s
 }

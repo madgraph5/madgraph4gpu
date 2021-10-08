@@ -65,7 +65,7 @@ namespace Proc
 
     // Calculate wavefunctions for all processes
     cxtype w[nwf][nw6];
-    for( int i=0; i<24; i++ ){ jamp[i] = cxtype( 0., 0. ); }
+    for( int i=0; i<24; i++ ){ jamp[i] = cxtype( 0., 0. ); } // reset jamp (reset color flows)
 
     // *** DIAGRAM 1 OF 123 *** 
 
@@ -2053,9 +2053,6 @@ namespace Proc
     static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
     static bool sigmakin_goodhel[ncomb] = { false };
 #endif
-
-    // Reset color flows
-
 
     // Start sigmaKin_lines
     mgDebugInitialise();
