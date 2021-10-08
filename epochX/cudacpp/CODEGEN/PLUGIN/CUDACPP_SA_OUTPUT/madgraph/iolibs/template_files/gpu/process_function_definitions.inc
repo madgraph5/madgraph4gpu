@@ -135,14 +135,15 @@ namespace Proc
 #endif
 
   //--------------------------------------------------------------------------
-  // Evaluate |M|^2, part independent of incoming flavour
 
-  __global__ void sigmaKin( const fptype* allmomenta,
-                            fptype* allMEs
+  // Evaluate |M|^2, part independent of incoming flavour
+  __global__
+  void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                 fptype* allMEs            // output: allMEs[nevt], final |M|^2 averaged over all helicities
 #ifndef __CUDACC__
-                            , const int nevt // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
-                            )
+                 )
   {
     // Set the parameters which change event by event
     // Need to discuss this with Stefan
@@ -156,13 +157,10 @@ namespace Proc
 #endif
 
     // Reset color flows
-    %(reset_jamp_lines)s
+%(reset_jamp_lines)s
 
     // Start sigmaKin_lines
-    %(sigmaKin_lines)s
+%(sigmaKin_lines)s
 }
 
 //==========================================================================
-// Private class member functions
-
-//--------------------------------------------------------------------------
