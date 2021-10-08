@@ -675,7 +675,50 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     #  - PLUGIN_GPUFOHelasCallWriter(GPUFOHelasCallWriter)
     #      This class
 
-    # AV - modify helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
+    # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting of gCPPProcess.cu)
+    # [GPUFOHelasCallWriter.format_coupling is called by GPUFOHelasCallWriter.get_external_line/generate_helas_call]
+    # [GPUFOHelasCallWriter.get_external_line is called by GPUFOHelasCallWriter.get_external]
+    # [GPUFOHelasCallWriter.get_external (adding #ifdef CUDA) is called by GPUFOHelasCallWriter.generate_helas_call]
+    # [GPUFOHelasCallWriter.generate_helas_call is called by UFOHelasCallWriter.get_wavefunction_call/get_amplitude_call]
+    ###findcoupling = re.compile('pars->([-]*[\d\w_]+)\s*,')
+    def format_coupling(self, call):
+        """Format the coupling so any minus signs are put in front"""
+        import re
+        model = self.get('model')
+        if not hasattr(self, 'couplings2order'):
+            self.couplings2order = {}
+            self.params2order = {}
+        for coup in re.findall(self.findcoupling, call):
+            if coup == 'ZERO':
+                call = call.replace('pars->ZERO', '0.')
+                continue
+            sign = '' 
+            if coup.startswith('-'):
+                sign = '-'
+                coup = coup[1:]
+            try:
+                param = model.get_parameter(coup)
+            except KeyError:
+                param = False
+            if param:   
+                alias = self.params2order
+                name = "cIPD"
+            else: 
+                alias = self.couplings2order
+                name = "cIPC"
+            if coup not in alias:
+                alias[coup] = len(alias)
+            if name == "cIPD":
+                call = call.replace('pars->%s%s' % (sign, coup), 
+                                    '%s%s[%s]' % (sign, name, alias[coup]))
+            else:
+                call = call.replace('pars->%s%s' % (sign, coup), 
+                                    '%scxtype(cIPC[%s],cIPC[%s])' % 
+                                    (sign, 2*alias[coup],2*alias[coup]+1))
+        ###print('HALLO "%s"'%call)
+        return call
+
+    # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
     def super_get_matrix_element_calls(self, matrix_element, color_amplitudes):
         """Return a list of strings, corresponding to the Helas calls for the matrix element"""
         import madgraph.core.helas_objects as helas_objects
@@ -683,7 +726,6 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         assert isinstance(matrix_element, helas_objects.HelasMatrixElement), \
                "%s not valid argument for get_matrix_element_calls" % \
                type(matrix_element)
-        ###import madgraph.iolibs.export_cpp as export_cpp
         # Do not reuse the wavefunctions for loop matrix elements
         if isinstance(matrix_element, loop_helas_objects.LoopHelasMatrixElement):
             return self.get_loop_matrix_element_calls(matrix_element)
@@ -698,13 +740,13 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         matrix_element.reuse_outdated_wavefunctions(me)
         res = []
         # Reset jamp
-        res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}'
-                   % len(color_amplitudes))
+        ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
+        res.append('for( int i=0; i<%s; i++ ){ jamp[i] = cxtype( 0., 0. ); }' % len(color_amplitudes))
         for diagram in matrix_element.get('diagrams'):
             res.extend([ self.get_wavefunction_call(wf) for \
                          wf in diagram.get('wavefunctions') ])
-            res.append("# Amplitude(s) for diagram number %d" % 
-                       diagram.get('number'))
+            ###res.append("# Amplitude(s) for diagram number %d" % diagram.get('number'))
+            res.append("// Amplitude(s) for diagram number %d" % diagram.get('number'))
             for amplitude in diagram.get('amplitudes'):
                 namp = amplitude.get('number')
                 amplitude.set('number', 1)
@@ -722,8 +764,93 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         for i, item in enumerate(res):
             ###print(item) # FOR DEBUGGING
             if item.startswith('# Amplitude'): item='//'+item[1:] # AV replace '# Amplitude' by '// Amplitude'
-            res[i]='    '+item
+            if not item.startswith('\n') : res[i]='    '+item
         return res
+
+    # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
+    # [GPUFOHelasCallWriter.format_coupling is called by GPUFOHelasCallWriter.get_external_line/generate_helas_call]
+    # [GPUFOHelasCallWriter.get_external_line is called by GPUFOHelasCallWriter.get_external]
+    # [=> GPUFOHelasCallWriter.get_external is called by GPUFOHelasCallWriter.generate_helas_call]
+    # [GPUFOHelasCallWriter.generate_helas_call is called by UFOHelasCallWriter.get_wavefunction_call/get_amplitude_call]
+    def get_external(self,wf, argument):
+        ###text = '\n#ifdef __CUDACC__\n    %s    \n#else\n    %s\n#endif \n'
+        text = '\n#ifdef __CUDACC__\n    %s\n#else\n    %s\n#endif' # AV
+        line = self.get_external_line(wf, argument)
+        split_line = line.split(',')
+        split_line = [ str.lstrip(' ').rstrip(' ') for str in split_line] # AV
+        line = ', '.join(split_line) # AV (for CUDA)
+        ###split_line.insert(-1, ' ievt')
+        ###return text % (line, ','.join(split_line))
+        split_line.insert(-1, 'ievt') # AV (for C++)
+        return text % (line, ', '.join(split_line)) # AV
+    
+    # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
+    # [GPUFOHelasCallWriter.get_external_line is called by GPUFOHelasCallWriter.get_external]
+    # [GPUFOHelasCallWriter.get_external (adding #ifdef CUDA) is called by GPUFOHelasCallWriter.generate_helas_call]
+    # [GPUFOHelasCallWriter.generate_helas_call is called by UFOHelasCallWriter.get_wavefunction_call/get_amplitude_call]
+    def NOTUSED__get_external_line(self, wf, argument):
+        call = ''
+        call = call + helas_call_writers.HelasCallWriter.mother_dict[\
+                argument.get_spin_state_number()].lower() 
+        if wf.get('mass').lower() != 'zero' or argument.get('spin') != 2: 
+            # Fill out with X up to 6 positions
+            call = call + 'x' * (6 - len(call))
+            # Specify namespace for Helas calls
+            ##call = call + "((double *)(dps + %d * dpt),"
+            call = call + "(allmomenta,"
+            if argument.get('spin') != 1:
+                # For non-scalars, need mass and helicity
+                call = call + "pars->%s, cHel[ihel][%d],"
+            else:
+                call = call + "pars->%s,"
+            call = call + "%+d,w[%d], %d);"
+            if argument.get('spin') == 1:
+                return call % \
+                                (wf.get('mass'),
+                                 # For boson, need initial/final here
+                                 (-1) ** (wf.get('state') == 'initial'),
+                                 wf.get('me_id')-1,
+                                 wf.get('number_external')-1)
+            elif argument.is_boson():
+                misc.sprint(call)
+                misc.sprint( (wf.get('mass'),
+                                 wf.get('number_external')-1,
+                                 # For boson, need initial/final here
+                                 (-1) ** (wf.get('state') == 'initial'),
+                                 wf.get('me_id')-1,
+                                 wf.get('number_external')-1))
+                return  self.format_coupling(call % \
+                                (wf.get('mass'),
+                                 wf.get('number_external')-1,
+                                 # For boson, need initial/final here
+                                 (-1) ** (wf.get('state') == 'initial'),
+                                 wf.get('me_id')-1,
+                                 wf.get('number_external')-1))
+            else:
+                return self.format_coupling(call % \
+                                (wf.get('mass'),
+                                 wf.get('number_external')-1,
+                                 # For fermions, need particle/antiparticle
+                                 - (-1) ** wf.get_with_flow('is_part'),
+                                 wf.get('me_id')-1,
+                                 wf.get('number_external')-1))
+        else:
+            if wf.get('number_external') == 1:
+                call += 'pz'
+            elif wf.get('number_external') == 2:
+                call += 'mz'
+            else:
+                call += 'xz'
+            call = call + 'x' * (6 - len(call))
+            # Specify namespace for Helas calls
+            ##call = call + "((double *)(dps + %d * dpt),"
+            call = call + "(allmomenta, cHel[ihel][%d],%+d,w[%d],%d);"
+            return self.format_coupling(call % \
+                                (wf.get('number_external')-1,
+                                 # For fermions, need particle/antiparticle
+                                 - (-1) ** wf.get_with_flow('is_part'),
+                                 wf.get('me_id')-1,
+                                 wf.get('number_external')-1))
 
 # AV - use the custom HelasCallWriter
 DEFAULT_GPUFOHelasCallWriter = helas_call_writers.GPUFOHelasCallWriter

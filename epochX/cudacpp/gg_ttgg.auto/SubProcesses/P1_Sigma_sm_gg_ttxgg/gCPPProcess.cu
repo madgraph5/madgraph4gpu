@@ -67,49 +67,43 @@ namespace Proc
 
     // Calculate wavefunctions for all processes
     cxtype w[nwf][nw6];
-    for(int i=0;i<24;i++){jamp[i] = cxtype(0.,0.);}
-    
-#ifdef __CUDACC__
-    vxxxxx(allmomenta,0., cHel[ihel][0],-1,w[0], 0);    
-#else
-    vxxxxx(allmomenta,0., cHel[ihel][0],-1,w[0], ievt, 0);
-#endif 
+    for( int i=0; i<24; i++ ){ jamp[i] = cxtype( 0., 0. ); }
 
-    
 #ifdef __CUDACC__
-    vxxxxx(allmomenta,0., cHel[ihel][1],-1,w[1], 1);    
+    vxxxxx(allmomenta, 0., cHel[ihel][0], -1, w[0], 0);
 #else
-    vxxxxx(allmomenta,0., cHel[ihel][1],-1,w[1], ievt, 1);
-#endif 
+    vxxxxx(allmomenta, 0., cHel[ihel][0], -1, w[0], ievt, 0);
+#endif
 
-    
 #ifdef __CUDACC__
-    oxxxxx(allmomenta,cIPD[0], cHel[ihel][2],+1,w[2], 2);    
+    vxxxxx(allmomenta, 0., cHel[ihel][1], -1, w[1], 1);
 #else
-    oxxxxx(allmomenta,cIPD[0], cHel[ihel][2],+1,w[2], ievt, 2);
-#endif 
+    vxxxxx(allmomenta, 0., cHel[ihel][1], -1, w[1], ievt, 1);
+#endif
 
-    
 #ifdef __CUDACC__
-    ixxxxx(allmomenta,cIPD[0], cHel[ihel][3],-1,w[3], 3);    
+    oxxxxx(allmomenta, cIPD[0], cHel[ihel][2], +1, w[2], 2);
 #else
-    ixxxxx(allmomenta,cIPD[0], cHel[ihel][3],-1,w[3], ievt, 3);
-#endif 
+    oxxxxx(allmomenta, cIPD[0], cHel[ihel][2], +1, w[2], ievt, 2);
+#endif
 
-    
 #ifdef __CUDACC__
-    vxxxxx(allmomenta,0., cHel[ihel][4],+1,w[4], 4);    
+    ixxxxx(allmomenta, cIPD[0], cHel[ihel][3], -1, w[3], 3);
 #else
-    vxxxxx(allmomenta,0., cHel[ihel][4],+1,w[4], ievt, 4);
-#endif 
+    ixxxxx(allmomenta, cIPD[0], cHel[ihel][3], -1, w[3], ievt, 3);
+#endif
 
-    
 #ifdef __CUDACC__
-    vxxxxx(allmomenta,0., cHel[ihel][5],+1,w[5], 5);    
+    vxxxxx(allmomenta, 0., cHel[ihel][4], +1, w[4], 4);
 #else
-    vxxxxx(allmomenta,0., cHel[ihel][5],+1,w[5], ievt, 5);
-#endif 
+    vxxxxx(allmomenta, 0., cHel[ihel][4], +1, w[4], ievt, 4);
+#endif
 
+#ifdef __CUDACC__
+    vxxxxx(allmomenta, 0., cHel[ihel][5], +1, w[5], 5);
+#else
+    vxxxxx(allmomenta, 0., cHel[ihel][5], +1, w[5], ievt, 5);
+#endif
     VVV1P0_1(w[0],w[1],cxtype(cIPC[0],cIPC[1]),0.,0.,w[6]);
     FFV1P0_3(w[3],w[2],cxtype(cIPC[2],cIPC[3]),0.,0.,w[7]);
     // Amplitude(s) for diagram number 1
