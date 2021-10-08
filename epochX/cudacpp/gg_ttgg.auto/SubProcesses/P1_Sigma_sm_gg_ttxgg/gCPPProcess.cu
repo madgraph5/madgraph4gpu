@@ -67,7 +67,7 @@ namespace Proc
     cxtype w[nwf][nw6];
     for( int i=0; i<24; i++ ){ jamp[i] = cxtype( 0., 0. ); } // reset jamp (reset color flows)
 
-    // *** DIAGRAM 1 OF 123 *** 
+    // *** DIAGRAM 1 OF 123 ***
 
     // Wavefunction(s) for diagram number 1
 #ifdef __CUDACC__
@@ -138,7 +138,7 @@ namespace Proc
     jamp[18] += -cxtype(0, 1) * amp[0];
     jamp[20] += +cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 2 OF 123 *** 
+    // *** DIAGRAM 2 OF 123 ***
 
     // Wavefunction(s) for diagram number 2
     VVV1P0_1( w[6], w[4], cxtype( cIPC[0], cIPC[1] ), 0., 0., w[8] );
@@ -154,7 +154,7 @@ namespace Proc
     jamp[22] += +cxtype(0, 1) * amp[0];
     jamp[23] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 3 OF 123 *** 
+    // *** DIAGRAM 3 OF 123 ***
 
     // Wavefunction(s) for diagram number 3
     VVV1P0_1( w[6], w[5], cxtype( cIPC[0], cIPC[1] ), 0., 0., w[9] );
@@ -170,7 +170,7 @@ namespace Proc
     jamp[18] += -cxtype(0, 1) * amp[0];
     jamp[20] += +cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 4 OF 123 *** 
+    // *** DIAGRAM 4 OF 123 ***
 
     // Wavefunction(s) for diagram number 4
     VVV1P0_1( w[4], w[5], cxtype( cIPC[0], cIPC[1] ), 0., 0., w[10] );
@@ -186,7 +186,7 @@ namespace Proc
     jamp[22] += +cxtype(0, 1) * amp[0];
     jamp[23] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 5 OF 123 *** 
+    // *** DIAGRAM 5 OF 123 ***
 
     // Wavefunction(s) for diagram number 5
     FFV1_1( w[2], w[4], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[11] );
@@ -197,7 +197,7 @@ namespace Proc
     jamp[16] += +cxtype(0, 1) * amp[0];
     jamp[17] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 6 OF 123 *** 
+    // *** DIAGRAM 6 OF 123 ***
 
     // Wavefunction(s) for diagram number 6
     // (none)
@@ -209,7 +209,7 @@ namespace Proc
     jamp[16] += -amp[0];
     jamp[17] += +amp[0];
 
-    // *** DIAGRAM 7 OF 123 *** 
+    // *** DIAGRAM 7 OF 123 ***
 
     // Wavefunction(s) for diagram number 7
     FFV1_2( w[3], w[5], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[13] );
@@ -219,7 +219,7 @@ namespace Proc
     jamp[12] += +cxtype(0, 1) * amp[0];
     jamp[14] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 8 OF 123 *** 
+    // *** DIAGRAM 8 OF 123 ***
 
     // Wavefunction(s) for diagram number 8
     FFV1_1( w[2], w[5], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[14] );
@@ -229,7 +229,7 @@ namespace Proc
     jamp[22] += +cxtype(0, 1) * amp[0];
     jamp[23] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 9 OF 123 *** 
+    // *** DIAGRAM 9 OF 123 ***
 
     // Wavefunction(s) for diagram number 9
     // (none)
@@ -241,7 +241,7 @@ namespace Proc
     jamp[22] += -amp[0];
     jamp[23] += +amp[0];
 
-    // *** DIAGRAM 10 OF 123 *** 
+    // *** DIAGRAM 10 OF 123 ***
 
     // Wavefunction(s) for diagram number 10
     FFV1_2( w[3], w[4], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[15] );
@@ -251,7 +251,7 @@ namespace Proc
     jamp[18] += +cxtype(0, 1) * amp[0];
     jamp[20] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 11 OF 123 *** 
+    // *** DIAGRAM 11 OF 123 ***
 
     // Wavefunction(s) for diagram number 11
     FFV1_1( w[2], w[6], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[16] );
@@ -261,7 +261,7 @@ namespace Proc
     jamp[1] += +cxtype(0, 1) * amp[0];
     jamp[7] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 12 OF 123 *** 
+    // *** DIAGRAM 12 OF 123 ***
 
     // Wavefunction(s) for diagram number 12
     // (none)
@@ -273,7 +273,7 @@ namespace Proc
     jamp[18] += -amp[0];
     jamp[20] += +amp[0];
 
-    // *** DIAGRAM 13 OF 123 *** 
+    // *** DIAGRAM 13 OF 123 ***
 
     // Wavefunction(s) for diagram number 13
     // (none)
@@ -283,7 +283,7 @@ namespace Proc
     jamp[0] += +cxtype(0, 1) * amp[0];
     jamp[6] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 14 OF 123 *** 
+    // *** DIAGRAM 14 OF 123 ***
 
     // Wavefunction(s) for diagram number 14
     // (none)
@@ -295,7 +295,7 @@ namespace Proc
     jamp[12] += -amp[0];
     jamp[14] += +amp[0];
 
-    // *** DIAGRAM 15 OF 123 *** 
+    // *** DIAGRAM 15 OF 123 ***
 
     // Wavefunction(s) for diagram number 15
     // (none)
@@ -307,7 +307,7 @@ namespace Proc
     jamp[6] += -amp[0];
     jamp[7] += +amp[0];
 
-    // *** DIAGRAM 16 OF 123 *** 
+    // *** DIAGRAM 16 OF 123 ***
 
     // Wavefunction(s) for diagram number 16
     // (none)
@@ -319,7 +319,7 @@ namespace Proc
     jamp[22] += -amp[0];
     jamp[23] += +amp[0];
 
-    // *** DIAGRAM 17 OF 123 *** 
+    // *** DIAGRAM 17 OF 123 ***
 
     // Wavefunction(s) for diagram number 17
     FFV1_1( w[2], w[0], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[12] );
@@ -330,7 +330,7 @@ namespace Proc
     FFV1_0( w[16], w[8], w[5], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[3] += -amp[0];
 
-    // *** DIAGRAM 18 OF 123 *** 
+    // *** DIAGRAM 18 OF 123 ***
 
     // Wavefunction(s) for diagram number 18
     FFV1_1( w[12], w[5], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[9] );
@@ -339,7 +339,7 @@ namespace Proc
     FFV1_0( w[16], w[9], w[4], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[5] += -amp[0];
 
-    // *** DIAGRAM 19 OF 123 *** 
+    // *** DIAGRAM 19 OF 123 ***
 
     // Wavefunction(s) for diagram number 19
     // (none)
@@ -349,7 +349,7 @@ namespace Proc
     jamp[3] += +cxtype(0, 1) * amp[0];
     jamp[5] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 20 OF 123 *** 
+    // *** DIAGRAM 20 OF 123 ***
 
     // Wavefunction(s) for diagram number 20
     VVV1P0_1( w[1], w[4], cxtype( cIPC[0], cIPC[1] ), 0., 0., w[6] );
@@ -362,7 +362,7 @@ namespace Proc
     jamp[4] += -amp[0];
     jamp[5] += +amp[0];
 
-    // *** DIAGRAM 21 OF 123 *** 
+    // *** DIAGRAM 21 OF 123 ***
 
     // Wavefunction(s) for diagram number 21
     // (none)
@@ -372,7 +372,7 @@ namespace Proc
     jamp[4] += +cxtype(0, 1) * amp[0];
     jamp[5] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 22 OF 123 *** 
+    // *** DIAGRAM 22 OF 123 ***
 
     // Wavefunction(s) for diagram number 22
     // (none)
@@ -382,7 +382,7 @@ namespace Proc
     jamp[0] += +cxtype(0, 1) * amp[0];
     jamp[2] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 23 OF 123 *** 
+    // *** DIAGRAM 23 OF 123 ***
 
     // Wavefunction(s) for diagram number 23
     VVV1P0_1( w[1], w[5], cxtype( cIPC[0], cIPC[1] ), 0., 0., w[18] );
@@ -394,7 +394,7 @@ namespace Proc
     jamp[3] += +amp[0];
     jamp[4] += -amp[0];
 
-    // *** DIAGRAM 24 OF 123 *** 
+    // *** DIAGRAM 24 OF 123 ***
 
     // Wavefunction(s) for diagram number 24
     // (none)
@@ -404,7 +404,7 @@ namespace Proc
     jamp[2] += +cxtype(0, 1) * amp[0];
     jamp[3] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 25 OF 123 *** 
+    // *** DIAGRAM 25 OF 123 ***
 
     // Wavefunction(s) for diagram number 25
     // (none)
@@ -414,7 +414,7 @@ namespace Proc
     jamp[1] += +cxtype(0, 1) * amp[0];
     jamp[4] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 26 OF 123 *** 
+    // *** DIAGRAM 26 OF 123 ***
 
     // Wavefunction(s) for diagram number 26
     FFV1_1( w[12], w[1], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[19] );
@@ -423,7 +423,7 @@ namespace Proc
     FFV1_0( w[15], w[19], w[5], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[1] += -amp[0];
 
-    // *** DIAGRAM 27 OF 123 *** 
+    // *** DIAGRAM 27 OF 123 ***
 
     // Wavefunction(s) for diagram number 27
     // (none)
@@ -432,7 +432,7 @@ namespace Proc
     FFV1_0( w[15], w[9], w[1], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[4] += -amp[0];
 
-    // *** DIAGRAM 28 OF 123 *** 
+    // *** DIAGRAM 28 OF 123 ***
 
     // Wavefunction(s) for diagram number 28
     // (none)
@@ -441,7 +441,7 @@ namespace Proc
     FFV1_0( w[13], w[19], w[4], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[0] += -amp[0];
 
-    // *** DIAGRAM 29 OF 123 *** 
+    // *** DIAGRAM 29 OF 123 ***
 
     // Wavefunction(s) for diagram number 29
     // (none)
@@ -450,7 +450,7 @@ namespace Proc
     FFV1_0( w[13], w[8], w[1], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[2] += -amp[0];
 
-    // *** DIAGRAM 30 OF 123 *** 
+    // *** DIAGRAM 30 OF 123 ***
 
     // Wavefunction(s) for diagram number 30
     // (none)
@@ -460,7 +460,7 @@ namespace Proc
     jamp[0] += +cxtype(0, 1) * amp[0];
     jamp[1] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 31 OF 123 *** 
+    // *** DIAGRAM 31 OF 123 ***
 
     // Wavefunction(s) for diagram number 31
     // (none)
@@ -472,7 +472,7 @@ namespace Proc
     jamp[3] += -amp[0];
     jamp[5] += +amp[0];
 
-    // *** DIAGRAM 32 OF 123 *** 
+    // *** DIAGRAM 32 OF 123 ***
 
     // Wavefunction(s) for diagram number 32
     VVVV1P0_1( w[1], w[4], w[5], cxtype( cIPC[4], cIPC[5] ), 0., 0., w[17] );
@@ -496,7 +496,7 @@ namespace Proc
     jamp[4] += +amp[0];
     jamp[5] += -amp[0];
 
-    // *** DIAGRAM 33 OF 123 *** 
+    // *** DIAGRAM 33 OF 123 ***
 
     // Wavefunction(s) for diagram number 33
     FFV1_2( w[3], w[0], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[12] );
@@ -507,7 +507,7 @@ namespace Proc
     FFV1_0( w[20], w[9], w[5], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[11] += -amp[0];
 
-    // *** DIAGRAM 34 OF 123 *** 
+    // *** DIAGRAM 34 OF 123 ***
 
     // Wavefunction(s) for diagram number 34
     FFV1_2( w[12], w[5], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[21] );
@@ -516,7 +516,7 @@ namespace Proc
     FFV1_0( w[21], w[9], w[4], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[9] += -amp[0];
 
-    // *** DIAGRAM 35 OF 123 *** 
+    // *** DIAGRAM 35 OF 123 ***
 
     // Wavefunction(s) for diagram number 35
     // (none)
@@ -526,7 +526,7 @@ namespace Proc
     jamp[9] += +cxtype(0, 1) * amp[0];
     jamp[11] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 36 OF 123 *** 
+    // *** DIAGRAM 36 OF 123 ***
 
     // Wavefunction(s) for diagram number 36
     FFV1P0_3( w[12], w[2], cxtype( cIPC[2], cIPC[3] ), 0., 0., w[22] );
@@ -538,7 +538,7 @@ namespace Proc
     jamp[21] += -amp[0];
     jamp[23] += +amp[0];
 
-    // *** DIAGRAM 37 OF 123 *** 
+    // *** DIAGRAM 37 OF 123 ***
 
     // Wavefunction(s) for diagram number 37
     // (none)
@@ -548,7 +548,7 @@ namespace Proc
     jamp[9] += +cxtype(0, 1) * amp[0];
     jamp[15] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 38 OF 123 *** 
+    // *** DIAGRAM 38 OF 123 ***
 
     // Wavefunction(s) for diagram number 38
     // (none)
@@ -558,7 +558,7 @@ namespace Proc
     jamp[21] += +cxtype(0, 1) * amp[0];
     jamp[23] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 39 OF 123 *** 
+    // *** DIAGRAM 39 OF 123 ***
 
     // Wavefunction(s) for diagram number 39
     // (none)
@@ -570,7 +570,7 @@ namespace Proc
     jamp[17] += +amp[0];
     jamp[21] += -amp[0];
 
-    // *** DIAGRAM 40 OF 123 *** 
+    // *** DIAGRAM 40 OF 123 ***
 
     // Wavefunction(s) for diagram number 40
     // (none)
@@ -580,7 +580,7 @@ namespace Proc
     jamp[11] += +cxtype(0, 1) * amp[0];
     jamp[21] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 41 OF 123 *** 
+    // *** DIAGRAM 41 OF 123 ***
 
     // Wavefunction(s) for diagram number 41
     // (none)
@@ -590,7 +590,7 @@ namespace Proc
     jamp[15] += +cxtype(0, 1) * amp[0];
     jamp[17] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 42 OF 123 *** 
+    // *** DIAGRAM 42 OF 123 ***
 
     // Wavefunction(s) for diagram number 42
     FFV1_2( w[12], w[1], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[23] );
@@ -599,7 +599,7 @@ namespace Proc
     FFV1_0( w[23], w[11], w[5], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[17] += -amp[0];
 
-    // *** DIAGRAM 43 OF 123 *** 
+    // *** DIAGRAM 43 OF 123 ***
 
     // Wavefunction(s) for diagram number 43
     // (none)
@@ -608,7 +608,7 @@ namespace Proc
     FFV1_0( w[21], w[11], w[1], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[15] += -amp[0];
 
-    // *** DIAGRAM 44 OF 123 *** 
+    // *** DIAGRAM 44 OF 123 ***
 
     // Wavefunction(s) for diagram number 44
     // (none)
@@ -617,7 +617,7 @@ namespace Proc
     FFV1_0( w[23], w[14], w[4], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[23] += -amp[0];
 
-    // *** DIAGRAM 45 OF 123 *** 
+    // *** DIAGRAM 45 OF 123 ***
 
     // Wavefunction(s) for diagram number 45
     // (none)
@@ -626,7 +626,7 @@ namespace Proc
     FFV1_0( w[20], w[14], w[1], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[21] += -amp[0];
 
-    // *** DIAGRAM 46 OF 123 *** 
+    // *** DIAGRAM 46 OF 123 ***
 
     // Wavefunction(s) for diagram number 46
     // (none)
@@ -636,7 +636,7 @@ namespace Proc
     jamp[17] += +cxtype(0, 1) * amp[0];
     jamp[23] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 47 OF 123 *** 
+    // *** DIAGRAM 47 OF 123 ***
 
     // Wavefunction(s) for diagram number 47
     // (none)
@@ -648,7 +648,7 @@ namespace Proc
     jamp[17] += -amp[0];
     jamp[23] += +amp[0];
 
-    // *** DIAGRAM 48 OF 123 *** 
+    // *** DIAGRAM 48 OF 123 ***
 
     // Wavefunction(s) for diagram number 48
     // (none)
@@ -670,7 +670,7 @@ namespace Proc
     jamp[21] += +amp[0];
     jamp[23] += -amp[0];
 
-    // *** DIAGRAM 49 OF 123 *** 
+    // *** DIAGRAM 49 OF 123 ***
 
     // Wavefunction(s) for diagram number 49
     VVV1P0_1( w[0], w[4], cxtype( cIPC[0], cIPC[1] ), 0., 0., w[12] );
@@ -681,7 +681,7 @@ namespace Proc
     jamp[10] += +cxtype(0, 1) * amp[0];
     jamp[11] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 50 OF 123 *** 
+    // *** DIAGRAM 50 OF 123 ***
 
     // Wavefunction(s) for diagram number 50
     VVV1P0_1( w[12], w[5], cxtype( cIPC[0], cIPC[1] ), 0., 0., w[23] );
@@ -693,7 +693,7 @@ namespace Proc
     jamp[10] += -amp[0];
     jamp[11] += +amp[0];
 
-    // *** DIAGRAM 51 OF 123 *** 
+    // *** DIAGRAM 51 OF 123 ***
 
     // Wavefunction(s) for diagram number 51
     // (none)
@@ -703,7 +703,7 @@ namespace Proc
     jamp[6] += +cxtype(0, 1) * amp[0];
     jamp[8] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 52 OF 123 *** 
+    // *** DIAGRAM 52 OF 123 ***
 
     // Wavefunction(s) for diagram number 52
     FFV1_1( w[2], w[12], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[20] );
@@ -713,7 +713,7 @@ namespace Proc
     jamp[3] += +cxtype(0, 1) * amp[0];
     jamp[13] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 53 OF 123 *** 
+    // *** DIAGRAM 53 OF 123 ***
 
     // Wavefunction(s) for diagram number 53
     // (none)
@@ -725,7 +725,7 @@ namespace Proc
     jamp[19] += -amp[0];
     jamp[22] += +amp[0];
 
-    // *** DIAGRAM 54 OF 123 *** 
+    // *** DIAGRAM 54 OF 123 ***
 
     // Wavefunction(s) for diagram number 54
     // (none)
@@ -735,7 +735,7 @@ namespace Proc
     jamp[19] += +cxtype(0, 1) * amp[0];
     jamp[22] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 55 OF 123 *** 
+    // *** DIAGRAM 55 OF 123 ***
 
     // Wavefunction(s) for diagram number 55
     // (none)
@@ -747,7 +747,7 @@ namespace Proc
     jamp[12] += -amp[0];
     jamp[13] += +amp[0];
 
-    // *** DIAGRAM 56 OF 123 *** 
+    // *** DIAGRAM 56 OF 123 ***
 
     // Wavefunction(s) for diagram number 56
     // (none)
@@ -759,7 +759,7 @@ namespace Proc
     jamp[20] += -amp[0];
     jamp[21] += +amp[0];
 
-    // *** DIAGRAM 57 OF 123 *** 
+    // *** DIAGRAM 57 OF 123 ***
 
     // Wavefunction(s) for diagram number 57
     // (none)
@@ -775,7 +775,7 @@ namespace Proc
     jamp[20] += -cxtype(0, 1) * amp[0];
     jamp[21] += +cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 58 OF 123 *** 
+    // *** DIAGRAM 58 OF 123 ***
 
     // Wavefunction(s) for diagram number 58
     // (none)
@@ -809,7 +809,7 @@ namespace Proc
     jamp[19] += +cxtype(0, 1) * amp[0];
     jamp[22] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 59 OF 123 *** 
+    // *** DIAGRAM 59 OF 123 ***
 
     // Wavefunction(s) for diagram number 59
     VVV1P0_1( w[12], w[1], cxtype( cIPC[0], cIPC[1] ), 0., 0., w[21] );
@@ -825,7 +825,7 @@ namespace Proc
     jamp[21] += -cxtype(0, 1) * amp[0];
     jamp[22] += +cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 60 OF 123 *** 
+    // *** DIAGRAM 60 OF 123 ***
 
     // Wavefunction(s) for diagram number 60
     // (none)
@@ -841,7 +841,7 @@ namespace Proc
     jamp[19] += +cxtype(0, 1) * amp[0];
     jamp[22] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 61 OF 123 *** 
+    // *** DIAGRAM 61 OF 123 ***
 
     // Wavefunction(s) for diagram number 61
     // (none)
@@ -853,7 +853,7 @@ namespace Proc
     jamp[21] += +amp[0];
     jamp[22] += -amp[0];
 
-    // *** DIAGRAM 62 OF 123 *** 
+    // *** DIAGRAM 62 OF 123 ***
 
     // Wavefunction(s) for diagram number 62
     // (none)
@@ -863,7 +863,7 @@ namespace Proc
     jamp[20] += +cxtype(0, 1) * amp[0];
     jamp[21] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 63 OF 123 *** 
+    // *** DIAGRAM 63 OF 123 ***
 
     // Wavefunction(s) for diagram number 63
     // (none)
@@ -875,7 +875,7 @@ namespace Proc
     jamp[8] += +amp[0];
     jamp[12] += -amp[0];
 
-    // *** DIAGRAM 64 OF 123 *** 
+    // *** DIAGRAM 64 OF 123 ***
 
     // Wavefunction(s) for diagram number 64
     // (none)
@@ -885,7 +885,7 @@ namespace Proc
     jamp[2] += +cxtype(0, 1) * amp[0];
     jamp[12] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 65 OF 123 *** 
+    // *** DIAGRAM 65 OF 123 ***
 
     // Wavefunction(s) for diagram number 65
     VVV1P0_1( w[0], w[5], cxtype( cIPC[0], cIPC[1] ), 0., 0., w[20] );
@@ -896,7 +896,7 @@ namespace Proc
     jamp[8] += +cxtype(0, 1) * amp[0];
     jamp[9] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 66 OF 123 *** 
+    // *** DIAGRAM 66 OF 123 ***
 
     // Wavefunction(s) for diagram number 66
     VVV1P0_1( w[20], w[4], cxtype( cIPC[0], cIPC[1] ), 0., 0., w[22] );
@@ -908,7 +908,7 @@ namespace Proc
     jamp[9] += +amp[0];
     jamp[10] += -amp[0];
 
-    // *** DIAGRAM 67 OF 123 *** 
+    // *** DIAGRAM 67 OF 123 ***
 
     // Wavefunction(s) for diagram number 67
     // (none)
@@ -918,7 +918,7 @@ namespace Proc
     jamp[7] += +cxtype(0, 1) * amp[0];
     jamp[10] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 68 OF 123 *** 
+    // *** DIAGRAM 68 OF 123 ***
 
     // Wavefunction(s) for diagram number 68
     FFV1_1( w[2], w[20], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[23] );
@@ -928,7 +928,7 @@ namespace Proc
     jamp[5] += +cxtype(0, 1) * amp[0];
     jamp[19] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 69 OF 123 *** 
+    // *** DIAGRAM 69 OF 123 ***
 
     // Wavefunction(s) for diagram number 69
     // (none)
@@ -940,7 +940,7 @@ namespace Proc
     jamp[16] += +amp[0];
     jamp[19] += -amp[0];
 
-    // *** DIAGRAM 70 OF 123 *** 
+    // *** DIAGRAM 70 OF 123 ***
 
     // Wavefunction(s) for diagram number 70
     // (none)
@@ -950,7 +950,7 @@ namespace Proc
     jamp[13] += +cxtype(0, 1) * amp[0];
     jamp[16] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 71 OF 123 *** 
+    // *** DIAGRAM 71 OF 123 ***
 
     // Wavefunction(s) for diagram number 71
     // (none)
@@ -962,7 +962,7 @@ namespace Proc
     jamp[18] += -amp[0];
     jamp[19] += +amp[0];
 
-    // *** DIAGRAM 72 OF 123 *** 
+    // *** DIAGRAM 72 OF 123 ***
 
     // Wavefunction(s) for diagram number 72
     // (none)
@@ -974,7 +974,7 @@ namespace Proc
     jamp[14] += -amp[0];
     jamp[15] += +amp[0];
 
-    // *** DIAGRAM 73 OF 123 *** 
+    // *** DIAGRAM 73 OF 123 ***
 
     // Wavefunction(s) for diagram number 73
     // (none)
@@ -990,7 +990,7 @@ namespace Proc
     jamp[18] += +cxtype(0, 1) * amp[0];
     jamp[19] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 74 OF 123 *** 
+    // *** DIAGRAM 74 OF 123 ***
 
     // Wavefunction(s) for diagram number 74
     // (none)
@@ -1024,7 +1024,7 @@ namespace Proc
     jamp[16] += -cxtype(0, 1) * amp[0];
     jamp[19] += +cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 75 OF 123 *** 
+    // *** DIAGRAM 75 OF 123 ***
 
     // Wavefunction(s) for diagram number 75
     VVV1P0_1( w[20], w[1], cxtype( cIPC[0], cIPC[1] ), 0., 0., w[12] );
@@ -1040,7 +1040,7 @@ namespace Proc
     jamp[16] += +cxtype(0, 1) * amp[0];
     jamp[18] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 76 OF 123 *** 
+    // *** DIAGRAM 76 OF 123 ***
 
     // Wavefunction(s) for diagram number 76
     // (none)
@@ -1056,7 +1056,7 @@ namespace Proc
     jamp[16] += -cxtype(0, 1) * amp[0];
     jamp[19] += +cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 77 OF 123 *** 
+    // *** DIAGRAM 77 OF 123 ***
 
     // Wavefunction(s) for diagram number 77
     // (none)
@@ -1068,7 +1068,7 @@ namespace Proc
     jamp[15] += +amp[0];
     jamp[16] += -amp[0];
 
-    // *** DIAGRAM 78 OF 123 *** 
+    // *** DIAGRAM 78 OF 123 ***
 
     // Wavefunction(s) for diagram number 78
     // (none)
@@ -1078,7 +1078,7 @@ namespace Proc
     jamp[14] += +cxtype(0, 1) * amp[0];
     jamp[15] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 79 OF 123 *** 
+    // *** DIAGRAM 79 OF 123 ***
 
     // Wavefunction(s) for diagram number 79
     // (none)
@@ -1090,7 +1090,7 @@ namespace Proc
     jamp[10] += +amp[0];
     jamp[18] += -amp[0];
 
-    // *** DIAGRAM 80 OF 123 *** 
+    // *** DIAGRAM 80 OF 123 ***
 
     // Wavefunction(s) for diagram number 80
     // (none)
@@ -1100,7 +1100,7 @@ namespace Proc
     jamp[4] += +cxtype(0, 1) * amp[0];
     jamp[18] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 81 OF 123 *** 
+    // *** DIAGRAM 81 OF 123 ***
 
     // Wavefunction(s) for diagram number 81
     FFV1_1( w[9], w[0], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[23] );
@@ -1109,7 +1109,7 @@ namespace Proc
     FFV1_0( w[15], w[23], w[5], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[7] += -amp[0];
 
-    // *** DIAGRAM 82 OF 123 *** 
+    // *** DIAGRAM 82 OF 123 ***
 
     // Wavefunction(s) for diagram number 82
     FFV1_2( w[15], w[0], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[12] );
@@ -1118,7 +1118,7 @@ namespace Proc
     FFV1_0( w[12], w[9], w[5], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[10] += -amp[0];
 
-    // *** DIAGRAM 83 OF 123 *** 
+    // *** DIAGRAM 83 OF 123 ***
 
     // Wavefunction(s) for diagram number 83
     // (none)
@@ -1127,7 +1127,7 @@ namespace Proc
     FFV1_0( w[13], w[23], w[4], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[6] += -amp[0];
 
-    // *** DIAGRAM 84 OF 123 *** 
+    // *** DIAGRAM 84 OF 123 ***
 
     // Wavefunction(s) for diagram number 84
     FFV1_2( w[13], w[0], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[21] );
@@ -1136,7 +1136,7 @@ namespace Proc
     FFV1_0( w[21], w[9], w[4], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[8] += -amp[0];
 
-    // *** DIAGRAM 85 OF 123 *** 
+    // *** DIAGRAM 85 OF 123 ***
 
     // Wavefunction(s) for diagram number 85
     // (none)
@@ -1146,7 +1146,7 @@ namespace Proc
     jamp[6] += +cxtype(0, 1) * amp[0];
     jamp[7] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 86 OF 123 *** 
+    // *** DIAGRAM 86 OF 123 ***
 
     // Wavefunction(s) for diagram number 86
     VVV1P0_1( w[0], w[10], cxtype( cIPC[0], cIPC[1] ), 0., 0., w[23] );
@@ -1158,7 +1158,7 @@ namespace Proc
     jamp[9] += -amp[0];
     jamp[11] += +amp[0];
 
-    // *** DIAGRAM 87 OF 123 *** 
+    // *** DIAGRAM 87 OF 123 ***
 
     // Wavefunction(s) for diagram number 87
     FFV1_2( w[16], w[0], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[22] );
@@ -1167,7 +1167,7 @@ namespace Proc
     FFV1_0( w[22], w[11], w[5], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[16] += -amp[0];
 
-    // *** DIAGRAM 88 OF 123 *** 
+    // *** DIAGRAM 88 OF 123 ***
 
     // Wavefunction(s) for diagram number 88
     FFV1_1( w[11], w[0], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[20] );
@@ -1176,7 +1176,7 @@ namespace Proc
     FFV1_0( w[16], w[20], w[5], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[13] += -amp[0];
 
-    // *** DIAGRAM 89 OF 123 *** 
+    // *** DIAGRAM 89 OF 123 ***
 
     // Wavefunction(s) for diagram number 89
     // (none)
@@ -1185,7 +1185,7 @@ namespace Proc
     FFV1_0( w[22], w[14], w[4], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[22] += -amp[0];
 
-    // *** DIAGRAM 90 OF 123 *** 
+    // *** DIAGRAM 90 OF 123 ***
 
     // Wavefunction(s) for diagram number 90
     FFV1_1( w[14], w[0], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w[24] );
@@ -1194,7 +1194,7 @@ namespace Proc
     FFV1_0( w[16], w[24], w[4], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[19] += -amp[0];
 
-    // *** DIAGRAM 91 OF 123 *** 
+    // *** DIAGRAM 91 OF 123 ***
 
     // Wavefunction(s) for diagram number 91
     // (none)
@@ -1204,7 +1204,7 @@ namespace Proc
     jamp[16] += +cxtype(0, 1) * amp[0];
     jamp[22] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 92 OF 123 *** 
+    // *** DIAGRAM 92 OF 123 ***
 
     // Wavefunction(s) for diagram number 92
     // (none)
@@ -1216,7 +1216,7 @@ namespace Proc
     jamp[16] += -amp[0];
     jamp[22] += +amp[0];
 
-    // *** DIAGRAM 93 OF 123 *** 
+    // *** DIAGRAM 93 OF 123 ***
 
     // Wavefunction(s) for diagram number 93
     // (none)
@@ -1250,7 +1250,7 @@ namespace Proc
     jamp[18] += +cxtype(0, 1) * amp[0];
     jamp[19] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 94 OF 123 *** 
+    // *** DIAGRAM 94 OF 123 ***
 
     // Wavefunction(s) for diagram number 94
     VVV1P0_1( w[0], w[6], cxtype( cIPC[0], cIPC[1] ), 0., 0., w[22] );
@@ -1266,7 +1266,7 @@ namespace Proc
     jamp[21] += +cxtype(0, 1) * amp[0];
     jamp[23] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 95 OF 123 *** 
+    // *** DIAGRAM 95 OF 123 ***
 
     // Wavefunction(s) for diagram number 95
     VVV1P0_1( w[0], w[7], cxtype( cIPC[0], cIPC[1] ), 0., 0., w[25] );
@@ -1282,7 +1282,7 @@ namespace Proc
     jamp[21] += +cxtype(0, 1) * amp[0];
     jamp[23] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 96 OF 123 *** 
+    // *** DIAGRAM 96 OF 123 ***
 
     // Wavefunction(s) for diagram number 96
     // (none)
@@ -1294,7 +1294,7 @@ namespace Proc
     jamp[21] += -amp[0];
     jamp[23] += +amp[0];
 
-    // *** DIAGRAM 97 OF 123 *** 
+    // *** DIAGRAM 97 OF 123 ***
 
     // Wavefunction(s) for diagram number 97
     // (none)
@@ -1304,7 +1304,7 @@ namespace Proc
     jamp[18] += +cxtype(0, 1) * amp[0];
     jamp[19] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 98 OF 123 *** 
+    // *** DIAGRAM 98 OF 123 ***
 
     // Wavefunction(s) for diagram number 98
     // (none)
@@ -1316,7 +1316,7 @@ namespace Proc
     jamp[8] += -amp[0];
     jamp[14] += +amp[0];
 
-    // *** DIAGRAM 99 OF 123 *** 
+    // *** DIAGRAM 99 OF 123 ***
 
     // Wavefunction(s) for diagram number 99
     // (none)
@@ -1326,7 +1326,7 @@ namespace Proc
     jamp[8] += +cxtype(0, 1) * amp[0];
     jamp[14] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 100 OF 123 *** 
+    // *** DIAGRAM 100 OF 123 ***
 
     // Wavefunction(s) for diagram number 100
     // (none)
@@ -1360,7 +1360,7 @@ namespace Proc
     jamp[20] += -cxtype(0, 1) * amp[0];
     jamp[21] += +cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 101 OF 123 *** 
+    // *** DIAGRAM 101 OF 123 ***
 
     // Wavefunction(s) for diagram number 101
     VVV1P0_1( w[0], w[18], cxtype( cIPC[0], cIPC[1] ), 0., 0., w[6] );
@@ -1376,7 +1376,7 @@ namespace Proc
     jamp[17] += -cxtype(0, 1) * amp[0];
     jamp[20] += +cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 102 OF 123 *** 
+    // *** DIAGRAM 102 OF 123 ***
 
     // Wavefunction(s) for diagram number 102
     // (none)
@@ -1392,7 +1392,7 @@ namespace Proc
     jamp[17] += -cxtype(0, 1) * amp[0];
     jamp[21] += +cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 103 OF 123 *** 
+    // *** DIAGRAM 103 OF 123 ***
 
     // Wavefunction(s) for diagram number 103
     // (none)
@@ -1404,7 +1404,7 @@ namespace Proc
     jamp[15] += -amp[0];
     jamp[17] += +amp[0];
 
-    // *** DIAGRAM 104 OF 123 *** 
+    // *** DIAGRAM 104 OF 123 ***
 
     // Wavefunction(s) for diagram number 104
     // (none)
@@ -1414,7 +1414,7 @@ namespace Proc
     jamp[12] += +cxtype(0, 1) * amp[0];
     jamp[13] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 105 OF 123 *** 
+    // *** DIAGRAM 105 OF 123 ***
 
     // Wavefunction(s) for diagram number 105
     // (none)
@@ -1426,7 +1426,7 @@ namespace Proc
     jamp[10] += -amp[0];
     jamp[20] += +amp[0];
 
-    // *** DIAGRAM 106 OF 123 *** 
+    // *** DIAGRAM 106 OF 123 ***
 
     // Wavefunction(s) for diagram number 106
     // (none)
@@ -1436,7 +1436,7 @@ namespace Proc
     jamp[10] += +cxtype(0, 1) * amp[0];
     jamp[20] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 107 OF 123 *** 
+    // *** DIAGRAM 107 OF 123 ***
 
     // Wavefunction(s) for diagram number 107
     // (none)
@@ -1470,7 +1470,7 @@ namespace Proc
     jamp[16] += +cxtype(0, 1) * amp[0];
     jamp[22] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 108 OF 123 *** 
+    // *** DIAGRAM 108 OF 123 ***
 
     // Wavefunction(s) for diagram number 108
     // (none)
@@ -1486,7 +1486,7 @@ namespace Proc
     jamp[17] += +cxtype(0, 1) * amp[0];
     jamp[23] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 109 OF 123 *** 
+    // *** DIAGRAM 109 OF 123 ***
 
     // Wavefunction(s) for diagram number 109
     // (none)
@@ -1502,7 +1502,7 @@ namespace Proc
     jamp[16] += +cxtype(0, 1) * amp[0];
     jamp[22] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 110 OF 123 *** 
+    // *** DIAGRAM 110 OF 123 ***
 
     // Wavefunction(s) for diagram number 110
     // (none)
@@ -1511,7 +1511,7 @@ namespace Proc
     FFV1_0( w[13], w[20], w[1], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[12] += -amp[0];
 
-    // *** DIAGRAM 111 OF 123 *** 
+    // *** DIAGRAM 111 OF 123 ***
 
     // Wavefunction(s) for diagram number 111
     // (none)
@@ -1520,7 +1520,7 @@ namespace Proc
     FFV1_0( w[21], w[11], w[1], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[14] += -amp[0];
 
-    // *** DIAGRAM 112 OF 123 *** 
+    // *** DIAGRAM 112 OF 123 ***
 
     // Wavefunction(s) for diagram number 112
     // (none)
@@ -1529,7 +1529,7 @@ namespace Proc
     FFV1_0( w[15], w[24], w[1], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[18] += -amp[0];
 
-    // *** DIAGRAM 113 OF 123 *** 
+    // *** DIAGRAM 113 OF 123 ***
 
     // Wavefunction(s) for diagram number 113
     // (none)
@@ -1538,7 +1538,7 @@ namespace Proc
     FFV1_0( w[12], w[14], w[1], cxtype( cIPC[2], cIPC[3] ), &amp[0] );
     jamp[20] += -amp[0];
 
-    // *** DIAGRAM 114 OF 123 *** 
+    // *** DIAGRAM 114 OF 123 ***
 
     // Wavefunction(s) for diagram number 114
     VVVV1P0_1( w[0], w[1], w[4], cxtype( cIPC[4], cIPC[5] ), 0., 0., w[12] );
@@ -1574,7 +1574,7 @@ namespace Proc
     jamp[22] += -cxtype(0, 1) * amp[0];
     jamp[23] += +cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 115 OF 123 *** 
+    // *** DIAGRAM 115 OF 123 ***
 
     // Wavefunction(s) for diagram number 115
     // (none)
@@ -1596,7 +1596,7 @@ namespace Proc
     jamp[22] += +amp[0];
     jamp[23] += -amp[0];
 
-    // *** DIAGRAM 116 OF 123 *** 
+    // *** DIAGRAM 116 OF 123 ***
 
     // Wavefunction(s) for diagram number 116
     // (none)
@@ -1618,7 +1618,7 @@ namespace Proc
     jamp[12] += +amp[0];
     jamp[14] += -amp[0];
 
-    // *** DIAGRAM 117 OF 123 *** 
+    // *** DIAGRAM 117 OF 123 ***
 
     // Wavefunction(s) for diagram number 117
     VVVV1P0_1( w[0], w[1], w[5], cxtype( cIPC[4], cIPC[5] ), 0., 0., w[21] );
@@ -1654,7 +1654,7 @@ namespace Proc
     jamp[18] += +cxtype(0, 1) * amp[0];
     jamp[20] += -cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 118 OF 123 *** 
+    // *** DIAGRAM 118 OF 123 ***
 
     // Wavefunction(s) for diagram number 118
     // (none)
@@ -1676,7 +1676,7 @@ namespace Proc
     jamp[16] += +amp[0];
     jamp[17] += -amp[0];
 
-    // *** DIAGRAM 119 OF 123 *** 
+    // *** DIAGRAM 119 OF 123 ***
 
     // Wavefunction(s) for diagram number 119
     // (none)
@@ -1698,7 +1698,7 @@ namespace Proc
     jamp[18] += +amp[0];
     jamp[20] += -amp[0];
 
-    // *** DIAGRAM 120 OF 123 *** 
+    // *** DIAGRAM 120 OF 123 ***
 
     // Wavefunction(s) for diagram number 120
     VVVV1P0_1( w[0], w[4], w[5], cxtype( cIPC[4], cIPC[5] ), 0., 0., w[24] );
@@ -1722,7 +1722,7 @@ namespace Proc
     jamp[10] += +amp[0];
     jamp[11] += -amp[0];
 
-    // *** DIAGRAM 121 OF 123 *** 
+    // *** DIAGRAM 121 OF 123 ***
 
     // Wavefunction(s) for diagram number 121
     // (none)
@@ -1744,7 +1744,7 @@ namespace Proc
     jamp[19] += +amp[0];
     jamp[22] += -amp[0];
 
-    // *** DIAGRAM 122 OF 123 *** 
+    // *** DIAGRAM 122 OF 123 ***
 
     // Wavefunction(s) for diagram number 122
     // (none)
@@ -1778,7 +1778,7 @@ namespace Proc
     jamp[19] += -cxtype(0, 1) * amp[0];
     jamp[22] += +cxtype(0, 1) * amp[0];
 
-    // *** DIAGRAM 123 OF 123 *** 
+    // *** DIAGRAM 123 OF 123 ***
 
     // Wavefunction(s) for diagram number 123
     // (none)
