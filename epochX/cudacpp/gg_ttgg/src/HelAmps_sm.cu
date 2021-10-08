@@ -1,5 +1,5 @@
 //==========================================================================
-// This file has been automatically generated for C++ Standalone by
+// This file has been automatically generated for CUDA/C++ standalone by
 // MadGraph5_aMC@NLO v. 2.9.5, 2021-08-22
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
@@ -811,9 +811,11 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  constexpr fptype one( 1. );
+  __device__ constexpr fptype one( 1. );
 
-  __device__ void VVV1_0(const cxtype V1[], const cxtype V2[], const cxtype V3[], const cxtype COUP, cxtype * vertex)
+  //--------------------------------------------------------------------------
+
+  __device__ void VVV1_0( const cxtype V1[], const cxtype V2[], const cxtype V3[], const cxtype COUP, cxtype* vertex )
   {
     cxtype cI = cxtype(0., 1.);
     fptype P1[4];
@@ -852,8 +854,9 @@ namespace MG5_sm
     (*vertex) = COUP * (TMP1*(-cI*(TMP0) + cI*(TMP2)) + (TMP3*(+cI*(TMP4)-cI*(TMP5)) + TMP6*(-cI*(TMP7) + cI*(TMP8))));
   }
 
+  //--------------------------------------------------------------------------
 
-  __device__ void VVV1P0_1(const cxtype V2[], const cxtype V3[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[])
+  __device__ void VVV1P0_1( const cxtype V2[], const cxtype V3[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[] )
   {
     cxtype cI = cxtype(0., 1.);
     fptype P1[4];
@@ -891,8 +894,9 @@ namespace MG5_sm
     V1[5] = denom * (TMP6*(-cI*(P2[3]) + cI*(P3[3])) + (V2[5]*(-cI*(TMP0) + cI*(TMP2)) + V3[5]*(+cI*(TMP4)-cI*(TMP5))));
   }
 
+  //--------------------------------------------------------------------------
 
-  __device__ void FFV1_0(const cxtype F1[], const cxtype F2[], const cxtype V3[], const cxtype COUP, cxtype * vertex)
+  __device__ void FFV1_0( const cxtype F1[], const cxtype F2[], const cxtype V3[], const cxtype COUP, cxtype* vertex )
   {
     cxtype cI = cxtype(0., 1.);
     cxtype TMP9;
@@ -900,8 +904,9 @@ namespace MG5_sm
     (*vertex) = COUP * -cI * TMP9;
   }
 
+  //--------------------------------------------------------------------------
 
-  __device__ void FFV1_1(const cxtype F2[], const cxtype V3[], const cxtype COUP, const fptype M1, const fptype W1, cxtype F1[])
+  __device__ void FFV1_1( const cxtype F2[], const cxtype V3[], const cxtype COUP, const fptype M1, const fptype W1, cxtype F1[] )
   {
     cxtype cI = cxtype(0., 1.);
     fptype P1[4];
@@ -919,8 +924,9 @@ namespace MG5_sm
     F1[5] = denom * cI * (F2[4]*(P1[0]*(-V3[3] + cI*(V3[4])) + (P1[1]*(V3[2] + V3[5]) + (P1[2]*(-one) * (+cI*(V3[2] + V3[5])) + P1[3]*(-V3[3] + cI*(V3[4]))))) + (F2[5]*(P1[0]*(-V3[2] + V3[5]) + (P1[1]*(V3[3] + cI*(V3[4])) + (P1[2]*(-cI*(V3[3]) + V3[4]) + P1[3]*(-V3[2] + V3[5])))) + M1*(F2[2]*(-V3[3] + cI*(V3[4])) + F2[3]*(V3[2] + V3[5]))));
   }
 
+  //--------------------------------------------------------------------------
 
-  __device__ void FFV1_2(const cxtype F1[], const cxtype V3[], const cxtype COUP, const fptype M2, const fptype W2, cxtype F2[])
+  __device__ void FFV1_2( const cxtype F1[], const cxtype V3[], const cxtype COUP, const fptype M2, const fptype W2, cxtype F2[] )
   {
     cxtype cI = cxtype(0., 1.);
     fptype P2[4];
@@ -938,8 +944,9 @@ namespace MG5_sm
     F2[5] = denom * cI * (F1[4]*(P2[0]*(-one) * (V3[3] + cI*(V3[4])) + (P2[1]*(V3[2] - V3[5]) + (P2[2]*(+cI*(V3[2])-cI*(V3[5])) + P2[3]*(V3[3] + cI*(V3[4]))))) + (F1[5]*(P2[0]*(V3[2] + V3[5]) + (P2[1]*(-V3[3] + cI*(V3[4])) + (P2[2]*(-one) * (+cI*(V3[3]) + V3[4]) - P2[3]*(V3[2] + V3[5])))) + M2*(F1[2]*(V3[3] + cI*(V3[4])) + F1[3]*(V3[2] - V3[5]))));
   }
 
+  //--------------------------------------------------------------------------
 
-  __device__ void FFV1P0_3(const cxtype F1[], const cxtype F2[], const cxtype COUP, const fptype M3, const fptype W3, cxtype V3[])
+  __device__ void FFV1P0_3( const cxtype F1[], const cxtype F2[], const cxtype COUP, const fptype M3, const fptype W3, cxtype V3[] )
   {
     cxtype cI = cxtype(0., 1.);
     fptype P3[4];
@@ -957,8 +964,9 @@ namespace MG5_sm
     V3[5] = denom * (-cI) * (-F1[2]*F2[4] - F1[5]*F2[3] + F1[3]*F2[5] + F1[4]*F2[2]);
   }
 
+  //--------------------------------------------------------------------------
 
-  __device__ void VVVV1_0(const cxtype V1[], const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, cxtype * vertex)
+  __device__ void VVVV1_0( const cxtype V1[], const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, cxtype* vertex )
   {
     cxtype cI = cxtype(0., 1.);
     cxtype TMP10;
@@ -972,8 +980,9 @@ namespace MG5_sm
     (*vertex) = COUP * (-cI*(TMP6*TMP10) + cI*(TMP3*TMP11));
   }
 
+  //--------------------------------------------------------------------------
 
-  __device__ void VVVV1P0_1(const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[])
+  __device__ void VVVV1P0_1( const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[] )
   {
     cxtype cI = cxtype(0., 1.);
     fptype P1[4];
@@ -995,8 +1004,9 @@ namespace MG5_sm
     V1[5] = denom * (-cI*(TMP6*V4[5]) + cI*(V3[5]*TMP11));
   }
 
+  //--------------------------------------------------------------------------
 
-  __device__ void VVVV3_0(const cxtype V1[], const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, cxtype * vertex)
+  __device__ void VVVV3_0( const cxtype V1[], const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, cxtype* vertex )
   {
     cxtype cI = cxtype(0., 1.);
     cxtype TMP1;
@@ -1010,8 +1020,9 @@ namespace MG5_sm
     (*vertex) = COUP * (-cI*(TMP6*TMP10) + cI*(TMP1*TMP12));
   }
 
+  //--------------------------------------------------------------------------
 
-  __device__ void VVVV3P0_1(const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[])
+  __device__ void VVVV3P0_1( const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[] )
   {
     cxtype cI = cxtype(0., 1.);
     fptype P1[4];
@@ -1033,8 +1044,9 @@ namespace MG5_sm
     V1[5] = denom * (-cI*(TMP6*V4[5]) + cI*(V2[5]*TMP12));
   }
 
+  //--------------------------------------------------------------------------
 
-  __device__ void VVVV4_0(const cxtype V1[], const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, cxtype * vertex)
+  __device__ void VVVV4_0( const cxtype V1[], const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, cxtype* vertex )
   {
     cxtype cI = cxtype(0., 1.);
     cxtype TMP1;
@@ -1048,8 +1060,9 @@ namespace MG5_sm
     (*vertex) = COUP * (-cI*(TMP3*TMP11) + cI*(TMP1*TMP12));
   }
 
+  //--------------------------------------------------------------------------
 
-  __device__ void VVVV4P0_1(const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[])
+  __device__ void VVVV4P0_1( const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[] )
   {
     cxtype cI = cxtype(0., 1.);
     fptype P1[4];
@@ -1071,8 +1084,7 @@ namespace MG5_sm
     V1[5] = denom * (-cI*(V3[5]*TMP11) + cI*(V2[5]*TMP12));
   }
 
+  //--------------------------------------------------------------------------
 
-
-} // end namespace $(namespace)s_sm
-
+} // end namespace MG5_sm
 
