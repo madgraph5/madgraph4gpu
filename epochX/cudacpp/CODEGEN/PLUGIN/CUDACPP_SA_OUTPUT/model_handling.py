@@ -178,7 +178,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     def get_foot_txt(self):
         """Prototype for language specific footer"""
         ###return '}\n'
-        return '  }\n' # AV
+        return '  }\n\n  //--------------------------------------------------------------------------' # AV
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     # This affects HelAmps_sm.cu
@@ -457,6 +457,10 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
     ###c_file_dir = '.'
     ###param_template_h = 'cpp_model_parameters_h.inc'
     ###param_template_cc = 'cpp_model_parameters_cc.inc'
+
+    # AV - change defaults from export_cpp.UFOModelConverterCPP
+    # (custom tag to appear in 'This file has been automatically generated for')
+    output_name = 'CUDA/C++ standalone'
 
     # AV - keep defaults from export_cpp.UFOModelConverterGPU
     ###cc_ext = 'cu'

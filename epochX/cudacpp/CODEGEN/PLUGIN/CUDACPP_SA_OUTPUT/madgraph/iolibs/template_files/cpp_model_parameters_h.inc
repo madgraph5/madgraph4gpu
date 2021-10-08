@@ -1,5 +1,5 @@
 //==========================================================================
-// This file has been automatically generated for C++
+// This file has been automatically generated for CUDA/C++ standalone by
 %(info_lines)s
 //==========================================================================
 
