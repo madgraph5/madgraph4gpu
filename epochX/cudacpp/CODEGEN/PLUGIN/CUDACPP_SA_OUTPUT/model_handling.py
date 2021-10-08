@@ -657,6 +657,32 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         writer.truncate()
         return out
 
+    # AV - replace the export_cpp.OneProcessExporterGPU method (improve formatting)
+    @staticmethod
+    def coeff(ff_number, frac, is_imaginary, Nc_power, Nc_value=3):
+        """Returns a nicely formatted string for the coefficients in JAMP lines"""
+        import fractions
+        total_coeff = ff_number * frac * fractions.Fraction(Nc_value) ** Nc_power
+        if total_coeff == 1:
+            if is_imaginary:
+                ###return '+cxtype(0,1)*'
+                return '+cxtype(0, 1) * ' # AV
+            else:
+                return '+'
+        elif total_coeff == -1:
+            if is_imaginary:
+                ###return '-cxtype(0,1)*'
+                return '-cxtype(0, 1) * ' # AV
+            else:
+                return '-'
+        res_str = '%+i.' % total_coeff.numerator
+        if total_coeff.denominator != 1:
+            # Check if total_coeff is an integer
+            res_str = res_str + '/%i.' % total_coeff.denominator
+        if is_imaginary:
+            res_str = res_str + '*cxtype(0,1)'    
+        return res_str + '*'
+
 #------------------------------------------------------------------------------------
 
 import madgraph.iolibs.helas_call_writers as helas_call_writers
@@ -740,7 +766,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         res = []
         # Reset jamp
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
-        res.append('for( int i=0; i<%s; i++ ){ jamp[i] = cxtype( 0., 0. ); }' % len(color_amplitudes))
+        res.append('for( int i=0; i<%s; i++ ){ jamp[i] = cxtype( 0., 0. ); }' % len(color_amplitudes)) # AV
         for diagram in matrix_element.get('diagrams'):
             ###print('DIAGRAM %3d: #wavefunctions=%3d, #diagrams=%3d' %
             ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING
@@ -756,8 +782,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 amplitude.set('number', 1)
                 res.append(self.get_amplitude_call(amplitude))
                 for njamp, coeff in color[namp].items():
-                    res.append("jamp[%s] += %samp[0];" % 
-                         (njamp, export_cpp.OneProcessExporterGPU.coeff(*coeff)))
+                    ###res.append("jamp[%s] += %samp[0];" % (njamp, export_cpp.OneProcessExporterGPU.coeff(*coeff)))
+                    res.append("jamp[%s] += %samp[0];" % (njamp, PLUGIN_OneProcessExporter.coeff(*coeff)))
             if len(diagram.get('amplitudes')) == 0 : res.append('// (none)') # AV
         res.append('\n    // *** END OF DIAGRAMS ***' ) # AV
         return res
