@@ -1,3 +1,5 @@
+  //--------------------------------------------------------------------------
+
   __device__
   inline const fptype& pIparIp4Ievt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                      const int ipar,
