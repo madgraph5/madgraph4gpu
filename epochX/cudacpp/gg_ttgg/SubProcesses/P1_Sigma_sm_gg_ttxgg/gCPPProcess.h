@@ -1,6 +1,6 @@
 //==========================================================================
 // This file has been automatically generated for C++ Standalone by
-// MadGraph5_aMC@NLO v. 2.8.2, 2020-10-30
+// MadGraph5_aMC@NLO v. 2.9.5, 2021-08-22
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -24,14 +24,14 @@
 
 #ifdef __CUDACC__
 
-#define checkCuda(code) {assertCuda(code, __FILE__, __LINE__);}
+#define checkCuda( code ) { assertCuda( code, __FILE__, __LINE__ ); }
 
-inline void assertCuda(cudaError_t code, const char* file, int line, bool abort = true)
+inline void assertCuda( cudaError_t code, const char* file, int line, bool abort = true )
 {
-  if (code != cudaSuccess)
+  if ( code != cudaSuccess )
   {
-    printf( "GPUassert: %s %s:%d\n", cudaGetErrorString(code), file, line);
-    if (abort) assert(code == cudaSuccess);
+    printf( "GPUassert: %s %s:%d\n", cudaGetErrorString(code), file, line );
+    if ( abort ) assert( code == cudaSuccess );
   }
 }
 
