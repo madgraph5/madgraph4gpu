@@ -55,7 +55,7 @@ SYMMETRY = symmetry.o idenparts.o
 
 BRIDGE = fbridge.o
 
-CUDA = transpose.o
+CUDA =
 
 # Binaries
 
