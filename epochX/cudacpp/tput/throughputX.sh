@@ -244,7 +244,8 @@ for suf in $auto; do
   if [ "${eemumu}" == "1" ]; then 
     pushd $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
     pwd
-    make; echo
+    ###make; echo
+    make AVX=none; echo
     popd >& /dev/null
   fi
 
