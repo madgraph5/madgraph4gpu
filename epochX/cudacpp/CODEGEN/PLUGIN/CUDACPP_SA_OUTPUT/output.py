@@ -37,6 +37,26 @@ misc.make_unique = PLUGIN_make_unique
 
 #------------------------------------------------------------------------------------
 
+# AV - modify madgraph.iolibs.files.cp (preserve symlinks)
+def PLUGIN_cp(path1, path2, log=True, error=False):
+    """ simple cp taking linux or mix entry"""
+    from madgraph.iolibs.files import format_path
+    path1 = format_path(path1)
+    path2 = format_path(path2)
+    print('PLUGIN_cp(\'%s\',\'%s\')'%(path1,path2))
+    try:
+        import shutil
+        ###shutil.copy(path1, path2)
+        shutil.copy(path1, path2, follow_symlinks=False) # AV
+    except:
+        from madgraph.iolibs.files import cp
+        cp(path1, path2, log=log, error=error)
+
+DEFAULT_cp = export_cpp.cp
+export_cpp.cp = PLUGIN_cp
+
+#------------------------------------------------------------------------------------
+
 class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     # Class structure information
     #  - object
