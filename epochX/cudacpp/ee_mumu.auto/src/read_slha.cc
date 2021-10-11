@@ -23,13 +23,12 @@ double SLHABlock::get_entry(std::vector<int> indices, double def_val)
   return _entries[indices];
 }
 
-void SLHAReader::read_slha_file(std::string file_name, bool verbose=true)
+void SLHAReader::read_slha_file(std::string file_name, bool verbose)
 {
   std::ifstream param_card;
   param_card.open(file_name.c_str(), std::ifstream::in);
   if(!param_card.good())
     throw "Error while opening param card";
-
   if(verbose)
     std::cout << "Opened slha file " << file_name << " for reading" << std::endl;
   char buf[200];
