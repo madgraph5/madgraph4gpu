@@ -464,6 +464,10 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
     # (custom tag to appear in 'This file has been automatically generated for')
     output_name = 'CUDA/C++ standalone'
 
+    # AV - change defaults from export_cpp.UFOModelConverterGPU
+    ###cc_ext = 'cu' # create HelAmps_sm.cu
+    cc_ext = 'cc' # create HelAmps_sm.cc
+
     # AV - keep defaults from export_cpp.UFOModelConverterGPU
     ###cc_ext = 'cu'
     ###aloha_template_h = pjoin('gpu','cpp_hel_amps_h.inc')
@@ -598,6 +602,12 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     #  - PLUGIN_OneProcessExporter(OneProcessExporterGPU)
     #      This class
     
+    # AV - change defaults from export_cpp.OneProcessExporterGPU
+    # [NB process_class = "CPPProcess" is set in OneProcessExporterCPP.__init__]
+    # [NB process_class = "gCPPProcess" is set in OneProcessExporterGPU.__init__]
+    ###cc_ext = 'cu' # create gCPPProcess.cu (and symlink it as CPPProcess.cc)
+    cc_ext = 'cc' # create CPPProcess.cc (and symlink it as gCPPProcess.cu)
+
     # AV - keep defaults from export_cpp.OneProcessExporterGPU
     ###process_dir = '.'
     ###include_dir = '.'
@@ -608,13 +618,17 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     ###process_wavefunction_template = 'cpp_process_wavefunctions.inc'
     ###process_sigmaKin_function_template = 'gpu/process_sigmaKin_function.inc'
     ###single_process_template = 'gpu/process_matrix.inc'
-    ###cc_ext = 'cu'
 
     # AV - use template files from PLUGINDIR instead of MG5DIR
     ###template_path = os.path.join(_file_path, 'iolibs', 'template_files')
     ###__template_path = os.path.join(_file_path, 'iolibs', 'template_files') 
     template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
     __template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
+
+    # AV - overload export_cpp.OneProcessExporterGPU constructor (rename gCPPProcess to CPPProcess)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.process_class = "CPPProcess"
 
     # AV - modify export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
     def get_process_function_definitions(self, write=True):
@@ -706,18 +720,31 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         return"\n".join([ "// " + process.nice_string().replace('\n', '\n// * ') \
                          for process in matrix_element.get('processes')])
 
-    # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
+    # AV - replace the export_cpp.OneProcessExporterGPU method (invert .cc/.cu, add debug printouts)
     def generate_process_files(self):
-        """Generate mgOnGpuConfig.h, gCPPProcess.h/cu, gcheck_sa.cu, CPPProcess.cc link, check_sa.cc link"""
+        """Generate mgOnGpuConfig.h, CPPProcess.cc, check_sa.cc, gCPPProcess.h/cu link, gcheck_sa.cu link""" 
         misc.sprint('Entering PLUGIN_OneProcessExporter.generate_process_files')
-        return super().generate_process_files()
+        super(export_cpp.OneProcessExporterGPU, self).generate_process_files()
+        self.edit_check_sa()
+        self.edit_mgonGPU()
+        # Add symbolic links
+        ###files.ln(pjoin(self.path, 'gcheck_sa.cu'), self.path, 'check_sa.cc')
+        ###files.ln(pjoin(self.path, 'gCPPProcess.cu'), self.path, 'CPPProcess.cc')
+        files.ln(pjoin(self.path, 'check_sa.cc'), self.path, 'gcheck_sa.cu')
+        files.ln(pjoin(self.path, 'CPPProcess.cc'), self.path, 'gCPPProcess.cu')
 
-    # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
+    # AV - replace the export_cpp.OneProcessExporterGPU method (invert .cc/.cu, add debug printouts)
     def edit_check_sa(self):
-        """Generate gcheck_sa.cu"""
+        """Generate check_sa.cc"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_check_sa')
-        ###misc.sprint('  template_path=%s'%self.template_path) # look for gpu/check_sa.cu here
-        return super().edit_check_sa()
+        template = open(pjoin(self.template_path,'gpu','check_sa.cu'),'r').read()
+        replace_dict = {}
+        replace_dict['nexternal'], _ = self.matrix_elements[0].get_nexternal_ninitial()
+        replace_dict['model'] = self.model_name
+        replace_dict['numproc'] = len(self.matrix_elements)
+        ff = open(pjoin(self.path, 'check_sa.cc'),'w')
+        ff.write(template)
+        ff.close()
 
     # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
     def edit_mgonGPU(self):
@@ -738,7 +765,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
 
     # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
     def write_process_cc_file(self, writer):
-        """Generate gCPPProcess.cu"""
+        """Generate CPPProcess.cc"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.write_process_cc_file')
         out = super().write_process_cc_file(writer)
         writer.seek(-1, os.SEEK_CUR)
