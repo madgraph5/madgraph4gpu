@@ -737,7 +737,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     def edit_check_sa(self):
         """Generate check_sa.cc"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_check_sa')
-        template = open(pjoin(self.template_path,'gpu','check_sa.cu'),'r').read()
+        template = open(pjoin(self.template_path,'gpu','check_sa.cc'),'r').read()
         replace_dict = {}
         replace_dict['nexternal'], _ = self.matrix_elements[0].get_nexternal_ninitial()
         replace_dict['model'] = self.model_name
