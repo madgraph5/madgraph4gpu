@@ -5,7 +5,7 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#include "../../src/HelAmps_sm.cu"
+#include "../../src/HelAmps_sm.cc"
 
 #include <algorithm>
 #include <iostream>
@@ -13,7 +13,7 @@
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 
-#include "gCPPProcess.h"
+#include "CPPProcess.h"
 
 //==========================================================================
 // Class member functions for calculating the matrix elements for

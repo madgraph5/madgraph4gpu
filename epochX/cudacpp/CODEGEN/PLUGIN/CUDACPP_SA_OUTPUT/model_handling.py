@@ -753,7 +753,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         ###misc.sprint('  template_path=%s'%self.template_path) # look for gpu/mgOnGpuConfig.h here
         return super().edit_mgonGPU()
 
-    # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
+    # AV - overload the export_cpp.OneProcessExporterGPU method (add debug printout and truncate last \n)
     # [*NB export_cpp.UFOModelConverterGPU.write_process_h_file is not called!*]
     def write_process_h_file(self, writer):
         """Generate final gCPPProcess.h"""
@@ -763,11 +763,25 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         writer.truncate()
         return out
 
-    # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
+    # AV - replace the export_cpp.OneProcessExporterGPU method (replace HelAmps.cu by HelAmps.cc)
+    def super_write_process_cc_file(self, writer):
+        """Write the class member definition (.cc) file for the process described by matrix_element"""
+        replace_dict = super(export_cpp.OneProcessExporterGPU, self).write_process_cc_file(False)
+        ###replace_dict['hel_amps_def'] = "\n#include \"../../src/HelAmps_%s.cu\"" % self.model_name
+        replace_dict['hel_amps_def'] = "\n#include \"../../src/HelAmps_%s.cc\"" % self.model_name # AV
+        if writer:
+            file = self.read_template_file(self.process_template_cc) % replace_dict
+            # Write the file
+            writer.writelines(file)
+        else:
+            return replace_dict
+
+    # AV - overload the export_cpp.OneProcessExporterGPU method (add debug printout and truncate last \n)
     def write_process_cc_file(self, writer):
         """Generate CPPProcess.cc"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.write_process_cc_file')
-        out = super().write_process_cc_file(writer)
+        ###out = super().write_process_cc_file(writer)
+        out = self.super_write_process_cc_file(writer)
         writer.seek(-1, os.SEEK_CUR)
         writer.truncate()
         return out

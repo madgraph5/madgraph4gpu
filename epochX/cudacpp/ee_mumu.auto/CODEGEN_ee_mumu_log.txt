@@ -80,7 +80,7 @@ INFO: Creating files in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGE
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/./CPPProcess.h
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 760][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/./CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 769][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 782][0m [0m
 [1;32mDEBUG: only one Matrix-element supported? [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/. 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 739][0m [0m
@@ -115,6 +115,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/src/. and /data/av
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 154][0m [0m
 quit
 
-real	0m1.194s
-user	0m0.880s
-sys	0m0.112s
+real	0m1.085s
+user	0m0.865s
+sys	0m0.122s
