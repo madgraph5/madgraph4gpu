@@ -86,6 +86,8 @@ __global__ void dev_transpose(const T* inpArr, T* outArr,
   }
 }
 
+#endif // __CUDACC__
+
 template<typename T>
 class Matrix {
 public:
