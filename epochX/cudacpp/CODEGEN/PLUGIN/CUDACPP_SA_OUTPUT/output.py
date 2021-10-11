@@ -43,7 +43,6 @@ def PLUGIN_cp(path1, path2, log=True, error=False):
     from madgraph.iolibs.files import format_path
     path1 = format_path(path1)
     path2 = format_path(path2)
-    print('PLUGIN_cp(\'%s\',\'%s\')'%(path1,path2))
     try:
         import shutil
         ###shutil.copy(path1, path2)
@@ -125,9 +124,9 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     ###aloha_exporter = model_handling.PLUGIN_UFOHelasCallWriter
 
     # AV (default from OM's tutorial) - add a debug printout
-    def __init__(self, *args, **opts):
+    def __init__(self, *args, **kwargs):
         misc.sprint('Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter)')
-        return super().__init__(*args, **opts)
+        return super().__init__(*args, **kwargs)
 
     # AV (default from OM's tutorial) - add a debug printout
     def copy_template(self, model):
