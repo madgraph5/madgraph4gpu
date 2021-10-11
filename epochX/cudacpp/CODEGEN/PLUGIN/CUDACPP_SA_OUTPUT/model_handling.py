@@ -532,6 +532,17 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         # [This only affects the order in which they are printed out - which is now reversed in the templates]
         return file_h, file_cc
 
+    # AV - replace export_cpp.UFOModelConverterCPP method (add explicit std namespace)
+    def write_print_parameters(self, params):
+        """Write out the lines of independent parameters"""
+        # For each parameter, write name = expr;
+        res_strings = []
+        for param in params:
+            ###res_strings.append("cout << setw(20) << \"%s \" << \"= \" << setiosflags(ios::scientific) << setw(10) << %s << endl;" % (param.name, param.name))
+            res_strings.append("std::cout << std::setw(20) << \"%s \" << \"= \" << std::setiosflags(std::ios::scientific) << std::setw(10) << %s << std::endl;" % (param.name, param.name)) # AV
+        ##return "\n".join(res_strings)
+        return "\n  ".join(res_strings) # AV (why was this not necessary before?)
+
     # AV - replace export_cpp.UFOModelConverterCPP method (add debug printouts)
     # (This is where the loop over FFV functions takes place - I had a hard time to understand it)
     # (Note also that write_combined_cc seems to never be called for our eemumu and ggttgg examples)
