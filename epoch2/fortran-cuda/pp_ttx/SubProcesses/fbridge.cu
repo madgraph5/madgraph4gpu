@@ -7,8 +7,7 @@
 
 void bridge(double *m) {
 
-  std::cout << "kernel,";
-  Matrix<double> t(16, 4, 4, 2);
+  Matrix<double> t = Matrix<double>(16, 4, 4, 2);
   t.hst_transpose(m);
 
 }
