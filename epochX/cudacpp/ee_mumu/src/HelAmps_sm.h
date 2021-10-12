@@ -205,7 +205,7 @@ namespace MG5_sm
   __device__ INLINE
   void FFV4_3( const cxtype_sv F1[],                // input: wavefunction1[6]
                const cxtype_sv F2[],                // input: wavefunction2[6]
-               const cxtype_sv COUP,
+               const cxtype COUP,
                const fptype M3,
                const fptype W3,
                cxtype_sv V3[] ) ALWAYS_INLINE;      // output: wavefunction3[6]
