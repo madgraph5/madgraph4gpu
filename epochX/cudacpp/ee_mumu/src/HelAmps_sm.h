@@ -233,7 +233,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-} // end namespace
+} // end namespace MG5_sm
 
 #endif // HelAmps_sm_H
 
