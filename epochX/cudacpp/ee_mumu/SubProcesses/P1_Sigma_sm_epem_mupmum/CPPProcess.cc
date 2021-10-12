@@ -31,12 +31,12 @@ namespace gProc
 namespace Proc
 #endif
 {
-  using mgOnGpu::np4; // 4: the dimension of 4-momenta (E,px,py,pz)
-  using mgOnGpu::npar; // number of particles in total (initial + final)
-  using mgOnGpu::ncomb; // number of helicity combinations
+  using mgOnGpu::np4; // dimensions of 4-momenta (E,px,py,pz)
+  using mgOnGpu::npar; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+  using mgOnGpu::ncomb; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
 
-  const int nwf = 5; // #wavefunctions: npar (4 external) + 1 (internal, reused for gamma and Z)
-  const int nw6 = 6; // dimension of each wavefunction (see KEK 91-11)
+  using mgOnGpu::nwf; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+  using mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
 
 #ifdef __CUDACC__
   __device__ __constant__ short cHel[ncomb][npar];
