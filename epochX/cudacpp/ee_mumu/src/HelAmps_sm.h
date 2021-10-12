@@ -9,6 +9,7 @@
 #ifndef HelAmps_sm_H
 #define HelAmps_sm_H 1
 
+//#include <cmath>
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
@@ -235,3 +236,4 @@ namespace MG5_sm
 } // end namespace
 
 #endif // HelAmps_sm_H
+

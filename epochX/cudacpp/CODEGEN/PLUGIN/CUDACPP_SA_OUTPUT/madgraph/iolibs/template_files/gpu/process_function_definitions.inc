@@ -64,7 +64,7 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   // Initialize process
-  void CPPProcess::initProc( string param_card_name )
+  void CPPProcess::initProc( std::string param_card_name )
   {
     // Instantiate the model class and set parameters that stay fixed during run
     pars = Parameters_sm::getInstance();
