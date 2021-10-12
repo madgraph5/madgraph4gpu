@@ -10,7 +10,7 @@
 #include "mgOnGpuVectors.h"
 #include "HelAmps_sm.h"
 
-#include <cassert>
+//#include <cassert>
 #include <cmath>
 #include <cstdlib>
 #include <iomanip>
@@ -21,6 +21,9 @@ mgDebugDeclare();
 namespace MG5_sm
 {
 #ifdef __CUDACC__
+
+  //--------------------------------------------------------------------------
+
   __device__
   inline const fptype& pIparIp4Ievt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                      const int ipar,
@@ -35,6 +38,8 @@ namespace MG5_sm
     const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
     //printf( "%f\n", momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
     return momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
+    //fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
+    //return momenta[ipagM][ipar][ip4][ieppM]; // this seems ~1-2% faster in eemumu C++?
   }
 #else
   // Return by value: it seems a tiny bit faster than returning a reference (both for scalar and vector), not clear why
@@ -100,7 +105,7 @@ namespace MG5_sm
           sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
           const int ip = ( 1 + nh ) / 2; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
           const int im = ( 1 - nh ) / 2; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
-          fi[2] = cxmake( ip * sqm[ip], 0 );          
+          fi[2] = cxmake( ip * sqm[ip], 0 );
           fi[3] = cxmake( im * nsf * sqm[ip], 0 );
           fi[4] = cxmake( ip * nsf * sqm[im], 0 );
           fi[5] = cxmake( im * sqm[im], 0 );

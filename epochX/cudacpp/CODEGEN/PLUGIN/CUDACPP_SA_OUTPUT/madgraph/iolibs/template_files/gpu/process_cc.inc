@@ -5,6 +5,7 @@
 %(hel_amps_def)s
 
 #include <algorithm>
+#include <cstring>
 #include <iostream>
 
 #include "mgOnGpuConfig.h"

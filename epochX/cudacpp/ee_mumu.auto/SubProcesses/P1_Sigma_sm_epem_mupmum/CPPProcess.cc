@@ -8,6 +8,7 @@
 #include "../../src/HelAmps_sm.cc"
 
 #include <algorithm>
+#include <cstring>
 #include <iostream>
 
 #include "mgOnGpuConfig.h"

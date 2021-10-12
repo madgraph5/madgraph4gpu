@@ -20,16 +20,17 @@
 
 #ifndef __CUDACC__
   // Return by value: it seems a tiny bit faster than returning a reference (both for scalar and vector), not clear why
+  // NB: this assumes that neppV == neppM!
   inline fptype_sv pIparIp4Ipag( const fptype_sv* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                  const int ipar,
                                  const int ip4,
                                  const int ipagM )
   {
 #ifndef MGONGPU_CPPSIMD
-    // NB THERE IS NO SIMD YET IN GGTTGG! HENCE ipagM=ievt
+    // NB THERE IS NO SIMD YET IN EPOCHX! HENCE ipagM=ievt
     return pIparIp4Ievt( momenta1d, ipar, ip4, ipagM );
 #else
-#error THERE IS NO SIMD YET IN GGTTGG
+#error THERE IS NO SIMD YET IN EPOCHX
 #endif
   }
 #endif
