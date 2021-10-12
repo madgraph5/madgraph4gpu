@@ -817,7 +817,10 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // FIXME: move these inside each FFV function? Cuda tput[MECalcOnly] seems 3% slower for eemumu?
   __device__ constexpr fptype one( 1. );
+  __device__ constexpr fptype two( 2. );
+  __device__ constexpr fptype half( 1. / 2. );
 
   //--------------------------------------------------------------------------
 

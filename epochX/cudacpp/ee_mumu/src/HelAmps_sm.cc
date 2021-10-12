@@ -816,6 +816,13 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // FIXME: move these inside each FFV function? Cuda tput[MECalcOnly] seems 3% slower for eemumu?
+  __device__ constexpr fptype one( 1. );
+  __device__ constexpr fptype two( 2. );
+  __device__ constexpr fptype half( 1. / 2. );
+
+  //--------------------------------------------------------------------------
+
   __device__
   void FFV1_0( const cxtype_sv F1[],   // input: wavefunction1[6]
                const cxtype_sv F2[],   // input: wavefunction2[6]
@@ -914,8 +921,6 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI = cxmake( 0., 1. );
-    constexpr fptype one( 1. );
-    constexpr fptype two( 2. );
     const cxtype_sv TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
                             F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
     const cxtype_sv TMP4 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
@@ -937,8 +942,6 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI = cxmake( 0., 1. );
-    constexpr fptype two( 2. );
-    constexpr fptype half( 1. / 2. );
     const fptype OM3 = ( M3 != 0. ? 1. / ( M3 * M3 ) : 0. );
     V3[0] = +F1[0] + F2[0];
     V3[1] = +F1[1] + F2[1];
@@ -973,8 +976,6 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI = cxmake( 0., 1. );
-    constexpr fptype one( 1. );
-    constexpr fptype two( 2. );
     // Note: inverting the order and computing TMP4 before TMP3 has increased C++ speed by ~1%
     const cxtype_sv TMP4 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
                             F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
@@ -998,9 +999,6 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI = cxmake( 0., 1. );
-    constexpr fptype one( 1. );
-    constexpr fptype two( 2. );
-    constexpr fptype half( 1. / 2. );
     const fptype OM3 = ( M3 != 0. ? 1. / ( M3 * M3 ) : 0. );
     V3[0] = +F1[0] + F2[0];
     V3[1] = +F1[1] + F2[1];
@@ -1031,4 +1029,7 @@ namespace MG5_sm
     return;
   }
 
-} // end namespace
+  //--------------------------------------------------------------------------
+
+} // end namespace MG5_sm
+
