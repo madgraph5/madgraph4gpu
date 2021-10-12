@@ -14,7 +14,7 @@
 #endif
 
 // Choose floating point precision
-// If one of these macros has been set from outside with e.g. -DMGONGPU_FPTYPE_FLOAT, nothing happens
+// If one of these macros has been set from outside with e.g. -DMGONGPU_FPTYPE_FLOAT, nothing happens (issue #167)
 #if not defined MGONGPU_FPTYPE_DOUBLE and not defined MGONGPU_FPTYPE_FLOAT
 // Floating point precision (CHOOSE ONLY ONE)
 #define MGONGPU_FPTYPE_DOUBLE 1 // default (~6.8E8)

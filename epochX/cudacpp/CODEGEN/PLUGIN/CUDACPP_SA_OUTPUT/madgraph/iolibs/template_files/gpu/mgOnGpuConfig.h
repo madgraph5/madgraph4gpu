@@ -13,9 +13,19 @@
 //#define MGONGPU_COMMONRAND_ONHOST 1 // (common rand: CUDA on host, C++ on host)
 #endif
 
+// Choose floating point precision
+// If one of these macros has been set from outside with e.g. -DMGONGPU_FPTYPE_FLOAT, nothing happens (issue #167)
+#if not defined MGONGPU_FPTYPE_DOUBLE and not defined MGONGPU_FPTYPE_FLOAT
 // Floating point precision (CHOOSE ONLY ONE)
 #define MGONGPU_FPTYPE_DOUBLE 1 // default (~6.8E8)
 //#define MGONGPU_FPTYPE_FLOAT 1 // 2.4x faster (~1.64E9 against 6.8E8)
+#endif
+
+// Choose whether to inline all HelAmps functions
+// This optimization can gain almost a factor 4 in C++, similar to -flto (issue #229)
+// By default, do not inline, but allow this macros to be set from outside with e.g. -DMGONGPU_INLINE_HELAMPS
+//#undef MGONGPU_INLINE_HELAMPS // default
+////#define MGONGPU_INLINE_HELAMPS 1
 
 // Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
@@ -27,6 +37,27 @@
 #ifdef __CUDACC__
 #undef MGONGPU_NSIGHT_DEBUG // default
 //#define MGONGPU_NSIGHT_DEBUG 1
+#endif
+
+// SANITY CHECKS (random numbers)
+#if defined MGONGPU_CURAND_ONDEVICE and defined MGONGPU_CURAND_ONHOST
+#error You must CHOOSE ONLY ONE of MGONGPU_CURAND_ONDEVICE, MGONGPU_CURAND_ONHOST or MGONGPU_COMMONRAND_ONHOST
+#elif defined MGONGPU_CURAND_ONDEVICE and defined MGONGPU_COMMONRAND_ONHOST
+#error You must CHOOSE ONLY ONE of MGONGPU_CURAND_ONDEVICE, MGONGPU_CURAND_ONHOST or MGONGPU_COMMONRAND_ONHOST
+#elif defined MGONGPU_CURAND_ONHOST and defined MGONGPU_COMMONRAND_ONHOST
+#error You must CHOOSE ONLY ONE of MGONGPU_CURAND_ONDEVICE, MGONGPU_CURAND_ONHOST or MGONGPU_COMMONRAND_ONHOST
+#endif
+
+// SANITY CHECKS (floating point precision)
+#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE_FLOAT
+#error You must CHOOSE ONLY ONE of MGONGPU_FPTYPE_DOUBLE or defined MGONGPU_FPTYPE_FLOAT
+#endif
+
+// SANITY CHECKS (complex number implementation)
+#ifdef __CUDACC__
+#if defined MGONGPU_CXTYPE_THRUST and defined MGONGPU_CXTYPE_CUCOMPLEX
+#error You must CHOOSE ONLY ONE of MGONGPU_CXTYPE_THRUST or MGONGPU_CXTYPE_CUCOMPLEX
+#endif
 #endif
 
 namespace mgOnGpu
