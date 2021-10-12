@@ -62,7 +62,8 @@ namespace mgOnGpu
   //const int nbpgMAX = 2048;
 
   // Maximum number of threads per block
-  const int ntpbMAX = 256;
+  //const int ntpbMAX = 256; // AV Apr2021: why had I set this to 256?
+  const int ntpbMAX = 1024; // NB: 512 is ok, but 1024 does fail with "too many resources requested for launch"
 
   // Vector sizes for AOSOA memory layouts (GPU coalesced memory access, CPU SIMD vectorization)
   // (these are all best kept as a compile-time constants: see issue #23)
