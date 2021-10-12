@@ -166,10 +166,12 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         #out.write('  %(prefix)s void %(name)s( const %(args)s, %(output)s )' % \
         #          {'prefix': self.prefix,
         #              'output':output, 'name': name, 'args': ', const '.join(args)}) # AV - add const
-        out.write('  %(prefix)s void %(name)s( const %(args)s, %(output)s )%(suffix)s' %
+        indent = ' ' * len( '  void %s( ' % name )
+        out.write('  %(prefix)s\n  void %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
                   {'prefix': self.prefix + ( ' INLINE' if 'is_h' in mode else '' ), # AV - add INLINE
                    'suffix': ( ' ALWAYS_INLINE' if 'is_h' in mode else '' ), # AV - add ALWAYS_INLINE
-                   'output':output, 'name': name, 'args': ', const '.join(args)}) # AV - add const
+                   'indent':indent, 'output':output, 'name': name,
+                   'args': (',\n' + indent + 'const ').join(args)}) # AV - add const, add indent
         if 'is_h' in mode:
             out.write(';\n')
         else:
