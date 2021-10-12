@@ -4,21 +4,14 @@
 // ** NB1 Throughputs (e.g. 6.8E8) are events/sec for "./gcheck.exe -p 65536 128 12"
 // ** NB2 Baseline on b7g47n0004 fluctuates (probably depends on load on other VMs)
 
-// Memory layout for momenta: AOSOA, AOS, SOA (CHOOSE ONLY ONE)
-// AOSOA (ASA) layout is hardcoded: fine-tune it using the nepopR and neppM parameters below
-
 // Choose how random numbers are generated
-// If one of these macros has been set from outside with e.g. -DMGONGPU_CURAND_ONHOST, nothing happens.
+// If one of these macros has been set from outside with e.g. -DMGONGPU_COMMONRAND_ONHOST, nothing happens
 #if not defined MGONGPU_CURAND_ONDEVICE and not defined MGONGPU_CURAND_ONHOST and not defined MGONGPU_COMMONRAND_ONHOST
 // Curand random number generation (CHOOSE ONLY ONE)
 #define MGONGPU_CURAND_ONDEVICE 1 // default (curand: CUDA on device, C++ on host)
 //#define MGONGPU_CURAND_ONHOST 1 // (curand: CUDA on host, C++ on host)
 //#define MGONGPU_COMMONRAND_ONHOST 1 // (common rand: CUDA on host, C++ on host)
 #endif
-
-// Memory choice for wavefunctions: registries/"local", global, shared (CHOOSE ONLY ONE)
-// Local storage (registries plus spillover to local) is hardcoded: fine tune it using maxrregcount in the Makefile
-// [NB: new throughputs on 1GPU/4CPU system]
 
 // Floating point precision (CHOOSE ONLY ONE)
 #define MGONGPU_FPTYPE_DOUBLE 1 // default (~6.8E8)
@@ -71,14 +64,10 @@ namespace mgOnGpu
   // Maximum number of threads per block
   const int ntpbMAX = 256;
 
-  // There is no vectorization in ggttgg yet...
+  // Vector sizes for AOSOA memory layouts (GPU coalesced memory access, CPU SIMD vectorization)
+  // (these are all best kept as a compile-time constants: see issue #23)
+  // There is no vectorization in epochX yet...
 #undef MGONGPU_CPPSIMD
-
-  // Number of Events Per Page in the random number AOSOA memory layout
-  // *** NB Different values of neppR lead to different physics results: the ***
-  // *** same 1d array is generated, but it is interpreted in different ways ***
-  const int neppR = 8; // HARDCODED TO GIVE ALWAYS THE SAME PHYSICS RESULTS!
-  //const int neppR = 1; // AOS (tests of sectors/requests)
 
   // Number of Events Per Page in the momenta AOSOA (ASA) structure
   // (this is best kept as a compile-time constant: see issue #23)
@@ -89,6 +78,12 @@ namespace mgOnGpu
 #endif
   //const int neppM = 1;  // *** NB: this is equivalent to AOS ***
   //const int neppM = 32; // older default
+
+  // Number of Events Per Page in the random number AOSOA memory layout
+  // *** NB Different values of neppR lead to different physics results: the ***
+  // *** same 1d array is generated, but it is interpreted in different ways ***
+  const int neppR = 8; // HARDCODED TO GIVE ALWAYS THE SAME PHYSICS RESULTS!
+  //const int neppR = 1; // AOS (tests of sectors/requests)
 
 }
 
@@ -120,6 +115,7 @@ using mgOnGpu::fptype;
 // Define empty CUDA declaration specifiers for C++
 #ifndef __CUDACC__
 #define __global__
+//#define __host__
 #define __device__
 #endif
 
