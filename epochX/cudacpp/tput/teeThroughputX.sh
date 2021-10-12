@@ -2,36 +2,28 @@
 
 cd $(dirname $0)
 
-if [ "$*" == "" ]; then
-  args=
-  eemumu="-eemumu"
-  ggttgg=
-  ggttgg="-ggttgg"
-  auto="-auto"
-else 
-  args=
-  eemumu=
-  ggttgg=
-  ggttgg=
-  auto=
-  for arg in $*; do
-    if [ "$arg" == "-auto" ] || [ "$arg" == "-autoonly" ]; then
-      if [ "$auto" != "" ] && [ "$auto" != "$arg" ]; then
-        echo "ERROR! Incompatible options -auto and -autoonly"
-        exit 1
-      fi
-      auto=$arg
-    elif [ "$arg" == "-eemumu" ]; then
-      eemumu=$arg
-    elif [ "$arg" == "-ggtt" ]; then
-      ggtt=$arg
-    elif [ "$arg" == "-ggttgg" ]; then
-      ggttgg=$arg
-    else
-      args="$args $arg"
-    fi  
-  done
-fi
+args=
+eemumu=
+ggttgg=
+ggttgg=
+auto=
+for arg in $*; do
+  if [ "$arg" == "-auto" ] || [ "$arg" == "-autoonly" ]; then
+    if [ "$auto" != "" ] && [ "$auto" != "$arg" ]; then
+      echo "ERROR! Incompatible options -auto and -autoonly"
+      exit 1
+    fi
+    auto=$arg
+  elif [ "$arg" == "-eemumu" ]; then
+    eemumu=$arg
+  elif [ "$arg" == "-ggtt" ]; then
+    ggtt=$arg
+  elif [ "$arg" == "-ggttgg" ]; then
+    ggttgg=$arg
+  else
+    args="$args $arg"
+  fi  
+done
 
 echo "args=$args"
 echo "eemumu=$eemumu"
