@@ -8,6 +8,7 @@ cpp=1
 cuda=1
 ab3=0
 eemumu=0
+ggtt=0
 ggttgg=0
 div=0
 req=0
@@ -20,7 +21,7 @@ verbose=0
 
 function usage()
 {
-  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-eemumu] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly] [-detailed] [-v]"
+  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-eemumu] [-ggtt] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly] [-detailed] [-v]"
   exit 1
 }
 
@@ -55,6 +56,9 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-eemumu" ]; then
     eemumu=1
+    shift
+  elif [ "$1" == "-ggtt" ]; then
+    ggtt=1
     shift
   elif [ "$1" == "-ggttgg" ]; then
     ggttgg=1
@@ -173,7 +177,25 @@ for suf in $auto; do
   fi
 
   #=====================================
-  # CUDA (ggttgg/epoch2)
+  # CUDA (ggtt/epochX)
+  #=====================================
+  if [ "${cuda}" == "1" ]; then
+    if [ "${ggtt}" == "1" ]; then 
+      exes="$exes $topdir/epochX/cudacpp/gg_tt${suf}SubProcesses/P1_Sigma_sm_gg_ttx/gcheck.exe"
+    fi
+  fi
+
+  #=====================================
+  # C++ (ggtt/epochX)
+  #=====================================
+  if [ "${ggtt}" == "1" ]; then 
+    if [ "${cpp}" == "1" ]; then 
+      exes="$exes $topdir/epochX/cudacpp/gg_tt${suf}SubProcesses/P1_Sigma_sm_gg_ttx/check.exe"
+    fi
+  fi
+
+  #=====================================
+  # CUDA (ggttgg/epochX)
   #=====================================
   if [ "${cuda}" == "1" ]; then
     if [ "${ggttgg}" == "1" ]; then 
@@ -182,7 +204,7 @@ for suf in $auto; do
   fi
 
   #=====================================
-  # C++ (ggttgg/epoch2)
+  # C++ (ggttgg/epochX)
   #=====================================
   if [ "${ggttgg}" == "1" ]; then 
     if [ "${cpp}" == "1" ]; then 
@@ -221,6 +243,13 @@ for suf in $auto; do
 
   if [ "${eemumu}" == "1" ]; then 
     pushd $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
+    pwd
+    make; echo
+    popd >& /dev/null
+  fi
+
+  if [ "${ggtt}" == "1" ]; then 
+    pushd $topdir/epochX/cudacpp/gg_tt${suf}SubProcesses/P1_Sigma_sm_gg_ttx >& /dev/null
     pwd
     make; echo
     popd >& /dev/null
@@ -347,7 +376,10 @@ for exe in $exes; do
     # This is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
     exeArgs="-p 64 256 1"
     ncuArgs="-p 64 256 1"
-  else
+  elif [ "${exe%%/gg_tt*}" != "${exe}" ]; then 
+    exeArgs="-p 2048 256 1"
+    ncuArgs="-p 2048 256 1"
+  else # eemumu
     exeArgs="-p 2048 256 12"
     ncuArgs="-p 2048 256 1"
   fi
