@@ -202,6 +202,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             Include the symmetry line (entry FFV_2)
         """        
         out = StringIO()
+        out.write('    mgDebug( 0, __FUNCTION__ );\n') # AV - NO! move to get_declaration.txt
         argument_var = [name for type,name in self.call_arg]
         # define the complex number CI = 0+1j
         if add_i:
@@ -313,6 +314,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                         'sign': sign}) # AV
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
+    # This is called once per FFV function, i.e. once per WriteALOHA instance?
+    # It is called by WriteALOHA.write, after get_header_txt, get_declaration_txt, get_momenta_txt, before get_foot_txt
     # This affects 'denom = COUP' in HelAmps_sm.cu
     # This affects 'V1[2] = ' and 'F1[2] = ' in HelAmps_sm.cu
     # This affects 'TMP0 = ' in HelAmps_sm.cu
@@ -320,6 +323,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     def define_expression(self):
         """Write the helicity amplitude in C++ format"""
         out = StringIO()
+        ###out.write('    mgDebug( 0, __FUNCTION__ );\n') # AV - NO! move to get_declaration.txt
         if self.routine.contracted:
             keys = sorted(self.routine.contracted.keys())
             for name in keys:
@@ -330,7 +334,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 self.declaration.add(('complex', name))
         for name, (fct, objs) in self.routine.fct.items():
             format = ' %s = %s;\n' % (name, self.get_fct_format(fct))
-            out.write(format % ','.join([self.write_obj(obj) for obj in objs]))
+            out.write(format % ','.join([self.write_obj(obj) for obj in objs])) # AV not used in eemumu?
         numerator = self.routine.expr
         if not 'Coup(1)' in self.routine.infostr:
             coup_name = 'COUP'
@@ -404,6 +408,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 out.write('    %s[%d] = %s * %s;\n' % (self.outname, # AV
                                         self.pass_to_HELAS(ind), coeff,
                                         self.write_obj(numerator.get_rep(ind))))
+        out.write('    mgDebug( 1, __FUNCTION__ );\n') # AV
+        out.write('    return;\n') # AV
         return out.getvalue()
 
     # AV - modify aloha_writers.WriteALOHA method (improve formatting)
