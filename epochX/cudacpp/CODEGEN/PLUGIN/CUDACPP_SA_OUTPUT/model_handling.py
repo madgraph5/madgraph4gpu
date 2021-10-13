@@ -233,9 +233,11 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                         size = 20
                     else:
                         size = 18
-                out.write('    %s %s[%s];\n' % (self.type2def[type], name, size))
+                ###out.write('    %s %s[%s];\n' % (self.type2def[type], name, size))
+                out.write('    %s_sv %s[%s];\n' % (self.type2def[type], name, size)) # AV vectorize
             elif (type, name) not in self.call_arg:
-                out.write('    %s %s;\n' % (self.type2def[type], name))
+                ###out.write('    %s %s;\n' % (self.type2def[type], name))
+                out.write('    %s_sv %s;\n' % (self.type2def[type], name)) # AV vectorize
         ###out.write('    // END DECLARATION\n') # FOR DEBUGGING
         return out.getvalue()
 
