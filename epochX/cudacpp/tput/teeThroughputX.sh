@@ -74,13 +74,13 @@ for step in $steps; do
           inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; fi
           args="${proc}${auto}${flt}${inl}"
           # TEMPORARY - START
-          if [ "${helinl}" == "1" ] || [ "${fptype}" == "f" ]; then
-            if [ "${proc}" != "-eemumu" ] || [ "${suff}" == "auto" ]; then
-              ###printf "\n%80s\n" |tr " " "*"
-              ###printf "*** WARNING! fptype=${fptype} helinl=${helinl} are not yet supported for ${proc#-}_${suff}"
-              ###printf "\n%80s\n" |tr " " "*"
-              continue
-            fi
+          if [ "${proc}" == "-eemumu" ] && [ "${suff}" == "manu" ]; then
+            args="${args} -avxall"
+          elif [ "${helinl}" == "1" ] || [ "${fptype}" == "f" ]; then
+            ###printf "\n%80s\n" |tr " " "*"
+            ###printf "*** WARNING! fptype=${fptype} helinl=${helinl} are not yet supported for ${proc#-}_${suff}"
+            ###printf "\n%80s\n" |tr " " "*"
+            continue
           fi
           # TEMPORARY - END
           if [ "${step}" == "make" ]; then
