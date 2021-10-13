@@ -824,6 +824,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
   __device__
   void FFV1_0( const cxtype_sv F1[],
                const cxtype_sv F2[],
@@ -839,6 +840,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
   __device__
   void FFV1P0_3( const cxtype_sv F1[],
                  const cxtype_sv F2[],
@@ -865,6 +867,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
   __device__
   void FFV2_0( const cxtype_sv F1[],
                const cxtype_sv F2[],
@@ -880,6 +883,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
   __device__
   void FFV2_3( const cxtype_sv F1[],
                const cxtype_sv F2[],
@@ -911,6 +915,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
   __device__
   void FFV4_0( const cxtype_sv F1[],
                const cxtype_sv F2[],
@@ -928,6 +933,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
   __device__
   void FFV4_3( const cxtype_sv F1[],
                const cxtype_sv F2[],
@@ -961,6 +967,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
   __device__
   void FFV2_4_0( const cxtype_sv F1[],
                  const cxtype_sv F2[],
@@ -979,6 +986,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
   __device__
   void FFV2_4_3( const cxtype_sv F1[],
                  const cxtype_sv F2[],

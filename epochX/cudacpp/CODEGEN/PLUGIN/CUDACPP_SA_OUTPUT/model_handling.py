@@ -135,11 +135,13 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         if not 'no_include' in mode:
             out.write('#include \"%s.h\"\n\n' % self.name)
         args = []
+        comment_inputs = [] # AV
         for format, argname in self.define_argument_list(couplings):
             if format.startswith('list'):
                 type = self.type2def[format[5:]]
                 list_arg = '[]'
                 if not argname.startswith('COUP'): type += '_sv' # AV vectorize!
+                comment_inputs.append('%s[6]'%argname) # AV (wavefuncsize=6 is hardcoded also in export_cpp...)
             else:
                 type = self.type2def[format]
                 list_arg = ''
@@ -155,6 +157,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             output = '%(doublec)s_sv%(pointer_vertex)s vertex' % { # AV - vectorize!
                 'doublec':self.type2def['complex'],
                 'pointer_vertex': self.type2def['pointer_vertex']}
+            comment_output = 'amplitude \'vertex\''
         else:
             ###output = '%(doublec)s %(spin)s%(id)d[]' % {
             output = '%(doublec)s_sv %(spin)s%(id)d[]' % { # AV - vectorize!
@@ -162,20 +165,24 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                      'spin': self.particles[self.outgoing -1],
                      'id': self.outgoing}
             self.declaration.add(('list_complex', output))
+            comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
         ###out.write('%(prefix)s void %(name)s(%(args)s,%(output)s)' % \
         ###          {'prefix': self.prefix,
         ###              'output':output, 'name': name, 'args': ', '.join(args)})
         #out.write('  %(prefix)s void %(name)s( const %(args)s, %(output)s )' % \
         #          {'prefix': self.prefix,
         #              'output':output, 'name': name, 'args': ', const '.join(args)}) # AV - add const
+        comment = '// Compute the output %s from the input wavefunctions %s' % ( comment_output, ', '.join(comment_inputs) ) # AV
         indent = ' ' * len( '  void %s( ' % name )
-        out.write('  %(prefix)s\n  void %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
-                  {'prefix': self.prefix + ( ' INLINE' if 'is_h' in mode else '' ), # AV - add INLINE
+        out.write('  %(comment)s\n  %(prefix)s\n  void %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
+                  {'comment': comment, # AV - add comment
+                   'prefix': self.prefix + ( ' INLINE' if 'is_h' in mode else '' ), # AV - add INLINE
                    'suffix': ( ' ALWAYS_INLINE' if 'is_h' in mode else '' ), # AV - add ALWAYS_INLINE
                    'indent':indent, 'output':output, 'name': name,
                    'args': (',\n' + indent + 'const ').join(args)}) # AV - add const, add indent
         if 'is_h' in mode:
             out.write(';\n')
+            out.write('\n  //--------------------------------------------------------------------------\n') # AV add footer
         else:
             ###out.write('\n{\n')
             out.write('\n  {\n') # AV
