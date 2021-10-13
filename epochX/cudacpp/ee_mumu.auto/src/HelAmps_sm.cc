@@ -919,8 +919,7 @@ namespace MG5_sm
     fptype_sv P3[4];
     cxtype_sv TMP2;
     cxtype_sv denom;
-    OM3 = 0.;
-    if ( M3 != 0. ) OM3 = one / (M3*M3);
+    OM3 = ( M3 != 0. ? one / ( M3 * M3 ) : 0. );
     V3[0] = + F1[0] + F2[0];
     V3[1] = + F1[1] + F2[1];
     P3[0] = - cxreal( V3[0] );
@@ -976,8 +975,7 @@ namespace MG5_sm
     cxtype_sv TMP2;
     cxtype_sv TMP5;
     cxtype_sv denom;
-    OM3 = 0.;
-    if ( M3 != 0. ) OM3 = one / (M3*M3);
+    OM3 = ( M3 != 0. ? one / ( M3 * M3 ) : 0. );
     V3[0] = + F1[0] + F2[0];
     V3[1] = + F1[1] + F2[1];
     P3[0] = - cxreal( V3[0] );
@@ -1036,8 +1034,7 @@ namespace MG5_sm
     cxtype_sv TMP2;
     cxtype_sv TMP5;
     cxtype_sv denom;
-    OM3 = 0.;
-    if ( M3 != 0. ) OM3 = one / (M3*M3);
+    OM3 = ( M3 != 0. ? one / ( M3 * M3 ) : 0. );
     V3[0] = + F1[0] + F2[0];
     V3[1] = + F1[1] + F2[1];
     P3[0] = - cxreal( V3[0] );

@@ -255,8 +255,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         signs = self.get_momentum_conservation_sign()
         for i,type in enumerate(self.particles):
             if self.declaration.is_used('OM%s' % (i+1)):
-                ###out.write("    OM{0} = {1};\n    if (M{0} != {1})\n OM{0}={2}/(M{0}*M{0});\n".format( 
-                out.write("    OM{0} = {1};\n    if ( M{0} != {1} ) OM{0} = {2} / (M{0}*M{0});\n".format( 
+                ###out.write("    OM{0} = {1};\n    if (M{0} != {1})\n OM{0}={2}/(M{0}*M{0});\n".format(
+                ###out.write("    OM{0} = {1};\n    if ( M{0} != {1} ) OM{0} = {2} / (M{0}*M{0});\n".format( # AV older
+                out.write("    OM{0} = ( M{0} != {1} ? {2} / ( M{0} * M{0} ) : {1} );\n".format( # AV use ternary
                          i+1, self.change_number_format(0), self.change_number_format(1)))
             if i+1 == self.outgoing:
                 out_type = type
