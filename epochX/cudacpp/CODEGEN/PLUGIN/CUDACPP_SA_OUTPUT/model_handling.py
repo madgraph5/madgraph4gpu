@@ -63,8 +63,6 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     # AV - keep defaults from aloha_writers.ALOHAWriterForGPU
     ###extension = '.cu'
     ###prefix ='__device__'
-    ###realoperator = '.real()'
-    ###imagoperator = '.imag()'
     type2def = {}
     type2def['pointer_vertex'] = '*' # using complex<double>* vertex
     type2def['pointer_coup'] = ''
@@ -72,6 +70,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     # AV - modify C++ code from aloha_writers.ALOHAWriterForGPU
     ###ci_definition = 'cxtype cI = cxtype(0., 1.);\n'
     ci_definition = 'const cxtype cI = cxmake( 0., 1. );\n'
+    ###realoperator = '.real()'
+    ###imagoperator = '.imag()'
+    realoperator = 'cxreal' # NB now a function
+    imagoperator = 'cximag' # NB now a function
 
     # AV - improve formatting
     ###type2def['int'] = 'int '
@@ -290,9 +292,11 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         if aloha.loop_mode:
             ###template ='P%(i)d[%(j)d] = %(sign)s%(type)s%(i)d[%(nb)d];\n'
             template ='    P%(i)d[%(j)d] = %(sign)s %(type)s%(i)d[%(nb)d];\n' # AV
+            template ='    P%(i)d[%(j)d] = %(sign)s %(type)s%(i)d[%(nb)d];\n' # AV
         else:
             ###template ='P%(i)d[%(j)d] = %(sign)s%(type)s%(i)d[%(nb2)d]%(operator)s;\n'
-            template ='    P%(i)d[%(j)d] = %(sign)s %(type)s%(i)d[%(nb2)d]%(operator)s;\n' # AV
+            ###template ='    P%(i)d[%(j)d] = %(sign)s %(type)s%(i)d[%(nb2)d]%(operator)s;\n' # AV older
+            template ='    P%(i)d[%(j)d] = %(sign)s %(operator)s( %(type)s%(i)d[%(nb2)d] );\n' # AV cxreal/cximag
         nb2 = 0
         for j in range(4):
             if not aloha.loop_mode:
