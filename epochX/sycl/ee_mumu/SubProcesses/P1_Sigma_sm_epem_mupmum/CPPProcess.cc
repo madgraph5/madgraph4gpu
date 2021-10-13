@@ -5,6 +5,9 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
+#ifdef SYCL_LANGUAGE_VERSION
+#include <CL/sycl.hpp>
+#endif
 #include "../../src/HelAmps_sm.cc"
 
 #include <algorithm>
@@ -49,16 +52,22 @@ namespace Proc
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel
   // to the running sum of |M|^2 over helicities for the given event
-  __device__ void calculate_wavefunctions( int ihel,
-                                           const fptype* allmomenta,
-                                           fptype& meHelSum
-#ifndef __CUDACC__
-                                           , const int ievt
+  void calculate_wavefunctions( int ihel,
+			        const fptype *allmomenta,
+			        fptype &meHelSum
+			        , sycl::nd_item<3> item_ct1,
+				const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel
+#ifndef SYCL_LANGUAGE_VERSION
+				, const int ievt
 #endif
-                                           )
+				)
   {
     using namespace MG5_sm;
     mgDebug( 0, __FUNCTION__ );
+#ifdef SYCL_LANGUAGE_VERSION
+    const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
+    const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
+#endif
     cxtype amp[1]; // was 2
     const int ncolor = 1;
     cxtype jamp[ncolor];
@@ -70,26 +79,26 @@ namespace Proc
     // *** DIAGRAM 1 OF 2 ***
 
     // Wavefunction(s) for diagram number 1
-#ifdef __CUDACC__
-    opzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0 );
+#ifdef SYCL_LANGUAGE_VERSION
+    opzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0, item_ct1);
 #else
     opzxxx( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
 #endif
 
-#ifdef __CUDACC__
-    imzxxx( allmomenta, cHel[ihel][1], +1, w[1], 1 );
+#ifdef SYCL_LANGUAGE_VERSION
+    imzxxx( allmomenta, cHel[ihel][1], +1, w[1], 1, item_ct1);
 #else
     imzxxx( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
 #endif
 
-#ifdef __CUDACC__
-    ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], 2 );
+#ifdef SYCL_LANGUAGE_VERSION
+    ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], 2, item_ct1);
 #else
     ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
 #endif
 
-#ifdef __CUDACC__
-    oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3 );
+#ifdef SYCL_LANGUAGE_VERSION
+    oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3, item_ct1);
 #else
     oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
 #endif
@@ -213,10 +222,12 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
-  __global__
+#ifdef SYCL_LANGUAGE_VERSION
+
   void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            bool* isGoodHel )         // output: isGoodHel[ncomb] - device array
+			    bool * isGoodHel  // output: isGoodHel[ncomb] - device array
+			    , sycl::nd_item<3> item_ct1,
+			    const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel )
   {
     const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
     fptype meHelSum[nprocesses] = { 0 }; // all zeros
@@ -225,7 +236,7 @@ namespace Proc
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running
       // sum of |M|^2 over helicities for the given event
-      calculate_wavefunctions( ihel, allmomenta, meHelSum[0] );
+      calculate_wavefunctions( ihel, allmomenta, meHelSum[0], item_ct1, cHel );
       if ( meHelSum[0] != meHelSumLast )
       {
         isGoodHel[ihel] = true;
@@ -237,8 +248,8 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
-  void sigmaKin_setGoodHel( const bool* isGoodHel ) // input: isGoodHel[ncomb] - host array
+#ifdef SYCL_LANGUAGE_VERSION
+  void sigmaKin_setGoodHel( const bool* isGoodHel, int* cNGoodHel, int* cGoodHel) // input: isGoodHel[ncomb] - host array
   {
     int nGoodHel[1] = { 0 };
     int goodHel[ncomb] = { 0 };
@@ -251,28 +262,31 @@ namespace Proc
         nGoodHel[0]++;
       }
     }
-    checkCuda( cudaMemcpyToSymbol( cNGoodHel, nGoodHel, sizeof(int) ) );
-    checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb * sizeof(int) ) );
+    memcpy( cNGoodHel, nGoodHel, sizeof(int) );
+    memcpy( cGoodHel, goodHel, ncomb*sizeof(int) );
   }
 #endif
 
   //--------------------------------------------------------------------------
 
   // Evaluate |M|^2, part independent of incoming flavour
-  __global__
-  void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                 fptype* allMEs            // output: allMEs[nevt], final |M|^2 averaged over all helicities
-#ifndef __CUDACC__
-                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+SYCL_EXTERNAL
+void sigmaKin( const fptype* allmomenta, fptype* allMEs
+	       , sycl::nd_item<3> item_ct1,
+	       const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel,
+	       int *cNGoodHel,
+	       int *cGoodHel
+#ifndef SYCL_LANGUAGE_VERSION
+	       , const int nevt  // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
-                 )
+	       )
   {
     // Set the parameters which change event by event
     // Need to discuss this with Stefan
     //pars->setDependentParameters();
     //pars->setDependentCouplings();
 
-#ifndef __CUDACC__
+#ifndef SYCL_LANGUAGE_VERSION
     const int maxtry = 10;
     static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
     static bool sigmakin_goodhel[ncomb] = { false };
@@ -281,13 +295,14 @@ namespace Proc
     // Start sigmaKin_lines
     mgDebugInitialise();
 
-#ifndef __CUDACC__
+#ifndef SYCL_LANGUAGE_VERSION
     // ** START LOOP ON IEVT **
     for( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
-#ifdef __CUDACC__
-      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
+#ifdef SYCL_LANGUAGE_VERSION
+      const int idim = item_ct1.get_local_range().get( 2 ) * item_ct1.get_group( 2 ) +
+        item_ct1.get_local_id( 2 ); // event# == threadid (previously was: tid)
       const int ievt = idim;
       //printf( "sigmakin: ievt %d\n", ievt );
 #endif
@@ -299,12 +314,12 @@ namespace Proc
       // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
       fptype meHelSum[nprocesses] = { 0 }; // all zeros
 
-#ifdef __CUDACC__
+#ifdef SYCL_LANGUAGE_VERSION
       // CUDA - using precomputed good helicities
       for ( int ighel = 0; ighel < cNGoodHel[0]; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
-        calculate_wavefunctions( ihel, allmomenta, meHelSum[0] );
+        calculate_wavefunctions( ihel, allmomenta, meHelSum[0], item_ct1, cHel);
       }
 #else
       // C++ - compute good helicities within this loop
@@ -336,7 +351,7 @@ namespace Proc
         allMEs[iproc*nprocesses + ievt] = meHelSum[iproc];
       }
 
-#ifndef __CUDACC__
+#ifndef SYCL_LANGUAGE_VERSION
       if ( sigmakin_itry <= maxtry )
         sigmakin_itry++;
       //if ( sigmakin_itry == maxtry )

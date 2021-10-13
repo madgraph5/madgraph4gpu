@@ -5,6 +5,9 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
+#ifdef SYCL_LANGUAGE_VERSION
+#include <CL/sycl.hpp>
+#endif
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -21,8 +24,7 @@ namespace MG5_sm
 {
 
   //--------------------------------------------------------------------------
-
-  __device__
+  SYCL_EXTERNAL
   inline const fptype& pIparIp4Ievt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                      const int ipar,
                                      const int ip4,
@@ -40,7 +42,7 @@ namespace MG5_sm
     //return momenta[ipagM][ipar][ip4][ieppM]; // this seems ~1-2% faster in eemumu C++?
   }
 
-#ifndef __CUDACC__
+#ifndef SYCL_LANGUAGE_VERSION
   // Return by value: it seems a tiny bit faster than returning a reference (both for scalar and vector), not clear why
   inline fptype_sv pIparIp4Ipag( const fptype_sv* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                  const int ipar,
@@ -57,23 +59,24 @@ namespace MG5_sm
 #endif
 
   //--------------------------------------------------------------------------
-
-  __device__
+  SYCL_EXTERNAL
   void ixxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
                cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
+#ifndef SYCL_LANGUAGE_VERSION
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar,              // input: particle# out of npar
+               sycl::nd_item<3> item_ct1 )
   {
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+#ifdef SYCL_LANGUAGE_VERSION
+      const int ievt = item_ct1.get_local_range().get( 2 ) * item_ct1.get_group( 2 ) +
+        item_ct1.get_local_id( 2 ); // index of event (thread) in grid
       //printf( "ixxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copying by value (not by ref) seems faster in cuda, in spite of more registers used
       // AV: copying by value (not by ref) seems irrelevant, or slightly slower, in c++
@@ -99,7 +102,7 @@ namespace MG5_sm
         if ( pp == 0. )
         {
           // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
-          fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
+          fptype sqm[2] = { fpsqrt( sycl::fabs( fmass ) ), 0. }; // possibility of negative fermion masses
           //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
           sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
           const int ip = ( 1 + nh ) / 2; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
@@ -192,23 +195,25 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  SYCL_EXTERNAL
   void ipzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
                cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
+#ifndef SYCL_LANGUAGE_VERSION
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar,              // input: particle# out of npar
+               sycl::nd_item<3> item_ct1 ) 
   {
     // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+#ifdef SYCL_LANGUAGE_VERSION
+      const int ievt = item_ct1.get_local_range().get( 2 ) * item_ct1.get_group( 2 ) +
+        item_ct1.get_local_id( 2 ); // index of event (thread) in grid
       //printf( "ipzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copy by value (not by ref) as this seems faster in cuda for other functions
       const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
@@ -240,23 +245,25 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  SYCL_EXTERNAL
   void imzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
                cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
+#ifndef SYCL_LANGUAGE_VERSION
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar,              // input: particle# out of npar
+               sycl::nd_item<3> item_ct1 ) 
   {
     // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+#ifdef SYCL_LANGUAGE_VERSION
+      const int ievt = item_ct1.get_local_range().get( 2 ) * item_ct1.get_group( 2 ) +
+        item_ct1.get_local_id( 2 ); // index of event (thread) in grid
       //printf( "imzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copying by value (not by ref) seems to give the same performance in both cuda and c++
       const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
@@ -288,23 +295,25 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  SYCL_EXTERNAL
   void ixzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
                cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
+#ifndef SYCL_LANGUAGE_VERSION
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar,              // input: particle# out of npar
+               sycl::nd_item<3> item_ct1 ) 
   {
     // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+#ifdef SYCL_LANGUAGE_VERSION
+      const int ievt = item_ct1.get_local_range().get( 2 ) * item_ct1.get_group( 2 ) +
+        item_ct1.get_local_id( 2 ); // index of event (thread) in grid
       //printf( "ixzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copying by value (not by ref) seems to give the same performance in both cuda and c++
       const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
@@ -349,22 +358,24 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  SYCL_EXTERNAL
   void vxxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype vmass,
                const int nhel,              // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
                const int nsv,               // input: +1 (final) or -1 (initial)
                cxtype_sv* vc,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
+#ifndef SYCL_LANGUAGE_VERSION
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar,              // input: particle# out of npar
+               sycl::nd_item<3> item_ct1 ) 
   {
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+#ifdef SYCL_LANGUAGE_VERSION
+      const int ievt = item_ct1.get_local_range().get( 2 ) * item_ct1.get_group( 2 ) +
+        item_ct1.get_local_id( 2 ); // index of event (thread) in grid
       //printf( "vxxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copy by value (not by ref) as this seems faster in cuda for other functions
       const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
@@ -384,11 +395,11 @@ namespace MG5_sm
       vc[1] = cxmake( pvec1 * (fptype)nsv, pvec2 * (fptype)nsv );
       if ( vmass != 0. )
       {
-        const int nsvahl = nsv * std::abs( hel );
+        const int nsvahl = nsv * sycl::fabs( hel );
         const fptype_sv pt2 = ( pvec1 * pvec1 ) + ( pvec2 * pvec2 );
         const fptype_sv pp = fpmin( pvec0, fpsqrt( pt2 + ( pvec3 * pvec3 ) ) );
         const fptype_sv pt = fpmin( pp, fpsqrt( pt2 ) );
-        const fptype hel0 = 1. - std::abs( hel );
+        const fptype hel0 = 1. - sycl::fabs( hel );
 #ifndef MGONGPU_CPPSIMD
         if ( pp == 0. )
         {
@@ -484,22 +495,24 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  SYCL_EXTERNAL
   void sxxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype,                // WARNING: "smass" unused (missing in Fortran)
                const int,                   // WARNING: "nhel" unused (missing in Fortran) - scalar has no helicity
                const int nss,               // input: +1 (final) or -1 (initial)
                cxtype_sv sc[3],             // output: wavefunction[3] - not [6], this is for scalars
-#ifndef __CUDACC__
+#ifndef SYCL_LANGUAGE_VERSION
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar,
+               sycl::nd_item<3> item_ct1 ) // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+#ifdef SYCL_LANGUAGE_VERSION
+      const int ievt = item_ct1.get_local_range().get( 2 ) * item_ct1.get_group( 2 ) +
+        item_ct1.get_local_id( 2 ); // index of event (thread) in grid
       //printf( "sxxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copy by value (not by ref) as this seems faster in cuda for other functions
       const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
@@ -524,22 +537,24 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  SYCL_EXTERNAL
   void oxxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
                cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
+#ifndef SYCL_LANGUAGE_VERSION
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar,              // input: particle# out of npar
+               sycl::nd_item<3> item_ct1 )
   {
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+#ifdef SYCL_LANGUAGE_VERSION
+      const int ievt = item_ct1.get_local_range().get( 2 ) * item_ct1.get_group( 2 ) +
+        item_ct1.get_local_id( 2 ); // index of event (thread) in grid
       //printf( "oxxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copying by value (not by ref) seems faster in cuda, in spite of more registers used
       // AV: copying by value (not by ref) seems irrelevant, or slightly faster, in c++
@@ -564,15 +579,15 @@ namespace MG5_sm
         if ( pp == 0. )
         {
           // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
-          fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
+          fptype sqm[2] = { fpsqrt( sycl::fabs( fmass ) ), 0. }; // possibility of negative fermion masses
           //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
           sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
           const int ip = -( ( 1 - nh ) / 2 ) * nhel; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
           const int im = ( 1 + nh ) / 2 * nhel; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
-          fo[2] = cxmake( im * sqm[std::abs( ip )], 0 );
-          fo[3] = cxmake( ip * nsf * sqm[std::abs( ip )], 0 );
-          fo[4] = cxmake( im * nsf * sqm[std::abs( im )], 0 );
-          fo[5] = cxmake( ip * sqm[std::abs( im )], 0 );
+          fo[2] = cxmake( im * sqm[sycl::abs( ip )], 0 );
+          fo[3] = cxmake( ip * nsf * sqm[sycl::abs( ip )], 0 );
+          fo[4] = cxmake( im * nsf * sqm[sycl::abs( im )], 0 );
+          fo[5] = cxmake( ip * sqm[sycl::abs( im )], 0 );
         }
         else
         {
@@ -659,22 +674,24 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  SYCL_EXTERNAL
   void opzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
                cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
+#ifndef SYCL_LANGUAGE_VERSION
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar,              // input: particle# out of npar
+               sycl::nd_item<3> item_ct1 )
   {
     // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+#ifdef SYCL_LANGUAGE_VERSION
+      const int ievt = item_ct1.get_local_range().get( 2 ) * item_ct1.get_group( 2 ) +
+        item_ct1.get_local_id( 2 ); // index of event (thread) in grid
       //printf( "opzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copying by value (not by ref) seems to give the same performance in both cuda and c++
       const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
@@ -706,22 +723,24 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  SYCL_EXTERNAL
   void omzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
                cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
+#ifndef SYCL_LANGUAGE_VERSION
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar,              // input: particle# out of npar
+               sycl::nd_item<3> item_ct1 )
   {
     // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+#ifdef SYCL_LANGUAGE_VERSION
+      const int ievt = item_ct1.get_local_range().get( 2 ) * item_ct1.get_group( 2 ) +
+        item_ct1.get_local_id( 2 ); // index of event (thread) in grid
       //printf( "ipzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copy by value (not by ref) as this seems faster in cuda for other functions
       const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
@@ -756,23 +775,25 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
+  SYCL_EXTERNAL
   void oxzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
                cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
+#ifndef SYCL_LANGUAGE_VERSION
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar,              // input: particle# out of npar
+               sycl::nd_item<3> item_ct1 )
   {
     // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+#ifdef SYCL_LANGUAGE_VERSION
+      const int ievt = item_ct1.get_local_range().get( 2 ) * item_ct1.get_group( 2 ) +
+        item_ct1.get_local_id( 2 ); // index of event (thread) in grid
       //printf( "oxzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copying by value (not by ref) seems to give the same performance in both cuda and c++
       const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
@@ -815,11 +836,11 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__ constexpr fptype one( 1. );
-
+  constexpr fptype one( 1. );
+  
   //--------------------------------------------------------------------------
 
-  __device__ void FFV1_0( const cxtype F1[], const cxtype F2[], const cxtype V3[], const cxtype COUP, cxtype* vertex )
+  void FFV1_0( const cxtype F1[], const cxtype F2[], const cxtype V3[], const cxtype COUP, cxtype* vertex )
   {
     cxtype cI = cxtype(0., 1.);
     cxtype TMP0;
@@ -829,7 +850,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__ void FFV1P0_3( const cxtype F1[], const cxtype F2[], const cxtype COUP, const fptype M3, const fptype W3, cxtype V3[] )
+  void FFV1P0_3( const cxtype F1[], const cxtype F2[], const cxtype COUP, const fptype M3, const fptype W3, cxtype V3[] )
   {
     cxtype cI = cxtype(0., 1.);
     fptype P3[4];
@@ -849,7 +870,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__ void FFV2_0( const cxtype F1[], const cxtype F2[], const cxtype V3[], const cxtype COUP, cxtype* vertex )
+  void FFV2_0( const cxtype F1[], const cxtype F2[], const cxtype V3[], const cxtype COUP, cxtype* vertex )
   {
     cxtype cI = cxtype(0., 1.);
     cxtype TMP1;
@@ -859,7 +880,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__ void FFV2_3( const cxtype F1[], const cxtype F2[], const cxtype COUP, const fptype M3, const fptype W3, cxtype V3[] )
+  void FFV2_3( const cxtype F1[], const cxtype F2[], const cxtype COUP, const fptype M3, const fptype W3, cxtype V3[] )
   {
     cxtype cI = cxtype(0., 1.);
     fptype OM3;
@@ -884,7 +905,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__ void FFV4_0( const cxtype F1[], const cxtype F2[], const cxtype V3[], const cxtype COUP, cxtype* vertex )
+  void FFV4_0( const cxtype F1[], const cxtype F2[], const cxtype V3[], const cxtype COUP, cxtype* vertex )
   {
     cxtype cI = cxtype(0., 1.);
     cxtype TMP3;
@@ -896,7 +917,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__ void FFV4_3( const cxtype F1[], const cxtype F2[], const cxtype COUP, const fptype M3, const fptype W3, cxtype V3[] )
+  void FFV4_3( const cxtype F1[], const cxtype F2[], const cxtype COUP, const fptype M3, const fptype W3, cxtype V3[] )
   {
     cxtype cI = cxtype(0., 1.);
     fptype OM3;
@@ -923,7 +944,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__ void FFV2_4_0( const cxtype F1[], const cxtype F2[], const cxtype V3[], const cxtype COUP1, const cxtype COUP2, cxtype* vertex )
+  void FFV2_4_0( const cxtype F1[], const cxtype F2[], const cxtype V3[], const cxtype COUP1, const cxtype COUP2, cxtype* vertex )
   {
     cxtype cI = cxtype(0., 1.);
     cxtype TMP3;
@@ -935,7 +956,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__ void FFV2_4_3( const cxtype F1[], const cxtype F2[], const cxtype COUP1, const cxtype COUP2, const fptype M3, const fptype W3, cxtype V3[] )
+  void FFV2_4_3( const cxtype F1[], const cxtype F2[], const cxtype COUP1, const cxtype COUP2, const fptype M3, const fptype W3, cxtype V3[] )
   {
     cxtype cI = cxtype(0., 1.);
     fptype OM3;
