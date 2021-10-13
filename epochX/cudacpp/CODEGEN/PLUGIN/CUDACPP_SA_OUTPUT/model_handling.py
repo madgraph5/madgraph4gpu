@@ -139,6 +139,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             if format.startswith('list'):
                 type = self.type2def[format[5:]]
                 list_arg = '[]'
+                if not argname.startswith('COUP'): type += '_sv' # AV vectorize!
             else:
                 type = self.type2def[format]
                 list_arg = ''
@@ -151,11 +152,12 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 args.append('%s %s%s'% (type, argname, list_arg)) # AV
         if not self.offshell:
             ###output = '%(doublec)s %(pointer_vertex)s vertex' % {
-            output = '%(doublec)s%(pointer_vertex)s vertex' % {
+            output = '%(doublec)s_sv%(pointer_vertex)s vertex' % { # AV - vectorize!
                 'doublec':self.type2def['complex'],
                 'pointer_vertex': self.type2def['pointer_vertex']}
         else:
-            output = '%(doublec)s %(spin)s%(id)d[]' % {
+            ###output = '%(doublec)s %(spin)s%(id)d[]' % {
+            output = '%(doublec)s_sv %(spin)s%(id)d[]' % { # AV - vectorize!
                      'doublec': self.type2def['complex'],
                      'spin': self.particles[self.outgoing -1],
                      'id': self.outgoing}
