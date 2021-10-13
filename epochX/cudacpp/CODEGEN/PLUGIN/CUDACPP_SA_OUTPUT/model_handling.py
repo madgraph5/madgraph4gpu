@@ -65,10 +65,13 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     ###prefix ='__device__'
     ###realoperator = '.real()'
     ###imagoperator = '.imag()'
-    ###ci_definition = 'cxtype cI = cxtype(0., 1.);\n'
     type2def = {}
     type2def['pointer_vertex'] = '*' # using complex<double>* vertex
     type2def['pointer_coup'] = ''
+
+    # AV - modify C++ code from aloha_writers.ALOHAWriterForGPU
+    ###ci_definition = 'cxtype cI = cxtype(0., 1.);\n'
+    ci_definition = 'const cxtype cI = cxmake( 0., 1. );\n'
 
     # AV - improve formatting
     ###type2def['int'] = 'int '
@@ -140,7 +143,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             if format.startswith('list'):
                 type = self.type2def[format[5:]]
                 list_arg = '[]'
-                if not argname.startswith('COUP'): type += '_sv' # AV vectorize!
+                if not argname.startswith('COUP'): type += '_sv' # AV vectorize
                 comment_inputs.append('%s[6]'%argname) # AV (wavefuncsize=6 is hardcoded also in export_cpp...)
             else:
                 type = self.type2def[format]
@@ -154,13 +157,13 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 args.append('%s %s%s'% (type, argname, list_arg)) # AV
         if not self.offshell:
             ###output = '%(doublec)s %(pointer_vertex)s vertex' % {
-            output = '%(doublec)s_sv%(pointer_vertex)s vertex' % { # AV - vectorize!
+            output = '%(doublec)s_sv%(pointer_vertex)s vertex' % { # AV vectorize
                 'doublec':self.type2def['complex'],
                 'pointer_vertex': self.type2def['pointer_vertex']}
             comment_output = 'amplitude \'vertex\''
         else:
             ###output = '%(doublec)s %(spin)s%(id)d[]' % {
-            output = '%(doublec)s_sv %(spin)s%(id)d[]' % { # AV - vectorize!
+            output = '%(doublec)s_sv %(spin)s%(id)d[]' % { # AV vectorize
                      'doublec': self.type2def['complex'],
                      'spin': self.particles[self.outgoing -1],
                      'id': self.outgoing}
@@ -232,7 +235,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                         size = 18
                 out.write('    %s %s[%s];\n' % (self.type2def[type], name, size))
             elif (type, name) not in self.call_arg:
-                out.write('    %s %s;\n' % (self.type2def[type], name))               
+                out.write('    %s %s;\n' % (self.type2def[type], name))
+        ###out.write('    // END DECLARATION\n') # FOR DEBUGGING
         return out.getvalue()
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)

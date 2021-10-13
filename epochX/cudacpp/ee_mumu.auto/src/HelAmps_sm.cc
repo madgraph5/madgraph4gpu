@@ -845,7 +845,7 @@ namespace MG5_sm
                cxtype_sv* vertex )
   {
     mgDebug( 0, __FUNCTION__ );
-    cxtype cI = cxtype(0., 1.);
+    const cxtype cI = cxmake( 0., 1. );
     cxtype TMP0;
     TMP0 = (F1[2]*(F2[4]*(V3[2] + V3[5]) + F2[5]*(V3[3] + cI*(V3[4]))) + (F1[3]*(F2[4]*(V3[3]-cI*(V3[4])) + F2[5]*(V3[2] - V3[5])) + (F1[4]*(F2[2]*(V3[2] - V3[5]) - F2[3]*(V3[3] + cI*(V3[4]))) + F1[5]*(F2[2]*(-V3[3] + cI*(V3[4])) + F2[3]*(V3[2] + V3[5])))));
     (*vertex) = COUP * -cI * TMP0;
@@ -865,7 +865,7 @@ namespace MG5_sm
                  cxtype_sv V3[] )
   {
     mgDebug( 0, __FUNCTION__ );
-    cxtype cI = cxtype(0., 1.);
+    const cxtype cI = cxmake( 0., 1. );
     fptype P3[4];
     cxtype denom;
     V3[0] = + F1[0] + F2[0];
@@ -894,7 +894,7 @@ namespace MG5_sm
                cxtype_sv* vertex )
   {
     mgDebug( 0, __FUNCTION__ );
-    cxtype cI = cxtype(0., 1.);
+    const cxtype cI = cxmake( 0., 1. );
     cxtype TMP1;
     TMP1 = (F1[2]*(F2[4]*(V3[2] + V3[5]) + F2[5]*(V3[3] + cI*(V3[4]))) + F1[3]*(F2[4]*(V3[3]-cI*(V3[4])) + F2[5]*(V3[2] - V3[5])));
     (*vertex) = COUP * -cI * TMP1;
@@ -914,7 +914,7 @@ namespace MG5_sm
                cxtype_sv V3[] )
   {
     mgDebug( 0, __FUNCTION__ );
-    cxtype cI = cxtype(0., 1.);
+    const cxtype cI = cxmake( 0., 1. );
     fptype OM3;
     fptype P3[4];
     cxtype TMP2;
@@ -948,7 +948,7 @@ namespace MG5_sm
                cxtype_sv* vertex )
   {
     mgDebug( 0, __FUNCTION__ );
-    cxtype cI = cxtype(0., 1.);
+    const cxtype cI = cxmake( 0., 1. );
     cxtype TMP3;
     cxtype TMP4;
     TMP3 = (F1[2]*(F2[4]*(V3[2] + V3[5]) + F2[5]*(V3[3] + cI*(V3[4]))) + F1[3]*(F2[4]*(V3[3]-cI*(V3[4])) + F2[5]*(V3[2] - V3[5])));
@@ -970,7 +970,7 @@ namespace MG5_sm
                cxtype_sv V3[] )
   {
     mgDebug( 0, __FUNCTION__ );
-    cxtype cI = cxtype(0., 1.);
+    const cxtype cI = cxmake( 0., 1. );
     fptype OM3;
     fptype P3[4];
     cxtype TMP2;
@@ -1007,7 +1007,7 @@ namespace MG5_sm
                  cxtype_sv* vertex )
   {
     mgDebug( 0, __FUNCTION__ );
-    cxtype cI = cxtype(0., 1.);
+    const cxtype cI = cxmake( 0., 1. );
     cxtype TMP3;
     cxtype TMP4;
     TMP3 = (F1[2]*(F2[4]*(V3[2] + V3[5]) + F2[5]*(V3[3] + cI*(V3[4]))) + F1[3]*(F2[4]*(V3[3]-cI*(V3[4])) + F2[5]*(V3[2] - V3[5])));
@@ -1030,7 +1030,7 @@ namespace MG5_sm
                  cxtype_sv V3[] )
   {
     mgDebug( 0, __FUNCTION__ );
-    cxtype cI = cxtype(0., 1.);
+    const cxtype cI = cxmake( 0., 1. );
     fptype OM3;
     fptype P3[4];
     cxtype TMP2;
