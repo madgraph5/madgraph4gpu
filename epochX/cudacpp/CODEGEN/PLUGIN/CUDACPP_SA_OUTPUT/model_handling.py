@@ -132,7 +132,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         elif isinstance(number, complex):
             if number.imag:
                 if number.real:
-                    out = '(%s + %s*cI)' % (self.change_number_format(number.real), \
+                    out = '( %s + %s * cI )' % (self.change_number_format(number.real), \
                                     self.change_number_format(number.imag))
                 else:
                     if number.imag == 1:
@@ -449,12 +449,12 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     if self.routine.denominator:
                         out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / (%(denom)s)\n' % mydict) # AV
                     else:
-                        out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ((P%(i)s[0]*P%(i)s[0]) - (P%(i)s[1]*P%(i)s[1]) - (P%(i)s[2]*P%(i)s[2]) - (P%(i)s[3]*P%(i)s[3]) - M%(i)s*(M%(i)s-cI*W%(i)s));\n' % mydict) # AV
+                        out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( (P%(i)s[0] * P%(i)s[0] ) - ( P%(i)s[1] * P%(i)s[1] ) - ( P%(i)s[2] * P%(i)s[2] ) - ( P%(i)s[3] * P%(i)s[3] ) - M%(i)s * ( M%(i)s - cI * W%(i)s ) );\n' % mydict) # AV
                 else:
                     if self.routine.denominator:
                         raise Exception('modify denominator are not compatible with complex mass scheme')                
                     # This affects 'denom = COUP' in HelAmps_sm.cu
-                    out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ((P%(i)s[0]*P%(i)s[0])-(P%(i)s[1]*P%(i)s[1])-(P%(i)s[2]*P%(i)s[2])-(P%(i)s[3]*P%(i)s[3]) - (M%(i)s*M%(i)s));\n' % mydict) # AV
+                    out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( (P%(i)s[0] * P%(i)s[0] ) - ( P%(i)s[1] *P%(i)s[1] ) - ( P%(i)s[2] * P%(i)s[2] ) - ( P%(i)s[3] * P%(i)s[3] ) - ( M%(i)s * M%(i)s ) );\n' % mydict) # AV
                 ###self.declaration.add(('complex','denom')) # AV moved earlier (or simply removed)
                 if aloha.loop_mode: ptype = 'list_complex'
                 else: ptype = 'list_double'
@@ -1045,7 +1045,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                                     '%s%s[%s]' % (sign, name, alias[coup]))
             else:
                 call = call.replace('pars->%s%s' % (sign, coup), 
-                                    '%scxtype(cIPC[%s],cIPC[%s])' % 
+                                    '%scxtype( cIPC[%s], cIPC[%s] )' % 
                                     (sign, 2*alias[coup],2*alias[coup]+1))
         return call
 
