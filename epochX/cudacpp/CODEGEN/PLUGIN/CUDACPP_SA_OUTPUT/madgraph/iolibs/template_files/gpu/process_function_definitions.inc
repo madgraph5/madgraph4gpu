@@ -45,13 +45,12 @@ namespace Proc
                           bool verbose,
                           bool debug )
     : m_numiterations( numiterations )
-    , gpu_nblocks( ngpublocks )
-    , gpu_nthreads( ngputhreads )
+    , m_ngpublocks( ngpublocks )
+    , m_ngputhreads( ngputhreads )
     , m_verbose( verbose )
     , m_debug( debug )
     , m_pars( 0 )
     , m_masses()
-    , dim( gpu_nblocks * gpu_nthreads )
   {
     // Helicities for the process - nodim
 %(all_helicities)s

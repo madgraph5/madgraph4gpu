@@ -42,16 +42,11 @@
 
   private:
 
-    int m_numiterations;
-    // gpu variables
-    int gpu_nblocks;
-    int gpu_nthreads;
-    int dim; // gpu_nblocks * gpu_nthreads;
-
-    // print verbose info
+    // Command line arguments (constructor)
+    int m_numiterations; // number of iterations (each iteration has nblocks*nthreads events)
+    int m_ngpublocks; // number of GPU blocks in one grid (i.e. one iteration)
+    int m_ngputhreads; // number of GPU threads in a block
     bool m_verbose;
-
-    // print debug info
     bool m_debug;
 
     static const int nwavefuncs = %(nwavefuncs)d;
@@ -60,13 +55,12 @@
     static const int wrows = %(sizew)d;
     //static const int nioparticles = %(nexternal)d;
 
-    cxtype** amp;
-
     // Physics model parameters to be read from file (initProc function)
     Parameters_sm* m_pars;
     std::vector<fptype> m_masses; // external particle masses
 
-    // Initial particle ids
-    int id1, id2;
+    // Other variables of this instance (???)
+    //int id1, id2; // initial particle ids
+    //cxtype** amp; // ???
 
   };
