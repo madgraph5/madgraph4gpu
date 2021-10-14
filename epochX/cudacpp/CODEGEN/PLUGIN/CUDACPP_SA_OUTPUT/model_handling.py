@@ -522,6 +522,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             file_str.write(' * (') # AV
         else:
             file_str.write('(')
+            #file_str.write('( ') # AV
         first=True
         for value, obj_list in data.items():
             add= ' + '
@@ -534,7 +535,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     ###file_str.write('+')
                     file_str.write('+' if first else ' + ') # AV
                     file_str.write(nb_str)
-                file_str.write('*(')
+                ###file_str.write('*(')
+                file_str.write(' * (') # AV (eg '+ cI * (V3[4])')
             elif value == -1:
                 ###add = '-'
                 ###file_str.write('-')
@@ -550,10 +552,12 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             file_str.write(add.join([self.write_obj(obj, prefactor=False) for obj in obj_list]))
             if value not in [1,-1]:
                 file_str.write(')')
+                #file_str.write(' )') # AV
         if number:
             total = sum(number)
             file_str.write('+ %s' % self.change_number_format(total))
         file_str.write(')')
+        #file_str.write(' )') # AV
         ###print(file_str.getvalue()) # AV - FOR DEBUGGING
         return file_str.getvalue()
 
