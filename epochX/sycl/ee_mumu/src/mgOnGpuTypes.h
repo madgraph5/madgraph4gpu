@@ -11,8 +11,7 @@
 #include <cuComplex.h>
 #endif
 #else
-#include <cmath>
-#include <complex>
+#include "extras.h"
 #endif
 
 namespace mgOnGpu
@@ -30,7 +29,7 @@ namespace mgOnGpu
   typedef cuFloatComplex cxtype;
 #endif
 #else // c++
-  typedef std::complex<fptype> cxtype; // two doubles: RI
+  typedef extras::complex<fptype> cxtype; // two doubles: RI
 #endif
 
 }
@@ -393,11 +392,11 @@ fptype cximag( const cxtype& c )
   return c.imag(); // std::complex<fptype>::imag()
 }
 
-inline
-cxtype cxconj( const cxtype& c )
-{
-  return conj( c ); // conj( std::complex<fptype> )
-}
+//inline
+//cxtype cxconj( const cxtype& c )
+//{
+//  return conj( c ); // conj( std::complex<fptype> )
+//}
 
 inline
 const cxtype& cxmake( const cxtype& c ) // std::complex to std::complex (float-to-float or double-to-double)
@@ -414,5 +413,41 @@ cxtype cxmake( const std::complex<double>& c ) // std::complex to std::complex (
 #endif
 
 #endif  // END cuda/c++
+
+inline SYCL_EXTERNAL
+cxtype operator+( const cxtype a )
+{
+  return a;
+}
+
+inline SYCL_EXTERNAL
+cxtype operator-( const cxtype& a )
+{
+  return cxmake( -cxreal(a), -cximag(a) );
+}
+
+inline SYCL_EXTERNAL
+cxtype operator+( const fptype& a, const cxtype& b )
+{
+  return cxmake( a, 0 ) + b;
+}
+
+inline SYCL_EXTERNAL
+cxtype operator-( const fptype& a, const cxtype& b )
+{
+  return cxmake( a, 0 ) - b;
+}
+
+inline SYCL_EXTERNAL
+cxtype operator*( const fptype& a, const cxtype& b )
+{
+  return cxmake( a, 0 ) * b;
+}
+
+inline SYCL_EXTERNAL
+cxtype conj( const cxtype& c )
+{
+  return cxmake( cxreal( c ), -cximag( c ) );
+}
 
 #endif // MGONGPUTYPES_H

@@ -8,6 +8,7 @@
 #include <iostream>
 #include <iomanip>
 #include "Parameters_sm.h"
+#include "extras.h"
 
 // Initialize static instance
 Parameters_sm* Parameters_sm::instance = 0;
@@ -45,7 +46,7 @@ void Parameters_sm::setIndependentParameters(SLHAReader& slha)
   mdl_conjg__CKM3x3 = 1.;
   mdl_conjg__CKM1x1 = 1.;
   mdl_CKM3x3 = 1.;
-  mdl_complexi = std::complex<double>(0.,1.);
+  mdl_complexi = extras::complex<double>(0.,1.);
   mdl_MZ__exp__2 = ((mdl_MZ)*(mdl_MZ));
   mdl_MZ__exp__4 = ((mdl_MZ)*(mdl_MZ)*(mdl_MZ)*(mdl_MZ));
   mdl_sqrt__2 = sqrt(2.);
@@ -99,6 +100,7 @@ void Parameters_sm::setDependentCouplings()
 // Routines for printing out parameters
 void Parameters_sm::printIndependentParameters()
 {
+  /*
   cout << "sm model parameters independent of event kinematics:" << endl;
   cout << setw(20) << "mdl_WH " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_WH << endl;
   cout << setw(20) << "mdl_WW " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_WW << endl;
@@ -148,6 +150,7 @@ void Parameters_sm::printIndependentParameters()
   cout << setw(20) << "mdl_ee__exp__2 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_ee__exp__2 << endl;
   cout << setw(20) << "mdl_sw__exp__2 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_sw__exp__2 << endl;
   cout << setw(20) << "mdl_cw__exp__2 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_cw__exp__2 << endl;
+  */
 }
 
 void Parameters_sm::printIndependentCouplings()
@@ -158,16 +161,18 @@ void Parameters_sm::printIndependentCouplings()
 
 void Parameters_sm::printDependentParameters()
 {
-  cout << "sm model parameters dependent on event kinematics:" << endl;
+  /* cout << "sm model parameters dependent on event kinematics:" << endl;
   cout << setw(20) << "mdl_sqrt__aS " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_sqrt__aS << endl;
   cout << setw(20) << "G " << "= " << setiosflags(ios::scientific) << setw(10) << G << endl;
   cout << setw(20) << "mdl_G__exp__2 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_G__exp__2 << endl;
+  */
 }
 
 void Parameters_sm::printDependentCouplings()
 {
-  cout << "sm model couplings dependent on event kinematics:" << endl;
+  /*cout << "sm model couplings dependent on event kinematics:" << endl;
   cout << setw(20) << "GC_10 " << "= " << setiosflags(ios::scientific) << setw(10) << GC_10 << endl;
   cout << setw(20) << "GC_11 " << "= " << setiosflags(ios::scientific) << setw(10) << GC_11 << endl;
   cout << setw(20) << "GC_12 " << "= " << setiosflags(ios::scientific) << setw(10) << GC_12 << endl;
+  */
 }

@@ -11,9 +11,9 @@
 // If one of these macros has been set from outside with e.g. -DMGONGPU_CURAND_ONHOST, nothing happens.
 #if not defined MGONGPU_CURAND_ONDEVICE and not defined MGONGPU_CURAND_ONHOST and not defined MGONGPU_COMMONRAND_ONHOST
 // Curand random number generation (CHOOSE ONLY ONE)
-#define MGONGPU_CURAND_ONDEVICE 1 // default (curand: CUDA on device, C++ on host)
+//#define MGONGPU_CURAND_ONDEVICE 1 // default (curand: CUDA on device, C++ on host)
 //#define MGONGPU_CURAND_ONHOST 1 // (curand: CUDA on host, C++ on host)
-//#define MGONGPU_COMMONRAND_ONHOST 1 // (common rand: CUDA on host, C++ on host)
+#define MGONGPU_COMMONRAND_ONHOST 1 // (common rand: CUDA on host, C++ on host)
 #endif
 
 // Memory choice for wavefunctions: registries/"local", global, shared (CHOOSE ONLY ONE)
@@ -54,12 +54,12 @@ namespace mgOnGpu
   const int nw6 = 6; // dimension of each wavefunction (see KEK 91-11)
 
   const int npari = 2; // #particles in the initial state (incoming): e+ e-
-  const int nparf = 2; // #particles in the final state (outgoing): mu+ mu-
+  const int nparf = 4; // #particles in the final state (outgoing): mu+ mu-
   const int npar = npari + nparf; // #particles in total (external): e+ e- -> mu+ mu-
 
-  const int nwf = 5; // #wavefunctions: npar (4 external) + 1 (internal, reused for gamma and Z)
+  const int nwf = 26; // #wavefunctions: npar (4 external) + 1 (internal, reused for gamma and Z)
 
-  const int ncomb = 16; // #helicity combinations: 16=2(spin up/down for fermions)**4(npar)
+  const int ncomb = 64; // #helicity combinations: 16=2(spin up/down for fermions)**4(npar)
 
   // --- Platform-specific software implementation details
 
