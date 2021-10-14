@@ -19,7 +19,8 @@ namespace Proc
   __device__ __constant__ short cHel[ncomb][npar];
   __device__ __constant__ fptype cIPC[%(ncouplingstimes2)i];
   __device__ __constant__ fptype cIPD[%(nparams)i];
-  __device__ __constant__ int cNGoodHel[1]; // FIXME: assume process.nprocesses == 1 for the moment
+  //__device__ __constant__ int cNGoodHel[1]; // FIXME: assume process.nprocesses == 1 for the moment
+  __device__ __constant__ int cNGoodHel;
   __device__ __constant__ int cGoodHel[ncomb];
 #else
   static short cHel[ncomb][npar];
@@ -193,18 +194,22 @@ namespace Proc
 #ifdef __CUDACC__
   void sigmaKin_setGoodHel( const bool* isGoodHel ) // input: isGoodHel[ncomb] - host array
   {
-    int nGoodHel[1] = { 0 }; // FIXME: assume process.nprocesses == 1 for the moment
+    //int nGoodHel[1] = { 0 }; // FIXME: assume process.nprocesses == 1 for the moment
+    int nGoodHel = 0;
     int goodHel[ncomb] = { 0 };
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       //std::cout << "sigmaKin_setGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
       if ( isGoodHel[ihel] )
       {
-        goodHel[nGoodHel[0]] = ihel;
-        nGoodHel[0]++;
+        //goodHel[nGoodHel[0]] = ihel; // FIXME: assume process.nprocesses == 1 for the moment
+        //nGoodHel[0]++; // FIXME: assume process.nprocesses == 1 for the moment
+        goodHel[nGoodHel] = ihel;
+        nGoodHel++;
       }
     }
-    checkCuda( cudaMemcpyToSymbol( cNGoodHel, nGoodHel, sizeof(int) ) );
+    //checkCuda( cudaMemcpyToSymbol( cNGoodHel, nGoodHel, sizeof(int) ) ); // FIXME: assume process.nprocesses == 1 for the moment
+    checkCuda( cudaMemcpyToSymbol( cNGoodHel, &nGoodHel, sizeof(int) ) );
     checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb * sizeof(int) ) );
   }
 #endif

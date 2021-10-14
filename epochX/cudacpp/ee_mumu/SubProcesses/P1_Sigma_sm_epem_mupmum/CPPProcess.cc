@@ -421,8 +421,7 @@ namespace Proc
 
   void sigmaKin_setGoodHel( const bool* isGoodHel ) // input: isGoodHel[ncomb] - host array
   {
-    // FIXME: assume process.nprocesses == 1 for the moment
-    //int nGoodHel[1] = { 0 };
+    //int nGoodHel[1] = { 0 }; // FIXME: assume process.nprocesses == 1 for the moment
     int nGoodHel = 0;
     int goodHel[ncomb] = { 0 };
     for ( int ihel = 0; ihel < ncomb; ihel++ )
@@ -430,11 +429,14 @@ namespace Proc
       //std::cout << "sigmaKin_setGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
       if ( isGoodHel[ihel] )
       {
+        //goodHel[nGoodHel[0]] = ihel; // FIXME: assume process.nprocesses == 1 for the moment
+        //nGoodHel[0]++; // FIXME: assume process.nprocesses == 1 for the moment
         goodHel[nGoodHel] = ihel;
         nGoodHel++;
       }
     }
 #ifdef __CUDACC__
+    //checkCuda( cudaMemcpyToSymbol( cNGoodHel, nGoodHel, sizeof(int) ) ); // FIXME: assume process.nprocesses == 1 for the moment
     checkCuda( cudaMemcpyToSymbol( cNGoodHel, &nGoodHel, sizeof(int) ) );
     checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb*sizeof(int) ) );
 #else
@@ -496,6 +498,7 @@ namespace Proc
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
+    //for ( int ighel = 0; ighel < cNGoodHel[0]; ighel++ ) // FIXME: assume process.nprocesses == 1
     for ( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];

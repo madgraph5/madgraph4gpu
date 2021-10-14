@@ -18,7 +18,8 @@
 
 #ifdef __CUDACC__
       // CUDA - using precomputed good helicities
-      for ( int ighel = 0; ighel < cNGoodHel[0]; ighel++ )
+      //for ( int ighel = 0; ighel < cNGoodHel[0]; ighel++ ) // FIXME: assume process.nprocesses == 1
+      for ( int ighel = 0; ighel < cNGoodHel; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
         calculate_wavefunctions( ihel, allmomenta, meHelSum[0] );
