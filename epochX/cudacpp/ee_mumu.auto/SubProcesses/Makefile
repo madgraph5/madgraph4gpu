@@ -63,7 +63,7 @@ debug: all
 $(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
-gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h ../../src/*.cu
+gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h ../../src/rambo.cc # NB rambo.cc must be included by gcheck.cu (no RDC)
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 CPPProcess.o : ../../src/HelAmps_sm.cc

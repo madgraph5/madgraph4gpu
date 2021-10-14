@@ -29,7 +29,7 @@ endif
 
 target=$(LIBDIR)/libmodel_%(model)s.a
 cxx_objects=Parameters_%(model)s.o read_slha.o rambo.o 
-cu_objects= # NB grambo.cu must be included by gcheck.cu (no rdc)
+cu_objects= # NB rambo.cc must be included by gcheck.cu (no RDC)
 
 all: $(target)
 
