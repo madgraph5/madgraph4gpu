@@ -78,14 +78,14 @@ INFO: Processing color information for process: e+ e- > mu+ mu- @1
 INFO: Creating files in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 856][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/./CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 902][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 904][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/./CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 924][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 926][0m [0m
 [1;32mDEBUG: only one Matrix-element supported? [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/. 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 870][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 883][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 890][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 885][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 892][0m [0m
 Generated helas calls for 1 subprocesses (2 diagrams) in 0.005 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 145][0m [0m
 ALOHA: aloha creates routines (starting by FFV1)
@@ -116,6 +116,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/src/. and /data/av
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 154][0m [0m
 quit
 
-real	0m1.103s
-user	0m0.886s
-sys	0m0.106s
+real	0m1.057s
+user	0m0.871s
+sys	0m0.111s

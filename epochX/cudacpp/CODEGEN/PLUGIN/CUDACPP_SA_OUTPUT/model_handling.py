@@ -869,12 +869,14 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         """Generate check_sa.cc"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_check_sa')
         template = open(pjoin(self.template_path,'gpu','check_sa.cc'),'r').read()
-        replace_dict = {}
-        replace_dict['nexternal'], _ = self.matrix_elements[0].get_nexternal_ninitial()
-        replace_dict['model'] = self.model_name
-        replace_dict['numproc'] = len(self.matrix_elements)
+        # AV May remove replace_dict as no replacement is done in check_sa.cc (in upstream Madgraph)
+        ###replace_dict = {}
+        ###replace_dict['nexternal'], _ = self.matrix_elements[0].get_nexternal_ninitial()
+        ###replace_dict['model'] = self.model_name
+        ###replace_dict['numproc'] = len(self.matrix_elements)
         ff = open(pjoin(self.path, 'check_sa.cc'),'w')
         ff.write(template)
+        ###ff.write(template % replace_dict) # AV normally this should be used! (and % should be %% in check_sa.cc)
         ff.close()
 
     # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
