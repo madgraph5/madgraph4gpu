@@ -509,8 +509,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         """Turns addvariable into a string"""
         data = defaultdict(list)
         number = []
-        [data[p.prefactor].append(p) if hasattr(p, 'prefactor') else number.append(p)
-             for p in obj]
+        [data[p.prefactor].append(p) if hasattr(p, 'prefactor') else number.append(p) for p in obj]
         file_str = StringIO()
         if prefactor and obj.prefactor != 1:
             formatted = self.change_number_format(obj.prefactor)
@@ -523,14 +522,16 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         else:
             ###file_str.write('(')
             file_str.write('( ') # AV
+        ###print('."'+file_str.getvalue()+'"') # AV - FOR DEBUGGING
         first=True
         for value, obj_list in data.items():
+            ###print('.."' + str(value) + '" "' + str(obj_list) + '"') # AV - FOR DEBUGGING
             add= ' + '
             if value not in  [-1,1]:
                 nb_str = self.change_number_format(value)
                 if nb_str[0] in ['+','-']:
-                    #file_str.write(nb_str) # AV - eventually (' '+nb_str)?
-                    file_str.write(' '+nb_str+' ') # AV
+                    ###file_str.write(' '+nb_str) # AV
+                    file_str.write(nb_str) # AV
                 else:
                     ###file_str.write('+')
                     file_str.write('+' if first else ' + ') # AV
@@ -549,6 +550,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 file_str.write('')
             first = False
             # AV comment: write_obj here also adds calls declaration_add (via change_var_format) - example: OM3
+            ###print('..."'+file_str.getvalue()+'"') # AV - FOR DEBUGGING
             file_str.write(add.join([self.write_obj(obj, prefactor=False) for obj in obj_list]))
             if value not in [1,-1]:
                 ###file_str.write(')')
@@ -558,7 +560,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             file_str.write('+ %s' % self.change_number_format(total))
         ###file_str.write(')')
         file_str.write(' )') # AV
-        ###print(file_str.getvalue()) # AV - FOR DEBUGGING
+        ###print('...."'+file_str.getvalue()+'"') # AV - FOR DEBUGGING
         return file_str.getvalue()
 
 #------------------------------------------------------------------------------------
