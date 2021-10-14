@@ -1,1 +1,1 @@
-../perf/perf.py
+../perf.py
