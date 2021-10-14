@@ -2,30 +2,30 @@
 /afs/cern.ch/user/a/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.auto/SubProcesses/P1_Sigma_sm_epem_mupmum
 make: Nothing to be done for `all'.
 
-DATE: 2021-10-14_18:49:24
+DATE: 2021-10-14_21:58:29
 
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 =========================================================================
 runExe /afs/cern.ch/user/a/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.auto/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe -p 2048 256 12 OMP=
 FP precision               = DOUBLE (nan=0)
-EvtsPerSec[MatrixElems] (3)= ( 6.433055e+08                 )  sec^-1
+EvtsPerSec[MatrixElems] (3)= ( 7.115191e+08                 )  sec^-1
 MeanMatrixElemValue        = ( 1.371706e-02 +- 3.270315e-06 )  GeV^0
-TOTAL       :     0.790893 sec
-       507,135,723      cycles:u                  #    0.493 GHz                    
-     1,016,676,979      instructions:u            #    2.00  insn per cycle         
-       1.089700541 seconds time elapsed
+TOTAL       :     1.257717 sec
+     1,168,012,138      cycles:u                  #    0.877 GHz                    
+     2,344,245,846      instructions:u            #    2.01  insn per cycle         
+       1.561812878 seconds time elapsed
 ==PROF== Profiling "sigmaKin": launch__registers_per_thread 166
 ==PROF== Profiling "sigmaKin": sm__sass_average_branch_targets_threads_uniform.pct 100%
 =========================================================================
 runExe /afs/cern.ch/user/a/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.auto/SubProcesses/P1_Sigma_sm_epem_mupmum/check.exe -p 2048 256 12 OMP=
 FP precision               = DOUBLE (nan=0)
-EvtsPerSec[MatrixElems] (3)= ( 1.111553e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3)= ( 1.110956e+06                 )  sec^-1
 MeanMatrixElemValue        = ( 1.371706e-02 +- 3.270315e-06 )  GeV^0
-TOTAL       :     8.037547 sec
-    21,226,474,024      cycles:u                  #    2.635 GHz                    
-    50,303,817,660      instructions:u            #    2.37  insn per cycle         
-       8.058756522 seconds time elapsed
-=Symbols in CPPProcess.o= (~sse4:  574) (avx2:    0) (512y:    0) (512z:    0)
+TOTAL       :     8.037130 sec
+    21,205,230,291      cycles:u                  #    2.633 GHz                    
+    50,303,815,361      instructions:u            #    2.37  insn per cycle         
+       8.057187731 seconds time elapsed
+=Symbols in CPPProcess.o= (~sse4:  583) (avx2:    0) (512y:    0) (512z:    0)
 =========================================================================
 
 TEST COMPLETED
