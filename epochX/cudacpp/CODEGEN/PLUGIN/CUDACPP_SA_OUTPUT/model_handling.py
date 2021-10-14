@@ -225,7 +225,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         if add_i:
             ###out.write(self.ci_definition)
             out.write('    ' + self.ci_definition) # AV
+        codedict = {} # AV allow delayed declaration with initialisation
         for type, name in self.declaration.tolist():
+            ###print(name) # FOR DEBUGGING
             if type.startswith('list'):
                 type = type[5:]
                 if name.startswith('P'):
@@ -248,10 +250,17 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     else:
                         size = 18
                 ###out.write('    %s %s[%s];\n' % (self.type2def[type], name, size))
-                out.write('    %s_sv %s[%s];\n' % (self.type2def[type], name, size)) # AV vectorize
+                ###out.write('    %s_sv %s[%s];\n' % (self.type2def[type], name, size)) # AV vectorize
+                fullname = '%s[%s]'%(name, size) # AV
             elif (type, name) not in self.call_arg:
                 ###out.write('    %s %s;\n' % (self.type2def[type], name))
-                out.write('    %s_sv %s;\n' % (self.type2def[type], name)) # AV vectorize
+                ###out.write('    %s_sv %s;\n' % (self.type2def[type], name)) # AV vectorize
+                fullname = name # AV
+            else:
+                continue # AV no need to declare the variable
+            codedict[fullname] = '%s_sv %s' % (self.type2def[type], fullname) # AV vectorize, add to codedict
+            ###print(fullname, codedict[fullname]) # FOR DEBUGGING
+            out.write('    %s;\n' % codedict[fullname] ) # AV default old behaviour (write out a separate declaration)
         ###out.write('    // END DECLARATION\n') # FOR DEBUGGING
         return out.getvalue()
 
