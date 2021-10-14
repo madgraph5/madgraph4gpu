@@ -15,27 +15,30 @@
 
     ~CPPProcess();
 
-    // Initialize process.
-    virtual void initProc( std::string param_card_name );
+    // Initialize process (read model parameters from file)
+    virtual void initProc( const std::string& param_card_name );
 
-    virtual int code() const { return 1; }
+    // Retrieve the compiler that was used to build this module
+    static const std::string getCompiler();
 
-    const std::vector<fptype>& getMasses() const;
+    // Other methods of this instance (???)
+    //const std::vector<fptype>& getMasses() const { return m_masses; }
+    //virtual int code() const{ return 1; }
+    //void setInitial( int inid1, int inid2 ){ id1 = inid1; id2 = inid2; }
+    //int getDim() const { return dim; }
+    //int getNIOParticles() const { return nexternal; } // nexternal was nioparticles
 
-    void setInitial( int inid1, int inid2 )
-    {
-      id1 = inid1;
-      id2 = inid2;
-    }
+    // Accessors (unused so far: add them to fix a clang build warning)
+    //int numiterations() const { return m_numiterations; }
+    //int gpublocks() const { return m_ngpublocks; }
+    //int gputhreads() const { return m_ngputhreads; }
+    //bool verbose() const { return m_verbose; }
+    //bool debug() const { return m_debug; }
 
-    int getDim() const { return dim; }
-
-    int getNIOParticles() const { return nexternal; }
-
-    // Constants for array limits
+    // Hardcoded parameters for this process (constant class variables)
     static const int ninitial = mgOnGpu::npari;
     static const int nexternal = mgOnGpu::npar;
-    //static const int nprocesses = %(nprocesses)d;
+    //static const int nprocesses = %(nprocesses)d; // FIXME: assume process.nprocesses == 1
 
   private:
 
@@ -59,11 +62,9 @@
 
     cxtype** amp;
 
-    // Pointer to the model parameters
-    Parameters_%(model)s* pars;
-
-    // vector with external particle masses
-    std::vector<fptype> mME;
+    // Physics model parameters to be read from file (initProc function)
+    Parameters_sm* m_pars;
+    std::vector<fptype> m_masses; // external particle masses
 
     // Initial particle ids
     int id1, id2;

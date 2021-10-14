@@ -1,5 +1,3 @@
-    mgDebugInitialise();
-
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
     for( int ievt = 0; ievt < nevt; ++ievt )
@@ -63,9 +61,8 @@
       //    printf( "sigmakin: ihelgood %%2d %%d\n", ihel, sigmakin_goodhel[ihel] );
 #endif
       // ** END LOOP ON IEVT **
-      mgDebugFinalise();
     }
-
-    //--------------------------------------------------------------------------
-
+    mgDebugFinalise();
   }
+
+  //--------------------------------------------------------------------------
