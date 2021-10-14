@@ -39,13 +39,13 @@ namespace Proc
   using mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
 
 #ifdef __CUDACC__
-  __device__ __constant__ int cHel[ncomb][npar];
+  __device__ __constant__ short cHel[ncomb][npar];
   __device__ __constant__ fptype cIPC[6];
   __device__ __constant__ fptype cIPD[2];
   __device__ __constant__ int cNGoodHel[1]; // FIXME: assume process.nprocesses == 1 for the moment
   __device__ __constant__ int cGoodHel[ncomb];
 #else
-  static int cHel[ncomb][npar];
+  static short cHel[ncomb][npar];
   static fptype cIPC[6];
   static fptype cIPD[2];
   //static int cNGoodHel[1]; // FIXME: assume process.nprocesses == 1 for the moment
@@ -160,7 +160,7 @@ namespace Proc
     , dim( gpu_nblocks * gpu_nthreads )
   {
     // Helicities for the process - nodim
-    static const int tHel[ncomb][nexternal] = {
+    const short tHel[ncomb][nexternal] = {
       {-1, -1, -1, -1},
       {-1, -1, -1, 1},
       {-1, -1, 1, -1},
@@ -178,9 +178,9 @@ namespace Proc
       {1, 1, 1, -1},
       {1, 1, 1, 1}};
 #ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(int) ) );
+    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(short) ) );
 #else
-    memcpy( cHel, tHel, ncomb * nexternal * sizeof(int) );
+    memcpy( cHel, tHel, ncomb * nexternal * sizeof(short) );
 #endif
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
     assert( sizeof(cxtype) == 2 * sizeof(fptype) );
