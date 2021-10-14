@@ -877,6 +877,7 @@ namespace MG5_sm
     const cxtype cI = cxmake( 0., 1. );
     V3[0] = + F1[0] + F2[0];
     V3[1] = + F1[1] + F2[1];
+    const fptype_sv P3[4] = { - cxreal( V3[0] ), - cxreal( V3[1] ), - cximag( V3[1] ), - cximag( V3[0] ) };
     const cxtype_sv denom = COUP / ((P3[0]*P3[0]) - (P3[1]*P3[1]) - (P3[2]*P3[2]) - (P3[3]*P3[3]) - M3*(M3-cI*W3));
     V3[2] = denom * (-cI) * (F1[2]*F2[4] + F1[3]*F2[5] + F1[4]*F2[2] + F1[5]*F2[3]);
     V3[3] = denom * (-cI) * (-F1[2]*F2[5] - F1[3]*F2[4] + F1[4]*F2[3] + F1[5]*F2[2]);
