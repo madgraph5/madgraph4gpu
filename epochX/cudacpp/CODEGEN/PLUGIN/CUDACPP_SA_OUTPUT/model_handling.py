@@ -884,7 +884,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         ###misc.sprint('  template_path=%s'%self.template_path) # look for gpu/mgOnGpuConfig.h here
         return super().edit_mgonGPU()
 
-    # AV - replace the export_cpp.OneProcessExporterGPU method (invert .cc/.cu, add debug printouts)
+    # AV - new method
     def edit_processidfile(self):
         """Generate epoch_process_id.h"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_processidfile')
