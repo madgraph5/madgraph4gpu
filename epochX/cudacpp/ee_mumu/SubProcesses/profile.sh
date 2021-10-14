@@ -89,7 +89,7 @@ fi
 ###ncu="${ncu} --sampling-interval 0"  # MAX sampling frequency
 ###ncu="${ncu} --sampling-interval 31" # MIN sampling frequency
 
-# METRICS FOR COALESCED MEMROY ACCESS (AOSOA etc)
+# METRICS FOR COALESCED MEMORY ACCESS (AOSOA etc)
 # See https://developer.nvidia.com/blog/using-nsight-compute-to-inspect-your-kernels/
 # These used to be called gld_transactions and global_load_requests
 # See also https://docs.nvidia.com/nsight-compute/2019.5/NsightComputeCli/index.html#nvprof-metric-comparison
