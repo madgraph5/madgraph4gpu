@@ -124,13 +124,11 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             except TypeError:
                 return False
         if isinteger(number):
-	    ###out = '%s.' % (str(int(number)))
-            if number == 1:
-                out = 'one' # AV
-            elif number == -1:
-                out = '-one' # AV
-            else:
-                out = '%s.' % (str(int(number))) # This prints -1 as '-1.'
+            if number == 1: out = 'one' # AV
+            elif number == -1: out = '-one' # AV
+            elif number == 2: out = 'two' # AV
+            elif number == -2: out = '-two' # AV
+            else: out = '%s.' % (str(int(number))) # This prints -1 as '-1.'
         elif isinstance(number, complex):
             if number.imag:
                 if number.real:
@@ -148,10 +146,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         else:
             tmp = Fraction(str(number))
             tmp = tmp.limit_denominator(100)
-            if not abs(tmp - number) / abs(tmp + number) < 1e-8:
-                out = '%.9f' % (number)
-            else:
-                out = '%s./%s.' % (tmp.numerator, tmp.denominator)
+            if not abs(tmp - number) / abs(tmp + number) < 1e-8: out = '%.9f' % (number)
+            elif tmp.numerator == 1 and tmp.denominator == 2 : out = 'half' # AV
+            elif tmp.numerator == -1 and tmp.denominator == 2 : out = '-half' # AV
+            else: out = '%s./%s.' % (tmp.numerator, tmp.denominator)
         return out
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
@@ -343,7 +341,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             templateval ='%(sign)s %(type)s%(i)d[%(nb)d]' # AV
         else:
             ptype = 'double_v'
-            templateval ='%(sign)s %(operator)s( %(type)s%(i)d[%(nb2)d] )' # AV cxreal/cximag
+            templateval ='%(sign)s%(operator)s( %(type)s%(i)d[%(nb2)d] )' # AV cxreal/cximag
         if self.nodeclare: strfile.write('    const %s P%d[4] = { ' % ( self.type2def[ptype], i) ) # AV
         nb2 = 0
         for j in range(4):
