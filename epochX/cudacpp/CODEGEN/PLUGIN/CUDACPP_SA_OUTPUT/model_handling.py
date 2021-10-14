@@ -106,9 +106,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     ###type2def['complex'] = 'cxtype '
     type2def['complex'] = 'cxtype'
 
-    # AV - add vector types (WIP)
-    ###type2def['double_v'] = 'fptype_sv'
-    ###type2def['complex_v'] = 'cxtype_sv'
+    # AV - add vector types
+    type2def['double_v'] = 'fptype_sv'
+    type2def['complex_v'] = 'cxtype_sv'
 
     # AV - modify C++ code from aloha_writers.ALOHAWriterForGPU
     # AV new option: declare C++ variable type only when they are defined?
@@ -175,9 +175,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         comment_inputs = [] # AV
         for format, argname in self.define_argument_list(couplings):
             if format.startswith('list'):
-                type = self.type2def[format[5:]]
+                type = self.type2def[format[5:]] # double or complex (instead of list_double or list_complex)
+                if not argname.startswith('COUP'): type = self.type2def[format[5:]+'_v'] # AV vectorize (double_v or complex_v)
                 list_arg = '[]'
-                if not argname.startswith('COUP'): type += '_sv' # AV vectorize
                 comment_inputs.append('%s[6]'%argname) # AV (wavefuncsize=6 is hardcoded also in export_cpp...)
             else:
                 type = self.type2def[format]
@@ -191,14 +191,14 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 args.append('%s %s%s'% (type, argname, list_arg)) # AV
         if not self.offshell:
             ###output = '%(doublec)s %(pointer_vertex)s vertex' % {
-            output = '%(doublec)s_sv%(pointer_vertex)s vertex' % { # AV vectorize
-                'doublec':self.type2def['complex'],
+            output = '%(doublec)s%(pointer_vertex)s vertex' % { # AV vectorize
+                'doublec':self.type2def['complex_v'],
                 'pointer_vertex': self.type2def['pointer_vertex']}
             comment_output = 'amplitude \'vertex\''
         else:
             ###output = '%(doublec)s %(spin)s%(id)d[]' % {
-            output = '%(doublec)s_sv %(spin)s%(id)d[]' % { # AV vectorize
-                     'doublec': self.type2def['complex'],
+            output = '%(doublec)s %(spin)s%(id)d[]' % { # AV vectorize
+                     'doublec': self.type2def['complex_v'],
                      'spin': self.particles[self.outgoing -1],
                      'id': self.outgoing}
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
@@ -269,19 +269,15 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                         size = 20
                     else:
                         size = 18
-                ###out.write('    %s %s[%s];\n' % (self.type2def[type], name, size))
-                ###out.write('    %s_sv %s[%s];\n' % (self.type2def[type], name, size)) # AV vectorize
                 fullname = '%s[%s]'%(name, size) # AV
             elif (type, name) not in self.call_arg:
-                ###out.write('    %s %s;\n' % (self.type2def[type], name))
-                ###out.write('    %s_sv %s;\n' % (self.type2def[type], name)) # AV vectorize
                 fullname = name # AV
             else:
                 continue # AV no need to declare the variable
             if fullname.startswith('OM') :
                 codedict[fullname] = '%s %s' % (self.type2def[type], fullname) # AV UGLY HACK (OM3 is always a scalar)
             else:
-                codedict[fullname] = '%s_sv %s' % (self.type2def[type], fullname) # AV vectorize, add to codedict
+                codedict[fullname] = '%s %s' % (self.type2def[type+"_v"], fullname) # AV vectorize, add to codedict
             ###print(fullname, codedict[fullname]) # FOR DEBUGGING
             if self.nodeclare:
                 self.declaration.codedict = codedict # AV new behaviour (delayed declaration with initialisation)
@@ -343,12 +339,12 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     def get_one_momenta_def(self, i, strfile):
         type = self.particles[i-1]
         if aloha.loop_mode:
-            ptype = 'complex'
+            ptype = 'complex_v'
             templateval ='%(sign)s %(type)s%(i)d[%(nb)d]' # AV
         else:
-            ptype = 'double'
+            ptype = 'double_v'
             templateval ='%(sign)s %(operator)s( %(type)s%(i)d[%(nb2)d] )' # AV cxreal/cximag
-        if self.nodeclare: strfile.write('    const %s_sv P%d[4] = { ' % ( self.type2def[ptype], i) ) # AV
+        if self.nodeclare: strfile.write('    const %s P%d[4] = { ' % ( self.type2def[ptype], i) ) # AV
         nb2 = 0
         for j in range(4):
             if not aloha.loop_mode:
@@ -393,8 +389,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 # This affects 'TMP0 = ' in HelAmps_sm.cu
                 ###out.write(' %s = %s;\n' % (name, self.write_obj(obj)))
                 if self.nodeclare:
-                    out.write('    const %s_sv %s = %s;\n' %
-                              (self.type2def['complex'], name, self.write_obj(obj))) # AV (FIXME! should declare a type 'complex_v' instead)
+                    out.write('    const %s %s = %s;\n' %
+                              (self.type2def['complex_v'], name, self.write_obj(obj))) # AV
                 else:
                     out.write('    %s = %s;\n' % (name, self.write_obj(obj))) # AV
                     self.declaration.add(('complex', name))
@@ -446,7 +442,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 mydict['coup'] = coup_name
                 mydict['i'] = self.outgoing
                 if self.nodeclare:
-                    mydict['declnamedenom'] = 'const %s_sv denom' % self.type2def['complex'] # AV (FIXME! should declare a type 'complex_v' instead)
+                    mydict['declnamedenom'] = 'const %s denom' % self.type2def['complex_v'] # AV
                 else:
                     mydict['declnamedenom'] = 'denom' # AV
                     self.declaration.add(('complex','denom'))
