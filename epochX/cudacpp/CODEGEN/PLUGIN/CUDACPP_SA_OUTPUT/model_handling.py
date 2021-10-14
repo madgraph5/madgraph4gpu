@@ -65,7 +65,8 @@ aloha_writers.Declaration_list.is_used = PLUGIN_Declaration_list_is_used
 
 # AV - decorate aloha_writers.Declaration_list.add (add optional debug printout)
 def PLUGIN_Declaration_list_add(self, obj):
-    ###print( 'ADDING ', obj) # FOR DEBUGGING (or add asserts and check MG5_debug)
+    #print( 'ADDING ', obj) # FOR DEBUGGING
+    #assert( obj[1] != 'P3' ) # FOR DEBUGGING (check MG5_debug to see where OM3, TMP3, P3 etc were added)
     return DEFAULT_Declaration_list_add(self, obj)
 
 DEFAULT_Declaration_list_add = aloha_writers.Declaration_list.add
@@ -104,6 +105,15 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     type2def['double'] = 'fptype'
     ###type2def['complex'] = 'cxtype '
     type2def['complex'] = 'cxtype'
+
+    # AV - add vector types (WIP)
+    ###type2def['double_v'] = 'fptype_sv'
+    ###type2def['complex_v'] = 'cxtype_sv'
+
+    # AV - modify C++ code from aloha_writers.ALOHAWriterForGPU
+    # AV new option: declare C++ variable type only when they are defined?
+    nodeclare = False # old behaviour (separate declaration with no initialization)
+    ###nodeclare = True # new behaviour (delayed declaration with initialisation)
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     def change_number_format(self, number):
@@ -273,7 +283,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             else:
                 codedict[fullname] = '%s_sv %s' % (self.type2def[type], fullname) # AV vectorize, add to codedict
             ###print(fullname, codedict[fullname]) # FOR DEBUGGING
-            out.write('    %s;\n' % codedict[fullname] ) # AV default old behaviour (write out a separate declaration)
+            if self.nodeclare:
+                self.declaration.codedict = codedict # AV new behaviour (delayed declaration with initialisation)
+            else:
+                out.write('    %s;\n' % codedict[fullname] ) # AV old behaviour (separate declaration with no initialization)
         ###out.write('    // END DECLARATION\n') # FOR DEBUGGING
         return out.getvalue()
 
@@ -291,9 +304,13 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             if self.declaration.is_used('OM%s' % (i+1)):
                 ###out.write("    OM{0} = {1};\n    if (M{0} != {1})\n OM{0}={2}/(M{0}*M{0});\n".format(
                 ###out.write("    OM{0} = {1};\n    if ( M{0} != {1} ) OM{0} = {2} / (M{0}*M{0});\n".format( # AV older
-                out.write("    OM{0} = ( M{0} != {1} ? {2} / ( M{0} * M{0} ) : {1} );\n".format( # AV use ternary in OM3
-                    ###i+1, self.change_number_format(0), self.change_number_format(1)))
-                    i+1, '0.', '1.')) # AV force scalar "1." instead of vector "one"
+                ###out.write("    OM{0} = ( M{0} != {1} ? {2} / ( M{0} * M{0} ) : {1} );\n".format( # AV use ternary in OM3
+                ###    ###i+1, self.change_number_format(0), self.change_number_format(1)))
+                ###    i+1, '0.', '1.')) # AV force scalar "1." instead of vector "one"
+                declname = 'OM%s' % (i+1) # AV
+                if self.nodeclare: declname = 'const ' + self.declaration.codedict[declname] # AV
+                out.write("    {3} = ( M{0} != {1} ? {2} / ( M{0} * M{0} ) : {1} );\n".format( # AV use ternary in OM3
+                    i+1, '0.', '1.', declname)) # AV force scalar "1." instead of vector "one", add declaration
             if i+1 == self.outgoing:
                 out_type = type
                 out_size = self.type_to_size[type] 
@@ -321,18 +338,17 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         # Returning result
         return out.getvalue()
 
-    # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
+    # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting, add delayed declaration with initialisation)
     # This affects 'P1[0] = ' in HelAmps_sm.cu
     def get_one_momenta_def(self, i, strfile):
         type = self.particles[i-1]
         if aloha.loop_mode:
-            ###template ='P%(i)d[%(j)d] = %(sign)s%(type)s%(i)d[%(nb)d];\n'
-            template ='    P%(i)d[%(j)d] = %(sign)s %(type)s%(i)d[%(nb)d];\n' # AV
-            template ='    P%(i)d[%(j)d] = %(sign)s %(type)s%(i)d[%(nb)d];\n' # AV
+            ptype = 'complex'
+            templateval ='%(sign)s %(type)s%(i)d[%(nb)d]' # AV
         else:
-            ###template ='P%(i)d[%(j)d] = %(sign)s%(type)s%(i)d[%(nb2)d]%(operator)s;\n'
-            ###template ='    P%(i)d[%(j)d] = %(sign)s %(type)s%(i)d[%(nb2)d]%(operator)s;\n' # AV older
-            template ='    P%(i)d[%(j)d] = %(sign)s %(operator)s( %(type)s%(i)d[%(nb2)d] );\n' # AV cxreal/cximag
+            ptype = 'double'
+            templateval ='%(sign)s %(operator)s( %(type)s%(i)d[%(nb2)d] )' # AV cxreal/cximag
+        if self.nodeclare: strfile.write('    const %s_sv P%d[4] = { ' % ( self.type2def[ptype], i) ) # AV
         nb2 = 0
         for j in range(4):
             if not aloha.loop_mode:
@@ -351,13 +367,13 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 operator =''
                 nb = j
                 nb2 = j
-	    ###strfile.write(template % {'j':j,'type': type, 'i': i, 
-            ###            'nb': nb, 'nb2': nb2, 'operator':operator,
-            ###            'sign': self.get_P_sign(i)})
             sign = self.get_P_sign(i) if self.get_P_sign(i) else '+' # AV
+            if self.nodeclare: template = templateval + ( ', ' if j<3 else '' ) # AV
+            else: template ='    P%(i)d[%(j)d] = ' + templateval + ';\n' # AV
             strfile.write(template % {'j':j,'type': type, 'i': i, 
                         'nb': nb, 'nb2': nb2, 'operator':operator,
                         'sign': sign}) # AV
+        if self.nodeclare: strfile.write(' };\n') # AV
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     # This is called once per FFV function, i.e. once per WriteALOHA instance?
@@ -376,8 +392,12 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 obj = self.routine.contracted[name]
                 # This affects 'TMP0 = ' in HelAmps_sm.cu
                 ###out.write(' %s = %s;\n' % (name, self.write_obj(obj)))
-                out.write('    %s = %s;\n' % (name, self.write_obj(obj))) # AV
-                self.declaration.add(('complex', name))
+                if self.nodeclare:
+                    out.write('    const %s_sv %s = %s;\n' %
+                              (self.type2def['complex'], name, self.write_obj(obj))) # AV (FIXME! should declare a type 'complex_v' instead)
+                else:
+                    out.write('    %s = %s;\n' % (name, self.write_obj(obj))) # AV
+                    self.declaration.add(('complex', name))
         for name, (fct, objs) in self.routine.fct.items():
             format = ' %s = %s;\n' % (name, self.get_fct_format(fct))
             out.write(format % ','.join([self.write_obj(obj) for obj in objs])) # AV not used in eemumu?
@@ -425,27 +445,34 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     mydict['post_coup'] = ''
                 mydict['coup'] = coup_name
                 mydict['i'] = self.outgoing
+                if self.nodeclare:
+                    mydict['declnamedenom'] = 'const %s_sv denom' % self.type2def['complex'] # AV (FIXME! should declare a type 'complex_v' instead)
+                else:
+                    mydict['declnamedenom'] = 'denom' # AV
+                    self.declaration.add(('complex','denom'))
                 if not aloha.complex_mass:
                     if self.routine.denominator:
                         # This affects 'denom = COUP' in HelAmps_sm.cu
                         ###out.write('    denom = %(pre_coup)s%(coup)s%(post_coup)s/(%(denom)s)\n' % mydict) 
-                        out.write('    denom = %(pre_coup)s%(coup)s%(post_coup)s / (%(denom)s)\n' % mydict) # AV
+                        ###out.write('    denom = %(pre_coup)s%(coup)s%(post_coup)s / (%(denom)s)\n' % mydict) # AV
+                        out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / (%(denom)s)\n' % mydict) # AV
                     else:
                         # This affects 'denom = COUP' in HelAmps_sm.cu
                         ###out.write('    denom = %(pre_coup)s%(coup)s%(post_coup)s/((P%(i)s[0]*P%(i)s[0])-(P%(i)s[1]*P%(i)s[1])-(P%(i)s[2]*P%(i)s[2])-(P%(i)s[3]*P%(i)s[3]) - M%(i)s * (M%(i)s -cI* W%(i)s));\n' % mydict)
-                        out.write('    denom = %(pre_coup)s%(coup)s%(post_coup)s / ((P%(i)s[0]*P%(i)s[0]) - (P%(i)s[1]*P%(i)s[1]) - (P%(i)s[2]*P%(i)s[2]) - (P%(i)s[3]*P%(i)s[3]) - M%(i)s*(M%(i)s-cI*W%(i)s));\n' % mydict) # AV
+                        ###out.write('    denom = %(pre_coup)s%(coup)s%(post_coup)s / ((P%(i)s[0]*P%(i)s[0]) - (P%(i)s[1]*P%(i)s[1]) - (P%(i)s[2]*P%(i)s[2]) - (P%(i)s[3]*P%(i)s[3]) - M%(i)s*(M%(i)s-cI*W%(i)s));\n' % mydict) # AV
+                        out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ((P%(i)s[0]*P%(i)s[0]) - (P%(i)s[1]*P%(i)s[1]) - (P%(i)s[2]*P%(i)s[2]) - (P%(i)s[3]*P%(i)s[3]) - M%(i)s*(M%(i)s-cI*W%(i)s));\n' % mydict) # AV
                 else:
                     if self.routine.denominator:
                         raise Exception('modify denominator are not compatible with complex mass scheme')                
                     # This affects 'denom = COUP' in HelAmps_sm.cu
                     ###out.write('    denom = %(pre_coup)s%(coup)s%(post_coup)s/((P%(i)s[0]*P%(i)s[0])-(P%(i)s[1]*P%(i)s[1])-(P%(i)s[2]*P%(i)s[2])-(P%(i)s[3]*P%(i)s[3]) - (M%(i)s*M%(i)s));\n' % mydict)
-                    out.write('    denom = %(pre_coup)s%(coup)s%(post_coup)s / ((P%(i)s[0]*P%(i)s[0])-(P%(i)s[1]*P%(i)s[1])-(P%(i)s[2]*P%(i)s[2])-(P%(i)s[3]*P%(i)s[3]) - (M%(i)s*M%(i)s));\n' % mydict) # AV
-                self.declaration.add(('complex','denom'))
-                if aloha.loop_mode:
-                    ptype = 'list_complex'
-                else:
-                    ptype = 'list_double'
-                self.declaration.add((ptype,'P%s' % self.outgoing))
+                    ###out.write('    denom = %(pre_coup)s%(coup)s%(post_coup)s / ((P%(i)s[0]*P%(i)s[0])-(P%(i)s[1]*P%(i)s[1])-(P%(i)s[2]*P%(i)s[2])-(P%(i)s[3]*P%(i)s[3]) - (M%(i)s*M%(i)s));\n' % mydict) # AV
+                    out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ((P%(i)s[0]*P%(i)s[0])-(P%(i)s[1]*P%(i)s[1])-(P%(i)s[2]*P%(i)s[2])-(P%(i)s[3]*P%(i)s[3]) - (M%(i)s*M%(i)s));\n' % mydict) # AV
+                ###self.declaration.add(('complex','denom')) # AV moved earlier (or simply removed)
+                if not self.nodeclare:
+                    if aloha.loop_mode: ptype = 'list_complex'
+                    else: ptype = 'list_double'
+                    self.declaration.add((ptype,'P%s' % self.outgoing))
             else:
                 coeff = 'COUP'
             for ind in numerator.listindices():
@@ -500,8 +527,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             else:
                 file_str.write('')
             first = False
-            file_str.write(add.join([self.write_obj(obj, prefactor=False) 
-                                                          for obj in obj_list]))
+            # AV comment: write_obj here also adds calls declaration_add (via change_var_format) - example: OM3
+            file_str.write(add.join([self.write_obj(obj, prefactor=False) for obj in obj_list]))
             if value not in [1,-1]:
                 file_str.write(')')
         if number:
