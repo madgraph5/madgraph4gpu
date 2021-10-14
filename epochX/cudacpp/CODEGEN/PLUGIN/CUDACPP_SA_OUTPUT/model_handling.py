@@ -112,8 +112,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
 
     # AV - modify C++ code from aloha_writers.ALOHAWriterForGPU
     # AV new option: declare C++ variable type only when they are defined?
-    nodeclare = False # old behaviour (separate declaration with no initialization)
-    ###nodeclare = True # new behaviour (delayed declaration with initialisation)
+    ###nodeclare = False # old behaviour (separate declaration with no initialization)
+    nodeclare = True # new behaviour (delayed declaration with initialisation)
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     def change_number_format(self, number):
