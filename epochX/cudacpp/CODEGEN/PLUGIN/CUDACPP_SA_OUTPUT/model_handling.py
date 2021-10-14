@@ -268,7 +268,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 fullname = name # AV
             else:
                 continue # AV no need to declare the variable
-            codedict[fullname] = '%s_sv %s' % (self.type2def[type], fullname) # AV vectorize, add to codedict
+            if fullname.startswith('OM') :
+                codedict[fullname] = '%s %s' % (self.type2def[type], fullname) # AV UGLY HACK (OM3 is always a scalar)
+            else:
+                codedict[fullname] = '%s_sv %s' % (self.type2def[type], fullname) # AV vectorize, add to codedict
             ###print(fullname, codedict[fullname]) # FOR DEBUGGING
             out.write('    %s;\n' % codedict[fullname] ) # AV default old behaviour (write out a separate declaration)
         ###out.write('    // END DECLARATION\n') # FOR DEBUGGING

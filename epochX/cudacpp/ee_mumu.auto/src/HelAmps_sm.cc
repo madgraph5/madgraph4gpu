@@ -925,7 +925,7 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI = cxmake( 0., 1. );
-    fptype_sv OM3;
+    fptype OM3;
     fptype_sv P3[4];
     cxtype_sv TMP2;
     cxtype_sv denom;
@@ -980,7 +980,7 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI = cxmake( 0., 1. );
-    fptype_sv OM3;
+    fptype OM3;
     fptype_sv P3[4];
     cxtype_sv TMP2;
     cxtype_sv TMP5;
@@ -1039,7 +1039,7 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI = cxmake( 0., 1. );
-    fptype_sv OM3;
+    fptype OM3;
     fptype_sv P3[4];
     cxtype_sv TMP2;
     cxtype_sv TMP5;
