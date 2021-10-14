@@ -63,6 +63,16 @@ aloha_writers.Declaration_list.is_used = PLUGIN_Declaration_list_is_used
 
 #------------------------------------------------------------------------------------
 
+# AV - decorate aloha_writers.Declaration_list.add (add optional debug printout)
+def PLUGIN_Declaration_list_add(self, obj):
+    ###print( 'ADDING ', obj) # FOR DEBUGGING (or add asserts and check MG5_debug)
+    return DEFAULT_Declaration_list_add(self, obj)
+
+DEFAULT_Declaration_list_add = aloha_writers.Declaration_list.add
+aloha_writers.Declaration_list.add = PLUGIN_Declaration_list_add
+
+#------------------------------------------------------------------------------------
+
 class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     # Class structure information
     #  - object
@@ -181,7 +191,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                      'doublec': self.type2def['complex'],
                      'spin': self.particles[self.outgoing -1],
                      'id': self.outgoing}
-            self.declaration.add(('list_complex', output))
+            ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
             comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
         ###out.write('%(prefix)s void %(name)s(%(args)s,%(output)s)' % \
         ###          {'prefix': self.prefix,
