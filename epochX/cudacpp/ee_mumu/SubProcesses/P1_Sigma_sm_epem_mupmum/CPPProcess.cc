@@ -57,7 +57,8 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   // Evaluate |M|^2 for each subprocess
-  // NB: calculate_wavefunctions ADDS |M|^2 for given ihel to running sum of |M|^2 over helicities for given event(s)
+  // NB: calculate_wavefunctions ADDS |M|^2 for given ihel
+  // to running sum of |M|^2 over helicities for given event(s)
   __device__
   INLINE
   void calculate_wavefunctions( int ihel,
@@ -89,7 +90,7 @@ namespace Proc
 
     // Local variables for the given CUDA event (ievt)
     // Local variables for the given C++ event page (ipagV)
-    cxtype_sv w_sv[nwf][nw6]; // w_v[5][6]
+    cxtype_sv w_sv[nwf][nw6]; // e.g. w_v[5][6] for e+ e- -> mu+ mu-
     cxtype_sv amp_sv[1]; // was 2
 
     // For CUDA performance, this is ~better: fewer registers, even if no throughput increase (issue #39)
@@ -252,6 +253,7 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
+  // Initialize process
   void CPPProcess::initProc( const std::string& param_card_name )
   {
     // Instantiate the model class and set parameters that stay fixed during run
@@ -454,12 +456,14 @@ namespace Proc
                  )
   {
     mgDebugInitialise();
+
     // Set the parameters which change event by event
     // Need to discuss this with Stefan
-    // pars->setDependentParameters();
-    // pars->setDependentCouplings();
+    //m_pars->setDependentParameters();
+    //m_pars->setDependentCouplings();
+
     // Reset color flows
-    // start sigmakin_lines
+    // Start sigmaKin_lines
 
     // Denominators: spins, colors and identical particles
     //const int nprocesses = 1;
@@ -532,7 +536,7 @@ namespace Proc
 
 // This was initially added to both C++ and CUDA in order to avoid RDC in CUDA (issue #51)
 // This is now also needed by C++ LTO-like optimizations via inlining (issue #229)
-#include "../../src/HelAmps_sm.cc"
+#include "HelAmps_sm.cc"
 
 //==========================================================================
 
