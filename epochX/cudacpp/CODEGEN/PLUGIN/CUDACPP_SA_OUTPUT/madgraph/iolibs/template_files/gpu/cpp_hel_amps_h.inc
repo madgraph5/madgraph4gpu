@@ -1,7 +1,6 @@
 //==========================================================================
-// This file has been automatically generated for %(output_name)s
+// This file has been automatically generated for %(output_name)s by
 %(info_lines)s
-// GPU Template
 //==========================================================================
 
 #ifndef HelAmps_%(model_name)s_H

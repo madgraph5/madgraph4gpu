@@ -857,6 +857,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         super(export_cpp.OneProcessExporterGPU, self).generate_process_files()
         self.edit_check_sa()
         self.edit_mgonGPU()
+        self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
         # Add symbolic links
         ###files.ln(pjoin(self.path, 'gcheck_sa.cu'), self.path, 'check_sa.cc')
         ###files.ln(pjoin(self.path, 'gCPPProcess.cu'), self.path, 'CPPProcess.cc')
@@ -882,6 +883,17 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_mgonGPU')
         ###misc.sprint('  template_path=%s'%self.template_path) # look for gpu/mgOnGpuConfig.h here
         return super().edit_mgonGPU()
+
+    # AV - replace the export_cpp.OneProcessExporterGPU method (invert .cc/.cu, add debug printouts)
+    def edit_processidfile(self):
+        """Generate epoch_process_id.h"""
+        misc.sprint('Entering PLUGIN_OneProcessExporter.edit_processidfile')
+        template = open(pjoin(self.template_path,'gpu','epoch_process_id.h'),'r').read()
+        replace_dict = {}
+        replace_dict['processid'] = 'EEMUMU'
+        ff = open(pjoin(self.path, 'epoch_process_id.h'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
 
     # AV - overload the export_cpp.OneProcessExporterGPU method (add debug printout and truncate last \n)
     # [*NB export_cpp.UFOModelConverterGPU.write_process_h_file is not called!*]
