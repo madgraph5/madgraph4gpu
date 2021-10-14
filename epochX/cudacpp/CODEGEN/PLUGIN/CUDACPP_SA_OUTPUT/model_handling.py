@@ -51,6 +51,18 @@ writers.CPPWriter = PLUGIN_FileWriter # WITHOUT FORMATTING
 import aloha
 import aloha.aloha_writers as aloha_writers
 
+# AV - replace aloha_writers.Declaration_list.is_used (disable caching to be on the safe side)
+# (NB class Declaration_list(set) is a set of (type, name) pairs!)
+def PLUGIN_Declaration_list_is_used(self, var):
+    ###if hasattr(self, 'var_name'): return var in self.var_name # AV why was this needed? disable caching to be on the safe side
+    self.var_name = [name for type,name in self]
+    return var in self.var_name
+
+DEFAULT_Declaration_list_is_used = aloha_writers.Declaration_list.is_used
+aloha_writers.Declaration_list.is_used = PLUGIN_Declaration_list_is_used
+
+#------------------------------------------------------------------------------------
+
 class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     # Class structure information
     #  - object
