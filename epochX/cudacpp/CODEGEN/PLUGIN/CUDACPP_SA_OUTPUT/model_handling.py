@@ -482,7 +482,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 text = '%(prefactor)s * %(factors)s'
                 data['prefactor'] = self.change_number_format(obj.prefactor)
             else:
-                text = '-%(factors)s'
+                text = '-%(factors)s' # AV keep default (this is not used in eemumu)
         else:
             text = '%(factors)s'
         return text % data
@@ -498,7 +498,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 text = '%(prefactor)s * %(factors)s'
                 data['prefactor'] = self.change_number_format(obj.prefactor)
             else:
-                text = '-%(factors)s'
+                text = '-%(factors)s' # AV keep default (this is not used in eemumu)
         else:
             text = '%(factors)s'
         return text % data
@@ -910,30 +910,29 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         writer.truncate()
         return out
 
-    # AV - replace the export_cpp.OneProcessExporterGPU method (improve formatting)
+    # AV - replace the export_cpp.OneProcessExporterGPU method (improve formatting? actually keep all defaults!)
     @staticmethod
     def coeff(ff_number, frac, is_imaginary, Nc_power, Nc_value=3):
         """Returns a nicely formatted string for the coefficients in JAMP lines"""
         total_coeff = ff_number * frac * Fraction(Nc_value) ** Nc_power
         if total_coeff == 1:
             if is_imaginary:
-                ###return '+cxtype(0,1)*'
-                return '+cxtype(0, 1) * ' # AV
+                return '+cxtype(0,1)*' # AV keep default (this is not used in eemumu - should use cI eventually)
             else:
-                return '+'
+                return '+' # AV keep default (this is not used in eemumu)
         elif total_coeff == -1:
             if is_imaginary:
-                ###return '-cxtype(0,1)*'
-                return '-cxtype(0, 1) * ' # AV
+                return '-cxtype(0,1)*' # AV keep default (this is not used in eemumu - should use cI eventually)
             else:
-                return '-'
+                return '-' # AV keep default (eg jamp[0] += -amp[0])
+        assert(False)
         res_str = '%+i.' % total_coeff.numerator
         if total_coeff.denominator != 1:
             # Check if total_coeff is an integer
             res_str = res_str + '/%i.' % total_coeff.denominator
         if is_imaginary:
             res_str = res_str + '*cxtype(0,1)'    
-        return res_str + '*'
+        return res_str + '*' # AV keep default (this is not used in eemumu)
 
     # AV - replace the export_cpp.OneProcessExporterCPP method (fix fptype and improve formatting)
     def get_color_matrix_lines(self, matrix_element):
