@@ -472,6 +472,22 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         return out.getvalue()
 
     # AV - modify aloha_writers.WriteALOHA method (improve formatting)
+    def write_MultContainer(self, obj, prefactor=True):
+        """Turn a multvariable into a string"""
+        mult_list = [self.write_obj(id) for id in obj]
+        ###data = {'factors': '*'.join(mult_list)}
+        data = {'factors': ' * '.join(mult_list)} # AV
+        if prefactor and obj.prefactor != 1:
+            if obj.prefactor != -1:
+                text = '%(prefactor)s * %(factors)s'
+                data['prefactor'] = self.change_number_format(obj.prefactor)
+            else:
+                text = '-%(factors)s'
+        else:
+            text = '%(factors)s'
+        return text % data
+
+    # AV - modify aloha_writers.WriteALOHA method (improve formatting)
     # This affects 'V1[2] = ' and 'F1[2] = ' in HelAmps_sm.cu
     def write_obj_Add(self, obj, prefactor=True):
         """Turns addvariable into a string"""
