@@ -820,9 +820,9 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             ret_lines.append('    mgDebug( 0, __FUNCTION__ );')
             ret_lines.append('#ifndef __CUDACC__')
             ret_lines.append('    //printf( "calculate_wavefunctions: nevt %d\\n", nevt );') # escape '\\'
-            ret_lines.append('#endif')
+            ret_lines.append('#endif\n')
             ret_lines.append('    // The number of colors')
-            ret_lines.append('    const int ncolor = %i;' % len(color_amplitudes[0]))
+            ret_lines.append('    constexpr int ncolor = %i;' % len(color_amplitudes[0]))
             ret_lines.append('    cxtype jamp[ncolor];\n')
             ret_lines.append('    // Calculate wavefunctions for all processes')
             helas_calls = self.helas_call_writer.get_matrix_element_calls(\

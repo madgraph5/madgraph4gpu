@@ -86,8 +86,9 @@ namespace Proc
 #ifndef __CUDACC__
     //printf( "calculate_wavefunctions: nevt %d\n", nevt );
 #endif
+
     // The number of colors
-    const int ncolor = 1;
+    constexpr int ncolor = 1;
     cxtype jamp[ncolor];
 
     // Calculate wavefunctions for all processes
