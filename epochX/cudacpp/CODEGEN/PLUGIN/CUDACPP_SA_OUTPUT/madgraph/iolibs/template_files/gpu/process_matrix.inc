@@ -10,13 +10,13 @@
     {
       cxtype ztemp = cxmake( 0, 0 );
       for( int jcol = 0; jcol < ncolor; jcol++ )
-        ztemp = ztemp + cf[icol][jcol] * jamp[jcol];
-      meHelSum = meHelSum + cxreal(ztemp*conj(jamp[icol])) / denom[icol];
+        ztemp = ztemp + cf[icol][jcol] * jamp_sv[jcol];
+      meHelSum = meHelSum + cxreal(ztemp*conj(jamp_sv[icol])) / denom[icol];
     }
 
     // Store the leading color flows for choice of color
     //for( i=0; i < ncolor; i++ )
-    //  jamp2[%(proc_number)d][i] += real(jamp[i]*conj(jamp[i]));
+    //  jamp2_sv[%(proc_number)d][i] += real(jamp_sv[i]*conj(jamp_sv[i]));
 
     mgDebug( 1, __FUNCTION__ );
     return;

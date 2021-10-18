@@ -96,10 +96,11 @@ namespace Proc
     cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
 
     // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
-    cxtype_sv jamp[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
+    cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
 
     // Calculate wavefunctions for all processes
-    for( int i=0; i<1; i++ ){ jamp[i] = cxtype( 0., 0. ); } // reset jamp (reset color flows)
+    // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
+    for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }
 
     // *** DIAGRAM 1 OF 2 ***
 
@@ -132,7 +133,7 @@ namespace Proc
 
     // Amplitude(s) for diagram number 1
     FFV1_0( w_sv[2], w_sv[3], w_sv[4], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
-    jamp[0] += -amp_sv[0];
+    jamp_sv[0] += -amp_sv[0];
 
     // *** DIAGRAM 2 OF 2 ***
 
@@ -141,7 +142,7 @@ namespace Proc
 
     // Amplitude(s) for diagram number 2
     FFV2_4_0( w_sv[2], w_sv[3], w_sv[4], cxtype( cIPC[2], cIPC[3] ), cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
-    jamp[0] += -amp_sv[0];
+    jamp_sv[0] += -amp_sv[0];
 
     // *** COLOR ALGEBRA BELOW ***
     // (This method used to be called CPPProcess::matrix_1_epem_mupmum()?)
@@ -156,13 +157,13 @@ namespace Proc
     {
       cxtype ztemp = cxmake( 0, 0 );
       for( int jcol = 0; jcol < ncolor; jcol++ )
-        ztemp = ztemp + cf[icol][jcol] * jamp[jcol];
-      meHelSum = meHelSum + cxreal(ztemp*conj(jamp[icol])) / denom[icol];
+        ztemp = ztemp + cf[icol][jcol] * jamp_sv[jcol];
+      meHelSum = meHelSum + cxreal(ztemp*conj(jamp_sv[icol])) / denom[icol];
     }
 
     // Store the leading color flows for choice of color
     //for( i=0; i < ncolor; i++ )
-    //  jamp2[0][i] += real(jamp[i]*conj(jamp[i]));
+    //  jamp2_sv[0][i] += real(jamp_sv[i]*conj(jamp_sv[i]));
 
     mgDebug( 1, __FUNCTION__ );
     return;

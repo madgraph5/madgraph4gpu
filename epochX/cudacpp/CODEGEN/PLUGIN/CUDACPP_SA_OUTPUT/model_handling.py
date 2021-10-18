@@ -828,7 +828,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             ret_lines.append('    cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)')
             ret_lines.append('    cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram\n')
             ret_lines.append('    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)')
-            ret_lines.append('    cxtype_sv jamp[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page\n')
+            ret_lines.append('    cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page\n')
             ret_lines.append('    // Calculate wavefunctions for all processes')
             helas_calls = self.helas_call_writer.get_matrix_element_calls(\
                                                     self.matrix_elements[0],
@@ -955,7 +955,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             if is_imaginary:
                 return '-cxtype(0,1)*' # AV keep default (this is not used in eemumu - should use cI eventually)
             else:
-                return '-' # AV keep default (eg jamp[0] += -amp[0])
+                return '-' # AV keep default (eg jamp_sv[0] += -amp_sv[0])
         assert(False)
         res_str = '%+i.' % total_coeff.numerator
         if total_coeff.denominator != 1:
@@ -997,7 +997,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             ###initProc_lines.append("mME.push_back(pars->%s);" % part.get('mass'))
             initProc_lines.append("    m_masses.push_back( m_pars->%s );" % part.get('mass')) # AV
         ###for i, colamp in enumerate(color_amplitudes):
-        ###    initProc_lines.append("jamp2[%d] = new double[%d];" % (i, len(colamp))) # AV - this was commented out already
+        ###    initProc_lines.append("jamp2_sv[%d] = new double[%d];" % (i, len(colamp))) # AV - this was commented out already
         return "\n".join(initProc_lines)
 
     # AV - replace the export_cpp.OneProcessExporterCPP method (improve formatting)
@@ -1108,7 +1108,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         matrix_element.reuse_outdated_wavefunctions(me)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
-        res.append('for( int i=0; i<%s; i++ ){ jamp[i] = cxtype( 0., 0. ); } // reset jamp (reset color flows)' % len(color_amplitudes)) # AV
+        res.append('// Reset color flows (reset jamp_sv) at the beginning of a new event or event page')
+        res.append('for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }')
         for diagram in matrix_element.get('diagrams'):
             ###print('DIAGRAM %3d: #wavefunctions=%3d, #diagrams=%3d' %
             ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING
@@ -1127,7 +1128,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 for njamp, coeff in color[namp].items():
                     ###res.append("jamp[%s] += %samp[0];" % (njamp, export_cpp.OneProcessExporterGPU.coeff(*coeff)))
                     ###res.append("jamp[%s] += %samp[0];" % (njamp, PLUGIN_OneProcessExporter.coeff(*coeff)))
-                    res.append("jamp[%s] += %samp_sv[0];" % (njamp, PLUGIN_OneProcessExporter.coeff(*coeff))) # AV vectorize
+                    res.append("jamp_sv[%s] += %samp_sv[0];" % (njamp, PLUGIN_OneProcessExporter.coeff(*coeff))) # AV vectorize
             if len(diagram.get('amplitudes')) == 0 : res.append('// (none)') # AV
         ###res.append('\n    // *** END OF DIAGRAMS ***' ) # AV - no longer needed ('COLOR ALGEBRA BELOW')
         return res
