@@ -90,10 +90,13 @@ namespace Proc
     // The number of colors
     constexpr int ncolor = 1;
 
-    // Local variables for the given CUDA event (ievt)
-    // Local variables for the given C++ event page (ipagV)
-    cxtype_sv w_sv[nwf][nw6]; // e.g. w_v[5][6] for e+ e- -> mu+ mu-
-    cxtype_sv amp_sv[1]; // was 2
+    // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
+    // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
+    cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
+    cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
+
+    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
+    cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
 
 #ifndef __CUDACC__
     const int npagV = nevt / neppV;
@@ -104,14 +107,17 @@ namespace Proc
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
 #if not defined __clang__ && defined __GNUC__ && __GNUC__ < 9
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel) private (amp_sv,w_sv)
+#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel) private (amp_sv,w_sv,jamp_sv)
 #else
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV) private (amp_sv,w_sv)
+#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV) private (amp_sv,w_sv,jamp_sv)
 #endif
 #endif
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif
     {
+      // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
+      for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }
+
 #ifdef __CUDACC__
 #ifndef MGONGPU_TEST_DIVERGENCE
       // NB: opzxxx only reads pz (not E,px,py)
@@ -154,10 +160,6 @@ namespace Proc
       oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], ipagV, 3 );
       //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w_sv[3], ipagV, 3 ); // tested ok (a bit slower)
 #endif
-
-      // Local variables for the given CUDA event (ievt)
-      // Local variables for the given C++ event page (ipagV)
-      cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams
 
       // --- START Compute amplitudes for all diagrams ---
       FFV1P0_3( w_sv[1], w_sv[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );
