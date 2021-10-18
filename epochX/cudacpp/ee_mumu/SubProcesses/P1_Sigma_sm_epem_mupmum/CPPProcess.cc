@@ -55,13 +55,11 @@ namespace Proc
   // Helicity combinations (and filtering of "good" helicity combinations)
 #ifdef __CUDACC__
   __device__ __constant__ short cHel[ncomb][npar];
-  //__device__ __constant__ int cNGoodHel[1]; // FIXME: assume process.nprocesses == 1 for the moment
-  __device__ __constant__ int cNGoodHel;
+  __device__ __constant__ int cNGoodHel; // FIXME: assume process.nprocesses == 1 for the moment (eventually cNGoodHel[nprocesses]?)
   __device__ __constant__ int cGoodHel[ncomb];
 #else
   static short cHel[ncomb][npar];
-  //static int cNGoodHel[1]; // FIXME: assume process.nprocesses == 1 for the moment
-  static int cNGoodHel;
+  static int cNGoodHel; // FIXME: assume process.nprocesses == 1 for the moment (eventually cNGoodHel[nprocesses]?)
   static int cGoodHel[ncomb];
 #endif
 
@@ -436,22 +434,18 @@ namespace Proc
 
   void sigmaKin_setGoodHel( const bool* isGoodHel ) // input: isGoodHel[ncomb] - host array
   {
-    //int nGoodHel[1] = { 0 }; // FIXME: assume process.nprocesses == 1 for the moment
-    int nGoodHel = 0;
+    int nGoodHel = 0; // FIXME: assume process.nprocesses == 1 for the moment (eventually nGoodHel[nprocesses]?)
     int goodHel[ncomb] = { 0 };
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       //std::cout << "sigmaKin_setGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
       if ( isGoodHel[ihel] )
       {
-        //goodHel[nGoodHel[0]] = ihel; // FIXME: assume process.nprocesses == 1 for the moment
-        //nGoodHel[0]++; // FIXME: assume process.nprocesses == 1 for the moment
         goodHel[nGoodHel] = ihel;
         nGoodHel++;
       }
     }
 #ifdef __CUDACC__
-    //checkCuda( cudaMemcpyToSymbol( cNGoodHel, nGoodHel, sizeof(int) ) ); // FIXME: assume process.nprocesses == 1 for the moment
     checkCuda( cudaMemcpyToSymbol( cNGoodHel, &nGoodHel, sizeof(int) ) );
     checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb*sizeof(int) ) );
 #else
@@ -483,9 +477,7 @@ namespace Proc
     // Start sigmaKin_lines
 
     // Denominators: spins, colors and identical particles
-    //const int nprocesses = 1;
-    //const int denominators[nprocesses] = { 4 };
-    const int denominators = 4;
+    const int denominators = 4; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
 
 #ifdef __CUDACC__
     // Remember: in CUDA this is a kernel for one event, in c++ this processes n events
@@ -513,7 +505,7 @@ namespace Proc
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
-    //for ( int ighel = 0; ighel < cNGoodHel[0]; ighel++ ) // FIXME: assume process.nprocesses == 1
+    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     for ( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];

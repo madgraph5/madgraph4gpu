@@ -55,13 +55,11 @@ namespace Proc
   // Helicity combinations (and filtering of "good" helicity combinations)
 #ifdef __CUDACC__
   __device__ __constant__ short cHel[ncomb][npar];
-  //__device__ __constant__ int cNGoodHel[1]; // FIXME: assume process.nprocesses == 1 for the moment
-  __device__ __constant__ int cNGoodHel;
+  __device__ __constant__ int cNGoodHel; // FIXME: assume process.nprocesses == 1 for the moment (eventually cNGoodHel[nprocesses]?)
   __device__ __constant__ int cGoodHel[ncomb];
 #else
   static short cHel[ncomb][npar];
-  //static int cNGoodHel[1]; // FIXME: assume process.nprocesses == 1 for the moment
-  static int cNGoodHel;
+  static int cNGoodHel; // FIXME: assume process.nprocesses == 1 for the moment (eventually cNGoodHel[nprocesses]?)
   static int cGoodHel[ncomb];
 #endif
 
@@ -324,18 +322,18 @@ namespace Proc
   void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                             bool* isGoodHel )         // output: isGoodHel[ncomb] - device array
   {
-    const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
-    fptype meHelSum[nprocesses] = { 0 }; // all zeros
+    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+    fptype meHelSum = 0;
     fptype meHelSumLast = 0;
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running
       // sum of |M|^2 over helicities for the given event
-      calculate_wavefunctions( ihel, allmomenta, meHelSum[0] );
-      if ( meHelSum[0] != meHelSumLast )
+      calculate_wavefunctions( ihel, allmomenta, meHelSum );
+      if ( meHelSum != meHelSumLast )
       {
         isGoodHel[ihel] = true;
-        meHelSumLast = meHelSum[0];
+        meHelSumLast = meHelSum;
       }
     }
   }
@@ -346,8 +344,7 @@ namespace Proc
 #ifdef __CUDACC__
   void sigmaKin_setGoodHel( const bool* isGoodHel ) // input: isGoodHel[ncomb] - host array
   {
-    //int nGoodHel[1] = { 0 }; // FIXME: assume process.nprocesses == 1 for the moment
-    int nGoodHel = 0;
+    int nGoodHel = 0; // FIXME: assume process.nprocesses == 1 for the moment (eventually nGoodHel[nprocesses]?)
     int goodHel[ncomb] = { 0 };
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
@@ -369,6 +366,8 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   // Evaluate |M|^2, part independent of incoming flavour
+  // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
+
   __global__
   void sigmaKin( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                  fptype_sv* allMEs            // output: allMEs[nevt], final |M|^2 averaged over all helicities
@@ -403,19 +402,18 @@ namespace Proc
 #endif
 
       // Denominators: spins, colors and identical particles
-      const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
-      const int denominators[1] = { 4 };
+      const int denominators = 4; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
 
       // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
-      fptype meHelSum[nprocesses] = { 0 }; // all zeros
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      fptype meHelSum = 0;
 
 #ifdef __CUDACC__
       // CUDA - using precomputed good helicities
-      //for ( int ighel = 0; ighel < cNGoodHel[0]; ighel++ ) // FIXME: assume process.nprocesses == 1
       for ( int ighel = 0; ighel < cNGoodHel; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
-        calculate_wavefunctions( ihel, allmomenta, meHelSum[0] );
+        calculate_wavefunctions( ihel, allmomenta, meHelSum );
       }
 #else
       // C++ - compute good helicities within this loop
@@ -424,11 +422,11 @@ namespace Proc
       {
         if ( sigmakin_itry > maxtry && !sigmakin_goodhel[ihel] ) continue;
         // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event
-        calculate_wavefunctions( ihel, allmomenta, meHelSum[0], ievt );
+        calculate_wavefunctions( ihel, allmomenta, meHelSum, ievt );
         if ( sigmakin_itry <= maxtry )
         {
-          if ( !sigmakin_goodhel[ihel] && meHelSum[0] > meHelSumLast ) sigmakin_goodhel[ihel] = true;
-          meHelSumLast = meHelSum[0];
+          if ( !sigmakin_goodhel[ihel] && meHelSum > meHelSumLast ) sigmakin_goodhel[ihel] = true;
+          meHelSumLast = meHelSum;
         }
       }
 #endif
@@ -436,16 +434,12 @@ namespace Proc
       // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
       // [NB 'sum over final spins, average over initial spins', eg see
       // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
-      for( int iproc = 0; iproc < nprocesses; ++iproc )
-      {
-        meHelSum[iproc] /= denominators[iproc];
-      }
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      meHelSum /= denominators;
 
       // Set the final average |M|^2 for this event in the output array for all events
-      for( int iproc = 0; iproc < nprocesses; ++iproc )
-      {
-        allMEs[iproc*nprocesses + ievt] = meHelSum[iproc];
-      }
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      allMEs[ievt] = meHelSum;
 
 #ifndef __CUDACC__
       if ( sigmakin_itry <= maxtry )
