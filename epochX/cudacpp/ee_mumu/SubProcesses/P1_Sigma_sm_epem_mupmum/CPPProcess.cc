@@ -84,10 +84,6 @@ namespace Proc
     // The number of colors
     constexpr int ncolor = 1;
 
-    // The color matrix
-    constexpr fptype denom[ncolor] = {1};
-    constexpr fptype cf[ncolor][ncolor] = {{1}};
-
     // Local variables for the given CUDA event (ievt)
     // Local variables for the given C++ event page (ipagV)
     cxtype_sv w_sv[nwf][nw6]; // e.g. w_v[5][6] for e+ e- -> mu+ mu-
@@ -107,9 +103,9 @@ namespace Proc
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
 #if not defined __clang__ && defined __GNUC__ && __GNUC__ < 9
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel) private (amp_sv,w_sv)
+#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel) private (amp_sv,w_sv)
 #else
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel,npagV) private (amp_sv,w_sv)
+#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV) private (amp_sv,w_sv)
 #endif
 #endif
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
@@ -175,6 +171,10 @@ namespace Proc
       // --- END   Compute amplitudes for all diagrams ---
 
       // --- START Color matrix algebra ---      
+      // The color matrix
+      constexpr fptype denom[ncolor] = {1};
+      constexpr fptype cf[ncolor][ncolor] = {{1}};
+
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
       fptype_sv deltaMEs = { 0 }; // all zeros
