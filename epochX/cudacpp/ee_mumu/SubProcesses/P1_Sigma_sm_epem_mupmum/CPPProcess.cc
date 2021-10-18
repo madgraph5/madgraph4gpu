@@ -94,6 +94,7 @@ namespace Proc
     // Local variables for the given C++ event page (ipagV)
     cxtype_sv w_sv[nwf][nw6]; // e.g. w_v[5][6] for e+ e- -> mu+ mu-
     cxtype_sv amp_sv[1]; // was 2
+    cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams
 
 #ifndef __CUDACC__
     const int npagV = nevt / neppV;
@@ -104,9 +105,9 @@ namespace Proc
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
 #if not defined __clang__ && defined __GNUC__ && __GNUC__ < 9
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel) private (amp_sv,w_sv)
+#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel) private (amp_sv,w_sv) firstprivate (jamp_sv)
 #else
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV) private (amp_sv,w_sv)
+#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV) private (amp_sv,w_sv) firstprivate (jamp_sv)
 #endif
 #endif
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
@@ -154,10 +155,6 @@ namespace Proc
       oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], ipagV, 3 );
       //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w_sv[3], ipagV, 3 ); // tested ok (a bit slower)
 #endif
-
-      // Local variables for the given CUDA event (ievt)
-      // Local variables for the given C++ event page (ipagV)
-      cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams
 
       // --- START Compute amplitudes for all diagrams ---
       FFV1P0_3( w_sv[1], w_sv[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );
