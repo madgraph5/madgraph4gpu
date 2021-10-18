@@ -15,17 +15,28 @@ namespace Proc
   using mgOnGpu::nwf; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
   using mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
 
+  // Physics parameters (masses, coupling, etc...)
+  // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
+  // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
+  // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
+  //constexpr fptype cIPC[%(ncouplingstimes2)i] = { ... };
+  //constexpr fptype cIPD[%(nparams)i] = { ... };
 #ifdef __CUDACC__
-  __device__ __constant__ short cHel[ncomb][npar];
   __device__ __constant__ fptype cIPC[%(ncouplingstimes2)i];
   __device__ __constant__ fptype cIPD[%(nparams)i];
+#else
+  static fptype cIPC[%(ncouplingstimes2)i];
+  static fptype cIPD[%(nparams)i];
+#endif
+
+  // Helicity combinations (and filtering of "good" helicity combinations)
+#ifdef __CUDACC__
+  __device__ __constant__ short cHel[ncomb][npar];
   //__device__ __constant__ int cNGoodHel[1]; // FIXME: assume process.nprocesses == 1 for the moment
   __device__ __constant__ int cNGoodHel;
   __device__ __constant__ int cGoodHel[ncomb];
 #else
   static short cHel[ncomb][npar];
-  static fptype cIPC[%(ncouplingstimes2)i];
-  static fptype cIPD[%(nparams)i];
   //static int cNGoodHel[1]; // FIXME: assume process.nprocesses == 1 for the moment
   static int cNGoodHel;
   static int cGoodHel[ncomb];
