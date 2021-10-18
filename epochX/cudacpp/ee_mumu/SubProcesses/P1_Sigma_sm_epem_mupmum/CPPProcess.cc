@@ -82,11 +82,11 @@ namespace Proc
 #endif
 
     // The number of colors
-    const int ncolor = 1;
+    constexpr int ncolor = 1;
 
     // The color matrix
-    const fptype denom[ncolor] = {1};
-    const fptype cf[ncolor][ncolor] = {{1}};
+    constexpr fptype denom[ncolor] = {1};
+    constexpr fptype cf[ncolor][ncolor] = {{1}};
 
     // Local variables for the given CUDA event (ievt)
     // Local variables for the given C++ event page (ipagV)
@@ -229,7 +229,7 @@ namespace Proc
     , m_masses()
   {
     // Helicities for the process - nodim
-    const short tHel[ncomb][nexternal] = {
+    constexpr short tHel[ncomb][nexternal] = {
       {-1, -1, -1, -1},
       {-1, -1, -1, 1},
       {-1, -1, 1, -1},
