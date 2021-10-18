@@ -173,7 +173,7 @@ namespace Proc
       jamp_sv[0] -= amp_sv[0];
       // --- END   Compute amplitudes for all diagrams ---
 
-      // --- START Color matrix algebra ---      
+      // --- START Color matrix algebra ---
       // The color matrix
       constexpr fptype denom[ncolor] = {1};
       constexpr fptype cf[ncolor][ncolor] = {{1}};
@@ -186,9 +186,9 @@ namespace Proc
         cxtype_sv ztemp_sv = cxzero_sv();
         for( int jcol = 0; jcol < ncolor; jcol++ )
           ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
-        deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];        
+        deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];
       }
-      // --- END   Color matrix algebra ---      
+      // --- END   Color matrix algebra ---
 
       // Store the leading color flows for choice of color
       // (NB: jamp2_sv must be an array of fptype_sv)
@@ -497,7 +497,7 @@ namespace Proc
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef MGONGPU_CPPSIMD
-    const int npagV = nevt/neppV;    
+    const int npagV = nevt/neppV;
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
       allMEs[ipagV] = fptype_v{0}; // all zeros
