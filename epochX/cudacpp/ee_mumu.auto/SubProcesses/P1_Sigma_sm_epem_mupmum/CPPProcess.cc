@@ -89,13 +89,16 @@ namespace Proc
 
     // The number of colors
     constexpr int ncolor = 1;
-    cxtype jamp[ncolor];
+
+    // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
+    // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
+    cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
+    cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
+
+    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
+    cxtype_sv jamp[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
 
     // Calculate wavefunctions for all processes
-    // Local variables for the given CUDA event (ievt)
-    // Local variables for the given C++ event page (ipagV)
-    cxtype_sv w_sv[nwf][nw6]; // e.g. w_v[5][6] for e+ e- -> mu+ mu-
-    cxtype_sv amp_sv[1]; // was 2
     for( int i=0; i<1; i++ ){ jamp[i] = cxtype( 0., 0. ); } // reset jamp (reset color flows)
 
     // *** DIAGRAM 1 OF 2 ***

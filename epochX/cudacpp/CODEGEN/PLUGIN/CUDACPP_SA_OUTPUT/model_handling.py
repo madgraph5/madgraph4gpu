@@ -822,8 +822,13 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             ret_lines.append('    //printf( "calculate_wavefunctions: nevt %d\\n", nevt );') # escape '\\'
             ret_lines.append('#endif\n')
             ret_lines.append('    // The number of colors')
-            ret_lines.append('    constexpr int ncolor = %i;' % len(color_amplitudes[0]))
-            ret_lines.append('    cxtype jamp[ncolor];\n')
+            ret_lines.append('    constexpr int ncolor = %i;\n' % len(color_amplitudes[0]))
+            ret_lines.append('    // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)')
+            ret_lines.append('    // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]')
+            ret_lines.append('    cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)')
+            ret_lines.append('    cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram\n')
+            ret_lines.append('    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)')
+            ret_lines.append('    cxtype_sv jamp[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page\n')
             ret_lines.append('    // Calculate wavefunctions for all processes')
             helas_calls = self.helas_call_writer.get_matrix_element_calls(\
                                                     self.matrix_elements[0],
@@ -833,10 +838,6 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             self.couplings2order = self.helas_call_writer.couplings2order
             self.params2order = self.helas_call_writer.params2order
             nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
-            ret_lines.append('    // Local variables for the given CUDA event (ievt)')
-            ret_lines.append('    // Local variables for the given C++ event page (ipagV)')
-            ret_lines.append('    cxtype_sv w_sv[nwf][nw6]; // e.g. w_v[5][6] for e+ e- -> mu+ mu-')
-            ret_lines.append('    cxtype_sv amp_sv[1]; // was %i' % len(self.matrix_elements[0].get_all_amplitudes()))
             ret_lines += helas_calls
         else:
             ret_lines.extend([self.get_sigmaKin_single_process(i, me) \
