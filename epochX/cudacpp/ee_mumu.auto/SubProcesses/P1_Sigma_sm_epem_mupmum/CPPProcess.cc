@@ -59,65 +59,74 @@ namespace Proc
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for given ihel
   // to running sum of |M|^2 over helicities for given event(s)
-  __device__ void calculate_wavefunctions( int ihel,
-                                           const fptype* allmomenta,
-                                           fptype& meHelSum
+  __device__
+  INLINE
+  void calculate_wavefunctions( int ihel,
+                                const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
+                                fptype& meHelSum
 #ifndef __CUDACC__
-                                           , const int ievt
+                                , const int ievt
 #endif
-                                           )
+                                )
+  //ALWAYS_INLINE // attributes are not permitted in a function definition
   {
     using namespace MG5_sm;
     mgDebug( 0, __FUNCTION__ );
-    cxtype amp[1]; // was 2
+#ifndef __CUDACC__
+    //printf( "calculate_wavefunctions: nevt %d\n", nevt );
+#endif
+    // The number of colors
     const int ncolor = 1;
     cxtype jamp[ncolor];
 
     // Calculate wavefunctions for all processes
-    cxtype w[nwf][nw6];
+    // Local variables for the given CUDA event (ievt)
+    // Local variables for the given C++ event page (ipagV)
+    cxtype_sv w_sv[nwf][nw6]; // e.g. w_v[5][6] for e+ e- -> mu+ mu-
+    cxtype_sv amp_sv[1]; // was 2
     for( int i=0; i<1; i++ ){ jamp[i] = cxtype( 0., 0. ); } // reset jamp (reset color flows)
 
     // *** DIAGRAM 1 OF 2 ***
 
     // Wavefunction(s) for diagram number 1
 #ifdef __CUDACC__
-    opzxxx( allmomenta, cHel[ihel][0], -1, w[0], 0 );
+    opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 );
 #else
-    opzxxx( allmomenta, cHel[ihel][0], -1, w[0], ievt, 0 );
+    opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], ievt, 0 );
 #endif
 
 #ifdef __CUDACC__
-    imzxxx( allmomenta, cHel[ihel][1], +1, w[1], 1 );
+    imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 );
 #else
-    imzxxx( allmomenta, cHel[ihel][1], +1, w[1], ievt, 1 );
+    imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], ievt, 1 );
 #endif
 
 #ifdef __CUDACC__
-    ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], 2 );
+    ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 );
 #else
-    ixzxxx( allmomenta, cHel[ihel][2], -1, w[2], ievt, 2 );
+    ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], ievt, 2 );
 #endif
 
 #ifdef __CUDACC__
-    oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], 3 );
+    oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 );
 #else
-    oxzxxx( allmomenta, cHel[ihel][3], +1, w[3], ievt, 3 );
+    oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], ievt, 3 );
 #endif
 
-    FFV1P0_3( w[1], w[0], cxtype( cIPC[0], cIPC[1] ), 0., 0., w[4] );
+    FFV1P0_3( w_sv[1], w_sv[0], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );
 
     // Amplitude(s) for diagram number 1
-    FFV1_0( w[2], w[3], w[4], cxtype( cIPC[0], cIPC[1] ), &amp[0] );
-    jamp[0] += -amp[0];
+    FFV1_0( w_sv[2], w_sv[3], w_sv[4], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
+    jamp[0] += -amp_sv[0];
 
     // *** DIAGRAM 2 OF 2 ***
 
     // Wavefunction(s) for diagram number 2
-    FFV2_4_3( w[1], w[0], cxtype( cIPC[2], cIPC[3] ), cxtype( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w[4] );
+    FFV2_4_3( w_sv[1], w_sv[0], cxtype( cIPC[2], cIPC[3] ), cxtype( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w_sv[4] );
 
     // Amplitude(s) for diagram number 2
-    FFV2_4_0( w[2], w[3], w[4], cxtype( cIPC[2], cIPC[3] ), cxtype( cIPC[4], cIPC[5] ), &amp[0] );
-    jamp[0] += -amp[0];
+    FFV2_4_0( w_sv[2], w_sv[3], w_sv[4], cxtype( cIPC[2], cIPC[3] ), cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
+    jamp[0] += -amp_sv[0];
 
     // *** COLOR ALGEBRA BELOW ***
     // (This method used to be called CPPProcess::matrix_1_epem_mupmum()?)
