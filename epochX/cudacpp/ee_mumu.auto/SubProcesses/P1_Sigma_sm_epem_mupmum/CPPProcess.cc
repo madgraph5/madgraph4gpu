@@ -146,11 +146,12 @@ namespace Proc
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called CPPProcess::matrix_1_epem_mupmum()?)
 
-      // The color matrix;
-      static const fptype denom[ncolor] = {1};
-      static const fptype cf[ncolor][ncolor] = {{1}};
+      // The color matrix
+      constexpr fptype denom[ncolor] = {1};
+      constexpr fptype cf[ncolor][ncolor] = {{1}};
 
       // Sum and square the color flows to get the matrix element
+      // (compute |M|^2 by squaring |M|, taking into account colours)
       for( int icol=0; icol < ncolor; icol++ )
       {
         cxtype ztemp = cxmake( 0, 0 );
@@ -185,7 +186,7 @@ namespace Proc
     , m_masses()
   {
     // Helicities for the process - nodim
-    const short tHel[ncomb][nexternal] = {
+    constexpr short tHel[ncomb][nexternal] = {
       {-1, -1, -1, -1},
       {-1, -1, -1, 1},
       {-1, -1, 1, -1},
@@ -245,7 +246,7 @@ namespace Proc
 
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
-    const cxtype tIPC[3] = { cxmake(m_pars->GC_3), cxmake(m_pars->GC_50), cxmake(m_pars->GC_59) };
+    const cxtype tIPC[3] = { cxmake( m_pars->GC_3 ), cxmake( m_pars->GC_50 ), cxmake( m_pars->GC_59 ) };
     const fptype tIPD[2] = { (fptype)m_pars->mdl_MZ, (fptype)m_pars->mdl_WZ };
 #ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(cxtype) ) );

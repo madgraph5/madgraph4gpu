@@ -2,10 +2,11 @@
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called %(process_class_name)s::matrix_%(proc_name)s(%(matrix_args)s)?)
 
-      // The color matrix;
+      // The color matrix
 %(color_matrix_lines)s
 
       // Sum and square the color flows to get the matrix element
+      // (compute |M|^2 by squaring |M|, taking into account colours)
       for( int icol=0; icol < ncolor; icol++ )
       {
         cxtype ztemp = cxmake( 0, 0 );
