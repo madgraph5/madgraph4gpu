@@ -3,12 +3,11 @@ TESTDIR  = ../../../../../test
 INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
 OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
-###ifneq ($(shell $(CXX) --version | grep ^Intel),)
-###OMPFLAGS?=
-###else
-###OMPFLAGS?= -fopenmp
-###endif
-OMPFLAGS =
+ifneq ($(shell $(CXX) --version | grep ^Intel),)
+OMPFLAGS?=
+else
+OMPFLAGS?= -fopenmp
+endif
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS)
 CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
