@@ -809,7 +809,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             indent = ' ' * ( ret_lines[-1].find('(') + 2 )
             ret_lines.append(indent+'const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM')
             #ret_lines.append(indent+'fptype_sv* allMEs            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities')
-            ret_lines.append(indent+'fptype& meHelSum')
+            ret_lines.append(indent+'fptype& allMEs')
             ret_lines.append('#ifndef __CUDACC__')
             ret_lines.append(indent+', const int ievt')
             ret_lines.append('#endif')

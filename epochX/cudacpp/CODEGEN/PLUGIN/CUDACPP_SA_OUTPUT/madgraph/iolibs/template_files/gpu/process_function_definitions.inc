@@ -181,17 +181,17 @@ namespace Proc
                             bool* isGoodHel )         // output: isGoodHel[ncomb] - device array
   {
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-    fptype meHelSum = 0;
-    fptype meHelSumLast = 0;
+    fptype allMEs = 0;
+    fptype allMEsLast = 0;
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running
       // sum of |M|^2 over helicities for the given event
-      calculate_wavefunctions( ihel, allmomenta, meHelSum );
-      if ( meHelSum != meHelSumLast )
+      calculate_wavefunctions( ihel, allmomenta, allMEs );
+      if ( allMEs != allMEsLast )
       {
         isGoodHel[ihel] = true;
-        meHelSumLast = meHelSum;
+        allMEsLast = allMEs;
       }
     }
   }

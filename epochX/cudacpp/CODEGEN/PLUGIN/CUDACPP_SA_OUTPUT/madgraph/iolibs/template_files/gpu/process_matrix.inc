@@ -12,7 +12,7 @@
         cxtype ztemp = cxmake( 0, 0 );
         for( int jcol = 0; jcol < ncolor; jcol++ )
           ztemp = ztemp + cf[icol][jcol] * jamp_sv[jcol];
-        meHelSum = meHelSum + cxreal(ztemp*conj(jamp_sv[icol])) / denom[icol];
+        allMEs = allMEs + cxreal(ztemp*conj(jamp_sv[icol])) / denom[icol];
       }
 
       // Store the leading color flows for choice of color
