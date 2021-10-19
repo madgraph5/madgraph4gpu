@@ -48,8 +48,8 @@ namespace Proc
 
 #ifdef __CUDACC__
   __global__
-  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            bool* isGoodHel );        // output: isGoodHel[ncomb] - device array
+  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
+                            bool* isGoodHel );           // output: isGoodHel[ncomb] - device array
 #endif
 
   //--------------------------------------------------------------------------

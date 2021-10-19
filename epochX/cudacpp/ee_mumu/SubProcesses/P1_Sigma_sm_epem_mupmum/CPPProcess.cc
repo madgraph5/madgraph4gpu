@@ -66,8 +66,7 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   // Evaluate |M|^2 for each subprocess
-  // NB: calculate_wavefunctions ADDS |M|^2 for given ihel
-  // to running sum of |M|^2 over helicities for given event(s)
+  // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   __device__
   INLINE
   void calculate_wavefunctions( int ihel,
@@ -187,7 +186,7 @@ namespace Proc
       // for( int icol = 0; icol < ncolor; icol++ )
       // jamp2_sv[0][icol] += cxreal( jamp_sv[icol]*cxconj( jamp_sv[icol] ) );
 
-      // NB: calculate_wavefunctions ADDS |M|^2 for given ihel to running sum of |M|^2 over helicities for given event(s)
+      // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef MGONGPU_CPPSIMD
       allMEs[ipagV] += deltaMEs;
@@ -369,7 +368,7 @@ namespace Proc
     fptype allMEsLast = 0;
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
-      // NB: calculate_wavefunctions ADDS |M|^2 for given ihel to running sum of |M|^2 over helicities for given event(s)
+      // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       calculate_wavefunctions( ihel, allmomenta, allMEs );
       if ( allMEs[ievt] != allMEsLast )
       {
@@ -435,6 +434,8 @@ namespace Proc
       //std::cout << "sigmaKin_setGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
       if ( isGoodHel[ihel] )
       {
+        //goodHel[nGoodHel[0]] = ihel; // FIXME: assume process.nprocesses == 1 for the moment
+        //nGoodHel[0]++; // FIXME: assume process.nprocesses == 1 for the moment
         goodHel[nGoodHel] = ihel;
         nGoodHel++;
       }

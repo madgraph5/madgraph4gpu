@@ -43,8 +43,7 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   // Evaluate |M|^2 for each subprocess
-  // NB: calculate_wavefunctions ADDS |M|^2 for given ihel
-  // to running sum of |M|^2 over helicities for given event(s)
+  // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
 %(all_sigmaKin)s
   //--------------------------------------------------------------------------
 
@@ -185,8 +184,7 @@ namespace Proc
     fptype allMEsLast = 0;
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
-      // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running
-      // sum of |M|^2 over helicities for the given event
+      // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       calculate_wavefunctions( ihel, allmomenta, allMEs );
       if ( allMEs != allMEsLast )
       {
