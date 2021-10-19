@@ -1050,6 +1050,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     def format_coupling(self, call):
         """Format the coupling so any minus signs are put in front"""
         import re
+        ###print(call) # FOR DEBUGGING
         model = self.get('model')
         if not hasattr(self, 'couplings2order'):
             self.couplings2order = {}
@@ -1079,7 +1080,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                                     '%s%s[%s]' % (sign, name, alias[coup]))
             else:
                 call = call.replace('pars->%s%s' % (sign, coup), 
-                                    '%scxtype(cIPC[%s],cIPC[%s])' % 
+                                    ###'%scxtype(cIPC[%s],cIPC[%s])' % 
+                                    '%scxmake( cIPC[%s], cIPC[%s] )' % 
                                     (sign, 2*alias[coup],2*alias[coup]+1))
         return call
 
@@ -1118,16 +1120,16 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING
             res.append('\n      // *** DIAGRAM %d OF %d ***' % (diagram.get('number'), len(matrix_element.get('diagrams'))) ) # AV
             res.append('\n      // Wavefunction(s) for diagram number %d' % diagram.get('number')) # AV
-            res.extend([ self.get_wavefunction_call(wf) for wf in diagram.get('wavefunctions') ])
-            #res.extend([ self.format_call(self.get_wavefunction_call(wf)) for wf in diagram.get('wavefunctions') ]) # AV
+            res.extend([ self.get_wavefunction_call(wf) for wf in diagram.get('wavefunctions') ]) # AV new: avoid format_call
+            ###res.extend([ self.format_call(self.get_wavefunction_call(wf)) for wf in diagram.get('wavefunctions') ]) # AV old: use format_call
             if len(diagram.get('wavefunctions')) == 0 : res.append('// (none)') # AV
             ###res.append("# Amplitude(s) for diagram number %d" % diagram.get('number'))
             res.append("\n      // Amplitude(s) for diagram number %d" % diagram.get('number'))
             for amplitude in diagram.get('amplitudes'):
                 namp = amplitude.get('number')
                 amplitude.set('number', 1)
-                ###res.append(self.get_amplitude_call(amplitude))
-                res.append(self.format_call(self.get_amplitude_call(amplitude))) # AV
+                res.append(self.get_amplitude_call(amplitude)) # AV new: avoid format_call
+                ###res.append(self.format_call(self.get_amplitude_call(amplitude))) # AV old: use format_call
                 for njamp, coeff in color[namp].items():
                     ###res.append("jamp[%s] += %samp[0];" % (njamp, export_cpp.OneProcessExporterGPU.coeff(*coeff)))
                     ###res.append("jamp[%s] += %samp[0];" % (njamp, PLUGIN_OneProcessExporter.coeff(*coeff)))
@@ -1295,27 +1297,31 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if argument.needs_hermitian_conjugate():
                 flag = ['C%d' % i for i in argument.get_conjugate_index()]
             # Creating line formatting:
-            if isinstance(argument, helas_objects.HelasWavefunction):
-                call = '%(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s);'
-            else:
-                call = '%(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s); printf(" %(out)s %%%%f %%%%f\\n", %(out2)s.real(), %(out2)s.imag());'
-                call = '%(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s);'
+            # (AV NB: in the default code these two branches were identical, use a single branch)
+            ###if isinstance(argument, helas_objects.HelasWavefunction): # AV e.g. FFV1P0_3 (output is wavefunction)
+            ###    call = '%(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s);'
+            ###else: # AV e.g. FFV1_0 (output is amplitude)
+            ###    call = '%(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s);'
+            call = '%(routine_name)s( %(wf)s%(coup)s%(mass)s%(out)s );'
             # compute wf
             arg = {'routine_name': aloha_writers.combine_name(\
                                             '%s' % l[0], l[1:], outgoing, flag,True),
                    ###'wf': ("w[%%(%d)d]," * len(argument.get('mothers'))) % \
-                   'wf': ("w_sv[%%(%d)d]," * len(argument.get('mothers'))) % \
-                                      tuple(range(len(argument.get('mothers')))),
-                    'coup': ("pars->%%(coup%d)s," * len(argument.get('coupling'))) % \
-                                     tuple(range(len(argument.get('coupling'))))           
-                   } 
+                   'wf': ("w_sv[%%(%d)d], " * len(argument.get('mothers'))) % \
+                   tuple(range(len(argument.get('mothers')))),
+                   ###'coup': ("pars->%%(coup%d)s," * len(argument.get('coupling'))) % \
+                   'coup': ("pars->%%(coup%d)s, " * len(argument.get('coupling'))) % \
+                   tuple(range(len(argument.get('coupling'))))           
+                   }
             if isinstance(argument, helas_objects.HelasWavefunction):
                 ###arg['out'] = 'w[%(out)d]'
                 arg['out'] = 'w_sv[%(out)d]'
                 if aloha.complex_mass:
-                    arg['mass'] = "pars->%(CM)s,"
+                    ###arg['mass'] = "pars->%(CM)s,"
+                    arg['mass'] = "pars->%(CM)s, "
                 else:
-                    arg['mass'] = "pars->%(M)s,pars->%(W)s,"
+                    ###arg['mass'] = "pars->%(M)s,pars->%(W)s,"
+                    arg['mass'] = "pars->%(M)s, pars->%(W)s, "
             else:        
                 ###arg['out'] = '&amp[%(out)d]'
                 ###arg['out2'] = 'amp[%(out)d]'

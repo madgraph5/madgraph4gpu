@@ -135,19 +135,19 @@ namespace Proc
       oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], ievt, 3 );
 #endif
 
-      FFV1P0_3(w_sv[1],w_sv[0],cxtype(cIPC[0],cIPC[1]),0.,0.,w_sv[4]);
+      FFV1P0_3( w_sv[1], w_sv[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );
 
       // Amplitude(s) for diagram number 1
-      FFV1_0( w_sv[2], w_sv[3], w_sv[4], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      FFV1_0( w_sv[2], w_sv[3], w_sv[4], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[0] += -amp_sv[0];
 
       // *** DIAGRAM 2 OF 2 ***
 
       // Wavefunction(s) for diagram number 2
-      FFV2_4_3(w_sv[1],w_sv[0],cxtype(cIPC[2],cIPC[3]),cxtype(cIPC[4],cIPC[5]),cIPD[0],cIPD[1],w_sv[4]);
+      FFV2_4_3( w_sv[1], w_sv[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w_sv[4] );
 
       // Amplitude(s) for diagram number 2
-      FFV2_4_0( w_sv[2], w_sv[3], w_sv[4], cxtype( cIPC[2], cIPC[3] ), cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      FFV2_4_0( w_sv[2], w_sv[3], w_sv[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[0] += -amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***
