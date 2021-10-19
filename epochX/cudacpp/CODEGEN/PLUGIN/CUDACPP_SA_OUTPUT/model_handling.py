@@ -1118,8 +1118,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING
             res.append('\n      // *** DIAGRAM %d OF %d ***' % (diagram.get('number'), len(matrix_element.get('diagrams'))) ) # AV
             res.append('\n      // Wavefunction(s) for diagram number %d' % diagram.get('number')) # AV
-            ###res.extend([ self.get_wavefunction_call(wf) for wf in diagram.get('wavefunctions') ])
-            res.extend([ self.format_call(self.get_wavefunction_call(wf)) for wf in diagram.get('wavefunctions') ]) # AV
+            res.extend([ self.get_wavefunction_call(wf) for wf in diagram.get('wavefunctions') ])
+            #res.extend([ self.format_call(self.get_wavefunction_call(wf)) for wf in diagram.get('wavefunctions') ]) # AV
             if len(diagram.get('wavefunctions')) == 0 : res.append('// (none)') # AV
             ###res.append("# Amplitude(s) for diagram number %d" % diagram.get('number'))
             res.append("\n      // Amplitude(s) for diagram number %d" % diagram.get('number'))
@@ -1158,7 +1158,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         split_line = line.split(',')
         split_line = [ str.lstrip(' ').rstrip(' ') for str in split_line] # AV
         # (AV join using ',': no need to add a space as this is done by format_call later on)
-        line = ','.join(split_line) # AV (for CUDA)
+        line = ', '.join(split_line) # AV (for CUDA)
         ###split_line.insert(-1, ' ievt')
         split_line.insert(-1, 'ievt') # AV (for C++)
         if self.first_get_external and ( ( 'mzxxx' in line ) or ( 'pzxxx' in line ) or ( 'xzxxx' in line ) ) :
@@ -1168,12 +1168,12 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             split_line2 = line2.split(',')
             split_line2 = [ str.lstrip(' ').rstrip(' ') for str in split_line2] # AV
             split_line2.insert(1, '0') # add parameter fmass=0
-            line2 = ','.join(split_line2)
+            line2 = ', '.join(split_line2)
             text = '#ifdef __CUDACC__\n#ifndef MGONGPU_TEST_DIVERGENCE\n      %s\n#else\n      if ( ( blockDim.x * blockIdx.x + threadIdx.x ) %% 2 == 0 )\n        %s\n      else\n        %s\n#endif\n#else\n      %s\n#endif\n' # AV
-            return text % (line, line, line2, ','.join(split_line))
+            return text % (line, line, line2, ', '.join(split_line))
         ###text = '\n#ifdef __CUDACC__\n    %s    \n#else\n    %s\n#endif \n'
         text = '#ifdef __CUDACC__\n      %s\n#else\n      %s\n#endif\n' # AV
-        return text % (line, ','.join(split_line))
+        return text % (line, ', '.join(split_line))
     
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (vectorize w_sv)
     # This is the method that creates the ixxx/oxxx function calls in calculate_wavefunctions
@@ -1239,7 +1239,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 comment = ' // NB: ' + call + ' only uses pz' # AV skip '(not E,px,py)' to avoid interference with comma parsing in get_external
             # Specify namespace for Helas calls
             ###call = call + "(allmomenta, cHel[ihel][%d],%+d,w[%d],%d);"
-            call = call + '(allmomenta, cHel[ihel][%d], %+d, w_sv[%d], %d);' + comment # AV vectorize and add comment
+            call = call + '( allmomenta, cHel[ihel][%d], %+d, w_sv[%d], %d );' + comment # AV vectorize and add comment
             return self.format_coupling(call % \
                                 (wf.get('number_external')-1,
                                  # For fermions, need particle/antiparticle

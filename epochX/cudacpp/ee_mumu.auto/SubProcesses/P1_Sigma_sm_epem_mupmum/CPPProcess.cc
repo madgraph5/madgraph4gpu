@@ -108,7 +108,7 @@ namespace Proc
 #ifndef MGONGPU_TEST_DIVERGENCE
       opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
 #else
-      if (  (  blockDim.x * blockIdx.x + threadIdx.x  ) % 2 == 0  )
+      if ( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
         opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
       else
         oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 );
@@ -135,7 +135,7 @@ namespace Proc
       oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], ievt, 3 );
 #endif
 
-      FFV1P0_3( w_sv[1], w_sv[0], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );
+      FFV1P0_3(w_sv[1],w_sv[0],cxtype(cIPC[0],cIPC[1]),0.,0.,w_sv[4]);
 
       // Amplitude(s) for diagram number 1
       FFV1_0( w_sv[2], w_sv[3], w_sv[4], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
@@ -144,7 +144,7 @@ namespace Proc
       // *** DIAGRAM 2 OF 2 ***
 
       // Wavefunction(s) for diagram number 2
-      FFV2_4_3( w_sv[1], w_sv[0], cxtype( cIPC[2], cIPC[3] ), cxtype( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w_sv[4] );
+      FFV2_4_3(w_sv[1],w_sv[0],cxtype(cIPC[2],cIPC[3]),cxtype(cIPC[4],cIPC[5]),cIPD[0],cIPD[1],w_sv[4]);
 
       // Amplitude(s) for diagram number 2
       FFV2_4_0( w_sv[2], w_sv[3], w_sv[4], cxtype( cIPC[2], cIPC[3] ), cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
