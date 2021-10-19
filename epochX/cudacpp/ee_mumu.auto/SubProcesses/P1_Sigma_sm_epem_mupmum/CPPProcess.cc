@@ -105,15 +105,15 @@ namespace Proc
 
       // Wavefunction(s) for diagram number 1
 #ifdef __CUDACC__
-      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 );
+      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
 #else
-      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], ievt, 0 );
+      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], ievt, 0 ); // NB: opzxxx only uses pz
 #endif
 
 #ifdef __CUDACC__
-      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 );
+      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz
 #else
-      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], ievt, 1 );
+      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], ievt, 1 ); // NB: imzxxx only uses pz
 #endif
 
 #ifdef __CUDACC__

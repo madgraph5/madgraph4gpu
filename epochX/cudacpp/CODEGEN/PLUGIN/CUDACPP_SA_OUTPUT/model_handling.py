@@ -1177,7 +1177,6 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             # Fill out with X up to 6 positions
             call = call + 'x' * (6 - len(call))
             # Specify namespace for Helas calls
-            ##call = call + "((double *)(dps + %d * dpt),"
             call = call + "(allmomenta,"
             if argument.get('spin') != 1:
                 # For non-scalars, need mass and helicity
@@ -1223,10 +1222,13 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 call += 'mz'
             else:
                 call += 'xz'
+                comment = '' # AV
             call = call + 'x' * (6 - len(call))
+            if wf.get('number_external') == 1 or wf.get('number_external') == 2: # AV
+                comment = ' // NB: ' + call + ' only uses pz' # AV skip '(not E,px,py)' to avoid interference with comma parsing in get_external
             # Specify namespace for Helas calls
             ###call = call + "(allmomenta, cHel[ihel][%d],%+d,w[%d],%d);"
-            call = call + "(allmomenta, cHel[ihel][%d], %+d, w_sv[%d], %d);" # AV vectorize
+            call = call + '(allmomenta, cHel[ihel][%d], %+d, w_sv[%d], %d);' + comment # AV vectorize and add comment
             return self.format_coupling(call % \
                                 (wf.get('number_external')-1,
                                  # For fermions, need particle/antiparticle
