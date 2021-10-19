@@ -9,8 +9,13 @@
 #include <string>
 #include <unistd.h>
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
+#include "mgOnGpuVectors.h"
 
 #ifdef __CUDACC__
 #include "rambo.cc"
@@ -22,6 +27,7 @@
 #include "CommonRandomNumbers.h"
 #endif
 #include "CPPProcess.h"
+#include "Memory.h"
 #include "timermap.h"
 
 bool is_number(const char *s) {
@@ -41,36 +47,6 @@ int usage(char* argv0, int ret = 1) {
   std::cout << "The '-d' flag only controls if nan's emit warnings" << std::endl;
   return ret;
 }
-
-#ifdef __CUDACC__
-template<typename T = fptype>
-struct CudaDevDeleter {
-  void operator()(T* mem) {
-    checkCuda( cudaFree( mem ) );
-  }
-};
-template<typename T = fptype>
-std::unique_ptr<T, CudaDevDeleter<T>> devMakeUnique(std::size_t N) {
-  T* tmp = nullptr;
-  checkCuda( cudaMalloc( &tmp, N * sizeof(T) ) );
-  return std::unique_ptr<T, CudaDevDeleter<T>>{ tmp };
-}
-template<typename T = fptype>
-struct CudaHstDeleter {
-  void operator()(T* mem) {
-    checkCuda( cudaFreeHost( mem ) );
-  }
-};
-template<typename T = fptype>
-std::unique_ptr<T[], CudaHstDeleter<T>> hstMakeUnique(std::size_t N) {
-  T* tmp = nullptr;
-  checkCuda( cudaMallocHost( &tmp, N * sizeof(T) ) );
-  return std::unique_ptr<T[], CudaHstDeleter<T>>{ tmp };
-};
-#else
-template<typename T = fptype>
-std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{ new T[N] }; };
-#endif
 
 int main(int argc, char **argv)
 {
