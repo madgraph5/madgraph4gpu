@@ -2,7 +2,6 @@
 // This file has been automatically generated for CUDA/C++ standalone by
 %(info_lines)s
 //==========================================================================
-%(helamps_h)s
 
 #ifndef MG5_%(process_file_name)s_H
 #define MG5_%(process_file_name)s_H
@@ -14,6 +13,7 @@
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
+#include "mgOnGpuVectors.h"
 
 #include "Parameters_%(model_name)s.h"
 
@@ -33,6 +33,7 @@ inline void assertCuda( cudaError_t code, const char* file, int line, bool abort
 }
 
 #endif
+
 //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__

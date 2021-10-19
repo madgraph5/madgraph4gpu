@@ -64,9 +64,9 @@ namespace Proc
     // Helicities for the process - nodim
 %(all_helicities)s
 #ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * nexternal * sizeof(short) ) );
+    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * mgOnGpu::npar * sizeof(short) ) );
 #else
-    memcpy( cHel, tHel, ncomb * nexternal * sizeof(short) );
+    memcpy( cHel, tHel, ncomb * mgOnGpu::npar * sizeof(short) );
 #endif
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
     assert( sizeof(cxtype) == 2 * sizeof(fptype) );

@@ -1007,7 +1007,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     def get_helicity_matrix(self, matrix_element):
         """Return the Helicity matrix definition lines for this matrix element"""
         ###helicity_line = "static const int helicities[ncomb][nexternal] = {";
-        helicity_line = "    constexpr short helicities[ncomb][nexternal] = {\n      "; # AV (this is tHel)
+        helicity_line = "    constexpr short helicities[ncomb][mgOnGpu::npar] = {\n      "; # AV (this is tHel)
         helicity_line_list = []
         for helicities in matrix_element.get_helicity_matrix(allow_reverse=False):
             ###helicity_line_list.append("{"+",".join(['%d'] * len(helicities)) % tuple(helicities) + "}")

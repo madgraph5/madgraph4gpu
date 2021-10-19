@@ -5,8 +5,6 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#include "../../src/HelAmps_sm.h"
-
 #ifndef MG5_Sigma_sm_epem_mupmum_H
 #define MG5_Sigma_sm_epem_mupmum_H
 
@@ -17,6 +15,7 @@
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
+#include "mgOnGpuVectors.h"
 
 #include "Parameters_sm.h"
 
@@ -36,6 +35,7 @@ inline void assertCuda( cudaError_t code, const char* file, int line, bool abort
 }
 
 #endif
+
 //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
@@ -54,12 +54,10 @@ namespace Proc
   {
   public:
 
-    CPPProcess( int numiterations,
-                int gpublocks,
-                int gputhreads,
-                bool verbose = false,
-                bool debug = false );
+    // Constructor (from command line arguments)
+    CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose = false, bool debug = false );
 
+    // Destructor
     ~CPPProcess();
 
     // Initialize process (read model parameters from file)
@@ -82,10 +80,16 @@ namespace Proc
     //bool verbose() const { return m_verbose; }
     //bool debug() const { return m_debug; }
 
+  public:
+
     // Hardcoded parameters for this process (constant class variables)
-    static const int ninitial = mgOnGpu::npari;
-    static const int nexternal = mgOnGpu::npar;
+    //static const int ninitial = mgOnGpu::npari;
+    //static const int nexternal = 4; // mgOnGpu::npar (nexternal was nioparticles)
     //static const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
+    //static const int nwavefuncs = 6; // mgOnGpu::nwf
+    //static const int namplitudes = 2;
+    //static const int ncomb = 16; // mgOnGpu::ncomb
+    //static const int wrows = 6; // mgOnGpu::nw6;
 
   private:
 
@@ -95,12 +99,6 @@ namespace Proc
     int m_ngputhreads; // number of GPU threads in a block
     bool m_verbose;
     bool m_debug;
-
-    static const int nwavefuncs = 6;
-    static const int namplitudes = 2;
-    static const int ncomb = 16;
-    static const int wrows = 6;
-    //static const int nioparticles = 4;
 
     // Physics model parameters to be read from file (initProc function)
     Parameters_sm* m_pars;

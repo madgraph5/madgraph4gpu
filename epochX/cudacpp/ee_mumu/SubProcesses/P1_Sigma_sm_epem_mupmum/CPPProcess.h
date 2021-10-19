@@ -10,8 +10,8 @@
 
 #include <cassert>
 #include <complex>
-#include <vector>
 #include <iostream>
+#include <vector>
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
@@ -23,10 +23,9 @@
 
 #ifdef __CUDACC__
 
-#define checkCuda( code )                       \
-  { assertCuda( code, __FILE__, __LINE__ ); }
+#define checkCuda( code ) { assertCuda( code, __FILE__, __LINE__ ); }
 
-inline void assertCuda( cudaError_t code, const char *file, int line, bool abort = true )
+inline void assertCuda( cudaError_t code, const char* file, int line, bool abort = true )
 {
   if ( code != cudaSuccess )
   {
@@ -72,26 +71,25 @@ namespace Proc
     //virtual int code() const{ return 1; }
     //void setInitial( int inid1, int inid2 ){ id1 = inid1; id2 = inid2; }
     //int getDim() const { return dim; }
-    //int getNIOParticles() const { return nexternal; }
+    //int getNIOParticles() const { return nexternal; } // nexternal was nioparticles
 
     // Accessors (unused so far: add them to fix a clang build warning)
-    int numiterations() const { return m_numiterations; }
-    int gpublocks() const { return m_ngpublocks; }
-    int gputhreads() const { return m_ngputhreads; }
+    //int numiterations() const { return m_numiterations; }
+    //int gpublocks() const { return m_ngpublocks; }
+    //int gputhreads() const { return m_ngputhreads; }
     //bool verbose() const { return m_verbose; }
-    bool debug() const { return m_debug; }
+    //bool debug() const { return m_debug; }
 
   public:
 
     // Hardcoded parameters for this process (constant class variables)
-    static const int ninitial = mgOnGpu::npari;
-    static const int nexternal = mgOnGpu::npar;
-    //static const int nioparticles = 4;
+    //static const int ninitial = mgOnGpu::npari;
+    //static const int nexternal = 4; // mgOnGpu::npar (nexternal was nioparticles)
     //static const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
-    static const int nwavefuncs = 6;
-    static const int namplitudes = 2;
-    static const int ncomb = 16;
-    //static const int wrows = 6; // ???
+    //static const int nwavefuncs = 6; // mgOnGpu::nwf
+    //static const int namplitudes = 2;
+    //static const int ncomb = 16; // mgOnGpu::ncomb
+    //static const int wrows = 6; // mgOnGpu::nw6;
 
   private:
 
@@ -125,11 +123,11 @@ namespace Proc
 #endif
                             );
 
-//--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
 
   void sigmaKin_setGoodHel( const bool* isGoodHel ); // input: isGoodHel[ncomb] - host array
 
-//--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
 
   __global__
   void sigmaKin( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
@@ -139,8 +137,7 @@ namespace Proc
 #endif
                  );
 
-//--------------------------------------------------------------------------
-
+  //--------------------------------------------------------------------------
 }
 
-#endif  // MG5_Sigma_sm_epem_mupmum_H
+#endif // MG5_Sigma_sm_epem_mupmum_H

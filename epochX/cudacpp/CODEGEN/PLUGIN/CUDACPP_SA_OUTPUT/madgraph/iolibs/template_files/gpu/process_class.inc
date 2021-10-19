@@ -7,12 +7,10 @@
   {
   public:
 
-    CPPProcess( int numiterations,
-                int gpublocks,
-                int gputhreads,
-                bool verbose = false,
-                bool debug = false );
+    // Constructor (from command line arguments)
+    CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose = false, bool debug = false );
 
+    // Destructor
     ~CPPProcess();
 
     // Initialize process (read model parameters from file)
@@ -35,10 +33,16 @@
     //bool verbose() const { return m_verbose; }
     //bool debug() const { return m_debug; }
 
+  public:
+
     // Hardcoded parameters for this process (constant class variables)
-    static const int ninitial = mgOnGpu::npari;
-    static const int nexternal = mgOnGpu::npar;
+    //static const int ninitial = mgOnGpu::npari;
+    //static const int nexternal = %(nexternal)d; // mgOnGpu::npar (nexternal was nioparticles)
     //static const int nprocesses = %(nprocesses)d; // FIXME: assume process.nprocesses == 1
+    //static const int nwavefuncs = %(nwavefuncs)d; // mgOnGpu::nwf
+    //static const int namplitudes = %(namp)d;
+    //static const int ncomb = %(ncomb)d; // mgOnGpu::ncomb
+    //static const int wrows = %(sizew)d; // mgOnGpu::nw6;
 
   private:
 
@@ -48,12 +52,6 @@
     int m_ngputhreads; // number of GPU threads in a block
     bool m_verbose;
     bool m_debug;
-
-    static const int nwavefuncs = %(nwavefuncs)d;
-    static const int namplitudes = %(namp)d;
-    static const int ncomb = %(ncomb)d;
-    static const int wrows = %(sizew)d;
-    //static const int nioparticles = %(nexternal)d;
 
     // Physics model parameters to be read from file (initProc function)
     Parameters_sm* m_pars;

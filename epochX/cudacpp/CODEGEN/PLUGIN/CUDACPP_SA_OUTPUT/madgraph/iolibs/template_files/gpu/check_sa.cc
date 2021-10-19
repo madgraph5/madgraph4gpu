@@ -298,7 +298,7 @@ int main(int argc, char **argv)
   const fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   //const fptype energy = 91.2; // Ecms = 91.2 GeV (Z peak)
   //const fptype energy = 0.100; // Ecms = 100 MeV (well below the Z peak, pure em scattering)
-  const int meGeVexponent = -(2 * process.nexternal - 8);
+  const int meGeVexponent = -(2 * mgOnGpu::npar - 8);
 
   // --- 0b. Allocate memory structures
   const std::string alloKey = "0b MemAlloc";
