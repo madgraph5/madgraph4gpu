@@ -247,7 +247,7 @@ namespace Proc
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "sigmakin: ievt %%d\n", ievt );
 #endif
-%(reset_jamp_lines)s
+
     // Start sigmaKin_lines
 %(sigmaKin_lines)s
 } // end namespace
