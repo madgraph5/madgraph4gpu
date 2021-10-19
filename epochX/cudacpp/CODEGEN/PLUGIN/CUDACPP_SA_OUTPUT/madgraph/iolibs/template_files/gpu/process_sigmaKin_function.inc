@@ -1,14 +1,7 @@
 #ifndef __CUDACC__
-    // ** START LOOP ON IEVT **
-    for( int ievt = 0; ievt < nevt; ++ievt )
+    for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
-#ifdef __CUDACC__
-      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
-      const int ievt = idim;
-      //printf( "sigmakin: ievt %%d\n", ievt );
-#endif
-
       // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
       fptype allMEsThisEvt = 0;

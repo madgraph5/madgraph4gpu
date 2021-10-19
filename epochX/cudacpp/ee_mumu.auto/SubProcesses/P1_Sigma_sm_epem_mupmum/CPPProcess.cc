@@ -352,6 +352,7 @@ namespace Proc
   void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                             bool* isGoodHel )         // output: isGoodHel[ncomb] - device array
   {
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     fptype allMEs = 0;
     fptype allMEsLast = 0;
@@ -361,6 +362,7 @@ namespace Proc
       calculate_wavefunctions( ihel, allmomenta, allMEs );
       if ( allMEs != allMEsLast )
       {
+        //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
         isGoodHel[ihel] = true;
         allMEsLast = allMEs;
       }
@@ -386,9 +388,8 @@ namespace Proc
         nGoodHel++;
       }
     }
-    //checkCuda( cudaMemcpyToSymbol( cNGoodHel, nGoodHel, sizeof(int) ) ); // FIXME: assume process.nprocesses == 1 for the moment
-    checkCuda( cudaMemcpyToSymbol( cNGoodHel, &nGoodHel, sizeof(int) ) );
-    checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb * sizeof(int) ) );
+    checkCuda( cudaMemcpyToSymbol( cNGoodHel, &nGoodHel, sizeof(int) ) ); // FIXME: assume process.nprocesses == 1 for the moment
+    checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb*sizeof(int) ) );
   }
 #endif
 
@@ -414,6 +415,12 @@ namespace Proc
     //m_pars->setDependentParameters();
     //m_pars->setDependentCouplings();
 
+#ifdef __CUDACC__
+    // Remember: in CUDA this is a kernel for one event, in c++ this processes n events
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+    //printf( "sigmakin: ievt %d\n", ievt );
+#endif
+
 #ifndef __CUDACC__
     const int maxtry = 10;
     static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
@@ -422,16 +429,9 @@ namespace Proc
 
     // Start sigmaKin_lines
 #ifndef __CUDACC__
-    // ** START LOOP ON IEVT **
-    for( int ievt = 0; ievt < nevt; ++ievt )
+    for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
-#ifdef __CUDACC__
-      const int idim = blockDim.x * blockIdx.x + threadIdx.x; // event# == threadid (previously was: tid)
-      const int ievt = idim;
-      //printf( "sigmakin: ievt %d\n", ievt );
-#endif
-
       // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
       fptype allMEsThisEvt = 0;

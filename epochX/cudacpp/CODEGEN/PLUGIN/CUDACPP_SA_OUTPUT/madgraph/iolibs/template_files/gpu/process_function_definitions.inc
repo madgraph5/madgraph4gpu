@@ -179,6 +179,7 @@ namespace Proc
   void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                             bool* isGoodHel )         // output: isGoodHel[ncomb] - device array
   {
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     fptype allMEs = 0;
     fptype allMEsLast = 0;
@@ -188,6 +189,7 @@ namespace Proc
       calculate_wavefunctions( ihel, allmomenta, allMEs );
       if ( allMEs != allMEsLast )
       {
+        //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
         isGoodHel[ihel] = true;
         allMEsLast = allMEs;
       }
@@ -213,9 +215,8 @@ namespace Proc
         nGoodHel++;
       }
     }
-    //checkCuda( cudaMemcpyToSymbol( cNGoodHel, nGoodHel, sizeof(int) ) ); // FIXME: assume process.nprocesses == 1 for the moment
-    checkCuda( cudaMemcpyToSymbol( cNGoodHel, &nGoodHel, sizeof(int) ) );
-    checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb * sizeof(int) ) );
+    checkCuda( cudaMemcpyToSymbol( cNGoodHel, &nGoodHel, sizeof(int) ) ); // FIXME: assume process.nprocesses == 1 for the moment
+    checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb*sizeof(int) ) );
   }
 #endif
 
@@ -240,6 +241,12 @@ namespace Proc
     // Need to discuss this with Stefan
     //m_pars->setDependentParameters();
     //m_pars->setDependentCouplings();
+
+#ifdef __CUDACC__
+    // Remember: in CUDA this is a kernel for one event, in c++ this processes n events
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+    //printf( "sigmakin: ievt %%d\n", ievt );
+#endif
 
 #ifndef __CUDACC__
     const int maxtry = 10;
