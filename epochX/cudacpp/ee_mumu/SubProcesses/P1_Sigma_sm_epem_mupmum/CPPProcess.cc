@@ -100,15 +100,12 @@ namespace Proc
     const int npagV = nevt / neppV;
     // ** START LOOP ON IPAGV **
 #ifdef _OPENMP
+    // (NB gcc9 or higher, or clang, is required)
     // - default(none): no variables are shared by default
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
-#if not defined __clang__ && defined __GNUC__ && __GNUC__ < 9
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel) private (amp_sv,w_sv,jamp_sv)
-#else
 #pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV) private (amp_sv,w_sv,jamp_sv)
-#endif
 #endif
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif
