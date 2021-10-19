@@ -1152,9 +1152,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     # [GPUFOHelasCallWriter.get_external_line is called by GPUFOHelasCallWriter.get_external]
     # [=> GPUFOHelasCallWriter.get_external is called by GPUFOHelasCallWriter.generate_helas_call]
     # [GPUFOHelasCallWriter.generate_helas_call is called by UFOHelasCallWriter.get_wavefunction_call/get_amplitude_call]
-    def get_external(self,wf, argument):
-        ###text = '\n#ifdef __CUDACC__\n    %s    \n#else\n    %s\n#endif \n'
-        text = '#ifdef __CUDACC__\n      %s\n#else\n      %s\n#endif\n' # AV
+    first_get_external = True
+    def get_external(self, wf, argument):
         line = self.get_external_line(wf, argument)
         split_line = line.split(',')
         split_line = [ str.lstrip(' ').rstrip(' ') for str in split_line] # AV
@@ -1162,6 +1161,18 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         line = ','.join(split_line) # AV (for CUDA)
         ###split_line.insert(-1, ' ievt')
         split_line.insert(-1, 'ievt') # AV (for C++)
+        if self.first_get_external and ( ( 'mzxxx' in line ) or ( 'pzxxx' in line ) or ( 'xzxxx' in line ) ) :
+            self.first_get_external = False
+            line2 = line.replace('mzxxx','xxxxx').replace('pzxxx','xxxxx').replace('xzxxx','xxxxx')
+            line2 = line2[:line2.find('// NB')]
+            split_line2 = line2.split(',')
+            split_line2 = [ str.lstrip(' ').rstrip(' ') for str in split_line2] # AV
+            split_line2.insert(1, '0') # add parameter fmass=0
+            line2 = ','.join(split_line2)
+            text = '#ifdef __CUDACC__\n#ifndef MGONGPU_TEST_DIVERGENCE\n      %s\n#else\n      if ( ( blockDim.x * blockIdx.x + threadIdx.x ) %% 2 == 0 )\n        %s\n      else\n        %s\n#endif\n#else\n      %s\n#endif\n' # AV
+            return text % (line, line, line2, ','.join(split_line))
+        ###text = '\n#ifdef __CUDACC__\n    %s    \n#else\n    %s\n#endif \n'
+        text = '#ifdef __CUDACC__\n      %s\n#else\n      %s\n#endif\n' # AV
         return text % (line, ','.join(split_line))
     
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (vectorize w_sv)
@@ -1173,7 +1184,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         call = ''
         call = call + helas_call_writers.HelasCallWriter.mother_dict[\
                 argument.get_spin_state_number()].lower() 
-        if wf.get('mass').lower() != 'zero' or argument.get('spin') != 2: 
+        if wf.get('mass').lower() != 'zero' or argument.get('spin') != 2:
             # Fill out with X up to 6 positions
             call = call + 'x' * (6 - len(call))
             # Specify namespace for Helas calls

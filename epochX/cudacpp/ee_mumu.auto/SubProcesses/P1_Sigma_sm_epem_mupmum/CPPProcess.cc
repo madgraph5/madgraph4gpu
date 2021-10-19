@@ -105,7 +105,14 @@ namespace Proc
 
       // Wavefunction(s) for diagram number 1
 #ifdef __CUDACC__
+#ifndef MGONGPU_TEST_DIVERGENCE
       opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
+#else
+      if (  (  blockDim.x * blockIdx.x + threadIdx.x  ) % 2 == 0  )
+        opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
+      else
+        oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 );
+#endif
 #else
       opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], ievt, 0 ); // NB: opzxxx only uses pz
 #endif
