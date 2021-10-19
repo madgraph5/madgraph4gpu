@@ -74,7 +74,7 @@ namespace Proc
                                 const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
                                 fptype& allMEs
 #ifndef __CUDACC__
-                                , const int ievt
+                                , const int ipagV
 #endif
                                 )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
@@ -114,25 +114,25 @@ namespace Proc
         oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 );
 #endif
 #else
-      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], ievt, 0 ); // NB: opzxxx only uses pz
+      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], ipagV, 0 ); // NB: opzxxx only uses pz
 #endif
 
 #ifdef __CUDACC__
       imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz
 #else
-      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], ievt, 1 ); // NB: imzxxx only uses pz
+      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], ipagV, 1 ); // NB: imzxxx only uses pz
 #endif
 
 #ifdef __CUDACC__
       ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 );
 #else
-      ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], ievt, 2 );
+      ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], ipagV, 2 );
 #endif
 
 #ifdef __CUDACC__
       oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 );
 #else
-      oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], ievt, 3 );
+      oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], ipagV, 3 );
 #endif
 
       FFV1P0_3( w_sv[1], w_sv[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );

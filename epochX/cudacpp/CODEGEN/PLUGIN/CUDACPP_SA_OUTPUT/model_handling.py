@@ -811,7 +811,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             #ret_lines.append(indent+'fptype_sv* allMEs            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities')
             ret_lines.append(indent+'fptype& allMEs')
             ret_lines.append('#ifndef __CUDACC__')
-            ret_lines.append(indent+', const int ievt')
+            ret_lines.append(indent+', const int ipagV')
             ret_lines.append('#endif')
             ret_lines.append(indent+')')
             ret_lines.append('  //ALWAYS_INLINE // attributes are not permitted in a function definition')
@@ -1165,7 +1165,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         # (AV join using ',': no need to add a space as this is done by format_call later on)
         line = ', '.join(split_line) # AV (for CUDA)
         ###split_line.insert(-1, ' ievt')
-        split_line.insert(-1, 'ievt') # AV (for C++)
+        split_line.insert(-1, 'ipagV') # AV (for C++)
         if self.first_get_external and ( ( 'mzxxx' in line ) or ( 'pzxxx' in line ) or ( 'xzxxx' in line ) ) :
             self.first_get_external = False
             line2 = line.replace('mzxxx','xxxxx').replace('pzxxx','xxxxx').replace('xzxxx','xxxxx')
