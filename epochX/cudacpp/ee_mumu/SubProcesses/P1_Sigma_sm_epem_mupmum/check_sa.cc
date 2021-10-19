@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <cstring>
 #include <fstream>
@@ -19,7 +18,7 @@
 #include "mgOnGpuVectors.h"
 
 #ifdef __CUDACC__
-#include "grambo.cu"
+#include "rambo.cc"
 #else
 #include "rambo.h"
 #endif
