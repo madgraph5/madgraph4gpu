@@ -30,11 +30,84 @@
 #include "Memory.h"
 #include "timermap.h"
 
+#include "epoch_process_id.h"
+#define STRINGIFY(s) #s
+#define XSTRINGIFY(s) STRINGIFY(s)
+
+#define SEP79 79
+
 bool is_number(const char *s) {
   const char *t = s;
   while (*t != '\0' && isdigit(*t))
     ++t;
   return (int)strlen(s) == t - s;
+}
+
+// Disabling fast math is essential here, otherwise results are undefined
+// See https://stackoverflow.com/a/40702790 about __attribute__ on gcc
+// See https://stackoverflow.com/a/32292725 about __attribute__ on clang
+#ifdef __clang__
+__attribute__((optnone))
+#else
+__attribute__((optimize("-fno-fast-math")))
+#endif
+bool fp_is_abnormal( const fptype& fp )
+{
+  if ( std::isnan( fp ) ) return true;
+  if ( fp != fp ) return true;
+  return false;
+}
+
+#ifdef __clang__
+__attribute__((optnone))
+#else
+__attribute__((optimize("-fno-fast-math")))
+#endif
+bool fp_is_zero( const fptype& fp )
+{
+  if ( fp == 0 ) return true;
+  return false;
+}
+
+// See https://en.cppreference.com/w/cpp/numeric/math/FP_categories
+#ifdef __clang__
+__attribute__((optnone))
+#else
+__attribute__((optimize("-fno-fast-math")))
+#endif
+const char* fp_show_class( const fptype& fp )
+{
+  switch( std::fpclassify( fp ) ) {
+  case FP_INFINITE:  return "Inf";
+  case FP_NAN:       return "NaN";
+  case FP_NORMAL:    return "normal";
+  case FP_SUBNORMAL: return "subnormal";
+  case FP_ZERO:      return "zero";
+  default:           return "unknown";
+  }
+}
+
+#ifdef __clang__
+__attribute__((optnone))
+#else
+__attribute__((optimize("-fno-fast-math")))
+#endif
+void debug_me_is_abnormal( const fptype& me, int ievtALL )
+{
+  std::cout << "DEBUG[" << ievtALL << "]"
+            << " ME=" << me
+            << " fpisabnormal=" << fp_is_abnormal( me )
+            << " fpclass=" << fp_show_class( me )
+            << " (me==me)=" << ( me == me )
+            << " (me==me+1)=" << ( me == me+1 )
+            << " isnan=" << std::isnan( me )
+            << " isfinite=" << std::isfinite( me )
+            << " isnormal=" << std::isnormal( me )
+            << " is0=" << ( me == 0 )
+            << " is1=" << ( me == 1 )
+            << " abs(ME)=" << std::abs( me )
+            << " isnan=" << std::isnan( std::abs( me ) )
+            << std::endl;
 }
 
 int usage(char* argv0, int ret = 1) {
@@ -44,7 +117,13 @@ int usage(char* argv0, int ret = 1) {
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
   std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
-  std::cout << "The '-d' flag only controls if nan's emit warnings" << std::endl;
+  std::cout << "The '-d' flag only enables NaN/abnormal warnings and OMP debugging" << std::endl;
+#ifndef __CUDACC__
+#ifdef _OPENMP
+  std::cout << std::endl << "Use the OMP_NUM_THREADS environment variable to control OMP multi-threading" << std::endl;
+  std::cout << "(OMP multithreading will be disabled if OMP_NUM_THREADS is not set)" << std::endl;
+#endif
+#endif
   return ret;
 }
 
@@ -98,14 +177,14 @@ int main(int argc, char **argv)
   if (niter == 0)
     return usage(argv[0]);
 
-  const int neppR = mgOnGpu::neppR; // ASA layout: constant at compile-time
+  const int neppR = mgOnGpu::neppR; // AOSOA layout: constant at compile-time
   if ( gputhreads%neppR != 0 )
   {
     std::cout << "ERROR! #threads/block should be a multiple of neppR=" << neppR << std::endl;
     return usage(argv[0]);
   }
 
-  const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
+  const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
   if ( gputhreads%neppM != 0 )
   {
     std::cout << "ERROR! #threads/block should be a multiple of neppM=" << neppM << std::endl;
@@ -118,6 +197,59 @@ int main(int argc, char **argv)
     std::cout << "ERROR! #threads/block should be <= " << ntpbMAX << std::endl;
     return usage(argv[0]);
   }
+
+#ifndef __CUDACC__
+#ifdef _OPENMP
+  // Set OMP_NUM_THREADS equal to 1 if it is not yet set
+  char* ompnthr = getenv( "OMP_NUM_THREADS" );
+  if ( debug )
+  {
+    std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
+    std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
+    std::cout << "DEBUG: ${OMP_NUM_THREADS}    = '" << ( ompnthr == 0 ? "[not set]" : ompnthr ) << "'" << std::endl;
+  }
+  if ( ompnthr == NULL || std::string(ompnthr).find_first_not_of("0123456789") != std::string::npos || atol( ompnthr ) == 0 )
+  {
+    if ( ompnthr != NULL ) std::cout << "WARNING! OMP_NUM_THREADS is invalid: will use only 1 thread" << std::endl;
+    else if ( debug ) std::cout << "DEBUG: OMP_NUM_THREADS is not set: will use only 1 thread" << std::endl;
+    omp_set_num_threads( 1 ); // https://stackoverflow.com/a/22816325
+    if ( debug ) std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
+    if ( debug ) std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
+  }
+
+  // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the requested AVX
+  // [NB: this prevents a crash on pmpe04 but not on some github CI nodes]
+  auto supportsAvx = [](){
+#if defined __AVX512VL__
+    bool ok = __builtin_cpu_supports( "avx512vl" );
+    const std::string tag = "skylake-avx512 (AVX512VL)";
+#elif defined __AVX2__
+    bool ok = __builtin_cpu_supports( "avx2" );
+    const std::string tag = "haswell (AVX2)";
+#elif defined __SSE4_2__
+#ifdef __PPC__
+    // See https://gcc.gnu.org/onlinedocs/gcc/Basic-PowerPC-Built-in-Functions-Available-on-all-Configurations.html
+    bool ok = __builtin_cpu_supports( "vsx" );
+    const std::string tag = "powerpc vsx (128bit as in SSE4.2)";
+#else
+    bool ok = __builtin_cpu_supports( "sse4.2" );
+    const std::string tag = "nehalem (SSE4.2)";
+#endif
+#else
+    bool ok = true;
+    const std::string tag = "none";
+#endif
+    if ( tag == "none" )
+      std::cout << "INFO: The application does not require the host to support any AVX feature" << std::endl;
+    else if ( ok )
+      std::cout << "INFO: The application is built for " << tag << " and the host supports it" << std::endl;
+    else
+      std::cout << "ERROR! The application is built for " << tag << " but the host does not support it" << std::endl;
+    return ok;
+  };
+  if ( ! supportsAvx() ) return 1;
+#endif
+#endif
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
   const int nevt = ndim; // number of events in one iteration == number of GPU threads
@@ -143,7 +275,7 @@ int main(int argc, char **argv)
   struct CudaTearDown {
     CudaTearDown(bool print) : _print(print) { }
     ~CudaTearDown() {
-      if ( _print ) std::cout << "Calling cudaDeviceReset()." << std::endl;
+      //if ( _print ) std::cout << "Calling cudaDeviceReset()." << std::endl;
       checkCuda( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
     }
     bool _print{false};
@@ -177,25 +309,25 @@ int main(int argc, char **argv)
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
   using mgOnGpu::ncomb; // Number of helicity combinations
-  const int nRnarray = np4*nparf*nevt; // (NB: ASA layout with nevt=npagR*neppR events per iteration)
-  const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for ASA layouts)
+  const int nRnarray = np4*nparf*nevt; // (NB: AOSOA layout with nevt=npagR*neppR events per iteration)
+  const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for AOSOA layouts)
   const int nWeights = nevt;
-  const int nMEs     = nevt;
+  const int nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
 
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST or not defined __CUDACC__
-  auto hstRnarray   = hstMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+  auto hstRnarray   = hstMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
 #endif
-  auto hstMomenta   = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
-  auto hstIsGoodHel = hstMakeUnique<bool  >( ncomb );
-  auto hstWeights   = hstMakeUnique<fptype>( nWeights ); // (previously was: meHostPtr)
-  auto hstMEs       = hstMakeUnique<fptype>( nMEs ); // (previously was: meHostPtr)
+  auto hstMomenta   = hstMakeUnique<fptype_sv>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
+  auto hstIsGoodHel = hstMakeUnique<bool     >( ncomb );
+  auto hstWeights   = hstMakeUnique<fptype   >( nWeights );
+  auto hstMEs       = hstMakeUnique<fptype_sv>( nMEs ); // AOSOA[npagM][neppM] (NB: nevt=npagM*neppM)
 
 #ifdef __CUDACC__
-  auto devRnarray   = devMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-  auto devMomenta   = devMakeUnique<fptype>( nMomenta ); // (previously was: allMomenta)
-  auto devIsGoodHel = devMakeUnique<bool  >( ncomb );
-  auto devWeights   = devMakeUnique<fptype>( nWeights ); // (previously was: meDevPtr)
-  auto devMEs       = devMakeUnique<fptype>( nMEs ); // (previously was: meDevPtr)
+  auto devRnarray   = devMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+  auto devMomenta   = devMakeUnique<fptype   >( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
+  auto devIsGoodHel = devMakeUnique<bool     >( ncomb );
+  auto devWeights   = devMakeUnique<fptype   >( nWeights );
+  auto devMEs       = devMakeUnique<fptype   >( nMEs ); // AOSOA[npagM][neppM] (NB: nevt=npagM*neppM)
 
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
   const int nbytesRnarray = nRnarray * sizeof(fptype);
@@ -209,6 +341,7 @@ int main(int argc, char **argv)
   std::unique_ptr<double[]> genrtimes( new double[niter] );
   std::unique_ptr<double[]> rambtimes( new double[niter] );
   std::unique_ptr<double[]> wavetimes( new double[niter] );
+  std::unique_ptr<double[]> wv3atimes( new double[niter] );
   std::unique_ptr<fptype[]> matrixelementALL( new fptype[nevtALL] ); // FIXME: assume process.nprocesses == 1
   std::unique_ptr<fptype[]> weightALL( new fptype[nevtALL] );
 
@@ -261,10 +394,10 @@ int main(int argc, char **argv)
     const std::string rngnKey = "1b GenRnGen";
     timermap.start( rngnKey );
 #ifdef MGONGPU_COMMONRAND_ONHOST
-    std::vector<double> commonRnd = commonRandomPromises[iiter].get_future().get();
+    std::vector<fptype> commonRnd = commonRandomPromises[iiter].get_future().get();
     assert( nRnarray == static_cast<int>( commonRnd.size() ) );
     // NB (PR #45): memcpy is strictly needed only in CUDA (copy to pinned memory), but keep it also in C++ for consistency
-    memcpy( hstRnarray.get(), commonRnd.data(), nRnarray * sizeof(hstRnarray[0]) );
+    memcpy( hstRnarray.get(), commonRnd.data(), nRnarray * sizeof(fptype) );
 #elif defined __CUDACC__
 #ifdef MGONGPU_CURAND_ONDEVICE
     grambo2toNm0::generateRnarray( rnGen, devRnarray.get(), nevt );
@@ -353,8 +486,9 @@ int main(int argc, char **argv)
     }
 #endif
 
-    // *** START THE OLD TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
-    double wavetime = 0;
+    // *** START THE OLD-STYLE TIMERS FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
+    double wavetime = 0; // calc plus copy
+    double wv3atime = 0; // calc only
 
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
@@ -371,15 +505,18 @@ int main(int argc, char **argv)
     Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), nevt);
 #endif
 
+    // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
+    wv3atime += timermap.stop(); // calc only
+    wavetime += wv3atime; // calc plus copy
+
 #ifdef __CUDACC__
     // --- 3b. CopyDToH MEs
     const std::string cmesKey = "3b CpDTHmes";
-    wavetime += timermap.start( cmesKey );
+    timermap.start( cmesKey );
     checkCuda( cudaMemcpy( hstMEs.get(), devMEs.get(), nbytesMEs, cudaMemcpyDeviceToHost ) );
+    // *** STOP THE OLD OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
+    wavetime += timermap.stop(); // calc plus copy
 #endif
-
-    // *** STOP THE OLD TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
-    wavetime += timermap.stop();
 
     // === STEP 4 FINALISE LOOP
     // --- 4a Dump within the loop
@@ -388,10 +525,11 @@ int main(int argc, char **argv)
     genrtimes[iiter] = genrtime;
     rambtimes[iiter] = rambtime;
     wavetimes[iiter] = wavetime;
+    wv3atimes[iiter] = wv3atime;
 
     if (verbose)
     {
-      std::cout << "***********************************************************************" << std::endl
+      std::cout << std::string(SEP79, '*') << std::endl
                 << "Iteration #" << iiter+1 << " of " << niter << std::endl;
       if (perf) std::cout << "Wave function time: " << wavetime << std::endl;
     }
@@ -409,21 +547,37 @@ int main(int argc, char **argv)
           // NB: 'setw' affects only the next field (of any type)
           std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
                     << std::setw(4) << ipar + 1
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*neppM*np4 + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
+#ifndef MGONGPU_CPPSIMD
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
+#else
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4 + ipar*np4 + 0][ieppM] // AOSOA[ipagM][ipar][0][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4 + ipar*np4 + 1][ieppM] // AOSOA[ipagM][ipar][1][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4 + ipar*np4 + 2][ieppM] // AOSOA[ipagM][ipar][2][ieppM]
+                    << std::setw(14) << hstMomenta[ipagM*npar*np4 + ipar*np4 + 3][ieppM] // AOSOA[ipagM][ipar][3][ieppM]
+#endif
                     << std::endl
                     << std::defaultfloat; // default format: affects all floats
         }
-        std::cout << std::string(80, '-') << std::endl;
+        std::cout << std::string(SEP79, '-') << std::endl;
         // Display matrix elements
         std::cout << " Matrix element = "
-                  << hstMEs[ievt] << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
-        std::cout << std::string(80, '-') << std::endl;
+#ifndef MGONGPU_CPPSIMD
+                  << hstMEs[ievt]
+#else
+                  << hstMEs[ievt/neppM][ievt%neppM]
+#endif
+                  << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
+        std::cout << std::string(SEP79, '-') << std::endl;
       }
       // Fill the arrays with ALL MEs and weights
+#ifndef MGONGPU_CPPSIMD
       matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt]; // FIXME: assume process.nprocesses == 1
+#else
+      matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt/neppM][ievt%neppM]; // FIXME: assume process.nprocesses == 1
+#endif
       weightALL[iiter*nevt + ievt] = hstWeights[ievt];
     }
 
@@ -480,6 +634,20 @@ int main(int argc, char **argv)
   }
   double meanwtim = sumwtim / niter;
   double stdwtim = std::sqrt( sqswtim / niter - meanwtim * meanwtim );
+
+  double sumw3atim = 0;
+  double sqsw3atim = 0;
+  double minw3atim = wv3atimes[0];
+  double maxw3atim = wv3atimes[0];
+  for ( int iiter = 0; iiter < niter; ++iiter )
+  {
+    sumw3atim += wv3atimes[iiter];
+    sqsw3atim += wv3atimes[iiter]*wv3atimes[iiter];
+    minw3atim = std::min( minw3atim, wv3atimes[iiter] );
+    maxw3atim = std::max( maxw3atim, wv3atimes[iiter] );
+  }
+  double meanw3atim = sumw3atim / niter;
+  //double stdw3atim = std::sqrt( sqsw3atim / niter - meanw3atim * meanw3atim );
 
   int nnan = 0;
   double minelem = matrixelementALL[0];
