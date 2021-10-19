@@ -97,71 +97,73 @@ namespace Proc
     cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
 
     // Calculate wavefunctions for all processes
-    // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
-    for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }
-
-    // *** DIAGRAM 1 OF 2 ***
-
-    // Wavefunction(s) for diagram number 1
-#ifdef __CUDACC__
-    opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 );
-#else
-    opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], ievt, 0 );
-#endif
-
-#ifdef __CUDACC__
-    imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 );
-#else
-    imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], ievt, 1 );
-#endif
-
-#ifdef __CUDACC__
-    ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 );
-#else
-    ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], ievt, 2 );
-#endif
-
-#ifdef __CUDACC__
-    oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 );
-#else
-    oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], ievt, 3 );
-#endif
-
-    FFV1P0_3( w_sv[1], w_sv[0], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );
-
-    // Amplitude(s) for diagram number 1
-    FFV1_0( w_sv[2], w_sv[3], w_sv[4], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
-    jamp_sv[0] += -amp_sv[0];
-
-    // *** DIAGRAM 2 OF 2 ***
-
-    // Wavefunction(s) for diagram number 2
-    FFV2_4_3( w_sv[1], w_sv[0], cxtype( cIPC[2], cIPC[3] ), cxtype( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w_sv[4] );
-
-    // Amplitude(s) for diagram number 2
-    FFV2_4_0( w_sv[2], w_sv[3], w_sv[4], cxtype( cIPC[2], cIPC[3] ), cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
-    jamp_sv[0] += -amp_sv[0];
-
-    // *** COLOR ALGEBRA BELOW ***
-    // (This method used to be called CPPProcess::matrix_1_epem_mupmum()?)
-
-    // The color matrix;
-    static const fptype denom[ncolor] = {1};
-    static const fptype cf[ncolor][ncolor] = {
-      {1}};
-
-    // Sum and square the color flows to get the matrix element
-    for( int icol=0; icol < ncolor; icol++ )
     {
-      cxtype ztemp = cxmake( 0, 0 );
-      for( int jcol = 0; jcol < ncolor; jcol++ )
-        ztemp = ztemp + cf[icol][jcol] * jamp_sv[jcol];
-      meHelSum = meHelSum + cxreal(ztemp*conj(jamp_sv[icol])) / denom[icol];
-    }
+      // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
+      for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }
 
-    // Store the leading color flows for choice of color
-    //for( i=0; i < ncolor; i++ )
-    //  jamp2_sv[0][i] += real(jamp_sv[i]*conj(jamp_sv[i]));
+      // *** DIAGRAM 1 OF 2 ***
+
+      // Wavefunction(s) for diagram number 1
+#ifdef __CUDACC__
+      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 );
+#else
+      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], ievt, 0 );
+#endif
+
+#ifdef __CUDACC__
+      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 );
+#else
+      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], ievt, 1 );
+#endif
+
+#ifdef __CUDACC__
+      ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 );
+#else
+      ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], ievt, 2 );
+#endif
+
+#ifdef __CUDACC__
+      oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 );
+#else
+      oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], ievt, 3 );
+#endif
+
+      FFV1P0_3( w_sv[1], w_sv[0], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );
+
+      // Amplitude(s) for diagram number 1
+      FFV1_0( w_sv[2], w_sv[3], w_sv[4], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      jamp_sv[0] += -amp_sv[0];
+
+      // *** DIAGRAM 2 OF 2 ***
+
+      // Wavefunction(s) for diagram number 2
+      FFV2_4_3( w_sv[1], w_sv[0], cxtype( cIPC[2], cIPC[3] ), cxtype( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w_sv[4] );
+
+      // Amplitude(s) for diagram number 2
+      FFV2_4_0( w_sv[2], w_sv[3], w_sv[4], cxtype( cIPC[2], cIPC[3] ), cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      jamp_sv[0] += -amp_sv[0];
+
+      // *** COLOR ALGEBRA BELOW ***
+      // (This method used to be called CPPProcess::matrix_1_epem_mupmum()?)
+
+      // The color matrix;
+      static const fptype denom[ncolor] = {1};
+      static const fptype cf[ncolor][ncolor] = {{1}};
+
+      // Sum and square the color flows to get the matrix element
+      for( int icol=0; icol < ncolor; icol++ )
+      {
+        cxtype ztemp = cxmake( 0, 0 );
+        for( int jcol = 0; jcol < ncolor; jcol++ )
+          ztemp = ztemp + cf[icol][jcol] * jamp_sv[jcol];
+        meHelSum = meHelSum + cxreal(ztemp*conj(jamp_sv[icol])) / denom[icol];
+      }
+
+      // Store the leading color flows for choice of color
+      //for( i=0; i < ncolor; i++ )
+      //  jamp2_sv[0][i] += real(jamp_sv[i]*conj(jamp_sv[i]));
+
+    }
 
     mgDebug( 1, __FUNCTION__ );
     return;

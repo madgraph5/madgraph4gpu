@@ -830,6 +830,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             ret_lines.append('    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)')
             ret_lines.append('    cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page\n')
             ret_lines.append('    // Calculate wavefunctions for all processes')
+            ret_lines.append('    {') # NB This is closed in process_matrix.inc
             helas_calls = self.helas_call_writer.get_matrix_element_calls(\
                                                     self.matrix_elements[0],
                                                     color_amplitudes[0]
@@ -971,12 +972,12 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         import madgraph.core.color_algebra as color
         if not matrix_element.get('color_matrix'):
             ###return "\n".join(["static const double denom[1] = {1.};", "static const double cf[1][1] = {1.};"])
-            return "\n".join(["    static const fptype denom[1] = {1.};", "static const fptype cf[1][1] = {1.};"]) # AV
+            return "\n".join(["      static const fptype denom[1] = {1.};", "static const fptype cf[1][1] = {1.};"]) # AV
         else:
             color_denominators = matrix_element.get('color_matrix').\
                                                  get_line_denominators()
             ###denom_string = "static const double denom[ncolor] = {%s};" % ",".join(["%i" % denom for denom in color_denominators])
-            denom_string = "    static const fptype denom[ncolor] = {%s};" % ", ".join(["%i" % denom for denom in color_denominators]) # AV
+            denom_string = "      static const fptype denom[ncolor] = {%s};" % ", ".join(["%i" % denom for denom in color_denominators]) # AV
             matrix_strings = []
             my_cs = color.ColorString()
             for index, denominator in enumerate(color_denominators):
@@ -985,7 +986,9 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
                 ###matrix_strings.append("{%s}" % ",".join(["%d" % i for i in num_list]))
                 matrix_strings.append("{%s}" % ", ".join(["%d" % i for i in num_list])) # AV
             ###matrix_string = "static const double cf[ncolor][ncolor] = {" + ",".join(matrix_strings) + "};"
-            matrix_string = "    static const fptype cf[ncolor][ncolor] = {\n      " + ",\n      ".join(matrix_strings) + "};" # AV
+            matrix_string = "      static const fptype cf[ncolor][ncolor] = " # AV
+            if len( matrix_strings ) > 1 : matrix_string += '{\n      ' + ',\n      '.join(matrix_strings) + '};' # AV
+            else: matrix_string += '{' + matrix_strings[0] + '};' # AV
             return "\n".join([denom_string, matrix_string])
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (improve formatting)
@@ -1113,13 +1116,13 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         for diagram in matrix_element.get('diagrams'):
             ###print('DIAGRAM %3d: #wavefunctions=%3d, #diagrams=%3d' %
             ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING
-            res.append('\n    // *** DIAGRAM %d OF %d ***' % (diagram.get('number'), len(matrix_element.get('diagrams'))) ) # AV
-            res.append('\n    // Wavefunction(s) for diagram number %d' % diagram.get('number')) # AV
+            res.append('\n      // *** DIAGRAM %d OF %d ***' % (diagram.get('number'), len(matrix_element.get('diagrams'))) ) # AV
+            res.append('\n      // Wavefunction(s) for diagram number %d' % diagram.get('number')) # AV
             ###res.extend([ self.get_wavefunction_call(wf) for wf in diagram.get('wavefunctions') ])
             res.extend([ self.format_call(self.get_wavefunction_call(wf)) for wf in diagram.get('wavefunctions') ]) # AV
             if len(diagram.get('wavefunctions')) == 0 : res.append('// (none)') # AV
             ###res.append("# Amplitude(s) for diagram number %d" % diagram.get('number'))
-            res.append("\n    // Amplitude(s) for diagram number %d" % diagram.get('number'))
+            res.append("\n      // Amplitude(s) for diagram number %d" % diagram.get('number'))
             for amplitude in diagram.get('amplitudes'):
                 namp = amplitude.get('number')
                 amplitude.set('number', 1)
@@ -1141,7 +1144,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         for i, item in enumerate(res):
             ###print(item) # FOR DEBUGGING
             if item.startswith('# Amplitude'): item='//'+item[1:] # AV replace '# Amplitude' by '// Amplitude'
-            if not item.startswith('\n') and not item.startswith('#'): res[i]='    '+item
+            if not item.startswith('\n') and not item.startswith('#'): res[i]='      '+item
         return res
 
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
@@ -1151,7 +1154,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     # [GPUFOHelasCallWriter.generate_helas_call is called by UFOHelasCallWriter.get_wavefunction_call/get_amplitude_call]
     def get_external(self,wf, argument):
         ###text = '\n#ifdef __CUDACC__\n    %s    \n#else\n    %s\n#endif \n'
-        text = '#ifdef __CUDACC__\n    %s\n#else\n    %s\n#endif\n' # AV
+        text = '#ifdef __CUDACC__\n      %s\n#else\n      %s\n#endif\n' # AV
         line = self.get_external_line(wf, argument)
         split_line = line.split(',')
         split_line = [ str.lstrip(' ').rstrip(' ') for str in split_line] # AV
