@@ -25,7 +25,7 @@
 
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-      allMEs += deltaMEs;
+      *allMEs += deltaMEs;
       /*
 #ifdef MGONGPU_CPPSIMD
       allMEs[ipagV] += deltaMEs;

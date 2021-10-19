@@ -71,7 +71,7 @@ namespace Proc
   INLINE
   void calculate_wavefunctions( int ihel,
                                 const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
-                                fptype& allMEs
+                                fptype_sv* allMEs            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
 #ifndef __CUDACC__
                                 , const int ipagV
 #endif
@@ -176,7 +176,7 @@ namespace Proc
 
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-      allMEs += deltaMEs;
+      *allMEs += deltaMEs;
       /*
 #ifdef MGONGPU_CPPSIMD
       allMEs[ipagV] += deltaMEs;
@@ -354,12 +354,12 @@ namespace Proc
   {
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-    fptype allMEs = 0;
-    fptype allMEsLast = 0;
+    fptype_sv allMEs = { 0 };
+    fptype_sv allMEsLast = { 0 };
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-      calculate_wavefunctions( ihel, allmomenta, allMEs );
+      calculate_wavefunctions( ihel, allmomenta, &allMEs );
       if ( allMEs != allMEsLast )
       {
         //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
@@ -434,14 +434,15 @@ namespace Proc
     {
       // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-      fptype allMEsThisEvt = 0;
+      fptype_sv& allMEsThisEvt = allMEs[ievt];
+      allMEsThisEvt = 0;
 
 #ifdef __CUDACC__
       // CUDA - using precomputed good helicities
       for ( int ighel = 0; ighel < cNGoodHel; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
-        calculate_wavefunctions( ihel, allmomenta, allMEsThisEvt );
+        calculate_wavefunctions( ihel, allmomenta, &allMEsThisEvt );
       }
 #else
       // C++ - compute good helicities within this loop
@@ -450,7 +451,7 @@ namespace Proc
       {
         if ( sigmakin_itry > maxtry && !sigmakin_goodhel[ihel] ) continue;
         // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-        calculate_wavefunctions( ihel, allmomenta, allMEsThisEvt, ievt );
+        calculate_wavefunctions( ihel, allmomenta, &allMEsThisEvt, ievt );
         if ( sigmakin_itry <= maxtry )
         {
           if ( !sigmakin_goodhel[ihel] && allMEsThisEvt > allMEsThisEvtLast ) sigmakin_goodhel[ihel] = true;
