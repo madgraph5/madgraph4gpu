@@ -1,4 +1,10 @@
 #ifndef __CUDACC__
+    const int maxtry = 10;
+    static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
+    static bool sigmakin_goodhel[ncomb] = { false };
+#endif
+
+#ifndef __CUDACC__
     for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
@@ -29,12 +35,6 @@
       }
 #endif
 
-      // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
-      // [NB 'sum over final spins, average over initial spins', eg see
-      // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
-      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-      allMEsThisEvt /= denominators;
-
       // Set the final average |M|^2 for this event in the output array for all events
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
       allMEs[ievt] = allMEsThisEvt;
@@ -46,8 +46,27 @@
       //  for (int ihel = 0; ihel < ncomb; ihel++ )
       //    printf( "sigmakin: ihelgood %%2d %%d\n", ihel, sigmakin_goodhel[ihel] );
 #endif
-      // ** END LOOP ON IEVT **
+      //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
+
+    // PART 2 - FINALISATION (after calculate_wavefunctions)
+    // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
+    // [NB 'sum over final spins, average over initial spins', eg see
+    // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
+    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+#ifdef MGONGPU_CPPSIMD
+    for ( int ipagV = 0; ipagV < npagV; ++ipagV )
+    {
+      allMEs[ipagV] /= (fptype)denominators;
+    }
+#else
+#ifndef __CUDACC__
+    for ( int ievt = 0; ievt < nevt; ++ievt )
+#endif
+    {
+      allMEs[ievt] /= (fptype)denominators;
+    }
+#endif
     mgDebugFinalise();
   }
 

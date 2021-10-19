@@ -247,12 +247,6 @@ namespace Proc
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "sigmakin: ievt %%d\n", ievt );
 #endif
-
-#ifndef __CUDACC__
-    const int maxtry = 10;
-    static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
-    static bool sigmakin_goodhel[ncomb] = { false };
-#endif
 %(reset_jamp_lines)s
     // Start sigmaKin_lines
 %(sigmaKin_lines)s
