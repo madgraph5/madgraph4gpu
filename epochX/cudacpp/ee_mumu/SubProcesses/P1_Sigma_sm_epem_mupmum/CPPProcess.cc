@@ -113,6 +113,9 @@ namespace Proc
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
       for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }
 
+      // *** DIAGRAM 1 OF 2 ***
+
+      // Wavefunction(s) for diagram number 1
 #ifdef __CUDACC__
 #ifndef MGONGPU_TEST_DIVERGENCE
       // NB: opzxxx only reads pz (not E,px,py)
@@ -156,19 +159,22 @@ namespace Proc
       //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w_sv[3], ipagV, 3 ); // tested ok (a bit slower)
 #endif
 
-      // --- START Compute amplitudes for all diagrams ---
       FFV1P0_3( w_sv[1], w_sv[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );
       // Amplitude(s) for diagram number 1
       FFV1_0( w_sv[2], w_sv[3], w_sv[4], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[0] -= amp_sv[0];
 
+      // *** DIAGRAM 2 OF 2 ***
+
+      // Wavefunction(s) for diagram number 2
       FFV2_4_3( w_sv[1], w_sv[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w_sv[4] );
       // Amplitude(s) for diagram number 2
       FFV2_4_0( w_sv[2], w_sv[3], w_sv[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[0] -= amp_sv[0];
-      // --- END   Compute amplitudes for all diagrams ---
 
-      // --- START Color matrix algebra ---
+      // *** COLOR ALGEBRA BELOW ***
+      // (This method used to be called CPPProcess::matrix_1_epem_mupmum()?)
+
       // The color matrix
       constexpr fptype denom[ncolor] = {1};
       constexpr fptype cf[ncolor][ncolor] = {{1}};
