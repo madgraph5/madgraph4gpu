@@ -1047,16 +1047,16 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     # [GPUFOHelasCallWriter.get_external (adding #ifdef CUDA) is called by GPUFOHelasCallWriter.generate_helas_call]
     # [GPUFOHelasCallWriter.generate_helas_call is called by UFOHelasCallWriter.get_wavefunction_call/get_amplitude_call]
     ###findcoupling = re.compile('pars->([-]*[\d\w_]+)\s*,')
-    def NOTUSED__format_coupling(self, call):
+    def format_coupling(self, call):
         """Format the coupling so any minus signs are put in front"""
         import re
         model = self.get('model')
         if not hasattr(self, 'couplings2order'):
             self.couplings2order = {}
-            self.params2order = {}
+            self.params2order = {}            
         for coup in re.findall(self.findcoupling, call):
             if coup == 'ZERO':
-                call = call.replace('m_pars->ZERO', '0.')
+                call = call.replace('pars->ZERO', '0.')
                 continue
             sign = '' 
             if coup.startswith('-'):
@@ -1075,11 +1075,11 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if coup not in alias:
                 alias[coup] = len(alias)
             if name == "cIPD":
-                call = call.replace('m_pars->%s%s' % (sign, coup), 
+                call = call.replace('pars->%s%s' % (sign, coup), 
                                     '%s%s[%s]' % (sign, name, alias[coup]))
             else:
-                call = call.replace('m_pars->%s%s' % (sign, coup), 
-                                    '%scxtype( cIPC[%s], cIPC[%s] )' % 
+                call = call.replace('pars->%s%s' % (sign, coup), 
+                                    '%scxtype(cIPC[%s],cIPC[%s])' % 
                                     (sign, 2*alias[coup],2*alias[coup]+1))
         return call
 
