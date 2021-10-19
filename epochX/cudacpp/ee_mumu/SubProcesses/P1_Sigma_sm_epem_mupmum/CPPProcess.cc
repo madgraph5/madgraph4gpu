@@ -461,6 +461,9 @@ namespace Proc
   {
     mgDebugInitialise();
 
+    // Denominators: spins, colors and identical particles
+    const int denominators = 4; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
+
     // Set the parameters which change event by event
     // Need to discuss this with Stefan
     //m_pars->setDependentParameters();
@@ -468,9 +471,6 @@ namespace Proc
 
     // Reset color flows
     // Start sigmaKin_lines
-
-    // Denominators: spins, colors and identical particles
-    const int denominators = 4; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
 
 #ifdef __CUDACC__
     // Remember: in CUDA this is a kernel for one event, in c++ this processes n events

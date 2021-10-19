@@ -9,9 +9,6 @@
       //printf( "sigmakin: ievt %%d\n", ievt );
 #endif
 
-      // Denominators: spins, colors and identical particles
-      const int denominators = %(den_factors)s; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
-
       // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
       fptype allMEsThisEvt = 0;
