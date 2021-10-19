@@ -1,5 +1,9 @@
+#include "epoch_process_id.h"
+
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
+
+#include "MadgraphTest.h"
 
 #include "CommonRandomNumbers.h"
 #include "CPPProcess.h"
@@ -10,110 +14,47 @@
 #include "rambo.h"
 #endif
 
-#include <algorithm>
-#include <array>
-#include <cmath>
-#include <cstring>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <numeric>
-#include <string>
-#include <unistd.h>
-
-#include <gtest/gtest.h>
-
-
-struct ReferenceData {
-  std::vector< std::array<std::array<fptype,mgOnGpu::np4>, mgOnGpu::npar> > momenta;
-  std::vector<fptype> MEs;
-};
-
-std::map<unsigned int, ReferenceData> readReferenceData(const std::string& refFileName);
-
-#ifndef __CUDACC__
-std::map<unsigned int, ReferenceData> readReferenceData(const std::string& refFileName)
-{
-  std::ifstream referenceFile(refFileName.c_str());
-  EXPECT_TRUE(referenceFile.is_open()) << refFileName;
-  std::map<unsigned int, ReferenceData> referenceData;
-  unsigned int evtNo;
-  unsigned int batchNo;
-
-  for (std::string line; std::getline(referenceFile, line); )
-  {
-    std::stringstream lineStr(line);
-    if (line.empty())
-    {
-      continue;
-    }
-    else if (line.find("Event") != std::string::npos)
-    {
-      std::string dummy;
-      lineStr >> dummy >> evtNo >> dummy >> batchNo;
-    }
-    else if (line.find("ME") != std::string::npos)
-    {
-      if (evtNo <= referenceData[batchNo].MEs.size())
-        referenceData[batchNo].MEs.resize(evtNo + 1);
-
-      std::string dummy;
-      lineStr >> dummy >> referenceData[batchNo].MEs[evtNo];
-    }
-    else
-    {
-      unsigned int particleIndex;
-      lineStr >> particleIndex;
-
-      if (evtNo <= referenceData[batchNo].momenta.size())
-        referenceData[batchNo].momenta.resize(evtNo + 1);
-
-      for (unsigned int i=0; i < mgOnGpu::np4; ++i) {
-        EXPECT_TRUE(lineStr.good());
-        lineStr >> referenceData[batchNo].momenta[evtNo][particleIndex][i];
-      }
-      EXPECT_TRUE(lineStr.eof());
-    }
-  }
-  return referenceData;
-}
+#ifdef __CUDACC__
+template<typename T = fptype>
+using unique_ptr_dev = std::unique_ptr<T, CudaDevDeleter<T>>;
+template<typename T = fptype>
+using unique_ptr_host = std::unique_ptr<T[], CudaHstDeleter<T>>;
+#else
+template<typename T = fptype>
+using unique_ptr_host = std::unique_ptr<T[]>;
 #endif
 
-class BaseTest : public ::testing::Test {
- protected:
+struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
 
-  static constexpr unsigned niter = 2;
-  static constexpr unsigned gpublocks = 2;
-  static constexpr unsigned gputhreads = 32;
-  static constexpr std::size_t nevt = gpublocks * gputhreads;
+  static_assert( gputhreads%mgOnGpu::neppR == 0, "ERROR! #threads/block should be a multiple of neppR" );
+  static_assert( gputhreads%mgOnGpu::neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
+  static_assert( gputhreads <= mgOnGpu::ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
 
-  const std::size_t nRnarray; // (NB: ASA layout with nevt=npagR*neppR events per iteration)
-  const std::size_t nMomenta; // (NB: nevt=npagM*neppM for ASA layouts)
-  const std::size_t nWeights;
-  const std::size_t nMEs;
+  const std::size_t nRnarray{ mgOnGpu::np4 * mgOnGpu::nparf * nevt }; // AOSOA layout with nevt=npagR*neppR events per iteration
+  const std::size_t nMomenta{ mgOnGpu::np4 * mgOnGpu::npar  * nevt }; // AOSOA layout with nevt=npagM*neppM events per iteration
+  const std::size_t nWeights{ nevt };
+  const std::size_t nMEs    { nevt };
 
-  BaseTest() :
-    nRnarray{ mgOnGpu::np4 * mgOnGpu::nparf * nevt }, // (NB: ASA layout with nevt=npagR*neppR events per iteration)
-    nMomenta{ mgOnGpu::np4 * mgOnGpu::npar  * nevt },// (NB: nevt=npagM*neppM for ASA layouts)
-    nWeights{ nevt },
-    nMEs    { nevt }
-  { }
+  CUDA_CPU_TestBase() :
+  TestDriverBase()
+  {
+    TestDriverBase::nparticle = mgOnGpu::npar;
+  }
 
-  virtual void prepareRandomNumbers(int iiter) = 0;
-  virtual void prepareMomenta(fptype energy) = 0;
-  virtual void runSigmaKin(std::size_t iiter) = 0;
 };
 
-
 #ifndef __CUDACC__
-struct CPUTest : public BaseTest {
+struct CPUTest : public CUDA_CPU_TestBase {
+
   Proc::CPPProcess process;
 
-  unique_ptr_host<fptype> hstRnarray;
-  unique_ptr_host<fptype> hstMomenta;
-  unique_ptr_host<bool  > hstIsGoodHel;
-  unique_ptr_host<fptype> hstWeights;
-  unique_ptr_host<fptype> hstMEs;
+  // --- 0b. Allocate memory structures
+  // Memory structures for random numbers, momenta, matrix elements and weights on host and device
+  unique_ptr_host<fptype   > hstRnarray  { hstMakeUnique<fptype   >( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR]
+  unique_ptr_host<fptype_sv> hstMomenta  { hstMakeUnique<fptype_sv>( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM]
+  unique_ptr_host<bool     > hstIsGoodHel{ hstMakeUnique<bool     >( mgOnGpu::ncomb ) };
+  unique_ptr_host<fptype   > hstWeights  { hstMakeUnique<fptype   >( nWeights ) };
+  unique_ptr_host<fptype_sv> hstMEs      { hstMakeUnique<fptype_sv>( nMEs ) }; // AOSOA[npagM][neppM]
 
   // Create a process object
   // Read param_card and set parameters
@@ -121,47 +62,69 @@ struct CPUTest : public BaseTest {
   // The CPPProcess constructor has side effects on the globals Proc::cHel, which is needed in ME calculations.
   // Don't remove!
   CPUTest() :
-  BaseTest(),
+  CUDA_CPU_TestBase(),
   process(niter, gpublocks, gputhreads, /*verbose=*/false)
   {
     process.initProc("../../Cards/param_card.dat");
-
-    // --- 0b. Allocate memory structures
-    // Memory structures for random numbers, momenta, matrix elements and weights on host and device
-    hstRnarray   = hstMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-    hstMomenta   = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
-    hstIsGoodHel = hstMakeUnique<bool  >( mgOnGpu::ncomb );
-    hstWeights   = hstMakeUnique<fptype>( nWeights ); // (previously was: meHostPtr)
-    hstMEs       = hstMakeUnique<fptype>( nMEs ); // (previously was: meHostPtr)
   }
   virtual ~CPUTest() { }
 
-
-  void prepareRandomNumbers(int iiter) override {
-    std::vector<fptype> rnd = CommonRandomNumbers::generate<fptype>(nRnarray, 1337 + iiter);
-    std::copy(rnd.begin(), rnd.end(), hstRnarray.get());
+  void prepareRandomNumbers(unsigned int iiter) override {
+    std::vector<double> rnd = CommonRandomNumbers::generate<double>(nRnarray, 1337 + iiter); // NB: HARDCODED DOUBLE!
+    std::copy(rnd.begin(), rnd.end(), hstRnarray.get()); // NB: this may imply a conversion from double to float
   }
-
 
   void prepareMomenta(fptype energy) override {
     // --- 2a. Fill in momenta of initial state particles on the device
     rambo2toNm0::getMomentaInitial( energy, hstMomenta.get(), nevt );
-
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
     // (i.e. map random numbers to final-state particle momenta for each of nevt events)
     rambo2toNm0::getMomentaFinal( energy, hstRnarray.get(), hstMomenta.get(), hstWeights.get(), nevt );
   }
 
+  void runSigmaKin(std::size_t iiter) override {
+    // --- 0d. SGoodHel
+    if ( iiter == 0 )
+    {
+      // ... 0d1. Compute good helicity mask on the host
+      Proc::sigmaKin_getGoodHel(hstMomenta.get(), hstMEs.get(), hstIsGoodHel.get(), nevt);
+      // ... 0d2. Copy back good helicity list to static memory on the host
+      Proc::sigmaKin_setGoodHel(hstIsGoodHel.get());
+    }
 
-  void runSigmaKin(std::size_t /*iiter*/) override {
     // --- 3a. SigmaKin
     Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), nevt);
   }
+
+  fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
+    using mgOnGpu::np4;
+    using mgOnGpu::npar;
+    using mgOnGpu::neppM;
+    assert(component < np4);
+    assert(particle  < npar);
+    const auto ipagM = evtNo / neppM; // #eventpage in this iteration
+    const auto ieppM = evtNo % neppM; // #event in the current eventpage in this iteration
+#ifndef MGONGPU_CPPSIMD
+    return hstMomenta[ipagM*npar*np4*neppM + particle*np4*neppM + component*neppM + ieppM];
+#else
+    return hstMomenta[ipagM*npar*np4 + particle*np4 + component][ieppM];
+#endif
+  };
+
+  fptype getMatrixElement(std::size_t ievt) const override {
+#ifndef MGONGPU_CPPSIMD
+    return hstMEs[ievt];
+#else
+    return hstMEs[ievt/neppV][ievt%neppV];
+#endif
+  }
+
 };
 #endif
 
 #ifdef __CUDACC__
-struct CUDATest : public BaseTest {
+struct CUDATest : public CUDA_CPU_TestBase {
+
   // Reset the device when our test goes out of scope. Note that this should happen after
   // the frees, i.e. be declared before the pointers to device memory.
   struct DeviceReset {
@@ -170,17 +133,19 @@ struct CUDATest : public BaseTest {
     }
   } deviceResetter;
 
-  unique_ptr_host<fptype> hstRnarray;
-  unique_ptr_host<fptype> hstMomenta;
-  unique_ptr_host<bool  > hstIsGoodHel;
-  unique_ptr_host<fptype> hstWeights;
-  unique_ptr_host<fptype> hstMEs;
+  // --- 0b. Allocate memory structures
+  // Memory structures for random numbers, momenta, matrix elements and weights on host and device
+  unique_ptr_host<fptype> hstRnarray  { hstMakeUnique<fptype>( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR] (nevt=npagR*neppR)
+  unique_ptr_host<fptype> hstMomenta  { hstMakeUnique<fptype>( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM] (nevt=npagM*neppM)
+  unique_ptr_host<bool  > hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) };
+  unique_ptr_host<fptype> hstWeights  { hstMakeUnique<fptype>( nWeights ) };
+  unique_ptr_host<fptype> hstMEs      { hstMakeUnique<fptype>( nMEs ) };
 
-  unique_ptr_dev<fptype> devRnarray;
-  unique_ptr_dev<fptype> devMomenta;
-  unique_ptr_dev<bool  > devIsGoodHel;
-  unique_ptr_dev<fptype> devWeights;
-  unique_ptr_dev<fptype> devMEs;
+  unique_ptr_dev<fptype> devRnarray  { devMakeUnique<fptype>( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR] (nevt=npagR*neppR)
+  unique_ptr_dev<fptype> devMomenta  { devMakeUnique<fptype>( nMomenta ) };
+  unique_ptr_dev<bool  > devIsGoodHel{ devMakeUnique<bool  >( mgOnGpu::ncomb ) };
+  unique_ptr_dev<fptype> devWeights  { devMakeUnique<fptype>( nWeights ) };
+  unique_ptr_dev<fptype> devMEs      { devMakeUnique<fptype>( nMEs )     };
 
   gProc::CPPProcess process;
 
@@ -190,50 +155,33 @@ struct CUDATest : public BaseTest {
   // The CPPProcess constructor has side effects on the globals Proc::cHel, which is needed in ME calculations.
   // Don't remove!
   CUDATest() :
-  BaseTest(),
+  CUDA_CPU_TestBase(),
   process(niter, gpublocks, gputhreads, /*verbose=*/false)
   {
     process.initProc("../../Cards/param_card.dat");
-
-    checkCuda( cudaFree( 0 ) ); // SLOW!
-
-    // --- 0b. Allocate memory structures
-    // Memory structures for random numbers, momenta, matrix elements and weights on host and device
-    hstRnarray   = hstMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-    hstMomenta   = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
-    hstIsGoodHel = hstMakeUnique<bool  >( mgOnGpu::ncomb );
-    hstWeights   = hstMakeUnique<fptype>( nWeights ); // (previously was: meHostPtr)
-    hstMEs       = hstMakeUnique<fptype>( nMEs ); // (previously was: meHostPtr)
-
-    devRnarray   = devMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-    devMomenta   = devMakeUnique<fptype>( nMomenta ); // (previously was: allMomenta)
-    devIsGoodHel = devMakeUnique<bool  >( mgOnGpu::ncomb );
-    devWeights   = devMakeUnique<fptype>( nWeights ); // (previously was: meDevPtr)
-    devMEs       = devMakeUnique<fptype>( nMEs ); // (previously was: meDevPtr)
   }
 
   virtual ~CUDATest() { }
 
-  void prepareRandomNumbers(int iiter) override {
-    std::vector<fptype> rnd = CommonRandomNumbers::generate<fptype>(nRnarray, 1337 + iiter);
-    std::copy(rnd.begin(), rnd.end(), hstRnarray.get());
-    checkCuda( cudaMemcpy( devRnarray.get(), hstRnarray.get(), nRnarray * sizeof(decltype(devRnarray)::element_type), cudaMemcpyHostToDevice ) );
+  void prepareRandomNumbers(unsigned int iiter) override {
+    std::vector<double> rnd = CommonRandomNumbers::generate<double>(nRnarray, 1337 + iiter); // NB: HARDCODED DOUBLE!
+    std::copy(rnd.begin(), rnd.end(), hstRnarray.get()); // NB: this may imply a conversion from double to float
+    checkCuda( cudaMemcpy( devRnarray.get(), hstRnarray.get(),
+                           nRnarray * sizeof(decltype(devRnarray)::element_type), cudaMemcpyHostToDevice ) );
   }
-
 
   void prepareMomenta(fptype energy) override {
     // --- 2a. Fill in momenta of initial state particles on the device
     grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta.get() );
-
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
     // (i.e. map random numbers to final-state particle momenta for each of nevt events)
     grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.get(), devMomenta.get(), devWeights.get() );
-
     // --- 2c. CopyDToH Weights
-    checkCuda( cudaMemcpy( hstWeights.get(), devWeights.get(), nWeights * sizeof(decltype(hstWeights)::element_type), cudaMemcpyDeviceToHost ) );
-
+    checkCuda( cudaMemcpy( hstWeights.get(), devWeights.get(),
+                           nWeights * sizeof(decltype(hstWeights)::element_type), cudaMemcpyDeviceToHost ) );
     // --- 2d. CopyDToH Momenta
-    checkCuda( cudaMemcpy( hstMomenta.get(), devMomenta.get(), nMomenta * sizeof(decltype(hstMomenta)::element_type), cudaMemcpyDeviceToHost ) );
+    checkCuda( cudaMemcpy( hstMomenta.get(), devMomenta.get(),
+                           nMomenta * sizeof(decltype(hstMomenta)::element_type), cudaMemcpyDeviceToHost ) );
   }
 
   void runSigmaKin(std::size_t iiter) override {
@@ -241,10 +189,11 @@ struct CUDATest : public BaseTest {
     if ( iiter == 0 )
     {
       // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.get(), devIsGoodHel.get());
+      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.get(), devMEs.get(), devIsGoodHel.get());
       checkCuda( cudaPeekAtLastError() );
       // ... 0d2. Copy back good helicity mask to the host
-      checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(), mgOnGpu::ncomb * sizeof(decltype(hstIsGoodHel)::element_type), cudaMemcpyDeviceToHost ) );
+      checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(),
+                             mgOnGpu::ncomb * sizeof(decltype(hstIsGoodHel)::element_type), cudaMemcpyDeviceToHost ) );
       // ... 0d3. Copy back good helicity list to constant memory on the device
       gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
     }
@@ -261,140 +210,61 @@ struct CUDATest : public BaseTest {
     checkCuda( cudaMemcpy( hstMEs.get(), devMEs.get(), nMEs * sizeof(decltype(hstMEs)::element_type), cudaMemcpyDeviceToHost ) );
   }
 
+  fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
+    assert(component < mgOnGpu::np4);
+    assert(particle  < mgOnGpu::npar);
+    const auto page  = evtNo / mgOnGpu::neppM; // #eventpage in this iteration
+    const auto ieppM = evtNo % mgOnGpu::neppM; // #event in the current eventpage in this iteration
+    return hstMomenta[page * mgOnGpu::npar*mgOnGpu::np4*mgOnGpu::neppM +
+                      particle * mgOnGpu::neppM*mgOnGpu::np4 + component * mgOnGpu::neppM + ieppM];
+  };
+
+  fptype getMatrixElement(std::size_t evtNo) const override {
+    return hstMEs[evtNo];
+  }
+
 };
 #endif
 
+// Use two levels of macros to force stringification at the right level
+// (see https://gcc.gnu.org/onlinedocs/gcc-3.0.1/cpp_3.html#SEC17 and https://stackoverflow.com/a/3419392)
+// Google macro is in https://github.com/google/googletest/blob/master/googletest/include/gtest/gtest-param-test.h
+#define TESTID_CPU(s) s##_CPU
+#define XTESTID_CPU(s) TESTID_CPU(s)
+#define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name )        \
+  INSTANTIATE_TEST_SUITE_P( prefix,                                     \
+                            test_suite_name,                            \
+                            testing::Values( [](){ return new CPUTest; } ) );
+#define TESTID_GPU(s) s##_GPU
+#define XTESTID_GPU(s) TESTID_GPU(s)
+#define MG_INSTANTIATE_TEST_SUITE_GPU( prefix, test_suite_name )        \
+  INSTANTIATE_TEST_SUITE_P( prefix,                                     \
+                            test_suite_name,                            \
+                            testing::Values( [](){ return new CUDATest; } ) );
+
+#if defined MGONGPU_FPTYPE_DOUBLE
 
 #ifdef __CUDACC__
-TEST_F(CUDATest, eemumu)
+MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU(MG_EPOCH_PROCESS_ID), MadgraphTestDouble );
 #else
-TEST_F(CPUTest, eemumu)
+MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU(MG_EPOCH_PROCESS_ID), MadgraphTestDouble );
 #endif
-{
-  // Set to dump events:
-  constexpr bool dumpEvents = false;
-  const std::string dumpFileName = dumpEvents ?
-      std::string("dump_") + testing::UnitTest::GetInstance()->current_test_info()->test_suite_name() + "." + testing::UnitTest::GetInstance()->current_test_info()->name() + ".txt" :
-      "";
-  const std::string refFileName = "dump_CPUTest.eemumu.txt";
 
-  const int neppR = mgOnGpu::neppR; // ASA layout: constant at compile-time
-  static_assert( gputhreads%neppR == 0, "ERROR! #threads/block should be a multiple of neppR" );
+#else
 
-  const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
-  static_assert( gputhreads%neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
+#ifdef __CUDACC__
+MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU(MG_EPOCH_PROCESS_ID), MadgraphTestFloat );
+#else
+MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU(MG_EPOCH_PROCESS_ID), MadgraphTestFloat );
+#endif
 
-  using mgOnGpu::ntpbMAX;
-  static_assert( gputhreads <= ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
+#endif
 
-  std::ofstream dumpFile;
-  if ( !dumpFileName.empty() )
-  {
-    dumpFile.open(dumpFileName, std::ios::trunc);
-  }
-
-  std::map<unsigned int, ReferenceData> referenceData = readReferenceData(refFileName);
-  ASSERT_FALSE(HasFailure()); // It doesn't make any sense to continue if we couldn't read the reference file.
-
-  constexpr fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
-
-
-  // **************************************
-  // *** START MAIN LOOP ON #ITERATIONS ***
-  // **************************************
-
-  for (unsigned int iiter = 0; iiter < niter; ++iiter)
-  {
-    prepareRandomNumbers(iiter);
-
-    prepareMomenta(energy);
-
-    runSigmaKin(iiter);
-
-    // --- Run checks on all events produced in this iteration
-    for (std::size_t ievt = 0; ievt < nevt && !HasFailure(); ++ievt)
-    {
-      auto getMomentum = [&](std::size_t evtNo, int particle, int component)
-      {
-        assert(component < mgOnGpu::np4);
-        assert(particle  < mgOnGpu::npar);
-        const auto page  = evtNo / neppM; // #eventpage in this iteration
-        const auto ieppM = evtNo % neppM; // #event in the current eventpage in this iteration
-        return hstMomenta[page * mgOnGpu::npar*mgOnGpu::np4*neppM + particle * neppM*mgOnGpu::np4 + component * neppM + ieppM];
-      };
-      auto dumpParticles = [&](std::ostream& stream, std::size_t evtNo, unsigned precision, bool dumpReference)
-      {
-        const auto width = precision + 8;
-        for (int ipar = 0; ipar < mgOnGpu::npar; ipar++)
-        {
-          // NB: 'setw' affects only the next field (of any type)
-          stream << std::scientific // fixed format: affects all floats (default precision: 6)
-                 << std::setprecision(precision)
-                 << std::setw(4) << ipar
-                 << std::setw(width) << getMomentum(ievt, ipar, 0)
-                 << std::setw(width) << getMomentum(ievt, ipar, 1)
-                 << std::setw(width) << getMomentum(ievt, ipar, 2)
-                 << std::setw(width) << getMomentum(ievt, ipar, 3)
-                 << "\n";
-          if (dumpReference) {
-            stream << "ref" << ipar;
-            if (ievt < referenceData[iiter].momenta.size()) {
-              stream << std::setw(width) << referenceData[iiter].momenta[ievt][ipar][0]
-                     << std::setw(width) << referenceData[iiter].momenta[ievt][ipar][1]
-                     << std::setw(width) << referenceData[iiter].momenta[ievt][ipar][2]
-                     << std::setw(width) << referenceData[iiter].momenta[ievt][ipar][3]
-                     << "\n\n";
-            } else {
-              stream << "  --- No reference ---\n\n";
-            }
-          }
-          stream << std::flush << std::defaultfloat; // default format: affects all floats
-        }
-      };
-
-      if (dumpFile.is_open()) {
-        dumpFile << "Event " << std::setw(8) << ievt << "  "
-                 << "Batch " << std::setw(4) << iiter << "\n";
-        dumpParticles(dumpFile, ievt, 15, false);
-        // Dump matrix element
-        dumpFile << std::setw(4) << "ME" << std::scientific << std::setw(15+8) << hstMEs[ievt] << "\n" << std::endl << std::defaultfloat;
-        continue;
-      }
-
-      // This trace will only be printed in case of failures:
-      std::stringstream eventTrace;
-      eventTrace << "In comparing event " << ievt << " from iteration " << iiter << "\n";
-      dumpParticles(eventTrace, ievt, 15, true);
-      eventTrace << std::setw(4) << "ME"   << std::scientific << std::setw(15+8) << hstMEs[ievt] << "\n"
-                 << std::setw(4) << "r.ME" << std::scientific << std::setw(15+8) << referenceData[iiter].MEs[ievt] << std::endl << std::defaultfloat;
-      SCOPED_TRACE(eventTrace.str());
-
-      ASSERT_LT( ievt, referenceData[iiter].momenta.size() ) << "Don't have enough events in reference file #ref=" << referenceData[iiter].momenta.size();
-
-
-      // Compare Momenta
-      const fptype toleranceMomenta = 200. * std::pow(10., -std::numeric_limits<fptype>::digits10);
-      for (unsigned int ipar = 0; ipar < mgOnGpu::npar; ++ipar) {
-        std::stringstream momentumErrors;
-        for (unsigned int icomp = 0; icomp < mgOnGpu::np4; ++icomp) {
-          const double pMadg = getMomentum(ievt, ipar, icomp);
-          const double pOrig = referenceData[iiter].momenta[ievt][ipar][icomp];
-          const double relDelta = fabs( (pMadg - pOrig)/pOrig );
-          if (relDelta > toleranceMomenta) {
-            momentumErrors << std::setprecision(15) << std::scientific << "\nparticle " << ipar << "\tcomponent " << icomp
-                << "\n\t madGraph:  " << std::setw(22) << pMadg
-                << "\n\t reference: " << std::setw(22) << pOrig
-                << "\n\t rel delta: " << std::setw(22) << relDelta << " exceeds tolerance of " << toleranceMomenta;
-          }
-        }
-        ASSERT_TRUE(momentumErrors.str().empty()) << momentumErrors.str();
-      }
-
-      // Compare ME:
-      const fptype toleranceMEs = 500. * std::pow(10., -std::numeric_limits<fptype>::digits10);
-      EXPECT_NEAR(hstMEs[ievt], referenceData[iiter].MEs[ievt], toleranceMEs * referenceData[iiter].MEs[ievt]);
-    }
-
-
-  }
-}
+// Add a dummy test just to check the linking (related to issue #143)
+/*
+#ifdef __CUDACC__
+TEST( XTESTID_GPU(MG_EPOCH_PROCESS_ID), dummy ){}
+#else
+TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), dummy ){}
+#endif
+*/
