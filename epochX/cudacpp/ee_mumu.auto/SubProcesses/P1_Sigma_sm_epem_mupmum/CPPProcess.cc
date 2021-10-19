@@ -139,7 +139,7 @@ namespace Proc
 
       // Amplitude(s) for diagram number 1
       FFV1_0( w_sv[2], w_sv[3], w_sv[4], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
-      jamp_sv[0] += -amp_sv[0];
+      jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 2 OF 2 ***
 
@@ -148,7 +148,7 @@ namespace Proc
 
       // Amplitude(s) for diagram number 2
       FFV2_4_0( w_sv[2], w_sv[3], w_sv[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
-      jamp_sv[0] += -amp_sv[0];
+      jamp_sv[0] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called CPPProcess::matrix_1_epem_mupmum()?)
