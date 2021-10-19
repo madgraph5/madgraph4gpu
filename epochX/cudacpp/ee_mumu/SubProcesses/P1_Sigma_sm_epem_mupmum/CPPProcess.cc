@@ -179,7 +179,8 @@ namespace Proc
           ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
         deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];
       }
-      // --- END   Color matrix algebra ---
+
+      // *** STORE THE RESULTS ***
 
       // Store the leading color flows for choice of color
       // (NB: jamp2_sv must be an array of fptype_sv)
