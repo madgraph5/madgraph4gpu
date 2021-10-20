@@ -139,16 +139,21 @@ exes=
 for suff in $suffs; do
 
   #=====================================
-  # CUDA (eemumu/epochX - manual/auto)
+  # CUDA (epochX - manual/auto)
   #=====================================
   if [ "${cuda}" == "1" ]; then
     if [ "${eemumu}" == "1" ]; then 
-      for helinl in $helinls; do
-        for fptype in $fptypes; do
-          exes="$exes $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_${fptype}_inl${helinl}/gcheck.exe"
-        done
-      done
+      dir=$topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
+    elif [ "${ggtt}" == "1" ]; then 
+      dir=$topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
+    elif [ "${ggttgg}" == "1" ]; then 
+      dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
     fi
+    for helinl in $helinls; do
+      for fptype in $fptypes; do
+        exes="$exes ${dir}/build.none_${fptype}_inl${helinl}/gcheck.exe"
+      done
+    done
   fi
   
   #=====================================
@@ -156,58 +161,27 @@ for suff in $suffs; do
   #=====================================
   if [ "${cpp}" == "1" ]; then 
     if [ "${eemumu}" == "1" ]; then 
-      for helinl in $helinls; do
-        for fptype in $fptypes; do
-          exes="$exes $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_${fptype}_inl${helinl}/check.exe"
+      dir=$topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
+    elif [ "${ggtt}" == "1" ]; then 
+      dir=$topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
+    elif [ "${ggttgg}" == "1" ]; then 
+      dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
+    fi
+    for helinl in $helinls; do
+      for fptype in $fptypes; do
+        exes="$exes $dir/build.none_${fptype}_inl${helinl}/check.exe"
+        if [ "${avxall}" == "1" ]; then 
+          exes="$exes $dir/build.sse4_${fptype}_inl${helinl}/check.exe"
+          exes="$exes $dir/build.avx2_${fptype}_inl${helinl}/check.exe"
+        fi
+        if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
+          exes="$exes $dir/build.512y_${fptype}_inl${helinl}/check.exe"
           if [ "${avxall}" == "1" ]; then 
-            exes="$exes $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum/build.sse4_${fptype}_inl${helinl}/check.exe"
-            exes="$exes $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum/build.avx2_${fptype}_inl${helinl}/check.exe"
+            exes="$exes $dir/build.512z_${fptype}_inl${helinl}/check.exe"
           fi
-          if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
-            exes="$exes $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y_${fptype}_inl${helinl}/check.exe"
-            if [ "${avxall}" == "1" ]; then 
-              exes="$exes $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z_${fptype}_inl${helinl}/check.exe"
-            fi
-          fi
-        done
+        fi
       done
-    fi
-  fi
-
-  #=====================================
-  # CUDA (ggtt/epochX)
-  #=====================================
-  if [ "${cuda}" == "1" ]; then
-    if [ "${ggtt}" == "1" ]; then 
-      exes="$exes $topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx/gcheck.exe"
-    fi
-  fi
-
-  #=====================================
-  # C++ (ggtt/epochX)
-  #=====================================
-  if [ "${cpp}" == "1" ]; then 
-    if [ "${ggtt}" == "1" ]; then 
-      exes="$exes $topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx/check.exe"
-    fi
-  fi
-
-  #=====================================
-  # CUDA (ggttgg/epochX)
-  #=====================================
-  if [ "${cuda}" == "1" ]; then
-    if [ "${ggttgg}" == "1" ]; then 
-      exes="$exes $topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg/gcheck.exe"
-    fi
-  fi
-
-  #=====================================
-  # C++ (ggttgg/epochX)
-  #=====================================
-  if [ "${cpp}" == "1" ]; then 
-    if [ "${ggttgg}" == "1" ]; then 
-      exes="$exes $topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg/check.exe"
-    fi
+    done
   fi
 
 done
@@ -221,44 +195,34 @@ done
 for suff in $suffs; do
 
   if [ "${eemumu}" == "1" ]; then 
-    export USEBUILDDIR=1
-    pushd $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
-    pwd
-    if [ "${makecleanonly}" == "1" ]; then make cleanall; echo; continue; fi
-    for helinl in $helinls; do
-      export HELINL=$helinl
-      for fptype in $fptypes; do
-        export FPTYPE=$fptype
-        make AVX=none; echo
-        if [ "${avxall}" == "1" ]; then make AVX=sse4; echo; fi
-        if [ "${avxall}" == "1" ]; then make AVX=avx2; echo; fi
-        if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then # skip avx512 if not supported!
-          if [ "${cpp}" == "1" ]; then make AVX=512y; echo; fi # use 512y as C++ ref even if avx2 is faster on clang
-          if [ "${avxall}" == "1" ]; then make AVX=512z; echo; fi
-        fi
-      done
+    dir=$topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
+  elif [ "${ggtt}" == "1" ]; then 
+    dir=$topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
+  elif [ "${ggttgg}" == "1" ]; then 
+    dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
+  fi
+
+  export USEBUILDDIR=1
+  pushd $dir >& /dev/null
+  pwd
+  if [ "${makecleanonly}" == "1" ]; then make cleanall; echo; continue; fi
+  for helinl in $helinls; do
+    export HELINL=$helinl
+    for fptype in $fptypes; do
+      export FPTYPE=$fptype
+      make AVX=none; echo
+      if [ "${avxall}" == "1" ]; then make AVX=sse4; echo; fi
+      if [ "${avxall}" == "1" ]; then make AVX=avx2; echo; fi
+      if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then # skip avx512 if not supported!
+        if [ "${cpp}" == "1" ]; then make AVX=512y; echo; fi # use 512y as C++ ref even if avx2 is faster on clang
+        if [ "${avxall}" == "1" ]; then make AVX=512z; echo; fi
+      fi
     done
-    popd >& /dev/null
-    export USEBUILDDIR=
-    export HELINL=
-    export FPTYPE=
-  fi
-
-  if [ "${ggtt}" == "1" ]; then 
-    pushd $topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx >& /dev/null
-    pwd
-    if [ "${makecleanonly}" == "1" ]; then make cleanall; echo; continue; fi
-    make; echo
-    popd >& /dev/null
-  fi
-
-  if [ "${ggttgg}" == "1" ]; then 
-    pushd $topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg >& /dev/null
-    pwd
-    if [ "${makecleanonly}" == "1" ]; then make cleanall; echo; continue; fi
-    make; echo
-    popd >& /dev/null
-  fi
+  done
+  popd >& /dev/null
+  export USEBUILDDIR=
+  export HELINL=
+  export FPTYPE=
 
 done
 
