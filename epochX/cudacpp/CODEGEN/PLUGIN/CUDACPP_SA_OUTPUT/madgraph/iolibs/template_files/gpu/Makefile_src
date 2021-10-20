@@ -20,12 +20,28 @@ ifdef CUDA_HOME
   CUINC = -I$(CUDA_HOME)/include/
 endif
 
+# Note: AR and CXX are implicitly defined if not set externally
+# See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
+RANLIB = ranlib
 
 # Assuming uname is available, detect if architecture is power
 UNAME_P := $(shell uname -p)
 ifeq ($(UNAME_P),ppc64le)
     CUFLAGS+= -Xcompiler -mno-float128
 endif
+
+# Enable ccache if USECCACHE=1
+ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
+  override CXX:=ccache $(CXX)
+endif
+ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
+  override AR:=ccache $(AR)
+endif
+#ifneq ($(NVCC),)
+#  ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
+#    override NVCC:=ccache $(NVCC)
+#  endif
+#endif
 
 target=$(LIBDIR)/libmodel_%(model)s.a
 cxx_objects=Parameters_%(model)s.o read_slha.o rambo.o 
@@ -48,7 +64,7 @@ debug: $(target)
 $(target): $(cxx_objects) $(cu_objects)
 	if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi
 	$(AR) cru $@ $(cxx_objects) $(cu_objects)
-	ranlib $(target)
+	$(RANLIB) $(target)
 
 .PHONY: clean
 
