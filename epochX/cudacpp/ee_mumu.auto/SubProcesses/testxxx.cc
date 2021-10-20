@@ -32,24 +32,24 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
   // Fill in the input momenta
   const int nMomenta = np4 * npar * nevt;
   auto hstMomenta = hstMakeUnique<fptype_sv>( nMomenta ); // AOSOA[npagM][npar=4][np4=4][neppM]
-  const fptype par0[np4 * nevt]{                          // AOS[nevt][np4]
-    500, 0,    0,    500,  // #0 (m=0 pT=0 E=pz>0)
-    500, 0,    0,    -500, // #1 (m=0 pT=0 -E=pz<0)
-    500, 300,  400,  0,    // #2 (m=0 pT>0 pz=0)
-    500, 180,  240,  400,  // #3 (m=0 pT>0 pz>0)
-    500, 180,  240,  -400, // #4 (m=0 pT>0 pz<0)
-    500, 0,    0,    0,    // #5 (m=50>0 pT=0 pz=0)
-    500, 0,    0,    300,  // #6 (m=40>0 pT=0 pz>0)
-    500, 0,    0,    -300, // #7 (m=40>0 pT=0 pz<0)
-    500, 180,  240,  0,    // #8 (m=40>0 pT>0 pz=0)
-    500, -240, -180, 0,    // #9 (m=40>0 pT>0 pz=0)
-    500, 180,  192,  144,  // #10 (m=40>0 pT>0 pz>0)
-    500, 180,  192,  -144, // #11 (m=40>0 pT>0 pz<0)
-    500, 0,    0,    500,  // DUPLICATE #12 == #0 (m=0 pT=0 E=pz>0)
-    500, 0,    0,    -500, // DUPLICATE #13 == #1 (m=0 pT=0 -E=pz<0)
-    500, 300,  400,  0,    // DUPLICATE #14 == #2 (m=0 pT>0 pz=0)
-    500, 180,  240,  400   // DUPLICATE #15 == #3 (m=0 pT>0 pz>0)
-  };
+  const fptype par0[np4 * nevt] =                         // AOS[nevt][np4]
+    { 500, 0,    0,    500,  // #0 (m=0 pT=0 E=pz>0)
+      500, 0,    0,    -500, // #1 (m=0 pT=0 -E=pz<0)
+      500, 300,  400,  0,    // #2 (m=0 pT>0 pz=0)
+      500, 180,  240,  400,  // #3 (m=0 pT>0 pz>0)
+      500, 180,  240,  -400, // #4 (m=0 pT>0 pz<0)
+      500, 0,    0,    0,    // #5 (m=50>0 pT=0 pz=0)
+      500, 0,    0,    300,  // #6 (m=40>0 pT=0 pz>0)
+      500, 0,    0,    -300, // #7 (m=40>0 pT=0 pz<0)
+      500, 180,  240,  0,    // #8 (m=40>0 pT>0 pz=0)
+      500, -240, -180, 0,    // #9 (m=40>0 pT>0 pz=0)
+      500, 180,  192,  144,  // #10 (m=40>0 pT>0 pz>0)
+      500, 180,  192,  -144, // #11 (m=40>0 pT>0 pz<0)
+      500, 0,    0,    500,  // DUPLICATE #12 == #0 (m=0 pT=0 E=pz>0)
+      500, 0,    0,    -500, // DUPLICATE #13 == #1 (m=0 pT=0 -E=pz<0)
+      500, 300,  400,  0,    // DUPLICATE #14 == #2 (m=0 pT>0 pz=0)
+      500, 180,  240,  400   // DUPLICATE #15 == #3 (m=0 pT>0 pz>0)
+    };
   fptype mass0[nevt]{};
   bool ispzgt0[nevt]{};
   bool ispzlt0[nevt]{};
@@ -155,7 +155,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
   auto testwf6two = [&]( const cxtype_sv wf[6], const cxtype_sv expwf[6], const char* xxx, int ievt ) {
     if ( testEvents )
     {
-      const std::string xxxFull( xxx[0] == 'i' ? "ixxxxx" : "oxxxxx" );      
+      const std::string xxxFull( xxx[0] == 'i' ? "ixxxxx" : "oxxxxx" );
       //std::cout << "Testing " << std::setw(3) << itest << ": ";
       //std::cout << xxx << " #" << ievt << " against " << xxxFull << std::endl;
       ////for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << wf[iw6] << std::endl;

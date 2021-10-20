@@ -36,7 +36,7 @@ struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
   const std::size_t nMEs    { nevt };
 
   CUDA_CPU_TestBase() :
-  TestDriverBase()
+    TestDriverBase()
   {
     TestDriverBase::nparticle = mgOnGpu::npar;
   }
@@ -62,8 +62,8 @@ struct CPUTest : public CUDA_CPU_TestBase {
   // The CPPProcess constructor has side effects on the globals Proc::cHel, which is needed in ME calculations.
   // Don't remove!
   CPUTest() :
-  CUDA_CPU_TestBase(),
-  process(niter, gpublocks, gputhreads, /*verbose=*/false)
+    CUDA_CPU_TestBase(),
+    process(niter, gpublocks, gputhreads, /*verbose=*/false)
   {
     process.initProc("../../Cards/param_card.dat");
   }
@@ -155,8 +155,8 @@ struct CUDATest : public CUDA_CPU_TestBase {
   // The CPPProcess constructor has side effects on the globals Proc::cHel, which is needed in ME calculations.
   // Don't remove!
   CUDATest() :
-  CUDA_CPU_TestBase(),
-  process(niter, gpublocks, gputhreads, /*verbose=*/false)
+    CUDA_CPU_TestBase(),
+    process(niter, gpublocks, gputhreads, /*verbose=*/false)
   {
     process.initProc("../../Cards/param_card.dat");
   }

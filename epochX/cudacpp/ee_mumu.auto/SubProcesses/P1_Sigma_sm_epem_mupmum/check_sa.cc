@@ -790,7 +790,7 @@ int main(int argc, char **argv)
               << "], no SIMD)" << std::endl
 #elif defined __AVX512VL__
 #ifdef MGONGPU_PVW512
-              << "Internal loops fptype_sv    = VECTOR[" << neppV 
+              << "Internal loops fptype_sv    = VECTOR[" << neppV
               << "] ('512z': AVX512, 512bit)" << cxtref << std::endl
 #else
               << "Internal loops fptype_sv    = VECTOR[" << neppV
@@ -942,15 +942,15 @@ int main(int argc, char **argv)
 #if defined MGONGPU_COMMONRAND_ONHOST
              << "\"COMMON RANDOM HOST (CUDA code)\"," << std::endl;
 #elif defined MGONGPU_CURAND_ONDEVICE
-             << "\"CURAND DEVICE (CUDA code)\"," << std::endl;
+    << "\"CURAND DEVICE (CUDA code)\"," << std::endl;
 #elif defined MGONGPU_CURAND_ONHOST
-             << "\"CURAND HOST (CUDA code)\"," << std::endl;
+    << "\"CURAND HOST (CUDA code)\"," << std::endl;
 #endif
 #else
 #if defined MGONGPU_COMMONRAND_ONHOST
-             << "\"COMMON RANDOM (C++ code)\"," << std::endl;
+    << "\"COMMON RANDOM (C++ code)\"," << std::endl;
 #else
-             << "\"CURAND (C++ code)\"," << std::endl;
+    << "\"CURAND (C++ code)\"," << std::endl;
 #endif
 #endif
     jsonFile << "\"NumberOfEntries\": " << niter << "," << std::endl

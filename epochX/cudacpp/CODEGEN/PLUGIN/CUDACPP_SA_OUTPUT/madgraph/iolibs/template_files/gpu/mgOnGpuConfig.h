@@ -151,22 +151,22 @@ using mgOnGpu::fptype;
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
 // Arguments (not used so far): text is __FUNCTION__, code is 0 (start) or 1 (end)
 #if defined __CUDACC__ && defined MGONGPU_NSIGHT_DEBUG
-#define mgDebugDeclare() \
+#define mgDebugDeclare()                              \
   __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
-#define mgDebugInitialise() \
+#define mgDebugInitialise()                     \
   { mgDebugCounter[threadIdx.x]=0; }
-#define mgDebug( code, text ) \
+#define mgDebug( code, text )                   \
   { mgDebugCounter[threadIdx.x] += 1; }
-#define mgDebugFinalise() \
+#define mgDebugFinalise()                                               \
   { if ( blockIdx.x == 0 && threadIdx.x == 0 ) printf( "MGDEBUG: counter=%%f\n", mgDebugCounter[threadIdx.x] ); }
 #else
-#define mgDebugDeclare() \
+#define mgDebugDeclare()                        \
   /*noop*/
-#define mgDebugInitialise() \
+#define mgDebugInitialise()                     \
   { /*noop*/ }
-#define mgDebug( code, text ) \
+#define mgDebug( code, text )                   \
   { /*noop*/ }
-#define mgDebugFinalise() \
+#define mgDebugFinalise()                       \
   { /*noop*/ }
 #endif
 
