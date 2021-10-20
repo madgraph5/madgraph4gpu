@@ -41,9 +41,6 @@ namespace Proc
 #endif
 
   //--------------------------------------------------------------------------
-
-  // Evaluate |M|^2 for each subprocess
-  // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
 %(all_sigmaKin)s
   //--------------------------------------------------------------------------
 

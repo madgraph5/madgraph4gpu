@@ -803,32 +803,37 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             ###ret_lines.append("cxtype jamp[ncolor];")
             ###ret_lines.append("// Calculate wavefunctions for all processes")
             ###ret_lines.append("using namespace MG5_%s;" % self.model_name)
-            ret_lines.append('  __device__')
-            ret_lines.append('  INLINE')
-            ret_lines.append('  void calculate_wavefunctions( int ihel,')
-            indent = ' ' * ( ret_lines[-1].find('(') + 2 )
-            ret_lines.append(indent+'const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM')
-            ret_lines.append(indent+'fptype_sv* allMEs            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities')
-            ret_lines.append('#ifndef __CUDACC__')
-            ret_lines.append(indent+', const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)')
-            ret_lines.append('#endif')
-            ret_lines.append(indent+')')
-            ret_lines.append('  //ALWAYS_INLINE // attributes are not permitted in a function definition')
-            ret_lines.append('  {')
-            ret_lines.append('    using namespace MG5_%s;' % self.model_name)
-            ret_lines.append('    mgDebug( 0, __FUNCTION__ );')
-            ret_lines.append('#ifndef __CUDACC__')
-            ret_lines.append('    //printf( "calculate_wavefunctions: nevt %d\\n", nevt );') # escape '\\'
-            ret_lines.append('#endif\n')
-            ret_lines.append('    // The number of colors')
-            ret_lines.append('    constexpr int ncolor = %i;\n' % len(color_amplitudes[0]))
-            ret_lines.append('    // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)')
-            ret_lines.append('    // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]')
-            ret_lines.append('    cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)')
-            ret_lines.append('    cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram\n')
-            ret_lines.append('    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)')
-            ret_lines.append('    cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page')
             ret_lines.append("""
+  // Evaluate |M|^2 for each subprocess
+  // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
+  __device__
+  INLINE
+  void calculate_wavefunctions( int ihel,
+                                const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                                fptype_sv* allMEs            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
+#ifndef __CUDACC__
+                                , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#endif
+                                )
+  //ALWAYS_INLINE // attributes are not permitted in a function definition
+  {
+    using namespace MG5_sm;
+    mgDebug( 0, __FUNCTION__ );
+#ifndef __CUDACC__
+    //printf( "calculate_wavefunctions: nevt %d\\n", nevt );
+#endif
+
+    // The number of colors
+    constexpr int ncolor = 1;
+
+    // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
+    // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
+    cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
+    cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
+
+    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
+    cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
+
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
 #ifndef __CUDACC__
     const int npagV = nevt / neppV;
