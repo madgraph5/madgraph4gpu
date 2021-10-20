@@ -17,14 +17,14 @@ fptypes="d"
 helinls="0"
 suffs="/"
 makeonly=0
-makeclean=0
+makecleanonly=0
 detailed=0
 gtest=0
 verbose=0
 
 function usage()
 {
-  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-eemumu] [-ggtt] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly] [-makeclean] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-eemumu] [-ggtt] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly|-makecleanonly] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -97,10 +97,12 @@ while [ "$1" != "" ]; do
     suffs=".auto/"
     shift
   elif [ "$1" == "-makeonly" ]; then
+    if [ "${makecleanonly}" == "1" ]; then echo "ERROR! Options -makeclean and -makecleanonly are incompatible"; usage; fi
     makeonly=1
     shift
-  elif [ "$1" == "-makeclean" ]; then
-    makeclean=1
+  elif [ "$1" == "-makecleanonly" ]; then
+    if [ "${makeonly}" == "1" ]; then echo "ERROR! Options -makeclean and -makecleanonly are incompatible"; usage; fi
+    makecleanonly=1
     shift
   elif [ "$1" == "-detailed" ]; then
     detailed=1
@@ -222,11 +224,11 @@ for suff in $suffs; do
     export USEBUILDDIR=1
     pushd $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
     pwd
+    if [ "${makecleanonly}" == "1" ]; then make cleanall; echo; continue; fi
     for helinl in $helinls; do
       export HELINL=$helinl
       for fptype in $fptypes; do
         export FPTYPE=$fptype
-        if [ "${makeclean}" == "1" ]; then make cleanall; echo; fi        
         make AVX=none; echo
         if [ "${avxall}" == "1" ]; then make AVX=sse4; echo; fi
         if [ "${avxall}" == "1" ]; then make AVX=avx2; echo; fi
@@ -245,7 +247,7 @@ for suff in $suffs; do
   if [ "${ggtt}" == "1" ]; then 
     pushd $topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx >& /dev/null
     pwd
-    if [ "${makeclean}" == "1" ]; then make cleanall; echo; fi        
+    if [ "${makecleanonly}" == "1" ]; then make cleanall; echo; continue; fi
     make; echo
     popd >& /dev/null
   fi
@@ -253,14 +255,15 @@ for suff in $suffs; do
   if [ "${ggttgg}" == "1" ]; then 
     pushd $topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg >& /dev/null
     pwd
-    if [ "${makeclean}" == "1" ]; then make cleanall; echo; fi        
+    if [ "${makecleanonly}" == "1" ]; then make cleanall; echo; continue; fi
     make; echo
     popd >& /dev/null
   fi
 
 done
 
-if [ "${makeonly}" == "1" ]; then printf "BUILD COMPLETED\n"; exit 0; fi
+if [ "${makecleanonly}" == "1" ]; then printf "MAKE CLEANALL COMPLETED\n"; exit 0; fi
+if [ "${makeonly}" == "1" ]; then printf "MAKE COMPLETED\n"; exit 0; fi
 
 ##########################################################################
 # PART 3 - run all the executables which should be run
