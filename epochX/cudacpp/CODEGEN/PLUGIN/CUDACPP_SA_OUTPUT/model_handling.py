@@ -635,13 +635,6 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         return res
 
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
-    def write_print_parameters(self, params):
-        res = super().write_print_parameters(params)
-        if res == '' : res = '// (none)'
-        res = res.replace('\n','\n  ')
-        return res
-
-    # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def generate_parameters_class_files(self):
         file_h, file_cc = super().generate_parameters_class_files()
         file_h = file_h[:-1] # remove extra trailing '\n'
@@ -659,6 +652,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         for param in params:
             ###res_strings.append("cout << setw(20) << \"%s \" << \"= \" << setiosflags(ios::scientific) << setw(10) << %s << endl;" % (param.name, param.name))
             res_strings.append("std::cout << std::setw(20) << \"%s \" << \"= \" << std::setiosflags(std::ios::scientific) << std::setw(10) << %s << std::endl;" % (param.name, param.name)) # AV
+        if len(res_strings) == 0 : res_strings.append('// (none)')
         ##return "\n".join(res_strings)
         return "\n  ".join(res_strings) # AV (why was this not necessary before?)
 

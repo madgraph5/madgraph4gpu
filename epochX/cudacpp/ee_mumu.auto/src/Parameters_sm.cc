@@ -169,5 +169,5 @@ void Parameters_sm::printDependentParameters()
 void Parameters_sm::printDependentCouplings()
 {
   std::cout << "sm model couplings dependent on event kinematics:" << std::endl;
-  
+  // (none)
 }
