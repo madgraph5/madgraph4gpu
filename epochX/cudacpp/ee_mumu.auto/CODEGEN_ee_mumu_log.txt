@@ -117,5 +117,5 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/src/. and /data/av
 quit
 
 real	0m1.035s
-user	0m0.891s
-sys	0m0.118s
+user	0m0.888s
+sys	0m0.122s
