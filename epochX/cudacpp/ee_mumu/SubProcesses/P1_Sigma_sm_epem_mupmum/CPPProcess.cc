@@ -380,39 +380,27 @@ namespace Proc
                             , const int nevt )           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
     const int maxtry0 = ( neppV > 16 ? neppV : 16 ); // 16, but at least neppV (otherwise the npagV loop does not even start)
-    fptype allMEsLast[maxtry0] = { 0 };
+    fptype_sv allMEsLast[maxtry0/neppV] = { 0 };
     const int maxtry = std::min( maxtry0, nevt ); // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
-    for ( int ievt = 0; ievt < maxtry; ++ievt )
+    for ( int ipagV = 0; ipagV < maxtry/neppV; ++ipagV )
     {
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-#ifndef MGONGPU_CPPSIMD
-      allMEs[ievt] = 0; // all zeros
-#else
-      allMEs[ievt/neppV][ievt%neppV] = 0; // all zeros
-#endif
+      allMEs[ipagV] = fptype_sv{0}; // all zeros
     }
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
       calculate_wavefunctions( ihel, allmomenta, allMEs, maxtry );
-      for ( int ievt = 0; ievt < maxtry; ++ievt )
+      for ( int ipagV = 0; ipagV < maxtry/neppV; ++ipagV )
       {
         // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-#ifndef MGONGPU_CPPSIMD
-        const bool differs = ( allMEs[ievt] != allMEsLast[ievt] );
-#else
-        const bool differs = ( allMEs[ievt/neppV][ievt%neppV] != allMEsLast[ievt] );
-#endif
+        const bool differs = maskor( allMEs[ipagV] != allMEsLast[ipagV] ); // true if any of the neppV events differs
         if ( differs )
         {
           //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
           isGoodHel[ihel] = true;
         }
-#ifndef MGONGPU_CPPSIMD
-        allMEsLast[ievt] = allMEs[ievt]; // running sum up to helicity ihel
-#else
-        allMEsLast[ievt] = allMEs[ievt/neppV][ievt%neppV]; // running sum up to helicity ihel
-#endif
+        allMEsLast[ipagV] = allMEs[ipagV]; // running sum up to helicity ihel
       }
     }
   }
