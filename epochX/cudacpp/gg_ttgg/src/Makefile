@@ -1,10 +1,10 @@
 INCFLAGS = -I.
 OPTFLAGS = -O3
-ifneq ($(shell $(CXX) --version | grep ^Intel),)
+###ifneq ($(shell $(CXX) --version | grep ^Intel),)
 OMPFLAGS?=
-else
-OMPFLAGS?= -fopenmp
-endif
+###else
+###OMPFLAGS?= -fopenmp
+###endif
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
 CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
@@ -62,6 +62,7 @@ endif
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
+AVX=none
 $(info AVX=$(AVX))
 ifeq ($(UNAME_P),ppc64le)
   ifeq ($(AVX),sse4)
