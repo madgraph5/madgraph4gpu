@@ -17,13 +17,14 @@ fptypes="d"
 helinls="0"
 suffs="/"
 makeonly=0
+makeclean=0
 detailed=0
 gtest=0
 verbose=0
 
 function usage()
 {
-  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-eemumu] [-ggtt] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-eemumu] [-ggtt] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly] [-makeclean] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -97,6 +98,9 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-makeonly" ]; then
     makeonly=1
+    shift
+  elif [ "$1" == "-makeclean" ]; then
+    makeclean=1
     shift
   elif [ "$1" == "-detailed" ]; then
     detailed=1
@@ -222,6 +226,7 @@ for suff in $suffs; do
       export HELINL=$helinl
       for fptype in $fptypes; do
         export FPTYPE=$fptype
+        if [ "${makeclean}" == "1" ]; then make cleanall; echo; fi        
         make AVX=none; echo
         if [ "${avxall}" == "1" ]; then make AVX=sse4; echo; fi
         if [ "${avxall}" == "1" ]; then make AVX=avx2; echo; fi
@@ -240,6 +245,7 @@ for suff in $suffs; do
   if [ "${ggtt}" == "1" ]; then 
     pushd $topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx >& /dev/null
     pwd
+    if [ "${makeclean}" == "1" ]; then make cleanall; echo; fi        
     make; echo
     popd >& /dev/null
   fi
@@ -247,6 +253,7 @@ for suff in $suffs; do
   if [ "${ggttgg}" == "1" ]; then 
     pushd $topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg >& /dev/null
     pwd
+    if [ "${makeclean}" == "1" ]; then make cleanall; echo; fi        
     make; echo
     popd >& /dev/null
   fi
