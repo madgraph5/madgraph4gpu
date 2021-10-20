@@ -94,7 +94,7 @@ for step in $steps; do
             printf "*** ./throughputX.sh $args | tee $logfile"
             printf "\n%80s\n" |tr " " "*"
             mkdir -p $(dirname $logfile)
-            ./throughputX.sh $args | tee $logfile
+            ./throughputX.sh $args -gtest | tee $logfile
           fi
         done
       done

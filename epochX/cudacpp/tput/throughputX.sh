@@ -18,11 +18,12 @@ helinls="0"
 suffs="/"
 makeonly=0
 detailed=0
+gtest=0
 verbose=0
 
 function usage()
 {
-  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-eemumu] [-ggtt] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly] [-detailed] [-v]"
+  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-eemumu] [-ggtt] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -99,6 +100,11 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-detailed" ]; then
     detailed=1
+    shift
+  elif [ "$1" == "-gtest" ]; then
+    # For simplicity a gtest runTest.exe is executed for each build where check.exe is executed
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options -gtest and -nocpp are incompatible"; usage; fi
+    gtest=1
     shift
   elif [ "$1" == "-v" ]; then
     verbose=1
@@ -380,6 +386,13 @@ for exe in $exes; do
       echo "-------------------------------------------------------------------------"
       export OMP_NUM_THREADS=$(nproc --all)
       runExe $exe "$exeArgs"
+      unset OMP_NUM_THREADS
+    fi
+    if [ "${gtest}" == "1" ]; then
+      echo "-------------------------------------------------------------------------"
+      exe2=${exe/check/runTest}
+      echo "runExe $exe2"
+      $exe2 2>&1 | tail -1
     fi
   elif [ "${exe%%/gcheck*}" != "${exe}" ]; then 
     runNcu $exe "$ncuArgs"
