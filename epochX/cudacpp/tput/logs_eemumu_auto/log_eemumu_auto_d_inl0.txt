@@ -2,20 +2,20 @@
 /afs/cern.ch/user/a/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.auto/SubProcesses/P1_Sigma_sm_epem_mupmum
 make: Nothing to be done for `all'.
 
-DATE: 2021-10-20_07:41:28
+DATE: 2021-10-20_08:03:29
 
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 =========================================================================
 runExe /afs/cern.ch/user/a/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.auto/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe -p 2048 256 12 OMP=
 Process                     = SIGMA_SM_EPEM_MUPMUM_CUDA [nvcc 11.4.120 (gcc 9.2.0)] [inlineHel=0]
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
-EvtsPerSec[MatrixElems] (3) = ( 6.931761e+08                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.339606e+09                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 6.741623e+08                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.339153e+09                 )  sec^-1
 MeanMatrixElemValue         = ( 1.371706e-02 +- 3.270315e-06 )  GeV^0
-TOTAL       :     1.364671 sec
-     1,180,900,183      cycles:u                  #    0.898 GHz                    
-     2,405,625,699      instructions:u            #    2.04  insn per cycle         
-       1.666974879 seconds time elapsed
+TOTAL       :     1.209047 sec
+     1,180,875,402      cycles:u                  #    0.897 GHz                    
+     2,403,131,695      instructions:u            #    2.04  insn per cycle         
+       1.512298031 seconds time elapsed
 ==PROF== Profiling "sigmaKin": launch__registers_per_thread 128
 ==PROF== Profiling "sigmaKin": sm__sass_average_branch_targets_threads_uniform.pct 100%
 =========================================================================
@@ -23,13 +23,13 @@ runExe /afs/cern.ch/user/a/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 9.2.0] [inlineHel=0]
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = SCALAR ('none': ~vector[1], no SIMD)
-EvtsPerSec[MatrixElems] (3) = ( 1.119632e+06                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.119632e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.119761e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.119761e+06                 )  sec^-1
 MeanMatrixElemValue         = ( 1.371706e-02 +- 3.270315e-06 )  GeV^0
-TOTAL       :     8.059413 sec
-    21,265,603,267      cycles:u                  #    2.633 GHz                    
-    50,157,672,929      instructions:u            #    2.36  insn per cycle         
-       8.080266594 seconds time elapsed
+TOTAL       :     8.061932 sec
+    21,263,178,427      cycles:u                  #    2.632 GHz                    
+    50,157,672,925      instructions:u            #    2.36  insn per cycle         
+       8.083110610 seconds time elapsed
 =Symbols in CPPProcess.o= (~sse4:  567) (avx2:    0) (512y:    0) (512z:    0)
 =========================================================================
 

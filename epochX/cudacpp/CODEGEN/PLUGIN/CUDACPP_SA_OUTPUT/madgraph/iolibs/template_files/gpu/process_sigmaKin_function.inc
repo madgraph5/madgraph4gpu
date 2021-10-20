@@ -1,27 +1,31 @@
-#ifndef __CUDACC__
-    const int maxtry = 10;
-    static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
-    static bool sigmakin_goodhel[ncomb] = { false };
-#endif
-
-#ifndef __CUDACC__
-    const int npagV = nevt/neppV;
-    for ( int ievt = 0; ievt < nevt; ++ievt )
-#endif
+#ifdef __CUDACC__
     {
       // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
       fptype_sv& allMEsThisEvt = allMEs[ievt];
       allMEsThisEvt = 0;
-
-#ifdef __CUDACC__
       // CUDA - using precomputed good helicities
       for ( int ighel = 0; ighel < cNGoodHel; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
         calculate_wavefunctions( ihel, allmomenta, &allMEsThisEvt );
       }
+      // Set the final average |M|^2 for this event in the output array for all events
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      allMEs[ievt] = allMEsThisEvt;
+      //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
+    }
 #else
+    const int maxtry = 10;
+    static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
+    static bool sigmakin_goodhel[ncomb] = { false };
+    const int npagV = nevt/neppV;
+    for ( int ievt = 0; ievt < nevt; ++ievt )
+    {
+      // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      fptype_sv& allMEsThisEvt = allMEs[ievt];
+      allMEsThisEvt = 0;
       // C++ - compute good helicities within this loop
       fptype allMEsThisEvtLast = 0; // check for good helicities
       for ( int ihel = 0; ihel < ncomb; ihel++ )
@@ -35,21 +39,17 @@
           allMEsThisEvtLast = allMEsThisEvt;
         }
       }
-#endif
-
       // Set the final average |M|^2 for this event in the output array for all events
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
       allMEs[ievt] = allMEsThisEvt;
-
-#ifndef __CUDACC__
       if ( sigmakin_itry <= maxtry )
         sigmakin_itry++;
       //if ( sigmakin_itry == maxtry )
       //  for (int ihel = 0; ihel < ncomb; ihel++ )
       //    printf( "sigmakin: ihelgood %%2d %%d\n", ihel, sigmakin_goodhel[ihel] );
-#endif
       //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
+#endif
 
     // PART 2 - FINALISATION (after calculate_wavefunctions)
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
