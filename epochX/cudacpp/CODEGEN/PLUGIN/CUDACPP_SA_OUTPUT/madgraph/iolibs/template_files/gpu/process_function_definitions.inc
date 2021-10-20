@@ -68,7 +68,7 @@ namespace Proc
     assert( sizeof(cxtype) == 2 * sizeof(fptype) );
 #ifndef __CUDACC__
     // SANITY CHECK: momenta AOSOA uses vectors with the same size as fptype_v
-    //assert( neppV == mgOnGpu::neppM );
+    assert( neppV == mgOnGpu::neppM );
 #endif
   }
 
