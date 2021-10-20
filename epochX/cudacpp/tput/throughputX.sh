@@ -127,10 +127,10 @@ exes=
 for suff in $suffs; do
 
   #=====================================
-  # CUDA (NEW eemumu/epochX - manual)
+  # CUDA (eemumu/epochX - manual/auto)
   #=====================================
   if [ "${cuda}" == "1" ]; then
-    if [ "${eemumu}" == "1" ] && [ "${suff}" != ".auto/" ]; then 
+    if [ "${eemumu}" == "1" ]; then 
       for helinl in $helinls; do
         for fptype in $fptypes; do
           exes="$exes $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_${fptype}_inl${helinl}/gcheck.exe"
@@ -140,10 +140,10 @@ for suff in $suffs; do
   fi
   
   #=====================================
-  # C++ (NEW eemumu/epochX - manual)
+  # C++ (eemumu/epochX - manual/auto)
   #=====================================
   if [ "${cpp}" == "1" ]; then 
-    if [ "${eemumu}" == "1" ] && [ "${suff}" != ".auto/" ]; then 
+    if [ "${eemumu}" == "1" ]; then 
       for helinl in $helinls; do
         for fptype in $fptypes; do
           exes="$exes $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_${fptype}_inl${helinl}/check.exe"
@@ -159,24 +159,6 @@ for suff in $suffs; do
           fi
         done
       done
-    fi
-  fi
-
-  #=====================================
-  # CUDA (OLD eemumu/epochX - auto)
-  #=====================================
-  if [ "${cuda}" == "1" ]; then
-    if [ "${eemumu}" == "1" ] && [ "${suff}" == ".auto/" ]; then 
-      exes="$exes $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
-    fi
-  fi
-
-  #=====================================
-  # C++ (OLD eemumu/epochX - auto)
-  #=====================================
-  if [ "${cpp}" == "1" ]; then 
-    if [ "${eemumu}" == "1" ] && [ "${suff}" == ".auto/" ]; then 
-      exes="$exes $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum/check.exe"
     fi
   fi
 
@@ -226,7 +208,7 @@ done
 
 for suff in $suffs; do
 
-  if [ "${eemumu}" == "1" ] && [ "${suff}" != ".auto/" ]; then 
+  if [ "${eemumu}" == "1" ]; then 
     export USEBUILDDIR=1
     pushd $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
     pwd
@@ -247,14 +229,6 @@ for suff in $suffs; do
     export USEBUILDDIR=
     export HELINL=
     export FPTYPE=
-  fi
-
-  if [ "${eemumu}" == "1" ] && [ "${suff}" == ".auto/" ]; then 
-    pushd $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
-    pwd
-    ###make; echo
-    make AVX=none; echo
-    popd >& /dev/null
   fi
 
   if [ "${ggtt}" == "1" ]; then 
@@ -418,4 +392,3 @@ echo "========================================================================="
 # Workaround for reading of data files
 popd >& /dev/null
 printf "\nTEST COMPLETED\n"
-

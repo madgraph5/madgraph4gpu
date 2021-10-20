@@ -74,7 +74,7 @@ for step in $steps; do
           inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; fi
           args="${proc}${auto}${flt}${inl}"
           # TEMPORARY - START
-          if [ "${proc}" == "-eemumu" ] && [ "${suff}" == "manu" ]; then
+          if [ "${proc}" == "-eemumu" ]; then
             args="${args} -avxall"
           elif [ "${helinl}" == "1" ] || [ "${fptype}" == "f" ]; then
             ###printf "\n%80s\n" |tr " " "*"
