@@ -19,7 +19,6 @@ CXX     ?= g++
 UNAME_P := $(shell uname -p)
 
 # Set the default AVX (vectorization) choice
-AVX=none
 ifeq ($(AVX),)
   ifeq ($(UNAME_P),ppc64le)
     ###override AVX = none
