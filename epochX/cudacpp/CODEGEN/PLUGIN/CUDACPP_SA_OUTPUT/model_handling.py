@@ -1068,7 +1068,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             self.params2order = {}            
         for coup in re.findall(self.findcoupling, call):
             if coup == 'ZERO':
-                call = call.replace('pars->ZERO', '0.')
+                ###call = call.replace('pars->ZERO', '0.')
+                call = call.replace('m_pars->ZERO', '0.') # AV
                 continue
             sign = '' 
             if coup.startswith('-'):
@@ -1087,10 +1088,12 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if coup not in alias:
                 alias[coup] = len(alias)
             if name == "cIPD":
-                call = call.replace('pars->%s%s' % (sign, coup), 
+                ###call = call.replace('pars->%s%s' % (sign, coup), 
+                call = call.replace('m_pars->%s%s' % (sign, coup), # AV
                                     '%s%s[%s]' % (sign, name, alias[coup]))
             else:
-                call = call.replace('pars->%s%s' % (sign, coup), 
+                ###call = call.replace('pars->%s%s' % (sign, coup), 
+                call = call.replace('m_pars->%s%s' % (sign, coup), # AV
                                     ###'%scxtype(cIPC[%s],cIPC[%s])' % 
                                     '%scxmake( cIPC[%s], cIPC[%s] )' % 
                                     (sign, 2*alias[coup],2*alias[coup]+1))
@@ -1320,22 +1323,20 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             # compute wf
             arg = {'routine_name': aloha_writers.combine_name(\
                                             '%s' % l[0], l[1:], outgoing, flag,True),
-                   ###'wf': ("w[%%(%d)d]," * len(argument.get('mothers'))) % \
-                   'wf': ("w_sv[%%(%d)d], " * len(argument.get('mothers'))) % \
-                   tuple(range(len(argument.get('mothers')))),
-                   ###'coup': ("pars->%%(coup%d)s," * len(argument.get('coupling'))) % \
-                   'coup': ("pars->%%(coup%d)s, " * len(argument.get('coupling'))) % \
-                   tuple(range(len(argument.get('coupling'))))           
+                   ###'wf': ("w[%%(%d)d]," * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))),
+                   'wf': ("w_sv[%%(%d)d], " * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))), # AV
+                   ###'coup': ("pars->%%(coup%d)s," * len(argument.get('coupling'))) % tuple(range(len(argument.get('coupling'))))
+                   'coup': ("m_pars->%%(coup%d)s, " * len(argument.get('coupling'))) % tuple(range(len(argument.get('coupling')))) # AV
                    }
             if isinstance(argument, helas_objects.HelasWavefunction):
                 ###arg['out'] = 'w[%(out)d]'
                 arg['out'] = 'w_sv[%(out)d]'
                 if aloha.complex_mass:
                     ###arg['mass'] = "pars->%(CM)s,"
-                    arg['mass'] = "pars->%(CM)s, "
+                    arg['mass'] = "m_pars->%(CM)s, " # AV
                 else:
                     ###arg['mass'] = "pars->%(M)s,pars->%(W)s,"
-                    arg['mass'] = "pars->%(M)s, pars->%(W)s, "
+                    arg['mass'] = "m_pars->%(M)s, m_pars->%(W)s, " # AV
             else:        
                 ###arg['out'] = '&amp[%(out)d]'
                 ###arg['out2'] = 'amp[%(out)d]'

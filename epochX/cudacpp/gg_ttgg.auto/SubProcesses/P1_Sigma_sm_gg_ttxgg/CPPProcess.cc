@@ -117,39 +117,39 @@ namespace Proc
 
       // Wavefunction(s) for diagram number 1
 #ifdef __CUDACC__
-      vxxxxx(allmomenta, m_0., cHel[ihel][0], -1, w_sv[0], 0);
+      vxxxxx(allmomenta, 0., cHel[ihel][0], -1, w_sv[0], 0);
 #else
-      vxxxxx(allmomenta, m_0., cHel[ihel][0], -1, w_sv[0], ipagV, 0);
+      vxxxxx(allmomenta, 0., cHel[ihel][0], -1, w_sv[0], ipagV, 0);
 #endif
 
 #ifdef __CUDACC__
-      vxxxxx(allmomenta, m_0., cHel[ihel][1], -1, w_sv[1], 1);
+      vxxxxx(allmomenta, 0., cHel[ihel][1], -1, w_sv[1], 1);
 #else
-      vxxxxx(allmomenta, m_0., cHel[ihel][1], -1, w_sv[1], ipagV, 1);
+      vxxxxx(allmomenta, 0., cHel[ihel][1], -1, w_sv[1], ipagV, 1);
 #endif
 
 #ifdef __CUDACC__
-      oxxxxx(allmomenta, m_cIPD[0], cHel[ihel][2], +1, w_sv[2], 2);
+      oxxxxx(allmomenta, cIPD[0], cHel[ihel][2], +1, w_sv[2], 2);
 #else
-      oxxxxx(allmomenta, m_cIPD[0], cHel[ihel][2], +1, w_sv[2], ipagV, 2);
+      oxxxxx(allmomenta, cIPD[0], cHel[ihel][2], +1, w_sv[2], ipagV, 2);
 #endif
 
 #ifdef __CUDACC__
-      ixxxxx(allmomenta, m_cIPD[0], cHel[ihel][3], -1, w_sv[3], 3);
+      ixxxxx(allmomenta, cIPD[0], cHel[ihel][3], -1, w_sv[3], 3);
 #else
-      ixxxxx(allmomenta, m_cIPD[0], cHel[ihel][3], -1, w_sv[3], ipagV, 3);
+      ixxxxx(allmomenta, cIPD[0], cHel[ihel][3], -1, w_sv[3], ipagV, 3);
 #endif
 
 #ifdef __CUDACC__
-      vxxxxx(allmomenta, m_0., cHel[ihel][4], +1, w_sv[4], 4);
+      vxxxxx(allmomenta, 0., cHel[ihel][4], +1, w_sv[4], 4);
 #else
-      vxxxxx(allmomenta, m_0., cHel[ihel][4], +1, w_sv[4], ipagV, 4);
+      vxxxxx(allmomenta, 0., cHel[ihel][4], +1, w_sv[4], ipagV, 4);
 #endif
 
 #ifdef __CUDACC__
-      vxxxxx(allmomenta, m_0., cHel[ihel][5], +1, w_sv[5], 5);
+      vxxxxx(allmomenta, 0., cHel[ihel][5], +1, w_sv[5], 5);
 #else
-      vxxxxx(allmomenta, m_0., cHel[ihel][5], +1, w_sv[5], ipagV, 5);
+      vxxxxx(allmomenta, 0., cHel[ihel][5], +1, w_sv[5], ipagV, 5);
 #endif
 
       VVV1P0_1( w_sv[0], w_sv[1], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[6] );
