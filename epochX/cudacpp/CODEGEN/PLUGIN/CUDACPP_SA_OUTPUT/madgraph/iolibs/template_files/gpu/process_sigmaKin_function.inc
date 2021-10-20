@@ -1,7 +1,20 @@
-#ifdef __CUDACC__
+    // PART 0 - INITIALISATION (before calculate_wavefunctions)
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+#ifdef __CUDACC__
     allMEs[ievt] = 0;
+#else
+    const int npagV = nevt/neppV;
+    for ( int ipagV = 0; ipagV < npagV; ++ipagV )
+    {
+      allMEs[ipagV] = fptype_sv{ 0 };
+    }
+#endif
+
+    // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
+    // (in both CUDA and C++, using precomputed good helicities)
+    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+#ifdef __CUDACC__
     // CUDA - using precomputed good helicities
     for ( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
@@ -13,7 +26,6 @@
     const int maxtry = 10;
     static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
     static bool sigmakin_goodhel[ncomb] = { false };
-    const int npagV = nevt/neppV;
     for ( int ievt = 0; ievt < nevt; ++ievt )
     {
       // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
