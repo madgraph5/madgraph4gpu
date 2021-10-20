@@ -69,7 +69,11 @@ namespace mgOnGpu
   //const int nbpgMAX = 2048;
 
   // Maximum number of threads per block
+#ifdef MGONGPU_NTPBMAX
+  const int ntpbMAX = MGONGPU_NTPBMAX;
+#else
   const int ntpbMAX = 256;
+#endif
 
   // There is no vectorization in ggttgg yet...
 #undef MGONGPU_CPPSIMD

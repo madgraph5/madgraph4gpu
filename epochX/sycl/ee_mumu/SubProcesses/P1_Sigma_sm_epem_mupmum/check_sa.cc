@@ -34,14 +34,22 @@ bool is_number(const char *s) {
   return (int)strlen(s) == t - s;
 }
 
+bool check_digits(std::string s) {
+    return std::all_of(
+        s.begin(), s.end(),
+        [](char c) { return isdigit(static_cast<unsigned char>(c)); }
+    );
+}
+
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
-            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j]"
+            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--param_card <PARAM_CARD_FILE>] [--json_file <JSON_FILE>] [--vendor_id <VENDOR_ID>]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
   std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
   std::cout << "The '-d' flag only controls if nan's emit warnings" << std::endl;
+  std::cout << "The '--help|-h' flag prints this message" << std::endl;
   return ret;
 }
 
@@ -75,15 +83,125 @@ template<typename T = fptype>
 std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{ new T[N] }; };
 #endif
 
+void print_device_type( const sycl::info::device_type dt ) {
+    if (dt == sycl::info::device_type::cpu) {
+        std::cout << "cpu"; }
+    if (dt == sycl::info::device_type::gpu) {
+        std::cout << "gpu"; }
+    if (dt == sycl::info::device_type::accelerator) {
+        std::cout << "accelerator"; }
+    if (dt == sycl::info::device_type::custom) {
+        std::cout << "custom"; }
+    if (dt == sycl::info::device_type::automatic) {
+        std::cout << "automatic"; }
+    if (dt == sycl::info::device_type::host) {
+        std::cout << "host"; }
+    if (dt == sycl::info::device_type::all) {
+        std::cout << "all"; }
+}
+
+void print_device_info() {
+    auto platforms = sycl::platform::get_platforms();
+    for (const auto &platform: platforms) {
+        std::cout << platform.get_backend() << ':' << std::endl;
+        std::cout << platform.get_info<sycl::info::platform::name>() << ':' << std::endl;
+        for (const auto &device: platform.get_devices()) {
+            std::cout << "    name: " << device.get_info<sycl::info::device::name>() << std::endl;
+            std::cout << "    vendor: " << device.get_info<sycl::info::device::vendor>() << std::endl;
+            std::cout << "    vendor_id: " << device.get_info<sycl::info::device::vendor_id>() << std::endl;
+            std::cout << "    driver_version: " << device.get_info<sycl::info::device::driver_version>() << std::endl;
+            std::cout << "    global_mem_size: " << device.get_info<sycl::info::device::global_mem_size>() << std::endl;
+            std::cout << "    local_mem_size: " << device.get_info<sycl::info::device::local_mem_size>() << std::endl;
+
+            auto workgroup_size = device.get_info<sycl::info::device::max_work_group_size>();
+            auto max_compute_units = device.get_info<sycl::info::device::max_compute_units>();
+            //auto n_groups = (num_steps - 1) / workgroup_size + 1;
+            //n_groups = std::min(decltype(n_groups)(max_compute_units),n_groups);  // make groups max number of compute units or less
+            std::cout << "    workgroup_size: " << workgroup_size << std::endl;
+            std::cout << "    max_compute_units: " << max_compute_units << std::endl;
+
+            std::cout << "    usm_support: ";
+            if (device.has(sycl::aspect::usm_device_allocations)) {
+                std::cout << "yes" << std::endl;
+            } else {
+                std::cout << "no" << std::endl;
+            }
+            std::cout << "    device_type: ";
+            print_device_type(device.get_info<sycl::info::device::device_type>());
+            std::cout << std::endl;
+        }
+    }
+    std::cout << std::endl;
+}
+
+class user_input_selector : public sycl::device_selector {
+    public:
+        std::vector<uint32_t> d_ids;
+        std::vector<sycl::device> devices;
+        uint32_t d_id;
+        user_input_selector();
+        user_input_selector(uint32_t);
+        int operator()(const sycl::device& dev) const override {
+            auto device_id = dev.get_info<sycl::info::device::vendor_id>();
+            if (device_id == d_id) {
+                return 1;
+            }
+            return -1;
+        }
+};
+
+user_input_selector::user_input_selector(void) {
+    bool device_chosen = false;
+    devices = sycl::device::get_devices();
+    for (const auto &device: devices) {
+        d_ids.push_back(device.get_info<sycl::info::device::vendor_id>());
+    }
+    print_device_info();
+    std::string d_id_str;
+    std::cout << "Choose device by entering vendor_id: ";
+    std::cin >> d_id_str;
+    bool are_digits = check_digits(d_id_str);
+    if (are_digits) {
+        d_id = std::stoi(d_id_str);
+        if (std::find(d_ids.begin(), d_ids.end(), d_id) != d_ids.end()) {
+            device_chosen = true;
+        }
+    }
+    while (!device_chosen) {
+        std::cout << "Invalid vendor_id. Please choose from ( ";
+        for (auto _d_id: d_ids) {
+            std::cout << _d_id << " ";
+        }
+        std::cout << ")." << std::endl;
+        std::cout << "Choose device by entering vendor_id: ";
+        std::cin >> d_id_str;
+        are_digits = check_digits(d_id_str);
+        if (are_digits) {
+            d_id = std::stoi(d_id_str);
+            if (std::find(d_ids.begin(), d_ids.end(), d_id) != d_ids.end()) {
+                device_chosen = true;
+            }
+        }
+    }
+}
+
+user_input_selector::user_input_selector(uint32_t _d_id) {
+    d_id = _d_id;
+}
+
+sycl::queue get_sycl_queue(bool device_chosen,uint32_t d_id) {
+    if (device_chosen) {
+        sycl::queue q( user_input_selector{d_id} );
+        return q;
+    } else {
+        sycl::queue q( user_input_selector{} );
+        return q;
+    }
+}
+
+
 int main(int argc, char **argv)
 {
-  sycl::queue q_ct1{ sycl::gpu_selector{} };
-  auto device = q_ct1.get_device();
-  std::cout << "Selected " << device.get_info<sycl::info::device::name>()
-            << " on platform "
-            << device.get_info<sycl::info::device::platform>().get_info<sycl::info::platform::name>()
-            << std::endl;
-
   // READ COMMAND LINE ARGUMENTS
   bool verbose = false;
   bool debug = false;
@@ -96,6 +214,12 @@ int main(int argc, char **argv)
   int jsonrun = 0;
   int numvec[5] = {0,0,0,0,0};
   int nnum = 0;
+  std::string param_card = "../../Cards/param_card.dat";
+  bool json_file_bool = false;
+  std::string json_file = "";
+  std::string d_id_str;
+  uint32_t d_id;
+  bool device_chosen = false;
 
   for (int argn = 1; argn < argc; ++argn) {
     if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
@@ -109,6 +233,43 @@ int main(int argc, char **argv)
     else if (strcmp(argv[argn], "--json") == 0 ||
              strcmp(argv[argn], "-j") == 0)
       json = true;
+    else if (strcmp(argv[argn], "--help") == 0 ||
+             strcmp(argv[argn], "-h") == 0)
+      return usage(argv[0]);
+    else if (strcmp(argv[argn], "--param_card") == 0) {
+      param_card = argv[argn + 1];
+      argn++;
+    }
+    else if (strcmp(argv[argn], "--json_file") == 0) {
+      json_file = argv[argn + 1];
+      json_file_bool = true;
+      argn++;
+    }
+    else if (strcmp(argv[argn], "--vendor_id") == 0) {
+        d_id_str = argv[argn + 1];
+
+        std::vector<uint32_t> d_ids;
+        if (check_digits(d_id_str)) {
+            d_id = std::stoi(d_id_str);
+            device_chosen = true;
+            auto devices = sycl::device::get_devices();
+            for (const auto &device: devices) {
+                d_ids.push_back(device.get_info<sycl::info::device::vendor_id>());
+            }
+            if (!(std::find(d_ids.begin(), d_ids.end(), d_id) != d_ids.end())) {
+                std::cout << "Invalid vendor_id. Please choose from ( ";
+                for (auto _d_id: d_ids) {
+                    std::cout << _d_id << " ";
+                }
+                std::cout << "). Terminating. Exit Code: -999" << std::endl;
+                return -999;
+            }
+        } else {
+            std::cout << std::endl << "Invalid vendor_id, must be integer. Terminating. Exit Code: -998" << std::endl << std::endl;
+            return usage(argv[0], -998);
+        }
+        argn++;
+    }
     else if (is_number(argv[argn]) && nnum<5)
       numvec[nnum++] = atoi(argv[argn]);
     else
@@ -157,6 +318,15 @@ int main(int argc, char **argv)
   const int nevt = ndim; // number of events in one iteration == number of GPU threads
   const int nevtALL = niter*nevt; // total number of ALL events in all iterations
 
+  //sycl::queue q_ct1{ sycl::gpu_selector{} };
+  sycl::queue q_ct1 = get_sycl_queue(device_chosen,d_id);
+
+  auto device = q_ct1.get_device();
+  std::cout << "Selected " << device.get_info<sycl::info::device::name>()
+            << " on platform "
+            << device.get_info<sycl::info::device::platform>().get_info<sycl::info::platform::name>()
+            << std::endl;
+
   if (verbose)
     std::cout << "# iterations: " << niter << std::endl;
 
@@ -196,7 +366,7 @@ int main(int argc, char **argv)
 #endif
 
   // Read param_card and set parameters
-  process.initProc("../../Cards/param_card.dat");
+  process.initProc(param_card);
   const fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   //const fptype energy = 91.2; // Ecms = 91.2 GeV (Z peak)
   //const fptype energy = 0.100; // Ecms = 100 MeV (well below the Z peak, pure em scattering)
@@ -751,6 +921,9 @@ int main(int argc, char **argv)
   {
     std::string jsonFileName = std::to_string(jsondate) + "-perf-test-run" + std::to_string(jsonrun) + ".json";
     jsonFileName = "./perf/data/" + jsonFileName;
+    if (json_file_bool) {
+        jsonFileName = json_file;
+    }
 
     //Checks if file exists
     std::ifstream fileCheck;
