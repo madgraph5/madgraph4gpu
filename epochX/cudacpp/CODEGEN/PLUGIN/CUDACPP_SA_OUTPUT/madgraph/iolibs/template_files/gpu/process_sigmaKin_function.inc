@@ -19,7 +19,7 @@
     for ( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
-      calculate_wavefunctions( ihel, allmomenta, &(allMEs[ievt]) );
+      calculate_wavefunctions( ihel, allmomenta, allMEs );
     }
     //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
 #else
