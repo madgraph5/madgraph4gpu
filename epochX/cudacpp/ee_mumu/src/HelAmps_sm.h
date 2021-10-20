@@ -1,9 +1,8 @@
 //==========================================================================
-// This file has been automatically generated for CUDA/C++ standalone
+// This file has been automatically generated for CUDA/C++ standalone by
 // MadGraph5_aMC@NLO v. 2.9.5, 2021-08-22
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
-// GPU Template
 //==========================================================================
 
 #ifndef HelAmps_sm_H
