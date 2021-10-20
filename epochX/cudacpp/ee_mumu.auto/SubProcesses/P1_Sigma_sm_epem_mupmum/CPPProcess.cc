@@ -429,6 +429,7 @@ namespace Proc
 #endif
 
 #ifndef __CUDACC__
+    const int npagV = nevt/neppV;
     for ( int ievt = 0; ievt < nevt; ++ievt )
 #endif
     {
@@ -479,17 +480,12 @@ namespace Proc
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-#ifdef MGONGPU_CPPSIMD
+#ifdef __CUDACC__
+    allMEs[ievt] /= (fptype)denominators;
+#else
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
       allMEs[ipagV] /= (fptype)denominators;
-    }
-#else
-#ifndef __CUDACC__
-    for ( int ievt = 0; ievt < nevt; ++ievt )
-#endif
-    {
-      allMEs[ievt] /= (fptype)denominators;
     }
 #endif
     mgDebugFinalise();
