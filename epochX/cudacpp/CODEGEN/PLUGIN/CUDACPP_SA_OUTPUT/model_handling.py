@@ -815,11 +815,10 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     //printf( "calculate_wavefunctions: nevt %d\\n", nevt );
-#endif
-
-    // The number of colors
-    constexpr int ncolor = 1;
-
+#endif\n""")
+            ret_lines.append("    // The number of colors")
+            ret_lines.append("    constexpr int ncolor = %i;" % len(color_amplitudes[0]))
+            ret_lines.append("""
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
     cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
