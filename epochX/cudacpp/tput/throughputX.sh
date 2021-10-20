@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set +x
+set +x # not verbose
+set -e # fail on error
 
 omp=0
 avxall=0
@@ -12,16 +13,17 @@ ggtt=0
 ggttgg=0
 div=0
 req=0
-df="d"
-inl="0"
-auto="/"
+fptypes="d"
+helinls="0"
+suffs="/"
 makeonly=0
 detailed=0
+gtest=0
 verbose=0
 
 function usage()
 {
-  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-eemumu] [-ggtt] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly] [-detailed] [-v]"
+  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-eemumu] [-ggtt] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -70,34 +72,39 @@ while [ "$1" != "" ]; do
     req=1
     shift
   elif [ "$1" == "-flt" ]; then
-    if [ "${df}" == "f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
-    df="d f"
+    if [ "${fptypes}" == "f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
+    fptypes="d f"
     shift
   elif [ "$1" == "-fltonly" ]; then
-    if [ "${df}" == "d f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
-    df="f"
+    if [ "${fptypes}" == "d f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
+    fptypes="f"
     shift
   elif [ "$1" == "-inl" ]; then
-    if [ "${inl}" == "1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
-    inl="0 1"
+    if [ "${helinls}" == "1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
+    helinls="0 1"
     shift
   elif [ "$1" == "-inlonly" ]; then
-    if [ "${inl}" == "0 1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
-    inl="1"
+    if [ "${helinls}" == "0 1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
+    helinls="1"
     shift
   elif [ "$1" == "-auto" ]; then
-    if [ "${auto}" == "1" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
-    auto="/ .auto/"
+    if [ "${suffs}" == ".auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
+    suffs="/ .auto/"
     shift
   elif [ "$1" == "-autoonly" ]; then
-    if [ "${auto}" == "/ .auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
-    auto=".auto/"
+    if [ "${suffs}" == "/ .auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
+    suffs=".auto/"
     shift
   elif [ "$1" == "-makeonly" ]; then
     makeonly=1
     shift
   elif [ "$1" == "-detailed" ]; then
     detailed=1
+    shift
+  elif [ "$1" == "-gtest" ]; then
+    # For simplicity a gtest runTest.exe is executed for each build where check.exe is executed
+    if [ "${cpp}" == "0" ]; then echo "ERROR! Options -gtest and -nocpp are incompatible"; usage; fi
+    gtest=1
     shift
   elif [ "$1" == "-v" ]; then
     verbose=1
@@ -114,7 +121,8 @@ done
 ###  ggttgg=1
 ###fi
 
-echo -e "\n********************************************************************************\n"
+###echo -e "\n********************************************************************************\n"
+printf "\n"
 
 ##########################################################################
 # PART 1 - compile the list of the executables which should be run
@@ -122,57 +130,41 @@ echo -e "\n*********************************************************************
 
 exes=
 
-for suf in $auto; do
+for suff in $suffs; do
 
   #=====================================
-  # CUDA (FUTURE eemumu/epochX)
-  #=====================================
-  #if [ "${cuda}" == "1" ]; then
-  #  for helinl in $inl; do
-  #    for fptype in $df; do
-  #      exes="$exes $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_${fptype}_inl${helinl}/gcheck.exe"
-  #    done
-  #  done
-  #fi
-  
-  #=====================================
-  # C++ (FUTURE eemumu/epochX)
-  #=====================================
-  #for helinl in $inl; do
-  #  for fptype in $df; do
-  #    if [ "${cpp}" == "1" ]; then 
-  #      exes="$exes $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_${fptype}_inl${helinl}/check.exe"
-  #    fi
-  #    if [ "${avxall}" == "1" ]; then 
-  #      exes="$exes $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum/build.sse4_${fptype}_inl${helinl}/check.exe"
-  #      exes="$exes $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum/build.avx2_${fptype}_inl${helinl}/check.exe"
-  #    fi
-  #    if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
-  #      if [ "${cpp}" == "1" ]; then 
-  #        exes="$exes $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y_${fptype}_inl${helinl}/check.exe"
-  #      fi
-  #      if [ "${avxall}" == "1" ]; then 
-  #        exes="$exes $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z_${fptype}_inl${helinl}/check.exe"
-  #      fi
-  #    fi
-  #  done
-  #done
-
-  #=====================================
-  # CUDA (eemumu/epochX)
+  # CUDA (eemumu/epochX - manual/auto)
   #=====================================
   if [ "${cuda}" == "1" ]; then
     if [ "${eemumu}" == "1" ]; then 
-      exes="$exes $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
+      for helinl in $helinls; do
+        for fptype in $fptypes; do
+          exes="$exes $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_${fptype}_inl${helinl}/gcheck.exe"
+        done
+      done
     fi
   fi
-
+  
   #=====================================
-  # C++ (eemumu/epochX)
+  # C++ (eemumu/epochX - manual/auto)
   #=====================================
-  if [ "${eemumu}" == "1" ]; then 
-    if [ "${cpp}" == "1" ]; then 
-      exes="$exes $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum/check.exe"
+  if [ "${cpp}" == "1" ]; then 
+    if [ "${eemumu}" == "1" ]; then 
+      for helinl in $helinls; do
+        for fptype in $fptypes; do
+          exes="$exes $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_${fptype}_inl${helinl}/check.exe"
+          if [ "${avxall}" == "1" ]; then 
+            exes="$exes $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum/build.sse4_${fptype}_inl${helinl}/check.exe"
+            exes="$exes $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum/build.avx2_${fptype}_inl${helinl}/check.exe"
+          fi
+          if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
+            exes="$exes $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y_${fptype}_inl${helinl}/check.exe"
+            if [ "${avxall}" == "1" ]; then 
+              exes="$exes $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z_${fptype}_inl${helinl}/check.exe"
+            fi
+          fi
+        done
+      done
     fi
   fi
 
@@ -181,16 +173,16 @@ for suf in $auto; do
   #=====================================
   if [ "${cuda}" == "1" ]; then
     if [ "${ggtt}" == "1" ]; then 
-      exes="$exes $topdir/epochX/cudacpp/gg_tt${suf}SubProcesses/P1_Sigma_sm_gg_ttx/gcheck.exe"
+      exes="$exes $topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx/gcheck.exe"
     fi
   fi
 
   #=====================================
   # C++ (ggtt/epochX)
   #=====================================
-  if [ "${ggtt}" == "1" ]; then 
-    if [ "${cpp}" == "1" ]; then 
-      exes="$exes $topdir/epochX/cudacpp/gg_tt${suf}SubProcesses/P1_Sigma_sm_gg_ttx/check.exe"
+  if [ "${cpp}" == "1" ]; then 
+    if [ "${ggtt}" == "1" ]; then 
+      exes="$exes $topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx/check.exe"
     fi
   fi
 
@@ -199,16 +191,16 @@ for suf in $auto; do
   #=====================================
   if [ "${cuda}" == "1" ]; then
     if [ "${ggttgg}" == "1" ]; then 
-      exes="$exes $topdir/epochX/cudacpp/gg_ttgg${suf}SubProcesses/P1_Sigma_sm_gg_ttxgg/gcheck.exe"
+      exes="$exes $topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg/gcheck.exe"
     fi
   fi
 
   #=====================================
   # C++ (ggttgg/epochX)
   #=====================================
-  if [ "${ggttgg}" == "1" ]; then 
-    if [ "${cpp}" == "1" ]; then 
-      exes="$exes $topdir/epochX/cudacpp/gg_ttgg${suf}SubProcesses/P1_Sigma_sm_gg_ttxgg/check.exe"
+  if [ "${cpp}" == "1" ]; then 
+    if [ "${ggttgg}" == "1" ]; then 
+      exes="$exes $topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg/check.exe"
     fi
   fi
 
@@ -220,43 +212,40 @@ done
 
 ###echo "exes=$exes"
 
-for suf in $auto; do
-
-  #export USEBUILDDIR=1
-  #pushd $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
-  #pwd
-  #for helinl in $inl; do
-  #  export HELINL=$helinl
-  #  for fptype in $df; do 
-  #    export FPTYPE=$fptype
-  #    make AVX=none; echo
-  #    if [ "${avxall}" == "1" ]; then make AVX=sse4; echo; fi
-  #    if [ "${avxall}" == "1" ]; then make AVX=avx2; echo; fi
-  #    if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then # skip avx512 if not supported!
-  #      if [ "${cpp}" == "1" ]; then make AVX=512y; echo; fi # use 512y as C++ ref even if avx2 is faster on clang
-  #      if [ "${avxall}" == "1" ]; then make AVX=512z; echo; fi
-  #    fi
-  #  done
-  #done
-  #popd >& /dev/null
-  #export FPTYPE=
+for suff in $suffs; do
 
   if [ "${eemumu}" == "1" ]; then 
-    pushd $topdir/epochX/cudacpp/ee_mumu${suf}SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
+    export USEBUILDDIR=1
+    pushd $topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
     pwd
-    make; echo
+    for helinl in $helinls; do
+      export HELINL=$helinl
+      for fptype in $fptypes; do
+        export FPTYPE=$fptype
+        make AVX=none; echo
+        if [ "${avxall}" == "1" ]; then make AVX=sse4; echo; fi
+        if [ "${avxall}" == "1" ]; then make AVX=avx2; echo; fi
+        if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then # skip avx512 if not supported!
+          if [ "${cpp}" == "1" ]; then make AVX=512y; echo; fi # use 512y as C++ ref even if avx2 is faster on clang
+          if [ "${avxall}" == "1" ]; then make AVX=512z; echo; fi
+        fi
+      done
+    done
     popd >& /dev/null
+    export USEBUILDDIR=
+    export HELINL=
+    export FPTYPE=
   fi
 
   if [ "${ggtt}" == "1" ]; then 
-    pushd $topdir/epochX/cudacpp/gg_tt${suf}SubProcesses/P1_Sigma_sm_gg_ttx >& /dev/null
+    pushd $topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx >& /dev/null
     pwd
     make; echo
     popd >& /dev/null
   fi
 
   if [ "${ggttgg}" == "1" ]; then 
-    pushd $topdir/epochX/cudacpp/gg_ttgg${suf}SubProcesses/P1_Sigma_sm_gg_ttxgg >& /dev/null
+    pushd $topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg >& /dev/null
     pwd
     make; echo
     popd >& /dev/null
@@ -264,13 +253,13 @@ for suf in $auto; do
 
 done
 
-if [ "${makeonly}" == "1" ]; then 
-  echo "BUILD COMPLETED - exit"; exit 0
-fi
+if [ "${makeonly}" == "1" ]; then printf "BUILD COMPLETED\n"; exit 0; fi
 
 ##########################################################################
 # PART 3 - run all the executables which should be run
 ##########################################################################
+
+printf "DATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
 
 function runExe() {
   exe=$1
@@ -397,6 +386,13 @@ for exe in $exes; do
       echo "-------------------------------------------------------------------------"
       export OMP_NUM_THREADS=$(nproc --all)
       runExe $exe "$exeArgs"
+      unset OMP_NUM_THREADS
+    fi
+    if [ "${gtest}" == "1" ]; then
+      echo "-------------------------------------------------------------------------"
+      exe2=${exe/check/runTest}
+      echo "runExe $exe2"
+      $exe2 2>&1 | tail -1
     fi
   elif [ "${exe%%/gcheck*}" != "${exe}" ]; then 
     runNcu $exe "$ncuArgs"
@@ -408,4 +404,4 @@ echo "========================================================================="
 
 # Workaround for reading of data files
 popd >& /dev/null
-
+printf "\nTEST COMPLETED\n"
