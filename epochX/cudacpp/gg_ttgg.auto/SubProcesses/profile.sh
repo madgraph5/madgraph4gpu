@@ -1,17 +1,19 @@
 #!/bin/bash
 
 usage(){
-  echo "Usage (GUI analysis): $0 [-cc] [-l label] [-p #blocks #threads #iterations]"
+  echo "Usage (GUI analysis): $0 -l label [-cc] [-p #blocks #threads #iterations]"
   echo "Usage (CL analysis):  $0 -nogui [-p #blocks #threads #iterations]"
   exit 1
 }
 
 # Default options
 tag=cu
-###cuargs="16384 32 12" # NEW DEFAULT 20.08.10 (faster on local, and allows comparison to global and shared memory)
+###cuargs="16384 32 12" # NEW DEFAULT 2020.08.10 (faster on local, and allows comparison to global and shared memory)
 ###ccargs="  256 32 12" # Similar to cuda config, but faster than using "16384 32 12"
-cuargs="16384 32 2" # faster tests
-ccargs="  256 32 2" # faster tests
+##cuargs="16384 32 2" # faster tests
+##ccargs="  256 32 2" # faster tests
+cuargs="2048 256 1" # NEW DEFAULT 2021.04.06 (matches "-p 2048 256 12" but only one iteration)
+ccargs="2048 256 1" # NEW DEFAULT 2021.04.06 (matches "-p 2048 256 12" but only one iteration)
 args=
 label=
 
@@ -23,7 +25,7 @@ while [ "$1" != "" ]; do
       tag=cc
       shift
     else
-      echo "ERROR! Incompaticle options -gui and -cc"
+      echo "ERROR! Incompatible options -gui and -cc"
       usage
     fi
   # Fast no-GUI profiling with ncu
@@ -32,7 +34,7 @@ while [ "$1" != "" ]; do
       tag=nogui
       shift
     else
-      echo "ERROR! Incompaticle options -gui and -cc"
+      echo "ERROR! Incompatible options -gui and -cc"
       usage
     fi
   # Override blocks/threads/iterations
@@ -61,9 +63,11 @@ done
 if [ "$tag" == "cc" ]; then
   if [ "$args" == "" ]; then args=$ccargs; fi
   cmd="./check.exe -p $args"
+  make
 else
   if [ "$args" == "" ]; then args=$cuargs; fi
   cmd="./gcheck.exe -p $args"
+  make
 fi
 
 ncu="ncu"
@@ -85,14 +89,18 @@ fi
 ###ncu="${ncu} --sampling-interval 0"  # MAX sampling frequency
 ###ncu="${ncu} --sampling-interval 31" # MIN sampling frequency
 
+# METRICS FOR COALESCED MEMORY ACCESS (AOSOA etc)
 # See https://developer.nvidia.com/blog/using-nsight-compute-to-inspect-your-kernels/
 # These used to be called gld_transactions and global_load_requests
 # See also https://docs.nvidia.com/nsight-compute/2019.5/NsightComputeCli/index.html#nvprof-metric-comparison
 # See also https://stackoverflow.com/questions/60535867
 metrics=l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum
 
-# Add registers
+# METRICS FOR REGISTER PRESSURE
 metrics+=,launch__registers_per_thread
+
+# METRICS FOR DIVERGENCE
+metrics+=,sm__sass_average_branch_targets_threads_uniform.pct
 
 # GUI analysis
 if [ "$tag" != "nogui" ]; then
@@ -113,6 +121,7 @@ if [ "$tag" != "nogui" ]; then
   else
     logs=logs
   fi
+  if [ ! -d $logs ]; then mkdir -p $logs; fi
   trace=$logs/eemumuAV_${tag}_`date +%m%d_%H%M`_b${arg1}_t${arg2}_i${arg3}
   if [ "$label" != "" ]; then trace=${trace}_${label}; fi
   
@@ -151,6 +160,7 @@ else
   echo "PROFILING: ${cmd}"
   echo "${ncu} --metrics ${metrics} ${cmd}"
   echo
-  ${ncu} --metrics ${metrics} ${cmd}
+  echo sudo LD_LIBRARY_PATH=${LD_LIBRARY_PATH} $(which ${ncu}) --metrics ${metrics}  --target-processes all ${cmd}
+  sudo LD_LIBRARY_PATH=${LD_LIBRARY_PATH} $(which ${ncu}) --metrics ${metrics}  --target-processes all ${cmd}
 
 fi

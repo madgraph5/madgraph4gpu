@@ -4,7 +4,7 @@ cd $(dirname $0)
 
 function usage()
 {
-  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttgg)> [-auto|-autoonly] [-flt|-fltonly] [-inl|-inlonly] [-makeonly]"
+  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttgg)> [-auto|-autoonly] [-flt|-fltonly] [-inl|-inlonly] [-makeonly] [-makeclean]"
   exit 1
 }
 
@@ -45,7 +45,17 @@ for arg in $*; do
     if [ "${helinls}" == "0 1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
     helinls="1"
   elif [ "$arg" == "-makeonly" ]; then
-    steps="make"
+    if [ "${steps}" == "make test" ]; then
+      steps="make"
+    elif [ "${steps}" == "makeclean make test" ]; then
+      steps="makeclean make"
+    fi
+  elif [ "$arg" == "-makeclean" ]; then
+    if [ "${steps}" == "make test" ]; then
+      steps="makeclean make test"
+    elif [ "${steps}" == "make" ]; then
+      steps="makeclean make"
+    fi
   else
     echo "ERROR! Invalid option '$arg'"; usage
   fi  
@@ -73,17 +83,13 @@ for step in $steps; do
         for helinl in $helinls; do
           inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; fi
           args="${proc}${auto}${flt}${inl}"
-          # TEMPORARY - START
-          if [ "${proc}" == "-eemumu" ]; then
-            args="${args} -avxall"
-          elif [ "${helinl}" == "1" ] || [ "${fptype}" == "f" ]; then
-            ###printf "\n%80s\n" |tr " " "*"
-            ###printf "*** WARNING! fptype=${fptype} helinl=${helinl} are not yet supported for ${proc#-}_${suff}"
-            ###printf "\n%80s\n" |tr " " "*"
-            continue
-          fi
-          # TEMPORARY - END
-          if [ "${step}" == "make" ]; then
+          args="${args} -avxall" # avx, fptype and helinl are now supported for all processes
+          if [ "${step}" == "makeclean" ]; then
+            printf "\n%80s\n" |tr " " "*"
+            printf "*** ./throughputX.sh -makecleanonly $args"
+            printf "\n%80s\n" |tr " " "*"
+            if ! ./throughputX.sh -makecleanonly $args; then exit 1; fi
+          elif [ "${step}" == "make" ]; then
             printf "\n%80s\n" |tr " " "*"
             printf "*** ./throughputX.sh -makeonly $args"
             printf "\n%80s\n" |tr " " "*"
