@@ -9,7 +9,7 @@
 #include "CPPProcess.h"
 #include "Memory.h"
 #ifdef __CUDACC__
-#include "grambo.cu"
+#include "rambo.cc"
 #else
 #include "rambo.h"
 #endif
