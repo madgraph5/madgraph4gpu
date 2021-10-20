@@ -195,11 +195,41 @@ namespace Proc
       allMEsLast = allMEs[ievt]; // running sum up to helicity ihel for event ievt
     }
   }
+#else
+  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
+                            fptype_sv* allMEs,           // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
+                            bool* isGoodHel              // output: isGoodHel[ncomb] - device array
+                            , const int nevt )           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+  {
+    const int maxtry0 = ( neppV > 16 ? neppV : 16 ); // 16, but at least neppV (otherwise the npagV loop does not even start)
+    fptype_sv allMEsLast[maxtry0/neppV] = { 0 };
+    const int maxtry = std::min( maxtry0, nevt ); // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
+    for ( int ipagV = 0; ipagV < maxtry/neppV; ++ipagV )
+    {
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+      allMEs[ipagV] = fptype_sv{0}; // all zeros
+    }
+    for ( int ihel = 0; ihel < ncomb; ihel++ )
+    {
+      //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
+      calculate_wavefunctions( ihel, allmomenta, allMEs, maxtry );
+      for ( int ipagV = 0; ipagV < maxtry/neppV; ++ipagV )
+      {
+        // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+        const bool differs = maskor( allMEs[ipagV] != allMEsLast[ipagV] ); // true if any of the neppV events differs
+        if ( differs )
+        {
+          //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
+          isGoodHel[ihel] = true;
+        }
+        allMEsLast[ipagV] = allMEs[ipagV]; // running sum up to helicity ihel
+      }
+    }
+  }
 #endif
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
   void sigmaKin_setGoodHel( const bool* isGoodHel ) // input: isGoodHel[ncomb] - host array
   {
     int nGoodHel = 0; // FIXME: assume process.nprocesses == 1 for the moment (eventually nGoodHel[nprocesses]?)
@@ -215,10 +245,14 @@ namespace Proc
         nGoodHel++;
       }
     }
+#ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cNGoodHel, &nGoodHel, sizeof(int) ) ); // FIXME: assume process.nprocesses == 1 for the moment
     checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb*sizeof(int) ) );
-  }
+#else
+    cNGoodHel = nGoodHel;
+    for ( int ihel = 0; ihel < ncomb; ihel++ ) cGoodHel[ihel] = goodHel[ihel];
 #endif
+  }
 
   //--------------------------------------------------------------------------
   // Evaluate |M|^2, part independent of incoming flavour

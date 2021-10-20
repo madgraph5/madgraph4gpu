@@ -471,11 +471,11 @@ int main(int argc, char **argv)
     // 3b. Copy MEs back from device to host
 
     // --- 0d. SGoodHel
-#ifdef __CUDACC__
     if ( iiter == 0 )
     {
       const std::string ghelKey = "0d SGoodHel";
       timermap.start( ghelKey );
+#ifdef __CUDACC__
       // ... 0d1. Compute good helicity mask on the device
       gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.get(), devMEs.get(), devIsGoodHel.get());
       checkCuda( cudaPeekAtLastError() );
@@ -483,8 +483,13 @@ int main(int argc, char **argv)
       checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(), nbytesIsGoodHel, cudaMemcpyDeviceToHost ) );
       // ... 0d3. Copy back good helicity list to constant memory on the device
       gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
-    }
+#else
+      // ... 0d1. Compute good helicity mask on the host
+      Proc::sigmaKin_getGoodHel(hstMomenta.get(), hstMEs.get(), hstIsGoodHel.get(), nevt);
+      // ... 0d2. Copy back good helicity list to static memory on the host
+      Proc::sigmaKin_setGoodHel(hstIsGoodHel.get());
 #endif
+    }
 
     // *** START THE OLD-STYLE TIMERS FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     double wavetime = 0; // calc plus copy

@@ -46,18 +46,18 @@ namespace Proc
 %(process_class_definitions)s
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
   __global__
-  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
+  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                             fptype_sv* allMEs,           // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
-                            bool* isGoodHel );           // output: isGoodHel[ncomb] - device array
+                            bool* isGoodHel              // output: isGoodHel[ncomb] - device array
+#ifndef __CUDACC__
+                            , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
+                            );
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
   void sigmaKin_setGoodHel( const bool* isGoodHel ); // input: isGoodHel[ncomb] - host array
-#endif
 
   //--------------------------------------------------------------------------
 

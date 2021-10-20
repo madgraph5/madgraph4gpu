@@ -538,6 +538,14 @@ fptype_v fpmin( const fptype& a, const fptype_v& b )
 }
 */
 
+inline
+bool maskor( const bool_v& mask )
+{
+  bool out = false;
+  for ( int i=0; i<neppV; i++ ) out = out || mask[i];
+  return out;
+}
+
 #else
 
 inline
@@ -550,6 +558,12 @@ inline
 cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
 {
   return ( mask ? a : b );
+}
+
+inline
+bool maskor( const bool& mask )
+{
+  return mask;
 }
 
 #endif

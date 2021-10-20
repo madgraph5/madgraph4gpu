@@ -30,11 +30,8 @@
       allMEs[ievt] += deltaMEs;
       //printf( "calculate_wavefunction: %%6d %%2d %%f\n", ievt, ihel, allMEs[ievt] );
 #else
-      *allMEs += deltaMEs;
-/*
       allMEs[ipagV] += deltaMEs;
       //printf( "calculate_wavefunction: %%6d %%2d %%f\n", ipagV, ihel, allMEs[ipagV] ); // FIXME for MGONGPU_CPPSIMD
-*/
 #endif
     }
 

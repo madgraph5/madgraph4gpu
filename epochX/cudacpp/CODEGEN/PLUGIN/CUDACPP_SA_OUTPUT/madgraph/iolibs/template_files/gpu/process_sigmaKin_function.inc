@@ -14,48 +14,16 @@
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-#ifdef __CUDACC__
-    // CUDA - using precomputed good helicities
     for ( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
+#ifdef __CUDACC__
       calculate_wavefunctions( ihel, allmomenta, allMEs );
-    }
-    //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
 #else
-    const int maxtry = 10;
-    static unsigned long long sigmakin_itry = 0; // first iteration over nevt events
-    static bool sigmakin_goodhel[ncomb] = { false };
-    for ( int ievt = 0; ievt < nevt; ++ievt )
-    {
-      // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
-      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-      fptype_sv& allMEsThisEvt = allMEs[ievt];
-      allMEsThisEvt = 0;
-      // C++ - compute good helicities within this loop
-      fptype allMEsThisEvtLast = 0; // check for good helicities
-      for ( int ihel = 0; ihel < ncomb; ihel++ )
-      {
-        if ( sigmakin_itry > maxtry && !sigmakin_goodhel[ihel] ) continue;
-        // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-        calculate_wavefunctions( ihel, allmomenta, &allMEsThisEvt, ievt );
-        if ( sigmakin_itry <= maxtry )
-        {
-          if ( !sigmakin_goodhel[ihel] && allMEsThisEvt > allMEsThisEvtLast ) sigmakin_goodhel[ihel] = true;
-          allMEsThisEvtLast = allMEsThisEvt;
-        }
-      }
-      // Set the final average |M|^2 for this event in the output array for all events
-      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-      allMEs[ievt] = allMEsThisEvt;
-      if ( sigmakin_itry <= maxtry )
-        sigmakin_itry++;
-      //if ( sigmakin_itry == maxtry )
-      //  for (int ihel = 0; ihel < ncomb; ihel++ )
-      //    printf( "sigmakin: ihelgood %%2d %%d\n", ihel, sigmakin_goodhel[ihel] );
+      calculate_wavefunctions( ihel, allmomenta, allMEs, nevt );
+#endif
       //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
-#endif
 
     // PART 2 - FINALISATION (after calculate_wavefunctions)
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event

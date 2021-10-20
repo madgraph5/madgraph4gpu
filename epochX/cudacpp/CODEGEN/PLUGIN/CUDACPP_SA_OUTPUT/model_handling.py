@@ -810,7 +810,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             ret_lines.append(indent+'const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM')
             ret_lines.append(indent+'fptype_sv* allMEs            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities')
             ret_lines.append('#ifndef __CUDACC__')
-            ret_lines.append(indent+', const int ipagV')
+            ret_lines.append(indent+', const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)')
             ret_lines.append('#endif')
             ret_lines.append(indent+')')
             ret_lines.append('  //ALWAYS_INLINE // attributes are not permitted in a function definition')
@@ -827,8 +827,22 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             ret_lines.append('    cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)')
             ret_lines.append('    cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram\n')
             ret_lines.append('    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)')
-            ret_lines.append('    cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page\n')
-            ret_lines.append('    // Calculate wavefunctions for all processes')
+            ret_lines.append('    cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page')
+            ret_lines.append("""
+    // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
+#ifndef __CUDACC__
+    const int npagV = nevt / neppV;
+    // ** START LOOP ON IPAGV **
+#ifdef _OPENMP
+    // (NB gcc9 or higher, or clang, is required)
+    // - default(none): no variables are shared by default
+    // - shared: as the name says
+    // - private: give each thread its own copy, without initialising
+    // - firstprivate: give each thread its own copy, and initialise with value from outside
+#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV) private (amp_sv,w_sv,jamp_sv)
+#endif
+    for ( int ipagV = 0; ipagV < npagV; ++ipagV )
+#endif""")
             ret_lines.append('    {') # NB This is closed in process_matrix.inc
             helas_calls = self.helas_call_writer.get_matrix_element_calls(\
                                                     self.matrix_elements[0],
