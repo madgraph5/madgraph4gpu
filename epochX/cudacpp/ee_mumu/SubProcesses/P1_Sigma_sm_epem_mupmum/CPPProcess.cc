@@ -188,19 +188,14 @@ namespace Proc
 
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-#ifdef MGONGPU_CPPSIMD
-      allMEs[ipagV] += deltaMEs;
-      //printf( "calculate_wavefunction: %6d %2d %f\n", ipagV, ihel, allMEs[ipagV] ); // FIXME
-#else
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-#else
-      const int ievt = ipagV;
-#endif
       allMEs[ievt] += deltaMEs;
       //printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt] );
+#else
+      allMEs[ipagV] += deltaMEs;
+      //printf( "calculate_wavefunction: %6d %2d %f\n", ipagV, ihel, allMEs[ipagV] ); // FIXME for MGONGPU_CPPSIMD
 #endif
-
     }
 
     mgDebug( 1, __FUNCTION__ );
