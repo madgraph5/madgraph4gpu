@@ -60,14 +60,14 @@ std::map<unsigned int, ReferenceData> readReferenceData(const std::string& refFi
   return referenceData;
 }
 
-template<typename Fptype>
-void MadgraphTestFptype<Fptype>::madgraphTestBody_eemumu()
+
+TEST_P(MadgraphTest, CompareMomentaAndME)
 {
   // Set to dump events:
   constexpr bool dumpEvents = false;
-  constexpr Fptype toleranceMomenta = std::is_same<Fptype, double>::value ? 8.E-11 : 3.E-2;
-  constexpr Fptype toleranceMEs     = std::is_same<Fptype, double>::value ? 1.E-6  : 1.E-3;
-  constexpr Fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
+  constexpr double energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
+  const double toleranceMomenta = (testDriver->precision == TestDriverBase::Precision::Double) ? 8.E-11 : 3.E-2;
+  const double toleranceMEs     = (testDriver->precision == TestDriverBase::Precision::Double) ? 1.E-6  : 1.E-3;
 
   std::string dumpFileName = std::string("dump_")
       + testing::UnitTest::GetInstance()->current_test_info()->name()
@@ -75,7 +75,7 @@ void MadgraphTestFptype<Fptype>::madgraphTestBody_eemumu()
   while (dumpFileName.find('/') != std::string::npos) {
     dumpFileName.replace(dumpFileName.find('/'), 1, "_");
   }
-  const std::string refFileName = "../../../../../test/eemumu/dump_CPUTest.eemumu.txt";
+  const std::string refFileName = testDriver->referenceFile();
 
   std::ofstream dumpFile;
   if ( dumpEvents )
@@ -85,7 +85,7 @@ void MadgraphTestFptype<Fptype>::madgraphTestBody_eemumu()
 
   // Read reference data
   std::map<unsigned int, ReferenceData> referenceData = readReferenceData(refFileName);
-  ASSERT_FALSE(TestWithParamFptype::HasFailure()); // It doesn't make any sense to continue if we couldn't read the reference file.
+  ASSERT_FALSE( HasFailure() ); // It doesn't make any sense to continue if we couldn't read the reference file.
 
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
@@ -99,7 +99,7 @@ void MadgraphTestFptype<Fptype>::madgraphTestBody_eemumu()
     testDriver->runSigmaKin(iiter);
 
     // --- Run checks on all events produced in this iteration
-    for (std::size_t ievt = 0; ievt < testDriver->nevt && !TestWithParamFptype::HasFailure(); ++ievt)
+    for (std::size_t ievt = 0; ievt < testDriver->nevt && ! HasFailure(); ++ievt)
     {
       if (dumpEvents) {
         ASSERT_TRUE(dumpFile.is_open()) << dumpFileName;
@@ -157,17 +157,3 @@ void MadgraphTestFptype<Fptype>::madgraphTestBody_eemumu()
     }
   }
 }
-
-TEST_P(MadgraphTestDouble, eemumu)
-{
-  madgraphTestBody_eemumu();
-}
-
-TEST_P(MadgraphTestFloat, eemumu)
-{
-  madgraphTestBody_eemumu();
-}
-
-// Fix errors in the upgrade of googletest from 1.10.0 to 1.11.0
-GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(MadgraphTestFloat);
-GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(MadgraphTestDouble);

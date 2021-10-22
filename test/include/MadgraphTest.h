@@ -4,6 +4,7 @@
 
 #include <array>
 #include <iomanip>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -14,8 +15,6 @@ struct ReferenceData {
   std::vector<double> MEs;
 };
 
-std::map<unsigned int, ReferenceData> readReferenceData(const std::string& refFileName);
-
 /**
  * Test driver providing a common interface for testing different implementations.
  * Users need to implement:
@@ -24,38 +23,51 @@ std::map<unsigned int, ReferenceData> readReferenceData(const std::string& refFi
  *
  * Usage:
  * ```
- * class TestImplementation : public BaseTest {
- *   <implement functions>
+ * class TestImplementation : public TestDriverBase {
+ *   <override all pure-virtual functions with Madgraph workflow>
  * }
  *
- * TEST_F(TestImplementation, <testName>) {
- *   <test code>
+ * class TestImplementation2 : public TestDriverBase {
+ *   <override all pure-virtual functions with a different Madgraph workflow>
  * }
+ *
+ * INSTANTIATE_TEST_SUITE_P( TestName,
+ *                           MadgraphTest,
+ *                           testing::Values( new TestImplementation, new TestImplementation2, ... ) );
+ *```
+ *
+ * For adapting the test workflow, see the .cc and adapt
+ *   TEST_P(MadgraphTest, CompareMomentaAndME)
+ *
+ * To add a test that should run with all test implementations above, add a new
+ *   TEST_P(MadgraphTest, <DoSomethingElse>)
  */
-template<typename Fptype>
 class TestDriverBase {
  public:
-  unsigned int nparticle = 4;
+  const unsigned int nparticle;
   static constexpr unsigned int np4 = 4;
   static constexpr unsigned int niter = 2;
   static constexpr unsigned int gpublocks = 2;
   static constexpr unsigned int gputhreads = 128;
   static constexpr unsigned int nevt = gpublocks * gputhreads;
+  const enum class Precision{ Double, Float } precision;
 
-  TestDriverBase() { }
+  TestDriverBase(unsigned int npart, Precision prec) : nparticle{npart}, precision{prec} { }
   virtual ~TestDriverBase() { }
+
+  virtual std::string referenceFile() const = 0;
 
   // ------------------------------------------------
   // Interface for retrieving info from madgraph
   // ------------------------------------------------
-  virtual Fptype getMomentum(std::size_t evtNo, unsigned int particleNo, unsigned int component) const = 0;
-  virtual Fptype getMatrixElement(std::size_t evtNo) const = 0;
+  virtual double getMomentum(std::size_t evtNo, unsigned int particleNo, unsigned int component) const = 0;
+  virtual double getMatrixElement(std::size_t evtNo) const = 0;
 
   // ------------------------------------------------
   // Interface for steering madgraph run
   // ------------------------------------------------
   virtual void prepareRandomNumbers(unsigned int iiter) = 0;
-  virtual void prepareMomenta(Fptype energy) = 0;
+  virtual void prepareMomenta(double energy) = 0;
   virtual void runSigmaKin(std::size_t iiter) = 0;
 
   // Print the requested event into the stream. If the reference data has enough events, it will be printed as well.
@@ -88,18 +100,15 @@ class TestDriverBase {
 };
 
 // Test class that's using the driver to run the test(s) below.
-template<typename Fptype>
-class MadgraphTestFptype : public testing::TestWithParam<std::function<TestDriverBase<Fptype>*()>> {
+class MadgraphTest : public testing::TestWithParam<TestDriverBase*> {
 protected:
-  std::unique_ptr<TestDriverBase<Fptype>> testDriver;
-  using TestWithParamFptype = testing::TestWithParam<std::function<TestDriverBase<Fptype>*()>>;
+  std::unique_ptr<TestDriverBase> testDriver;
+
 public:
-  MadgraphTestFptype() : TestWithParamFptype(), testDriver{ TestWithParamFptype::GetParam()() } {}
-  void madgraphTestBody_eemumu();
+  MadgraphTest() :
+    TestWithParam(),
+    testDriver{ GetParam() }
+  { }
 };
-
-typedef MadgraphTestFptype<float> MadgraphTestFloat;
-
-typedef MadgraphTestFptype<double> MadgraphTestDouble;
 
 #endif /* MADGRAPHTEST_H_ */
