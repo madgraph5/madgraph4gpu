@@ -167,7 +167,7 @@ struct CUDATest : public CUDA_CPU_TestBase {
     std::vector<double> rnd = CommonRandomNumbers::generate<double>(nRnarray, 1337 + iiter); // NB: HARDCODED DOUBLE!
     std::copy(rnd.begin(), rnd.end(), hstRnarray.get()); // NB: this may imply a conversion from double to float
     checkCuda( cudaMemcpy( devRnarray.get(), hstRnarray.get(),
-                           nRnarray * sizeof(decltype(devRnarray)::element_type), cudaMemcpyHostToDevice ) );
+                           nRnarray * sizeof(typename decltype(devRnarray)::element_type), cudaMemcpyHostToDevice ) );
   }
 
   void prepareMomenta(fptype energy) override {
@@ -178,10 +178,10 @@ struct CUDATest : public CUDA_CPU_TestBase {
     grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.get(), devMomenta.get(), devWeights.get() );
     // --- 2c. CopyDToH Weights
     checkCuda( cudaMemcpy( hstWeights.get(), devWeights.get(),
-                           nWeights * sizeof(decltype(hstWeights)::element_type), cudaMemcpyDeviceToHost ) );
+                           nWeights * sizeof(typename decltype(hstWeights)::element_type), cudaMemcpyDeviceToHost ) );
     // --- 2d. CopyDToH Momenta
     checkCuda( cudaMemcpy( hstMomenta.get(), devMomenta.get(),
-                           nMomenta * sizeof(decltype(hstMomenta)::element_type), cudaMemcpyDeviceToHost ) );
+                           nMomenta * sizeof(typename decltype(hstMomenta)::element_type), cudaMemcpyDeviceToHost ) );
   }
 
   void runSigmaKin(std::size_t iiter) override {
@@ -193,7 +193,7 @@ struct CUDATest : public CUDA_CPU_TestBase {
       checkCuda( cudaPeekAtLastError() );
       // ... 0d2. Copy back good helicity mask to the host
       checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(),
-                             mgOnGpu::ncomb * sizeof(decltype(hstIsGoodHel)::element_type), cudaMemcpyDeviceToHost ) );
+                             mgOnGpu::ncomb * sizeof(typename decltype(hstIsGoodHel)::element_type), cudaMemcpyDeviceToHost ) );
       // ... 0d3. Copy back good helicity list to constant memory on the device
       gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
     }
@@ -207,7 +207,7 @@ struct CUDATest : public CUDA_CPU_TestBase {
     checkCuda( cudaPeekAtLastError() );
 
     // --- 3b. CopyDToH MEs
-    checkCuda( cudaMemcpy( hstMEs.get(), devMEs.get(), nMEs * sizeof(decltype(hstMEs)::element_type), cudaMemcpyDeviceToHost ) );
+    checkCuda( cudaMemcpy( hstMEs.get(), devMEs.get(), nMEs * sizeof(typename decltype(hstMEs)::element_type), cudaMemcpyDeviceToHost ) );
   }
 
   fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
