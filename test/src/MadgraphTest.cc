@@ -70,6 +70,8 @@ void MadgraphTestFptype<Fptype>::madgraphTestBody()
   constexpr Fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
 
   std::string dumpFileName = std::string("dump_")
+      + testing::UnitTest::GetInstance()->current_test_info()->test_suite_name()
+      + '.'
       + testing::UnitTest::GetInstance()->current_test_info()->name()
       + ".txt";
   while (dumpFileName.find('/') != std::string::npos) {
@@ -84,8 +86,11 @@ void MadgraphTestFptype<Fptype>::madgraphTestBody()
   }
 
   // Read reference data
-  std::map<unsigned int, ReferenceData> referenceData = readReferenceData(refFileName);
-  ASSERT_FALSE(TestWithParamFptype::HasFailure()); // It doesn't make any sense to continue if we couldn't read the reference file.
+  std::map<unsigned int, ReferenceData> referenceData;
+  if ( ! dumpEvents ) {
+    referenceData = readReferenceData(refFileName);
+  }
+  ASSERT_FALSE( TestWithParamFptype::HasFailure() ); // It doesn't make any sense to continue if we couldn't read the reference file.
 
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
@@ -155,6 +160,10 @@ void MadgraphTestFptype<Fptype>::madgraphTestBody()
           referenceData[iiter].MEs[ievt],
           toleranceMEs * referenceData[iiter].MEs[ievt]);
     }
+  }
+
+  if ( dumpEvents ) {
+    std::cout << "Event dump written to " << dumpFileName << std::endl;
   }
 }
 
