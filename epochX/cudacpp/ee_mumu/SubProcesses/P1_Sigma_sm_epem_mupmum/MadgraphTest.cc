@@ -75,7 +75,7 @@ void MadgraphTestFptype<Fptype>::madgraphTestBody_eemumu()
   while (dumpFileName.find('/') != std::string::npos) {
     dumpFileName.replace(dumpFileName.find('/'), 1, "_");
   }
-  const std::string refFileName = "../../../../../test/eemumu/dump_CPUTest.eemumu.txt";
+  const std::string refFileName = testDriver->getRefFileName();
 
   std::ofstream dumpFile;
   if ( dumpEvents )

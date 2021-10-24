@@ -35,8 +35,8 @@ struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
   const std::size_t nWeights{ nevt };
   const std::size_t nMEs    { nevt };
 
-  CUDA_CPU_TestBase() :
-    TestDriverBase()
+  CUDA_CPU_TestBase( const std::string& refFileName ) :
+    TestDriverBase( refFileName )
   {
     TestDriverBase::nparticle = mgOnGpu::npar;
   }
@@ -61,8 +61,8 @@ struct CPUTest : public CUDA_CPU_TestBase {
   // ** WARNING EVIL EVIL **
   // The CPPProcess constructor has side effects on the globals Proc::cHel, which is needed in ME calculations.
   // Don't remove!
-  CPUTest() :
-    CUDA_CPU_TestBase(),
+  CPUTest( const std::string& refFileName ) :
+    CUDA_CPU_TestBase( refFileName ),
     process(niter, gpublocks, gputhreads, /*verbose=*/false)
   {
     process.initProc("../../Cards/param_card.dat");
@@ -154,8 +154,8 @@ struct CUDATest : public CUDA_CPU_TestBase {
   // ** WARNING EVIL EVIL **
   // The CPPProcess constructor has side effects on the globals Proc::cHel, which is needed in ME calculations.
   // Don't remove!
-  CUDATest() :
-    CUDA_CPU_TestBase(),
+  CUDATest( const std::string& refFileName ) :
+    CUDA_CPU_TestBase( refFileName ),
     process(niter, gpublocks, gputhreads, /*verbose=*/false)
   {
     process.initProc("../../Cards/param_card.dat");
@@ -226,6 +226,9 @@ struct CUDATest : public CUDA_CPU_TestBase {
 };
 #endif
 
+// Reference file name (process-dependent)
+#define theRefFileName "../../../../../test/ref/dump_CPUTest.Sigma_sm_epem_mupmum.txt"
+
 // Use two levels of macros to force stringification at the right level
 // (see https://gcc.gnu.org/onlinedocs/gcc-3.0.1/cpp_3.html#SEC17 and https://stackoverflow.com/a/3419392)
 // Google macro is in https://github.com/google/googletest/blob/master/googletest/include/gtest/gtest-param-test.h
@@ -234,13 +237,13 @@ struct CUDATest : public CUDA_CPU_TestBase {
 #define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name )        \
   INSTANTIATE_TEST_SUITE_P( prefix,                                     \
                             test_suite_name,                            \
-                            testing::Values( [](){ return new CPUTest; } ) );
+                            testing::Values( [](){ return new CPUTest( theRefFileName ); } ) );
 #define TESTID_GPU(s) s##_GPU
 #define XTESTID_GPU(s) TESTID_GPU(s)
 #define MG_INSTANTIATE_TEST_SUITE_GPU( prefix, test_suite_name )        \
   INSTANTIATE_TEST_SUITE_P( prefix,                                     \
                             test_suite_name,                            \
-                            testing::Values( [](){ return new CUDATest; } ) );
+                            testing::Values( [](){ return new CUDATest( theRefFileName ); } ) );
 
 #if defined MGONGPU_FPTYPE_DOUBLE
 
