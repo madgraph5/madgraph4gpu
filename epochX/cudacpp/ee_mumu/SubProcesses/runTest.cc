@@ -226,9 +226,6 @@ struct CUDATest : public CUDA_CPU_TestBase {
 };
 #endif
 
-// Reference file name (process-dependent)
-#define theRefFileName "../../../../../test/ref/dump_CPUTest.Sigma_sm_epem_mupmum.txt"
-
 // Use two levels of macros to force stringification at the right level
 // (see https://gcc.gnu.org/onlinedocs/gcc-3.0.1/cpp_3.html#SEC17 and https://stackoverflow.com/a/3419392)
 // Google macro is in https://github.com/google/googletest/blob/master/googletest/include/gtest/gtest-param-test.h
@@ -237,13 +234,13 @@ struct CUDATest : public CUDA_CPU_TestBase {
 #define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name )        \
   INSTANTIATE_TEST_SUITE_P( prefix,                                     \
                             test_suite_name,                            \
-                            testing::Values( [](){ return new CPUTest( theRefFileName ); } ) );
+                            testing::Values( [](){ return new CPUTest( MG_EPOCH_REFERENCE_FILE_NAME ); } ) );
 #define TESTID_GPU(s) s##_GPU
 #define XTESTID_GPU(s) TESTID_GPU(s)
 #define MG_INSTANTIATE_TEST_SUITE_GPU( prefix, test_suite_name )        \
   INSTANTIATE_TEST_SUITE_P( prefix,                                     \
                             test_suite_name,                            \
-                            testing::Values( [](){ return new CUDATest( theRefFileName ); } ) );
+                            testing::Values( [](){ return new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ); } ) );
 
 #if defined MGONGPU_FPTYPE_DOUBLE
 
