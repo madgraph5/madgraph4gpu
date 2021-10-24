@@ -58,12 +58,12 @@ function codeGenAndDiff()
   ###diff -c ${proc}.auto.NEW/${outproc}_log.txt ${proc}.auto # context diff
   diff ${proc}.auto.NEW/${outproc}_log.txt ${proc}.auto # normal diff
   echo -e "\n+++ Compare new and old generated code for $proc\n"
-  if diff ${BRIEF} --no-dereference -x '*log.txt' -x '*.o' -x '*.o.*' -x '*.a' -x '*.exe' -x 'lib' -r -c ${proc}.auto.NEW ${proc}.auto; then echo "New and old generated codes are identical"; else echo -e "\nWARNING! New and old generated codes differ"; fi
+  if diff ${BRIEF} --no-dereference -x '*log.txt' -x '*.o' -x '*.o.*' -x '*.a' -x '*.exe' -x 'lib' -x 'build.*' -x '.build.*' -x '*~' -r -c ${proc}.auto.NEW ${proc}.auto; then echo "New and old generated codes are identical"; else echo -e "\nWARNING! New and old generated codes differ"; fi
   popd >& /dev/null
   # Compare the newly generated code to the existing manually developed code for the specific process
   pushd ${OUTDIR} >& /dev/null
   echo -e "\n+++ Compare newly generated code to manually developed code for $proc\n"
-  if diff ${BRIEF} --no-dereference -x '*log.txt' -x '*.o' -x '*.o.*' -x '*.a' -x '*.exe' -x 'lib' -r -c ${proc}.auto.NEW ${proc}; then echo "Generated and manual codes are identical"; else echo -e "\nWARNING! Generated and manual codes differ"; fi
+  if diff ${BRIEF} --no-dereference -x '*log.txt' -x '*.o' -x '*.o.*' -x '*.a' -x '*.exe' -x 'lib' -x 'build.*' -x '.build.*' -x '*~' -r -c ${proc}.auto.NEW ${proc}; then echo "Generated and manual codes are identical"; else echo -e "\nWARNING! Generated and manual codes differ"; fi
   # Replace the existing generated code by the newly generated code if required
   if [ "${REPLACE}" == "1" ]; then
     echo -e "\n+++ Replace existing generated code for $proc (REPLACE=$REPLACE)\n"
