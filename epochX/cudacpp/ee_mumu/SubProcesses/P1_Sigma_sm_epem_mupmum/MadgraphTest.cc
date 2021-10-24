@@ -61,7 +61,7 @@ std::map<unsigned int, ReferenceData> readReferenceData(const std::string& refFi
 }
 
 template<typename Fptype>
-void MadgraphTestFptype<Fptype>::madgraphTestBody_eemumu()
+void MadgraphTestFptype<Fptype>::madgraphTestBody()
 {
   // Set to dump events:
   constexpr bool dumpEvents = false;
@@ -158,14 +158,14 @@ void MadgraphTestFptype<Fptype>::madgraphTestBody_eemumu()
   }
 }
 
-TEST_P(MadgraphTestDouble, eemumu)
+TEST_P(MadgraphTestDouble, ProcessSpecific) // NB: ProcessSpecific is just the name of the test
 {
-  madgraphTestBody_eemumu();
+  madgraphTestBody();
 }
 
-TEST_P(MadgraphTestFloat, eemumu)
+TEST_P(MadgraphTestFloat, ProcessSpecific) // NB: ProcessSpecific is just the name of the test
 {
-  madgraphTestBody_eemumu();
+  madgraphTestBody();
 }
 
 // Fix errors in the upgrade of googletest from 1.10.0 to 1.11.0

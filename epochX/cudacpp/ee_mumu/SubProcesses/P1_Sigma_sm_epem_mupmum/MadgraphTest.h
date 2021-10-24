@@ -98,7 +98,7 @@ protected:
   using TestWithParamFptype = testing::TestWithParam<std::function<TestDriverBase<Fptype>*()>>;
 public:
   MadgraphTestFptype() : TestWithParamFptype(), testDriver{ TestWithParamFptype::GetParam()() } {}
-  void madgraphTestBody_eemumu();
+  void madgraphTestBody();
 };
 
 typedef MadgraphTestFptype<float> MadgraphTestFloat;
