@@ -41,7 +41,7 @@ jobs:
     - name: make info
       run: make -C ${{ matrix.folder }} info
     - name: make
-      run: make OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
+      run: make AVX=-march=native OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make check
       run: make -C ${{ matrix.folder }} check
   GPU:
