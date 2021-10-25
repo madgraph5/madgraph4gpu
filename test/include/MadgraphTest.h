@@ -1,6 +1,6 @@
 // Stephan Hageboeck, CERN, 12/2020
 #ifndef MADGRAPHTEST_H_
-#define MADGRAPHTEST_H_
+#define MADGRAPHTEST_H_ 1
 
 #include <array>
 #include <iomanip>
@@ -37,7 +37,7 @@ class TestDriverBase {
 private:
   std::string m_refFileName;
 public:
-  unsigned int nparticle = 4;
+  unsigned int nparticle = 4; // NB This is a (non-static, non-const) instance variable which gets modified in runTest.cc
   static constexpr unsigned int np4 = 4;
   static constexpr unsigned int niter = 2;
   static constexpr unsigned int gpublocks = 2;
