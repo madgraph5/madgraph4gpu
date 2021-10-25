@@ -44,7 +44,8 @@ public:
   static constexpr unsigned int gputhreads = 128;
   static constexpr unsigned int nevt = gpublocks * gputhreads;
 
-  TestDriverBase( const std::string& refFileName ) : m_refFileName( refFileName ){ }
+  TestDriverBase( const std::string& refFileName = "" ) // default value "" is for backward compatibility
+    : m_refFileName( refFileName != "" ? refFileName : std::string( "../../../../../test/ref/dump_CPUTest.Sigma_sm_epem_mupmum.txt" ) ){}
   virtual ~TestDriverBase() { }
   const std::string& getRefFileName(){ return m_refFileName; }
 
