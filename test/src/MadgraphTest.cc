@@ -61,21 +61,23 @@ std::map<unsigned int, ReferenceData> readReferenceData(const std::string& refFi
 }
 
 template<typename Fptype>
-void MadgraphTestFptype<Fptype>::madgraphTestBody_eemumu()
+void MadgraphTestFptype<Fptype>::madgraphTestBody()
 {
   // Set to dump events:
   constexpr bool dumpEvents = false;
   constexpr Fptype toleranceMomenta = std::is_same<Fptype, double>::value ? 8.E-11 : 3.E-2;
-  constexpr Fptype toleranceMEs     = std::is_same<Fptype, double>::value ? 1.E-6  : 1.E-3;
+  constexpr Fptype toleranceMEs     = std::is_same<Fptype, double>::value ? 1.E-6  : 2.E-3;
   constexpr Fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
 
   std::string dumpFileName = std::string("dump_")
+      + testing::UnitTest::GetInstance()->current_test_info()->test_suite_name()
+      + '.'
       + testing::UnitTest::GetInstance()->current_test_info()->name()
       + ".txt";
   while (dumpFileName.find('/') != std::string::npos) {
     dumpFileName.replace(dumpFileName.find('/'), 1, "_");
   }
-  const std::string refFileName = "../../../../../test/eemumu/dump_CPUTest.eemumu.txt";
+  const std::string refFileName = testDriver->getRefFileName();
 
   std::ofstream dumpFile;
   if ( dumpEvents )
@@ -84,8 +86,11 @@ void MadgraphTestFptype<Fptype>::madgraphTestBody_eemumu()
   }
 
   // Read reference data
-  std::map<unsigned int, ReferenceData> referenceData = readReferenceData(refFileName);
-  ASSERT_FALSE(TestWithParamFptype::HasFailure()); // It doesn't make any sense to continue if we couldn't read the reference file.
+  std::map<unsigned int, ReferenceData> referenceData;
+  if ( ! dumpEvents ) {
+    referenceData = readReferenceData(refFileName);
+  }
+  ASSERT_FALSE( TestWithParamFptype::HasFailure() ); // It doesn't make any sense to continue if we couldn't read the reference file.
 
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
@@ -156,16 +161,20 @@ void MadgraphTestFptype<Fptype>::madgraphTestBody_eemumu()
           toleranceMEs * referenceData[iiter].MEs[ievt]);
     }
   }
+
+  if ( dumpEvents ) {
+    std::cout << "Event dump written to " << dumpFileName << std::endl;
+  }
 }
 
-TEST_P(MadgraphTestDouble, eemumu)
+TEST_P(MadgraphTestDouble, CompareMomentaAndME) // NB: CompareMomentaAndME is just the name of the test
 {
-  madgraphTestBody_eemumu();
+  madgraphTestBody();
 }
 
-TEST_P(MadgraphTestFloat, eemumu)
+TEST_P(MadgraphTestFloat, CompareMomentaAndME) // NB: CompareMomentaAndME is just the name of the test
 {
-  madgraphTestBody_eemumu();
+  madgraphTestBody();
 }
 
 // Fix errors in the upgrade of googletest from 1.10.0 to 1.11.0

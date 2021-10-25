@@ -35,8 +35,8 @@ struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
   const std::size_t nWeights{ nevt };
   const std::size_t nMEs    { nevt };
 
-  CUDA_CPU_TestBase() :
-    TestDriverBase()
+  CUDA_CPU_TestBase( const std::string& refFileName ) :
+    TestDriverBase( refFileName )
   {
     TestDriverBase::nparticle = mgOnGpu::npar;
   }
@@ -61,8 +61,8 @@ struct CPUTest : public CUDA_CPU_TestBase {
   // ** WARNING EVIL EVIL **
   // The CPPProcess constructor has side effects on the globals Proc::cHel, which is needed in ME calculations.
   // Don't remove!
-  CPUTest() :
-    CUDA_CPU_TestBase(),
+  CPUTest( const std::string& refFileName ) :
+    CUDA_CPU_TestBase( refFileName ),
     process(niter, gpublocks, gputhreads, /*verbose=*/false)
   {
     process.initProc("../../Cards/param_card.dat");
@@ -154,8 +154,8 @@ struct CUDATest : public CUDA_CPU_TestBase {
   // ** WARNING EVIL EVIL **
   // The CPPProcess constructor has side effects on the globals Proc::cHel, which is needed in ME calculations.
   // Don't remove!
-  CUDATest() :
-    CUDA_CPU_TestBase(),
+  CUDATest( const std::string& refFileName ) :
+    CUDA_CPU_TestBase( refFileName ),
     process(niter, gpublocks, gputhreads, /*verbose=*/false)
   {
     process.initProc("../../Cards/param_card.dat");
@@ -234,13 +234,13 @@ struct CUDATest : public CUDA_CPU_TestBase {
 #define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name )        \
   INSTANTIATE_TEST_SUITE_P( prefix,                                     \
                             test_suite_name,                            \
-                            testing::Values( [](){ return new CPUTest; } ) );
+                            testing::Values( [](){ return new CPUTest( MG_EPOCH_REFERENCE_FILE_NAME ); } ) );
 #define TESTID_GPU(s) s##_GPU
 #define XTESTID_GPU(s) TESTID_GPU(s)
 #define MG_INSTANTIATE_TEST_SUITE_GPU( prefix, test_suite_name )        \
   INSTANTIATE_TEST_SUITE_P( prefix,                                     \
                             test_suite_name,                            \
-                            testing::Values( [](){ return new CUDATest; } ) );
+                            testing::Values( [](){ return new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ); } ) );
 
 #if defined MGONGPU_FPTYPE_DOUBLE
 

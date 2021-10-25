@@ -915,7 +915,8 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_processidfile')
         template = open(pjoin(self.template_path,'gpu','epoch_process_id.h'),'r').read()
         replace_dict = {}
-        replace_dict['processid'] = self.get_process_name().upper()
+        replace_dict['processid'] = self.get_process_name()
+        replace_dict['processid_uppercase'] = self.get_process_name().upper()
         ff = open(pjoin(self.path, 'epoch_process_id.h'),'w')
         ff.write(template % replace_dict)
         ff.close()
