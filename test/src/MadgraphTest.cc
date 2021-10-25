@@ -167,12 +167,12 @@ void MadgraphTestFptype<Fptype>::madgraphTestBody()
   }
 }
 
-TEST_P(MadgraphTestDouble, ProcessSpecific) // NB: ProcessSpecific is just the name of the test
+TEST_P(MadgraphTestDouble, CompareMomentaAndME) // NB: CompareMomentaAndME is just the name of the test
 {
   madgraphTestBody();
 }
 
-TEST_P(MadgraphTestFloat, ProcessSpecific) // NB: ProcessSpecific is just the name of the test
+TEST_P(MadgraphTestFloat, CompareMomentaAndME) // NB: CompareMomentaAndME is just the name of the test
 {
   madgraphTestBody();
 }
