@@ -64,6 +64,7 @@ namespace Proc
                 bool debug = false );
 
     ~CPPProcess();
+    int * get_cHel_ptr();
 
     // Initialize process.
     virtual void initProc( std::string param_card_name );
@@ -126,13 +127,20 @@ SYCL_EXTERNAL
 void sigmaKin_getGoodHel(const fptype * allmomenta,  // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
 bool * isGoodHel,  // output: isGoodHel[ncomb] - device array
 sycl::nd_item<3> item_ct1,
+#ifndef MGONGPU_SYCL_USE_USM
 const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel
+#else
+int *cHel
+#endif
 );
 #endif
 
   //--------------------------------------------------------------------------
 
 #ifdef SYCL_LANGUAGE_VERSION
+#ifdef MGONGPU_SYCL_USE_USM
+SYCL_EXTERNAL
+#endif
 void sigmaKin_setGoodHel(const bool * isGoodHel, int * cNGoodHel_ptr, int* cGoodHel_ptr);  // input: isGoodHel[ncomb] - host array
 #endif
 
@@ -142,7 +150,11 @@ SYCL_EXTERNAL
 void sigmaKin(const fptype * allmomenta,  // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
 fptype * allMEs  // output: allMEs[nevt], final |M|^2 averaged over all helicities
 , sycl::nd_item<3> item_ct1,
+#ifndef MGONGPU_SYCL_USE_USM
 const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel,
+#else
+int *cHel,
+#endif
 int *cNGoodHel,
 int *cGoodHel
 #ifndef SYCL_LANGUAGE_VERSION

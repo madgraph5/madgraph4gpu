@@ -535,6 +535,10 @@ int main(int argc, char **argv)
     sumweigdiff += ( weightALL[ievtALL] - minweig );
   }
   double meanelem = minelem + sumelemdiff / ( nevtALL - nnan );
+  std::cout << "minelem: " << minelem << std::endl;
+  std::cout << "sumelemdiff: " << sumelemdiff << std::endl;
+  std::cout << "nevtALL: " << nevtALL << std::endl;
+  std::cout << "nnan: " << nnan << std::endl;
   double meanweig = minweig + sumweigdiff / ( nevtALL - nnan );
   double sqselemdiff = 0;
   double sqsweigdiff = 0;

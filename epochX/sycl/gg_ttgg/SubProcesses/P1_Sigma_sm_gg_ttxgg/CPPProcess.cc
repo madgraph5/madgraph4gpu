@@ -55,9 +55,13 @@ namespace Proc
   // to the running sum of |M|^2 over helicities for the given event
   void calculate_wavefunctions( int ihel,
 				const fptype *allmomenta,
-				fptype &meHelSum
-				, sycl::nd_item<3> item_ct1,
-				const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel
+				fptype &meHelSum,
+				sycl::nd_item<3> item_ct1,
+                                #ifndef MGONGPU_SYCL_USE_USM
+				    const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel
+				#else
+				    int *cHel 
+				#endif
 #ifndef SYCL_LANGUAGE_VERSION
 				, const int ievt
 #endif
@@ -81,38 +85,33 @@ namespace Proc
 
     // Wavefunction(s) for diagram number 1
 #ifdef SYCL_LANGUAGE_VERSION
-    vxxxxx( allmomenta, 0., cHel[ihel][0], -1, w[0], 0, item_ct1 );
+    #ifndef MGONGPU_SYCL_USE_USM
+        vxxxxx( allmomenta, 0., cHel[ihel][0], -1, w[0], 0, item_ct1 );
+        vxxxxx( allmomenta, 0., cHel[ihel][1], -1, w[1], 1, item_ct1 );
+        oxxxxx( allmomenta, cIPD[0], cHel[ihel][2], +1, w[2], 2, item_ct1 );
+        ixxxxx( allmomenta, cIPD[0], cHel[ihel][3], -1, w[3], 3, item_ct1 );
+        vxxxxx( allmomenta, 0., cHel[ihel][4], +1, w[4], 4, item_ct1 );
+        vxxxxx( allmomenta, 0., cHel[ihel][5], +1, w[5], 5, item_ct1 );
+    #else
+        vxxxxx( allmomenta, 0., cHel[ihel*npar + 0], -1, w[0], 0, item_ct1 );
+        vxxxxx( allmomenta, 0., cHel[ihel*npar + 1], -1, w[1], 1, item_ct1 );
+        oxxxxx( allmomenta, cIPD[0], cHel[ihel*npar + 2], +1, w[2], 2, item_ct1 );
+        ixxxxx( allmomenta, cIPD[0], cHel[ihel*npar + 3], -1, w[3], 3, item_ct1 );
+        vxxxxx( allmomenta, 0., cHel[ihel*npar + 4], +1, w[4], 4, item_ct1 );
+        vxxxxx( allmomenta, 0., cHel[ihel*npar + 5], +1, w[5], 5, item_ct1 );
+        //vxxxxx( allmomenta, 0., cHel[ihel + 0*ncomb], -1, w[0], 0, item_ct1 );
+        //vxxxxx( allmomenta, 0., cHel[ihel + 1*ncomb], -1, w[1], 1, item_ct1 );
+        //oxxxxx( allmomenta, cIPD[0], cHel[ihel + 2*ncomb], +1, w[2], 2, item_ct1 );
+        //ixxxxx( allmomenta, cIPD[0], cHel[ihel + 3*ncomb], -1, w[3], 3, item_ct1 );
+        //vxxxxx( allmomenta, 0., cHel[ihel + 4*ncomb], +1, w[4], 4, item_ct1 );
+        //vxxxxx( allmomenta, 0., cHel[ihel + 5*ncomb], +1, w[5], 5, item_ct1 );
+    #endif
 #else
     vxxxxx( allmomenta, 0., cHel[ihel][0], -1, w[0], ievt, 0 );
-#endif
-
-#ifdef SYCL_LANGUAGE_VERSION
-    vxxxxx( allmomenta, 0., cHel[ihel][1], -1, w[1], 1, item_ct1 );
-#else
     vxxxxx( allmomenta, 0., cHel[ihel][1], -1, w[1], ievt, 1 );
-#endif
-
-#ifdef SYCL_LANGUAGE_VERSION
-    oxxxxx( allmomenta, cIPD[0], cHel[ihel][2], +1, w[2], 2, item_ct1 );
-#else
     oxxxxx( allmomenta, cIPD[0], cHel[ihel][2], +1, w[2], ievt, 2 );
-#endif
-
-#ifdef SYCL_LANGUAGE_VERSION
-    ixxxxx( allmomenta, cIPD[0], cHel[ihel][3], -1, w[3], 3, item_ct1 );
-#else
     ixxxxx( allmomenta, cIPD[0], cHel[ihel][3], -1, w[3], ievt, 3 );
-#endif
-
-#ifdef SYCL_LANGUAGE_VERSION
-    vxxxxx( allmomenta, 0., cHel[ihel][4], +1, w[4], 4, item_ct1 );
-#else
     vxxxxx( allmomenta, 0., cHel[ihel][4], +1, w[4], ievt, 4 );
-#endif
-
-#ifdef SYCL_LANGUAGE_VERSION
-    vxxxxx( allmomenta, 0., cHel[ihel][5], +1, w[5], 5, item_ct1 );
-#else
     vxxxxx( allmomenta, 0., cHel[ihel][5], +1, w[5], ievt, 5 );
 #endif
 
@@ -1859,6 +1858,7 @@ namespace Proc
       cxtype ztemp = cxmake( 0, 0 );
       for( int jcol = 0; jcol < ncolor; jcol++ )
         ztemp = ztemp + cf[icol][jcol] * jamp[jcol];
+      //FIXME put printouts here see where nans are coming from
       meHelSum = meHelSum + cxreal(ztemp*conj(jamp[icol])) / denom[icol];
     }
 
@@ -1963,6 +1963,7 @@ namespace Proc
   const std::vector<fptype>& CPPProcess::getMasses() const { return mME; }
 
   //--------------------------------------------------------------------------
+  int * CPPProcess::get_cHel_ptr() {return *cHel;}
 
   // Initialize process
   void CPPProcess::initProc( string param_card_name )
@@ -2003,10 +2004,14 @@ namespace Proc
 #ifdef SYCL_LANGUAGE_VERSION
 
   void sigmaKin_getGoodHel( const fptype * allmomenta,  // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-			    bool * isGoodHel  // output: isGoodHel[ncomb] - device array
-			    , sycl::nd_item<3> item_ct1,
-			    const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel )
-  {
+			    bool * isGoodHel,  // output: isGoodHel[ncomb] - device array
+			    sycl::nd_item<3> item_ct1,
+                            #ifndef MGONGPU_SYCL_USE_USM
+			    const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel
+	                    #else
+			    int *cHel
+	                    #endif
+			  ) {
     const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
     fptype meHelSum[nprocesses] = { 0 }; // all zeros
     fptype meHelSumLast = 0;
@@ -2028,6 +2033,7 @@ namespace Proc
   //--------------------------------------------------------------------------
 
 #ifdef SYCL_LANGUAGE_VERSION
+  #ifndef MGONGPU_SYCL_USE_USM
   void sigmaKin_setGoodHel( const bool* isGoodHel, int* cNGoodHel, int* cGoodHel) // input: isGoodHel[ncomb] - host array
   {
     int nGoodHel[1] = { 0 };
@@ -2044,6 +2050,19 @@ namespace Proc
     memcpy( cNGoodHel, nGoodHel, sizeof(int) );
     memcpy( cGoodHel, goodHel, ncomb*sizeof(int) );
   }
+  #else
+  SYCL_EXTERNAL
+  void sigmaKin_setGoodHel( const bool* isGoodHel, int* cNGoodHel, int* cGoodHel) {
+    *cNGoodHel = 0;
+    for ( int ihel = 0; ihel < ncomb; ihel++ )
+    {
+      if ( isGoodHel[ihel] ) {
+        cGoodHel[*cNGoodHel] = ihel;
+        (*cNGoodHel)++;
+      }
+    }
+  }
+#endif
 #endif
 
   //--------------------------------------------------------------------------
@@ -2053,7 +2072,11 @@ namespace Proc
   SYCL_EXTERNAL
   void sigmaKin( const fptype* allmomenta, fptype* allMEs
 		 , sycl::nd_item<3> item_ct1,
+                 #ifndef MGONGPU_SYCL_USE_USM
 		 const sycl::accessor<int, 2, sycl::access::mode::read_write> cHel,
+                 #else
+		 int *cHel,
+                 #endif
 		 int *cNGoodHel,
 		 int *cGoodHel
 #ifndef SYCL_LANGUAGE_VERSION
