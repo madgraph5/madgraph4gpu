@@ -16,15 +16,14 @@ req=0
 fptypes="d"
 helinls="0"
 suffs="/"
-makeonly=0
-makecleanonly=0
+maketype=
 detailed=0
 gtest=0
 verbose=0
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly|-makecleanonly] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -96,13 +95,11 @@ while [ "$1" != "" ]; do
     if [ "${suffs}" == "/ .auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
     suffs=".auto/"
     shift
-  elif [ "$1" == "-makeonly" ]; then
-    if [ "${makecleanonly}" == "1" ]; then echo "ERROR! Options -makeclean and -makecleanonly are incompatible"; usage; fi
-    makeonly=1
-    shift
-  elif [ "$1" == "-makecleanonly" ]; then
-    if [ "${makeonly}" == "1" ]; then echo "ERROR! Options -makeclean and -makecleanonly are incompatible"; usage; fi
-    makecleanonly=1
+  elif [ "$1" == "-makeonly" ] || [ "$1" == "-makeclean" ] || [ "$1" == "-makecleanonly" ]; then
+    if [ "${maketype}" != "" ] && [ "${maketype}" != "$1" ]; then
+      echo "ERROR! Options -makeonly, -makeclean and -makecleanonly are incompatible"; usage
+    fi
+    maketype="$1"
     shift
   elif [ "$1" == "-detailed" ]; then
     detailed=1
@@ -202,7 +199,8 @@ for suff in $suffs; do
   export USEBUILDDIR=1
   pushd $dir >& /dev/null
   pwd
-  if [ "${makecleanonly}" == "1" ]; then make cleanall; echo; continue; fi
+  if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
+  if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
   for helinl in $helinls; do
     export HELINL=$helinl
     for fptype in $fptypes; do
@@ -223,8 +221,8 @@ for suff in $suffs; do
 
 done
 
-if [ "${makecleanonly}" == "1" ]; then printf "MAKE CLEANALL COMPLETED\n"; exit 0; fi
-if [ "${makeonly}" == "1" ]; then printf "MAKE COMPLETED\n"; exit 0; fi
+if [ "${maketype}" == "-makecleanonly" ]; then printf "MAKE CLEANALL COMPLETED\n"; exit 0; fi
+if [ "${maketype}" == "-makeonly" ]; then printf "MAKE COMPLETED\n"; exit 0; fi
 
 ##########################################################################
 # PART 3 - run all the executables which should be run
