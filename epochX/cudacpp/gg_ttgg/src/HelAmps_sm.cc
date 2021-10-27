@@ -840,12 +840,9 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   // FIXME: move these inside each FFV function? Cuda tput[MECalcOnly] seems 3% slower for eemumu?
-  //__device__ constexpr fptype one( 1. );
-  //__device__ constexpr fptype two( 2. );
-  //__device__ constexpr fptype half( 1. / 2. );
-  constexpr fptype one( 1. );
-  constexpr fptype two( 2. );
-  constexpr fptype half( 1. / 2. );
+  //constexpr fptype one( 1. );
+  //constexpr fptype two( 2. );
+  //constexpr fptype half( 1. / 2. );
 
   //--------------------------------------------------------------------------
 
@@ -939,6 +936,7 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI = cxmake( 0., 1. );
+    constexpr fptype one( 1. );
     F1[0] = + F2[0] + V3[0];
     F1[1] = + F2[1] + V3[1];
     const fptype_sv P1[4] = { -cxreal( F1[0] ), -cxreal( F1[1] ), -cximag( F1[1] ), -cximag( F1[0] ) };
@@ -964,6 +962,7 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI = cxmake( 0., 1. );
+    constexpr fptype one( 1. );
     F2[0] = + F1[0] + V3[0];
     F2[1] = + F1[1] + V3[1];
     const fptype_sv P2[4] = { -cxreal( F2[0] ), -cxreal( F2[1] ), -cximag( F2[1] ), -cximag( F2[0] ) };
