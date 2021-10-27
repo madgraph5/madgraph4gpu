@@ -2,7 +2,6 @@ TOOLSDIR = ../../../../../tools
 TESTDIR  = ../../../../../test
 MODELLIB = model_sm
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
-CXX ?= g++
 
 INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
@@ -10,6 +9,9 @@ CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra
 CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
+
+# Note: AR and CXX are implicitly defined if not set externally
+# See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
 # OpenMP flags
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
