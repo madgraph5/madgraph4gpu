@@ -55,11 +55,11 @@ namespace Proc
 
   // Helicity combinations (and filtering of "good" helicity combinations)
 #ifdef __CUDACC__
-  __device__ __constant__ int cHel[ncomb][npar];
+  __device__ __constant__ short cHel[ncomb][npar];
   __device__ __constant__ int cNGoodHel; // FIXME: assume process.nprocesses == 1 for the moment (eventually cNGoodHel[nprocesses]?)
   __device__ __constant__ int cGoodHel[ncomb];
 #else
-  static int cHel[ncomb][npar];
+  static short cHel[ncomb][npar];
   static int cNGoodHel; // FIXME: assume process.nprocesses == 1 for the moment (eventually cNGoodHel[nprocesses]?)
   static int cGoodHel[ncomb];
 #endif
@@ -1940,7 +1940,7 @@ namespace Proc
     , m_masses()
   {
     // Helicities for the process [NB do keep 'static' for this constexpr array, see issue #283]
-    static constexpr int tHel[ncomb][mgOnGpu::npar] = {
+    static constexpr short tHel[ncomb][mgOnGpu::npar] = {
       {-1, -1, -1, -1, -1, -1},
       {-1, -1, -1, -1, -1, 1},
       {-1, -1, -1, -1, 1, -1},
@@ -2006,9 +2006,9 @@ namespace Proc
       {1, 1, 1, 1, 1, -1},
       {1, 1, 1, 1, 1, 1}};
 #ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * mgOnGpu::npar * sizeof(int) ) );
+    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * mgOnGpu::npar * sizeof(short) ) );
 #else
-    memcpy( cHel, tHel, ncomb * mgOnGpu::npar * sizeof(int) );
+    memcpy( cHel, tHel, ncomb * mgOnGpu::npar * sizeof(short) );
 #endif
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
     assert( sizeof(cxtype) == 2 * sizeof(fptype) );
