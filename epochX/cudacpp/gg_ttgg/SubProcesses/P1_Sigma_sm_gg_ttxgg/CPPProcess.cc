@@ -112,7 +112,7 @@ namespace Proc
 #endif
     {
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
-      for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }
+      for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxtype( 0., 0. ); }
 
       // *** DIAGRAM 1 OF 123 ***
 
@@ -1895,7 +1895,7 @@ namespace Proc
       fptype_sv deltaMEs = { 0 }; // all zeros
       for( int icol = 0; icol < ncolor; icol++ )
       {
-        cxtype_sv ztemp_sv = cxzero_sv();
+        cxtype_sv ztemp_sv = cxtype( 0., 0. );
         for( int jcol = 0; jcol < ncolor; jcol++ )
           ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
         deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];
