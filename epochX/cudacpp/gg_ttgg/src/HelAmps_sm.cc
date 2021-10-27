@@ -843,9 +843,9 @@ namespace MG5_sm
   //__device__ constexpr fptype one( 1. );
   //__device__ constexpr fptype two( 2. );
   //__device__ constexpr fptype half( 1. / 2. );
-  constexpr fptype one( 1. );
-  constexpr fptype two( 2. );
-  constexpr fptype half( 1. / 2. );
+  static constexpr fptype one( 1. );
+  static constexpr fptype two( 2. );
+  static constexpr fptype half( 1. / 2. );
 
   //--------------------------------------------------------------------------
 
