@@ -327,13 +327,16 @@ pushd $topdir/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /de
 
 lastExe=
 for exe in $exes; do
+  exeArgs2=""
   ###if [ ! -f $exe ]; then continue; fi
   if [ ! -f $exe ]; then echo "Not found: $exe"; continue; fi
   if [ "${exe%%/gcheck*}" != "${exe}" ] && [ "$gpuTxt" == "none" ]; then continue; fi
   if [ "${exe%%/gg_ttgg*}" != "${exe}" ]; then 
-    # This is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
+    # OLD << This is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1" >>
     exeArgs="-p 64 256 1"
     ncuArgs="-p 64 256 1"
+    # NEW On GPU test both "64 256" and "2048 256" for ggttgg as the latter gives ~10% higher throughput on cuda110/gcc92
+    exeArgs2="-p 2048 256 1"
   elif [ "${exe%%/gg_tt*}" != "${exe}" ]; then 
     exeArgs="-p 2048 256 1"
     ncuArgs="-p 2048 256 1"
@@ -367,6 +370,8 @@ for exe in $exes; do
     runNcu $exe "$ncuArgs"
     if [ "${div}" == "1" ]; then runNcuDiv $exe; fi
     if [ "${req}" == "1" ]; then runNcuReq $exe "$ncuArgs"; fi
+    echo "........................................................................."
+    if [ "${exeArgs2}" != "" ]; then runExe $exe "$exeArgs2"; fi
   fi
 done
 echo "========================================================================="
