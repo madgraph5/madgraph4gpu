@@ -1940,7 +1940,7 @@ namespace Proc
     , m_masses()
   {
     // Helicities for the process - nodim
-    constexpr short tHel[ncomb][mgOnGpu::npar] = {
+    static constexpr short tHel[ncomb][mgOnGpu::npar] = {
       {-1, -1, -1, -1, -1, -1},
       {-1, -1, -1, -1, -1, 1},
       {-1, -1, -1, -1, 1, -1},
