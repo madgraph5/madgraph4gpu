@@ -389,14 +389,11 @@ int main(int argc, char **argv)
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST or not defined __CUDACC__
   auto hstRnarray   = hstMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
 #endif
-#if defined MGONGPU_SYCL_USE_USM or defined __CUDACC__
   auto hstMomenta   = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
   auto hstIsGoodHel = hstMakeUnique<bool  >( ncomb );
   auto hstWeights   = hstMakeUnique<fptype>( nWeights ); // (previously was: meHostPtr)
   auto hstMEs       = hstMakeUnique<fptype>( nMEs ); // (previously was: meHostPtr)
-#endif
 
-#ifdef MGONGPU_SYCL_USE_USM
   auto devRnarray   = malloc_device<fptype>( nRnarray, q_ct1 ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   auto devMomenta   = malloc_device<fptype>( nMomenta, q_ct1 ); // (previously was: allMomenta)
   auto devIsGoodHel = malloc_device<bool  >( ncomb, q_ct1 );
@@ -407,17 +404,6 @@ int main(int argc, char **argv)
   q_ct1.memcpy( devcHel, process.get_cHel_ptr(), ncomb*npar*sizeof(int) ).wait();
   auto devcNGoodHel = malloc_device<int   >( 1, q_ct1 ); 
   auto devcGoodHel  = malloc_device<int   >( ncomb, q_ct1 ); 
-#else
-  sycl::buffer Rnarray_buffer{hstRnarray.get(), sycl::range{nRnarray}};
-  sycl::buffer<fptype, 1, sycl::buffer_allocator> Momenta_buffer{sycl::range<1>{nMomenta}};
-  sycl::buffer<bool, 1, sycl::buffer_allocator> IsGoodHel_buffer{sycl::range<1>{ncomb}};
-  sycl::buffer<fptype, 1, sycl::buffer_allocator> Weights_buffer{sycl::range<1>{nWeights}};
-  sycl::buffer<fptype, 1, sycl::buffer_allocator> MEs_buffer{sycl::range<1>{nMEs}};
-  sycl::buffer<int, 2, sycl::buffer_allocator> cHel_buffer{sycl::range<2>{ncomb,npar}};
-  sycl::buffer<int, 1, sycl::buffer_allocator> cNGoodHel_buffer{sycl::range<1>{1}};
-  sycl::buffer<int, 1, sycl::buffer_allocator> cGoodHel_buffer{sycl::range<1>{ncomb}};
-#endif
-
 
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
   const int nbytesRnarray = nRnarray * sizeof(fptype);
@@ -520,26 +506,18 @@ int main(int argc, char **argv)
     const std::string riniKey = "2a RamboIni";
     timermap.start( riniKey );
 #ifdef SYCL_LANGUAGE_VERSION
-    std::cout << "before submit scope 1" << std::endl; //FIXME
     {
       q_ct1.submit([&](sycl::handler &cgh) {
-        #ifndef MGONGPU_SYCL_USE_USM
-        auto devMomenta_acc = Momenta_buffer.get_access<sycl::access::mode::read_write>(cgh);
-        #endif
         cgh.parallel_for(
             sycl::nd_range<3>(sycl::range<3>(1, 1, gpublocks) *
                                   sycl::range<3>(1, 1, gputhreads),
                               sycl::range<3>(1, 1, gputhreads)),
             [=](sycl::nd_item<3> item_ct1) {
-              #ifndef MGONGPU_SYCL_USE_USM
-              auto devMomenta = devMomenta_acc.get_pointer();
-              #endif
               rambo2toNm0::getMomentaInitial(energy, devMomenta, item_ct1);
             });
       });
       q_ct1.wait();
     }
-    std::cout << "after submit scope 1" << std::endl; //FIXME
 #else
     rambo2toNm0::getMomentaInitial( energy, hstMomenta.get(), nevt );
 #endif
@@ -550,24 +528,13 @@ int main(int argc, char **argv)
     const std::string rfinKey = "2b RamboFin";
     rambtime += timermap.start( rfinKey );
 #ifdef SYCL_LANGUAGE_VERSION
-    std::cout << "before submit scope 2" << std::endl; //FIXME
     {
       q_ct1.submit([&](sycl::handler &cgh) {
-        #ifndef MGONGPU_SYCL_USE_USM
-        auto devRnarray_acc = Rnarray_buffer.get_access<sycl::access::mode::read>(cgh);
-        auto devMomenta_acc = Momenta_buffer.get_access<sycl::access::mode::read_write>(cgh);
-        auto devWeights_acc = Weights_buffer.get_access<sycl::access::mode::write>(cgh);
-        #endif
         cgh.parallel_for(
             sycl::nd_range<3>(sycl::range<3>(1, 1, gpublocks) *
                                   sycl::range<3>(1, 1, gputhreads),
                               sycl::range<3>(1, 1, gputhreads)),
             [=](sycl::nd_item<3> item_ct1) {
-              #ifndef MGONGPU_SYCL_USE_USM
-              auto devRnarray = devRnarray_acc.get_pointer();
-              auto devWeights = devWeights_acc.get_pointer();
-              auto devMomenta = devMomenta_acc.get_pointer();
-              #endif
               rambo2toNm0::getMomentaFinal(energy, devRnarray,
                                             devMomenta,
                                             devWeights, item_ct1);
@@ -576,28 +543,21 @@ int main(int argc, char **argv)
     q_ct1.wait();
 
     }
-    std::cout << "after submit scope 2" << std::endl; //FIXME
 #else
     rambo2toNm0::getMomentaFinal( energy, hstRnarray.get(), hstMomenta.get(), hstWeights.get(), nevt );
 #endif
     //std::cout << "Got final momenta" << std::endl;
 
 #ifdef SYCL_LANGUAGE_VERSION
-#ifdef MGONGPU_SYCL_USE_USM
     // --- 2c. CopyDToH Weights
     const std::string cwgtKey = "2c CpDTHwgt";
     rambtime += timermap.start( cwgtKey );
-    std::cout << "before copy weights dth" << std::endl;
     q_ct1.memcpy(hstWeights.get(), devWeights, nbytesWeights).wait();
-    std::cout << "after copy weights dth" << std::endl;
 
     // --- 2d. CopyDToH Momenta
     const std::string cmomKey = "2d CpDTHmom";
     rambtime += timermap.start( cmomKey );
-    std::cout << "before copy momenta dth" << std::endl;
     q_ct1.memcpy(hstMomenta.get(), devMomenta, nbytesMomenta).wait();
-    std::cout << "after copy momenta dth" << std::endl;
-#endif
 #endif
 
 #ifdef __CUDACC__
@@ -628,49 +588,21 @@ int main(int argc, char **argv)
       const std::string ghelKey = "0d SGoodHel";
       timermap.start( ghelKey );
       // ... 0d1. Compute good helicity mask on the device
-      std::cout << "before submit scope 3" << std::endl; //FIXME
       {
         q_ct1.submit([&](sycl::handler &cgh) {
-          #ifndef MGONGPU_SYCL_USE_USM
-          auto devcHel_acc = cHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
-          auto devMomenta_acc = Momenta_buffer.get_access<sycl::access::mode::read_write>(cgh);
-          auto devIsGoodHel_acc = IsGoodHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
-          #endif
           cgh.parallel_for(
               sycl::nd_range<3>(sycl::range<3>(1, 1, gpublocks) *
                                     sycl::range<3>(1, 1, gputhreads),
                                 sycl::range<3>(1, 1, gputhreads)),
               [=](sycl::nd_item<3> item_ct1) {
-                #ifndef MGONGPU_SYCL_USE_USM
-                    auto devMomenta = devMomenta_acc.get_pointer();
-                    auto devIsGoodHel = devIsGoodHel_acc.get_pointer();
-                    Proc::sigmaKin_getGoodHel(devMomenta, devIsGoodHel, item_ct1, devcHel_acc);
-                #else
                     Proc::sigmaKin_getGoodHel(devMomenta, devIsGoodHel, item_ct1, devcHel);
-		#endif
               });
         });
       q_ct1.wait();
       }
-      std::cout << "after submit scope 3" << std::endl; //FIXME
       // ... 0d2. Copy back good helicity mask to the host
-      #ifndef MGONGPU_SYCL_USE_USM
-      sycl::host_accessor IsGoodHel_acc{IsGoodHel_buffer};
-      sycl::host_accessor cNGoodHel_acc{cNGoodHel_buffer};
-      sycl::host_accessor cGoodHel_acc{cGoodHel_buffer};
-      auto devIsGoodHel = IsGoodHel_acc.get_pointer();
-      auto devcNGoodHel = cNGoodHel_acc.get_pointer();
-      auto devcGoodHel = cGoodHel_acc.get_pointer();
-      #else
-      std::cout << "before copy IsGoodHel dth" << std::endl;
       q_ct1.memcpy(hstIsGoodHel.get(), devIsGoodHel, nbytesIsGoodHel).wait();
-      std::cout << "after copy IsGoodHel dth" << std::endl;
-      #endif
       // ... 0d3. Copy back good helicity list to constant memory on the device
-      std::cout << "before setGoodHel" << std::endl;
-      #ifndef MGONGPU_SYCL_USE_USM
-          Proc::sigmaKin_setGoodHel(devIsGoodHel, devcNGoodHel, devcGoodHel) ;
-      #else
           q_ct1.memset( devcGoodHel, 0, ncomb*sizeof(int) ).wait();
 	  {
 	      q_ct1.single_task([=] {
@@ -678,8 +610,6 @@ int main(int argc, char **argv)
 	      });
               q_ct1.wait();
 	  }
-      #endif
-      std::cout << "after setGoodHel" << std::endl;
     }
 #endif
 
@@ -691,40 +621,22 @@ int main(int argc, char **argv)
     timermap.start( skinKey );
 #ifdef SYCL_LANGUAGE_VERSION
 #ifndef MGONGPU_NSIGHT_DEBUG
-    std::cout << "before submit scope 4" << std::endl; //FIXME
     {
       q_ct1.submit([&](sycl::handler &cgh) {
-        #ifndef MGONGPU_SYCL_USE_USM
-        auto cHel_acc = cHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
-        auto cNGoodHel_acc = cNGoodHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
-        auto cGoodHel_acc = cGoodHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
-        auto devMomenta_acc = Momenta_buffer.get_access<sycl::access::mode::read_write>(cgh);
-        auto devMEs_acc = MEs_buffer.get_access<sycl::access::mode::read_write>(cgh);
-        #endif
         cgh.parallel_for(
             sycl::nd_range<3>(sycl::range<3>(1, 1, gpublocks) *
                                   sycl::range<3>(1, 1, gputhreads),
                               sycl::range<3>(1, 1, gputhreads)),
             [=](sycl::nd_item<3> item_ct1) {
-                #ifndef MGONGPU_SYCL_USE_USM
-                auto devMomenta = devMomenta_acc.get_pointer();
-                auto devMEs = devMEs_acc.get_pointer();
-                auto devcNGoodHel = cNGoodHel_acc.get_pointer();
-                auto devcGoodHel = cGoodHel_acc.get_pointer();
-                #endif
                 Proc::sigmaKin(
                 devMomenta, devMEs, item_ct1,
-                #ifndef MGONGPU_SYCL_USE_USM
-		cHel_acc,
-                #else
+
 		devcHel,
-                #endif
 		devcNGoodHel, devcGoodHel);
               });
       });
     q_ct1.wait();
     }
-    std::cout << "after submit scope 4" << std::endl; //FIXME
 #else
     gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.get(), devMEs.get());
 #endif
@@ -736,11 +648,7 @@ int main(int argc, char **argv)
     // --- 3b. CopyDToH MEs
     const std::string cmesKey = "3b CpDTHmes";
     wavetime += timermap.start( cmesKey );
-    #ifdef MGONGPU_SYCL_USE_USM
-    std::cout << "hstMEs[0] before: " << hstMEs[0] << std::endl;
     q_ct1.memcpy(hstMEs.get(), devMEs, nbytesMEs).wait();
-    std::cout  << "hstMEs[0] after: " << hstMEs[0] << std::endl;
-    #endif
 #endif
 
     // *** STOP THE OLD TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
@@ -761,11 +669,6 @@ int main(int argc, char **argv)
       if (perf) std::cout << "Wave function time: " << wavetime << std::endl;
     }
 
-    #ifndef MGONGPU_SYCL_USE_USM
-    sycl::host_accessor hstWeights{Weights_buffer};
-    sycl::host_accessor hstMomenta{Momenta_buffer};
-    sycl::host_accessor hstMEs{MEs_buffer};
-    #endif
     for (int ievt = 0; ievt < nevt; ++ievt) // Loop over all events in this iteration
     {
       if (verbose)
@@ -880,10 +783,6 @@ int main(int argc, char **argv)
     sumelemdiff += ( matrixelementALL[ievtALL] - minelem );
     sumweigdiff += ( weightALL[ievtALL] - minweig );
   }
-  std::cout << "minelem: " << minelem << std::endl;
-  std::cout << "sumelemdiff: " << sumelemdiff << std::endl;
-  std::cout << "nevtALL: " << nevtALL << std::endl;
-  std::cout << "nnan: " << nnan << std::endl;
   double meanelem = minelem + sumelemdiff / ( nevtALL - nnan );
   double meanweig = minweig + sumweigdiff / ( nevtALL - nnan );
   double sqselemdiff = 0;
