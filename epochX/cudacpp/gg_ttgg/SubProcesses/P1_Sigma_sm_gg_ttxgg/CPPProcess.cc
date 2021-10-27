@@ -1862,7 +1862,7 @@ namespace Proc
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called CPPProcess::matrix_1_gg_ttxgg()?)
 
-      // The color matrix
+      // The color matrix [NB do keep 'static' for these constexpr arrays, see issue #283]
       static constexpr fptype denom[ncolor] = {54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54};
       static constexpr fptype cf[ncolor][ncolor] = {
       {512, -64, -64, 8, 8, 80, -64, 8, 8, -1, -1, -10, 8, -1, 80, -10, 71, 62, -1, -10, -10, 62, 62, -28},
@@ -1939,7 +1939,7 @@ namespace Proc
     , m_pars( 0 )
     , m_masses()
   {
-    // Helicities for the process - nodim
+    // Helicities for the process [NB do keep 'static' for this constexpr array, see issue #283]
     static constexpr short tHel[ncomb][mgOnGpu::npar] = {
       {-1, -1, -1, -1, -1, -1},
       {-1, -1, -1, -1, -1, 1},
