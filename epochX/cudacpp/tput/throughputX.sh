@@ -24,7 +24,7 @@ verbose=0
 
 function usage()
 {
-  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-eemumu] [-ggtt] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly|-makecleanonly] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly|-makecleanonly] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -121,11 +121,8 @@ while [ "$1" != "" ]; do
 done
 ###exit 1
 
-# New default: run both eemumu and ggttgg
-###if [ "${eemumu}" == "0" ] && [ "${ggttgg}" == "0" ]; then 
-###  eemumu=1
-###  ggttgg=1
-###fi
+# Check that at least one process has been selected
+if [ "${eemumu}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggtt}" == "0" ]; then usage; fi
 
 ###echo -e "\n********************************************************************************\n"
 printf "\n"
