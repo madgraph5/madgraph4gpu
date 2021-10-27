@@ -1,14 +1,15 @@
 TOOLSDIR = ../../../../../tools
 TESTDIR  = ../../../../../test
-INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
+LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
+CXX ?= g++
+
+INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra
 CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
-LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
-CXX     ?= g++
 
 # OpenMP flags
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
@@ -17,6 +18,7 @@ else ifeq ($(shell $(CXX) --version | grep GCC | cut -d' ' -f3 | cut -d'.' -f1),
 override OMPFLAGS =
 OMPFLAGS ?= -fopenmp
 endif
+$(info OMPFLAGS=$(OMPFLAGS))
 CXXFLAGS += $(OMPFLAGS)
 
 # Assuming uname is available, detect if architecture is PowerPC
@@ -175,11 +177,12 @@ else
   $(error Unknown RNDGEN='$(RNDGEN)': only 'curdev', 'curhst' and 'common' are supported)
 endif
 
-# Export AVX, FPTYPE, HELINL, RNDGEN so that it is not necessary to pass them to the src Makefile too
+# Export AVX, FPTYPE, HELINL, RNDGEN, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
 export AVX
 export FPTYPE
 export HELINL
 export RNDGEN
+export OMPFLAGS
 
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
