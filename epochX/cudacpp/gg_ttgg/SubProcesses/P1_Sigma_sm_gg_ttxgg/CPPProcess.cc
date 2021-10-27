@@ -153,11 +153,11 @@ namespace Proc
       vxxxxx(allmomenta, 0., cHel[ihel][5], +1, w_sv[5], ipagV, 5);
 #endif
 
-      VVV1P0_1( w_sv[0], w_sv[1], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[6] );
-      FFV1P0_3( w_sv[3], w_sv[2], cxmake( cIPC[2], cIPC[3] ), 0., 0., w_sv[7] );
+      VVV1P0_1( w_sv[0], w_sv[1], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[6] );
+      FFV1P0_3( w_sv[3], w_sv[2], cxtype( cIPC[2], cIPC[3] ), 0., 0., w_sv[7] );
 
       // Amplitude(s) for diagram number 1
-      VVVV1_0( w_sv[6], w_sv[7], w_sv[4], w_sv[5], cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      VVVV1_0( w_sv[6], w_sv[7], w_sv[4], w_sv[5], cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[1] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[6] += -cxtype(0,1)*amp_sv[0];
@@ -166,7 +166,7 @@ namespace Proc
       jamp_sv[17] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[22] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[23] += -cxtype(0,1)*amp_sv[0];
-      VVVV3_0( w_sv[6], w_sv[7], w_sv[4], w_sv[5], cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      VVVV3_0( w_sv[6], w_sv[7], w_sv[4], w_sv[5], cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[6] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[12] += -cxtype(0,1)*amp_sv[0];
@@ -175,7 +175,7 @@ namespace Proc
       jamp_sv[20] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[22] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[23] += -cxtype(0,1)*amp_sv[0];
-      VVVV4_0( w_sv[6], w_sv[7], w_sv[4], w_sv[5], cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      VVVV4_0( w_sv[6], w_sv[7], w_sv[4], w_sv[5], cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[1] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[7] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[12] += -cxtype(0,1)*amp_sv[0];
@@ -188,10 +188,10 @@ namespace Proc
       // *** DIAGRAM 2 OF 123 ***
 
       // Wavefunction(s) for diagram number 2
-      VVV1P0_1( w_sv[6], w_sv[4], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[8] );
+      VVV1P0_1( w_sv[6], w_sv[4], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[8] );
 
       // Amplitude(s) for diagram number 2
-      VVV1_0( w_sv[7], w_sv[5], w_sv[8], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[7], w_sv[5], w_sv[8], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[6] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[12] += -cxtype(0,1)*amp_sv[0];
@@ -204,10 +204,10 @@ namespace Proc
       // *** DIAGRAM 3 OF 123 ***
 
       // Wavefunction(s) for diagram number 3
-      VVV1P0_1( w_sv[6], w_sv[5], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[9] );
+      VVV1P0_1( w_sv[6], w_sv[5], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[9] );
 
       // Amplitude(s) for diagram number 3
-      VVV1_0( w_sv[7], w_sv[4], w_sv[9], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[7], w_sv[4], w_sv[9], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[1] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[7] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[12] += -cxtype(0,1)*amp_sv[0];
@@ -220,10 +220,10 @@ namespace Proc
       // *** DIAGRAM 4 OF 123 ***
 
       // Wavefunction(s) for diagram number 4
-      VVV1P0_1( w_sv[4], w_sv[5], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[10] );
+      VVV1P0_1( w_sv[4], w_sv[5], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[10] );
 
       // Amplitude(s) for diagram number 4
-      VVV1_0( w_sv[6], w_sv[7], w_sv[10], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[6], w_sv[7], w_sv[10], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[1] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[6] += -cxtype(0,1)*amp_sv[0];
@@ -236,11 +236,11 @@ namespace Proc
       // *** DIAGRAM 5 OF 123 ***
 
       // Wavefunction(s) for diagram number 5
-      FFV1_1( w_sv[2], w_sv[4], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[11] );
-      FFV1_2( w_sv[3], w_sv[6], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[12] );
+      FFV1_1( w_sv[2], w_sv[4], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[11] );
+      FFV1_2( w_sv[3], w_sv[6], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[12] );
 
       // Amplitude(s) for diagram number 5
-      FFV1_0( w_sv[12], w_sv[11], w_sv[5], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[12], w_sv[11], w_sv[5], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[16] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[17] += -cxtype(0,1)*amp_sv[0];
 
@@ -250,7 +250,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 6
-      FFV1_0( w_sv[3], w_sv[11], w_sv[9], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[11], w_sv[9], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[12] += +amp_sv[0];
       jamp_sv[14] += -amp_sv[0];
       jamp_sv[16] += -amp_sv[0];
@@ -259,20 +259,20 @@ namespace Proc
       // *** DIAGRAM 7 OF 123 ***
 
       // Wavefunction(s) for diagram number 7
-      FFV1_2( w_sv[3], w_sv[5], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[13] );
+      FFV1_2( w_sv[3], w_sv[5], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[13] );
 
       // Amplitude(s) for diagram number 7
-      FFV1_0( w_sv[13], w_sv[11], w_sv[6], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[13], w_sv[11], w_sv[6], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[12] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[14] += -cxtype(0,1)*amp_sv[0];
 
       // *** DIAGRAM 8 OF 123 ***
 
       // Wavefunction(s) for diagram number 8
-      FFV1_1( w_sv[2], w_sv[5], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[14] );
+      FFV1_1( w_sv[2], w_sv[5], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[14] );
 
       // Amplitude(s) for diagram number 8
-      FFV1_0( w_sv[12], w_sv[14], w_sv[4], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[12], w_sv[14], w_sv[4], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[22] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[23] += -cxtype(0,1)*amp_sv[0];
 
@@ -282,7 +282,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 9
-      FFV1_0( w_sv[3], w_sv[14], w_sv[8], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[14], w_sv[8], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[18] += +amp_sv[0];
       jamp_sv[20] += -amp_sv[0];
       jamp_sv[22] += -amp_sv[0];
@@ -291,20 +291,20 @@ namespace Proc
       // *** DIAGRAM 10 OF 123 ***
 
       // Wavefunction(s) for diagram number 10
-      FFV1_2( w_sv[3], w_sv[4], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[15] );
+      FFV1_2( w_sv[3], w_sv[4], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[15] );
 
       // Amplitude(s) for diagram number 10
-      FFV1_0( w_sv[15], w_sv[14], w_sv[6], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[15], w_sv[14], w_sv[6], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[18] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[20] += -cxtype(0,1)*amp_sv[0];
 
       // *** DIAGRAM 11 OF 123 ***
 
       // Wavefunction(s) for diagram number 11
-      FFV1_1( w_sv[2], w_sv[6], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[16] );
+      FFV1_1( w_sv[2], w_sv[6], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[16] );
 
       // Amplitude(s) for diagram number 11
-      FFV1_0( w_sv[15], w_sv[16], w_sv[5], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[15], w_sv[16], w_sv[5], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[1] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[7] += -cxtype(0,1)*amp_sv[0];
 
@@ -314,7 +314,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 12
-      FFV1_0( w_sv[15], w_sv[2], w_sv[9], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[15], w_sv[2], w_sv[9], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[1] += +amp_sv[0];
       jamp_sv[7] += -amp_sv[0];
       jamp_sv[18] += -amp_sv[0];
@@ -326,7 +326,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 13
-      FFV1_0( w_sv[13], w_sv[16], w_sv[4], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[13], w_sv[16], w_sv[4], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[6] += -cxtype(0,1)*amp_sv[0];
 
@@ -336,7 +336,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 14
-      FFV1_0( w_sv[13], w_sv[2], w_sv[8], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[13], w_sv[2], w_sv[8], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[0] += +amp_sv[0];
       jamp_sv[6] += -amp_sv[0];
       jamp_sv[12] += -amp_sv[0];
@@ -348,7 +348,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 15
-      FFV1_0( w_sv[3], w_sv[16], w_sv[10], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[16], w_sv[10], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[0] += +amp_sv[0];
       jamp_sv[1] += -amp_sv[0];
       jamp_sv[6] += -amp_sv[0];
@@ -360,7 +360,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 16
-      FFV1_0( w_sv[12], w_sv[2], w_sv[10], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[12], w_sv[2], w_sv[10], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[16] += +amp_sv[0];
       jamp_sv[17] += -amp_sv[0];
       jamp_sv[22] += -amp_sv[0];
@@ -369,21 +369,21 @@ namespace Proc
       // *** DIAGRAM 17 OF 123 ***
 
       // Wavefunction(s) for diagram number 17
-      FFV1_1( w_sv[2], w_sv[0], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[12] );
-      FFV1_2( w_sv[3], w_sv[1], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[16] );
-      FFV1_1( w_sv[12], w_sv[4], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[8] );
+      FFV1_1( w_sv[2], w_sv[0], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[12] );
+      FFV1_2( w_sv[3], w_sv[1], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[16] );
+      FFV1_1( w_sv[12], w_sv[4], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[8] );
 
       // Amplitude(s) for diagram number 17
-      FFV1_0( w_sv[16], w_sv[8], w_sv[5], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[16], w_sv[8], w_sv[5], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[3] += -amp_sv[0];
 
       // *** DIAGRAM 18 OF 123 ***
 
       // Wavefunction(s) for diagram number 18
-      FFV1_1( w_sv[12], w_sv[5], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[9] );
+      FFV1_1( w_sv[12], w_sv[5], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[9] );
 
       // Amplitude(s) for diagram number 18
-      FFV1_0( w_sv[16], w_sv[9], w_sv[4], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[16], w_sv[9], w_sv[4], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[5] += -amp_sv[0];
 
       // *** DIAGRAM 19 OF 123 ***
@@ -392,18 +392,18 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 19
-      FFV1_0( w_sv[16], w_sv[12], w_sv[10], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[16], w_sv[12], w_sv[10], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[3] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[5] += -cxtype(0,1)*amp_sv[0];
 
       // *** DIAGRAM 20 OF 123 ***
 
       // Wavefunction(s) for diagram number 20
-      VVV1P0_1( w_sv[1], w_sv[4], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[6] );
-      FFV1P0_3( w_sv[3], w_sv[12], cxmake( cIPC[2], cIPC[3] ), 0., 0., w_sv[17] );
+      VVV1P0_1( w_sv[1], w_sv[4], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[6] );
+      FFV1P0_3( w_sv[3], w_sv[12], cxtype( cIPC[2], cIPC[3] ), 0., 0., w_sv[17] );
 
       // Amplitude(s) for diagram number 20
-      VVV1_0( w_sv[6], w_sv[5], w_sv[17], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[6], w_sv[5], w_sv[17], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[0] += +amp_sv[0];
       jamp_sv[2] += -amp_sv[0];
       jamp_sv[4] += -amp_sv[0];
@@ -415,7 +415,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 21
-      FFV1_0( w_sv[3], w_sv[9], w_sv[6], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[9], w_sv[6], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[4] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[5] += -cxtype(0,1)*amp_sv[0];
 
@@ -425,17 +425,17 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 22
-      FFV1_0( w_sv[13], w_sv[12], w_sv[6], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[13], w_sv[12], w_sv[6], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[2] += -cxtype(0,1)*amp_sv[0];
 
       // *** DIAGRAM 23 OF 123 ***
 
       // Wavefunction(s) for diagram number 23
-      VVV1P0_1( w_sv[1], w_sv[5], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[18] );
+      VVV1P0_1( w_sv[1], w_sv[5], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[18] );
 
       // Amplitude(s) for diagram number 23
-      VVV1_0( w_sv[18], w_sv[4], w_sv[17], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[18], w_sv[4], w_sv[17], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[1] += +amp_sv[0];
       jamp_sv[2] += -amp_sv[0];
       jamp_sv[3] += +amp_sv[0];
@@ -447,7 +447,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 24
-      FFV1_0( w_sv[3], w_sv[8], w_sv[18], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[8], w_sv[18], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[2] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[3] += -cxtype(0,1)*amp_sv[0];
 
@@ -457,17 +457,17 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 25
-      FFV1_0( w_sv[15], w_sv[12], w_sv[18], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[15], w_sv[12], w_sv[18], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[1] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[4] += -cxtype(0,1)*amp_sv[0];
 
       // *** DIAGRAM 26 OF 123 ***
 
       // Wavefunction(s) for diagram number 26
-      FFV1_1( w_sv[12], w_sv[1], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[19] );
+      FFV1_1( w_sv[12], w_sv[1], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[19] );
 
       // Amplitude(s) for diagram number 26
-      FFV1_0( w_sv[15], w_sv[19], w_sv[5], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[15], w_sv[19], w_sv[5], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[1] += -amp_sv[0];
 
       // *** DIAGRAM 27 OF 123 ***
@@ -476,7 +476,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 27
-      FFV1_0( w_sv[15], w_sv[9], w_sv[1], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[15], w_sv[9], w_sv[1], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[4] += -amp_sv[0];
 
       // *** DIAGRAM 28 OF 123 ***
@@ -485,7 +485,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 28
-      FFV1_0( w_sv[13], w_sv[19], w_sv[4], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[13], w_sv[19], w_sv[4], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[0] += -amp_sv[0];
 
       // *** DIAGRAM 29 OF 123 ***
@@ -494,7 +494,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 29
-      FFV1_0( w_sv[13], w_sv[8], w_sv[1], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[13], w_sv[8], w_sv[1], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[2] += -amp_sv[0];
 
       // *** DIAGRAM 30 OF 123 ***
@@ -503,7 +503,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 30
-      FFV1_0( w_sv[3], w_sv[19], w_sv[10], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[19], w_sv[10], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[1] += -cxtype(0,1)*amp_sv[0];
 
@@ -513,7 +513,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 31
-      VVV1_0( w_sv[1], w_sv[10], w_sv[17], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[1], w_sv[10], w_sv[17], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[0] += +amp_sv[0];
       jamp_sv[1] += -amp_sv[0];
       jamp_sv[3] += -amp_sv[0];
@@ -522,22 +522,22 @@ namespace Proc
       // *** DIAGRAM 32 OF 123 ***
 
       // Wavefunction(s) for diagram number 32
-      VVVV1P0_1( w_sv[1], w_sv[4], w_sv[5], cxmake( cIPC[4], cIPC[5] ), 0., 0., w_sv[17] );
-      VVVV3P0_1( w_sv[1], w_sv[4], w_sv[5], cxmake( cIPC[4], cIPC[5] ), 0., 0., w_sv[19] );
-      VVVV4P0_1( w_sv[1], w_sv[4], w_sv[5], cxmake( cIPC[4], cIPC[5] ), 0., 0., w_sv[8] );
+      VVVV1P0_1( w_sv[1], w_sv[4], w_sv[5], cxtype( cIPC[4], cIPC[5] ), 0., 0., w_sv[17] );
+      VVVV3P0_1( w_sv[1], w_sv[4], w_sv[5], cxtype( cIPC[4], cIPC[5] ), 0., 0., w_sv[19] );
+      VVVV4P0_1( w_sv[1], w_sv[4], w_sv[5], cxtype( cIPC[4], cIPC[5] ), 0., 0., w_sv[8] );
 
       // Amplitude(s) for diagram number 32
-      FFV1_0( w_sv[3], w_sv[12], w_sv[17], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[12], w_sv[17], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[0] += +amp_sv[0];
       jamp_sv[1] += -amp_sv[0];
       jamp_sv[3] += -amp_sv[0];
       jamp_sv[5] += +amp_sv[0];
-      FFV1_0( w_sv[3], w_sv[12], w_sv[19], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[12], w_sv[19], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[1] += -amp_sv[0];
       jamp_sv[2] += +amp_sv[0];
       jamp_sv[3] += -amp_sv[0];
       jamp_sv[4] += +amp_sv[0];
-      FFV1_0( w_sv[3], w_sv[12], w_sv[8], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[12], w_sv[8], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[0] += -amp_sv[0];
       jamp_sv[2] += +amp_sv[0];
       jamp_sv[4] += +amp_sv[0];
@@ -546,21 +546,21 @@ namespace Proc
       // *** DIAGRAM 33 OF 123 ***
 
       // Wavefunction(s) for diagram number 33
-      FFV1_2( w_sv[3], w_sv[0], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[12] );
-      FFV1_1( w_sv[2], w_sv[1], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[9] );
-      FFV1_2( w_sv[12], w_sv[4], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[20] );
+      FFV1_2( w_sv[3], w_sv[0], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[12] );
+      FFV1_1( w_sv[2], w_sv[1], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[9] );
+      FFV1_2( w_sv[12], w_sv[4], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[20] );
 
       // Amplitude(s) for diagram number 33
-      FFV1_0( w_sv[20], w_sv[9], w_sv[5], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[20], w_sv[9], w_sv[5], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[11] += -amp_sv[0];
 
       // *** DIAGRAM 34 OF 123 ***
 
       // Wavefunction(s) for diagram number 34
-      FFV1_2( w_sv[12], w_sv[5], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[21] );
+      FFV1_2( w_sv[12], w_sv[5], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[21] );
 
       // Amplitude(s) for diagram number 34
-      FFV1_0( w_sv[21], w_sv[9], w_sv[4], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[21], w_sv[9], w_sv[4], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[9] += -amp_sv[0];
 
       // *** DIAGRAM 35 OF 123 ***
@@ -569,17 +569,17 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 35
-      FFV1_0( w_sv[12], w_sv[9], w_sv[10], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[12], w_sv[9], w_sv[10], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[9] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[11] += -cxtype(0,1)*amp_sv[0];
 
       // *** DIAGRAM 36 OF 123 ***
 
       // Wavefunction(s) for diagram number 36
-      FFV1P0_3( w_sv[12], w_sv[2], cxmake( cIPC[2], cIPC[3] ), 0., 0., w_sv[22] );
+      FFV1P0_3( w_sv[12], w_sv[2], cxtype( cIPC[2], cIPC[3] ), 0., 0., w_sv[22] );
 
       // Amplitude(s) for diagram number 36
-      VVV1_0( w_sv[6], w_sv[5], w_sv[22], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[6], w_sv[5], w_sv[22], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[9] += +amp_sv[0];
       jamp_sv[15] += -amp_sv[0];
       jamp_sv[21] += -amp_sv[0];
@@ -591,7 +591,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 37
-      FFV1_0( w_sv[21], w_sv[2], w_sv[6], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[21], w_sv[2], w_sv[6], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[9] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[15] += -cxtype(0,1)*amp_sv[0];
 
@@ -601,7 +601,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 38
-      FFV1_0( w_sv[12], w_sv[14], w_sv[6], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[12], w_sv[14], w_sv[6], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[21] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[23] += -cxtype(0,1)*amp_sv[0];
 
@@ -611,7 +611,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 39
-      VVV1_0( w_sv[18], w_sv[4], w_sv[22], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[18], w_sv[4], w_sv[22], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[11] += +amp_sv[0];
       jamp_sv[15] += -amp_sv[0];
       jamp_sv[17] += +amp_sv[0];
@@ -623,7 +623,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 40
-      FFV1_0( w_sv[20], w_sv[2], w_sv[18], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[20], w_sv[2], w_sv[18], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[11] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[21] += -cxtype(0,1)*amp_sv[0];
 
@@ -633,17 +633,17 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 41
-      FFV1_0( w_sv[12], w_sv[11], w_sv[18], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[12], w_sv[11], w_sv[18], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[15] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[17] += -cxtype(0,1)*amp_sv[0];
 
       // *** DIAGRAM 42 OF 123 ***
 
       // Wavefunction(s) for diagram number 42
-      FFV1_2( w_sv[12], w_sv[1], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[23] );
+      FFV1_2( w_sv[12], w_sv[1], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[23] );
 
       // Amplitude(s) for diagram number 42
-      FFV1_0( w_sv[23], w_sv[11], w_sv[5], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[23], w_sv[11], w_sv[5], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[17] += -amp_sv[0];
 
       // *** DIAGRAM 43 OF 123 ***
@@ -652,7 +652,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 43
-      FFV1_0( w_sv[21], w_sv[11], w_sv[1], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[21], w_sv[11], w_sv[1], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[15] += -amp_sv[0];
 
       // *** DIAGRAM 44 OF 123 ***
@@ -661,7 +661,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 44
-      FFV1_0( w_sv[23], w_sv[14], w_sv[4], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[23], w_sv[14], w_sv[4], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[23] += -amp_sv[0];
 
       // *** DIAGRAM 45 OF 123 ***
@@ -670,7 +670,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 45
-      FFV1_0( w_sv[20], w_sv[14], w_sv[1], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[20], w_sv[14], w_sv[1], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[21] += -amp_sv[0];
 
       // *** DIAGRAM 46 OF 123 ***
@@ -679,7 +679,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 46
-      FFV1_0( w_sv[23], w_sv[2], w_sv[10], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[23], w_sv[2], w_sv[10], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[17] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[23] += -cxtype(0,1)*amp_sv[0];
 
@@ -689,7 +689,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 47
-      VVV1_0( w_sv[1], w_sv[10], w_sv[22], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[1], w_sv[10], w_sv[22], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[9] += +amp_sv[0];
       jamp_sv[11] += -amp_sv[0];
       jamp_sv[17] += -amp_sv[0];
@@ -701,17 +701,17 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 48
-      FFV1_0( w_sv[12], w_sv[2], w_sv[17], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[12], w_sv[2], w_sv[17], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[9] += +amp_sv[0];
       jamp_sv[11] += -amp_sv[0];
       jamp_sv[17] += -amp_sv[0];
       jamp_sv[23] += +amp_sv[0];
-      FFV1_0( w_sv[12], w_sv[2], w_sv[19], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[12], w_sv[2], w_sv[19], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[11] += -amp_sv[0];
       jamp_sv[15] += +amp_sv[0];
       jamp_sv[17] += -amp_sv[0];
       jamp_sv[21] += +amp_sv[0];
-      FFV1_0( w_sv[12], w_sv[2], w_sv[8], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[12], w_sv[2], w_sv[8], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[9] += -amp_sv[0];
       jamp_sv[15] += +amp_sv[0];
       jamp_sv[21] += +amp_sv[0];
@@ -720,21 +720,21 @@ namespace Proc
       // *** DIAGRAM 49 OF 123 ***
 
       // Wavefunction(s) for diagram number 49
-      VVV1P0_1( w_sv[0], w_sv[4], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[12] );
-      FFV1_2( w_sv[3], w_sv[12], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[22] );
+      VVV1P0_1( w_sv[0], w_sv[4], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[12] );
+      FFV1_2( w_sv[3], w_sv[12], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[22] );
 
       // Amplitude(s) for diagram number 49
-      FFV1_0( w_sv[22], w_sv[9], w_sv[5], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[22], w_sv[9], w_sv[5], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[10] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[11] += -cxtype(0,1)*amp_sv[0];
 
       // *** DIAGRAM 50 OF 123 ***
 
       // Wavefunction(s) for diagram number 50
-      VVV1P0_1( w_sv[12], w_sv[5], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[23] );
+      VVV1P0_1( w_sv[12], w_sv[5], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[23] );
 
       // Amplitude(s) for diagram number 50
-      FFV1_0( w_sv[3], w_sv[9], w_sv[23], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[9], w_sv[23], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[6] += +amp_sv[0];
       jamp_sv[8] += -amp_sv[0];
       jamp_sv[10] += -amp_sv[0];
@@ -746,17 +746,17 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 51
-      FFV1_0( w_sv[13], w_sv[9], w_sv[12], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[13], w_sv[9], w_sv[12], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[6] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[8] += -cxtype(0,1)*amp_sv[0];
 
       // *** DIAGRAM 52 OF 123 ***
 
       // Wavefunction(s) for diagram number 52
-      FFV1_1( w_sv[2], w_sv[12], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[20] );
+      FFV1_1( w_sv[2], w_sv[12], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[20] );
 
       // Amplitude(s) for diagram number 52
-      FFV1_0( w_sv[16], w_sv[20], w_sv[5], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[16], w_sv[20], w_sv[5], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[3] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[13] += -cxtype(0,1)*amp_sv[0];
 
@@ -766,7 +766,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 53
-      FFV1_0( w_sv[16], w_sv[2], w_sv[23], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[16], w_sv[2], w_sv[23], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[3] += +amp_sv[0];
       jamp_sv[13] += -amp_sv[0];
       jamp_sv[19] += -amp_sv[0];
@@ -778,7 +778,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 54
-      FFV1_0( w_sv[16], w_sv[14], w_sv[12], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[16], w_sv[14], w_sv[12], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[19] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[22] += -cxtype(0,1)*amp_sv[0];
 
@@ -788,7 +788,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 55
-      FFV1_0( w_sv[3], w_sv[20], w_sv[18], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[20], w_sv[18], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[2] += +amp_sv[0];
       jamp_sv[3] += -amp_sv[0];
       jamp_sv[12] += -amp_sv[0];
@@ -800,7 +800,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 56
-      FFV1_0( w_sv[22], w_sv[2], w_sv[18], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[22], w_sv[2], w_sv[18], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[10] += +amp_sv[0];
       jamp_sv[11] += -amp_sv[0];
       jamp_sv[20] += -amp_sv[0];
@@ -812,7 +812,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 57
-      VVV1_0( w_sv[12], w_sv[18], w_sv[7], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[12], w_sv[18], w_sv[7], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[2] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[3] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[10] += +cxtype(0,1)*amp_sv[0];
@@ -828,7 +828,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 58
-      VVVV1_0( w_sv[12], w_sv[1], w_sv[7], w_sv[5], cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      VVVV1_0( w_sv[12], w_sv[1], w_sv[7], w_sv[5], cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[2] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[6] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[8] += +cxtype(0,1)*amp_sv[0];
@@ -837,7 +837,7 @@ namespace Proc
       jamp_sv[20] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[21] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[22] += +cxtype(0,1)*amp_sv[0];
-      VVVV3_0( w_sv[12], w_sv[1], w_sv[7], w_sv[5], cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      VVVV3_0( w_sv[12], w_sv[1], w_sv[7], w_sv[5], cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[2] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[3] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[10] += -cxtype(0,1)*amp_sv[0];
@@ -846,7 +846,7 @@ namespace Proc
       jamp_sv[13] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[20] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[21] += -cxtype(0,1)*amp_sv[0];
-      VVVV4_0( w_sv[12], w_sv[1], w_sv[7], w_sv[5], cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      VVVV4_0( w_sv[12], w_sv[1], w_sv[7], w_sv[5], cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[3] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[6] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[8] += -cxtype(0,1)*amp_sv[0];
@@ -859,10 +859,10 @@ namespace Proc
       // *** DIAGRAM 59 OF 123 ***
 
       // Wavefunction(s) for diagram number 59
-      VVV1P0_1( w_sv[12], w_sv[1], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[21] );
+      VVV1P0_1( w_sv[12], w_sv[1], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[21] );
 
       // Amplitude(s) for diagram number 59
-      VVV1_0( w_sv[7], w_sv[5], w_sv[21], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[7], w_sv[5], w_sv[21], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[2] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[6] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[8] += +cxtype(0,1)*amp_sv[0];
@@ -878,7 +878,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 60
-      VVV1_0( w_sv[1], w_sv[7], w_sv[23], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[1], w_sv[7], w_sv[23], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[3] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[6] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[8] += -cxtype(0,1)*amp_sv[0];
@@ -894,7 +894,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 61
-      FFV1_0( w_sv[3], w_sv[14], w_sv[21], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[14], w_sv[21], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[19] += +amp_sv[0];
       jamp_sv[20] += -amp_sv[0];
       jamp_sv[21] += +amp_sv[0];
@@ -906,7 +906,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 62
-      FFV1_0( w_sv[22], w_sv[14], w_sv[1], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[22], w_sv[14], w_sv[1], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[20] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[21] += -cxtype(0,1)*amp_sv[0];
 
@@ -916,7 +916,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 63
-      FFV1_0( w_sv[13], w_sv[2], w_sv[21], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[13], w_sv[2], w_sv[21], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[2] += +amp_sv[0];
       jamp_sv[6] += -amp_sv[0];
       jamp_sv[8] += +amp_sv[0];
@@ -928,28 +928,28 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 64
-      FFV1_0( w_sv[13], w_sv[20], w_sv[1], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[13], w_sv[20], w_sv[1], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[2] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[12] += -cxtype(0,1)*amp_sv[0];
 
       // *** DIAGRAM 65 OF 123 ***
 
       // Wavefunction(s) for diagram number 65
-      VVV1P0_1( w_sv[0], w_sv[5], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[20] );
-      FFV1_2( w_sv[3], w_sv[20], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[21] );
+      VVV1P0_1( w_sv[0], w_sv[5], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[20] );
+      FFV1_2( w_sv[3], w_sv[20], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[21] );
 
       // Amplitude(s) for diagram number 65
-      FFV1_0( w_sv[21], w_sv[9], w_sv[4], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[21], w_sv[9], w_sv[4], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[8] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[9] += -cxtype(0,1)*amp_sv[0];
 
       // *** DIAGRAM 66 OF 123 ***
 
       // Wavefunction(s) for diagram number 66
-      VVV1P0_1( w_sv[20], w_sv[4], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[22] );
+      VVV1P0_1( w_sv[20], w_sv[4], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[22] );
 
       // Amplitude(s) for diagram number 66
-      FFV1_0( w_sv[3], w_sv[9], w_sv[22], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[9], w_sv[22], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[7] += +amp_sv[0];
       jamp_sv[8] += -amp_sv[0];
       jamp_sv[9] += +amp_sv[0];
@@ -961,17 +961,17 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 67
-      FFV1_0( w_sv[15], w_sv[9], w_sv[20], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[15], w_sv[9], w_sv[20], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[7] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[10] += -cxtype(0,1)*amp_sv[0];
 
       // *** DIAGRAM 68 OF 123 ***
 
       // Wavefunction(s) for diagram number 68
-      FFV1_1( w_sv[2], w_sv[20], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[23] );
+      FFV1_1( w_sv[2], w_sv[20], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[23] );
 
       // Amplitude(s) for diagram number 68
-      FFV1_0( w_sv[16], w_sv[23], w_sv[4], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[16], w_sv[23], w_sv[4], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[5] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[19] += -cxtype(0,1)*amp_sv[0];
 
@@ -981,7 +981,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 69
-      FFV1_0( w_sv[16], w_sv[2], w_sv[22], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[16], w_sv[2], w_sv[22], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[5] += +amp_sv[0];
       jamp_sv[13] += -amp_sv[0];
       jamp_sv[16] += +amp_sv[0];
@@ -993,7 +993,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 70
-      FFV1_0( w_sv[16], w_sv[11], w_sv[20], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[16], w_sv[11], w_sv[20], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[13] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[16] += -cxtype(0,1)*amp_sv[0];
 
@@ -1003,7 +1003,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 71
-      FFV1_0( w_sv[3], w_sv[23], w_sv[6], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[23], w_sv[6], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[4] += +amp_sv[0];
       jamp_sv[5] += -amp_sv[0];
       jamp_sv[18] += -amp_sv[0];
@@ -1015,7 +1015,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 72
-      FFV1_0( w_sv[21], w_sv[2], w_sv[6], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[21], w_sv[2], w_sv[6], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[8] += +amp_sv[0];
       jamp_sv[9] += -amp_sv[0];
       jamp_sv[14] += -amp_sv[0];
@@ -1027,7 +1027,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 73
-      VVV1_0( w_sv[20], w_sv[6], w_sv[7], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[20], w_sv[6], w_sv[7], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[4] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[5] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[8] += +cxtype(0,1)*amp_sv[0];
@@ -1043,7 +1043,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 74
-      VVVV1_0( w_sv[20], w_sv[1], w_sv[7], w_sv[4], cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      VVVV1_0( w_sv[20], w_sv[1], w_sv[7], w_sv[4], cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[4] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[7] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[10] += +cxtype(0,1)*amp_sv[0];
@@ -1052,7 +1052,7 @@ namespace Proc
       jamp_sv[15] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[16] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[18] += -cxtype(0,1)*amp_sv[0];
-      VVVV3_0( w_sv[20], w_sv[1], w_sv[7], w_sv[4], cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      VVVV3_0( w_sv[20], w_sv[1], w_sv[7], w_sv[4], cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[4] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[5] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[8] += -cxtype(0,1)*amp_sv[0];
@@ -1061,7 +1061,7 @@ namespace Proc
       jamp_sv[15] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[18] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[19] += +cxtype(0,1)*amp_sv[0];
-      VVVV4_0( w_sv[20], w_sv[1], w_sv[7], w_sv[4], cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      VVVV4_0( w_sv[20], w_sv[1], w_sv[7], w_sv[4], cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[5] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[7] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[8] += -cxtype(0,1)*amp_sv[0];
@@ -1074,10 +1074,10 @@ namespace Proc
       // *** DIAGRAM 75 OF 123 ***
 
       // Wavefunction(s) for diagram number 75
-      VVV1P0_1( w_sv[20], w_sv[1], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[12] );
+      VVV1P0_1( w_sv[20], w_sv[1], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[12] );
 
       // Amplitude(s) for diagram number 75
-      VVV1_0( w_sv[7], w_sv[4], w_sv[12], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[7], w_sv[4], w_sv[12], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[4] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[7] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[10] += +cxtype(0,1)*amp_sv[0];
@@ -1093,7 +1093,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 76
-      VVV1_0( w_sv[1], w_sv[7], w_sv[22], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[1], w_sv[7], w_sv[22], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[5] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[7] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[8] += -cxtype(0,1)*amp_sv[0];
@@ -1109,7 +1109,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 77
-      FFV1_0( w_sv[3], w_sv[11], w_sv[12], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[11], w_sv[12], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[13] += +amp_sv[0];
       jamp_sv[14] += -amp_sv[0];
       jamp_sv[15] += +amp_sv[0];
@@ -1121,7 +1121,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 78
-      FFV1_0( w_sv[21], w_sv[11], w_sv[1], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[21], w_sv[11], w_sv[1], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[14] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[15] += -cxtype(0,1)*amp_sv[0];
 
@@ -1131,7 +1131,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 79
-      FFV1_0( w_sv[15], w_sv[2], w_sv[12], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[15], w_sv[2], w_sv[12], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[4] += +amp_sv[0];
       jamp_sv[7] += -amp_sv[0];
       jamp_sv[10] += +amp_sv[0];
@@ -1143,26 +1143,26 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 80
-      FFV1_0( w_sv[15], w_sv[23], w_sv[1], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[15], w_sv[23], w_sv[1], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[4] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[18] += -cxtype(0,1)*amp_sv[0];
 
       // *** DIAGRAM 81 OF 123 ***
 
       // Wavefunction(s) for diagram number 81
-      FFV1_1( w_sv[9], w_sv[0], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[23] );
+      FFV1_1( w_sv[9], w_sv[0], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[23] );
 
       // Amplitude(s) for diagram number 81
-      FFV1_0( w_sv[15], w_sv[23], w_sv[5], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[15], w_sv[23], w_sv[5], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[7] += -amp_sv[0];
 
       // *** DIAGRAM 82 OF 123 ***
 
       // Wavefunction(s) for diagram number 82
-      FFV1_2( w_sv[15], w_sv[0], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[12] );
+      FFV1_2( w_sv[15], w_sv[0], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[12] );
 
       // Amplitude(s) for diagram number 82
-      FFV1_0( w_sv[12], w_sv[9], w_sv[5], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[12], w_sv[9], w_sv[5], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[10] += -amp_sv[0];
 
       // *** DIAGRAM 83 OF 123 ***
@@ -1171,16 +1171,16 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 83
-      FFV1_0( w_sv[13], w_sv[23], w_sv[4], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[13], w_sv[23], w_sv[4], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[6] += -amp_sv[0];
 
       // *** DIAGRAM 84 OF 123 ***
 
       // Wavefunction(s) for diagram number 84
-      FFV1_2( w_sv[13], w_sv[0], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[21] );
+      FFV1_2( w_sv[13], w_sv[0], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[21] );
 
       // Amplitude(s) for diagram number 84
-      FFV1_0( w_sv[21], w_sv[9], w_sv[4], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[21], w_sv[9], w_sv[4], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[8] += -amp_sv[0];
 
       // *** DIAGRAM 85 OF 123 ***
@@ -1189,17 +1189,17 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 85
-      FFV1_0( w_sv[3], w_sv[23], w_sv[10], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[23], w_sv[10], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[6] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[7] += -cxtype(0,1)*amp_sv[0];
 
       // *** DIAGRAM 86 OF 123 ***
 
       // Wavefunction(s) for diagram number 86
-      VVV1P0_1( w_sv[0], w_sv[10], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[23] );
+      VVV1P0_1( w_sv[0], w_sv[10], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[23] );
 
       // Amplitude(s) for diagram number 86
-      FFV1_0( w_sv[3], w_sv[9], w_sv[23], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[9], w_sv[23], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[6] += +amp_sv[0];
       jamp_sv[7] += -amp_sv[0];
       jamp_sv[9] += -amp_sv[0];
@@ -1208,19 +1208,19 @@ namespace Proc
       // *** DIAGRAM 87 OF 123 ***
 
       // Wavefunction(s) for diagram number 87
-      FFV1_2( w_sv[16], w_sv[0], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[22] );
+      FFV1_2( w_sv[16], w_sv[0], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[22] );
 
       // Amplitude(s) for diagram number 87
-      FFV1_0( w_sv[22], w_sv[11], w_sv[5], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[22], w_sv[11], w_sv[5], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[16] += -amp_sv[0];
 
       // *** DIAGRAM 88 OF 123 ***
 
       // Wavefunction(s) for diagram number 88
-      FFV1_1( w_sv[11], w_sv[0], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[20] );
+      FFV1_1( w_sv[11], w_sv[0], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[20] );
 
       // Amplitude(s) for diagram number 88
-      FFV1_0( w_sv[16], w_sv[20], w_sv[5], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[16], w_sv[20], w_sv[5], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[13] += -amp_sv[0];
 
       // *** DIAGRAM 89 OF 123 ***
@@ -1229,16 +1229,16 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 89
-      FFV1_0( w_sv[22], w_sv[14], w_sv[4], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[22], w_sv[14], w_sv[4], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[22] += -amp_sv[0];
 
       // *** DIAGRAM 90 OF 123 ***
 
       // Wavefunction(s) for diagram number 90
-      FFV1_1( w_sv[14], w_sv[0], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[24] );
+      FFV1_1( w_sv[14], w_sv[0], cxtype( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[24] );
 
       // Amplitude(s) for diagram number 90
-      FFV1_0( w_sv[16], w_sv[24], w_sv[4], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[16], w_sv[24], w_sv[4], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[19] += -amp_sv[0];
 
       // *** DIAGRAM 91 OF 123 ***
@@ -1247,7 +1247,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 91
-      FFV1_0( w_sv[22], w_sv[2], w_sv[10], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[22], w_sv[2], w_sv[10], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[16] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[22] += -cxtype(0,1)*amp_sv[0];
 
@@ -1257,7 +1257,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 92
-      FFV1_0( w_sv[16], w_sv[2], w_sv[23], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[16], w_sv[2], w_sv[23], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[3] += +amp_sv[0];
       jamp_sv[5] += -amp_sv[0];
       jamp_sv[16] += -amp_sv[0];
@@ -1269,7 +1269,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 93
-      VVVV1_0( w_sv[0], w_sv[6], w_sv[7], w_sv[5], cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      VVVV1_0( w_sv[0], w_sv[6], w_sv[7], w_sv[5], cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[2] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[8] += -cxtype(0,1)*amp_sv[0];
@@ -1278,7 +1278,7 @@ namespace Proc
       jamp_sv[19] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[21] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[23] += -cxtype(0,1)*amp_sv[0];
-      VVVV3_0( w_sv[0], w_sv[6], w_sv[7], w_sv[5], cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      VVVV3_0( w_sv[0], w_sv[6], w_sv[7], w_sv[5], cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[2] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[4] += -cxtype(0,1)*amp_sv[0];
@@ -1287,7 +1287,7 @@ namespace Proc
       jamp_sv[15] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[21] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[23] += -cxtype(0,1)*amp_sv[0];
-      VVVV4_0( w_sv[0], w_sv[6], w_sv[7], w_sv[5], cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      VVVV4_0( w_sv[0], w_sv[6], w_sv[7], w_sv[5], cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[4] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[5] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[8] += +cxtype(0,1)*amp_sv[0];
@@ -1300,10 +1300,10 @@ namespace Proc
       // *** DIAGRAM 94 OF 123 ***
 
       // Wavefunction(s) for diagram number 94
-      VVV1P0_1( w_sv[0], w_sv[6], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[22] );
+      VVV1P0_1( w_sv[0], w_sv[6], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[22] );
 
       // Amplitude(s) for diagram number 94
-      VVV1_0( w_sv[7], w_sv[5], w_sv[22], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[7], w_sv[5], w_sv[22], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[2] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[8] += -cxtype(0,1)*amp_sv[0];
@@ -1316,10 +1316,10 @@ namespace Proc
       // *** DIAGRAM 95 OF 123 ***
 
       // Wavefunction(s) for diagram number 95
-      VVV1P0_1( w_sv[0], w_sv[7], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[25] );
+      VVV1P0_1( w_sv[0], w_sv[7], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[25] );
 
       // Amplitude(s) for diagram number 95
-      VVV1_0( w_sv[6], w_sv[5], w_sv[25], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[6], w_sv[5], w_sv[25], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[2] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[4] += -cxtype(0,1)*amp_sv[0];
@@ -1335,7 +1335,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 96
-      FFV1_0( w_sv[3], w_sv[14], w_sv[22], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[14], w_sv[22], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[18] += +amp_sv[0];
       jamp_sv[19] += -amp_sv[0];
       jamp_sv[21] += -amp_sv[0];
@@ -1347,7 +1347,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 97
-      FFV1_0( w_sv[3], w_sv[24], w_sv[6], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[24], w_sv[6], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[18] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[19] += -cxtype(0,1)*amp_sv[0];
 
@@ -1357,7 +1357,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 98
-      FFV1_0( w_sv[13], w_sv[2], w_sv[22], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[13], w_sv[2], w_sv[22], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[0] += +amp_sv[0];
       jamp_sv[2] += -amp_sv[0];
       jamp_sv[8] += -amp_sv[0];
@@ -1369,7 +1369,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 99
-      FFV1_0( w_sv[21], w_sv[2], w_sv[6], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[21], w_sv[2], w_sv[6], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[8] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[14] += -cxtype(0,1)*amp_sv[0];
 
@@ -1379,7 +1379,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 100
-      VVVV1_0( w_sv[0], w_sv[18], w_sv[7], w_sv[4], cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      VVVV1_0( w_sv[0], w_sv[18], w_sv[7], w_sv[4], cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[1] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[4] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[10] += -cxtype(0,1)*amp_sv[0];
@@ -1388,7 +1388,7 @@ namespace Proc
       jamp_sv[15] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[17] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[20] += +cxtype(0,1)*amp_sv[0];
-      VVVV3_0( w_sv[0], w_sv[18], w_sv[7], w_sv[4], cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      VVVV3_0( w_sv[0], w_sv[18], w_sv[7], w_sv[4], cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[1] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[2] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[3] += +cxtype(0,1)*amp_sv[0];
@@ -1397,7 +1397,7 @@ namespace Proc
       jamp_sv[15] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[17] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[21] += +cxtype(0,1)*amp_sv[0];
-      VVVV4_0( w_sv[0], w_sv[18], w_sv[7], w_sv[4], cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      VVVV4_0( w_sv[0], w_sv[18], w_sv[7], w_sv[4], cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[2] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[3] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[10] += +cxtype(0,1)*amp_sv[0];
@@ -1410,10 +1410,10 @@ namespace Proc
       // *** DIAGRAM 101 OF 123 ***
 
       // Wavefunction(s) for diagram number 101
-      VVV1P0_1( w_sv[0], w_sv[18], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[6] );
+      VVV1P0_1( w_sv[0], w_sv[18], cxtype( cIPC[0], cIPC[1] ), 0., 0., w_sv[6] );
 
       // Amplitude(s) for diagram number 101
-      VVV1_0( w_sv[7], w_sv[4], w_sv[6], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[7], w_sv[4], w_sv[6], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[1] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[4] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[10] += -cxtype(0,1)*amp_sv[0];
@@ -1429,7 +1429,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 102
-      VVV1_0( w_sv[18], w_sv[4], w_sv[25], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[18], w_sv[4], w_sv[25], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[1] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[2] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[3] += +cxtype(0,1)*amp_sv[0];
@@ -1445,7 +1445,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 103
-      FFV1_0( w_sv[3], w_sv[11], w_sv[6], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[11], w_sv[6], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[12] += +amp_sv[0];
       jamp_sv[13] += -amp_sv[0];
       jamp_sv[15] += -amp_sv[0];
@@ -1457,7 +1457,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 104
-      FFV1_0( w_sv[3], w_sv[20], w_sv[18], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[20], w_sv[18], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[12] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[13] += -cxtype(0,1)*amp_sv[0];
 
@@ -1467,7 +1467,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 105
-      FFV1_0( w_sv[15], w_sv[2], w_sv[6], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[15], w_sv[2], w_sv[6], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[1] += +amp_sv[0];
       jamp_sv[4] += -amp_sv[0];
       jamp_sv[10] += -amp_sv[0];
@@ -1479,7 +1479,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 106
-      FFV1_0( w_sv[12], w_sv[2], w_sv[18], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[12], w_sv[2], w_sv[18], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[10] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[20] += -cxtype(0,1)*amp_sv[0];
 
@@ -1489,7 +1489,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 107
-      VVVV1_0( w_sv[0], w_sv[1], w_sv[7], w_sv[10], cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      VVVV1_0( w_sv[0], w_sv[1], w_sv[7], w_sv[10], cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[1] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[6] += -cxtype(0,1)*amp_sv[0];
@@ -1498,7 +1498,7 @@ namespace Proc
       jamp_sv[17] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[22] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[23] += -cxtype(0,1)*amp_sv[0];
-      VVVV3_0( w_sv[0], w_sv[1], w_sv[7], w_sv[10], cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      VVVV3_0( w_sv[0], w_sv[1], w_sv[7], w_sv[10], cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[1] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[3] += -cxtype(0,1)*amp_sv[0];
@@ -1507,7 +1507,7 @@ namespace Proc
       jamp_sv[11] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[17] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[23] += -cxtype(0,1)*amp_sv[0];
-      VVVV4_0( w_sv[0], w_sv[1], w_sv[7], w_sv[10], cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      VVVV4_0( w_sv[0], w_sv[1], w_sv[7], w_sv[10], cxtype( cIPC[4], cIPC[5] ), &amp_sv[0] );
       jamp_sv[3] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[5] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[6] += +cxtype(0,1)*amp_sv[0];
@@ -1523,7 +1523,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 108
-      VVV1_0( w_sv[1], w_sv[10], w_sv[25], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[1], w_sv[10], w_sv[25], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[1] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[3] += -cxtype(0,1)*amp_sv[0];
@@ -1539,7 +1539,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 109
-      VVV1_0( w_sv[1], w_sv[7], w_sv[23], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[1], w_sv[7], w_sv[23], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[3] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[5] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[6] += +cxtype(0,1)*amp_sv[0];
@@ -1555,7 +1555,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 110
-      FFV1_0( w_sv[13], w_sv[20], w_sv[1], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[13], w_sv[20], w_sv[1], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[12] += -amp_sv[0];
 
       // *** DIAGRAM 111 OF 123 ***
@@ -1564,7 +1564,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 111
-      FFV1_0( w_sv[21], w_sv[11], w_sv[1], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[21], w_sv[11], w_sv[1], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[14] += -amp_sv[0];
 
       // *** DIAGRAM 112 OF 123 ***
@@ -1573,7 +1573,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 112
-      FFV1_0( w_sv[15], w_sv[24], w_sv[1], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[15], w_sv[24], w_sv[1], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[18] += -amp_sv[0];
 
       // *** DIAGRAM 113 OF 123 ***
@@ -1582,18 +1582,18 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 113
-      FFV1_0( w_sv[12], w_sv[14], w_sv[1], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[12], w_sv[14], w_sv[1], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[20] += -amp_sv[0];
 
       // *** DIAGRAM 114 OF 123 ***
 
       // Wavefunction(s) for diagram number 114
-      VVVV1P0_1( w_sv[0], w_sv[1], w_sv[4], cxmake( cIPC[4], cIPC[5] ), 0., 0., w_sv[12] );
-      VVVV3P0_1( w_sv[0], w_sv[1], w_sv[4], cxmake( cIPC[4], cIPC[5] ), 0., 0., w_sv[24] );
-      VVVV4P0_1( w_sv[0], w_sv[1], w_sv[4], cxmake( cIPC[4], cIPC[5] ), 0., 0., w_sv[21] );
+      VVVV1P0_1( w_sv[0], w_sv[1], w_sv[4], cxtype( cIPC[4], cIPC[5] ), 0., 0., w_sv[12] );
+      VVVV3P0_1( w_sv[0], w_sv[1], w_sv[4], cxtype( cIPC[4], cIPC[5] ), 0., 0., w_sv[24] );
+      VVVV4P0_1( w_sv[0], w_sv[1], w_sv[4], cxtype( cIPC[4], cIPC[5] ), 0., 0., w_sv[21] );
 
       // Amplitude(s) for diagram number 114
-      VVV1_0( w_sv[12], w_sv[7], w_sv[5], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[12], w_sv[7], w_sv[5], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[2] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[8] += -cxtype(0,1)*amp_sv[0];
@@ -1602,7 +1602,7 @@ namespace Proc
       jamp_sv[19] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[21] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[23] += -cxtype(0,1)*amp_sv[0];
-      VVV1_0( w_sv[24], w_sv[7], w_sv[5], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[24], w_sv[7], w_sv[5], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[2] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[6] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[8] += -cxtype(0,1)*amp_sv[0];
@@ -1611,7 +1611,7 @@ namespace Proc
       jamp_sv[20] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[21] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[22] += -cxtype(0,1)*amp_sv[0];
-      VVV1_0( w_sv[21], w_sv[7], w_sv[5], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[21], w_sv[7], w_sv[5], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[0] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[6] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[12] += +cxtype(0,1)*amp_sv[0];
@@ -1627,17 +1627,17 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 115
-      FFV1_0( w_sv[3], w_sv[14], w_sv[12], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[14], w_sv[12], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[18] += +amp_sv[0];
       jamp_sv[19] += -amp_sv[0];
       jamp_sv[21] += -amp_sv[0];
       jamp_sv[23] += +amp_sv[0];
-      FFV1_0( w_sv[3], w_sv[14], w_sv[24], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[14], w_sv[24], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[19] += -amp_sv[0];
       jamp_sv[20] += +amp_sv[0];
       jamp_sv[21] += -amp_sv[0];
       jamp_sv[22] += +amp_sv[0];
-      FFV1_0( w_sv[3], w_sv[14], w_sv[21], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[14], w_sv[21], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[18] += -amp_sv[0];
       jamp_sv[20] += +amp_sv[0];
       jamp_sv[22] += +amp_sv[0];
@@ -1649,17 +1649,17 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 116
-      FFV1_0( w_sv[13], w_sv[2], w_sv[12], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[13], w_sv[2], w_sv[12], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[0] += +amp_sv[0];
       jamp_sv[2] += -amp_sv[0];
       jamp_sv[8] += -amp_sv[0];
       jamp_sv[14] += +amp_sv[0];
-      FFV1_0( w_sv[13], w_sv[2], w_sv[24], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[13], w_sv[2], w_sv[24], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[2] += -amp_sv[0];
       jamp_sv[6] += +amp_sv[0];
       jamp_sv[8] += -amp_sv[0];
       jamp_sv[12] += +amp_sv[0];
-      FFV1_0( w_sv[13], w_sv[2], w_sv[21], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[13], w_sv[2], w_sv[21], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[0] += -amp_sv[0];
       jamp_sv[6] += +amp_sv[0];
       jamp_sv[12] += +amp_sv[0];
@@ -1668,12 +1668,12 @@ namespace Proc
       // *** DIAGRAM 117 OF 123 ***
 
       // Wavefunction(s) for diagram number 117
-      VVVV1P0_1( w_sv[0], w_sv[1], w_sv[5], cxmake( cIPC[4], cIPC[5] ), 0., 0., w_sv[21] );
-      VVVV3P0_1( w_sv[0], w_sv[1], w_sv[5], cxmake( cIPC[4], cIPC[5] ), 0., 0., w_sv[13] );
-      VVVV4P0_1( w_sv[0], w_sv[1], w_sv[5], cxmake( cIPC[4], cIPC[5] ), 0., 0., w_sv[24] );
+      VVVV1P0_1( w_sv[0], w_sv[1], w_sv[5], cxtype( cIPC[4], cIPC[5] ), 0., 0., w_sv[21] );
+      VVVV3P0_1( w_sv[0], w_sv[1], w_sv[5], cxtype( cIPC[4], cIPC[5] ), 0., 0., w_sv[13] );
+      VVVV4P0_1( w_sv[0], w_sv[1], w_sv[5], cxtype( cIPC[4], cIPC[5] ), 0., 0., w_sv[24] );
 
       // Amplitude(s) for diagram number 117
-      VVV1_0( w_sv[21], w_sv[7], w_sv[4], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[21], w_sv[7], w_sv[4], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[1] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[4] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[10] += -cxtype(0,1)*amp_sv[0];
@@ -1682,7 +1682,7 @@ namespace Proc
       jamp_sv[15] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[17] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[20] += +cxtype(0,1)*amp_sv[0];
-      VVV1_0( w_sv[13], w_sv[7], w_sv[4], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[13], w_sv[7], w_sv[4], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[4] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[7] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[10] += -cxtype(0,1)*amp_sv[0];
@@ -1691,7 +1691,7 @@ namespace Proc
       jamp_sv[15] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[16] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[18] += +cxtype(0,1)*amp_sv[0];
-      VVV1_0( w_sv[24], w_sv[7], w_sv[4], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[24], w_sv[7], w_sv[4], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[1] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[7] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[12] += +cxtype(0,1)*amp_sv[0];
@@ -1707,17 +1707,17 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 118
-      FFV1_0( w_sv[3], w_sv[11], w_sv[21], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[11], w_sv[21], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[12] += +amp_sv[0];
       jamp_sv[13] += -amp_sv[0];
       jamp_sv[15] += -amp_sv[0];
       jamp_sv[17] += +amp_sv[0];
-      FFV1_0( w_sv[3], w_sv[11], w_sv[13], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[11], w_sv[13], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[13] += -amp_sv[0];
       jamp_sv[14] += +amp_sv[0];
       jamp_sv[15] += -amp_sv[0];
       jamp_sv[16] += +amp_sv[0];
-      FFV1_0( w_sv[3], w_sv[11], w_sv[24], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[11], w_sv[24], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[12] += -amp_sv[0];
       jamp_sv[14] += +amp_sv[0];
       jamp_sv[16] += +amp_sv[0];
@@ -1729,17 +1729,17 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 119
-      FFV1_0( w_sv[15], w_sv[2], w_sv[21], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[15], w_sv[2], w_sv[21], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[1] += +amp_sv[0];
       jamp_sv[4] += -amp_sv[0];
       jamp_sv[10] += -amp_sv[0];
       jamp_sv[20] += +amp_sv[0];
-      FFV1_0( w_sv[15], w_sv[2], w_sv[13], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[15], w_sv[2], w_sv[13], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[4] += -amp_sv[0];
       jamp_sv[7] += +amp_sv[0];
       jamp_sv[10] += -amp_sv[0];
       jamp_sv[18] += +amp_sv[0];
-      FFV1_0( w_sv[15], w_sv[2], w_sv[24], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[15], w_sv[2], w_sv[24], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[1] += -amp_sv[0];
       jamp_sv[7] += +amp_sv[0];
       jamp_sv[18] += +amp_sv[0];
@@ -1748,22 +1748,22 @@ namespace Proc
       // *** DIAGRAM 120 OF 123 ***
 
       // Wavefunction(s) for diagram number 120
-      VVVV1P0_1( w_sv[0], w_sv[4], w_sv[5], cxmake( cIPC[4], cIPC[5] ), 0., 0., w_sv[24] );
-      VVVV3P0_1( w_sv[0], w_sv[4], w_sv[5], cxmake( cIPC[4], cIPC[5] ), 0., 0., w_sv[15] );
-      VVVV4P0_1( w_sv[0], w_sv[4], w_sv[5], cxmake( cIPC[4], cIPC[5] ), 0., 0., w_sv[13] );
+      VVVV1P0_1( w_sv[0], w_sv[4], w_sv[5], cxtype( cIPC[4], cIPC[5] ), 0., 0., w_sv[24] );
+      VVVV3P0_1( w_sv[0], w_sv[4], w_sv[5], cxtype( cIPC[4], cIPC[5] ), 0., 0., w_sv[15] );
+      VVVV4P0_1( w_sv[0], w_sv[4], w_sv[5], cxtype( cIPC[4], cIPC[5] ), 0., 0., w_sv[13] );
 
       // Amplitude(s) for diagram number 120
-      FFV1_0( w_sv[3], w_sv[9], w_sv[24], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[9], w_sv[24], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[6] += +amp_sv[0];
       jamp_sv[7] += -amp_sv[0];
       jamp_sv[9] += -amp_sv[0];
       jamp_sv[11] += +amp_sv[0];
-      FFV1_0( w_sv[3], w_sv[9], w_sv[15], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[9], w_sv[15], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[7] += -amp_sv[0];
       jamp_sv[8] += +amp_sv[0];
       jamp_sv[9] += -amp_sv[0];
       jamp_sv[10] += +amp_sv[0];
-      FFV1_0( w_sv[3], w_sv[9], w_sv[13], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[9], w_sv[13], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[6] += -amp_sv[0];
       jamp_sv[8] += +amp_sv[0];
       jamp_sv[10] += +amp_sv[0];
@@ -1775,17 +1775,17 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 121
-      FFV1_0( w_sv[16], w_sv[2], w_sv[24], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[16], w_sv[2], w_sv[24], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[3] += +amp_sv[0];
       jamp_sv[5] += -amp_sv[0];
       jamp_sv[16] += -amp_sv[0];
       jamp_sv[22] += +amp_sv[0];
-      FFV1_0( w_sv[16], w_sv[2], w_sv[15], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[16], w_sv[2], w_sv[15], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[5] += -amp_sv[0];
       jamp_sv[13] += +amp_sv[0];
       jamp_sv[16] += -amp_sv[0];
       jamp_sv[19] += +amp_sv[0];
-      FFV1_0( w_sv[16], w_sv[2], w_sv[13], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[16], w_sv[2], w_sv[13], cxtype( cIPC[2], cIPC[3] ), &amp_sv[0] );
       jamp_sv[3] += -amp_sv[0];
       jamp_sv[13] += +amp_sv[0];
       jamp_sv[19] += +amp_sv[0];
@@ -1797,7 +1797,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 122
-      VVV1_0( w_sv[24], w_sv[1], w_sv[7], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[24], w_sv[1], w_sv[7], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[3] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[5] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[6] += +cxtype(0,1)*amp_sv[0];
@@ -1806,7 +1806,7 @@ namespace Proc
       jamp_sv[11] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[16] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[22] += -cxtype(0,1)*amp_sv[0];
-      VVV1_0( w_sv[15], w_sv[1], w_sv[7], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[15], w_sv[1], w_sv[7], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[5] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[7] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[8] += +cxtype(0,1)*amp_sv[0];
@@ -1815,7 +1815,7 @@ namespace Proc
       jamp_sv[13] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[16] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[19] += -cxtype(0,1)*amp_sv[0];
-      VVV1_0( w_sv[13], w_sv[1], w_sv[7], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[13], w_sv[1], w_sv[7], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[3] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[6] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[8] += +cxtype(0,1)*amp_sv[0];
@@ -1831,7 +1831,7 @@ namespace Proc
       // (none)
 
       // Amplitude(s) for diagram number 123
-      VVV1_0( w_sv[0], w_sv[17], w_sv[7], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[0], w_sv[17], w_sv[7], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[0] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[1] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[3] += +cxtype(0,1)*amp_sv[0];
@@ -1840,7 +1840,7 @@ namespace Proc
       jamp_sv[11] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[17] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[23] += +cxtype(0,1)*amp_sv[0];
-      VVV1_0( w_sv[0], w_sv[19], w_sv[7], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[0], w_sv[19], w_sv[7], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[1] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[2] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[3] += +cxtype(0,1)*amp_sv[0];
@@ -1849,7 +1849,7 @@ namespace Proc
       jamp_sv[15] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[17] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[21] += +cxtype(0,1)*amp_sv[0];
-      VVV1_0( w_sv[0], w_sv[8], w_sv[7], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      VVV1_0( w_sv[0], w_sv[8], w_sv[7], cxtype( cIPC[0], cIPC[1] ), &amp_sv[0] );
       jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[2] += -cxtype(0,1)*amp_sv[0];
       jamp_sv[4] += -cxtype(0,1)*amp_sv[0];
