@@ -3,6 +3,8 @@ KOKKOSPATH_OMP ?= /home/jchilders/git/kokkos/install_omp
 KOKKOSPATH_INTEL ?= $(KOKKOS_HOME)
 KOKKOSPATH_HIP ?= /home/jchilders/git/kokkos/install_mi50
 
+MODELLIB = model_%(model)
+
 INCDIR=../../src
 CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++17 -lineinfo
 LDFLAGS=
@@ -29,26 +31,30 @@ INTEL_LDFLAGS=$(LDFLAGS)  $(KOKKOSPATH_INTEL)/lib64/libkokkoscore.a -fiopenmp -f
 HIP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_HIP)/include -fopenmp -fno-gpu-rdc --amdgpu-target=gfx906
 HIP_LDFLAGS=$(LDFLAGS) -L $(KOKKOSPATH_HIP)/lib64  -lkokkoscore -ldl -fopenmp 
 
+FILES = check_sm.ext
+CHECK_H = CPPProcess.h ../../src/HelAmps_sm.h ../../src/Parameters_sm.h ../../src/rambo.h ../../src/random_generator.h CalcMean.h
+
 cuda_exe=ccheck.exe
-cuda_obj=ccheck_sa.o
+cuda_objects=$(FILES:.ext=.cuda.o)
+cuda_libmodel=../../lib/libmodel_sm_cuda.a
 openmp_exe=ocheck.exe
-openmp_obj=ocheck_sa.o
+openmp_objects=$(FILES:.ext=.openmp.o)
+openmp_libmodel=../../lib/libmodel_sm_openmp.a
 intel_exe=icheck.exe
-intel_obj=icheck.o
+intel_objects=$(FILES:.ext=.intel.o)
+intel_libmodel=../../lib/libmodel_sm_intel.a
 hip_exe=hcheck.exe
-hip_obj=hcheck.o
-libmodel_sa=../../lib/libmodel_sa.a
-intel_libmodel_sa=../../lib/libmodel_sa_intel.a
-hip_libmodel_sa=../../lib/libmodel_sa_hip.a
+hip_objects=$(FILES:.ext=.hip.o)
+hip_libmodel=../../lib/libmodel_sm_hip.a
+
 
 all: cuda openmp intel hip
 
-
 cuda:
-	make -C ../../src
+	make -C ../../src cuda
 	make $(cuda_exe)
 openmp: 
-	make -C ../../src
+	make -C ../../src openmp
 	make $(openmp_exe)
 intel:
 	make -C ../../src intel
@@ -57,50 +63,33 @@ hip:
 	make -C ../../src hip
 	make $(hip_exe)
 
-$(cuda_obj): check_sa.cpp ../../src/rambo.h ../../src/random_generator.h CPPProcess.h
-	$(NVCC) -c $< -o $@ $(CUDA_CXXFLAGS) $(CUDA_COMPLEX)
+# compile object files
 
-$(cuda_exe): $(cuda_obj) $(libmodel_sa)
-	$(NVCC)  $(cuda_obj) -o $@ $(CUDA_LDFLAGS) $(libmodel_sa)
+%.openmp.o : %.cpp $(CHECK_H)
+	$(CXX) $(OPENMP_CXXFLAGS) -c $< -o $@
 
-$(openmp_obj): check_sa.cpp ../../src/rambo.h ../../src/random_generator.h CPPProcess.h
-	$(CXX) -c $< -o $@ $(OPENMP_CXXFLAGS)
+%.cuda.o : %.cpp $(CHECK_H)
+	$(NVCC) $(CUDA_CXXFLAGS) -c $< -o $@
 
-$(openmp_exe): $(openmp_obj) $(libmodel_sa)
-	$(CXX) $(openmp_obj) -o $@ $(OPENMP_LDFLAGS) $(libmodel_sa)
+%.intel.o : %.cpp $(CHECK_H)
+	$(ICPX) $(INTEL_CXXFLAGS) -c $< -o $@
 
-$(intel_obj): check_sa.cpp ../../src/rambo.h ../../src/random_generator.h CPPProcess.h
-	$(IPCX) -c $< -o $@ $(INTEL_CXXFLAGS)
+%.hip.o : %.cpp $(CHECK_H)
+	$(HIPCC) $(HIP_CXXFLAGS) -c $< -o $@
 
-$(intel_exe): $(intel_obj) $(intel_libmodel_sa)
-	$(IPCX) $(intel_obj) -o $@ $(INTEL_LDFLAGS) $(intel_libmodel_sa)
+$(cuda_exe): $(cuda_objects) $(cuda_libmodel)
+	$(NVCC) $(cuda_objects) -o $@ $(CUDA_LDFLAGS) $(cuda_libmodel)
 
-$(hip_obj): check_sa.cpp ../../src/rambo.h ../../src/random_generator.h CPPProcess.h
-	$(HIPCC) -c $< -o $@ $(HIP_CXXFLAGS)
+$(openmp_exe): $(openmp_objects) $(openmp_libmodel)
+	$(CXX) $(openmp_objects) -o $@ $(OPENMP_LDFLAGS) $(openmp_libmodel)
 
-$(hip_exe): $(hip_obj) $(hip_libmodel_sa)
-	$(HIPCC) $(hip_obj) -o $@ $(HIP_LDFLAGS) $(hip_libmodel_sa)
+$(intel_exe): $(intel_objects) $(intel_libmodel)
+	$(IPCX) $(intel_objects) -o $@ $(INTEL_LDFLAGS) $(intel_libmodel)
 
-.PHONY: clean
+$(hip_exe): $(hip_objects) $(hip_libmodel)
+	$(HIPCC) $(hip_objects) -o $@ $(HIP_LDFLAGS) $(hip_libmodel)
+
 
 clean:
 	make -C ../../src clean
-	rm -f $(cuda_obj) $(cuda_exe) $(openmp_obj) $(openmp_exe) $(intel_exe) $(intel_obj) $(hip_exe) $(hip_obj)
-
-memcheck: check
-	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes ./check.exe 5 5 10
-
-perf: force
-	make clean && make
-	time ./check.exe -p 1024 16 384 && date
-
-test: force
-	./check.exe -v 1 1 10
-
-force:
-
-#Allowed values for this option: 'compute_30', 'compute_32', 'compute_35', 'compute_37', 'compute_50', 'compute_52', 'compute_53', 'compute_60', 'compute_61', 'compute_62', 'compute_70', 'compute_72', 'compute_75', 'sm_30', 'sm_32', 'sm_35', 'sm_37', 'sm_50', 'sm_52', 'sm_53', 'sm_60', 'sm_61', 'sm_62', 'sm_70', 'sm_72', 'sm_75'.
-
-# Max compute architectures
-# cern batch (tesla v100): 70
-# jetson nano (maxwell): 35
+	rm -f $(cuda_objects) $(cuda_exe) $(openmp_objects) $(openmp_exe) $(intel_exe) $(intel_objects) $(hip_exe) $(hip_objects)
