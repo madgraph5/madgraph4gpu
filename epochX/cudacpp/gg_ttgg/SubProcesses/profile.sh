@@ -86,6 +86,18 @@ nsysgui="nsight-sys &"
 ###  nsysgui="Launch the Nsight System GUI from Windows"
 ###fi
 
+# Settings specific to CERN IT/SC nodes
+# (nsys 11.4 and 11.5 fail with 'boost::wrapexcept<QuadDCommon::NotFoundException>')
+host=$(hostname)
+if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##itsc}" != "${host}" ]; then
+  CUDA_NSIGHT_HOME=/usr/local/cuda-11.1
+  echo "Using Nsight from ${CUDA_NSIGHT_HOME}"
+  ncu=${CUDA_NSIGHT_HOME}/bin/ncu
+  nsys=${CUDA_NSIGHT_HOME}/bin/nsys
+  ncugui="${CUDA_NSIGHT_HOME}/bin/ncu-ui &"
+  nsysgui="${CUDA_NSIGHT_HOME}/bin/nsight-sys &"
+fi
+
 # Set the ncu sampling period (default is auto)
 # The value is in the range [0..31], the actual period is 2**(5+value) cycles. 
 ###ncu="${ncu} --sampling-interval 0"  # MAX sampling frequency
