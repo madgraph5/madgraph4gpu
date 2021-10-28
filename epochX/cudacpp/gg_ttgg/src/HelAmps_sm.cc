@@ -23,7 +23,8 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  // TEMPORARY during epochX step3! Eventually add "#ifdef __CUDACC__" here
+#ifdef __CUDACC__
+  // Return by reference
   __device__ inline
   const fptype& pIparIp4Ievt( const fptype* momenta, // input: momenta as AOSOA[npagM][npar][4][neppM]
                               const int ipar,
@@ -40,9 +41,7 @@ namespace MG5_sm
     //fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta; // cast to multiD array pointer (AOSOA)
     //return momenta[ipagM][ipar][ip4][ieppM]; // this seems ~1-2% faster in eemumu C++?
   }
-  // TEMPORARY during epochX step3! Eventually add "#endif" (or better "#else") here
-
-#ifndef __CUDACC__
+#else
   // Return by value: it seems a tiny bit faster than returning a reference (both for scalar and vector), not clear why
   inline
   fptype_sv pIparIp4Ipag( const fptype_sv* momenta, // input: momenta as AOSOA[npagM][npar][4][neppM]
@@ -50,21 +49,22 @@ namespace MG5_sm
                           const int ip4,
                           const int ipagM )
   {
-#ifndef MGONGPU_CPPSIMD
+    /*
+    //#ifndef MGONGPU_CPPSIMD
     // TEMPORARY during epochX step3! Eventually remove this section (start)
     // TEMPORARY during epochX step3! THERE IS NO SIMD YET: HENCE ipagM=ievt
     // NB: this is needed for neppM>1 while neppV==1 (no SIMD) in eemumu.auto
     // NB: this remains valid for neppM==1 with neppV==1 in eemumu (scalar)
     return pIparIp4Ievt( momenta, ipar, ip4, ipagM );
     // TEMPORARY during epochX step3! Eventually remove this section (end)
-#else
+    //#else
+    */
     // NB: this assumes that neppV == neppM!
     // NB: this is the same as "pIparIp4Ievt( momenta, ipar, ip4, ipagM )" for neppM==1 with neppV==1
     using mgOnGpu::np4;
     using mgOnGpu::npar;
     //printf( "%f\n", momenta[ipagM*npar*np4 + ipar*np4 + ip4] );
     return momenta[ipagM*npar*np4 + ipar*np4 + ip4]; // AOSOA[ipagM][ipar][ip4][ieppM]
-#endif
   }
 #endif
 
