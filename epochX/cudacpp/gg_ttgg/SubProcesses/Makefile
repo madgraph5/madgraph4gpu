@@ -207,12 +207,13 @@ override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_$(RNDGEN)
 ifeq ($(USEBUILDDIR),1)
   override BUILDDIR = build.$(DIRTAG)
   override LIBDIR   = ../../lib/$(BUILDDIR)
+  $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is set = 1))
 else
   override BUILDDIR = .
   override LIBDIR   = ../../lib
+  $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is not set))
 endif
-###$(info BUILDDIR=$(BUILDDIR))
-$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
+###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
