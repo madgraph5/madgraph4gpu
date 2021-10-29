@@ -92,7 +92,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
 
     # AV - modify C++ code from aloha_writers.ALOHAWriterForGPU
     ###ci_definition = 'cxtype cI = cxtype(0., 1.);\n'
-    ci_definition = 'const cxtype cI = cxmake( 0., 1. );\n'
+    ###ci_definition = 'const cxtype cI = cxmake( 0., 1. );\n'
+    ci_definition = [ 'constexpr fptype one( 1. );\n', 'constexpr fptype two( 2. );\n', 'constexpr fptype half( 1. / 2. );\n', 'const cxtype cI = cxmake( 0., 1. );\n' ]
     ###realoperator = '.real()'
     ###imagoperator = '.imag()'
     realoperator = 'cxreal' # NB now a function
@@ -242,7 +243,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         # define the complex number CI = 0+1j
         if add_i:
             ###out.write(self.ci_definition)
-            out.write('    ' + self.ci_definition) # AV
+            ###out.write('    ' + self.ci_definition) # AV
+            for line in self.ci_definition: out.write('    ' + line) # AV
         codedict = {} # AV allow delayed declaration with initialisation
         for type, name in self.declaration.tolist():
             ###print(name) # FOR DEBUGGING

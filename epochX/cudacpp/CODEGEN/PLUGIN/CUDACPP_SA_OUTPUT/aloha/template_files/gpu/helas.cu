@@ -815,12 +815,3 @@
   }
 
   //--------------------------------------------------------------------------
-
-  // [NB: tried to move these inside FFV functions because cuda/eemumu seemed 3% faster, but cuda/ggttgg is not faster]
-  // [NB: adding 'static' here for these non-array constexpr does not give a cuda/ggttgg performance boost (issue #283)]
-  // [NB: do not use "__device__ constexpr", which would fail nvcc builds in CUDA 11.0 and 11.1]
-  constexpr fptype one( 1. );
-  constexpr fptype two( 2. );
-  constexpr fptype half( 1. / 2. );
-
-  //--------------------------------------------------------------------------
