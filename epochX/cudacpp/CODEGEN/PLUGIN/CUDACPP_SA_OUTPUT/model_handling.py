@@ -92,8 +92,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
 
     # AV - modify C++ code from aloha_writers.ALOHAWriterForGPU
     ###ci_definition = 'cxtype cI = cxtype(0., 1.);\n'
-    ###ci_definition = 'const cxtype cI = cxmake( 0., 1. );\n'
-    ci_definition = [ 'constexpr fptype one( 1. );\n', 'constexpr fptype two( 2. );\n', 'constexpr fptype half( 1. / 2. );\n', 'const cxtype cI = cxmake( 0., 1. );\n' ]
+    ci_definition = 'const cxtype cI = cxmake( 0., 1. );\n'
     ###realoperator = '.real()'
     ###imagoperator = '.imag()'
     realoperator = 'cxreal' # NB now a function
@@ -238,13 +237,12 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             Include the symmetry line (entry FFV_2)
         """        
         out = StringIO()
-        out.write('    mgDebug( 0, __FUNCTION__ );\n') # AV - NO! move to get_declaration.txt
+        out.write('    mgDebug( 0, __FUNCTION__ );\n') # AV
         argument_var = [name for type,name in self.call_arg]
         # define the complex number CI = 0+1j
         if add_i:
             ###out.write(self.ci_definition)
-            ###out.write('    ' + self.ci_definition) # AV
-            for line in self.ci_definition: out.write('    ' + line) # AV
+            out.write('    ' + self.ci_definition) # AV
         codedict = {} # AV allow delayed declaration with initialisation
         for type, name in self.declaration.tolist():
             ###print(name) # FOR DEBUGGING
@@ -471,7 +469,14 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                                         self.write_obj(numerator.get_rep(ind))))
         out.write('    mgDebug( 1, __FUNCTION__ );\n') # AV
         out.write('    return;\n') # AV
-        return out.getvalue()
+        ###return out.getvalue() # AV
+        # AV check if one, two or half are used and need to be defined (ugly hack for #291: can this be done better?)
+        out2 = StringIO()
+        if 'one' in out.getvalue(): out2.write('    constexpr fptype one( 1. );\n')
+        if 'two' in out.getvalue(): out2.write('    constexpr fptype two( 2. );\n')
+        if 'half' in out.getvalue(): out2.write('    constexpr fptype half( 1. / 2. );\n')
+        out2.write( out.getvalue() )
+        return out2.getvalue()
 
     # AV - modify aloha_writers.WriteALOHA method (improve formatting)
     def write_MultVariable(self, obj, prefactor=True):
