@@ -1,19 +1,36 @@
-TOOLSDIR = ../../../../../tools
-TESTDIR  = ../../../../../test
-INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
-MODELLIB = model_%(model)s
+INCFLAGS = -I.
 OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
-ifneq ($(shell $(CXX) --version | grep ^Intel),)
-OMPFLAGS?=
-else
-OMPFLAGS?= -fopenmp
-endif
-CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS)
+CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra
 CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
+
+# Note: AR and CXX are implicitly defined if not set externally
+# See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
+
+# Dependency on src directory
+MODELLIB = model_%(model)s
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
-CXX     ?= g++
+INCFLAGS += -I../../src -I$(TOOLSDIR)
+
+# Dependency on tools directory
+TOOLSDIR = ../../../../../tools
+INCFLAGS += -I$(TOOLSDIR)
+
+# Dependency on test directory
+TESTDIR  = ../../../../../test
+GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
+GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
+
+# OpenMP flags
+ifneq ($(shell $(CXX) --version | grep ^Intel),)
+override OMPFLAGS =
+else ifeq ($(shell $(CXX) --version | grep GCC | cut -d' ' -f3 | cut -d'.' -f1),9) # disable OMP on gcc9 (issue #269)
+override OMPFLAGS =
+OMPFLAGS ?= -fopenmp
+endif
+$(info OMPFLAGS=$(OMPFLAGS))
+CXXFLAGS += $(OMPFLAGS)
 
 # Assuming uname is available, detect if architecture is PowerPC
 UNAME_P := $(shell uname -p)
@@ -70,7 +87,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   CUINC       = -I$(CUDA_HOME)/include/
   CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
   CUOPTFLAGS  = -lineinfo
-  CUFLAGS     = $(OPTFLAGS) $(CUOPTFLAGS) -std=c++14 $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
+  CUFLAGS     = $(OPTFLAGS) $(CUOPTFLAGS) -std=c++17 $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
   # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
@@ -171,11 +188,12 @@ else
   $(error Unknown RNDGEN='$(RNDGEN)': only 'curdev', 'curhst' and 'common' are supported)
 endif
 
-# Export AVX, FPTYPE, HELINL, RNDGEN so that it is not necessary to pass them to the src Makefile too
+# Export AVX, FPTYPE, HELINL, RNDGEN, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
 export AVX
 export FPTYPE
 export HELINL
 export RNDGEN
+export OMPFLAGS
 
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
@@ -189,12 +207,13 @@ override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_$(RNDGEN)
 ifeq ($(USEBUILDDIR),1)
   override BUILDDIR = build.$(DIRTAG)
   override LIBDIR   = ../../lib/$(BUILDDIR)
+  $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is set = 1))
 else
   override BUILDDIR = .
   override LIBDIR   = ../../lib
+  $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is not set))
 endif
-###$(info BUILDDIR=$(BUILDDIR))
-$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
+###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -208,9 +227,6 @@ ifneq ($(NVCC),)
     override NVCC:=ccache $(NVCC)
   endif
 endif
-
-GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
-GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 
 MAKEDEBUG=
 
