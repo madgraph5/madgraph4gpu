@@ -400,8 +400,12 @@ int main(int argc, char **argv)
   auto devWeights   = malloc_device<fptype>( nWeights, q_ct1 ); // (previously was: meDevPtr)
   auto devMEs       = malloc_device<fptype>( nMEs, q_ct1 ); // (previously was: meDevPtr)
   auto devcHel      = malloc_device<int   >( ncomb*npar, q_ct1 );
+  auto devcIPC      = malloc_device<fptype>( 6, q_ct1 );
+  auto devcIPD      = malloc_device<fptype>( 2, q_ct1 );
   //auto tmp_cHel = process.get_cHel();
   q_ct1.memcpy( devcHel, process.get_cHel_ptr(), ncomb*npar*sizeof(int) ).wait();
+  q_ct1.memcpy( devcIPC, process.get_cIPC_ptr(), 6*sizeof(fptype) ).wait();
+  q_ct1.memcpy( devcIPD, process.get_cIPD_ptr(), 2*sizeof(fptype) ).wait();
   auto devcNGoodHel = malloc_device<int   >( 1, q_ct1 ); 
   auto devcGoodHel  = malloc_device<int   >( ncomb, q_ct1 ); 
 
@@ -595,7 +599,7 @@ int main(int argc, char **argv)
                                     sycl::range<3>(1, 1, gputhreads),
                                 sycl::range<3>(1, 1, gputhreads)),
               [=](sycl::nd_item<3> item_ct1) {
-                    Proc::sigmaKin_getGoodHel(devMomenta, devIsGoodHel, item_ct1, devcHel);
+                    Proc::sigmaKin_getGoodHel(devMomenta, devIsGoodHel, item_ct1, devcHel, devcIPC, devcIPD);
               });
         });
       q_ct1.wait();
@@ -631,7 +635,7 @@ int main(int argc, char **argv)
                 Proc::sigmaKin(
                 devMomenta, devMEs, item_ct1,
 
-		devcHel,
+		devcHel, devcIPC, devcIPD,
 		devcNGoodHel, devcGoodHel);
               });
       });
