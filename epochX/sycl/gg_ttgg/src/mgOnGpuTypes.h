@@ -414,6 +414,12 @@ cxtype cxmake( const std::complex<double>& c ) // std::complex to std::complex (
 
 #endif  // END cuda/c++
 
+inline std::ostream& operator<<( std::ostream& out, const cxtype& c )
+{
+  out << "[" << cxreal(c) << "," << cximag(c) << "]";
+  return out;
+}
+
 inline SYCL_EXTERNAL
 cxtype operator+( const cxtype a )
 {

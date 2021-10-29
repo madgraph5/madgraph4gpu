@@ -125,12 +125,12 @@ inline std::ostream& operator<<( std::ostream& out, const fptype_v& v )
 }
 #endif
 
-inline std::ostream& operator<<( std::ostream& out, const cxtype& c )
-{
-  out << "[" << cxreal(c) << "," << cximag(c) << "]";
-  //out << cxreal(c) << "+i" << cximag(c);
-  return out;
-}
+//inline std::ostream& operator<<( std::ostream& out, const cxtype& c )
+//{
+//  out << "[" << cxreal(c) << "," << cximag(c) << "]";
+//  //out << cxreal(c) << "+i" << cximag(c);
+//  return out;
+//}
 
 #ifdef MGONGPU_CPPSIMD
 inline std::ostream& operator<<( std::ostream& out, const cxtype_v& v )
