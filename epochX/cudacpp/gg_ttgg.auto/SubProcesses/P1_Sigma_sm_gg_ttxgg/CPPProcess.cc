@@ -1862,9 +1862,9 @@ namespace Proc
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called CPPProcess::matrix_1_gg_ttxgg()?)
 
-      // The color matrix
-      constexpr fptype denom[ncolor] = {54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54};
-      constexpr fptype cf[ncolor][ncolor] = {
+      // The color matrix [NB do keep 'static' for these constexpr arrays, see issue #283]
+      static constexpr fptype denom[ncolor] = {54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54};
+      static constexpr fptype cf[ncolor][ncolor] = {
       {512, -64, -64, 8, 8, 80, -64, 8, 8, -1, -1, -10, 8, -1, 80, -10, 71, 62, -1, -10, -10, 62, 62, -28},
       {-64, 512, 8, 80, -64, 8, 8, -64, -1, -10, 8, -1, -1, -10, -10, 62, 62, -28, 8, -1, 80, -10, 71, 62},
       {-64, 8, 512, -64, 80, 8, 8, -1, 80, -10, 71, 62, -64, 8, 8, -1, -1, -10, -10, -1, 62, -28, -10, 62},
@@ -1939,8 +1939,8 @@ namespace Proc
     , m_pars( 0 )
     , m_masses()
   {
-    // Helicities for the process - nodim
-    constexpr short tHel[ncomb][mgOnGpu::npar] = {
+    // Helicities for the process [NB do keep 'static' for this constexpr array, see issue #283]
+    static constexpr short tHel[ncomb][mgOnGpu::npar] = {
       {-1, -1, -1, -1, -1, -1},
       {-1, -1, -1, -1, -1, 1},
       {-1, -1, -1, -1, 1, -1},
@@ -2266,11 +2266,11 @@ namespace Proc
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
-    allMEs[ievt] /= (fptype)denominators;
+    allMEs[ievt] /= denominators;
 #else
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
-      allMEs[ipagV] /= (fptype)denominators;
+      allMEs[ipagV] /= denominators;
     }
 #endif
     mgDebugFinalise();
