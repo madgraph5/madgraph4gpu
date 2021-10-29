@@ -839,15 +839,6 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  // [NB: tried to move these inside FFV functions because cuda/eemumu seemed 3% faster, but cuda/ggttgg is not faster]
-  // [NB: adding 'static' here for these non-array constexpr does not give a cuda/ggttgg performance boost (issue #283)]
-  // [NB: do not use "__device__ constexpr", which would fail nvcc builds in CUDA 11.0 and 11.1]
-  constexpr fptype one( 1. );
-  constexpr fptype two( 2. );
-  constexpr fptype half( 1. / 2. );
-
-  //--------------------------------------------------------------------------
-
   // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
   __device__
   void FFV1_0( const cxtype_sv F1[],
@@ -857,6 +848,9 @@ namespace MG5_sm
                cxtype_sv* vertex )
   {
     mgDebug( 0, __FUNCTION__ );
+    constexpr fptype one( 1. );
+    constexpr fptype two( 2. );
+    constexpr fptype half( 1. / 2. );
     const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP0 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * ( V3[4] ) ) ) + ( F1[3] * ( F2[4] * ( V3[3]- cI * ( V3[4] ) ) + F2[5] * ( V3[2] - V3[5] ) ) + ( F1[4] * ( F2[2] * ( V3[2] - V3[5] ) - F2[3] * ( V3[3] + cI * ( V3[4] ) ) ) + F1[5] * ( F2[2] * ( -V3[3] + cI * ( V3[4] ) ) + F2[3] * ( V3[2] + V3[5] ) ) ) ) );
     (*vertex) = COUP * - cI * TMP0;
@@ -876,6 +870,9 @@ namespace MG5_sm
                  cxtype_sv V3[] )
   {
     mgDebug( 0, __FUNCTION__ );
+    constexpr fptype one( 1. );
+    constexpr fptype two( 2. );
+    constexpr fptype half( 1. / 2. );
     const cxtype cI = cxmake( 0., 1. );
     V3[0] = + F1[0] + F2[0];
     V3[1] = + F1[1] + F2[1];
@@ -900,6 +897,9 @@ namespace MG5_sm
                cxtype_sv* vertex )
   {
     mgDebug( 0, __FUNCTION__ );
+    constexpr fptype one( 1. );
+    constexpr fptype two( 2. );
+    constexpr fptype half( 1. / 2. );
     const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP1 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * ( V3[4] ) ) ) + F1[3] * ( F2[4] * ( V3[3]- cI * ( V3[4] ) ) + F2[5] * ( V3[2] - V3[5] ) ) );
     (*vertex) = COUP * - cI * TMP1;
@@ -919,6 +919,9 @@ namespace MG5_sm
                cxtype_sv V3[] )
   {
     mgDebug( 0, __FUNCTION__ );
+    constexpr fptype one( 1. );
+    constexpr fptype two( 2. );
+    constexpr fptype half( 1. / 2. );
     const cxtype cI = cxmake( 0., 1. );
     const fptype OM3 = ( M3 != 0. ? 1. / ( M3 * M3 ) : 0. );
     V3[0] = + F1[0] + F2[0];
@@ -945,6 +948,9 @@ namespace MG5_sm
                cxtype_sv* vertex )
   {
     mgDebug( 0, __FUNCTION__ );
+    constexpr fptype one( 1. );
+    constexpr fptype two( 2. );
+    constexpr fptype half( 1. / 2. );
     const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP3 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * ( V3[4] ) ) ) + F1[3] * ( F2[4] * ( V3[3]- cI * ( V3[4] ) ) + F2[5] * ( V3[2] - V3[5] ) ) );
     const cxtype_sv TMP4 = ( F1[4] * ( F2[2] * ( V3[2] - V3[5] ) - F2[3] * ( V3[3] + cI * ( V3[4] ) ) ) + F1[5] * ( F2[2] * ( -V3[3] + cI * ( V3[4] ) ) + F2[3] * ( V3[2] + V3[5] ) ) );
@@ -965,6 +971,9 @@ namespace MG5_sm
                cxtype_sv V3[] )
   {
     mgDebug( 0, __FUNCTION__ );
+    constexpr fptype one( 1. );
+    constexpr fptype two( 2. );
+    constexpr fptype half( 1. / 2. );
     const cxtype cI = cxmake( 0., 1. );
     const fptype OM3 = ( M3 != 0. ? 1. / ( M3 * M3 ) : 0. );
     V3[0] = + F1[0] + F2[0];
@@ -993,6 +1002,9 @@ namespace MG5_sm
                  cxtype_sv* vertex )
   {
     mgDebug( 0, __FUNCTION__ );
+    constexpr fptype one( 1. );
+    constexpr fptype two( 2. );
+    constexpr fptype half( 1. / 2. );
     const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP3 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * ( V3[4] ) ) ) + F1[3] * ( F2[4] * ( V3[3]- cI * ( V3[4] ) ) + F2[5] * ( V3[2] - V3[5] ) ) );
     const cxtype_sv TMP4 = ( F1[4] * ( F2[2] * ( V3[2] - V3[5] ) - F2[3] * ( V3[3] + cI * ( V3[4] ) ) ) + F1[5] * ( F2[2] * ( -V3[3] + cI * ( V3[4] ) ) + F2[3] * ( V3[2] + V3[5] ) ) );
@@ -1014,6 +1026,9 @@ namespace MG5_sm
                  cxtype_sv V3[] )
   {
     mgDebug( 0, __FUNCTION__ );
+    constexpr fptype one( 1. );
+    constexpr fptype two( 2. );
+    constexpr fptype half( 1. / 2. );
     const cxtype cI = cxmake( 0., 1. );
     const fptype OM3 = ( M3 != 0. ? 1. / ( M3 * M3 ) : 0. );
     V3[0] = + F1[0] + F2[0];
