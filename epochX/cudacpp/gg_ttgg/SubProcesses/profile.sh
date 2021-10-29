@@ -129,13 +129,13 @@ if [ "$tag" != "nogui" ]; then
   arg3=$(echo $args | cut -d' ' -f3)
   
   ###if [ "${host%%raplab*}" != "${host}" ]; then
-  ###  logs=logs_raplab
+  ###  logs=nsight_logs_raplab
   ###elif [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
-  ###  logs=logs_lxbatch
+  ###  logs=nsight_logs_lxbatch
   ###else
-  ###  logs=logs
+  ###  logs=nsight_logs
   ###fi
-  logs=logs
+  logs=nsight_logs
 
   if [ ! -d $logs ]; then mkdir -p $logs; fi
   trace=$logs/Sigma_sm_gg_ttxgg_${tag}_`date +%m%d_%H%M`_b${arg1}_t${arg2}_i${arg3}
