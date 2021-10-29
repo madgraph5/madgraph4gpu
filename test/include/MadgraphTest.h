@@ -18,8 +18,8 @@
 namespace {
 
 struct ReferenceData {
-  std::vector< std::vector<std::array<double, mgOnGpu::np4>> > momenta;
-  std::vector<double> MEs;
+  std::vector< std::vector<std::array<fptype, mgOnGpu::np4>> > momenta;
+  std::vector<fptype> MEs;
 };
 
 /// Read batches of reference data from a file and store them in a map.
@@ -195,9 +195,9 @@ TEST_P(MadgraphTest, CompareMomentaAndME)
 {
   // Set to true to dump events:
   constexpr bool dumpEvents = false;
-  constexpr double energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
-  const double toleranceMomenta = std::is_same<double, fptype>::value ? 8.E-11 : 3.E-2;
-  const double toleranceMEs     = std::is_same<double, fptype>::value ? 1.E-6  : 2.E-3;
+  constexpr fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
+  const fptype toleranceMomenta = std::is_same<double, fptype>::value ? 8.E-11 : 3.E-2;
+  const fptype toleranceMEs     = std::is_same<double, fptype>::value ? 1.E-6  : 2.E-3;
 
   std::string dumpFileName = std::string("dump_")
       + testing::UnitTest::GetInstance()->current_test_info()->test_suite_name()
@@ -272,9 +272,9 @@ TEST_P(MadgraphTest, CompareMomentaAndME)
       for (unsigned int ipar = 0; ipar < testDriver->nparticle; ++ipar) {
         std::stringstream momentumErrors;
         for (unsigned int icomp = 0; icomp < mgOnGpu::np4; ++icomp) {
-          const double pMadg = testDriver->getMomentum(ievt, ipar, icomp);
-          const double pOrig = referenceData[iiter].momenta[ievt][ipar][icomp];
-          const double relDelta = fabs( (pMadg - pOrig)/pOrig );
+          const fptype pMadg = testDriver->getMomentum(ievt, ipar, icomp);
+          const fptype pOrig = referenceData[iiter].momenta[ievt][ipar][icomp];
+          const fptype relDelta = fabs( (pMadg - pOrig)/pOrig );
           if (relDelta > toleranceMomenta) {
             momentumErrors << std::setprecision(15) << std::scientific << "\nparticle " << ipar << "\tcomponent " << icomp
                 << "\n\t madGraph:  " << std::setw(22) << pMadg
