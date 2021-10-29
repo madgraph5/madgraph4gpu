@@ -1,5 +1,4 @@
 Running MG5 in debug mode
-('WARNING: loading of madgraph too slow!!!', 1.7470834255218506)
 ************************************************************
 *                                                          *
 *                     W E L C O M E to                     *
@@ -117,6 +116,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/src/. and /data/av
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 154][0m [0m
 quit
 
-real	0m10.726s
-user	0m0.900s
-sys	0m0.121s
+real	0m1.029s
+user	0m0.882s
+sys	0m0.120s
