@@ -113,6 +113,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_tt/src/. and /data/aval
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 154][0m [0m
 quit
 
-real	0m0.905s
-user	0m0.755s
-sys	0m0.121s
+real	0m0.887s
+user	0m0.704s
+sys	0m0.156s

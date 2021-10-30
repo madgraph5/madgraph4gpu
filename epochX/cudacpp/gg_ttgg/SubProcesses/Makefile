@@ -90,13 +90,15 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   CUFLAGS     = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
   NVCC_VERSION = $(shell $(NVCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
   # TEMPORARY! For as long as cuda 11.0/11.1 are supported (issues #282 and #292)
-  ifeq ($(NVCC_VERSION),11.0)
-    CUFLAGS += -std=c++14
-  else ifeq ($(NVCC_VERSION),11.1)
-    CUFLAGS += -std=c++14
-  else
-    CUFLAGS += -std=c++17
-  endif
+  # (Eventually, use only c++17; previously, c++14 in cuda110/111 and c++17 above; now c++14 everywhere)
+  ###ifeq ($(NVCC_VERSION),11.0)
+  ###  CUFLAGS += -std=c++14
+  ###else ifeq ($(NVCC_VERSION),11.1)
+  ###  CUFLAGS += -std=c++14
+  ###else
+  ###  CUFLAGS += -std=c++17
+  ###endif
+  CUFLAGS += -std=c++14
   # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
