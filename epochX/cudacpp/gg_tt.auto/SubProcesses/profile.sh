@@ -74,14 +74,28 @@ ncu="ncu"
 nsys="nsys"
 ncugui="ncu-ui &"
 nsysgui="nsight-sys &"
+
+# Settings specific to CERN condor/batch nodes
+###host=$(hostname)
+###if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
+###  ncu=/usr/local/cuda-11.0/bin/ncu
+###  ###nsys=/usr/local/cuda-10.1/bin/nsys
+###  ###nsys=/usr/local/cuda-10.2/bin/nsys
+###  nsys=/cvmfs/sft.cern.ch/lcg/releases/cuda/11.0RC-d9c38/x86_64-centos7-gcc62-opt/bin/nsys
+###  ncugui="Launch the Nsight Compute GUI from Windows"
+###  nsysgui="Launch the Nsight System GUI from Windows"
+###fi
+
+# Settings specific to CERN IT/SC nodes
+# (nsys 11.4 and 11.5 fail with 'boost::wrapexcept<QuadDCommon::NotFoundException>')
 host=$(hostname)
-if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
-  ncu=/usr/local/cuda-11.0/bin/ncu
-  ###nsys=/usr/local/cuda-10.1/bin/nsys
-  ###nsys=/usr/local/cuda-10.2/bin/nsys
-  nsys=/cvmfs/sft.cern.ch/lcg/releases/cuda/11.0RC-d9c38/x86_64-centos7-gcc62-opt/bin/nsys
-  ncugui="Launch the Nsight Compute GUI from Windows"
-  nsysgui="Launch the Nsight System GUI from Windows"
+if [ "${host%%cern.ch}" != "${host}" ] && [ "${host##itsc}" != "${host}" ]; then
+  CUDA_NSIGHT_HOME=/usr/local/cuda-11.1
+  echo "Using Nsight from ${CUDA_NSIGHT_HOME}"
+  ncu=${CUDA_NSIGHT_HOME}/bin/ncu
+  nsys=${CUDA_NSIGHT_HOME}/bin/nsys
+  ncugui="${CUDA_NSIGHT_HOME}/bin/ncu-ui &"
+  nsysgui="${CUDA_NSIGHT_HOME}/bin/nsight-sys &"
 fi
 
 # Set the ncu sampling period (default is auto)
@@ -114,15 +128,17 @@ if [ "$tag" != "nogui" ]; then
   arg2=$(echo $args | cut -d' ' -f2)
   arg3=$(echo $args | cut -d' ' -f3)
   
-  if [ "${host%%raplab*}" != "${host}" ]; then
-    logs=logs_raplab
-  elif [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
-    logs=logs_lxbatch
-  else
-    logs=logs
-  fi
+  ###if [ "${host%%raplab*}" != "${host}" ]; then
+  ###  logs=nsight_logs_raplab
+  ###elif [ "${host%%cern.ch}" != "${host}" ] && [ "${host##b}" != "${host}" ]; then
+  ###  logs=nsight_logs_lxbatch
+  ###else
+  ###  logs=nsight_logs
+  ###fi
+  logs=nsight_logs
+
   if [ ! -d $logs ]; then mkdir -p $logs; fi
-  trace=$logs/eemumuAV_${tag}_`date +%m%d_%H%M`_b${arg1}_t${arg2}_i${arg3}
+  trace=$logs/Sigma_sm_gg_ttxgg_${tag}_`date +%m%d_%H%M`_b${arg1}_t${arg2}_i${arg3}
   if [ "$label" != "" ]; then trace=${trace}_${label}; fi
   
   echo
