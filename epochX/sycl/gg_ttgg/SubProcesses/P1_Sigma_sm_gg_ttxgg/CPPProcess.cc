@@ -36,12 +36,10 @@ namespace Proc
   using mgOnGpu::nwf;
   using mgOnGpu::nw6;
 
-#ifdef __CUDACC__
-  __device__ __constant__ int cHel[ncomb][npar];
-  __device__ __constant__ fptype cIPC[6];
-  __device__ __constant__ fptype cIPD[2];
-  __device__ __constant__ int cNGoodHel[1];
-  __device__ __constant__ int cGoodHel[ncomb];
+#ifdef SYCL_LANGUAGE_VERSION
+  static int cHel[ncomb][npar];
+  static fptype cIPC[6];
+  static fptype cIPD[2];
 #else
   static int cHel[ncomb][npar];
   static fptype cIPC[6];
@@ -57,18 +55,16 @@ namespace Proc
 				const fptype *allmomenta,
 				fptype &meHelSum,
 				sycl::nd_item<3> item_ct1,
-				int *cHel 
+				int *cHel,
 #ifndef SYCL_LANGUAGE_VERSION
-				, const int ievt
+				const int ievt
 #endif
-				)
+				const fptype *cIPC,
+        const fptype *cIPD
+        )
   {
     using namespace MG5_sm;
     mgDebug( 0, __FUNCTION__ );
-#ifdef SYCL_LANGUAGE_VERSION
-    const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
-    const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
-#endif
     cxtype amp[1]; // was 159
     const int ncolor = 24;
     cxtype jamp[ncolor];
@@ -1946,6 +1942,12 @@ namespace Proc
   //--------------------------------------------------------------------------
   int * CPPProcess::get_cHel_ptr() {return *cHel;}
 
+  //--------------------------------------------------------------------------
+  fptype* CPPProcess::get_cIPC_ptr() {return cIPC;}
+
+  //--------------------------------------------------------------------------
+  fptype* CPPProcess::get_cIPD_ptr() {return cIPD;}
+
   // Initialize process
   void CPPProcess::initProc( string param_card_name )
   {
@@ -1971,9 +1973,9 @@ namespace Proc
     mME.push_back( pars->ZERO );
     static cxtype tIPC[3] = { cxmake(pars->GC_10), cxmake(pars->GC_11), cxmake(pars->GC_12) };
     static fptype tIPD[2] = { (fptype)pars->mdl_MT, (fptype)pars->mdl_WT };
-#ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof(cxtype) ) );
-    checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof(fptype) ) );
+#ifdef SYCL_LANGUAGE_VERSION
+    memcpy( cIPC, tIPC, 3 * sizeof(cxtype) );
+    memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
 #else
     memcpy( cIPC, tIPC, 3 * sizeof(cxtype) );
     memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
@@ -1987,7 +1989,9 @@ namespace Proc
   void sigmaKin_getGoodHel( const fptype * allmomenta,  // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
 			    bool * isGoodHel,  // output: isGoodHel[ncomb] - device array
 			    sycl::nd_item<3> item_ct1,
-			    int *cHel
+			    int *cHel,
+          const fptype *cIPC,
+          const fptype *cIPD
 			  ) {
     const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
     fptype meHelSum[nprocesses] = { 0 }; // all zeros
@@ -1996,7 +2000,7 @@ namespace Proc
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running
       // sum of |M|^2 over helicities for the given event
-      calculate_wavefunctions( ihel, allmomenta, meHelSum[0], item_ct1, cHel );
+      calculate_wavefunctions( ihel, allmomenta, meHelSum[0], item_ct1, cHel, cIPC, cIPD );
 
       if ( meHelSum[0] != meHelSumLast )
       {
@@ -2031,6 +2035,8 @@ namespace Proc
   void sigmaKin( const fptype* allmomenta, fptype* allMEs
 		 , sycl::nd_item<3> item_ct1,
 		 int *cHel,
+     const fptype *cIPC,
+     const fptype *cIPD,
 		 int *cNGoodHel,
 		 int *cGoodHel
 #ifndef SYCL_LANGUAGE_VERSION
@@ -2077,7 +2083,7 @@ namespace Proc
       for ( int ighel = 0; ighel < cNGoodHel[0]; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
-        calculate_wavefunctions( ihel, allmomenta, meHelSum[0], item_ct1, cHel);
+        calculate_wavefunctions( ihel, allmomenta, meHelSum[0], item_ct1, cHel, cIPC, cIPD );
       }
 #else
       // C++ - compute good helicities within this loop

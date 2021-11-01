@@ -65,6 +65,8 @@ namespace Proc
 
     ~CPPProcess();
     int * get_cHel_ptr();
+    fptype * get_cIPC_ptr();
+    fptype * get_cIPD_ptr();
 
     // Initialize process.
     virtual void initProc( std::string param_card_name );
@@ -127,7 +129,9 @@ SYCL_EXTERNAL
 void sigmaKin_getGoodHel(const fptype * allmomenta,  // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
 bool * isGoodHel,  // output: isGoodHel[ncomb] - device array
 sycl::nd_item<3> item_ct1,
-int *cHel
+int *cHel,
+const fptype *cIPC,
+const fptype *cIPD
 );
 #endif
 
@@ -145,6 +149,8 @@ void sigmaKin(const fptype * allmomenta,  // input: momenta as AOSOA[npagM][npar
 fptype * allMEs  // output: allMEs[nevt], final |M|^2 averaged over all helicities
 , sycl::nd_item<3> item_ct1,
 int *cHel,
+const fptype *cIPC,
+const fptype *cIPD,
 int *cNGoodHel,
 int *cGoodHel
 #ifndef SYCL_LANGUAGE_VERSION
