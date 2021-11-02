@@ -94,9 +94,9 @@ function cleanup_MG5AMC_HOME()
 {
   # Remove MG5aMC fragments from previous runs
   rm -f ${MG5AMC_HOME}/py.py
-  #rm -f ${MG5AMC_HOME}/Template/LO/Source/make_opts
-  #rm -f ${MG5AMC_HOME}/input/mg5_configuration.txt
-  #rm -f ${MG5AMC_HOME}/models/sm/py3_model.pkl
+  rm -f ${MG5AMC_HOME}/Template/LO/Source/make_opts
+  rm -f ${MG5AMC_HOME}/input/mg5_configuration.txt
+  rm -f ${MG5AMC_HOME}/models/sm/py3_model.pkl
   # Remove and recreate MG5AMC_HOME/PLUGIN
   rm -rf ${MG5AMC_HOME}/PLUGIN
   mkdir ${MG5AMC_HOME}/PLUGIN
@@ -213,4 +213,4 @@ for proc in $procs; do
 done
 
 # Clean up after code generation
-###cleanup_MG5AMC_HOME
+cleanup_MG5AMC_HOME
