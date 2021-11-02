@@ -29,7 +29,7 @@ function codeGenAndDiff()
   ###exit 0 # FOR DEBUGGING
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null
-  outproc=CODEGEN_${proc}
+  outproc=CODEGEN_${OUTBCK}_${proc}
   \rm -rf ${outproc}*
   echo "set stdout_level DEBUG" >> ${outproc}.mg # does not help (log is essentially identical) but add it anyway
   echo "${cmd}" >> ${outproc}.mg
@@ -70,6 +70,7 @@ function codeGenAndDiff()
   echo -e "\n+++ Compare manually developed code to newly generated code for $proc\n"
   if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc} ${proc}.auto; then echo "Manual and generated codes are identical"; else echo -e "\nWARNING! Manual and generated codes differ"; fi
   # Print a summary of the available code
+  echo
   echo -e "Manually developed code is\n  ${OUTDIR}/${proc}"
   echo -e "Old generated code moved to\n  ${OUTDIR}/${proc}.auto.BKP"
   echo -e "New generated code moved to\n  ${OUTDIR}/${proc}.auto"
