@@ -84,7 +84,7 @@ function codeGenAndDiff()
 
 function usage()
 {
-  echo "Usage: $0 [--replace|--noreplace] [--brief] <proc>" # New: only one process
+  echo "Usage: $0 [--replace|--noreplace] [--nobrief] <proc>" # New: only one process
   exit 1
 }
 
@@ -108,8 +108,8 @@ function cleanup_MG5AMC_HOME()
 # Replace code directory and create .BKP? (or alternatively keep code directory in .NEW?)
 REPLACE=0
 
-# Brief diffs?
-BRIEF=
+# Default: brief diffs (use --nobrief to use full diffs)
+BRIEF=--brief
 
 # Process command line arguments (https://unix.stackexchange.com/a/258514)
 for arg in "$@"; do
@@ -120,8 +120,8 @@ for arg in "$@"; do
     REPLACE=1; continue;
   elif [ "$arg" == "--noreplace" ]; then
     REPLACE=0; continue;
-  elif [ "$arg" == "--brief" ]; then
-    BRIEF=--brief; continue
+  elif [ "$arg" == "--nobrief" ]; then
+    BRIEF=; continue
   else
     # Keep the possibility to collect more then one process
     # However, require a single process to be chosen (allow full cleanup before/after code generation)
