@@ -48,43 +48,34 @@ function codeGenAndDiff()
     exit 1
   fi
   popd >& /dev/null
-  # Move the newly generated code to the output source code directory
-  rm -rf ${OUTDIR}/${proc}.auto.BKP ${OUTDIR}/${proc}.auto.NEW
-  cp -dpr ${MG5AMC_HOME}/${outproc} ${OUTDIR}/${proc}.auto.NEW
-  echo -e "\nOutput source code has been copied to ${OUTDIR}/${proc}.auto.NEW"
+  # Replace the existing generated code in the output source code directory by the newly generated code and create a .BKP
+  rm -rf ${OUTDIR}/${proc}.auto.BKP
+  mv ${OUTDIR}/${proc}.auto ${OUTDIR}/${proc}.auto.BKP
+  cp -dpr ${MG5AMC_HOME}/${outproc} ${OUTDIR}/${proc}.auto
+  echo -e "\nOutput source code has been copied to ${OUTDIR}/${proc}.auto"
   # Compare the newly generated code to the existing generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
   echo -e "\n+++ Compare new and old code generation log for $proc\n"
-  ###diff -c ${proc}.auto.NEW/${outproc}_log.txt ${proc}.auto # context diff
-  diff ${proc}.auto.NEW/${outproc}_log.txt ${proc}.auto # normal diff
+  ###diff -c ${proc}.auto/${outproc}_log.txt ${proc}.auto.BKP # context diff
+  diff ${proc}.auto/${outproc}_log.txt ${proc}.auto.BKP # normal diff
   echo -e "\n+++ Compare new and old generated code for $proc\n"
-  if diff ${BRIEF} --no-dereference -x '*log.txt' -x 'nsight_logs' -x '*.o' -x '*.o.*' -x '*.a' -x '*.exe' -x 'lib' -x 'build.*' -x '.build.*' -x '*~' -r -c ${proc}.auto.NEW ${proc}.auto; then echo "New and old generated codes are identical"; else echo -e "\nWARNING! New and old generated codes differ"; fi
+  if diff ${BRIEF} --no-dereference -x '*log.txt' -x 'nsight_logs' -x '*.o' -x '*.o.*' -x '*.a' -x '*.exe' -x 'lib' -x 'build.*' -x '.build.*' -x '*~' -r -c ${proc}.auto ${proc}.auto.BKP; then echo "New and old generated codes are identical"; else echo -e "\nWARNING! New and old generated codes differ"; fi
   popd >& /dev/null
   # Compare the newly generated code to the existing manually developed code for the specific process
   pushd ${OUTDIR} >& /dev/null
   echo -e "\n+++ Compare newly generated code to manually developed code for $proc\n"
-  if diff ${BRIEF} --no-dereference -x '*log.txt' -x 'nsight_logs' -x '*.o' -x '*.o.*' -x '*.a' -x '*.exe' -x 'lib' -x 'build.*' -x '.build.*' -x '*~' -r -c ${proc}.auto.NEW ${proc}; then echo "Generated and manual codes are identical"; else echo -e "\nWARNING! Generated and manual codes differ"; fi
-  # Replace the existing generated code by the newly generated code if required
-  if [ "${REPLACE}" == "1" ]; then
-    echo -e "\n+++ Replace existing generated code for $proc (REPLACE=$REPLACE)\n"
-    mv ${OUTDIR}/${proc}.auto ${OUTDIR}/${proc}.auto.BKP
-    mv ${OUTDIR}/${proc}.auto.NEW ${OUTDIR}/${proc}.auto
-    echo -e "Manually developed code is\n  ${OUTDIR}/${proc}"
-    echo -e "Old generated code moved to\n  ${OUTDIR}/${proc}.auto.BKP"
-    echo -e "New generated code moved to\n  ${OUTDIR}/${proc}.auto"
-  else
-    echo -e "\n+++ Keep existing generated code for $proc (REPLACE=$REPLACE)\n"
-    echo -e "Manually developed code is\n  ${OUTDIR}/${proc}"
-    echo -e "Old generated code is\n  ${OUTDIR}/${proc}.auto"
-    echo -e "New generated code is\n  ${OUTDIR}/${proc}.auto.NEW"
-  fi
+  if diff ${BRIEF} --no-dereference -x '*log.txt' -x 'nsight_logs' -x '*.o' -x '*.o.*' -x '*.a' -x '*.exe' -x 'lib' -x 'build.*' -x '.build.*' -x '*~' -r -c ${proc}.auto ${proc}; then echo "Generated and manual codes are identical"; else echo -e "\nWARNING! Generated and manual codes differ"; fi
+  # Print a summary of the available code
+  echo -e "Manually developed code is\n  ${OUTDIR}/${proc}"
+  echo -e "Old generated code moved to\n  ${OUTDIR}/${proc}.auto.BKP"
+  echo -e "New generated code moved to\n  ${OUTDIR}/${proc}.auto"
 }
 
 #--------------------------------------------------------------------------------------
 
 function usage()
 {
-  echo "Usage: $0 [--replace|--noreplace] [--nobrief] <proc>" # New: only one process
+  echo "Usage: $0 [--nobrief] <proc>" # New: only one process
   exit 1
 }
 
@@ -105,9 +96,6 @@ function cleanup_MG5AMC_HOME()
 
 #--------------------------------------------------------------------------------------
 
-# Replace code directory and create .BKP? (or alternatively keep code directory in .NEW?)
-REPLACE=0
-
 # Default: brief diffs (use --nobrief to use full diffs)
 BRIEF=--brief
 
@@ -116,10 +104,6 @@ for arg in "$@"; do
   shift
   if [ "$arg" == "-h" ] || [ "$arg" == "--help" ]; then
     usage; continue; # continue is unnecessary as usage will exit anyway...
-  elif [ "$arg" == "--replace" ]; then
-    REPLACE=1; continue;
-  elif [ "$arg" == "--noreplace" ]; then
-    REPLACE=0; continue;
   elif [ "$arg" == "--nobrief" ]; then
     BRIEF=; continue
   else
@@ -132,7 +116,6 @@ done
 if [ "$1" == "" ] || [ "$2" != "" ]; then usage; fi # New: only one process
 proc=$1
 
-echo REPLACE=${REPLACE}
 echo BRIEF=${BRIEF}
 ###echo procs=${procs}
 echo proc=${proc}
@@ -209,6 +192,7 @@ ls -l ${MG5AMC_HOME}/PLUGIN
 ###ls -lR ${MG5AMC_HOME}/PLUGIN
 
 # Generate the chosen process
+# (this will always replace the existing code directory and create a .BKP)
 codeGenAndDiff $proc
 
 # Clean up after code generation
