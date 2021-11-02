@@ -96,7 +96,7 @@ const fptype& fpmin( const fptype& a, const fptype& b )
 inline
 fptype fpsqrt( const fptype& f )
 {
-  return std::sqrt( f );
+  return sycl::sqrt( f );
 }
 
 #endif
