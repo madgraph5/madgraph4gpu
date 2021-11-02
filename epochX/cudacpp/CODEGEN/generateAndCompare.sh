@@ -84,7 +84,7 @@ function codeGenAndDiff()
 
 function usage()
 {
-  echo "Usage: $0 [--replace|--noreplace] [--brief] [<proc1> [... <procN>]]"
+  echo "Usage: $0 [--replace|--noreplace] [--brief] <proc>" # New: only one process
   exit 1
 }
 
@@ -123,13 +123,19 @@ for arg in "$@"; do
   elif [ "$arg" == "--brief" ]; then
     BRIEF=--brief; continue
   else
+    # Keep the possibility to collect more then one process
+    # However, require a single process to be chosen (allow full cleanup before/after code generation)
     set -- "$@" "$arg"
   fi
 done
-procs=$@
+###procs=$@
+if [ "$1" == "" ] || [ "$2" != "" ]; then usage; fi # New: only one process
+proc=$1
+
 echo REPLACE=${REPLACE}
 echo BRIEF=${BRIEF}
-echo procs=${procs}
+###echo procs=${procs}
+echo proc=${proc}
 
 # Script directory
 SCRDIR=$(cd $(dirname $0); pwd)
@@ -202,15 +208,8 @@ cp -dpr ${SCRDIR}/PLUGIN/${OUTBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
 ls -l ${MG5AMC_HOME}/PLUGIN
 ###ls -lR ${MG5AMC_HOME}/PLUGIN
 
-# Determine the list of processes to generate
-###procs="ee_mumu gg_tt gg_ttg gg_ttgg"
-if [ "$procs" == "" ] ; then procs=$(cd $OUTDIR; find . -mindepth 1 -maxdepth 1 -type d -name '*.auto' | sed 's/.auto//'); fi
-
-# Iterate through the list of processes to generate
-for proc in $procs; do
-  if [ -d $OUTDIR/$proc ]; then proc=$(basename $proc); fi
-  codeGenAndDiff $proc
-done
+# Generate the chosen process
+codeGenAndDiff $proc
 
 # Clean up after code generation
 cleanup_MG5AMC_HOME

@@ -46,6 +46,9 @@ import /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_tt.mg
 The import format was not given, so we guess it as command
 generate g g > t t~
 No model currently active, so we import the Standard Model
+INFO: load particles 
+INFO: load vertices 
+[1;32mDEBUG: model prefixing  takes 0.006846904754638672 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
@@ -113,6 +116,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gg_tt/src/. and /data/aval
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 154][0m [0m
 quit
 
-real	0m0.862s
-user	0m0.731s
-sys	0m0.114s
+real	0m0.911s
+user	0m0.783s
+sys	0m0.103s
