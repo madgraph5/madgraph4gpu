@@ -31,7 +31,7 @@ function codeGenAndDiff()
   pushd $MG5AMC_HOME >& /dev/null
   outproc=CODEGEN_${proc}
   \rm -rf ${outproc}*
-  ###echo "set stdout_level DEBUG" >> ${outproc}.mg # does not help (log is essentially identical)
+  echo "set stdout_level DEBUG" >> ${outproc}.mg # does not help (log is essentially identical) but add it anyway
   echo "${cmd}" >> ${outproc}.mg
   echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
   cat  ${outproc}.mg
@@ -53,18 +53,18 @@ function codeGenAndDiff()
   mv ${OUTDIR}/${proc}.auto ${OUTDIR}/${proc}.auto.BKP
   cp -dpr ${MG5AMC_HOME}/${outproc} ${OUTDIR}/${proc}.auto
   echo -e "\nOutput source code has been copied to ${OUTDIR}/${proc}.auto"
-  # Compare the newly generated code to the existing generated code for the specific process
+  # Compare the existing generated code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
-  echo -e "\n+++ Compare new and old code generation log for $proc\n"
-  ###diff -c ${proc}.auto/${outproc}_log.txt ${proc}.auto.BKP # context diff
-  diff ${proc}.auto/${outproc}_log.txt ${proc}.auto.BKP # normal diff
-  echo -e "\n+++ Compare new and old generated code for $proc\n"
-  if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc}.auto ${proc}.auto.BKP; then echo "New and old generated codes are identical"; else echo -e "\nWARNING! New and old generated codes differ"; fi
+  echo -e "\n+++ Compare old and new code generation log for $proc\n"
+  ###diff -c ${proc}.auto.BKP/${outproc}_log.txt ${proc}.auto # context diff
+  diff ${proc}.auto.BKP/${outproc}_log.txt ${proc}.auto # normal diff
+  echo -e "\n+++ Compare old and new generated code for $proc\n"
+  if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc}.auto.BKP ${proc}.auto; then echo "Old and new generated codes are identical"; else echo -e "\nWARNING! Old and new generated codes differ"; fi
   popd >& /dev/null
-  # Compare the newly generated code to the existing manually developed code for the specific process
+  # Compare the existing manually developed code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
-  echo -e "\n+++ Compare newly generated code to manually developed code for $proc\n"
-  if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc}.auto ${proc}; then echo "Generated and manual codes are identical"; else echo -e "\nWARNING! Generated and manual codes differ"; fi
+  echo -e "\n+++ Compare manually developed code to newly generated code for $proc\n"
+  if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc} ${proc}.auto; then echo "Manual and generated codes are identical"; else echo -e "\nWARNING! Manual and generated codes differ"; fi
   # Print a summary of the available code
   echo -e "Manually developed code is\n  ${OUTDIR}/${proc}"
   echo -e "Old generated code moved to\n  ${OUTDIR}/${proc}.auto.BKP"

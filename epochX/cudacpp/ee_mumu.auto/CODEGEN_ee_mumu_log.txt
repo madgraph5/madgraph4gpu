@@ -44,11 +44,13 @@ No valid eps viewer found. Please set in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
 import /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu.mg
 The import format was not given, so we guess it as command
+set stdout_level DEBUG
+set output information to level: 10
 generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006824970245361328 [0m
+[1;32mDEBUG: model prefixing  takes 0.006871700286865234 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
@@ -119,6 +121,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_ee_mumu/src/. and /data/av
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 154][0m [0m
 quit
 
-real	0m1.172s
-user	0m0.910s
-sys	0m0.118s
+real	0m1.071s
+user	0m0.916s
+sys	0m0.126s
