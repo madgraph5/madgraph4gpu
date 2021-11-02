@@ -33,8 +33,12 @@ function codeGenAndDiff()
   \rm -rf ${outproc}*
   echo "set stdout_level DEBUG" >> ${outproc}.mg # does not help (log is essentially identical) but add it anyway
   echo "${cmd}" >> ${outproc}.mg
-  echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
-  cat  ${outproc}.mg
+  if [ "${OUTBCK}" == "gridpack" ]; then
+    echo "ERROR! gridpack generation is not yet implemented"; exit 1
+  else
+    echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
+  fi
+  cat ${outproc}.mg
   ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
   { time python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
   if [ -d ${outproc} ] && ! grep -q "Please report this bug" ${outproc}_log.txt; then
@@ -186,9 +190,11 @@ if bzr --version >& /dev/null; then
   fi
 fi
 
-# Copy the new plugin to MG5AMC_HOME
-cp -dpr ${SCRDIR}/PLUGIN/${OUTBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
-ls -l ${MG5AMC_HOME}/PLUGIN
+# Copy the new plugin to MG5AMC_HOME (unless this is the gridpack directory)
+if [ "${OUTBCK}" != "gridpack" ]; then
+  cp -dpr ${SCRDIR}/PLUGIN/${OUTBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
+  ls -l ${MG5AMC_HOME}/PLUGIN
+fi
 
 # Generate the chosen process (this will always replace the existing code directory and create a .BKP)
 codeGenAndDiff $proc
