@@ -90,6 +90,21 @@ function usage()
 
 #--------------------------------------------------------------------------------------
 
+function cleanup_MG5AMC_HOME()
+{
+  # Remove MG5aMC fragments from previous runs
+  rm -f ${MG5AMC_HOME}/py.py
+  #rm -f ${MG5AMC_HOME}/Template/LO/Source/make_opts
+  #rm -f ${MG5AMC_HOME}/input/mg5_configuration.txt
+  #rm -f ${MG5AMC_HOME}/models/sm/py3_model.pkl
+  # Remove and recreate MG5AMC_HOME/PLUGIN
+  rm -rf ${MG5AMC_HOME}/PLUGIN
+  mkdir ${MG5AMC_HOME}/PLUGIN
+  touch ${MG5AMC_HOME}/PLUGIN/__init__.py
+}
+
+#--------------------------------------------------------------------------------------
+
 # Replace code directory and create .BKP? (or alternatively keep code directory in .NEW?)
 REPLACE=0
 
@@ -141,16 +156,17 @@ echo -e "\nUsing MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
 if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exist"; exit 1; fi
 
 # Print MG5amc bazaar info if any
+# Revert to the appropriate bazaar revision number
 if bzr --version >& /dev/null; then
   echo -e "Using $(bzr --version | head -1)"
   echo -e "Retrieving bzr information about MG5AMC_HOME"
   if bzr info ${MG5AMC_HOME} 2> /dev/null | grep parent; then
+    revno_patches=$(cat $SCRDIR/MG5aMC_patches/2.7.0_gpu/revision.BZR)
+    echo -e "MG5AMC patches in this plugin refer to bzr revno '${revno_patches}'"
+    echo -e "Revert MG5AMC_HOME to bzr revno '${revno_patches}'"
+    bzr revert ${MG5AMC_HOME} -r ${revno_patches}
     revno_mg5amc=$(bzr revno ${MG5AMC_HOME})
     echo -e "Current bzr revno of MG5AMC_HOME is '${revno_mg5amc}'"
-    revno_patches=$(cat $SCRDIR/MG5aMC_patches/2.7.0_gpu/revision.BZR)
-    echo -e "Revert MG5AMC_HOME to current bzr revno"
-    bzr revert ${MG5AMC_HOME}
-    echo -e "MG5AMC patches in this plugin refer to bzr revno '${revno_patches}'"
     if [ "${revno_patches}" != "${revno_mg5amc}" ]; then echo -e "\nERROR! bzr revno mismatch!"; exit 1; fi
   else
     echo -e "WARNING! MG5AMC_HOME is not a bzr branch\n"
@@ -169,11 +185,8 @@ for patch in $patches; do
 done
 echo -e "Copy MG5aMC_patches/2.7.0_gpu patches... done\n"
 
-# Remove and recreate MG5AMC_HOME/PLUGIN, remove MG5aMC fragments from previous runs
-rm -rf ${MG5AMC_HOME}/py.py
-rm -rf ${MG5AMC_HOME}/PLUGIN
-mkdir ${MG5AMC_HOME}/PLUGIN
-touch ${MG5AMC_HOME}/PLUGIN/__init__.py
+# Clean up before code generation
+cleanup_MG5AMC_HOME
 
 # Print MG5amc bazaar info if any
 if bzr --version >& /dev/null; then
@@ -198,3 +211,6 @@ for proc in $procs; do
   if [ -d $OUTDIR/$proc ]; then proc=$(basename $proc); fi
   codeGenAndDiff $proc
 done
+
+# Clean up after code generation
+###cleanup_MG5AMC_HOME
