@@ -23,7 +23,8 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  // TEMPORARY during epochX step3! Eventually add "#ifdef __CUDACC__" here
+#ifdef __CUDACC__
+  // Return by reference
   __device__ inline
   const fptype& pIparIp4Ievt( const fptype* momenta, // input: momenta as AOSOA[npagM][npar][4][neppM]
                               const int ipar,
@@ -40,9 +41,7 @@ namespace MG5_sm
     //fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta; // cast to multiD array pointer (AOSOA)
     //return momenta[ipagM][ipar][ip4][ieppM]; // this seems ~1-2% faster in eemumu C++?
   }
-  // TEMPORARY during epochX step3! Eventually add "#endif" (or better "#else") here
-
-#ifndef __CUDACC__
+#else
   // Return by value: it seems a tiny bit faster than returning a reference (both for scalar and vector), not clear why
   inline
   fptype_sv pIparIp4Ipag( const fptype_sv* momenta, // input: momenta as AOSOA[npagM][npar][4][neppM]
@@ -50,21 +49,22 @@ namespace MG5_sm
                           const int ip4,
                           const int ipagM )
   {
-#ifndef MGONGPU_CPPSIMD
+    /*
+    //#ifndef MGONGPU_CPPSIMD
     // TEMPORARY during epochX step3! Eventually remove this section (start)
     // TEMPORARY during epochX step3! THERE IS NO SIMD YET: HENCE ipagM=ievt
     // NB: this is needed for neppM>1 while neppV==1 (no SIMD) in eemumu.auto
     // NB: this remains valid for neppM==1 with neppV==1 in eemumu (scalar)
     return pIparIp4Ievt( momenta, ipar, ip4, ipagM );
     // TEMPORARY during epochX step3! Eventually remove this section (end)
-#else
+    //#else
+    */
     // NB: this assumes that neppV == neppM!
     // NB: this is the same as "pIparIp4Ievt( momenta, ipar, ip4, ipagM )" for neppM==1 with neppV==1
     using mgOnGpu::np4;
     using mgOnGpu::npar;
     //printf( "%f\n", momenta[ipagM*npar*np4 + ipar*np4 + ip4] );
     return momenta[ipagM*npar*np4 + ipar*np4 + ip4]; // AOSOA[ipagM][ipar][ip4][ieppM]
-#endif
   }
 #endif
 
@@ -839,13 +839,6 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  // FIXME: move these inside each FFV function? Cuda tput[MECalcOnly] seems 3% slower for eemumu?
-  __device__ constexpr fptype one( 1. );
-  __device__ constexpr fptype two( 2. );
-  __device__ constexpr fptype half( 1. / 2. );
-
-  //--------------------------------------------------------------------------
-
   // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], V2[6], V3[6]
   __device__
   void VVV1_0( const cxtype_sv V1[],
@@ -939,6 +932,7 @@ namespace MG5_sm
     F1[0] = + F2[0] + V3[0];
     F1[1] = + F2[1] + V3[1];
     const fptype_sv P1[4] = { -cxreal( F1[0] ), -cxreal( F1[1] ), -cximag( F1[1] ), -cximag( F1[0] ) };
+    constexpr fptype one( 1. );
     const cxtype_sv denom = COUP / ( (P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
     F1[2] = denom * cI * ( F2[2] * ( P1[0] * ( -V3[2] + V3[5] ) + ( P1[1] * ( V3[3]- cI * ( V3[4] ) ) + ( P1[2] * ( +cI * ( V3[3] ) + V3[4] ) + P1[3] * ( -V3[2] + V3[5] ) ) ) ) + ( F2[3] * ( P1[0] * ( V3[3] + cI * ( V3[4] ) ) + ( P1[1] * (- one) * ( V3[2] + V3[5] ) + ( P1[2] * (- one) * ( +cI * ( V3[2] + V3[5] ) ) + P1[3] * ( V3[3] + cI * ( V3[4] ) ) ) ) ) + M1 * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * ( V3[4] ) ) ) ) );
     F1[3] = denom * (- cI) * ( F2[2] * ( P1[0] * ( -V3[3] + cI * ( V3[4] ) ) + ( P1[1] * ( V3[2] - V3[5] ) + ( P1[2] * ( - cI * ( V3[2] ) + cI * ( V3[5] ) ) + P1[3] * ( V3[3]- cI * ( V3[4] ) ) ) ) ) + ( F2[3] * ( P1[0] * ( V3[2] + V3[5] ) + ( P1[1] * (- one) * ( V3[3] + cI * ( V3[4] ) ) + ( P1[2] * ( +cI * ( V3[3] ) - V3[4] ) - P1[3] * ( V3[2] + V3[5] ) ) ) ) + M1 * ( F2[4] * ( -V3[3] + cI * ( V3[4] ) ) + F2[5] * ( -V3[2] + V3[5] ) ) ) );
@@ -964,6 +958,7 @@ namespace MG5_sm
     F2[0] = + F1[0] + V3[0];
     F2[1] = + F1[1] + V3[1];
     const fptype_sv P2[4] = { -cxreal( F2[0] ), -cxreal( F2[1] ), -cximag( F2[1] ), -cximag( F2[0] ) };
+    constexpr fptype one( 1. );
     const cxtype_sv denom = COUP / ( (P2[0] * P2[0] ) - ( P2[1] * P2[1] ) - ( P2[2] * P2[2] ) - ( P2[3] * P2[3] ) - M2 * ( M2 - cI * W2 ) );
     F2[2] = denom * cI * ( F1[2] * ( P2[0] * ( V3[2] + V3[5] ) + ( P2[1] * (- one) * ( V3[3] + cI * ( V3[4] ) ) + ( P2[2] * ( +cI * ( V3[3] ) - V3[4] ) - P2[3] * ( V3[2] + V3[5] ) ) ) ) + ( F1[3] * ( P2[0] * ( V3[3]- cI * ( V3[4] ) ) + ( P2[1] * ( -V3[2] + V3[5] ) + ( P2[2] * ( +cI * ( V3[2] )- cI * ( V3[5] ) ) + P2[3] * ( -V3[3] + cI * ( V3[4] ) ) ) ) ) + M2 * ( F1[4] * ( V3[2] - V3[5] ) + F1[5] * ( -V3[3] + cI * ( V3[4] ) ) ) ) );
     F2[3] = denom * (- cI) * ( F1[2] * ( P2[0] * (- one) * ( V3[3] + cI * ( V3[4] ) ) + ( P2[1] * ( V3[2] + V3[5] ) + ( P2[2] * ( +cI * ( V3[2] + V3[5] ) ) - P2[3] * ( V3[3] + cI * ( V3[4] ) ) ) ) ) + ( F1[3] * ( P2[0] * ( -V3[2] + V3[5] ) + ( P2[1] * ( V3[3]- cI * ( V3[4] ) ) + ( P2[2] * ( +cI * ( V3[3] ) + V3[4] ) + P2[3] * ( -V3[2] + V3[5] ) ) ) ) + M2 * ( F1[4] * ( V3[3] + cI * ( V3[4] ) ) - F1[5] * ( V3[2] + V3[5] ) ) ) );

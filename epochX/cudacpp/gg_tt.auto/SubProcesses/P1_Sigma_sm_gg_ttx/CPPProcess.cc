@@ -169,9 +169,9 @@ namespace Proc
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called CPPProcess::matrix_1_gg_ttx()?)
 
-      // The color matrix
-      constexpr fptype denom[ncolor] = {3, 3};
-      constexpr fptype cf[ncolor][ncolor] = {
+      // The color matrix [NB do keep 'static' for these constexpr arrays, see issue #283]
+      static constexpr fptype denom[ncolor] = {3, 3};
+      static constexpr fptype cf[ncolor][ncolor] = {
       {16, -2},
       {-2, 16}};
 
@@ -224,8 +224,8 @@ namespace Proc
     , m_pars( 0 )
     , m_masses()
   {
-    // Helicities for the process - nodim
-    constexpr short tHel[ncomb][mgOnGpu::npar] = {
+    // Helicities for the process [NB do keep 'static' for this constexpr array, see issue #283]
+    static constexpr short tHel[ncomb][mgOnGpu::npar] = {
       {-1, -1, -1, -1},
       {-1, -1, -1, 1},
       {-1, -1, 1, -1},
@@ -501,11 +501,11 @@ namespace Proc
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
-    allMEs[ievt] /= (fptype)denominators;
+    allMEs[ievt] /= denominators;
 #else
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
-      allMEs[ipagV] /= (fptype)denominators;
+      allMEs[ipagV] /= denominators;
     }
 #endif
     mgDebugFinalise();

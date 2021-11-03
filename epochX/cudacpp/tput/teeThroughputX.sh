@@ -68,6 +68,8 @@ done
 #echo "steps=$steps"
 ###exit 0
 
+started="STARTED AT $(date)"
+
 for step in $steps; do
   for proc in $procs; do
     for suff in $suffs; do
@@ -108,3 +110,8 @@ for step in $steps; do
   done
   printf "\n%80s\n" |tr " " "#"
 done
+
+ended="ENDED   AT $(date)"
+echo
+echo "$started"
+echo "$ended"

@@ -57,7 +57,7 @@ namespace Proc
     , m_pars( 0 )
     , m_masses()
   {
-    // Helicities for the process - nodim
+    // Helicities for the process [NB do keep 'static' for this constexpr array, see issue #283]
 %(all_helicities)s
 #ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * mgOnGpu::npar * sizeof(short) ) );

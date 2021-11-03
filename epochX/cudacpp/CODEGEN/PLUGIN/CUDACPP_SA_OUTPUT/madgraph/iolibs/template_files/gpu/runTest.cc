@@ -46,15 +46,14 @@ struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
 #ifndef __CUDACC__
 struct CPUTest : public CUDA_CPU_TestBase {
 
+  // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
+  // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   Proc::CPPProcess process;
-
-  // --- 0b. Allocate memory structures
-  // Memory structures for random numbers, momenta, matrix elements and weights on host and device
-  unique_ptr_host<fptype   > hstRnarray  { hstMakeUnique<fptype   >( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR]
-  unique_ptr_host<fptype_sv> hstMomenta  { hstMakeUnique<fptype_sv>( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM]
-  unique_ptr_host<bool     > hstIsGoodHel{ hstMakeUnique<bool     >( mgOnGpu::ncomb ) };
-  unique_ptr_host<fptype   > hstWeights  { hstMakeUnique<fptype   >( nWeights ) };
-  unique_ptr_host<fptype_sv> hstMEs      { hstMakeUnique<fptype_sv>( nMEs ) }; // AOSOA[npagM][neppM]
+  unique_ptr_host<fptype   > hstRnarray;
+  unique_ptr_host<fptype_sv> hstMomenta;
+  unique_ptr_host<bool     > hstIsGoodHel;
+  unique_ptr_host<fptype   > hstWeights;
+  unique_ptr_host<fptype_sv> hstMEs;
 
   // Create a process object
   // Read param_card and set parameters
@@ -63,7 +62,12 @@ struct CPUTest : public CUDA_CPU_TestBase {
   // Don't remove!
   CPUTest( const std::string& refFileName ) :
     CUDA_CPU_TestBase( refFileName ),
-    process(niter, gpublocks, gputhreads, /*verbose=*/false)
+    process(niter, gpublocks, gputhreads, /*verbose=*/false),
+    hstRnarray  { hstMakeUnique<fptype   >( nRnarray ) }, // AOSOA[npagR][nparf][np4][neppR]
+    hstMomenta  { hstMakeUnique<fptype_sv>( nMomenta ) }, // AOSOA[npagM][npar][np4][neppM]
+    hstIsGoodHel{ hstMakeUnique<bool     >( mgOnGpu::ncomb ) },
+    hstWeights  { hstMakeUnique<fptype   >( nWeights ) },
+    hstMEs      { hstMakeUnique<fptype_sv>( nMEs ) } // AOSOA[npagM][neppM]
   {
     process.initProc("../../Cards/param_card.dat");
   }
@@ -133,21 +137,19 @@ struct CUDATest : public CUDA_CPU_TestBase {
     }
   } deviceResetter;
 
-  // --- 0b. Allocate memory structures
-  // Memory structures for random numbers, momenta, matrix elements and weights on host and device
-  unique_ptr_host<fptype> hstRnarray  { hstMakeUnique<fptype>( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR] (nevt=npagR*neppR)
-  unique_ptr_host<fptype> hstMomenta  { hstMakeUnique<fptype>( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM] (nevt=npagM*neppM)
-  unique_ptr_host<bool  > hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) };
-  unique_ptr_host<fptype> hstWeights  { hstMakeUnique<fptype>( nWeights ) };
-  unique_ptr_host<fptype> hstMEs      { hstMakeUnique<fptype>( nMEs ) };
-
-  unique_ptr_dev<fptype> devRnarray  { devMakeUnique<fptype>( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR] (nevt=npagR*neppR)
-  unique_ptr_dev<fptype> devMomenta  { devMakeUnique<fptype>( nMomenta ) };
-  unique_ptr_dev<bool  > devIsGoodHel{ devMakeUnique<bool  >( mgOnGpu::ncomb ) };
-  unique_ptr_dev<fptype> devWeights  { devMakeUnique<fptype>( nWeights ) };
-  unique_ptr_dev<fptype> devMEs      { devMakeUnique<fptype>( nMEs )     };
-
+  // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
+  // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   gProc::CPPProcess process;
+  unique_ptr_host<fptype> hstRnarray;
+  unique_ptr_host<fptype> hstMomenta;
+  unique_ptr_host<bool  > hstIsGoodHel;
+  unique_ptr_host<fptype> hstWeights;
+  unique_ptr_host<fptype> hstMEs;
+  unique_ptr_dev<fptype> devRnarray;
+  unique_ptr_dev<fptype> devMomenta;
+  unique_ptr_dev<bool  > devIsGoodHel;
+  unique_ptr_dev<fptype> devWeights;
+  unique_ptr_dev<fptype> devMEs;
 
   // Create a process object
   // Read param_card and set parameters
@@ -156,7 +158,17 @@ struct CUDATest : public CUDA_CPU_TestBase {
   // Don't remove!
   CUDATest( const std::string& refFileName ) :
     CUDA_CPU_TestBase( refFileName ),
-    process(niter, gpublocks, gputhreads, /*verbose=*/false)
+    process(niter, gpublocks, gputhreads, /*verbose=*/false),
+    hstRnarray  { hstMakeUnique<fptype>( nRnarray ) }, // AOSOA[npagR][nparf][np4][neppR] (nevt=npagR*neppR)
+    hstMomenta  { hstMakeUnique<fptype>( nMomenta ) }, // AOSOA[npagM][npar][np4][neppM] (nevt=npagM*neppM)
+    hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) },
+    hstWeights  { hstMakeUnique<fptype>( nWeights ) },
+    hstMEs      { hstMakeUnique<fptype>( nMEs ) },
+    devRnarray  { devMakeUnique<fptype>( nRnarray ) }, // AOSOA[npagR][nparf][np4][neppR] (nevt=npagR*neppR)
+    devMomenta  { devMakeUnique<fptype>( nMomenta ) },
+    devIsGoodHel{ devMakeUnique<bool  >( mgOnGpu::ncomb ) },
+    devWeights  { devMakeUnique<fptype>( nWeights ) },
+    devMEs      { devMakeUnique<fptype>( nMEs )     }
   {
     process.initProc("../../Cards/param_card.dat");
   }

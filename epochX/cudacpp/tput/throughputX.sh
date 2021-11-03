@@ -16,15 +16,14 @@ req=0
 fptypes="d"
 helinls="0"
 suffs="/"
-makeonly=0
-makecleanonly=0
+maketype=
 detailed=0
 gtest=0
 verbose=0
 
 function usage()
 {
-  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-eemumu] [-ggtt] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly|-makecleanonly] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -51,7 +50,7 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-nocpp" ]; then
     if [ "${omp}" == "1" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
     if [ "${avxall}" == "1" ]; then echo "ERROR! Options -avxall and -nocpp are incompatible"; usage; fi
-    if [ "${cuda}" == "1" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
+    if [ "${cuda}" == "0" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
     cpp=0
     shift
   elif [ "$1" == "-3a3b" ]; then
@@ -96,13 +95,11 @@ while [ "$1" != "" ]; do
     if [ "${suffs}" == "/ .auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
     suffs=".auto/"
     shift
-  elif [ "$1" == "-makeonly" ]; then
-    if [ "${makecleanonly}" == "1" ]; then echo "ERROR! Options -makeclean and -makecleanonly are incompatible"; usage; fi
-    makeonly=1
-    shift
-  elif [ "$1" == "-makecleanonly" ]; then
-    if [ "${makeonly}" == "1" ]; then echo "ERROR! Options -makeclean and -makecleanonly are incompatible"; usage; fi
-    makecleanonly=1
+  elif [ "$1" == "-makeonly" ] || [ "$1" == "-makeclean" ] || [ "$1" == "-makecleanonly" ]; then
+    if [ "${maketype}" != "" ] && [ "${maketype}" != "$1" ]; then
+      echo "ERROR! Options -makeonly, -makeclean and -makecleanonly are incompatible"; usage
+    fi
+    maketype="$1"
     shift
   elif [ "$1" == "-detailed" ]; then
     detailed=1
@@ -121,11 +118,8 @@ while [ "$1" != "" ]; do
 done
 ###exit 1
 
-# New default: run both eemumu and ggttgg
-###if [ "${eemumu}" == "0" ] && [ "${ggttgg}" == "0" ]; then 
-###  eemumu=1
-###  ggttgg=1
-###fi
+# Check that at least one process has been selected
+if [ "${eemumu}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggtt}" == "0" ]; then usage; fi
 
 ###echo -e "\n********************************************************************************\n"
 printf "\n"
@@ -205,7 +199,8 @@ for suff in $suffs; do
   export USEBUILDDIR=1
   pushd $dir >& /dev/null
   pwd
-  if [ "${makecleanonly}" == "1" ]; then make cleanall; echo; continue; fi
+  if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
+  if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
   for helinl in $helinls; do
     export HELINL=$helinl
     for fptype in $fptypes; do
@@ -226,8 +221,8 @@ for suff in $suffs; do
 
 done
 
-if [ "${makecleanonly}" == "1" ]; then printf "MAKE CLEANALL COMPLETED\n"; exit 0; fi
-if [ "${makeonly}" == "1" ]; then printf "MAKE COMPLETED\n"; exit 0; fi
+if [ "${maketype}" == "-makecleanonly" ]; then printf "MAKE CLEANALL COMPLETED\n"; exit 0; fi
+if [ "${maketype}" == "-makeonly" ]; then printf "MAKE COMPLETED\n"; exit 0; fi
 
 ##########################################################################
 # PART 3 - run all the executables which should be run
@@ -332,13 +327,16 @@ pushd $topdir/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /de
 
 lastExe=
 for exe in $exes; do
+  exeArgs2=""
   ###if [ ! -f $exe ]; then continue; fi
   if [ ! -f $exe ]; then echo "Not found: $exe"; continue; fi
   if [ "${exe%%/gcheck*}" != "${exe}" ] && [ "$gpuTxt" == "none" ]; then continue; fi
   if [ "${exe%%/gg_ttgg*}" != "${exe}" ]; then 
-    # This is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
+    # OLD << This is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1" >>
     exeArgs="-p 64 256 1"
     ncuArgs="-p 64 256 1"
+    # NEW On GPU test both "64 256" and "2048 256" for ggttgg as the latter gives ~10% higher throughput on cuda110/gcc92
+    exeArgs2="-p 2048 256 1"
   elif [ "${exe%%/gg_tt*}" != "${exe}" ]; then 
     exeArgs="-p 2048 256 1"
     ncuArgs="-p 2048 256 1"
@@ -372,6 +370,8 @@ for exe in $exes; do
     runNcu $exe "$ncuArgs"
     if [ "${div}" == "1" ]; then runNcuDiv $exe; fi
     if [ "${req}" == "1" ]; then runNcuReq $exe "$ncuArgs"; fi
+    echo "........................................................................."
+    if [ "${exeArgs2}" != "" ]; then runExe $exe "$exeArgs2"; fi
   fi
 done
 echo "========================================================================="
