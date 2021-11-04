@@ -30,38 +30,54 @@ function codeGenAndDiff()
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null
   outproc=CODEGEN_${OUTBCK}_${proc}
-  \rm -rf ${outproc}*
-  echo "set stdout_level DEBUG" >> ${outproc}.mg # does not help (log is essentially identical) but add it anyway
-  echo "${cmd}" >> ${outproc}.mg
-  if [ "${OUTBCK}" == "gridpack" ]; then
-    echo "ERROR! gridpack generation is not yet implemented"; exit 1
+  if [ "${OUTBCK}" == "gridpack" ] && [ "${UNTARONLY}" == "1" ]; then
+    echo -e "WARNING! Skip generation of gridpack.tar.gz (--untaronly was specified)\n"
   else
-    echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
+    \rm -rf ${outproc}*
+    echo "set stdout_level DEBUG" >> ${outproc}.mg # does not help (log is essentially identical) but add it anyway
+    echo "${cmd}" >> ${outproc}.mg
+    if [ "${OUTBCK}" == "gridpack" ]; then
+      echo "output ${outproc}" >> ${outproc}.mg
+      ###echo "!cp -dpr ${outproc} ${outproc}_prelaunch" >> ${outproc}.mg
+      echo "launch" >> ${outproc}.mg
+      echo "set gridpack True" >> ${outproc}.mg
+      echo "set ebeam1 750" >> ${outproc}.mg
+      echo "set ebeam2 750" >> ${outproc}.mg
+    else
+      echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
+    fi
+    cat ${outproc}.mg
+    ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
+    { time python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
   fi
-  cat ${outproc}.mg
-  ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
-  { time python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
   if [ -d ${outproc} ] && ! grep -q "Please report this bug" ${outproc}_log.txt; then
     ###cat ${outproc}_log.txt; exit 0 # FOR DEBUGGING
-    cat ${outproc}_log.txt | egrep 'INFO: (Try|Creat|Organiz|Process)'
-    mv ${outproc}_log.txt ${outproc}/
+    cat ${MG5AMC_HOME}/${outproc}_log.txt | egrep 'INFO: (Try|Creat|Organiz|Process)'
   else
     echo "*** ERROR! Code generation failed"
-    cat ${outproc}_log.txt
+    cat ${MG5AMC_HOME}/${outproc}_log.txt
     echo "*** ERROR! Code generation failed"
     exit 1
   fi
   popd >& /dev/null
+  # Choose which directory must be copied (for gridpack generation: untar and modify the gridpack)
+  if [ "${OUTBCK}" == "gridpack" ]; then
+    outprocauto=${MG5AMC_HOME}/${outproc}/run_01_gridpack
+    if ! $SCRDIR/untarGridpack.sh ${outprocauto}.tar.gz; then echo "ERROR! untarGridpack.sh failed"; exit 1; fi
+  else
+    outprocauto=${MG5AMC_HOME}/${outproc}
+  fi
+  cp -dpr ${MG5AMC_HOME}/${outproc}_log.txt ${outprocauto}/
   # Replace the existing generated code in the output source code directory by the newly generated code and create a .BKP
   rm -rf ${OUTDIR}/${proc}.auto.BKP
-  mv ${OUTDIR}/${proc}.auto ${OUTDIR}/${proc}.auto.BKP
-  cp -dpr ${MG5AMC_HOME}/${outproc} ${OUTDIR}/${proc}.auto
+  if [ -d ${OUTDIR}/${proc}.auto ]; then mv ${OUTDIR}/${proc}.auto ${OUTDIR}/${proc}.auto.BKP; fi
+  cp -dpr ${outprocauto} ${OUTDIR}/${proc}.auto
   echo -e "\nOutput source code has been copied to ${OUTDIR}/${proc}.auto"
   # Compare the existing generated code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
   echo -e "\n+++ Compare old and new code generation log for $proc\n"
-  ###diff -c ${proc}.auto.BKP/${outproc}_log.txt ${proc}.auto # context diff
-  diff ${proc}.auto.BKP/${outproc}_log.txt ${proc}.auto # normal diff
+  ###if diff -c ${proc}.auto.BKP/${outproc}_log.txt ${proc}.auto; then echo "Old and new code generation logs are identical"; fi # context diff
+  if diff ${proc}.auto.BKP/${outproc}_log.txt ${proc}.auto; then echo "Old and new code generation logs are identical"; fi # context diff
   echo -e "\n+++ Compare old and new generated code for $proc\n"
   if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc}.auto.BKP ${proc}.auto; then echo "Old and new generated codes are identical"; else echo -e "\nWARNING! Old and new generated codes differ"; fi
   popd >& /dev/null
@@ -80,7 +96,11 @@ function codeGenAndDiff()
 
 function usage()
 {
-  echo "Usage: $0 [--nobrief] <proc>" # New: only one process
+  if [ "${OUTBCK}" == "gridpack" ]; then
+    echo "Usage: $0 [--nobrief] [--untaronly] <proc>" # New: only one process
+  else
+    echo "Usage: $0 [--nobrief] <proc>" # New: only one process
+  fi
   exit 1
 }
 
@@ -101,8 +121,20 @@ function cleanup_MG5AMC_HOME()
 
 #--------------------------------------------------------------------------------------
 
+# Script directory
+SCRDIR=$(cd $(dirname $0); pwd)
+
+# Output source code directory for the chosen backend
+OUTDIR=$(dirname $SCRDIR) # e.g. epochX/cudacpp if $SCRDIR=epochX/cudacpp/CODEGEN
+
+# Output backend
+OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
+
 # Default: brief diffs (use --nobrief to use full diffs)
 BRIEF=--brief
+
+# Default for gridpacks: regenerate gridpack.tar.gz and untar it
+UNTARONLY=0
 
 # Process command line arguments (https://unix.stackexchange.com/a/258514)
 for arg in "$@"; do
@@ -111,6 +143,8 @@ for arg in "$@"; do
     usage; continue; # continue is unnecessary as usage will exit anyway...
   elif [ "$arg" == "--nobrief" ]; then
     BRIEF=; continue
+  elif [ "$arg" == "--untaronly" ] && [ "${OUTBCK}" == "gridpack" ]; then
+    UNTARONLY=1; continue
   else
     # Keep the possibility to collect more then one process
     # However, require a single process to be chosen (allow full cleanup before/after code generation)
@@ -121,21 +155,13 @@ done
 if [ "$1" == "" ] || [ "$2" != "" ]; then usage; fi # New: only one process
 proc=$1
 
-echo BRIEF=${BRIEF}
-###echo procs=${procs}
-echo proc=${proc}
-
-# Script directory
-SCRDIR=$(cd $(dirname $0); pwd)
-echo SCRDIR=${SCRDIR}
-
-# Output source code directory for the chosen backend
-OUTDIR=$(dirname $SCRDIR) # e.g. epochX/cudacpp if $SCRDIR=epochX/cudacpp/CODEGEN
-echo OUTDIR=${OUTDIR}
-
-# Output backend
-OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
+echo "SCRDIR=${SCRDIR}"
+echo "OUTDIR=${OUTDIR}"
 echo "OUTBCK=${OUTBCK} (uppercase=${OUTBCK^^})"
+
+echo "BRIEF=${BRIEF}"
+###echo "procs=${procs}"
+echo "proc=${proc}"
 
 # Make sure that python3 is installed
 if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"; exit 1; fi
@@ -187,7 +213,7 @@ if bzr --version >& /dev/null; then
   if bzr info ${MG5AMC_HOME} 2> /dev/null | grep parent; then
     echo -e "\n***************** Differences to the current bzr revno [START]"
     if bzr diff ${MG5AMC_HOME}; then echo -e "[No differences]"; fi
-    echo -e "***************** Differences to the current bzr revno [END]\n"
+    echo -e "***************** Differences to the current bzr revno [END]"
   fi
 fi
 
