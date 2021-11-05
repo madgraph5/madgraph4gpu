@@ -1,6 +1,6 @@
 TOOLSDIR = ../../../../../tools
 TESTDIR  = ../../../../../test
-INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
+INCFLAGS = -I. -I../../../Source/golden_epochX4 -I$(TOOLSDIR)
 MODELLIB = model_sm
 OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
@@ -81,7 +81,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
-  NVCC       := 
+  NVCC       :=
   USE_NVTX   :=
   CULIBFLAGS :=
   override RNDGEN = common
@@ -188,10 +188,10 @@ override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_$(RNDGEN)
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
   override BUILDDIR = build.$(DIRTAG)
-  override LIBDIR   = ../../lib/$(BUILDDIR)
+  override LIBDIR   = ../../../Source/lib/$(BUILDDIR)
 else
   override BUILDDIR = .
-  override LIBDIR   = ../../lib
+  override LIBDIR   = ../../../Source/lib
 endif
 ###$(info BUILDDIR=$(BUILDDIR))
 $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
@@ -219,7 +219,7 @@ cxx_objects=$(BUILDDIR)/CPPProcess.o
 
 testmain=$(BUILDDIR)/runTest.exe
 
-all.$(TAG): ../../src/$(BUILDDIR)/.build.$(TAG) $(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
+all.$(TAG): ../../../Source/golden_epochX4/$(BUILDDIR)/.build.$(TAG) $(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
 
 override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)'`
 $(BUILDDIR)/.build.$(TAG):
@@ -232,34 +232,34 @@ debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
 
-../../src/$(BUILDDIR)/.build.$(TAG):
-	$(MAKE) -C ../../src $(MAKEDEBUG)
+../../../Source/golden_epochX4/$(BUILDDIR)/.build.$(TAG):
+	$(MAKE) -C ../../../Source/golden_epochX4 $(MAKEDEBUG)
 
-$(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
-	$(MAKE) -C ../../src $(MAKEDEBUG)
+$(LIBDIR)/lib$(MODELLIB).a: ../../../Source/golden_epochX4/*.h ../../../Source/golden_epochX4/*.cc
+	$(MAKE) -C ../../../Source/golden_epochX4 $(MAKEDEBUG)
 
-$(BUILDDIR)/gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h # ../../src/*.cu
+$(BUILDDIR)/gcheck_sa.o: gcheck_sa.cu *.h ../../../Source/golden_epochX4/*.h # ../../../Source/golden_epochX4/*.cu
 	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
-$(BUILDDIR)/CPPProcess.o : ../../src/HelAmps_sm.cc
-$(BUILDDIR)/gCPPProcess.o : ../../src/HelAmps_sm.cc
+$(BUILDDIR)/CPPProcess.o : ../../../Source/golden_epochX4/HelAmps_sm.cc
+$(BUILDDIR)/gCPPProcess.o : ../../../Source/golden_epochX4/HelAmps_sm.cc
 
-$(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
+$(BUILDDIR)/%.o : %.cu *.h ../../../Source/golden_epochX4/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 # Apply special build flags only to CPPProcess.cc (-flto)
-#$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
+#$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../../Source/golden_epochX4/*.h
 #	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 #	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -flto $(CUINC) -c $< -o $@
 
 ### Apply special build flags only to CPPProcess.cc (AVXFLAGS)
-###$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
+###$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../../Source/golden_epochX4/*.h
 ###	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 ###	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(AVXFLAGS) $(CUINC) -c $< -o $@
 
-$(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
+$(BUILDDIR)/%.o : %.cc *.h ../../../Source/golden_epochX4/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
@@ -288,7 +288,7 @@ $(testmain): cxx_objects += $(BUILDDIR)/testxxx.o # Comment out this line to ski
 
 ifeq ($(NVCC),)
 # Link only runTest.o
-$(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS) 
+$(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
 # Link both runTest.o and runTest_cu.o
@@ -322,7 +322,7 @@ avxall:
 .PHONY: clean
 
 clean:
-	make -C ../../src clean
+	make -C ../../../Source/golden_epochX4 clean
 ifneq ($(BUILDDIR),.)
 	rm -rf $(BUILDDIR)
 else
@@ -333,8 +333,8 @@ cleanall:
 	@echo
 	make clean
 	@echo
-	make -C ../../src cleanall
-	rm -rf build.*	
+	make -C ../../../Source/golden_epochX4 cleanall
+	rm -rf build.*
 
 distclean: cleanall
 	make -C $(TOOLSDIR) clean
