@@ -294,7 +294,7 @@ int main(int argc, char **argv)
 #endif
 
   // Read param_card and set parameters
-  process.initProc("../../Cards/param_card.dat");
+  process.initProc("../../../Cards/param_card.dat");
   const fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   //const fptype energy = 91.2; // Ecms = 91.2 GeV (Z peak)
   //const fptype energy = 0.100; // Ecms = 100 MeV (well below the Z peak, pure em scattering)
