@@ -1,5 +1,7 @@
 #!/bin/bash
 
+scrdir=$(cd $(dirname $0); pwd)
+
 if [ "${1%.tar.gz}" == "$1" ] || [ "$2" != "" ]; then
   echo "Usage: $0 <gridpack.tar.gz>"
   exit 1 
@@ -33,6 +35,9 @@ popd > /dev/null
 \rm madevent/Source/BIAS/dummy/*.o
 \rm $(find . -name *.pyc)
 touch madevent/Events/.keepme
+
+# Copy or replace some custom scripts
+\cp -dpr ${scrdir}/MG5aMC_patches/rebuild.sh .
 
 # Dump the final contents of the local directory
 echo "In $(pwd):"
