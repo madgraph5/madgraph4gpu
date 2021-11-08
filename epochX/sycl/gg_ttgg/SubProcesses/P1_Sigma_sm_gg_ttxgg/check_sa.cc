@@ -832,6 +832,20 @@ int main(int argc, char **argv)
   double stdweig = std::sqrt( sqsweigdiff / ( nevtALL - nnan ) );
 
   // === STEP 9 FINALISE
+#ifdef SYCL_LANGUAGE_VERSION
+  // --- 9aa. Free device memory 
+  const std::string syclfrKey = "9aa sycl_free";
+  timermap.start( syclfrKey );
+
+  sycl::free( devRnarray   , q_ct1);
+  sycl::free( devMomenta   , q_ct1);
+  sycl::free( devIsGoodHel , q_ct1);
+  sycl::free( devWeights   , q_ct1);
+  sycl::free( devMEs       , q_ct1);
+  sycl::free( devcHel      , q_ct1);
+  sycl::free( devcIPC      , q_ct1);
+  sycl::free( devcIPD      , q_ct1);
+#endif
   // --- 9a. Destroy curand generator
   const std::string dgenKey = "9a GenDestr";
   timermap.start( dgenKey );
