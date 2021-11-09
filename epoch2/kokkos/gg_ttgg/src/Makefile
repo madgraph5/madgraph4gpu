@@ -59,7 +59,7 @@ hip: $(hip_lib)
 	$(NVCC) $(CUDA_CXXFLAGS) -c $< -o $@
 
 %.intel.o : %.cc %.h
-	$(ICPX) $(INTEL_CXXFLAGS) -c $< -o $@
+	$(IPCX) $(INTEL_CXXFLAGS) -c $< -o $@
 
 %.hip.o : %.cc %.h
 	$(HIPCC) $(HIP_CXXFLAGS) -c $< -o $@

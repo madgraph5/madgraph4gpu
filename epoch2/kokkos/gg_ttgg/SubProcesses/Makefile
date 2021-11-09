@@ -74,7 +74,7 @@ hip:
 	$(NVCC) $(CUDA_CXXFLAGS) -c $< -o $@
 
 %.intel.o : %.cpp $(CHECK_H)
-	$(ICPX) $(INTEL_CXXFLAGS) -c $< -o $@
+	$(IPCX) $(INTEL_CXXFLAGS) -c $< -o $@
 
 %.hip.o : %.cpp $(CHECK_H)
 	$(HIPCC) $(HIP_CXXFLAGS) -c $< -o $@
