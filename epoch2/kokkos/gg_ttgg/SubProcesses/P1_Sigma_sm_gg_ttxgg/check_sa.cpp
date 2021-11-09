@@ -7,6 +7,7 @@
 #include <numeric> // perf stats
 #include <unistd.h>
 #include <vector>
+#include <chrono>
 
 #include "CPPProcess.h"
 #include "random_generator.h"
@@ -49,7 +50,7 @@ int usage(char* argv0, int ret = 1) {
 }
 
 int main(int argc, char **argv) {
-  clock_t start = clock(), end;
+  auto start = std::chrono::high_resolution_clock::now();
   bool verbose = false, debug = false, perf = false, json = false;
   int numiter = 0, league_size = 1, team_size = 1;
   std::vector<int> numvec;
@@ -94,18 +95,17 @@ int main(int argc, char **argv) {
   if (numiter == 0)
     return usage(argv[0]);
 
-  end = clock();
-  double cmdline_parse_sec = ((double) (end - start)) / CLOCKS_PER_SEC;
-  std::cout << "command line parsing: " << cmdline_parse_sec << " seconds\n";
-  start = clock();
+  auto end = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.;
+  std::cout << "command line parsing: " << duration << " seconds\n";
+  start = std::chrono::high_resolution_clock::now();
 
   Kokkos::initialize(argc, argv);
 
-  end = clock();
+  end = std::chrono::high_resolution_clock::now();
+  duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.;
   
-  double kokkos_init_sec = ((double) (end - start)) / CLOCKS_PER_SEC;
-  std::cout << "Kokkkos initialize: " << kokkos_init_sec << " seconds\n";
-  start = clock();
+  std::cout << "Kokkkos initialize: " << duration << " seconds\n";
 
   if (verbose)
     std::cout << "# iterations: " << numiter << std::endl;

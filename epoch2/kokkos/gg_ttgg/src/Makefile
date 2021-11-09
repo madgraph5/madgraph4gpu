@@ -2,7 +2,7 @@
 CXX=gcc
 ICPX=icpx
 CLANG=clang++
-HIPCC=hipcc
+HIPCC ?= hipcc
 
 CXXFLAGS=-O3 -ffast-math --std=c++17 -lineinfo
 
