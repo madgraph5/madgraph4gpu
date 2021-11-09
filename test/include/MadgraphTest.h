@@ -1,6 +1,6 @@
 // Stephan Hageboeck, CERN, 12/2020
 #ifndef MADGRAPHTEST_H_
-#define MADGRAPHTEST_H_
+#define MADGRAPHTEST_H_ 1
 
 #include <array>
 #include <iomanip>
@@ -34,16 +34,20 @@ std::map<unsigned int, ReferenceData> readReferenceData(const std::string& refFi
  */
 template<typename Fptype>
 class TestDriverBase {
- public:
-  unsigned int nparticle = 4;
+private:
+  std::string m_refFileName;
+public:
+  unsigned int nparticle = 4; // NB This is a (non-static, non-const) instance variable which gets modified in runTest.cc
   static constexpr unsigned int np4 = 4;
   static constexpr unsigned int niter = 2;
   static constexpr unsigned int gpublocks = 2;
   static constexpr unsigned int gputhreads = 128;
   static constexpr unsigned int nevt = gpublocks * gputhreads;
 
-  TestDriverBase() { }
+  TestDriverBase( const std::string& refFileName = "" ) // default value "" is for backward compatibility
+    : m_refFileName( refFileName != "" ? refFileName : std::string( "../../../../../test/ref/dump_CPUTest.Sigma_sm_epem_mupmum.txt" ) ){}
   virtual ~TestDriverBase() { }
+  const std::string& getRefFileName(){ return m_refFileName; }
 
   // ------------------------------------------------
   // Interface for retrieving info from madgraph
@@ -95,7 +99,7 @@ protected:
   using TestWithParamFptype = testing::TestWithParam<std::function<TestDriverBase<Fptype>*()>>;
 public:
   MadgraphTestFptype() : TestWithParamFptype(), testDriver{ TestWithParamFptype::GetParam()() } {}
-  void madgraphTestBody_eemumu();
+  void madgraphTestBody();
 };
 
 typedef MadgraphTestFptype<float> MadgraphTestFloat;

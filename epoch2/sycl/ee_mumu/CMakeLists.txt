@@ -26,7 +26,7 @@ set (SOURCES
 add_compile_definitions(MGONGPU_COMMONRAND_ONHOST)
 
 set(CMAKE_THREAD_LIBS_INIT "-lpthread")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -ffast-math")
 
 add_executable(check_sa.exe ${SOURCES})
 target_compile_options(check_sa.exe PRIVATE -O0 -g -fsycl -fsycl-unnamed-lambda -ferror-limit=1 -Wall -pthread)
