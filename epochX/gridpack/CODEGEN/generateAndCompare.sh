@@ -136,7 +136,8 @@ OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
 BRIEF=--brief
 
 # Default for gridpacks: regenerate gridpack.tar.gz and untar it
-UNTARONLY=0
+###UNTARONLY=0
+UNTARONLY=1 # optionally prevent regeneration and force untaronly
 
 # Process command line arguments (https://unix.stackexchange.com/a/258514)
 for arg in "$@"; do
