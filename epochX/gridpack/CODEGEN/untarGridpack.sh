@@ -43,6 +43,20 @@ touch madevent/Events/.keepme
 cat madevent/Cards/me5_configuration.txt | sed 's/mg5_path/#mg5_path/' > madevent/Cards/me5_configuration.txt.new
 \mv madevent/Cards/me5_configuration.txt.new madevent/Cards/me5_configuration.txt
 
+# Inject C++ counters into the Fortran code
+for dir in madevent/SubProcesses/P1_*; do
+  cd $dir
+  \cp -dpr ${scrdir}/MG5aMC_patches/timer.h .
+  \cp -dpr ${scrdir}/MG5aMC_patches/counters.cpp .
+  patch -i ${scrdir}/MG5aMC_patches/patch.driver.f
+  patch -i ${scrdir}/MG5aMC_patches/patch.matrix1_optim.f
+  \rm -f matrix1_optim.f.orig
+  cd -
+done
+cd madevent/SubProcesses
+patch -i ${scrdir}/MG5aMC_patches/patch.makefile
+cd -
+
 # Dump the final contents of the local directory
 echo "In $(pwd):"
 ls -l .
