@@ -51,7 +51,7 @@ int usage(char* argv0, int ret = 1) {
   std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
   std::cout << "The '-d' flag only controls if nan's emit warnings" << std::endl;
   std::cout << "The '--device_info` flag prints information for all available devices. If a device is chosen by '--device_id', only information for that device is shown." << std::endl;
-  std::cout << "The '--device_id' arguments selects the device to run code on." << std::endl;
+  std::cout << "The '--device_id' arguments selects the device to run code on. (default: 0)" << std::endl;
   std::cout << "The '--help|-h' flag prints this message" << std::endl;
   return ret;
 }
@@ -226,10 +226,15 @@ int main(int argc, char **argv)
   bool json_file_bool = false;
   std::string json_file = "";
   std::string d_id_str;
-  uint32_t d_id;
+  uint32_t d_id = 0; // default to device 0
   bool device_chosen = false;
   bool device_info = false;
   auto devices = sycl::device::get_devices();
+  if (devices.size() == 0) {
+      std::cout << "No SYCL devices detected." << std::endl;
+      std::cout << "Terminating. Exit Code: -995" << std::endl;
+      return -995;
+  }
 
   for (int argn = 1; argn < argc; ++argn) {
     if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
@@ -343,8 +348,6 @@ int main(int argc, char **argv)
   const int nevt = ndim; // number of events in one iteration == number of GPU threads
   const int nevtALL = niter*nevt; // total number of ALL events in all iterations
 
-  //sycl::queue q_ct1{ sycl::gpu_selector{} };
-  //sycl::queue q_ct1 = get_sycl_queue(device_chosen,d_id);
   sycl::queue q_ct1 = sycl::queue(devices[d_id]);
 
   auto device = q_ct1.get_device();
