@@ -49,6 +49,8 @@ function codeGenAndDiff()
     cat ${outproc}.mg
     ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
     { time python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
+    cat ${outproc}_log.txt | egrep -v '(Crash Annotation)' > ${outproc}_log.txt.new # remove firefox 'glxtest: libEGL initialize failed' errors
+    \mv ${outproc}_log.txt.new ${outproc}_log.txt
   fi
   if [ -d ${outproc} ] && ! grep -q "Please report this bug" ${outproc}_log.txt; then
     ###cat ${outproc}_log.txt; exit 0 # FOR DEBUGGING
