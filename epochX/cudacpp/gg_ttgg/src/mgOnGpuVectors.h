@@ -30,6 +30,9 @@ namespace mgOnGpu
   // See also https://stackoverflow.com/questions/26554829
   //#define MGONGPU_HAS_CXTYPE_REF 1 // clang test (compilation fails also on clang 12.0, issue #182)
 #undef MGONGPU_HAS_CXTYPE_REF // clang default
+#elif defined __INTEL_COMPILER
+  //#define MGONGPU_HAS_CXTYPE_REF 1 // icc default?
+#undef MGONGPU_HAS_CXTYPE_REF // icc test
 #else
 #define MGONGPU_HAS_CXTYPE_REF 1 // gcc default
   //#undef MGONGPU_HAS_CXTYPE_REF // gcc test (very slightly slower? issue #172)
@@ -535,6 +538,14 @@ fptype_v fpmin( const fptype& a, const fptype_v& b )
 }
 */
 
+inline
+bool maskor( const bool_v& mask )
+{
+  bool out = false;
+  for ( int i=0; i<neppV; i++ ) out = out || mask[i];
+  return out;
+}
+
 #else
 
 inline
@@ -547,6 +558,12 @@ inline
 cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
 {
   return ( mask ? a : b );
+}
+
+inline
+bool maskor( const bool& mask )
+{
+  return mask;
 }
 
 #endif

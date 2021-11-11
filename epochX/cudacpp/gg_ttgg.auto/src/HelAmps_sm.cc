@@ -5,15 +5,16 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#include <cmath>
-#include <cstdlib>
-#include <cstring>
-#include <iomanip>
-#include <iostream>
-
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
+#include "HelAmps_sm.h"
+
+//#include <cassert>
+#include <cmath>
+#include <cstdlib>
+#include <iomanip>
+#include <iostream>
 
 mgDebugDeclare();
 
@@ -22,52 +23,64 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__
-  inline const fptype& pIparIp4Ievt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
-                                     const int ipar,
-                                     const int ip4,
-                                     const int ievt )
+#ifdef __CUDACC__
+  // Return by reference
+  __device__ inline
+  const fptype& pIparIp4Ievt( const fptype* momenta, // input: momenta as AOSOA[npagM][npar][4][neppM]
+                              const int ipar,
+                              const int ip4,
+                              const int ievt )
   {
-    // mapping for the various schemes (AOSOA, AOS, SOA...)
     using mgOnGpu::np4;
     using mgOnGpu::npar;
     const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
     const int ipagM = ievt/neppM; // #eventpage in this iteration
     const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-    //printf( "%f\n", momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
-    return momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
-    //fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
+    //printf( "%f\n", momenta[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
+    return momenta[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
+    //fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta; // cast to multiD array pointer (AOSOA)
     //return momenta[ipagM][ipar][ip4][ieppM]; // this seems ~1-2% faster in eemumu C++?
   }
-
-#ifndef __CUDACC__
-  // Return by value: it seems a tiny bit faster than returning a reference (both for scalar and vector), not clear why
-  inline fptype_sv pIparIp4Ipag( const fptype_sv* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
-                                 const int ipar,
-                                 const int ip4,
-                                 const int ipagM )
-  {
-#ifndef MGONGPU_CPPSIMD
-    // NB THERE IS NO SIMD YET IN GGTTGG! HENCE ipagM=ievt
-    return pIparIp4Ievt( momenta1d, ipar, ip4, ipagM );
 #else
-#error THERE IS NO SIMD YET IN GGTTGG
-#endif
+  // Return by value: it seems a tiny bit faster than returning a reference (both for scalar and vector), not clear why
+  inline
+  fptype_sv pIparIp4Ipag( const fptype_sv* momenta, // input: momenta as AOSOA[npagM][npar][4][neppM]
+                          const int ipar,
+                          const int ip4,
+                          const int ipagM )
+  {
+    /*
+    //#ifndef MGONGPU_CPPSIMD
+    // TEMPORARY during epochX step3! Eventually remove this section (start)
+    // TEMPORARY during epochX step3! THERE IS NO SIMD YET: HENCE ipagM=ievt
+    // NB: this is needed for neppM>1 while neppV==1 (no SIMD) in eemumu.auto
+    // NB: this remains valid for neppM==1 with neppV==1 in eemumu (scalar)
+    return pIparIp4Ievt( momenta, ipar, ip4, ipagM );
+    // TEMPORARY during epochX step3! Eventually remove this section (end)
+    //#else
+    */
+    // NB: this assumes that neppV == neppM!
+    // NB: this is the same as "pIparIp4Ievt( momenta, ipar, ip4, ipagM )" for neppM==1 with neppV==1
+    using mgOnGpu::np4;
+    using mgOnGpu::npar;
+    //printf( "%f\n", momenta[ipagM*npar*np4 + ipar*np4 + ip4] );
+    return momenta[ipagM*npar*np4 + ipar*np4 + ip4]; // AOSOA[ipagM][ipar][ip4][ieppM]
   }
 #endif
 
   //--------------------------------------------------------------------------
 
+  // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   __device__
-  void ixxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               const fptype fmass,
-               const int nhel,              // input: -1 or +1 (helicity of fermion)
-               const int nsf,               // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
+  void ixxxxx( const fptype_sv* momenta,
+               const fptype fmass,             // input: fermion mass
+               const int nhel,                 // input: -1 or +1 (helicity of fermion)
+               const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
+               cxtype_sv fi[],
 #ifndef __CUDACC__
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar ) // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
@@ -77,17 +90,17 @@ namespace MG5_sm
       //printf( "ixxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copying by value (not by ref) seems faster in cuda, in spite of more registers used
       // AV: copying by value (not by ref) seems irrelevant, or slightly slower, in c++
-      const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
-      const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
-      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      const fptype pvec1 = pIparIp4Ievt( momenta, ipar, 1, ievt );
+      const fptype pvec2 = pIparIp4Ievt( momenta, ipar, 2, ievt );
+      const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
       //const fptype pvec0 = fpsqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ); // AV: BUG?! (NOT AS IN THE FORTRAN)
-      const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt ); // AV: BUG FIX (DO AS IN THE FORTRAN)
+      const fptype pvec0 = pIparIp4Ievt( momenta, ipar, 0, ievt ); // AV: BUG FIX (DO AS IN THE FORTRAN)
 #else
       //printf( "ixxxxx: ipagV=%d\n", ipagV );
-      const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
-      const fptype_sv pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
-      const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
-      const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_sv pvec0 = pIparIp4Ipag( momenta, ipar, 0, ipagV );
+      const fptype_sv pvec1 = pIparIp4Ipag( momenta, ipar, 1, ipagV );
+      const fptype_sv pvec2 = pIparIp4Ipag( momenta, ipar, 2, ipagV );
+      const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
 #endif
       fi[0] = cxmake( -pvec0 * (fptype)nsf, -pvec3 * (fptype)nsf );
       fi[1] = cxmake( -pvec1 * (fptype)nsf, -pvec2 * (fptype)nsf );
@@ -192,18 +205,19 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
+  // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
   __device__
-  void ipzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               //const fptype fmass,        // ASSUME fmass==0
-               const int nhel,              // input: -1 or +1 (helicity of fermion)
-               const int nsf,               // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
+  void ipzxxx( const fptype_sv* momenta,
+               //const fptype fmass,           // ASSUME fermion mass==0
+               const int nhel,                 // input: -1 or +1 (helicity of fermion)
+               const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
+               cxtype_sv fi[],
 #ifndef __CUDACC__
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar )
   {
-    // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
@@ -211,10 +225,10 @@ namespace MG5_sm
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "ipzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copy by value (not by ref) as this seems faster in cuda for other functions
-      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
 #else
       //printf( "ipzxxx: ipagV=%d\n", ipagV );
-      const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
 #endif
       fi[0] = cxmake( -pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
       fi[1] = cxzero_sv();
@@ -240,18 +254,19 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
+  // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
   __device__
-  void imzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               //const fptype fmass,        // ASSUME fmass==0
-               const int nhel,              // input: -1 or +1 (helicity of fermion)
-               const int nsf,               // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
+  void imzxxx( const fptype_sv* momenta,
+               //const fptype fmass,           // ASSUME fermion mass==0
+               const int nhel,                 // input: -1 or +1 (helicity of fermion)
+               const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
+               cxtype_sv fi[],
 #ifndef __CUDACC__
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar )
   {
-    // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
@@ -259,10 +274,10 @@ namespace MG5_sm
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "imzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copying by value (not by ref) seems to give the same performance in both cuda and c++
-      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
 #else
       //printf( "imzxxx: ipagV=%d\n", ipagV );
-      const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
 #endif
       fi[0] = cxmake( pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
       fi[1] = cxzero_sv();
@@ -288,18 +303,19 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
+  // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
   __device__
-  void ixzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               //const fptype fmass,        // ASSUME fmass==0
-               const int nhel,              // input: -1 or +1 (helicity of fermion)
-               const int nsf,               // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
+  void ixzxxx( const fptype_sv* momenta,
+               //const fptype fmass,           // ASSUME fermion mass==0
+               const int nhel,                 // input: -1 or +1 (helicity of fermion)
+               const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
+               cxtype_sv fi[],
 #ifndef __CUDACC__
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar )
   {
-    // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
@@ -307,16 +323,16 @@ namespace MG5_sm
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "ixzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copying by value (not by ref) seems to give the same performance in both cuda and c++
-      const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
-      const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
-      const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
-      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      const fptype pvec0 = pIparIp4Ievt( momenta, ipar, 0, ievt );
+      const fptype pvec1 = pIparIp4Ievt( momenta, ipar, 1, ievt );
+      const fptype pvec2 = pIparIp4Ievt( momenta, ipar, 2, ievt );
+      const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
 #else
       //printf( "ixzxxx: ipagV=%d\n", ipagV );
-      const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
-      const fptype_sv pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
-      const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
-      const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_sv pvec0 = pIparIp4Ipag( momenta, ipar, 0, ipagV );
+      const fptype_sv pvec1 = pIparIp4Ipag( momenta, ipar, 1, ipagV );
+      const fptype_sv pvec2 = pIparIp4Ipag( momenta, ipar, 2, ipagV );
+      const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
 #endif
       //fi[0] = cxmake( -pvec0 * nsf, -pvec2 * nsf ); // AV: BUG! not the same as ixxxxx
       //fi[1] = cxmake( -pvec0 * nsf, -pvec1 * nsf ); // AV: BUG! not the same as ixxxxx
@@ -349,16 +365,17 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Compute the output wavefunction vc[6] from the input momenta[npar*4*nevt]
   __device__
-  void vxxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               const fptype vmass,
-               const int nhel,              // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
-               const int nsv,               // input: +1 (final) or -1 (initial)
-               cxtype_sv* vc,               // output: wavefunction[(nw6==6)]
+  void vxxxxx( const fptype_sv* momenta,
+               const fptype vmass,             // input: vector boson mass
+               const int nhel,                 // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
+               const int nsv,                  // input: +1 (final) or -1 (initial)
+               cxtype_sv vc[],
 #ifndef __CUDACC__
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar )
   {
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
@@ -367,16 +384,16 @@ namespace MG5_sm
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "vxxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copy by value (not by ref) as this seems faster in cuda for other functions
-      const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
-      const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
-      const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
-      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      const fptype pvec0 = pIparIp4Ievt( momenta, ipar, 0, ievt );
+      const fptype pvec1 = pIparIp4Ievt( momenta, ipar, 1, ievt );
+      const fptype pvec2 = pIparIp4Ievt( momenta, ipar, 2, ievt );
+      const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
 #else
       //printf( "vxxxxx: ipagV=%d\n", ipagV );
-      const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
-      const fptype_sv pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
-      const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
-      const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_sv pvec0 = pIparIp4Ipag( momenta, ipar, 0, ipagV );
+      const fptype_sv pvec1 = pIparIp4Ipag( momenta, ipar, 1, ipagV );
+      const fptype_sv pvec2 = pIparIp4Ipag( momenta, ipar, 2, ipagV );
+      const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
 #endif
       const fptype sqh = fpsqrt( 0.5 ); // AV this is > 0!
       const fptype hel = nhel;
@@ -444,7 +461,7 @@ namespace MG5_sm
       }
       else
       {
-        const fptype_sv& pp = pvec0; // NB: rewrite the following  as in Fortran, using pp instead of pvec0
+        const fptype_sv& pp = pvec0; // NB: rewrite the following as in Fortran, using pp instead of pvec0
         const fptype_sv pt = fpsqrt( ( pvec1 * pvec1 ) + ( pvec2 * pvec2 ) );
         vc[2] = cxzero_sv();
         vc[5] = cxmake( hel * pt / pp * sqh, 0. );
@@ -484,16 +501,17 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Compute the output wavefunction sc[3] from the input momenta[npar*4*nevt]
   __device__
-  void sxxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               const fptype,                // WARNING: "smass" unused (missing in Fortran)
-               const int,                   // WARNING: "nhel" unused (missing in Fortran) - scalar has no helicity
-               const int nss,               // input: +1 (final) or -1 (initial)
-               cxtype_sv sc[3],             // output: wavefunction[3] - not [6], this is for scalars
+  void sxxxxx( const fptype_sv* momenta,
+               const fptype,                   // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
+               const int,                      // WARNING: input "nhel" unused (missing in Fortran) - scalar has no helicity!
+               const int nss,                  // input: +1 (final) or -1 (initial)
+               cxtype_sv sc[],
 #ifndef __CUDACC__
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar )
   {
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
@@ -502,16 +520,16 @@ namespace MG5_sm
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "sxxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copy by value (not by ref) as this seems faster in cuda for other functions
-      const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
-      const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
-      const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
-      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      const fptype pvec0 = pIparIp4Ievt( momenta, ipar, 0, ievt );
+      const fptype pvec1 = pIparIp4Ievt( momenta, ipar, 1, ievt );
+      const fptype pvec2 = pIparIp4Ievt( momenta, ipar, 2, ievt );
+      const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
 #else
       //printf( "sxxxxx: ipagV=%d\n", ipagV );
-      const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
-      const fptype_sv pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
-      const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
-      const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_sv pvec0 = pIparIp4Ipag( momenta, ipar, 0, ipagV );
+      const fptype_sv pvec1 = pIparIp4Ipag( momenta, ipar, 1, ipagV );
+      const fptype_sv pvec2 = pIparIp4Ipag( momenta, ipar, 2, ipagV );
+      const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
 #endif
       sc[2] = cxmake( 1 + fptype_sv{0}, 0 );
       sc[0] = cxmake( pvec0 * (fptype)nss, pvec3 * (fptype)nss );
@@ -524,16 +542,17 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   __device__
-  void oxxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               const fptype fmass,
-               const int nhel,              // input: -1 or +1 (helicity of fermion)
-               const int nsf,               // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
+  void oxxxxx( const fptype_sv* momenta,
+               const fptype fmass,             // input: fermion mass
+               const int nhel,                 // input: -1 or +1 (helicity of fermion)
+               const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
+               cxtype_sv fo[],
 #ifndef __CUDACC__
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar )
   {
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
@@ -543,16 +562,16 @@ namespace MG5_sm
       //printf( "oxxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copying by value (not by ref) seems faster in cuda, in spite of more registers used
       // AV: copying by value (not by ref) seems irrelevant, or slightly faster, in c++
-      const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
-      const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
-      const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
-      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      const fptype pvec0 = pIparIp4Ievt( momenta, ipar, 0, ievt );
+      const fptype pvec1 = pIparIp4Ievt( momenta, ipar, 1, ievt );
+      const fptype pvec2 = pIparIp4Ievt( momenta, ipar, 2, ievt );
+      const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
 #else
       //printf( "oxxxxx: ipagV=%d\n", ipagV );
-      const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
-      const fptype_sv pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
-      const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
-      const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_sv pvec0 = pIparIp4Ipag( momenta, ipar, 0, ipagV );
+      const fptype_sv pvec1 = pIparIp4Ipag( momenta, ipar, 1, ipagV );
+      const fptype_sv pvec2 = pIparIp4Ipag( momenta, ipar, 2, ipagV );
+      const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
 #endif
       fo[0] = cxmake( pvec0 * (fptype)nsf, pvec3 * (fptype)nsf );
       fo[1] = cxmake( pvec1 * (fptype)nsf, pvec2 * (fptype)nsf );
@@ -659,17 +678,19 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
+  // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
   __device__
-  void opzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               const int nhel,              // input: -1 or +1 (helicity of fermion)
-               const int nsf,               // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
+  void opzxxx( const fptype_sv* momenta,
+               //const fptype fmass,           // ASSUME fermion mass==0
+               const int nhel,                 // input: -1 or +1 (helicity of fermion)
+               const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
+               cxtype_sv fo[],
 #ifndef __CUDACC__
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar )
   {
-    // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
@@ -677,10 +698,10 @@ namespace MG5_sm
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "opzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copying by value (not by ref) seems to give the same performance in both cuda and c++
-      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
 #else
       //printf( "opzxxx: ipagV=%d\n", ipagV );
-      const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
 #endif
       fo[0] = cxmake( pvec3 * (fptype)nsf, pvec3 * (fptype)nsf );
       fo[1] = cxzero_sv();
@@ -706,17 +727,19 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
+  // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
   __device__
-  void omzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               const int nhel,              // input: -1 or +1 (helicity of fermion)
-               const int nsf,               // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
+  void omzxxx( const fptype_sv* momenta,
+               //const fptype fmass,           // ASSUME fermion mass==0
+               const int nhel,                 // input: -1 or +1 (helicity of fermion)
+               const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
+               cxtype_sv fo[],
 #ifndef __CUDACC__
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar )
   {
-    // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
@@ -724,10 +747,10 @@ namespace MG5_sm
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "ipzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copy by value (not by ref) as this seems faster in cuda for other functions
-      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
 #else
       //printf( "ipzxxx: ipagV=%d\n", ipagV );
-      const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
 #endif
       fo[0] = cxmake( -pvec3 * (fptype)nsf, pvec3 * (fptype)nsf ); // remember pvec0 == -pvec3
       fo[1] = cxzero_sv();
@@ -756,18 +779,19 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
+  // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
   __device__
-  void oxzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
-               //const fptype fmass,        // ASSUME fmass==0
-               const int nhel,              // input: -1 or +1 (helicity of fermion)
-               const int nsf,               // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
+  void oxzxxx( const fptype_sv* momenta,
+               //const fptype fmass,           // ASSUME fermion mass==0
+               const int nhel,                 // input: -1 or +1 (helicity of fermion)
+               const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
+               cxtype_sv fo[],
 #ifndef __CUDACC__
                const int ipagV,
 #endif
-               const int ipar )             // input: particle# out of npar
+               const int ipar )
   {
-    // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
@@ -775,16 +799,16 @@ namespace MG5_sm
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "oxzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
       // AV: copying by value (not by ref) seems to give the same performance in both cuda and c++
-      const fptype pvec0 = pIparIp4Ievt( allmomenta, ipar, 0, ievt );
-      const fptype pvec1 = pIparIp4Ievt( allmomenta, ipar, 1, ievt );
-      const fptype pvec2 = pIparIp4Ievt( allmomenta, ipar, 2, ievt );
-      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      const fptype pvec0 = pIparIp4Ievt( momenta, ipar, 0, ievt );
+      const fptype pvec1 = pIparIp4Ievt( momenta, ipar, 1, ievt );
+      const fptype pvec2 = pIparIp4Ievt( momenta, ipar, 2, ievt );
+      const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
 #else
       //printf( "oxzxxx: ipagV=%d\n", ipagV );
-      const fptype_sv pvec0 = pIparIp4Ipag( allmomenta, ipar, 0, ipagV );
-      const fptype_sv pvec1 = pIparIp4Ipag( allmomenta, ipar, 1, ipagV );
-      const fptype_sv pvec2 = pIparIp4Ipag( allmomenta, ipar, 2, ipagV );
-      const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_sv pvec0 = pIparIp4Ipag( momenta, ipar, 0, ipagV );
+      const fptype_sv pvec1 = pIparIp4Ipag( momenta, ipar, 1, ipagV );
+      const fptype_sv pvec2 = pIparIp4Ipag( momenta, ipar, 2, ipagV );
+      const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
 #endif
       fo[0] = cxmake( pvec0 * (fptype)nsf, pvec3 * (fptype)nsf );
       fo[1] = cxmake( pvec1 * (fptype)nsf, pvec2 * (fptype)nsf );
@@ -815,277 +839,308 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  __device__ constexpr fptype one( 1. );
-
-  //--------------------------------------------------------------------------
-
-  __device__ void VVV1_0( const cxtype V1[], const cxtype V2[], const cxtype V3[], const cxtype COUP, cxtype* vertex )
+  // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], V2[6], V3[6]
+  __device__
+  void VVV1_0( const cxtype_sv V1[],
+               const cxtype_sv V2[],
+               const cxtype_sv V3[],
+               const cxtype COUP,
+               cxtype_sv* vertex )
   {
-    cxtype cI = cxtype(0., 1.);
-    fptype P1[4];
-    fptype P2[4];
-    fptype P3[4];
-    cxtype TMP0;
-    cxtype TMP1;
-    cxtype TMP2;
-    cxtype TMP3;
-    cxtype TMP4;
-    cxtype TMP5;
-    cxtype TMP6;
-    cxtype TMP7;
-    cxtype TMP8;
-    P1[0] = + V1[0].real();
-    P1[1] = + V1[1].real();
-    P1[2] = + V1[1].imag();
-    P1[3] = + V1[0].imag();
-    P2[0] = + V2[0].real();
-    P2[1] = + V2[1].real();
-    P2[2] = + V2[1].imag();
-    P2[3] = + V2[0].imag();
-    P3[0] = + V3[0].real();
-    P3[1] = + V3[1].real();
-    P3[2] = + V3[1].imag();
-    P3[3] = + V3[0].imag();
-    TMP0 = (V3[2]*P1[0] - V3[3]*P1[1] - V3[4]*P1[2] - V3[5]*P1[3]);
-    TMP1 = (V2[2]*V1[2] - V2[3]*V1[3] - V2[4]*V1[4] - V2[5]*V1[5]);
-    TMP2 = (V3[2]*P2[0] - V3[3]*P2[1] - V3[4]*P2[2] - V3[5]*P2[3]);
-    TMP3 = (V3[2]*V1[2] - V3[3]*V1[3] - V3[4]*V1[4] - V3[5]*V1[5]);
-    TMP4 = (P1[0]*V2[2] - P1[1]*V2[3] - P1[2]*V2[4] - P1[3]*V2[5]);
-    TMP5 = (V2[2]*P3[0] - V2[3]*P3[1] - V2[4]*P3[2] - V2[5]*P3[3]);
-    TMP6 = (V3[2]*V2[2] - V3[3]*V2[3] - V3[4]*V2[4] - V3[5]*V2[5]);
-    TMP7 = (V1[2]*P2[0] - V1[3]*P2[1] - V1[4]*P2[2] - V1[5]*P2[3]);
-    TMP8 = (V1[2]*P3[0] - V1[3]*P3[1] - V1[4]*P3[2] - V1[5]*P3[3]);
-    (*vertex) = COUP * (TMP1*(-cI*(TMP0) + cI*(TMP2)) + (TMP3*(+cI*(TMP4)-cI*(TMP5)) + TMP6*(-cI*(TMP7) + cI*(TMP8))));
+    mgDebug( 0, __FUNCTION__ );
+    const cxtype cI = cxmake( 0., 1. );
+    const fptype_sv P1[4] = { +cxreal( V1[0] ), +cxreal( V1[1] ), +cximag( V1[1] ), +cximag( V1[0] ) };
+    const fptype_sv P2[4] = { +cxreal( V2[0] ), +cxreal( V2[1] ), +cximag( V2[1] ), +cximag( V2[0] ) };
+    const fptype_sv P3[4] = { +cxreal( V3[0] ), +cxreal( V3[1] ), +cximag( V3[1] ), +cximag( V3[0] ) };
+    const cxtype_sv TMP0 = ( V3[2] * P1[0] - V3[3] * P1[1] - V3[4] * P1[2] - V3[5] * P1[3] );
+    const cxtype_sv TMP1 = ( V2[2] * V1[2] - V2[3] * V1[3] - V2[4] * V1[4] - V2[5] * V1[5] );
+    const cxtype_sv TMP2 = ( V3[2] * P2[0] - V3[3] * P2[1] - V3[4] * P2[2] - V3[5] * P2[3] );
+    const cxtype_sv TMP3 = ( V3[2] * V1[2] - V3[3] * V1[3] - V3[4] * V1[4] - V3[5] * V1[5] );
+    const cxtype_sv TMP4 = ( P1[0] * V2[2] - P1[1] * V2[3] - P1[2] * V2[4] - P1[3] * V2[5] );
+    const cxtype_sv TMP5 = ( V2[2] * P3[0] - V2[3] * P3[1] - V2[4] * P3[2] - V2[5] * P3[3] );
+    const cxtype_sv TMP6 = ( V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5] );
+    const cxtype_sv TMP7 = ( V1[2] * P2[0] - V1[3] * P2[1] - V1[4] * P2[2] - V1[5] * P2[3] );
+    const cxtype_sv TMP8 = ( V1[2] * P3[0] - V1[3] * P3[1] - V1[4] * P3[2] - V1[5] * P3[3] );
+    (*vertex) = COUP * ( TMP1 * ( - cI * ( TMP0 ) + cI * ( TMP2 ) ) + ( TMP3 * ( +cI * ( TMP4 )- cI * ( TMP5 ) ) + TMP6 * ( - cI * ( TMP7 ) + cI * ( TMP8 ) ) ) );
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
 
-  __device__ void VVV1P0_1( const cxtype V2[], const cxtype V3[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[] )
+  // Compute the output wavefunction 'V1[6]' from the input wavefunctions V2[6], V3[6]
+  __device__
+  void VVV1P0_1( const cxtype_sv V2[],
+                 const cxtype_sv V3[],
+                 const cxtype COUP,
+                 const fptype M1,
+                 const fptype W1,
+                 cxtype_sv V1[] )
   {
-    cxtype cI = cxtype(0., 1.);
-    fptype P1[4];
-    fptype P2[4];
-    fptype P3[4];
-    cxtype TMP0;
-    cxtype TMP2;
-    cxtype TMP4;
-    cxtype TMP5;
-    cxtype TMP6;
-    cxtype denom;
-    P2[0] = + V2[0].real();
-    P2[1] = + V2[1].real();
-    P2[2] = + V2[1].imag();
-    P2[3] = + V2[0].imag();
-    P3[0] = + V3[0].real();
-    P3[1] = + V3[1].real();
-    P3[2] = + V3[1].imag();
-    P3[3] = + V3[0].imag();
+    mgDebug( 0, __FUNCTION__ );
+    const cxtype cI = cxmake( 0., 1. );
+    const fptype_sv P2[4] = { +cxreal( V2[0] ), +cxreal( V2[1] ), +cximag( V2[1] ), +cximag( V2[0] ) };
+    const fptype_sv P3[4] = { +cxreal( V3[0] ), +cxreal( V3[1] ), +cximag( V3[1] ), +cximag( V3[0] ) };
     V1[0] = + V2[0] + V3[0];
     V1[1] = + V2[1] + V3[1];
-    P1[0] = - V1[0].real();
-    P1[1] = - V1[1].real();
-    P1[2] = - V1[1].imag();
-    P1[3] = - V1[0].imag();
-    TMP0 = (V3[2]*P1[0] - V3[3]*P1[1] - V3[4]*P1[2] - V3[5]*P1[3]);
-    TMP2 = (V3[2]*P2[0] - V3[3]*P2[1] - V3[4]*P2[2] - V3[5]*P2[3]);
-    TMP4 = (P1[0]*V2[2] - P1[1]*V2[3] - P1[2]*V2[4] - P1[3]*V2[5]);
-    TMP5 = (V2[2]*P3[0] - V2[3]*P3[1] - V2[4]*P3[2] - V2[5]*P3[3]);
-    TMP6 = (V3[2]*V2[2] - V3[3]*V2[3] - V3[4]*V2[4] - V3[5]*V2[5]);
-    denom = COUP / ((P1[0]*P1[0]) - (P1[1]*P1[1]) - (P1[2]*P1[2]) - (P1[3]*P1[3]) - M1*(M1-cI*W1));
-    V1[2] = denom * (TMP6*(-cI*(P2[0]) + cI*(P3[0])) + (V2[2]*(-cI*(TMP0) + cI*(TMP2)) + V3[2]*(+cI*(TMP4)-cI*(TMP5))));
-    V1[3] = denom * (TMP6*(-cI*(P2[1]) + cI*(P3[1])) + (V2[3]*(-cI*(TMP0) + cI*(TMP2)) + V3[3]*(+cI*(TMP4)-cI*(TMP5))));
-    V1[4] = denom * (TMP6*(-cI*(P2[2]) + cI*(P3[2])) + (V2[4]*(-cI*(TMP0) + cI*(TMP2)) + V3[4]*(+cI*(TMP4)-cI*(TMP5))));
-    V1[5] = denom * (TMP6*(-cI*(P2[3]) + cI*(P3[3])) + (V2[5]*(-cI*(TMP0) + cI*(TMP2)) + V3[5]*(+cI*(TMP4)-cI*(TMP5))));
+    const fptype_sv P1[4] = { -cxreal( V1[0] ), -cxreal( V1[1] ), -cximag( V1[1] ), -cximag( V1[0] ) };
+    const cxtype_sv TMP0 = ( V3[2] * P1[0] - V3[3] * P1[1] - V3[4] * P1[2] - V3[5] * P1[3] );
+    const cxtype_sv TMP2 = ( V3[2] * P2[0] - V3[3] * P2[1] - V3[4] * P2[2] - V3[5] * P2[3] );
+    const cxtype_sv TMP4 = ( P1[0] * V2[2] - P1[1] * V2[3] - P1[2] * V2[4] - P1[3] * V2[5] );
+    const cxtype_sv TMP5 = ( V2[2] * P3[0] - V2[3] * P3[1] - V2[4] * P3[2] - V2[5] * P3[3] );
+    const cxtype_sv TMP6 = ( V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5] );
+    const cxtype_sv denom = COUP / ( (P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
+    V1[2] = denom * ( TMP6 * ( - cI * ( P2[0] ) + cI * ( P3[0] ) ) + ( V2[2] * ( - cI * ( TMP0 ) + cI * ( TMP2 ) ) + V3[2] * ( +cI * ( TMP4 )- cI * ( TMP5 ) ) ) );
+    V1[3] = denom * ( TMP6 * ( - cI * ( P2[1] ) + cI * ( P3[1] ) ) + ( V2[3] * ( - cI * ( TMP0 ) + cI * ( TMP2 ) ) + V3[3] * ( +cI * ( TMP4 )- cI * ( TMP5 ) ) ) );
+    V1[4] = denom * ( TMP6 * ( - cI * ( P2[2] ) + cI * ( P3[2] ) ) + ( V2[4] * ( - cI * ( TMP0 ) + cI * ( TMP2 ) ) + V3[4] * ( +cI * ( TMP4 )- cI * ( TMP5 ) ) ) );
+    V1[5] = denom * ( TMP6 * ( - cI * ( P2[3] ) + cI * ( P3[3] ) ) + ( V2[5] * ( - cI * ( TMP0 ) + cI * ( TMP2 ) ) + V3[5] * ( +cI * ( TMP4 )- cI * ( TMP5 ) ) ) );
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
 
-  __device__ void FFV1_0( const cxtype F1[], const cxtype F2[], const cxtype V3[], const cxtype COUP, cxtype* vertex )
+  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
+  __device__
+  void FFV1_0( const cxtype_sv F1[],
+               const cxtype_sv F2[],
+               const cxtype_sv V3[],
+               const cxtype COUP,
+               cxtype_sv* vertex )
   {
-    cxtype cI = cxtype(0., 1.);
-    cxtype TMP9;
-    TMP9 = (F1[2]*(F2[4]*(V3[2] + V3[5]) + F2[5]*(V3[3] + cI*(V3[4]))) + (F1[3]*(F2[4]*(V3[3]-cI*(V3[4])) + F2[5]*(V3[2] - V3[5])) + (F1[4]*(F2[2]*(V3[2] - V3[5]) - F2[3]*(V3[3] + cI*(V3[4]))) + F1[5]*(F2[2]*(-V3[3] + cI*(V3[4])) + F2[3]*(V3[2] + V3[5])))));
-    (*vertex) = COUP * -cI * TMP9;
+    mgDebug( 0, __FUNCTION__ );
+    const cxtype cI = cxmake( 0., 1. );
+    const cxtype_sv TMP9 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * ( V3[4] ) ) ) + ( F1[3] * ( F2[4] * ( V3[3]- cI * ( V3[4] ) ) + F2[5] * ( V3[2] - V3[5] ) ) + ( F1[4] * ( F2[2] * ( V3[2] - V3[5] ) - F2[3] * ( V3[3] + cI * ( V3[4] ) ) ) + F1[5] * ( F2[2] * ( -V3[3] + cI * ( V3[4] ) ) + F2[3] * ( V3[2] + V3[5] ) ) ) ) );
+    (*vertex) = COUP * - cI * TMP9;
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
 
-  __device__ void FFV1_1( const cxtype F2[], const cxtype V3[], const cxtype COUP, const fptype M1, const fptype W1, cxtype F1[] )
+  // Compute the output wavefunction 'F1[6]' from the input wavefunctions F2[6], V3[6]
+  __device__
+  void FFV1_1( const cxtype_sv F2[],
+               const cxtype_sv V3[],
+               const cxtype COUP,
+               const fptype M1,
+               const fptype W1,
+               cxtype_sv F1[] )
   {
-    cxtype cI = cxtype(0., 1.);
-    fptype P1[4];
-    cxtype denom;
+    mgDebug( 0, __FUNCTION__ );
+    const cxtype cI = cxmake( 0., 1. );
     F1[0] = + F2[0] + V3[0];
     F1[1] = + F2[1] + V3[1];
-    P1[0] = - F1[0].real();
-    P1[1] = - F1[1].real();
-    P1[2] = - F1[1].imag();
-    P1[3] = - F1[0].imag();
-    denom = COUP / ((P1[0]*P1[0]) - (P1[1]*P1[1]) - (P1[2]*P1[2]) - (P1[3]*P1[3]) - M1*(M1-cI*W1));
-    F1[2] = denom * cI * (F2[2]*(P1[0]*(-V3[2] + V3[5]) + (P1[1]*(V3[3]-cI*(V3[4])) + (P1[2]*(+cI*(V3[3]) + V3[4]) + P1[3]*(-V3[2] + V3[5])))) + (F2[3]*(P1[0]*(V3[3] + cI*(V3[4])) + (P1[1]*(-one) * (V3[2] + V3[5]) + (P1[2]*(-one) * (+cI*(V3[2] + V3[5])) + P1[3]*(V3[3] + cI*(V3[4]))))) + M1*(F2[4]*(V3[2] + V3[5]) + F2[5]*(V3[3] + cI*(V3[4])))));
-    F1[3] = denom * (-cI) * (F2[2]*(P1[0]*(-V3[3] + cI*(V3[4])) + (P1[1]*(V3[2] - V3[5]) + (P1[2]*(-cI*(V3[2]) + cI*(V3[5])) + P1[3]*(V3[3]-cI*(V3[4]))))) + (F2[3]*(P1[0]*(V3[2] + V3[5]) + (P1[1]*(-one) * (V3[3] + cI*(V3[4])) + (P1[2]*(+cI*(V3[3]) - V3[4]) - P1[3]*(V3[2] + V3[5])))) + M1*(F2[4]*(-V3[3] + cI*(V3[4])) + F2[5]*(-V3[2] + V3[5]))));
-    F1[4] = denom * (-cI) * (F2[4]*(P1[0]*(V3[2] + V3[5]) + (P1[1]*(-V3[3] + cI*(V3[4])) + (P1[2]*(-one) * (+cI*(V3[3]) + V3[4]) - P1[3]*(V3[2] + V3[5])))) + (F2[5]*(P1[0]*(V3[3] + cI*(V3[4])) + (P1[1]*(-V3[2] + V3[5]) + (P1[2]*(-cI*(V3[2]) + cI*(V3[5])) - P1[3]*(V3[3] + cI*(V3[4]))))) + M1*(F2[2]*(-V3[2] + V3[5]) + F2[3]*(V3[3] + cI*(V3[4])))));
-    F1[5] = denom * cI * (F2[4]*(P1[0]*(-V3[3] + cI*(V3[4])) + (P1[1]*(V3[2] + V3[5]) + (P1[2]*(-one) * (+cI*(V3[2] + V3[5])) + P1[3]*(-V3[3] + cI*(V3[4]))))) + (F2[5]*(P1[0]*(-V3[2] + V3[5]) + (P1[1]*(V3[3] + cI*(V3[4])) + (P1[2]*(-cI*(V3[3]) + V3[4]) + P1[3]*(-V3[2] + V3[5])))) + M1*(F2[2]*(-V3[3] + cI*(V3[4])) + F2[3]*(V3[2] + V3[5]))));
+    const fptype_sv P1[4] = { -cxreal( F1[0] ), -cxreal( F1[1] ), -cximag( F1[1] ), -cximag( F1[0] ) };
+    constexpr fptype one( 1. );
+    const cxtype_sv denom = COUP / ( (P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
+    F1[2] = denom * cI * ( F2[2] * ( P1[0] * ( -V3[2] + V3[5] ) + ( P1[1] * ( V3[3]- cI * ( V3[4] ) ) + ( P1[2] * ( +cI * ( V3[3] ) + V3[4] ) + P1[3] * ( -V3[2] + V3[5] ) ) ) ) + ( F2[3] * ( P1[0] * ( V3[3] + cI * ( V3[4] ) ) + ( P1[1] * (- one) * ( V3[2] + V3[5] ) + ( P1[2] * (- one) * ( +cI * ( V3[2] + V3[5] ) ) + P1[3] * ( V3[3] + cI * ( V3[4] ) ) ) ) ) + M1 * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * ( V3[4] ) ) ) ) );
+    F1[3] = denom * (- cI) * ( F2[2] * ( P1[0] * ( -V3[3] + cI * ( V3[4] ) ) + ( P1[1] * ( V3[2] - V3[5] ) + ( P1[2] * ( - cI * ( V3[2] ) + cI * ( V3[5] ) ) + P1[3] * ( V3[3]- cI * ( V3[4] ) ) ) ) ) + ( F2[3] * ( P1[0] * ( V3[2] + V3[5] ) + ( P1[1] * (- one) * ( V3[3] + cI * ( V3[4] ) ) + ( P1[2] * ( +cI * ( V3[3] ) - V3[4] ) - P1[3] * ( V3[2] + V3[5] ) ) ) ) + M1 * ( F2[4] * ( -V3[3] + cI * ( V3[4] ) ) + F2[5] * ( -V3[2] + V3[5] ) ) ) );
+    F1[4] = denom * (- cI) * ( F2[4] * ( P1[0] * ( V3[2] + V3[5] ) + ( P1[1] * ( -V3[3] + cI * ( V3[4] ) ) + ( P1[2] * (- one) * ( +cI * ( V3[3] ) + V3[4] ) - P1[3] * ( V3[2] + V3[5] ) ) ) ) + ( F2[5] * ( P1[0] * ( V3[3] + cI * ( V3[4] ) ) + ( P1[1] * ( -V3[2] + V3[5] ) + ( P1[2] * ( - cI * ( V3[2] ) + cI * ( V3[5] ) ) - P1[3] * ( V3[3] + cI * ( V3[4] ) ) ) ) ) + M1 * ( F2[2] * ( -V3[2] + V3[5] ) + F2[3] * ( V3[3] + cI * ( V3[4] ) ) ) ) );
+    F1[5] = denom * cI * ( F2[4] * ( P1[0] * ( -V3[3] + cI * ( V3[4] ) ) + ( P1[1] * ( V3[2] + V3[5] ) + ( P1[2] * (- one) * ( +cI * ( V3[2] + V3[5] ) ) + P1[3] * ( -V3[3] + cI * ( V3[4] ) ) ) ) ) + ( F2[5] * ( P1[0] * ( -V3[2] + V3[5] ) + ( P1[1] * ( V3[3] + cI * ( V3[4] ) ) + ( P1[2] * ( - cI * ( V3[3] ) + V3[4] ) + P1[3] * ( -V3[2] + V3[5] ) ) ) ) + M1 * ( F2[2] * ( -V3[3] + cI * ( V3[4] ) ) + F2[3] * ( V3[2] + V3[5] ) ) ) );
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
 
-  __device__ void FFV1_2( const cxtype F1[], const cxtype V3[], const cxtype COUP, const fptype M2, const fptype W2, cxtype F2[] )
+  // Compute the output wavefunction 'F2[6]' from the input wavefunctions F1[6], V3[6]
+  __device__
+  void FFV1_2( const cxtype_sv F1[],
+               const cxtype_sv V3[],
+               const cxtype COUP,
+               const fptype M2,
+               const fptype W2,
+               cxtype_sv F2[] )
   {
-    cxtype cI = cxtype(0., 1.);
-    fptype P2[4];
-    cxtype denom;
+    mgDebug( 0, __FUNCTION__ );
+    const cxtype cI = cxmake( 0., 1. );
     F2[0] = + F1[0] + V3[0];
     F2[1] = + F1[1] + V3[1];
-    P2[0] = - F2[0].real();
-    P2[1] = - F2[1].real();
-    P2[2] = - F2[1].imag();
-    P2[3] = - F2[0].imag();
-    denom = COUP / ((P2[0]*P2[0]) - (P2[1]*P2[1]) - (P2[2]*P2[2]) - (P2[3]*P2[3]) - M2*(M2-cI*W2));
-    F2[2] = denom * cI * (F1[2]*(P2[0]*(V3[2] + V3[5]) + (P2[1]*(-one) * (V3[3] + cI*(V3[4])) + (P2[2]*(+cI*(V3[3]) - V3[4]) - P2[3]*(V3[2] + V3[5])))) + (F1[3]*(P2[0]*(V3[3]-cI*(V3[4])) + (P2[1]*(-V3[2] + V3[5]) + (P2[2]*(+cI*(V3[2])-cI*(V3[5])) + P2[3]*(-V3[3] + cI*(V3[4]))))) + M2*(F1[4]*(V3[2] - V3[5]) + F1[5]*(-V3[3] + cI*(V3[4])))));
-    F2[3] = denom * (-cI) * (F1[2]*(P2[0]*(-one) * (V3[3] + cI*(V3[4])) + (P2[1]*(V3[2] + V3[5]) + (P2[2]*(+cI*(V3[2] + V3[5])) - P2[3]*(V3[3] + cI*(V3[4]))))) + (F1[3]*(P2[0]*(-V3[2] + V3[5]) + (P2[1]*(V3[3]-cI*(V3[4])) + (P2[2]*(+cI*(V3[3]) + V3[4]) + P2[3]*(-V3[2] + V3[5])))) + M2*(F1[4]*(V3[3] + cI*(V3[4])) - F1[5]*(V3[2] + V3[5]))));
-    F2[4] = denom * (-cI) * (F1[4]*(P2[0]*(-V3[2] + V3[5]) + (P2[1]*(V3[3] + cI*(V3[4])) + (P2[2]*(-cI*(V3[3]) + V3[4]) + P2[3]*(-V3[2] + V3[5])))) + (F1[5]*(P2[0]*(V3[3]-cI*(V3[4])) + (P2[1]*(-one) * (V3[2] + V3[5]) + (P2[2]*(+cI*(V3[2] + V3[5])) + P2[3]*(V3[3]-cI*(V3[4]))))) + M2*(F1[2]*(-one) * (V3[2] + V3[5]) + F1[3]*(-V3[3] + cI*(V3[4])))));
-    F2[5] = denom * cI * (F1[4]*(P2[0]*(-one) * (V3[3] + cI*(V3[4])) + (P2[1]*(V3[2] - V3[5]) + (P2[2]*(+cI*(V3[2])-cI*(V3[5])) + P2[3]*(V3[3] + cI*(V3[4]))))) + (F1[5]*(P2[0]*(V3[2] + V3[5]) + (P2[1]*(-V3[3] + cI*(V3[4])) + (P2[2]*(-one) * (+cI*(V3[3]) + V3[4]) - P2[3]*(V3[2] + V3[5])))) + M2*(F1[2]*(V3[3] + cI*(V3[4])) + F1[3]*(V3[2] - V3[5]))));
+    const fptype_sv P2[4] = { -cxreal( F2[0] ), -cxreal( F2[1] ), -cximag( F2[1] ), -cximag( F2[0] ) };
+    constexpr fptype one( 1. );
+    const cxtype_sv denom = COUP / ( (P2[0] * P2[0] ) - ( P2[1] * P2[1] ) - ( P2[2] * P2[2] ) - ( P2[3] * P2[3] ) - M2 * ( M2 - cI * W2 ) );
+    F2[2] = denom * cI * ( F1[2] * ( P2[0] * ( V3[2] + V3[5] ) + ( P2[1] * (- one) * ( V3[3] + cI * ( V3[4] ) ) + ( P2[2] * ( +cI * ( V3[3] ) - V3[4] ) - P2[3] * ( V3[2] + V3[5] ) ) ) ) + ( F1[3] * ( P2[0] * ( V3[3]- cI * ( V3[4] ) ) + ( P2[1] * ( -V3[2] + V3[5] ) + ( P2[2] * ( +cI * ( V3[2] )- cI * ( V3[5] ) ) + P2[3] * ( -V3[3] + cI * ( V3[4] ) ) ) ) ) + M2 * ( F1[4] * ( V3[2] - V3[5] ) + F1[5] * ( -V3[3] + cI * ( V3[4] ) ) ) ) );
+    F2[3] = denom * (- cI) * ( F1[2] * ( P2[0] * (- one) * ( V3[3] + cI * ( V3[4] ) ) + ( P2[1] * ( V3[2] + V3[5] ) + ( P2[2] * ( +cI * ( V3[2] + V3[5] ) ) - P2[3] * ( V3[3] + cI * ( V3[4] ) ) ) ) ) + ( F1[3] * ( P2[0] * ( -V3[2] + V3[5] ) + ( P2[1] * ( V3[3]- cI * ( V3[4] ) ) + ( P2[2] * ( +cI * ( V3[3] ) + V3[4] ) + P2[3] * ( -V3[2] + V3[5] ) ) ) ) + M2 * ( F1[4] * ( V3[3] + cI * ( V3[4] ) ) - F1[5] * ( V3[2] + V3[5] ) ) ) );
+    F2[4] = denom * (- cI) * ( F1[4] * ( P2[0] * ( -V3[2] + V3[5] ) + ( P2[1] * ( V3[3] + cI * ( V3[4] ) ) + ( P2[2] * ( - cI * ( V3[3] ) + V3[4] ) + P2[3] * ( -V3[2] + V3[5] ) ) ) ) + ( F1[5] * ( P2[0] * ( V3[3]- cI * ( V3[4] ) ) + ( P2[1] * (- one) * ( V3[2] + V3[5] ) + ( P2[2] * ( +cI * ( V3[2] + V3[5] ) ) + P2[3] * ( V3[3]- cI * ( V3[4] ) ) ) ) ) + M2 * ( F1[2] * (- one) * ( V3[2] + V3[5] ) + F1[3] * ( -V3[3] + cI * ( V3[4] ) ) ) ) );
+    F2[5] = denom * cI * ( F1[4] * ( P2[0] * (- one) * ( V3[3] + cI * ( V3[4] ) ) + ( P2[1] * ( V3[2] - V3[5] ) + ( P2[2] * ( +cI * ( V3[2] )- cI * ( V3[5] ) ) + P2[3] * ( V3[3] + cI * ( V3[4] ) ) ) ) ) + ( F1[5] * ( P2[0] * ( V3[2] + V3[5] ) + ( P2[1] * ( -V3[3] + cI * ( V3[4] ) ) + ( P2[2] * (- one) * ( +cI * ( V3[3] ) + V3[4] ) - P2[3] * ( V3[2] + V3[5] ) ) ) ) + M2 * ( F1[2] * ( V3[3] + cI * ( V3[4] ) ) + F1[3] * ( V3[2] - V3[5] ) ) ) );
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
 
-  __device__ void FFV1P0_3( const cxtype F1[], const cxtype F2[], const cxtype COUP, const fptype M3, const fptype W3, cxtype V3[] )
+  // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
+  __device__
+  void FFV1P0_3( const cxtype_sv F1[],
+                 const cxtype_sv F2[],
+                 const cxtype COUP,
+                 const fptype M3,
+                 const fptype W3,
+                 cxtype_sv V3[] )
   {
-    cxtype cI = cxtype(0., 1.);
-    fptype P3[4];
-    cxtype denom;
+    mgDebug( 0, __FUNCTION__ );
+    const cxtype cI = cxmake( 0., 1. );
     V3[0] = + F1[0] + F2[0];
     V3[1] = + F1[1] + F2[1];
-    P3[0] = - V3[0].real();
-    P3[1] = - V3[1].real();
-    P3[2] = - V3[1].imag();
-    P3[3] = - V3[0].imag();
-    denom = COUP / ((P3[0]*P3[0]) - (P3[1]*P3[1]) - (P3[2]*P3[2]) - (P3[3]*P3[3]) - M3*(M3-cI*W3));
-    V3[2] = denom * (-cI) * (F1[2]*F2[4] + F1[3]*F2[5] + F1[4]*F2[2] + F1[5]*F2[3]);
-    V3[3] = denom * (-cI) * (-F1[2]*F2[5] - F1[3]*F2[4] + F1[4]*F2[3] + F1[5]*F2[2]);
-    V3[4] = denom * (-cI) * (-cI*(F1[2]*F2[5] + F1[5]*F2[2]) + cI*(F1[3]*F2[4] + F1[4]*F2[3]));
-    V3[5] = denom * (-cI) * (-F1[2]*F2[4] - F1[5]*F2[3] + F1[3]*F2[5] + F1[4]*F2[2]);
+    const fptype_sv P3[4] = { -cxreal( V3[0] ), -cxreal( V3[1] ), -cximag( V3[1] ), -cximag( V3[0] ) };
+    const cxtype_sv denom = COUP / ( (P3[0] * P3[0] ) - ( P3[1] * P3[1] ) - ( P3[2] * P3[2] ) - ( P3[3] * P3[3] ) - M3 * ( M3 - cI * W3 ) );
+    V3[2] = denom * (- cI) * ( F1[2] * F2[4] + F1[3] * F2[5] + F1[4] * F2[2] + F1[5] * F2[3] );
+    V3[3] = denom * (- cI) * ( -F1[2] * F2[5] - F1[3] * F2[4] + F1[4] * F2[3] + F1[5] * F2[2] );
+    V3[4] = denom * (- cI) * ( - cI * ( F1[2] * F2[5] + F1[5] * F2[2] ) + cI * ( F1[3] * F2[4] + F1[4] * F2[3] ) );
+    V3[5] = denom * (- cI) * ( -F1[2] * F2[4] - F1[5] * F2[3] + F1[3] * F2[5] + F1[4] * F2[2] );
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
 
-  __device__ void VVVV1_0( const cxtype V1[], const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, cxtype* vertex )
+  // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], V2[6], V3[6], V4[6]
+  __device__
+  void VVVV1_0( const cxtype_sv V1[],
+                const cxtype_sv V2[],
+                const cxtype_sv V3[],
+                const cxtype_sv V4[],
+                const cxtype COUP,
+                cxtype_sv* vertex )
   {
-    cxtype cI = cxtype(0., 1.);
-    cxtype TMP10;
-    cxtype TMP11;
-    cxtype TMP3;
-    cxtype TMP6;
-    TMP10 = (V1[2]*V4[2] - V1[3]*V4[3] - V1[4]*V4[4] - V1[5]*V4[5]);
-    TMP11 = (V2[2]*V4[2] - V2[3]*V4[3] - V2[4]*V4[4] - V2[5]*V4[5]);
-    TMP3 = (V3[2]*V1[2] - V3[3]*V1[3] - V3[4]*V1[4] - V3[5]*V1[5]);
-    TMP6 = (V3[2]*V2[2] - V3[3]*V2[3] - V3[4]*V2[4] - V3[5]*V2[5]);
-    (*vertex) = COUP * (-cI*(TMP6*TMP10) + cI*(TMP3*TMP11));
+    mgDebug( 0, __FUNCTION__ );
+    const cxtype cI = cxmake( 0., 1. );
+    const cxtype_sv TMP10 = ( V1[2] * V4[2] - V1[3] * V4[3] - V1[4] * V4[4] - V1[5] * V4[5] );
+    const cxtype_sv TMP11 = ( V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5] );
+    const cxtype_sv TMP3 = ( V3[2] * V1[2] - V3[3] * V1[3] - V3[4] * V1[4] - V3[5] * V1[5] );
+    const cxtype_sv TMP6 = ( V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5] );
+    (*vertex) = COUP * ( - cI * ( TMP6 * TMP10 ) + cI * ( TMP3 * TMP11 ) );
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
 
-  __device__ void VVVV1P0_1( const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[] )
+  // Compute the output wavefunction 'V1[6]' from the input wavefunctions V2[6], V3[6], V4[6]
+  __device__
+  void VVVV1P0_1( const cxtype_sv V2[],
+                  const cxtype_sv V3[],
+                  const cxtype_sv V4[],
+                  const cxtype COUP,
+                  const fptype M1,
+                  const fptype W1,
+                  cxtype_sv V1[] )
   {
-    cxtype cI = cxtype(0., 1.);
-    fptype P1[4];
-    cxtype TMP11;
-    cxtype TMP6;
-    cxtype denom;
+    mgDebug( 0, __FUNCTION__ );
+    const cxtype cI = cxmake( 0., 1. );
     V1[0] = + V2[0] + V3[0] + V4[0];
     V1[1] = + V2[1] + V3[1] + V4[1];
-    P1[0] = - V1[0].real();
-    P1[1] = - V1[1].real();
-    P1[2] = - V1[1].imag();
-    P1[3] = - V1[0].imag();
-    TMP11 = (V2[2]*V4[2] - V2[3]*V4[3] - V2[4]*V4[4] - V2[5]*V4[5]);
-    TMP6 = (V3[2]*V2[2] - V3[3]*V2[3] - V3[4]*V2[4] - V3[5]*V2[5]);
-    denom = COUP / ((P1[0]*P1[0]) - (P1[1]*P1[1]) - (P1[2]*P1[2]) - (P1[3]*P1[3]) - M1*(M1-cI*W1));
-    V1[2] = denom * (-cI*(TMP6*V4[2]) + cI*(V3[2]*TMP11));
-    V1[3] = denom * (-cI*(TMP6*V4[3]) + cI*(V3[3]*TMP11));
-    V1[4] = denom * (-cI*(TMP6*V4[4]) + cI*(V3[4]*TMP11));
-    V1[5] = denom * (-cI*(TMP6*V4[5]) + cI*(V3[5]*TMP11));
+    const fptype_sv P1[4] = { -cxreal( V1[0] ), -cxreal( V1[1] ), -cximag( V1[1] ), -cximag( V1[0] ) };
+    const cxtype_sv TMP11 = ( V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5] );
+    const cxtype_sv TMP6 = ( V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5] );
+    const cxtype_sv denom = COUP / ( (P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
+    V1[2] = denom * ( - cI * ( TMP6 * V4[2] ) + cI * ( V3[2] * TMP11 ) );
+    V1[3] = denom * ( - cI * ( TMP6 * V4[3] ) + cI * ( V3[3] * TMP11 ) );
+    V1[4] = denom * ( - cI * ( TMP6 * V4[4] ) + cI * ( V3[4] * TMP11 ) );
+    V1[5] = denom * ( - cI * ( TMP6 * V4[5] ) + cI * ( V3[5] * TMP11 ) );
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
 
-  __device__ void VVVV3_0( const cxtype V1[], const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, cxtype* vertex )
+  // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], V2[6], V3[6], V4[6]
+  __device__
+  void VVVV3_0( const cxtype_sv V1[],
+                const cxtype_sv V2[],
+                const cxtype_sv V3[],
+                const cxtype_sv V4[],
+                const cxtype COUP,
+                cxtype_sv* vertex )
   {
-    cxtype cI = cxtype(0., 1.);
-    cxtype TMP1;
-    cxtype TMP10;
-    cxtype TMP12;
-    cxtype TMP6;
-    TMP1 = (V2[2]*V1[2] - V2[3]*V1[3] - V2[4]*V1[4] - V2[5]*V1[5]);
-    TMP10 = (V1[2]*V4[2] - V1[3]*V4[3] - V1[4]*V4[4] - V1[5]*V4[5]);
-    TMP12 = (V3[2]*V4[2] - V3[3]*V4[3] - V3[4]*V4[4] - V3[5]*V4[5]);
-    TMP6 = (V3[2]*V2[2] - V3[3]*V2[3] - V3[4]*V2[4] - V3[5]*V2[5]);
-    (*vertex) = COUP * (-cI*(TMP6*TMP10) + cI*(TMP1*TMP12));
+    mgDebug( 0, __FUNCTION__ );
+    const cxtype cI = cxmake( 0., 1. );
+    const cxtype_sv TMP1 = ( V2[2] * V1[2] - V2[3] * V1[3] - V2[4] * V1[4] - V2[5] * V1[5] );
+    const cxtype_sv TMP10 = ( V1[2] * V4[2] - V1[3] * V4[3] - V1[4] * V4[4] - V1[5] * V4[5] );
+    const cxtype_sv TMP12 = ( V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5] );
+    const cxtype_sv TMP6 = ( V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5] );
+    (*vertex) = COUP * ( - cI * ( TMP6 * TMP10 ) + cI * ( TMP1 * TMP12 ) );
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
 
-  __device__ void VVVV3P0_1( const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[] )
+  // Compute the output wavefunction 'V1[6]' from the input wavefunctions V2[6], V3[6], V4[6]
+  __device__
+  void VVVV3P0_1( const cxtype_sv V2[],
+                  const cxtype_sv V3[],
+                  const cxtype_sv V4[],
+                  const cxtype COUP,
+                  const fptype M1,
+                  const fptype W1,
+                  cxtype_sv V1[] )
   {
-    cxtype cI = cxtype(0., 1.);
-    fptype P1[4];
-    cxtype TMP12;
-    cxtype TMP6;
-    cxtype denom;
+    mgDebug( 0, __FUNCTION__ );
+    const cxtype cI = cxmake( 0., 1. );
     V1[0] = + V2[0] + V3[0] + V4[0];
     V1[1] = + V2[1] + V3[1] + V4[1];
-    P1[0] = - V1[0].real();
-    P1[1] = - V1[1].real();
-    P1[2] = - V1[1].imag();
-    P1[3] = - V1[0].imag();
-    TMP12 = (V3[2]*V4[2] - V3[3]*V4[3] - V3[4]*V4[4] - V3[5]*V4[5]);
-    TMP6 = (V3[2]*V2[2] - V3[3]*V2[3] - V3[4]*V2[4] - V3[5]*V2[5]);
-    denom = COUP / ((P1[0]*P1[0]) - (P1[1]*P1[1]) - (P1[2]*P1[2]) - (P1[3]*P1[3]) - M1*(M1-cI*W1));
-    V1[2] = denom * (-cI*(TMP6*V4[2]) + cI*(V2[2]*TMP12));
-    V1[3] = denom * (-cI*(TMP6*V4[3]) + cI*(V2[3]*TMP12));
-    V1[4] = denom * (-cI*(TMP6*V4[4]) + cI*(V2[4]*TMP12));
-    V1[5] = denom * (-cI*(TMP6*V4[5]) + cI*(V2[5]*TMP12));
+    const fptype_sv P1[4] = { -cxreal( V1[0] ), -cxreal( V1[1] ), -cximag( V1[1] ), -cximag( V1[0] ) };
+    const cxtype_sv TMP12 = ( V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5] );
+    const cxtype_sv TMP6 = ( V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5] );
+    const cxtype_sv denom = COUP / ( (P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
+    V1[2] = denom * ( - cI * ( TMP6 * V4[2] ) + cI * ( V2[2] * TMP12 ) );
+    V1[3] = denom * ( - cI * ( TMP6 * V4[3] ) + cI * ( V2[3] * TMP12 ) );
+    V1[4] = denom * ( - cI * ( TMP6 * V4[4] ) + cI * ( V2[4] * TMP12 ) );
+    V1[5] = denom * ( - cI * ( TMP6 * V4[5] ) + cI * ( V2[5] * TMP12 ) );
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
 
-  __device__ void VVVV4_0( const cxtype V1[], const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, cxtype* vertex )
+  // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], V2[6], V3[6], V4[6]
+  __device__
+  void VVVV4_0( const cxtype_sv V1[],
+                const cxtype_sv V2[],
+                const cxtype_sv V3[],
+                const cxtype_sv V4[],
+                const cxtype COUP,
+                cxtype_sv* vertex )
   {
-    cxtype cI = cxtype(0., 1.);
-    cxtype TMP1;
-    cxtype TMP11;
-    cxtype TMP12;
-    cxtype TMP3;
-    TMP1 = (V2[2]*V1[2] - V2[3]*V1[3] - V2[4]*V1[4] - V2[5]*V1[5]);
-    TMP11 = (V2[2]*V4[2] - V2[3]*V4[3] - V2[4]*V4[4] - V2[5]*V4[5]);
-    TMP12 = (V3[2]*V4[2] - V3[3]*V4[3] - V3[4]*V4[4] - V3[5]*V4[5]);
-    TMP3 = (V3[2]*V1[2] - V3[3]*V1[3] - V3[4]*V1[4] - V3[5]*V1[5]);
-    (*vertex) = COUP * (-cI*(TMP3*TMP11) + cI*(TMP1*TMP12));
+    mgDebug( 0, __FUNCTION__ );
+    const cxtype cI = cxmake( 0., 1. );
+    const cxtype_sv TMP1 = ( V2[2] * V1[2] - V2[3] * V1[3] - V2[4] * V1[4] - V2[5] * V1[5] );
+    const cxtype_sv TMP11 = ( V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5] );
+    const cxtype_sv TMP12 = ( V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5] );
+    const cxtype_sv TMP3 = ( V3[2] * V1[2] - V3[3] * V1[3] - V3[4] * V1[4] - V3[5] * V1[5] );
+    (*vertex) = COUP * ( - cI * ( TMP3 * TMP11 ) + cI * ( TMP1 * TMP12 ) );
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------
 
-  __device__ void VVVV4P0_1( const cxtype V2[], const cxtype V3[], const cxtype V4[], const cxtype COUP, const fptype M1, const fptype W1, cxtype V1[] )
+  // Compute the output wavefunction 'V1[6]' from the input wavefunctions V2[6], V3[6], V4[6]
+  __device__
+  void VVVV4P0_1( const cxtype_sv V2[],
+                  const cxtype_sv V3[],
+                  const cxtype_sv V4[],
+                  const cxtype COUP,
+                  const fptype M1,
+                  const fptype W1,
+                  cxtype_sv V1[] )
   {
-    cxtype cI = cxtype(0., 1.);
-    fptype P1[4];
-    cxtype TMP11;
-    cxtype TMP12;
-    cxtype denom;
+    mgDebug( 0, __FUNCTION__ );
+    const cxtype cI = cxmake( 0., 1. );
     V1[0] = + V2[0] + V3[0] + V4[0];
     V1[1] = + V2[1] + V3[1] + V4[1];
-    P1[0] = - V1[0].real();
-    P1[1] = - V1[1].real();
-    P1[2] = - V1[1].imag();
-    P1[3] = - V1[0].imag();
-    TMP11 = (V2[2]*V4[2] - V2[3]*V4[3] - V2[4]*V4[4] - V2[5]*V4[5]);
-    TMP12 = (V3[2]*V4[2] - V3[3]*V4[3] - V3[4]*V4[4] - V3[5]*V4[5]);
-    denom = COUP / ((P1[0]*P1[0]) - (P1[1]*P1[1]) - (P1[2]*P1[2]) - (P1[3]*P1[3]) - M1*(M1-cI*W1));
-    V1[2] = denom * (-cI*(V3[2]*TMP11) + cI*(V2[2]*TMP12));
-    V1[3] = denom * (-cI*(V3[3]*TMP11) + cI*(V2[3]*TMP12));
-    V1[4] = denom * (-cI*(V3[4]*TMP11) + cI*(V2[4]*TMP12));
-    V1[5] = denom * (-cI*(V3[5]*TMP11) + cI*(V2[5]*TMP12));
+    const fptype_sv P1[4] = { -cxreal( V1[0] ), -cxreal( V1[1] ), -cximag( V1[1] ), -cximag( V1[0] ) };
+    const cxtype_sv TMP11 = ( V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5] );
+    const cxtype_sv TMP12 = ( V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5] );
+    const cxtype_sv denom = COUP / ( (P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
+    V1[2] = denom * ( - cI * ( V3[2] * TMP11 ) + cI * ( V2[2] * TMP12 ) );
+    V1[3] = denom * ( - cI * ( V3[3] * TMP11 ) + cI * ( V2[3] * TMP12 ) );
+    V1[4] = denom * ( - cI * ( V3[4] * TMP11 ) + cI * ( V2[4] * TMP12 ) );
+    V1[5] = denom * ( - cI * ( V3[5] * TMP11 ) + cI * ( V2[5] * TMP12 ) );
+    mgDebug( 1, __FUNCTION__ );
+    return;
   }
 
   //--------------------------------------------------------------------------

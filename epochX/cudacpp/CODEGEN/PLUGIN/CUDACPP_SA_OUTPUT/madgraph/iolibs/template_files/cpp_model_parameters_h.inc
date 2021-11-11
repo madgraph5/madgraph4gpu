@@ -9,7 +9,6 @@
 #include <complex>
 
 #include "read_slha.h"
-using namespace std;
 
 class Parameters_%(model_name)s
 {

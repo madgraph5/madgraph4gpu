@@ -3,15 +3,16 @@
 %(info_lines)s
 //==========================================================================
 
-#include <cmath>
-#include <cstdlib>
-#include <cstring>
-#include <iomanip>
-#include <iostream>
-
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
+#include "HelAmps_sm.h"
+
+//#include <cassert>
+#include <cmath>
+#include <cstdlib>
+#include <iomanip>
+#include <iostream>
 
 mgDebugDeclare();
 

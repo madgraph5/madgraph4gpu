@@ -24,7 +24,7 @@ void Parameters_%(model_name)s::setIndependentParameters(SLHAReader& slha)
   zero = 0;
   ZERO = 0;
   // Prepare a vector for indices
-  vector<int> indices(2, 0);
+  std::vector<int> indices(2, 0);
   %(set_independent_parameters)s
 }
 
@@ -46,24 +46,24 @@ void Parameters_%(model_name)s::setDependentCouplings()
 // Routines for printing out parameters
 void Parameters_%(model_name)s::printIndependentParameters()
 {
-  cout << "%(model_name)s model parameters independent of event kinematics:" << endl;
+  std::cout << "%(model_name)s model parameters independent of event kinematics:" << std::endl;
   %(print_independent_parameters)s
 }
 
 void Parameters_%(model_name)s::printIndependentCouplings()
 {
-  cout << "%(model_name)s model couplings independent of event kinematics:" << endl;
+  std::cout << "%(model_name)s model couplings independent of event kinematics:" << std::endl;
   %(print_independent_couplings)s
 }
 
 void Parameters_%(model_name)s::printDependentParameters()
 {
-  cout << "%(model_name)s model parameters dependent on event kinematics:" << endl;
+  std::cout << "%(model_name)s model parameters dependent on event kinematics:" << std::endl;
   %(print_dependent_parameters)s
 }
 
 void Parameters_%(model_name)s::printDependentCouplings()
 {
-  cout << "%(model_name)s model couplings dependent on event kinematics:" << endl;
+  std::cout << "%(model_name)s model couplings dependent on event kinematics:" << std::endl;
   %(print_dependent_couplings)s
 }
