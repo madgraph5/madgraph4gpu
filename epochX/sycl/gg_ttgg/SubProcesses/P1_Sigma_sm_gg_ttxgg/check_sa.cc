@@ -15,16 +15,17 @@
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 
-#ifdef __CUDACC__
+#ifdef SYCL_LANGUAGE_VERSION
 #include "rambo.cc"
+#include "CPPProcess.cc"
 #else
 #include "rambo.h"
+#include "CPPProcess.h"
 #endif
 
 #ifdef MGONGPU_COMMONRAND_ONHOST
 #include "CommonRandomNumbers.h"
 #endif
-#include "CPPProcess.h"
 #include "timermap.h"
 
 bool is_number(const char *s) {
@@ -43,12 +44,14 @@ bool check_digits(std::string s) {
 
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
-            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--param_card <PARAM_CARD_FILE>] [--json_file <JSON_FILE>] [--vendor_id <VENDOR_ID>]"
+            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--param_card <PARAM_CARD_FILE>] [--json_file <JSON_FILE>] --device_id <DEVICE_ID>"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
   std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
   std::cout << "The '-d' flag only controls if nan's emit warnings" << std::endl;
+  std::cout << "The '--device_info` flag prints information for all available devices. If a device is chosen by '--device_id', only information for that device is shown." << std::endl;
+  std::cout << "The '--device_id' arguments selects the device to run code on. (default: 0)" << std::endl;
   std::cout << "The '--help|-h' flag prints this message" << std::endl;
   return ret;
 }
@@ -100,35 +103,40 @@ void print_device_type( const sycl::info::device_type dt ) {
         std::cout << "all"; }
 }
 
+void print_device_info(const sycl::device& device) {
+    std::cout << "    name: " << device.get_info<sycl::info::device::name>() << std::endl;
+    std::cout << "    platform: " << device.get_info<sycl::info::device::platform>().get_info<sycl::info::platform::name>() << std::endl;
+    std::cout << "    vendor: " << device.get_info<sycl::info::device::vendor>() << std::endl;
+    std::cout << "    vendor_id: " << device.get_info<sycl::info::device::vendor_id>() << std::endl;
+    std::cout << "    driver_version: " << device.get_info<sycl::info::device::driver_version>() << std::endl;
+    std::cout << "    global_mem_size: " << device.get_info<sycl::info::device::global_mem_size>() << std::endl;
+    std::cout << "    local_mem_size: " << device.get_info<sycl::info::device::local_mem_size>() << std::endl;
+
+    auto workgroup_size = device.get_info<sycl::info::device::max_work_group_size>();
+    auto max_compute_units = device.get_info<sycl::info::device::max_compute_units>();
+    //auto n_groups = (num_steps - 1) / workgroup_size + 1;
+    //n_groups = std::min(decltype(n_groups)(max_compute_units),n_groups);  // make groups max number of compute units or less
+    std::cout << "    workgroup_size: " << workgroup_size << std::endl;
+    std::cout << "    max_compute_units: " << max_compute_units << std::endl;
+
+    std::cout << "    usm_support: ";
+    if (device.has(sycl::aspect::usm_device_allocations)) {
+        std::cout << "yes" << std::endl;
+    } else {
+        std::cout << "no" << std::endl;
+    }
+    std::cout << "    device_type: ";
+    print_device_type(device.get_info<sycl::info::device::device_type>());
+    std::cout << std::endl;
+}
+
 void print_device_info() {
     auto platforms = sycl::platform::get_platforms();
     for (const auto &platform: platforms) {
         std::cout << platform.get_backend() << ':' << std::endl;
         std::cout << platform.get_info<sycl::info::platform::name>() << ':' << std::endl;
         for (const auto &device: platform.get_devices()) {
-            std::cout << "    name: " << device.get_info<sycl::info::device::name>() << std::endl;
-            std::cout << "    vendor: " << device.get_info<sycl::info::device::vendor>() << std::endl;
-            std::cout << "    vendor_id: " << device.get_info<sycl::info::device::vendor_id>() << std::endl;
-            std::cout << "    driver_version: " << device.get_info<sycl::info::device::driver_version>() << std::endl;
-            std::cout << "    global_mem_size: " << device.get_info<sycl::info::device::global_mem_size>() << std::endl;
-            std::cout << "    local_mem_size: " << device.get_info<sycl::info::device::local_mem_size>() << std::endl;
-
-            auto workgroup_size = device.get_info<sycl::info::device::max_work_group_size>();
-            auto max_compute_units = device.get_info<sycl::info::device::max_compute_units>();
-            //auto n_groups = (num_steps - 1) / workgroup_size + 1;
-            //n_groups = std::min(decltype(n_groups)(max_compute_units),n_groups);  // make groups max number of compute units or less
-            std::cout << "    workgroup_size: " << workgroup_size << std::endl;
-            std::cout << "    max_compute_units: " << max_compute_units << std::endl;
-
-            std::cout << "    usm_support: ";
-            if (device.has(sycl::aspect::usm_device_allocations)) {
-                std::cout << "yes" << std::endl;
-            } else {
-                std::cout << "no" << std::endl;
-            }
-            std::cout << "    device_type: ";
-            print_device_type(device.get_info<sycl::info::device::device_type>());
-            std::cout << std::endl;
+            print_device_info(device);
         }
     }
     std::cout << std::endl;
@@ -218,8 +226,15 @@ int main(int argc, char **argv)
   bool json_file_bool = false;
   std::string json_file = "";
   std::string d_id_str;
-  uint32_t d_id;
+  uint32_t d_id = 0; // default to device 0
   bool device_chosen = false;
+  bool device_info = false;
+  auto devices = sycl::device::get_devices();
+  if (devices.size() == 0) {
+      std::cout << "No SYCL devices detected." << std::endl;
+      std::cout << "Terminating. Exit Code: -995" << std::endl;
+      return -995;
+  }
 
   for (int argn = 1; argn < argc; ++argn) {
     if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
@@ -245,27 +260,26 @@ int main(int argc, char **argv)
       json_file_bool = true;
       argn++;
     }
-    else if (strcmp(argv[argn], "--vendor_id") == 0) {
+    else if (strcmp(argv[argn], "--device_info") == 0) {
+        device_info = true;
+    }
+    else if (strcmp(argv[argn], "--device_id") == 0) {
         d_id_str = argv[argn + 1];
-
-        std::vector<uint32_t> d_ids;
         if (check_digits(d_id_str)) {
             d_id = std::stoi(d_id_str);
             device_chosen = true;
-            auto devices = sycl::device::get_devices();
-            for (const auto &device: devices) {
-                d_ids.push_back(device.get_info<sycl::info::device::vendor_id>());
-            }
-            if (!(std::find(d_ids.begin(), d_ids.end(), d_id) != d_ids.end())) {
-                std::cout << "Invalid vendor_id. Please choose from ( ";
-                for (auto _d_id: d_ids) {
-                    std::cout << _d_id << " ";
+            if (d_id >= devices.size()) {
+                std::cout << "Invalid device_id. Please choose device from: " << std::endl;
+                for (int i=0; i < devices.size(); i++) {
+                    const auto &device = devices[i];
+                    auto d_name = device.get_info<sycl::info::device::name>();
+                    std::cout << "    " << i << ": " << d_name << std::endl;
                 }
-                std::cout << "). Terminating. Exit Code: -999" << std::endl;
+                std::cout << "Terminating. Exit Code: -999" << std::endl;
                 return -999;
             }
         } else {
-            std::cout << std::endl << "Invalid vendor_id, must be integer. Terminating. Exit Code: -998" << std::endl << std::endl;
+            std::cout << std::endl << "Invalid device_id, must be integer. Terminating. Exit Code: -998" << std::endl << std::endl;
             return usage(argv[0], -998);
         }
         argn++;
@@ -293,6 +307,22 @@ int main(int argc, char **argv)
   if (niter == 0)
     return usage(argv[0]);
 
+  if (device_info) {
+      if (device_chosen) {
+          print_device_info(devices[d_id]);
+          std::cout << "Terminating. Exit Code: -997" << std::endl;
+          return -997;
+      } else {
+          for (int i=0; i < devices.size(); i++) {
+              const auto &device = devices[i];
+              std::cout << "device_id " << i << ":" << std::endl;
+              print_device_info(devices[i]);
+          }
+          std::cout << "Terminating. Exit Code: -996" << std::endl;
+          return -996;
+      }
+  }
+
   const int neppR = mgOnGpu::neppR; // ASA layout: constant at compile-time
   if ( gputhreads%neppR != 0 )
   {
@@ -318,8 +348,7 @@ int main(int argc, char **argv)
   const int nevt = ndim; // number of events in one iteration == number of GPU threads
   const int nevtALL = niter*nevt; // total number of ALL events in all iterations
 
-  //sycl::queue q_ct1{ sycl::gpu_selector{} };
-  sycl::queue q_ct1 = get_sycl_queue(device_chosen,d_id);
+  sycl::queue q_ct1 = sycl::queue(devices[d_id]);
 
   auto device = q_ct1.get_device();
   std::cout << "Selected " << device.get_info<sycl::info::device::name>()
@@ -475,7 +504,11 @@ int main(int argc, char **argv)
     std::vector<double> commonRnd = commonRandomPromises[iiter].get_future().get();
     assert( nRnarray == static_cast<int>( commonRnd.size() ) );
     // NB (PR #45): memcpy is strictly needed only in CUDA (copy to pinned memory), but keep it also in C++ for consistency
+#ifdef SYCL_LANGUAGE_VERSION
+    q_ct1.memcpy(devRnarray, commonRnd.data(), nbytesRnarray).wait();
+#else
     memcpy( hstRnarray.get(), commonRnd.data(), nRnarray * sizeof(hstRnarray[0]) );
+#endif
 #elif defined __CUDACC__
 #ifdef MGONGPU_CURAND_ONDEVICE
     grambo2toNm0::generateRnarray( rnGen, devRnarray.get(), nevt );
@@ -802,6 +835,20 @@ int main(int argc, char **argv)
   double stdweig = std::sqrt( sqsweigdiff / ( nevtALL - nnan ) );
 
   // === STEP 9 FINALISE
+#ifdef SYCL_LANGUAGE_VERSION
+  // --- 9aa. Free device memory 
+  const std::string syclfrKey = "9aa sycl_free";
+  timermap.start( syclfrKey );
+
+  sycl::free( devRnarray   , q_ct1);
+  sycl::free( devMomenta   , q_ct1);
+  sycl::free( devIsGoodHel , q_ct1);
+  sycl::free( devWeights   , q_ct1);
+  sycl::free( devMEs       , q_ct1);
+  sycl::free( devcHel      , q_ct1);
+  sycl::free( devcIPC      , q_ct1);
+  sycl::free( devcIPD      , q_ct1);
+#endif
   // --- 9a. Destroy curand generator
   const std::string dgenKey = "9a GenDestr";
   timermap.start( dgenKey );
