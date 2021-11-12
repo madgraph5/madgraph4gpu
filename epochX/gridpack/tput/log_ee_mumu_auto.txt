@@ -1,3 +1,3 @@
-G1    MATRIX1 :    0.0033s for     4000 calls => throughput is 1.23E+06 calls/s
-G2    MATRIX1 :    0.0033s for     4000 calls => throughput is 1.23E+06 calls/s
-TOTAL MATRIX1 :    0.0066s for     8000 calls => throughput is 1.21E+06 calls/s
+G1    MATRIX1 :    0.0034s for     4000 calls => throughput is 1.19E+06 calls/s
+G2    MATRIX1 :    0.0034s for     4000 calls => throughput is 1.18E+06 calls/s
+TOTAL MATRIX1 :    0.0068s for     8000 calls => throughput is 1.18E+06 calls/s
