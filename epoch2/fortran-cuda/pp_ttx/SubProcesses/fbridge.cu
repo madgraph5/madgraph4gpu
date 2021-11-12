@@ -5,6 +5,14 @@
 // NEXTERNAL = 4 (nexternal.inc)
 // NB_PAGE = 16 (vector.inc)
 
+struct CudaInit {
+  CudaInit();
+};
+
+CudaInit::CudaInit() { std::cout << "cuda init" << std::endl; }
+
+static CudaInit cuInit;
+
 void bridge(double *m) {
 
   Matrix<double> t = Matrix<double>(16, 4, 4, 2);

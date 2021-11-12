@@ -5,7 +5,7 @@ OMPFLAGS?=
 else
 OMPFLAGS?= -fopenmp
 endif
-CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
+CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -fPIC -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
 CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
@@ -32,7 +32,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   #$(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
-  NVCC := 
+  NVCC :=
 endif
 
 # Set the host compiler for nvcc

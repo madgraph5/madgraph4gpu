@@ -2,6 +2,8 @@
 #include <iostream>
 #include <memory>
 
+#include "CPPProcess.h"
+
 /**
 const int evnt_n = 4;  // the number of events
 const int part_n = 4;  // number of in/out particles inside an event
@@ -18,6 +20,7 @@ const int gputhreads = 256;
 #define checkCuda(code)                                                        \
   { assertCuda(code, __FILE__, __LINE__); }
 
+/*
 inline void assertCuda(cudaError_t code, const char *file, int line,
                        bool abort = true) {
   if (code != cudaSuccess) {
@@ -25,7 +28,7 @@ inline void assertCuda(cudaError_t code, const char *file, int line,
     if (abort)
       assert(code == cudaSuccess);
   }
-}
+}*/
 
 template <typename T> struct CudaDevDeleter {
   void operator()(T *mem) { checkCuda(cudaFree(mem)); }
@@ -152,6 +155,9 @@ template <typename T> void Matrix<T>::hst_transpose(T *arr) {
 
   dev_transpose<<<gpublocks, gputhreads>>>(devInpArray.get(), devOutArray.get(),
                                            m_evnt, m_part, m_mome, m_strd);
+
+  gProc::sigmaKin<<<gpublocks, gputhreads>>>(devInpArray.get(),
+                                             devOutArray.get());
 
   checkCuda(cudaMemcpy(hstOutArray.get(), devOutArray.get(), m_arrbytes,
                        cudaMemcpyDeviceToHost));
