@@ -193,10 +193,12 @@ if bzr --version >& /dev/null; then
     echo -e "Current 'bzr revno -r ${revno_patches}' of MG5AMC_HOME is '${revno_mg5amc}'"
     if [ "${revno_patches}" != "${revno_mg5amc}" ]; then echo -e "\nERROR! bzr revno mismatch!"; exit 1; fi
   else
-    echo -e "WARNING! MG5AMC_HOME is not a bzr branch\n"
+    ###echo -e "WARNING! MG5AMC_HOME is not a bzr branch\n"
+    echo -e "ERROR! MG5AMC_HOME is not a bzr branch\n"; exit 1
   fi
 else
-  echo -e "WARNING! bzr is not installed: cannot retrieve bzr properties of MG5aMC_HOME\n"
+  ###echo -e "WARNING! bzr is not installed: cannot retrieve bzr properties of MG5aMC_HOME\n"
+  echo -e "ERROR! bzr is not installed: cannot retrieve bzr properties of MG5aMC_HOME\n"; exit 1
 fi
 
 # Copy MG5AMC patches if any
