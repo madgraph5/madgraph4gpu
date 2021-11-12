@@ -1,0 +1,11 @@
+G18   MATRIX1 :    0.1277s for      500 calls => throughput is 3.91E+03 calls/s
+G19   MATRIX1 :    0.1277s for      500 calls => throughput is 3.91E+03 calls/s
+G20   MATRIX1 :    0.1274s for      500 calls => throughput is 3.92E+03 calls/s
+G29   MATRIX1 :    0.1282s for      500 calls => throughput is 3.90E+03 calls/s
+G30   MATRIX1 :    0.1278s for      500 calls => throughput is 3.91E+03 calls/s
+G46   MATRIX1 :    0.1273s for      500 calls => throughput is 3.93E+03 calls/s
+G47   MATRIX1 :    0.1275s for      500 calls => throughput is 3.92E+03 calls/s
+G52   MATRIX1 :    0.1286s for      500 calls => throughput is 3.89E+03 calls/s
+G80   MATRIX1 :    0.1283s for      500 calls => throughput is 3.90E+03 calls/s
+G81   MATRIX1 :    0.1276s for      500 calls => throughput is 3.92E+03 calls/s
+TOTAL MATRIX1 :    1.2781s for     5000 calls => throughput is 3.91E+03 calls/s
