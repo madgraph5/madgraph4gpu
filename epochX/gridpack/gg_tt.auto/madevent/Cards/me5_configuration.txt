@@ -223,7 +223,7 @@
 # amcfast = amcfast-config
 
 
-mg5_path = /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu 
+#mg5_path = /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu 
 
 # MG5 MAIN DIRECTORY
-mg5_path = /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu
+#mg5_path = /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu
