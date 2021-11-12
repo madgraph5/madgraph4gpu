@@ -33,7 +33,7 @@ function codeGenAndDiff()
   if [ "${OUTBCK}" == "gridpack" ] && [ "${UNTARONLY}" == "1" ]; then
     echo -e "WARNING! Skip generation of gridpack.tar.gz (--nountaronly was not specified)\n"
   else
-    \rm -rf ${outproc}*
+    \rm -rf ${outproc} ${outproc}.* ${outproc}_*
     echo "set stdout_level DEBUG" >> ${outproc}.mg # does not help (log is essentially identical) but add it anyway
     echo "${cmd}" >> ${outproc}.mg
     if [ "${OUTBCK}" == "gridpack" ]; then
