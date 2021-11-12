@@ -179,6 +179,8 @@ if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exis
 
 # Print MG5amc bazaar info if any
 # Revert to the appropriate bazaar revision number
+# (NB! 'bzr revert' does not change the output of 'bzr revno': it is NOT like 'git reset --hard'!)
+# (See the comments in https://stackoverflow.com/a/37488587)
 if bzr --version >& /dev/null; then
   echo -e "Using $(bzr --version | head -1)"
   echo -e "Retrieving bzr information about MG5AMC_HOME"
@@ -187,8 +189,8 @@ if bzr --version >& /dev/null; then
     echo -e "MG5AMC patches in this plugin refer to bzr revno '${revno_patches}'"
     echo -e "Revert MG5AMC_HOME to bzr revno '${revno_patches}'"
     bzr revert ${MG5AMC_HOME} -r ${revno_patches}
-    revno_mg5amc=$(bzr revno ${MG5AMC_HOME})
-    echo -e "Current bzr revno of MG5AMC_HOME is '${revno_mg5amc}'"
+    revno_mg5amc=$(bzr revno ${MG5AMC_HOME} -r ${revno_patches})
+    echo -e "Current 'bzr revno -r ${revno_patches}' of MG5AMC_HOME is '${revno_mg5amc}'"
     if [ "${revno_patches}" != "${revno_mg5amc}" ]; then echo -e "\nERROR! bzr revno mismatch!"; exit 1; fi
   else
     echo -e "WARNING! MG5AMC_HOME is not a bzr branch\n"
