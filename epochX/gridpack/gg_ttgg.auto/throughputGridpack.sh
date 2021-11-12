@@ -57,5 +57,5 @@ cat madevent/SubProcesses/P1_*/G*/counters_log.txt | grep MATRIX1 | awk 'BEGIN{s
 \rm -f madevent/SubProcesses/P1*/ajob1
 \rm -f madevent/SubProcesses/P1*/G*/input_sg.txt
 \rm -f madevent/SubProcesses/P1*/G*/moffset.dat
-git checkout madevent |& grep -v "Updated 0 paths"
+git checkout madevent/index.html madevent/Cards/grid_card.dat madevent/SubProcesses/randinit madevent/SubProcesses/P1*/G* |& grep -v "Updated 0 paths"
 ###\rm -f madevent/SubProcesses/P1*/madevent
