@@ -50,7 +50,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0068662166595458984 [0m
+[1;32mDEBUG: model prefixing  takes 0.006982326507568359 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
@@ -207,9 +207,9 @@ INFO: Compiling for process 1/1.
 INFO:     P1_ll_ll  
 [1;32mDEBUG: nb_hel: 4 zero amp: 0 bad_amps_hel: 0/8 [0m
 INFO:     P1_ll_ll  
-INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 15h34 ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  0.47s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  0.47s  ] 
+INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 14h16 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  0.5s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  0.5s  ] 
 sum of cpu time of last step: 1 seconds
   === Results Summary for run: run_01 tag: tag_1 ===
 
@@ -235,6 +235,6 @@ INFO:
 more information in /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gridpack_ee_mumu/index.html
 quit
 
-real	0m11.961s
-user	0m14.553s
-sys	0m2.613s
+real	0m11.525s
+user	0m14.534s
+sys	0m2.596s
