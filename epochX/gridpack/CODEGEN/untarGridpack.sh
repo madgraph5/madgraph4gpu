@@ -38,6 +38,7 @@ touch madevent/Events/.keepme
 
 # Copy or replace some custom scripts
 \cp -dpr ${scrdir}/MG5aMC_patches/rebuild.sh .
+\cp -dpr ${scrdir}/MG5aMC_patches/throughputGridpack.sh .
 
 # Fix runtime errors from run.sh
 cat madevent/Cards/me5_configuration.txt | sed 's/mg5_path/#mg5_path/' > madevent/Cards/me5_configuration.txt.new
