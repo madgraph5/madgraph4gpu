@@ -1,5 +1,7 @@
 #!/bin/bash
 
+status=0
+
 scrdir=$(cd $(dirname $0); pwd)
 
 if [ "${1%.tar.gz}" == "$1" ] || [ "$2" != "" ]; then
@@ -17,6 +19,7 @@ if ! mkdir -p ${dir}; then echo "ERROR! Directory $dir could not be created"; ex
 
 # Copy the tarfile to the local directory, untar it and remove it
 cd ${dir}
+echo "Untarring gridpack in $(pwd)"
 cp ${tar} .
 tar -xzf $(basename ${tar})
 rm -f $(basename ${tar})
@@ -49,13 +52,13 @@ for dir in madevent/SubProcesses/P1_*; do
   cd $dir
   \cp -dpr ${scrdir}/MG5aMC_patches/timer.h .
   \cp -dpr ${scrdir}/MG5aMC_patches/counters.cpp .
-  patch -i ${scrdir}/MG5aMC_patches/patch.driver.f
-  patch -i ${scrdir}/MG5aMC_patches/patch.matrix1_optim.f
+  if ! patch -i ${scrdir}/MG5aMC_patches/patch.driver.f; then status=1; fi
+  if ! patch -i ${scrdir}/MG5aMC_patches/patch.matrix1_optim.f; then status=1; fi
   \rm -f matrix1_optim.f.orig
   cd -
 done
 cd madevent/SubProcesses
-patch -i ${scrdir}/MG5aMC_patches/patch.makefile
+if ! patch -i ${scrdir}/MG5aMC_patches/patch.makefile; then status=1; fi
 cd -
 
 # Replace "-O" by "-O3 -ffast-math" globally
@@ -65,3 +68,5 @@ cat madevent/Source/make_opts | sed "s/GLOBAL_FLAG=-O /GLOBAL_FLAG=-O3 -ffast-ma
 # Dump the final contents of the local directory
 echo "In $(pwd):"
 ls -l .
+
+exit $status
