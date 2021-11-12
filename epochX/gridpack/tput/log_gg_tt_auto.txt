@@ -1,3 +1,3 @@
-G1    MATRIX1 :    0.0010s for      500 calls => throughput is 4.91E+05 calls/s
-G2    MATRIX1 :    0.0555s for    28000 calls => throughput is 5.04E+05 calls/s
-TOTAL MATRIX1 :    0.0565s for    28500 calls => throughput is 5.04E+05 calls/s
+G1    MATRIX1 :    0.0008s for      500 calls => throughput is 6.20E+05 calls/s
+G2    MATRIX1 :    0.0449s for    28000 calls => throughput is 6.24E+05 calls/s
+TOTAL MATRIX1 :    0.0457s for    28500 calls => throughput is 6.24E+05 calls/s
