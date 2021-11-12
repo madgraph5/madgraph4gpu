@@ -2,7 +2,7 @@
 
 function usage()
 {
-  echo "Usage: $0 [-cleanbuild|-skiprun]"
+  echo "Usage: $0 [-cleanbuild|-skiprun] [nevts (default=1000) [random seed (default=1)]]"
   exit 1
 }
 
@@ -15,6 +15,10 @@ elif [ "$1" == "-skiprun" ]; then
   skiprun=1
   shift
 fi
+nevt=1000
+rndm=1
+if [ "$1" != "" ]; then nevt=$1; shift; fi
+if [ "$1" != "" ]; then rndm=$1; shift; fi
 if [ "$1" != "" ]; then usage; fi
 ###echo cleanbuild=$cleanbuild
 ###echo skiprun=$skiprun
@@ -30,7 +34,7 @@ fi
 
 if [ "$skiprun" == "0" ]; then
   \rm -f events.lhe.gz
-  ./run.sh 100 1
+  ./run.sh $nevt $rndm
 fi
 
 mkdir -p ../tput
@@ -46,10 +50,10 @@ done
 cat madevent/SubProcesses/P1_*/G*/counters_log.txt | grep MATRIX1 | awk 'BEGIN{stot=0;ctot=0};{stot+=substr($3,0,length($3)-1);ctot+=$5};END{printf "TOTAL MATRIX1 : %9.4fs for %8d calls => throughput is %8.2E calls/s\n",stot,ctot,ctot/stot}' | tee -a $out
 
 ###exit 0 # comment out to skip final cleanup
-git checkout madevent |& grep -v "Updated 0 paths"
 \rm -f events.lhe.gz
 \rm -rf madevent/Events/GridRun_1/
-\rm -f madevent/SubProcesses/P1*/madevent
 \rm -f madevent/SubProcesses/P1*/ajob1
 \rm -f madevent/SubProcesses/P1*/G*/input_sg.txt
 \rm -f madevent/SubProcesses/P1*/G*/moffset.dat
+git checkout madevent |& grep -v "Updated 0 paths"
+###\rm -f madevent/SubProcesses/P1*/madevent
