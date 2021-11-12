@@ -1,7 +1,7 @@
 lhapdf=
 PYTHIA8_PATH=NotInstalled
 MG5AMC_VERSION=2.9.5
-GLOBAL_FLAG=-O -fbounds-check
+GLOBAL_FLAG=-O3 -fbounds-check
 ALOHA_FLAG=
 MATRIX_FLAG=
 DEFAULT_CPP_COMPILER=g++

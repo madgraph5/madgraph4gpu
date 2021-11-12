@@ -58,6 +58,10 @@ cd madevent/SubProcesses
 patch -i ${scrdir}/MG5aMC_patches/patch.makefile
 cd -
 
+# Replace "-O" by "-O3" globally
+cat madevent/Source/make_opts | sed "s/GLOBAL_FLAG=-O /GLOBAL_FLAG=-O3 /" > madevent/Source/make_opts.new
+\mv madevent/Source/make_opts.new madevent/Source/make_opts
+
 # Dump the final contents of the local directory
 echo "In $(pwd):"
 ls -l .
