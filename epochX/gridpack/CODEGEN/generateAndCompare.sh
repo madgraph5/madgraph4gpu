@@ -31,7 +31,7 @@ function codeGenAndDiff()
   pushd $MG5AMC_HOME >& /dev/null
   outproc=CODEGEN_${OUTBCK}_${proc}
   if [ "${OUTBCK}" == "gridpack" ] && [ "${UNTARONLY}" == "1" ]; then
-    echo -e "WARNING! Skip generation of gridpack.tar.gz (--untaronly was specified)\n"
+    echo -e "WARNING! Skip generation of gridpack.tar.gz (--nountaronly was not specified)\n"
   else
     \rm -rf ${outproc}*
     echo "set stdout_level DEBUG" >> ${outproc}.mg # does not help (log is essentially identical) but add it anyway
@@ -99,7 +99,7 @@ function codeGenAndDiff()
 function usage()
 {
   if [ "${OUTBCK}" == "gridpack" ]; then
-    echo "Usage: $0 [--nobrief] [--untaronly] <proc>" # New: only one process
+    echo "Usage: $0 [--nobrief] [--nountaronly] <proc>" # New: only one process
   else
     echo "Usage: $0 [--nobrief] <proc>" # New: only one process
   fi
@@ -135,9 +135,8 @@ OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
 # Default: brief diffs (use --nobrief to use full diffs)
 BRIEF=--brief
 
-# Default for gridpacks: regenerate gridpack.tar.gz and untar it
-###UNTARONLY=0
-UNTARONLY=1 # optionally prevent regeneration and force untaronly
+# Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
+UNTARONLY=1
 
 # Process command line arguments (https://unix.stackexchange.com/a/258514)
 for arg in "$@"; do
@@ -146,8 +145,8 @@ for arg in "$@"; do
     usage; continue; # continue is unnecessary as usage will exit anyway...
   elif [ "$arg" == "--nobrief" ]; then
     BRIEF=; continue
-  elif [ "$arg" == "--untaronly" ] && [ "${OUTBCK}" == "gridpack" ]; then
-    UNTARONLY=1; continue
+  elif [ "$arg" == "--nountaronly" ] && [ "${OUTBCK}" == "gridpack" ]; then
+    UNTARONLY=0; continue
   else
     # Keep the possibility to collect more then one process
     # However, require a single process to be chosen (allow full cleanup before/after code generation)
