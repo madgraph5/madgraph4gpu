@@ -74,8 +74,10 @@ __global__ void dev_transpose(const T *inpArr, T *outArr, const int evnt_n,
                 + part_i * mome_n          // particle inside event
                 + mome_i;                  // momentum inside particle
 
+#ifdef DEBUG
     printf("opos:%d, ipos:%d, page_i:%d, strd_i:%d, part_i:%i, mome_i:%d\n",
            pos, inpos, page_i, strd_i, part_i, mome_i);
+#endif
 
     outArr[pos] = inpArr[inpos];
   }
