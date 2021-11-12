@@ -2,7 +2,7 @@
 
 function usage()
 {
-  echo "Usage: $0 [-cleanbuild|-skiprun] [nevts (default=1000) [random seed (default=1)]]"
+  echo "Usage: $0 [-cleanbuild|-skiprun] [nevt(def=1000) [rndm(def=1)]]"
   exit 1
 }
 
@@ -17,8 +17,10 @@ elif [ "$1" == "-skiprun" ]; then
 fi
 nevt=1000
 rndm=1
-if [ "$1" != "" ]; then nevt=$1; shift; fi
-if [ "$1" != "" ]; then rndm=$1; shift; fi
+
+re='^[0-9]+$'
+if [ "$1" != "" ] && [[ $1 =~ $re ]]; then nevt=$1; shift; fi
+if [ "$1" != "" ] && [[ $1 =~ $re ]]; then rndm=$1; shift; fi
 if [ "$1" != "" ]; then usage; fi
 ###echo cleanbuild=$cleanbuild
 ###echo skiprun=$skiprun
