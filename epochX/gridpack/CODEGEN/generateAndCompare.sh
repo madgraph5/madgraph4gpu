@@ -229,6 +229,16 @@ if [ "${OUTBCK}" != "gridpack" ]; then
   ls -l ${MG5AMC_HOME}/PLUGIN
 fi
 
+# For gridpacks, use separate output directories for MG 28x and MG 29x
+if [ "${OUTBCK}" == "gridpack" ]; then
+  if [ ${revno_patches} -le 365 ]; then
+    OUTDIR=${OUTDIR}/28x
+  else
+    OUTDIR=${OUTDIR}/29x
+  fi
+  echo "OUTDIR=${OUTDIR} (redefined)"
+fi
+
 # Generate the chosen process (this will always replace the existing code directory and create a .BKP)
 codeGenAndDiff $proc
 
