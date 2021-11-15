@@ -73,13 +73,10 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 
       include 'coupl.inc'
 
-c
-c     initialise C and C++ modules
-c
-      call counters_initialise()
 C-----
 C  BEGIN CODE
 C----- 
+      call counters_initialise()
       call cpu_time(t_before)
       CUMULATED_TIMING = t_before
 c
@@ -205,9 +202,6 @@ c      write(*,*) 'Final xsec: ',xsec
       rewind(lun)
 
       close(lun)
-c
-c     finalise C and C++ modules
-c
       call counters_finalise()
       end
 
