@@ -342,6 +342,7 @@ C     1 ColorOne()
 C     ----------
 C     BEGIN CODE
 C     ----------
+      call counters_matrix1_start()
       IF (FIRST) THEN
         FIRST=.FALSE.
         IF(ZERO.NE.0D0) FK_ZERO = SIGN(MAX(ABS(ZERO), ABS(ZERO
@@ -390,7 +391,7 @@ C     JAMPs contributing to orders ALL_ORDERS=1
           ENDDO
         ENDDO
       ENDDO
-
+      call counters_matrix1_stop()
       END
 
 C     Set of functions to handle the array indices of the split orders
