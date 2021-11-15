@@ -22,17 +22,12 @@ c
       write(6,*)  'Collider parameters:'
       write(6,*)  '--------------------'
 
-      ab(1) = '?'
-      ab(2) = '?'
       do i=1,2
          IF(LPP(i).EQ. 0) ab(i)='e'
          IF(LPP(i).EQ. 1) ab(i)='P'
          IF(LPP(i).EQ.-1) ab(i)='Pb'
-         IF(LPP(i).EQ.2) ab(i)='a'
-         IF(LPP(i).EQ.3) ab(i)='e-'
-         IF(LPP(i).EQ.-3) ab(i)='e+'
-         IF(LPP(i).EQ.4) ab(i)='m-'
-         IF(LPP(i).EQ.-4) ab(i)='m+'
+         IF(LPP(i).EQ.2) ab(i)='a2'
+         IF(LPP(i).EQ.3) ab(i)='a3'
       enddo
 
       ene=2d0*dsqrt(ebeam(1)*ebeam(2))
@@ -55,18 +50,11 @@ c
       else
          write(6,*) 'Renormalization scale set on event-by-event basis'
       endif
-      if(fixed_fac_scale1.and.fixed_fac_scale2) then
+      if(fixed_fac_scale) then
          write(6,*) 'Factorization scales  fixed @ ',
-     &        dsqrt(q2fact(1)),dsqrt(q2fact(2))
-      else if(.not.fixed_fac_scale1.and..not.fixed_fac_scale2) then
-         write(6,*) 'Factorization   scale set on event-by-event basis'
-      else if(fixed_fac_scale1) then
-         write(6,*) 'Factorization scales  fixed for beam1  @ ',
-     &        dsqrt(q2fact(1)),dsqrt(q2fact(2))
+     &   dsqrt(q2fact(1)),dsqrt(q2fact(2)) 
       else
-         write(6,*) 'Factorization scales  fixed for beam2  @ ',
-     &        dsqrt(q2fact(1)),dsqrt(q2fact(2))
-
+         write(6,*) 'Factorization   scale set on event-by-event basis'
       endif
    
       write(6,*)  

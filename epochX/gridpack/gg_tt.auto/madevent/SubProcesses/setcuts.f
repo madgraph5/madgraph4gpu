@@ -142,8 +142,7 @@ c
                scale=pmass(1)
                fixed_ren_scale=.true.
             endif
-            fixed_fac_scale1=.true.
-            fixed_fac_scale2=.true.            
+            fixed_fac_scale=.true.
             use_syst=.false.
          endif
 
@@ -880,8 +879,7 @@ c**************************************************
       double precision pmass(nexternal)
       common/to_mass/  pmass
       integer iforest(2,-max_branch:-1,lmaxconfigs)
-      integer tstrategy(lmaxconfigs)
-      common/to_forest/iforest,	tstrategy
+      common/to_forest/ iforest
       integer mapconfig(0:lmaxconfigs), this_config
       common/to_mconfigs/mapconfig, this_config
 
@@ -948,8 +946,7 @@ c
 c     Global
 c
       integer iforest(2,-max_branch:-1,lmaxconfigs)
-      integer tstrategy(lmaxconfigs)
-      common/to_forest/iforest,	tstrategy
+      common/to_forest/ iforest
       integer sprop(maxsproc,-max_branch:-1,lmaxconfigs)
       integer tprid(-max_branch:-1,lmaxconfigs)
       common/to_sprop/sprop,tprid

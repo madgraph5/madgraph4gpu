@@ -461,12 +461,6 @@ def get_scan_name(first, last):
         name = "%s[%s-%s]%s" % (base, first[len(base):], last[len(base):],end)
     return name
 
-def copytree(*args, **opts):
-
-    if 'copy_function' not in opts:
-        opts['copy_function'] = shutil.copy
-    return misc.copytree(*args, **opts)
-
 #===============================================================================
 # Compiler which returns smart output error in case of trouble
 #===============================================================================
@@ -740,26 +734,17 @@ def stdchannel_redirected(stdchannel, dest_filename):
             libraries.append('rt')                                                                                                                                                                          
     """
 
-    if logger.getEffectiveLevel()>5:
-        #deactivate this for hard-core debugging level
-        try:
-            oldstdchannel = os.dup(stdchannel.fileno())
-            dest_file = open(dest_filename, 'w')
-            os.dup2(dest_file.fileno(), stdchannel.fileno())
-            yield
-        finally:
-            if oldstdchannel is not None:
-                os.dup2(oldstdchannel, stdchannel.fileno())
-                os.close(oldstdchannel)
-            if dest_file is not None:
-                dest_file.close()
-    else:
-        try:
-            logger.debug('no stdout/stderr redirection due to debug level')
-            yield
-        finally:
-            return
-        
+    try:
+        oldstdchannel = os.dup(stdchannel.fileno())
+        dest_file = open(dest_filename, 'w')
+        os.dup2(dest_file.fileno(), stdchannel.fileno())
+        yield
+    finally:
+        if oldstdchannel is not None:
+            os.dup2(oldstdchannel, stdchannel.fileno())
+            os.close(oldstdchannel)
+        if dest_file is not None:
+            dest_file.close()
         
 def get_open_fds():
     '''
@@ -806,8 +791,8 @@ def detect_cpp_std_lib_dependence(cpp_compiler):
                 # we venture a guess here.
                 return '-lc++'
             else:
-                maj, v = [float(x) for x in v.rsplit('.')[:2]]
-                if maj >=11 or (maj ==10 and v >= 9):
+                v = float(v.rsplit('.')[1])
+                if v >= 9:
                    return '-lc++'
                 else:
                    return '-lstdc++'
@@ -1509,10 +1494,6 @@ def sprint(*args, **opt):
 
     return 
 
-class misc(object):
-    @staticmethod
-    def sprint(*args, **opt):
-        return sprint(*args, **opt)
 ################################################################################
 # function to check if two float are approximatively equal
 ################################################################################
@@ -1741,9 +1722,6 @@ class Applenotification(object):
             self.NSUserNotificationCenter = objc.lookUpClass('NSUserNotificationCenter')
         except:
             self.working=False
-            if which('osascript'):
-                self.working = 'osascript'
-            return
         self.working=True
 
     def __call__(self,subtitle, info_text, userInfo={}):
@@ -1752,27 +1730,18 @@ class Applenotification(object):
             self.load_notification()
         if not self.working:
             return
-        elif self.working is True:
+        try:
+            notification = self.NSUserNotification.alloc().init()
+            notification.setTitle_('MadGraph5_aMC@NLO')
+            notification.setSubtitle_(subtitle)
+            notification.setInformativeText_(info_text)
             try:
-                notification = self.NSUserNotification.alloc().init()
-                notification.setTitle_('MadGraph5_aMC@NLO')
-                notification.setSubtitle_(subtitle)
-                notification.setInformativeText_(info_text)
-                try:
-                    notification.setUserInfo_(userInfo)
-                except:
-                    pass
-                self.NSUserNotificationCenter.defaultUserNotificationCenter().scheduleNotification_(notification)
+                notification.setUserInfo_(userInfo)
             except:
                 pass
-
-        elif self.working=='osascript':
-            try:
-                os.system("""
-              osascript -e 'display notification "{}" with title "MadGraph5_aMC@NLO" subtitle "{}"'
-              """.format(info_text, subtitle))
-            except:
-                pass
+            self.NSUserNotificationCenter.defaultUserNotificationCenter().scheduleNotification_(notification)
+        except:
+            pass        
         
 
 
@@ -2032,16 +2001,11 @@ def set_global(loop=False, unitary=True, mp=False, cms=False):
 def plugin_import(module, error_msg, fcts=[]):
     """convenient way to import a plugin file/function"""
     
-    if six.PY2:
-        level = -1
-    else:
-        level = 0
-
     try:
-        _temp = __import__('PLUGIN.%s' % module, globals(), locals(), fcts, level)
+        _temp = __import__('PLUGIN.%s' % module, globals(), locals(), fcts, -1)
     except ImportError:
         try:
-            _temp = __import__('MG5aMC_PLUGIN.%s' % module, globals(), locals(), fcts, level)
+            _temp = __import__('MG5aMC_PLUGIN.%s' % module, globals(), locals(), fcts, -1)
         except ImportError:
             raise MadGraph5Error(error_msg)
     
@@ -2183,19 +2147,6 @@ def wget(http, path, *args, **opt):
     else:
         return call(['wget', http, '--output-document=%s'% path], *args, **opt)
 
-
-def make_unique(input, keepordering=None):
-    "remove duplicate in a list "
-
-    if keepordering is None:
-        keepordering = madgraph.ordering
-    sprint(keepordering)
-    if not keepordering:
-        return list(set(input))
-    else:
-        return list(dict.fromkeys(input)) 
-
-
 def cmp_to_key(mycmp):
     'Convert a cmp= function into a key= function (for using python2 type of sort)'
 
@@ -2298,9 +2249,6 @@ the file and returns last line in an internal buffer."""
             return line
         else:
             raise StopIteration
-def tqdm(iterator, **opts):
-    return iterator
-
         
 ############################### TRACQER FOR OPEN FILE
 #openfiles = set()
@@ -2325,5 +2273,3 @@ def tqdm(iterator, **opts):
 #    return newfile(*args)
 #__builtin__.file = newfile
 #__builtin__.open = newopen
-
-

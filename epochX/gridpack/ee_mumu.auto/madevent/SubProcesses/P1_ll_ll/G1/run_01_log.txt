@@ -36,9 +36,9 @@
   Internal Params
   ---------------------------------
   
- mdl_conjg__CKM3x3 =    1.0000000000000000     
- mdl_conjg__CKM1x1 =    1.0000000000000000     
  mdl_CKM3x3 =    1.0000000000000000     
+ mdl_conjg__CKM1x1 =    1.0000000000000000     
+ mdl_conjg__CKM3x3 =    1.0000000000000000     
  mdl_complexi =                (0.0000000000000000,1.0000000000000000)
  mdl_MZ__exp__2 =    8315.2513440000002     
  mdl_MZ__exp__4 =    69143404.913893804     
@@ -106,8 +106,6 @@ Enter Configuration Number:
 Running Configuration Number:    1
  Not subdividing B.W.
  Attempting mappinvarients           1           4
- Determine nb_t
- T-channel found:            0
  Completed mapping           4
  about to integrate            2        2000           8           3           2           1
  Using non-zero grid deformation.
@@ -119,8 +117,6 @@ Running Configuration Number:    1
  Grid defined OK
  Set CM energy to       1500.00
  Mapping Graph           1  to config           1
- Determine nb_t
- T-channel found:            0
 Setting grid   1    0.56889E-05   1
    1   1   2
  Masses: 0.000E+00 0.000E+00 0.000E+00 0.000E+00
@@ -143,54 +139,59 @@ d R # 3  >    -0.0     0.4
 s min # 3>     0.0     0.0
 xqcutij # 3>     0.0     0.0
  alpha_s for scale    1500.0000000000000       is    8.3149301392514002E-002
+ Added good helicity            1   2.4858864633065759E-003  in event            1 local:           1
+ Added good helicity            4   7.0582120425902319       in event            1 local:           1
+ Added good helicity           13   8.9368161844831562       in event            1 local:           1
+ Added good helicity           16   2.4858864633065759E-003  in event            1 local:           1
  RESET CUMULATIVE VARIABLE
- Iteration  1   Mean: 0.2293E-01 Abs mean: 0.2293E-01   Fluctuation:  0.606E-03   0.591E-01    39.6%
-  1    0.2293E-01 0.2293E-01 +- 0.6057E-03      1.18
- Writing out events   3.6222037587373262E-006   1.1815289212655158     
+ RESET CUMULATIVE VARIABLE
+ Iteration  1   Mean: 0.4043E-01 Abs mean: 0.4043E-01   Fluctuation:  0.107E-02   0.105E+00    39.6%
+  1    0.4043E-01 0.4043E-01 +- 0.1069E-02      1.18
+ Writing out events   6.3805145486115705E-006   1.1820578690893380     
  Relative summed weights:
   0.1000E+01  0.0000E+00
  Relative number of events:
   0.1000E+01  0.0000E+00
  Events:
-        2009           0
- Iteration  2   Mean: 0.2281E-01 Abs mean: 0.2281E-01   Fluctuation:  0.163E-03   0.564E-01    99.8%
-  2    0.2281E-01 0.2281E-01 +- 0.1631E-03      0.45
+        2015           0
+ Iteration  2   Mean: 0.4005E-01 Abs mean: 0.4005E-01   Fluctuation:  0.288E-03   0.997E-01    99.8%
+  2    0.4005E-01 0.4005E-01 +- 0.2876E-03      0.45
  Relative summed weights:
   0.1000E+01  0.0000E+00
  Relative number of events:
   0.1000E+01  0.0000E+00
  Events:
         4000           0
- Iteration  3   Mean: 0.2331E-01 Abs mean: 0.2331E-01   Fluctuation:  0.771E-04   0.373E-01    99.8%
-  3    0.2331E-01 0.2331E-01 +- 0.7712E-04      0.30
+ Iteration  3   Mean: 0.4098E-01 Abs mean: 0.4098E-01   Fluctuation:  0.136E-03   0.659E-01    99.8%
+  3    0.4098E-01 0.4098E-01 +- 0.1358E-03      0.30
  Relative summed weights:
   0.1000E+01  0.0000E+00
  Relative number of events:
   0.1000E+01  0.0000E+00
  Events:
         8000           0
- Accuracy:    0.006   0.010   0.003   3.886
- Finished due to accuracy    5.8817908849406169E-003   1.0000000000000000E-002
+ Accuracy:    0.006   0.010   0.003   4.248
+ Finished due to accuracy    6.1614227910618694E-003   1.0000000000000000E-002
 
  -------------------------------------------------------------------------------
- Accumulated results:   Integral =  0.2322E-01
-                        Std dev  =  0.6927E-04
-                       Cross sec =  0.2322E-01
-             Chi**2 per DoF.     =      3.8861
+ Accumulated results:   Integral =  0.4081E-01
+                        Std dev  =  0.1220E-03
+                       Cross sec =  0.4081E-01
+             Chi**2 per DoF.     =      4.2481
  -------------------------------------------------------------------------------
- Found          827  events.
- Wrote          822  events.
- Actual xsec    2.3215560902738443E-002
- Correct abs xsec    2.3215560902738443E-002
- Event xsec    2.3215560902738686E-002
+ Found          822  events.
+ Wrote          817  events.
+ Actual xsec    4.0813384181179531E-002
+ Correct abs xsec    4.0813384181179531E-002
+ Event xsec    4.0813384181179850E-002
  Events wgts > 1:            0
  % Cross section > 1:    0.0000000000000000        0.0000000000000000     
 -------------------------------------------------
 ---------------------------
- Results Last   3 iters: Integral =   0.2322E-01
-                     Abs integral =   0.2322E-01
-                          Std dev =   0.6927E-04
-                  Chi**2 per DoF. =      3.9940
+ Results Last   3 iters: Integral =   0.4081E-01
+                     Abs integral =   0.4081E-01
+                          Std dev =   0.1220E-03
+                  Chi**2 per DoF. =      4.3742
 -------------------------------------------------
 ---------------------------
  Status   1.0000000000000000E-002           4           8

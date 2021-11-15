@@ -68,14 +68,11 @@
 #*********************************************************************
 #
 #*********************************************************************
-# Phase-Space Optimization strategy (basic options)
+# handling of the helicities:
+#  0: sum over all helicities
+#  1: importance sampling over helicities
 #*********************************************************************
   0	= nhel ! using helicities importance sampling or not.
-                             ! 0: sum over helicity, 1: importance sampling
-  2	= sde_strategy ! default integration strategy (hep-ph/2021.xxxxx)
-                             ! 1 is old strategy (using amp square)
-			     ! 2 is new strategy (using only the denominator)
-# To see advanced option for Phase-Space optimization: type "update psoptim"			     
 #*********************************************************************
 # Generation bias, check the wiki page below for more information:   *
 #  'cp3.irmp.ucl.ac.be/projects/madgraph/wiki/LOEventGenerationBias' *
@@ -171,5 +168,8 @@
   False	= use_syst ! Enable systematics studies
 #
   systematics	= systematics_program ! none, systematics [python], SysCalc [depreceted, C++]
-  ['--mur=0.5,1,2', '--muf=0.5,1,2', '--pdf=errorset']	= systematics_arguments ! see: https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Systematics#Systematicspythonmodule
-# Syscalc is deprecated but to see the associate options type'update syscalc'
+['--mur=0.5,1,2', '--muf=0.5,1,2', '--pdf=errorset'] = systematics_arguments ! see: https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Systematics#Systematicspythonmodule
+# Syscalc is deprecated but to see the associate options type'update syscalc'#********************************************************************* 
+#  Additional hidden parameters
+#*********************************************************************
+  ['--mur=0.5,1,2', '--muf=0.5,1,2', '--pdf=errorset']	= systematics_arguments # Choose the argment to pass to the systematics command. like --mur=0.25,1,4. Look at the help of the systematics function for more details.

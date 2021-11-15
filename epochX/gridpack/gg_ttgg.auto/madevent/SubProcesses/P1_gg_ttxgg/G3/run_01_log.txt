@@ -41,9 +41,9 @@
   Internal Params
   ---------------------------------
   
- mdl_conjg__CKM3x3 =    1.0000000000000000     
- mdl_conjg__CKM1x1 =    1.0000000000000000     
  mdl_CKM3x3 =    1.0000000000000000     
+ mdl_conjg__CKM1x1 =    1.0000000000000000     
+ mdl_conjg__CKM3x3 =    1.0000000000000000     
  mdl_complexi =                (0.0000000000000000,1.0000000000000000)
  mdl_MZ__exp__2 =    8315.2513440000002     
  mdl_MZ__exp__4 =    69143404.913893804     
@@ -111,8 +111,6 @@ Enter Configuration Number:
 Running Configuration Number:    3
  Not subdividing B.W.
  Attempting mappinvarients           1           6
- Determine nb_t
- T-channel found:            0
  Completed mapping           6
  about to integrate           10        2000           8           3          10           1
  Using non-zero grid deformation.
@@ -124,8 +122,6 @@ Running Configuration Number:    3
  Grid defined OK
  Set CM energy to       1500.00
  Mapping Graph           3  to config           3
- Determine nb_t
- T-channel found:            0
 Setting grid   1    0.22756E-04   1
 Setting grid   2    0.53207E-01   1
 Setting grid   3    0.55431E-01   1
@@ -157,57 +153,138 @@ xqcutij # 3>     0.0     0.0     0.0     0.0
 xqcutij # 4>     0.0     0.0     0.0     0.0
 xqcutij # 5>     0.0     0.0     0.0     0.0
  alpha_s for scale    311.27357258187351       is   0.10797370086470175     
+ Added good helicity            1   3.5065632036997600       in event            1 local:           1
+ Added good helicity            2   2.7016640106512013       in event            1 local:           1
+ Added good helicity            3   8.0024501946074572E-004  in event            1 local:           1
+ Added good helicity            4   9.5367467548173159E-004  in event            1 local:           1
+ Added good helicity            5   4.8938157228760852       in event            1 local:           1
+ Added good helicity            6   3.7722705121353592       in event            1 local:           1
+ Added good helicity            7   3.3408639875616964E-003  in event            1 local:           1
+ Added good helicity            8   3.4074234905691158E-003  in event            1 local:           1
+ Added good helicity            9  0.10576771231001147       in event            1 local:           1
+ Added good helicity           10   8.2139097476615228E-002  in event            1 local:           1
+ Added good helicity           11   2.8320001932187405E-005  in event            1 local:           1
+ Added good helicity           12   3.3391687922383831E-005  in event            1 local:           1
+ Added good helicity           13   3.7330751164133411       in event            1 local:           1
+ Added good helicity           14   2.9359726969340998       in event            1 local:           1
+ Added good helicity           15   8.3987937709343501E-004  in event            1 local:           1
+ Added good helicity           16   9.9058834929639707E-004  in event            1 local:           1
+ Added good helicity           17   1.2364552421133737       in event            1 local:           1
+ Added good helicity           18  0.99694774145600584       in event            1 local:           1
+ Added good helicity           19   5.5514769530571979E-003  in event            1 local:           1
+ Added good helicity           20   6.6540343727542334E-003  in event            1 local:           1
+ Added good helicity           21   6.1027024991606060E-002  in event            1 local:           1
+ Added good helicity           22   4.9413774912911455E-002  in event            1 local:           1
+ Added good helicity           23   5.9730745384148900E-003  in event            1 local:           1
+ Added good helicity           24   7.0018020415345090E-003  in event            1 local:           1
+ Added good helicity           25   1.8612541276227761       in event            1 local:           1
+ Added good helicity           26   1.4629677125046718       in event            1 local:           1
+ Added good helicity           27   8.3024222620008171E-003  in event            1 local:           1
+ Added good helicity           28   9.6185477881173004E-003  in event            1 local:           1
+ Added good helicity           29   2.5177617448678284       in event            1 local:           1
+ Added good helicity           30   1.9484973643236470       in event            1 local:           1
+ Added good helicity           31   3.8165517417893938E-002  in event            1 local:           1
+ Added good helicity           32   4.3027824587335221E-002  in event            1 local:           1
+ Added good helicity           33   4.3058547941276337E-002  in event            1 local:           1
+ Added good helicity           34   3.8138281368804240E-002  in event            1 local:           1
+ Added good helicity           35   1.9502463955557632       in event            1 local:           1
+ Added good helicity           36   2.5145394398428604       in event            1 local:           1
+ Added good helicity           37   9.6181404975243349E-003  in event            1 local:           1
+ Added good helicity           38   8.3029883669733327E-003  in event            1 local:           1
+ Added good helicity           39   1.4627000759207649       in event            1 local:           1
+ Added good helicity           40   1.8619011299310717       in event            1 local:           1
+ Added good helicity           41   7.0024163150802779E-003  in event            1 local:           1
+ Added good helicity           42   5.9683039337376908E-003  in event            1 local:           1
+ Added good helicity           43   4.9461821131217013E-002  in event            1 local:           1
+ Added good helicity           44   6.0981130278319758E-002  in event            1 local:           1
+ Added good helicity           45   6.6533529996875397E-003  in event            1 local:           1
+ Added good helicity           46   5.5480730760520507E-003  in event            1 local:           1
+ Added good helicity           47  0.99780879375444043       in event            1 local:           1
+ Added good helicity           48   1.2358219997958508       in event            1 local:           1
+ Added good helicity           49   9.9150431035864442E-004  in event            1 local:           1
+ Added good helicity           50   8.3834188638357032E-004  in event            1 local:           1
+ Added good helicity           51   2.9387965775198626       in event            1 local:           1
+ Added good helicity           52   3.7297660685496052       in event            1 local:           1
+ Added good helicity           53   3.3408552624782797E-005  in event            1 local:           1
+ Added good helicity           54   2.8197437761983240E-005  in event            1 local:           1
+ Added good helicity           55   8.2228580693560524E-002  in event            1 local:           1
+ Added good helicity           56  0.10566113558649581       in event            1 local:           1
+ Added good helicity           57   3.4136952498130626E-003  in event            1 local:           1
+ Added good helicity           58   3.3244802263815852E-003  in event            1 local:           1
+ Added good helicity           59   3.7713871558360479       in event            1 local:           1
+ Added good helicity           60   4.8951746344454632       in event            1 local:           1
+ Added good helicity           61   9.5597253503616666E-004  in event            1 local:           1
+ Added good helicity           62   7.9906593427784666E-004  in event            1 local:           1
+ Added good helicity           63   2.7052847001986238       in event            1 local:           1
+ Added good helicity           64   3.5032836984885387       in event            1 local:           1
  RESET CUMULATIVE VARIABLE
- Iteration  1   Mean: 0.5416E-08 Abs mean: 0.5416E-08   Fluctuation:  0.688E-09   0.767E-06    31.8%
-  1    0.5416E-08 0.5416E-08 +- 0.6879E-09      5.68
- Writing out events   1.0656124008271377E-012   5.6799419269098914     
+ RESET CUMULATIVE VARIABLE
+ Iteration  1   Mean: 0.1322E-05 Abs mean: 0.1322E-05   Fluctuation:  0.159E-06   0.113E-03    31.8%
+  1    0.1322E-05 0.1322E-05 +- 0.1586E-06      5.37
+ Writing out events   2.5955190313799479E-010   5.3676825573699816     
  Relative summed weights:
   0.1000E+01  0.0000E+00
  Relative number of events:
   0.1000E+01  0.0000E+00
  Events:
-        2009           0
- Iteration  2   Mean: 0.5240E-08 Abs mean: 0.5240E-08   Fluctuation:  0.221E-09   0.215E-06    45.8%
-  2    0.5240E-08 0.5240E-08 +- 0.2209E-09      2.67
+        2015           0
+ Iteration  2   Mean: 0.1155E-05 Abs mean: 0.1155E-05   Fluctuation:  0.557E-07   0.110E-03    35.1%
+  2    0.1155E-05 0.1155E-05 +- 0.5572E-07      3.05
  Relative summed weights:
   0.1000E+01  0.0000E+00
  Relative number of events:
   0.1000E+01  0.0000E+00
  Events:
         4000           0
- Iteration  3   Mean: 0.5361E-08 Abs mean: 0.5361E-08   Fluctuation:  0.112E-09   0.121E-06    49.2%
-  3    0.5361E-08 0.5361E-08 +- 0.1124E-09      1.87
+ Iteration  3   Mean: 0.1229E-05 Abs mean: 0.1229E-05   Fluctuation:  0.282E-07   0.632E-04    32.7%
+  3    0.1229E-05 0.1229E-05 +- 0.2817E-07      2.05
  Relative summed weights:
   0.1000E+01  0.0000E+00
  Relative number of events:
   0.1000E+01  0.0000E+00
  Events:
         8000           0
- Accuracy:    0.006   0.010   0.019   0.122
- Finished due to accuracy    6.4965028251636765E-003   1.0000000000000000E-002
+ Accuracy:    0.019   0.010   0.020   0.894
+ Found         2064  events.
+ Wrote          492  events.
+ Actual xsec    1.2184894536644902E-006
+ Correct abs xsec    1.2184894536644902E-006
+ Event xsec    1.2184894536644834E-006
+ Events wgts > 1:           10
+ % Cross section > 1:    1.1610538240150021E-008  0.95286325254867865     
+ Iteration  4   Mean: 0.1231E-05 Abs mean: 0.1231E-05   Fluctuation:  0.160E-07   0.404E-04    29.8%
+  4    0.1231E-05 0.1231E-05 +- 0.1596E-07      1.64
+ Relative summed weights:
+  0.1000E+01  0.0000E+00
+ Relative number of events:
+  0.1000E+01  0.0000E+00
+ Events:
+       16000           0
+ Accuracy:    0.009   0.010   0.011   0.643
+ Finished due to accuracy    8.7754433377315710E-003   1.0000000000000000E-002
 
  -------------------------------------------------------------------------------
- Accumulated results:   Integral =  0.5338E-08
-                        Std dev  =  0.9911E-10
-                       Cross sec =  0.5338E-08
-             Chi**2 per DoF.     =      0.1224
+ Accumulated results:   Integral =  0.1227E-05
+                        Std dev  =  0.1343E-07
+                       Cross sec =  0.1227E-05
+             Chi**2 per DoF.     =      0.6428
  -------------------------------------------------------------------------------
- Found         1549  events.
- Wrote          695  events.
- Actual xsec    5.3382495934125906E-009
- Correct abs xsec    5.3382495934125906E-009
- Event xsec    5.3382495934126873E-009
- Events wgts > 1:           26
- % Cross section > 1:    5.1683183984330574E-011  0.96816724433617296     
+ Found         4714  events.
+ Wrote         2154  events.
+ Actual xsec    1.2262847879217673E-006
+ Correct abs xsec    1.2262847879217673E-006
+ Event xsec    1.2262847879217736E-006
+ Events wgts > 1:           75
+ % Cross section > 1:    1.2036556953701167E-008  0.98154662540501125     
 -------------------------------------------------
 ---------------------------
- Results Last   3 iters: Integral =   0.5338E-08
-                     Abs integral =   0.5338E-08
-                          Std dev =   0.9911E-10
-                  Chi**2 per DoF. =      0.1257
+ Results Last   3 iters: Integral =   0.1226E-05
+                     Abs integral =   0.1226E-05
+                          Std dev =   0.1348E-07
+                  Chi**2 per DoF. =      0.8483
 -------------------------------------------------
 ---------------------------
- Status   1.0000000000000000E-002           4           8
+ Status   1.0000000000000000E-002           5           8
 
 ls status:
 events.lhe

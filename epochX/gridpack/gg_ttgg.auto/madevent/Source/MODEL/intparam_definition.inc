@@ -8,11 +8,11 @@ C
 
         G = 2 * DSQRT(AS*PI)  ! for the first init
 
-        MDL_CONJG__CKM3X3 = 1.000000D+00
+        MDL_CKM3X3 = 1.000000D+00
 
         MDL_CONJG__CKM1X1 = 1.000000D+00
 
-        MDL_CKM3X3 = 1.000000D+00
+        MDL_CONJG__CKM3X3 = 1.000000D+00
 
         MDL_COMPLEXI = DCMPLX(0.000000D+00,1.000000D+00)
 

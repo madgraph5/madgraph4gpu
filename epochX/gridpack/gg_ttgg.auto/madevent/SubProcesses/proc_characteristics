@@ -15,5 +15,3 @@
  pdg_initial1 = [21] 
  pdg_initial2 = [21] 
  limitations = [] 
- hel_recycling = True 
- single_color = True 

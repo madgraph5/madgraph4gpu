@@ -158,6 +158,7 @@ c        pass in massless case
          else
             get_betaz = (pout(0)**2 - pin(0)**2)/(pin(0)**2 + pout(0)**2)
          endif
+         get_betaz = (pin(3) * pout(0) - pout(3) * pin(0)) / denom
       else if (pin(0).eq.pin(3)) then
          get_betaz = (pin(0)**2 - pout(0)**2)/(pin(0)**2 + pout(0)**2)
       else if (pin(0).eq.abs(pin(3))) then
@@ -468,8 +469,6 @@ c
       include 'run.inc'
       include 'run_config.inc'
 
-
-      
 c
 c     Arguments
 c
@@ -506,9 +505,6 @@ c
 C     
 C     GLOBAL
 C
-      logical init_mode
-      common/to_determine_zero_hel/init_mode
-      
       double precision twgt, maxwgt,swgt(maxevents)
       integer                             lun, nw, itmin
       common/to_unwgt/twgt, maxwgt, swgt, lun, nw, itmin
@@ -556,7 +552,7 @@ C  BEGIN CODE
 C-----
       
       if ((nw .ge. maxevents).and.do_write_events) return
-      if (init_mode) return
+
 C     if all the necessary inputs to write the events have already been
 C     computed in the bias module, then directly jump to write_events
       if (AlreadySetInBiasModule) then

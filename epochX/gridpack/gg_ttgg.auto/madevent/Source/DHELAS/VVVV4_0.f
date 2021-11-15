@@ -10,7 +10,7 @@ C
       COMPLEX*16 TMP1
       COMPLEX*16 TMP11
       COMPLEX*16 TMP12
-      COMPLEX*16 TMP3
+      COMPLEX*16 TMP5
       COMPLEX*16 V1(*)
       COMPLEX*16 V2(*)
       COMPLEX*16 V3(*)
@@ -19,8 +19,8 @@ C
       TMP1 = (V2(3)*V1(3)-V2(4)*V1(4)-V2(5)*V1(5)-V2(6)*V1(6))
       TMP11 = (V2(3)*V4(3)-V2(4)*V4(4)-V2(5)*V4(5)-V2(6)*V4(6))
       TMP12 = (V3(3)*V4(3)-V3(4)*V4(4)-V3(5)*V4(5)-V3(6)*V4(6))
-      TMP3 = (V3(3)*V1(3)-V3(4)*V1(4)-V3(5)*V1(5)-V3(6)*V1(6))
-      VERTEX = COUP*(-CI*(TMP3*TMP11)+CI*(TMP1*TMP12))
+      TMP5 = (V3(3)*V1(3)-V3(4)*V1(4)-V3(5)*V1(5)-V3(6)*V1(6))
+      VERTEX = COUP*(-CI*(TMP5*TMP11)+CI*(TMP1*TMP12))
       END
 
 

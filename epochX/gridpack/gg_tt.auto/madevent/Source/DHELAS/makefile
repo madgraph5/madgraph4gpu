@@ -18,8 +18,6 @@ LIBDIR  = ../../lib/
 
 BASIC_OBJS = aloha_functions.o
 
-FFLAGS += $(ALOHA_FLAG)
-
 include ./aloha_file.inc
 
 all: $(LIBDIR)$(LIBRARY)

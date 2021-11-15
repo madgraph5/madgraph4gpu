@@ -23,9 +23,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       WRITE(*,*)  ' Internal Params'
       WRITE(*,*)  ' ---------------------------------'
       WRITE(*,*)  ' '
-      WRITE(*,*) 'mdl_conjg__CKM3x3 = ', MDL_CONJG__CKM3X3
-      WRITE(*,*) 'mdl_conjg__CKM1x1 = ', MDL_CONJG__CKM1X1
       WRITE(*,*) 'mdl_CKM3x3 = ', MDL_CKM3X3
+      WRITE(*,*) 'mdl_conjg__CKM1x1 = ', MDL_CONJG__CKM1X1
+      WRITE(*,*) 'mdl_conjg__CKM3x3 = ', MDL_CONJG__CKM3X3
       WRITE(*,*) 'mdl_complexi = ', MDL_COMPLEXI
       WRITE(*,*) 'mdl_MZ__exp__2 = ', MDL_MZ__EXP__2
       WRITE(*,*) 'mdl_MZ__exp__4 = ', MDL_MZ__EXP__4

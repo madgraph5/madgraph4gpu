@@ -48,6 +48,7 @@ cat madevent/Cards/me5_configuration.txt | sed 's/mg5_path/#mg5_path/' > madeven
 \mv madevent/Cards/me5_configuration.txt.new madevent/Cards/me5_configuration.txt
 
 # Inject C++ counters into the Fortran code
+exit 0
 for dir in madevent/SubProcesses/P1_*; do
   cd $dir
   \cp -dpr ${scrdir}/MG5aMC_patches/timer.h .
