@@ -12,7 +12,7 @@ Running MG5 in debug mode
 *                 *                       *                *
 *                                                          *
 *         VERSION 2.9.5                 2021-08-22         *
-*         BZR 2.7.0_gpu                        370         *
+*         BZR 2.7.0_gpu                        371         *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -50,7 +50,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006837606430053711 [0m
+[1;32mDEBUG: model prefixing  takes 0.006866931915283203 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
@@ -217,9 +217,9 @@ INFO: Compiling for process 1/1.
 INFO:     P1_gg_ttx  
 [1;32mDEBUG: nb_hel: 12 zero amp: 0 bad_amps_hel: 8/36 [0m
 INFO:     P1_gg_ttx  
-INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 14h21 ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  0.9s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  0.9s  ] 
+INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 12h16 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  0.91s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  0.91s  ] 
 sum of cpu time of last step: 1 seconds
   === Results Summary for run: run_01 tag: tag_1 ===
 
@@ -245,6 +245,6 @@ INFO:
 more information in /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gridpack_gg_tt/index.html
 quit
 
-real	0m11.149s
-user	0m14.019s
-sys	0m2.552s
+real	0m14.560s
+user	0m14.064s
+sys	0m2.472s
