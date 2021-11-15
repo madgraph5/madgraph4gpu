@@ -1,8 +1,6 @@
-diff --git a/epochX/gridpack/ee_mumu.auto/madevent/SubProcesses/makefile b/epochX/gridpack/ee_mumu.auto/madevent/SubProcesses/makefile
-index 1fe4c746..8d16ce86 100644
---- a/epochX/gridpack/ee_mumu.auto/madevent/SubProcesses/makefile
-+++ b/epochX/gridpack/ee_mumu.auto/madevent/SubProcesses/makefile
-@@ -46,8 +46,11 @@ SYMMETRY = symmetry.o idenparts.o
+--- ee_mumu.auto/madevent/SubProcesses/makefile
++++ ee_mumu.auto/madevent/SubProcesses/makefile.new
+@@ -46,8 +46,11 @@
  
  # Binaries
  

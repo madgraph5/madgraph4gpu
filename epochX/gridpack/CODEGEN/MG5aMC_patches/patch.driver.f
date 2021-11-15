@@ -1,8 +1,6 @@
-diff --git a/epoch1/gridpack/eemumu/madevent/SubProcesses/P1_ll_ll/driver.f b/epoch1/gridpack/eemumu/madevent/SubProcesses/P1_ll_ll/driver.f
-index 91e1f5b4..f34bd4b1 100644
---- a/epoch1/gridpack/eemumu/madevent/SubProcesses/P1_ll_ll/driver.f
-+++ b/epoch1/gridpack/eemumu/madevent/SubProcesses/P1_ll_ll/driver.f
-@@ -73,6 +73,10 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
+--- ee_mumu.auto/madevent/SubProcesses/P1_ll_ll/driver.f
++++ ee_mumu.auto/madevent/SubProcesses/P1_ll_ll/driver.f.new
+@@ -73,6 +73,10 @@
  
        include 'coupl.inc'
  
@@ -13,7 +11,7 @@ index 91e1f5b4..f34bd4b1 100644
  C-----
  C  BEGIN CODE
  C----- 
-@@ -201,6 +205,10 @@ c      write(*,*) 'Final xsec: ',xsec
+@@ -201,6 +205,10 @@
        rewind(lun)
  
        close(lun)
