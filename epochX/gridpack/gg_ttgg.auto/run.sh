@@ -48,7 +48,7 @@ fi
 echo "Now generating $num_events events with random seed $seed and granularity $gran"
 
 ############    RUN THE PYTHON CODE #####################
-${DIR}/bin/gridrun $num_events $seed $gran
+python2 ${DIR}/bin/gridrun $num_events $seed $gran
 ########################################################
 
 ###########    POSTPROCESSING      #####################

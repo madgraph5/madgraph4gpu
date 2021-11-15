@@ -71,6 +71,13 @@ else
 fi
 cd -
 
+# Use python2 instead of python3 for revno 365 (MG28x)
+if [ ${revno_patches} -le 365 ]; then
+  cat run.sh | sed "s|\${DIR}/bin/gridrun|python2 \${DIR}/bin/gridrun|" > run.sh.new
+  \mv run.sh.new run.sh
+  chmod +x run.sh
+fi
+
 # Replace "-O" by "-O3 -ffast-math" globally
 cat madevent/Source/make_opts | sed "s/GLOBAL_FLAG=-O /GLOBAL_FLAG=-O3 -ffast-math /" > madevent/Source/make_opts.new
 \mv madevent/Source/make_opts.new madevent/Source/make_opts
