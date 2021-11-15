@@ -48,18 +48,27 @@ cat madevent/Cards/me5_configuration.txt | sed 's/mg5_path/#mg5_path/' > madeven
 \mv madevent/Cards/me5_configuration.txt.new madevent/Cards/me5_configuration.txt
 
 # Inject C++ counters into the Fortran code
-exit 0
+###exit 0
+revno_patches=$(cat ${scrdir}/MG5aMC_patches/2.7.0_gpu/revision.BZR)
 for dir in madevent/SubProcesses/P1_*; do
   cd $dir
   \cp -dpr ${scrdir}/MG5aMC_patches/timer.h .
   \cp -dpr ${scrdir}/MG5aMC_patches/counters.cpp .
   if ! patch -i ${scrdir}/MG5aMC_patches/patch.driver.f; then status=1; fi
-  if ! patch -i ${scrdir}/MG5aMC_patches/patch.matrix1_optim.f; then status=1; fi
+  if [ ${revno_patches} -le 365 ]; then
+    if ! patch -i ${scrdir}/MG5aMC_patches/patch_28x.matrix1.f; then status=1; fi
+  else
+    if ! patch -i ${scrdir}/MG5aMC_patches/patch.matrix1_optim.f; then status=1; fi
+  fi
   \rm -f matrix1_optim.f.orig
   cd -
 done
 cd madevent/SubProcesses
-if ! patch -i ${scrdir}/MG5aMC_patches/patch.makefile; then status=1; fi
+if [ ${revno_patches} -le 365 ]; then
+  if ! patch -i ${scrdir}/MG5aMC_patches/patch_28x.makefile; then status=1; fi
+else
+  if ! patch -i ${scrdir}/MG5aMC_patches/patch.makefile; then status=1; fi
+fi
 cd -
 
 # Replace "-O" by "-O3 -ffast-math" globally
