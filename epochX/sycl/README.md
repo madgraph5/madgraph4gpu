@@ -19,7 +19,7 @@ To target Nvidia platforms, a custom build of the LLVM is required. This has bee
 
   cd madgraph4gpu/epoch2/sycl/gg_ttgg/
 
-  clang++ -v -pthread -fsycl -fsycl-targets=nvptx64-nvidia-cuda-sycldevice --cuda-include-ptx=sm_70 -fsycl-unnamed-lambda --cuda-path=/usr/local/cuda-10.2/ -I src -I SubProcesses/P1_Sigma_sm_gg_ttxgg/  -I ../../../tools/ SubProcesses/P1_Sigma_sm_gg_ttxgg/CPPProcess.cc src/rambo.cc src/read_slha.cc src/Parameters_sm.cc SubProcesses/P1_Sigma_sm_gg_ttxgg/check_sa.cc -o SubProcesses/P1_Sigma_sm_gg_ttxgg/gcheck_sa.exe
+clang++ -v -ffast-math -pthread -fsycl -fsycl-targets=nvptx64-nvidia-cuda-sycldevice --cuda-include-ptx=sm_70 -fsycl-unnamed-lambda --cuda-path=/usr/local/cuda-10.2/ -I src -I SubProcesses/P1_Sigma_sm_gg_ttxgg/ -I ../../../tools/ src/read_slha.cc src/Parameters_sm.cc SubProcesses/P1_Sigma_sm_gg_ttxgg/check_sa.cc -o SubProcesses/P1_Sigma_sm_gg_ttxgg/gcheck_sa.exe
 
  cd SubProcesses/P1_Sigma_sm_gg_ttxgg
  chmod +x gcheck_sa.exe
