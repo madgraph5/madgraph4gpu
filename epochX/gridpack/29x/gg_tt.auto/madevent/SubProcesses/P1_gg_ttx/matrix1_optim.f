@@ -98,7 +98,7 @@ C     2 means approximation by the	denominator of the propagator
 C     ----------
 C     BEGIN CODE
 C     ----------
-
+      call counters_smatrix1_start()
       DO I=1,NEXTERNAL
         JC(I) = +1
       ENDDO
@@ -171,6 +171,7 @@ C           Set right sign for ANS, based on sign of chosen helicity
         ENDIF
       ENDIF
       ANS=ANS/DBLE(IDEN)
+      call counters_smatrix1_stop()
       END
 
 
