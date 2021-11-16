@@ -75,10 +75,12 @@ extern "C"
     f = fopen( "counters_log.txt", "w" );
 #ifdef COUNTERS_USETIMER
     program_totaltime += program_timer.GetDuration();
-    fprintf( f, "PROGRAM  : %9.4fs\n", program_totaltime );
-    fprintf( f, "MATRIX1  : %9.4fs for %8d calls => throughput is %8.2E calls/s\n",
+    fprintf( f, "PROGRAM    : %9.4fs\n", program_totaltime );
+    fprintf( f, "MATRIX1(a) : %9.4fs for %8d MATRIX1 calls  => throughput is %8.2E calls/s\n",
              matrix1_totaltime, matrix1_counter, matrix1_counter/matrix1_totaltime );
-    fprintf( f, "SMATRIX1 : %9.4fs for %8d calls => throughput is %8.2E calls/s\n",
+    fprintf( f, "MATRIX1(b) : %9.4fs for %8d SMATRIX1 calls => throughput is %8.2E calls/s\n",
+             matrix1_totaltime, smatrix1_counter, smatrix1_counter/matrix1_totaltime );
+    fprintf( f, "SMATRIX1   : %9.4fs for %8d SMATRIX1 calls => throughput is %8.2E calls/s\n",
              smatrix1_totaltime, smatrix1_counter, smatrix1_counter/smatrix1_totaltime );
 #else
     fprintf( f, "MATRIX1  : %8d calls\n", matrix1_counter );
