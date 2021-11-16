@@ -37,7 +37,11 @@ function codeGenAndDiff()
     echo "set stdout_level DEBUG" >> ${outproc}.mg # does not help (log is essentially identical) but add it anyway
     echo "${cmd}" >> ${outproc}.mg
     if [ "${OUTBCK}" == "gridpack" ]; then
-      echo "output ${outproc}" >> ${outproc}.mg
+      if [ "${UNTARONLY}" == "-1" ]; then
+        echo "output ${outproc} --hel_recycling=False" >> ${outproc}.mg
+      else
+        echo "output ${outproc}" >> ${outproc}.mg
+      fi
       ###echo "!cp -dpr ${outproc} ${outproc}_prelaunch" >> ${outproc}.mg
       echo "launch" >> ${outproc}.mg
       echo "set gridpack True" >> ${outproc}.mg
@@ -99,7 +103,7 @@ function codeGenAndDiff()
 function usage()
 {
   if [ "${OUTBCK}" == "gridpack" ]; then
-    echo "Usage: $0 [--nobrief] [--nountaronly] <proc>" # New: only one process
+    echo "Usage: $0 [--nobrief] [--nountaronly|-nountaronly_nohelrec] <proc>" # New: only one process
   else
     echo "Usage: $0 [--nobrief] <proc>" # New: only one process
   fi
@@ -135,8 +139,10 @@ OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
 # Default: brief diffs (use --nobrief to use full diffs)
 BRIEF=--brief
 
-# Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
-UNTARONLY=1
+# Default for gridpacks: untar gridpack.tar.gz but do not regenerate it 
+# (use --nountaronly to regenerate it with helicity recycling)
+# (use --nountaronly to regenerate it with helicity recycling)
+export UNTARONLY=1
 
 # Process command line arguments (https://unix.stackexchange.com/a/258514)
 for arg in "$@"; do
@@ -145,8 +151,10 @@ for arg in "$@"; do
     usage; continue; # continue is unnecessary as usage will exit anyway...
   elif [ "$arg" == "--nobrief" ]; then
     BRIEF=; continue
-  elif [ "$arg" == "--nountaronly" ] && [ "${OUTBCK}" == "gridpack" ]; then
-    UNTARONLY=0; continue
+  elif [ "$arg" == "--nountaronly" ] && [ "${OUTBCK}" == "gridpack" ] && [ "${UNTARONLY}" == "1" ]; then
+    export UNTARONLY=0; continue
+  elif [ "$arg" == "--nountaronly_nohelrec" ] && [ "${OUTBCK}" == "gridpack" ] && [ "${UNTARONLY}" == "1" ]; then
+    export UNTARONLY=-1; continue
   else
     # Keep the possibility to collect more then one process
     # However, require a single process to be chosen (allow full cleanup before/after code generation)
@@ -234,7 +242,11 @@ if [ "${OUTBCK}" == "gridpack" ]; then
   if [ ${revno_patches} -le 365 ]; then
     OUTDIR=${OUTDIR}/28x
   else
-    OUTDIR=${OUTDIR}/29x
+    if [ "${UNTARONLY}" == "-1" ]; then
+      OUTDIR=${OUTDIR}/29x_nohelrec
+    else
+      OUTDIR=${OUTDIR}/29x
+    fi
   fi
   echo "OUTDIR=${OUTDIR} (redefined)"
 fi

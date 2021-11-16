@@ -55,7 +55,7 @@ for dir in madevent/SubProcesses/P1_*; do
   \cp -dpr ${scrdir}/MG5aMC_patches/timer.h .
   \cp -dpr ${scrdir}/MG5aMC_patches/counters.cpp .
   if ! patch -i ${scrdir}/MG5aMC_patches/patch.driver.f; then status=1; fi
-  if [ ${revno_patches} -le 365 ]; then
+  if [ ${revno_patches} -le 365 ] || [ "${UNTARONLY}" == "-1" ]; then
     if ! patch -i ${scrdir}/MG5aMC_patches/patch_28x.matrix1.f; then status=1; fi
   else
     if ! patch -i ${scrdir}/MG5aMC_patches/patch.matrix1_optim.f; then status=1; fi
