@@ -61,6 +61,8 @@ CUDA =
 
 # roiser@itscrd02:P1_gg_ttx (fortran-cpp-workflow)$ /usr/local/cuda-11.4/bin/nvcc -o madevent  driver.o myamp.o genps.o unwgt.o setcuts.o get_color.o cuts.o cluster.o reweight.o initcluster.o addmothers.o setscales.o idenparts.o dummy_fct.o auto_dsig1.o auto_dsig.o  matrix1_optim.o fbridge.o -Xcompiler -fopenmp -L../../lib/ -L /usr/local/cuda-11.4/lib64/ -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib  -lbias -lstdc++ -lcudart ./golden_epochX4/gCPPProcess.o ../../Source/lib/libmodel_sm.a -lgfortran
 
+
+
 $(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX) $(BRIDGE) $(CUDA)
 	$(NVCC) -o $(PROG) $(PROCESS) $(MATRIX) $(BRIDGE) $(CUDA) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) $(CULIBS) -Xcompiler -fopenmp ./golden_epochX4/gCPPProcess.o ../../Source/lib/libmodel_sm.a -lgfortran -lcudart
 
@@ -86,7 +88,7 @@ $(MATRIX): %.o: %.f
 	$(FC) $(FFLAGS) -c $< -I../../Source/ -fopenmp
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
-%.o: %.cu
+%.o: %.cu transpose.h
 	$(NVCC) $(CUFLAGS) -O3  -lineinfo -std=c++14 -I. -I../../../Source/golden_epochX4 -I../../../../../tools -I/usr/local/cuda-11.4//include/ -DUSE_NVTX -arch=compute_70 -use_fast_math -ccbin /opt/rh/gcc-toolset-10/root/usr/bin/g++ -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_CURAND_ONDEVICE -I./golden_epochX4 -I../../Source/golden_epochX4 -c $< -o $@
 
 
