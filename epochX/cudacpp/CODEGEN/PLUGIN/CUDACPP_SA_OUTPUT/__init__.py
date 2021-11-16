@@ -35,7 +35,7 @@ new_interface = None
 __author__ = 'Andrea Valassi'
 __email__ = 'andrea.valassi@cern.ch'
 __version__ = (1,0,0)
-minimal_mg5amcnlo_version = (2,8,2) 
+minimal_mg5amcnlo_version = (2,9,5) 
 maximal_mg5amcnlo_version = (1000,1000,1000)
 latest_validated_version = (2,9,5)
 
