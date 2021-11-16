@@ -299,10 +299,9 @@ $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
 $(testmain): $(GTESTLIBS)
 $(testmain): INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
-$(testmain): INCFLAGS += -I$(TESTDIR)/include
 $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
-$(testmain): $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
-$(testmain): cxx_objects += $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o
+$(testmain): $(BUILDDIR)/runTest.o
+$(testmain): cxx_objects += $(BUILDDIR)/runTest.o
 $(testmain): cu_objects  += $(BUILDDIR)/runTest_cu.o
 ifneq ($(shell $(CXX) --version | grep ^clang),)
 $(testmain): LIBFLAGS += -L$(patsubst %%bin/clang++,%%lib,$(shell which $(CXX) | tail -1))
@@ -324,9 +323,6 @@ $(testmain) $(BUILDDIR)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(
 	$(NVCC) -o $(BUILDDIR)/runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
-
-$(TESTDIR)/src/MadgraphTest.o: $(TESTDIR)/src/MadgraphTest.cc $(TESTDIR)/include/*.h
-	$(MAKE) -C $(TESTDIR)
 
 $(GTESTLIBS):
 	$(MAKE) -C $(TESTDIR)

@@ -12,6 +12,7 @@ profile_*
 *.qdrep
 *.sqlite
 *.ncu-rep
+*.objdump*
 
 #=== Perf data ===
 *-perf-test-run*.json
@@ -29,4 +30,4 @@ local/
 *.output
 *.error
 *.cobaltlog
-
+*.BKP
