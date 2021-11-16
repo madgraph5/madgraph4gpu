@@ -30,38 +30,56 @@ function codeGenAndDiff()
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null
   outproc=CODEGEN_${OUTBCK}_${proc}
-  \rm -rf ${outproc}*
-  echo "set stdout_level DEBUG" >> ${outproc}.mg # does not help (log is essentially identical) but add it anyway
-  echo "${cmd}" >> ${outproc}.mg
-  if [ "${OUTBCK}" == "gridpack" ]; then
-    echo "ERROR! gridpack generation is not yet implemented"; exit 1
+  if [ "${OUTBCK}" == "gridpack" ] && [ "${UNTARONLY}" == "1" ]; then
+    echo -e "WARNING! Skip generation of gridpack.tar.gz (--nountaronly was not specified)\n"
   else
-    echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
+    \rm -rf ${outproc} ${outproc}.* ${outproc}_*
+    echo "set stdout_level DEBUG" >> ${outproc}.mg # does not help (log is essentially identical) but add it anyway
+    echo "${cmd}" >> ${outproc}.mg
+    if [ "${OUTBCK}" == "gridpack" ]; then
+      echo "output ${outproc}" >> ${outproc}.mg
+      ###echo "!cp -dpr ${outproc} ${outproc}_prelaunch" >> ${outproc}.mg
+      echo "launch" >> ${outproc}.mg
+      echo "set gridpack True" >> ${outproc}.mg
+      echo "set ebeam1 750" >> ${outproc}.mg
+      echo "set ebeam2 750" >> ${outproc}.mg
+    else
+      echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
+    fi
+    cat ${outproc}.mg
+    ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
+    { time python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
+    cat ${outproc}_log.txt | egrep -v '(Crash Annotation)' > ${outproc}_log.txt.new # remove firefox 'glxtest: libEGL initialize failed' errors
+    \mv ${outproc}_log.txt.new ${outproc}_log.txt
   fi
-  cat ${outproc}.mg
-  ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
-  { time python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
   if [ -d ${outproc} ] && ! grep -q "Please report this bug" ${outproc}_log.txt; then
     ###cat ${outproc}_log.txt; exit 0 # FOR DEBUGGING
-    cat ${outproc}_log.txt | egrep 'INFO: (Try|Creat|Organiz|Process)'
-    mv ${outproc}_log.txt ${outproc}/
+    cat ${MG5AMC_HOME}/${outproc}_log.txt | egrep 'INFO: (Try|Creat|Organiz|Process)'
   else
     echo "*** ERROR! Code generation failed"
-    cat ${outproc}_log.txt
+    cat ${MG5AMC_HOME}/${outproc}_log.txt
     echo "*** ERROR! Code generation failed"
     exit 1
   fi
   popd >& /dev/null
+  # Choose which directory must be copied (for gridpack generation: untar and modify the gridpack)
+  if [ "${OUTBCK}" == "gridpack" ]; then
+    outprocauto=${MG5AMC_HOME}/${outproc}/run_01_gridpack
+    if ! $SCRDIR/untarGridpack.sh ${outprocauto}.tar.gz; then echo "ERROR! untarGridpack.sh failed"; exit 1; fi
+  else
+    outprocauto=${MG5AMC_HOME}/${outproc}
+  fi
+  cp -dpr ${MG5AMC_HOME}/${outproc}_log.txt ${outprocauto}/
   # Replace the existing generated code in the output source code directory by the newly generated code and create a .BKP
   rm -rf ${OUTDIR}/${proc}.auto.BKP
-  mv ${OUTDIR}/${proc}.auto ${OUTDIR}/${proc}.auto.BKP
-  cp -dpr ${MG5AMC_HOME}/${outproc} ${OUTDIR}/${proc}.auto
+  if [ -d ${OUTDIR}/${proc}.auto ]; then mv ${OUTDIR}/${proc}.auto ${OUTDIR}/${proc}.auto.BKP; fi
+  cp -dpr ${outprocauto} ${OUTDIR}/${proc}.auto
   echo -e "\nOutput source code has been copied to ${OUTDIR}/${proc}.auto"
   # Compare the existing generated code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
   echo -e "\n+++ Compare old and new code generation log for $proc\n"
-  ###diff -c ${proc}.auto.BKP/${outproc}_log.txt ${proc}.auto # context diff
-  diff ${proc}.auto.BKP/${outproc}_log.txt ${proc}.auto # normal diff
+  ###if diff -c ${proc}.auto.BKP/${outproc}_log.txt ${proc}.auto; then echo "Old and new code generation logs are identical"; fi # context diff
+  if diff ${proc}.auto.BKP/${outproc}_log.txt ${proc}.auto; then echo "Old and new code generation logs are identical"; fi # context diff
   echo -e "\n+++ Compare old and new generated code for $proc\n"
   if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc}.auto.BKP ${proc}.auto; then echo "Old and new generated codes are identical"; else echo -e "\nWARNING! Old and new generated codes differ"; fi
   popd >& /dev/null
@@ -80,7 +98,11 @@ function codeGenAndDiff()
 
 function usage()
 {
-  echo "Usage: $0 [--nobrief] <proc>" # New: only one process
+  if [ "${OUTBCK}" == "gridpack" ]; then
+    echo "Usage: $0 [--nobrief] [--nountaronly] <proc>" # New: only one process
+  else
+    echo "Usage: $0 [--nobrief] <proc>" # New: only one process
+  fi
   exit 1
 }
 
@@ -101,8 +123,20 @@ function cleanup_MG5AMC_HOME()
 
 #--------------------------------------------------------------------------------------
 
+# Script directory
+SCRDIR=$(cd $(dirname $0); pwd)
+
+# Output source code directory for the chosen backend
+OUTDIR=$(dirname $SCRDIR) # e.g. epochX/cudacpp if $SCRDIR=epochX/cudacpp/CODEGEN
+
+# Output backend
+OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
+
 # Default: brief diffs (use --nobrief to use full diffs)
 BRIEF=--brief
+
+# Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
+UNTARONLY=1
 
 # Process command line arguments (https://unix.stackexchange.com/a/258514)
 for arg in "$@"; do
@@ -111,6 +145,8 @@ for arg in "$@"; do
     usage; continue; # continue is unnecessary as usage will exit anyway...
   elif [ "$arg" == "--nobrief" ]; then
     BRIEF=; continue
+  elif [ "$arg" == "--nountaronly" ] && [ "${OUTBCK}" == "gridpack" ]; then
+    UNTARONLY=0; continue
   else
     # Keep the possibility to collect more then one process
     # However, require a single process to be chosen (allow full cleanup before/after code generation)
@@ -121,21 +157,13 @@ done
 if [ "$1" == "" ] || [ "$2" != "" ]; then usage; fi # New: only one process
 proc=$1
 
-echo BRIEF=${BRIEF}
-###echo procs=${procs}
-echo proc=${proc}
-
-# Script directory
-SCRDIR=$(cd $(dirname $0); pwd)
-echo SCRDIR=${SCRDIR}
-
-# Output source code directory for the chosen backend
-OUTDIR=$(dirname $SCRDIR) # e.g. epochX/cudacpp if $SCRDIR=epochX/cudacpp/CODEGEN
-echo OUTDIR=${OUTDIR}
-
-# Output backend
-OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
+echo "SCRDIR=${SCRDIR}"
+echo "OUTDIR=${OUTDIR}"
 echo "OUTBCK=${OUTBCK} (uppercase=${OUTBCK^^})"
+
+echo "BRIEF=${BRIEF}"
+###echo "procs=${procs}"
+echo "proc=${proc}"
 
 # Make sure that python3 is installed
 if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"; exit 1; fi
@@ -151,22 +179,26 @@ if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exis
 
 # Print MG5amc bazaar info if any
 # Revert to the appropriate bazaar revision number
+# (NB! 'bzr revert' does not change the output of 'bzr revno': it is NOT like 'git reset --hard'!)
+# (See the comments in https://stackoverflow.com/a/37488587)
 if bzr --version >& /dev/null; then
   echo -e "Using $(bzr --version | head -1)"
   echo -e "Retrieving bzr information about MG5AMC_HOME"
-  if bzr info ${MG5AMC_HOME} 2> /dev/null | grep parent; then
+  if bzr info ${MG5AMC_HOME} > /dev/null; then
     revno_patches=$(cat $SCRDIR/MG5aMC_patches/2.7.0_gpu/revision.BZR)
     echo -e "MG5AMC patches in this plugin refer to bzr revno '${revno_patches}'"
     echo -e "Revert MG5AMC_HOME to bzr revno '${revno_patches}'"
     bzr revert ${MG5AMC_HOME} -r ${revno_patches}
-    revno_mg5amc=$(bzr revno ${MG5AMC_HOME})
-    echo -e "Current bzr revno of MG5AMC_HOME is '${revno_mg5amc}'"
+    revno_mg5amc=$(bzr revno ${MG5AMC_HOME} -r ${revno_patches})
+    echo -e "Current 'bzr revno -r ${revno_patches}' of MG5AMC_HOME is '${revno_mg5amc}'"
     if [ "${revno_patches}" != "${revno_mg5amc}" ]; then echo -e "\nERROR! bzr revno mismatch!"; exit 1; fi
   else
-    echo -e "WARNING! MG5AMC_HOME is not a bzr branch\n"
+    ###echo -e "WARNING! MG5AMC_HOME is not a bzr branch\n"
+    echo -e "ERROR! MG5AMC_HOME is not a bzr branch\n"; exit 1
   fi
 else
-  echo -e "WARNING! bzr is not installed: cannot retrieve bzr properties of MG5aMC_HOME\n"
+  ###echo -e "WARNING! bzr is not installed: cannot retrieve bzr properties of MG5aMC_HOME\n"
+  echo -e "ERROR! bzr is not installed: cannot retrieve bzr properties of MG5aMC_HOME\n"; exit 1
 fi
 
 # Copy MG5AMC patches if any
@@ -187,7 +219,7 @@ if bzr --version >& /dev/null; then
   if bzr info ${MG5AMC_HOME} 2> /dev/null | grep parent; then
     echo -e "\n***************** Differences to the current bzr revno [START]"
     if bzr diff ${MG5AMC_HOME}; then echo -e "[No differences]"; fi
-    echo -e "***************** Differences to the current bzr revno [END]\n"
+    echo -e "***************** Differences to the current bzr revno [END]"
   fi
 fi
 
@@ -195,6 +227,16 @@ fi
 if [ "${OUTBCK}" != "gridpack" ]; then
   cp -dpr ${SCRDIR}/PLUGIN/${OUTBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
   ls -l ${MG5AMC_HOME}/PLUGIN
+fi
+
+# For gridpacks, use separate output directories for MG 28x and MG 29x
+if [ "${OUTBCK}" == "gridpack" ]; then
+  if [ ${revno_patches} -le 365 ]; then
+    OUTDIR=${OUTDIR}/28x
+  else
+    OUTDIR=${OUTDIR}/29x
+  fi
+  echo "OUTDIR=${OUTDIR} (redefined)"
 fi
 
 # Generate the chosen process (this will always replace the existing code directory and create a .BKP)
