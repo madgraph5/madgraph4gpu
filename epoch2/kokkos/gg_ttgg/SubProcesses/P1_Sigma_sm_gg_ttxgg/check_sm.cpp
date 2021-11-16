@@ -294,7 +294,11 @@ int main(int argc, char **argv) {
       printf("NumIterations               = %8d\n",numiter);
       printf("----------------------------------------------------------------------\n");
       printf("FP Precision                = DOUBLE\n");
+#ifdef THRUST_COMPLEX
+      printf("Complex type                = THRUST::COMPLEX\n");
+#else
       printf("Complex type                = KOKKOS::COMPLEX\n");
+#endif
       printf("Random number generator     = Kokkos Device Side\n");
       printf("----------------------------------------------------------------------\n");
       printf("NumberOfEntries             = %8d\n",numiter);
@@ -343,7 +347,7 @@ int main(int argc, char **argv) {
     if(json){
       std::stringstream json_fn;
       json_fn << "./perf/data/" << league_size << "-" << team_size << "-" << numiter 
-              << "perf-test-run" << jsonrun << ".json";
+              << "-perf-test-run" << jsonrun << ".json";
 
       std::ofstream fout(json_fn.str());
       fout << "[{\n";
@@ -351,7 +355,11 @@ int main(int argc, char **argv) {
       fout << "  \"NumThreadsPerBlock\": "      << team_size << ",\n";
       fout << "  \"NumBlocksPerGrid\": "        << league_size << ",\n";
       fout << "  \"FP precision\": \"DOUBLE\",\n";
-      fout << "  \"Complex type\": \"Kokkos::Complex\",\n";
+#ifdef THRUST_COMPLEX
+      fout << "  \"Complex type\": \"THRUST::COMPLEX\",\n";
+#else
+      fout << "  \"Complex type\": \"KOKKOS::COMPLEX\",\n";
+#endif
       fout << "  \"TotalTimeInWaveFuncs\": "    << std::scientific << tmr_skin.sum()+tmr_cpyME.sum() << ",\n";
       fout << "  \"MeanTimeInWaveFuncs\": "     << tmr_skin.mean()+tmr_cpyME.mean() << ",\n";
       fout << "  \"StdDevTimeInWaveFuncs\": "   << tmr_skin.sigma()+tmr_cpyME.sigma() << ",\n";
