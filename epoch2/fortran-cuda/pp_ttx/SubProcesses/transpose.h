@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "CPPProcess.h"
+#include "Memory.h"
 
 /**
 const int evnt_n = 4;  // the number of events
@@ -19,38 +20,6 @@ const int gputhreads = 256;
 
 #define checkCuda(code)                                                        \
   { assertCuda(code, __FILE__, __LINE__); }
-
-/*
-inline void assertCuda(cudaError_t code, const char *file, int line,
-                       bool abort = true) {
-  if (code != cudaSuccess) {
-    printf("GPUassert: %s %s:%d\n", cudaGetErrorString(code), file, line);
-    if (abort)
-      assert(code == cudaSuccess);
-  }
-}*/
-
-template <typename T> struct CudaDevDeleter {
-  void operator()(T *mem) { checkCuda(cudaFree(mem)); }
-};
-
-template <typename T>
-std::unique_ptr<T[], CudaDevDeleter<T>> devMakeUnique(int n_bytes) {
-  T *tmp = nullptr;
-  checkCuda(cudaMalloc(&tmp, n_bytes));
-  return std::unique_ptr<T[], CudaDevDeleter<T>>{tmp};
-}
-
-template <typename T> struct CudaHstDeleter {
-  void operator()(T *mem) { checkCuda(cudaFreeHost(mem)); }
-};
-
-template <typename T>
-std::unique_ptr<T[], CudaHstDeleter<T>> hstMakeUnique(int n_bytes) {
-  T *tmp = nullptr;
-  checkCuda(cudaMallocHost(&tmp, n_bytes));
-  return std::unique_ptr<T[], CudaHstDeleter<T>>{tmp};
-};
 
 template <typename T>
 __global__ void dev_transpose(const T *inpArr, T *outArr, const int evnt_n,
@@ -74,12 +43,12 @@ __global__ void dev_transpose(const T *inpArr, T *outArr, const int evnt_n,
                 + part_i * mome_n          // particle inside event
                 + mome_i;                  // momentum inside particle
 
-#ifdef DEBUG
-    printf("opos:%d, ipos:%d, page_i:%d, strd_i:%d, part_i:%i, mome_i:%d\n",
-           pos, inpos, page_i, strd_i, part_i, mome_i);
-#endif
-
     outArr[pos] = inpArr[inpos];
+#ifdef DEBUG
+    printf("opos:%d, ipos:%d, page_i:%d, strd_i:%d, part_i:%i, mome_i:%d, "
+           "val:%f\n",
+           pos, inpos, page_i, strd_i, part_i, mome_i, (T)outArr[pos]);
+#endif
   }
 }
 
@@ -87,26 +56,30 @@ __global__ void dev_transpose(const T *inpArr, T *outArr, const int evnt_n,
 
 template <typename T> class Matrix {
 public:
-  Matrix(int evt, int par, int mom, int str);
+  Matrix(int evt, int par, int mom, int str, int ncomb);
 
   void fill(T *arr);
-  void hst_transpose(T *arr);
+  void hst_transpose(T *momenta, double **mes);
 
 private:
   int m_evnt;
   int m_part;
   int m_mome;
   int m_strd;
-  int m_arrbytes;
+  int m_ncomb;
+  int m_bts_momenta;
+  int m_bts_goodhel;
+  int m_bts_mes;
 };
 
 /**
  *
  */
 template <typename T>
-Matrix<T>::Matrix(int evnt, int part, int mome, int strd)
-    : m_evnt(evnt), m_part(part), m_mome(mome), m_strd(strd),
-      m_arrbytes(m_evnt * m_part * m_mome * sizeof(T)) {}
+Matrix<T>::Matrix(int evnt, int part, int mome, int strd, int ncomb)
+    : m_evnt(evnt), m_part(part), m_mome(mome), m_strd(strd), m_ncomb(ncomb),
+      m_bts_momenta(m_evnt * m_part * m_mome * sizeof(T)),
+      m_bts_goodhel(m_ncomb * sizeof(bool)), m_bts_mes(m_evnt * sizeof(T)) {}
 
 /**
  *
@@ -141,33 +114,57 @@ template <typename T> void Matrix<T>::fill(T *arr) {
 /**
  *
  */
-template <typename T> void Matrix<T>::hst_transpose(T *arr) {
+template <typename T> void Matrix<T>::hst_transpose(T *momenta, double **mes) {
 
-  std::unique_ptr<T[], CudaHstDeleter<T>> hstInpArray =
-      hstMakeUnique<T>(m_arrbytes);
-  std::unique_ptr<T[], CudaDevDeleter<T>> devInpArray =
-      devMakeUnique<T>(m_arrbytes);
-  std::unique_ptr<T[], CudaHstDeleter<T>> hstOutArray =
-      hstMakeUnique<T>(m_arrbytes);
-  std::unique_ptr<T[], CudaDevDeleter<T>> devOutArray =
-      devMakeUnique<T>(m_arrbytes);
+  auto devMomentaF2 = devMakeUnique<T>(m_evnt * m_part * m_mome);
+  auto devMomentaC2 = devMakeUnique<T>(m_evnt * m_part * m_mome);
+  auto hstIsGoodHel2 = hstMakeUnique<bool>(m_ncomb);
+  auto devIsGoodHel2 = devMakeUnique<bool>(m_ncomb);
+  auto hstMEs2 = hstMakeUnique<T>(m_evnt);
+  auto devMEs2 = devMakeUnique<T>(m_evnt);
 
-  checkCuda(cudaMemcpy(devInpArray.get(), hstInpArray.get(), m_arrbytes,
+  checkCuda(cudaMemcpy(devMomentaF2.get(), momenta, m_bts_momenta,
                        cudaMemcpyHostToDevice));
 
-  dev_transpose<<<gpublocks, gputhreads>>>(devInpArray.get(), devOutArray.get(),
-                                           m_evnt, m_part, m_mome, m_strd);
+  dev_transpose<<<gpublocks, gputhreads>>>(
+      devMomentaF2.get(), devMomentaC2.get(), m_evnt, m_part, m_mome, m_strd);
 
-  gProc::sigmaKin<<<gpublocks, gputhreads>>>(devInpArray.get(),
-                                             devOutArray.get());
+  gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(
+      devMomentaC2.get(), devMEs2.get(), devIsGoodHel2.get());
 
-  checkCuda(cudaMemcpy(hstOutArray.get(), devOutArray.get(), m_arrbytes,
+  checkCuda(cudaMemcpy(hstIsGoodHel2.get(), devIsGoodHel2.get(), m_bts_goodhel,
                        cudaMemcpyDeviceToHost));
 
-#ifdef DEBUG
+  gProc::sigmaKin_setGoodHel(hstIsGoodHel2.get());
+
+  gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomentaC2.get(), devMEs2.get());
+
+  checkCuda(cudaMemcpy(hstMEs2.get(), devMEs2.get(), m_bts_mes,
+                       cudaMemcpyDeviceToHost));
+
+  auto phstMEs = hstMEs2.get();
+  mes = &phstMEs;
+
+  // std::cout << std::string(80, '*') << std::endl;
+  // for (int i = 0; i < m_ncomb; ++i) {
+  //   std::cout << i << ":" << hstIsGoodHel2[i] << " ";
+  // }
+  // std::cout << std::endl;
+
   std::cout << std::string(80, '*') << std::endl;
-  T *aosoa_p = (T *)hstOutArray.get();
-  for (int i = 0; i < evnt_n * part_n * mome_n; ++i) {
+  for (int i = 0; i < m_evnt; ++i) {
+    std::cout << i << ":" << hstMEs2[i] << " ";
+  }
+  std::cout << std::endl;
+
+#ifdef DEBUG
+  auto hstMomentaC2 = hstMakeUnique<T>(m_evnt * m_part * m_mome);
+  checkCuda(cudaMemcpy(hstMomentaC2.get(), devMomentaC2.get(), m_bts_momenta,
+                       cudaMemcpyDeviceToHost));
+
+  std::cout << std::string(80, '*') << std::endl;
+  T *aosoa_p = (T *)hstMomentaC2.get();
+  for (int i = 0; i < m_evnt * m_part * m_mome; ++i) {
     if (i && i % m_strd == 0)
       std::cout << ", ";
     if (i && i % (m_mome * m_strd) == 0)
