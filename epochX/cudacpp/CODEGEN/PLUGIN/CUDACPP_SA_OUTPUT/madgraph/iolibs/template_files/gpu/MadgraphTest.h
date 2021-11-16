@@ -106,7 +106,6 @@ std::map<unsigned int, ReferenceData> readReferenceData(const std::string& refFi
  */
 class TestDriverBase {
   std::string m_refFileName;
-
 public:
   const unsigned int nparticle;
   static constexpr unsigned int niter = 2;
@@ -118,8 +117,7 @@ public:
     : m_refFileName( refFileName != "" ? refFileName : std::string( "../../../../../test/ref/dump_CPUTest.Sigma_sm_epem_mupmum.txt" ) ),
       nparticle{ npart } {}
   virtual ~TestDriverBase() { }
-
-  const std::string & getRefFileName() const { return m_refFileName; }
+  const std::string& getRefFileName(){ return m_refFileName; }
 
   // ------------------------------------------------
   // Interface for retrieving info from madgraph
@@ -143,13 +141,13 @@ public:
     {
       // NB: 'setw' affects only the next field (of any type)
       stream << std::scientific // fixed format: affects all floats (default nDigit: 6)
-          << std::setprecision(nDigit)
-          << std::setw(4) << ipar
-          << std::setw(width) << getMomentum(ievt, ipar, 0)
-          << std::setw(width) << getMomentum(ievt, ipar, 1)
-          << std::setw(width) << getMomentum(ievt, ipar, 2)
-          << std::setw(width) << getMomentum(ievt, ipar, 3)
-          << "\n";
+             << std::setprecision(nDigit)
+             << std::setw(4) << ipar
+             << std::setw(width) << getMomentum(ievt, ipar, 0)
+             << std::setw(width) << getMomentum(ievt, ipar, 1)
+             << std::setw(width) << getMomentum(ievt, ipar, 2)
+             << std::setw(width) << getMomentum(ievt, ipar, 3)
+             << "\n";
       if (ievt < referenceData.momenta.size()) {
         stream << "ref" << ipar;
         stream << std::setw(width) << referenceData.momenta[ievt][ipar][0]
