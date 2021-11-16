@@ -32,8 +32,7 @@ def PLUGIN_make_unique(input, keepordering=None):
     else:
         return list(dict.fromkeys(input)) 
 
-try: DEFAULT_make_unique = misc.make_unique
-except: misc.sprint("Warning: module 'madgraph.various.misc' has no attribute 'make_unique' - you are probably using MG5aMC 2.8.x")
+DEFAULT_make_unique = misc.make_unique
 misc.make_unique = PLUGIN_make_unique
 
 #------------------------------------------------------------------------------------
