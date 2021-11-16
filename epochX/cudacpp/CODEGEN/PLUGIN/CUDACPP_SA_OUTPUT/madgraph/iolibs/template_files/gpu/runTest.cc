@@ -24,7 +24,7 @@ template<typename T = fptype>
 using unique_ptr_host = std::unique_ptr<T[]>;
 #endif
 
-struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
+struct CUDA_CPU_TestBase : public TestDriverBase {
 
   static_assert( gputhreads%mgOnGpu::neppR == 0, "ERROR! #threads/block should be a multiple of neppR" );
   static_assert( gputhreads%mgOnGpu::neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
@@ -36,10 +36,8 @@ struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
   const std::size_t nMEs    { nevt };
 
   CUDA_CPU_TestBase( const std::string& refFileName ) :
-    TestDriverBase( refFileName )
-  {
-    TestDriverBase::nparticle = mgOnGpu::npar;
-  }
+    TestDriverBase( mgOnGpu::npar, refFileName )
+  {  }
 
 };
 
@@ -246,37 +244,19 @@ struct CUDATest : public CUDA_CPU_TestBase {
 #define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name )        \
   INSTANTIATE_TEST_SUITE_P( prefix,                                     \
                             test_suite_name,                            \
-                            testing::Values( [](){ return new CPUTest( MG_EPOCH_REFERENCE_FILE_NAME ); } ) );
+                            testing::Values( new CPUTest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
 #define TESTID_GPU(s) s##_GPU
 #define XTESTID_GPU(s) TESTID_GPU(s)
 #define MG_INSTANTIATE_TEST_SUITE_GPU( prefix, test_suite_name )        \
   INSTANTIATE_TEST_SUITE_P( prefix,                                     \
                             test_suite_name,                            \
-                            testing::Values( [](){ return new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ); } ) );
+                            testing::Values( new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
 
-#if defined MGONGPU_FPTYPE_DOUBLE
 
-#ifdef __CUDACC__
-MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU(MG_EPOCH_PROCESS_ID), MadgraphTestDouble );
-#else
-MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU(MG_EPOCH_PROCESS_ID), MadgraphTestDouble );
-#endif
-
-#else
 
 #ifdef __CUDACC__
-MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU(MG_EPOCH_PROCESS_ID), MadgraphTestFloat );
+MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU(MG_EPOCH_PROCESS_ID), MadgraphTest );
 #else
-MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU(MG_EPOCH_PROCESS_ID), MadgraphTestFloat );
+MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU(MG_EPOCH_PROCESS_ID), MadgraphTest );
 #endif
 
-#endif
-
-// Add a dummy test just to check the linking (related to issue #143)
-/*
-#ifdef __CUDACC__
-TEST( XTESTID_GPU(MG_EPOCH_PROCESS_ID), dummy ){}
-#else
-TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), dummy ){}
-#endif
-*/
