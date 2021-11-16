@@ -434,21 +434,21 @@ C     SR --> INJECT CODE
 
       INTEGER IVEC
 
-      call bridge(P_MULTI)
+      call bridge(P_MULTI, JAMP2_MULTI)
 
-!$OMP PARALLEL
-!$OMP DO
-      DO IVEC=1, NB_PAGE
-        CALL SMATRIX1(P_MULTI(0,1,IVEC),
-     &	                         hel_rand(IVEC),
-     &				 channel,
-     &				 out(IVEC),
-C       &				 selected_hel(IVEC),
-     &				 jamp2_multi(0,IVEC),
-     &				 IVEC
-     &				 )
-      ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+! !$OMP PARALLEL
+! !$OMP DO
+!       DO IVEC=1, NB_PAGE
+!         CALL SMATRIX1(P_MULTI(0,1,IVEC),
+!      &	                         hel_rand(IVEC),
+!      &				 channel,
+!      &				 out(IVEC),
+! C       &				 selected_hel(IVEC),
+!      &				 jamp2_multi(0,IVEC),
+!      &				 IVEC
+!      &				 )
+!       ENDDO
+! !$OMP END DO
+! !$OMP END PARALLEL
       RETURN
       END
