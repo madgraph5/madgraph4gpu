@@ -94,8 +94,9 @@ __device__ INLINE void calculate_wavefunctions(
 {
   using namespace MG5_sm;
   mgDebug(0, __FUNCTION__);
+  // printf("inside calculate_wavefunctions\n");
 #ifndef __CUDACC__
-  // printf( "calculate_wavefunctions: nevt %d\n", nevt );
+  printf("calculate_wavefunctions: nevt %d\n", nevt);
 #endif
 
   // The number of colors
@@ -225,8 +226,7 @@ __device__ INLINE void calculate_wavefunctions(
     const int ievt = blockDim.x * blockIdx.x +
                      threadIdx.x; // index of event (thread) in grid
     allMEs[ievt] += deltaMEs;
-    // printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt]
-    // );
+    // printf("calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt]);
 #else
     allMEs[ipagV] += deltaMEs;
     // printf( "calculate_wavefunction: %6d %2d %f\n", ipagV, ihel,
@@ -536,7 +536,9 @@ __global__ void sigmaKin(
   // loop over processes here?)
   for (int ighel = 0; ighel < cNGoodHel; ighel++) {
     const int ihel = cGoodHel[ighel];
+    // printf("cNGoodHel: %d, %d\n", cNGoodHel, cGoodHel[ighel]);
 #ifdef __CUDACC__
+    // printf("------------------------ start calculate_wavefunctions\n");
     calculate_wavefunctions(ihel, allmomenta, allMEs);
 #else
     calculate_wavefunctions(ihel, allmomenta, allMEs, nevt);
