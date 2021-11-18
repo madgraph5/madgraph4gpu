@@ -434,6 +434,18 @@ C     SR --> INJECT CODE
 
       INTEGER IVEC
 
+
+      DO 40 EVT=1, NB_PAGE
+        WRITE(*, EVT)
+        DO 30 PAR=1, NEXTERNAL
+          DO 20 MOM=1, 4
+C           WRITE(6,22,advance="no") P_MULTI(PAR, MOM)
+  20      END DO
+  30    END DO
+  40  END DO
+
+
+
       call bridge(P_MULTI, JAMP2_MULTI)
 
 ! !$OMP PARALLEL
