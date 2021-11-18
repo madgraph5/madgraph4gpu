@@ -394,6 +394,8 @@ sigmaKin_getGoodHel(const fptype_sv *allmomenta, // input: momenta as
   for (int ihel = 0; ihel < ncomb; ihel++) {
     // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running
     // sum of |M|^2 over helicities for the given event(s)
+    // if (ievt == 1)
+    //   printf("y");
     calculate_wavefunctions(ihel, allmomenta, allMEs);
     if (allMEs[ievt] != allMEsLast) {
       // if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" <<
@@ -539,6 +541,8 @@ __global__ void sigmaKin(
     // printf("cNGoodHel: %d, %d\n", cNGoodHel, cGoodHel[ighel]);
 #ifdef __CUDACC__
     // printf("------------------------ start calculate_wavefunctions\n");
+    // if (ievt == 1)
+    //   printf("x");
     calculate_wavefunctions(ihel, allmomenta, allMEs);
 #else
     calculate_wavefunctions(ihel, allmomenta, allMEs, nevt);
