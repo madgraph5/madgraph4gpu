@@ -13,8 +13,8 @@ const int strd_n = 2;  // stride length for aosoa data (# adjacent events)
 const int array_bytes = evnt_n * part_n * mome_n * sizeof(T);
 */
 
-const int gpublocks = 1024;
-const int gputhreads = 256;
+const int gpublocks = 1;   // 1024;
+const int gputhreads = 16; // 256;
 
 #ifdef __CUDACC__
 
@@ -44,11 +44,17 @@ __global__ void dev_transpose(const T *inpArr, T *outArr, const int evnt_n,
                 + mome_i;                  // momentum inside particle
 
     outArr[pos] = inpArr[inpos];
-#ifdef DEBUG
-    printf("opos:%d, ipos:%d, page_i:%d, strd_i:%d, part_i:%i, mome_i:%d, "
+    //     if (pos == 0 and part_i == 0 and mome_i == 0)
+    //       printf("tran: %d %d %d %d %f\n", blockIdx.x, threadIdx.x, part_i,
+    //       mome_i,
+    //              inpArr[inpos]);
+    // #ifdef DEBUG
+    printf("opos:%d, ipos:%d, evt_i:%d, page_i:%d, strd_i:%d, part_i:%i, "
+           "mome_i:%d, "
            "val:%f\n",
-           pos, inpos, page_i, strd_i, part_i, mome_i, (T)outArr[pos]);
-#endif
+           pos, inpos, page_i * strd_n * strd_i * (part_n * mome_n), page_i,
+           strd_i, part_i, mome_i, (T)outArr[pos]);
+    // #endif
   }
 }
 
@@ -151,11 +157,11 @@ template <typename T> void Matrix<T>::hst_transpose(T *momenta, double **mes) {
   // }
   // std::cout << std::endl;
 
-  std::cout << std::string(80, '*') << std::endl;
-  for (int i = 0; i < m_evnt; ++i) {
-    std::cout << i << ":" << hstMEs2[i] << " ";
-  }
-  std::cout << std::endl;
+  // std::cout << std::string(80, '*') << std::endl;
+  // for (int i = 0; i < m_evnt; ++i) {
+  //   std::cout << i << ":" << hstMEs2[i] << " ";
+  // }
+  // std::cout << std::endl;
 
 #ifdef DEBUG
   auto hstMomentaC2 = hstMakeUnique<T>(m_evnt * m_part * m_mome);
