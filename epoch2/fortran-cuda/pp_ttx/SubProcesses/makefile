@@ -63,10 +63,10 @@ CUDA =
 
 
 
-$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX) $(BRIDGE) $(CUDA)
+$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX) $(BRIDGE) $(CUDA) ./golden_epochX4/gCPPProcess.o ../../Source/lib/libmodel_sm.a
 	$(NVCC) -o $(PROG) $(PROCESS) $(MATRIX) $(BRIDGE) $(CUDA) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) $(CULIBS) -Xcompiler -fopenmp ./golden_epochX4/gCPPProcess.o ../../Source/lib/libmodel_sm.a -lgfortran -lcudart
 
-$(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL) $(BRIDGE) $(CUDA)
+$(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL) $(BRIDGE) $(CUDA) ./golden_epochX4/gCPPProcess.o ../../Source/lib/libmodel_sm.a
 	$(nvcc) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(BRIDGE) $(CUDA) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) $(CULIBS) -Xcompiler -fopenmp ./golden_epochX4/gCPPProcess.o ../../Source/lib/libmodel_sm.a -lgfortran -lcudart
 
 gensym: $(SYMMETRY) configs.inc $(LIBDIR)libmodel.$(libext) $(LIBDIR)libgeneric.$(libext)
