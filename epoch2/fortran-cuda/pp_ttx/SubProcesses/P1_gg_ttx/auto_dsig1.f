@@ -436,11 +436,9 @@ C     SR --> INJECT CODE
 
 
       DO 40 EVT=1, NB_PAGE
-        WRITE(*, EVT)
+        WRITE(*,*) EVT
         DO 30 PAR=1, NEXTERNAL
-          DO 20 MOM=1, 4
-C           WRITE(6,22,advance="no") P_MULTI(PAR, MOM)
-  20      END DO
+           WRITE(*,*) P_MULTI(0:3, PAR, EVT)
   30    END DO
   40  END DO
 
