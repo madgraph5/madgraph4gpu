@@ -21,7 +21,7 @@ void bridge(double *momenta, double **mes) {
   // par 3: number of momenta / particle
   // par 4: stride length
   // par 5: number of good helicities (ncomb)
-  Matrix<double> t = Matrix<double>(16, 4, 4, 1, 16);
+  Matrix<double> t = Matrix<double>(16, 4, 4, 16, 16);
   t.hst_transpose(momenta, mes);
 }
 
