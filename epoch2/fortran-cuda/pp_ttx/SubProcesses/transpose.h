@@ -132,7 +132,7 @@ template <typename T> void Matrix<T>::hst_transpose(T *momenta, double **mes) {
   checkCuda(cudaMemcpy(devMomentaF2.get(), momenta, m_bts_momenta,
                        cudaMemcpyHostToDevice));
 
-  dev_transpose<<<gpublocks, gputhreads>>>(
+  dev_transpose<<<gpublocks * 16, gputhreads>>>(
       devMomentaF2.get(), devMomentaC2.get(), m_evnt, m_part, m_mome, m_strd);
 
   gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(
