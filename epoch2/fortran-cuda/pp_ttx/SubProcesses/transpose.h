@@ -49,11 +49,12 @@ __global__ void dev_transpose(const T *inpArr, T *outArr, const int evnt_n,
     //       mome_i,
     //              inpArr[inpos]);
     // #ifdef DEBUG
-    printf("opos:%d, ipos:%d, evt_i:%d, page_i:%d, strd_i:%d, part_i:%i, "
-           "mome_i:%d, "
-           "val:%f\n",
-           pos, inpos, page_i * strd_n * strd_i * (part_n * mome_n), page_i,
-           strd_i, part_i, mome_i, (T)outArr[pos]);
+
+    // printf("opos:%d, ipos:%d, evt_i:%d, part_i:%i, mome_i:%d, page_i:%d, "
+    //        "strd_i:%d, val:%f\n",
+    //        pos, inpos, (page_i * strd_n + strd_i), part_i, mome_i, page_i,
+    //        strd_i, (T)outArr[pos]);
+
     // #endif
   }
 }
@@ -65,7 +66,7 @@ public:
   Matrix(int evt, int par, int mom, int str, int ncomb);
 
   void fill(T *arr);
-  void hst_transpose(T *momenta, double **mes);
+  void hst_transpose(T *momenta, double *mes);
 
 private:
   int m_evnt;
@@ -85,7 +86,10 @@ template <typename T>
 Matrix<T>::Matrix(int evnt, int part, int mome, int strd, int ncomb)
     : m_evnt(evnt), m_part(part), m_mome(mome), m_strd(strd), m_ncomb(ncomb),
       m_bts_momenta(m_evnt * m_part * m_mome * sizeof(T)),
-      m_bts_goodhel(m_ncomb * sizeof(bool)), m_bts_mes(m_evnt * sizeof(T)) {}
+      m_bts_goodhel(m_ncomb * sizeof(bool)), m_bts_mes(m_evnt * sizeof(T)) {
+  gProc::CPPProcess process(1, gpublocks, gputhreads, false);
+  process.initProc("../../Cards/param_card.dat");
+}
 
 /**
  *
@@ -120,7 +124,7 @@ template <typename T> void Matrix<T>::fill(T *arr) {
 /**
  *
  */
-template <typename T> void Matrix<T>::hst_transpose(T *momenta, double **mes) {
+template <typename T> void Matrix<T>::hst_transpose(T *momenta, double *mes) {
 
   auto devMomentaF2 = devMakeUnique<T>(m_evnt * m_part * m_mome);
   auto devMomentaC2 = devMakeUnique<T>(m_evnt * m_part * m_mome);
@@ -135,6 +139,7 @@ template <typename T> void Matrix<T>::hst_transpose(T *momenta, double **mes) {
   dev_transpose<<<gpublocks * 16, gputhreads>>>(
       devMomentaF2.get(), devMomentaC2.get(), m_evnt, m_part, m_mome, m_strd);
 
+  // sr should go before //
   gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(
       devMomentaC2.get(), devMEs2.get(), devIsGoodHel2.get());
 
@@ -145,11 +150,20 @@ template <typename T> void Matrix<T>::hst_transpose(T *momenta, double **mes) {
 
   gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomentaC2.get(), devMEs2.get());
 
+  // sr copy directly into me
   checkCuda(cudaMemcpy(hstMEs2.get(), devMEs2.get(), m_bts_mes,
                        cudaMemcpyDeviceToHost));
 
   auto phstMEs = hstMEs2.get();
-  mes = &phstMEs;
+  size_t s = 16 * sizeof(double);
+  memcpy(mes, hstMEs2.get(), s);
+  // mes = phstMEs;
+
+  // std::cout << "MEs: ";
+  // for (int i = 0; i < 16; ++i) {
+  //   std::cout << mes[i] << ", ";
+  // }
+  // std::cout << std::endl << std::endl;
 
   // std::cout << std::string(80, '*') << std::endl;
   // for (int i = 0; i < m_ncomb; ++i) {
