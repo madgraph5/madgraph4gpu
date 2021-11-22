@@ -432,6 +432,8 @@ C     SR --> INJECT CODE
       INTEGER SELECTED_HEL(NB_PAGE)
       DOUBLE PRECISION JAMP2_MULTI(0:MAXFLOW, NB_PAGE)
 
+      DOUBLE PRECISION OUT2(NB_PAGE)
+
       INTEGER IVEC
 
 
@@ -441,7 +443,7 @@ C      DO IVEC=1, NB_PAGE
 C        CALL SMATRIX1(P_MULTI(0,1,IVEC),
 C     &	                         hel_rand(IVEC),
 C     &				 channel,
-C     &				 out(IVEC),
+C     &				 out2(IVEC),
 CC       &				 selected_hel(IVEC),
 C     &				 jamp2_multi(0,IVEC),
 C     &				 IVEC
@@ -449,7 +451,7 @@ C     &				 )
 C       ENDDO
 C !$OMP END DO
 C !$OMP END PARALLEL
-
+C
 
 C
 C      DO 40 EVT=1, NB_PAGE
@@ -461,8 +463,10 @@ C  40  END DO
 
       call bridge(P_MULTI, OUT)
 
-      WRITE(*,*) OUT
-
+C      DO IVEC=1, NB_PAGE
+C        WRITE (*,*) IVEC, OUT(IVEC)/OUT2(IVEC)
+C      end do
+C
 C      DO 40 EVT=1, NB_PAGE
 C        WRITE(*,*) JAMP2_MULTI(EVT)
 C   40 END DO
