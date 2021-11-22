@@ -1,0 +1,21 @@
+*.o
+*.a
+*.mod
+events.lhe
+input_sg.txt
+results.dat
+results.pkl
+gensym
+ajob*
+**/index.html
+**/crossx.html
+**/ftn2[56]
+**/run_[0-9][0-9]
+**/run_[0-9][0-9]_log.txt
+**/__pycache__/
+**/SubProcesses/randinit
+**/SubProcesses/*/madevent*
+**/grid_information
+
+// b/c of python ordering bug? May need to be removed again
+**/SubProcesses/P1_*_ttx/Hel/selection
