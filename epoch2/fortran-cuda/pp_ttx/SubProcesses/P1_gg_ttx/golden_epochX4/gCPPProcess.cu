@@ -390,20 +390,29 @@ sigmaKin_getGoodHel(const fptype_sv *allmomenta, // input: momenta as
       blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
   // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a
   // loop over processes here?)
-  fptype allMEsLast = 0;
-  for (int ihel = 0; ihel < ncomb; ihel++) {
-    // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running
-    // sum of |M|^2 over helicities for the given event(s)
-    // if (ievt == 1)
-    //   printf("y");
-    calculate_wavefunctions(ihel, allmomenta, allMEs);
-    if (allMEs[ievt] != allMEsLast) {
-      // if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" <<
-      // ihel << " TRUE" << std::endl;
-      isGoodHel[ihel] = true;
+  // printf("sigmaKin_getGoodHel: ievt %d\n", ievt);
+  if (ievt < 16) {
+    fptype allMEsLast = 0;
+    for (int ihel = 0; ihel < ncomb; ihel++) {
+      // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running
+      // sum of |M|^2 over helicities for the given event(s)
+      // if (ievt == 1)
+      //   printf("y");
+      calculate_wavefunctions(ihel, allmomenta, allMEs);
+      if (allMEs[ievt] != allMEsLast) {
+        // if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" <<
+        // ihel << " TRUE" << std::endl;
+        isGoodHel[ihel] = true;
+      }
+      allMEsLast =
+          allMEs[ievt]; // running sum up to helicity ihel for event ievt
     }
-    allMEsLast = allMEs[ievt]; // running sum up to helicity ihel for event ievt
   }
+  // printf("allMEs: ");
+  // for (int i = 0; i < ievt; i++) {
+  //   printf("%f, ", allMEs[i]);
+  // }
+  // printf("\n");
 }
 #else
 void sigmaKin_getGoodHel(
@@ -514,17 +523,18 @@ __global__ void sigmaKin(
   // events
   const int ievt =
       blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-  // printf( "sigmakin: ievt %d\n", ievt );
+  // printf("sigmakin: ievt %d\n", ievt);
+  if (ievt < 16) {
 #endif
 
-  // Start sigmaKin_lines
-  // PART 0 - INITIALISATION (before calculate_wavefunctions)
-  // Reset the "matrix elements" - running sums of |M|^2 over helicities for the
-  // given event
-  // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a
-  // loop over processes here?)
+    // Start sigmaKin_lines
+    // PART 0 - INITIALISATION (before calculate_wavefunctions)
+    // Reset the "matrix elements" - running sums of |M|^2 over helicities for
+    // the given event
+    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a
+    // loop over processes here?)
 #ifdef __CUDACC__
-  allMEs[ievt] = 0;
+    allMEs[ievt] = 0;
 #else
   const int npagV = nevt / neppV;
   for (int ipagV = 0; ipagV < npagV; ++ipagV) {
@@ -532,18 +542,19 @@ __global__ void sigmaKin(
   }
 #endif
 
-  // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
-  // (in both CUDA and C++, using precomputed good helicities)
-  // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a
-  // loop over processes here?)
-  for (int ighel = 0; ighel < cNGoodHel; ighel++) {
-    const int ihel = cGoodHel[ighel];
-    // printf("cNGoodHel: %d, %d\n", cNGoodHel, cGoodHel[ighel]);
+    // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
+    // (in both CUDA and C++, using precomputed good helicities)
+    // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a
+    // loop over processes here?)
+    for (int ighel = 0; ighel < cNGoodHel; ighel++) {
+      const int ihel = cGoodHel[ighel];
+      // printf("cNGoodHel: %d, %d\n", cNGoodHel, cGoodHel[ighel]);
 #ifdef __CUDACC__
-    // printf("------------------------ start calculate_wavefunctions\n");
-    // if (ievt == 1)
-    //   printf("x");
-    calculate_wavefunctions(ihel, allmomenta, allMEs);
+      // printf("------------------------ start calculate_wavefunctions\n");
+      // if (ievt == 1)
+      //   printf("x");
+      calculate_wavefunctions(ihel, allmomenta, allMEs);
+    }
 #else
     calculate_wavefunctions(ihel, allmomenta, allMEs, nevt);
 #endif
@@ -558,6 +569,12 @@ __global__ void sigmaKin(
   // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a
   // loop over processes here?)
 #ifdef __CUDACC__
+  // printf("allMEs: ");
+  // for (int i = 0; i < ievt; i++) {
+  //   printf("%f, ", allMEs[i]);
+  // }
+  // printf("\n");
+
   allMEs[ievt] /= (fptype)denominators;
 #else
   for (int ipagV = 0; ipagV < npagV; ++ipagV) {
