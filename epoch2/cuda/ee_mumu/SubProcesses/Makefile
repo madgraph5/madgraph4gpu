@@ -117,8 +117,8 @@ runTest.exe: $(GTESTLIBS)
 runTest.exe: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include/
 runTest.exe: INCFLAGS += -I$(TESTDIR)/include/
 runTest.exe: LIBFLAGS += -L$(GTESTLIBDIR)/ -lgtest -lgtest_main
-runTest.exe: runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
-runTest.exe: cxx_objects += runTest.o $(TESTDIR)/src/MadgraphTest.o
+runTest.exe: runTest.o $(TESTDIR)/include/*.h
+runTest.exe: cxx_objects += runTest.o
 runTest.exe: cu_objects  += runTest_cu.o
 ifneq ($(shell $(CXX) --version | grep ^clang),)
 runTest.exe: LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(shell which $(CXX) | tail -1))
