@@ -1,14 +1,11 @@
 CXXFLAGS += -Igoogletest/googletest/include/ -std=c++11
 
-all: gtest src/MadgraphTest.o
-
-%.o: %.cc include/*.h
-	$(CXX) $< -g -c -o $@ $(CPPFLAGS) $(CXXFLAGS) -Iinclude/
+all: gtest
 
 .PHONY: gtest
 
 googletest:
-	git clone https://github.com/google/googletest.git -b release-1.10.0 googletest
+	git clone https://github.com/google/googletest.git -b release-1.11.0 googletest
 
 googletest/build: googletest
 	mkdir -p $@

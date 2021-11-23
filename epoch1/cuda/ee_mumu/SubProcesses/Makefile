@@ -3,7 +3,11 @@ TESTDIR  = ../../../../../test
 INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
 OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
+ifneq ($(shell $(CXX) --version | grep ^Intel),)
+OMPFLAGS?=
+else
 OMPFLAGS?= -fopenmp
+endif
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra $(OMPFLAGS)
 CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
@@ -11,9 +15,15 @@ CXXFLAGS+= -ffast-math # see issue #117
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
+# Assuming uname is available, detect if architecture is PowerPC
+UNAME_P := $(shell uname -p)
+
 # Set the default AVX (vectorization) choice
 ifeq ($(AVX),)
-  ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
+  ifeq ($(UNAME_P),ppc64le)
+    ###override AVX = none
+    override AVX = sse4
+  else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
     override AVX = 512y
     ###$(info Using AVX='$(AVX)' as no user input exists)
   else
@@ -31,6 +41,11 @@ endif
 # Set the default FPTYPE (floating point type) choice
 ifeq ($(FPTYPE),)
   override FPTYPE = d
+endif
+
+# Set the default HELINL (inline helicities?) choice
+ifeq ($(HELINL),)
+  override HELINL = 0
 endif
 
 # Set the default RNDGEN (random number generator) choice
@@ -53,7 +68,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   CUARCHFLAGS = -arch=compute_$(CUARCHNUM)
   ###CUARCHFLAGS = -gencode arch=compute_$(CUARCHNUM),code=sm_$(CUARCHNUM)
   CUINC       = -I$(CUDA_HOME)/include/
-  CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcuda -lcurand
+  CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
   CUOPTFLAGS  = -lineinfo
   CUFLAGS     = $(OPTFLAGS) $(CUOPTFLAGS) -std=c++14 $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
   # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
@@ -73,22 +88,49 @@ else
 endif
 
 # Set the host compiler for nvcc
-CUFLAGS += -ccbin $(subst ccache ,,$(CXX))
+CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
+
+# PowerPC-specific CXX compiler flags (being reviewed)
+ifeq ($(UNAME_P),ppc64le)
+  CXXFLAGS+= -mcpu=power9 -mtune=power9 # gains ~2-3% both for none and sse4
+  # Throughput references without the extra flags below: none=1.41-1.42E6, sse4=2.15-2.19E6
+  ###CXXFLAGS+= -DNO_WARN_X86_INTRINSICS # no change
+  ###CXXFLAGS+= -fpeel-loops # no change
+  ###CXXFLAGS+= -funroll-loops # gains ~1% for none, loses ~1% for sse4
+  ###CXXFLAGS+= -ftree-vectorize # no change
+  ###CXXFLAGS+= -flto # would increase to none=4.08-4.12E6, sse4=4.99-5.03E6!
+else
+  ###CXXFLAGS+= -flto # also on Intel this would increase throughputs by a factor 2 to 4...
+  ######CXXFLAGS+= -fno-semantic-interposition # no benefit (neither alone, nor combined with -flto)
+endif
+
+# PowerPC-specific CUDA compiler flags (to be reviewed!)
+ifeq ($(UNAME_P),ppc64le)
+  CUFLAGS+= -Xcompiler -mno-float128
+endif
 
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
 $(info AVX=$(AVX))
-ifeq ($(AVX),sse4)
-  override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
-else ifeq ($(AVX),avx2)
-  override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
-else ifeq ($(AVX),512y)
-  override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
-else ifeq ($(AVX),512z)
-  override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
-else ifneq ($(AVX),none)
-  $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
+ifeq ($(UNAME_P),ppc64le)
+  ifeq ($(AVX),sse4)
+    override AVXFLAGS = -D__SSE4_2__ # Power9 VSX with 128 width (VSR registers)
+  else ifneq ($(AVX),none)
+    $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on PowerPC for the moment)
+  endif
+else
+  ifeq ($(AVX),sse4)
+    override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
+  else ifeq ($(AVX),avx2)
+    override AVXFLAGS = -march=haswell # AVX2 with 256 width (ymm registers) [DEFAULT for clang]
+  else ifeq ($(AVX),512y)
+    override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
+  else ifeq ($(AVX),512z)
+    override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
+  else ifneq ($(AVX),none)
+    $(error Unknown AVX='$(AVX)': only 'none', 'sse4', 'avx2', '512y' and '512z' are supported)
+  endif
 endif
 # For the moment, use AVXFLAGS everywhere: eventually, use them only in encapsulated implementations?
 CXXFLAGS+= $(AVXFLAGS)
@@ -103,6 +145,15 @@ else ifeq ($(FPTYPE),f)
   CUFLAGS  += -DMGONGPU_FPTYPE_FLOAT
 else
   $(error Unknown FPTYPE='$(FPTYPE)': only 'f' and 'd' are supported)
+endif
+
+# Set the build flags appropriate to each HELINL choice (example: "make HELINL=1")
+$(info HELINL=$(HELINL))
+ifeq ($(HELINL),1)
+  CXXFLAGS += -DMGONGPU_INLINE_HELAMPS
+  CUFLAGS  += -DMGONGPU_INLINE_HELAMPS
+else ifneq ($(HELINL),0)
+  $(error Unknown HELINL='$(HELINL)': only '0' and '1' are supported)
 endif
 
 # Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=common")
@@ -120,18 +171,19 @@ else
   $(error Unknown RNDGEN='$(RNDGEN)': only 'curdev', 'curhst' and 'common' are supported)
 endif
 
-# Export AVX, FPTYPE, RNDGEN so that it is not necessary to pass them to the src Makefile too
+# Export AVX, FPTYPE, HELINL, RNDGEN so that it is not necessary to pass them to the src Makefile too
 export AVX
 export FPTYPE
+export HELINL
 export RNDGEN
 
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
-override DIRTAG = $(AVX)_$(FPTYPE)
+override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-override TAG = $(AVX)_$(FPTYPE)_$(RNDGEN)
+override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_$(RNDGEN)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
@@ -167,12 +219,6 @@ cxx_objects=$(BUILDDIR)/CPPProcess.o
 
 testmain=$(BUILDDIR)/runTest.exe
 
-# Assuming uname is available, detect if architecture is power
-UNAME_P := $(shell uname -p)
-ifeq ($(UNAME_P),ppc64le)
-    CUFLAGS+= -Xcompiler -mno-float128
-endif
-
 all.$(TAG): ../../src/$(BUILDDIR)/.build.$(TAG) $(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
 
 override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)'`
@@ -203,9 +249,15 @@ $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
+# Apply special build flags only to CPPProcess.cc (-flto)
 #$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
 #	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
-#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(AVXFLAGS) $(CUINC) -c $< -o $@
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -flto $(CUINC) -c $< -o $@
+
+### Apply special build flags only to CPPProcess.cc (AVXFLAGS)
+###$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
+###	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+###	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(AVXFLAGS) $(CUINC) -c $< -o $@
 
 $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
@@ -222,8 +274,8 @@ $(testmain): $(GTESTLIBS)
 $(testmain): INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
 $(testmain): INCFLAGS += -I$(TESTDIR)/include
 $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
-$(testmain): $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
-$(testmain): cxx_objects += $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o
+$(testmain): $(BUILDDIR)/runTest.o $(TESTDIR)/include/*.h
+$(testmain): cxx_objects += $(BUILDDIR)/runTest.o
 $(testmain): cu_objects  += $(BUILDDIR)/runTest_cu.o
 ifneq ($(shell $(CXX) --version | grep ^clang),)
 $(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(shell which $(CXX) | tail -1))
@@ -245,9 +297,6 @@ $(testmain) $(BUILDDIR)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(
 	$(NVCC) -o $(BUILDDIR)/runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
-
-$(TESTDIR)/src/MadgraphTest.o: $(TESTDIR)/src/MadgraphTest.cc $(TESTDIR)/include/*.h
-	$(MAKE) -C $(TESTDIR)
 
 $(GTESTLIBS):
 	$(MAKE) -C $(TESTDIR)

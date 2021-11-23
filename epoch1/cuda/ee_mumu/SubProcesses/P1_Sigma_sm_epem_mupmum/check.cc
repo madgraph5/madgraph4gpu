@@ -228,8 +228,14 @@ int main(int argc, char **argv)
     bool ok = __builtin_cpu_supports( "avx2" );
     const std::string tag = "haswell (AVX2)";
 #elif defined __SSE4_2__
+#ifdef __PPC__
+    // See https://gcc.gnu.org/onlinedocs/gcc/Basic-PowerPC-Built-in-Functions-Available-on-all-Configurations.html
+    bool ok = __builtin_cpu_supports( "vsx" );
+    const std::string tag = "powerpc vsx (128bit as in SSE4.2)";
+#else
     bool ok = __builtin_cpu_supports( "sse4.2" );
     const std::string tag = "nehalem (SSE4.2)";
+#endif
 #else
     bool ok = true;
     const std::string tag = "none";
@@ -745,10 +751,14 @@ int main(int argc, char **argv)
     std::cout << std::string(SEP79, '*') << std::endl
 #ifdef __CUDACC__
               << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CUDA"
-              << " [" << process.getCompiler() << "]" << std::endl
 #else
               << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CPP"
-              << " [" << process.getCompiler() << "]" << std::endl
+#endif
+              << " [" << process.getCompiler() << "]"
+#ifdef MGONGPU_INLINE_HELAMPS
+              << " [inlineHel=1]" << std::endl
+#else
+              << " [inlineHel=0]" << std::endl
 #endif
               << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << "NumThreadsPerBlock          = " << gputhreads << std::endl
@@ -792,7 +802,11 @@ int main(int argc, char **argv)
               << "] ('avx2': AVX2, 256bit)" << cxtref << std::endl
 #elif defined __SSE4_2__
               << "Internal loops fptype_sv    = VECTOR[" << neppV
+#ifdef __PPC__
+              << "] ('sse4': PPC VSX, 128bit)" << cxtref << std::endl
+#else
               << "] ('sse4': SSE4.2, 128bit)" << cxtref << std::endl
+#endif
 #else
 #error Internal error: unknown SIMD build configuration
 #endif
