@@ -130,7 +130,6 @@ template <typename T> void Matrix<T>::hst_transpose(T *momenta, double *mes) {
   auto devMomentaC2 = devMakeUnique<T>(m_evnt * m_part * m_mome);
   auto hstIsGoodHel2 = hstMakeUnique<bool>(m_ncomb);
   auto devIsGoodHel2 = devMakeUnique<bool>(m_ncomb);
-  auto hstMEs2 = hstMakeUnique<T>(m_evnt);
   auto devMEs2 = devMakeUnique<T>(m_evnt);
 
   checkCuda(cudaMemcpy(devMomentaF2.get(), momenta, m_bts_momenta,
@@ -150,13 +149,12 @@ template <typename T> void Matrix<T>::hst_transpose(T *momenta, double *mes) {
 
   gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomentaC2.get(), devMEs2.get());
 
-  // sr copy directly into me
-  checkCuda(cudaMemcpy(hstMEs2.get(), devMEs2.get(), m_bts_mes,
-                       cudaMemcpyDeviceToHost));
+  checkCuda(cudaMemcpy(mes, devMEs2.get(), m_bts_mes, cudaMemcpyDeviceToHost));
 
-  auto phstMEs = hstMEs2.get();
-  size_t s = 16 * sizeof(double);
-  memcpy(mes, hstMEs2.get(), s);
+  // auto phstMEs = hstMEs2.get();
+  // size_t s = 16 * sizeof(double);
+  // memcpy(mes, hstMEs2.get(), s);
+
   // mes = phstMEs;
 
   // std::cout << "MEs: ";
