@@ -12,12 +12,13 @@ ggttgg=0
 div=0
 req=0
 df="d"
+inl="0"
 detailed=0
 verbose=0
 
 function usage()
 {
-  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-ep2] [-3a3b] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-detailed] [-v]"
+  echo "Usage: $0 [-nocpp|[-omp][-avxall][-nocuda]] [-ep2] [-3a3b] [-ggttgg] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-detailed] [-v]"
   exit 1
 }
 
@@ -67,6 +68,14 @@ while [ "$1" != "" ]; do
     if [ "${df}" == "d f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
     df="f"
     shift
+  elif [ "$1" == "-inl" ]; then
+    if [ "${inl}" == "1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
+    inl="0 1"
+    shift
+  elif [ "$1" == "-inlonly" ]; then
+    if [ "${inl}" == "0 1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
+    inl="1"
+    shift
   elif [ "$1" == "-detailed" ]; then
     detailed=1
     shift
@@ -89,8 +98,10 @@ exes=
 # CUDA (eemumu/epoch1, eemumu/epoch2)
 #=====================================
 if [ "${cuda}" == "1" ]; then
-  for fptype in $df; do
-    exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_$fptype/gcheck.exe"
+  for helinl in $inl; do
+    for fptype in $df; do
+      exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_${fptype}_inl${helinl}/gcheck.exe"
+    done
   done
   if [ "${ep2}" == "1" ]; then 
     exes="$exes ../../../../../epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/gcheck.exe"
@@ -100,20 +111,24 @@ fi
 #=====================================
 # C++ (eemumu/epoch1, eemumu/epoch2)
 #=====================================
-for fptype in $df; do
-  if [ "${cpp}" == "1" ]; then 
-    exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_$fptype/check.exe"
-  fi
-  if [ "${avxall}" == "1" ]; then 
-    exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.sse4_$fptype/check.exe"
-    exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.avx2_$fptype/check.exe"
-  fi
-  if [ "${cpp}" == "1" ]; then 
-    exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y_$fptype/check.exe"
-  fi
-  if [ "${avxall}" == "1" ]; then 
-    exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z_$fptype/check.exe"
-  fi
+for helinl in $inl; do
+  for fptype in $df; do
+    if [ "${cpp}" == "1" ]; then 
+      exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.none_${fptype}_inl${helinl}/check.exe"
+    fi
+    if [ "${avxall}" == "1" ]; then 
+      exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.sse4_${fptype}_inl${helinl}/check.exe"
+      exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.avx2_${fptype}_inl${helinl}/check.exe"
+    fi
+    if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
+      if [ "${cpp}" == "1" ]; then 
+        exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512y_${fptype}_inl${helinl}/check.exe"
+      fi
+      if [ "${avxall}" == "1" ]; then 
+        exes="$exes ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/build.512z_${fptype}_inl${helinl}/check.exe"
+      fi
+    fi
+  done
 done
 if [ "${ep2}" == "1" ]; then 
   if [ "${cpp}" == "1" ]; then 
@@ -146,13 +161,18 @@ fi
 export USEBUILDDIR=1
 pushd ../../../../../epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
 pwd
-for fptype in $df; do 
-  export FPTYPE=$fptype
-  make AVX=none; echo
-  if [ "${avxall}" == "1" ]; then make AVX=sse4; echo; fi
-  if [ "${avxall}" == "1" ]; then make AVX=avx2; echo; fi
-  if [ "${cpp}" == "1" ]; then make AVX=512y; echo; fi # always take 512y as the C++ reference, even if for clang avx2 is faster
-  if [ "${avxall}" == "1" ]; then make AVX=512z; echo; fi
+for helinl in $inl; do
+  export HELINL=$helinl
+  for fptype in $df; do 
+    export FPTYPE=$fptype
+    make AVX=none; echo
+    if [ "${avxall}" == "1" ]; then make AVX=sse4; echo; fi
+    if [ "${avxall}" == "1" ]; then make AVX=avx2; echo; fi
+    if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then # skip avx512 if not supported!
+      if [ "${cpp}" == "1" ]; then make AVX=512y; echo; fi # use 512y as C++ ref even if avx2 is faster on clang
+      if [ "${avxall}" == "1" ]; then make AVX=512z; echo; fi
+    fi
+  done
 done
 popd >& /dev/null
 
@@ -260,7 +280,7 @@ unamep=$(uname -p)
 if [ "${unamep}" == "ppc64le" ]; then 
   cpuTxt=$(cat /proc/cpuinfo | grep ^machine | awk '{print substr($0,index($0,"Power"))", "}')$(cat /proc/cpuinfo | grep ^cpu | head -1 | awk '{print substr($0,index($0,"POWER"))}')
 else
-  cpuTxt=$(cat /proc/cpuinfo | grep '^model name' | head -1 | awk '{i0=index($0,"Intel"); i1=index($0," @"); if (i1>0) {print substr($0,i0,i1-i0)} else {print substr($0,i0)}}')
+  cpuTxt=$(cat /proc/cpuinfo | grep '^model name' | head -1 | awk '{i0=index($0,"Intel"); if (i0==0) i0=index($0,"AMD"); i1=index($0," @"); if (i1>0) {print substr($0,i0,i1-i0)} else {print substr($0,i0)}}')
 fi
 echo -e "On $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
 

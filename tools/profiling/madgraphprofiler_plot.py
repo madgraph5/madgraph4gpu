@@ -20,6 +20,8 @@ import re
 import argparse
 from datetime import datetime, date
 from statistics import mean
+import tempfile as tmp
+from distutils.dir_util import copy_tree
 
 
 
@@ -32,36 +34,70 @@ class PerformanceTesting:
     today=date.today()
     date="{:%Y_%m_%d_%H_%M_%S}".format(datetime.now())
     throughput_dict={}
+    storage_path=None
     
-    def rootfolfdercreation(self):
-        print('Creating root folder\n')
-        PerT.profile_path = '/tmp/profile'
-        PerT.root_path = '/tmp/profile/root'
-        PerT.data_store= '/tmp/profile/data'
-        if os.path.exists(PerT.root_path):
-            print('root directory %s already existing.\n' % PerT.root_path)
-            self.delete=input('Do you want to refresh the folder structure? y/n\n')
-            if self.delete=='y':
-                shutil.rmtree(PerT.profile_path)
-                os.makedirs(PerT.root_path,0o777) #Create root directory
-                os.makedirs(PerT.data_store,0o777) #Create data directory
-            elif self.delete=='n':
-                pass
-            else:
-                print('invalid input. Keep current folder structure')
-                
+    def rootfolfdercreation(self,results_path):
+        # results_path='profiling_results/'
+        print('Creating profiling results directory')
+        if os.path.exists(results_path):
+            print('Result directory already existing.\nRefreshing result directory\n')
+            shutil.rmtree(results_path)
+            os.makedirs(results_path,0o777)
+            os.chmod(results_path, 0o777)
         else:
-        #Create root directory
-            try:
-                os.makedirs(PerT.root_path,0o777) #Create root directory
-                os.makedirs(PerT.data_store,0o777) #Create data directory
-            except OSError:
-                print('Creation of the directory %s failed' % PerT.root_path)
-                print('Root directory can neither be found nor created.\nExecution failed. ')
-                sys.exit()
-            else:
-                print('Successfully created the directory %s\n' % PerT.root_path)    
-                print('Successfully created the directory %s\n' % PerT.data_store)
+            print('Create result directory\n'+os.getcwd()+results_path)
+            os.makedirs(results_path,0o777)
+            os.chmod(results_path, 0o777)
+            
+        
+        print('Creating temporary root folder\n')
+        #PerT.profile_path = '/tmp/profile'
+        PerT.root_path = tmp.mkdtemp(prefix='profile_')
+        os.chmod(PerT.root_path,0o777)
+        print('created temporary directory'+PerT.root_path)
+        PerT.data_store= PerT.root_path+'/data'
+            
+        # else:
+        #     print('Create none tempoary profiler root directory')
+        #     PerT.root_path = '/tmp/profile/'
+        #     PerT.data_store= '/tmp/profile/data'
+        #     if os.path.exists(PerT.root_path):
+        #         print('root directory %s already existing.\n' % PerT.root_path)
+        #         self.delete=input('Do you want to refresh the folder structure? y/n\n')
+        #         if self.delete=='y':
+        #             shutil.rmtree(PerT.root_path)
+        #             os.makedirs(PerT.root_path,0o777)
+        #             os.chmod(PerT.root_path, 0o777)
+                    
+        #             print('Refresh directory')
+        #             os.makedirs(PerT.root_path,0o777) #Create root directory
+        #             print('Change rights')
+        #             os.chmod(PerT.root_path,0o777)
+        #             per=os.stat(PerT.root_path)
+        #             print(per)
+        #             os.makedirs(PerT.data_store,0o777) #Create data directory
+        #             os.chmod(PerT.data_store,0o777)
+        #         elif self.delete=='n':
+        #             pass
+        #         else:
+        #             print('invalid input. Keep current folder structure')
+                
+            # else:
+            # #Create root directory
+            #     try:
+            #         os.makedirs(PerT.profile_path,0o777)
+            #         os.chmod(PerT.profile_path, 0o777)
+            #         os.makedirs(PerT.root_path,0o777) #Create root directory
+            #         os.chmod(PerT.root_path,0o777)
+            #         os.makedirs(PerT.data_store,0o777) #Create data directory
+            #         os.chmod(PerT.data_store,0o777)
+            #     except OSError:
+            #         print('Creation of the directory %s failed' % PerT.root_path)
+            #         print('Root directory can neither be found nor created.\nExecution failed. ')
+            #         sys.exit()
+            #     else:
+            #         print('Successfully created the directory %s\n' % PerT.root_path)    
+            #         print('Successfully created the directory %s\n' % PerT.data_store)
                 
     def cuda(self):
         print('NVIDIA has been detected.\nSet up cuda environment version 11.1')
@@ -159,7 +195,9 @@ class PerformanceTesting:
         os.chdir(self.ex_path)
         print('Execute make file.\nIt may fail if it has already been executed in this session')
         input('make changes in mgOnGPUConfig.h and press return to continue\n')
+        input('Adjust settings in Makefile if needed.\nPress retun\n')
         print('execute make\n')
+        
         self.make=subprocess.run('make')
         
         # Create json directory path for json files    
@@ -170,10 +208,11 @@ class PerformanceTesting:
             shutil.rmtree('perf/data')
             print('refresh perf/data' )
             os.makedirs('perf/data',0o777)
+            os.chmod('perf/data',0o777)
         else:
             print('create perf/data')
             os.makedirs('perf/data',0o777) #Create path if not yet existing
-        
+            os.chmod('perf/data',0o777)
             # Call function for check and gcheck    
             print('Create path for data\n'+self.path)  
         
@@ -182,12 +221,13 @@ class PerformanceTesting:
         os.chdir(self.ex_path)
         shutil.rmtree('perf/data')
         os.makedirs('perf/data',0o777)
+        os.chmod('perf/data',0o777)
         if self.cg=='check.exe':
             PerT.ex_check(self.ex_path,epoch)
-        elif self.cg=='gcheck.exe':
+        elif self.cg=='gcheck.exe' or self.cg=='ccheck.exe':
             PerT.ex_gcheck(self.ex_path,epoch)
         else:
-            print('Something went wrong. gcheck or check could not be executed')
+            print('Something went wrong. Neither gcheck nor check could not be executed')
             sys.exit()
     
     def check_for_plot(self,epoch):
@@ -198,7 +238,7 @@ class PerformanceTesting:
         
         self.i=1
         while self.i <= args.check:
-            print('Execute check.exe for plot run %s' %(self.i))
+            print('Execute check.exe for plot run %s of ' %(self.i))
             subprocess.run(['./'+'check.exe','-j','32','32','128','0815',str(self.i)])
             self.i +=1
         # Open json files and take the data
@@ -210,6 +250,7 @@ class PerformanceTesting:
         listoffiles = os.listdir()
         
         for print_item in list_to_be_print:
+            print(list_to_be_print)
             temp_list=[]
             for i in range(len(listoffiles)):
                 file = open(listoffiles[i])
@@ -241,7 +282,7 @@ class PerformanceTesting:
                     
                     self.name = PerT.makename(self.blocks, self.threads, self.iters)
                     
-                    subprocess.run(['./'+PerT.cg,'-j',str(self.blocks),str(self.threads),str(self.iters),self.name,str(i)])
+                    # subprocess.run(['./'+PerT.cg,'-j',str(self.blocks),str(self.threads),str(self.iters),self.name,str(i)])
                     self.blocks = self.blocks *2
                     i+=1
                 self.blocks =1
@@ -276,7 +317,7 @@ class PerformanceTesting:
     def ex_gcheck(self,path,epoch):
         #execute gcheck.exe
         #shutil.rmtree('/tmp/andy/root/madgraph4gpu/epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/perf/data/')
-        print('Execute gcheck.exe')
+        print('Execute '+PerT.cg)
         f=open('TestInProgress.txt','w+')
         #today=date.today()
         self.date = PerT.date
@@ -287,8 +328,8 @@ class PerformanceTesting:
         self.thread_max = int(PerT.configvalues['variations']['threads_max'])       
         self.iters = None
         if os.path.exists(path+PerT.cg):
-            print(path+PerT.cg)
-           
+            print('Now we are in '+path+PerT.cg)
+            
             i =1
             for self.threads in [x*self.thread_start for x in[2**y for y in range(self.thread_max)]]:
                 while self.blocks * self.threads < self.maxevents:
@@ -296,9 +337,9 @@ class PerformanceTesting:
                     self.iters=128
                     
                     print('%i %i %i' %(self.blocks, self.threads, self.iters))
-                    
+                    print('gridsize= '+str(self.blocks * self.threads))
                     self.name = PerT.makename(self.blocks, self.threads, self.iters)
-                    
+                    #subprocess.run(['./'+PerT.cg,'-j',str(512),str(128),str(128),self.name,str(i)])
                     subprocess.run(['./'+PerT.cg,'-j',str(self.blocks),str(self.threads),str(self.iters),self.name,str(i)])
                        
                     self.blocks = self.blocks *2
@@ -307,14 +348,18 @@ class PerformanceTesting:
             os.remove('TestInProgress.txt')
             print('Execution of ' +PerT.cg +' complete.\nCopy files to /tmp/profile/data')
             #Copy directory with json files to /tmp/profile/data
+            PerT.storage_path = PerT.root_path+'/'+'data/'+PerT.cg+'_'+epoch+'_'+PerT.configvalues['runfiles']['abstr_layer']+'_'+PerT.configvalues['runfiles']['process']+'_'+self.date
             try:
-                shutil.copytree(path+'perf/data',PerT.data_store+'/'+
-                                PerT.cg+'_'+
-                                epoch+'_'+
-                                PerT.configvalues['runfiles']['abstr_layer']+'_'+
-                                PerT.configvalues['runfiles']['process']+'_'+
-                                self.date+'/'+'jsonfiles')
-                print('Copy files from '+ path+ 'perf/data' +' '+'to '+ PerT.data_store)
+                         
+                shutil.copytree(path+'perf/data',PerT.storage_path+'/'+'jsonfiles')
+                print('Copy files from '+ path+ 'perf/data' +' '+'to '+ PerT.storage_path+'/'+'jsonfiles')
+                
+                # shutil.copytree(path+'perf/data',profiler_path+'/'+results_dir+
+                #                 PerT.cg+'_'+
+                #                 epoch+'_'+
+                #                 PerT.configvalues['runfiles']['abstr_layer']+'_'+
+                #                 PerT.configvalues['runfiles']['process']+'_'+
+                #                 self.date+'/'+'jsonfiles')
             except os.error:
                 print('We are in error case. Let us see, if program keeps working')
         else:
@@ -413,6 +458,7 @@ class Evaluation:
             PerT.configvalues['runfiles']['process']+'_'+PerT.date+'/'+\
             'plots/'
         os.makedirs(plot_path,0o777) #Create root directory
+        os.chmod(plot_path, 0o777)
                             
         for yaxis in plotlist:   
             print('Creation of '+ yaxis)
@@ -449,7 +495,12 @@ class Evaluation:
                     plt.xticks(df['NumThreadsPerBlock*NumBlocksPerGrid'],fontsize=25)
                     plt.rcParams['ytick.labelsize']=25          
             plt.show()
-            fig.savefig(plot_path+yaxis+'.png')
+            fig.savefig(PerT.root_path+'/'+'data/'+
+                                PerT.cg+'_'+
+                                epoch+'_'+
+                                PerT.configvalues['runfiles']['abstr_layer']+'_'+
+                                PerT.configvalues['runfiles']['process']+'_'+
+                                self.date+'/'+'plots'+yaxis+'.png')
             print('Plotting complete\n\n')
             
     def plots_(self,df,plotlist):
@@ -458,7 +509,7 @@ class Evaluation:
             PerT.configvalues['runfiles']['process']+'_'+PerT.date+'/'+\
             'plots/'
         os.makedirs(plot_path,0o777)
-         
+        os.chmod(plot_path, 0o777)
         # plt.cla()
         # plt.clf()
                     
@@ -486,14 +537,19 @@ class Evaluation:
             ax.set_xticklabels(df['gridsize'],rotation=75,fontsize=13.5)
             
             #setup y-axis
-            #logarithmic
-            plt.ylim((min(df[yaxis])-min(df[yaxis])*0.30),max(df[yaxis])*3)
-            ax.set_yscale('log')
-            plt.yticks(size=13.5)
-            #linear scale
-            #plt.ylim(0,max(df[yaxis])*1.3)
+            if args.log:
+                #logarithmic
+                plt.ylim((min(df[yaxis])-min(df[yaxis])*0.30),max(df[yaxis])*3)
+                ax.set_yscale('log')
+                plt.yticks(size=13.5)    
+                
+            else:    
+         
+                plt.ylim(0,max(df[yaxis])*1.3) #linear scale
+            
             
             #Labels and title
+            
             plt.xlabel('Gridsize',fontsize=15)
             plt.ylabel('Troughput\n'+yaxis,fontsize=13.5)
             plt.title(yaxis,fontsize=15)
@@ -503,6 +559,10 @@ class Evaluation:
                 max_cpu=df['cpu'][0]
                 length=len(str(max_cpu))-1
                 label_maxima=str(round(max_cpu*10**-(length),3))+'e'+str(length)
+                # Set new ylim
+                #plt.ylim((min(df[yaxis])-min(df[yaxis])*0.30),max(df[yaxis])*3)
+                #min((temp_df['NumIterations'].min(),temp_df['gridsize'].min()))
+                plt.ylim((min(df[yaxis].min(),df['cpu'].min())*0.3),max(df[yaxis])*3)
                 ax.plot(df['gridsize'],df['cpu'],'-ok',label='cpu: '+label_maxima,c='b')
             for k in sorted(df['NumThreadsPerBlock'].unique(),reverse=True):
                     
@@ -525,7 +585,8 @@ class Evaluation:
             
             plt.show()
             # Andere Formate fuer LaTeX?????
-            fig.savefig(plot_path+yaxis+'.png')
+            fig.savefig(PerT.storage_path+'/'+'plots/'+yaxis+'.png')
+            #fig.savefig()
             print('Plotting complete\n\n')
         print('plots are ready to be investigated.\nSee path  %s' %plot_path)
 
@@ -559,18 +620,34 @@ if __name__ == '__main__':
     # Optional parser if plots are wished
     parser.add_argument('-p','--plots',help='Generates performance plots and stores them in seperate directory',
                         action='store_true')
-    parser.add_argument('-c','--check', type=int,help='Defines how many runs check.exe will have and calculates the average of the throughput to include it in the plot\n For example -c 5')
     # Optional parser if check.exe shall be executed 5 times
+    parser.add_argument('-c','--check', type=int,help='Defines how many runs check.exe will have and calculates the average of the throughput to include it in the plot\n For example -c 5')
+    
+    # Optional parser for log scare
+    parser.add_argument('-l','--log', help='Prints the results in log scale if enabled',action='store_true')
+    
+    # # Optional parser keep profiler directory or generate tmpdir
+    # parser.add_argument('-t', '--tmpdir', help='If tmdir is enable the program deletes all directories and stores output in directory where program is stored',
+    #                     action='store_true')
     
     args=parser.parse_args()
     
     PerT = PerformanceTesting()
     Ev = Evaluation()
+    profiler_path = os.getcwd()
     
-    PerT.readConfig()
-    Ev.readConfig()
     
-    PerT.rootfolfdercreation()
+    # Check if config file is available
+    if os.path.isfile('profileconfig.ini'):
+        PerT.readConfig()
+        Ev.readConfig()
+    else:
+        print('profileconfig.ini can not be found.\nPlease make sure that the configuration file is stored in the same directory as the profiler')
+        sys.exit()
+  
+    results_dir=profiler_path+'/profiling_results/'
+    PerT.rootfolfdercreation(results_dir)
+    
     
     # Get CPU information
     PerT.CPU()
@@ -589,7 +666,7 @@ if __name__ == '__main__':
     for epoch in epoch:
         
         PerT.check_gcheck(epoch)
-        
+        print('directory before plot: '+os.getcwd())
         if args.plots:
             # Load json files in a DataFrame
             
@@ -602,9 +679,11 @@ if __name__ == '__main__':
            
             
             # Plot results
-            print('Plot results')
+            
             Ev.plots_(df_adj_units,plotlist)
             
+    print('Copy results to '+results_dir)
+    copy_tree(PerT.data_store,results_dir)
     
     
    
