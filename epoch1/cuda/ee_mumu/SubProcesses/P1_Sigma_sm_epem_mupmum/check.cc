@@ -135,6 +135,7 @@ inline int usage( char* argv0, int ret = 1 )
 }
 
 #ifndef __CUDACC__
+#ifdef _OPENMP
 int check_omp_threads( bool debug ) // returns the number of OMP threads
 {
   static int nthreadsomp = 0;
@@ -168,6 +169,7 @@ int check_omp_threads( bool debug ) // returns the number of OMP threads
   //std::cout << "INFO: __check_omp_threads (3): " << nthreadsomp << ", " << omp_get_max_threads() << std::endl;
   return nthreadsomp;
 }
+#endif
 #endif
 
 #ifdef __CUDACC__

@@ -54,8 +54,11 @@ void dumptput( const std::string& tag,
 // This is compiled using g++, and then linked using nvcc with objects compiled using nvcc or g++
 int main( int argc, char **argv )
 {
+#ifdef _OPENMP
   int nthreadsomp = check_omp_threads(); // this is always > 0
-
+#else
+  int nthreadsomp = 1; // this is always > 0
+#endif
   std::string gpuOut;
   std::vector<double> gpuStats;
   int gpuStatus;
