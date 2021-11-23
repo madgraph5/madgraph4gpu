@@ -135,7 +135,6 @@ inline int usage( char* argv0, int ret = 1 )
 }
 
 #ifndef __CUDACC__
-#ifdef _OPENMP
 int check_omp_threads( bool debug ) // returns the number of OMP threads
 {
   static int nthreadsomp = 0;
@@ -144,6 +143,7 @@ int check_omp_threads( bool debug ) // returns the number of OMP threads
   {
     if ( debug )
       std::cout << "DEBUG: (first call) nthreadsomp = " << nthreadsomp << std::endl; // always == 0 here!
+#ifdef _OPENMP
     // Set OMP_NUM_THREADS equal to 1 if it is not yet set
     char* ompnthr = getenv( "OMP_NUM_THREADS" );
     if ( debug )
@@ -162,14 +162,19 @@ int check_omp_threads( bool debug ) // returns the number of OMP threads
     }
     else nthreadsomp = omp_get_max_threads();
     assert( nthreadsomp > 0 ); // sanity check to avoid infinite loops...
+#else
+    std::cout << "WARNING! This application has been built without OMP threading support" << std::endl;
+    nthreadsomp = 1;
+#endif
   }
+#ifdef _OPENMP
   // Repeat the omp_set_num_threads at every call (in HET applications, this is once in the CPU thread and once in the GPU thread)
   //std::cout << "INFO: __check_omp_threads (2): " << nthreadsomp << ", " << omp_get_max_threads() << std::endl;
   omp_set_num_threads( nthreadsomp ); // https://stackoverflow.com/a/22816325
   //std::cout << "INFO: __check_omp_threads (3): " << nthreadsomp << ", " << omp_get_max_threads() << std::endl;
+#endif
   return nthreadsomp;
 }
-#endif
 #endif
 
 #ifdef __CUDACC__
@@ -838,7 +843,7 @@ int check
               << "], no SIMD)" << std::endl
 #elif defined __AVX512VL__
 #ifdef MGONGPU_PVW512
-              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV 
+              << tag << "Internal loops fptype_sv    = VECTOR[" << neppV
               << "] ('512z': AVX512, 512bit)" << cxtref << std::endl
 #else
               << tag << "Internal loops fptype_sv    = VECTOR[" << neppV
@@ -872,11 +877,9 @@ int check
 #else
               << tag << "Random number generation    = CURAND (C++ code)" << std::endl
 #endif
-#ifdef _OPENMP
               << tag << "OMP threads / `nproc --all` = " << check_omp_threads() << " / " << nprocall() << std::endl
 #endif
-#endif
-          //<< tag << "MatrixElements compiler     = " << process.getCompiler() << std::endl
+      //<< tag << "MatrixElements compiler     = " << process.getCompiler() << std::endl
               << std::string(SEP79, '-') << std::endl
               << tag << "NumIterations               = " << niter << std::endl // was NumberOfEntries
               << std::scientific // fixed format: affects all floats (default precision: 6)
@@ -991,19 +994,20 @@ int check
              << "\"Curand generation\": "
 #ifdef __CUDACC__
 #if defined MGONGPU_COMMONRAND_ONHOST
-             << "\"COMMON RANDOM HOST (CUDA code)\"," << std::endl;
+             << "\"COMMON RANDOM HOST (CUDA code)\","
 #elif defined MGONGPU_CURAND_ONDEVICE
-             << "\"CURAND DEVICE (CUDA code)\"," << std::endl;
+             << "\"CURAND DEVICE (CUDA code)\","
 #elif defined MGONGPU_CURAND_ONHOST
-             << "\"CURAND HOST (CUDA code)\"," << std::endl;
+             << "\"CURAND HOST (CUDA code)\","
 #endif
 #else
 #if defined MGONGPU_COMMONRAND_ONHOST
-             << "\"COMMON RANDOM (C++ code)\"," << std::endl;
+             << "\"COMMON RANDOM (C++ code)\","
 #else
-             << "\"CURAND (C++ code)\"," << std::endl;
+             << "\"CURAND (C++ code)\","
 #endif
 #endif
+             << std::endl;
     jsonFile << "\"NumberOfEntries\": " << niter << "," << std::endl
       //<< std::scientific // Not sure about this
              << "\"TotalTime[Rnd+Rmb+ME] (123)\": \""

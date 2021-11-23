@@ -339,16 +339,26 @@ for exe in $exes; do
     export OMP_NUM_THREADS=$(nproc --all)
   fi
   runExe $exe "$exeArgs"
-  if [ "${exe%%/check*}" != "${exe}" ]; then 
+  if [ "${exe%%/check*}" != "${exe}" ]; then
     obj=${exe%%/check*}/CPPProcess.o; ./simdSymSummary.sh -stripdir ${obj}
     if [ "${omp}" != "0" ] && [ "${exe%%/epoch1*}" != "${exe}" ]; then 
-      echo "-------------------------------------------------------------------------"
-      export OMP_NUM_THREADS=$(nproc --all)
-      runExe $exe "$exeArgs"
+      if grep omp_get_num_threads $exe >& /dev/null; then 
+        echo "-------------------------------------------------------------------------"
+        export OMP_NUM_THREADS=$(nproc --all)
+        runExe $exe "$exeArgs"
+      ###else
+        ###echo "-------------------------------------------------------------------------"
+        ###echo "WARNING! $exe has been built without OMP threading support"
+      fi
     elif [ "${omp}" == "2" ] && [ "${exe%%/epoch2*}" != "${exe}" ]; then 
-      echo "-------------------------------------------------------------------------"
-      export OMP_NUM_THREADS=$(nproc --all)
-      runExe $exe "$exeArgs"
+      if grep omp_get_num_threads $exe >& /dev/null; then 
+        echo "-------------------------------------------------------------------------"
+        export OMP_NUM_THREADS=$(nproc --all)
+        runExe $exe "$exeArgs"
+      ###else
+        ###echo "-------------------------------------------------------------------------"
+        ###echo "WARNING! $exe has been built without OMP threading support"
+      fi
     fi
   elif [ "${exe%%/gcheck*}" != "${exe}" ]; then 
     runNcu $exe "$ncuArgs"
