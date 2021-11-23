@@ -1,0 +1,152 @@
+#include <iostream>
+#include <memory>
+#include <cassert>
+
+const int evnt_n = 4;  // the number of events
+const int part_n = 4;  // number of in/out particles inside an event
+const int mome_n = 3;  // number of momenta of one particle (usually 4)
+const int strd_n = 4;  // stride length for aosoa data (# adjacent events)
+const int array_bytes = evnt_n * part_n * mome_n * sizeof(int);
+
+const int gpublocks  = 1024;
+const int gputhreads = 256;
+
+#ifdef __CUDACC__
+
+#define checkCuda( code )                       \
+  { assertCuda( code, __FILE__, __LINE__ ); }
+
+inline void assertCuda( cudaError_t code, const char *file,
+                        int line, bool abort = true )
+{
+  if ( code != cudaSuccess )
+  {
+    printf( "GPUassert: %s %s:%d\n", cudaGetErrorString(code), file, line );
+    if ( abort ) assert( code == cudaSuccess );
+  }
+}
+
+struct CudaDevDeleter {
+  void operator()(int* mem) {
+    checkCuda( cudaFree( mem ) );
+  }
+};
+std::unique_ptr<int[], CudaDevDeleter> devMakeUnique(int n_bytes) {
+  int* tmp = nullptr;
+  checkCuda( cudaMalloc( &tmp, n_bytes ) );
+  return std::unique_ptr<int[], CudaDevDeleter>{ tmp };
+}
+
+struct CudaHstDeleter {
+  void operator()(int* mem) {
+    checkCuda( cudaFreeHost( mem ) );
+  }
+};
+std::unique_ptr<int[], CudaHstDeleter> hstMakeUnique(int n_bytes) {
+  int* tmp = nullptr;
+  checkCuda( cudaMallocHost( &tmp, n_bytes ) );
+  return std::unique_ptr<int[], CudaHstDeleter>{ tmp };
+};
+
+#endif // __CUDACC__
+
+
+__global__ void dev_transpose(const int* inpArr, int* outArr,
+                              const int evnt_n, const int part_n,
+                              const int mome_n, const int strd_n) {
+
+  int pos = blockDim.x * blockIdx.x + threadIdx.x;
+  int arrlen = evnt_n * part_n * mome_n;
+
+  if (pos < arrlen) {
+
+      int page_i = pos    / (strd_n * mome_n * part_n);
+      int rest_1 = pos    % (strd_n * mome_n * part_n);
+      int part_i = rest_1 / (strd_n * mome_n);
+      int rest_2 = rest_1 % (strd_n * mome_n);
+      int mome_i = rest_2 / strd_n;
+      int strd_i = rest_2 % strd_n;
+
+      int inpos = (page_i * strd_n + strd_i) * (part_n * mome_n)  + part_i * mome_n + mome_i;
+
+//      printf("ipos: %d, opos: %d, page_i: %d, part_i: %d, strd_i: %i, mome_i: %d\n",
+//             inpos, pos, strd_i, strd_i, part_i, mome_i);
+
+      outArr[pos] = inpArr[inpos];
+
+  }
+}
+
+
+class Matrix {
+public:
+
+  Matrix() : m_hstInpArray(hstMakeUnique(array_bytes)),
+             m_devInpArray(devMakeUnique(array_bytes)),
+             m_hstOutArray(hstMakeUnique(array_bytes)),
+             m_devOutArray(devMakeUnique(array_bytes)) {}
+
+  void fill() {
+
+    int (*aos)[part_n][mome_n] = (int (*)[part_n][mome_n]) m_hstInpArray.get();
+
+    for (int i = 0; i < evnt_n; ++i) {
+      for (int j = 0; j < part_n; ++j) {
+        for (int k = 0; k < mome_n; ++k) {
+          aos[i][j][k] = (i + 1) * 100 + (j + 1) * 10 + (k + 1);
+        }
+      }
+    }
+
+#ifdef DEBUG
+    std::cout << std::string(80, '*') << std::endl;
+    int *aos_p = (int*)m_hstInpArray.get();
+    for (int i = 0; i < evnt_n*part_n*mome_n; ++i) {
+      if (i && i%mome_n == 0) std::cout << std::endl;
+      if (i && i%(mome_n*part_n) == 0) std::cout << std::endl;
+      std::cout << aos_p[i] << " ";
+    }
+    std::cout << std::endl;
+#endif // DEBUG
+
+  }
+
+  void hst_transpose() {
+    checkCuda( cudaMemcpy( m_devInpArray.get(), m_hstInpArray.get(),
+                           array_bytes, cudaMemcpyHostToDevice));
+
+    dev_transpose<<<gpublocks, gputhreads>>>(m_devInpArray.get(),
+                                             m_devOutArray.get(),
+                                             evnt_n, part_n, mome_n, strd_n);
+
+    checkCuda( cudaMemcpy( m_hstOutArray.get(), m_devOutArray.get(),
+                           array_bytes, cudaMemcpyDeviceToHost));
+
+#ifdef DEBUG
+   std::cout << std::string(80, '*') << std::endl;
+   int *aosoa_p = (int*)m_hstOutArray.get();
+   for (int i = 0; i < evnt_n*part_n*mome_n; ++i) {
+     if (i && i%strd_n == 0) std::cout << ", ";
+     if (i && i%(mome_n*strd_n) == 0) std::cout << std::endl;
+     if (i && i%(part_n*mome_n*strd_n) == 0) std::cout << std::endl;
+     std::cout << aosoa_p[i] << " ";
+   }
+   std::cout << std::endl << std::string(80, '*') << std::endl;
+#endif // DEBUG
+
+  }
+
+private:
+  std::unique_ptr<int[], CudaHstDeleter> m_hstInpArray;
+  std::unique_ptr<int[], CudaDevDeleter> m_devInpArray;
+  std::unique_ptr<int[], CudaHstDeleter> m_hstOutArray;
+  std::unique_ptr<int[], CudaDevDeleter> m_devOutArray;
+};
+
+int main() {
+  std::cout << std::endl << "[event][particle][momentum]" << std::endl << std::endl;
+  Matrix m;
+  m.fill();
+  m.hst_transpose();
+  return 0;
+}
