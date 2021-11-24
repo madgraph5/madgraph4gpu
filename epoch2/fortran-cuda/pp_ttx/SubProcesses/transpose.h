@@ -77,6 +77,7 @@ private:
   int m_bts_momenta;
   int m_bts_goodhel;
   int m_bts_mes;
+  bool m_goodHelsCalculated;
 };
 
 /**
@@ -86,7 +87,8 @@ template <typename T>
 Matrix<T>::Matrix(int evnt, int part, int mome, int strd, int ncomb)
     : m_evnt(evnt), m_part(part), m_mome(mome), m_strd(strd), m_ncomb(ncomb),
       m_bts_momenta(m_evnt * m_part * m_mome * sizeof(T)),
-      m_bts_goodhel(m_ncomb * sizeof(bool)), m_bts_mes(m_evnt * sizeof(T)) {
+      m_bts_goodhel(m_ncomb * sizeof(bool)), m_bts_mes(m_evnt * sizeof(T)),
+      m_goodHelsCalculated(false) {
   gProc::CPPProcess process(1, gpublocks, gputhreads, false);
   process.initProc("../../Cards/param_card.dat");
 }
@@ -138,14 +140,16 @@ template <typename T> void Matrix<T>::hst_transpose(T *momenta, double *mes) {
   dev_transpose<<<gpublocks * 16, gputhreads>>>(
       devMomentaF2.get(), devMomentaC2.get(), m_evnt, m_part, m_mome, m_strd);
 
-  // sr should go before //
-  gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(
-      devMomentaC2.get(), devMEs2.get(), devIsGoodHel2.get());
+  if (!m_goodHelsCalculated) {
+    gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(
+        devMomentaC2.get(), devMEs2.get(), devIsGoodHel2.get());
 
-  checkCuda(cudaMemcpy(hstIsGoodHel2.get(), devIsGoodHel2.get(), m_bts_goodhel,
-                       cudaMemcpyDeviceToHost));
+    checkCuda(cudaMemcpy(hstIsGoodHel2.get(), devIsGoodHel2.get(),
+                         m_bts_goodhel, cudaMemcpyDeviceToHost));
 
-  gProc::sigmaKin_setGoodHel(hstIsGoodHel2.get());
+    gProc::sigmaKin_setGoodHel(hstIsGoodHel2.get());
+    m_goodHelsCalculated = true;
+  }
 
   gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomentaC2.get(), devMEs2.get());
 
