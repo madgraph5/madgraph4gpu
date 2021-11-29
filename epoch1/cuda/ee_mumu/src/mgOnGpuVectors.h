@@ -18,6 +18,9 @@ namespace mgOnGpu
 
   const int neppV = MGONGPU_CPPSIMD;
 
+  // SANITY CHECK: cppAlign must be a multiple of neppV * sizeof(fptype)
+  static_assert( mgOnGpu::cppAlign % ( neppV * sizeof(fptype) ) == 0 );
+
   // --- Type definition (using vector compiler extensions: need -march=...)
 #ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
   typedef fptype fptype_v __attribute__ ((ext_vector_type(neppV))); // RRRR
