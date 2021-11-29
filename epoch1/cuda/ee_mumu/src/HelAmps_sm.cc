@@ -53,10 +53,10 @@ namespace MG5_sm
     // Use c++17 "if constexpr": compile-time branching
     if constexpr ( ( neppM >= neppV ) && ( neppM%neppV == 0 ) )
     {
-      //constexpr bool useReinterpretCastIfPossible = true; // DEFAULT
-      constexpr bool useReinterpretCastIfPossible = false; // FOR PERFORMANCE TESTS
-      //constexpr bool skipAlignmentCheck = true; // DEFAULT (MAY SEGFAULT, NEEDS A SANITY CHECK ELSEWHERE!)
-      constexpr bool skipAlignmentCheck = false; // SLOWER BUT SAFER
+      constexpr bool useReinterpretCastIfPossible = true; // DEFAULT
+      //constexpr bool useReinterpretCastIfPossible = false; // FOR PERFORMANCE TESTS
+      constexpr bool skipAlignmentCheck = true; // DEFAULT (MAY SEGFAULT, NEEDS A SANITY CHECK ELSEWHERE!)
+      //constexpr bool skipAlignmentCheck = false; // SLOWER BUT SAFER
       if constexpr ( useReinterpretCastIfPossible && skipAlignmentCheck )
       {
         //static bool first=true; if( first ){ std::cout << "WARNING! skip alignment check" << std::endl; first=false; } // SLOWS DOWN...
