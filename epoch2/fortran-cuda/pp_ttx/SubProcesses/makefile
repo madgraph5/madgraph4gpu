@@ -88,7 +88,7 @@ $(MATRIX): %.o: %.f
 	$(FC) $(FFLAGS) -c $< -I../../Source/ -fopenmp
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
-%.o: %.cu transpose.h
+%.o: %.cu bridge.h
 	$(NVCC) $(CUFLAGS) -O3  -lineinfo -std=c++14 -I. -I../../../Source/golden_epochX4 -I../../../../../tools -I/usr/local/cuda-11.4//include/ -DUSE_NVTX -arch=compute_70 -use_fast_math -ccbin /opt/rh/gcc-toolset-10/root/usr/bin/g++ -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_CURAND_ONDEVICE -I./golden_epochX4 -I../../Source/golden_epochX4 -c $< -o $@
 
 

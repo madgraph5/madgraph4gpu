@@ -460,7 +460,7 @@ C           WRITE(*,*) P_MULTI(0:3, PAR, EVT)
 C  30    END DO
 C  40  END DO
 
-      call bridge(P_MULTI, OUT)
+      call fbridge(P_MULTI, OUT)
 
       WRITE (*,*) OUT
       WRITE (*,*) OUT2
