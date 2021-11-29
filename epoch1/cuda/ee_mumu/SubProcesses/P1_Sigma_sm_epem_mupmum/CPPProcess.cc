@@ -100,6 +100,9 @@ namespace Proc
 
 #ifndef __CUDACC__
     const int npagV = nevt / neppV;
+#ifdef MGONGPU_CPPSIMD
+    const bool isAligned_allMEs = ( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // require SIMD-friendly alignment by at least neppV*sizeof(fptype)
+#endif
     // ** START LOOP ON IPAGV **
 #ifdef _OPENMP
     // - default(none): no variables are shared by default
@@ -109,6 +112,9 @@ namespace Proc
 #if not defined __clang__ && defined __GNUC__ && __GNUC__ < 9
 #pragma omp parallel for default(none) \
   shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel,cNGoodHel) private (amp_sv,w_sv)
+#elif defined MGONGPU_CPPSIMD
+#pragma omp parallel for default(none) \
+  shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel,cNGoodHel,npagV,isAligned_allMEs) private (amp_sv,w_sv)
 #else
 #pragma omp parallel for default(none) \
   shared(allmomenta,allMEs,cf,cHel,cIPC,cIPD,denom,ihel,cNGoodHel,npagV) private (amp_sv,w_sv)
@@ -201,12 +207,21 @@ namespace Proc
       allMEs[ievt] += deltaMEs;
       //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt] );
 #else
-      *reinterpret_cast<fptype_sv*>( &(  allMEs[ipagV*neppV] ) ) += deltaMEs;
 #ifdef MGONGPU_CPPSIMD
+      if ( isAligned_allMEs )
+      {
+        *reinterpret_cast<fptype_sv*>( &( allMEs[ipagV*neppV] ) ) += deltaMEs;
+      }
+      else
+      {
+        for ( int ieppV=0; ieppV<neppV; ieppV++ )
+          allMEs[ipagV*neppV + ieppV] += deltaMEs[ieppV];
+      }
       //if ( cNGoodHel > 0 )
       //  for ( int ieppV=0; ieppV<neppV; ieppV++ )
       //    printf( "calculate_wavefunction: %6d %2d %f\n", ipagV*neppV+ieppV, ihel, allMEs[ipagV][ieppV] );
 #else
+      allMEs[ipagV] += deltaMEs;
       //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %6d %2d %f\n", ipagV, ihel, allMEs[ipagV] );
 #endif
 #endif
