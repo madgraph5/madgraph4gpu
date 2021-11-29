@@ -201,14 +201,12 @@ namespace Proc
       allMEs[ievt] += deltaMEs;
       //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt] );
 #else
+      *reinterpret_cast<fptype_sv*>( &(  allMEs[ipagV*neppV] ) ) += deltaMEs;
 #ifdef MGONGPU_CPPSIMD
-      for ( int ieppV=0; ieppV<neppV; ieppV++ )
-        allMEs[ipagV*neppV + ieppV] += deltaMEs[ieppV];
       //if ( cNGoodHel > 0 )
       //  for ( int ieppV=0; ieppV<neppV; ieppV++ )
       //    printf( "calculate_wavefunction: %6d %2d %f\n", ipagV*neppV+ieppV, ihel, allMEs[ipagV][ieppV] );
 #else
-      allMEs[ipagV] += deltaMEs;
       //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %6d %2d %f\n", ipagV, ihel, allMEs[ipagV] );
 #endif
 #endif
