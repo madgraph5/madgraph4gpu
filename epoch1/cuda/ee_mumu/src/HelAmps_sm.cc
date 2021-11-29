@@ -49,36 +49,41 @@ namespace MG5_sm
   {
     const int ievt0 = ipagV*neppV; // virtual event V-page ipagV contains neppV events [ievt0...ievt0+neppV-1]
 #ifdef MGONGPU_CPPSIMD
-    constexpr bool useReinterpretCastIfPossible = false; // FOR PERFORMANCE TESTS
-    //constexpr bool useReinterpretCastIfPossible = true; // DEFAULT
     constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    constexpr bool useReinterpretCast = useReinterpretCastIfPossible && ( neppM >= neppV ) && ( neppM%neppV == 0 );
     // Use c++17 "if constexpr": compile-time branching
-    if constexpr ( useReinterpretCast )
+    if constexpr ( ( neppM >= neppV ) && ( neppM%neppV == 0 ) )
     {
-      return *reinterpret_cast<const fptype_sv*>( &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ) ) );
+      constexpr bool useReinterpretCastIfPossible = false; // FOR PERFORMANCE TESTS
+      //constexpr bool useReinterpretCastIfPossible = true; // DEFAULT
+      if constexpr ( useReinterpretCastIfPossible )
+      {
+        // Fastest (4.92E6 in eemumu 512y)
+        // This requires alignment for momenta1d - segmentation fault otherwise!
+        return *reinterpret_cast<const fptype_sv*>( &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ) ) );
+      }
+      else
+      {
+        // A bit (2%) slower (4.86E6 in eemumu 512y)
+        // This does not require alignment for momenta1d, but it requires AOSOA with neppM>=neppV and neppM%neppV==0
+        fptype_v out;
+        const fptype* out0 = &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0) );
+        for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = *( out0 + ieppV );
+        return out;
+      }
     }
     else
     {
-      fptype_v out;
-      //for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+ieppV );
-      //for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = *( &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0) ) + ieppV );
-      const fptype* out0 = &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0) );
-      for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = *( out0 + ieppV );
-      return out;
-      /*
+      // Much (20%) slower (4.07E6 in eemumu 512y)
+      // This does not even require AOSOA with neppM>=neppV and neppM%neppV==0 (e.g. can be used with AOS neppM==1)
 #if MGONGPU_CPPSIMD == 2
-      //static_assert( useReinterpretCast ); // UNCOMMENT TO FAIL IF REINTERPRET_CAST IS NOT USED
       return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ) };
 #elif MGONGPU_CPPSIMD == 4
-      //static_assert( useReinterpretCast ); // UNCOMMENT TO FAIL IF REINTERPRET_CAST IS NOT USED
       return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+2 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+3 ) };
 #elif MGONGPU_CPPSIMD == 8
-      //static_assert( useReinterpretCast ); // UNCOMMENT TO FAIL IF REINTERPRET_CAST IS NOT USED
       return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+2 ),
@@ -88,7 +93,6 @@ namespace MG5_sm
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+6 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+7 ) };
 #elif MGONGPU_CPPSIMD == 16
-      //static_assert( useReinterpretCast ); // UNCOMMENT TO FAIL IF REINTERPRET_CAST IS NOT USED
       return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ),
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+2 ),
@@ -107,12 +111,11 @@ namespace MG5_sm
                        pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+15 ) };
 #else
 #warning Internal error? This code should never be reached!
-      static_assert( useReinterpretCast ); // UNCOMMENT TO FAIL IF REINTERPRET_CAST IS NOT USED
+      // Much much (40%) slower (3.02E6 in eemumu 512y)
       fptype_v out;
       for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+ieppV );
       return out;
 #endif
-      */
     }
 #else
     return pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 );
