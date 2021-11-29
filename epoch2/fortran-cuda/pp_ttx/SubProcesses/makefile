@@ -116,4 +116,4 @@ clean:
 run: run1
 
 run1: $(PROG)
-	cat G1/input_app.txt | ./$(PROG)
+	cat G1/input2_app.txt | ./$(PROG)
