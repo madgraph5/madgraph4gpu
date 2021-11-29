@@ -53,17 +53,28 @@ namespace MG5_sm
     // Use c++17 "if constexpr": compile-time branching
     if constexpr ( ( neppM >= neppV ) && ( neppM%neppV == 0 ) )
     {
-      constexpr bool useReinterpretCastIfPossible = false; // FOR PERFORMANCE TESTS
       //constexpr bool useReinterpretCastIfPossible = true; // DEFAULT
-      if constexpr ( useReinterpretCastIfPossible )
+      constexpr bool useReinterpretCastIfPossible = false; // FOR PERFORMANCE TESTS
+      //constexpr bool skipAlignmentCheck = true; // DEFAULT (MAY SEGFAULT, NEEDS A SANITY CHECK ELSEWHERE!)
+      constexpr bool skipAlignmentCheck = false; // SLOWER BUT SAFER
+      if constexpr ( useReinterpretCastIfPossible && skipAlignmentCheck )
       {
+        //static bool first=true; if( first ){ std::cout << "WARNING! skip alignment check" << std::endl; first=false; } // SLOWS DOWN...
         // Fastest (4.92E6 in eemumu 512y)
         // This requires alignment for momenta1d - segmentation fault otherwise!
         return *reinterpret_cast<const fptype_sv*>( &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ) ) );
       }
+      else if ( useReinterpretCastIfPossible && ( (size_t)(momenta1d) % mgOnGpu::cppAlign == 0 ) )
+      {
+        //static bool first=true; if( first ){ std::cout << "WARNING! alignment ok, use reinterpret cast" << std::endl; first=false; } // SLOWS DOWN...
+        // A bit (6%) slower (4.62E6 in eemumu 512y) because of the alignment check
+        // This explicitly checks alignment for momenta1d to avoid segmentation faults
+        return *reinterpret_cast<const fptype_sv*>( &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ) ) );
+      }
       else
       {
-        // A bit (2%) slower (4.86E6 in eemumu 512y)
+        //static bool first=true; if( first ){ std::cout << "WARNING! AOSOA but no reinterpret cast" << std::endl; first=false; } // SLOWS DOWN...
+        // A bit (2%) slower (4.85E6 in eemumu 512y)
         // This does not require alignment for momenta1d, but it requires AOSOA with neppM>=neppV and neppM%neppV==0
         fptype_v out;
         const fptype* out0 = &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0) );
