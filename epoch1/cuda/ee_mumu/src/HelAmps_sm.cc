@@ -61,7 +61,8 @@ namespace MG5_sm
     else
     {
       fptype_v out;
-      for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+ieppV );
+      //for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+ieppV );
+      for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = *( &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0) ) + ieppV );
       return out;
       /*
 #if MGONGPU_CPPSIMD == 2
