@@ -118,7 +118,7 @@ namespace Proc
   __global__
 #endif
   void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM], nevt=npagM*neppM
-                            fptype_sv* allMEs,        // output: allMEs[npagV][neppV], nevt=npagV*neppV, |M|^2 final avg_hel
+                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
                             bool* isGoodHel           // output: isGoodHel[ncomb] - device array
 #ifndef __CUDACC__
                             , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
@@ -133,7 +133,7 @@ namespace Proc
 
   __global__
   void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                 fptype_sv* allMEs         // output: allMEs[npagV][neppV], nevt=npagV*neppV, |M|^2 final avg_hel
+                 fptype* allMEs            // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifndef __CUDACC__
                  , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif

@@ -316,19 +316,19 @@ int main(int argc, char **argv)
   const int nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
 
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST or not defined __CUDACC__
-  auto hstRnarray   = hstMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+  auto hstRnarray   = hstMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
 #endif
-  auto hstMomenta   = hstMakeUnique<fptype   >( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
-  auto hstIsGoodHel = hstMakeUnique<bool     >( ncomb );
-  auto hstWeights   = hstMakeUnique<fptype   >( nWeights );
-  auto hstMEs       = hstMakeUnique<fptype_sv>( nMEs );     // AOSOA[npagV][neppV] (NB: nevt=npagV*neppV)
+  auto hstMomenta   = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
+  auto hstIsGoodHel = hstMakeUnique<bool  >( ncomb );
+  auto hstWeights   = hstMakeUnique<fptype>( nWeights );
+  auto hstMEs       = hstMakeUnique<fptype>( nMEs );     // ARRAY[nevt]
 
 #ifdef __CUDACC__
-  auto devRnarray   = devMakeUnique<fptype   >( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-  auto devMomenta   = devMakeUnique<fptype   >( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
-  auto devIsGoodHel = devMakeUnique<bool     >( ncomb );
-  auto devWeights   = devMakeUnique<fptype   >( nWeights );
-  auto devMEs       = devMakeUnique<fptype   >( nMEs );     // ARRAY[nevt] (NB: nevt=npagV*neppV)
+  auto devRnarray   = devMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+  auto devMomenta   = devMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
+  auto devIsGoodHel = devMakeUnique<bool  >( ncomb );
+  auto devWeights   = devMakeUnique<fptype>( nWeights );
+  auto devMEs       = devMakeUnique<fptype>( nMEs );     // ARRAY[nevt]
 
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
   const int nbytesRnarray = nRnarray * sizeof(fptype);
@@ -576,20 +576,12 @@ int main(int argc, char **argv)
         std::cout << std::string(SEP79, '-') << std::endl;
         // Display matrix elements
         std::cout << " Matrix element = "
-#ifndef MGONGPU_CPPSIMD
                   << hstMEs[ievt]
-#else
-                  << hstMEs[ievt/neppV][ievt%neppV]
-#endif
                   << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
         std::cout << std::string(SEP79, '-') << std::endl;
       }
       // Fill the arrays with ALL MEs and weights
-#ifndef MGONGPU_CPPSIMD
       matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt]; // FIXME: assume process.nprocesses == 1
-#else
-      matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt/neppV][ievt%neppV]; // FIXME: assume process.nprocesses == 1
-#endif
       weightALL[iiter*nevt + ievt] = hstWeights[ievt];
     }
 
