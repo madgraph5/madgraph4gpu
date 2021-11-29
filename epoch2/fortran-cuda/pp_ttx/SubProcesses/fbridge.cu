@@ -2,7 +2,7 @@
 
 void fbridge(double *momenta, double *mes) {
   Bridge<double> b = Bridge<double>(16, 4, 4, 4, 16);
-  b.hst_sequence(momenta, mes);
+  b.host_sequence(momenta, mes);
 }
 
 extern "C" {

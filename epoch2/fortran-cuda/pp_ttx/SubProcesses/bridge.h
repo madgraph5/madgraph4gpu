@@ -1,9 +1,10 @@
+// includes from Cuda/C++ matrix element calculations
+#include "CPPProcess.h"
+#include "Memory.h"
+
 #include <cassert>
 #include <iostream>
 #include <memory>
-
-#include "CPPProcess.h"
-#include "Memory.h"
 
 // those should become fortran parameters passed in here
 const int gpublocks = 1;   // 1024;
@@ -41,12 +42,12 @@ public:
   Bridge(int evt, int par, int mom, int str, int ncomb);
 
   /**
-   * sequence to be executed for the C++/cuda matrix element calculation
+   * sequence to be executed for the Cuda/C++ matrix element calculation
    *
    * @param momenta memory address of the input 4-momenta
    * @param mes memory address of the output matrix elements
    */
-  void hst_sequence(T *momenta, double *mes);
+  void host_sequence(T *momenta, double *mes);
 
 private:
   int m_evnt;                ///< number of events
@@ -71,7 +72,7 @@ Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int ncomb)
   process.initProc("../../Cards/param_card.dat");
 }
 
-template <typename T> void Bridge<T>::hst_sequence(T *momenta, double *mes) {
+template <typename T> void Bridge<T>::host_sequence(T *momenta, double *mes) {
 
   auto devMomentaF2 = devMakeUnique<T>(m_evnt * m_part * m_mome);
   auto devMomentaC2 = devMakeUnique<T>(m_evnt * m_part * m_mome);
