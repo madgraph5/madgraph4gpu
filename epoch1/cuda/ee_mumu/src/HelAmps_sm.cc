@@ -74,12 +74,51 @@ namespace MG5_sm
       else
       {
         //static bool first=true; if( first ){ std::cout << "WARNING! AOSOA but no reinterpret cast" << std::endl; first=false; } // SLOWS DOWN...
-        // A bit (2%) slower (4.85E6 in eemumu 512y)
+        // A bit (2%) slower (4.86E6 in eemumu 512y)
+        // This does not require alignment for momenta1d, but it requires AOSOA with neppM>=neppV and neppM%neppV==0
+        const fptype* out0 = &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0) );
+#if MGONGPU_CPPSIMD == 2
+        return fptype_v{ *( out0 ),
+                         *( out0+1 ) };
+#elif MGONGPU_CPPSIMD == 4
+        return fptype_v{ *( out0 ),
+                         *( out0+1 ),
+                         *( out0+2 ),
+                         *( out0+3 ) };
+#elif MGONGPU_CPPSIMD == 8
+        return fptype_v{ *( out0 ),
+                         *( out0+1 ),
+                         *( out0+2 ),
+                         *( out0+3 ),
+                         *( out0+4 ),
+                         *( out0+5 ),
+                         *( out0+6 ),
+                         *( out0+7 ) };
+#elif MGONGPU_CPPSIMD == 16
+        return fptype_v{ *( out0 ),
+                         *( out0+1 ),
+                         *( out0+2 ),
+                         *( out0+3 ),
+                         *( out0+4 ),
+                         *( out0+5 ),
+                         *( out0+6 ),
+                         *( out0+7 ),
+                         *( out0+8 ),
+                         *( out0+9 ),
+                         *( out0+10 ),
+                         *( out0+11 ),
+                         *( out0+12 ),
+                         *( out0+13 ),
+                         *( out0+14 ),
+                         *( out0+15 ) };
+#else
+#warning Internal error? This code should never be reached!
+        // A bit (2%) slower (4.86E6 in eemumu 512y)
         // This does not require alignment for momenta1d, but it requires AOSOA with neppM>=neppV and neppM%neppV==0
         fptype_v out;
-        const fptype* out0 = &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0) );
         for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = *( out0 + ieppV );
         return out;
+#endif
       }
     }
     else
