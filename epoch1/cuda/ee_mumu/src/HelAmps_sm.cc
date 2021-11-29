@@ -60,6 +60,10 @@ namespace MG5_sm
     }
     else
     {
+      fptype_v out;
+      for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+ieppV );
+      return out;
+      /*
 #if MGONGPU_CPPSIMD == 2
       //static_assert( useReinterpretCast ); // UNCOMMENT TO FAIL IF REINTERPRET_CAST IS NOT USED
       return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
@@ -105,6 +109,7 @@ namespace MG5_sm
       for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+ieppV );
       return out;
 #endif
+      */
     }
 #else
     return pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 );
