@@ -8,6 +8,7 @@
 #include "MEKernelLauncher.h"
 
 #include "checkCuda.h"
+#include "CPPProcess.h"
 
 #ifdef __CUDACC__
 namespace mg5amcGpu
@@ -69,6 +70,17 @@ namespace mg5amcCpu
 
   void MEKernelLauncher::computeMEs() const
   {
+    /*
+#ifdef __CUDACC__
+#ifndef MGONGPU_NSIGHT_DEBUG
+    gProc::sigmaKin<<<m_ngpublocks, m_ngputhreads>>>( m_momenta, m_MEs );
+#else
+    gProc::sigmaKin<<<m_ngpublocks, m_gputhreads, mgOnGpu::ntpbMAX * sizeof(float)>>>( m_momenta, m_MEs );
+#endif
+#else
+    Proc::sigmaKin( m_momenta, m_MEs );
+#endif
+    */
   }
 
   //--------------------------------------------------------------------------
