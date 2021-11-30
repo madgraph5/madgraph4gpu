@@ -114,7 +114,7 @@ using mgOnGpu::bool_v;
 inline std::ostream& operator<<( std::ostream& out, const bool_v& v )
 {
   out << "{ " << v[0];
-  for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
+  for ( int i=1; i<neppV; i++ ) out << ", " << v[i];
   out << " }";
   return out;
 }
@@ -122,7 +122,7 @@ inline std::ostream& operator<<( std::ostream& out, const bool_v& v )
 inline std::ostream& operator<<( std::ostream& out, const fptype_v& v )
 {
   out << "{ " << v[0];
-  for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
+  for ( int i=1; i<neppV; i++ ) out << ", " << v[i];
   out << " }";
   return out;
 }
@@ -140,10 +140,10 @@ inline std::ostream& operator<<( std::ostream& out, const cxtype_v& v )
 {
 #ifdef MGONGPU_HAS_CXTYPE_REF
   out << "{ " << v[0];
-  for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
+  for ( int i=1; i<neppV; i++ ) out << ", " << v[i];
 #else
   out << "{ " << cxmake( v.real()[0], v.imag()[0] );
-  for ( int i=1; i<neppV; i++ ) std::cout << ", " << cxmake( v.real()[i], v.imag()[i] );
+  for ( int i=1; i<neppV; i++ ) out << ", " << cxmake( v.real()[i], v.imag()[i] );
 #endif
   out << " }";
   return out;
