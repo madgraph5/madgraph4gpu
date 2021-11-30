@@ -240,6 +240,7 @@ function runExe() {
   pattern="${pattern}|CUCOMPLEX"
   pattern="${pattern}|COMMON RANDOM"
   pattern="${pattern}|ERROR"
+  pattern="${pattern}|WARNING"
   # TEMPORARY! OLD C++/CUDA CODE (START)
   pattern="${pattern}|EvtsPerSec\[Matrix"
   # TEMPORARY! OLD C++/CUDA CODE (END)
