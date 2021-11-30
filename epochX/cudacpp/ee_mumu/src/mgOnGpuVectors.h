@@ -13,9 +13,13 @@
 
 namespace mgOnGpu
 {
+
 #ifdef MGONGPU_CPPSIMD
 
-  const int neppV = neppM;
+  const int neppV = MGONGPU_CPPSIMD;
+
+  // SANITY CHECK: cppAlign must be a multiple of neppV * sizeof(fptype)
+  static_assert( mgOnGpu::cppAlign % ( neppV * sizeof(fptype) ) == 0 );
 
   // --- Type definition (using vector compiler extensions: need -march=...)
 #ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
@@ -96,7 +100,7 @@ namespace mgOnGpu
 
 #else // MGONGPU_CPPSIMD not defined
 
-  const int neppV = 1; // Note: also neppM is equal to 1
+  const int neppV = 1;
 
 #endif
 }
