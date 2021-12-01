@@ -60,6 +60,7 @@ std::unique_ptr<T[], CppHstDeleter<T>> hstMakeUnique(std::size_t N) {
   return std::unique_ptr<T[], CppHstDeleter<T>>{ new( std::align_val_t{ mgOnGpu::cppAlign } ) T[N]() };
 };
 
+/*
 #ifdef MGONGPU_CPPSIMD
 
 template<> inline
@@ -68,6 +69,7 @@ std::unique_ptr<fptype_v[], CppHstDeleter<fptype_v>> hstMakeUnique(std::size_t N
 };
 
 #endif
+*/
 
 #endif
 
