@@ -205,12 +205,12 @@ for suff in $suffs; do
     export HELINL=$helinl
     for fptype in $fptypes; do
       export FPTYPE=$fptype
-      make AVX=none; echo
-      if [ "${avxall}" == "1" ]; then make AVX=sse4; echo; fi
-      if [ "${avxall}" == "1" ]; then make AVX=avx2; echo; fi
+      make -j AVX=none; echo
+      if [ "${avxall}" == "1" ]; then make -j AVX=sse4; echo; fi
+      if [ "${avxall}" == "1" ]; then make -j AVX=avx2; echo; fi
       if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then # skip avx512 if not supported!
-        if [ "${cpp}" == "1" ]; then make AVX=512y; echo; fi # use 512y as C++ ref even if avx2 is faster on clang
-        if [ "${avxall}" == "1" ]; then make AVX=512z; echo; fi
+        if [ "${cpp}" == "1" ]; then make -j AVX=512y; echo; fi # use 512y as C++ ref even if avx2 is faster on clang
+        if [ "${avxall}" == "1" ]; then make -j AVX=512z; echo; fi
       fi
     done
   done
