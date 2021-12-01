@@ -330,17 +330,28 @@ $(GTESTLIBS):
 check: $(testmain)
 	$(testmain)
 
-avxall:
+avxnone:
 	@echo
 	make USEBUILDDIR=1 AVX=none
+
+avxsse4:
 	@echo
 	make USEBUILDDIR=1 AVX=sse4
+
+avxavx2:
 	@echo
 	make USEBUILDDIR=1 AVX=avx2
+
+avx512y:
 	@echo
 	make USEBUILDDIR=1 AVX=512y
+
+avx512z:
 	@echo
 	make USEBUILDDIR=1 AVX=512z
+
+# Split the avxall target into five separate targets to allow parallel "make -j" builds
+avxall: avxnone avxsse4 avxavx2 avx512y avx512z
 
 .PHONY: clean
 
