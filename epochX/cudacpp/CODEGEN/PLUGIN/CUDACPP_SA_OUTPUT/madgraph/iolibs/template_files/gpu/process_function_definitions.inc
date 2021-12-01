@@ -65,10 +65,13 @@ namespace Proc
     memcpy( cHel, tHel, ncomb * mgOnGpu::npar * sizeof(short) );
 #endif
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
-    assert( sizeof(cxtype) == 2 * sizeof(fptype) );
+    static_assert( sizeof(cxtype) == 2 * sizeof(fptype) );
 #ifndef __CUDACC__
-    // SANITY CHECK: momenta AOSOA uses vectors with the same size as fptype_v
-    assert( neppV == mgOnGpu::neppM );
+    // SANITY CHECK: check that neppR, neppM and neppV are powers of two (https://stackoverflow.com/a/108360)
+    auto ispoweroftwo = []( int n ) { return ( n > 0 ) && !( n & ( n - 1 ) ); };
+    static_assert( ispoweroftwo( mgOnGpu::neppR ) );
+    static_assert( ispoweroftwo( mgOnGpu::neppM ) );
+    static_assert( ispoweroftwo( neppV ) );
 #endif
   }
 
@@ -173,9 +176,9 @@ namespace Proc
 
 #ifdef __CUDACC__
   __global__
-  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            fptype_sv* allMEs,           // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
-                            bool* isGoodHel )            // output: isGoodHel[ncomb] - device array
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                            bool* isGoodHel )         // output: isGoodHel[ncomb] - device array
   {
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
@@ -193,33 +196,35 @@ namespace Proc
     }
   }
 #else
-  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            fptype_sv* allMEs,           // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
-                            bool* isGoodHel              // output: isGoodHel[ncomb] - device array
-                            , const int nevt )           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                            bool* isGoodHel           // output: isGoodHel[ncomb] - device array
+                            , const int nevt )        // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
+    assert( (size_t)(allmomenta) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment
+    //assert( (size_t)(allMEs) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment
     const int maxtry0 = ( neppV > 16 ? neppV : 16 ); // 16, but at least neppV (otherwise the npagV loop does not even start)
-    fptype_sv allMEsLast[maxtry0/neppV] = { 0 };
+    fptype allMEsLast[maxtry0] = { 0 };
     const int maxtry = std::min( maxtry0, nevt ); // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
-    for ( int ipagV = 0; ipagV < maxtry/neppV; ++ipagV )
+    for ( int ievt = 0; ievt < maxtry; ++ievt )
     {
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-      allMEs[ipagV] = fptype_sv{0}; // all zeros
+      allMEs[ievt] = 0; // all zeros
     }
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
       calculate_wavefunctions( ihel, allmomenta, allMEs, maxtry );
-      for ( int ipagV = 0; ipagV < maxtry/neppV; ++ipagV )
+      for ( int ievt = 0; ievt < maxtry; ++ievt )
       {
         // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-        const bool differs = maskor( allMEs[ipagV] != allMEsLast[ipagV] ); // true if any of the neppV events differs
+        const bool differs = ( allMEs[ievt] != allMEsLast[ievt] );
         if ( differs )
         {
           //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
           isGoodHel[ihel] = true;
         }
-        allMEsLast[ipagV] = allMEs[ipagV]; // running sum up to helicity ihel
+        allMEsLast[ievt] = allMEs[ievt]; // running sum up to helicity ihel
       }
     }
   }
@@ -256,10 +261,10 @@ namespace Proc
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
   __global__
-  void sigmaKin( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                 fptype_sv* allMEs            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
+  void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                 fptype* allMEs            // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifndef __CUDACC__
-                 , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                  )
   {
