@@ -17,13 +17,14 @@ fptypes="d"
 helinls="0"
 suffs="/"
 maketype=
+makej=
 detailed=0
 gtest=0
 verbose=0
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -100,6 +101,9 @@ while [ "$1" != "" ]; do
       echo "ERROR! Options -makeonly, -makeclean and -makecleanonly are incompatible"; usage
     fi
     maketype="$1"
+    shift
+  elif [ "$1" == "-makej" ]; then
+    makej=-j
     shift
   elif [ "$1" == "-detailed" ]; then
     detailed=1
@@ -205,12 +209,11 @@ for suff in $suffs; do
     export HELINL=$helinl
     for fptype in $fptypes; do
       export FPTYPE=$fptype
-      make -j AVX=none; echo
-      if [ "${avxall}" == "1" ]; then make -j AVX=sse4; echo; fi
-      if [ "${avxall}" == "1" ]; then make -j AVX=avx2; echo; fi
-      if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then # skip avx512 if not supported!
-        if [ "${cpp}" == "1" ]; then make -j AVX=512y; echo; fi # use 512y as C++ ref even if avx2 is faster on clang
-        if [ "${avxall}" == "1" ]; then make -j AVX=512z; echo; fi
+      if [ "${avxall}" == "1" ]; then
+        make ${makej} avxall; echo
+      else
+        make ${makej} AVX=none; echo
+        make ${makej} AVX=512y; echo
       fi
     done
   done

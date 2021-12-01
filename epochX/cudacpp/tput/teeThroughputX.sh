@@ -95,7 +95,7 @@ for step in $steps; do
             printf "\n%80s\n" |tr " " "*"
             printf "*** ./throughputX.sh -makeonly $args"
             printf "\n%80s\n" |tr " " "*"
-            if ! ./throughputX.sh -makeonly $args; then exit 1; fi
+            if ! ./throughputX.sh -makeonly -makej $args; then exit 1; fi
           else
             logfile=logs_${proc#-}_${suff}/log_${proc#-}_${suff}_${fptype}_inl${helinl}.txt
             printf "\n%80s\n" |tr " " "*"
