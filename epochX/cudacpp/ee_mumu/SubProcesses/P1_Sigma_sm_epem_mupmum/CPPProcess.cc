@@ -525,24 +525,10 @@ namespace Proc
 #ifdef __CUDACC__
     allMEs[ievt] /= denominators;
 #else
-#ifdef MGONGPU_CPPSIMD
-    const bool isAligned_allMEs = ( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // require SIMD-friendly alignment by at least neppV*sizeof(fptype)
-#endif
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
-#ifdef MGONGPU_CPPSIMD
-      if ( isAligned_allMEs )
-      {
-        *reinterpret_cast<fptype_sv*>( &( allMEs[ipagV*neppV] ) ) /= denominators;
-      }
-      else
-      {
-        for ( int ieppV=0; ieppV<neppV; ieppV++ )
-          allMEs[ipagV*neppV + ieppV] /= denominators;
-      }
-#else
-      allMEs[ipagV] /= denominators;
-#endif
+      for ( int ieppV=0; ieppV<neppV; ieppV++ )
+        allMEs[ipagV*neppV + ieppV] /= denominators;
     }
 #endif
     mgDebugFinalise();
