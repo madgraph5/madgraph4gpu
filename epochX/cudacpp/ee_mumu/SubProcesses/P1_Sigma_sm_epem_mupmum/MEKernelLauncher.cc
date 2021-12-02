@@ -31,6 +31,7 @@ namespace mg5amcCpu
     , m_devIsGoodHel( nullptr )
     , m_hstMomenta( nullptr )
     , m_hstMEs( nullptr )
+    , m_hstIsGoodHel( nullptr )
   {
     // Allocate the device buffer for the input momenta
     checkCuda( cudaMalloc( &m_devMomenta, nMomenta() * sizeof(fptype) ) );
@@ -48,6 +49,9 @@ namespace mg5amcCpu
     // Allocate the host buffer for the output MEs
     if ( useHstBuffers == UseHstMEs || useHstBuffers == UseBoth )
       checkCuda( cudaMallocHost( &m_hstMEs, nMEs() * sizeof(fptype) ) );
+
+    // Allocate the host buffer for the helicity mask
+    checkCuda( cudaMallocHost( &m_hstIsGoodHel, nIsGoodHel() * sizeof(bool) ) );
   }
 #else
   MEKernelLauncher::MEKernelLauncher( int nevt )

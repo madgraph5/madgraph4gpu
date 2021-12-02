@@ -141,10 +141,10 @@ namespace mg5amcCpu
 
     // The host buffer for the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
     fptype* m_hstMEs;
+#endif
 
     // The host buffer for the helicity mask: ARRAY[ncomb]
     bool* m_hstIsGoodHel;
-#endif
 
   };
 
