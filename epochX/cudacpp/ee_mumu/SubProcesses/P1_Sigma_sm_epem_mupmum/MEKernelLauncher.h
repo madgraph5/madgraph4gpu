@@ -39,16 +39,25 @@ namespace mg5amcCpu
     // Deallocates the input and output buffers
     ~MEKernelLauncher();
 
-    // Compute the output MEs from the input momenta
-    void computeMEs() const;
+#ifdef __CUDACC__
+    // Compute the output device MEs from the input device momenta
+    void computeDevMEs() const;
 
-    // Get the buffer for the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-    // (host-allocated in C++ and device-allocated in CUDA)
-    fptype* momenta() const { return m_momenta; }
+    // Get the device buffer for the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+    fptype* devMomenta() const { return m_devMomenta; }
 
-    // Get the buffer for the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
-    // (host-allocated in C++ and device-allocated in CUDA)
-    const fptype* MEs() const { return m_MEs; }
+    // Get the device buffer for the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
+    const fptype* devMEs() const { return m_devMEs; }
+#else
+    // Compute the output host MEs from the input host momenta
+    void computeHstMEs() const;
+
+    // Get the host buffer for the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+    fptype* hstMomenta() const { return m_hstMomenta; }
+
+    // Get the host buffer for the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
+    const fptype* hstMEs() const { return m_hstMEs; }
+#endif
 
     // Get the number of bytes in the momenta array
     int nbytesMomenta() const { return np4 * npar * m_nevt * sizeof(fptype); }
@@ -91,13 +100,19 @@ namespace mg5amcCpu
     const int m_ngputhreads;
 #endif
 
-    // The buffer for the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-    // (host-allocated in C++ and device-allocated in CUDA)
-    fptype* m_momenta;
+#ifdef __CUDACC__
+    // The device buffer for the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+    fptype* m_devMomenta;
 
-    // The buffer for the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
-    // (host-allocated in C++ and device-allocated in CUDA)
-    fptype* m_MEs;
+    // The device buffer for the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
+    fptype* m_devMEs;
+#else
+    // The host buffer for the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+    fptype* m_hstMomenta;
+
+    // The host buffer for the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
+    fptype* m_hstMEs;
+#endif
 
   };
 

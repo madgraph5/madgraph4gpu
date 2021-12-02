@@ -24,26 +24,26 @@ namespace mg5amcCpu
     : m_ngpublocks( ngpublocks )
     , m_ngputhreads( ngputhreads )
     , m_nevt( ngpublocks * ngputhreads )
-    , m_momenta( nullptr )
-    , m_MEs( nullptr )
+    , m_devMomenta( nullptr )
+    , m_devMEs( nullptr )
   {
-    // Allocate the buffer for the input momenta
-    checkCuda( cudaMalloc( &m_momenta, nbytesMomenta() * sizeof(fptype) ) );
+    // Allocate the device buffer for the input momenta
+    checkCuda( cudaMalloc( &m_devMomenta, nbytesMomenta() * sizeof(fptype) ) );
 
-    // Allocate the buffer for the input MEs
-    checkCuda( cudaMalloc( &m_MEs, nbytesMEs() * sizeof(fptype) ) );
+    // Allocate the device buffer for the output MEs
+    checkCuda( cudaMalloc( &m_devMEs, nbytesMEs() * sizeof(fptype) ) );
   }
 #else
   MEKernelLauncher::MEKernelLauncher( int nevt )
     : m_nevt( nevt )
-    , m_momenta( nullptr )
-    , m_MEs( nullptr )
+    , m_hstMomenta( nullptr )
+    , m_hstMEs( nullptr )
   {
-    // Allocate the buffer for the input momenta
-    m_momenta = new( std::align_val_t{ cppAlign } ) fptype[ nbytesMomenta() ]();
+    // Allocate the host buffer for the input momenta
+    m_hstMomenta = new( std::align_val_t{ cppAlign } ) fptype[ nbytesMomenta() ]();
 
-    // Allocate the buffer for the output MEs
-    m_MEs = new( std::align_val_t{ cppAlign } ) fptype[ nbytesMEs() ]();
+    // Allocate the host buffer for the output MEs
+    m_hstMEs = new( std::align_val_t{ cppAlign } ) fptype[ nbytesMEs() ]();
   }
 #endif
 
@@ -51,37 +51,38 @@ namespace mg5amcCpu
 
   MEKernelLauncher::~MEKernelLauncher()
   {
-#ifndef __CUDACC__
-    // Deallocate the host buffer for the input momenta
-    ::operator delete( m_momenta, std::align_val_t{ cppAlign } );
-
-    // Deallocate the host buffer for the output MEs
-    ::operator delete( m_MEs, std::align_val_t{ cppAlign } );
-#else
+#ifdef __CUDACC__
     // Deallocate the device buffer for the input momenta
-    checkCuda( cudaFree( m_momenta ) );
+    checkCuda( cudaFree( m_devMomenta ) );
 
     // Deallocate the device buffer for the output MEs
-    checkCuda( cudaFree( m_MEs ) );
+    checkCuda( cudaFree( m_devMEs ) );
+#else
+    // Deallocate the host buffer for the input momenta
+    ::operator delete( m_hstMomenta, std::align_val_t{ cppAlign } );
+
+    // Deallocate the host buffer for the output MEs
+    ::operator delete( m_hstMEs, std::align_val_t{ cppAlign } );
 #endif
   }
 
   //--------------------------------------------------------------------------
 
-  void MEKernelLauncher::computeMEs() const
-  {
-    /*
 #ifdef __CUDACC__
+  void MEKernelLauncher::computeDevMEs() const
+  {
 #ifndef MGONGPU_NSIGHT_DEBUG
-    gProc::sigmaKin<<<m_ngpublocks, m_ngputhreads>>>( m_momenta, m_MEs );
+    gProc::sigmaKin<<<m_ngpublocks, m_ngputhreads>>>( m_devMomenta, m_devMEs );
 #else
-    gProc::sigmaKin<<<m_ngpublocks, m_gputhreads, mgOnGpu::ntpbMAX * sizeof(float)>>>( m_momenta, m_MEs );
+    gProc::sigmaKin<<<m_ngpublocks, m_gputhreads, mgOnGpu::ntpbMAX * sizeof(float)>>>( m_devMomenta, m_devMEs );
 #endif
-#else
-    Proc::sigmaKin( m_momenta, m_MEs );
-#endif
-    */
   }
+#else
+  void MEKernelLauncher::computeHstMEs() const
+  {
+  Proc::sigmaKin( m_hstMomenta, m_hstMEs, m_nevt );
+  }
+#endif
 
   //--------------------------------------------------------------------------
 
