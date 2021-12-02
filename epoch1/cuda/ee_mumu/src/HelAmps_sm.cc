@@ -20,42 +20,163 @@ mgDebugDeclare();
 
 namespace MG5_sm
 {
-#ifdef __CUDACC__
+  // Decode momentum AOSOA: compute address of fptype for the given particle, 4-momentum component and event
+  // Return the fptype by reference (equivalent to returning its memory address)
   __device__
   inline const fptype& pIparIp4Ievt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                      const int ipar,
                                      const int ip4,
                                      const int ievt )
   {
-    // mapping for the various schemes (AOSOA, AOS, SOA...)
     using mgOnGpu::np4;
     using mgOnGpu::npar;
-    const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    const int ipagM = ievt/neppM; // #eventpage in this iteration
-    const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-    //printf( "%f\n", momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
+    constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+    const int ipagM = ievt/neppM; // #event "M-page"
+    const int ieppM = ievt%neppM; // #event in the current event M-page
+    //printf( "%2d %2d %8d %8.3f\n", ipar, ip4, ievt, momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
     return momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
   }
-#else
-  // Return by value: it seems a tiny bit faster than returning a reference (both for scalar and vector), not clear why
-  // NB: this assumes that neppV == neppM!
-  inline fptype_sv pIparIp4Ipag( const fptype_sv* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
+
+#ifndef __CUDACC__
+  // Return a SIMD vector of fptype's for neppV events (for the given particle, 4-momentum component and event "V-page")
+  // Return the vector by value: strictly speaking, this is only unavoidable for neppM<neppV
+  // For neppM>=neppV (both being powers of 2), the momentum neppM-AOSOA is reinterpreted in terms of neppV-vectors:
+  // it could also be returned by reference, but no performance degradation is observed when returning by value
+  inline fptype_sv pIparIp4Ipag( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
                                  const int ipar,
                                  const int ip4,
-                                 const int ipagM )
+                                 const int ipagV )
   {
-    // mapping for the various schemes (AOSOA, AOS, SOA...)
-    using mgOnGpu::np4;
-    using mgOnGpu::npar;
-    //printf( "%f\n", momenta1d[ipagM*npar*np4 + ipar*np4 + ip4] );
-    return momenta1d[ipagM*npar*np4 + ipar*np4 + ip4]; // AOSOA[ipagM][ipar][ip4][ieppM]
+    const int ievt0 = ipagV*neppV; // virtual event V-page ipagV contains neppV events [ievt0...ievt0+neppV-1]
+#ifdef MGONGPU_CPPSIMD
+    constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+    // Use c++17 "if constexpr": compile-time branching
+    if constexpr ( ( neppM >= neppV ) && ( neppM%neppV == 0 ) )
+    {
+      constexpr bool useReinterpretCastIfPossible = true; // DEFAULT
+      //constexpr bool useReinterpretCastIfPossible = false; // FOR PERFORMANCE TESTS
+      constexpr bool skipAlignmentCheck = true; // DEFAULT (MAY SEGFAULT, NEEDS A SANITY CHECK ELSEWHERE!)
+      //constexpr bool skipAlignmentCheck = false; // SLOWER BUT SAFER
+      if constexpr ( useReinterpretCastIfPossible && skipAlignmentCheck )
+      {
+        //static bool first=true; if( first ){ std::cout << "WARNING! skip alignment check" << std::endl; first=false; } // SLOWS DOWN...
+        // Fastest (4.92E6 in eemumu 512y)
+        // This requires alignment for momenta1d - segmentation fault otherwise!
+        return *reinterpret_cast<const fptype_sv*>( &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ) ) );
+      }
+      else if ( useReinterpretCastIfPossible && ( (size_t)(momenta1d) % mgOnGpu::cppAlign == 0 ) )
+      {
+        //static bool first=true; if( first ){ std::cout << "WARNING! alignment ok, use reinterpret cast" << std::endl; first=false; } // SLOWS DOWN...
+        // A bit (6%) slower (4.62E6 in eemumu 512y) because of the alignment check
+        // This explicitly checks alignment for momenta1d to avoid segmentation faults
+        return *reinterpret_cast<const fptype_sv*>( &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ) ) );
+      }
+      else
+      {
+        //static bool first=true; if( first ){ std::cout << "WARNING! AOSOA but no reinterpret cast" << std::endl; first=false; } // SLOWS DOWN...
+        // A bit (2%) slower (4.86E6 in eemumu 512y)
+        // This does not require alignment for momenta1d, but it requires AOSOA with neppM>=neppV and neppM%neppV==0
+        const fptype* out0 = &( pIparIp4Ievt( momenta1d, ipar, ip4, ievt0) );
+#if MGONGPU_CPPSIMD == 2
+        return fptype_v{ *( out0 ),
+                         *( out0+1 ) };
+#elif MGONGPU_CPPSIMD == 4
+        return fptype_v{ *( out0 ),
+                         *( out0+1 ),
+                         *( out0+2 ),
+                         *( out0+3 ) };
+#elif MGONGPU_CPPSIMD == 8
+        return fptype_v{ *( out0 ),
+                         *( out0+1 ),
+                         *( out0+2 ),
+                         *( out0+3 ),
+                         *( out0+4 ),
+                         *( out0+5 ),
+                         *( out0+6 ),
+                         *( out0+7 ) };
+#elif MGONGPU_CPPSIMD == 16
+        return fptype_v{ *( out0 ),
+                         *( out0+1 ),
+                         *( out0+2 ),
+                         *( out0+3 ),
+                         *( out0+4 ),
+                         *( out0+5 ),
+                         *( out0+6 ),
+                         *( out0+7 ),
+                         *( out0+8 ),
+                         *( out0+9 ),
+                         *( out0+10 ),
+                         *( out0+11 ),
+                         *( out0+12 ),
+                         *( out0+13 ),
+                         *( out0+14 ),
+                         *( out0+15 ) };
+#else
+#warning Internal error? This code should never be reached!
+        // A bit (2%) slower (4.86E6 in eemumu 512y)
+        // This does not require alignment for momenta1d, but it requires AOSOA with neppM>=neppV and neppM%neppV==0
+        fptype_v out;
+        for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = *( out0 + ieppV );
+        return out;
+#endif
+      }
+    }
+    else
+    {
+      // Much (20%) slower (4.07E6 in eemumu 512y)
+      // This does not even require AOSOA with neppM>=neppV and neppM%neppV==0 (e.g. can be used with AOS neppM==1)
+#if MGONGPU_CPPSIMD == 2
+      return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ) };
+#elif MGONGPU_CPPSIMD == 4
+      return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+2 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+3 ) };
+#elif MGONGPU_CPPSIMD == 8
+      return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+2 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+3 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+4 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+5 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+6 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+7 ) };
+#elif MGONGPU_CPPSIMD == 16
+      return fptype_v{ pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+1 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+2 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+3 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+4 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+5 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+6 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+7 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+8 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+9 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+10 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+11 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+12 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+13 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+14 ),
+                       pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+15 ) };
+#else
+#warning Internal error? This code should never be reached!
+      // Much much (40%) slower (3.02E6 in eemumu 512y)
+      fptype_v out;
+      for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = pIparIp4Ievt( momenta1d, ipar, ip4, ievt0+ieppV );
+      return out;
+#endif
+    }
+#else
+    return pIparIp4Ievt( momenta1d, ipar, ip4, ievt0 );
+#endif
   }
 #endif
 
   //--------------------------------------------------------------------------
 
   __device__
-  void ixxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void ixxxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
@@ -189,7 +310,7 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void ipzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void ipzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
@@ -237,7 +358,7 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void imzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void imzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
@@ -285,7 +406,7 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void ixzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void ixzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
@@ -346,7 +467,7 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void vxxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void vxxxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const fptype vmass,
                const int nhel,              // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
                const int nsv,               // input: +1 (final) or -1 (initial)
@@ -481,7 +602,7 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void sxxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void sxxxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const fptype,                // WARNING: "smass" unused (missing in Fortran)
                const int,                   // WARNING: "nhel" unused (missing in Fortran) - scalar has no helicity
                const int nss,               // input: +1 (final) or -1 (initial)
@@ -521,7 +642,7 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void oxxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void oxxxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
@@ -656,7 +777,7 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void opzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void opzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
                cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
@@ -703,7 +824,7 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void omzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void omzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
                cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
@@ -753,7 +874,7 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void oxzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
+  void oxzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
