@@ -4,7 +4,7 @@ cd $(dirname $0)
 
 function usage()
 {
-  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttgg)> [-auto|-autoonly] [-flt|-fltonly] [-inl|-inlonly] [-makeonly] [-makeclean]"
+  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttgg)> [-auto|-autoonly] [-flt|-fltonly] [-inl|-inlonly] [-makeonly] [-makeclean] [-makej]"
   exit 1
 }
 
@@ -16,6 +16,7 @@ suffs="manu"
 fptypes="d"
 helinls="0"
 steps="make test"
+makej=
 for arg in $*; do
   if [ "$arg" == "-eemumu" ]; then
     if [ "$eemumu" == "" ]; then procs+=${procs:+ }${arg}; fi
@@ -56,6 +57,9 @@ for arg in $*; do
     elif [ "${steps}" == "make" ]; then
       steps="makeclean make"
     fi
+  elif [ "$arg" == "-makej" ]; then
+    makej=-makej
+    shift
   else
     echo "ERROR! Invalid option '$arg'"; usage
   fi  
@@ -95,7 +99,7 @@ for step in $steps; do
             printf "\n%80s\n" |tr " " "*"
             printf "*** ./throughputX.sh -makeonly $args"
             printf "\n%80s\n" |tr " " "*"
-            if ! ./throughputX.sh -makeonly $args; then exit 1; fi
+            if ! ./throughputX.sh -makeonly ${makej} $args; then exit 1; fi
           else
             logfile=logs_${proc#-}_${suff}/log_${proc#-}_${suff}_${fptype}_inl${helinl}.txt
             printf "\n%80s\n" |tr " " "*"
