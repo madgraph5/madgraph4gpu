@@ -76,6 +76,14 @@ namespace mg5amcCpu
     const fptype* hstMEs() const { return m_hstMEs; }
 #endif
 
+    // Get the host-allocated list of good helicities
+    // [NB compute them first if needed: this requires enough input momenta to have been set]
+    const bool* getGoodHel();
+
+    // Set the list of good helicities from user input (instead of computing them)
+    // [NB throws if good helicities have already been set or computed]
+    void setGoodHel( const bool* isGoodHel );
+
     // Get the number of elements in the momenta array
     int nMomenta() const { return np4 * npar * m_nevt; }
 

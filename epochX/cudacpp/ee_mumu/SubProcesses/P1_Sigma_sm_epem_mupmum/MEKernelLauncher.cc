@@ -39,9 +39,6 @@ namespace mg5amcCpu
     // Allocate the device buffer for the output MEs
     checkCuda( cudaMalloc( &m_devMEs, nMEs() * sizeof(fptype) ) );
 
-    // Allocate the device buffer for the output helicity mask
-    checkCuda( cudaMalloc( &m_devIsGoodHel, nIsGoodHel() * sizeof(bool) ) );
-
     // Allocate the host buffer for the input momenta
     if ( useHstBuffers == UseHstMomenta || useHstBuffers == UseBoth )
       checkCuda( cudaMallocHost( &m_hstMomenta, nMomenta() * sizeof(fptype) ) );
@@ -49,9 +46,6 @@ namespace mg5amcCpu
     // Allocate the host buffer for the output MEs
     if ( useHstBuffers == UseHstMEs || useHstBuffers == UseBoth )
       checkCuda( cudaMallocHost( &m_hstMEs, nMEs() * sizeof(fptype) ) );
-
-    // Allocate the host buffer for the helicity mask
-    checkCuda( cudaMallocHost( &m_hstIsGoodHel, nIsGoodHel() * sizeof(bool) ) );
   }
 #else
   MEKernelLauncher::MEKernelLauncher( int nevt )
@@ -65,9 +59,6 @@ namespace mg5amcCpu
 
     // Allocate the host buffer for the output MEs
     m_hstMEs = new( std::align_val_t{ cppAlign } ) fptype[ nMEs() ]();
-
-    // Allocate the device buffer for the output helicity mask
-    m_hstIsGoodHel = new bool[ nIsGoodHel() ]();
   }
 #endif
 
@@ -82,8 +73,8 @@ namespace mg5amcCpu
     // Deallocate the device buffer for the output MEs
     checkCuda( cudaFree( m_devMEs ) );
 
-    // Deallocate the device buffer for the output helicity mask
-    checkCuda( cudaFree( m_devIsGoodHel ) );
+    // Deallocate the device buffer for the helicity mask
+    if ( m_devIsGoodHel ) checkCuda( cudaFree( m_devIsGoodHel ) );
 
     // Deallocate the host buffer for the input momenta
     if ( m_hstMomenta ) checkCuda( cudaFreeHost( m_hstMomenta ) );
@@ -97,8 +88,8 @@ namespace mg5amcCpu
     // Deallocate the host buffer for the output MEs
     ::operator delete( m_hstMEs, std::align_val_t{ cppAlign } );
 
-    // Deallocate the host buffer for the output helicity mask
-    delete( m_hstIsGoodHel );
+    // Deallocate the host buffer for the helicity mask
+    if ( m_hstIsGoodHel ) delete( m_hstIsGoodHel );
 #endif
   }
 
@@ -141,6 +132,64 @@ namespace mg5amcCpu
   }
 #endif
 
+  //--------------------------------------------------------------------------
+
+  const bool* MEKernelLauncher::getGoodHel()
+  {
+    if ( !m_hstIsGoodHel )
+    {
+#ifdef __CUDACC__
+      // Allocate the host buffer for the helicity mask
+      checkCuda( cudaMallocHost( &m_hstIsGoodHel, nIsGoodHel() * sizeof(bool) ) );
+      // Allocate the device buffer for the helicity mask
+      checkCuda( cudaMalloc( &m_devIsGoodHel, nIsGoodHel() * sizeof(bool) ) );
+      // Compute the good helicity mask on the device
+      gProc::sigmaKin_getGoodHel<<<m_ngpublocks, m_ngputhreads>>>( m_devMomenta, m_devMEs, m_devIsGoodHel );
+      checkCuda( cudaPeekAtLastError() );
+      // Copy the helicity mask from the device to the host
+      checkCuda( cudaMemcpy( m_hstIsGoodHel, m_devIsGoodHel, nIsGoodHel() * sizeof(bool), cudaMemcpyDeviceToHost ) );
+      // Copy the helicity mask to constant memory on the device
+      gProc::sigmaKin_setGoodHel( m_hstIsGoodHel );
+#else
+      // Allocate the host buffer for the helicity mask
+      m_hstIsGoodHel = new bool[ nIsGoodHel() ]();
+      // Compute the good helicity mask on the host
+      Proc::sigmaKin_getGoodHel( m_hstMomenta, m_hstMEs, m_hstIsGoodHel, m_nevt );
+      // Copy the helicity mask to static memory on the host
+      // [FIXME! REMOVE THIS STATIC THAT BREAKS MULTITHREADING?]
+      Proc::sigmaKin_setGoodHel( m_hstIsGoodHel );
+#endif
+    }
+    return m_hstIsGoodHel;
+  }
+
+  //--------------------------------------------------------------------------
+
+  void MEKernelLauncher::setGoodHel( const bool* isGoodHel )
+  {
+    if ( !m_hstIsGoodHel )
+    {
+#ifdef __CUDACC__
+      // Allocate the host buffer for the helicity mask
+      checkCuda( cudaMallocHost( &m_hstIsGoodHel, nIsGoodHel() * sizeof(bool) ) );
+#else
+      // Allocate the host buffer for the helicity mask
+      m_hstIsGoodHel = new bool[ nIsGoodHel() ]();
+#endif
+      // Set the helicity mask from user input
+      for ( int ihel = 0; ihel < ncomb; ihel++ ) m_hstIsGoodHel[ihel] = isGoodHel[ihel];
+#ifdef __CUDACC__
+      // Copy the helicity mask to constant memory on the device
+      gProc::sigmaKin_setGoodHel( m_hstIsGoodHel );
+#else
+      // Copy the helicity mask to static memory on the host
+      // [FIXME! REMOVE THIS STATIC THAT BREAKS MULTITHREADING?]
+      Proc::sigmaKin_setGoodHel( m_hstIsGoodHel );
+#endif
+    }
+    else throw std::logic_error( "Cannot setGoodHel: helicity mask has already been set or computed" );
+  }
+  
   //--------------------------------------------------------------------------
 
 }
