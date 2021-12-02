@@ -28,6 +28,7 @@
 #include "CommonRandomNumbers.h"
 #endif
 #include "CPPProcess.h"
+#include "MEKernelLauncher.h"
 #include "Memory.h"
 #include "timermap.h"
 
@@ -305,38 +306,44 @@ int main(int argc, char **argv)
   const std::string alloKey = "0b MemAlloc";
   timermap.start( alloKey );
 
-  // Memory structures for random numbers, momenta, matrix elements and weights on host and device
+  // Instantiate a MEKernelLauncher
+#ifdef __CUDACC__
+  mg5amcGpu::MEKernelLauncher mekl( gpublocks, gputhreads, mg5amcGpu::MEKernelLauncher::UseBoth );
+#else
+  mg5amcCpu::MEKernelLauncher mekl( nevt );
+#endif
+
+  // Get the pointers to the memory structures for momenta and matrix elements on host and device allocated by the MEKL
+  auto hstMomenta = mekl.hstMomenta();
+  auto hstMEs = mekl.hstMEs();
+#ifdef __CUDACC__
+  auto devMomenta = mekl.devMomenta();
+  auto devMEs = mekl.devMEs();
+#endif
+
+  // Allocate additional memory structures for random numbers and weights on host and device
   using mgOnGpu::np4;
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
   using mgOnGpu::ncomb; // Number of helicity combinations
   const int nRnarray = np4*nparf*nevt; // (NB: AOSOA layout with nevt=npagR*neppR events per iteration)
-  const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for AOSOA layouts)
   const int nWeights = nevt;
-  const int nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
 
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST or not defined __CUDACC__
   auto hstRnarray   = hstMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
 #endif
-  auto hstMomenta   = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
   auto hstIsGoodHel = hstMakeUnique<bool  >( ncomb );
   auto hstWeights   = hstMakeUnique<fptype>( nWeights );
-  auto hstMEs       = hstMakeUnique<fptype>( nMEs ); // ARRAY[nevt]
 
 #ifdef __CUDACC__
   auto devRnarray   = devMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-  auto devMomenta   = devMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
   auto devIsGoodHel = devMakeUnique<bool  >( ncomb );
   auto devWeights   = devMakeUnique<fptype>( nWeights );
-  auto devMEs       = devMakeUnique<fptype>( nMEs ); // ARRAY[nevt]
-
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
   const int nbytesRnarray = nRnarray * sizeof(fptype);
 #endif
-  const int nbytesMomenta = nMomenta * sizeof(fptype);
   const int nbytesIsGoodHel = ncomb * sizeof(bool);
   const int nbytesWeights = nWeights * sizeof(fptype);
-  const int nbytesMEs = nMEs * sizeof(fptype);
 #endif
 
   std::unique_ptr<double[]> genrtimes( new double[niter] );
@@ -433,9 +440,9 @@ int main(int argc, char **argv)
     const std::string riniKey = "2a RamboIni";
     timermap.start( riniKey );
 #ifdef __CUDACC__
-    grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta.get() );
+    grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta );
 #else
-    rambo2toNm0::getMomentaInitial( energy, hstMomenta.get(), nevt );
+    rambo2toNm0::getMomentaInitial( energy, hstMomenta, nevt );
 #endif
     //std::cout << "Got initial momenta" << std::endl;
 
@@ -444,9 +451,9 @@ int main(int argc, char **argv)
     const std::string rfinKey = "2b RamboFin";
     rambtime += timermap.start( rfinKey );
 #ifdef __CUDACC__
-    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.get(), devMomenta.get(), devWeights.get() );
+    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.get(), devMomenta, devWeights.get() );
 #else
-    rambo2toNm0::getMomentaFinal( energy, hstRnarray.get(), hstMomenta.get(), hstWeights.get(), nevt );
+    rambo2toNm0::getMomentaFinal( energy, hstRnarray.get(), hstMomenta, hstWeights.get(), nevt );
 #endif
     //std::cout << "Got final momenta" << std::endl;
 
@@ -459,7 +466,7 @@ int main(int argc, char **argv)
     // --- 2d. CopyDToH Momenta
     const std::string cmomKey = "2d CpDTHmom";
     rambtime += timermap.start( cmomKey );
-    checkCuda( cudaMemcpy( hstMomenta.get(), devMomenta.get(), nbytesMomenta, cudaMemcpyDeviceToHost ) );
+    mekl.copyDevMomentaToHstMomenta();
 #endif
 
     // *** STOP THE OLD-STYLE TIMER FOR RAMBO ***
@@ -478,17 +485,17 @@ int main(int argc, char **argv)
       timermap.start( ghelKey );
 #ifdef __CUDACC__
       // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.get(), devMEs.get(), devIsGoodHel.get());
+      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>( devMomenta, const_cast<fptype*>(devMEs), devIsGoodHel.get() );
       checkCuda( cudaPeekAtLastError() );
       // ... 0d2. Copy back good helicity mask to the host
       checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(), nbytesIsGoodHel, cudaMemcpyDeviceToHost ) );
       // ... 0d3. Copy back good helicity list to constant memory on the device
-      gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
+      gProc::sigmaKin_setGoodHel( hstIsGoodHel.get() );
 #else
       // ... 0d1. Compute good helicity mask on the host
-      Proc::sigmaKin_getGoodHel(hstMomenta.get(), hstMEs.get(), hstIsGoodHel.get(), nevt);
+      Proc::sigmaKin_getGoodHel( hstMomenta, const_cast<fptype*>(hstMEs), hstIsGoodHel.get(), nevt );
       // ... 0d2. Copy back good helicity list to static memory on the host
-      Proc::sigmaKin_setGoodHel(hstIsGoodHel.get());
+      Proc::sigmaKin_setGoodHel( hstIsGoodHel.get() );
 #endif
     }
 
@@ -500,15 +507,10 @@ int main(int argc, char **argv)
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
 #ifdef __CUDACC__
-#ifndef MGONGPU_NSIGHT_DEBUG
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.get(), devMEs.get());
-#else
-    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.get(), devMEs.get());
-#endif
-    checkCuda( cudaPeekAtLastError() );
+    mekl.computeDevMEs();
     checkCuda( cudaDeviceSynchronize() );
 #else
-    Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), nevt);
+    mekl.computeHstMEs();
 #endif
 
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
@@ -519,7 +521,7 @@ int main(int argc, char **argv)
     // --- 3b. CopyDToH MEs
     const std::string cmesKey = "3b CpDTHmes";
     timermap.start( cmesKey );
-    checkCuda( cudaMemcpy( hstMEs.get(), devMEs.get(), nbytesMEs, cudaMemcpyDeviceToHost ) );
+    mekl.copyDevMEsToHstMEs();
     // *** STOP THE OLD OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wavetime += timermap.stop(); // calc plus copy
 #endif
