@@ -30,7 +30,7 @@ namespace mg5amcCpu
     // Constructor (from command line arguments)
     // Allocates the input and output buffers for the given number of events
 #ifdef __CUDACC__
-    MEKernelLauncher( int ngpublocks, int ngputhreads );
+    MEKernelLauncher( int ngpublocks, int ngputhreads, bool useHstMEs = true );
 #else
     MEKernelLauncher( int nevt );
 #endif
@@ -43,6 +43,10 @@ namespace mg5amcCpu
     // Compute the output device MEs from the input device momenta
     void computeDevMEs() const;
 
+    // Copy the output host MEs from the calculated device MEs
+    // [NB this throws in CUDA if useHstMEs is false]
+    void copyDevMEsToHstMEs() const;
+
     // Get the device buffer for the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
     fptype* devMomenta() const { return m_devMomenta; }
 
@@ -54,14 +58,15 @@ namespace mg5amcCpu
 
     // Get the host buffer for the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
     fptype* hstMomenta() const { return m_hstMomenta; }
+#endif
 
     // Get the host buffer for the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
+    // [NB this is a nullptr in CUDA if useHstMEs is false]
     const fptype* hstMEs() const { return m_hstMEs; }
-#endif
 
     // Get the number of bytes in the momenta array
     int nbytesMomenta() const { return np4 * npar * m_nevt * sizeof(fptype); }
-    
+
     // Get the number of bytes in the MEs array
     int nbytesMEs() const { return m_nevt * sizeof(fptype); }
 
@@ -109,10 +114,10 @@ namespace mg5amcCpu
 #else
     // The host buffer for the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
     fptype* m_hstMomenta;
+#endif
 
     // The host buffer for the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
     fptype* m_hstMEs;
-#endif
 
   };
 
