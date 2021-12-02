@@ -21,7 +21,7 @@ template<typename T = fptype>
 using unique_ptr_host = std::unique_ptr<T[], CudaHstDeleter<T>>;
 #else
 template<typename T = fptype>
-using unique_ptr_host = std::unique_ptr<T[]>;
+using unique_ptr_host = std::unique_ptr<T[], CppHstDeleter<T>>;
 #endif
 
 struct CUDA_CPU_TestBase : public TestDriverBase {
@@ -47,11 +47,11 @@ struct CPUTest : public CUDA_CPU_TestBase {
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   Proc::CPPProcess process;
-  unique_ptr_host<fptype   > hstRnarray;
-  unique_ptr_host<fptype_sv> hstMomenta;
-  unique_ptr_host<bool     > hstIsGoodHel;
-  unique_ptr_host<fptype   > hstWeights;
-  unique_ptr_host<fptype_sv> hstMEs;
+  unique_ptr_host<fptype> hstRnarray;
+  unique_ptr_host<fptype> hstMomenta;
+  unique_ptr_host<bool  > hstIsGoodHel;
+  unique_ptr_host<fptype> hstWeights;
+  unique_ptr_host<fptype> hstMEs;
 
   // Create a process object
   // Read param_card and set parameters
@@ -61,11 +61,11 @@ struct CPUTest : public CUDA_CPU_TestBase {
   CPUTest( const std::string& refFileName ) :
     CUDA_CPU_TestBase( refFileName ),
     process(niter, gpublocks, gputhreads, /*verbose=*/false),
-    hstRnarray  { hstMakeUnique<fptype   >( nRnarray ) }, // AOSOA[npagR][nparf][np4][neppR]
-    hstMomenta  { hstMakeUnique<fptype_sv>( nMomenta ) }, // AOSOA[npagM][npar][np4][neppM]
-    hstIsGoodHel{ hstMakeUnique<bool     >( mgOnGpu::ncomb ) },
-    hstWeights  { hstMakeUnique<fptype   >( nWeights ) },
-    hstMEs      { hstMakeUnique<fptype_sv>( nMEs ) } // AOSOA[npagM][neppM]
+    hstRnarray  { hstMakeUnique<fptype>( nRnarray ) }, // AOSOA[npagR][nparf][np4][neppR]
+    hstMomenta  { hstMakeUnique<fptype>( nMomenta ) }, // AOSOA[npagM][npar][np4][neppM]
+    hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) },
+    hstWeights  { hstMakeUnique<fptype>( nWeights ) },
+    hstMEs      { hstMakeUnique<fptype>( nMEs ) } // ARRAY[nevt]
   {
     process.initProc("../../Cards/param_card.dat");
   }
@@ -106,19 +106,11 @@ struct CPUTest : public CUDA_CPU_TestBase {
     assert(particle  < npar);
     const auto ipagM = evtNo / neppM; // #eventpage in this iteration
     const auto ieppM = evtNo % neppM; // #event in the current eventpage in this iteration
-#ifndef MGONGPU_CPPSIMD
     return hstMomenta[ipagM*npar*np4*neppM + particle*np4*neppM + component*neppM + ieppM];
-#else
-    return hstMomenta[ipagM*npar*np4 + particle*np4 + component][ieppM];
-#endif
   };
 
   fptype getMatrixElement(std::size_t ievt) const override {
-#ifndef MGONGPU_CPPSIMD
     return hstMEs[ievt];
-#else
-    return hstMEs[ievt/neppV][ievt%neppV];
-#endif
   }
 
 };
@@ -161,12 +153,12 @@ struct CUDATest : public CUDA_CPU_TestBase {
     hstMomenta  { hstMakeUnique<fptype>( nMomenta ) }, // AOSOA[npagM][npar][np4][neppM] (nevt=npagM*neppM)
     hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) },
     hstWeights  { hstMakeUnique<fptype>( nWeights ) },
-    hstMEs      { hstMakeUnique<fptype>( nMEs ) },
+    hstMEs      { hstMakeUnique<fptype>( nMEs ) },     // ARRAY[nevt]
     devRnarray  { devMakeUnique<fptype>( nRnarray ) }, // AOSOA[npagR][nparf][np4][neppR] (nevt=npagR*neppR)
-    devMomenta  { devMakeUnique<fptype>( nMomenta ) },
+    devMomenta  { devMakeUnique<fptype>( nMomenta ) }, // AOSOA[npagM][npar][np4][neppM] (nevt=npagM*neppM)
     devIsGoodHel{ devMakeUnique<bool  >( mgOnGpu::ncomb ) },
     devWeights  { devMakeUnique<fptype>( nWeights ) },
-    devMEs      { devMakeUnique<fptype>( nMEs )     }
+    devMEs      { devMakeUnique<fptype>( nMEs ) }      // ARRAY[nevt]
   {
     process.initProc("../../Cards/param_card.dat");
   }
