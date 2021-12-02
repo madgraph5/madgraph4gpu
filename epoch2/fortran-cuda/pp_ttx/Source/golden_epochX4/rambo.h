@@ -1,21 +1,23 @@
 #ifndef RAMBO_H
 #define RAMBO_H 1
 
+#include <cassert>
+
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
-
-#include <cassert>
 
 //--------------------------------------------------------------------------
 
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_CURAND_ONDEVICE
 #include "curand.h"
 
-#define checkCurand( code )                     \
-  { assertCurand( code, __FILE__, __LINE__ ); }
+#define checkCurand( code ) \
+  { \
+    assertCurand( code, __FILE__, __LINE__ ); \
+  }
 
-inline void assertCurand( curandStatus_t code, const char *file, int line, bool abort = true )
+inline void assertCurand( curandStatus_t code, const char* file, int line, bool abort = true )
 {
   if ( code != CURAND_STATUS_SUCCESS )
   {
@@ -35,37 +37,36 @@ namespace grambo2toNm0
 namespace rambo2toNm0
 #endif
 {
-
   using mgOnGpu::np4;
-  using mgOnGpu::npari;
-  using mgOnGpu::nparf;
   using mgOnGpu::npar;
+  using mgOnGpu::nparf;
+  using mgOnGpu::npari;
 
   //--------------------------------------------------------------------------
 
   // Fill in the momenta of the initial particles
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
-  __global__
-  void getMomentaInitial( const fptype energy,   // input: energy
-                          fptype_sv momenta1d[]  // output: momenta as AOSOA[npagM][npar][4][neppM]
+  __global__ void getMomentaInitial( const fptype energy,  // input: energy
+                                     fptype_sv momenta1d[] // output: momenta as AOSOA[npagM][npar][4][neppM]
 #ifndef __CUDACC__
-                          , const int nevt       // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                                     ,
+                                     const int nevt // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
-                          );
+  );
 
   //--------------------------------------------------------------------------
 
   // Fill in the momenta of the final particles using the RAMBO algorithm
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
-  __global__
-  void getMomentaFinal( const fptype energy,      // input: energy
-                        const fptype rnarray1d[], // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
-                        fptype_sv momenta1d[],    // output: momenta as AOSOA[npagM][npar][4][neppM]
-                        fptype wgts[]             // output: weights[nevt]
+  __global__ void getMomentaFinal( const fptype energy,      // input: energy
+                                   const fptype rnarray1d[], // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
+                                   fptype_sv momenta1d[],    // output: momenta as AOSOA[npagM][npar][4][neppM]
+                                   fptype wgts[]             // output: weights[nevt]
 #ifndef __CUDACC__
-                        , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                                   ,
+                                   const int nevt // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
-                        );
+  );
 
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_CURAND_ONDEVICE
   //--------------------------------------------------------------------------
@@ -94,7 +95,6 @@ namespace rambo2toNm0
 
   //--------------------------------------------------------------------------
 #endif
-
 }
 
 #endif // RAMBO_H 1

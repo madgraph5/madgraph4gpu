@@ -443,7 +443,7 @@ C     SR --> INJECT CODE
         CALL SMATRIX1(P_MULTI(0,1,IVEC),
      &	                         hel_rand(IVEC),
      &				 channel,
-     &				 out2(IVEC),
+     &				 out(IVEC),
 C       &				 selected_hel(IVEC),
      &				 jamp2_multi(0,IVEC),
      &				 IVEC
@@ -460,14 +460,14 @@ C           WRITE(*,*) P_MULTI(0:3, PAR, EVT)
 C  30    END DO
 C  40  END DO
 
-      call fcubridge(P_MULTI, OUT)
-C      call fcppbridge(P_MULTI, OUT)
+C      call fcubridge(P_MULTI, OUT)
+      call fcppbridge(P_MULTI, OUT2)
 
-      WRITE (*,*) OUT
+Cccle      WRITE (*,*) OUT
 C      WRITE (*,*) OUT2
       DO IVEC=1, NB_PAGE
 C        WRITE (*,*) IVEC, OUT(IVEC)
-        WRITE (*,*) IVEC, OUT(IVEC)/OUT2(IVEC)
+        WRITE (*,*) IVEC, OUT2(IVEC)/OUT(IVEC)
       end do
 
 C      DO 40 EVT=1, NB_PAGE

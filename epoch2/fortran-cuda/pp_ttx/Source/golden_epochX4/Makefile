@@ -3,7 +3,7 @@ OPTFLAGS = -O3
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 OMPFLAGS?=
 else
-OMPFLAGS?= -fopenmp
+OMPFLAGS?= # -fopenmp
 endif
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -fPIC -Wall -Wshadow -Wextra $(OMPFLAGS) $(MGONGPU_CONFIG)
 CXXFLAGS+= -ffast-math # see issue #117

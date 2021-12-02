@@ -7,8 +7,9 @@
 #if defined MGONGPU_CXTYPE_THRUST
 #include <thrust/complex.h>
 #elif defined MGONGPU_CXTYPE_CUCOMPLEX
-#include <complex>
 #include <cuComplex.h>
+
+#include <complex>
 #endif
 #else
 #include <cmath>
@@ -17,7 +18,6 @@
 
 namespace mgOnGpu
 {
-
   // --- Type definitions
 
   // Complex type: cxtype
@@ -33,7 +33,7 @@ namespace mgOnGpu
   typedef std::complex<fptype> cxtype; // two doubles: RI
 #endif
 
-}
+} // namespace mgOnGpu
 
 // Expose typedefs and operators outside the namespace
 using mgOnGpu::cxtype;
@@ -56,20 +56,11 @@ fptype fpmin( const fptype& a, const fptype& b )
 }
 */
 
-inline __host__ __device__
-const fptype& fpmax( const fptype& a, const fptype& b )
-{
-  return ( ( b < a ) ? a : b );
-}
+inline __host__ __device__ const fptype& fpmax( const fptype& a, const fptype& b ) { return ( ( b < a ) ? a : b ); }
 
-inline __host__ __device__
-const fptype& fpmin( const fptype& a, const fptype& b )
-{
-  return ( ( a < b ) ? a : b );
-}
+inline __host__ __device__ const fptype& fpmin( const fptype& a, const fptype& b ) { return ( ( a < b ) ? a : b ); }
 
-inline __host__ __device__
-fptype fpsqrt( const fptype& f )
+inline __host__ __device__ fptype fpsqrt( const fptype& f )
 {
 #if defined MGONGPU_FPTYPE_FLOAT
   // See https://docs.nvidia.com/cuda/cuda-math-api/group__CUDA__MATH__SINGLE.html
@@ -82,23 +73,11 @@ fptype fpsqrt( const fptype& f )
 
 #else // c++
 
-inline
-const fptype& fpmax( const fptype& a, const fptype& b )
-{
-  return std::max( a, b );
-}
+inline const fptype& fpmax( const fptype& a, const fptype& b ) { return std::max( a, b ); }
 
-inline
-const fptype& fpmin( const fptype& a, const fptype& b )
-{
-  return std::min( a, b );
-}
+inline const fptype& fpmin( const fptype& a, const fptype& b ) { return std::min( a, b ); }
 
-inline
-fptype fpsqrt( const fptype& f )
-{
-  return std::sqrt( f );
-}
+inline fptype fpsqrt( const fptype& f ) { return std::sqrt( f ); }
 
 #endif
 
@@ -121,35 +100,27 @@ fptype fpsqrt( const fptype& f )
 // thrust::complex<float>
 //+++++++++++++++++++++++++
 
-inline __host__ __device__
-cxtype cxmake( const fptype& r, const fptype& i )
+inline __host__ __device__ cxtype cxmake( const fptype& r, const fptype& i )
 {
   return cxtype( r, i ); // thrust::complex<fptype> constructor
 }
 
-inline __host__ __device__
-fptype cxreal( const cxtype& c )
+inline __host__ __device__ fptype cxreal( const cxtype& c )
 {
   return c.real(); // thrust::complex<fptype>::real()
 }
 
-inline __host__ __device__
-fptype cximag( const cxtype& c )
+inline __host__ __device__ fptype cximag( const cxtype& c )
 {
   return c.imag(); // thrust::complex<fptype>::imag()
 }
 
-inline __host__ __device__
-cxtype cxconj( const cxtype& c )
+inline __host__ __device__ cxtype cxconj( const cxtype& c )
 {
   return conj( c ); // conj( thrust::complex<fptype> )
 }
 
-inline __host__ __device__
-const cxtype& cxmake( const cxtype& c )
-{
-  return c;
-}
+inline __host__ __device__ const cxtype& cxmake( const cxtype& c ) { return c; }
 
 //------------------------------
 // CUDA - using cuComplex
@@ -161,124 +132,81 @@ const cxtype& cxmake( const cxtype& c )
 // cuDoubleComplex
 //+++++++++++++++++++++++++
 
-#if defined MGONGPU_FPTYPE_DOUBLE  // cuda + cucomplex + double
+#if defined MGONGPU_FPTYPE_DOUBLE // cuda + cucomplex + double
 
-inline __host__ __device__
-cxtype cxmake( const fptype& r, const fptype& i )
+inline __host__ __device__ cxtype cxmake( const fptype& r, const fptype& i ) { return make_cuDoubleComplex( r, i ); }
+
+inline __host__ __device__ fptype cxreal( const cxtype& c )
 {
-  return make_cuDoubleComplex( r, i );
+  return cuCreal( c ); // returns by value
 }
 
-inline __host__ __device__
-fptype cxreal( const cxtype& c )
+inline __host__ __device__ fptype cximag( const cxtype& c )
 {
-  return cuCreal(c); // returns by value
+  return cuCimag( c ); // returns by value
 }
 
-inline __host__ __device__
-fptype cximag( const cxtype& c )
+inline __host__ __device__ cxtype operator+( const cxtype& a, const cxtype& b ) { return cuCadd( a, b ); }
+
+inline __host__ __device__ cxtype& operator+=( cxtype& a, const cxtype& b )
 {
-  return cuCimag(c); // returns by value
+  a = cuCadd( a, b );
+  return a;
 }
 
-inline __host__ __device__
-cxtype operator+( const cxtype& a, const cxtype& b )
+inline __host__ __device__ cxtype operator-( const cxtype& a, const cxtype& b ) { return cuCsub( a, b ); }
+
+inline __host__ __device__ cxtype& operator-=( cxtype& a, const cxtype& b )
 {
-  return cuCadd( a, b );
+  a = cuCsub( a, b );
+  return a;
 }
 
-inline __host__ __device__
-cxtype& operator+=( cxtype& a, const cxtype& b )
-{
-  a = cuCadd( a, b ); return a;
-}
+inline __host__ __device__ cxtype operator*( const cxtype& a, const cxtype& b ) { return cuCmul( a, b ); }
 
-inline __host__ __device__
-cxtype operator-( const cxtype& a, const cxtype& b )
-{
-  return cuCsub( a, b );
-}
-
-inline __host__ __device__
-cxtype& operator-=( cxtype& a, const cxtype& b )
-{
-  a = cuCsub( a, b ); return a;
-}
-
-inline __host__ __device__
-cxtype operator*( const cxtype& a, const cxtype& b )
-{
-  return cuCmul( a, b );
-}
-
-inline __host__ __device__
-cxtype operator/( const cxtype& a, const cxtype& b )
-{
-  return cuCdiv( a, b );
-}
+inline __host__ __device__ cxtype operator/( const cxtype& a, const cxtype& b ) { return cuCdiv( a, b ); }
 
 //+++++++++++++++++++++++++
 // cuFloatComplex
 //+++++++++++++++++++++++++
 
-#elif defined MGONGPU_FPTYPE_FLOAT  // cuda + cucomplex + float
+#elif defined MGONGPU_FPTYPE_FLOAT // cuda + cucomplex + float
 
-inline __host__ __device__
-cxtype cxmake( const fptype& r, const fptype& i )
+inline __host__ __device__ cxtype cxmake( const fptype& r, const fptype& i ) { return make_cuFloatComplex( r, i ); }
+
+inline __host__ __device__ fptype cxreal( const cxtype& c )
 {
-  return make_cuFloatComplex( r, i );
+  return cuCrealf( c ); // returns by value
 }
 
-inline __host__ __device__
-fptype cxreal( const cxtype& c )
+inline __host__ __device__ fptype cximag( const cxtype& c )
 {
-  return cuCrealf(c); // returns by value
+  return cuCimagf( c ); // returns by value
 }
 
-inline __host__ __device__
-fptype cximag( const cxtype& c )
+inline __host__ __device__ cxtype operator+( const cxtype& a, const cxtype& b ) { return cuCaddf( a, b ); }
+
+inline __host__ __device__ cxtype& operator+=( cxtype& a, const cxtype& b )
 {
-  return cuCimagf(c); // returns by value
+  a = cuCaddf( a, b );
+  return a;
 }
 
-inline __host__ __device__
-cxtype operator+( const cxtype& a, const cxtype& b )
+inline __host__ __device__ cxtype operator-( const cxtype& a, const cxtype& b ) { return cuCsubf( a, b ); }
+
+inline __host__ __device__ cxtype& operator-=( cxtype& a, const cxtype& b )
 {
-  return cuCaddf( a, b );
+  a = cuCsubf( a, b );
+  return a;
 }
 
-inline __host__ __device__
-cxtype& operator+=( cxtype& a, const cxtype& b )
-{
-  a = cuCaddf( a, b ); return a;
-}
+inline __host__ __device__ cxtype operator*( const cxtype& a, const cxtype& b ) { return cuCmulf( a, b ); }
 
-inline __host__ __device__
-cxtype operator-( const cxtype& a, const cxtype& b )
-{
-  return cuCsubf( a, b );
-}
-
-inline __host__ __device__
-cxtype& operator-=( cxtype& a, const cxtype& b )
-{
-  a = cuCsubf( a, b ); return a;
-}
-
-inline __host__ __device__
-cxtype operator*( const cxtype& a, const cxtype& b )
-{
-  return cuCmulf( a, b );
-}
-
-inline __host__ __device__
-cxtype operator/( const cxtype& a, const cxtype& b )
-{
-  return cuCdivf( a, b );
-}
+inline __host__ __device__ cxtype operator/( const cxtype& a, const cxtype& b ) { return cuCdivf( a, b ); }
 
 inline __host__ // NOT __device__
-cxtype cxmake( const std::complex<double>& c ) // std::complex to cucomplex (cast double-to-float)
+  cxtype
+  cxmake( const std::complex<double>& c ) // std::complex to cucomplex (cast double-to-float)
 {
   return cxmake( (fptype)c.real(), (fptype)c.imag() );
 }
@@ -288,131 +216,82 @@ cxtype cxmake( const std::complex<double>& c ) // std::complex to cucomplex (cas
 // cuFloatComplex
 //+++++++++++++++++++++++++
 
-#endif  // END cuda + cucomplex + double/float
+#endif // END cuda + cucomplex + double/float
 
-inline __host__ __device__
-cxtype operator+( const cxtype a )
-{
-  return a;
-}
+inline __host__ __device__ cxtype operator+( const cxtype a ) { return a; }
 
-inline __host__ __device__
-cxtype operator-( const cxtype& a )
-{
-  return cxmake( -cxreal(a), -cximag(a) );
-}
+inline __host__ __device__ cxtype operator-( const cxtype& a ) { return cxmake( -cxreal( a ), -cximag( a ) ); }
 
-inline __host__ __device__
-cxtype operator+( const fptype& a, const cxtype& b )
-{
-  return cxmake( a, 0 ) + b;
-}
+inline __host__ __device__ cxtype operator+( const fptype& a, const cxtype& b ) { return cxmake( a, 0 ) + b; }
 
-inline __host__ __device__
-cxtype operator-( const fptype& a, const cxtype& b )
-{
-  return cxmake( a, 0 ) - b;
-}
+inline __host__ __device__ cxtype operator-( const fptype& a, const cxtype& b ) { return cxmake( a, 0 ) - b; }
 
-inline __host__ __device__
-cxtype operator*( const fptype& a, const cxtype& b )
-{
-  return cxmake( a, 0 ) * b;
-}
+inline __host__ __device__ cxtype operator*( const fptype& a, const cxtype& b ) { return cxmake( a, 0 ) * b; }
 
-inline __host__ __device__
-cxtype operator/( const fptype& a, const cxtype& b )
-{
-  return cxmake( a, 0 ) / b;
-}
+inline __host__ __device__ cxtype operator/( const fptype& a, const cxtype& b ) { return cxmake( a, 0 ) / b; }
 
-inline __host__ __device__
-cxtype operator+( const cxtype& a, const fptype& b )
-{
-  return a + cxmake( b, 0 );
-}
+inline __host__ __device__ cxtype operator+( const cxtype& a, const fptype& b ) { return a + cxmake( b, 0 ); }
 
-inline __host__ __device__
-cxtype operator-( const cxtype& a, const fptype& b )
-{
-  return a - cxmake( b, 0 );
-}
+inline __host__ __device__ cxtype operator-( const cxtype& a, const fptype& b ) { return a - cxmake( b, 0 ); }
 
-inline __host__ __device__
-cxtype operator*( const cxtype& a, const fptype& b )
-{
-  return a * cxmake( b, 0 );
-}
+inline __host__ __device__ cxtype operator*( const cxtype& a, const fptype& b ) { return a * cxmake( b, 0 ); }
 
-inline __host__ __device__
-cxtype operator/( const cxtype& a, const fptype& b )
-{
-  return a / cxmake( b, 0 );
-}
+inline __host__ __device__ cxtype operator/( const cxtype& a, const fptype& b ) { return a / cxmake( b, 0 ); }
 
-inline __host__ __device__
-cxtype cxconj( const cxtype& c )
-{
-  return cxmake( cxreal( c ), -cximag( c ) );
-}
+inline __host__ __device__ cxtype cxconj( const cxtype& c ) { return cxmake( cxreal( c ), -cximag( c ) ); }
 
 inline __host__ // NOT __device__
-cxtype cxmake( const std::complex<fptype>& c ) // std::complex to cucomplex (float-to-float or double-to-double)
+  cxtype
+  cxmake( const std::complex<fptype>& c ) // std::complex to cucomplex (float-to-float or double-to-double)
 {
   return cxmake( c.real(), c.imag() );
 }
 
-#endif  // END cuda + thrust/cucomplex
+#endif // END cuda + thrust/cucomplex
 
 //------------------------------
 // C++ - using std::complex
 //------------------------------
 
-#else  // c++
+#else // c++
 
 //+++++++++++++++++++++++++
 // std::complex<float>
 // std::complex<double>
 //+++++++++++++++++++++++++
 
-inline
-cxtype cxmake( const fptype& r, const fptype& i )
+inline cxtype cxmake( const fptype& r, const fptype& i )
 {
   return cxtype( r, i ); // std::complex<fptype> constructor
 }
 
-inline
-fptype cxreal( const cxtype& c )
+inline fptype cxreal( const cxtype& c )
 {
   return c.real(); // std::complex<fptype>::real()
 }
 
-inline
-fptype cximag( const cxtype& c )
+inline fptype cximag( const cxtype& c )
 {
   return c.imag(); // std::complex<fptype>::imag()
 }
 
-inline
-cxtype cxconj( const cxtype& c )
+inline cxtype cxconj( const cxtype& c )
 {
   return conj( c ); // conj( std::complex<fptype> )
 }
 
-inline
-const cxtype& cxmake( const cxtype& c ) // std::complex to std::complex (float-to-float or double-to-double)
+inline const cxtype& cxmake( const cxtype& c ) // std::complex to std::complex (float-to-float or double-to-double)
 {
   return c;
 }
 
 #if defined MGONGPU_FPTYPE_FLOAT
-inline
-cxtype cxmake( const std::complex<double>& c ) // std::complex to std::complex (cast double-to-float)
+inline cxtype cxmake( const std::complex<double>& c ) // std::complex to std::complex (cast double-to-float)
 {
   return cxmake( (fptype)c.real(), (fptype)c.imag() );
 }
 #endif
 
-#endif  // END cuda/c++
+#endif // END cuda/c++
 
 #endif // MGONGPUTYPES_H
