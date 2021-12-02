@@ -332,17 +332,14 @@ int main(int argc, char **argv)
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST or not defined __CUDACC__
   auto hstRnarray   = hstMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
 #endif
-  auto hstIsGoodHel = hstMakeUnique<bool  >( ncomb );
   auto hstWeights   = hstMakeUnique<fptype>( nWeights );
 
 #ifdef __CUDACC__
   auto devRnarray   = devMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-  auto devIsGoodHel = devMakeUnique<bool  >( ncomb );
   auto devWeights   = devMakeUnique<fptype>( nWeights );
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
   const int nbytesRnarray = nRnarray * sizeof(fptype);
 #endif
-  const int nbytesIsGoodHel = ncomb * sizeof(bool);
   const int nbytesWeights = nWeights * sizeof(fptype);
 #endif
 
@@ -483,20 +480,7 @@ int main(int argc, char **argv)
     {
       const std::string ghelKey = "0d SGoodHel";
       timermap.start( ghelKey );
-#ifdef __CUDACC__
-      // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>( devMomenta, const_cast<fptype*>(devMEs), devIsGoodHel.get() );
-      checkCuda( cudaPeekAtLastError() );
-      // ... 0d2. Copy back good helicity mask to the host
-      checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(), nbytesIsGoodHel, cudaMemcpyDeviceToHost ) );
-      // ... 0d3. Copy back good helicity list to constant memory on the device
-      gProc::sigmaKin_setGoodHel( hstIsGoodHel.get() );
-#else
-      // ... 0d1. Compute good helicity mask on the host
-      Proc::sigmaKin_getGoodHel( hstMomenta, const_cast<fptype*>(hstMEs), hstIsGoodHel.get(), nevt );
-      // ... 0d2. Copy back good helicity list to static memory on the host
-      Proc::sigmaKin_setGoodHel( hstIsGoodHel.get() );
-#endif
+      mekl.getGoodHel();
     }
 
     // *** START THE OLD-STYLE TIMERS FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
