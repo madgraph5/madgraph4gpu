@@ -42,10 +42,10 @@ namespace MG5_sm
   // Return the vector by value: strictly speaking, this is only unavoidable for neppM<neppV
   // For neppM>=neppV (both being powers of 2), the momentum neppM-AOSOA is reinterpreted in terms of neppV-vectors:
   // it could also be returned by reference, but no performance degradation is observed when returning by value
-  inline fptype_sv pIparIp4Ipag( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
-                                 const int ipar,
-                                 const int ip4,
-                                 const int ipagV )
+  inline fptype_sv pIparIp4IpagV( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
+                                  const int ipar,
+                                  const int ip4,
+                                  const int ipagV )
   {
     const int ievt0 = ipagV*neppV; // virtual event V-page ipagV contains neppV events [ievt0...ievt0+neppV-1]
 #ifdef MGONGPU_CPPSIMD
@@ -200,14 +200,14 @@ namespace MG5_sm
   // Return four momenta for a given event or event page
   // Returning them by value (not by reference) seems a bit faster both for scalars and vectors
   // NB: this assumes that neppV == neppM!(?)
-  inline p4type_sv p4IparIpag( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
-                               const int ipar,
-                               const int ipagV )
+  inline p4type_sv p4IparIpagV( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
+                                const int ipar,
+                                const int ipagV )
   {
-    return p4type_sv{ pIparIp4Ipag( momenta1d, ipar, 0, ipagV ),
-                      pIparIp4Ipag( momenta1d, ipar, 1, ipagV ),
-                      pIparIp4Ipag( momenta1d, ipar, 2, ipagV ),
-                      pIparIp4Ipag( momenta1d, ipar, 3, ipagV ) };
+    return p4type_sv{ pIparIp4IpagV( momenta1d, ipar, 0, ipagV ),
+                      pIparIp4IpagV( momenta1d, ipar, 1, ipagV ),
+                      pIparIp4IpagV( momenta1d, ipar, 2, ipagV ),
+                      pIparIp4IpagV( momenta1d, ipar, 3, ipagV ) };
   }
 #endif
 
@@ -233,7 +233,7 @@ namespace MG5_sm
       const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
 #else
       //printf( "ixxxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpag( allmomenta, ipar, ipagV );
+      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
 #endif
       const fptype_sv& pvec0 = p4vec.p0;
       const fptype_sv& pvec1 = p4vec.p1;
@@ -363,7 +363,7 @@ namespace MG5_sm
       const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
 #else
       //printf( "ipzxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpag( allmomenta, ipar, ipagV );
+      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
 #endif
       //const fptype_sv& pvec0 = p4vec.p0;
       //const fptype_sv& pvec1 = p4vec.p1;
@@ -414,7 +414,7 @@ namespace MG5_sm
       const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
 #else
       //printf( "imzxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpag( allmomenta, ipar, ipagV );
+      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
 #endif
       //const fptype_sv& pvec0 = p4vec.p0;
       //const fptype_sv& pvec1 = p4vec.p1;
@@ -465,7 +465,7 @@ namespace MG5_sm
       const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
 #else
       //printf( "ixzxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpag( allmomenta, ipar, ipagV );
+      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
 #endif
       const fptype_sv& pvec0 = p4vec.p0;
       const fptype_sv& pvec1 = p4vec.p1;
@@ -522,7 +522,7 @@ namespace MG5_sm
       const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
 #else
       //printf( "vxxxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpag( allmomenta, ipar, ipagV );
+      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
 #endif
       const fptype_sv& pvec0 = p4vec.p0;
       const fptype_sv& pvec1 = p4vec.p1;
@@ -654,7 +654,7 @@ namespace MG5_sm
       const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
 #else
       //printf( "sxxxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpag( allmomenta, ipar, ipagV );
+      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
 #endif
       const fptype_sv& pvec0 = p4vec.p0;
       const fptype_sv& pvec1 = p4vec.p1;
@@ -691,7 +691,7 @@ namespace MG5_sm
       const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
 #else
       //printf( "oxxxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpag( allmomenta, ipar, ipagV );
+      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
 #endif
       const fptype_sv& pvec0 = p4vec.p0;
       const fptype_sv& pvec1 = p4vec.p1;
@@ -822,7 +822,7 @@ namespace MG5_sm
       const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
 #else
       //printf( "opzxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpag( allmomenta, ipar, ipagV );
+      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
 #endif
       //const fptype_sv& pvec0 = p4vec.p0;
       //const fptype_sv& pvec1 = p4vec.p1;
@@ -872,7 +872,7 @@ namespace MG5_sm
       const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
 #else
       //printf( "omzxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpag( allmomenta, ipar, ipagV );
+      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
 #endif
       //const fptype_sv& pvec0 = p4vec.p0;
       //const fptype_sv& pvec1 = p4vec.p1;
@@ -926,7 +926,7 @@ namespace MG5_sm
       const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
 #else
       //printf( "oxzxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpag( allmomenta, ipar, ipagV );
+      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
 #endif
       const fptype_sv& pvec0 = p4vec.p0;
       const fptype_sv& pvec1 = p4vec.p1;
