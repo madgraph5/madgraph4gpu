@@ -165,6 +165,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  /*
   void MEKernelLauncher::setGoodHel( const bool* isGoodHel )
   {
     if ( !m_hstIsGoodHel )
@@ -189,6 +190,7 @@ namespace mg5amcCpu
     }
     else throw std::logic_error( "Cannot setGoodHel: helicity mask has already been set or computed" );
   }
+  */
   
   //--------------------------------------------------------------------------
 

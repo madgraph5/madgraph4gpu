@@ -80,9 +80,12 @@ namespace mg5amcCpu
     // [NB compute them first if needed: this requires enough input momenta to have been set]
     const bool* getGoodHel();
 
+    /*
+    // [NOT USED YET - MAY BE USEFUL FOR MULTI THREADING]
     // Set the list of good helicities from user input (instead of computing them)
     // [NB throws if good helicities have already been set or computed]
     void setGoodHel( const bool* isGoodHel );
+    */
 
     // Get the number of elements in the momenta array
     int nMomenta() const { return np4 * npar * m_nevt; }
