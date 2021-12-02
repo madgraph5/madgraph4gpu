@@ -28,20 +28,24 @@ namespace mg5amcCpu
     , m_nevt( ngpublocks * ngputhreads )
     , m_devMomenta( nullptr )
     , m_devMEs( nullptr )
+    , m_devIsGoodHel( nullptr )
     , m_hstMomenta( nullptr )
     , m_hstMEs( nullptr )
   {
-    // Allocate the device buffer to set the input momenta
+    // Allocate the device buffer for the input momenta
     checkCuda( cudaMalloc( &m_devMomenta, nbytesMomenta() * sizeof(fptype) ) );
 
-    // Allocate the device buffer to read the output MEs
+    // Allocate the device buffer for the output MEs
     checkCuda( cudaMalloc( &m_devMEs, nbytesMEs() * sizeof(fptype) ) );
 
-    // Allocate the host buffer to read a copy of the output momenta
+    // Allocate the device buffer for the output helicity mask
+    checkCuda( cudaMalloc( &m_devIsGoodHel, nbytesIsGoodHel() * sizeof(bool) ) );
+
+    // Allocate the host buffer for the input momenta
     if ( useHstBuffers == UseHstMomenta || useHstBuffers == UseBoth )
       checkCuda( cudaMallocHost( &m_hstMomenta, nbytesMomenta() * sizeof(fptype) ) );
 
-    // Allocate the host buffer to read a copy of the output MEs
+    // Allocate the host buffer for the output MEs
     if ( useHstBuffers == UseHstMEs || useHstBuffers == UseBoth )
       checkCuda( cudaMallocHost( &m_hstMEs, nbytesMEs() * sizeof(fptype) ) );
   }
@@ -50,12 +54,16 @@ namespace mg5amcCpu
     : m_nevt( nevt )
     , m_hstMomenta( nullptr )
     , m_hstMEs( nullptr )
+    , m_hstIsGoodHel( nullptr )
   {
-    // Allocate the host buffer to set the input momenta
+    // Allocate the host buffer for the input momenta
     m_hstMomenta = new( std::align_val_t{ cppAlign } ) fptype[ nbytesMomenta() ]();
 
-    // Allocate the host buffer to read the output MEs
+    // Allocate the host buffer for the output MEs
     m_hstMEs = new( std::align_val_t{ cppAlign } ) fptype[ nbytesMEs() ]();
+
+    // Allocate the device buffer for the output helicity mask
+    m_hstIsGoodHel = new bool[ nbytesIsGoodHel() ]();
   }
 #endif
 
@@ -70,6 +78,9 @@ namespace mg5amcCpu
     // Deallocate the device buffer for the output MEs
     checkCuda( cudaFree( m_devMEs ) );
 
+    // Deallocate the device buffer for the output helicity mask
+    checkCuda( cudaFree( m_devIsGoodHel ) );
+
     // Deallocate the host buffer for the input momenta
     if ( m_hstMomenta ) checkCuda( cudaFreeHost( m_hstMomenta ) );
 
@@ -81,6 +92,9 @@ namespace mg5amcCpu
 
     // Deallocate the host buffer for the output MEs
     ::operator delete( m_hstMEs, std::align_val_t{ cppAlign } );
+
+    // Deallocate the host buffer for the output helicity mask
+    delete( m_hstIsGoodHel );
 #endif
   }
 

@@ -82,6 +82,9 @@ namespace mg5amcCpu
     // Get the number of bytes in the MEs array
     int nbytesMEs() const { return m_nevt * sizeof(fptype); }
 
+    // Get the number of bytes in the helicity mask array
+    int nbytesIsGoodHel() const { return ncomb * sizeof(bool); }
+
   public:
 
     // Hardcoded parameters (temporarely set them from mgOnGpu; eventually define them only here?)
@@ -95,7 +98,7 @@ namespace mg5amcCpu
     //static constexpr int nprocesses = 1; // FIXME: assume process.nprocesses == 1
     //static constexpr int nwavefuncs = 6; // mgOnGpu::nwf
     //static constexpr int namplitudes = 2;
-    //static constexpr int ncomb = 16; // mgOnGpu::ncomb
+    static constexpr int ncomb = mgOnGpu::ncomb;
     //static constexpr int wrows = 6; // mgOnGpu::nw6;
 
     // Alignment of the input and output buffers
@@ -118,23 +121,29 @@ namespace mg5amcCpu
 #endif
 
 #ifdef __CUDACC__
-    // The device buffer to set the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+    // The device buffer for the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
     fptype* m_devMomenta;
 
-    // The device buffer to read the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
+    // The device buffer for the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
     fptype* m_devMEs;
 
-    // The host buffer to read the host copy of the input momenta
+    // The device buffer for the helicity mask: ARRAY[ncomb]
+    bool* m_devIsGoodHel;
+
+    // The host buffer for the host copy of the input momenta
     fptype* m_hstMomenta;
 
-    // The host buffer to read the host copy of the output MEs
+    // The host buffer for the host copy of the output MEs
     fptype* m_hstMEs;
 #else
-    // The host buffer to set the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+    // The host buffer for the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
     fptype* m_hstMomenta;
 
-    // The host buffer to read the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
+    // The host buffer for the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
     fptype* m_hstMEs;
+
+    // The host buffer for the helicity mask: ARRAY[ncomb]
+    bool* m_hstIsGoodHel;
 #endif
 
   };
