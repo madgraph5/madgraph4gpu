@@ -30,7 +30,8 @@ namespace mg5amcCpu
     // Constructor (from command line arguments)
     // Allocates the input and output buffers for the given number of events
 #ifdef __CUDACC__
-    MEKernelLauncher( int ngpublocks, int ngputhreads, bool useHstMEs = true );
+    enum UseHstBuffers { UseNone=0, UseHstMomenta=1, UseHstMEs=2, UseBoth=3 };
+    MEKernelLauncher( int ngpublocks, int ngputhreads, UseHstBuffers useHstBuffers = UseNone );
 #else
     MEKernelLauncher( int nevt );
 #endif
@@ -40,29 +41,40 @@ namespace mg5amcCpu
     ~MEKernelLauncher();
 
 #ifdef __CUDACC__
+    // Get the device buffer to set the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+    fptype* devMomenta() const { return m_devMomenta; }
+
     // Compute the output device MEs from the input device momenta
     void computeDevMEs() const;
 
+    // Get the device buffer to read the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
+    const fptype* devMEs() const { return m_devMEs; }
+
+    // Copy the output host momenta from the calculated device momenta
+    // [NB this throws unless UseHstMomenta or UseBoth are specified]
+    void copyDevMomentaToHstMomenta() const;
+
+    // Get the host buffer to read the host copy of the input momenta
+    // [NB this is a nullptr unless UseHstMomenta or UseBoth are specified]
+    const fptype* hstMomenta() const { return m_hstMomenta; }
+
     // Copy the output host MEs from the calculated device MEs
-    // [NB this throws in CUDA if useHstMEs is false]
+    // [NB this throws unless UseHstMEs or UseBoth are specified]
     void copyDevMEsToHstMEs() const;
 
-    // Get the device buffer for the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-    fptype* devMomenta() const { return m_devMomenta; }
-
-    // Get the device buffer for the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
-    const fptype* devMEs() const { return m_devMEs; }
+    // Get the host buffer to read the host copy of the output MEs
+    // [NB this is a nullptr unless UseHstMEs or UseBoth are specified]
+    const fptype* hstMEs() const { return m_hstMEs; }
 #else
+    // Get the host buffer to set the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+    fptype* hstMomenta() const { return m_hstMomenta; }
+
     // Compute the output host MEs from the input host momenta
     void computeHstMEs() const;
 
-    // Get the host buffer for the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-    fptype* hstMomenta() const { return m_hstMomenta; }
-#endif
-
-    // Get the host buffer for the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
-    // [NB this is a nullptr in CUDA if useHstMEs is false]
+    // Get the host buffer to read the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
     const fptype* hstMEs() const { return m_hstMEs; }
+#endif
 
     // Get the number of bytes in the momenta array
     int nbytesMomenta() const { return np4 * npar * m_nevt * sizeof(fptype); }
@@ -106,18 +118,24 @@ namespace mg5amcCpu
 #endif
 
 #ifdef __CUDACC__
-    // The device buffer for the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+    // The device buffer to set the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
     fptype* m_devMomenta;
 
-    // The device buffer for the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
+    // The device buffer to read the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
     fptype* m_devMEs;
-#else
-    // The host buffer for the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-    fptype* m_hstMomenta;
-#endif
 
-    // The host buffer for the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
+    // The host buffer to read the host copy of the input momenta
+    fptype* m_hstMomenta;
+
+    // The host buffer to read the host copy of the output MEs
     fptype* m_hstMEs;
+#else
+    // The host buffer to set the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+    fptype* m_hstMomenta;
+
+    // The host buffer to read the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
+    fptype* m_hstMEs;
+#endif
 
   };
 

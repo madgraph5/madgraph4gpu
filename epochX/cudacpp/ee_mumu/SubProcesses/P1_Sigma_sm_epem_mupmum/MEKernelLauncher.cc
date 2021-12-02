@@ -22,22 +22,28 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
-  MEKernelLauncher::MEKernelLauncher( int ngpublocks, int ngputhreads, bool useHstMEs )
+  MEKernelLauncher::MEKernelLauncher( int ngpublocks, int ngputhreads, UseHstBuffers useHstBuffers )
     : m_ngpublocks( ngpublocks )
     , m_ngputhreads( ngputhreads )
     , m_nevt( ngpublocks * ngputhreads )
     , m_devMomenta( nullptr )
     , m_devMEs( nullptr )
+    , m_hstMomenta( nullptr )
     , m_hstMEs( nullptr )
   {
-    // Allocate the device buffer for the input momenta
+    // Allocate the device buffer to set the input momenta
     checkCuda( cudaMalloc( &m_devMomenta, nbytesMomenta() * sizeof(fptype) ) );
 
-    // Allocate the device buffer for the output MEs
+    // Allocate the device buffer to read the output MEs
     checkCuda( cudaMalloc( &m_devMEs, nbytesMEs() * sizeof(fptype) ) );
 
-    // Allocate the host buffer for the output MEs
-    if ( useHstMEs ) checkCuda( cudaMallocHost( &m_hstMEs, nbytesMEs() * sizeof(fptype) ) );
+    // Allocate the host buffer to read a copy of the output momenta
+    if ( useHstBuffers == UseHstMomenta || useHstBuffers == UseBoth )
+      checkCuda( cudaMallocHost( &m_hstMomenta, nbytesMomenta() * sizeof(fptype) ) );
+
+    // Allocate the host buffer to read a copy of the output MEs
+    if ( useHstBuffers == UseHstMEs || useHstBuffers == UseBoth )
+      checkCuda( cudaMallocHost( &m_hstMEs, nbytesMEs() * sizeof(fptype) ) );
   }
 #else
   MEKernelLauncher::MEKernelLauncher( int nevt )
@@ -45,10 +51,10 @@ namespace mg5amcCpu
     , m_hstMomenta( nullptr )
     , m_hstMEs( nullptr )
   {
-    // Allocate the host buffer for the input momenta
+    // Allocate the host buffer to set the input momenta
     m_hstMomenta = new( std::align_val_t{ cppAlign } ) fptype[ nbytesMomenta() ]();
 
-    // Allocate the host buffer for the output MEs
+    // Allocate the host buffer to read the output MEs
     m_hstMEs = new( std::align_val_t{ cppAlign } ) fptype[ nbytesMEs() ]();
   }
 #endif
@@ -63,6 +69,9 @@ namespace mg5amcCpu
 
     // Deallocate the device buffer for the output MEs
     checkCuda( cudaFree( m_devMEs ) );
+
+    // Deallocate the host buffer for the input momenta
+    if ( m_hstMomenta ) checkCuda( cudaFreeHost( m_hstMomenta ) );
 
     // Deallocate the host buffer for the output MEs
     if ( m_hstMEs ) checkCuda( cudaFreeHost( m_hstMEs ) );
@@ -85,6 +94,7 @@ namespace mg5amcCpu
 #else
     gProc::sigmaKin<<<m_ngpublocks, m_gputhreads, mgOnGpu::ntpbMAX * sizeof(float)>>>( m_devMomenta, m_devMEs );
 #endif
+    checkCuda( cudaPeekAtLastError() );
   }
 #else
   void MEKernelLauncher::computeHstMEs() const
@@ -96,9 +106,19 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
+  void MEKernelLauncher::copyDevMomentaToHstMomenta() const
+  {
+    if ( !m_hstMomenta ) throw std::logic_error( "Cannot copyDevMomentaToHstMomenta unless UseHstMomenta or UseBoth are specified" );
+    checkCuda( cudaMemcpy( m_hstMomenta, m_devMomenta, nbytesMomenta(), cudaMemcpyDeviceToHost ) );
+  }
+#endif
+
+  //--------------------------------------------------------------------------
+
+#ifdef __CUDACC__
   void MEKernelLauncher::copyDevMEsToHstMEs() const
   {
-    if ( !m_hstMEs ) throw std::logic_error( "Cannot copyDevMEsToHstMEs unless useHstMEs is true" );
+    if ( !m_hstMEs ) throw std::logic_error( "Cannot copyDevMEsToHstMEs unless UseHstMEs or UseBoth are specified" );
     checkCuda( cudaMemcpy( m_hstMEs, m_devMEs, nbytesMEs(), cudaMemcpyDeviceToHost ) );
   }
 #endif
