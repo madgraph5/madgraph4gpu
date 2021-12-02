@@ -76,14 +76,14 @@ namespace mg5amcCpu
     const fptype* hstMEs() const { return m_hstMEs; }
 #endif
 
-    // Get the number of bytes in the momenta array
-    int nbytesMomenta() const { return np4 * npar * m_nevt * sizeof(fptype); }
+    // Get the number of elements in the momenta array
+    int nMomenta() const { return np4 * npar * m_nevt; }
 
-    // Get the number of bytes in the MEs array
-    int nbytesMEs() const { return m_nevt * sizeof(fptype); }
+    // Get the number of elements in the MEs array
+    int nMEs() const { return m_nevt; }
 
-    // Get the number of bytes in the helicity mask array
-    int nbytesIsGoodHel() const { return ncomb * sizeof(bool); }
+    // Get the number of elements in the helicity mask array
+    int nIsGoodHel() const { return ncomb; }
 
   public:
 
