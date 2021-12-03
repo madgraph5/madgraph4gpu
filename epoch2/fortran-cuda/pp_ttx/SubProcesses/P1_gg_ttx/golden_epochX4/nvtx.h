@@ -18,7 +18,6 @@
 
 // Scope some things into a namespace
 namespace nvtx {
-
 // Colour palette (RGB):
 // https://colorbrewer2.org/#type=qualitative&scheme=Paired&n=12
 const uint32_t palette[] = {0xffa6cee3, 0xff1f78b4, 0xffb2df8a, 0xff33a02c,

@@ -93,9 +93,8 @@ __device__ INLINE void calculate_wavefunctions(
 {
   using namespace MG5_sm;
   mgDebug(0, __FUNCTION__);
-  // printf("inside calculate_wavefunctions\n");
 #ifndef __CUDACC__
-  // printf("calculate_wavefunctions: nevt %d\n", nevt);
+  // printf( "calculate_wavefunctions: nevt %d\n", nevt );
 #endif
 
   // The number of colors
@@ -389,13 +388,10 @@ sigmaKin_getGoodHel(const fptype_sv *allmomenta, // input: momenta as
       blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
   // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a
   // loop over processes here?)
-  // printf("sigmaKin_getGoodHel: ievt %d\n", ievt);
   fptype allMEsLast = 0;
   for (int ihel = 0; ihel < ncomb; ihel++) {
     // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running
     // sum of |M|^2 over helicities for the given event(s)
-    // if (ievt == 1)
-    //   printf("y");
     calculate_wavefunctions(ihel, allmomenta, allMEs);
     if (allMEs[ievt] != allMEsLast) {
       // if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" <<
@@ -404,11 +400,6 @@ sigmaKin_getGoodHel(const fptype_sv *allmomenta, // input: momenta as
     }
     allMEsLast = allMEs[ievt]; // running sum up to helicity ihel for event ievt
   }
-  // printf("allMEs: ");
-  // for (int i = 0; i < ievt; i++) {
-  //   printf("%f, ", allMEs[i]);
-  // }
-  // printf("\n");
 }
 #else
 void sigmaKin_getGoodHel(
@@ -517,15 +508,15 @@ __global__ void sigmaKin(
 #ifdef __CUDACC__
   // Remember: in CUDA this is a kernel for one event, in c++ this processes n
   // events
-  const int ievt =
-      blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-  // printf("sigmakin: ievt %d\n", ievt);
+  const int ievt = blockDim.x * blockIdx.x +
+                   threadIdx.x; // index of event (thread) in grid
+                                // printf( "sigmakin: ievt %d\n", ievt );
 #endif
 
   // Start sigmaKin_lines
   // PART 0 - INITIALISATION (before calculate_wavefunctions)
-  // Reset the "matrix elements" - running sums of |M|^2 over helicities for
-  // the given event
+  // Reset the "matrix elements" - running sums of |M|^2 over helicities for the
+  // given event
   // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a
   // loop over processes here?)
 #ifdef __CUDACC__
@@ -543,11 +534,7 @@ __global__ void sigmaKin(
   // loop over processes here?)
   for (int ighel = 0; ighel < cNGoodHel; ighel++) {
     const int ihel = cGoodHel[ighel];
-    // printf("cNGoodHel: %d, %d\n", cNGoodHel, cGoodHel[ighel]);
 #ifdef __CUDACC__
-    // printf("------------------------ start calculate_wavefunctions\n");
-    // if (ievt == 1)
-    //   printf("x");
     calculate_wavefunctions(ihel, allmomenta, allMEs);
 #else
     calculate_wavefunctions(ihel, allmomenta, allMEs, nevt);
@@ -563,12 +550,6 @@ __global__ void sigmaKin(
   // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a
   // loop over processes here?)
 #ifdef __CUDACC__
-  // printf("allMEs: ");
-  // for (int i = 0; i < ievt; i++) {
-  //   printf("%f, ", allMEs[i]);
-  // }
-  // printf("\n");
-
   allMEs[ievt] /= (fptype)denominators;
 #else
   for (int ipagV = 0; ipagV < npagV; ++ipagV) {

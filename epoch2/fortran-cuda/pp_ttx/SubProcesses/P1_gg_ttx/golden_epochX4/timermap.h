@@ -16,7 +16,6 @@
 
 namespace mgOnGpu {
 class TimerMap {
-
 public:
   TimerMap() : m_timer(), m_active(""), m_partitionTimers(), m_partitionIds() {}
   virtual ~TimerMap() {}

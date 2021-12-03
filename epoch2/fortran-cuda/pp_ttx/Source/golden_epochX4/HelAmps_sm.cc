@@ -402,11 +402,6 @@ __device__ void vxxxxx(const fptype_sv *momenta,
     const fptype pvec1 = pIparIp4Ievt(momenta, ipar, 1, ievt);
     const fptype pvec2 = pIparIp4Ievt(momenta, ipar, 2, ievt);
     const fptype pvec3 = pIparIp4Ievt(momenta, ipar, 3, ievt);
-    // if (ievt == 15)
-    //   printf("ipar: %d %d %d %d %f %f %f %f\n", blockIdx.x, threadIdx.x,
-    //   ievt,
-    //          ipar, pvec0, pvec1, pvec2, pvec3);
-
 #else
     // printf( "vxxxxx: ipagV=%d\n", ipagV );
     const fptype_sv pvec0 = pIparIp4Ipag(momenta, ipar, 0, ipagV);

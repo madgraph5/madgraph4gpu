@@ -13,11 +13,10 @@
 #include <iostream>
 #include <vector>
 
+#include "Parameters_sm.h"
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
-
-#include "Parameters_sm.h"
 
 //--------------------------------------------------------------------------
 
@@ -45,7 +44,6 @@ namespace gProc
 namespace Proc
 #endif
 {
-
 //==========================================================================
 // A class for calculating the matrix elements for
 // Process: g g > t t~ WEIGHTED<=2 @1

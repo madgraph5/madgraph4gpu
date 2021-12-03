@@ -5,7 +5,6 @@
 #include <iostream>
 
 namespace mgOnGpu {
-
 /*
 high_resolution_clock
 steady_clock
@@ -17,7 +16,6 @@ https://codereview.stackexchange.com/questions/196245/extremely-simple-timer-cla
 */
 
 template <typename T> class Timer {
-
 public:
   Timer() : m_StartTime(T::now()) {}
   virtual ~Timer() {}

@@ -8,11 +8,11 @@
 #ifndef MEMORY_H
 #define MEMORY_H 1
 
+#include <memory>
+
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
-
-#include <memory>
 
 #ifdef __CUDACC__
 
