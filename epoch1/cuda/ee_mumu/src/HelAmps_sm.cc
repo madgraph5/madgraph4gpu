@@ -175,21 +175,34 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // Four-momentum references of one particle, for one event
+  // All references point to the original buffer of momenta for all particles in all events
+  struct p4type_ref
+  {
+    const fptype& p0;
+    const fptype& p1;
+    const fptype& p2;
+    const fptype& p3;
+  };
+
+  // Four-momentum values of one particle, for one event or for one "V-page" of neppV events
   struct p4type_sv
   {
     fptype_sv p0;
     fptype_sv p1;
     fptype_sv p2;
     fptype_sv p3;
+#ifdef __CUDACC__
+    __device__ p4type_sv( const p4type_ref ref ) : p0( ref.p0 ), p1( ref.p1 ), p2( ref.p2 ), p3( ref.p3 ){}
+#endif
   };
 
-#ifdef __CUDACC__
-  // Decode momentum AOSOA: return four momenta for a given event or event page
-  // Returning them by value (not by reference) seems irrelevant for performance, but allows a simpler code structure
+  // Decode momenta AOSOA: return four momenta references for a given event or event page
+  // Returning by reference seems irrelevant for performance, but allows a simpler code structure
   __device__
-  inline p4type_sv p4IparIevt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
-                               const int ipar,
-                               const int ievt )
+  inline p4type_ref p4IparIevt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
+                                const int ipar,
+                                const int ievt )
   {
     /*
     return p4type_sv{ pIparIp4Ievt( momenta1d, ipar, 0, ievt ),
@@ -204,12 +217,13 @@ namespace MG5_sm
     const int ieppM = ievt%neppM; // #event in the current event M-page
     const int index0 = ipagM*npar*np4*neppM + ipar*np4*neppM + ieppM; // 1d-index for AOSOA[ipagM][ipar][0][ieppM]
     //for ( ip4=0; ip4<np4; ip4++) printf( "%2d %2d %8d %8.3f\n", ipar, ip4, ievt, momenta1d[index0 + ip4*neppM] );
-    return p4type_sv{ momenta1d[index0 + 0*neppM],   // AOSOA[ipagM][ipar][0][ieppM]
-                      momenta1d[index0 + 1*neppM],   // AOSOA[ipagM][ipar][1][ieppM]
-                      momenta1d[index0 + 2*neppM],   // AOSOA[ipagM][ipar][2][ieppM]
-                      momenta1d[index0 + 3*neppM] }; // AOSOA[ipagM][ipar][3][ieppM]
+    return p4type_ref{ momenta1d[index0 + 0*neppM],   // AOSOA[ipagM][ipar][0][ieppM]
+                       momenta1d[index0 + 1*neppM],   // AOSOA[ipagM][ipar][1][ieppM]
+                       momenta1d[index0 + 2*neppM],   // AOSOA[ipagM][ipar][2][ieppM]
+                       momenta1d[index0 + 3*neppM] }; // AOSOA[ipagM][ipar][3][ieppM]
   }
-#else
+
+#ifndef __CUDACC__
   // Return four momenta for a given event or event page
   // Returning them by value (not by reference) seems a bit faster both for scalars and vectors
   // NB: this assumes that neppV == neppM!(?)
