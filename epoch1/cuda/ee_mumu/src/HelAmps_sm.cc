@@ -23,27 +23,15 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void ixxxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
+  void ixxxxx( const p4type_sv& p4vec,      // input: four-momentum
                const fptype fmass,
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
-#endif
-               const int ipar )             // input: particle# out of npar
+               cxtype_sv* fi )              // output: wavefunction[(nw6==6)]
   {
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "ixxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
-#else
-      //printf( "ixxxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
-#endif
       const fptype_sv& pvec0 = p4vec.p0;
       const fptype_sv& pvec1 = p4vec.p1;
       const fptype_sv& pvec2 = p4vec.p2;
@@ -152,28 +140,16 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void ipzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
+  void ipzxxx( const p4type_sv& p4vec,      // input: four-momentum
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
-#endif
-               const int ipar )             // input: particle# out of npar
+               cxtype_sv* fi )              // output: wavefunction[(nw6==6)]
   {
     // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "ipzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
-#else
-      //printf( "ipzxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
-#endif
       //const fptype_sv& pvec0 = p4vec.p0;
       //const fptype_sv& pvec1 = p4vec.p1;
       //const fptype_sv& pvec2 = p4vec.p2;
@@ -213,16 +189,6 @@ namespace MG5_sm
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-      /*
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "imzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
-#else
-      //printf( "imzxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
-#endif
-      */
       //const fptype_sv& pvec0 = p4vec.p0;
       //const fptype_sv& pvec1 = p4vec.p1;
       //const fptype_sv& pvec2 = p4vec.p2;
@@ -252,28 +218,16 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void ixzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
+  void ixzxxx( const p4type_sv& p4vec,      // input: four-momentum
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
-#endif
-               const int ipar )             // input: particle# out of npar
+               cxtype_sv* fi )              // output: wavefunction[(nw6==6)]
   {
     // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "ixzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
-#else
-      //printf( "ixzxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
-#endif
       const fptype_sv& pvec0 = p4vec.p0;
       const fptype_sv& pvec1 = p4vec.p1;
       const fptype_sv& pvec2 = p4vec.p2;
@@ -310,27 +264,15 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void vxxxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
+  void vxxxxx( const p4type_sv& p4vec,      // input: four-momentum
                const fptype vmass,
                const int nhel,              // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
                const int nsv,               // input: +1 (final) or -1 (initial)
-               cxtype_sv* vc,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
-#endif
-               const int ipar )             // input: particle# out of npar
+               cxtype_sv* vc )              // output: wavefunction[(nw6==6)]
   {
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "vxxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
-#else
-      //printf( "vxxxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
-#endif
       const fptype_sv& pvec0 = p4vec.p0;
       const fptype_sv& pvec1 = p4vec.p1;
       const fptype_sv& pvec2 = p4vec.p2;
@@ -442,27 +384,15 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void sxxxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
+  void sxxxxx( const p4type_sv& p4vec,      // input: four-momentum
                const fptype,                // WARNING: "smass" unused (missing in Fortran)
                const int,                   // WARNING: "nhel" unused (missing in Fortran) - scalar has no helicity
                const int nss,               // input: +1 (final) or -1 (initial)
-               cxtype_sv sc[3],             // output: wavefunction[3] - not [6], this is for scalars
-#ifndef __CUDACC__
-               const int ipagV,
-#endif
-               const int ipar )             // input: particle# out of npar
+               cxtype_sv sc[3] )            // output: wavefunction[3] - not [6], this is for scalars
   {
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "sxxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
-#else
-      //printf( "sxxxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
-#endif
       const fptype_sv& pvec0 = p4vec.p0;
       const fptype_sv& pvec1 = p4vec.p1;
       const fptype_sv& pvec2 = p4vec.p2;
@@ -479,27 +409,15 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void oxxxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
+  void oxxxxx( const p4type_sv& p4vec,      // input: four-momentum
                const fptype fmass,
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
-#endif
-               const int ipar )             // input: particle# out of npar
+               cxtype_sv* fo )              // output: wavefunction[(nw6==6)]
   {
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "oxxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
-#else
-      //printf( "oxxxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
-#endif
       const fptype_sv& pvec0 = p4vec.p0;
       const fptype_sv& pvec1 = p4vec.p1;
       const fptype_sv& pvec2 = p4vec.p2;
@@ -610,27 +528,16 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void opzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
+  void opzxxx( const p4type_sv& p4vec,      // input: four-momentum
+               //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
-#endif
-               const int ipar )             // input: particle# out of npar
+               cxtype_sv* fo )              // output: wavefunction[(nw6==6)]
   {
     // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "opzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
-#else
-      //printf( "opzxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
-#endif
       //const fptype_sv& pvec0 = p4vec.p0;
       //const fptype_sv& pvec1 = p4vec.p1;
       //const fptype_sv& pvec2 = p4vec.p2;
@@ -660,27 +567,16 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void omzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
+  void omzxxx( const p4type_sv& p4vec,      // input: four-momentum
+               //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
-#endif
-               const int ipar )             // input: particle# out of npar
+               cxtype_sv* fo )              // output: wavefunction[(nw6==6)]
   {
     // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "omzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
-#else
-      //printf( "omzxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
-#endif
       //const fptype_sv& pvec0 = p4vec.p0;
       //const fptype_sv& pvec1 = p4vec.p1;
       //const fptype_sv& pvec2 = p4vec.p2;
@@ -713,28 +609,16 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void oxzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
+  void oxzxxx( const p4type_sv& p4vec,      // input: four-momentum
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fo,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
-#endif
-               const int ipar )             // input: particle# out of npar
+               cxtype_sv* fo )              // output: wavefunction[(nw6==6)]
   {
     // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "oxzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      const p4type_sv p4vec = p4IparIevt( allmomenta, ipar, ievt );
-#else
-      //printf( "oxzxxx: ipagV=%d\n", ipagV );
-      const p4type_sv p4vec = p4IparIpagV( allmomenta, ipar, ipagV );
-#endif
       const fptype_sv& pvec0 = p4vec.p0;
       const fptype_sv& pvec1 = p4vec.p1;
       const fptype_sv& pvec2 = p4vec.p2;
