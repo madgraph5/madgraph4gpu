@@ -194,7 +194,7 @@ namespace MG5_sm
     fptype_sv p1;
     fptype_sv p2;
     fptype_sv p3;
-#ifdef __CUDACC__
+#if defined __CUDACC__ or not defined MGONGPU_CPPSIMD
     __device__ p4type_sv( const p4type_ref ref ) : p0( ref.p0 ), p1( ref.p1 ), p2( ref.p2 ), p3( ref.p3 ){}
 #endif
   };
@@ -266,7 +266,8 @@ namespace MG5_sm
 
   // Build one fptype_v (one vector of neppV fptype values) from one fptype references,
   // with no a priori assumption on how the input fptype array should be decoded
-  inline fptype_v fptypevFromArbitraryArray( const fptype& (*decoderIeppv)(int) )
+  template <typename Functor>
+  inline fptype_v fptypevFromArbitraryArray( Functor decoderIeppv )
   {
 #if MGONGPU_CPPSIMD == 2
     return fptype_v{ decoderIeppv( 0 ),
@@ -309,10 +310,11 @@ namespace MG5_sm
 
   // Build four fptype_v (four vectors of neppV fptype values) from four fptype references,
   // with no a priori assumption on how the input fptype array should be decoded
-  inline p4type_sv p4typevFromArbitraryArray( const fptype& (*p0decoderIeppv)(int),
-                                              const fptype& (*p1decoderIeppv)(int),
-                                              const fptype& (*p2decoderIeppv)(int),
-                                              const fptype& (*p3decoderIeppv)(int) )
+  template <typename Functor0, typename Functor1, typename Functor2, typename Functor3>
+  inline p4type_sv p4typevFromArbitraryArray( Functor0 p0decoderIeppv,
+                                              Functor1 p1decoderIeppv,
+                                              Functor2 p2decoderIeppv,
+                                              Functor3 p3decoderIeppv )
   {
     return p4type_sv{ fptypevFromArbitraryArray( p0decoderIeppv ),
                       fptypevFromArbitraryArray( p1decoderIeppv ),
@@ -400,11 +402,10 @@ namespace MG5_sm
     {
       // Much (20%) slower (4.07E6 in eemumu 512y)
       // This does not even require AOSOA with neppM>=neppV and neppM%neppV==0 (e.g. can be used with AOS neppM==1)
-      //const fptype& (*p0decoderIeppv)(int) = [momenta1d, ipar, ievt0](int ieppV) -> fptype { return p4IparIevt( momenta1d, ipar, ievt0+ieppV ).p0; };
       auto p0decoderIeppv = [momenta1d, ipar, ievt0](int ieppV) -> const fptype& { return p4IparIevt( momenta1d, ipar, ievt0+ieppV ).p0; };
-      const fptype& (*p1decoderIeppv)(int) = [momenta1d, ipar, ievt0](int ieppV) -> fptype { return p4IparIevt( momenta1d, ipar, ievt0+ieppV ).p1; };
-      const fptype& (*p2decoderIeppv)(int) = [momenta1d, ipar, ievt0](int ieppV) -> fptype { return p4IparIevt( momenta1d, ipar, ievt0+ieppV ).p2; };
-      const fptype& (*p3decoderIeppv)(int) = [momenta1d, ipar, ievt0](int ieppV) -> fptype { return p4IparIevt( momenta1d, ipar, ievt0+ieppV ).p3; };
+      auto p1decoderIeppv = [momenta1d, ipar, ievt0](int ieppV) -> const fptype& { return p4IparIevt( momenta1d, ipar, ievt0+ieppV ).p1; };
+      auto p2decoderIeppv = [momenta1d, ipar, ievt0](int ieppV) -> const fptype& { return p4IparIevt( momenta1d, ipar, ievt0+ieppV ).p2; };
+      auto p3decoderIeppv = [momenta1d, ipar, ievt0](int ieppV) -> const fptype& { return p4IparIevt( momenta1d, ipar, ievt0+ieppV ).p3; };
       return p4typevFromArbitraryArray( p0decoderIeppv, p1decoderIeppv, p2decoderIeppv, p3decoderIeppv );
     }
 #else
