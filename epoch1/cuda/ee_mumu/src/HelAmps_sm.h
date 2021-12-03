@@ -276,7 +276,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-#ifdef MGONGPU_INLINE_HELAMPS
+#if defined __CUDACC__ or defined MGONGPU_INLINE_HELAMPS
 #define INLINE inline
 #define ALWAYS_INLINE __attribute__((always_inline))
 #else
