@@ -125,10 +125,17 @@ namespace Proc
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      auto p4vecIpar = [allmomenta,ievt](int ipar) -> const MG5_sm::p4type_sv { return MG5_sm::p4IparIevt(allmomenta,ipar,ievt); };
+      auto p4vecIpar = [allmomenta](int ipar) -> const MG5_sm::p4type_sv
+        {
+          const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+          return MG5_sm::p4IparIevt(allmomenta,ipar,ievt);
+        };
 #else
-      auto p4vecIpar = [allmomenta,ipagV](int ipar) -> const MG5_sm::p4type_sv { return MG5_sm::p4IparIpagV(allmomenta,ipar,ipagV); };
-#endif      
+      auto p4vecIpar = [allmomenta,ipagV](int ipar) -> const MG5_sm::p4type_sv
+        {
+          return MG5_sm::p4IparIpagV(allmomenta,ipar,ipagV);
+        };
+#endif
 
       // Wavefunction for external particle 0
 #if defined __CUDACC__ and defined MGONGPU_TEST_DIVERGENCE
