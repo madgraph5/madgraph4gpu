@@ -124,6 +124,7 @@ namespace Proc
 #endif
     {
 #ifdef __CUDACC__
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
 #ifndef MGONGPU_TEST_DIVERGENCE
       // NB: opzxxx only reads pz (not E,px,py)
       opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 );
@@ -139,6 +140,7 @@ namespace Proc
       //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], ipagV, 0 ); // tested ok (slower)
 #endif
 
+      /*
 #ifdef __CUDACC__
       // NB: imzxxx only reads pz (not E,px,py)
       imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 );
@@ -147,6 +149,14 @@ namespace Proc
       imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], ipagV, 1 );
       //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w_sv[1], ipagV, 1 ); // tested ok (a bit slower)
 #endif
+      */
+#ifdef __CUDACC__
+      const MG5_sm::p4type_sv p4vec1 = MG5_sm::p4IparIevt( allmomenta, 1, ievt );
+#else
+      const MG5_sm::p4type_sv p4vec1 = MG5_sm::p4IparIpagV( allmomenta, 1, ipagV );
+#endif
+      // NB: imzxxx only reads pz (not E,px,py)
+      imzxxx( p4vec1, cHel[ihel][1], +1, w_sv[1] );
 
 #ifdef __CUDACC__
       // NB: ixzxxx reads all E,px,py,pz
@@ -203,7 +213,6 @@ namespace Proc
       // NB: calculate_wavefunctions ADDS |M|^2 for given ihel to running sum of |M|^2 over helicities for given event(s)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       allMEs[ievt] += deltaMEs;
       //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt] );
 #else
