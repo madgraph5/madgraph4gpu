@@ -1,6 +1,20 @@
 include ../../Source/make_opts
 FFLAGS+= -w
 
+EPOCHDIR=epochX
+LANGDIR=cudacpp
+PROCESSDIR=gg_tt.auto
+MEBASEDIR=../../../../../$(EPOCHDIR)/$(LANGDIR)/$(PROCESSDIR)/
+MELIBDIR=$(MEBASEDIR)/lib
+MEINCDIR=$(MEBASEDIR)/include
+
+CUINCDIR=/usr/local/cuda-11.4/include/
+TOOLSINCDIR=../../../../../tools
+
+GCCHOME=/opt/rh/gcc-toolset-10/root/usr
+GCCBIN=$(GCCHOME)/bin
+GPPEXE=$(GCCBIN)/g++
+
 # Load additional dependencies of the bias module, if present
 ifeq (,$(wildcard ../bias_dependencies))
 BIASDEPENDENCIES =
@@ -104,6 +118,8 @@ SYMMETRY = symmetry.o idenparts.o
 
 BRIDGE = f2cu_bridge.o f2cpp_bridge.o
 
+MEOBJS=$(MELIBDIR)/gCPPProcess.o $(MELIBDIR)/CPPProcess.o $(MELIBDIR)/libmodel_sm.a
+
 CUDA =
 
 # Binaries
@@ -112,11 +128,11 @@ CUDA =
 
 
 
-$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX) $(BRIDGE) $(CUDA) ./golden_epochX4/gCPPProcess.o ./golden_epochX4/CPPProcess.o ../../Source/lib/libmodel_sm.a
-	$(NVCC) -o $(PROG) $(PROCESS) $(MATRIX) $(BRIDGE) $(CUDA) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) $(CULIBS) -Xcompiler -fopenmp ./golden_epochX4/gCPPProcess.o ./golden_epochX4/CPPProcess.o ../../Source/lib/libmodel_sm.a -lgfortran -lcudart
+$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX) $(BRIDGE) $(CUDA) $(MEOBJS)
+	$(NVCC) -o $(PROG) $(PROCESS) $(MATRIX) $(BRIDGE) $(CUDA) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) $(CULIBS) $(MEOBJS) -Xcompiler -fopenmp -lgfortran -lcudart
 
-$(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL) $(BRIDGE) $(CUDA) ./golden_epochX4/gCPPProcess.o ./golden_epochX4/CPPProcess.o ../../Source/lib/libmodel_sm.a
-	$(nvcc) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(BRIDGE) $(CUDA) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) $(CULIBS) -Xcompiler -fopenmp ./golden_epochX4/gCPPProcess.o ./golden_epochX4/CPPProcess.o ../../Source/lib/libmodel_sm.a -lgfortran -lcudart
+$(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL) $(BRIDGE) $(CUDA) $(MEOBJS)
+	$(nvcc) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(BRIDGE) $(CUDA) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) $(CULIBS) $(MEOBJS) -Xcompiler -fopenmp -lgfortran -lcudart
 
 gensym: $(SYMMETRY) configs.inc $(LIBDIR)libmodel.$(libext) $(LIBDIR)libgeneric.$(libext)
 	$(FC) -o gensym $(SYMMETRY) -L../../lib/ -lmodel -lgeneric -lpdf $(llhapdf) $(LDFLAGS)
@@ -136,9 +152,9 @@ $(MATRIX): %.o: %.f
 %.o: %.f
 	$(FC) $(FFLAGS) -c $< -I../../Source/ -fopenmp
 %.o: %.cpp bridge.h
-	$(CXX) $(CXXFLAGS) -O3 -std=c++14 -I. -I../../../Source/golden_epochX4 -I../../../../../tools -I./golden_epochX4 -I../../Source/golden_epochX4 -c $< -o $@
+	$(CXX) $(CXXFLAGS) -O3 -std=c++14 -lineinfo -I. -I$(MEINCDIR) -I$(TOOLSINCDIR) -c $< -o $@
 %.o: %.cu bridge.h
-	$(NVCC) $(CUFLAGS) -O3  -lineinfo -std=c++14 -I. -I../../../Source/golden_epochX4 -I../../../../../tools -I/usr/local/cuda-11.4//include/ -DUSE_NVTX -arch=compute_70 -use_fast_math -ccbin /opt/rh/gcc-toolset-10/root/usr/bin/g++ -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_CURAND_ONDEVICE -I./golden_epochX4 -I../../Source/golden_epochX4 -c $< -o $@
+	$(NVCC) $(CUFLAGS) -O3 -std=c++14 -lineinfo -use_fast_math -I. -I$(MEINCDIR) -I$(CUINCDIR) -I$(TOOLSINCDIR) -ccbin $(GPPEXE) -arch=compute_70 -DUSE_NVTX -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_CURAND_ONDEVICE -c $< -o $@
 
 
 # Dependencies
