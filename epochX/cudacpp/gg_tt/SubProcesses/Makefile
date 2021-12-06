@@ -373,7 +373,6 @@ else
 	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 endif
 
-
 cleanall:
 	@echo
 	make clean
