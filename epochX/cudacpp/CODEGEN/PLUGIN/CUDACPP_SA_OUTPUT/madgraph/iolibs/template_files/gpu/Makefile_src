@@ -6,7 +6,7 @@ CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
 # install target
-INSTALL_HEADERS=Parameters_sm.h mgOnGpuConfig.h mgOnGpuTypes.h mgOnGpuVectors.h read_slha.h
+INSTALL_HEADERS=Parameters_%(model)s.h mgOnGpuConfig.h mgOnGpuTypes.h mgOnGpuVectors.h read_slha.h
 INSTALL_INC_DIR=../include
 
 # Note: AR and CXX are implicitly defined if not set externally
@@ -156,8 +156,8 @@ endif
 #endif
 
 # NB there are no cuda objects as we avoid rdc (e.g. grambo.cu is included by gcheck.cu)
-target=$(LIBDIR)/libmodel_sm.a
-cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o rambo.o)
+target=$(LIBDIR)/libmodel_%(model)s.a
+cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_%(model)s.o read_slha.o rambo.o)
 cu_objects=
 
 all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(target)

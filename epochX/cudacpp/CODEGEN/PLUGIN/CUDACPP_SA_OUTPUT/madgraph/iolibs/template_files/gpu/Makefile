@@ -14,7 +14,7 @@ INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
 # Dependency on src directory
-MODELLIB = model_sm
+MODELLIB = model_%(model)s
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 INCFLAGS += -I../../src -I$(TOOLSDIR)
 
@@ -286,8 +286,8 @@ $(BUILDDIR)/gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h # ../../src/*.cu
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
-$(BUILDDIR)/CPPProcess.o : ../../src/HelAmps_sm.cc
-$(BUILDDIR)/gCPPProcess.o : ../../src/HelAmps_sm.cc
+$(BUILDDIR)/CPPProcess.o : ../../src/HelAmps_%(model)s.cc
+$(BUILDDIR)/gCPPProcess.o : ../../src/HelAmps_%(model)s.cc
 
 $(BUILDDIR)/%%.o : %%.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
