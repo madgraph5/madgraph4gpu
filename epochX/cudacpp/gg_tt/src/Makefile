@@ -162,9 +162,7 @@ cu_objects=
 
 all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(target)
 
-install: $(INSTALL_HEADERS) all.$(TAG)
-	if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
-	cp $(INSTALL_HEADERS) $(INSTALL_INC_DIR)
+install: all.$(TAG) $(INSTALL_INC_DIR) $(addprefix $(INSTALL_INC_DIR)/, $(INSTALL_HEADERS))
 
 $(BUILDDIR)/.build.$(TAG): $(LIBDIR)/.build.$(TAG)
 
@@ -182,6 +180,13 @@ debug: OPTFLAGS = -g -O0 -DDEBUG2
 #debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
 #debug: CUFLAGS += -G
 debug: $(target)
+
+$(INSTALL_INC_DIR) :
+	if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
+
+$(INSTALL_INC_DIR)/%.h : %.h
+	@if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
+	cp $< $@
 
 # NB: cuda includes are needed in the C++ code for curand.h
 $(BUILDDIR)/%.o : %.cc *.h
