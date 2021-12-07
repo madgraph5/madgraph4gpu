@@ -6,7 +6,7 @@ CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
 # install target
-INSTALL_HEADERS=CPPProcess.h ../Memory.h
+INSTALL_HEADERS=CPPProcess.h Memory.h
 INSTALL_INC_DIR=../../include
 INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o
 
@@ -14,7 +14,7 @@ INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
 # Dependency on src directory
-MODELLIB = model_%(model)s
+MODELLIB = model_sm
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 INCFLAGS += -I../../src -I$(TOOLSDIR)
 
@@ -251,14 +251,11 @@ cxx_objects=$(BUILDDIR)/CPPProcess.o
 
 testmain=$(BUILDDIR)/runTest.exe
 
-all.$(TAG): ../../src/$(BUILDDIR)/.build.$(TAG) $(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) ../../src/$(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
 
-install: all.$(TAG) $(INSTALL_HEADERS)
-	$(MAKE) -C ../../src install
-	cp $(INSTALL_HEADERS) $(INSTALL_INC_DIR)
-	cp $(INSTALL_OBJECTS) $(LIBDIR)
+install: all.$(TAG) $(INSTALL_INC_DIR) $(addprefix $(INSTALL_INC_DIR)/, $(INSTALL_HEADERS)) $(addprefix $(LIBDIR)/, $(INSTALL_OBJECTS))
 
-override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)'`
+override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \;`
 $(BUILDDIR)/.build.$(TAG):
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
@@ -268,6 +265,16 @@ debug: OPTFLAGS   = -g -O0 -DDEBUG2
 debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
+
+$(INSTALL_INC_DIR) :
+	$(MAKE) -C ../../src install
+
+$(INSTALL_INC_DIR)/%%.h : %%.h
+	@if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
+	cp $< $@
+
+$(LIBDIR)/%%.o : $(BUILDDIR)/%%.o
+	cp $< $@
 
 ../../src/$(BUILDDIR)/.build.$(TAG):
 	$(MAKE) -C ../../src $(MAKEDEBUG)
@@ -362,6 +369,19 @@ avx512z:
 
 # Split the avxall target into five separate targets to allow parallel "make -j" builds
 avxall: avxnone avxsse4 avxavx2 avx512y avx512z
+
+# Do not make this dependent on avxall and do not implement -j (do 'make avxall -j; make avxall-install' instead)
+avxall-install:
+	@echo
+	make USEBUILDDIR=1 AVX=none install
+	@echo
+	make USEBUILDDIR=1 AVX=sse4 install
+	@echo
+	make USEBUILDDIR=1 AVX=avx2 install
+	@echo
+	make USEBUILDDIR=1 AVX=512y install
+	@echo
+	make USEBUILDDIR=1 AVX=512z install
 
 .PHONY: clean
 

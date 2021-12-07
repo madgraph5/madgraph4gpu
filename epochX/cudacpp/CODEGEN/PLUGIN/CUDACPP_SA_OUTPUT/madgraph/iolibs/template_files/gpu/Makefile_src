@@ -156,26 +156,37 @@ endif
 #endif
 
 # NB there are no cuda objects as we avoid rdc (e.g. grambo.cu is included by gcheck.cu)
-target=$(LIBDIR)/libmodel_%(model)s.a
-cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_%(model)s.o read_slha.o rambo.o)
+target=$(LIBDIR)/libmodel_sm.a
+cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o rambo.o)
 cu_objects=
 
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(target)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(target)
 
-install: $(INSTALL_HEADERS) all.$(TAG)
-	if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
-	cp $(INSTALL_HEADERS) $(INSTALL_INC_DIR)
+install: all.$(TAG) $(INSTALL_INC_DIR) $(addprefix $(INSTALL_INC_DIR)/, $(INSTALL_HEADERS))
 
-override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)'`
-$(BUILDDIR)/.build.$(TAG):
+$(BUILDDIR)/.build.$(TAG): $(LIBDIR)/.build.$(TAG)
+
+override oldtagsb=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \;`
+override oldtagsl=`find $(LIBDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \;`
+$(LIBDIR)/.build.$(TAG):
+	@if [ "$(oldtagsl)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist in $(LIBDIR) for other tags:\n$(oldtagsl)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
+	@if [ "$(oldtagsb)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist in $(BUILDDIR) for other tags:\n$(oldtagsb)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
+	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
+	@touch $(LIBDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
 	@touch $(BUILDDIR)/.build.$(TAG)
 
 debug: OPTFLAGS = -g -O0 -DDEBUG2
 #debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
 #debug: CUFLAGS += -G
 debug: $(target)
+
+$(INSTALL_INC_DIR) :
+	if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
+
+$(INSTALL_INC_DIR)/%%.h : %%.h
+	@if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
+	cp $< $@
 
 # NB: cuda includes are needed in the C++ code for curand.h
 $(BUILDDIR)/%%.o : %%.cc *.h
@@ -200,7 +211,7 @@ ifneq ($(BUILDDIR),.)
 else
 	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 endif
-	if [ -d $(INSTALL_INC_DIR) ]; then rm -fr $(INSTALL_INC_DIR); fi
+	if [ -d $(INSTALL_INC_DIR) ]; then rm -rf $(INSTALL_INC_DIR); fi
 
 cleanall:
 	@echo
