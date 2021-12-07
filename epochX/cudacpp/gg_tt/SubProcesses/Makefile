@@ -370,7 +370,8 @@ avx512z:
 # Split the avxall target into five separate targets to allow parallel "make -j" builds
 avxall: avxnone avxsse4 avxavx2 avx512y avx512z
 
-avxall-install: avxall
+# Do not make this dependent on avxall and do not implement -j (do 'make avxall -j; make avxall-install' instead)
+avxall-install:
 	@echo
 	make USEBUILDDIR=1 AVX=none install
 	@echo
