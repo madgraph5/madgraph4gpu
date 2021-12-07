@@ -8,7 +8,7 @@ CXXFLAGS+= -ffast-math # see issue #117
 # install target
 INSTALL_HEADERS=CPPProcess.h Memory.h
 INSTALL_INC_DIR=../../include
-INSTALL_OBJECTS=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/gCPPProcess.o
+INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o
 
 # Note: AR and CXX are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
@@ -273,7 +273,7 @@ $(INSTALL_INC_DIR)/%.h : %.h
 	@if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
 	cp $< $@
 
-$(LIBDIR)/%.o : %.o
+$(LIBDIR)/%.o : $(BUILDDIR)/%.o
 	cp $< $@
 
 ../../src/$(BUILDDIR)/.build.$(TAG):
