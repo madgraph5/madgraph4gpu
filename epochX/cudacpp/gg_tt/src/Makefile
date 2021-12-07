@@ -211,7 +211,7 @@ ifneq ($(BUILDDIR),.)
 else
 	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 endif
-	if [ -d $(INSTALL_INC_DIR) ]; then rm -fr $(INSTALL_INC_DIR); fi
+	if [ -d $(INSTALL_INC_DIR) ]; then rm -rf $(INSTALL_INC_DIR); fi
 
 cleanall:
 	@echo
