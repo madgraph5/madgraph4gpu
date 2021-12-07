@@ -6,12 +6,11 @@ KOKKOS_FUNCTION void ixxxxx(const T& pvec, const double fmass,
   const int nhel, const int nsf, complex_t<double> fi[6])
 {
   
-  const double p0 = sqrt(pvec(1) * pvec(1) + pvec(2) * pvec(2) + pvec(3) * pvec(3) + fmass * fmass);
-  fi[0] = complex_t<double> (-p0 * nsf, -pvec(3) * nsf);
+  fi[0] = complex_t<double> (-pvec(0) * nsf, -pvec(3) * nsf);
   fi[1] = complex_t<double> (-pvec(1) * nsf, -pvec(2) * nsf);
   if (fmass != 0.0)
   {
-    double pp = min(p0, sqrt(pvec(1) * pvec(1) + pvec(2) * pvec(2) + pvec(3) * pvec(3)));
+    double pp = min(pvec(0), sqrt(pvec(1) * pvec(1) + pvec(2) * pvec(2) + pvec(3) * pvec(3)));
     if (pp == 0.0)
     {
       double sqm[2] = {sqrt(abs(fmass)), 0.};
@@ -27,7 +26,7 @@ KOKKOS_FUNCTION void ixxxxx(const T& pvec, const double fmass,
     {
       const double sf[2] = { (1 + nsf + (1 - nsf) * (nhel * nsf)) * 0.5,
                              (1 + nsf - (1 - nsf) * (nhel * nsf)) * 0.5 };
-      double omega[2] = { sqrt(p0 + pp), 0. };
+      double omega[2] = { sqrt(pvec(0) + pp), 0. };
       omega[1] = fmass / omega[0];
       const int ip = (1 + (nhel * nsf))/2;
       const int im = (1 - (nhel * nsf))/2;
@@ -47,10 +46,10 @@ KOKKOS_FUNCTION void ixxxxx(const T& pvec, const double fmass,
   }
   else
   { 
-    const double sqp0p3 = (pvec(1) == 0.0 and pvec(2) == 0.0 and pvec(3) < 0.0) ? 0. : sqrt(max(p0 + pvec(3), 0.0)) * nsf;
+    const double sqp0p3 = (pvec(1) == 0.0 and pvec(2) == 0.0 and pvec(3) < 0.0) ? 0. : sqrt(max(pvec(0) + pvec(3), 0.0)) * nsf;
 
     const complex_t<double> chi[2] = {complex_t<double> (sqp0p3, 0.0),
-          (sqp0p3 == 0.0) ? complex_t<double> (-nhel * sqrt(2.0 * p0), 0.0) :
+          (sqp0p3 == 0.0) ? complex_t<double> (-nhel * sqrt(2.0 * pvec(0)), 0.0) :
                             complex_t<double> ((nhel * nsf) * pvec(1), pvec(2))/sqp0p3 };
     if ((nhel * nsf) == 1)
     {
@@ -151,16 +150,15 @@ template<typename T>
 KOKKOS_FUNCTION void vxxxxx(const T& pvec, const double vmass, 
   const int nhel, const int nsv, complex_t<double> vc[6]) 
 {
-  const double p0 = sqrt(pvec(1) * pvec(1) + pvec(2) * pvec(2) + pvec(3) * pvec(3) + vmass * vmass);
   const double sqh = sqrt(0.5);
   const double hel = nhel;
   const int nsvahl = nsv * abs(hel);
-  vc[0] = complex_t<double> ( p0 * nsv, pvec(3) * nsv );
+  vc[0] = complex_t<double> ( pvec(0) * nsv, pvec(3) * nsv );
   vc[1] = complex_t<double> ( pvec(1) * nsv, pvec(2) * nsv );
   if ( vmass != 0. )
   {
     const double pt2 = (pvec(1) * pvec(1)) + (pvec(2) * pvec(2));
-    const double pp = min(p0, sqrt(pt2 + (pvec(3) * pvec(3))));
+    const double pp = min(pvec(0), sqrt(pt2 + (pvec(3) * pvec(3))));
     const double pt = min(pp, sqrt(pt2));
     const double hel0 = 1. - abs( hel );
     if ( pp == 0. )
@@ -172,7 +170,7 @@ KOKKOS_FUNCTION void vxxxxx(const T& pvec, const double vmass,
     }
     else
     {
-      const double emp = p0 / ( vmass * pp );
+      const double emp = pvec(0) / ( vmass * pp );
       vc[2] = complex_t<double> ( hel0 * pp / vmass, 0. );
       vc[5] = 
       complex_t<double> ( hel0 * pvec(3) * emp + hel * pt / pp * sqh, 0. );
@@ -193,10 +191,10 @@ KOKKOS_FUNCTION void vxxxxx(const T& pvec, const double vmass,
   {
     const double pt = sqrt((pvec(1) * pvec(1)) + (pvec(2) * pvec(2)));
     vc[2] = complex_t<double> (0., 0. );
-    vc[5] = complex_t<double> (hel * pt / p0 * sqh, 0. );
+    vc[5] = complex_t<double> (hel * pt / pvec(0) * sqh, 0. );
     if ( pt != 0. )
     {
-      const double pzpt = pvec(3) / (p0 * pt) * sqh * hel;
+      const double pzpt = pvec(3) / (pvec(0) * pt) * sqh * hel;
       vc[3] = complex_t<double> ( -pvec(1) * pzpt, -nsv * pvec(2) / pt * sqh);
       vc[4] = complex_t<double> ( -pvec(2) * pzpt, nsv * pvec(1) / pt * sqh);
     }
@@ -230,14 +228,12 @@ template<typename T>
 KOKKOS_FUNCTION void oxxxxx(const T& pvec, const double fmass, 
   const int nhel, const int nsf, complex_t<double> fo[6]) 
 {
-  
-  const double p0 = sqrt(pvec(1) * pvec(1) + pvec(2) * pvec(2) + pvec(3) * pvec(3) + fmass * fmass);
 
-  fo[0] = complex_t<double> (p0 * nsf, pvec(3) * nsf);
+  fo[0] = complex_t<double> (pvec(0) * nsf, pvec(3) * nsf);
   fo[1] = complex_t<double> (pvec(1) * nsf, pvec(2) * nsf);
   if (fmass != 0.)
   {
-    const double pp = min(p0, sqrt((pvec(1) * pvec(1)) + (pvec(2) * pvec(2)) + (pvec(3) * pvec(3))));
+    const double pp = min(pvec(0), sqrt((pvec(1) * pvec(1)) + (pvec(2) * pvec(2)) + (pvec(3) * pvec(3))));
     if (pp == 0.)
     {
       double sqm[2] = {sqrt(abs(fmass)), 0.};
@@ -253,7 +249,7 @@ KOKKOS_FUNCTION void oxxxxx(const T& pvec, const double fmass,
     {
       const double sf[]= {double(1 + nsf + (1 - nsf) * (nhel * nsf)) * 0.5,
                           double(1 + nsf - (1 - nsf) * (nhel * nsf)) * 0.5};
-      double omega[2] = {sqrt(p0 + pp), 0.};
+      double omega[2] = {sqrt(pvec(0) + pp), 0.};
       omega[1] = fmass/omega[0];
       const int ip = (1 + (nhel * nsf))/2;
       const int im = (1 - (nhel * nsf))/2;
@@ -272,10 +268,10 @@ KOKKOS_FUNCTION void oxxxxx(const T& pvec, const double fmass,
   else
   {
     double sqp0p3 = ((pvec(1) == 0.00) and (pvec(2) == 0.00) and (pvec(3) < 0.00)) ?
-              0. : sqrt(max(p0 + pvec(3), 0.00)) * nsf;
+              0. : sqrt(max(pvec(0) + pvec(3), 0.00)) * nsf;
 
     const complex_t<double> chi[2] = { complex_t<double> (sqp0p3, 0.00),
-            sqp0p3 == 0. ? complex_t<double> (-nhel, 0.) * sqrt(2. * p0) :
+            sqp0p3 == 0. ? complex_t<double> (-nhel, 0.) * sqrt(2. * pvec(0)) :
                            complex_t<double> ((nhel * nsf) * pvec(1), -pvec(2))/sqp0p3
     };
 
