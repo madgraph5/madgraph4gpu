@@ -5,6 +5,11 @@ CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
+# install target
+INSTALL_HEADERS=CPPProcess.h ../Memory.h
+INSTALL_INC_DIR=../../include
+INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o
+
 # Note: AR and CXX are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
@@ -109,7 +114,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
-  NVCC       := 
+  NVCC       :=
   USE_NVTX   :=
   CULIBFLAGS :=
   override RNDGEN = common
@@ -248,6 +253,11 @@ testmain=$(BUILDDIR)/runTest.exe
 
 all.$(TAG): ../../src/$(BUILDDIR)/.build.$(TAG) $(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
 
+install: all.$(TAG) $(INSTALL_HEADERS)
+	$(MAKE) -C ../../src install
+	cp $(INSTALL_HEADERS) $(INSTALL_INC_DIR)
+	cp $(INSTALL_OBJECTS) $(LIBDIR)
+
 override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)'`
 $(BUILDDIR)/.build.$(TAG):
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
@@ -314,7 +324,7 @@ $(testmain): cxx_objects += $(BUILDDIR)/testxxx.o # Comment out this line to ski
 
 ifeq ($(NVCC),)
 # Link only runTest.o
-$(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS) 
+$(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
 # Link both runTest.o and runTest_cu.o
@@ -368,7 +378,7 @@ cleanall:
 	make clean
 	@echo
 	make -C ../../src cleanall
-	rm -rf build.*	
+	rm -rf build.*
 
 distclean: cleanall
 	make -C $(TOOLSDIR) clean
