@@ -251,7 +251,7 @@ cxx_objects=$(BUILDDIR)/CPPProcess.o
 
 testmain=$(BUILDDIR)/runTest.exe
 
-all.$(TAG): ../../src/$(BUILDDIR)/.build.$(TAG) $(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) ../../src/$(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
 
 install: all.$(TAG) $(INSTALL_HEADERS)
 	$(MAKE) -C ../../src install
