@@ -40,6 +40,11 @@ namespace Proc
   const int nw6 = 6; // dimension of each wavefunction (see KEK 91-11)
 
   // Physics parameters (masses, coupling, etc...)
+  // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
+  // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
+  // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
+  //const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
+  //const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
 #ifdef __CUDACC__
   __device__ __constant__ fptype cIPC[6];
   __device__ __constant__ fptype cIPD[2];
@@ -80,11 +85,6 @@ namespace Proc
     //printf( "calculate_wavefunctions: nevt %d\n", nevt );
 #endif
 
-#ifdef __CUDACC__
-    const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
-    const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
-#endif
-
     // The number of colors
     const int ncolor = 1;
 
@@ -96,11 +96,6 @@ namespace Proc
     // Local variables for the given C++ event page (ipagV)
     cxtype_sv w_sv[nwf][nw6]; // w_v[5][6]
     cxtype_sv amp_sv[1]; // was 2
-
-    // For CUDA performance, this is ~better: fewer registers, even if no throughput increase (issue #39)
-    // However, physics parameters like masses and couplings must be read from user parameter files
-    //const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
-    //const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
 
 #ifndef __CUDACC__
     const int npagV = nevt / neppV;
