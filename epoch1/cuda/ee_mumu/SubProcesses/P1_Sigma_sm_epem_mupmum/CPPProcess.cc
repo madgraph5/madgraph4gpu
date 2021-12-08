@@ -39,19 +39,23 @@ namespace Proc
   const int nwf = 5; // #wavefunctions: npar (4 external) + 1 (internal, reused for gamma and Z)
   const int nw6 = 6; // dimension of each wavefunction (see KEK 91-11)
 
+  // Physics parameters (masses, coupling, etc...)
 #ifdef __CUDACC__
-  __device__ __constant__ short cHel[ncomb][npar];
   __device__ __constant__ fptype cIPC[6];
   __device__ __constant__ fptype cIPD[2];
-  //__device__ __constant__ int cNGoodHel[1]; // FIXME: assume process.nprocesses == 1 for the moment
-  __device__ __constant__ int cNGoodHel;
+#else
+  static fptype cIPC[6];
+  static fptype cIPD[2];
+#endif
+
+  // Helicity combinations (and filtering of "good" helicity combinations)
+#ifdef __CUDACC__
+  __device__ __constant__ short cHel[ncomb][npar];
+  __device__ __constant__ int cNGoodHel; // FIXME: assume process.nprocesses == 1 for the moment (eventually cNGoodHel[nprocesses]?)
   __device__ __constant__ int cGoodHel[ncomb];
 #else
   static short cHel[ncomb][npar];
-  static fptype cIPC[6];
-  static fptype cIPD[2];
-  //static int cNGoodHel[1]; // FIXME: assume process.nprocesses == 1 for the moment
-  static int cNGoodHel;
+  static int cNGoodHel; // FIXME: assume process.nprocesses == 1 for the moment (eventually cNGoodHel[nprocesses]?)
   static int cGoodHel[ncomb];
 #endif
 
