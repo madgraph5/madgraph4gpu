@@ -15,7 +15,7 @@ public:
         dim(league_size * team_size),
         cHel("cHel",ncomb,nexternal), hHel("hHel",ncomb,nexternal), 
         cmME("cmME",nexternal), hmME("hmME",nexternal),
-        cIPC("cIPC",%(ncouplingstimes2)i), hIPC("hIPC",%(ncouplingstimes2)i), 
+        cIPC("cIPC",%(ncouplings)i), hIPC("hIPC",%(ncouplings)i), 
         cIPD("cIPD",%(nparams)i), hIPD("hIPD",%(nparams)i) {
 
     // Helicities for the process - nodim
@@ -45,6 +45,8 @@ public:
     pars->setDependentParameters();
     pars->setDependentCouplings();
     %(initProc_lines)s
+    
+    %(assign_coupling)s
 
   }
 
@@ -75,8 +77,8 @@ public:
   Kokkos::View<double*,ExecSpace> cmME;
   typename Kokkos::View<double*,ExecSpace>::HostMirror hmME;
 
-  Kokkos::View<double*,ExecSpace> cIPC;
-  typename Kokkos::View<double*,ExecSpace>::HostMirror hIPC;
+  Kokkos::View<complex_t<double>*,ExecSpace> cIPC;
+  typename Kokkos::View<complex_t<double>*,ExecSpace>::HostMirror hIPC;
 
   Kokkos::View<double*,ExecSpace> cIPD;
   typename Kokkos::View<double*,ExecSpace>::HostMirror hIPD;

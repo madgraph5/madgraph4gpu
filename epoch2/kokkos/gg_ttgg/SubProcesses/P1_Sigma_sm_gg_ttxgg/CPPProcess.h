@@ -6,6 +6,7 @@
 // GPU Template
 //==========================================================================
 
+#include <string>
 #include "Parameters_sm.h"
 #include "Kokkos_Core.hpp"
 // #define THRUST_COMPLEX 1
@@ -23,6 +24,7 @@
 using std::min;
 using std::max;
 using std::sqrt;
+using std::abs;
 #endif
 
 
@@ -39,7 +41,7 @@ KOKKOS_FUNCTION void ixxxxx(const T& pvec, const double fmass,
     double pp = min(p0, sqrt(pvec(1) * pvec(1) + pvec(2) * pvec(2) + pvec(3) * pvec(3)));
     if (pp == 0.0)
     {
-      double sqm[2] = {sqrt(std::abs(fmass)), 0.};
+      double sqm[2] = {sqrt(abs(fmass)), 0.};
       sqm[1] = (fmass < 0) ? -sqm[0] : sqm[0];
       const int ip = (1 + (nhel * nsf))/2;
       const int im = (1 - (nhel * nsf))/2;
@@ -103,7 +105,7 @@ KOKKOS_FUNCTION void vxxxxx(const T& pvec, const double vmass,
   const double p0 = sqrt(pvec(1) * pvec(1) + pvec(2) * pvec(2) + pvec(3) * pvec(3) + vmass * vmass);
   const double sqh = sqrt(0.5);
   const double hel = nhel;
-  const int nsvahl = nsv * std::abs(hel);
+  const int nsvahl = nsv * abs(hel);
   vc[0] = complex<double> ( p0 * nsv, pvec(3) * nsv );
   vc[1] = complex<double> ( pvec(1) * nsv, pvec(2) * nsv );
   if ( vmass != 0. )
@@ -111,7 +113,7 @@ KOKKOS_FUNCTION void vxxxxx(const T& pvec, const double vmass,
     const double pt2 = (pvec(1) * pvec(1)) + (pvec(2) * pvec(2));
     const double pp = min(p0, sqrt(pt2 + (pvec(3) * pvec(3))));
     const double pt = min(pp, sqrt(pt2));
-    const double hel0 = 1. - std::abs( hel );
+    const double hel0 = 1. - abs( hel );
     if ( pp == 0. )
     {
       vc[2] = complex<double> ( 0., 0. );
@@ -173,14 +175,14 @@ KOKKOS_FUNCTION void oxxxxx(const T& pvec, const double fmass,
     const double pp = min(p0, sqrt((pvec(1) * pvec(1)) + (pvec(2) * pvec(2)) + (pvec(3) * pvec(3))));
     if (pp == 0.)
     {
-      double sqm[2] = {sqrt(std::abs(fmass)), 0.};
+      double sqm[2] = {sqrt(abs(fmass)), 0.};
       sqm[1] = fmass < 0 ? -sqm[0] : sqm[0];
       const int ip = -((1 - (nhel * nsf))/2) * nhel;
       const int im = (1 + (nhel * nsf))/2 * nhel;
-      fo[2] = complex<double> (im * sqm[std::abs(ip)], 0.);
-      fo[3] = complex<double> (ip * nsf * sqm[std::abs(ip)], 0.);
-      fo[4] = complex<double> (im * nsf * sqm[std::abs(im)], 0.);
-      fo[5] = complex<double> (ip * sqm[std::abs(im)], 0.);
+      fo[2] = complex<double> (im * sqm[abs(ip)], 0.);
+      fo[3] = complex<double> (ip * nsf * sqm[abs(ip)], 0.);
+      fo[4] = complex<double> (im * nsf * sqm[abs(im)], 0.);
+      fo[5] = complex<double> (ip * sqm[abs(im)], 0.);
     }
     else
     {
@@ -593,6 +595,7 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 1
   VVVV1_0(w[6], w[7], w[4], w[5], cIPC(2),&amp);
+  printf("amp = %e,%e\n",amp.real(),amp.imag());
   auto a = +const_complex * amp;
   auto b = -a;
   jamp[0] += a;

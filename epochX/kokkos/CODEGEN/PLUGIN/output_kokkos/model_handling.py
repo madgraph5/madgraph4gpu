@@ -47,6 +47,7 @@ class UFOModelConverterKokkos(export_cpp.UFOModelConverterCPP):
     helas_h = pjoin('kokkos', 'helas.h')
     helas_cc = pjoin('kokkos', 'helas.cpp')
 
+
     # Dictionary from Python type to C++ type
     type_dict = {"real": "double",
                  "complex": "complex_t<double>"}
@@ -240,12 +241,16 @@ class OneProcessExporterKokkos(export_cpp.OneProcessExporterCPP):
         params = [''] * len(self.helas_call_writer.params2order)
         for coup, pos in self.helas_call_writer.couplings2order.items():
             coupling[pos] = coup
-        coup_str = "static complex_t<double> tIPC[%s] = {pars->%s};\n"\
-            % (len(self.helas_call_writer.couplings2order), ',pars->'.join(coupling))
+        coup_str = ''
+        for i in range(len(self.helas_call_writer.couplings2order)):
+            coup_str += "hIPC(%s) = pars->%s;\n" % (i, coupling[i])
+
         for para, pos in self.helas_call_writer.params2order.items():
             params[pos] = para            
-        param_str = "static double tIPD[%s] = {pars->%s};\n"\
-            % (len(self.helas_call_writer.params2order), ',pars->'.join(params))
+        
+        param_str = ''
+        for i in range(len(self.helas_call_writer.params2order)):
+            param_str += "hIPD(%s) = pars->%s;\n" % (i, params[i])
          
         replace_dict['assign_coupling'] = coup_str + param_str
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
@@ -301,12 +306,20 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
         params = [''] * len(self.helas_call_writer.params2order)
         for coup, pos in self.helas_call_writer.couplings2order.items():
             coupling[pos] = coup
-        coup_str = "static complex_t<double> tIPC[%s] = {pars->%s};\n"\
-            % (len(self.helas_call_writer.couplings2order), ',pars->'.join(coupling))
+        coup_str = ''
+        for i in range(len(self.helas_call_writer.couplings2order)):
+            coup_str += "hIPC(%s) = pars->%s;\n" % (i, coupling[i])
+
+        coup_str += "Kokkos::deep_copy(cIPC, hIPC);\n"
+
         for para, pos in self.helas_call_writer.params2order.items():
             params[pos] = para            
-        param_str = "static double tIPD[%s] = {pars->%s};\n"\
-            % (len(self.helas_call_writer.params2order), ',pars->'.join(params))
+        
+        param_str = ''
+        for i in range(len(self.helas_call_writer.params2order)):
+            param_str += "hIPD(%s) = pars->%s;\n" % (i, params[i])
+
+        param_str += "Kokkos::deep_copy(cIPD, hIPD);\n"
          
         replace_dict['assign_coupling'] = coup_str + param_str
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
@@ -376,13 +389,13 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
             ret_lines.append("const int ncolor =  %i;" % len(color_amplitudes[0]))
             ret_lines.append("complex_t<double> jamp[ncolor];")
             ret_lines.append("// Calculate wavefunctions for all processes")
-            ret_lines.append("complex_t<double> w[mgKokkos::nwf][mgKokkos::nw6];")
-
+            
             helas_calls = self.helas_call_writer.get_matrix_element_calls(self.matrix_elements[0], color_amplitudes[0])
             logger.debug("only one Matrix-element supported?")
             self.couplings2order = self.helas_call_writer.couplings2order
             self.params2order = self.helas_call_writer.params2order
-            # nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
+            nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
+            ret_lines.append("complex_t<double> w[" + str(nwavefuncs) + "][mgKokkos::nw6];")
             
             ret_lines += helas_calls
             # ret_lines.append(self.get_calculate_wavefunctions(\

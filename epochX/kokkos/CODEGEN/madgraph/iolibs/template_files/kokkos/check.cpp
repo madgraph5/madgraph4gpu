@@ -73,7 +73,7 @@ int main(int argc, char **argv)
   bool perf = false;
   bool json = false;
   int niter = 1, league_size = 1, team_size = 1;
-  int jsondate = 0;
+  // int jsondate = 0;
   int jsonrun = 0;
   int numvec[5] = {0,0,0,0,0};
   int nnum = 0;
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
     team_size = numvec[1];
     niter = numvec[2];
     if (nnum == 5){
-      jsondate = numvec[3];
+      // jsondate = numvec[3];
       jsonrun = numvec[4];
     }
   } else if (nnum == 1) {
@@ -186,7 +186,10 @@ int main(int argc, char **argv)
 
     // random numbers (device-side only)
     Kokkos::View<double**,Kokkos::DefaultExecutionSpace> devRnarray(Kokkos::ViewAllocateWithoutInitializing("devRnarray"),nevt,4*(process.nexternal - process.ninitial));
-    
+#ifdef FIXED_RANDOM
+    auto hstRnarray = Kokkos::create_mirror_view(devRnarray);
+#endif
+
     // momenta
     Kokkos::View<double***,Kokkos::DefaultExecutionSpace> devMomenta(Kokkos::ViewAllocateWithoutInitializing("devMomenta"),nevt,process.nexternal,4);
     auto hstMomenta = Kokkos::create_mirror_view(devMomenta);
@@ -243,13 +246,22 @@ int main(int argc, char **argv)
       // time each loop
       loop_timer.reset();
       
-
       // === STEP 1 OF 3
 
       nvtxRangePush("1a_1b_1c_RandGen");
       section_timer.reset();
-
+#ifdef FIXED_RANDOM
+      srand(123);
+      
+      for(int ii=0;ii<nevt;++ii){
+        for(int jj=0;jj < 4*(process.nexternal - process.ninitial);++jj){
+          hstRnarray(ii,jj) = static_cast<double>(rand()) / (double)RAND_MAX;
+      }}
+      
+      Kokkos::deep_copy(devRnarray,hstRnarray);
+#else
       fill_random_numbers_2d(devRnarray,nevt,4*(process.nexternal - process.ninitial), rand_pool, league_size, team_size);
+#endif
       Kokkos::DefaultExecutionSpace().fence();
       tmr_rand.add_value(section_timer.seconds());
       nvtxRangePop();
@@ -419,9 +431,9 @@ int main(int argc, char **argv)
 
       printf("**********************************************************************\n");
       printf("NumMatrixElements(notNan)   = %8d\n",nevtALL);
-      printf("MeanMatrixElemValue         = ( %.6e +- %.6e ) GeV^%d\n",ave_me.mean(),ave_me.sigma(),meGeVexponent);
+      printf("MeanMatrixElemValue         = ( %.6e +- %.6e ) GeV^%d\n",ave_me.mean(),ave_me.sigma()/sqrt(nevtALL),meGeVexponent);
       printf("[Min,Max]MatrixElemValue    = [ %.6e , %.6e ]  GeV^%d\n",ave_me.min(),ave_me.max(),meGeVexponent);
-      printf("StdDevMatrixElemValue       = ( %.6e ) GeV^%d\n",ave_me.sigma()/sqrt(nevtALL),meGeVexponent);
+      printf("StdDevMatrixElemValue       = ( %.6e ) GeV^%d\n",ave_me.sigma(),meGeVexponent);
       printf("MeanWeight                  = ( %.6e +- %.6e ) GeV^%d\n",ave_weight.mean(),ave_weight.sigma(),meGeVexponent);
       printf("[Min,Max]Weight             = [ %.6e , %.6e ]  GeV^%d\n",ave_weight.min(),ave_weight.max(),meGeVexponent);
       printf("StdDevWeight                = ( %.6e ) GeV^%d\n",ave_weight.sigma()/sqrt(nevtALL),meGeVexponent);

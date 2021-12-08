@@ -1757,8 +1757,8 @@ class GPUFOHelasCallWriter(CPPUFOHelasCallWriter):
                                     '%s%s(%s)' % (sign, name, alias[coup]))
             else:
                 call = call.replace('pars->%s%s' % (sign, coup), 
-                                    '%scomplex_t<double>(cIPC(%s),cIPC(%s))' % 
-                                    (sign, 2*alias[coup],2*alias[coup]+1))
+                                    '%scIPC(%s)' % 
+                                    (sign, alias[coup]))
 
         return call
             

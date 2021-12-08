@@ -159,7 +159,8 @@ void get_final_momenta(const int ninitial,const int nexternal,const double energ
       }
 
       // return for weighted massless momenta
-      if (nm == 0) {
+      // if (nm == 0) {
+      if(true){  /// set to match CUDA output
         for (int j = 0; j < n_outgoing; j++)
           for (int k = 0; k < 4; k++)
             lp(j+ninitial,k) = p[j][k];
