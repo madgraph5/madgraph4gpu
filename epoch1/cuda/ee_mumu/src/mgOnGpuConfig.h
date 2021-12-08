@@ -31,7 +31,7 @@
 // This optimization can gain 20% in CUDA in eemumu (issue #39)
 // By default, do not hardcode, but allow this macro to be set from outside with e.g. -DMGONGPU_HARDCODE_CIPC
 //#undef MGONGPU_HARDCODE_CIPC // default
-#define MGONGPU_HARDCODE_CIPC 1
+////#define MGONGPU_HARDCODE_CIPC 1
 
 // Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
