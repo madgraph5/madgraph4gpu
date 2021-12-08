@@ -232,8 +232,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
         const int ipagM = ievt/neppM; // #eventpage in this iteration
-        const MG5_sm::p4type_sv p4vec = MG5_sm::p4IparIpagV( hstMomenta.get(), ipar, ipagM );
-        imzxxx( p4vec, nhel, nsp, outwf );
+        imzxxx( hstMomenta.get(), nhel, nsp, outwf, ipagM, ipar );
         testwf6two( outwf, outwfI, "imzxxx", ievt );
         testwf6( outwf, "imzxxx", ievt, nsp, 0 );
       }
