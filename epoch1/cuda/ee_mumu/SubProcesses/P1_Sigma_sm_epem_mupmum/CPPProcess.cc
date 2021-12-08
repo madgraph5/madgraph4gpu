@@ -90,8 +90,8 @@ namespace Proc
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, defining them here has in the past led to silent shadowing (issue #263)]
 #ifdef MGONGPU_HARDCODE_CIPC
-    constexpr fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
-    constexpr fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
+    static constexpr fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
+    static constexpr fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
 #endif
 
     // The number of colors
