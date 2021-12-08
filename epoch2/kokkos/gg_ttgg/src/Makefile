@@ -16,7 +16,7 @@ CUDA_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_CUDA)/lib64/libkokkoscore.a -lnvToolsExt --
 CXX=g++
 IPCX=icpx
 CLANG=clang++
-HIPCC=hipcc
+HIPCC ?= hipcc
 
 OPENMP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_OMP)/include --openmp
 OPENMP_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_OMP)/lib64/libkokkoscore.a -ldl --openmp
@@ -30,7 +30,7 @@ INTEL_LDFLAGS=$(LDFLAGS)  $(KOKKOSPATH_INTEL)/lib64/libkokkoscore.a -fiopenmp -f
 HIP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_HIP)/include -fopenmp -fno-gpu-rdc --amdgpu-target=gfx906
 HIP_LDFLAGS=$(LDFLAGS) -L $(KOKKOSPATH_HIP)/lib64  -lkokkoscore -ldl -fopenmp
 
-SRCS = Parameters_sm.cc read_slha.cc HelAmps_sm.cc
+SRCS = Parameters_sm.cc read_slha.cc
 
 LIBDIR=../lib
 cuda_lib=$(LIBDIR)/lib$(MODELLIB)_cuda.a
@@ -59,7 +59,7 @@ hip: $(hip_lib)
 	$(NVCC) $(CUDA_CXXFLAGS) -c $< -o $@
 
 %.intel.o : %.cc %.h
-	$(ICPX) $(INTEL_CXXFLAGS) -c $< -o $@
+	$(IPCX) $(INTEL_CXXFLAGS) -c $< -o $@
 
 %.hip.o : %.cc %.h
 	$(HIPCC) $(HIP_CXXFLAGS) -c $< -o $@

@@ -8,6 +8,8 @@
 #include <numeric>
 #include <string>
 #include <unistd.h>
+#include <vector>
+#include <chrono>
 
 #include "Kokkos_Core.hpp"
 #include "CPPProcess.h"
@@ -34,46 +36,14 @@ int usage(char* argv0, int ret = 1) {
   return ret;
 }
 
-// #ifdef __CUDACC__
-// template<typename T = fptype>
-// struct CudaDevDeleter {
-//   void operator()(T* mem) {
-//     checkCuda( cudaFree( mem ) );
-//   }
-// };
-// template<typename T = fptype>
-// std::unique_ptr<T, CudaDevDeleter<T>> devMakeUnique(std::size_t N) {
-//   T* tmp = nullptr;
-//   checkCuda( cudaMalloc( &tmp, N * sizeof(T) ) );
-//   return std::unique_ptr<T, CudaDevDeleter<T>>{ tmp };
-// }
-// template<typename T = fptype>
-// struct CudaHstDeleter {
-//   void operator()(T* mem) {
-//     checkCuda( cudaFreeHost( mem ) );
-//   }
-// };
-// template<typename T = fptype>
-// std::unique_ptr<T[], CudaHstDeleter<T>> hstMakeUnique(std::size_t N) {
-//   T* tmp = nullptr;
-//   checkCuda( cudaMallocHost( &tmp, N * sizeof(T) ) );
-//   return std::unique_ptr<T[], CudaHstDeleter<T>>{ tmp };
-// };
-// #else
-// template<typename T = fptype>
-// std::unique_ptr<T[]> hstMakeUnique(std::size_t N) { return std::unique_ptr<T[]>{ new T[N] }; };
-// #endif
-
-int main(int argc, char **argv)
-{
-  clock_t clock_start = clock(), clock_end = clock();
-  // READ COMMAND LINE ARGUMENTS
-  bool verbose = false;
-  bool debug = false;
-  bool perf = false;
-  bool json = false;
-  int niter = 1, league_size = 1, team_size = 1;
+int main(int argc, char **argv) {
+  auto start = std::chrono::high_resolution_clock::now();
+  bool verbose = false, debug = false, perf = false, json = false;
+  int numiter = 0, league_size = 1, team_size = 1;
+  std::vector<int> numvec;
+  std::vector<float> wavetimes;
   // int jsondate = 0;
+
   int jsonrun = 0;
   int numvec[5] = {0,0,0,0,0};
   int nnum = 0;
@@ -113,18 +83,18 @@ int main(int argc, char **argv)
   if (niter == 0)
     return usage(argv[0]);
 
-  clock_end = clock();
-  double cmdline_parse_sec =  ((double) (clock_end - clock_start)) / CLOCKS_PER_SEC;
-  std::cout << "command line parsing: " << cmdline_parse_sec << " seconds\n";
-  clock_start = clock();
+  auto end = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.;
+  std::cout << "command line parsing: " << duration << " seconds\n";
+  start = std::chrono::high_resolution_clock::now();
 
   // initialize Kokkos
   Kokkos::initialize(argc, argv);
 
-  clock_end = clock();
+  end = std::chrono::high_resolution_clock::now();
+  duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.;
   
-  double kokkos_init_sec = ((double) (clock_end - clock_start)) / CLOCKS_PER_SEC;
-  std::cout << "Kokkkos initialize: " << kokkos_init_sec << " seconds\n";
+  std::cout << "Kokkkos initialize: " << duration << " seconds\n";
 
   // bracket Kokkos Views so that deconstructors are called
   // before Kokkos::finalize()
