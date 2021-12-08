@@ -23,9 +23,15 @@
 
 // Choose whether to inline all HelAmps functions
 // This optimization can gain almost a factor 4 in C++, similar to -flto (issue #229)
-// By default, do not inline, but allow this macros to be set from outside with e.g. -DMGONGPU_INLINE_HELAMPS
+// By default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_INLINE_HELAMPS
 //#undef MGONGPU_INLINE_HELAMPS // default
 ////#define MGONGPU_INLINE_HELAMPS 1
+
+// Choose whether to hardcode the cIPC/cIPD physics parameters rather than reading them from user cards
+// This optimization can gain 20% in CUDA in eemumu (issue #39)
+// By default, do not hardcode, but allow this macro to be set from outside with e.g. -DMGONGPU_HARDCODE_CIPC
+//#undef MGONGPU_HARDCODE_CIPC // default
+#define MGONGPU_HARDCODE_CIPC 1
 
 // Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
 #ifdef __CUDACC__

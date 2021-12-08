@@ -43,14 +43,17 @@ namespace Proc
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
-  //const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
-  //const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
+#ifdef MGONGPU_HARDCODE_CIPC
+  __device__ const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
+  __device__ const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
+#else
 #ifdef __CUDACC__
   __device__ __constant__ fptype cIPC[6];
   __device__ __constant__ fptype cIPD[2];
 #else
   static fptype cIPC[6];
   static fptype cIPD[2];
+#endif
 #endif
 
   // Helicity combinations (and filtering of "good" helicity combinations)
@@ -294,6 +297,7 @@ namespace Proc
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
 
+#ifndef MGONGPU_HARDCODE_CIPC
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     const cxtype tIPC[3] = { cxmake( m_pars->GC_3 ), cxmake( m_pars->GC_50 ), cxmake( m_pars->GC_59 ) };
@@ -304,6 +308,7 @@ namespace Proc
 #else
     memcpy( cIPC, tIPC, 3 * sizeof(cxtype) );
     memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
+#endif
 #endif
 
     //std::cout << std::setprecision(17) << "tIPC[0] = " << tIPC[0] << std::endl;
