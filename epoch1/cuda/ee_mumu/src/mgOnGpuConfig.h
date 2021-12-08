@@ -14,7 +14,7 @@
 #endif
 
 // Choose floating point precision
-// If one of these macros has been set from outside with e.g. -DMGONGPU_FPTYPE_FLOAT, nothing happens
+// If one of these macros has been set from outside with e.g. -DMGONGPU_FPTYPE_FLOAT, nothing happens (issue #167)
 #if not defined MGONGPU_FPTYPE_DOUBLE and not defined MGONGPU_FPTYPE_FLOAT
 // Floating point precision (CHOOSE ONLY ONE)
 #define MGONGPU_FPTYPE_DOUBLE 1 // default (~6.8E8)
@@ -36,7 +36,7 @@
 // Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
 #define MGONGPU_CXTYPE_THRUST 1 // default (~6.8E8)
-//#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~5% slower (6.5E8 against 6.8E8)
+//#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~5 percent slower (6.5E8 against 6.8E8)
 #endif
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
@@ -80,13 +80,16 @@ namespace mgOnGpu
 
   // --- Physics process-specific constants that are best declared at compile time
 
-  const int np4 = 4; // the dimension of 4-momenta (E,px,py,pz)
+  const int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
 
-  const int npari = 2; // #particles in the initial state (incoming): e+ e-
-  const int nparf = 2; // #particles in the final state (outgoing): mu+ mu-
-  const int npar = npari + nparf; // #particles in total (external): e+ e- -> mu+ mu-
+  const int npari = 2; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
+  const int nparf = 2; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
+  const int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
 
-  const int ncomb = 16; // #helicity combinations: 16=2(spin up/down for fermions)**4(npar)
+  const int ncomb = 16; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+
+  const int nw6 = 6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  const int nwf = 5; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
 
   // --- Platform-specific software implementation details
 
@@ -106,7 +109,9 @@ namespace mgOnGpu
 #endif
 
   // C++ SIMD vectorization width (this will be used to set neppV)
-#ifndef __CUDACC__
+#ifdef __CUDACC__
+#undef MGONGPU_CPPSIMD
+#else
 #if defined __AVX512VL__
 #ifdef MGONGPU_PVW512
   // "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
@@ -146,7 +151,6 @@ namespace mgOnGpu
   // Number of Events Per Page in the momenta AOSOA memory layout
   // (these are all best kept as a compile-time constants: see issue #23)
 #ifdef __CUDACC__
-#undef MGONGPU_CPPSIMD
   // -----------------------------------------------------------------------------------------------
   // --- GPUs: neppM is best set to a power of 2 times the number of fptype's in a 32-byte cacheline
   // --- This is relevant to ensure coalesced access to momenta in global memory
@@ -160,7 +164,7 @@ namespace mgOnGpu
   // --- CPUs: neppM is best set equal to the number of fptype's (neppV) in a vector register
   // --- This is relevant to ensure faster access to momenta from C++ memory cache lines
   // --- However, neppM is now decoupled from neppV (issue #176) and can be separately hardcoded
-  // --- In practice, neppR, neppM and neppV can now all be different
+  // --- In practice, neppR, neppM and neppV could now (in principle) all be different
   // -----------------------------------------------------------------------------------------------
 #ifdef MGONGPU_CPPSIMD
   const int neppM = MGONGPU_CPPSIMD; // (DEFAULT) neppM=neppV for optimal performance
