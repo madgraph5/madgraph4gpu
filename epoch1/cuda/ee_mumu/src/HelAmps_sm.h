@@ -46,7 +46,6 @@ namespace MG5_sm
     const fptype& p3;
   };
 
-#if not defined __CUDACC__ and defined MGONGPU_CPPSIMD
   // Four-momentum values of one particle, for one event or for one "V-page" of neppV events
   struct p4type_sv
   {
@@ -54,10 +53,10 @@ namespace MG5_sm
     fptype_sv p1;
     fptype_sv p2;
     fptype_sv p3;
-  };
-#else
-  typedef p4type_ref p4type_sv;
+#if defined __CUDACC__ or not defined MGONGPU_CPPSIMD
+    __device__ p4type_sv( const p4type_ref ref ) : p0( ref.p0 ), p1( ref.p1 ), p2( ref.p2 ), p3( ref.p3 ){}
 #endif
+  };
 
 #ifndef __CUDACC__
 #ifdef MGONGPU_CPPSIMD
