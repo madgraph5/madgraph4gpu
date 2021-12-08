@@ -15,6 +15,7 @@ div=0
 req=0
 fptypes="d"
 helinls="0"
+hrdcips="0"
 suffs="/"
 maketype=
 makej=
@@ -24,7 +25,7 @@ verbose=0
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -88,6 +89,14 @@ while [ "$1" != "" ]; do
     if [ "${helinls}" == "0 1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
     helinls="1"
     shift
+  elif [ "$1" == "-hrd" ]; then
+    if [ "${helhrds}" == "1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
+    hrdcips="0 1"
+    shift
+  elif [ "$1" == "-hrdonly" ]; then
+    if [ "${helhrds}" == "0 1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
+    hrdcips="1"
+    shift
   elif [ "$1" == "-auto" ]; then
     if [ "${suffs}" == ".auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
     suffs="/ .auto/"
@@ -147,9 +156,11 @@ for suff in $suffs; do
     elif [ "${ggttgg}" == "1" ]; then 
       dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
     fi
-    for helinl in $helinls; do
-      for fptype in $fptypes; do
-        exes="$exes ${dir}/build.none_${fptype}_inl${helinl}/gcheck.exe"
+    for hrdcip in $hrdcips; do
+      for helinl in $helinls; do
+        for fptype in $fptypes; do
+          exes="$exes ${dir}/build.none_${fptype}_inl${helinl}_hrd${hrdcip}/gcheck.exe"
+        done
       done
     done
   fi
@@ -165,19 +176,21 @@ for suff in $suffs; do
     elif [ "${ggttgg}" == "1" ]; then 
       dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
     fi
-    for helinl in $helinls; do
-      for fptype in $fptypes; do
-        exes="$exes $dir/build.none_${fptype}_inl${helinl}/check.exe"
-        if [ "${avxall}" == "1" ]; then 
-          exes="$exes $dir/build.sse4_${fptype}_inl${helinl}/check.exe"
-          exes="$exes $dir/build.avx2_${fptype}_inl${helinl}/check.exe"
-        fi
-        if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
-          exes="$exes $dir/build.512y_${fptype}_inl${helinl}/check.exe"
+    for hrdcip in $hrdcips; do
+      for helinl in $helinls; do
+        for fptype in $fptypes; do
+          exes="$exes $dir/build.none_${fptype}_inl${helinl}_hrd${hrdcip}/check.exe"
           if [ "${avxall}" == "1" ]; then 
-            exes="$exes $dir/build.512z_${fptype}_inl${helinl}/check.exe"
+            exes="$exes $dir/build.sse4_${fptype}_inl${helinl}_hrd${hrdcip}/check.exe"
+            exes="$exes $dir/build.avx2_${fptype}_inl${helinl}_hrd${hrdcip}/check.exe"
           fi
-        fi
+          if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
+            exes="$exes $dir/build.512y_${fptype}_inl${helinl}_hrd${hrdcip}/check.exe"
+            if [ "${avxall}" == "1" ]; then 
+              exes="$exes $dir/build.512z_${fptype}_inl${helinl}_hrd${hrdcip}/check.exe"
+            fi
+          fi
+        done
       done
     done
   fi
@@ -205,20 +218,24 @@ for suff in $suffs; do
   pwd
   if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
   if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
-  for helinl in $helinls; do
-    export HELINL=$helinl
-    for fptype in $fptypes; do
-      export FPTYPE=$fptype
-      if [ "${avxall}" == "1" ]; then
-        make ${makej} avxall; echo
-      else
-        make ${makej} AVX=none; echo
-        make ${makej} AVX=512y; echo
-      fi
+  for hrdcip in $hrdcips; do
+    export HRDCIP=$hrdcip
+    for helinl in $helinls; do
+      export HELINL=$helinl
+      for fptype in $fptypes; do
+        export FPTYPE=$fptype
+        if [ "${avxall}" == "1" ]; then
+          make ${makej} avxall; echo
+        else
+          make ${makej} AVX=none; echo
+          make ${makej} AVX=512y; echo
+        fi
+      done
     done
   done
   popd >& /dev/null
   export USEBUILDDIR=
+  export HRDCIP=
   export HELINL=
   export FPTYPE=
 

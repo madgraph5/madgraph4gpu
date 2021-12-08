@@ -4,7 +4,7 @@ cd $(dirname $0)
 
 function usage()
 {
-  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttgg)> [-auto|-autoonly] [-flt|-fltonly] [-inl|-inlonly] [-makeonly] [-makeclean] [-makej]"
+  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttgg)> [-auto|-autoonly] [-flt|-fltonly] [-inl|-inlonly]  [-hrd|-hrdonly] [-makeonly] [-makeclean] [-makej]"
   exit 1
 }
 
@@ -15,6 +15,7 @@ ggttgg=
 suffs="manu"
 fptypes="d"
 helinls="0"
+hrdcips="0"
 steps="make test"
 makej=
 for arg in $*; do
@@ -45,6 +46,12 @@ for arg in $*; do
   elif [ "$arg" == "-inlonly" ]; then
     if [ "${helinls}" == "0 1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
     helinls="1"
+  elif [ "$arg" == "-hrd" ]; then
+    if [ "${helhrds}" == "1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
+    hrdcips="0 1"
+  elif [ "$arg" == "-hrdonly" ]; then
+    if [ "${helhrds}" == "0 1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
+    hrdcips="1"
   elif [ "$arg" == "-makeonly" ]; then
     if [ "${steps}" == "make test" ]; then
       steps="make"
@@ -69,6 +76,7 @@ done
 #echo "suffs=$suffs"
 #echo "df=$df"
 #echo "inl=$inl"
+#echo "hrd=$hrd"
 #echo "steps=$steps"
 ###exit 0
 
@@ -88,26 +96,29 @@ for step in $steps; do
         flt=; if [ "${fptype}" == "f" ]; then flt=" -fltonly"; fi
         for helinl in $helinls; do
           inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; fi
-          args="${proc}${auto}${flt}${inl}"
-          args="${args} -avxall" # avx, fptype and helinl are now supported for all processes
-          if [ "${step}" == "makeclean" ]; then
-            printf "\n%80s\n" |tr " " "*"
-            printf "*** ./throughputX.sh -makecleanonly $args"
-            printf "\n%80s\n" |tr " " "*"
-            if ! ./throughputX.sh -makecleanonly $args; then exit 1; fi
-          elif [ "${step}" == "make" ]; then
-            printf "\n%80s\n" |tr " " "*"
-            printf "*** ./throughputX.sh -makeonly $args"
-            printf "\n%80s\n" |tr " " "*"
-            if ! ./throughputX.sh -makeonly ${makej} $args; then exit 1; fi
-          else
-            logfile=logs_${proc#-}_${suff}/log_${proc#-}_${suff}_${fptype}_inl${helinl}.txt
-            printf "\n%80s\n" |tr " " "*"
-            printf "*** ./throughputX.sh $args | tee $logfile"
-            printf "\n%80s\n" |tr " " "*"
-            mkdir -p $(dirname $logfile)
-            ./throughputX.sh $args -gtest | tee $logfile
-          fi
+          for hrdcip in $hrdcips; do
+            hrd=; if [ "${hrdcip}" == "1" ]; then hrd=" -hrdonly"; fi
+            args="${proc}${auto}${flt}${inl}${hrd}"
+            args="${args} -avxall" # avx, fptype, helinl and hrdcip are now supported for all processes
+            if [ "${step}" == "makeclean" ]; then
+              printf "\n%80s\n" |tr " " "*"
+              printf "*** ./throughputX.sh -makecleanonly $args"
+              printf "\n%80s\n" |tr " " "*"
+              if ! ./throughputX.sh -makecleanonly $args; then exit 1; fi
+            elif [ "${step}" == "make" ]; then
+              printf "\n%80s\n" |tr " " "*"
+              printf "*** ./throughputX.sh -makeonly $args"
+              printf "\n%80s\n" |tr " " "*"
+              if ! ./throughputX.sh -makeonly ${makej} $args; then exit 1; fi
+            else
+              logfile=logs_${proc#-}_${suff}/log_${proc#-}_${suff}_${fptype}_inl${helinl}_hrd${hrdcip}.txt
+              printf "\n%80s\n" |tr " " "*"
+              printf "*** ./throughputX.sh $args | tee $logfile"
+              printf "\n%80s\n" |tr " " "*"
+              mkdir -p $(dirname $logfile)
+              ./throughputX.sh $args -gtest | tee $logfile
+            fi
+          done
         done
       done
     done
