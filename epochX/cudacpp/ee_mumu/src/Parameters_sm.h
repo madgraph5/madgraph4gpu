@@ -80,7 +80,9 @@ namespace HardcodedParameters_sm
                          ? detailSqrtNewtonRaphson(x, x, 0)
                          : std::numeric_limits<double>::quiet_NaN();
   }
-  // Model parameters independent of aS
+
+  // EVENTUALLY: %(hardcoded_independent_parameters)s
+  // Model parameters independent of aS (for eemumu and ggttgg)
   constexpr double zero = 0;
   constexpr double ZERO = 0;
   constexpr double mdl_WH = 6.382339e-03;
@@ -131,16 +133,33 @@ namespace HardcodedParameters_sm
   constexpr double mdl_ee__exp__2 = ((mdl_ee)*(mdl_ee));
   constexpr double mdl_sw__exp__2 = ((mdl_sw)*(mdl_sw));
   constexpr double mdl_cw__exp__2 = ((mdl_cw)*(mdl_cw));
-  // Model couplings independent of aS
-  constexpr std::complex<double> GC_3 = std::complex<double>(0.,-mdl_ee);
-  constexpr std::complex<double> GC_50 = std::complex<double>(0.,-(mdl_cw*mdl_ee)/(2.*mdl_sw));
-  constexpr std::complex<double> GC_59 = std::complex<double>(0.,(mdl_ee*mdl_sw)/(2.*mdl_cw));
-  // Model parameters dependent on aS
+
+  // EVENTUALLY: %(hardcoded_dependent_parameters)s
+  // Model couplings independent of aS (for eemumu)
+  //constexpr std::complex<double> GC_3 = -(mdl_ee*mdl_complexi);
+  //constexpr std::complex<double> GC_50 = -(mdl_cw*mdl_ee*mdl_complexi)/(2.*mdl_sw);
+  //constexpr std::complex<double> GC_59 = (mdl_ee*mdl_complexi*mdl_sw)/(2.*mdl_cw);
+  constexpr std::complex<double> GC_3 = std::complex<double>(0.,-mdl_ee); // does not build
+  constexpr std::complex<double> GC_50 = std::complex<double>(0.,-(mdl_cw*mdl_ee)/(2.*mdl_sw)); // does not build
+  constexpr std::complex<double> GC_59 = std::complex<double>(0.,(mdl_ee*mdl_sw)/(2.*mdl_cw)); // does not build
+  // Model couplings independent of aS (for ggttgg)
+  // (none)
+
+  // EVENTUALLY: %(hardcoded_independent_couplings)s
+  // Model parameters dependent on aS (for eemumu and ggttgg)
   constexpr double mdl_sqrt__aS = sqrtNR(aS);
   constexpr double G = 2.*mdl_sqrt__aS*sqrtNR(M_PI);
   constexpr double mdl_G__exp__2 = ((G)*(G));
-  // Model couplings dependent on aS
+  // Model couplings dependent on aS (for eemumu)
   // (none)
+
+  // EVENTUALLY: %(hardcoded_dependent_couplings)s
+  // Model couplings dependent on aS (for ggttgg)
+  constexpr std::complex<double> GC_10 = -G;
+  //constexpr std::complex<double> GC_11 = mdl_complexi*G; // does not build
+  //constexpr std::complex<double> GC_12 = mdl_complexi*mdl_G__exp__2; // does not build
+  constexpr std::complex<double> GC_11 = std::complex<double>(0.,G);
+  constexpr std::complex<double> GC_12 = std::complex<double>(0.,mdl_G__exp__2);
 }
 
 #endif // Parameters_sm_H

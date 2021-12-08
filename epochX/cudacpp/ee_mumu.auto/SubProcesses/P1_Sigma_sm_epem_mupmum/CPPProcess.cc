@@ -43,14 +43,25 @@ namespace Proc
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
-  //constexpr fptype cIPC[6] = { ... };
-  //constexpr fptype cIPD[2] = { ... };
+#ifdef MGONGPU_HARDCODE_CIPC
+  __device__ const fptype cIPC[6] = {
+    HardcodedParameters_sm::GC_3.real(),
+    HardcodedParameters_sm::GC_3.imag(),
+    HardcodedParameters_sm::GC_50.real(),
+    HardcodedParameters_sm::GC_50.imag(),
+    HardcodedParameters_sm::GC_59.real(),
+    HardcodedParameters_sm::GC_59.imag() };  
+  __device__ const fptype cIPD[2] = {
+    HardcodedParameters_sm::mdl_MZ,
+    HardcodedParameters_sm::mdl_WZ }; 
+#else
 #ifdef __CUDACC__
   __device__ __constant__ fptype cIPC[6];
   __device__ __constant__ fptype cIPD[2];
 #else
   static fptype cIPC[6];
   static fptype cIPD[2];
+#endif
 #endif
 
   // Helicity combinations (and filtering of "good" helicity combinations)
@@ -302,6 +313,7 @@ namespace Proc
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
 
+#ifndef MGONGPU_HARDCODE_CIPC
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     const cxtype tIPC[3] = { cxmake( m_pars->GC_3 ), cxmake( m_pars->GC_50 ), cxmake( m_pars->GC_59 ) };
@@ -313,12 +325,10 @@ namespace Proc
     memcpy( cIPC, tIPC, 3 * sizeof(cxtype) );
     memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
 #endif
+#endif
 
-    //std::cout << std::setprecision(17) << "tIPC[0] = " << tIPC[0] << std::endl;
-    //std::cout << std::setprecision(17) << "tIPC[1] = " << tIPC[1] << std::endl;
-    //std::cout << std::setprecision(17) << "tIPC[2] = " << tIPC[2] << std::endl;
-    //std::cout << std::setprecision(17) << "tIPD[0] = " << tIPD[0] << std::endl;
-    //std::cout << std::setprecision(17) << "tIPD[1] = " << tIPD[1] << std::endl;
+    //for ( i=0; i<3; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;
+    //for ( i=0; i<2; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
   }
 
   //--------------------------------------------------------------------------
