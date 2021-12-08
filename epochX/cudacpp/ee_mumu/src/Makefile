@@ -107,6 +107,15 @@ else ifneq ($(HELINL),0)
   $(error Unknown HELINL='$(HELINL)': only '0' and '1' are supported)
 endif
 
+# Set the build flags appropriate to each HRDCIP choice (example: "make HRDCIP=1")
+###$(info HRDCIP=$(HRDCIP))
+ifeq ($(HRDCIP),1)
+  CXXFLAGS += -DMGONGPU_HARDCODE_CIPC
+  #CUFLAGS  += -DMGONGPU_HARDCODE_CIPC
+else ifneq ($(HRDCIP),0)
+  $(error Unknown HRDCIP='$(HRDCIP)': only '0' and '1' are supported)
+endif
+
 # Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=common")
 ###$(info RNDGEN=$(RNDGEN))
 ifeq ($(RNDGEN),curdev)
@@ -124,11 +133,11 @@ endif
 
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
-override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)
+override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCIP)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_$(RNDGEN)
+override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCIP)_$(RNDGEN)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
