@@ -125,43 +125,62 @@ namespace Proc
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      auto p4vecIpar = [allmomenta,ievt](int ipar) -> const MG5_sm::p4type_sv { return MG5_sm::p4IparIevt(allmomenta,ipar,ievt); };
-#else
-      auto p4vecIpar = [allmomenta,ipagV](int ipar) -> const MG5_sm::p4type_sv { return MG5_sm::p4IparIpagV(allmomenta,ipar,ipagV); };
-#endif      
-
-      // Wavefunction for external particle 0
-#if defined __CUDACC__ and defined MGONGPU_TEST_DIVERGENCE
-      if ( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
-        opzxxx( p4vecIpar(0), cHel[ihel][0], -1, w_sv[0] );
-      else
-        oxxxxx( p4vecIpar(0), 0, cHel[ihel][0], -1, w_sv[0] );
-#else
+#ifndef MGONGPU_TEST_DIVERGENCE
       // NB: opzxxx only reads pz (not E,px,py)
-      opzxxx( p4vecIpar(0), cHel[ihel][0], -1, w_sv[0] );
-      //oxxxxx( p4vecIpar(0), 0, cHel[ihel][0], -1, w_sv[0] ); // tested ok (much slower for cuda, slower for cpp)
+      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 );
+      //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 ); // tested ok (much slower)
+#else
+      if ( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
+        opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 );
+      else
+        oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 ); // tested ok (much slower)
+#endif
+#else
+      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], ipagV, 0 );
+      //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], ipagV, 0 ); // tested ok (slower)
 #endif
 
-      // Wavefunction for external particle 1
+      /*
+#ifdef __CUDACC__
       // NB: imzxxx only reads pz (not E,px,py)
-      imzxxx( p4vecIpar(1), cHel[ihel][1], +1, w_sv[1] );
-      //ixxxxx( p4vecIpar(1), 0, cHel[ihel][1], +1, w_sv[1] ); // tested ok (slower for cuda, a bit slower for cpp)
+      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 );
+      //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w_sv[1], 1 ); // tested ok (slower)
+#else
+      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], ipagV, 1 );
+      //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w_sv[1], ipagV, 1 ); // tested ok (a bit slower)
+#endif
+      */
+#ifdef __CUDACC__
+      const MG5_sm::p4type_sv p4vec1 = MG5_sm::p4IparIevt( allmomenta, 1, ievt );
+#else
+      const MG5_sm::p4type_sv p4vec1 = MG5_sm::p4IparIpagV( allmomenta, 1, ipagV );
+#endif
+      // NB: imzxxx only reads pz (not E,px,py)
+      imzxxx( p4vec1, cHel[ihel][1], +1, w_sv[1] );
 
-      // Wavefunction for external particle 2
+#ifdef __CUDACC__
       // NB: ixzxxx reads all E,px,py,pz
-      ixzxxx( p4vecIpar(2), cHel[ihel][2], -1, w_sv[2] );
-      //ixxxxx( p4vecIpar(2), 0, cHel[ihel][2], -1, w_sv[2] ); // tested ok (a bit slower for both cuda and cpp)
+      ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 );
+      //ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w_sv[2], 2 ); // tested ok (a bit slower)
+#else
+      ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], ipagV, 2 );
+      //ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w_sv[2], ipagV, 2 ); // tested ok (a bit slower)
+#endif
 
-      // Wavefunction for external particle 3
+#ifdef __CUDACC__
       // NB: oxzxxx reads all E,px,py,pz
-      oxzxxx( p4vecIpar(3), cHel[ihel][3], +1, w_sv[3] );
-      //oxxxxx( p4vecIpar(3), 0, cHel[ihel][3], +1, w_sv[3] ); // tested ok (a bit slower for both cuda and cpp)
+      oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 );
+      //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w_sv[3], 3 ); // tested ok (a bit slower)
+#else
+      oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], ipagV, 3 );
+      //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w_sv[3], ipagV, 3 ); // tested ok (a bit slower)
+#endif
 
-      // --- START Compute amplitudes for all diagrams ---
       // Local variables for the given CUDA event (ievt)
       // Local variables for the given C++ event page (ipagV)
       cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams
 
+      // --- START Compute amplitudes for all diagrams ---
       FFV1P0_3( w_sv[1], w_sv[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );
       // Amplitude(s) for diagram number 1
       FFV1_0( w_sv[2], w_sv[3], w_sv[4], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );

@@ -205,8 +205,6 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
   {
     for ( int ievt = 0; ievt < nevt; ievt++ )
     {
-      const int ipagM = ievt/neppM; // #eventpage in this iteration
-      const MG5_sm::p4type_sv p4vec = MG5_sm::p4IparIpagV( hstMomenta.get(), ipar, ipagM );
       if ( false )
       {
         std::cout << std::endl;
@@ -216,21 +214,25 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test ixxxxx - NO ASSUMPTIONS
       {
         const fptype fmass = mass0[ievt];
-        ixxxxx( p4vec, fmass, nhel, nsp, outwfI );
+        const int ipagM = ievt/neppM; // #eventpage in this iteration
+        ixxxxx( hstMomenta.get(), fmass, nhel, nsp, outwfI, ipagM, ipar );
         testwf6( outwfI, "ixxxxx", ievt, nsp, fmass );
-        ixxxxx( p4vec, -fmass, nhel, nsp, outwfI );
+        ixxxxx( hstMomenta.get(), -fmass, nhel, nsp, outwfI, ipagM, ipar );
         testwf6( outwfI, "ixxxxx", ievt, nsp, -fmass );
       }
       // Test ipzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzgt0[ievt] )
       {
-        ipzxxx( p4vec, nhel, nsp, outwf );
+        const int ipagM = ievt/neppM; // #eventpage in this iteration
+        ipzxxx( hstMomenta.get(), nhel, nsp, outwf, ipagM, ipar );
         testwf6two( outwf, outwfI, "ipzxxx", ievt );
         testwf6( outwf, "ipzxxx", ievt, nsp, 0 );
       }
       // Test imzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
+        const int ipagM = ievt/neppM; // #eventpage in this iteration
+        const MG5_sm::p4type_sv p4vec = MG5_sm::p4IparIpagV( hstMomenta.get(), ipar, ipagM );
         imzxxx( p4vec, nhel, nsp, outwf );
         testwf6two( outwf, outwfI, "imzxxx", ievt );
         testwf6( outwf, "imzxxx", ievt, nsp, 0 );
@@ -238,53 +240,60 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test ixzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
       if ( mass0[ievt] == 0 && isptgt0[ievt] )
       {
-        ixzxxx( p4vec, nhel, nsp, outwf );
+        const int ipagM = ievt/neppM; // #eventpage in this iteration
+        ixzxxx( hstMomenta.get(), nhel, nsp, outwf, ipagM, ipar );
         testwf6two( outwf, outwfI, "ixzxxx", ievt );
         testwf6( outwf, "ixzxxx", ievt, nsp, 0 );
       }
       // Test vxxxxx - NO ASSUMPTIONS
       {
         const fptype vmass = mass0[ievt];
-        vxxxxx( p4vec, vmass, nhel, nsp, outwf );
+        const int ipagM = ievt/neppM; // #eventpage in this iteration
+        vxxxxx( hstMomenta.get(), vmass, nhel, nsp, outwf, ipagM, ipar );
         testwf6( outwf, "vxxxxx", ievt, nsp, vmass );
-        vxxxxx( p4vec, -vmass, nhel, nsp, outwf );
+        vxxxxx( hstMomenta.get(), -vmass, nhel, nsp, outwf, ipagM, ipar );
         testwf6( outwf, "vxxxxx", ievt, nsp, -vmass );
       }
       // Test sxxxxx - NO ASSUMPTIONS
       {
         const fptype smass = mass0[ievt];
         cxtype_sv outwf3[6]{}; // NB: only 3 are filled by sxxxxx, but 6 are compared!
-        sxxxxx( p4vec, smass, nhel, nsp, outwf3 );
+        const int ipagM = ievt/neppM; // #eventpage in this iteration
+        sxxxxx( hstMomenta.get(), smass, nhel, nsp, outwf3, ipagM, ipar );
         testwf6( outwf3, "sxxxxx", ievt, nsp, smass );
-        sxxxxx( p4vec, -smass, nhel, nsp, outwf3 );
+        sxxxxx( hstMomenta.get(), -smass, nhel, nsp, outwf3, ipagM, ipar );
         testwf6( outwf3, "sxxxxx", ievt, nsp, -smass );
       }
       // Test oxxxxx - NO ASSUMPTIONS
       {
         const fptype fmass = mass0[ievt];
-        oxxxxx( p4vec, fmass, nhel, nsp, outwfO );
+        const int ipagM = ievt/neppM; // #eventpage in this iteration
+        oxxxxx( hstMomenta.get(), fmass, nhel, nsp, outwfO, ipagM, ipar );
         testwf6( outwfO, "oxxxxx", ievt, nsp, fmass );
-        oxxxxx( p4vec, -fmass, nhel, nsp, outwfO );
+        oxxxxx( hstMomenta.get(), -fmass, nhel, nsp, outwfO, ipagM, ipar );
         testwf6( outwfO, "oxxxxx", ievt, nsp, -fmass );
       }
       // Test opzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzgt0[ievt] )
       {
-        opzxxx( p4vec, nhel, nsp, outwf );
+        const int ipagM = ievt/neppM; // #eventpage in this iteration
+        opzxxx( hstMomenta.get(), nhel, nsp, outwf, ipagM, ipar );
         testwf6two( outwf, outwfO, "opzxxx", ievt );
         testwf6( outwf, "opzxxx", ievt, nsp, 0 );
       }
       // Test omzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
-        omzxxx( p4vec, nhel, nsp, outwf );
+        const int ipagM = ievt/neppM; // #eventpage in this iteration
+        omzxxx( hstMomenta.get(), nhel, nsp, outwf, ipagM, ipar );
         testwf6two( outwf, outwfO, "omzxxx", ievt );
         testwf6( outwf, "omzxxx", ievt, nsp, 0 );
       }
       // Test oxzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
       if ( mass0[ievt] == 0 && isptgt0[ievt] )
       {
-        oxzxxx( p4vec, nhel, nsp, outwf );
+        const int ipagM = ievt/neppM; // #eventpage in this iteration
+        oxzxxx( hstMomenta.get(), nhel, nsp, outwf, ipagM, ipar );
         testwf6two( outwf, outwfO, "oxzxxx", ievt );
         testwf6( outwf, "oxzxxx", ievt, nsp, 0 );
       }
