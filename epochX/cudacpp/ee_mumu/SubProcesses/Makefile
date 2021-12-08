@@ -198,7 +198,7 @@ endif
 $(info HRDCIP=$(HRDCIP))
 ifeq ($(HRDCIP),1)
   CXXFLAGS += -DMGONGPU_HARDCODE_CIPC
-  #CUFLAGS  += -DMGONGPU_HARDCODE_CIPC
+  CUFLAGS  += -DMGONGPU_HARDCODE_CIPC
 else ifneq ($(HRDCIP),0)
   $(error Unknown HRDCIP='$(HRDCIP)': only '0' and '1' are supported)
 endif
