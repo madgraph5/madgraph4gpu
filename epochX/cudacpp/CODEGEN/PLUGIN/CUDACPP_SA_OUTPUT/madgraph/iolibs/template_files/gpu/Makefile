@@ -5,6 +5,11 @@ CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
+# install target
+INSTALL_HEADERS=CPPProcess.h ../Memory.h
+INSTALL_INC_DIR=../../include
+INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o
+
 # Note: AR and CXX are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
@@ -109,7 +114,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
-  NVCC       := 
+  NVCC       :=
   USE_NVTX   :=
   CULIBFLAGS :=
   override RNDGEN = common
@@ -248,9 +253,14 @@ testmain=$(BUILDDIR)/runTest.exe
 
 all.$(TAG): ../../src/$(BUILDDIR)/.build.$(TAG) $(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
 
+install: all.$(TAG) $(INSTALL_HEADERS)
+	$(MAKE) -C ../../src install
+	cp $(INSTALL_HEADERS) $(INSTALL_INC_DIR)
+	cp $(INSTALL_OBJECTS) $(LIBDIR)
+
 override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)'`
 $(BUILDDIR)/.build.$(TAG):
-	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir $(BUILDDIR)"; mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
 	@touch $(BUILDDIR)/.build.$(TAG)
 
@@ -266,28 +276,28 @@ $(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
 $(BUILDDIR)/gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h # ../../src/*.cu
-	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 $(BUILDDIR)/CPPProcess.o : ../../src/HelAmps_sm.cc
 $(BUILDDIR)/gCPPProcess.o : ../../src/HelAmps_sm.cc
 
 $(BUILDDIR)/%%.o : %%.cu *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 # Apply special build flags only to CPPProcess.cc (-flto)
 #$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
-#	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+#	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 #	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -flto $(CUINC) -c $< -o $@
 
 ### Apply special build flags only to CPPProcess.cc (AVXFLAGS)
 ###$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
-###	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+###	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 ###	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(AVXFLAGS) $(CUINC) -c $< -o $@
 
 $(BUILDDIR)/%%.o : %%.cc *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
 $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
@@ -299,10 +309,9 @@ $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
 $(testmain): $(GTESTLIBS)
 $(testmain): INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
-$(testmain): INCFLAGS += -I$(TESTDIR)/include
 $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
-$(testmain): $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
-$(testmain): cxx_objects += $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o
+$(testmain): $(BUILDDIR)/runTest.o
+$(testmain): cxx_objects += $(BUILDDIR)/runTest.o
 $(testmain): cu_objects  += $(BUILDDIR)/runTest_cu.o
 ifneq ($(shell $(CXX) --version | grep ^clang),)
 $(testmain): LIBFLAGS += -L$(patsubst %%bin/clang++,%%lib,$(shell which $(CXX) | tail -1))
@@ -315,7 +324,7 @@ $(testmain): cxx_objects += $(BUILDDIR)/testxxx.o # Comment out this line to ski
 
 ifeq ($(NVCC),)
 # Link only runTest.o
-$(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS) 
+$(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
 # Link both runTest.o and runTest_cu.o
@@ -325,26 +334,34 @@ $(testmain) $(BUILDDIR)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
 
-$(TESTDIR)/src/MadgraphTest.o: $(TESTDIR)/src/MadgraphTest.cc $(TESTDIR)/include/*.h
-	$(MAKE) -C $(TESTDIR)
-
 $(GTESTLIBS):
 	$(MAKE) -C $(TESTDIR)
 
 check: $(testmain)
 	$(testmain)
 
-avxall:
+avxnone:
 	@echo
 	make USEBUILDDIR=1 AVX=none
+
+avxsse4:
 	@echo
 	make USEBUILDDIR=1 AVX=sse4
+
+avxavx2:
 	@echo
 	make USEBUILDDIR=1 AVX=avx2
+
+avx512y:
 	@echo
 	make USEBUILDDIR=1 AVX=512y
+
+avx512z:
 	@echo
 	make USEBUILDDIR=1 AVX=512z
+
+# Split the avxall target into five separate targets to allow parallel "make -j" builds
+avxall: avxnone avxsse4 avxavx2 avx512y avx512z
 
 .PHONY: clean
 
@@ -361,7 +378,7 @@ cleanall:
 	make clean
 	@echo
 	make -C ../../src cleanall
-	rm -rf build.*	
+	rm -rf build.*
 
 distclean: cleanall
 	make -C $(TOOLSDIR) clean

@@ -31,8 +31,8 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
   assert( nevt % neppM == 0 ); // nevt must be a multiple of neppM
   // Fill in the input momenta
   const int nMomenta = np4 * npar * nevt;
-  auto hstMomenta = hstMakeUnique<fptype_sv>( nMomenta ); // AOSOA[npagM][npar=4][np4=4][neppM]
-  const fptype par0[np4 * nevt] =                         // AOS[nevt][np4]
+  auto hstMomenta = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar=4][np4=4][neppM]
+  const fptype par0[np4 * nevt] =                      // AOS[nevt][np4]
     { 500, 0,    0,    500,  // #0 (m=0 pT=0 E=pz>0)
       500, 0,    0,    -500, // #1 (m=0 pT=0 -E=pz<0)
       500, 300,  400,  0,    // #2 (m=0 pT>0 pz=0)
@@ -72,11 +72,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     {
       const int ipagM = ievt/neppM; // #eventpage in this iteration
       const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-#ifdef MGONGPU_CPPSIMD
-      hstMomenta[ipagM*npar*np4 + ipar*np4 + ip4][ieppM] = par0[ievt*np4 + ip4]; // AOS to AOSOA
-#else
       hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] = par0[ievt*np4 + ip4]; // AOS to AOSOA
-#endif
     }
   }
   // Expected output wavefunctions

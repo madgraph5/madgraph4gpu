@@ -7,7 +7,8 @@
     const int npagV = nevt/neppV;
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
-      allMEs[ipagV] = fptype_sv{ 0 };
+      for ( int ieppV=0; ieppV<neppV; ieppV++ )
+        allMEs[ipagV*neppV + ieppV] = 0; // all zeros
     }
 #endif
 
@@ -35,7 +36,8 @@
 #else
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
-      allMEs[ipagV] /= denominators;
+      for ( int ieppV=0; ieppV<neppV; ieppV++ )
+        allMEs[ipagV*neppV + ieppV] /= denominators;
     }
 #endif
     mgDebugFinalise();

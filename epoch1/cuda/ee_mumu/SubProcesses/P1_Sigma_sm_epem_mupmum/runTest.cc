@@ -21,10 +21,10 @@ template<typename T = fptype>
 using unique_ptr_host = std::unique_ptr<T[], CudaHstDeleter<T>>;
 #else
 template<typename T = fptype>
-using unique_ptr_host = std::unique_ptr<T[]>;
+using unique_ptr_host = std::unique_ptr<T[], CppHstDeleter<T>>;
 #endif
 
-struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
+struct CUDA_CPU_TestBase : public TestDriverBase {
 
   static_assert( gputhreads%mgOnGpu::neppR == 0, "ERROR! #threads/block should be a multiple of neppR" );
   static_assert( gputhreads%mgOnGpu::neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
@@ -37,9 +37,7 @@ struct CUDA_CPU_TestBase : public TestDriverBase<fptype> {
 
   CUDA_CPU_TestBase() :
   TestDriverBase()
-  {
-    TestDriverBase::nparticle = mgOnGpu::npar;
-  }
+  {  }
 
 };
 
@@ -50,11 +48,11 @@ struct CPUTest : public CUDA_CPU_TestBase {
 
   // --- 0b. Allocate memory structures
   // Memory structures for random numbers, momenta, matrix elements and weights on host and device
-  unique_ptr_host<fptype   > hstRnarray  { hstMakeUnique<fptype   >( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR]
-  unique_ptr_host<fptype_sv> hstMomenta  { hstMakeUnique<fptype_sv>( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM]
-  unique_ptr_host<bool     > hstIsGoodHel{ hstMakeUnique<bool     >( mgOnGpu::ncomb ) };
-  unique_ptr_host<fptype   > hstWeights  { hstMakeUnique<fptype   >( nWeights ) };
-  unique_ptr_host<fptype_sv> hstMEs      { hstMakeUnique<fptype_sv>( nMEs ) }; // AOSOA[npagM][neppM]
+  unique_ptr_host<fptype> hstRnarray  { hstMakeUnique<fptype>( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR]
+  unique_ptr_host<fptype> hstMomenta  { hstMakeUnique<fptype>( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM]
+  unique_ptr_host<bool  > hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) };
+  unique_ptr_host<fptype> hstWeights  { hstMakeUnique<fptype>( nWeights ) };
+  unique_ptr_host<fptype> hstMEs      { hstMakeUnique<fptype>( nMEs ) }; // ARRAY[nevt]
 
   // Create a process object
   // Read param_card and set parameters
@@ -104,19 +102,18 @@ struct CPUTest : public CUDA_CPU_TestBase {
     assert(particle  < npar);
     const auto ipagM = evtNo / neppM; // #eventpage in this iteration
     const auto ieppM = evtNo % neppM; // #event in the current eventpage in this iteration
+    return hstMomenta[ipagM*npar*np4*neppM + particle*np4*neppM + component*neppM + ieppM];
+    /*
 #ifndef MGONGPU_CPPSIMD
     return hstMomenta[ipagM*npar*np4*neppM + particle*np4*neppM + component*neppM + ieppM];
 #else
     return hstMomenta[ipagM*npar*np4 + particle*np4 + component][ieppM];
 #endif
+    */
   };
 
   fptype getMatrixElement(std::size_t ievt) const override {
-#ifndef MGONGPU_CPPSIMD
     return hstMEs[ievt];
-#else
-    return hstMEs[ievt/neppV][ievt%neppV];
-#endif
   }
 
 };
@@ -139,13 +136,13 @@ struct CUDATest : public CUDA_CPU_TestBase {
   unique_ptr_host<fptype> hstMomenta  { hstMakeUnique<fptype>( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM] (nevt=npagM*neppM)
   unique_ptr_host<bool  > hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) };
   unique_ptr_host<fptype> hstWeights  { hstMakeUnique<fptype>( nWeights ) };
-  unique_ptr_host<fptype> hstMEs      { hstMakeUnique<fptype>( nMEs ) };
+  unique_ptr_host<fptype> hstMEs      { hstMakeUnique<fptype>( nMEs ) }; // ARRAY[nevt]
 
   unique_ptr_dev<fptype> devRnarray  { devMakeUnique<fptype>( nRnarray ) }; // AOSOA[npagR][nparf][np4][neppR] (nevt=npagR*neppR)
-  unique_ptr_dev<fptype> devMomenta  { devMakeUnique<fptype>( nMomenta ) };
+  unique_ptr_dev<fptype> devMomenta  { devMakeUnique<fptype>( nMomenta ) }; // AOSOA[npagM][npar][np4][neppM] (nevt=npagM*neppM)
   unique_ptr_dev<bool  > devIsGoodHel{ devMakeUnique<bool  >( mgOnGpu::ncomb ) };
   unique_ptr_dev<fptype> devWeights  { devMakeUnique<fptype>( nWeights ) };
-  unique_ptr_dev<fptype> devMEs      { devMakeUnique<fptype>( nMEs )     };
+  unique_ptr_dev<fptype> devMEs      { devMakeUnique<fptype>( nMEs ) }; // ARRAY[nevt]
 
   gProc::CPPProcess process;
 
@@ -234,37 +231,16 @@ struct CUDATest : public CUDA_CPU_TestBase {
 #define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name )        \
   INSTANTIATE_TEST_SUITE_P( prefix,                                     \
                             test_suite_name,                            \
-                            testing::Values( [](){ return new CPUTest; } ) );
+                            testing::Values( new CPUTest ) );
 #define TESTID_GPU(s) s##_GPU
 #define XTESTID_GPU(s) TESTID_GPU(s)
 #define MG_INSTANTIATE_TEST_SUITE_GPU( prefix, test_suite_name )        \
   INSTANTIATE_TEST_SUITE_P( prefix,                                     \
                             test_suite_name,                            \
-                            testing::Values( [](){ return new CUDATest; } ) );
-
-#if defined MGONGPU_FPTYPE_DOUBLE
+                            testing::Values( new CUDATest ) );
 
 #ifdef __CUDACC__
-MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU(MG_EPOCH_PROCESS_ID), MadgraphTestDouble );
+MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU(MG_EPOCH_PROCESS_ID), MadgraphTest );
 #else
-MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU(MG_EPOCH_PROCESS_ID), MadgraphTestDouble );
+MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU(MG_EPOCH_PROCESS_ID), MadgraphTest );
 #endif
-
-#else
-
-#ifdef __CUDACC__
-MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU(MG_EPOCH_PROCESS_ID), MadgraphTestFloat );
-#else
-MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU(MG_EPOCH_PROCESS_ID), MadgraphTestFloat );
-#endif
-
-#endif
-
-// Add a dummy test just to check the linking (related to issue #143)
-/*
-#ifdef __CUDACC__
-TEST( XTESTID_GPU(MG_EPOCH_PROCESS_ID), dummy ){}
-#else
-TEST( XTESTID_CPU(MG_EPOCH_PROCESS_ID), dummy ){}
-#endif
-*/

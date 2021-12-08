@@ -5,6 +5,10 @@ CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
+# install target
+INSTALL_HEADERS=Parameters_sm.h mgOnGpuConfig.h mgOnGpuTypes.h mgOnGpuVectors.h read_slha.h
+INSTALL_INC_DIR=../include
+
 # Note: AR and CXX are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 RANLIB = ranlib
@@ -29,7 +33,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   #$(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
-  NVCC := 
+  NVCC :=
 endif
 
 # Set the host compiler for nvcc
@@ -158,9 +162,13 @@ cu_objects=
 
 all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(target)
 
+install: $(INSTALL_HEADERS) all.$(TAG)
+	if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
+	cp $(INSTALL_HEADERS) $(INSTALL_INC_DIR)
+
 override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)'`
 $(BUILDDIR)/.build.$(TAG):
-	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir $(BUILDDIR)"; mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
 	@touch $(BUILDDIR)/.build.$(TAG)
 
@@ -171,11 +179,11 @@ debug: $(target)
 
 # NB: cuda includes are needed in the C++ code for curand.h
 $(BUILDDIR)/%.o : %.cc *.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
 #$(BUILDDIR)/%.o : %.cu *.h
-#	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+#	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 #	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 $(target): $(cxx_objects) $(cu_objects)
@@ -192,6 +200,7 @@ ifneq ($(BUILDDIR),.)
 else
 	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 endif
+	if [ -d $(INSTALL_INC_DIR) ]; then rm -fr $(INSTALL_INC_DIR); fi
 
 cleanall:
 	@echo
