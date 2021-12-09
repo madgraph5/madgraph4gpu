@@ -42,8 +42,11 @@ namespace Proc
   // Physics parameters (masses, coupling, etc...)
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
-  // [NB if hardcoded parameters are used, defining them lower down has in the past led to silent shadowing (issue #263)]
-#ifndef MGONGPU_HARDCODE_CIPC
+  // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
+#ifdef MGONGPU_HARDCODE_CIPC
+  __device__ const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
+  __device__ const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
+#else
 #ifdef __CUDACC__
   __device__ __constant__ fptype cIPC[6];
   __device__ __constant__ fptype cIPD[2];
@@ -83,15 +86,6 @@ namespace Proc
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     //printf( "calculate_wavefunctions: nevt %d\n", nevt );
-#endif
-
-  // Physics parameters (masses, coupling, etc...)
-  // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
-  // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
-  // [NB if hardcoded parameters are used, defining them here has in the past led to silent shadowing (issue #263)]
-#ifdef MGONGPU_HARDCODE_CIPC
-    static constexpr fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
-    static constexpr fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
 #endif
 
     // The number of colors
