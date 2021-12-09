@@ -76,6 +76,25 @@ private:
   int m_strd;                ///< stride length of the AOSOA structure
   int m_ncomb;               ///< number of good helicities
   bool m_goodHelsCalculated; ///< have the good helicities been calculated?
+
+#ifdef __CUDACC__
+  typedef std::unique_ptr<bool[], CudaHstDeleter<bool>> CuBHPtr;
+  typedef std::unique_ptr<bool, CudaDevDeleter<bool>> CuBDPtr;
+  typedef std::unique_ptr<T[], CudaHstDeleter<T>> CuTHPtr;
+  typedef std::unique_ptr<T, CudaDevDeleter<T>> CuTDPtr;
+  CuTDPtr devMomentaF = devMakeUnique<T>(m_evt * m_part * m_mome);
+  CuTDPtr devMomentaC = devMakeUnique<T>(m_evt * m_part * m_mome);
+  CuBHPtr hstIsGoodHel = hstMakeUnique<bool>(m_ncomb);
+  CuBDPtr devIsGoodHel = devMakeUnique<bool>(m_ncomb);
+  CuTDPtr devMEs = devMakeUnique<T>(m_evt);
+#else
+  // This needs to be inside the function, why?
+  // typedef std::unique_ptr<T[], CppHstDeleter<T>> CpTHPtr;
+  // typedef std::unique_ptr<bool[], CppHstDeleter<bool>> CpBHPtr;
+  // CpTHPtr hstMomenta = hstMakeUnique<T>(m_evt * m_part * m_mome);
+  // CpBHPtr hstIsGoodHel2 = hstMakeUnique<bool>(m_ncomb);
+  // CpTHPtr hstMEs = hstMakeUnique<T>(m_evt);
+#endif
 };
 
 // *****************************************************************************
@@ -99,12 +118,6 @@ Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int ncomb)
 #ifdef __CUDACC__
 
 template <typename T> void Bridge<T>::gpu_sequence(T *momenta, double *mes) {
-
-  auto devMomentaF = devMakeUnique<T>(m_evt * m_part * m_mome);
-  auto devMomentaC = devMakeUnique<T>(m_evt * m_part * m_mome);
-  auto hstIsGoodHel = hstMakeUnique<bool>(m_ncomb);
-  auto devIsGoodHel = devMakeUnique<bool>(m_ncomb);
-  auto devMEs = devMakeUnique<T>(m_evt);
 
   checkCuda(cudaMemcpy(devMomentaF.get(), momenta,
                        m_evt * m_part * m_mome * sizeof(T),
@@ -135,9 +148,12 @@ template <typename T> void Bridge<T>::gpu_sequence(T *momenta, double *mes) {
 
 template <typename T> void Bridge<T>::cpu_sequence(T *momenta, double *mes) {
 
-  auto hstMomenta = hstMakeUnique<T>(m_evt * m_part * m_mome);
-  auto hstIsGoodHel = hstMakeUnique<bool>(m_ncomb);
-  auto hstMEs = hstMakeUnique<T>(m_evt);
+  // should become class members...
+  typedef std::unique_ptr<T[], CppHstDeleter<T>> CpTHPtr;
+  typedef std::unique_ptr<bool[], CppHstDeleter<bool>> CpBHPtr;
+  CpTHPtr hstMomenta = hstMakeUnique<T>(m_evt * m_part * m_mome);
+  CpBHPtr hstIsGoodHel2 = hstMakeUnique<bool>(m_ncomb);
+  CpTHPtr hstMEs = hstMakeUnique<T>(m_evt);
 
   // double(&hstMEs2)[m_evt] = reinterpret_cast<double(&)[m_evt]>(mes);
 
@@ -145,8 +161,8 @@ template <typename T> void Bridge<T>::cpu_sequence(T *momenta, double *mes) {
 
   if (!m_goodHelsCalculated) {
     Proc::sigmaKin_getGoodHel(hstMomenta.get(), hstMEs.get(),
-                              hstIsGoodHel.get(), m_evt);
-    Proc::sigmaKin_setGoodHel(hstIsGoodHel.get());
+                              hstIsGoodHel2.get(), m_evt);
+    Proc::sigmaKin_setGoodHel(hstIsGoodHel2.get());
     m_goodHelsCalculated = true;
   }
 
