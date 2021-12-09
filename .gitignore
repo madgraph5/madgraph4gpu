@@ -5,6 +5,7 @@
 *.pyc
 build.*
 .build.*
+epoch?*/*/*/include
 
 #=== Profiling ===
 nsight_logs
