@@ -152,9 +152,9 @@ $(MATRIX): %.o: %.f
 %.o: %.f
 	$(FC) $(FFLAGS) -c $< -I../../Source/ -fopenmp
 %.o: %.cpp bridge.h
-	$(CXX) $(CXXFLAGS) -O0 -g -std=c++17 -lineinfo -I. -I$(MEINCDIR) -I$(TOOLSINCDIR) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -O3 -g -std=c++17 -lineinfo -I. -I$(MEINCDIR) -I$(TOOLSINCDIR) -c $< -o $@
 %.o: %.cu bridge.h
-	$(NVCC) $(CUFLAGS) -O0 -g -std=c++17 -lineinfo -use_fast_math -I. -I$(MEINCDIR) -I$(CUINCDIR) -I$(TOOLSINCDIR) -ccbin $(GPPEXE) -arch=compute_70 -DUSE_NVTX -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_CURAND_ONDEVICE -c $< -o $@
+	$(NVCC) $(CUFLAGS) -O3 -g -std=c++17 -lineinfo -use_fast_math -I. -I$(MEINCDIR) -I$(CUINCDIR) -I$(TOOLSINCDIR) -ccbin $(GPPEXE) -arch=compute_70 -DUSE_NVTX -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_CURAND_ONDEVICE -c $< -o $@
 
 
 # Dependencies
