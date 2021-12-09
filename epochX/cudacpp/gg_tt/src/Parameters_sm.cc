@@ -9,6 +9,8 @@
 #include <iomanip>
 #include "Parameters_sm.h"
 
+#ifndef MGONGPU_HARDCODE_CIPC
+
 // Initialize static instance
 Parameters_sm* Parameters_sm::instance = 0;
 
@@ -94,6 +96,8 @@ void Parameters_sm::setDependentCouplings()
   GC_10 = -G;
   GC_11 = mdl_complexi*G;
 }
+
+#endif
 
 // Routines for printing out parameters
 void Parameters_sm::printIndependentParameters()

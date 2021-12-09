@@ -7,7 +7,7 @@ ggttgg=0
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu] [-ggttgg]> <direction [-a2m|-m2a]>"
+  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> <direction [-a2m|-m2a]>"
   exit 1
 }
 
@@ -19,9 +19,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-eemumu" ]; then
     eemumu=1
     shift
-  ###elif [ "$1" == "-ggtt" ]; then
-  ###  ggtt=1
-  ###  shift
+  elif [ "$1" == "-ggtt" ]; then
+    ggtt=1
+    shift
   elif [ "$1" == "-ggttgg" ]; then
     ggttgg=1
     shift
@@ -42,7 +42,7 @@ fi
 # Check that at least one process has been selected
 processes=
 if [ "${ggttgg}" == "1" ]; then processes="ggttgg $processes"; fi
-###if [ "${ggtt}" == "1" ]; then processes="ggtt $processes"; fi
+if [ "${ggtt}" == "1" ]; then processes="ggtt $processes"; fi
 if [ "${eemumu}" == "1" ]; then processes="eemumu $processes"; fi
 if [ "${processes}" == "" ]; then usage; fi
 
