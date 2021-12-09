@@ -45,12 +45,12 @@ namespace Proc
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
 #ifdef MGONGPU_HARDCODE_CIPC
   __device__ const fptype cIPC[6] = {
-    HardcodedParameters_sm::GC_10.real(), HardcodedParameters_sm::GC_10.imag(),
-    HardcodedParameters_sm::GC_11.real(), HardcodedParameters_sm::GC_11.imag(),
-    HardcodedParameters_sm::GC_12.real(), HardcodedParameters_sm::GC_12.imag() };
+    Parameters_sm::GC_10.real(), Parameters_sm::GC_10.imag(),
+    Parameters_sm::GC_11.real(), Parameters_sm::GC_11.imag(),
+    Parameters_sm::GC_12.real(), Parameters_sm::GC_12.imag() };
   __device__ const fptype cIPD[2] = {
-    HardcodedParameters_sm::mdl_MT,
-    HardcodedParameters_sm::mdl_WT };
+    Parameters_sm::mdl_MT,
+    Parameters_sm::mdl_WT };
 #else
 #ifdef __CUDACC__
   __device__ __constant__ fptype cIPC[6];
@@ -1965,7 +1965,9 @@ namespace Proc
     , m_ngputhreads( ngputhreads )
     , m_verbose( verbose )
     , m_debug( debug )
+#ifndef MGONGPU_HARDCODE_CIPC
     , m_pars( 0 )
+#endif
     , m_masses()
   {
     // Helicities for the process [NB do keep 'static' for this constexpr array, see issue #283]
@@ -2056,7 +2058,8 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  // Initialize process
+#ifndef MGONGPU_HARDCODE_CIPC
+  // Initialize process (with parameters read from user cards)
   void CPPProcess::initProc( const std::string& param_card_name )
   {
     // Instantiate the model class and set parameters that stay fixed during run
@@ -2064,14 +2067,15 @@ namespace Proc
     SLHAReader slha( param_card_name, m_verbose );
     m_pars->setIndependentParameters( slha );
     m_pars->setIndependentCouplings();
+    m_pars->setDependentParameters();
+    m_pars->setDependentCouplings();
     if ( m_verbose )
     {
       m_pars->printIndependentParameters();
       m_pars->printIndependentCouplings();
+      m_pars->printDependentParameters();
+      m_pars->printDependentCouplings();
     }
-    m_pars->setDependentParameters();
-    m_pars->setDependentCouplings();
-
     // Set external particle masses for this matrix element
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
@@ -2079,8 +2083,6 @@ namespace Proc
     m_masses.push_back( m_pars->mdl_MT );
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
-
-#ifndef MGONGPU_HARDCODE_CIPC
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     const cxtype tIPC[3] = { cxmake( m_pars->GC_10 ), cxmake( m_pars->GC_11 ), cxmake( m_pars->GC_12 ) };
@@ -2092,11 +2094,28 @@ namespace Proc
     memcpy( cIPC, tIPC, 3 * sizeof(cxtype) );
     memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
 #endif
-#endif
-
     //for ( i=0; i<3; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;
     //for ( i=0; i<2; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
   }
+#else
+  // Initialize process (with hardcoded parameters)
+  void CPPProcess::initProc( const std::string& /*param_card_name*/ )
+  {
+    // Use hardcoded physics parameters
+    if ( m_verbose )
+    {
+      Parameters_sm::printIndependentParameters();
+      Parameters_sm::printIndependentCouplings();
+      Parameters_sm::printDependentParameters();
+      Parameters_sm::printDependentCouplings();
+    }
+    // Set external particle masses for this matrix element
+    m_masses.push_back( Parameters_sm::ZERO );
+    m_masses.push_back( Parameters_sm::ZERO );
+    m_masses.push_back( Parameters_sm::ZERO );
+    m_masses.push_back( Parameters_sm::ZERO );
+  }
+#endif
 
   //--------------------------------------------------------------------------
 
