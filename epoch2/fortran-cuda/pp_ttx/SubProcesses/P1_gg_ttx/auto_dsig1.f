@@ -460,8 +460,8 @@ C           WRITE(*,*) P_MULTI(0:3, PAR, EVT)
 C  30    END DO
 C  40  END DO
 
-      call fcubridge(P_MULTI, OUT2)
-C      call fcppbridge(P_MULTI, OUT2)
+C      call fcubridge(P_MULTI, OUT2)
+      call fcppbridge(P_MULTI, OUT2)
 
 Cccle      WRITE (*,*) OUT
 C      WRITE (*,*) OUT2
