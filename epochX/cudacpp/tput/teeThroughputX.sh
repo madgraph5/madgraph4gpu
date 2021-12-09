@@ -86,12 +86,12 @@ for step in $steps; do
   for proc in $procs; do
     for suff in $suffs; do
       auto=; if [ "${suff}" == "auto" ]; then auto=" -autoonly"; fi
-      if [ "${proc}" == "-ggtt" ] && [ "${suff}" == "manu" ]; then
-        ###printf "\n%80s\n" |tr " " "*"
-        ###printf "*** WARNING! ${proc#-}_${suff} does not exist"
-        ###printf "\n%80s\n" |tr " " "*"
-        continue
-      fi
+      ###if [ "${proc}" == "-ggtt" ] && [ "${suff}" == "manu" ]; then
+      ###  ###printf "\n%80s\n" |tr " " "*"
+      ###  ###printf "*** WARNING! ${proc#-}_${suff} does not exist"
+      ###  ###printf "\n%80s\n" |tr " " "*"
+      ###  continue
+      ###fi
       for fptype in $fptypes; do
         flt=; if [ "${fptype}" == "f" ]; then flt=" -fltonly"; fi
         for helinl in $helinls; do
