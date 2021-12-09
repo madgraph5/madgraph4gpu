@@ -24,11 +24,8 @@ __global__ void dev_transpose(const T *in, T *out, const int evt,
 #else
 
 template <typename T>
-void hst_transpose(const T *in, fptype_sv *out, const int evt, const int part,
+void hst_transpose(const T *in, T *out, const int evt, const int part,
                    const int mome, const int strd);
-
-template <typename T>
-void hst_transpose2(const fptype_sv *in, T *out, const int evt);
 
 #endif // __CUDACC__
 
@@ -103,102 +100,46 @@ Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int ncomb)
 
 template <typename T> void Bridge<T>::gpu_sequence(T *momenta, double *mes) {
 
-  auto devMomentaF2 = devMakeUnique<T>(m_evt * m_part * m_mome);
-  auto devMomentaC2 = devMakeUnique<T>(m_evt * m_part * m_mome);
-  auto hstIsGoodHel2 = hstMakeUnique<bool>(m_ncomb);
-  auto devIsGoodHel2 = devMakeUnique<bool>(m_ncomb);
-  auto devMEs2 = devMakeUnique<T>(m_evt);
+  auto devMomentaF = devMakeUnique<T>(m_evt * m_part * m_mome);
+  auto devMomentaC = devMakeUnique<T>(m_evt * m_part * m_mome);
+  auto hstIsGoodHel = hstMakeUnique<bool>(m_ncomb);
+  auto devIsGoodHel = devMakeUnique<bool>(m_ncomb);
+  auto devMEs = devMakeUnique<T>(m_evt);
 
-  checkCuda(cudaMemcpy(devMomentaF2.get(), momenta,
+  checkCuda(cudaMemcpy(devMomentaF.get(), momenta,
                        m_evt * m_part * m_mome * sizeof(T),
                        cudaMemcpyHostToDevice));
 
   dev_transpose<<<gpublocks * 16, gputhreads>>>(
-      devMomentaF2.get(), devMomentaC2.get(), m_evt, m_part, m_mome, m_strd);
+      devMomentaF.get(), devMomentaC.get(), m_evt, m_part, m_mome, m_strd);
 
   if (!m_goodHelsCalculated) {
     gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(
-        devMomentaC2.get(), devMEs2.get(), devIsGoodHel2.get());
+        devMomentaC.get(), devMEs.get(), devIsGoodHel.get());
 
-    checkCuda(cudaMemcpy(hstIsGoodHel2.get(), devIsGoodHel2.get(),
+    checkCuda(cudaMemcpy(hstIsGoodHel.get(), devIsGoodHel.get(),
                          m_ncomb * sizeof(bool), cudaMemcpyDeviceToHost));
 
-    gProc::sigmaKin_setGoodHel(hstIsGoodHel2.get());
+    gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
 
     m_goodHelsCalculated = true;
   }
 
-  gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomentaC2.get(), devMEs2.get());
+  gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomentaC.get(), devMEs.get());
 
-  //
-  //
-  //
-
-  checkCuda(cudaMemcpy(mes, devMEs2.get(), m_evt * sizeof(T),
-                       cudaMemcpyDeviceToHost));
-
-  auto hstMomentaC2 = hstMakeUnique<T>(m_evt * m_part * m_mome);
-  checkCuda(cudaMemcpy(hstMomentaC2.get(), devMomentaC2.get(),
-                       m_evt * m_part * m_mome * sizeof(T),
-                       cudaMemcpyDeviceToHost));
-
-  // std::cout << std::string(80, '*') << std::endl;
-  // T *aosoa_p = (T *)hstMomentaC2.get();
-  // for (int i = 0; i < m_evt * m_part * m_mome; ++i) {
-  //   if (i && i % m_strd == 0)
-  //     std::cout << ", ";
-  //   if (i && i % (m_mome * m_strd) == 0)
-  //     std::cout << std::endl;
-  //   if (i && i % (m_part * m_mome * m_strd) == 0)
-  //     std::cout << std::endl;
-  //   std::cout << aosoa_p[i] << " ";
-  // }
-  // std::cout << std::endl << std::string(80, '*') << std::endl;
-
-  //
-  //
-  //
-
-#ifdef DEBUG
-  std::cout << "MEs: ";
-  for (int i = 0; i < 16; ++i) {
-    std::cout << mes[i] << ", ";
-  }
-  std::cout << std::endl << std::endl;
-
-  std::cout << std::string(80, '*') << std::endl;
-  for (int i = 0; i < m_ncomb; ++i) {
-    std::cout << i << ":" << hstIsGoodHel2[i] << " ";
-  }
-  std::cout << std::endl;
-
-  auto hstMomentaC2 = hstMakeUnique<T>(m_evt * m_part * m_mome);
-  checkCuda(cudaMemcpy(hstMomentaC2.get(), devMomentaC2.get(),
-                       m_evt * m_part * m_mome * sizeof(T),
-                       cudaMemcpyDeviceToHost));
-
-  std::cout << std::string(80, '*') << std::endl;
-  T *aosoa_p = (T *)hstMomentaC2.get();
-  for (int i = 0; i < m_evt * m_part * m_mome; ++i) {
-    if (i && i % m_strd == 0)
-      std::cout << ", ";
-    if (i && i % (m_mome * m_strd) == 0)
-      std::cout << std::endl;
-    if (i && i % (m_part * m_mome * m_strd) == 0)
-      std::cout << std::endl;
-    std::cout << aosoa_p[i] << " ";
-  }
-  std::cout << std::endl << std::string(80, '*') << std::endl;
-#endif // DEBUG
+  checkCuda(
+      cudaMemcpy(mes, devMEs.get(), m_evt * sizeof(T), cudaMemcpyDeviceToHost));
 }
 
 #else
 
 template <typename T> void Bridge<T>::cpu_sequence(T *momenta, double *mes) {
 
-  auto hstMomenta = hstMakeUnique<fptype_sv>(m_evt * m_part * m_mome);
+  auto hstMomenta = hstMakeUnique<T>(m_evt * m_part * m_mome);
   auto hstIsGoodHel = hstMakeUnique<bool>(m_ncomb);
-  auto hstMEs = hstMakeUnique<fptype_sv>(m_evt);
+  auto hstMEs = hstMakeUnique<T>(m_evt);
+
+  // double(&hstMEs2)[m_evt] = reinterpret_cast<double(&)[m_evt]>(mes);
 
   hst_transpose(momenta, hstMomenta.get(), m_evt, m_part, m_mome, m_strd);
 
@@ -210,31 +151,8 @@ template <typename T> void Bridge<T>::cpu_sequence(T *momenta, double *mes) {
   }
 
   Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), m_evt);
-  // memcpy(mes, hstMEs.get(), m_evt * sizeof(T));
-  hst_transpose2(hstMEs.get(), mes, m_evt);
 
-  std::cout << std::string(80, '*') << std::endl;
-  T *aosoa_p = (T *)hstMomenta.get();
-  for (int i = 0; i < m_evt * m_part * m_mome; ++i) {
-    if (i && i % m_strd == 0)
-      std::cout << ", ";
-    if (i && i % (m_mome * m_strd) == 0)
-      std::cout << std::endl;
-    if (i && i % (m_part * m_mome * m_strd) == 0)
-      std::cout << std::endl;
-    std::cout << aosoa_p[i] << " ";
-  }
-  std::cout << std::endl << std::string(80, '*') << std::endl;
-
-  std::cout << "MEs: ";
-  for (int i = 0; i < 4; ++i) {
-    std::cout << hstMEs.get()[i] << ", ";
-  }
-  std::cout << std::endl << "MEs: ";
-  for (int i = 0; i < 16; ++i) {
-    std::cout << mes[i] << ", ";
-  }
-  std::cout << std::endl << std::endl;
+  memcpy(mes, hstMEs.get(), sizeof(T) * m_evt);
 }
 
 #endif // __CUDACC__
@@ -280,7 +198,7 @@ __global__ void dev_transpose(const T *in, T *out, const int evt,
 #else
 
 template <typename T>
-void hst_transpose(const T *in, fptype_sv *out, const int evt, const int part,
+void hst_transpose(const T *in, T *out, const int evt, const int part,
                    const int mome, const int strd) {
 
   int arrlen = evt * part * mome;
@@ -299,18 +217,8 @@ void hst_transpose(const T *in, fptype_sv *out, const int evt, const int part,
                 + part_i * mome          // particle inside event
                 + mome_i;                // momentum inside particle
 
-    out[pos / 4][pos % 4] = in[inpos];
+    out[pos] = in[inpos];
   }
-}
-
-template <typename T>
-void hst_transpose2(const fptype_sv *in, T *out, const int evt) {
-  std::cout << "transpose: ";
-  for (int pos = 0; pos < evt; ++pos) {
-    std::cout << in[pos / 4][pos % 4] << ", ";
-    out[pos] = in[pos / 4][pos % 4];
-  }
-  std::cout << std::endl;
 }
 
 #endif // __CUDACC__
@@ -320,6 +228,21 @@ void hst_transpose2(const fptype_sv *in, T *out, const int evt) {
 //
 // BACKUP
 //
+
+// debug
+
+// std::cout << std::string(80, '*') << std::endl << "Momenta:" << std::endl;
+// T *aosoa_p = (T *)hstMomenta.get();
+// for (int i = 0; i < m_evt * m_part * m_mome; ++i) {
+//   if (i && i % m_strd == 0)
+//     std::cout << ", ";
+//   if (i && i % (m_mome * m_strd) == 0)
+//     std::cout << std::endl;
+//   if (i && i % (m_part * m_mome * m_strd) == 0)
+//     std::cout << std::endl;
+//   std::cout << aosoa_p[i] << " ";
+// }
+// std::cout << std::endl << std::string(80, '*') << std::endl;
 
 // template <typename T> void Matrix<T>::fill(T *arr) {
 //
