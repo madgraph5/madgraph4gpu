@@ -36,22 +36,34 @@ namespace Proc
   using mgOnGpu::npar; // number of particles in total (initial + final)
   using mgOnGpu::ncomb; // number of helicity combinations
 
-  const int nwf = 5; // #wavefunctions: npar (4 external) + 1 (internal, reused for gamma and Z)
-  const int nw6 = 6; // dimension of each wavefunction (see KEK 91-11)
+  using mgOnGpu::nwf; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+  using mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
 
+  // Physics parameters (masses, coupling, etc...)
+  // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
+  // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
+  // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
+#ifdef MGONGPU_HARDCODE_CIPC
+  __device__ const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
+  __device__ const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
+#else
 #ifdef __CUDACC__
-  __device__ __constant__ short cHel[ncomb][npar];
   __device__ __constant__ fptype cIPC[6];
   __device__ __constant__ fptype cIPD[2];
-  //__device__ __constant__ int cNGoodHel[1]; // FIXME: assume process.nprocesses == 1 for the moment
-  __device__ __constant__ int cNGoodHel;
+#else
+  static fptype cIPC[6];
+  static fptype cIPD[2];
+#endif
+#endif
+
+  // Helicity combinations (and filtering of "good" helicity combinations)
+#ifdef __CUDACC__
+  __device__ __constant__ short cHel[ncomb][npar];
+  __device__ __constant__ int cNGoodHel; // FIXME: assume process.nprocesses == 1 for the moment (eventually cNGoodHel[nprocesses]?)
   __device__ __constant__ int cGoodHel[ncomb];
 #else
   static short cHel[ncomb][npar];
-  static fptype cIPC[6];
-  static fptype cIPD[2];
-  //static int cNGoodHel[1]; // FIXME: assume process.nprocesses == 1 for the moment
-  static int cNGoodHel;
+  static int cNGoodHel; // FIXME: assume process.nprocesses == 1 for the moment (eventually cNGoodHel[nprocesses]?)
   static int cGoodHel[ncomb];
 #endif
 
@@ -76,11 +88,6 @@ namespace Proc
     //printf( "calculate_wavefunctions: nevt %d\n", nevt );
 #endif
 
-#ifdef __CUDACC__
-    const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
-    const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
-#endif
-
     // The number of colors
     const int ncolor = 1;
 
@@ -92,11 +99,6 @@ namespace Proc
     // Local variables for the given C++ event page (ipagV)
     cxtype_sv w_sv[nwf][nw6]; // w_v[5][6]
     cxtype_sv amp_sv[1]; // was 2
-
-    // For CUDA performance, this is ~better: fewer registers, even if no throughput increase (issue #39)
-    // However, physics parameters like masses and couplings must be read from user parameter files
-    //const fptype cIPC[6] = { 0, -0.30795376724436879, 0, -0.28804415396362731, 0, 0.082309883272248419 };
-    //const fptype cIPD[2] = { 91.188000000000002, 2.4414039999999999 };
 
 #ifndef __CUDACC__
     const int npagV = nevt / neppV;
@@ -246,8 +248,8 @@ namespace Proc
     , m_pars( 0 )
     , m_masses()
   {
-    // Helicities for the process - nodim
-    const short tHel[ncomb][nexternal] =
+    // Helicities for the process [NB do keep 'static' for this constexpr array, see issue #283]
+    static constexpr short tHel[ncomb][nexternal] =
       { {-1, -1, -1, -1}, {-1, -1, -1, +1}, {-1, -1, +1, -1}, {-1, -1, +1, +1},
         {-1, +1, -1, -1}, {-1, +1, -1, +1}, {-1, +1, +1, -1}, {-1, +1, +1, +1},
         {+1, -1, -1, -1}, {+1, -1, -1, +1}, {+1, -1, +1, -1}, {+1, -1, +1, +1},
@@ -295,6 +297,7 @@ namespace Proc
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
 
+#ifndef MGONGPU_HARDCODE_CIPC
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     const cxtype tIPC[3] = { cxmake( m_pars->GC_3 ), cxmake( m_pars->GC_50 ), cxmake( m_pars->GC_59 ) };
@@ -305,6 +308,7 @@ namespace Proc
 #else
     memcpy( cIPC, tIPC, 3 * sizeof(cxtype) );
     memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
+#endif
 #endif
 
     //std::cout << std::setprecision(17) << "tIPC[0] = " << tIPC[0] << std::endl;

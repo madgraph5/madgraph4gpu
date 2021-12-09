@@ -806,9 +806,14 @@ int check
 #endif
               << " [" << process.getCompiler() << "]"
 #ifdef MGONGPU_INLINE_HELAMPS
-              << " [inlineHel=1]" << std::endl
+              << " [inlineHel=1]"
 #else
-              << " [inlineHel=0]" << std::endl
+              << " [inlineHel=0]"
+#endif
+#ifdef MGONGPU_HARDCODE_CIPC
+              << " [hardcodeCIPC=1]" << std::endl
+#else
+              << " [hardcodeCIPC=0]" << std::endl
 #endif
               << tag << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << tag << "NumThreadsPerBlock          = " << gputhreads << std::endl

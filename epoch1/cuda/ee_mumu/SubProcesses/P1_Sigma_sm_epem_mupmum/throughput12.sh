@@ -49,7 +49,7 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-nocpp" ]; then
     if [ "${omp}" == "2" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
     if [ "${avxall}" == "1" ]; then echo "ERROR! Options -avxall and -nocpp are incompatible"; usage; fi
-    if [ "${cuda}" == "1" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
+    if [ "${cuda}" == "0" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
     cpp=0
     shift
   elif [ "$1" == "-nohet" ]; then
