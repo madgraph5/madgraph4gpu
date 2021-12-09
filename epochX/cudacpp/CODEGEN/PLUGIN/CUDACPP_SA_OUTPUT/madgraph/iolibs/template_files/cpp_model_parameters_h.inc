@@ -8,6 +8,8 @@
 
 #include <complex>
 
+#ifndef MGONGPU_HARDCODE_CIPC
+
 #include "read_slha.h"
 
 class Parameters_%(model_name)s
@@ -57,10 +59,12 @@ private:
 
 };
 
+#else
+
 #include <limits>
 
 // Hardcoded constexpr physics parameters
-namespace HardcodedParameters_sm
+namespace Parameters_%(model_name)s // keep the same name rather than HardcodedParameters_%(model_name)s for simplicity
 {
   // Constexpr implementation of sqrt (see https://stackoverflow.com/a/34134071)
   double constexpr detailSqrtNewtonRaphson( double x, double curr, double prev )
@@ -153,6 +157,20 @@ namespace HardcodedParameters_sm
   //constexpr std::complex<double> GC_12 = mdl_complexi*mdl_G__exp__2; // does not build
   constexpr std::complex<double> GC_11 = std::complex<double>(0.,G);
   constexpr std::complex<double> GC_12 = std::complex<double>(0.,mdl_G__exp__2);
+
+  // Print parameters that are unchanged during the run
+  void printIndependentParameters();
+
+  // Print couplings that are unchanged during the run
+  void printIndependentCouplings();
+
+  // Print parameters that are changed event by event
+  void printDependentParameters();
+
+  // Print couplings that are changed event by event
+  void printDependentCouplings();
 }
+
+#endif
 
 #endif // Parameters_%(model_name)s_H
