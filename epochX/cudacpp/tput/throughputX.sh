@@ -15,7 +15,7 @@ div=0
 req=0
 fptypes="d"
 helinls="0"
-hrdcips="0"
+hrdcods="0"
 suffs="/"
 maketype=
 makej=
@@ -91,11 +91,11 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-hrd" ]; then
     if [ "${helhrds}" == "1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
-    hrdcips="0 1"
+    hrdcods="0 1"
     shift
   elif [ "$1" == "-hrdonly" ]; then
     if [ "${helhrds}" == "0 1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
-    hrdcips="1"
+    hrdcods="1"
     shift
   elif [ "$1" == "-auto" ]; then
     if [ "${suffs}" == ".auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
@@ -156,10 +156,10 @@ for suff in $suffs; do
     elif [ "${ggttgg}" == "1" ]; then 
       dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
     fi
-    for hrdcip in $hrdcips; do
+    for hrdcod in $hrdcods; do
       for helinl in $helinls; do
         for fptype in $fptypes; do
-          exes="$exes ${dir}/build.none_${fptype}_inl${helinl}_hrd${hrdcip}/gcheck.exe"
+          exes="$exes ${dir}/build.none_${fptype}_inl${helinl}_hrd${hrdcod}/gcheck.exe"
         done
       done
     done
@@ -176,18 +176,18 @@ for suff in $suffs; do
     elif [ "${ggttgg}" == "1" ]; then 
       dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
     fi
-    for hrdcip in $hrdcips; do
+    for hrdcod in $hrdcods; do
       for helinl in $helinls; do
         for fptype in $fptypes; do
-          exes="$exes $dir/build.none_${fptype}_inl${helinl}_hrd${hrdcip}/check.exe"
+          exes="$exes $dir/build.none_${fptype}_inl${helinl}_hrd${hrdcod}/check.exe"
           if [ "${avxall}" == "1" ]; then 
-            exes="$exes $dir/build.sse4_${fptype}_inl${helinl}_hrd${hrdcip}/check.exe"
-            exes="$exes $dir/build.avx2_${fptype}_inl${helinl}_hrd${hrdcip}/check.exe"
+            exes="$exes $dir/build.sse4_${fptype}_inl${helinl}_hrd${hrdcod}/check.exe"
+            exes="$exes $dir/build.avx2_${fptype}_inl${helinl}_hrd${hrdcod}/check.exe"
           fi
           if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
-            exes="$exes $dir/build.512y_${fptype}_inl${helinl}_hrd${hrdcip}/check.exe"
+            exes="$exes $dir/build.512y_${fptype}_inl${helinl}_hrd${hrdcod}/check.exe"
             if [ "${avxall}" == "1" ]; then 
-              exes="$exes $dir/build.512z_${fptype}_inl${helinl}_hrd${hrdcip}/check.exe"
+              exes="$exes $dir/build.512z_${fptype}_inl${helinl}_hrd${hrdcod}/check.exe"
             fi
           fi
         done
@@ -218,8 +218,8 @@ for suff in $suffs; do
   pwd
   if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
   if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
-  for hrdcip in $hrdcips; do
-    export HRDCIP=$hrdcip
+  for hrdcod in $hrdcods; do
+    export HRDCOD=$hrdcod
     for helinl in $helinls; do
       export HELINL=$helinl
       for fptype in $fptypes; do
@@ -235,7 +235,7 @@ for suff in $suffs; do
   done
   popd >& /dev/null
   export USEBUILDDIR=
-  export HRDCIP=
+  export HRDCOD=
   export HELINL=
   export FPTYPE=
 

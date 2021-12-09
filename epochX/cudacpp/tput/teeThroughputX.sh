@@ -15,7 +15,7 @@ ggttgg=
 suffs="manu"
 fptypes="d"
 helinls="0"
-hrdcips="0"
+hrdcods="0"
 steps="make test"
 makej=
 for arg in $*; do
@@ -48,10 +48,10 @@ for arg in $*; do
     helinls="1"
   elif [ "$arg" == "-hrd" ]; then
     if [ "${helhrds}" == "1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
-    hrdcips="0 1"
+    hrdcods="0 1"
   elif [ "$arg" == "-hrdonly" ]; then
     if [ "${helhrds}" == "0 1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
-    hrdcips="1"
+    hrdcods="1"
   elif [ "$arg" == "-makeonly" ]; then
     if [ "${steps}" == "make test" ]; then
       steps="make"
@@ -96,10 +96,10 @@ for step in $steps; do
         flt=; if [ "${fptype}" == "f" ]; then flt=" -fltonly"; fi
         for helinl in $helinls; do
           inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; fi
-          for hrdcip in $hrdcips; do
-            hrd=; if [ "${hrdcip}" == "1" ]; then hrd=" -hrdonly"; fi
+          for hrdcod in $hrdcods; do
+            hrd=; if [ "${hrdcod}" == "1" ]; then hrd=" -hrdonly"; fi
             args="${proc}${auto}${flt}${inl}${hrd}"
-            args="${args} -avxall" # avx, fptype, helinl and hrdcip are now supported for all processes
+            args="${args} -avxall" # avx, fptype, helinl and hrdcod are now supported for all processes
             if [ "${step}" == "makeclean" ]; then
               printf "\n%80s\n" |tr " " "*"
               printf "*** ./throughputX.sh -makecleanonly $args"
@@ -111,7 +111,7 @@ for step in $steps; do
               printf "\n%80s\n" |tr " " "*"
               if ! ./throughputX.sh -makeonly ${makej} $args; then exit 1; fi
             else
-              logfile=logs_${proc#-}_${suff}/log_${proc#-}_${suff}_${fptype}_inl${helinl}_hrd${hrdcip}.txt
+              logfile=logs_${proc#-}_${suff}/log_${proc#-}_${suff}_${fptype}_inl${helinl}_hrd${hrdcod}.txt
               printf "\n%80s\n" |tr " " "*"
               printf "*** ./throughputX.sh $args | tee $logfile"
               printf "\n%80s\n" |tr " " "*"
