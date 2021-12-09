@@ -45,15 +45,12 @@ namespace Proc
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
 #ifdef MGONGPU_HARDCODE_CIPC
   __device__ const fptype cIPC[6] = {
-    HardcodedParameters_sm::GC_3.real(),
-    HardcodedParameters_sm::GC_3.imag(),
-    HardcodedParameters_sm::GC_50.real(),
-    HardcodedParameters_sm::GC_50.imag(),
-    HardcodedParameters_sm::GC_59.real(),
-    HardcodedParameters_sm::GC_59.imag() };  
+    HardcodedParameters_sm::GC_3.real(), HardcodedParameters_sm::GC_3.imag(),
+    HardcodedParameters_sm::GC_50.real(), HardcodedParameters_sm::GC_50.imag(),
+    HardcodedParameters_sm::GC_59.real(), HardcodedParameters_sm::GC_59.imag() };
   __device__ const fptype cIPD[2] = {
     HardcodedParameters_sm::mdl_MZ,
-    HardcodedParameters_sm::mdl_WZ }; 
+    HardcodedParameters_sm::mdl_WZ };
 #else
 #ifdef __CUDACC__
   __device__ __constant__ fptype cIPC[6];

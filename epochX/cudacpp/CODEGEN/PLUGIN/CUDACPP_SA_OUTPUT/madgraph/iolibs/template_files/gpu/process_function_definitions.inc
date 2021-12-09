@@ -20,16 +20,7 @@ namespace Proc
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
 #ifdef MGONGPU_HARDCODE_CIPC
-  __device__ const fptype cIPC[%(ncouplingstimes2)i] = {
-    HardcodedParameters_sm::GC_3.real(),
-    HardcodedParameters_sm::GC_3.imag(),
-    HardcodedParameters_sm::GC_50.real(),
-    HardcodedParameters_sm::GC_50.imag(),
-    HardcodedParameters_sm::GC_59.real(),
-    HardcodedParameters_sm::GC_59.imag() };  
-  __device__ const fptype cIPD[%(nparams)i] = {
-    HardcodedParameters_sm::mdl_MZ,
-    HardcodedParameters_sm::mdl_WZ }; 
+  %(assign_hardcoded_coupling)s
 #else
 #ifdef __CUDACC__
   __device__ __constant__ fptype cIPC[%(ncouplingstimes2)i];
