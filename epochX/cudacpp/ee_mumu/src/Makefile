@@ -1,5 +1,5 @@
 INCFLAGS = -I.
-OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
+OPTFLAGS = -O0 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra
 CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
