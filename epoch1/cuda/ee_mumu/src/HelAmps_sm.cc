@@ -175,6 +175,56 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  // *** PROTOTYPES OF NEW MEMORY ACCESS (START) ***
+
+  // Non-const memory access
+  // Input: a memory buffer for an arbitrary number of events
+  // Output: the 4-momenta for one event or one SIMD vector of events
+  __device__ inline
+  fptype_sv* bufferAccessMomenta( fptype* buffer
+#ifdef __CUDACC__
+                                  , const int ipar
+#endif
+                                  )
+  {
+#ifdef __CUDACC__
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+    //printf( "bufferAccessMomenta: ievt=%d threadId=%d\n", ievt, threadIdx.x );
+    using mgOnGpu::np4;
+    using mgOnGpu::npar;
+    constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+    const int ipagM = ievt/neppM; // #event "M-page"
+    const int ieppM = ievt%neppM; // #event in the current event M-page
+    //printf( "%2d %2d %8d %8.3f\n", ipar, 0, ievt, buffer[ipagM*npar*np4*neppM + ipar*np4*neppM + ieppM] );
+    return buffer + ( ipagM*npar*np4*neppM + ipar*np4*neppM + ieppM ); // AOSOA[ipagM][ipar][ip4=0][ieppM]
+#else
+#ifdef MGONGPU_CPPSIMD
+    return reinterpret_cast<fptype_sv*>( buffer );
+#else
+    return buffer;
+#endif
+#endif
+  }
+
+  // Const memory access
+  __device__ inline
+  const fptype_sv* bufferAccessConstMomenta( const fptype* buffer
+#ifdef __CUDACC__
+                                             , const int ipar
+#endif
+                                             )
+  {
+#ifdef __CUDACC__
+    return bufferAccessMomenta( const_cast<fptype*>( buffer ), ipar );
+#else
+    return bufferAccessMomenta( const_cast<fptype*>( buffer ) );
+#endif
+  }
+
+  // *** PROTOTYPES OF NEW MEMORY ACCESS (END) ***
+
+  //--------------------------------------------------------------------------
+
   __device__
   void ixxxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,
@@ -362,24 +412,24 @@ namespace MG5_sm
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fi,               // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv* fi                // output: wavefunction[(nw6==6)]
+#ifdef __CUDACC__
+               , const int ipar             // input: particle# out of npar
+#else
+               //, const int ipagV
 #endif
-               const int ipar )             // input: particle# out of npar
+               )
   {
     // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
     mgDebug( 0, __FUNCTION__ );
     // +++ START EVENT LOOP (where necessary) +++
     {
 #ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "imzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      // AV: copying by value (not by ref) seems to give the same performance in both cuda and c++
-      const fptype pvec3 = pIparIp4Ievt( allmomenta, ipar, 3, ievt );
+      const fptype_sv* p4vec = bufferAccessConstMomenta( allmomenta, ipar );
+      const fptype_sv& pvec3 = p4vec[3];
 #else
-      //printf( "imzxxx: ipagV=%d\n", ipagV );
-      const fptype_sv pvec3 = pIparIp4Ipag( allmomenta, ipar, 3, ipagV );
+      const fptype_sv* p4vec = bufferAccessConstMomenta( allmomenta );
+      const fptype_sv& pvec3 = p4vec[3];
 #endif
       fi[0] = cxmake( pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
       fi[1] = cxzero_sv();

@@ -39,6 +39,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+#ifndef __CUDACC__
   // Four-momentum references of one particle, for one event
   // All references point to the original buffer of momenta for all particles in all events
   struct p4type_ref
@@ -56,12 +57,12 @@ namespace MG5_sm
     fptype_sv p1;
     fptype_sv p2;
     fptype_sv p3;
-#if defined __CUDACC__ or not defined MGONGPU_CPPSIMD
+#ifndef MGONGPU_CPPSIMD
     __device__ p4type_sv( const p4type_ref ref ) : p0( ref.p0 ), p1( ref.p1 ), p2( ref.p2 ), p3( ref.p3 ){}
 #endif
+    const fptype* asFptypePointer() const { return reinterpret_cast<const fptype*>( &p0 ); } // address of ip4=0 component
   };
 
-#ifndef __CUDACC__
 #ifdef MGONGPU_CPPSIMD
   // Build four fptype_v (four vectors of neppV fptype values) from four fptype references,
   // assuming that "pointer(evt#0)+1" indicates "pointer(evt#1)", and that the arrays are aligned
@@ -184,7 +185,6 @@ namespace MG5_sm
                       fptypevFromArbitraryArray( p3decoderIeppv ) };
   }
 #endif
-#endif
 
   // Decode momenta AOSOA: return 4-momentum references of a given particle for a given event
   // Returning by reference seems irrelevant for performance, but allows a simpler code structure
@@ -212,7 +212,6 @@ namespace MG5_sm
                        momenta1d[index0 + 3*neppM] }; // AOSOA[ipagM][ipar][3][ieppM]
   }
 
-#ifndef __CUDACC__
   // Decode momenta AOSOA: return 4-momentum of a given particle for a given event (or 4-momenta for one "V-page" of neppV events)
   // Return by value one fptype (or one fptype_v SIMD vector of neppV fptype values) for each 4-momentum component
   // Strictly speaking, returning the fptype_v by value is only unavoidable for neppM<neppV
@@ -319,11 +318,13 @@ namespace MG5_sm
                //const fptype fmass,           // ASSUME fmass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fi,                  // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv* fi                   // output: wavefunction[(nw6==6)]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
+#else
+               //, const int ipagV
 #endif
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
