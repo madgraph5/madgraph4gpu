@@ -181,10 +181,10 @@ namespace MG5_sm
   // Input: a memory buffer for an arbitrary number of events
   // Output: the 4-momenta for one event or one SIMD vector of events
   __device__ inline
-  fptype_sv* bufferAccessMomenta( fptype* buffer,
+  fptype_sv& bufferAccessMomenta( fptype* buffer,
                                   const int ip4
 #ifdef __CUDACC__
-                                  , const int ipar
+                                  , const int ipar // TEMPORARY? Move to SOAOSOA? (#309)
 #endif
                                   )
   {
@@ -197,19 +197,19 @@ namespace MG5_sm
     const int ipagM = ievt/neppM; // #event "M-page"
     const int ieppM = ievt%neppM; // #event in the current event M-page
     //printf( "%2d %2d %8d %8.3f\n", ipar, 0, ievt, buffer[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
-    return buffer + ( ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM ); // AOSOA[ipagM][ipar][ip4][ieppM]
+    return buffer[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
 #else
 #ifdef MGONGPU_CPPSIMD
-    return reinterpret_cast<fptype_sv*>( buffer ) + ip4;
+    return reinterpret_cast<fptype_sv*>( buffer )[ip4];
 #else
-    return buffer + ip4;
+    return buffer[ip4];
 #endif
 #endif
   }
 
   // Const memory access
   __device__ inline
-  const fptype_sv* bufferAccessConstMomenta( const fptype* buffer,
+  const fptype_sv& bufferAccessConstMomenta( const fptype* buffer,
                                              const int ip4
 #ifdef __CUDACC__
                                              , const int ipar
@@ -425,9 +425,9 @@ namespace MG5_sm
     // +++ START EVENT LOOP (where necessary) +++
     {
 #ifdef __CUDACC__
-      const fptype_sv& pvec3 = *( bufferAccessConstMomenta( allmomenta, 3, ipar ) );
+      const fptype_sv& pvec3 = bufferAccessConstMomenta( allmomenta, 3, ipar );
 #else
-      const fptype_sv& pvec3 = *( bufferAccessConstMomenta( allmomenta, 3 ) );
+      const fptype_sv& pvec3 = bufferAccessConstMomenta( allmomenta, 3 );
 #endif
       fi[0] = cxmake( pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
       fi[1] = cxzero_sv();
