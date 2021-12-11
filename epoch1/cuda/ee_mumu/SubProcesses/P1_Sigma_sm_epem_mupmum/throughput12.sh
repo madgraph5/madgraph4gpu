@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set +x
+set +x # not verbose
+set -e # fail on error
 
 omp=0
 avxall=0
