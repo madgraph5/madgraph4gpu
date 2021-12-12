@@ -231,23 +231,10 @@ namespace MG5_sm
                                 const int ipar,
                                 const int ievt )
   {
-    /*
-    return p4type_sv{ pIparIp4Ievt( momenta1d, ipar, 0, ievt ),
-                      pIparIp4Ievt( momenta1d, ipar, 1, ievt ),
-                      pIparIp4Ievt( momenta1d, ipar, 2, ievt ),
-                      pIparIp4Ievt( momenta1d, ipar, 3, ievt ) };
-    */
-    using mgOnGpu::np4;
-    using mgOnGpu::npar;
-    constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    const int ipagM = ievt/neppM; // #event "M-page"
-    const int ieppM = ievt%neppM; // #event in the current event "M-page"
-    const int index0 = ipagM*npar*np4*neppM + ipar*np4*neppM + ieppM; // 1d-index for AOSOA[ipagM][ipar][0][ieppM]
-    //for ( ip4=0; ip4<np4; ip4++) printf( "%2d %2d %8d %8.3f\n", ipar, ip4, ievt, momenta1d[index0 + ip4*neppM] );
-    return p4type_ref{ momenta1d[index0 + 0*neppM],   // AOSOA[ipagM][ipar][0][ieppM]
-                       momenta1d[index0 + 1*neppM],   // AOSOA[ipagM][ipar][1][ieppM]
-                       momenta1d[index0 + 2*neppM],   // AOSOA[ipagM][ipar][2][ieppM]
-                       momenta1d[index0 + 3*neppM] }; // AOSOA[ipagM][ipar][3][ieppM]
+    return p4type_ref{ indexingFunctionConstMomenta( momenta1d, ievt, 0, ipar ),
+                       indexingFunctionConstMomenta( momenta1d, ievt, 1, ipar ),
+                       indexingFunctionConstMomenta( momenta1d, ievt, 2, ipar ),
+                       indexingFunctionConstMomenta( momenta1d, ievt, 3, ipar ) };
   }
 
   // Decode momenta AOSOA: return 4-momentum of a given particle for a given event (or 4-momenta for one "V-page" of neppV events)
