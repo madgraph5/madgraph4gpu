@@ -707,19 +707,20 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV1_0( const cxtype_sv F1[],   // input: wavefunction1[6]
-               const cxtype_sv F2[],   // input: wavefunction2[6]
-               const cxtype_sv V3[],   // input: wavefunction3[6]
+  void FFV1_0( const cxtype_sv F1[],    // input: wavefunction1[6]
+               const cxtype_sv F2[],    // input: wavefunction2[6]
+               const cxtype_sv V3[],    // input: wavefunction3[6]
                const cxtype COUP,
-               cxtype_sv* vertex )     // output: amplitude
+               cxtype_sv* amplitudes )  // output: amplitude
   {
     mgDebug( 0, __FUNCTION__ );
+    cxtype_sv& vertex = kernelAccessAmplitudes( amplitudes );
     const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP0 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
                             (F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])) +
                              (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
                               F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])))));
-    (*vertex) = COUP * - cI * TMP0;
+    vertex = COUP * - cI * TMP0;
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -727,12 +728,12 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV1P0_3( const cxtype_sv F1[],     // input: wavefunction1[6]
-                 const cxtype_sv F2[],     // input: wavefunction2[6]
+  void FFV1P0_3( const cxtype_sv F1[],  // input: wavefunction1[6]
+                 const cxtype_sv F2[],  // input: wavefunction2[6]
                  const cxtype COUP,
                  const fptype M3,
                  const fptype W3,
-                 cxtype_sv V3[] )          // output: wavefunction3[6]
+                 cxtype_sv V3[] )       // output: wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI = cxmake( 0., 1. );
@@ -751,17 +752,18 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV2_0( const cxtype_sv F1[],   // input: wavefunction1[6]
-               const cxtype_sv F2[],   // input: wavefunction2[6]
-               const cxtype_sv V3[],   // input: wavefunction3[6]
+  void FFV2_0( const cxtype_sv F1[],    // input: wavefunction1[6]
+               const cxtype_sv F2[],    // input: wavefunction2[6]
+               const cxtype_sv V3[],    // input: wavefunction3[6]
                const cxtype COUP,
-               cxtype_sv* vertex )     // output: amplitude
+               cxtype_sv* amplitudes )  // output: amplitude
   {
     mgDebug( 0, __FUNCTION__ );
+    cxtype_sv& vertex = kernelAccessAmplitudes( amplitudes );
     const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP1 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
                             F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
-    (*vertex) = COUP * - cI * TMP1;
+    vertex = COUP * - cI * TMP1;
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -769,12 +771,12 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV2_3( const cxtype_sv F1[],   // input: wavefunction1[6]
-               const cxtype_sv F2[],   // input: wavefunction2[6]
+  void FFV2_3( const cxtype_sv F1[],    // input: wavefunction1[6]
+               const cxtype_sv F2[],    // input: wavefunction2[6]
                const cxtype COUP,
                const fptype M3,
                const fptype W3,
-               cxtype_sv V3[] )        // output: wavefunction3[6]
+               cxtype_sv V3[] )         // output: wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI = cxmake( 0., 1. );
@@ -796,13 +798,14 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV4_0( const cxtype_sv F1[],   // input: wavefunction1[6]
-               const cxtype_sv F2[],   // input: wavefunction2[6]
-               const cxtype_sv V3[],   // input: wavefunction3[6]
+  void FFV4_0( const cxtype_sv F1[],     // input: wavefunction1[6]
+               const cxtype_sv F2[],     // input: wavefunction2[6]
+               const cxtype_sv V3[],     // input: wavefunction3[6]
                const cxtype COUP,
-               cxtype_sv* vertex )     // output: amplitude
+               cxtype_sv* amplitudes )   // output: amplitude
   {
     mgDebug( 0, __FUNCTION__ );
+    cxtype_sv& vertex = kernelAccessAmplitudes( amplitudes );
     const cxtype cI = cxmake( 0., 1. );
     constexpr fptype one( 1. );
     constexpr fptype two( 2. );
@@ -810,7 +813,7 @@ namespace MG5_sm
                             F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
     const cxtype_sv TMP4 = (F1[4] * (F2[2] * (V3[2] - V3[5]) - F2[3] * (V3[3] + cI * (V3[4]))) +
                             F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
-    (*vertex) = COUP * (-one) * (+cI * (TMP3) + two * cI * (TMP4));
+    vertex = COUP * (-one) * (+cI * (TMP3) + two * cI * (TMP4));
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -818,12 +821,12 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV4_3( const cxtype_sv F1[],   // input: wavefunction1[6]
-               const cxtype_sv F2[],   // input: wavefunction2[6]
+  void FFV4_3( const cxtype_sv F1[],     // input: wavefunction1[6]
+               const cxtype_sv F2[],     // input: wavefunction2[6]
                const cxtype_sv COUP,
                const fptype M3,
                const fptype W3,
-               cxtype_sv V3[] )        // output: wavefunction3[6]
+               cxtype_sv V3[] )          // output: wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI = cxmake( 0., 1. );
@@ -854,14 +857,15 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV2_4_0( const cxtype_sv F1[],   // input: wavefunction1[6]
-                 const cxtype_sv F2[],   // input: wavefunction2[6]
-                 const cxtype_sv V3[],   // input: wavefunction3[6]
+  void FFV2_4_0( const cxtype_sv F1[],    // input: wavefunction1[6]
+                 const cxtype_sv F2[],    // input: wavefunction2[6]
+                 const cxtype_sv V3[],    // input: wavefunction3[6]
                  const cxtype COUP1,
                  const cxtype COUP2,
-                 cxtype_sv* vertex )     // output: amplitude
+                 cxtype_sv* amplitudes )  // output: amplitude
   {
     mgDebug( 0, __FUNCTION__ );
+    cxtype_sv& vertex = kernelAccessAmplitudes( amplitudes );
     const cxtype cI = cxmake( 0., 1. );
     constexpr fptype one( 1. );
     constexpr fptype two( 2. );
@@ -870,7 +874,7 @@ namespace MG5_sm
                             F1[5] * (F2[2] * (-V3[3] + cI * (V3[4])) + F2[3] * (V3[2] + V3[5])));
     const cxtype_sv TMP3 = (F1[2] * (F2[4] * (V3[2] + V3[5]) + F2[5] * (V3[3] + cI * (V3[4]))) +
                             F1[3] * (F2[4] * (V3[3] - cI * (V3[4])) + F2[5] * (V3[2] - V3[5])));
-    (*vertex) = ( -one ) * (COUP2 * (+cI * (TMP3) + two * cI * (TMP4)) + cI * (TMP3 * COUP1));
+    vertex = ( -one ) * (COUP2 * (+cI * (TMP3) + two * cI * (TMP4)) + cI * (TMP3 * COUP1));
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -878,13 +882,13 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void FFV2_4_3( const cxtype_sv F1[],   // input: wavefunction1[6]
-                 const cxtype_sv F2[],   // input: wavefunction2[6]
+  void FFV2_4_3( const cxtype_sv F1[],    // input: wavefunction1[6]
+                 const cxtype_sv F2[],    // input: wavefunction2[6]
                  const cxtype COUP1,
                  const cxtype COUP2,
                  const fptype M3,
                  const fptype W3,
-                 cxtype_sv V3[] )        // output: wavefunction3[6]
+                 cxtype_sv V3[] )         // output: wavefunction3[6]
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype cI = cxmake( 0., 1. );

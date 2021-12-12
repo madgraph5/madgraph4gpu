@@ -155,80 +155,88 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__ INLINE
-  void FFV1_0( const cxtype_sv F1[],                // input: wavefunction1[6]
-               const cxtype_sv F2[],                // input: wavefunction2[6]
-               const cxtype_sv V3[],                // input: wavefunction3[6]
+  void FFV1_0( const cxtype_sv F1[],    // input: wavefunction1[6]
+               const cxtype_sv F2[],    // input: wavefunction2[6]
+               const cxtype_sv V3[],    // input: wavefunction3[6]
                const cxtype COUP,
-               cxtype_sv* vertex ) ALWAYS_INLINE;   // output: amplitude
+               cxtype_sv* amplitudes )  // output: amplitude
+    ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   __device__ INLINE
-  void FFV1P0_3( const cxtype_sv F1[],              // input: wavefunction1[6]
-                 const cxtype_sv F2[],              // input: wavefunction2[6]
+  void FFV1P0_3( const cxtype_sv F1[],  // input: wavefunction1[6]
+                 const cxtype_sv F2[],  // input: wavefunction2[6]
                  const cxtype COUP,
                  const fptype M3,
                  const fptype W3,
-                 cxtype_sv V3[] ) ALWAYS_INLINE;    // output: wavefunction3[6]
+                 cxtype_sv V3[] )       // output: wavefunction3[6]
+    ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   __device__ INLINE
-  void FFV2_0( const cxtype_sv F1[],                // input: wavefunction1[6]
-               const cxtype_sv F2[],                // input: wavefunction2[6]
-               const cxtype_sv V3[],                // input: wavefunction3[6]
+  void FFV2_0( const cxtype_sv F1[],    // input: wavefunction1[6]
+               const cxtype_sv F2[],    // input: wavefunction2[6]
+               const cxtype_sv V3[],    // input: wavefunction3[6]
                const cxtype COUP,
-               cxtype_sv* vertex ) ALWAYS_INLINE;   // output: amplitude
+               cxtype_sv* amplitudes )  // output: amplitude
+    ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   __device__ INLINE
-  void FFV2_3( const cxtype_sv F1[],                // input: wavefunction1[6]
-               const cxtype_sv F2[],                // input: wavefunction2[6]
+  void FFV2_3( const cxtype_sv F1[],    // input: wavefunction1[6]
+               const cxtype_sv F2[],    // input: wavefunction2[6]
                const cxtype COUP,
                const fptype M3,
                const fptype W3,
-               cxtype_sv V3[] ) ALWAYS_INLINE;      // output: wavefunction3[6]
+               cxtype_sv V3[] )         // output: wavefunction3[6]
+    ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   __device__ INLINE
-  void FFV4_0( const cxtype_sv F1[],                // input: wavefunction1[6]
-               const cxtype_sv F2[],                // input: wavefunction2[6]
-               const cxtype_sv V3[],                // input: wavefunction3[6]
+  void FFV4_0( const cxtype_sv F1[],     // input: wavefunction1[6]
+               const cxtype_sv F2[],     // input: wavefunction2[6]
+               const cxtype_sv V3[],     // input: wavefunction3[6]
                const cxtype COUP,
-               cxtype_sv* vertex ) ALWAYS_INLINE;   // output: amplitude
+               cxtype_sv* amplitudes )   // output: amplitude
+    ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   __device__ INLINE
-  void FFV4_3( const cxtype_sv F1[],                // input: wavefunction1[6]
-               const cxtype_sv F2[],                // input: wavefunction2[6]
+  void FFV4_3( const cxtype_sv F1[],     // input: wavefunction1[6]
+               const cxtype_sv F2[],     // input: wavefunction2[6]
                const cxtype_sv COUP,
                const fptype M3,
                const fptype W3,
-               cxtype_sv V3[] ) ALWAYS_INLINE;      // output: wavefunction3[6]
+               cxtype_sv V3[] )          // output: wavefunction3[6]
+    ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   __device__ INLINE
-  void FFV2_4_0( const cxtype_sv F1[],              // input: wavefunction1[6]
-                 const cxtype_sv F2[],              // input: wavefunction2[6]
-                 const cxtype_sv V3[],              // input: wavefunction3[6]
+  void FFV2_4_0( const cxtype_sv F1[],    // input: wavefunction1[6]
+                 const cxtype_sv F2[],    // input: wavefunction2[6]
+                 const cxtype_sv V3[],    // input: wavefunction3[6]
                  const cxtype COUP1,
                  const cxtype COUP2,
-                 cxtype_sv* vertex ) ALWAYS_INLINE; // output: amplitude
+                 cxtype_sv* amplitudes )  // output: amplitude
+    ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   __device__ INLINE
-  void FFV2_4_3( const cxtype_sv F1[],              // input: wavefunction1[6]
-                 const cxtype_sv F2[],              // input: wavefunction2[6]
+  void FFV2_4_3( const cxtype_sv F1[],    // input: wavefunction1[6]
+                 const cxtype_sv F2[],    // input: wavefunction2[6]
                  const cxtype COUP1,
                  const cxtype COUP2,
                  const fptype M3,
                  const fptype W3,
-                 cxtype_sv V3[] ) ALWAYS_INLINE;    // output: wavefunction3[6]
+                 cxtype_sv V3[] )         // output: wavefunction3[6]
+    ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
