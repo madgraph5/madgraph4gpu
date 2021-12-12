@@ -234,8 +234,8 @@ namespace MG5_sm
     const int ievt0 = ipagV*neppV; // virtual event V-page ipagV contains neppV events [ievt0...ievt0+neppV-1]
 #ifdef MGONGPU_CPPSIMD
     constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    //constexpr bool useContiguousEventsIfPossible = true; // DEFAULT
-    constexpr bool useContiguousEventsIfPossible = false; // FOR PERFORMANCE TESTS (treat as arbitrary array even if it is an AOSOA)
+    constexpr bool useContiguousEventsIfPossible = true; // DEFAULT
+    //constexpr bool useContiguousEventsIfPossible = false; // FOR PERFORMANCE TESTS (treat as arbitrary array even if it is an AOSOA)
     // Use c++17 "if constexpr": compile-time branching
     if constexpr ( useContiguousEventsIfPossible && ( neppM >= neppV ) && ( neppM%neppV == 0 ) )
     {
