@@ -181,7 +181,7 @@ namespace MG5_sm
   // Input: a memory buffer for an arbitrary number of events
   // Output: the 4-momenta for one event or one SIMD vector of events
   __device__ inline
-  fptype_sv& bufferAccessMomenta( fptype* buffer,
+  fptype_sv& bufferAccessMomenta( fptype_sv* buffer,
                                   const int ip4
 #ifdef __CUDACC__
                                   , const int ipar // TEMPORARY? Move to SOAOSOA? (#309)
@@ -199,17 +199,13 @@ namespace MG5_sm
     //printf( "%2d %2d %8d %8.3f\n", ipar, 0, ievt, buffer[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
     return buffer[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
 #else
-#ifdef MGONGPU_CPPSIMD
-    return reinterpret_cast<fptype_sv*>( buffer )[ip4];
-#else
     return buffer[ip4];
-#endif
 #endif
   }
 
   // Const memory access
   __device__ inline
-  const fptype_sv& bufferAccessConstMomenta( const fptype* buffer,
+  const fptype_sv& bufferAccessConstMomenta( const fptype_sv* buffer,
                                              const int ip4
 #ifdef __CUDACC__
                                              , const int ipar
@@ -217,9 +213,9 @@ namespace MG5_sm
                                              )
   {
 #ifdef __CUDACC__
-    return bufferAccessMomenta( const_cast<fptype*>( buffer ), ip4, ipar );
+    return bufferAccessMomenta( const_cast<fptype_sv*>( buffer ), ip4, ipar );
 #else
-    return bufferAccessMomenta( const_cast<fptype*>( buffer ), ip4 );
+    return bufferAccessMomenta( const_cast<fptype_sv*>( buffer ), ip4 );
 #endif
   }
 
@@ -410,7 +406,7 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__
-  void imzxxx( const fptype* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
+  void imzxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,        // ASSUME fmass==0
                const int nhel,              // input: -1 or +1 (helicity of fermion)
                const int nsf,               // input: +1 (particle) or -1 (antiparticle)

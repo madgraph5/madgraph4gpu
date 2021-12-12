@@ -60,7 +60,6 @@ namespace MG5_sm
 #ifndef MGONGPU_CPPSIMD
     __device__ p4type_sv( const p4type_ref ref ) : p0( ref.p0 ), p1( ref.p1 ), p2( ref.p2 ), p3( ref.p3 ){}
 #endif
-    const fptype* asFptypePointer() const { return reinterpret_cast<const fptype*>( &p0 ); } // address of ip4=0 component
   };
 
 #ifdef MGONGPU_CPPSIMD
@@ -314,7 +313,7 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__ INLINE
-  void imzxxx( const fptype* allmomenta,       // input[(npar=4)*(np4=4)*nevt]
+  void imzxxx( const fptype_sv* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,           // ASSUME fmass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
