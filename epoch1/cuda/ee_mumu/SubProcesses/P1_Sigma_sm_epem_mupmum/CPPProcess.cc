@@ -137,9 +137,8 @@ namespace Proc
         oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 ); // tested ok (much slower)
 #endif
 #else
-      const MG5_sm::p4type_sv p4vec0 = p4IparIpagV( allmomenta, 0, ipagV ); // ipar=0
-      opzxxx( p4vec0, cHel[ihel][0], -1, w_sv[0] );
-      //oxxxxx( p4vec0, 0, cHel[ihel][0], -1, w_sv[0] ); // tested ok (slower)
+      opzxxx( p4IparIpagV( allmomenta, 0, ipagV ), cHel[ihel][0], -1, w_sv[0] );
+      //oxxxxx( p4IparIpagV( allmomenta, 0, ipagV ), 0, cHel[ihel][0], -1, w_sv[0] ); // tested ok (slower)
 #endif
 
 #ifdef __CUDACC__
@@ -147,9 +146,8 @@ namespace Proc
       imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 );
       //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w_sv[1], 1 ); // tested ok (slower)
 #else
-      const MG5_sm::p4type_sv p4vec1 = p4IparIpagV( allmomenta, 1, ipagV ); // ipar=1
-      imzxxx( p4vec1, cHel[ihel][1], +1, w_sv[1] );
-      //ixxxxx( p4vec1, 0, cHel[ihel][1], +1, w_sv[1] ); // tested ok (a bit slower)
+      imzxxx( p4IparIpagV( allmomenta, 1, ipagV ), cHel[ihel][1], +1, w_sv[1] );
+      //ixxxxx( p4IparIpagV( allmomenta, 1, ipagV ), 0, cHel[ihel][1], +1, w_sv[1] ); // tested ok (a bit slower)
 #endif
 
 #ifdef __CUDACC__
@@ -157,9 +155,8 @@ namespace Proc
       ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 );
       //ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w_sv[2], 2 ); // tested ok (a bit slower)
 #else
-      const MG5_sm::p4type_sv p4vec2 = p4IparIpagV( allmomenta, 2, ipagV ); // ipar=2
-      ixzxxx( p4vec2, cHel[ihel][2], -1, w_sv[2] );
-      //ixxxxx( p4vec2, 0, cHel[ihel][2], -1, w_sv[2] ); // tested ok (a bit slower)
+      ixzxxx( p4IparIpagV( allmomenta, 2, ipagV ), cHel[ihel][2], -1, w_sv[2] );
+      //ixxxxx( p4IparIpagV( allmomenta, 2, ipagV ), 0, cHel[ihel][2], -1, w_sv[2] ); // tested ok (a bit slower)
 #endif
 
 #ifdef __CUDACC__
@@ -167,9 +164,8 @@ namespace Proc
       oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 );
       //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w_sv[3], 3 ); // tested ok (a bit slower)
 #else
-      const MG5_sm::p4type_sv p4vec3 = p4IparIpagV( allmomenta, 3, ipagV ); // ipar=3
-      oxzxxx( p4vec3, cHel[ihel][3], +1, w_sv[3] );
-      //oxxxxx( p4vec3, 0, cHel[ihel][3], +1, w_sv[3] ); // tested ok (a bit slower)
+      oxzxxx( p4IparIpagV( allmomenta, 3, ipagV ), cHel[ihel][3], +1, w_sv[3] );
+      //oxxxxx( p4IparIpagV( allmomenta, 3, ipagV ), 0, cHel[ihel][3], +1, w_sv[3] ); // tested ok (a bit slower)
 #endif
 
       // Local variables for the given CUDA event (ievt)
