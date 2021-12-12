@@ -292,28 +292,28 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   __device__ INLINE
-  void ixxxxx( const fptype* allmomenta,       // input[(npar=4)*(np4=4)*nevt]
+  void ixxxxx( const fptype_sv* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fi,                  // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv* fi                   // output: wavefunction[(nw6==6)]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   __device__ INLINE
-  void ipzxxx( const fptype* allmomenta,       // input[(npar=4)*(np4=4)*nevt]
+  void ipzxxx( const fptype_sv* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,           // ASSUME fmass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fi,                  // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv* fi                   // output: wavefunction[(nw6==6)]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
@@ -325,99 +325,97 @@ namespace MG5_sm
                cxtype_sv* fi                   // output: wavefunction[(nw6==6)]
 #ifdef __CUDACC__
                , const int ipar                // input: particle# out of npar
-#else
-               //, const int ipagV
 #endif
                ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   __device__ INLINE
-  void ixzxxx( const fptype* allmomenta,       // input[(npar=4)*(np4=4)*nevt]
+  void ixzxxx( const fptype_sv* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,           // ASSUME fmass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fi,                  // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv* fi                   // output: wavefunction[(nw6==6)]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   __device__ INLINE
-  void vxxxxx( const fptype* allmomenta,       // input[(npar=4)*(np4=4)*nevt]
+  void vxxxxx( const fptype_sv* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const fptype vmass,
                const int nhel,                 // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
                const int nsv,                  // input: +1 (final) or -1 (initial)
-               cxtype_sv* vc,                  // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv* vc                   // output: wavefunction[(nw6==6)]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   __device__ INLINE
-  void sxxxxx( const fptype* allmomenta,       // input[(npar=4)*(np4=4)*nevt]
+  void sxxxxx( const fptype_sv* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const fptype,                   // WARNING: "smass" unused (missing in Fortran)
                const int,                      // WARNING: "nhel" unused (missing in Fortran) - scalar has no helicity
                const int nss,                  // input: +1 (final) or -1 (initial)
-               cxtype_sv sc[3],                // output: wavefunction[3] - not [6], this is for scalars
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv sc[3]                 // output: wavefunction[3] - not [6], this is for scalars
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   __device__ INLINE
-  void oxxxxx( const fptype* allmomenta,       // input[(npar=4)*(np4=4)*nevt]
+  void oxxxxx( const fptype_sv* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fo,                  // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv* fo                   // output: wavefunction[(nw6==6)]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   __device__ INLINE
-  void opzxxx( const fptype* allmomenta,       // input[(npar=4)*(np4=4)*nevt]
+  void opzxxx( const fptype_sv* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fo,                  // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv* fo                   // output: wavefunction[(nw6==6)]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   __device__ INLINE
-  void omzxxx( const fptype* allmomenta,       // input[(npar=4)*(np4=4)*nevt]
+  void omzxxx( const fptype_sv* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fo,                  // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv* fo                   // output: wavefunction[(nw6==6)]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               ) ALWAYS_INLINE;
 
-  //--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 
   __device__ INLINE
-  void oxzxxx( const fptype* allmomenta,       // input[(npar=4)*(np4=4)*nevt]
+  void oxzxxx( const fptype_sv* allmomenta,    // input[(npar=4)*(np4=4)*nevt]
                //const fptype fmass,           // ASSUME fmass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv* fo,                  // output: wavefunction[(nw6==6)]
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv* fo                   // output: wavefunction[(nw6==6)]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar ) ALWAYS_INLINE; // input: particle# out of npar
+               ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
