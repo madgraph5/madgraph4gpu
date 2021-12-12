@@ -20,196 +20,32 @@ mgDebugDeclare();
 
 namespace MG5_sm
 {
-
-  //--------------------------------------------------------------------------
-
-  // Decode momentum AOSOA: compute address of fptype for the given particle, 4-momentum component and event
-  // Return the fptype by reference (equivalent to returning its memory address)
-  __device__ inline
-  const fptype& pIparIp4Ievt( const fptype* momenta, // input: momenta as AOSOA[npagM][npar][4][neppM]
-                              const int ipar,
-                              const int ip4,
-                              const int ievt )
-  {
-    using mgOnGpu::np4;
-    using mgOnGpu::npar;
-    constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    const int ipagM = ievt/neppM; // #event "M-page"
-    const int ieppM = ievt%neppM; // #event in the current event M-page
-    //printf( "%2d %2d %8d %8.3f\n", ipar, ip4, ievt, momenta[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
-    return momenta[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
-    //fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta; // cast to multiD array pointer (AOSOA)
-    //return momenta[ipagM][ipar][ip4][ieppM]; // this seems ~1-2% faster in eemumu C++?
-  }
-
-#ifndef __CUDACC__
-  // Return a SIMD vector of fptype's for neppV events (for the given particle, 4-momentum component and event "V-page")
-  // Return the vector by value: strictly speaking, this is only unavoidable for neppM<neppV
-  // For neppM>=neppV (both being powers of 2), the momentum neppM-AOSOA is reinterpreted in terms of neppV-vectors:
-  // it could also be returned by reference, but no performance degradation is observed when returning by value
-  inline
-  fptype_sv pIparIp4Ipag( const fptype* momenta, // input: momenta as AOSOA[npagM][npar][4][neppM]
-                          const int ipar,
-                          const int ip4,
-                          const int ipagV )
-  {
-    const int ievt0 = ipagV*neppV; // virtual event V-page ipagV contains neppV events [ievt0...ievt0+neppV-1]
-#ifdef MGONGPU_CPPSIMD
-    constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    // Use c++17 "if constexpr": compile-time branching
-    if constexpr ( ( neppM >= neppV ) && ( neppM%neppV == 0 ) )
-    {
-      constexpr bool useReinterpretCastIfPossible = true; // DEFAULT
-      //constexpr bool useReinterpretCastIfPossible = false; // FOR PERFORMANCE TESTS
-      constexpr bool skipAlignmentCheck = true; // DEFAULT (MAY SEGFAULT, NEEDS A SANITY CHECK ELSEWHERE!)
-      //constexpr bool skipAlignmentCheck = false; // SLOWER BUT SAFER
-      if constexpr ( useReinterpretCastIfPossible && skipAlignmentCheck )
-      {
-        //static bool first=true; if( first ){ std::cout << "WARNING! skip alignment check" << std::endl; first=false; } // SLOWS DOWN...
-        // Fastest (4.92E6 in eemumu 512y)
-        // This requires alignment for momenta - segmentation fault otherwise!
-        return *reinterpret_cast<const fptype_sv*>( &( pIparIp4Ievt( momenta, ipar, ip4, ievt0 ) ) );
-      }
-      else if ( useReinterpretCastIfPossible && ( (size_t)(momenta) % mgOnGpu::cppAlign == 0 ) )
-      {
-        //static bool first=true; if( first ){ std::cout << "WARNING! alignment ok, use reinterpret cast" << std::endl; first=false; } // SLOWS DOWN...
-        // A bit (6%) slower (4.62E6 in eemumu 512y) because of the alignment check
-        // This explicitly checks alignment for momenta to avoid segmentation faults
-        return *reinterpret_cast<const fptype_sv*>( &( pIparIp4Ievt( momenta, ipar, ip4, ievt0 ) ) );
-      }
-      else
-      {
-        //static bool first=true; if( first ){ std::cout << "WARNING! AOSOA but no reinterpret cast" << std::endl; first=false; } // SLOWS DOWN...
-        // A bit (2%) slower (4.86E6 in eemumu 512y)
-        // This does not require alignment for momenta, but it requires AOSOA with neppM>=neppV and neppM%neppV==0
-        const fptype* out0 = &( pIparIp4Ievt( momenta, ipar, ip4, ievt0) );
-#if MGONGPU_CPPSIMD == 2
-        return fptype_v{ *( out0 ),
-                         *( out0+1 ) };
-#elif MGONGPU_CPPSIMD == 4
-        return fptype_v{ *( out0 ),
-                         *( out0+1 ),
-                         *( out0+2 ),
-                         *( out0+3 ) };
-#elif MGONGPU_CPPSIMD == 8
-        return fptype_v{ *( out0 ),
-                         *( out0+1 ),
-                         *( out0+2 ),
-                         *( out0+3 ),
-                         *( out0+4 ),
-                         *( out0+5 ),
-                         *( out0+6 ),
-                         *( out0+7 ) };
-#elif MGONGPU_CPPSIMD == 16
-        return fptype_v{ *( out0 ),
-                         *( out0+1 ),
-                         *( out0+2 ),
-                         *( out0+3 ),
-                         *( out0+4 ),
-                         *( out0+5 ),
-                         *( out0+6 ),
-                         *( out0+7 ),
-                         *( out0+8 ),
-                         *( out0+9 ),
-                         *( out0+10 ),
-                         *( out0+11 ),
-                         *( out0+12 ),
-                         *( out0+13 ),
-                         *( out0+14 ),
-                         *( out0+15 ) };
-#else
-#warning Internal error? This code should never be reached!
-        // A bit (2%) slower (4.86E6 in eemumu 512y)
-        // This does not require alignment for momenta, but it requires AOSOA with neppM>=neppV and neppM%neppV==0
-        fptype_v out;
-        for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = *( out0 + ieppV );
-        return out;
-#endif
-      }
-    }
-    else
-    {
-      // Much (20%) slower (4.07E6 in eemumu 512y)
-      // This does not even require AOSOA with neppM>=neppV and neppM%neppV==0 (e.g. can be used with AOS neppM==1)
-#if MGONGPU_CPPSIMD == 2
-      return fptype_v{ pIparIp4Ievt( momenta, ipar, ip4, ievt0 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+1 ) };
-#elif MGONGPU_CPPSIMD == 4
-      return fptype_v{ pIparIp4Ievt( momenta, ipar, ip4, ievt0 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+1 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+2 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+3 ) };
-#elif MGONGPU_CPPSIMD == 8
-      return fptype_v{ pIparIp4Ievt( momenta, ipar, ip4, ievt0 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+1 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+2 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+3 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+4 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+5 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+6 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+7 ) };
-#elif MGONGPU_CPPSIMD == 16
-      return fptype_v{ pIparIp4Ievt( momenta, ipar, ip4, ievt0 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+1 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+2 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+3 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+4 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+5 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+6 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+7 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+8 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+9 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+10 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+11 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+12 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+13 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+14 ),
-                       pIparIp4Ievt( momenta, ipar, ip4, ievt0+15 ) };
-#else
-#warning Internal error? This code should never be reached!
-      // Much much (40%) slower (3.02E6 in eemumu 512y)
-      fptype_v out;
-      for ( int ieppV=0; ieppV<neppV; ieppV++ ) out[ieppV] = pIparIp4Ievt( momenta, ipar, ip4, ievt0+ieppV );
-      return out;
-#endif
-    }
-#else
-    return pIparIp4Ievt( momenta, ipar, ip4, ievt0 );
-#endif
-  }
-#endif
-
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   __device__
-  void ixxxxx( const fptype* momenta,
+  void ixxxxx( const fptype_sv* momenta,
                const fptype fmass,             // input: fermion mass
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fi[],
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv fi[]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar ) // input: particle# out of npar
+               )
   {
     mgDebug( 0, __FUNCTION__ );
 #ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "ixxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-    // AV: copying by value (not by ref) seems faster in cuda, in spite of more registers used
-    // AV: copying by value (not by ref) seems irrelevant, or slightly slower, in c++
-    const fptype pvec1 = pIparIp4Ievt( momenta, ipar, 1, ievt );
-    const fptype pvec2 = pIparIp4Ievt( momenta, ipar, 2, ievt );
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
-    //const fptype pvec0 = fpsqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ); // AV: BUG?! (NOT AS IN THE FORTRAN)
-    const fptype pvec0 = pIparIp4Ievt( momenta, ipar, 0, ievt ); // AV: BUG FIX (DO AS IN THE FORTRAN)
+    const fptype_sv& pvec0 = kernelAccessConstMomenta( momenta, 0, ipar );
+    const fptype_sv& pvec1 = kernelAccessConstMomenta( momenta, 1, ipar );
+    const fptype_sv& pvec2 = kernelAccessConstMomenta( momenta, 2, ipar );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3, ipar );
 #else
-    //printf( "ixxxxx: ipagV=%d\n", ipagV );
-    const fptype_sv pvec0 = pIparIp4Ipag( momenta, ipar, 0, ipagV );
-    const fptype_sv pvec1 = pIparIp4Ipag( momenta, ipar, 1, ipagV );
-    const fptype_sv pvec2 = pIparIp4Ipag( momenta, ipar, 2, ipagV );
-    const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
+    const fptype_sv& pvec0 = kernelAccessConstMomenta( momenta, 0 );
+    const fptype_sv& pvec1 = kernelAccessConstMomenta( momenta, 1 );
+    const fptype_sv& pvec2 = kernelAccessConstMomenta( momenta, 2 );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3 );
 #endif
     fi[0] = cxmake( -pvec0 * (fptype)nsf, -pvec3 * (fptype)nsf );
     fi[1] = cxmake( -pvec1 * (fptype)nsf, -pvec2 * (fptype)nsf );
@@ -315,25 +151,22 @@ namespace MG5_sm
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
   __device__
-  void ipzxxx( const fptype* momenta,
+  void ipzxxx( const fptype_sv* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fi[],
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv fi[]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar )
+               )
   {
     mgDebug( 0, __FUNCTION__ );
 #ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "ipzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-    // AV: copy by value (not by ref) as this seems faster in cuda for other functions
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3, ipar );
 #else
-    //printf( "ipzxxx: ipagV=%d\n", ipagV );
-    const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3 );
 #endif
     fi[0] = cxmake( -pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
     fi[1] = cxzero_sv();
@@ -360,25 +193,22 @@ namespace MG5_sm
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
   __device__
-  void imzxxx( const fptype* momenta,
+  void imzxxx( const fptype_sv* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fi[],
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv fi[]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar )
+               )
   {
     mgDebug( 0, __FUNCTION__ );
 #ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "imzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-    // AV: copying by value (not by ref) seems to give the same performance in both cuda and c++
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3, ipar );
 #else
-    //printf( "imzxxx: ipagV=%d\n", ipagV );
-    const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3 );
 #endif
     fi[0] = cxmake( pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
     fi[1] = cxzero_sv();
@@ -405,31 +235,28 @@ namespace MG5_sm
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
   __device__
-  void ixzxxx( const fptype* momenta,
+  void ixzxxx( const fptype_sv* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fi[],
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv fi[]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar )
+               )
   {
     mgDebug( 0, __FUNCTION__ );
 #ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "ixzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-    // AV: copying by value (not by ref) seems to give the same performance in both cuda and c++
-    const fptype pvec0 = pIparIp4Ievt( momenta, ipar, 0, ievt );
-    const fptype pvec1 = pIparIp4Ievt( momenta, ipar, 1, ievt );
-    const fptype pvec2 = pIparIp4Ievt( momenta, ipar, 2, ievt );
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    const fptype_sv& pvec0 = kernelAccessConstMomenta( momenta, 0, ipar );
+    const fptype_sv& pvec1 = kernelAccessConstMomenta( momenta, 1, ipar );
+    const fptype_sv& pvec2 = kernelAccessConstMomenta( momenta, 2, ipar );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3, ipar );
 #else
-    //printf( "ixzxxx: ipagV=%d\n", ipagV );
-    const fptype_sv pvec0 = pIparIp4Ipag( momenta, ipar, 0, ipagV );
-    const fptype_sv pvec1 = pIparIp4Ipag( momenta, ipar, 1, ipagV );
-    const fptype_sv pvec2 = pIparIp4Ipag( momenta, ipar, 2, ipagV );
-    const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
+    const fptype_sv& pvec0 = kernelAccessConstMomenta( momenta, 0 );
+    const fptype_sv& pvec1 = kernelAccessConstMomenta( momenta, 1 );
+    const fptype_sv& pvec2 = kernelAccessConstMomenta( momenta, 2 );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3 );
 #endif
     //fi[0] = cxmake( -pvec0 * nsf, -pvec2 * nsf ); // AV: BUG! not the same as ixxxxx
     //fi[1] = cxmake( -pvec0 * nsf, -pvec1 * nsf ); // AV: BUG! not the same as ixxxxx
@@ -462,31 +289,28 @@ namespace MG5_sm
 
   // Compute the output wavefunction vc[6] from the input momenta[npar*4*nevt]
   __device__
-  void vxxxxx( const fptype* momenta,
+  void vxxxxx( const fptype_sv* momenta,
                const fptype vmass,             // input: vector boson mass
                const int nhel,                 // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
                const int nsv,                  // input: +1 (final) or -1 (initial)
-               cxtype_sv vc[],
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv vc[]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar )
+               )
   {
     mgDebug( 0, __FUNCTION__ );
 #ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "vxxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-    // AV: copy by value (not by ref) as this seems faster in cuda for other functions
-    const fptype pvec0 = pIparIp4Ievt( momenta, ipar, 0, ievt );
-    const fptype pvec1 = pIparIp4Ievt( momenta, ipar, 1, ievt );
-    const fptype pvec2 = pIparIp4Ievt( momenta, ipar, 2, ievt );
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    const fptype_sv& pvec0 = kernelAccessConstMomenta( momenta, 0, ipar );
+    const fptype_sv& pvec1 = kernelAccessConstMomenta( momenta, 1, ipar );
+    const fptype_sv& pvec2 = kernelAccessConstMomenta( momenta, 2, ipar );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3, ipar );
 #else
-    //printf( "vxxxxx: ipagV=%d\n", ipagV );
-    const fptype_sv pvec0 = pIparIp4Ipag( momenta, ipar, 0, ipagV );
-    const fptype_sv pvec1 = pIparIp4Ipag( momenta, ipar, 1, ipagV );
-    const fptype_sv pvec2 = pIparIp4Ipag( momenta, ipar, 2, ipagV );
-    const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
+    const fptype_sv& pvec0 = kernelAccessConstMomenta( momenta, 0 );
+    const fptype_sv& pvec1 = kernelAccessConstMomenta( momenta, 1 );
+    const fptype_sv& pvec2 = kernelAccessConstMomenta( momenta, 2 );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3 );
 #endif
     const fptype sqh = fpsqrt( 0.5 ); // AV this is > 0!
     const fptype hel = nhel;
@@ -594,31 +418,28 @@ namespace MG5_sm
 
   // Compute the output wavefunction sc[3] from the input momenta[npar*4*nevt]
   __device__
-  void sxxxxx( const fptype* momenta,
+  void sxxxxx( const fptype_sv* momenta,
                const fptype,                   // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
                const int,                      // WARNING: input "nhel" unused (missing in Fortran) - scalar has no helicity!
                const int nss,                  // input: +1 (final) or -1 (initial)
-               cxtype_sv sc[],
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv sc[]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar )
+               )
   {
     mgDebug( 0, __FUNCTION__ );
 #ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "sxxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-    // AV: copy by value (not by ref) as this seems faster in cuda for other functions
-    const fptype pvec0 = pIparIp4Ievt( momenta, ipar, 0, ievt );
-    const fptype pvec1 = pIparIp4Ievt( momenta, ipar, 1, ievt );
-    const fptype pvec2 = pIparIp4Ievt( momenta, ipar, 2, ievt );
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    const fptype_sv& pvec0 = kernelAccessConstMomenta( momenta, 0, ipar );
+    const fptype_sv& pvec1 = kernelAccessConstMomenta( momenta, 1, ipar );
+    const fptype_sv& pvec2 = kernelAccessConstMomenta( momenta, 2, ipar );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3, ipar );
 #else
-    //printf( "sxxxxx: ipagV=%d\n", ipagV );
-    const fptype_sv pvec0 = pIparIp4Ipag( momenta, ipar, 0, ipagV );
-    const fptype_sv pvec1 = pIparIp4Ipag( momenta, ipar, 1, ipagV );
-    const fptype_sv pvec2 = pIparIp4Ipag( momenta, ipar, 2, ipagV );
-    const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
+    const fptype_sv& pvec0 = kernelAccessConstMomenta( momenta, 0 );
+    const fptype_sv& pvec1 = kernelAccessConstMomenta( momenta, 1 );
+    const fptype_sv& pvec2 = kernelAccessConstMomenta( momenta, 2 );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3 );
 #endif
     sc[2] = cxmake( 1 + fptype_sv{0}, 0 );
     sc[0] = cxmake( pvec0 * (fptype)nss, pvec3 * (fptype)nss );
@@ -631,32 +452,28 @@ namespace MG5_sm
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   __device__
-  void oxxxxx( const fptype* momenta,
+  void oxxxxx( const fptype_sv* momenta,
                const fptype fmass,             // input: fermion mass
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fo[],
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv fo[]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar )
+               )
   {
     mgDebug( 0, __FUNCTION__ );
 #ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "oxxxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-    // AV: copying by value (not by ref) seems faster in cuda, in spite of more registers used
-    // AV: copying by value (not by ref) seems irrelevant, or slightly faster, in c++
-    const fptype pvec0 = pIparIp4Ievt( momenta, ipar, 0, ievt );
-    const fptype pvec1 = pIparIp4Ievt( momenta, ipar, 1, ievt );
-    const fptype pvec2 = pIparIp4Ievt( momenta, ipar, 2, ievt );
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    const fptype_sv& pvec0 = kernelAccessConstMomenta( momenta, 0, ipar );
+    const fptype_sv& pvec1 = kernelAccessConstMomenta( momenta, 1, ipar );
+    const fptype_sv& pvec2 = kernelAccessConstMomenta( momenta, 2, ipar );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3, ipar );
 #else
-    //printf( "oxxxxx: ipagV=%d\n", ipagV );
-    const fptype_sv pvec0 = pIparIp4Ipag( momenta, ipar, 0, ipagV );
-    const fptype_sv pvec1 = pIparIp4Ipag( momenta, ipar, 1, ipagV );
-    const fptype_sv pvec2 = pIparIp4Ipag( momenta, ipar, 2, ipagV );
-    const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
+    const fptype_sv& pvec0 = kernelAccessConstMomenta( momenta, 0 );
+    const fptype_sv& pvec1 = kernelAccessConstMomenta( momenta, 1 );
+    const fptype_sv& pvec2 = kernelAccessConstMomenta( momenta, 2 );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3 );
 #endif
     fo[0] = cxmake( pvec0 * (fptype)nsf, pvec3 * (fptype)nsf );
     fo[1] = cxmake( pvec1 * (fptype)nsf, pvec2 * (fptype)nsf );
@@ -764,25 +581,22 @@ namespace MG5_sm
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
   __device__
-  void opzxxx( const fptype* momenta,
+  void opzxxx( const fptype_sv* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fo[],
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv fo[]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar )
+               )
   {
     mgDebug( 0, __FUNCTION__ );
 #ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "opzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-    // AV: copying by value (not by ref) seems to give the same performance in both cuda and c++
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3, ipar );
 #else
-    //printf( "opzxxx: ipagV=%d\n", ipagV );
-    const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3 );
 #endif
     fo[0] = cxmake( pvec3 * (fptype)nsf, pvec3 * (fptype)nsf );
     fo[1] = cxzero_sv();
@@ -809,25 +623,22 @@ namespace MG5_sm
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
   __device__
-  void omzxxx( const fptype* momenta,
+  void omzxxx( const fptype_sv* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fo[],
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv fo[]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar )
+               )
   {
     mgDebug( 0, __FUNCTION__ );
 #ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-    //printf( "ipzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-    // AV: copy by value (not by ref) as this seems faster in cuda for other functions
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    //printf( "omzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3, ipar );
 #else
-    //printf( "ipzxxx: ipagV=%d\n", ipagV );
-    const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3 );
 #endif
     fo[0] = cxmake( -pvec3 * (fptype)nsf, pvec3 * (fptype)nsf ); // remember pvec0 == -pvec3
     fo[1] = cxzero_sv();
@@ -857,31 +668,28 @@ namespace MG5_sm
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
   __device__
-  void oxzxxx( const fptype* momenta,
+  void oxzxxx( const fptype_sv* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fo[],
-#ifndef __CUDACC__
-               const int ipagV,
+               cxtype_sv fo[]
+#ifdef __CUDACC__
+               , const int ipar                // input: particle# out of npar
 #endif
-               const int ipar )
+               )
   {
     mgDebug( 0, __FUNCTION__ );
 #ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "oxzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-    // AV: copying by value (not by ref) seems to give the same performance in both cuda and c++
-    const fptype pvec0 = pIparIp4Ievt( momenta, ipar, 0, ievt );
-    const fptype pvec1 = pIparIp4Ievt( momenta, ipar, 1, ievt );
-    const fptype pvec2 = pIparIp4Ievt( momenta, ipar, 2, ievt );
-    const fptype pvec3 = pIparIp4Ievt( momenta, ipar, 3, ievt );
+    const fptype_sv& pvec0 = kernelAccessConstMomenta( momenta, 0, ipar );
+    const fptype_sv& pvec1 = kernelAccessConstMomenta( momenta, 1, ipar );
+    const fptype_sv& pvec2 = kernelAccessConstMomenta( momenta, 2, ipar );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3, ipar );
 #else
-    //printf( "oxzxxx: ipagV=%d\n", ipagV );
-    const fptype_sv pvec0 = pIparIp4Ipag( momenta, ipar, 0, ipagV );
-    const fptype_sv pvec1 = pIparIp4Ipag( momenta, ipar, 1, ipagV );
-    const fptype_sv pvec2 = pIparIp4Ipag( momenta, ipar, 2, ipagV );
-    const fptype_sv pvec3 = pIparIp4Ipag( momenta, ipar, 3, ipagV );
+    const fptype_sv& pvec0 = kernelAccessConstMomenta( momenta, 0 );
+    const fptype_sv& pvec1 = kernelAccessConstMomenta( momenta, 1 );
+    const fptype_sv& pvec2 = kernelAccessConstMomenta( momenta, 2 );
+    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3 );
 #endif
     fo[0] = cxmake( pvec0 * (fptype)nsf, pvec3 * (fptype)nsf );
     fo[1] = cxmake( pvec1 * (fptype)nsf, pvec2 * (fptype)nsf );
@@ -910,18 +718,19 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
+  // Compute the output amplitude from the input wavefunctions F1[6], F2[6], V3[6]
   __device__
   void FFV1_0( const cxtype_sv F1[],
                const cxtype_sv F2[],
                const cxtype_sv V3[],
                const cxtype COUP,
-               cxtype_sv* vertex )
+               cxtype_sv* amplitudes )
   {
     mgDebug( 0, __FUNCTION__ );
+    cxtype_sv& vertex = kernelAccessAmplitudes( amplitudes );
     const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP0 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * ( V3[4] ) ) ) + ( F1[3] * ( F2[4] * ( V3[3]- cI * ( V3[4] ) ) + F2[5] * ( V3[2] - V3[5] ) ) + ( F1[4] * ( F2[2] * ( V3[2] - V3[5] ) - F2[3] * ( V3[3] + cI * ( V3[4] ) ) ) + F1[5] * ( F2[2] * ( -V3[3] + cI * ( V3[4] ) ) + F2[3] * ( V3[2] + V3[5] ) ) ) ) );
-    (*vertex) = COUP * - cI * TMP0;
+    vertex = COUP * - cI * TMP0;
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -953,18 +762,19 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
+  // Compute the output amplitude from the input wavefunctions F1[6], F2[6], V3[6]
   __device__
   void FFV2_0( const cxtype_sv F1[],
                const cxtype_sv F2[],
                const cxtype_sv V3[],
                const cxtype COUP,
-               cxtype_sv* vertex )
+               cxtype_sv* amplitudes )
   {
     mgDebug( 0, __FUNCTION__ );
+    cxtype_sv& vertex = kernelAccessAmplitudes( amplitudes );
     const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP1 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * ( V3[4] ) ) ) + F1[3] * ( F2[4] * ( V3[3]- cI * ( V3[4] ) ) + F2[5] * ( V3[2] - V3[5] ) ) );
-    (*vertex) = COUP * - cI * TMP1;
+    vertex = COUP * - cI * TMP1;
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -998,21 +808,22 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
+  // Compute the output amplitude from the input wavefunctions F1[6], F2[6], V3[6]
   __device__
   void FFV4_0( const cxtype_sv F1[],
                const cxtype_sv F2[],
                const cxtype_sv V3[],
                const cxtype COUP,
-               cxtype_sv* vertex )
+               cxtype_sv* amplitudes )
   {
     mgDebug( 0, __FUNCTION__ );
+    cxtype_sv& vertex = kernelAccessAmplitudes( amplitudes );
     const cxtype cI = cxmake( 0., 1. );
     constexpr fptype one( 1. );
     constexpr fptype two( 2. );
     const cxtype_sv TMP1 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * ( V3[4] ) ) ) + F1[3] * ( F2[4] * ( V3[3]- cI * ( V3[4] ) ) + F2[5] * ( V3[2] - V3[5] ) ) );
     const cxtype_sv TMP3 = ( F1[4] * ( F2[2] * ( V3[2] - V3[5] ) - F2[3] * ( V3[3] + cI * ( V3[4] ) ) ) + F1[5] * ( F2[2] * ( -V3[3] + cI * ( V3[4] ) ) + F2[3] * ( V3[2] + V3[5] ) ) );
-    (*vertex) = COUP * (- one) * ( +cI * ( TMP1 ) + two * cI * ( TMP3 ) );
+    vertex = COUP * (- one) * ( +cI * ( TMP1 ) + two * cI * ( TMP3 ) );
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -1049,22 +860,23 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
+  // Compute the output amplitude from the input wavefunctions F1[6], F2[6], V3[6]
   __device__
   void FFV2_4_0( const cxtype_sv F1[],
                  const cxtype_sv F2[],
                  const cxtype_sv V3[],
                  const cxtype COUP1,
                  const cxtype COUP2,
-                 cxtype_sv* vertex )
+                 cxtype_sv* amplitudes )
   {
     mgDebug( 0, __FUNCTION__ );
+    cxtype_sv& vertex = kernelAccessAmplitudes( amplitudes );
     const cxtype cI = cxmake( 0., 1. );
     constexpr fptype one( 1. );
     constexpr fptype two( 2. );
     const cxtype_sv TMP1 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * ( V3[4] ) ) ) + F1[3] * ( F2[4] * ( V3[3]- cI * ( V3[4] ) ) + F2[5] * ( V3[2] - V3[5] ) ) );
     const cxtype_sv TMP3 = ( F1[4] * ( F2[2] * ( V3[2] - V3[5] ) - F2[3] * ( V3[3] + cI * ( V3[4] ) ) ) + F1[5] * ( F2[2] * ( -V3[3] + cI * ( V3[4] ) ) + F2[3] * ( V3[2] + V3[5] ) ) );
-    (*vertex) = (- one) * ( COUP2 * ( +cI * ( TMP1 ) + two * cI * ( TMP3 ) ) + cI * ( TMP1 * COUP1 ) );
+    vertex = (- one) * ( COUP2 * ( +cI * ( TMP1 ) + two * cI * ( TMP3 ) ) + cI * ( TMP1 * COUP1 ) );
     mgDebug( 1, __FUNCTION__ );
     return;
   }
