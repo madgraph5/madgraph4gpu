@@ -178,41 +178,6 @@ namespace MG5_sm
   // *** PROTOTYPES OF NEW MEMORY ACCESS (START) ***
 
   // =============================================================================
-  // *** Generic pattern: indexingFunction( buffer, ievt, additional_indexes ) ***
-  // =============================================================================
-
-  // Memory addressing/indexing function (WITH an explicit event number) for the array/buffer that contains momenta
-  // Input: a memory buffer for an arbitrary number of events
-  // Output: the 4-momenta for one specific event, given its event number
-  // (Non-const memory access)
-  __device__ inline
-  fptype& indexingFunctionMomenta( fptype* buffer,
-                                   const int ievt,
-                                   const int ip4
-                                   , const int ipar // TEMPORARY? Move to SOAOSOA? (#309)
-                                   )
-  {
-    using mgOnGpu::np4;
-    using mgOnGpu::npar;
-    constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    const int ipagM = ievt/neppM; // #event "M-page"
-    const int ieppM = ievt%neppM; // #event in the current event M-page
-    //printf( "%2d %2d %8d %8.3f\n", ipar, 0, ievt, buffer[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
-    return buffer[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
-  }
-
-  // (Const memory access)
-  __device__ inline
-  const fptype& indexingFunctionConstMomenta( const fptype* buffer,
-                                              const int ievt,
-                                              const int ip4
-                                              , const int ipar
-                                             )
-  {
-    return indexingFunctionMomenta( const_cast<fptype*>( buffer ), ievt, ip4, ipar );
-  }
-
-  // =============================================================================
   // *** Generic pattern: kernelAccessFunction( buffer, additional_indexes ) ***
   // =============================================================================
 
