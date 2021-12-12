@@ -22,49 +22,6 @@ namespace MG5_sm
 {
   //--------------------------------------------------------------------------
 
-  // =============================================================================
-  // *** Generic pattern: kernelAccessFunction( buffer, additional_indexes ) ***
-  // =============================================================================
-
-  // Kernel access functionn (WITHOUT an explicit event number) for momenta
-  // Input: a memory buffer for an arbitrary number of events
-  // Output: the 4-momenta for one event or one SIMD vector of events
-  // (Non-const memory access)
-  __device__ inline
-  fptype_sv& kernelAccessMomenta( fptype_sv* buffer,
-                                  const int ip4
-#ifdef __CUDACC__
-                                  , const int ipar // TEMPORARY? Move to SOAOSOA? (#309)
-#endif
-                                  )
-  {
-#ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-    //printf( "kernelAccessMomenta: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-    return indexingFunctionMomenta( buffer, ievt, ip4, ipar ); // NB fptype and fptype_sv coincide for CUDA
-#else
-    return buffer[ip4];
-#endif
-  }
-
-  // Const memory access
-  __device__ inline
-  const fptype_sv& kernelAccessConstMomenta( const fptype_sv* buffer,
-                                             const int ip4
-#ifdef __CUDACC__
-                                             , const int ipar // TEMPORARY? Move to SOAOSOA? (#309)
-#endif
-                                             )
-  {
-#ifdef __CUDACC__
-    return kernelAccessMomenta( const_cast<fptype_sv*>( buffer ), ip4, ipar );
-#else
-    return kernelAccessMomenta( const_cast<fptype_sv*>( buffer ), ip4 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
   __device__
   void ixxxxx( const fptype_sv* allmomenta, // input[(npar=4)*(np4=4)*nevt]
                const fptype fmass,

@@ -1,10 +1,10 @@
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
-#include "HelAmps_sm.h"
-
 #include "CPPProcess.h"
+#include "HelAmps_sm.h"
 #include "Memory.h"
+#include "MemoryAccess.h"
 
 #include <array>
 #include <cassert>
