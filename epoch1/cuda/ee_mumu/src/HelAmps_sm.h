@@ -239,8 +239,8 @@ namespace MG5_sm
     {
       constexpr bool useReinterpretCastIfPossible = true; // DEFAULT
       //constexpr bool useReinterpretCastIfPossible = false; // FOR PERFORMANCE TESTS
-      constexpr bool skipAlignmentCheck = true; // DEFAULT (MAY SEGFAULT, NEEDS A SANITY CHECK ELSEWHERE!)
-      //constexpr bool skipAlignmentCheck = false; // SLOWER BUT SAFER [UNCOMMENT OUT TO TEST MISALIGNED ACCESS]
+      //constexpr bool skipAlignmentCheck = true; // FASTEST (MAY SEGFAULT, NEEDS A SANITY CHECK ELSEWHERE!)
+      constexpr bool skipAlignmentCheck = false; // NEW DEFAULT: A BIT SLOWER BUT SAFER [UNCOMMENT OUT TO TEST MISALIGNED ACCESS]
       if constexpr ( useReinterpretCastIfPossible && skipAlignmentCheck )
       {
         //static bool first=true; if( first ){ std::cout << "WARNING! skip alignment check" << std::endl; first=false; } // SLOWS DOWN...
@@ -251,7 +251,7 @@ namespace MG5_sm
       else if ( useReinterpretCastIfPossible && ( (size_t)(momenta1d) % mgOnGpu::cppAlign == 0 ) )
       {
         //static bool first=true; if( first ){ std::cout << "WARNING! alignment ok, use reinterpret cast" << std::endl; first=false; } // SLOWS DOWN...
-        // A tiny bit (1%) slower because of the alignment check (4.82E6 in eemumu 512y)
+        // A tiny bit (<1%) slower because of the alignment check (4.83E6 in eemumu 512y)
         // This explicitly checks alignment for momenta1d to avoid segmentation faults in reinterpret_cast
         return p4typevFromAlignedArray( p4IparIevt( momenta1d, ipar, ievt0 ) ); // use reinterpret_cast
       }
