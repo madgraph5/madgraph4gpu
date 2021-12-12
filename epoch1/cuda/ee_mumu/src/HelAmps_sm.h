@@ -239,12 +239,12 @@ namespace MG5_sm
     {
       constexpr bool useReinterpretCastIfPossible = true; // DEFAULT
       //constexpr bool useReinterpretCastIfPossible = false; // FOR PERFORMANCE TESTS
-      constexpr bool skipAlignmentCheck = true; // DEFAULT (MAY SEGFAULT, NEEDS A SANITY CHECK ELSEWHERE!)
-      //constexpr bool skipAlignmentCheck = false; // SLOWER BUT SAFER
+      //constexpr bool skipAlignmentCheck = true; // DEFAULT (MAY SEGFAULT, NEEDS A SANITY CHECK ELSEWHERE!)
+      constexpr bool skipAlignmentCheck = false; // SLOWER BUT SAFER [UNCOMMENT OUT TO TEST MISALIGNED ACCESS]
       if constexpr ( useReinterpretCastIfPossible && skipAlignmentCheck )
       {
         //static bool first=true; if( first ){ std::cout << "WARNING! skip alignment check" << std::endl; first=false; } // SLOWS DOWN...
-        // Fastest (4.92E6 in eemumu 512y)
+        // Fastest (4.85E6 in eemumu 512y - was 4.92E6 without kernelAccess functions)
         // This assumes alignment for momenta1d without checking - causes segmentation fault in reinterpret_cast if not aligned!
         return p4typevFromAlignedArray( p4IparIevt( momenta1d, ipar, ievt0 ) ); // use reinterpret_cast
       }
@@ -258,7 +258,7 @@ namespace MG5_sm
       else
       {
         //static bool first=true; if( first ){ std::cout << "WARNING! AOSOA but no reinterpret cast" << std::endl; first=false; } // SLOWS DOWN...
-        // A bit (2%) slower (4.86E6 in eemumu 512y)
+        // A bit (3%) slower (4.70E6 in eemumu 512y - was 4.86E6 without kernelAccess functions)
         // This does not require alignment for momenta1d, but it requires AOSOA with neppM>=neppV and neppM%neppV==0
         return p4typevFromUnalignedArray( p4IparIevt( momenta1d, ipar, ievt0 ) ); // do not use reinterpret_cast
       }
