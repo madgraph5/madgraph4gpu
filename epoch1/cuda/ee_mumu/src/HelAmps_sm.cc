@@ -181,7 +181,7 @@ namespace MG5_sm
   // Input: a memory buffer for an arbitrary number of events
   // Output: the 4-momenta for one event or one SIMD vector of events
   __device__ inline
-  fptype_sv& bufferAccessMomenta( fptype_sv* buffer,
+  fptype_sv& kernelAccessMomenta( fptype_sv* buffer,
                                   const int ip4
 #ifdef __CUDACC__
                                   , const int ipar // TEMPORARY? Move to SOAOSOA? (#309)
@@ -190,7 +190,7 @@ namespace MG5_sm
   {
 #ifdef __CUDACC__
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-    //printf( "bufferAccessMomenta: ievt=%d threadId=%d\n", ievt, threadIdx.x );
+    //printf( "kernelAccessMomenta: ievt=%d threadId=%d\n", ievt, threadIdx.x );
     using mgOnGpu::np4;
     using mgOnGpu::npar;
     constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
@@ -205,7 +205,7 @@ namespace MG5_sm
 
   // Const memory access
   __device__ inline
-  const fptype_sv& bufferAccessConstMomenta( const fptype_sv* buffer,
+  const fptype_sv& kernelAccessConstMomenta( const fptype_sv* buffer,
                                              const int ip4
 #ifdef __CUDACC__
                                              , const int ipar
@@ -213,9 +213,9 @@ namespace MG5_sm
                                              )
   {
 #ifdef __CUDACC__
-    return bufferAccessMomenta( const_cast<fptype_sv*>( buffer ), ip4, ipar );
+    return kernelAccessMomenta( const_cast<fptype_sv*>( buffer ), ip4, ipar );
 #else
-    return bufferAccessMomenta( const_cast<fptype_sv*>( buffer ), ip4 );
+    return kernelAccessMomenta( const_cast<fptype_sv*>( buffer ), ip4 );
 #endif
   }
 
@@ -421,9 +421,9 @@ namespace MG5_sm
     // +++ START EVENT LOOP (where necessary) +++
     {
 #ifdef __CUDACC__
-      const fptype_sv& pvec3 = bufferAccessConstMomenta( allmomenta, 3, ipar );
+      const fptype_sv& pvec3 = kernelAccessConstMomenta( allmomenta, 3, ipar );
 #else
-      const fptype_sv& pvec3 = bufferAccessConstMomenta( allmomenta, 3 );
+      const fptype_sv& pvec3 = kernelAccessConstMomenta( allmomenta, 3 );
 #endif
       fi[0] = cxmake( pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
       fi[1] = cxzero_sv();
