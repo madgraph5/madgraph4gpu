@@ -234,21 +234,21 @@ namespace MG5_sm
     const int ievt0 = ipagV*neppV; // virtual event V-page ipagV contains neppV events [ievt0...ievt0+neppV-1]
 #ifdef MGONGPU_CPPSIMD
     constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+    //constexpr bool useContiguousEventsIfPossible = true; // DEFAULT
+    constexpr bool useContiguousEventsIfPossible = false; // FOR PERFORMANCE TESTS (treat as arbitrary array even if it is an AOSOA)
     // Use c++17 "if constexpr": compile-time branching
-    if constexpr ( ( neppM >= neppV ) && ( neppM%neppV == 0 ) )
+    if constexpr ( useContiguousEventsIfPossible && ( neppM >= neppV ) && ( neppM%neppV == 0 ) )
     {
-      constexpr bool useReinterpretCastIfPossible = true; // DEFAULT
-      //constexpr bool useReinterpretCastIfPossible = false; // FOR PERFORMANCE TESTS
       //constexpr bool skipAlignmentCheck = true; // FASTEST (MAY SEGFAULT, NEEDS A SANITY CHECK ELSEWHERE!)
       constexpr bool skipAlignmentCheck = false; // NEW DEFAULT: A BIT SLOWER BUT SAFER [UNCOMMENT OUT TO TEST MISALIGNED ACCESS]
-      if constexpr ( useReinterpretCastIfPossible && skipAlignmentCheck )
+      if constexpr ( skipAlignmentCheck )
       {
         //static bool first=true; if( first ){ std::cout << "WARNING! skip alignment check" << std::endl; first=false; } // SLOWS DOWN...
         // Fastest (4.85E6 in eemumu 512y - was 4.93E6 without kernelAccess functions)
         // This assumes alignment for momenta1d without checking - causes segmentation fault in reinterpret_cast if not aligned!
         return p4typevFromAlignedArray( p4IparIevt( momenta1d, ipar, ievt0 ) ); // use reinterpret_cast
       }
-      else if ( useReinterpretCastIfPossible && ( (size_t)(momenta1d) % mgOnGpu::cppAlign == 0 ) )
+      else if ( (size_t)(momenta1d) % mgOnGpu::cppAlign == 0 )
       {
         //static bool first=true; if( first ){ std::cout << "WARNING! alignment ok, use reinterpret cast" << std::endl; first=false; } // SLOWS DOWN...
         // A tiny bit (<1%) slower because of the alignment check (4.83E6 in eemumu 512y)
@@ -265,7 +265,8 @@ namespace MG5_sm
     }
     else
     {
-      // Noticeably (7%) slower (4.53E6 in eemumu 512y)
+      static bool first=true; if( first ){ std::cout << "WARNING! arbitrary array" << std::endl; first=false; } // SLOWS DOWN...
+      // Much (7-12%) slower (4.30E6 for AOSOA, 4.53E6 for AOS in eemumu 512y)
       // This does not even require AOSOA with neppM>=neppV and neppM%neppV==0 (e.g. can be used with AOS neppM==1)
       auto p0decoderIeppv = [momenta1d, ipar, ievt0](int ieppV) -> const fptype& { return p4IparIevt( momenta1d, ipar, ievt0+ieppV ).p0; };
       auto p1decoderIeppv = [momenta1d, ipar, ievt0](int ieppV) -> const fptype& { return p4IparIevt( momenta1d, ipar, ievt0+ieppV ).p1; };
