@@ -151,8 +151,7 @@ namespace Proc
       //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w_sv[1], ipagV, 1 ); // tested ok (a bit slower)
       */
       const MG5_sm::p4type_sv p4vec = p4IparIpagV( allmomenta, 1, ipagV ); // ipar=1
-      const fptype_sv* pvec0p = &( p4vec.p0 ); // address of ip4=0 component
-      imzxxx( pvec0p, cHel[ihel][1], +1, w_sv[1] ); // NB: imzxxx only uses pz
+      imzxxx( p4vec, cHel[ihel][1], +1, w_sv[1] ); // NB: imzxxx only uses pz
 #endif
 
 #ifdef __CUDACC__

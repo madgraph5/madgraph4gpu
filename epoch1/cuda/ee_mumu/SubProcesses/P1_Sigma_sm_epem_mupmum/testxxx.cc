@@ -233,8 +233,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       {
         const int ipagM = ievt/neppM; // #eventpage in this iteration
         const MG5_sm::p4type_sv p4vec = p4IparIpagV( hstMomenta.get(), ipar, ipagM );
-        const fptype_sv* pvec0p = &( p4vec.p0 ); // address of ip4=0 component
-        imzxxx( pvec0p, nhel, nsp, outwf );
+        imzxxx( p4vec, nhel, nsp, outwf );
         testwf6two( outwf, outwfI, "imzxxx", ievt );
         testwf6( outwf, "imzxxx", ievt, nsp, 0 );
       }

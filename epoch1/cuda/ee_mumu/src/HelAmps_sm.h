@@ -60,6 +60,8 @@ namespace MG5_sm
 #ifndef MGONGPU_CPPSIMD
     __device__ p4type_sv( const p4type_ref ref ) : p0( ref.p0 ), p1( ref.p1 ), p2( ref.p2 ), p3( ref.p3 ){}
 #endif
+    operator const fptype_sv*() const{ return &p0; }
+    operator fptype_sv*(){ return &p0; }
   };
 
 #ifdef MGONGPU_CPPSIMD
