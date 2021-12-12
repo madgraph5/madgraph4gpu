@@ -1,6 +1,8 @@
 #include <algorithm>
-#include <iostream>
+#include <cstdlib>
+#include <filesystem>
 #include <fstream>
+#include <iostream>
 #include "read_slha.h"
 
 void SLHABlock::set_entry(std::vector<int> indices, double value)
@@ -26,11 +28,37 @@ double SLHABlock::get_entry(std::vector<int> indices, double def_val)
 void SLHAReader::read_slha_file(std::string file_name, bool verbose)
 {
   std::ifstream param_card;
-  param_card.open(file_name.c_str(), std::ifstream::in);
-  if(!param_card.good())
-    throw "Error while opening param card";
-  if(verbose)
-    std::cout << "Opened slha file " << file_name << " for reading" << std::endl;
+  param_card.open( file_name.c_str(), std::ifstream::in );
+  if( param_card.good() )
+  {
+    if(verbose) std::cout << "Opened slha file " << file_name << " for reading" << std::endl;
+  }
+  else
+  {
+    const char envpath[] = "MG5AMC_CARD_PATH";
+    if ( !getenv( envpath ) )
+    {
+      std::cout << "ERROR! Card file '" << file_name << "' does not exist"
+                << " and environment variable '" << envpath << "' is not set" << std::endl;
+      throw "Error while opening param card";
+    }
+    else
+    {
+      std::cout << "WARNING! Card file '" << file_name << "' does not exist:"
+                << " look for the file in directory $" << envpath << "='" << getenv( envpath ) << "'" << std::endl;
+      const std::string file_name2 = std::filesystem::path( getenv( envpath ) ) / std::filesystem::path( file_name ).filename();
+      param_card.open( file_name2.c_str(), std::ifstream::in );
+      if( param_card.good() )
+      {
+        std::cout << "Opened slha file " << file_name2 << " for reading" << std::endl;
+      }
+      else
+      {
+        std::cout << "ERROR! Card file '" << file_name2 << "' does not exist" << std::endl;
+        throw "Error while opening param card";
+      }
+    }
+  }
   char buf[200];
   std::string line;
   std::string block("");
