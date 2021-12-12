@@ -55,27 +55,6 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  /*
-  // Decode momentum AOSOA: compute address of fptype for the given particle, 4-momentum component and event
-  // Return the fptype by reference (equivalent to returning its memory address)
-  __device__
-  inline const fptype& pIparIp4Ievt( const fptype* momenta1d, // input: momenta as AOSOA[npagM][npar][4][neppM]
-                                     const int ipar,
-                                     const int ip4,
-                                     const int ievt )
-  {
-    using mgOnGpu::np4;
-    using mgOnGpu::npar;
-    constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    const int ipagM = ievt/neppM; // #event "M-page"
-    const int ieppM = ievt%neppM; // #event in the current event M-page
-    //printf( "%2d %2d %8d %8.3f\n", ipar, ip4, ievt, momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
-    return momenta1d[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
-  }
-  */
-
-  //--------------------------------------------------------------------------
-
 #ifndef __CUDACC__
   // Four-momentum references of one particle, for one event
   // All references point to the original buffer of momenta for all particles in all events
