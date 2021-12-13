@@ -51,7 +51,7 @@ template<typename T = fptype>
 struct CppHstDeleter {
   void operator()(T* mem) {
     ::operator delete( mem, std::align_val_t{ mgOnGpu::cppAlign } );
-    //::operator delete( mem-1, std::align_val_t{ mgOnGpu::cppAlign } ); // TEST MISALIGNMENT!
+    //::operator delete( mem-1, std::align_val_t{ mgOnGpu::cppAlign } ); // TEST MISALIGNED ACCESS!
   }
 };
 
@@ -59,7 +59,7 @@ template<typename T = fptype> inline
 std::unique_ptr<T[], CppHstDeleter<T>> hstMakeUnique(std::size_t N) {
   // See https://www.bfilipek.com/2019/08/newnew-align.html#requesting-different-alignment
   return std::unique_ptr<T[], CppHstDeleter<T>>{ new( std::align_val_t{ mgOnGpu::cppAlign } ) T[N]() };
-  //return std::unique_ptr<T[], CppHstDeleter<T>>{ new( std::align_val_t{ mgOnGpu::cppAlign } ) T[N+1]() + 1 }; // TEST MISALIGNMENT!
+  //return std::unique_ptr<T[], CppHstDeleter<T>>{ new( std::align_val_t{ mgOnGpu::cppAlign } ) T[N+1]() + 1 }; // TEST MISALIGNED ACCESS!
 };
 
 /*

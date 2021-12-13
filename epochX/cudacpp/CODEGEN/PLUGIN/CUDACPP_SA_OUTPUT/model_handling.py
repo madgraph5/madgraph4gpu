@@ -1200,8 +1200,12 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         split_line = [ str.lstrip(' ').rstrip(' ') for str in split_line] # AV
         # (AV join using ',': no need to add a space as this is done by format_call later on)
         line = ', '.join(split_line) # AV (for CUDA)
-        ###split_line.insert(-1, ' ievt')
-        split_line.insert(-1, 'ipagV') # AV (for C++)
+        # AV1: split_line logic is to have two different lines in CUDA and in C++ in xxx calls
+        ipar = int(split_line[-1].split(')')[0]) # AV (for C++)
+        split_line[-1] = split_line[-2] + ' )' + split_line[-1].split(')')[1] # AV (for C++)
+        split_line.pop(-2) # AV (for C++)
+        split_line[0] = split_line[0].replace( 'allmomenta', 'p4IparIpagV( allmomenta, %d, ipagV )'%ipar )
+        # AV2: line2 logic is to have MGONGPU_TEST_DIVERGENCE on the firxt xxx call
         if self.first_get_external and ( ( 'mzxxx' in line ) or ( 'pzxxx' in line ) or ( 'xzxxx' in line ) ) :
             self.first_get_external = False
             line2 = line.replace('mzxxx','xxxxx').replace('pzxxx','xxxxx').replace('xzxxx','xxxxx')
