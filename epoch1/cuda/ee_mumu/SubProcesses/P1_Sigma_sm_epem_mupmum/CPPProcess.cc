@@ -15,6 +15,7 @@
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 #include "HelAmps_sm.h"
+#include "MemoryAccess.h"
 
 #include "CPPProcess.h"
 
@@ -137,8 +138,8 @@ namespace Proc
         oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 ); // tested ok (much slower)
 #endif
 #else
-      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], ipagV, 0 );
-      //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], ipagV, 0 ); // tested ok (slower)
+      opzxxx( p4IparIpagV( allmomenta, 0, ipagV ), cHel[ihel][0], -1, w_sv[0] );
+      //oxxxxx( p4IparIpagV( allmomenta, 0, ipagV ), 0, cHel[ihel][0], -1, w_sv[0] ); // tested ok (slower)
 #endif
 
 #ifdef __CUDACC__
@@ -146,8 +147,8 @@ namespace Proc
       imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 );
       //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w_sv[1], 1 ); // tested ok (slower)
 #else
-      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], ipagV, 1 );
-      //ixxxxx( allmomenta, 0, cHel[ihel][1], +1, w_sv[1], ipagV, 1 ); // tested ok (a bit slower)
+      imzxxx( p4IparIpagV( allmomenta, 1, ipagV ), cHel[ihel][1], +1, w_sv[1] );
+      //ixxxxx( p4IparIpagV( allmomenta, 1, ipagV ), 0, cHel[ihel][1], +1, w_sv[1] ); // tested ok (a bit slower)
 #endif
 
 #ifdef __CUDACC__
@@ -155,8 +156,8 @@ namespace Proc
       ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 );
       //ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w_sv[2], 2 ); // tested ok (a bit slower)
 #else
-      ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], ipagV, 2 );
-      //ixxxxx( allmomenta, 0, cHel[ihel][2], -1, w_sv[2], ipagV, 2 ); // tested ok (a bit slower)
+      ixzxxx( p4IparIpagV( allmomenta, 2, ipagV ), cHel[ihel][2], -1, w_sv[2] );
+      //ixxxxx( p4IparIpagV( allmomenta, 2, ipagV ), 0, cHel[ihel][2], -1, w_sv[2] ); // tested ok (a bit slower)
 #endif
 
 #ifdef __CUDACC__
@@ -164,8 +165,8 @@ namespace Proc
       oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 );
       //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w_sv[3], 3 ); // tested ok (a bit slower)
 #else
-      oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], ipagV, 3 );
-      //oxxxxx( allmomenta, 0, cHel[ihel][3], +1, w_sv[3], ipagV, 3 ); // tested ok (a bit slower)
+      oxzxxx( p4IparIpagV( allmomenta, 3, ipagV ), cHel[ihel][3], +1, w_sv[3] );
+      //oxxxxx( p4IparIpagV( allmomenta, 3, ipagV ), 0, cHel[ihel][3], +1, w_sv[3] ); // tested ok (a bit slower)
 #endif
 
       // Local variables for the given CUDA event (ievt)
@@ -402,8 +403,8 @@ namespace Proc
                             bool* isGoodHel           // output: isGoodHel[ncomb] - device array
                             , const int nevt )        // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
-    assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment
-    assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment
+    //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
+    //assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
     const int maxtry0 = ( neppV > 16 ? neppV : 16 ); // 16, but at least neppV (otherwise the npagV loop does not even start)
     fptype allMEsLast[maxtry0] = { 0 };
     const int maxtry = std::min( maxtry0, nevt ); // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
@@ -487,8 +488,8 @@ namespace Proc
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "sigmakin: ievt %d\n", ievt );
 #else
-    assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment
-    assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment
+    //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
+    //assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
 #endif
 
     // PART 0 - INITIALISATION (before calculate_wavefunctions)
