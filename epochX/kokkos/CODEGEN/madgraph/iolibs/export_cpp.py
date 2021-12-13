@@ -1474,7 +1474,7 @@ class OneProcessExporterGPU(OneProcessExporterCPP):
         """Returns a nicely formatted string for the coefficients in JAMP lines"""
     
         total_coeff = ff_number * frac * fractions.Fraction(Nc_value) ** Nc_power
-        
+    
         if total_coeff == 1:
             if is_imaginary:
                 return '+complex_t<double>(0,1)*'

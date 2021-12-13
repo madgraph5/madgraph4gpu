@@ -39,9 +39,7 @@ int usage(char* argv0, int ret = 1) {
 int main(int argc, char **argv) {
   auto start = std::chrono::high_resolution_clock::now();
   bool verbose = false, debug = false, perf = false, json = false;
-  int numiter = 0, league_size = 1, team_size = 1;
-  std::vector<int> numvec;
-  std::vector<float> wavetimes;
+  int niter = 0, league_size = 1, team_size = 1;
   // int jsondate = 0;
 
   int jsonrun = 0;
@@ -95,6 +93,7 @@ int main(int argc, char **argv) {
   duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.;
   
   std::cout << "Kokkkos initialize: " << duration << " seconds\n";
+  auto kokkos_init_sec = duration;
 
   // bracket Kokkos Views so that deconstructors are called
   // before Kokkos::finalize()

@@ -1351,7 +1351,6 @@ class ALOHAWriterForCPP(WriteALOHA):
     #variable overwritten by gpu
     realoperator = '.real()'
     imagoperator = '.imag()'
-    # ci_definition = 'static std::complex<double> cI = std::complex<double>(0.,1.);\n'
     ci_definition = 'const complex_t<double> cI = complex_t<double>(0.,1.);\n'
     
     
@@ -1480,8 +1479,6 @@ class ALOHAWriterForCPP(WriteALOHA):
                      'id': self.outgoing}
             self.declaration.add(('list_complex', output))
         
-        
-        print('output: ', output, 'name: ',name, 'args: ', args)
         args = ['const ' + x for x in args]
         out.write('%(prefix)s void %(name)s(%(args)s,%(output)s)' % \
                   {'prefix': self.prefix,
@@ -2051,7 +2048,7 @@ class ALOHAWriterForGPU(ALOHAWriterForCPP):
                      'spin': self.particles[self.outgoing -1],
                      'id': self.outgoing}
             self.declaration.add(('list_complex', output))
-
+        
         out.write('%(prefix)s void %(name)s(const %(args)s, %(output)s)' % \
                   {'prefix': self.prefix,
                       'output':output, 'name': name, 'args': ', const '.join(args)})

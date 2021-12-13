@@ -218,10 +218,11 @@ class HelasCallWriter(base_objects.PhysicsObject):
     def get_matrix_element_calls(self, matrix_element):
         """Return a list of strings, corresponding to the Helas calls
         for the matrix element"""
+
         assert isinstance(matrix_element, helas_objects.HelasMatrixElement), \
                   "%s not valid argument for get_matrix_element_calls" % \
                   type(matrix_element)
-        
+
         # Do not reuse the wavefunctions for loop matrix elements
         if isinstance(matrix_element, loop_helas_objects.LoopHelasMatrixElement):
             return self.get_loop_matrix_element_calls(matrix_element)
@@ -257,6 +258,7 @@ class HelasCallWriter(base_objects.PhysicsObject):
     def get_amplitude_calls(self, matrix_element):
         """Return a list of strings, corresponding to the Helas calls
         for the matrix element"""
+        
         assert isinstance(matrix_element, helas_objects.HelasMatrixElement), \
                "%s not valid argument for get_matrix_element_calls" % \
                repr(matrix_element)            
@@ -1722,6 +1724,8 @@ class GPUFOHelasCallWriter(CPPUFOHelasCallWriter):
 
 
     findcoupling = re.compile('pars->([-]*[\d\w_]+)\s*,')
+    usepointerforvertex = True
+
     def format_coupling(self, call):
         """Format the coupling so any minus signs are put in front"""
 
@@ -1889,7 +1893,6 @@ class GPUFOHelasCallWriter(CPPUFOHelasCallWriter):
         if isinstance(argument, helas_objects.HelasWavefunction) and \
                not argument.get('mothers'):
             # String is just ixxxxx, oxxxxx, vxxxxx or sxxxxx
-            # call_function = lambda wf: self.get_external(wf, argument)
             call_function = lambda wf: self.get_external_line(wf, argument)
         else:
             if isinstance(argument, helas_objects.HelasWavefunction):
