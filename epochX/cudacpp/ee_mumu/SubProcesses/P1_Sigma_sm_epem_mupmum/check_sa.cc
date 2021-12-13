@@ -480,7 +480,11 @@ int main(int argc, char **argv)
     {
       const std::string ghelKey = "0d SGoodHel";
       timermap.start( ghelKey );
-      mekl.getGoodHel();
+#ifdef __CUDACC__
+      mekl.computeGoodHelFromDevMomenta();
+#else
+      mekl.computeGoodHelFromHstMomenta();
+#endif
     }
 
     // *** START THE OLD-STYLE TIMERS FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
@@ -491,10 +495,10 @@ int main(int argc, char **argv)
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
 #ifdef __CUDACC__
-    mekl.computeDevMEs();
+    mekl.computeDevMEsFromDevMomenta();
     checkCuda( cudaDeviceSynchronize() );
 #else
-    mekl.computeHstMEs();
+    mekl.computeHstMEsFromHstMomenta();
 #endif
 
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***

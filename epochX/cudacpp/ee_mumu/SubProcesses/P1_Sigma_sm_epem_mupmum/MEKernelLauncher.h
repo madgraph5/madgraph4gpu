@@ -1,4 +1,4 @@
-//==========================================================================
+//M==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 // MadGraph5_aMC@NLO v. 2.9.5, 2021-08-22
 // By the MadGraph5_aMC@NLO Development Team
@@ -40,61 +40,73 @@ namespace mg5amcCpu
     // Deallocates the input and output buffers
     ~MEKernelLauncher();
 
-#ifdef __CUDACC__
-    // Get the device buffer to set the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-    fptype* devMomenta() const { return m_devMomenta; }
+    // === MOMENTA ===
 
-    // Compute the output device MEs from the input device momenta
-    void computeDevMEs() const;
-
-    // Get the device buffer to read the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
-    const fptype* devMEs() const { return m_devMEs; }
-
-    // Copy the output host momenta from the calculated device momenta
-    // [NB this throws unless UseHstMomenta or UseBoth are specified]
-    void copyDevMomentaToHstMomenta() const;
-
-    // Get the host buffer to read the host copy of the input momenta
-    // [NB this is a nullptr unless UseHstMomenta or UseBoth are specified]
-    const fptype* hstMomenta() const { return m_hstMomenta; }
-
-    // Copy the output host MEs from the calculated device MEs
-    // [NB this throws unless UseHstMEs or UseBoth are specified]
-    void copyDevMEsToHstMEs() const;
-
-    // Get the host buffer to read the host copy of the output MEs
-    // [NB this is a nullptr unless UseHstMEs or UseBoth are specified]
-    const fptype* hstMEs() const { return m_hstMEs; }
-#else
-    // Get the host buffer to set the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+    // Get the host buffer[nevt*npar*4] for the input momenta (CPU or GPU)
+    // [NB on GPU, this is a nullptr unless UseHstMomenta or UseBoth are specified]
     fptype* hstMomenta() const { return m_hstMomenta; }
 
-    // Compute the output host MEs from the input host momenta
-    void computeHstMEs() const;
+#ifdef __CUDACC__
+    // Get the device buffer[nevt*npar*4] for the input momenta (GPU)
+    fptype* devMomenta() const { return m_devMomenta; }
 
-    // Get the host buffer to read the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
-    const fptype* hstMEs() const { return m_hstMEs; }
+    // Copy the input momenta from the device buffer to the host buffer (GPU)
+    // [NB on GPU, this throws unless UseHstMomenta or UseBoth are specified]
+    void copyDevMomentaToHstMomenta() const;
+
+    // Copy the input momenta from the host buffer to the device buffer (GPU)
+    // [NB on GPU, this throws unless UseHstMomenta or UseBoth are specified]
+    void copyHstMomentaToDevMomenta() const;
 #endif
 
-    // Get the host-allocated list of good helicities
-    // [NB compute them first if needed: this requires enough input momenta to have been set]
-    const bool* getGoodHel();
+    // === MATRIX ELEMENTS (final |M|^2 averaged over helicities) ===
+
+#ifndef __CUDACC__
+    // Compute the output host MEs from the input host momenta (CPU)
+    void computeHstMEsFromHstMomenta() const;
+#else
+    // Compute the output device MEs from the input device momenta (GPU)
+    void computeDevMEsFromDevMomenta() const;
+#endif
+
+    // Get the host buffer[nevt] for the output MEs
+    // [NB on GPU, this is a nullptr unless UseHstMomenta or UseBoth are specified]
+    const fptype* hstMEs() const { return m_hstMEs; }
+
+#ifdef __CUDACC__
+    // Get the device buffer[nevt] for the output MEs
+    const fptype* devMEs() const { return m_devMEs; }
+
+    // Copy the output MEs from the device buffer to the host buffer
+    // [NB this throws unless UseHstMEs or UseBoth are specified]
+    void copyDevMEsToHstMEs() const;
+#endif
+
+    // === HELICITIES ===
+
+#ifndef __CUDACC__
+    // Compute good helicities from the input host momenta (CPU)
+    void computeGoodHelFromHstMomenta();
+#else
+    // Compute good helicities from the input device momenta (GPU)
+    void computeGoodHelFromDevMomenta();
+#endif
+
+    // Get the host buffer[ncomb] for the helicity mask
+    const bool* hstIsGoodHel();
 
     /*
     // [NOT USED YET - MAY BE USEFUL FOR MULTI THREADING]
-    // Set the list of good helicities from user input (instead of computing them)
+    // Set the helicity mask from user input (instead of computing it)
     // [NB throws if good helicities have already been set or computed]
     void setGoodHel( const bool* isGoodHel );
     */
 
-    // Get the number of elements in the momenta array
+    // Get the number of elements in the momenta buffer
     int nMomenta() const { return np4 * npar * m_nevt; }
 
-    // Get the number of elements in the MEs array
+    // Get the number of elements in the MEs buffer
     int nMEs() const { return m_nevt; }
-
-    // Get the number of elements in the helicity mask array
-    int nIsGoodHel() const { return ncomb; }
 
   public:
 
@@ -120,9 +132,6 @@ namespace mg5amcCpu
 
   private:
 
-    // The number of events
-    const int m_nevt;
-
 #ifdef __CUDACC__
     // The number of gpu blocks
     const int m_ngpublocks;
@@ -131,30 +140,26 @@ namespace mg5amcCpu
     const int m_ngputhreads;
 #endif
 
+    // The number of events
+    const int m_nevt;
+
+    // The host buffer[nevt*npar*4] for the input momenta (CPU or GPU)
+    fptype* m_hstMomenta;
+
 #ifdef __CUDACC__
-    // The device buffer for the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+    // The device buffer[nevt*npar*4] for the input momenta (GPU)
     fptype* m_devMomenta;
-
-    // The device buffer for the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
-    fptype* m_devMEs;
-
-    // The device buffer for the helicity mask: ARRAY[ncomb]
-    bool* m_devIsGoodHel;
-
-    // The host buffer for the host copy of the input momenta
-    fptype* m_hstMomenta;
-
-    // The host buffer for the host copy of the output MEs
-    fptype* m_hstMEs;
-#else
-    // The host buffer for the input momenta: AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-    fptype* m_hstMomenta;
-
-    // The host buffer for the output MEs: ARRAY[nevt], final |M|^2 averaged over helicities
-    fptype* m_hstMEs;
 #endif
 
-    // The host buffer for the helicity mask: ARRAY[ncomb]
+    // The host buffer[nevt] for the input MEs (CPU or GPU)
+    fptype* m_hstMEs;
+
+#ifdef __CUDACC__
+    // The device buffer[nevt] for the input MEs (GPU)
+    fptype* m_devMEs;
+#endif
+
+    // The host buffer[ncomb] for the helicity mask
     bool* m_hstIsGoodHel;
 
   };
