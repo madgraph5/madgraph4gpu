@@ -7,6 +7,8 @@
 #include <iomanip>
 #include "Parameters_%(model_name)s.h"
 
+#ifndef MGONGPU_HARDCODE_CIPC
+
 // Initialize static instance
 Parameters_%(model_name)s* Parameters_%(model_name)s::instance = 0;
 
@@ -42,6 +44,8 @@ void Parameters_%(model_name)s::setDependentCouplings()
 {
   %(set_dependent_couplings)s
 }
+
+#endif
 
 // Routines for printing out parameters
 void Parameters_%(model_name)s::printIndependentParameters()

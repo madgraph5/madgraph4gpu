@@ -786,6 +786,13 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         param_str = "    const fptype tIPD[%s] = { (fptype)m_pars->%s };"\
             %(len(self.params2order), ', (fptype)m_pars->'.join(params)) # AV
         replace_dict['assign_coupling'] = coup_str + param_str
+        coup_str_hrd = "__device__ const fptype cIPC[%s] = {\n" % (len(self.couplings2order)*2)
+        for coup in coupling : coup_str_hrd += "    Parameters_sm::%s.real(), Parameters_sm::%s.imag(),\n" % ( coup, coup )
+        coup_str_hrd = coup_str_hrd[:-2] + " };\n"
+        param_str_hrd = "  __device__ const fptype cIPD[%s] = {\n" % len(self.params2order)
+        for para in params : param_str_hrd += "    Parameters_sm::%s,\n" % para
+        param_str_hrd = param_str_hrd[:-2] + " };"
+        replace_dict['assign_hardcoded_coupling'] = coup_str_hrd + param_str_hrd
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "tHel")
         file = self.read_template_file(self.process_definition_template) % replace_dict
@@ -1193,8 +1200,12 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         split_line = [ str.lstrip(' ').rstrip(' ') for str in split_line] # AV
         # (AV join using ',': no need to add a space as this is done by format_call later on)
         line = ', '.join(split_line) # AV (for CUDA)
-        ###split_line.insert(-1, ' ievt')
-        split_line.insert(-1, 'ipagV') # AV (for C++)
+        # AV1: split_line logic is to have two different lines in CUDA and in C++ in xxx calls
+        ipar = int(split_line[-1].split(')')[0]) # AV (for C++)
+        split_line[-1] = split_line[-2] + ' )' + split_line[-1].split(')')[1] # AV (for C++)
+        split_line.pop(-2) # AV (for C++)
+        split_line[0] = split_line[0].replace( 'allmomenta', 'p4IparIpagV( allmomenta, %d, ipagV )'%ipar )
+        # AV2: line2 logic is to have MGONGPU_TEST_DIVERGENCE on the firxt xxx call
         if self.first_get_external and ( ( 'mzxxx' in line ) or ( 'pzxxx' in line ) or ( 'xzxxx' in line ) ) :
             self.first_get_external = False
             line2 = line.replace('mzxxx','xxxxx').replace('pzxxx','xxxxx').replace('xzxxx','xxxxx')
