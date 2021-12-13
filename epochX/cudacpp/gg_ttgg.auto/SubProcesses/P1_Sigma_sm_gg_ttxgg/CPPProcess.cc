@@ -15,6 +15,7 @@
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 #include "HelAmps_sm.h"
+#include "MemoryAccess.h"
 
 #include "CPPProcess.h"
 
@@ -43,14 +44,22 @@ namespace Proc
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
-  //constexpr fptype cIPC[6] = { ... };
-  //constexpr fptype cIPD[2] = { ... };
+#ifdef MGONGPU_HARDCODE_CIPC
+  __device__ const fptype cIPC[6] = {
+    Parameters_sm::GC_10.real(), Parameters_sm::GC_10.imag(),
+    Parameters_sm::GC_11.real(), Parameters_sm::GC_11.imag(),
+    Parameters_sm::GC_12.real(), Parameters_sm::GC_12.imag() };
+  __device__ const fptype cIPD[2] = {
+    Parameters_sm::mdl_MT,
+    Parameters_sm::mdl_WT };
+#else
 #ifdef __CUDACC__
   __device__ __constant__ fptype cIPC[6];
   __device__ __constant__ fptype cIPD[2];
 #else
   static fptype cIPC[6];
   static fptype cIPD[2];
+#endif
 #endif
 
   // Helicity combinations (and filtering of "good" helicity combinations)
@@ -127,37 +136,37 @@ namespace Proc
 #ifdef __CUDACC__
       vxxxxx(allmomenta, 0., cHel[ihel][0], -1, w_sv[0], 0);
 #else
-      vxxxxx(allmomenta, 0., cHel[ihel][0], -1, w_sv[0], ipagV, 0);
+      vxxxxx(p4IparIpagV( allmomenta, 0, ipagV ), 0., cHel[ihel][0], -1, w_sv[0] );
 #endif
 
 #ifdef __CUDACC__
       vxxxxx(allmomenta, 0., cHel[ihel][1], -1, w_sv[1], 1);
 #else
-      vxxxxx(allmomenta, 0., cHel[ihel][1], -1, w_sv[1], ipagV, 1);
+      vxxxxx(p4IparIpagV( allmomenta, 1, ipagV ), 0., cHel[ihel][1], -1, w_sv[1] );
 #endif
 
 #ifdef __CUDACC__
       oxxxxx(allmomenta, cIPD[0], cHel[ihel][2], +1, w_sv[2], 2);
 #else
-      oxxxxx(allmomenta, cIPD[0], cHel[ihel][2], +1, w_sv[2], ipagV, 2);
+      oxxxxx(p4IparIpagV( allmomenta, 2, ipagV ), cIPD[0], cHel[ihel][2], +1, w_sv[2] );
 #endif
 
 #ifdef __CUDACC__
       ixxxxx(allmomenta, cIPD[0], cHel[ihel][3], -1, w_sv[3], 3);
 #else
-      ixxxxx(allmomenta, cIPD[0], cHel[ihel][3], -1, w_sv[3], ipagV, 3);
+      ixxxxx(p4IparIpagV( allmomenta, 3, ipagV ), cIPD[0], cHel[ihel][3], -1, w_sv[3] );
 #endif
 
 #ifdef __CUDACC__
       vxxxxx(allmomenta, 0., cHel[ihel][4], +1, w_sv[4], 4);
 #else
-      vxxxxx(allmomenta, 0., cHel[ihel][4], +1, w_sv[4], ipagV, 4);
+      vxxxxx(p4IparIpagV( allmomenta, 4, ipagV ), 0., cHel[ihel][4], +1, w_sv[4] );
 #endif
 
 #ifdef __CUDACC__
       vxxxxx(allmomenta, 0., cHel[ihel][5], +1, w_sv[5], 5);
 #else
-      vxxxxx(allmomenta, 0., cHel[ihel][5], +1, w_sv[5], ipagV, 5);
+      vxxxxx(p4IparIpagV( allmomenta, 5, ipagV ), 0., cHel[ihel][5], +1, w_sv[5] );
 #endif
 
       VVV1P0_1( w_sv[0], w_sv[1], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[6] );
@@ -1957,7 +1966,9 @@ namespace Proc
     , m_ngputhreads( ngputhreads )
     , m_verbose( verbose )
     , m_debug( debug )
+#ifndef MGONGPU_HARDCODE_CIPC
     , m_pars( 0 )
+#endif
     , m_masses()
   {
     // Helicities for the process [NB do keep 'static' for this constexpr array, see issue #283]
@@ -2048,7 +2059,8 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  // Initialize process
+#ifndef MGONGPU_HARDCODE_CIPC
+  // Initialize process (with parameters read from user cards)
   void CPPProcess::initProc( const std::string& param_card_name )
   {
     // Instantiate the model class and set parameters that stay fixed during run
@@ -2056,14 +2068,15 @@ namespace Proc
     SLHAReader slha( param_card_name, m_verbose );
     m_pars->setIndependentParameters( slha );
     m_pars->setIndependentCouplings();
+    m_pars->setDependentParameters();
+    m_pars->setDependentCouplings();
     if ( m_verbose )
     {
       m_pars->printIndependentParameters();
       m_pars->printIndependentCouplings();
+      m_pars->printDependentParameters();
+      m_pars->printDependentCouplings();
     }
-    m_pars->setDependentParameters();
-    m_pars->setDependentCouplings();
-
     // Set external particle masses for this matrix element
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
@@ -2071,7 +2084,6 @@ namespace Proc
     m_masses.push_back( m_pars->mdl_MT );
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
-
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     const cxtype tIPC[3] = { cxmake( m_pars->GC_10 ), cxmake( m_pars->GC_11 ), cxmake( m_pars->GC_12 ) };
@@ -2083,13 +2095,28 @@ namespace Proc
     memcpy( cIPC, tIPC, 3 * sizeof(cxtype) );
     memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
 #endif
-
-    //std::cout << std::setprecision(17) << "tIPC[0] = " << tIPC[0] << std::endl;
-    //std::cout << std::setprecision(17) << "tIPC[1] = " << tIPC[1] << std::endl;
-    //std::cout << std::setprecision(17) << "tIPC[2] = " << tIPC[2] << std::endl;
-    //std::cout << std::setprecision(17) << "tIPD[0] = " << tIPD[0] << std::endl;
-    //std::cout << std::setprecision(17) << "tIPD[1] = " << tIPD[1] << std::endl;
+    //for ( i=0; i<3; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;
+    //for ( i=0; i<2; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
   }
+#else
+  // Initialize process (with hardcoded parameters)
+  void CPPProcess::initProc( const std::string& /*param_card_name*/ )
+  {
+    // Use hardcoded physics parameters
+    if ( m_verbose )
+    {
+      Parameters_sm::printIndependentParameters();
+      Parameters_sm::printIndependentCouplings();
+      Parameters_sm::printDependentParameters();
+      Parameters_sm::printDependentCouplings();
+    }
+    // Set external particle masses for this matrix element
+    m_masses.push_back( Parameters_sm::ZERO );
+    m_masses.push_back( Parameters_sm::ZERO );
+    m_masses.push_back( Parameters_sm::ZERO );
+    m_masses.push_back( Parameters_sm::ZERO );
+  }
+#endif
 
   //--------------------------------------------------------------------------
 
@@ -2175,8 +2202,8 @@ namespace Proc
                             bool* isGoodHel           // output: isGoodHel[ncomb] - device array
                             , const int nevt )        // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
-    assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment
-    assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment
+    //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
+    //assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
     const int maxtry0 = ( neppV > 16 ? neppV : 16 ); // 16, but at least neppV (otherwise the npagV loop does not even start)
     fptype allMEsLast[maxtry0] = { 0 };
     const int maxtry = std::min( maxtry0, nevt ); // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
@@ -2257,8 +2284,8 @@ namespace Proc
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "sigmakin: ievt %d\n", ievt );
 #else
-    assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment
-    assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment
+    //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
+    //assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
 #endif
 
     // Start sigmaKin_lines

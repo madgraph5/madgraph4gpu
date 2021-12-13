@@ -54,7 +54,9 @@
     bool m_debug;
 
     // Physics model parameters to be read from file (initProc function)
+#ifndef MGONGPU_HARDCODE_CIPC
     Parameters_sm* m_pars;
+#endif
     std::vector<fptype> m_masses; // external particle masses
 
     // Other variables of this instance (???)

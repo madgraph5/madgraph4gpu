@@ -5,6 +5,11 @@ CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
+# install target
+INSTALL_HEADERS=CPPProcess.h Memory.h
+INSTALL_INC_DIR=../../include
+INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o
+
 # Note: AR and CXX are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
@@ -65,6 +70,11 @@ ifeq ($(HELINL),)
   override HELINL = 0
 endif
 
+# Set the default HRDCOD (hardcode cIPC and cIPD physics parameters?) choice
+ifeq ($(HRDCOD),)
+  override HRDCOD = 0
+endif
+
 # Set the default RNDGEN (random number generator) choice
 ifeq ($(RNDGEN),)
   override RNDGEN = curdev
@@ -109,7 +119,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
-  NVCC       := 
+  NVCC       :=
   USE_NVTX   :=
   CULIBFLAGS :=
   override RNDGEN = common
@@ -184,6 +194,15 @@ else ifneq ($(HELINL),0)
   $(error Unknown HELINL='$(HELINL)': only '0' and '1' are supported)
 endif
 
+# Set the build flags appropriate to each HRDCOD choice (example: "make HRDCOD=1")
+$(info HRDCOD=$(HRDCOD))
+ifeq ($(HRDCOD),1)
+  CXXFLAGS += -DMGONGPU_HARDCODE_CIPC
+  CUFLAGS  += -DMGONGPU_HARDCODE_CIPC
+else ifneq ($(HRDCOD),0)
+  $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
+endif
+
 # Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=common")
 $(info RNDGEN=$(RNDGEN))
 ifeq ($(RNDGEN),curdev)
@@ -199,20 +218,21 @@ else
   $(error Unknown RNDGEN='$(RNDGEN)': only 'curdev', 'curhst' and 'common' are supported)
 endif
 
-# Export AVX, FPTYPE, HELINL, RNDGEN, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
+# Export AVX, FPTYPE, HELINL, HRDCOD, RNDGEN, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
 export AVX
 export FPTYPE
 export HELINL
+export HRDCOD
 export RNDGEN
 export OMPFLAGS
 
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
-override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)
+override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_$(RNDGEN)
+override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
@@ -246,18 +266,30 @@ cxx_objects=$(BUILDDIR)/CPPProcess.o
 
 testmain=$(BUILDDIR)/runTest.exe
 
-all.$(TAG): ../../src/$(BUILDDIR)/.build.$(TAG) $(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) ../../src/$(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
 
-override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)'`
+install: all.$(TAG) $(INSTALL_INC_DIR) $(addprefix $(INSTALL_INC_DIR)/, $(INSTALL_HEADERS)) $(addprefix $(LIBDIR)/, $(INSTALL_OBJECTS))
+
+override oldtagsb=`if [ -d $(BUILDDIR) ]; then find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
 $(BUILDDIR)/.build.$(TAG):
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
+	@if [ "$(oldtagsb)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtagsb)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
 	@touch $(BUILDDIR)/.build.$(TAG)
 
 debug: OPTFLAGS   = -g -O0 -DDEBUG2
 debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
+
+$(INSTALL_INC_DIR) :
+	$(MAKE) -C ../../src install
+
+$(INSTALL_INC_DIR)/%%.h : %%.h
+	@if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
+	cp $< $@
+
+$(LIBDIR)/%%.o : $(BUILDDIR)/%%.o
+	cp $< $@
 
 ../../src/$(BUILDDIR)/.build.$(TAG):
 	$(MAKE) -C ../../src $(MAKEDEBUG)
@@ -269,8 +301,8 @@ $(BUILDDIR)/gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h # ../../src/*.cu
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
-$(BUILDDIR)/CPPProcess.o : ../../src/HelAmps_sm.cc
-$(BUILDDIR)/gCPPProcess.o : ../../src/HelAmps_sm.cc
+$(BUILDDIR)/CPPProcess.o : ../../src/HelAmps_%(model)s.cc
+$(BUILDDIR)/gCPPProcess.o : ../../src/HelAmps_%(model)s.cc
 
 $(BUILDDIR)/%%.o : %%.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
@@ -314,7 +346,7 @@ $(testmain): cxx_objects += $(BUILDDIR)/testxxx.o # Comment out this line to ski
 
 ifeq ($(NVCC),)
 # Link only runTest.o
-$(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS) 
+$(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
 # Link both runTest.o and runTest_cu.o
@@ -353,6 +385,19 @@ avx512z:
 # Split the avxall target into five separate targets to allow parallel "make -j" builds
 avxall: avxnone avxsse4 avxavx2 avx512y avx512z
 
+# Do not make this dependent on avxall and do not implement -j (do 'make avxall -j; make avxall-install' instead)
+avxall-install:
+	@echo
+	make USEBUILDDIR=1 AVX=none install
+	@echo
+	make USEBUILDDIR=1 AVX=sse4 install
+	@echo
+	make USEBUILDDIR=1 AVX=avx2 install
+	@echo
+	make USEBUILDDIR=1 AVX=512y install
+	@echo
+	make USEBUILDDIR=1 AVX=512z install
+
 .PHONY: clean
 
 clean:
@@ -368,7 +413,7 @@ cleanall:
 	make clean
 	@echo
 	make -C ../../src cleanall
-	rm -rf build.*	
+	rm -rf build.*
 
 distclean: cleanall
 	make -C $(TOOLSDIR) clean

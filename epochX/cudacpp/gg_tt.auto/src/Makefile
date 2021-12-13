@@ -5,6 +5,10 @@ CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
+# install target
+INSTALL_HEADERS=Parameters_sm.h mgOnGpuConfig.h mgOnGpuTypes.h mgOnGpuVectors.h read_slha.h
+INSTALL_INC_DIR=../include
+
 # Note: AR and CXX are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 RANLIB = ranlib
@@ -29,7 +33,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   #$(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
-  NVCC := 
+  NVCC :=
 endif
 
 # Set the host compiler for nvcc
@@ -103,6 +107,15 @@ else ifneq ($(HELINL),0)
   $(error Unknown HELINL='$(HELINL)': only '0' and '1' are supported)
 endif
 
+# Set the build flags appropriate to each HRDCOD choice (example: "make HRDCOD=1")
+###$(info HRDCOD=$(HRDCOD))
+ifeq ($(HRDCOD),1)
+  CXXFLAGS += -DMGONGPU_HARDCODE_CIPC
+  #CUFLAGS  += -DMGONGPU_HARDCODE_CIPC
+else ifneq ($(HRDCOD),0)
+  $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
+endif
+
 # Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=common")
 ###$(info RNDGEN=$(RNDGEN))
 ifeq ($(RNDGEN),curdev)
@@ -120,11 +133,11 @@ endif
 
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
-override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)
+override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_$(RNDGEN)
+override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
@@ -156,18 +169,33 @@ target=$(LIBDIR)/libmodel_sm.a
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o rambo.o)
 cu_objects=
 
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(target)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(target)
 
-override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)'`
-$(BUILDDIR)/.build.$(TAG):
+install: all.$(TAG) $(INSTALL_INC_DIR) $(addprefix $(INSTALL_INC_DIR)/, $(INSTALL_HEADERS))
+
+$(BUILDDIR)/.build.$(TAG): $(LIBDIR)/.build.$(TAG)
+
+override oldtagsb=`if [ -d $(BUILDDIR) ]; then find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
+override oldtagsl=`if [ -d $(LIBDIR) ]; then find $(LIBDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
+$(LIBDIR)/.build.$(TAG):
+	@if [ "$(oldtagsl)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist in $(LIBDIR) for other tags:\n$(oldtagsl)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
+	@if [ "$(oldtagsb)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist in $(BUILDDIR) for other tags:\n$(oldtagsb)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
+	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
+	@touch $(LIBDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
 	@touch $(BUILDDIR)/.build.$(TAG)
 
 debug: OPTFLAGS = -g -O0 -DDEBUG2
 #debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
 #debug: CUFLAGS += -G
 debug: $(target)
+
+$(INSTALL_INC_DIR) :
+	if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
+
+$(INSTALL_INC_DIR)/%.h : %.h
+	@if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
+	cp $< $@
 
 # NB: cuda includes are needed in the C++ code for curand.h
 $(BUILDDIR)/%.o : %.cc *.h
@@ -192,6 +220,7 @@ ifneq ($(BUILDDIR),.)
 else
 	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 endif
+	if [ -d $(INSTALL_INC_DIR) ]; then rm -rf $(INSTALL_INC_DIR); fi
 
 cleanall:
 	@echo
