@@ -595,7 +595,6 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
 
   // Amplitude(s) for diagram number 1
   VVVV1_0(w[6], w[7], w[4], w[5], cIPC(2),&amp);
-  printf("amp = %e,%e\n",amp.real(),amp.imag());
   auto a = +const_complex * amp;
   auto b = -a;
   jamp[0] += a;
