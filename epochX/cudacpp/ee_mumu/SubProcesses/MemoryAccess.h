@@ -322,18 +322,6 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  // Kernel access function (WITHOUT an explicit event number) for amplitudes
-  // Input: a memory buffer for an arbitrary number of events
-  // Output: the amplitude for one event or one SIMD vector of events
-  // (Non-const memory access)
-  __device__ inline
-  cxtype_sv& kernelAccessAmplitudes( cxtype_sv* buffer )
-  {
-    return *buffer;
-  }
-
-  //--------------------------------------------------------------------------
-
 }
 
 #endif // MemoryAccess_H
