@@ -11,10 +11,6 @@
 #include <iostream>
 #include <memory>
 
-// those should become fortran parameters passed in here
-const int gpublocks = 1;   // 1024;
-const int gputhreads = 16; // 256;
-
 // Forward declare transposition kernel
 #ifdef __CUDACC__
 
@@ -79,6 +75,11 @@ private:
   int m_strd;                ///< stride length of the AOSOA structure
   int m_ncomb;               ///< number of good helicities
   bool m_goodHelsCalculated; ///< have the good helicities been calculated?
+
+  // those should become fortran parameters passed in here
+  static const int s_gpublocks = 1;   // 1024;
+  static const int s_gputhreads = 16; // 256;
+  
 };
 
 // *****************************************************************************
@@ -92,9 +93,9 @@ Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int ncomb)
     : m_evt(evnt), m_part(part), m_mome(mome), m_strd(strd), m_ncomb(ncomb),
       m_goodHelsCalculated(false) {
 #ifdef __CUDACC__
-  gProc::CPPProcess process(1, gpublocks, gputhreads, false);
+  gProc::CPPProcess process(1, s_gpublocks, s_gputhreads, false);
 #else
-  Proc::CPPProcess process(1, gpublocks, gputhreads, false);
+  Proc::CPPProcess process(1, s_gpublocks, s_gputhreads, false);
 #endif // __CUDACC__
   process.initProc("../../Cards/param_card.dat");
 }
@@ -113,11 +114,11 @@ template <typename T> void Bridge<T>::gpu_sequence(T *momenta, double *mes) {
                        m_evt * m_part * m_mome * sizeof(T),
                        cudaMemcpyHostToDevice));
 
-  dev_transpose<<<gpublocks * 16, gputhreads>>>(
+  dev_transpose<<<s_gpublocks * 16, s_gputhreads>>>(
       devMomentaF2.get(), devMomentaC2.get(), m_evt, m_part, m_mome, m_strd);
 
   if (!m_goodHelsCalculated) {
-    gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(
+    gProc::sigmaKin_getGoodHel<<<s_gpublocks, s_gputhreads>>>(
         devMomentaC2.get(), devMEs2.get(), devIsGoodHel2.get());
 
     checkCuda(cudaMemcpy(hstIsGoodHel2.get(), devIsGoodHel2.get(),
@@ -128,7 +129,7 @@ template <typename T> void Bridge<T>::gpu_sequence(T *momenta, double *mes) {
     m_goodHelsCalculated = true;
   }
 
-  gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomentaC2.get(), devMEs2.get());
+  gProc::sigmaKin<<<s_gpublocks, s_gputhreads>>>(devMomentaC2.get(), devMEs2.get());
 
   //
   //
