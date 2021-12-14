@@ -20,11 +20,11 @@ __global__ void dev_transpose(const T *in, T *out, const int evt,
 #else
 
 template <typename T>
-void hst_transpose(const T *in, fptype_sv *out, const int evt, const int part,
+void hst_transpose(const T *in, fptype *out, const int evt, const int part,
                    const int mome, const int strd);
 
 template <typename T>
-void hst_transpose2(const fptype_sv *in, T *out, const int evt);
+void hst_transpose2(const fptype *in, T *out, const int evt);
 
 #endif // __CUDACC__
 
@@ -197,9 +197,9 @@ template <typename T> void Bridge<T>::gpu_sequence(T *momenta, double *mes) {
 
 template <typename T> void Bridge<T>::cpu_sequence(T *momenta, double *mes) {
 
-  auto hstMomenta = hstMakeUnique<fptype_sv>(m_evt * m_part * m_mome);
+  auto hstMomenta = hstMakeUnique<fptype>(m_evt * m_part * m_mome);
   auto hstIsGoodHel = hstMakeUnique<bool>(m_ncomb);
-  auto hstMEs = hstMakeUnique<fptype_sv>(m_evt);
+  auto hstMEs = hstMakeUnique<fptype>(m_evt);
 
   hst_transpose(momenta, hstMomenta.get(), m_evt, m_part, m_mome, m_strd);
 
@@ -281,7 +281,7 @@ __global__ void dev_transpose(const T *in, T *out, const int evt,
 #else
 
 template <typename T>
-void hst_transpose(const T *in, fptype_sv *out, const int evt, const int part,
+void hst_transpose(const T *in, fptype *out, const int evt, const int part,
                    const int mome, const int strd) {
 
   int arrlen = evt * part * mome;
@@ -300,16 +300,19 @@ void hst_transpose(const T *in, fptype_sv *out, const int evt, const int part,
                 + part_i * mome          // particle inside event
                 + mome_i;                // momentum inside particle
 
-    out[pos / 4][pos % 4] = in[inpos];
+    //out[pos / 4][pos % 4] = in[inpos]; // AV this was a version for fptype_v* with neppV=4
+    out[pos] = in[inpos]; // AV this is a version for fptype*
   }
 }
 
 template <typename T>
-void hst_transpose2(const fptype_sv *in, T *out, const int evt) {
+void hst_transpose2(const fptype *in, T *out, const int evt) {
   std::cout << "transpose: ";
   for (int pos = 0; pos < evt; ++pos) {
-    std::cout << in[pos / 4][pos % 4] << ", ";
-    out[pos] = in[pos / 4][pos % 4];
+    //std::cout << in[pos / 4][pos % 4] << ", "; // AV this was a version for fptype_v* with neppV=4
+    //out[pos] = in[pos / 4][pos % 4]; // AV this was a version for fptype_v* with neppV=4
+    std::cout << in[pos] << ", "; // AV this is a version for fptype*
+    out[pos] = in[pos]; // AV this is a version for fptype* - DO NOTHING! this can be removed (no need to transpose MEs)
   }
   std::cout << std::endl;
 }
