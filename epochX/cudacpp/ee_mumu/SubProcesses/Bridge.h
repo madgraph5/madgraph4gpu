@@ -15,16 +15,16 @@
 #ifdef __CUDACC__
 
 template <typename T>
-__global__ void dev_transpose(const T *in, T *out, const int evt,
-                              const int part, const int mome, const int strd);
+__global__ 
+void dev_transposeMomenta(const T *in, T *out, const int evt, const int part, const int mome, const int strd);
+
 #else
 
 template <typename T>
-void hst_transpose(const T *in, fptype *out, const int evt, const int part,
-                   const int mome, const int strd);
+void hst_transposeMomenta(const T *in, fptype *out, const int evt, const int part, const int mome, const int strd);
 
 template <typename T>
-void hst_transpose2(const fptype *in, T *out, const int evt);
+void hst_transposeMEs(const fptype *in, T *out, const int evt);
 
 #endif // __CUDACC__
 
@@ -39,7 +39,8 @@ void hst_transpose2(const fptype *in, T *out, const int evt);
  *   DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE)
  * where the dimensions are <# momenta>, <# of particles>, <# events>
  */
-template <typename T> class Bridge {
+template <typename T>
+class Bridge {
 public:
   /**
    * class constructor
@@ -102,7 +103,8 @@ Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int ncomb)
 
 #ifdef __CUDACC__
 
-template <typename T> void Bridge<T>::gpu_sequence(T *momenta, double *mes) {
+template <typename T>
+void Bridge<T>::gpu_sequence(T *momenta, double *mes) {
 
   auto devMomentaF2 = devMakeUnique<T>(m_evt * m_part * m_mome);
   auto devMomentaC2 = devMakeUnique<T>(m_evt * m_part * m_mome);
@@ -114,7 +116,7 @@ template <typename T> void Bridge<T>::gpu_sequence(T *momenta, double *mes) {
                        m_evt * m_part * m_mome * sizeof(T),
                        cudaMemcpyHostToDevice));
 
-  dev_transpose<<<s_gpublocks * 16, s_gputhreads>>>(
+  dev_transposeMomenta<<<s_gpublocks * 16, s_gputhreads>>>(
       devMomentaF2.get(), devMomentaC2.get(), m_evt, m_part, m_mome, m_strd);
 
   if (!m_goodHelsCalculated) {
@@ -195,13 +197,14 @@ template <typename T> void Bridge<T>::gpu_sequence(T *momenta, double *mes) {
 
 #else
 
-template <typename T> void Bridge<T>::cpu_sequence(T *momenta, double *mes) {
+template <typename T>
+void Bridge<T>::cpu_sequence(T *momenta, double *mes) {
 
   auto hstMomenta = hstMakeUnique<fptype>(m_evt * m_part * m_mome);
   auto hstIsGoodHel = hstMakeUnique<bool>(m_ncomb);
   auto hstMEs = hstMakeUnique<fptype>(m_evt);
 
-  hst_transpose(momenta, hstMomenta.get(), m_evt, m_part, m_mome, m_strd);
+  hst_transposeMomenta(momenta, hstMomenta.get(), m_evt, m_part, m_mome, m_strd);
 
   if (!m_goodHelsCalculated) {
     Proc::sigmaKin_getGoodHel(hstMomenta.get(), hstMEs.get(),
@@ -212,7 +215,7 @@ template <typename T> void Bridge<T>::cpu_sequence(T *momenta, double *mes) {
 
   Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), m_evt);
   // memcpy(mes, hstMEs.get(), m_evt * sizeof(T));
-  hst_transpose2(hstMEs.get(), mes, m_evt);
+  hst_transposeMEs(hstMEs.get(), mes, m_evt);
 
   std::cout << std::string(80, '*') << std::endl;
   T *aosoa_p = (T *)hstMomenta.get();
@@ -254,8 +257,8 @@ const int strd_n = 2;  // stride length for aosoa data (# adjacent events)
 const int array_bytes = evnt_n * part_n * mome_n * sizeof(T);
 */
 template <typename T>
-__global__ void dev_transpose(const T *in, T *out, const int evt,
-                              const int part, const int mome, const int strd) {
+__global__ 
+void dev_transposeMomenta(const T *in, T *out, const int evt, const int part, const int mome, const int strd) {
 
   int pos = blockDim.x * blockIdx.x + threadIdx.x;
   int arrlen = evt * part * mome;
@@ -281,8 +284,7 @@ __global__ void dev_transpose(const T *in, T *out, const int evt,
 #else
 
 template <typename T>
-void hst_transpose(const T *in, fptype *out, const int evt, const int part,
-                   const int mome, const int strd) {
+void hst_transposeMomenta(const T *in, fptype *out, const int evt, const int part, const int mome, const int strd) {
 
   int arrlen = evt * part * mome;
 
@@ -306,7 +308,7 @@ void hst_transpose(const T *in, fptype *out, const int evt, const int part,
 }
 
 template <typename T>
-void hst_transpose2(const fptype *in, T *out, const int evt) {
+void hst_transposeMEs(const fptype *in, T *out, const int evt) {
   std::cout << "transpose: ";
   for (int pos = 0; pos < evt; ++pos) {
     //std::cout << in[pos / 4][pos % 4] << ", "; // AV this was a version for fptype_v* with neppV=4
@@ -325,7 +327,8 @@ void hst_transpose2(const fptype *in, T *out, const int evt) {
 // BACKUP
 //
 
-// template <typename T> void Matrix<T>::fill(T *arr) {
+// template <typename T>
+// void Matrix<T>::fill(T *arr) {
 //
 //   T(*aos)
 //   [m_part][m_mome] = (T(*)[m_part][m_mome])arr; // was ->
