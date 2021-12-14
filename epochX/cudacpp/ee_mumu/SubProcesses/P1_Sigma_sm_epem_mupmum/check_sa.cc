@@ -18,6 +18,7 @@
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
+#include "Bridge.h"
 #include "CPPProcess.h"
 #include "MatrixElementKernels.h"
 #include "MemoryAccessMatrixElements.h"
