@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
   int numiter = 0, league_size = 1, team_size = 1;
   std::vector<int> numvec;
   std::vector<float> wavetimes;
-  int jsondate = 0;
+  // int jsondate = 0;
   int jsonrun = 0;
 
 
@@ -75,14 +75,13 @@ int main(int argc, char **argv) {
     else
       return usage(argv[0]);
   }
-  
   int veclen = numvec.size();
   if (veclen == 3 || veclen == 5) {
     league_size = numvec[0];
     team_size = numvec[1];
     numiter = numvec[2];
     if (veclen == 5){
-      jsondate = numvec[3];
+      // jsondate = numvec[3];
       jsonrun = numvec[4];
     }
   } else if (veclen == 1) {
@@ -102,7 +101,6 @@ int main(int argc, char **argv) {
   Kokkos::initialize(argc, argv);
 
   end = clock();
-  
   double kokkos_init_sec = ((double) (end - start)) / CLOCKS_PER_SEC;
   std::cout << "Kokkkos initialize: " << kokkos_init_sec << " seconds\n";
   start = clock();
@@ -113,17 +111,14 @@ int main(int argc, char **argv) {
     // Create a process object
     Kokkos::Timer total_time;
     Kokkos::Timer lptimer;
-    
     nvtxRangePush("0a_ProcInit");
     lptimer.reset();
     CPPProcess<Kokkos::DefaultExecutionSpace> process(numiter, league_size, team_size);
 
     // Read param_card and set parameters
     process.initProc("../../Cards/param_card.dat");
-
-    double energy = 1500;
-
-    int meGeVexponent = -(2 * process.nexternal - 8);
+    constexpr double energy = 1500;
+    const int meGeVexponent = -(2 * process.nexternal - 8);
 
     auto time_procInit = lptimer.seconds();
     nvtxRangePop();
@@ -141,10 +136,10 @@ int main(int argc, char **argv) {
 
     // const int nprocesses = 1; // TODO: hardcoded value
     Kokkos::View<double**,Kokkos::DefaultExecutionSpace> random_numbers(Kokkos::ViewAllocateWithoutInitializing("rns"),events_per_iter,4*(process.nexternal - process.ninitial));
-    
+
     Kokkos::View<double***,Kokkos::DefaultExecutionSpace> p(Kokkos::ViewAllocateWithoutInitializing("p"),events_per_iter,process.nexternal,4);
     auto h_p = Kokkos::create_mirror_view(p);
-    
+
     Kokkos::View<int*,Kokkos::DefaultExecutionSpace> nGoodHel("nGoodHel",1);
     Kokkos::View<int*,Kokkos::DefaultExecutionSpace> iGoodHel("iGoodHel",process.ncomb);
 
@@ -153,7 +148,6 @@ int main(int argc, char **argv) {
 
     nvtxRangePush("0c_GenCreat");
     lptimer.reset();
-    
     // init random number generator pool
     auto rand_pool = init_random_generator();
 
@@ -183,13 +177,11 @@ int main(int argc, char **argv) {
       Kokkos::DefaultExecutionSpace().fence();
       tmr_rand.add_value(lptimer.seconds());
       nvtxRangePop();
-      
       nvtxRangePush("2a_RamboIni");
       lptimer.reset();
       get_initial_momenta(p,process.nexternal,energy,process.cmME,league_size,team_size);
       tmr_momini.add_value(lptimer.seconds());
       nvtxRangePop();
-      
       nvtxRangePush("2b_RamboFin");
       lptimer.reset();
       get_final_momenta(process.ninitial, process.nexternal, energy, process.cmME, p, random_numbers, d_wgt, league_size, team_size);
@@ -208,7 +200,6 @@ int main(int argc, char **argv) {
       Kokkos::deep_copy(h_p,p);
       tmr_cpyMom.add_value(lptimer.seconds());
       nvtxRangePop();
-      
       if(x == 0){
         nvtxRangePush("0d_SGoodHel");
         lptimer.reset();
@@ -216,7 +207,6 @@ int main(int argc, char **argv) {
         time_SGoodHel = lptimer.seconds();
         nvtxRangePop();
       }
-      
       nvtxRangePush("3a_SigmaKin");
       lptimer.reset();
       sigmaKin(p, d_me, process.cHel, process.cIPD, process.cIPC, iGoodHel, nGoodHel, process.ncomb, league_size, team_size);//, debug, verbose);
@@ -257,10 +247,10 @@ int main(int argc, char **argv) {
             std::cout << " Matrix element = "
                       // << setiosflags(ios::fixed) << setprecision(17)
                       << h_me(i*1 + d) << " GeV^" << meGeVexponent << std::endl;
-          
+
           ave_me.add_value(h_me(i*1 + d));
           ave_weight.add_value(h_wgt(i*1 + d));
-          
+
         }
 
         if (verbose)
@@ -278,7 +268,6 @@ int main(int argc, char **argv) {
 
     nvtxRangePush("8a_9a_DumpStat");
     lptimer.reset();
-    
     int nevtALL = numiter*events_per_iter;
     // timer sums
     double tmr_sum_me = tmr_skin.sum() + tmr_cpyME.sum();
@@ -294,7 +283,11 @@ int main(int argc, char **argv) {
       printf("NumIterations               = %8d\n",numiter);
       printf("----------------------------------------------------------------------\n");
       printf("FP Precision                = DOUBLE\n");
+#ifdef THRUST_COMPLEX
+      printf("Complex type                = THRUST::COMPLEX\n");
+#else
       printf("Complex type                = KOKKOS::COMPLEX\n");
+#endif
       printf("Random number generator     = Kokkos Device Side\n");
       printf("----------------------------------------------------------------------\n");
       printf("NumberOfEntries             = %8d\n",numiter);
@@ -343,7 +336,7 @@ int main(int argc, char **argv) {
     if(json){
       std::stringstream json_fn;
       json_fn << "./perf/data/" << league_size << "-" << team_size << "-" << numiter 
-              << "perf-test-run" << jsonrun << ".json";
+              << "-perf-test-run" << jsonrun << ".json";
 
       std::ofstream fout(json_fn.str());
       fout << "[{\n";
@@ -351,7 +344,11 @@ int main(int argc, char **argv) {
       fout << "  \"NumThreadsPerBlock\": "      << team_size << ",\n";
       fout << "  \"NumBlocksPerGrid\": "        << league_size << ",\n";
       fout << "  \"FP precision\": \"DOUBLE\",\n";
-      fout << "  \"Complex type\": \"Kokkos::Complex\",\n";
+#ifdef THRUST_COMPLEX
+      fout << "  \"Complex type\": \"THRUST::COMPLEX\",\n";
+#else
+      fout << "  \"Complex type\": \"KOKKOS::COMPLEX\",\n";
+#endif
       fout << "  \"TotalTimeInWaveFuncs\": "    << std::scientific << tmr_skin.sum()+tmr_cpyME.sum() << ",\n";
       fout << "  \"MeanTimeInWaveFuncs\": "     << tmr_skin.mean()+tmr_cpyME.mean() << ",\n";
       fout << "  \"StdDevTimeInWaveFuncs\": "   << tmr_skin.sigma()+tmr_cpyME.sigma() << ",\n";
