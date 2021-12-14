@@ -24,6 +24,7 @@
 #include "rambo.h"
 #endif
 
+#include "Bridge.h"
 #ifdef MGONGPU_COMMONRAND_ONHOST
 #include "CommonRandomNumbers.h"
 #endif
