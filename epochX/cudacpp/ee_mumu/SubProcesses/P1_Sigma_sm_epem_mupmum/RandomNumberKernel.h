@@ -25,7 +25,26 @@ namespace mg5amcCpu
   class RandomNumberKernelBase
   {
 
+  protected:
+
+#ifndef __CUDACC__
+    // Constructor - allocates the output buffer(s) for the given number of events
+    RandomNumberKernelBase( const int nevt );
+#else
+    // Constructor - allocates the output buffer(s) for the given number of events
+    RandomNumberKernelBase( const int nevt, const bool useHstRnarray = true );
+#endif
+
+    // Destructor - deallocates the output buffer(s)
+    virtual ~RandomNumberKernelBase();
+
   public:
+
+    // Seed the random number generator (throws if seed is <= 0)
+    virtual void seedGenerator( const int seed );
+
+    // Generate the random number array (throws if seed is <= 0)
+    virtual void generateRnarray();
 
     // === RANDOM NUMBERS ===
 
@@ -39,27 +58,28 @@ namespace mg5amcCpu
 
     // Copy the output random numbers from the host buffer to the device buffer
     // [NB on GPU, this throws unless random numbers are generated on the host]
-    void copyHstRnarrayToDevRnArray();
+    void copyHstRnarrayToDevRnarray();
 #endif
 
-  protected:
-
-    // Constructor - allocates the output buffer(s) for the given number of events
-    RandomNumberKernelBase( int nevt );
-
-    // Destructor - deallocates the output buffer(s)
-    virtual ~RandomNumberKernelBase();
+    // Get the number of elements in the random number buffer(s)
+    int nRnarray() const { return np4 * nparf * m_nevt; }
 
   public:
 
     // Hardcoded parameters (temporarely set them from mgOnGpu; eventually define them only here?)
     static constexpr int nparf = mgOnGpu::nparf;
     static constexpr int np4 = mgOnGpu::np4;
+#ifndef __CUDACC__
+    static constexpr int cppAlign = mgOnGpu::cppAlign;
+#endif
 
-  private:
+  protected:
 
     // The number of events
     const int m_nevt;
+
+    // The generator seed
+    int m_seed;
 
     // The host buffer[nevt*nparf*4] for the output random numbers (CPU or GPU)
     fptype* m_hstRnarray;
@@ -79,18 +99,13 @@ namespace mg5amcCpu
   public:
 
     // Constructor - allocates the output buffer(s) for the given number of events
-    CommonRandomKernel( int nevt );
+    CommonRandomKernel( const int nevt );
 
     // Destructor - deallocates the output buffer(s)
     virtual ~CommonRandomKernel();
 
-    // Seed the random number generator
-    //void seedRnGenerator( const int seed );
-
-  private:
-
-    // The common random promises
-    std::vector<std::promise<std::vector<fptype>>> m_promises;
+    // Generate the random number array (throws if seed is <= 0)
+    void generateRnarray();
 
   };
 
@@ -107,15 +122,21 @@ namespace mg5amcCpu
     enum class RandomNumberMode{ CurandHost=1, CurandDevice=2 };
 
     // Constructor - allocates the output buffer(s) for the given number of events
-    CurandRandomKernel( int nevt );
+    CurandRandomKernel( int nevt, RandomNumberMode mode );
 
     // Destructor - deallocates the output buffer(s)
     virtual ~CurandRandomKernel();
 
     // Seed the random number generator
-    void seedRnGenerator( const int seed );
+    void seedGenerator( const int seed );
+
+    // Generate the random number array (throws if seed is <= 0)
+    void generateRnarray();
 
   private:
+
+    // The random number generation mode
+    const RandomNumberMode m_mode;
 
     // The curand generator
     curandGenerator_t m_rnGen;
