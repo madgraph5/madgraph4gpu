@@ -410,9 +410,9 @@ endif
 
 cleanall:
 	@echo
-	make clean
+	make USEBUILDDIR=0 clean
 	@echo
-	make -C ../../src cleanall
+	make USEBUILDDIR=0 -C ../../src cleanall
 	rm -rf build.*
 
 distclean: cleanall
