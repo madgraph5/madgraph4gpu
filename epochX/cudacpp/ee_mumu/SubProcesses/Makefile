@@ -115,7 +115,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   ###CUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
   cu_main     = $(BUILDDIR)/gcheck.exe
-  cu_objects  = $(BUILDDIR)/gCPPProcess.o
+  cu_objects  = $(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernel.o
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
@@ -262,7 +262,7 @@ endif
 MAKEDEBUG=
 
 cxx_main=$(BUILDDIR)/check.exe
-cxx_objects=$(BUILDDIR)/CPPProcess.o
+cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernel.o
 
 testmain=$(BUILDDIR)/runTest.exe
 
@@ -322,11 +322,11 @@ $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
-$(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
-	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
+$(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) $(cucxx_objects)
+	$(NVCC) $< -o $@ $(cu_objects) $(cucxx_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
 
-$(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
-	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+$(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cucxx_objects)
+	$(CXX) $< -o $@ $(cxx_objects) $(cucxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
 $(testmain): $(GTESTLIBS)
