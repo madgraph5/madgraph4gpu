@@ -349,10 +349,7 @@ int main(int argc, char **argv)
   // --- 0c. Create curand or common generator
   const std::string cgenKey = "0c GenCreat";
   timermap.start( cgenKey );
-#ifdef MGONGPU_COMMONRAND_ONHOST
-  std::vector<std::promise<std::vector<fptype>>> commonRandomPromises;
-  CommonRandomNumbers::startGenerateAsync(commonRandomPromises, nRnarray, niter);
-#else
+#ifndef MGONGPU_COMMONRAND_ONHOST
   curandGenerator_t rnGen;
 #ifdef __CUDACC__
   grambo2toNm0::createGenerator( &rnGen );
@@ -374,15 +371,15 @@ int main(int argc, char **argv)
     // *** START THE OLD-STYLE TIMER FOR RANDOM GEN ***
     double genrtime = 0;
 
-#if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_CURAND_ONDEVICE
     // --- 1a. Seed curand generator (to get same results on host and device)
+    const unsigned long long seed = 20200805;
+#if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_CURAND_ONDEVICE
     // [NB This should not be necessary using the host API: "Generation functions
     // can be called multiple times on the same generator to generate successive
     // blocks of results. For pseudorandom generators, multiple calls to generation
     // functions will yield the same result as a single call with a large size."]
     const std::string sgenKey = "1a GenSeed ";
     timermap.start( sgenKey );
-    const unsigned long long seed = 20200805;
 #ifdef __CUDACC__
     grambo2toNm0::seedGenerator( rnGen, seed+iiter );
 #else
@@ -395,7 +392,7 @@ int main(int argc, char **argv)
     const std::string rngnKey = "1b GenRnGen";
     timermap.start( rngnKey );
 #ifdef MGONGPU_COMMONRAND_ONHOST
-    std::vector<fptype> commonRnd = commonRandomPromises[iiter].get_future().get();
+    std::vector<fptype> commonRnd = CommonRandomNumbers::generate<double>( nRnarray, seed+iiter );
     assert( nRnarray == static_cast<int>( commonRnd.size() ) );
     // NB (PR #45): memcpy is strictly needed only in CUDA (copy to pinned memory), but keep it also in C++ for consistency
     memcpy( hstRnarray.get(), commonRnd.data(), nRnarray * sizeof(fptype) );
