@@ -22,10 +22,11 @@ makej=
 detailed=0
 gtest=0
 verbose=0
+unset RNDGEN
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -96,6 +97,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-hrdonly" ]; then
     if [ "${hrdcods}" == "0 1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
     hrdcods="1"
+    shift
+  elif [ "$1" == "-common" ]; then
+    export RNDGEN=common
     shift
   elif [ "$1" == "-auto" ]; then
     if [ "${suffs}" == ".auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
