@@ -112,7 +112,7 @@ void debug_me_is_abnormal( const fptype& me, int ievtALL )
 
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
-            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--curhst|--curdev|--common] [--rmbhst|--rmbdev]"
+            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--curhst|--curdev|--common] [--rmbhst|--rmbdev] [--bridge|-b]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
@@ -141,6 +141,7 @@ int main(int argc, char **argv)
   bool debug = false;
   bool perf = false;
   bool json = false;
+  bool bridge = false;
   int niter = 0;
   int gpublocks = 1;
   int gputhreads = 32;
@@ -216,6 +217,10 @@ int main(int argc, char **argv)
     else if ( arg == "--rmbhst" )
     {
       rmbsmp = RamboSamplingMode::RamboHost;
+    }
+    else if ( arg == "--bridge" )
+    {
+      bridge = true;
     }
     else if ( is_number(argv[argn]) && nnum<5 )
     {
@@ -407,6 +412,13 @@ int main(int argc, char **argv)
   PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
   DeviceBufferHelicityMask devIsGoodHel( ncomb );
 #endif
+
+  // Default mode:
+  // (CPU) comp random(cpu)->momenta(cpu)->MEs(cpu)
+  // (GPU) comp random(gpu)->momenta(gpu)->MEs(gpu), copy momenta(gpu->cpu), copy MEs(gpu->cpu)
+  // Bridge mode:
+  // (CPU) comp random(cpu)->momenta(cpu)->MEs(cpu)
+  // (GPU) comp random(cpu)->momenta(cpu), copy momenta(cpu->gpu), comp momenta(gpu)->MEs(gpu), copy MEs(gpu->cpu) 
 
   std::unique_ptr<double[]> genrtimes( new double[niter] );
   std::unique_ptr<double[]> rambtimes( new double[niter] );
@@ -883,10 +895,11 @@ int main(int argc, char **argv)
               << " [inlineHel=0]"
 #endif
 #ifdef MGONGPU_HARDCODE_CIPC
-              << " [hardcodeCIPC=1]" << std::endl
+              << " [hardcodeCIPC=1]"
 #else
-              << " [hardcodeCIPC=0]" << std::endl
+              << " [hardcodeCIPC=0]"
 #endif
+              << " [bridge=" << ( bridge ? "1" : "0" ) << "]" << std::endl
               << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << "NumThreadsPerBlock          = " << gputhreads << std::endl
               << "NumIterations               = " << niter << std::endl
