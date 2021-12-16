@@ -24,11 +24,9 @@
 #include "rambo.h"
 #endif
 
-#ifdef MGONGPU_COMMONRAND_ONHOST
-#include "CommonRandomNumbers.h"
-#endif
 #include "CPPProcess.h"
 #include "Memory.h"
+#include "RandomNumberKernel.h"
 #include "timermap.h"
 
 #include "epoch_process_id.h"
@@ -305,34 +303,42 @@ int main(int argc, char **argv)
   const std::string alloKey = "0b MemAlloc";
   timermap.start( alloKey );
 
+  // Allocate the appropriate RandomNumberKernel
+#ifdef __CUDACC__
+#if defined MGONGPU_COMMONRAND_ONHOST
+  mg5amcGpu::CommonRandomKernel rnk( nevt );
+#elif defined MGONGPU_CURAND_ONHOST
+  mg5amcGpu::CurandRandomKernel rnk( nevt, mg5amcGpu::CurandRandomKernel::RandomNumberMode::CurandHost );
+#else
+  mg5amcGpu::CurandRandomKernel rnk( nevt, mg5amcGpu::CurandRandomKernel::RandomNumberMode::CurandDevice );
+#endif  
+#else
+#if defined MGONGPU_COMMONRAND_ONHOST
+  mg5amcCpu::CommonRandomKernel rnk( nevt );
+#else
+  mg5amcCpu::CurandRandomKernel rnk( nevt, mg5amcCpu::CurandRandomKernel::RandomNumberMode::CurandHost );
+#endif  
+#endif
+
   // Memory structures for random numbers, momenta, matrix elements and weights on host and device
   using mgOnGpu::np4;
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
   using mgOnGpu::ncomb; // Number of helicity combinations
-  const int nRnarray = np4*nparf*nevt; // (NB: AOSOA layout with nevt=npagR*neppR events per iteration)
   const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for AOSOA layouts)
   const int nWeights = nevt;
   const int nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
 
-#if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST or not defined __CUDACC__
-  auto hstRnarray   = hstMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-#endif
   auto hstMomenta   = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
   auto hstIsGoodHel = hstMakeUnique<bool  >( ncomb );
   auto hstWeights   = hstMakeUnique<fptype>( nWeights );
   auto hstMEs       = hstMakeUnique<fptype>( nMEs ); // ARRAY[nevt]
 
 #ifdef __CUDACC__
-  auto devRnarray   = devMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
   auto devMomenta   = devMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
   auto devIsGoodHel = devMakeUnique<bool  >( ncomb );
   auto devWeights   = devMakeUnique<fptype>( nWeights );
   auto devMEs       = devMakeUnique<fptype>( nMEs ); // ARRAY[nevt]
-
-#if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
-  const int nbytesRnarray = nRnarray * sizeof(fptype);
-#endif
   const int nbytesMomenta = nMomenta * sizeof(fptype);
   const int nbytesIsGoodHel = ncomb * sizeof(bool);
   const int nbytesWeights = nWeights * sizeof(fptype);
@@ -372,39 +378,20 @@ int main(int argc, char **argv)
     double genrtime = 0;
 
     // --- 1a. Seed curand generator (to get same results on host and device)
-    const unsigned long long seed = 20200805;
-#if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_CURAND_ONDEVICE
     // [NB This should not be necessary using the host API: "Generation functions
     // can be called multiple times on the same generator to generate successive
     // blocks of results. For pseudorandom generators, multiple calls to generation
     // functions will yield the same result as a single call with a large size."]
+    const unsigned long long seed = 20200805;
     const std::string sgenKey = "1a GenSeed ";
     timermap.start( sgenKey );
-#ifdef __CUDACC__
-    grambo2toNm0::seedGenerator( rnGen, seed+iiter );
-#else
-    rambo2toNm0::seedGenerator( rnGen, seed+iiter );
-#endif
+    rnk.seedGenerator( seed+iiter );
     genrtime += timermap.stop();
-#endif
 
     // --- 1b. Generate all relevant numbers to build nevt events (i.e. nevt phase space points) on the host
     const std::string rngnKey = "1b GenRnGen";
     timermap.start( rngnKey );
-#ifdef MGONGPU_COMMONRAND_ONHOST
-    std::vector<fptype> commonRnd = CommonRandomNumbers::generate<double>( nRnarray, seed+iiter );
-    assert( nRnarray == static_cast<int>( commonRnd.size() ) );
-    // NB (PR #45): memcpy is strictly needed only in CUDA (copy to pinned memory), but keep it also in C++ for consistency
-    memcpy( hstRnarray.get(), commonRnd.data(), nRnarray * sizeof(fptype) );
-#elif defined __CUDACC__
-#ifdef MGONGPU_CURAND_ONDEVICE
-    grambo2toNm0::generateRnarray( rnGen, devRnarray.get(), nevt );
-#elif defined MGONGPU_CURAND_ONHOST
-    grambo2toNm0::generateRnarray( rnGen, hstRnarray.get(), nevt );
-#endif
-#else
-    rambo2toNm0::generateRnarray( rnGen, hstRnarray.get(), nevt );
-#endif
+    rnk.generateRnarray();
     //std::cout << "Got random numbers" << std::endl;
 
 #ifdef __CUDACC__
@@ -412,8 +399,8 @@ int main(int argc, char **argv)
     // --- 1c. Copy rnarray from host to device
     const std::string htodKey = "1c CpHTDrnd";
     genrtime += timermap.start( htodKey );
-    // NB (PR #45): this cudaMemcpy would involve an intermediate memcpy to pinned memory, if hstRnarray was not already cudaMalloc'ed
-    checkCuda( cudaMemcpy( devRnarray.get(), hstRnarray.get(), nbytesRnarray, cudaMemcpyHostToDevice ) );
+    // NB (PR #45): cudaMemcpy would involve an intermediate memcpy to pinned memory, if hstRnarray was not already cudaMalloc'ed
+    rnk.copyHstRnarrayToDevRnarray();
 #endif
 #endif
 
@@ -441,9 +428,9 @@ int main(int argc, char **argv)
     const std::string rfinKey = "2b RamboFin";
     rambtime += timermap.start( rfinKey );
 #ifdef __CUDACC__
-    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.get(), devMomenta.get(), devWeights.get() );
+    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, rnk.devRnarray(), devMomenta.get(), devWeights.get() );
 #else
-    rambo2toNm0::getMomentaFinal( energy, hstRnarray.get(), hstMomenta.get(), hstWeights.get(), nevt );
+    rambo2toNm0::getMomentaFinal( energy, rnk.hstRnarray(), hstMomenta.get(), hstWeights.get(), nevt );
 #endif
     //std::cout << "Got final momenta" << std::endl;
 
