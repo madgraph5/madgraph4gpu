@@ -15,13 +15,14 @@
 #ifdef __CUDACC__
 
 template <typename T>
-__global__ void dev_transpose(const T *in, T *out, const int evt,
-                              const int part, const int mome, const int strd);
+__global__
+void dev_transposeMomentaF2C(const T *in, T *out, const int evt,
+                             const int part, const int mome, const int strd);
 #else
 
 template <typename T>
-void hst_transpose(const T *in, T *out, const int evt, const int part,
-                   const int mome, const int strd);
+void hst_transposeMomentaF2C(const T *in, T *out, const int evt, const int part,
+                             const int mome, const int strd);
 
 #endif // __CUDACC__
 
@@ -124,15 +125,12 @@ template <typename T> void Bridge<T>::gpu_sequence(T *momenta, double *mes) {
                        m_evt * m_part * m_mome * sizeof(T),
                        cudaMemcpyHostToDevice));
 
-  dev_transpose<<<s_gpublocks * 16, s_gputhreads>>>(
-      devMomentaF.get(), devMomentaC.get(), m_evt, m_part, m_mome, m_strd);
+  dev_transposeMomentaF2C<<<s_gpublocks * 16, s_gputhreads>>>(devMomentaF.get(), devMomentaC.get(), m_evt, m_part, m_mome, m_strd);
 
   if (!m_goodHelsCalculated) {
-    mg5amcGpu::sigmaKin_getGoodHel<<<s_gpublocks, s_gputhreads>>>(
-        devMomentaC.get(), devMEs.get(), devIsGoodHel.get());
+    mg5amcGpu::sigmaKin_getGoodHel<<<s_gpublocks, s_gputhreads>>>(devMomentaC.get(), devMEs.get(), devIsGoodHel.get());
 
-    checkCuda(cudaMemcpy(hstIsGoodHel.get(), devIsGoodHel.get(),
-                         m_ncomb * sizeof(bool), cudaMemcpyDeviceToHost));
+    checkCuda(cudaMemcpy(hstIsGoodHel.get(), devIsGoodHel.get(), m_ncomb * sizeof(bool), cudaMemcpyDeviceToHost));
 
     mg5amcGpu::sigmaKin_setGoodHel(hstIsGoodHel.get());
 
@@ -141,8 +139,7 @@ template <typename T> void Bridge<T>::gpu_sequence(T *momenta, double *mes) {
 
   mg5amcGpu::sigmaKin<<<s_gpublocks, s_gputhreads>>>(devMomentaC.get(), devMEs.get());
 
-  checkCuda(
-      cudaMemcpy(mes, devMEs.get(), m_evt * sizeof(T), cudaMemcpyDeviceToHost));
+  checkCuda(cudaMemcpy(mes, devMEs.get(), m_evt * sizeof(T), cudaMemcpyDeviceToHost));
 }
 
 #else
@@ -158,7 +155,7 @@ template <typename T> void Bridge<T>::cpu_sequence(T *momenta, double *mes) {
 
   // double(&hstMEs2)[m_evt] = reinterpret_cast<double(&)[m_evt]>(mes);
 
-  hst_transpose(momenta, hstMomenta.get(), m_evt, m_part, m_mome, m_strd);
+  hst_transposeMomentaF2C(momenta, hstMomenta.get(), m_evt, m_part, m_mome, m_strd);
 
   if (!m_goodHelsCalculated) {
     mg5amcCpu::sigmaKin_getGoodHel(hstMomenta.get(), hstMEs.get(),
@@ -188,8 +185,9 @@ const int strd_n = 2;  // stride length for aosoa data (# adjacent events)
 const int array_bytes = evnt_n * part_n * mome_n * sizeof(T);
 */
 template <typename T>
-__global__ void dev_transpose(const T *in, T *out, const int evt,
-                              const int part, const int mome, const int strd) {
+__global__ 
+void dev_transposeMomentaF2C(const T *in, T *out, const int evt,
+                             const int part, const int mome, const int strd) {
 
   int pos = blockDim.x * blockIdx.x + threadIdx.x;
   int arrlen = evt * part * mome;
@@ -215,9 +213,9 @@ __global__ void dev_transpose(const T *in, T *out, const int evt,
 #else
 
 template <typename T>
-void hst_transpose(const T *in, T *out, const int evt, const int part,
-                   const int mome, const int strd) {
-
+void hst_transposeMomentaF2C(const T *in, T *out, const int evt, const int part,
+                             const int mome, const int strd) {
+  
   int arrlen = evt * part * mome;
 
   for (int pos = 0; pos < arrlen; ++pos) {
