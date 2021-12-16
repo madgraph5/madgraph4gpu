@@ -90,11 +90,11 @@ while [ "$1" != "" ]; do
     helinls="1"
     shift
   elif [ "$1" == "-hrd" ]; then
-    if [ "${helhrds}" == "1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
+    if [ "${hrdcods}" == "1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
     hrdcods="0 1"
     shift
   elif [ "$1" == "-hrdonly" ]; then
-    if [ "${helhrds}" == "0 1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
+    if [ "${hrdcods}" == "0 1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
     hrdcods="1"
     shift
   elif [ "$1" == "-auto" ]; then

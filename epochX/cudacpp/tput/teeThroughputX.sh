@@ -47,10 +47,10 @@ for arg in $*; do
     if [ "${helinls}" == "0 1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
     helinls="1"
   elif [ "$arg" == "-hrd" ]; then
-    if [ "${helhrds}" == "1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
+    if [ "${hrdcods}" == "1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
     hrdcods="0 1"
   elif [ "$arg" == "-hrdonly" ]; then
-    if [ "${helhrds}" == "0 1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
+    if [ "${hrdcods}" == "0 1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
     hrdcods="1"
   elif [ "$arg" == "-makeonly" ]; then
     if [ "${steps}" == "make test" ]; then
