@@ -4,7 +4,7 @@
 #include "mgOnGpuConfig.h"
 
 // NB This must come AFTER mgOnGpuConfig.h which contains our definition of __global__ when __CUDACC__ is not defined
-#ifndef MGONGPU_COMMONRAND_ONHOST
+#ifndef MGONGPU_HAS_NO_CURAND
 #include "curand.h"
 #endif
 
@@ -107,7 +107,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifndef MGONGPU_COMMONRAND_ONHOST
+#ifndef MGONGPU_HAS_NO_CURAND
 
   // A class encapsulating CURAND random number generation on a CPU host
   class CurandRandomKernel : public RandomNumberKernelBase

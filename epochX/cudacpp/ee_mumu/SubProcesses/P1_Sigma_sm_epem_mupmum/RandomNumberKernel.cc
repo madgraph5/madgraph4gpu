@@ -104,7 +104,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifndef MGONGPU_COMMONRAND_ONHOST
+#ifndef MGONGPU_HAS_NO_CURAND
 
 #define checkCurand( code )                     \
   { assertCurand( code, __FILE__, __LINE__ ); }
