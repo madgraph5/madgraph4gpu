@@ -36,10 +36,10 @@ namespace mg5amcCpu
     RandomNumberKernelBase( const int nevt, const bool useHstRnarray = true );
 #endif
 
+  public:
+
     // Destructor - deallocates the output buffer(s)
     virtual ~RandomNumberKernelBase();
-
-  public:
 
     // Seed the random number generator (throws if seed is <= 0)
     virtual void seedGenerator( const int seed );

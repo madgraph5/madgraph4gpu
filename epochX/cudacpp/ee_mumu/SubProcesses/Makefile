@@ -77,7 +77,7 @@ endif
 
 # Set the default RNDGEN (random number generator) choice
 ifeq ($(RNDGEN),)
-  override RNDGEN = curdev
+  override RNDGEN = hasCurand
 endif
 
 # If CUDA_HOME is not set, try to set it from the location of nvcc
@@ -122,7 +122,7 @@ else
   NVCC       :=
   USE_NVTX   :=
   CULIBFLAGS :=
-  override RNDGEN = common
+  override RNDGEN = hasNoCurand
 endif
 
 # Set the host compiler for nvcc
@@ -203,20 +203,12 @@ else ifneq ($(HRDCOD),0)
   $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
 endif
 
-# Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=common")
+# Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=hasNoCurand")
 $(info RNDGEN=$(RNDGEN))
-ifeq ($(RNDGEN),curdev)
-  CXXFLAGS += -DMGONGPU_CURAND_ONDEVICE
-  CUFLAGS  += -DMGONGPU_CURAND_ONDEVICE
-else ifeq ($(RNDGEN),curhst)
-  CXXFLAGS += -DMGONGPU_CURAND_ONHOST
-  CUFLAGS  += -DMGONGPU_CURAND_ONHOST
-else ifeq ($(RNDGEN),common)
+ifeq ($(RNDGEN),hasNoCurand)
   CXXFLAGS += -DMGONGPU_HAS_NO_CURAND
-  CXXFLAGS += -DMGONGPU_COMMONRAND_ONHOST
-  CUFLAGS  += -DMGONGPU_COMMONRAND_ONHOST
-else
-  $(error Unknown RNDGEN='$(RNDGEN)': only 'curdev', 'curhst' and 'common' are supported)
+else ifneq ($(RNDGEN),hasCurand)
+  $(error Unknown RNDGEN='$(RNDGEN)': only 'hasCurand' and 'hasNoCurand' are supported)
 endif
 
 # Export AVX, FPTYPE, HELINL, HRDCOD, RNDGEN, OMPFLAGS so that it is not necessary to pass them to the src Makefile too

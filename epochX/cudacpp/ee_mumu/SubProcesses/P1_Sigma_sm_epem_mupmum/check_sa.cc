@@ -111,7 +111,7 @@ void debug_me_is_abnormal( const fptype& me, int ievtALL )
 
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
-            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j]"
+            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--curhst|--curdev|--common]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
@@ -125,6 +125,21 @@ int usage(char* argv0, int ret = 1) {
 #endif
   return ret;
 }
+
+// Namespaces for CUDA and C++ (FIXME - eventually use the same namespace everywhere...)
+#ifdef __CUDACC__
+using mg5amcGpu::RandomNumberMode;
+using mg5amcGpu::RandomNumberKernelBase;
+using mg5amcGpu::CommonRandomKernel;
+using mg5amcGpu::CurandRandomKernel;
+#else  
+using mg5amcCpu::RandomNumberMode;
+using mg5amcCpu::RandomNumberKernelBase;
+using mg5amcCpu::CommonRandomKernel;
+#ifndef MGONGPU_HAS_NO_CURAND
+using mg5amcCpu::CurandRandomKernel;
+#endif
+#endif
 
 int main(int argc, char **argv)
 {
@@ -141,22 +156,59 @@ int main(int argc, char **argv)
   int numvec[5] = {0,0,0,0,0};
   int nnum = 0;
 
-  for (int argn = 1; argn < argc; ++argn) {
-    if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
+#ifdef __CUDACC__
+  RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on GPU
+#elif not defined MGONGPU_HAS_NO_CURAND
+  RandomNumberMode rndgen = RandomNumberMode::CurandHost; // default on CPU if build has curand
+#else
+  RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // default on CPU if build has no curand
+#endif
+
+  for ( int argn = 1; argn < argc; ++argn )
+  {
+    std::string arg = argv[argn];
+    if ( ( arg == "--verbose" ) || ( arg == "-v" ) )
+    {
       verbose = true;
-    else if (strcmp(argv[argn], "--debug") == 0 ||
-             strcmp(argv[argn], "-d") == 0)
+    }
+    else if ( ( arg == "--debug" ) || ( arg == "-d" ) )
+    {
       debug = true;
-    else if (strcmp(argv[argn], "--performance") == 0 ||
-             strcmp(argv[argn], "-p") == 0)
+    }
+    else if ( ( arg == "--performance" ) || ( arg == "-p" ) )
+    {
       perf = true;
-    else if (strcmp(argv[argn], "--json") == 0 ||
-             strcmp(argv[argn], "-j") == 0)
+    }
+    else if ( ( arg == "--json" ) || ( arg == "-j" ) )
+    {
       json = true;
-    else if (is_number(argv[argn]) && nnum<5)
-      numvec[nnum++] = atoi(argv[argn]);
+    }
+#ifndef __CUDACC__
+    else if ( arg == "--curdev" )
+    {
+      throw std::runtime_error( "CurandDevice is not supported on CPUs" );
+    }
+#endif
+    else if ( arg == "--curhst" )
+    {
+#ifndef MGONGPU_HAS_NO_CURAND
+      rndgen = RandomNumberMode::CurandHost;
+#else
+      throw std::runtime_error( "CurandHost is not supported because this application was built without Curand support" );
+#endif
+    }
+    else if ( arg == "--common" )
+    {
+      rndgen = RandomNumberMode::CommonRandom;
+    }
+    else if ( is_number(argv[argn]) && nnum<5 )
+    {
+      numvec[nnum++] = atoi( argv[argn] );
+    }
     else
-      return usage(argv[0]);
+    {
+      return usage( argv[0] );
+    }
   }
 
   if (nnum == 3 || nnum == 5) {
@@ -339,21 +391,19 @@ int main(int argc, char **argv)
   const std::string cgenKey = "0c GenCreat";
   timermap.start( cgenKey );
   // Allocate the appropriate RandomNumberKernel
-#ifdef __CUDACC__
-#if defined MGONGPU_COMMONRAND_ONHOST
-  mg5amcGpu::CommonRandomKernel rnk( nevt );
-#elif defined MGONGPU_CURAND_ONHOST
-  mg5amcGpu::CurandRandomKernel rnk( nevt, mg5amcGpu::RandomNumberMode::CurandHost );
+  std::unique_ptr<RandomNumberKernelBase> prnk;
+  if ( rndgen == RandomNumberMode::CommonRandom )
+  {
+    prnk.reset( new CommonRandomKernel( nevt ) );
+  }
+  else
+  {
+#ifndef MGONGPU_HAS_NO_CURAND
+    prnk.reset( new CurandRandomKernel( nevt, rndgen ) );
 #else
-  mg5amcGpu::CurandRandomKernel rnk( nevt, mg5amcGpu::RandomNumberMode::CurandDevice );
-#endif  
-#else
-#if defined MGONGPU_COMMONRAND_ONHOST
-  mg5amcCpu::CommonRandomKernel rnk( nevt );
-#else
-  mg5amcCpu::CurandRandomKernel rnk( nevt, mg5amcCpu::RandomNumberMode::CurandHost );
-#endif  
+    throw std::logic_error( "This application was built without Curand support" ); // INTERNAL ERROR (no path to this statement)
 #endif
+  }
 
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
@@ -376,23 +426,24 @@ int main(int argc, char **argv)
     const unsigned long long seed = 20200805;
     const std::string sgenKey = "1a GenSeed ";
     timermap.start( sgenKey );
-    rnk.seedGenerator( seed+iiter );
+    prnk->seedGenerator( seed+iiter );
     genrtime += timermap.stop();
 
     // --- 1b. Generate all relevant numbers to build nevt events (i.e. nevt phase space points) on the host
     const std::string rngnKey = "1b GenRnGen";
     timermap.start( rngnKey );
-    rnk.generateRnarray();
+    prnk->generateRnarray();
     //std::cout << "Got random numbers" << std::endl;
 
 #ifdef __CUDACC__
-#ifndef MGONGPU_CURAND_ONDEVICE
-    // --- 1c. Copy rnarray from host to device
-    const std::string htodKey = "1c CpHTDrnd";
-    genrtime += timermap.start( htodKey );
-    // NB (PR #45): cudaMemcpy would involve an intermediate memcpy to pinned memory, if hstRnarray was not already cudaMalloc'ed
-    rnk.copyHstRnarrayToDevRnarray();
-#endif
+    if ( rndgen != RandomNumberMode::CurandDevice )
+    {
+      // --- 1c. Copy rnarray from host to device
+      const std::string htodKey = "1c CpHTDrnd";
+      genrtime += timermap.start( htodKey );
+      // NB (PR #45): cudaMemcpy would involve an intermediate memcpy to pinned memory, if hstRnarray was not already cudaMalloc'ed
+      prnk->copyHstRnarrayToDevRnarray();
+    }
 #endif
 
     // *** STOP THE OLD-STYLE TIMER FOR RANDOM GEN ***
@@ -419,9 +470,9 @@ int main(int argc, char **argv)
     const std::string rfinKey = "2b RamboFin";
     rambtime += timermap.start( rfinKey );
 #ifdef __CUDACC__
-    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, rnk.devRnarray(), devMomenta.get(), devWeights.get() );
+    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, prnk->devRnarray(), devMomenta.get(), devWeights.get() );
 #else
-    rambo2toNm0::getMomentaFinal( energy, rnk.hstRnarray(), hstMomenta.get(), hstWeights.get(), nevt );
+    rambo2toNm0::getMomentaFinal( energy, prnk->hstRnarray(), hstMomenta.get(), hstWeights.get(), nevt );
 #endif
     //std::cout << "Got final momenta" << std::endl;
 
@@ -670,6 +721,16 @@ int main(int argc, char **argv)
   double stdweig = std::sqrt( sqsweigdiff / ( nevtALL - nabn ) );
 
   // === STEP 9 FINALISE
+  
+  std::string rndgentxt;
+  if ( rndgen == RandomNumberMode::CommonRandom ) rndgentxt = "COMMON RANDOM HOST";
+  else if ( rndgen == RandomNumberMode::CurandHost ) rndgentxt = "CURAND HOST";
+  else if ( rndgen == RandomNumberMode::CurandDevice ) rndgentxt = "CURAND DEVICE";
+#ifdef __CUDACC__
+  rndgentxt += " (CUDA code)";
+#else
+  rndgentxt += " (C++ code)";
+#endif
 
   // --- 9a Dump to screen
   const std::string dumpKey = "9a DumpScrn";
@@ -697,7 +758,7 @@ int main(int argc, char **argv)
     const std::string cxtref = " [cxtype_ref=NO]";
 #endif
 #endif
-    // Dump all configuration parameters and all results
+  // Dump all configuration parameters and all results
     std::cout << std::string(SEP79, '*') << std::endl
 #ifdef __CUDACC__
               << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CUDA"
@@ -766,20 +827,8 @@ int main(int argc, char **argv)
 #error Internal error: unknown SIMD build configuration
 #endif
 #endif
-#ifdef __CUDACC__
-#if defined MGONGPU_COMMONRAND_ONHOST
-              << "Random number generation    = COMMON RANDOM HOST (CUDA code)" << std::endl
-#elif defined MGONGPU_CURAND_ONDEVICE
-              << "Random number generation    = CURAND DEVICE (CUDA code)" << std::endl
-#elif defined MGONGPU_CURAND_ONHOST
-              << "Random number generation    = CURAND HOST (CUDA code)" << std::endl
-#endif
-#else
-#if defined MGONGPU_COMMONRAND_ONHOST
-              << "Random number generation    = COMMON RANDOM (C++ code)" << std::endl
-#else
-              << "Random number generation    = CURAND (C++ code)" << std::endl
-#endif
+              << "Random number generation    = " << rndgentxt << std::endl
+#ifndef __CUDACC__
 #ifdef _OPENMP
               << "OMP threads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
 #endif
@@ -894,21 +943,7 @@ int main(int argc, char **argv)
       //<< "\"Wavefunction GPU memory\": " << "\"LOCAL\"," << std::endl
 #endif
              << "\"Curand generation\": "
-#ifdef __CUDACC__
-#if defined MGONGPU_COMMONRAND_ONHOST
-             << "\"COMMON RANDOM HOST (CUDA code)\"," << std::endl;
-#elif defined MGONGPU_CURAND_ONDEVICE
-    << "\"CURAND DEVICE (CUDA code)\"," << std::endl;
-#elif defined MGONGPU_CURAND_ONHOST
-    << "\"CURAND HOST (CUDA code)\"," << std::endl;
-#endif
-#else
-#if defined MGONGPU_COMMONRAND_ONHOST
-    << "\"COMMON RANDOM (C++ code)\"," << std::endl;
-#else
-    << "\"CURAND (C++ code)\"," << std::endl;
-#endif
-#endif
+             << "\"" << rndgentxt << "\"," << std::endl;
     jsonFile << "\"NumberOfEntries\": " << niter << "," << std::endl
       //<< std::scientific // Not sure about this
              << "\"TotalTime[Rnd+Rmb+ME] (123)\": \""
