@@ -326,7 +326,7 @@ $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
 	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
 
 $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
-	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+	$(CXX) $< -o $@ $(cxx_objects) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
 $(testmain): $(GTESTLIBS)
@@ -347,13 +347,13 @@ $(testmain): cxx_objects += $(BUILDDIR)/testxxx.o # Comment out this line to ski
 ifeq ($(NVCC),)
 # Link only runTest.o
 $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
-	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+	$(CXX) -o $@ $(cxx_objects) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
 # Link both runTest.o and runTest_cu.o
 # (todo? avoid multiple targets and '&', this needs the latest make 4.3, see https://stackoverflow.com/a/60232515)
 $(testmain) $(BUILDDIR)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
 	$(NVCC) -o $(BUILDDIR)/runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
-	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
+	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
 
 $(GTESTLIBS):
