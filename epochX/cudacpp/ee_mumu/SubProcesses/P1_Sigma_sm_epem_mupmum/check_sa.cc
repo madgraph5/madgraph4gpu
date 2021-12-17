@@ -26,7 +26,7 @@
 
 #include "CPPProcess.h"
 #include "Memory.h"
-#include "RandomNumberKernel.h"
+#include "RandomNumberKernels.h"
 #include "timermap.h"
 
 #include "epoch_process_id.h"

@@ -1,5 +1,5 @@
-#ifndef P1_SIGMA_SM_EPEM_MUPMUM_RANDOMNUMBERKERNEL_H 
-#define P1_SIGMA_SM_EPEM_MUPMUM_RANDOMNUMBERKERNEL_H 1
+#ifndef RANDOMNUMBERKERNELS_H 
+#define RANDOMNUMBERKERNELS_H 1
 
 #include "mgOnGpuConfig.h"
 
@@ -146,4 +146,4 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 }
-#endif // P1_SIGMA_SM_EPEM_MUPMUM_RANDOMNUMBERKERNEL_H
+#endif // RANDOMNUMBERKERNELS_H

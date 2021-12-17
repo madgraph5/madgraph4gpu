@@ -1,4 +1,4 @@
-#include "RandomNumberKernel.h"
+#include "RandomNumberKernels.h"
 
 #include "checkCuda.h"
 #include "CommonRandomNumbers.h"
