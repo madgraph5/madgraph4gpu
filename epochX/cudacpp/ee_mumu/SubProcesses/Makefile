@@ -40,9 +40,12 @@ CXXFLAGS += $(OMPFLAGS)
 # Set special CXXFLAGS and LIBFLAGS if nvcc is used as CXX
 # Forward unknown options (e.g. -Wall) to the host compiler
 # Forward unknown options (e.g. -Wl,--start-group) to the host linker
+# Use -pthread unless nvcc is used as CXX
 ifneq ($(shell $(CXX) --version | grep ^nvcc),)
 CXXFLAGS += --forward-unknown-to-host-compiler
 LIBFLAGS += --forward-unknown-to-host-linker
+else
+LIBFLAGS += -pthread
 endif
 
 # Assuming uname is available, detect if architecture is PowerPC
@@ -334,7 +337,7 @@ $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
 	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
 
 $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
-	$(CXX) $< -o $@ $(cxx_objects) $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+	$(CXX) $< -o $@ $(cxx_objects) $(OMPFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS)
 
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
 $(testmain): $(GTESTLIBS)
@@ -355,7 +358,7 @@ $(testmain): cxx_objects += $(BUILDDIR)/testxxx.o # Comment out this line to ski
 ifeq ($(NVCC),)
 # Link only runTest.o
 $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
-	$(CXX) -o $@ $(cxx_objects) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+	$(CXX) -o $@ $(cxx_objects) -ldl $(LIBFLAGS) $(CULIBFLAGS)
 else
 # Link both runTest.o and runTest_cu.o
 # (todo? avoid multiple targets and '&', this needs the latest make 4.3, see https://stackoverflow.com/a/60232515)
