@@ -5,27 +5,6 @@
 #include "mgOnGpuTypes.h"
 //#include "mgOnGpuVectors.h"
 
-#include <cassert>
-
-//--------------------------------------------------------------------------
-
-#if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_CURAND_ONDEVICE
-#include "curand.h"
-
-#define checkCurand( code )                     \
-  { assertCurand( code, __FILE__, __LINE__ ); }
-
-inline void assertCurand( curandStatus_t code, const char *file, int line, bool abort = true )
-{
-  if ( code != CURAND_STATUS_SUCCESS )
-  {
-    printf( "CurandAssert: %s %d\n", file, line );
-    if ( abort ) assert( code == CURAND_STATUS_SUCCESS );
-  }
-}
-
-#endif
-
 //--------------------------------------------------------------------------
 
 // Simplified rambo version for 2 to N (with N>=2) processes with massless particles
@@ -67,33 +46,7 @@ namespace rambo2toNm0
 #endif
                         );
 
-#if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_CURAND_ONDEVICE
   //--------------------------------------------------------------------------
-
-  // Create and initialise a curand generator
-  void createGenerator( curandGenerator_t* pgen );
-
-  //--------------------------------------------------------------------------
-
-  // Seed a curand generator
-  void seedGenerator( curandGenerator_t gen, unsigned long long seed );
-
-  //--------------------------------------------------------------------------
-
-  // Destroy a curand generator
-  void destroyGenerator( curandGenerator_t gen );
-
-  //--------------------------------------------------------------------------
-
-  // Bulk-generate (using curand) the random numbers needed to process nevt events in rambo
-  // ** NB: the random numbers are always produced in the same order and are interpreted as an AOSOA
-  // AOSOA: rnarray[npagR][nparf][np4][neppR] where nevt=npagR*neppR
-  void generateRnarray( curandGenerator_t gen, // input: curand generator
-                        fptype rnarray1d[],    // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
-                        const int nevt );      // input: #events
-
-  //--------------------------------------------------------------------------
-#endif
 
 }
 

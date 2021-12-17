@@ -896,17 +896,16 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (invert .cc/.cu, add debug printouts)
     def generate_process_files(self):
-        """Generate mgOnGpuConfig.h, CPPProcess.cc, check_sa.cc, gCPPProcess.h/cu link, gcheck_sa.cu link""" 
+        """Generate mgOnGpuConfig.h, CPPProcess.cc, CPPProcess.h, check_sa.cc, gXXX.cu links""" 
         misc.sprint('Entering PLUGIN_OneProcessExporter.generate_process_files')
         super(export_cpp.OneProcessExporterGPU, self).generate_process_files()
         self.edit_check_sa()
         self.edit_mgonGPU()
         self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
         # Add symbolic links
-        ###files.ln(pjoin(self.path, 'gcheck_sa.cu'), self.path, 'check_sa.cc')
-        ###files.ln(pjoin(self.path, 'gCPPProcess.cu'), self.path, 'CPPProcess.cc')
         files.ln(pjoin(self.path, 'check_sa.cc'), self.path, 'gcheck_sa.cu')
         files.ln(pjoin(self.path, 'CPPProcess.cc'), self.path, 'gCPPProcess.cu')
+        files.ln(pjoin(self.path, 'RandomNumberKernels.cc'), self.path, 'gRandomNumberKernels.cu')
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (invert .cc/.cu, add debug printouts)
     def edit_check_sa(self):

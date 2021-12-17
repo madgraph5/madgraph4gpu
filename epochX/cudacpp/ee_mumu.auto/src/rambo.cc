@@ -183,64 +183,7 @@ namespace rambo2toNm0
     return;
   }
 
-
-#if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_CURAND_ONDEVICE
   //--------------------------------------------------------------------------
-
-  // Create and initialise a curand generator
-  void createGenerator( curandGenerator_t* pgen )
-  {
-    // [NB Timings are for GenRnGen host|device (cpp|cuda) generation of 256*32*1 events with nproc=1: rn(0) is host=0.0012s]
-    const curandRngType_t type = CURAND_RNG_PSEUDO_MTGP32;          // 0.00082s | 0.00064s (FOR FAST TESTS)
-    //const curandRngType_t type = CURAND_RNG_PSEUDO_XORWOW;        // 0.049s   | 0.0016s
-    //const curandRngType_t type = CURAND_RNG_PSEUDO_MRG32K3A;      // 0.71s    | 0.0012s  (better but slower, especially in c++)
-    //const curandRngType_t type = CURAND_RNG_PSEUDO_MT19937;       // 21s      | 0.021s
-    //const curandRngType_t type = CURAND_RNG_PSEUDO_PHILOX4_32_10; // 0.024s   | 0.00026s (used to segfault?)
-#if defined __CUDACC__ and defined MGONGPU_CURAND_ONDEVICE
-    checkCurand( curandCreateGenerator( pgen, type ) );
-#else
-    checkCurand( curandCreateGeneratorHost( pgen, type ) );
-#endif
-    //checkCurand( curandSetGeneratorOrdering( *pgen, CURAND_ORDERING_PSEUDO_LEGACY ) ); // CUDA 11
-    checkCurand( curandSetGeneratorOrdering( *pgen, CURAND_ORDERING_PSEUDO_BEST ) );
-  }
-
-  //--------------------------------------------------------------------------
-
-  // Seed a curand generator
-  void seedGenerator( curandGenerator_t gen, unsigned long long seed )
-  {
-    //printf( "seedGenerator: seed %lld\n", seed );
-    checkCurand( curandSetPseudoRandomGeneratorSeed( gen, seed ) );
-  }
-
-  //--------------------------------------------------------------------------
-
-  // Destroy a curand generator
-  void destroyGenerator( curandGenerator_t gen )
-  {
-    checkCurand( curandDestroyGenerator( gen ) );
-  }
-
-  //--------------------------------------------------------------------------
-
-  // Bulk-generate (using curand) the random numbers needed to process nevt events in rambo
-  // ** NB: the random numbers are always produced in the same order and are interpreted as an AOSOA
-  // AOSOA: rnarray[npagR][nparf][np4][neppR] where nevt=npagR*neppR
-  void generateRnarray( curandGenerator_t gen, // input: curand generator
-                        fptype rnarray1d[],    // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
-                        const int nevt )       // input: #events
-  {
-#if defined MGONGPU_FPTYPE_DOUBLE
-    checkCurand( curandGenerateUniformDouble( gen, rnarray1d, np4*nparf*nevt ) );
-#elif defined MGONGPU_FPTYPE_FLOAT
-    checkCurand( curandGenerateUniform( gen, rnarray1d, np4*nparf*nevt ) );
-#endif
-    //for ( int i=0; i<8; i++ ) printf( "%f %f %f %f\n", rnarray1d[i*4], rnarray1d[i*4+1], rnarray1d[i*4+2], rnarray1d[i*4+3] );
-  }
-
-  //--------------------------------------------------------------------------
-#endif
 
 }
 
