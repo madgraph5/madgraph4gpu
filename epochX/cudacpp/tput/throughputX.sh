@@ -16,13 +16,13 @@ req=0
 fptypes="d"
 helinls="0"
 hrdcods="0"
+rndgen=""
 suffs="/"
 maketype=
 makej=
 detailed=0
 gtest=0
 verbose=0
-unset RNDGEN
 
 function usage()
 {
@@ -99,10 +99,10 @@ while [ "$1" != "" ]; do
     hrdcods="1"
     shift
   elif [ "$1" == "-common" ]; then
-    export RNDGEN=common
+    rndgen=" -${1}"
     shift
   elif [ "$1" == "-curhst" ]; then
-    export RNDGEN=curhst
+    rndgen=" -${1}"
     shift
   elif [ "$1" == "-auto" ]; then
     if [ "${suffs}" == ".auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
@@ -260,12 +260,13 @@ printf "DATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
 function runExe() {
   exe=$1
   args="$2"
+  args="$args$rndgen"
   echo "runExe $exe $args OMP=$OMP_NUM_THREADS"
   pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[MECalc|MeanMatrix|FP precision|TOTAL       :"
   # Optionally add other patterns here for some specific configurations (e.g. clang)
   if [ "${exe%%/gcheck*}" != "${exe}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
   pattern="${pattern}|CUCOMPLEX"
-  pattern="${pattern}|COMMON RANDOM|CURAND HOST"
+  pattern="${pattern}|COMMON RANDOM|CURAND HOST \(CUDA"
   pattern="${pattern}|ERROR"
   pattern="${pattern}|WARNING"
   # TEMPORARY! OLD C++/CUDA CODE (START)
@@ -295,6 +296,7 @@ function runExe() {
 function runNcu() {
   exe=$1
   args="$2"
+  args="$args$rndgen"
   ###echo "runNcu $exe $args"
   if [ "${verbose}" == "1" ]; then set -x; fi
   #$(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
@@ -312,6 +314,7 @@ function runNcu() {
 function runNcuDiv() {
   exe=$1
   args="-p 1 32 1"
+  args="$args$rndgen"
   ###echo "runNcuDiv $exe $args"
   if [ "${verbose}" == "1" ]; then set -x; fi
   ###$(which ncu) --query-metrics $exe $args
@@ -332,6 +335,7 @@ function runNcuDiv() {
 function runNcuReq() {
   exe=$1
   ncuArgs="$2"
+  ncuArgs="$ncuArgs$rndgen"
   if [ "${verbose}" == "1" ]; then set -x; fi
   for args in "-p 1 1 1" "-p 1 4 1" "-p 1 8 1" "-p 1 32 1" "$ncuArgs"; do
     ###echo "runNcuReq $exe $args"
