@@ -2,7 +2,8 @@
 
 #include "checkCuda.h"
 #include "CommonRandomNumbers.h"
-#include "rambo.h"
+
+#include <cassert>
 
 #ifdef __CUDACC__
 namespace mg5amcGpu
@@ -104,29 +105,53 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifndef MGONGPU_COMMONRAND_ONHOST
+
+#define checkCurand( code )                     \
+  { assertCurand( code, __FILE__, __LINE__ ); }
+
+  inline void assertCurand( curandStatus_t code, const char *file, int line, bool abort = true )
+  {
+    if ( code != CURAND_STATUS_SUCCESS )
+    {
+      printf( "CurandAssert: %s %d\n", file, line );
+      if ( abort ) assert( code == CURAND_STATUS_SUCCESS );
+    }
+  }
+
+  //--------------------------------------------------------------------------
+
   CurandRandomKernel::CurandRandomKernel( const int nevt, RandomNumberMode mode )
     : RandomNumberKernelBase( nevt )
     , m_mode( mode )
     , m_rnGen()
   {
-#ifdef __CUDACC__
-    grambo2toNm0::createGenerator( &m_rnGen );
-#else
+#ifndef __CUDACC__
     if ( m_mode == RandomNumberMode::CurandDevice )
       throw std::runtime_error( "CurandRandomKernel does not support CurandDevice on CPUs" );
-    rambo2toNm0::createGenerator( &m_rnGen );
 #endif
+    // [NB Timings are for GenRnGen host|device (cpp|cuda) generation of 256*32*1 events with nproc=1: rn(0) is host=0.0012s]
+    const curandRngType_t type = CURAND_RNG_PSEUDO_MTGP32;          // 0.00082s | 0.00064s (FOR FAST TESTS)
+    //const curandRngType_t type = CURAND_RNG_PSEUDO_XORWOW;        // 0.049s   | 0.0016s
+    //const curandRngType_t type = CURAND_RNG_PSEUDO_MRG32K3A;      // 0.71s    | 0.0012s  (better but slower, especially in c++)
+    //const curandRngType_t type = CURAND_RNG_PSEUDO_MT19937;       // 21s      | 0.021s
+    //const curandRngType_t type = CURAND_RNG_PSEUDO_PHILOX4_32_10; // 0.024s   | 0.00026s (used to segfault?)
+    if ( m_mode == RandomNumberMode::CurandDevice )
+    {
+      checkCurand( curandCreateGenerator( &m_rnGen, type ) );
+    }
+    else
+    {
+      checkCurand( curandCreateGeneratorHost( &m_rnGen, type ) );
+    }
+    //checkCurand( curandSetGeneratorOrdering( *&m_rnGen, CURAND_ORDERING_PSEUDO_LEGACY ) ); // CUDA 11
+    checkCurand( curandSetGeneratorOrdering( *&m_rnGen, CURAND_ORDERING_PSEUDO_BEST ) );
   }
 
   //--------------------------------------------------------------------------
 
   CurandRandomKernel::~CurandRandomKernel()
   {
-#ifdef __CUDACC__
-    grambo2toNm0::destroyGenerator( m_rnGen );
-#else
-    rambo2toNm0::destroyGenerator( m_rnGen );
-#endif
+    checkCurand( curandDestroyGenerator( m_rnGen ) );
   }
 
   //--------------------------------------------------------------------------
@@ -134,11 +159,8 @@ namespace mg5amcCpu
   void CurandRandomKernel::seedGenerator( const int seed )
   {
     RandomNumberKernelBase::seedGenerator( seed ); // check if seed > 0 and set m_seed
-#ifdef __CUDACC__
-    grambo2toNm0::seedGenerator( m_rnGen, seed );
-#else
-    rambo2toNm0::seedGenerator( m_rnGen, seed );
-#endif
+    //printf( "seedGenerator: seed %lld\n", seed );
+    checkCurand( curandSetPseudoRandomGeneratorSeed( m_rnGen, seed ) );
   }
 
   //--------------------------------------------------------------------------
@@ -146,17 +168,22 @@ namespace mg5amcCpu
   void CurandRandomKernel::generateRnarray()
   {
     RandomNumberKernelBase::generateRnarray(); // check if m_seed > 0
+    fptype* outRnarray = nullptr;
 #ifdef __CUDACC__
     if ( m_mode == RandomNumberMode::CurandDevice )
-      grambo2toNm0::generateRnarray( m_rnGen, m_devRnarray, m_nevt );
-    else
-      grambo2toNm0::generateRnarray( m_rnGen, m_hstRnarray, m_nevt );
+      outRnarray = m_devRnarray;
+    else outRnarray = m_hstRnarray;
 #else
     if ( m_mode == RandomNumberMode::CurandDevice )
       throw std::runtime_error( "CurandRandomKernel does not support CurandDevice on CPUs" );
-    else
-      rambo2toNm0::generateRnarray( m_rnGen, m_hstRnarray, m_nevt );
+    else outRnarray = m_hstRnarray;
 #endif
+#if defined MGONGPU_FPTYPE_DOUBLE
+    checkCurand( curandGenerateUniformDouble( m_rnGen, outRnarray, nRnarray() ) );
+#elif defined MGONGPU_FPTYPE_FLOAT
+    checkCurand( curandGenerateUniform( m_rnGen, outRnarray, nRnarray() ) );
+#endif
+    //for ( int i=0; i<8; i++ ) printf("%f %f %f %f\n",outRrnarray[i*4],outRrnarray[i*4+2],outRrnarray[i*4+2],outRrnarray[i*4+3]);
   }
 
   //--------------------------------------------------------------------------
