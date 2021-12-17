@@ -116,19 +116,12 @@ else ifneq ($(HRDCOD),0)
   $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
 endif
 
-# Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=common")
+# Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=hasNoCurand")
 ###$(info RNDGEN=$(RNDGEN))
-ifeq ($(RNDGEN),curdev)
-  CXXFLAGS += -DMGONGPU_CURAND_ONDEVICE
-  #CUFLAGS  += -DMGONGPU_CURAND_ONDEVICE
-else ifeq ($(RNDGEN),curhst)
-  CXXFLAGS += -DMGONGPU_CURAND_ONHOST
-  #CUFLAGS  += -DMGONGPU_CURAND_ONHOST
-else ifeq ($(RNDGEN),common)
-  CXXFLAGS += -DMGONGPU_COMMONRAND_ONHOST
-  #CUFLAGS  += -DMGONGPU_COMMONRAND_ONHOST
-else
-  $(error Unknown RNDGEN='$(RNDGEN)': only 'curdev', 'curhst' and 'common' are supported)
+ifeq ($(RNDGEN),hasNoCurand)
+  CXXFLAGS += -DMGONGPU_HAS_NO_CURAND
+else ifneq ($(RNDGEN),hasCurand)
+  $(error Unknown RNDGEN='$(RNDGEN)': only 'hasCurand' and 'hasNoCurand' are supported)
 endif
 
 # Build directory "short" tag (defines target and path to the optional build directory)
