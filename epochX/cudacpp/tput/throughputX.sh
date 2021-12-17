@@ -26,7 +26,7 @@ unset RNDGEN
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -100,6 +100,9 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-common" ]; then
     export RNDGEN=common
+    shift
+  elif [ "$1" == "-curhst" ]; then
+    export RNDGEN=curhst
     shift
   elif [ "$1" == "-auto" ]; then
     if [ "${suffs}" == ".auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
@@ -262,7 +265,7 @@ function runExe() {
   # Optionally add other patterns here for some specific configurations (e.g. clang)
   if [ "${exe%%/gcheck*}" != "${exe}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
   pattern="${pattern}|CUCOMPLEX"
-  pattern="${pattern}|COMMON RANDOM"
+  pattern="${pattern}|COMMON RANDOM|CURAND HOST"
   pattern="${pattern}|ERROR"
   pattern="${pattern}|WARNING"
   # TEMPORARY! OLD C++/CUDA CODE (START)
