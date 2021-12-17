@@ -17,6 +17,11 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  // Supported random number generation modes
+  enum class RandomNumberMode{ CommonRandom=0, CurandHost=1, CurandDevice=2 };
+
+  //--------------------------------------------------------------------------
+
   // A base class encapsulating random number generation on a CPU host or on a GPU device
   class RandomNumberKernelBase
   {
@@ -113,9 +118,6 @@ namespace mg5amcCpu
   class CurandRandomKernel : public RandomNumberKernelBase
   {
   public:
-
-    // Supported random number generation modes
-    enum class RandomNumberMode{ CurandHost=1, CurandDevice=2 };
 
     // Constructor - allocates the output buffer(s) for the given number of events
     CurandRandomKernel( int nevt, RandomNumberMode mode );

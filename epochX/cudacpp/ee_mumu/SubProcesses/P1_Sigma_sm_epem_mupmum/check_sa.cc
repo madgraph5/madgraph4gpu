@@ -343,15 +343,15 @@ int main(int argc, char **argv)
 #if defined MGONGPU_COMMONRAND_ONHOST
   mg5amcGpu::CommonRandomKernel rnk( nevt );
 #elif defined MGONGPU_CURAND_ONHOST
-  mg5amcGpu::CurandRandomKernel rnk( nevt, mg5amcGpu::CurandRandomKernel::RandomNumberMode::CurandHost );
+  mg5amcGpu::CurandRandomKernel rnk( nevt, mg5amcGpu::RandomNumberMode::CurandHost );
 #else
-  mg5amcGpu::CurandRandomKernel rnk( nevt, mg5amcGpu::CurandRandomKernel::RandomNumberMode::CurandDevice );
+  mg5amcGpu::CurandRandomKernel rnk( nevt, mg5amcGpu::RandomNumberMode::CurandDevice );
 #endif  
 #else
 #if defined MGONGPU_COMMONRAND_ONHOST
   mg5amcCpu::CommonRandomKernel rnk( nevt );
 #else
-  mg5amcCpu::CurandRandomKernel rnk( nevt, mg5amcCpu::CurandRandomKernel::RandomNumberMode::CurandHost );
+  mg5amcCpu::CurandRandomKernel rnk( nevt, mg5amcCpu::RandomNumberMode::CurandHost );
 #endif  
 #endif
 

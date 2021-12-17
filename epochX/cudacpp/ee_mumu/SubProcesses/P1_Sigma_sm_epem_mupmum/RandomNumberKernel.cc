@@ -125,6 +125,8 @@ namespace mg5amcCpu
     , m_mode( mode )
     , m_rnGen()
   {
+    if ( m_mode != RandomNumberMode::CurandDevice && m_mode != RandomNumberMode::CurandHost )
+      throw std::runtime_error( "CurandRandomKernel only supports CurandDevice and CurandHost" );
 #ifndef __CUDACC__
     if ( m_mode == RandomNumberMode::CurandDevice )
       throw std::runtime_error( "CurandRandomKernel does not support CurandDevice on CPUs" );
