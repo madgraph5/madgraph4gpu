@@ -1,11 +1,7 @@
 #ifndef P1_SIGMA_SM_EPEM_MUPMUM_RANDOMNUMBERKERNEL_H 
 #define P1_SIGMA_SM_EPEM_MUPMUM_RANDOMNUMBERKERNEL_H 1
 
-#include <future>
-#include <vector>
-
 #include "mgOnGpuConfig.h"
-//#include "mgOnGpuTypes.h"
 
 // NB This must come AFTER mgOnGpuConfig.h which contains our definition of __global__ when __CUDACC__ is not defined
 #ifndef MGONGPU_COMMONRAND_ONHOST
