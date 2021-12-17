@@ -32,8 +32,8 @@ ifneq ($(shell $(CXX) --version | grep ^Intel),)
 override OMPFLAGS =
 else ifeq ($(shell $(CXX) --version | grep GCC | cut -d' ' -f3 | cut -d'.' -f1),9) # disable OMP on gcc9 (issue #269)
 override OMPFLAGS =
-OMPFLAGS ?= -fopenmp
 endif
+OMPFLAGS ?= -fopenmp
 $(info OMPFLAGS=$(OMPFLAGS))
 CXXFLAGS += $(OMPFLAGS)
 
