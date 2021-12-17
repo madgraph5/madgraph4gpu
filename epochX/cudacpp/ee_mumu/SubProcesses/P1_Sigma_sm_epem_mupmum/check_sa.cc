@@ -303,24 +303,7 @@ int main(int argc, char **argv)
   const std::string alloKey = "0b MemAlloc";
   timermap.start( alloKey );
 
-  // Allocate the appropriate RandomNumberKernel
-#ifdef __CUDACC__
-#if defined MGONGPU_COMMONRAND_ONHOST
-  mg5amcGpu::CommonRandomKernel rnk( nevt );
-#elif defined MGONGPU_CURAND_ONHOST
-  mg5amcGpu::CurandRandomKernel rnk( nevt, mg5amcGpu::CurandRandomKernel::RandomNumberMode::CurandHost );
-#else
-  mg5amcGpu::CurandRandomKernel rnk( nevt, mg5amcGpu::CurandRandomKernel::RandomNumberMode::CurandDevice );
-#endif  
-#else
-#if defined MGONGPU_COMMONRAND_ONHOST
-  mg5amcCpu::CommonRandomKernel rnk( nevt );
-#else
-  mg5amcCpu::CurandRandomKernel rnk( nevt, mg5amcCpu::CurandRandomKernel::RandomNumberMode::CurandHost );
-#endif  
-#endif
-
-  // Memory structures for random numbers, momenta, matrix elements and weights on host and device
+  // Memory structures for momenta, matrix elements and weights on host and device
   using mgOnGpu::np4;
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
@@ -355,13 +338,21 @@ int main(int argc, char **argv)
   // --- 0c. Create curand or common generator
   const std::string cgenKey = "0c GenCreat";
   timermap.start( cgenKey );
-#ifndef MGONGPU_COMMONRAND_ONHOST
-  curandGenerator_t rnGen;
+  // Allocate the appropriate RandomNumberKernel
 #ifdef __CUDACC__
-  grambo2toNm0::createGenerator( &rnGen );
+#if defined MGONGPU_COMMONRAND_ONHOST
+  mg5amcGpu::CommonRandomKernel rnk( nevt );
+#elif defined MGONGPU_CURAND_ONHOST
+  mg5amcGpu::CurandRandomKernel rnk( nevt, mg5amcGpu::CurandRandomKernel::RandomNumberMode::CurandHost );
 #else
-  rambo2toNm0::createGenerator( &rnGen );
-#endif
+  mg5amcGpu::CurandRandomKernel rnk( nevt, mg5amcGpu::CurandRandomKernel::RandomNumberMode::CurandDevice );
+#endif  
+#else
+#if defined MGONGPU_COMMONRAND_ONHOST
+  mg5amcCpu::CommonRandomKernel rnk( nevt );
+#else
+  mg5amcCpu::CurandRandomKernel rnk( nevt, mg5amcCpu::CurandRandomKernel::RandomNumberMode::CurandHost );
+#endif  
 #endif
 
   // **************************************
@@ -679,19 +670,9 @@ int main(int argc, char **argv)
   double stdweig = std::sqrt( sqsweigdiff / ( nevtALL - nabn ) );
 
   // === STEP 9 FINALISE
-  // --- 9a. Destroy curand generator
-  const std::string dgenKey = "9a GenDestr";
-  timermap.start( dgenKey );
-#ifndef MGONGPU_COMMONRAND_ONHOST
-#ifdef __CUDACC__
-  grambo2toNm0::destroyGenerator( rnGen );
-#else
-  rambo2toNm0::destroyGenerator( rnGen );
-#endif
-#endif
 
-  // --- 9b Dump to screen
-  const std::string dumpKey = "9b DumpScrn";
+  // --- 9a Dump to screen
+  const std::string dumpKey = "9a DumpScrn";
   timermap.start(dumpKey);
 
   if (!(verbose || debug || perf))
@@ -854,8 +835,8 @@ int main(int argc, char **argv)
               << std::defaultfloat; // default format: affects all floats
   }
 
-  // --- 9c Dump to json
-  const std::string jsonKey = "9c DumpJson";
+  // --- 9b Dump to json
+  const std::string jsonKey = "9b DumpJson";
   timermap.start(jsonKey);
 
   if(json)
@@ -991,6 +972,7 @@ int main(int argc, char **argv)
     std::cout << std::string(SEP79, '*') << std::endl;
   }
 
+  // [NB some resources like curand generators will be deleted here when stack-allocated classes go out of scope]
   //std::cout << "ALL OK" << std::endl;
   return 0;
 }
