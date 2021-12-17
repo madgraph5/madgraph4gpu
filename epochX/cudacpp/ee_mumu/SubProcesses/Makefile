@@ -27,6 +27,19 @@ TESTDIR  = ../../../../../test
 GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
 GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 
+# Set special CXXFLAGS and LIBFLAGS if nvcc is used as CXX
+# Forward unknown options (e.g. -Wall) to the host compiler
+# Forward unknown options (e.g. -Wl,--start-group) to the host linker
+# Use -pthread unless nvcc is used as CXX
+# Disable OpenMP if nvcc is used as CXX
+ifneq ($(shell $(CXX) --version | grep ^nvcc),)
+CXXFLAGS += --forward-unknown-to-host-compiler
+LIBFLAGS += --forward-unknown-to-host-linker
+override OMPFLAGS =
+else
+LIBFLAGS += -pthread
+endif
+
 # OpenMP flags
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 override OMPFLAGS =
@@ -36,17 +49,6 @@ endif
 OMPFLAGS ?= -fopenmp
 $(info OMPFLAGS=$(OMPFLAGS))
 CXXFLAGS += $(OMPFLAGS)
-
-# Set special CXXFLAGS and LIBFLAGS if nvcc is used as CXX
-# Forward unknown options (e.g. -Wall) to the host compiler
-# Forward unknown options (e.g. -Wl,--start-group) to the host linker
-# Use -pthread unless nvcc is used as CXX
-ifneq ($(shell $(CXX) --version | grep ^nvcc),)
-CXXFLAGS += --forward-unknown-to-host-compiler
-LIBFLAGS += --forward-unknown-to-host-linker
-else
-LIBFLAGS += -pthread
-endif
 
 # Assuming uname is available, detect if architecture is PowerPC
 UNAME_P := $(shell uname -p)
