@@ -37,6 +37,14 @@ OMPFLAGS ?= -fopenmp
 $(info OMPFLAGS=$(OMPFLAGS))
 CXXFLAGS += $(OMPFLAGS)
 
+# Set special CXXFLAGS and LIBFLAGS if nvcc is used as CXX
+# Forward unknown options (e.g. -Wall) to the host compiler
+# Forward unknown options (e.g. -Wl,--start-group) to the host linker
+ifneq ($(shell $(CXX) --version | grep ^nvcc),)
+CXXFLAGS += --forward-unknown-to-host-compiler
+LIBFLAGS += --forward-unknown-to-host-linker
+endif
+
 # Assuming uname is available, detect if architecture is PowerPC
 UNAME_P := $(shell uname -p)
 
