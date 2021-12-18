@@ -149,26 +149,16 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  /*
-#ifdef __CUDACC__
-  // See https://stackoverflow.com/a/5590404
-  template<typename... Args> // c++17 variadic templates
-  std::string sstr( Args &&... args )
-  {
-    std::ostringstream sstr;
-    ( sstr << std::dec << ... << args );
-    return sstr.str();
-  }
-#endif
-
-  //--------------------------------------------------------------------------
-
 #ifdef __CUDACC__
   template<class Tsrc, class Tdst>
   void copyHostToDevice( const Tsrc& src, Tdst& dst )
   {
     if ( dst.size() != src.size() )
-      throw std::runtime_error( sstr( "Size mismatch in copyHostToDevice ", dst.size(), src.size() ) );
+    {
+      std::ostringstream sstr;
+      sstr << "Size mismatch in copyHostToDevice: dst=" << dst.size() << ", src=" << src.size();
+      throw std::runtime_error( sstr.str() );
+    }
     checkCuda( cudaMemcpy( dst.data(), src.data(), src.size(), cudaMemcpyHostToDevice ) );
   }
 #endif
@@ -180,11 +170,14 @@ namespace MG5_sm
   void copyDeviceToHost( const Tsrc& src, Tdst& dst )
   {
     if ( dst.size() != src.size() )
-      throw std::runtime_error( sstr( "Size mismatch in copyDeviceToHost ", dst.size(), src.size() ) );
+    {
+      std::ostringstream sstr;
+      sstr << "Size mismatch in copyDeviceToHost: dst=" << dst.size() << ", src=" << src.size();
+      throw std::runtime_error( sstr.str() );
+    }
     checkCuda( cudaMemcpy( dst.data(), src.data(), src.size(), cudaMemcpyDeviceToHost ) );
   }
 #endif
-  */
 
   //--------------------------------------------------------------------------
 }
