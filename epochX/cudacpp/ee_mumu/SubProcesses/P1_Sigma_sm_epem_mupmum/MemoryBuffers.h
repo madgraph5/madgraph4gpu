@@ -26,9 +26,6 @@ namespace MG5_sm
     T* m_data;
   };
 
-  // Template instantiation
-  //template class BufferBase<fptype>;
-  
   //--------------------------------------------------------------------------
 
 #ifndef __CUDACC__
@@ -68,9 +65,6 @@ namespace MG5_sm
       checkCuda( cudaFreeHost( BufferBase<T>::m_data ) );
     }    
   };
-
-  // Template instantiation
-  template class PinnedHostBufferBase<fptype>;  
 #endif
 
   //--------------------------------------------------------------------------
@@ -91,9 +85,6 @@ namespace MG5_sm
       checkCuda( cudaFree( BufferBase<T>::m_data ) );
     }    
   };
-
-  // Template instantiation
-  template class DeviceBufferBase<fptype>;  
 #endif
 
   //--------------------------------------------------------------------------
