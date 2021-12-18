@@ -26,6 +26,7 @@
 
 #include "CPPProcess.h"
 #include "Memory.h"
+#include "MemoryBuffers.h"
 #include "RandomNumberKernels.h"
 #include "timermap.h"
 
