@@ -127,22 +127,16 @@ int usage(char* argv0, int ret = 1) {
   return ret;
 }
 
-// Namespaces for CUDA and C++ (FIXME - eventually use the same namespace everywhere...)
-#ifdef __CUDACC__
-using mg5amcGpu::RandomNumberKernelBase;
-using mg5amcGpu::CommonRandomNumberKernel;
-using mg5amcGpu::CurandRandomNumberKernel;
-#else  
-using mg5amcCpu::RandomNumberKernelBase;
-using mg5amcCpu::CommonRandomNumberKernel;
-#ifndef MGONGPU_HAS_NO_CURAND
-using mg5amcCpu::CurandRandomNumberKernel;
-#endif
-#endif
-
 int main(int argc, char **argv)
 {
-  // READ COMMAND LINE ARGUMENTS
+  // Namespaces for CUDA and C++ (FIXME - eventually use the same namespace everywhere...)
+#ifdef __CUDACC__
+  using namespace mg5amcGpu;
+#else
+  using namespace mg5amcCpu;
+#endif
+  
+  // DEFAULTS FOR COMMAND LINE ARGUMENTS
   bool verbose = false;
   bool debug = false;
   bool perf = false;
@@ -154,7 +148,6 @@ int main(int argc, char **argv)
   int jsonrun = 0;
   int numvec[5] = {0,0,0,0,0};
   int nnum = 0;
-
   enum class RandomNumberMode{ CommonRandom=0, CurandHost=1, CurandDevice=2 };
 #ifdef __CUDACC__
   RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on GPU
@@ -164,6 +157,7 @@ int main(int argc, char **argv)
   RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // default on CPU if build has no curand
 #endif
 
+  // READ COMMAND LINE ARGUMENTS
   for ( int argn = 1; argn < argc; ++argn )
   {
     std::string arg = argv[argn];
@@ -359,10 +353,10 @@ int main(int argc, char **argv)
 
   // Memory buffers for random numbers
 #ifndef __CUDACC__
-  MG5_sm::HostBufferRandomNumbers hstRnarray( nevt );
+  HostBufferRandomNumbers hstRnarray( nevt );
 #else
-  MG5_sm::PinnedHostBufferRandomNumbers hstRnarray( nevt );
-  MG5_sm::DeviceBufferRandomNumbers devRnarray( nevt );
+  PinnedHostBufferRandomNumbers hstRnarray( nevt );
+  DeviceBufferRandomNumbers devRnarray( nevt );
 #endif
 
   // Memory structures for momenta, matrix elements and weights on host and device
@@ -467,7 +461,7 @@ int main(int argc, char **argv)
       // --- 1c. Copy rnarray from host to device
       const std::string htodKey = "1c CpHTDrnd";
       genrtime += timermap.start( htodKey );
-      MG5_sm::copyDeviceFromHost( devRnarray, hstRnarray );
+      copyDeviceFromHost( devRnarray, hstRnarray );
     }
 #endif
 

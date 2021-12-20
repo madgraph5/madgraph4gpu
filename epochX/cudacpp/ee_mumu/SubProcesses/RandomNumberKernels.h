@@ -8,7 +8,7 @@
 #include "curand.h"
 #endif
 
-#include "MemoryBuffers.h" // FIXME! switch to a forward declaration after fixing namespaces
+#include "MemoryBuffers.h"
 
 #ifdef __CUDACC__
 namespace mg5amcGpu
@@ -16,10 +16,6 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-  using MG5_sm::BufferRandomNumbers;
-  // Forward declaration
-  //class BufferRandomNumbers; // FIXME! use a consistent choice of namespace
-
   //--------------------------------------------------------------------------
 
   /*
