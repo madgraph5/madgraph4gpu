@@ -395,7 +395,7 @@ int main(int argc, char **argv)
   const std::string cgenKey = "0c GenCreat";
   timermap.start( cgenKey );
   // Allocate the appropriate RandomNumberKernel
-  std::unique_ptr<RandomNumberKernelBase> prnk;
+  std::unique_ptr<IRandomNumberKernel> prnk;
   if ( rndgen == RandomNumberMode::CommonRandom )
   {
     prnk.reset( new CommonRandomNumberKernel( hstRnarray ) );
