@@ -5,6 +5,8 @@
 
 #include "checkCuda.h"
 
+#include <sstream>
+
 namespace MG5_sm
 {
   //--------------------------------------------------------------------------
@@ -20,8 +22,7 @@ namespace MG5_sm
     T* data(){ return m_data; }
     const T* data() const{ return m_data; }
     size_t size() const{ return m_size; }
-    //protected:
-  public:
+  protected:
     const size_t m_size;
     T* m_data;
   };
@@ -86,6 +87,11 @@ namespace MG5_sm
     }    
   };
 #endif
+
+  //--------------------------------------------------------------------------
+
+  // A base class encapsulating a memory buffer for random numbers
+  typedef BufferBase<fptype> BufferRandomNumbers;
 
   //--------------------------------------------------------------------------
 
@@ -159,6 +165,7 @@ namespace MG5_sm
       sstr << "Size mismatch in copyHostToDevice: dst=" << dst.size() << ", src=" << src.size();
       throw std::runtime_error( sstr.str() );
     }
+    // NB (PR #45): cudaMemcpy involves an intermediate memcpy to pinned memory if host array is a not a pinned host array
     checkCuda( cudaMemcpy( dst.data(), src.data(), src.size(), cudaMemcpyHostToDevice ) );
   }
 #endif
@@ -175,6 +182,7 @@ namespace MG5_sm
       sstr << "Size mismatch in copyDeviceToHost: dst=" << dst.size() << ", src=" << src.size();
       throw std::runtime_error( sstr.str() );
     }
+    // NB (PR #45): cudaMemcpy involves an intermediate memcpy to pinned memory if host array is a not a pinned host array
     checkCuda( cudaMemcpy( dst.data(), src.data(), src.size(), cudaMemcpyDeviceToHost ) );
   }
 #endif

@@ -129,16 +129,14 @@ int usage(char* argv0, int ret = 1) {
 
 // Namespaces for CUDA and C++ (FIXME - eventually use the same namespace everywhere...)
 #ifdef __CUDACC__
-using mg5amcGpu::RandomNumberMode;
 using mg5amcGpu::RandomNumberKernelBase;
-using mg5amcGpu::CommonRandomKernel;
-using mg5amcGpu::CurandRandomKernel;
+using mg5amcGpu::CommonRandomNumberKernel;
+using mg5amcGpu::CurandRandomNumberKernel;
 #else  
-using mg5amcCpu::RandomNumberMode;
 using mg5amcCpu::RandomNumberKernelBase;
-using mg5amcCpu::CommonRandomKernel;
+using mg5amcCpu::CommonRandomNumberKernel;
 #ifndef MGONGPU_HAS_NO_CURAND
-using mg5amcCpu::CurandRandomKernel;
+using mg5amcCpu::CurandRandomNumberKernel;
 #endif
 #endif
 
@@ -157,6 +155,7 @@ int main(int argc, char **argv)
   int numvec[5] = {0,0,0,0,0};
   int nnum = 0;
 
+  enum class RandomNumberMode{ CommonRandom=0, CurandHost=1, CurandDevice=2 };
 #ifdef __CUDACC__
   RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on GPU
 #elif not defined MGONGPU_HAS_NO_CURAND
@@ -356,6 +355,14 @@ int main(int argc, char **argv)
   const std::string alloKey = "0b MemAlloc";
   timermap.start( alloKey );
 
+  // Memory buffers for random numbers
+#ifndef __CUDACC__
+  MG5_sm::HostBufferRandomNumbers hstRnarray( nevt );
+#else
+  MG5_sm::PinnedHostBufferRandomNumbers hstRnarray( nevt );
+  MG5_sm::DeviceBufferRandomNumbers devRnarray( nevt );
+#endif
+
   // Memory structures for momenta, matrix elements and weights on host and device
   using mgOnGpu::np4;
   using mgOnGpu::nparf;
@@ -395,16 +402,34 @@ int main(int argc, char **argv)
   std::unique_ptr<RandomNumberKernelBase> prnk;
   if ( rndgen == RandomNumberMode::CommonRandom )
   {
-    prnk.reset( new CommonRandomKernel( nevt ) );
+    MG5_sm::BufferRandomNumbers& rnarray = hstRnarray;
+    prnk.reset( new CommonRandomNumberKernel( rnarray ) );
+    //prnk.reset( new CommonRandomNumberKernel( hstRnarray ) );
   }
+#ifndef MGONGPU_HAS_NO_CURAND    
+  else if ( rndgen == RandomNumberMode::CurandHost )
+  {
+    const bool onDevice = false;
+    prnk.reset( new CurandRandomNumberKernel( hstRnarray, onDevice ) );
+  }
+#ifdef __CUDACC__
   else
   {
-#ifndef MGONGPU_HAS_NO_CURAND
-    prnk.reset( new CurandRandomKernel( nevt, rndgen ) );
-#else
-    throw std::logic_error( "This application was built without Curand support" ); // INTERNAL ERROR (no path to this statement)
-#endif
+    const bool onDevice = true;
+    prnk.reset( new CurandRandomNumberKernel( devRnarray, onDevice ) );
   }
+#else
+  else
+  {
+    throw std::logic_error( "CurandDevice is not supported on CPUs" ); // INTERNAL ERROR (no path to this statement)
+  }
+#endif
+#else
+  else
+  {
+    throw std::logic_error( "This application was built without Curand support" ); // INTERNAL ERROR (no path to this statement)
+  }
+#endif
 
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
@@ -442,8 +467,7 @@ int main(int argc, char **argv)
       // --- 1c. Copy rnarray from host to device
       const std::string htodKey = "1c CpHTDrnd";
       genrtime += timermap.start( htodKey );
-      // NB (PR #45): cudaMemcpy would involve an intermediate memcpy to pinned memory, if hstRnarray was not already cudaMalloc'ed
-      prnk->copyHstRnarrayToDevRnarray();
+      MG5_sm::copyHostToDevice( hstRnarray, devRnarray );
     }
 #endif
 
@@ -471,9 +495,9 @@ int main(int argc, char **argv)
     const std::string rfinKey = "2b RamboFin";
     rambtime += timermap.start( rfinKey );
 #ifdef __CUDACC__
-    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, prnk->devRnarray(), devMomenta.get(), devWeights.get() );
+    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.data(), devMomenta.get(), devWeights.get() );
 #else
-    rambo2toNm0::getMomentaFinal( energy, prnk->hstRnarray(), hstMomenta.get(), hstWeights.get(), nevt );
+    rambo2toNm0::getMomentaFinal( energy, hstRnarray.data(), hstMomenta.get(), hstWeights.get(), nevt );
 #endif
     //std::cout << "Got final momenta" << std::endl;
 
