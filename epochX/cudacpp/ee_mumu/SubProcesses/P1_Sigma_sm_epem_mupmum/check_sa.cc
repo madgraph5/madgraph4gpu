@@ -183,12 +183,14 @@ int main(int argc, char **argv)
     {
       json = true;
     }
-#ifndef __CUDACC__
     else if ( arg == "--curdev" )
     {
+#ifdef __CUDACC__
+      rndgen = RandomNumberMode::CurandDevice;
+#else
       throw std::runtime_error( "CurandDevice is not supported on CPUs" );
-    }
 #endif
+    }
     else if ( arg == "--curhst" )
     {
 #ifndef MGONGPU_HAS_NO_CURAND
@@ -402,9 +404,7 @@ int main(int argc, char **argv)
   std::unique_ptr<RandomNumberKernelBase> prnk;
   if ( rndgen == RandomNumberMode::CommonRandom )
   {
-    MG5_sm::BufferRandomNumbers& rnarray = hstRnarray;
-    prnk.reset( new CommonRandomNumberKernel( rnarray ) );
-    //prnk.reset( new CommonRandomNumberKernel( hstRnarray ) );
+    prnk.reset( new CommonRandomNumberKernel( hstRnarray ) );
   }
 #ifndef MGONGPU_HAS_NO_CURAND    
   else if ( rndgen == RandomNumberMode::CurandHost )
