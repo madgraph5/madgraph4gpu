@@ -103,12 +103,12 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     from_template = {'src': [s+'gpu/rambo.h', s+'gpu/rambo.cc', s+'read_slha.h', s+'read_slha.cc',
                              s+'gpu/mgOnGpuTypes.h', s+'gpu/mgOnGpuVectors.h'],
                     'SubProcesses': [s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h',
-                                     s+'gpu/checkCuda.h', s+'gpu/Memory.h', s+'gpu/MemoryAccess.h',
+                                     s+'gpu/checkCuda.h', s+'gpu/Memory.h', s+'gpu/MemoryAccess.h', s+'gpu/MemoryBuffers.h',
                                      s+'gpu/RandomNumberKernels.h', s+'gpu/RandomNumberKernels.cc', s+'gpu/Makefile', 
                                      s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc', s+'gpu/testxxx.cc', s+'gpu/testxxx_cc_ref.txt',
                                      s+'gpu/perf.py', s+'gpu/profile.sh']}
     to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h',
-                    'checkCuda.h', 'Memory.h', 'MemoryAccess.h',
+                    'checkCuda.h', 'Memory.h', 'MemoryAccess.h', 'MemoryBuffers.h',
                     'RandomNumberKernels.h', 'RandomNumberKernels.cc', 'Makefile',
                     'MadgraphTest.h', 'runTest.cc', 'testxxx.cc', 'testxxx_cc_ref.txt',
                     'perf.py', 'profile.sh']
