@@ -154,8 +154,8 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
-  template<class Tsrc, class Tdst>
-  void copyHostToDevice( const Tsrc& src, Tdst& dst )
+  template<class Tdst, class Tsrc>
+  void copyDeviceFromHost( Tdst& dst, const Tsrc& src ) // keep the same order of arguments as in memcpy
   {
     if ( dst.size() != src.size() )
     {
@@ -171,8 +171,8 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
   
 #ifdef __CUDACC__
-  template<class Tsrc, class Tdst>
-  void copyDeviceToHost( const Tsrc& src, Tdst& dst )
+  template<class Tdst, class Tsrc>
+  void copyHostFromDevice( Tdst& dst, const Tsrc& src ) // keep the same order of arguments as in memcpy
   {
     if ( dst.size() != src.size() )
     {

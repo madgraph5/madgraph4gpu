@@ -467,7 +467,7 @@ int main(int argc, char **argv)
       // --- 1c. Copy rnarray from host to device
       const std::string htodKey = "1c CpHTDrnd";
       genrtime += timermap.start( htodKey );
-      MG5_sm::copyHostToDevice( hstRnarray, devRnarray );
+      MG5_sm::copyDeviceFromHost( devRnarray, hstRnarray );
     }
 #endif
 
