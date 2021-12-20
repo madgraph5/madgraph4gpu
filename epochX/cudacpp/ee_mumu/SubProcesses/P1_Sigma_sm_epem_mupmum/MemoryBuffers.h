@@ -37,11 +37,11 @@ namespace MG5_sm
   protected:
     HostBufferBase( const size_t size ) : BufferBase<T>( size )
     {
-      BufferBase<T>::m_data = new( std::align_val_t{ cppAlign } ) T[ size ]();
+      this->m_data = new( std::align_val_t{ cppAlign } ) T[ size ]();
     }    
     virtual ~HostBufferBase()
     {
-      ::operator delete( BufferBase<T>::m_data, std::align_val_t{ cppAlign } );
+      ::operator delete( this->m_data, std::align_val_t{ cppAlign } );
     }    
   public:
     static constexpr int cppAlign = mgOnGpu::cppAlign;
@@ -58,12 +58,12 @@ namespace MG5_sm
   protected:
     PinnedHostBufferBase( const size_t size ) : BufferBase<T>( size )
     {
-      T* data = BufferBase<T>::m_data;
+      T* data = this->m_data;
       checkCuda( cudaMallocHost( &data, size * sizeof(T) ) );
     }    
     virtual ~PinnedHostBufferBase()
     {
-      checkCuda( cudaFreeHost( BufferBase<T>::m_data ) );
+      checkCuda( cudaFreeHost( this->m_data ) );
     }    
   };
 #endif
@@ -78,12 +78,12 @@ namespace MG5_sm
   protected:
     DeviceBufferBase( const size_t size ) : BufferBase<T>( size )
     {
-      T* data = BufferBase<T>::m_data;
+      T* data = this->m_data;
       checkCuda( cudaMalloc( &data, size * sizeof(T) ) );
     }    
     virtual ~DeviceBufferBase()
     {
-      checkCuda( cudaFree( BufferBase<T>::m_data ) );
+      checkCuda( cudaFree( this->m_data ) );
     }    
   };
 #endif
