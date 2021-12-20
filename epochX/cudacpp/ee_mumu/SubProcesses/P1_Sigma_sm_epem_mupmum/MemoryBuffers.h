@@ -58,8 +58,7 @@ namespace MG5_sm
   protected:
     PinnedHostBufferBase( const size_t size ) : BufferBase<T>( size )
     {
-      T* data = this->m_data;
-      checkCuda( cudaMallocHost( &data, size * sizeof(T) ) );
+      checkCuda( cudaMallocHost( &(this->m_data), size * sizeof(T) ) );
     }    
     virtual ~PinnedHostBufferBase()
     {
@@ -78,8 +77,7 @@ namespace MG5_sm
   protected:
     DeviceBufferBase( const size_t size ) : BufferBase<T>( size )
     {
-      T* data = this->m_data;
-      checkCuda( cudaMalloc( &data, size * sizeof(T) ) );
+      checkCuda( cudaMalloc( &(this->m_data), size * sizeof(T) ) );
     }    
     virtual ~DeviceBufferBase()
     {
