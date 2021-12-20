@@ -22,6 +22,7 @@ namespace MG5_sm
     T* data(){ return m_data; }
     const T* data() const{ return m_data; }
     size_t size() const{ return m_size; }
+    size_t bytes() const{ return m_size * sizeof(T); }
   protected:
     const size_t m_size;
     T* m_data;
@@ -58,7 +59,7 @@ namespace MG5_sm
   protected:
     PinnedHostBufferBase( const size_t size ) : BufferBase<T>( size )
     {
-      checkCuda( cudaMallocHost( &(this->m_data), size * sizeof(T) ) );
+      checkCuda( cudaMallocHost( &(this->m_data), this->bytes() ) );
     }    
     virtual ~PinnedHostBufferBase()
     {
@@ -77,7 +78,7 @@ namespace MG5_sm
   protected:
     DeviceBufferBase( const size_t size ) : BufferBase<T>( size )
     {
-      checkCuda( cudaMalloc( &(this->m_data), size * sizeof(T) ) );
+      checkCuda( cudaMalloc( &(this->m_data), this->bytes() ) );
     }    
     virtual ~DeviceBufferBase()
     {
@@ -160,7 +161,13 @@ namespace MG5_sm
     if ( dst.size() != src.size() )
     {
       std::ostringstream sstr;
-      sstr << "Size mismatch in copyHostToDevice: dst=" << dst.size() << ", src=" << src.size();
+      sstr << "Size (#elements) mismatch in copyDeviceFromHost: dst=" << dst.size() << ", src=" << src.size();
+      throw std::runtime_error( sstr.str() );
+    }
+    if ( dst.bytes() != src.bytes() )
+    {
+      std::ostringstream sstr;
+      sstr << "Size (#bytes) mismatch in copyDeviceFromHost: dst=" << dst.bytes() << ", src=" << src.bytes();
       throw std::runtime_error( sstr.str() );
     }
     // NB (PR #45): cudaMemcpy involves an intermediate memcpy to pinned memory if host array is a not a pinned host array
@@ -177,7 +184,13 @@ namespace MG5_sm
     if ( dst.size() != src.size() )
     {
       std::ostringstream sstr;
-      sstr << "Size mismatch in copyDeviceToHost: dst=" << dst.size() << ", src=" << src.size();
+      sstr << "Size (#elements) mismatch in copyHostFromDevice: dst=" << dst.size() << ", src=" << src.size();
+      throw std::runtime_error( sstr.str() );
+    }
+    if ( dst.bytes() != src.bytes() )
+    {
+      std::ostringstream sstr;
+      sstr << "Size (#bytes) mismatch in copyHostFromDevice: dst=" << dst.bytes() << ", src=" << src.bytes();
       throw std::runtime_error( sstr.str() );
     }
     // NB (PR #45): cudaMemcpy involves an intermediate memcpy to pinned memory if host array is a not a pinned host array
