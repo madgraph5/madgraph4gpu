@@ -18,6 +18,7 @@ namespace mg5amcCpu
 {
   //--------------------------------------------------------------------------
 
+  /*
   // An interface encapsulating random number generation on a CPU host or on a GPU device
   class IRandomNumberKernel
   {
@@ -36,11 +37,12 @@ namespace mg5amcCpu
     virtual bool isOnDevice() const = 0;
 
   };
+  */
 
   //--------------------------------------------------------------------------
 
   // A base class encapsulating random number generation on a CPU host or on a GPU device
-  class RandomNumberKernelBase : virtual public IRandomNumberKernel
+  class RandomNumberKernelBase //: virtual public IRandomNumberKernel
   {
 
   protected:
