@@ -10,9 +10,9 @@
 
 // Simplified rambo version for 2 to N (with N>=2) processes with massless particles
 #ifdef __CUDACC__
-namespace grambo2toNm0
+namespace mg5amcGpu
 #else
-namespace rambo2toNm0
+namespace mg5amcCpu
 #endif
 {
 
@@ -24,12 +24,12 @@ namespace rambo2toNm0
 #ifndef __CUDACC__
   inline
 #endif
-  void getMomentaInitial( const fptype energy,  // input: energy
-                          fptype momenta1d[]    // output: momenta as AOSOA[npagM][npar][4][neppM]
+  void ramboGetMomentaInitial( const fptype energy,  // input: energy
+                               fptype momenta1d[]    // output: momenta as AOSOA[npagM][npar][4][neppM]
 #ifndef __CUDACC__
-                          , const int nevt      // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                               , const int nevt      // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
-                          )
+                               )
   {
     const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
     fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
@@ -43,7 +43,7 @@ namespace rambo2toNm0
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "getMomentaInitial: ievt %d\n", ievt );
+      //printf( "ramboGetMomentaInitial: ievt %d\n", ievt );
 #endif
       const int ipagM = ievt/neppM; // #eventpage in this iteration
       const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
@@ -67,14 +67,14 @@ namespace rambo2toNm0
 #ifndef __CUDACC__
   inline
 #endif
-  void getMomentaFinal( const fptype energy,      // input: energy
-                        const fptype rnarray1d[], // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
-                        fptype momenta1d[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
-                        fptype wgts[]             // output: weights[nevt]
+  void ramboGetMomentaFinal( const fptype energy,      // input: energy
+                             const fptype rnarray1d[], // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
+                             fptype momenta1d[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
+                             fptype wgts[]             // output: weights[nevt]
 #ifndef __CUDACC__
-                        , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                             , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
-                        )
+                             )
   {
     /****************************************************************************
      *                       rambo                                              *
@@ -110,7 +110,7 @@ namespace rambo2toNm0
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "getMomentaFinal:   ievt %d\n", ievt );
+      //printf( "ramboGetMomentaFinal:   ievt %d\n", ievt );
 #endif
 
       const int ipagR = ievt/neppR; // #eventpage in this iteration

@@ -37,7 +37,7 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
     throw std::runtime_error( "RamboSamplingKernelHost is not yet implemented in CUDA" ); // FIXME!
 #else
-    rambo2toNm0::getMomentaInitial( m_energy, m_momenta.data(), nevt() ); // FIXME!
+    ramboGetMomentaInitial( m_energy, m_momenta.data(), nevt() ); // FIXME!
 #endif
   }
 
@@ -48,7 +48,7 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
     throw std::runtime_error( "RamboSamplingKernelHost is not yet implemented in CUDA" ); // FIXME!
 #else
-    rambo2toNm0::getMomentaFinal( m_energy, m_rnarray.data(), m_momenta.data(), m_weights.data(), nevt() );
+    ramboGetMomentaFinal( m_energy, m_rnarray.data(), m_momenta.data(), m_weights.data(), nevt() );
 #endif
   }
 
@@ -78,7 +78,7 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
   void RamboSamplingKernelDevice::getMomentaInitial()
   {
-    grambo2toNm0::getMomentaInitial<<<m_gpublocks, m_gputhreads>>>( m_energy, m_momenta.data() );
+    ramboGetMomentaInitial<<<m_gpublocks, m_gputhreads>>>( m_energy, m_momenta.data() );
   }
 #endif
 
@@ -87,10 +87,10 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
   void RamboSamplingKernelDevice::getMomentaFinal()
   {
-    grambo2toNm0::getMomentaFinal<<<m_gpublocks, m_gputhreads>>>( m_energy,
-                                                                  m_rnarray.data(),
-                                                                  m_momenta.data(),
-                                                                  m_weights.data() );
+    ramboGetMomentaFinal<<<m_gpublocks, m_gputhreads>>>( m_energy,
+                                                         m_rnarray.data(),
+                                                         m_momenta.data(),
+                                                         m_weights.data() );
   }
 #endif
 
