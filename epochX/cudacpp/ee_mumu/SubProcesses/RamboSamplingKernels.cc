@@ -3,8 +3,7 @@
 #include "checkCuda.h"
 #include "MemoryBuffers.h"
 
-//#include "rambo.h"
-#include "rambo.cc" // FIXME
+#include "rambo.h" // inline implementation of RAMBO algorithms and kernels
 
 #ifdef __CUDACC__
 namespace mg5amcGpu
