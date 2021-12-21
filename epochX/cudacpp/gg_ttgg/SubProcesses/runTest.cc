@@ -8,6 +8,8 @@
 #include "CommonRandomNumbers.h"
 #include "CPPProcess.h"
 #include "Memory.h"
+#include "MemoryBuffers.h"
+#include "RandomNumberKernels.h"
 #ifdef __CUDACC__
 #include "rambo.cc"
 #else
@@ -24,13 +26,18 @@ template<typename T = fptype>
 using unique_ptr_host = std::unique_ptr<T[], CppHstDeleter<T>>;
 #endif
 
+#ifdef __CUDACC__
+using namespace mg5amcGpu;
+#else
+using namespace mg5amcCpu;
+#endif
+
 struct CUDA_CPU_TestBase : public TestDriverBase {
 
   static_assert( gputhreads%mgOnGpu::neppR == 0, "ERROR! #threads/block should be a multiple of neppR" );
   static_assert( gputhreads%mgOnGpu::neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
   static_assert( gputhreads <= mgOnGpu::ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
 
-  const std::size_t nRnarray{ mgOnGpu::np4 * mgOnGpu::nparf * nevt }; // AOSOA layout with nevt=npagR*neppR events per iteration
   const std::size_t nMomenta{ mgOnGpu::np4 * mgOnGpu::npar  * nevt }; // AOSOA layout with nevt=npagM*neppM events per iteration
   const std::size_t nWeights{ nevt };
   const std::size_t nMEs    { nevt };
@@ -47,7 +54,7 @@ struct CPUTest : public CUDA_CPU_TestBase {
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   Proc::CPPProcess process;
-  unique_ptr_host<fptype> hstRnarray;
+  HostBufferRandomNumbers hstRnarray;
   unique_ptr_host<fptype> hstMomenta;
   unique_ptr_host<bool  > hstIsGoodHel;
   unique_ptr_host<fptype> hstWeights;
@@ -61,7 +68,7 @@ struct CPUTest : public CUDA_CPU_TestBase {
   CPUTest( const std::string& refFileName ) :
     CUDA_CPU_TestBase( refFileName ),
     process(niter, gpublocks, gputhreads, /*verbose=*/false),
-    hstRnarray  { hstMakeUnique<fptype>( nRnarray ) }, // AOSOA[npagR][nparf][np4][neppR]
+    hstRnarray  ( nevt ),
     hstMomenta  { hstMakeUnique<fptype>( nMomenta ) }, // AOSOA[npagM][npar][np4][neppM]
     hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) },
     hstWeights  { hstMakeUnique<fptype>( nWeights ) },
@@ -72,8 +79,9 @@ struct CPUTest : public CUDA_CPU_TestBase {
   virtual ~CPUTest() { }
 
   void prepareRandomNumbers(unsigned int iiter) override {
-    std::vector<double> rnd = CommonRandomNumbers::generate<double>(nRnarray, 1337 + iiter); // NB: HARDCODED DOUBLE!
-    std::copy(rnd.begin(), rnd.end(), hstRnarray.get()); // NB: this may imply a conversion from double to float
+    CommonRandomNumberKernel rnk( hstRnarray );
+    rnk.seedGenerator( 1337 + iiter );
+    rnk.generateRnarray();
   }
 
   void prepareMomenta(fptype energy) override {
@@ -81,7 +89,7 @@ struct CPUTest : public CUDA_CPU_TestBase {
     rambo2toNm0::getMomentaInitial( energy, hstMomenta.get(), nevt );
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
     // (i.e. map random numbers to final-state particle momenta for each of nevt events)
-    rambo2toNm0::getMomentaFinal( energy, hstRnarray.get(), hstMomenta.get(), hstWeights.get(), nevt );
+    rambo2toNm0::getMomentaFinal( energy, hstRnarray.data(), hstMomenta.get(), hstWeights.get(), nevt );
   }
 
   void runSigmaKin(std::size_t iiter) override {
@@ -130,12 +138,12 @@ struct CUDATest : public CUDA_CPU_TestBase {
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   gProc::CPPProcess process;
-  unique_ptr_host<fptype> hstRnarray;
+  PinnedHostBufferRandomNumbers hstRnarray;
+  DeviceBufferRandomNumbers devRnarray;
   unique_ptr_host<fptype> hstMomenta;
   unique_ptr_host<bool  > hstIsGoodHel;
   unique_ptr_host<fptype> hstWeights;
   unique_ptr_host<fptype> hstMEs;
-  unique_ptr_dev<fptype> devRnarray;
   unique_ptr_dev<fptype> devMomenta;
   unique_ptr_dev<bool  > devIsGoodHel;
   unique_ptr_dev<fptype> devWeights;
@@ -149,12 +157,12 @@ struct CUDATest : public CUDA_CPU_TestBase {
   CUDATest( const std::string& refFileName ) :
     CUDA_CPU_TestBase( refFileName ),
     process(niter, gpublocks, gputhreads, /*verbose=*/false),
-    hstRnarray  { hstMakeUnique<fptype>( nRnarray ) }, // AOSOA[npagR][nparf][np4][neppR] (nevt=npagR*neppR)
+    hstRnarray  ( nevt ),
     hstMomenta  { hstMakeUnique<fptype>( nMomenta ) }, // AOSOA[npagM][npar][np4][neppM] (nevt=npagM*neppM)
     hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) },
     hstWeights  { hstMakeUnique<fptype>( nWeights ) },
     hstMEs      { hstMakeUnique<fptype>( nMEs ) },     // ARRAY[nevt]
-    devRnarray  { devMakeUnique<fptype>( nRnarray ) }, // AOSOA[npagR][nparf][np4][neppR] (nevt=npagR*neppR)
+    devRnarray  ( nevt ),
     devMomenta  { devMakeUnique<fptype>( nMomenta ) }, // AOSOA[npagM][npar][np4][neppM] (nevt=npagM*neppM)
     devIsGoodHel{ devMakeUnique<bool  >( mgOnGpu::ncomb ) },
     devWeights  { devMakeUnique<fptype>( nWeights ) },
@@ -166,10 +174,10 @@ struct CUDATest : public CUDA_CPU_TestBase {
   virtual ~CUDATest() { }
 
   void prepareRandomNumbers(unsigned int iiter) override {
-    std::vector<double> rnd = CommonRandomNumbers::generate<double>(nRnarray, 1337 + iiter); // NB: HARDCODED DOUBLE!
-    std::copy(rnd.begin(), rnd.end(), hstRnarray.get()); // NB: this may imply a conversion from double to float
-    checkCuda( cudaMemcpy( devRnarray.get(), hstRnarray.get(),
-                           nRnarray * sizeof(decltype(devRnarray)::element_type), cudaMemcpyHostToDevice ) );
+    CommonRandomNumberKernel rnk( hstRnarray );
+    rnk.seedGenerator( 1337 + iiter );
+    rnk.generateRnarray();
+    copyDeviceFromHost( devRnarray, hstRnarray );
   }
 
   void prepareMomenta(fptype energy) override {
@@ -177,7 +185,7 @@ struct CUDATest : public CUDA_CPU_TestBase {
     grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta.get() );
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
     // (i.e. map random numbers to final-state particle momenta for each of nevt events)
-    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.get(), devMomenta.get(), devWeights.get() );
+    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.data(), devMomenta.get(), devWeights.get() );
     // --- 2c. CopyDToH Weights
     checkCuda( cudaMemcpy( hstWeights.get(), devWeights.get(),
                            nWeights * sizeof(decltype(hstWeights)::element_type), cudaMemcpyDeviceToHost ) );
