@@ -30,7 +30,7 @@ namespace mg5amcCpu
   class BufferBase
   {
   protected:
-    BufferBase( const size_t size ) : m_size( size ), m_data( nullptr ){}
+    BufferBase( const size_t size, const bool onDevice ) : m_size( size ), m_data( nullptr ), m_isOnDevice( onDevice ){}
     virtual ~BufferBase(){}
   public:
     T* data(){ return m_data; }
@@ -39,10 +39,12 @@ namespace mg5amcCpu
     const T& operator[]( const size_t index ) const { return m_data[index]; }
     size_t size() const{ return m_size; }
     size_t bytes() const{ return m_size * sizeof(T); }
+    bool isOnDevice() const { return m_isOnDevice; }
   protected:
     const size_t m_size;
     T* m_data;
-  };
+    const bool m_isOnDevice;
+ };
 
   //--------------------------------------------------------------------------
 
@@ -52,7 +54,7 @@ namespace mg5amcCpu
   class HostBufferBase : public BufferBase<T>
   {
   protected:
-    HostBufferBase( const size_t size ) : BufferBase<T>( size )
+    HostBufferBase( const size_t size ) : BufferBase<T>( size, false )
     {
       this->m_data = new( std::align_val_t{ cppAlign } ) T[ size ]();
     }
@@ -73,7 +75,7 @@ namespace mg5amcCpu
   class PinnedHostBufferBase : public BufferBase<T>
   {
   protected:
-    PinnedHostBufferBase( const size_t size ) : BufferBase<T>( size )
+    PinnedHostBufferBase( const size_t size ) : BufferBase<T>( size, false )
     {
       checkCuda( cudaMallocHost( &(this->m_data), this->bytes() ) );
     }
@@ -92,7 +94,7 @@ namespace mg5amcCpu
   class DeviceBufferBase : public BufferBase<T>
   {
   protected:
-    DeviceBufferBase( const size_t size ) : BufferBase<T>( size )
+    DeviceBufferBase( const size_t size ) : BufferBase<T>( size, true )
     {
       checkCuda( cudaMalloc( &(this->m_data), this->bytes() ) );
     }
