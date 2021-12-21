@@ -15,6 +15,15 @@ namespace mg5amcCpu
 {
   //--------------------------------------------------------------------------
 
+  // TEMPORARY? Take this from a PhysicsProcess class? Define them here directly in codegen?
+  namespace MemoryBuffers
+  {
+    static constexpr int nparf = mgOnGpu::nparf;
+    static constexpr int np4 = mgOnGpu::np4;
+  }
+  
+  //--------------------------------------------------------------------------
+
   // A base class encapsulating a memory buffer
   template<typename T>
   class BufferBase
@@ -98,27 +107,29 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // TEMPORARY? Take this from a PhysicsProcess class? Define them here directly in codegen?
-  namespace MemoryBuffers
+  // A class encapsulating the number of events in a memory buffer
+  class NumberOfEvents
   {
-    static constexpr int nparf = mgOnGpu::nparf;
-    static constexpr int np4 = mgOnGpu::np4;
-  }
-  
+  public:
+    NumberOfEvents( const int nevt )
+      : m_nevt( nevt ){}
+    virtual ~NumberOfEvents(){}
+    size_t nevt() const{ return m_nevt; }
+  private:
+    const size_t m_nevt;
+  };
+
   //--------------------------------------------------------------------------
 
 #ifndef __CUDACC__
   // A class encapsulating a C++ host buffer for random numbers
-  class HostBufferRandomNumbers : public HostBufferBase<fptype>
+  class HostBufferRandomNumbers : public HostBufferBase<fptype>, public NumberOfEvents
   {
   public:
     HostBufferRandomNumbers( const int nevt )
       : HostBufferBase<fptype>( MemoryBuffers::np4 * MemoryBuffers::nparf * nevt )
-      , m_nevt( nevt ){}    
+      , NumberOfEvents( nevt ){}
     virtual ~HostBufferRandomNumbers(){}
-    size_t nevt() const{ return m_nevt; }
-  private:
-    const size_t m_nevt;
   };
 #endif
 
@@ -126,34 +137,28 @@ namespace mg5amcCpu
 
 #ifdef __CUDACC__
   // A class encapsulating a CUDA pinned host buffer for random numbers
-  class PinnedHostBufferRandomNumbers : public PinnedHostBufferBase<fptype>
+  class PinnedHostBufferRandomNumbers : public PinnedHostBufferBase<fptype>, public NumberOfEvents
   {
   public:
     PinnedHostBufferRandomNumbers( const int nevt )
       : PinnedHostBufferBase<fptype>( MemoryBuffers::np4 * MemoryBuffers::nparf * nevt )
-      , m_nevt( nevt ){}    
+      , NumberOfEvents( nevt ){}
     virtual ~PinnedHostBufferRandomNumbers(){}
-    size_t nevt() const{ return m_nevt; }
-  private:
-    const size_t m_nevt;
-  };
+   };
 #endif
 
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
   // A class encapsulating a CUDA device buffer for random numbers
-  class DeviceBufferRandomNumbers : public DeviceBufferBase<fptype>
+  class DeviceBufferRandomNumbers : public DeviceBufferBase<fptype>, public NumberOfEvents
   {
   public:
     DeviceBufferRandomNumbers( const int nevt )
       : DeviceBufferBase<fptype>( MemoryBuffers::np4 * MemoryBuffers::nparf * nevt )
-      , m_nevt( nevt ){}    
+      , NumberOfEvents( nevt ){}
     virtual ~DeviceBufferRandomNumbers(){}
-    size_t nevt() const{ return m_nevt; }
-  private:
-    const size_t m_nevt;
-  };
+   };
 #endif
 
   //--------------------------------------------------------------------------
