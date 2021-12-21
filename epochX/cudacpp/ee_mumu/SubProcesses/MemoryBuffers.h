@@ -18,8 +18,9 @@ namespace mg5amcCpu
   // TEMPORARY? Take this from a PhysicsProcess class? Define them here directly in codegen?
   namespace MemoryBuffers
   {
-    static constexpr size_t nparf = mgOnGpu::nparf;
     static constexpr size_t np4 = mgOnGpu::np4;
+    static constexpr size_t nparf = mgOnGpu::nparf;
+    static constexpr size_t npar = mgOnGpu::npar;
   }
 
   //--------------------------------------------------------------------------
@@ -34,6 +35,8 @@ namespace mg5amcCpu
   public:
     T* data(){ return m_data; }
     const T* data() const{ return m_data; }
+    T& operator[]( const size_t index ){ return m_data[index]; }
+    const T& operator[]( const size_t index ) const { return m_data[index]; }
     size_t size() const{ return m_size; }
     size_t bytes() const{ return m_size * sizeof(T); }
   protected:
@@ -164,7 +167,7 @@ namespace mg5amcCpu
   // A base class encapsulating a memory buffer for random numbers
   typedef BufferBase<fptype> BufferRandomNumbers;
 
-  // The size (number of elements) per event in a memory buffer for momenta
+  // The size (number of elements) per event in a memory buffer for random numbers
   constexpr size_t sizePerEventRandomNumbers = MemoryBuffers::np4 * MemoryBuffers::nparf;
 
 #ifndef __CUDACC__
@@ -175,6 +178,24 @@ namespace mg5amcCpu
   typedef PinnedHostBuffer<fptype, sizePerEventRandomNumbers> PinnedHostBufferRandomNumbers;
   // A class encapsulating a CUDA device buffer for random numbers
   typedef DeviceBuffer<fptype, sizePerEventRandomNumbers> DeviceBufferRandomNumbers;
+#endif
+
+  //--------------------------------------------------------------------------
+
+  // A base class encapsulating a memory buffer for momenta
+  typedef BufferBase<fptype> BufferMomenta;
+
+  // The size (number of elements) per event in a memory buffer for momenta
+  constexpr size_t sizePerEventMomenta = MemoryBuffers::np4 * MemoryBuffers::npar;
+
+#ifndef __CUDACC__
+  // A class encapsulating a C++ host buffer for momenta
+  typedef HostBuffer<fptype, sizePerEventMomenta> HostBufferMomenta;
+#else
+  // A class encapsulating a CUDA pinned host buffer for momenta
+  typedef PinnedHostBuffer<fptype, sizePerEventMomenta> PinnedHostBufferMomenta;
+  // A class encapsulating a CUDA device buffer for momenta
+  typedef DeviceBuffer<fptype, sizePerEventMomenta> DeviceBufferMomenta;
 #endif
 
   //--------------------------------------------------------------------------

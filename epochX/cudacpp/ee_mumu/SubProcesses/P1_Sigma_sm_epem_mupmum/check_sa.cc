@@ -359,26 +359,30 @@ int main(int argc, char **argv)
   DeviceBufferRandomNumbers devRnarray( nevt );
 #endif
 
+  // Memory buffers for momenta
+#ifndef __CUDACC__
+  HostBufferMomenta hstMomenta( nevt );
+#else
+  PinnedHostBufferMomenta hstMomenta( nevt );
+  DeviceBufferMomenta devMomenta( nevt );
+#endif
+
   // Memory structures for momenta, matrix elements and weights on host and device
   using mgOnGpu::np4;
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
   using mgOnGpu::ncomb; // Number of helicity combinations
-  const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for AOSOA layouts)
   const int nWeights = nevt;
   const int nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
 
-  auto hstMomenta   = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
   auto hstIsGoodHel = hstMakeUnique<bool  >( ncomb );
   auto hstWeights   = hstMakeUnique<fptype>( nWeights );
   auto hstMEs       = hstMakeUnique<fptype>( nMEs ); // ARRAY[nevt]
 
 #ifdef __CUDACC__
-  auto devMomenta   = devMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
   auto devIsGoodHel = devMakeUnique<bool  >( ncomb );
   auto devWeights   = devMakeUnique<fptype>( nWeights );
   auto devMEs       = devMakeUnique<fptype>( nMEs ); // ARRAY[nevt]
-  const int nbytesMomenta = nMomenta * sizeof(fptype);
   const int nbytesIsGoodHel = ncomb * sizeof(bool);
   const int nbytesWeights = nWeights * sizeof(fptype);
   const int nbytesMEs = nMEs * sizeof(fptype);
@@ -478,9 +482,9 @@ int main(int argc, char **argv)
     const std::string riniKey = "2a RamboIni";
     timermap.start( riniKey );
 #ifdef __CUDACC__
-    grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta.get() );
+    grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta.data() );
 #else
-    rambo2toNm0::getMomentaInitial( energy, hstMomenta.get(), nevt );
+    rambo2toNm0::getMomentaInitial( energy, hstMomenta.data(), nevt );
 #endif
     //std::cout << "Got initial momenta" << std::endl;
 
@@ -489,9 +493,9 @@ int main(int argc, char **argv)
     const std::string rfinKey = "2b RamboFin";
     rambtime += timermap.start( rfinKey );
 #ifdef __CUDACC__
-    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.data(), devMomenta.get(), devWeights.get() );
+    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.data(), devMomenta.data(), devWeights.get() );
 #else
-    rambo2toNm0::getMomentaFinal( energy, hstRnarray.data(), hstMomenta.get(), hstWeights.get(), nevt );
+    rambo2toNm0::getMomentaFinal( energy, hstRnarray.data(), hstMomenta.data(), hstWeights.get(), nevt );
 #endif
     //std::cout << "Got final momenta" << std::endl;
 
@@ -504,7 +508,7 @@ int main(int argc, char **argv)
     // --- 2d. CopyDToH Momenta
     const std::string cmomKey = "2d CpDTHmom";
     rambtime += timermap.start( cmomKey );
-    checkCuda( cudaMemcpy( hstMomenta.get(), devMomenta.get(), nbytesMomenta, cudaMemcpyDeviceToHost ) );
+    copyHostFromDevice( hstMomenta, devMomenta );
 #endif
 
     // *** STOP THE OLD-STYLE TIMER FOR RAMBO ***
@@ -523,7 +527,7 @@ int main(int argc, char **argv)
       timermap.start( ghelKey );
 #ifdef __CUDACC__
       // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.get(), devMEs.get(), devIsGoodHel.get());
+      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.data(), devMEs.get(), devIsGoodHel.get());
       checkCuda( cudaPeekAtLastError() );
       // ... 0d2. Copy back good helicity mask to the host
       checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(), nbytesIsGoodHel, cudaMemcpyDeviceToHost ) );
@@ -531,7 +535,7 @@ int main(int argc, char **argv)
       gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
 #else
       // ... 0d1. Compute good helicity mask on the host
-      Proc::sigmaKin_getGoodHel(hstMomenta.get(), hstMEs.get(), hstIsGoodHel.get(), nevt);
+      Proc::sigmaKin_getGoodHel(hstMomenta.data(), hstMEs.get(), hstIsGoodHel.get(), nevt);
       // ... 0d2. Copy back good helicity list to static memory on the host
       Proc::sigmaKin_setGoodHel(hstIsGoodHel.get());
 #endif
@@ -546,14 +550,14 @@ int main(int argc, char **argv)
     timermap.start( skinKey );
 #ifdef __CUDACC__
 #ifndef MGONGPU_NSIGHT_DEBUG
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.get(), devMEs.get());
+    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.data(), devMEs.get());
 #else
-    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.get(), devMEs.get());
+    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.data(), devMEs.get());
 #endif
     checkCuda( cudaPeekAtLastError() );
     checkCuda( cudaDeviceSynchronize() );
 #else
-    Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), nevt);
+    Proc::sigmaKin(hstMomenta.data(), hstMEs.get(), nevt);
 #endif
 
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
