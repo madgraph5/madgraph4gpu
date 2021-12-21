@@ -102,11 +102,6 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // A base class encapsulating a memory buffer for random numbers
-  typedef BufferBase<fptype> BufferRandomNumbers;
-
-  //--------------------------------------------------------------------------
-
   // A class encapsulating the number of events in a memory buffer
   class NumberOfEvents
   {
@@ -122,28 +117,30 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifndef __CUDACC__
-  // A class encapsulating a C++ host buffer for random numbers
-  class HostBufferRandomNumbers : public HostBufferBase<fptype>, public NumberOfEvents
+  // A class encapsulating a C++ host buffer
+  template<typename T, int sizePerEvent>
+  class HostBuffer : public HostBufferBase<T>, public NumberOfEvents
   {
   public:
-    HostBufferRandomNumbers( const int nevt )
-      : HostBufferBase<fptype>( MemoryBuffers::np4 * MemoryBuffers::nparf * nevt )
+    HostBuffer( const int nevt )
+      : HostBufferBase<T>( sizePerEvent * nevt )
       , NumberOfEvents( nevt ){}
-    virtual ~HostBufferRandomNumbers(){}
+    virtual ~HostBuffer(){}
   };
 #endif
 
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
-  // A class encapsulating a CUDA pinned host buffer for random numbers
-  class PinnedHostBufferRandomNumbers : public PinnedHostBufferBase<fptype>, public NumberOfEvents
+  // A class encapsulating a CUDA pinned host buffer
+  template<typename T, int sizePerEvent>
+  class PinnedHostBuffer : public PinnedHostBufferBase<fptype>, public NumberOfEvents
   {
   public:
-    PinnedHostBufferRandomNumbers( const int nevt )
-      : PinnedHostBufferBase<fptype>( MemoryBuffers::np4 * MemoryBuffers::nparf * nevt )
+    PinnedHostBuffer( const int nevt )
+      : PinnedHostBufferBase<fptype>( sizePerEvent * nevt )
       , NumberOfEvents( nevt ){}
-    virtual ~PinnedHostBufferRandomNumbers(){}
+    virtual ~PinnedHostBuffer(){}
    };
 #endif
 
@@ -151,14 +148,30 @@ namespace mg5amcCpu
 
 #ifdef __CUDACC__
   // A class encapsulating a CUDA device buffer for random numbers
-  class DeviceBufferRandomNumbers : public DeviceBufferBase<fptype>, public NumberOfEvents
+  template<typename T, int sizePerEvent>
+  class DeviceBuffer : public DeviceBufferBase<fptype>, public NumberOfEvents
   {
   public:
-    DeviceBufferRandomNumbers( const int nevt )
-      : DeviceBufferBase<fptype>( MemoryBuffers::np4 * MemoryBuffers::nparf * nevt )
+    DeviceBuffer( const int nevt )
+      : DeviceBufferBase<fptype>( sizePerEvent * nevt )
       , NumberOfEvents( nevt ){}
-    virtual ~DeviceBufferRandomNumbers(){}
+    virtual ~DeviceBuffer(){}
    };
+#endif
+
+  //--------------------------------------------------------------------------
+
+  // A base class encapsulating a memory buffer for random numbers
+  typedef BufferBase<fptype> BufferRandomNumbers;
+
+#ifndef __CUDACC__
+  // A class encapsulating a C++ host buffer for random numbers
+  typedef HostBuffer<fptype, MemoryBuffers::np4 * MemoryBuffers::nparf> HostBufferRandomNumbers;
+#else
+  // A class encapsulating a CUDA pinned host buffer for random numbers
+  typedef PinnedHostBuffer<fptype, MemoryBuffers::np4 * MemoryBuffers::nparf> PinnedHostBufferRandomNumbers;
+  // A class encapsulating a CUDA device buffer for random numbers
+  typedef DeviceBuffer<fptype, MemoryBuffers::np4 * MemoryBuffers::nparf> DeviceBufferRandomNumbers;
 #endif
 
   //--------------------------------------------------------------------------
