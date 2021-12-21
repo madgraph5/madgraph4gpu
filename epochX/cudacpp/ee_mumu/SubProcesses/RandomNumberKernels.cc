@@ -12,6 +12,7 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
+
   //--------------------------------------------------------------------------
 
   CommonRandomNumberKernel::CommonRandomNumberKernel( BufferRandomNumbers& rnarray )
