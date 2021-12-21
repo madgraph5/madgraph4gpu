@@ -367,24 +367,28 @@ int main(int argc, char **argv)
   DeviceBufferMomenta devMomenta( nevt );
 #endif
 
-  // Memory structures for momenta, matrix elements and weights on host and device
+  // Memory buffers for sampling weights
+#ifndef __CUDACC__
+  HostBufferWeights hstWeights( nevt );
+#else
+  PinnedHostBufferWeights hstWeights( nevt );
+  DeviceBufferWeights devWeights( nevt );
+#endif
+
+  // Memory structures for matrix elements on host and device
   using mgOnGpu::np4;
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
   using mgOnGpu::ncomb; // Number of helicity combinations
-  const int nWeights = nevt;
   const int nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
 
   auto hstIsGoodHel = hstMakeUnique<bool  >( ncomb );
-  auto hstWeights   = hstMakeUnique<fptype>( nWeights );
   auto hstMEs       = hstMakeUnique<fptype>( nMEs ); // ARRAY[nevt]
 
 #ifdef __CUDACC__
   auto devIsGoodHel = devMakeUnique<bool  >( ncomb );
-  auto devWeights   = devMakeUnique<fptype>( nWeights );
   auto devMEs       = devMakeUnique<fptype>( nMEs ); // ARRAY[nevt]
   const int nbytesIsGoodHel = ncomb * sizeof(bool);
-  const int nbytesWeights = nWeights * sizeof(fptype);
   const int nbytesMEs = nMEs * sizeof(fptype);
 #endif
 
@@ -493,9 +497,9 @@ int main(int argc, char **argv)
     const std::string rfinKey = "2b RamboFin";
     rambtime += timermap.start( rfinKey );
 #ifdef __CUDACC__
-    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.data(), devMomenta.data(), devWeights.get() );
+    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.data(), devMomenta.data(), devWeights.data() );
 #else
-    rambo2toNm0::getMomentaFinal( energy, hstRnarray.data(), hstMomenta.data(), hstWeights.get(), nevt );
+    rambo2toNm0::getMomentaFinal( energy, hstRnarray.data(), hstMomenta.data(), hstWeights.data(), nevt );
 #endif
     //std::cout << "Got final momenta" << std::endl;
 
@@ -503,7 +507,7 @@ int main(int argc, char **argv)
     // --- 2c. CopyDToH Weights
     const std::string cwgtKey = "2c CpDTHwgt";
     rambtime += timermap.start( cwgtKey );
-    checkCuda( cudaMemcpy( hstWeights.get(), devWeights.get(), nbytesWeights, cudaMemcpyDeviceToHost ) );
+    copyHostFromDevice( hstWeights, devWeights );
 
     // --- 2d. CopyDToH Momenta
     const std::string cmomKey = "2d CpDTHmom";

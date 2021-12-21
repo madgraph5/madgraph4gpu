@@ -200,6 +200,24 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  // A base class encapsulating a memory buffer for sampling weights
+  typedef BufferBase<fptype> BufferWeights;
+
+  // The size (number of elements) per event in a memory buffer for sampling weights
+  constexpr size_t sizePerEventWeights = 1;
+
+#ifndef __CUDACC__
+  // A class encapsulating a C++ host buffer for sampling weights
+  typedef HostBuffer<fptype, sizePerEventWeights> HostBufferWeights;
+#else
+  // A class encapsulating a CUDA pinned host buffer for sampling weights
+  typedef PinnedHostBuffer<fptype, sizePerEventWeights> PinnedHostBufferWeights;
+  // A class encapsulating a CUDA device buffer for sampling weights
+  typedef DeviceBuffer<fptype, sizePerEventWeights> DeviceBufferWeights;
+#endif
+
+  //--------------------------------------------------------------------------
+
 #ifdef __CUDACC__
   template<class Tdst, class Tsrc>
   void copyDeviceFromHost( Tdst& dst, const Tsrc& src ) // keep the same order of arguments as in memcpy
