@@ -18,15 +18,10 @@
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
-#ifdef __CUDACC__
-#include "rambo.cc"
-#else
-#include "rambo.h"
-#endif
-
 #include "CPPProcess.h"
 #include "Memory.h"
 #include "MemoryBuffers.h"
+#include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
 #include "timermap.h"
 
@@ -433,6 +428,13 @@ int main(int argc, char **argv)
   }
 #endif
 
+  // --- 0c. Create rambo sampling kernel [keep this in 0c for the moment]
+#ifdef __CUDACC__
+  RamboSamplingKernelDevice rsk( energy, devRnarray, devMomenta, devWeights, gpublocks, gputhreads );
+#else
+  RamboSamplingKernelHost rsk( energy, hstRnarray, hstMomenta, hstWeights, nevt );
+#endif
+
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
   // **************************************
@@ -485,22 +487,14 @@ int main(int argc, char **argv)
     // --- 2a. Fill in momenta of initial state particles on the device
     const std::string riniKey = "2a RamboIni";
     timermap.start( riniKey );
-#ifdef __CUDACC__
-    grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta.data() );
-#else
-    rambo2toNm0::getMomentaInitial( energy, hstMomenta.data(), nevt );
-#endif
+    rsk.getMomentaInitial();
     //std::cout << "Got initial momenta" << std::endl;
 
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
     // (i.e. map random numbers to final-state particle momenta for each of nevt events)
     const std::string rfinKey = "2b RamboFin";
     rambtime += timermap.start( rfinKey );
-#ifdef __CUDACC__
-    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.data(), devMomenta.data(), devWeights.data() );
-#else
-    rambo2toNm0::getMomentaFinal( energy, hstRnarray.data(), hstMomenta.data(), hstWeights.data(), nevt );
-#endif
+    rsk.getMomentaFinal();
     //std::cout << "Got final momenta" << std::endl;
 
 #ifdef __CUDACC__

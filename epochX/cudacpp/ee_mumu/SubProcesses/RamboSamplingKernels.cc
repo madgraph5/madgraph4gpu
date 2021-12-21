@@ -3,7 +3,8 @@
 #include "checkCuda.h"
 #include "MemoryBuffers.h"
 
-#include "rambo.h"
+//#include "rambo.h"
+#include "rambo.cc" // FIXME
 
 #ifdef __CUDACC__
 namespace mg5amcGpu

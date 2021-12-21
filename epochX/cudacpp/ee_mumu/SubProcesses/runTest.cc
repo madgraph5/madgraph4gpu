@@ -9,12 +9,8 @@
 #include "CPPProcess.h"
 #include "Memory.h"
 #include "MemoryBuffers.h"
+#include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
-#ifdef __CUDACC__
-#include "rambo.cc"
-#else
-#include "rambo.h"
-#endif
 
 #ifdef __CUDACC__
 template<typename T = fptype>
@@ -85,11 +81,12 @@ struct CPUTest : public CUDA_CPU_TestBase {
   }
 
   void prepareMomenta(fptype energy) override {
+    RamboSamplingKernelHost rsk( energy, hstRnarray, hstMomenta, hstWeights, nevt );
     // --- 2a. Fill in momenta of initial state particles on the device
-    rambo2toNm0::getMomentaInitial( energy, hstMomenta.data(), nevt );
+    rsk.getMomentaInitial();
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
     // (i.e. map random numbers to final-state particle momenta for each of nevt events)
-    rambo2toNm0::getMomentaFinal( energy, hstRnarray.data(), hstMomenta.data(), hstWeights.data(), nevt );
+    rsk.getMomentaFinal();
   }
 
   void runSigmaKin(std::size_t iiter) override {
@@ -181,11 +178,12 @@ struct CUDATest : public CUDA_CPU_TestBase {
   }
 
   void prepareMomenta(fptype energy) override {
+    RamboSamplingKernelDevice rsk( energy, devRnarray, devMomenta, devWeights, gpublocks, gputhreads );
     // --- 2a. Fill in momenta of initial state particles on the device
-    grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta.data() );
+    rsk.getMomentaInitial();
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
     // (i.e. map random numbers to final-state particle momenta for each of nevt events)
-    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.data(), devMomenta.data(), devWeights.data() );
+    rsk.getMomentaFinal();
     // --- 2c. CopyDToH Weights
     copyHostFromDevice( hstWeights, devWeights );
     // --- 2d. CopyDToH Momenta
