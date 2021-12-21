@@ -18,10 +18,10 @@ namespace mg5amcCpu
   // TEMPORARY? Take this from a PhysicsProcess class? Define them here directly in codegen?
   namespace MemoryBuffers
   {
-    static constexpr int nparf = mgOnGpu::nparf;
-    static constexpr int np4 = mgOnGpu::np4;
+    static constexpr size_t nparf = mgOnGpu::nparf;
+    static constexpr size_t np4 = mgOnGpu::np4;
   }
-  
+
   //--------------------------------------------------------------------------
 
   // A base class encapsulating a memory buffer
@@ -52,13 +52,13 @@ namespace mg5amcCpu
     HostBufferBase( const size_t size ) : BufferBase<T>( size )
     {
       this->m_data = new( std::align_val_t{ cppAlign } ) T[ size ]();
-    }    
+    }
     virtual ~HostBufferBase()
     {
       ::operator delete( this->m_data, std::align_val_t{ cppAlign } );
-    }    
+    }
   public:
-    static constexpr int cppAlign = mgOnGpu::cppAlign;
+    static constexpr size_t cppAlign = mgOnGpu::cppAlign;
   };
 #endif
 
@@ -73,11 +73,11 @@ namespace mg5amcCpu
     PinnedHostBufferBase( const size_t size ) : BufferBase<T>( size )
     {
       checkCuda( cudaMallocHost( &(this->m_data), this->bytes() ) );
-    }    
+    }
     virtual ~PinnedHostBufferBase()
     {
       checkCuda( cudaFreeHost( this->m_data ) );
-    }    
+    }
   };
 #endif
 
@@ -92,11 +92,11 @@ namespace mg5amcCpu
     DeviceBufferBase( const size_t size ) : BufferBase<T>( size )
     {
       checkCuda( cudaMalloc( &(this->m_data), this->bytes() ) );
-    }    
+    }
     virtual ~DeviceBufferBase()
     {
       checkCuda( cudaFree( this->m_data ) );
-    }    
+    }
   };
 #endif
 
@@ -106,7 +106,7 @@ namespace mg5amcCpu
   class NumberOfEvents
   {
   public:
-    NumberOfEvents( const int nevt )
+    NumberOfEvents( const size_t nevt )
       : m_nevt( nevt ){}
     virtual ~NumberOfEvents(){}
     size_t nevt() const{ return m_nevt; }
@@ -118,11 +118,11 @@ namespace mg5amcCpu
 
 #ifndef __CUDACC__
   // A class encapsulating a C++ host buffer
-  template<typename T, int sizePerEvent>
+  template<typename T, size_t sizePerEvent>
   class HostBuffer : public HostBufferBase<T>, public NumberOfEvents
   {
   public:
-    HostBuffer( const int nevt )
+    HostBuffer( const size_t nevt )
       : HostBufferBase<T>( sizePerEvent * nevt )
       , NumberOfEvents( nevt ){}
     virtual ~HostBuffer(){}
@@ -133,30 +133,30 @@ namespace mg5amcCpu
 
 #ifdef __CUDACC__
   // A class encapsulating a CUDA pinned host buffer
-  template<typename T, int sizePerEvent>
+  template<typename T, size_t sizePerEvent>
   class PinnedHostBuffer : public PinnedHostBufferBase<fptype>, public NumberOfEvents
   {
   public:
-    PinnedHostBuffer( const int nevt )
+    PinnedHostBuffer( const size_t nevt )
       : PinnedHostBufferBase<fptype>( sizePerEvent * nevt )
       , NumberOfEvents( nevt ){}
     virtual ~PinnedHostBuffer(){}
-   };
+  };
 #endif
 
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
   // A class encapsulating a CUDA device buffer for random numbers
-  template<typename T, int sizePerEvent>
+  template<typename T, size_t sizePerEvent>
   class DeviceBuffer : public DeviceBufferBase<fptype>, public NumberOfEvents
   {
   public:
-    DeviceBuffer( const int nevt )
+    DeviceBuffer( const size_t nevt )
       : DeviceBufferBase<fptype>( sizePerEvent * nevt )
       , NumberOfEvents( nevt ){}
     virtual ~DeviceBuffer(){}
-   };
+  };
 #endif
 
   //--------------------------------------------------------------------------
@@ -198,7 +198,7 @@ namespace mg5amcCpu
 #endif
 
   //--------------------------------------------------------------------------
-  
+
 #ifdef __CUDACC__
   template<class Tdst, class Tsrc>
   void copyHostFromDevice( Tdst& dst, const Tsrc& src ) // keep the same order of arguments as in memcpy
