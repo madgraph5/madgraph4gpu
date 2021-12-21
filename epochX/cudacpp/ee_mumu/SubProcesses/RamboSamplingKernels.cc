@@ -16,9 +16,14 @@ namespace mg5amcCpu
   RamboSamplingKernelHost::RamboSamplingKernelHost( const fptype energy,                // input: energy
                                                     const BufferRandomNumbers& rnarray, // input: random numbers in [0,1]
                                                     BufferMomenta& momenta,             // output: momenta
-                                                    BufferWeights& weights )            // output: weights
+                                                    BufferWeights& weights,             // output: weights
+                                                    const size_t nevt )
     : SamplingKernelBase( energy, rnarray, momenta, weights )
+    , NumberOfEvents( nevt )
   {
+#ifdef __CUDACC__
+    throw std::runtime_error( "RamboSamplingKernelHost is not yet implemented in CUDA" ); // FIXME!
+#endif
     if ( m_rnarray.isOnDevice() ) throw std::runtime_error( "RamboSamplingKernelHost: rnarray must be a host array" );
     if ( m_momenta.isOnDevice() ) throw std::runtime_error( "RamboSamplingKernelHost: momenta must be a host array" );
     if ( m_weights.isOnDevice() ) throw std::runtime_error( "RamboSamplingKernelHost: weights must be a host array" );
@@ -28,14 +33,22 @@ namespace mg5amcCpu
 
   void RamboSamplingKernelHost::getMomentaInitial()
   {
-    //rambo2toNm0::getMomentaInitial( m_energy, m_momenta.data() ); // FIXME!
+#ifdef __CUDACC__
+    throw std::runtime_error( "RamboSamplingKernelHost is not yet implemented in CUDA" ); // FIXME!
+#else
+    rambo2toNm0::getMomentaInitial( m_energy, m_momenta.data(), nevt() ); // FIXME!
+#endif
   }
 
   //--------------------------------------------------------------------------
 
   void RamboSamplingKernelHost::getMomentaFinal()
   {
-    //rambo2toNm0::getMomentaFinal( m_energy, m_rnarray.data(), m_momenta.data(), m_weights.data() ); // FIXME!
+#ifdef __CUDACC__
+    throw std::runtime_error( "RamboSamplingKernelHost is not yet implemented in CUDA" ); // FIXME!
+#else
+    rambo2toNm0::getMomentaFinal( m_energy, m_rnarray.data(), m_momenta.data(), m_weights.data(), nevt() );
+#endif
   }
 
   //--------------------------------------------------------------------------

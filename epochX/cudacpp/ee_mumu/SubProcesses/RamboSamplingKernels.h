@@ -62,7 +62,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // A class encapsulating RAMBO phase space sampling on a CPU host
-  class RamboSamplingKernelHost : public SamplingKernelBase
+  class RamboSamplingKernelHost : public SamplingKernelBase, public NumberOfEvents
   {
   public:
 
@@ -70,7 +70,8 @@ namespace mg5amcCpu
     RamboSamplingKernelHost( const fptype energy,                // input: energy
                              const BufferRandomNumbers& rnarray, // input: random numbers in [0,1]
                              BufferMomenta& momenta,             // output: momenta
-                             BufferWeights& weights );           // output: weights
+                             BufferWeights& weights,             // output: weights
+                             const size_t nevt );
 
     // Destructor
     virtual ~RamboSamplingKernelHost(){}
