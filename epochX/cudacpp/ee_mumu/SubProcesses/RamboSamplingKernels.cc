@@ -7,6 +7,7 @@
 
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessRandomNumbers.h"
+#include "MemoryAccessWeights.h"
 
 #ifdef __CUDACC__
 namespace mg5amcGpu
@@ -57,7 +58,7 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
     throw std::runtime_error( "RamboSamplingKernelHost is not yet implemented in CUDA" ); // FIXME!
 #else
-    constexpr auto getMomentaFinal = ramboGetMomentaFinal<MemoryAccessRandomNumbers, MemoryAccessMomenta>;
+    constexpr auto getMomentaFinal = ramboGetMomentaFinal<MemoryAccessRandomNumbers, MemoryAccessMomenta, MemoryAccessWeights>;
     getMomentaFinal( m_energy, m_rnarray.data(), m_momenta.data(), m_weights.data(), nevt() );
 #endif
   }
@@ -98,7 +99,7 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
   void RamboSamplingKernelDevice::getMomentaFinal()
   {
-    constexpr auto getMomentaFinal = ramboGetMomentaFinal<MemoryAccessRandomNumbers, MemoryAccessMomenta>;
+    constexpr auto getMomentaFinal = ramboGetMomentaFinal<MemoryAccessRandomNumbers, MemoryAccessMomenta, MemoryAccessWeights>;
     getMomentaFinal<<<m_gpublocks, m_gputhreads>>>( m_energy, m_rnarray.data(), m_momenta.data(), m_weights.data() );
   }
 #endif

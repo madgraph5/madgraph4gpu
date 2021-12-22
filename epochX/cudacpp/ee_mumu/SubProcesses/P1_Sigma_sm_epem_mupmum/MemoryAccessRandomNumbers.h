@@ -18,7 +18,7 @@ public:
 
   // Indexed access (WITH an explicit event number) to the memory buffer for momenta
   // Input: a memory buffer for an arbitrary number of events
-  // Output: a specific 4-momenta component for a specific particle in one event, given its event number
+  // Output: the random number for a specific 4-momenta component for a specific particle in one event, given its event number
   // (Const memory access)
   static
   __device__ inline
@@ -42,7 +42,7 @@ public:
 
   // Kernel access (WITHOUT an explicit event number) to the memory buffer for momenta
   // Input: a memory buffer for an arbitrary number of events
-  // Output: a specific 4-momenta component for a specific particle in one event, given its event number
+  // Output: the random number for a specific 4-momenta component for a specific particle in one event, given its event number
   // (Non-const memory access)
   static
   __device__ inline

@@ -45,12 +45,12 @@ namespace mg5amcCpu
 
   // Fill in the momenta of the final particles using the RAMBO algorithm
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
-  template<class R_ACCESS, class M_ACCESS>
+  template<class R_ACCESS, class M_ACCESS, class W_ACCESS>
   __global__
   void ramboGetMomentaFinal( const fptype energy,      // input: energy
-                             const fptype* rnarray,    // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
-                             fptype* momenta,          // output: momenta as AOSOA[npagM][npar][4][neppM]
-                             fptype wgts[]             // output: weights[nevt]
+                             const fptype* rnarray,    // input: random numbers in [0,1] for one event or for a set of events
+                             fptype* momenta,          // output: momenta for one event or for a set of events
+                             fptype* wgts              // output: weights for one event or for a set of events
 #ifndef __CUDACC__
                              , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
@@ -86,7 +86,7 @@ namespace mg5amcCpu
       //printf( "ramboGetMomentaFinal:   ievt %d\n", ievt );
 #endif
 
-      fptype& wt = wgts[ievt];
+      fptype& wt = W_ACCESS::ieventAccess( wgts, ievt );
 
       // generate n massless momenta in infinite phase space
       fptype q[nparf][np4];
