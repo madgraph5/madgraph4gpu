@@ -20,6 +20,7 @@
 
 #include "CPPProcess.h"
 #include "Memory.h"
+#include "MemoryAccessRandomNumbers.h"
 #include "MemoryBuffers.h"
 #include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
@@ -219,14 +220,9 @@ int main(int argc, char **argv)
   if (niter == 0)
     return usage(argv[0]);
 
-  const int neppR = mgOnGpu::neppR; // AOSOA layout: constant at compile-time
-  if ( gputhreads%neppR != 0 )
-  {
-    std::cout << "ERROR! #threads/block should be a multiple of neppR=" << neppR << std::endl;
-    return usage(argv[0]);
-  }
+  constexpr int neppR = MemoryAccessRandomNumbers::neppR; // AOSOA layout
+  constexpr int neppM = mgOnGpu::neppM; // AOSOA layout
 
-  const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
   if ( gputhreads%neppM != 0 )
   {
     std::cout << "ERROR! #threads/block should be a multiple of neppM=" << neppM << std::endl;

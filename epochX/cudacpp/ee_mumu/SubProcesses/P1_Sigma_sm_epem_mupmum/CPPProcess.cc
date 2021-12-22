@@ -279,7 +279,6 @@ namespace Proc
 #ifndef __CUDACC__
     // SANITY CHECK: check that neppR, neppM and neppV are powers of two (https://stackoverflow.com/a/108360)
     auto ispoweroftwo = []( int n ) { return ( n > 0 ) && !( n & ( n - 1 ) ); };
-    static_assert( ispoweroftwo( mgOnGpu::neppR ) );
     static_assert( ispoweroftwo( mgOnGpu::neppM ) );
     static_assert( ispoweroftwo( neppV ) );
 #endif
