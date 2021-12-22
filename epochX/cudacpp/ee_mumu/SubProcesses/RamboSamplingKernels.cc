@@ -36,7 +36,13 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
     throw std::runtime_error( "RamboSamplingKernelHost is not yet implemented in CUDA" ); // FIXME!
 #else
-    ramboGetMomentaInitial( m_energy, m_momenta.data(), nevt() ); // FIXME!
+    // ** START LOOP ON IEVT **    
+    for ( size_t ievt = 0; ievt < nevt(); ++ievt )
+    {
+      fptype* ievtMomenta = &( ieventAccessIp4Ipar( m_momenta.data(), ievt, 0, 0 ) ); // FIXME: document constraints on functions
+      ramboGetMomentaInitial( m_energy, ievtMomenta ); // FIXME!
+    }
+    // ** END LOOP ON IEVT **    
 #endif
   }
 

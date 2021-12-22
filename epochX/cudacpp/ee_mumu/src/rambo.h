@@ -32,34 +32,19 @@ namespace mg5amcCpu
   inline
 #endif
   void ramboGetMomentaInitial( const fptype energy,  // input: energy
-                               fptype* momenta       // output: momenta as AOSOA[npagM][npar][4][neppM]
-#ifndef __CUDACC__
-                               , const int nevt      // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
-#endif
-                               )
+                               fptype* momenta )     // output: momenta for one event or for a set of events
   {
     const fptype energy1 = energy/2;
     const fptype energy2 = energy/2;
     const fptype mom = energy/2;
-#ifndef __CUDACC__
-    // ** START LOOP ON IEVT **
-    for (int ievt = 0; ievt < nevt; ++ievt)
-#endif
-    {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "ramboGetMomentaInitial: ievt %d\n", ievt );
-#endif
-      ieventAccessIp4Ipar( momenta, ievt, 0, 0 ) = energy1;
-      ieventAccessIp4Ipar( momenta, ievt, 1, 0 ) = 0;
-      ieventAccessIp4Ipar( momenta, ievt, 2, 0 ) = 0;
-      ieventAccessIp4Ipar( momenta, ievt, 3, 0 ) = mom;
-      ieventAccessIp4Ipar( momenta, ievt, 0, 1 ) = energy2;
-      ieventAccessIp4Ipar( momenta, ievt, 1, 1 ) = 0;
-      ieventAccessIp4Ipar( momenta, ievt, 2, 1 ) = 0;
-      ieventAccessIp4Ipar( momenta, ievt, 3, 1 ) = -mom;
-    }
-    // ** END LOOP ON IEVT **
+    kernelAccessIp4Ipar( momenta, 0, 0 ) = energy1;
+    kernelAccessIp4Ipar( momenta, 1, 0 ) = 0;
+    kernelAccessIp4Ipar( momenta, 2, 0 ) = 0;
+    kernelAccessIp4Ipar( momenta, 3, 0 ) = mom;
+    kernelAccessIp4Ipar( momenta, 0, 1 ) = energy2;
+    kernelAccessIp4Ipar( momenta, 1, 1 ) = 0;
+    kernelAccessIp4Ipar( momenta, 2, 1 ) = 0;
+    kernelAccessIp4Ipar( momenta, 3, 1 ) = -mom;
   }
 
   //--------------------------------------------------------------------------
