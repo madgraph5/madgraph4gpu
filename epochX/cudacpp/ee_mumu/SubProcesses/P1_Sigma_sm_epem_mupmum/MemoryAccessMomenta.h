@@ -5,6 +5,8 @@
 #include "mgOnGpuTypes.h"
 //#include "mgOnGpuVectors.h"
 
+//----------------------------------------------------------------------------
+
 // A class describing the internal layout of memory buffers for momenta
 // This implementation uses an AOSOA[npagM][npar][np4][neppM] where nevt=npagM*neppM
 // [If many implementations are used, a suffix _AOSOAv1 should be appended to the class name]
@@ -47,6 +49,15 @@ public:
     return ieventAccessIp4Ipar( const_cast<fptype*>( buffer ), ievt, ip4, ipar );
   }
 
+};
+
+//----------------------------------------------------------------------------
+
+// A class describing host kernel access to memory buffers for momenta
+class HostAccessMomenta : public MemoryAccessMomenta
+{
+public:
+
   // =========================================================================
   // *** Pattern: ieventAccessInd1..IndN( buffer, ievt [, ind1... indN] )  ***
   // =========================================================================
@@ -61,13 +72,7 @@ public:
                                const int ip4,
                                const int ipar )
   {
-#ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-    //printf( "kernelAccessIp4Ipar: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-    return ieventAccessIp4Ipar( buffer, ievt, ip4, ipar ); // NB fptype and fptype_sv coincide for CUDA
-#else
     return ieventAccessIp4Ipar( buffer, 0, ip4, ipar );
-#endif
   }
 
   // (Const memory access)
@@ -80,8 +85,48 @@ public:
     return kernelAccessIp4Ipar( const_cast<fptype*>( buffer ), ip4, ipar );
   }
 
-  //--------------------------------------------------------------------------
+};
+
+//----------------------------------------------------------------------------
+
+#ifdef __CUDACC__
+// A class describing device kernel access to memory buffers for momenta
+class DeviceAccessMomenta : public MemoryAccessMomenta
+{
+public:
+
+  // =========================================================================
+  // *** Pattern: ieventAccessInd1..IndN( buffer, ievt [, ind1... indN] )  ***
+  // =========================================================================
+
+  // Kernel access (WITHOUT an explicit event number) to the memory buffer for momenta
+  // Input: a memory buffer for an arbitrary number of events
+  // Output: a specific 4-momenta component for a specific particle in one event, given its event number
+  // (Non-const memory access)
+  static
+  __device__ inline
+  fptype& kernelAccessIp4Ipar( fptype* buffer,
+                               const int ip4,
+                               const int ipar )
+  {
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+    //printf( "kernelAccessIp4Ipar: ievt=%d threadId=%d\n", ievt, threadIdx.x );
+    return ieventAccessIp4Ipar( buffer, ievt, ip4, ipar ); // NB fptype and fptype_sv coincide for CUDA
+  }
+
+  // (Const memory access)
+  static
+  __device__ inline
+  const fptype& kernelConstAccessIp4Ipar( fptype* buffer,
+                                          const int ip4,
+                                          const int ipar )
+  {
+    return kernelAccessIp4Ipar( const_cast<fptype*>( buffer ), ip4, ipar );
+  }
 
 };
+#endif
+
+//----------------------------------------------------------------------------
 
 #endif // MemoryAccessMomenta_H
