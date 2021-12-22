@@ -5,7 +5,10 @@
 #include "mgOnGpuTypes.h"
 //#include "mgOnGpuVectors.h"
 
-class MemoryAccessMomenta // AOSOA implementation (should change the name to reflect that?)
+// A class describing the internal layout of memory buffers for momenta
+// This implementation uses an AOSOA[npagM][npar][np4][neppM] where nevt=npagM*neppM
+// [If many implementations are used, a suffix _AOSOAv1 should be appended to the class name]
+class MemoryAccessMomenta//_AOSOAv1
 {
 public:
 

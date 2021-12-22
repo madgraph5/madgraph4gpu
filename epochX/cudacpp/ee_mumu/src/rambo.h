@@ -6,6 +6,8 @@
 #include <cstdlib>
 #include <iostream>
 
+#include "MemoryAccessRandomNumbers.h"
+
 // Simplified rambo version for 2 to N (with N>=2) processes with massless particles
 #ifdef __CUDACC__
 namespace mg5amcGpu
@@ -48,7 +50,7 @@ namespace mg5amcCpu
   template<class M_ACCESS>
   __global__
   void ramboGetMomentaFinal( const fptype energy,      // input: energy
-                             const fptype rnarray1d[], // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
+                             const fptype* rnarray,    // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
                              fptype* momenta,          // output: momenta as AOSOA[npagM][npar][4][neppM]
                              fptype wgts[]             // output: weights[nevt]
 #ifndef __CUDACC__
@@ -56,6 +58,8 @@ namespace mg5amcCpu
 #endif
                              )
   {
+    namespace R_ACCESS = MemoryAccessRandomNumbers;
+    
     /****************************************************************************
      *                       rambo                                              *
      *    ra(ndom)  m(omenta)  b(eautifully)  o(rganized)                       *
@@ -67,9 +71,6 @@ namespace mg5amcCpu
      *    -- adjusted by madgraph@sheffield_gpu_hackathon team (2020-07-29)     *
      *                                                                          *
      ****************************************************************************/
-
-    const int neppR = mgOnGpu::neppR; // AOSOA layout: constant at compile-time
-    fptype (*rnarray)[nparf][np4][neppR] = (fptype (*)[nparf][np4][neppR]) rnarray1d; // cast to multiD array pointer (AOSOA)
 
     // initialization step: factorials for the phase space weight
     const fptype twopi = 8. * atan(1.);
@@ -89,19 +90,16 @@ namespace mg5amcCpu
       //printf( "ramboGetMomentaFinal:   ievt %d\n", ievt );
 #endif
 
-      const int ipagR = ievt/neppR; // #eventpage in this iteration
-      const int ieppR = ievt%neppR; // #event in the current eventpage in this iteration
-
       fptype& wt = wgts[ievt];
 
       // generate n massless momenta in infinite phase space
       fptype q[nparf][np4];
       for ( int iparf = 0; iparf < nparf; iparf++ )
       {
-        const fptype r1 = rnarray[ipagR][iparf][0][ieppR];
-        const fptype r2 = rnarray[ipagR][iparf][1][ieppR];
-        const fptype r3 = rnarray[ipagR][iparf][2][ieppR];
-        const fptype r4 = rnarray[ipagR][iparf][3][ieppR];
+        const fptype r1 = R_ACCESS::ieventConstAccessIp4Iparf( rnarray, ievt, 0, iparf );
+        const fptype r2 = R_ACCESS::ieventConstAccessIp4Iparf( rnarray, ievt, 1, iparf );
+        const fptype r3 = R_ACCESS::ieventConstAccessIp4Iparf( rnarray, ievt, 2, iparf );
+        const fptype r4 = R_ACCESS::ieventConstAccessIp4Iparf( rnarray, ievt, 3, iparf );
         const fptype c = 2. * r1 - 1.;
         const fptype s = sqrt(1. - c * c);
         const fptype f = twopi * r2;
