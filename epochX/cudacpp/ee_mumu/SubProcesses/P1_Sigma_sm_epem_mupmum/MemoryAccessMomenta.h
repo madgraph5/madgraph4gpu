@@ -53,8 +53,9 @@ public:
 
 //----------------------------------------------------------------------------
 
-// A class describing host kernel access to memory buffers for momenta
-class HostAccessMomenta : public MemoryAccessMomenta
+// A class describing kernel access to memory buffers for momenta on a CPU host or on a GPU device
+template<bool onDevice>
+class KernelAccessMomenta : public MemoryAccessMomenta
 {
 public:
 
@@ -72,7 +73,21 @@ public:
                                const int ip4,
                                const int ipar )
   {
-    return ieventAccessIp4Ipar( buffer, 0, ip4, ipar );
+    //if constexpr ( !onDevice ) // FIXME! enable this when we move to nvcc supporting c++17
+    if ( !onDevice )
+    {
+      return ieventAccessIp4Ipar( buffer, 0, ip4, ipar );
+    }
+    else
+    {
+#ifdef __CUDACC__
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+      //printf( "kernelAccessIp4Ipar: ievt=%d threadId=%d\n", ievt, threadIdx.x );
+      return ieventAccessIp4Ipar( buffer, ievt, ip4, ipar ); // NB fptype and fptype_sv coincide for CUDA
+#else
+      throw std::runtime_error( "KernelAccessMomenta on device is only implemented in CUDA" );
+#endif
+    }
   }
 
   // (Const memory access)
@@ -89,43 +104,8 @@ public:
 
 //----------------------------------------------------------------------------
 
-#ifdef __CUDACC__
-// A class describing device kernel access to memory buffers for momenta
-class DeviceAccessMomenta : public MemoryAccessMomenta
-{
-public:
-
-  // =========================================================================
-  // *** Pattern: ieventAccessInd1..IndN( buffer, ievt [, ind1... indN] )  ***
-  // =========================================================================
-
-  // Kernel access (WITHOUT an explicit event number) to the memory buffer for momenta
-  // Input: a memory buffer for an arbitrary number of events
-  // Output: a specific 4-momenta component for a specific particle in one event, given its event number
-  // (Non-const memory access)
-  static
-  __device__ inline
-  fptype& kernelAccessIp4Ipar( fptype* buffer,
-                               const int ip4,
-                               const int ipar )
-  {
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-    //printf( "kernelAccessIp4Ipar: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-    return ieventAccessIp4Ipar( buffer, ievt, ip4, ipar ); // NB fptype and fptype_sv coincide for CUDA
-  }
-
-  // (Const memory access)
-  static
-  __device__ inline
-  const fptype& kernelConstAccessIp4Ipar( fptype* buffer,
-                                          const int ip4,
-                                          const int ipar )
-  {
-    return kernelAccessIp4Ipar( const_cast<fptype*>( buffer ), ip4, ipar );
-  }
-
-};
-#endif
+typedef KernelAccessMomenta<false> HostAccessMomenta;
+typedef KernelAccessMomenta<true> DeviceAccessMomenta;
 
 //----------------------------------------------------------------------------
 
