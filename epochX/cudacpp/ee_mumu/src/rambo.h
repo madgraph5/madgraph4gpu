@@ -21,8 +21,6 @@ namespace mg5amcCpu
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
 
-  using namespace MemoryAccessMomenta;
-  
   //--------------------------------------------------------------------------
 
   // Fill in the momenta of the initial particles
@@ -34,17 +32,18 @@ namespace mg5amcCpu
   void ramboGetMomentaInitial( const fptype energy,  // input: energy
                                fptype* momenta )     // output: momenta for one event or for a set of events
   {
+    namespace M_ACCESS = MemoryAccessMomenta;
     const fptype energy1 = energy/2;
     const fptype energy2 = energy/2;
     const fptype mom = energy/2;
-    kernelAccessIp4Ipar( momenta, 0, 0 ) = energy1;
-    kernelAccessIp4Ipar( momenta, 1, 0 ) = 0;
-    kernelAccessIp4Ipar( momenta, 2, 0 ) = 0;
-    kernelAccessIp4Ipar( momenta, 3, 0 ) = mom;
-    kernelAccessIp4Ipar( momenta, 0, 1 ) = energy2;
-    kernelAccessIp4Ipar( momenta, 1, 1 ) = 0;
-    kernelAccessIp4Ipar( momenta, 2, 1 ) = 0;
-    kernelAccessIp4Ipar( momenta, 3, 1 ) = -mom;
+    M_ACCESS::kernelAccessIp4Ipar( momenta, 0, 0 ) = energy1;
+    M_ACCESS::kernelAccessIp4Ipar( momenta, 1, 0 ) = 0;
+    M_ACCESS::kernelAccessIp4Ipar( momenta, 2, 0 ) = 0;
+    M_ACCESS::kernelAccessIp4Ipar( momenta, 3, 0 ) = mom;
+    M_ACCESS::kernelAccessIp4Ipar( momenta, 0, 1 ) = energy2;
+    M_ACCESS::kernelAccessIp4Ipar( momenta, 1, 1 ) = 0;
+    M_ACCESS::kernelAccessIp4Ipar( momenta, 2, 1 ) = 0;
+    M_ACCESS::kernelAccessIp4Ipar( momenta, 3, 1 ) = -mom;
   }
 
   //--------------------------------------------------------------------------
@@ -64,6 +63,8 @@ namespace mg5amcCpu
 #endif
                              )
   {
+    namespace M_ACCESS = MemoryAccessMomenta;
+
     /****************************************************************************
      *                       rambo                                              *
      *    ra(ndom)  m(omenta)  b(eautifully)  o(rganized)                       *
@@ -139,9 +140,11 @@ namespace mg5amcCpu
         fptype bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
         for ( int i4 = 1; i4 < np4; i4++ )
         {
-          ieventAccessIp4Ipar( momenta, ievt, i4, iparf+npari ) = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
+          M_ACCESS::ieventAccessIp4Ipar( momenta, ievt, i4, iparf+npari ) =
+            x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
         }
-        ieventAccessIp4Ipar( momenta, ievt, 0, iparf+npari ) = x0 * (g * q[iparf][0] + bq);
+        M_ACCESS::ieventAccessIp4Ipar( momenta, ievt, 0, iparf+npari ) =
+          x0 * (g * q[iparf][0] + bq);
       }
 
       // calculate weight (NB return log of weight)

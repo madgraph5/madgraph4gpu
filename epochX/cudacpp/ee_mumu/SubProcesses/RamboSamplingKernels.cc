@@ -39,7 +39,7 @@ namespace mg5amcCpu
     // ** START LOOP ON IEVT **    
     for ( size_t ievt = 0; ievt < nevt(); ++ievt )
     {
-      fptype* ievtMomenta = &( ieventAccessIp4Ipar( m_momenta.data(), ievt, 0, 0 ) ); // FIXME: document constraints on functions
+      fptype* ievtMomenta = &( MemoryAccessMomenta::ieventAccessIp4Ipar( m_momenta.data(), ievt, 0, 0 ) ); // FIXME: document constraints on functions
       ramboGetMomentaInitial( m_energy, ievtMomenta ); // FIXME!
     }
     // ** END LOOP ON IEVT **    
