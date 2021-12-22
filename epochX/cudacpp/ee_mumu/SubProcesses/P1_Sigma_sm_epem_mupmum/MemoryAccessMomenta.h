@@ -14,6 +14,41 @@ class MemoryAccessMomenta//_AOSOAv1
 {
 public:
 
+  static constexpr int np4 = mgOnGpu::np4;
+  static constexpr int npar = mgOnGpu::npar;
+  static constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+
+  // Locate an event record (output) in a memory buffer (input) from an explicit event number (input)
+  // [Rename as getRecordIevent?]
+  // (Non-const memory access)
+  static
+  __host__ __device__ inline
+  fptype* ieventAccess( fptype* buffer,
+                        const int ievt )
+  {
+    constexpr int ip4 = 0;
+    constexpr int ipar = 0;
+    const int ipagM = ievt/neppM; // #event "M-page"
+    const int ieppM = ievt%neppM; // #event in the current event M-page
+    return &( buffer[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] ); // AOSOA[ipagM][ipar][ip4][ieppM]
+  }
+
+  // Locate a field (output) of an event record (input) from the given field indexes (input)
+  // [Rename as decodeRecordIp4Ipar?]
+  // (Non-const memory access)
+  static
+  __host__ __device__ inline
+  fptype& decodeRecordIp4Ipar( fptype* buffer,
+                               const int ip4,
+                               const int ipar )
+  {
+    constexpr int ipagM = 0;
+    constexpr int ieppM = 0;
+    return buffer[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
+  }
+
+  // *** EVERYTHING BELOW IS BOILERPLATE ***
+
   // =========================================================================
   // *** Pattern: ieventAccessInd1..IndN( buffer, ievt [, ind1... indN] )  ***
   // =========================================================================
@@ -29,13 +64,9 @@ public:
                                const int ip4,
                                const int ipar )
   {
-    using mgOnGpu::np4;
-    using mgOnGpu::npar;
-    constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    const int ipagM = ievt/neppM; // #event "M-page"
-    const int ieppM = ievt%neppM; // #event in the current event M-page
-    //printf( "%2d %2d %8d %8.3f\n", ipar, 0, ievt, buffer[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
-    return buffer[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
+    // NB all KernelLauncher classes assume that memory access can be decomposed in this way
+    // (in other words: first locate the event record for a given event, then locate an element in that record)
+    return decodeRecordIp4Ipar( ieventAccess( buffer, ievt ), ip4, ipar );
   }
 
   // (Const memory access)
