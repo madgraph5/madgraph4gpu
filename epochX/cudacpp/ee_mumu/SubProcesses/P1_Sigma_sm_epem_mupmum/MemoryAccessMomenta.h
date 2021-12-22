@@ -19,12 +19,11 @@ public:
   static constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
 
   // Locate an event record (output) in a memory buffer (input) from an explicit event number (input)
-  // [Rename as getRecordIevent?]
-  // (Non-const memory access)
+  // (Non-const memory access to event record from ievent)
   static
   __host__ __device__ inline
-  fptype* ieventAccess( fptype* buffer,
-                        const int ievt )
+  fptype* ieventAccessRecord( fptype* buffer,
+                              const int ievt )
   {
     constexpr int ip4 = 0;
     constexpr int ipar = 0;
@@ -34,51 +33,62 @@ public:
   }
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
-  // [Rename as decodeRecordIp4Ipar?]
-  // (Non-const memory access)
+  // (Non-const memory access to field in an event record)
   static
   __host__ __device__ inline
-  fptype& decodeRecordIp4Ipar( fptype* buffer,
-                               const int ip4,
-                               const int ipar )
+  fptype& decodeRecord( fptype* buffer,
+                        const int ip4,
+                        const int ipar )
   {
     constexpr int ipagM = 0;
     constexpr int ieppM = 0;
     return buffer[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
   }
 
-  // *** EVERYTHING BELOW IS BOILERPLATE ***
+  static constexpr auto decodeRecordIp4Ipar = decodeRecord;
 
-  // =========================================================================
-  // *** Pattern: ieventAccessInd1..IndN( buffer, ievt [, ind1... indN] )  ***
-  // =========================================================================
+  // *** BOILERPLATE STARTS ***
 
-  // Indexed access (WITH an explicit event number) to the memory buffer for momenta
-  // Input: a memory buffer for an arbitrary number of events
-  // Output: a specific 4-momenta component for a specific particle in one event, given its event number
-  // (Non-const memory access)
+  // (Const memory access to event record from ievent)
   static
   __host__ __device__ inline
-  fptype& ieventAccessIp4Ipar( fptype* buffer,
-                               const int ievt,
-                               const int ip4,
-                               const int ipar )
+  fptype* ieventAccessConstRecord( const fptype* buffer,
+                                   const int ievt )
+  {
+    return ieventAccessRecord( const_cast<fptype*>( buffer ), ievt );
+  }
+
+  // (Non-const memory access to field from ievent)
+  static
+  __host__ __device__ inline
+  fptype& ieventAccessField( fptype* buffer,
+                             const int ievt,
+                             const int ip4,
+                             const int ipar )
   {
     // NB all KernelLauncher classes assume that memory access can be decomposed in this way
     // (in other words: first locate the event record for a given event, then locate an element in that record)
-    return decodeRecordIp4Ipar( ieventAccess( buffer, ievt ), ip4, ipar );
+    return decodeRecord( ieventAccessRecord( buffer, ievt ), ip4, ipar );
   }
 
-  // (Const memory access)
+  // (Const memory access to field from ievent)
   static
   __host__ __device__ inline
-  const fptype& ieventConstAccessIp4Ipar( fptype* buffer,
-                                          const int ievt,
-                                          const int ip4,
-                                          const int ipar )
+  const fptype& ieventAccessConstField( const fptype* buffer,
+                                        const int ievt,
+                                        const int ip4,
+                                        const int ipar )
   {
-    return ieventAccessIp4Ipar( const_cast<fptype*>( buffer ), ievt, ip4, ipar );
+    return ieventAccessField( const_cast<fptype*>( buffer ), ievt, ip4, ipar );
   }
+
+  // *** BOILERPLATE ENDS ***
+
+  // (Non-const memory access to field from ievent)
+  static constexpr auto ieventAccessIp4Ipar = ieventAccessField;
+
+  // (Const memory access to field from ievent)
+  static constexpr auto ieventConstAccessIp4Ipar = ieventAccessConstField;
 
 };
 
@@ -90,46 +100,68 @@ class KernelAccessMomenta : public MemoryAccessMomenta
 {
 public:
 
-  // =========================================================================
-  // *** Pattern: kernelAccessInd1..IndN( buffer [, ind1... indN] )        ***
-  // =========================================================================
+  // *** BOILERPLATE STARTS ***
 
-  // Kernel access (WITHOUT an explicit event number) to the memory buffer for momenta
-  // Input: a memory buffer for an arbitrary number of events
-  // Output: a specific 4-momenta component for a specific particle in one event, given its event number
-  // (Non-const memory access)
+  // Locate an event record (output) in a memory buffer (input) from an implicit event-indexing mechanism in the kernel
+  // (Non-const memory access to event record from kernel)
   static
   __host__ __device__ inline
-  fptype& kernelAccessIp4Ipar( fptype* buffer,
-                               const int ip4,
-                               const int ipar )
+  fptype* kernelAccessRecord( fptype* buffer )
   {
     //if constexpr ( !onDevice ) // FIXME! enable this when we move to nvcc supporting c++17
     if ( !onDevice )
     {
-      return ieventAccessIp4Ipar( buffer, 0, ip4, ipar );
+      return ieventAccessRecord( buffer, 0 );
     }
     else
     {
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "kernelAccessIp4Ipar: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      return ieventAccessIp4Ipar( buffer, ievt, ip4, ipar ); // NB fptype and fptype_sv coincide for CUDA
+      //printf( "kernelAccessRecord: ievt=%d threadId=%d\n", ievt, threadIdx.x );
+      return ieventAccessRecord( buffer, ievt ); // NB fptype and fptype_sv coincide for CUDA
 #else
-      throw std::runtime_error( "KernelAccessMomenta on device is only implemented in CUDA" );
+      throw std::runtime_error( "kernelAccessRecord on device is only implemented in CUDA" );
 #endif
     }
   }
 
-  // (Const memory access)
+  // (Const memory access to event record from kernel)
   static
   __host__ __device__ inline
-  const fptype& kernelConstAccessIp4Ipar( fptype* buffer,
-                                          const int ip4,
-                                          const int ipar )
+  fptype* kernelAccessConstRecord( const fptype* buffer )
   {
-    return kernelAccessIp4Ipar( const_cast<fptype*>( buffer ), ip4, ipar );
+    return kernelAccessRecord( const_cast<fptype*>( buffer ) );
   }
+
+  // (Non-const memory access to field from kernel)
+  static
+  __host__ __device__ inline
+  fptype& kernelAccessField( fptype* buffer,
+                             const int ip4,
+                             const int ipar )
+  {
+    // NB all KernelLauncher classes assume that memory access can be decomposed in this way
+    // (in other words: first locate the event record for a given event, then locate an element in that record)
+    return decodeRecord( kernelAccessRecord( buffer ), ip4, ipar );
+  }
+
+  // (Const memory access to field from ievent)
+  static
+  __host__ __device__ inline
+  const fptype& kernelAccessConstField( const fptype* buffer,
+                                        const int ip4,
+                                        const int ipar )
+  {
+    return kernelAccessField( const_cast<fptype*>( buffer ), ip4, ipar );
+  }
+
+  // *** BOILERPLATE ENDS ***
+
+  // (Non-const memory access to field from ievent)
+  static constexpr auto kernelAccessIp4Ipar = kernelAccessField;
+
+  // (Const memory access to field from ievent)
+  static constexpr auto kernelConstAccessIp4Ipar = kernelAccessConstField;
 
 };
 
