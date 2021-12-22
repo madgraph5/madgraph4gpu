@@ -59,7 +59,16 @@ namespace mg5amcCpu
     throw std::runtime_error( "RamboSamplingKernelHost is not yet implemented in CUDA" ); // FIXME!
 #else
     constexpr auto getMomentaFinal = ramboGetMomentaFinal<MemoryAccessRandomNumbers, MemoryAccessMomenta, MemoryAccessWeights>;
-    getMomentaFinal( m_energy, m_rnarray.data(), m_momenta.data(), m_weights.data(), nevt() );
+
+    // ** START LOOP ON IEVT **
+    for ( size_t ievt = 0; ievt < nevt(); ++ievt )
+    {
+      // FIXME: document constraints on all these memory access functions
+      const fptype* ievtRnarray = &( MemoryAccessRandomNumbers::ieventConstAccessIp4Iparf( m_rnarray.data(), ievt, 0, 0 ) );
+      fptype* ievtMomenta = &( MemoryAccessMomenta::ieventAccessIp4Ipar( m_momenta.data(), ievt, 0, 0 ) );
+      fptype* ievtWeights = &( MemoryAccessWeights::ieventAccess( m_weights.data(), ievt ) );
+      getMomentaFinal( m_energy, ievtRnarray, ievtMomenta, ievtWeights );
+    }
 #endif
   }
 

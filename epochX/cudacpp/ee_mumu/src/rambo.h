@@ -50,11 +50,7 @@ namespace mg5amcCpu
   void ramboGetMomentaFinal( const fptype energy,      // input: energy
                              const fptype* rnarray,    // input: random numbers in [0,1] for one event or for a set of events
                              fptype* momenta,          // output: momenta for one event or for a set of events
-                             fptype* wgts              // output: weights for one event or for a set of events
-#ifndef __CUDACC__
-                             , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
-#endif
-                             )
+                             fptype* wgts )            // output: weights for one event or for a set of events
   {
     /****************************************************************************
      *                       rambo                                              *
@@ -76,86 +72,72 @@ namespace mg5amcCpu
     for ( int kpar = 2; kpar < nparf; kpar++ ) z[kpar] = z[kpar - 1] + po2log - 2. * log(fptype(kpar - 1));
     for ( int kpar = 2; kpar < nparf; kpar++ ) z[kpar] = (z[kpar] - log(fptype(kpar)));
 
-#ifndef __CUDACC__
-    // ** START LOOP ON IEVT **
-    for ( int ievt = 0; ievt < nevt; ++ievt )
-#endif
+    // output weight
+    fptype& wt = W_ACCESS::kernelAccess( wgts );
+
+    // generate n massless momenta in infinite phase space
+    fptype q[nparf][np4];
+    for ( int iparf = 0; iparf < nparf; iparf++ )
     {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "ramboGetMomentaFinal:   ievt %d\n", ievt );
-#endif
+      const fptype r1 = R_ACCESS::kernelConstAccessIp4Iparf( rnarray, 0, iparf );
+      const fptype r2 = R_ACCESS::kernelConstAccessIp4Iparf( rnarray, 1, iparf );
+      const fptype r3 = R_ACCESS::kernelConstAccessIp4Iparf( rnarray, 2, iparf );
+      const fptype r4 = R_ACCESS::kernelConstAccessIp4Iparf( rnarray, 3, iparf );
+      const fptype c = 2. * r1 - 1.;
+      const fptype s = sqrt(1. - c * c);
+      const fptype f = twopi * r2;
+      q[iparf][0] = -log(r3 * r4);
+      q[iparf][3] = q[iparf][0] * c;
+      q[iparf][2] = q[iparf][0] * s * cos(f);
+      q[iparf][1] = q[iparf][0] * s * sin(f);
+    }
 
-      fptype& wt = W_ACCESS::ieventAccess( wgts, ievt );
+    // calculate the parameters of the conformal transformation
+    fptype r[np4];
+    fptype b[np4-1];
+    for ( int i4 = 0; i4 < np4; i4++ ) r[i4] = 0.;
+    for ( int iparf = 0; iparf < nparf; iparf++ )
+    {
+      for ( int i4 = 0; i4 < np4; i4++ ) r[i4] = r[i4] + q[iparf][i4];
+    }
+    const fptype rmas = sqrt(pow(r[0], 2) - pow(r[3], 2) - pow(r[2], 2) - pow(r[1], 2));
+    for ( int i4 = 1; i4 < np4; i4++ ) b[i4-1] = -r[i4] / rmas;
+    const fptype g = r[0] / rmas;
+    const fptype a = 1. / (1. + g);
+    const fptype x0 = energy / rmas;
 
-      // generate n massless momenta in infinite phase space
-      fptype q[nparf][np4];
-      for ( int iparf = 0; iparf < nparf; iparf++ )
+    // transform the q's conformally into the p's (i.e. the 'momenta')
+    for ( int iparf = 0; iparf < nparf; iparf++ )
+    {
+      fptype bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
+      for ( int i4 = 1; i4 < np4; i4++ )
       {
-        const fptype r1 = R_ACCESS::ieventConstAccessIp4Iparf( rnarray, ievt, 0, iparf );
-        const fptype r2 = R_ACCESS::ieventConstAccessIp4Iparf( rnarray, ievt, 1, iparf );
-        const fptype r3 = R_ACCESS::ieventConstAccessIp4Iparf( rnarray, ievt, 2, iparf );
-        const fptype r4 = R_ACCESS::ieventConstAccessIp4Iparf( rnarray, ievt, 3, iparf );
-        const fptype c = 2. * r1 - 1.;
-        const fptype s = sqrt(1. - c * c);
-        const fptype f = twopi * r2;
-        q[iparf][0] = -log(r3 * r4);
-        q[iparf][3] = q[iparf][0] * c;
-        q[iparf][2] = q[iparf][0] * s * cos(f);
-        q[iparf][1] = q[iparf][0] * s * sin(f);
+        M_ACCESS::kernelAccessIp4Ipar( momenta, i4, iparf+npari ) = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
       }
+      M_ACCESS::kernelAccessIp4Ipar( momenta, 0, iparf+npari ) = x0 * (g * q[iparf][0] + bq);
+    }
 
-      // calculate the parameters of the conformal transformation
-      fptype r[np4];
-      fptype b[np4-1];
-      for ( int i4 = 0; i4 < np4; i4++ ) r[i4] = 0.;
-      for ( int iparf = 0; iparf < nparf; iparf++ )
-      {
-        for ( int i4 = 0; i4 < np4; i4++ ) r[i4] = r[i4] + q[iparf][i4];
-      }
-      const fptype rmas = sqrt(pow(r[0], 2) - pow(r[3], 2) - pow(r[2], 2) - pow(r[1], 2));
-      for ( int i4 = 1; i4 < np4; i4++ ) b[i4-1] = -r[i4] / rmas;
-      const fptype g = r[0] / rmas;
-      const fptype a = 1. / (1. + g);
-      const fptype x0 = energy / rmas;
-
-      // transform the q's conformally into the p's (i.e. the 'momenta')
-      for ( int iparf = 0; iparf < nparf; iparf++ )
-      {    
-        fptype bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
-        for ( int i4 = 1; i4 < np4; i4++ )
-        {
-          M_ACCESS::ieventAccessIp4Ipar( momenta, ievt, i4, iparf+npari ) =
-            x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
-        }
-        M_ACCESS::ieventAccessIp4Ipar( momenta, ievt, 0, iparf+npari ) =
-          x0 * (g * q[iparf][0] + bq);
-      }
-
-      // calculate weight (NB return log of weight)
-      wt = po2log;
-      if ( nparf != 2 ) wt = (2. * nparf - 4.) * log(energy) + z[nparf-1];
+    // calculate weight (NB return log of weight)
+    wt = po2log;
+    if ( nparf != 2 ) wt = (2. * nparf - 4.) * log(energy) + z[nparf-1];
 
 #ifndef __CUDACC__
-      // issue warnings if weight is too small or too large
-      static int iwarn[5] = {0,0,0,0,0};
-      if ( wt < -180. )
-      {
-        if ( iwarn[0] <= 5 ) std::cout << "Too small wt, risk for underflow: " << wt << std::endl;
-        iwarn[0] = iwarn[0] + 1;
-      }
-      if ( wt > 174. )
-      {
-        if ( iwarn[1] <= 5 ) std::cout << "Too large wt, risk for overflow: " << wt << std::endl;
-        iwarn[1] = iwarn[1] + 1;
-      }
+    // issue warnings if weight is too small or too large
+    static int iwarn[5] = {0,0,0,0,0};
+    if ( wt < -180. )
+    {
+      if ( iwarn[0] <= 5 ) std::cout << "Too small wt, risk for underflow: " << wt << std::endl;
+      iwarn[0] = iwarn[0] + 1;
+    }
+    if ( wt > 174. )
+    {
+      if ( iwarn[1] <= 5 ) std::cout << "Too large wt, risk for overflow: " << wt << std::endl;
+      iwarn[1] = iwarn[1] + 1;
+    }
 #endif
 
-      // return for weighted massless momenta
-      // nothing else to do in this event if all particles are massless (nm==0)
-
-    }
-    // ** END LOOP ON IEVT **
+    // return for weighted massless momenta
+    // nothing else to do in this event if all particles are massless (nm==0)
 
     return;
   }
