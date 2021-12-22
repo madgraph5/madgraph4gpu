@@ -1,11 +1,11 @@
-#ifndef MemoryAccess2_H
-#define MemoryAccess2_H 1
+#ifndef MemoryAccessMomenta_H
+#define MemoryAccessMomenta_H 1
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 //#include "mgOnGpuVectors.h"
 
-namespace AccessMomentaAOSOA
+namespace MemoryAccessMomenta // AOSOA implementation (should change the name to reflect that?)
 {
   // =========================================================================
   // *** Pattern: ieventAccessInd1..IndN( buffer, ievt [, ind1... indN] )  ***
@@ -75,4 +75,4 @@ namespace AccessMomentaAOSOA
 
 };
 
-#endif // MemoryAccess2_H
+#endif // MemoryAccessMomenta_H

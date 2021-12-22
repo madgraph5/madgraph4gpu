@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "MemoryAccess2.h"
+#include "MemoryAccessMomenta.h"
 
 // Simplified rambo version for 2 to N (with N>=2) processes with massless particles
 #ifdef __CUDACC__
@@ -21,7 +21,7 @@ namespace mg5amcCpu
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
 
-  using namespace AccessMomentaAOSOA;
+  using namespace MemoryAccessMomenta;
   
   //--------------------------------------------------------------------------
 
