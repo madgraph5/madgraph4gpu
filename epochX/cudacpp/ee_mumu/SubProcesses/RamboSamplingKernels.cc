@@ -39,11 +39,12 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
     throw std::runtime_error( "RamboSamplingKernelHost is not yet implemented in CUDA" ); // FIXME!
 #else
+    constexpr auto getMomentaInitial = ramboGetMomentaInitial<MemoryAccessMomenta>;
     // ** START LOOP ON IEVT **
     for ( size_t ievt = 0; ievt < nevt(); ++ievt )
     {
       fptype* ievtMomenta = &( MemoryAccessMomenta::ieventAccessIp4Ipar( m_momenta.data(), ievt, 0, 0 ) ); // FIXME: document constraints on functions
-      ramboGetMomentaInitial<MemoryAccessMomenta>( m_energy, ievtMomenta );
+      getMomentaInitial( m_energy, ievtMomenta );
     }
     // ** END LOOP ON IEVT **
 #endif
@@ -56,11 +57,8 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
     throw std::runtime_error( "RamboSamplingKernelHost is not yet implemented in CUDA" ); // FIXME!
 #else
-    ramboGetMomentaFinal<MemoryAccessRandomNumbers, MemoryAccessMomenta>( m_energy,
-                                                                          m_rnarray.data(),
-                                                                          m_momenta.data(),
-                                                                          m_weights.data(),
-                                                                          nevt() );
+    constexpr auto getMomentaFinal = ramboGetMomentaFinal<MemoryAccessRandomNumbers, MemoryAccessMomenta>;
+    getMomentaFinal( m_energy, m_rnarray.data(), m_momenta.data(), m_weights.data(), nevt() );
 #endif
   }
 
@@ -90,8 +88,8 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
   void RamboSamplingKernelDevice::getMomentaInitial()
   {
-    ramboGetMomentaInitial<MemoryAccessMomenta><<<m_gpublocks, m_gputhreads>>>( m_energy,
-                                                                                m_momenta.data() );
+    constexpr auto getMomentaInitial = ramboGetMomentaInitial<MemoryAccessMomenta>;
+    getMomentaInitial<<<m_gpublocks, m_gputhreads>>>( m_energy, m_momenta.data() );
   }
 #endif
 
@@ -100,10 +98,8 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
   void RamboSamplingKernelDevice::getMomentaFinal()
   {
-    ramboGetMomentaFinal<MemoryAccessRandomNumbers, MemoryAccessMomenta><<<m_gpublocks, m_gputhreads>>>( m_energy,
-                                                                                                         m_rnarray.data(),
-                                                                                                         m_momenta.data(),
-                                                                                                         m_weights.data() );
+    constexpr auto getMomentaFinal = ramboGetMomentaFinal<MemoryAccessRandomNumbers, MemoryAccessMomenta>;
+    getMomentaFinal<<<m_gpublocks, m_gputhreads>>>( m_energy, m_rnarray.data(), m_momenta.data(), m_weights.data() );
   }
 #endif
 
