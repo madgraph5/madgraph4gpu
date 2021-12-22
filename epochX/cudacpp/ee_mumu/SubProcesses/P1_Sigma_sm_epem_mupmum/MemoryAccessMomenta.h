@@ -12,13 +12,15 @@
 // A class describing the internal layout of memory buffers for momenta
 // This implementation uses an AOSOA[npagM][npar][np4][neppM] where nevt=npagM*neppM
 // [If many implementations are used, a suffix _AOSOAv1 should be appended to the class name]
-class MemoryAccessMomenta//_AOSOAv1
+class MemoryAccessMomentaBase//_AOSOAv1
 {
 public:
 
   static constexpr int np4 = mgOnGpu::np4;
   static constexpr int npar = mgOnGpu::npar;
   static constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+
+  //--------------------------------------------------------------------------
 
   // Locate an event record (output) in a memory buffer (input) from an explicit event number (input)
   // (Non-const memory access to event record from ievent)
@@ -34,6 +36,8 @@ public:
     return &( buffer[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] ); // AOSOA[ipagM][ipar][ip4][ieppM]
   }
 
+  //--------------------------------------------------------------------------
+
   // Locate a field (output) of an event record (input) from the given field indexes (input)
   // (Non-const memory access to field in an event record)
   static
@@ -47,47 +51,20 @@ public:
     return buffer[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
   }
 
+};
+
+//----------------------------------------------------------------------------
+
+// A class providing access to memory buffers for momenta
+class MemoryAccessMomenta : public MemoryAccessBase<MemoryAccessMomentaBase>
+{
+public:
+
+  // (Non-const memory access to field in an event record)
   static constexpr auto decodeRecordIp4Ipar = decodeRecord;
 
-  // *** BOILERPLATE STARTS ***
-
-  // (Const memory access to event record from ievent)
-  static
-  __host__ __device__ inline
-  fptype* ieventAccessConstRecord( const fptype* buffer,
-                                   const int ievt )
-  {
-    return ieventAccessRecord( const_cast<fptype*>( buffer ), ievt );
-  }
-
   // (Non-const memory access to field from ievent)
-  static
-  __host__ __device__ inline
-  fptype& ieventAccessField( fptype* buffer,
-                             const int ievt,
-                             const int ip4,
-                             const int ipar )
-  {
-    // NB all KernelLauncher classes assume that memory access can be decomposed in this way
-    // (in other words: first locate the event record for a given event, then locate an element in that record)
-    return decodeRecord( ieventAccessRecord( buffer, ievt ), ip4, ipar );
-  }
-
-  // (Const memory access to field from ievent)
-  static
-  __host__ __device__ inline
-  const fptype& ieventAccessConstField( const fptype* buffer,
-                                        const int ievt,
-                                        const int ip4,
-                                        const int ipar )
-  {
-    return ieventAccessField( const_cast<fptype*>( buffer ), ievt, ip4, ipar );
-  }
-
-  // *** BOILERPLATE ENDS ***
-
-  // (Non-const memory access to field from ievent)
-  static constexpr auto ieventAccessIp4Ipar = MemoryAccessBase::ieventAccessField<MemoryAccessMomenta>;
+  static constexpr auto ieventAccessIp4Ipar = ieventAccessField;
 
   // (Const memory access to field from ievent)
   static constexpr auto ieventConstAccessIp4Ipar = ieventAccessConstField;
