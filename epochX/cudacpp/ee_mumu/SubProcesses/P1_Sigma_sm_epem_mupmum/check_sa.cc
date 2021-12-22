@@ -108,7 +108,7 @@ void debug_me_is_abnormal( const fptype& me, int ievtALL )
 
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
-            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--curhst|--curdev|--common]"
+            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--curhst|--curdev|--common] [--rmbhst|--rmbdev]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
@@ -144,6 +144,7 @@ int main(int argc, char **argv)
   int jsonrun = 0;
   int numvec[5] = {0,0,0,0,0};
   int nnum = 0;
+
   enum class RandomNumberMode{ CommonRandom=0, CurandHost=1, CurandDevice=2 };
 #ifdef __CUDACC__
   RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on GPU
@@ -151,6 +152,13 @@ int main(int argc, char **argv)
   RandomNumberMode rndgen = RandomNumberMode::CurandHost; // default on CPU if build has curand
 #else
   RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // default on CPU if build has no curand
+#endif
+
+  enum class RamboSamplingMode{ RamboHost=1, RamboDevice=2 };
+#ifdef __CUDACC__
+  RamboSamplingMode rmbsmp = RamboSamplingMode::RamboDevice; // default on GPU
+#else
+  RamboSamplingMode rmbsmp = RamboSamplingMode::RamboHost; // default on CPU
 #endif
 
   // READ COMMAND LINE ARGUMENTS
@@ -193,6 +201,18 @@ int main(int argc, char **argv)
     {
       rndgen = RandomNumberMode::CommonRandom;
     }
+    else if ( arg == "--rmbdev" )
+    {
+#ifdef __CUDACC__
+      rmbsmp = RamboSamplingMode::RamboDevice;
+#else
+      throw std::runtime_error( "RamboDevice is not supported on CPUs" );
+#endif
+    }
+    else if ( arg == "--rmbhst" )
+    {
+      rmbsmp = RamboSamplingMode::RamboHost;
+    }
     else if ( is_number(argv[argn]) && nnum<5 )
     {
       numvec[nnum++] = atoi( argv[argn] );
@@ -220,6 +240,17 @@ int main(int argc, char **argv)
   if (niter == 0)
     return usage(argv[0]);
 
+  if ( rmbsmp == RamboSamplingMode::RamboHost && rndgen == RandomNumberMode::CurandDevice )
+  {
+#if not defined MGONGPU_HAS_NO_CURAND
+    std::cout << "WARNING! RamboHost selected: cannot use CurandDevice, will use CurandHost" << std::endl;
+    rndgen = RandomNumberMode::CurandHost;
+#else
+    std::cout << "WARNING! RamboHost selected: cannot use CurandDevice, will use CommonRandom" << std::endl;
+    rndgen = RandomNumberMode::CommonRandom;
+#endif
+  }
+  
   constexpr int neppR = MemoryAccessRandomNumbers::neppR; // AOSOA layout
   constexpr int neppM = mgOnGpu::neppM; // AOSOA layout
 
@@ -425,11 +456,19 @@ int main(int argc, char **argv)
 #endif
 
   // --- 0c. Create rambo sampling kernel [keep this in 0c for the moment]
+  std::unique_ptr<SamplingKernelBase> prsk;
+  if ( rmbsmp == RamboSamplingMode::RamboHost )
+  {
+    prsk.reset( new RamboSamplingKernelHost( energy, hstRnarray, hstMomenta, hstWeights, nevt ) );
+  }
+  else
+  {
 #ifdef __CUDACC__
-  RamboSamplingKernelDevice rsk( energy, devRnarray, devMomenta, devWeights, gpublocks, gputhreads );
+    prsk.reset( new RamboSamplingKernelDevice( energy, devRnarray, devMomenta, devWeights, gpublocks, gputhreads ) );
 #else
-  RamboSamplingKernelHost rsk( energy, hstRnarray, hstMomenta, hstWeights, nevt );
+    throw std::logic_error( "RamboDevice is not supported on CPUs" ); // INTERNAL ERROR (no path to this statement)
 #endif
+  }
 
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
@@ -483,26 +522,41 @@ int main(int argc, char **argv)
     // --- 2a. Fill in momenta of initial state particles on the device
     const std::string riniKey = "2a RamboIni";
     timermap.start( riniKey );
-    rsk.getMomentaInitial();
+    prsk->getMomentaInitial();
     //std::cout << "Got initial momenta" << std::endl;
 
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
     // (i.e. map random numbers to final-state particle momenta for each of nevt events)
     const std::string rfinKey = "2b RamboFin";
     rambtime += timermap.start( rfinKey );
-    rsk.getMomentaFinal();
+    prsk->getMomentaFinal();
     //std::cout << "Got final momenta" << std::endl;
 
 #ifdef __CUDACC__
-    // --- 2c. CopyDToH Weights
-    const std::string cwgtKey = "2c CpDTHwgt";
-    rambtime += timermap.start( cwgtKey );
-    copyHostFromDevice( hstWeights, devWeights );
-
-    // --- 2d. CopyDToH Momenta
-    const std::string cmomKey = "2d CpDTHmom";
-    rambtime += timermap.start( cmomKey );
-    copyHostFromDevice( hstMomenta, devMomenta );
+    if ( rmbsmp == RamboSamplingMode::RamboDevice )
+    {
+      // --- 2c. CopyDToH Weights
+      const std::string cwgtKey = "2c CpDTHwgt";
+      rambtime += timermap.start( cwgtKey );
+      copyHostFromDevice( hstWeights, devWeights );
+      
+      // --- 2d. CopyDToH Momenta
+      const std::string cmomKey = "2d CpDTHmom";
+      rambtime += timermap.start( cmomKey );
+      copyHostFromDevice( hstMomenta, devMomenta );
+    }
+    else
+    {
+      // --- 2c. CopyHToD Weights
+      const std::string cwgtKey = "2c CpHTDwgt";
+      rambtime += timermap.start( cwgtKey );
+      copyDeviceFromHost( devWeights, hstWeights );
+      
+      // --- 2d. CopyHToD Momenta
+      const std::string cmomKey = "2d CpHTDmom";
+      rambtime += timermap.start( cmomKey );
+      copyDeviceFromHost( devMomenta, hstMomenta );
+    }
 #endif
 
     // *** STOP THE OLD-STYLE TIMER FOR RAMBO ***
