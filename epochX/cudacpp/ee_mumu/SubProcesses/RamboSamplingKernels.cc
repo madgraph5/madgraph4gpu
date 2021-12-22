@@ -5,6 +5,8 @@
 
 #include "rambo.h" // inline implementation of RAMBO algorithms and kernels
 
+#include "MemoryAccessMomenta.h"
+
 #ifdef __CUDACC__
 namespace mg5amcGpu
 #else
@@ -36,13 +38,13 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
     throw std::runtime_error( "RamboSamplingKernelHost is not yet implemented in CUDA" ); // FIXME!
 #else
-    // ** START LOOP ON IEVT **    
+    // ** START LOOP ON IEVT **
     for ( size_t ievt = 0; ievt < nevt(); ++ievt )
     {
       fptype* ievtMomenta = &( MemoryAccessMomenta::ieventAccessIp4Ipar( m_momenta.data(), ievt, 0, 0 ) ); // FIXME: document constraints on functions
-      ramboGetMomentaInitial( m_energy, ievtMomenta ); // FIXME!
+      ramboGetMomentaInitial<MemoryAccessMomenta>( m_energy, ievtMomenta );
     }
-    // ** END LOOP ON IEVT **    
+    // ** END LOOP ON IEVT **
 #endif
   }
 
@@ -53,7 +55,7 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
     throw std::runtime_error( "RamboSamplingKernelHost is not yet implemented in CUDA" ); // FIXME!
 #else
-    ramboGetMomentaFinal( m_energy, m_rnarray.data(), m_momenta.data(), m_weights.data(), nevt() );
+    ramboGetMomentaFinal<MemoryAccessMomenta>( m_energy, m_rnarray.data(), m_momenta.data(), m_weights.data(), nevt() );
 #endif
   }
 
@@ -83,7 +85,7 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
   void RamboSamplingKernelDevice::getMomentaInitial()
   {
-    ramboGetMomentaInitial<<<m_gpublocks, m_gputhreads>>>( m_energy, m_momenta.data() );
+    ramboGetMomentaInitial<MemoryAccessMomenta><<<m_gpublocks, m_gputhreads>>>( m_energy, m_momenta.data() );
   }
 #endif
 
@@ -92,10 +94,10 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
   void RamboSamplingKernelDevice::getMomentaFinal()
   {
-    ramboGetMomentaFinal<<<m_gpublocks, m_gputhreads>>>( m_energy,
-                                                         m_rnarray.data(),
-                                                         m_momenta.data(),
-                                                         m_weights.data() );
+    ramboGetMomentaFinal<MemoryAccessMomenta><<<m_gpublocks, m_gputhreads>>>( m_energy,
+                                                                              m_rnarray.data(),
+                                                                              m_momenta.data(),
+                                                                              m_weights.data() );
   }
 #endif
 

@@ -5,8 +5,10 @@
 #include "mgOnGpuTypes.h"
 //#include "mgOnGpuVectors.h"
 
-namespace MemoryAccessMomenta // AOSOA implementation (should change the name to reflect that?)
+class MemoryAccessMomenta // AOSOA implementation (should change the name to reflect that?)
 {
+public:
+
   // =========================================================================
   // *** Pattern: ieventAccessInd1..IndN( buffer, ievt [, ind1... indN] )  ***
   // =========================================================================
@@ -15,6 +17,7 @@ namespace MemoryAccessMomenta // AOSOA implementation (should change the name to
   // Input: a memory buffer for an arbitrary number of events
   // Output: a specific 4-momenta component for a specific particle in one event, given its event number
   // (Non-const memory access)
+  static
   __device__ inline
   fptype& ieventAccessIp4Ipar( fptype* buffer,
                                const int ievt,
@@ -31,6 +34,7 @@ namespace MemoryAccessMomenta // AOSOA implementation (should change the name to
   }
 
   // (Const memory access)
+  static
   __device__ inline
   const fptype& ieventConstAccessIp4Ipar( fptype* buffer,
                                           const int ievt,
@@ -48,6 +52,7 @@ namespace MemoryAccessMomenta // AOSOA implementation (should change the name to
   // Input: a memory buffer for an arbitrary number of events
   // Output: a specific 4-momenta component for a specific particle in one event, given its event number
   // (Non-const memory access)
+  static
   __device__ inline
   fptype& kernelAccessIp4Ipar( fptype* buffer,
                                const int ip4,
@@ -63,6 +68,7 @@ namespace MemoryAccessMomenta // AOSOA implementation (should change the name to
   }
 
   // (Const memory access)
+  static
   __device__ inline
   const fptype& kernelConstAccessIp4Ipar( fptype* buffer,
                                           const int ip4,

@@ -6,8 +6,6 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "MemoryAccessMomenta.h"
-
 // Simplified rambo version for 2 to N (with N>=2) processes with massless particles
 #ifdef __CUDACC__
 namespace mg5amcGpu
@@ -25,14 +23,11 @@ namespace mg5amcCpu
 
   // Fill in the momenta of the initial particles
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
+  template<class M_ACCESS>
   __global__
-#ifndef __CUDACC__
-  inline
-#endif
   void ramboGetMomentaInitial( const fptype energy,  // input: energy
                                fptype* momenta )     // output: momenta for one event or for a set of events
   {
-    namespace M_ACCESS = MemoryAccessMomenta;
     const fptype energy1 = energy/2;
     const fptype energy2 = energy/2;
     const fptype mom = energy/2;
@@ -50,10 +45,8 @@ namespace mg5amcCpu
 
   // Fill in the momenta of the final particles using the RAMBO algorithm
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
+  template<class M_ACCESS>
   __global__
-#ifndef __CUDACC__
-  inline
-#endif
   void ramboGetMomentaFinal( const fptype energy,      // input: energy
                              const fptype rnarray1d[], // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
                              fptype* momenta,          // output: momenta as AOSOA[npagM][npar][4][neppM]
@@ -63,8 +56,6 @@ namespace mg5amcCpu
 #endif
                              )
   {
-    namespace M_ACCESS = MemoryAccessMomenta;
-
     /****************************************************************************
      *                       rambo                                              *
      *    ra(ndom)  m(omenta)  b(eautifully)  o(rganized)                       *
