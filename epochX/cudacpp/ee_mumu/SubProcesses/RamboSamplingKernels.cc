@@ -31,6 +31,14 @@ namespace mg5amcCpu
     if ( m_rnarray.isOnDevice() ) throw std::runtime_error( "RamboSamplingKernelHost: rnarray must be a host array" );
     if ( m_momenta.isOnDevice() ) throw std::runtime_error( "RamboSamplingKernelHost: momenta must be a host array" );
     if ( m_weights.isOnDevice() ) throw std::runtime_error( "RamboSamplingKernelHost: weights must be a host array" );
+    // Sanity checks for memory access (are these really strictly needed?)
+    constexpr int neppR = MemoryAccessRandomNumbers::neppR; // AOSOA layout
+#ifndef __CUDACC__
+    auto ispoweroftwo = []( int n ) { return ( n > 0 ) && !( n & ( n - 1 ) ); }; // https://stackoverflow.com/a/108360
+    static_assert( ispoweroftwo( neppR ) ); // check neppR is power of two
+#else
+    static_assert( ( neppR > 0 ) && !( neppR & ( neppR - 1 ) ) ); // check neppR is power of two (without c++17)
+#endif
   }
 
   //--------------------------------------------------------------------------
@@ -93,16 +101,13 @@ namespace mg5amcCpu
     if ( m_gputhreads == 0 ) throw std::runtime_error( "RamboSamplingKernelDevice: gputhreads must be > 0" );
     // Sanity checks for memory access (are these really strictly needed?)
     constexpr int neppR = MemoryAccessRandomNumbers::neppR; // AOSOA layout
+    static_assert( ( neppR > 0 ) && !( neppR & ( neppR - 1 ) ) ); // check neppR is power of two (without c++17)
     if ( m_gputhreads%neppR != 0 )
     {
       std::ostringstream sstr;
       sstr << "RamboSamplingKernelDevice: gputhreads should be a multiple of neppR=" << neppR;
       throw std::runtime_error( sstr.str() );
     }
-#ifndef __CUDACC__
-    constexpr bool ispoweroftwo( int n ){ return ( n > 0 ) && !( n & ( n - 1 ) ); }; // https://stackoverflow.com/a/108360
-    static_assert( ispoweroftwo( neppR ) );
-#endif
   }
 #endif
 
