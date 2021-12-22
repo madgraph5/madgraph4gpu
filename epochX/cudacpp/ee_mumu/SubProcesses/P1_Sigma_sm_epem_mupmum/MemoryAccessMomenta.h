@@ -5,6 +5,8 @@
 #include "mgOnGpuTypes.h"
 //#include "mgOnGpuVectors.h"
 
+#include "MemoryAccessBase.h"
+
 //----------------------------------------------------------------------------
 
 // A class describing the internal layout of memory buffers for momenta
@@ -85,7 +87,7 @@ public:
   // *** BOILERPLATE ENDS ***
 
   // (Non-const memory access to field from ievent)
-  static constexpr auto ieventAccessIp4Ipar = ieventAccessField;
+  static constexpr auto ieventAccessIp4Ipar = MemoryAccessBase::ieventAccessField<MemoryAccessMomenta>;
 
   // (Const memory access to field from ievent)
   static constexpr auto ieventConstAccessIp4Ipar = ieventAccessConstField;
