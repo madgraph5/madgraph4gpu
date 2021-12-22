@@ -75,72 +75,15 @@ public:
 
 // A class describing kernel access to memory buffers for momenta on a CPU host or on a GPU device
 template<bool onDevice>
-class KernelAccessMomenta : public MemoryAccessMomenta
+class KernelAccessMomenta : public KernelAccessBase<MemoryAccessMomentaBase, onDevice>
 {
 public:
 
-  // *** BOILERPLATE STARTS ***
-
-  // Locate an event record (output) in a memory buffer (input) from an implicit event-indexing mechanism in the kernel
-  // (Non-const memory access to event record from kernel)
-  static
-  __host__ __device__ inline
-  fptype* kernelAccessRecord( fptype* buffer )
-  {
-    //if constexpr ( !onDevice ) // FIXME! enable this when we move to nvcc supporting c++17
-    if ( !onDevice )
-    {
-      return ieventAccessRecord( buffer, 0 );
-    }
-    else
-    {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "kernelAccessRecord: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      return ieventAccessRecord( buffer, ievt ); // NB fptype and fptype_sv coincide for CUDA
-#else
-      throw std::runtime_error( "kernelAccessRecord on device is only implemented in CUDA" );
-#endif
-    }
-  }
-
-  // (Const memory access to event record from kernel)
-  static
-  __host__ __device__ inline
-  fptype* kernelAccessConstRecord( const fptype* buffer )
-  {
-    return kernelAccessRecord( const_cast<fptype*>( buffer ) );
-  }
-
-  // (Non-const memory access to field from kernel)
-  static
-  __host__ __device__ inline
-  fptype& kernelAccessField( fptype* buffer,
-                             const int ip4,
-                             const int ipar )
-  {
-    // NB all KernelLauncher classes assume that memory access can be decomposed in this way
-    // (in other words: first locate the event record for a given event, then locate an element in that record)
-    return decodeRecord( kernelAccessRecord( buffer ), ip4, ipar );
-  }
-
-  // (Const memory access to field from ievent)
-  static
-  __host__ __device__ inline
-  const fptype& kernelAccessConstField( const fptype* buffer,
-                                        const int ip4,
-                                        const int ipar )
-  {
-    return kernelAccessField( const_cast<fptype*>( buffer ), ip4, ipar );
-  }
-
-  // *** BOILERPLATE ENDS ***
-
   // (Non-const memory access to field from ievent)
-  static constexpr auto kernelAccessIp4Ipar = kernelAccessField;
+  static constexpr auto kernelAccessIp4Ipar = KernelAccessBase<MemoryAccessMomentaBase, onDevice>::kernelAccessField;
 
   // (Const memory access to field from ievent)
-  static constexpr auto kernelConstAccessIp4Ipar = kernelAccessConstField;
+  static constexpr auto kernelConstAccessIp4Ipar = KernelAccessBase<MemoryAccessMomentaBase, onDevice>::kernelAccessConstField;
 
 };
 
