@@ -6,6 +6,7 @@
 #include "rambo.h" // inline implementation of RAMBO algorithms and kernels
 
 #include "MemoryAccessMomenta.h"
+#include "MemoryAccessRandomNumbers.h"
 
 #ifdef __CUDACC__
 namespace mg5amcGpu
@@ -55,7 +56,11 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
     throw std::runtime_error( "RamboSamplingKernelHost is not yet implemented in CUDA" ); // FIXME!
 #else
-    ramboGetMomentaFinal<MemoryAccessMomenta>( m_energy, m_rnarray.data(), m_momenta.data(), m_weights.data(), nevt() );
+    ramboGetMomentaFinal<MemoryAccessRandomNumbers, MemoryAccessMomenta>( m_energy,
+                                                                          m_rnarray.data(),
+                                                                          m_momenta.data(),
+                                                                          m_weights.data(),
+                                                                          nevt() );
 #endif
   }
 
@@ -85,7 +90,8 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
   void RamboSamplingKernelDevice::getMomentaInitial()
   {
-    ramboGetMomentaInitial<MemoryAccessMomenta><<<m_gpublocks, m_gputhreads>>>( m_energy, m_momenta.data() );
+    ramboGetMomentaInitial<MemoryAccessMomenta><<<m_gpublocks, m_gputhreads>>>( m_energy,
+                                                                                m_momenta.data() );
   }
 #endif
 
@@ -94,10 +100,10 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
   void RamboSamplingKernelDevice::getMomentaFinal()
   {
-    ramboGetMomentaFinal<MemoryAccessMomenta><<<m_gpublocks, m_gputhreads>>>( m_energy,
-                                                                              m_rnarray.data(),
-                                                                              m_momenta.data(),
-                                                                              m_weights.data() );
+    ramboGetMomentaFinal<MemoryAccessRandomNumbers, MemoryAccessMomenta><<<m_gpublocks, m_gputhreads>>>( m_energy,
+                                                                                                         m_rnarray.data(),
+                                                                                                         m_momenta.data(),
+                                                                                                         m_weights.data() );
   }
 #endif
 

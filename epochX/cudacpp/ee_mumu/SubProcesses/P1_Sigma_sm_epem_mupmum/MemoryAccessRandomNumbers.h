@@ -8,10 +8,9 @@
 // A class describing the internal layout of memory buffers for random numbers
 // This implementation uses an AOSOA[npagR][nparf][np4][neppR] where nevt=npagR*neppR
 // [If many implementations are used, a suffix _AOSOAv1 should be appended to the class name]
-//class MemoryAccessRandomNumbers//_AOSOAv1
-namespace MemoryAccessRandomNumbers//_AOSOAv1
+class MemoryAccessRandomNumbers//_AOSOAv1
 {
-  //public:
+public:
 
   // =========================================================================
   // *** Pattern: ieventAccessInd1..IndN( buffer, ievt [, ind1... indN] )  ***
@@ -21,7 +20,7 @@ namespace MemoryAccessRandomNumbers//_AOSOAv1
   // Input: a memory buffer for an arbitrary number of events
   // Output: a specific 4-momenta component for a specific particle in one event, given its event number
   // (Const memory access)
-  //static
+  static
   __device__ inline
   const fptype& ieventConstAccessIp4Iparf( const fptype* buffer,
                                            const int ievt,
@@ -45,7 +44,7 @@ namespace MemoryAccessRandomNumbers//_AOSOAv1
   // Input: a memory buffer for an arbitrary number of events
   // Output: a specific 4-momenta component for a specific particle in one event, given its event number
   // (Non-const memory access)
-  //static
+  static
   __device__ inline
   const fptype& kernelConstAccessIp4Iparf( const fptype* buffer,
                                            const int ip4,

@@ -6,8 +6,6 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "MemoryAccessRandomNumbers.h"
-
 // Simplified rambo version for 2 to N (with N>=2) processes with massless particles
 #ifdef __CUDACC__
 namespace mg5amcGpu
@@ -47,7 +45,7 @@ namespace mg5amcCpu
 
   // Fill in the momenta of the final particles using the RAMBO algorithm
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
-  template<class M_ACCESS>
+  template<class R_ACCESS, class M_ACCESS>
   __global__
   void ramboGetMomentaFinal( const fptype energy,      // input: energy
                              const fptype* rnarray,    // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
@@ -58,8 +56,6 @@ namespace mg5amcCpu
 #endif
                              )
   {
-    namespace R_ACCESS = MemoryAccessRandomNumbers;
-    
     /****************************************************************************
      *                       rambo                                              *
      *    ra(ndom)  m(omenta)  b(eautifully)  o(rganized)                       *
