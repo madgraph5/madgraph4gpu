@@ -38,8 +38,8 @@ namespace mg5amcCpu
 #endif
                                )
   {
-    const fptype energyP = energy/2;
-    const fptype energyM = energy/2;
+    const fptype energy1 = energy/2;
+    const fptype energy2 = energy/2;
     const fptype mom = energy/2;
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
@@ -50,22 +50,14 @@ namespace mg5amcCpu
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "ramboGetMomentaInitial: ievt %d\n", ievt );
 #endif
-      fptype& pvec0P = ieventAccessIp4Ipar( momenta, ievt, 0, 0 );
-      fptype& pvec1P = ieventAccessIp4Ipar( momenta, ievt, 1, 0 );
-      fptype& pvec2P = ieventAccessIp4Ipar( momenta, ievt, 2, 0 );
-      fptype& pvec3P = ieventAccessIp4Ipar( momenta, ievt, 3, 0 );
-      fptype& pvec0M = ieventAccessIp4Ipar( momenta, ievt, 0, 1 );
-      fptype& pvec1M = ieventAccessIp4Ipar( momenta, ievt, 1, 1 );
-      fptype& pvec2M = ieventAccessIp4Ipar( momenta, ievt, 2, 1 );
-      fptype& pvec3M = ieventAccessIp4Ipar( momenta, ievt, 3, 1 );
-      pvec0P = energyP;
-      pvec1P = 0;
-      pvec2P = 0;
-      pvec3P = mom;
-      pvec0M = energyM;
-      pvec1M = 0;
-      pvec2M = 0;
-      pvec3M = -mom;
+      ieventAccessIp4Ipar( momenta, ievt, 0, 0 ) = energy1;
+      ieventAccessIp4Ipar( momenta, ievt, 1, 0 ) = 0;
+      ieventAccessIp4Ipar( momenta, ievt, 2, 0 ) = 0;
+      ieventAccessIp4Ipar( momenta, ievt, 3, 0 ) = mom;
+      ieventAccessIp4Ipar( momenta, ievt, 0, 1 ) = energy2;
+      ieventAccessIp4Ipar( momenta, ievt, 1, 1 ) = 0;
+      ieventAccessIp4Ipar( momenta, ievt, 2, 1 ) = 0;
+      ieventAccessIp4Ipar( momenta, ievt, 3, 1 ) = -mom;
     }
     // ** END LOOP ON IEVT **
   }
