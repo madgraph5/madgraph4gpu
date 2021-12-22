@@ -269,8 +269,9 @@ function runExe() {
   pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[MECalc|MeanMatrix|FP precision|TOTAL       :"
   # Optionally add other patterns here for some specific configurations (e.g. clang)
   if [ "${exe%%/gcheck*}" != "${exe}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
-  pattern="${pattern}|CUCOMPLEX"
-  pattern="${pattern}|COMMON RANDOM|CURAND HOST \(CUDA"
+  pattern="${pattern}|Workflow"
+  ###pattern="${pattern}|CUCOMPLEX"
+  ###pattern="${pattern}|COMMON RANDOM|CURAND HOST \(CUDA"
   pattern="${pattern}|ERROR"
   pattern="${pattern}|WARNING"
   pattern="${pattern}|EvtsPerSec\[Rmb" # TEMPORARY! for rambo timing tests

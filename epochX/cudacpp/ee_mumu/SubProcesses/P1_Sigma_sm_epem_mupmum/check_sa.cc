@@ -803,6 +803,70 @@ int main(int argc, char **argv)
   rndgentxt += " (C++ code)";
 #endif
 
+  // Workflow description summary
+  std::string wrkflwtxt;
+  // -- CUDA or C++?
+#ifdef __CUDACC__
+  wrkflwtxt += "CUD:";
+#else
+  wrkflwtxt += "CPP:";
+#endif
+  // -- DOUBLE or FLOAT?
+#if defined MGONGPU_FPTYPE_DOUBLE
+  wrkflwtxt += "DBL+";
+#elif defined MGONGPU_FPTYPE_FLOAT
+  wrkflwtxt += "FLT+";
+#else
+  wrkflwtxt += "???+"; // no path to this statement
+#endif
+  // -- CUCOMPLEX or THRUST or STD complex numbers?
+#ifdef __CUDACC__
+#if defined MGONGPU_CXTYPE_CUCOMPLEX
+  wrkflwtxt += "CUX:";
+#elif defined MGONGPU_CXTYPE_THRUST
+  wrkflwtxt += "THX:";
+#else
+  wrkflwtxt += "???:"; // no path to this statement
+#endif
+#else
+  wrkflwtxt += "STX:";
+#endif
+  // -- COMMON or CURAND HOST or CURAND DEVICE random numbers?
+  if ( rndgen == RandomNumberMode::CommonRandom ) wrkflwtxt += "COMMON+";
+  else if ( rndgen == RandomNumberMode::CurandHost ) wrkflwtxt += "CURHST+";
+  else if ( rndgen == RandomNumberMode::CurandDevice ) wrkflwtxt += "CURDEV+";
+  else wrkflwtxt += "??????+"; // no path to this statement
+  // -- HOST or DEVICE rambo sampling?
+  if ( rmbsmp == RamboSamplingMode::RamboHost ) wrkflwtxt += "RMBHST+";
+  else if ( rmbsmp == RamboSamplingMode::RamboDevice ) wrkflwtxt += "RMBDEV+";
+  else wrkflwtxt += "??????+"; // no path to this statement
+  // -- HOST or DEVICE matrix elements?
+#ifdef __CUDACC__
+  wrkflwtxt += "MESDEV";
+#else
+  wrkflwtxt += "MESHST"; // FIXME! allow this also in CUDA (eventually with various simd levels)
+#endif
+  // -- SIMD matrix elements?
+#if !defined MGONGPU_CPPSIMD
+  wrkflwtxt += "/none";
+#elif defined __AVX512VL__
+#ifdef MGONGPU_PVW512
+  wrkflwtxt += "/512z";
+#else
+  wrkflwtxt += "/512y";
+#endif
+#elif defined __AVX2__
+  wrkflwtxt += "/avx2";
+#elif defined __SSE4_2__
+#ifdef __PPC__
+  wrkflwtxt += "/ppcv";
+#else
+  wrkflwtxt += "/sse4";
+#endif
+#else
+  wrkflwtxt += "/????"; // no path to this statement
+#endif
+
   // --- 9a Dump to screen
   const std::string dumpKey = "9a DumpScrn";
   timermap.start(dumpKey);
@@ -851,6 +915,7 @@ int main(int argc, char **argv)
               << "NumThreadsPerBlock          = " << gputhreads << std::endl
               << "NumIterations               = " << niter << std::endl
               << std::string(SEP79, '-') << std::endl
+              << "Workflow summary            = " << wrkflwtxt << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
               << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
