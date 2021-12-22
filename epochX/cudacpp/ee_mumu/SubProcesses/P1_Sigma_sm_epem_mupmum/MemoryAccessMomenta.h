@@ -60,7 +60,7 @@ class KernelAccessMomenta : public MemoryAccessMomenta
 public:
 
   // =========================================================================
-  // *** Pattern: ieventAccessInd1..IndN( buffer, ievt [, ind1... indN] )  ***
+  // *** Pattern: kernelAccessInd1..IndN( buffer [, ind1... indN] )        ***
   // =========================================================================
 
   // Kernel access (WITHOUT an explicit event number) to the memory buffer for momenta

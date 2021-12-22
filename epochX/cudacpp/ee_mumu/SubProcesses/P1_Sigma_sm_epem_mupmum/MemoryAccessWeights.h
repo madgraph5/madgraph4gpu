@@ -49,10 +49,10 @@ class KernelAccessWeights: public MemoryAccessWeights
 public:
 
   // =========================================================================
-  // *** Pattern: ieventAccessInd1..IndN( buffer, ievt [, ind1... indN] )  ***
+  // *** Pattern: kernelAccessInd1..IndN( buffer [, ind1... indN] )        ***
   // =========================================================================
 
-  // Kernel access (WITHOUT an explicit event number) to the memory buffer for momenta
+  // Kernel access (WITHOUT an explicit event number) to the memory buffer for weights
   // Input: a memory buffer for an arbitrary number of events
   // Output: a specific weight for one event, given its event number
   // (Non-const memory access)

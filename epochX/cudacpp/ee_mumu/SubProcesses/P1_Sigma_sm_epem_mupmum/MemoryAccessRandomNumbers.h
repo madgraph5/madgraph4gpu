@@ -22,7 +22,7 @@ public:
   // *** Pattern: ieventAccessInd1..IndN( buffer, ievt [, ind1... indN] )  ***
   // =========================================================================
 
-  // Indexed access (WITH an explicit event number) to the memory buffer for momenta
+  // Indexed access (WITH an explicit event number) to the memory buffer for random numbers
   // Input: a memory buffer for an arbitrary number of events
   // Output: the random number for a specific 4-momenta component for a specific particle in one event, given its event number
   // (Const memory access)
@@ -41,11 +41,22 @@ public:
     return buffer[ipagR*nparf*np4*neppR + iparf*np4*neppR + ip4*neppR + ieppR]; // AOSOA[ipagR][iparf][ip4][ieppR]
   }
 
+
+};
+
+//----------------------------------------------------------------------------
+
+// A class describing kernel access to memory buffers for random numbers on a CPU host or on a GPU device
+template<bool onDevice>
+class KernelAccessRandomNumbers : public MemoryAccessRandomNumbers
+{
+public:
+
   // =========================================================================
-  // *** Pattern: ieventAccessInd1..IndN( buffer, ievt [, ind1... indN] )  ***
+  // *** Pattern: kernelAccessInd1..IndN( buffer [, ind1... indN] )        ***
   // =========================================================================
 
-  // Kernel access (WITHOUT an explicit event number) to the memory buffer for momenta
+  // Kernel access (WITHOUT an explicit event number) to the memory buffer for random numbers
   // Input: a memory buffer for an arbitrary number of events
   // Output: the random number for a specific 4-momenta component for a specific particle in one event, given its event number
   // (Non-const memory access)
@@ -55,17 +66,30 @@ public:
                                            const int ip4,
                                            const int iparf )
   {
+    //if constexpr ( !onDevice ) // FIXME! enable this when we move to nvcc supporting c++17
+    if ( !onDevice )
+    {
+      return ieventConstAccessIp4Iparf( buffer, 0, ip4, iparf );
+    }
+    else
+    {
 #ifdef __CUDACC__
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-    //printf( "kernelCoonstAccessIp4Iparf: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-    return ieventConstAccessIp4Iparf( buffer, ievt, ip4, iparf ); // NB fptype and fptype_sv coincide for CUDA
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+      //printf( "kernelCoonstAccessIp4Iparf: ievt=%d threadId=%d\n", ievt, threadIdx.x );
+      return ieventConstAccessIp4Iparf( buffer, ievt, ip4, iparf ); // NB fptype and fptype_sv coincide for CUDA
 #else
-    return ieventConstAccessIp4Iparf( buffer, 0, ip4, iparf );
+      throw std::runtime_error( "KernelAccessRandomNumbers on device is only implemented in CUDA" );
 #endif
+    }
   }
 
-  //--------------------------------------------------------------------------
-
 };
+
+//----------------------------------------------------------------------------
+
+typedef KernelAccessRandomNumbers<false> HostAccessRandomNumbers;
+typedef KernelAccessRandomNumbers<true> DeviceAccessRandomNumbers;
+
+//----------------------------------------------------------------------------
 
 #endif // MemoryAccessRandomNumbers_H
