@@ -27,7 +27,7 @@ public:
   // Output: the random number for a specific 4-momenta component for a specific particle in one event, given its event number
   // (Const memory access)
   static
-  __device__ inline
+  __host__ __device__ inline
   const fptype& ieventConstAccessIp4Iparf( const fptype* buffer,
                                            const int ievt,
                                            const int ip4,
@@ -61,7 +61,7 @@ public:
   // Output: the random number for a specific 4-momenta component for a specific particle in one event, given its event number
   // (Non-const memory access)
   static
-  __device__ inline
+  __host__ __device__ inline
   const fptype& kernelConstAccessIp4Iparf( const fptype* buffer,
                                            const int ip4,
                                            const int iparf )

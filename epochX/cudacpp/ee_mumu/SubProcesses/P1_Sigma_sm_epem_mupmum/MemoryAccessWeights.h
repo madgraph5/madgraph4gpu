@@ -22,7 +22,7 @@ public:
   // Output: a specific weight for one event, given its event number
   // (Non-const memory access)
   static
-  __device__ inline
+  __host__ __device__ inline
   fptype& ieventAccess( fptype* buffer,
                         const int ievt )
   {
@@ -31,7 +31,7 @@ public:
 
   // (Const memory access)
   static
-  __device__ inline
+  __host__ __device__ inline
   const fptype& ieventConstAccess( fptype* buffer,
                                    const int ievt )
   {
@@ -57,7 +57,7 @@ public:
   // Output: a specific weight for one event, given its event number
   // (Non-const memory access)
   static
-  __device__ inline
+  __host__ __device__ inline
   fptype& kernelAccess( fptype* buffer )
   {
     //if constexpr ( !onDevice ) // FIXME! enable this when we move to nvcc supporting c++17
@@ -79,7 +79,7 @@ public:
 
   // (Const memory access)
   static
-  __device__ inline
+  __host__ __device__ inline
   const fptype& kernelConstAccess( fptype* buffer )
   {
     return kernelAccess( const_cast<fptype*>( buffer ) );

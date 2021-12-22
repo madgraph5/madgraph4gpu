@@ -24,7 +24,7 @@ namespace mg5amcCpu
   // Fill in the momenta of the initial particles
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
   template<class M_ACCESS>
-  __global__
+  __host__ __device__
   void ramboGetMomentaInitial( const fptype energy,  // input: energy
                                fptype* momenta )     // output: momenta for one event or for a set of events
   {
@@ -46,7 +46,7 @@ namespace mg5amcCpu
   // Fill in the momenta of the final particles using the RAMBO algorithm
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
   template<class R_ACCESS, class M_ACCESS, class W_ACCESS>
-  __global__
+  __host__ __device__
   void ramboGetMomentaFinal( const fptype energy,      // input: energy
                              const fptype* rnarray,    // input: random numbers in [0,1] for one event or for a set of events
                              fptype* momenta,          // output: momenta for one event or for a set of events

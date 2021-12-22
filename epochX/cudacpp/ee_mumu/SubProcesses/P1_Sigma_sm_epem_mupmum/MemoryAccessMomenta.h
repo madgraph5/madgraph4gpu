@@ -23,7 +23,7 @@ public:
   // Output: a specific 4-momenta component for a specific particle in one event, given its event number
   // (Non-const memory access)
   static
-  __device__ inline
+  __host__ __device__ inline
   fptype& ieventAccessIp4Ipar( fptype* buffer,
                                const int ievt,
                                const int ip4,
@@ -40,7 +40,7 @@ public:
 
   // (Const memory access)
   static
-  __device__ inline
+  __host__ __device__ inline
   const fptype& ieventConstAccessIp4Ipar( fptype* buffer,
                                           const int ievt,
                                           const int ip4,
@@ -68,7 +68,7 @@ public:
   // Output: a specific 4-momenta component for a specific particle in one event, given its event number
   // (Non-const memory access)
   static
-  __device__ inline
+  __host__ __device__ inline
   fptype& kernelAccessIp4Ipar( fptype* buffer,
                                const int ip4,
                                const int ipar )
@@ -92,7 +92,7 @@ public:
 
   // (Const memory access)
   static
-  __device__ inline
+  __host__ __device__ inline
   const fptype& kernelConstAccessIp4Ipar( fptype* buffer,
                                           const int ip4,
                                           const int ipar )
