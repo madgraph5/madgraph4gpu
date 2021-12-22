@@ -6,6 +6,8 @@
 #include <cstdlib>
 #include <iostream>
 
+#include "MemoryAccess2.h"
+
 // Simplified rambo version for 2 to N (with N>=2) processes with massless particles
 #ifdef __CUDACC__
 namespace mg5amcGpu
@@ -19,6 +21,8 @@ namespace mg5amcCpu
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
 
+  using namespace AccessMomentaAOSOA;
+  
   //--------------------------------------------------------------------------
 
   // Fill in the momenta of the initial particles
@@ -28,16 +32,14 @@ namespace mg5amcCpu
   inline
 #endif
   void ramboGetMomentaInitial( const fptype energy,  // input: energy
-                               fptype momenta1d[]    // output: momenta as AOSOA[npagM][npar][4][neppM]
+                               fptype* momenta       // output: momenta as AOSOA[npagM][npar][4][neppM]
 #ifndef __CUDACC__
                                , const int nevt      // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                                )
   {
-    const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
-    const fptype energy1 = energy/2;
-    const fptype energy2 = energy/2;
+    const fptype energyP = energy/2;
+    const fptype energyM = energy/2;
     const fptype mom = energy/2;
 #ifndef __CUDACC__
     // ** START LOOP ON IEVT **
@@ -48,16 +50,22 @@ namespace mg5amcCpu
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       //printf( "ramboGetMomentaInitial: ievt %d\n", ievt );
 #endif
-      const int ipagM = ievt/neppM; // #eventpage in this iteration
-      const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-      momenta[ipagM][0][0][ieppM] = energy1;
-      momenta[ipagM][0][1][ieppM] = 0;
-      momenta[ipagM][0][2][ieppM] = 0;
-      momenta[ipagM][0][3][ieppM] = mom;
-      momenta[ipagM][1][0][ieppM] = energy2;
-      momenta[ipagM][1][1][ieppM] = 0;
-      momenta[ipagM][1][2][ieppM] = 0;
-      momenta[ipagM][1][3][ieppM] = -mom;
+      fptype& pvec0P = ieventAccessIp4Ipar( momenta, ievt, 0, 0 );
+      fptype& pvec1P = ieventAccessIp4Ipar( momenta, ievt, 1, 0 );
+      fptype& pvec2P = ieventAccessIp4Ipar( momenta, ievt, 2, 0 );
+      fptype& pvec3P = ieventAccessIp4Ipar( momenta, ievt, 3, 0 );
+      fptype& pvec0M = ieventAccessIp4Ipar( momenta, ievt, 0, 1 );
+      fptype& pvec1M = ieventAccessIp4Ipar( momenta, ievt, 1, 1 );
+      fptype& pvec2M = ieventAccessIp4Ipar( momenta, ievt, 2, 1 );
+      fptype& pvec3M = ieventAccessIp4Ipar( momenta, ievt, 3, 1 );
+      pvec0P = energyP;
+      pvec1P = 0;
+      pvec2P = 0;
+      pvec3P = mom;
+      pvec0M = energyM;
+      pvec1M = 0;
+      pvec2M = 0;
+      pvec3M = -mom;
     }
     // ** END LOOP ON IEVT **
   }
@@ -72,7 +80,7 @@ namespace mg5amcCpu
 #endif
   void ramboGetMomentaFinal( const fptype energy,      // input: energy
                              const fptype rnarray1d[], // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
-                             fptype momenta1d[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
+                             fptype* momenta,          // output: momenta as AOSOA[npagM][npar][4][neppM]
                              fptype wgts[]             // output: weights[nevt]
 #ifndef __CUDACC__
                              , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
@@ -93,8 +101,6 @@ namespace mg5amcCpu
 
     const int neppR = mgOnGpu::neppR; // AOSOA layout: constant at compile-time
     fptype (*rnarray)[nparf][np4][neppR] = (fptype (*)[nparf][np4][neppR]) rnarray1d; // cast to multiD array pointer (AOSOA)
-    const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
-    fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
 
     // initialization step: factorials for the phase space weight
     const fptype twopi = 8. * atan(1.);
@@ -118,8 +124,6 @@ namespace mg5amcCpu
 
       const int ipagR = ievt/neppR; // #eventpage in this iteration
       const int ieppR = ievt%neppR; // #event in the current eventpage in this iteration
-      const int ipagM = ievt/neppM; // #eventpage in this iteration
-      const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
 
       fptype& wt = wgts[ievt];
 
@@ -159,8 +163,8 @@ namespace mg5amcCpu
       for (int iparf = 0; iparf < nparf; iparf++) {
         fptype bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
         for (int i4 = 1; i4 < np4; i4++)
-          momenta[ipagM][iparf+npari][i4][ieppM] = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
-        momenta[ipagM][iparf+npari][0][ieppM] = x0 * (g * q[iparf][0] + bq);
+          ieventAccessIp4Ipar( momenta, ievt, i4, iparf+npari ) = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
+        ieventAccessIp4Ipar( momenta, ievt, 0, iparf+npari ) = x0 * (g * q[iparf][0] + bq);
       }
 
       // calculate weight (NB return log of weight)
