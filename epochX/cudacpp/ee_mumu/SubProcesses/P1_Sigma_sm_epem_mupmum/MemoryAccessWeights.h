@@ -76,11 +76,6 @@ public:
 
 //----------------------------------------------------------------------------
 
-template fptype& KernelAccessHelper<MemoryAccessWeightsBase, true>::template kernelAccessField<>( fptype* );
-template fptype& KernelAccessHelper<MemoryAccessWeightsBase, false>::template kernelAccessField<>( fptype* );
-
-fptype& (& func)( fptype* ) = KernelAccessHelper<MemoryAccessWeightsBase, true>::template kernelAccessField<>;
-
 // A class providing access to memory buffers for a given event, based on implicit kernel rules
 template<bool onDevice>
 class KernelAccessWeights
@@ -88,16 +83,26 @@ class KernelAccessWeights
 public:
 
   // (Non-const memory access to field from ievent)
+  // FINAL IMPLEMENTATION FOR CUDA 11.4
   //static constexpr auto kernelAccess =
-  static constexpr //__host__ __device__ 
-  fptype& (& kernelAccess)( fptype* ) =
-    KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessField<>;
+  //  KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessField<>;
+  // TEMPORARY HACK FOR CUDA 11.1
+  static __host__ __device__ inline
+  fptype& kernelAccess( fptype* buffer )
+  {
+    return KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessField<>( buffer );
+  }
 
   // (Const memory access to field from ievent)
+  // FINAL IMPLEMENTATION FOR CUDA 11.4
   //static constexpr auto kernelAccessConst =
-  static constexpr //__host__ __device__ 
-  const fptype& (& kernelAccessConst)( const fptype* ) =
-    KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessFieldConst<>;
+  //  KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessFieldConst<>;
+  // TEMPORARY HACK FOR CUDA 11.1
+  static __host__ __device__ inline
+  const fptype& kernelAccessConst( const fptype* buffer )
+  {
+    return KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessFieldConst<>( buffer );
+  }
 
 };
 
