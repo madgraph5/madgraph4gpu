@@ -6,9 +6,9 @@
 
 //----------------------------------------------------------------------------
 
-// A templated base class that includes the boilerplate code for MemoryAccess classes
+// A templated helper class that includes the boilerplate code for MemoryAccess classes
 template<class T>
-class MemoryAccessBase
+class MemoryAccessHelper
 {
 public:
 
@@ -16,7 +16,7 @@ public:
 
   // (Non-const memory access to field from ievent)
   static constexpr auto ieventAccessRecord = T::ieventAccessRecord;
-  
+
   //--------------------------------------------------------------------------
 
   // (Non-const memory access to field in an event record)
@@ -36,7 +36,7 @@ public:
   //--------------------------------------------------------------------------
 
   // (Non-const memory access to field from ievent)
-  template<class... Ts>
+  template<class... Ts> // variadic template
   static
   __host__ __device__ inline
   fptype& ieventAccessField( fptype* buffer,
@@ -51,8 +51,7 @@ public:
   //--------------------------------------------------------------------------
 
   // (Const memory access to field from ievent)
-  // (Non-const memory access to field from ievent)
-  template<class... Ts>
+  template<class... Ts> // variadic template
   static
   __host__ __device__ inline
   const fptype& ieventAccessConstField( const fptype* buffer,
@@ -66,9 +65,9 @@ public:
 
 //----------------------------------------------------------------------------
 
-// A templated base class that includes the boilerplate code for KernelAccess classes
+// A templated helper class that includes the boilerplate code for KernelAccess classes
 template<class T, bool onDevice>
-class KernelAccessBase : public MemoryAccessBase<T>
+class KernelAccessHelper : public MemoryAccessHelper<T>
 {
 public:
 
@@ -110,7 +109,7 @@ public:
   //--------------------------------------------------------------------------
 
   // (Non-const memory access to field from kernel)
-  template<class... Ts>
+  template<class... Ts> // variadic template
   static
   __host__ __device__ inline
   fptype& kernelAccessField( fptype* buffer,
@@ -124,7 +123,7 @@ public:
   //--------------------------------------------------------------------------
 
   // (Const memory access to field from kernel)
-  template<class... Ts>
+  template<class... Ts> // variadic template
   static
   __host__ __device__ inline
   const fptype& kernelAccessConstField( const fptype* buffer,

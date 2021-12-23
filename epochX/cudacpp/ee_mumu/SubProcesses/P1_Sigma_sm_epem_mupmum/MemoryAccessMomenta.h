@@ -61,13 +61,13 @@ class MemoryAccessMomenta : public MemoryAccessMomentaBase
 public:
 
   // (Non-const memory access to field in an event record)
-  //static constexpr auto decodeRecordIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::decodeRecord;
+  //static constexpr auto decodeRecordIp4Ipar = MemoryAccessHelper<MemoryAccessMomentaBase>::decodeRecord;
 
   // (Non-const memory access to field from ievent)
-  static constexpr auto ieventAccessIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessField<int, int>;
+  static constexpr auto ieventAccessIp4Ipar = MemoryAccessHelper<MemoryAccessMomentaBase>::ieventAccessField<int, int>;
 
   // (Const memory access to field from ievent)
-  static constexpr auto ieventConstAccessIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessConstField<int, int>;
+  static constexpr auto ieventConstAccessIp4Ipar = MemoryAccessHelper<MemoryAccessMomentaBase>::ieventAccessConstField<int, int>;
 
 };
 
@@ -80,12 +80,12 @@ class KernelAccessMomenta
 public:
 
   // (Non-const memory access to field from ievent)
-  static constexpr auto kernelAccessIp4Ipar = 
-    KernelAccessBase<MemoryAccessMomentaBase, onDevice>::template kernelAccessField<int, int>;
+  static constexpr auto kernelAccessIp4Ipar =
+    KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessField<int, int>;
 
   // (Const memory access to field from ievent)
-  static constexpr auto kernelConstAccessIp4Ipar = 
-    KernelAccessBase<MemoryAccessMomentaBase, onDevice>::template kernelAccessConstField<int, int>;
+  static constexpr auto kernelConstAccessIp4Ipar =
+    KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessConstField<int, int>;
 
 };
 
