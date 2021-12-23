@@ -55,6 +55,9 @@ public:
 
 //----------------------------------------------------------------------------
 
+//template MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessFIELD<const int, const int>;
+//template fptype& MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessFIELD<int, int>( fptype*, int, int, int );
+
 // A class providing access to memory buffers for a given event, based on explicit event numbers
 class MemoryAccessMomenta : public MemoryAccessMomentaBase
 {
@@ -64,7 +67,10 @@ public:
   //static constexpr auto decodeRecordIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::decodeRecord;
 
   // (Non-const memory access to field from ievent)
-  static constexpr auto ieventAccessIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessField;
+  //static constexpr auto ieventAccessIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessField;
+  static constexpr auto ieventAccessIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessFIELD<int, int>;
+  //typedef fptype& (*functype) (fptype*, const int, const int, const int);
+  //static constexpr functype ieventAccessIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessFIELD<const int, const int>;
 
   // (Const memory access to field from ievent)
   //static constexpr auto ieventConstAccessIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessConstField;
