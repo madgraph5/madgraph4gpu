@@ -20,6 +20,12 @@ public:
   static constexpr int npar = mgOnGpu::npar;
   static constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
 
+private:
+
+  friend class MemoryAccessHelper<MemoryAccessMomentaBase>;
+  friend class KernelAccessHelper<MemoryAccessMomentaBase, true>;
+  friend class KernelAccessHelper<MemoryAccessMomentaBase, false>;
+  
   //--------------------------------------------------------------------------
 
   // Locate an event record (output) in a memory buffer (input) from an explicit event number (input)
@@ -38,12 +44,6 @@ public:
 
   //--------------------------------------------------------------------------
 
-private:
-
-  friend class MemoryAccessHelper<MemoryAccessMomentaBase>;
-  friend class KernelAccessHelper<MemoryAccessMomentaBase, true>;
-  friend class KernelAccessHelper<MemoryAccessMomentaBase, false>;
-  
   // Locate a field (output) of an event record (input) from the given field indexes (input)
   // (Non-const memory access to field in an event record)
   static
@@ -65,6 +65,12 @@ private:
 class MemoryAccessMomenta : public MemoryAccessMomentaBase
 {
 public:
+
+  // (Non-const memory access to event record from ievent)
+  static constexpr auto ieventAccessRecord = MemoryAccessHelper<MemoryAccessMomentaBase>::ieventAccessRecord;
+
+  // (Const memory access to event record from ievent)
+  static constexpr auto ieventAccessConstRecord = MemoryAccessHelper<MemoryAccessMomentaBase>::ieventAccessConstRecord;
 
   // (Non-const memory access to field in an event record)
   //static constexpr auto decodeRecordIp4Ipar = MemoryAccessHelper<MemoryAccessMomentaBase>::decodeRecord;
