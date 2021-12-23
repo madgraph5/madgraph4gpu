@@ -36,6 +36,18 @@ public:
   //--------------------------------------------------------------------------
 
   // (Non-const memory access to field from ievent)
+  template<class... Ts>
+  static
+  __host__ __device__ inline
+  fptype& ieventAccessFIELD( fptype* buffer,
+                             const int ievt,
+                             Ts... args )
+  {
+    // NB all KernelLauncher classes assume that memory access can be decomposed in this way
+    // (in other words: first locate the event record for a given event, then locate an element in that record)
+    return T::decodeRecord( T::ieventAccessRecord( buffer, ievt ), args... );
+  }
+
   static
   __host__ __device__ inline
   fptype& ieventAccessField( fptype* buffer,
@@ -43,9 +55,7 @@ public:
                              const int ip4,
                              const int ipar )
   {
-    // NB all KernelLauncher classes assume that memory access can be decomposed in this way
-    // (in other words: first locate the event record for a given event, then locate an element in that record)
-    return decodeRecord( ieventAccessRecord( buffer, ievt ), ip4, ipar );
+    return ieventAccessFIELD( buffer, ievt, ip4, ipar );
   }
 
   //--------------------------------------------------------------------------
