@@ -83,10 +83,6 @@ public:
 //#endif
 //template fptype& KernelAccessBase<MemoryAccessMomentaBase, false>::kernelAccessFIELD<int, int>( fptype*, int, int );
 
-//template fptype& MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessField<int, int>;
-//template fptype& KernelAccessBase<MemoryAccessMomentaBase, true>::kernelAccessFIELD<int, int>;
-//template fptype& KernelAccessBase<MemoryAccessMomentaBase, true>::kernelAccessFIELD<int, int>;
-
 // A class providing access to memory buffers for a given event, based on implicit kernel rules
 template<bool onDevice>
 class KernelAccessMomenta
@@ -94,8 +90,7 @@ class KernelAccessMomenta
 public:
 
   // (Non-const memory access to field from ievent)
-  static constexpr auto kernelAccessIp4Ipar = KernelAccessBase<MemoryAccessMomentaBase, onDevice>::kernelAccessField;
-  //static constexpr auto kernelAccessIp4Ipar = KernelAccessBase<MemoryAccessMomentaBase, onDevice>::kernelAccessFIELD<int, int>;
+  static constexpr auto kernelAccessIp4Ipar = KernelAccessBase<MemoryAccessMomentaBase, onDevice>::template kernelAccessFIELD<int, int>;
 
   // (Const memory access to field from ievent)
   //static constexpr auto kernelConstAccessIp4Ipar = KernelAccessBase<MemoryAccessMomentaBase, onDevice>::kernelAccessConstField;
