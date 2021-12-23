@@ -59,6 +59,7 @@ public:
   // (Non-const memory access to field in an event record)
   static constexpr auto decodeRecord = MemoryAccessHelper<MemoryAccessWeightsBase>::decodeRecord;
 
+  // [NOTE THE USE OF THE TEMPLATE KEYWORD IN ALL OF THE FOLLOWING TEMPLATE FUNCTION INSTANTIATIONS]
   // (Const memory access to field in an event record)
   static constexpr auto decodeRecordConst =
     MemoryAccessHelper<MemoryAccessWeightsBase>::template decodeRecordConst<>;
@@ -75,6 +76,11 @@ public:
 
 //----------------------------------------------------------------------------
 
+template fptype& KernelAccessHelper<MemoryAccessWeightsBase, true>::template kernelAccessField<>( fptype* );
+template fptype& KernelAccessHelper<MemoryAccessWeightsBase, false>::template kernelAccessField<>( fptype* );
+
+fptype& (& func)( fptype* ) = KernelAccessHelper<MemoryAccessWeightsBase, true>::template kernelAccessField<>;
+
 // A class providing access to memory buffers for a given event, based on implicit kernel rules
 template<bool onDevice>
 class KernelAccessWeights
@@ -82,11 +88,15 @@ class KernelAccessWeights
 public:
 
   // (Non-const memory access to field from ievent)
-  static constexpr auto kernelAccess =
+  //static constexpr auto kernelAccess =
+  static constexpr //__host__ __device__ 
+  fptype& (& kernelAccess)( fptype* ) =
     KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessField<>;
 
   // (Const memory access to field from ievent)
-  static constexpr auto kernelAccessConst =
+  //static constexpr auto kernelAccessConst =
+  static constexpr //__host__ __device__ 
+  const fptype& (& kernelAccessConst)( const fptype* ) =
     KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessFieldConst<>;
 
 };

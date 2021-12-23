@@ -81,6 +81,7 @@ public:
   // (Non-const memory access to field in an event record)
   static constexpr auto decodeRecordIp4Iparf = MemoryAccessHelper<MemoryAccessRandomNumbersBase>::decodeRecord;
 
+  // [NOTE THE USE OF THE TEMPLATE KEYWORD IN ALL OF THE FOLLOWING TEMPLATE FUNCTION INSTANTIATIONS]
   // (Const memory access to field in an event record)
   static constexpr auto decodeRecordIp4IparfConst =
     MemoryAccessHelper<MemoryAccessRandomNumbersBase>::template decodeRecordConst<int, int>;
