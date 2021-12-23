@@ -78,7 +78,9 @@ public:
 
 //template fptype& DeviceAccessMomentaBase::kernelAccessFIELD<int, int>( fptype*, int, int );
 
+#ifdef __CUDACC__
 template fptype& KernelAccessBase<MemoryAccessMomentaBase, true>::kernelAccessFIELD<int, int>( fptype*, int, int );
+#endif
 template fptype& KernelAccessBase<MemoryAccessMomentaBase, false>::kernelAccessFIELD<int, int>( fptype*, int, int );
 
 //template fptype& MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessField<int, int>;
