@@ -110,6 +110,18 @@ public:
   //--------------------------------------------------------------------------
 
   // (Non-const memory access to field from kernel)
+  template<class... Ts>
+  static
+  __host__ __device__ inline
+  fptype& kernelAccessFIELD( fptype* buffer,
+                             Ts... args )
+  {
+    // NB all KernelLauncher classes assume that memory access can be decomposed in this way
+    // (in other words: first locate the event record for a given event, then locate an element in that record)
+    return T::decodeRecord( kernelAccessRecord( buffer ), args... );
+  }
+
+  // (Non-const memory access to field from kernel)
   static
   __host__ __device__ inline
   fptype& kernelAccessField( fptype* buffer,
