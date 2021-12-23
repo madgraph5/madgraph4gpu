@@ -57,8 +57,8 @@ public:
                              const int ip4,
                              const int ipar )
   {
-    return ieventAccessFIELD<const int, const int>( buffer, ievt, ip4, ipar ); // builds
-    //return ieventAccessFIELD2( buffer, ievt, ip4, ipar ); // triggers above line not to build
+    //return ieventAccessFIELD<const int, const int>( buffer, ievt, ip4, ipar ); // builds
+    return ieventAccessFIELD2( buffer, ievt, ip4, ipar ); // triggers above line not to build
     //return *buffer; // builds
   }
 
