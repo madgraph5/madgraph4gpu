@@ -100,15 +100,21 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     # [NB: mgOnGpuConfig.h and check_sa.cu are handled through dedicated methods]
     ###s = MG5DIR + '/madgraph/iolibs/template_files/'
     s = PLUGINDIR + '/madgraph/iolibs/template_files/'
-    from_template = {'src': [s+'gpu/rambo.h', s+'gpu/rambo.cc', s+'read_slha.h', s+'read_slha.cc',
+    from_template = {'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
                              s+'gpu/mgOnGpuTypes.h', s+'gpu/mgOnGpuVectors.h'],
                     'SubProcesses': [s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h',
-                                     s+'gpu/checkCuda.h', s+'gpu/Memory.h', s+'gpu/MemoryAccess.h', s+'gpu/MemoryBuffers.h',
-                                     s+'gpu/RandomNumberKernels.h', s+'gpu/RandomNumberKernels.cc', s+'gpu/Makefile', 
+                                     s+'gpu/checkCuda.h', s+'gpu/Memory.h', s+'gpu/MemoryAccess.h',
+                                     s+'gpu/MemoryBuffers.h', s+'gpu/MemoryAccessHelpers.h',
+                                     s+'gpu/MemoryAccessMomenta.h', s+'gpu/MemoryAccessRandomNumbers.h',s+'gpu/MemoryAccessWeights.h',
+                                     s+'gpu/RamboSamplingKernels.cc', s+'gpu/RamboSamplingKernels.h',
+                                     s+'gpu/RandomNumberKernels.cc', s+'gpu/RandomNumberKernels.h', s+'gpu/Makefile', 
                                      s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc', s+'gpu/testxxx.cc', s+'gpu/testxxx_cc_ref.txt',
                                      s+'gpu/perf.py', s+'gpu/profile.sh']}
     to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h',
-                    'checkCuda.h', 'Memory.h', 'MemoryAccess.h', 'MemoryBuffers.h',
+                    'checkCuda.h', 'Memory.h', 'MemoryAccess.h',
+                    'MemoryBuffers.h', 'MemoryAccessHelpers.h',
+                    'MemoryAccessMomenta.h', 'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h', 
+                    'RamboSamplingKernels.cc', 'RamboSamplingKernels.h',
                     'RandomNumberKernels.h', 'RandomNumberKernels.cc', 'Makefile',
                     'MadgraphTest.h', 'runTest.cc', 'testxxx.cc', 'testxxx_cc_ref.txt',
                     'perf.py', 'profile.sh']

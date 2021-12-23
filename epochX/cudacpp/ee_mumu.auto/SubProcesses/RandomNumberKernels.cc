@@ -12,14 +12,15 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
+
   //--------------------------------------------------------------------------
 
   CommonRandomNumberKernel::CommonRandomNumberKernel( BufferRandomNumbers& rnarray )
     : RandomNumberKernelBase( rnarray )
     , m_seed( 20211220 )
   {
-    //FIXME - throw if array is not a host array
-    //throw std::runtime_error( ... )
+    if ( m_rnarray.isOnDevice() )
+      throw std::runtime_error( "CommonRandomNumberKernel on host with a device random number array" );
   }
 
   //--------------------------------------------------------------------------
@@ -52,12 +53,20 @@ namespace mg5amcCpu
     : RandomNumberKernelBase( rnarray )
     , m_isOnDevice( onDevice )
   {
-#ifndef __CUDACC__
     if ( m_isOnDevice )
-      throw std::runtime_error( "CurandRandomNumberKernel does not support CurandDevice on CPUs" );
+    {
+#ifdef __CUDACC__
+      if ( ! m_rnarray.isOnDevice() )
+        throw std::runtime_error( "CurandRandomNumberKernel on device with a host random number array" );
+#else
+      throw std::runtime_error( "CurandRandomNumberKernel does not support CurandDevice on CPU host" );
 #endif
-    //FIXME - throw if array type host/device does not match kernel type host/device
-    //throw std::runtime_error( ... )
+    }
+    else
+    {
+      if ( m_rnarray.isOnDevice() )
+        throw std::runtime_error( "CurandRandomNumberKernel on host with a device random number array" );
+    }
     // [NB Timings are for GenRnGen host|device (cpp|cuda) generation of 256*32*1 events with nproc=1: rn(0) is host=0.0012s]
     const curandRngType_t type = CURAND_RNG_PSEUDO_MTGP32;          // 0.00082s | 0.00064s (FOR FAST TESTS)
     //const curandRngType_t type = CURAND_RNG_PSEUDO_XORWOW;        // 0.049s   | 0.0016s

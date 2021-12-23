@@ -905,6 +905,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         # Add symbolic links
         files.ln(pjoin(self.path, 'check_sa.cc'), self.path, 'gcheck_sa.cu')
         files.ln(pjoin(self.path, 'CPPProcess.cc'), self.path, 'gCPPProcess.cu')
+        files.ln(pjoin(self.path, 'RamboSamplingKernels.cc'), self.path, 'gRamboSamplingKernels.cu')
         files.ln(pjoin(self.path, 'RandomNumberKernels.cc'), self.path, 'gRandomNumberKernels.cu')
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (invert .cc/.cu, add debug printouts)

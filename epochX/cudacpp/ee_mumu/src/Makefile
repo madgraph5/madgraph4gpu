@@ -157,7 +157,7 @@ endif
 #  endif
 #endif
 
-# NB there are no cuda objects as we avoid rdc (e.g. grambo.cu is included by gcheck.cu)
+# NB there are no cuda objects as we avoid rdc (e.g. HelAmps_sm.cc is included by gcheck.cu)
 target=$(LIBDIR)/libmodel_sm.a
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
 cu_objects=
