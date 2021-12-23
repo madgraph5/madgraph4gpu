@@ -55,7 +55,7 @@ public:
                              const int ievt,
                              Ts... args )
   {
-    // NB all KernelLauncher classes assume that memory access can be decomposed in this way
+    // NB all KernelLaunchers assume that memory access can be decomposed as "accessField = decodeRecord( accessRecord )"
     // (in other words: first locate the event record for a given event, then locate an element in that record)
     return T::decodeRecord( T::ieventAccessRecord( buffer, ievt ), args... );
   }
@@ -127,7 +127,7 @@ public:
   fptype& kernelAccessField( fptype* buffer,
                              Ts... args )
   {
-    // NB all KernelLauncher classes assume that memory access can be decomposed in this way
+    // NB all KernelLaunchers assume that memory access can be decomposed as "accessField = decodeRecord( accessRecord )"
     // (in other words: first locate the event record for a given event, then locate an element in that record)
     return T::decodeRecord( kernelAccessRecord( buffer ), args... );
   }

@@ -35,6 +35,9 @@ public:
   static constexpr int nparf = mgOnGpu::nparf;
 
   //--------------------------------------------------------------------------
+  // NB all KernelLaunchers assume that memory access can be decomposed as "accessField = decodeRecord( accessRecord )"
+  // (in other words: first locate the event record for a given event, then locate an element in that record)
+  //--------------------------------------------------------------------------
 
   // Locate an event record (output) in a memory buffer (input) from an explicit event number (input)
   // (Non-const memory access to event record from ievent)

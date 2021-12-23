@@ -46,8 +46,8 @@ namespace mg5amcCpu
     // ** START LOOP ON IEVT **
     for ( size_t ievt = 0; ievt < nevt(); ++ievt )
     {
-      // FIXME: document constraints on these memory access functions
-      fptype* ievtMomenta = &( MemoryAccessMomenta::ieventAccessIp4Ipar( m_momenta.data(), ievt, 0, 0 ) );
+      // NB all KernelLaunchers assume that memory access can be decomposed as "accessField = decodeRecord( accessRecord )"
+      fptype* ievtMomenta = MemoryAccessMomenta::ieventAccessRecord( m_momenta.data(), ievt );
       getMomentaInitial( m_energy, ievtMomenta );
     }
     // ** END LOOP ON IEVT **
@@ -61,12 +61,13 @@ namespace mg5amcCpu
     // ** START LOOP ON IEVT **
     for ( size_t ievt = 0; ievt < nevt(); ++ievt )
     {
-      // FIXME: document constraints on these memory access functions
-      const fptype* ievtRnarray = &( MemoryAccessRandomNumbers::ieventAccessIp4IparfConst( m_rnarray.data(), ievt, 0, 0 ) );
+      // NB all KernelLaunchers assume that memory access can be decomposed as "accessField = decodeRecord( accessRecord )"
+      const fptype* ievtRnarray = MemoryAccessRandomNumbers::ieventAccessRecordConst( m_rnarray.data(), ievt );
       fptype* ievtMomenta = MemoryAccessMomenta::ieventAccessRecord( m_momenta.data(), ievt );
-      fptype* ievtWeights = &( MemoryAccessWeights::ieventAccess( m_weights.data(), ievt ) );
+      fptype* ievtWeights = MemoryAccessWeights::ieventAccessRecord( m_weights.data(), ievt );
       getMomentaFinal( m_energy, ievtRnarray, ievtMomenta, ievtWeights );
     }
+    // ** END LOOP ON IEVT **
   }
 
   //--------------------------------------------------------------------------
@@ -108,7 +109,7 @@ namespace mg5amcCpu
   {
     constexpr auto getMomentaInitial = ramboGetMomentaInitial<DeviceAccessMomenta>;
     return getMomentaInitial( energy, momenta );
-  }  
+  }
 #endif
 
   //--------------------------------------------------------------------------
