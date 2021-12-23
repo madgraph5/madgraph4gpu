@@ -22,7 +22,7 @@ public:
   // (Const memory access to event record from ievent)
   static
   __host__ __device__ inline
-  fptype* ieventAccessConstRecord( const fptype* buffer,
+  fptype* ieventAccessRecordConst( const fptype* buffer,
                                    const int ievt )
   {
     return ieventAccessRecord( const_cast<fptype*>( buffer ), ievt );
@@ -66,7 +66,7 @@ public:
   template<class... Ts> // variadic template
   static
   __host__ __device__ inline
-  const fptype& ieventAccessConstField( const fptype* buffer,
+  const fptype& ieventAccessFieldConst( const fptype* buffer,
                                         const int ievt,
                                         Ts... args )
   {
@@ -113,7 +113,7 @@ public:
   // (Const memory access to event record from kernel)
   static
   __host__ __device__ inline
-  fptype* kernelAccessConstRecord( const fptype* buffer )
+  fptype* kernelAccessRecordConst( const fptype* buffer )
   {
     return kernelAccessRecord( const_cast<fptype*>( buffer ) );
   }
@@ -138,7 +138,7 @@ public:
   template<class... Ts> // variadic template
   static
   __host__ __device__ inline
-  const fptype& kernelAccessConstField( const fptype* buffer,
+  const fptype& kernelAccessFieldConst( const fptype* buffer,
                                         Ts... args )
   {
     return kernelAccessField( const_cast<fptype*>( buffer ), args... );
