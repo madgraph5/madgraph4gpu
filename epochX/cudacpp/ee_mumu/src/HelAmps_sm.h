@@ -84,16 +84,15 @@ namespace MG5_sm
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
-  __device__ INLINE
+  template<class M_ACCESS>
+  __host__ __device__ INLINE
   void imzxxx( const fptype_sv* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fi[]
-#ifdef __CUDACC__
-               , const int ipar                // input: particle# out of npar
-#endif
-               ) ALWAYS_INLINE;
+               cxtype_sv fi[],
+               const int ipar )                // input: particle# out of npar
+    ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
