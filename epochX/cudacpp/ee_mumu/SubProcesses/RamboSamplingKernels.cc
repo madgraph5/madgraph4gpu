@@ -32,9 +32,9 @@ namespace mg5amcCpu
     constexpr int neppR = MemoryAccessRandomNumbers::neppR; // AOSOA layout
 #ifndef __CUDACC__
     auto ispoweroftwo = []( int n ) { return ( n > 0 ) && !( n & ( n - 1 ) ); }; // https://stackoverflow.com/a/108360
-    static_assert( ispoweroftwo( neppR ) ); // check neppR is power of two
+    static_assert( ispoweroftwo( neppR ), "neppR is not a power of 2" );
 #else
-    static_assert( ( neppR > 0 ) && !( neppR & ( neppR - 1 ) ) ); // check neppR is power of two (without c++17)
+    static_assert( ( neppR > 0 ) && !( neppR & ( neppR - 1 ) ), "neppR is not a power of 2" ); // implementation without c++17 lambda
 #endif
   }
 
