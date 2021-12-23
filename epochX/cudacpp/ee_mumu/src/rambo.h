@@ -79,10 +79,10 @@ namespace mg5amcCpu
     fptype q[nparf][np4];
     for ( int iparf = 0; iparf < nparf; iparf++ )
     {
-      const fptype r1 = R_ACCESS::kernelConstAccessIp4Iparf( rnarray, 0, iparf );
-      const fptype r2 = R_ACCESS::kernelConstAccessIp4Iparf( rnarray, 1, iparf );
-      const fptype r3 = R_ACCESS::kernelConstAccessIp4Iparf( rnarray, 2, iparf );
-      const fptype r4 = R_ACCESS::kernelConstAccessIp4Iparf( rnarray, 3, iparf );
+      const fptype r1 = R_ACCESS::kernelAccessIp4IparfConst( rnarray, 0, iparf );
+      const fptype r2 = R_ACCESS::kernelAccessIp4IparfConst( rnarray, 1, iparf );
+      const fptype r3 = R_ACCESS::kernelAccessIp4IparfConst( rnarray, 2, iparf );
+      const fptype r4 = R_ACCESS::kernelAccessIp4IparfConst( rnarray, 3, iparf );
       const fptype c = 2. * r1 - 1.;
       const fptype s = sqrt(1. - c * c);
       const fptype f = twopi * r2;

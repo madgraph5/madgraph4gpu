@@ -16,8 +16,7 @@ class MemoryAccessMomentaBase//_AOSOAv1
 {
 public:
 
-  static constexpr int np4 = mgOnGpu::np4;
-  static constexpr int npar = mgOnGpu::npar;
+  // Number of Events Per Page in the momenta AOSOA memory buffer layout
   static constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
 
 private:
@@ -26,6 +25,12 @@ private:
   friend class KernelAccessHelper<MemoryAccessMomentaBase, true>;
   friend class KernelAccessHelper<MemoryAccessMomentaBase, false>;
   
+  // The number of components of a 4-momentum
+  static constexpr int np4 = mgOnGpu::np4;
+
+  // The number of particles in this physics process
+  static constexpr int npar = mgOnGpu::npar;
+
   //--------------------------------------------------------------------------
 
   // Locate an event record (output) in a memory buffer (input) from an explicit event number (input)

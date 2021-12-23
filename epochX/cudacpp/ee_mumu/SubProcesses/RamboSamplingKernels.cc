@@ -62,7 +62,7 @@ namespace mg5amcCpu
     for ( size_t ievt = 0; ievt < nevt(); ++ievt )
     {
       // FIXME: document constraints on these memory access functions
-      const fptype* ievtRnarray = &( MemoryAccessRandomNumbers::ieventConstAccessIp4Iparf( m_rnarray.data(), ievt, 0, 0 ) );
+      const fptype* ievtRnarray = &( MemoryAccessRandomNumbers::ieventAccessIp4IparfConst( m_rnarray.data(), ievt, 0, 0 ) );
       fptype* ievtMomenta = MemoryAccessMomenta::ieventAccessRecord( m_momenta.data(), ievt );
       fptype* ievtWeights = &( MemoryAccessWeights::ieventAccess( m_weights.data(), ievt ) );
       getMomentaFinal( m_energy, ievtRnarray, ievtMomenta, ievtWeights );
