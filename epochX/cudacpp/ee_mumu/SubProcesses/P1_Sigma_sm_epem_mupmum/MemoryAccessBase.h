@@ -113,7 +113,7 @@ public:
   template<class... Ts>
   static
   __host__ __device__ inline
-  fptype& kernelAccessFIELD( fptype* buffer,
+  fptype& kernelAccessField( fptype* buffer,
                              Ts... args )
   {
     // NB all KernelLauncher classes assume that memory access can be decomposed in this way
@@ -121,28 +121,16 @@ public:
     return T::decodeRecord( kernelAccessRecord( buffer ), args... );
   }
 
-  // (Non-const memory access to field from kernel)
-  static
-  __host__ __device__ inline
-  fptype& kernelAccessField( fptype* buffer,
-                             const int ip4,
-                             const int ipar )
-  {
-    // NB all KernelLauncher classes assume that memory access can be decomposed in this way
-    // (in other words: first locate the event record for a given event, then locate an element in that record)
-    return T::decodeRecord( kernelAccessRecord( buffer ), ip4, ipar );
-  }
-
   //--------------------------------------------------------------------------
 
-  // (Const memory access to field from ievent)
+  // (Const memory access to field from kernel)
+  template<class... Ts>
   static
   __host__ __device__ inline
   const fptype& kernelAccessConstField( const fptype* buffer,
-                                        const int ip4,
-                                        const int ipar )
+                                        Ts... args )
   {
-    return kernelAccessField( const_cast<fptype*>( buffer ), ip4, ipar );
+    return kernelAccessField( const_cast<fptype*>( buffer ), args... );
   }
 
   //--------------------------------------------------------------------------
