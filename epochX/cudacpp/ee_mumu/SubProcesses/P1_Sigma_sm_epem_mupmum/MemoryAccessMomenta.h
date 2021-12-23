@@ -67,13 +67,10 @@ public:
   //static constexpr auto decodeRecordIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::decodeRecord;
 
   // (Non-const memory access to field from ievent)
-  //static constexpr auto ieventAccessIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessField;
-  static constexpr auto ieventAccessIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessFIELD<int, int>;
-  //typedef fptype& (*functype) (fptype*, const int, const int, const int);
-  //static constexpr functype ieventAccessIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessFIELD<const int, const int>;
+  static constexpr auto ieventAccessIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessField<int, int>;
 
   // (Const memory access to field from ievent)
-  //static constexpr auto ieventConstAccessIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessConstField;
+  static constexpr auto ieventConstAccessIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessConstField<int, int>;
 
 };
 

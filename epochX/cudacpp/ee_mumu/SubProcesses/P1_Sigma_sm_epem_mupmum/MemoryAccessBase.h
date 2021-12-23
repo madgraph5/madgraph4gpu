@@ -39,7 +39,7 @@ public:
   template<class... Ts>
   static
   __host__ __device__ inline
-  fptype& ieventAccessFIELD( fptype* buffer,
+  fptype& ieventAccessField( fptype* buffer,
                              const int ievt,
                              Ts... args )
   {
@@ -48,36 +48,19 @@ public:
     return T::decodeRecord( T::ieventAccessRecord( buffer, ievt ), args... );
   }
 
-  /*
-  static constexpr auto ieventAccessFIELD2 = ieventAccessFIELD<const int, const int>; // builds or not builds depending on below
-
-  static
-  __host__ __device__ inline
-  fptype& ieventAccessField( fptype* buffer,
-                             const int ievt,
-                             const int ip4,
-                             const int ipar )
-  {
-    //return ieventAccessFIELD<const int, const int>( buffer, ievt, ip4, ipar ); // builds
-    return ieventAccessFIELD2( buffer, ievt, ip4, ipar ); // triggers above line not to build
-    //return *buffer; // builds
-  }
-  */
-
   //--------------------------------------------------------------------------
 
-  /*
   // (Const memory access to field from ievent)
+  // (Non-const memory access to field from ievent)
+  template<class... Ts>
   static
   __host__ __device__ inline
   const fptype& ieventAccessConstField( const fptype* buffer,
                                         const int ievt,
-                                        const int ip4,
-                                        const int ipar )
+                                        Ts... args )
   {
-    return ieventAccessField( const_cast<fptype*>( buffer ), ievt, ip4, ipar );
+    return ieventAccessField( const_cast<fptype*>( buffer ), ievt, args... );
   }
-  */
 
 };
 
