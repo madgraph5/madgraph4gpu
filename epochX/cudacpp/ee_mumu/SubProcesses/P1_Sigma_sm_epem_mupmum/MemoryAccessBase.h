@@ -55,7 +55,7 @@ public:
                              const int ip4,
                              const int ipar )
   {
-    return ieventAccessFIELD( buffer, ievt, ip4, ipar );
+    return ieventAccessFIELD<const int, const int>( buffer, ievt, ip4, ipar );
   }
 
   //--------------------------------------------------------------------------
