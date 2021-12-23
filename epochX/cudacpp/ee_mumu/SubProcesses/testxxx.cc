@@ -4,7 +4,8 @@
 #include "CPPProcess.h"
 #include "HelAmps_sm.h"
 #include "Memory.h"
-#include "MemoryAccess.h"
+#include "MemoryAccess.h" // OLD
+#include "MemoryAccessMomenta.h" // NEW
 
 #include <array>
 #include <cassert>
@@ -81,7 +82,6 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
   std::string dumpFileName = "testxxx_cc_ref.txt.new";
   // Compute the output wavefunctions
   // Dump new reference file if requested
-  using namespace MG5_sm;
   using mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
   int itest = 0; // index on the expected output vector
   std::ofstream dumpFile;
@@ -205,7 +205,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
         std::cout << std::endl;
       }
       const int ipagM = ievt/neppM; // #eventpage in this iteration
-      const MG5_sm::p4type_sv p4vec = p4IparIpagV( hstMomenta.get(), ipar, ipagM );
+      const MG5_sm::p4type_sv p4vec = MG5_sm::p4IparIpagV( hstMomenta.get(), ipar, ipagM );
       // Test ixxxxx - NO ASSUMPTIONS
       {
         const fptype fmass = mass0[ievt];
