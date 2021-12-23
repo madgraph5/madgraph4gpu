@@ -73,7 +73,17 @@ public:
 
 //----------------------------------------------------------------------------
 
-//template KernelAccessBase<MemoryAccessMomentaBase, onDevice>::kernelAccessFIELD<int, int>;
+//typedef KernelAccessBase<MemoryAccessMomentaBase, false> HostAccessMomentaBase;
+//typedef KernelAccessBase<MemoryAccessMomentaBase, true> DeviceAccessMomentaBase;
+
+//template fptype& DeviceAccessMomentaBase::kernelAccessFIELD<int, int>( fptype*, int, int );
+
+template fptype& KernelAccessBase<MemoryAccessMomentaBase, true>::kernelAccessFIELD<int, int>( fptype*, int, int );
+template fptype& KernelAccessBase<MemoryAccessMomentaBase, false>::kernelAccessFIELD<int, int>( fptype*, int, int );
+
+//template fptype& MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessField<int, int>;
+//template fptype& KernelAccessBase<MemoryAccessMomentaBase, true>::kernelAccessFIELD<int, int>;
+//template fptype& KernelAccessBase<MemoryAccessMomentaBase, true>::kernelAccessFIELD<int, int>;
 
 // A class providing access to memory buffers for a given event, based on implicit kernel rules
 template<bool onDevice>
