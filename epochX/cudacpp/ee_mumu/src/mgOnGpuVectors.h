@@ -579,11 +579,11 @@ bool maskor( const bool& mask )
 #else
 
 // Printout to std::cout for user defined types
-inline __device__ void print( const fptype& f ){ printf( "%f\n", f ); }
-inline __device__ void print( const cxtype& c ){ printf( "[%f, %f]\n", cxreal(c), cximag(c) ); }
+inline __host__ __device__ void print( const fptype& f ){ printf( "%f\n", f ); }
+inline __host__ __device__ void print( const cxtype& c ){ printf( "[%f, %f]\n", cxreal(c), cximag(c) ); }
 
 /*
-inline __device__
+inline __host__ __device__
 const cxtype& cxvmake( const cxtype& c )
 {
   return c;
@@ -623,7 +623,7 @@ typedef cxtype cxtype_sv;
 
 // Scalar-or-vector zeros: scalar in CUDA, vector or scalar in C++
 #ifdef __CUDACC__
-inline __device__ cxtype cxzero_sv(){ return cxmake( 0, 0 ); }
+inline __host__ __device__ cxtype cxzero_sv(){ return cxmake( 0, 0 ); }
 #elif defined MGONGPU_CPPSIMD
 inline cxtype_v cxzero_sv(){ return cxtype_v{ fptype_v{0}, fptype_v{0} }; }
 #else
