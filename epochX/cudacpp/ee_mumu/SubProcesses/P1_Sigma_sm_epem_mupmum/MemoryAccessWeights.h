@@ -9,81 +9,85 @@
 // A class describing the internal layout of memory buffers for weights
 // This implementation uses a plain ARRAY[nevt]
 // [If many implementations are used, a suffix _ARRAYv1 should be appended to the class name]
-class MemoryAccessWeights//_ARRAYv1
+class MemoryAccessWeightsBase//_ARRAYv1
 {
-public:
+private:
 
-  // =========================================================================
-  // *** Pattern: ieventAccessInd1..IndN( buffer, ievt [, ind1... indN] )  ***
-  // =========================================================================
+  friend class MemoryAccessHelper<MemoryAccessWeightsBase>;
+  friend class KernelAccessHelper<MemoryAccessWeightsBase, true>;
+  friend class KernelAccessHelper<MemoryAccessWeightsBase, false>;
 
-  // Indexed access (WITH an explicit event number) to the memory buffer for weights
-  // Input: a memory buffer for an arbitrary number of events
-  // Output: a specific weight for one event, given its event number
-  // (Non-const memory access)
+  //--------------------------------------------------------------------------
+
+  // Locate an event record (output) in a memory buffer (input) from an explicit event number (input)
+  // (Non-const memory access to event record from ievent)
   static
   __host__ __device__ inline
-  fptype& ieventAccess( fptype* buffer,
-                        const int ievt )
+  fptype* ieventAccessRecord( fptype* buffer,
+                              const int ievt )
   {
-    return buffer[ievt]; // ARRAY[nevt]
+    return &( buffer[ievt] ); // ARRAY[nevt]
   }
 
-  // (Const memory access)
+  //--------------------------------------------------------------------------
+
+  // Locate a field (output) of an event record (input) from the given field indexes (input)
+  // (Non-const memory access to field in an event record)
   static
   __host__ __device__ inline
-  const fptype& ieventConstAccess( fptype* buffer,
-                                   const int ievt )
+  fptype& decodeRecord( fptype* buffer )
   {
-    return ieventAccess( const_cast<fptype*>( buffer ), ievt );
+    constexpr int ievt = 0;
+    return buffer[ievt]; // ARRAY[nevt]
   }
 
 };
 
 //----------------------------------------------------------------------------
 
-// A class describing kernel access to memory buffers for weights on a CPU host or on a GPU device
-template<bool onDevice>
-class KernelAccessWeights: public MemoryAccessWeights
+// A class providing access to memory buffers for a given event, based on explicit event numbers
+class MemoryAccessWeights : public MemoryAccessWeightsBase
 {
 public:
 
-  // =========================================================================
-  // *** Pattern: kernelAccessInd1..IndN( buffer [, ind1... indN] )        ***
-  // =========================================================================
+  // (Non-const memory access to event record from ievent)
+  static constexpr auto ieventAccessRecord = MemoryAccessHelper<MemoryAccessWeightsBase>::ieventAccessRecord;
 
-  // Kernel access (WITHOUT an explicit event number) to the memory buffer for weights
-  // Input: a memory buffer for an arbitrary number of events
-  // Output: a specific weight for one event, given its event number
-  // (Non-const memory access)
-  static
-  __host__ __device__ inline
-  fptype& kernelAccess( fptype* buffer )
-  {
-    //if constexpr ( !onDevice ) // FIXME! enable this when we move to nvcc supporting c++17
-    if ( !onDevice )
-    {
-      return ieventAccess( buffer, 0 );
-    }
-    else
-    {
-#ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      //printf( "kernelAccessIp4Ipar: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-      return ieventAccess( buffer, ievt ); // NB fptype and fptype_sv coincide for CUDA
-#else
-      throw std::runtime_error( "KernelAccessWeights on device is only implemented in CUDA" );
-#endif
-    }
-  }
+  // (Const memory access to event record from ievent)
+  static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessWeightsBase>::ieventAccessRecordConst;
 
-  // (Const memory access)
-  static
-  __host__ __device__ inline
-  const fptype& kernelConstAccess( fptype* buffer )
-  {
-    return kernelAccess( const_cast<fptype*>( buffer ) );
-  }
+  // (Non-const memory access to field in an event record)
+  static constexpr auto decodeRecord = MemoryAccessHelper<MemoryAccessWeightsBase>::decodeRecord;
+
+  // (Const memory access to field in an event record)
+  static constexpr auto decodeRecordConst =
+    MemoryAccessHelper<MemoryAccessWeightsBase>::template decodeRecordConst<>;
+
+  // (Non-const memory access to field from ievent)
+  static constexpr auto ieventAccess =
+    MemoryAccessHelper<MemoryAccessWeightsBase>::template ieventAccessField<>;
+
+  // (Const memory access to field from ievent)
+  static constexpr auto ieventAccessConst =
+    MemoryAccessHelper<MemoryAccessWeightsBase>::template ieventAccessFieldConst<>;
+
+};
+
+//----------------------------------------------------------------------------
+
+// A class providing access to memory buffers for a given event, based on implicit kernel rules
+template<bool onDevice>
+class KernelAccessWeights
+{
+public:
+
+  // (Non-const memory access to field from ievent)
+  static constexpr auto kernelAccess =
+    KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessField<>;
+
+  // (Const memory access to field from ievent)
+  static constexpr auto kernelAccessConst =
+    KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessFieldConst<>;
 
 };
 
