@@ -73,13 +73,19 @@ public:
   static constexpr auto ieventAccessConstRecord = MemoryAccessHelper<MemoryAccessMomentaBase>::ieventAccessConstRecord;
 
   // (Non-const memory access to field in an event record)
-  //static constexpr auto decodeRecordIp4Ipar = MemoryAccessHelper<MemoryAccessMomentaBase>::decodeRecord;
+  static constexpr auto decodeRecordIp4Ipar = MemoryAccessHelper<MemoryAccessMomentaBase>::decodeRecord;
+
+  // (Const memory access to field in an event record)
+  static constexpr auto decodeRecordIp4IparConst =
+    MemoryAccessHelper<MemoryAccessMomentaBase>::template decodeRecordConst<int, int>;
 
   // (Non-const memory access to field from ievent)
-  static constexpr auto ieventAccessIp4Ipar = MemoryAccessHelper<MemoryAccessMomentaBase>::ieventAccessField<int, int>;
+  static constexpr auto ieventAccessIp4Ipar =
+    MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessField<int, int>;
 
   // (Const memory access to field from ievent)
-  static constexpr auto ieventConstAccessIp4Ipar = MemoryAccessHelper<MemoryAccessMomentaBase>::ieventAccessConstField<int, int>;
+  static constexpr auto ieventConstAccessIp4Ipar =
+    MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessConstField<int, int>;
 
 };
 

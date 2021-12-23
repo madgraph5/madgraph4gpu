@@ -1,5 +1,5 @@
-#ifndef MemoryAccessBase_H
-#define MemoryAccessBase_H 1
+#ifndef MemoryAccessHelpers_H
+#define MemoryAccessHelpers_H 1
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
@@ -19,11 +19,6 @@ public:
 
   //--------------------------------------------------------------------------
 
-  // (Non-const memory access to field in an event record)
-  static constexpr auto decodeRecord = T::decodeRecord;
-
-  //--------------------------------------------------------------------------
-
   // (Const memory access to event record from ievent)
   static
   __host__ __device__ inline
@@ -31,6 +26,23 @@ public:
                                    const int ievt )
   {
     return ieventAccessRecord( const_cast<fptype*>( buffer ), ievt );
+  }
+
+  //--------------------------------------------------------------------------
+
+  // (Non-const memory access to field in an event record)
+  static constexpr auto decodeRecord = T::decodeRecord;
+
+  //--------------------------------------------------------------------------
+
+  // (Const memory access to field in an event record)
+  template<class... Ts> // variadic template
+  static
+  __host__ __device__ inline
+  const fptype& decodeRecordConst( fptype* buffer,
+                                   Ts... args )
+  {
+    return T::decodeRecord( const_cast<fptype*>( buffer ), args... );
   }
 
   //--------------------------------------------------------------------------
@@ -136,4 +148,4 @@ public:
 
 };
 
-#endif // MemoryAccessBase_H
+#endif // MemoryAccessHelpers_H
