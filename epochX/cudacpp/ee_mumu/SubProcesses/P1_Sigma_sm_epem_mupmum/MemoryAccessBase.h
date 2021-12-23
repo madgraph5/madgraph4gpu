@@ -48,6 +48,7 @@ public:
     return T::decodeRecord( T::ieventAccessRecord( buffer, ievt ), args... );
   }
 
+  /*
   static constexpr auto ieventAccessFIELD2 = ieventAccessFIELD<const int, const int>; // builds or not builds depending on below
 
   static
@@ -61,9 +62,11 @@ public:
     return ieventAccessFIELD2( buffer, ievt, ip4, ipar ); // triggers above line not to build
     //return *buffer; // builds
   }
+  */
 
   //--------------------------------------------------------------------------
 
+  /*
   // (Const memory access to field from ievent)
   static
   __host__ __device__ inline
@@ -74,6 +77,7 @@ public:
   {
     return ieventAccessField( const_cast<fptype*>( buffer ), ievt, ip4, ipar );
   }
+  */
 
 };
 
