@@ -38,6 +38,12 @@ public:
 
   //--------------------------------------------------------------------------
 
+private:
+
+  friend class MemoryAccessHelper<MemoryAccessMomentaBase>;
+  friend class KernelAccessHelper<MemoryAccessMomentaBase, true>;
+  friend class KernelAccessHelper<MemoryAccessMomentaBase, false>;
+  
   // Locate a field (output) of an event record (input) from the given field indexes (input)
   // (Non-const memory access to field in an event record)
   static
