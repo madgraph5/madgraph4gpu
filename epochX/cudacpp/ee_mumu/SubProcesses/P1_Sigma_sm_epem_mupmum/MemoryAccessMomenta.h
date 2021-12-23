@@ -5,7 +5,7 @@
 #include "mgOnGpuTypes.h"
 //#include "mgOnGpuVectors.h"
 
-#include "MemoryAccessBase.h"
+#include "MemoryAccessHelpers.h"
 
 //----------------------------------------------------------------------------
 
