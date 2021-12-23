@@ -89,7 +89,7 @@ namespace mg5amcCpu
     if ( m_gputhreads == 0 ) throw std::runtime_error( "RamboSamplingKernelDevice: gputhreads must be > 0" );
     // Sanity checks for memory access (are these really strictly needed?)
     constexpr int neppR = MemoryAccessRandomNumbers::neppR; // AOSOA layout
-    static_assert( ( neppR > 0 ) && !( neppR & ( neppR - 1 ) ) ); // check neppR is power of two (without c++17)
+    static_assert( ( neppR > 0 ) && !( neppR & ( neppR - 1 ) ), "neppR is not a power of 2" ); // implementation without c++17 lambda
     if ( m_gputhreads%neppR != 0 )
     {
       std::ostringstream sstr;
