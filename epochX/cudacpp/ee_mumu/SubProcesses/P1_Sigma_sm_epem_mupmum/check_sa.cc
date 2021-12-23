@@ -914,8 +914,8 @@ int main(int argc, char **argv)
               << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << "NumThreadsPerBlock          = " << gputhreads << std::endl
               << "NumIterations               = " << niter << std::endl
-              << std::string(SEP79, '-') << std::endl
-              << "Workflow summary            = " << wrkflwtxt << std::endl
+              << std::string(SEP79, '-') << std::endl;
+    std::cout << "Workflow summary            = " << wrkflwtxt << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
               << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT
