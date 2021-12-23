@@ -48,6 +48,8 @@ public:
     return T::decodeRecord( T::ieventAccessRecord( buffer, ievt ), args... );
   }
 
+  static constexpr auto ieventAccessFIELD2 = ieventAccessFIELD<const int, const int>; // builds or not builds depending on below
+
   static
   __host__ __device__ inline
   fptype& ieventAccessField( fptype* buffer,
@@ -55,7 +57,9 @@ public:
                              const int ip4,
                              const int ipar )
   {
-    return ieventAccessFIELD<const int, const int>( buffer, ievt, ip4, ipar );
+    return ieventAccessFIELD<const int, const int>( buffer, ievt, ip4, ipar ); // builds
+    //return ieventAccessFIELD2( buffer, ievt, ip4, ipar ); // triggers above line not to build
+    //return *buffer; // builds
   }
 
   //--------------------------------------------------------------------------
