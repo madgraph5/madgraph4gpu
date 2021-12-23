@@ -63,7 +63,7 @@ namespace mg5amcCpu
     {
       // FIXME: document constraints on these memory access functions
       const fptype* ievtRnarray = &( MemoryAccessRandomNumbers::ieventConstAccessIp4Iparf( m_rnarray.data(), ievt, 0, 0 ) );
-      fptype* ievtMomenta = &( MemoryAccessMomenta::ieventAccessIp4Ipar( m_momenta.data(), ievt, 0, 0 ) );
+      fptype* ievtMomenta = MemoryAccessMomenta::ieventAccessRecord( m_momenta.data(), ievt );
       fptype* ievtWeights = &( MemoryAccessWeights::ieventAccess( m_weights.data(), ievt ) );
       getMomentaFinal( m_energy, ievtRnarray, ievtMomenta, ievtWeights );
     }

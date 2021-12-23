@@ -55,27 +55,27 @@ public:
 
 //----------------------------------------------------------------------------
 
-// A class providing access to memory buffers for momenta
-class MemoryAccessMomenta : public MemoryAccessBase<MemoryAccessMomentaBase>
+// A class providing access to memory buffers for a given event, based on explicit event numbers
+class MemoryAccessMomenta : public MemoryAccessMomentaBase
 {
 public:
 
   // (Non-const memory access to field in an event record)
-  static constexpr auto decodeRecordIp4Ipar = decodeRecord;
+  //static constexpr auto decodeRecordIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::decodeRecord;
 
   // (Non-const memory access to field from ievent)
-  static constexpr auto ieventAccessIp4Ipar = ieventAccessField;
+  static constexpr auto ieventAccessIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessField;
 
   // (Const memory access to field from ievent)
-  static constexpr auto ieventConstAccessIp4Ipar = ieventAccessConstField;
+  //static constexpr auto ieventConstAccessIp4Ipar = MemoryAccessBase<MemoryAccessMomentaBase>::ieventAccessConstField;
 
 };
 
 //----------------------------------------------------------------------------
 
-// A class describing kernel access to memory buffers for momenta on a CPU host or on a GPU device
+// A class providing access to memory buffers for a given event, based on implicit kernel rules
 template<bool onDevice>
-class KernelAccessMomenta : public KernelAccessBase<MemoryAccessMomentaBase, onDevice>
+class KernelAccessMomenta
 {
 public:
 
@@ -83,7 +83,7 @@ public:
   static constexpr auto kernelAccessIp4Ipar = KernelAccessBase<MemoryAccessMomentaBase, onDevice>::kernelAccessField;
 
   // (Const memory access to field from ievent)
-  static constexpr auto kernelConstAccessIp4Ipar = KernelAccessBase<MemoryAccessMomentaBase, onDevice>::kernelAccessConstField;
+  //static constexpr auto kernelConstAccessIp4Ipar = KernelAccessBase<MemoryAccessMomentaBase, onDevice>::kernelAccessConstField;
 
 };
 
