@@ -309,7 +309,6 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    printf( "%2d %2d %8.3f\n", nhel, nsf, pvec3 );
     fi[0] = cxmake( pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
     fi[1] = cxzero_sv();
     const int nh = nhel * nsf;

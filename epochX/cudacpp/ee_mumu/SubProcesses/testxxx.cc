@@ -9,7 +9,6 @@
 
 #include <array>
 #include <cassert>
-#include <cstdlib> // TEMPORARY for getenv tests
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -119,7 +118,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     if ( testEvents )
     {
       std::array<fptype, 12>& expwf = expwfs[itest];
-#if 1
+#if 0
       std::cout << "Testing " << std::setw(3) << itest << ": " << xxx << " #" << ievt << std::endl;
       for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << wf[iw6] << std::endl;
       std::cout << "against" << std::endl;
@@ -160,7 +159,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     if ( testEvents )
     {
       const std::string xxxFull( xxx[0] == 'i' ? "ixxxxx" : "oxxxxx" );
-#if 1
+#if 0
       std::cout << "Testing " << std::setw(3) << itest << ": ";
       std::cout << xxx << " #" << ievt << " against " << xxxFull << std::endl;
       for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << wf[iw6] << std::endl;
@@ -235,11 +234,9 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test imzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
-        if ( std::getenv( "IMZOLD" ) ) imzxxx( p4vec, nhel, nsp, outwf ); // OLD
-        else MG5_sm::imzxxx<HostAccessMomenta>( ievtMomenta, nhel, nsp, outwf, ipar0 ); // NEW
+        MG5_sm::imzxxx<HostAccessMomenta>( ievtMomenta, nhel, nsp, outwf, ipar0 );
         testwf6two( outwf, outwfI, "imzxxx", ievt );
         testwf6( outwf, "imzxxx", ievt, nsp, 0 );
-        assert( false );
       }
       // Test ixzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
       if ( mass0[ievt] == 0 && isptgt0[ievt] )

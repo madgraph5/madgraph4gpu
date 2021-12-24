@@ -92,7 +92,7 @@ public:
   static constexpr auto ieventAccessIp4Ipar =
     MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessField<int, int>;
 
-#if 0
+#if 1
   // (Const memory access to field from ievent)
   static constexpr auto ieventAccessIp4IparConst =
     MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessFieldConst<int, int>;
@@ -125,7 +125,7 @@ public:
   static constexpr auto kernelAccessIp4Ipar =
     KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessField<int, int>;
 
-#if 0
+#if 1
   // (Const memory access to field from kernel)
   static constexpr auto kernelAccessIp4IparConst =
     KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessFieldConst<int, int>;
