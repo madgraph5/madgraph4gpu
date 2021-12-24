@@ -225,8 +225,8 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test imzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
-        imzxxx( p4vec, nhel, nsp, outwf ); // OLD
-        //MG5_sm::imzxxx<HostAccessMomenta>( hstMomenta.get(), nhel, nsp, outwf, ipar0 ); // NEW
+        //imzxxx( p4vec, nhel, nsp, outwf ); // OLD
+        MG5_sm::imzxxx<HostAccessMomenta>( hstMomenta.get(), nhel, nsp, outwf, ipar0 ); // NEW
         testwf6two( outwf, outwfI, "imzxxx", ievt );
         testwf6( outwf, "imzxxx", ievt, nsp, 0 );
       }

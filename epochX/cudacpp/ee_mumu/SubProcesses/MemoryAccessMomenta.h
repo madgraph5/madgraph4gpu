@@ -92,9 +92,24 @@ public:
   static constexpr auto ieventAccessIp4Ipar =
     MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessField<int, int>;
 
+#if 0
   // (Const memory access to field from ievent)
   static constexpr auto ieventAccessIp4IparConst =
     MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessFieldConst<int, int>;
+#else
+  // (Const memory access to field from ievent - DEBUG version with printouts)
+  static
+  __host__ __device__ inline
+  const fptype& ieventAccessIp4IparConst( const fptype* buffer,
+                                          const int ievt,
+                                          const int ip4,
+                                          const int ipar )
+  {
+    const fptype& out = MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessFieldConst<int, int>( buffer, ievt, ip4, ipar );
+    printf( "%2d %2d %8d %8.3f\n", ipar, ip4, ievt, out );
+    return out;
+  }
+#endif
 
 };
 
