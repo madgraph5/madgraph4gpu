@@ -246,6 +246,7 @@ namespace MG5_sm
 #else
     const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3 );
 #endif
+    printf( "%2d %2d %8.3f\n", nhel, nsf, pvec3 );
     fi[0] = cxmake( pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
     fi[1] = cxzero_sv();
     const int nh = nhel * nsf;

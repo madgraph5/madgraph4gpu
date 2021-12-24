@@ -92,7 +92,7 @@ public:
   static constexpr auto ieventAccessIp4Ipar =
     MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessField<int, int>;
 
-#if 1
+#if 0
   // (Const memory access to field from ievent)
   static constexpr auto ieventAccessIp4IparConst =
     MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessFieldConst<int, int>;
@@ -106,7 +106,7 @@ public:
                                           const int ipar )
   {
     const fptype& out = MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessFieldConst<int, int>( buffer, ievt, ip4, ipar );
-    printf( "%2d %2d %8d %8.3f\n", ipar, ip4, ievt, out );
+    printf( "ipar=%2d ip4=%2d ievt=%8d out=%8.3f\n", ipar, ip4, ievt, out );
     return out;
   }
 #endif
@@ -121,13 +121,27 @@ class KernelAccessMomenta
 {
 public:
 
-  // (Non-const memory access to field from ievent)
+  // (Non-const memory access to field from kernel)
   static constexpr auto kernelAccessIp4Ipar =
     KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessField<int, int>;
 
-  // (Const memory access to field from ievent)
+#if 0
+  // (Const memory access to field from kernel)
   static constexpr auto kernelAccessIp4IparConst =
     KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessFieldConst<int, int>;
+#else
+  // (Const memory access to field from kernel - DEBUG version with printouts)
+  static
+  __host__ __device__ inline
+  const fptype& kernelAccessIp4IparConst( const fptype* buffer,
+                                          const int ip4,
+                                          const int ipar )
+  {
+    const fptype& out = KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessFieldConst<int, int>( buffer, ip4, ipar );
+    printf( "ipar=%2d ip4=%2d ievt=  kernel out=%8.3f\n", ipar, ip4, out );
+    return out;
+  }
+#endif
 
 };
 

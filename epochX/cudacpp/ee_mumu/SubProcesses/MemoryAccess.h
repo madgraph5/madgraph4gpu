@@ -35,7 +35,7 @@ namespace MG5_sm
     constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
     const int ipagM = ievt/neppM; // #event "M-page"
     const int ieppM = ievt%neppM; // #event in the current event M-page
-    //printf( "%2d %2d %8d %8.3f\n", ipar, ip4, ievt, buffer[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
+    printf( "ipar=%2d ip4=%2d ievt=%8d out=%8.3f\n", ipar, ip4, ievt, buffer[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] );
     return buffer[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM]; // AOSOA[ipagM][ipar][ip4][ieppM]
   }
 
@@ -316,6 +316,7 @@ namespace MG5_sm
 #ifdef __CUDACC__
     return kernelAccessMomenta( const_cast<fptype_sv*>( buffer ), ip4, ipar );
 #else
+    printf( "ipar=?? ip4=%2d ievt=  kernel out=%8.3f\n", ip4, kernelAccessMomenta( const_cast<fptype_sv*>( buffer ), ip4 ) );
     return kernelAccessMomenta( const_cast<fptype_sv*>( buffer ), ip4 );
 #endif
   }
