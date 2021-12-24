@@ -92,7 +92,7 @@ public:
   static constexpr auto ieventAccessIp4Ipar =
     MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessField<int, int>;
 
-#if 0
+#if 1
   // (Const memory access to field from ievent)
   static constexpr auto ieventAccessIp4IparConst =
     MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessFieldConst<int, int>;

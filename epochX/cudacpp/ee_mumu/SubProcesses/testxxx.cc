@@ -117,8 +117,14 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     if ( dumpEvents ) dumpwf6( dumpFile, wf, xxx, ievt, nsp, mass );
     if ( testEvents )
     {
-      //std::cout << "Testing " << std::setw(3) << itest << ": " << xxx << " #" << ievt << std::endl;
       std::array<fptype, 12>& expwf = expwfs[itest];
+#if 1
+      std::cout << "Testing " << std::setw(3) << itest << ": " << xxx << " #" << ievt << std::endl;
+      for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << wf[iw6] << std::endl;
+      std::cout << "against" << std::endl;
+      for ( int iw6 = 0; iw6<nw6; iw6++ )
+        std::cout << "[" << expwf[iw6*2] << "," << expwf[iw6*2+1] << "]" << std::endl; // NB: expwf[iw6*2], expwf[iw6*2+1] are fp
+#endif
       for ( int iw6 = 0; iw6<nw6; iw6++ )
       {
         const fptype expReal = expwf[iw6*2];
@@ -153,11 +159,13 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     if ( testEvents )
     {
       const std::string xxxFull( xxx[0] == 'i' ? "ixxxxx" : "oxxxxx" );
-      //std::cout << "Testing " << std::setw(3) << itest << ": ";
-      //std::cout << xxx << " #" << ievt << " against " << xxxFull << std::endl;
-      ////for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << wf[iw6] << std::endl;
-      ////std::cout << "against" << std::endl;
-      ////for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << expwf[iw6] << std::endl;
+#if 1
+      std::cout << "Testing " << std::setw(3) << itest << ": ";
+      std::cout << xxx << " #" << ievt << " against " << xxxFull << std::endl;
+      for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << wf[iw6] << std::endl;
+      std::cout << "against" << std::endl;
+      for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << expwf[iw6] << std::endl; // NB: expwf[iw6] is cx
+#endif
       for ( int iw6 = 0; iw6<nw6; iw6++ )
       {
         if ( true )
@@ -225,8 +233,8 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test imzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
-        //imzxxx( p4vec, nhel, nsp, outwf ); // OLD
-        MG5_sm::imzxxx<HostAccessMomenta>( hstMomenta.get(), nhel, nsp, outwf, ipar0 ); // NEW
+        imzxxx( p4vec, nhel, nsp, outwf ); // OLD
+        //MG5_sm::imzxxx<HostAccessMomenta>( hstMomenta.get(), nhel, nsp, outwf, ipar0 ); // NEW
         testwf6two( outwf, outwfI, "imzxxx", ievt );
         testwf6( outwf, "imzxxx", ievt, nsp, 0 );
       }
