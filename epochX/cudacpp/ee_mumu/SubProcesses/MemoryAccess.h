@@ -78,14 +78,21 @@ namespace MG5_sm
   };
 
 #ifdef MGONGPU_CPPSIMD
+  // Build one fptype_v (one vector of neppV fptype values) from one fptype references,
+  // assuming that "pointer(evt#0)+1" indicates "pointer(evt#1)", and that the arrays are aligned
+  inline fptype_v fptypevFromAlignedArray( const fptype& ref )
+  {
+    return *reinterpret_cast<const fptype_sv*>( &ref );
+  }
+
   // Build four fptype_v (four vectors of neppV fptype values) from four fptype references,
   // assuming that "pointer(evt#0)+1" indicates "pointer(evt#1)", and that the arrays are aligned
   inline p4type_sv p4typevFromAlignedArray( const p4type_ref ref )
   {
-    return p4type_sv{ *reinterpret_cast<const fptype_sv*>( &( ref.p0 ) ),
-                      *reinterpret_cast<const fptype_sv*>( &( ref.p1 ) ),
-                      *reinterpret_cast<const fptype_sv*>( &( ref.p2 ) ),
-                      *reinterpret_cast<const fptype_sv*>( &( ref.p3 ) ) };
+    return p4type_sv{ fptypevFromAlignedArray( ref.p0 ),
+                      fptypevFromAlignedArray( ref.p1 ),
+                      fptypevFromAlignedArray( ref.p2 ),
+                      fptypevFromAlignedArray( ref.p3 ) };
   }
 
   // Build one fptype_v (one vector of neppV fptype values) from one fptype references,
