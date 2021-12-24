@@ -3,7 +3,7 @@
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
-//#include "mgOnGpuVectors.h"
+#include "mgOnGpuVectors.h"
 
 #include "MemoryAccessHelpers.h"
 
@@ -124,22 +124,38 @@ public:
   static constexpr auto kernelAccessIp4Ipar =
     KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessField<int, int>;
 
-  // (Const memory access to field from kernel)
-  static constexpr auto kernelAccessIp4IparConst =
+  // (Const memory access to field from kernel, scalar)
+  static constexpr auto kernelAccessIp4IparConst_s =
     KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessFieldConst<int, int>;
   /*
-  // (Const memory access to field from kernel - DEBUG version with printouts)
+  // (Const memory access to field from kernel, scalar - DEBUG version with printouts)
   static
   __host__ __device__ inline
-  const fptype& kernelAccessIp4IparConst( const fptype* buffer,
-                                          const int ip4,
-                                          const int ipar )
+  const fptype& kernelAccessIp4IparConst_s( const fptype* buffer,
+                                            const int ip4,
+                                            const int ipar )
   {
     const fptype& out = KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessFieldConst<int, int>( buffer, ip4, ipar );
     printf( "ipar=%2d ip4=%2d ievt=  kernel out=%8.3f\n", ipar, ip4, out );
     return out;
   }
   */
+
+  // (Const memory access to field from kernel, scalar or vector)
+  static
+  __host__ __device__ inline
+  const fptype_sv& kernelAccessIp4IparConst( const fptype* buffer,
+                                             const int ip4,
+                                             const int ipar )
+  {
+    const fptype& out = kernelAccessIp4IparConst_s( buffer, ip4, ipar );
+#ifndef MGONGPU_CPPSIMD
+    return out;
+#else 
+    // FIXME! ADD A SANITY CHECK FOR ALIGNED ARRAYS, ELSE USE UNALIGNED ARRAYS, ELSE USE ARBITRARY ARRAYS?
+    return *reinterpret_cast<const fptype_sv*>( &out );
+#endif
+  }
 
 };
 
