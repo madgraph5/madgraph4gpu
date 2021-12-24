@@ -164,8 +164,7 @@ public:
     {
       //constexpr bool skipAlignmentCheck = true; // FASTEST (MAY SEGFAULT, NEEDS A SANITY CHECK ELSEWHERE!)
       constexpr bool skipAlignmentCheck = false; // NEW DEFAULT: A BIT SLOWER BUT SAFER [UNCOMMENT OUT TO TEST MISALIGNED ACCESS]
-      //if constexpr ( skipAlignmentCheck )
-      if ( skipAlignmentCheck )
+      if constexpr ( skipAlignmentCheck )
       {
         //static bool first=true; if( first ){ std::cout << "WARNING! assume aligned AOSOA, skip check" << std::endl; first=false; } // SLOWS DOWN...
         // Fastest (4.85E6 in eemumu 512y - was 4.93E6 without kernelAccess functions)
