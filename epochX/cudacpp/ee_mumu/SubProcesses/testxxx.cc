@@ -14,6 +14,8 @@
 #include <iostream>
 #include <vector>
 
+//template MG5_sm::template imzxxx<HostAccessMomenta>;
+
 #include <gtest/gtest.h>
 #include "epoch_process_id.h"
 #define TESTID_CPU( s ) s##_CPU
@@ -32,6 +34,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
   assert( nevt % neppM == 0 ); // nevt must be a multiple of neppM
   // Fill in the input momenta
   const int nMomenta = np4 * npar * nevt;
+  //HostBufferMomenta hstMomenta = ... // EVENTUALLY...
   auto hstMomenta = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar=4][np4=4][neppM]
   const fptype par0[np4 * nevt] =                      // AOS[nevt][np4]
     { 500, 0,    0,    500,  // #0 (m=0 pT=0 E=pz>0)
@@ -66,14 +69,14 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     ispzlt0[ievt] = ( p3 < 0 );
     isptgt0[ievt] = ( p1 != 0 ) || ( p2 != 0 );
   }
-  const int ipar = 0; // use only particle0 for this test
+  const int ipar0 = 0; // use only particle0 for this test
   for ( int ievt = 0; ievt < nevt; ievt++ )
   {
     for ( int ip4 = 0; ip4 < np4; ip4++ )
     {
       const int ipagM = ievt/neppM; // #eventpage in this iteration
       const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-      hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM] = par0[ievt*np4 + ip4]; // AOS to AOSOA
+      hstMomenta[ipagM*npar*np4*neppM + ipar0*np4*neppM + ip4*neppM + ieppM] = par0[ievt*np4 + ip4]; // AOS to AOSOA
     }
   }
   // Expected output wavefunctions
@@ -205,7 +208,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
         std::cout << std::endl;
       }
       const int ipagM = ievt/neppM; // #eventpage in this iteration
-      const MG5_sm::p4type_sv p4vec = MG5_sm::p4IparIpagV( hstMomenta.get(), ipar, ipagM );
+      const MG5_sm::p4type_sv p4vec = MG5_sm::p4IparIpagV( hstMomenta.get(), ipar0, ipagM );
       // Test ixxxxx - NO ASSUMPTIONS
       {
         const fptype fmass = mass0[ievt];
@@ -224,7 +227,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test imzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
-        imzxxx( p4vec, nhel, nsp, outwf );
+        MG5_sm::imzxxx<HostAccessMomenta>( hstMomenta.get(), nhel, nsp, outwf, ipar0 );
         testwf6two( outwf, outwfI, "imzxxx", ievt );
         testwf6( outwf, "imzxxx", ievt, nsp, 0 );
       }
