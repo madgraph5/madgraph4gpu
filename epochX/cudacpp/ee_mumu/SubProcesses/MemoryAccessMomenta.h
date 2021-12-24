@@ -142,11 +142,13 @@ public:
   */
 
   // (Const memory access to field from kernel, scalar or vector)
+  // [FIXME? Eventually return by reference and support aligned arrays only?]
+  // [Currently return by value to support also unaligned and arbitrary arrays]
   static
   __host__ __device__ inline
-  const fptype_sv& kernelAccessIp4IparConst( const fptype* buffer,
-                                             const int ip4,
-                                             const int ipar )
+  fptype_sv kernelAccessIp4IparConst( const fptype* buffer,
+                                      const int ip4,
+                                      const int ipar )
   {
     const fptype& out = kernelAccessIp4IparConst_s( buffer, ip4, ipar );
 #ifndef MGONGPU_CPPSIMD
