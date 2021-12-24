@@ -280,6 +280,41 @@ namespace MG5_sm
                  const fptype W3,
                  cxtype_sv V3[] ) ALWAYS_INLINE;
 
+  //==========================================================================
+
+  // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
+  // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
+  template<class M_ACCESS>
+  __host__ __device__ inline
+  void imzxxx( const fptype_sv* momenta,
+               //const fptype fmass,           // ASSUME fermion mass==0
+               const int nhel,                 // input: -1 or +1 (helicity of fermion)
+               const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
+               cxtype_sv fi[],
+               const int ipar )                // input: particle# out of npar
+  {
+    mgDebug( 0, __FUNCTION__ );
+    const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
+    fi[0] = cxmake( pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
+    fi[1] = cxzero_sv();
+    const int nh = nhel * nsf;
+    const cxtype_sv chi = cxmake( -(fptype)nhel * fpsqrt( -2. * pvec3 ), 0. );
+    fi[3] = cxzero_sv();
+    fi[4] = cxzero_sv();
+    if ( nh == 1 )
+    {
+      fi[2] = cxzero_sv();
+      fi[5] = chi;
+    }
+    else
+    {
+      fi[2] = chi;
+      fi[5] = cxzero_sv();
+    }
+    mgDebug( 1, __FUNCTION__ );
+    return;
+  }
+
   //--------------------------------------------------------------------------
 
 } // end namespace MG5_sm

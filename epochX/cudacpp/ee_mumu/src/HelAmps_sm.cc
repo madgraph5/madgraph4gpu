@@ -191,6 +191,7 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
+  /*
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
   template<class M_ACCESS>
@@ -204,14 +205,6 @@ namespace MG5_sm
   {
     mgDebug( 0, __FUNCTION__ );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    /*
-#ifdef __CUDACC__
-    //printf( "imzxxx: ievt=%d threadId=%d\n", ievt, threadIdx.x );
-    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3, ipar );
-#else
-    const fptype_sv& pvec3 = kernelAccessConstMomenta( momenta, 3 );
-#endif
-    */
     fi[0] = cxmake( pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
     fi[1] = cxzero_sv();
     const int nh = nhel * nsf;
@@ -231,6 +224,7 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
+  */
 
   //--------------------------------------------------------------------------
 
