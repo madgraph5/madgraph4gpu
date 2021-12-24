@@ -92,11 +92,10 @@ public:
   static constexpr auto ieventAccessIp4Ipar =
     MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessField<int, int>;
 
-#if 1
   // (Const memory access to field from ievent)
   static constexpr auto ieventAccessIp4IparConst =
     MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessFieldConst<int, int>;
-#else
+  /*
   // (Const memory access to field from ievent - DEBUG version with printouts)
   static
   __host__ __device__ inline
@@ -109,7 +108,7 @@ public:
     printf( "ipar=%2d ip4=%2d ievt=%8d out=%8.3f\n", ipar, ip4, ievt, out );
     return out;
   }
-#endif
+  */
 
 };
 
@@ -125,11 +124,10 @@ public:
   static constexpr auto kernelAccessIp4Ipar =
     KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessField<int, int>;
 
-#if 1
   // (Const memory access to field from kernel)
   static constexpr auto kernelAccessIp4IparConst =
     KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessFieldConst<int, int>;
-#else
+  /*
   // (Const memory access to field from kernel - DEBUG version with printouts)
   static
   __host__ __device__ inline
@@ -141,7 +139,7 @@ public:
     printf( "ipar=%2d ip4=%2d ievt=  kernel out=%8.3f\n", ipar, ip4, out );
     return out;
   }
-#endif
+  */
 
 };
 

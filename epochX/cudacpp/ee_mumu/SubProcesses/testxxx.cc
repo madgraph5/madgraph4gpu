@@ -118,13 +118,11 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     if ( testEvents )
     {
       std::array<fptype, 12>& expwf = expwfs[itest];
-#if 0
-      std::cout << "Testing " << std::setw(3) << itest << ": " << xxx << " #" << ievt << std::endl;
-      for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << wf[iw6] << std::endl;
-      std::cout << "against" << std::endl;
-      for ( int iw6 = 0; iw6<nw6; iw6++ )
-        std::cout << "[" << expwf[iw6*2] << "," << expwf[iw6*2+1] << "]" << std::endl; // NB: expwf[iw6*2], expwf[iw6*2+1] are fp
-#endif
+      //std::cout << "Testing " << std::setw(3) << itest << ": " << xxx << " #" << ievt << std::endl;
+      ////for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << wf[iw6] << std::endl;
+      ////std::cout << "against" << std::endl;
+      ////for ( int iw6 = 0; iw6<nw6; iw6++ )
+      ////  std::cout << "[" << expwf[iw6*2] << "," << expwf[iw6*2+1] << "]" << std::endl; // NB: expwf[iw6*2], expwf[iw6*2+1] are fp
       for ( int iw6 = 0; iw6<nw6; iw6++ )
       {
         const fptype expReal = expwf[iw6*2];
@@ -159,13 +157,11 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     if ( testEvents )
     {
       const std::string xxxFull( xxx[0] == 'i' ? "ixxxxx" : "oxxxxx" );
-#if 0
-      std::cout << "Testing " << std::setw(3) << itest << ": ";
-      std::cout << xxx << " #" << ievt << " against " << xxxFull << std::endl;
-      for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << wf[iw6] << std::endl;
-      std::cout << "against" << std::endl;
-      for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << expwf[iw6] << std::endl; // NB: expwf[iw6] is cx
-#endif
+      //std::cout << "Testing " << std::setw(3) << itest << ": ";
+      //std::cout << xxx << " #" << ievt << " against " << xxxFull << std::endl;
+      ////for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << wf[iw6] << std::endl;
+      ////std::cout << "against" << std::endl;
+      ////for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << expwf[iw6] << std::endl; // NB: expwf[iw6] is cx
       for ( int iw6 = 0; iw6<nw6; iw6++ )
       {
         if ( true )
