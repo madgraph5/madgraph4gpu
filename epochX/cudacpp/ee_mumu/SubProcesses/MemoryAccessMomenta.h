@@ -217,16 +217,11 @@ public:
     else
     {
       //static bool first=true; if( first ){ std::cout << "WARNING! arbitrary array" << std::endl; first=false; } // SLOWS DOWN...
-      // Much (7-12%) slower (4.30E6 for AOSOA, 4.53E6 for AOS in eemumu 512y)
-      //... to do? implementation based on fptypevFromArbitraryArray ...
-      std::cout << "ERROR! useContiguousEventsIfPossible=" << useContiguousEventsIfPossible
-                << ", neppM=" << neppM << ", neppV=" << neppV << std::endl;
-      throw std::logic_error( "MemoryAccessMomenta requires an AOSOA and does not support arbitrary arrays" ); // no path to this statement
-      /*
+      // A tiny bit (<1%) slower (5.11E6 for AOSOA, xxx for AOS in eemumu 512y)
       // This does not even require AOSOA with neppM>=neppV and neppM%neppV==0 (e.g. can be used with AOS neppM==1)
-      auto decoderIeppv = [buffer, ip4, ipar](int ievt) -> const fptype& { return ieventAccessIp4IparConst( buffer, ievt, ip4, ipar );
+      auto decoderIeppv = [buffer, ip4, ipar](int ievt) -> const fptype& 
+        { return MemoryAccessMomenta::ieventAccessIp4IparConst( buffer, ievt, ip4, ipar ); };
       return mg5amcCpu::fptypevFromArbitraryArray( decoderIeppv ); // iterate over ieppV in neppV (no SIMD)
-      */
     }
 #endif
   }
