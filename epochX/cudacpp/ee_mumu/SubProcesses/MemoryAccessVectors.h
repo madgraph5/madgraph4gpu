@@ -1,5 +1,5 @@
-#ifndef MemoryAccess_H
-#define MemoryAccess_H 1
+#ifndef MemoryAccessVectors_H
+#define MemoryAccessVectors_H 1
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
@@ -110,4 +110,4 @@ namespace MG5_sm
 }
 #endif
 
-#endif // MemoryAccess_H
+#endif // MemoryAccessVectors_H

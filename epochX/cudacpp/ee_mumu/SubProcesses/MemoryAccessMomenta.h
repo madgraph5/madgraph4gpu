@@ -5,8 +5,8 @@
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
-#include "MemoryAccess.h" // FIXME! rename as MemoryAccessVectors.h eventually
 #include "MemoryAccessHelpers.h"
+#include "MemoryAccessVectors.h"
 
 //----------------------------------------------------------------------------
 
