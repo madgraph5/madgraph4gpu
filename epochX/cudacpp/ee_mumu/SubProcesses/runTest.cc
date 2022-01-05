@@ -38,9 +38,7 @@ struct CUDA_CPU_TestBase : public TestDriverBase {
   static_assert( gputhreads%neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
   static_assert( gputhreads <= mgOnGpu::ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
 
-  const std::size_t nMomenta{ np4*npar*nevt }; // buffer with nevt events per iteration
-  const std::size_t nWeights{ nevt };
-  const std::size_t nMEs    { nevt };
+  const std::size_t nMEs { nevt };
 
   CUDA_CPU_TestBase( const std::string& refFileName ) :
     TestDriverBase( npar, refFileName )
