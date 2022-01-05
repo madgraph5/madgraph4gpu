@@ -191,24 +191,24 @@ public:
     if constexpr ( useContiguousEventsIfPossible && ( neppM >= neppV ) && ( neppM%neppV == 0 ) )
     {
       //constexpr bool skipAlignmentCheck = true; // FASTEST (SEGFAULTS IF MISALIGNED ACCESS, NEEDS A SANITY CHECK ELSEWHERE!)
-      constexpr bool skipAlignmentCheck = false; // NEW DEFAULT: A BIT SLOWER BUT SAFER [ALLOWS MISALIGNED ACCESS]
+      constexpr bool skipAlignmentCheck = false; // DEFAULT: A BIT SLOWER BUT SAFER [ALLOWS MISALIGNED ACCESS]
       if constexpr ( skipAlignmentCheck )
       {
-        //static bool first=true; if( first ){ std::cout << "WARNING! assume aligned AOSOA, skip check" << std::endl; first=false; } // SLOWS DOWN...
-        // Fastest (5.09E6 in eemumu 512y)
+        //static bool first=true; if( first ){ std::cout << "WARNING! assume aligned AOSOA, skip check" << std::endl; first=false; } // SLOWER (5.06E6)
+        // FASTEST (5.09E6 in eemumu 512y)
         // This assumes alignment for momenta1d without checking - causes segmentation fault in reinterpret_cast if not aligned!
         return mg5amcCpu::fptypevFromAlignedArray( out ); // use reinterpret_cast
       }
       else if ( (size_t)(buffer) % mgOnGpu::cppAlign == 0 )
       {
-        //static bool first=true; if( first ){ std::cout << "WARNING! aligned AOSOA, reinterpret cast" << std::endl; first=false; } // SLOWS DOWN...
-        // A tiny bit (<1%) slower because of the alignment check (5.07E6 in eemumu 512y)
+        //static bool first=true; if( first ){ std::cout << "WARNING! aligned AOSOA, reinterpret cast" << std::endl; first=false; } // SLOWER (5.00E6)
+        // DEFAULT! A tiny bit (<1%) slower because of the alignment check (5.07E6 in eemumu 512y)
         // This explicitly checks buffer alignment to avoid segmentation faults in reinterpret_cast
         return mg5amcCpu::fptypevFromAlignedArray( out ); // use reinterpret_cast
       }
       else
       {
-        //static bool first=true; if( first ){ std::cout << "WARNING! AOSOA but no reinterpret cast" << std::endl; first=false; } // SLOWS DOWN...
+        //static bool first=true; if( first ){ std::cout << "WARNING! AOSOA but no reinterpret cast" << std::endl; first=false; } // SLOWER (4.93E6)
         // A bit (1%) slower (5.05E6 in eemumu 512y)
         // This does not require buffer alignment, but it requires AOSOA with neppM>=neppV and neppM%neppV==0
         return mg5amcCpu::fptypevFromUnalignedArray( out ); // do not use reinterpret_cast
