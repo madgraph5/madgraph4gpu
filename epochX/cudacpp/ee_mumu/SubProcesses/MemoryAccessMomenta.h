@@ -26,8 +26,8 @@ public:
   // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
   // -----------------------------------------------------------------------------------------------
   //static constexpr int neppM = 64/sizeof(fptype); // 2x 32-byte GPU cache lines (512 bits): 8 (DOUBLE) or 16 (FLOAT)
-  //static constexpr int neppM = 32/sizeof(fptype); // (DEFAULT) 32-byte GPU cache line (256 bits): 4 (DOUBLE) or 8 (FLOAT)
-  static constexpr int neppM = 1;  // *** NB: this is equivalent to AOS *** (slower: 1.03E9 instead of 1.11E9 in eemumu)
+  static constexpr int neppM = 32/sizeof(fptype); // (DEFAULT) 32-byte GPU cache line (256 bits): 4 (DOUBLE) or 8 (FLOAT)
+  //static constexpr int neppM = 1;  // *** NB: this is equivalent to AOS *** (slower: 1.03E9 instead of 1.11E9 in eemumu)
 #else
   // -----------------------------------------------------------------------------------------------
   // --- CPUs: neppM is best set equal to the number of fptype's (neppV) in a vector register
@@ -36,10 +36,10 @@ public:
   // --- In practice, neppR, neppM and neppV could now (in principle) all be different
   // -----------------------------------------------------------------------------------------------
 #ifdef MGONGPU_CPPSIMD
-  //static constexpr int neppM = MGONGPU_CPPSIMD; // (DEFAULT) neppM=neppV for optimal performance
+  static constexpr int neppM = MGONGPU_CPPSIMD; // (DEFAULT) neppM=neppV for optimal performance
   //static constexpr int neppM = 64/sizeof(fptype); // maximum CPU vector width (512 bits): 8 (DOUBLE) or 16 (FLOAT)
   //static constexpr int neppM = 32/sizeof(fptype); // lower CPU vector width (256 bits): 4 (DOUBLE) or 8 (FLOAT)
-  static constexpr int neppM = 1; // *** NB: this is equivalent to AOS *** (slower: 4.66E6 instead of 5.09E9 in eemumu)
+  //static constexpr int neppM = 1; // *** NB: this is equivalent to AOS *** (slower: 4.66E6 instead of 5.09E9 in eemumu)
   //static constexpr int neppM = MGONGPU_CPPSIMD*2; // FOR TESTS
 #else
   static constexpr int neppM = 1; // (DEFAULT) neppM=neppV for optimal performance (NB: this is equivalent to AOS)
