@@ -82,7 +82,6 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-  /*
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
   template<class M_ACCESS>
@@ -93,7 +92,6 @@ namespace MG5_sm
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
                cxtype_sv fi[],
                const int ipar );               // input: particle# out of npar
-  */
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
@@ -297,7 +295,6 @@ namespace MG5_sm
 
   //==========================================================================
 
-  /*
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
   template<class M_ACCESS>
@@ -330,7 +327,6 @@ namespace MG5_sm
     mgDebug( 1, __FUNCTION__ );
     return;
   }
-  */
 
   //--------------------------------------------------------------------------
 
