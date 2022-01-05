@@ -89,13 +89,13 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     for ( int iw6 = 0; iw6<nw6; iw6++ )
     {
 #ifdef MGONGPU_CPPSIMD
-      const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+      const int ieppV = ievt%neppV; // #event in the current event vector in this iteration
 #ifdef MGONGPU_HAS_CXTYPE_REF
-      out << std::setw(26) << cxreal( wf[iw6][ieppM] ) << ", ";
-      out << std::setw(22) << cximag( wf[iw6][ieppM] );
+      out << std::setw(26) << cxreal( wf[iw6][ieppV] ) << ", ";
+      out << std::setw(22) << cximag( wf[iw6][ieppV] );
 #else
-      out << std::setw(26) << wf[iw6].real()[ieppM] << ", ";
-      out << std::setw(22) << wf[iw6].imag()[ieppM];
+      out << std::setw(26) << wf[iw6].real()[ieppV] << ", ";
+      out << std::setw(22) << wf[iw6].imag()[ieppV];
 #endif
 #else
       out << std::setw(26) << wf[iw6].real();
@@ -125,16 +125,16 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
         if ( true )
         {
 #ifdef MGONGPU_CPPSIMD
-          const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+          const int ieppV = ievt%neppV; // #event in the current event vector in this iteration
 #ifdef MGONGPU_HAS_CXTYPE_REF
-          EXPECT_NEAR( cxreal( wf[iw6][ieppM] ), expReal, std::abs( expReal * toleranceXXXs ) )
+          EXPECT_NEAR( cxreal( wf[iw6][ieppV] ), expReal, std::abs( expReal * toleranceXXXs ) )
             << " itest=" << itest << ": " << xxx << "#" << ievt;
-          EXPECT_NEAR( cximag( wf[iw6][ieppM] ), expImag, std::abs( expImag * toleranceXXXs ) )
+          EXPECT_NEAR( cximag( wf[iw6][ieppV] ), expImag, std::abs( expImag * toleranceXXXs ) )
             << " itest=" << itest << ": " << xxx << "#" << ievt;
 #else
-          EXPECT_NEAR( wf[iw6].real()[ieppM], expReal, std::abs( expReal * toleranceXXXs ) )
+          EXPECT_NEAR( wf[iw6].real()[ieppV], expReal, std::abs( expReal * toleranceXXXs ) )
             << " itest=" << itest << ": " << xxx << "#" << ievt;
-          EXPECT_NEAR( wf[iw6].imag()[ieppM], expImag, std::abs( expImag * toleranceXXXs ) )
+          EXPECT_NEAR( wf[iw6].imag()[ieppV], expImag, std::abs( expImag * toleranceXXXs ) )
             << " itest=" << itest << ": " << xxx << "#" << ievt;
 #endif
 #else
@@ -162,20 +162,20 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
         if ( true )
         {
 #ifdef MGONGPU_CPPSIMD
-          const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
+          const int ieppV = ievt%neppV; // #event in the current event vector in this iteration
 #ifdef MGONGPU_HAS_CXTYPE_REF
-          const fptype expReal = cxreal( expwf[iw6][ieppM] );
-          const fptype expImag = cximag( expwf[iw6][ieppM] );
-          EXPECT_NEAR( cxreal( wf[iw6][ieppM] ), expReal, std::abs( expReal * toleranceXXXs ) )
+          const fptype expReal = cxreal( expwf[iw6][ieppV] );
+          const fptype expImag = cximag( expwf[iw6][ieppV] );
+          EXPECT_NEAR( cxreal( wf[iw6][ieppV] ), expReal, std::abs( expReal * toleranceXXXs ) )
             << " itest=" << itest << ": " << xxx << "#" << ievt << " against " << xxxFull;
-          EXPECT_NEAR( cximag( wf[iw6][ieppM] ), expImag, std::abs( expImag * toleranceXXXs ) )
+          EXPECT_NEAR( cximag( wf[iw6][ieppV] ), expImag, std::abs( expImag * toleranceXXXs ) )
             << " itest=" << itest << ": " << xxx << "#" << ievt << " against " << xxxFull;
 #else
-          const fptype expReal = expwf[iw6].real()[ieppM];
-          const fptype expImag = expwf[iw6].imag()[ieppM];
-          EXPECT_NEAR( wf[iw6].real()[ieppM], expReal, std::abs( expReal * toleranceXXXs ) )
+          const fptype expReal = expwf[iw6].real()[ieppV];
+          const fptype expImag = expwf[iw6].imag()[ieppV];
+          EXPECT_NEAR( wf[iw6].real()[ieppV], expReal, std::abs( expReal * toleranceXXXs ) )
             << " itest=" << itest << ": " << xxx << "#" << ievt << " against " << xxxFull;
-          EXPECT_NEAR( wf[iw6].imag()[ieppM], expImag, std::abs( expImag * toleranceXXXs ) )
+          EXPECT_NEAR( wf[iw6].imag()[ieppV], expImag, std::abs( expImag * toleranceXXXs ) )
             << " itest=" << itest << ": " << xxx << "#" << ievt << " against " << xxxFull;
 #endif
 #else
