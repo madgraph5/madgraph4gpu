@@ -190,8 +190,8 @@ public:
     // Use c++17 "if constexpr": compile-time branching
     if constexpr ( useContiguousEventsIfPossible && ( neppM >= neppV ) && ( neppM%neppV == 0 ) )
     {
-      constexpr bool skipAlignmentCheck = true; // FASTEST (MAY SEGFAULT, NEEDS A SANITY CHECK ELSEWHERE!)
-      //constexpr bool skipAlignmentCheck = false; // NEW DEFAULT: A BIT SLOWER BUT SAFER [UNCOMMENT OUT TO TEST MISALIGNED ACCESS]
+      //constexpr bool skipAlignmentCheck = true; // FASTEST (MAY SEGFAULT, NEEDS A SANITY CHECK ELSEWHERE!)
+      constexpr bool skipAlignmentCheck = false; // NEW DEFAULT: A BIT SLOWER BUT SAFER [UNCOMMENT OUT TO TEST MISALIGNED ACCESS]
       if constexpr ( skipAlignmentCheck )
       {
         //static bool first=true; if( first ){ std::cout << "WARNING! assume aligned AOSOA, skip check" << std::endl; first=false; } // SLOWS DOWN...
@@ -202,7 +202,7 @@ public:
       else if ( (size_t)(buffer) % mgOnGpu::cppAlign == 0 )
       {
         //static bool first=true; if( first ){ std::cout << "WARNING! aligned AOSOA, reinterpret cast" << std::endl; first=false; } // SLOWS DOWN...
-        // A tiny bit (<1%) slower because of the alignment check (5.06E6 in eemumu 512y)
+        // A tiny bit (<1%) slower because of the alignment check (5.07E6 in eemumu 512y)
         // This explicitly checks buffer alignment to avoid segmentation faults in reinterpret_cast
         return mg5amcCpu::fptypevFromAlignedArray( out ); // use reinterpret_cast
       }
