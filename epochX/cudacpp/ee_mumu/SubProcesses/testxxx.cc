@@ -208,7 +208,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
         std::cout << std::endl;
       }
       const int ipagM = ievt/neppM; // #eventpage in this iteration
-      const MG5_sm::p4type_sv p4vec = MG5_sm::p4IparIpagV( hstMomenta.data(), ipar0, ipagM );
+      //const MG5_sm::p4type_sv p4vec = MG5_sm::p4IparIpagV( hstMomenta.data(), ipar0, ipagM ); // OLD
       const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( hstMomenta.data(), ipagM*neppM ); // NEW apihel
       // Test ixxxxx - NO ASSUMPTIONS
       {
@@ -286,7 +286,8 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test omzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
-        omzxxx( p4vec, nhel, nsp, outwf );
+        //omzxxx( p4vec, nhel, nsp, outwf ); // OLD
+        MG5_sm::omzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 ); // NEW apihel
         testwf6two( outwf, outwfO, "omzxxx", ievt );
         testwf6( outwf, "omzxxx", ievt, nsp, 0 );
       }
