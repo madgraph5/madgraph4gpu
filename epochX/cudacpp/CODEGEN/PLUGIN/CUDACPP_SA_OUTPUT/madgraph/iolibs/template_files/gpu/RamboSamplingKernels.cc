@@ -28,14 +28,24 @@ namespace mg5amcCpu
     if ( m_rnarray.isOnDevice() ) throw std::runtime_error( "RamboSamplingKernelHost: rnarray must be a host array" );
     if ( m_momenta.isOnDevice() ) throw std::runtime_error( "RamboSamplingKernelHost: momenta must be a host array" );
     if ( m_weights.isOnDevice() ) throw std::runtime_error( "RamboSamplingKernelHost: weights must be a host array" );
-    // Sanity checks for memory access (are these really strictly needed?)
+    // Sanity checks for memory access (momenta buffer)
+    constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
+    static_assert( ispoweroftwo( neppM ), "neppM is not a power of 2" );
+    if ( nevt%neppM != 0 )
+    {
+      std::ostringstream sstr;
+      sstr << "RamboSamplingKernelHost: nevt should be a multiple of neppM=" << neppM;
+      throw std::runtime_error( sstr.str() );
+    }
+    // Sanity checks for memory access (random number buffer)
     constexpr int neppR = MemoryAccessRandomNumbers::neppR; // AOSOA layout
-#ifndef __CUDACC__
-    auto ispoweroftwo = []( int n ) { return ( n > 0 ) && !( n & ( n - 1 ) ); }; // https://stackoverflow.com/a/108360
     static_assert( ispoweroftwo( neppR ), "neppR is not a power of 2" );
-#else
-    static_assert( ( neppR > 0 ) && !( neppR & ( neppR - 1 ) ), "neppR is not a power of 2" ); // implementation without c++17 lambda
-#endif
+    if ( nevt%neppR != 0 )
+    {
+      std::ostringstream sstr;
+      sstr << "RamboSamplingKernelHost: nevt should be a multiple of neppR=" << neppR;
+      throw std::runtime_error( sstr.str() );
+    }
   }
 
   //--------------------------------------------------------------------------
@@ -88,9 +98,18 @@ namespace mg5amcCpu
     if ( ! m_weights.isOnDevice() ) throw std::runtime_error( "RamboSamplingKernelDevice: weights must be a device array" );
     if ( m_gpublocks == 0 ) throw std::runtime_error( "RamboSamplingKernelDevice: gpublocks must be > 0" );
     if ( m_gputhreads == 0 ) throw std::runtime_error( "RamboSamplingKernelDevice: gputhreads must be > 0" );
-    // Sanity checks for memory access (are these really strictly needed?)
+    // Sanity checks for memory access (momenta buffer)
+    constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
+    static_assert( ispoweroftwo( neppM ), "neppM is not a power of 2" );
+    if ( m_gputhreads%neppM != 0 )
+    {
+      std::ostringstream sstr;
+      sstr << "RamboSamplingKernelHost: gputhreads should be a multiple of neppM=" << neppM;
+      throw std::runtime_error( sstr.str() );
+    }
+    // Sanity checks for memory access (random number buffer)
     constexpr int neppR = MemoryAccessRandomNumbers::neppR; // AOSOA layout
-    static_assert( ( neppR > 0 ) && !( neppR & ( neppR - 1 ) ), "neppR is not a power of 2" ); // implementation without c++17 lambda
+    static_assert( ispoweroftwo( neppR ), "neppR is not a power of 2" );
     if ( m_gputhreads%neppR != 0 )
     {
       std::ostringstream sstr;

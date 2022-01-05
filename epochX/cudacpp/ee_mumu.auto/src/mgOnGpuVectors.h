@@ -21,6 +21,9 @@ namespace mgOnGpu
   // SANITY CHECK: cppAlign must be a multiple of neppV * sizeof(fptype)
   static_assert( mgOnGpu::cppAlign % ( neppV * sizeof(fptype) ) == 0 );
 
+  // SANITY CHECK: check that neppV is a power of two
+  static_assert( ispoweroftwo( neppV ), "neppV is not a power of 2" );
+
   // --- Type definition (using vector compiler extensions: need -march=...)
 #ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
   typedef fptype fptype_v __attribute__ ((ext_vector_type(neppV))); // RRRR
@@ -579,11 +582,11 @@ bool maskor( const bool& mask )
 #else
 
 // Printout to std::cout for user defined types
-inline __device__ void print( const fptype& f ){ printf( "%f\n", f ); }
-inline __device__ void print( const cxtype& c ){ printf( "[%f, %f]\n", cxreal(c), cximag(c) ); }
+inline __host__ __device__ void print( const fptype& f ){ printf( "%f\n", f ); }
+inline __host__ __device__ void print( const cxtype& c ){ printf( "[%f, %f]\n", cxreal(c), cximag(c) ); }
 
 /*
-inline __device__
+inline __host__ __device__
 const cxtype& cxvmake( const cxtype& c )
 {
   return c;
@@ -623,7 +626,7 @@ typedef cxtype cxtype_sv;
 
 // Scalar-or-vector zeros: scalar in CUDA, vector or scalar in C++
 #ifdef __CUDACC__
-inline __device__ cxtype cxzero_sv(){ return cxmake( 0, 0 ); }
+inline __host__ __device__ cxtype cxzero_sv(){ return cxmake( 0, 0 ); }
 #elif defined MGONGPU_CPPSIMD
 inline cxtype_v cxzero_sv(){ return cxtype_v{ fptype_v{0}, fptype_v{0} }; }
 #else

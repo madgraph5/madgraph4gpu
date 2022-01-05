@@ -85,7 +85,7 @@ class KernelAccessWeights
 {
 public:
 
-  // (Non-const memory access to field from ievent)
+  // (Non-const memory access to field from kernel)
   // FINAL IMPLEMENTATION FOR CUDA 11.4
   //static constexpr auto kernelAccess =
   //  KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessField<>;
@@ -96,7 +96,7 @@ public:
     return KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessField<>( buffer );
   }
 
-  // (Const memory access to field from ievent)
+  // (Const memory access to field from kernel)
   // FINAL IMPLEMENTATION FOR CUDA 11.4
   //static constexpr auto kernelAccessConst =
   //  KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessFieldConst<>;
