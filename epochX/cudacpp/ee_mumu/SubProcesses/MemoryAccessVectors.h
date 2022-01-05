@@ -5,10 +5,11 @@
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
-#ifdef MGONGPU_CPPSIMD
-namespace MG5_sm
+#ifndef __CUDACC__
+namespace mg5amcCpu // this is only needed for CPU SIMD vectorization
 {
 
+#ifdef MGONGPU_CPPSIMD
   //--------------------------------------------------------------------------
 
   // Build one fptype_v (one vector of neppV fptype values) from one fptype references,
@@ -106,8 +107,9 @@ namespace MG5_sm
   }
 
   //--------------------------------------------------------------------------
+#endif
 
-}
+} // end namespace
 #endif
 
 #endif // MemoryAccessVectors_H
