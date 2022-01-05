@@ -255,12 +255,6 @@ int main(int argc, char **argv)
   constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
   constexpr int neppR = MemoryAccessRandomNumbers::neppR; // AOSOA layout
 
-  if ( gputhreads%neppM != 0 )
-  {
-    std::cout << "ERROR! #threads/block should be a multiple of neppM=" << neppM << std::endl;
-    return usage(argv[0]);
-  }
-
   using mgOnGpu::ntpbMAX;
   if ( gputhreads > ntpbMAX )
   {
