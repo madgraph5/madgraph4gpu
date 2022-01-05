@@ -26,8 +26,8 @@ public:
   // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
   // -----------------------------------------------------------------------------------------------
   //static constexpr int neppM = 64/sizeof(fptype); // 2x 32-byte GPU cache lines (512 bits): 8 (DOUBLE) or 16 (FLOAT)
-  static constexpr int neppM = 32/sizeof(fptype); // (DEFAULT) 32-byte GPU cache line (256 bits): 4 (DOUBLE) or 8 (FLOAT)
-  //static constexpr int neppM = 1;  // *** NB: this is equivalent to AOS ***
+  //static constexpr int neppM = 32/sizeof(fptype); // (DEFAULT) 32-byte GPU cache line (256 bits): 4 (DOUBLE) or 8 (FLOAT)
+  static constexpr int neppM = 1;  // *** NB: this is equivalent to AOS *** (slower: 1.03E9 instead of 1.11E9 in eemumu)
 #else
   // -----------------------------------------------------------------------------------------------
   // --- CPUs: neppM is best set equal to the number of fptype's (neppV) in a vector register
@@ -36,10 +36,10 @@ public:
   // --- In practice, neppR, neppM and neppV could now (in principle) all be different
   // -----------------------------------------------------------------------------------------------
 #ifdef MGONGPU_CPPSIMD
-  static constexpr int neppM = MGONGPU_CPPSIMD; // (DEFAULT) neppM=neppV for optimal performance
+  //static constexpr int neppM = MGONGPU_CPPSIMD; // (DEFAULT) neppM=neppV for optimal performance
   //static constexpr int neppM = 64/sizeof(fptype); // maximum CPU vector width (512 bits): 8 (DOUBLE) or 16 (FLOAT)
   //static constexpr int neppM = 32/sizeof(fptype); // lower CPU vector width (256 bits): 4 (DOUBLE) or 8 (FLOAT)
-  //static constexpr int neppM = 1; // *** NB: this is equivalent to AOS ***
+  static constexpr int neppM = 1; // *** NB: this is equivalent to AOS *** (slower: 4.66E6 instead of 5.09E9 in eemumu)
   //static constexpr int neppM = MGONGPU_CPPSIMD*2; // FOR TESTS
 #else
   static constexpr int neppM = 1; // (DEFAULT) neppM=neppV for optimal performance (NB: this is equivalent to AOS)
@@ -185,8 +185,8 @@ public:
     return out;
 #else
     constexpr int neppM = MemoryAccessMomentaBase::neppM;
-    //constexpr bool useContiguousEventsIfPossible = true; // DEFAULT
-    constexpr bool useContiguousEventsIfPossible = false; // FOR PERFORMANCE TESTS (treat as arbitrary array even if it is an AOSOA)
+    constexpr bool useContiguousEventsIfPossible = true; // DEFAULT
+    //constexpr bool useContiguousEventsIfPossible = false; // FOR PERFORMANCE TESTS (treat as arbitrary array even if it is an AOSOA)
     // Use c++17 "if constexpr": compile-time branching
     if constexpr ( useContiguousEventsIfPossible && ( neppM >= neppV ) && ( neppM%neppV == 0 ) )
     {
@@ -195,7 +195,7 @@ public:
       if constexpr ( skipAlignmentCheck )
       {
         //static bool first=true; if( first ){ std::cout << "WARNING! assume aligned AOSOA, skip check" << std::endl; first=false; } // SLOWER (5.06E6)
-        // FASTEST (5.09E6 in eemumu 512y)
+        // FASTEST? (5.09E6 in eemumu 512y)
         // This assumes alignment for momenta1d without checking - causes segmentation fault in reinterpret_cast if not aligned!
         return mg5amcCpu::fptypevFromAlignedArray( out ); // use reinterpret_cast
       }
@@ -216,8 +216,8 @@ public:
     }
     else
     {
-      //static bool first=true; if( first ){ std::cout << "WARNING! arbitrary array" << std::endl; first=false; } // SLOWS DOWN...
-      // A tiny bit (<1%) slower (5.11E6 for AOSOA, xxx for AOS in eemumu 512y)
+      //static bool first=true; if( first ){ std::cout << "WARNING! arbitrary array" << std::endl; first=false; } // SLOWER (5.08E6)
+      // ?!Used to be much slower, now a tiny bit faster for AOSOA?! (5.11E6 for AOSOA, 4.64E6 for AOS in eemumu 512y)
       // This does not even require AOSOA with neppM>=neppV and neppM%neppV==0 (e.g. can be used with AOS neppM==1)
       auto decoderIeppv = [buffer, ip4, ipar](int ievt) -> const fptype& 
         { return MemoryAccessMomenta::ieventAccessIp4IparConst( buffer, ievt, ip4, ipar ); };
