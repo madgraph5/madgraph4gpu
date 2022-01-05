@@ -161,9 +161,11 @@ namespace Proc
 #endif
 
 #ifdef __CUDACC__
-      ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 );
+      //ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 ); // OLD
+      ixzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 ); // NEW apihel
 #else
-      ixzxxx( p4IparIpagV( allmomenta, 2, ipagV ), cHel[ihel][2], -1, w_sv[2] );
+      //ixzxxx( p4IparIpagV( allmomenta, 2, ipagV ), cHel[ihel][2], -1, w_sv[2] );
+      ixzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][2], -1, w_sv[2], 2 ); // NEW apihel
 #endif
 
 #ifdef __CUDACC__

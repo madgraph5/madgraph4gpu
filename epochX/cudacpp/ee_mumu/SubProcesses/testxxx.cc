@@ -236,7 +236,8 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test ixzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
       if ( mass0[ievt] == 0 && isptgt0[ievt] )
       {
-        ixzxxx( p4vec, nhel, nsp, outwf );
+        //ixzxxx( p4vec, nhel, nsp, outwf ); // OLD
+        MG5_sm::ixzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 ); // NEW apihel
         testwf6two( outwf, outwfI, "ixzxxx", ievt );
         testwf6( outwf, "ixzxxx", ievt, nsp, 0 );
       }
