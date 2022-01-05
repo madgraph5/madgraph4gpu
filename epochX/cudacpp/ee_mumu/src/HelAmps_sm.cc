@@ -18,7 +18,11 @@
 
 mgDebugDeclare();
 
-namespace MG5_sm
+#ifdef __CUDACC__
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
 {
 
   //--------------------------------------------------------------------------
@@ -216,5 +220,5 @@ namespace MG5_sm
 
   //--------------------------------------------------------------------------
 
-} // end namespace MG5_sm
+} // end namespace
 
