@@ -209,8 +209,8 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
         for ( int ip4 = 0; ip4 < np4; ip4++ ) std::cout << par0[ievt * np4 + ip4] << ", ";
         std::cout << std::endl;
       }
-      const int ipagM = ievt/neppM; // #eventpage in this iteration
-      const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( hstMomenta.data(), ipagM*neppM );
+      const int ipagV = ievt/neppV; // #event vector in this iteration
+      const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( hstMomenta.data(), ipagV*neppV );
       // Test ixxxxx - NO ASSUMPTIONS
       {
         const fptype fmass = mass0[ievt];
