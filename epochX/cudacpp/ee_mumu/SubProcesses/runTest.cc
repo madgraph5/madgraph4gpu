@@ -32,16 +32,18 @@ using namespace mg5amcCpu;
 struct CUDA_CPU_TestBase : public TestDriverBase {
 
   static constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
+  static constexpr int np4 = mgOnGpu::np4;
+  static constexpr int npar = mgOnGpu::npar;
 
   static_assert( gputhreads%neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
   static_assert( gputhreads <= mgOnGpu::ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
 
-  const std::size_t nMomenta{ mgOnGpu::np4 * mgOnGpu::npar  * nevt }; // AOSOA layout with nevt=npagM*neppM events per iteration
+  const std::size_t nMomenta{ np4 * npar  * nevt }; // AOSOA layout with nevt=npagM*neppM events per iteration
   const std::size_t nWeights{ nevt };
   const std::size_t nMEs    { nevt };
 
   CUDA_CPU_TestBase( const std::string& refFileName ) :
-    TestDriverBase( mgOnGpu::npar, refFileName )
+    TestDriverBase( npar, refFileName )
   {  }
 
 };
@@ -106,8 +108,6 @@ struct CPUTest : public CUDA_CPU_TestBase {
   }
 
   fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
-    using mgOnGpu::np4;
-    using mgOnGpu::npar;
     assert(component < np4);
     assert(particle  < npar);
     const auto ipagM = evtNo / neppM; // #eventpage in this iteration
@@ -218,12 +218,11 @@ struct CUDATest : public CUDA_CPU_TestBase {
   }
 
   fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
-    assert(component < mgOnGpu::np4);
-    assert(particle  < mgOnGpu::npar);
+    assert(component < np4);
+    assert(particle  < npar);
     const auto page  = evtNo / neppM; // #eventpage in this iteration
     const auto ieppM = evtNo % neppM; // #event in the current eventpage in this iteration
-    return hstMomenta[page * mgOnGpu::npar*mgOnGpu::np4*neppM +
-                      particle * neppM*mgOnGpu::np4 + component * neppM + ieppM];
+    return hstMomenta[page*npar*np4*neppM + particle*neppM*np4 + component*neppM + ieppM];
   };
 
   fptype getMatrixElement(std::size_t evtNo) const override {
