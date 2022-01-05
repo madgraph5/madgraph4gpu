@@ -151,7 +151,8 @@ namespace Proc
       }      
       else
       {
-        oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 );
+        //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 ); // OLD
+        oxxxxx<DeviceAccessMomenta>( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 ); // NEW apihel
       }
 #endif
 #else

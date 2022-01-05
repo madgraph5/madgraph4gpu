@@ -268,9 +268,11 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test oxxxxx - NO ASSUMPTIONS
       {
         const fptype fmass = mass0[ievt];
-        oxxxxx( p4vec, fmass, nhel, nsp, outwfO );
+        //oxxxxx( p4vec, fmass, nhel, nsp, outwfO ); // OLD
+        MG5_sm::oxxxxx<HostAccessMomenta>( ievt0Momenta, fmass, nhel, nsp, outwfO, ipar0 ); // NEW apihel
         testwf6( outwfO, "oxxxxx", ievt, nsp, fmass );
-        oxxxxx( p4vec, -fmass, nhel, nsp, outwfO );
+        //oxxxxx( p4vec, -fmass, nhel, nsp, outwfO ); // OLD
+        MG5_sm::oxxxxx<HostAccessMomenta>( ievt0Momenta, -fmass, nhel, nsp, outwfO, ipar0 ); // NEW apihel
         testwf6( outwfO, "oxxxxx", ievt, nsp, -fmass );
       }
       // Test opzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
