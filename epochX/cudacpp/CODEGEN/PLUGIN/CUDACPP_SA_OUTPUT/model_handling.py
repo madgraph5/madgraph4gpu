@@ -803,14 +803,6 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         """Get sigmaKin_process for all subprocesses for gCPPProcess.cu"""
         ret_lines = []
         if self.single_helicities:
-            ###ret_lines.append( "__device__ void calculate_wavefunctions(int ihel, const fptype* allmomenta,fptype &meHelSum \n#ifndef __CUDACC__\n                                , const int ievt\n#endif\n                                )\n{" )
-            ###ret_lines.append(" using namespace MG5_%s;" % self.model_name)
-            ###ret_lines.append("mgDebug( 0, __FUNCTION__ );")
-            ###ret_lines.append("cxtype amp[1]; // was %i" % len(self.matrix_elements[0].get_all_amplitudes()))
-            ###ret_lines.append("const int ncolor =  %i;" % len(color_amplitudes[0]))
-            ###ret_lines.append("cxtype jamp[ncolor];")
-            ###ret_lines.append("// Calculate wavefunctions for all processes")
-            ###ret_lines.append("using namespace MG5_%s;" % self.model_name)
             ret_lines.append("""
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
