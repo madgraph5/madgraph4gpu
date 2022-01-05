@@ -13,7 +13,7 @@
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 %(hel_amps_h)s
-#include "MemoryAccess.h"
+#include "MemoryAccessMomenta.h"
 
 #include "CPPProcess.h"
 

@@ -131,16 +131,16 @@ namespace Proc
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif
     {
+#ifndef __CUDACC__
+      const int ievt0 = ipagV*neppV;
+      const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );
+#endif
+
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
       for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }
 
       // *** DIAGRAM 1 OF 2 ***
 
-#ifndef __CUDACC__
-      const int ievt0 = ipagV*neppV;
-      const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );
-#endif
-      
       // Wavefunction(s) for diagram number 1
 #ifdef __CUDACC__
 #ifndef MGONGPU_TEST_DIVERGENCE

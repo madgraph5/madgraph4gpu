@@ -809,7 +809,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
   __device__
   INLINE
   void calculate_wavefunctions( int ihel,
-                                const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                                const fptype* allmomenta, // input: momenta[nevt*npar*4]
                                 fptype* allMEs            // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifndef __CUDACC__
                                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
@@ -817,7 +817,11 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
                                 )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
   {
-    using namespace MG5_sm;
+#ifdef __CUDACC__
+    using namespace mg5amcGpu;
+#else
+    using namespace mg5amcCpu;
+#endif
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     //printf( "calculate_wavefunctions: nevt %d\\n", nevt );
@@ -1141,6 +1145,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         matrix_element.reuse_outdated_wavefunctions(me)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
+        res.append('#ifndef __CUDACC__')
+        res.append('const int ievt0 = ipagV*neppV;')
+        res.append('const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );')
+        res.append('#endif\n')      
         res.append('// Reset color flows (reset jamp_sv) at the beginning of a new event or event page')
         res.append('for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }')
         for diagram in matrix_element.get('diagrams'):

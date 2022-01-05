@@ -15,7 +15,7 @@
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 #include "HelAmps_sm.h"
-#include "MemoryAccess.h"
+#include "MemoryAccessMomenta.h"
 
 #include "CPPProcess.h"
 
@@ -80,7 +80,7 @@ namespace Proc
   __device__
   INLINE
   void calculate_wavefunctions( int ihel,
-                                const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                                const fptype* allmomenta, // input: momenta[nevt*npar*4]
                                 fptype* allMEs            // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifndef __CUDACC__
                                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
@@ -88,7 +88,11 @@ namespace Proc
                                 )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
   {
-    using namespace MG5_sm;
+#ifdef __CUDACC__
+    using namespace mg5amcGpu;
+#else
+    using namespace mg5amcCpu;
+#endif
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     //printf( "calculate_wavefunctions: nevt %d\n", nevt );
@@ -127,6 +131,11 @@ namespace Proc
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif
     {
+#ifndef __CUDACC__
+      const int ievt0 = ipagV*neppV;
+      const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );
+#endif
+
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
       for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }
 
@@ -406,7 +415,7 @@ namespace Proc
 
 #ifdef __CUDACC__
   __global__
-  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
                             fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
                             bool* isGoodHel )         // output: isGoodHel[ncomb] - device array
   {
@@ -426,7 +435,7 @@ namespace Proc
     }
   }
 #else
-  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
                             fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
                             bool* isGoodHel           // output: isGoodHel[ncomb] - device array
                             , const int nevt )        // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
@@ -491,7 +500,7 @@ namespace Proc
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
   __global__
-  void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+  void sigmaKin( const fptype* allmomenta, // input: momenta[nevt*npar*4]
                  fptype* allMEs            // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifndef __CUDACC__
                  , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
