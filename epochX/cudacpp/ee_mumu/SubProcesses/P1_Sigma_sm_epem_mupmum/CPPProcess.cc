@@ -16,7 +16,7 @@
 #include "mgOnGpuVectors.h"
 #include "HelAmps_sm.h"
 #include "MemoryAccess.h" // OLD
-#include "MemoryAccessMomenta.h" // NEW
+#include "MemoryAccessMomenta.h" // NEW apihel
 
 #include "CPPProcess.h"
 
@@ -148,11 +148,11 @@ namespace Proc
 #endif
 
 #ifdef __CUDACC__
-      //imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz
-      imzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz
+      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz (OLD)
+      //imzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz (NEW apihel)
 #else
-      //imzxxx( p4IparIpagV( allmomenta, 1, ipagV ), cHel[ihel][1], +1, w_sv[1] ); // NB: imzxxx only uses pz
-      imzxxx<HostAccessMomenta>( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz
+      imzxxx( p4IparIpagV( allmomenta, 1, ipagV ), cHel[ihel][1], +1, w_sv[1] ); // NB: imzxxx only uses pz (OLD)
+      //imzxxx<HostAccessMomenta>( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz (NEW apihel)
 #endif
 
 #ifdef __CUDACC__

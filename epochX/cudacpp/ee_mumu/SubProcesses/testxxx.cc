@@ -5,7 +5,7 @@
 #include "HelAmps_sm.h"
 #include "MemoryBuffers.h"
 #include "MemoryAccess.h" // OLD
-#include "MemoryAccessMomenta.h" // NEW
+#include "MemoryAccessMomenta.h" // NEW apihel
 
 #include <array>
 #include <cassert>
@@ -209,7 +209,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       }
       const int ipagM = ievt/neppM; // #eventpage in this iteration
       const MG5_sm::p4type_sv p4vec = MG5_sm::p4IparIpagV( hstMomenta.data(), ipar0, ipagM );
-      const fptype* ievtMomenta = MemoryAccessMomenta::ieventAccessRecordConst( hstMomenta.data(), ipagM*neppM );
+      //const fptype* ievtMomenta = MemoryAccessMomenta::ieventAccessRecordConst( hstMomenta.data(), ipagM*neppM ); // NEW apihel
       // Test ixxxxx - NO ASSUMPTIONS
       {
         const fptype fmass = mass0[ievt];
@@ -228,7 +228,8 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test imzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
-        MG5_sm::imzxxx<HostAccessMomenta>( ievtMomenta, nhel, nsp, outwf, ipar0 );
+        imzxxx( p4vec, nhel, nsp, outwf ); // OLD
+        //MG5_sm::imzxxx<HostAccessMomenta>( ievtMomenta, nhel, nsp, outwf, ipar0 ); // NEW apihel
         testwf6two( outwf, outwfI, "imzxxx", ievt );
         testwf6( outwf, "imzxxx", ievt, nsp, 0 );
       }
