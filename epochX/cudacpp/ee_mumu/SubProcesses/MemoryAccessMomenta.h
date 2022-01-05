@@ -219,8 +219,9 @@ public:
       //static bool first=true; if( first ){ std::cout << "WARNING! arbitrary array" << std::endl; first=false; } // SLOWER (5.08E6)
       // ?!Used to be much slower, now a tiny bit faster for AOSOA?! (5.11E6 for AOSOA, 4.64E6 for AOS in eemumu 512y)
       // This does not even require AOSOA with neppM>=neppV and neppM%neppV==0 (e.g. can be used with AOS neppM==1)
-      auto decoderIeppv = [buffer, ip4, ipar](int ievt) -> const fptype& 
-        { return MemoryAccessMomenta::ieventAccessIp4IparConst( buffer, ievt, ip4, ipar ); };
+      constexpr int ievt0 = 0; // just make it explicit in the code that buffer refers to a given ievt0 and decoderIeppV fetches event ievt0+ieppV
+      auto decoderIeppv = [buffer, ip4, ipar](int ieppV) -> const fptype& 
+        { return MemoryAccessMomenta::ieventAccessIp4IparConst( buffer, ievt0+ieppV, ip4, ipar ); };
       return mg5amcCpu::fptypevFromArbitraryArray( decoderIeppv ); // iterate over ieppV in neppV (no SIMD)
     }
 #endif
