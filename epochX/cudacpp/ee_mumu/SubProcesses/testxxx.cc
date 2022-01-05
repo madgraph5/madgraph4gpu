@@ -247,18 +247,22 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test vxxxxx - NO ASSUMPTIONS
       {
         const fptype vmass = mass0[ievt];
-        vxxxxx( p4vec, vmass, nhel, nsp, outwf );
+        //vxxxxx( p4vec, vmass, nhel, nsp, outwf ); // OLD
+        MG5_sm::vxxxxx<HostAccessMomenta>( ievt0Momenta, vmass, nhel, nsp, outwf, ipar0 ); // NEW apihel
         testwf6( outwf, "vxxxxx", ievt, nsp, vmass );
-        vxxxxx( p4vec, -vmass, nhel, nsp, outwf );
+        //vxxxxx( p4vec, -vmass, nhel, nsp, outwf );
+        MG5_sm::vxxxxx<HostAccessMomenta>( ievt0Momenta, -vmass, nhel, nsp, outwf, ipar0 ); // NEW apihel
         testwf6( outwf, "vxxxxx", ievt, nsp, -vmass );
       }
       // Test sxxxxx - NO ASSUMPTIONS
       {
         const fptype smass = mass0[ievt];
         cxtype_sv outwf3[6]{}; // NB: only 3 are filled by sxxxxx, but 6 are compared!
-        sxxxxx( p4vec, smass, nhel, nsp, outwf3 );
+        //sxxxxx( p4vec, smass, nhel, nsp, outwf3 ); // OLD
+        MG5_sm::sxxxxx<HostAccessMomenta>( ievt0Momenta, smass, nhel, nsp, outwf3, ipar0 ); // NEW apihel
         testwf6( outwf3, "sxxxxx", ievt, nsp, smass );
-        sxxxxx( p4vec, -smass, nhel, nsp, outwf3 );
+        //sxxxxx( p4vec, -smass, nhel, nsp, outwf3 ); // OLD
+        MG5_sm::sxxxxx<HostAccessMomenta>( ievt0Momenta, -smass, nhel, nsp, outwf3, ipar0 ); // NEW apihel
         testwf6( outwf3, "sxxxxx", ievt, nsp, -smass );
       }
       // Test oxxxxx - NO ASSUMPTIONS
