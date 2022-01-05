@@ -134,8 +134,8 @@ namespace Proc
       // *** DIAGRAM 1 OF 2 ***
 
 #ifndef __CUDACC__
-      //const int ievt0 = ipagV*neppV;
-      //const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 ); // NEW apihel
+      const int ievt0 = ipagV*neppV;
+      const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 ); // NEW apihel
 #endif
       
       // Wavefunction(s) for diagram number 1
@@ -153,11 +153,11 @@ namespace Proc
 #endif
 
 #ifdef __CUDACC__
-      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz (OLD)
-      //imzxxx<DeviceAccessMomenta>( ievt0Momenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz (NEW apihel)
+      //imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz (OLD)
+      imzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz (NEW apihel)
 #else
-      imzxxx( p4IparIpagV( allmomenta, 1, ipagV ), cHel[ihel][1], +1, w_sv[1] ); // NB: imzxxx only uses pz (OLD)
-      //imzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz (NEW apihel)
+      //imzxxx( p4IparIpagV( allmomenta, 1, ipagV ), cHel[ihel][1], +1, w_sv[1] ); // NB: imzxxx only uses pz (OLD)
+      imzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz (NEW apihel)
 #endif
 
 #ifdef __CUDACC__
@@ -167,11 +167,11 @@ namespace Proc
 #endif
 
 #ifdef __CUDACC__
-      oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 ); // OLD
-      //oxzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][3], +1, w_sv[1], 3 ); // NEW apihel
+      //oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 ); // OLD
+      oxzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 ); // NEW apihel
 #else
-      oxzxxx( p4IparIpagV( allmomenta, 3, ipagV ), cHel[ihel][3], +1, w_sv[3] ); // OLD
-      //oxzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][3], +1, w_sv[1], 3 ); // NEW apihel
+      //oxzxxx( p4IparIpagV( allmomenta, 3, ipagV ), cHel[ihel][3], +1, w_sv[3] ); // OLD
+      oxzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][3], +1, w_sv[3], 3 ); // NEW apihel
 #endif
 
       FFV1P0_3( w_sv[1], w_sv[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );
