@@ -15,8 +15,7 @@
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 #include "HelAmps_sm.h"
-#include "MemoryAccess.h" // OLD
-#include "MemoryAccessMomenta.h" // NEW apihel
+#include "MemoryAccessMomenta.h"
 
 #include "CPPProcess.h"
 
@@ -135,53 +134,43 @@ namespace Proc
 
 #ifndef __CUDACC__
       const int ievt0 = ipagV*neppV;
-      const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 ); // NEW apihel
+      const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );
 #endif
       
       // Wavefunction(s) for diagram number 1
 #ifdef __CUDACC__
 #ifndef MGONGPU_TEST_DIVERGENCE
-      //opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz (OLD)
-      opzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz (NEW apihel)
+      opzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
 #else
       if ( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
       {
-        //opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz (OLD)
-        opzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz (NEW apihel)
+        opzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
       }      
       else
       {
-        //oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 ); // OLD
-        oxxxxx<DeviceAccessMomenta>( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 ); // NEW apihel
+        oxxxxx<DeviceAccessMomenta>( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 );
       }
 #endif
 #else
-      //opzxxx( p4IparIpagV( allmomenta, 0, ipagV ), cHel[ihel][0], -1, w_sv[0] ); // NB: opzxxx only uses pz (OLD)
-      opzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz (NEW apihel)
+      opzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
 #endif
 
 #ifdef __CUDACC__
-      //imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz (OLD)
-      imzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz (NEW apihel)
+      imzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz
 #else
-      //imzxxx( p4IparIpagV( allmomenta, 1, ipagV ), cHel[ihel][1], +1, w_sv[1] ); // NB: imzxxx only uses pz (OLD)
-      imzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz (NEW apihel)
+      imzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz
 #endif
 
 #ifdef __CUDACC__
-      //ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 ); // OLD
-      ixzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 ); // NEW apihel
+      ixzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 );
 #else
-      //ixzxxx( p4IparIpagV( allmomenta, 2, ipagV ), cHel[ihel][2], -1, w_sv[2] );
-      ixzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][2], -1, w_sv[2], 2 ); // NEW apihel
+      ixzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][2], -1, w_sv[2], 2 );
 #endif
 
 #ifdef __CUDACC__
-      //oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 ); // OLD
-      oxzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 ); // NEW apihel
+      oxzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 );
 #else
-      //oxzxxx( p4IparIpagV( allmomenta, 3, ipagV ), cHel[ihel][3], +1, w_sv[3] ); // OLD
-      oxzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][3], +1, w_sv[3], 3 ); // NEW apihel
+      oxzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][3], +1, w_sv[3], 3 );
 #endif
 
       FFV1P0_3( w_sv[1], w_sv[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );

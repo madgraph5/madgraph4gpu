@@ -4,8 +4,7 @@
 #include "CPPProcess.h"
 #include "HelAmps_sm.h"
 #include "MemoryBuffers.h"
-#include "MemoryAccess.h" // OLD
-#include "MemoryAccessMomenta.h" // NEW apihel
+#include "MemoryAccessMomenta.h"
 
 #include <array>
 #include <cassert>
@@ -208,94 +207,79 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
         std::cout << std::endl;
       }
       const int ipagM = ievt/neppM; // #eventpage in this iteration
-      //const MG5_sm::p4type_sv p4vec = MG5_sm::p4IparIpagV( hstMomenta.data(), ipar0, ipagM ); // OLD
-      const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( hstMomenta.data(), ipagM*neppM ); // NEW apihel
+      const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( hstMomenta.data(), ipagM*neppM );
       // Test ixxxxx - NO ASSUMPTIONS
       {
         const fptype fmass = mass0[ievt];
-        //ixxxxx( p4vec, fmass, nhel, nsp, outwfI ); // OLD
-        MG5_sm::ixxxxx<HostAccessMomenta>( ievt0Momenta, fmass, nhel, nsp, outwfI, ipar0 ); // NEW apihel
+        MG5_sm::ixxxxx<HostAccessMomenta>( ievt0Momenta, fmass, nhel, nsp, outwfI, ipar0 );
         testwf6( outwfI, "ixxxxx", ievt, nsp, fmass );
-        //ixxxxx( p4vec, -fmass, nhel, nsp, outwfI );
-        MG5_sm::ixxxxx<HostAccessMomenta>( ievt0Momenta, -fmass, nhel, nsp, outwfI, ipar0 ); // NEW apihel
+        MG5_sm::ixxxxx<HostAccessMomenta>( ievt0Momenta, -fmass, nhel, nsp, outwfI, ipar0 );
         testwf6( outwfI, "ixxxxx", ievt, nsp, -fmass );
       }
       // Test ipzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzgt0[ievt] )
       {
-        //ipzxxx( p4vec, nhel, nsp, outwf ); // OLD
-        MG5_sm::ipzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 ); // NEW apihel
+        MG5_sm::ipzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 );
         testwf6two( outwf, outwfI, "ipzxxx", ievt );
         testwf6( outwf, "ipzxxx", ievt, nsp, 0 );
       }
       // Test imzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
-        //imzxxx( p4vec, nhel, nsp, outwf ); // OLD
-        MG5_sm::imzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 ); // NEW apihel
+        MG5_sm::imzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 );
         testwf6two( outwf, outwfI, "imzxxx", ievt );
         testwf6( outwf, "imzxxx", ievt, nsp, 0 );
       }
       // Test ixzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
       if ( mass0[ievt] == 0 && isptgt0[ievt] )
       {
-        //ixzxxx( p4vec, nhel, nsp, outwf ); // OLD
-        MG5_sm::ixzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 ); // NEW apihel
+        MG5_sm::ixzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 );
         testwf6two( outwf, outwfI, "ixzxxx", ievt );
         testwf6( outwf, "ixzxxx", ievt, nsp, 0 );
       }
       // Test vxxxxx - NO ASSUMPTIONS
       {
         const fptype vmass = mass0[ievt];
-        //vxxxxx( p4vec, vmass, nhel, nsp, outwf ); // OLD
-        MG5_sm::vxxxxx<HostAccessMomenta>( ievt0Momenta, vmass, nhel, nsp, outwf, ipar0 ); // NEW apihel
+        MG5_sm::vxxxxx<HostAccessMomenta>( ievt0Momenta, vmass, nhel, nsp, outwf, ipar0 );
         testwf6( outwf, "vxxxxx", ievt, nsp, vmass );
-        //vxxxxx( p4vec, -vmass, nhel, nsp, outwf );
-        MG5_sm::vxxxxx<HostAccessMomenta>( ievt0Momenta, -vmass, nhel, nsp, outwf, ipar0 ); // NEW apihel
+        MG5_sm::vxxxxx<HostAccessMomenta>( ievt0Momenta, -vmass, nhel, nsp, outwf, ipar0 );
         testwf6( outwf, "vxxxxx", ievt, nsp, -vmass );
       }
       // Test sxxxxx - NO ASSUMPTIONS
       {
         const fptype smass = mass0[ievt];
         cxtype_sv outwf3[6]{}; // NB: only 3 are filled by sxxxxx, but 6 are compared!
-        //sxxxxx( p4vec, smass, nhel, nsp, outwf3 ); // OLD
-        MG5_sm::sxxxxx<HostAccessMomenta>( ievt0Momenta, smass, nhel, nsp, outwf3, ipar0 ); // NEW apihel
+        MG5_sm::sxxxxx<HostAccessMomenta>( ievt0Momenta, smass, nhel, nsp, outwf3, ipar0 );
         testwf6( outwf3, "sxxxxx", ievt, nsp, smass );
-        //sxxxxx( p4vec, -smass, nhel, nsp, outwf3 ); // OLD
-        MG5_sm::sxxxxx<HostAccessMomenta>( ievt0Momenta, -smass, nhel, nsp, outwf3, ipar0 ); // NEW apihel
+        MG5_sm::sxxxxx<HostAccessMomenta>( ievt0Momenta, -smass, nhel, nsp, outwf3, ipar0 );
         testwf6( outwf3, "sxxxxx", ievt, nsp, -smass );
       }
       // Test oxxxxx - NO ASSUMPTIONS
       {
         const fptype fmass = mass0[ievt];
-        //oxxxxx( p4vec, fmass, nhel, nsp, outwfO ); // OLD
-        MG5_sm::oxxxxx<HostAccessMomenta>( ievt0Momenta, fmass, nhel, nsp, outwfO, ipar0 ); // NEW apihel
+        MG5_sm::oxxxxx<HostAccessMomenta>( ievt0Momenta, fmass, nhel, nsp, outwfO, ipar0 );
         testwf6( outwfO, "oxxxxx", ievt, nsp, fmass );
-        //oxxxxx( p4vec, -fmass, nhel, nsp, outwfO ); // OLD
-        MG5_sm::oxxxxx<HostAccessMomenta>( ievt0Momenta, -fmass, nhel, nsp, outwfO, ipar0 ); // NEW apihel
+        MG5_sm::oxxxxx<HostAccessMomenta>( ievt0Momenta, -fmass, nhel, nsp, outwfO, ipar0 );
         testwf6( outwfO, "oxxxxx", ievt, nsp, -fmass );
       }
       // Test opzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzgt0[ievt] )
       {
-        //opzxxx( p4vec, nhel, nsp, outwf ); // OLD
-        MG5_sm::opzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 ); // NEW apihel
+        MG5_sm::opzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 );
         testwf6two( outwf, outwfO, "opzxxx", ievt );
         testwf6( outwf, "opzxxx", ievt, nsp, 0 );
       }
       // Test omzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
-        //omzxxx( p4vec, nhel, nsp, outwf ); // OLD
-        MG5_sm::omzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 ); // NEW apihel
+        MG5_sm::omzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 );
         testwf6two( outwf, outwfO, "omzxxx", ievt );
         testwf6( outwf, "omzxxx", ievt, nsp, 0 );
       }
       // Test oxzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
       if ( mass0[ievt] == 0 && isptgt0[ievt] )
       {
-        //oxzxxx( p4vec, nhel, nsp, outwf ); // OLD
-        MG5_sm::oxzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 ); // NEW apihel
+        MG5_sm::oxzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 );
         testwf6two( outwf, outwfO, "oxzxxx", ievt );
         testwf6( outwf, "oxzxxx", ievt, nsp, 0 );
       }
