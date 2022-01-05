@@ -19,6 +19,7 @@ namespace MG5_sm
   // *** Generic pattern: indexingFunction( buffer, ievt, additional_indexes ) ***
   // =============================================================================
 
+  /*
   // Memory addressing/indexing function (WITH an explicit event number) for the array/buffer that contains momenta
   // Input: a memory buffer for an arbitrary number of events
   // Output: the 4-momenta for one specific event, given its event number
@@ -49,10 +50,12 @@ namespace MG5_sm
   {
     return indexingFunctionMomenta( const_cast<fptype*>( buffer ), ievt, ip4, ipar );
   }
+  */
 
   //--------------------------------------------------------------------------
 
 #ifndef __CUDACC__
+  /*
   // Four-momentum references of one particle, for one event
   // All references point to the original buffer of momenta for all particles in all events
   struct p4type_ref
@@ -76,6 +79,7 @@ namespace MG5_sm
     operator const fptype_sv*() const{ return &p0; }
     operator fptype_sv*(){ return &p0; }
   };
+  */
 
 #ifdef MGONGPU_CPPSIMD
   // Build one fptype_v (one vector of neppV fptype values) from one fptype references,
@@ -85,6 +89,7 @@ namespace MG5_sm
     return *reinterpret_cast<const fptype_sv*>( &ref );
   }
 
+  /*
   // Build four fptype_v (four vectors of neppV fptype values) from four fptype references,
   // assuming that "pointer(evt#0)+1" indicates "pointer(evt#1)", and that the arrays are aligned
   inline p4type_sv p4typevFromAlignedArray( const p4type_ref ref )
@@ -94,6 +99,7 @@ namespace MG5_sm
                       fptypevFromAlignedArray( ref.p2 ),
                       fptypevFromAlignedArray( ref.p3 ) };
   }
+  */
 
   // Build one fptype_v (one vector of neppV fptype values) from one fptype references,
   // assuming that "pointer(evt#0)+1" indicates "pointer(evt#1)", but that the arrays are not aligned
@@ -137,7 +143,8 @@ namespace MG5_sm
 #error Internal error! Unknown MGONGPU_CPPSIMD value
 #endif
   }
-  
+
+  /*  
   // Build four fptype_v (four vectors of neppV fptype values) from four fptype references,
   // assuming that "reference(evt#0)+1" indicates "reference(evt#1)", but that the arrays are not aligned
   inline p4type_sv p4typevFromUnalignedArray( const p4type_ref ref )
@@ -147,6 +154,7 @@ namespace MG5_sm
                       fptypevFromUnalignedArray( ref.p2 ),
                       fptypevFromUnalignedArray( ref.p3 ) };
   }
+  */
 
   // Build one fptype_v (one vector of neppV fptype values) from one fptype references,
   // with no a priori assumption on how the input fptype array should be decoded
@@ -192,6 +200,7 @@ namespace MG5_sm
 #endif
   }
 
+  /*
   // Build four fptype_v (four vectors of neppV fptype values) from four fptype references,
   // with no a priori assumption on how the input fptype array should be decoded
   template <typename Functor0, typename Functor1, typename Functor2, typename Functor3>
@@ -205,8 +214,10 @@ namespace MG5_sm
                       fptypevFromArbitraryArray( p2decoderIeppv ),
                       fptypevFromArbitraryArray( p3decoderIeppv ) };
   }
+  */
 #endif
 
+  /*
   // Decode momenta AOSOA: return 4-momentum references of a given particle for a given event
   // Returning by reference seems irrelevant for performance, but allows a simpler code structure
   __device__
@@ -229,12 +240,6 @@ namespace MG5_sm
                                 const int ipar,
                                 const int ipagV )
   {
-    /*
-    return p4type_sv{ pIparIp4IpagV( momenta1d, ipar, 0, ipagV ),
-                      pIparIp4IpagV( momenta1d, ipar, 1, ipagV ),
-                      pIparIp4IpagV( momenta1d, ipar, 2, ipagV ),
-                      pIparIp4IpagV( momenta1d, ipar, 3, ipagV ) };
-    */
     const int ievt0 = ipagV*neppV; // virtual event V-page ipagV contains neppV events [ievt0...ievt0+neppV-1]
 #ifdef MGONGPU_CPPSIMD
     constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
@@ -282,6 +287,7 @@ namespace MG5_sm
     return p4IparIevt( momenta1d, ipar, ievt0 );
 #endif
   }
+  */
 #endif
 
   //--------------------------------------------------------------------------
@@ -290,6 +296,7 @@ namespace MG5_sm
   // *** Generic pattern: kernelAccessFunction( buffer, additional_indexes ) ***
   // =============================================================================
 
+  /*
   // Kernel access function (WITHOUT an explicit event number) for momenta
   // Input: a memory buffer for an arbitrary number of events
   // Output: the 4-momenta for one event or one SIMD vector of events
@@ -329,6 +336,7 @@ namespace MG5_sm
   }
 
   //--------------------------------------------------------------------------
+  */
 
 }
 
