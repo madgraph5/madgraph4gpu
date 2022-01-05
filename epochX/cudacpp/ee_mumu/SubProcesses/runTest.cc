@@ -8,6 +8,7 @@
 #include "CommonRandomNumbers.h"
 #include "CPPProcess.h"
 #include "Memory.h"
+#include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
 #include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
@@ -30,7 +31,9 @@ using namespace mg5amcCpu;
 
 struct CUDA_CPU_TestBase : public TestDriverBase {
 
-  static_assert( gputhreads%mgOnGpu::neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
+  static constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
+
+  static_assert( gputhreads%neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
   static_assert( gputhreads <= mgOnGpu::ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
 
   const std::size_t nMomenta{ mgOnGpu::np4 * mgOnGpu::npar  * nevt }; // AOSOA layout with nevt=npagM*neppM events per iteration
@@ -105,7 +108,6 @@ struct CPUTest : public CUDA_CPU_TestBase {
   fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
     using mgOnGpu::np4;
     using mgOnGpu::npar;
-    using mgOnGpu::neppM;
     assert(component < np4);
     assert(particle  < npar);
     const auto ipagM = evtNo / neppM; // #eventpage in this iteration
@@ -218,10 +220,10 @@ struct CUDATest : public CUDA_CPU_TestBase {
   fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
     assert(component < mgOnGpu::np4);
     assert(particle  < mgOnGpu::npar);
-    const auto page  = evtNo / mgOnGpu::neppM; // #eventpage in this iteration
-    const auto ieppM = evtNo % mgOnGpu::neppM; // #event in the current eventpage in this iteration
-    return hstMomenta[page * mgOnGpu::npar*mgOnGpu::np4*mgOnGpu::neppM +
-                      particle * mgOnGpu::neppM*mgOnGpu::np4 + component * mgOnGpu::neppM + ieppM];
+    const auto page  = evtNo / neppM; // #eventpage in this iteration
+    const auto ieppM = evtNo % neppM; // #event in the current eventpage in this iteration
+    return hstMomenta[page * mgOnGpu::npar*mgOnGpu::np4*neppM +
+                      particle * neppM*mgOnGpu::np4 + component * neppM + ieppM];
   };
 
   fptype getMatrixElement(std::size_t evtNo) const override {

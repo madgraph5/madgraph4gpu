@@ -20,6 +20,7 @@
 
 #include "CPPProcess.h"
 #include "Memory.h"
+#include "MemoryAccessMomenta.h"
 #include "MemoryAccessRandomNumbers.h"
 #include "MemoryBuffers.h"
 #include "RamboSamplingKernels.h"
@@ -251,8 +252,8 @@ int main(int argc, char **argv)
 #endif
   }
   
+  constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
   constexpr int neppR = MemoryAccessRandomNumbers::neppR; // AOSOA layout
-  constexpr int neppM = mgOnGpu::neppM; // AOSOA layout
 
   if ( gputhreads%neppM != 0 )
   {

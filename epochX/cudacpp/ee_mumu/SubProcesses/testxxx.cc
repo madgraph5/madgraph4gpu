@@ -24,7 +24,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
   constexpr bool testEvents = !dumpEvents; // run the test?
   constexpr fptype toleranceXXXs = std::is_same<fptype, double>::value ? 1.E-15 : 1.E-5;
   // Constant parameters
-  using mgOnGpu::neppM;
+  constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
   using mgOnGpu::np4;
   using mgOnGpu::npar;
   const int nevt = 16; // 12 independent tests plus 4 duplicates (need a multiple of 8 for floats or for '512z')
