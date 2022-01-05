@@ -178,6 +178,17 @@ namespace MG5_sm
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
+  template<class M_ACCESS>
+  __host__ __device__ inline
+  void opzxxx( const fptype* momenta,
+               //const fptype fmass,           // ASSUME fermion mass==0
+               const int nhel,                 // input: -1 or +1 (helicity of fermion)
+               const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
+               cxtype_sv fo[],
+               const int ipar );               // input: particle# out of npar
+
+  // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
+  // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
   __device__ INLINE
   void opzxxx( const fptype_sv* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
@@ -389,6 +400,41 @@ namespace MG5_sm
       fi[3] = chi0;
       fi[4] = cxzero_sv();
       fi[5] = cxzero_sv();
+    }
+    mgDebug( 1, __FUNCTION__ );
+    return;
+  }
+
+  //--------------------------------------------------------------------------
+
+  // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
+  // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
+  template<class M_ACCESS>
+  __host__ __device__ inline
+  void opzxxx( const fptype* momenta,
+               //const fptype fmass,           // ASSUME fermion mass==0
+               const int nhel,                 // input: -1 or +1 (helicity of fermion)
+               const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
+               cxtype_sv fo[],
+               const int ipar )                // input: particle# out of npar
+  {
+    mgDebug( 0, __FUNCTION__ );
+    const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
+    fo[0] = cxmake( pvec3 * (fptype)nsf, pvec3 * (fptype)nsf );
+    fo[1] = cxzero_sv();
+    const int nh = nhel * nsf;
+    const cxtype_sv csqp0p3 = cxmake( fpsqrt( 2. * pvec3 ) * (fptype)nsf, 0. );
+    fo[3] = cxzero_sv();
+    fo[4] = cxzero_sv();
+    if ( nh == 1 )
+    {
+      fo[2] = csqp0p3;
+      fo[5] = cxzero_sv();
+    }
+    else
+    {
+      fo[2] = cxzero_sv();
+      fo[5] = csqp0p3;
     }
     mgDebug( 1, __FUNCTION__ );
     return;

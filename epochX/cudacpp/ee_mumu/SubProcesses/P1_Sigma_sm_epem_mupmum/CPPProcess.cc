@@ -141,15 +141,22 @@ namespace Proc
       // Wavefunction(s) for diagram number 1
 #ifdef __CUDACC__
 #ifndef MGONGPU_TEST_DIVERGENCE
-      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
+      //opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz (OLD)
+      opzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz (NEW apihel)
 #else
       if ( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
-        opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
+      {
+        //opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz (OLD)
+        opzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz (NEW apihel)
+      }      
       else
+      {
         oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 );
+      }
 #endif
 #else
-      opzxxx( p4IparIpagV( allmomenta, 0, ipagV ), cHel[ihel][0], -1, w_sv[0] ); // NB: opzxxx only uses pz
+      //opzxxx( p4IparIpagV( allmomenta, 0, ipagV ), cHel[ihel][0], -1, w_sv[0] ); // NB: opzxxx only uses pz (OLD)
+      opzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz (NEW apihel)
 #endif
 
 #ifdef __CUDACC__
