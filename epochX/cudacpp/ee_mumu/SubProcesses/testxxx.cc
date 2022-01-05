@@ -25,10 +25,12 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
   constexpr fptype toleranceXXXs = std::is_same<fptype, double>::value ? 1.E-15 : 1.E-5;
   // Constant parameters
   constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
+  using mgOnGpu::neppV;
   using mgOnGpu::np4;
   using mgOnGpu::npar;
   const int nevt = 16; // 12 independent tests plus 4 duplicates (need a multiple of 8 for floats or for '512z')
   assert( nevt % neppM == 0 ); // nevt must be a multiple of neppM
+  assert( nevt % neppV == 0 ); // nevt must be a multiple of neppV
   // Fill in the input momenta
   mg5amcCpu::HostBufferMomenta hstMomenta( nevt ); // AOSOA[npagM][npar=4][np4=4][neppM]
   const fptype par0[np4 * nevt] =       // AOS[nevt][np4]
