@@ -580,6 +580,7 @@ namespace Proc
 
 // This was initially added to both C++ and CUDA in order to avoid RDC in CUDA (issue #51)
 // This is now also needed by C++ LTO-like optimizations via inlining (issue #229)
+// This is now needed in both C++ and CUDA until/unless templated XXX functions are moved to HelAmps.h (PR #322)
 #include "HelAmps_sm.cc"
 
 //==========================================================================
