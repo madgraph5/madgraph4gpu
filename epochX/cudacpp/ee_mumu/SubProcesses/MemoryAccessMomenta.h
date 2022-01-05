@@ -20,6 +20,9 @@ public:
   // Number of Events Per Page in the momenta AOSOA memory buffer layout
   static constexpr int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
 
+  // SANITY CHECK: check that neppM is a power of two
+  static_assert( ispoweroftwo( neppM ), "neppM is not a power of 2" );
+  
 private:
 
   friend class MemoryAccessHelper<MemoryAccessMomentaBase>;

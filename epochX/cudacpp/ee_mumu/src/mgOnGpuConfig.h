@@ -202,4 +202,7 @@ using mgOnGpu::fptype;
 #define __device__
 #endif
 
+// For SANITY CHECKS: check that neppR, neppM, neppV... are powers of two (https://stackoverflow.com/a/108360)
+inline constexpr bool ispoweroftwo( int n ){ return ( n > 0 ) && !( n & ( n - 1 ) ); }
+
 #endif // MGONGPUCONFIG_H
