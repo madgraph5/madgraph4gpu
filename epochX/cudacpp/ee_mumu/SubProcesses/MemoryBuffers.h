@@ -56,11 +56,13 @@ namespace mg5amcCpu
   protected:
     HostBufferBase( const size_t size ) : BufferBase<T>( size, false )
     {
-      this->m_data = new( std::align_val_t{ cppAlign } ) T[ size ]();
+      //this->m_data = new( std::align_val_t{ cppAlign } ) T[ size ]();
+      this->m_data = new( std::align_val_t{ cppAlign } ) T[ size+1 ]() + 1; // TEST MISALIGNMENT!
     }
     virtual ~HostBufferBase()
     {
-      ::operator delete( this->m_data, std::align_val_t{ cppAlign } );
+      //::operator delete( this->m_data, std::align_val_t{ cppAlign } );
+      ::operator delete( (this->m_data) - 1, std::align_val_t{ cppAlign } ); // TEST MISALIGNMENT!
     }
   public:
     static constexpr size_t cppAlign = mgOnGpu::cppAlign;

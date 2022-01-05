@@ -190,8 +190,8 @@ public:
     // Use c++17 "if constexpr": compile-time branching
     if constexpr ( useContiguousEventsIfPossible && ( neppM >= neppV ) && ( neppM%neppV == 0 ) )
     {
-      //constexpr bool skipAlignmentCheck = true; // FASTEST (MAY SEGFAULT, NEEDS A SANITY CHECK ELSEWHERE!)
-      constexpr bool skipAlignmentCheck = false; // NEW DEFAULT: A BIT SLOWER BUT SAFER [UNCOMMENT OUT TO TEST MISALIGNED ACCESS]
+      //constexpr bool skipAlignmentCheck = true; // FASTEST (SEGFAULTS IF MISALIGNED ACCESS, NEEDS A SANITY CHECK ELSEWHERE!)
+      constexpr bool skipAlignmentCheck = false; // NEW DEFAULT: A BIT SLOWER BUT SAFER [ALLOWS MISALIGNED ACCESS]
       if constexpr ( skipAlignmentCheck )
       {
         //static bool first=true; if( first ){ std::cout << "WARNING! assume aligned AOSOA, skip check" << std::endl; first=false; } // SLOWS DOWN...
@@ -209,7 +209,7 @@ public:
       else
       {
         //static bool first=true; if( first ){ std::cout << "WARNING! AOSOA but no reinterpret cast" << std::endl; first=false; } // SLOWS DOWN...
-        // A bit (3%) slower (4.70E6 in eemumu 512y)
+        // A bit (1%) slower (5.05E6 in eemumu 512y)
         // This does not require buffer alignment, but it requires AOSOA with neppM>=neppV and neppM%neppV==0
         return mg5amcCpu::fptypevFromUnalignedArray( out ); // do not use reinterpret_cast
       }
