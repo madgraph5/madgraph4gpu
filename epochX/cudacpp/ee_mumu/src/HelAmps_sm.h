@@ -85,13 +85,14 @@ namespace MG5_sm
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
   template<class M_ACCESS>
-  __host__ __device__ inline
+  __host__ __device__ INLINE
   void imzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
                cxtype_sv fi[],
-               const int ipar );               // input: particle# out of npar
+               const int ipar                  // input: particle# out of npar
+               ) ALWAYS_INLINE;
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
@@ -111,13 +112,14 @@ namespace MG5_sm
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
   template<class M_ACCESS>
-  __host__ __device__ inline
+  __host__ __device__ INLINE
   void ixzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
                cxtype_sv fi[],
-               const int ipar );               // input: particle# out of npar
+               const int ipar                  // input: particle# out of npar
+               ) ALWAYS_INLINE;
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
@@ -179,13 +181,14 @@ namespace MG5_sm
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
   template<class M_ACCESS>
-  __host__ __device__ inline
+  __host__ __device__ INLINE
   void opzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
                cxtype_sv fo[],
-               const int ipar );               // input: particle# out of npar
+               const int ipar                  // input: particle# out of npar
+               ) ALWAYS_INLINE;
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
@@ -219,13 +222,14 @@ namespace MG5_sm
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   template<class M_ACCESS>
-  __host__ __device__ inline
+  __host__ __device__ INLINE
   void oxzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
                cxtype_sv fo[],
-               const int ipar );               // input: particle# out of npar
+               const int ipar                  // input: particle# out of npar
+               ) ALWAYS_INLINE;
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   __device__ INLINE
@@ -330,7 +334,7 @@ namespace MG5_sm
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
   template<class M_ACCESS>
-  __host__ __device__ inline
+  __host__ __device__
   void imzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
@@ -365,7 +369,7 @@ namespace MG5_sm
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
   template<class M_ACCESS>
-  __host__ __device__ inline
+  __host__ __device__
   void ixzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
@@ -410,7 +414,7 @@ namespace MG5_sm
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
   template<class M_ACCESS>
-  __host__ __device__ inline
+  __host__ __device__
   void opzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
@@ -445,7 +449,7 @@ namespace MG5_sm
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
   template<class M_ACCESS>
-  __host__ __device__ inline
+  __host__ __device__
   void oxzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
