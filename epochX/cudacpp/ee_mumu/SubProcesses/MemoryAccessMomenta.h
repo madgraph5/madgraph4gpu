@@ -185,8 +185,8 @@ public:
     return out;
 #else
     constexpr int neppM = MemoryAccessMomentaBase::neppM;
-    constexpr bool useContiguousEventsIfPossible = true; // DEFAULT
-    //constexpr bool useContiguousEventsIfPossible = false; // FOR PERFORMANCE TESTS (treat as arbitrary array even if it is an AOSOA)
+    //constexpr bool useContiguousEventsIfPossible = true; // DEFAULT
+    constexpr bool useContiguousEventsIfPossible = false; // FOR PERFORMANCE TESTS (treat as arbitrary array even if it is an AOSOA)
     // Use c++17 "if constexpr": compile-time branching
     if constexpr ( useContiguousEventsIfPossible && ( neppM >= neppV ) && ( neppM%neppV == 0 ) )
     {
@@ -204,14 +204,14 @@ public:
         //static bool first=true; if( first ){ std::cout << "WARNING! aligned AOSOA, reinterpret cast" << std::endl; first=false; } // SLOWER (5.00E6)
         // DEFAULT! A tiny bit (<1%) slower because of the alignment check (5.07E6 in eemumu 512y)
         // This explicitly checks buffer alignment to avoid segmentation faults in reinterpret_cast
-        return mg5amcCpu::fptypevFromAlignedArray( out ); // use reinterpret_cast
+        return mg5amcCpu::fptypevFromAlignedArray( out ); // SIMD bulk load of neppV, use reinterpret_cast
       }
       else
       {
         //static bool first=true; if( first ){ std::cout << "WARNING! AOSOA but no reinterpret cast" << std::endl; first=false; } // SLOWER (4.93E6)
         // A bit (1%) slower (5.05E6 in eemumu 512y)
         // This does not require buffer alignment, but it requires AOSOA with neppM>=neppV and neppM%neppV==0
-        return mg5amcCpu::fptypevFromUnalignedArray( out ); // do not use reinterpret_cast
+        return mg5amcCpu::fptypevFromUnalignedArray( out ); // SIMD bulk load of neppV, do not use reinterpret_cast (fewer SIMD operations)
       }
     }
     else
@@ -222,6 +222,11 @@ public:
       std::cout << "ERROR! useContiguousEventsIfPossible=" << useContiguousEventsIfPossible
                 << ", neppM=" << neppM << ", neppV=" << neppV << std::endl;
       throw std::logic_error( "MemoryAccessMomenta requires an AOSOA and does not support arbitrary arrays" ); // no path to this statement
+      /*
+      // This does not even require AOSOA with neppM>=neppV and neppM%neppV==0 (e.g. can be used with AOS neppM==1)
+      auto decoderIeppv = [buffer, ip4, ipar](int ievt) -> const fptype& { return ieventAccessIp4IparConst( buffer, ievt, ip4, ipar );
+      return mg5amcCpu::fptypevFromArbitraryArray( decoderIeppv ); // iterate over ieppV in neppV (no SIMD)
+      */
     }
 #endif
   }
