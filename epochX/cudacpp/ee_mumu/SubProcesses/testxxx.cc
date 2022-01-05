@@ -69,9 +69,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
   {
     for ( int ip4 = 0; ip4 < np4; ip4++ )
     {
-      const int ipagM = ievt/neppM; // #eventpage in this iteration
-      const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
-      hstMomenta.data()[ipagM*npar*np4*neppM + ipar0*np4*neppM + ip4*neppM + ieppM] = par0[ievt*np4 + ip4]; // AOS to AOSOA
+      MemoryAccessMomenta::ieventAccessIp4Ipar( hstMomenta.data(), ievt, ip4, ipar0 ) = par0[ievt*np4 + ip4]; // AOS to AOSOA
     }
   }
   // Expected output wavefunctions
