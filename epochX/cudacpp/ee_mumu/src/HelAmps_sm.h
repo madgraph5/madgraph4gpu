@@ -196,6 +196,16 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
+  template<class M_ACCESS>
+  __host__ __device__ inline
+  void oxzxxx( const fptype* momenta,
+               //const fptype fmass,           // ASSUME fermion mass==0
+               const int nhel,                 // input: -1 or +1 (helicity of fermion)
+               const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
+               cxtype_sv fo[],
+               const int ipar );               // input: particle# out of npar
+
+  // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   __device__ INLINE
   void oxzxxx( const fptype_sv* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
@@ -323,6 +333,49 @@ namespace MG5_sm
     {
       fi[2] = chi;
       fi[5] = cxzero_sv();
+    }
+    mgDebug( 1, __FUNCTION__ );
+    return;
+  }
+
+  //--------------------------------------------------------------------------
+
+  // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
+  // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
+  template<class M_ACCESS>
+  __host__ __device__ inline
+  void oxzxxx( const fptype* momenta,
+               //const fptype fmass,           // ASSUME fermion mass==0
+               const int nhel,                 // input: -1 or +1 (helicity of fermion)
+               const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
+               cxtype_sv fo[],
+               const int ipar )                // input: particle# out of npar
+  {
+    mgDebug( 0, __FUNCTION__ );
+    const fptype_sv& pvec0 = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
+    const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
+    const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
+    const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
+    fo[0] = cxmake( pvec0 * (fptype)nsf, pvec3 * (fptype)nsf );
+    fo[1] = cxmake( pvec1 * (fptype)nsf, pvec2 * (fptype)nsf );
+    const int nh = nhel * nsf;
+    //const float sqp0p3 = sqrtf( pvec0 + pvec3 ) * nsf; // AV: why force a float here?
+    const fptype_sv sqp0p3 = fpsqrt( pvec0 + pvec3 ) * (fptype)nsf;
+    const cxtype_sv chi0 = cxmake( sqp0p3, 0. );
+    const cxtype_sv chi1 = cxmake( (fptype)nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
+    if ( nh == 1 )
+    {
+      fo[2] = chi0;
+      fo[3] = chi1;
+      fo[4] = cxzero_sv();
+      fo[5] = cxzero_sv();
+    }
+    else
+    {
+      fo[2] = cxzero_sv();
+      fo[3] = cxzero_sv();
+      fo[4] = chi1;
+      fo[5] = chi0;
     }
     mgDebug( 1, __FUNCTION__ );
     return;
