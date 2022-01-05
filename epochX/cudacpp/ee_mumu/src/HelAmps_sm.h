@@ -54,6 +54,17 @@ namespace MG5_sm
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
+  template<class M_ACCESS>
+  __host__ __device__ INLINE
+  void ixxxxx( const fptype* momenta,
+               const fptype fmass,             // input: fermion mass
+               const int nhel,                 // input: -1 or +1 (helicity of fermion)
+               const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
+               cxtype_sv fi[],
+               const int ipar                  // input: particle# out of npar
+               ) ALWAYS_INLINE;
+
+  // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   __device__ INLINE
   void ixxxxx( const fptype_sv* momenta,
                const fptype fmass,             // input: fermion mass
@@ -66,6 +77,18 @@ namespace MG5_sm
                ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
+
+  // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
+  // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
+  template<class M_ACCESS>
+  __host__ __device__ INLINE
+  void ipzxxx( const fptype* momenta,
+               //const fptype fmass,           // ASSUME fermion mass==0
+               const int nhel,                 // input: -1 or +1 (helicity of fermion)
+               const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
+               cxtype_sv fi[],
+               const int ipar                  // input: particle# out of npar
+               ) ALWAYS_INLINE;
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
@@ -330,6 +353,157 @@ namespace MG5_sm
                  cxtype_sv V3[] ) ALWAYS_INLINE;
 
   //==========================================================================
+
+  // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
+  template<class M_ACCESS>
+  __host__ __device__
+  void ixxxxx( const fptype* momenta,
+               const fptype fmass,             // input: fermion mass
+               const int nhel,                 // input: -1 or +1 (helicity of fermion)
+               const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
+               cxtype_sv fi[],
+               const int ipar )                // input: particle# out of npar
+  {
+    mgDebug( 0, __FUNCTION__ );
+    const fptype_sv& pvec0 = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
+    const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
+    const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
+    const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
+    fi[0] = cxmake( -pvec0 * (fptype)nsf, -pvec3 * (fptype)nsf );
+    fi[1] = cxmake( -pvec1 * (fptype)nsf, -pvec2 * (fptype)nsf );
+    const int nh = nhel * nsf;
+    if ( fmass != 0. )
+    {
+      const fptype_sv pp = fpmin( pvec0, fpsqrt( pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3 ) );
+#ifndef MGONGPU_CPPSIMD
+      if ( pp == 0. )
+      {
+        // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
+        fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
+        //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
+        sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
+        const int ip = ( 1 + nh ) / 2; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
+        const int im = ( 1 - nh ) / 2; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
+        fi[2] = cxmake( ip * sqm[ip], 0 );
+        fi[3] = cxmake( im * nsf * sqm[ip], 0 );
+        fi[4] = cxmake( ip * nsf * sqm[im], 0 );
+        fi[5] = cxmake( im * sqm[im], 0 );
+      }
+      else
+      {
+        const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * (fptype)0.5,
+                               fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
+        fptype omega[2] = { fpsqrt( pvec0 + pp ), 0. };
+        omega[1] = fmass / omega[0];
+        const int ip = ( 1 + nh ) / 2; // NB: Fortran is (3+nh)/2 because omega(2) has indexes 1,2 and not 0,1
+        const int im = ( 1 - nh ) / 2; // NB: Fortran is (3-nh)/2 because omega(2) has indexes 1,2 and not 0,1
+        const fptype sfomega[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
+        const fptype pp3 = fpmax( pp + pvec3, 0. );
+        const cxtype chi[2] = { cxmake( fpsqrt ( pp3 * (fptype)0.5 / pp ), 0. ),
+                                ( pp3 == 0. ?
+                                  cxmake( -nh, 0. ) :
+                                  cxmake( nh * pvec1, pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) };
+        fi[2] = sfomega[0] * chi[im];
+        fi[3] = sfomega[0] * chi[ip];
+        fi[4] = sfomega[1] * chi[im];
+        fi[5] = sfomega[1] * chi[ip];
+      }
+#else
+      const int ip = ( 1 + nh ) / 2;
+      const int im = ( 1 - nh ) / 2;
+      // Branch A: pp == 0.
+      // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
+      fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0 }; // possibility of negative fermion masses (NB: SCALAR!)
+      sqm[1] = ( fmass < 0 ? -sqm[0] : sqm[0] ); // AV: removed an abs here (as above)
+      const cxtype fiA_2 = ip * sqm[ip]; // scalar cxtype: real part initialised from fptype, imag part = 0
+      const cxtype fiA_3 = im * nsf * sqm[ip]; // scalar cxtype: real part initialised from fptype, imag part = 0
+      const cxtype fiA_4 = ip * nsf * sqm[im]; // scalar cxtype: real part initialised from fptype, imag part = 0
+      const cxtype fiA_5 = im * sqm[im]; // scalar cxtype: real part initialised from fptype, imag part = 0
+      // Branch B: pp != 0.
+      const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * (fptype)0.5,
+                             fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
+      fptype_v omega[2] = { fpsqrt( pvec0 + pp ), 0 };
+      omega[1] = fmass / omega[0];
+      const fptype_v sfomega[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
+      const fptype_v pp3 = fpmax( pp + pvec3, 0 );
+      const cxtype_v chi[2] = { cxmake( fpsqrt ( pp3 * 0.5 / pp ), 0 ),
+                                cxternary( ( pp3 == 0. ),
+                                           cxmake( -nh, 0 ),
+                                           cxmake( (fptype)nh * pvec1, pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) };
+      const cxtype_v fiB_2 = sfomega[0] * chi[im];
+      const cxtype_v fiB_3 = sfomega[0] * chi[ip];
+      const cxtype_v fiB_4 = sfomega[1] * chi[im];
+      const cxtype_v fiB_5 = sfomega[1] * chi[ip];
+      // Choose between the results from branch A and branch B
+      const bool_v mask = ( pp == 0. );
+      fi[2] = cxternary( mask, fiA_2, fiB_2 );
+      fi[3] = cxternary( mask, fiA_3, fiB_3 );
+      fi[4] = cxternary( mask, fiA_4, fiB_4 );
+      fi[5] = cxternary( mask, fiA_5, fiB_5 );
+#endif
+    }
+    else
+    {
+      const fptype_sv sqp0p3 = fpternary( ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0. ),
+                                          fptype_sv{0}, fpsqrt( fpmax( pvec0 + pvec3, 0. ) ) * (fptype)nsf );
+      const cxtype_sv chi[2] = { cxmake( sqp0p3, 0. ), cxternary( ( sqp0p3 == 0. ),
+                                                                  cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0 ), 0. ),
+                                                                  cxmake( (fptype)nh * pvec1, pvec2 ) / sqp0p3 ) };
+      if ( nh == 1 )
+      {
+        fi[2] = cxzero_sv();
+        fi[3] = cxzero_sv();
+        fi[4] = chi[0];
+        fi[5] = chi[1];
+      }
+      else
+      {
+        fi[2] = chi[1];
+        fi[3] = chi[0];
+        fi[4] = cxzero_sv();
+        fi[5] = cxzero_sv();
+      }
+    }
+    mgDebug( 1, __FUNCTION__ );
+    return;
+  }
+
+  //--------------------------------------------------------------------------
+
+  // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
+  // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
+  template<class M_ACCESS>
+  __host__ __device__
+  void ipzxxx( const fptype* momenta,
+               //const fptype fmass,           // ASSUME fermion mass==0
+               const int nhel,                 // input: -1 or +1 (helicity of fermion)
+               const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
+               cxtype_sv fi[],
+               const int ipar )                // input: particle# out of npar
+  {
+    mgDebug( 0, __FUNCTION__ );
+    const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
+    fi[0] = cxmake( -pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
+    fi[1] = cxzero_sv();
+    const int nh = nhel * nsf;
+    const cxtype_sv sqp0p3 = cxmake( fpsqrt( 2. * pvec3 ) * (fptype)nsf, 0. );
+    fi[2] = fi[1];
+    if( nh == 1 )
+    {
+      fi[3] = fi[1];
+      fi[4] = sqp0p3;
+    }
+    else
+    {
+      fi[3] = sqp0p3;
+      fi[4] = fi[1];
+    }
+    fi[5] = fi[1];
+    mgDebug( 1, __FUNCTION__ );
+    return;
+  }
+
+  //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)

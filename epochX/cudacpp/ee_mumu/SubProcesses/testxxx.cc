@@ -213,15 +213,18 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test ixxxxx - NO ASSUMPTIONS
       {
         const fptype fmass = mass0[ievt];
-        ixxxxx( p4vec, fmass, nhel, nsp, outwfI );
+        //ixxxxx( p4vec, fmass, nhel, nsp, outwfI ); // OLD
+        MG5_sm::ixxxxx<HostAccessMomenta>( ievt0Momenta, fmass, nhel, nsp, outwfI, ipar0 ); // NEW apihel
         testwf6( outwfI, "ixxxxx", ievt, nsp, fmass );
-        ixxxxx( p4vec, -fmass, nhel, nsp, outwfI );
+        //ixxxxx( p4vec, -fmass, nhel, nsp, outwfI );
+        MG5_sm::ixxxxx<HostAccessMomenta>( ievt0Momenta, -fmass, nhel, nsp, outwfI, ipar0 ); // NEW apihel
         testwf6( outwfI, "ixxxxx", ievt, nsp, -fmass );
       }
       // Test ipzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzgt0[ievt] )
       {
-        ipzxxx( p4vec, nhel, nsp, outwf );
+        //ipzxxx( p4vec, nhel, nsp, outwf ); // OLD
+        MG5_sm::ipzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 ); // NEW apihel
         testwf6two( outwf, outwfI, "ipzxxx", ievt );
         testwf6( outwf, "ipzxxx", ievt, nsp, 0 );
       }
