@@ -38,7 +38,7 @@ struct CUDA_CPU_TestBase : public TestDriverBase {
   static_assert( gputhreads%neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
   static_assert( gputhreads <= mgOnGpu::ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
 
-  const std::size_t nMomenta{ np4 * npar  * nevt }; // AOSOA layout with nevt=npagM*neppM events per iteration
+  const std::size_t nMomenta{ np4*npar*nevt }; // buffer with nevt events per iteration
   const std::size_t nWeights{ nevt };
   const std::size_t nMEs    { nevt };
 
@@ -110,9 +110,7 @@ struct CPUTest : public CUDA_CPU_TestBase {
   fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
     assert(component < np4);
     assert(particle  < npar);
-    const auto ipagM = evtNo / neppM; // #eventpage in this iteration
-    const auto ieppM = evtNo % neppM; // #event in the current eventpage in this iteration
-    return hstMomenta[ipagM*npar*np4*neppM + particle*np4*neppM + component*neppM + ieppM];
+    return MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), evtNo, component, particle );
   };
 
   fptype getMatrixElement(std::size_t ievt) const override {
@@ -220,9 +218,7 @@ struct CUDATest : public CUDA_CPU_TestBase {
   fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
     assert(component < np4);
     assert(particle  < npar);
-    const auto page  = evtNo / neppM; // #eventpage in this iteration
-    const auto ieppM = evtNo % neppM; // #event in the current eventpage in this iteration
-    return hstMomenta[page*npar*np4*neppM + particle*neppM*np4 + component*neppM + ieppM];
+    return MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), evtNo, component, particle );
   };
 
   fptype getMatrixElement(std::size_t evtNo) const override {
