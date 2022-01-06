@@ -19,6 +19,7 @@
 #include "mgOnGpuVectors.h"
 
 #include "CPPProcess.h"
+#include "MatrixElementKernels.h"
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessRandomNumbers.h"
@@ -462,6 +463,13 @@ int main(int argc, char **argv)
 #endif
   }
 
+  // --- 0c. Create matrix element kernel [keep this in 0c for the moment]
+#ifdef __CUDACC__
+  MatrixElementKernelDevice mek( devMomenta, devMatrixElements, gpublocks, gputhreads );
+#else
+  MatrixElementKernelHost mek( hstMomenta, hstMatrixElements, nevt );
+#endif
+
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
   // **************************************
@@ -565,20 +573,7 @@ int main(int argc, char **argv)
     {
       const std::string ghelKey = "0d SGoodHel";
       timermap.start( ghelKey );
-#ifdef __CUDACC__
-      // ... 0d1. Compute good helicity mask on the device
-      sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.data(), devMatrixElements.data(), devIsGoodHel.data());
-      checkCuda( cudaPeekAtLastError() );
-      // ... 0d2. Copy back good helicity mask to the host
-      copyHostFromDevice( hstIsGoodHel, devIsGoodHel );
-      // ... 0d3. Copy back good helicity list to constant memory on the device
-      sigmaKin_setGoodHel(hstIsGoodHel.data());
-#else
-      // ... 0d1. Compute good helicity mask on the host
-      sigmaKin_getGoodHel(hstMomenta.data(), hstMatrixElements.data(), hstIsGoodHel.data(), nevt);
-      // ... 0d2. Copy back good helicity list to static memory on the host
-      sigmaKin_setGoodHel(hstIsGoodHel.data());
-#endif
+      mek.computeGoodHelicities();
     }
 
     // *** START THE OLD-STYLE TIMERS FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
@@ -588,17 +583,7 @@ int main(int argc, char **argv)
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
-#ifdef __CUDACC__
-#ifndef MGONGPU_NSIGHT_DEBUG
-    sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.data(), devMatrixElements.data());
-#else
-    sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.data(), devMatrixElements.data());
-#endif
-    checkCuda( cudaPeekAtLastError() );
-    checkCuda( cudaDeviceSynchronize() );
-#else
-    sigmaKin(hstMomenta.data(), hstMatrixElements.data(), nevt);
-#endif
+    mek.computeMatrixElements();
 
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wv3atime += timermap.stop(); // calc only

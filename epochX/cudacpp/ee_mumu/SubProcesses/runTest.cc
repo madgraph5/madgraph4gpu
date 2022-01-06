@@ -5,8 +5,8 @@
 
 #include "MadgraphTest.h"
 
-#include "CommonRandomNumbers.h"
 #include "CPPProcess.h"
+#include "MatrixElementKernels.h"
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
@@ -80,16 +80,9 @@ struct CPUTest : public CUDA_CPU_TestBase {
   }
 
   void runSigmaKin(std::size_t iiter) override {
-    // --- 0d. SGoodHel
-    if ( iiter == 0 )
-    {
-      // ... 0d1. Compute good helicity mask on the host
-      sigmaKin_getGoodHel(hstMomenta.data(), hstMatrixElements.data(), hstIsGoodHel.data(), nevt);
-      // ... 0d2. Copy back good helicity list to static memory on the host
-      sigmaKin_setGoodHel(hstIsGoodHel.data());
-    }
-    // --- 3a. SigmaKin
-    sigmaKin(hstMomenta.data(), hstMatrixElements.data(), nevt);
+    MatrixElementKernelHost mek( hstMomenta, hstMatrixElements, nevt );
+    if ( iiter == 0 ) mek.computeGoodHelicities();
+    mek.computeMatrixElements();
   }
 
   fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
@@ -175,26 +168,9 @@ struct CUDATest : public CUDA_CPU_TestBase {
   }
 
   void runSigmaKin(std::size_t iiter) override {
-    // --- 0d. SGoodHel
-    if ( iiter == 0 )
-    {
-      // ... 0d1. Compute good helicity mask on the device
-      sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.data(), devMatrixElements.data(), devIsGoodHel.data());
-      checkCuda( cudaPeekAtLastError() );
-      // ... 0d2. Copy back good helicity mask to the host
-      copyHostFromDevice( hstIsGoodHel, devIsGoodHel );
-      // ... 0d3. Copy back good helicity list to constant memory on the device
-      sigmaKin_setGoodHel(hstIsGoodHel.data());
-    }
-    // --- 3a. SigmaKin
-#ifndef MGONGPU_NSIGHT_DEBUG
-    sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.data(), devMatrixElements.data());
-#else
-    sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.data(), devMatrixElements.data());
-#endif
-    checkCuda( cudaPeekAtLastError() );
-
-    // --- 3b. CopyDToH MEs
+    MatrixElementKernelDevice mek( devMomenta, devMatrixElements, gpublocks, gputhreads );
+    if ( iiter == 0 ) mek.computeGoodHelicities();
+    mek.computeMatrixElements();
     copyHostFromDevice( hstMatrixElements, devMatrixElements );
   }
 
