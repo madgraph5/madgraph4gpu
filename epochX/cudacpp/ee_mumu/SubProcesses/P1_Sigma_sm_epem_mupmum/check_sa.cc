@@ -392,21 +392,23 @@ int main(int argc, char **argv)
   DeviceBufferWeights devWeights( nevt );
 #endif
 
-  // Memory structures for matrix elements on host and device
+  // Memory buffers for matrix elements
+#ifndef __CUDACC__
+  HostBufferMatrixElements hstMatrixElements( nevt );
+#else
+  PinnedHostBufferMatrixElements hstMatrixElements( nevt );
+  DeviceBufferMatrixElements devMatrixElements( nevt );
+#endif
+
+  // Memory structures for helicities on host and device
   using mgOnGpu::np4;
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
   using mgOnGpu::ncomb; // Number of helicity combinations
-  const int nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
-
   auto hstIsGoodHel = hstMakeUnique<bool  >( ncomb );
-  auto hstMEs       = hstMakeUnique<fptype>( nMEs ); // ARRAY[nevt]
-
 #ifdef __CUDACC__
   auto devIsGoodHel = devMakeUnique<bool  >( ncomb );
-  auto devMEs       = devMakeUnique<fptype>( nMEs ); // ARRAY[nevt]
   const int nbytesIsGoodHel = ncomb * sizeof(bool);
-  const int nbytesMEs = nMEs * sizeof(fptype);
 #endif
 
   std::unique_ptr<double[]> genrtimes( new double[niter] );
@@ -570,7 +572,7 @@ int main(int argc, char **argv)
       timermap.start( ghelKey );
 #ifdef __CUDACC__
       // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.data(), devMEs.get(), devIsGoodHel.get());
+      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.data(), devMatrixElements.data(), devIsGoodHel.get());
       checkCuda( cudaPeekAtLastError() );
       // ... 0d2. Copy back good helicity mask to the host
       checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(), nbytesIsGoodHel, cudaMemcpyDeviceToHost ) );
@@ -578,7 +580,7 @@ int main(int argc, char **argv)
       gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
 #else
       // ... 0d1. Compute good helicity mask on the host
-      Proc::sigmaKin_getGoodHel(hstMomenta.data(), hstMEs.get(), hstIsGoodHel.get(), nevt);
+      Proc::sigmaKin_getGoodHel(hstMomenta.data(), hstMatrixElements.data(), hstIsGoodHel.get(), nevt);
       // ... 0d2. Copy back good helicity list to static memory on the host
       Proc::sigmaKin_setGoodHel(hstIsGoodHel.get());
 #endif
@@ -593,14 +595,14 @@ int main(int argc, char **argv)
     timermap.start( skinKey );
 #ifdef __CUDACC__
 #ifndef MGONGPU_NSIGHT_DEBUG
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.data(), devMEs.get());
+    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.data(), devMatrixElements.data());
 #else
-    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.data(), devMEs.get());
+    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.data(), devMatrixElements.data());
 #endif
     checkCuda( cudaPeekAtLastError() );
     checkCuda( cudaDeviceSynchronize() );
 #else
-    Proc::sigmaKin(hstMomenta.data(), hstMEs.get(), nevt);
+    Proc::sigmaKin(hstMomenta.data(), hstMatrixElements.data(), nevt);
 #endif
 
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
@@ -611,7 +613,7 @@ int main(int argc, char **argv)
     // --- 3b. CopyDToH MEs
     const std::string cmesKey = "3b CpDTHmes";
     timermap.start( cmesKey );
-    checkCuda( cudaMemcpy( hstMEs.get(), devMEs.get(), nbytesMEs, cudaMemcpyDeviceToHost ) );
+    copyHostFromDevice( hstMatrixElements, devMatrixElements );
     // *** STOP THE OLD OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wavetime += timermap.stop(); // calc plus copy
 #endif
@@ -653,12 +655,12 @@ int main(int argc, char **argv)
         std::cout << std::string(SEP79, '-') << std::endl;
         // Display matrix elements
         std::cout << " Matrix element = "
-                  << hstMEs[ievt]
+                  << hstMatrixElements.data()[ievt]
                   << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
         std::cout << std::string(SEP79, '-') << std::endl;
       }
       // Fill the arrays with ALL MEs and weights
-      matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt]; // FIXME: assume process.nprocesses == 1
+      matrixelementALL[iiter*nevt + ievt] = hstMatrixElements.data()[ievt]; // FIXME: assume process.nprocesses == 1
       weightALL[iiter*nevt + ievt] = hstWeights[ievt];
     }
 
