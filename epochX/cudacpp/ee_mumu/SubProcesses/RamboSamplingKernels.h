@@ -91,7 +91,7 @@ namespace mg5amcCpu
 
 #ifdef __CUDACC__
   // A class encapsulating RAMBO phase space sampling on a GPU device
-  class RamboSamplingKernelDevice : public SamplingKernelBase
+  class RamboSamplingKernelDevice : public SamplingKernelBase, public NumberOfEvents
   {
   public:
 
