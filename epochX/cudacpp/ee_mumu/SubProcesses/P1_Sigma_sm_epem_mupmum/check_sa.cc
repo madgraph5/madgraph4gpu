@@ -20,8 +20,10 @@
 
 #include "CPPProcess.h"
 #include "Memory.h"
+#include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessRandomNumbers.h"
+#include "MemoryAccessWeights.h"
 #include "MemoryBuffers.h"
 #include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
@@ -654,14 +656,14 @@ int main(int argc, char **argv)
         }
         std::cout << std::string(SEP79, '-') << std::endl;
         // Display matrix elements
-        std::cout << " Matrix element = "
-                  << hstMatrixElements.data()[ievt]
+        std::cout << " Matrix element = " << MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt )
                   << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
         std::cout << std::string(SEP79, '-') << std::endl;
       }
       // Fill the arrays with ALL MEs and weights
-      matrixelementALL[iiter*nevt + ievt] = hstMatrixElements.data()[ievt]; // FIXME: assume process.nprocesses == 1
-      weightALL[iiter*nevt + ievt] = hstWeights[ievt];
+      // FIXME: assume process.nprocesses == 1
+      matrixelementALL[iiter*nevt + ievt] = MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
+      weightALL[iiter*nevt + ievt] = MemoryAccessWeights::ieventAccessConst( hstWeights.data(), ievt );
     }
 
     if (!(verbose || debug || perf))
