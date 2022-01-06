@@ -7,22 +7,11 @@
 
 #include "CommonRandomNumbers.h"
 #include "CPPProcess.h"
-#include "Memory.h"
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
 #include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
-
-#ifdef __CUDACC__
-template<typename T = fptype>
-using unique_ptr_dev = std::unique_ptr<T, CudaDevDeleter<T>>;
-template<typename T = fptype>
-using unique_ptr_host = std::unique_ptr<T[], CudaHstDeleter<T>>;
-#else
-template<typename T = fptype>
-using unique_ptr_host = std::unique_ptr<T[], CppHstDeleter<T>>;
-#endif
 
 #ifdef __CUDACC__
 using namespace mg5amcGpu;
@@ -55,7 +44,7 @@ struct CPUTest : public CUDA_CPU_TestBase {
   HostBufferMomenta hstMomenta;
   HostBufferWeights hstWeights;
   HostBufferMatrixElements hstMatrixElements;
-  unique_ptr_host<bool> hstIsGoodHel;
+  HostBufferHelicityMask hstIsGoodHel;
 
   // Create a process object
   // Read param_card and set parameters
@@ -69,7 +58,7 @@ struct CPUTest : public CUDA_CPU_TestBase {
     hstMomenta( nevt ),
     hstWeights( nevt ),
     hstMatrixElements( nevt ),
-    hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) }
+    hstIsGoodHel( mgOnGpu::ncomb )
   {
     process.initProc("../../Cards/param_card.dat");
   }
@@ -95,9 +84,9 @@ struct CPUTest : public CUDA_CPU_TestBase {
     if ( iiter == 0 )
     {
       // ... 0d1. Compute good helicity mask on the host
-      Proc::sigmaKin_getGoodHel(hstMomenta.data(), hstMatrixElements.data(), hstIsGoodHel.get(), nevt);
+      Proc::sigmaKin_getGoodHel(hstMomenta.data(), hstMatrixElements.data(), hstIsGoodHel.data(), nevt);
       // ... 0d2. Copy back good helicity list to static memory on the host
-      Proc::sigmaKin_setGoodHel(hstIsGoodHel.get());
+      Proc::sigmaKin_setGoodHel(hstIsGoodHel.data());
     }
 
     // --- 3a. SigmaKin
@@ -135,12 +124,12 @@ struct CUDATest : public CUDA_CPU_TestBase {
   PinnedHostBufferMomenta hstMomenta;
   PinnedHostBufferWeights hstWeights;
   PinnedHostBufferMatrixElements hstMatrixElements;
-  unique_ptr_host<bool> hstIsGoodHel;
+  PinnedHostBufferHelicityMask hstIsGoodHel;
   DeviceBufferRandomNumbers devRnarray;
   DeviceBufferMomenta devMomenta;
   DeviceBufferWeights devWeights;
   DeviceBufferMatrixElements devMatrixElements;
-  unique_ptr_dev<bool> devIsGoodHel;
+  DeviceBufferHelicityMask devIsGoodHel;
 
   // Create a process object
   // Read param_card and set parameters
@@ -154,12 +143,12 @@ struct CUDATest : public CUDA_CPU_TestBase {
     hstMomenta( nevt ),
     hstWeights( nevt ),
     hstMatrixElements( nevt ),
-    hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) },
+    hstIsGoodHel( mgOnGpu::ncomb ),
     devRnarray( nevt ),
     devMomenta( nevt ),
     devWeights( nevt ),
     devMatrixElements( nevt ),
-    devIsGoodHel{ devMakeUnique<bool  >( mgOnGpu::ncomb ) }
+    devIsGoodHel( mgOnGpu::ncomb )
   {
     process.initProc("../../Cards/param_card.dat");
   }
@@ -191,13 +180,12 @@ struct CUDATest : public CUDA_CPU_TestBase {
     if ( iiter == 0 )
     {
       // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.data(), devMatrixElements.data(), devIsGoodHel.get());
+      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.data(), devMatrixElements.data(), devIsGoodHel.data());
       checkCuda( cudaPeekAtLastError() );
       // ... 0d2. Copy back good helicity mask to the host
-      checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(),
-                             mgOnGpu::ncomb * sizeof(decltype(hstIsGoodHel)::element_type), cudaMemcpyDeviceToHost ) );
+      copyHostFromDevice( hstIsGoodHel, devIsGoodHel );
       // ... 0d3. Copy back good helicity list to constant memory on the device
-      gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
+      gProc::sigmaKin_setGoodHel(hstIsGoodHel.data());
     }
 
     // --- 3a. SigmaKin
