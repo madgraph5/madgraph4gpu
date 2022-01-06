@@ -141,11 +141,11 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
   // A class encapsulating a CUDA pinned host buffer
   template<typename T, size_t sizePerEvent>
-  class PinnedHostBuffer : public PinnedHostBufferBase<fptype>, public NumberOfEvents
+  class PinnedHostBuffer : public PinnedHostBufferBase<T>, public NumberOfEvents
   {
   public:
     PinnedHostBuffer( const size_t nevt )
-      : PinnedHostBufferBase<fptype>( sizePerEvent * nevt )
+      : PinnedHostBufferBase<T>( sizePerEvent * nevt )
       , NumberOfEvents( nevt ){}
     virtual ~PinnedHostBuffer(){}
   };
@@ -156,11 +156,11 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
   // A class encapsulating a CUDA device buffer for random numbers
   template<typename T, size_t sizePerEvent>
-  class DeviceBuffer : public DeviceBufferBase<fptype>, public NumberOfEvents
+  class DeviceBuffer : public DeviceBufferBase<T>, public NumberOfEvents
   {
   public:
     DeviceBuffer( const size_t nevt )
-      : DeviceBufferBase<fptype>( sizePerEvent * nevt )
+      : DeviceBufferBase<T>( sizePerEvent * nevt )
       , NumberOfEvents( nevt ){}
     virtual ~DeviceBuffer(){}
   };
