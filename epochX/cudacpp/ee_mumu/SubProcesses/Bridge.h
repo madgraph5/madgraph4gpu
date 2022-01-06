@@ -109,9 +109,9 @@ Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int ncomb)
     : m_evt(evnt), m_part(part), m_mome(mome), m_strd(strd), m_ncomb(ncomb),
       m_goodHelsCalculated(false) {
 #ifdef __CUDACC__
-  gProc::CPPProcess process(1, s_gpublocks, s_gputhreads, false);
+  mg5amcGpu::CPPProcess process(1, s_gpublocks, s_gputhreads, false);
 #else
-  Proc::CPPProcess process(1, s_gpublocks, s_gputhreads, false);
+  mg5amcCpu::CPPProcess process(1, s_gpublocks, s_gputhreads, false);
 #endif // __CUDACC__
   process.initProc("../../Cards/param_card.dat");
 }
@@ -128,18 +128,18 @@ template <typename T> void Bridge<T>::gpu_sequence(T *momenta, double *mes) {
       devMomentaF.get(), devMomentaC.get(), m_evt, m_part, m_mome, m_strd);
 
   if (!m_goodHelsCalculated) {
-    gProc::sigmaKin_getGoodHel<<<s_gpublocks, s_gputhreads>>>(
+    mg5amcGpu::sigmaKin_getGoodHel<<<s_gpublocks, s_gputhreads>>>(
         devMomentaC.get(), devMEs.get(), devIsGoodHel.get());
 
     checkCuda(cudaMemcpy(hstIsGoodHel.get(), devIsGoodHel.get(),
                          m_ncomb * sizeof(bool), cudaMemcpyDeviceToHost));
 
-    gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
+    mg5amcGpu::sigmaKin_setGoodHel(hstIsGoodHel.get());
 
     m_goodHelsCalculated = true;
   }
 
-  gProc::sigmaKin<<<s_gpublocks, s_gputhreads>>>(devMomentaC.get(), devMEs.get());
+  mg5amcGpu::sigmaKin<<<s_gpublocks, s_gputhreads>>>(devMomentaC.get(), devMEs.get());
 
   checkCuda(
       cudaMemcpy(mes, devMEs.get(), m_evt * sizeof(T), cudaMemcpyDeviceToHost));
@@ -161,13 +161,13 @@ template <typename T> void Bridge<T>::cpu_sequence(T *momenta, double *mes) {
   hst_transpose(momenta, hstMomenta.get(), m_evt, m_part, m_mome, m_strd);
 
   if (!m_goodHelsCalculated) {
-    Proc::sigmaKin_getGoodHel(hstMomenta.get(), hstMEs.get(),
+    mg5amcCpu::sigmaKin_getGoodHel(hstMomenta.get(), hstMEs.get(),
                               hstIsGoodHel2.get(), m_evt);
-    Proc::sigmaKin_setGoodHel(hstIsGoodHel2.get());
+    mg5amcCpu::sigmaKin_setGoodHel(hstIsGoodHel2.get());
     m_goodHelsCalculated = true;
   }
 
-  Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), m_evt);
+  mg5amcCpu::sigmaKin(hstMomenta.get(), hstMEs.get(), m_evt);
 
   memcpy(mes, hstMEs.get(), sizeof(T) * m_evt);
 }
