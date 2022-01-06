@@ -28,7 +28,7 @@ verbose=0
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst] [-bridge] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [[-common|-curhst][-rmbhst]|[-bridge]] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -101,15 +101,20 @@ while [ "$1" != "" ]; do
     hrdcods="1"
     shift
   elif [ "$1" == "-common" ]; then
+    if [ "${bridge}" != "" ]; then echo "ERROR! Options -bridge and $1 are incompatible"; usage; fi
     rndgen=" -${1}"
     shift
   elif [ "$1" == "-curhst" ]; then
+    if [ "${bridge}" != "" ]; then echo "ERROR! Options -bridge and $1 are incompatible"; usage; fi
     rndgen=" -${1}"
     shift
   elif [ "$1" == "-rmbhst" ]; then
+    if [ "${bridge}" != "" ]; then echo "ERROR! Options -bridge and $1 are incompatible"; usage; fi
     rmbsmp=" -${1}"
     shift
   elif [ "$1" == "-bridge" ]; then
+    if [ "${rndgen}" != "" ]; then echo "ERROR! Options -bridge and -common or -curhst are incompatible"; usage; fi
+    if [ "${rmbsmp}" != "" ]; then echo "ERROR! Options -bridge and -rmbhst are incompatible"; usage; fi
     bridge=" -${1}"
     shift
   elif [ "$1" == "-auto" ]; then
