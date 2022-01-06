@@ -1,5 +1,5 @@
-#ifndef MemoryAccessWeights_H
-#define MemoryAccessWeights_H 1
+#ifndef MemoryAccessMatrixElements_H
+#define MemoryAccessMatrixElements_H 1
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
@@ -9,16 +9,16 @@
 
 //----------------------------------------------------------------------------
 
-// A class describing the internal layout of memory buffers for weights
+// A class describing the internal layout of memory buffers for matrix elements
 // This implementation uses a plain ARRAY[nevt]
 // [If many implementations are used, a suffix _ARRAYv1 should be appended to the class name]
-class MemoryAccessWeightsBase//_ARRAYv1
+class MemoryAccessMatrixElementsBase//_ARRAYv1
 {
 private:
 
-  friend class MemoryAccessHelper<MemoryAccessWeightsBase>;
-  friend class KernelAccessHelper<MemoryAccessWeightsBase, true>;
-  friend class KernelAccessHelper<MemoryAccessWeightsBase, false>;
+  friend class MemoryAccessHelper<MemoryAccessMatrixElementsBase>;
+  friend class KernelAccessHelper<MemoryAccessMatrixElementsBase, true>;
+  friend class KernelAccessHelper<MemoryAccessMatrixElementsBase, false>;
 
   //--------------------------------------------------------------------------
   // NB all KernelLaunchers assume that memory access can be decomposed as "accessField = decodeRecord( accessRecord )"
@@ -52,31 +52,31 @@ private:
 //----------------------------------------------------------------------------
 
 // A class providing access to memory buffers for a given event, based on explicit event numbers
-class MemoryAccessWeights : public MemoryAccessWeightsBase
+class MemoryAccessMatrixElements : public MemoryAccessMatrixElementsBase
 {
 public:
 
   // (Non-const memory access to event record from ievent)
-  static constexpr auto ieventAccessRecord = MemoryAccessHelper<MemoryAccessWeightsBase>::ieventAccessRecord;
+  static constexpr auto ieventAccessRecord = MemoryAccessHelper<MemoryAccessMatrixElementsBase>::ieventAccessRecord;
 
   // (Const memory access to event record from ievent)
-  static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessWeightsBase>::ieventAccessRecordConst;
+  static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessMatrixElementsBase>::ieventAccessRecordConst;
 
   // (Non-const memory access to field in an event record)
-  static constexpr auto decodeRecord = MemoryAccessHelper<MemoryAccessWeightsBase>::decodeRecord;
+  static constexpr auto decodeRecord = MemoryAccessHelper<MemoryAccessMatrixElementsBase>::decodeRecord;
 
   // [NOTE THE USE OF THE TEMPLATE KEYWORD IN ALL OF THE FOLLOWING TEMPLATE FUNCTION INSTANTIATIONS]
   // (Const memory access to field in an event record)
   static constexpr auto decodeRecordConst =
-    MemoryAccessHelper<MemoryAccessWeightsBase>::template decodeRecordConst<>;
+    MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template decodeRecordConst<>;
 
   // (Non-const memory access to field from ievent)
   static constexpr auto ieventAccess =
-    MemoryAccessHelper<MemoryAccessWeightsBase>::template ieventAccessField<>;
+    MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template ieventAccessField<>;
 
   // (Const memory access to field from ievent)
   static constexpr auto ieventAccessConst =
-    MemoryAccessHelper<MemoryAccessWeightsBase>::template ieventAccessFieldConst<>;
+    MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template ieventAccessFieldConst<>;
 
 };
 
@@ -84,39 +84,39 @@ public:
 
 // A class providing access to memory buffers for a given event, based on implicit kernel rules
 template<bool onDevice>
-class KernelAccessWeights
+class KernelAccessMatrixElements
 {
 public:
 
   // (Non-const memory access to field from kernel)
   // FINAL IMPLEMENTATION FOR CUDA 11.4
   //static constexpr auto kernelAccess =
-  //  KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessField<>;
+  //  KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessField<>;
   // TEMPORARY HACK FOR CUDA 11.1
   static __host__ __device__ inline
   fptype& kernelAccess( fptype* buffer )
   {
-    return KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessField<>( buffer );
+    return KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessField<>( buffer );
   }
 
   // (Const memory access to field from kernel)
   // FINAL IMPLEMENTATION FOR CUDA 11.4
   //static constexpr auto kernelAccessConst =
-  //  KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessFieldConst<>;
+  //  KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessFieldConst<>;
   // TEMPORARY HACK FOR CUDA 11.1
   static __host__ __device__ inline
   const fptype& kernelAccessConst( const fptype* buffer )
   {
-    return KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessFieldConst<>( buffer );
+    return KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessFieldConst<>( buffer );
   }
 
 };
 
 //----------------------------------------------------------------------------
 
-typedef KernelAccessWeights<false> HostAccessWeights;
-typedef KernelAccessWeights<true> DeviceAccessWeights;
+typedef KernelAccessMatrixElements<false> HostAccessMatrixElements;
+typedef KernelAccessMatrixElements<true> DeviceAccessMatrixElements;
 
 //----------------------------------------------------------------------------
 
-#endif // MemoryAccessWeights_H
+#endif // MemoryAccessMatrixElements_H

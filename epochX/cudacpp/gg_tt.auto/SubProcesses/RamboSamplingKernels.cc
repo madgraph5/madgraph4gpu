@@ -28,6 +28,9 @@ namespace mg5amcCpu
     if ( m_rnarray.isOnDevice() ) throw std::runtime_error( "RamboSamplingKernelHost: rnarray must be a host array" );
     if ( m_momenta.isOnDevice() ) throw std::runtime_error( "RamboSamplingKernelHost: momenta must be a host array" );
     if ( m_weights.isOnDevice() ) throw std::runtime_error( "RamboSamplingKernelHost: weights must be a host array" );
+    if ( this->nevt() != m_rnarray.nevt() ) throw std::runtime_error( "RamboSamplingKernelHost: nevt mismatch with rnarray" );
+    if ( this->nevt() != m_momenta.nevt() ) throw std::runtime_error( "RamboSamplingKernelHost: nevt mismatch with momenta" );
+    if ( this->nevt() != m_weights.nevt() ) throw std::runtime_error( "RamboSamplingKernelHost: nevt mismatch with weights" );
     // Sanity checks for memory access (momenta buffer)
     constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
     static_assert( ispoweroftwo( neppM ), "neppM is not a power of 2" );
@@ -90,6 +93,7 @@ namespace mg5amcCpu
                                                         const size_t gpublocks,
                                                         const size_t gputhreads )
     : SamplingKernelBase( energy, rnarray, momenta, weights )
+    , NumberOfEvents( gpublocks*gputhreads )
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
   {
@@ -98,6 +102,9 @@ namespace mg5amcCpu
     if ( ! m_weights.isOnDevice() ) throw std::runtime_error( "RamboSamplingKernelDevice: weights must be a device array" );
     if ( m_gpublocks == 0 ) throw std::runtime_error( "RamboSamplingKernelDevice: gpublocks must be > 0" );
     if ( m_gputhreads == 0 ) throw std::runtime_error( "RamboSamplingKernelDevice: gputhreads must be > 0" );
+    if ( this->nevt() != m_rnarray.nevt() ) throw std::runtime_error( "RamboSamplingKernelDevice: nevt mismatch with rnarray" );
+    if ( this->nevt() != m_momenta.nevt() ) throw std::runtime_error( "RamboSamplingKernelDevice: nevt mismatch with momenta" );
+    if ( this->nevt() != m_weights.nevt() ) throw std::runtime_error( "RamboSamplingKernelDevice: nevt mismatch with weights" );
     // Sanity checks for memory access (momenta buffer)
     constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
     static_assert( ispoweroftwo( neppM ), "neppM is not a power of 2" );
