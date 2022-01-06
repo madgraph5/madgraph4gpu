@@ -19,7 +19,6 @@
 #include "mgOnGpuVectors.h"
 
 #include "CPPProcess.h"
-#include "Memory.h"
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessRandomNumbers.h"
@@ -402,15 +401,13 @@ int main(int argc, char **argv)
   DeviceBufferMatrixElements devMatrixElements( nevt );
 #endif
 
-  // Memory structures for helicities on host and device
-  using mgOnGpu::np4;
-  using mgOnGpu::nparf;
-  using mgOnGpu::npar;
-  using mgOnGpu::ncomb; // Number of helicity combinations
-  auto hstIsGoodHel = hstMakeUnique<bool  >( ncomb );
-#ifdef __CUDACC__
-  auto devIsGoodHel = devMakeUnique<bool  >( ncomb );
-  const int nbytesIsGoodHel = ncomb * sizeof(bool);
+  // Memory buffers for the helicity mask
+  using mgOnGpu::ncomb; // the number of helicity combinations
+#ifndef __CUDACC__
+  HostBufferHelicityMask hstIsGoodHel( ncomb );
+#else
+  PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
+  DeviceBufferHelicityMask devIsGoodHel( ncomb );
 #endif
 
   std::unique_ptr<double[]> genrtimes( new double[niter] );
@@ -574,17 +571,17 @@ int main(int argc, char **argv)
       timermap.start( ghelKey );
 #ifdef __CUDACC__
       // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.data(), devMatrixElements.data(), devIsGoodHel.get());
+      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.data(), devMatrixElements.data(), devIsGoodHel.data());
       checkCuda( cudaPeekAtLastError() );
       // ... 0d2. Copy back good helicity mask to the host
-      checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(), nbytesIsGoodHel, cudaMemcpyDeviceToHost ) );
+      copyHostFromDevice( hstIsGoodHel, devIsGoodHel );
       // ... 0d3. Copy back good helicity list to constant memory on the device
-      gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
+      gProc::sigmaKin_setGoodHel(hstIsGoodHel.data());
 #else
       // ... 0d1. Compute good helicity mask on the host
-      Proc::sigmaKin_getGoodHel(hstMomenta.data(), hstMatrixElements.data(), hstIsGoodHel.get(), nevt);
+      Proc::sigmaKin_getGoodHel(hstMomenta.data(), hstMatrixElements.data(), hstIsGoodHel.data(), nevt);
       // ... 0d2. Copy back good helicity list to static memory on the host
-      Proc::sigmaKin_setGoodHel(hstIsGoodHel.get());
+      Proc::sigmaKin_setGoodHel(hstIsGoodHel.data());
 #endif
     }
 
@@ -642,7 +639,7 @@ int main(int argc, char **argv)
       {
         // Display momenta
         std::cout << "Momenta:" << std::endl;
-        for (int ipar = 0; ipar < npar; ipar++)
+        for (int ipar = 0; ipar < mgOnGpu::npar; ipar++)
         {
           // NB: 'setw' affects only the next field (of any type)
           std::cout << std::scientific // fixed format: affects all floats (default precision: 6)

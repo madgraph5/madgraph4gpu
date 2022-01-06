@@ -74,11 +74,11 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifndef __CUDACC__
-  // A base class encapsulating a C++ host buffer
+  // A class encapsulating a C++ host buffer
   template<typename T>
   class HostBufferBase : public BufferBase<T>
   {
-  protected:
+  public:
     HostBufferBase( const size_t size ) : BufferBase<T>( size, false )
     {
       this->m_data = new( std::align_val_t{ cppAlign } ) T[ size ]();
@@ -97,11 +97,11 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
-  // A base class encapsulating a CUDA pinned host buffer
+  // A class encapsulating a CUDA pinned host buffer
   template<typename T>
   class PinnedHostBufferBase : public BufferBase<T>
   {
-  protected:
+  public:
     PinnedHostBufferBase( const size_t size ) : BufferBase<T>( size, false )
     {
       checkCuda( cudaMallocHost( &(this->m_data), this->bytes() ) );
@@ -116,11 +116,11 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
-  // A base class encapsulating a CUDA device buffer
+  // A class encapsulating a CUDA device buffer
   template<typename T>
   class DeviceBufferBase : public BufferBase<T>
   {
-  protected:
+  public:
     DeviceBufferBase( const size_t size ) : BufferBase<T>( size, true )
     {
       checkCuda( cudaMalloc( &(this->m_data), this->bytes() ) );
