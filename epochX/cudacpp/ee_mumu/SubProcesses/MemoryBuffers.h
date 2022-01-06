@@ -222,6 +222,24 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  // A base class encapsulating a memory buffer for matrix elements
+  typedef BufferBase<fptype> BufferMatrixElements;
+
+  // The size (number of elements) per event in a memory buffer for matrix elements
+  constexpr size_t sizePerEventMatrixElements = 1;
+
+#ifndef __CUDACC__
+  // A class encapsulating a C++ host buffer for matrix elements
+  typedef HostBuffer<fptype, sizePerEventMatrixElements> HostBufferMatrixElements;
+#else
+  // A class encapsulating a CUDA pinned host buffer for matrix elements
+  typedef PinnedHostBuffer<fptype, sizePerEventMatrixElements> PinnedHostBufferMatrixElements;
+  // A class encapsulating a CUDA device buffer for matrix elements
+  typedef DeviceBuffer<fptype, sizePerEventMatrixElements> DeviceBufferMatrixElements;
+#endif
+
+  //--------------------------------------------------------------------------
+
 #ifdef __CUDACC__
   template<class Tdst, class Tsrc>
   void copyDeviceFromHost( Tdst& dst, const Tsrc& src ) // keep the same order of arguments as in memcpy
