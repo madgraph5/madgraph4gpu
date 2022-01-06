@@ -6,7 +6,7 @@ CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
 # install target
-INSTALL_HEADERS=CPPProcess.h Memory.h
+INSTALL_HEADERS=CPPProcess.h
 INSTALL_INC_DIR=../../include
 INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o
 
