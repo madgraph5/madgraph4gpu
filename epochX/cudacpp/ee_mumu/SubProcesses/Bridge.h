@@ -108,9 +108,9 @@ Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int ncomb)
     : m_evt(evnt), m_part(part), m_mome(mome), m_strd(strd), m_ncomb(ncomb),
       m_goodHelsCalculated(false) {
 #ifdef __CUDACC__
-  mg5amcGpu::CPPProcess process(1, gpublocks, gputhreads, false);
+  gProc::CPPProcess process(1, gpublocks, gputhreads, false);
 #else
-  mg5amcCpu::CPPProcess process(1, gpublocks, gputhreads, false);
+  Proc::CPPProcess process(1, gpublocks, gputhreads, false);
 #endif // __CUDACC__
   process.initProc("../../Cards/param_card.dat");
 }
@@ -127,18 +127,18 @@ template <typename T> void Bridge<T>::gpu_sequence(T *momenta, double *mes) {
       devMomentaF.get(), devMomentaC.get(), m_evt, m_part, m_mome, m_strd);
 
   if (!m_goodHelsCalculated) {
-    mg5amcGpu::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(
+    gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(
         devMomentaC.get(), devMEs.get(), devIsGoodHel.get());
 
     checkCuda(cudaMemcpy(hstIsGoodHel.get(), devIsGoodHel.get(),
                          m_ncomb * sizeof(bool), cudaMemcpyDeviceToHost));
 
-    mg5amcGpu::sigmaKin_setGoodHel(hstIsGoodHel.get());
+    gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
 
     m_goodHelsCalculated = true;
   }
 
-  mg5amcGpu::sigmaKin<<<gpublocks, gputhreads>>>(devMomentaC.get(), devMEs.get());
+  gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomentaC.get(), devMEs.get());
 
   checkCuda(
       cudaMemcpy(mes, devMEs.get(), m_evt * sizeof(T), cudaMemcpyDeviceToHost));
@@ -160,13 +160,13 @@ template <typename T> void Bridge<T>::cpu_sequence(T *momenta, double *mes) {
   hst_transpose(momenta, hstMomenta.get(), m_evt, m_part, m_mome, m_strd);
 
   if (!m_goodHelsCalculated) {
-    mg5amcCpu::sigmaKin_getGoodHel(hstMomenta.get(), hstMEs.get(),
+    Proc::sigmaKin_getGoodHel(hstMomenta.get(), hstMEs.get(),
                               hstIsGoodHel2.get(), m_evt);
-    mg5amcCpu::sigmaKin_setGoodHel(hstIsGoodHel2.get());
+    Proc::sigmaKin_setGoodHel(hstIsGoodHel2.get());
     m_goodHelsCalculated = true;
   }
 
-  mg5amcCpu::sigmaKin(hstMomenta.get(), hstMEs.get(), m_evt);
+  Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), m_evt);
 
   memcpy(mes, hstMEs.get(), sizeof(T) * m_evt);
 }
