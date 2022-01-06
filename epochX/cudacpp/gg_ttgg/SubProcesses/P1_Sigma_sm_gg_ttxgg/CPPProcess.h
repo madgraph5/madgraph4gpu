@@ -21,9 +21,9 @@
 //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
-namespace gProc
+namespace mg5amcGpu
 #else
-namespace Proc
+namespace mg5amcCpu
 #endif
 {
 
