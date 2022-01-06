@@ -47,11 +47,10 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef MGONGPU_INLINE_HELAMPS
 #define INLINE inline
+#ifdef MGONGPU_INLINE_HELAMPS
 #define ALWAYS_INLINE __attribute__((always_inline))
 #else
-#define INLINE
 #define ALWAYS_INLINE
 #endif
 
