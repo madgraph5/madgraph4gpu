@@ -11,7 +11,11 @@
 #include <cuComplex.h>
 #endif
 #else
-#include "extras.h"
+#ifdef SYCL_LANGUAGE_VERSION
+    #include "extras.h"
+#endif
+    #include <cmath>
+    #include <complex>
 #endif
 
 namespace mgOnGpu
@@ -29,7 +33,11 @@ namespace mgOnGpu
   typedef cuFloatComplex cxtype;
 #endif
 #else // c++
+#ifdef SYCL_LANGUAGE_VERSION
   typedef extras::complex<fptype> cxtype; // two doubles: RI
+#else
+  typedef std::complex<fptype> cxtype; // two doubles: RI
+#endif
 #endif
 
 }
@@ -96,7 +104,11 @@ const fptype& fpmin( const fptype& a, const fptype& b )
 inline
 fptype fpsqrt( const fptype& f )
 {
+#ifdef SYCL_LANGUAGE_VERSION
+  return sycl::sqrt( f );
+#else
   return std::sqrt( f );
+#endif
 }
 
 #endif
@@ -392,11 +404,13 @@ fptype cximag( const cxtype& c )
   return c.imag(); // std::complex<fptype>::imag()
 }
 
-//inline
-//cxtype cxconj( const cxtype& c )
-//{
-//  return conj( c ); // conj( std::complex<fptype> )
-//}
+#ifndef SYCL_LANGUAGE_VERSION
+inline
+cxtype cxconj( const cxtype& c )
+{
+  return conj( c ); // conj( std::complex<fptype> )
+}
+#endif
 
 inline
 const cxtype& cxmake( const cxtype& c ) // std::complex to std::complex (float-to-float or double-to-double)
@@ -404,15 +418,20 @@ const cxtype& cxmake( const cxtype& c ) // std::complex to std::complex (float-t
   return c;
 }
 
-#if defined MGONGPU_FPTYPE_FLOAT
 inline
-cxtype cxmake( const std::complex<double>& c ) // std::complex to std::complex (cast double-to-float)
+cxtype cxmake( const std::complex<double>& c ) // std::complex to std::complex (cast double-to-fptype)
 {
   return cxmake( (fptype)c.real(), (fptype)c.imag() );
 }
-#endif
 
 #endif  // END cuda/c++
+
+#ifdef SYCL_LANGUAGE_VERSION // sycl complex operator overloads
+inline std::ostream& operator<<( std::ostream& out, const cxtype& c )
+{
+  out << "[" << cxreal(c) << "," << cximag(c) << "]";
+  return out;
+}
 
 inline SYCL_EXTERNAL
 cxtype operator+( const cxtype a )
@@ -450,4 +469,10 @@ cxtype conj( const cxtype& c )
   return cxmake( cxreal( c ), -cximag( c ) );
 }
 
+inline SYCL_EXTERNAL
+cxtype cxconj( const cxtype& c )
+{
+  return conj( c ); 
+}
+#endif // END sycl complex operator overloads
 #endif // MGONGPUTYPES_H

@@ -1,14 +1,9 @@
 //==========================================================================
-// This file has been automatically generated for CUDA/C++ standalone by
+// This file has been automatically generated for SYCL/C++ standalone by
 // MadGraph5_aMC@NLO v. 2.9.5, 2021-08-22
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
-
-#ifdef SYCL_LANGUAGE_VERSION
-#include <CL/sycl.hpp>
-#endif
-#include "../../src/HelAmps_sm.h"
 
 #ifndef MG5_Sigma_sm_gg_ttxgg_H
 #define MG5_Sigma_sm_gg_ttxgg_H
@@ -20,32 +15,13 @@
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
+#include "mgOnGpuVectors.h"
 
 #include "Parameters_sm.h"
 
 //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
-
-#define checkCuda( code ) { assertCuda( code, __FILE__, __LINE__ ); }
-
-inline void assertCuda( cudaError_t code, const char* file, int line, bool abort = true )
-{
-  if ( code != cudaSuccess )
-  {
-    printf( "GPUassert: %s %s:%d\n", cudaGetErrorString(code), file, line );
-    if ( abort ) assert( code == cudaSuccess );
-  }
-}
-
-#endif
-//--------------------------------------------------------------------------
-
-#ifdef __CUDACC__
-namespace gProc
-#else
 namespace Proc
-#endif
 {
 
   //==========================================================================
@@ -57,105 +33,113 @@ namespace Proc
   {
   public:
 
-    CPPProcess( int numiterations,
-                int gpublocks,
-                int gputhreads,
-                bool verbose = false,
-                bool debug = false );
+    // Constructor (from command line arguments)
+    CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose = false, bool debug = false );
 
+    // Destructor
     ~CPPProcess();
+
+    // Device Pointer Accessors
     int * get_cHel_ptr();
     fptype * get_cIPC_ptr();
     fptype * get_cIPD_ptr();
 
-    // Initialize process.
-    virtual void initProc( std::string param_card_name );
+    // Initialize process (read model parameters from file)
+    virtual void initProc( const std::string& param_card_name );
 
-    virtual int code() const { return 1; }
+    // Retrieve the compiler that was used to build this module
+    static const std::string getCompiler();
 
-    const std::vector<fptype>& getMasses() const;
+    // Other methods of this instance (???)
+    //const std::vector<fptype>& getMasses() const { return m_masses; }
+    //virtual int code() const{ return 1; }
+    //void setInitial( int inid1, int inid2 ){ id1 = inid1; id2 = inid2; }
+    //int getDim() const { return dim; }
+    //int getNIOParticles() const { return nexternal; } // nexternal was nioparticles
 
-    void setInitial( int inid1, int inid2 )
-    {
-      id1 = inid1;
-      id2 = inid2;
-    }
+    // Accessors (unused so far: add them to fix a clang build warning)
+    //int numiterations() const { return m_numiterations; }
+    //int gpublocks() const { return m_ngpublocks; }
+    //int gputhreads() const { return m_ngputhreads; }
+    //bool verbose() const { return m_verbose; }
+    //bool debug() const { return m_debug; }
 
-    int getDim() const { return dim; }
+  public:
 
-    int getNIOParticles() const { return nexternal; }
-
-    // Constants for array limits
-    static const int ninitial = mgOnGpu::npari;
-    static const int nexternal = mgOnGpu::npar;
-    //static const int nprocesses = 1;
+    // Hardcoded parameters for this process (constant class variables)
+    //static const int ninitial = mgOnGpu::npari;
+    static const int nexternal = 6; // mgOnGpu::npar (nexternal was nioparticles)
+    //static const int nprocesses = 1; // FIXME: assume process.nprocesses == 1
+    //static const int nwavefuncs = 6; // mgOnGpu::nwf
+    //static const int namplitudes = 159;
+    //static const int ncomb = 64; // mgOnGpu::ncomb
+    //static const int wrows = 63; // mgOnGpu::nw6;
 
   private:
 
-    int m_numiterations;
-    // gpu variables
-    int gpu_nblocks;
-    int gpu_nthreads;
-    int dim; // gpu_nblocks * gpu_nthreads;
-
-    // print verbose info
+    // Command line arguments (constructor)
+    int m_numiterations; // number of iterations (each iteration has nblocks*nthreads events)
+    int m_ngpublocks; // number of GPU blocks in one grid (i.e. one iteration)
+    int m_ngputhreads; // number of GPU threads in a block
     bool m_verbose;
-
-    // print debug info
     bool m_debug;
 
-    static const int nwavefuncs = 6;
-    static const int namplitudes = 159;
-    static const int ncomb = 64;
-    static const int wrows = 63;
-    //static const int nioparticles = 6;
+    // Physics model parameters to be read from file (initProc function)
+#ifndef MGONGPU_HARDCODE_CIPC
+    Parameters_sm* m_pars;
+#endif
+    std::vector<fptype> m_masses; // external particle masses
 
-    cxtype** amp;
-
-    // Pointer to the model parameters
-    Parameters_sm* pars;
-
-    // vector with external particle masses
-    std::vector<fptype> mME;
-
-    // Initial particle ids
-    int id1, id2;
+    // Other variables of this instance (???)
+    //int id1, id2; // initial particle ids
+    //cxtype** amp; // ???
 
   };
 
   //--------------------------------------------------------------------------
+
 #ifdef SYCL_LANGUAGE_VERSION
-SYCL_EXTERNAL
-void sigmaKin_getGoodHel(const fptype * allmomenta,  // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-bool * isGoodHel,  // output: isGoodHel[ncomb] - device array
-sycl::nd_item<3> item_ct1,
-int *cHel,
-const fptype *cIPC,
-const fptype *cIPD
-);
+  SYCL_EXTERNAL
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                            bool * isGoodHel,         // output: isGoodHel[ncomb] - device array
+                            sycl::nd_item<3> item_ct1,
+                            int *cHel,
+                            const fptype *cIPC,
+                            const fptype *cIPD
+                            );
+#else
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                            bool* isGoodHel,           // output: isGoodHel[ncomb] - device array
+                            const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                            );
 #endif
 
   //--------------------------------------------------------------------------
 
 #ifdef SYCL_LANGUAGE_VERSION
-SYCL_EXTERNAL
-void sigmaKin_setGoodHel(const bool * isGoodHel, int * cNGoodHel_ptr, int* cGoodHel_ptr);  // input: isGoodHel[ncomb] - host array
+  SYCL_EXTERNAL
+  void sigmaKin_setGoodHel(const bool * isGoodHel, int * cNGoodHel_ptr, int* cGoodHel_ptr);  // input: isGoodHel[ncomb] - host array
+#else
+  void sigmaKin_setGoodHel( const bool* isGoodHel ); // input: isGoodHel[ncomb] - host array
 #endif
 
   //--------------------------------------------------------------------------
 
-SYCL_EXTERNAL
-void sigmaKin(const fptype * allmomenta,  // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-fptype * allMEs  // output: allMEs[nevt], final |M|^2 averaged over all helicities
-, sycl::nd_item<3> item_ct1,
-int *cHel,
-const fptype *cIPC,
-const fptype *cIPD,
-int *cNGoodHel,
-int *cGoodHel
-#ifndef SYCL_LANGUAGE_VERSION
-, const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
-#endif
+  SYCL_EXTERNAL
+  void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                 fptype* allMEs            // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                 #ifdef SYCL_LANGUAGE_VERSION
+                     , sycl::nd_item<3> item_ct1,
+                     int *cHel,
+                     const fptype *cIPC,
+                     const fptype *cIPD,
+                     int *cNGoodHel,
+                     int *cGoodHel
+                 #else
+                 , const int nevt  // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                 #endif
                  );
 
   //--------------------------------------------------------------------------

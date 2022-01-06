@@ -8,7 +8,12 @@
 #include <iostream>
 #include <iomanip>
 #include "Parameters_sm.h"
+
+#ifdef SYCL_LANGUAGE_VERSION
 #include "extras.h"
+#include "mgOnGpuTypes.h"
+#endif
+#ifndef MGONGPU_HARDCODE_CIPC
 
 // Initialize static instance
 Parameters_sm* Parameters_sm::instance = 0;
@@ -27,7 +32,7 @@ void Parameters_sm::setIndependentParameters(SLHAReader& slha)
   zero = 0;
   ZERO = 0;
   // Prepare a vector for indices
-  vector<int> indices(2, 0);
+  std::vector<int> indices(2, 0);
   mdl_WH = slha.get_block_entry("decay", 25, 6.382339e-03);
   mdl_WW = slha.get_block_entry("decay", 24, 2.047600e+00);
   mdl_WZ = slha.get_block_entry("decay", 23, 2.441404e+00);
@@ -46,7 +51,7 @@ void Parameters_sm::setIndependentParameters(SLHAReader& slha)
   mdl_conjg__CKM3x3 = 1.;
   mdl_conjg__CKM1x1 = 1.;
   mdl_CKM3x3 = 1.;
-  mdl_complexi = extras::complex<double>(0.,1.);
+  mdl_complexi = std::complex<double>(0.,1.);
   mdl_MZ__exp__2 = ((mdl_MZ)*(mdl_MZ));
   mdl_MZ__exp__4 = ((mdl_MZ)*(mdl_MZ)*(mdl_MZ)*(mdl_MZ));
   mdl_sqrt__2 = sqrt(2.);
@@ -97,83 +102,80 @@ void Parameters_sm::setDependentCouplings()
   // (none)
 }
 
+#endif
+
 // Routines for printing out parameters
 void Parameters_sm::printIndependentParameters()
 {
-  /*  cout << "sm model parameters independent of event kinematics:" << endl;
-  cout << setw(20) << "mdl_WH " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_WH << endl;
-  cout << setw(20) << "mdl_WW " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_WW << endl;
-  cout << setw(20) << "mdl_WZ " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_WZ << endl;
-  cout << setw(20) << "mdl_WT " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_WT << endl;
-  cout << setw(20) << "mdl_ymtau " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_ymtau << endl;
-  cout << setw(20) << "mdl_ymt " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_ymt << endl;
-  cout << setw(20) << "mdl_ymb " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_ymb << endl;
-  cout << setw(20) << "aS " << "= " << setiosflags(ios::scientific) << setw(10) << aS << endl;
-  cout << setw(20) << "mdl_Gf " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_Gf << endl;
-  cout << setw(20) << "aEWM1 " << "= " << setiosflags(ios::scientific) << setw(10) << aEWM1 << endl;
-  cout << setw(20) << "mdl_MH " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_MH << endl;
-  cout << setw(20) << "mdl_MZ " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_MZ << endl;
-  cout << setw(20) << "mdl_MTA " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_MTA << endl;
-  cout << setw(20) << "mdl_MT " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_MT << endl;
-  cout << setw(20) << "mdl_MB " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_MB << endl;
-  cout << setw(20) << "mdl_conjg__CKM3x3 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_conjg__CKM3x3 << endl;
-  cout << setw(20) << "mdl_conjg__CKM1x1 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_conjg__CKM1x1 << endl;
-  cout << setw(20) << "mdl_CKM3x3 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_CKM3x3 << endl;
-  cout << setw(20) << "mdl_complexi " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_complexi << endl;
-  cout << setw(20) << "mdl_MZ__exp__2 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_MZ__exp__2 << endl;
-  cout << setw(20) << "mdl_MZ__exp__4 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_MZ__exp__4 << endl;
-  cout << setw(20) << "mdl_sqrt__2 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_sqrt__2 << endl;
-  cout << setw(20) << "mdl_MH__exp__2 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_MH__exp__2 << endl;
-  cout << setw(20) << "mdl_aEW " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_aEW << endl;
-  cout << setw(20) << "mdl_MW " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_MW << endl;
-  cout << setw(20) << "mdl_sqrt__aEW " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_sqrt__aEW << endl;
-  cout << setw(20) << "mdl_ee " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_ee << endl;
-  cout << setw(20) << "mdl_MW__exp__2 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_MW__exp__2 << endl;
-  cout << setw(20) << "mdl_sw2 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_sw2 << endl;
-  cout << setw(20) << "mdl_cw " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_cw << endl;
-  cout << setw(20) << "mdl_sqrt__sw2 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_sqrt__sw2 << endl;
-  cout << setw(20) << "mdl_sw " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_sw << endl;
-  cout << setw(20) << "mdl_g1 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_g1 << endl;
-  cout << setw(20) << "mdl_gw " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_gw << endl;
-  cout << setw(20) << "mdl_vev " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_vev << endl;
-  cout << setw(20) << "mdl_vev__exp__2 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_vev__exp__2 << endl;
-  cout << setw(20) << "mdl_lam " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_lam << endl;
-  cout << setw(20) << "mdl_yb " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_yb << endl;
-  cout << setw(20) << "mdl_yt " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_yt << endl;
-  cout << setw(20) << "mdl_ytau " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_ytau << endl;
-  cout << setw(20) << "mdl_muH " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_muH << endl;
-  cout << setw(20) << "mdl_I1x33 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_I1x33 << endl;
-  cout << setw(20) << "mdl_I2x33 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_I2x33 << endl;
-  cout << setw(20) << "mdl_I3x33 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_I3x33 << endl;
-  cout << setw(20) << "mdl_I4x33 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_I4x33 << endl;
-  cout << setw(20) << "mdl_ee__exp__2 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_ee__exp__2 << endl;
-  cout << setw(20) << "mdl_sw__exp__2 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_sw__exp__2 << endl;
-  cout << setw(20) << "mdl_cw__exp__2 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_cw__exp__2 << endl;
-  */
+  std::cout << "sm model parameters independent of event kinematics:" << std::endl;
+  std::cout << std::setw(20) << "mdl_WH " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_WH << std::endl;
+  std::cout << std::setw(20) << "mdl_WW " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_WW << std::endl;
+  std::cout << std::setw(20) << "mdl_WZ " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_WZ << std::endl;
+  std::cout << std::setw(20) << "mdl_WT " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_WT << std::endl;
+  std::cout << std::setw(20) << "mdl_ymtau " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_ymtau << std::endl;
+  std::cout << std::setw(20) << "mdl_ymt " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_ymt << std::endl;
+  std::cout << std::setw(20) << "mdl_ymb " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_ymb << std::endl;
+  std::cout << std::setw(20) << "aS " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << aS << std::endl;
+  std::cout << std::setw(20) << "mdl_Gf " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_Gf << std::endl;
+  std::cout << std::setw(20) << "aEWM1 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << aEWM1 << std::endl;
+  std::cout << std::setw(20) << "mdl_MH " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_MH << std::endl;
+  std::cout << std::setw(20) << "mdl_MZ " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_MZ << std::endl;
+  std::cout << std::setw(20) << "mdl_MTA " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_MTA << std::endl;
+  std::cout << std::setw(20) << "mdl_MT " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_MT << std::endl;
+  std::cout << std::setw(20) << "mdl_MB " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_MB << std::endl;
+  std::cout << std::setw(20) << "mdl_conjg__CKM3x3 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_conjg__CKM3x3 << std::endl;
+  std::cout << std::setw(20) << "mdl_conjg__CKM1x1 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_conjg__CKM1x1 << std::endl;
+  std::cout << std::setw(20) << "mdl_CKM3x3 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_CKM3x3 << std::endl;
+  std::cout << std::setw(20) << "mdl_complexi " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_complexi << std::endl;
+  std::cout << std::setw(20) << "mdl_MZ__exp__2 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_MZ__exp__2 << std::endl;
+  std::cout << std::setw(20) << "mdl_MZ__exp__4 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_MZ__exp__4 << std::endl;
+  std::cout << std::setw(20) << "mdl_sqrt__2 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_sqrt__2 << std::endl;
+  std::cout << std::setw(20) << "mdl_MH__exp__2 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_MH__exp__2 << std::endl;
+  std::cout << std::setw(20) << "mdl_aEW " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_aEW << std::endl;
+  std::cout << std::setw(20) << "mdl_MW " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_MW << std::endl;
+  std::cout << std::setw(20) << "mdl_sqrt__aEW " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_sqrt__aEW << std::endl;
+  std::cout << std::setw(20) << "mdl_ee " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_ee << std::endl;
+  std::cout << std::setw(20) << "mdl_MW__exp__2 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_MW__exp__2 << std::endl;
+  std::cout << std::setw(20) << "mdl_sw2 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_sw2 << std::endl;
+  std::cout << std::setw(20) << "mdl_cw " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_cw << std::endl;
+  std::cout << std::setw(20) << "mdl_sqrt__sw2 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_sqrt__sw2 << std::endl;
+  std::cout << std::setw(20) << "mdl_sw " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_sw << std::endl;
+  std::cout << std::setw(20) << "mdl_g1 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_g1 << std::endl;
+  std::cout << std::setw(20) << "mdl_gw " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_gw << std::endl;
+  std::cout << std::setw(20) << "mdl_vev " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_vev << std::endl;
+  std::cout << std::setw(20) << "mdl_vev__exp__2 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_vev__exp__2 << std::endl;
+  std::cout << std::setw(20) << "mdl_lam " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_lam << std::endl;
+  std::cout << std::setw(20) << "mdl_yb " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_yb << std::endl;
+  std::cout << std::setw(20) << "mdl_yt " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_yt << std::endl;
+  std::cout << std::setw(20) << "mdl_ytau " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_ytau << std::endl;
+  std::cout << std::setw(20) << "mdl_muH " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_muH << std::endl;
+  std::cout << std::setw(20) << "mdl_I1x33 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_I1x33 << std::endl;
+  std::cout << std::setw(20) << "mdl_I2x33 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_I2x33 << std::endl;
+  std::cout << std::setw(20) << "mdl_I3x33 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_I3x33 << std::endl;
+  std::cout << std::setw(20) << "mdl_I4x33 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_I4x33 << std::endl;
+  std::cout << std::setw(20) << "mdl_ee__exp__2 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_ee__exp__2 << std::endl;
+  std::cout << std::setw(20) << "mdl_sw__exp__2 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_sw__exp__2 << std::endl;
+  std::cout << std::setw(20) << "mdl_cw__exp__2 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_cw__exp__2 << std::endl;
 }
 
 void Parameters_sm::printIndependentCouplings()
 {
-  /*
-  cout << "sm model couplings independent of event kinematics:" << endl;
-  cout << setw(20) << "GC_3 " << "= " << setiosflags(ios::scientific) << setw(10) << GC_3 << endl;
-  cout << setw(20) << "GC_50 " << "= " << setiosflags(ios::scientific) << setw(10) << GC_50 << endl;
-  cout << setw(20) << "GC_59 " << "= " << setiosflags(ios::scientific) << setw(10) << GC_59 << endl;
-  */
+  std::cout << "sm model couplings independent of event kinematics:" << std::endl;
+  std::cout << std::setw(20) << "GC_3 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << GC_3 << std::endl;
+  std::cout << std::setw(20) << "GC_50 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << GC_50 << std::endl;
+  std::cout << std::setw(20) << "GC_59 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << GC_59 << std::endl;
 }
 
 void Parameters_sm::printDependentParameters()
 {
-  /*
-  cout << "sm model parameters dependent on event kinematics:" << endl;
-  cout << setw(20) << "mdl_sqrt__aS " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_sqrt__aS << endl;
-  cout << setw(20) << "G " << "= " << setiosflags(ios::scientific) << setw(10) << G << endl;
-  cout << setw(20) << "mdl_G__exp__2 " << "= " << setiosflags(ios::scientific) << setw(10) << mdl_G__exp__2 << endl;
-  */
+  std::cout << "sm model parameters dependent on event kinematics:" << std::endl;
+  std::cout << std::setw(20) << "mdl_sqrt__aS " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_sqrt__aS << std::endl;
+  std::cout << std::setw(20) << "G " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << G << std::endl;
+  std::cout << std::setw(20) << "mdl_G__exp__2 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_G__exp__2 << std::endl;
 }
 
 void Parameters_sm::printDependentCouplings()
 {
-  cout << "sm model couplings dependent on event kinematics:" << endl;
+  std::cout << "sm model couplings dependent on event kinematics:" << std::endl;
   // (none)
 }

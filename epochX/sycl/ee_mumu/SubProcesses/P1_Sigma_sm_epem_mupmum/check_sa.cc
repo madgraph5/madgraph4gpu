@@ -15,16 +15,17 @@
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 
-#ifdef __CUDACC__
+#ifdef SYCL_LANGUAGE_VERSION
 #include "rambo.cc"
+#include "CPPProcess.cc"
 #else
 #include "rambo.h"
+#include "CPPProcess.h"
 #endif
 
 #ifdef MGONGPU_COMMONRAND_ONHOST
 #include "CommonRandomNumbers.h"
 #endif
-#include "CPPProcess.h"
 #include "timermap.h"
 
 bool is_number(const char *s) {
@@ -43,12 +44,14 @@ bool check_digits(std::string s) {
 
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
-            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--param_card <PARAM_CARD_FILE>] [--json_file <JSON_FILE>] [--vendor_id <VENDOR_ID>]"
+            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--param_card <PARAM_CARD_FILE>] [--json_file <JSON_FILE>] --device_id <DEVICE_ID>"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
   std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
   std::cout << "The '-d' flag only controls if nan's emit warnings" << std::endl;
+  std::cout << "The '--device_info` flag prints information for all available devices. If a device is chosen by '--device_id', only information for that device is shown." << std::endl;
+  std::cout << "The '--device_id' arguments selects the device to run code on. (default: 0)" << std::endl;
   std::cout << "The '--help|-h' flag prints this message" << std::endl;
   return ret;
 }
@@ -100,35 +103,40 @@ void print_device_type( const sycl::info::device_type dt ) {
         std::cout << "all"; }
 }
 
+void print_device_info(const sycl::device& device) {
+    std::cout << "    name: " << device.get_info<sycl::info::device::name>() << std::endl;
+    std::cout << "    platform: " << device.get_info<sycl::info::device::platform>().get_info<sycl::info::platform::name>() << std::endl;
+    std::cout << "    vendor: " << device.get_info<sycl::info::device::vendor>() << std::endl;
+    std::cout << "    vendor_id: " << device.get_info<sycl::info::device::vendor_id>() << std::endl;
+    std::cout << "    driver_version: " << device.get_info<sycl::info::device::driver_version>() << std::endl;
+    std::cout << "    global_mem_size: " << device.get_info<sycl::info::device::global_mem_size>() << std::endl;
+    std::cout << "    local_mem_size: " << device.get_info<sycl::info::device::local_mem_size>() << std::endl;
+
+    auto workgroup_size = device.get_info<sycl::info::device::max_work_group_size>();
+    auto max_compute_units = device.get_info<sycl::info::device::max_compute_units>();
+    //auto n_groups = (num_steps - 1) / workgroup_size + 1;
+    //n_groups = std::min(decltype(n_groups)(max_compute_units),n_groups);  // make groups max number of compute units or less
+    std::cout << "    workgroup_size: " << workgroup_size << std::endl;
+    std::cout << "    max_compute_units: " << max_compute_units << std::endl;
+
+    std::cout << "    usm_support: ";
+    if (device.has(sycl::aspect::usm_device_allocations)) {
+        std::cout << "yes" << std::endl;
+    } else {
+        std::cout << "no" << std::endl;
+    }
+    std::cout << "    device_type: ";
+    print_device_type(device.get_info<sycl::info::device::device_type>());
+    std::cout << std::endl;
+}
+
 void print_device_info() {
     auto platforms = sycl::platform::get_platforms();
     for (const auto &platform: platforms) {
         std::cout << platform.get_backend() << ':' << std::endl;
         std::cout << platform.get_info<sycl::info::platform::name>() << ':' << std::endl;
         for (const auto &device: platform.get_devices()) {
-            std::cout << "    name: " << device.get_info<sycl::info::device::name>() << std::endl;
-            std::cout << "    vendor: " << device.get_info<sycl::info::device::vendor>() << std::endl;
-            std::cout << "    vendor_id: " << device.get_info<sycl::info::device::vendor_id>() << std::endl;
-            std::cout << "    driver_version: " << device.get_info<sycl::info::device::driver_version>() << std::endl;
-            std::cout << "    global_mem_size: " << device.get_info<sycl::info::device::global_mem_size>() << std::endl;
-            std::cout << "    local_mem_size: " << device.get_info<sycl::info::device::local_mem_size>() << std::endl;
-
-            auto workgroup_size = device.get_info<sycl::info::device::max_work_group_size>();
-            auto max_compute_units = device.get_info<sycl::info::device::max_compute_units>();
-            //auto n_groups = (num_steps - 1) / workgroup_size + 1;
-            //n_groups = std::min(decltype(n_groups)(max_compute_units),n_groups);  // make groups max number of compute units or less
-            std::cout << "    workgroup_size: " << workgroup_size << std::endl;
-            std::cout << "    max_compute_units: " << max_compute_units << std::endl;
-
-            std::cout << "    usm_support: ";
-            if (device.has(sycl::aspect::usm_device_allocations)) {
-                std::cout << "yes" << std::endl;
-            } else {
-                std::cout << "no" << std::endl;
-            }
-            std::cout << "    device_type: ";
-            print_device_type(device.get_info<sycl::info::device::device_type>());
-            std::cout << std::endl;
+            print_device_info(device);
         }
     }
     std::cout << std::endl;
@@ -218,8 +226,15 @@ int main(int argc, char **argv)
   bool json_file_bool = false;
   std::string json_file = "";
   std::string d_id_str;
-  uint32_t d_id;
+  uint32_t d_id = 0; // default to device 0
   bool device_chosen = false;
+  bool device_info = false;
+  auto devices = sycl::device::get_devices();
+  if (devices.size() == 0) {
+      std::cout << "No SYCL devices detected." << std::endl;
+      std::cout << "Terminating. Exit Code: -995" << std::endl;
+      return -995;
+  }
 
   for (int argn = 1; argn < argc; ++argn) {
     if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
@@ -245,27 +260,26 @@ int main(int argc, char **argv)
       json_file_bool = true;
       argn++;
     }
-    else if (strcmp(argv[argn], "--vendor_id") == 0) {
+    else if (strcmp(argv[argn], "--device_info") == 0) {
+        device_info = true;
+    }
+    else if (strcmp(argv[argn], "--device_id") == 0) {
         d_id_str = argv[argn + 1];
-
-        std::vector<uint32_t> d_ids;
         if (check_digits(d_id_str)) {
             d_id = std::stoi(d_id_str);
             device_chosen = true;
-            auto devices = sycl::device::get_devices();
-            for (const auto &device: devices) {
-                d_ids.push_back(device.get_info<sycl::info::device::vendor_id>());
-            }
-            if (!(std::find(d_ids.begin(), d_ids.end(), d_id) != d_ids.end())) {
-                std::cout << "Invalid vendor_id. Please choose from ( ";
-                for (auto _d_id: d_ids) {
-                    std::cout << _d_id << " ";
+            if (d_id >= devices.size()) {
+                std::cout << "Invalid device_id. Please choose device from: " << std::endl;
+                for (int i=0; i < devices.size(); i++) {
+                    const auto &device = devices[i];
+                    auto d_name = device.get_info<sycl::info::device::name>();
+                    std::cout << "    " << i << ": " << d_name << std::endl;
                 }
-                std::cout << "). Terminating. Exit Code: -999" << std::endl;
+                std::cout << "Terminating. Exit Code: -999" << std::endl;
                 return -999;
             }
         } else {
-            std::cout << std::endl << "Invalid vendor_id, must be integer. Terminating. Exit Code: -998" << std::endl << std::endl;
+            std::cout << std::endl << "Invalid device_id, must be integer. Terminating. Exit Code: -998" << std::endl << std::endl;
             return usage(argv[0], -998);
         }
         argn++;
@@ -293,6 +307,22 @@ int main(int argc, char **argv)
   if (niter == 0)
     return usage(argv[0]);
 
+  if (device_info) {
+      if (device_chosen) {
+          print_device_info(devices[d_id]);
+          std::cout << "Terminating. Exit Code: -997" << std::endl;
+          return -997;
+      } else {
+          for (int i=0; i < devices.size(); i++) {
+              const auto &device = devices[i];
+              std::cout << "device_id " << i << ":" << std::endl;
+              print_device_info(devices[i]);
+          }
+          std::cout << "Terminating. Exit Code: -996" << std::endl;
+          return -996;
+      }
+  }
+
   const int neppR = mgOnGpu::neppR; // ASA layout: constant at compile-time
   if ( gputhreads%neppR != 0 )
   {
@@ -318,8 +348,7 @@ int main(int argc, char **argv)
   const int nevt = ndim; // number of events in one iteration == number of GPU threads
   const int nevtALL = niter*nevt; // total number of ALL events in all iterations
 
-  //sycl::queue q_ct1{ sycl::gpu_selector{} };
-  sycl::queue q_ct1 = get_sycl_queue(device_chosen,d_id);
+  sycl::queue q_ct1 = sycl::queue(devices[d_id]);
 
   auto device = q_ct1.get_device();
   std::cout << "Selected " << device.get_info<sycl::info::device::name>()
@@ -389,23 +418,28 @@ int main(int argc, char **argv)
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST or not defined __CUDACC__
   auto hstRnarray   = hstMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
 #endif
-  sycl::buffer<fptype, 1, sycl::buffer_allocator> Momenta_buffer{sycl::range<1>{nMomenta}};
-  sycl::buffer<bool, 1, sycl::buffer_allocator> IsGoodHel_buffer{sycl::range<1>{ncomb}};
-  sycl::buffer<fptype, 1, sycl::buffer_allocator> Weights_buffer{sycl::range<1>{nWeights}};
-  sycl::buffer<fptype, 1, sycl::buffer_allocator> MEs_buffer{sycl::range<1>{nMEs}};
-  sycl::buffer<int, 2, sycl::buffer_allocator> cHel_buffer{sycl::range<2>{ncomb,npar}};
-  sycl::buffer<int, 1, sycl::buffer_allocator> cNGoodHel_buffer{sycl::range<1>{1}};
-  sycl::buffer<int, 1, sycl::buffer_allocator> cGoodHel_buffer{sycl::range<1>{ncomb}};
-#ifdef __CUDACC__
-  auto devRnarray   = devMakeUnique<fptype>( nRnarray ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
-  auto devMomenta   = devMakeUnique<fptype>( nMomenta ); // (previously was: allMomenta)
-  auto devIsGoodHel = devMakeUnique<bool  >( ncomb );
-  auto devWeights   = devMakeUnique<fptype>( nWeights ); // (previously was: meDevPtr)
-  auto devMEs       = devMakeUnique<fptype>( nMEs ); // (previously was: meDevPtr)
+  auto hstMomenta   = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (previously was: lp)
+  auto hstIsGoodHel = hstMakeUnique<bool  >( ncomb );
+  auto hstWeights   = hstMakeUnique<fptype>( nWeights ); // (previously was: meHostPtr)
+  auto hstMEs       = hstMakeUnique<fptype>( nMEs ); // (previously was: meHostPtr)
+
+  auto devRnarray   = malloc_device<fptype>( nRnarray, q_ct1 ); // AOSOA[npagR][nparf][np4][neppR] (NB: nevt=npagR*neppR)
+  auto devMomenta   = malloc_device<fptype>( nMomenta, q_ct1 ); // (previously was: allMomenta)
+  auto devIsGoodHel = malloc_device<bool  >( ncomb, q_ct1 );
+  auto devWeights   = malloc_device<fptype>( nWeights, q_ct1 ); // (previously was: meDevPtr)
+  auto devMEs       = malloc_device<fptype>( nMEs, q_ct1 ); // (previously was: meDevPtr)
+  auto devcHel      = malloc_device<int   >( ncomb*npar, q_ct1 );
+  auto devcIPC      = malloc_device<fptype>( 6, q_ct1 );
+  auto devcIPD      = malloc_device<fptype>( 2, q_ct1 );
+  //auto tmp_cHel = process.get_cHel();
+  q_ct1.memcpy( devcHel, process.get_cHel_ptr(), ncomb*npar*sizeof(int) ).wait();
+  q_ct1.memcpy( devcIPC, process.get_cIPC_ptr(), 6*sizeof(fptype) ).wait();
+  q_ct1.memcpy( devcIPD, process.get_cIPD_ptr(), 2*sizeof(fptype) ).wait();
+  auto devcNGoodHel = malloc_device<int   >( 1, q_ct1 ); 
+  auto devcGoodHel  = malloc_device<int   >( ncomb, q_ct1 ); 
 
 #if defined MGONGPU_CURAND_ONHOST or defined MGONGPU_COMMONRAND_ONHOST
   const int nbytesRnarray = nRnarray * sizeof(fptype);
-#endif
   const int nbytesMomenta = nMomenta * sizeof(fptype);
   const int nbytesIsGoodHel = ncomb * sizeof(bool);
   const int nbytesWeights = nWeights * sizeof(fptype);
@@ -470,7 +504,11 @@ int main(int argc, char **argv)
     std::vector<double> commonRnd = commonRandomPromises[iiter].get_future().get();
     assert( nRnarray == static_cast<int>( commonRnd.size() ) );
     // NB (PR #45): memcpy is strictly needed only in CUDA (copy to pinned memory), but keep it also in C++ for consistency
+#ifdef SYCL_LANGUAGE_VERSION
+    q_ct1.memcpy(devRnarray, commonRnd.data(), nbytesRnarray).wait();
+#else
     memcpy( hstRnarray.get(), commonRnd.data(), nRnarray * sizeof(hstRnarray[0]) );
+#endif
 #elif defined __CUDACC__
 #ifdef MGONGPU_CURAND_ONDEVICE
     grambo2toNm0::generateRnarray( rnGen, devRnarray.get(), nevt );
@@ -507,14 +545,12 @@ int main(int argc, char **argv)
 #ifdef SYCL_LANGUAGE_VERSION
     {
       q_ct1.submit([&](sycl::handler &cgh) {
-        auto devMomenta_acc = Momenta_buffer.get_access<sycl::access::mode::read_write>(cgh);
         cgh.parallel_for(
             sycl::nd_range<3>(sycl::range<3>(1, 1, gpublocks) *
                                   sycl::range<3>(1, 1, gputhreads),
                               sycl::range<3>(1, 1, gputhreads)),
             [=](sycl::nd_item<3> item_ct1) {
-              auto devMomenta_ptr = devMomenta_acc.get_pointer();
-              rambo2toNm0::getMomentaInitial(energy, devMomenta_ptr, item_ct1);
+              rambo2toNm0::getMomentaInitial(energy, devMomenta, item_ct1);
             });
       });
       q_ct1.wait();
@@ -530,22 +566,15 @@ int main(int argc, char **argv)
     rambtime += timermap.start( rfinKey );
 #ifdef SYCL_LANGUAGE_VERSION
     {
-      sycl::buffer Rnarray_buffer{hstRnarray.get(), sycl::range{nRnarray}};
       q_ct1.submit([&](sycl::handler &cgh) {
-        auto devRnarray_acc = Rnarray_buffer.get_access<sycl::access::mode::read>(cgh);
-        auto devMomenta_acc = Momenta_buffer.get_access<sycl::access::mode::read_write>(cgh);
-        auto devWeights_acc = Weights_buffer.get_access<sycl::access::mode::write>(cgh);
         cgh.parallel_for(
             sycl::nd_range<3>(sycl::range<3>(1, 1, gpublocks) *
                                   sycl::range<3>(1, 1, gputhreads),
                               sycl::range<3>(1, 1, gputhreads)),
             [=](sycl::nd_item<3> item_ct1) {
-              auto devRnarray_ptr = devRnarray_acc.get_pointer();
-              auto devWeights_ptr = devWeights_acc.get_pointer();
-              auto devMomenta_ptr = devMomenta_acc.get_pointer();
-              rambo2toNm0::getMomentaFinal(energy, devRnarray_ptr,
-                                            devMomenta_ptr,
-                                            devWeights_ptr, item_ct1);
+              rambo2toNm0::getMomentaFinal(energy, devRnarray,
+                                            devMomenta,
+                                            devWeights, item_ct1);
             });
       });
     q_ct1.wait();
@@ -555,6 +584,18 @@ int main(int argc, char **argv)
     rambo2toNm0::getMomentaFinal( energy, hstRnarray.get(), hstMomenta.get(), hstWeights.get(), nevt );
 #endif
     //std::cout << "Got final momenta" << std::endl;
+
+#ifdef SYCL_LANGUAGE_VERSION
+    // --- 2c. CopyDToH Weights
+    const std::string cwgtKey = "2c CpDTHwgt";
+    rambtime += timermap.start( cwgtKey );
+    q_ct1.memcpy(hstWeights.get(), devWeights, nbytesWeights).wait();
+
+    // --- 2d. CopyDToH Momenta
+    const std::string cmomKey = "2d CpDTHmom";
+    rambtime += timermap.start( cmomKey );
+    q_ct1.memcpy(hstMomenta.get(), devMomenta, nbytesMomenta).wait();
+#endif
 
 #ifdef __CUDACC__
     // --- 2c. CopyDToH Weights
@@ -586,31 +627,26 @@ int main(int argc, char **argv)
       // ... 0d1. Compute good helicity mask on the device
       {
         q_ct1.submit([&](sycl::handler &cgh) {
-          auto devcHel_acc = cHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
-          auto devMomenta_acc = Momenta_buffer.get_access<sycl::access::mode::read_write>(cgh);
-          auto devIsGoodHel_acc = IsGoodHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
           cgh.parallel_for(
               sycl::nd_range<3>(sycl::range<3>(1, 1, gpublocks) *
                                     sycl::range<3>(1, 1, gputhreads),
                                 sycl::range<3>(1, 1, gputhreads)),
               [=](sycl::nd_item<3> item_ct1) {
-                auto devMomenta_ptr = devMomenta_acc.get_pointer();
-                auto devIsGoodHel_ptr = devIsGoodHel_acc.get_pointer();
-                Proc::sigmaKin_getGoodHel(
-                devMomenta_ptr, devIsGoodHel_ptr, item_ct1, devcHel_acc);
+                    Proc::sigmaKin_getGoodHel(devMomenta, devMEs, devIsGoodHel, item_ct1, devcHel, devcIPC, devcIPD);
               });
         });
       q_ct1.wait();
       }
       // ... 0d2. Copy back good helicity mask to the host
-      sycl::host_accessor IsGoodHel_acc{IsGoodHel_buffer};
-      sycl::host_accessor cNGoodHel_acc{cNGoodHel_buffer};
-      sycl::host_accessor cGoodHel_acc{cGoodHel_buffer};
-      auto IsGoodHel_ptr = IsGoodHel_acc.get_pointer();
-      auto cNGoodHel_ptr = cNGoodHel_acc.get_pointer();
-      auto cGoodHel_ptr = cGoodHel_acc.get_pointer();
-      Proc::sigmaKin_setGoodHel(IsGoodHel_ptr, cNGoodHel_ptr, cGoodHel_ptr) ;
+      q_ct1.memcpy(hstIsGoodHel.get(), devIsGoodHel, nbytesIsGoodHel).wait();
       // ... 0d3. Copy back good helicity list to constant memory on the device
+          q_ct1.memset( devcGoodHel, 0, ncomb*sizeof(int) ).wait();
+	  {
+	      q_ct1.single_task([=] {
+                  Proc::sigmaKin_setGoodHel(devIsGoodHel, devcNGoodHel, devcGoodHel);
+	      });
+              q_ct1.wait();
+	  }
     }
 #endif
 
@@ -624,22 +660,16 @@ int main(int argc, char **argv)
 #ifndef MGONGPU_NSIGHT_DEBUG
     {
       q_ct1.submit([&](sycl::handler &cgh) {
-        auto cHel_acc = cHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
-        auto cNGoodHel_acc = cNGoodHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
-        auto cGoodHel_acc = cGoodHel_buffer.get_access<sycl::access::mode::read_write>(cgh);
-        auto devMomenta_acc = Momenta_buffer.get_access<sycl::access::mode::read_write>(cgh);
-        auto devMEs_acc = MEs_buffer.get_access<sycl::access::mode::read_write>(cgh);
         cgh.parallel_for(
             sycl::nd_range<3>(sycl::range<3>(1, 1, gpublocks) *
                                   sycl::range<3>(1, 1, gputhreads),
                               sycl::range<3>(1, 1, gputhreads)),
             [=](sycl::nd_item<3> item_ct1) {
-                auto devMomenta_ptr = devMomenta_acc.get_pointer();
-                auto devMEs_ptr = devMEs_acc.get_pointer();
-                auto cNGoodHel_ptr = cNGoodHel_acc.get_pointer();
-                auto cGoodHel_ptr = cGoodHel_acc.get_pointer();
                 Proc::sigmaKin(
-                devMomenta_ptr, devMEs_ptr, item_ct1, cHel_acc, cNGoodHel_ptr, cGoodHel_ptr);
+                devMomenta, devMEs, item_ct1,
+
+		devcHel, devcIPC, devcIPD,
+		devcNGoodHel, devcGoodHel);
               });
       });
     q_ct1.wait();
@@ -655,6 +685,7 @@ int main(int argc, char **argv)
     // --- 3b. CopyDToH MEs
     const std::string cmesKey = "3b CpDTHmes";
     wavetime += timermap.start( cmesKey );
+    q_ct1.memcpy(hstMEs.get(), devMEs, nbytesMEs).wait();
 #endif
 
     // *** STOP THE OLD TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
@@ -675,9 +706,6 @@ int main(int argc, char **argv)
       if (perf) std::cout << "Wave function time: " << wavetime << std::endl;
     }
 
-    sycl::host_accessor hstWeights{Weights_buffer};
-    sycl::host_accessor hstMomenta{Momenta_buffer};
-    sycl::host_accessor hstMEs{MEs_buffer};
     for (int ievt = 0; ievt < nevt; ++ievt) // Loop over all events in this iteration
     {
       if (verbose)
@@ -807,6 +835,20 @@ int main(int argc, char **argv)
   double stdweig = std::sqrt( sqsweigdiff / ( nevtALL - nnan ) );
 
   // === STEP 9 FINALISE
+#ifdef SYCL_LANGUAGE_VERSION
+  // --- 9aa. Free device memory 
+  const std::string syclfrKey = "9aa sycl_free";
+  timermap.start( syclfrKey );
+
+  sycl::free( devRnarray   , q_ct1);
+  sycl::free( devMomenta   , q_ct1);
+  sycl::free( devIsGoodHel , q_ct1);
+  sycl::free( devWeights   , q_ct1);
+  sycl::free( devMEs       , q_ct1);
+  sycl::free( devcHel      , q_ct1);
+  sycl::free( devcIPC      , q_ct1);
+  sycl::free( devcIPD      , q_ct1);
+#endif
   // --- 9a. Destroy curand generator
   const std::string dgenKey = "9a GenDestr";
   timermap.start( dgenKey );

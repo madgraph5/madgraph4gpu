@@ -51,7 +51,7 @@ generate g g > t t~ g g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.004848003387451172 [0m
+[1;32mDEBUG: model prefixing  takes 0.004915952682495117 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
@@ -68,7 +68,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=4: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ g g WEIGHTED<=4 @1  
 INFO: Process has 123 diagrams 
-1 processes with 123 diagrams generated in 0.186 s
+1 processes with 123 diagrams generated in 0.183 s
 Total: 1 processes with 123 diagrams
 output standalone_sycl CODEGEN_sycl_gg_ttgg
 [1mOutput will be done with PLUGIN: SYCL_SA_OUTPUT[0m
@@ -101,7 +101,7 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory /home/tojiro/tmp
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 914][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 929][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 936][0m [0m
-Generated helas calls for 1 subprocesses (123 diagrams) in 0.477 s
+Generated helas calls for 1 subprocesses (123 diagrams) in 0.476 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 146][0m [0m
 ALOHA: aloha creates routines (starting by VVV1)
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
@@ -1269,6 +1269,6 @@ INFO: /home/tojiro/tmp/2.7.0_gpu/CODEGEN_sycl_gg_ttgg/src/. and /home/tojiro/tmp
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 155][0m [0m
 quit
 
-real	0m1.781s
-user	0m1.674s
+real	0m1.759s
+user	0m1.666s
 sys	0m0.097s

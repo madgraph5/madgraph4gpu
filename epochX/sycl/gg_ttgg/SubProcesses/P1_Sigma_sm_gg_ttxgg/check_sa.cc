@@ -632,7 +632,7 @@ int main(int argc, char **argv)
                                     sycl::range<3>(1, 1, gputhreads),
                                 sycl::range<3>(1, 1, gputhreads)),
               [=](sycl::nd_item<3> item_ct1) {
-                    Proc::sigmaKin_getGoodHel(devMomenta, devIsGoodHel, item_ct1, devcHel, devcIPC, devcIPD);
+                    Proc::sigmaKin_getGoodHel(devMomenta, devMEs, devIsGoodHel, item_ct1, devcHel, devcIPC, devcIPD);
               });
         });
       q_ct1.wait();

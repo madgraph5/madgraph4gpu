@@ -13,9 +13,13 @@
 
 namespace mgOnGpu
 {
+
 #ifdef MGONGPU_CPPSIMD
 
-  const int neppV = neppM;
+  const int neppV = MGONGPU_CPPSIMD;
+
+  // SANITY CHECK: cppAlign must be a multiple of neppV * sizeof(fptype)
+  static_assert( mgOnGpu::cppAlign % ( neppV * sizeof(fptype) ) == 0 );
 
   // --- Type definition (using vector compiler extensions: need -march=...)
 #ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
@@ -30,6 +34,9 @@ namespace mgOnGpu
   // See also https://stackoverflow.com/questions/26554829
   //#define MGONGPU_HAS_CXTYPE_REF 1 // clang test (compilation fails also on clang 12.0, issue #182)
 #undef MGONGPU_HAS_CXTYPE_REF // clang default
+#elif defined __INTEL_COMPILER
+  //#define MGONGPU_HAS_CXTYPE_REF 1 // icc default?
+#undef MGONGPU_HAS_CXTYPE_REF // icc test
 #else
 #define MGONGPU_HAS_CXTYPE_REF 1 // gcc default
   //#undef MGONGPU_HAS_CXTYPE_REF // gcc test (very slightly slower? issue #172)
@@ -93,7 +100,7 @@ namespace mgOnGpu
 
 #else // MGONGPU_CPPSIMD not defined
 
-  const int neppV = 1; // Note: also neppM is equal to 1
+  const int neppV = 1;
 
 #endif
 }
@@ -111,7 +118,7 @@ using mgOnGpu::bool_v;
 inline std::ostream& operator<<( std::ostream& out, const bool_v& v )
 {
   out << "{ " << v[0];
-  for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
+  for ( int i=1; i<neppV; i++ ) out << ", " << v[i];
   out << " }";
   return out;
 }
@@ -119,28 +126,30 @@ inline std::ostream& operator<<( std::ostream& out, const bool_v& v )
 inline std::ostream& operator<<( std::ostream& out, const fptype_v& v )
 {
   out << "{ " << v[0];
-  for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
+  for ( int i=1; i<neppV; i++ ) out << ", " << v[i];
   out << " }";
   return out;
 }
 #endif
 
+#ifndef SYCL_LANGUAGE_VERSION
 inline std::ostream& operator<<( std::ostream& out, const cxtype& c )
 {
   out << "[" << cxreal(c) << "," << cximag(c) << "]";
   //out << cxreal(c) << "+i" << cximag(c);
   return out;
 }
+#endif
 
 #ifdef MGONGPU_CPPSIMD
 inline std::ostream& operator<<( std::ostream& out, const cxtype_v& v )
 {
 #ifdef MGONGPU_HAS_CXTYPE_REF
   out << "{ " << v[0];
-  for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
+  for ( int i=1; i<neppV; i++ ) out << ", " << v[i];
 #else
   out << "{ " << cxmake( v.real()[0], v.imag()[0] );
-  for ( int i=1; i<neppV; i++ ) std::cout << ", " << cxmake( v.real()[i], v.imag()[i] );
+  for ( int i=1; i<neppV; i++ ) out << ", " << cxmake( v.real()[i], v.imag()[i] );
 #endif
   out << " }";
   return out;
@@ -535,6 +544,14 @@ fptype_v fpmin( const fptype& a, const fptype_v& b )
 }
 */
 
+inline
+bool maskor( const bool_v& mask )
+{
+  bool out = false;
+  for ( int i=0; i<neppV; i++ ) out = out || mask[i];
+  return out;
+}
+
 #else
 
 inline
@@ -547,6 +564,12 @@ inline
 cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
 {
   return ( mask ? a : b );
+}
+
+inline
+bool maskor( const bool& mask )
+{
+  return mask;
 }
 
 #endif
