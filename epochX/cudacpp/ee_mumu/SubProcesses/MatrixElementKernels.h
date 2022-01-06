@@ -30,6 +30,9 @@ namespace mg5amcCpu
     // Destructor
     virtual ~MatrixElementKernelBase(){}
 
+    // Compute good helicities
+    virtual void computeGoodHelicities() = 0;
+
     // Compute matrix elements
     virtual void computeMatrixElements() = 0;
 
@@ -61,6 +64,9 @@ namespace mg5amcCpu
     // Destructor
     virtual ~MatrixElementKernelHost(){}
 
+    // Compute good helicities
+    void computeGoodHelicities() override final;
+
     // Compute matrix elements
     void computeMatrixElements() override final;
 
@@ -85,6 +91,9 @@ namespace mg5amcCpu
 
     // Destructor
     virtual ~MatrixElementKernelDevice(){}
+
+    // Compute good helicities
+    void computeGoodHelicities() override final;
 
     // Compute matrix elements
     void computeMatrixElements() override final;

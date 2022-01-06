@@ -38,6 +38,12 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  void MatrixElementKernelHost::computeGoodHelicities()
+  {
+  }
+
+  //--------------------------------------------------------------------------
+
   void MatrixElementKernelHost::computeMatrixElements()
   {
     // ** START LOOP ON IEVT **
@@ -74,6 +80,14 @@ namespace mg5amcCpu
       sstr << "MatrixElementKernelHost: gputhreads should be a multiple of neppM=" << neppM;
       throw std::runtime_error( sstr.str() );
     }
+  }
+#endif
+
+  //--------------------------------------------------------------------------
+
+#ifdef __CUDACC__
+  void MatrixElementKernelDevice::computeGoodHelicities()
+  {
   }
 #endif
 
