@@ -1,18 +1,19 @@
 #include "MatrixElementKernels.h"
 
 #include "checkCuda.h"
+#include "CPPProcess.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
 #include "rambo.h" // inline implementation of RAMBO algorithms and kernels
 
 #include <sstream>
 
-#ifdef __CUDACC__
-namespace mg5amcGpu
-#else
+//============================================================================
+
+#ifndef __CUDACC__
 namespace mg5amcCpu
-#endif
-{
+{  
+
   //--------------------------------------------------------------------------
 
   MatrixElementKernelHost::MatrixElementKernelHost( const BufferMomenta& momenta,         // input: momenta
@@ -40,22 +41,35 @@ namespace mg5amcCpu
 
   void MatrixElementKernelHost::computeGoodHelicities()
   {
+    using mgOnGpu::ncomb; // the number of helicity combinations
+    HostBufferHelicityMask hstIsGoodHel( ncomb );
+    // ... 0d1. Compute good helicity mask on the host
+    sigmaKin_getGoodHel( m_momenta.data(), m_matrixElements.data(), hstIsGoodHel.data(), nevt() );
+    // ... 0d2. Copy back good helicity list to static memory on the host
+    // [FIXME! REMOVE THIS STATIC THAT BREAKS MULTITHREADING?]
+    sigmaKin_setGoodHel( hstIsGoodHel.data() );
   }
 
   //--------------------------------------------------------------------------
 
   void MatrixElementKernelHost::computeMatrixElements()
   {
-    // ** START LOOP ON IEVT **
-    for ( size_t ievt = 0; ievt < nevt(); ++ievt )
-    {
-    }
-    // ** END LOOP ON IEVT **
+    sigmaKin( m_momenta.data(), m_matrixElements.data(), nevt() );
   }
 
   //--------------------------------------------------------------------------
 
+}
+#endif
+
+//============================================================================
+
 #ifdef __CUDACC__
+namespace mg5amcGpu
+{
+
+  //--------------------------------------------------------------------------
+
   MatrixElementKernelDevice::MatrixElementKernelDevice( const BufferMomenta& momenta,         // input: momenta
                                                         BufferMatrixElements& matrixElements, // output: matrix elements
                                                         const size_t gpublocks,
@@ -81,24 +95,39 @@ namespace mg5amcCpu
       throw std::runtime_error( sstr.str() );
     }
   }
-#endif
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
   void MatrixElementKernelDevice::computeGoodHelicities()
   {
+    using mgOnGpu::ncomb; // the number of helicity combinations
+    PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
+    DeviceBufferHelicityMask devIsGoodHel( ncomb );
+    // ... 0d1. Compute good helicity mask on the device
+    sigmaKin_getGoodHel<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_matrixElements.data(), devIsGoodHel.data() );
+    checkCuda( cudaPeekAtLastError() );
+    // ... 0d2. Copy back good helicity mask to the host
+    copyHostFromDevice( hstIsGoodHel, devIsGoodHel );
+    // ... 0d3. Copy back good helicity list to constant memory on the device
+    sigmaKin_setGoodHel( hstIsGoodHel.data() );
   }
-#endif
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
   void MatrixElementKernelDevice::computeMatrixElements()
   {
-  }
+#ifndef MGONGPU_NSIGHT_DEBUG
+    sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_matrixElements.data() );
+#else
+    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX*sizeof(float)>>>( m_momenta.data(), m_matrixElements.data() );
 #endif
+    checkCuda( cudaPeekAtLastError() );
+    checkCuda( cudaDeviceSynchronize() );
+  }
 
   //--------------------------------------------------------------------------
 
 }
+#endif
+
+//============================================================================

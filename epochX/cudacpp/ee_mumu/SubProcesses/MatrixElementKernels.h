@@ -51,6 +51,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+#ifndef __CUDACC__
   // A class encapsulating matrix element calculations on a CPU host
   class MatrixElementKernelHost final : public MatrixElementKernelBase, public NumberOfEvents
   {
@@ -74,6 +75,7 @@ namespace mg5amcCpu
     bool isOnDevice() const override final { return false; }
 
   };
+#endif
 
   //--------------------------------------------------------------------------
 
