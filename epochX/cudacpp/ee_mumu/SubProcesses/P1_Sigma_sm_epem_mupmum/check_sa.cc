@@ -112,7 +112,7 @@ void debug_me_is_abnormal( const fptype& me, int ievtALL )
 
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
-            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--curhst|--curdev|--common] [--rmbhst|--rmbdev] [--bridge|-b]"
+            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--curhst|--curdev|--common] [--rmbhst|--rmbdev] [--bridge]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
@@ -141,7 +141,6 @@ int main(int argc, char **argv)
   bool debug = false;
   bool perf = false;
   bool json = false;
-  bool bridge = false;
   int niter = 0;
   int gpublocks = 1;
   int gputhreads = 32;
@@ -149,7 +148,7 @@ int main(int argc, char **argv)
   int jsonrun = 0;
   int numvec[5] = {0,0,0,0,0};
   int nnum = 0;
-
+  // Random number mode
   enum class RandomNumberMode{ CommonRandom=0, CurandHost=1, CurandDevice=2 };
 #ifdef __CUDACC__
   RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on GPU
@@ -158,13 +157,15 @@ int main(int argc, char **argv)
 #else
   RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // default on CPU if build has no curand
 #endif
-
+  // Rambo sampling mode (NB RamboHost implies CommonRandom or CurandHost!)
   enum class RamboSamplingMode{ RamboHost=1, RamboDevice=2 };
 #ifdef __CUDACC__
   RamboSamplingMode rmbsmp = RamboSamplingMode::RamboDevice; // default on GPU
 #else
   RamboSamplingMode rmbsmp = RamboSamplingMode::RamboHost; // default on CPU
 #endif
+  // Bridge emulation mode (NB Bridge implies RamboHost!)
+  bool bridge = false;
 
   // READ COMMAND LINE ARGUMENTS
   for ( int argn = 1; argn < argc; ++argn )
@@ -412,13 +413,6 @@ int main(int argc, char **argv)
   PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
   DeviceBufferHelicityMask devIsGoodHel( ncomb );
 #endif
-
-  // Default mode:
-  // (CPU) comp random(cpu)->momenta(cpu)->MEs(cpu)
-  // (GPU) comp random(gpu)->momenta(gpu)->MEs(gpu), copy momenta(gpu->cpu), copy MEs(gpu->cpu)
-  // Bridge mode:
-  // (CPU) comp random(cpu)->momenta(cpu)->MEs(cpu)
-  // (GPU) comp random(cpu)->momenta(cpu), copy momenta(cpu->gpu), comp momenta(gpu)->MEs(gpu), copy MEs(gpu->cpu) 
 
   std::unique_ptr<double[]> genrtimes( new double[niter] );
   std::unique_ptr<double[]> rambtimes( new double[niter] );
@@ -828,11 +822,13 @@ int main(int argc, char **argv)
   if ( rmbsmp == RamboSamplingMode::RamboHost ) wrkflwtxt += "RMBHST+";
   else if ( rmbsmp == RamboSamplingMode::RamboDevice ) wrkflwtxt += "RMBDEV+";
   else wrkflwtxt += "??????+"; // no path to this statement
-  // -- HOST or DEVICE matrix elements?
+  // -- HOST or DEVICE matrix elements? Standalone MEs or BRIDGE?
 #ifdef __CUDACC__
-  wrkflwtxt += "MESDEV";
+  if ( !bridge ) wrkflwtxt += "MESDEV";
+  else wrkflwtxt += "BRDDEV";
 #else
-  wrkflwtxt += "MESHST"; // FIXME! allow this also in CUDA (eventually with various simd levels)
+  if ( !bridge ) wrkflwtxt += "MESHST"; // FIXME! allow this also in CUDA (eventually with various simd levels)
+  else wrkflwtxt += "BRDHST";
 #endif
   // -- SIMD matrix elements?
 #if !defined MGONGPU_CPPSIMD
@@ -895,11 +891,10 @@ int main(int argc, char **argv)
               << " [inlineHel=0]"
 #endif
 #ifdef MGONGPU_HARDCODE_CIPC
-              << " [hardcodeCIPC=1]"
+              << " [hardcodeCIPC=1]" << std::endl
 #else
-              << " [hardcodeCIPC=0]"
+              << " [hardcodeCIPC=0]" << std::endl
 #endif
-              << " [bridge=" << ( bridge ? "1" : "0" ) << "]" << std::endl
               << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << "NumThreadsPerBlock          = " << gputhreads << std::endl
               << "NumIterations               = " << niter << std::endl
