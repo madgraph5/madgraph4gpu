@@ -254,6 +254,21 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  // A base class encapsulating a memory buffer for the helicity mask
+  typedef BufferBase<bool> BufferHelicityMask;
+
+#ifndef __CUDACC__
+  // A class encapsulating a C++ host buffer for the helicity mask
+  typedef HostBufferBase<bool> HostBufferHelicityMask;
+#else
+  // A class encapsulating a CUDA pinned host buffer for the helicity mask
+  typedef PinnedHostBufferBase<bool> PinnedHostBufferHelicityMask;
+  // A class encapsulating a CUDA device buffer for the helicity mask
+  typedef DeviceBufferBase<bool> DeviceBufferHelicityMask;
+#endif
+
+  //--------------------------------------------------------------------------
+
 #ifdef __CUDACC__
   template<class Tdst, class Tsrc>
   void copyDeviceFromHost( Tdst& dst, const Tsrc& src ) // keep the same order of arguments as in memcpy
