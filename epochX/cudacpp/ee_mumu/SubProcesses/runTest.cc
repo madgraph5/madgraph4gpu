@@ -39,7 +39,7 @@ struct CPUTest : public CUDA_CPU_TestBase {
 
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
-  Proc::CPPProcess process;
+  CPPProcess process;
   HostBufferRandomNumbers hstRnarray;
   HostBufferMomenta hstMomenta;
   HostBufferWeights hstWeights;
@@ -84,13 +84,12 @@ struct CPUTest : public CUDA_CPU_TestBase {
     if ( iiter == 0 )
     {
       // ... 0d1. Compute good helicity mask on the host
-      Proc::sigmaKin_getGoodHel(hstMomenta.data(), hstMatrixElements.data(), hstIsGoodHel.data(), nevt);
+      sigmaKin_getGoodHel(hstMomenta.data(), hstMatrixElements.data(), hstIsGoodHel.data(), nevt);
       // ... 0d2. Copy back good helicity list to static memory on the host
-      Proc::sigmaKin_setGoodHel(hstIsGoodHel.data());
+      sigmaKin_setGoodHel(hstIsGoodHel.data());
     }
-
     // --- 3a. SigmaKin
-    Proc::sigmaKin(hstMomenta.data(), hstMatrixElements.data(), nevt);
+    sigmaKin(hstMomenta.data(), hstMatrixElements.data(), nevt);
   }
 
   fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
@@ -119,7 +118,7 @@ struct CUDATest : public CUDA_CPU_TestBase {
 
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
-  gProc::CPPProcess process;
+  CPPProcess process;
   PinnedHostBufferRandomNumbers hstRnarray;
   PinnedHostBufferMomenta hstMomenta;
   PinnedHostBufferWeights hstWeights;
@@ -180,19 +179,18 @@ struct CUDATest : public CUDA_CPU_TestBase {
     if ( iiter == 0 )
     {
       // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.data(), devMatrixElements.data(), devIsGoodHel.data());
+      sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.data(), devMatrixElements.data(), devIsGoodHel.data());
       checkCuda( cudaPeekAtLastError() );
       // ... 0d2. Copy back good helicity mask to the host
       copyHostFromDevice( hstIsGoodHel, devIsGoodHel );
       // ... 0d3. Copy back good helicity list to constant memory on the device
-      gProc::sigmaKin_setGoodHel(hstIsGoodHel.data());
+      sigmaKin_setGoodHel(hstIsGoodHel.data());
     }
-
     // --- 3a. SigmaKin
 #ifndef MGONGPU_NSIGHT_DEBUG
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.data(), devMatrixElements.data());
+    sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.data(), devMatrixElements.data());
 #else
-    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.data(), devMatrixElements.data());
+    sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.data(), devMatrixElements.data());
 #endif
     checkCuda( cudaPeekAtLastError() );
 

@@ -352,11 +352,7 @@ int main(int argc, char **argv)
   timermap.start( procKey );
 
   // Create a process object
-#ifdef __CUDACC__
-  gProc::CPPProcess process( niter, gpublocks, gputhreads, verbose );
-#else
-  Proc::CPPProcess process( niter, gpublocks, gputhreads, verbose );
-#endif
+  CPPProcess process( niter, gpublocks, gputhreads, verbose );
 
   // Read param_card and set parameters
   process.initProc("../../Cards/param_card.dat");
@@ -571,17 +567,17 @@ int main(int argc, char **argv)
       timermap.start( ghelKey );
 #ifdef __CUDACC__
       // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.data(), devMatrixElements.data(), devIsGoodHel.data());
+      sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.data(), devMatrixElements.data(), devIsGoodHel.data());
       checkCuda( cudaPeekAtLastError() );
       // ... 0d2. Copy back good helicity mask to the host
       copyHostFromDevice( hstIsGoodHel, devIsGoodHel );
       // ... 0d3. Copy back good helicity list to constant memory on the device
-      gProc::sigmaKin_setGoodHel(hstIsGoodHel.data());
+      sigmaKin_setGoodHel(hstIsGoodHel.data());
 #else
       // ... 0d1. Compute good helicity mask on the host
-      Proc::sigmaKin_getGoodHel(hstMomenta.data(), hstMatrixElements.data(), hstIsGoodHel.data(), nevt);
+      sigmaKin_getGoodHel(hstMomenta.data(), hstMatrixElements.data(), hstIsGoodHel.data(), nevt);
       // ... 0d2. Copy back good helicity list to static memory on the host
-      Proc::sigmaKin_setGoodHel(hstIsGoodHel.data());
+      sigmaKin_setGoodHel(hstIsGoodHel.data());
 #endif
     }
 
@@ -594,14 +590,14 @@ int main(int argc, char **argv)
     timermap.start( skinKey );
 #ifdef __CUDACC__
 #ifndef MGONGPU_NSIGHT_DEBUG
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.data(), devMatrixElements.data());
+    sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.data(), devMatrixElements.data());
 #else
-    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.data(), devMatrixElements.data());
+    sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.data(), devMatrixElements.data());
 #endif
     checkCuda( cudaPeekAtLastError() );
     checkCuda( cudaDeviceSynchronize() );
 #else
-    Proc::sigmaKin(hstMomenta.data(), hstMatrixElements.data(), nevt);
+    sigmaKin(hstMomenta.data(), hstMatrixElements.data(), nevt);
 #endif
 
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
