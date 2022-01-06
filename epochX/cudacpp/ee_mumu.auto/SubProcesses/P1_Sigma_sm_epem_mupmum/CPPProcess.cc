@@ -144,33 +144,33 @@ namespace Proc
       // Wavefunction(s) for diagram number 1
 #ifdef __CUDACC__
 #ifndef MGONGPU_TEST_DIVERGENCE
-      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
+      opzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
 #else
       if ( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
-        opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
+        opzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
       else
-        oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 );
+        oxxxxx<DeviceAccessMomenta>( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 );
 #endif
 #else
-      opzxxx( p4IparIpagV( allmomenta, 0, ipagV ), cHel[ihel][0], -1, w_sv[0] ); // NB: opzxxx only uses pz
-#endif
-
-#ifdef __CUDACC__
-      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz
-#else
-      imzxxx( p4IparIpagV( allmomenta, 1, ipagV ), cHel[ihel][1], +1, w_sv[1] ); // NB: imzxxx only uses pz
+      opzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
 #endif
 
 #ifdef __CUDACC__
-      ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 );
+      imzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz
 #else
-      ixzxxx( p4IparIpagV( allmomenta, 2, ipagV ), cHel[ihel][2], -1, w_sv[2] );
+      imzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz
 #endif
 
 #ifdef __CUDACC__
-      oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 );
+      ixzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 );
 #else
-      oxzxxx( p4IparIpagV( allmomenta, 3, ipagV ), cHel[ihel][3], +1, w_sv[3] );
+      ixzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][2], -1, w_sv[2], 2 );
+#endif
+
+#ifdef __CUDACC__
+      oxzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 );
+#else
+      oxzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][3], +1, w_sv[3], 3 );
 #endif
 
       FFV1P0_3( w_sv[1], w_sv[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );
@@ -285,12 +285,6 @@ namespace Proc
 #endif
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
     static_assert( sizeof(cxtype) == 2 * sizeof(fptype), "sizeof(cxtype) is not 2*sizeof(fptype)" );
-#ifndef __CUDACC__
-    // SANITY CHECK: check that neppR, neppM and neppV are powers of two (https://stackoverflow.com/a/108360)
-    auto ispoweroftwo = []( int n ) { return ( n > 0 ) && !( n & ( n - 1 ) ); };
-    static_assert( ispoweroftwo( mgOnGpu::neppM ), "neppM is not a power of 2" );
-    static_assert( ispoweroftwo( neppV ), "neppV is not a power of 2" );
-#endif
   }
 
   //--------------------------------------------------------------------------

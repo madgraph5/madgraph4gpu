@@ -147,13 +147,9 @@ namespace Proc
       opzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
 #else
       if ( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
-      {
         opzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
-      }      
       else
-      {
         oxxxxx<DeviceAccessMomenta>( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 );
-      }
 #endif
 #else
       opzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz

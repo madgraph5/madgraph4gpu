@@ -1200,12 +1200,11 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         split_line = [ str.lstrip(' ').rstrip(' ') for str in split_line] # AV
         # (AV join using ',': no need to add a space as this is done by format_call later on)
         line = ', '.join(split_line) # AV (for CUDA)
-        # AV1: split_line logic is to have two different lines in CUDA and in C++ in xxx calls
-        ipar = int(split_line[-1].split(')')[0]) # AV (for C++)
-        split_line[-1] = split_line[-2] + ' )' + split_line[-1].split(')')[1] # AV (for C++)
-        split_line.pop(-2) # AV (for C++)
-        split_line[0] = split_line[0].replace( 'allmomenta', 'p4IparIpagV( allmomenta, %d, ipagV )'%ipar )
-        # AV2: line2 logic is to have MGONGPU_TEST_DIVERGENCE on the firxt xxx call
+        line = line.replace( 'xxx(', 'xxx<DeviceAccessMomenta>(' )
+        # AV1: line1 logic is to have two different lines in CUDA (line) and in C++ (line1) in xxx calls
+        line1 = line.replace( 'xxx<DeviceAccessMomenta>(', 'xxx<HostAccessMomenta>(' )
+        line1 = line1.replace( 'allmomenta', 'ievt0Momenta' )
+        # AV2: line2 logic is to have MGONGPU_TEST_DIVERGENCE on the first xxx call
         if self.first_get_external and ( ( 'mzxxx' in line ) or ( 'pzxxx' in line ) or ( 'xzxxx' in line ) ) :
             self.first_get_external = False
             line2 = line.replace('mzxxx','xxxxx').replace('pzxxx','xxxxx').replace('xzxxx','xxxxx')
@@ -1215,10 +1214,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             split_line2.insert(1, '0') # add parameter fmass=0
             line2 = ', '.join(split_line2)
             text = '#ifdef __CUDACC__\n#ifndef MGONGPU_TEST_DIVERGENCE\n      %s\n#else\n      if ( ( blockDim.x * blockIdx.x + threadIdx.x ) %% 2 == 0 )\n        %s\n      else\n        %s\n#endif\n#else\n      %s\n#endif\n' # AV
-            return text % (line, line, line2, ', '.join(split_line))
+            return text % (line, line, line2, line1)
         ###text = '\n#ifdef __CUDACC__\n    %s    \n#else\n    %s\n#endif \n'
         text = '#ifdef __CUDACC__\n      %s\n#else\n      %s\n#endif\n' # AV
-        return text % (line, ', '.join(split_line))
+        return text % (line, line1)
     
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (vectorize w_sv)
     # This is the method that creates the ixxx/oxxx function calls in calculate_wavefunctions
