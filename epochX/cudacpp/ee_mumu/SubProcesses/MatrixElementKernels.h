@@ -1,5 +1,5 @@
-#ifndef RAMBOSAMPLINGKERNELS_H 
-#define RAMBOSAMPLINGKERNELS_H 1
+#ifndef MATRIXELEMENTKERNELS_H 
+#define MATRIXELEMENTKERNELS_H 1
 
 #include "mgOnGpuConfig.h"
 
@@ -14,73 +14,55 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // A base class encapsulating phase space sampling on a CPU host or on a GPU device
-  class SamplingKernelBase //: virtual public ISamplingKernel
+  // A base class encapsulating matrix element calculations on a CPU host or on a GPU device
+  class MatrixElementKernelBase //: virtual public IMatrixElementKernel
   {
   protected:
 
     // Constructor from existing input and output buffers
-    SamplingKernelBase( const fptype energy,                // input: energy
-                        const BufferRandomNumbers& rnarray, // input: random numbers in [0,1]
-                        BufferMomenta& momenta,             // output: momenta
-                        BufferWeights& weights )            // output: weights
-      : m_energy( energy )
-      , m_rnarray( rnarray )
-      , m_momenta( momenta )
-      , m_weights( weights ){}
+    MatrixElementKernelBase( const BufferMomenta& momenta,          // input: momenta
+                             BufferMatrixElements& matrixElements ) // output: matrix elements
+      : m_momenta( momenta )
+      , m_matrixElements( matrixElements ){}
 
   public:
 
     // Destructor
-    virtual ~SamplingKernelBase(){}
+    virtual ~MatrixElementKernelBase(){}
 
-    // Get momenta of initial state particles
-    virtual void getMomentaInitial() = 0;
-
-    // Get momenta of final state particles and weights
-    virtual void getMomentaFinal() = 0;
+    // Compute matrix elements
+    virtual void computeMatrixElements() = 0;
 
     // Is this a host or device kernel?
     virtual bool isOnDevice() const = 0;
 
   protected:
 
-    // The energy
-    const fptype m_energy;
+    // The buffer for the input momenta
+    const BufferMomenta& m_momenta;
 
-    // The buffer for the input random numbers
-    const BufferRandomNumbers& m_rnarray;
-
-    // The buffer for the output momenta
-    BufferMomenta& m_momenta;
-
-    // The buffer for the output weights
-    BufferWeights& m_weights;
+    // The buffer for the output matrix elements
+    BufferMatrixElements& m_matrixElements;
 
   };
 
   //--------------------------------------------------------------------------
 
-  // A class encapsulating RAMBO phase space sampling on a CPU host
-  class RamboSamplingKernelHost : public SamplingKernelBase, public NumberOfEvents
+  // A class encapsulating matrix element calculations on a CPU host
+  class MatrixElementKernelHost final : public MatrixElementKernelBase, public NumberOfEvents
   {
   public:
 
     // Constructor from existing input and output buffers
-    RamboSamplingKernelHost( const fptype energy,                // input: energy
-                             const BufferRandomNumbers& rnarray, // input: random numbers in [0,1]
-                             BufferMomenta& momenta,             // output: momenta
-                             BufferWeights& weights,             // output: weights
+    MatrixElementKernelHost( const BufferMomenta& momenta,         // input: momenta
+                             BufferMatrixElements& matrixElements, // output: matrix elements
                              const size_t nevt );
 
     // Destructor
-    virtual ~RamboSamplingKernelHost(){}
+    virtual ~MatrixElementKernelHost(){}
 
-    // Get momenta of initial state particles
-    void getMomentaInitial() override final;
-
-    // Get momenta of final state particles and weights
-    void getMomentaFinal() override final;
+    // Compute matrix elements
+    void computeMatrixElements() override final;
 
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return false; }
@@ -90,27 +72,22 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
-  // A class encapsulating RAMBO phase space sampling on a GPU device
-  class RamboSamplingKernelDevice : public SamplingKernelBase
+  // A class encapsulating matrix element calculations on a GPU device
+  class MatrixElementKernelDevice : public MatrixElementKernelBase, public NumberOfEvents
   {
   public:
 
     // Constructor from existing input and output buffers
-    RamboSamplingKernelDevice( const fptype energy,                // input: energy
-                               const BufferRandomNumbers& rnarray, // input: random numbers in [0,1]
-                               BufferMomenta& momenta,             // output: momenta
-                               BufferWeights& weights,             // output: weights
+    MatrixElementKernelDevice( const BufferMomenta& momenta,         // input: momenta
+                               BufferMatrixElements& matrixElements, // output: matrix elements
                                const size_t gpublocks,
                                const size_t gputhreads );
 
     // Destructor
-    virtual ~RamboSamplingKernelDevice(){}
+    virtual ~MatrixElementKernelDevice(){}
 
-    // Get momenta of initial state particles
-    void getMomentaInitial() override final;
-
-    // Get momenta of final state particles and weights
-    void getMomentaFinal() override final;
+    // Compute matrix elements
+    void computeMatrixElements() override final;
 
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return true; }
@@ -129,4 +106,4 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 }
-#endif // RAMBOSAMPLINGKERNELS_H
+#endif // MATRIXELEMENTKERNELS_H
