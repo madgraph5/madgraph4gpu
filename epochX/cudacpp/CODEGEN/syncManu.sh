@@ -46,7 +46,7 @@ for proc in ${processes}; do
   ./diffCode.sh ../${proc}.auto ../${proc} -r
   if [ "$?" == "0" ]; then echo "(no differences)"; continue; fi
   echo "------------------------------------------------------------------"
-  ./diffCode.sh ../${proc}.auto ../${proc} -r | awk '{print "cp -dp", $3$4, gensub(".auto","","g",$3$4)}' | tr ':' '/' > ${cmdfile}
+  ./diffCode.sh ../${proc}.auto ../${proc} -r | awk '{if(index($3,".auto")>0){print "cp -dp", $3$4, gensub(".auto","","g",$3$4)}}' | tr ':' '/' > ${cmdfile}
   cat ${cmdfile}
   source ${cmdfile}
   # FIXME: the script is not handling files which only exist in manual (i.e. have been removed in auto)
