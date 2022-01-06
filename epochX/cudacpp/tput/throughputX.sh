@@ -18,7 +18,6 @@ helinls="0"
 hrdcods="0"
 rndgen=""
 rmbsam=""
-bridge=""
 suffs="/"
 maketype=
 makej=
@@ -28,7 +27,7 @@ verbose=0
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst] [-bridge] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -110,7 +109,7 @@ while [ "$1" != "" ]; do
     rmbsmp=" -${1}"
     shift
   elif [ "$1" == "-bridge" ]; then
-    bridge=" -${1}"
+    rmbsmp=" -${1}"
     shift
   elif [ "$1" == "-auto" ]; then
     if [ "${suffs}" == ".auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
@@ -268,7 +267,7 @@ printf "DATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
 function runExe() {
   exe=$1
   args="$2"
-  args="$args$rndgen$rmbsmp$bridge"
+  args="$args$rndgen$rmbsmp"
   echo "runExe $exe $args OMP=$OMP_NUM_THREADS"
   pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[MECalc|MeanMatrix|FP precision|TOTAL       :"
   # Optionally add other patterns here for some specific configurations (e.g. clang)
@@ -304,7 +303,7 @@ function runExe() {
 function runNcu() {
   exe=$1
   args="$2"
-  args="$args$rndgen$rmbsmp$bridge"
+  args="$args$rndgen$rmbsmp"
   ###echo "runNcu $exe $args"
   if [ "${verbose}" == "1" ]; then set -x; fi
   #$(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
@@ -322,7 +321,7 @@ function runNcu() {
 function runNcuDiv() {
   exe=$1
   args="-p 1 32 1"
-  args="$args$rndgen$rmbsmp$bridge"
+  args="$args$rndgen$rmbsmp"
   ###echo "runNcuDiv $exe $args"
   if [ "${verbose}" == "1" ]; then set -x; fi
   ###$(which ncu) --query-metrics $exe $args
@@ -343,7 +342,7 @@ function runNcuDiv() {
 function runNcuReq() {
   exe=$1
   ncuArgs="$2"
-  ncuArgs="$ncuArgs$rndgen$rmbsmp$bridge"
+  ncuArgs="$ncuArgs$rndgen$rmbsmp"
   if [ "${verbose}" == "1" ]; then set -x; fi
   for args in "-p 1 1 1" "-p 1 4 1" "-p 1 8 1" "-p 1 32 1" "$ncuArgs"; do
     ###echo "runNcuReq $exe $args"
