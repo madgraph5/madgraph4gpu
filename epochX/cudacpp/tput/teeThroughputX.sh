@@ -4,7 +4,7 @@ cd $(dirname $0)
 
 function usage()
 {
-  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttgg)> [-auto|-autoonly] [-flt|-fltonly] [-inl|-inlonly]  [-hrd|-hrdonly] [[-common|-curhst][-rmbhst]|[-bridge]] [-makeonly] [-makeclean] [-makej]"
+  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttgg)> [-auto|-autoonly] [-flt|-fltonly] [-inl|-inlonly]  [-hrd|-hrdonly] [-common|-curhst] [-rmbhst] [-bridge] [-makeonly] [-makeclean] [-makej]"
   exit 1
 }
 
@@ -56,17 +56,12 @@ for arg in $*; do
     if [ "${hrdcods}" == "0 1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
     hrdcods="1"
   elif [ "$arg" == "-common" ]; then
-    if [ "${bridge}" != "" ]; then echo "ERROR! Options -bridge and $arg are incompatible"; usage; fi
     rndgen=$arg
   elif [ "$arg" == "-curhst" ]; then
-    if [ "${bridge}" != "" ]; then echo "ERROR! Options -bridge and $arg are incompatible"; usage; fi
     rndgen=$arg
   elif [ "$arg" == "-rmbhst" ]; then
-    if [ "${bridge}" != "" ]; then echo "ERROR! Options -bridge and $arg are incompatible"; usage; fi
     rmbsmp=$arg
   elif [ "$arg" == "-bridge" ]; then
-    if [ "${rndgen}" != "" ]; then echo "ERROR! Options -bridge and $rndgen are incompatible"; usage; fi
-    if [ "${rmbsmp}" != "" ]; then echo "ERROR! Options -bridge and $rmbsmp are incompatible"; usage; fi
     bridge=$arg
   elif [ "$arg" == "-makeonly" ]; then
     if [ "${steps}" == "make test" ]; then
