@@ -19,9 +19,11 @@
 #include "mgOnGpuVectors.h"
 
 #include "CPPProcess.h"
-#include "Memory.h"
+#include "MatrixElementKernels.h"
+#include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessRandomNumbers.h"
+#include "MemoryAccessWeights.h"
 #include "MemoryBuffers.h"
 #include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
@@ -351,11 +353,7 @@ int main(int argc, char **argv)
   timermap.start( procKey );
 
   // Create a process object
-#ifdef __CUDACC__
-  gProc::CPPProcess process( niter, gpublocks, gputhreads, verbose );
-#else
-  Proc::CPPProcess process( niter, gpublocks, gputhreads, verbose );
-#endif
+  CPPProcess process( niter, gpublocks, gputhreads, verbose );
 
   // Read param_card and set parameters
   process.initProc("../../Cards/param_card.dat");
@@ -392,21 +390,21 @@ int main(int argc, char **argv)
   DeviceBufferWeights devWeights( nevt );
 #endif
 
-  // Memory structures for matrix elements on host and device
-  using mgOnGpu::np4;
-  using mgOnGpu::nparf;
-  using mgOnGpu::npar;
-  using mgOnGpu::ncomb; // Number of helicity combinations
-  const int nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
+  // Memory buffers for matrix elements
+#ifndef __CUDACC__
+  HostBufferMatrixElements hstMatrixElements( nevt );
+#else
+  PinnedHostBufferMatrixElements hstMatrixElements( nevt );
+  DeviceBufferMatrixElements devMatrixElements( nevt );
+#endif
 
-  auto hstIsGoodHel = hstMakeUnique<bool  >( ncomb );
-  auto hstMEs       = hstMakeUnique<fptype>( nMEs ); // ARRAY[nevt]
-
-#ifdef __CUDACC__
-  auto devIsGoodHel = devMakeUnique<bool  >( ncomb );
-  auto devMEs       = devMakeUnique<fptype>( nMEs ); // ARRAY[nevt]
-  const int nbytesIsGoodHel = ncomb * sizeof(bool);
-  const int nbytesMEs = nMEs * sizeof(fptype);
+  // Memory buffers for the helicity mask
+  using mgOnGpu::ncomb; // the number of helicity combinations
+#ifndef __CUDACC__
+  HostBufferHelicityMask hstIsGoodHel( ncomb );
+#else
+  PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
+  DeviceBufferHelicityMask devIsGoodHel( ncomb );
 #endif
 
   std::unique_ptr<double[]> genrtimes( new double[niter] );
@@ -464,6 +462,13 @@ int main(int argc, char **argv)
     throw std::logic_error( "RamboDevice is not supported on CPUs" ); // INTERNAL ERROR (no path to this statement)
 #endif
   }
+
+  // --- 0c. Create matrix element kernel [keep this in 0c for the moment]
+#ifdef __CUDACC__
+  MatrixElementKernelDevice mek( devMomenta, devMatrixElements, gpublocks, gputhreads );
+#else
+  MatrixElementKernelHost mek( hstMomenta, hstMatrixElements, nevt );
+#endif
 
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
@@ -568,20 +573,7 @@ int main(int argc, char **argv)
     {
       const std::string ghelKey = "0d SGoodHel";
       timermap.start( ghelKey );
-#ifdef __CUDACC__
-      // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.data(), devMEs.get(), devIsGoodHel.get());
-      checkCuda( cudaPeekAtLastError() );
-      // ... 0d2. Copy back good helicity mask to the host
-      checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(), nbytesIsGoodHel, cudaMemcpyDeviceToHost ) );
-      // ... 0d3. Copy back good helicity list to constant memory on the device
-      gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
-#else
-      // ... 0d1. Compute good helicity mask on the host
-      Proc::sigmaKin_getGoodHel(hstMomenta.data(), hstMEs.get(), hstIsGoodHel.get(), nevt);
-      // ... 0d2. Copy back good helicity list to static memory on the host
-      Proc::sigmaKin_setGoodHel(hstIsGoodHel.get());
-#endif
+      mek.computeGoodHelicities();
     }
 
     // *** START THE OLD-STYLE TIMERS FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
@@ -591,17 +583,7 @@ int main(int argc, char **argv)
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
-#ifdef __CUDACC__
-#ifndef MGONGPU_NSIGHT_DEBUG
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.data(), devMEs.get());
-#else
-    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.data(), devMEs.get());
-#endif
-    checkCuda( cudaPeekAtLastError() );
-    checkCuda( cudaDeviceSynchronize() );
-#else
-    Proc::sigmaKin(hstMomenta.data(), hstMEs.get(), nevt);
-#endif
+    mek.computeMatrixElements();
 
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wv3atime += timermap.stop(); // calc only
@@ -611,7 +593,7 @@ int main(int argc, char **argv)
     // --- 3b. CopyDToH MEs
     const std::string cmesKey = "3b CpDTHmes";
     timermap.start( cmesKey );
-    checkCuda( cudaMemcpy( hstMEs.get(), devMEs.get(), nbytesMEs, cudaMemcpyDeviceToHost ) );
+    copyHostFromDevice( hstMatrixElements, devMatrixElements );
     // *** STOP THE OLD OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wavetime += timermap.stop(); // calc plus copy
 #endif
@@ -638,7 +620,7 @@ int main(int argc, char **argv)
       {
         // Display momenta
         std::cout << "Momenta:" << std::endl;
-        for (int ipar = 0; ipar < npar; ipar++)
+        for (int ipar = 0; ipar < mgOnGpu::npar; ipar++)
         {
           // NB: 'setw' affects only the next field (of any type)
           std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
@@ -652,14 +634,14 @@ int main(int argc, char **argv)
         }
         std::cout << std::string(SEP79, '-') << std::endl;
         // Display matrix elements
-        std::cout << " Matrix element = "
-                  << hstMEs[ievt]
+        std::cout << " Matrix element = " << MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt )
                   << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
         std::cout << std::string(SEP79, '-') << std::endl;
       }
       // Fill the arrays with ALL MEs and weights
-      matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt]; // FIXME: assume process.nprocesses == 1
-      weightALL[iiter*nevt + ievt] = hstWeights[ievt];
+      // FIXME: assume process.nprocesses == 1
+      matrixelementALL[iiter*nevt + ievt] = MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
+      weightALL[iiter*nevt + ievt] = MemoryAccessWeights::ieventAccessConst( hstWeights.data(), ievt );
     }
 
     if (!(verbose || debug || perf))

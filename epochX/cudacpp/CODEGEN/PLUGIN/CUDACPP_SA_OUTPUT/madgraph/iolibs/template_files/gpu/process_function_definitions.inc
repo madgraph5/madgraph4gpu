@@ -3,9 +3,9 @@
 %(process_lines)s
 
 #ifdef __CUDACC__
-namespace gProc
+namespace mg5amcGpu
 #else
-namespace Proc
+namespace mg5amcCpu
 #endif
 {
   using mgOnGpu::np4; // dimensions of 4-momenta (E,px,py,pz)
