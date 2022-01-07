@@ -4,7 +4,6 @@
 #include "CPPProcess.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
-#include "rambo.h" // inline implementation of RAMBO algorithms and kernels
 
 #include <sstream>
 
