@@ -202,7 +202,7 @@ void Bridge<T>::cpu_sequence( const T *momenta, double *mes, const bool goodHelO
 #ifdef __CUDACC__
 
 template <typename T>
-__global__ 
+__global__
 void dev_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd )
 {
   int pos = blockDim.x * blockIdx.x + threadIdx.x;
@@ -215,10 +215,11 @@ void dev_transposeMomentaF2C( const T *in, T *out, const int evt, const int part
     int rest_2 = rest_1 % (strd * mome);
     int mome_i = rest_2 / strd;
     int strd_i = rest_2 % strd;
-    int inpos = (page_i * strd + strd_i) // event number
-                    * (part * mome)      // event size (pos of event)
-                + part_i * mome          // particle inside event
-                + mome_i;                // momentum inside particle
+    int inpos =
+      (page_i * strd + strd_i) // event number
+      * (part * mome)          // event size (pos of event)
+      + part_i * mome          // particle inside event
+      + mome_i;                // momentum inside particle
     out[pos] = in[inpos]; // F2C (Fortran to C)
   }
 }
@@ -237,10 +238,11 @@ void hst_transposeMomentaF2C( const T *in, T *out, const int evt, const int part
     int rest_2 = rest_1 % (strd * mome);
     int mome_i = rest_2 / strd;
     int strd_i = rest_2 % strd;
-    int inpos = (page_i * strd + strd_i) // event number
-                    * (part * mome)      // event size (pos of event)
-                + part_i * mome          // particle inside event
-                + mome_i;                // momentum inside particle
+    int inpos =
+      (page_i * strd + strd_i) // event number
+      * (part * mome)          // event size (pos of event)
+      + part_i * mome          // particle inside event
+      + mome_i;                // momentum inside particle
     out[pos] = in[inpos]; // F2C (Fortran to C)
   }
 }
@@ -257,10 +259,11 @@ void hst_transposeMomentaC2F( const T *in, T *out, const int evt, const int part
     int rest_2 = rest_1 % (strd * mome);
     int mome_i = rest_2 / strd;
     int strd_i = rest_2 % strd;
-    int inpos = (page_i * strd + strd_i) // event number
-                    * (part * mome)      // event size (pos of event)
-                + part_i * mome          // particle inside event
-                + mome_i;                // momentum inside particle
+    int inpos =
+      (page_i * strd + strd_i) // event number
+      * (part * mome)          // event size (pos of event)
+      + part_i * mome          // particle inside event
+      + mome_i;                // momentum inside particle
     out[inpos] = in[pos]; // C2F (C to Fortran)
   }
 }
@@ -272,11 +275,11 @@ void hst_transposeMomentaC2F( const T *in, T *out, const int evt, const int part
 //
 
 /**
-const int evnt_n = 4;  // the number of events
-const int part_n = 4;  // number of in/out particles inside an event
-const int mome_n = 3;  // number of momenta of one particle (usually 4)
-const int strd_n = 2;  // stride length for aosoa data (# adjacent events)
-const int array_bytes = evnt_n * part_n * mome_n * sizeof(T);
+   const int evnt_n = 4;  // the number of events
+   const int part_n = 4;  // number of in/out particles inside an event
+   const int mome_n = 3;  // number of momenta of one particle (usually 4)
+   const int strd_n = 2;  // stride length for aosoa data (# adjacent events)
+   const int array_bytes = evnt_n * part_n * mome_n * sizeof(T);
 */
 
 // debug
