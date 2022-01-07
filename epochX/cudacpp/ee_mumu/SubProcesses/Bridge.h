@@ -177,8 +177,9 @@ void Bridge<T>::gpu_sequence( const T *momenta, double *mes, const bool goodHelO
   else
   {
     checkCuda( cudaMemcpy( m_devMomentaF.data(), momenta, m_devMomentaF.bytes(), cudaMemcpyHostToDevice ) );
-    const int eventSize = mgOnGpu::npar * mgOnGpu::np4; // AV: transpose algo does 1 element per thread (NOT 1 event per thread!)
-    dev_transposeMomentaF2C<<<m_gpublocks*eventSize, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(), m_evt );
+    //const int thrPerEvt = mgOnGpu::npar * mgOnGpu::np4; // AV: transpose alg does 1 element per thread (NOT 1 event per thread)
+    const int thrPerEvt = 1; // AV: try new alg with 1 event per thread...
+    dev_transposeMomentaF2C<<<m_gpublocks*thrPerEvt, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(), m_evt );
   }
   if ( !m_goodHelsCalculated )
   {
@@ -218,6 +219,7 @@ template <typename T>
 __global__
 void dev_transposeMomentaF2C( const T *in, T *out, const int evt )
 {
+  /*
   constexpr int part = mgOnGpu::npar;
   constexpr int mome = mgOnGpu::np4;
   constexpr int strd = MemoryAccessMomenta::neppM;
@@ -238,6 +240,25 @@ void dev_transposeMomentaF2C( const T *in, T *out, const int evt )
       + mome_i;                // momentum inside particle
     out[pos] = in[inpos]; // F2C (Fortran to C)
   }
+  */
+  // AV attempt another implementation with 1 event per thread
+  // C-style: AOSOA[npagM][npar][np4][neppM]
+  // F-style: AOS[nevt][npar][np4]
+  constexpr int npar = mgOnGpu::npar;
+  constexpr int np4 = mgOnGpu::np4;
+  constexpr int neppM = MemoryAccessMomenta::neppM;
+  const int npagM = evt/neppM;
+  assert( evt%neppM == 0 ); // number of events is not a multiple of neppM???
+  int ievt = blockDim.x * blockIdx.x + threadIdx.x;
+  int ipagM = ievt/neppM;
+  int ieppM = ievt%neppM;
+  for ( int ip4=0; ip4<np4; ip4++ )
+    for ( int ipar=0; ipar<npar; ipar++ )
+    {
+      int cpos = ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM;
+      int fpos = ievt*npar*np4 + ipar*np4 + ip4;
+      out[cpos] = in[fpos]; // F2C (Fortran to C)
+    }
 }
 #endif
 
