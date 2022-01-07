@@ -7,6 +7,7 @@
 #include "Memory.h"
 
 #include <cassert>
+#include <cmath>
 #include <cstring>
 #include <iostream>
 #include <memory>
@@ -80,6 +81,9 @@ private:
   int m_ncomb;               ///< number of good helicities
   bool m_goodHelsCalculated; ///< have the good helicities been calculated?
 
+  int m_gputhreads;          ///< number of gpu threads (default set from number of events, can be modified)
+  int m_gpublocks;           ///< number of gpu blocks (default set from number of events, can be modified)
+
 #ifdef __CUDACC__
   typedef std::unique_ptr<bool[], CudaHstDeleter<bool>> CuBHPtr;
   typedef std::unique_ptr<bool, CudaDevDeleter<bool>> CuBDPtr;
@@ -99,10 +103,6 @@ private:
   // CpTHPtr hstMEs = hstMakeUnique<T>(m_evt);
 #endif
 
-  // those should become fortran parameters passed in here
-  static const int s_gpublocks = 1;   // 1024;
-  static const int s_gputhreads = 16; // 256;
-
 };
 
 // *****************************************************************************
@@ -113,12 +113,19 @@ private:
 
 template <typename T>
 Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int ncomb)
-    : m_evt(evnt), m_part(part), m_mome(mome), m_strd(strd), m_ncomb(ncomb),
-      m_goodHelsCalculated(false) {
+    : m_evt(evnt)
+    , m_part(part)
+    , m_mome(mome)
+    , m_strd(strd)
+    , m_ncomb(ncomb)
+    , m_goodHelsCalculated(false)
+    , m_gputhreads(256) // default number of gpu threads
+    , m_gpublocks(ceil(double(m_evt)/m_gputhreads)) // this ensures m_evt <= m_gpublocks*m_gputhreads
+{
 #ifdef __CUDACC__
-  mg5amcGpu::CPPProcess process(1, s_gpublocks, s_gputhreads, false);
+  mg5amcGpu::CPPProcess process(1, m_gpublocks, m_gputhreads, false);
 #else
-  mg5amcCpu::CPPProcess process(1, s_gpublocks, s_gputhreads, false);
+  mg5amcCpu::CPPProcess process(1, m_gpublocks, m_gputhreads, false);
 #endif // __CUDACC__
   process.initProc("../../Cards/param_card.dat");
 }
@@ -129,15 +136,15 @@ template <typename T> void Bridge<T>::gpu_sequence( const T *momenta, double *me
   checkCuda(cudaMemcpy(devMomentaF.get(), momenta,
                        m_evt * m_part * m_mome * sizeof(T),
                        cudaMemcpyHostToDevice));
-  dev_transposeMomentaF2C<<<s_gpublocks * 16, s_gputhreads>>>(devMomentaF.get(), devMomentaC.get(), m_evt, m_part, m_mome, m_strd);
+  dev_transposeMomentaF2C<<<m_gpublocks, m_gputhreads>>>(devMomentaF.get(), devMomentaC.get(), m_evt, m_part, m_mome, m_strd);
   if (!m_goodHelsCalculated) {
-    mg5amcGpu::sigmaKin_getGoodHel<<<s_gpublocks, s_gputhreads>>>(devMomentaC.get(), devMEs.get(), devIsGoodHel.get());
+    mg5amcGpu::sigmaKin_getGoodHel<<<m_gpublocks, m_gputhreads>>>(devMomentaC.get(), devMEs.get(), devIsGoodHel.get());
     checkCuda(cudaMemcpy(hstIsGoodHel.get(), devIsGoodHel.get(), m_ncomb * sizeof(bool), cudaMemcpyDeviceToHost));
     mg5amcGpu::sigmaKin_setGoodHel(hstIsGoodHel.get());
     m_goodHelsCalculated = true;
   }
   if ( goodHelOnly ) return;
-  mg5amcGpu::sigmaKin<<<s_gpublocks, s_gputhreads>>>(devMomentaC.get(), devMEs.get());
+  mg5amcGpu::sigmaKin<<<m_gpublocks, m_gputhreads>>>(devMomentaC.get(), devMEs.get());
   checkCuda(cudaMemcpy(mes, devMEs.get(), m_evt * sizeof(T), cudaMemcpyDeviceToHost));
 }
 
