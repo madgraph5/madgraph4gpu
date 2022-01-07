@@ -250,6 +250,12 @@ int main(int argc, char **argv)
   if (niter == 0)
     return usage(argv[0]);
 
+  if ( bridge && rmbsmp == RamboSamplingMode::RamboDevice )
+  {
+    std::cout << "WARNING! Bridge selected: cannot use RamboDevice, will use RamboHost" << std::endl;
+    rmbsmp = RamboSamplingMode::RamboHost;
+  }
+  
   if ( rmbsmp == RamboSamplingMode::RamboHost && rndgen == RandomNumberMode::CurandDevice )
   {
 #if not defined MGONGPU_HAS_NO_CURAND
