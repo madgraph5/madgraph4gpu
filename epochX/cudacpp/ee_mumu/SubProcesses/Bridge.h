@@ -21,12 +21,10 @@ template <typename T>
 __global__
 void dev_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd );
 
-#else
+#endif // __CUDACC__
 
 template <typename T>
 void hst_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd );
-
-#endif // __CUDACC__
 
 template <typename T>
 void hst_transposeMomentaC2F( const T *in, T *out, const int evt, const int part, const int mome, const int strd );
@@ -212,7 +210,7 @@ void dev_transposeMomentaF2C( const T *in, T *out, const int evt, const int part
   }
 }
 
-#else
+#endif // __CUDACC__
 
 template <typename T>
 void hst_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd ) {  
@@ -231,8 +229,6 @@ void hst_transposeMomentaF2C( const T *in, T *out, const int evt, const int part
     out[pos] = in[inpos]; // F2C (Fortran to C)
   }
 }
-
-#endif // __CUDACC__
 
 template <typename T>
 void hst_transposeMomentaC2F( const T *in, T *out, const int evt, const int part, const int mome, const int strd ) {  
