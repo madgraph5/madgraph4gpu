@@ -180,14 +180,6 @@ template <typename T> void Bridge<T>::cpu_sequence( const T *momenta, double *me
 // Implementations of transposition functions
 //
 
-/**
-const int evnt_n = 4;  // the number of events
-const int part_n = 4;  // number of in/out particles inside an event
-const int mome_n = 3;  // number of momenta of one particle (usually 4)
-const int strd_n = 2;  // stride length for aosoa data (# adjacent events)
-const int array_bytes = evnt_n * part_n * mome_n * sizeof(T);
-*/
-
 #ifdef __CUDACC__
 
 template <typename T>
@@ -253,6 +245,14 @@ void hst_transposeMomentaC2F( const T *in, T *out, const int evt, const int part
 //
 // BACKUP
 //
+
+/**
+const int evnt_n = 4;  // the number of events
+const int part_n = 4;  // number of in/out particles inside an event
+const int mome_n = 3;  // number of momenta of one particle (usually 4)
+const int strd_n = 2;  // stride length for aosoa data (# adjacent events)
+const int array_bytes = evnt_n * part_n * mome_n * sizeof(T);
+*/
 
 // debug
 
