@@ -169,9 +169,17 @@ void Bridge<T>::set_gpugrid(const int gpublocks, const int gputhreads)
 template <typename T>
 void Bridge<T>::gpu_sequence( const T *momenta, double *mes, const bool goodHelOnly )
 {
-  checkCuda( cudaMemcpy( m_devMomentaF.data(), momenta, m_devMomentaF.bytes(), cudaMemcpyHostToDevice ) );
-  const int eventSize = mgOnGpu::npar * mgOnGpu::np4; // AV: transpose algo does 1 element per thread (NOT 1 event per thread!)
-  dev_transposeMomentaF2C<<<m_gpublocks*eventSize, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(), m_evt );
+  constexpr int neppM = MemoryAccessMomenta::neppM;
+  if ( neppM == 1 ) // eventually move to "if constexpr" (need c++17, not available in cuda 11.1)
+  {
+    checkCuda( cudaMemcpy( m_devMomentaC.data(), momenta, m_devMomentaC.bytes(), cudaMemcpyHostToDevice ) );
+  }
+  else
+  {
+    checkCuda( cudaMemcpy( m_devMomentaF.data(), momenta, m_devMomentaF.bytes(), cudaMemcpyHostToDevice ) );
+    const int eventSize = mgOnGpu::npar * mgOnGpu::np4; // AV: transpose algo does 1 element per thread (NOT 1 event per thread!)
+    dev_transposeMomentaF2C<<<m_gpublocks*eventSize, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(), m_evt );
+  }
   if ( !m_goodHelsCalculated )
   {
     m_devMek.computeGoodHelicities();
