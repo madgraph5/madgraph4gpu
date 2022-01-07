@@ -8,6 +8,34 @@ using mgOnGpu::np4;   // the number of dimensions of 4-momenta (E,px,py,pz)
 
 //============================================================================
 
+#ifdef __CUDACC__
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
+{
+
+  //--------------------------------------------------------------------------
+
+  BridgeKernelBase::BridgeKernelBase( const BufferMomenta& momenta,         // input: momenta
+                                      BufferMatrixElements& matrixElements, // output: matrix elements
+                                      const size_t nevt )
+    : MatrixElementKernelBase( momenta, matrixElements )
+    , NumberOfEvents( nevt )
+    , m_bridge( nevt, npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb )
+  {
+    if ( m_momenta.isOnDevice() ) throw std::runtime_error( "BridgeKernelBase: momenta must be a host array" );
+    if ( m_matrixElements.isOnDevice() ) throw std::runtime_error( "BridgeKernelBase: matrixElements must be a host array" );
+    if ( this->nevt() != m_momenta.nevt() ) throw std::runtime_error( "BridgeKernelBase: nevt mismatch with momenta" );
+    if ( this->nevt() != m_matrixElements.nevt() ) throw std::runtime_error( "BridgeKernelBase: nevt mismatch with matrixElements" );
+  }
+
+  //--------------------------------------------------------------------------
+
+}
+
+//============================================================================
+
 #ifndef __CUDACC__
 namespace mg5amcCpu
 {  
@@ -17,15 +45,9 @@ namespace mg5amcCpu
   BridgeKernelHost::BridgeKernelHost( const BufferMomenta& momenta,         // input: momenta
                                       BufferMatrixElements& matrixElements, // output: matrix elements
                                       const size_t nevt )
-    : MatrixElementKernelBase( momenta, matrixElements )
-    , NumberOfEvents( nevt )
-    , m_bridge( nevt, npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb )
+    : BridgeKernelBase( momenta, matrixElements, nevt )
     , m_fortranMomenta( nevt )
   {
-    if ( m_momenta.isOnDevice() ) throw std::runtime_error( "BridgeKernelHost: momenta must be a host array" );
-    if ( m_matrixElements.isOnDevice() ) throw std::runtime_error( "BridgeKernelHost: matrixElements must be a host array" );
-    if ( this->nevt() != m_momenta.nevt() ) throw std::runtime_error( "BridgeKernelHost: nevt mismatch with momenta" );
-    if ( this->nevt() != m_matrixElements.nevt() ) throw std::runtime_error( "BridgeKernelHost: nevt mismatch with matrixElements" );
   }
 
   //--------------------------------------------------------------------------
@@ -63,19 +85,13 @@ namespace mg5amcGpu
                                           BufferMatrixElements& matrixElements, // output: matrix elements
                                           const size_t gpublocks,
                                           const size_t gputhreads )
-    : MatrixElementKernelBase( momenta, matrixElements )
-    , NumberOfEvents( gpublocks*gputhreads )
-    , m_bridge( nevt(), npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb )
+    : BridgeKernelBase( momenta, matrixElements, gpublocks*gputhreads )
     , m_fortranMomenta( nevt() )
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
   {
-    if ( m_momenta.isOnDevice() ) throw std::runtime_error( "BridgeKernelDevice: momenta must be a host array" );
-    if ( m_matrixElements.isOnDevice() ) throw std::runtime_error( "BridgeKernelDevice: matrixElements must be a host array" );
     if ( m_gpublocks == 0 ) throw std::runtime_error( "BridgeKernelDevice: gpublocks must be > 0" );
     if ( m_gputhreads == 0 ) throw std::runtime_error( "BridgeKernelDevice: gputhreads must be > 0" );
-    if ( this->nevt() != m_momenta.nevt() ) throw std::runtime_error( "BridgeKernelDevice: nevt mismatch with momenta" );
-    if ( this->nevt() != m_matrixElements.nevt() ) throw std::runtime_error( "BridgeKernelDevice: nevt mismatch with matrixElements" );
     m_bridge.set_gpugrid( gpublocks, gputhreads );
   }
 

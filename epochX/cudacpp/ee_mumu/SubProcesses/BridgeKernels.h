@@ -16,9 +16,34 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  // A Bridge wrapper base class encapsulating matrix element calculations on a CPU host 
+  class BridgeKernelBase : public MatrixElementKernelBase, public NumberOfEvents
+  {
+  public:
+
+    // Constructor from existing input and output buffers
+    BridgeKernelBase( const BufferMomenta& momenta,         // input: momenta
+                      BufferMatrixElements& matrixElements, // output: matrix elements
+                      const size_t nevt );
+    
+    // Destructor
+    virtual ~BridgeKernelBase(){}
+
+    // Transpose input momenta from C to Fortran before the matrix element calculation in the Bridge
+    //virtual void transposeInputMomentaC2F() = 0;
+
+  protected:
+
+    // The wrapped bridge
+    Bridge<fptype> m_bridge;
+
+  };
+
+  //--------------------------------------------------------------------------
+
 #ifndef __CUDACC__
   // A Bridge wrapper class encapsulating matrix element calculations on a CPU host 
-  class BridgeKernelHost final : public MatrixElementKernelBase, public NumberOfEvents
+  class BridgeKernelHost final : public BridgeKernelBase
   {
   public:
 
@@ -41,9 +66,6 @@ namespace mg5amcCpu
 
   private:
 
-    // The wrapped bridge
-    Bridge<fptype> m_bridge;
-
     // The buffer for the input momenta, transposed to Fortran array indexing
     HostBufferMomenta m_fortranMomenta;
 
@@ -54,7 +76,7 @@ namespace mg5amcCpu
 
 #ifdef __CUDACC__
   // A Bridge wrapper class encapsulating matrix element calculations on a GPU device
-  class BridgeKernelDevice : public MatrixElementKernelBase, public NumberOfEvents
+  class BridgeKernelDevice : public BridgeKernelBase
   {
   public:
 
@@ -78,9 +100,6 @@ namespace mg5amcCpu
 
   private:
 
-    // The wrapped bridge
-    Bridge<fptype> m_bridge;
-    
     // The buffer for the input momenta, transposed to Fortran array indexing
     PinnedHostBufferMomenta m_fortranMomenta;
 
