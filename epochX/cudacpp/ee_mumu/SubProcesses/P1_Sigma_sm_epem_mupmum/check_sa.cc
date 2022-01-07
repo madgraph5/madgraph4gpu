@@ -18,7 +18,7 @@
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
-#include "Bridge.h"
+#include "BridgeKernels.h"
 #include "CPPProcess.h"
 #include "MatrixElementKernels.h"
 #include "MemoryAccessMatrixElements.h"
@@ -478,11 +478,22 @@ int main(int argc, char **argv)
 
   // --- 0c. Create matrix element kernel [keep this in 0c for the moment]
   std::unique_ptr<MatrixElementKernelBase> pmek;
+  if ( ! bridge )
+  {
 #ifdef __CUDACC__
-  pmek.reset( new MatrixElementKernelDevice( devMomenta, devMatrixElements, gpublocks, gputhreads ) );
+    pmek.reset( new MatrixElementKernelDevice( devMomenta, devMatrixElements, gpublocks, gputhreads ) );
 #else
-  pmek.reset( new MatrixElementKernelHost( hstMomenta, hstMatrixElements, nevt ) );
+    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstMatrixElements, nevt ) );
 #endif
+  }
+  else 
+  {
+#ifdef __CUDACC__
+    pmek.reset( new BridgeKernelDevice( devMomenta, devMatrixElements, gpublocks, gputhreads ) );
+#else
+    pmek.reset( new BridgeKernelHost( hstMomenta, hstMatrixElements, nevt ) );
+#endif
+  }
 
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
