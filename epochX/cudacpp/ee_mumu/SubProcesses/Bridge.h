@@ -177,8 +177,8 @@ void Bridge<T>::gpu_sequence( const T *momenta, double *mes, const bool goodHelO
   else
   {
     checkCuda( cudaMemcpy( m_devMomentaF.data(), momenta, m_devMomentaF.bytes(), cudaMemcpyHostToDevice ) );
-    //const int thrPerEvt = mgOnGpu::npar * mgOnGpu::np4; // AV: transpose alg does 1 element per thread (NOT 1 event per thread)
-    const int thrPerEvt = 1; // AV: try new alg with 1 event per thread...
+    const int thrPerEvt = mgOnGpu::npar * mgOnGpu::np4; // AV: transpose alg does 1 element per thread (NOT 1 event per thread)
+    //const int thrPerEvt = 1; // AV: try new alg with 1 event per thread... this seems slower
     dev_transposeMomentaF2C<<<m_gpublocks*thrPerEvt, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(), m_evt );
   }
   if ( !m_goodHelsCalculated )
@@ -219,7 +219,6 @@ template <typename T>
 __global__
 void dev_transposeMomentaF2C( const T *in, T *out, const int evt )
 {
-  /*
   constexpr int part = mgOnGpu::npar;
   constexpr int mome = mgOnGpu::np4;
   constexpr int strd = MemoryAccessMomenta::neppM;
@@ -240,8 +239,8 @@ void dev_transposeMomentaF2C( const T *in, T *out, const int evt )
       + mome_i;                // momentum inside particle
     out[pos] = in[inpos]; // F2C (Fortran to C)
   }
-  */
-  // AV attempt another implementation with 1 event per thread
+  /*
+  // AV attempt another implementation with 1 event per thread: this seems slower...
   // C-style: AOSOA[npagM][npar][np4][neppM]
   // F-style: AOS[nevt][npar][np4]
   constexpr int npar = mgOnGpu::npar;
@@ -259,6 +258,7 @@ void dev_transposeMomentaF2C( const T *in, T *out, const int evt )
       int fpos = ievt*npar*np4 + ipar*np4 + ip4;
       out[cpos] = in[fpos]; // F2C (Fortran to C)
     }
+  */
 }
 #endif
 
@@ -286,7 +286,7 @@ void hst_transposeMomentaF2C( const T *in, T *out, const int evt )
     out[pos] = in[inpos]; // F2C (Fortran to C)
   }
   */
-  // AV attempt another implementation, this is slightly faster
+  // AV attempt another implementation: this is slightly faster (better c++ pipelining?)
   // [NB! this is not a transposition, it is an AOS to AOSOA conversion: if neppM=1, a memcpy is enough]
   // C-style: AOSOA[npagM][npar][np4][neppM]
   // F-style: AOS[nevt][npar][np4]
