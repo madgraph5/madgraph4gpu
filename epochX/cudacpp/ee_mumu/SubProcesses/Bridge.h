@@ -1,28 +1,27 @@
 #ifndef BRIDGE_H
-#define BRIDGE_H
+#define BRIDGE_H 1
 
-// includes from Cuda/C++ matrix element calculations
+// Includes from Cuda/C++ matrix element calculations
+#include "mgOnGpuTypes.h"
 #include "CPPProcess.h"
 #include "Memory.h"
-#include "mgOnGpuTypes.h"
 
 #include <cassert>
 #include <cstring>
 #include <iostream>
 #include <memory>
 
-// Forward declare transposition kernel
+// Forward declare transposition kernels
 #ifdef __CUDACC__
 
 template <typename T>
 __global__
-void dev_transposeMomentaF2C(const T *in, T *out, const int evt,
-                             const int part, const int mome, const int strd);
+void dev_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd );
+
 #else
 
 template <typename T>
-void hst_transposeMomentaF2C(const T *in, T *out, const int evt, const int part,
-                             const int mome, const int strd);
+void hst_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd );
 
 #endif // __CUDACC__
 
@@ -170,12 +169,12 @@ template <typename T> void Bridge<T>::cpu_sequence(T *momenta, double *mes) {
 }
 
 #endif // __CUDACC__
+
 // *****************************************************************************
 
 //
 // Implementations of transposition functions
 //
-#ifdef __CUDACC__
 
 /**
 const int evnt_n = 4;  // the number of events
@@ -184,28 +183,25 @@ const int mome_n = 3;  // number of momenta of one particle (usually 4)
 const int strd_n = 2;  // stride length for aosoa data (# adjacent events)
 const int array_bytes = evnt_n * part_n * mome_n * sizeof(T);
 */
+
+#ifdef __CUDACC__
+
 template <typename T>
 __global__ 
-void dev_transposeMomentaF2C(const T *in, T *out, const int evt,
-                             const int part, const int mome, const int strd) {
-
+void dev_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd ) {
   int pos = blockDim.x * blockIdx.x + threadIdx.x;
   int arrlen = evt * part * mome;
-
   if (pos < arrlen) {
-
     int page_i = pos / (strd * mome * part);
     int rest_1 = pos % (strd * mome * part);
     int part_i = rest_1 / (strd * mome);
     int rest_2 = rest_1 % (strd * mome);
     int mome_i = rest_2 / strd;
     int strd_i = rest_2 % strd;
-
     int inpos = (page_i * strd + strd_i) // event number
                     * (part * mome)      // event size (pos of event)
                 + part_i * mome          // particle inside event
                 + mome_i;                // momentum inside particle
-
     out[pos] = in[inpos];
   }
 }
@@ -213,25 +209,19 @@ void dev_transposeMomentaF2C(const T *in, T *out, const int evt,
 #else
 
 template <typename T>
-void hst_transposeMomentaF2C(const T *in, T *out, const int evt, const int part,
-                             const int mome, const int strd) {
-  
+void hst_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd ) {  
   int arrlen = evt * part * mome;
-
   for (int pos = 0; pos < arrlen; ++pos) {
-
     int page_i = pos / (strd * mome * part);
     int rest_1 = pos % (strd * mome * part);
     int part_i = rest_1 / (strd * mome);
     int rest_2 = rest_1 % (strd * mome);
     int mome_i = rest_2 / strd;
     int strd_i = rest_2 % strd;
-
     int inpos = (page_i * strd + strd_i) // event number
                     * (part * mome)      // event size (pos of event)
                 + part_i * mome          // particle inside event
                 + mome_i;                // momentum inside particle
-
     out[pos] = in[inpos];
   }
 }
