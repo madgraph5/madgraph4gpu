@@ -5,7 +5,6 @@
 
 using mgOnGpu::npar;  // the number of particles (external = initial + final)
 using mgOnGpu::np4;   // the number of dimensions of 4-momenta (E,px,py,pz)
-using mgOnGpu::ncomb; // the number of helicity combinations
 
 //============================================================================
 
@@ -20,7 +19,7 @@ namespace mg5amcCpu
                                       const size_t nevt )
     : MatrixElementKernelBase( momenta, matrixElements )
     , NumberOfEvents( nevt )
-    , m_bridge( nevt, npar, np4, MemoryAccessMomenta::neppM, ncomb )
+    , m_bridge( nevt, npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb )
   {
     if ( m_momenta.isOnDevice() ) throw std::runtime_error( "BridgeKernelHost: momenta must be a host array" );
     if ( m_matrixElements.isOnDevice() ) throw std::runtime_error( "BridgeKernelHost: matrixElements must be a host array" );
@@ -63,7 +62,7 @@ namespace mg5amcGpu
                                           const size_t gputhreads )
     : MatrixElementKernelBase( momenta, matrixElements )
     , NumberOfEvents( gpublocks*gputhreads )
-    , m_bridge( nevt(), npar, np4, MemoryAccessMomenta::neppM, ncomb )
+    , m_bridge( nevt(), npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb )
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
   {
