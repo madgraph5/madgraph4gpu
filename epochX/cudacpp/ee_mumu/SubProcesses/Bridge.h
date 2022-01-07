@@ -122,6 +122,8 @@ Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int ncomb)
     , m_gputhreads(256) // default number of gpu threads
     , m_gpublocks(ceil(double(m_evt)/m_gputhreads)) // this ensures m_evt <= m_gpublocks*m_gputhreads
 {
+  std::cout << "WARNING! Instantiate Bridge (evnt=" << evnt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
+            << ", gpublocks*gputhreads=" << m_gpublocks*m_gputhreads << ")" << std::endl;
 #ifdef __CUDACC__
   mg5amcGpu::CPPProcess process(1, m_gpublocks, m_gputhreads, false);
 #else
