@@ -904,6 +904,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         files.ln(pjoin(self.path, 'MatrixElementKernels.cc'), self.path, 'gMatrixElementKernels.cu')
         files.ln(pjoin(self.path, 'RamboSamplingKernels.cc'), self.path, 'gRamboSamplingKernels.cu')
         files.ln(pjoin(self.path, 'RandomNumberKernels.cc'), self.path, 'gRandomNumberKernels.cu')
+        files.ln(pjoin(self.path, 'BridgeKernels.cc'), self.path, 'gBridgeKernels.cu')
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (invert .cc/.cu, add debug printouts)
     def edit_check_sa(self):
