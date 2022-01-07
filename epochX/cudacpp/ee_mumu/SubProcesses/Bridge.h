@@ -62,16 +62,18 @@ public:
    *
    * @param momenta memory address of the input 4-momenta
    * @param mes memory address of the output matrix elements
+   * @param goodHelOnly quit after computing good helicities
    */
-  void gpu_sequence(T *momenta, double *mes);
+  void gpu_sequence(T *momenta, double *mes, const bool goodHelOnly=false);
 
   /**
    * sequence to be executed for the vectorized CPU matrix element calculation
    *
    * @param momenta memory address of the input 4-momenta
    * @param mes memory address of the output matrix elements
+   * @param goodHelOnly quit after computing good helicities
    */
-  void cpu_sequence(T *momenta, double *mes);
+  void cpu_sequence(T *momenta, double *mes, const bool goodHelOnly=false);
 
 private:
   int m_evt;                 ///< number of events
@@ -126,53 +128,41 @@ Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int ncomb)
 
 #ifdef __CUDACC__
 
-template <typename T> void Bridge<T>::gpu_sequence(T *momenta, double *mes) {
-
+template <typename T> void Bridge<T>::gpu_sequence( T *momenta, double *mes, const bool goodHelOnly ) {
   checkCuda(cudaMemcpy(devMomentaF.get(), momenta,
                        m_evt * m_part * m_mome * sizeof(T),
                        cudaMemcpyHostToDevice));
-
   dev_transposeMomentaF2C<<<s_gpublocks * 16, s_gputhreads>>>(devMomentaF.get(), devMomentaC.get(), m_evt, m_part, m_mome, m_strd);
-
   if (!m_goodHelsCalculated) {
     mg5amcGpu::sigmaKin_getGoodHel<<<s_gpublocks, s_gputhreads>>>(devMomentaC.get(), devMEs.get(), devIsGoodHel.get());
-
     checkCuda(cudaMemcpy(hstIsGoodHel.get(), devIsGoodHel.get(), m_ncomb * sizeof(bool), cudaMemcpyDeviceToHost));
-
     mg5amcGpu::sigmaKin_setGoodHel(hstIsGoodHel.get());
-
     m_goodHelsCalculated = true;
   }
-
+  if ( goodHelOnly ) return;
   mg5amcGpu::sigmaKin<<<s_gpublocks, s_gputhreads>>>(devMomentaC.get(), devMEs.get());
-
   checkCuda(cudaMemcpy(mes, devMEs.get(), m_evt * sizeof(T), cudaMemcpyDeviceToHost));
 }
 
 #else
 
-template <typename T> void Bridge<T>::cpu_sequence(T *momenta, double *mes) {
-
+template <typename T> void Bridge<T>::cpu_sequence( T *momenta, double *mes, const bool goodHelOnly ) {
   // should become class members...
   typedef std::unique_ptr<T[], CppHstDeleter<T>> CpTHPtr;
   typedef std::unique_ptr<bool[], CppHstDeleter<bool>> CpBHPtr;
   CpTHPtr hstMomenta = hstMakeUnique<T>(m_evt * m_part * m_mome);
   CpBHPtr hstIsGoodHel2 = hstMakeUnique<bool>(m_ncomb);
   CpTHPtr hstMEs = hstMakeUnique<T>(m_evt);
-
   // double(&hstMEs2)[m_evt] = reinterpret_cast<double(&)[m_evt]>(mes);
-
   hst_transposeMomentaF2C(momenta, hstMomenta.get(), m_evt, m_part, m_mome, m_strd);
-
   if (!m_goodHelsCalculated) {
     mg5amcCpu::sigmaKin_getGoodHel(hstMomenta.get(), hstMEs.get(),
                               hstIsGoodHel2.get(), m_evt);
     mg5amcCpu::sigmaKin_setGoodHel(hstIsGoodHel2.get());
     m_goodHelsCalculated = true;
   }
-
+  if ( goodHelOnly ) return;
   mg5amcCpu::sigmaKin(hstMomenta.get(), hstMEs.get(), m_evt);
-
   memcpy(mes, hstMEs.get(), sizeof(T) * m_evt);
 }
 
