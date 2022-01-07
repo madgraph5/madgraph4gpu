@@ -96,7 +96,8 @@ private:
   typedef std::unique_ptr<bool, CudaDevDeleter<bool>> CuBDPtr;
   typedef std::unique_ptr<T[], CudaHstDeleter<T>> CuTHPtr;
   typedef std::unique_ptr<T, CudaDevDeleter<T>> CuTDPtr;
-  CuTDPtr devMomentaF = devMakeUnique<T>(m_evt * m_part * m_mome);
+  //CuTDPtr devMomentaF = devMakeUnique<T>(m_evt * m_part * m_mome);
+  CuTHPtr hstMomentaC = hstMakeUnique<T>(m_evt * m_part * m_mome);
   CuTDPtr devMomentaC = devMakeUnique<T>(m_evt * m_part * m_mome);
   CuBHPtr hstIsGoodHel = hstMakeUnique<bool>(m_ncomb);
   CuBDPtr devIsGoodHel = devMakeUnique<bool>(m_ncomb);
@@ -154,12 +155,14 @@ void Bridge<T>::set_gpugrid(const int gpublocks, const int gputhreads)
 
 template <typename T>
 void Bridge<T>::gpu_sequence( const T *momenta, double *mes, const bool goodHelOnly ) {
-  checkCuda(cudaMemcpy(devMomentaF.get(), momenta,
-                       m_evt * m_part * m_mome * sizeof(T),
-                       cudaMemcpyHostToDevice));
+  /*
+  checkCuda(cudaMemcpy(devMomentaF.get(), momenta, m_evt * m_part * m_mome * sizeof(T), cudaMemcpyHostToDevice));
   const int eventSize = m_part * m_mome; // AV: the transpose algorithm does one element per thread (NOT one event per thread!)
   dev_transposeMomentaF2C<<<m_gpublocks*eventSize, m_gputhreads>>>(devMomentaF.get(), devMomentaC.get(),
                                                                    m_evt, m_part, m_mome, m_strd);
+  */
+  hst_transposeMomentaF2C(momenta, hstMomentaC.get(), m_evt, m_part, m_mome, m_strd);
+  checkCuda(cudaMemcpy(devMomentaC.get(), hstMomentaC.get(), m_evt * m_part * m_mome * sizeof(T), cudaMemcpyHostToDevice));
   if (!m_goodHelsCalculated) {
     mg5amcGpu::sigmaKin_getGoodHel<<<m_gpublocks, m_gputhreads>>>(devMomentaC.get(), devMEs.get(), devIsGoodHel.get());
     checkCuda(cudaMemcpy(hstIsGoodHel.get(), devIsGoodHel.get(), m_ncomb * sizeof(bool), cudaMemcpyDeviceToHost));
