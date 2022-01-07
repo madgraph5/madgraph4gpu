@@ -6,9 +6,9 @@ CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
 # install target
-INSTALL_HEADERS=CPPProcess.h
+INSTALL_HEADERS=CPPProcess.h MatrixElementKernels.h MemoryBuffers.h checkCuda.h
 INSTALL_INC_DIR=../../include
-INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o
+INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o MatrixElementKernels.o gMatrixElementKernels.o
 
 # Note: AR and CXX are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
