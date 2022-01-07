@@ -5,7 +5,6 @@
 #include "mgOnGpuTypes.h"
 #include "CPPProcess.h"
 #include "MatrixElementKernels.h"
-//#include "Memory.h"
 #include "MemoryBuffers.h"
 
 #include <cassert>
