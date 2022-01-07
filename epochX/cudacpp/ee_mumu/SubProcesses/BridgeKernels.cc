@@ -32,7 +32,7 @@ namespace mg5amcCpu
 
   void BridgeKernelHost::computeGoodHelicities()
   {
-    hst_transposeMomentaC2F( m_momenta.data(), m_fortranMomenta.data(), npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb );
+    hst_transposeMomentaC2F( m_momenta.data(), m_fortranMomenta.data(), nevt(), npar, np4, MemoryAccessMomenta::neppM );
     constexpr bool goodHelOnly=true;
     m_bridge.cpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
   }
@@ -41,7 +41,7 @@ namespace mg5amcCpu
 
   void BridgeKernelHost::computeMatrixElements()
   {
-    hst_transposeMomentaC2F( m_momenta.data(), m_fortranMomenta.data(), npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb );
+    hst_transposeMomentaC2F( m_momenta.data(), m_fortranMomenta.data(), nevt(), npar, np4, MemoryAccessMomenta::neppM );
     constexpr bool goodHelOnly=false;
     m_bridge.cpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
   }
@@ -82,7 +82,7 @@ namespace mg5amcGpu
 
   void BridgeKernelDevice::computeGoodHelicities()
   {
-    hst_transposeMomentaC2F( m_momenta.data(), m_fortranMomenta.data(), npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb );
+    hst_transposeMomentaC2F( m_momenta.data(), m_fortranMomenta.data(), nevt(), npar, np4, MemoryAccessMomenta::neppM );
     constexpr bool goodHelOnly=true;
     m_bridge.gpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
   }
@@ -91,7 +91,7 @@ namespace mg5amcGpu
 
   void BridgeKernelDevice::computeMatrixElements()
   {
-    hst_transposeMomentaC2F( m_momenta.data(), m_fortranMomenta.data(), npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb );
+    hst_transposeMomentaC2F( m_momenta.data(), m_fortranMomenta.data(), nevt(), npar, np4, MemoryAccessMomenta::neppM );
     constexpr bool goodHelOnly=false;
     m_bridge.gpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
   }
