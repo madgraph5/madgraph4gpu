@@ -598,6 +598,7 @@ int main(int argc, char **argv)
     {
       const std::string ghelKey = "0d SGoodHel";
       timermap.start( ghelKey );
+      if ( bridge ) dynamic_cast<BridgeKernelBase*>( pmek.get() )->transposeInputMomentaC2F();
       pmek->computeGoodHelicities();
     }
 
@@ -608,6 +609,7 @@ int main(int argc, char **argv)
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
+    if ( bridge ) dynamic_cast<BridgeKernelBase*>( pmek.get() )->transposeInputMomentaC2F();
     pmek->computeMatrixElements();
 
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***

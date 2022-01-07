@@ -30,7 +30,7 @@ namespace mg5amcCpu
     virtual ~BridgeKernelBase(){}
 
     // Transpose input momenta from C to Fortran before the matrix element calculation in the Bridge
-    //virtual void transposeInputMomentaC2F() = 0;
+    virtual void transposeInputMomentaC2F() = 0;
 
   protected:
 
@@ -55,6 +55,9 @@ namespace mg5amcCpu
     // Destructor
     virtual ~BridgeKernelHost(){}
 
+    // Transpose input momenta from C to Fortran before the matrix element calculation in the Bridge
+    void transposeInputMomentaC2F() override final;
+
     // Compute good helicities
     void computeGoodHelicities() override final;
 
@@ -65,7 +68,7 @@ namespace mg5amcCpu
     bool isOnDevice() const override final { return false; }
 
   private:
-
+    
     // The buffer for the input momenta, transposed to Fortran array indexing
     HostBufferMomenta m_fortranMomenta;
 
@@ -88,6 +91,9 @@ namespace mg5amcCpu
 
     // Destructor
     virtual ~BridgeKernelDevice(){}
+
+    // Transpose input momenta from C to Fortran before the matrix element calculation in the Bridge
+    void transposeInputMomentaC2F() override final;
 
     // Compute good helicities
     void computeGoodHelicities() override final;
