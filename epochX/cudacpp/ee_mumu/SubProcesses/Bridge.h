@@ -54,6 +54,15 @@ public:
   Bridge(int evt, int par, int mom, int str, int ncomb);
 
   /**
+   * set the default gpublocks and gputhreads for the gpusequence - throws if evnt != gpublocks*gputhreads
+   * (this is needed for BridgeKernel tests rather than for actual production use in Fortran)
+   *
+   * @param gpublocks number of gpublocks
+   * @param gputhreads number of gputhreads
+   */
+  void set_gpugrid(const int gpublocks, const int gputhreads);
+
+  /**
    * sequence to be executed for the Cuda matrix element calculation
    *
    * @param momenta memory address of the input 4-momenta
@@ -120,7 +129,7 @@ Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int ncomb)
     , m_gputhreads(256) // default number of gpu threads
     , m_gpublocks(ceil(double(m_evt)/m_gputhreads)) // this ensures m_evt <= m_gpublocks*m_gputhreads
 {
-  std::cout << "WARNING! Instantiate Bridge (evnt=" << evnt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
+  std::cout << "WARNING! Instantiate Bridge (nevt=" << m_evt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
             << ", gpublocks*gputhreads=" << m_gpublocks*m_gputhreads << ")" << std::endl;
 #ifdef __CUDACC__
   mg5amcGpu::CPPProcess process(1, m_gpublocks, m_gputhreads, false);
@@ -130,9 +139,21 @@ Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int ncomb)
   process.initProc("../../Cards/param_card.dat");
 }
 
+template <typename T>
+void Bridge<T>::set_gpugrid(const int gpublocks, const int gputhreads)
+{
+  if ( m_evt != gpublocks*gputhreads )
+    throw std::runtime_error( "Bridge: gpublocks*gputhreads must equal m_evt in set_gpugrid" );
+  m_gpublocks = gpublocks;
+  m_gputhreads = gputhreads;
+  std::cout << "WARNING! Set grid in Bridge (nevt=" << m_evt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
+            << ", gpublocks*gputhreads=" << m_gpublocks*m_gputhreads << ")" << std::endl;
+}
+
 #ifdef __CUDACC__
 
-template <typename T> void Bridge<T>::gpu_sequence( const T *momenta, double *mes, const bool goodHelOnly ) {
+template <typename T>
+void Bridge<T>::gpu_sequence( const T *momenta, double *mes, const bool goodHelOnly ) {
   checkCuda(cudaMemcpy(devMomentaF.get(), momenta,
                        m_evt * m_part * m_mome * sizeof(T),
                        cudaMemcpyHostToDevice));
@@ -152,7 +173,8 @@ template <typename T> void Bridge<T>::gpu_sequence( const T *momenta, double *me
 
 #else
 
-template <typename T> void Bridge<T>::cpu_sequence( const T *momenta, double *mes, const bool goodHelOnly ) {
+template <typename T>
+void Bridge<T>::cpu_sequence( const T *momenta, double *mes, const bool goodHelOnly ) {
   // should become class members...
   typedef std::unique_ptr<T[], CppHstDeleter<T>> CpTHPtr;
   typedef std::unique_ptr<bool[], CppHstDeleter<bool>> CpBHPtr;

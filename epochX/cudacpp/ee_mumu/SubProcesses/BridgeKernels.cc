@@ -76,6 +76,7 @@ namespace mg5amcGpu
     if ( m_gputhreads == 0 ) throw std::runtime_error( "BridgeKernelDevice: gputhreads must be > 0" );
     if ( this->nevt() != m_momenta.nevt() ) throw std::runtime_error( "BridgeKernelDevice: nevt mismatch with momenta" );
     if ( this->nevt() != m_matrixElements.nevt() ) throw std::runtime_error( "BridgeKernelDevice: nevt mismatch with matrixElements" );
+    m_bridge.set_gpugrid( gpublocks, gputhreads );
   }
 
   //--------------------------------------------------------------------------
