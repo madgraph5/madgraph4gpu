@@ -43,7 +43,10 @@ namespace mg5amcCpu
 
     // The wrapped bridge
     Bridge<fptype> m_bridge;
-    
+
+    // The buffer for the input momenta, transposed to Fortran array indexing
+    HostBufferMomenta m_fortranMomenta;
+
   };
 #endif
 
@@ -78,6 +81,9 @@ namespace mg5amcCpu
     // The wrapped bridge
     Bridge<fptype> m_bridge;
     
+    // The buffer for the input momenta, transposed to Fortran array indexing
+    PinnedHostBufferMomenta m_fortranMomenta;
+
     // The number of blocks in the GPU grid
     size_t m_gpublocks;
 

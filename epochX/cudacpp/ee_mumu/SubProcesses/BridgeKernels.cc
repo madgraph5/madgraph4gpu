@@ -20,6 +20,7 @@ namespace mg5amcCpu
     : MatrixElementKernelBase( momenta, matrixElements )
     , NumberOfEvents( nevt )
     , m_bridge( nevt, npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb )
+    , m_fortranMomenta( nevt )
   {
     if ( m_momenta.isOnDevice() ) throw std::runtime_error( "BridgeKernelHost: momenta must be a host array" );
     if ( m_matrixElements.isOnDevice() ) throw std::runtime_error( "BridgeKernelHost: matrixElements must be a host array" );
@@ -31,16 +32,18 @@ namespace mg5amcCpu
 
   void BridgeKernelHost::computeGoodHelicities()
   {
+    hst_transposeMomentaC2F( m_momenta.data(), m_fortranMomenta.data(), npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb );
     constexpr bool goodHelOnly=true;
-    m_bridge.cpu_sequence( m_momenta.data(), m_matrixElements.data(), goodHelOnly );
+    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------
 
   void BridgeKernelHost::computeMatrixElements()
   {
+    hst_transposeMomentaC2F( m_momenta.data(), m_fortranMomenta.data(), npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb );
     constexpr bool goodHelOnly=false;
-    m_bridge.cpu_sequence( m_momenta.data(), m_matrixElements.data(), goodHelOnly );
+    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------
@@ -63,6 +66,7 @@ namespace mg5amcGpu
     : MatrixElementKernelBase( momenta, matrixElements )
     , NumberOfEvents( gpublocks*gputhreads )
     , m_bridge( nevt(), npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb )
+    , m_fortranMomenta( nevt() )
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
   {
@@ -78,16 +82,18 @@ namespace mg5amcGpu
 
   void BridgeKernelDevice::computeGoodHelicities()
   {
+    hst_transposeMomentaC2F( m_momenta.data(), m_fortranMomenta.data(), npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb );
     constexpr bool goodHelOnly=true;
-    m_bridge.gpu_sequence( m_momenta.data(), m_matrixElements.data(), goodHelOnly );
+    m_bridge.gpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------
 
   void BridgeKernelDevice::computeMatrixElements()
   {
+    hst_transposeMomentaC2F( m_momenta.data(), m_fortranMomenta.data(), npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb );
     constexpr bool goodHelOnly=false;
-    m_bridge.gpu_sequence( m_momenta.data(), m_matrixElements.data(), goodHelOnly );
+    m_bridge.gpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------

@@ -13,25 +13,22 @@
 
 // Forward declare transposition kernels
 // (Inverse transposition with template bool parameter F2C and "if constexpr" would require C++17, not available in cuda 11.1)
+
 #ifdef __CUDACC__
 
 template <typename T>
 __global__
 void dev_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd );
 
-template <typename T>
-__global__
-void dev_transposeMomentaC2F( const T *in, T *out, const int evt, const int part, const int mome, const int strd );
-
 #else
 
 template <typename T>
 void hst_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd );
 
+#endif // __CUDACC__
+
 template <typename T>
 void hst_transposeMomentaC2F( const T *in, T *out, const int evt, const int part, const int mome, const int strd );
-
-#endif // __CUDACC__
 
 // *****************************************************************************
 
@@ -204,26 +201,6 @@ void dev_transposeMomentaF2C( const T *in, T *out, const int evt, const int part
   }
 }
 
-template <typename T>
-__global__ 
-void dev_transposeMomentaC2F( const T *in, T *out, const int evt, const int part, const int mome, const int strd ) {
-  int pos = blockDim.x * blockIdx.x + threadIdx.x;
-  int arrlen = evt * part * mome;
-  if (pos < arrlen) {
-    int page_i = pos / (strd * mome * part);
-    int rest_1 = pos % (strd * mome * part);
-    int part_i = rest_1 / (strd * mome);
-    int rest_2 = rest_1 % (strd * mome);
-    int mome_i = rest_2 / strd;
-    int strd_i = rest_2 % strd;
-    int inpos = (page_i * strd + strd_i) // event number
-                    * (part * mome)      // event size (pos of event)
-                + part_i * mome          // particle inside event
-                + mome_i;                // momentum inside particle
-    out[inpos] = in[pos]; // C2F (C to Fortran)
-  }
-}
-
 #else
 
 template <typename T>
@@ -244,6 +221,8 @@ void hst_transposeMomentaF2C( const T *in, T *out, const int evt, const int part
   }
 }
 
+#endif // __CUDACC__
+
 template <typename T>
 void hst_transposeMomentaC2F( const T *in, T *out, const int evt, const int part, const int mome, const int strd ) {  
   int arrlen = evt * part * mome;
@@ -261,8 +240,6 @@ void hst_transposeMomentaC2F( const T *in, T *out, const int evt, const int part
     out[inpos] = in[pos]; // C2F (C to Fortran)
   }
 }
-
-#endif // __CUDACC__
 
 // *****************************************************************************
 
