@@ -64,7 +64,7 @@ public:
    * @param mes memory address of the output matrix elements
    * @param goodHelOnly quit after computing good helicities
    */
-  void gpu_sequence(T *momenta, double *mes, const bool goodHelOnly=false);
+  void gpu_sequence(const T *momenta, double *mes, const bool goodHelOnly=false);
 
   /**
    * sequence to be executed for the vectorized CPU matrix element calculation
@@ -73,7 +73,7 @@ public:
    * @param mes memory address of the output matrix elements
    * @param goodHelOnly quit after computing good helicities
    */
-  void cpu_sequence(T *momenta, double *mes, const bool goodHelOnly=false);
+  void cpu_sequence(const T *momenta, double *mes, const bool goodHelOnly=false);
 
 private:
   int m_evt;                 ///< number of events
@@ -128,7 +128,7 @@ Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int ncomb)
 
 #ifdef __CUDACC__
 
-template <typename T> void Bridge<T>::gpu_sequence( T *momenta, double *mes, const bool goodHelOnly ) {
+template <typename T> void Bridge<T>::gpu_sequence( const T *momenta, double *mes, const bool goodHelOnly ) {
   checkCuda(cudaMemcpy(devMomentaF.get(), momenta,
                        m_evt * m_part * m_mome * sizeof(T),
                        cudaMemcpyHostToDevice));
@@ -146,7 +146,7 @@ template <typename T> void Bridge<T>::gpu_sequence( T *momenta, double *mes, con
 
 #else
 
-template <typename T> void Bridge<T>::cpu_sequence( T *momenta, double *mes, const bool goodHelOnly ) {
+template <typename T> void Bridge<T>::cpu_sequence( const T *momenta, double *mes, const bool goodHelOnly ) {
   // should become class members...
   typedef std::unique_ptr<T[], CppHstDeleter<T>> CpTHPtr;
   typedef std::unique_ptr<bool[], CppHstDeleter<bool>> CpBHPtr;
