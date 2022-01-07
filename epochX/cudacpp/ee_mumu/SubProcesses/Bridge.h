@@ -257,24 +257,32 @@ void hst_transposeMomentaF2C( const T *in, T *out, const int evt )
     out[pos] = in[inpos]; // F2C (Fortran to C)
   }
   */
-  // AV attempt another implementation
+  // AV attempt another implementation, this is slightly faster
+  // [NB! this is not a transposition, it is an AOS to AOSOA conversion: if neppM=1, a memcpy is enough]
   // C-style: AOSOA[npagM][npar][np4][neppM]
   // F-style: AOS[nevt][npar][np4]
   constexpr int npar = mgOnGpu::npar;
   constexpr int np4 = mgOnGpu::np4;
   constexpr int neppM = MemoryAccessMomenta::neppM;
-  const int npagM = evt/neppM;
-  assert( evt%neppM == 0 ); // number of events is not a multiple of neppM???
-  for ( int ipagM=0; ipagM<npagM; ipagM++ )
-    for ( int ip4=0; ip4<np4; ip4++ )
-      for ( int ipar=0; ipar<npar; ipar++ )
-        for ( int ieppM=0; ieppM<neppM; ieppM++ )
-        {
-          int ievt = ipagM*neppM + ieppM;
-          int cpos = ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM;
-          int fpos = ievt*npar*np4 + ipar*np4 + ip4;
-          out[cpos] = in[fpos]; // F2C (Fortran to C)
-        }
+  if ( neppM == 1 ) // eventually move to "if constexpr" (need c++17, not available in cuda 11.1)
+  {
+    memcpy( out, in, evt * npar * np4 * sizeof(T) );
+  }
+  else
+  {
+    const int npagM = evt/neppM;
+    assert( evt%neppM == 0 ); // number of events is not a multiple of neppM???
+    for ( int ipagM=0; ipagM<npagM; ipagM++ )
+      for ( int ip4=0; ip4<np4; ip4++ )
+        for ( int ipar=0; ipar<npar; ipar++ )
+          for ( int ieppM=0; ieppM<neppM; ieppM++ )
+          {
+            int ievt = ipagM*neppM + ieppM;
+            int cpos = ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM;
+            int fpos = ievt*npar*np4 + ipar*np4 + ip4;
+            out[cpos] = in[fpos]; // F2C (Fortran to C)
+          }
+  }
 }
 
 template <typename T>
