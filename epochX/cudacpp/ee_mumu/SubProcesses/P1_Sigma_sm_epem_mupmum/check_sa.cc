@@ -477,10 +477,11 @@ int main(int argc, char **argv)
   }
 
   // --- 0c. Create matrix element kernel [keep this in 0c for the moment]
+  std::unique_ptr<MatrixElementKernelBase> pmek;
 #ifdef __CUDACC__
-  MatrixElementKernelDevice mek( devMomenta, devMatrixElements, gpublocks, gputhreads );
+  pmek.reset( new MatrixElementKernelDevice( devMomenta, devMatrixElements, gpublocks, gputhreads ) );
 #else
-  MatrixElementKernelHost mek( hstMomenta, hstMatrixElements, nevt );
+  pmek.reset( new MatrixElementKernelHost( hstMomenta, hstMatrixElements, nevt ) );
 #endif
 
   // **************************************
@@ -586,7 +587,7 @@ int main(int argc, char **argv)
     {
       const std::string ghelKey = "0d SGoodHel";
       timermap.start( ghelKey );
-      mek.computeGoodHelicities();
+      pmek->computeGoodHelicities();
     }
 
     // *** START THE OLD-STYLE TIMERS FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
@@ -596,7 +597,7 @@ int main(int argc, char **argv)
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
-    mek.computeMatrixElements();
+    pmek->computeMatrixElements();
 
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wv3atime += timermap.stop(); // calc only
