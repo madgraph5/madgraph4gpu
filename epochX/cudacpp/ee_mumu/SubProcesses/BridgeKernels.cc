@@ -21,6 +21,10 @@ namespace mg5amcCpu
     , NumberOfEvents( nevt )
     , m_bridge( nevt, npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb )
     , m_fortranMomenta( nevt )
+#ifdef BRIDGEDEBUG
+    , m_momenta2( nevt )
+    , m_mek( momenta, matrixElements, nevt )
+#endif
   {
     if ( m_momenta.isOnDevice() ) throw std::runtime_error( "BridgeKernelHost: momenta must be a host array" );
     if ( m_matrixElements.isOnDevice() ) throw std::runtime_error( "BridgeKernelHost: matrixElements must be a host array" );
@@ -32,18 +36,26 @@ namespace mg5amcCpu
 
   void BridgeKernelHost::computeGoodHelicities()
   {
+#ifndef BRIDGEDEBUG
     hst_transposeMomentaC2F( m_momenta.data(), m_fortranMomenta.data(), npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb );
     constexpr bool goodHelOnly=true;
     m_bridge.cpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
+#else
+    m_mek.computeGoodHelicities();
+#endif
   }
 
   //--------------------------------------------------------------------------
 
   void BridgeKernelHost::computeMatrixElements()
   {
+#ifndef BRIDGEDEBUG
     hst_transposeMomentaC2F( m_momenta.data(), m_fortranMomenta.data(), npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb );
     constexpr bool goodHelOnly=false;
     m_bridge.cpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
+#else
+    m_mek.computeMatrixElements();
+#endif
   }
 
   //--------------------------------------------------------------------------

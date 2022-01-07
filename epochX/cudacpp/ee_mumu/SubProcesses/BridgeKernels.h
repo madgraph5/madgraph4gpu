@@ -7,6 +7,9 @@
 #include "MatrixElementKernels.h"
 #include "MemoryBuffers.h"
 
+#undef BRIDGEDEBUG
+#define BRIDGEDEBUG 1 // DEBUG!
+
 #ifdef __CUDACC__
 namespace mg5amcGpu
 #else
@@ -46,6 +49,11 @@ namespace mg5amcCpu
 
     // The buffer for the input momenta, transposed to Fortran array indexing
     HostBufferMomenta m_fortranMomenta;
+
+#ifdef BRIDGEDEBUG
+    HostBufferMomenta m_momenta2;
+    MatrixElementKernelHost m_mek;
+#endif
 
   };
 #endif
