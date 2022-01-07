@@ -56,14 +56,16 @@ public:
    */
   Bridge(int evt, int par, int mom, int str, int ncomb);
 
+#ifdef __CUDACC__
   /**
-   * set the default gpublocks and gputhreads for the gpusequence - throws if evnt != gpublocks*gputhreads
+   * set the gpublocks and gputhreads for the gpusequence - throws if evnt != gpublocks*gputhreads
    * (this is needed for BridgeKernel tests rather than for actual production use in Fortran)
    *
    * @param gpublocks number of gpublocks
    * @param gputhreads number of gputhreads
    */
   void set_gpugrid(const int gpublocks, const int gputhreads);
+#endif
 
   /**
    * sequence to be executed for the Cuda matrix element calculation
@@ -145,19 +147,23 @@ Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int ncomb)
   process.initProc( "../../Cards/param_card.dat" );
 }
 
+#ifdef __CUDACC__
 template <typename T>
 void Bridge<T>::set_gpugrid(const int gpublocks, const int gputhreads)
 {
+  if ( m_goodHelsCalculated )
+    throw std::runtime_error( "Bridge: gpublocks and gputhreads cannot be set after calculating helicities" );
   if ( m_evt != gpublocks*gputhreads )
     throw std::runtime_error( "Bridge: gpublocks*gputhreads must equal m_evt in set_gpugrid" );
   m_gpublocks = gpublocks;
   m_gputhreads = gputhreads;
   std::cout << "WARNING! Set grid in Bridge (nevt=" << m_evt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
             << ", gpublocks*gputhreads=" << m_gpublocks*m_gputhreads << ")" << std::endl;
+  m_devMek.setGrid( m_gpublocks, m_gputhreads );
 }
+#endif
 
 #ifdef __CUDACC__
-
 template <typename T>
 void Bridge<T>::gpu_sequence( const T *momenta, double *mes, const bool goodHelOnly )
 {
@@ -174,9 +180,9 @@ void Bridge<T>::gpu_sequence( const T *momenta, double *mes, const bool goodHelO
   m_devMek.computeMatrixElements();
   checkCuda( cudaMemcpy( mes, m_devMEsC.data(), m_devMEsC.bytes(), cudaMemcpyDeviceToHost ) );
 }
+#endif
 
-#else
-
+#ifndef __CUDACC__
 template <typename T>
 void Bridge<T>::cpu_sequence( const T *momenta, double *mes, const bool goodHelOnly )
 {
@@ -190,8 +196,7 @@ void Bridge<T>::cpu_sequence( const T *momenta, double *mes, const bool goodHelO
   m_hstMek.computeMatrixElements();
   memcpy( mes, m_hstMEsC.data(), m_hstMEsC.bytes() );
 }
-
-#endif // __CUDACC__
+#endif
 
 // *****************************************************************************
 
@@ -200,7 +205,6 @@ void Bridge<T>::cpu_sequence( const T *momenta, double *mes, const bool goodHelO
 //
 
 #ifdef __CUDACC__
-
 template <typename T>
 __global__
 void dev_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd )
@@ -223,8 +227,7 @@ void dev_transposeMomentaF2C( const T *in, T *out, const int evt, const int part
     out[pos] = in[inpos]; // F2C (Fortran to C)
   }
 }
-
-#endif // __CUDACC__
+#endif
 
 template <typename T>
 void hst_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd )
