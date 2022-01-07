@@ -53,9 +53,9 @@ public:
    * @param par number of particles / event (NEXTERNAL, nexternal.inc)
    * @param mom number of momenta / particle
    * @param str stride length
-   * @param ncomb number of good helicities (ncomb, mgOnGpuConfig.h)
+   * @param comb number of good helicities (ncomb, mgOnGpuConfig.h)
    */
-  Bridge(int evt, int par, int mom, int str, int ncomb);
+  Bridge(int evt, int par, int mom, int str, int comb);
 
   /**
    * sequence to be executed for the Cuda matrix element calculation
@@ -80,7 +80,7 @@ private:
   int m_part;                ///< number of particles / event
   int m_mome;                ///< number of momenta / particle (usually 4)
   int m_strd;                ///< stride length of the AOSOA structure
-  int m_ncomb;               ///< number of good helicities
+  int m_comb;                ///< number of good helicities
   bool m_goodHelsCalculated; ///< have the good helicities been calculated?
 
 #ifdef __CUDACC__
@@ -90,15 +90,15 @@ private:
   typedef std::unique_ptr<T, CudaDevDeleter<T>> CuTDPtr;
   CuTDPtr devMomentaF = devMakeUnique<T>(m_evt * m_part * m_mome);
   CuTDPtr devMomentaC = devMakeUnique<T>(m_evt * m_part * m_mome);
-  CuBHPtr hstIsGoodHel = hstMakeUnique<bool>(m_ncomb);
-  CuBDPtr devIsGoodHel = devMakeUnique<bool>(m_ncomb);
+  CuBHPtr hstIsGoodHel = hstMakeUnique<bool>(m_comb);
+  CuBDPtr devIsGoodHel = devMakeUnique<bool>(m_comb);
   CuTDPtr devMEs = devMakeUnique<T>(m_evt);
 #else
   // This needs to be inside the function, why?
   // typedef std::unique_ptr<T[], CppHstDeleter<T>> CpTHPtr;
   // typedef std::unique_ptr<bool[], CppHstDeleter<bool>> CpBHPtr;
   // CpTHPtr hstMomenta = hstMakeUnique<T>(m_evt * m_part * m_mome);
-  // CpBHPtr hstIsGoodHel2 = hstMakeUnique<bool>(m_ncomb);
+  // CpBHPtr hstIsGoodHel2 = hstMakeUnique<bool>(m_comb);
   // CpTHPtr hstMEs = hstMakeUnique<T>(m_evt);
 #endif
 
@@ -115,8 +115,8 @@ private:
 //
 
 template <typename T>
-Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int ncomb)
-    : m_evt(evnt), m_part(part), m_mome(mome), m_strd(strd), m_ncomb(ncomb),
+Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int comb)
+    : m_evt(evnt), m_part(part), m_mome(mome), m_strd(strd), m_comb(comb),
       m_goodHelsCalculated(false) {
 #ifdef __CUDACC__
   mg5amcGpu::CPPProcess process(1, s_gpublocks, s_gputhreads, false);
@@ -135,7 +135,7 @@ template <typename T> void Bridge<T>::gpu_sequence( const T *momenta, double *me
   dev_transposeMomentaF2C<<<s_gpublocks * 16, s_gputhreads>>>(devMomentaF.get(), devMomentaC.get(), m_evt, m_part, m_mome, m_strd);
   if (!m_goodHelsCalculated) {
     mg5amcGpu::sigmaKin_getGoodHel<<<s_gpublocks, s_gputhreads>>>(devMomentaC.get(), devMEs.get(), devIsGoodHel.get());
-    checkCuda(cudaMemcpy(hstIsGoodHel.get(), devIsGoodHel.get(), m_ncomb * sizeof(bool), cudaMemcpyDeviceToHost));
+    checkCuda(cudaMemcpy(hstIsGoodHel.get(), devIsGoodHel.get(), m_comb * sizeof(bool), cudaMemcpyDeviceToHost));
     mg5amcGpu::sigmaKin_setGoodHel(hstIsGoodHel.get());
     m_goodHelsCalculated = true;
   }
@@ -151,7 +151,7 @@ template <typename T> void Bridge<T>::cpu_sequence( const T *momenta, double *me
   typedef std::unique_ptr<T[], CppHstDeleter<T>> CpTHPtr;
   typedef std::unique_ptr<bool[], CppHstDeleter<bool>> CpBHPtr;
   CpTHPtr hstMomenta = hstMakeUnique<T>(m_evt * m_part * m_mome);
-  CpBHPtr hstIsGoodHel2 = hstMakeUnique<bool>(m_ncomb);
+  CpBHPtr hstIsGoodHel2 = hstMakeUnique<bool>(m_comb);
   CpTHPtr hstMEs = hstMakeUnique<T>(m_evt);
   // double(&hstMEs2)[m_evt] = reinterpret_cast<double(&)[m_evt]>(mes);
   hst_transposeMomentaF2C(momenta, hstMomenta.get(), m_evt, m_part, m_mome, m_strd);
