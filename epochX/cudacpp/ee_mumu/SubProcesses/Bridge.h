@@ -236,6 +236,7 @@ void dev_transposeMomentaF2C( const T *in, T *out, const int evt )
 template <typename T>
 void hst_transposeMomentaF2C( const T *in, T *out, const int evt )
 {
+  /*
   constexpr int part = mgOnGpu::npar;
   constexpr int mome = mgOnGpu::np4;
   constexpr int strd = MemoryAccessMomenta::neppM;
@@ -255,6 +256,25 @@ void hst_transposeMomentaF2C( const T *in, T *out, const int evt )
       + mome_i;                // momentum inside particle
     out[pos] = in[inpos]; // F2C (Fortran to C)
   }
+  */
+  // AV attempt another implementation
+  // C-style: AOSOA[npagM][npar][np4][neppM]
+  // F-style: AOS[nevt][npar][np4]
+  constexpr int npar = mgOnGpu::npar;
+  constexpr int np4 = mgOnGpu::np4;
+  constexpr int neppM = MemoryAccessMomenta::neppM;
+  const int npagM = evt/neppM;
+  assert( evt%neppM == 0 ); // number of events is not a multiple of neppM???
+  for ( int ipagM=0; ipagM<npagM; ipagM++ )
+    for ( int ip4=0; ip4<np4; ip4++ )
+      for ( int ipar=0; ipar<npar; ipar++ )
+        for ( int ieppM=0; ieppM<neppM; ieppM++ )
+        {
+          int ievt = ipagM*neppM + ieppM;
+          int cpos = ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM;
+          int fpos = ievt*npar*np4 + ipar*np4 + ip4;
+          out[cpos] = in[fpos]; // F2C (Fortran to C)
+        }
 }
 
 template <typename T>
