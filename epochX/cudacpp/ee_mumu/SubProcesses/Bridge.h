@@ -138,7 +138,9 @@ template <typename T> void Bridge<T>::gpu_sequence( const T *momenta, double *me
   checkCuda(cudaMemcpy(devMomentaF.get(), momenta,
                        m_evt * m_part * m_mome * sizeof(T),
                        cudaMemcpyHostToDevice));
-  dev_transposeMomentaF2C<<<m_gpublocks * 16, m_gputhreads>>>(devMomentaF.get(), devMomentaC.get(), m_evt, m_part, m_mome, m_strd);
+  const int eventSize = m_part * m_mome; // AV: the transpose algorithm does one element per thread (NOT one event per thread!)
+  dev_transposeMomentaF2C<<<m_gpublocks*eventSize, m_gputhreads>>>(devMomentaF.get(), devMomentaC.get(),
+                                                                   m_evt, m_part, m_mome, m_strd);
   if (!m_goodHelsCalculated) {
     mg5amcGpu::sigmaKin_getGoodHel<<<m_gpublocks, m_gputhreads>>>(devMomentaC.get(), devMEs.get(), devIsGoodHel.get());
     checkCuda(cudaMemcpy(hstIsGoodHel.get(), devIsGoodHel.get(), m_ncomb * sizeof(bool), cudaMemcpyDeviceToHost));
