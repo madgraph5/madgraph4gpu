@@ -36,11 +36,17 @@ void hst_transposeMomentaC2F( const T *in, T *out, const int evt );
 /**
  * A templated class for calling the C++ / Cuda matrix element calculations of
  * the event generation workflow. The template parameter is used for the
- * precision of the calculations (float or double)
+ * precision of the calculations in CUDA/C++ (float or double).
  *
  * The fortran momenta passed in are in the form of
  *   DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE)
  * where the dimensions are <# momenta>, <# of particles>, <# events>
+ *
+ * FIXME: eventually cpu/gpu sequence should take double* (not T*) momenta/MEs.
+ * This would allow using double in MadEvent Fortran and float in CUDA/C++ sigmaKin.
+ * This would require significant changes to the "--bridge" test in check_sa.
+ * A mixing of float and double is not yet possible in the CUDA/C++ code.
+ * For the moment, use T* in cpu/gpu sequence (emulate using float or double throughout).
  */
 template <typename T> class Bridge
 {
@@ -74,7 +80,7 @@ public:
    * @param mes memory address of the output matrix elements
    * @param goodHelOnly quit after computing good helicities
    */
-  void gpu_sequence( const T *momenta, double *mes, const bool goodHelOnly=false );
+  void gpu_sequence( const T *momenta, T *mes, const bool goodHelOnly=false );
 
   /**
    * sequence to be executed for the vectorized CPU matrix element calculation
@@ -83,7 +89,7 @@ public:
    * @param mes memory address of the output matrix elements
    * @param goodHelOnly quit after computing good helicities
    */
-  void cpu_sequence( const T *momenta, double *mes, const bool goodHelOnly=false );
+  void cpu_sequence( const T *momenta, T *mes, const bool goodHelOnly=false );
 
 private:
 
@@ -167,7 +173,7 @@ void Bridge<T>::set_gpugrid(const int gpublocks, const int gputhreads)
 
 #ifdef __CUDACC__
 template <typename T>
-void Bridge<T>::gpu_sequence( const T *momenta, double *mes, const bool goodHelOnly )
+void Bridge<T>::gpu_sequence( const T *momenta, T *mes, const bool goodHelOnly )
 {
   constexpr int neppM = MemoryAccessMomenta::neppM;
   if ( neppM == 1 ) // eventually move to "if constexpr" (need c++17, not available in cuda 11.1)
@@ -194,7 +200,7 @@ void Bridge<T>::gpu_sequence( const T *momenta, double *mes, const bool goodHelO
 
 #ifndef __CUDACC__
 template <typename T>
-void Bridge<T>::cpu_sequence( const T *momenta, double *mes, const bool goodHelOnly )
+void Bridge<T>::cpu_sequence( const T *momenta, T *mes, const bool goodHelOnly )
 {
   hst_transposeMomentaF2C( momenta, m_hstMomentaC.data(), m_evt );
   if ( !m_goodHelsCalculated )
