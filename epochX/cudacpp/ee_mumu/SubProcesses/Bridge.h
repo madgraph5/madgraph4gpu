@@ -2,10 +2,11 @@
 #define BRIDGE_H 1
 
 // Includes from Cuda/C++ matrix element calculations
-#include "mgOnGpuTypes.h"
-#include "CPPProcess.h"
-#include "MatrixElementKernels.h"
-#include "MemoryBuffers.h"
+#include "mgOnGpuConfig.h" // for mgOnGpu::npar, mgOnGpu::np4
+#include "CPPProcess.h" // for CPPProcess
+#include "MatrixElementKernels.h" // for MatrixElementKernelHost, MatrixElementKernelDevice
+#include "MemoryAccessMomenta.h" // for MemoryAccessMomenta::neppM
+#include "MemoryBuffers.h" // for HostBufferMomenta, DeviceBufferMomenta etc
 
 #include <cassert>
 #include <cmath>
@@ -20,15 +21,15 @@
 
 template <typename T>
 __global__
-void dev_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd );
+void dev_transposeMomentaF2C( const T *in, T *out, const int evt );
 
 #endif // __CUDACC__
 
 template <typename T>
-void hst_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd );
+void hst_transposeMomentaF2C( const T *in, T *out, const int evt );
 
 template <typename T>
-void hst_transposeMomentaC2F( const T *in, T *out, const int evt, const int part, const int mome, const int strd );
+void hst_transposeMomentaC2F( const T *in, T *out, const int evt );
 
 // *****************************************************************************
 
@@ -47,13 +48,13 @@ public:
   /**
    * class constructor
    *
-   * @param evt number of events (NB_PAGE, vector.inc)
-   * @param par number of particles / event (NEXTERNAL, nexternal.inc)
-   * @param mom number of momenta / particle
-   * @param str stride length
-   * @param ncomb number of good helicities (ncomb, mgOnGpuConfig.h)
+   * @param evt number of events (NB_PAGE, vector.inc)                    [STRICTLY NEEDED]
+   * @param par number of particles per event (NEXTERNAL, nexternal.inc)  [KEPT FOR SANITY CHECKS ONLY! remove it?]
+   * @param mom number of momenta per particle                            [KEPT FOR SANITY CHECKS ONLY! remove it?]
+   * @param str stride length                                             [IGNORED! REMOVE IT! fully encapsulated in Cuda/C++]
+   * @param ncomb number of good helicities                               [IGNORED! REMOVE IT! fully encapsulated in Cuda/C++]
    */
-  Bridge(int evt, int par, int mom, int str, int ncomb);
+  Bridge( int evt, int par, int mom, int /*dummy*/str=0, int /*dummy*/ncomb=0 );
 
 #ifdef __CUDACC__
   /**
@@ -63,7 +64,7 @@ public:
    * @param gpublocks number of gpublocks
    * @param gputhreads number of gputhreads
    */
-  void set_gpugrid(const int gpublocks, const int gputhreads);
+  void set_gpugrid( const int gpublocks, const int gputhreads );
 #endif
 
   /**
@@ -73,7 +74,7 @@ public:
    * @param mes memory address of the output matrix elements
    * @param goodHelOnly quit after computing good helicities
    */
-  void gpu_sequence(const T *momenta, double *mes, const bool goodHelOnly=false);
+  void gpu_sequence( const T *momenta, double *mes, const bool goodHelOnly=false );
 
   /**
    * sequence to be executed for the vectorized CPU matrix element calculation
@@ -82,15 +83,15 @@ public:
    * @param mes memory address of the output matrix elements
    * @param goodHelOnly quit after computing good helicities
    */
-  void cpu_sequence(const T *momenta, double *mes, const bool goodHelOnly=false);
+  void cpu_sequence( const T *momenta, double *mes, const bool goodHelOnly=false );
 
 private:
 
   int m_evt;                 ///< number of events
-  int m_part;                ///< number of particles / event
-  int m_mome;                ///< number of momenta / particle (usually 4)
-  int m_strd;                ///< stride length of the AOSOA structure
-  int m_ncomb;               ///< number of good helicities
+  //int m_part;                ///< number of particles per event [NO LONGER NEEDED!]
+  //int m_mome;                ///< number of momenta per particle (usually 4) [NO LONGER NEEDED!]
+  //int m_strd;                ///< stride length of the AOSOA structure [NO LONGER NEEDED!]
+  //int m_ncomb;               ///< number of good helicities [NO LONGER NEEDED!]
   bool m_goodHelsCalculated; ///< have the good helicities been calculated?
 
   int m_gputhreads;          ///< number of gpu threads (default set from number of events, can be modified)
@@ -116,12 +117,12 @@ private:
 //
 
 template <typename T>
-Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int ncomb)
+Bridge<T>::Bridge( int evnt, int part, int mome, int /*strd*/, int /*ncomb*/ )
   : m_evt( evnt )
-  , m_part( part )
-  , m_mome( mome )
-  , m_strd( strd )
-  , m_ncomb( ncomb )
+    //, m_part( part )
+    //, m_mome( mome )
+    //, m_strd( strd )
+    //, m_ncomb( ncomb )
   , m_goodHelsCalculated( false )
   , m_gputhreads( 256 ) // default number of gpu threads
   , m_gpublocks( ceil(double(m_evt)/m_gputhreads) ) // this ensures m_evt <= m_gpublocks*m_gputhreads
@@ -136,6 +137,8 @@ Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int ncomb)
   , m_hstMek( m_hstMomentaC, m_hstMEsC, evnt )
 #endif
 {
+  if ( part != mgOnGpu::npar ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
+  if ( mome != mgOnGpu::np4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
   std::cout << "WARNING! Instantiate Bridge (nevt=" << m_evt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
             << ", gpublocks*gputhreads=" << m_gpublocks*m_gputhreads << ")" << std::endl;
 #ifdef __CUDACC__
@@ -167,9 +170,8 @@ template <typename T>
 void Bridge<T>::gpu_sequence( const T *momenta, double *mes, const bool goodHelOnly )
 {
   checkCuda( cudaMemcpy( m_devMomentaF.data(), momenta, m_devMomentaF.bytes(), cudaMemcpyHostToDevice ) );
-  const int eventSize = m_part * m_mome; // AV: the transpose algorithm does one element per thread (NOT one event per thread!)
-  dev_transposeMomentaF2C<<<m_gpublocks*eventSize, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(),
-                                                                    m_evt, m_part, m_mome, m_strd );
+  const int eventSize = mgOnGpu::npar * mgOnGpu::np4; // AV: transpose algo does 1 element per thread (NOT 1 event per thread!)
+  dev_transposeMomentaF2C<<<m_gpublocks*eventSize, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(), m_evt );
   if ( !m_goodHelsCalculated )
   {
     m_devMek.computeGoodHelicities();
@@ -185,7 +187,7 @@ void Bridge<T>::gpu_sequence( const T *momenta, double *mes, const bool goodHelO
 template <typename T>
 void Bridge<T>::cpu_sequence( const T *momenta, double *mes, const bool goodHelOnly )
 {
-  hst_transposeMomentaF2C( momenta, m_hstMomentaC.data(), m_evt, m_part, m_mome, m_strd );
+  hst_transposeMomentaF2C( momenta, m_hstMomentaC.data(), m_evt );
   if ( !m_goodHelsCalculated )
   {
     m_hstMek.computeGoodHelicities();
@@ -206,8 +208,11 @@ void Bridge<T>::cpu_sequence( const T *momenta, double *mes, const bool goodHelO
 #ifdef __CUDACC__
 template <typename T>
 __global__
-void dev_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd )
+void dev_transposeMomentaF2C( const T *in, T *out, const int evt )
 {
+  constexpr int part = mgOnGpu::npar;
+  constexpr int mome = mgOnGpu::np4;
+  constexpr int strd = MemoryAccessMomenta::neppM;
   int pos = blockDim.x * blockIdx.x + threadIdx.x;
   int arrlen = evt * part * mome;
   if (pos < arrlen)
@@ -229,8 +234,11 @@ void dev_transposeMomentaF2C( const T *in, T *out, const int evt, const int part
 #endif
 
 template <typename T>
-void hst_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd )
+void hst_transposeMomentaF2C( const T *in, T *out, const int evt )
 {
+  constexpr int part = mgOnGpu::npar;
+  constexpr int mome = mgOnGpu::np4;
+  constexpr int strd = MemoryAccessMomenta::neppM;
   int arrlen = evt * part * mome;
   for (int pos = 0; pos < arrlen; ++pos)
   {
@@ -250,8 +258,11 @@ void hst_transposeMomentaF2C( const T *in, T *out, const int evt, const int part
 }
 
 template <typename T>
-void hst_transposeMomentaC2F( const T *in, T *out, const int evt, const int part, const int mome, const int strd )
+void hst_transposeMomentaC2F( const T *in, T *out, const int evt )
 {
+  constexpr int part = mgOnGpu::npar;
+  constexpr int mome = mgOnGpu::np4;
+  constexpr int strd = MemoryAccessMomenta::neppM;
   int arrlen = evt * part * mome;
   for (int pos = 0; pos < arrlen; ++pos)
   {

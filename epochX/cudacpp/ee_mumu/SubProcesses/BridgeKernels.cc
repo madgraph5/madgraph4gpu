@@ -22,7 +22,7 @@ namespace mg5amcCpu
                                       const size_t nevt )
     : MatrixElementKernelBase( momenta, matrixElements )
     , NumberOfEvents( nevt )
-    , m_bridge( nevt, npar, np4, MemoryAccessMomenta::neppM, mgOnGpu::ncomb )
+    , m_bridge( nevt, npar, np4 )
   {
     if ( m_momenta.isOnDevice() ) throw std::runtime_error( "BridgeKernelBase: momenta must be a host array" );
     if ( m_matrixElements.isOnDevice() ) throw std::runtime_error( "BridgeKernelBase: matrixElements must be a host array" );
@@ -54,7 +54,7 @@ namespace mg5amcCpu
 
   void BridgeKernelHost::transposeInputMomentaC2F()
   {
-    hst_transposeMomentaC2F( m_momenta.data(), m_fortranMomenta.data(), nevt(), npar, np4, MemoryAccessMomenta::neppM );
+    hst_transposeMomentaC2F( m_momenta.data(), m_fortranMomenta.data(), nevt() );
   }
 
   //--------------------------------------------------------------------------
@@ -104,7 +104,7 @@ namespace mg5amcGpu
 
   void BridgeKernelDevice::transposeInputMomentaC2F()
   {
-    hst_transposeMomentaC2F( m_momenta.data(), m_fortranMomenta.data(), nevt(), npar, np4, MemoryAccessMomenta::neppM );
+    hst_transposeMomentaC2F( m_momenta.data(), m_fortranMomenta.data(), nevt() );
   }
 
   //--------------------------------------------------------------------------
