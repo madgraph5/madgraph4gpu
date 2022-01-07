@@ -489,7 +489,7 @@ int main(int argc, char **argv)
   else 
   {
 #ifdef __CUDACC__
-    pmek.reset( new BridgeKernelDevice( devMomenta, devMatrixElements, gpublocks, gputhreads ) );
+    pmek.reset( new BridgeKernelDevice( hstMomenta, hstMatrixElements, gpublocks, gputhreads ) );
 #else
     pmek.reset( new BridgeKernelHost( hstMomenta, hstMatrixElements, nevt ) );
 #endif
@@ -570,7 +570,7 @@ int main(int argc, char **argv)
       rambtime += timermap.start( cmomKey );
       copyHostFromDevice( hstMomenta, devMomenta );
     }
-    else
+    else // only if ( ! bridge ) ???
     {
       // --- 2c. CopyHToD Weights
       const std::string cwgtKey = "2c CpHTDwgt";
@@ -615,12 +615,15 @@ int main(int argc, char **argv)
     wavetime += wv3atime; // calc plus copy
 
 #ifdef __CUDACC__
-    // --- 3b. CopyDToH MEs
-    const std::string cmesKey = "3b CpDTHmes";
-    timermap.start( cmesKey );
-    copyHostFromDevice( hstMatrixElements, devMatrixElements );
-    // *** STOP THE OLD OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
-    wavetime += timermap.stop(); // calc plus copy
+    if ( ! bridge )
+    {
+      // --- 3b. CopyDToH MEs
+      const std::string cmesKey = "3b CpDTHmes";
+      timermap.start( cmesKey );
+      copyHostFromDevice( hstMatrixElements, devMatrixElements );
+      // *** STOP THE OLD OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
+      wavetime += timermap.stop(); // calc plus copy
+    }
 #endif
 
     // === STEP 4 FINALISE LOOP
