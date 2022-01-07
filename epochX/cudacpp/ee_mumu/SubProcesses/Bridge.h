@@ -4,7 +4,9 @@
 // Includes from Cuda/C++ matrix element calculations
 #include "mgOnGpuTypes.h"
 #include "CPPProcess.h"
-#include "Memory.h"
+#include "MatrixElementKernels.h"
+//#include "Memory.h"
+#include "MemoryBuffers.h"
 
 #include <cassert>
 #include <cmath>
@@ -40,7 +42,8 @@ void hst_transposeMomentaC2F( const T *in, T *out, const int evt, const int part
  *   DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE)
  * where the dimensions are <# momenta>, <# of particles>, <# events>
  */
-template <typename T> class Bridge {
+template <typename T> class Bridge
+{
 public:
   /**
    * class constructor
@@ -81,6 +84,7 @@ public:
   void cpu_sequence(const T *momenta, double *mes, const bool goodHelOnly=false);
 
 private:
+
   int m_evt;                 ///< number of events
   int m_part;                ///< number of particles / event
   int m_mome;                ///< number of momenta / particle (usually 4)
@@ -92,22 +96,14 @@ private:
   int m_gpublocks;           ///< number of gpu blocks (default set from number of events, can be modified)
 
 #ifdef __CUDACC__
-  typedef std::unique_ptr<bool[], CudaHstDeleter<bool>> CuBHPtr;
-  typedef std::unique_ptr<bool, CudaDevDeleter<bool>> CuBDPtr;
-  typedef std::unique_ptr<T[], CudaHstDeleter<T>> CuTHPtr;
-  typedef std::unique_ptr<T, CudaDevDeleter<T>> CuTDPtr;
-  CuTDPtr devMomentaF = devMakeUnique<T>(m_evt * m_part * m_mome);
-  CuTDPtr devMomentaC = devMakeUnique<T>(m_evt * m_part * m_mome);
-  CuBHPtr hstIsGoodHel = hstMakeUnique<bool>(m_ncomb);
-  CuBDPtr devIsGoodHel = devMakeUnique<bool>(m_ncomb);
-  CuTDPtr devMEs = devMakeUnique<T>(m_evt);
+  mg5amcGpu::DeviceBufferMomenta m_devMomentaF;
+  mg5amcGpu::DeviceBufferMomenta m_devMomentaC;
+  mg5amcGpu::DeviceBufferMatrixElements m_devMEsC;
+  mg5amcGpu::MatrixElementKernelDevice m_devMek;
 #else
-  // This needs to be inside the function, why?
-  // typedef std::unique_ptr<T[], CppHstDeleter<T>> CpTHPtr;
-  // typedef std::unique_ptr<bool[], CppHstDeleter<bool>> CpBHPtr;
-  // CpTHPtr hstMomenta = hstMakeUnique<T>(m_evt * m_part * m_mome);
-  // CpBHPtr hstIsGoodHel2 = hstMakeUnique<bool>(m_ncomb);
-  // CpTHPtr hstMEs = hstMakeUnique<T>(m_evt);
+  mg5amcCpu::HostBufferMomenta m_hstMomentaC;
+  mg5amcCpu::HostBufferMatrixElements m_hstMEsC;
+  mg5amcCpu::MatrixElementKernelHost m_hstMek;
 #endif
 
 };
@@ -120,23 +116,33 @@ private:
 
 template <typename T>
 Bridge<T>::Bridge(int evnt, int part, int mome, int strd, int ncomb)
-    : m_evt(evnt)
-    , m_part(part)
-    , m_mome(mome)
-    , m_strd(strd)
-    , m_ncomb(ncomb)
-    , m_goodHelsCalculated(false)
-    , m_gputhreads(256) // default number of gpu threads
-    , m_gpublocks(ceil(double(m_evt)/m_gputhreads)) // this ensures m_evt <= m_gpublocks*m_gputhreads
+  : m_evt( evnt )
+  , m_part( part )
+  , m_mome( mome )
+  , m_strd( strd )
+  , m_ncomb( ncomb )
+  , m_goodHelsCalculated( false )
+  , m_gputhreads( 256 ) // default number of gpu threads
+  , m_gpublocks( ceil(double(m_evt)/m_gputhreads) ) // this ensures m_evt <= m_gpublocks*m_gputhreads
+#ifdef __CUDACC__
+  , m_devMomentaF( evnt )
+  , m_devMomentaC( evnt )
+  , m_devMEsC( evnt )
+  , m_devMek( m_devMomentaC, m_devMEsC, m_gpublocks, m_gputhreads )
+#else
+  , m_hstMomentaC( evnt )
+  , m_hstMEsC( evnt )
+  , m_hstMek( m_hstMomentaC, m_hstMEsC, evnt )
+#endif
 {
   std::cout << "WARNING! Instantiate Bridge (nevt=" << m_evt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
             << ", gpublocks*gputhreads=" << m_gpublocks*m_gputhreads << ")" << std::endl;
 #ifdef __CUDACC__
-  mg5amcGpu::CPPProcess process(1, m_gpublocks, m_gputhreads, false);
+  mg5amcGpu::CPPProcess process( 1, m_gpublocks, m_gputhreads, false );
 #else
-  mg5amcCpu::CPPProcess process(1, m_gpublocks, m_gputhreads, false);
+  mg5amcCpu::CPPProcess process( 1, m_gpublocks, m_gputhreads, false );
 #endif // __CUDACC__
-  process.initProc("../../Cards/param_card.dat");
+  process.initProc( "../../Cards/param_card.dat" );
 }
 
 template <typename T>
@@ -153,45 +159,36 @@ void Bridge<T>::set_gpugrid(const int gpublocks, const int gputhreads)
 #ifdef __CUDACC__
 
 template <typename T>
-void Bridge<T>::gpu_sequence( const T *momenta, double *mes, const bool goodHelOnly ) {
-  checkCuda(cudaMemcpy(devMomentaF.get(), momenta,
-                       m_evt * m_part * m_mome * sizeof(T),
-                       cudaMemcpyHostToDevice));
+void Bridge<T>::gpu_sequence( const T *momenta, double *mes, const bool goodHelOnly )
+{
+  checkCuda( cudaMemcpy( m_devMomentaF.data(), momenta, m_devMomentaF.bytes(), cudaMemcpyHostToDevice ) );
   const int eventSize = m_part * m_mome; // AV: the transpose algorithm does one element per thread (NOT one event per thread!)
-  dev_transposeMomentaF2C<<<m_gpublocks*eventSize, m_gputhreads>>>(devMomentaF.get(), devMomentaC.get(),
-                                                                   m_evt, m_part, m_mome, m_strd);
-  if (!m_goodHelsCalculated) {
-    mg5amcGpu::sigmaKin_getGoodHel<<<m_gpublocks, m_gputhreads>>>(devMomentaC.get(), devMEs.get(), devIsGoodHel.get());
-    checkCuda(cudaMemcpy(hstIsGoodHel.get(), devIsGoodHel.get(), m_ncomb * sizeof(bool), cudaMemcpyDeviceToHost));
-    mg5amcGpu::sigmaKin_setGoodHel(hstIsGoodHel.get());
+  dev_transposeMomentaF2C<<<m_gpublocks*eventSize, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(),
+                                                                    m_evt, m_part, m_mome, m_strd );
+  if ( !m_goodHelsCalculated )
+  {
+    m_devMek.computeGoodHelicities();
     m_goodHelsCalculated = true;
   }
   if ( goodHelOnly ) return;
-  mg5amcGpu::sigmaKin<<<m_gpublocks, m_gputhreads>>>(devMomentaC.get(), devMEs.get());
-  checkCuda(cudaMemcpy(mes, devMEs.get(), m_evt * sizeof(T), cudaMemcpyDeviceToHost));
+  m_devMek.computeMatrixElements();
+  checkCuda( cudaMemcpy( mes, m_devMEsC.data(), m_devMEsC.bytes(), cudaMemcpyDeviceToHost ) );
 }
 
 #else
 
 template <typename T>
-void Bridge<T>::cpu_sequence( const T *momenta, double *mes, const bool goodHelOnly ) {
-  // should become class members...
-  typedef std::unique_ptr<T[], CppHstDeleter<T>> CpTHPtr;
-  typedef std::unique_ptr<bool[], CppHstDeleter<bool>> CpBHPtr;
-  CpTHPtr hstMomenta = hstMakeUnique<T>(m_evt * m_part * m_mome);
-  CpBHPtr hstIsGoodHel2 = hstMakeUnique<bool>(m_ncomb);
-  CpTHPtr hstMEs = hstMakeUnique<T>(m_evt);
-  // double(&hstMEs2)[m_evt] = reinterpret_cast<double(&)[m_evt]>(mes);
-  hst_transposeMomentaF2C(momenta, hstMomenta.get(), m_evt, m_part, m_mome, m_strd);
-  if (!m_goodHelsCalculated) {
-    mg5amcCpu::sigmaKin_getGoodHel(hstMomenta.get(), hstMEs.get(),
-                              hstIsGoodHel2.get(), m_evt);
-    mg5amcCpu::sigmaKin_setGoodHel(hstIsGoodHel2.get());
+void Bridge<T>::cpu_sequence( const T *momenta, double *mes, const bool goodHelOnly )
+{
+  hst_transposeMomentaF2C( momenta, m_hstMomentaC.data(), m_evt, m_part, m_mome, m_strd );
+  if ( !m_goodHelsCalculated )
+  {
+    m_hstMek.computeGoodHelicities();
     m_goodHelsCalculated = true;
   }
   if ( goodHelOnly ) return;
-  mg5amcCpu::sigmaKin(hstMomenta.get(), hstMEs.get(), m_evt);
-  memcpy(mes, hstMEs.get(), sizeof(T) * m_evt);
+  m_hstMek.computeMatrixElements();
+  memcpy( mes, m_hstMEsC.data(), m_hstMEsC.bytes() );
 }
 
 #endif // __CUDACC__
@@ -206,10 +203,12 @@ void Bridge<T>::cpu_sequence( const T *momenta, double *mes, const bool goodHelO
 
 template <typename T>
 __global__ 
-void dev_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd ) {
+void dev_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd )
+{
   int pos = blockDim.x * blockIdx.x + threadIdx.x;
   int arrlen = evt * part * mome;
-  if (pos < arrlen) {
+  if (pos < arrlen)
+  {
     int page_i = pos / (strd * mome * part);
     int rest_1 = pos % (strd * mome * part);
     int part_i = rest_1 / (strd * mome);
@@ -227,9 +226,11 @@ void dev_transposeMomentaF2C( const T *in, T *out, const int evt, const int part
 #endif // __CUDACC__
 
 template <typename T>
-void hst_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd ) {  
+void hst_transposeMomentaF2C( const T *in, T *out, const int evt, const int part, const int mome, const int strd )
+{
   int arrlen = evt * part * mome;
-  for (int pos = 0; pos < arrlen; ++pos) {
+  for (int pos = 0; pos < arrlen; ++pos)
+  {
     int page_i = pos / (strd * mome * part);
     int rest_1 = pos % (strd * mome * part);
     int part_i = rest_1 / (strd * mome);
@@ -245,9 +246,11 @@ void hst_transposeMomentaF2C( const T *in, T *out, const int evt, const int part
 }
 
 template <typename T>
-void hst_transposeMomentaC2F( const T *in, T *out, const int evt, const int part, const int mome, const int strd ) {  
+void hst_transposeMomentaC2F( const T *in, T *out, const int evt, const int part, const int mome, const int strd )
+{
   int arrlen = evt * part * mome;
-  for (int pos = 0; pos < arrlen; ++pos) {
+  for (int pos = 0; pos < arrlen; ++pos)
+  {
     int page_i = pos / (strd * mome * part);
     int rest_1 = pos % (strd * mome * part);
     int part_i = rest_1 / (strd * mome);
