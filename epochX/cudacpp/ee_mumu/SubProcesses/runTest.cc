@@ -9,12 +9,8 @@
 #include "CPPProcess.h"
 #include "Memory.h"
 #include "MemoryBuffers.h"
+#include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
-#ifdef __CUDACC__
-#include "rambo.cc"
-#else
-#include "rambo.h"
-#endif
 
 #ifdef __CUDACC__
 template<typename T = fptype>
@@ -34,7 +30,6 @@ using namespace mg5amcCpu;
 
 struct CUDA_CPU_TestBase : public TestDriverBase {
 
-  static_assert( gputhreads%mgOnGpu::neppR == 0, "ERROR! #threads/block should be a multiple of neppR" );
   static_assert( gputhreads%mgOnGpu::neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
   static_assert( gputhreads <= mgOnGpu::ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
 
@@ -55,9 +50,9 @@ struct CPUTest : public CUDA_CPU_TestBase {
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   Proc::CPPProcess process;
   HostBufferRandomNumbers hstRnarray;
-  unique_ptr_host<fptype> hstMomenta;
+  HostBufferMomenta hstMomenta;
+  HostBufferWeights hstWeights;
   unique_ptr_host<bool  > hstIsGoodHel;
-  unique_ptr_host<fptype> hstWeights;
   unique_ptr_host<fptype> hstMEs;
 
   // Create a process object
@@ -69,9 +64,9 @@ struct CPUTest : public CUDA_CPU_TestBase {
     CUDA_CPU_TestBase( refFileName ),
     process(niter, gpublocks, gputhreads, /*verbose=*/false),
     hstRnarray  ( nevt ),
-    hstMomenta  { hstMakeUnique<fptype>( nMomenta ) }, // AOSOA[npagM][npar][np4][neppM]
+    hstMomenta  ( nevt ),
+    hstWeights  ( nevt ),
     hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) },
-    hstWeights  { hstMakeUnique<fptype>( nWeights ) },
     hstMEs      { hstMakeUnique<fptype>( nMEs ) } // ARRAY[nevt]
   {
     process.initProc("../../Cards/param_card.dat");
@@ -85,11 +80,12 @@ struct CPUTest : public CUDA_CPU_TestBase {
   }
 
   void prepareMomenta(fptype energy) override {
+    RamboSamplingKernelHost rsk( energy, hstRnarray, hstMomenta, hstWeights, nevt );
     // --- 2a. Fill in momenta of initial state particles on the device
-    rambo2toNm0::getMomentaInitial( energy, hstMomenta.get(), nevt );
+    rsk.getMomentaInitial();
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
     // (i.e. map random numbers to final-state particle momenta for each of nevt events)
-    rambo2toNm0::getMomentaFinal( energy, hstRnarray.data(), hstMomenta.get(), hstWeights.get(), nevt );
+    rsk.getMomentaFinal();
   }
 
   void runSigmaKin(std::size_t iiter) override {
@@ -97,13 +93,13 @@ struct CPUTest : public CUDA_CPU_TestBase {
     if ( iiter == 0 )
     {
       // ... 0d1. Compute good helicity mask on the host
-      Proc::sigmaKin_getGoodHel(hstMomenta.get(), hstMEs.get(), hstIsGoodHel.get(), nevt);
+      Proc::sigmaKin_getGoodHel(hstMomenta.data(), hstMEs.get(), hstIsGoodHel.get(), nevt);
       // ... 0d2. Copy back good helicity list to static memory on the host
       Proc::sigmaKin_setGoodHel(hstIsGoodHel.get());
     }
 
     // --- 3a. SigmaKin
-    Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), nevt);
+    Proc::sigmaKin(hstMomenta.data(), hstMEs.get(), nevt);
   }
 
   fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
@@ -139,14 +135,14 @@ struct CUDATest : public CUDA_CPU_TestBase {
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   gProc::CPPProcess process;
   PinnedHostBufferRandomNumbers hstRnarray;
-  DeviceBufferRandomNumbers devRnarray;
-  unique_ptr_host<fptype> hstMomenta;
+  PinnedHostBufferMomenta hstMomenta;
+  PinnedHostBufferWeights hstWeights;
   unique_ptr_host<bool  > hstIsGoodHel;
-  unique_ptr_host<fptype> hstWeights;
   unique_ptr_host<fptype> hstMEs;
-  unique_ptr_dev<fptype> devMomenta;
+  DeviceBufferRandomNumbers devRnarray;
+  DeviceBufferMomenta devMomenta;
+  DeviceBufferWeights devWeights;
   unique_ptr_dev<bool  > devIsGoodHel;
-  unique_ptr_dev<fptype> devWeights;
   unique_ptr_dev<fptype> devMEs;
 
   // Create a process object
@@ -158,14 +154,14 @@ struct CUDATest : public CUDA_CPU_TestBase {
     CUDA_CPU_TestBase( refFileName ),
     process(niter, gpublocks, gputhreads, /*verbose=*/false),
     hstRnarray  ( nevt ),
-    hstMomenta  { hstMakeUnique<fptype>( nMomenta ) }, // AOSOA[npagM][npar][np4][neppM] (nevt=npagM*neppM)
+    hstMomenta  ( nevt ),
+    hstWeights  ( nevt ),
     hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) },
-    hstWeights  { hstMakeUnique<fptype>( nWeights ) },
     hstMEs      { hstMakeUnique<fptype>( nMEs ) },     // ARRAY[nevt]
     devRnarray  ( nevt ),
-    devMomenta  { devMakeUnique<fptype>( nMomenta ) }, // AOSOA[npagM][npar][np4][neppM] (nevt=npagM*neppM)
+    devMomenta  ( nevt ),
+    devWeights  ( nevt ),
     devIsGoodHel{ devMakeUnique<bool  >( mgOnGpu::ncomb ) },
-    devWeights  { devMakeUnique<fptype>( nWeights ) },
     devMEs      { devMakeUnique<fptype>( nMEs ) }      // ARRAY[nevt]
   {
     process.initProc("../../Cards/param_card.dat");
@@ -181,17 +177,16 @@ struct CUDATest : public CUDA_CPU_TestBase {
   }
 
   void prepareMomenta(fptype energy) override {
+    RamboSamplingKernelDevice rsk( energy, devRnarray, devMomenta, devWeights, gpublocks, gputhreads );
     // --- 2a. Fill in momenta of initial state particles on the device
-    grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta.get() );
+    rsk.getMomentaInitial();
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
     // (i.e. map random numbers to final-state particle momenta for each of nevt events)
-    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.data(), devMomenta.get(), devWeights.get() );
+    rsk.getMomentaFinal();
     // --- 2c. CopyDToH Weights
-    checkCuda( cudaMemcpy( hstWeights.get(), devWeights.get(),
-                           nWeights * sizeof(decltype(hstWeights)::element_type), cudaMemcpyDeviceToHost ) );
+    copyHostFromDevice( hstWeights, devWeights );
     // --- 2d. CopyDToH Momenta
-    checkCuda( cudaMemcpy( hstMomenta.get(), devMomenta.get(),
-                           nMomenta * sizeof(decltype(hstMomenta)::element_type), cudaMemcpyDeviceToHost ) );
+    copyHostFromDevice( hstMomenta, devMomenta );
   }
 
   void runSigmaKin(std::size_t iiter) override {
@@ -199,7 +194,7 @@ struct CUDATest : public CUDA_CPU_TestBase {
     if ( iiter == 0 )
     {
       // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.get(), devMEs.get(), devIsGoodHel.get());
+      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.data(), devMEs.get(), devIsGoodHel.get());
       checkCuda( cudaPeekAtLastError() );
       // ... 0d2. Copy back good helicity mask to the host
       checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(),
@@ -210,9 +205,9 @@ struct CUDATest : public CUDA_CPU_TestBase {
 
     // --- 3a. SigmaKin
 #ifndef MGONGPU_NSIGHT_DEBUG
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.get(), devMEs.get());
+    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.data(), devMEs.get());
 #else
-    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.get(), devMEs.get());
+    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.data(), devMEs.get());
 #endif
     checkCuda( cudaPeekAtLastError() );
 

@@ -18,15 +18,11 @@
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
-#ifdef __CUDACC__
-#include "rambo.cc"
-#else
-#include "rambo.h"
-#endif
-
 #include "CPPProcess.h"
 #include "Memory.h"
+#include "MemoryAccessRandomNumbers.h"
 #include "MemoryBuffers.h"
+#include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
 #include "timermap.h"
 
@@ -112,7 +108,7 @@ void debug_me_is_abnormal( const fptype& me, int ievtALL )
 
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
-            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--curhst|--curdev|--common]"
+            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--curhst|--curdev|--common] [--rmbhst|--rmbdev]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
@@ -148,6 +144,7 @@ int main(int argc, char **argv)
   int jsonrun = 0;
   int numvec[5] = {0,0,0,0,0};
   int nnum = 0;
+
   enum class RandomNumberMode{ CommonRandom=0, CurandHost=1, CurandDevice=2 };
 #ifdef __CUDACC__
   RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on GPU
@@ -155,6 +152,13 @@ int main(int argc, char **argv)
   RandomNumberMode rndgen = RandomNumberMode::CurandHost; // default on CPU if build has curand
 #else
   RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // default on CPU if build has no curand
+#endif
+
+  enum class RamboSamplingMode{ RamboHost=1, RamboDevice=2 };
+#ifdef __CUDACC__
+  RamboSamplingMode rmbsmp = RamboSamplingMode::RamboDevice; // default on GPU
+#else
+  RamboSamplingMode rmbsmp = RamboSamplingMode::RamboHost; // default on CPU
 #endif
 
   // READ COMMAND LINE ARGUMENTS
@@ -197,6 +201,18 @@ int main(int argc, char **argv)
     {
       rndgen = RandomNumberMode::CommonRandom;
     }
+    else if ( arg == "--rmbdev" )
+    {
+#ifdef __CUDACC__
+      rmbsmp = RamboSamplingMode::RamboDevice;
+#else
+      throw std::runtime_error( "RamboDevice is not supported on CPUs" );
+#endif
+    }
+    else if ( arg == "--rmbhst" )
+    {
+      rmbsmp = RamboSamplingMode::RamboHost;
+    }
     else if ( is_number(argv[argn]) && nnum<5 )
     {
       numvec[nnum++] = atoi( argv[argn] );
@@ -224,14 +240,20 @@ int main(int argc, char **argv)
   if (niter == 0)
     return usage(argv[0]);
 
-  const int neppR = mgOnGpu::neppR; // AOSOA layout: constant at compile-time
-  if ( gputhreads%neppR != 0 )
+  if ( rmbsmp == RamboSamplingMode::RamboHost && rndgen == RandomNumberMode::CurandDevice )
   {
-    std::cout << "ERROR! #threads/block should be a multiple of neppR=" << neppR << std::endl;
-    return usage(argv[0]);
+#if not defined MGONGPU_HAS_NO_CURAND
+    std::cout << "WARNING! RamboHost selected: cannot use CurandDevice, will use CurandHost" << std::endl;
+    rndgen = RandomNumberMode::CurandHost;
+#else
+    std::cout << "WARNING! RamboHost selected: cannot use CurandDevice, will use CommonRandom" << std::endl;
+    rndgen = RandomNumberMode::CommonRandom;
+#endif
   }
+  
+  constexpr int neppR = MemoryAccessRandomNumbers::neppR; // AOSOA layout
+  constexpr int neppM = mgOnGpu::neppM; // AOSOA layout
 
-  const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
   if ( gputhreads%neppM != 0 )
   {
     std::cout << "ERROR! #threads/block should be a multiple of neppM=" << neppM << std::endl;
@@ -359,28 +381,36 @@ int main(int argc, char **argv)
   DeviceBufferRandomNumbers devRnarray( nevt );
 #endif
 
-  // Memory structures for momenta, matrix elements and weights on host and device
+  // Memory buffers for momenta
+#ifndef __CUDACC__
+  HostBufferMomenta hstMomenta( nevt );
+#else
+  PinnedHostBufferMomenta hstMomenta( nevt );
+  DeviceBufferMomenta devMomenta( nevt );
+#endif
+
+  // Memory buffers for sampling weights
+#ifndef __CUDACC__
+  HostBufferWeights hstWeights( nevt );
+#else
+  PinnedHostBufferWeights hstWeights( nevt );
+  DeviceBufferWeights devWeights( nevt );
+#endif
+
+  // Memory structures for matrix elements on host and device
   using mgOnGpu::np4;
   using mgOnGpu::nparf;
   using mgOnGpu::npar;
   using mgOnGpu::ncomb; // Number of helicity combinations
-  const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for AOSOA layouts)
-  const int nWeights = nevt;
   const int nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
 
-  auto hstMomenta   = hstMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
   auto hstIsGoodHel = hstMakeUnique<bool  >( ncomb );
-  auto hstWeights   = hstMakeUnique<fptype>( nWeights );
   auto hstMEs       = hstMakeUnique<fptype>( nMEs ); // ARRAY[nevt]
 
 #ifdef __CUDACC__
-  auto devMomenta   = devMakeUnique<fptype>( nMomenta ); // AOSOA[npagM][npar][np4][neppM] (NB: nevt=npagM*neppM)
   auto devIsGoodHel = devMakeUnique<bool  >( ncomb );
-  auto devWeights   = devMakeUnique<fptype>( nWeights );
   auto devMEs       = devMakeUnique<fptype>( nMEs ); // ARRAY[nevt]
-  const int nbytesMomenta = nMomenta * sizeof(fptype);
   const int nbytesIsGoodHel = ncomb * sizeof(bool);
-  const int nbytesWeights = nWeights * sizeof(fptype);
   const int nbytesMEs = nMEs * sizeof(fptype);
 #endif
 
@@ -424,6 +454,21 @@ int main(int argc, char **argv)
     throw std::logic_error( "This application was built without Curand support" ); // INTERNAL ERROR (no path to this statement)
   }
 #endif
+
+  // --- 0c. Create rambo sampling kernel [keep this in 0c for the moment]
+  std::unique_ptr<SamplingKernelBase> prsk;
+  if ( rmbsmp == RamboSamplingMode::RamboHost )
+  {
+    prsk.reset( new RamboSamplingKernelHost( energy, hstRnarray, hstMomenta, hstWeights, nevt ) );
+  }
+  else
+  {
+#ifdef __CUDACC__
+    prsk.reset( new RamboSamplingKernelDevice( energy, devRnarray, devMomenta, devWeights, gpublocks, gputhreads ) );
+#else
+    throw std::logic_error( "RamboDevice is not supported on CPUs" ); // INTERNAL ERROR (no path to this statement)
+#endif
+  }
 
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
@@ -477,34 +522,41 @@ int main(int argc, char **argv)
     // --- 2a. Fill in momenta of initial state particles on the device
     const std::string riniKey = "2a RamboIni";
     timermap.start( riniKey );
-#ifdef __CUDACC__
-    grambo2toNm0::getMomentaInitial<<<gpublocks, gputhreads>>>( energy, devMomenta.get() );
-#else
-    rambo2toNm0::getMomentaInitial( energy, hstMomenta.get(), nevt );
-#endif
+    prsk->getMomentaInitial();
     //std::cout << "Got initial momenta" << std::endl;
 
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
     // (i.e. map random numbers to final-state particle momenta for each of nevt events)
     const std::string rfinKey = "2b RamboFin";
     rambtime += timermap.start( rfinKey );
-#ifdef __CUDACC__
-    grambo2toNm0::getMomentaFinal<<<gpublocks, gputhreads>>>( energy, devRnarray.data(), devMomenta.get(), devWeights.get() );
-#else
-    rambo2toNm0::getMomentaFinal( energy, hstRnarray.data(), hstMomenta.get(), hstWeights.get(), nevt );
-#endif
+    prsk->getMomentaFinal();
     //std::cout << "Got final momenta" << std::endl;
 
 #ifdef __CUDACC__
-    // --- 2c. CopyDToH Weights
-    const std::string cwgtKey = "2c CpDTHwgt";
-    rambtime += timermap.start( cwgtKey );
-    checkCuda( cudaMemcpy( hstWeights.get(), devWeights.get(), nbytesWeights, cudaMemcpyDeviceToHost ) );
-
-    // --- 2d. CopyDToH Momenta
-    const std::string cmomKey = "2d CpDTHmom";
-    rambtime += timermap.start( cmomKey );
-    checkCuda( cudaMemcpy( hstMomenta.get(), devMomenta.get(), nbytesMomenta, cudaMemcpyDeviceToHost ) );
+    if ( rmbsmp == RamboSamplingMode::RamboDevice )
+    {
+      // --- 2c. CopyDToH Weights
+      const std::string cwgtKey = "2c CpDTHwgt";
+      rambtime += timermap.start( cwgtKey );
+      copyHostFromDevice( hstWeights, devWeights );
+      
+      // --- 2d. CopyDToH Momenta
+      const std::string cmomKey = "2d CpDTHmom";
+      rambtime += timermap.start( cmomKey );
+      copyHostFromDevice( hstMomenta, devMomenta );
+    }
+    else
+    {
+      // --- 2c. CopyHToD Weights
+      const std::string cwgtKey = "2c CpHTDwgt";
+      rambtime += timermap.start( cwgtKey );
+      copyDeviceFromHost( devWeights, hstWeights );
+      
+      // --- 2d. CopyHToD Momenta
+      const std::string cmomKey = "2d CpHTDmom";
+      rambtime += timermap.start( cmomKey );
+      copyDeviceFromHost( devMomenta, hstMomenta );
+    }
 #endif
 
     // *** STOP THE OLD-STYLE TIMER FOR RAMBO ***
@@ -523,7 +575,7 @@ int main(int argc, char **argv)
       timermap.start( ghelKey );
 #ifdef __CUDACC__
       // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.get(), devMEs.get(), devIsGoodHel.get());
+      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.data(), devMEs.get(), devIsGoodHel.get());
       checkCuda( cudaPeekAtLastError() );
       // ... 0d2. Copy back good helicity mask to the host
       checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(), nbytesIsGoodHel, cudaMemcpyDeviceToHost ) );
@@ -531,7 +583,7 @@ int main(int argc, char **argv)
       gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
 #else
       // ... 0d1. Compute good helicity mask on the host
-      Proc::sigmaKin_getGoodHel(hstMomenta.get(), hstMEs.get(), hstIsGoodHel.get(), nevt);
+      Proc::sigmaKin_getGoodHel(hstMomenta.data(), hstMEs.get(), hstIsGoodHel.get(), nevt);
       // ... 0d2. Copy back good helicity list to static memory on the host
       Proc::sigmaKin_setGoodHel(hstIsGoodHel.get());
 #endif
@@ -546,14 +598,14 @@ int main(int argc, char **argv)
     timermap.start( skinKey );
 #ifdef __CUDACC__
 #ifndef MGONGPU_NSIGHT_DEBUG
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.get(), devMEs.get());
+    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.data(), devMEs.get());
 #else
-    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.get(), devMEs.get());
+    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.data(), devMEs.get());
 #endif
     checkCuda( cudaPeekAtLastError() );
     checkCuda( cudaDeviceSynchronize() );
 #else
-    Proc::sigmaKin(hstMomenta.get(), hstMEs.get(), nevt);
+    Proc::sigmaKin(hstMomenta.data(), hstMEs.get(), nevt);
 #endif
 
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
@@ -751,6 +803,70 @@ int main(int argc, char **argv)
   rndgentxt += " (C++ code)";
 #endif
 
+  // Workflow description summary
+  std::string wrkflwtxt;
+  // -- CUDA or C++?
+#ifdef __CUDACC__
+  wrkflwtxt += "CUD:";
+#else
+  wrkflwtxt += "CPP:";
+#endif
+  // -- DOUBLE or FLOAT?
+#if defined MGONGPU_FPTYPE_DOUBLE
+  wrkflwtxt += "DBL+";
+#elif defined MGONGPU_FPTYPE_FLOAT
+  wrkflwtxt += "FLT+";
+#else
+  wrkflwtxt += "???+"; // no path to this statement
+#endif
+  // -- CUCOMPLEX or THRUST or STD complex numbers?
+#ifdef __CUDACC__
+#if defined MGONGPU_CXTYPE_CUCOMPLEX
+  wrkflwtxt += "CUX:";
+#elif defined MGONGPU_CXTYPE_THRUST
+  wrkflwtxt += "THX:";
+#else
+  wrkflwtxt += "???:"; // no path to this statement
+#endif
+#else
+  wrkflwtxt += "STX:";
+#endif
+  // -- COMMON or CURAND HOST or CURAND DEVICE random numbers?
+  if ( rndgen == RandomNumberMode::CommonRandom ) wrkflwtxt += "COMMON+";
+  else if ( rndgen == RandomNumberMode::CurandHost ) wrkflwtxt += "CURHST+";
+  else if ( rndgen == RandomNumberMode::CurandDevice ) wrkflwtxt += "CURDEV+";
+  else wrkflwtxt += "??????+"; // no path to this statement
+  // -- HOST or DEVICE rambo sampling?
+  if ( rmbsmp == RamboSamplingMode::RamboHost ) wrkflwtxt += "RMBHST+";
+  else if ( rmbsmp == RamboSamplingMode::RamboDevice ) wrkflwtxt += "RMBDEV+";
+  else wrkflwtxt += "??????+"; // no path to this statement
+  // -- HOST or DEVICE matrix elements?
+#ifdef __CUDACC__
+  wrkflwtxt += "MESDEV";
+#else
+  wrkflwtxt += "MESHST"; // FIXME! allow this also in CUDA (eventually with various simd levels)
+#endif
+  // -- SIMD matrix elements?
+#if !defined MGONGPU_CPPSIMD
+  wrkflwtxt += "/none";
+#elif defined __AVX512VL__
+#ifdef MGONGPU_PVW512
+  wrkflwtxt += "/512z";
+#else
+  wrkflwtxt += "/512y";
+#endif
+#elif defined __AVX2__
+  wrkflwtxt += "/avx2";
+#elif defined __SSE4_2__
+#ifdef __PPC__
+  wrkflwtxt += "/ppcv";
+#else
+  wrkflwtxt += "/sse4";
+#endif
+#else
+  wrkflwtxt += "/????"; // no path to this statement
+#endif
+
   // --- 9a Dump to screen
   const std::string dumpKey = "9a DumpScrn";
   timermap.start(dumpKey);
@@ -798,7 +914,8 @@ int main(int argc, char **argv)
               << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << "NumThreadsPerBlock          = " << gputhreads << std::endl
               << "NumIterations               = " << niter << std::endl
-              << std::string(SEP79, '-') << std::endl
+              << std::string(SEP79, '-') << std::endl;
+    std::cout << "Workflow summary            = " << wrkflwtxt << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
               << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #elif defined MGONGPU_FPTYPE_FLOAT

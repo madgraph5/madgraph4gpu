@@ -115,7 +115,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   ###CUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
   cu_main     = $(BUILDDIR)/gcheck.exe
-  cu_objects  = $(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o
+  cu_objects  = $(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
@@ -255,7 +255,7 @@ endif
 MAKEDEBUG=
 
 cxx_main=$(BUILDDIR)/check.exe
-cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o
+cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o $(BUILDDIR)/RamboSamplingKernels.o
 
 testmain=$(BUILDDIR)/runTest.exe
 

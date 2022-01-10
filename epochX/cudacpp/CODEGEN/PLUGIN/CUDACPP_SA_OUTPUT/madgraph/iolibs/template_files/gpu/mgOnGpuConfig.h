@@ -168,13 +168,6 @@ namespace mgOnGpu
   const int neppM = 1; // (DEFAULT) neppM=neppV for optimal performance (NB: this is equivalent to AOS)
 #endif
 #endif
-
-  // Number of Events Per Page in the random number AOSOA memory layout
-  // *** NB Different values of neppR lead to different physics results: the ***
-  // *** same 1d array is generated, but it is interpreted in different ways ***
-  const int neppR = 8; // HARDCODED TO GIVE ALWAYS THE SAME PHYSICS RESULTS!
-  //const int neppR = 1; // AOS (tests of sectors/requests)
-
 }
 
 // Expose typedefs and operators outside the namespace
@@ -205,7 +198,7 @@ using mgOnGpu::fptype;
 // Define empty CUDA declaration specifiers for C++
 #ifndef __CUDACC__
 #define __global__
-//#define __host__
+#define __host__
 #define __device__
 #endif
 

@@ -17,6 +17,7 @@ fptypes="d"
 helinls="0"
 hrdcods="0"
 rndgen=""
+rmbsam=""
 suffs="/"
 maketype=
 makej=
@@ -26,7 +27,7 @@ verbose=0
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -103,6 +104,9 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-curhst" ]; then
     rndgen=" -${1}"
+    shift
+  elif [ "$1" == "-rmbhst" ]; then
+    rmbsmp=" -${1}"
     shift
   elif [ "$1" == "-auto" ]; then
     if [ "${suffs}" == ".auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
@@ -260,18 +264,18 @@ printf "DATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
 function runExe() {
   exe=$1
   args="$2"
-  args="$args$rndgen"
+  args="$args$rndgen$rmbsmp"
   echo "runExe $exe $args OMP=$OMP_NUM_THREADS"
   pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[MECalc|MeanMatrix|FP precision|TOTAL       :"
   # Optionally add other patterns here for some specific configurations (e.g. clang)
   if [ "${exe%%/gcheck*}" != "${exe}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
-  pattern="${pattern}|CUCOMPLEX"
-  pattern="${pattern}|COMMON RANDOM|CURAND HOST \(CUDA"
+  pattern="${pattern}|Workflow"
+  ###pattern="${pattern}|CUCOMPLEX"
+  ###pattern="${pattern}|COMMON RANDOM|CURAND HOST \(CUDA"
   pattern="${pattern}|ERROR"
   pattern="${pattern}|WARNING"
-  # TEMPORARY! OLD C++/CUDA CODE (START)
-  pattern="${pattern}|EvtsPerSec\[Matrix"
-  # TEMPORARY! OLD C++/CUDA CODE (END)
+  pattern="${pattern}|EvtsPerSec\[Rmb" # TEMPORARY! for rambo timing tests
+  pattern="${pattern}|EvtsPerSec\[Matrix" # TEMPORARY! OLD C++/CUDA CODE
   if [ "${ab3}" == "1" ]; then pattern="${pattern}|3a|3b"; fi
   if [ "${req}" == "1" ]; then pattern="${pattern}|memory layout"; fi
   if perf --version >& /dev/null; then
@@ -296,7 +300,7 @@ function runExe() {
 function runNcu() {
   exe=$1
   args="$2"
-  args="$args$rndgen"
+  args="$args$rndgen$rmbsmp"
   ###echo "runNcu $exe $args"
   if [ "${verbose}" == "1" ]; then set -x; fi
   #$(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
@@ -314,7 +318,7 @@ function runNcu() {
 function runNcuDiv() {
   exe=$1
   args="-p 1 32 1"
-  args="$args$rndgen"
+  args="$args$rndgen$rmbsmp"
   ###echo "runNcuDiv $exe $args"
   if [ "${verbose}" == "1" ]; then set -x; fi
   ###$(which ncu) --query-metrics $exe $args
@@ -335,7 +339,7 @@ function runNcuDiv() {
 function runNcuReq() {
   exe=$1
   ncuArgs="$2"
-  ncuArgs="$ncuArgs$rndgen"
+  ncuArgs="$ncuArgs$rndgen$rmbsmp"
   if [ "${verbose}" == "1" ]; then set -x; fi
   for args in "-p 1 1 1" "-p 1 4 1" "-p 1 8 1" "-p 1 32 1" "$ncuArgs"; do
     ###echo "runNcuReq $exe $args"

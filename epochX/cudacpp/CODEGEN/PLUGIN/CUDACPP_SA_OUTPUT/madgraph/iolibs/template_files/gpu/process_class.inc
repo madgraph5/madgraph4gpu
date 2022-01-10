@@ -26,12 +26,12 @@
     //int getDim() const { return dim; }
     //int getNIOParticles() const { return nexternal; } // nexternal was nioparticles
 
-    // Accessors (unused so far: add them to fix a clang build warning)
-    //int numiterations() const { return m_numiterations; }
-    //int gpublocks() const { return m_ngpublocks; }
-    //int gputhreads() const { return m_ngputhreads; }
+    // Accessors (unused so far: add four of them only to fix a clang build warning)
+    int numiterations() const { return m_numiterations; }
+    int gpublocks() const { return m_ngpublocks; }
+    int gputhreads() const { return m_ngputhreads; }
     //bool verbose() const { return m_verbose; }
-    //bool debug() const { return m_debug; }
+    bool debug() const { return m_debug; }
 
   public:
 

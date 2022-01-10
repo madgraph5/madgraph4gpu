@@ -194,7 +194,7 @@ TEST_P(MadgraphTest, CompareMomentaAndME)
   // Set to true to dump events:
   constexpr bool dumpEvents = false;
   constexpr fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
-  const fptype toleranceMomenta = std::is_same<double, fptype>::value ? 8.E-11 : 3.E-2;
+  const fptype toleranceMomenta = std::is_same<double, fptype>::value ? 1.E-10 : 3.E-2;
   const fptype toleranceMEs     = std::is_same<double, fptype>::value ? 1.E-6  : 2.E-3;
 
   std::string dumpFileName = std::string("dump_")
