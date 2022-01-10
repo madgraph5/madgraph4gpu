@@ -94,6 +94,9 @@ namespace mg5amcCpu
     // Destructor
     virtual ~MatrixElementKernelDevice(){}
 
+    // Reset gpublocks and gputhreads
+    void setGrid( const int gpublocks, const int gputhreads );
+
     // Compute good helicities
     void computeGoodHelicities() override final;
 

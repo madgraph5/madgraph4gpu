@@ -4,7 +4,6 @@
 #include "CPPProcess.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
-#include "rambo.h" // inline implementation of RAMBO algorithms and kernels
 
 #include <sstream>
 
@@ -94,6 +93,15 @@ namespace mg5amcGpu
       sstr << "MatrixElementKernelHost: gputhreads should be a multiple of neppM=" << neppM;
       throw std::runtime_error( sstr.str() );
     }
+  }
+
+  //--------------------------------------------------------------------------
+
+  void MatrixElementKernelDevice::setGrid( const int gpublocks, const int gputhreads )
+  {
+    if ( m_gpublocks == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gpublocks must be > 0 in setGrid" );
+    if ( m_gputhreads == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gputhreads must be > 0 in setGrid" );
+    if ( this->nevt() != m_gpublocks * m_gputhreads ) throw std::runtime_error( "MatrixElementKernelDevice: nevt mismatch in setGrid" );
   }
 
   //--------------------------------------------------------------------------

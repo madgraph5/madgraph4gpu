@@ -4,7 +4,7 @@ cd $(dirname $0)
 
 function usage()
 {
-  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttgg)> [-auto|-autoonly] [-flt|-fltonly] [-inl|-inlonly]  [-hrd|-hrdonly] [-common|-curhst] [-rmbhst] [-makeonly] [-makeclean] [-makej]"
+  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttgg)> [-auto|-autoonly] [-flt|-fltonly] [-inl|-inlonly]  [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej]"
   exit 1
 }
 
@@ -60,6 +60,8 @@ for arg in $*; do
     rndgen=$arg
   elif [ "$arg" == "-rmbhst" ]; then
     rmbsmp=$arg
+  elif [ "$arg" == "-bridge" ]; then
+    rmbsmp=$arg
   elif [ "$arg" == "-makeonly" ]; then
     if [ "${steps}" == "make test" ]; then
       steps="make"
@@ -108,7 +110,7 @@ for step in $steps; do
             hrd=; if [ "${hrdcod}" == "1" ]; then hrd=" -hrdonly"; fi
             args="${proc}${auto}${flt}${inl}${hrd}"
             args="${args} ${rndgen}" # optionally use common random numbers or curand on host
-            args="${args} ${rmbsmp}" # optionally use rambo on host
+            args="${args} ${rmbsmp}" # optionally use rambo or bridge on host
             args="${args} -avxall" # avx, fptype, helinl and hrdcod are now supported for all processes
             if [ "${step}" == "makeclean" ]; then
               printf "\n%80s\n" |tr " " "*"

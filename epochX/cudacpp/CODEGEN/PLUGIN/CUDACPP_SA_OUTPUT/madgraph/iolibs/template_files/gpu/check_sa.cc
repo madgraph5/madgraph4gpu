@@ -18,6 +18,7 @@
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
+#include "BridgeKernels.h"
 #include "CPPProcess.h"
 #include "MatrixElementKernels.h"
 #include "MemoryAccessMatrixElements.h"
@@ -111,7 +112,7 @@ void debug_me_is_abnormal( const fptype& me, int ievtALL )
 
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
-            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--curhst|--curdev|--common] [--rmbhst|--rmbdev]"
+            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--curhst|--curdev|--common] [--rmbhst|--rmbdev] [--bridge]"
             << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
@@ -147,7 +148,7 @@ int main(int argc, char **argv)
   int jsonrun = 0;
   int numvec[5] = {0,0,0,0,0};
   int nnum = 0;
-
+  // Random number mode
   enum class RandomNumberMode{ CommonRandom=0, CurandHost=1, CurandDevice=2 };
 #ifdef __CUDACC__
   RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on GPU
@@ -156,13 +157,15 @@ int main(int argc, char **argv)
 #else
   RandomNumberMode rndgen = RandomNumberMode::CommonRandom; // default on CPU if build has no curand
 #endif
-
+  // Rambo sampling mode (NB RamboHost implies CommonRandom or CurandHost!)
   enum class RamboSamplingMode{ RamboHost=1, RamboDevice=2 };
 #ifdef __CUDACC__
   RamboSamplingMode rmbsmp = RamboSamplingMode::RamboDevice; // default on GPU
 #else
   RamboSamplingMode rmbsmp = RamboSamplingMode::RamboHost; // default on CPU
 #endif
+  // Bridge emulation mode (NB Bridge implies RamboHost!)
+  bool bridge = false;
 
   // READ COMMAND LINE ARGUMENTS
   for ( int argn = 1; argn < argc; ++argn )
@@ -216,6 +219,10 @@ int main(int argc, char **argv)
     {
       rmbsmp = RamboSamplingMode::RamboHost;
     }
+    else if ( arg == "--bridge" )
+    {
+      bridge = true;
+    }
     else if ( is_number(argv[argn]) && nnum<5 )
     {
       numvec[nnum++] = atoi( argv[argn] );
@@ -243,6 +250,12 @@ int main(int argc, char **argv)
   if (niter == 0)
     return usage(argv[0]);
 
+  if ( bridge && rmbsmp == RamboSamplingMode::RamboDevice )
+  {
+    std::cout << "WARNING! Bridge selected: cannot use RamboDevice, will use RamboHost" << std::endl;
+    rmbsmp = RamboSamplingMode::RamboHost;
+  }
+  
   if ( rmbsmp == RamboSamplingMode::RamboHost && rndgen == RandomNumberMode::CurandDevice )
   {
 #if not defined MGONGPU_HAS_NO_CURAND
@@ -464,11 +477,23 @@ int main(int argc, char **argv)
   }
 
   // --- 0c. Create matrix element kernel [keep this in 0c for the moment]
+  std::unique_ptr<MatrixElementKernelBase> pmek;
+  if ( ! bridge )
+  {
 #ifdef __CUDACC__
-  MatrixElementKernelDevice mek( devMomenta, devMatrixElements, gpublocks, gputhreads );
+    pmek.reset( new MatrixElementKernelDevice( devMomenta, devMatrixElements, gpublocks, gputhreads ) );
 #else
-  MatrixElementKernelHost mek( hstMomenta, hstMatrixElements, nevt );
+    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstMatrixElements, nevt ) );
 #endif
+  }
+  else 
+  {
+#ifdef __CUDACC__
+    pmek.reset( new BridgeKernelDevice( hstMomenta, hstMatrixElements, gpublocks, gputhreads ) );
+#else
+    pmek.reset( new BridgeKernelHost( hstMomenta, hstMatrixElements, nevt ) );
+#endif
+  }
 
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
@@ -545,7 +570,7 @@ int main(int argc, char **argv)
       rambtime += timermap.start( cmomKey );
       copyHostFromDevice( hstMomenta, devMomenta );
     }
-    else
+    else // only if ( ! bridge ) ???
     {
       // --- 2c. CopyHToD Weights
       const std::string cwgtKey = "2c CpHTDwgt";
@@ -565,7 +590,8 @@ int main(int argc, char **argv)
     // === STEP 3 OF 3
     // Evaluate matrix elements for all nevt events
     // 0d. (Only on the first iteration) Get good helicities [renamed as 0d: this is initialisation!]
-    // 3a. Evaluate MEs on the device
+    // 3@. For Bridge only, transpose C2F
+    // 3a. Evaluate MEs on the device (include transpose F2C for Bridge)
     // 3b. Copy MEs back from device to host
 
     // --- 0d. SGoodHel
@@ -573,29 +599,41 @@ int main(int argc, char **argv)
     {
       const std::string ghelKey = "0d SGoodHel";
       timermap.start( ghelKey );
-      mek.computeGoodHelicities();
+      if ( bridge ) dynamic_cast<BridgeKernelBase*>( pmek.get() )->transposeInputMomentaC2F();
+      pmek->computeGoodHelicities();
     }
 
     // *** START THE OLD-STYLE TIMERS FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     double wavetime = 0; // calc plus copy
     double wv3atime = 0; // calc only
 
+    // --- 3@. TransC2F
+    if ( bridge )
+    {
+      const std::string tc2fKey = "3@ TransC2F";
+      timermap.start( tc2fKey );
+      dynamic_cast<BridgeKernelBase*>( pmek.get() )->transposeInputMomentaC2F();
+    }    
+
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
-    mek.computeMatrixElements();
+    pmek->computeMatrixElements();
 
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wv3atime += timermap.stop(); // calc only
     wavetime += wv3atime; // calc plus copy
 
 #ifdef __CUDACC__
-    // --- 3b. CopyDToH MEs
-    const std::string cmesKey = "3b CpDTHmes";
-    timermap.start( cmesKey );
-    copyHostFromDevice( hstMatrixElements, devMatrixElements );
-    // *** STOP THE OLD OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
-    wavetime += timermap.stop(); // calc plus copy
+    if ( ! bridge )
+    {
+      // --- 3b. CopyDToH MEs
+      const std::string cmesKey = "3b CpDTHmes";
+      timermap.start( cmesKey );
+      copyHostFromDevice( hstMatrixElements, devMatrixElements );
+      // *** STOP THE OLD OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
+      wavetime += timermap.stop(); // calc plus copy
+    }
 #endif
 
     // === STEP 4 FINALISE LOOP
@@ -815,11 +853,13 @@ int main(int argc, char **argv)
   if ( rmbsmp == RamboSamplingMode::RamboHost ) wrkflwtxt += "RMBHST+";
   else if ( rmbsmp == RamboSamplingMode::RamboDevice ) wrkflwtxt += "RMBDEV+";
   else wrkflwtxt += "??????+"; // no path to this statement
-  // -- HOST or DEVICE matrix elements?
+  // -- HOST or DEVICE matrix elements? Standalone MEs or BRIDGE?
 #ifdef __CUDACC__
-  wrkflwtxt += "MESDEV";
+  if ( !bridge ) wrkflwtxt += "MESDEV";
+  else wrkflwtxt += "BRDDEV";
 #else
-  wrkflwtxt += "MESHST"; // FIXME! allow this also in CUDA (eventually with various simd levels)
+  if ( !bridge ) wrkflwtxt += "MESHST"; // FIXME! allow this also in CUDA (eventually with various simd levels)
+  else wrkflwtxt += "BRDHST";
 #endif
   // -- SIMD matrix elements?
 #if !defined MGONGPU_CPPSIMD

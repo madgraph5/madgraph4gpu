@@ -6,9 +6,9 @@ CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
 # install target
-INSTALL_HEADERS=CPPProcess.h
+INSTALL_HEADERS=CPPProcess.h MatrixElementKernels.h MemoryBuffers.h checkCuda.h MemoryAccessMomenta.h MemoryAccessHelpers.h MemoryAccessVectors.h
 INSTALL_INC_DIR=../../include
-INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o
+INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o MatrixElementKernels.o gMatrixElementKernels.o
 
 # Note: AR and CXX are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
@@ -116,7 +116,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   ###CUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
   cu_main     = $(BUILDDIR)/gcheck.exe
-  cu_objects  = $(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o
+  cu_objects  = $(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
@@ -256,7 +256,7 @@ endif
 MAKEDEBUG=
 
 cxx_main=$(BUILDDIR)/check.exe
-cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o $(BUILDDIR)/RamboSamplingKernels.o $(BUILDDIR)/MatrixElementKernels.o
+cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o $(BUILDDIR)/RamboSamplingKernels.o $(BUILDDIR)/MatrixElementKernels.o $(BUILDDIR)/BridgeKernels.o
 
 testmain=$(BUILDDIR)/runTest.exe
 

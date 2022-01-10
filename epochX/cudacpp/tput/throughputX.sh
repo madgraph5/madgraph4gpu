@@ -27,7 +27,7 @@ verbose=0
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -106,6 +106,9 @@ while [ "$1" != "" ]; do
     rndgen=" -${1}"
     shift
   elif [ "$1" == "-rmbhst" ]; then
+    rmbsmp=" -${1}"
+    shift
+  elif [ "$1" == "-bridge" ]; then
     rmbsmp=" -${1}"
     shift
   elif [ "$1" == "-auto" ]; then
