@@ -26,7 +26,10 @@ namespace mg5amcCpu
                             EventStatistics& stats )                    // output: event statistics
       : m_samplingWeights( samplingWeights )
       , m_matrixElements( matrixElements )
-      , m_stats( stats ){}
+      , m_stats( stats )
+    {
+      // NB: do not initialise EventStatistics (you may be asked to update an existing result)
+    }
 
   public:
 

@@ -4,6 +4,7 @@
 //#include "mgOnGpuConfig.h"
 
 #include <cmath>
+#include <limits>
 //#include <sstream>
 
 #ifdef __CUDACC__
@@ -23,8 +24,9 @@ namespace mg5amcCpu
   // eventually, sampling weights (e.g. from Rambo) must also be taken into account in this calculation.
   struct EventStatistics
   {
-    int nevtOK; // number of events used, where ME is not nan (i.e. total - nan)
-    int nevtNAN; // number of events used, where ME is nan
+    size_t nevtOK; // number of events used, where ME is neither abnormal nor zero (i.e. nevtALL - nevtABN - nevtZERO)
+    size_t nevtABN; // number of events used, where ME is nan
+    size_t nevtZERO; // number of events used, where ME is nan
     double minME; // minimum matrix element
     double maxME; // maximum matrix element
     double minWG; // minimum sampling weight
@@ -37,6 +39,19 @@ namespace mg5amcCpu
     double meanWG() const { return minWG + sumWGdiff / nevtOK; } // mean sampling weight
     double stdME() const { return std::sqrt( sqsMEdiff / nevtOK ); } // standard deviation matrix element
     double stdWG() const { return std::sqrt( sqsWGdiff / nevtOK ); } // standard deviation sampling weight
+    // Constructor
+    EventStatistics() 
+      : nevtOK( 0 )
+      , nevtABN( 0 )
+      , nevtZERO( 0 )
+      , minME( std::numeric_limits<double>::max() )
+      , maxME( std::numeric_limits<double>::min() )
+      , minWG( std::numeric_limits<double>::max() )
+      , maxWG( std::numeric_limits<double>::min() )
+      , sumMEdiff( 0 )
+      , sumWGdiff( 0 )
+      , sqsMEdiff( 0 )
+      , sqsWGdiff( 0 ){}
   };
 
   //--------------------------------------------------------------------------
