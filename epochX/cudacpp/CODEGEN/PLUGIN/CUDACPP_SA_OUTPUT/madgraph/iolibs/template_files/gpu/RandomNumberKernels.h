@@ -8,133 +8,125 @@
 #include "curand.h"
 #endif
 
+#include "MemoryBuffers.h"
+
 #ifdef __CUDACC__
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
 #endif
 {
-
   //--------------------------------------------------------------------------
 
-  // Supported random number generation modes
-  enum class RandomNumberMode{ CommonRandom=0, CurandHost=1, CurandDevice=2 };
+  /*
+  // An interface encapsulating random number generation on a CPU host or on a GPU device
+  class IRandomNumberKernel
+  {
+  public:
+
+    // Destructor
+    virtual ~IRandomNumberKernel(){}
+
+    // Seed the random number generator
+    virtual void seedGenerator( const int seed ) = 0;
+
+    // Generate the random number array
+    virtual void generateRnarray() = 0;
+
+    // Is this a host or device kernel?
+    virtual bool isOnDevice() const = 0;
+
+  };
+  */
 
   //--------------------------------------------------------------------------
 
   // A base class encapsulating random number generation on a CPU host or on a GPU device
-  class RandomNumberKernelBase
+  class RandomNumberKernelBase //: virtual public IRandomNumberKernel
   {
 
   protected:
 
-#ifndef __CUDACC__
-    // Constructor - allocates the output buffer(s) for the given number of events
-    RandomNumberKernelBase( const int nevt );
-#else
-    // Constructor - allocates the output buffer(s) for the given number of events
-    RandomNumberKernelBase( const int nevt, const bool useHstRnarray = true );
-#endif
+    // Constructor from an existing output buffer
+    RandomNumberKernelBase( BufferRandomNumbers& rnarray ) : m_rnarray( rnarray ){}
 
   public:
 
-    // Destructor - deallocates the output buffer(s)
-    virtual ~RandomNumberKernelBase();
+    // Destructor
+    virtual ~RandomNumberKernelBase(){}
+    
+    // Seed the random number generator
+    virtual void seedGenerator( const int seed ) = 0;
 
-    // Seed the random number generator (throws if seed is <= 0)
-    virtual void seedGenerator( const int seed );
+    // Generate the random number array
+    virtual void generateRnarray() = 0;
 
-    // Generate the random number array (throws if seed is <= 0)
-    virtual void generateRnarray();
-
-    // === RANDOM NUMBERS ===
-
-    // Get the host buffer[nevt*nparf*4] for the output random numbers (CPU or GPU)
-    // [NB on GPU, this is a nullptr unless random numbers are generated on the host]
-    fptype* hstRnarray() const { return m_hstRnarray; }
-
-#ifdef __CUDACC__
-    // Get the device buffer[nevt*nparf*4] for the output random numbers (GPU)
-    fptype* devRnarray() const { return m_devRnarray; }
-
-    // Copy the output random numbers from the host buffer to the device buffer
-    // [NB on GPU, this throws unless random numbers are generated on the host]
-    void copyHstRnarrayToDevRnarray();
-#endif
-
-    // Get the number of elements in the random number buffer(s)
-    int nRnarray() const { return np4 * nparf * m_nevt; }
-
-  public:
-
-    // Hardcoded parameters (temporarely set them from mgOnGpu; eventually define them only here?)
-    static constexpr int nparf = mgOnGpu::nparf;
-    static constexpr int np4 = mgOnGpu::np4;
-#ifndef __CUDACC__
-    static constexpr int cppAlign = mgOnGpu::cppAlign;
-#endif
+    // Is this a host or device kernel?
+    virtual bool isOnDevice() const = 0;
 
   protected:
 
-    // The number of events
-    const int m_nevt;
-
-    // The generator seed
-    int m_seed;
-
-    // The host buffer[nevt*nparf*4] for the output random numbers (CPU or GPU)
-    fptype* m_hstRnarray;
-
-#ifdef __CUDACC__
-    // The device buffer[nevt*nparf*4] for the output random numbers (GPU)
-    fptype* m_devRnarray;
-#endif
+    // The buffer for the output random numbers
+    BufferRandomNumbers& m_rnarray;
 
   };
 
   //--------------------------------------------------------------------------
 
   // A class encapsulating common random number generation on a CPU host
-  class CommonRandomKernel : public RandomNumberKernelBase
+  class CommonRandomNumberKernel final : public RandomNumberKernelBase
   {
   public:
 
-    // Constructor - allocates the output buffer(s) for the given number of events
-    CommonRandomKernel( const int nevt );
+    // Constructor from an existing output buffer
+    CommonRandomNumberKernel( BufferRandomNumbers& rnarray );
 
-    // Destructor - deallocates the output buffer(s)
-    virtual ~CommonRandomKernel();
+    // Destructor
+    ~CommonRandomNumberKernel(){}
 
-    // Generate the random number array (throws if seed is <= 0)
-    void generateRnarray();
+    // Seed the random number generator
+    void seedGenerator( const int seed ) override final { m_seed = seed; };
+
+    // Generate the random number array
+    void generateRnarray() override final;
+
+    // Is this a host or device kernel?
+    bool isOnDevice() const override final { return false; }
+
+  private:
+
+    // The generator seed
+    int m_seed;
 
   };
 
   //--------------------------------------------------------------------------
 
 #ifndef MGONGPU_HAS_NO_CURAND
-
-  // A class encapsulating CURAND random number generation on a CPU host
-  class CurandRandomKernel : public RandomNumberKernelBase
+  // A class encapsulating CURAND random number generation on a CPU host or on a GPU device
+  class CurandRandomNumberKernel final : public RandomNumberKernelBase
   {
   public:
 
-    // Constructor - allocates the output buffer(s) for the given number of events
-    CurandRandomKernel( int nevt, RandomNumberMode mode );
+    // Constructor from an existing output buffer
+    CurandRandomNumberKernel( BufferRandomNumbers& rnarray, const bool onDevice );
 
-    // Destructor - deallocates the output buffer(s)
-    virtual ~CurandRandomKernel();
+    // Destructor
+    ~CurandRandomNumberKernel();
 
     // Seed the random number generator
-    void seedGenerator( const int seed );
+    void seedGenerator( const int seed ) override final;
 
-    // Generate the random number array (throws if seed is <= 0)
-    void generateRnarray();
+    // Generate the random number array
+    void generateRnarray() override final;
+
+    // Is this a host or device kernel?
+    bool isOnDevice() const override final { return m_isOnDevice; }
 
   private:
 
-    // The random number generation mode
-    const RandomNumberMode m_mode;
+    // Is this a host or device kernel?
+    const bool m_isOnDevice;
 
     // The curand generator
     curandGenerator_t m_rnGen;
