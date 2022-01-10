@@ -23,10 +23,10 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     CrossSectionKernelBase( const BufferWeights& samplingWeights,       // input: sampling weights
                             const BufferMatrixElements& matrixElements, // input: matrix elements
-                            EventStatistics& eventStatistics )          // output: event statistics
+                            EventStatistics& stats )                    // output: event statistics
       : m_samplingWeights( samplingWeights )
       , m_matrixElements( matrixElements )
-      , m_eventStatistics( eventStatistics ){}
+      , m_stats( stats ){}
 
   public:
 
@@ -48,7 +48,7 @@ namespace mg5amcCpu
     const BufferMatrixElements& m_matrixElements;
 
     // The event statistics
-    EventStatistics& m_eventStatistics;
+    EventStatistics& m_stats;
 
   };
 
@@ -62,7 +62,7 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     CrossSectionKernelHost( const BufferWeights& samplingWeights,       // input: sampling weights
                             const BufferMatrixElements& matrixElements, // input: matrix elements
-                            EventStatistics& eventStatistics,           // output: event statistics
+                            EventStatistics& stats,                     // output: event statistics
                             const size_t nevt );
 
     // Destructor
@@ -87,7 +87,7 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     CrossSectionKernelDevice( const BufferWeights& samplingWeights,       // input: sampling weights
                               const BufferMatrixElements& matrixElements, // input: matrix elements
-                              EventStatistics& eventStatistics,           // output: event statistics
+                              EventStatistics& stats,                     // output: event statistics
                               const size_t gpublocks,
                               const size_t gputhreads );
 

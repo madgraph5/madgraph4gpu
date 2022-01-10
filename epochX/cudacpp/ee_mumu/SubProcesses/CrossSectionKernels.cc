@@ -19,9 +19,9 @@ namespace mg5amcCpu
 
   CrossSectionKernelHost::CrossSectionKernelHost( const BufferWeights& samplingWeights,       // input: sampling weights
                                                   const BufferMatrixElements& matrixElements, // input: matrix elements
-                                                  EventStatistics& eventStatistics,           // output: event statistics
+                                                  EventStatistics& stats,                     // output: event statistics
                                                   const size_t nevt )
-    : CrossSectionKernelBase( samplingWeights, matrixElements, eventStatistics )
+    : CrossSectionKernelBase( samplingWeights, matrixElements, stats )
     , NumberOfEvents( nevt )
   {
     if ( m_samplingWeights.isOnDevice() ) throw std::runtime_error( "CrossSectionKernelHost: samplingWeights must be a host array" );
@@ -50,10 +50,10 @@ namespace mg5amcGpu
 
   CrossSectionKernelDevice::CrossSectionKernelDevice( const BufferWeights& samplingWeights,       // input: sampling weights
                                                       const BufferMatrixElements& matrixElements, // input: matrix elements
-                                                      EventStatistics& eventStatistics,           // output: event statistics
+                                                      EventStatistics& stats,                     // output: event statistics
                                                       const size_t gpublocks,
                                                       const size_t gputhreads )
-    : CrossSectionKernelBase( samplingWeights, matrixElements, eventStatistics )
+    : CrossSectionKernelBase( samplingWeights, matrixElements, stats )
     , NumberOfEvents( gpublocks*gputhreads )
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
