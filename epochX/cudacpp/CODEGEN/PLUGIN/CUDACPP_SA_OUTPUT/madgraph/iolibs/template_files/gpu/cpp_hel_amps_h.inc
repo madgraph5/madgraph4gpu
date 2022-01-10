@@ -11,9 +11,13 @@
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
-namespace %(namespace)s_%(model_name)s
+#ifdef __CUDACC__
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
 {
 %(function_declarations)s
-} // end namespace %(namespace)s_%(model_name)s
+} // end namespace
 
 #endif // HelAmps_%(model_name)s_H

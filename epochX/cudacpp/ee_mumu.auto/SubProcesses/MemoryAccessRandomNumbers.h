@@ -107,11 +107,11 @@ class KernelAccessRandomNumbers
 {
 public:
 
-  // (Non-const memory access to field from ievent)
+  // (Non-const memory access to field from kernel)
   static constexpr auto kernelAccessIp4Iparf =
     KernelAccessHelper<MemoryAccessRandomNumbersBase, onDevice>::template kernelAccessField<int, int>;
 
-  // (Const memory access to field from ievent)
+  // (Const memory access to field from kernel)
   static constexpr auto kernelAccessIp4IparfConst =
     KernelAccessHelper<MemoryAccessRandomNumbersBase, onDevice>::template kernelAccessFieldConst<int, int>;
 

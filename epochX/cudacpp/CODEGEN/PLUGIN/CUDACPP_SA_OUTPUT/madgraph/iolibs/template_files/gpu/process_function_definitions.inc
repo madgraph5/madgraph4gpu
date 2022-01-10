@@ -70,12 +70,6 @@ namespace Proc
 #endif
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
     static_assert( sizeof(cxtype) == 2 * sizeof(fptype), "sizeof(cxtype) is not 2*sizeof(fptype)" );
-#ifndef __CUDACC__
-    // SANITY CHECK: check that neppR, neppM and neppV are powers of two (https://stackoverflow.com/a/108360)
-    auto ispoweroftwo = []( int n ) { return ( n > 0 ) && !( n & ( n - 1 ) ); };
-    static_assert( ispoweroftwo( mgOnGpu::neppM ), "neppM is not a power of 2" );
-    static_assert( ispoweroftwo( neppV ), "neppV is not a power of 2" );
-#endif
   }
 
   //--------------------------------------------------------------------------
@@ -195,7 +189,7 @@ namespace Proc
 
 #ifdef __CUDACC__
   __global__
-  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
                             fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
                             bool* isGoodHel )         // output: isGoodHel[ncomb] - device array
   {
@@ -215,7 +209,7 @@ namespace Proc
     }
   }
 #else
-  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
                             fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
                             bool* isGoodHel           // output: isGoodHel[ncomb] - device array
                             , const int nevt )        // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
@@ -280,7 +274,7 @@ namespace Proc
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
   __global__
-  void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+  void sigmaKin( const fptype* allmomenta, // input: momenta[nevt*npar*4]
                  fptype* allMEs            // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifndef __CUDACC__
                  , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)

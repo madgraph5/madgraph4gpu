@@ -20,6 +20,7 @@
 
 #include "CPPProcess.h"
 #include "Memory.h"
+#include "MemoryAccessMomenta.h"
 #include "MemoryAccessRandomNumbers.h"
 #include "MemoryBuffers.h"
 #include "RamboSamplingKernels.h"
@@ -251,14 +252,8 @@ int main(int argc, char **argv)
 #endif
   }
   
+  constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
   constexpr int neppR = MemoryAccessRandomNumbers::neppR; // AOSOA layout
-  constexpr int neppM = mgOnGpu::neppM; // AOSOA layout
-
-  if ( gputhreads%neppM != 0 )
-  {
-    std::cout << "ERROR! #threads/block should be a multiple of neppM=" << neppM << std::endl;
-    return usage(argv[0]);
-  }
 
   using mgOnGpu::ntpbMAX;
   if ( gputhreads > ntpbMAX )
@@ -642,18 +637,16 @@ int main(int argc, char **argv)
       if (verbose)
       {
         // Display momenta
-        const int ipagM = ievt/neppM; // #eventpage in this iteration
-        const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
         std::cout << "Momenta:" << std::endl;
         for (int ipar = 0; ipar < npar; ipar++)
         {
           // NB: 'setw' affects only the next field (of any type)
           std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
                     << std::setw(4) << ipar + 1
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 0*neppM + ieppM] // AOSOA[ipagM][ipar][0][ieppM]
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 1*neppM + ieppM] // AOSOA[ipagM][ipar][1][ieppM]
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 2*neppM + ieppM] // AOSOA[ipagM][ipar][2][ieppM]
-                    << std::setw(14) << hstMomenta[ipagM*npar*np4*neppM + ipar*np4*neppM + 3*neppM + ieppM] // AOSOA[ipagM][ipar][3][ieppM]
+                    << std::setw(14) << MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), ievt, 0, ipar )
+                    << std::setw(14) << MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), ievt, 1, ipar )
+                    << std::setw(14) << MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), ievt, 2, ipar )
+                    << std::setw(14) << MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), ievt, 3, ipar )
                     << std::endl
                     << std::defaultfloat; // default format: affects all floats
         }

@@ -803,21 +803,13 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         """Get sigmaKin_process for all subprocesses for gCPPProcess.cu"""
         ret_lines = []
         if self.single_helicities:
-            ###ret_lines.append( "__device__ void calculate_wavefunctions(int ihel, const fptype* allmomenta,fptype &meHelSum \n#ifndef __CUDACC__\n                                , const int ievt\n#endif\n                                )\n{" )
-            ###ret_lines.append(" using namespace MG5_%s;" % self.model_name)
-            ###ret_lines.append("mgDebug( 0, __FUNCTION__ );")
-            ###ret_lines.append("cxtype amp[1]; // was %i" % len(self.matrix_elements[0].get_all_amplitudes()))
-            ###ret_lines.append("const int ncolor =  %i;" % len(color_amplitudes[0]))
-            ###ret_lines.append("cxtype jamp[ncolor];")
-            ###ret_lines.append("// Calculate wavefunctions for all processes")
-            ###ret_lines.append("using namespace MG5_%s;" % self.model_name)
             ret_lines.append("""
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   __device__
   INLINE
   void calculate_wavefunctions( int ihel,
-                                const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                                const fptype* allmomenta, // input: momenta[nevt*npar*4]
                                 fptype* allMEs            // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifndef __CUDACC__
                                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
@@ -825,7 +817,11 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
                                 )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
   {
-    using namespace MG5_sm;
+#ifdef __CUDACC__
+    using namespace mg5amcGpu;
+#else
+    using namespace mg5amcCpu;
+#endif
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     //printf( "calculate_wavefunctions: nevt %d\\n", nevt );
@@ -1149,6 +1145,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         matrix_element.reuse_outdated_wavefunctions(me)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
+        res.append('#ifndef __CUDACC__')
+        res.append('const int ievt0 = ipagV*neppV;')
+        res.append('const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );')
+        res.append('#endif\n')      
         res.append('// Reset color flows (reset jamp_sv) at the beginning of a new event or event page')
         res.append('for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }')
         for diagram in matrix_element.get('diagrams'):
@@ -1200,12 +1200,11 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         split_line = [ str.lstrip(' ').rstrip(' ') for str in split_line] # AV
         # (AV join using ',': no need to add a space as this is done by format_call later on)
         line = ', '.join(split_line) # AV (for CUDA)
-        # AV1: split_line logic is to have two different lines in CUDA and in C++ in xxx calls
-        ipar = int(split_line[-1].split(')')[0]) # AV (for C++)
-        split_line[-1] = split_line[-2] + ' )' + split_line[-1].split(')')[1] # AV (for C++)
-        split_line.pop(-2) # AV (for C++)
-        split_line[0] = split_line[0].replace( 'allmomenta', 'p4IparIpagV( allmomenta, %d, ipagV )'%ipar )
-        # AV2: line2 logic is to have MGONGPU_TEST_DIVERGENCE on the firxt xxx call
+        line = line.replace( 'xxx(', 'xxx<DeviceAccessMomenta>(' )
+        # AV1: line1 logic is to have two different lines in CUDA (line) and in C++ (line1) in xxx calls
+        line1 = line.replace( 'xxx<DeviceAccessMomenta>(', 'xxx<HostAccessMomenta>(' )
+        line1 = line1.replace( 'allmomenta', 'ievt0Momenta' )
+        # AV2: line2 logic is to have MGONGPU_TEST_DIVERGENCE on the first xxx call
         if self.first_get_external and ( ( 'mzxxx' in line ) or ( 'pzxxx' in line ) or ( 'xzxxx' in line ) ) :
             self.first_get_external = False
             line2 = line.replace('mzxxx','xxxxx').replace('pzxxx','xxxxx').replace('xzxxx','xxxxx')
@@ -1215,10 +1214,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             split_line2.insert(1, '0') # add parameter fmass=0
             line2 = ', '.join(split_line2)
             text = '#ifdef __CUDACC__\n#ifndef MGONGPU_TEST_DIVERGENCE\n      %s\n#else\n      if ( ( blockDim.x * blockIdx.x + threadIdx.x ) %% 2 == 0 )\n        %s\n      else\n        %s\n#endif\n#else\n      %s\n#endif\n' # AV
-            return text % (line, line, line2, ', '.join(split_line))
+            return text % (line, line, line2, line1)
         ###text = '\n#ifdef __CUDACC__\n    %s    \n#else\n    %s\n#endif \n'
         text = '#ifdef __CUDACC__\n      %s\n#else\n      %s\n#endif\n' # AV
-        return text % (line, ', '.join(split_line))
+        return text % (line, line1)
     
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (vectorize w_sv)
     # This is the method that creates the ixxx/oxxx function calls in calculate_wavefunctions
