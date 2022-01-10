@@ -6,33 +6,15 @@
 #ifndef MG5_%(process_file_name)s_H
 #define MG5_%(process_file_name)s_H
 
-#include <cassert>
 #include <complex>
-#include <iostream>
 #include <vector>
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
+#include "checkCuda.h"
 #include "Parameters_%(model_name)s.h"
-
-//--------------------------------------------------------------------------
-
-#ifdef __CUDACC__
-
-#define checkCuda( code ) { assertCuda( code, __FILE__, __LINE__ ); }
-
-inline void assertCuda( cudaError_t code, const char* file, int line, bool abort = true )
-{
-  if ( code != cudaSuccess )
-  {
-    printf( "GPUassert: %%s %%s:%%d\n", cudaGetErrorString(code), file, line );
-    if ( abort ) assert( code == cudaSuccess );
-  }
-}
-
-#endif
 
 //--------------------------------------------------------------------------
 

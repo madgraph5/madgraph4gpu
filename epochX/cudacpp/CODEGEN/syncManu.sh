@@ -36,14 +36,22 @@ echo "processes: ${processes}"
 
 cd $(dirname $0)
 for proc in ${processes}; do
-  echo "------------------------------------------------------------------"
   cmdfile=$(mktemp)
-  ./diffCode.sh ../${proc}.auto ../${proc} -r | grep diff | awk '{print "cp", $(NF-1), $NF}' > ${cmdfile}
+  echo "------------------------------------------------------------------"
+  ./diffCode.sh ../${proc}.auto ../${proc} -r | grep diff | awk '{print "cp -dp", $(NF-1), $NF}' > ${cmdfile}
   cat ${cmdfile}
   source ${cmdfile}
-  # FIXME: the script is not handling files which only exist in one of the two directories
-  echo -e "\nPENDING DIFFERENCES:"
+  echo -e "\nPENDING DIFFERENCES (before copying to manual any new files added in auto):"
   echo "./diffCode.sh ../${proc}.auto ../${proc} -r"
   ./diffCode.sh ../${proc}.auto ../${proc} -r
-  if [ "$?" == "0" ]; then echo "(no differences)"; fi
+  if [ "$?" == "0" ]; then echo "(no differences)"; continue; fi
+  echo "------------------------------------------------------------------"
+  ./diffCode.sh ../${proc}.auto ../${proc} -r | awk '{print "cp -dp", $3$4, gensub(".auto","","g",$3$4)}' | tr ':' '/' > ${cmdfile}
+  cat ${cmdfile}
+  source ${cmdfile}
+  # FIXME: the script is not handling files which only exist in manual (i.e. have been removed in auto)
+  echo -e "\nPENDING DIFFERENCES (after copying to manual any new files added in auto):"
+  echo "./diffCode.sh ../${proc}.auto ../${proc} -r"
+  ./diffCode.sh ../${proc}.auto ../${proc} -r
+  if [ "$?" == "0" ]; then echo "(no differences)"; continue; fi
 done

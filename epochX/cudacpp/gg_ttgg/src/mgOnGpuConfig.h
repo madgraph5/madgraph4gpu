@@ -4,13 +4,13 @@
 // ** NB1 Throughputs (e.g. 6.8E8) are events/sec for "./gcheck.exe -p 65536 128 12"
 // ** NB2 Baseline on b7g47n0004 fluctuates (probably depends on load on other VMs)
 
-// Choose how random numbers are generated
-// If one of these macros has been set from outside with e.g. -DMGONGPU_COMMONRAND_ONHOST, nothing happens
-#if not defined MGONGPU_CURAND_ONDEVICE and not defined MGONGPU_CURAND_ONHOST and not defined MGONGPU_COMMONRAND_ONHOST
-// Curand random number generation (CHOOSE ONLY ONE)
-#define MGONGPU_CURAND_ONDEVICE 1 // default (curand: CUDA on device, C++ on host)
-//#define MGONGPU_CURAND_ONHOST 1 // (curand: CUDA on host, C++ on host)
-//#define MGONGPU_COMMONRAND_ONHOST 1 // (common rand: CUDA on host, C++ on host)
+// Choose if curand is supported for generating random numbers
+// For C++, by default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_CURAND
+#ifdef __CUDACC__
+#undef MGONGPU_HAS_NO_CURAND
+#else
+//#undef MGONGPU_HAS_NO_CURAND // default
+////#define MGONGPU_HAS_NO_CURAND 1
 #endif
 
 // Choose floating point precision
@@ -43,15 +43,6 @@
 #ifdef __CUDACC__
 #undef MGONGPU_NSIGHT_DEBUG // default
 //#define MGONGPU_NSIGHT_DEBUG 1
-#endif
-
-// SANITY CHECKS (random numbers)
-#if defined MGONGPU_CURAND_ONDEVICE and defined MGONGPU_CURAND_ONHOST
-#error You must CHOOSE ONLY ONE of MGONGPU_CURAND_ONDEVICE, MGONGPU_CURAND_ONHOST or MGONGPU_COMMONRAND_ONHOST
-#elif defined MGONGPU_CURAND_ONDEVICE and defined MGONGPU_COMMONRAND_ONHOST
-#error You must CHOOSE ONLY ONE of MGONGPU_CURAND_ONDEVICE, MGONGPU_CURAND_ONHOST or MGONGPU_COMMONRAND_ONHOST
-#elif defined MGONGPU_CURAND_ONHOST and defined MGONGPU_COMMONRAND_ONHOST
-#error You must CHOOSE ONLY ONE of MGONGPU_CURAND_ONDEVICE, MGONGPU_CURAND_ONHOST or MGONGPU_COMMONRAND_ONHOST
 #endif
 
 // SANITY CHECKS (floating point precision)
