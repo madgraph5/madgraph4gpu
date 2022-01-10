@@ -54,7 +54,6 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifndef __CUDACC__
   // A class encapsulating the calculation of event statistics on a CPU host
   class CrossSectionKernelHost final : public CrossSectionKernelBase, public NumberOfEvents
   {
@@ -76,7 +75,6 @@ namespace mg5amcCpu
     bool isOnDevice() const override final { return false; }
 
   };
-#endif
 
   //--------------------------------------------------------------------------
 
