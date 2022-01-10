@@ -5,23 +5,13 @@
 
 #include "MadgraphTest.h"
 
-#include "CommonRandomNumbers.h"
 #include "CPPProcess.h"
-#include "Memory.h"
+#include "MatrixElementKernels.h"
+#include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
 #include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
-
-#ifdef __CUDACC__
-template<typename T = fptype>
-using unique_ptr_dev = std::unique_ptr<T, CudaDevDeleter<T>>;
-template<typename T = fptype>
-using unique_ptr_host = std::unique_ptr<T[], CudaHstDeleter<T>>;
-#else
-template<typename T = fptype>
-using unique_ptr_host = std::unique_ptr<T[], CppHstDeleter<T>>;
-#endif
 
 #ifdef __CUDACC__
 using namespace mg5amcGpu;
@@ -38,8 +28,6 @@ struct CUDA_CPU_TestBase : public TestDriverBase {
   static_assert( gputhreads%neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
   static_assert( gputhreads <= mgOnGpu::ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
 
-  const std::size_t nMEs { nevt };
-
   CUDA_CPU_TestBase( const std::string& refFileName ) :
     TestDriverBase( npar, refFileName )
   {  }
@@ -51,12 +39,12 @@ struct CPUTest : public CUDA_CPU_TestBase {
 
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
-  Proc::CPPProcess process;
+  CPPProcess process;
   HostBufferRandomNumbers hstRnarray;
   HostBufferMomenta hstMomenta;
   HostBufferWeights hstWeights;
-  unique_ptr_host<bool  > hstIsGoodHel;
-  unique_ptr_host<fptype> hstMEs;
+  HostBufferMatrixElements hstMatrixElements;
+  HostBufferHelicityMask hstIsGoodHel;
 
   // Create a process object
   // Read param_card and set parameters
@@ -65,12 +53,12 @@ struct CPUTest : public CUDA_CPU_TestBase {
   // Don't remove!
   CPUTest( const std::string& refFileName ) :
     CUDA_CPU_TestBase( refFileName ),
-    process(niter, gpublocks, gputhreads, /*verbose=*/false),
-    hstRnarray  ( nevt ),
-    hstMomenta  ( nevt ),
-    hstWeights  ( nevt ),
-    hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) },
-    hstMEs      { hstMakeUnique<fptype>( nMEs ) } // ARRAY[nevt]
+    process( niter, gpublocks, gputhreads, /*verbose=*/false ),
+    hstRnarray( nevt ),
+    hstMomenta( nevt ),
+    hstWeights( nevt ),
+    hstMatrixElements( nevt ),
+    hstIsGoodHel( mgOnGpu::ncomb )
   {
     process.initProc("../../Cards/param_card.dat");
   }
@@ -92,17 +80,9 @@ struct CPUTest : public CUDA_CPU_TestBase {
   }
 
   void runSigmaKin(std::size_t iiter) override {
-    // --- 0d. SGoodHel
-    if ( iiter == 0 )
-    {
-      // ... 0d1. Compute good helicity mask on the host
-      Proc::sigmaKin_getGoodHel(hstMomenta.data(), hstMEs.get(), hstIsGoodHel.get(), nevt);
-      // ... 0d2. Copy back good helicity list to static memory on the host
-      Proc::sigmaKin_setGoodHel(hstIsGoodHel.get());
-    }
-
-    // --- 3a. SigmaKin
-    Proc::sigmaKin(hstMomenta.data(), hstMEs.get(), nevt);
+    MatrixElementKernelHost mek( hstMomenta, hstMatrixElements, nevt );
+    if ( iiter == 0 ) mek.computeGoodHelicities();
+    mek.computeMatrixElements();
   }
 
   fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
@@ -112,7 +92,7 @@ struct CPUTest : public CUDA_CPU_TestBase {
   };
 
   fptype getMatrixElement(std::size_t ievt) const override {
-    return hstMEs[ievt];
+    return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
   }
 
 };
@@ -131,17 +111,17 @@ struct CUDATest : public CUDA_CPU_TestBase {
 
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
-  gProc::CPPProcess process;
+  CPPProcess process;
   PinnedHostBufferRandomNumbers hstRnarray;
   PinnedHostBufferMomenta hstMomenta;
   PinnedHostBufferWeights hstWeights;
-  unique_ptr_host<bool  > hstIsGoodHel;
-  unique_ptr_host<fptype> hstMEs;
+  PinnedHostBufferMatrixElements hstMatrixElements;
+  PinnedHostBufferHelicityMask hstIsGoodHel;
   DeviceBufferRandomNumbers devRnarray;
   DeviceBufferMomenta devMomenta;
   DeviceBufferWeights devWeights;
-  unique_ptr_dev<bool  > devIsGoodHel;
-  unique_ptr_dev<fptype> devMEs;
+  DeviceBufferMatrixElements devMatrixElements;
+  DeviceBufferHelicityMask devIsGoodHel;
 
   // Create a process object
   // Read param_card and set parameters
@@ -150,17 +130,17 @@ struct CUDATest : public CUDA_CPU_TestBase {
   // Don't remove!
   CUDATest( const std::string& refFileName ) :
     CUDA_CPU_TestBase( refFileName ),
-    process(niter, gpublocks, gputhreads, /*verbose=*/false),
-    hstRnarray  ( nevt ),
-    hstMomenta  ( nevt ),
-    hstWeights  ( nevt ),
-    hstIsGoodHel{ hstMakeUnique<bool  >( mgOnGpu::ncomb ) },
-    hstMEs      { hstMakeUnique<fptype>( nMEs ) },     // ARRAY[nevt]
-    devRnarray  ( nevt ),
-    devMomenta  ( nevt ),
-    devWeights  ( nevt ),
-    devIsGoodHel{ devMakeUnique<bool  >( mgOnGpu::ncomb ) },
-    devMEs      { devMakeUnique<fptype>( nMEs ) }      // ARRAY[nevt]
+    process( niter, gpublocks, gputhreads, /*verbose=*/false ),
+    hstRnarray( nevt ),
+    hstMomenta( nevt ),
+    hstWeights( nevt ),
+    hstMatrixElements( nevt ),
+    hstIsGoodHel( mgOnGpu::ncomb ),
+    devRnarray( nevt ),
+    devMomenta( nevt ),
+    devWeights( nevt ),
+    devMatrixElements( nevt ),
+    devIsGoodHel( mgOnGpu::ncomb )
   {
     process.initProc("../../Cards/param_card.dat");
   }
@@ -188,29 +168,10 @@ struct CUDATest : public CUDA_CPU_TestBase {
   }
 
   void runSigmaKin(std::size_t iiter) override {
-    // --- 0d. SGoodHel
-    if ( iiter == 0 )
-    {
-      // ... 0d1. Compute good helicity mask on the device
-      gProc::sigmaKin_getGoodHel<<<gpublocks, gputhreads>>>(devMomenta.data(), devMEs.get(), devIsGoodHel.get());
-      checkCuda( cudaPeekAtLastError() );
-      // ... 0d2. Copy back good helicity mask to the host
-      checkCuda( cudaMemcpy( hstIsGoodHel.get(), devIsGoodHel.get(),
-                             mgOnGpu::ncomb * sizeof(decltype(hstIsGoodHel)::element_type), cudaMemcpyDeviceToHost ) );
-      // ... 0d3. Copy back good helicity list to constant memory on the device
-      gProc::sigmaKin_setGoodHel(hstIsGoodHel.get());
-    }
-
-    // --- 3a. SigmaKin
-#ifndef MGONGPU_NSIGHT_DEBUG
-    gProc::sigmaKin<<<gpublocks, gputhreads>>>(devMomenta.data(), devMEs.get());
-#else
-    gProc::sigmaKin<<<gpublocks, gputhreads, ntpbMAX*sizeof(float)>>>(devMomenta.data(), devMEs.get());
-#endif
-    checkCuda( cudaPeekAtLastError() );
-
-    // --- 3b. CopyDToH MEs
-    checkCuda( cudaMemcpy( hstMEs.get(), devMEs.get(), nMEs * sizeof(decltype(hstMEs)::element_type), cudaMemcpyDeviceToHost ) );
+    MatrixElementKernelDevice mek( devMomenta, devMatrixElements, gpublocks, gputhreads );
+    if ( iiter == 0 ) mek.computeGoodHelicities();
+    mek.computeMatrixElements();
+    copyHostFromDevice( hstMatrixElements, devMatrixElements );
   }
 
   fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
@@ -219,8 +180,8 @@ struct CUDATest : public CUDA_CPU_TestBase {
     return MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), evtNo, component, particle );
   };
 
-  fptype getMatrixElement(std::size_t evtNo) const override {
-    return hstMEs[evtNo];
+  fptype getMatrixElement(std::size_t ievt) const override {
+    return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
   }
 
 };

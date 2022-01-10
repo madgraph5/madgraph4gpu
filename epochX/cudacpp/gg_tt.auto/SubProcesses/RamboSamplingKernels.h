@@ -62,7 +62,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // A class encapsulating RAMBO phase space sampling on a CPU host
-  class RamboSamplingKernelHost : public SamplingKernelBase, public NumberOfEvents
+  class RamboSamplingKernelHost final : public SamplingKernelBase, public NumberOfEvents
   {
   public:
 
@@ -91,7 +91,7 @@ namespace mg5amcCpu
 
 #ifdef __CUDACC__
   // A class encapsulating RAMBO phase space sampling on a GPU device
-  class RamboSamplingKernelDevice : public SamplingKernelBase
+  class RamboSamplingKernelDevice final : public SamplingKernelBase, public NumberOfEvents
   {
   public:
 
