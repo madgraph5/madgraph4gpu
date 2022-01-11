@@ -6,17 +6,15 @@
 //==========================================================================
 
 #ifndef MG5_Sigma_sm_epem_mupmum_H
-#define MG5_Sigma_sm_epem_mupmum_H
-
-#include <complex>
-#include <vector>
+#define MG5_Sigma_sm_epem_mupmum_H 1
 
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
 #include "checkCuda.h"
 #include "Parameters_sm.h"
+
+#include <vector>
 
 //--------------------------------------------------------------------------
 

@@ -6,7 +6,7 @@ CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
 # install target
-INSTALL_HEADERS=Parameters_%(model)s.h mgOnGpuConfig.h mgOnGpuTypes.h mgOnGpuVectors.h read_slha.h
+INSTALL_HEADERS=Parameters_sm.h mgOnGpuConfig.h mgOnGpuFptypes.h mgOnGpuCxtypes.h mgOnGpuVectors.h read_slha.h
 INSTALL_INC_DIR=../include
 
 # Note: AR and CXX are implicitly defined if not set externally

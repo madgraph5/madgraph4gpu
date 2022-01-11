@@ -2,8 +2,6 @@
 #define MemoryAccessMomenta_H 1
 
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
-#include "mgOnGpuVectors.h"
 
 #include "MemoryAccessHelpers.h"
 #include "MemoryAccessVectors.h"
