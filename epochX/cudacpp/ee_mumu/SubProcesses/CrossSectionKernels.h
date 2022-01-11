@@ -57,7 +57,7 @@ __attribute__((optnone))
 #else
 __attribute__((optimize("-fno-fast-math")))
 #endif
-inline void debug_me_is_abnormal( const fptype& me, int ievtALL )
+inline void debug_me_is_abnormal( const fptype& me, size_t ievtALL )
 {
   std::cout << "DEBUG[" << ievtALL << "]"
             << " ME=" << me
@@ -98,6 +98,7 @@ namespace mg5amcCpu
       : m_samplingWeights( samplingWeights )
       , m_matrixElements( matrixElements )
       , m_stats( stats )
+      , m_iter( 0 )
     {
       // NB: do not initialise EventStatistics (you may be asked to update an existing result)
     }
@@ -108,7 +109,7 @@ namespace mg5amcCpu
     virtual ~CrossSectionKernelBase(){}
 
     // Update event statistics
-    virtual void updateEventStatistics() = 0;
+    virtual void updateEventStatistics( const bool debug=false ) = 0;
 
     // Is this a host or device kernel?
     virtual bool isOnDevice() const = 0;
@@ -123,6 +124,9 @@ namespace mg5amcCpu
 
     // The event statistics
     EventStatistics& m_stats;
+
+    // The number of iterations processed so far
+    size_t m_iter;
 
   };
 
@@ -143,7 +147,7 @@ namespace mg5amcCpu
     virtual ~CrossSectionKernelHost(){}
 
     // Update event statistics
-    void updateEventStatistics() override final;
+    void updateEventStatistics( const bool debug=false ) override final;
 
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return false; }
@@ -169,10 +173,10 @@ namespace mg5amcCpu
     virtual ~CrossSectionKernelDevice(){}
 
     // Reset gpublocks and gputhreads
-    void setGrid( const int gpublocks, const int gputhreads );
+    void setGrid( const size_t gpublocks, const size_t gputhreads );
 
     // Update event statistics
-    void updateEventStatistics() override final;
+    void updateEventStatistics( const bool debug=false ) override final;
 
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return true; }
