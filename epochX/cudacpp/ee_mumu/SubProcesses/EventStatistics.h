@@ -125,33 +125,38 @@ namespace mg5amcCpu
       sum.sqsWGdiff = s1.sqsWGdiff + s2.sqsWGdiff;
       return sum;
     }
+    // Printout
+    void printout( std::ostream& out ) const
+    {
+      const EventStatistics &s = *this;
+      constexpr int meGeVexponent = -(2 * mgOnGpu::npar - 8);
+      out << s.tag << "NumMatrixElems(notAbnormal) = " << s.nevtOK() << std::endl
+          << std::scientific // fixed format: affects all floats (default precision: 6)
+          << s.tag << "MeanMatrixElemValue         = ( " << s.meanME() << " +- ";
+      if ( s.nevtOK()>0 ) out << s.stdME() / std::sqrt( s.nevtOK() ); // standard error
+      else out << "N/A";
+      out << " )  GeV^" << meGeVexponent << std::endl
+          << s.tag << "[Min,Max]MatrixElemValue    = [ " << s.minME
+          << " ,  " << s.maxME << " ]  GeV^" << meGeVexponent << std::endl
+          << s.tag << "StdDevMatrixElemValue       = ( " << s.stdME()
+          << std::string(16, ' ') << " )  GeV^" << meGeVexponent << std::endl
+          << s.tag << "MeanWeight                  = ( " << s.meanWG() << " +- ";
+      if ( s.nevtOK()>0 ) out << s.stdWG() / std::sqrt( s.nevtOK() ) << std::endl; // standard error
+      else out << "N/A" << std::endl;
+      out << s.tag << "[Min,Max]Weight             = [ " << s.minWG
+          << " ,  " << s.maxWG << " ]" << std::endl
+          << s.tag << "StdDevWeight                = ( " << s.stdWG()
+          << std::string(16, ' ') << " )" << std::endl
+          << std::defaultfloat; // default format: affects all floats
+      out << s.tag << "SqsMatrixElemValue = " << s.sqsMEdiff << std::endl;
+    }
   };
 
   //--------------------------------------------------------------------------
 
   inline std::ostream& operator<<( std::ostream& out, const EventStatistics& s )
   {
-    constexpr int meGeVexponent = -(2 * mgOnGpu::npar - 8);
-    out << s.tag << "NumMatrixElems(notAbnormal) = " << s.nevtOK() << std::endl
-        << std::scientific // fixed format: affects all floats (default precision: 6)
-        << s.tag << "MeanMatrixElemValue         = ( " << s.meanME() << " +- ";
-    if ( s.nevtOK()>0 ) out << s.stdME() / std::sqrt( s.nevtOK() ); // standard error
-    else out << "N/A";
-    out << " )  GeV^" << meGeVexponent << std::endl
-        << s.tag << "[Min,Max]MatrixElemValue    = [ " << s.minME
-        << " ,  " << s.maxME << " ]  GeV^" << meGeVexponent << std::endl
-        << s.tag << "StdDevMatrixElemValue       = ( " << s.stdME()
-        << std::string(16, ' ') << " )  GeV^" << meGeVexponent << std::endl
-        << s.tag << "MeanWeight                  = ( " << s.meanWG() << " +- ";
-    if ( s.nevtOK()>0 ) out << s.stdWG() / std::sqrt( s.nevtOK() ) << std::endl; // standard error
-    else out << "N/A" << std::endl;
-    out << s.tag << "[Min,Max]Weight             = [ " << s.minWG
-        << " ,  " << s.maxWG << " ]" << std::endl
-        << s.tag << "StdDevWeight                = ( " << s.stdWG()
-        << std::string(16, ' ') << " )" << std::endl
-        << std::defaultfloat; // default format: affects all floats
-    out << s.tag << "SqsMatrixElemValue = " << s.sqsMEdiff << std::endl;
-    return out;
+    s.printout( out ); return out;
   }
 
   //--------------------------------------------------------------------------
