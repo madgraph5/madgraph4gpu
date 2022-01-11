@@ -1,11 +1,8 @@
-#include "epoch_process_id.h"
-
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
 
-#include "MadgraphTest.h"
-
+#include "epoch_process_id.h"
 #include "CPPProcess.h"
+#include "MadgraphTest.h"
 #include "MatrixElementKernels.h"
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"

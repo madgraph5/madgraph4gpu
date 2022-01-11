@@ -15,8 +15,6 @@
 #endif
 
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
-#include "mgOnGpuVectors.h"
 
 #include "BridgeKernels.h"
 #include "CPPProcess.h"
@@ -722,15 +720,23 @@ int main(int argc, char **argv)
 #endif
   // -- CUCOMPLEX or THRUST or STD complex numbers?
 #ifdef __CUDACC__
-#if defined MGONGPU_CXTYPE_CUCOMPLEX
+#if defined MGONGPU_CUCXTYPE_CUCOMPLEX
   wrkflwtxt += "CUX:";
-#elif defined MGONGPU_CXTYPE_THRUST
+#elif defined MGONGPU_CUCXTYPE_THRUST
   wrkflwtxt += "THX:";
+#elif defined MGONGPU_CUCXTYPE_CXSMPL
+  wrkflwtxt += "CXS:";
 #else
   wrkflwtxt += "???:"; // no path to this statement
 #endif
 #else
+#if defined MGONGPU_CPPCXTYPE_STDCOMPLEX
   wrkflwtxt += "STX:";
+#elif defined MGONGPU_CPPCXTYPE_CXSMPL
+  wrkflwtxt += "CXS:";
+#else
+  wrkflwtxt += "???:"; // no path to this statement
+#endif
 #endif
   // -- COMMON or CURAND HOST or CURAND DEVICE random numbers?
   if ( rndgen == RandomNumberMode::CommonRandom ) wrkflwtxt += "COMMON+";
@@ -769,6 +775,16 @@ int main(int argc, char **argv)
 #else
   wrkflwtxt += "/????"; // no path to this statement
 #endif
+  // -- Has cxtype_v::operator[] with non-const reference?
+#if defined MGONGPU_CPPSIMD
+#ifdef MGONGPU_HAS_CPPCXTYPE_REF
+  wrkflwtxt += "+CXREF";
+#else
+  wrkflwtxt += "+NOREF";
+#endif
+#else
+  wrkflwtxt += "+NAREF"; // N/A
+#endif
 
   // --- 9a Dump to screen
   const std::string dumpKey = "9a DumpScrn";
@@ -790,7 +806,7 @@ int main(int argc, char **argv)
     while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get() ) != nullptr ) nprocall += nprocbuf.data();
 #endif
 #ifdef MGONGPU_CPPSIMD
-#ifdef MGONGPU_HAS_CXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPE_REF
     const std::string cxtref = " [cxtype_ref=YES]";
 #else
     const std::string cxtref = " [cxtype_ref=NO]";
@@ -825,9 +841,9 @@ int main(int argc, char **argv)
               << "FP precision                = FLOAT (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #endif
 #ifdef __CUDACC__
-#if defined MGONGPU_CXTYPE_CUCOMPLEX
+#if defined MGONGPU_CUCXTYPE_CUCOMPLEX
               << "Complex type                = CUCOMPLEX" << std::endl
-#elif defined MGONGPU_CXTYPE_THRUST
+#elif defined MGONGPU_CUCXTYPE_THRUST
               << "Complex type                = THRUST::COMPLEX" << std::endl
 #endif
 #else
@@ -954,9 +970,9 @@ int main(int argc, char **argv)
 #endif
              << "\"Complex type\": "
 #ifdef __CUDACC__
-#if defined MGONGPU_CXTYPE_CUCOMPLEX
+#if defined MGONGPU_CUCXTYPE_CUCOMPLEX
              << "\"CUCOMPLEX\"," << std::endl
-#elif defined MGONGPU_CXTYPE_THRUST
+#elif defined MGONGPU_CUCXTYPE_THRUST
              << "\"THRUST::COMPLEX\"," << std::endl
 #endif
 #else

@@ -2,8 +2,6 @@
 #define MemoryAccessRandomNumbers_H 1
 
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
-//#include "mgOnGpuVectors.h"
 
 #include "MemoryAccessHelpers.h"
 

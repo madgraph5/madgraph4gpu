@@ -1,6 +1,5 @@
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
-//#include "mgOnGpuVectors.h"
+#include "mgOnGpuFptypes.h"
 
 #include <cmath>
 #include <cstdlib>
