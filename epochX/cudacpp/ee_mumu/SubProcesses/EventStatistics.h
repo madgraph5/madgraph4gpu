@@ -19,13 +19,16 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // The EventStatistics struct is used to accumulate running aggregates of event statistics.
-  // This include the process cross section and the process maximum weight.
-  // One important case of EventStatistics is the "gridpack" result set, which is
+  // This will eventually include the process cross section and the process maximum weight:
+  // one important case of EventStatistics will then be the "gridpack" result set, which is
   // the output of the "integration" step and the input to "unweighted event generation" step.
-  // In first approximation, the process cross section and maximum weight are just the mean ME and maximum ME;
-  // eventually, sampling weights (e.g. from Rambo) must also be taken into account in this calculation.
+  // The current implementation only includes statistics for matrix elements (ME) and sampling weights (WG);
+  // in first approximation, the process cross section and maximum weight are just the mean ME and maximum ME,
+  // but eventually the sampling weights WG (e.g. from Rambo) must also be taken into account in the calculation.
+  // The implementation uses differences to reference values to improve numerical precision.
   struct EventStatistics
   {
+  public:
     size_t nevtALL; // total number of events used
     size_t nevtABN; // number of events used, where ME is abnormal (nevtABN <= nevtALL)
     size_t nevtZERO; // number of not-abnormal events used, where ME is zero (nevtZERO <= nevtOK)
@@ -33,16 +36,54 @@ namespace mg5amcCpu
     double maxME; // maximum matrix element
     double minWG; // minimum sampling weight
     double maxWG; // maximum sampling weight
-    double sumMEdiff; // sum of diff to mean for matrix element
-    double sumWGdiff; // sum of diff to mean for sampling weight
-    double sqsMEdiff; // squared sum of diff to mean for matrix element
-    double sqsWGdiff; // squared sum of diff to mean for sampling weight
+    double refME; // "reference" matrix element (normally the current mean)
+    double refWG; // "reference" sampling weight (normally the current mean)
+    double sumMEdiff; // sum of diff to ref for matrix element
+    double sumWGdiff; // sum of diff to ref for sampling weight
+    double sqsMEdiff; // squared sum of diff to ref for matrix element
+    double sqsWGdiff; // squared sum of diff to ref for sampling weight
     std::string tag; // a text tag for printouts
     size_t nevtOK() const { return nevtALL - nevtABN; } // number of events used, where ME is not abnormal
-    double meanME() const { return minME + sumMEdiff / nevtOK(); } // mean matrix element
-    double meanWG() const { return minWG + sumWGdiff / nevtOK(); } // mean sampling weight
-    double stdME() const { return std::sqrt( sqsMEdiff / nevtOK() ); } // standard deviation matrix element
-    double stdWG() const { return std::sqrt( sqsWGdiff / nevtOK() ); } // standard deviation sampling weight
+    // Mean matrix element
+    double meanME() const
+    {
+      return refME + ( nevtOK()>0 ? sumMEdiff / nevtOK() : 0 );
+    }
+    // Mean sampling weight
+    double meanWG() const
+    {
+      return refWG + ( nevtOK()>0 ? sumWGdiff / nevtOK() : 0 );
+    }
+    // Variance matrix element
+    double varME() const
+    {
+      return sqsMEdiff + ( nevtOK()>0 ? 2 * sumMEdiff * ( refME-meanME() ) + std::pow( refME-meanME(), 2 ) : 0 );
+    }
+    // Variance sampling weight
+    double varWG() const
+    {
+      return sqsWGdiff + ( nevtOK()>0 ? 2 * sumWGdiff * ( refWG-meanWG() ) + std::pow( refWG-meanWG(), 2 ) : 0 );
+    }
+    // Standard deviation matrix element
+    double stdME() const { return std::sqrt( varME() ); }
+    // Standard deviation sampling weight
+    double stdWG() const { return std::sqrt( varWG() ); }
+    // Update reference matrix element
+    void updateRefME( const double newRef )
+    {
+      const double deltaRef = refME - newRef;
+      sqsMEdiff += 2 * sumMEdiff * deltaRef + deltaRef * deltaRef;
+      sumMEdiff += deltaRef * nevtOK();
+      refME = newRef;
+    }
+    // Update reference sampling weight
+    void updateRefWG( const double newRef )
+    {
+      const double deltaRef = refWG - newRef;
+      sqsWGdiff += 2 * sumWGdiff * deltaRef + deltaRef * deltaRef;
+      sumWGdiff += deltaRef * nevtOK();
+      refWG = newRef;
+    }
     // Constructor
     EventStatistics()
       : nevtALL( 0 )
@@ -52,16 +93,18 @@ namespace mg5amcCpu
       , maxME( std::numeric_limits<double>::lowest() )
       , minWG( std::numeric_limits<double>::max() )
       , maxWG( std::numeric_limits<double>::lowest() )
+      , refME( 0 )
+      , refWG( 0 )
       , sumMEdiff( 0 )
       , sumWGdiff( 0 )
       , sqsMEdiff( 0 )
       , sqsWGdiff( 0 )
-      , tag( "" ) {}
+      , tag( "" ){}
     // Combine two EventStatistics
     EventStatistics& operator+=( const EventStatistics& stats )
     {
-      const EventStatistics s1 = *this; // temporary const copy
-      const EventStatistics& s2 = stats;
+      EventStatistics s1 = *this; // temporary copy
+      EventStatistics s2 = stats; // temporary copy
       EventStatistics& sum = *this;
       sum.nevtALL = s1.nevtALL + s2.nevtALL;
       sum.nevtABN = s1.nevtABN + s2.nevtABN;
@@ -70,18 +113,16 @@ namespace mg5amcCpu
       sum.maxME = std::max( s1.maxME, s2.maxME );
       sum.minWG = std::min( s1.minWG, s2.minWG );
       sum.maxWG = std::max( s1.maxWG, s2.maxWG );
-      sum.sumMEdiff =
-        s1.sumMEdiff + s1.nevtOK() * ( s1.minME - sum.minME ) +
-        s2.sumMEdiff + s2.nevtOK() * ( s2.minME - sum.minME );
-      sum.sumWGdiff =
-        s1.sumWGdiff + s1.nevtOK() * ( s1.minWG - sum.minWG ) +
-        s2.sumWGdiff + s2.nevtOK() * ( s2.minWG - sum.minWG );
-      sum.sqsMEdiff =
-        s1.sqsMEdiff + s1.nevtOK() * ( s1.minME - sum.minME ) * ( 2*s1.meanME() - s1.minME - sum.minME ) +
-        s2.sqsMEdiff + s2.nevtOK() * ( s2.minME - sum.minME ) * ( 2*s2.meanME() - s2.minME - sum.minME );
-      sum.sqsWGdiff =
-        s1.sqsWGdiff + s1.nevtOK() * ( s1.minWG - sum.minWG ) * ( 2*s1.meanWG() - s1.minWG - sum.minWG ) +
-        s2.sqsWGdiff + s2.nevtOK() * ( s2.minWG - sum.minWG ) * ( 2*s2.meanWG() - s2.minWG - sum.minWG );
+      sum.refME = ( s1.meanME()*s1.nevtOK() + s2.meanME()*s2.nevtOK() ) / sum.nevtOK(); // new mean ME
+      s1.updateRefME( sum.refME );
+      s2.updateRefME( sum.refME );
+      sum.sumMEdiff = s1.sumMEdiff + s2.sumMEdiff;
+      sum.sqsMEdiff = s1.sqsMEdiff + s2.sqsMEdiff;
+      sum.refWG = ( s1.meanWG()*s1.nevtOK() + s2.meanWG()*s2.nevtOK() ) / sum.nevtOK(); // new mean WG
+      s1.updateRefWG( sum.refWG );
+      s2.updateRefWG( sum.refWG );
+      sum.sumWGdiff = s1.sumWGdiff + s2.sumWGdiff;
+      sum.sqsWGdiff = s1.sqsWGdiff + s2.sqsWGdiff;
       return sum;
     }
   };
@@ -93,15 +134,18 @@ namespace mg5amcCpu
     constexpr int meGeVexponent = -(2 * mgOnGpu::npar - 8);
     out << s.tag << "NumMatrixElems(notAbnormal) = " << s.nevtOK() << std::endl
         << std::scientific // fixed format: affects all floats (default precision: 6)
-        << s.tag << "MeanMatrixElemValue         = ( " << s.meanME()
-        << " +- " << s.stdME() / std::sqrt( s.nevtOK() ) << " )  GeV^" << meGeVexponent << std::endl // standard error
+        << s.tag << "MeanMatrixElemValue         = ( " << s.meanME() << " +- ";
+    if ( s.nevtOK()>0 ) out << s.stdME() / std::sqrt( s.nevtOK() ); // standard error
+    else out << "N/A";
+    out << " )  GeV^" << meGeVexponent << std::endl
         << s.tag << "[Min,Max]MatrixElemValue    = [ " << s.minME
         << " ,  " << s.maxME << " ]  GeV^" << meGeVexponent << std::endl
         << s.tag << "StdDevMatrixElemValue       = ( " << s.stdME()
         << std::string(16, ' ') << " )  GeV^" << meGeVexponent << std::endl
-        << s.tag << "MeanWeight                  = ( " << s.meanWG()
-        << " +- " << s.stdWG() / std::sqrt( s.nevtOK() ) << " )" << std::endl // standard error
-        << s.tag << "[Min,Max]Weight             = [ " << s.minWG
+        << s.tag << "MeanWeight                  = ( " << s.meanWG() << " +- ";
+    if ( s.nevtOK()>0 ) out << s.stdWG() / std::sqrt( s.nevtOK() ) << std::endl; // standard error
+    else out << "N/A" << std::endl;
+    out << s.tag << "[Min,Max]Weight             = [ " << s.minWG
         << " ,  " << s.maxWG << " ]" << std::endl
         << s.tag << "StdDevWeight                = ( " << s.stdWG()
         << std::string(16, ' ') << " )" << std::endl

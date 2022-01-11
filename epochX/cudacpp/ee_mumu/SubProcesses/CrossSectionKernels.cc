@@ -35,7 +35,7 @@ namespace mg5amcCpu
   void CrossSectionKernelHost::updateEventStatistics( const bool debug )
   {
     EventStatistics stats; // new statistics for the new nevt events
-    // FIRST PASS: COUNT ALL/ABN/ZERO EVENTS, COMPUTE MIN/MAX
+    // FIRST PASS: COUNT ALL/ABN/ZERO EVENTS, COMPUTE MIN/MAX, COMPUTE REFS AS MEANS OF SIMPLE SUMS
     for ( size_t ievt = 0; ievt < nevt(); ++ievt ) // Loop over all events in this iteration
     {
       const fptype& me = MemoryAccessMatrixElements::ieventAccessConst( m_matrixElements.data(), ievt );
@@ -63,26 +63,34 @@ namespace mg5amcCpu
       stats.maxME = std::max( stats.maxME, (double)me );
       stats.minWG = std::min( stats.minWG, (double)wg );
       stats.maxWG = std::max( stats.maxWG, (double)wg );
+      stats.sumMEdiff += me; // NB stats.refME is 0 here
+      stats.sumWGdiff += wg; // NB stats.refWG is 0 here
     }
-    // SECOND PASS: COMPUTE MEAN FROM THE SUM OF DIFF TO MIN
+    stats.refME = stats.meanME(); // draft ref
+    stats.refWG = stats.meanWG(); // draft ref
+    stats.sumMEdiff = 0;
+    stats.sumWGdiff = 0;    
+    // SECOND PASS: IMPROVE MEANS FROM SUMS OF DIFFS TO PREVIOUS REF, UPDATE REF
     for ( size_t ievt = 0; ievt < nevt(); ++ievt ) // Loop over all events in this iteration
     {
       const fptype& me = MemoryAccessMatrixElements::ieventAccessConst( m_matrixElements.data(), ievt );
       const fptype& wg = MemoryAccessWeights::ieventAccessConst( m_samplingWeights.data(), ievt );
       if ( fp_is_abnormal( me ) ) continue;
-      stats.sumMEdiff += ( me - stats.minME );
-      stats.sumWGdiff += ( wg - stats.minWG );
+      stats.sumMEdiff += ( me - stats.refME );
+      stats.sumWGdiff += ( wg - stats.refWG );
     }
-    // THIRD PASS: COMPUTE STDDEV FROM THE SQUARED SUM OF DIFF TO MIN
-    const double meanME = stats.meanME();
-    const double meanWG = stats.meanWG();
+    stats.refME = stats.meanME(); // final ref
+    stats.refWG = stats.meanWG(); // final ref
+    stats.sumMEdiff = 0;
+    stats.sumWGdiff = 0;    
+    // THIRD PASS: COMPUTE STDDEV FROM SQUARED SUMS OF DIFFS TO REF
     for ( size_t ievt = 0; ievt < nevt(); ++ievt ) // Loop over all events in this iteration
     {
       const fptype& me = MemoryAccessMatrixElements::ieventAccessConst( m_matrixElements.data(), ievt );
       const fptype& wg = MemoryAccessWeights::ieventAccessConst( m_samplingWeights.data(), ievt );
       if ( fp_is_abnormal( me ) ) continue;
-      stats.sqsMEdiff += std::pow( me - meanME, 2 );
-      stats.sqsWGdiff += std::pow( wg - meanWG, 2 );
+      stats.sqsMEdiff += std::pow( me - stats.refME, 2 );
+      stats.sqsWGdiff += std::pow( wg - stats.refWG, 2 );
     }
     // DEBUG PRINTOUTS
     m_stats.tag = "(SUMOLD) ";
