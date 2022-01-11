@@ -769,6 +769,16 @@ int main(int argc, char **argv)
 #else
   wrkflwtxt += "/????"; // no path to this statement
 #endif
+  // -- Has cxtype_v::operator[] with non-const reference?
+#if defined MGONGPU_CPPSIMD
+#ifdef MGONGPU_HAS_CPPCXTYPE_REF
+  wrkflwtxt += "+CXREF";
+#else
+  wrkflwtxt += "+NOREF";
+#endif
+#else
+  wrkflwtxt += "+NAREF"; // N/A
+#endif
 
   // --- 9a Dump to screen
   const std::string dumpKey = "9a DumpScrn";
