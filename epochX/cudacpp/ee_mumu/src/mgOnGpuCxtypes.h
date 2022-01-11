@@ -95,12 +95,133 @@ using mgOnGpu::cxtype;
 //==========================================================================
 
 #if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
+#warning I am here
 
 //------------------------------
 // CUDA or C++ - using cxsmpl
 //------------------------------
 
-#warning I am here
+inline __host__ __device__
+cxtype cxmake( const fptype& r, const fptype& i )
+{
+  return cxtype( r, i ); // cxsmpl constructor
+}
+
+inline __host__ __device__
+fptype cxreal( const cxtype& c )
+{
+  return c.real(); // cxsmpl::real()
+}
+
+inline __host__ __device__
+fptype cximag( const cxtype& c )
+{
+  return c.imag(); // cxsmpl::imag()
+}
+
+inline __host__ __device__
+cxtype cxconj( const cxtype& c )
+{
+  return conj( c ); // conj( cxsmpl )
+}
+
+inline __host__ __device__
+const cxtype& cxmake( const cxtype& c )
+{
+  return c;
+}
+
+inline __host__ __device__
+cxtype operator+( const cxtype a )
+{
+  return a;
+}
+
+inline __host__ __device__
+cxtype operator-( const cxtype& a )
+{
+  return cxmake( -cxreal(a), -cximag(a) );
+}
+
+inline __host__ __device__
+cxtype operator+( const cxtype& a, const cxtype& b )
+{
+  return cxmake( a.real() + b.real(), a.imag() + b.imag() );
+}
+
+inline __host__ __device__
+cxtype operator+( const fptype& a, const cxtype& b )
+{
+  return cxmake( a, 0 ) + b;
+}
+
+inline __host__ __device__
+cxtype operator-( const cxtype& a, const cxtype& b )
+{
+  return cxmake( a.real() - b.real(), a.imag() - b.imag() );
+}
+
+inline __host__ __device__
+cxtype operator-( const fptype& a, const cxtype& b )
+{
+  return cxmake( a, 0 ) - b;
+}
+
+inline __host__ __device__
+cxtype operator*( const cxtype& a, const cxtype& b )
+{
+  return cxmake( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
+}
+
+inline __host__ __device__
+cxtype operator*( const fptype& a, const cxtype& b )
+{
+  return cxmake( a, 0 ) * b;
+}
+
+inline __host__ __device__
+cxtype operator/( const cxtype& a, const cxtype& b )
+{
+  fptype bnorm = b.real()*b.real() + b.imag()*b.imag();
+  return cxmake( ( a.real() * b.real() + a.imag() * b.imag() ) / bnorm,
+                 ( a.imag() * b.real() - a.real() * b.imag() ) / bnorm );
+}
+
+inline __host__ __device__
+cxtype operator/( const fptype& a, const cxtype& b )
+{
+  return cxmake( a, 0 ) / b;
+}
+
+inline __host__ __device__
+cxtype operator+( const cxtype& a, const fptype& b )
+{
+  return a + cxmake( b, 0 );
+}
+
+inline __host__ __device__
+cxtype operator-( const cxtype& a, const fptype& b )
+{
+  return a - cxmake( b, 0 );
+}
+
+inline __host__ __device__
+cxtype operator*( const cxtype& a, const fptype& b )
+{
+  return a * cxmake( b, 0 );
+}
+
+inline __host__ __device__
+cxtype operator/( const cxtype& a, const fptype& b )
+{
+  return a / cxmake( b, 0 );
+}
+
+inline __host__ // NOT __device__?
+cxtype cxmake( const std::complex<fptype>& c ) // std::complex to cxsmpl (float-to-float or double-to-double)
+{
+  return cxmake( c.real(), c.imag() );
+}
 
 #endif // #if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
 
