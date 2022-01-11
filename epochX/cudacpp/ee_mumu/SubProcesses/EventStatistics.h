@@ -77,11 +77,11 @@ namespace mg5amcCpu
         s1.sumWGdiff + s1.nevtOK() * ( s1.minWG - sum.minWG ) +
         s2.sumWGdiff + s2.nevtOK() * ( s2.minWG - sum.minWG );
       sum.sqsMEdiff =
-        s1.sqsMEdiff + s1.nevtOK() * std::pow( s1.meanME() - sum.minME, 2 ) +
-        s2.sqsMEdiff + s2.nevtOK() * std::pow( s2.meanME() - sum.minME, 2 );
+        s1.sqsMEdiff + s1.nevtOK() * std::pow( s1.meanME() - sum.meanME(), 2 ) +
+        s2.sqsMEdiff + s2.nevtOK() * std::pow( s2.meanME() - sum.meanME(), 2 );
       sum.sqsWGdiff =
-        s1.sqsWGdiff + s1.nevtOK() * std::pow( s1.meanWG() - sum.minWG, 2 ) +
-        s2.sqsWGdiff + s2.nevtOK() * std::pow( s2.meanWG() - sum.minWG, 2 );
+        s1.sqsWGdiff + s1.nevtOK() * std::pow( s1.meanWG() - sum.meanWG(), 2 ) +
+        s2.sqsWGdiff + s2.nevtOK() * std::pow( s2.meanWG() - sum.meanWG(), 2 );
       return sum;
     }
   };
