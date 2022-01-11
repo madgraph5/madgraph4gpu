@@ -4,6 +4,10 @@
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuFptypes.h"
 
+//==========================================================================
+// COMPLEX TYPES: (PLATFORM-SPECIFIC) HEADERS
+//==========================================================================
+
 #include <complex>
 
 // Complex type in cuda: thrust or cucomplex or cxsmpl
@@ -23,6 +27,10 @@
 #error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_CPPCXTYPE_STDCOMPLEX or MGONGPU_CPPCXTYPE_CXSMPL
 #endif
 #endif
+
+//==========================================================================
+// COMPLEX TYPES: (PLATFORM-SPECIFIC) TYPEDEFS
+//==========================================================================
 
 namespace mgOnGpu
 {
@@ -53,25 +61,27 @@ namespace mgOnGpu
 // Expose typedefs and operators outside the namespace
 using mgOnGpu::cxtype;
 
+//==========================================================================
+// COMPLEX TYPES: (PLATFORM-SPECIFIC) FUNCTIONS AND OPERATORS
+//==========================================================================
 
-// --- Functions and operators for complex types
+#if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
 
 //------------------------------
-// CUDA
+// CUDA or C++ - using cxsmpl
 //------------------------------
 
-#ifdef __CUDACC__ // cuda
+#warning I am here
+
+#endif // #if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
+
+//==========================================================================
+
+#if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_THRUST // cuda + thrust
 
 //------------------------------
 // CUDA - using thrust::complex
 //------------------------------
-
-#if defined MGONGPU_CUCXTYPE_THRUST // cuda + thrust
-
-//+++++++++++++++++++++++++
-// thrust::complex<double>
-// thrust::complex<float>
-//+++++++++++++++++++++++++
 
 inline __host__ __device__
 cxtype cxmake( const fptype& r, const fptype& i )
@@ -103,17 +113,21 @@ const cxtype& cxmake( const cxtype& c )
   return c;
 }
 
+#endif // #if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_THRUST
+
+//==========================================================================
+
+#if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_CUCOMPLEX // cuda + cucomplex
+
 //------------------------------
 // CUDA - using cuComplex
 //------------------------------
 
-#elif defined MGONGPU_CUCXTYPE_CUCOMPLEX // cuda + cucomplex
-
-//+++++++++++++++++++++++++
-// cuDoubleComplex
-//+++++++++++++++++++++++++
-
 #if defined MGONGPU_FPTYPE_DOUBLE  // cuda + cucomplex + double
+
+//+++++++++++++++++++++++++
+// cuDoubleComplex ONLY
+//+++++++++++++++++++++++++
 
 inline __host__ __device__
 cxtype cxmake( const fptype& r, const fptype& i )
@@ -169,11 +183,11 @@ cxtype operator/( const cxtype& a, const cxtype& b )
   return cuCdiv( a, b );
 }
 
-//+++++++++++++++++++++++++
-// cuFloatComplex
-//+++++++++++++++++++++++++
-
 #elif defined MGONGPU_FPTYPE_FLOAT  // cuda + cucomplex + float
+
+//+++++++++++++++++++++++++
+// cuFloatComplex ONLY
+//+++++++++++++++++++++++++
 
 inline __host__ __device__
 cxtype cxmake( const fptype& r, const fptype& i )
@@ -235,12 +249,12 @@ cxtype cxmake( const std::complex<double>& c ) // std::complex to cucomplex (cas
   return cxmake( (fptype)c.real(), (fptype)c.imag() );
 }
 
+#endif
+
 //+++++++++++++++++++++++++
-// cuDoubleComplex
+// cuDoubleComplex OR
 // cuFloatComplex
 //+++++++++++++++++++++++++
-
-#endif  // END cuda + cucomplex + double/float
 
 inline __host__ __device__
 cxtype operator+( const cxtype a )
@@ -314,18 +328,15 @@ cxtype cxmake( const std::complex<fptype>& c ) // std::complex to cucomplex (flo
   return cxmake( c.real(), c.imag() );
 }
 
-#endif  // END cuda + thrust/cucomplex
+#endif // #if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_CUCOMPLEX
+
+//==========================================================================
+
+#if not defined __CUDACC__ and defined MGONGPU_CPPCXTYPE_STDCOMPLEX // c++ + stdcomplex
 
 //------------------------------
 // C++ - using std::complex
 //------------------------------
-
-#else  // c++
-
-//+++++++++++++++++++++++++
-// std::complex<float>
-// std::complex<double>
-//+++++++++++++++++++++++++
 
 inline
 cxtype cxmake( const fptype& r, const fptype& i )
@@ -365,6 +376,8 @@ cxtype cxmake( const std::complex<double>& c ) // std::complex to std::complex (
 }
 #endif
 
-#endif  // END cuda/c++
+#endif // #if not defined __CUDACC__ and defined MGONGPU_CPPCXTYPE_STDCOMPLEX
+
+//==========================================================================
 
 #endif // MGONGPUCXTYPES_H
