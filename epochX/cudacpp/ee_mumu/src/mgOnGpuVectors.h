@@ -1,6 +1,9 @@
 #ifndef MGONGPUVECTORS_H
 #define MGONGPUVECTORS_H 1
 
+#include "mgOnGpuFptypes.h"
+#include "mgOnGpuCxtypes.h"
+
 #include <iostream>
 
 //------------------------------
@@ -8,8 +11,6 @@
 //------------------------------
 
 #ifndef __CUDACC__
-
-#include "mgOnGpuTypes.h"
 
 namespace mgOnGpu
 {

@@ -2,7 +2,6 @@
 #define MemoryAccessVectors_H 1
 
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
 #ifndef __CUDACC__

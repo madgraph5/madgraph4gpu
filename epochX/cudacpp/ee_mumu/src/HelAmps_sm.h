@@ -9,7 +9,6 @@
 #define HelAmps_sm_H 1
 
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
 #ifdef __CUDACC__
