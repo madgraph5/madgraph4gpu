@@ -16,7 +16,6 @@
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
-#include "mgOnGpuVectors.h"
 
 #include "BridgeKernels.h"
 #include "CPPProcess.h"

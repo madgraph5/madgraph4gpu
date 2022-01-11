@@ -1,6 +1,5 @@
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
-#include "mgOnGpuVectors.h"
+
 #include "CPPProcess.h"
 #include "HelAmps_sm.h"
 #include "MemoryBuffers.h"
