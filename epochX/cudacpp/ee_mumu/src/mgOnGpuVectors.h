@@ -397,14 +397,12 @@ cxtype_v operator/( const cxtype& a, const cxtype_v& b )
                  ( cximag( a ) * b.real() - cxreal( a ) * b.imag() ) / bnorm );
 }
 
-/*
 inline
 cxtype_v operator/( const fptype& a, const cxtype_v& b )
 {
   fptype_v bnorm = b.real()*b.real() + b.imag()*b.imag();
   return cxmake( ( a * b.real() ) / bnorm, ( - a * b.imag() ) / bnorm );
 }
-*/
 
 inline
 cxtype_v operator/( const cxtype_v& a, const fptype_v& b )

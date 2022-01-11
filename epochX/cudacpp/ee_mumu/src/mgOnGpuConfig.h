@@ -35,8 +35,8 @@
 
 // Complex type in c++: std::complex or cxsmpl (CHOOSE ONLY ONE)
 #ifndef __CUDACC__
-#define MGONGPU_CPPCXTYPE_STDCOMPLEX 1 // default
-//#define MGONGPU_CPPCXTYPE_CXSMPL 1 // new
+//#define MGONGPU_CPPCXTYPE_STDCOMPLEX 1 // default
+#define MGONGPU_CPPCXTYPE_CXSMPL 1 // new
 #endif
 
 // Complex type in cuda: thrust or cucomplex or cxsmpl (CHOOSE ONLY ONE)

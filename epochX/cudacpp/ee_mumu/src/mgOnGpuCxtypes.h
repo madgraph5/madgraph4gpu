@@ -43,7 +43,7 @@ namespace mgOnGpu
     cxsmpl() : m_real{0}, m_imag{0} {}
     cxsmpl( const cxsmpl&  ) = default;
     cxsmpl( cxsmpl&&  ) = default;
-    cxsmpl( const fptype& r, const fptype& i ) : m_real{r}, m_imag{i} {}
+    cxsmpl( const fptype& r, const fptype& i = 0 ) : m_real{r}, m_imag{i} {}
     cxsmpl& operator=( const cxsmpl& ) = default;
     cxsmpl& operator=( cxsmpl&& ) = default;
     cxsmpl& operator+=( const cxsmpl& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
@@ -95,7 +95,6 @@ using mgOnGpu::cxtype;
 //==========================================================================
 
 #if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
-#warning I am here
 
 //------------------------------
 // CUDA or C++ - using cxsmpl
