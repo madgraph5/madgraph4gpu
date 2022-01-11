@@ -100,6 +100,7 @@ namespace mg5amcCpu
 namespace mg5amcGpu
 {
 
+  /*
   //--------------------------------------------------------------------------
 
   CrossSectionKernelDevice::CrossSectionKernelDevice( const BufferWeights& samplingWeights,       // input: sampling weights
@@ -131,13 +132,14 @@ namespace mg5amcGpu
 
   //--------------------------------------------------------------------------
 
-  void CrossSectionKernelDevice::updateEventStatistics( const bool /*debug*/ )
+  void CrossSectionKernelDevice::updateEventStatistics( const bool debug )
   {
     // Increment the iterations counter
     m_iter++;
   }
 
   //--------------------------------------------------------------------------
+  */
 
 }
 #endif

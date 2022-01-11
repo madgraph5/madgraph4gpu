@@ -156,6 +156,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  /*
 #ifdef __CUDACC__
   // A class encapsulating the calculation of event statistics on a GPU device
   class CrossSectionKernelDevice : public CrossSectionKernelBase, public NumberOfEvents
@@ -191,6 +192,7 @@ namespace mg5amcCpu
 
   };
 #endif
+  */
 
   //--------------------------------------------------------------------------
 
