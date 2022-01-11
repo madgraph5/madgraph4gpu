@@ -3,6 +3,7 @@
 
 #include "mgOnGpuConfig.h"
 
+#include <algorithm>
 #include <cmath>
 
 //==========================================================================
