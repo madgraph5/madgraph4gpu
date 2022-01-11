@@ -50,7 +50,7 @@ namespace mg5amcCpu
       //  debug_me_is_abnormal( me, ievtALL );
       //if ( ievtALL == 5473927 ) // this ME is abnormal only with fast math
       //  debug_me_is_abnormal( me, ievtALL );
-      m_stats.nevtALL++;
+      stats.nevtALL++;
       if ( fp_is_abnormal( me ) )
       {
         if ( debug ) // only printed out with "-p -d" (matrixelementALL is not filled without -p)
@@ -58,11 +58,11 @@ namespace mg5amcCpu
         stats.nevtABN++;
         continue;
       }
-      if ( fp_is_zero( me ) ) m_stats.nevtZERO++;
-      stats.minME = std::min( m_stats.minME, (double)me );
-      stats.maxME = std::max( m_stats.maxME, (double)me );
-      stats.minWG = std::min( m_stats.minWG, (double)wg );
-      stats.maxWG = std::max( m_stats.maxWG, (double)wg );
+      if ( fp_is_zero( me ) ) stats.nevtZERO++;
+      stats.minME = std::min( stats.minME, (double)me );
+      stats.maxME = std::max( stats.maxME, (double)me );
+      stats.minWG = std::min( stats.minWG, (double)wg );
+      stats.maxWG = std::max( stats.maxWG, (double)wg );
     }
     // SECOND PASS: COMPUTE MEAN FROM THE SUM OF DIFF TO MIN
     for ( size_t ievt = 0; ievt < nevt(); ++ievt ) // Loop over all events in this iteration
