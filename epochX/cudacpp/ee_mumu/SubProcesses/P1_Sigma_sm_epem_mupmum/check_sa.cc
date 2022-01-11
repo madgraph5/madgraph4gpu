@@ -266,7 +266,6 @@ int main(int argc, char **argv)
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
   const int nevt = ndim; // number of events in one iteration == number of GPU threads
-  //const int nevtALL = niter*nevt; // total number of ALL events in all iterations
 
   if (verbose)
     std::cout << "# iterations: " << niter << std::endl;
@@ -358,8 +357,6 @@ int main(int argc, char **argv)
   std::unique_ptr<double[]> rambtimes( new double[niter] );
   std::unique_ptr<double[]> wavetimes( new double[niter] );
   std::unique_ptr<double[]> wv3atimes( new double[niter] );
-  //std::unique_ptr<fptype[]> matrixelementALL( new fptype[nevtALL] ); // FIXME: assume process.nprocesses == 1
-  //std::unique_ptr<fptype[]> weightALL( new fptype[nevtALL] );
 
   // --- 0c. Create curand or common generator
   const std::string cgenKey = "0c GenCreat";
@@ -619,10 +616,6 @@ int main(int argc, char **argv)
                   << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
         std::cout << std::string(SEP79, '-') << std::endl;
       }
-      // Fill the arrays with ALL MEs and weights
-      // FIXME: assume process.nprocesses == 1
-      //matrixelementALL[iiter*nevt + ievt] = MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
-      //weightALL[iiter*nevt + ievt] = MemoryAccessWeights::ieventAccessConst( hstWeights.data(), ievt );
     }
 
     if (!(verbose || debug || perf))
@@ -693,61 +686,6 @@ int main(int argc, char **argv)
   double meanw3atim = sumw3atim / niter;
   //double stdw3atim = std::sqrt( sqsw3atim / niter - meanw3atim * meanw3atim );
 
-  /*
-  int nabn = 0;
-  int nzero = 0;
-  double minelem = matrixelementALL[0];
-  double maxelem = matrixelementALL[0];
-  double minweig = weightALL[0];
-  double maxweig = weightALL[0];
-  for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
-  {
-    // The following events are abnormal in a run with "-p 2048 256 12 -d"
-    // - check.exe/commonrand: ME[310744,451171,3007871,3163868,4471038,5473927] with fast math
-    // - check.exe/curand: ME[578162,1725762,2163579,5407629,5435532,6014690] with fast math
-    // - gcheck.exe/curand: ME[596016,1446938] with fast math
-    // Debug NaN/abnormal issues
-    //if ( ievtALL == 310744 ) // this ME is abnormal both with and without fast math
-    //  debug_me_is_abnormal( matrixelementALL[ievtALL], ievtALL );
-    //if ( ievtALL == 5473927 ) // this ME is abnormal only with fast math
-    //  debug_me_is_abnormal( matrixelementALL[ievtALL], ievtALL );
-    // Compute min/max
-    if ( fp_is_zero( matrixelementALL[ievtALL] ) ) nzero++;
-    if ( fp_is_abnormal( matrixelementALL[ievtALL] ) )
-    {
-      if ( debug ) // only printed out with "-p -d" (matrixelementALL is not filled without -p)
-        std::cout << "WARNING! ME[" << ievtALL << "] is NaN/abnormal" << std::endl;
-      nabn++;
-      continue;
-    }
-    minelem = std::min( minelem, (double)matrixelementALL[ievtALL] );
-    maxelem = std::max( maxelem, (double)matrixelementALL[ievtALL] );
-    minweig = std::min( minweig, (double)weightALL[ievtALL] );
-    maxweig = std::max( maxweig, (double)weightALL[ievtALL] );
-  }
-  double sumelemdiff = 0;
-  double sumweigdiff = 0;
-  for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
-  {
-    // Compute mean from the sum of diff to min
-    if ( fp_is_abnormal( matrixelementALL[ievtALL] ) ) continue;
-    sumelemdiff += ( matrixelementALL[ievtALL] - minelem );
-    sumweigdiff += ( weightALL[ievtALL] - minweig );
-  }
-  double meanelem = minelem + sumelemdiff / ( nevtALL - nabn );
-  double meanweig = minweig + sumweigdiff / ( nevtALL - nabn );
-  double sqselemdiff = 0;
-  double sqsweigdiff = 0;
-  for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
-  {
-    // Compute stddev from the squared sum of diff to mean
-    if ( fp_is_abnormal( matrixelementALL[ievtALL] ) ) continue;
-    sqselemdiff += std::pow( matrixelementALL[ievtALL] - meanelem, 2 );
-    sqsweigdiff += std::pow( weightALL[ievtALL] - meanweig, 2 );
-  }
-  double stdelem = std::sqrt( sqselemdiff / ( nevtALL - nabn ) );
-  double stdweig = std::sqrt( sqsweigdiff / ( nevtALL - nabn ) );
-  */
   const int nevtALL = hstStats.nevtALL; // total number of ALL events in all iterations
   if ( nevtALL !=  niter*nevt )
     std::cout << "ERROR! nevtALL mismatch " << nevtALL << " != " << niter*nevt << std::endl; // SANITY CHECK
