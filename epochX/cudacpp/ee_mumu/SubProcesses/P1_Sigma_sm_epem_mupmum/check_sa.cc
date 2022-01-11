@@ -722,9 +722,9 @@ int main(int argc, char **argv)
 #endif
   // -- CUCOMPLEX or THRUST or STD complex numbers?
 #ifdef __CUDACC__
-#if defined MGONGPU_CXTYPE_CUCOMPLEX
+#if defined MGONGPU_CUCXTYPE_CUCOMPLEX
   wrkflwtxt += "CUX:";
-#elif defined MGONGPU_CXTYPE_THRUST
+#elif defined MGONGPU_CUCXTYPE_THRUST
   wrkflwtxt += "THX:";
 #else
   wrkflwtxt += "???:"; // no path to this statement
@@ -790,7 +790,7 @@ int main(int argc, char **argv)
     while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get() ) != nullptr ) nprocall += nprocbuf.data();
 #endif
 #ifdef MGONGPU_CPPSIMD
-#ifdef MGONGPU_HAS_CXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPE_REF
     const std::string cxtref = " [cxtype_ref=YES]";
 #else
     const std::string cxtref = " [cxtype_ref=NO]";
@@ -825,9 +825,9 @@ int main(int argc, char **argv)
               << "FP precision                = FLOAT (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
 #endif
 #ifdef __CUDACC__
-#if defined MGONGPU_CXTYPE_CUCOMPLEX
+#if defined MGONGPU_CUCXTYPE_CUCOMPLEX
               << "Complex type                = CUCOMPLEX" << std::endl
-#elif defined MGONGPU_CXTYPE_THRUST
+#elif defined MGONGPU_CUCXTYPE_THRUST
               << "Complex type                = THRUST::COMPLEX" << std::endl
 #endif
 #else
@@ -954,9 +954,9 @@ int main(int argc, char **argv)
 #endif
              << "\"Complex type\": "
 #ifdef __CUDACC__
-#if defined MGONGPU_CXTYPE_CUCOMPLEX
+#if defined MGONGPU_CUCXTYPE_CUCOMPLEX
              << "\"CUCOMPLEX\"," << std::endl
-#elif defined MGONGPU_CXTYPE_THRUST
+#elif defined MGONGPU_CUCXTYPE_THRUST
              << "\"THRUST::COMPLEX\"," << std::endl
 #endif
 #else

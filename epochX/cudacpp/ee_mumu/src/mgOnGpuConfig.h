@@ -35,8 +35,8 @@
 
 // Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
-#define MGONGPU_CXTYPE_THRUST 1 // default (~6.8E8)
-//#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~5 percent slower (6.5E8 against 6.8E8)
+#define MGONGPU_CUCXTYPE_THRUST 1 // default (~6.8E8)
+//#define MGONGPU_CUCXTYPE_CUCOMPLEX 1 // ~5 percent slower (6.5E8 against 6.8E8)
 #endif
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
@@ -52,8 +52,8 @@
 
 // SANITY CHECKS (complex number implementation)
 #ifdef __CUDACC__
-#if defined MGONGPU_CXTYPE_THRUST and defined MGONGPU_CXTYPE_CUCOMPLEX
-#error You must CHOOSE ONLY ONE of MGONGPU_CXTYPE_THRUST or MGONGPU_CXTYPE_CUCOMPLEX
+#if defined MGONGPU_CUCXTYPE_THRUST and defined MGONGPU_CUCXTYPE_CUCOMPLEX
+#error You must CHOOSE ONLY ONE of MGONGPU_CUCXTYPE_THRUST or MGONGPU_CUCXTYPE_CUCOMPLEX
 #endif
 #endif
 

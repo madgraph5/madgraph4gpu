@@ -4,9 +4,9 @@
 #include "mgOnGpuConfig.h"
 
 #ifdef __CUDACC__
-#if defined MGONGPU_CXTYPE_THRUST
+#if defined MGONGPU_CUCXTYPE_THRUST
 #include <thrust/complex.h>
-#elif defined MGONGPU_CXTYPE_CUCOMPLEX
+#elif defined MGONGPU_CUCXTYPE_CUCOMPLEX
 #include <complex>
 #include <cuComplex.h>
 #endif
@@ -22,7 +22,7 @@ namespace mgOnGpu
 
   // Complex type: cxtype
 #ifdef __CUDACC__ // cuda
-#if defined MGONGPU_CXTYPE_THRUST
+#if defined MGONGPU_CUCXTYPE_THRUST
   typedef thrust::complex<fptype> cxtype; // two doubles: RI
 #elif defined MGONGPU_FPTYPE_DOUBLE
   typedef cuDoubleComplex cxtype;
@@ -114,7 +114,7 @@ fptype fpsqrt( const fptype& f )
 // CUDA - using thrust::complex
 //------------------------------
 
-#if defined MGONGPU_CXTYPE_THRUST // cuda + thrust
+#if defined MGONGPU_CUCXTYPE_THRUST // cuda + thrust
 
 //+++++++++++++++++++++++++
 // thrust::complex<double>
@@ -155,7 +155,7 @@ const cxtype& cxmake( const cxtype& c )
 // CUDA - using cuComplex
 //------------------------------
 
-#elif defined MGONGPU_CXTYPE_CUCOMPLEX // cuda + cucomplex
+#elif defined MGONGPU_CUCXTYPE_CUCOMPLEX // cuda + cucomplex
 
 //+++++++++++++++++++++++++
 // cuDoubleComplex
