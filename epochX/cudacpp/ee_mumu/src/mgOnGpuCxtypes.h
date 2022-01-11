@@ -4,12 +4,13 @@
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuFptypes.h"
 
+#include <complex>
+
 // Complex type in cuda: thrust or cucomplex or cxsmpl
 #ifdef __CUDACC__
 #if defined MGONGPU_CUCXTYPE_THRUST
 #include <thrust/complex.h>
 #elif defined MGONGPU_CUCXTYPE_CUCOMPLEX
-#include <complex>
 #include <cuComplex.h>
 #elif not defined MGONGPU_CUCXTYPE_CXSMPL
 #error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_CUCXTYPE_THRUST or MGONGPU_CUCXTYPE_CUCOMPLEX or MGONGPU_CUCXTYPE_CXSMPL
@@ -18,7 +19,6 @@
 // Complex type in c++: std::complex or cxsmpl
 #if defined MGONGPU_CPPCXTYPE_STDCOMPLEX
 #include <cmath>
-#include <complex>
 #elif not defined MGONGPU_CPPCXTYPE_CXSMPL
 #error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_CPPCXTYPE_STDCOMPLEX or MGONGPU_CPPCXTYPE_CXSMPL
 #endif
