@@ -84,14 +84,17 @@ namespace mg5amcCpu
       stats.sqsMEdiff += std::pow( me - meanME, 2 );
       stats.sqsWGdiff += std::pow( wg - meanWG, 2 );
     }
+    // DEBUG PRINTOUTS
+    m_stats.tag = "(SUMOLD) ";
+    std::cout << m_stats;
     // FOURTH PASS: UPDATE THE OVERALL STATS BY ADDING THE NEW STATS
     m_stats += stats;
     // Increment the iterations counter
     m_iter++;
     // DEBUG PRINTOUTS
-    stats.tag = "(NEW) ";
+    stats.tag = "(ADDNEW) ";
     std::cout << stats;
-    m_stats.tag = "(SUM) ";
+    m_stats.tag = "(SUMNEW) ";
     std::cout << m_stats;
   }
 
