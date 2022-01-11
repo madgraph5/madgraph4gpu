@@ -2,7 +2,6 @@
 #define MemoryAccessMatrixElements_H 1
 
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
 
 #include "MemoryAccessHelpers.h"
 

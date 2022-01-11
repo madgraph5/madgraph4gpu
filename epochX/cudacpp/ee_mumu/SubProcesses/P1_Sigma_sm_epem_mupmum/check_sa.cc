@@ -15,7 +15,6 @@
 #endif
 
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
 
 #include "BridgeKernels.h"
 #include "CPPProcess.h"

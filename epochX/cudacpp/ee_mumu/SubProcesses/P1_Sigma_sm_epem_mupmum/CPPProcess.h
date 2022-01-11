@@ -6,7 +6,7 @@
 //==========================================================================
 
 #ifndef MG5_Sigma_sm_epem_mupmum_H
-#define MG5_Sigma_sm_epem_mupmum_H
+#define MG5_Sigma_sm_epem_mupmum_H 1
 
 #include <complex>
 #include <vector>
