@@ -40,20 +40,20 @@ namespace mgOnGpu
   class cxsmpl
   {
   public:
-    cxsmpl() : m_real{0}, m_imag{0} {}
+    __host__ __device__ cxsmpl() : m_real{0}, m_imag{0} {}
     cxsmpl( const cxsmpl&  ) = default;
     cxsmpl( cxsmpl&&  ) = default;
-    cxsmpl( const fptype& r, const fptype& i = 0 ) : m_real{r}, m_imag{i} {}
+    __host__ __device__ cxsmpl( const fptype& r, const fptype& i = 0 ) : m_real{r}, m_imag{i} {}
     cxsmpl& operator=( const cxsmpl& ) = default;
     cxsmpl& operator=( cxsmpl&& ) = default;
-    cxsmpl& operator+=( const cxsmpl& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
-    cxsmpl& operator-=( const cxsmpl& c ){ m_real -= c.real(); m_imag -= c.imag(); return *this; }
-    const fptype& real() const { return m_real; }
-    const fptype& imag() const { return m_imag; }
+    __host__ __device__ cxsmpl& operator+=( const cxsmpl& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
+    __host__ __device__ cxsmpl& operator-=( const cxsmpl& c ){ m_real -= c.real(); m_imag -= c.imag(); return *this; }
+    __host__ __device__ const fptype& real() const { return m_real; }
+    __host__ __device__ const fptype& imag() const { return m_imag; }
   private:
     fptype m_real, m_imag; // RI
   };
-  inline cxsmpl conj( const cxsmpl& c ){ return cxsmpl( c.real(), -c.imag() ); }
+  inline __host__ __device__ cxsmpl conj( const cxsmpl& c ){ return cxsmpl( c.real(), -c.imag() ); }
 }
 #endif
 

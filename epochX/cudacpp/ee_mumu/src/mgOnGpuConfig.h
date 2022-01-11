@@ -36,14 +36,14 @@
 // Complex type in c++: std::complex or cxsmpl (CHOOSE ONLY ONE)
 #ifndef __CUDACC__
 //#define MGONGPU_CPPCXTYPE_STDCOMPLEX 1 // default
-#define MGONGPU_CPPCXTYPE_CXSMPL 1 // new
+#define MGONGPU_CPPCXTYPE_CXSMPL 1 // alternative default (same performance)
 #endif
 
 // Complex type in cuda: thrust or cucomplex or cxsmpl (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
-#define MGONGPU_CUCXTYPE_THRUST 1 // default (~6.8E8)
-//#define MGONGPU_CUCXTYPE_CUCOMPLEX 1 // ~5 percent slower (6.5E8 against 6.8E8)
-//#define MGONGPU_CPPCXTYPE_CXSMPL 1 // new
+//#define MGONGPU_CUCXTYPE_THRUST 1 // default (~1.15E9)
+//#define MGONGPU_CUCXTYPE_CUCOMPLEX 1 // ~5 percent slower (1.10E9 against 1.15E9?)
+#define MGONGPU_CUCXTYPE_CXSMPL 1 // ~15 percent slower  (1.00E9 against 1.15E9)
 #endif
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
