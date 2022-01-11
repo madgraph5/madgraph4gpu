@@ -71,16 +71,18 @@ namespace mg5amcCpu
     // Update reference matrix element
     void updateRefME( const double newRef )
     {
+      this->tag = "(BEFREF) "; this->printout( std::cout );
       const double deltaRef = refME - newRef;
-      sqsMEdiff += 2 * sumMEdiff * deltaRef + deltaRef * deltaRef;
+      sqsMEdiff += 2 * sumMEdiff * deltaRef + deltaRef * deltaRef * nevtOK();
       sumMEdiff += deltaRef * nevtOK();
       refME = newRef;
+      this->tag = "(AFTREF) "; this->printout( std::cout );
     }
     // Update reference sampling weight
     void updateRefWG( const double newRef )
     {
       const double deltaRef = refWG - newRef;
-      sqsWGdiff += 2 * sumWGdiff * deltaRef + deltaRef * deltaRef;
+      sqsWGdiff += 2 * sumWGdiff * deltaRef + deltaRef * deltaRef * nevtOK();
       sumWGdiff += deltaRef * nevtOK();
       refWG = newRef;
     }
