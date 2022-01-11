@@ -29,6 +29,35 @@
 #endif
 
 //==========================================================================
+// COMPLEX TYPES: SIMPLE COMPLEX CLASS (cxsmpl)
+//==========================================================================
+
+#if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
+
+namespace mgOnGpu
+{
+  // --- Type definition (simple complex type derived from cxtype_v)
+  class cxsmpl
+  {
+  public:
+    cxsmpl() : m_real{0}, m_imag{0} {}
+    cxsmpl( const cxsmpl&  ) = default;
+    cxsmpl( cxsmpl&&  ) = default;
+    cxsmpl( const fptype& r, const fptype& i ) : m_real{r}, m_imag{i} {}
+    cxsmpl& operator=( const cxsmpl& ) = default;
+    cxsmpl& operator=( cxsmpl&& ) = default;
+    cxsmpl& operator+=( const cxsmpl& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
+    cxsmpl& operator-=( const cxsmpl& c ){ m_real -= c.real(); m_imag -= c.imag(); return *this; }
+    const fptype& real() const { return m_real; }
+    const fptype& imag() const { return m_imag; }
+  private:
+    fptype m_real, m_imag; // RI
+  };
+  inline cxsmpl conj( const cxsmpl& c ){ return cxsmpl( c.real(), -c.imag() ); }
+}
+#endif
+
+//==========================================================================
 // COMPLEX TYPES: (PLATFORM-SPECIFIC) TYPEDEFS
 //==========================================================================
 
