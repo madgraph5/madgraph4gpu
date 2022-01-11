@@ -217,8 +217,14 @@ cxtype operator/( const cxtype& a, const fptype& b )
   return a / cxmake( b, 0 );
 }
 
-inline __host__ // NOT __device__?
-cxtype cxmake( const std::complex<fptype>& c ) // std::complex to cxsmpl (float-to-float or double-to-double)
+inline __host__ // NOT __device__
+cxtype cxmake( const std::complex<float>& c ) // std::complex to cxsmpl (float-to-float or float-to-double)
+{
+  return cxmake( c.real(), c.imag() );
+}
+
+inline __host__ // NOT __device__
+cxtype cxmake( const std::complex<double>& c ) // std::complex to cxsmpl (double-to-float or double-to-double)
 {
   return cxmake( c.real(), c.imag() );
 }
