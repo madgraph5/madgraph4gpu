@@ -730,7 +730,7 @@ int main(int argc, char **argv)
   wrkflwtxt += "???:"; // no path to this statement
 #endif
 #else
-#if defined MGONGPU_CPPCXTYPE_CUCOMPLEX
+#if defined MGONGPU_CPPCXTYPE_STDCOMPLEX
   wrkflwtxt += "STX:";
 #elif defined MGONGPU_CPPCXTYPE_CXSMPL
   wrkflwtxt += "CXS:";
