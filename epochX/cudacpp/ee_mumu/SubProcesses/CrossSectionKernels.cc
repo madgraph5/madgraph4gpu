@@ -91,6 +91,8 @@ namespace mg5amcCpu
     // DEBUG PRINTOUTS
     stats.tag = "(NEW) ";
     std::cout << stats;
+    m_stats.tag = "(SUM) ";
+    std::cout << m_stats;
   }
 
   //--------------------------------------------------------------------------
