@@ -4,17 +4,15 @@
 //==========================================================================
 
 #ifndef MG5_%(process_file_name)s_H
-#define MG5_%(process_file_name)s_H
-
-#include <complex>
-#include <vector>
+#define MG5_%(process_file_name)s_H 1
 
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
 #include "checkCuda.h"
 #include "Parameters_%(model_name)s.h"
+
+#include <vector>
 
 //--------------------------------------------------------------------------
 

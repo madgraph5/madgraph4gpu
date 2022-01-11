@@ -6,9 +6,7 @@
 #ifndef HelAmps_%(model_name)s_H
 #define HelAmps_%(model_name)s_H 1
 
-//#include <cmath>
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
 #ifdef __CUDACC__

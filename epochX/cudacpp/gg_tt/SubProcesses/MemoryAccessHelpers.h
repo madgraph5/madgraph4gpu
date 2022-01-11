@@ -2,7 +2,7 @@
 #define MemoryAccessHelpers_H 1
 
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
+#include "mgOnGpuFptypes.h"
 
 //----------------------------------------------------------------------------
 

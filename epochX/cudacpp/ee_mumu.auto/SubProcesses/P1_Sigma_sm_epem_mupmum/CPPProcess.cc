@@ -12,12 +12,10 @@
 #include <memory>
 
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
-#include "mgOnGpuVectors.h"
-#include "HelAmps_sm.h"
-#include "MemoryAccessMomenta.h"
 
 #include "CPPProcess.h"
+#include "HelAmps_sm.h"
+#include "MemoryAccessMomenta.h"
 
 // Test ncu metrics for CUDA thread divergence
 #undef MGONGPU_TEST_DIVERGENCE

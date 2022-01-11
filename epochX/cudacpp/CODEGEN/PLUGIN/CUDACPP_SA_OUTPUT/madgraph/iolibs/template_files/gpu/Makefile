@@ -288,6 +288,8 @@ $(LIBDIR)/%%.o : $(BUILDDIR)/%%.o
 ../../src/$(BUILDDIR)/.build.$(TAG):
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
+modellib : $(LIBDIR)/lib$(MODELLIB).a
+
 $(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 

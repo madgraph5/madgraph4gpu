@@ -4,11 +4,9 @@
 //==========================================================================
 
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
-#include "mgOnGpuVectors.h"
+
 #include "HelAmps_sm.h"
 
-//#include <cassert>
 #include <cmath>
 #include <cstdlib>
 #include <iomanip>

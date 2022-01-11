@@ -33,10 +33,17 @@
 //#undef MGONGPU_HARDCODE_CIPC // default
 ////#define MGONGPU_HARDCODE_CIPC 1
 
-// Complex type in cuda: thrust or cucomplex (CHOOSE ONLY ONE)
+// Complex type in c++: std::complex or cxsmpl (CHOOSE ONLY ONE)
+#ifndef __CUDACC__
+//#define MGONGPU_CPPCXTYPE_STDCOMPLEX 1 // ~8 percent slower on float, same on double (5.1E6/double, 9.4E6/float)
+#define MGONGPU_CPPCXTYPE_CXSMPL 1 // new default (5.1E6/double, 10.2E6/float)
+#endif
+
+// Complex type in cuda: thrust or cucomplex or cxsmpl (CHOOSE ONLY ONE)
 #ifdef __CUDACC__
-#define MGONGPU_CXTYPE_THRUST 1 // default (~6.8E8)
-//#define MGONGPU_CXTYPE_CUCOMPLEX 1 // ~5 percent slower (6.5E8 against 6.8E8)
+#define MGONGPU_CUCXTYPE_THRUST 1 // default (~1.15E9/double, ~3.2E9/float)
+//#define MGONGPU_CUCXTYPE_CUCOMPLEX 1 // ~10 percent slower (1.03E9/double, ~2.8E9/float)
+//#define MGONGPU_CUCXTYPE_CXSMPL 1 // ~10 percent slower (1.00E9/double, ~2.9E9/float)
 #endif
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
@@ -47,13 +54,20 @@
 
 // SANITY CHECKS (floating point precision)
 #if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE_FLOAT
-#error You must CHOOSE ONLY ONE of MGONGPU_FPTYPE_DOUBLE or defined MGONGPU_FPTYPE_FLOAT
+#error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_FPTYPE_DOUBLE or defined MGONGPU_FPTYPE_FLOAT
 #endif
 
-// SANITY CHECKS (complex number implementation)
+// SANITY CHECKS (c++ complex number implementation)
+#ifndef __CUDACC__
+#if defined MGONGPU_CPPCXTYPE_STDCOMPLEX and defined MGONGPU_CPPCXTYPE_CXSMPL
+#error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_CPPCXTYPE_STDCOMPLEX or MGONGPU_CPPCXTYPE_CXSMPL
+#endif
+#endif
+
+// SANITY CHECKS (cuda complex number implementation)
 #ifdef __CUDACC__
-#if defined MGONGPU_CXTYPE_THRUST and defined MGONGPU_CXTYPE_CUCOMPLEX
-#error You must CHOOSE ONLY ONE of MGONGPU_CXTYPE_THRUST or MGONGPU_CXTYPE_CUCOMPLEX
+#if defined MGONGPU_CUCXTYPE_THRUST and defined MGONGPU_CUCXTYPE_CUCOMPLEX and defined MGONGPU_CUCXTYPE_CXSMPL
+#error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_CUCXTYPE_THRUST or MGONGPU_CUCXTYPE_CUCOMPLEX or MGONGPU_CUCXTYPE_CXSMPL
 #endif
 #endif
 

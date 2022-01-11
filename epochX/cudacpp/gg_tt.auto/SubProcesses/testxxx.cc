@@ -1,6 +1,5 @@
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
-#include "mgOnGpuVectors.h"
+
 #include "CPPProcess.h"
 #include "HelAmps_sm.h"
 #include "MemoryBuffers.h"
@@ -92,7 +91,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     {
 #ifdef MGONGPU_CPPSIMD
       const int ieppV = ievt%neppV; // #event in the current event vector in this iteration
-#ifdef MGONGPU_HAS_CXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPE_REF
       out << std::setw(26) << cxreal( wf[iw6][ieppV] ) << ", ";
       out << std::setw(22) << cximag( wf[iw6][ieppV] );
 #else
@@ -128,7 +127,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
         {
 #ifdef MGONGPU_CPPSIMD
           const int ieppV = ievt%neppV; // #event in the current event vector in this iteration
-#ifdef MGONGPU_HAS_CXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPE_REF
           EXPECT_NEAR( cxreal( wf[iw6][ieppV] ), expReal, std::abs( expReal * toleranceXXXs ) )
             << " itest=" << itest << ": " << xxx << "#" << ievt;
           EXPECT_NEAR( cximag( wf[iw6][ieppV] ), expImag, std::abs( expImag * toleranceXXXs ) )
@@ -165,7 +164,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
         {
 #ifdef MGONGPU_CPPSIMD
           const int ieppV = ievt%neppV; // #event in the current event vector in this iteration
-#ifdef MGONGPU_HAS_CXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPE_REF
           const fptype expReal = cxreal( expwf[iw6][ieppV] );
           const fptype expImag = cximag( expwf[iw6][ieppV] );
           EXPECT_NEAR( cxreal( wf[iw6][ieppV] ), expReal, std::abs( expReal * toleranceXXXs ) )
