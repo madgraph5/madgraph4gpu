@@ -88,6 +88,9 @@ namespace mg5amcCpu
     m_stats += stats;
     // Increment the iterations counter
     m_iter++;
+    // DEBUG PRINTOUTS
+    stats.tag = "(NEW) ";
+    std::cout << stats;
   }
 
   //--------------------------------------------------------------------------

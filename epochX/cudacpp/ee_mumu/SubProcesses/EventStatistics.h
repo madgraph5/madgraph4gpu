@@ -1,9 +1,13 @@
 #ifndef EventStatistics_H
 #define EventStatistics_H 1
 
+#include "mgOnGpuConfig.h" // for npar (meGeVexponent)
+
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <limits>
+#include <string>
 
 #ifdef __CUDACC__
 namespace mg5amcGpu
@@ -33,6 +37,7 @@ namespace mg5amcCpu
     double sumWGdiff; // sum of diff to mean for sampling weight
     double sqsMEdiff; // squared sum of diff to mean for matrix element
     double sqsWGdiff; // squared sum of diff to mean for sampling weight
+    std::string tag; // a text tag for printouts
     size_t nevtOK() const { return nevtALL - nevtABN; } // number of events used, where ME is not abnormal
     double meanME() const { return minME + sumMEdiff / nevtOK(); } // mean matrix element
     double meanWG() const { return minWG + sumWGdiff / nevtOK(); } // mean sampling weight
@@ -50,7 +55,8 @@ namespace mg5amcCpu
       , sumMEdiff( 0 )
       , sumWGdiff( 0 )
       , sqsMEdiff( 0 )
-      , sqsWGdiff( 0 ){}
+      , sqsWGdiff( 0 )
+      , tag( "" ) {}
     // Combine two EventStatistics
     EventStatistics& operator+=( const EventStatistics& stats )
     {
@@ -79,6 +85,29 @@ namespace mg5amcCpu
       return sum;
     }
   };
+
+  //--------------------------------------------------------------------------
+
+  inline std::ostream& operator<<( std::ostream& out, const EventStatistics& s )
+  {
+    constexpr int meGeVexponent = -(2 * mgOnGpu::npar - 8);
+    out << s.tag << "NumMatrixElems(notAbnormal) = " << s.nevtOK() << std::endl
+        << std::scientific // fixed format: affects all floats (default precision: 6)
+        << s.tag << "MeanMatrixElemValue         = ( " << s.meanME()
+        << " +- " << s.stdME() / std::sqrt( s.nevtOK() ) << " )  GeV^" << meGeVexponent << std::endl // standard error
+        << s.tag << "[Min,Max]MatrixElemValue    = [ " << s.minME
+        << " ,  " << s.maxME << " ]  GeV^" << meGeVexponent << std::endl
+        << s.tag << "StdDevMatrixElemValue       = ( " << s.stdME()
+        << std::string(16, ' ') << " )  GeV^" << meGeVexponent << std::endl
+        << s.tag << "MeanWeight                  = ( " << s.meanWG()
+        << " +- " << s.stdWG() / std::sqrt( s.nevtOK() ) << " )" << std::endl // standard error
+        << s.tag << "[Min,Max]Weight             = [ " << s.minWG
+        << " ,  " << s.maxWG << " ]" << std::endl
+        << s.tag << "StdDevWeight                = ( " << s.stdWG()
+        << std::string(16, ' ') << " )" << std::endl
+        << std::defaultfloat; // default format: affects all floats
+    return out;
+  }
 
   //--------------------------------------------------------------------------
 
