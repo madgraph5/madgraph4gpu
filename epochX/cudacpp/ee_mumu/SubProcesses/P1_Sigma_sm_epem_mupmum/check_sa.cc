@@ -691,14 +691,6 @@ int main(int argc, char **argv)
     std::cout << "ERROR! nevtALL mismatch " << nevtALL << " != " << niter*nevt << std::endl; // SANITY CHECK
   int nabn = hstStats.nevtABN;
   int nzero = hstStats.nevtZERO;
-  double minelem = hstStats.minME;
-  double maxelem = hstStats.maxME;
-  double minweig = hstStats.minWG;
-  double maxweig = hstStats.maxWG;
-  double meanelem = hstStats.meanME();
-  double meanweig = hstStats.meanWG();
-  double stdelem = hstStats.stdME();
-  double stdweig = hstStats.stdWG();
 
   // === STEP 9 FINALISE
   
@@ -916,19 +908,7 @@ int main(int argc, char **argv)
               << std::string(16, ' ') << " )  sec^-1" << std::endl
               << std::defaultfloat; // default format: affects all floats
     std::cout << std::string(SEP79, '*') << std::endl
-              << "NumMatrixElems(notAbnormal) = " << nevtALL - nabn << std::endl
-              << std::scientific // fixed format: affects all floats (default precision: 6)
-              << "MeanMatrixElemValue         = ( " << meanelem
-              << " +- " << stdelem/sqrt(nevtALL - nabn) << " )  GeV^" << meGeVexponent << std::endl // standard error
-              << "[Min,Max]MatrixElemValue    = [ " << minelem
-              << " ,  " << maxelem << " ]  GeV^" << meGeVexponent << std::endl
-              << "StdDevMatrixElemValue       = ( " << stdelem << std::string(16, ' ') << " )  GeV^" << meGeVexponent << std::endl
-              << "MeanWeight                  = ( " << meanweig
-              << " +- " << stdweig/sqrt(nevtALL - nabn) << " )" << std::endl // standard error
-              << "[Min,Max]Weight             = [ " << minweig
-              << " ,  " << maxweig << " ]" << std::endl
-              << "StdDevWeight                = ( " << stdweig << std::string(16, ' ') << " )" << std::endl
-              << std::defaultfloat; // default format: affects all floats
+              << hstStats;
   }
 
   // --- 9b Dump to json
@@ -991,6 +971,12 @@ int main(int argc, char **argv)
 #endif
              << "\"Curand generation\": "
              << "\"" << rndgentxt << "\"," << std::endl;
+
+    double minelem = hstStats.minME;
+    double maxelem = hstStats.maxME;
+    double meanelem = hstStats.meanME();
+    double stdelem = hstStats.stdME();
+
     jsonFile << "\"NumberOfEntries\": " << niter << "," << std::endl
       //<< std::scientific // Not sure about this
              << "\"TotalTime[Rnd+Rmb+ME] (123)\": \""
