@@ -184,7 +184,7 @@ inline void print( const cxtype_v& v ) { std::cout << v << std::endl; }
 
 //--------------------------------------------------------------------------
 
-// Operators for fptype_v
+// Functions and operators for fptype_v
 
 #ifdef MGONGPU_CPPSIMD
 inline
@@ -211,7 +211,7 @@ fptype_v fpvmake( const fptype v[neppV] )
 
 //--------------------------------------------------------------------------
 
-// Operators for cxtype_v
+// Functions and operators for cxtype_v
 
 #ifdef MGONGPU_CPPSIMD
 
@@ -422,7 +422,7 @@ cxtype_v operator/( const cxtype_v& a, const fptype& b )
 
 //--------------------------------------------------------------------------
 
-// Operators for bool_v (ternary and masks)
+// Functions and operators for bool_v (ternary and masks)
 
 #ifdef MGONGPU_CPPSIMD
 
@@ -562,7 +562,7 @@ bool maskor( const bool& mask )
 
 //--------------------------------------------------------------------------
 
-// Operators for fptype_v (min/max)
+// Functions and operators for fptype_v (min/max)
 
 #ifdef MGONGPU_CPPSIMD
 

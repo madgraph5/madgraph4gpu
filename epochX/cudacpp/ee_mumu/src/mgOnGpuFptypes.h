@@ -5,9 +5,13 @@
 
 #include <cmath>
 
-// --- Functions and operators for floating point types
+//==========================================================================
 
 #ifdef __CUDACC__ // cuda
+
+//------------------------------
+// Floating point types - Cuda
+//------------------------------
 
 /*
 inline __host__ __device__
@@ -47,7 +51,15 @@ fptype fpsqrt( const fptype& f )
 #endif
 }
 
-#else // c++
+#endif // #ifdef __CUDACC__
+
+//==========================================================================
+
+#ifndef __CUDACC__
+
+//------------------------------
+// Floating point types - C++
+//------------------------------
 
 inline
 const fptype& fpmax( const fptype& a, const fptype& b )
@@ -67,6 +79,8 @@ fptype fpsqrt( const fptype& f )
   return std::sqrt( f );
 }
 
-#endif
+#endif // #ifndef __CUDACC__
+
+//==========================================================================
 
 #endif // MGONGPUFPTYPES_H
