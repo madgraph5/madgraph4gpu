@@ -27,19 +27,25 @@
 namespace mgOnGpu
 {
 
-  // --- Type definitions
-
-  // Complex type: cxtype
+  // --- Type definitions (complex type: cxtype)
 #ifdef __CUDACC__ // cuda
 #if defined MGONGPU_CUCXTYPE_THRUST
-  typedef thrust::complex<fptype> cxtype; // two doubles: RI
-#elif defined MGONGPU_FPTYPE_DOUBLE
+  typedef thrust::complex<fptype> cxtype;
+#elif defined MGONGPU_CUCXTYPE_CUCOMPLEX
+#if defined MGONGPU_FPTYPE_DOUBLE
   typedef cuDoubleComplex cxtype;
 #elif defined MGONGPU_FPTYPE_FLOAT
   typedef cuFloatComplex cxtype;
 #endif
+#else
+  typedef cxsmpl cxtype;
+#endif
 #else // c++
-  typedef std::complex<fptype> cxtype; // two doubles: RI
+#if defined MGONGPU_CPPCXTYPE_STDCOMPLEX
+  typedef std::complex<fptype> cxtype;
+#else
+  typedef cxsmpl cxtype;
+#endif
 #endif
 
 }
