@@ -159,8 +159,6 @@ Bridge<T>::Bridge( int evnt, int part, int mome, int /*strd*/, int /*ncomb*/ )
 template <typename T>
 void Bridge<T>::set_gpugrid(const int gpublocks, const int gputhreads)
 {
-  if ( m_goodHelsCalculated )
-    throw std::runtime_error( "Bridge: gpublocks and gputhreads cannot be set after calculating helicities" );
   if ( m_evt != gpublocks*gputhreads )
     throw std::runtime_error( "Bridge: gpublocks*gputhreads must equal m_evt in set_gpugrid" );
   m_gpublocks = gpublocks;
