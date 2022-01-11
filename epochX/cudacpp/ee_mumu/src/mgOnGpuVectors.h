@@ -6,15 +6,16 @@
 
 #include <iostream>
 
+//==========================================================================
+
+#ifndef __CUDACC__
+
 //------------------------------
 // Vector types - C++
 //------------------------------
 
-#ifndef __CUDACC__
-
 namespace mgOnGpu
 {
-
 #ifdef MGONGPU_CPPSIMD
 
   const int neppV = MGONGPU_CPPSIMD;
@@ -102,12 +103,14 @@ namespace mgOnGpu
 #endif
 #endif
 
-#else // MGONGPU_CPPSIMD not defined
+#else // i.e #ifndef MGONGPU_CPPSIMD
 
   const int neppV = 1;
 
-#endif
+#endif // #ifdef MGONGPU_CPPSIMD
 }
+
+//--------------------------------------------------------------------------
 
 // Expose typedefs outside the namespace
 using mgOnGpu::neppV;
@@ -117,7 +120,17 @@ using mgOnGpu::cxtype_v;
 using mgOnGpu::bool_v;
 #endif
 
+//--------------------------------------------------------------------------
+
 // Printout to stream for user defined types
+
+inline std::ostream& operator<<( std::ostream& out, const cxtype& c )
+{
+  out << "[" << cxreal(c) << "," << cximag(c) << "]";
+  //out << cxreal(c) << "+i" << cximag(c);
+  return out;
+}
+
 #ifdef MGONGPU_CPPSIMD
 inline std::ostream& operator<<( std::ostream& out, const bool_v& v )
 {
@@ -126,7 +139,9 @@ inline std::ostream& operator<<( std::ostream& out, const bool_v& v )
   out << " }";
   return out;
 }
+#endif
 
+#ifdef MGONGPU_CPPSIMD
 inline std::ostream& operator<<( std::ostream& out, const fptype_v& v )
 {
   out << "{ " << v[0];
@@ -135,13 +150,6 @@ inline std::ostream& operator<<( std::ostream& out, const fptype_v& v )
   return out;
 }
 #endif
-
-inline std::ostream& operator<<( std::ostream& out, const cxtype& c )
-{
-  out << "[" << cxreal(c) << "," << cximag(c) << "]";
-  //out << cxreal(c) << "+i" << cximag(c);
-  return out;
-}
 
 #ifdef MGONGPU_CPPSIMD
 inline std::ostream& operator<<( std::ostream& out, const cxtype_v& v )
@@ -158,7 +166,10 @@ inline std::ostream& operator<<( std::ostream& out, const cxtype_v& v )
 }
 #endif
 
+//--------------------------------------------------------------------------
+
 // Printout to std::cout for user defined types
+
 inline void print( const fptype& f ) { std::cout << f << std::endl; }
 
 #ifdef MGONGPU_CPPSIMD
@@ -171,7 +182,10 @@ inline void print( const cxtype& c ) { std::cout << c << std::endl; }
 inline void print( const cxtype_v& v ) { std::cout << v << std::endl; }
 #endif
 
+//--------------------------------------------------------------------------
+
 // Operators for fptype_v
+
 #ifdef MGONGPU_CPPSIMD
 inline
 fptype_v fpsqrt( const fptype_v& v )
@@ -181,8 +195,10 @@ fptype_v fpsqrt( const fptype_v& v )
   for ( int i=0; i<neppV; i++ ) out[i]=fpsqrt(v[i]);
   return out;
 }
+#endif
 
 /*
+#ifdef MGONGPU_CPPSIMD
 inline
 fptype_v fpvmake( const fptype v[neppV] )
 {
@@ -190,11 +206,15 @@ fptype_v fpvmake( const fptype v[neppV] )
   for ( int i=0; i<neppV; i++ ) out[i] = v[i];
   return out;
 }
-*/
 #endif
+*/
+
+//--------------------------------------------------------------------------
 
 // Operators for cxtype_v
+
 #ifdef MGONGPU_CPPSIMD
+
 /*
 inline
 cxtype_v cxvmake( const cxtype c )
@@ -397,9 +417,13 @@ cxtype_v operator/( const cxtype_v& a, const fptype& b )
 {
   return cxmake( a.real() / b, a.imag() / b );
 }
-#endif
 
-// Operators for bool_v
+#endif // #ifdef MGONGPU_CPPSIMD
+
+//--------------------------------------------------------------------------
+
+// Operators for bool_v (ternary and masks)
+
 #ifdef MGONGPU_CPPSIMD
 
 inline
@@ -507,6 +531,42 @@ cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype& b )
 }
 
 inline
+bool maskor( const bool_v& mask )
+{
+  bool out = false;
+  for ( int i=0; i<neppV; i++ ) out = out || mask[i];
+  return out;
+}
+
+#else // i.e. #ifndef MGONGPU_CPPSIMD
+
+inline
+fptype fpternary( const bool& mask, const fptype& a, const fptype& b )
+{
+  return ( mask ? a : b );
+}
+
+inline
+cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
+{
+  return ( mask ? a : b );
+}
+
+inline
+bool maskor( const bool& mask )
+{
+  return mask;
+}
+
+#endif // #ifdef MGONGPU_CPPSIMD
+
+//--------------------------------------------------------------------------
+
+// Operators for fptype_v (min/max)
+
+#ifdef MGONGPU_CPPSIMD
+
+inline
 fptype_v fpmax( const fptype_v& a, const fptype_v& b )
 {
   return fpternary( ( b < a ), a, b );
@@ -546,41 +606,17 @@ fptype_v fpmin( const fptype& a, const fptype_v& b )
 }
 */
 
-inline
-bool maskor( const bool_v& mask )
-{
-  bool out = false;
-  for ( int i=0; i<neppV; i++ ) out = out || mask[i];
-  return out;
-}
+#endif // #ifdef MGONGPU_CPPSIMD
 
-#else
+#endif // #ifndef __CUDACC__
 
-inline
-fptype fpternary( const bool& mask, const fptype& a, const fptype& b )
-{
-  return ( mask ? a : b );
-}
+//==========================================================================
 
-inline
-cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
-{
-  return ( mask ? a : b );
-}
-
-inline
-bool maskor( const bool& mask )
-{
-  return mask;
-}
-
-#endif
+#ifdef __CUDACC__
 
 //------------------------------
 // Vector types - CUDA
 //------------------------------
-
-#else
 
 // Printout to std::cout for user defined types
 inline __host__ __device__ void print( const fptype& f ){ printf( "%f\n", f ); }
@@ -606,9 +642,9 @@ cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
   return ( mask ? a : b );
 }
 
-#endif
+#endif // #ifdef __CUDACC__
 
-//--------------------------------------------------------------------------
+//==========================================================================
 
 // Scalar-or-vector types: scalar in CUDA, vector or scalar in C++
 #ifdef __CUDACC__
@@ -634,6 +670,6 @@ inline cxtype_v cxzero_sv(){ return cxtype_v{ fptype_v{0}, fptype_v{0} }; }
 inline cxtype cxzero_sv(){ return cxtype{ fptype{0}, fptype{0} }; }
 #endif
 
-//--------------------------------------------------------------------------
+//==========================================================================
 
 #endif // MGONGPUVECTORS_H
