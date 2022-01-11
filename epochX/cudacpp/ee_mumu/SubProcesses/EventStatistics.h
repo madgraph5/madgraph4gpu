@@ -73,7 +73,7 @@ namespace mg5amcCpu
     {
       this->tag = "(BEFREF) "; this->printout( std::cout );
       const double deltaRef = refME - newRef;
-      sqsMEdiff += 2 * sumMEdiff * deltaRef + deltaRef * deltaRef * nevtOK();
+      sqsMEdiff += deltaRef * ( 2 * sumMEdiff + nevtOK() * deltaRef );
       sumMEdiff += deltaRef * nevtOK();
       refME = newRef;
       this->tag = "(AFTREF) "; this->printout( std::cout );
@@ -82,7 +82,7 @@ namespace mg5amcCpu
     void updateRefWG( const double newRef )
     {
       const double deltaRef = refWG - newRef;
-      sqsWGdiff += 2 * sumWGdiff * deltaRef + deltaRef * deltaRef * nevtOK();
+      sqsWGdiff += deltaRef * ( 2 * sumWGdiff + nevtOK() * deltaRef );
       sumWGdiff += deltaRef * nevtOK();
       refWG = newRef;
     }
