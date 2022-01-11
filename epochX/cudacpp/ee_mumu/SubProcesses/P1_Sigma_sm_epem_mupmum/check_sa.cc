@@ -724,11 +724,19 @@ int main(int argc, char **argv)
   wrkflwtxt += "CUX:";
 #elif defined MGONGPU_CUCXTYPE_THRUST
   wrkflwtxt += "THX:";
+#elif defined MGONGPU_CUCXTYPE_CXSMPL
+  wrkflwtxt += "CXS:";
 #else
   wrkflwtxt += "???:"; // no path to this statement
 #endif
 #else
+#if defined MGONGPU_CPPCXTYPE_CUCOMPLEX
   wrkflwtxt += "STX:";
+#elif defined MGONGPU_CPPCXTYPE_CXSMPL
+  wrkflwtxt += "CXS:";
+#else
+  wrkflwtxt += "???:"; // no path to this statement
+#endif
 #endif
   // -- COMMON or CURAND HOST or CURAND DEVICE random numbers?
   if ( rndgen == RandomNumberMode::CommonRandom ) wrkflwtxt += "COMMON+";
