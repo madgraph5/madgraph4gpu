@@ -82,6 +82,7 @@ private:
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
   // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, Ts... args ) <===]
+  // [NB: expand variadic template "Ts... args" to "const int ip4, const int ipar" and rename "Field" as "Ip4Ipar"]
   static
   __host__ __device__ inline
   fptype& decodeRecord( fptype* buffer,
@@ -112,28 +113,28 @@ public:
   static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessMomentaBase>::ieventAccessRecordConst;
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
-  // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, Ts... args ) <===]
+  // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, const int ipar, const int ipar ) <===]
   static constexpr auto decodeRecordIp4Ipar = MemoryAccessHelper<MemoryAccessMomentaBase>::decodeRecord;
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
-  // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer, Ts... args ) <===]
+  // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer, const int ipar, const int ipar ) <===]
   static constexpr auto decodeRecordIp4IparConst =
     MemoryAccessHelper<MemoryAccessMomentaBase>::template decodeRecordConst<int, int>;
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
-  // [Signature (non-const) ===> fptype& ieventAccessField( fptype* buffer, const ievt, Ts... args ) <===]
+  // [Signature (non-const) ===> fptype& ieventAccessIp4Ipar( fptype* buffer, const ievt, const int ipar, const int ipar ) <===]
   static constexpr auto ieventAccessIp4Ipar =
     MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessField<int, int>;
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
-  // [Signature (const) ===> const fptype& ieventAccessFieldConst( const fptype* buffer, const ievt, Ts... args ) <===]
+  // [Signature (const) ===> const fptype& ieventAccessIp4IparConst( const fptype* buffer, const ievt, const int ipar, const int ipar ) <===]
   // DEFAULT VERSION
   static constexpr auto ieventAccessIp4IparConst =
     MemoryAccessHelper<MemoryAccessMomentaBase>::template ieventAccessFieldConst<int, int>;
 
   /*
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
-  // [Signature (const) ===> const fptype& ieventAccessFieldConst( const fptype* buffer, const ievt, Ts... args ) <===]
+  // [Signature (const) ===> const fptype& ieventAccessIp4IparConst( const fptype* buffer, const ievt, const int ipar, const int ipar ) <===]
   // DEBUG VERSION WITH PRINTOUTS
   static
   __host__ __device__ inline
@@ -160,19 +161,19 @@ class KernelAccessMomenta
 public:
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // [Signature (non-const, SCALAR) ===> fptype& kernelAccessField( fptype* buffer, Ts... args ) <===]
+  // [Signature (non-const, SCALAR) ===> fptype& kernelAccessIp4Ipar( fptype* buffer, const int ipar, const int ipar ) <===]
   static constexpr auto kernelAccessIp4Ipar =
     KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessField<int, int>;
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // [Signature (const, SCALAR) ===> const fptype& kernelAccessFieldConst( const fptype* buffer, Ts... args ) <===]
+  // [Signature (const, SCALAR) ===> const fptype& kernelAccessIp4IparConst( const fptype* buffer, const int ipar, const int ipar ) <===]
   // DEFAULT VERSION
   static constexpr auto kernelAccessIp4IparConst_s =
     KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessFieldConst<int, int>;
 
   /*
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // [Signature (const, SCALAR) ===> const fptype& kernelAccessFieldConst( const fptype* buffer, Ts... args ) <===]
+  // [Signature (const, SCALAR) ===> const fptype& kernelAccessIp4IparConst( const fptype* buffer, const int ipar, const int ipar ) <===]
   // DEBUG VERSION WITH PRINTOUTS
   static
   __host__ __device__ inline
@@ -187,8 +188,8 @@ public:
   */
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // [Signature (const, SCALAR OR VECTOR) ===> const fptype& kernelAccessFieldConst( const fptype* buffer, Ts... args ) <===]
-  // FIXME? Eventually return by reference and support aligned arrays only?
+  // [Signature (const, SCALAR OR VECTOR) ===> fptype_sv kernelAccessIp4IparConst( const fptype* buffer, const int ipar, const int ipar ) <===]
+  // FIXME? Eventually return by const reference and support aligned arrays only?
   // FIXME? Currently return by value to support also unaligned and arbitrary arrays
   static
   __host__ __device__ inline
