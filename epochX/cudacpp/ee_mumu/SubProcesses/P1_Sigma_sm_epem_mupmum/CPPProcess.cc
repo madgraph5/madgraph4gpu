@@ -114,6 +114,8 @@ namespace mg5amcCpu
     // Proof of concept for using fptype* in the interface
     fptype* w_fp[nwf];
     for ( int iwf=0; iwf<nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_sv[iwf] );
+    fptype* amp_fp;
+    amp_fp = reinterpret_cast<fptype*>( amp_sv );
 
     // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
     cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
@@ -173,7 +175,7 @@ namespace mg5amcCpu
       FFV1P0_3( w_fp[1], w_fp[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 1
-      FFV1_0( w_fp[2], w_fp[3], w_fp[4], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      FFV1_0( w_fp[2], w_fp[3], w_fp[4], cxmake( cIPC[0], cIPC[1] ), &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 2 OF 2 ***
@@ -182,7 +184,7 @@ namespace mg5amcCpu
       FFV2_4_3( w_fp[1], w_fp[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 2
-      FFV2_4_0( w_fp[2], w_fp[3], w_fp[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      FFV2_4_0( w_fp[2], w_fp[3], w_fp[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***

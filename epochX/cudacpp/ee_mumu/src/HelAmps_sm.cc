@@ -25,6 +25,7 @@ namespace mg5amcCpu
 #endif
 {
 
+  using A_ACCESS = DeviceAccessAmplitudes;
   using W_ACCESS = DeviceAccessWavefunctions;
 
   //--------------------------------------------------------------------------
@@ -35,12 +36,13 @@ namespace mg5amcCpu
                const fptype* allF2,
                const fptype* allV3,
                const cxtype COUP,
-               cxtype_sv* vertex )
+               fptype* allvertexes )
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
     const cxtype_sv* V3 = W_ACCESS::kernelAccessConst( allV3 );
+    cxtype_sv* vertex = A_ACCESS::kernelAccess( allvertexes );
     const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP0 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * ( V3[4] ) ) ) + ( F1[3] * ( F2[4] * ( V3[3]- cI * ( V3[4] ) ) + F2[5] * ( V3[2] - V3[5] ) ) + ( F1[4] * ( F2[2] * ( V3[2] - V3[5] ) - F2[3] * ( V3[3] + cI * ( V3[4] ) ) ) + F1[5] * ( F2[2] * ( -V3[3] + cI * ( V3[4] ) ) + F2[3] * ( V3[2] + V3[5] ) ) ) ) );
     (*vertex) = COUP * - cI * TMP0;
@@ -84,12 +86,13 @@ namespace mg5amcCpu
                const fptype* allF2,
                const fptype* allV3,
                const cxtype COUP,
-               cxtype_sv* vertex )
+               fptype* allvertexes )
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
     const cxtype_sv* V3 = W_ACCESS::kernelAccessConst( allV3 );
+    cxtype_sv* vertex = A_ACCESS::kernelAccess( allvertexes );
     const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP1 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * ( V3[4] ) ) ) + F1[3] * ( F2[4] * ( V3[3]- cI * ( V3[4] ) ) + F2[5] * ( V3[2] - V3[5] ) ) );
     (*vertex) = COUP * - cI * TMP1;
@@ -135,12 +138,13 @@ namespace mg5amcCpu
                const fptype* allF2,
                const fptype* allV3,
                const cxtype COUP,
-               cxtype_sv* vertex )
+               fptype* allvertexes )
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
     const cxtype_sv* V3 = W_ACCESS::kernelAccessConst( allV3 );
+    cxtype_sv* vertex = A_ACCESS::kernelAccess( allvertexes );
     const cxtype cI = cxmake( 0., 1. );
     constexpr fptype one( 1. );
     constexpr fptype two( 2. );
@@ -193,12 +197,13 @@ namespace mg5amcCpu
                  const fptype* allV3,
                  const cxtype COUP1,
                  const cxtype COUP2,
-                 cxtype_sv* vertex )
+                 fptype* allvertexes )
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
     const cxtype_sv* V3 = W_ACCESS::kernelAccessConst( allV3 );
+    cxtype_sv* vertex = A_ACCESS::kernelAccess( allvertexes );
     const cxtype cI = cxmake( 0., 1. );
     constexpr fptype one( 1. );
     constexpr fptype two( 2. );

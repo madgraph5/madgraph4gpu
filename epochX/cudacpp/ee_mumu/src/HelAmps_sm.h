@@ -789,7 +789,7 @@ namespace mg5amcCpu
                const fptype* allF2,
                const fptype* allV3,
                const cxtype COUP,
-               cxtype_sv* vertex ) ALWAYS_INLINE;
+               fptype* allvertexes ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
@@ -810,7 +810,7 @@ namespace mg5amcCpu
                const fptype* allF2,
                const fptype* allV3,
                const cxtype COUP,
-               cxtype_sv* vertex ) ALWAYS_INLINE;
+               fptype* allvertexes ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
@@ -831,7 +831,7 @@ namespace mg5amcCpu
                const fptype* allF2,
                const fptype* allV3,
                const cxtype COUP,
-               cxtype_sv* vertex ) ALWAYS_INLINE;
+               fptype* allvertexes ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
@@ -853,7 +853,7 @@ namespace mg5amcCpu
                  const fptype* allV3,
                  const cxtype COUP1,
                  const cxtype COUP2,
-                 cxtype_sv* vertex ) ALWAYS_INLINE;
+                 fptype* allvertexes ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
