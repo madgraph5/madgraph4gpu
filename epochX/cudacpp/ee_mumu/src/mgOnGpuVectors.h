@@ -47,24 +47,6 @@ namespace mgOnGpu
   //#undef MGONGPU_HAS_CPPCXTYPEV_BRK // gcc test (very slightly slower? issue #172)
 #endif
 
-#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
-  // NB: the alternative "clang" implementation is simpler: it simply does not have class cxtype_ref
-  class cxtype_ref
-  {
-  public:
-    cxtype_ref() = delete;
-    cxtype_ref( const cxtype_ref& ) = delete;
-    cxtype_ref( cxtype_ref&& ) = default;
-    cxtype_ref( fptype& r, fptype& i ) : m_real{r}, m_imag{i} {}
-    cxtype_ref& operator=( const cxtype_ref& ) = delete;
-    cxtype_ref& operator=( cxtype_ref&& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // for cxternary
-    cxtype_ref& operator=( const cxtype& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; }
-    operator cxtype() const { return cxmake( m_real, m_imag ); }
-  private:
-    fptype &m_real, &m_imag; // RI
-  };
-#endif
-
   // --- Type definition (using vector compiler extensions: need -march=...)
   class cxtype_v // no need for "class alignas(2*sizeof(fptype_v)) cxtype_v"
   {
