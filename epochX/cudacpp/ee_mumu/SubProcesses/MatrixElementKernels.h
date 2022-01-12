@@ -3,7 +3,6 @@
 
 #include "mgOnGpuConfig.h"
 
-#include "MatrixElementKernelData.h"
 #include "MemoryBuffers.h"
 
 #ifdef __CUDACC__
@@ -24,8 +23,7 @@ namespace mg5amcCpu
     MatrixElementKernelBase( const BufferMomenta& momenta,          // input: momenta
                              BufferMatrixElements& matrixElements ) // output: matrix elements
       : m_momenta( momenta )
-      , m_matrixElements( matrixElements )
-      , m_mekData( m_momenta.data(), m_matrixElements.data(), m_momenta.nevt() ){}
+      , m_matrixElements( matrixElements ){}
 
   public:
 
@@ -48,9 +46,6 @@ namespace mg5amcCpu
 
     // The buffer for the output matrix elements
     BufferMatrixElements& m_matrixElements;
-
-    // The struct encapsulating all data which must be passed to the ME kernels
-    MatrixElementKernelData m_mekData;
 
   };
 
