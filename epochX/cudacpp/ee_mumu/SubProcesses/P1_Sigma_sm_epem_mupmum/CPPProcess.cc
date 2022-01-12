@@ -409,12 +409,13 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
   __global__
-  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
-                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-                            bool* isGoodHel )         // output: isGoodHel[ncomb] - device array
+  void sigmaKin_getGoodHel( const MatrixElementKernelData& mekData, // input and output data buffers
+                            bool* isGoodHel )                       // output: isGoodHel[ncomb]
   {
+    const fptype* allmomenta = mekData.allmomenta;
+    fptype* allMEs = mekData.allMEs;
+#ifdef __CUDACC__
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     fptype allMEsLast = 0;
@@ -429,13 +430,8 @@ namespace mg5amcCpu
       }
       allMEsLast = allMEs[ievt]; // running sum up to helicity ihel for event ievt
     }
-  }
 #else
-  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
-                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-                            bool* isGoodHel           // output: isGoodHel[ncomb] - device array
-                            , const int nevt )        // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
-  {
+    const int nevt = mekData.nevt;
     //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
     //assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
     const int maxtry0 = ( neppV > 16 ? neppV : 16 ); // 16, but at least neppV (otherwise the npagV loop does not even start)
@@ -462,8 +458,8 @@ namespace mg5amcCpu
         allMEsLast[ievt] = allMEs[ievt]; // running sum up to helicity ihel
       }
     }
-  }
 #endif
+  }
 
   //--------------------------------------------------------------------------
 
@@ -496,13 +492,14 @@ namespace mg5amcCpu
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
   __global__
-  void sigmaKin( const fptype* allmomenta, // input: momenta[nevt*npar*4]
-                 fptype* allMEs            // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-#ifndef __CUDACC__
-                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
-#endif
-                 )
+  void sigmaKin( const MatrixElementKernelData& mekData ) // input and output data buffers
   {
+    const fptype* allmomenta = mekData.allmomenta;
+    fptype* allMEs = mekData.allMEs;
+#ifndef __CUDACC__
+    const int nevt = mekData.nevt;
+#endif
+
     mgDebugInitialise();
 
     // Denominators: spins, colors and identical particles
