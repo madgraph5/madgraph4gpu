@@ -37,6 +37,7 @@ private:
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
   // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, Ts... args ) <===]
+  // [NB: expand variadic template "Ts... args" to empty and rename "Field" as empty]
   static
   __host__ __device__ inline
   fptype& decodeRecord( fptype* buffer )
@@ -64,21 +65,21 @@ public:
   static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessWeightsBase>::ieventAccessRecordConst;
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
-  // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, Ts... args ) <===]
+  // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer ) <===]
   static constexpr auto decodeRecord = MemoryAccessHelper<MemoryAccessWeightsBase>::decodeRecord;
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
-  // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer, Ts... args ) <===]
+  // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer ) <===]
   static constexpr auto decodeRecordConst =
     MemoryAccessHelper<MemoryAccessWeightsBase>::template decodeRecordConst<>;
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
-  // [Signature (non-const) ===> fptype& ieventAccessField( fptype* buffer, const ievt, Ts... args ) <===]
+  // [Signature (non-const) ===> fptype& ieventAccess( fptype* buffer, const ievt ) <===]
   static constexpr auto ieventAccess =
     MemoryAccessHelper<MemoryAccessWeightsBase>::template ieventAccessField<>;
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
-  // [Signature (const) ===> const fptype& ieventAccessFieldConst( const fptype* buffer, const ievt, Ts... args ) <===]
+  // [Signature (const) ===> const fptype& ieventAccessConst( const fptype* buffer, const ievt ) <===]
   static constexpr auto ieventAccessConst =
     MemoryAccessHelper<MemoryAccessWeightsBase>::template ieventAccessFieldConst<>;
 
@@ -95,14 +96,14 @@ public:
 
   /*
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // [Signature (non-const) ===> fptype& kernelAccessField( fptype* buffer, Ts... args ) <===]
+  // [Signature (non-const) ===> fptype& kernelAccess( fptype* buffer ) <===]
   // FINAL IMPLEMENTATION FOR CUDA 11.4
   static constexpr auto kernelAccess =
     KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessField<>;
   */
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // [Signature (non-const) ===> fptype& kernelAccessField( fptype* buffer, Ts... args ) <===]
+  // [Signature (non-const) ===> fptype& kernelAccess( fptype* buffer ) <===]
   // TEMPORARY HACK FOR CUDA 11.1
   static __host__ __device__ inline
   fptype& kernelAccess( fptype* buffer )
@@ -112,14 +113,14 @@ public:
 
   /*
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // [Signature (const) ===> const fptype& kernelAccessFieldConst( const fptype* buffer, Ts... args ) <===]
+  // [Signature (const) ===> const fptype& kernelAccessConst( const fptype* buffer ) <===]
   // FINAL IMPLEMENTATION FOR CUDA 11.4
   static constexpr auto kernelAccessConst =
     KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessFieldConst<>;
   */
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // [Signature (const) ===> const fptype& kernelAccessFieldConst( const fptype* buffer, Ts... args ) <===]
+  // [Signature (const) ===> const fptype& kernelAccessConst( const fptype* buffer ) <===]
   // TEMPORARY HACK FOR CUDA 11.1
   static __host__ __device__ inline
   const fptype& kernelAccessConst( const fptype* buffer )
