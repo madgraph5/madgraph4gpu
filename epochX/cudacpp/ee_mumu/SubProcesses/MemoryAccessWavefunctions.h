@@ -2,10 +2,15 @@
 #define MemoryAccessWavefunctions_H 1
 
 #include "mgOnGpuConfig.h"
+#include "mgOnGpuCxtypes.h"
 
 #include "MemoryAccessHelpers.h"
 
+#define MGONGPU_TRIVIAL_WAVEFUNCTIONS 1
+
 //----------------------------------------------------------------------------
+
+#ifndef MGONGPU_TRIVIAL_WAVEFUNCTIONS
 
 // A class describing the internal layout of memory buffers for wavefunctions
 // This implementation uses an AOSOA[npagW][nw6][nx2][neppW] where nevt=npagW*neppW
@@ -103,6 +108,8 @@ public:
 
 };
 
+#endif // #ifndef MGONGPU_TRIVIAL_WAVEFUNCTIONS
+
 //----------------------------------------------------------------------------
 
 // A class providing access to memory buffers for a given event, based on implicit kernel rules
@@ -111,6 +118,8 @@ template<bool onDevice>
 class KernelAccessWavefunctions
 {
 public:
+
+#ifndef MGONGPU_TRIVIAL_WAVEFUNCTIONS
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
   // [Signature (non-const) ===> fptype& kernelAccessIx2Iw6( fptype* buffer, const int ipar, const int iw6 ) <===]
@@ -121,6 +130,15 @@ public:
   // [Signature (const) ===> const fptype& kernelAccessIx2Iw6Const( const fptype* buffer, const int ipar, const int iw6 ) <===]
   static constexpr auto kernelAccessIx2Iw6Const =
     KernelAccessHelper<MemoryAccessWavefunctionsBase, onDevice>::template kernelAccessFieldConst<int, int>;
+
+#else
+
+  static cxtype_sv* kernelAccess( fptype* buffer )
+  {
+    return reinterpret_cast<cxtype_sv*>( buffer );
+  }  
+
+#endif // #ifndef MGONGPU_TRIVIAL_WAVEFUNCTIONS
 
 };
 
