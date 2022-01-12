@@ -89,8 +89,12 @@ namespace mg5amcCpu
   {
 #ifdef __CUDACC__
     using namespace mg5amcGpu;
+    using M_ACCESS = DeviceAccessMomenta;
+    using W_ACCESS = DeviceAccessWavefunctions;
 #else
     using namespace mg5amcCpu;
+    using M_ACCESS = HostAccessMomenta;
+    using W_ACCESS = HostAccessWavefunctions;
 #endif
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
@@ -135,9 +139,13 @@ namespace mg5amcCpu
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif
     {
-#ifndef __CUDACC__
+#ifdef __CUDACC__
+      // CUDA kernels take an input buffer with momenta for all events
+      const fptype* momenta = allmomenta;
+#else
+      // C++ kernels take an input buffer with momenta for one specific event (the first in the current event page)
       const int ievt0 = ipagV*neppV;
-      const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );
+      const fptype* momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );
 #endif
 
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
@@ -146,36 +154,20 @@ namespace mg5amcCpu
       // *** DIAGRAM 1 OF 2 ***
 
       // Wavefunction(s) for diagram number 1
-#ifdef __CUDACC__
-#ifndef MGONGPU_TEST_DIVERGENCE
-      opzxxx<DeviceAccessMomenta, DeviceAccessWavefunctions>( allmomenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
+#if not ( defined __CUDACC__ and defined MGONGPU_TEST_DIVERGENCE )
+      opzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
 #else
       if ( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
-        opzxxx<DeviceAccessMomenta, DeviceAccessWavefunctions>( allmomenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
+        opzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
       else
-        oxxxxx<DeviceAccessMomenta, DeviceAccessWavefunctions>( allmomenta, 0, cHel[ihel][0], -1, w_fp[0], 0 );
-#endif
-#else
-      opzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
+        oxxxxx<M_ACCESS, W_ACCESS>( momenta, 0, cHel[ihel][0], -1, w_fp[0], 0 );
 #endif
 
-#ifdef __CUDACC__
-      imzxxx<DeviceAccessMomenta, DeviceAccessWavefunctions>( allmomenta, cHel[ihel][1], +1, w_fp[1], 1 ); // NB: imzxxx only uses pz
-#else
-      imzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, cHel[ihel][1], +1, w_fp[1], 1 ); // NB: imzxxx only uses pz
-#endif
+      imzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][1], +1, w_fp[1], 1 ); // NB: imzxxx only uses pz
 
-#ifdef __CUDACC__
-      ixzxxx<DeviceAccessMomenta, DeviceAccessWavefunctions>( allmomenta, cHel[ihel][2], -1, w_fp[2], 2 );
-#else
-      ixzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, cHel[ihel][2], -1, w_fp[2], 2 );
-#endif
+      ixzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][2], -1, w_fp[2], 2 );
 
-#ifdef __CUDACC__
-      oxzxxx<DeviceAccessMomenta, DeviceAccessWavefunctions>( allmomenta, cHel[ihel][3], +1, w_fp[3], 3 );
-#else
-      oxzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, cHel[ihel][3], +1, w_fp[3], 3 );
-#endif
+      oxzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][3], +1, w_fp[3], 3 );
 
       FFV1P0_3( w_fp[1], w_fp[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_fp[4] );
 
