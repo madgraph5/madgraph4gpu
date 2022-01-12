@@ -15,15 +15,13 @@ public:
   //--------------------------------------------------------------------------
 
   // Locate an event record (output) in a memory buffer (input) from the given event number (input)
-  // Non-const memory access to field from ievent
-  // [Signature ===> fptype* ieventAccessRecord( fptype* buffer, const int ievt ) <===]
+  // [Signature (non-const) ===> fptype* ieventAccessRecord( fptype* buffer, const int ievt ) <===]
   static constexpr auto ieventAccessRecord = T::ieventAccessRecord;
 
   //--------------------------------------------------------------------------
 
   // Locate an event record (output) in a memory buffer (input) from the given event number (input)
-  // Const memory access to event record from ievent
-  // [Signature ===> fptype* ieventAccessRecordConst( const fptype* buffer, const int ievt ) <===]
+  // [Signature (const) ===> fptype* ieventAccessRecordConst( const fptype* buffer, const int ievt ) <===]
   static
   __host__ __device__ inline
   fptype* ieventAccessRecordConst( const fptype* buffer,
@@ -35,15 +33,13 @@ public:
   //--------------------------------------------------------------------------
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
-  // Non-const memory access to field in an event record
-  // [Signature ===> fptype& decodeRecord( fptype* buffer, Ts... args ) <===]
+  // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, Ts... args ) <===]
   static constexpr auto decodeRecord = T::decodeRecord;
 
   //--------------------------------------------------------------------------
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
-  // Const memory access to field in an event record
-  // [Signature ===> const fptype& decodeRecordConst( fptype* buffer, Ts... args ) <===]
+  // [Signature (const) ===> const fptype& decodeRecordConst( fptype* buffer, Ts... args ) <===]
   template<class... Ts>
   static
   __host__ __device__ inline
@@ -56,8 +52,7 @@ public:
   //--------------------------------------------------------------------------
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
-  // Non-const memory access to field from ievent
-  // [Signature ===> fptype& ieventAccessField( fptype* buffer, const ievt, Ts... args ) <===]
+  // [Signature (non-const) ===> fptype& ieventAccessField( fptype* buffer, const ievt, Ts... args ) <===]
   template<class... Ts>
   static
   __host__ __device__ inline
@@ -73,8 +68,7 @@ public:
   //--------------------------------------------------------------------------
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
-  // Const memory access to field from ievent
-  // [Signature ===> const fptype& ieventAccessFieldConst( const fptype* buffer, const ievt, Ts... args ) <===]
+  // [Signature (const) ===> const fptype& ieventAccessFieldConst( const fptype* buffer, const ievt, Ts... args ) <===]
   template<class... Ts>
   static
   __host__ __device__ inline
@@ -98,8 +92,7 @@ public:
   //--------------------------------------------------------------------------
 
   // Locate an event record (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
-  // Non-const memory access to event record from kernel
-  // [Signature ===> fptype* kernelAccessRecord( fptype* buffer ) <===]
+  // [Signature (non-const) ===> fptype* kernelAccessRecord( fptype* buffer ) <===]
   static
   __host__ __device__ inline
   fptype* kernelAccessRecord( fptype* buffer )
@@ -122,10 +115,9 @@ public:
   }
 
   //--------------------------------------------------------------------------
- 
+
   // Locate an event record (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
-  // Const memory access to event record from kernel
-  // [Signature ===> fptype* kernelAccessRecordConst( const fptype* buffer ) <===]
+  // [Signature (const) ===> fptype* kernelAccessRecordConst( const fptype* buffer ) <===]
   static
   __host__ __device__ inline
   fptype* kernelAccessRecordConst( const fptype* buffer )
@@ -136,8 +128,7 @@ public:
   //--------------------------------------------------------------------------
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // Non-const memory access to field from kernel
-  // [Signature ===> fptype& kernelAccessField( fptype* buffer, Ts... args ) <===]
+  // [Signature (non-const) ===> fptype& kernelAccessField( fptype* buffer, Ts... args ) <===]
   template<class... Ts>
   static
   __host__ __device__ inline
@@ -152,8 +143,7 @@ public:
   //--------------------------------------------------------------------------
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // Const memory access to field from kernel
-  // [Signature ===> const fptype& kernelAccessFieldConst( const fptype* buffer, Ts... args ) <===]
+  // [Signature (const) ===> const fptype& kernelAccessFieldConst( const fptype* buffer, Ts... args ) <===]
   template<class... Ts>
   static
   __host__ __device__ inline
