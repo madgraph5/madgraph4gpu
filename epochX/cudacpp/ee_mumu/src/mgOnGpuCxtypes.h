@@ -86,6 +86,11 @@ namespace mgOnGpu
 #endif
 #endif
 
+  // The number of floating point types in a complex type (real, imaginary)
+  constexpr int nx2 = 2;
+  
+  // SANITY CHECK: memory access may be based on casts of fptype[2] to cxtype (e.g. for wavefunctions)
+  static_assert( sizeof(cxtype) == nx2 * sizeof(fptype), "sizeof(cxtype) is not 2*sizeof(fptype)" );
 }
 
 // Expose typedefs and operators outside the namespace

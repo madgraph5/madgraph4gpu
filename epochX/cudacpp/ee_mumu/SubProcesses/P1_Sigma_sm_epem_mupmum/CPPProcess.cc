@@ -281,8 +281,6 @@ namespace mg5amcCpu
 #else
     memcpy( cHel, tHel, ncomb * mgOnGpu::npar * sizeof(short) );
 #endif
-    // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
-    static_assert( sizeof(cxtype) == 2 * sizeof(fptype), "sizeof(cxtype) is not 2*sizeof(fptype)" );
   }
 
   //--------------------------------------------------------------------------
