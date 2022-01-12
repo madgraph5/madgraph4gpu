@@ -147,27 +147,27 @@ namespace mg5amcCpu
       // Wavefunction(s) for diagram number 1
 #ifdef __CUDACC__
 #ifndef MGONGPU_TEST_DIVERGENCE
-      opzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
+      opzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
 #else
       if ( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
-        opzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
+        opzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
       else
-        oxxxxx<DeviceAccessMomenta>( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 );
+        oxxxxx<DeviceAccessMomenta>( allmomenta, 0, cHel[ihel][0], -1, w_fp[0], 0 );
 #endif
 #else
-      opzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
-#endif
-
-#ifdef __CUDACC__
-      imzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz
-#else
-      imzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz
+      opzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
 #endif
 
 #ifdef __CUDACC__
-      ixzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 );
+      imzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][1], +1, w_fp[1], 1 ); // NB: imzxxx only uses pz
 #else
-      ixzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][2], -1, w_sv[2], 2 );
+      imzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][1], +1, w_fp[1], 1 ); // NB: imzxxx only uses pz
+#endif
+
+#ifdef __CUDACC__
+      ixzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][2], -1, w_fp[2], 2 );
+#else
+      ixzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][2], -1, w_fp[2], 2 );
 #endif
 
 #ifdef __CUDACC__
