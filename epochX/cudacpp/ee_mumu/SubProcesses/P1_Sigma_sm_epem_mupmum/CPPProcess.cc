@@ -148,33 +148,33 @@ namespace mg5amcCpu
       // Wavefunction(s) for diagram number 1
 #ifdef __CUDACC__
 #ifndef MGONGPU_TEST_DIVERGENCE
-      opzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
+      opzxxx<DeviceAccessMomenta, DeviceAccessWavefunctions>( allmomenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
 #else
       if ( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
-        opzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
+        opzxxx<DeviceAccessMomenta, DeviceAccessWavefunctions>( allmomenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
       else
-        oxxxxx<DeviceAccessMomenta>( allmomenta, 0, cHel[ihel][0], -1, w_fp[0], 0 );
+        oxxxxx<DeviceAccessMomenta, DeviceAccessWavefunctions>( allmomenta, 0, cHel[ihel][0], -1, w_fp[0], 0 );
 #endif
 #else
-      opzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
-#endif
-
-#ifdef __CUDACC__
-      imzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][1], +1, w_fp[1], 1 ); // NB: imzxxx only uses pz
-#else
-      imzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][1], +1, w_fp[1], 1 ); // NB: imzxxx only uses pz
+      opzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
 #endif
 
 #ifdef __CUDACC__
-      ixzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][2], -1, w_fp[2], 2 );
+      imzxxx<DeviceAccessMomenta, DeviceAccessWavefunctions>( allmomenta, cHel[ihel][1], +1, w_fp[1], 1 ); // NB: imzxxx only uses pz
 #else
-      ixzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][2], -1, w_fp[2], 2 );
+      imzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, cHel[ihel][1], +1, w_fp[1], 1 ); // NB: imzxxx only uses pz
 #endif
 
 #ifdef __CUDACC__
-      oxzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][3], +1, w_fp[3], 3 );
+      ixzxxx<DeviceAccessMomenta, DeviceAccessWavefunctions>( allmomenta, cHel[ihel][2], -1, w_fp[2], 2 );
 #else
-      oxzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][3], +1, w_fp[3], 3 );
+      ixzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, cHel[ihel][2], -1, w_fp[2], 2 );
+#endif
+
+#ifdef __CUDACC__
+      oxzxxx<DeviceAccessMomenta, DeviceAccessWavefunctions>( allmomenta, cHel[ihel][3], +1, w_fp[3], 3 );
+#else
+      oxzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, cHel[ihel][3], +1, w_fp[3], 3 );
 #endif
 
       FFV1P0_3( w_sv[1], w_sv[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );

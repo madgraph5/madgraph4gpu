@@ -133,7 +133,9 @@ public:
 
 #else
 
-  static cxtype_sv* kernelAccess( fptype* buffer )
+  static
+  __host__ __device__ inline
+  cxtype_sv* kernelAccess( fptype* buffer )
   {
     return reinterpret_cast<cxtype_sv*>( buffer );
   }  

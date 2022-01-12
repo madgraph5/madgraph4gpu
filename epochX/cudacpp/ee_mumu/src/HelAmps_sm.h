@@ -31,7 +31,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
   void ixxxxx( const fptype* momenta,
                const fptype fmass,             // input: fermion mass
@@ -45,7 +45,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
   void ipzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
@@ -59,7 +59,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
   void imzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
@@ -73,7 +73,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
   void ixzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
@@ -86,7 +86,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction vc[6] from the input momenta[npar*4*nevt]
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
   void vxxxxx( const fptype* momenta,
                const fptype vmass,             // input: vector boson mass
@@ -99,7 +99,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction sc[3] from the input momenta[npar*4*nevt]
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
   void sxxxxx( const fptype* momenta,
                const fptype,                   // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
@@ -112,7 +112,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
   void oxxxxx( const fptype* momenta,
                const fptype fmass,             // input: fermion mass
@@ -126,7 +126,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
   void opzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
@@ -140,7 +140,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
   void omzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
@@ -153,7 +153,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
   void oxzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
@@ -166,7 +166,7 @@ namespace mg5amcCpu
   //==========================================================================
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
   void ixxxxx( const fptype* momenta,
                const fptype fmass,             // input: fermion mass
@@ -180,7 +180,7 @@ namespace mg5amcCpu
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* fi = reinterpret_cast<cxtype_sv*>( wavefunctions );
+    cxtype_sv* fi = W_ACCESS::kernelAccess( wavefunctions );
     fi[0] = cxmake( -pvec0 * (fptype)nsf, -pvec3 * (fptype)nsf );
     fi[1] = cxmake( -pvec1 * (fptype)nsf, -pvec2 * (fptype)nsf );
     const int nh = nhel * nsf;
@@ -284,7 +284,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
   void ipzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
@@ -295,7 +295,7 @@ namespace mg5amcCpu
   {
     mgDebug( 0, __FUNCTION__ );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* fi = reinterpret_cast<cxtype_sv*>( wavefunctions );
+    cxtype_sv* fi = W_ACCESS::kernelAccess( wavefunctions );
     fi[0] = cxmake( -pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
     fi[1] = cxzero_sv();
     const int nh = nhel * nsf;
@@ -320,7 +320,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
   void imzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
@@ -331,7 +331,7 @@ namespace mg5amcCpu
   {
     mgDebug( 0, __FUNCTION__ );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* fi = reinterpret_cast<cxtype_sv*>( wavefunctions );
+    cxtype_sv* fi = W_ACCESS::kernelAccess( wavefunctions );
     fi[0] = cxmake( pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
     fi[1] = cxzero_sv();
     const int nh = nhel * nsf;
@@ -356,7 +356,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
   void ixzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
@@ -370,7 +370,7 @@ namespace mg5amcCpu
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* fi = reinterpret_cast<cxtype_sv*>( wavefunctions );
+    cxtype_sv* fi = W_ACCESS::kernelAccess( wavefunctions );
     //fi[0] = cxmake( -pvec0 * nsf, -pvec2 * nsf ); // AV: BUG! not the same as ixxxxx
     //fi[1] = cxmake( -pvec0 * nsf, -pvec1 * nsf ); // AV: BUG! not the same as ixxxxx
     fi[0] = cxmake( -pvec0 * (fptype)nsf, -pvec3 * (fptype)nsf ); // AV: BUG FIX
@@ -401,7 +401,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction vc[6] from the input momenta[npar*4*nevt]
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
   void vxxxxx( const fptype* momenta,
                const fptype vmass,             // input: vector boson mass
@@ -415,7 +415,7 @@ namespace mg5amcCpu
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* vc = reinterpret_cast<cxtype_sv*>( wavefunctions );
+    cxtype_sv* vc = W_ACCESS::kernelAccess( wavefunctions );
     const fptype sqh = fpsqrt( 0.5 ); // AV this is > 0!
     const fptype hel = nhel;
     vc[0] = cxmake( pvec0 * (fptype)nsv, pvec3 * (fptype)nsv );
@@ -521,7 +521,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction sc[3] from the input momenta[npar*4*nevt]
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
   void sxxxxx( const fptype* momenta,
                const fptype,                   // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
@@ -535,7 +535,7 @@ namespace mg5amcCpu
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* sc = reinterpret_cast<cxtype_sv*>( wavefunctions );
+    cxtype_sv* sc = W_ACCESS::kernelAccess( wavefunctions );
     sc[2] = cxmake( 1 + fptype_sv{0}, 0 );
     sc[0] = cxmake( pvec0 * (fptype)nss, pvec3 * (fptype)nss );
     sc[1] = cxmake( pvec1 * (fptype)nss, pvec2 * (fptype)nss );
@@ -546,7 +546,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
   void oxxxxx( const fptype* momenta,
                const fptype fmass,             // input: fermion mass
@@ -560,7 +560,7 @@ namespace mg5amcCpu
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* fo = reinterpret_cast<cxtype_sv*>( wavefunctions );
+    cxtype_sv* fo = W_ACCESS::kernelAccess( wavefunctions );
     fo[0] = cxmake( pvec0 * (fptype)nsf, pvec3 * (fptype)nsf );
     fo[1] = cxmake( pvec1 * (fptype)nsf, pvec2 * (fptype)nsf );
     const int nh = nhel * nsf;
@@ -666,7 +666,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
   void opzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
@@ -677,7 +677,7 @@ namespace mg5amcCpu
   {
     mgDebug( 0, __FUNCTION__ );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* fo = reinterpret_cast<cxtype_sv*>( wavefunctions );
+    cxtype_sv* fo = W_ACCESS::kernelAccess( wavefunctions );
     fo[0] = cxmake( pvec3 * (fptype)nsf, pvec3 * (fptype)nsf );
     fo[1] = cxzero_sv();
     const int nh = nhel * nsf;
@@ -702,7 +702,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
   void omzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
@@ -713,7 +713,7 @@ namespace mg5amcCpu
   {
     mgDebug( 0, __FUNCTION__ );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* fo = reinterpret_cast<cxtype_sv*>( wavefunctions );
+    cxtype_sv* fo = W_ACCESS::kernelAccess( wavefunctions );
     fo[0] = cxmake( -pvec3 * (fptype)nsf, pvec3 * (fptype)nsf ); // remember pvec0 == -pvec3
     fo[1] = cxzero_sv();
     const int nh = nhel * nsf;
@@ -741,7 +741,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
-  template<class M_ACCESS>
+  template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
   void oxzxxx( const fptype* momenta,
                //const fptype fmass,           // ASSUME fermion mass==0
@@ -755,7 +755,7 @@ namespace mg5amcCpu
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* fo = reinterpret_cast<cxtype_sv*>( wavefunctions );
+    cxtype_sv* fo = W_ACCESS::kernelAccess( wavefunctions );
     fo[0] = cxmake( pvec0 * (fptype)nsf, pvec3 * (fptype)nsf );
     fo[1] = cxmake( pvec1 * (fptype)nsf, pvec2 * (fptype)nsf );
     const int nh = nhel * nsf;
