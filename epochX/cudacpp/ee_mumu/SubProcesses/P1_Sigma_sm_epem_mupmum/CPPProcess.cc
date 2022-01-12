@@ -101,6 +101,7 @@ namespace mg5amcCpu
 
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
+    //MemoryBufferWavefunctions w_buffer[nwf]{ neppV };
     cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
     cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
 
@@ -165,10 +166,11 @@ namespace mg5amcCpu
       ixzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][2], -1, w_sv[2], 2 );
 #endif
 
+      fptype* wsv3 = reinterpret_cast<fptype*>( w_sv[3] );
 #ifdef __CUDACC__
-      oxzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 );
+      oxzxxx<DeviceAccessMomenta>( allmomenta, cHel[ihel][3], +1, wsv3, 3 );
 #else
-      oxzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][3], +1, w_sv[3], 3 );
+      oxzxxx<HostAccessMomenta>( ievt0Momenta, cHel[ihel][3], +1, wsv3, 3 );
 #endif
 
       FFV1P0_3( w_sv[1], w_sv[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );

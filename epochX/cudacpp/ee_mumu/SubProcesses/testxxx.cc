@@ -283,7 +283,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test oxzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
       if ( mass0[ievt] == 0 && isptgt0[ievt] )
       {
-        oxzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 );
+        oxzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, reinterpret_cast<fptype*>( outwf ), ipar0 );
         testwf6two( outwf, outwfO, "oxzxxx", ievt );
         testwf6( outwf, "oxzxxx", ievt, nsp, 0 );
       }

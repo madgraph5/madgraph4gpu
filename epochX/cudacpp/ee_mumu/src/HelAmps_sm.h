@@ -184,7 +184,7 @@ namespace mg5amcCpu
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fo[],
+               fptype* wavefunctions,
                const int ipar                  // input: particle# out of npar
                ) ALWAYS_INLINE;
 
@@ -763,7 +763,7 @@ namespace mg5amcCpu
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               cxtype_sv fo[],
+               fptype* wavefunctions,
                const int ipar )                // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
@@ -771,6 +771,7 @@ namespace mg5amcCpu
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
+    cxtype_sv* fo = reinterpret_cast<cxtype_sv*>( wavefunctions );
     fo[0] = cxmake( pvec0 * (fptype)nsf, pvec3 * (fptype)nsf );
     fo[1] = cxmake( pvec1 * (fptype)nsf, pvec2 * (fptype)nsf );
     const int nh = nhel * nsf;
