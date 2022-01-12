@@ -18,31 +18,6 @@ namespace mg5amcCpu
 #endif
 {
 
-  // =============================================================================
-  // *** Generic pattern: kernelAccessFunction( buffer, additional_indexes ) ***
-  // =============================================================================
-
-  // Kernel access function (WITHOUT an explicit event number) for momenta
-  // Input: a memory buffer for an arbitrary number of events
-  // Output: the 4-momenta for one event or one SIMD vector of events
-  // (Non-const memory access)
-  __device__ inline
-  fptype_sv& kernelAccessMomenta( fptype_sv* buffer,
-                                  const int ip4
-#ifdef __CUDACC__
-                                  , const int ipar // TEMPORARY? Move to SOAOSOA? (#309)
-#endif
-                                  );
-
-  // (Const memory access)
-  __device__ inline
-  const fptype_sv& kernelAccessConstMomenta( const fptype_sv* buffer,
-                                             const int ip4
-#ifdef __CUDACC__
-                                             , const int ipar // TEMPORARY? Move to SOAOSOA? (#309)
-#endif
-                                             );
-
   //--------------------------------------------------------------------------
 
 #ifdef MGONGPU_INLINE_HELAMPS
