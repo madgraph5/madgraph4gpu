@@ -138,7 +138,14 @@ public:
   cxtype_sv* kernelAccess( fptype* buffer )
   {
     return reinterpret_cast<cxtype_sv*>( buffer );
-  }  
+  }
+
+  static
+  __host__ __device__ inline
+  const cxtype_sv* kernelAccessConst( const fptype* buffer )
+  {
+    return reinterpret_cast<const cxtype_sv*>( buffer );
+  }
 
 #endif // #ifndef MGONGPU_TRIVIAL_WAVEFUNCTIONS
 
