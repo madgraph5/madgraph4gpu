@@ -783,16 +783,6 @@ namespace mg5amcCpu
 
   //==========================================================================
 
-  /*
-  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
-  __device__ INLINE
-  void FFV1_0( const cxtype_sv F1[],
-               const cxtype_sv F2[],
-               const cxtype_sv V3[],
-               const cxtype COUP,
-               cxtype_sv* vertex ) ALWAYS_INLINE;
-  */
-
   // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
   __device__ INLINE
   void FFV1_0( const fptype* allF1,
@@ -805,12 +795,12 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
   __device__ INLINE
-  void FFV1P0_3( const cxtype_sv F1[],
-                 const cxtype_sv F2[],
+  void FFV1P0_3( const fptype* allF1,
+                 const fptype* allF2,
                  const cxtype COUP,
                  const fptype M3,
                  const fptype W3,
-                 cxtype_sv V3[] ) ALWAYS_INLINE;
+                 fptype* allV3 ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
