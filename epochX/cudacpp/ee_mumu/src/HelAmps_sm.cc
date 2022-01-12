@@ -24,6 +24,8 @@ namespace mg5amcCpu
 #endif
 {
 
+  using W_ACCESS = DeviceAccessWavefunctions;
+
   //--------------------------------------------------------------------------
 
   /*
@@ -53,9 +55,9 @@ namespace mg5amcCpu
                cxtype_sv* vertex )
   {
     mgDebug( 0, __FUNCTION__ );
-    const cxtype_sv* F1 = DeviceAccessWavefunctions::kernelAccessConst( allF1 );
-    const cxtype_sv* F2 = DeviceAccessWavefunctions::kernelAccessConst( allF2 );
-    const cxtype_sv* V3 = DeviceAccessWavefunctions::kernelAccessConst( allV3 );
+    const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
+    const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
+    const cxtype_sv* V3 = W_ACCESS::kernelAccessConst( allV3 );
     const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP0 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * ( V3[4] ) ) ) + ( F1[3] * ( F2[4] * ( V3[3]- cI * ( V3[4] ) ) + F2[5] * ( V3[2] - V3[5] ) ) + ( F1[4] * ( F2[2] * ( V3[2] - V3[5] ) - F2[3] * ( V3[3] + cI * ( V3[4] ) ) ) + F1[5] * ( F2[2] * ( -V3[3] + cI * ( V3[4] ) ) + F2[3] * ( V3[2] + V3[5] ) ) ) ) );
     (*vertex) = COUP * - cI * TMP0;
