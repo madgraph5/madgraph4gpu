@@ -92,10 +92,12 @@ namespace mg5amcCpu
     using namespace mg5amcGpu;
     using M_ACCESS = DeviceAccessMomenta;
     using W_ACCESS = DeviceAccessWavefunctions;
+    using A_ACCESS = DeviceAccessAmplitudes;
 #else
     using namespace mg5amcCpu;
     using M_ACCESS = HostAccessMomenta;
     using W_ACCESS = HostAccessWavefunctions;
+    using A_ACCESS = HostAccessAmplitudes;
 #endif
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
@@ -172,19 +174,19 @@ namespace mg5amcCpu
 
       oxzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][3], +1, w_fp[3], 3 );
 
-      FFV1P0_3( w_fp[1], w_fp[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_fp[4] );
+      FFV1P0_3<W_ACCESS>( w_fp[1], w_fp[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 1
-      FFV1_0( w_fp[2], w_fp[3], w_fp[4], cxmake( cIPC[0], cIPC[1] ), &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS>( w_fp[2], w_fp[3], w_fp[4], cxmake( cIPC[0], cIPC[1] ), &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 2 OF 2 ***
 
       // Wavefunction(s) for diagram number 2
-      FFV2_4_3( w_fp[1], w_fp[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w_fp[4] );
+      FFV2_4_3<W_ACCESS>( w_fp[1], w_fp[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 2
-      FFV2_4_0( w_fp[2], w_fp[3], w_fp[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp_fp[0] );
+      FFV2_4_0<W_ACCESS, A_ACCESS>( w_fp[2], w_fp[3], w_fp[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***
@@ -566,12 +568,6 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 } // end namespace
-
-//==========================================================================
-
-// This was initially added to both C++ and CUDA in order to avoid RDC in CUDA (issue #51)
-// This is now also needed by C++ LTO-like optimizations via inlining (issue #229)
-#include "HelAmps_sm.cc"
 
 //==========================================================================
 
