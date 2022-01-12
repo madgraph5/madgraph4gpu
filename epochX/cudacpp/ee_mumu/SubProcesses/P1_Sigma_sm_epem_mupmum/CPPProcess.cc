@@ -15,6 +15,7 @@
 
 #include "CPPProcess.h"
 #include "HelAmps_sm.h"
+#include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
 

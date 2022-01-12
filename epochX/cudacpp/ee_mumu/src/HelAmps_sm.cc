@@ -8,6 +8,7 @@
 #include "mgOnGpuConfig.h"
 
 #include "HelAmps_sm.h"
+#include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessWavefunctions.h"
 
 #include <cmath>
