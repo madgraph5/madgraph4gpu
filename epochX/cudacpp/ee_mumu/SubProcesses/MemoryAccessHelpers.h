@@ -21,11 +21,11 @@ public:
   //--------------------------------------------------------------------------
 
   // Locate an event record (output) in a memory buffer (input) from the given event number (input)
-  // [Signature (const) ===> fptype* ieventAccessRecordConst( const fptype* buffer, const int ievt ) <===]
+  // [Signature (const) ===> const fptype* ieventAccessRecordConst( const fptype* buffer, const int ievt ) <===]
   static
   __host__ __device__ inline
-  fptype* ieventAccessRecordConst( const fptype* buffer,
-                                   const int ievt )
+  const fptype* ieventAccessRecordConst( const fptype* buffer,
+                                         const int ievt )
   {
     return ieventAccessRecord( const_cast<fptype*>( buffer ), ievt );
   }
@@ -39,11 +39,11 @@ public:
   //--------------------------------------------------------------------------
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
-  // [Signature (const) ===> const fptype& decodeRecordConst( fptype* buffer, Ts... args ) <===]
+  // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer, Ts... args ) <===]
   template<class... Ts>
   static
   __host__ __device__ inline
-  const fptype& decodeRecordConst( fptype* buffer,
+  const fptype& decodeRecordConst( const fptype* buffer,
                                    Ts... args ) // variadic template
   {
     return T::decodeRecord( const_cast<fptype*>( buffer ), args... );
@@ -117,10 +117,10 @@ public:
   //--------------------------------------------------------------------------
 
   // Locate an event record (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
-  // [Signature (const) ===> fptype* kernelAccessRecordConst( const fptype* buffer ) <===]
+  // [Signature (const) ===> const fptype* kernelAccessRecordConst( const fptype* buffer ) <===]
   static
   __host__ __device__ inline
-  fptype* kernelAccessRecordConst( const fptype* buffer )
+  const fptype* kernelAccessRecordConst( const fptype* buffer )
   {
     return kernelAccessRecord( const_cast<fptype*>( buffer ) );
   }
