@@ -370,7 +370,7 @@ int main(int argc, char **argv) {
   auto devcGoodHel  = sycl::malloc_device<int   >( ncomb, q_ct1 ); 
 
   //Copy data to device
-  q_ct1.memcpy( devcHel, process.get_cHel_ptr(), ncomb*npar*sizeof(int) ).wait();
+  q_ct1.memcpy( devcHel, process.get_cHel_ptr(), ncomb*npar*sizeof(short) ).wait();
   q_ct1.memcpy( devcIPC, process.get_cIPC_ptr(), 6*sizeof(fptype) ).wait();
   q_ct1.memcpy( devcIPD, process.get_cIPD_ptr(), 2*sizeof(fptype) ).wait();
 
