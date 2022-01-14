@@ -31,7 +31,7 @@ namespace Proc
           fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
           bool * isGoodHel,         // output: isGoodHel[ncomb] - device array
           size_t ievt,
-          int *cHel,
+          short *cHel,
           const fptype *cIPC,
           const fptype *cIPD
           );
@@ -52,7 +52,7 @@ namespace Proc
           const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
           fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
           size_t ievt,
-          int *cHel,
+          short *cHel,
           const fptype *cIPC,
           const fptype *cIPD,
           int *cNGoodHel,
