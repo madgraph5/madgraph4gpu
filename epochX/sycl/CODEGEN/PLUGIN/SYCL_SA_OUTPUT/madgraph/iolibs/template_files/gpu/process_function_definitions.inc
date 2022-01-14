@@ -20,7 +20,7 @@ namespace Proc
 #endif
 
   // Helicity combinations (and filtering of "good" helicity combinations)
-  static int cHel[ncomb][npar];
+  static short cHel[ncomb][npar];
 
   //--------------------------------------------------------------------------
 %(all_sigmaKin)s
