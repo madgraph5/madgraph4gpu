@@ -20,10 +20,10 @@
 #include "timermap.h"
 
 bool is_number(const char *s) {
-  const char *t = s;
-  while (*t != '\0' && isdigit(*t))
-    ++t;
-  return (int)strlen(s) == t - s;
+    const char *t = s;
+    while (*t != '\0' && isdigit(*t))
+        ++t;
+    return (int)strlen(s) == t - s;
 }
 
 bool check_digits(std::string s) {
@@ -34,17 +34,17 @@ bool check_digits(std::string s) {
 }
 
 int usage(char* argv0, int ret = 1) {
-  std::cout << "Usage: " << argv0
-            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--param_card <PARAM_CARD_FILE>] [--json_file <JSON_FILE>] --device_id <DEVICE_ID>"
-            << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
-  std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
-  std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
-  std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
-  std::cout << "The '-d' flag only controls if nan's emit warnings" << std::endl;
-  std::cout << "The '--device_info` flag prints information for all available devices. If a device is chosen by '--device_id', only information for that device is shown." << std::endl;
-  std::cout << "The '--device_id' arguments selects the device to run code on. (default: 0)" << std::endl;
-  std::cout << "The '--help|-h' flag prints this message" << std::endl;
-  return ret;
+    std::cout << "Usage: " << argv0
+              << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--param_card <PARAM_CARD_FILE>] [--json_file <JSON_FILE>] --device_id <DEVICE_ID>"
+              << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
+    std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
+    std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
+    std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
+    std::cout << "The '-d' flag only controls if nan's emit warnings" << std::endl;
+    std::cout << "The '--device_info` flag prints information for all available devices. If a device is chosen by '--device_id', only information for that device is shown." << std::endl;
+    std::cout << "The '--device_id' arguments selects the device to run code on. (default: 0)" << std::endl;
+    std::cout << "The '--help|-h' flag prints this message" << std::endl;
+    return ret;
 }
 
 template<typename T = fptype>
@@ -172,8 +172,7 @@ sycl::queue get_sycl_queue(bool device_chosen,uint32_t d_id) {
 }
 
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
   // READ COMMAND LINE ARGUMENTS
   bool verbose = false;
   bool debug = false;
@@ -201,75 +200,75 @@ int main(int argc, char **argv)
   }
 
   for (int argn = 1; argn < argc; ++argn) {
-    if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
-      verbose = true;
-    else if (strcmp(argv[argn], "--debug") == 0 ||
-             strcmp(argv[argn], "-d") == 0)
-      debug = true;
-    else if (strcmp(argv[argn], "--performance") == 0 ||
-             strcmp(argv[argn], "-p") == 0)
-      perf = true;
-    else if (strcmp(argv[argn], "--json") == 0 ||
-             strcmp(argv[argn], "-j") == 0)
-      json = true;
-    else if (strcmp(argv[argn], "--help") == 0 ||
-             strcmp(argv[argn], "-h") == 0)
-      return usage(argv[0]);
-    else if (strcmp(argv[argn], "--param_card") == 0) {
-      param_card = argv[argn + 1];
-      argn++;
-    }
-    else if (strcmp(argv[argn], "--json_file") == 0) {
-      json_file = argv[argn + 1];
-      json_file_bool = true;
-      argn++;
-    }
-    else if (strcmp(argv[argn], "--device_info") == 0) {
-        device_info = true;
-    }
-    else if (strcmp(argv[argn], "--device_id") == 0) {
-        d_id_str = argv[argn + 1];
-        if (check_digits(d_id_str)) {
-            d_id = std::stoi(d_id_str);
-            device_chosen = true;
-            if (d_id >= devices.size()) {
-                std::cout << "Invalid device_id. Please choose device from: " << std::endl;
-                for (int i=0; i < devices.size(); i++) {
-                    const auto &device = devices[i];
-                    auto d_name = device.get_info<sycl::info::device::name>();
-                    std::cout << "    " << i << ": " << d_name << std::endl;
-                }
-                std::cout << "Terminating. Exit Code: -999" << std::endl;
-                return -999;
-            }
-        } else {
-            std::cout << std::endl << "Invalid device_id, must be integer. Terminating. Exit Code: -998" << std::endl << std::endl;
-            return usage(argv[0], -998);
-        }
-        argn++;
-    }
-    else if (is_number(argv[argn]) && nnum<5)
-      numvec[nnum++] = atoi(argv[argn]);
-    else
-      return usage(argv[0]);
+      if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
+          verbose = true;
+      else if (strcmp(argv[argn], "--debug") == 0 ||
+               strcmp(argv[argn], "-d") == 0)
+          debug = true;
+      else if (strcmp(argv[argn], "--performance") == 0 ||
+               strcmp(argv[argn], "-p") == 0)
+          perf = true;
+      else if (strcmp(argv[argn], "--json") == 0 ||
+               strcmp(argv[argn], "-j") == 0)
+          json = true;
+      else if (strcmp(argv[argn], "--help") == 0 ||
+               strcmp(argv[argn], "-h") == 0)
+          return usage(argv[0]);
+      else if (strcmp(argv[argn], "--param_card") == 0) {
+          param_card = argv[argn + 1];
+          argn++;
+      }
+      else if (strcmp(argv[argn], "--json_file") == 0) {
+          json_file = argv[argn + 1];
+          json_file_bool = true;
+          argn++;
+      }
+      else if (strcmp(argv[argn], "--device_info") == 0) {
+          device_info = true;
+      }
+      else if (strcmp(argv[argn], "--device_id") == 0) {
+          d_id_str = argv[argn + 1];
+          if (check_digits(d_id_str)) {
+              d_id = std::stoi(d_id_str);
+              device_chosen = true;
+              if (d_id >= devices.size()) {
+                  std::cout << "Invalid device_id. Please choose device from: " << std::endl;
+                  for (int i=0; i < devices.size(); i++) {
+                      const auto &device = devices[i];
+                      auto d_name = device.get_info<sycl::info::device::name>();
+                      std::cout << "    " << i << ": " << d_name << std::endl;
+                  }
+                  std::cout << "Terminating. Exit Code: -999" << std::endl;
+                  return -999;
+              }
+          } else {
+              std::cout << std::endl << "Invalid device_id, must be integer. Terminating. Exit Code: -998" << std::endl << std::endl;
+              return usage(argv[0], -998);
+          }
+          argn++;
+      }
+      else if (is_number(argv[argn]) && nnum<5)
+          numvec[nnum++] = atoi(argv[argn]);
+      else
+        return usage(argv[0]);
   }
 
   if (nnum == 3 || nnum == 5) {
-    gpublocks = numvec[0];
-    gputhreads = numvec[1];
-    niter = numvec[2];
-    if (nnum == 5){
-      jsondate = numvec[3];
-      jsonrun = numvec[4];
-    }
+      gpublocks = numvec[0];
+      gputhreads = numvec[1];
+      niter = numvec[2];
+      if (nnum == 5){
+          jsondate = numvec[3];
+          jsonrun = numvec[4];
+      }
   } else if (nnum == 1) {
-    niter = numvec[0];
+      niter = numvec[0];
   } else {
-    return usage(argv[0]);
+      return usage(argv[0]);
   }
 
   if (niter == 0)
-    return usage(argv[0]);
+      return usage(argv[0]);
 
   if (device_info) {
       if (device_chosen) {
@@ -288,24 +287,21 @@ int main(int argc, char **argv)
   }
 
   const int neppR = mgOnGpu::neppR; // ASA layout: constant at compile-time
-  if ( gputhreads%neppR != 0 )
-  {
-    std::cout << "ERROR! #threads/block should be a multiple of neppR=" << neppR << std::endl;
-    return usage(argv[0]);
+  if ( gputhreads%neppR != 0 ) {
+      std::cout << "ERROR! #threads/block should be a multiple of neppR=" << neppR << std::endl;
+      return usage(argv[0]);
   }
 
   const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
-  if ( gputhreads%neppM != 0 )
-  {
-    std::cout << "ERROR! #threads/block should be a multiple of neppM=" << neppM << std::endl;
-    return usage(argv[0]);
+  if ( gputhreads%neppM != 0 ) {
+      std::cout << "ERROR! #threads/block should be a multiple of neppM=" << neppM << std::endl;
+      return usage(argv[0]);
   }
 
   using mgOnGpu::ntpbMAX;
-  if ( gputhreads > ntpbMAX )
-  {
-    std::cout << "ERROR! #threads/block should be <= " << ntpbMAX << std::endl;
-    return usage(argv[0]);
+  if ( gputhreads > ntpbMAX ) {
+      std::cout << "ERROR! #threads/block should be <= " << ntpbMAX << std::endl;
+      return usage(argv[0]);
   }
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
@@ -321,7 +317,7 @@ int main(int argc, char **argv)
             << std::endl;
 
   if (verbose)
-    std::cout << "# iterations: " << niter << std::endl;
+      std::cout << "# iterations: " << niter << std::endl;
 
   // *** START THE NEW TIMERS ***
   mgOnGpu::TimerMap timermap;
@@ -400,8 +396,7 @@ int main(int argc, char **argv)
   // *** START MAIN LOOP ON #ITERATIONS ***
   // **************************************
 
-  for (int iiter = 0; iiter < niter; ++iiter)
-  {
+  for (int iiter = 0; iiter < niter; ++iiter) {
     //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
 
     // === STEP 1 OF 3
@@ -431,13 +426,11 @@ int main(int argc, char **argv)
     timermap.start( riniKey );
     {
       q_ct1.submit([&](sycl::handler &cgh) {
-        cgh.parallel_for(
-            sycl::nd_range<3>(sycl::range<3>(1, 1, gpublocks) *
-                                  sycl::range<3>(1, 1, gputhreads),
-                              sycl::range<3>(1, 1, gputhreads)),
-            [=](sycl::nd_item<3> item_ct1) {
-              rambo2toNm0::getMomentaInitial(energy, devMomenta, item_ct1);
-            });
+          cgh.parallel_for(sycl::range<1>(ndim),
+                  [=](sycl::id<1> item) {
+              size_t ievt = item.get(0);
+              rambo2toNm0::getMomentaInitial(energy, devMomenta, ievt);
+          });
       });
       q_ct1.wait();
     }
@@ -449,18 +442,13 @@ int main(int argc, char **argv)
     rambtime += timermap.start( rfinKey );
     {
       q_ct1.submit([&](sycl::handler &cgh) {
-        cgh.parallel_for(
-            sycl::nd_range<3>(sycl::range<3>(1, 1, gpublocks) *
-                                  sycl::range<3>(1, 1, gputhreads),
-                              sycl::range<3>(1, 1, gputhreads)),
-            [=](sycl::nd_item<3> item_ct1) {
-              rambo2toNm0::getMomentaFinal(energy, devRnarray,
-                                            devMomenta,
-                                            devWeights, item_ct1);
-            });
+          cgh.parallel_for(sycl::range<1>(ndim),
+                  [=](sycl::id<1> item) {
+              size_t ievt = item.get(0);
+              rambo2toNm0::getMomentaFinal(energy, devRnarray, devMomenta, devWeights, item);
+          });
       });
-    q_ct1.wait();
-
+      q_ct1.wait();
     }
     //std::cout << "Got final momenta" << std::endl;
 

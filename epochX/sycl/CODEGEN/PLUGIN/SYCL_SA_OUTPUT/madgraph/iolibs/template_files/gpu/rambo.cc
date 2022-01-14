@@ -19,7 +19,7 @@ namespace rambo2toNm0
   SYCL_EXTERNAL void getMomentaInitial(
           const fptype energy,      // input: energy
           fptype momenta1d[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
-          sycl::nd_item<3> item_ct1 // SYCL item
+          size_t ievt // SYCL item
           ) {
     const int neppM = mgOnGpu::neppM; // ASA layout: constant at compile-time
     fptype (*momenta)[npar][np4][neppM] = (fptype (*)[npar][np4][neppM]) momenta1d; // cast to multiD array pointer (AOSOA)
@@ -27,8 +27,6 @@ namespace rambo2toNm0
     const fptype energy2 = energy/2;
     const fptype mom = energy/2;
     {
-      const int idim = item_ct1.get_local_range().get(2) * item_ct1.get_group(2) + item_ct1.get_local_id(2); // event# == threadid
-      const int ievt = idim;
       const int ipagM = ievt/neppM; // #eventpage in this iteration
       const int ieppM = ievt%neppM; // #event in the current eventpage in this iteration
       momenta[ipagM][0][0][ieppM] = energy1;
@@ -52,7 +50,7 @@ namespace rambo2toNm0
           const fptype rnarray1d[], // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
           fptype momenta1d[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
           fptype wgts[],            // output: weights[nevt]
-          sycl::nd_item<3> item_ct1 // SYCL item
+          size_t ievt // SYCL item
           ) {
 
     /****************************************************************************
@@ -83,9 +81,6 @@ namespace rambo2toNm0
         z[kpar] = (z[kpar] - sycl::log(fptype(kpar)));
 
     {
-        const int idim = item_ct1.get_local_range().get(2) * item_ct1.get_group(2) + item_ct1.get_local_id(2); // event# == threadid
-        const int ievt = idim;
-
         const int ipagR = ievt/neppR; // #eventpage in this iteration
         const int ieppR = ievt%neppR; // #event in the current eventpage in this iteration
         const int ipagM = ievt/neppM; // #eventpage in this iteration

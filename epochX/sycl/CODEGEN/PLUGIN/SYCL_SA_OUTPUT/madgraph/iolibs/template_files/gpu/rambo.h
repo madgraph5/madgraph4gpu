@@ -25,7 +25,7 @@ namespace rambo2toNm0
   SYCL_EXTERNAL
   void getMomentaInitial( const fptype energy, // input: energy
                           fptype momenta1d[],  // output: momenta as AOSOA[npagM][npar][4][neppM]
-                          sycl::nd_item<3> item_ct1
+                          size_t ievt
                           );
   //--------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ namespace rambo2toNm0
           const fptype rnarray1d[], // input: random numbers in [0,1] as AOSOA[npagR][nparf][4][neppR]
           fptype momenta1d[],       // output: momenta as AOSOA[npagM][npar][4][neppM]
           fptype wgts[],            // output: weights[nevt]
-          sycl::nd_item<3> item_ct1
+          size_t ievt
           );
 }
 
