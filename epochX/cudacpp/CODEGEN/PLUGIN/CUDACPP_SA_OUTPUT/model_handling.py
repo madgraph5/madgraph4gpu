@@ -710,15 +710,21 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         replace_dict['function_definitions'] = '\n'.join(template_cc_files)
         file_h = self.read_template_file(self.aloha_template_h) % replace_dict
         file_cc = self.read_template_file(self.aloha_template_cc) % replace_dict
-        # Write the files
+        # Write the HelAmps_sm.h and HelAmps_sm.cc files
+        ###writers.CPPWriter(model_h_file).writelines(file_h)
+        ###writers.CPPWriter(model_cc_file).writelines(file_cc)
+        ###logger.info("Created files %s and %s in directory" \
+        ###            % (os.path.split(model_h_file)[-1],
+        ###               os.path.split(model_cc_file)[-1]))
+        ###logger.info("%s and %s" % \
+        ###            (os.path.split(model_h_file)[0],
+        ###             os.path.split(model_cc_file)[0]))
+        # Write only the HelAmps_sm.h file
         writers.CPPWriter(model_h_file).writelines(file_h)
-        writers.CPPWriter(model_cc_file).writelines(file_cc)
-        logger.info("Created files %s and %s in directory" \
-                    % (os.path.split(model_h_file)[-1],
-                       os.path.split(model_cc_file)[-1]))
-        logger.info("%s and %s" % \
-                    (os.path.split(model_h_file)[0],
-                     os.path.split(model_cc_file)[0]))
+        logger.info("Created file %s in directory" \
+                    % (os.path.split(model_h_file)[-1] ))
+        logger.info("%s" % \
+                    (os.path.split(model_h_file)[0]))
 
 #------------------------------------------------------------------------------------
 
