@@ -1993,7 +1993,7 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  int * CPPProcess::get_cHel_ptr() const {return *cHel;}
+  short * CPPProcess::get_cHel_ptr() const {return *cHel;}
 
   //--------------------------------------------------------------------------
 
