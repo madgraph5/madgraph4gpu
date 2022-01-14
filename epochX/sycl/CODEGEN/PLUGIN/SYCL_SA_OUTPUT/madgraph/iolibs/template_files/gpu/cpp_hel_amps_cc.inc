@@ -3,9 +3,7 @@
 %(info_lines)s
 //==========================================================================
 
-#ifdef SYCL_LANGUAGE_VERSION
 #include <CL/sycl.hpp>
-#endif
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"

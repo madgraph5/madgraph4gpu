@@ -14,7 +14,7 @@
     ~CPPProcess();
 
     // Device Pointer Accessors
-    int * get_cHel_ptr();
+    short * get_cHel_ptr() const;
     fptype * get_cIPC_ptr();
     fptype * get_cIPD_ptr();
 

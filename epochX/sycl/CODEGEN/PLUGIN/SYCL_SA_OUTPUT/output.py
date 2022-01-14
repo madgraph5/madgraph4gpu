@@ -102,17 +102,17 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     s = PLUGINDIR + '/madgraph/iolibs/template_files/'
     from_template = {'src': [s+'gpu/rambo.h', s+'gpu/rambo.cc', s+'read_slha.h', s+'read_slha.cc',
                              s+'gpu/mgOnGpuTypes.h', s+'gpu/mgOnGpuVectors.h', s+'gpu/extras.h', s+'gpu/CommonRandomNumbers.h'],
-                    'SubProcesses': [s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h',
-                                     s+'gpu/Memory.h', s+'gpu/MemoryAccess.h', s+'gpu/Makefile', 
-                                     s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc', s+'gpu/testxxx.cc', s+'gpu/testxxx_cc_ref.txt',
+                    'SubProcesses': [s+'gpu/timer.h', s+'gpu/timermap.h',
+                                     s+'gpu/Memory.h', s+'gpu/MemoryAccess.h', 
+                                     s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
                                      s+'gpu/perf.py', s+'gpu/profile.sh']}
-    to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h', 'Memory.h', 'MemoryAccess.h', 'Makefile', 'MadgraphTest.h', 'runTest.cc', 'testxxx.cc', 'testxxx_cc_ref.txt', 'perf.py', 'profile.sh']
+    to_link_in_P = ['timer.h', 'timermap.h', 'Memory.h', 'MemoryAccess.h', 'runTest.cc', 'perf.py', 'profile.sh']
 
     # AV - use template files from PLUGINDIR instead of MG5DIR
     ###template_src_make = pjoin(MG5DIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')
     ###template_Sub_make = pjoin(MG5DIR, 'madgraph', 'iolibs', 'template_files','gpu','Makefile')
-    template_src_make = pjoin(PLUGINDIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')
-    template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','Makefile')
+    #template_src_make = pjoin(PLUGINDIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')
+    #template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','Makefile')
 
     # AV - use a custom UFOModelConverter (model/aloha exporter)
     ###create_model_class =  export_cpp.UFOModelConverterGPU

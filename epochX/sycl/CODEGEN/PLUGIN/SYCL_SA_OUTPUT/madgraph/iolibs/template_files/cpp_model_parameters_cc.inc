@@ -7,10 +7,8 @@
 #include <iomanip>
 #include "Parameters_%(model_name)s.h"
 
-#ifdef SYCL_LANGUAGE_VERSION
 #include "extras.h"
 #include "mgOnGpuTypes.h"
-#endif
 #ifndef MGONGPU_HARDCODE_CIPC
 
 // Initialize static instance

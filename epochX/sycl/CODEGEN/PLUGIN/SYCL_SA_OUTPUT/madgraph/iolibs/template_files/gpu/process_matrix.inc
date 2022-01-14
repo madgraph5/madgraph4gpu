@@ -25,31 +25,8 @@
 
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-#ifdef SYCL_LANGUAGE_VERSION
-      const int idim = item_ct1.get_local_range().get( 2 ) * item_ct1.get_group( 2 ) +
-        item_ct1.get_local_id( 2 ); // event# == threadid (previously was: tid)
-      const int ievt = idim;
       allMEs[ievt] += deltaMEs;
       //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %%6d %%2d %%f\n", ievt, ihel, allMEs[ievt] );
-#else
-#ifdef MGONGPU_CPPSIMD
-      if ( isAligned_allMEs )
-      {
-        *reinterpret_cast<fptype_sv*>( &( allMEs[ipagV*neppV] ) ) += deltaMEs;
-      }
-      else
-      {
-        for ( int ieppV=0; ieppV<neppV; ieppV++ )
-          allMEs[ipagV*neppV + ieppV] += deltaMEs[ieppV];
-      }
-      //if ( cNGoodHel > 0 )
-      //  for ( int ieppV=0; ieppV<neppV; ieppV++ )
-      //    printf( "calculate_wavefunction: %%6d %%2d %%f\n", ipagV*neppV+ieppV, ihel, allMEs[ipagV][ieppV] );
-#else
-      allMEs[ipagV] += deltaMEs;
-      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %%6d %%2d %%f\n", ipagV, ihel, allMEs[ipagV] );
-#endif
-#endif
     }
     mgDebug( 1, __FUNCTION__ );
     return;

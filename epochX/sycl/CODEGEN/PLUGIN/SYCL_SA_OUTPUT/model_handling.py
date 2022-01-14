@@ -819,14 +819,10 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     void calculate_wavefunctions( int ihel,
                                   const fptype *allmomenta,
                                   fptype *allMEs,
-                                  #ifdef SYCL_LANGUAGE_VERSION
-                                      sycl::nd_item<3> item_ct1,
-                                      int *cHel,
-                                      const fptype *cIPC,
-                                      const fptype *cIPD
-                                  #else
-                                      const int nevt
-                                  #endif
+                                  size_t ievt,
+                                  short *cHel,
+                                  const fptype *cIPC,
+                                  const fptype *cIPD
                                 ) {
         using namespace MG5_sm;
         mgDebug( 0, __FUNCTION__ );\n""")
@@ -842,26 +838,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
-#ifndef SYCL_LANGUAGE_VERSION
-    const int npagV = nevt / neppV;
-#ifdef MGONGPU_CPPSIMD
-    const bool isAligned_allMEs = ( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // require SIMD-friendly alignment by at least neppV*sizeof(fptype)
-#endif
-    // ** START LOOP ON IPAGV **
-#ifdef _OPENMP
-    // (NB gcc9 or higher, or clang, is required)
-    // - default(none): no variables are shared by default
-    // - shared: as the name says
-    // - private: give each thread its own copy, without initialising
-    // - firstprivate: give each thread its own copy, and initialise with value from outside
-#ifdef MGONGPU_CPPSIMD
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV,isAligned_allMEs) private (amp_sv,w_sv,jamp_sv)
-#else
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV) private (amp_sv,w_sv,jamp_sv)
-#endif
-#endif
-    for ( int ipagV = 0; ipagV < npagV; ++ipagV )
-#endif""")
+""")
             ret_lines.append('    {') # NB This is closed in process_matrix.inc
             helas_calls = self.helas_call_writer.get_matrix_element_calls(\
                                                     self.matrix_elements[0],
@@ -1233,7 +1210,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             # Fill out with X up to 6 positions
             call = call + 'x' * (6 - len(call))
             # Specify namespace for Helas calls
-            call = call + "(allmomenta, item_ct1, "
+            call = call + "(allmomenta, ievt, "
             if argument.get('spin') != 1:
                 # For non-scalars, need mass and helicity
                 call = call + "m_pars->%s, cHel[ihel*npar + %d],"
