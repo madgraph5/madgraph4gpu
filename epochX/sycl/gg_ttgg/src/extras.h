@@ -1,9 +1,7 @@
 #ifndef EXTRAS_H
 #define EXTRAS_H 1
 
-#ifdef SYCL_LANGUAGE_VERSION
 #include <CL/sycl.hpp>
-#endif
 
 namespace extras {
 

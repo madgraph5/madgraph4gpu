@@ -8,7 +8,6 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#include "nvtx.h"
 #pragma GCC diagnostic pop
 
 #include "timer.h"
@@ -39,8 +38,6 @@ namespace mgOnGpu
         m_partitionIds[key] = m_partitionTimers.size();
         m_partitionTimers[key] = 0;
       }
-      // Open a new Cuda NVTX range
-      NVTX_PUSH( key.c_str(), m_partitionIds[key] );
       // Return last duration
       return last;
     }
@@ -56,8 +53,6 @@ namespace mgOnGpu
         m_partitionTimers[m_active] += last;
       }
       m_active = "";
-      // Close the current Cuda NVTX range
-      NVTX_POP();
       // Return last duration
       return last;
     }

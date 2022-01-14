@@ -5,11 +5,8 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#ifdef SYCL_LANGUAGE_VERSION
 #include <CL/sycl.hpp>
 #include "../../src/HelAmps_sm.cc"
-
-#endif
 
 #include <algorithm>
 #include <array>
@@ -23,7 +20,6 @@
 #include "CPPProcess.h"
 #include "extras.h"
 
-// Test ncu metrics for CUDA thread divergence
 #undef MGONGPU_TEST_DIVERGENCE
 //#define MGONGPU_TEST_DIVERGENCE 1
 
@@ -41,9 +37,6 @@ namespace Proc
   using mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
 
   // Physics parameters (masses, coupling, etc...)
-  // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
-  // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
-  // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
 #ifdef MGONGPU_HARDCODE_CIPC
   __device__ const fptype cIPC[6] = {
     Parameters_sm::GC_3.real(), Parameters_sm::GC_3.imag(),
@@ -53,23 +46,12 @@ namespace Proc
     Parameters_sm::mdl_MZ,
     Parameters_sm::mdl_WZ };
 #else
-#ifdef SYCL_LANGUAGE_VERSION
   static fptype cIPC[6];
   static fptype cIPD[2];
-#else
-  static fptype cIPC[6];
-  static fptype cIPD[2];
-#endif
 #endif
 
   // Helicity combinations (and filtering of "good" helicity combinations)
-#ifdef SYCL_LANGUAGE_VERSION
-  static int cHel[ncomb][npar];
-#else
   static short cHel[ncomb][npar];
-  static int cNGoodHel; // FIXME: assume process.nprocesses == 1 for the moment (eventually cNGoodHel[nprocesses]?)
-  static int cGoodHel[ncomb];
-#endif
 
   //--------------------------------------------------------------------------
 
@@ -78,14 +60,10 @@ namespace Proc
     void calculate_wavefunctions( int ihel,
                                   const fptype *allmomenta,
                                   fptype *allMEs,
-                                  #ifdef SYCL_LANGUAGE_VERSION
-                                      sycl::nd_item<3> item_ct1,
-                                      int *cHel,
-                                      const fptype *cIPC,
-                                      const fptype *cIPD
-                                  #else
-                                      const int nevt
-                                  #endif
+                                  size_t ievt,
+                                  short *cHel,
+                                  const fptype *cIPC,
+                                  const fptype *cIPD
                                 ) {
         using namespace MG5_sm;
         mgDebug( 0, __FUNCTION__ );
@@ -102,26 +80,7 @@ namespace Proc
     cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
-#ifndef SYCL_LANGUAGE_VERSION
-    const int npagV = nevt / neppV;
-#ifdef MGONGPU_CPPSIMD
-    const bool isAligned_allMEs = ( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // require SIMD-friendly alignment by at least neppV*sizeof(fptype)
-#endif
-    // ** START LOOP ON IPAGV **
-#ifdef _OPENMP
-    // (NB gcc9 or higher, or clang, is required)
-    // - default(none): no variables are shared by default
-    // - shared: as the name says
-    // - private: give each thread its own copy, without initialising
-    // - firstprivate: give each thread its own copy, and initialise with value from outside
-#ifdef MGONGPU_CPPSIMD
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV,isAligned_allMEs) private (amp_sv,w_sv,jamp_sv)
-#else
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV) private (amp_sv,w_sv,jamp_sv)
-#endif
-#endif
-    for ( int ipagV = 0; ipagV < npagV; ++ipagV )
-#endif
+
     {
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
       for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }
@@ -202,31 +161,8 @@ namespace Proc
 
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-#ifdef SYCL_LANGUAGE_VERSION
-      const int idim = item_ct1.get_local_range().get( 2 ) * item_ct1.get_group( 2 ) +
-        item_ct1.get_local_id( 2 ); // event# == threadid (previously was: tid)
-      const int ievt = idim;
       allMEs[ievt] += deltaMEs;
       //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt] );
-#else
-#ifdef MGONGPU_CPPSIMD
-      if ( isAligned_allMEs )
-      {
-        *reinterpret_cast<fptype_sv*>( &( allMEs[ipagV*neppV] ) ) += deltaMEs;
-      }
-      else
-      {
-        for ( int ieppV=0; ieppV<neppV; ieppV++ )
-          allMEs[ipagV*neppV + ieppV] += deltaMEs[ieppV];
-      }
-      //if ( cNGoodHel > 0 )
-      //  for ( int ieppV=0; ieppV<neppV; ieppV++ )
-      //    printf( "calculate_wavefunction: %6d %2d %f\n", ipagV*neppV+ieppV, ihel, allMEs[ipagV][ieppV] );
-#else
-      allMEs[ipagV] += deltaMEs;
-      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %6d %2d %f\n", ipagV, ihel, allMEs[ipagV] );
-#endif
-#endif
     }
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -234,11 +170,12 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  CPPProcess::CPPProcess( int numiterations,
-                          int ngpublocks,
-                          int ngputhreads,
-                          bool verbose,
-                          bool debug )
+  CPPProcess::CPPProcess(
+          int numiterations,
+          int ngpublocks,
+          int ngputhreads,
+          bool verbose,
+          bool debug )
     : m_numiterations( numiterations )
     , m_ngpublocks( ngpublocks )
     , m_ngputhreads( ngputhreads )
@@ -267,20 +204,15 @@ namespace Proc
       {1, 1, -1, 1},
       {1, 1, 1, -1},
       {1, 1, 1, 1}};
-#ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * mgOnGpu::npar * sizeof(short) ) );
-#else
-    memcpy( cHel, tHel, ncomb * mgOnGpu::npar * sizeof(short) );
-#endif
+    memcpy( *cHel, *tHel, ncomb * mgOnGpu::npar * sizeof(short) );
+
     // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
     static_assert( sizeof(cxtype) == 2 * sizeof(fptype) );
-#ifndef __CUDACC__
     // SANITY CHECK: check that neppR, neppM and neppV are powers of two (https://stackoverflow.com/a/108360)
     auto ispoweroftwo = []( int n ) { return ( n > 0 ) && !( n & ( n - 1 ) ); };
     static_assert( ispoweroftwo( mgOnGpu::neppR ) );
     static_assert( ispoweroftwo( mgOnGpu::neppM ) );
     static_assert( ispoweroftwo( neppV ) );
-#endif
   }
 
   //--------------------------------------------------------------------------
@@ -293,7 +225,7 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  int * CPPProcess::get_cHel_ptr() {return *cHel;}
+  short * CPPProcess::get_cHel_ptr() const {return *cHel;}
 
   //--------------------------------------------------------------------------
 
@@ -332,15 +264,8 @@ namespace Proc
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     const cxtype tIPC[3] = { cxmake( m_pars->GC_3 ), cxmake( m_pars->GC_50 ), cxmake( m_pars->GC_59 ) };
     const fptype tIPD[2] = { (fptype)m_pars->mdl_MZ, (fptype)m_pars->mdl_WZ };
-#ifdef SYCL_LANGUAGE_VERSION
     memcpy( cIPC, tIPC, 3 * sizeof(cxtype) );
     memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
-#else
-    memcpy( cIPC, tIPC, 3 * sizeof(cxtype) );
-    memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
-#endif
-    //for ( i=0; i<3; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;
-    //for ( i=0; i<2; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
   }
 #else
   // Initialize process (with hardcoded parameters)
@@ -365,8 +290,7 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   // Retrieve the compiler that was used to build this module
-  const std::string CPPProcess::getCompiler()
-  {
+  const std::string CPPProcess::getCompiler() {
     std::stringstream out;
     // CUDA version (NVCC)
 #ifdef __CUDACC__
@@ -419,22 +343,21 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-#ifdef SYCL_LANGUAGE_VERSION
+  SYCL_EXTERNAL
   void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                             fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
                             bool * isGoodHel,  // output: isGoodHel[ncomb] - device array
-                            sycl::nd_item<3> item_ct1,
-                            int *cHel,
+                            size_t ievt,
+                            short *cHel,
                             const fptype *cIPC,
                             const fptype *cIPD
                             ) {
-      const int ievt = item_ct1.get_local_range().get(2) * item_ct1.get_group(2) + item_ct1.get_local_id(2); // event# == threadid
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
       fptype allMEsLast = 0;
       for ( int ihel = 0; ihel < ncomb; ihel++ )
       {
         // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-        calculate_wavefunctions( ihel, allmomenta, allMEs, item_ct1, cHel, cIPC, cIPD );
+        calculate_wavefunctions( ihel, allmomenta, allMEs, ievt, cHel, cIPC, cIPD );
         if ( allMEs[ievt] != allMEsLast )
         {
           //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
@@ -443,44 +366,9 @@ namespace Proc
         allMEsLast = allMEs[ievt]; // running sum up to helicity ihel for event ievt
       }
   }
-#else
-  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-                            bool* isGoodHel           // output: isGoodHel[ncomb] - device array
-                            , const int nevt )        // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
-  {
-    //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
-    //assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
-    const int maxtry0 = ( neppV > 16 ? neppV : 16 ); // 16, but at least neppV (otherwise the npagV loop does not even start)
-    fptype allMEsLast[maxtry0] = { 0 };
-    const int maxtry = std::min( maxtry0, nevt ); // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
-    for ( int ievt = 0; ievt < maxtry; ++ievt )
-    {
-      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-      allMEs[ievt] = 0; // all zeros
-    }
-    for ( int ihel = 0; ihel < ncomb; ihel++ )
-    {
-      //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
-      calculate_wavefunctions( ihel, allmomenta, allMEs, maxtry );
-      for ( int ievt = 0; ievt < maxtry; ++ievt )
-      {
-        // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-        const bool differs = ( allMEs[ievt] != allMEsLast[ievt] );
-        if ( differs )
-        {
-          //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
-          isGoodHel[ihel] = true;
-        }
-        allMEsLast[ievt] = allMEs[ievt]; // running sum up to helicity ihel
-      }
-    }
-  }
-#endif
 
   //--------------------------------------------------------------------------
 
-#ifdef SYCL_LANGUAGE_VERSION
   SYCL_EXTERNAL
   void sigmaKin_setGoodHel( const bool* isGoodHel, int* cNGoodHel, int* cGoodHel) {
     *cNGoodHel = 0;
@@ -492,45 +380,22 @@ namespace Proc
       }
     }
   }
-#else
-  void sigmaKin_setGoodHel( const bool* isGoodHel ) // input: isGoodHel[ncomb] - host array
-  {
-    int nGoodHel = 0; // FIXME: assume process.nprocesses == 1 for the moment (eventually nGoodHel[nprocesses]?)
-    int goodHel[ncomb] = { 0 };
-    for ( int ihel = 0; ihel < ncomb; ihel++ )
-    {
-      //std::cout << "sigmaKin_setGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
-      if ( isGoodHel[ihel] )
-      {
-        //goodHel[nGoodHel[0]] = ihel; // FIXME: assume process.nprocesses == 1 for the moment
-        //nGoodHel[0]++; // FIXME: assume process.nprocesses == 1 for the moment
-        goodHel[nGoodHel] = ihel;
-        nGoodHel++;
-      }
-    }
-    cNGoodHel = nGoodHel;
-    for ( int ihel = 0; ihel < ncomb; ihel++ ) cGoodHel[ihel] = goodHel[ihel];
-  }
-#endif
 
   //--------------------------------------------------------------------------
   // Evaluate |M|^2, part independent of incoming flavour
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
   SYCL_EXTERNAL
-  void sigmaKin( const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                 fptype* allMEs            // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-                 #ifdef SYCL_LANGUAGE_VERSION
-                     , sycl::nd_item<3> item_ct1,
-                     int *cHel,
-                     const fptype *cIPC,
-                     const fptype *cIPD,
-                     int *cNGoodHel,
-                     int *cGoodHel
-                 #else
-                 , const int nevt  // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
-                 #endif
-                 )  {
+  void sigmaKin(
+          const fptype* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+          fptype* allMEs,            // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+          size_t ievt,
+          short *cHel,
+          const fptype *cIPC,
+          const fptype *cIPD,
+          int *cNGoodHel,
+          int *cGoodHel
+          )  {
     mgDebugInitialise();
 
     // Denominators: spins, colors and identical particles
@@ -545,32 +410,14 @@ namespace Proc
     // PART 0 - INITIALISATION (before calculate_wavefunctions)
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-#ifdef SYCL_LANGUAGE_VERSION
-      const int idim = item_ct1.get_local_range().get( 2 ) * item_ct1.get_group( 2 ) +
-        item_ct1.get_local_id( 2 ); // event# == threadid (previously was: tid)
-      const int ievt = idim;
-      allMEs[ievt] = 0;
-#else
-    const int npagV = nevt/neppV;
-    for ( int ipagV = 0; ipagV < npagV; ++ipagV )
-    {
-      for ( int ieppV=0; ieppV<neppV; ieppV++ )
-        allMEs[ipagV*neppV + ieppV] = 0; // all zeros
-    }
-#endif
+    allMEs[ievt] = 0;
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-    for ( int ighel = 0; ighel < *cNGoodHel; ighel++ )
-    {
-      const int ihel = cGoodHel[ighel];
-#ifdef SYCL_LANGUAGE_VERSION
-      calculate_wavefunctions( ihel, allmomenta, allMEs, item_ct1, cHel, cIPC, cIPD );
-#else
-      calculate_wavefunctions( ihel, allmomenta, allMEs, nevt );
-#endif
-      //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
+    for ( int ighel = 0; ighel < *cNGoodHel; ighel++ ) {
+        const int ihel = cGoodHel[ighel];
+        calculate_wavefunctions( ihel, allmomenta, allMEs, ievt, cHel, cIPC, cIPD );
     }
 
     // PART 2 - FINALISATION (after calculate_wavefunctions)
@@ -578,15 +425,7 @@ namespace Proc
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-#ifdef SYCL_LANGUAGE_VERSION
     allMEs[ievt] /= denominators;
-#else
-    for ( int ipagV = 0; ipagV < npagV; ++ipagV )
-    {
-      for ( int ieppV=0; ieppV<neppV; ieppV++ )
-        allMEs[ipagV*neppV + ieppV] /= denominators;
-    }
-#endif
     mgDebugFinalise();
   }
 
