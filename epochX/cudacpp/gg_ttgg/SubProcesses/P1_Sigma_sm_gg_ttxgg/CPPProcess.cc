@@ -159,17 +159,17 @@ namespace mg5amcCpu
       // *** DIAGRAM 1 OF 123 ***
 
       // Wavefunction(s) for diagram number 1
-      vxxxxx<M_ACCESS, W_ACCESS>(allmomenta, 0., cHel[ihel][0], -1, w_fp[0], 0);
+      vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][0], -1, w_fp[0], 0 );
 
-      vxxxxx<M_ACCESS, W_ACCESS>(allmomenta, 0., cHel[ihel][1], -1, w_fp[1], 1);
+      vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][1], -1, w_fp[1], 1 );
 
-      oxxxxx<M_ACCESS, W_ACCESS>(allmomenta, cIPD[0], cHel[ihel][2], +1, w_fp[2], 2);
+      oxxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][2], +1, w_fp[2], 2 );
 
-      ixxxxx<M_ACCESS, W_ACCESS>(allmomenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3);
+      ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
 
-      vxxxxx<M_ACCESS, W_ACCESS>(allmomenta, 0., cHel[ihel][4], +1, w_fp[4], 4);
+      vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][4], +1, w_fp[4], 4 );
 
-      vxxxxx<M_ACCESS, W_ACCESS>(allmomenta, 0., cHel[ihel][5], +1, w_fp[5], 5);
+      vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][5], +1, w_fp[5], 5 );
 
       VVV1P0_1<W_ACCESS>( w_fp[0], w_fp[1], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_fp[6] );
       FFV1P0_3<W_ACCESS>( w_fp[3], w_fp[2], cxmake( cIPC[2], cIPC[3] ), 0., 0., w_fp[7] );
