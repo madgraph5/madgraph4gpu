@@ -174,7 +174,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         for format, argname in self.define_argument_list(couplings):
             if format.startswith('list'):
                 type = self.type2def[format[5:]] # double or complex (instead of list_double or list_complex)
-                if not argname.startswith('COUP'): type = self.type2def[format[5:]+'_v'] # AV vectorize (double_v or complex_v)
+                ###if not argname.startswith('COUP'): type = self.type2def[format[5:]+'_v'] # AV vectorize (double_v or complex_v)
+                if not argname.startswith('COUP'):
+                    type = self.type2def['double'] # AV from cxtype_sv to fptype
+                    argname = 'all'+argname
                 list_arg = '[]'
                 comment_inputs.append('%s[6]'%argname) # AV (wavefuncsize=6 is hardcoded also in export_cpp...)
             else:
@@ -186,18 +189,20 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             else:
                 args.append('%s %s%s'% (type, argname, list_arg))
         if not self.offshell:
-            output = '%(doublec)s%(pointer_vertex)s allvertexes' % {
-                'doublec': self.type2def['double'],
-                'pointer_vertex': self.type2def['pointer_vertex']}
-            comment_output = 'amplitude \'vertex\''
+            ###output = '%(doublec)s%(pointer_vertex)s allvertexes' % {
+            ###    'doublec': self.type2def['double'],
+            ###    'pointer_vertex': self.type2def['pointer_vertex']}
+            output = '%(doublec)s allvertexes[]' % {
+                'doublec': self.type2def['double']}
+            comment_output = 'amplitude(s) \'allvertexes\''
             template = 'template<class W_ACCESS, class A_ACCESS>'
         else:
-            output = '%(doublec)s* all%(spin)s%(id)d' % {
+            output = '%(doublec)s all%(spin)s%(id)d[]' % {
                      'doublec': self.type2def['double'],
                      'spin': self.particles[self.outgoing -1],
                      'id': self.outgoing}
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
-            comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
+            comment_output = 'wavefunction(a) \'all%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
             template = 'template<class W_ACCESS>'
         comment = '// Compute the output %s from the input wavefunctions %s' % ( comment_output, ', '.join(comment_inputs) ) # AV
         indent = ' ' * len( '  void %s( ' % name )
