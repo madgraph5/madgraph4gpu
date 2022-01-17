@@ -4,6 +4,7 @@
 #include "HelAmps_sm.h"
 #include "MemoryBuffers.h"
 #include "MemoryAccessMomenta.h"
+#include "MemoryAccessWavefunctions.h"
 
 #include <array>
 #include <cassert>
@@ -91,7 +92,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     {
 #ifdef MGONGPU_CPPSIMD
       const int ieppV = ievt%neppV; // #event in the current event vector in this iteration
-#ifdef MGONGPU_HAS_CPPCXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
       out << std::setw(26) << cxreal( wf[iw6][ieppV] ) << ", ";
       out << std::setw(22) << cximag( wf[iw6][ieppV] );
 #else
@@ -127,7 +128,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
         {
 #ifdef MGONGPU_CPPSIMD
           const int ieppV = ievt%neppV; // #event in the current event vector in this iteration
-#ifdef MGONGPU_HAS_CPPCXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
           EXPECT_NEAR( cxreal( wf[iw6][ieppV] ), expReal, std::abs( expReal * toleranceXXXs ) )
             << " itest=" << itest << ": " << xxx << "#" << ievt;
           EXPECT_NEAR( cximag( wf[iw6][ieppV] ), expImag, std::abs( expImag * toleranceXXXs ) )
@@ -164,7 +165,7 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
         {
 #ifdef MGONGPU_CPPSIMD
           const int ieppV = ievt%neppV; // #event in the current event vector in this iteration
-#ifdef MGONGPU_HAS_CPPCXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
           const fptype expReal = cxreal( expwf[iw6][ieppV] );
           const fptype expImag = cximag( expwf[iw6][ieppV] );
           EXPECT_NEAR( cxreal( wf[iw6][ieppV] ), expReal, std::abs( expReal * toleranceXXXs ) )
@@ -195,6 +196,11 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
   cxtype_sv outwfI[6]{}; // last result of ixxxxx (mass==0)
   cxtype_sv outwfO[6]{}; // last result of oxxxxx (mass==0)
   cxtype_sv outwf[6]{};
+  cxtype_sv outwf3[6]{}; // NB: only 3 are filled by sxxxxx, but 6 are compared!
+  fptype* fp_outwfI = reinterpret_cast<fptype*>( outwfI );; // proof of concept for using fptype* in the interface 
+  fptype* fp_outwfO = reinterpret_cast<fptype*>( outwfO );; // proof of concept for using fptype* in the interface 
+  fptype* fp_outwf = reinterpret_cast<fptype*>( outwf );; // proof of concept for using fptype* in the interface 
+  fptype* fp_outwf3 = reinterpret_cast<fptype*>( outwf3 );; // proof of concept for using fptype* in the interface 
   for ( auto nsp : { -1, +1 } ) // antifermion/fermion (or initial/final for scalar and vector)
   {
     for ( int ievt = 0; ievt < nevt; ievt++ )
@@ -215,75 +221,74 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test ixxxxx - NO ASSUMPTIONS
       {
         const fptype fmass = mass0[ievt];
-        ixxxxx<HostAccessMomenta>( ievt0Momenta, fmass, nhel, nsp, outwfI, ipar0 );
+        ixxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, fmass, nhel, nsp, fp_outwfI, ipar0 );
         testwf6( outwfI, "ixxxxx", ievt, nsp, fmass );
-        ixxxxx<HostAccessMomenta>( ievt0Momenta, -fmass, nhel, nsp, outwfI, ipar0 );
+        ixxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, -fmass, nhel, nsp, fp_outwfI, ipar0 );
         testwf6( outwfI, "ixxxxx", ievt, nsp, -fmass );
       }
       // Test ipzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzgt0[ievt] )
       {
-        ipzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 );
+        ipzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
         testwf6two( outwf, outwfI, "ipzxxx", ievt );
         testwf6( outwf, "ipzxxx", ievt, nsp, 0 );
       }
       // Test imzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
-        imzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 );
+        imzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
         testwf6two( outwf, outwfI, "imzxxx", ievt );
         testwf6( outwf, "imzxxx", ievt, nsp, 0 );
       }
       // Test ixzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
       if ( mass0[ievt] == 0 && isptgt0[ievt] )
       {
-        ixzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 );
+        ixzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
         testwf6two( outwf, outwfI, "ixzxxx", ievt );
         testwf6( outwf, "ixzxxx", ievt, nsp, 0 );
       }
       // Test vxxxxx - NO ASSUMPTIONS
       {
         const fptype vmass = mass0[ievt];
-        vxxxxx<HostAccessMomenta>( ievt0Momenta, vmass, nhel, nsp, outwf, ipar0 );
+        vxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, vmass, nhel, nsp, fp_outwf, ipar0 );
         testwf6( outwf, "vxxxxx", ievt, nsp, vmass );
-        vxxxxx<HostAccessMomenta>( ievt0Momenta, -vmass, nhel, nsp, outwf, ipar0 );
+        vxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, -vmass, nhel, nsp, fp_outwf, ipar0 );
         testwf6( outwf, "vxxxxx", ievt, nsp, -vmass );
       }
       // Test sxxxxx - NO ASSUMPTIONS
       {
         const fptype smass = mass0[ievt];
-        cxtype_sv outwf3[6]{}; // NB: only 3 are filled by sxxxxx, but 6 are compared!
-        sxxxxx<HostAccessMomenta>( ievt0Momenta, smass, nhel, nsp, outwf3, ipar0 );
+        sxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, smass, nhel, nsp, fp_outwf3, ipar0 );
         testwf6( outwf3, "sxxxxx", ievt, nsp, smass );
-        sxxxxx<HostAccessMomenta>( ievt0Momenta, -smass, nhel, nsp, outwf3, ipar0 );
+        sxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, -smass, nhel, nsp, fp_outwf3, ipar0 );
         testwf6( outwf3, "sxxxxx", ievt, nsp, -smass );
       }
       // Test oxxxxx - NO ASSUMPTIONS
       {
         const fptype fmass = mass0[ievt];
-        oxxxxx<HostAccessMomenta>( ievt0Momenta, fmass, nhel, nsp, outwfO, ipar0 );
+        oxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, fmass, nhel, nsp, fp_outwfO, ipar0 );
         testwf6( outwfO, "oxxxxx", ievt, nsp, fmass );
-        oxxxxx<HostAccessMomenta>( ievt0Momenta, -fmass, nhel, nsp, outwfO, ipar0 );
+        oxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, -fmass, nhel, nsp, fp_outwfO, ipar0 );
         testwf6( outwfO, "oxxxxx", ievt, nsp, -fmass );
       }
       // Test opzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzgt0[ievt] )
       {
-        opzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 );
+        opzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
         testwf6two( outwf, outwfO, "opzxxx", ievt );
         testwf6( outwf, "opzxxx", ievt, nsp, 0 );
       }
       // Test omzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
       if ( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
-        omzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 );
+        omzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
         testwf6two( outwf, outwfO, "omzxxx", ievt );
         testwf6( outwf, "omzxxx", ievt, nsp, 0 );
       }
       // Test oxzxxx - ASSUMPTIONS: (FMASS == 0) and (PT > 0)
       if ( mass0[ievt] == 0 && isptgt0[ievt] )
       {
-        oxzxxx<HostAccessMomenta>( ievt0Momenta, nhel, nsp, outwf, ipar0 );
+        oxzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, reinterpret_cast<fptype*>( outwf ), ipar0 );
         testwf6two( outwf, outwfO, "oxzxxx", ievt );
         testwf6( outwf, "oxzxxx", ievt, nsp, 0 );
       }
@@ -295,13 +300,6 @@ TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
     std::cout << "INFO: New reference data dumped to file '" << dumpFileName << "'" << std::endl;
   }
 }
-
-//==========================================================================
-
-// This is needed if and only if C++ LTO-like inlining optimizations are used in CPPProcess.cc (issue #229)
-#ifdef MGONGPU_INLINE_HELAMPS
-#include "../../src/HelAmps_sm.cc"
-#endif
 
 //==========================================================================
 

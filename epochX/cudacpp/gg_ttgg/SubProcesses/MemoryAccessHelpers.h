@@ -14,46 +14,51 @@ public:
 
   //--------------------------------------------------------------------------
 
-  // (Non-const memory access to field from ievent)
+  // Locate an event record (output) in a memory buffer (input) from the given event number (input)
+  // [Signature (non-const) ===> fptype* ieventAccessRecord( fptype* buffer, const int ievt ) <===]
   static constexpr auto ieventAccessRecord = T::ieventAccessRecord;
 
   //--------------------------------------------------------------------------
 
-  // (Const memory access to event record from ievent)
+  // Locate an event record (output) in a memory buffer (input) from the given event number (input)
+  // [Signature (const) ===> const fptype* ieventAccessRecordConst( const fptype* buffer, const int ievt ) <===]
   static
   __host__ __device__ inline
-  fptype* ieventAccessRecordConst( const fptype* buffer,
-                                   const int ievt )
+  const fptype* ieventAccessRecordConst( const fptype* buffer,
+                                         const int ievt )
   {
     return ieventAccessRecord( const_cast<fptype*>( buffer ), ievt );
   }
 
   //--------------------------------------------------------------------------
 
-  // (Non-const memory access to field in an event record)
+  // Locate a field (output) of an event record (input) from the given field indexes (input)
+  // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, Ts... args ) <===]
   static constexpr auto decodeRecord = T::decodeRecord;
 
   //--------------------------------------------------------------------------
 
-  // (Const memory access to field in an event record)
-  template<class... Ts> // variadic template
+  // Locate a field (output) of an event record (input) from the given field indexes (input)
+  // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer, Ts... args ) <===]
+  template<class... Ts>
   static
   __host__ __device__ inline
-  const fptype& decodeRecordConst( fptype* buffer,
-                                   Ts... args )
+  const fptype& decodeRecordConst( const fptype* buffer,
+                                   Ts... args ) // variadic template
   {
     return T::decodeRecord( const_cast<fptype*>( buffer ), args... );
   }
 
   //--------------------------------------------------------------------------
 
-  // (Non-const memory access to field from ievent)
-  template<class... Ts> // variadic template
+  // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
+  // [Signature (non-const) ===> fptype& ieventAccessField( fptype* buffer, const ievt, Ts... args ) <===]
+  template<class... Ts>
   static
   __host__ __device__ inline
   fptype& ieventAccessField( fptype* buffer,
                              const int ievt,
-                             Ts... args )
+                             Ts... args ) // variadic template
   {
     // NB all KernelLaunchers assume that memory access can be decomposed as "accessField = decodeRecord( accessRecord )"
     // (in other words: first locate the event record for a given event, then locate an element in that record)
@@ -62,13 +67,14 @@ public:
 
   //--------------------------------------------------------------------------
 
-  // (Const memory access to field from ievent)
-  template<class... Ts> // variadic template
+  // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
+  // [Signature (const) ===> const fptype& ieventAccessFieldConst( const fptype* buffer, const ievt, Ts... args ) <===]
+  template<class... Ts>
   static
   __host__ __device__ inline
   const fptype& ieventAccessFieldConst( const fptype* buffer,
                                         const int ievt,
-                                        Ts... args )
+                                        Ts... args ) // variadic template
   {
     return ieventAccessField( const_cast<fptype*>( buffer ), ievt, args... );
   }
@@ -85,8 +91,8 @@ public:
 
   //--------------------------------------------------------------------------
 
-  // Locate an event record (output) in a memory buffer (input) from an implicit event-indexing mechanism in the kernel
-  // (Non-const memory access to event record from kernel)
+  // Locate an event record (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
+  // [Signature (non-const) ===> fptype* kernelAccessRecord( fptype* buffer ) <===]
   static
   __host__ __device__ inline
   fptype* kernelAccessRecord( fptype* buffer )
@@ -110,22 +116,24 @@ public:
 
   //--------------------------------------------------------------------------
 
-  // (Const memory access to event record from kernel)
+  // Locate an event record (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
+  // [Signature (const) ===> const fptype* kernelAccessRecordConst( const fptype* buffer ) <===]
   static
   __host__ __device__ inline
-  fptype* kernelAccessRecordConst( const fptype* buffer )
+  const fptype* kernelAccessRecordConst( const fptype* buffer )
   {
     return kernelAccessRecord( const_cast<fptype*>( buffer ) );
   }
 
   //--------------------------------------------------------------------------
 
-  // (Non-const memory access to field from kernel)
-  template<class... Ts> // variadic template
+  // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
+  // [Signature (non-const) ===> fptype& kernelAccessField( fptype* buffer, Ts... args ) <===]
+  template<class... Ts>
   static
   __host__ __device__ inline
   fptype& kernelAccessField( fptype* buffer,
-                             Ts... args )
+                             Ts... args ) // variadic template
   {
     // NB all KernelLaunchers assume that memory access can be decomposed as "accessField = decodeRecord( accessRecord )"
     // (in other words: first locate the event record for a given event, then locate an element in that record)
@@ -134,12 +142,13 @@ public:
 
   //--------------------------------------------------------------------------
 
-  // (Const memory access to field from kernel)
-  template<class... Ts> // variadic template
+  // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
+  // [Signature (const) ===> const fptype& kernelAccessFieldConst( const fptype* buffer, Ts... args ) <===]
+  template<class... Ts>
   static
   __host__ __device__ inline
   const fptype& kernelAccessFieldConst( const fptype* buffer,
-                                        Ts... args )
+                                        Ts... args ) // variadic template
   {
     return kernelAccessField( const_cast<fptype*>( buffer ), args... );
   }

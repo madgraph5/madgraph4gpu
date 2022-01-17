@@ -775,15 +775,15 @@ int main(int argc, char **argv)
 #else
   wrkflwtxt += "/????"; // no path to this statement
 #endif
-  // -- Has cxtype_v::operator[] with non-const reference?
+  // -- Has cxtype_v::operator[] bracket with non-const reference?
 #if defined MGONGPU_CPPSIMD
-#ifdef MGONGPU_HAS_CPPCXTYPE_REF
-  wrkflwtxt += "+CXREF";
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
+  wrkflwtxt += "+CXVBRK";
 #else
-  wrkflwtxt += "+NOREF";
+  wrkflwtxt += "+NOVBRK";
 #endif
 #else
-  wrkflwtxt += "+NAREF"; // N/A
+  wrkflwtxt += "+NAVBRK"; // N/A
 #endif
 
   // --- 9a Dump to screen
@@ -806,7 +806,7 @@ int main(int argc, char **argv)
     while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get() ) != nullptr ) nprocall += nprocbuf.data();
 #endif
 #ifdef MGONGPU_CPPSIMD
-#ifdef MGONGPU_HAS_CPPCXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
     const std::string cxtref = " [cxtype_ref=YES]";
 #else
     const std::string cxtref = " [cxtype_ref=NO]";

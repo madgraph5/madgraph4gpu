@@ -37,32 +37,14 @@ namespace mgOnGpu
   // If set: return a pair of (fptype&, fptype&) by non-const reference in cxtype_v::operator[]
   // This is forbidden in clang ("non-const reference cannot bind to vector element")
   // See also https://stackoverflow.com/questions/26554829
-  //#define MGONGPU_HAS_CPPCXTYPE_REF 1 // clang test (compilation fails also on clang 12.0, issue #182)
-#undef MGONGPU_HAS_CPPCXTYPE_REF // clang default
+  //#define MGONGPU_HAS_CPPCXTYPEV_BRK 1 // clang test (compilation fails also on clang 12.0, issue #182)
+#undef MGONGPU_HAS_CPPCXTYPEV_BRK // clang default
 #elif defined __INTEL_COMPILER
-  //#define MGONGPU_HAS_CPPCXTYPE_REF 1 // icc default?
-#undef MGONGPU_HAS_CPPCXTYPE_REF // icc test
+  //#define MGONGPU_HAS_CPPCXTYPEV_BRK 1 // icc default?
+#undef MGONGPU_HAS_CPPCXTYPEV_BRK // icc test
 #else
-#define MGONGPU_HAS_CPPCXTYPE_REF 1 // gcc default
-  //#undef MGONGPU_HAS_CPPCXTYPE_REF // gcc test (very slightly slower? issue #172)
-#endif
-
-#ifdef MGONGPU_HAS_CPPCXTYPE_REF
-  // NB: the alternative "clang" implementation is simpler: it simply does not have class cxtype_ref
-  class cxtype_ref
-  {
-  public:
-    cxtype_ref() = delete;
-    cxtype_ref( const cxtype_ref& ) = delete;
-    cxtype_ref( cxtype_ref&& ) = default;
-    cxtype_ref( fptype& r, fptype& i ) : m_real{r}, m_imag{i} {}
-    cxtype_ref& operator=( const cxtype_ref& ) = delete;
-    cxtype_ref& operator=( cxtype_ref&& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // for cxternary
-    cxtype_ref& operator=( const cxtype& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; }
-    operator cxtype() const { return cxmake( m_real, m_imag ); }
-  private:
-    fptype &m_real, &m_imag; // RI
-  };
+#define MGONGPU_HAS_CPPCXTYPEV_BRK 1 // gcc default
+  //#undef MGONGPU_HAS_CPPCXTYPEV_BRK // gcc test (very slightly slower? issue #172)
 #endif
 
   // --- Type definition (using vector compiler extensions: need -march=...)
@@ -77,8 +59,9 @@ namespace mgOnGpu
     cxtype_v& operator=( cxtype_v&& ) = default;
     cxtype_v& operator+=( const cxtype_v& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
     cxtype_v& operator-=( const cxtype_v& c ){ m_real -= c.real(); m_imag -= c.imag(); return *this; }
-#ifdef MGONGPU_HAS_CPPCXTYPE_REF
-    // NB: the alternative "clang" implementation is simpler: it simply does not have any operator[]
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
+    // NB: THIS IS THE FUNDAMENTAL DIFFERENCE BETWEEN MGONGPU_HAS_CPPCXTYPEV_BRK DEFINED AND NOT DEFINED
+    // NB: the alternative "clang" implementation is simpler: it simply does not have any bracket operator[]
     // NB: ** do NOT implement operator[] to return a value: it does not fail the build (why?) and gives unexpected results! **
     cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); }
 #endif
@@ -154,7 +137,7 @@ inline std::ostream& operator<<( std::ostream& out, const fptype_v& v )
 #ifdef MGONGPU_CPPSIMD
 inline std::ostream& operator<<( std::ostream& out, const cxtype_v& v )
 {
-#ifdef MGONGPU_HAS_CPPCXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
   out << "{ " << v[0];
   for ( int i=1; i<neppV; i++ ) out << ", " << v[i];
 #else
@@ -459,7 +442,7 @@ fptype_v fpternary( const bool_v& mask, const fptype& a, const fptype& b )
 inline
 cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype_v& b )
 {
-#ifdef MGONGPU_HAS_CPPCXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
   cxtype_v out;
   for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a[i] : b[i] );
   return out;
@@ -477,7 +460,7 @@ cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype_v& b )
 inline
 cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype& b )
 {
-#ifdef MGONGPU_HAS_CPPCXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
   cxtype_v out;
   for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a[i] : b );
   return out;
@@ -495,7 +478,7 @@ cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype& b )
 inline
 cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype_v& b )
 {
-#ifdef MGONGPU_HAS_CPPCXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
   cxtype_v out;
   for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a : b[i] );
   return out;
@@ -513,7 +496,7 @@ cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype_v& b )
 inline
 cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype& b )
 {
-#ifdef MGONGPU_HAS_CPPCXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
   cxtype_v out;
   for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a : b );
   return out;

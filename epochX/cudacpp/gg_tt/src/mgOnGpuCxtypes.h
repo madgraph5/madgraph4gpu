@@ -86,6 +86,11 @@ namespace mgOnGpu
 #endif
 #endif
 
+  // The number of floating point types in a complex type (real, imaginary)
+  constexpr int nx2 = 2;
+  
+  // SANITY CHECK: memory access may be based on casts of fptype[2] to cxtype (e.g. for wavefunctions)
+  static_assert( sizeof(cxtype) == nx2 * sizeof(fptype), "sizeof(cxtype) is not 2*sizeof(fptype)" );
 }
 
 // Expose typedefs and operators outside the namespace
@@ -533,6 +538,31 @@ cxtype cxmake( const std::complex<double>& c ) // std::complex to std::complex (
 #endif
 
 #endif // #if not defined __CUDACC__ and defined MGONGPU_CPPCXTYPE_STDCOMPLEX
+
+//==========================================================================
+// COMPLEX TYPES: WRAPPER OVER RI FLOATING POINT PAIR (cxtype_ref)
+//==========================================================================
+
+namespace mgOnGpu
+{
+  // The cxtype_ref class (a non-const reference to two fp variables) was originally designed for cxtype_v::operator[]
+  // It used to be included in the code only when MGONGPU_HAS_CPPCXTYPEV_BRK (originally MGONGPU_HAS_CPPCXTYPE_REF) is defined
+  // It is now always included in the code because it is needed also to access an fptype wavefunction buffer as a cxtype
+  class cxtype_ref
+  {
+  public:
+    cxtype_ref() = delete;
+    cxtype_ref( const cxtype_ref& ) = delete;
+    cxtype_ref( cxtype_ref&& ) = default;
+    cxtype_ref( fptype& r, fptype& i ) : m_real{r}, m_imag{i} {}
+    cxtype_ref& operator=( const cxtype_ref& ) = delete;
+    cxtype_ref& operator=( cxtype_ref&& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // for cxternary
+    cxtype_ref& operator=( const cxtype& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; }
+    operator cxtype() const { return cxmake( m_real, m_imag ); }
+  private:
+    fptype &m_real, &m_imag; // RI
+  };
+}
 
 //==========================================================================
 
