@@ -718,10 +718,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         ###            (os.path.split(model_h_file)[0],
         ###             os.path.split(model_cc_file)[0]))
         # Write only the HelAmps_sm.h file
-        file_h_lines = file_h.split('\n')
-        file_h = '\n'.join( file_h_lines[:-2])
-        file_h += file_cc # append the contents of HelAmps_sm.cc directly to HelAmps_sm.h!
-        file_h += '\n' + file_h_lines[-2]
+        file_h = file_h + file_cc # append the contents of HelAmps_sm.cc directly to HelAmps_sm.h!
         writers.CPPWriter(model_h_file).writelines(file_h)
         logger.info("Created file %s in directory" \
                     % (os.path.split(model_h_file)[-1] ))
