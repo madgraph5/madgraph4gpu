@@ -817,7 +817,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'V1[6]' from the input wavefunctions V2[6], V3[6]
-  __device__ NOINLINE
+  __device__ INLINE NOINLINE
   void VVV1P0_1( const cxtype_sv V2[],
                  const cxtype_sv V3[],
                  const cxtype COUP,
@@ -838,7 +838,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'F1[6]' from the input wavefunctions F2[6], V3[6]
-  __device__ NOINLINE
+  __device__ INLINE NOINLINE
   void FFV1_1( const cxtype_sv F2[],
                const cxtype_sv V3[],
                const cxtype COUP,
@@ -849,7 +849,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'F2[6]' from the input wavefunctions F1[6], V3[6]
-  __device__ NOINLINE
+  __device__ INLINE NOINLINE
   void FFV1_2( const cxtype_sv F1[],
                const cxtype_sv V3[],
                const cxtype COUP,
@@ -860,7 +860,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
-  __device__ NOINLINE
+  __device__ INLINE NOINLINE
   void FFV1P0_3( const cxtype_sv F1[],
                  const cxtype_sv F2[],
                  const cxtype COUP,
@@ -882,7 +882,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'V1[6]' from the input wavefunctions V2[6], V3[6], V4[6]
-  __device__ NOINLINE
+  __device__ INLINE NOINLINE
   void VVVV1P0_1( const cxtype_sv V2[],
                   const cxtype_sv V3[],
                   const cxtype_sv V4[],
@@ -905,7 +905,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'V1[6]' from the input wavefunctions V2[6], V3[6], V4[6]
-  __device__ NOINLINE
+  __device__ INLINE NOINLINE
   void VVVV3P0_1( const cxtype_sv V2[],
                   const cxtype_sv V3[],
                   const cxtype_sv V4[],
@@ -928,7 +928,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'V1[6]' from the input wavefunctions V2[6], V3[6], V4[6]
-  __device__ NOINLINE
+  __device__ INLINE NOINLINE
   void VVVV4P0_1( const cxtype_sv V2[],
                   const cxtype_sv V3[],
                   const cxtype_sv V4[],
