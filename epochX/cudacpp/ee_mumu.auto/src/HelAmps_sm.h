@@ -881,35 +881,7 @@ namespace mg5amcCpu
                  const fptype W3,
                  fptype allV3[] ) ALWAYS_INLINE;
 
-  //--------------------------------------------------------------------------
-
-} // end namespace
-//==========================================================================
-// This file has been automatically generated for CUDA/C++ standalone by
-// MadGraph5_aMC@NLO v. 2.9.5, 2021-08-22
-// By the MadGraph5_aMC@NLO Development Team
-// Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
-//==========================================================================
-
-#include "mgOnGpuConfig.h"
-
-#include "HelAmps_sm.h"
-
-#include <cmath>
-#include <cstdlib>
-#include <iomanip>
-#include <iostream>
-
-mgDebugDeclare();
-
-#ifdef __CUDACC__
-namespace mg5amcGpu
-#else
-namespace mg5amcCpu
-#endif
-{
-
-  //--------------------------------------------------------------------------
+  //==========================================================================
 
   // Compute the output amplitude(s) 'allvertexes' from the input wavefunctions allF1[6], allF2[6], allV3[6]
   template<class W_ACCESS, class A_ACCESS>
@@ -1115,3 +1087,4 @@ namespace mg5amcCpu
 } // end namespace
 
 #endif // HelAmps_sm_H
+

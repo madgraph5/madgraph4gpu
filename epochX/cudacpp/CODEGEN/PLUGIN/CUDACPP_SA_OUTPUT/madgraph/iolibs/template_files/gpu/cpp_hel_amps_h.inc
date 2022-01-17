@@ -21,6 +21,3 @@ namespace mg5amcCpu
 #endif
 {
 %(function_declarations)s
-} // end namespace
-
-#endif // HelAmps_%(model_name)s_H
