@@ -22,7 +22,6 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-{
 
   //--------------------------------------------------------------------------
 
@@ -789,7 +788,7 @@ namespace mg5amcCpu
 
   //==========================================================================
 
-  // Compute the output amplitude(s) 'allvertexes' from the input wavefunctions allF1[6], allF2[6], allV3[6]
+  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
   template<class W_ACCESS, class A_ACCESS>
   __device__ INLINE
   void FFV1_0( const fptype allF1[],
@@ -800,7 +799,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // Compute the output wavefunction(a) 'allV3[6]' from the input wavefunctions allF1[6], allF2[6]
+  // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
   template<class W_ACCESS>
   __device__ INLINE
   void FFV1P0_3( const fptype allF1[],
@@ -812,7 +811,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // Compute the output amplitude(s) 'allvertexes' from the input wavefunctions allF1[6], allF2[6], allV3[6]
+  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
   template<class W_ACCESS, class A_ACCESS>
   __device__ INLINE
   void FFV2_0( const fptype allF1[],
@@ -823,7 +822,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // Compute the output wavefunction(a) 'allV3[6]' from the input wavefunctions allF1[6], allF2[6]
+  // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
   template<class W_ACCESS>
   __device__ INLINE
   void FFV2_3( const fptype allF1[],
@@ -835,7 +834,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // Compute the output amplitude(s) 'allvertexes' from the input wavefunctions allF1[6], allF2[6], allV3[6]
+  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
   template<class W_ACCESS, class A_ACCESS>
   __device__ INLINE
   void FFV4_0( const fptype allF1[],
@@ -846,7 +845,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // Compute the output wavefunction(a) 'allV3[6]' from the input wavefunctions allF1[6], allF2[6]
+  // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
   template<class W_ACCESS>
   __device__ INLINE
   void FFV4_3( const fptype allF1[],
@@ -858,7 +857,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // Compute the output amplitude(s) 'allvertexes' from the input wavefunctions allF1[6], allF2[6], allV3[6]
+  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
   template<class W_ACCESS, class A_ACCESS>
   __device__ INLINE
   void FFV2_4_0( const fptype allF1[],
@@ -870,7 +869,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // Compute the output wavefunction(a) 'allV3[6]' from the input wavefunctions allF1[6], allF2[6]
+  // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
   template<class W_ACCESS>
   __device__ INLINE
   void FFV2_4_3( const fptype allF1[],
@@ -883,7 +882,7 @@ namespace mg5amcCpu
 
   //==========================================================================
 
-  // Compute the output amplitude(s) 'allvertexes' from the input wavefunctions allF1[6], allF2[6], allV3[6]
+  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
   template<class W_ACCESS, class A_ACCESS>
   __device__
   void FFV1_0( const fptype allF1[],
@@ -896,6 +895,7 @@ namespace mg5amcCpu
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
     const cxtype_sv* V3 = W_ACCESS::kernelAccessConst( allV3 );
+    cxtype_sv* vertex = A_ACCESS::kernelAccess( allvertexes );
     const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP0 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * ( V3[4] ) ) ) + ( F1[3] * ( F2[4] * ( V3[3]- cI * ( V3[4] ) ) + F2[5] * ( V3[2] - V3[5] ) ) + ( F1[4] * ( F2[2] * ( V3[2] - V3[5] ) - F2[3] * ( V3[3] + cI * ( V3[4] ) ) ) + F1[5] * ( F2[2] * ( -V3[3] + cI * ( V3[4] ) ) + F2[3] * ( V3[2] + V3[5] ) ) ) ) );
     (*vertex) = COUP * - cI * TMP0;
@@ -905,7 +905,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // Compute the output wavefunction(a) 'allV3[6]' from the input wavefunctions allF1[6], allF2[6]
+  // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
   template<class W_ACCESS>
   __device__
   void FFV1P0_3( const fptype allF1[],
@@ -918,6 +918,7 @@ namespace mg5amcCpu
     mgDebug( 0, __FUNCTION__ );
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
+    cxtype_sv* V3 = W_ACCESS::kernelAccess( allV3 );
     const cxtype cI = cxmake( 0., 1. );
     V3[0] = + F1[0] + F2[0];
     V3[1] = + F1[1] + F2[1];
@@ -933,7 +934,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // Compute the output amplitude(s) 'allvertexes' from the input wavefunctions allF1[6], allF2[6], allV3[6]
+  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
   template<class W_ACCESS, class A_ACCESS>
   __device__
   void FFV2_0( const fptype allF1[],
@@ -946,6 +947,7 @@ namespace mg5amcCpu
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
     const cxtype_sv* V3 = W_ACCESS::kernelAccessConst( allV3 );
+    cxtype_sv* vertex = A_ACCESS::kernelAccess( allvertexes );
     const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP1 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * ( V3[4] ) ) ) + F1[3] * ( F2[4] * ( V3[3]- cI * ( V3[4] ) ) + F2[5] * ( V3[2] - V3[5] ) ) );
     (*vertex) = COUP * - cI * TMP1;
@@ -955,7 +957,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // Compute the output wavefunction(a) 'allV3[6]' from the input wavefunctions allF1[6], allF2[6]
+  // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
   template<class W_ACCESS>
   __device__
   void FFV2_3( const fptype allF1[],
@@ -968,6 +970,7 @@ namespace mg5amcCpu
     mgDebug( 0, __FUNCTION__ );
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
+    cxtype_sv* V3 = W_ACCESS::kernelAccess( allV3 );
     const cxtype cI = cxmake( 0., 1. );
     const fptype OM3 = ( M3 != 0. ? 1. / ( M3 * M3 ) : 0. );
     V3[0] = + F1[0] + F2[0];
@@ -985,7 +988,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // Compute the output amplitude(s) 'allvertexes' from the input wavefunctions allF1[6], allF2[6], allV3[6]
+  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
   template<class W_ACCESS, class A_ACCESS>
   __device__
   void FFV4_0( const fptype allF1[],
@@ -998,6 +1001,7 @@ namespace mg5amcCpu
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
     const cxtype_sv* V3 = W_ACCESS::kernelAccessConst( allV3 );
+    cxtype_sv* vertex = A_ACCESS::kernelAccess( allvertexes );
     const cxtype cI = cxmake( 0., 1. );
     constexpr fptype one( 1. );
     constexpr fptype two( 2. );
@@ -1010,7 +1014,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // Compute the output wavefunction(a) 'allV3[6]' from the input wavefunctions allF1[6], allF2[6]
+  // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
   template<class W_ACCESS>
   __device__
   void FFV4_3( const fptype allF1[],
@@ -1023,6 +1027,7 @@ namespace mg5amcCpu
     mgDebug( 0, __FUNCTION__ );
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
+    cxtype_sv* V3 = W_ACCESS::kernelAccess( allV3 );
     const cxtype cI = cxmake( 0., 1. );
     const fptype OM3 = ( M3 != 0. ? 1. / ( M3 * M3 ) : 0. );
     V3[0] = + F1[0] + F2[0];
@@ -1043,7 +1048,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // Compute the output amplitude(s) 'allvertexes' from the input wavefunctions allF1[6], allF2[6], allV3[6]
+  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
   template<class W_ACCESS, class A_ACCESS>
   __device__
   void FFV2_4_0( const fptype allF1[],
@@ -1057,6 +1062,7 @@ namespace mg5amcCpu
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
     const cxtype_sv* V3 = W_ACCESS::kernelAccessConst( allV3 );
+    cxtype_sv* vertex = A_ACCESS::kernelAccess( allvertexes );
     const cxtype cI = cxmake( 0., 1. );
     constexpr fptype one( 1. );
     constexpr fptype two( 2. );
@@ -1069,7 +1075,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // Compute the output wavefunction(a) 'allV3[6]' from the input wavefunctions allF1[6], allF2[6]
+  // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
   template<class W_ACCESS>
   __device__
   void FFV2_4_3( const fptype allF1[],
@@ -1083,6 +1089,7 @@ namespace mg5amcCpu
     mgDebug( 0, __FUNCTION__ );
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
+    cxtype_sv* V3 = W_ACCESS::kernelAccess( allV3 );
     const cxtype cI = cxmake( 0., 1. );
     const fptype OM3 = ( M3 != 0. ? 1. / ( M3 * M3 ) : 0. );
     V3[0] = + F1[0] + F2[0];

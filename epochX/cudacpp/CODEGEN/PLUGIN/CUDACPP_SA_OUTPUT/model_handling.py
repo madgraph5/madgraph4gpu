@@ -174,12 +174,12 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         for format, argname in self.define_argument_list(couplings):
             if format.startswith('list'):
                 type = self.type2def[format[5:]] # double or complex (instead of list_double or list_complex)
+                comment_inputs.append('%s[6]'%argname) # AV (wavefuncsize=6 is hardcoded also in export_cpp...)
                 ###if not argname.startswith('COUP'): type = self.type2def[format[5:]+'_v'] # AV vectorize (double_v or complex_v)
                 if not argname.startswith('COUP'):
                     type = self.type2def['double'] # AV from cxtype_sv to fptype
                     argname = 'all'+argname
                 list_arg = '[]'
-                comment_inputs.append('%s[6]'%argname) # AV (wavefuncsize=6 is hardcoded also in export_cpp...)
             else:
                 type = self.type2def[format]
                 list_arg = ''
@@ -194,7 +194,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             ###    'pointer_vertex': self.type2def['pointer_vertex']}
             output = '%(doublec)s allvertexes[]' % {
                 'doublec': self.type2def['double']}
-            comment_output = 'amplitude(s) \'allvertexes\''
+            comment_output = 'amplitude \'vertex\''
             template = 'template<class W_ACCESS, class A_ACCESS>'
         else:
             output = '%(doublec)s all%(spin)s%(id)d[]' % {
@@ -202,7 +202,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                      'spin': self.particles[self.outgoing -1],
                      'id': self.outgoing}
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
-            comment_output = 'wavefunction(a) \'all%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
+            comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
             template = 'template<class W_ACCESS>'
         comment = '// Compute the output %s from the input wavefunctions %s' % ( comment_output, ', '.join(comment_inputs) ) # AV
         indent = ' ' * len( '  void %s( ' % name )
@@ -241,6 +241,15 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             ###out.write('    %s %s;\n' % ( type, name ) ) # FOR DEBUGGING
             if type.startswith('list'):
                 out.write('    const %s* %s = W_ACCESS::kernelAccessConst( all%s );\n' % ( self.type2def[type[5:]+'_v'], name, name ) )
+        if not self.offshell:
+            vname = 'vertex'
+            access = 'A_ACCESS'
+            allvname = 'allvertexes'
+        else:
+            vname = '%(spin)s%(id)d' % { 'spin': self.particles[self.outgoing -1], 'id': self.outgoing }
+            access = 'W_ACCESS'
+            allvname = 'all'+vname
+        out.write('    cxtype_sv* %s = %s::kernelAccess( %s );\n' % ( vname, access, allvname ) )
         # define the complex number CI = 0+1j
         if add_i:
             ###out.write(self.ci_definition)
