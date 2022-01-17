@@ -9,6 +9,11 @@
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuVectors.h"
 
+//#include <cmath>
+//#include <cstdlib>
+//#include <iomanip>
+//#include <iostream>
+
 #ifdef __CUDACC__
 namespace mg5amcGpu
 #else

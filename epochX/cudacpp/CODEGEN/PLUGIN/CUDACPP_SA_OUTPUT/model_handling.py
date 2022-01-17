@@ -182,35 +182,28 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 list_arg = ''
             if argname.startswith('COUP'):
                 point = self.type2def['pointer_coup']
-                ###args.append('%s%s%s%s'% (type, point, argname, list_arg))
-                args.append('%s %s%s%s'% (type, point, argname, list_arg)) # AV
+                args.append('%s %s%s%s'% (type, point, argname, list_arg))
             else:
-                ###args.append('%s%s%s'% (type, argname, list_arg))
-                args.append('%s %s%s'% (type, argname, list_arg)) # AV
+                args.append('%s %s%s'% (type, argname, list_arg))
         if not self.offshell:
-            ###output = '%(doublec)s %(pointer_vertex)s vertex' % {
-            output = '%(doublec)s%(pointer_vertex)s vertex' % { # AV vectorize
-                'doublec':self.type2def['complex_v'],
+            output = '%(doublec)s%(pointer_vertex)s allvertexes' % {
+                'doublec': self.type2def['double'],
                 'pointer_vertex': self.type2def['pointer_vertex']}
             comment_output = 'amplitude \'vertex\''
+            template = 'template<class W_ACCESS, class A_ACCESS>'
         else:
-            ###output = '%(doublec)s %(spin)s%(id)d[]' % {
-            output = '%(doublec)s %(spin)s%(id)d[]' % { # AV vectorize
-                     'doublec': self.type2def['complex_v'],
+            output = '%(doublec)s* all%(spin)s%(id)d' % {
+                     'doublec': self.type2def['double'],
                      'spin': self.particles[self.outgoing -1],
                      'id': self.outgoing}
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
             comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
-        ###out.write('%(prefix)s void %(name)s(%(args)s,%(output)s)' % \
-        ###          {'prefix': self.prefix,
-        ###              'output':output, 'name': name, 'args': ', '.join(args)})
-        #out.write('  %(prefix)s void %(name)s( const %(args)s, %(output)s )' % \
-        #          {'prefix': self.prefix,
-        #              'output':output, 'name': name, 'args': ', const '.join(args)}) # AV - add const
+            template = 'template<class W_ACCESS>'
         comment = '// Compute the output %s from the input wavefunctions %s' % ( comment_output, ', '.join(comment_inputs) ) # AV
         indent = ' ' * len( '  void %s( ' % name )
-        out.write('  %(comment)s\n  %(prefix)s\n  void %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
+        out.write('  %(comment)s\n  %(template)s\n  %(prefix)s\n  void %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
                   {'comment': comment, # AV - add comment
+                   'template': template, # AV - add template
                    'prefix': self.prefix + ( ' INLINE' if 'is_h' in mode else '' ), # AV - add INLINE
                    'suffix': ( ' ALWAYS_INLINE' if 'is_h' in mode else '' ), # AV - add ALWAYS_INLINE
                    'indent':indent, 'output':output, 'name': name,
