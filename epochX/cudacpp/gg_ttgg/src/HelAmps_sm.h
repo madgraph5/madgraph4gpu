@@ -50,7 +50,7 @@ namespace mg5amcCpu
 #define ALWAYS_INLINE __attribute__((always_inline))
 #else
 #ifdef __CUDACC__
-#define INLINE __noinline__
+#define INLINE //__noinline__
 #define ALWAYS_INLINE
 #else
 #define INLINE
