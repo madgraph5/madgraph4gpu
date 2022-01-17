@@ -38,11 +38,11 @@ namespace mg5amcCpu
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
-  void ixxxxx( const fptype* momenta,
+  void ixxxxx( const fptype momenta[],
                const fptype fmass,             // input: fermion mass
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar                  // input: particle# out of npar
                ) ALWAYS_INLINE;
 
@@ -52,11 +52,11 @@ namespace mg5amcCpu
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
-  void ipzxxx( const fptype* momenta,
+  void ipzxxx( const fptype momenta[],
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar                  // input: particle# out of npar
                ) ALWAYS_INLINE;
 
@@ -66,11 +66,11 @@ namespace mg5amcCpu
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
-  void imzxxx( const fptype* momenta,
+  void imzxxx( const fptype momenta[],
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar                  // input: particle# out of npar
                ) ALWAYS_INLINE;
 
@@ -80,11 +80,11 @@ namespace mg5amcCpu
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
-  void ixzxxx( const fptype* momenta,
+  void ixzxxx( const fptype momenta[],
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar                  // input: particle# out of npar
                ) ALWAYS_INLINE;
 
@@ -93,11 +93,11 @@ namespace mg5amcCpu
   // Compute the output wavefunction vc[6] from the input momenta[npar*4*nevt]
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
-  void vxxxxx( const fptype* momenta,
+  void vxxxxx( const fptype momenta[],
                const fptype vmass,             // input: vector boson mass
                const int nhel,                 // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
                const int nsv,                  // input: +1 (final) or -1 (initial)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar                  // input: particle# out of npar
                ) ALWAYS_INLINE;
 
@@ -106,11 +106,11 @@ namespace mg5amcCpu
   // Compute the output wavefunction sc[3] from the input momenta[npar*4*nevt]
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
-  void sxxxxx( const fptype* momenta,
+  void sxxxxx( const fptype momenta[],
                const fptype,                   // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
                const int,                      // WARNING: input "nhel" unused (missing in Fortran) - scalar has no helicity!
                const int nss,                  // input: +1 (final) or -1 (initial)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar                  // input: particle# out of npar
                ) ALWAYS_INLINE;
 
@@ -119,11 +119,11 @@ namespace mg5amcCpu
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
-  void oxxxxx( const fptype* momenta,
+  void oxxxxx( const fptype momenta[],
                const fptype fmass,             // input: fermion mass
                const int nhel,                 // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar                  // input: particle# out of npar
                ) ALWAYS_INLINE;
 
@@ -133,11 +133,11 @@ namespace mg5amcCpu
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
-  void opzxxx( const fptype* momenta,
+  void opzxxx( const fptype momenta[],
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar                  // input: particle# out of npar
                ) ALWAYS_INLINE;
 
@@ -147,11 +147,11 @@ namespace mg5amcCpu
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
-  void omzxxx( const fptype* momenta,
+  void omzxxx( const fptype momenta[],
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar                  // input: particle# out of npar
                ) ALWAYS_INLINE;
 
@@ -160,11 +160,11 @@ namespace mg5amcCpu
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
-  void oxzxxx( const fptype* momenta,
+  void oxzxxx( const fptype momenta[],
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar                  // input: particle# out of npar
                ) ALWAYS_INLINE;
 
@@ -173,11 +173,11 @@ namespace mg5amcCpu
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
-  void ixxxxx( const fptype* momenta,
+  void ixxxxx( const fptype momenta[],
                const fptype fmass,             // input: fermion mass
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar )                // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
@@ -291,11 +291,11 @@ namespace mg5amcCpu
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
-  void ipzxxx( const fptype* momenta,
+  void ipzxxx( const fptype momenta[],
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar )                // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
@@ -327,11 +327,11 @@ namespace mg5amcCpu
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
-  void imzxxx( const fptype* momenta,
+  void imzxxx( const fptype momenta[],
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar )                // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
@@ -363,11 +363,11 @@ namespace mg5amcCpu
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
-  void ixzxxx( const fptype* momenta,
+  void ixzxxx( const fptype momenta[],
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar )                // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
@@ -408,11 +408,11 @@ namespace mg5amcCpu
   // Compute the output wavefunction vc[6] from the input momenta[npar*4*nevt]
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
-  void vxxxxx( const fptype* momenta,
+  void vxxxxx( const fptype momenta[],
                const fptype vmass,             // input: vector boson mass
                const int nhel,                 // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
                const int nsv,                  // input: +1 (final) or -1 (initial)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar )                // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
@@ -528,11 +528,11 @@ namespace mg5amcCpu
   // Compute the output wavefunction sc[3] from the input momenta[npar*4*nevt]
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
-  void sxxxxx( const fptype* momenta,
+  void sxxxxx( const fptype momenta[],
                const fptype,                   // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
                const int,                      // WARNING: input "nhel" unused (missing in Fortran) - scalar has no helicity!
                const int nss,                  // input: +1 (final) or -1 (initial)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar )                // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
@@ -553,11 +553,11 @@ namespace mg5amcCpu
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
-  void oxxxxx( const fptype* momenta,
+  void oxxxxx( const fptype momenta[],
                const fptype fmass,             // input: fermion mass
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar )                // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
@@ -673,11 +673,11 @@ namespace mg5amcCpu
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
-  void opzxxx( const fptype* momenta,
+  void opzxxx( const fptype momenta[],
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar )                // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
@@ -709,11 +709,11 @@ namespace mg5amcCpu
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
-  void omzxxx( const fptype* momenta,
+  void omzxxx( const fptype momenta[],
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar )                // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
@@ -748,11 +748,11 @@ namespace mg5amcCpu
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
-  void oxzxxx( const fptype* momenta,
+  void oxzxxx( const fptype momenta[],
                //const fptype fmass,           // ASSUME fermion mass==0
                const int nhel,                 // input: -1 or +1 (helicity of fermion)
                const int nsf,                  // input: +1 (particle) or -1 (antiparticle)
-               fptype* wavefunctions,
+               fptype wavefunctions[],
                const int ipar )                // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
