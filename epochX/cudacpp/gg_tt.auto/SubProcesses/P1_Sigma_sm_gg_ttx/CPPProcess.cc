@@ -158,13 +158,13 @@ namespace mg5amcCpu
       // *** DIAGRAM 1 OF 3 ***
 
       // Wavefunction(s) for diagram number 1
-      vxxxxx<M_ACCESS, W_ACCESS>(allmomenta, 0., cHel[ihel][0], -1, w_fp[0], 0);
+      vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][0], -1, w_fp[0], 0 );
 
-      vxxxxx<M_ACCESS, W_ACCESS>(allmomenta, 0., cHel[ihel][1], -1, w_fp[1], 1);
+      vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][1], -1, w_fp[1], 1 );
 
-      oxxxxx<M_ACCESS, W_ACCESS>(allmomenta, cIPD[0], cHel[ihel][2], +1, w_fp[2], 2);
+      oxxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][2], +1, w_fp[2], 2 );
 
-      ixxxxx<M_ACCESS, W_ACCESS>(allmomenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3);
+      ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
 
       VVV1P0_1<W_ACCESS>( w_fp[0], w_fp[1], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_fp[4] );
 

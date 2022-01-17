@@ -1271,14 +1271,13 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             # Fill out with X up to 6 positions
             call = call + 'x' * (6 - len(call))
             # Specify namespace for Helas calls
-            call = call + "(allmomenta,"
+            call = call + "( momenta,"
             if argument.get('spin') != 1:
                 # For non-scalars, need mass and helicity
                 call = call + "m_pars->%s, cHel[ihel][%d],"
             else:
                 call = call + "m_pars->%s,"
-            ###call = call + "%+d,w[%d], %d);"
-            call = call + "%+d, w_sv[%d], %d);" # AV vectorize
+            call = call + "%+d, w_sv[%d], %d );"
             if argument.get('spin') == 1:
                 return call % \
                                 (wf.get('mass'),
