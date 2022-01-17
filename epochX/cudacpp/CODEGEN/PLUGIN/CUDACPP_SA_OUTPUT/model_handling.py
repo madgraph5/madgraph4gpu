@@ -236,7 +236,11 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         """
         out = StringIO()
         out.write('    mgDebug( 0, __FUNCTION__ );\n') # AV
-        argument_var = [name for type,name in self.call_arg]
+        ###argument_var = [name for type,name in self.call_arg] # UNUSED
+        for type, name in self.call_arg:
+            ###out.write('    %s %s;\n' % ( type, name ) ) # FOR DEBUGGING
+            if type.startswith('list'):
+                out.write('    const %s* %s = W_ACCESS::kernelAccessConst( all%s );\n' % ( self.type2def[type[5:]+'_v'], name, name ) )
         # define the complex number CI = 0+1j
         if add_i:
             ###out.write(self.ci_definition)
@@ -244,6 +248,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         codedict = {} # AV allow delayed declaration with initialisation
         for type, name in self.declaration.tolist():
             ###print(name) # FOR DEBUGGING
+            ###out.write('    %s %s;\n' % ( type, name ) ) # FOR DEBUGGING
             if type.startswith('list'):
                 type = type[5:]
                 if name.startswith('P'):
