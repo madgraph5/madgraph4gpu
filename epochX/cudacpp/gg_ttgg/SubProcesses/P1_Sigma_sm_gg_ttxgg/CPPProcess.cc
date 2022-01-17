@@ -2341,10 +2341,8 @@ namespace mg5amcCpu
 //==========================================================================
 
 // This was initially added to both C++ and CUDA in order to avoid RDC in CUDA (issue #51)
-// This is now needed if and only if C++ LTO-like inlining optimizations are used in CPPProcess.cc (issue #229)
-#ifdef MGONGPU_INLINE_HELAMPS
-#include "../../src/HelAmps_sm.cc"
-#endif
+// This is now also needed by C++ LTO-like optimizations via inlining (issue #229)
+#include "HelAmps_sm.cc"
 
 //==========================================================================
 
