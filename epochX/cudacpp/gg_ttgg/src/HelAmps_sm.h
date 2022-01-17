@@ -798,12 +798,12 @@ namespace mg5amcCpu
 
   // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], V2[6], V3[6]
   template<class W_ACCESS, class A_ACCESS>
-  __device__ NOINLINE
+  __device__ INLINE
   void VVV1_0( const fptype allV1[],
                const fptype allV2[],
                const fptype allV3[],
                const cxtype COUP,
-               fptype allvertexes[] ) NEVER_INLINE;
+               fptype allvertexes[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
@@ -821,12 +821,12 @@ namespace mg5amcCpu
 
   // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
   template<class W_ACCESS, class A_ACCESS>
-  __device__ NOINLINE
+  __device__ INLINE
   void FFV1_0( const fptype allF1[],
                const fptype allF2[],
                const fptype allV3[],
                const cxtype COUP,
-               fptype allvertexes[] ) NEVER_INLINE;
+               fptype allvertexes[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
@@ -868,13 +868,13 @@ namespace mg5amcCpu
 
   // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], V2[6], V3[6], V4[6]
   template<class W_ACCESS, class A_ACCESS>
-  __device__ NOINLINE
+  __device__ INLINE
   void VVVV1_0( const fptype allV1[],
                 const fptype allV2[],
                 const fptype allV3[],
                 const fptype allV4[],
                 const cxtype COUP,
-                fptype allvertexes[] ) NEVER_INLINE;
+                fptype allvertexes[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
@@ -893,13 +893,13 @@ namespace mg5amcCpu
 
   // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], V2[6], V3[6], V4[6]
   template<class W_ACCESS, class A_ACCESS>
-  __device__ NOINLINE
+  __device__ INLINE
   void VVVV3_0( const fptype allV1[],
                 const fptype allV2[],
                 const fptype allV3[],
                 const fptype allV4[],
                 const cxtype COUP,
-                fptype allvertexes[] ) NEVER_INLINE;
+                fptype allvertexes[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
@@ -918,13 +918,13 @@ namespace mg5amcCpu
 
   // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], V2[6], V3[6], V4[6]
   template<class W_ACCESS, class A_ACCESS>
-  __device__ NOINLINE
+  __device__ INLINE
   void VVVV4_0( const fptype allV1[],
                 const fptype allV2[],
                 const fptype allV3[],
                 const fptype allV4[],
                 const cxtype COUP,
-                fptype allvertexes[] ) NEVER_INLINE;
+                fptype allvertexes[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
