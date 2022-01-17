@@ -99,7 +99,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   CUOPTFLAGS  = -lineinfo
   CUFLAGS     = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
   ###CUFLAGS    += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
-  CUFLAGS    += -rdc true # See issue #51 and PR #328
+  CUFLAGS    += -rdc false # See issue #51 and PR #328
   NVCC_VERSION = $(shell $(NVCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
   # TEMPORARY! For as long as cuda 11.0/11.1 are supported (issues #282 and #292)
   # (Eventually, use only c++17; previously, c++14 in cuda110/111 and c++17 above; now c++14 everywhere)
