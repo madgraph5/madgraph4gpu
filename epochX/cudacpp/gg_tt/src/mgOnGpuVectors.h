@@ -99,8 +99,8 @@ namespace mgOnGpu
   //#define MGONGPU_HAS_CPPCXTYPE_REF 1 // icc default?
 #undef MGONGPU_HAS_CPPCXTYPE_REF // icc test
 #else
-  //#define MGONGPU_HAS_CPPCXTYPE_REF 1 // gcc default
-#undef MGONGPU_HAS_CPPCXTYPE_REF // gcc test (very slightly slower? issue #172)
+#define MGONGPU_HAS_CPPCXTYPE_REF 1 // gcc default
+  //#undef MGONGPU_HAS_CPPCXTYPE_REF // gcc test (very slightly slower? issue #172)
 #endif
 
 #ifdef MGONGPU_HAS_CPPCXTYPE_REF
@@ -112,7 +112,7 @@ namespace mgOnGpu
     cxtype_ref( const cxtype_ref& ) = delete;
     cxtype_ref( cxtype_ref&& ) = default;
     cxtype_ref( fptype& r, fptype& i ) : m_real(r), m_imag(i) {}
-    cxtype_ref& operator=( const cxtype_ref& ) = delete;
+    cxtype_ref& operator=( const cxtype_ref& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // for cxternary
     cxtype_ref& operator=( cxtype_ref&& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // for cxternary
     cxtype_ref& operator=( const cxtype& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; }
     operator cxtype() const { return cxmake( m_real, m_imag ); }
@@ -136,7 +136,8 @@ namespace mgOnGpu
 #ifdef MGONGPU_HAS_CPPCXTYPE_REF
     // NB: the alternative "clang" implementation is simpler: it simply does not have any operator[]
     // NB: ** do NOT implement operator[] to return a value: it does not fail the build (why?) and gives unexpected results! **
-    cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); }
+    const cxtype_ref operator[]( size_t i ) const { return cxtype_ref( const_cast<fptype&>( m_real[i] ), const_cast<fptype&>( m_imag[i] ) ); }
+    cxtype_ref operator[]( size_t i ){ return cxtype_ref( m_real[i], m_imag[i] ); }
 #endif
     const fptype_v& real() const { return m_real; }
     const fptype_v& imag() const { return m_imag; }
