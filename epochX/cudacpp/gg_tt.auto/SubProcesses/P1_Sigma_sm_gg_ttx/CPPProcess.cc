@@ -197,8 +197,8 @@ namespace mg5amcCpu
       // The color matrix [NB do keep 'static' for these constexpr arrays, see issue #283]
       static constexpr fptype denom[ncolor] = {3, 3};
       static constexpr fptype cf[ncolor][ncolor] = {
-      {16, -2},
-      {-2, 16}};
+        {16, -2},
+        {-2, 16}};
 
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)

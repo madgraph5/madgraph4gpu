@@ -1054,7 +1054,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
                 matrix_strings.append("{%s}" % ", ".join(["%d" % i for i in num_list])) # AV
             ###matrix_string = "static const double cf[ncolor][ncolor] = {" + ",".join(matrix_strings) + "};"
             matrix_string = "      static constexpr fptype cf[ncolor][ncolor] = " # AV
-            if len( matrix_strings ) > 1 : matrix_string += '{\n      ' + ',\n      '.join(matrix_strings) + '};' # AV
+            if len( matrix_strings ) > 1 : matrix_string += '{\n        ' + ',\n        '.join(matrix_strings) + '};' # AV
             else: matrix_string += '{' + matrix_strings[0] + '};' # AV
             return "\n".join([denom_string, matrix_string])
 
