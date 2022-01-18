@@ -112,7 +112,8 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
                                      s+'gpu/RamboSamplingKernels.cc', s+'gpu/RamboSamplingKernels.h',
                                      s+'gpu/RandomNumberKernels.cc', s+'gpu/RandomNumberKernels.h',
                                      s+'gpu/Bridge.h', s+'gpu/BridgeKernels.cc', s+'gpu/BridgeKernels.h', s+'gpu/Makefile', 
-                                     s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc', s+'gpu/testxxx.cc', s+'gpu/testxxx_cc_ref.txt',
+                                     s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
+                                     s+'gpu/testmisc.cc', s+'gpu/testxxx.cc', s+'gpu/testxxx_cc_ref.txt',
                                      s+'gpu/perf.py', s+'gpu/profile.sh']}
     to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h', 'checkCuda.h',
                     'MemoryBuffers.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h',
@@ -124,7 +125,8 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
                     'RamboSamplingKernels.cc', 'RamboSamplingKernels.h',
                     'RandomNumberKernels.h', 'RandomNumberKernels.cc',
                     'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h', 'Makefile',
-                    'MadgraphTest.h', 'runTest.cc', 'testxxx.cc', 'testxxx_cc_ref.txt',
+                    'MadgraphTest.h', 'runTest.cc',
+                    'testmisc.cc', 'testxxx.cc', 'testxxx_cc_ref.txt',
                     'perf.py', 'profile.sh']
 
     # AV - use template files from PLUGINDIR instead of MG5DIR
