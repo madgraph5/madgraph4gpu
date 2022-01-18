@@ -14,10 +14,15 @@
 
 #include <gtest/gtest.h>
 #include "epoch_process_id.h"
-#define TESTID_CPU( s ) s##_CPU_XXX
-#define XTESTID_CPU( s ) TESTID_CPU( s )
+#ifdef __CUDACC__
+#define TESTID( s ) s##_GPU_XXX
+#else
+#define TESTID( s ) s##_CPU_XXX
+#endif
 
-TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )
+#define XTESTID( s ) TESTID( s )
+
+TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 {
   constexpr bool dumpEvents = false;  // dump the expected output of the test?
   constexpr bool testEvents = !dumpEvents; // run the test?
