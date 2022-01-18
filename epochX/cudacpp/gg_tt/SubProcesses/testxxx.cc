@@ -36,7 +36,11 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   assert( nevt % neppM == 0 ); // nevt must be a multiple of neppM
   assert( nevt % neppV == 0 ); // nevt must be a multiple of neppV
   // Fill in the input momenta
+#ifdef __CUDACC__
+  mg5amcGpu::PinnedHostBufferMomenta hstMomenta( nevt ); // AOSOA[npagM][npar=4][np4=4][neppM]
+#else
   mg5amcCpu::HostBufferMomenta hstMomenta( nevt ); // AOSOA[npagM][npar=4][np4=4][neppM]
+#endif
   const fptype par0[np4 * nevt] =       // AOS[nevt][np4]
     { 500, 0,    0,    500,  // #0 (m=0 pT=0 E=pz>0)
       500, 0,    0,    -500, // #1 (m=0 pT=0 -E=pz<0)
