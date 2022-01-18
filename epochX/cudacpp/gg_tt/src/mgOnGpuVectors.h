@@ -26,10 +26,68 @@ namespace mgOnGpu
 
   // --- Type definition (using vector compiler extensions: need -march=...)
 #ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
-  typedef fptype fptype_v __attribute__ ((ext_vector_type(neppV))); // RRRR
-#else
-  typedef fptype fptype_v __attribute__ ((vector_size (neppV*sizeof(fptype)))); // RRRR
+#if defined MGONGPU_FPTYPE_DOUBLE
+  typedef long int bool_v __attribute__ ((ext_vector_type(neppV))); // bbbb
+#elif defined MGONGPU_FPTYPE_FLOAT
+  typedef int bool_v __attribute__ ((ext_vector_type(neppV))); // bbbb
 #endif
+#else // gcc
+#if defined MGONGPU_FPTYPE_DOUBLE
+  typedef long int bool_v __attribute__ ((vector_size (neppV*sizeof(long int)))); // bbbb
+#elif defined MGONGPU_FPTYPE_FLOAT
+  typedef int bool_v __attribute__ ((vector_size (neppV*sizeof(int)))); // bbbb
+#endif
+#endif
+
+  // --- Type definition (using vector compiler extensions: need -march=...)
+#ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
+  typedef fptype fptype_cve __attribute__ ((ext_vector_type(neppV))); // RRRR
+#else
+  typedef fptype fptype_cve __attribute__ ((vector_size (neppV*sizeof(fptype)))); // RRRR
+#endif
+
+  class fptype_v
+  {
+  public:
+    fptype_v() : m_data(){}
+    explicit fptype_v( const fptype& f ){ for ( int i=0; i<neppV; i++ ) m_data[i] = f; }
+    fptype_v( const fptype_cve& f ){ m_data = f; }
+    fptype_v( const fptype_v&  ) = default;
+    fptype_v( fptype_v&&  ) = default;
+    fptype_v& operator=( const fptype_v& ) = default;
+    fptype_v& operator=( fptype_v&& ) = default;
+    fptype_v& operator+=( const fptype_v& f ){ m_data += (fptype_cve)f; return *this; }
+    fptype_v& operator-=( const fptype_v& f ){ m_data -= (fptype_cve)f; return *this; }
+    const fptype& operator[] ( size_t i ) const { return m_data[i]; }
+    fptype& operator[]( size_t i ) { return m_data[i]; }
+    operator const fptype_cve&() const { return m_data; }
+    //operator fptype_cve&() { return m_data; }
+    fptype_v operator+() const { return m_data; }
+    fptype_v operator-() const { return -m_data; }
+    fptype_v operator+( const fptype_v& f ) const { return m_data + (fptype_cve)f; }
+    fptype_v operator-( const fptype_v& f ) const { return m_data - (fptype_cve)f; }
+    fptype_v operator*( const fptype_v& f ) const { return m_data * (fptype_cve)f; }
+    fptype_v operator/( const fptype_v& f ) const { return m_data / (fptype_cve)f; }
+    bool_v operator<( const fptype_v& f ) const { return m_data < (fptype_cve)f; }
+    bool_v operator==( const fptype_v& f ) const { return m_data == (fptype_cve)f; }
+    bool_v operator!=( const fptype_v& f ) const { return m_data != (fptype_cve)f; }
+  private:
+    fptype_cve m_data; // RRRR
+  };
+  inline fptype_v operator+( const fptype& a, const fptype_v& b ){ return (fptype_v)a + b; }
+  inline fptype_v operator+( const fptype_v& a, const fptype& b ){ return a + (fptype_v)b; }
+  inline fptype_v operator-( const fptype& a, const fptype_v& b ){ return (fptype_v)a - b; }
+  inline fptype_v operator-( const fptype_v& a, const fptype& b ){ return a - (fptype_v)b; }
+  inline fptype_v operator*( const fptype& a, const fptype_v& b ){ return (fptype_v)a * b; }
+  inline fptype_v operator*( const fptype_v& a, const fptype& b ){ return a * (fptype_v)b; }
+  inline fptype_v operator/( const fptype& a, const fptype_v& b ){ return (fptype_v)a / b; }
+  inline fptype_v operator/( const fptype_v& a, const fptype& b ){ return a / (fptype_v)b; }
+  inline bool_v operator<( const fptype& a, const fptype_v& b ){ return (fptype_v)a < b; }
+  inline bool_v operator<( const fptype_v& a, const fptype& b ){ return a < (fptype_v)b; }
+  inline bool_v operator==( const fptype& a, const fptype_v& b ){ return (fptype_v)a == b; }
+  inline bool_v operator==( const fptype_v& a, const fptype& b ){ return a == (fptype_v)b; }
+  inline bool_v operator!=( const fptype& a, const fptype_v& b ){ return (fptype_v)a != b; }
+  inline bool_v operator!=( const fptype_v& a, const fptype& b ){ return a != (fptype_v)b; }
 
 #ifdef __clang__
   // If set: return a pair of (fptype&, fptype&) by non-const reference in cxtype_v::operator[]
@@ -41,8 +99,8 @@ namespace mgOnGpu
   //#define MGONGPU_HAS_CPPCXTYPE_REF 1 // icc default?
 #undef MGONGPU_HAS_CPPCXTYPE_REF // icc test
 #else
-#define MGONGPU_HAS_CPPCXTYPE_REF 1 // gcc default
-  //#undef MGONGPU_HAS_CPPCXTYPE_REF // gcc test (very slightly slower? issue #172)
+  //#define MGONGPU_HAS_CPPCXTYPE_REF 1 // gcc default
+#undef MGONGPU_HAS_CPPCXTYPE_REF // gcc test (very slightly slower? issue #172)
 #endif
 
 #ifdef MGONGPU_HAS_CPPCXTYPE_REF
@@ -53,7 +111,7 @@ namespace mgOnGpu
     cxtype_ref() = delete;
     cxtype_ref( const cxtype_ref& ) = delete;
     cxtype_ref( cxtype_ref&& ) = default;
-    cxtype_ref( fptype& r, fptype& i ) : m_real{r}, m_imag{i} {}
+    cxtype_ref( fptype& r, fptype& i ) : m_real(r), m_imag(i) {}
     cxtype_ref& operator=( const cxtype_ref& ) = delete;
     cxtype_ref& operator=( cxtype_ref&& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // for cxternary
     cxtype_ref& operator=( const cxtype& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; }
@@ -67,7 +125,7 @@ namespace mgOnGpu
   class cxtype_v // no need for "class alignas(2*sizeof(fptype_v)) cxtype_v"
   {
   public:
-    cxtype_v() : m_real{0}, m_imag{0} {}
+    cxtype_v() : m_real(), m_imag() {}
     cxtype_v( const cxtype_v&  ) = default;
     cxtype_v( cxtype_v&&  ) = default;
     cxtype_v( const fptype_v& r, const fptype_v& i ) : m_real{r}, m_imag{i} {}
@@ -85,21 +143,6 @@ namespace mgOnGpu
   private:
     fptype_v m_real, m_imag; // RRRRIIII
   };
-
-  // --- Type definition (using vector compiler extensions: need -march=...)
-#ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
-#if defined MGONGPU_FPTYPE_DOUBLE
-  typedef long int bool_v __attribute__ ((ext_vector_type(neppV))); // bbbb
-#elif defined MGONGPU_FPTYPE_FLOAT
-  typedef int bool_v __attribute__ ((ext_vector_type(neppV))); // bbbb
-#endif
-#else // gcc
-#if defined MGONGPU_FPTYPE_DOUBLE
-  typedef long int bool_v __attribute__ ((vector_size (neppV*sizeof(long int)))); // bbbb
-#elif defined MGONGPU_FPTYPE_FLOAT
-  typedef int bool_v __attribute__ ((vector_size (neppV*sizeof(int)))); // bbbb
-#endif
-#endif
 
 #else // i.e #ifndef MGONGPU_CPPSIMD (this includes #ifdef __CUDACC__)
 

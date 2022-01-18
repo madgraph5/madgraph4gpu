@@ -22,40 +22,41 @@ namespace mg5amcCpu // this is only needed for CPU SIMD vectorization
   // assuming that "pointer(evt#0)+1" indicates "pointer(evt#1)", but that the arrays are not aligned
   inline fptype_v fptypevFromUnalignedArray( const fptype& ref )
   {
+    using mgOnGpu::fptype_cve;
 #if MGONGPU_CPPSIMD == 2
-    return fptype_v{ *( &ref   ),
-                     *( &ref+1 ) };
+    return fptype_cve{ *( &ref   ),
+                       *( &ref+1 ) };
 #elif MGONGPU_CPPSIMD == 4
-    return fptype_v{ *( &ref   ),
-                     *( &ref+1 ),
-                     *( &ref+2 ),
-                     *( &ref+3 ) };
+    return fptype_cve{ *( &ref   ),
+                       *( &ref+1 ),
+                       *( &ref+2 ),
+                       *( &ref+3 ) };
 #elif MGONGPU_CPPSIMD == 8
-    return fptype_v{ *( &ref   ),
-                     *( &ref+1 ),
-                     *( &ref+2 ),
-                     *( &ref+3 ),
-                     *( &ref+4 ),
-                     *( &ref+5 ),
-                     *( &ref+6 ),
-                     *( &ref+7 ) };
+    return fptype_cve{ *( &ref   ),
+                       *( &ref+1 ),
+                       *( &ref+2 ),
+                       *( &ref+3 ),
+                       *( &ref+4 ),
+                       *( &ref+5 ),
+                       *( &ref+6 ),
+                       *( &ref+7 ) };
 #elif MGONGPU_CPPSIMD == 16
-    return fptype_v{ *( &ref   ),
-                     *( &ref+1 ),
-                     *( &ref+2 ),
-                     *( &ref+3 ),
-                     *( &ref+4 ),
-                     *( &ref+5 ),
-                     *( &ref+6 ),
-                     *( &ref+7 ),
-                     *( &ref+8 ),
-                     *( &ref+9 ),
-                     *( &ref+10 ),
-                     *( &ref+11 ),
-                     *( &ref+12 ),
-                     *( &ref+13 ),
-                     *( &ref+14 ),
-                     *( &ref+15 ) };
+    return fptype_cve{ *( &ref   ),
+                       *( &ref+1 ),
+                       *( &ref+2 ),
+                       *( &ref+3 ),
+                       *( &ref+4 ),
+                       *( &ref+5 ),
+                       *( &ref+6 ),
+                       *( &ref+7 ),
+                       *( &ref+8 ),
+                       *( &ref+9 ),
+                       *( &ref+10 ),
+                       *( &ref+11 ),
+                       *( &ref+12 ),
+                       *( &ref+13 ),
+                       *( &ref+14 ),
+                       *( &ref+15 ) };
 #else
 #error Internal error! Unknown MGONGPU_CPPSIMD value
 #endif
