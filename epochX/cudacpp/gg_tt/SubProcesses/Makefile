@@ -335,8 +335,9 @@ ifneq ($(shell $(CXX) --version | grep ^clang),)
 $(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(shell which $(CXX) | tail -1))
 endif
 
-$(BUILDDIR)/testxxx.o:   $(GTESTLIBS)
-$(BUILDDIR)/testxxx.o:   testxxx_cc_ref.txt
+$(BUILDDIR)/testxxx.o: $(GTESTLIBS)
+$(BUILDDIR)/testxxx.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(BUILDDIR)/testxxx.o: testxxx_cc_ref.txt
 $(testmain): $(BUILDDIR)/testxxx.o
 $(testmain): cxx_objects += $(BUILDDIR)/testxxx.o # Comment out this line to skip the test of xxx functions
 
