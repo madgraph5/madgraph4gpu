@@ -99,8 +99,8 @@ namespace mgOnGpu
   //#define MGONGPU_HAS_CPPCXTYPE_REF 1 // icc default?
 #undef MGONGPU_HAS_CPPCXTYPE_REF // icc test
 #else
-#define MGONGPU_HAS_CPPCXTYPE_REF 1 // gcc default
-  //#undef MGONGPU_HAS_CPPCXTYPE_REF // gcc test (very slightly slower? issue #172)
+  //#define MGONGPU_HAS_CPPCXTYPE_REF 1 // gcc default
+#undef MGONGPU_HAS_CPPCXTYPE_REF // gcc test (very slightly slower? issue #172)
 #endif
 
 #ifdef MGONGPU_HAS_CPPCXTYPE_REF
