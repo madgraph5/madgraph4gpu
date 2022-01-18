@@ -14,7 +14,7 @@
 
 #include <gtest/gtest.h>
 #include "epoch_process_id.h"
-#define TESTID_CPU( s ) s##_CPU
+#define TESTID_CPU( s ) s##_CPU_XXX
 #define XTESTID_CPU( s ) TESTID_CPU( s )
 
 TEST( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), testxxx )

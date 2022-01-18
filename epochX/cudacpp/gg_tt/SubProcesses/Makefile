@@ -339,7 +339,21 @@ $(BUILDDIR)/testxxx.o: $(GTESTLIBS)
 $(BUILDDIR)/testxxx.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
 $(BUILDDIR)/testxxx.o: testxxx_cc_ref.txt
 $(testmain): $(BUILDDIR)/testxxx.o
-$(testmain): cxx_objects += $(BUILDDIR)/testxxx.o # Comment out this line to skip the test of xxx functions
+$(testmain): cxx_objects += $(BUILDDIR)/testxxx.o # Comment out this line to skip the C++ test of xxx functions
+
+$(BUILDDIR)/testmisc.o: $(GTESTLIBS)
+$(BUILDDIR)/testmisc.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(testmain): $(BUILDDIR)/testmisc.o
+$(testmain): cxx_objects += $(BUILDDIR)/testmisc.o # Comment out this line to skip the C++ miscellaneous tests
+
+$(BUILDDIR)/testmisc_cu.o: $(GTESTLIBS)
+$(BUILDDIR)/testmisc_cu.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(testmain): $(BUILDDIR)/testmisc_cu.o
+$(testmain): cu_objects += $(BUILDDIR)/testmisc_cu.o # Comment out this line to skip the CUDA miscellaneous tests
+
+$(BUILDDIR)/testmisc_cu.o: testmisc.cc
+	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
+	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c -x cu $< -o $@
 
 ifeq ($(NVCC),)
 # Link only runTest.o
