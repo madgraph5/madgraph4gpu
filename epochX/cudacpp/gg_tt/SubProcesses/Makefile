@@ -16,7 +16,7 @@ INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o MatrixElementKernels.o gMatrixElement
 # Dependency on src directory
 MODELLIB = model_sm
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
-INCFLAGS += -I../../src -I$(TOOLSDIR)
+INCFLAGS += -I../../src
 
 # Dependency on tools directory
 TOOLSDIR = ../../../../../tools
