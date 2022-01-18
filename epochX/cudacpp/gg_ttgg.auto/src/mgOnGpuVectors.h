@@ -8,8 +8,6 @@
 
 //==========================================================================
 
-#ifndef __CUDACC__
-
 //------------------------------
 // Vector types - C++
 //------------------------------
@@ -86,7 +84,7 @@ namespace mgOnGpu
 #endif
 #endif
 
-#else // i.e #ifndef MGONGPU_CPPSIMD
+#else // i.e #ifndef MGONGPU_CPPSIMD (this includes #ifdef __CUDACC__)
 
   const int neppV = 1;
 
@@ -104,6 +102,8 @@ using mgOnGpu::bool_v;
 #endif
 
 //--------------------------------------------------------------------------
+
+#ifndef __CUDACC__
 
 // Printout to stream for user defined types
 
