@@ -304,6 +304,10 @@ $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
+$(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h
+	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
+	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c -x cu $< -o $@
+
 # Apply special build flags only to CPPProcess.cc (-flto)
 #$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
 #	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
@@ -355,14 +359,6 @@ $(BUILDDIR)/testmisc_cu.o: $(GTESTLIBS)
 $(BUILDDIR)/testmisc_cu.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
 $(testmain): $(BUILDDIR)/testmisc_cu.o
 $(testmain): cu_objects += $(BUILDDIR)/testmisc_cu.o # Comment out this line to skip the CUDA miscellaneous tests
-
-$(BUILDDIR)/testmisc_cu.o: testmisc.cc
-	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c -x cu $< -o $@
-
-$(BUILDDIR)/runTest_cu.o: runTest.cc
-	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c -x cu $< -o $@
 
 ifeq ($(NVCC),)
 # Link only runTest.o
