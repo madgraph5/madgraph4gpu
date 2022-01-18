@@ -334,6 +334,14 @@ $(BUILDDIR)/testxxx.o: testxxx_cc_ref.txt
 $(testmain): $(BUILDDIR)/testxxx.o
 $(testmain): cxx_objects += $(BUILDDIR)/testxxx.o # Comment out this line to skip the C++ test of xxx functions
 
+ifneq ($(NVCC),)
+$(BUILDDIR)/testxxx_cu.o: $(GTESTLIBS)
+$(BUILDDIR)/testxxx_cu.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(BUILDDIR)/testxxx_cu.o: testxxx_cc_ref.txt
+$(testmain): $(BUILDDIR)/testxxx_cu.o
+$(testmain): cu_objects += $(BUILDDIR)/testxxx_cu.o # Comment out this line to skip the CUDA test of xxx functions
+endif
+
 $(BUILDDIR)/testmisc.o: $(GTESTLIBS)
 $(BUILDDIR)/testmisc.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
 $(testmain): $(BUILDDIR)/testmisc.o
