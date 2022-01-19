@@ -4,7 +4,6 @@ INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
 MODELLIB = model_sm
 OPTFLAGS = -O3
 CXXFLAGS = $(OPTFLAGS) -std=c++11 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow $(MGONGPU_CONFIG)
-CXXFLAGS+= -ffast-math # see issue #117
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
 CXX     ?= g++
 
@@ -52,7 +51,7 @@ ifeq ($(UNAME_P),ppc64le)
     CUFLAGS+= -Xcompiler -mno-float128
 endif
 
-all: ../../src $(cu_main) $(cxx_main) #runTest.exe
+all: ../../src $(cu_main) $(cxx_main) runTest.exe
 
 debug: OPTFLAGS = -g -O0 -DDEBUG2
 debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
@@ -60,14 +59,11 @@ debug: CUFLAGS += -G
 debug: MAKEDEBUG := debug
 debug: all
 
-$(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
+$(LIBDIR)/lib$(MODELLIB).a:
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
 gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h ../../src/*.cu
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
-
-CPPProcess.o : ../../src/HelAmps_sm.cc
-gCPPProcess.o : ../../src/HelAmps_sm.cc
 
 %.o : %.cu *.h ../../src/*.h
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
