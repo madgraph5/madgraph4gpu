@@ -111,10 +111,10 @@ namespace mgOnGpu
     cxtype_ref() = delete;
     cxtype_ref( const cxtype_ref& ) = delete;
     cxtype_ref( cxtype_ref&& ) = default;
-    cxtype_ref( fptype& r, fptype& i ) : m_real(r), m_imag(i) {}
-    cxtype_ref& operator=( const cxtype_ref& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // for cxternary
-    cxtype_ref& operator=( cxtype_ref&& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // for cxternary
-    cxtype_ref& operator=( const cxtype& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; }
+    cxtype_ref( fptype& r, fptype& i ) : m_real(r), m_imag(i) {} // copy refs
+    cxtype_ref& operator=( const cxtype_ref& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // copy values (for cxternary)
+    cxtype_ref& operator=( cxtype_ref&& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // copy values (for cxternary)
+    cxtype_ref& operator=( const cxtype& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // copy values
     operator cxtype() const { return cxmake( m_real, m_imag ); }
   private:
     fptype &m_real, &m_imag; // RI
@@ -128,7 +128,7 @@ namespace mgOnGpu
     cxtype_v() : m_real(), m_imag() {}
     cxtype_v( const cxtype_v&  ) = default;
     cxtype_v( cxtype_v&&  ) = default;
-    cxtype_v( const fptype_v& r, const fptype_v& i ) : m_real{r}, m_imag{i} {}
+    cxtype_v( const fptype_v& r, const fptype_v& i ) : m_real(r), m_imag(i) {}
     cxtype_v& operator=( const cxtype_v& ) = default;
     cxtype_v& operator=( cxtype_v&& ) = default;
     cxtype_v& operator+=( const cxtype_v& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
@@ -139,10 +139,10 @@ namespace mgOnGpu
     const cxtype_ref operator[]( size_t i ) const { return cxtype_ref( const_cast<fptype&>( m_real[i] ), const_cast<fptype&>( m_imag[i] ) ); }
     cxtype_ref operator[]( size_t i ){ return cxtype_ref( m_real[i], m_imag[i] ); }
 #endif
-    const fptype_v& real() const { return m_real; }
-    const fptype_v& imag() const { return m_imag; }
+    const fptype_cve real() const { return m_real; }
+    const fptype_cve imag() const { return m_imag; }
   private:
-    fptype_v m_real, m_imag; // RRRRIIII
+    fptype_cve m_real, m_imag; // RRRRIIII
   };
 
 #else // i.e #ifndef MGONGPU_CPPSIMD (this includes #ifdef __CUDACC__)
