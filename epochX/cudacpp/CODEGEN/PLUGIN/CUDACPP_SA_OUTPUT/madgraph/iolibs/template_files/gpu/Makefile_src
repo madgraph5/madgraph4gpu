@@ -19,26 +19,6 @@ CXXFLAGS += $(OMPFLAGS)
 # Assuming uname is available, detect if architecture is PowerPC
 UNAME_P := $(shell uname -p)
 
-# If CUDA_HOME is not set, try to set it from the location of nvcc
-ifndef CUDA_HOME
-  CUDA_HOME = $(patsubst %%bin/nvcc,%%,$(shell which nvcc 2>/dev/null))
-  #$(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
-endif
-
-# Set NVCC as $(CUDA_HOME)/bin/nvcc if it exists
-# (NB: only CUINC is needed: cuda includes are needed in the C++ code for curand.h)
-ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
-  #NVCC = $(CUDA_HOME)/bin/nvcc
-  CUINC = -I$(CUDA_HOME)/include/
-else
-  # No cuda. Switch cuda compilation off and go to common random numbers in C++
-  #$(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
-  NVCC :=
-endif
-
-# Set the host compiler for nvcc
-#CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
-
 # PowerPC-specific CXX compiler flags (being reviewed)
 ifeq ($(UNAME_P),ppc64le)
   CXXFLAGS+= -mcpu=power9 -mtune=power9 # gains ~2-3%% both for none and sse4
@@ -54,11 +34,6 @@ else
   ###CXXFLAGS+= -flto # NB: build error from src/Makefile unless gcc-ar and gcc-ranlib are used
   ######CXXFLAGS+= -fno-semantic-interposition # no benefit (neither alone, nor combined with -flto)
 endif
-
-# PowerPC-specific CUDA compiler flags (to be reviewed!)
-#ifeq ($(UNAME_P),ppc64le)
-#  CUFLAGS+= -Xcompiler -mno-float128
-#endif
 
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
@@ -90,10 +65,8 @@ CXXFLAGS+= $(AVXFLAGS)
 ###$(info FPTYPE=$(FPTYPE))
 ifeq ($(FPTYPE),d)
   CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE
-  #CUFLAGS  += -DMGONGPU_FPTYPE_DOUBLE
 else ifeq ($(FPTYPE),f)
   CXXFLAGS += -DMGONGPU_FPTYPE_FLOAT
-  #CUFLAGS  += -DMGONGPU_FPTYPE_FLOAT
 else
   $(error Unknown FPTYPE='$(FPTYPE)': only 'f' and 'd' are supported)
 endif
@@ -102,7 +75,6 @@ endif
 ###$(info HELINL=$(HELINL))
 ifeq ($(HELINL),1)
   CXXFLAGS += -DMGONGPU_INLINE_HELAMPS
-  #CUFLAGS  += -DMGONGPU_INLINE_HELAMPS
 else ifneq ($(HELINL),0)
   $(error Unknown HELINL='$(HELINL)': only '0' and '1' are supported)
 endif
@@ -111,7 +83,6 @@ endif
 ###$(info HRDCOD=$(HRDCOD))
 ifeq ($(HRDCOD),1)
   CXXFLAGS += -DMGONGPU_HARDCODE_CIPC
-  #CUFLAGS  += -DMGONGPU_HARDCODE_CIPC
 else ifneq ($(HRDCOD),0)
   $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
 endif
@@ -179,8 +150,6 @@ $(LIBDIR)/.build.$(TAG):
 	@touch $(BUILDDIR)/.build.$(TAG)
 
 debug: OPTFLAGS = -g -O0 -DDEBUG2
-#debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
-#debug: CUFLAGS += -G
 debug: $(target)
 
 $(INSTALL_INC_DIR) :
@@ -190,14 +159,10 @@ $(INSTALL_INC_DIR)/%%.h : %%.h
 	@if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
 	cp $< $@
 
-# NB: cuda includes are needed in the C++ code for curand.h
+# NB: cuda includes for curand.h are no longer needed in the C++ code anywhere in src!
 $(BUILDDIR)/%%.o : %%.cc *.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
-
-#$(BUILDDIR)/%%.o : %%.cu *.h
-#	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-#	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 $(target): $(cxx_objects) $(cu_objects)
 	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
