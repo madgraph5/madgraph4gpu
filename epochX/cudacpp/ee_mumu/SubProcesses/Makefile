@@ -16,7 +16,7 @@ INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o MatrixElementKernels.o gMatrixElement
 # Dependency on src directory
 MODELLIB = model_sm
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
-INCFLAGS += -I../../src -I$(TOOLSDIR)
+INCFLAGS += -I../../src
 
 # Dependency on tools directory
 TOOLSDIR = ../../../../../tools
@@ -297,12 +297,13 @@ $(BUILDDIR)/gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h # ../../src/*.cu
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
-$(BUILDDIR)/CPPProcess.o : ../../src/HelAmps_sm.cc
-$(BUILDDIR)/gCPPProcess.o : ../../src/HelAmps_sm.cc
-
 $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
+
+$(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h
+	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
+	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c -x cu $< -o $@
 
 # Apply special build flags only to CPPProcess.cc (-flto)
 #$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
@@ -318,27 +319,60 @@ $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
+ifneq ($(shell $(CXX) --version | grep ^Intel),)
+$(cu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
+endif
+
 $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) $(cucxx_objects)
 	$(NVCC) $< -o $@ $(cu_objects) $(cucxx_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
 
 $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cucxx_objects)
 	$(CXX) $< -o $@ $(cxx_objects) $(cucxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
+$(BUILDDIR)/testxxx.o: $(GTESTLIBS)
+$(BUILDDIR)/testxxx.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(BUILDDIR)/testxxx.o: testxxx_cc_ref.txt
+$(testmain): $(BUILDDIR)/testxxx.o
+$(testmain): cxx_objects += $(BUILDDIR)/testxxx.o # Comment out this line to skip the C++ test of xxx functions
+
+ifneq ($(NVCC),)
+$(BUILDDIR)/testxxx_cu.o: $(GTESTLIBS)
+$(BUILDDIR)/testxxx_cu.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(BUILDDIR)/testxxx_cu.o: testxxx_cc_ref.txt
+$(testmain): $(BUILDDIR)/testxxx_cu.o
+$(testmain): cu_objects += $(BUILDDIR)/testxxx_cu.o # Comment out this line to skip the CUDA test of xxx functions
+endif
+
+$(BUILDDIR)/testmisc.o: $(GTESTLIBS)
+$(BUILDDIR)/testmisc.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(testmain): $(BUILDDIR)/testmisc.o
+$(testmain): cxx_objects += $(BUILDDIR)/testmisc.o # Comment out this line to skip the C++ miscellaneous tests
+
+ifneq ($(NVCC),)
+$(BUILDDIR)/testmisc_cu.o: $(GTESTLIBS)
+$(BUILDDIR)/testmisc_cu.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(testmain): $(BUILDDIR)/testmisc_cu.o
+$(testmain): cu_objects += $(BUILDDIR)/testmisc_cu.o # Comment out this line to skip the CUDA miscellaneous tests
+endif
+
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
+$(BUILDDIR)/runTest.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(testmain): $(BUILDDIR)/runTest.o
+$(testmain): cxx_objects += $(BUILDDIR)/runTest.o
+
+ifneq ($(NVCC),)
+$(BUILDDIR)/runTest_cu.o: $(GTESTLIBS)
+$(BUILDDIR)/runTest_cu.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(testmain): $(BUILDDIR)/runTest_cu.o
+$(testmain): cu_objects  += $(BUILDDIR)/runTest_cu.o
+endif
+
 $(testmain): $(GTESTLIBS)
 $(testmain): INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
 $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
-$(testmain): $(BUILDDIR)/runTest.o
-$(testmain): cxx_objects += $(BUILDDIR)/runTest.o
-$(testmain): cu_objects  += $(BUILDDIR)/runTest_cu.o
 ifneq ($(shell $(CXX) --version | grep ^clang),)
 $(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(shell which $(CXX) | tail -1))
 endif
-
-$(BUILDDIR)/testxxx.o:   $(GTESTLIBS)
-$(BUILDDIR)/testxxx.o:   testxxx_cc_ref.txt
-$(testmain): $(BUILDDIR)/testxxx.o
-$(testmain): cxx_objects += $(BUILDDIR)/testxxx.o # Comment out this line to skip the test of xxx functions
 
 ifeq ($(NVCC),)
 # Link only runTest.o
@@ -346,9 +380,7 @@ $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
 # Link both runTest.o and runTest_cu.o
-# (todo? avoid multiple targets and '&', this needs the latest make 4.3, see https://stackoverflow.com/a/60232515)
-$(testmain) $(BUILDDIR)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
-	$(NVCC) -o $(BUILDDIR)/runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
+$(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
 

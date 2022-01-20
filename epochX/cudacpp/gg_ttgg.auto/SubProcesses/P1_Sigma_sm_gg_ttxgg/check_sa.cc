@@ -633,37 +633,37 @@ int main(int argc, char **argv)
   timermap.start(statKey);
 
   double sumgtim = 0;
-  double sqsgtim = 0;
+  //double sqsgtim = 0;
   double mingtim = genrtimes[0];
   double maxgtim = genrtimes[0];
   for ( int iiter = 0; iiter < niter; ++iiter )
   {
     sumgtim += genrtimes[iiter];
-    sqsgtim += genrtimes[iiter]*genrtimes[iiter];
+    //sqsgtim += genrtimes[iiter]*genrtimes[iiter];
     mingtim = std::min( mingtim, genrtimes[iiter] );
     maxgtim = std::max( maxgtim, genrtimes[iiter] );
   }
 
   double sumrtim = 0;
-  double sqsrtim = 0;
+  //double sqsrtim = 0;
   double minrtim = rambtimes[0];
   double maxrtim = rambtimes[0];
   for ( int iiter = 0; iiter < niter; ++iiter )
   {
     sumrtim += rambtimes[iiter];
-    sqsrtim += rambtimes[iiter]*rambtimes[iiter];
+    //sqsrtim += rambtimes[iiter]*rambtimes[iiter];
     minrtim = std::min( minrtim, rambtimes[iiter] );
     maxrtim = std::max( maxrtim, rambtimes[iiter] );
   }
 
   double sumwtim = 0;
-  double sqswtim = 0;
+  //double sqswtim = 0;
   double minwtim = wavetimes[0];
   double maxwtim = wavetimes[0];
   for ( int iiter = 0; iiter < niter; ++iiter )
   {
     sumwtim += wavetimes[iiter];
-    sqswtim += wavetimes[iiter]*wavetimes[iiter];
+    //sqswtim += wavetimes[iiter]*wavetimes[iiter];
     minwtim = std::min( minwtim, wavetimes[iiter] );
     maxwtim = std::max( maxwtim, wavetimes[iiter] );
   }
@@ -671,13 +671,13 @@ int main(int argc, char **argv)
   //double stdwtim = std::sqrt( sqswtim / niter - meanwtim * meanwtim );
 
   double sumw3atim = 0;
-  double sqsw3atim = 0;
+  //double sqsw3atim = 0;
   double minw3atim = wv3atimes[0];
   double maxw3atim = wv3atimes[0];
   for ( int iiter = 0; iiter < niter; ++iiter )
   {
     sumw3atim += wv3atimes[iiter];
-    sqsw3atim += wv3atimes[iiter]*wv3atimes[iiter];
+    //sqsw3atim += wv3atimes[iiter]*wv3atimes[iiter];
     minw3atim = std::min( minw3atim, wv3atimes[iiter] );
     maxw3atim = std::max( maxw3atim, wv3atimes[iiter] );
   }
@@ -775,15 +775,15 @@ int main(int argc, char **argv)
 #else
   wrkflwtxt += "/????"; // no path to this statement
 #endif
-  // -- Has cxtype_v::operator[] with non-const reference?
+  // -- Has cxtype_v::operator[] bracket with non-const reference?
 #if defined MGONGPU_CPPSIMD
-#ifdef MGONGPU_HAS_CPPCXTYPE_REF
-  wrkflwtxt += "+CXREF";
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
+  wrkflwtxt += "+CXVBRK";
 #else
-  wrkflwtxt += "+NOREF";
+  wrkflwtxt += "+NOVBRK";
 #endif
 #else
-  wrkflwtxt += "+NAREF"; // N/A
+  wrkflwtxt += "+NAVBRK"; // N/A
 #endif
 
   // --- 9a Dump to screen
@@ -806,7 +806,7 @@ int main(int argc, char **argv)
     while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get() ) != nullptr ) nprocall += nprocbuf.data();
 #endif
 #ifdef MGONGPU_CPPSIMD
-#ifdef MGONGPU_HAS_CPPCXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
     const std::string cxtref = " [cxtype_ref=YES]";
 #else
     const std::string cxtref = " [cxtype_ref=NO]";

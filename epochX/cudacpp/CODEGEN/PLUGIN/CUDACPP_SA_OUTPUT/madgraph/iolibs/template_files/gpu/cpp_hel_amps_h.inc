@@ -9,6 +9,11 @@
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuVectors.h"
 
+//#include <cmath>
+//#include <cstdlib>
+//#include <iomanip>
+//#include <iostream>
+
 #ifdef __CUDACC__
 namespace mg5amcGpu
 #else
@@ -16,6 +21,3 @@ namespace mg5amcCpu
 #endif
 {
 %(function_declarations)s
-} // end namespace
-
-#endif // HelAmps_%(model_name)s_H

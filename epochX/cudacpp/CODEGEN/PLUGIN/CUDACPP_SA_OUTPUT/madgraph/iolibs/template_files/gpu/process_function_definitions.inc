@@ -68,8 +68,6 @@ namespace mg5amcCpu
 #else
     memcpy( cHel, tHel, ncomb * mgOnGpu::npar * sizeof(short) );
 #endif
-    // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
-    static_assert( sizeof(cxtype) == 2 * sizeof(fptype), "sizeof(cxtype) is not 2*sizeof(fptype)" );
   }
 
   //--------------------------------------------------------------------------
@@ -303,11 +301,5 @@ namespace mg5amcCpu
     // Start sigmaKin_lines
 %(sigmaKin_lines)s
 } // end namespace
-
-//==========================================================================
-
-// This was initially added to both C++ and CUDA in order to avoid RDC in CUDA (issue #51)
-// This is now also needed by C++ LTO-like optimizations via inlining (issue #229)
-%(hel_amps_cc)s
 
 //==========================================================================
