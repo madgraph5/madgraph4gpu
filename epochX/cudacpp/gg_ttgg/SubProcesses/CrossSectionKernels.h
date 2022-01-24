@@ -11,6 +11,20 @@
 // Disabling fast math is essential here, otherwise results are undefined
 // See https://stackoverflow.com/a/40702790 about __attribute__ on gcc
 // See https://stackoverflow.com/a/32292725 about __attribute__ on clang
+// (does this actually work on clang? see https://groups.google.com/g/llvm-dev/c/Ys0hpgTFMH8)
+#ifdef __clang__
+__attribute__((optnone))
+#else
+__attribute__((optimize("-fno-fast-math")))
+#endif
+inline bool fp_is_nan( const fptype& fp )
+{
+  //#pragma clang diagnostic push
+  //#pragma clang diagnostic ignored "-Wtautological-compare" // for icpx2021/clang13 (https://stackoverflow.com/a/15864661)
+  return std::isnan( fp ); // always false for clang in fast math mode (tautological compare)?
+  //#pragma clang diagnostic pop
+}
+
 #ifdef __clang__
 __attribute__((optnone))
 #else
@@ -18,7 +32,7 @@ __attribute__((optimize("-fno-fast-math")))
 #endif
 inline bool fp_is_abnormal( const fptype& fp )
 {
-  if ( std::isnan( fp ) ) return true;
+  if ( fp_is_nan( fp ) ) return true;
   if ( fp != fp ) return true;
   return false;
 }
@@ -65,13 +79,13 @@ inline void debug_me_is_abnormal( const fptype& me, size_t ievtALL )
             << " fpclass=" << fp_show_class( me )
             << " (me==me)=" << ( me == me )
             << " (me==me+1)=" << ( me == me+1 )
-            << " isnan=" << std::isnan( me )
+            << " isnan=" << fp_is_nan( me )
             << " isfinite=" << std::isfinite( me )
             << " isnormal=" << std::isnormal( me )
             << " is0=" << ( me == 0 )
             << " is1=" << ( me == 1 )
             << " abs(ME)=" << std::abs( me )
-            << " isnan=" << std::isnan( std::abs( me ) )
+            << " isnan=" << fp_is_nan( std::abs( me ) )
             << std::endl;
 }
 
