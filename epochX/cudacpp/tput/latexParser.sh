@@ -11,7 +11,8 @@ done
 
 ###cat $files | awk '/^Process/{print $0}; /Workflow/{print $0}; /MECalcOnly/{print $0}'
 cat $files | awk \
-    '/^Process/{proc=""; split($3,a,"_"); proc=a[3]"_"a[4]};\
+    '/^Process(.)*nvcc/{split($0,a,"["); comp="["a[2]; if ( comp != complast ){print comp; complast=comp}};\
+     /^Process/{proc=""; split($3,a,"_"); proc=a[3]"_"a[4]};\
      /Workflow/{tag=""; split($4,a,":"); tag=a[1]; split($4,a,"+"); split(a[4],b,"/"); tag=tag"/"b[2]};\
      /MECalcOnly/{tput=sprintf("%.3g", $5); tput_proc_tag[proc,tag]=tput}; \
      END{ntag=split("CUD/none CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z",tags);\
