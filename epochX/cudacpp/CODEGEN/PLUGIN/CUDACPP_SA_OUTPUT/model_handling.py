@@ -1010,6 +1010,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         return out
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (improve formatting? actually keep all defaults!)
+    # [NB this is used in uu~>tt~ but not in gg>tt~ or e+e->mu+mu-, see issue #337]
     @staticmethod
     def coeff(ff_number, frac, is_imaginary, Nc_power, Nc_value=3):
         """Returns a nicely formatted string for the coefficients in JAMP lines"""
@@ -1024,7 +1025,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
                 return '-cxtype(0,1)*' # AV keep default (this is not used in eemumu - should use cI eventually)
             else:
                 return '-' # AV keep default (eg jamp_sv[0] += -amp_sv[0])
-        assert(False)
+        ###assert(False) # [this had been inserted to check if coeff is used at all, it is used in uu~>tt~, see #337]
         res_str = '%+i.' % total_coeff.numerator
         if total_coeff.denominator != 1:
             # Check if total_coeff is an integer
