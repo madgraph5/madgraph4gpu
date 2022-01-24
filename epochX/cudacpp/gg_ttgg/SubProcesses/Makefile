@@ -309,10 +309,14 @@ $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
-### Apply special build flags only to CPPProcess.cc (-flto)
+# Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117)
+$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
+$(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
+
+#### Apply special build flags only to CPPProcess.cc (-flto)
 ###$(BUILDDIR)/CPPProcess.o: CXXFLAGS += -flto
 
-### Apply special build flags only to CPPProcess.cc (AVXFLAGS)
+#### Apply special build flags only to CPPProcess.cc (AVXFLAGS)
 ###$(BUILDDIR)/CPPProcess.o: CXXFLAGS += $(AVXFLAGS)
 
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
