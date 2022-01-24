@@ -293,10 +293,6 @@ modellib : $(LIBDIR)/lib$(MODELLIB).a
 $(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
-$(BUILDDIR)/gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h # ../../src/*.cu
-	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
-
 $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
