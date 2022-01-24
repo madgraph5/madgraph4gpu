@@ -38,7 +38,7 @@ cd $(dirname $0)
 for proc in ${processes}; do
   cmdfile=$(mktemp)
   echo "------------------------------------------------------------------"
-  ./diffCode.sh ../${proc}.auto ../${proc} -r | grep diff | awk '{print "cp -dp", $(NF-1), $NF}' > ${cmdfile}
+  ./diffCode.sh ../${proc}.auto ../${proc} -r | grep ^diff | awk '{print "cp -dp", $(NF-1), $NF}' > ${cmdfile}
   cat ${cmdfile}
   source ${cmdfile}
   echo -e "\nPENDING DIFFERENCES (before copying to manual any new files added in auto):"
