@@ -139,7 +139,6 @@ namespace mg5amcCpu
           << s.tag << "StdDevWeight                = ( " << s.stdWG()
           << std::string(16, ' ') << " )" << std::endl
           << std::defaultfloat; // default format: affects all floats
-      out << s.tag << "SqsMatrixElemValue = " << s.sqsMEdiff << std::endl;
     }
   };
 
