@@ -9,9 +9,10 @@
 //============================================================================
 
 // Disabling fast math is essential here, otherwise results are undefined
+// *** NB: these __attributes__ are now superseded by -fno-fast-math in the Makefile, but keep them anyway ***
 // See https://stackoverflow.com/a/40702790 about __attribute__ on gcc
 // See https://stackoverflow.com/a/32292725 about __attribute__ on clang
-// (does this actually work on clang? see https://groups.google.com/g/llvm-dev/c/Ys0hpgTFMH8)
+// (probably this does not work on clang? see https://groups.google.com/g/llvm-dev/c/Ys0hpgTFMH8)
 #ifdef __clang__
 __attribute__((optnone))
 #else
