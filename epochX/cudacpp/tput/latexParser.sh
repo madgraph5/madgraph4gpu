@@ -16,8 +16,9 @@ cat $files | awk \
      /MECalcOnly/{tput=sprintf("%.3g", $5); tput_proc_tag[proc,tag]=tput}; \
      END{ntag=split("CUD/none CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z",tags);\
          nproc=split("EPEM_MUPMUM GG_TTX GG_TTXGG",procs);\
+         procs_txt["EPEM_MUPMUM"]="eemumu"; procs_txt["GG_TTX"]="ggtt"; procs_txt["GG_TTXGG"]="ggttgg";\
          printf "%12s", "";\
-         for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; printf "%-12s", proc}; printf "\n";\
+         for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; printf "%-12s", procs_txt[proc]}; printf "\n";\
          for(itag=1;itag<=ntag;itag++)\
          {tag=tags[itag]; printf "%-12s", tag;\
           for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; printf "%-12s", tput_proc_tag[proc,tag]}; printf "\n"}}'
