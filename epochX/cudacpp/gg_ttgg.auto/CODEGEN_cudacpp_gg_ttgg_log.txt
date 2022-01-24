@@ -50,7 +50,7 @@ generate g g > t t~ g g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006979465484619141 [0m
+[1;32mDEBUG: model prefixing  takes 0.006882905960083008 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
@@ -100,7 +100,7 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/G
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 948][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 963][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 970][0m [0m
-Generated helas calls for 1 subprocesses (123 diagrams) in 0.562 s
+Generated helas calls for 1 subprocesses (123 diagrams) in 0.558 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 169][0m [0m
 ALOHA: aloha creates routines (starting by VVV1)
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
@@ -137,6 +137,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_cudacpp_gg_ttgg/src/. and 
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 178][0m [0m
 quit
 
-real	0m12.617s
-user	0m2.010s
-sys	0m0.131s
+real	0m5.376s
+user	0m2.008s
+sys	0m0.128s
