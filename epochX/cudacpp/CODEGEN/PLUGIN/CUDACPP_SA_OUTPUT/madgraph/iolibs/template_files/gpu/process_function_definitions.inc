@@ -81,7 +81,7 @@ namespace mg5amcCpu
   void CPPProcess::initProc( const std::string& param_card_name )
   {
     // Instantiate the model class and set parameters that stay fixed during run
-    m_pars = Parameters_sm::getInstance();
+    m_pars = Parameters_%(model_name)s::getInstance();
     SLHAReader slha( param_card_name, m_verbose );
     m_pars->setIndependentParameters( slha );
     m_pars->setIndependentCouplings();
@@ -115,16 +115,16 @@ namespace mg5amcCpu
     // Use hardcoded physics parameters
     if ( m_verbose )
     {
-      Parameters_sm::printIndependentParameters();
-      Parameters_sm::printIndependentCouplings();
-      Parameters_sm::printDependentParameters();
-      Parameters_sm::printDependentCouplings();
+      Parameters_%(model_name)s::printIndependentParameters();
+      Parameters_%(model_name)s::printIndependentCouplings();
+      Parameters_%(model_name)s::printDependentParameters();
+      Parameters_%(model_name)s::printDependentCouplings();
     }
     // Set external particle masses for this matrix element
-    m_masses.push_back( Parameters_sm::ZERO );
-    m_masses.push_back( Parameters_sm::ZERO );
-    m_masses.push_back( Parameters_sm::ZERO );
-    m_masses.push_back( Parameters_sm::ZERO );
+    m_masses.push_back( Parameters_%(model_name)s::ZERO );
+    m_masses.push_back( Parameters_%(model_name)s::ZERO );
+    m_masses.push_back( Parameters_%(model_name)s::ZERO );
+    m_masses.push_back( Parameters_%(model_name)s::ZERO );
   }
 #endif
 
