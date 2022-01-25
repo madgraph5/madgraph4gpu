@@ -2,6 +2,10 @@
 
 cd $(dirname $0)/..
 
+out=tput/summaryTable.txt
+\rm -f $out
+touch $out
+
 # Select revisions
 revs=""
 revs="$revs c2e67b4" # cuda116/gcc102 BASELINE (25 Jan 2022) eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
@@ -20,16 +24,16 @@ inls="inl0 inl1"
 
 # Iterate through log files
 for fpt in $fpts; do
-  echo -e "*** FPTYPE=$fpt ******************************************************************\n"
+  echo -e "*** FPTYPE=$fpt ******************************************************************\n" >> $out
   for rev in $revs; do
     for inl in $inls; do
-      ###echo "*** REVISION $rev ***"
+      ###echo "*** REVISION $rev ***" >> $out
       files=""
       for proc in $procs; do
         file=tput/logs_${proc}_manu/log_${proc}_manu_${fpt}_${inl}_hrd0.txt
         if [ -f $file ]; then files="$files $file"; fi
       done
-      ###echo "*** FILES $files ***"
+      ###echo "*** FILES $files ***" >> $out
       if [ "$files" == "" ]; then continue; fi
       git checkout $rev $files >& /dev/null
       ###cat $files | awk '/^Process/{print $0}; /Workflow/{print $0}; /MECalcOnly/{print $0}'; exit 0
@@ -51,9 +55,10 @@ for fpt in $fpts; do
              for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; printf "%-12s", procs_txt[proc]}; printf "\n";\
              for(itag=1;itag<=ntag;itag++)\
              {tag=tags[itag]; printf "%-12s", tag;\
-              for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; printf "%-12s", tput_proc_tag[proc,tag]}; printf "\n"}}'
-      echo ""
+              for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; printf "%-12s", tput_proc_tag[proc,tag]}; printf "\n"}}' >> $out
+      echo "" >> $out
     done
   done
 done
 git checkout HEAD tput/logs* >& /dev/null
+cat $out
