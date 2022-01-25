@@ -293,10 +293,6 @@ modellib : $(LIBDIR)/lib$(MODELLIB).a
 $(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
-$(BUILDDIR)/gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h # ../../src/*.cu
-	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
-
 $(BUILDDIR)/%%.o : %%.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
@@ -305,19 +301,19 @@ $(BUILDDIR)/%%_cu.o : %%.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c -x cu $< -o $@
 
-# Apply special build flags only to CPPProcess.cc (-flto)
-#$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
-#	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -flto $(CUINC) -c $< -o $@
-
-### Apply special build flags only to CPPProcess.cc (AVXFLAGS)
-###$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
-###	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-###	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(AVXFLAGS) $(CUINC) -c $< -o $@
-
 $(BUILDDIR)/%%.o : %%.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
+
+# Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117)
+$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
+$(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
+
+#### Apply special build flags only to CPPProcess.cc (-flto)
+###$(BUILDDIR)/CPPProcess.o: CXXFLAGS += -flto
+
+#### Apply special build flags only to CPPProcess.cc (AVXFLAGS)
+###$(BUILDDIR)/CPPProcess.o: CXXFLAGS += $(AVXFLAGS)
 
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(cu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')

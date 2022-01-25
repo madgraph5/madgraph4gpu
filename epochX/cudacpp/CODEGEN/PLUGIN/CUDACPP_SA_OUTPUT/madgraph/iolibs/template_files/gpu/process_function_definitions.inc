@@ -147,7 +147,12 @@ namespace mg5amcCpu
 #if defined __INTEL_COMPILER
 #error "icc is no longer supported: please use icx"
 #elif defined __INTEL_LLVM_COMPILER // alternative: __INTEL_CLANG_COMPILER
-    out << "icx " << __INTEL_LLVM_COMPILER << " (";
+    out << "icx " << __INTEL_LLVM_COMPILER;
+#ifdef __CUDACC__
+    out << ", ";
+#else
+    out << " (";
+#endif
 #endif
     // CLANG version (either as CXX or as host compiler inside NVCC or inside ICX)
 #if defined __clang__

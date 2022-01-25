@@ -14,8 +14,14 @@ function codeGenAndDiff()
     gg_tt)
       cmd="generate g g > t t~"
       ;;
+    gg_ttg)
+      cmd="generate g g > t t~ g"
+      ;;
     gg_ttgg)
       cmd="generate g g > t t~ g g"
+      ;;
+    gg_ttggg)
+      cmd="generate g g > t t~ g g g"
       ;;
     pp_tt)
       cmd="generate p p > t t~"
