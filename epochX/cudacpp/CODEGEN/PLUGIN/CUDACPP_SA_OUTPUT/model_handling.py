@@ -797,16 +797,12 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         params = [''] * len(self.params2order)
         for coup, pos in self.couplings2order.items():
             coupling[pos] = coup
-        ###coup_str = "static cxtype tIPC[%s] = {pars->%s};\n"\
-        ###    %(len(self.couplings2order), ',pars->'.join(coupling))
         coup_str = "const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n"\
-            %(len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling)) # AV
+            %(len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling))
         for para, pos in self.params2order.items():
             params[pos] = para
-        ###param_str = "static double tIPD[%s] = {pars->%s};\n"\
-        ###    %(len(self.params2order), ',pars->'.join(params))
         param_str = "    const fptype tIPD[%s] = { (fptype)m_pars->%s };"\
-            %(len(self.params2order), ', (fptype)m_pars->'.join(params)) # AV
+            %(len(self.params2order), ', (fptype)m_pars->'.join(params))
         replace_dict['assign_coupling'] = coup_str + param_str
         coup_str_hrd = "__device__ const fptype cIPC[%s] = {\n" % (len(self.couplings2order)*2)
         for coup in coupling : coup_str_hrd += "    Parameters_sm::%s.real(), Parameters_sm::%s.imag(),\n" % ( coup, coup )
@@ -1145,13 +1141,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if coup not in alias:
                 alias[coup] = len(alias)
             if name == "cIPD":
-                ###call = call.replace('pars->%s%s' % (sign, coup),
-                call = call.replace('m_pars->%s%s' % (sign, coup), # AV
+                call = call.replace('m_pars->%s%s' % (sign, coup),
                                     '%s%s[%s]' % (sign, name, alias[coup]))
             else:
-                ###call = call.replace('pars->%s%s' % (sign, coup),
-                call = call.replace('m_pars->%s%s' % (sign, coup), # AV
-                                    ###'%scxtype(cIPC[%s],cIPC[%s])' %
+                call = call.replace('m_pars->%s%s' % (sign, coup),
                                     '%scxmake( cIPC[%s], cIPC[%s] )' %
                                     (sign, 2*alias[coup],2*alias[coup]+1))
         return call
