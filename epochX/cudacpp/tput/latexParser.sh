@@ -2,16 +2,32 @@
 
 cd $(dirname $0)/..
 
+# Select revisions
 revs=""
-revs="$revs HEAD" # cuda116/gcc102 (BASELINE)
-revs="$revs 6350a75" # cuda116/icx2021
+revs="$revs 6307b62" # cuda116/gcc102 (BASELINE 24 Jan 2022)
+revs="$revs 37537ce" # cuda116/icx2021 (24 Jan 2022)
 
+# Select processes
+procs="eemumu ggtt ggttgg"
+
+# Select fptype
+fpts="d"
+#fpts="d f"
+
+# Select helinl
+inls="inl0"
+#inls="inl0 inl1"
+
+# Iterate through log files
 for rev in $revs; do
-  procs="eemumu ggtt ggttgg"
   files=""
   for proc in $procs; do
-    file=tput/logs_${proc}_manu/log_${proc}_manu_d_inl0_hrd0.txt
-    files="$files $file"
+    for fpt in $fpts; do
+      for inl in $inlss; do
+        file=tput/logs_${proc}_manu/log_${proc}_manu_${fpt}_${inl}_hrd0.txt
+        files="$files $file"
+      done
+    done
   done
   git checkout $rev $files >& /dev/null
   ###cat $files | awk '/^Process/{print $0}; /Workflow/{print $0}; /MECalcOnly/{print $0}'; exit 0
@@ -21,8 +37,12 @@ for rev in $revs; do
      /Workflow/{tag=""; split($4,a,":"); tag=a[1]; split($4,a,"+"); split(a[4],b,"/"); tag=tag"/"b[2]};\
      /MECalcOnly/{tput=sprintf("%.2e", $5); tput_proc_tag[proc,tag]=tput}; \
      END{ntag=split("CUD/none CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z",tags);\
-         nproc=split("EPEM_MUPMUM GG_TTX GG_TTXGG",procs);\
-         procs_txt["EPEM_MUPMUM"]="eemumu"; procs_txt["GG_TTX"]="ggtt"; procs_txt["GG_TTXGG"]="ggttgg";\
+         nproc=split("EPEM_MUPMUM GG_TTX GG_TTXG GG_TTXGG GG_TTXGGG",procs);\
+         procs_txt["EPEM_MUPMUM"]="eemumu";\
+         procs_txt["GG_TTX"]="ggtt";\
+         procs_txt["GG_TTXG"]="ggttg";\
+         procs_txt["GG_TTXGG"]="ggttgg";\
+         procs_txt["GG_TTXGGG"]="ggttggg";\
          printf "%12s", "";\
          for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; printf "%-12s", procs_txt[proc]}; printf "\n";\
          for(itag=1;itag<=ntag;itag++)\
@@ -30,4 +50,4 @@ for rev in $revs; do
           for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; printf "%-12s", tput_proc_tag[proc,tag]}; printf "\n"}}'
   echo ""
 done
-git checkout HEAD > /dev/null
+#git checkout HEAD tput/logs* > /dev/null
