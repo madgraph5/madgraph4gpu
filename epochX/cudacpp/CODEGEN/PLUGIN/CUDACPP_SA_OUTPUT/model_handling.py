@@ -814,6 +814,11 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "tHel")
         file = self.read_template_file(self.process_definition_template) % replace_dict
+        if len(self.params2order) == 0: # remove all IPD occurrences (issue #349)
+            file_lines = file.split('\n')
+            file_lines = [l.replace('cIPC,cIPD','cIPC') for l in file_lines] # remove cIPD from OpenMP pragma
+            file_lines = [l for l in file_lines if 'IPD' not in l] # remove all other lines matchin IPD           
+            file = '\n'.join( file_lines )
         return file
 
     # AV - modify export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
