@@ -4,14 +4,16 @@ cd $(dirname $0)
 
 function usage()
 {
-  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttgg)> [-auto|-autoonly] [-flt|-fltonly] [-inl|-inlonly]  [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej]"
+  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttg|-ggttgg|-ggttggg)> [-auto|-autoonly] [-flt|-fltonly] [-inl|-inlonly]  [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej]"
   exit 1
 }
 
 procs=
 eemumu=
 ggtt=
+ggttg=
 ggttgg=
+ggttggg=
 suffs="manu"
 fptypes="d"
 helinls="0"
@@ -27,9 +29,15 @@ for arg in $*; do
   elif [ "$arg" == "-ggtt" ]; then
     if [ "$ggtt" == "" ]; then procs+=${procs:+ }${arg}; fi
     ggtt=$arg
+  elif [ "$arg" == "-ggttg" ]; then
+    if [ "$ggttg" == "" ]; then procs+=${procs:+ }${arg}; fi
+    ggttg=$arg
   elif [ "$arg" == "-ggttgg" ]; then
     if [ "$ggttgg" == "" ]; then procs+=${procs:+ }${arg}; fi
     ggttgg=$arg
+  elif [ "$arg" == "-ggttggg" ]; then
+    if [ "$ggttggg" == "" ]; then procs+=${procs:+ }${arg}; fi
+    ggttggg=$arg
   elif [ "$arg" == "-auto" ]; then
     if [ "${suffs}" == "auto" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
     suffs="manu auto"
