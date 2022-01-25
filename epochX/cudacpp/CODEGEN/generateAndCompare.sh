@@ -29,6 +29,9 @@ function codeGenAndDiff()
     uu_tt)
       cmd="generate u u~ > t t~"
       ;;
+    uu_dd)
+      cmd="generate u u~ > d d~"
+      ;;
     *)
       echo -e "\nWARNING! Skipping unknown process '$proc'"
       return
