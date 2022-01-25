@@ -50,7 +50,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006984233856201172 [0m
+[1;32mDEBUG: model prefixing  takes 0.006892681121826172 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
@@ -81,16 +81,16 @@ INFO: Processing color information for process: e+ e- > mu+ mu- @1
 [1;32mDEBUG:    type(subproc_group)=<class 'madgraph.core.helas_objects.HelasMatrixElement'> [1;30m[output.py at line 163][0m [0m
 [1;32mDEBUG:    type(fortran_model)=<class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 164][0m [0m
 INFO: Creating files in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_cudacpp_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 931][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 932][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_cudacpp_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/./CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 983][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 984][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_cudacpp_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/./CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1005][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1006][0m [0m
 [1;32mDEBUG: only one Matrix-element supported? [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_cudacpp_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 948][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 963][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 970][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 949][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 964][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 971][0m [0m
 Generated helas calls for 1 subprocesses (2 diagrams) in 0.005 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 169][0m [0m
 ALOHA: aloha creates routines (starting by FFV1)
@@ -120,6 +120,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_cudacpp_ee_mumu/src/. and 
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 178][0m [0m
 quit
 
-real	0m4.120s
-user	0m0.938s
-sys	0m0.144s
+real	0m3.732s
+user	0m0.933s
+sys	0m0.140s
