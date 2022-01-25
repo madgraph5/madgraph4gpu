@@ -33,7 +33,7 @@ function codeGenAndDiff()
       cmd="generate u u~ > d d~"
       ;;
     heft_gg_h)
-      cmd="import model heft; generate g g > h"
+      cmd="set auto_convert_model T; import model heft; generate g g > h"
       ;;
     *)
       echo -e "\nWARNING! Skipping unknown process '$proc'"
