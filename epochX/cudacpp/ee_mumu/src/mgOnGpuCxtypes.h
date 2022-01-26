@@ -73,6 +73,107 @@ template<typename FP>
 inline __host__ __device__
 std::ostream& operator<<( std::ostream& out, const cxsmpl<FP>& c ){ out << std::complex( c.real(), c.imag() ); return out; }
 
+// Operators for cxsmpl
+template<typename FP>
+inline __host__ __device__
+cxsmpl<FP> operator+( const cxsmpl<FP> a )
+{
+  return a;
+}
+
+template<typename FP>
+inline __host__ __device__
+cxsmpl<FP> operator-( const cxsmpl<FP>& a )
+{
+  return cxsmpl<FP>( -a.real(), -a.imag() );
+}
+
+template<typename FP>
+inline __host__ __device__
+cxsmpl<FP> operator+( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
+{
+  return cxsmpl<FP>( a.real() + b.real(), a.imag() + b.imag() );
+}
+
+template<typename FP>
+inline __host__ __device__
+cxsmpl<FP> operator+( const FP& a, const cxsmpl<FP>& b )
+{
+  return cxsmpl<FP>( a, 0 ) + b;
+}
+
+template<typename FP>
+inline __host__ __device__
+cxsmpl<FP> operator-( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
+{
+  return cxsmpl<FP>( a.real() - b.real(), a.imag() - b.imag() );
+}
+
+template<typename FP>
+inline __host__ __device__
+cxsmpl<FP> operator-( const FP& a, const cxsmpl<FP>& b )
+{
+  return cxsmpl<FP>( a, 0 ) - b;
+}
+
+template<typename FP>
+inline __host__ __device__
+cxsmpl<FP> operator*( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
+{
+  return cxsmpl<FP>( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
+}
+
+template<typename FP>
+inline __host__ __device__
+cxsmpl<FP> operator*( const FP& a, const cxsmpl<FP>& b )
+{
+  return cxsmpl<FP>( a, 0 ) * b;
+}
+
+template<typename FP>
+inline __host__ __device__
+cxsmpl<FP> operator/( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
+{
+  FP bnorm = b.real()*b.real() + b.imag()*b.imag();
+  return cxsmpl<FP>( ( a.real() * b.real() + a.imag() * b.imag() ) / bnorm,
+                     ( a.imag() * b.real() - a.real() * b.imag() ) / bnorm );
+}
+
+template<typename FP>
+inline __host__ __device__
+cxsmpl<FP> operator/( const FP& a, const cxsmpl<FP>& b )
+{
+  return cxsmpl<FP>( a, 0 ) / b;
+}
+
+template<typename FP>
+inline __host__ __device__
+cxsmpl<FP> operator+( const cxsmpl<FP>& a, const FP& b )
+{
+  return a + cxsmpl<FP>( b, 0 );
+}
+
+template<typename FP>
+inline __host__ __device__
+cxsmpl<FP> operator-( const cxsmpl<FP>& a, const FP& b )
+{
+  return a - cxsmpl<FP>( b, 0 );
+}
+
+template<typename FP>
+inline __host__ __device__
+cxsmpl<FP> operator*( const cxsmpl<FP>& a, const FP& b )
+{
+  return a * cxsmpl<FP>( b, 0 );
+}
+
+template<typename FP>
+inline __host__ __device__
+cxsmpl<FP> operator/( const cxsmpl<FP>& a, const FP& b )
+{
+  return a / cxsmpl<FP>( b, 0 );
+}
+
 //==========================================================================
 // COMPLEX TYPES: (PLATFORM-SPECIFIC) TYPEDEFS
 //==========================================================================
@@ -143,92 +244,6 @@ inline __host__ __device__
 cxtype cxconj( const cxtype& c )
 {
   return conj( c ); // conj( cxsmpl )
-}
-
-inline __host__ __device__
-cxtype operator+( const cxtype a )
-{
-  return a;
-}
-
-inline __host__ __device__
-cxtype operator-( const cxtype& a )
-{
-  return cxmake( -cxreal(a), -cximag(a) );
-}
-
-inline __host__ __device__
-cxtype operator+( const cxtype& a, const cxtype& b )
-{
-  return cxmake( a.real() + b.real(), a.imag() + b.imag() );
-}
-
-inline __host__ __device__
-cxtype operator+( const fptype& a, const cxtype& b )
-{
-  return cxmake( a, 0 ) + b;
-}
-
-inline __host__ __device__
-cxtype operator-( const cxtype& a, const cxtype& b )
-{
-  return cxmake( a.real() - b.real(), a.imag() - b.imag() );
-}
-
-inline __host__ __device__
-cxtype operator-( const fptype& a, const cxtype& b )
-{
-  return cxmake( a, 0 ) - b;
-}
-
-inline __host__ __device__
-cxtype operator*( const cxtype& a, const cxtype& b )
-{
-  return cxmake( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
-}
-
-inline __host__ __device__
-cxtype operator*( const fptype& a, const cxtype& b )
-{
-  return cxmake( a, 0 ) * b;
-}
-
-inline __host__ __device__
-cxtype operator/( const cxtype& a, const cxtype& b )
-{
-  fptype bnorm = b.real()*b.real() + b.imag()*b.imag();
-  return cxmake( ( a.real() * b.real() + a.imag() * b.imag() ) / bnorm,
-                 ( a.imag() * b.real() - a.real() * b.imag() ) / bnorm );
-}
-
-inline __host__ __device__
-cxtype operator/( const fptype& a, const cxtype& b )
-{
-  return cxmake( a, 0 ) / b;
-}
-
-inline __host__ __device__
-cxtype operator+( const cxtype& a, const fptype& b )
-{
-  return a + cxmake( b, 0 );
-}
-
-inline __host__ __device__
-cxtype operator-( const cxtype& a, const fptype& b )
-{
-  return a - cxmake( b, 0 );
-}
-
-inline __host__ __device__
-cxtype operator*( const cxtype& a, const fptype& b )
-{
-  return a * cxmake( b, 0 );
-}
-
-inline __host__ __device__
-cxtype operator/( const cxtype& a, const fptype& b )
-{
-  return a / cxmake( b, 0 );
 }
 
 inline __host__ // NOT __device__
