@@ -732,15 +732,16 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         ###            (os.path.split(model_h_file)[0],
         ###             os.path.split(model_cc_file)[0]))
         # Write only the HelAmps_sm.h file
-
         file_h_lines = file_h.split('\n')
         file_h = '\n'.join( file_h_lines[:-3]) # skip the trailing '//---'
         file_h += file_cc # append the contents of HelAmps_sm.cc directly to HelAmps_sm.h!
         writers.CPPWriter(model_h_file).writelines(file_h)
-        logger.info("Created file %s in directory" \
-                    % (os.path.split(model_h_file)[-1] ))
-        logger.info("%s" % \
-                    (os.path.split(model_h_file)[0]))
+        logger.info("Created file %s in directory %s" \
+                    % (os.path.split(model_h_file)[-1], os.path.split(model_h_file)[0] ) )
+        # Create the testxxx.cc file including the appropriate HelAmps_<model>.h file
+        #testxxx_cc_file = os.path.join(self.dir_path, self.cc_file_dir, 'testxxx.%s'%self.cc_ext )
+        #testxxx_cc = self.read_template_file('gpu/testxxx_cc.inc') #% replace_dict
+        #writers.CPPWriter(testxxx_cc_file).writelines(testxxx_cc)
 
 #------------------------------------------------------------------------------------
 
@@ -934,6 +935,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         self.edit_check_sa()
         self.edit_mgonGPU()
         self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
+        self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         # Add symbolic links
         files.ln(pjoin(self.path, 'check_sa.cc'), self.path, 'gcheck_sa.cu')
         files.ln(pjoin(self.path, 'CPPProcess.cc'), self.path, 'gCPPProcess.cu')
@@ -974,6 +976,17 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         replace_dict['processid'] = self.get_process_name()
         replace_dict['processid_uppercase'] = self.get_process_name().upper()
         ff = open(pjoin(self.path, 'epoch_process_id.h'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
+
+    # AV - new method
+    def edit_testxxx(self):
+        """Generate testxxx.cc"""
+        misc.sprint('Entering PLUGIN_OneProcessExporter.edit_testxxx')
+        template = open(pjoin(self.template_path,'gpu','testxxx_cc.inc'),'r').read()
+        replace_dict = {}
+        replace_dict['model_name'] = self.model_name
+        ff = open(pjoin(self.path, '..', 'testxxx.cc'),'w')
         ff.write(template % replace_dict)
         ff.close()
 
