@@ -156,7 +156,7 @@ namespace mg5amcCpu
 
       vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][1], -1, w_fp[1], 1 );
 
-      sxxxxx<M_ACCESS, W_ACCESS>( momenta, Parameters_heft::getInstance()->mdl_MH, +1, w_fp[2], 2 );
+      sxxxxx<M_ACCESS, W_ACCESS>( momenta, +1, w_fp[2], 2 );
 
 
       // Amplitude(s) for diagram number 1
