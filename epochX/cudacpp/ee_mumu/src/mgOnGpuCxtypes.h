@@ -38,24 +38,26 @@
 namespace mgOnGpu
 {
   // --- Type definition (simple complex type derived from cxtype_v)
+  template<typename FP>
   class cxsmpl
   {
   public:
     __host__ __device__ constexpr cxsmpl() : m_real{0}, m_imag{0} {}
     cxsmpl( const cxsmpl&  ) = default;
     cxsmpl( cxsmpl&&  ) = default;
-    __host__ __device__ constexpr cxsmpl( const fptype& r, const fptype& i = 0 ) : m_real{r}, m_imag{i} {}
+    __host__ __device__ constexpr cxsmpl( const FP& r, const FP& i = 0 ) : m_real{r}, m_imag{i} {}
     cxsmpl& operator=( const cxsmpl& ) = default;
     cxsmpl& operator=( cxsmpl&& ) = default;
     __host__ __device__ constexpr cxsmpl& operator+=( const cxsmpl& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
     __host__ __device__ constexpr cxsmpl& operator-=( const cxsmpl& c ){ m_real -= c.real(); m_imag -= c.imag(); return *this; }
-    __host__ __device__ constexpr const fptype& real() const { return m_real; }
-    __host__ __device__ constexpr const fptype& imag() const { return m_imag; }
+    __host__ __device__ constexpr const FP& real() const { return m_real; }
+    __host__ __device__ constexpr const FP& imag() const { return m_imag; }
   private:
-    fptype m_real, m_imag; // RI
+    FP m_real, m_imag; // RI
   };
+  template<typename FP>
   inline __host__ __device__ //constexpr (NB: a constexpr function cannot have a nonliteral return type "mgOnGpu::cxsmpl")
-  cxsmpl conj( const cxsmpl& c ){ return cxsmpl( c.real(), -c.imag() ); }
+  cxsmpl<FP> conj( const cxsmpl<FP>& c ){ return cxsmpl<FP>( c.real(), -c.imag() ); }
 }
 
 //==========================================================================
@@ -76,13 +78,13 @@ namespace mgOnGpu
   typedef cuFloatComplex cxtype;
 #endif
 #else
-  typedef cxsmpl cxtype;
+  typedef cxsmpl<fptype> cxtype;
 #endif
 #else // c++
 #if defined MGONGPU_CPPCXTYPE_STDCOMPLEX
   typedef std::complex<fptype> cxtype;
 #else
-  typedef cxsmpl cxtype;
+  typedef cxsmpl<fptype> cxtype;
 #endif
 #endif
 
