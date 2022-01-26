@@ -312,7 +312,7 @@ $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) $(c
 	$(NVCC) $< -o $@ $(cu_objects) $(cucxx_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
 
 $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cucxx_objects)
-	$(CXX) $< -o $@ $(cxx_objects) $(cucxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+	$(CXX) $< -o $@ $(cxx_objects) $(cucxx_objects) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
 $(BUILDDIR)/testxxx.o: $(GTESTLIBS)
 $(BUILDDIR)/testxxx.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
@@ -362,11 +362,11 @@ endif
 ifeq ($(NVCC),)
 # Link only runTest.o
 $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
-	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+	$(CXX) -o $@ $(cxx_objects) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
 # Link both runTest.o and runTest_cu.o
 $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
-	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
+	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
 
 $(GTESTLIBS):
