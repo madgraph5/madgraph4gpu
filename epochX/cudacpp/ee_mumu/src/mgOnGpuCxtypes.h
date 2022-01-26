@@ -44,16 +44,18 @@ namespace mgOnGpu
   class cxsmpl
   {
   public:
-    __host__ __device__ constexpr cxsmpl() : m_real{0}, m_imag{0} {}
+    __host__ __device__ constexpr cxsmpl() : m_real(0), m_imag(0) {}
     cxsmpl( const cxsmpl&  ) = default;
     cxsmpl( cxsmpl&&  ) = default;
-    __host__ __device__ constexpr cxsmpl( const FP& r, const FP& i = 0 ) : m_real{r}, m_imag{i} {}
+    __host__ __device__ constexpr cxsmpl( const FP& r, const FP& i = 0 ) : m_real(r), m_imag(i) {}
+    __host__ __device__ constexpr cxsmpl( const std::complex<FP>& c ) : m_real( c.real() ), m_imag( c.imag() ) {}
     cxsmpl& operator=( const cxsmpl& ) = default;
     cxsmpl& operator=( cxsmpl&& ) = default;
     __host__ __device__ constexpr cxsmpl& operator+=( const cxsmpl& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
     __host__ __device__ constexpr cxsmpl& operator-=( const cxsmpl& c ){ m_real -= c.real(); m_imag -= c.imag(); return *this; }
     __host__ __device__ constexpr const FP& real() const { return m_real; }
     __host__ __device__ constexpr const FP& imag() const { return m_imag; }
+    //constexpr operator std::complex<FP>() const { return std::complex( m_real, m_imag ); } // cxsmpl to std::complex (float-to-float or double-to-double)
   private:
     FP m_real, m_imag; // RI
   };
@@ -141,12 +143,6 @@ inline __host__ __device__
 cxtype cxconj( const cxtype& c )
 {
   return conj( c ); // conj( cxsmpl )
-}
-
-inline __host__ __device__
-const cxtype& cxmake( const cxtype& c )
-{
-  return c;
 }
 
 inline __host__ __device__
@@ -551,6 +547,20 @@ cxtype cxmake( const std::complex<double>& c ) // std::complex to std::complex (
 #endif
 
 #endif // #if not defined __CUDACC__ and defined MGONGPU_CPPCXTYPE_STDCOMPLEX
+
+//==========================================================================
+
+inline __host__ __device__
+const cxtype cxmake( const cxsmpl<float>& c ) // cxsmpl to cxtype (float-to-float or float-to-double)
+{
+  return cxmake( c.real(), c.imag() );
+}
+
+inline __host__ __device__
+const cxtype cxmake( const cxsmpl<double>& c ) // cxsmpl to cxtype (double-to-float or double-to-double)
+{
+  return cxmake( c.real(), c.imag() );
+}
 
 //==========================================================================
 // COMPLEX TYPES: WRAPPER OVER RI FLOATING POINT PAIR (cxtype_ref)
