@@ -190,7 +190,14 @@ using mgOnGpu::fptype;
 // For SANITY CHECKS: check that neppR, neppM, neppV... are powers of two (https://stackoverflow.com/a/108360)
 inline constexpr bool ispoweroftwo( int n ){ return ( n > 0 ) && !( n & ( n - 1 ) ); }
 
-// Compiler version support (#96): need CUDA >= 11.2 to use C++17 (see #333)
+// Compiler version support (#96): require gcc >= 9.3, e.g. for some OMP issues (see #269)
+#if defined __GNUC__
+#if ( __GNUC__ < 9 ) || ( __GNUC__ == 9 && __GNUC_MINOR__ < 3 )
+#error Unsupported gcc version: please gcc >= 9.3
+#endif
+#endif
+
+// Compiler version support (#96): require CUDA >= 11.2, e.g. to use C++17 (see #333)
 #ifdef __CUDACC__
 #if ( __CUDACC_VER_MAJOR__ < 11 ) || ( __CUDACC_VER_MAJOR__ == 11 && __CUDACC_VER_MINOR__ < 2 )
 #error Unsupported CUDA version: please use CUDA >= 11.2
