@@ -31,7 +31,8 @@ GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 override OMPFLAGS =
 endif
-OMPFLAGS ?= -fopenmp
+###OMPFLAGS ?= -fopenmp # TEMPORARELY DISABLE OMP (need to reassess MT)
+override OMPFLAGS = # TEMPORARELY DISABLE OMP (need to reassess MT)
 $(info OMPFLAGS=$(OMPFLAGS))
 CXXFLAGS += $(OMPFLAGS)
 
