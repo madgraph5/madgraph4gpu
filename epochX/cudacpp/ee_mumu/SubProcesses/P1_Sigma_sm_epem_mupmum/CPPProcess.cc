@@ -372,7 +372,7 @@ namespace mg5amcCpu
 #error "icc is no longer supported: please use icx"
 #elif defined __INTEL_LLVM_COMPILER // alternative: __INTEL_CLANG_COMPILER
     out << "icx " << __INTEL_LLVM_COMPILER;
-#ifdef __CUDACC__
+#ifdef __NVCC__
     out << ", ";
 #else
     out << " (";
@@ -406,7 +406,7 @@ namespace mg5amcCpu
     out << "gcc UNKNOWKN";
 #endif
 #endif
-#if defined __CUDACC_VER_MAJOR__ or defined __INTEL_LLVM_COMPILER
+#if defined __NVCC__ or defined __INTEL_LLVM_COMPILER
     out << ")";
 #endif
     return out.str();
