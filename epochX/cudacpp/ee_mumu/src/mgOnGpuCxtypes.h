@@ -35,8 +35,6 @@
 // COMPLEX TYPES: SIMPLE COMPLEX CLASS (cxsmpl)
 //==========================================================================
 
-#if defined MGONGPU_CUCXTYPE_CXSMPL or defined MGONGPU_CPPCXTYPE_CXSMPL
-
 namespace mgOnGpu
 {
   // --- Type definition (simple complex type derived from cxtype_v)
@@ -59,7 +57,6 @@ namespace mgOnGpu
   inline __host__ __device__ //constexpr (NB: a constexpr function cannot have a nonliteral return type "mgOnGpu::cxsmpl")
   cxsmpl conj( const cxsmpl& c ){ return cxsmpl( c.real(), -c.imag() ); }
 }
-#endif
 
 //==========================================================================
 // COMPLEX TYPES: (PLATFORM-SPECIFIC) TYPEDEFS
