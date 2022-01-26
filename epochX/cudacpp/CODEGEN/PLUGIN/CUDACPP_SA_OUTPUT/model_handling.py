@@ -1277,11 +1277,13 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             else:
                 # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
                 ###call = call + "m_pars->%s,"
-                call = call + "/*m_pars->%s,*/ "
+                call = call
             call = call + "%+d, w_sv[%d], %d );"
             if argument.get('spin') == 1:
+                # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
                 return call % \
-                                (wf.get('mass'),
+                                (
+                                 ###wf.get('mass'),
                                  # For boson, need initial/final here
                                  (-1) ** (wf.get('state') == 'initial'),
                                  wf.get('me_id')-1,

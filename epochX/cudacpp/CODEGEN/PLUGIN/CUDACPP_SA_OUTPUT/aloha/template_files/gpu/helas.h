@@ -83,8 +83,8 @@
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__ INLINE
   void sxxxxx( const fptype momenta[],
-               const fptype,                   // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
-               const int,                      // WARNING: input "nhel" unused (missing in Fortran) - scalar has no helicity!
+               //const fptype,                 // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
+               //const int,                    // WARNING: input "nhel" unused (missing in Fortran) - scalar has no helicity!
                const int nss,                  // input: +1 (final) or -1 (initial)
                fptype wavefunctions[],
                const int ipar                  // input: particle# out of npar
@@ -505,8 +505,8 @@
   template<class M_ACCESS, class W_ACCESS>
   __host__ __device__
   void sxxxxx( const fptype momenta[],
-               const fptype,                   // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
-               const int,                      // WARNING: input "nhel" unused (missing in Fortran) - scalar has no helicity!
+               //const fptype,                 // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
+               //const int,                    // WARNING: input "nhel" unused (missing in Fortran) - scalar has no helicity!
                const int nss,                  // input: +1 (final) or -1 (initial)
                fptype wavefunctions[],
                const int ipar )                // input: particle# out of npar
