@@ -1275,7 +1275,9 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 # For non-scalars, need mass and helicity
                 call = call + "m_pars->%s, cHel[ihel][%d],"
             else:
-                call = call + "m_pars->%s,"
+                # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
+                ###call = call + "m_pars->%s,"
+                call = call + "/*m_pars->%s,*/ "
             call = call + "%+d, w_sv[%d], %d );"
             if argument.get('spin') == 1:
                 return call % \
