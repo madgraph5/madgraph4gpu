@@ -27,13 +27,12 @@ TESTDIR  = ../../../../../test
 GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
 GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 
-# OpenMP flags
+# OpenMP flags (on gcc this requires gcc>=9.3, issue #269)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 override OMPFLAGS =
-else ifeq ($(shell $(CXX) --version | grep GCC | cut -d' ' -f3 | cut -d'.' -f1),9) # disable OMP on gcc9 (issue #269)
-override OMPFLAGS =
-OMPFLAGS ?= -fopenmp
 endif
+###OMPFLAGS ?= -fopenmp # TEMPORARELY DISABLE OMP (need to reassess MT)
+override OMPFLAGS = # TEMPORARELY DISABLE OMP (need to reassess MT)
 $(info OMPFLAGS=$(OMPFLAGS))
 CXXFLAGS += $(OMPFLAGS)
 
@@ -99,17 +98,8 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   CUOPTFLAGS  = -lineinfo
   CUFLAGS     = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
   ###CUFLAGS    += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
-  NVCC_VERSION = $(shell $(NVCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
-  # TEMPORARY! For as long as cuda 11.0/11.1 are supported (issues #282 and #292)
-  # (Eventually, use only c++17; previously, c++14 in cuda110/111 and c++17 above; now c++14 everywhere)
-  ###ifeq ($(NVCC_VERSION),11.0)
-  ###  CUFLAGS += -std=c++14
-  ###else ifeq ($(NVCC_VERSION),11.1)
-  ###  CUFLAGS += -std=c++14
-  ###else
-  ###  CUFLAGS += -std=c++17
-  ###endif
-  CUFLAGS += -std=c++14
+  ###NVCC_VERSION = $(shell $(NVCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
+  CUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
   # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
@@ -323,7 +313,7 @@ $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) $(c
 	$(NVCC) $< -o $@ $(cu_objects) $(cucxx_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
 
 $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cucxx_objects)
-	$(CXX) $< -o $@ $(cxx_objects) $(cucxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+	$(CXX) $< -o $@ $(cxx_objects) $(cucxx_objects) $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
 $(BUILDDIR)/testxxx.o: $(GTESTLIBS)
 $(BUILDDIR)/testxxx.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
@@ -373,11 +363,11 @@ endif
 ifeq ($(NVCC),)
 # Link only runTest.o
 $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
-	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+	$(CXX) -o $@ $(cxx_objects) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
 # Link both runTest.o and runTest_cu.o
 $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
-	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
+	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
 
 $(GTESTLIBS):

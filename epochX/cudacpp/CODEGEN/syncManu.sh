@@ -2,7 +2,9 @@
 
 eemumu=0
 ggtt=0
+ggttg=0
 ggttgg=0
+ggttggg=0
 
 function usage()
 {
@@ -17,8 +19,14 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-ggtt" ]; then
     ggtt=1
     shift
+  elif [ "$1" == "-ggttg" ]; then
+    ggttg=1
+    shift
   elif [ "$1" == "-ggttgg" ]; then
     ggttgg=1
+    shift
+  elif [ "$1" == "-ggttggg" ]; then
+    ggttggg=1
     shift
   else
     usage
@@ -27,8 +35,10 @@ done
 
 # Check that at least one process has been selected
 processes=
-if [ "${ggttgg}" == "1" ]; then processes="gg_ttgg $processes"; fi
 if [ "${ggtt}" == "1" ]; then processes="gg_tt $processes"; fi
+if [ "${ggttg}" == "1" ]; then processes="gg_ttg $processes"; fi
+if [ "${ggttgg}" == "1" ]; then processes="gg_ttgg $processes"; fi
+if [ "${ggttggg}" == "1" ]; then processes="gg_ttggg $processes"; fi
 if [ "${eemumu}" == "1" ]; then processes="ee_mumu $processes"; fi
 if [ "${processes}" == "" ]; then usage; fi
 

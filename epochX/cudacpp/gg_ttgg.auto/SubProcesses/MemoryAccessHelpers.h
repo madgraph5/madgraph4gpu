@@ -97,8 +97,7 @@ public:
   __host__ __device__ inline
   fptype* kernelAccessRecord( fptype* buffer )
   {
-    //if constexpr ( !onDevice ) // FIXME! enable this when we move to nvcc supporting c++17
-    if ( !onDevice )
+    if constexpr ( !onDevice ) // requires c++17 also in CUDA (#333)
     {
       return T::ieventAccessRecord( buffer, 0 );
     }
