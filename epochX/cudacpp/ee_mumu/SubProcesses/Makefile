@@ -27,10 +27,8 @@ TESTDIR  = ../../../../../test
 GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
 GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 
-# OpenMP flags
+# OpenMP flags (on gcc this requires gcc>=9.3, issue #269)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
-override OMPFLAGS =
-else ifeq ($(shell $(CXX) --version | grep GCC | cut -d' ' -f3 | cut -d'.' -f1),9) # disable OMP on gcc9 (issue #269)
 override OMPFLAGS =
 endif
 OMPFLAGS ?= -fopenmp
