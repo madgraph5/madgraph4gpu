@@ -312,7 +312,7 @@ $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) $(c
 	$(NVCC) $< -o $@ $(cu_objects) $(cucxx_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
 
 $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cucxx_objects)
-	$(CXX) $< -o $@ $(cxx_objects) $(cucxx_objects) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+	$(CXX) $< -o $@ $(cxx_objects) $(cucxx_objects) $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
 $(BUILDDIR)/testxxx.o: $(GTESTLIBS)
 $(BUILDDIR)/testxxx.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
