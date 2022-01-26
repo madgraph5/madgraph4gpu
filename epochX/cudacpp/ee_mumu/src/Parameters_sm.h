@@ -141,12 +141,9 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
 
   // EVENTUALLY: %(hardcoded_dependent_parameters)s
   // Model couplings independent of aS (for eemumu)
-  //constexpr cxsmpl<double> GC_3 = -(mdl_ee*mdl_complexi);
-  //constexpr cxsmpl<double> GC_50 = -(mdl_cw*mdl_ee*mdl_complexi)/(2.*mdl_sw);
-  //constexpr cxsmpl<double> GC_59 = (mdl_ee*mdl_complexi*mdl_sw)/(2.*mdl_cw);
-  constexpr cxsmpl<double> GC_3 = cxsmpl<double>(0.,-mdl_ee); // does not build
-  constexpr cxsmpl<double> GC_50 = cxsmpl<double>(0.,-(mdl_cw*mdl_ee)/(2.*mdl_sw)); // does not build
-  constexpr cxsmpl<double> GC_59 = cxsmpl<double>(0.,(mdl_ee*mdl_sw)/(2.*mdl_cw)); // does not build
+  constexpr cxsmpl<double> GC_3 = -(mdl_ee*mdl_complexi); // uses constexpr arithmetic operators for cxsmpl
+  constexpr cxsmpl<double> GC_50 = -(mdl_cw*mdl_ee*mdl_complexi)/(2.*mdl_sw); // uses constexpr arithmetic operators for cxsmpl
+  constexpr cxsmpl<double> GC_59 = (mdl_ee*mdl_complexi*mdl_sw)/(2.*mdl_cw); // uses constexpr arithmetic operators for cxsmpl
   // Model couplings independent of aS (for ggttgg)
   // (none)
 
@@ -161,8 +158,8 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   // EVENTUALLY: %(hardcoded_dependent_couplings)s
   // Model couplings dependent on aS (for ggttgg)
   constexpr cxsmpl<double> GC_10 = -G;
-  constexpr cxsmpl<double> GC_11 = mdl_complexi*G; // uses constexpr operator* for cxsmpl
-  constexpr cxsmpl<double> GC_12 = mdl_complexi*mdl_G__exp__2; // uses constexpr operator* for cxsmpl
+  constexpr cxsmpl<double> GC_11 = mdl_complexi*G; // uses constexpr arithmetic operators for cxsmpl
+  constexpr cxsmpl<double> GC_12 = mdl_complexi*mdl_G__exp__2; // uses constexpr arithmetic operators for cxsmpl
 
   // Print parameters that are unchanged during the run
   void printIndependentParameters();
