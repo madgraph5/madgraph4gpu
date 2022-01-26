@@ -267,9 +267,9 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test sxxxxx - NO ASSUMPTIONS
       {
         const fptype smass = mass0[ievt];
-        sxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, smass, nhel, nsp, fp_outwf3, ipar0 );
+        sxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nsp, fp_outwf3, ipar0 ); // no mass, no helicity (was "smass>0")
         testwf6( outwf3, "sxxxxx", ievt, nsp, smass );
-        sxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, -smass, nhel, nsp, fp_outwf3, ipar0 );
+        sxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nsp, fp_outwf3, ipar0 ); // no mass, no helicity (was "smass<0")
         testwf6( outwf3, "sxxxxx", ievt, nsp, -smass );
       }
       // Test oxxxxx - NO ASSUMPTIONS
