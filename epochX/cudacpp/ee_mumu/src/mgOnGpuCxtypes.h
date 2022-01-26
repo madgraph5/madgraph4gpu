@@ -4,6 +4,8 @@
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuFptypes.h"
 
+#include <iostream>
+
 //==========================================================================
 // COMPLEX TYPES: (PLATFORM-SPECIFIC) HEADERS
 //==========================================================================
@@ -55,10 +57,19 @@ namespace mgOnGpu
   private:
     FP m_real, m_imag; // RI
   };
+
   template<typename FP>
   inline __host__ __device__ //constexpr (NB: a constexpr function cannot have a nonliteral return type "mgOnGpu::cxsmpl")
   cxsmpl<FP> conj( const cxsmpl<FP>& c ){ return cxsmpl<FP>( c.real(), -c.imag() ); }
 }
+
+// Expose the cxsmpl class outside the namespace
+using mgOnGpu::cxsmpl;
+
+// Printout to stream for user defined types
+template<typename FP>
+inline __host__ __device__
+std::ostream& operator<<( std::ostream& out, const cxsmpl<FP>& c ){ out << std::complex( c.real(), c.imag() ); return out; }
 
 //==========================================================================
 // COMPLEX TYPES: (PLATFORM-SPECIFIC) TYPEDEFS
@@ -560,11 +571,15 @@ namespace mgOnGpu
     cxtype_ref& operator=( const cxtype_ref& ) = delete;
     cxtype_ref& operator=( cxtype_ref&& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // for cxternary
     cxtype_ref& operator=( const cxtype& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; }
-    operator cxtype() const { return cxmake( m_real, m_imag ); }
+    __host__ __device__ operator cxtype() const { return cxmake( m_real, m_imag ); }
   private:
     fptype &m_real, &m_imag; // RI
   };
 }
+
+// Printout to stream for user defined types
+inline __host__ __device__
+std::ostream& operator<<( std::ostream& out, const mgOnGpu::cxtype_ref& c ){ out << (cxtype)c; return out; }
 
 //==========================================================================
 
