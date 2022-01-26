@@ -109,7 +109,7 @@ namespace mgOnGpu
 
   // Alignment requirement for using reinterpret_cast with SIMD vectorized code
   // (using reinterpret_cast with non aligned memory may lead to segmentation faults!)
-  // [NB eventually define this also for code built with nvcc (#318), however this requires c++17 and nvcc >= 11.2]
+  // Only needed for C++ code but can be enforced also in NVCC builds of C++ code using CUDA>=11.2 and C++17 (#318, #319, #333)
 #ifndef __CUDACC__
   constexpr int cppAlign = 64; // alignment requirement for SIMD vectorization (64-byte i.e. 512-bit)
 #endif
