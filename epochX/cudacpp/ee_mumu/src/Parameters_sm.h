@@ -161,10 +161,8 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   // EVENTUALLY: %(hardcoded_dependent_couplings)s
   // Model couplings dependent on aS (for ggttgg)
   constexpr cxsmpl<double> GC_10 = -G;
-  //constexpr cxsmpl<double> GC_11 = mdl_complexi*G; // does not build
-  //constexpr cxsmpl<double> GC_12 = mdl_complexi*mdl_G__exp__2; // does not build
-  constexpr cxsmpl<double> GC_11 = cxsmpl<double>(0.,G);
-  constexpr cxsmpl<double> GC_12 = cxsmpl<double>(0.,mdl_G__exp__2);
+  constexpr cxsmpl<double> GC_11 = mdl_complexi*G; // uses constexpr operator* for cxsmpl
+  constexpr cxsmpl<double> GC_12 = mdl_complexi*mdl_G__exp__2; // uses constexpr operator* for cxsmpl
 
   // Print parameters that are unchanged during the run
   void printIndependentParameters();

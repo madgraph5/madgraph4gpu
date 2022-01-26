@@ -76,63 +76,63 @@ std::ostream& operator<<( std::ostream& out, const cxsmpl<FP>& c ){ out << std::
 // Operators for cxsmpl
 template<typename FP>
 inline __host__ __device__
-cxsmpl<FP> operator+( const cxsmpl<FP> a )
+constexpr cxsmpl<FP> operator+( const cxsmpl<FP> a )
 {
   return a;
 }
 
 template<typename FP>
 inline __host__ __device__
-cxsmpl<FP> operator-( const cxsmpl<FP>& a )
+constexpr cxsmpl<FP> operator-( const cxsmpl<FP>& a )
 {
   return cxsmpl<FP>( -a.real(), -a.imag() );
 }
 
 template<typename FP>
 inline __host__ __device__
-cxsmpl<FP> operator+( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
+constexpr cxsmpl<FP> operator+( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
 {
   return cxsmpl<FP>( a.real() + b.real(), a.imag() + b.imag() );
 }
 
 template<typename FP>
 inline __host__ __device__
-cxsmpl<FP> operator+( const FP& a, const cxsmpl<FP>& b )
+constexpr cxsmpl<FP> operator+( const FP& a, const cxsmpl<FP>& b )
 {
   return cxsmpl<FP>( a, 0 ) + b;
 }
 
 template<typename FP>
 inline __host__ __device__
-cxsmpl<FP> operator-( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
+constexpr cxsmpl<FP> operator-( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
 {
   return cxsmpl<FP>( a.real() - b.real(), a.imag() - b.imag() );
 }
 
 template<typename FP>
 inline __host__ __device__
-cxsmpl<FP> operator-( const FP& a, const cxsmpl<FP>& b )
+constexpr cxsmpl<FP> operator-( const FP& a, const cxsmpl<FP>& b )
 {
   return cxsmpl<FP>( a, 0 ) - b;
 }
 
 template<typename FP>
 inline __host__ __device__
-cxsmpl<FP> operator*( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
+constexpr cxsmpl<FP> operator*( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
 {
   return cxsmpl<FP>( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
 }
 
 template<typename FP>
 inline __host__ __device__
-cxsmpl<FP> operator*( const FP& a, const cxsmpl<FP>& b )
+constexpr cxsmpl<FP> operator*( const FP& a, const cxsmpl<FP>& b )
 {
   return cxsmpl<FP>( a, 0 ) * b;
 }
 
 template<typename FP>
 inline __host__ __device__
-cxsmpl<FP> operator/( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
+constexpr cxsmpl<FP> operator/( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
 {
   FP bnorm = b.real()*b.real() + b.imag()*b.imag();
   return cxsmpl<FP>( ( a.real() * b.real() + a.imag() * b.imag() ) / bnorm,
@@ -141,35 +141,35 @@ cxsmpl<FP> operator/( const cxsmpl<FP>& a, const cxsmpl<FP>& b )
 
 template<typename FP>
 inline __host__ __device__
-cxsmpl<FP> operator/( const FP& a, const cxsmpl<FP>& b )
+constexpr cxsmpl<FP> operator/( const FP& a, const cxsmpl<FP>& b )
 {
   return cxsmpl<FP>( a, 0 ) / b;
 }
 
 template<typename FP>
 inline __host__ __device__
-cxsmpl<FP> operator+( const cxsmpl<FP>& a, const FP& b )
+constexpr cxsmpl<FP> operator+( const cxsmpl<FP>& a, const FP& b )
 {
   return a + cxsmpl<FP>( b, 0 );
 }
 
 template<typename FP>
 inline __host__ __device__
-cxsmpl<FP> operator-( const cxsmpl<FP>& a, const FP& b )
+constexpr cxsmpl<FP> operator-( const cxsmpl<FP>& a, const FP& b )
 {
   return a - cxsmpl<FP>( b, 0 );
 }
 
 template<typename FP>
 inline __host__ __device__
-cxsmpl<FP> operator*( const cxsmpl<FP>& a, const FP& b )
+constexpr cxsmpl<FP> operator*( const cxsmpl<FP>& a, const FP& b )
 {
   return a * cxsmpl<FP>( b, 0 );
 }
 
 template<typename FP>
 inline __host__ __device__
-cxsmpl<FP> operator/( const cxsmpl<FP>& a, const FP& b )
+constexpr cxsmpl<FP> operator/( const cxsmpl<FP>& a, const FP& b )
 {
   return a / cxsmpl<FP>( b, 0 );
 }
