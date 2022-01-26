@@ -356,10 +356,10 @@ namespace mg5amcCpu
   {
     std::stringstream out;
     // CUDA version (NVCC)
-    // [Use __CUDACC_VER_MAJOR__ instead of __CUDACC__ here!]
+    // [Use __NVCC__ instead of __CUDACC__ here!]
     // [This tests if 'nvcc' was used even to build a .cc file, even if not necessarily 'nvcc -x cu' for a .cu file]
     // [Check 'nvcc --compiler-options -dM -E dummy.c | grep CUDA': see https://stackoverflow.com/a/53713712]
-#ifdef __CUDACC_VER_MAJOR__
+#ifdef __NVCC__
 #if defined __CUDACC_VER_MAJOR__ && defined __CUDACC_VER_MINOR__ && defined __CUDACC_VER_BUILD__
     out << "nvcc " << __CUDACC_VER_MAJOR__ << "." << __CUDACC_VER_MINOR__ << "." << __CUDACC_VER_BUILD__;
 #else
@@ -390,7 +390,7 @@ namespace mg5amcCpu
     std::array<char, 128> tchainbuf;
     while ( fgets( tchainbuf.data(), tchainbuf.size(), tchainpipe.get() ) != nullptr ) tchainout += tchainbuf.data();
     tchainout.pop_back(); // remove trailing newline
-#if defined __CUDACC_VER_MAJOR__ or defined __INTEL_LLVM_COMPILER
+#if defined __NVCC__ or defined __INTEL_LLVM_COMPILER
     out << ", gcc " << tchainout;
 #else
     out << " (gcc " << tchainout << ")";
