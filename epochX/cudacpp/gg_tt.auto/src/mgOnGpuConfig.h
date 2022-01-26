@@ -109,7 +109,7 @@ namespace mgOnGpu
 
   // Alignment requirement for using reinterpret_cast with SIMD vectorized code
   // (using reinterpret_cast with non aligned memory may lead to segmentation faults!)
-  // [NB eventually define this also for code built with nvcc (#318), however this requires c++17 and nvcc >= 11.2]
+  // Only needed for C++ code but can be enforced also in NVCC builds of C++ code using CUDA>=11.2 and C++17 (#318, #319, #333)
 #ifndef __CUDACC__
   constexpr int cppAlign = 64; // alignment requirement for SIMD vectorization (64-byte i.e. 512-bit)
 #endif
@@ -189,5 +189,25 @@ using mgOnGpu::fptype;
 
 // For SANITY CHECKS: check that neppR, neppM, neppV... are powers of two (https://stackoverflow.com/a/108360)
 inline constexpr bool ispoweroftwo( int n ){ return ( n > 0 ) && !( n & ( n - 1 ) ); }
+
+// Compiler version support (#96): require nvcc from CUDA >= 11.2, e.g. to use C++17 (see #333)
+#ifdef __NVCC__
+#if ( __CUDACC_VER_MAJOR__ < 11 ) || ( __CUDACC_VER_MAJOR__ == 11 && __CUDACC_VER_MINOR__ < 2 )
+#error Unsupported CUDA version: please use CUDA >= 11.2
+#endif
+#endif
+
+// Compiler version support (#96): require clang >= 11
+#if defined __clang__
+#if ( __clang_major__ < 11 )
+#error Unsupported clang version: please use clang >= 11
+#endif
+// Compiler version support (#96): require gcc >= 9.3, e.g. for some OMP issues (see #269)
+// [NB skip this check for the gcc toolchain below clang or icx (TEMPORARY? #355)]
+#elif defined __GNUC__
+#if ( __GNUC__ < 9 ) || ( __GNUC__ == 9 && __GNUC_MINOR__ < 3 )
+#error Unsupported gcc version: please gcc >= 9.3
+#endif
+#endif
 
 #endif // MGONGPUCONFIG_H
