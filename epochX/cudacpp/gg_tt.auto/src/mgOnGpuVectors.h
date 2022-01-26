@@ -53,6 +53,7 @@ namespace mgOnGpu
     cxtype_v( const cxtype_v&  ) = default;
     cxtype_v( cxtype_v&&  ) = default;
     cxtype_v( const fptype_v& r, const fptype_v& i ) : m_real{r}, m_imag{i} {}
+    cxtype_v( const fptype_v& r ) : m_real{r}, m_imag{0} {}
     cxtype_v& operator=( const cxtype_v& ) = default;
     cxtype_v& operator=( cxtype_v&& ) = default;
     cxtype_v& operator+=( const cxtype_v& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
