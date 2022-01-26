@@ -174,7 +174,7 @@ template <typename T>
 void Bridge<T>::gpu_sequence( const T *momenta, T *mes, const bool goodHelOnly )
 {
   constexpr int neppM = MemoryAccessMomenta::neppM;
-  if ( neppM == 1 ) // eventually move to "if constexpr" (need c++17, not available in cuda 11.1)
+  if constexpr ( neppM == 1 ) // needs c++17 and cuda >=11.2 (#333)
   {
     checkCuda( cudaMemcpy( m_devMomentaC.data(), momenta, m_devMomentaC.bytes(), cudaMemcpyHostToDevice ) );
   }
@@ -297,7 +297,7 @@ void hst_transposeMomentaF2C( const T *in, T *out, const int evt )
   constexpr int npar = mgOnGpu::npar;
   constexpr int np4 = mgOnGpu::np4;
   constexpr int neppM = MemoryAccessMomenta::neppM;
-  if ( neppM == 1 ) // eventually move to "if constexpr" (need c++17, not available in cuda 11.1)
+  if constexpr ( neppM == 1 ) // needs c++17 and cuda >=11.2 (#333)
   {
     memcpy( out, in, evt * npar * np4 * sizeof(T) );
   }
