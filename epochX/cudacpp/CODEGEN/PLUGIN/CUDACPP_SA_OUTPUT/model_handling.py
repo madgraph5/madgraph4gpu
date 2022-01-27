@@ -653,6 +653,27 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         res = res.replace('\n','\n  ')
         return res
 
+    # AV - new method (merging write_parameters and write_set_parameters)
+    def write_hardcoded_parameters(self, params):
+        pardef = super().write_parameters(params)
+        parset = super().write_set_parameters(params)
+        ###print( pardef )
+        ###print( parset )
+        pardef_lines = []
+        pardef_pars = []
+        for line in pardef.split('\n'):
+            type = line.split(' ')[0]
+            for par in line.split(' ')[1].split(','):
+                ###pardef_lines.append( 'constexpr ' + type + ' ' + par + '\n' )
+                pardef_lines.append( 'constexpr ' + type + ' ' )
+                pardef_pars.append( par )
+        ###print( pardef_lines )
+        parset_lines = parset.split('\n')
+        assert( len(pardef_lines) == len(parset_lines) ) # AV sanity check
+        for par in zip(pardef_lines, parset_lines): print( par[0]+par[1] )
+        assert(False)
+        return res
+
     # AV - replace export_cpp.UFOModelConverterCPP method (add hardcoded parameters and couplings)
     def super_generate_parameters_class_files(self):
         """Create the content of the Parameters_model.h and .cc files"""
@@ -696,6 +717,8 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
                                self.write_print_parameters(list(self.coups_dep.values()))
         if 'include_prefix' not in replace_dict:
             replace_dict['include_prefix'] = ''
+        replace_dict['hardcoded_independent_parameters'] = \
+                               self.write_hardcoded_parameters(self.params_indep)
         file_h = self.read_template_file(self.param_template_h) % \
                  replace_dict
         file_cc = self.read_template_file(self.param_template_cc) % \
