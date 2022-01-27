@@ -659,26 +659,23 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         parset = super().write_set_parameters(params)
         ###print( pardef )
         ###print( parset )
-        pardef_lines = []
-        pardef_pars = []
+        pardef_lines = {}
         for line in pardef.split('\n'):
-            type, pars = line.split(' ')
+            type, pars = line.rstrip(';').split(' ') # strip trailing ';'
             for par in pars.split(','):
-                pardef_lines.append( 'constexpr ' + type + ' ' )
-                pardef_pars.append( par )
+                pardef_lines[par] = ( 'constexpr ' + type + ' ' + par )
         ###print( pardef_lines )
-        print( pardef_pars )
-        parset_lines = []
         parset_pars = []
+        parset_lines = {}
         for line in parset.split('\n'):
             par, parval = line.split(' = ')
             parset_pars.append( par )
-            parset_lines.append( par + ' = ' + parval )
+            parset_lines[par] = parval # includes a trailing ';'
         ###print( parset_lines )
-        print( parset_pars )
         assert( len(pardef_lines) == len(parset_lines) ) # AV sanity check (same number of parameters)
-        assert( pardef_pars == parset_pars ) # AV sanity check (same ordered list of parameters)
-        for par in zip(pardef_lines, parset_lines): print( par[0]+par[1] )
+        res = ''
+        for par in parset_pars: res += ( '  ' + pardef_lines[par] + " = " + parset_lines[par] + '\n' )
+        print(res)
         assert(False)
         return res
 
