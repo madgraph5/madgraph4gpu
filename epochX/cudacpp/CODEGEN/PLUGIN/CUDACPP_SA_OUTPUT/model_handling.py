@@ -653,14 +653,58 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         res = res.replace('\n','\n  ')
         return res
 
+    # AV - replace export_cpp.UFOModelConverterCPP method (add hardcoded parameters and couplings)
+    def super_generate_parameters_class_files(self):
+        """Create the content of the Parameters_model.h and .cc files"""
+        replace_dict = self.default_replace_dict
+        replace_dict['info_lines'] = export_cpp.get_mg5_info_lines()
+        replace_dict['model_name'] = self.model_name
+        replace_dict['independent_parameters'] = \
+                                   "// Model parameters independent of aS\n" + \
+                                   self.write_parameters(self.params_indep)
+        replace_dict['independent_couplings'] = \
+                                   "// Model parameters dependent on aS\n" + \
+                                   self.write_parameters(self.params_dep)
+        replace_dict['dependent_parameters'] = \
+                                   "// Model couplings independent of aS\n" + \
+                                   self.write_parameters(self.coups_indep)
+        replace_dict['dependent_couplings'] = \
+                                   "// Model couplings dependent on aS\n" + \
+                                   self.write_parameters(list(self.coups_dep.values()))
+        replace_dict['set_independent_parameters'] = \
+                               self.write_set_parameters(self.params_indep)
+        replace_dict['set_independent_couplings'] = \
+                               self.write_set_parameters(self.coups_indep)
+        replace_dict['set_dependent_parameters'] = \
+                               self.write_set_parameters(self.params_dep)
+        replace_dict['set_dependent_couplings'] = \
+                               self.write_set_parameters(list(self.coups_dep.values()))
+        replace_dict['print_independent_parameters'] = \
+                               self.write_print_parameters(self.params_indep)
+        replace_dict['print_independent_couplings'] = \
+                               self.write_print_parameters(self.coups_indep)
+        replace_dict['print_dependent_parameters'] = \
+                               self.write_print_parameters(self.params_dep)
+        replace_dict['print_dependent_couplings'] = \
+                               self.write_print_parameters(list(self.coups_dep.values()))
+        if 'include_prefix' not in replace_dict:
+            replace_dict['include_prefix'] = ''
+        file_h = self.read_template_file(self.param_template_h) % \
+                 replace_dict
+        file_cc = self.read_template_file(self.param_template_cc) % \
+                  replace_dict
+        return file_h, file_cc
+
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def generate_parameters_class_files(self):
-        file_h, file_cc = super().generate_parameters_class_files()
+        ###file_h, file_cc = super().generate_parameters_class_files()
+        file_h, file_cc = self.super_generate_parameters_class_files()
         file_h = file_h[:-1] # remove extra trailing '\n'
         file_cc = file_cc[:-1] # remove extra trailing '\n'
         # [NB: there is a minor bug in export_cpp.UFOModelConverterCPP.generate_parameters_class_files
         # ['independent_couplings' contains dependent parameters, 'dependent parameters' contains independent_couplings]
         # [This only affects the order in which they are printed out - which is now reversed in the templates]
+        # [This has been reported as bug https://bugs.launchpad.net/mg5amcnlo/+bug/1959192]
         return file_h, file_cc
 
     # AV - replace export_cpp.UFOModelConverterCPP method (add explicit std namespace)
