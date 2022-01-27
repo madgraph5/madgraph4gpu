@@ -8,7 +8,6 @@
 #ifndef Parameters_sm_H
 #define Parameters_sm_H
 
-//#include <complex>
 #include "mgOnGpuCxtypes.h"
 
 #ifndef MGONGPU_HARDCODE_CIPC
@@ -86,8 +85,7 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
                          : std::numeric_limits<double>::quiet_NaN();
   }
 
-  // EVENTUALLY: %(hardcoded_independent_parameters)s
-  // Model parameters independent of aS (for eemumu and ggttgg)
+  // Model parameters independent of aS
   constexpr double zero = 0;
   constexpr double ZERO = 0;
   constexpr double mdl_WH = 6.382339e-03;
@@ -139,27 +137,21 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   constexpr double mdl_sw__exp__2 = ((mdl_sw)*(mdl_sw));
   constexpr double mdl_cw__exp__2 = ((mdl_cw)*(mdl_cw));
 
-  // EVENTUALLY: %(hardcoded_dependent_parameters)s
-  // Model couplings independent of aS (for eemumu)
-  constexpr cxsmpl<double> GC_3 = -(mdl_ee*mdl_complexi); // uses constexpr arithmetic operators for cxsmpl
-  constexpr cxsmpl<double> GC_50 = -(mdl_cw*mdl_ee*mdl_complexi)/(2.*mdl_sw); // uses constexpr arithmetic operators for cxsmpl
-  constexpr cxsmpl<double> GC_59 = (mdl_ee*mdl_complexi*mdl_sw)/(2.*mdl_cw); // uses constexpr arithmetic operators for cxsmpl
-  // Model couplings independent of aS (for ggttgg)
-  // (none)
 
-  // EVENTUALLY: %(hardcoded_independent_couplings)s
-  // Model parameters dependent on aS (for eemumu and ggttgg)
+  // Model couplings independent of aS
+  constexpr cxsmpl<double> GC_3 = -(mdl_ee*mdl_complexi);
+  constexpr cxsmpl<double> GC_50 = -(mdl_cw*mdl_ee*mdl_complexi)/(2.*mdl_sw);
+  constexpr cxsmpl<double> GC_59 = (mdl_ee*mdl_complexi*mdl_sw)/(2.*mdl_cw);
+
+
+  // Model parameters dependent on aS
   constexpr double mdl_sqrt__aS = sqrtNR(aS);
   constexpr double G = 2.*mdl_sqrt__aS*sqrtNR(M_PI);
   constexpr double mdl_G__exp__2 = ((G)*(G));
-  // Model couplings dependent on aS (for eemumu)
-  // (none)
 
-  // EVENTUALLY: %(hardcoded_dependent_couplings)s
-  // Model couplings dependent on aS (for ggttgg)
-  constexpr cxsmpl<double> GC_10 = -G;
-  constexpr cxsmpl<double> GC_11 = mdl_complexi*G; // uses constexpr arithmetic operators for cxsmpl
-  constexpr cxsmpl<double> GC_12 = mdl_complexi*mdl_G__exp__2; // uses constexpr arithmetic operators for cxsmpl
+
+  // Model couplings dependent on aS
+  // (none)
 
   // Print parameters that are unchanged during the run
   void printIndependentParameters();
