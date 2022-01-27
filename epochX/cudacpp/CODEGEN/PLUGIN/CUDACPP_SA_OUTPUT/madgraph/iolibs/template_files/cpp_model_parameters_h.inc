@@ -6,7 +6,7 @@
 #ifndef Parameters_%(model_name)s_H
 #define Parameters_%(model_name)s_H
 
-#include <complex>
+#include "mgOnGpuCxtypes.h"
 
 #ifndef MGONGPU_HARDCODE_CIPC
 

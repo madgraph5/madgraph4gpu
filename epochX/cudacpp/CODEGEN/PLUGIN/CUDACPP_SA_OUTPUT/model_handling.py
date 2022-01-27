@@ -669,15 +669,13 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         parset_lines = {}
         for line in parset.split('\n'):
             par, parval = line.split(' = ')
-            if parval.startswith('slha.get_block_entry'): parval=parval.split(',')[2].lstrip(' ').rstrip(');')
+            if parval.startswith('slha.get_block_entry'): parval = parval.split(',')[2].lstrip(' ').rstrip(');') + ';'
             parset_pars.append( par )
             parset_lines[par] = parval # includes a trailing ';'
         ###print( parset_lines )
         assert( len(pardef_lines) == len(parset_lines) ) # AV sanity check (same number of parameters)
-        res = ''
-        for par in parset_pars: res += ( '  ' + pardef_lines[par] + " = " + parset_lines[par] + '\n' )
-        print(res)
-        assert(False)
+        res = '  '.join( pardef_lines[par] + " = " + parset_lines[par] + '\n' for par in parset_pars ) # no leading '  ' on first row
+        ###print(res); assert(False)
         return res
 
     # AV - replace export_cpp.UFOModelConverterCPP method (add hardcoded parameters and couplings)
