@@ -23,9 +23,9 @@ public:
 
   %(independent_parameters)s
 
-  %(dependent_parameters)s
-
   %(independent_couplings)s
+
+  %(dependent_parameters)s
 
   %(dependent_couplings)s
 
