@@ -640,6 +640,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_parameters(self, params):
         res = super().write_parameters(params)
+        res = res.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
         if res == '' : res = '  // (none)'
         else : res = '  ' + res # add leading '  ' after the '// Model' line
         res = res.replace('\n','\n  ')
@@ -649,6 +650,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_set_parameters(self, params):
         res = super().write_set_parameters(params)
+        res = res.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
         if res == '' : res = '// (none)'
         res = res.replace('\n','\n  ')
         return res
@@ -659,6 +661,9 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         parset = super().write_set_parameters(params)
         ###print( pardef )
         ###print( parset )
+        pardef = pardef.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
+        parset = parset.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
+        parset = parset.replace('sqrt(','sqrtNR(') # Newton-Raphson sqrt (with constexpr arithmetics)
         pardef_lines = {}
         for line in pardef.split('\n'):
             type, pars = line.rstrip(';').split(' ') # strip trailing ';'
@@ -675,6 +680,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         ###print( parset_lines )
         assert( len(pardef_lines) == len(parset_lines) ) # AV sanity check (same number of parameters)
         res = '  '.join( pardef_lines[par] + " = " + parset_lines[par] + '\n' for par in parset_pars ) # no leading '  ' on first row
+        if res == '' : res = '// (none)'
         ###print(res); assert(False)
         return res
 
@@ -729,6 +735,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
                                self.write_hardcoded_parameters(self.params_dep)
         replace_dict['hardcoded_dependent_couplings'] = \
                                self.write_hardcoded_parameters(self.coups_indep)
+                               ###self.write_hardcoded_parameters(list(self.coups_dep.values()))
         file_h = self.read_template_file(self.param_template_h) % \
                  replace_dict
         file_cc = self.read_template_file(self.param_template_cc) % \
