@@ -23,8 +23,8 @@ private:
   // (in other words: first locate the event record for a given event, then locate an element in that record)
   //--------------------------------------------------------------------------
 
-  // Locate an event record (output) in a memory buffer (input) from an explicit event number (input)
-  // (Non-const memory access to event record from ievent)
+  // Locate an event record (output) in a memory buffer (input) from the given event number (input)
+  // [Signature (non-const) ===> fptype* ieventAccessRecord( fptype* buffer, const int ievt ) <===]
   static
   __host__ __device__ inline
   fptype* ieventAccessRecord( fptype* buffer,
@@ -36,7 +36,8 @@ private:
   //--------------------------------------------------------------------------
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
-  // (Non-const memory access to field in an event record)
+  // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, Ts... args ) <===]
+  // [NB: expand variadic template "Ts... args" to empty and rename "Field" as empty]
   static
   __host__ __device__ inline
   fptype& decodeRecord( fptype* buffer )
@@ -50,29 +51,35 @@ private:
 //----------------------------------------------------------------------------
 
 // A class providing access to memory buffers for a given event, based on explicit event numbers
+// Its methods use the MemoryAccessHelper templates - note the use of the template keyword in template function instantiations
 class MemoryAccessWeights : public MemoryAccessWeightsBase
 {
 public:
 
-  // (Non-const memory access to event record from ievent)
+  // Locate an event record (output) in a memory buffer (input) from the given event number (input)
+  // [Signature (non-const) ===> fptype* ieventAccessRecord( fptype* buffer, const int ievt ) <===]
   static constexpr auto ieventAccessRecord = MemoryAccessHelper<MemoryAccessWeightsBase>::ieventAccessRecord;
 
-  // (Const memory access to event record from ievent)
+  // Locate an event record (output) in a memory buffer (input) from the given event number (input)
+  // [Signature (const) ===> const fptype* ieventAccessRecordConst( const fptype* buffer, const int ievt ) <===]
   static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessWeightsBase>::ieventAccessRecordConst;
 
-  // (Non-const memory access to field in an event record)
+  // Locate a field (output) of an event record (input) from the given field indexes (input)
+  // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer ) <===]
   static constexpr auto decodeRecord = MemoryAccessHelper<MemoryAccessWeightsBase>::decodeRecord;
 
-  // [NOTE THE USE OF THE TEMPLATE KEYWORD IN ALL OF THE FOLLOWING TEMPLATE FUNCTION INSTANTIATIONS]
-  // (Const memory access to field in an event record)
+  // Locate a field (output) of an event record (input) from the given field indexes (input)
+  // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer ) <===]
   static constexpr auto decodeRecordConst =
     MemoryAccessHelper<MemoryAccessWeightsBase>::template decodeRecordConst<>;
 
-  // (Non-const memory access to field from ievent)
+  // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
+  // [Signature (non-const) ===> fptype& ieventAccess( fptype* buffer, const ievt ) <===]
   static constexpr auto ieventAccess =
     MemoryAccessHelper<MemoryAccessWeightsBase>::template ieventAccessField<>;
 
-  // (Const memory access to field from ievent)
+  // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
+  // [Signature (const) ===> const fptype& ieventAccessConst( const fptype* buffer, const ievt ) <===]
   static constexpr auto ieventAccessConst =
     MemoryAccessHelper<MemoryAccessWeightsBase>::template ieventAccessFieldConst<>;
 
@@ -81,15 +88,22 @@ public:
 //----------------------------------------------------------------------------
 
 // A class providing access to memory buffers for a given event, based on implicit kernel rules
+// Its methods use the KernelAccessHelper template - note the use of the template keyword in template function instantiations
 template<bool onDevice>
 class KernelAccessWeights
 {
 public:
 
-  // (Non-const memory access to field from kernel)
+  /*
+  // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
+  // [Signature (non-const) ===> fptype& kernelAccess( fptype* buffer ) <===]
   // FINAL IMPLEMENTATION FOR CUDA 11.4
-  //static constexpr auto kernelAccess =
-  //  KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessField<>;
+  static constexpr auto kernelAccess =
+    KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessField<>;
+  */
+
+  // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
+  // [Signature (non-const) ===> fptype& kernelAccess( fptype* buffer ) <===]
   // TEMPORARY HACK FOR CUDA 11.1
   static __host__ __device__ inline
   fptype& kernelAccess( fptype* buffer )
@@ -97,10 +111,16 @@ public:
     return KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessField<>( buffer );
   }
 
-  // (Const memory access to field from kernel)
+  /*
+  // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
+  // [Signature (const) ===> const fptype& kernelAccessConst( const fptype* buffer ) <===]
   // FINAL IMPLEMENTATION FOR CUDA 11.4
-  //static constexpr auto kernelAccessConst =
-  //  KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessFieldConst<>;
+  static constexpr auto kernelAccessConst =
+    KernelAccessHelper<MemoryAccessWeightsBase, onDevice>::template kernelAccessFieldConst<>;
+  */
+
+  // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
+  // [Signature (const) ===> const fptype& kernelAccessConst( const fptype* buffer ) <===]
   // TEMPORARY HACK FOR CUDA 11.1
   static __host__ __device__ inline
   const fptype& kernelAccessConst( const fptype* buffer )

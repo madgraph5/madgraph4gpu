@@ -68,8 +68,6 @@ namespace mg5amcCpu
 #else
     memcpy( cHel, tHel, ncomb * mgOnGpu::npar * sizeof(short) );
 #endif
-    // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
-    static_assert( sizeof(cxtype) == 2 * sizeof(fptype), "sizeof(cxtype) is not 2*sizeof(fptype)" );
   }
 
   //--------------------------------------------------------------------------
@@ -83,7 +81,7 @@ namespace mg5amcCpu
   void CPPProcess::initProc( const std::string& param_card_name )
   {
     // Instantiate the model class and set parameters that stay fixed during run
-    m_pars = Parameters_sm::getInstance();
+    m_pars = Parameters_%(model_name)s::getInstance();
     SLHAReader slha( param_card_name, m_verbose );
     m_pars->setIndependentParameters( slha );
     m_pars->setIndependentCouplings();
@@ -117,16 +115,16 @@ namespace mg5amcCpu
     // Use hardcoded physics parameters
     if ( m_verbose )
     {
-      Parameters_sm::printIndependentParameters();
-      Parameters_sm::printIndependentCouplings();
-      Parameters_sm::printDependentParameters();
-      Parameters_sm::printDependentCouplings();
+      Parameters_%(model_name)s::printIndependentParameters();
+      Parameters_%(model_name)s::printIndependentCouplings();
+      Parameters_%(model_name)s::printDependentParameters();
+      Parameters_%(model_name)s::printDependentCouplings();
     }
     // Set external particle masses for this matrix element
-    m_masses.push_back( Parameters_sm::ZERO );
-    m_masses.push_back( Parameters_sm::ZERO );
-    m_masses.push_back( Parameters_sm::ZERO );
-    m_masses.push_back( Parameters_sm::ZERO );
+    m_masses.push_back( Parameters_%(model_name)s::ZERO );
+    m_masses.push_back( Parameters_%(model_name)s::ZERO );
+    m_masses.push_back( Parameters_%(model_name)s::ZERO );
+    m_masses.push_back( Parameters_%(model_name)s::ZERO );
   }
 #endif
 
@@ -137,7 +135,10 @@ namespace mg5amcCpu
   {
     std::stringstream out;
     // CUDA version (NVCC)
-#ifdef __CUDACC__
+    // [Use __NVCC__ instead of __CUDACC__ here!]
+    // [This tests if 'nvcc' was used even to build a .cc file, even if not necessarily 'nvcc -x cu' for a .cu file]
+    // [Check 'nvcc --compiler-options -dM -E dummy.c | grep CUDA': see https://stackoverflow.com/a/53713712]
+#ifdef __NVCC__
 #if defined __CUDACC_VER_MAJOR__ && defined __CUDACC_VER_MINOR__ && defined __CUDACC_VER_BUILD__
     out << "nvcc " << __CUDACC_VER_MAJOR__ << "." << __CUDACC_VER_MINOR__ << "." << __CUDACC_VER_BUILD__;
 #else
@@ -149,7 +150,12 @@ namespace mg5amcCpu
 #if defined __INTEL_COMPILER
 #error "icc is no longer supported: please use icx"
 #elif defined __INTEL_LLVM_COMPILER // alternative: __INTEL_CLANG_COMPILER
-    out << "icx " << __INTEL_LLVM_COMPILER << " (";
+    out << "icx " << __INTEL_LLVM_COMPILER;
+#ifdef __NVCC__
+    out << ", ";
+#else
+    out << " (";
+#endif
 #endif
     // CLANG version (either as CXX or as host compiler inside NVCC or inside ICX)
 #if defined __clang__
@@ -163,7 +169,7 @@ namespace mg5amcCpu
     std::array<char, 128> tchainbuf;
     while ( fgets( tchainbuf.data(), tchainbuf.size(), tchainpipe.get() ) != nullptr ) tchainout += tchainbuf.data();
     tchainout.pop_back(); // remove trailing newline
-#if defined __CUDACC__ or defined __INTEL_LLVM_COMPILER
+#if defined __NVCC__ or defined __INTEL_LLVM_COMPILER
     out << ", gcc " << tchainout;
 #else
     out << " (gcc " << tchainout << ")";
@@ -179,7 +185,7 @@ namespace mg5amcCpu
     out << "gcc UNKNOWKN";
 #endif
 #endif
-#if defined __CUDACC__ or defined __INTEL_LLVM_COMPILER
+#if defined __NVCC__ or defined __INTEL_LLVM_COMPILER
     out << ")";
 #endif
     return out.str();
@@ -303,11 +309,5 @@ namespace mg5amcCpu
     // Start sigmaKin_lines
 %(sigmaKin_lines)s
 } // end namespace
-
-//==========================================================================
-
-// This was initially added to both C++ and CUDA in order to avoid RDC in CUDA (issue #51)
-// This is now also needed by C++ LTO-like optimizations via inlining (issue #229)
-%(hel_amps_cc)s
 
 //==========================================================================

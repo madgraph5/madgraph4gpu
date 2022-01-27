@@ -10,7 +10,9 @@ cuda=1
 ab3=0
 eemumu=0
 ggtt=0
+ggttg=0
 ggttgg=0
+ggttggg=0
 div=0
 req=0
 fptypes="d"
@@ -27,7 +29,7 @@ verbose=0
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttg] [-ggttgg] [-ggttggg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -66,8 +68,14 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-ggtt" ]; then
     ggtt=1
     shift
+  elif [ "$1" == "-ggttg" ]; then
+    ggttg=1
+    shift
   elif [ "$1" == "-ggttgg" ]; then
     ggttgg=1
+    shift
+  elif [ "$1" == "-ggttggg" ]; then
+    ggttggg=1
     shift
   elif [ "$1" == "-div" ]; then
     div=1
@@ -146,7 +154,7 @@ done
 ###exit 1
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggtt}" == "0" ]; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ]; then usage; fi
 
 ###echo -e "\n********************************************************************************\n"
 printf "\n"
@@ -167,8 +175,12 @@ for suff in $suffs; do
       dir=$topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
     elif [ "${ggtt}" == "1" ]; then 
       dir=$topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
+    elif [ "${ggttg}" == "1" ]; then 
+      dir=$topdir/epochX/cudacpp/gg_ttg${suff}SubProcesses/P1_Sigma_sm_gg_ttxg
     elif [ "${ggttgg}" == "1" ]; then 
       dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
+    elif [ "${ggttggg}" == "1" ]; then 
+      dir=$topdir/epochX/cudacpp/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
     fi
     for hrdcod in $hrdcods; do
       for helinl in $helinls; do
@@ -187,8 +199,12 @@ for suff in $suffs; do
       dir=$topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
     elif [ "${ggtt}" == "1" ]; then 
       dir=$topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
+    elif [ "${ggttg}" == "1" ]; then 
+      dir=$topdir/epochX/cudacpp/gg_ttg${suff}SubProcesses/P1_Sigma_sm_gg_ttxg
     elif [ "${ggttgg}" == "1" ]; then 
       dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
+    elif [ "${ggttggg}" == "1" ]; then 
+      dir=$topdir/epochX/cudacpp/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
     fi
     for hrdcod in $hrdcods; do
       for helinl in $helinls; do
@@ -223,8 +239,12 @@ for suff in $suffs; do
     dir=$topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
   elif [ "${ggtt}" == "1" ]; then 
     dir=$topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
+  elif [ "${ggttg}" == "1" ]; then 
+    dir=$topdir/epochX/cudacpp/gg_ttg${suff}SubProcesses/P1_Sigma_sm_gg_ttxg
   elif [ "${ggttgg}" == "1" ]; then 
     dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
+  elif [ "${ggttggg}" == "1" ]; then 
+    dir=$topdir/epochX/cudacpp/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
   fi
 
   export USEBUILDDIR=1
@@ -370,11 +390,23 @@ for exe in $exes; do
   ###if [ ! -f $exe ]; then continue; fi
   if [ ! -f $exe ]; then echo "Not found: $exe"; continue; fi
   if [ "${exe%%/gcheck*}" != "${exe}" ] && [ "$gpuTxt" == "none" ]; then continue; fi
-  if [ "${exe%%/gg_ttgg*}" != "${exe}" ]; then 
-    # OLD << This is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1" >>
+  if [ "${exe%%/gg_ttggg*}" != "${exe}" ]; then 
+    # For ggttggg: this is far too little for GPU (4.8E2), but it keeps the CPU to a manageble level (1sec with 512y)
+    exeArgs="-p 1 256 1"
+    ncuArgs="-p 1 256 1"
+    # For ggttggg: on GPU test also "64 256" to reach the plateau (only ~5% lower than "2048 256": 1.18E4 vs 1.25E4 on cuda116/gcc102)
+    exeArgs2="-p 64 256 1"
+  elif [ "${exe%%/gg_ttgg*}" != "${exe}" ]; then 
+    # For ggttgg (OLD): this is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
     exeArgs="-p 64 256 1"
     ncuArgs="-p 64 256 1"
-    # NEW On GPU test both "64 256" and "2048 256" for ggttgg as the latter gives ~10% higher throughput on cuda110/gcc92
+    # For ggttgg (NEW): on GPU test both "64 256" and "2048 256" for ggttgg as the latter gives ~10% higher throughput on cuda110/gcc92
+    exeArgs2="-p 2048 256 1"
+  elif [ "${exe%%/gg_ttg*}" != "${exe}" ]; then 
+    # For ggttg, as on ggttgg: this is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
+    exeArgs="-p 64 256 1"
+    ncuArgs="-p 64 256 1"
+    # For ggttg, as on ggttgg: on GPU test both "64 256" and "2048 256" for ggttg as the latter gives ~10% higher throughput on cuda110/gcc92
     exeArgs2="-p 2048 256 1"
   elif [ "${exe%%/gg_tt*}" != "${exe}" ]; then 
     exeArgs="-p 2048 256 1"

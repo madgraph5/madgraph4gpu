@@ -105,7 +105,8 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
                     'SubProcesses': [s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h', s+'gpu/checkCuda.h',
                                      s+'gpu/MemoryBuffers.h', s+'gpu/MemoryAccessHelpers.h', s+'gpu/MemoryAccessVectors.h',
                                      s+'gpu/MemoryAccessMatrixElements.h', s+'gpu/MemoryAccessMomenta.h',
-                                     s+'gpu/MemoryAccessRandomNumbers.h',s+'gpu/MemoryAccessWeights.h',
+                                     s+'gpu/MemoryAccessRandomNumbers.h', s+'gpu/MemoryAccessWeights.h',
+                                     s+'gpu/MemoryAccessAmplitudes.h', s+'gpu/MemoryAccessWavefunctions.h',
                                      s+'gpu/EventStatistics.h',
                                      s+'gpu/CrossSectionKernels.cc', s+'gpu/CrossSectionKernels.h',
                                      s+'gpu/MatrixElementKernels.cc', s+'gpu/MatrixElementKernels.h',
@@ -113,12 +114,13 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
                                      s+'gpu/RandomNumberKernels.cc', s+'gpu/RandomNumberKernels.h',
                                      s+'gpu/Bridge.h', s+'gpu/BridgeKernels.cc', s+'gpu/BridgeKernels.h', s+'gpu/Makefile', 
                                      s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
-                                     s+'gpu/testmisc.cc', s+'gpu/testxxx.cc', s+'gpu/testxxx_cc_ref.txt',
+                                     s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt',
                                      s+'gpu/perf.py', s+'gpu/profile.sh']}
     to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h', 'checkCuda.h',
                     'MemoryBuffers.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h',
                     'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h',
                     'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h', 
+		    'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h',
                     'EventStatistics.h',
                     'CrossSectionKernels.cc', 'CrossSectionKernels.h',
                     'MatrixElementKernels.cc', 'MatrixElementKernels.h',
@@ -126,7 +128,8 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
                     'RandomNumberKernels.h', 'RandomNumberKernels.cc',
                     'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h', 'Makefile',
                     'MadgraphTest.h', 'runTest.cc',
-                    'testmisc.cc', 'testxxx.cc', 'testxxx_cc_ref.txt',
+                    'testmisc.cc', 'testxxx_cc_ref.txt',
+                    'testxxx.cc', # this is generated from a template in Subprocesses but we still link it in Sigma
                     'perf.py', 'profile.sh']
 
     # AV - use template files from PLUGINDIR instead of MG5DIR

@@ -2,6 +2,7 @@
 #define MemoryBuffers_H 1
 
 #include "mgOnGpuConfig.h"
+#include "mgOnGpuCxtypes.h"
 
 #include "checkCuda.h"
 
@@ -21,6 +22,8 @@ namespace mg5amcCpu
     static constexpr size_t np4 = mgOnGpu::np4;
     static constexpr size_t nparf = mgOnGpu::nparf;
     static constexpr size_t npar = mgOnGpu::npar;
+    static constexpr size_t nw6 = mgOnGpu::nw6;
+    static constexpr size_t nx2 = mgOnGpu::nx2;
   }
 
   //--------------------------------------------------------------------------
@@ -265,6 +268,24 @@ namespace mg5amcCpu
   typedef PinnedHostBufferBase<bool> PinnedHostBufferHelicityMask;
   // A class encapsulating a CUDA device buffer for the helicity mask
   typedef DeviceBufferBase<bool> DeviceBufferHelicityMask;
+#endif
+
+  //--------------------------------------------------------------------------
+
+  // A base class encapsulating a memory buffer for wavefunctions
+  typedef BufferBase<fptype> BufferWavefunctions;
+
+  // The size (number of elements) per event in a memory buffer for wavefunctions
+  constexpr size_t sizePerEventWavefunctions = MemoryBuffers::nw6 * MemoryBuffers::nx2;
+
+#ifndef __CUDACC__
+  // A class encapsulating a C++ host buffer for wavefunctions
+  typedef HostBuffer<fptype, sizePerEventWavefunctions> HostBufferWavefunctions;
+#else
+  // A class encapsulating a CUDA pinned host buffer for wavefunctions
+  typedef PinnedHostBuffer<fptype, sizePerEventWavefunctions> PinnedHostBufferWavefunctions;
+  // A class encapsulating a CUDA device buffer for wavefunctions
+  typedef DeviceBuffer<fptype, sizePerEventWavefunctions> DeviceBufferWavefunctions;
 #endif
 
   //--------------------------------------------------------------------------

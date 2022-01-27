@@ -15,7 +15,9 @@
 
 #include "CPPProcess.h"
 #include "HelAmps_sm.h"
+#include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessMomenta.h"
+#include "MemoryAccessWavefunctions.h"
 
 // Test ncu metrics for CUDA thread divergence
 #undef MGONGPU_TEST_DIVERGENCE
@@ -87,8 +89,14 @@ namespace mg5amcCpu
   {
 #ifdef __CUDACC__
     using namespace mg5amcGpu;
+    using M_ACCESS = DeviceAccessMomenta;
+    using W_ACCESS = DeviceAccessWavefunctions;
+    using A_ACCESS = DeviceAccessAmplitudes;
 #else
     using namespace mg5amcCpu;
+    using M_ACCESS = HostAccessMomenta;
+    using W_ACCESS = HostAccessWavefunctions;
+    using A_ACCESS = HostAccessAmplitudes;
 #endif
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
@@ -100,8 +108,15 @@ namespace mg5amcCpu
 
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
+    //MemoryBufferWavefunctions w_buffer[nwf]{ neppV };
     cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
     cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
+
+    // Proof of concept for using fptype* in the interface
+    fptype* w_fp[nwf];
+    for ( int iwf=0; iwf<nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_sv[iwf] );
+    fptype* amp_fp;
+    amp_fp = reinterpret_cast<fptype*>( amp_sv );
 
     // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
     cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
@@ -120,17 +135,21 @@ namespace mg5amcCpu
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
 #ifdef MGONGPU_CPPSIMD
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV,isAligned_allMEs) private (amp_sv,w_sv,jamp_sv)
+#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV,amp_fp,w_fp,isAligned_allMEs) private (amp_sv,w_sv,jamp_sv)
 #else
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV) private (amp_sv,w_sv,jamp_sv)
+#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV,amp_fp,w_fp) private (amp_sv,w_sv,jamp_sv)
 #endif
 #endif
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif
     {
-#ifndef __CUDACC__
+#ifdef __CUDACC__
+      // CUDA kernels take an input buffer with momenta for all events
+      const fptype* momenta = allmomenta;
+#else
+      // C++ kernels take an input buffer with momenta for one specific event (the first in the current event page)
       const int ievt0 = ipagV*neppV;
-      const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );
+      const fptype* momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );
 #endif
 
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
@@ -139,53 +158,37 @@ namespace mg5amcCpu
       // *** DIAGRAM 1 OF 3 ***
 
       // Wavefunction(s) for diagram number 1
-#ifdef __CUDACC__
-      vxxxxx<DeviceAccessMomenta>(allmomenta, 0., cHel[ihel][0], -1, w_sv[0], 0);
-#else
-      vxxxxx<HostAccessMomenta>(ievt0Momenta, 0., cHel[ihel][0], -1, w_sv[0], 0);
-#endif
+      vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][0], -1, w_fp[0], 0 );
 
-#ifdef __CUDACC__
-      vxxxxx<DeviceAccessMomenta>(allmomenta, 0., cHel[ihel][1], -1, w_sv[1], 1);
-#else
-      vxxxxx<HostAccessMomenta>(ievt0Momenta, 0., cHel[ihel][1], -1, w_sv[1], 1);
-#endif
+      vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][1], -1, w_fp[1], 1 );
 
-#ifdef __CUDACC__
-      oxxxxx<DeviceAccessMomenta>(allmomenta, cIPD[0], cHel[ihel][2], +1, w_sv[2], 2);
-#else
-      oxxxxx<HostAccessMomenta>(ievt0Momenta, cIPD[0], cHel[ihel][2], +1, w_sv[2], 2);
-#endif
+      oxxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][2], +1, w_fp[2], 2 );
 
-#ifdef __CUDACC__
-      ixxxxx<DeviceAccessMomenta>(allmomenta, cIPD[0], cHel[ihel][3], -1, w_sv[3], 3);
-#else
-      ixxxxx<HostAccessMomenta>(ievt0Momenta, cIPD[0], cHel[ihel][3], -1, w_sv[3], 3);
-#endif
+      ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
 
-      VVV1P0_1( w_sv[0], w_sv[1], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );
+      VVV1P0_1<W_ACCESS>( w_fp[0], w_fp[1], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 1
-      FFV1_0( w_sv[3], w_sv[2], w_sv[4], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0<W_ACCESS, A_ACCESS>( w_fp[3], w_fp[2], w_fp[4], cxmake( cIPC[2], cIPC[3] ), &amp_fp[0] );
       jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[1] -= cxtype(0,1)*amp_sv[0];
 
       // *** DIAGRAM 2 OF 3 ***
 
       // Wavefunction(s) for diagram number 2
-      FFV1_1( w_sv[2], w_sv[0], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[4] );
+      FFV1_1<W_ACCESS>( w_fp[2], w_fp[0], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 2
-      FFV1_0( w_sv[3], w_sv[4], w_sv[1], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0<W_ACCESS, A_ACCESS>( w_fp[3], w_fp[4], w_fp[1], cxmake( cIPC[2], cIPC[3] ), &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 3 OF 3 ***
 
       // Wavefunction(s) for diagram number 3
-      FFV1_2( w_sv[3], w_sv[0], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[4] );
+      FFV1_2<W_ACCESS>( w_fp[3], w_fp[0], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 3
-      FFV1_0( w_sv[4], w_sv[2], w_sv[1], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0<W_ACCESS, A_ACCESS>( w_fp[4], w_fp[2], w_fp[1], cxmake( cIPC[2], cIPC[3] ), &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***
@@ -194,8 +197,8 @@ namespace mg5amcCpu
       // The color matrix [NB do keep 'static' for these constexpr arrays, see issue #283]
       static constexpr fptype denom[ncolor] = {3, 3};
       static constexpr fptype cf[ncolor][ncolor] = {
-      {16, -2},
-      {-2, 16}};
+        {16, -2},
+        {-2, 16}};
 
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
@@ -285,8 +288,6 @@ namespace mg5amcCpu
 #else
     memcpy( cHel, tHel, ncomb * mgOnGpu::npar * sizeof(short) );
 #endif
-    // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
-    static_assert( sizeof(cxtype) == 2 * sizeof(fptype), "sizeof(cxtype) is not 2*sizeof(fptype)" );
   }
 
   //--------------------------------------------------------------------------
@@ -359,7 +360,10 @@ namespace mg5amcCpu
   {
     std::stringstream out;
     // CUDA version (NVCC)
-#ifdef __CUDACC__
+    // [Use __NVCC__ instead of __CUDACC__ here!]
+    // [This tests if 'nvcc' was used even to build a .cc file, even if not necessarily 'nvcc -x cu' for a .cu file]
+    // [Check 'nvcc --compiler-options -dM -E dummy.c | grep CUDA': see https://stackoverflow.com/a/53713712]
+#ifdef __NVCC__
 #if defined __CUDACC_VER_MAJOR__ && defined __CUDACC_VER_MINOR__ && defined __CUDACC_VER_BUILD__
     out << "nvcc " << __CUDACC_VER_MAJOR__ << "." << __CUDACC_VER_MINOR__ << "." << __CUDACC_VER_BUILD__;
 #else
@@ -371,7 +375,12 @@ namespace mg5amcCpu
 #if defined __INTEL_COMPILER
 #error "icc is no longer supported: please use icx"
 #elif defined __INTEL_LLVM_COMPILER // alternative: __INTEL_CLANG_COMPILER
-    out << "icx " << __INTEL_LLVM_COMPILER << " (";
+    out << "icx " << __INTEL_LLVM_COMPILER;
+#ifdef __NVCC__
+    out << ", ";
+#else
+    out << " (";
+#endif
 #endif
     // CLANG version (either as CXX or as host compiler inside NVCC or inside ICX)
 #if defined __clang__
@@ -385,7 +394,7 @@ namespace mg5amcCpu
     std::array<char, 128> tchainbuf;
     while ( fgets( tchainbuf.data(), tchainbuf.size(), tchainpipe.get() ) != nullptr ) tchainout += tchainbuf.data();
     tchainout.pop_back(); // remove trailing newline
-#if defined __CUDACC__ or defined __INTEL_LLVM_COMPILER
+#if defined __NVCC__ or defined __INTEL_LLVM_COMPILER
     out << ", gcc " << tchainout;
 #else
     out << " (gcc " << tchainout << ")";
@@ -401,7 +410,7 @@ namespace mg5amcCpu
     out << "gcc UNKNOWKN";
 #endif
 #endif
-#if defined __CUDACC__ or defined __INTEL_LLVM_COMPILER
+#if defined __NVCC__ or defined __INTEL_LLVM_COMPILER
     out << ")";
 #endif
     return out.str();
@@ -571,12 +580,6 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 } // end namespace
-
-//==========================================================================
-
-// This was initially added to both C++ and CUDA in order to avoid RDC in CUDA (issue #51)
-// This is now also needed by C++ LTO-like optimizations via inlining (issue #229)
-#include "HelAmps_sm.cc"
 
 //==========================================================================
 

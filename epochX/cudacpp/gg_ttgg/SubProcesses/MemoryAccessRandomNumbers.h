@@ -37,8 +37,8 @@ public:
   // (in other words: first locate the event record for a given event, then locate an element in that record)
   //--------------------------------------------------------------------------
 
-  // Locate an event record (output) in a memory buffer (input) from an explicit event number (input)
-  // (Non-const memory access to event record from ievent)
+  // Locate an event record (output) in a memory buffer (input) from the given event number (input)
+  // [Signature (non-const) ===> fptype* ieventAccessRecord( fptype* buffer, const int ievt ) <===]
   static
   __host__ __device__ inline
   fptype* ieventAccessRecord( fptype* buffer,
@@ -51,8 +51,11 @@ public:
     return &( buffer[ipagR*nparf*np4*neppR + iparf*np4*neppR + ip4*neppR + ieppR] ); // AOSOA[ipagR][iparf][ip4][ieppR]
   }
 
+  //--------------------------------------------------------------------------
+
   // Locate a field (output) of an event record (input) from the given field indexes (input)
-  // (Non-const memory access to field in an event record)
+  // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, Ts... args ) <===]
+  // [NB: expand variadic template "Ts... args" to "const int ip4, const int iparf" and rename "Field" as "Ip4Iparf"]
   static
   __host__ __device__ inline
   fptype& decodeRecord( fptype* buffer,
@@ -69,29 +72,35 @@ public:
 //----------------------------------------------------------------------------
 
 // A class providing access to memory buffers for a given event, based on explicit event numbers
+// Its methods use the MemoryAccessHelper templates - note the use of the template keyword in template function instantiations
 class MemoryAccessRandomNumbers : public MemoryAccessRandomNumbersBase
 {
 public:
 
-  // (Non-const memory access to event record from ievent)
+  // Locate an event record (output) in a memory buffer (input) from the given event number (input)
+  // [Signature (non-const) ===> fptype* ieventAccessRecord( fptype* buffer, const int ievt ) <===]
   static constexpr auto ieventAccessRecord = MemoryAccessHelper<MemoryAccessRandomNumbersBase>::ieventAccessRecord;
 
-  // (Const memory access to event record from ievent)
+  // Locate an event record (output) in a memory buffer (input) from the given event number (input)
+  // [Signature (const) ===> const fptype* ieventAccessRecordConst( const fptype* buffer, const int ievt ) <===]
   static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessRandomNumbersBase>::ieventAccessRecordConst;
 
-  // (Non-const memory access to field in an event record)
+  // Locate a field (output) of an event record (input) from the given field indexes (input)
+  // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, const int ipar, const int iparf ) <===]
   static constexpr auto decodeRecordIp4Iparf = MemoryAccessHelper<MemoryAccessRandomNumbersBase>::decodeRecord;
 
-  // [NOTE THE USE OF THE TEMPLATE KEYWORD IN ALL OF THE FOLLOWING TEMPLATE FUNCTION INSTANTIATIONS]
-  // (Const memory access to field in an event record)
+  // Locate a field (output) of an event record (input) from the given field indexes (input)
+  // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer, const int ipar, const int iparf ) <===]
   static constexpr auto decodeRecordIp4IparfConst =
     MemoryAccessHelper<MemoryAccessRandomNumbersBase>::template decodeRecordConst<int, int>;
 
-  // (Non-const memory access to field from ievent)
+  // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
+  // [Signature (non-const) ===> fptype& ieventAccessIp4Iparf( fptype* buffer, const ievt, const int ipar, const int iparf ) <===]
   static constexpr auto ieventAccessIp4Iparf =
     MemoryAccessHelper<MemoryAccessRandomNumbersBase>::template ieventAccessField<int, int>;
 
-  // (Const memory access to field from ievent)
+  // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
+  // [Signature (const) ===> const fptype& ieventAccessIp4IparfConst( const fptype* buffer, const ievt, const int ipar, const int iparf ) <===]
   static constexpr auto ieventAccessIp4IparfConst =
     MemoryAccessHelper<MemoryAccessRandomNumbersBase>::template ieventAccessFieldConst<int, int>;
 
@@ -100,16 +109,19 @@ public:
 //----------------------------------------------------------------------------
 
 // A class providing access to memory buffers for a given event, based on implicit kernel rules
+// Its methods use the KernelAccessHelper template - note the use of the template keyword in template function instantiations
 template<bool onDevice>
 class KernelAccessRandomNumbers
 {
 public:
 
-  // (Non-const memory access to field from kernel)
+  // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
+  // [Signature (non-const) ===> fptype& kernelAccessIp4Iparf( fptype* buffer, const int ipar, const int iparf ) <===]
   static constexpr auto kernelAccessIp4Iparf =
     KernelAccessHelper<MemoryAccessRandomNumbersBase, onDevice>::template kernelAccessField<int, int>;
 
-  // (Const memory access to field from kernel)
+  // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
+  // [Signature (const) ===> const fptype& kernelAccessIp4IparfConst( const fptype* buffer, const int ipar, const int iparf ) <===]
   static constexpr auto kernelAccessIp4IparfConst =
     KernelAccessHelper<MemoryAccessRandomNumbersBase, onDevice>::template kernelAccessFieldConst<int, int>;
 
