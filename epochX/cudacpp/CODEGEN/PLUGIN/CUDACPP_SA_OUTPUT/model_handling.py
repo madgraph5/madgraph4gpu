@@ -662,14 +662,22 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         pardef_lines = []
         pardef_pars = []
         for line in pardef.split('\n'):
-            type = line.split(' ')[0]
-            for par in line.split(' ')[1].split(','):
-                ###pardef_lines.append( 'constexpr ' + type + ' ' + par + '\n' )
+            type, pars = line.split(' ')
+            for par in pars.split(','):
                 pardef_lines.append( 'constexpr ' + type + ' ' )
                 pardef_pars.append( par )
         ###print( pardef_lines )
-        parset_lines = parset.split('\n')
-        assert( len(pardef_lines) == len(parset_lines) ) # AV sanity check
+        print( pardef_pars )
+        parset_lines = []
+        parset_pars = []
+        for line in parset.split('\n'):
+            par, parval = line.split(' = ')
+            parset_pars.append( par )
+            parset_lines.append( par + ' = ' + parval )
+        ###print( parset_lines )
+        print( parset_pars )
+        assert( len(pardef_lines) == len(parset_lines) ) # AV sanity check (same number of parameters)
+        assert( pardef_pars == parset_pars ) # AV sanity check (same ordered list of parameters)
         for par in zip(pardef_lines, parset_lines): print( par[0]+par[1] )
         assert(False)
         return res
