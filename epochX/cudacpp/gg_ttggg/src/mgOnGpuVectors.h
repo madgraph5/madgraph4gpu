@@ -108,12 +108,14 @@ using mgOnGpu::bool_v;
 
 // Printout to stream for user defined types
 
+#ifndef MGONGPU_CPPCXTYPE_CXSMPL // operator<< for cxsmpl has already been defined!
 inline std::ostream& operator<<( std::ostream& out, const cxtype& c )
 {
   out << "[" << cxreal(c) << "," << cximag(c) << "]";
   //out << cxreal(c) << "+i" << cximag(c);
   return out;
 }
+#endif
 
 #ifdef MGONGPU_CPPSIMD
 inline std::ostream& operator<<( std::ostream& out, const bool_v& v )
