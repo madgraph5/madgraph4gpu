@@ -659,8 +659,12 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
     def write_hardcoded_parameters(self, params):
         pardef = super().write_parameters(params)
         parset = super().write_set_parameters(params)
-        ###print( pardef )
-        ###print( parset )
+        ###print( '"' + pardef + '"' )
+        ###print( '"' + parset + '"' )
+        if ( pardef == '' ):
+            assert( parset == '' ) # AV sanity check (both are empty)
+            res = '// (none)'
+            return res
         pardef = pardef.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
         parset = parset.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
         parset = parset.replace('sqrt(','sqrtNR(') # Newton-Raphson sqrt (with constexpr arithmetics)
@@ -680,7 +684,6 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         ###print( parset_lines )
         assert( len(pardef_lines) == len(parset_lines) ) # AV sanity check (same number of parameters)
         res = '  '.join( pardef_lines[par] + " = " + parset_lines[par] + '\n' for par in parset_pars ) # no leading '  ' on first row
-        if res == '' : res = '// (none)'
         ###print(res); assert(False)
         return res
 
@@ -734,8 +737,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         replace_dict['hardcoded_dependent_parameters'] = \
                                self.write_hardcoded_parameters(self.params_dep)
         replace_dict['hardcoded_dependent_couplings'] = \
-                               self.write_hardcoded_parameters(self.coups_indep)
-                               ###self.write_hardcoded_parameters(list(self.coups_dep.values()))
+                               self.write_hardcoded_parameters(list(self.coups_dep.values()))
         file_h = self.read_template_file(self.param_template_h) % \
                  replace_dict
         file_cc = self.read_template_file(self.param_template_cc) % \

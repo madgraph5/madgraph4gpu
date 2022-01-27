@@ -151,10 +151,7 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
 
 
   // Model couplings dependent on aS
-  constexpr cxsmpl<double> GC_3 = -(mdl_ee*mdl_complexi);
-  constexpr cxsmpl<double> GC_50 = -(mdl_cw*mdl_ee*mdl_complexi)/(2.*mdl_sw);
-  constexpr cxsmpl<double> GC_59 = (mdl_ee*mdl_complexi*mdl_sw)/(2.*mdl_cw);
-
+  // (none)
 
   // Print parameters that are unchanged during the run
   void printIndependentParameters();
