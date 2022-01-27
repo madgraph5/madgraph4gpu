@@ -723,6 +723,12 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
             replace_dict['include_prefix'] = ''
         replace_dict['hardcoded_independent_parameters'] = \
                                self.write_hardcoded_parameters(self.params_indep)
+        replace_dict['hardcoded_independent_couplings'] = \
+                               self.write_hardcoded_parameters(self.coups_indep)
+        replace_dict['hardcoded_dependent_parameters'] = \
+                               self.write_hardcoded_parameters(self.params_dep)
+        replace_dict['hardcoded_dependent_couplings'] = \
+                               self.write_hardcoded_parameters(self.coups_indep)
         file_h = self.read_template_file(self.param_template_h) % \
                  replace_dict
         file_cc = self.read_template_file(self.param_template_cc) % \
