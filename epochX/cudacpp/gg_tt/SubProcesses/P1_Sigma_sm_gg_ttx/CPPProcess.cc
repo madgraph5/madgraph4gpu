@@ -199,7 +199,7 @@ namespace mg5amcCpu
 
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
-      fptype_sv deltaMEs( 0 ); // all zeros
+      fptype_sv deltaMEs = { 0 }; // all zeros
       for( int icol = 0; icol < ncolor; icol++ )
       {
         cxtype_sv ztemp_sv = cxzero_sv();

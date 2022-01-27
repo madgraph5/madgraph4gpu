@@ -258,7 +258,7 @@ namespace mg5amcCpu
       // Branch B: pp != 0.
       const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * (fptype)0.5,
                              fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
-      fptype_v omega[2] = { fpsqrt( pvec0 + pp ), (fptype_v)0 };
+      fptype_v omega[2] = { fpsqrt( pvec0 + pp ), 0 };
       omega[1] = fmass / omega[0];
       const fptype_v sfomega[2] = { sf[0] * omega[ip], sf[1] * omega[im] };
       const fptype_v pp3 = fpmax( pp + pvec3, 0 );
@@ -631,7 +631,7 @@ namespace mg5amcCpu
       // Branch B: pp != 0.
       const fptype sf[2] = { fptype( 1 + nsf + ( 1 - nsf ) * nh ) * (fptype)0.5,
                              fptype( 1 + nsf - ( 1 - nsf ) * nh ) * (fptype)0.5 };
-      fptype_v omega[2] = { fpsqrt( pvec0 + pp ), (fptype_v)0 };
+      fptype_v omega[2] = { fpsqrt( pvec0 + pp ), 0 };
       omega[1] = fmass / omega[0];
       const int ipB = ( 1 + nh ) / 2;
       const int imB = ( 1 - nh ) / 2;
