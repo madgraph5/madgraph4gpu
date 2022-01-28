@@ -30,7 +30,7 @@ namespace nvtx {
     // Get the wrapped colour index
     uint32_t colourIdx = nextColourIdx % colourCount;
     // Build/populate the struct of nvtx event attributes
-    nvtxEventAttributes_t eventAttrib = {0};
+    nvtxEventAttributes_t eventAttrib = {0}; // zero-out the struct (see https://nvidia.github.io/NVTX/doxygen/structnvtx_event_attributes__v2.html)
     eventAttrib.version = NVTX_VERSION;
     eventAttrib.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
     eventAttrib.colorType = NVTX_COLOR_ARGB;
