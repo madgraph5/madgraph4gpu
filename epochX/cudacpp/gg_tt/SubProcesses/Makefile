@@ -105,6 +105,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
+	cu_lib      = $(LIBDIR)/libculib.so
   cu_main     = $(BUILDDIR)/gcheck.exe
   cu_objects  = $(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o
 else
@@ -245,6 +246,7 @@ endif
 
 MAKEDEBUG=
 
+cxx_lib=$(LIBDIR)/libcxx.so
 cxx_main=$(BUILDDIR)/check.exe
 cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o $(BUILDDIR)/RamboSamplingKernels.o $(BUILDDIR)/MatrixElementKernels.o $(BUILDDIR)/BridgeKernels.o $(BUILDDIR)/CrossSectionKernels.o
 
@@ -285,15 +287,15 @@ $(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
 
 $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
+	$(NVCC) $(CPPFLAGS) $(CUFLAGS) --compiler-options '-fPIC' -c $< -o $@
 
 $(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c -x cu $< -o $@
+	$(NVCC) $(CPPFLAGS) $(CUFLAGS) --compiler-options '-fPIC' -c -x cu $< -o $@
 
 $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -fPIC -c $< -o $@
 
 # Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117)
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
@@ -309,11 +311,17 @@ ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(cu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
 endif
 
-$(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) $(cucxx_objects)
-	$(NVCC) $< -o $@ $(cu_objects) $(cucxx_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
+$(cu_lib): $(LIBDIR)/lib$(MODELLIB).so $(cu_objects) $(cucxx_objects)
+	$(NVCC) $< --shared -o $@ $(cu_objects) $(cucxx_objects)
 
-$(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cucxx_objects)
-	$(CXX) $< -o $@ $(cxx_objects) $(cucxx_objects) $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+$(cxx_lib): $(LIBDIR)/lib$(MODELLIB).so $(cxx_objects) $(cucxx_objects)
+	$(CXX) $< -shared -o $@ $(cxx_objects) $(cucxx_objects)
+
+$(cu_main): $(BUILDDIR)/gcheck_sa.o $(cu_lib)
+	$(NVCC) $< -o $@ $(cu_lib) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
+
+$(cxx_main): $(BUILDDIR)/check_sa.o $(cxx_lib)
+	$(CXX) $< -o $@ $(cxx_lib) $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
 $(BUILDDIR)/testxxx.o: $(GTESTLIBS)
 $(BUILDDIR)/testxxx.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include

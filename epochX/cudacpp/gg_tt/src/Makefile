@@ -1,6 +1,6 @@
 INCFLAGS = -I.
 OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
-CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra
+CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -fPIC -Wall -Wshadow -Wextra
 CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
@@ -129,7 +129,7 @@ endif
 #endif
 
 # NB there are no cuda objects as we avoid rdc (e.g. HelAmps_sm.cc is included by gcheck.cu)
-target=$(LIBDIR)/libmodel_sm.a
+target=$(LIBDIR)/libmodel_sm.a $(LIBDIR)/libmodel_sm.so
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
 cu_objects=
 
@@ -164,10 +164,14 @@ $(BUILDDIR)/%.o : %.cc *.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-$(target): $(cxx_objects) $(cu_objects)
+$(LIBDIR)/%.a: $(cxx_objects) $(cu_objects)
 	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
 	$(AR) cru $@ $(cxx_objects) $(cu_objects)
-	$(RANLIB) $(target)
+	$(RANLIB) $@
+
+$(LIBDIR)/%.so: $(cxx_objects) $(cu_objects)
+	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
+	$(CXX) -shared -o$@ $(cxx_objects) $(cu_objects)
 
 .PHONY: clean
 
