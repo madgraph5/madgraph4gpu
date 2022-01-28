@@ -121,7 +121,7 @@ namespace mg5amcCpu
 
     // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
     // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
-    cxtype_sv jamp_sv[ncolor] = {0};  // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
+    cxtype_sv jamp_sv[ncolor] = {}; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
 #ifndef __CUDACC__
