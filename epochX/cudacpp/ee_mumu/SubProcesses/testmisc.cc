@@ -56,6 +56,16 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
     EXPECT_TRUE_sv( c.real() == 0 );
     EXPECT_TRUE_sv( c.imag() == 0 );
   }
+  {
+    cxtype_sv c = cxmake( 1, fptype_sv{0} );
+    EXPECT_TRUE_sv( c.real() == 1 );
+    EXPECT_TRUE_sv( c.imag() == 0 );
+  }
+  {
+    cxtype_sv c = cxmake( fptype_sv{0}, 1 );
+    EXPECT_TRUE_sv( c.real() == 0 );
+    EXPECT_TRUE_sv( c.imag() == 1 );
+  }
   
   // Array initialization for cxtype_sv array (example: jamp_sv in CPPProcess.cc)
   {
