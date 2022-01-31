@@ -50,6 +50,25 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
     EXPECT_TRUE_sv( f == 0 );
   }
 
+  // Vector initialization for fptype_sv - demonstrate bug #339
+  {
+    fptype_sv f{1};
+    std::cout << f << std::endl;
+    std::cout << boolTF( f == 1 ) << std::endl;
+    EXPECT_TRUE_sv( f == 1 );
+  }
+
+#ifdef MGONGPU_CPPSIMD
+  // Vector initialization for cxtype_sv - demonstrate bug #339 in older cxmake implementation
+  {
+    fptype_sv f1 = fptype_v{0} + 1;
+    EXPECT_TRUE_sv( f1 == 1 );    
+    cxtype_v c12 = cxtype_v( f1, fptype_v{2} );
+    EXPECT_TRUE_sv( c12.real() == 1 );
+    EXPECT_TRUE_sv( c12.imag() == 2 );
+  }
+#endif
+  
   // Vector initialization for cxtype_sv
   {
     cxtype_sv c = cxzero_sv();
@@ -57,12 +76,12 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
     EXPECT_TRUE_sv( c.imag() == 0 );
   }
   {
-    cxtype_sv c = cxmake( 1, fptype_sv{0} );
+    cxtype_sv c = cxmake( 1, fptype_sv{0} ); // here was a bug #339
     EXPECT_TRUE_sv( c.real() == 1 );
     EXPECT_TRUE_sv( c.imag() == 0 );
   }
   {
-    cxtype_sv c = cxmake( fptype_sv{0}, 1 );
+    cxtype_sv c = cxmake( fptype_sv{0}, 1 ); // here was a bug #339
     EXPECT_TRUE_sv( c.real() == 0 );
     EXPECT_TRUE_sv( c.imag() == 1 );
   }
