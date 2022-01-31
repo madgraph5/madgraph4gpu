@@ -522,6 +522,7 @@ cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype& b )
 #endif
 }
 
+/*
 inline
 bool maskor( const bool_v& mask )
 {
@@ -529,6 +530,7 @@ bool maskor( const bool_v& mask )
   for ( int i=0; i<neppV; i++ ) out = out || mask[i];
   return out;
 }
+*/
 
 #else // i.e. #ifndef MGONGPU_CPPSIMD
 
@@ -544,11 +546,13 @@ cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
   return ( mask ? a : b );
 }
 
+/*
 inline
 bool maskor( const bool& mask )
 {
   return mask;
 }
+*/
 
 #endif // #ifdef MGONGPU_CPPSIMD
 
