@@ -51,22 +51,37 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
     EXPECT_TRUE_sv( f == 0 );
   }
 
-  // Vector initialization for fptype_sv - demonstrate bug #339
+  // Vector initialization for fptype_sv - demonstrate bug #339 in older cxmake implementation
   {
     fptype_sv f{1};
-    std::cout << f << std::endl;
-    std::cout << boolTF( f == 1 ) << std::endl;
-    EXPECT_TRUE_sv( f == 1 );
+    //std::cout << f << std::endl << boolTF( f == 1 ) << std::endl;
+    //EXPECT_TRUE_sv( f == 1 ); // this fails for vectors! TFFF
+#ifndef MGONGPU_CPPSIMD
+    EXPECT_TRUE_sv( f == 1 ); // this succeds: T
+#else
+    EXPECT_TRUE( ( f == 1 )[0] ); // this succeds: TFFF[0]
+    EXPECT_TRUE( ( f[0] == 1 ) );
+    for ( int i=1; i<neppV; i++ )
+    {
+      EXPECT_TRUE( !( ( f == 1 )[i] ) ); // this succeds: FTTT[i>=1]
+      EXPECT_TRUE( ( f[i] == 0 ) ); // equals 0, not 1
+    }
+#endif
   }
 
 #ifdef MGONGPU_CPPSIMD
-  // Vector initialization for cxtype_sv - demonstrate bug #339 in older cxmake implementation
+  // Vector initialization for cxtype_sv - demonstrate fix for bug #339
   {
     fptype_sv f1 = fptype_v{0} + 1;
     EXPECT_TRUE_sv( f1 == 1 );    
-    cxtype_v c12 = cxtype_v( f1, fptype_v{2} );
+    cxtype_v c12 = cxmake( f1, 2 );
+    std::cout << c12 << std::endl << boolTF( c12.real() == 1 ) << std::endl << boolTF( c12.imag() == 2 ) << std::endl;
     EXPECT_TRUE_sv( c12.real() == 1 );
     EXPECT_TRUE_sv( c12.imag() == 2 );
+    cxtype_v c21 = cxmake( 2, f1 );
+    std::cout << c21 << std::endl << boolTF( c21.real() == 2 ) << std::endl << boolTF( c21.imag() == 1 ) << std::endl;
+    EXPECT_TRUE_sv( c21.real() == 2 );
+    EXPECT_TRUE_sv( c21.imag() == 1 );
   }
 #endif
   
