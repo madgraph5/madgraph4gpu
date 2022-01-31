@@ -158,6 +158,7 @@ inline std::ostream& operator<<( std::ostream& out, const cxtype_v& v )
 
 //--------------------------------------------------------------------------
 
+/*
 // Printout to std::cout for user defined types
 
 inline void print( const fptype& f ) { std::cout << f << std::endl; }
@@ -171,6 +172,7 @@ inline void print( const cxtype& c ) { std::cout << c << std::endl; }
 #ifdef MGONGPU_CPPSIMD
 inline void print( const cxtype_v& v ) { std::cout << v << std::endl; }
 #endif
+*/
 
 //--------------------------------------------------------------------------
 
