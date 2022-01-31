@@ -831,10 +831,6 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         writers.CPPWriter(model_h_file).writelines(file_h)
         logger.info("Created file %s in directory %s" \
                     % (os.path.split(model_h_file)[-1], os.path.split(model_h_file)[0] ) )
-        # Create the testxxx.cc file including the appropriate HelAmps_<model>.h file
-        #testxxx_cc_file = os.path.join(self.dir_path, self.cc_file_dir, 'testxxx.%s'%self.cc_ext )
-        #testxxx_cc = self.read_template_file('gpu/testxxx_cc.inc') #% replace_dict
-        #writers.CPPWriter(testxxx_cc_file).writelines(testxxx_cc)
 
 #------------------------------------------------------------------------------------
 
@@ -1077,7 +1073,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     def edit_testxxx(self):
         """Generate testxxx.cc"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_testxxx')
-        template = open(pjoin(self.template_path,'gpu','testxxx_cc.inc'),'r').read()
+        template = open(pjoin(self.template_path,'gpu','testxxx.cc'),'r').read()
         replace_dict = {}
         replace_dict['model_name'] = self.model_name
         ff = open(pjoin(self.path, '..', 'testxxx.cc'),'w')
