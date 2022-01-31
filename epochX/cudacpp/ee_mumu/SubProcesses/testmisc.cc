@@ -75,11 +75,11 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
     fptype_sv f1 = fptype_v{0} + 1;
     EXPECT_TRUE_sv( f1 == 1 );    
     cxtype_v c12 = cxmake( f1, 2 );
-    std::cout << c12 << std::endl << boolTF( c12.real() == 1 ) << std::endl << boolTF( c12.imag() == 2 ) << std::endl;
+    //std::cout << c12 << std::endl << boolTF( c12.real() == 1 ) << std::endl << boolTF( c12.imag() == 2 ) << std::endl;
     EXPECT_TRUE_sv( c12.real() == 1 );
     EXPECT_TRUE_sv( c12.imag() == 2 );
     cxtype_v c21 = cxmake( 2, f1 );
-    std::cout << c21 << std::endl << boolTF( c21.real() == 2 ) << std::endl << boolTF( c21.imag() == 1 ) << std::endl;
+    //std::cout << c21 << std::endl << boolTF( c21.real() == 2 ) << std::endl << boolTF( c21.imag() == 1 ) << std::endl;
     EXPECT_TRUE_sv( c21.real() == 2 );
     EXPECT_TRUE_sv( c21.imag() == 1 );
   }
