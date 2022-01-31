@@ -48,4 +48,13 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
     EXPECT_TRUE_sv( array[1].real() == 0 );
     EXPECT_TRUE_sv( array[1].imag() == 0 );
   }
+  // cxtype_sv array alternative initialization (example: outwf in testxxx.cc)
+  {
+    cxtype_sv array[2]{}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxype is NOT, if "{}" is missing!)
+    //std::cout << array[0].real() << std::endl; std::cout << boolTF( array[0].real() == 0 ) << std::endl;
+    EXPECT_TRUE_sv( array[0].real() == 0 );
+    EXPECT_TRUE_sv( array[0].imag() == 0 );
+    EXPECT_TRUE_sv( array[1].real() == 0 );
+    EXPECT_TRUE_sv( array[1].imag() == 0 );
+  }
 }
