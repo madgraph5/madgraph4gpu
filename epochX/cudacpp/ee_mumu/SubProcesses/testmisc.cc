@@ -18,7 +18,8 @@
 #define XTESTID( s ) TESTID( s )
 
 #ifdef MGONGPU_CPPSIMD
-#define EXPECT_TRUE_sv( cond ) { bool_sv mask( cond ); EXPECT_TRUE( maskor ( mask ) ); }
+bool maskand( const bool_v& mask ){ bool out = true; for ( int i=0; i<neppV; i++ ) out = out && mask[i]; return out; }
+#define EXPECT_TRUE_sv( cond ) { bool_v mask( cond ); EXPECT_TRUE( maskand( mask ) ); }
 #else
 #define EXPECT_TRUE_sv( cond ) { EXPECT_TRUE( cond ); }
 #endif
