@@ -81,11 +81,11 @@ struct CPUTest : public CUDA_CPU_TestBase
     mek.computeMatrixElements();
   }
 
-  fptype getMomentum( std::size_t evtNo, unsigned int particle, unsigned int component ) const override
+  fptype getMomentum( std::size_t ievt, unsigned int ipar, unsigned int ip4 ) const override
   {
-    assert(component < np4);
-    assert(particle  < npar);
-    return MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), evtNo, component, particle );
+    assert( ipar < npar );
+    assert( ip4 < np4 );
+    return MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), ievt, ip4, ipar );
   }
 
   fptype getMatrixElement( std::size_t ievt ) const override
@@ -177,11 +177,11 @@ struct CUDATest : public CUDA_CPU_TestBase
     copyHostFromDevice( hstMatrixElements, devMatrixElements );
   }
 
-  fptype getMomentum( std::size_t evtNo, unsigned int particle, unsigned int component ) const override
+  fptype getMomentum( std::size_t ievt, unsigned int ipar, unsigned int ip4 ) const override
   {
-    assert(component < np4);
-    assert(particle  < npar);
-    return MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), evtNo, component, particle );
+    assert( ipar < npar );
+    assert( ip4 < np4 );
+    return MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), ievt, ip4, ipar );
   }
 
   fptype getMatrixElement( std::size_t ievt ) const override
