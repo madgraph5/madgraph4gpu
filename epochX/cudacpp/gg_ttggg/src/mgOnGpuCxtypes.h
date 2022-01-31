@@ -592,7 +592,7 @@ namespace mgOnGpu
     cxtype_ref() = delete;
     cxtype_ref( const cxtype_ref& ) = delete;
     cxtype_ref( cxtype_ref&& ) = default;
-    cxtype_ref( fptype& r, fptype& i ) : m_real{r}, m_imag{i} {}
+    cxtype_ref( fptype& r, fptype& i ) : m_real( r ), m_imag( i ) {}
     cxtype_ref& operator=( const cxtype_ref& ) = delete;
     cxtype_ref& operator=( cxtype_ref&& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // for cxternary
     cxtype_ref& operator=( const cxtype& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; }
