@@ -119,15 +119,17 @@ inline std::ostream& operator<<( std::ostream& out, const cxtype& c )
 }
 #endif
 
+/*
 #ifdef MGONGPU_CPPSIMD
 inline std::ostream& operator<<( std::ostream& out, const bool_v& v )
 {
   out << "{ " << v[0];
-  for ( int i=1; i<neppV; i++ ) out << ", " << v[i];
+  for ( int i=1; i<neppV; i++ ) out << ", " << (bool)(v[i]);
   out << " }";
   return out;
 }
 #endif
+*/
 
 #ifdef MGONGPU_CPPSIMD
 inline std::ostream& operator<<( std::ostream& out, const fptype_v& v )
