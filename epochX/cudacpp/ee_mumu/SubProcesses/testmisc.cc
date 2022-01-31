@@ -40,16 +40,23 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
 {
   EXPECT_TRUE( true );
 
-  // Array initialization for fptype_sv
+  // Vector initialization for fptype_sv
   {
-    fptype_sv fp{0};
-    EXPECT_TRUE_sv( fp == 0 );
+    fptype_sv f{0};
+    EXPECT_TRUE_sv( f == 0 );
   }
   {
-    fptype_sv fp = fptype_sv{0};
-    EXPECT_TRUE_sv( fp == 0 );
+    fptype_sv f = fptype_sv{0};
+    EXPECT_TRUE_sv( f == 0 );
   }
 
+  // Vector initialization for cxtype_sv
+  {
+    cxtype_sv c = cxzero_sv();
+    EXPECT_TRUE_sv( c.real() == 0 );
+    EXPECT_TRUE_sv( c.imag() == 0 );
+  }
+  
   // Array initialization for cxtype_sv array (example: jamp_sv in CPPProcess.cc)
   {
     cxtype_sv array[2] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxype is NOT, if "= {}" is missing!)
