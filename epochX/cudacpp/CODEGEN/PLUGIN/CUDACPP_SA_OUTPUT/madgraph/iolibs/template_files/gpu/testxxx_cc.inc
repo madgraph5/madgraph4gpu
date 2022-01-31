@@ -60,10 +60,12 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       500, 300,  400,  0,    // DUPLICATE #14 == #2 (m=0 pT>0 pz=0)
       500, 180,  240,  400   // DUPLICATE #15 == #3 (m=0 pT>0 pz>0)
     };
-  fptype mass0[nevt]{};
-  bool ispzgt0[nevt]{};
-  bool ispzlt0[nevt]{};
-  bool isptgt0[nevt]{};
+  // Array initialization: zero-out as "{0}" (C and C++) or as "{}" (C++ only)
+  // See https://en.cppreference.com/w/c/language/array_initialization#Notes
+  fptype mass0[nevt] = {};
+  bool ispzgt0[nevt] = {};
+  bool ispzlt0[nevt] = {};
+  bool isptgt0[nevt] = {};
   for ( int ievt = 0; ievt < nevt; ievt++ )
   {
     const fptype p0 = par0[ievt * np4 + 0];
@@ -201,15 +203,17 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       }
     }
   };
-  const int nhel = 1;
-  cxtype_sv outwfI[6]{}; // last result of ixxxxx (mass==0)
-  cxtype_sv outwfO[6]{}; // last result of oxxxxx (mass==0)
-  cxtype_sv outwf[6]{};
-  cxtype_sv outwf3[6]{}; // NB: only 3 are filled by sxxxxx, but 6 are compared!
+  // Array initialization: zero-out as "{0}" (C and C++) or as "{}" (C++ only)
+  // See https://en.cppreference.com/w/c/language/array_initialization#Notes
+  cxtype_sv outwfI[6] = {}; // last result of ixxxxx (mass==0)
+  cxtype_sv outwfO[6] = {}; // last result of oxxxxx (mass==0)
+  cxtype_sv outwf[6] = {};
+  cxtype_sv outwf3[6] = {}; // NB: only 3 are filled by sxxxxx, but 6 are compared!
   fptype* fp_outwfI = reinterpret_cast<fptype*>( outwfI );; // proof of concept for using fptype* in the interface 
   fptype* fp_outwfO = reinterpret_cast<fptype*>( outwfO );; // proof of concept for using fptype* in the interface 
   fptype* fp_outwf = reinterpret_cast<fptype*>( outwf );; // proof of concept for using fptype* in the interface 
   fptype* fp_outwf3 = reinterpret_cast<fptype*>( outwf3 );; // proof of concept for using fptype* in the interface 
+  const int nhel = 1;
   for ( auto nsp : { -1, +1 } ) // antifermion/fermion (or initial/final for scalar and vector)
   {
     for ( int ievt = 0; ievt < nevt; ievt++ )
