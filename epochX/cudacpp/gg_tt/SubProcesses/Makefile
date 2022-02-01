@@ -283,9 +283,9 @@ modellib : $(LIBDIR)/lib$(MODELLIB).a
 $(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
-$(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
+###$(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
+###	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
+###	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 $(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
@@ -309,7 +309,7 @@ ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(cu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
 endif
 
-$(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) $(cucxx_objects)
+$(cu_main): $(BUILDDIR)/check_sa_cu.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) $(cucxx_objects)
 	$(NVCC) $< -o $@ $(cu_objects) $(cucxx_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
 
 $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cucxx_objects)
