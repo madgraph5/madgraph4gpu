@@ -23,15 +23,15 @@ namespace mg5amcCpu // this is only needed for CPU SIMD vectorization
   inline fptype_v fptypevFromUnalignedArray( const fptype& ref )
   {
 #if MGONGPU_CPPSIMD == 2
-    return fptype_v{ *( &ref   ),
+    return fptype_v{ *( &ref   ), // explicit initialization of all array elements (2)
                      *( &ref+1 ) };
 #elif MGONGPU_CPPSIMD == 4
-    return fptype_v{ *( &ref   ),
+    return fptype_v{ *( &ref   ), // explicit initialization of all array elements (4)
                      *( &ref+1 ),
                      *( &ref+2 ),
                      *( &ref+3 ) };
 #elif MGONGPU_CPPSIMD == 8
-    return fptype_v{ *( &ref   ),
+    return fptype_v{ *( &ref   ), // explicit initialization of all array elements (8)
                      *( &ref+1 ),
                      *( &ref+2 ),
                      *( &ref+3 ),
@@ -40,7 +40,7 @@ namespace mg5amcCpu // this is only needed for CPU SIMD vectorization
                      *( &ref+6 ),
                      *( &ref+7 ) };
 #elif MGONGPU_CPPSIMD == 16
-    return fptype_v{ *( &ref   ),
+    return fptype_v{ *( &ref   ), // explicit initialization of all array elements (16)
                      *( &ref+1 ),
                      *( &ref+2 ),
                      *( &ref+3 ),
@@ -67,15 +67,15 @@ namespace mg5amcCpu // this is only needed for CPU SIMD vectorization
   inline fptype_v fptypevFromArbitraryArray( Functor decoderIeppv )
   {
 #if MGONGPU_CPPSIMD == 2
-    return fptype_v{ decoderIeppv( 0 ),
+    return fptype_v{ decoderIeppv( 0 ), // explicit initialization of all array elements (2)
                      decoderIeppv( 1 ) };
 #elif MGONGPU_CPPSIMD == 4
-    return fptype_v{ decoderIeppv( 0 ),
+    return fptype_v{ decoderIeppv( 0 ), // explicit initialization of all array elements (4)
                      decoderIeppv( 1 ),
                      decoderIeppv( 2 ),
                      decoderIeppv( 3 ) };
 #elif MGONGPU_CPPSIMD == 8
-    return fptype_v{ decoderIeppv( 0 ),
+    return fptype_v{ decoderIeppv( 0 ), // explicit initialization of all array elements (8)
                      decoderIeppv( 1 ),
                      decoderIeppv( 2 ),
                      decoderIeppv( 3 ),
@@ -84,7 +84,7 @@ namespace mg5amcCpu // this is only needed for CPU SIMD vectorization
                      decoderIeppv( 6 ),
                      decoderIeppv( 7 ) };
 #elif MGONGPU_CPPSIMD == 16
-    return fptype_v{ decoderIeppv( 0 ),
+    return fptype_v{ decoderIeppv( 0 ), // explicit initialization of all array elements (16)
                      decoderIeppv( 1 ),
                      decoderIeppv( 2 ),
                      decoderIeppv( 3 ),

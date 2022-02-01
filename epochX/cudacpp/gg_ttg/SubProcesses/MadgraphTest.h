@@ -114,9 +114,9 @@ public:
   static constexpr unsigned int nevt = gpublocks * gputhreads;
 
   TestDriverBase( unsigned int npart = mgOnGpu::npar, const std::string& refFileName = "" ) // default value "" is for backward compatibility
-    : m_refFileName( refFileName != "" ? refFileName : std::string( "../../../../../test/ref/dump_CPUTest.Sigma_sm_epem_mupmum.txt" ) ),
-      nparticle{ npart } {}
-  virtual ~TestDriverBase() { }
+    : m_refFileName( refFileName != "" ? refFileName : std::string( "../../../../../test/ref/dump_CPUTest.Sigma_sm_epem_mupmum.txt" ) )
+    , nparticle( npart ) {}
+  virtual ~TestDriverBase() {}
   const std::string& getRefFileName(){ return m_refFileName; }
 
   // ------------------------------------------------
@@ -177,8 +177,8 @@ protected:
 
   MadgraphTest() :
     TestWithParam(),
-    testDriver{ GetParam() }
-  { }
+    testDriver( GetParam() )
+  {}
 };
 
 

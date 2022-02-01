@@ -49,11 +49,13 @@ namespace mgOnGpu
   class cxtype_v // no need for "class alignas(2*sizeof(fptype_v)) cxtype_v"
   {
   public:
-    cxtype_v() : m_real{0}, m_imag{0} {}
+    // Array initialization: zero-out as "{0}" (C and C++) or as "{}" (C++ only)
+    // See https://en.cppreference.com/w/c/language/array_initialization#Notes
+    cxtype_v() : m_real{0}, m_imag{0} {} // RRRR=0000 IIII=0000
     cxtype_v( const cxtype_v&  ) = default;
     cxtype_v( cxtype_v&&  ) = default;
-    cxtype_v( const fptype_v& r, const fptype_v& i ) : m_real{r}, m_imag{i} {}
-    cxtype_v( const fptype_v& r ) : m_real{r}, m_imag{0} {}
+    cxtype_v( const fptype_v& r, const fptype_v& i ) : m_real(r), m_imag(i) {}
+    cxtype_v( const fptype_v& r ) : m_real(r), m_imag{0} {} // IIII=0000
     cxtype_v& operator=( const cxtype_v& ) = default;
     cxtype_v& operator=( cxtype_v&& ) = default;
     cxtype_v& operator+=( const cxtype_v& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
@@ -117,15 +119,17 @@ inline std::ostream& operator<<( std::ostream& out, const cxtype& c )
 }
 #endif
 
+/*
 #ifdef MGONGPU_CPPSIMD
 inline std::ostream& operator<<( std::ostream& out, const bool_v& v )
 {
   out << "{ " << v[0];
-  for ( int i=1; i<neppV; i++ ) out << ", " << v[i];
+  for ( int i=1; i<neppV; i++ ) out << ", " << (bool)(v[i]);
   out << " }";
   return out;
 }
 #endif
+*/
 
 #ifdef MGONGPU_CPPSIMD
 inline std::ostream& operator<<( std::ostream& out, const fptype_v& v )
@@ -154,6 +158,7 @@ inline std::ostream& operator<<( std::ostream& out, const cxtype_v& v )
 
 //--------------------------------------------------------------------------
 
+/*
 // Printout to std::cout for user defined types
 
 inline void print( const fptype& f ) { std::cout << f << std::endl; }
@@ -167,6 +172,7 @@ inline void print( const cxtype& c ) { std::cout << c << std::endl; }
 #ifdef MGONGPU_CPPSIMD
 inline void print( const cxtype_v& v ) { std::cout << v << std::endl; }
 #endif
+*/
 
 //--------------------------------------------------------------------------
 
@@ -214,19 +220,21 @@ cxtype_v cxvmake( const cxtype c )
 inline
 cxtype_v cxmake( const fptype_v& r, const fptype_v& i )
 {
-  return cxtype_v{ r, i };
+  return cxtype_v( r, i );
 }
 
 inline
 cxtype_v cxmake( const fptype_v& r, const fptype& i )
 {
-  return cxtype_v{ r, fptype_v{i} };
+  //return cxtype_v( r, fptype_v{i} ); // THIS WAS A BUG! #339
+  return cxtype_v( r, fptype_v{0} + i ); // IIII=0000+i=iiii
 }
 
 inline
 cxtype_v cxmake( const fptype& r, const fptype_v& i )
 {
-  return cxtype_v{ fptype_v{r}, i };
+  //return cxtype_v( fptype_v{r}, i ); // THIS WAS A BUG! #339
+  return cxtype_v( fptype_v{0} + r, i ); // IIII=0000+r=rrrr
 }
 
 inline
@@ -244,25 +252,25 @@ const fptype_v& cximag( const cxtype_v& c )
 inline
 const cxtype_v cxconj( const cxtype_v& c )
 {
-  return cxmake( c.real(), -c.imag() );
+  return cxtype_v( c.real(), -c.imag() );
 }
 
 inline
 cxtype_v operator+( const cxtype_v& a, const cxtype_v& b )
 {
-  return cxmake( a.real() + b.real(), a.imag() + b.imag() );
+  return cxtype_v( a.real() + b.real(), a.imag() + b.imag() );
 }
 
 inline
 cxtype_v operator+( const fptype_v& a, const cxtype_v& b )
 {
-  return cxmake( a + b.real(), b.imag() );
+  return cxtype_v( a + b.real(), b.imag() );
 }
 
 inline
 cxtype_v operator+( const cxtype_v& a, const fptype_v& b )
 {
-  return cxmake( a.real() + b, a.imag() );
+  return cxtype_v( a.real() + b, a.imag() );
 }
 
 inline
@@ -274,13 +282,13 @@ const cxtype_v& operator+( const cxtype_v& a )
 inline
 cxtype_v operator-( const cxtype_v& a, const cxtype_v& b )
 {
-  return cxmake( a.real() - b.real(), a.imag() - b.imag() );
+  return cxtype_v( a.real() - b.real(), a.imag() - b.imag() );
 }
 
 inline
 cxtype_v operator-( const fptype& a, const cxtype_v& b )
 {
-  return cxmake( a - b.real(), - b.imag() );
+  return cxtype_v( a - b.real(), - b.imag() );
 }
 
 inline
@@ -292,114 +300,114 @@ cxtype_v operator-( const cxtype_v& a )
 inline
 cxtype_v operator-( const cxtype_v& a, const fptype& b )
 {
-  return cxmake( a.real() - b, a.imag() );
+  return cxtype_v( a.real() - b, a.imag() );
 }
 
 inline
 cxtype_v operator-( const fptype_v& a, const cxtype_v& b )
 {
-  return cxmake( a - b.real(), - b.imag() );
+  return cxtype_v( a - b.real(), - b.imag() );
 }
 
 inline
 cxtype_v operator-( const cxtype_v& a, const fptype_v& b )
 {
-  return cxmake( a.real() - b, a.imag() );
+  return cxtype_v( a.real() - b, a.imag() );
 }
 
 inline
 cxtype_v operator-( const fptype_v& a, const cxtype& b )
 {
-  return cxmake( a - b.real(), fptype_v{0} - b.imag() );
+  return cxtype_v( a - b.real(), fptype_v{0} - b.imag() ); // IIII=0000-b.imag()
 }
 
 inline
 cxtype_v operator*( const cxtype_v& a, const cxtype_v& b )
 {
-  return cxmake( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
+  return cxtype_v( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
 }
 
 inline
 cxtype_v operator*( const cxtype& a, const cxtype_v& b )
 {
-  return cxmake( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
+  return cxtype_v( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
 }
 
 inline
 cxtype_v operator*( const cxtype_v& a, const cxtype& b )
 {
-  return cxmake( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
+  return cxtype_v( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
 }
 
 inline
 cxtype_v operator*( const fptype& a, const cxtype_v& b )
 {
-  return cxmake( a * b.real(), a * b.imag() );
+  return cxtype_v( a * b.real(), a * b.imag() );
 }
 
 inline
 cxtype_v operator*( const cxtype_v& a, const fptype& b )
 {
-  return cxmake( a.real() * b, a.imag() * b );
+  return cxtype_v( a.real() * b, a.imag() * b );
 }
 
 inline
 cxtype_v operator*( const fptype_v& a, const cxtype_v& b )
 {
-  return cxmake( a * b.real(), a * b.imag() );
+  return cxtype_v( a * b.real(), a * b.imag() );
 }
 
 inline
 cxtype_v operator*( const cxtype_v& a, const fptype_v& b )
 {
-  return cxmake( a.real() * b, a.imag() * b );
+  return cxtype_v( a.real() * b, a.imag() * b );
 }
 
 inline
 cxtype_v operator*( const fptype_v& a, const cxtype& b )
 {
-  return cxmake( a * b.real(), a * b.imag() );
+  return cxtype_v( a * b.real(), a * b.imag() );
 }
 
 inline
 cxtype_v operator*( const cxtype& a, const fptype_v& b )
 {
-  return cxmake( a.real() * b, a.imag() * b );
+  return cxtype_v( a.real() * b, a.imag() * b );
 }
 
 inline
 cxtype_v operator/( const cxtype_v& a, const cxtype_v& b )
 {
   fptype_v bnorm = b.real()*b.real() + b.imag()*b.imag();
-  return cxmake( ( a.real() * b.real() + a.imag() * b.imag() ) / bnorm,
-                 ( a.imag() * b.real() - a.real() * b.imag() ) / bnorm );
+  return cxtype_v( ( a.real() * b.real() + a.imag() * b.imag() ) / bnorm,
+                   ( a.imag() * b.real() - a.real() * b.imag() ) / bnorm );
 }
 
 inline
 cxtype_v operator/( const cxtype& a, const cxtype_v& b )
 {
   fptype_v bnorm = b.real()*b.real() + b.imag()*b.imag();
-  return cxmake( ( cxreal( a ) * b.real() + cximag( a ) * b.imag() ) / bnorm,
-                 ( cximag( a ) * b.real() - cxreal( a ) * b.imag() ) / bnorm );
+  return cxtype_v( ( cxreal( a ) * b.real() + cximag( a ) * b.imag() ) / bnorm,
+                   ( cximag( a ) * b.real() - cxreal( a ) * b.imag() ) / bnorm );
 }
 
 inline
 cxtype_v operator/( const fptype& a, const cxtype_v& b )
 {
   fptype_v bnorm = b.real()*b.real() + b.imag()*b.imag();
-  return cxmake( ( a * b.real() ) / bnorm, ( - a * b.imag() ) / bnorm );
+  return cxtype_v( ( a * b.real() ) / bnorm, ( - a * b.imag() ) / bnorm );
 }
 
 inline
 cxtype_v operator/( const cxtype_v& a, const fptype_v& b )
 {
-  return cxmake( a.real() / b, a.imag() / b );
+  return cxtype_v( a.real() / b, a.imag() / b );
 }
 
 inline
 cxtype_v operator/( const cxtype_v& a, const fptype& b )
 {
-  return cxmake( a.real() / b, a.imag() / b );
+  return cxtype_v( a.real() / b, a.imag() / b );
 }
 
 #endif // #ifdef MGONGPU_CPPSIMD
@@ -456,7 +464,7 @@ cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype_v& b )
     outr[i] = ( mask[i] ? a.real()[i] : b.real()[i] );
     outi[i] = ( mask[i] ? a.imag()[i] : b.imag()[i] );
   }
-  return cxmake( outr, outi );
+  return cxtype_v( outr, outi );
 #endif
 }
 
@@ -474,7 +482,7 @@ cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype& b )
     outr[i] = ( mask[i] ? a.real()[i] : b.real() );
     outi[i] = ( mask[i] ? a.imag()[i] : b.imag() );
   }
-  return cxmake( outr, outi );
+  return cxtype_v( outr, outi );
 #endif
 }
 
@@ -492,7 +500,7 @@ cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype_v& b )
     outr[i] = ( mask[i] ? a.real() : b.real()[i] );
     outi[i] = ( mask[i] ? a.imag() : b.imag()[i] );
   }
-  return cxmake( outr, outi );
+  return cxtype_v( outr, outi );
 #endif
 }
 
@@ -510,10 +518,11 @@ cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype& b )
     outr[i] = ( mask[i] ? a.real() : b.real() );
     outi[i] = ( mask[i] ? a.imag() : b.imag() );
   }
-  return cxmake( outr, outi );
+  return cxtype_v( outr, outi );
 #endif
 }
 
+/*
 inline
 bool maskor( const bool_v& mask )
 {
@@ -521,6 +530,7 @@ bool maskor( const bool_v& mask )
   for ( int i=0; i<neppV; i++ ) out = out || mask[i];
   return out;
 }
+*/
 
 #else // i.e. #ifndef MGONGPU_CPPSIMD
 
@@ -536,11 +546,13 @@ cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
   return ( mask ? a : b );
 }
 
+/*
 inline
 bool maskor( const bool& mask )
 {
   return mask;
 }
+*/
 
 #endif // #ifdef MGONGPU_CPPSIMD
 
@@ -647,11 +659,11 @@ typedef cxtype cxtype_sv;
 
 // Scalar-or-vector zeros: scalar in CUDA, vector or scalar in C++
 #ifdef __CUDACC__
-inline __host__ __device__ cxtype cxzero_sv(){ return cxmake( 0, 0 ); }
+inline __host__ __device__ cxtype cxzero_sv(){ return cxtype( 0, 0 ); }
 #elif defined MGONGPU_CPPSIMD
-inline cxtype_v cxzero_sv(){ return cxtype_v{ fptype_v{0}, fptype_v{0} }; }
+inline cxtype_v cxzero_sv(){ return cxtype_v(); } // RRRR=0000 IIII=0000
 #else
-inline cxtype cxzero_sv(){ return cxtype{ fptype{0}, fptype{0} }; }
+inline cxtype cxzero_sv(){ return cxtype( 0, 0 ); }
 #endif
 
 //==========================================================================

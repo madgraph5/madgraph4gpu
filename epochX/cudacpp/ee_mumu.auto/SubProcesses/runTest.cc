@@ -16,24 +16,19 @@ using namespace mg5amcGpu;
 using namespace mg5amcCpu;
 #endif
 
-struct CUDA_CPU_TestBase : public TestDriverBase {
-
+struct CUDA_CPU_TestBase : public TestDriverBase
+{
   static constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
   static constexpr int np4 = mgOnGpu::np4;
   static constexpr int npar = mgOnGpu::npar;
-
   static_assert( gputhreads%neppM == 0, "ERROR! #threads/block should be a multiple of neppM" );
   static_assert( gputhreads <= mgOnGpu::ntpbMAX, "ERROR! #threads/block should be <= ntpbMAX" );
-
-  CUDA_CPU_TestBase( const std::string& refFileName ) :
-    TestDriverBase( npar, refFileName )
-  {  }
-
+  CUDA_CPU_TestBase( const std::string& refFileName ) : TestDriverBase( npar, refFileName ) {}
 };
 
 #ifndef __CUDACC__
-struct CPUTest : public CUDA_CPU_TestBase {
-
+struct CPUTest : public CUDA_CPU_TestBase
+{
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   CPPProcess process;
@@ -48,26 +43,29 @@ struct CPUTest : public CUDA_CPU_TestBase {
   // ** WARNING EVIL EVIL **
   // The CPPProcess constructor has side effects on the globals Proc::cHel, which is needed in ME calculations.
   // Don't remove!
-  CPUTest( const std::string& refFileName ) :
-    CUDA_CPU_TestBase( refFileName ),
-    process( niter, gpublocks, gputhreads, /*verbose=*/false ),
-    hstRnarray( nevt ),
-    hstMomenta( nevt ),
-    hstWeights( nevt ),
-    hstMatrixElements( nevt ),
-    hstIsGoodHel( mgOnGpu::ncomb )
+  CPUTest( const std::string& refFileName )
+    : CUDA_CPU_TestBase( refFileName )
+    , process( niter, gpublocks, gputhreads, /*verbose=*/false )
+    , hstRnarray( nevt )
+    , hstMomenta( nevt )
+    , hstWeights( nevt )
+    , hstMatrixElements( nevt )
+    , hstIsGoodHel( mgOnGpu::ncomb )
   {
     process.initProc("../../Cards/param_card.dat");
   }
-  virtual ~CPUTest() { }
 
-  void prepareRandomNumbers(unsigned int iiter) override {
+  virtual ~CPUTest(){}
+
+  void prepareRandomNumbers( unsigned int iiter ) override
+  {
     CommonRandomNumberKernel rnk( hstRnarray );
     rnk.seedGenerator( 1337 + iiter );
     rnk.generateRnarray();
   }
 
-  void prepareMomenta(fptype energy) override {
+  void prepareMomenta( fptype energy ) override
+  {
     RamboSamplingKernelHost rsk( energy, hstRnarray, hstMomenta, hstWeights, nevt );
     // --- 2a. Fill in momenta of initial state particles on the device
     rsk.getMomentaInitial();
@@ -76,19 +74,22 @@ struct CPUTest : public CUDA_CPU_TestBase {
     rsk.getMomentaFinal();
   }
 
-  void runSigmaKin(std::size_t iiter) override {
+  void runSigmaKin( std::size_t iiter ) override
+  {
     MatrixElementKernelHost mek( hstMomenta, hstMatrixElements, nevt );
     if ( iiter == 0 ) mek.computeGoodHelicities();
     mek.computeMatrixElements();
   }
 
-  fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
-    assert(component < np4);
-    assert(particle  < npar);
-    return MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), evtNo, component, particle );
-  };
+  fptype getMomentum( std::size_t ievt, unsigned int ipar, unsigned int ip4 ) const override
+  {
+    assert( ipar < npar );
+    assert( ip4 < np4 );
+    return MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), ievt, ip4, ipar );
+  }
 
-  fptype getMatrixElement(std::size_t ievt) const override {
+  fptype getMatrixElement( std::size_t ievt ) const override
+  {
     return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
   }
 
@@ -96,12 +97,14 @@ struct CPUTest : public CUDA_CPU_TestBase {
 #endif
 
 #ifdef __CUDACC__
-struct CUDATest : public CUDA_CPU_TestBase {
-
+struct CUDATest : public CUDA_CPU_TestBase
+{
   // Reset the device when our test goes out of scope. Note that this should happen after
   // the frees, i.e. be declared before the pointers to device memory.
-  struct DeviceReset {
-    ~DeviceReset() {
+  struct DeviceReset
+  {
+    ~DeviceReset()
+    {
       checkCuda( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
     }
   } deviceResetter;
@@ -125,33 +128,35 @@ struct CUDATest : public CUDA_CPU_TestBase {
   // ** WARNING EVIL EVIL **
   // The CPPProcess constructor has side effects on the globals Proc::cHel, which is needed in ME calculations.
   // Don't remove!
-  CUDATest( const std::string& refFileName ) :
-    CUDA_CPU_TestBase( refFileName ),
-    process( niter, gpublocks, gputhreads, /*verbose=*/false ),
-    hstRnarray( nevt ),
-    hstMomenta( nevt ),
-    hstWeights( nevt ),
-    hstMatrixElements( nevt ),
-    hstIsGoodHel( mgOnGpu::ncomb ),
-    devRnarray( nevt ),
-    devMomenta( nevt ),
-    devWeights( nevt ),
-    devMatrixElements( nevt ),
-    devIsGoodHel( mgOnGpu::ncomb )
+  CUDATest( const std::string& refFileName )
+    : CUDA_CPU_TestBase( refFileName )
+    , process( niter, gpublocks, gputhreads, /*verbose=*/false )
+    , hstRnarray( nevt )
+    , hstMomenta( nevt )
+    , hstWeights( nevt )
+    , hstMatrixElements( nevt )
+    , hstIsGoodHel( mgOnGpu::ncomb )
+    , devRnarray( nevt )
+    , devMomenta( nevt )
+    , devWeights( nevt )
+    , devMatrixElements( nevt )
+    , devIsGoodHel( mgOnGpu::ncomb )
   {
     process.initProc("../../Cards/param_card.dat");
   }
 
-  virtual ~CUDATest() { }
+  virtual ~CUDATest(){}
 
-  void prepareRandomNumbers(unsigned int iiter) override {
+  void prepareRandomNumbers( unsigned int iiter ) override
+  {
     CommonRandomNumberKernel rnk( hstRnarray );
     rnk.seedGenerator( 1337 + iiter );
     rnk.generateRnarray();
     copyDeviceFromHost( devRnarray, hstRnarray );
   }
 
-  void prepareMomenta(fptype energy) override {
+  void prepareMomenta( fptype energy ) override
+  {
     RamboSamplingKernelDevice rsk( energy, devRnarray, devMomenta, devWeights, gpublocks, gputhreads );
     // --- 2a. Fill in momenta of initial state particles on the device
     rsk.getMomentaInitial();
@@ -164,20 +169,23 @@ struct CUDATest : public CUDA_CPU_TestBase {
     copyHostFromDevice( hstMomenta, devMomenta );
   }
 
-  void runSigmaKin(std::size_t iiter) override {
+  void runSigmaKin( std::size_t iiter ) override
+  {
     MatrixElementKernelDevice mek( devMomenta, devMatrixElements, gpublocks, gputhreads );
     if ( iiter == 0 ) mek.computeGoodHelicities();
     mek.computeMatrixElements();
     copyHostFromDevice( hstMatrixElements, devMatrixElements );
   }
 
-  fptype getMomentum(std::size_t evtNo, unsigned int particle, unsigned int component) const override {
-    assert(component < np4);
-    assert(particle  < npar);
-    return MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), evtNo, component, particle );
-  };
+  fptype getMomentum( std::size_t ievt, unsigned int ipar, unsigned int ip4 ) const override
+  {
+    assert( ipar < npar );
+    assert( ip4 < np4 );
+    return MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), ievt, ip4, ipar );
+  }
 
-  fptype getMatrixElement(std::size_t ievt) const override {
+  fptype getMatrixElement( std::size_t ievt ) const override
+  {
     return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
   }
 
@@ -207,4 +215,3 @@ MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU(MG_EPOCH_PROCESS_ID), MadgraphTest );
 #else
 MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU(MG_EPOCH_PROCESS_ID), MadgraphTest );
 #endif
-

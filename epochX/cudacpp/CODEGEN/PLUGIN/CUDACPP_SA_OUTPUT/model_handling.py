@@ -831,10 +831,6 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         writers.CPPWriter(model_h_file).writelines(file_h)
         logger.info("Created file %s in directory %s" \
                     % (os.path.split(model_h_file)[-1], os.path.split(model_h_file)[0] ) )
-        # Create the testxxx.cc file including the appropriate HelAmps_<model>.h file
-        #testxxx_cc_file = os.path.join(self.dir_path, self.cc_file_dir, 'testxxx.%s'%self.cc_ext )
-        #testxxx_cc = self.read_template_file('gpu/testxxx_cc.inc') #% replace_dict
-        #writers.CPPWriter(testxxx_cc_file).writelines(testxxx_cc)
 
 #------------------------------------------------------------------------------------
 
@@ -965,7 +961,8 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     amp_fp = reinterpret_cast<fptype*>( amp_sv );
 
     // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
-    cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
+    // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
+    cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxype is NOT, if "= {}" is missing!)
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
 #ifndef __CUDACC__
@@ -1076,7 +1073,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     def edit_testxxx(self):
         """Generate testxxx.cc"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_testxxx')
-        template = open(pjoin(self.template_path,'gpu','testxxx_cc.inc'),'r').read()
+        template = open(pjoin(self.template_path,'gpu','testxxx.cc'),'r').read()
         replace_dict = {}
         replace_dict['model_name'] = self.model_name
         ff = open(pjoin(self.path, '..', 'testxxx.cc'),'w')
@@ -1146,24 +1143,22 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         """Return the color matrix definition lines for this matrix element. Split rows in chunks of size n."""
         import madgraph.core.color_algebra as color
         if not matrix_element.get('color_matrix'):
-            ###return "\n".join(["static const double denom[1] = {1.};", "static const double cf[1][1] = {1.};"])
-            return "\n".join(["      static constexpr fptype denom[1] = {1.};", "static const fptype cf[1][1] = {1.};"]) # AV
+            return "\n".join(["      static constexpr fptype denom[1] = {1.};", "static const fptype cf[1][1] = {1.};"])
         else:
             color_denominators = matrix_element.get('color_matrix').\
                                                  get_line_denominators()
-            ###denom_string = "static const double denom[ncolor] = {%s};" % ",".join(["%i" % denom for denom in color_denominators])
-            denom_string = "      static constexpr fptype denom[ncolor] = {%s};" % ", ".join(["%i" % denom for denom in color_denominators]) # AV
+            denom_string = "      static constexpr fptype denom[ncolor] = {%s}; // 1-D array[%i]" \
+                           % ( ", ".join(["%i" % denom for denom in color_denominators]), len(color_denominators) )
             matrix_strings = []
             my_cs = color.ColorString()
             for index, denominator in enumerate(color_denominators):
                 # Then write the numerators for the matrix elements
                 num_list = matrix_element.get('color_matrix').get_line_numerators(index, denominator)
-                ###matrix_strings.append("{%s}" % ",".join(["%d" % i for i in num_list]))
-                matrix_strings.append("{%s}" % ", ".join(["%d" % i for i in num_list])) # AV
-            ###matrix_string = "static const double cf[ncolor][ncolor] = {" + ",".join(matrix_strings) + "};"
-            matrix_string = "      static constexpr fptype cf[ncolor][ncolor] = " # AV
-            if len( matrix_strings ) > 1 : matrix_string += '{\n        ' + ',\n        '.join(matrix_strings) + '};' # AV
-            else: matrix_string += '{' + matrix_strings[0] + '};' # AV
+                matrix_strings.append("{%s}" % ", ".join(["%d" % i for i in num_list]))
+            matrix_string = "      static constexpr fptype cf[ncolor][ncolor] = "
+            if len( matrix_strings ) > 1 : matrix_string += '{\n        ' + ',\n        '.join(matrix_strings) + '};'
+            else: matrix_string += '{' + matrix_strings[0] + '};'
+            matrix_string += ' // 2-D array[%i][%i]' % ( len(color_denominators), len(color_denominators) )
             return "\n".join([denom_string, matrix_string])
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (improve formatting)

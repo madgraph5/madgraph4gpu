@@ -164,7 +164,7 @@ using mgOnGpu::fptype;
 #define mgDebugDeclare()                              \
   __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
 #define mgDebugInitialise()                     \
-  { mgDebugCounter[threadIdx.x]=0; }
+  { mgDebugCounter[threadIdx.x] = 0; }
 #define mgDebug( code, text )                   \
   { mgDebugCounter[threadIdx.x] += 1; }
 #define mgDebugFinalise()                                               \
