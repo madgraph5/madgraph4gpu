@@ -63,6 +63,40 @@ namespace mg5amcCpu
      *                                                                          *
      ****************************************************************************/
 
+    // output weight
+    fptype& wt = W_ACCESS::kernelAccess( wgts );
+
+    // AV special case nparf==1 (issue #358)
+    if constexpr ( nparf == 1 )
+    {
+      static bool first = true;
+      if ( first )
+      {
+#ifdef __CUDACC__
+        if constexpr ( M_ACCESS::isOnDevice() ) // avoid
+        {
+          const int ievt0 = 0;
+          const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+          if ( ievt == ievt0 )
+            printf( "WARNING! Rambo called with 1 final particle: random numbers will be ignored\n" );
+        }
+        else
+#endif
+        {
+          printf( "WARNING! Rambo called with 1 final particle: random numbers will be ignored\n" );
+        }
+        first = false;
+      }
+      const int iparf = 0;
+      M_ACCESS::kernelAccessIp4Ipar( momenta, 0, iparf+npari ) = energy;
+      for ( int i4 = 1; i4 < np4; i4++ )
+      {
+        M_ACCESS::kernelAccessIp4Ipar( momenta, i4, iparf+npari ) = 0;
+      }
+      wt = 1;
+      return;
+    }
+
     // initialization step: factorials for the phase space weight
     const fptype twopi = 8. * atan(1.);
     const fptype po2log = log(twopi / 4.);
@@ -70,9 +104,6 @@ namespace mg5amcCpu
     z[1] = po2log;
     for ( int kpar = 2; kpar < nparf; kpar++ ) z[kpar] = z[kpar - 1] + po2log - 2. * log(fptype(kpar - 1));
     for ( int kpar = 2; kpar < nparf; kpar++ ) z[kpar] = (z[kpar] - log(fptype(kpar)));
-
-    // output weight
-    fptype& wt = W_ACCESS::kernelAccess( wgts );
 
     // generate n massless momenta in infinite phase space
     fptype q[nparf][np4];

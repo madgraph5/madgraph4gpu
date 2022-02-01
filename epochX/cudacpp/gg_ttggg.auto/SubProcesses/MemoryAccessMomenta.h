@@ -46,13 +46,13 @@ public:
 
   // SANITY CHECK: check that neppM is a power of two
   static_assert( ispoweroftwo( neppM ), "neppM is not a power of 2" );
-  
+
 private:
 
   friend class MemoryAccessHelper<MemoryAccessMomentaBase>;
   friend class KernelAccessHelper<MemoryAccessMomentaBase, true>;
   friend class KernelAccessHelper<MemoryAccessMomentaBase, false>;
-  
+
   // The number of components of a 4-momentum
   static constexpr int np4 = mgOnGpu::np4;
 
@@ -237,12 +237,18 @@ public:
       // ?!Used to be much slower, now a tiny bit faster for AOSOA?! (5.11E6 for AOSOA, 4.64E6 for AOS in eemumu 512y)
       // This does not even require AOSOA with neppM>=neppV and neppM%neppV==0 (e.g. can be used with AOS neppM==1)
       constexpr int ievt0 = 0; // just make it explicit in the code that buffer refers to a given ievt0 and decoderIeppV fetches event ievt0+ieppV
-      auto decoderIeppv = [buffer, ip4, ipar](int ieppV) -> const fptype& 
-        { return MemoryAccessMomenta::ieventAccessIp4IparConst( buffer, ievt0+ieppV, ip4, ipar ); };
+      auto decoderIeppv = [buffer, ip4, ipar](int ieppV)
+        -> const fptype& { return MemoryAccessMomenta::ieventAccessIp4IparConst( buffer, ievt0+ieppV, ip4, ipar ); };
       return mg5amcCpu::fptypevFromArbitraryArray( decoderIeppv ); // iterate over ieppV in neppV (no SIMD)
     }
 #endif
   }
+
+  // Is this a HostAccess or DeviceAccess class?
+  // [this is only needed for a warning printout in rambo.h for nparf==1 #358]
+  static
+  __host__ __device__ inline
+  constexpr bool isOnDevice() { return onDevice; }
 
 };
 
