@@ -129,7 +129,8 @@ endif
 #endif
 
 # NB there are no cuda objects as we avoid rdc (e.g. HelAmps_sm.cc is included by gcheck.cu)
-target=$(LIBDIR)/libmodel_sm.a $(LIBDIR)/libmodel_sm.so
+MODELLIB = model_sm
+target=$(LIBDIR)/lib$(MODELLIB).a $(LIBDIR)/lib$(MODELLIB).so
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
 
 all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(target)
@@ -163,12 +164,12 @@ $(BUILDDIR)/%.o : %.cc *.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-$(LIBDIR)/%.a: $(cxx_objects)
+$(LIBDIR)/lib$(MODELLIB).a : $(cxx_objects)
 	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
 	$(AR) cru $@ $(cxx_objects)
 	$(RANLIB) $@
 
-$(LIBDIR)/%.so: $(cxx_objects)
+$(LIBDIR)/lib$(MODELLIB).so : $(cxx_objects)
 	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
 	$(CXX) -shared -o$@ $(cxx_objects)
 
