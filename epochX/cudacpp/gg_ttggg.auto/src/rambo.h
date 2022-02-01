@@ -88,10 +88,13 @@ namespace mg5amcCpu
         first = false;
       }
       const int iparf = 0;
-      M_ACCESS::kernelAccessIp4Ipar( momenta, 0, iparf+npari ) = energy;
-      for ( int i4 = 1; i4 < np4; i4++ )
+      for ( int i4 = 0; i4 < np4; i4++ )
       {
         M_ACCESS::kernelAccessIp4Ipar( momenta, i4, iparf+npari ) = 0;
+        for ( int ipari = 0; ipari < npari; ipari++ )
+        {
+          M_ACCESS::kernelAccessIp4Ipar( momenta, i4, iparf+npari ) += M_ACCESS::kernelAccessIp4Ipar( momenta, i4, ipari );
+        }
       }
       wt = 1;
       return;
