@@ -8,7 +8,7 @@ ggttggg=0
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]>"
+  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttg] [-ggttgg] [-ggttggg]>"
   exit 1
 }
 
