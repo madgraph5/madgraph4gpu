@@ -32,6 +32,9 @@ function codeGenAndDiff()
     uu_dd)
       cmd="generate u u~ > d d~"
       ;;
+    bb_tt)
+      cmd="generate b b~ > t t~"
+      ;;
     heft_gg_h)
       cmd="set auto_convert_model T; import model heft; generate g g > h"
       ;;
