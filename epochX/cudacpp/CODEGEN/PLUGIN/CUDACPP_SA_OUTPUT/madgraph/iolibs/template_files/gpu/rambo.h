@@ -63,6 +63,22 @@ namespace mg5amcCpu
      *                                                                          *
      ****************************************************************************/
 
+    // output weight
+    fptype& wt = W_ACCESS::kernelAccess( wgts );
+
+    // AV special case nparf=1 (issue #358)
+    if constexpr ( nparf == 1 )
+    {
+      const int iparf = 0;
+      M_ACCESS::kernelAccessIp4Ipar( momenta, 0, iparf+npari ) = energy;
+      for ( int i4 = 1; i4 < np4; i4++ )
+      {
+        M_ACCESS::kernelAccessIp4Ipar( momenta, i4, iparf+npari ) = 0;
+      }
+      wt = 1;
+      return;
+    }    
+
     // initialization step: factorials for the phase space weight
     const fptype twopi = 8. * atan(1.);
     const fptype po2log = log(twopi / 4.);
@@ -70,9 +86,6 @@ namespace mg5amcCpu
     z[1] = po2log;
     for ( int kpar = 2; kpar < nparf; kpar++ ) z[kpar] = z[kpar - 1] + po2log - 2. * log(fptype(kpar - 1));
     for ( int kpar = 2; kpar < nparf; kpar++ ) z[kpar] = (z[kpar] - log(fptype(kpar)));
-
-    // output weight
-    fptype& wt = W_ACCESS::kernelAccess( wgts );
 
     // generate n massless momenta in infinite phase space
     fptype q[nparf][np4];
