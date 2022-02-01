@@ -105,7 +105,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
-	cu_lib      = $(LIBDIR)/libculib.so
+  cu_lib      = $(LIBDIR)/libmg5amc_cu.so
   cu_main     = $(BUILDDIR)/gcheck.exe
   cu_objects  = $(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o
 else
@@ -246,7 +246,7 @@ endif
 
 MAKEDEBUG=
 
-cxx_lib=$(LIBDIR)/libcxx.so
+cxx_lib=$(LIBDIR)/libmg5amc_cxx.so
 cxx_main=$(BUILDDIR)/check.exe
 cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o $(BUILDDIR)/RamboSamplingKernels.o $(BUILDDIR)/MatrixElementKernels.o $(BUILDDIR)/BridgeKernels.o $(BUILDDIR)/CrossSectionKernels.o
 
