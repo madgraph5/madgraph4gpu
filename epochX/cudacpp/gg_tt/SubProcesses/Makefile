@@ -5,11 +5,6 @@ CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
-# install target
-INSTALL_HEADERS=CPPProcess.h MatrixElementKernels.h MemoryBuffers.h checkCuda.h MemoryAccessMomenta.h MemoryAccessHelpers.h MemoryAccessVectors.h
-INSTALL_INC_DIR=../../include
-INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o MatrixElementKernels.o gMatrixElementKernels.o
-
 # Note: AR and CXX are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
@@ -105,9 +100,6 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
-  cu_lib      = $(LIBDIR)/libmg5amc_cu.so
-  cu_main     = $(BUILDDIR)/gcheck.exe
-  cu_objects  = $(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
@@ -244,47 +236,47 @@ ifneq ($(NVCC),)
   endif
 endif
 
-MAKEDEBUG=
+#-------------------------------------------------------------------------------
 
 cxx_lib=$(LIBDIR)/libmg5amc_cxx.so
 cxx_main=$(BUILDDIR)/check.exe
 cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o $(BUILDDIR)/RamboSamplingKernels.o $(BUILDDIR)/MatrixElementKernels.o $(BUILDDIR)/BridgeKernels.o $(BUILDDIR)/CrossSectionKernels.o
 
+cu_lib=$(LIBDIR)/libmg5amc_cu.so
+cu_main=$(BUILDDIR)/gcheck.exe
+cu_objects=$(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o
+
 testmain=$(BUILDDIR)/runTest.exe
 
+#-------------------------------------------------------------------------------
+
+# First target (default goal)
 all.$(TAG): $(BUILDDIR)/.build.$(TAG) ../../src/$(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
 
-install: all.$(TAG) $(INSTALL_INC_DIR) $(addprefix $(INSTALL_INC_DIR)/, $(INSTALL_HEADERS)) $(addprefix $(LIBDIR)/, $(INSTALL_OBJECTS))
+# Target (and build options): debug
+MAKEDEBUG=
+debug: OPTFLAGS   = -g -O0 -DDEBUG2
+debug: CUOPTFLAGS = -G
+debug: MAKEDEBUG := debug
+debug: all.$(TAG)
 
+# Target: tag-specific build lockfiles
 override oldtagsb=`if [ -d $(BUILDDIR) ]; then find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
 $(BUILDDIR)/.build.$(TAG):
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	@if [ "$(oldtagsb)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtagsb)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
 	@touch $(BUILDDIR)/.build.$(TAG)
 
-debug: OPTFLAGS   = -g -O0 -DDEBUG2
-debug: CUOPTFLAGS = -G
-debug: MAKEDEBUG := debug
-debug: all.$(TAG)
-
-$(INSTALL_INC_DIR) :
-	$(MAKE) -C ../../src install
-
-$(INSTALL_INC_DIR)/%.h : %.h
-	@if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
-	cp $< $@
-
-$(LIBDIR)/%.o : $(BUILDDIR)/%.o
-	cp $< $@
-
 ../../src/$(BUILDDIR)/.build.$(TAG):
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
+# Target (and build rules): common "model" library
 modellib : $(LIBDIR)/lib$(MODELLIB).a
 
 $(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
+# Target (and build rules): objects from CUDA and C++ compilation
 $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) --compiler-options '-fPIC' -c $< -o $@
@@ -307,15 +299,17 @@ $(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
 #### Apply special build flags only to CPPProcess.cc (AVXFLAGS)
 ###$(BUILDDIR)/CPPProcess.o: CXXFLAGS += $(AVXFLAGS)
 
-ifneq ($(shell $(CXX) --version | grep ^Intel),)
-$(cu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
-endif
-
+# Target (and build rules): CUDA and C++ shared libraries
 $(cu_lib): $(LIBDIR)/lib$(MODELLIB).so $(cu_objects) $(cucxx_objects)
 	$(NVCC) $< --shared -o $@ $(cu_objects) $(cucxx_objects)
 
 $(cxx_lib): $(LIBDIR)/lib$(MODELLIB).so $(cxx_objects) $(cucxx_objects)
 	$(CXX) $< -shared -o $@ $(cxx_objects) $(cucxx_objects)
+
+# Target (and build rules): CUDA and C++ standalone executables
+ifneq ($(shell $(CXX) --version | grep ^Intel),)
+$(cu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
+endif
 
 $(cu_main): $(BUILDDIR)/gcheck_sa.o $(cu_lib)
 	$(NVCC) $< -o $@ $(cu_lib) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
@@ -323,6 +317,9 @@ $(cu_main): $(BUILDDIR)/gcheck_sa.o $(cu_lib)
 $(cxx_main): $(BUILDDIR)/check_sa.o $(cxx_lib)
 	$(CXX) $< -o $@ $(cxx_lib) $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
+#-------------------------------------------------------------------------------
+
+# Target (and build rules): test objects and test executable
 $(BUILDDIR)/testxxx.o: $(GTESTLIBS)
 $(BUILDDIR)/testxxx.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
 $(BUILDDIR)/testxxx.o: testxxx_cc_ref.txt
@@ -368,12 +365,10 @@ ifneq ($(shell $(CXX) --version | grep ^clang),)
 $(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(shell which $(CXX) | tail -1))
 endif
 
-ifeq ($(NVCC),)
-# Link only runTest.o
+ifeq ($(NVCC),) # link only runTest.o
 $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
-else
-# Link both runTest.o and runTest_cu.o
+else # link both runTest.o and runTest_cu.o
 $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
@@ -381,9 +376,29 @@ endif
 $(GTESTLIBS):
 	$(MAKE) -C $(TESTDIR)
 
-check: $(testmain)
-	$(testmain)
+#-------------------------------------------------------------------------------
 
+# Target (and build rules): install libraries and headers (for use by MadEvent in Fortran)
+INSTALL_HEADERS=CPPProcess.h MatrixElementKernels.h MemoryBuffers.h checkCuda.h MemoryAccessMomenta.h MemoryAccessHelpers.h MemoryAccessVectors.h
+INSTALL_INC_DIR=../../include
+INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o MatrixElementKernels.o gMatrixElementKernels.o
+
+install: all.$(TAG) $(INSTALL_INC_DIR) $(addprefix $(INSTALL_INC_DIR)/, $(INSTALL_HEADERS)) $(addprefix $(LIBDIR)/, $(INSTALL_OBJECTS))
+
+$(INSTALL_INC_DIR) :
+	$(MAKE) -C ../../src install
+
+$(INSTALL_INC_DIR)/%.h : %.h
+	@if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
+	cp $< $@
+
+$(LIBDIR)/%.o : $(BUILDDIR)/%.o
+	cp $< $@
+
+#-------------------------------------------------------------------------------
+
+# Target: build all targets in all AVX modes (each AVX mode in a separate build directory)
+# Split the avxall target into five separate targets to allow parallel 'make -j avxall' builds
 avxnone:
 	@echo
 	make USEBUILDDIR=1 AVX=none
@@ -404,10 +419,10 @@ avx512z:
 	@echo
 	make USEBUILDDIR=1 AVX=512z
 
-# Split the avxall target into five separate targets to allow parallel "make -j" builds
 avxall: avxnone avxsse4 avxavx2 avx512y avx512z
 
-# Do not make this dependent on avxall and do not implement -j (do 'make avxall -j; make avxall-install' instead)
+# Target: install all targets in all AVX modes (each AVX mode in a separate build directory)
+# Do not make the avxall-install target dependent on avxall and do not implement -j (do 'make avxall -j; make avxall-install' instead)
 avxall-install:
 	@echo
 	make USEBUILDDIR=1 AVX=none install
@@ -420,6 +435,9 @@ avxall-install:
 	@echo
 	make USEBUILDDIR=1 AVX=512z install
 
+#-------------------------------------------------------------------------------
+
+# Target: clean the builds
 .PHONY: clean
 
 clean:
@@ -437,20 +455,14 @@ cleanall:
 	make USEBUILDDIR=0 -C ../../src cleanall
 	rm -rf build.*
 
+# Target: clean the builds as well as the googletest installation
 distclean: cleanall
 	make -C $(TOOLSDIR) clean
 	make -C $(TESTDIR) clean
 
-memcheck: $(cu_main)
-	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes $(BUILDDIR)/gcheck.exe 2 32 2
+#-------------------------------------------------------------------------------
 
-perf: force
-	make clean && make
-	time $(BUILDDIR)/gcheck.exe -p 16348 32 12 && date
-
-test: force
-	$(BUILDDIR)/gcheck.exe -v 1 32 1
-
+# Target: show system and compiler information
 info:
 	@hostname
 	@cat /proc/cpuinfo | grep "model name" | sort -u
@@ -477,7 +489,26 @@ else
 	$(CXX) --version
 endif
 
+#-------------------------------------------------------------------------------
+
+# Target: check (run the C++ test executable)
+check: $(testmain)
+	$(testmain)
+
+memcheck: $(cu_main)
+	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes $(BUILDDIR)/gcheck.exe 2 32 2
+
+perf: force
+	make clean && make
+	time $(BUILDDIR)/gcheck.exe -p 16348 32 12 && date
+
+# Target: check (run the C++ test executable)
+test: force
+	$(BUILDDIR)/gcheck.exe -v 1 32 1
+
 force:
+
+#-------------------------------------------------------------------------------
 
 #Allowed values for this option: 'compute_30', 'compute_32', 'compute_35', 'compute_37', 'compute_50', 'compute_52', 'compute_53', 'compute_60', 'compute_61', 'compute_62', 'compute_70', 'compute_72', 'compute_75', 'sm_30', 'sm_32', 'sm_35', 'sm_37', 'sm_50', 'sm_52', 'sm_53', 'sm_60', 'sm_61', 'sm_62', 'sm_70', 'sm_72', 'sm_75'.
 
