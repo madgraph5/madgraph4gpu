@@ -541,21 +541,22 @@ endif
 #-------------------------------------------------------------------------------
 
 # Target: check (run the C++ test executable)
+# [NB THIS IS WHAT IS USED IN THE GITHUB CI!]
 check: $(testmain)
-	$(testmain)
+	LD_LIBRARY_PATH="$(LIBDIR):$(LD_LIBRARY_PATH)" $(testmain)
 
 # Target: test (run the CUDA standalone executable with a small grid)
 test: force
-	$(BUILDDIR)/gcheck.exe -v 1 32 1
+	LD_LIBRARY_PATH="$(LIBDIR):$(LD_LIBRARY_PATH)" $(BUILDDIR)/gcheck.exe -v 1 32 1
 
 # Target: perf (run the CUDA standalone executable with a large grid)
 perf: force
 	make clean && make
-	time $(BUILDDIR)/gcheck.exe -p 16348 32 12 && date
+	LD_LIBRARY_PATH="$(LIBDIR):$(LD_LIBRARY_PATH)" time $(BUILDDIR)/gcheck.exe -p 16348 32 12 && date
 
 # Target: memcheck (run the CUDA standalone executable with a small grid through cuda-memcheck)
 memcheck: $(cu_main)
-	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes $(BUILDDIR)/gcheck.exe 2 32 2
+	LD_LIBRARY_PATH="$(LIBDIR):$(LD_LIBRARY_PATH)" /usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes $(BUILDDIR)/gcheck.exe 2 32 2
 
 force:
 
