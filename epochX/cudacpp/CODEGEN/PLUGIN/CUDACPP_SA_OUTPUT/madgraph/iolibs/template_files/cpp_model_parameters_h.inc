@@ -6,7 +6,9 @@
 #ifndef Parameters_%(model_name)s_H
 #define Parameters_%(model_name)s_H
 
-#include <complex>
+#include "mgOnGpuCxtypes.h"
+
+#ifndef MGONGPU_HARDCODE_CIPC
 
 #include "read_slha.h"
 
@@ -21,9 +23,9 @@ public:
 
   %(independent_parameters)s
 
-  %(dependent_parameters)s
-
   %(independent_couplings)s
+
+  %(dependent_parameters)s
 
   %(dependent_couplings)s
 
@@ -56,5 +58,53 @@ private:
   static Parameters_%(model_name)s* instance;
 
 };
+
+#else
+
+#include <limits>
+
+// Hardcoded constexpr physics parameters
+namespace Parameters_%(model_name)s // keep the same name rather than HardcodedParameters_%(model_name)s for simplicity
+{
+  // Constexpr implementation of sqrt (see https://stackoverflow.com/a/34134071)
+  double constexpr detailSqrtNewtonRaphson( double x, double curr, double prev )
+  {
+    return curr == prev ? curr : detailSqrtNewtonRaphson( x, 0.5 * ( curr + x / curr ), curr );
+  }
+  double constexpr sqrtNR(double x)
+  {
+    return x >= 0 && x < std::numeric_limits<double>::infinity()
+                         ? detailSqrtNewtonRaphson(x, x, 0)
+                         : std::numeric_limits<double>::quiet_NaN();
+  }
+
+  // Model parameters independent of aS
+  constexpr double zero = 0;
+  constexpr double ZERO = 0;
+  %(hardcoded_independent_parameters)s
+
+  // Model couplings independent of aS
+  %(hardcoded_independent_couplings)s
+
+  // Model parameters dependent on aS
+  %(hardcoded_dependent_parameters)s
+
+  // Model couplings dependent on aS
+  %(hardcoded_dependent_couplings)s
+
+  // Print parameters that are unchanged during the run
+  void printIndependentParameters();
+
+  // Print couplings that are unchanged during the run
+  void printIndependentCouplings();
+
+  // Print parameters that are changed event by event
+  void printDependentParameters();
+
+  // Print couplings that are changed event by event
+  void printDependentCouplings();
+}
+
+#endif
 
 #endif // Parameters_%(model_name)s_H

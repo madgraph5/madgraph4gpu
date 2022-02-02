@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set +x
+set +x # not verbose
+set -e # fail on error
 
 omp=0
 avxall=0
@@ -42,7 +43,7 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-nocpp" ]; then
     if [ "${omp}" == "1" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
     if [ "${avxall}" == "1" ]; then echo "ERROR! Options -avxall and -nocpp are incompatible"; usage; fi
-    if [ "${cuda}" == "1" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
+    if [ "${cuda}" == "0" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
     cpp=0
     shift
   elif [ "$1" == "-ep2" ]; then
@@ -206,6 +207,7 @@ function runExe() {
   pattern="${pattern}|CUCOMPLEX"
   pattern="${pattern}|COMMON RANDOM"
   pattern="${pattern}|ERROR"
+  pattern="${pattern}|WARNING"
   if [ "${ab3}" == "1" ]; then pattern="${pattern}|3a|3b"; fi
   if [ "${req}" == "1" ]; then pattern="${pattern}|memory layout"; fi
   if perf --version >& /dev/null; then

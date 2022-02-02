@@ -1,21 +1,28 @@
 #ifndef MGONGPUVECTORS_H
 #define MGONGPUVECTORS_H 1
 
+#include "mgOnGpuFptypes.h"
+#include "mgOnGpuCxtypes.h"
+
 #include <iostream>
+
+//==========================================================================
 
 //------------------------------
 // Vector types - C++
 //------------------------------
 
-#ifndef __CUDACC__
-
-#include "mgOnGpuTypes.h"
-
 namespace mgOnGpu
 {
 #ifdef MGONGPU_CPPSIMD
 
-  const int neppV = neppM;
+  const int neppV = MGONGPU_CPPSIMD;
+
+  // SANITY CHECK: cppAlign must be a multiple of neppV * sizeof(fptype)
+  static_assert( mgOnGpu::cppAlign % ( neppV * sizeof(fptype) ) == 0 );
+
+  // SANITY CHECK: check that neppV is a power of two
+  static_assert( ispoweroftwo( neppV ), "neppV is not a power of 2" );
 
   // --- Type definition (using vector compiler extensions: need -march=...)
 #ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
@@ -28,48 +35,34 @@ namespace mgOnGpu
   // If set: return a pair of (fptype&, fptype&) by non-const reference in cxtype_v::operator[]
   // This is forbidden in clang ("non-const reference cannot bind to vector element")
   // See also https://stackoverflow.com/questions/26554829
-  //#define MGONGPU_HAS_CXTYPE_REF 1 // clang test (compilation fails also on clang 12.0, issue #182)
-#undef MGONGPU_HAS_CXTYPE_REF // clang default
+  //#define MGONGPU_HAS_CPPCXTYPEV_BRK 1 // clang test (compilation fails also on clang 12.0, issue #182)
+#undef MGONGPU_HAS_CPPCXTYPEV_BRK // clang default
 #elif defined __INTEL_COMPILER
-  //#define MGONGPU_HAS_CXTYPE_REF 1 // icc default?
-#undef MGONGPU_HAS_CXTYPE_REF // icc test
+  //#define MGONGPU_HAS_CPPCXTYPEV_BRK 1 // icc default?
+#undef MGONGPU_HAS_CPPCXTYPEV_BRK // icc test
 #else
-#define MGONGPU_HAS_CXTYPE_REF 1 // gcc default
-  //#undef MGONGPU_HAS_CXTYPE_REF // gcc test (very slightly slower? issue #172)
-#endif
-
-#ifdef MGONGPU_HAS_CXTYPE_REF
-  // NB: the alternative "clang" implementation is simpler: it simply does not have class cxtype_ref
-  class cxtype_ref
-  {
-  public:
-    cxtype_ref() = delete;
-    cxtype_ref( const cxtype_ref& ) = delete;
-    cxtype_ref( cxtype_ref&& ) = default;
-    cxtype_ref( fptype& r, fptype& i ) : m_real{r}, m_imag{i} {}
-    cxtype_ref& operator=( const cxtype_ref& ) = delete;
-    cxtype_ref& operator=( cxtype_ref&& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // for cxternary
-    cxtype_ref& operator=( const cxtype& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; }
-    operator cxtype() const { return cxmake( m_real, m_imag ); }
-  private:
-    fptype &m_real, &m_imag; // RI
-  };
+#define MGONGPU_HAS_CPPCXTYPEV_BRK 1 // gcc default
+  //#undef MGONGPU_HAS_CPPCXTYPEV_BRK // gcc test (very slightly slower? issue #172)
 #endif
 
   // --- Type definition (using vector compiler extensions: need -march=...)
   class cxtype_v // no need for "class alignas(2*sizeof(fptype_v)) cxtype_v"
   {
   public:
-    cxtype_v() : m_real{0}, m_imag{0} {}
+    // Array initialization: zero-out as "{0}" (C and C++) or as "{}" (C++ only)
+    // See https://en.cppreference.com/w/c/language/array_initialization#Notes
+    cxtype_v() : m_real{0}, m_imag{0} {} // RRRR=0000 IIII=0000
     cxtype_v( const cxtype_v&  ) = default;
     cxtype_v( cxtype_v&&  ) = default;
-    cxtype_v( const fptype_v& r, const fptype_v& i ) : m_real{r}, m_imag{i} {}
+    cxtype_v( const fptype_v& r, const fptype_v& i ) : m_real(r), m_imag(i) {}
+    cxtype_v( const fptype_v& r ) : m_real(r), m_imag{0} {} // IIII=0000
     cxtype_v& operator=( const cxtype_v& ) = default;
     cxtype_v& operator=( cxtype_v&& ) = default;
     cxtype_v& operator+=( const cxtype_v& c ){ m_real += c.real(); m_imag += c.imag(); return *this; }
     cxtype_v& operator-=( const cxtype_v& c ){ m_real -= c.real(); m_imag -= c.imag(); return *this; }
-#ifdef MGONGPU_HAS_CXTYPE_REF
-    // NB: the alternative "clang" implementation is simpler: it simply does not have any operator[]
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
+    // NB: THIS IS THE FUNDAMENTAL DIFFERENCE BETWEEN MGONGPU_HAS_CPPCXTYPEV_BRK DEFINED AND NOT DEFINED
+    // NB: the alternative "clang" implementation is simpler: it simply does not have any bracket operator[]
     // NB: ** do NOT implement operator[] to return a value: it does not fail the build (why?) and gives unexpected results! **
     cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); }
 #endif
@@ -94,12 +87,14 @@ namespace mgOnGpu
 #endif
 #endif
 
-#else // MGONGPU_CPPSIMD not defined
+#else // i.e #ifndef MGONGPU_CPPSIMD (this includes #ifdef __CUDACC__)
 
-  const int neppV = 1; // Note: also neppM is equal to 1
+  const int neppV = 1;
 
-#endif
+#endif // #ifdef MGONGPU_CPPSIMD
 }
+
+//--------------------------------------------------------------------------
 
 // Expose typedefs outside the namespace
 using mgOnGpu::neppV;
@@ -109,48 +104,63 @@ using mgOnGpu::cxtype_v;
 using mgOnGpu::bool_v;
 #endif
 
+//--------------------------------------------------------------------------
+
+#ifndef __CUDACC__
+
 // Printout to stream for user defined types
-#ifdef MGONGPU_CPPSIMD
-inline std::ostream& operator<<( std::ostream& out, const bool_v& v )
-{
-  out << "{ " << v[0];
-  for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
-  out << " }";
-  return out;
-}
 
-inline std::ostream& operator<<( std::ostream& out, const fptype_v& v )
-{
-  out << "{ " << v[0];
-  for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
-  out << " }";
-  return out;
-}
-#endif
-
+#ifndef MGONGPU_CPPCXTYPE_CXSMPL // operator<< for cxsmpl has already been defined!
 inline std::ostream& operator<<( std::ostream& out, const cxtype& c )
 {
   out << "[" << cxreal(c) << "," << cximag(c) << "]";
   //out << cxreal(c) << "+i" << cximag(c);
   return out;
 }
+#endif
+
+/*
+#ifdef MGONGPU_CPPSIMD
+inline std::ostream& operator<<( std::ostream& out, const bool_v& v )
+{
+  out << "{ " << v[0];
+  for ( int i=1; i<neppV; i++ ) out << ", " << (bool)(v[i]);
+  out << " }";
+  return out;
+}
+#endif
+*/
+
+#ifdef MGONGPU_CPPSIMD
+inline std::ostream& operator<<( std::ostream& out, const fptype_v& v )
+{
+  out << "{ " << v[0];
+  for ( int i=1; i<neppV; i++ ) out << ", " << v[i];
+  out << " }";
+  return out;
+}
+#endif
 
 #ifdef MGONGPU_CPPSIMD
 inline std::ostream& operator<<( std::ostream& out, const cxtype_v& v )
 {
-#ifdef MGONGPU_HAS_CXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
   out << "{ " << v[0];
-  for ( int i=1; i<neppV; i++ ) std::cout << ", " << v[i];
+  for ( int i=1; i<neppV; i++ ) out << ", " << v[i];
 #else
   out << "{ " << cxmake( v.real()[0], v.imag()[0] );
-  for ( int i=1; i<neppV; i++ ) std::cout << ", " << cxmake( v.real()[i], v.imag()[i] );
+  for ( int i=1; i<neppV; i++ ) out << ", " << cxmake( v.real()[i], v.imag()[i] );
 #endif
   out << " }";
   return out;
 }
 #endif
 
+//--------------------------------------------------------------------------
+
+/*
 // Printout to std::cout for user defined types
+
 inline void print( const fptype& f ) { std::cout << f << std::endl; }
 
 #ifdef MGONGPU_CPPSIMD
@@ -162,8 +172,12 @@ inline void print( const cxtype& c ) { std::cout << c << std::endl; }
 #ifdef MGONGPU_CPPSIMD
 inline void print( const cxtype_v& v ) { std::cout << v << std::endl; }
 #endif
+*/
 
-// Operators for fptype_v
+//--------------------------------------------------------------------------
+
+// Functions and operators for fptype_v
+
 #ifdef MGONGPU_CPPSIMD
 inline
 fptype_v fpsqrt( const fptype_v& v )
@@ -173,8 +187,10 @@ fptype_v fpsqrt( const fptype_v& v )
   for ( int i=0; i<neppV; i++ ) out[i]=fpsqrt(v[i]);
   return out;
 }
+#endif
 
 /*
+#ifdef MGONGPU_CPPSIMD
 inline
 fptype_v fpvmake( const fptype v[neppV] )
 {
@@ -182,11 +198,15 @@ fptype_v fpvmake( const fptype v[neppV] )
   for ( int i=0; i<neppV; i++ ) out[i] = v[i];
   return out;
 }
-*/
 #endif
+*/
 
-// Operators for cxtype_v
+//--------------------------------------------------------------------------
+
+// Functions and operators for cxtype_v
+
 #ifdef MGONGPU_CPPSIMD
+
 /*
 inline
 cxtype_v cxvmake( const cxtype c )
@@ -200,19 +220,21 @@ cxtype_v cxvmake( const cxtype c )
 inline
 cxtype_v cxmake( const fptype_v& r, const fptype_v& i )
 {
-  return cxtype_v{ r, i };
+  return cxtype_v( r, i );
 }
 
 inline
 cxtype_v cxmake( const fptype_v& r, const fptype& i )
 {
-  return cxtype_v{ r, fptype_v{i} };
+  //return cxtype_v( r, fptype_v{i} ); // THIS WAS A BUG! #339
+  return cxtype_v( r, fptype_v{0} + i ); // IIII=0000+i=iiii
 }
 
 inline
 cxtype_v cxmake( const fptype& r, const fptype_v& i )
 {
-  return cxtype_v{ fptype_v{r}, i };
+  //return cxtype_v( fptype_v{r}, i ); // THIS WAS A BUG! #339
+  return cxtype_v( fptype_v{0} + r, i ); // IIII=0000+r=rrrr
 }
 
 inline
@@ -230,25 +252,25 @@ const fptype_v& cximag( const cxtype_v& c )
 inline
 const cxtype_v cxconj( const cxtype_v& c )
 {
-  return cxmake( c.real(), -c.imag() );
+  return cxtype_v( c.real(), -c.imag() );
 }
 
 inline
 cxtype_v operator+( const cxtype_v& a, const cxtype_v& b )
 {
-  return cxmake( a.real() + b.real(), a.imag() + b.imag() );
+  return cxtype_v( a.real() + b.real(), a.imag() + b.imag() );
 }
 
 inline
 cxtype_v operator+( const fptype_v& a, const cxtype_v& b )
 {
-  return cxmake( a + b.real(), b.imag() );
+  return cxtype_v( a + b.real(), b.imag() );
 }
 
 inline
 cxtype_v operator+( const cxtype_v& a, const fptype_v& b )
 {
-  return cxmake( a.real() + b, a.imag() );
+  return cxtype_v( a.real() + b, a.imag() );
 }
 
 inline
@@ -260,13 +282,13 @@ const cxtype_v& operator+( const cxtype_v& a )
 inline
 cxtype_v operator-( const cxtype_v& a, const cxtype_v& b )
 {
-  return cxmake( a.real() - b.real(), a.imag() - b.imag() );
+  return cxtype_v( a.real() - b.real(), a.imag() - b.imag() );
 }
 
 inline
 cxtype_v operator-( const fptype& a, const cxtype_v& b )
 {
-  return cxmake( a - b.real(), - b.imag() );
+  return cxtype_v( a - b.real(), - b.imag() );
 }
 
 inline
@@ -278,120 +300,122 @@ cxtype_v operator-( const cxtype_v& a )
 inline
 cxtype_v operator-( const cxtype_v& a, const fptype& b )
 {
-  return cxmake( a.real() - b, a.imag() );
+  return cxtype_v( a.real() - b, a.imag() );
 }
 
 inline
 cxtype_v operator-( const fptype_v& a, const cxtype_v& b )
 {
-  return cxmake( a - b.real(), - b.imag() );
+  return cxtype_v( a - b.real(), - b.imag() );
 }
 
 inline
 cxtype_v operator-( const cxtype_v& a, const fptype_v& b )
 {
-  return cxmake( a.real() - b, a.imag() );
+  return cxtype_v( a.real() - b, a.imag() );
 }
 
 inline
 cxtype_v operator-( const fptype_v& a, const cxtype& b )
 {
-  return cxmake( a - b.real(), fptype_v{0} - b.imag() );
+  return cxtype_v( a - b.real(), fptype_v{0} - b.imag() ); // IIII=0000-b.imag()
 }
 
 inline
 cxtype_v operator*( const cxtype_v& a, const cxtype_v& b )
 {
-  return cxmake( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
+  return cxtype_v( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
 }
 
 inline
 cxtype_v operator*( const cxtype& a, const cxtype_v& b )
 {
-  return cxmake( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
+  return cxtype_v( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
 }
 
 inline
 cxtype_v operator*( const cxtype_v& a, const cxtype& b )
 {
-  return cxmake( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
+  return cxtype_v( a.real() * b.real() - a.imag() * b.imag(), a.imag() * b.real() + a.real() * b.imag() );
 }
 
 inline
 cxtype_v operator*( const fptype& a, const cxtype_v& b )
 {
-  return cxmake( a * b.real(), a * b.imag() );
+  return cxtype_v( a * b.real(), a * b.imag() );
 }
 
 inline
 cxtype_v operator*( const cxtype_v& a, const fptype& b )
 {
-  return cxmake( a.real() * b, a.imag() * b );
+  return cxtype_v( a.real() * b, a.imag() * b );
 }
 
 inline
 cxtype_v operator*( const fptype_v& a, const cxtype_v& b )
 {
-  return cxmake( a * b.real(), a * b.imag() );
+  return cxtype_v( a * b.real(), a * b.imag() );
 }
 
 inline
 cxtype_v operator*( const cxtype_v& a, const fptype_v& b )
 {
-  return cxmake( a.real() * b, a.imag() * b );
+  return cxtype_v( a.real() * b, a.imag() * b );
 }
 
 inline
 cxtype_v operator*( const fptype_v& a, const cxtype& b )
 {
-  return cxmake( a * b.real(), a * b.imag() );
+  return cxtype_v( a * b.real(), a * b.imag() );
 }
 
 inline
 cxtype_v operator*( const cxtype& a, const fptype_v& b )
 {
-  return cxmake( a.real() * b, a.imag() * b );
+  return cxtype_v( a.real() * b, a.imag() * b );
 }
 
 inline
 cxtype_v operator/( const cxtype_v& a, const cxtype_v& b )
 {
   fptype_v bnorm = b.real()*b.real() + b.imag()*b.imag();
-  return cxmake( ( a.real() * b.real() + a.imag() * b.imag() ) / bnorm,
-                 ( a.imag() * b.real() - a.real() * b.imag() ) / bnorm );
+  return cxtype_v( ( a.real() * b.real() + a.imag() * b.imag() ) / bnorm,
+                   ( a.imag() * b.real() - a.real() * b.imag() ) / bnorm );
 }
 
 inline
 cxtype_v operator/( const cxtype& a, const cxtype_v& b )
 {
   fptype_v bnorm = b.real()*b.real() + b.imag()*b.imag();
-  return cxmake( ( cxreal( a ) * b.real() + cximag( a ) * b.imag() ) / bnorm,
-                 ( cximag( a ) * b.real() - cxreal( a ) * b.imag() ) / bnorm );
+  return cxtype_v( ( cxreal( a ) * b.real() + cximag( a ) * b.imag() ) / bnorm,
+                   ( cximag( a ) * b.real() - cxreal( a ) * b.imag() ) / bnorm );
 }
 
-/*
 inline
 cxtype_v operator/( const fptype& a, const cxtype_v& b )
 {
   fptype_v bnorm = b.real()*b.real() + b.imag()*b.imag();
-  return cxmake( ( a * b.real() ) / bnorm, ( - a * b.imag() ) / bnorm );
+  return cxtype_v( ( a * b.real() ) / bnorm, ( - a * b.imag() ) / bnorm );
 }
-*/
 
 inline
 cxtype_v operator/( const cxtype_v& a, const fptype_v& b )
 {
-  return cxmake( a.real() / b, a.imag() / b );
+  return cxtype_v( a.real() / b, a.imag() / b );
 }
 
 inline
 cxtype_v operator/( const cxtype_v& a, const fptype& b )
 {
-  return cxmake( a.real() / b, a.imag() / b );
+  return cxtype_v( a.real() / b, a.imag() / b );
 }
-#endif
 
-// Operators for bool_v
+#endif // #ifdef MGONGPU_CPPSIMD
+
+//--------------------------------------------------------------------------
+
+// Functions and operators for bool_v (ternary and masks)
+
 #ifdef MGONGPU_CPPSIMD
 
 inline
@@ -429,7 +453,7 @@ fptype_v fpternary( const bool_v& mask, const fptype& a, const fptype& b )
 inline
 cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype_v& b )
 {
-#ifdef MGONGPU_HAS_CXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
   cxtype_v out;
   for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a[i] : b[i] );
   return out;
@@ -440,14 +464,14 @@ cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype_v& b )
     outr[i] = ( mask[i] ? a.real()[i] : b.real()[i] );
     outi[i] = ( mask[i] ? a.imag()[i] : b.imag()[i] );
   }
-  return cxmake( outr, outi );
+  return cxtype_v( outr, outi );
 #endif
 }
 
 inline
 cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype& b )
 {
-#ifdef MGONGPU_HAS_CXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
   cxtype_v out;
   for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a[i] : b );
   return out;
@@ -458,14 +482,14 @@ cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype& b )
     outr[i] = ( mask[i] ? a.real()[i] : b.real() );
     outi[i] = ( mask[i] ? a.imag()[i] : b.imag() );
   }
-  return cxmake( outr, outi );
+  return cxtype_v( outr, outi );
 #endif
 }
 
 inline
 cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype_v& b )
 {
-#ifdef MGONGPU_HAS_CXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
   cxtype_v out;
   for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a : b[i] );
   return out;
@@ -476,14 +500,14 @@ cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype_v& b )
     outr[i] = ( mask[i] ? a.real() : b.real()[i] );
     outi[i] = ( mask[i] ? a.imag() : b.imag()[i] );
   }
-  return cxmake( outr, outi );
+  return cxtype_v( outr, outi );
 #endif
 }
 
 inline
 cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype& b )
 {
-#ifdef MGONGPU_HAS_CXTYPE_REF
+#ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
   cxtype_v out;
   for ( int i=0; i<neppV; i++ ) out[i] = ( mask[i] ? a : b );
   return out;
@@ -494,9 +518,49 @@ cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype& b )
     outr[i] = ( mask[i] ? a.real() : b.real() );
     outi[i] = ( mask[i] ? a.imag() : b.imag() );
   }
-  return cxmake( outr, outi );
+  return cxtype_v( outr, outi );
 #endif
 }
+
+/*
+inline
+bool maskor( const bool_v& mask )
+{
+  bool out = false;
+  for ( int i=0; i<neppV; i++ ) out = out || mask[i];
+  return out;
+}
+*/
+
+#else // i.e. #ifndef MGONGPU_CPPSIMD
+
+inline
+fptype fpternary( const bool& mask, const fptype& a, const fptype& b )
+{
+  return ( mask ? a : b );
+}
+
+inline
+cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
+{
+  return ( mask ? a : b );
+}
+
+/*
+inline
+bool maskor( const bool& mask )
+{
+  return mask;
+}
+*/
+
+#endif // #ifdef MGONGPU_CPPSIMD
+
+//--------------------------------------------------------------------------
+
+// Functions and operators for fptype_v (min/max)
+
+#ifdef MGONGPU_CPPSIMD
 
 inline
 fptype_v fpmax( const fptype_v& a, const fptype_v& b )
@@ -538,48 +602,24 @@ fptype_v fpmin( const fptype& a, const fptype_v& b )
 }
 */
 
-inline
-bool maskor( const bool_v& mask )
-{
-  bool out = false;
-  for ( int i=0; i<neppV; i++ ) out = out || mask[i];
-  return out;
-}
+#endif // #ifdef MGONGPU_CPPSIMD
 
-#else
+#endif // #ifndef __CUDACC__
 
-inline
-fptype fpternary( const bool& mask, const fptype& a, const fptype& b )
-{
-  return ( mask ? a : b );
-}
+//==========================================================================
 
-inline
-cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
-{
-  return ( mask ? a : b );
-}
-
-inline
-bool maskor( const bool& mask )
-{
-  return mask;
-}
-
-#endif
+#ifdef __CUDACC__
 
 //------------------------------
 // Vector types - CUDA
 //------------------------------
 
-#else
-
 // Printout to std::cout for user defined types
-inline __device__ void print( const fptype& f ){ printf( "%f\n", f ); }
-inline __device__ void print( const cxtype& c ){ printf( "[%f, %f]\n", cxreal(c), cximag(c) ); }
+inline __host__ __device__ void print( const fptype& f ){ printf( "%f\n", f ); }
+inline __host__ __device__ void print( const cxtype& c ){ printf( "[%f, %f]\n", cxreal(c), cximag(c) ); }
 
 /*
-inline __device__
+inline __host__ __device__
 const cxtype& cxvmake( const cxtype& c )
 {
   return c;
@@ -598,9 +638,9 @@ cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
   return ( mask ? a : b );
 }
 
-#endif
+#endif // #ifdef __CUDACC__
 
-//--------------------------------------------------------------------------
+//==========================================================================
 
 // Scalar-or-vector types: scalar in CUDA, vector or scalar in C++
 #ifdef __CUDACC__
@@ -619,13 +659,13 @@ typedef cxtype cxtype_sv;
 
 // Scalar-or-vector zeros: scalar in CUDA, vector or scalar in C++
 #ifdef __CUDACC__
-inline __device__ cxtype cxzero_sv(){ return cxmake( 0, 0 ); }
+inline __host__ __device__ cxtype cxzero_sv(){ return cxtype( 0, 0 ); }
 #elif defined MGONGPU_CPPSIMD
-inline cxtype_v cxzero_sv(){ return cxtype_v{ fptype_v{0}, fptype_v{0} }; }
+inline cxtype_v cxzero_sv(){ return cxtype_v(); } // RRRR=0000 IIII=0000
 #else
-inline cxtype cxzero_sv(){ return cxtype{ fptype{0}, fptype{0} }; }
+inline cxtype cxzero_sv(){ return cxtype( 0, 0 ); }
 #endif
 
-//--------------------------------------------------------------------------
+//==========================================================================
 
 #endif // MGONGPUVECTORS_H

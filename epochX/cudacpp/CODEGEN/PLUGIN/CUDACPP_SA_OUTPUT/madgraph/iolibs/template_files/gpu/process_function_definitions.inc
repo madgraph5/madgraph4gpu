@@ -3,9 +3,9 @@
 %(process_lines)s
 
 #ifdef __CUDACC__
-namespace gProc
+namespace mg5amcGpu
 #else
-namespace Proc
+namespace mg5amcCpu
 #endif
 {
   using mgOnGpu::np4; // dimensions of 4-momenta (E,px,py,pz)
@@ -19,14 +19,16 @@ namespace Proc
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
-  //constexpr fptype cIPC[%(ncouplingstimes2)i] = { ... };
-  //constexpr fptype cIPD[%(nparams)i] = { ... };
+#ifdef MGONGPU_HARDCODE_CIPC
+  %(assign_hardcoded_coupling)s
+#else
 #ifdef __CUDACC__
   __device__ __constant__ fptype cIPC[%(ncouplingstimes2)i];
   __device__ __constant__ fptype cIPD[%(nparams)i];
 #else
   static fptype cIPC[%(ncouplingstimes2)i];
   static fptype cIPD[%(nparams)i];
+#endif
 #endif
 
   // Helicity combinations (and filtering of "good" helicity combinations)
@@ -54,7 +56,9 @@ namespace Proc
     , m_ngputhreads( ngputhreads )
     , m_verbose( verbose )
     , m_debug( debug )
+#ifndef MGONGPU_HARDCODE_CIPC
     , m_pars( 0 )
+#endif
     , m_masses()
   {
     // Helicities for the process [NB do keep 'static' for this constexpr array, see issue #283]
@@ -64,12 +68,6 @@ namespace Proc
 #else
     memcpy( cHel, tHel, ncomb * mgOnGpu::npar * sizeof(short) );
 #endif
-    // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
-    assert( sizeof(cxtype) == 2 * sizeof(fptype) );
-#ifndef __CUDACC__
-    // SANITY CHECK: momenta AOSOA uses vectors with the same size as fptype_v
-    assert( neppV == mgOnGpu::neppM );
-#endif
   }
 
   //--------------------------------------------------------------------------
@@ -78,24 +76,25 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  // Initialize process
+#ifndef MGONGPU_HARDCODE_CIPC
+  // Initialize process (with parameters read from user cards)
   void CPPProcess::initProc( const std::string& param_card_name )
   {
     // Instantiate the model class and set parameters that stay fixed during run
-    m_pars = Parameters_sm::getInstance();
+    m_pars = Parameters_%(model_name)s::getInstance();
     SLHAReader slha( param_card_name, m_verbose );
     m_pars->setIndependentParameters( slha );
     m_pars->setIndependentCouplings();
+    m_pars->setDependentParameters();
+    m_pars->setDependentCouplings();
     if ( m_verbose )
     {
       m_pars->printIndependentParameters();
       m_pars->printIndependentCouplings();
+      m_pars->printDependentParameters();
+      m_pars->printDependentCouplings();
     }
-    m_pars->setDependentParameters();
-    m_pars->setDependentCouplings();
-
     %(initProc_lines)s
-
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     %(assign_coupling)s
@@ -106,13 +105,28 @@ namespace Proc
     memcpy( cIPC, tIPC, %(ncouplings)i * sizeof(cxtype) );
     memcpy( cIPD, tIPD, %(nparams)i * sizeof(fptype) );
 #endif
-
-    //std::cout << std::setprecision(17) << "tIPC[0] = " << tIPC[0] << std::endl;
-    //std::cout << std::setprecision(17) << "tIPC[1] = " << tIPC[1] << std::endl;
-    //std::cout << std::setprecision(17) << "tIPC[2] = " << tIPC[2] << std::endl;
-    //std::cout << std::setprecision(17) << "tIPD[0] = " << tIPD[0] << std::endl;
-    //std::cout << std::setprecision(17) << "tIPD[1] = " << tIPD[1] << std::endl;
+    //for ( i=0; i<3; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;
+    //for ( i=0; i<2; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
   }
+#else
+  // Initialize process (with hardcoded parameters)
+  void CPPProcess::initProc( const std::string& /*param_card_name*/ )
+  {
+    // Use hardcoded physics parameters
+    if ( m_verbose )
+    {
+      Parameters_%(model_name)s::printIndependentParameters();
+      Parameters_%(model_name)s::printIndependentCouplings();
+      Parameters_%(model_name)s::printDependentParameters();
+      Parameters_%(model_name)s::printDependentCouplings();
+    }
+    // Set external particle masses for this matrix element
+    m_masses.push_back( Parameters_%(model_name)s::ZERO );
+    m_masses.push_back( Parameters_%(model_name)s::ZERO );
+    m_masses.push_back( Parameters_%(model_name)s::ZERO );
+    m_masses.push_back( Parameters_%(model_name)s::ZERO );
+  }
+#endif
 
   //--------------------------------------------------------------------------
 
@@ -121,7 +135,10 @@ namespace Proc
   {
     std::stringstream out;
     // CUDA version (NVCC)
-#ifdef __CUDACC__
+    // [Use __NVCC__ instead of __CUDACC__ here!]
+    // [This tests if 'nvcc' was used even to build a .cc file, even if not necessarily 'nvcc -x cu' for a .cu file]
+    // [Check 'nvcc --compiler-options -dM -E dummy.c | grep CUDA': see https://stackoverflow.com/a/53713712]
+#ifdef __NVCC__
 #if defined __CUDACC_VER_MAJOR__ && defined __CUDACC_VER_MINOR__ && defined __CUDACC_VER_BUILD__
     out << "nvcc " << __CUDACC_VER_MAJOR__ << "." << __CUDACC_VER_MINOR__ << "." << __CUDACC_VER_BUILD__;
 #else
@@ -133,7 +150,12 @@ namespace Proc
 #if defined __INTEL_COMPILER
 #error "icc is no longer supported: please use icx"
 #elif defined __INTEL_LLVM_COMPILER // alternative: __INTEL_CLANG_COMPILER
-    out << "icx " << __INTEL_LLVM_COMPILER << " (";
+    out << "icx " << __INTEL_LLVM_COMPILER;
+#ifdef __NVCC__
+    out << ", ";
+#else
+    out << " (";
+#endif
 #endif
     // CLANG version (either as CXX or as host compiler inside NVCC or inside ICX)
 #if defined __clang__
@@ -147,7 +169,7 @@ namespace Proc
     std::array<char, 128> tchainbuf;
     while ( fgets( tchainbuf.data(), tchainbuf.size(), tchainpipe.get() ) != nullptr ) tchainout += tchainbuf.data();
     tchainout.pop_back(); // remove trailing newline
-#if defined __CUDACC__ or defined __INTEL_LLVM_COMPILER
+#if defined __NVCC__ or defined __INTEL_LLVM_COMPILER
     out << ", gcc " << tchainout;
 #else
     out << " (gcc " << tchainout << ")";
@@ -163,7 +185,7 @@ namespace Proc
     out << "gcc UNKNOWKN";
 #endif
 #endif
-#if defined __CUDACC__ or defined __INTEL_LLVM_COMPILER
+#if defined __NVCC__ or defined __INTEL_LLVM_COMPILER
     out << ")";
 #endif
     return out.str();
@@ -173,9 +195,9 @@ namespace Proc
 
 #ifdef __CUDACC__
   __global__
-  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            fptype_sv* allMEs,           // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
-                            bool* isGoodHel )            // output: isGoodHel[ncomb] - device array
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                            bool* isGoodHel )         // output: isGoodHel[ncomb] - device array
   {
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
@@ -193,33 +215,35 @@ namespace Proc
     }
   }
 #else
-  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            fptype_sv* allMEs,           // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
-                            bool* isGoodHel              // output: isGoodHel[ncomb] - device array
-                            , const int nevt )           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                            bool* isGoodHel           // output: isGoodHel[ncomb] - device array
+                            , const int nevt )        // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
+    //assert( (size_t)(allmomenta) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
+    //assert( (size_t)(allMEs) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
     const int maxtry0 = ( neppV > 16 ? neppV : 16 ); // 16, but at least neppV (otherwise the npagV loop does not even start)
-    fptype_sv allMEsLast[maxtry0/neppV] = { 0 };
+    fptype allMEsLast[maxtry0] = {0}; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
     const int maxtry = std::min( maxtry0, nevt ); // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
-    for ( int ipagV = 0; ipagV < maxtry/neppV; ++ipagV )
+    for ( int ievt = 0; ievt < maxtry; ++ievt )
     {
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-      allMEs[ipagV] = fptype_sv{0}; // all zeros
+      allMEs[ievt] = 0; // all zeros
     }
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
       calculate_wavefunctions( ihel, allmomenta, allMEs, maxtry );
-      for ( int ipagV = 0; ipagV < maxtry/neppV; ++ipagV )
+      for ( int ievt = 0; ievt < maxtry; ++ievt )
       {
         // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-        const bool differs = maskor( allMEs[ipagV] != allMEsLast[ipagV] ); // true if any of the neppV events differs
+        const bool differs = ( allMEs[ievt] != allMEsLast[ievt] );
         if ( differs )
         {
           //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
           isGoodHel[ihel] = true;
         }
-        allMEsLast[ipagV] = allMEs[ipagV]; // running sum up to helicity ihel
+        allMEsLast[ievt] = allMEs[ievt]; // running sum up to helicity ihel
       }
     }
   }
@@ -230,7 +254,7 @@ namespace Proc
   void sigmaKin_setGoodHel( const bool* isGoodHel ) // input: isGoodHel[ncomb] - host array
   {
     int nGoodHel = 0; // FIXME: assume process.nprocesses == 1 for the moment (eventually nGoodHel[nprocesses]?)
-    int goodHel[ncomb] = { 0 };
+    int goodHel[ncomb] = {0}; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       //std::cout << "sigmaKin_setGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
@@ -256,10 +280,10 @@ namespace Proc
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
   __global__
-  void sigmaKin( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                 fptype_sv* allMEs            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
+  void sigmaKin( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                 fptype* allMEs            // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifndef __CUDACC__
-                 , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                  )
   {
@@ -277,16 +301,13 @@ namespace Proc
     // Remember: in CUDA this is a kernel for one event, in c++ this processes n events
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "sigmakin: ievt %%d\n", ievt );
+#else
+    //assert( (size_t)(allmomenta) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
+    //assert( (size_t)(allMEs) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
 #endif
 
     // Start sigmaKin_lines
 %(sigmaKin_lines)s
 } // end namespace
-
-//==========================================================================
-
-// This was initially added to both C++ and CUDA in order to avoid RDC in CUDA (issue #51)
-// This is now also needed by C++ LTO-like optimizations via inlining (issue #229)
-%(hel_amps_cc)s
 
 //==========================================================================

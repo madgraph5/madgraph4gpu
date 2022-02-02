@@ -2,12 +2,13 @@
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called %(process_class_name)s::matrix_%(proc_name)s(%(matrix_args)s)?)
 
-      // The color matrix [NB do keep 'static' for these constexpr arrays, see issue #283]
+      // The color matrix (initialize all array elements, with ncolor=1)
+      // [NB do keep 'static' for these constexpr arrays, see issue #283]
 %(color_matrix_lines)s
 
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
-      fptype_sv deltaMEs = { 0 }; // all zeros
+      fptype_sv deltaMEs = {0}; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
       for( int icol = 0; icol < ncolor; icol++ )
       {
         cxtype_sv ztemp_sv = cxzero_sv();
@@ -28,13 +29,27 @@
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       allMEs[ievt] += deltaMEs;
-      //printf( "calculate_wavefunction: %%6d %%2d %%f\n", ievt, ihel, allMEs[ievt] );
+      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %%6d %%2d %%f\n", ievt, ihel, allMEs[ievt] );
+#else
+#ifdef MGONGPU_CPPSIMD
+      if ( isAligned_allMEs )
+      {
+        *reinterpret_cast<fptype_sv*>( &( allMEs[ipagV*neppV] ) ) += deltaMEs;
+      }
+      else
+      {
+        for ( int ieppV=0; ieppV<neppV; ieppV++ )
+          allMEs[ipagV*neppV + ieppV] += deltaMEs[ieppV];
+      }
+      //if ( cNGoodHel > 0 )
+      //  for ( int ieppV=0; ieppV<neppV; ieppV++ )
+      //    printf( "calculate_wavefunction: %%6d %%2d %%f\n", ipagV*neppV+ieppV, ihel, allMEs[ipagV][ieppV] );
 #else
       allMEs[ipagV] += deltaMEs;
-      //printf( "calculate_wavefunction: %%6d %%2d %%f\n", ipagV, ihel, allMEs[ipagV] ); // FIXME for MGONGPU_CPPSIMD
+      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %%6d %%2d %%f\n", ipagV, ihel, allMEs[ipagV] );
+#endif
 #endif
     }
-
     mgDebug( 1, __FUNCTION__ );
     return;
   }

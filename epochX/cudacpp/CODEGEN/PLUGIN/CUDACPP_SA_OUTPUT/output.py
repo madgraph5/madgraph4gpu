@@ -100,12 +100,37 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     # [NB: mgOnGpuConfig.h and check_sa.cu are handled through dedicated methods]
     ###s = MG5DIR + '/madgraph/iolibs/template_files/'
     s = PLUGINDIR + '/madgraph/iolibs/template_files/'
-    from_template = {'src': [s+'gpu/rambo.h', s+'gpu/rambo.cc', s+'read_slha.h', s+'read_slha.cc',
-                             s+'gpu/mgOnGpuTypes.h', s+'gpu/mgOnGpuVectors.h'],
-                    'SubProcesses': [s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h', s+'gpu/Memory.h', s+'gpu/Makefile', 
-                                     s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc', s+'gpu/testxxx.cc', s+'gpu/testxxx_cc_ref.txt',
+    from_template = {'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
+                             s+'gpu/mgOnGpuFptypes.h', s+'gpu/mgOnGpuCxtypes.h', s+'gpu/mgOnGpuVectors.h'],
+                    'SubProcesses': [s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h', s+'gpu/checkCuda.h',
+                                     s+'gpu/MemoryBuffers.h', s+'gpu/MemoryAccessHelpers.h', s+'gpu/MemoryAccessVectors.h',
+                                     s+'gpu/MemoryAccessMatrixElements.h', s+'gpu/MemoryAccessMomenta.h',
+                                     s+'gpu/MemoryAccessRandomNumbers.h', s+'gpu/MemoryAccessWeights.h',
+                                     s+'gpu/MemoryAccessAmplitudes.h', s+'gpu/MemoryAccessWavefunctions.h',
+                                     s+'gpu/EventStatistics.h',
+                                     s+'gpu/CrossSectionKernels.cc', s+'gpu/CrossSectionKernels.h',
+                                     s+'gpu/MatrixElementKernels.cc', s+'gpu/MatrixElementKernels.h',
+                                     s+'gpu/RamboSamplingKernels.cc', s+'gpu/RamboSamplingKernels.h',
+                                     s+'gpu/RandomNumberKernels.cc', s+'gpu/RandomNumberKernels.h',
+                                     s+'gpu/Bridge.h', s+'gpu/BridgeKernels.cc', s+'gpu/BridgeKernels.h', s+'gpu/Makefile', 
+                                     s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
+                                     s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt',
                                      s+'gpu/perf.py', s+'gpu/profile.sh']}
-    to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h', 'Memory.h', 'Makefile', 'MadgraphTest.h', 'runTest.cc', 'testxxx.cc', 'testxxx_cc_ref.txt', 'perf.py', 'profile.sh']
+    to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h', 'checkCuda.h',
+                    'MemoryBuffers.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h',
+                    'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h',
+                    'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h', 
+		    'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h',
+                    'EventStatistics.h',
+                    'CrossSectionKernels.cc', 'CrossSectionKernels.h',
+                    'MatrixElementKernels.cc', 'MatrixElementKernels.h',
+                    'RamboSamplingKernels.cc', 'RamboSamplingKernels.h',
+                    'RandomNumberKernels.h', 'RandomNumberKernels.cc',
+                    'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h', 'Makefile',
+                    'MadgraphTest.h', 'runTest.cc',
+                    'testmisc.cc', 'testxxx_cc_ref.txt',
+                    'testxxx.cc', # this is generated from a template in Subprocesses but we still link it in Sigma
+                    'perf.py', 'profile.sh']
 
     # AV - use template files from PLUGINDIR instead of MG5DIR
     ###template_src_make = pjoin(MG5DIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')

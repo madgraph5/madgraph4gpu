@@ -9,6 +9,8 @@
 #include <iomanip>
 #include "Parameters_sm.h"
 
+#ifndef MGONGPU_HARDCODE_CIPC
+
 // Initialize static instance
 Parameters_sm* Parameters_sm::instance = 0;
 
@@ -45,7 +47,7 @@ void Parameters_sm::setIndependentParameters(SLHAReader& slha)
   mdl_conjg__CKM3x3 = 1.;
   mdl_conjg__CKM1x1 = 1.;
   mdl_CKM3x3 = 1.;
-  mdl_complexi = std::complex<double>(0.,1.);
+  mdl_complexi = cxsmpl<double>(0.,1.);
   mdl_MZ__exp__2 = ((mdl_MZ)*(mdl_MZ));
   mdl_MZ__exp__4 = ((mdl_MZ)*(mdl_MZ)*(mdl_MZ)*(mdl_MZ));
   mdl_sqrt__2 = sqrt(2.);
@@ -95,6 +97,8 @@ void Parameters_sm::setDependentCouplings()
   GC_11 = mdl_complexi*G;
   GC_12 = mdl_complexi*mdl_G__exp__2;
 }
+
+#endif
 
 // Routines for printing out parameters
 void Parameters_sm::printIndependentParameters()

@@ -4,42 +4,22 @@
 //==========================================================================
 
 #ifndef MG5_%(process_file_name)s_H
-#define MG5_%(process_file_name)s_H
-
-#include <cassert>
-#include <complex>
-#include <iostream>
-#include <vector>
+#define MG5_%(process_file_name)s_H 1
 
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
+#include "checkCuda.h"
 #include "Parameters_%(model_name)s.h"
 
-//--------------------------------------------------------------------------
-
-#ifdef __CUDACC__
-
-#define checkCuda( code ) { assertCuda( code, __FILE__, __LINE__ ); }
-
-inline void assertCuda( cudaError_t code, const char* file, int line, bool abort = true )
-{
-  if ( code != cudaSuccess )
-  {
-    printf( "GPUassert: %%s %%s:%%d\n", cudaGetErrorString(code), file, line );
-    if ( abort ) assert( code == cudaSuccess );
-  }
-}
-
-#endif
+#include <vector>
 
 //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
-namespace gProc
+namespace mg5amcGpu
 #else
-namespace Proc
+namespace mg5amcCpu
 #endif
 {
 
@@ -47,11 +27,11 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   __global__
-  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            fptype_sv* allMEs,           // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
-                            bool* isGoodHel              // output: isGoodHel[ncomb] - device array
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                            bool* isGoodHel           // output: isGoodHel[ncomb] - device array
 #ifndef __CUDACC__
-                            , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                            , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                             );
 
@@ -62,10 +42,10 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   __global__
-  void sigmaKin( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                 fptype_sv* allMEs            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
+  void sigmaKin( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                 fptype* allMEs            // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifndef __CUDACC__
-                 , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                  );
 

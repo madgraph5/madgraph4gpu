@@ -6,7 +6,10 @@
 #include <string>
 #include <fstream>
 
-#include "nvtx.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#pragma GCC diagnostic pop
+
 #include "timer.h"
 #define TIMERTYPE std::chrono::high_resolution_clock
 
@@ -35,8 +38,6 @@ namespace mgOnGpu
         m_partitionIds[key] = m_partitionTimers.size();
         m_partitionTimers[key] = 0;
       }
-      // Open a new Cuda NVTX range
-      NVTX_PUSH( key.c_str(), m_partitionIds[key] );
       // Return last duration
       return last;
     }
@@ -52,8 +53,6 @@ namespace mgOnGpu
         m_partitionTimers[m_active] += last;
       }
       m_active = "";
-      // Close the current Cuda NVTX range
-      NVTX_POP();
       // Return last duration
       return last;
     }
@@ -69,6 +68,7 @@ namespace mgOnGpu
       const std::string total1Key = "TOTAL   (1)";
       const std::string total2Key = "TOTAL   (2)";
       const std::string total3Key = "TOTAL   (3)";
+      const std::string total3aKey = "TOTAL  (3a)";
       size_t maxsize = 0;
       for ( auto ip : m_partitionTimers )
         maxsize = std::max( maxsize, ip.first.size() );
@@ -82,6 +82,7 @@ namespace mgOnGpu
       float total1 = 0;
       float total2 = 0;
       float total3 = 0;
+      float total3a = 0;
       for ( auto ip : m_partitionTimers )
       {
         total += ip.second;
@@ -91,6 +92,7 @@ namespace mgOnGpu
         if ( ip.first[0] == '1' ) total1 += ip.second;
         if ( ip.first[0] == '2' ) total2 += ip.second;
         if ( ip.first[0] == '3' ) total3 += ip.second;
+        if ( ip.first[0] == '3' && ip.first[1] == 'a' ) total3a += ip.second;
         ipart++;
       }
       // Dump individual partition timers and the overall total
@@ -103,7 +105,8 @@ namespace mgOnGpu
         ostr << s1 << totalKey << s2 << total << s3 << std::endl
              << s1 << total123Key << s2 << total123 << s3 << std::endl
              << s1 << total23Key << s2 << total23 << s3 << std::endl
-             << s1 << total3Key << s2 << total3 << " sec \"" << std::endl;
+             << s1 << total3Key << s2 << total3 << s3 << std::endl
+             << s1 << total3aKey << s2 << total3a << " sec \"" << std::endl;
         ostr << std::defaultfloat; // default format: affects all floats
       }
       else {
@@ -124,7 +127,9 @@ namespace mgOnGpu
              << std::setw(maxsize) << total2Key << " : "
              << std::setw(12) << total2 << " sec" << std::endl
              << std::setw(maxsize) << total3Key << " : "
-             << std::setw(12) << total3 << " sec" << std::endl;
+             << std::setw(12) << total3 << " sec" << std::endl
+             << std::setw(maxsize) << total3aKey << " : "
+             << std::setw(12) << total3a << " sec" << std::endl;
         ostr << std::defaultfloat; // default format: affects all floats
       }
     }

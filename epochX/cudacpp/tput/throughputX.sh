@@ -10,20 +10,26 @@ cuda=1
 ab3=0
 eemumu=0
 ggtt=0
+ggttg=0
 ggttgg=0
+ggttggg=0
 div=0
 req=0
 fptypes="d"
 helinls="0"
+hrdcods="0"
+rndgen=""
+rmbsam=""
 suffs="/"
 maketype=
+makej=
 detailed=0
 gtest=0
 verbose=0
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttgg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttg] [-ggttgg] [-ggttggg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -62,8 +68,14 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-ggtt" ]; then
     ggtt=1
     shift
+  elif [ "$1" == "-ggttg" ]; then
+    ggttg=1
+    shift
   elif [ "$1" == "-ggttgg" ]; then
     ggttgg=1
+    shift
+  elif [ "$1" == "-ggttggg" ]; then
+    ggttggg=1
     shift
   elif [ "$1" == "-div" ]; then
     div=1
@@ -87,6 +99,26 @@ while [ "$1" != "" ]; do
     if [ "${helinls}" == "0 1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
     helinls="1"
     shift
+  elif [ "$1" == "-hrd" ]; then
+    if [ "${hrdcods}" == "1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
+    hrdcods="0 1"
+    shift
+  elif [ "$1" == "-hrdonly" ]; then
+    if [ "${hrdcods}" == "0 1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
+    hrdcods="1"
+    shift
+  elif [ "$1" == "-common" ]; then
+    rndgen=" -${1}"
+    shift
+  elif [ "$1" == "-curhst" ]; then
+    rndgen=" -${1}"
+    shift
+  elif [ "$1" == "-rmbhst" ]; then
+    rmbsmp=" -${1}"
+    shift
+  elif [ "$1" == "-bridge" ]; then
+    rmbsmp=" -${1}"
+    shift
   elif [ "$1" == "-auto" ]; then
     if [ "${suffs}" == ".auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
     suffs="/ .auto/"
@@ -100,6 +132,9 @@ while [ "$1" != "" ]; do
       echo "ERROR! Options -makeonly, -makeclean and -makecleanonly are incompatible"; usage
     fi
     maketype="$1"
+    shift
+  elif [ "$1" == "-makej" ]; then
+    makej=-j
     shift
   elif [ "$1" == "-detailed" ]; then
     detailed=1
@@ -119,7 +154,7 @@ done
 ###exit 1
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggtt}" == "0" ]; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ]; then usage; fi
 
 ###echo -e "\n********************************************************************************\n"
 printf "\n"
@@ -140,12 +175,18 @@ for suff in $suffs; do
       dir=$topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
     elif [ "${ggtt}" == "1" ]; then 
       dir=$topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
+    elif [ "${ggttg}" == "1" ]; then 
+      dir=$topdir/epochX/cudacpp/gg_ttg${suff}SubProcesses/P1_Sigma_sm_gg_ttxg
     elif [ "${ggttgg}" == "1" ]; then 
       dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
+    elif [ "${ggttggg}" == "1" ]; then 
+      dir=$topdir/epochX/cudacpp/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
     fi
-    for helinl in $helinls; do
-      for fptype in $fptypes; do
-        exes="$exes ${dir}/build.none_${fptype}_inl${helinl}/gcheck.exe"
+    for hrdcod in $hrdcods; do
+      for helinl in $helinls; do
+        for fptype in $fptypes; do
+          exes="$exes ${dir}/build.none_${fptype}_inl${helinl}_hrd${hrdcod}/gcheck.exe"
+        done
       done
     done
   fi
@@ -158,22 +199,28 @@ for suff in $suffs; do
       dir=$topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
     elif [ "${ggtt}" == "1" ]; then 
       dir=$topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
+    elif [ "${ggttg}" == "1" ]; then 
+      dir=$topdir/epochX/cudacpp/gg_ttg${suff}SubProcesses/P1_Sigma_sm_gg_ttxg
     elif [ "${ggttgg}" == "1" ]; then 
       dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
+    elif [ "${ggttggg}" == "1" ]; then 
+      dir=$topdir/epochX/cudacpp/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
     fi
-    for helinl in $helinls; do
-      for fptype in $fptypes; do
-        exes="$exes $dir/build.none_${fptype}_inl${helinl}/check.exe"
-        if [ "${avxall}" == "1" ]; then 
-          exes="$exes $dir/build.sse4_${fptype}_inl${helinl}/check.exe"
-          exes="$exes $dir/build.avx2_${fptype}_inl${helinl}/check.exe"
-        fi
-        if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
-          exes="$exes $dir/build.512y_${fptype}_inl${helinl}/check.exe"
+    for hrdcod in $hrdcods; do
+      for helinl in $helinls; do
+        for fptype in $fptypes; do
+          exes="$exes $dir/build.none_${fptype}_inl${helinl}_hrd${hrdcod}/check.exe"
           if [ "${avxall}" == "1" ]; then 
-            exes="$exes $dir/build.512z_${fptype}_inl${helinl}/check.exe"
+            exes="$exes $dir/build.sse4_${fptype}_inl${helinl}_hrd${hrdcod}/check.exe"
+            exes="$exes $dir/build.avx2_${fptype}_inl${helinl}_hrd${hrdcod}/check.exe"
           fi
-        fi
+          if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
+            exes="$exes $dir/build.512y_${fptype}_inl${helinl}_hrd${hrdcod}/check.exe"
+            if [ "${avxall}" == "1" ]; then 
+              exes="$exes $dir/build.512z_${fptype}_inl${helinl}_hrd${hrdcod}/check.exe"
+            fi
+          fi
+        done
       done
     done
   fi
@@ -192,8 +239,12 @@ for suff in $suffs; do
     dir=$topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
   elif [ "${ggtt}" == "1" ]; then 
     dir=$topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
+  elif [ "${ggttg}" == "1" ]; then 
+    dir=$topdir/epochX/cudacpp/gg_ttg${suff}SubProcesses/P1_Sigma_sm_gg_ttxg
   elif [ "${ggttgg}" == "1" ]; then 
     dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
+  elif [ "${ggttggg}" == "1" ]; then 
+    dir=$topdir/epochX/cudacpp/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
   fi
 
   export USEBUILDDIR=1
@@ -201,21 +252,24 @@ for suff in $suffs; do
   pwd
   if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
   if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
-  for helinl in $helinls; do
-    export HELINL=$helinl
-    for fptype in $fptypes; do
-      export FPTYPE=$fptype
-      make AVX=none; echo
-      if [ "${avxall}" == "1" ]; then make AVX=sse4; echo; fi
-      if [ "${avxall}" == "1" ]; then make AVX=avx2; echo; fi
-      if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then # skip avx512 if not supported!
-        if [ "${cpp}" == "1" ]; then make AVX=512y; echo; fi # use 512y as C++ ref even if avx2 is faster on clang
-        if [ "${avxall}" == "1" ]; then make AVX=512z; echo; fi
-      fi
+  for hrdcod in $hrdcods; do
+    export HRDCOD=$hrdcod
+    for helinl in $helinls; do
+      export HELINL=$helinl
+      for fptype in $fptypes; do
+        export FPTYPE=$fptype
+        if [ "${avxall}" == "1" ]; then
+          make ${makej} avxall; echo
+        else
+          make ${makej} AVX=none; echo
+          make ${makej} AVX=512y; echo
+        fi
+      done
     done
   done
   popd >& /dev/null
   export USEBUILDDIR=
+  export HRDCOD=
   export HELINL=
   export FPTYPE=
 
@@ -233,16 +287,18 @@ printf "DATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
 function runExe() {
   exe=$1
   args="$2"
+  args="$args$rndgen$rmbsmp"
   echo "runExe $exe $args OMP=$OMP_NUM_THREADS"
   pattern="Process|fptype_sv|OMP threads|EvtsPerSec\[MECalc|MeanMatrix|FP precision|TOTAL       :"
   # Optionally add other patterns here for some specific configurations (e.g. clang)
   if [ "${exe%%/gcheck*}" != "${exe}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
-  pattern="${pattern}|CUCOMPLEX"
-  pattern="${pattern}|COMMON RANDOM"
+  pattern="${pattern}|Workflow"
+  ###pattern="${pattern}|CUCOMPLEX"
+  ###pattern="${pattern}|COMMON RANDOM|CURAND HOST \(CUDA"
   pattern="${pattern}|ERROR"
-  # TEMPORARY! OLD C++/CUDA CODE (START)
-  pattern="${pattern}|EvtsPerSec\[Matrix"
-  # TEMPORARY! OLD C++/CUDA CODE (END)
+  pattern="${pattern}|WARNING"
+  pattern="${pattern}|EvtsPerSec\[Rmb" # TEMPORARY! for rambo timing tests
+  pattern="${pattern}|EvtsPerSec\[Matrix" # TEMPORARY! OLD C++/CUDA CODE
   if [ "${ab3}" == "1" ]; then pattern="${pattern}|3a|3b"; fi
   if [ "${req}" == "1" ]; then pattern="${pattern}|memory layout"; fi
   if perf --version >& /dev/null; then
@@ -267,6 +323,7 @@ function runExe() {
 function runNcu() {
   exe=$1
   args="$2"
+  args="$args$rndgen$rmbsmp"
   ###echo "runNcu $exe $args"
   if [ "${verbose}" == "1" ]; then set -x; fi
   #$(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-base mangled $exe $args | egrep '(sigmaKin|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
@@ -284,6 +341,7 @@ function runNcu() {
 function runNcuDiv() {
   exe=$1
   args="-p 1 32 1"
+  args="$args$rndgen$rmbsmp"
   ###echo "runNcuDiv $exe $args"
   if [ "${verbose}" == "1" ]; then set -x; fi
   ###$(which ncu) --query-metrics $exe $args
@@ -304,6 +362,7 @@ function runNcuDiv() {
 function runNcuReq() {
   exe=$1
   ncuArgs="$2"
+  ncuArgs="$ncuArgs$rndgen$rmbsmp"
   if [ "${verbose}" == "1" ]; then set -x; fi
   for args in "-p 1 1 1" "-p 1 4 1" "-p 1 8 1" "-p 1 32 1" "$ncuArgs"; do
     ###echo "runNcuReq $exe $args"
@@ -331,11 +390,23 @@ for exe in $exes; do
   ###if [ ! -f $exe ]; then continue; fi
   if [ ! -f $exe ]; then echo "Not found: $exe"; continue; fi
   if [ "${exe%%/gcheck*}" != "${exe}" ] && [ "$gpuTxt" == "none" ]; then continue; fi
-  if [ "${exe%%/gg_ttgg*}" != "${exe}" ]; then 
-    # OLD << This is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1" >>
+  if [ "${exe%%/gg_ttggg*}" != "${exe}" ]; then 
+    # For ggttggg: this is far too little for GPU (4.8E2), but it keeps the CPU to a manageble level (1sec with 512y)
+    exeArgs="-p 1 256 1"
+    ncuArgs="-p 1 256 1"
+    # For ggttggg: on GPU test also "64 256" to reach the plateau (only ~5% lower than "2048 256": 1.18E4 vs 1.25E4 on cuda116/gcc102)
+    exeArgs2="-p 64 256 1"
+  elif [ "${exe%%/gg_ttgg*}" != "${exe}" ]; then 
+    # For ggttgg (OLD): this is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
     exeArgs="-p 64 256 1"
     ncuArgs="-p 64 256 1"
-    # NEW On GPU test both "64 256" and "2048 256" for ggttgg as the latter gives ~10% higher throughput on cuda110/gcc92
+    # For ggttgg (NEW): on GPU test both "64 256" and "2048 256" for ggttgg as the latter gives ~10% higher throughput on cuda110/gcc92
+    exeArgs2="-p 2048 256 1"
+  elif [ "${exe%%/gg_ttg*}" != "${exe}" ]; then 
+    # For ggttg, as on ggttgg: this is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
+    exeArgs="-p 64 256 1"
+    ncuArgs="-p 64 256 1"
+    # For ggttg, as on ggttgg: on GPU test both "64 256" and "2048 256" for ggttg as the latter gives ~10% higher throughput on cuda110/gcc92
     exeArgs2="-p 2048 256 1"
   elif [ "${exe%%/gg_tt*}" != "${exe}" ]; then 
     exeArgs="-p 2048 256 1"

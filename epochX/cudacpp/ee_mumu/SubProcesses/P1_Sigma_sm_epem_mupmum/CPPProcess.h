@@ -6,42 +6,22 @@
 //==========================================================================
 
 #ifndef MG5_Sigma_sm_epem_mupmum_H
-#define MG5_Sigma_sm_epem_mupmum_H
-
-#include <cassert>
-#include <complex>
-#include <iostream>
-#include <vector>
+#define MG5_Sigma_sm_epem_mupmum_H 1
 
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
 #include "mgOnGpuVectors.h"
 
+#include "checkCuda.h"
 #include "Parameters_sm.h"
 
-//--------------------------------------------------------------------------
-
-#ifdef __CUDACC__
-
-#define checkCuda( code ) { assertCuda( code, __FILE__, __LINE__ ); }
-
-inline void assertCuda( cudaError_t code, const char* file, int line, bool abort = true )
-{
-  if ( code != cudaSuccess )
-  {
-    printf( "GPUassert: %s %s:%d\n", cudaGetErrorString(code), file, line );
-    if ( abort ) assert( code == cudaSuccess );
-  }
-}
-
-#endif
+#include <vector>
 
 //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
-namespace gProc
+namespace mg5amcGpu
 #else
-namespace Proc
+namespace mg5amcCpu
 #endif
 {
 
@@ -73,12 +53,12 @@ namespace Proc
     //int getDim() const { return dim; }
     //int getNIOParticles() const { return nexternal; } // nexternal was nioparticles
 
-    // Accessors (unused so far: add them to fix a clang build warning)
-    //int numiterations() const { return m_numiterations; }
-    //int gpublocks() const { return m_ngpublocks; }
-    //int gputhreads() const { return m_ngputhreads; }
+    // Accessors (unused so far: add four of them only to fix a clang build warning)
+    int numiterations() const { return m_numiterations; }
+    int gpublocks() const { return m_ngpublocks; }
+    int gputhreads() const { return m_ngputhreads; }
     //bool verbose() const { return m_verbose; }
-    //bool debug() const { return m_debug; }
+    bool debug() const { return m_debug; }
 
   public:
 
@@ -101,7 +81,9 @@ namespace Proc
     bool m_debug;
 
     // Physics model parameters to be read from file (initProc function)
+#ifndef MGONGPU_HARDCODE_CIPC
     Parameters_sm* m_pars;
+#endif
     std::vector<fptype> m_masses; // external particle masses
 
     // Other variables of this instance (???)
@@ -113,11 +95,11 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   __global__
-  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            fptype_sv* allMEs,           // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
-                            bool* isGoodHel              // output: isGoodHel[ncomb] - device array
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                            bool* isGoodHel           // output: isGoodHel[ncomb] - device array
 #ifndef __CUDACC__
-                            , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                            , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                             );
 
@@ -128,10 +110,10 @@ namespace Proc
   //--------------------------------------------------------------------------
 
   __global__
-  void sigmaKin( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                 fptype_sv* allMEs            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
+  void sigmaKin( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                 fptype* allMEs            // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifndef __CUDACC__
-                 , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                  );
 

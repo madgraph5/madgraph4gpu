@@ -1,94 +1,248 @@
 #ifndef EXTRAS_H
 #define EXTRAS_H 1
 
-#ifdef SYCL_LANGUAGE_VERSION
 #include <CL/sycl.hpp>
-#endif
 
 namespace extras {
 
 template< typename FPType >
 class complex {
 public:
-
-  SYCL_EXTERNAL complex(const complex<FPType> &c) : r_(c.r_), i_(c.i_) { }
-  SYCL_EXTERNAL complex<FPType>& operator=(const complex<FPType> &c) {
-    if (this != &c) {
-      r_ = c.r_;
-      i_ = c.i_;
+  
+    //Constructors
+    SYCL_EXTERNAL constexpr complex(const FPType& __r = FPType(), const FPType& __i = FPType())
+        : r_(__r), i_(__i) { }
+    SYCL_EXTERNAL constexpr complex(const complex&) = default;
+  
+    //Converter
+    template<typename CXType>
+    SYCL_EXTERNAL constexpr complex(const complex<CXType>& __z)
+        : r_(__z.real()), i_(__z.imag()) { }
+  
+    //Data Accessors
+    SYCL_EXTERNAL constexpr FPType real() const { return r_; }
+    SYCL_EXTERNAL constexpr FPType imag() const { return i_; }
+  
+  
+    //Operators
+    /// Assign scalar
+    SYCL_EXTERNAL complex<FPType>& operator=(const FPType&);
+  
+    /// Add scalar
+    SYCL_EXTERNAL complex<FPType>& operator+=(const FPType& __t) {
+      r_ += __t;
+      return *this;
     }
-    return *this;
-  }
-  SYCL_EXTERNAL ~complex() { }
+  
+    /// Subtract scalar
+    SYCL_EXTERNAL complex<FPType>& operator-=(const FPType& __t) {
+      r_ -= __t;
+      return *this;
+    }
+  
+    /// Multiply by scalar
+    SYCL_EXTERNAL complex<FPType>& operator*=(const FPType&);
+  
+    /// Divide by scalar
+    SYCL_EXTERNAL complex<FPType>& operator/=(const FPType&);
+  
+    /// Compiler generated assignment operator
+    SYCL_EXTERNAL complex& operator=(const complex&) = default;
+  
+    /// Assign another complex number to this one.
+    template<typename CXType>
+    SYCL_EXTERNAL complex<FPType>& operator=(const complex<CXType>&);
+    
+    /// Add complex number
+    template<typename CXType>
+    SYCL_EXTERNAL complex<FPType>& operator+=(const complex<CXType>&);
+  
+    /// Subtract complex number
+    template<typename CXType>
+    SYCL_EXTERNAL complex<FPType>& operator-=(const complex<CXType>&);
+  
+    /// Multiply by complex number
+    template<typename CXType>
+    SYCL_EXTERNAL complex<FPType>& operator*=(const complex<CXType>&);
+  
+    /// Divide by complex number
+    template<typename CXType>
+    SYCL_EXTERNAL complex<FPType>& operator/=(const complex<CXType>&);
 
-  SYCL_EXTERNAL complex() : r_(0.), i_(0.) { }
-  SYCL_EXTERNAL complex(FPType r, FPType i) : r_(r), i_(i) { }
-  SYCL_EXTERNAL complex(FPType r) : r_(r), i_(0) { }
-
-  SYCL_EXTERNAL FPType real() const { return r_; }
-  SYCL_EXTERNAL FPType imag() const { return i_; }
-
-  SYCL_EXTERNAL complex<FPType>& operator/(const complex<FPType> &z2) {
-    const FPType s1 = (this->real() * z2.real())+(this->imag() * z2.imag());
-    const FPType s2 = (this->imag()*z2.real()) - (this->real() * z2.imag());
-    const FPType s3 = (z2.real()*z2.real()) + (z2.imag() * z2.imag());
-    r_ = s1/s3;
-    i_ = s2/s3;
-    return *this;
-  }
-
-  SYCL_EXTERNAL const complex<FPType> operator/(const complex<FPType> &z2) const {
-    const FPType s1 = (this->real() * z2.real())+(this->imag() * z2.imag());
-    const FPType s2 = (this->imag()*z2.real()) - (this->real() * z2.imag());
-    const FPType s3 = (z2.real()*z2.real()) + (z2.imag() * z2.imag());
-    return complex<FPType>(s1/s3,s2/s3);
-  }
-
-  SYCL_EXTERNAL complex<FPType>& operator*(const complex<FPType> &z2) {
-    const FPType s1 = this->real() * z2.real();
-    const FPType s2 = this->imag() * z2.imag();
-    const FPType s3 = (this->real() + this->imag())*(z2.real() + z2.imag());
-    r_ = s1-s2;
-    i_ = s3-s1-s2;
-    return *this;
-  }
-
-  SYCL_EXTERNAL const complex<FPType> operator*(const complex<FPType> &z2) const {
-    const FPType s1 = this->real() * z2.real();
-    const FPType s2 = this->imag() * z2.imag();
-    const FPType s3 = (this->real() + this->imag())*(z2.real() + z2.imag());
-    return complex<FPType>(s1-s2,s3-s1-s2);
-  }
-
-  SYCL_EXTERNAL complex<FPType>& operator+(const complex<FPType> &z2) {
-    r_ += z2.real();
-    i_ += z2.imag();
-    return *this;
-  }
-
-  SYCL_EXTERNAL const complex<FPType> operator+(const complex<FPType> &z2) const {
-    return complex<FPType>(*this) + z2;
-  }
-
-  SYCL_EXTERNAL complex<FPType>& operator+=(const complex<FPType> &z2) {
-    r_ += z2.real();
-    i_ += z2.imag();
-    return *this;
-  }
-
-  SYCL_EXTERNAL complex<FPType>& operator-(const complex<FPType> &z2) {
-    r_ -= z2.real();
-    i_ -= z2.imag();
-    return *this;
-  }
-
-  SYCL_EXTERNAL const complex<FPType> operator-(const complex<FPType> &z2) const {
-    return complex<FPType>(*this) - z2;
-  }
-
-  FPType r_;
-  FPType i_;
+private:
+    FPType r_;
+    FPType i_;
 };
+
+template<typename FPType>
+SYCL_EXTERNAL complex<FPType>& complex<FPType>::operator=(const FPType& __t) {
+    r_ = __t;
+    i_ = FPType();
+    return *this;
+}
+
+template<typename FPType>
+SYCL_EXTERNAL complex<FPType>& complex<FPType>::operator*=(const FPType& __t) {
+    r_ *= __t;
+    i_ *= __t;
+    return *this;
+}
+
+template<typename FPType>
+SYCL_EXTERNAL complex<FPType>& complex<FPType>::operator/=(const FPType& __t) {
+    r_ /= __t;
+    i_ /= __t;
+    return *this;
+}
+
+template<typename FPType>
+template<typename CXType>
+SYCL_EXTERNAL complex<FPType>& complex<FPType>::operator=(const complex<CXType>& __z) {
+    r_ = __z.real();
+    i_ = __z.imag();
+    return *this;
+}
+
+template<typename FPType>
+template<typename CXType>
+SYCL_EXTERNAL complex<FPType>& complex<FPType>::operator+=(const complex<CXType>& __z) {
+    r_ += __z.real();
+    i_ += __z.imag();
+    return *this;
+}
+
+template<typename FPType>
+template<typename CXType>
+SYCL_EXTERNAL complex<FPType>& complex<FPType>::operator-=(const complex<CXType>& __z) {
+    r_ -= __z.real();
+    i_ -= __z.imag();
+    return *this;
+}
+
+template<typename FPType>
+template<typename CXType>
+SYCL_EXTERNAL complex<FPType>& complex<FPType>::operator*=(const complex<CXType>& __z) {
+    const FPType __r = r_ * __z.real() - i_ * __z.imag();
+    i_ = r_ * __z.imag() + i_ * __z.real();
+    r_ = __r;
+    return *this;
+}
+
+template<typename FPType>
+template<typename CXType>
+SYCL_EXTERNAL complex<FPType>& complex<FPType>::operator/=(const complex<CXType>& __z) {
+    const FPType __r =  r_ * __z.real() + i_ * __z.imag();
+    const FPType __x = __z.real();
+    const FPType __y = __z.imag();
+    const FPType __n = __x * __x + __y * __y;
+    i_ = (i_ * __z.real() - r_ * __z.imag()) / __n;
+    r_ = __r / __n;
+    return *this;
+}
+
+// Operators:
+//@{
+///  Return new complex value @a x plus @a y.
+template<typename FPType>
+SYCL_EXTERNAL inline complex<FPType> operator+(const complex<FPType>& __x, const complex<FPType>& __y) {
+    complex<FPType> __r = __x;
+    __r += __y;
+    return __r;
+}
+
+template<typename FPType>
+SYCL_EXTERNAL inline complex<FPType> operator+(const complex<FPType>& __x, const FPType& __y) {
+    complex<FPType> __r = __x;
+    __r += __y;
+    return __r;
+}
+
+template<typename FPType>
+SYCL_EXTERNAL inline complex<FPType> operator+(const FPType& __x, const complex<FPType>& __y) {
+    complex<FPType> __r = __y;
+    __r += __x;
+    return __r;
+}
+//@}
+//@{
+///  Return new complex value @a x minus @a y.
+template<typename FPType>
+SYCL_EXTERNAL inline complex<FPType> operator-(const complex<FPType>& __x, const complex<FPType>& __y) {
+    complex<FPType> __r = __x;
+    __r -= __y;
+    return __r;
+}
+
+template<typename FPType>
+SYCL_EXTERNAL inline complex<FPType> operator-(const complex<FPType>& __x, const FPType& __y) {
+    complex<FPType> __r = __x;
+    __r -= __y;
+    return __r;
+}
+
+template<typename FPType>
+SYCL_EXTERNAL inline complex<FPType> operator-(const FPType& __x, const complex<FPType>& __y) {
+    complex<FPType> __r(__x, -__y.imag());
+    __r -= __y.real();
+    return __r;
+}
+//@}
+//@{
+///  Return new complex value @a x times @a y.
+template<typename FPType>
+SYCL_EXTERNAL inline complex<FPType> operator*(const complex<FPType>& __x, const complex<FPType>& __y) {
+    complex<FPType> __r = __x;
+    __r *= __y;
+    return __r;
+}
+
+template<typename FPType>
+SYCL_EXTERNAL inline complex<FPType> operator*(const complex<FPType>& __x, const FPType& __y) {
+    complex<FPType> __r = __x;
+    __r *= __y;
+    return __r;
+}
+
+template<typename FPType>
+SYCL_EXTERNAL inline complex<FPType> operator*(const FPType& __x, const complex<FPType>& __y) {
+    complex<FPType> __r = __y;
+    __r *= __x;
+    return __r;
+}
+//@}
+//@{
+///  Return new complex value @a x divided by @a y.
+template<typename FPType>
+SYCL_EXTERNAL inline complex<FPType> operator/(const complex<FPType>& __x, const complex<FPType>& __y) {
+    complex<FPType> __r = __x;
+    __r /= __y;
+    return __r;
+}
+
+template<typename FPType>
+SYCL_EXTERNAL inline complex<FPType> operator/(const complex<FPType>& __x, const FPType& __y) {
+    complex<FPType> __r = __x;
+    __r /= __y;
+    return __r;
+}
+
+template<typename FPType>
+SYCL_EXTERNAL inline complex<FPType> operator/(const FPType& __x, const complex<FPType>& __y) {
+    complex<FPType> __r = __x;
+    __r /= __y;
+    return __r;
+}
+//@}
+///  Return @a x.
+template<typename FPType>
+SYCL_EXTERNAL inline complex<FPType> operator+(const complex<FPType>& __x) { return __x;
+}
+
+///  Return complex negation of @a x.
+template<typename FPType>
+SYCL_EXTERNAL inline complex<FPType> operator-(const complex<FPType>& __x) {
+    return complex<FPType>(-__x.real(), -__x.imag());
+}
 
 }
 #endif

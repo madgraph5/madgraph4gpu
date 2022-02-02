@@ -14,11 +14,29 @@ function codeGenAndDiff()
     gg_tt)
       cmd="generate g g > t t~"
       ;;
-    ###gg_ttg)
-    ###  cmd="generate g g > t t~ g"
-    ###  ;;
+    gg_ttg)
+      cmd="generate g g > t t~ g"
+      ;;
     gg_ttgg)
       cmd="generate g g > t t~ g g"
+      ;;
+    gg_ttggg)
+      cmd="generate g g > t t~ g g g"
+      ;;
+    pp_tt)
+      cmd="generate p p > t t~"
+      ;;
+    uu_tt)
+      cmd="generate u u~ > t t~"
+      ;;
+    uu_dd)
+      cmd="generate u u~ > d d~"
+      ;;
+    bb_tt)
+      cmd="generate b b~ > t t~"
+      ;;
+    heft_gg_h)
+      cmd="set auto_convert_model T; import model heft; generate g g > h"
       ;;
     *)
       echo -e "\nWARNING! Skipping unknown process '$proc'"

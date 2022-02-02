@@ -12,11 +12,12 @@
 #include <memory>
 
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
-#include "mgOnGpuVectors.h"
-#include "HelAmps_sm.h"
 
 #include "CPPProcess.h"
+#include "HelAmps_sm.h"
+#include "MemoryAccessAmplitudes.h"
+#include "MemoryAccessMomenta.h"
+#include "MemoryAccessWavefunctions.h"
 
 // Test ncu metrics for CUDA thread divergence
 #undef MGONGPU_TEST_DIVERGENCE
@@ -27,9 +28,9 @@
 // Process: e+ e- > mu+ mu- WEIGHTED<=4 @1
 
 #ifdef __CUDACC__
-namespace gProc
+namespace mg5amcGpu
 #else
-namespace Proc
+namespace mg5amcCpu
 #endif
 {
   using mgOnGpu::np4; // dimensions of 4-momenta (E,px,py,pz)
@@ -43,14 +44,22 @@ namespace Proc
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
-  //constexpr fptype cIPC[6] = { ... };
-  //constexpr fptype cIPD[2] = { ... };
+#ifdef MGONGPU_HARDCODE_CIPC
+  __device__ const fptype cIPC[6] = {
+    Parameters_sm::GC_3.real(), Parameters_sm::GC_3.imag(),
+    Parameters_sm::GC_50.real(), Parameters_sm::GC_50.imag(),
+    Parameters_sm::GC_59.real(), Parameters_sm::GC_59.imag() };
+  __device__ const fptype cIPD[2] = {
+    Parameters_sm::mdl_MZ,
+    Parameters_sm::mdl_WZ };
+#else
 #ifdef __CUDACC__
   __device__ __constant__ fptype cIPC[6];
   __device__ __constant__ fptype cIPD[2];
 #else
   static fptype cIPC[6];
   static fptype cIPD[2];
+#endif
 #endif
 
   // Helicity combinations (and filtering of "good" helicity combinations)
@@ -71,15 +80,25 @@ namespace Proc
   __device__
   INLINE
   void calculate_wavefunctions( int ihel,
-                                const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                                fptype_sv* allMEs            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
+                                const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                                fptype* allMEs            // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifndef __CUDACC__
-                                , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                                , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                                 )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
   {
-    using namespace MG5_sm;
+#ifdef __CUDACC__
+    using namespace mg5amcGpu;
+    using M_ACCESS = DeviceAccessMomenta;
+    using W_ACCESS = DeviceAccessWavefunctions;
+    using A_ACCESS = DeviceAccessAmplitudes;
+#else
+    using namespace mg5amcCpu;
+    using M_ACCESS = HostAccessMomenta;
+    using W_ACCESS = HostAccessWavefunctions;
+    using A_ACCESS = HostAccessAmplitudes;
+#endif
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     //printf( "calculate_wavefunctions: nevt %d\n", nevt );
@@ -90,15 +109,26 @@ namespace Proc
 
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
+    //MemoryBufferWavefunctions w_buffer[nwf]{ neppV };
     cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
     cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
 
+    // Proof of concept for using fptype* in the interface
+    fptype* w_fp[nwf];
+    for ( int iwf=0; iwf<nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_sv[iwf] );
+    fptype* amp_fp;
+    amp_fp = reinterpret_cast<fptype*>( amp_sv );
+
     // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
-    cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
+    // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
+    cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxype is NOT, if "= {}" is missing!)
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
 #ifndef __CUDACC__
     const int npagV = nevt / neppV;
+#ifdef MGONGPU_CPPSIMD
+    const bool isAligned_allMEs = ( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // require SIMD-friendly alignment by at least neppV*sizeof(fptype)
+#endif
     // ** START LOOP ON IPAGV **
 #ifdef _OPENMP
     // (NB gcc9 or higher, or clang, is required)
@@ -106,73 +136,71 @@ namespace Proc
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV) private (amp_sv,w_sv,jamp_sv)
+#ifdef MGONGPU_CPPSIMD
+#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV,amp_fp,w_fp,isAligned_allMEs) private (amp_sv,w_sv,jamp_sv)
+#else
+#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV,amp_fp,w_fp) private (amp_sv,w_sv,jamp_sv)
+#endif
 #endif
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif
     {
+#ifdef __CUDACC__
+      // CUDA kernels take an input buffer with momenta for all events
+      const fptype* momenta = allmomenta;
+#else
+      // C++ kernels take an input buffer with momenta for one specific event (the first in the current event page)
+      const int ievt0 = ipagV*neppV;
+      const fptype* momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );
+#endif
+
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
       for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }
 
       // *** DIAGRAM 1 OF 2 ***
 
       // Wavefunction(s) for diagram number 1
-#ifdef __CUDACC__
-#ifndef MGONGPU_TEST_DIVERGENCE
-      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
+#if not ( defined __CUDACC__ and defined MGONGPU_TEST_DIVERGENCE )
+      opzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
 #else
       if ( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
-        opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], 0 ); // NB: opzxxx only uses pz
+        opzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
       else
-        oxxxxx( allmomenta, 0, cHel[ihel][0], -1, w_sv[0], 0 );
-#endif
-#else
-      opzxxx( allmomenta, cHel[ihel][0], -1, w_sv[0], ipagV, 0 ); // NB: opzxxx only uses pz
+        oxxxxx<M_ACCESS, W_ACCESS>( momenta, 0, cHel[ihel][0], -1, w_fp[0], 0 );
 #endif
 
-#ifdef __CUDACC__
-      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], 1 ); // NB: imzxxx only uses pz
-#else
-      imzxxx( allmomenta, cHel[ihel][1], +1, w_sv[1], ipagV, 1 ); // NB: imzxxx only uses pz
-#endif
+      imzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][1], +1, w_fp[1], 1 ); // NB: imzxxx only uses pz
 
-#ifdef __CUDACC__
-      ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], 2 );
-#else
-      ixzxxx( allmomenta, cHel[ihel][2], -1, w_sv[2], ipagV, 2 );
-#endif
+      ixzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][2], -1, w_fp[2], 2 );
 
-#ifdef __CUDACC__
-      oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], 3 );
-#else
-      oxzxxx( allmomenta, cHel[ihel][3], +1, w_sv[3], ipagV, 3 );
-#endif
+      oxzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][3], +1, w_fp[3], 3 );
 
-      FFV1P0_3( w_sv[1], w_sv[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );
+      FFV1P0_3<W_ACCESS>( w_fp[1], w_fp[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 1
-      FFV1_0( w_sv[2], w_sv[3], w_sv[4], cxmake( cIPC[0], cIPC[1] ), &amp_sv[0] );
+      FFV1_0<W_ACCESS, A_ACCESS>( w_fp[2], w_fp[3], w_fp[4], cxmake( cIPC[0], cIPC[1] ), &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 2 OF 2 ***
 
       // Wavefunction(s) for diagram number 2
-      FFV2_4_3( w_sv[1], w_sv[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w_sv[4] );
+      FFV2_4_3<W_ACCESS>( w_fp[1], w_fp[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 2
-      FFV2_4_0( w_sv[2], w_sv[3], w_sv[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp_sv[0] );
+      FFV2_4_0<W_ACCESS, A_ACCESS>( w_fp[2], w_fp[3], w_fp[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called CPPProcess::matrix_1_epem_mupmum()?)
 
-      // The color matrix [NB do keep 'static' for these constexpr arrays, see issue #283]
-      static constexpr fptype denom[ncolor] = {1};
-      static constexpr fptype cf[ncolor][ncolor] = {{1}};
+      // The color matrix (initialize all array elements, with ncolor=1)
+      // [NB do keep 'static' for these constexpr arrays, see issue #283]
+      static constexpr fptype denom[ncolor] = {1}; // 1-D array[1]
+      static constexpr fptype cf[ncolor][ncolor] = {{1}}; // 2-D array[1][1]
 
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
-      fptype_sv deltaMEs = { 0 }; // all zeros
+      fptype_sv deltaMEs = {0}; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
       for( int icol = 0; icol < ncolor; icol++ )
       {
         cxtype_sv ztemp_sv = cxzero_sv();
@@ -193,13 +221,27 @@ namespace Proc
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       allMEs[ievt] += deltaMEs;
-      //printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt] );
+      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %6d %2d %f\n", ievt, ihel, allMEs[ievt] );
+#else
+#ifdef MGONGPU_CPPSIMD
+      if ( isAligned_allMEs )
+      {
+        *reinterpret_cast<fptype_sv*>( &( allMEs[ipagV*neppV] ) ) += deltaMEs;
+      }
+      else
+      {
+        for ( int ieppV=0; ieppV<neppV; ieppV++ )
+          allMEs[ipagV*neppV + ieppV] += deltaMEs[ieppV];
+      }
+      //if ( cNGoodHel > 0 )
+      //  for ( int ieppV=0; ieppV<neppV; ieppV++ )
+      //    printf( "calculate_wavefunction: %6d %2d %f\n", ipagV*neppV+ieppV, ihel, allMEs[ipagV][ieppV] );
 #else
       allMEs[ipagV] += deltaMEs;
-      //printf( "calculate_wavefunction: %6d %2d %f\n", ipagV, ihel, allMEs[ipagV] ); // FIXME for MGONGPU_CPPSIMD
+      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %6d %2d %f\n", ipagV, ihel, allMEs[ipagV] );
+#endif
 #endif
     }
-
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -216,7 +258,9 @@ namespace Proc
     , m_ngputhreads( ngputhreads )
     , m_verbose( verbose )
     , m_debug( debug )
+#ifndef MGONGPU_HARDCODE_CIPC
     , m_pars( 0 )
+#endif
     , m_masses()
   {
     // Helicities for the process [NB do keep 'static' for this constexpr array, see issue #283]
@@ -242,12 +286,6 @@ namespace Proc
 #else
     memcpy( cHel, tHel, ncomb * mgOnGpu::npar * sizeof(short) );
 #endif
-    // SANITY CHECK: GPU memory usage may be based on casts of fptype[2] to cxtype
-    assert( sizeof(cxtype) == 2 * sizeof(fptype) );
-#ifndef __CUDACC__
-    // SANITY CHECK: momenta AOSOA uses vectors with the same size as fptype_v
-    assert( neppV == mgOnGpu::neppM );
-#endif
   }
 
   //--------------------------------------------------------------------------
@@ -256,7 +294,8 @@ namespace Proc
 
   //--------------------------------------------------------------------------
 
-  // Initialize process
+#ifndef MGONGPU_HARDCODE_CIPC
+  // Initialize process (with parameters read from user cards)
   void CPPProcess::initProc( const std::string& param_card_name )
   {
     // Instantiate the model class and set parameters that stay fixed during run
@@ -264,20 +303,20 @@ namespace Proc
     SLHAReader slha( param_card_name, m_verbose );
     m_pars->setIndependentParameters( slha );
     m_pars->setIndependentCouplings();
+    m_pars->setDependentParameters();
+    m_pars->setDependentCouplings();
     if ( m_verbose )
     {
       m_pars->printIndependentParameters();
       m_pars->printIndependentCouplings();
+      m_pars->printDependentParameters();
+      m_pars->printDependentCouplings();
     }
-    m_pars->setDependentParameters();
-    m_pars->setDependentCouplings();
-
     // Set external particle masses for this matrix element
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
-
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     const cxtype tIPC[3] = { cxmake( m_pars->GC_3 ), cxmake( m_pars->GC_50 ), cxmake( m_pars->GC_59 ) };
@@ -289,13 +328,28 @@ namespace Proc
     memcpy( cIPC, tIPC, 3 * sizeof(cxtype) );
     memcpy( cIPD, tIPD, 2 * sizeof(fptype) );
 #endif
-
-    //std::cout << std::setprecision(17) << "tIPC[0] = " << tIPC[0] << std::endl;
-    //std::cout << std::setprecision(17) << "tIPC[1] = " << tIPC[1] << std::endl;
-    //std::cout << std::setprecision(17) << "tIPC[2] = " << tIPC[2] << std::endl;
-    //std::cout << std::setprecision(17) << "tIPD[0] = " << tIPD[0] << std::endl;
-    //std::cout << std::setprecision(17) << "tIPD[1] = " << tIPD[1] << std::endl;
+    //for ( i=0; i<3; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;
+    //for ( i=0; i<2; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
   }
+#else
+  // Initialize process (with hardcoded parameters)
+  void CPPProcess::initProc( const std::string& /*param_card_name*/ )
+  {
+    // Use hardcoded physics parameters
+    if ( m_verbose )
+    {
+      Parameters_sm::printIndependentParameters();
+      Parameters_sm::printIndependentCouplings();
+      Parameters_sm::printDependentParameters();
+      Parameters_sm::printDependentCouplings();
+    }
+    // Set external particle masses for this matrix element
+    m_masses.push_back( Parameters_sm::ZERO );
+    m_masses.push_back( Parameters_sm::ZERO );
+    m_masses.push_back( Parameters_sm::ZERO );
+    m_masses.push_back( Parameters_sm::ZERO );
+  }
+#endif
 
   //--------------------------------------------------------------------------
 
@@ -304,7 +358,10 @@ namespace Proc
   {
     std::stringstream out;
     // CUDA version (NVCC)
-#ifdef __CUDACC__
+    // [Use __NVCC__ instead of __CUDACC__ here!]
+    // [This tests if 'nvcc' was used even to build a .cc file, even if not necessarily 'nvcc -x cu' for a .cu file]
+    // [Check 'nvcc --compiler-options -dM -E dummy.c | grep CUDA': see https://stackoverflow.com/a/53713712]
+#ifdef __NVCC__
 #if defined __CUDACC_VER_MAJOR__ && defined __CUDACC_VER_MINOR__ && defined __CUDACC_VER_BUILD__
     out << "nvcc " << __CUDACC_VER_MAJOR__ << "." << __CUDACC_VER_MINOR__ << "." << __CUDACC_VER_BUILD__;
 #else
@@ -316,7 +373,12 @@ namespace Proc
 #if defined __INTEL_COMPILER
 #error "icc is no longer supported: please use icx"
 #elif defined __INTEL_LLVM_COMPILER // alternative: __INTEL_CLANG_COMPILER
-    out << "icx " << __INTEL_LLVM_COMPILER << " (";
+    out << "icx " << __INTEL_LLVM_COMPILER;
+#ifdef __NVCC__
+    out << ", ";
+#else
+    out << " (";
+#endif
 #endif
     // CLANG version (either as CXX or as host compiler inside NVCC or inside ICX)
 #if defined __clang__
@@ -330,7 +392,7 @@ namespace Proc
     std::array<char, 128> tchainbuf;
     while ( fgets( tchainbuf.data(), tchainbuf.size(), tchainpipe.get() ) != nullptr ) tchainout += tchainbuf.data();
     tchainout.pop_back(); // remove trailing newline
-#if defined __CUDACC__ or defined __INTEL_LLVM_COMPILER
+#if defined __NVCC__ or defined __INTEL_LLVM_COMPILER
     out << ", gcc " << tchainout;
 #else
     out << " (gcc " << tchainout << ")";
@@ -346,7 +408,7 @@ namespace Proc
     out << "gcc UNKNOWKN";
 #endif
 #endif
-#if defined __CUDACC__ or defined __INTEL_LLVM_COMPILER
+#if defined __NVCC__ or defined __INTEL_LLVM_COMPILER
     out << ")";
 #endif
     return out.str();
@@ -356,9 +418,9 @@ namespace Proc
 
 #ifdef __CUDACC__
   __global__
-  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            fptype_sv* allMEs,           // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
-                            bool* isGoodHel )            // output: isGoodHel[ncomb] - device array
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                            bool* isGoodHel )         // output: isGoodHel[ncomb] - device array
   {
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
@@ -376,33 +438,35 @@ namespace Proc
     }
   }
 #else
-  void sigmaKin_getGoodHel( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                            fptype_sv* allMEs,           // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
-                            bool* isGoodHel              // output: isGoodHel[ncomb] - device array
-                            , const int nevt )           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                            bool* isGoodHel           // output: isGoodHel[ncomb] - device array
+                            , const int nevt )        // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
+    //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
+    //assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
     const int maxtry0 = ( neppV > 16 ? neppV : 16 ); // 16, but at least neppV (otherwise the npagV loop does not even start)
-    fptype_sv allMEsLast[maxtry0/neppV] = { 0 };
+    fptype allMEsLast[maxtry0] = {0}; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
     const int maxtry = std::min( maxtry0, nevt ); // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
-    for ( int ipagV = 0; ipagV < maxtry/neppV; ++ipagV )
+    for ( int ievt = 0; ievt < maxtry; ++ievt )
     {
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-      allMEs[ipagV] = fptype_sv{0}; // all zeros
+      allMEs[ievt] = 0; // all zeros
     }
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
       calculate_wavefunctions( ihel, allmomenta, allMEs, maxtry );
-      for ( int ipagV = 0; ipagV < maxtry/neppV; ++ipagV )
+      for ( int ievt = 0; ievt < maxtry; ++ievt )
       {
         // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-        const bool differs = maskor( allMEs[ipagV] != allMEsLast[ipagV] ); // true if any of the neppV events differs
+        const bool differs = ( allMEs[ievt] != allMEsLast[ievt] );
         if ( differs )
         {
           //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
           isGoodHel[ihel] = true;
         }
-        allMEsLast[ipagV] = allMEs[ipagV]; // running sum up to helicity ihel
+        allMEsLast[ievt] = allMEs[ievt]; // running sum up to helicity ihel
       }
     }
   }
@@ -413,7 +477,7 @@ namespace Proc
   void sigmaKin_setGoodHel( const bool* isGoodHel ) // input: isGoodHel[ncomb] - host array
   {
     int nGoodHel = 0; // FIXME: assume process.nprocesses == 1 for the moment (eventually nGoodHel[nprocesses]?)
-    int goodHel[ncomb] = { 0 };
+    int goodHel[ncomb] = {0}; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
     for ( int ihel = 0; ihel < ncomb; ihel++ )
     {
       //std::cout << "sigmaKin_setGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
@@ -439,10 +503,10 @@ namespace Proc
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
   __global__
-  void sigmaKin( const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                 fptype_sv* allMEs            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
+  void sigmaKin( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                 fptype* allMEs            // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifndef __CUDACC__
-                 , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                  )
   {
@@ -460,6 +524,9 @@ namespace Proc
     // Remember: in CUDA this is a kernel for one event, in c++ this processes n events
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     //printf( "sigmakin: ievt %d\n", ievt );
+#else
+    //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
+    //assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
 #endif
 
     // Start sigmaKin_lines
@@ -472,7 +539,8 @@ namespace Proc
     const int npagV = nevt/neppV;
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
-      allMEs[ipagV] = fptype_sv{ 0 };
+      for ( int ieppV=0; ieppV<neppV; ieppV++ )
+        allMEs[ipagV*neppV + ieppV] = 0; // all zeros
     }
 #endif
 
@@ -500,7 +568,8 @@ namespace Proc
 #else
     for ( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
-      allMEs[ipagV] /= denominators;
+      for ( int ieppV=0; ieppV<neppV; ieppV++ )
+        allMEs[ipagV*neppV + ieppV] /= denominators;
     }
 #endif
     mgDebugFinalise();
@@ -509,12 +578,6 @@ namespace Proc
   //--------------------------------------------------------------------------
 
 } // end namespace
-
-//==========================================================================
-
-// This was initially added to both C++ and CUDA in order to avoid RDC in CUDA (issue #51)
-// This is now also needed by C++ LTO-like optimizations via inlining (issue #229)
-#include "HelAmps_sm.cc"
 
 //==========================================================================
 

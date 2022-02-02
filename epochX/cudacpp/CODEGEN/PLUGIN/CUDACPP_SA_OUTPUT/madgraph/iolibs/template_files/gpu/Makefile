@@ -5,13 +5,18 @@ CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
+# install target
+INSTALL_HEADERS=CPPProcess.h MatrixElementKernels.h MemoryBuffers.h checkCuda.h MemoryAccessMomenta.h MemoryAccessHelpers.h MemoryAccessVectors.h
+INSTALL_INC_DIR=../../include
+INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o MatrixElementKernels.o gMatrixElementKernels.o
+
 # Note: AR and CXX are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
 # Dependency on src directory
 MODELLIB = model_%(model)s
 LIBFLAGS = -L$(LIBDIR) -l$(MODELLIB)
-INCFLAGS += -I../../src -I$(TOOLSDIR)
+INCFLAGS += -I../../src
 
 # Dependency on tools directory
 TOOLSDIR = ../../../../../tools
@@ -22,13 +27,12 @@ TESTDIR  = ../../../../../test
 GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
 GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 
-# OpenMP flags
+# OpenMP flags (on gcc this requires gcc>=9.3, issue #269)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 override OMPFLAGS =
-else ifeq ($(shell $(CXX) --version | grep GCC | cut -d' ' -f3 | cut -d'.' -f1),9) # disable OMP on gcc9 (issue #269)
-override OMPFLAGS =
-OMPFLAGS ?= -fopenmp
 endif
+###OMPFLAGS ?= -fopenmp # TEMPORARELY DISABLE OMP (need to reassess MT)
+override OMPFLAGS = # TEMPORARELY DISABLE OMP (need to reassess MT)
 $(info OMPFLAGS=$(OMPFLAGS))
 CXXFLAGS += $(OMPFLAGS)
 
@@ -65,9 +69,14 @@ ifeq ($(HELINL),)
   override HELINL = 0
 endif
 
+# Set the default HRDCOD (hardcode cIPC and cIPD physics parameters?) choice
+ifeq ($(HRDCOD),)
+  override HRDCOD = 0
+endif
+
 # Set the default RNDGEN (random number generator) choice
 ifeq ($(RNDGEN),)
-  override RNDGEN = curdev
+  override RNDGEN = hasCurand
 endif
 
 # If CUDA_HOME is not set, try to set it from the location of nvcc
@@ -88,31 +97,23 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
   CUOPTFLAGS  = -lineinfo
   CUFLAGS     = $(OPTFLAGS) $(CUOPTFLAGS) $(INCFLAGS) $(CUINC) $(USE_NVTX) $(CUARCHFLAGS) -use_fast_math
-  NVCC_VERSION = $(shell $(NVCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
-  # TEMPORARY! For as long as cuda 11.0/11.1 are supported (issues #282 and #292)
-  # (Eventually, use only c++17; previously, c++14 in cuda110/111 and c++17 above; now c++14 everywhere)
-  ###ifeq ($(NVCC_VERSION),11.0)
-  ###  CUFLAGS += -std=c++14
-  ###else ifeq ($(NVCC_VERSION),11.1)
-  ###  CUFLAGS += -std=c++14
-  ###else
-  ###  CUFLAGS += -std=c++17
-  ###endif
-  CUFLAGS += -std=c++14
+  ###CUFLAGS    += -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -Wshadow
+  ###NVCC_VERSION = $(shell $(NVCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
+  CUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
   # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
   ###CUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
   cu_main     = $(BUILDDIR)/gcheck.exe
-  cu_objects  = $(BUILDDIR)/gCPPProcess.o
+  cu_objects  = $(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
-  NVCC       := 
+  NVCC       :=
   USE_NVTX   :=
   CULIBFLAGS :=
-  override RNDGEN = common
+  override RNDGEN = hasNoCurand
 endif
 
 # Set the host compiler for nvcc
@@ -184,35 +185,38 @@ else ifneq ($(HELINL),0)
   $(error Unknown HELINL='$(HELINL)': only '0' and '1' are supported)
 endif
 
-# Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=common")
-$(info RNDGEN=$(RNDGEN))
-ifeq ($(RNDGEN),curdev)
-  CXXFLAGS += -DMGONGPU_CURAND_ONDEVICE
-  CUFLAGS  += -DMGONGPU_CURAND_ONDEVICE
-else ifeq ($(RNDGEN),curhst)
-  CXXFLAGS += -DMGONGPU_CURAND_ONHOST
-  CUFLAGS  += -DMGONGPU_CURAND_ONHOST
-else ifeq ($(RNDGEN),common)
-  CXXFLAGS += -DMGONGPU_COMMONRAND_ONHOST
-  CUFLAGS  += -DMGONGPU_COMMONRAND_ONHOST
-else
-  $(error Unknown RNDGEN='$(RNDGEN)': only 'curdev', 'curhst' and 'common' are supported)
+# Set the build flags appropriate to each HRDCOD choice (example: "make HRDCOD=1")
+$(info HRDCOD=$(HRDCOD))
+ifeq ($(HRDCOD),1)
+  CXXFLAGS += -DMGONGPU_HARDCODE_CIPC
+  CUFLAGS  += -DMGONGPU_HARDCODE_CIPC
+else ifneq ($(HRDCOD),0)
+  $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
 endif
 
-# Export AVX, FPTYPE, HELINL, RNDGEN, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
+# Set the build flags appropriate to each RNDGEN choice (example: "make RNDGEN=hasNoCurand")
+$(info RNDGEN=$(RNDGEN))
+ifeq ($(RNDGEN),hasNoCurand)
+  CXXFLAGS += -DMGONGPU_HAS_NO_CURAND
+else ifneq ($(RNDGEN),hasCurand)
+  $(error Unknown RNDGEN='$(RNDGEN)': only 'hasCurand' and 'hasNoCurand' are supported)
+endif
+
+# Export AVX, FPTYPE, HELINL, HRDCOD, RNDGEN, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
 export AVX
 export FPTYPE
 export HELINL
+export HRDCOD
 export RNDGEN
 export OMPFLAGS
 
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
-override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)
+override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of CUDA and no-CUDA environment builds with different random number generators)
-override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_$(RNDGEN)
+override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
@@ -242,16 +246,18 @@ endif
 MAKEDEBUG=
 
 cxx_main=$(BUILDDIR)/check.exe
-cxx_objects=$(BUILDDIR)/CPPProcess.o
+cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o $(BUILDDIR)/RamboSamplingKernels.o $(BUILDDIR)/MatrixElementKernels.o $(BUILDDIR)/BridgeKernels.o $(BUILDDIR)/CrossSectionKernels.o
 
 testmain=$(BUILDDIR)/runTest.exe
 
-all.$(TAG): ../../src/$(BUILDDIR)/.build.$(TAG) $(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) ../../src/$(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
 
-override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)'`
+install: all.$(TAG) $(INSTALL_INC_DIR) $(addprefix $(INSTALL_INC_DIR)/, $(INSTALL_HEADERS)) $(addprefix $(LIBDIR)/, $(INSTALL_OBJECTS))
+
+override oldtagsb=`if [ -d $(BUILDDIR) ]; then find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
 $(BUILDDIR)/.build.$(TAG):
-	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir $(BUILDDIR)"; mkdir $(BUILDDIR); fi
-	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	@if [ "$(oldtagsb)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtagsb)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
 	@touch $(BUILDDIR)/.build.$(TAG)
 
 debug: OPTFLAGS   = -g -O0 -DDEBUG2
@@ -259,69 +265,109 @@ debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
 
+$(INSTALL_INC_DIR) :
+	$(MAKE) -C ../../src install
+
+$(INSTALL_INC_DIR)/%%.h : %%.h
+	@if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
+	cp $< $@
+
+$(LIBDIR)/%%.o : $(BUILDDIR)/%%.o
+	cp $< $@
+
 ../../src/$(BUILDDIR)/.build.$(TAG):
 	$(MAKE) -C ../../src $(MAKEDEBUG)
+
+modellib : $(LIBDIR)/lib$(MODELLIB).a
 
 $(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
-$(BUILDDIR)/gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h # ../../src/*.cu
-	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
-	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
-
-$(BUILDDIR)/CPPProcess.o : ../../src/HelAmps_sm.cc
-$(BUILDDIR)/gCPPProcess.o : ../../src/HelAmps_sm.cc
-
 $(BUILDDIR)/%%.o : %%.cu *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
-# Apply special build flags only to CPPProcess.cc (-flto)
-#$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
-#	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
-#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -flto $(CUINC) -c $< -o $@
-
-### Apply special build flags only to CPPProcess.cc (AVXFLAGS)
-###$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
-###	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
-###	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(AVXFLAGS) $(CUINC) -c $< -o $@
+$(BUILDDIR)/%%_cu.o : %%.cc *.h ../../src/*.h
+	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
+	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c -x cu $< -o $@
 
 $(BUILDDIR)/%%.o : %%.cc *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
-$(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
-	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
+# Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117)
+$(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
+$(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
 
-$(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
-	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+#### Apply special build flags only to CPPProcess.cc (-flto)
+###$(BUILDDIR)/CPPProcess.o: CXXFLAGS += -flto
+
+#### Apply special build flags only to CPPProcess.cc (AVXFLAGS)
+###$(BUILDDIR)/CPPProcess.o: CXXFLAGS += $(AVXFLAGS)
+
+ifneq ($(shell $(CXX) --version | grep ^Intel),)
+$(cu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
+endif
+
+$(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects) $(cucxx_objects)
+	$(NVCC) $< -o $@ $(cu_objects) $(cucxx_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
+
+$(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cucxx_objects)
+	$(CXX) $< -o $@ $(cxx_objects) $(cucxx_objects) $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+
+$(BUILDDIR)/testxxx.o: $(GTESTLIBS)
+$(BUILDDIR)/testxxx.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(BUILDDIR)/testxxx.o: testxxx_cc_ref.txt
+$(testmain): $(BUILDDIR)/testxxx.o
+$(testmain): cxx_objects += $(BUILDDIR)/testxxx.o # Comment out this line to skip the C++ test of xxx functions
+
+ifneq ($(NVCC),)
+$(BUILDDIR)/testxxx_cu.o: $(GTESTLIBS)
+$(BUILDDIR)/testxxx_cu.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(BUILDDIR)/testxxx_cu.o: testxxx_cc_ref.txt
+$(testmain): $(BUILDDIR)/testxxx_cu.o
+$(testmain): cu_objects += $(BUILDDIR)/testxxx_cu.o # Comment out this line to skip the CUDA test of xxx functions
+endif
+
+$(BUILDDIR)/testmisc.o: $(GTESTLIBS)
+$(BUILDDIR)/testmisc.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(testmain): $(BUILDDIR)/testmisc.o
+$(testmain): cxx_objects += $(BUILDDIR)/testmisc.o # Comment out this line to skip the C++ miscellaneous tests
+
+ifneq ($(NVCC),)
+$(BUILDDIR)/testmisc_cu.o: $(GTESTLIBS)
+$(BUILDDIR)/testmisc_cu.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(testmain): $(BUILDDIR)/testmisc_cu.o
+$(testmain): cu_objects += $(BUILDDIR)/testmisc_cu.o # Comment out this line to skip the CUDA miscellaneous tests
+endif
 
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
+$(BUILDDIR)/runTest.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(testmain): $(BUILDDIR)/runTest.o
+$(testmain): cxx_objects += $(BUILDDIR)/runTest.o
+
+ifneq ($(NVCC),)
+$(BUILDDIR)/runTest_cu.o: $(GTESTLIBS)
+$(BUILDDIR)/runTest_cu.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+$(testmain): $(BUILDDIR)/runTest_cu.o
+$(testmain): cu_objects  += $(BUILDDIR)/runTest_cu.o
+endif
+
 $(testmain): $(GTESTLIBS)
 $(testmain): INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
 $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
-$(testmain): $(BUILDDIR)/runTest.o
-$(testmain): cxx_objects += $(BUILDDIR)/runTest.o
-$(testmain): cu_objects  += $(BUILDDIR)/runTest_cu.o
 ifneq ($(shell $(CXX) --version | grep ^clang),)
 $(testmain): LIBFLAGS += -L$(patsubst %%bin/clang++,%%lib,$(shell which $(CXX) | tail -1))
 endif
 
-$(BUILDDIR)/testxxx.o:   $(GTESTLIBS)
-$(BUILDDIR)/testxxx.o:   testxxx_cc_ref.txt
-$(testmain): $(BUILDDIR)/testxxx.o
-$(testmain): cxx_objects += $(BUILDDIR)/testxxx.o # Comment out this line to skip the test of xxx functions
-
 ifeq ($(NVCC),)
 # Link only runTest.o
-$(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS) 
-	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+$(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS)
+	$(CXX) -o $@ $(cxx_objects) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else
 # Link both runTest.o and runTest_cu.o
-# (todo? avoid multiple targets and '&', this needs the latest make 4.3, see https://stackoverflow.com/a/60232515)
-$(testmain) $(BUILDDIR)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
-	$(NVCC) -o $(BUILDDIR)/runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
-	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
+$(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
+	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
 
 $(GTESTLIBS):
@@ -330,17 +376,41 @@ $(GTESTLIBS):
 check: $(testmain)
 	$(testmain)
 
-avxall:
+avxnone:
 	@echo
 	make USEBUILDDIR=1 AVX=none
+
+avxsse4:
 	@echo
 	make USEBUILDDIR=1 AVX=sse4
+
+avxavx2:
 	@echo
 	make USEBUILDDIR=1 AVX=avx2
+
+avx512y:
 	@echo
 	make USEBUILDDIR=1 AVX=512y
+
+avx512z:
 	@echo
 	make USEBUILDDIR=1 AVX=512z
+
+# Split the avxall target into five separate targets to allow parallel "make -j" builds
+avxall: avxnone avxsse4 avxavx2 avx512y avx512z
+
+# Do not make this dependent on avxall and do not implement -j (do 'make avxall -j; make avxall-install' instead)
+avxall-install:
+	@echo
+	make USEBUILDDIR=1 AVX=none install
+	@echo
+	make USEBUILDDIR=1 AVX=sse4 install
+	@echo
+	make USEBUILDDIR=1 AVX=avx2 install
+	@echo
+	make USEBUILDDIR=1 AVX=512y install
+	@echo
+	make USEBUILDDIR=1 AVX=512z install
 
 .PHONY: clean
 
@@ -354,10 +424,10 @@ endif
 
 cleanall:
 	@echo
-	make clean
+	make USEBUILDDIR=0 clean
 	@echo
-	make -C ../../src cleanall
-	rm -rf build.*	
+	make USEBUILDDIR=0 -C ../../src cleanall
+	rm -rf build.*
 
 distclean: cleanall
 	make -C $(TOOLSDIR) clean
