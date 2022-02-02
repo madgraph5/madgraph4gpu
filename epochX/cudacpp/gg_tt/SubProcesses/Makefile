@@ -22,58 +22,6 @@ TESTDIR  = ../../../../../test
 GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
 GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 
-# OpenMP flags (on gcc this requires gcc>=9.3, issue #269)
-ifneq ($(shell $(CXX) --version | grep ^Intel),)
-override OMPFLAGS =
-endif
-###OMPFLAGS ?= -fopenmp # TEMPORARELY DISABLE OMP (need to reassess MT)
-override OMPFLAGS = # TEMPORARELY DISABLE OMP (need to reassess MT)
-$(info OMPFLAGS=$(OMPFLAGS))
-CXXFLAGS += $(OMPFLAGS)
-
-# Assuming uname is available, detect if architecture is PowerPC
-UNAME_P := $(shell uname -p)
-
-# Set the default AVX (vectorization) choice
-ifeq ($(AVX),)
-  ifeq ($(UNAME_P),ppc64le)
-    ###override AVX = none
-    override AVX = sse4
-  else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
-    override AVX = 512y
-    ###$(info Using AVX='$(AVX)' as no user input exists)
-  else
-    override AVX = avx2
-    ifneq ($(shell grep -m1 -c avx512vl /proc/cpuinfo),1)
-      $(warning Using AVX='$(AVX)' because host does not support avx512vl)
-    else
-      $(warning Using AVX='$(AVX)' because this is faster than avx512vl for clang)
-    endif
-  endif
-else
-  ###$(info Using AVX='$(AVX)' according to user input)
-endif
-
-# Set the default FPTYPE (floating point type) choice
-ifeq ($(FPTYPE),)
-  override FPTYPE = d
-endif
-
-# Set the default HELINL (inline helicities?) choice
-ifeq ($(HELINL),)
-  override HELINL = 0
-endif
-
-# Set the default HRDCOD (hardcode cIPC and cIPD physics parameters?) choice
-ifeq ($(HRDCOD),)
-  override HRDCOD = 0
-endif
-
-# Set the default RNDGEN (random number generator) choice
-ifeq ($(RNDGEN),)
-  override RNDGEN = hasCurand
-endif
-
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
   CUDA_HOME = $(patsubst %bin/nvcc,%,$(shell which nvcc 2>/dev/null))
@@ -144,6 +92,60 @@ ifeq ($(UNAME_P),ppc64le)
   CUFLAGS+= -Xcompiler -mno-float128
 endif
 
+#-------------------------------------------------------------------------------
+
+#=== Configure defaults and check if user-defined choices exist for OMPFLAGS, AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
+
+# Set the default OMPFLAGS choice
+ifneq ($(shell $(CXX) --version | grep ^Intel),)
+override OMPFLAGS = # disable OpenMP on the Intel compiler (on gcc this requires gcc>=9.3, issue #269)
+endif
+###OMPFLAGS ?= -fopenmp # TEMPORARELY DISABLE OMP (need to reassess MT)
+override OMPFLAGS = # TEMPORARELY DISABLE OMP (need to reassess MT)
+
+# Assuming uname is available, detect if architecture is PowerPC
+UNAME_P := $(shell uname -p)
+
+# Set the default AVX (vectorization) choice
+ifeq ($(AVX),)
+  ifeq ($(UNAME_P),ppc64le)
+    ###override AVX = none
+    override AVX = sse4
+  else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
+    override AVX = 512y
+    ###$(info Using AVX='$(AVX)' as no user input exists)
+  else
+    override AVX = avx2
+    ifneq ($(shell grep -m1 -c avx512vl /proc/cpuinfo),1)
+      $(warning Using AVX='$(AVX)' because host does not support avx512vl)
+    else
+      $(warning Using AVX='$(AVX)' because this is faster than avx512vl for clang)
+    endif
+  endif
+else
+  ###$(info Using AVX='$(AVX)' according to user input)
+endif
+
+# Set the default FPTYPE (floating point type) choice
+ifeq ($(FPTYPE),)
+  override FPTYPE = d
+endif
+
+# Set the default HELINL (inline helicities?) choice
+ifeq ($(HELINL),)
+  override HELINL = 0
+endif
+
+# Set the default HRDCOD (hardcode cIPC and cIPD physics parameters?) choice
+ifeq ($(HRDCOD),)
+  override HRDCOD = 0
+endif
+
+# Set the default RNDGEN (random number generator) choice
+ifeq ($(RNDGEN),)
+  override RNDGEN = hasCurand
+endif
+
 # Export AVX, FPTYPE, HELINL, HRDCOD, RNDGEN, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
 export AVX
 export FPTYPE
@@ -155,6 +157,10 @@ export OMPFLAGS
 #-------------------------------------------------------------------------------
 
 #=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
+
+# Set the build flags appropriate to OMPFLAGS
+$(info OMPFLAGS=$(OMPFLAGS))
+CXXFLAGS += $(OMPFLAGS)
 
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
