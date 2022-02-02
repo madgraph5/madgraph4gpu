@@ -553,11 +553,6 @@ test: force
 memcheck: $(BUILDDIR)/gcheck.exe
 	LD_LIBRARY_PATH="$(LIBDIR):$(LD_LIBRARY_PATH)" $(CUDA_HOME)/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes $(BUILDDIR)/gcheck.exe 2 32 2
 
-# Target: perf (run the CUDA standalone executable with a large grid)
-perf: force
-	make clean && make
-	LD_LIBRARY_PATH="$(LIBDIR):$(LD_LIBRARY_PATH)" time $(BUILDDIR)/gcheck.exe -p 16348 32 12 && date
-
 force:
 
 #-------------------------------------------------------------------------------
