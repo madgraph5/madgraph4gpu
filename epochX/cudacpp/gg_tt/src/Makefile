@@ -155,8 +155,8 @@ endif
 # NB1: there are no CUDA targets in src as we avoid RDC!
 # NB2: CUDA includes for curand.h are no longer needed in the C++ code anywhere in src!
 
-MODELLIB = model_sm
-common_libs=$(LIBDIR)/lib$(MODELLIB).a $(LIBDIR)/lib$(MODELLIB).so
+COMMONLIB = mg5amc_common
+common_libs = $(LIBDIR)/lib$(COMMONLIB).a $(LIBDIR)/lib$(COMMONLIB).so
 
 # First target (default goal)
 all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(common_libs)
@@ -190,13 +190,13 @@ $(BUILDDIR)/%.o : %.cc *.h
 
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
 
-# Target (and build rules): common "model" libraries
-$(LIBDIR)/lib$(MODELLIB).a : $(cxx_objects)
+# Target (and build rules): common (src) libraries
+$(LIBDIR)/lib$(COMMONLIB).a : $(cxx_objects)
 	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
 	$(AR) cru $@ $(cxx_objects)
 	$(RANLIB) $@
 
-$(LIBDIR)/lib$(MODELLIB).so : $(cxx_objects)
+$(LIBDIR)/lib$(COMMONLIB).so : $(cxx_objects)
 	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
 	$(CXX) -shared -o$@ $(cxx_objects)
 
