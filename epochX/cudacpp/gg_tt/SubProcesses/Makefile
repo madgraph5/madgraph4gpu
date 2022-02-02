@@ -334,17 +334,17 @@ $(LIBDIR)/lib$(MG5AMC_COMMONLIB).a: ../../src/*.h ../../src/*.cc
 
 #-------------------------------------------------------------------------------
 
-cxx_lib=$(LIBDIR)/libmg5amc_cxx.so
+MG5AMC_CXXLIB = mg5amc_cxx
 cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o $(BUILDDIR)/RamboSamplingKernels.o $(BUILDDIR)/MatrixElementKernels.o $(BUILDDIR)/BridgeKernels.o $(BUILDDIR)/CrossSectionKernels.o
 
-cu_lib=$(LIBDIR)/libmg5amc_cu.so
+MG5AMC_CULIB = mg5amc_cu
 cu_objects=$(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o
 
 # Target (and build rules): CUDA and C++ shared libraries
-$(cu_lib): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_objects)
+$(LIBDIR)/lib$(MG5AMC_CULIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_objects)
 	$(NVCC) $< --shared -o $@ $(cu_objects)
 
-$(cxx_lib): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects)
+$(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects)
 	$(CXX) $< -shared -o $@ $(cxx_objects)
 
 #-------------------------------------------------------------------------------
@@ -354,11 +354,11 @@ ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(cu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
 endif
 
-$(cu_main): $(BUILDDIR)/gcheck_sa.o $(cu_lib)
-	$(NVCC) $< -o $@ $(cu_lib) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
+$(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
+	$(NVCC) $< -o $@ $(LIBDIR)/lib$(MG5AMC_CULIB).so $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
 
-$(cxx_main): $(BUILDDIR)/check_sa.o $(cxx_lib)
-	$(CXX) $< -o $@ $(cxx_lib) $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+$(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
+	$(CXX) $< -o $@ $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
 #-------------------------------------------------------------------------------
 
