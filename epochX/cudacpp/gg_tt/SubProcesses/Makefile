@@ -507,12 +507,18 @@ distclean: cleanall
 
 # Target: show system and compiler information
 info:
+	@echo ""
+	@echo -n "hostname="
 	@hostname
 	@cat /proc/cpuinfo | grep "model name" | sort -u
 	@cat /proc/cpuinfo | grep "flags" | sort -u
 	@cat /proc/cpuinfo | grep "cpu cores" | sort -u
 	@cat /proc/cpuinfo | grep "physical id" | sort -u
 	@echo ""
+ifneq ($(shell which nvidia-smi 2>/dev/null),)
+	nvidia-smi -L
+	@echo ""
+endif
 	@echo USECCACHE=$(USECCACHE)
 ifeq ($(USECCACHE),1)
 	ccache --version | head -1
