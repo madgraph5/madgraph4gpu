@@ -320,11 +320,11 @@ cu_lib=$(LIBDIR)/libmg5amc_cu.so
 cu_objects=$(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o
 
 # Target (and build rules): CUDA and C++ shared libraries
-$(cu_lib): $(LIBDIR)/lib$(MODELLIB).so $(cu_objects) $(cucxx_objects)
-	$(NVCC) $< --shared -o $@ $(cu_objects) $(cucxx_objects)
+$(cu_lib): $(LIBDIR)/lib$(MODELLIB).so $(cu_objects)
+	$(NVCC) $< --shared -o $@ $(cu_objects)
 
-$(cxx_lib): $(LIBDIR)/lib$(MODELLIB).so $(cxx_objects) $(cucxx_objects)
-	$(CXX) $< -shared -o $@ $(cxx_objects) $(cucxx_objects)
+$(cxx_lib): $(LIBDIR)/lib$(MODELLIB).so $(cxx_objects)
+	$(CXX) $< -shared -o $@ $(cxx_objects)
 
 #-------------------------------------------------------------------------------
 
