@@ -109,6 +109,19 @@ else
   override RNDGEN = hasNoCurand
 endif
 
+# Enable ccache if USECCACHE=1
+ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
+  override CXX:=ccache $(CXX)
+endif
+#ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
+#  override AR:=ccache $(AR)
+#endif
+ifneq ($(NVCC),)
+  ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
+    override NVCC:=ccache $(NVCC)
+  endif
+endif
+
 # Set the host compiler for nvcc
 CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
 
@@ -130,6 +143,18 @@ endif
 ifeq ($(UNAME_P),ppc64le)
   CUFLAGS+= -Xcompiler -mno-float128
 endif
+
+# Export AVX, FPTYPE, HELINL, HRDCOD, RNDGEN, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
+export AVX
+export FPTYPE
+export HELINL
+export HRDCOD
+export RNDGEN
+export OMPFLAGS
+
+#-------------------------------------------------------------------------------
+
+#=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
 
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
@@ -195,13 +220,9 @@ else ifneq ($(RNDGEN),hasCurand)
   $(error Unknown RNDGEN='$(RNDGEN)': only 'hasCurand' and 'hasNoCurand' are supported)
 endif
 
-# Export AVX, FPTYPE, HELINL, HRDCOD, RNDGEN, OMPFLAGS so that it is not necessary to pass them to the src Makefile too
-export AVX
-export FPTYPE
-export HELINL
-export HRDCOD
-export RNDGEN
-export OMPFLAGS
+#-------------------------------------------------------------------------------
+
+#=== Configure build directories and build lockfiles ===
 
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
@@ -223,32 +244,13 @@ else
 endif
 ###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
 
-# Enable ccache if USECCACHE=1
-ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
-  override CXX:=ccache $(CXX)
-endif
-#ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
-#  override AR:=ccache $(AR)
-#endif
-ifneq ($(NVCC),)
-  ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
-    override NVCC:=ccache $(NVCC)
-  endif
-endif
+#===============================================================================
+#=== Makefile TARGETS and build rules below
+#===============================================================================
 
-#-------------------------------------------------------------------------------
-
-cxx_lib=$(LIBDIR)/libmg5amc_cxx.so
 cxx_main=$(BUILDDIR)/check.exe
-cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o $(BUILDDIR)/RamboSamplingKernels.o $(BUILDDIR)/MatrixElementKernels.o $(BUILDDIR)/BridgeKernels.o $(BUILDDIR)/CrossSectionKernels.o
-
-cu_lib=$(LIBDIR)/libmg5amc_cu.so
 cu_main=$(BUILDDIR)/gcheck.exe
-cu_objects=$(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o
-
 testmain=$(BUILDDIR)/runTest.exe
-
-#-------------------------------------------------------------------------------
 
 # First target (default goal)
 all.$(TAG): $(BUILDDIR)/.build.$(TAG) ../../src/$(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
@@ -270,13 +272,9 @@ $(BUILDDIR)/.build.$(TAG):
 ../../src/$(BUILDDIR)/.build.$(TAG):
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
-# Target (and build rules): common "model" library
-modellib : $(LIBDIR)/lib$(MODELLIB).a
+#-------------------------------------------------------------------------------
 
-$(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
-	$(MAKE) -C ../../src $(MAKEDEBUG)
-
-# Target (and build rules): objects from CUDA and C++ compilation
+# Generic target and build rules: objects from CUDA and C++ compilation
 $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) --compiler-options '-fPIC' -c $< -o $@
@@ -299,12 +297,30 @@ $(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
 #### Apply special build flags only to CPPProcess.cc (AVXFLAGS)
 ###$(BUILDDIR)/CPPProcess.o: CXXFLAGS += $(AVXFLAGS)
 
+#-------------------------------------------------------------------------------
+
+# Target (and build rules): common "model" library
+modellib : $(LIBDIR)/lib$(MODELLIB).a
+
+$(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
+	$(MAKE) -C ../../src $(MAKEDEBUG)
+
+#-------------------------------------------------------------------------------
+
+cxx_lib=$(LIBDIR)/libmg5amc_cxx.so
+cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o $(BUILDDIR)/RamboSamplingKernels.o $(BUILDDIR)/MatrixElementKernels.o $(BUILDDIR)/BridgeKernels.o $(BUILDDIR)/CrossSectionKernels.o
+
+cu_lib=$(LIBDIR)/libmg5amc_cu.so
+cu_objects=$(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o
+
 # Target (and build rules): CUDA and C++ shared libraries
 $(cu_lib): $(LIBDIR)/lib$(MODELLIB).so $(cu_objects) $(cucxx_objects)
 	$(NVCC) $< --shared -o $@ $(cu_objects) $(cucxx_objects)
 
 $(cxx_lib): $(LIBDIR)/lib$(MODELLIB).so $(cxx_objects) $(cucxx_objects)
 	$(CXX) $< -shared -o $@ $(cxx_objects) $(cucxx_objects)
+
+#-------------------------------------------------------------------------------
 
 # Target (and build rules): CUDA and C++ standalone executables
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
