@@ -22,6 +22,10 @@ TESTDIR  = ../../../../../test
 GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
 GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 
+#-------------------------------------------------------------------------------
+
+#=== Configure the CUDA compiler
+
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
   CUDA_HOME = $(patsubst %bin/nvcc,%,$(shell which nvcc 2>/dev/null))
@@ -31,8 +35,8 @@ endif
 # Set NVCC as $(CUDA_HOME)/bin/nvcc if it exists
 ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
-  CUARCHNUM=70
-  ###CUARCHNUM=61 # (For Pascal Architecture Cards)
+  CUARCHNUM=70 # For V100 (Volta), e.g. SCALE cluster and CERN lxbatch, see https://developer.nvidia.com/cuda-gpus#compute
+  ###CUARCHNUM=35 # For Jetson Nano (Maxwell), see https://developer.nvidia.com/cuda-gpus#compute
   USE_NVTX ?=-DUSE_NVTX
   CUARCHFLAGS = -arch=compute_$(CUARCHNUM)
   ###CUARCHFLAGS = -gencode arch=compute_$(CUARCHNUM),code=sm_$(CUARCHNUM)
@@ -51,11 +55,17 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
   $(warning CUDA_HOME is not set or is invalid. Export CUDA_HOME to compile with cuda)
-  NVCC       :=
-  USE_NVTX   :=
-  CULIBFLAGS :=
-  override RNDGEN = hasNoCurand
+  override NVCC=
+  override USE_NVTX=
+  override CULIBFLAGS=
 endif
+
+# Set the host C++ compiler for nvcc
+CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
+
+#-------------------------------------------------------------------------------
+
+#=== Configure ccache for the CUDA and C++ compilers
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -70,8 +80,12 @@ ifneq ($(NVCC),)
   endif
 endif
 
-# Set the host compiler for nvcc
-CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
+#-------------------------------------------------------------------------------
+
+#=== Configure PowerPC-specific compiler flags for CUDA and C++
+
+# Assuming uname is available, detect if architecture is PowerPC
+UNAME_P := $(shell uname -p)
 
 # PowerPC-specific CXX compiler flags (being reviewed)
 ifeq ($(UNAME_P),ppc64le)
@@ -102,9 +116,6 @@ override OMPFLAGS = # disable OpenMP on the Intel compiler (on gcc this requires
 endif
 ###OMPFLAGS ?= -fopenmp # TEMPORARELY DISABLE OMP (need to reassess MT)
 override OMPFLAGS = # TEMPORARELY DISABLE OMP (need to reassess MT)
-
-# Assuming uname is available, detect if architecture is PowerPC
-UNAME_P := $(shell uname -p)
 
 # Set the default AVX (vectorization) choice
 ifeq ($(AVX),)
@@ -142,7 +153,9 @@ ifeq ($(HRDCOD),)
 endif
 
 # Set the default RNDGEN (random number generator) choice
-ifeq ($(RNDGEN),)
+ifneq ($(NVCC),)
+  override RNDGEN = hasNoCurand
+else ifeq ($(RNDGEN),)
   override RNDGEN = hasCurand
 endif
 
@@ -532,8 +545,3 @@ force:
 
 #-------------------------------------------------------------------------------
 
-#Allowed values for this option: 'compute_30', 'compute_32', 'compute_35', 'compute_37', 'compute_50', 'compute_52', 'compute_53', 'compute_60', 'compute_61', 'compute_62', 'compute_70', 'compute_72', 'compute_75', 'sm_30', 'sm_32', 'sm_35', 'sm_37', 'sm_50', 'sm_52', 'sm_53', 'sm_60', 'sm_61', 'sm_62', 'sm_70', 'sm_72', 'sm_75'.
-
-# Max compute architectures
-# cern batch (tesla v100): 70
-# jetson nano (maxwell): 35
