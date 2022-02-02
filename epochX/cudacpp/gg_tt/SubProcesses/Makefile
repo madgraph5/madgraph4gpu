@@ -21,13 +21,13 @@ GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
 
 #=== Configure the C++ compiler
 
-# Note: AR and CXX are implicitly defined if not set externally
-# See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
-
 CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra
 CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
+
+# Note: AR and CXX are implicitly defined if not set externally
+# See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
 #-------------------------------------------------------------------------------
 
@@ -72,7 +72,7 @@ CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
 
 #-------------------------------------------------------------------------------
 
-#=== Configure ccache for the CUDA and C++ compilers
+#=== Configure ccache for CUDA and C++ builds
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -300,7 +300,7 @@ $(BUILDDIR)/.build.$(TAG):
 
 #-------------------------------------------------------------------------------
 
-# Generic target and build rules: objects from CUDA and C++ compilation
+# Generic target and build rules: objects from CUDA compilation
 $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) --compiler-options '-fPIC' -c $< -o $@
@@ -309,6 +309,7 @@ $(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) --compiler-options '-fPIC' -c -x cu $< -o $@
 
+# Generic target and build rules: objects from C++ compilation
 $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -fPIC -c $< -o $@
