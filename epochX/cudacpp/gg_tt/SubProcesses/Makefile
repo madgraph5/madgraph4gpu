@@ -355,10 +355,10 @@ $(cu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefine
 endif
 
 $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
-	$(NVCC) $< -o $@ $(LIBDIR)/lib$(MG5AMC_CULIB).so $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
+	$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB)
 
 $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
-	$(CXX) $< -o $@ $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
+	$(CXX) -o $@ $(BUILDDIR)/check_sa.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB)
 
 #-------------------------------------------------------------------------------
 
