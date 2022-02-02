@@ -27,6 +27,8 @@ detailed=0
 gtest=0
 verbose=0
 
+export LD_LIBRARY_PATH_start=$LD_LIBRARY_PATH
+
 function usage()
 {
   echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttg] [-ggttgg] [-ggttggg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
@@ -421,6 +423,11 @@ for exe in $exes; do
   else
     echo "-------------------------------------------------------------------------"
   fi
+  exeDir=$(dirname $exe)
+  libDir=$exeDir/../../../lib/$(basename $exeDir)
+  if [ ! -d $libDir ]; then echo "WARNING! $libDir not found"; else libDir=$(cd $libDir; pwd -P); fi
+  export LD_LIBRARY_PATH=$libDir:$LD_LIBRARY_PATH_start
+  echo "LD_LIBRARY_PATH=$libDir:..."
   unset OMP_NUM_THREADS
   runExe $exe "$exeArgs"
   if [ "${exe%%/check*}" != "${exe}" ]; then 
