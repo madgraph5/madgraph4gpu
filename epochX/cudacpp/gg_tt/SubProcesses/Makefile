@@ -327,9 +327,9 @@ $(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): common (src) library
-commonlib : $(LIBDIR)/lib$(MG5AMC_COMMONLIB).a
+commonlib : $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 
-$(LIBDIR)/lib$(MG5AMC_COMMONLIB).a: ../../src/*.h ../../src/*.cc
+$(LIBDIR)/lib$(MG5AMC_COMMONLIB).so: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
 #-------------------------------------------------------------------------------
@@ -409,10 +409,10 @@ $(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(shell which $(CXX) | t
 endif
 
 ifeq ($(NVCC),) # link only runTest.o
-$(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).a $(cxx_objects) $(GTESTLIBS)
+$(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else # link both runTest.o and runTest_cu.o
-$(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
+$(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects) $(cu_objects) $(GTESTLIBS)
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
 
