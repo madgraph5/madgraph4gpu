@@ -14,7 +14,7 @@ CXXFLAGS+= -ffast-math # see issue #117
 
 # Note: AR and CXX are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
-RANLIB = ranlib
+###RANLIB = ranlib
 
 #-------------------------------------------------------------------------------
 
@@ -24,9 +24,9 @@ RANLIB = ranlib
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
   override CXX:=ccache $(CXX)
 endif
-ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
-  override AR:=ccache $(AR)
-endif
+#ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
+#  override AR:=ccache $(AR)
+#endif
 #ifneq ($(NVCC),)
 #  ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
 #    override NVCC:=ccache $(NVCC)
@@ -156,14 +156,13 @@ endif
 # NB2: CUDA includes for curand.h are no longer needed in the C++ code anywhere in src!
 
 MG5AMC_COMMONLIB = mg5amc_common
-common_libs = $(LIBDIR)/lib$(MG5AMC_COMMONLIB).a $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 
 # First target (default goal)
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(common_libs)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 
 # Target (and build options): debug
 debug: OPTFLAGS = -g -O0 -DDEBUG2
-debug: $(common_libs)
+debug: all.$(TAG)
 
 # Target: tag-specific build lockfiles
 override oldtagsb=`if [ -d $(BUILDDIR) ]; then find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
@@ -190,12 +189,7 @@ $(BUILDDIR)/%.o : %.cc *.h
 
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
 
-# Target (and build rules): common (src) libraries
-$(LIBDIR)/lib$(MG5AMC_COMMONLIB).a : $(cxx_objects)
-	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
-	$(AR) cru $@ $(cxx_objects)
-	$(RANLIB) $@
-
+# Target (and build rules): common (src) library
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
 	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
 	$(CXX) -shared -o$@ $(cxx_objects)
