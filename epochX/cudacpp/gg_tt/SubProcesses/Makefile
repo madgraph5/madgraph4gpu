@@ -160,7 +160,7 @@ ifeq ($(HRDCOD),)
 endif
 
 # Set the default RNDGEN (random number generator) choice
-ifneq ($(NVCC),)
+ifeq ($(NVCC),)
   override RNDGEN = hasNoCurand
 else ifeq ($(RNDGEN),)
   override RNDGEN = hasCurand
