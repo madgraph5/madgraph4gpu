@@ -1,12 +1,7 @@
+#=== Configure common compiler flags for CUDA and C++
+
 INCFLAGS = -I.
 OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
-CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra
-CXXFLAGS+= -ffast-math # see issue #117
-###CXXFLAGS+= -Ofast # performance is not different from --fast-math
-###CXXFLAGS+= -g # FOR DEBUGGING ONLY
-
-# Note: AR and CXX are implicitly defined if not set externally
-# See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
 # Dependency on src directory
 MODELLIB = model_sm
@@ -21,6 +16,18 @@ INCFLAGS += -I$(TOOLSDIR)
 TESTDIR  = ../../../../../test
 GTESTLIBDIR = $(TESTDIR)/googletest/build/lib/
 GTESTLIBS   = $(GTESTLIBDIR)/libgtest.a $(GTESTLIBDIR)/libgtest_main.a
+
+#-------------------------------------------------------------------------------
+
+#=== Configure the C++ compiler
+
+# Note: AR and CXX are implicitly defined if not set externally
+# See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
+
+CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra
+CXXFLAGS+= -ffast-math # see issue #117
+###CXXFLAGS+= -Ofast # performance is not different from --fast-math
+###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
 #-------------------------------------------------------------------------------
 
@@ -530,18 +537,19 @@ endif
 check: $(testmain)
 	$(testmain)
 
-memcheck: $(cu_main)
-	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes $(BUILDDIR)/gcheck.exe 2 32 2
+# Target: test (run the CUDA standalone executable with a small grid)
+test: force
+	$(BUILDDIR)/gcheck.exe -v 1 32 1
 
+# Target: perf (run the CUDA standalone executable with a large grid)
 perf: force
 	make clean && make
 	time $(BUILDDIR)/gcheck.exe -p 16348 32 12 && date
 
-# Target: check (run the C++ test executable)
-test: force
-	$(BUILDDIR)/gcheck.exe -v 1 32 1
+# Target: memcheck (run the CUDA standalone executable with a small grid through cuda-memcheck)
+memcheck: $(cu_main)
+	/usr/local/cuda/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes $(BUILDDIR)/gcheck.exe 2 32 2
 
 force:
 
 #-------------------------------------------------------------------------------
-
