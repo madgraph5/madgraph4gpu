@@ -11,8 +11,8 @@
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuVectors.h"
 
-#include "checkCuda.h"
 #include "Parameters_sm.h"
+#include "checkCuda.h"
 
 #include <vector>
 
@@ -24,7 +24,6 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
   //==========================================================================
   // A class for calculating the matrix elements for
   // Process: e+ e- > mu+ mu- WEIGHTED<=4 @1
@@ -33,7 +32,6 @@ namespace mg5amcCpu
   class CPPProcess
   {
   public:
-
     // Constructor (from command line arguments)
     CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose = false, bool debug = false );
 
@@ -61,7 +59,6 @@ namespace mg5amcCpu
     bool debug() const { return m_debug; }
 
   public:
-
     // Hardcoded parameters for this process (constant class variables)
     //static const int ninitial = mgOnGpu::npari;
     //static const int nexternal = 4; // mgOnGpu::npar (nexternal was nioparticles)
@@ -72,11 +69,10 @@ namespace mg5amcCpu
     //static const int wrows = 6; // mgOnGpu::nw6;
 
   private:
-
     // Command line arguments (constructor)
     int m_numiterations; // number of iterations (each iteration has nblocks*nthreads events)
-    int m_ngpublocks; // number of GPU blocks in one grid (i.e. one iteration)
-    int m_ngputhreads; // number of GPU threads in a block
+    int m_ngpublocks;    // number of GPU blocks in one grid (i.e. one iteration)
+    int m_ngputhreads;   // number of GPU threads in a block
     bool m_verbose;
     bool m_debug;
 
@@ -89,19 +85,18 @@ namespace mg5amcCpu
     // Other variables of this instance (???)
     //int id1, id2; // initial particle ids
     //cxtype** amp; // ???
-
   };
 
   //--------------------------------------------------------------------------
 
-  __global__
-  void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
-                            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-                            bool* isGoodHel           // output: isGoodHel[ncomb] - device array
+  __global__ void sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                                       fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                                       bool* isGoodHel           // output: isGoodHel[ncomb] - device array
 #ifndef __CUDACC__
-                            , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                                       ,
+                                       const int nevt // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
-                            );
+  );
 
   //--------------------------------------------------------------------------
 
@@ -109,13 +104,13 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  __global__
-  void sigmaKin( const fptype* allmomenta, // input: momenta[nevt*npar*4]
-                 fptype* allMEs            // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+  __global__ void sigmaKin( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                            fptype* allMEs            // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifndef __CUDACC__
-                 , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                            ,
+                            const int nevt // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
-                 );
+  );
 
   //--------------------------------------------------------------------------
 }

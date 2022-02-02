@@ -1,4 +1,4 @@
-#ifndef MGONGPUTIMER_H 
+#ifndef MGONGPUTIMER_H
 #define MGONGPUTIMER_H 1
 
 #include <chrono>
@@ -6,7 +6,6 @@
 
 namespace mgOnGpu
 {
-
   /*
   high_resolution_clock
   steady_clock
@@ -16,10 +15,10 @@ namespace mgOnGpu
   and https://codereview.stackexchange.com/questions/196245/extremely-simple-timer-class-in-c
   */
 
-  template<typename T> class Timer {
-
+  template<typename T>
+  class Timer
+  {
   public:
-
     Timer() : m_StartTime( T::now() ) {}
     virtual ~Timer() {}
 
@@ -28,24 +27,25 @@ namespace mgOnGpu
     void Info();
 
   private:
-
     typedef typename T::time_point TTP;
     TTP m_StartTime;
-
   };
 
-  template<typename T> void Timer<T>::Start()
+  template<typename T>
+  void Timer<T>::Start()
   {
     m_StartTime = T::now();
   }
 
-  template<typename T> float Timer<T>::GetDuration()
+  template<typename T>
+  float Timer<T>::GetDuration()
   {
     std::chrono::duration<float> duration = T::now() - m_StartTime;
     return duration.count();
   }
 
-  template<typename T> void Timer<T>::Info()
+  template<typename T>
+  void Timer<T>::Info()
   {
     typedef typename T::period TPER;
     typedef typename std::ratio_multiply<TPER, std::kilo> MilliSec;
@@ -55,13 +55,11 @@ namespace mgOnGpu
     std::cout << "  is steady: " << T::is_steady << std::endl;
     std::cout << "  precision: " << TPER::num << "/" << TPER::den << " second " << std::endl;
     std::cout << std::fixed;
-    std::cout << "             "
-              << static_cast<double>(MilliSec::num)/MilliSec::den << " milliseconds " << std::endl;
-    std::cout << "             "
-              << static_cast<double>(MicroSec::num)/MicroSec::den << " microseconds " << std::endl;
+    std::cout << "             " << static_cast<double>( MilliSec::num ) / MilliSec::den << " milliseconds " << std::endl;
+    std::cout << "             " << static_cast<double>( MicroSec::num ) / MicroSec::den << " microseconds " << std::endl;
     std::cout << std::endl;
   }
 
-}
+} // namespace mgOnGpu
 
 #endif // MGONGPUTIMER_H

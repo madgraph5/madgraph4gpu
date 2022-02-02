@@ -12,24 +12,22 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
   using mgOnGpu::np4;
-  using mgOnGpu::npari;
-  using mgOnGpu::nparf;
   using mgOnGpu::npar;
+  using mgOnGpu::nparf;
+  using mgOnGpu::npari;
 
   //--------------------------------------------------------------------------
 
   // Fill in the momenta of the initial particles
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
   template<class M_ACCESS>
-  __host__ __device__
-  void ramboGetMomentaInitial( const fptype energy,  // input: energy
-                               fptype* momenta )     // output: momenta for one event or for a set of events
+  __host__ __device__ void ramboGetMomentaInitial( const fptype energy, // input: energy
+                                                   fptype* momenta )    // output: momenta for one event or for a set of events
   {
-    const fptype energy1 = energy/2;
-    const fptype energy2 = energy/2;
-    const fptype mom = energy/2;
+    const fptype energy1 = energy / 2;
+    const fptype energy2 = energy / 2;
+    const fptype mom = energy / 2;
     M_ACCESS::kernelAccessIp4Ipar( momenta, 0, 0 ) = energy1;
     M_ACCESS::kernelAccessIp4Ipar( momenta, 1, 0 ) = 0;
     M_ACCESS::kernelAccessIp4Ipar( momenta, 2, 0 ) = 0;
@@ -45,11 +43,11 @@ namespace mg5amcCpu
   // Fill in the momenta of the final particles using the RAMBO algorithm
   // [NB: the output buffer includes both initial and final momenta, but only initial momenta are filled in]
   template<class R_ACCESS, class M_ACCESS, class W_ACCESS>
-  __host__ __device__
-  void ramboGetMomentaFinal( const fptype energy,      // input: energy
-                             const fptype* rnarray,    // input: random numbers in [0,1] for one event or for a set of events
-                             fptype* momenta,          // output: momenta for one event or for a set of events
-                             fptype* wgts )            // output: weights for one event or for a set of events
+  __host__ __device__ void ramboGetMomentaFinal(
+    const fptype energy,   // input: energy
+    const fptype* rnarray, // input: random numbers in [0,1] for one event or for a set of events
+    fptype* momenta,       // output: momenta for one event or for a set of events
+    fptype* wgts )         // output: weights for one event or for a set of events
   {
     /****************************************************************************
      *                       rambo                                              *
@@ -77,8 +75,7 @@ namespace mg5amcCpu
         {
           const int ievt0 = 0;
           const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-          if ( ievt == ievt0 )
-            printf( "WARNING! Rambo called with 1 final particle: random numbers will be ignored\n" );
+          if ( ievt == ievt0 ) printf( "WARNING! Rambo called with 1 final particle: random numbers will be ignored\n" );
         }
         else
 #endif
@@ -90,23 +87,21 @@ namespace mg5amcCpu
       const int iparf = 0;
       for ( int i4 = 0; i4 < np4; i4++ )
       {
-        M_ACCESS::kernelAccessIp4Ipar( momenta, i4, iparf+npari ) = 0;
+        M_ACCESS::kernelAccessIp4Ipar( momenta, i4, iparf + npari ) = 0;
         for ( int ipari = 0; ipari < npari; ipari++ )
-        {
-          M_ACCESS::kernelAccessIp4Ipar( momenta, i4, iparf+npari ) += M_ACCESS::kernelAccessIp4Ipar( momenta, i4, ipari );
-        }
+        { M_ACCESS::kernelAccessIp4Ipar( momenta, i4, iparf + npari ) += M_ACCESS::kernelAccessIp4Ipar( momenta, i4, ipari ); }
       }
       wt = 1;
       return;
     }
 
     // initialization step: factorials for the phase space weight
-    const fptype twopi = 8. * atan(1.);
-    const fptype po2log = log(twopi / 4.);
+    const fptype twopi = 8. * atan( 1. );
+    const fptype po2log = log( twopi / 4. );
     fptype z[nparf];
     z[1] = po2log;
-    for ( int kpar = 2; kpar < nparf; kpar++ ) z[kpar] = z[kpar - 1] + po2log - 2. * log(fptype(kpar - 1));
-    for ( int kpar = 2; kpar < nparf; kpar++ ) z[kpar] = (z[kpar] - log(fptype(kpar)));
+    for ( int kpar = 2; kpar < nparf; kpar++ ) z[kpar] = z[kpar - 1] + po2log - 2. * log( fptype( kpar - 1 ) );
+    for ( int kpar = 2; kpar < nparf; kpar++ ) z[kpar] = ( z[kpar] - log( fptype( kpar ) ) );
 
     // generate n massless momenta in infinite phase space
     fptype q[nparf][np4];
@@ -117,26 +112,26 @@ namespace mg5amcCpu
       const fptype r3 = R_ACCESS::kernelAccessIp4IparfConst( rnarray, 2, iparf );
       const fptype r4 = R_ACCESS::kernelAccessIp4IparfConst( rnarray, 3, iparf );
       const fptype c = 2. * r1 - 1.;
-      const fptype s = sqrt(1. - c * c);
+      const fptype s = sqrt( 1. - c * c );
       const fptype f = twopi * r2;
-      q[iparf][0] = -log(r3 * r4);
+      q[iparf][0] = -log( r3 * r4 );
       q[iparf][3] = q[iparf][0] * c;
-      q[iparf][2] = q[iparf][0] * s * cos(f);
-      q[iparf][1] = q[iparf][0] * s * sin(f);
+      q[iparf][2] = q[iparf][0] * s * cos( f );
+      q[iparf][1] = q[iparf][0] * s * sin( f );
     }
 
     // calculate the parameters of the conformal transformation
     fptype r[np4];
-    fptype b[np4-1];
+    fptype b[np4 - 1];
     for ( int i4 = 0; i4 < np4; i4++ ) r[i4] = 0.;
     for ( int iparf = 0; iparf < nparf; iparf++ )
     {
       for ( int i4 = 0; i4 < np4; i4++ ) r[i4] = r[i4] + q[iparf][i4];
     }
-    const fptype rmas = sqrt(pow(r[0], 2) - pow(r[3], 2) - pow(r[2], 2) - pow(r[1], 2));
-    for ( int i4 = 1; i4 < np4; i4++ ) b[i4-1] = -r[i4] / rmas;
+    const fptype rmas = sqrt( pow( r[0], 2 ) - pow( r[3], 2 ) - pow( r[2], 2 ) - pow( r[1], 2 ) );
+    for ( int i4 = 1; i4 < np4; i4++ ) b[i4 - 1] = -r[i4] / rmas;
     const fptype g = r[0] / rmas;
-    const fptype a = 1. / (1. + g);
+    const fptype a = 1. / ( 1. + g );
     const fptype x0 = energy / rmas;
 
     // transform the q's conformally into the p's (i.e. the 'momenta')
@@ -145,18 +140,19 @@ namespace mg5amcCpu
       fptype bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
       for ( int i4 = 1; i4 < np4; i4++ )
       {
-        M_ACCESS::kernelAccessIp4Ipar( momenta, i4, iparf+npari ) = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
+        M_ACCESS::kernelAccessIp4Ipar( momenta, i4, iparf + npari ) =
+          x0 * ( q[iparf][i4] + b[i4 - 1] * ( q[iparf][0] + a * bq ) );
       }
-      M_ACCESS::kernelAccessIp4Ipar( momenta, 0, iparf+npari ) = x0 * (g * q[iparf][0] + bq);
+      M_ACCESS::kernelAccessIp4Ipar( momenta, 0, iparf + npari ) = x0 * ( g * q[iparf][0] + bq );
     }
 
     // calculate weight (NB return log of weight)
     wt = po2log;
-    if ( nparf != 2 ) wt = (2. * nparf - 4.) * log(energy) + z[nparf-1];
+    if ( nparf != 2 ) wt = ( 2. * nparf - 4. ) * log( energy ) + z[nparf - 1];
 
 #ifndef __CUDACC__
     // issue warnings if weight is too small or too large
-    static int iwarn[5] = {0,0,0,0,0};
+    static int iwarn[5] = {0, 0, 0, 0, 0};
     if ( wt < -180. )
     {
       if ( iwarn[0] <= 5 ) std::cout << "Too small wt, risk for underflow: " << wt << std::endl;
@@ -176,6 +172,4 @@ namespace mg5amcCpu
   }
 
   //--------------------------------------------------------------------------
-
 }
-

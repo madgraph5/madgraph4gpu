@@ -24,7 +24,7 @@ namespace mg5amcCpu
     static constexpr size_t npar = mgOnGpu::npar;
     static constexpr size_t nw6 = mgOnGpu::nw6;
     static constexpr size_t nx2 = mgOnGpu::nx2;
-  }
+  } // namespace MemoryBuffers
 
   //--------------------------------------------------------------------------
 
@@ -32,7 +32,7 @@ namespace mg5amcCpu
   class INumberOfEvents
   {
   public:
-    virtual ~INumberOfEvents(){}
+    virtual ~INumberOfEvents() {}
     virtual size_t nevt() const = 0;
   };
 
@@ -42,10 +42,10 @@ namespace mg5amcCpu
   class NumberOfEvents : virtual public INumberOfEvents
   {
   public:
-    NumberOfEvents( const size_t nevt )
-      : m_nevt( nevt ){}
-    virtual ~NumberOfEvents(){}
+    NumberOfEvents( const size_t nevt ) : m_nevt( nevt ) {}
+    virtual ~NumberOfEvents() {}
     virtual size_t nevt() const override { return m_nevt; }
+
   private:
     const size_t m_nevt;
   };
@@ -57,22 +57,24 @@ namespace mg5amcCpu
   class BufferBase : virtual public INumberOfEvents
   {
   protected:
-    BufferBase( const size_t size, const bool onDevice ) : m_size( size ), m_data( nullptr ), m_isOnDevice( onDevice ){}
-    virtual ~BufferBase(){}
+    BufferBase( const size_t size, const bool onDevice ) : m_size( size ), m_data( nullptr ), m_isOnDevice( onDevice ) {}
+    virtual ~BufferBase() {}
+
   public:
-    T* data(){ return m_data; }
-    const T* data() const{ return m_data; }
-    T& operator[]( const size_t index ){ return m_data[index]; }
+    T* data() { return m_data; }
+    const T* data() const { return m_data; }
+    T& operator[]( const size_t index ) { return m_data[index]; }
     const T& operator[]( const size_t index ) const { return m_data[index]; }
-    size_t size() const{ return m_size; }
-    size_t bytes() const{ return m_size * sizeof(T); }
+    size_t size() const { return m_size; }
+    size_t bytes() const { return m_size * sizeof( T ); }
     bool isOnDevice() const { return m_isOnDevice; }
     virtual size_t nevt() const override { throw std::runtime_error( "This BufferBase is not an event buffer" ); }
+
   protected:
     const size_t m_size;
     T* m_data;
     const bool m_isOnDevice;
- };
+  };
 
   //--------------------------------------------------------------------------
 
@@ -84,7 +86,7 @@ namespace mg5amcCpu
   public:
     HostBufferBase( const size_t size ) : BufferBase<T>( size, false )
     {
-      this->m_data = new( std::align_val_t( cppAlign ) ) T[ size ]();
+      this->m_data = new ( std::align_val_t( cppAlign ) ) T[size]();
       //this->m_data = new( std::align_val_t( cppAlign ) ) T[ size+1 ]() + 1; // TEST MISALIGNMENT!
     }
     virtual ~HostBufferBase()
@@ -92,6 +94,7 @@ namespace mg5amcCpu
       ::operator delete( this->m_data, std::align_val_t( cppAlign ) );
       //::operator delete( (this->m_data) - 1, std::align_val_t( cppAlign ) ); // TEST MISALIGNMENT!
     }
+
   public:
     static constexpr size_t cppAlign = mgOnGpu::cppAlign;
   };
@@ -107,12 +110,9 @@ namespace mg5amcCpu
   public:
     PinnedHostBufferBase( const size_t size ) : BufferBase<T>( size, false )
     {
-      checkCuda( cudaMallocHost( &(this->m_data), this->bytes() ) );
+      checkCuda( cudaMallocHost( &( this->m_data ), this->bytes() ) );
     }
-    virtual ~PinnedHostBufferBase()
-    {
-      checkCuda( cudaFreeHost( this->m_data ) );
-    }
+    virtual ~PinnedHostBufferBase() { checkCuda( cudaFreeHost( this->m_data ) ); }
   };
 #endif
 
@@ -126,12 +126,9 @@ namespace mg5amcCpu
   public:
     DeviceBufferBase( const size_t size ) : BufferBase<T>( size, true )
     {
-      checkCuda( cudaMalloc( &(this->m_data), this->bytes() ) );
+      checkCuda( cudaMalloc( &( this->m_data ), this->bytes() ) );
     }
-    virtual ~DeviceBufferBase()
-    {
-      checkCuda( cudaFree( this->m_data ) );
-    }
+    virtual ~DeviceBufferBase() { checkCuda( cudaFree( this->m_data ) ); }
   };
 #endif
 
@@ -140,13 +137,13 @@ namespace mg5amcCpu
 #ifndef __CUDACC__
   // A class encapsulating a C++ host buffer for a given number of events
   template<typename T, size_t sizePerEvent>
-  class HostBuffer : public HostBufferBase<T>, virtual private NumberOfEvents
+  class HostBuffer
+    : public HostBufferBase<T>
+    , virtual private NumberOfEvents
   {
   public:
-    HostBuffer( const size_t nevt )
-      : NumberOfEvents( nevt )
-      , HostBufferBase<T>( sizePerEvent * nevt ){}
-    virtual ~HostBuffer(){}
+    HostBuffer( const size_t nevt ) : NumberOfEvents( nevt ), HostBufferBase<T>( sizePerEvent * nevt ) {}
+    virtual ~HostBuffer() {}
     virtual size_t nevt() const override final { return NumberOfEvents::nevt(); }
   };
 #endif
@@ -156,13 +153,13 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
   // A class encapsulating a CUDA pinned host buffer for a given number of events
   template<typename T, size_t sizePerEvent>
-  class PinnedHostBuffer : public PinnedHostBufferBase<T>, virtual private NumberOfEvents
+  class PinnedHostBuffer
+    : public PinnedHostBufferBase<T>
+    , virtual private NumberOfEvents
   {
   public:
-    PinnedHostBuffer( const size_t nevt )
-      : NumberOfEvents( nevt )
-      , PinnedHostBufferBase<T>( sizePerEvent * nevt ){}
-    virtual ~PinnedHostBuffer(){}
+    PinnedHostBuffer( const size_t nevt ) : NumberOfEvents( nevt ), PinnedHostBufferBase<T>( sizePerEvent * nevt ) {}
+    virtual ~PinnedHostBuffer() {}
     virtual size_t nevt() const override final { return NumberOfEvents::nevt(); }
   };
 #endif
@@ -172,13 +169,13 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
   // A class encapsulating a CUDA device buffer for a given number of events
   template<typename T, size_t sizePerEvent>
-  class DeviceBuffer : public DeviceBufferBase<T>, virtual private NumberOfEvents
+  class DeviceBuffer
+    : public DeviceBufferBase<T>
+    , virtual private NumberOfEvents
   {
   public:
-    DeviceBuffer( const size_t nevt )
-      : NumberOfEvents( nevt )
-      , DeviceBufferBase<T>( sizePerEvent * nevt ){}
-    virtual ~DeviceBuffer(){}
+    DeviceBuffer( const size_t nevt ) : NumberOfEvents( nevt ), DeviceBufferBase<T>( sizePerEvent * nevt ) {}
+    virtual ~DeviceBuffer() {}
     virtual size_t nevt() const override final { return NumberOfEvents::nevt(); }
   };
 #endif

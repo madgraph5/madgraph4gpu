@@ -1,4 +1,4 @@
-#ifndef MG5_CHECKCUDA_H 
+#ifndef MG5_CHECKCUDA_H
 #define MG5_CHECKCUDA_H 1
 
 #include <cassert>
@@ -8,13 +8,16 @@
 
 #ifdef __CUDACC__
 
-#define checkCuda( code ) { assertCuda( code, __FILE__, __LINE__ ); }
+#define checkCuda( code ) \
+  { \
+    assertCuda( code, __FILE__, __LINE__ ); \
+  }
 
 inline void assertCuda( cudaError_t code, const char* file, int line, bool abort = true )
 {
   if ( code != cudaSuccess )
   {
-    printf( "ERROR! GPUassert: %s %s:%d\n", cudaGetErrorString(code), file, line );
+    printf( "ERROR! GPUassert: %s %s:%d\n", cudaGetErrorString( code ), file, line );
     if ( abort ) assert( code == cudaSuccess );
   }
 }

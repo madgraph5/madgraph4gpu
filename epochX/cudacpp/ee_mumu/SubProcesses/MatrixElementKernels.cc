@@ -1,9 +1,9 @@
 #include "MatrixElementKernels.h"
 
-#include "checkCuda.h"
 #include "CPPProcess.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
+#include "checkCuda.h"
 
 #include <sstream>
 
@@ -11,24 +11,24 @@
 
 #ifndef __CUDACC__
 namespace mg5amcCpu
-{  
-
+{
   //--------------------------------------------------------------------------
 
   MatrixElementKernelHost::MatrixElementKernelHost( const BufferMomenta& momenta,         // input: momenta
                                                     BufferMatrixElements& matrixElements, // output: matrix elements
                                                     const size_t nevt )
-    : MatrixElementKernelBase( momenta, matrixElements )
-    , NumberOfEvents( nevt )
+    : MatrixElementKernelBase( momenta, matrixElements ), NumberOfEvents( nevt )
   {
     if ( m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: momenta must be a host array" );
-    if ( m_matrixElements.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: matrixElements must be a host array" );
+    if ( m_matrixElements.isOnDevice() )
+      throw std::runtime_error( "MatrixElementKernelHost: matrixElements must be a host array" );
     if ( this->nevt() != m_momenta.nevt() ) throw std::runtime_error( "MatrixElementKernelHost: nevt mismatch with momenta" );
-    if ( this->nevt() != m_matrixElements.nevt() ) throw std::runtime_error( "MatrixElementKernelHost: nevt mismatch with matrixElements" );
+    if ( this->nevt() != m_matrixElements.nevt() )
+      throw std::runtime_error( "MatrixElementKernelHost: nevt mismatch with matrixElements" );
     // Sanity checks for memory access (momenta buffer)
     constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
     static_assert( ispoweroftwo( neppM ), "neppM is not a power of 2" );
-    if ( nevt%neppM != 0 )
+    if ( nevt % neppM != 0 )
     {
       std::ostringstream sstr;
       sstr << "MatrixElementKernelHost: nevt should be a multiple of neppM=" << neppM;
@@ -51,14 +51,11 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void MatrixElementKernelHost::computeMatrixElements()
-  {
-    sigmaKin( m_momenta.data(), m_matrixElements.data(), nevt() );
-  }
+  void MatrixElementKernelHost::computeMatrixElements() { sigmaKin( m_momenta.data(), m_matrixElements.data(), nevt() ); }
 
   //--------------------------------------------------------------------------
 
-}
+} // namespace mg5amcCpu
 #endif
 
 //============================================================================
@@ -66,7 +63,6 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
 namespace mg5amcGpu
 {
-
   //--------------------------------------------------------------------------
 
   MatrixElementKernelDevice::MatrixElementKernelDevice( const BufferMomenta& momenta,         // input: momenta
@@ -74,20 +70,22 @@ namespace mg5amcGpu
                                                         const size_t gpublocks,
                                                         const size_t gputhreads )
     : MatrixElementKernelBase( momenta, matrixElements )
-    , NumberOfEvents( gpublocks*gputhreads )
+    , NumberOfEvents( gpublocks * gputhreads )
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
   {
-    if ( ! m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelDevice: momenta must be a device array" );
-    if ( ! m_matrixElements.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelDevice: matrixElements must be a device array" );
+    if ( !m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelDevice: momenta must be a device array" );
+    if ( !m_matrixElements.isOnDevice() )
+      throw std::runtime_error( "MatrixElementKernelDevice: matrixElements must be a device array" );
     if ( m_gpublocks == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gpublocks must be > 0" );
     if ( m_gputhreads == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gputhreads must be > 0" );
     if ( this->nevt() != m_momenta.nevt() ) throw std::runtime_error( "MatrixElementKernelDevice: nevt mismatch with momenta" );
-    if ( this->nevt() != m_matrixElements.nevt() ) throw std::runtime_error( "MatrixElementKernelDevice: nevt mismatch with matrixElements" );
+    if ( this->nevt() != m_matrixElements.nevt() )
+      throw std::runtime_error( "MatrixElementKernelDevice: nevt mismatch with matrixElements" );
     // Sanity checks for memory access (momenta buffer)
     constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
     static_assert( ispoweroftwo( neppM ), "neppM is not a power of 2" );
-    if ( m_gputhreads%neppM != 0 )
+    if ( m_gputhreads % neppM != 0 )
     {
       std::ostringstream sstr;
       sstr << "MatrixElementKernelHost: gputhreads should be a multiple of neppM=" << neppM;
@@ -101,7 +99,8 @@ namespace mg5amcGpu
   {
     if ( m_gpublocks == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gpublocks must be > 0 in setGrid" );
     if ( m_gputhreads == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gputhreads must be > 0 in setGrid" );
-    if ( this->nevt() != m_gpublocks * m_gputhreads ) throw std::runtime_error( "MatrixElementKernelDevice: nevt mismatch in setGrid" );
+    if ( this->nevt() != m_gpublocks * m_gputhreads )
+      throw std::runtime_error( "MatrixElementKernelDevice: nevt mismatch in setGrid" );
   }
 
   //--------------------------------------------------------------------------
@@ -127,7 +126,7 @@ namespace mg5amcGpu
 #ifndef MGONGPU_NSIGHT_DEBUG
     sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_matrixElements.data() );
 #else
-    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX*sizeof(float)>>>( m_momenta.data(), m_matrixElements.data() );
+    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX * sizeof( float )>>>( m_momenta.data(), m_matrixElements.data() );
 #endif
     checkCuda( cudaPeekAtLastError() );
     checkCuda( cudaDeviceSynchronize() );
@@ -135,7 +134,7 @@ namespace mg5amcGpu
 
   //--------------------------------------------------------------------------
 
-}
+} // namespace mg5amcGpu
 #endif
 
 //============================================================================

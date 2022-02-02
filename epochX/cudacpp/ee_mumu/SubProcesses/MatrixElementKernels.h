@@ -1,4 +1,4 @@
-#ifndef MATRIXELEMENTKERNELS_H 
+#ifndef MATRIXELEMENTKERNELS_H
 #define MATRIXELEMENTKERNELS_H 1
 
 #include "mgOnGpuConfig.h"
@@ -11,24 +11,22 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
   //--------------------------------------------------------------------------
 
   // A base class encapsulating matrix element calculations on a CPU host or on a GPU device
   class MatrixElementKernelBase //: virtual public IMatrixElementKernel
   {
   protected:
-
     // Constructor from existing input and output buffers
     MatrixElementKernelBase( const BufferMomenta& momenta,          // input: momenta
                              BufferMatrixElements& matrixElements ) // output: matrix elements
-      : m_momenta( momenta )
-      , m_matrixElements( matrixElements ){}
+      : m_momenta( momenta ), m_matrixElements( matrixElements )
+    {
+    }
 
   public:
-
     // Destructor
-    virtual ~MatrixElementKernelBase(){}
+    virtual ~MatrixElementKernelBase() {}
 
     // Compute good helicities
     virtual void computeGoodHelicities() = 0;
@@ -40,30 +38,29 @@ namespace mg5amcCpu
     virtual bool isOnDevice() const = 0;
 
   protected:
-
     // The buffer for the input momenta
     const BufferMomenta& m_momenta;
 
     // The buffer for the output matrix elements
     BufferMatrixElements& m_matrixElements;
-
   };
 
   //--------------------------------------------------------------------------
 
 #ifndef __CUDACC__
   // A class encapsulating matrix element calculations on a CPU host
-  class MatrixElementKernelHost final : public MatrixElementKernelBase, public NumberOfEvents
+  class MatrixElementKernelHost final
+    : public MatrixElementKernelBase
+    , public NumberOfEvents
   {
   public:
-
     // Constructor from existing input and output buffers
     MatrixElementKernelHost( const BufferMomenta& momenta,         // input: momenta
                              BufferMatrixElements& matrixElements, // output: matrix elements
                              const size_t nevt );
 
     // Destructor
-    virtual ~MatrixElementKernelHost(){}
+    virtual ~MatrixElementKernelHost() {}
 
     // Compute good helicities
     void computeGoodHelicities() override final;
@@ -73,7 +70,6 @@ namespace mg5amcCpu
 
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return false; }
-
   };
 #endif
 
@@ -81,10 +77,11 @@ namespace mg5amcCpu
 
 #ifdef __CUDACC__
   // A class encapsulating matrix element calculations on a GPU device
-  class MatrixElementKernelDevice : public MatrixElementKernelBase, public NumberOfEvents
+  class MatrixElementKernelDevice
+    : public MatrixElementKernelBase
+    , public NumberOfEvents
   {
   public:
-
     // Constructor from existing input and output buffers
     MatrixElementKernelDevice( const BufferMomenta& momenta,         // input: momenta
                                BufferMatrixElements& matrixElements, // output: matrix elements
@@ -92,7 +89,7 @@ namespace mg5amcCpu
                                const size_t gputhreads );
 
     // Destructor
-    virtual ~MatrixElementKernelDevice(){}
+    virtual ~MatrixElementKernelDevice() {}
 
     // Reset gpublocks and gputhreads
     void setGrid( const int gpublocks, const int gputhreads );
@@ -107,17 +104,14 @@ namespace mg5amcCpu
     bool isOnDevice() const override final { return true; }
 
   private:
-
     // The number of blocks in the GPU grid
     size_t m_gpublocks;
 
     // The number of threads in the GPU grid
     size_t m_gputhreads;
-
   };
 #endif
 
   //--------------------------------------------------------------------------
-
 }
 #endif // MATRIXELEMENTKERNELS_H

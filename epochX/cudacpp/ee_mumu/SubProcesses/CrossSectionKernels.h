@@ -1,4 +1,4 @@
-#ifndef CROSSSECTIONKERNELS_H 
+#ifndef CROSSSECTIONKERNELS_H
 #define CROSSSECTIONKERNELS_H 1
 
 #include "mgOnGpuConfig.h"
@@ -14,39 +14,32 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
   //--------------------------------------------------------------------------
 
   // A base class encapsulating the calculation of event statistics on a CPU host or on a GPU device
   class CrossSectionKernelBase //: virtual public ICrossSectionKernel
   {
   protected:
-
     // Constructor from existing input and output buffers
     CrossSectionKernelBase( const BufferWeights& samplingWeights,       // input: sampling weights
                             const BufferMatrixElements& matrixElements, // input: matrix elements
                             EventStatistics& stats )                    // output: event statistics
-      : m_samplingWeights( samplingWeights )
-      , m_matrixElements( matrixElements )
-      , m_stats( stats )
-      , m_iter( 0 )
+      : m_samplingWeights( samplingWeights ), m_matrixElements( matrixElements ), m_stats( stats ), m_iter( 0 )
     {
       // NB: do not initialise EventStatistics (you may be asked to update an existing result)
     }
 
   public:
-
     // Destructor
-    virtual ~CrossSectionKernelBase(){}
+    virtual ~CrossSectionKernelBase() {}
 
     // Update event statistics
-    virtual void updateEventStatistics( const bool debug=false ) = 0;
+    virtual void updateEventStatistics( const bool debug = false ) = 0;
 
     // Is this a host or device kernel?
     virtual bool isOnDevice() const = 0;
 
   protected:
-
     // The buffer for the sampling weights
     const BufferWeights& m_samplingWeights;
 
@@ -58,16 +51,16 @@ namespace mg5amcCpu
 
     // The number of iterations processed so far
     size_t m_iter;
-
   };
 
   //--------------------------------------------------------------------------
 
   // A class encapsulating the calculation of event statistics on a CPU host
-  class CrossSectionKernelHost final : public CrossSectionKernelBase, public NumberOfEvents
+  class CrossSectionKernelHost final
+    : public CrossSectionKernelBase
+    , public NumberOfEvents
   {
   public:
-
     // Constructor from existing input and output buffers
     CrossSectionKernelHost( const BufferWeights& samplingWeights,       // input: sampling weights
                             const BufferMatrixElements& matrixElements, // input: matrix elements
@@ -75,14 +68,13 @@ namespace mg5amcCpu
                             const size_t nevt );
 
     // Destructor
-    virtual ~CrossSectionKernelHost(){}
+    virtual ~CrossSectionKernelHost() {}
 
     // Update event statistics
-    void updateEventStatistics( const bool debug=false ) override final;
+    void updateEventStatistics( const bool debug = false ) override final;
 
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return false; }
-
   };
 
   //--------------------------------------------------------------------------
@@ -126,6 +118,5 @@ namespace mg5amcCpu
   */
 
   //--------------------------------------------------------------------------
-
 }
 #endif // CROSSSECTIONKERNELS_H

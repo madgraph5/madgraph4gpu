@@ -2,9 +2,9 @@
 
 #include "CPPProcess.h"
 #include "HelAmps_sm.h"
-#include "MemoryBuffers.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
+#include "MemoryBuffers.h"
 
 #include <array>
 #include <cassert>
@@ -25,7 +25,7 @@
 
 TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 {
-  constexpr bool dumpEvents = false;  // dump the expected output of the test?
+  constexpr bool dumpEvents = false;       // dump the expected output of the test?
   constexpr bool testEvents = !dumpEvents; // run the test?
   constexpr fptype toleranceXXXs = std::is_same<fptype, double>::value ? 1.E-15 : 1.E-5;
   // Constant parameters
@@ -33,7 +33,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   using mgOnGpu::neppV;
   using mgOnGpu::np4;
   using mgOnGpu::npar;
-  const int nevt = 16; // 12 independent tests plus 4 duplicates (need a multiple of 8 for floats or for '512z')
+  const int nevt = 16;         // 12 independent tests plus 4 duplicates (need a multiple of 8 for floats or for '512z')
   assert( nevt % neppM == 0 ); // nevt must be a multiple of neppM
   assert( nevt % neppV == 0 ); // nevt must be a multiple of neppV
   // Fill in the input momenta
@@ -42,8 +42,9 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 #else
   mg5amcCpu::HostBufferMomenta hstMomenta( nevt ); // AOSOA[npagM][npar=4][np4=4][neppM]
 #endif
-  const fptype par0[np4 * nevt] =       // AOS[nevt][np4]
-    { 500, 0,    0,    500,  // #0 (m=0 pT=0 E=pz>0)
+  const fptype par0[np4 * nevt] = // AOS[nevt][np4]
+    {
+      500, 0,    0,    500,  // #0 (m=0 pT=0 E=pz>0)
       500, 0,    0,    -500, // #1 (m=0 pT=0 -E=pz<0)
       500, 300,  400,  0,    // #2 (m=0 pT>0 pz=0)
       500, 180,  240,  400,  // #3 (m=0 pT>0 pz>0)
@@ -82,7 +83,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   {
     for ( int ip4 = 0; ip4 < np4; ip4++ )
     {
-      MemoryAccessMomenta::ieventAccessIp4Ipar( hstMomenta.data(), ievt, ip4, ipar0 ) = par0[ievt*np4 + ip4]; // AOS to AOSOA
+      MemoryAccessMomenta::ieventAccessIp4Ipar( hstMomenta.data(), ievt, ip4, ipar0 ) = par0[ievt * np4 + ip4]; // AOS to AOSOA
     }
   }
   // Expected output wavefunctions
@@ -92,30 +93,32 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   // Compute the output wavefunctions
   // Dump new reference file if requested
   using mgOnGpu::nw6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
-  int itest = 0; // index on the expected output vector
+  int itest = 0;      // index on the expected output vector
   std::ofstream dumpFile;
   if ( dumpEvents ) dumpFile.open( dumpFileName, std::ios::trunc );
   auto dumpwf6 = [&]( std::ostream& out, const cxtype_sv wf[6], const char* xxx, int ievt, int nsp, fptype mass ) {
-    out << std::setprecision(15) << std::scientific;
+    out << std::setprecision( 15 ) << std::scientific;
     out << "  expwfs.push_back( {";
     out << "                                   // ---------" << std::endl;
-    for ( int iw6 = 0; iw6<nw6; iw6++ )
+    for ( int iw6 = 0; iw6 < nw6; iw6++ )
     {
 #ifdef MGONGPU_CPPSIMD
-      const int ieppV = ievt%neppV; // #event in the current event vector in this iteration
+      const int ieppV = ievt % neppV; // #event in the current event vector in this iteration
 #ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
-      out << std::setw(26) << cxreal( wf[iw6][ieppV] ) << ", ";
-      out << std::setw(22) << cximag( wf[iw6][ieppV] );
+      out << std::setw( 26 ) << cxreal( wf[iw6][ieppV] ) << ", ";
+      out << std::setw( 22 ) << cximag( wf[iw6][ieppV] );
 #else
-      out << std::setw(26) << wf[iw6].real()[ieppV] << ", ";
-      out << std::setw(22) << wf[iw6].imag()[ieppV];
+      out << std::setw( 26 ) << wf[iw6].real()[ieppV] << ", ";
+      out << std::setw( 22 ) << wf[iw6].imag()[ieppV];
 #endif
 #else
-      out << std::setw(26) << wf[iw6].real();
-      out << ", " << std::setw(22) << wf[iw6].imag();
+      out << std::setw( 26 ) << wf[iw6].real();
+      out << ", " << std::setw( 22 ) << wf[iw6].imag();
 #endif
-      if ( iw6 < nw6-1 ) out << ",    ";
-      else out << " } );";
+      if ( iw6 < nw6 - 1 )
+        out << ",    ";
+      else
+        out << " } );";
       out << " // itest=" << itest << ": " << xxx << "#" << ievt;
       out << " nsp=" << nsp << " mass=" << (int)mass << std::endl;
     }
@@ -131,14 +134,14 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       ////std::cout << "against" << std::endl;
       ////for ( int iw6 = 0; iw6<nw6; iw6++ )
       ////  std::cout << "[" << expwf[iw6*2] << "," << expwf[iw6*2+1] << "]" << std::endl; // NB: expwf[iw6*2], expwf[iw6*2+1] are fp
-      for ( int iw6 = 0; iw6<nw6; iw6++ )
+      for ( int iw6 = 0; iw6 < nw6; iw6++ )
       {
-        const fptype expReal = expwf[iw6*2];
-        const fptype expImag = expwf[iw6*2+1];
+        const fptype expReal = expwf[iw6 * 2];
+        const fptype expImag = expwf[iw6 * 2 + 1];
         if ( true )
         {
 #ifdef MGONGPU_CPPSIMD
-          const int ieppV = ievt%neppV; // #event in the current event vector in this iteration
+          const int ieppV = ievt % neppV; // #event in the current event vector in this iteration
 #ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
           EXPECT_NEAR( cxreal( wf[iw6][ieppV] ), expReal, std::abs( expReal * toleranceXXXs ) )
             << " itest=" << itest << ": " << xxx << "#" << ievt;
@@ -170,12 +173,12 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       ////for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << wf[iw6] << std::endl;
       ////std::cout << "against" << std::endl;
       ////for ( int iw6 = 0; iw6<nw6; iw6++ ) std::cout << expwf[iw6] << std::endl; // NB: expwf[iw6] is cx
-      for ( int iw6 = 0; iw6<nw6; iw6++ )
+      for ( int iw6 = 0; iw6 < nw6; iw6++ )
       {
         if ( true )
         {
 #ifdef MGONGPU_CPPSIMD
-          const int ieppV = ievt%neppV; // #event in the current event vector in this iteration
+          const int ieppV = ievt % neppV; // #event in the current event vector in this iteration
 #ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
           const fptype expReal = cxreal( expwf[iw6][ieppV] );
           const fptype expImag = cximag( expwf[iw6][ieppV] );
@@ -209,12 +212,16 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   cxtype_sv outwfO[6] = {}; // last result of oxxxxx (mass==0)
   cxtype_sv outwf[6] = {};
   cxtype_sv outwf3[6] = {}; // NB: only 3 are filled by sxxxxx, but 6 are compared!
-  fptype* fp_outwfI = reinterpret_cast<fptype*>( outwfI );; // proof of concept for using fptype* in the interface 
-  fptype* fp_outwfO = reinterpret_cast<fptype*>( outwfO );; // proof of concept for using fptype* in the interface 
-  fptype* fp_outwf = reinterpret_cast<fptype*>( outwf );; // proof of concept for using fptype* in the interface 
-  fptype* fp_outwf3 = reinterpret_cast<fptype*>( outwf3 );; // proof of concept for using fptype* in the interface 
+  fptype* fp_outwfI = reinterpret_cast<fptype*>( outwfI );
+  ; // proof of concept for using fptype* in the interface
+  fptype* fp_outwfO = reinterpret_cast<fptype*>( outwfO );
+  ; // proof of concept for using fptype* in the interface
+  fptype* fp_outwf = reinterpret_cast<fptype*>( outwf );
+  ; // proof of concept for using fptype* in the interface
+  fptype* fp_outwf3 = reinterpret_cast<fptype*>( outwf3 );
+  ; // proof of concept for using fptype* in the interface
   const int nhel = 1;
-  for ( auto nsp : { -1, +1 } ) // antifermion/fermion (or initial/final for scalar and vector)
+  for ( auto nsp : {-1, +1} ) // antifermion/fermion (or initial/final for scalar and vector)
   {
     for ( int ievt = 0; ievt < nevt; ievt++ )
     {
@@ -229,8 +236,8 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
         for ( int ip4 = 0; ip4 < np4; ip4++ ) std::cout << par0[ievt * np4 + ip4] << ", ";
         std::cout << std::endl;
       }
-      const int ipagV = ievt/neppV; // #event vector in this iteration
-      const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( hstMomenta.data(), ipagV*neppV );
+      const int ipagV = ievt / neppV; // #event vector in this iteration
+      const fptype* ievt0Momenta = MemoryAccessMomenta::ieventAccessRecordConst( hstMomenta.data(), ipagV * neppV );
       // Test ixxxxx - NO ASSUMPTIONS
       {
         const fptype fmass = mass0[ievt];
@@ -271,9 +278,11 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       // Test sxxxxx - NO ASSUMPTIONS
       {
         const fptype smass = mass0[ievt];
-        sxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nsp, fp_outwf3, ipar0 ); // no mass, no helicity (was "smass>0")
+        sxxxxx<HostAccessMomenta, HostAccessWavefunctions>(
+          ievt0Momenta, nsp, fp_outwf3, ipar0 ); // no mass, no helicity (was "smass>0")
         testwf6( outwf3, "sxxxxx", ievt, nsp, smass );
-        sxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nsp, fp_outwf3, ipar0 ); // no mass, no helicity (was "smass<0")
+        sxxxxx<HostAccessMomenta, HostAccessWavefunctions>(
+          ievt0Momenta, nsp, fp_outwf3, ipar0 ); // no mass, no helicity (was "smass<0")
         testwf6( outwf3, "sxxxxx", ievt, nsp, -smass );
       }
       // Test oxxxxx - NO ASSUMPTIONS
@@ -315,4 +324,3 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
 }
 
 //==========================================================================
-

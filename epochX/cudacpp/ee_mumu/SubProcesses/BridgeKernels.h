@@ -1,4 +1,4 @@
-#ifndef BRIDGEKERNELS_H 
+#ifndef BRIDGEKERNELS_H
 #define BRIDGEKERNELS_H 1
 
 #include "mgOnGpuConfig.h"
@@ -13,47 +13,44 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
   //--------------------------------------------------------------------------
 
-  // A Bridge wrapper base class encapsulating matrix element calculations on a CPU host 
-  class BridgeKernelBase : public MatrixElementKernelBase, public NumberOfEvents
+  // A Bridge wrapper base class encapsulating matrix element calculations on a CPU host
+  class BridgeKernelBase
+    : public MatrixElementKernelBase
+    , public NumberOfEvents
   {
   public:
-
     // Constructor from existing input and output buffers
     BridgeKernelBase( const BufferMomenta& momenta,         // input: momenta
                       BufferMatrixElements& matrixElements, // output: matrix elements
                       const size_t nevt );
-    
+
     // Destructor
-    virtual ~BridgeKernelBase(){}
+    virtual ~BridgeKernelBase() {}
 
     // Transpose input momenta from C to Fortran before the matrix element calculation in the Bridge
     virtual void transposeInputMomentaC2F() = 0;
 
   protected:
-
     // The wrapped bridge
     Bridge<fptype> m_bridge;
-
   };
 
   //--------------------------------------------------------------------------
 
 #ifndef __CUDACC__
-  // A Bridge wrapper class encapsulating matrix element calculations on a CPU host 
+  // A Bridge wrapper class encapsulating matrix element calculations on a CPU host
   class BridgeKernelHost final : public BridgeKernelBase
   {
   public:
-
     // Constructor from existing input and output buffers
     BridgeKernelHost( const BufferMomenta& momenta,         // input: momenta
                       BufferMatrixElements& matrixElements, // output: matrix elements
                       const size_t nevt );
-    
+
     // Destructor
-    virtual ~BridgeKernelHost(){}
+    virtual ~BridgeKernelHost() {}
 
     // Transpose input momenta from C to Fortran before the matrix element calculation in the Bridge
     void transposeInputMomentaC2F() override final;
@@ -68,10 +65,8 @@ namespace mg5amcCpu
     bool isOnDevice() const override final { return false; }
 
   private:
-    
     // The buffer for the input momenta, transposed to Fortran array indexing
     HostBufferMomenta m_fortranMomenta;
-
   };
 #endif
 
@@ -82,7 +77,6 @@ namespace mg5amcCpu
   class BridgeKernelDevice : public BridgeKernelBase
   {
   public:
-
     // Constructor from existing input and output buffers
     BridgeKernelDevice( const BufferMomenta& momenta,         // input: momenta
                         BufferMatrixElements& matrixElements, // output: matrix elements
@@ -90,7 +84,7 @@ namespace mg5amcCpu
                         const size_t gputhreads );
 
     // Destructor
-    virtual ~BridgeKernelDevice(){}
+    virtual ~BridgeKernelDevice() {}
 
     // Transpose input momenta from C to Fortran before the matrix element calculation in the Bridge
     void transposeInputMomentaC2F() override final;
@@ -105,7 +99,6 @@ namespace mg5amcCpu
     bool isOnDevice() const override final { return true; }
 
   private:
-
     // The buffer for the input momenta, transposed to Fortran array indexing
     PinnedHostBufferMomenta m_fortranMomenta;
 
@@ -114,11 +107,9 @@ namespace mg5amcCpu
 
     // The number of threads in the GPU grid
     size_t m_gputhreads;
-
   };
 #endif
 
   //--------------------------------------------------------------------------
-
 }
 #endif // BRIDGEKERNELS_H

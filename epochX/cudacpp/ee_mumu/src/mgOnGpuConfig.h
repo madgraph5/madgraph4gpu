@@ -73,7 +73,6 @@
 
 namespace mgOnGpu
 {
-
   // --- Type definitions
 
   // Floating point type: fptype
@@ -87,8 +86,8 @@ namespace mgOnGpu
 
   const int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
 
-  const int npari = 2; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
-  const int nparf = 2; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
+  const int npari = 2;            // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
+  const int nparf = 2;            // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
   const int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
 
   const int ncomb = 16; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
@@ -120,7 +119,7 @@ namespace mgOnGpu
 #else
 #if defined __AVX512VL__
 #ifdef MGONGPU_PVW512
-  // "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
+                        // "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
 #ifdef MGONGPU_FPTYPE_DOUBLE
 #define MGONGPU_CPPSIMD 8
 #else
@@ -153,7 +152,7 @@ namespace mgOnGpu
 #undef MGONGPU_CPPSIMD
 #endif
 #endif
-}
+} // namespace mgOnGpu
 
 // Expose typedefs and operators outside the namespace
 using mgOnGpu::fptype;
@@ -161,23 +160,30 @@ using mgOnGpu::fptype;
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
 // Arguments (not used so far): text is __FUNCTION__, code is 0 (start) or 1 (end)
 #if defined __CUDACC__ && defined MGONGPU_NSIGHT_DEBUG
-#define mgDebugDeclare()                              \
-  __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
-#define mgDebugInitialise()                     \
-  { mgDebugCounter[threadIdx.x] = 0; }
-#define mgDebug( code, text )                   \
-  { mgDebugCounter[threadIdx.x] += 1; }
-#define mgDebugFinalise()                                               \
-  { if ( blockIdx.x == 0 && threadIdx.x == 0 ) printf( "MGDEBUG: counter=%f\n", mgDebugCounter[threadIdx.x] ); }
+#define mgDebugDeclare() __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
+#define mgDebugInitialise() \
+  { \
+    mgDebugCounter[threadIdx.x] = 0; \
+  }
+#define mgDebug( code, text ) \
+  { \
+    mgDebugCounter[threadIdx.x] += 1; \
+  }
+#define mgDebugFinalise() \
+  { \
+    if ( blockIdx.x == 0 && threadIdx.x == 0 ) printf( "MGDEBUG: counter=%f\n", mgDebugCounter[threadIdx.x] ); \
+  }
 #else
-#define mgDebugDeclare()                        \
-  /*noop*/
-#define mgDebugInitialise()                     \
-  { /*noop*/ }
-#define mgDebug( code, text )                   \
-  { /*noop*/ }
-#define mgDebugFinalise()                       \
-  { /*noop*/ }
+#define mgDebugDeclare() /*noop*/
+#define mgDebugInitialise() \
+  { /*noop*/ \
+  }
+#define mgDebug( code, text ) \
+  { /*noop*/ \
+  }
+#define mgDebugFinalise() \
+  { /*noop*/ \
+  }
 #endif
 
 // Define empty CUDA declaration specifiers for C++
@@ -188,7 +194,7 @@ using mgOnGpu::fptype;
 #endif
 
 // For SANITY CHECKS: check that neppR, neppM, neppV... are powers of two (https://stackoverflow.com/a/108360)
-inline constexpr bool ispoweroftwo( int n ){ return ( n > 0 ) && !( n & ( n - 1 ) ); }
+inline constexpr bool ispoweroftwo( int n ) { return ( n > 0 ) && !( n & ( n - 1 ) ); }
 
 // Compiler version support (#96): require nvcc from CUDA >= 11.2, e.g. to use C++17 (see #333)
 #ifdef __NVCC__

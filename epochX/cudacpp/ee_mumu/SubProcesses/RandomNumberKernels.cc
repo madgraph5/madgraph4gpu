@@ -1,8 +1,8 @@
 #include "RandomNumberKernels.h"
 
-#include "checkCuda.h"
 #include "CommonRandomNumbers.h"
 #include "MemoryBuffers.h"
+#include "checkCuda.h"
 
 #include <cassert>
 
@@ -12,12 +12,10 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
   //--------------------------------------------------------------------------
 
   CommonRandomNumberKernel::CommonRandomNumberKernel( BufferRandomNumbers& rnarray )
-    : RandomNumberKernelBase( rnarray )
-    , m_seed( 20211220 )
+    : RandomNumberKernelBase( rnarray ), m_seed( 20211220 )
   {
     if ( m_rnarray.isOnDevice() )
       throw std::runtime_error( "CommonRandomNumberKernel on host with a device random number array" );
@@ -35,10 +33,12 @@ namespace mg5amcCpu
 
 #ifndef MGONGPU_HAS_NO_CURAND
 
-#define checkCurand( code )                     \
-  { assertCurand( code, __FILE__, __LINE__ ); }
+#define checkCurand( code ) \
+  { \
+    assertCurand( code, __FILE__, __LINE__ ); \
+  }
 
-  inline void assertCurand( curandStatus_t code, const char *file, int line, bool abort = true )
+  inline void assertCurand( curandStatus_t code, const char* file, int line, bool abort = true )
   {
     if ( code != CURAND_STATUS_SUCCESS )
     {
@@ -50,13 +50,12 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   CurandRandomNumberKernel::CurandRandomNumberKernel( BufferRandomNumbers& rnarray, const bool onDevice )
-    : RandomNumberKernelBase( rnarray )
-    , m_isOnDevice( onDevice )
+    : RandomNumberKernelBase( rnarray ), m_isOnDevice( onDevice )
   {
     if ( m_isOnDevice )
     {
 #ifdef __CUDACC__
-      if ( ! m_rnarray.isOnDevice() )
+      if ( !m_rnarray.isOnDevice() )
         throw std::runtime_error( "CurandRandomNumberKernel on device with a host random number array" );
 #else
       throw std::runtime_error( "CurandRandomNumberKernel does not support CurandDevice on CPU host" );
@@ -68,15 +67,12 @@ namespace mg5amcCpu
         throw std::runtime_error( "CurandRandomNumberKernel on host with a device random number array" );
     }
     // [NB Timings are for GenRnGen host|device (cpp|cuda) generation of 256*32*1 events with nproc=1: rn(0) is host=0.0012s]
-    const curandRngType_t type = CURAND_RNG_PSEUDO_MTGP32;          // 0.00082s | 0.00064s (FOR FAST TESTS)
+    const curandRngType_t type = CURAND_RNG_PSEUDO_MTGP32; // 0.00082s | 0.00064s (FOR FAST TESTS)
     //const curandRngType_t type = CURAND_RNG_PSEUDO_XORWOW;        // 0.049s   | 0.0016s
     //const curandRngType_t type = CURAND_RNG_PSEUDO_MRG32K3A;      // 0.71s    | 0.0012s  (better but slower, especially in c++)
     //const curandRngType_t type = CURAND_RNG_PSEUDO_MT19937;       // 21s      | 0.021s
     //const curandRngType_t type = CURAND_RNG_PSEUDO_PHILOX4_32_10; // 0.024s   | 0.00026s (used to segfault?)
-    if ( m_isOnDevice )
-    {
-      checkCurand( curandCreateGenerator( &m_rnGen, type ) );
-    }
+    if ( m_isOnDevice ) { checkCurand( curandCreateGenerator( &m_rnGen, type ) ); }
     else
     {
       checkCurand( curandCreateGeneratorHost( &m_rnGen, type ) );
@@ -87,10 +83,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  CurandRandomNumberKernel::~CurandRandomNumberKernel()
-  {
-    checkCurand( curandDestroyGenerator( m_rnGen ) );
-  }
+  CurandRandomNumberKernel::~CurandRandomNumberKernel() { checkCurand( curandDestroyGenerator( m_rnGen ) ); }
 
   //--------------------------------------------------------------------------
 
@@ -114,5 +107,4 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 #endif
-
 }

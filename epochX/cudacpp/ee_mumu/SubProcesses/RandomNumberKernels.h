@@ -1,4 +1,4 @@
-#ifndef RANDOMNUMBERKERNELS_H 
+#ifndef RANDOMNUMBERKERNELS_H
 #define RANDOMNUMBERKERNELS_H 1
 
 #include "mgOnGpuConfig.h"
@@ -44,17 +44,14 @@ namespace mg5amcCpu
   // A base class encapsulating random number generation on a CPU host or on a GPU device
   class RandomNumberKernelBase //: virtual public IRandomNumberKernel
   {
-
   protected:
-
     // Constructor from an existing output buffer
-    RandomNumberKernelBase( BufferRandomNumbers& rnarray ) : m_rnarray( rnarray ){}
+    RandomNumberKernelBase( BufferRandomNumbers& rnarray ) : m_rnarray( rnarray ) {}
 
   public:
-
     // Destructor
-    virtual ~RandomNumberKernelBase(){}
-    
+    virtual ~RandomNumberKernelBase() {}
+
     // Seed the random number generator
     virtual void seedGenerator( const int seed ) = 0;
 
@@ -65,10 +62,8 @@ namespace mg5amcCpu
     virtual bool isOnDevice() const = 0;
 
   protected:
-
     // The buffer for the output random numbers
     BufferRandomNumbers& m_rnarray;
-
   };
 
   //--------------------------------------------------------------------------
@@ -77,12 +72,11 @@ namespace mg5amcCpu
   class CommonRandomNumberKernel final : public RandomNumberKernelBase
   {
   public:
-
     // Constructor from an existing output buffer
     CommonRandomNumberKernel( BufferRandomNumbers& rnarray );
 
     // Destructor
-    ~CommonRandomNumberKernel(){}
+    ~CommonRandomNumberKernel() {}
 
     // Seed the random number generator
     void seedGenerator( const int seed ) override final { m_seed = seed; };
@@ -94,10 +88,8 @@ namespace mg5amcCpu
     bool isOnDevice() const override final { return false; }
 
   private:
-
     // The generator seed
     int m_seed;
-
   };
 
   //--------------------------------------------------------------------------
@@ -107,7 +99,6 @@ namespace mg5amcCpu
   class CurandRandomNumberKernel final : public RandomNumberKernelBase
   {
   public:
-
     // Constructor from an existing output buffer
     CurandRandomNumberKernel( BufferRandomNumbers& rnarray, const bool onDevice );
 
@@ -124,18 +115,15 @@ namespace mg5amcCpu
     bool isOnDevice() const override final { return m_isOnDevice; }
 
   private:
-
     // Is this a host or device kernel?
     const bool m_isOnDevice;
 
     // The curand generator
     curandGenerator_t m_rnGen;
-
   };
 
 #endif
 
   //--------------------------------------------------------------------------
-
 }
 #endif // RANDOMNUMBERKERNELS_H

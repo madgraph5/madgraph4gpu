@@ -1,8 +1,8 @@
 // Use ./runTest.exe --gtest_filter=*misc to run only this test
 
+#include "epoch_process_id.h"
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuVectors.h"
-#include "epoch_process_id.h"
 
 #include <gtest/gtest.h>
 
@@ -18,20 +18,32 @@
 #define XTESTID( s ) TESTID( s )
 
 #ifdef MGONGPU_CPPSIMD
-bool maskand( const bool_v& mask ){ bool out = true; for ( int i=0; i<neppV; i++ ) out = out && mask[i]; return out; }
-#define EXPECT_TRUE_sv( cond ) { bool_v mask( cond ); EXPECT_TRUE( maskand( mask ) ); }
+bool maskand( const bool_v& mask )
+{
+  bool out = true;
+  for ( int i = 0; i < neppV; i++ ) out = out && mask[i];
+  return out;
+}
+#define EXPECT_TRUE_sv( cond ) \
+  { \
+    bool_v mask( cond ); \
+    EXPECT_TRUE( maskand( mask ) ); \
+  }
 #else
-#define EXPECT_TRUE_sv( cond ) { EXPECT_TRUE( cond ); }
+#define EXPECT_TRUE_sv( cond ) \
+  { \
+    EXPECT_TRUE( cond ); \
+  }
 #endif
 
-inline const std::string boolTF( const bool& b ){ return ( b ? "T" : "F" ); }
+inline const std::string boolTF( const bool& b ) { return ( b ? "T" : "F" ); }
 
 #ifdef MGONGPU_CPPSIMD
 inline const std::string boolTF( const bool_v& v )
 {
   std::stringstream out;
   out << "{ " << ( v[0] ? "T" : "F" );
-  for ( int i=1; i<neppV; i++ ) out << ", " << ( v[i] ? "T" : "F" );
+  for ( int i = 1; i < neppV; i++ ) out << ", " << ( v[i] ? "T" : "F" );
   out << " }";
   return out.str();
 }
@@ -61,10 +73,10 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
 #else
     EXPECT_TRUE( ( f == 1 )[0] ); // this succeds: TFFF[0]
     EXPECT_TRUE( ( f[0] == 1 ) );
-    for ( int i=1; i<neppV; i++ )
+    for ( int i = 1; i < neppV; i++ )
     {
       EXPECT_TRUE( !( ( f == 1 )[i] ) ); // this succeds: FTTT[i>=1]
-      EXPECT_TRUE( ( f[i] == 0 ) ); // equals 0, not 1
+      EXPECT_TRUE( ( f[i] == 0 ) );      // equals 0, not 1
     }
 #endif
   }
@@ -73,7 +85,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
   // Vector initialization for cxtype_sv - demonstrate fix for bug #339
   {
     fptype_sv f1 = fptype_v{0} + 1;
-    EXPECT_TRUE_sv( f1 == 1 );    
+    EXPECT_TRUE_sv( f1 == 1 );
     cxtype_v c12 = cxmake( f1, 2 );
     //std::cout << c12 << std::endl << boolTF( c12.real() == 1 ) << std::endl << boolTF( c12.imag() == 2 ) << std::endl;
     EXPECT_TRUE_sv( c12.real() == 1 );
@@ -84,7 +96,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
     EXPECT_TRUE_sv( c21.imag() == 1 );
   }
 #endif
-  
+
   // Vector initialization for cxtype_sv
   {
     cxtype_sv c = cxzero_sv();
@@ -101,10 +113,11 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
     EXPECT_TRUE_sv( c.real() == 0 );
     EXPECT_TRUE_sv( c.imag() == 1 );
   }
-  
+
   // Array initialization for cxtype_sv array (example: jamp_sv in CPPProcess.cc)
   {
-    cxtype_sv array[2] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxype is NOT, if "= {}" is missing!)
+    cxtype_sv array[2] =
+      {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxype is NOT, if "= {}" is missing!)
     //std::cout << array[0].real() << std::endl; std::cout << boolTF( array[0].real() == 0 ) << std::endl;
     EXPECT_TRUE_sv( array[0].real() == 0 );
     EXPECT_TRUE_sv( array[0].imag() == 0 );

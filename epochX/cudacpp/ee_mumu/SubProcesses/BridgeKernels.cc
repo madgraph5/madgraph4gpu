@@ -3,8 +3,8 @@
 
 #include <sstream>
 
-using mgOnGpu::npar;  // the number of particles (external = initial + final)
-using mgOnGpu::np4;   // the number of dimensions of 4-momenta (E,px,py,pz)
+using mgOnGpu::np4;  // the number of dimensions of 4-momenta (E,px,py,pz)
+using mgOnGpu::npar; // the number of particles (external = initial + final)
 
 //============================================================================
 
@@ -14,39 +14,34 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
   //--------------------------------------------------------------------------
 
   BridgeKernelBase::BridgeKernelBase( const BufferMomenta& momenta,         // input: momenta
                                       BufferMatrixElements& matrixElements, // output: matrix elements
                                       const size_t nevt )
-    : MatrixElementKernelBase( momenta, matrixElements )
-    , NumberOfEvents( nevt )
-    , m_bridge( nevt, npar, np4 )
+    : MatrixElementKernelBase( momenta, matrixElements ), NumberOfEvents( nevt ), m_bridge( nevt, npar, np4 )
   {
     if ( m_momenta.isOnDevice() ) throw std::runtime_error( "BridgeKernelBase: momenta must be a host array" );
     if ( m_matrixElements.isOnDevice() ) throw std::runtime_error( "BridgeKernelBase: matrixElements must be a host array" );
     if ( this->nevt() != m_momenta.nevt() ) throw std::runtime_error( "BridgeKernelBase: nevt mismatch with momenta" );
-    if ( this->nevt() != m_matrixElements.nevt() ) throw std::runtime_error( "BridgeKernelBase: nevt mismatch with matrixElements" );
+    if ( this->nevt() != m_matrixElements.nevt() )
+      throw std::runtime_error( "BridgeKernelBase: nevt mismatch with matrixElements" );
   }
 
   //--------------------------------------------------------------------------
-
 }
 
 //============================================================================
 
 #ifndef __CUDACC__
 namespace mg5amcCpu
-{  
-
+{
   //--------------------------------------------------------------------------
 
   BridgeKernelHost::BridgeKernelHost( const BufferMomenta& momenta,         // input: momenta
                                       BufferMatrixElements& matrixElements, // output: matrix elements
                                       const size_t nevt )
-    : BridgeKernelBase( momenta, matrixElements, nevt )
-    , m_fortranMomenta( nevt )
+    : BridgeKernelBase( momenta, matrixElements, nevt ), m_fortranMomenta( nevt )
   {
   }
 
@@ -61,7 +56,7 @@ namespace mg5amcCpu
 
   void BridgeKernelHost::computeGoodHelicities()
   {
-    constexpr bool goodHelOnly=true;
+    constexpr bool goodHelOnly = true;
     m_bridge.cpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
   }
 
@@ -69,13 +64,13 @@ namespace mg5amcCpu
 
   void BridgeKernelHost::computeMatrixElements()
   {
-    constexpr bool goodHelOnly=false;
+    constexpr bool goodHelOnly = false;
     m_bridge.cpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------
 
-}
+} // namespace mg5amcCpu
 #endif
 
 //============================================================================
@@ -83,14 +78,13 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
 namespace mg5amcGpu
 {
-
   //--------------------------------------------------------------------------
 
   BridgeKernelDevice::BridgeKernelDevice( const BufferMomenta& momenta,         // input: momenta
                                           BufferMatrixElements& matrixElements, // output: matrix elements
                                           const size_t gpublocks,
                                           const size_t gputhreads )
-    : BridgeKernelBase( momenta, matrixElements, gpublocks*gputhreads )
+    : BridgeKernelBase( momenta, matrixElements, gpublocks * gputhreads )
     , m_fortranMomenta( nevt() )
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
@@ -111,7 +105,7 @@ namespace mg5amcGpu
 
   void BridgeKernelDevice::computeGoodHelicities()
   {
-    constexpr bool goodHelOnly=true;
+    constexpr bool goodHelOnly = true;
     m_bridge.gpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
   }
 
@@ -119,13 +113,13 @@ namespace mg5amcGpu
 
   void BridgeKernelDevice::computeMatrixElements()
   {
-    constexpr bool goodHelOnly=false;
+    constexpr bool goodHelOnly = false;
     m_bridge.gpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------
 
-}
+} // namespace mg5amcGpu
 #endif
 
 //============================================================================
