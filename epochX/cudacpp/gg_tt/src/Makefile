@@ -156,15 +156,14 @@ endif
 # NB2: CUDA includes for curand.h are no longer needed in the C++ code anywhere in src!
 
 MODELLIB = model_sm
-target=$(LIBDIR)/lib$(MODELLIB).a $(LIBDIR)/lib$(MODELLIB).so
-cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
+common_libs=$(LIBDIR)/lib$(MODELLIB).a $(LIBDIR)/lib$(MODELLIB).so
 
 # First target (default goal)
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(target)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(common_libs)
 
 # Target (and build options): debug
 debug: OPTFLAGS = -g -O0 -DDEBUG2
-debug: $(target)
+debug: $(common_libs)
 
 # Target: tag-specific build lockfiles
 override oldtagsb=`if [ -d $(BUILDDIR) ]; then find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
@@ -189,7 +188,9 @@ $(BUILDDIR)/%.o : %.cc *.h
 
 #-------------------------------------------------------------------------------
 
-# Target (and build rules): common "model" library
+cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
+
+# Target (and build rules): common "model" libraries
 $(LIBDIR)/lib$(MODELLIB).a : $(cxx_objects)
 	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
 	$(AR) cru $@ $(cxx_objects)
