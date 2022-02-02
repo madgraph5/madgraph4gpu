@@ -342,10 +342,10 @@ cu_objects=$(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDD
 
 # Target (and build rules): CUDA and C++ shared libraries
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_objects)
-	$(NVCC) $< --shared -o $@ $(cu_objects)
+	$(NVCC) --shared -o $@ $(cu_objects) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects)
-	$(CXX) $< -shared -o $@ $(cxx_objects)
+	$(CXX) -shared -o $@ $(cxx_objects) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 
 #-------------------------------------------------------------------------------
 
