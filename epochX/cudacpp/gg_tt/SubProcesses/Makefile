@@ -4,8 +4,8 @@ INCFLAGS = -I.
 OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
 
 # Dependency on src directory
-COMMONLIB = mg5amc_common
-LIBFLAGS = -L$(LIBDIR) -l$(COMMONLIB)
+MG5AMC_COMMONLIB = mg5amc_common
+LIBFLAGS = -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 INCFLAGS += -I../../src
 
 # Dependency on tools directory
@@ -327,9 +327,9 @@ $(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): common (src) library
-commonlib : $(LIBDIR)/lib$(COMMONLIB).a
+commonlib : $(LIBDIR)/lib$(MG5AMC_COMMONLIB).a
 
-$(LIBDIR)/lib$(COMMONLIB).a: ../../src/*.h ../../src/*.cc
+$(LIBDIR)/lib$(MG5AMC_COMMONLIB).a: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
 #-------------------------------------------------------------------------------
@@ -341,10 +341,10 @@ cu_lib=$(LIBDIR)/libmg5amc_cu.so
 cu_objects=$(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o
 
 # Target (and build rules): CUDA and C++ shared libraries
-$(cu_lib): $(LIBDIR)/lib$(COMMONLIB).so $(cu_objects)
+$(cu_lib): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_objects)
 	$(NVCC) $< --shared -o $@ $(cu_objects)
 
-$(cxx_lib): $(LIBDIR)/lib$(COMMONLIB).so $(cxx_objects)
+$(cxx_lib): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects)
 	$(CXX) $< -shared -o $@ $(cxx_objects)
 
 #-------------------------------------------------------------------------------
@@ -409,10 +409,10 @@ $(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(shell which $(CXX) | t
 endif
 
 ifeq ($(NVCC),) # link only runTest.o
-$(testmain): $(LIBDIR)/lib$(COMMONLIB).a $(cxx_objects) $(GTESTLIBS)
+$(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).a $(cxx_objects) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else # link both runTest.o and runTest_cu.o
-$(testmain): $(LIBDIR)/lib$(COMMONLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
+$(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
 
