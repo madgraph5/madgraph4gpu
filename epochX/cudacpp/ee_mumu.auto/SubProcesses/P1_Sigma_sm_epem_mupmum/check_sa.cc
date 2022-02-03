@@ -522,31 +522,30 @@ int main(int argc, char **argv)
 
     // === STEP 3 OF 3
     // Evaluate matrix elements for all nevt events
-    // 0d. (Only on the first iteration) Get good helicities [renamed as 0d: this is initialisation!]
-    // 3@. For Bridge only, transpose C2F
+    // 0d. For Bridge only, transpose C2F [renamed as 0d: this is not initialisation, but I want it out of the ME timers (#371)]
+    // 0e. (Only on the first iteration) Get good helicities [renamed as 0e: this IS initialisation!]
     // 3a. Evaluate MEs on the device (include transpose F2C for Bridge)
     // 3b. Copy MEs back from device to host
 
-    // --- 0d. SGoodHel
+    // --- 0d. TransC2F
+    if ( bridge )
+    {
+      const std::string tc2fKey = "0d TransC2F";
+      timermap.start( tc2fKey );
+      dynamic_cast<BridgeKernelBase*>( pmek.get() )->transposeInputMomentaC2F();
+    }    
+
+    // --- 0e. SGoodHel
     if ( iiter == 0 )
     {
-      const std::string ghelKey = "0d SGoodHel";
+      const std::string ghelKey = "0e SGoodHel";
       timermap.start( ghelKey );
-      if ( bridge ) dynamic_cast<BridgeKernelBase*>( pmek.get() )->transposeInputMomentaC2F();
       pmek->computeGoodHelicities();
     }
 
     // *** START THE OLD-STYLE TIMERS FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     double wavetime = 0; // calc plus copy
     double wv3atime = 0; // calc only
-
-    // --- 3@. TransC2F
-    if ( bridge )
-    {
-      const std::string tc2fKey = "3@ TransC2F";
-      timermap.start( tc2fKey );
-      dynamic_cast<BridgeKernelBase*>( pmek.get() )->transposeInputMomentaC2F();
-    }    
 
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
