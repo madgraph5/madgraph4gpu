@@ -13,7 +13,7 @@
 #include <cstring>
 #include <iostream>
 #include <memory>
-#include <typeinfo>
+#include <type_traits>
 
 #ifdef __CUDACC__
 namespace mg5amcGpu
@@ -50,13 +50,14 @@ namespace mg5amcCpu
    *   DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE)
    * where the dimensions are <# momenta>, <# of particles>, <# events>
    *
-   * FIXME: eventually cpu/gpu sequence should take double* (not T*) momenta/MEs.
+   * NB: cpu/gpu sequences take double* (not T*) momenta/MEs.
    * This would allow using double in MadEvent Fortran and float in CUDA/C++ sigmaKin.
    * This would require significant changes to the "--bridge" test in check_sa.
    * A mixing of float and double is not yet possible in the CUDA/C++ code.
    * For the moment, use T* in cpu/gpu sequence (emulate using float or double throughout).
    */
-  template <typename T> class Bridge
+  template<typename FORTRANFPTYPE>
+  class Bridge
   {
   public:
     /**
@@ -88,7 +89,7 @@ namespace mg5amcCpu
      * @param mes memory address of the output matrix elements
      * @param goodHelOnly quit after computing good helicities
      */
-    void gpu_sequence( const T *momenta, T *mes, const bool goodHelOnly=false );
+    void gpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly=false );
 
     /**
      * sequence to be executed for the vectorized CPU matrix element calculation
@@ -97,7 +98,7 @@ namespace mg5amcCpu
      * @param mes memory address of the output matrix elements
      * @param goodHelOnly quit after computing good helicities
      */
-    void cpu_sequence( const T *momenta, T *mes, const bool goodHelOnly=false );
+    void cpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly=false );
 
   private:
 
@@ -130,8 +131,8 @@ namespace mg5amcCpu
   // Implementations of class Bridge member functions
   //
 
-  template <typename T>
-  Bridge<T>::Bridge( int evnt, int part, int mome, int /*strd*/, int /*ncomb*/ )
+  template <typename FORTRANFPTYPE>
+  Bridge<FORTRANFPTYPE>::Bridge( int evnt, int part, int mome, int /*strd*/, int /*ncomb*/ )
     : m_evt( evnt )
       //, m_part( part )
       //, m_mome( mome )
@@ -164,8 +165,8 @@ namespace mg5amcCpu
   }
 
 #ifdef __CUDACC__
-  template <typename T>
-  void Bridge<T>::set_gpugrid(const int gpublocks, const int gputhreads)
+  template <typename FORTRANFPTYPE>
+  void Bridge<FORTRANFPTYPE>::set_gpugrid(const int gpublocks, const int gputhreads)
   {
     if ( m_evt != gpublocks*gputhreads )
       throw std::runtime_error( "Bridge: gpublocks*gputhreads must equal m_evt in set_gpugrid" );
@@ -178,11 +179,11 @@ namespace mg5amcCpu
 #endif
 
 #ifdef __CUDACC__
-  template <typename T>
-  void Bridge<T>::gpu_sequence( const T *momenta, T *mes, const bool goodHelOnly )
+  template <typename FORTRANFPTYPE>
+  void Bridge<FORTRANFPTYPE>::gpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly )
   {
     constexpr int neppM = MemoryAccessMomenta::neppM;
-    if constexpr ( neppM == 1 ) // needs c++17 and cuda >=11.2 (#333)
+    if constexpr ( neppM == 1 && std::is_same_v<FORTRANFPTYPE,fptype> )
     {
       checkCuda( cudaMemcpy( m_devMomentaC.data(), momenta, m_devMomentaC.bytes(), cudaMemcpyHostToDevice ) );
     }
@@ -205,8 +206,8 @@ namespace mg5amcCpu
 #endif
 
 #ifndef __CUDACC__
-  template <typename T>
-  void Bridge<T>::cpu_sequence( const T *momenta, T *mes, const bool goodHelOnly )
+  template <typename FORTRANFPTYPE>
+  void Bridge<FORTRANFPTYPE>::cpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly )
   {
     hst_transposeMomentaF2C( momenta, m_hstMomentaC.data(), m_evt );
     if ( !m_goodHelsCalculated )
@@ -303,8 +304,10 @@ namespace mg5amcCpu
           * (part * mome)          // event size (pos of event)
           + part_i * mome          // particle inside event
           + mome_i;                // momentum inside particle
-        if constexpr ( F2C ) out[pos] = in[inpos]; // F2C (Fortran to C)
-        else out[inpos] = in[pos]; // C2F (C to Fortran)
+        if constexpr ( F2C ) // needs c++17 and cuda >=11.2 (#333)
+          out[pos] = in[inpos]; // F2C (Fortran to C)
+        else
+          out[inpos] = in[pos]; // C2F (C to Fortran)
       }
     }
     else
@@ -316,7 +319,7 @@ namespace mg5amcCpu
       constexpr int npar = mgOnGpu::npar;
       constexpr int np4 = mgOnGpu::np4;
       constexpr int neppM = MemoryAccessMomenta::neppM;
-      if constexpr ( neppM == 1 && typeid(Tin) == typeid(Tout) ) // needs c++17 and cuda >=11.2 (#333)
+      if constexpr ( neppM == 1 && std::is_same_v<Tin,Tout> )
       {
         memcpy( out, in, evt * npar * np4 * sizeof(Tin) );
       }
