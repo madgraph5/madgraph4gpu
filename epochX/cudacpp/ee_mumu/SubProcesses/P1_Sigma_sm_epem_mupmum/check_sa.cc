@@ -452,7 +452,7 @@ int main(int argc, char **argv)
     //std::cout << "Got random numbers" << std::endl;
 
 #ifdef __CUDACC__
-    if ( rndgen != RandomNumberMode::CurandDevice )
+    if ( rndgen != RandomNumberMode::CurandDevice && rmbsmp == RamboSamplingMode::RamboDevice )
     {
       // --- 1c. Copy rnarray from host to device
       const std::string htodKey = "1c CpHTDrnd";
