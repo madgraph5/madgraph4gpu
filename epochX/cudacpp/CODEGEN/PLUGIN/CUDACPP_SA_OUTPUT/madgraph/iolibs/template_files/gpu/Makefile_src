@@ -1,20 +1,41 @@
+#=== Configure common compiler flags for CUDA and C++
+
 INCFLAGS = -I.
 OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
-CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra
+
+#-------------------------------------------------------------------------------
+
+#=== Configure the C++ compiler
+
+CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -fPIC -Wall -Wshadow -Wextra
 CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
-# install target
-INSTALL_HEADERS=Parameters_sm.h mgOnGpuConfig.h mgOnGpuFptypes.h mgOnGpuCxtypes.h mgOnGpuVectors.h read_slha.h
-INSTALL_INC_DIR=../include
-
 # Note: AR and CXX are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
-RANLIB = ranlib
+###RANLIB = ranlib
 
-# OpenMP flags
-CXXFLAGS += $(OMPFLAGS)
+#-------------------------------------------------------------------------------
+
+#=== Configure ccache for CUDA and C++ builds
+
+# Enable ccache if USECCACHE=1
+ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
+  override CXX:=ccache $(CXX)
+endif
+#ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
+#  override AR:=ccache $(AR)
+#endif
+#ifneq ($(NVCC),)
+#  ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
+#    override NVCC:=ccache $(NVCC)
+#  endif
+#endif
+
+#-------------------------------------------------------------------------------
+
+#=== Configure PowerPC-specific compiler flags for CUDA and C++
 
 # Assuming uname is available, detect if architecture is PowerPC
 UNAME_P := $(shell uname -p)
@@ -34,6 +55,14 @@ else
   ###CXXFLAGS+= -flto # NB: build error from src/Makefile unless gcc-ar and gcc-ranlib are used
   ######CXXFLAGS+= -fno-semantic-interposition # no benefit (neither alone, nor combined with -flto)
 endif
+
+#-------------------------------------------------------------------------------
+
+#=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
+
+# Set the build flags appropriate to OMPFLAGS
+###$(info OMPFLAGS=$(OMPFLAGS))
+CXXFLAGS += $(OMPFLAGS)
 
 # Set the build flags appropriate to each AVX choice (example: "make AVX=none")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
@@ -95,6 +124,10 @@ else ifneq ($(RNDGEN),hasCurand)
   $(error Unknown RNDGEN='$(RNDGEN)': only 'hasCurand' and 'hasNoCurand' are supported)
 endif
 
+#-------------------------------------------------------------------------------
+
+#=== Configure build directories and build lockfiles ===
+
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
 override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
@@ -115,32 +148,28 @@ else
 endif
 ######$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
 
-# Enable ccache if USECCACHE=1
-ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
-  override CXX:=ccache $(CXX)
-endif
-ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
-  override AR:=ccache $(AR)
-endif
-#ifneq ($(NVCC),)
-#  ifeq ($(USECCACHE)$(shell echo $(NVCC) | grep ccache),1)
-#    override NVCC:=ccache $(NVCC)
-#  endif
-#endif
+#===============================================================================
+#=== Makefile TARGETS and build rules below
+#===============================================================================
 
-# NB there are no cuda objects as we avoid rdc (e.g. HelAmps_sm.cc is included by gcheck.cu)
-target=$(LIBDIR)/libmodel_%(model)s.a
-cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_%(model)s.o read_slha.o)
-cu_objects=
+# NB1: there are no CUDA targets in src as we avoid RDC!
+# NB2: CUDA includes for curand.h are no longer needed in the C++ code anywhere in src!
 
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(target)
+MG5AMC_COMMONLIB = mg5amc_common
 
-install: all.$(TAG) $(INSTALL_INC_DIR) $(addprefix $(INSTALL_INC_DIR)/, $(INSTALL_HEADERS))
+# First target (default goal)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
+
+# Target (and build options): debug
+debug: OPTFLAGS = -g -O0 -DDEBUG2
+debug: all.$(TAG)
+
+# Target: tag-specific build lockfiles
+override oldtagsb=`if [ -d $(BUILDDIR) ]; then find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
+override oldtagsl=`if [ -d $(LIBDIR) ]; then find $(LIBDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
 
 $(BUILDDIR)/.build.$(TAG): $(LIBDIR)/.build.$(TAG)
 
-override oldtagsb=`if [ -d $(BUILDDIR) ]; then find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
-override oldtagsl=`if [ -d $(LIBDIR) ]; then find $(LIBDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
 $(LIBDIR)/.build.$(TAG):
 	@if [ "$(oldtagsl)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist in $(LIBDIR) for other tags:\n$(oldtagsl)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
 	@if [ "$(oldtagsb)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist in $(BUILDDIR) for other tags:\n$(oldtagsb)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
@@ -149,8 +178,29 @@ $(LIBDIR)/.build.$(TAG):
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	@touch $(BUILDDIR)/.build.$(TAG)
 
-debug: OPTFLAGS = -g -O0 -DDEBUG2
-debug: $(target)
+#-------------------------------------------------------------------------------
+
+# Generic target and build rules: objects from C++ compilation
+$(BUILDDIR)/%%.o : %%.cc *.h
+	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+#-------------------------------------------------------------------------------
+
+cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
+
+# Target (and build rules): common (src) library
+$(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
+	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
+	$(CXX) -shared -o$@ $(cxx_objects)
+
+#-------------------------------------------------------------------------------
+
+# Target (and build rules): install libraries and headers (for use by MadEvent in Fortran)
+INSTALL_HEADERS=Parameters_sm.h mgOnGpuConfig.h mgOnGpuFptypes.h mgOnGpuCxtypes.h mgOnGpuVectors.h read_slha.h
+INSTALL_INC_DIR=../include
+
+install: all.$(TAG) $(INSTALL_INC_DIR) $(addprefix $(INSTALL_INC_DIR)/, $(INSTALL_HEADERS))
 
 $(INSTALL_INC_DIR) :
 	if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
@@ -159,16 +209,9 @@ $(INSTALL_INC_DIR)/%%.h : %%.h
 	@if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
 	cp $< $@
 
-# NB: cuda includes for curand.h are no longer needed in the C++ code anywhere in src!
-$(BUILDDIR)/%%.o : %%.cc *.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+#-------------------------------------------------------------------------------
 
-$(target): $(cxx_objects) $(cu_objects)
-	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
-	$(AR) cru $@ $(cxx_objects) $(cu_objects)
-	$(RANLIB) $(target)
-
+# Target: clean the builds
 .PHONY: clean
 
 clean:
@@ -185,3 +228,5 @@ cleanall:
 	make clean
 	@echo
 	rm -rf build.*
+
+#-------------------------------------------------------------------------------
