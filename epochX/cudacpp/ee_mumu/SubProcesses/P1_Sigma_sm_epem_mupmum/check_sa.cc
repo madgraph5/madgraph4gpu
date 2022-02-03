@@ -344,15 +344,6 @@ int main(int argc, char **argv)
   DeviceBufferMatrixElements devMatrixElements( nevt );
 #endif
 
-  // Memory buffers for the helicity mask
-  using mgOnGpu::ncomb; // the number of helicity combinations
-#ifndef __CUDACC__
-  HostBufferHelicityMask hstIsGoodHel( ncomb );
-#else
-  PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
-  DeviceBufferHelicityMask devIsGoodHel( ncomb );
-#endif
-
   std::unique_ptr<double[]> genrtimes( new double[niter] );
   std::unique_ptr<double[]> rambtimes( new double[niter] );
   std::unique_ptr<double[]> wavetimes( new double[niter] );
