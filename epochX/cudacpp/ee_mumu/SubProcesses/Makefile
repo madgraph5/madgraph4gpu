@@ -279,7 +279,7 @@ cu_main=$(BUILDDIR)/gcheck.exe
 testmain=$(BUILDDIR)/runTest.exe
 
 # First target (default goal)
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) ../../src/$(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) ../../src/$(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain) $(BUILDDIR)/fcheck_sa.o
 
 # Target (and build options): debug
 MAKEDEBUG=
