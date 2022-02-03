@@ -276,27 +276,27 @@ namespace mg5amcCpu
   template <typename T>
   void hst_transposeMomentaF2C( const T *in, T *out, const int evt )
   {
-    /*
-  constexpr int part = mgOnGpu::npar;
-  constexpr int mome = mgOnGpu::np4;
-  constexpr int strd = MemoryAccessMomenta::neppM;
-  int arrlen = evt * part * mome;
-  for (int pos = 0; pos < arrlen; ++pos)
-  {
-    int page_i = pos / (strd * mome * part);
-    int rest_1 = pos % (strd * mome * part);
-    int part_i = rest_1 / (strd * mome);
-    int rest_2 = rest_1 % (strd * mome);
-    int mome_i = rest_2 / strd;
-    int strd_i = rest_2 % strd;
-    int inpos =
-      (page_i * strd + strd_i) // event number
-      * (part * mome)          // event size (pos of event)
-      + part_i * mome          // particle inside event
-      + mome_i;                // momentum inside particle
-    out[pos] = in[inpos]; // F2C (Fortran to C)
-  }
-    */
+#if 1
+    constexpr int part = mgOnGpu::npar;
+    constexpr int mome = mgOnGpu::np4;
+    constexpr int strd = MemoryAccessMomenta::neppM;
+    int arrlen = evt * part * mome;
+    for (int pos = 0; pos < arrlen; ++pos)
+    {
+      int page_i = pos / (strd * mome * part);
+      int rest_1 = pos % (strd * mome * part);
+      int part_i = rest_1 / (strd * mome);
+      int rest_2 = rest_1 % (strd * mome);
+      int mome_i = rest_2 / strd;
+      int strd_i = rest_2 % strd;
+      int inpos =
+        (page_i * strd + strd_i) // event number
+        * (part * mome)          // event size (pos of event)
+        + part_i * mome          // particle inside event
+        + mome_i;                // momentum inside particle
+      out[pos] = in[inpos]; // F2C (Fortran to C)
+    }
+#else
     // AV attempt another implementation: this is slightly faster (better c++ pipelining?)
     // [NB! this is not a transposition, it is an AOS to AOSOA conversion: if neppM=1, a memcpy is enough]
     // C-style: AOSOA[npagM][npar][np4][neppM]
@@ -323,6 +323,7 @@ namespace mg5amcCpu
               out[cpos] = in[fpos]; // F2C (Fortran to C)
             }
     }
+#endif
   }
 
   template <typename T>
