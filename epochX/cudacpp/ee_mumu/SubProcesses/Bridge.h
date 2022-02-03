@@ -278,8 +278,8 @@ namespace mg5amcCpu
   }
 #endif
 
-  template <typename T>
-  void hst_transposeMomentaF2C( const T *in, T *out, const int evt )
+  template <typename T, bool F2C>
+  void hst_transposeMomenta( const T *in, T *out, const int evt )
   {
     constexpr bool oldImplementation = false; // default: use new implementation
     if constexpr ( oldImplementation )
@@ -302,7 +302,8 @@ namespace mg5amcCpu
           * (part * mome)          // event size (pos of event)
           + part_i * mome          // particle inside event
           + mome_i;                // momentum inside particle
-        out[pos] = in[inpos]; // F2C (Fortran to C)
+        if constexpr ( F2C ) out[pos] = in[inpos]; // F2C (Fortran to C)
+        else out[inpos] = in[pos]; // C2F (C to Fortran)
       }
     }
     else
@@ -330,34 +331,25 @@ namespace mg5amcCpu
                 int ievt = ipagM*neppM + ieppM;
                 int cpos = ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM;
                 int fpos = ievt*npar*np4 + ipar*np4 + ip4;
-                out[cpos] = in[fpos]; // F2C (Fortran to C)
+                if constexpr ( F2C ) out[cpos] = in[fpos]; // F2C (Fortran to C)
+                else out[fpos] = in[cpos]; // C2F (C to Fortran)
               }
       }
     }
   }
 
   template <typename T>
+  void hst_transposeMomentaF2C( const T *in, T *out, const int evt )
+  {
+    constexpr bool F2C = true;
+    hst_transposeMomenta<T, F2C>( in, out, evt );
+  }
+
+  template <typename T>
   void hst_transposeMomentaC2F( const T *in, T *out, const int evt )
   {
-    constexpr int part = mgOnGpu::npar;
-    constexpr int mome = mgOnGpu::np4;
-    constexpr int strd = MemoryAccessMomenta::neppM;
-    int arrlen = evt * part * mome;
-    for (int pos = 0; pos < arrlen; ++pos)
-    {
-      int page_i = pos / (strd * mome * part);
-      int rest_1 = pos % (strd * mome * part);
-      int part_i = rest_1 / (strd * mome);
-      int rest_2 = rest_1 % (strd * mome);
-      int mome_i = rest_2 / strd;
-      int strd_i = rest_2 % strd;
-      int inpos =
-        (page_i * strd + strd_i) // event number
-        * (part * mome)          // event size (pos of event)
-        + part_i * mome          // particle inside event
-        + mome_i;                // momentum inside particle
-      out[inpos] = in[pos]; // C2F (C to Fortran)
-    }
+    constexpr bool F2C = false;
+    hst_transposeMomenta<T, F2C>( in, out, evt );
   }
 
 }
