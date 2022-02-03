@@ -230,100 +230,110 @@ namespace mg5amcCpu
   __global__
   void dev_transposeMomentaF2C( const T *in, T *out, const int evt )
   {
-    constexpr int part = mgOnGpu::npar;
-    constexpr int mome = mgOnGpu::np4;
-    constexpr int strd = MemoryAccessMomenta::neppM;
-    int pos = blockDim.x * blockIdx.x + threadIdx.x;
-    int arrlen = evt * part * mome;
-    if (pos < arrlen)
+    constexpr bool oldImplementation = true; // default: use old implementation
+    if constexpr ( oldImplementation )
     {
-      int page_i = pos / (strd * mome * part);
-      int rest_1 = pos % (strd * mome * part);
-      int part_i = rest_1 / (strd * mome);
-      int rest_2 = rest_1 % (strd * mome);
-      int mome_i = rest_2 / strd;
-      int strd_i = rest_2 % strd;
-      int inpos =
-        (page_i * strd + strd_i) // event number
-        * (part * mome)          // event size (pos of event)
-        + part_i * mome          // particle inside event
-        + mome_i;                // momentum inside particle
-      out[pos] = in[inpos]; // F2C (Fortran to C)
+      // Stefan's initial implementation
+      constexpr int part = mgOnGpu::npar;
+      constexpr int mome = mgOnGpu::np4;
+      constexpr int strd = MemoryAccessMomenta::neppM;
+      int pos = blockDim.x * blockIdx.x + threadIdx.x;
+      int arrlen = evt * part * mome;
+      if (pos < arrlen)
+      {
+        int page_i = pos / (strd * mome * part);
+        int rest_1 = pos % (strd * mome * part);
+        int part_i = rest_1 / (strd * mome);
+        int rest_2 = rest_1 % (strd * mome);
+        int mome_i = rest_2 / strd;
+        int strd_i = rest_2 % strd;
+        int inpos =
+          (page_i * strd + strd_i) // event number
+          * (part * mome)          // event size (pos of event)
+          + part_i * mome          // particle inside event
+          + mome_i;                // momentum inside particle
+        out[pos] = in[inpos]; // F2C (Fortran to C)
+      }
     }
-    /*
-  // AV attempt another implementation with 1 event per thread: this seems slower...
-  // C-style: AOSOA[npagM][npar][np4][neppM]
-  // F-style: AOS[nevt][npar][np4]
-  constexpr int npar = mgOnGpu::npar;
-  constexpr int np4 = mgOnGpu::np4;
-  constexpr int neppM = MemoryAccessMomenta::neppM;
-  const int npagM = evt/neppM;
-  assert( evt%neppM == 0 ); // number of events is not a multiple of neppM???
-  int ievt = blockDim.x * blockIdx.x + threadIdx.x;
-  int ipagM = ievt/neppM;
-  int ieppM = ievt%neppM;
-  for ( int ip4=0; ip4<np4; ip4++ )
-    for ( int ipar=0; ipar<npar; ipar++ )
+    else
     {
-      int cpos = ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM;
-      int fpos = ievt*npar*np4 + ipar*np4 + ip4;
-      out[cpos] = in[fpos]; // F2C (Fortran to C)
+      // AV attempt another implementation with 1 event per thread: this seems slower...
+      // C-style: AOSOA[npagM][npar][np4][neppM]
+      // F-style: AOS[nevt][npar][np4]
+      constexpr int npar = mgOnGpu::npar;
+      constexpr int np4 = mgOnGpu::np4;
+      constexpr int neppM = MemoryAccessMomenta::neppM;
+      assert( evt%neppM == 0 ); // number of events is not a multiple of neppM???
+      int ievt = blockDim.x * blockIdx.x + threadIdx.x;
+      int ipagM = ievt/neppM;
+      int ieppM = ievt%neppM;
+      for ( int ip4=0; ip4<np4; ip4++ )
+        for ( int ipar=0; ipar<npar; ipar++ )
+        {
+          int cpos = ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM;
+          int fpos = ievt*npar*np4 + ipar*np4 + ip4;
+          out[cpos] = in[fpos]; // F2C (Fortran to C)
+        }
     }
-    */
   }
 #endif
 
   template <typename T>
   void hst_transposeMomentaF2C( const T *in, T *out, const int evt )
   {
-#if 1
-    constexpr int part = mgOnGpu::npar;
-    constexpr int mome = mgOnGpu::np4;
-    constexpr int strd = MemoryAccessMomenta::neppM;
-    int arrlen = evt * part * mome;
-    for (int pos = 0; pos < arrlen; ++pos)
+    constexpr bool oldImplementation = false; // default: use new implementation
+    if constexpr ( oldImplementation )
     {
-      int page_i = pos / (strd * mome * part);
-      int rest_1 = pos % (strd * mome * part);
-      int part_i = rest_1 / (strd * mome);
-      int rest_2 = rest_1 % (strd * mome);
-      int mome_i = rest_2 / strd;
-      int strd_i = rest_2 % strd;
-      int inpos =
-        (page_i * strd + strd_i) // event number
-        * (part * mome)          // event size (pos of event)
-        + part_i * mome          // particle inside event
-        + mome_i;                // momentum inside particle
-      out[pos] = in[inpos]; // F2C (Fortran to C)
-    }
-#else
-    // AV attempt another implementation: this is slightly faster (better c++ pipelining?)
-    // [NB! this is not a transposition, it is an AOS to AOSOA conversion: if neppM=1, a memcpy is enough]
-    // C-style: AOSOA[npagM][npar][np4][neppM]
-    // F-style: AOS[nevt][npar][np4]
-    constexpr int npar = mgOnGpu::npar;
-    constexpr int np4 = mgOnGpu::np4;
-    constexpr int neppM = MemoryAccessMomenta::neppM;
-    if constexpr ( neppM == 1 ) // needs c++17 and cuda >=11.2 (#333)
-    {
-      memcpy( out, in, evt * npar * np4 * sizeof(T) );
+      // Stefan's initial implementation
+      constexpr int part = mgOnGpu::npar;
+      constexpr int mome = mgOnGpu::np4;
+      constexpr int strd = MemoryAccessMomenta::neppM;
+      int arrlen = evt * part * mome;
+      for (int pos = 0; pos < arrlen; ++pos)
+      {
+        int page_i = pos / (strd * mome * part);
+        int rest_1 = pos % (strd * mome * part);
+        int part_i = rest_1 / (strd * mome);
+        int rest_2 = rest_1 % (strd * mome);
+        int mome_i = rest_2 / strd;
+        int strd_i = rest_2 % strd;
+        int inpos =
+          (page_i * strd + strd_i) // event number
+          * (part * mome)          // event size (pos of event)
+          + part_i * mome          // particle inside event
+          + mome_i;                // momentum inside particle
+        out[pos] = in[inpos]; // F2C (Fortran to C)
+      }
     }
     else
     {
-      const int npagM = evt/neppM;
-      assert( evt%neppM == 0 ); // number of events is not a multiple of neppM???
-      for ( int ipagM=0; ipagM<npagM; ipagM++ )
-        for ( int ip4=0; ip4<np4; ip4++ )
-          for ( int ipar=0; ipar<npar; ipar++ )
-            for ( int ieppM=0; ieppM<neppM; ieppM++ )
-            {
-              int ievt = ipagM*neppM + ieppM;
-              int cpos = ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM;
-              int fpos = ievt*npar*np4 + ipar*np4 + ip4;
-              out[cpos] = in[fpos]; // F2C (Fortran to C)
-            }
+      // AV attempt another implementation: this is slightly faster (better c++ pipelining?)
+      // [NB! this is not a transposition, it is an AOS to AOSOA conversion: if neppM=1, a memcpy is enough]
+      // C-style: AOSOA[npagM][npar][np4][neppM]
+      // F-style: AOS[nevt][npar][np4]
+      constexpr int npar = mgOnGpu::npar;
+      constexpr int np4 = mgOnGpu::np4;
+      constexpr int neppM = MemoryAccessMomenta::neppM;
+      if constexpr ( neppM == 1 ) // needs c++17 and cuda >=11.2 (#333)
+      {
+        memcpy( out, in, evt * npar * np4 * sizeof(T) );
+      }
+      else
+      {
+        const int npagM = evt/neppM;
+        assert( evt%neppM == 0 ); // number of events is not a multiple of neppM???
+        for ( int ipagM=0; ipagM<npagM; ipagM++ )
+          for ( int ip4=0; ip4<np4; ip4++ )
+            for ( int ipar=0; ipar<npar; ipar++ )
+              for ( int ieppM=0; ieppM<neppM; ieppM++ )
+              {
+                int ievt = ipagM*neppM + ieppM;
+                int cpos = ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM;
+                int fpos = ievt*npar*np4 + ipar*np4 + ip4;
+                out[cpos] = in[fpos]; // F2C (Fortran to C)
+              }
+      }
     }
-#endif
   }
 
   template <typename T>
