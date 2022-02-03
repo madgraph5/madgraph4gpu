@@ -425,25 +425,6 @@ $(GTESTLIBS):
 
 #-------------------------------------------------------------------------------
 
-# Target (and build rules): install libraries and headers (for use by MadEvent in Fortran)
-INSTALL_HEADERS=CPPProcess.h MatrixElementKernels.h MemoryBuffers.h checkCuda.h MemoryAccessMomenta.h MemoryAccessHelpers.h MemoryAccessVectors.h
-INSTALL_INC_DIR=../../include
-INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o MatrixElementKernels.o gMatrixElementKernels.o
-
-install: all.$(TAG) $(INSTALL_INC_DIR) $(addprefix $(INSTALL_INC_DIR)/, $(INSTALL_HEADERS)) $(addprefix $(LIBDIR)/, $(INSTALL_OBJECTS))
-
-$(INSTALL_INC_DIR) :
-	$(MAKE) -C ../../src install
-
-$(INSTALL_INC_DIR)/%.h : %.h
-	@if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
-	cp $< $@
-
-$(LIBDIR)/%.o : $(BUILDDIR)/%.o
-	cp $< $@
-
-#-------------------------------------------------------------------------------
-
 # Target: build all targets in all AVX modes (each AVX mode in a separate build directory)
 # Split the avxall target into five separate targets to allow parallel 'make -j avxall' builds
 avxnone:
@@ -467,20 +448,6 @@ avx512z:
 	make USEBUILDDIR=1 AVX=512z
 
 avxall: avxnone avxsse4 avxavx2 avx512y avx512z
-
-# Target: install all targets in all AVX modes (each AVX mode in a separate build directory)
-# Do not make the avxall-install target dependent on avxall and do not implement -j (do 'make avxall -j; make avxall-install' instead)
-avxall-install:
-	@echo
-	make USEBUILDDIR=1 AVX=none install
-	@echo
-	make USEBUILDDIR=1 AVX=sse4 install
-	@echo
-	make USEBUILDDIR=1 AVX=avx2 install
-	@echo
-	make USEBUILDDIR=1 AVX=512y install
-	@echo
-	make USEBUILDDIR=1 AVX=512z install
 
 #-------------------------------------------------------------------------------
 
