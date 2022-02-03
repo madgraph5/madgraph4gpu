@@ -335,15 +335,19 @@ $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so: ../../src/*.h ../../src/*.cc
 #-------------------------------------------------------------------------------
 
 MG5AMC_CXXLIB = mg5amc_cxx
-cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o $(BUILDDIR)/RamboSamplingKernels.o $(BUILDDIR)/MatrixElementKernels.o $(BUILDDIR)/BridgeKernels.o $(BUILDDIR)/CrossSectionKernels.o $(BUILDDIR)/fbridge.o
+cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o $(BUILDDIR)/RamboSamplingKernels.o $(BUILDDIR)/MatrixElementKernels.o $(BUILDDIR)/BridgeKernels.o $(BUILDDIR)/CrossSectionKernels.o
 
 MG5AMC_CULIB = mg5amc_cu
-cu_objects=$(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o $(BUILDDIR)/fbridge_cu.o
+cu_objects=$(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o
 
 # Target (and build rules): CUDA and C++ shared libraries
+$(LIBDIR)/lib$(MG5AMC_CULIB).so: $(BUILDDIR)/fbridge_cu.o
+$(LIBDIR)/lib$(MG5AMC_CULIB).so: cu_objects += $(BUILDDIR)/fbridge_cu.o
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_objects)
 	$(NVCC) --shared -o $@ $(cu_objects) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 
+$(LIBDIR)/lib$(MG5AMC_CULIB).so: $(BUILDDIR)/fbridge.o
+$(LIBDIR)/lib$(MG5AMC_CULIB).so: cxx_objects += $(BUILDDIR)/fbridge.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects)
 	$(CXX) -shared -o $@ $(cxx_objects) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 
