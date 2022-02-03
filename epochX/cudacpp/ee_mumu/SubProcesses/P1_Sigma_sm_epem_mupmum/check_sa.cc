@@ -227,7 +227,10 @@ int main(int argc, char **argv)
     if ( debug ) std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
     if ( debug ) std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
   }
+#endif
+#endif
 
+#ifndef __CUDACC__
   // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the requested AVX
   // [NB: this prevents a crash on pmpe04 but not on some github CI nodes]
   auto supportsAvx = [](){
@@ -259,7 +262,6 @@ int main(int argc, char **argv)
     return ok;
   };
   if ( ! supportsAvx() ) return 1;
-#endif
 #endif
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
