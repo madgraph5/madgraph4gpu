@@ -33,17 +33,17 @@ extern "C"
    * This is a C symbol that should be called from the Fortran code (in auto_dsig1.f).
    *
    * @param ppbridge the pointer to the Bridge pointer (the Bridge pointer is handled in Fortran as an INTEGER*8 variable)
-   * @param nevtF the number of events in the Fortran arrays
-   * @param nparF the number of external particles in the Fortran arrays              [KEPT FOR SANITY CHECKS ONLY! remove it?]
-   * @param np4F the number of momenta components (usually: 4) in the Fortran arrays  [KEPT FOR SANITY CHECKS ONLY! remove it?]
+   * @param nevtF the pointer to the number of events in the Fortran arrays
+   * @param nparF the pointer to the number of external particles in the Fortran arrays (KEPT FOR SANITY CHECKS ONLY: remove it?)
+   * @param np4F the pointer to the number of momenta components, usually 4, in the Fortran arrays (KEPT FOR SANITY CHECKS ONLY: remove it?)
    */
-  void fbridgecreate_( Bridge<FORTRANFPTYPE>** ppbridge, const int nevtF, const int nparF, const int np4F )
+  void fbridgecreate_( Bridge<FORTRANFPTYPE>** ppbridge, const int* pnevtF, const int* pnparF, const int* pnp4F )
   {
-    *ppbridge = new Bridge<FORTRANFPTYPE>( nevtF, nparF, np4F );
+    *ppbridge = new Bridge<FORTRANFPTYPE>( *pnevtF, *pnparF, *pnp4F );
   }
 
   /**
-   * Delete the Bridge.
+   * Delete a Bridge.
    * This is a C symbol that should be called from the Fortran code (in auto_dsig1.f).
    *
    * @param ppbridge the pointer to the Bridge pointer (the Bridge pointer is handled in Fortran as an INTEGER*8 variable)
@@ -54,7 +54,7 @@ extern "C"
   }
 
   /**
-   * Execute the matrix-element calculation "sequence" via the Bridge on GPU/CUDA or CUDA/C++.
+   * Execute the matrix-element calculation "sequence" via a Bridge on GPU/CUDA or CUDA/C++.
    * This is a C symbol that should be called from the Fortran code (in auto_dsig1.f).
    *
    * @param ppbridge the pointer to the Bridge pointer (the Bridge pointer is handled in Fortran as an INTEGER*8 variable)
