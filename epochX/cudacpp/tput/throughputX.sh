@@ -28,6 +28,7 @@ gtest=0
 verbose=0
 
 export LD_LIBRARY_PATH_start=$LD_LIBRARY_PATH
+export DYLD_LIBRARY_PATH_start=$DYLD_LIBRARY_PATH
 
 function usage()
 {
@@ -427,6 +428,7 @@ for exe in $exes; do
   libDir=$exeDir/../../../lib/$(basename $exeDir)
   if [ ! -d $libDir ]; then echo "WARNING! $libDir not found"; else libDir=$(cd $libDir; pwd -P); fi
   export LD_LIBRARY_PATH=$libDir:$LD_LIBRARY_PATH_start
+  export DYLD_LIBRARY_PATH=$libDir:$DYLD_LIBRARY_PATH_start
   echo "LD_LIBRARY_PATH=$libDir:..."
   unset OMP_NUM_THREADS
   runExe $exe "$exeArgs"
