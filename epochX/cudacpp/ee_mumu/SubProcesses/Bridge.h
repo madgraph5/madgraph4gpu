@@ -13,6 +13,7 @@
 #include <cstring>
 #include <iostream>
 #include <memory>
+#include <typeinfo>
 
 #ifdef __CUDACC__
 namespace mg5amcGpu
@@ -26,17 +27,17 @@ namespace mg5amcCpu
 
 #ifdef __CUDACC__
 
-  template <typename T>
+  template <typename Tin, typename Tout>
   __global__
-  void dev_transposeMomentaF2C( const T *in, T *out, const int evt );
+  void dev_transposeMomentaF2C( const Tin* in, Tout* out, const int evt );
 
 #endif // __CUDACC__
 
-  template <typename T>
-  void hst_transposeMomentaF2C( const T *in, T *out, const int evt );
+  template <typename Tin, typename Tout>
+  void hst_transposeMomentaF2C( const Tin* in, Tout* out, const int evt );
 
-  template <typename T>
-  void hst_transposeMomentaC2F( const T *in, T *out, const int evt );
+  template <typename Tin, typename Tout>
+  void hst_transposeMomentaC2F( const Tin* in, Tout* out, const int evt );
 
   // *****************************************************************************
 
@@ -226,9 +227,9 @@ namespace mg5amcCpu
   //
 
 #ifdef __CUDACC__
-  template <typename T>
+  template <typename Tin, typename Tout>
   __global__
-  void dev_transposeMomentaF2C( const T *in, T *out, const int evt )
+  void dev_transposeMomentaF2C( const Tin* in, Tout* out, const int evt )
   {
     constexpr bool oldImplementation = true; // default: use old implementation
     if constexpr ( oldImplementation )
@@ -278,8 +279,8 @@ namespace mg5amcCpu
   }
 #endif
 
-  template <typename T, bool F2C>
-  void hst_transposeMomenta( const T *in, T *out, const int evt )
+  template <typename Tin, typename Tout, bool F2C>
+  void hst_transposeMomenta( const Tin *in, Tout *out, const int evt )
   {
     constexpr bool oldImplementation = false; // default: use new implementation
     if constexpr ( oldImplementation )
@@ -315,9 +316,9 @@ namespace mg5amcCpu
       constexpr int npar = mgOnGpu::npar;
       constexpr int np4 = mgOnGpu::np4;
       constexpr int neppM = MemoryAccessMomenta::neppM;
-      if constexpr ( neppM == 1 ) // needs c++17 and cuda >=11.2 (#333)
+      if constexpr ( neppM == 1 && typeid(Tin) == typeid(Tout) ) // needs c++17 and cuda >=11.2 (#333)
       {
-        memcpy( out, in, evt * npar * np4 * sizeof(T) );
+        memcpy( out, in, evt * npar * np4 * sizeof(Tin) );
       }
       else
       {
@@ -338,18 +339,18 @@ namespace mg5amcCpu
     }
   }
 
-  template <typename T>
-  void hst_transposeMomentaF2C( const T *in, T *out, const int evt )
+  template <typename Tin, typename Tout>
+  void hst_transposeMomentaF2C( const Tin* in, Tout* out, const int evt )
   {
     constexpr bool F2C = true;
-    hst_transposeMomenta<T, F2C>( in, out, evt );
+    hst_transposeMomenta<Tin, Tout, F2C>( in, out, evt );
   }
 
-  template <typename T>
-  void hst_transposeMomentaC2F( const T *in, T *out, const int evt )
+  template <typename Tin, typename Tout>
+  void hst_transposeMomentaC2F( const Tin* in, Tout* out, const int evt )
   {
     constexpr bool F2C = false;
-    hst_transposeMomenta<T, F2C>( in, out, evt );
+    hst_transposeMomenta<Tin, Tout, F2C>( in, out, evt );
   }
 
 }
