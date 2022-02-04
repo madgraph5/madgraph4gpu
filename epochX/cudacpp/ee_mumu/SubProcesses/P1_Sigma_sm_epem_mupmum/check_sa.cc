@@ -249,14 +249,30 @@ int main(int argc, char **argv)
   // === STEP 0 - INITIALISE
 
 #ifdef __CUDACC__
-  // --- 00. Initialise cuda (call cudaFree to ease cuda profile analysis)
-  const std::string cdfrKey = "00 CudaFree";
-  timermap.start( cdfrKey );
+
+  // --- 00. Initialise cuda
+  // [We initially added cudaFree(0) to "ease profile analysis" only because it shows up as a big recognizable block!]
+  // No explicit initialization is needed: https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#initialization
+  // It is not clear what cudaFree(0) does at all: https://stackoverflow.com/questions/69967813/
+  //const std::string cdfrKey = "00 CudaFree";
+  //timermap.start( cdfrKey );
   //std::cout << "Calling cudaFree... " << std::endl;
-  checkCuda( cudaFree( 0 ) ); // SLOW!
+  //checkCuda( cudaFree( 0 ) ); // SLOW!
   //std::cout << "Calling cudaFree... done" << std::endl;
 
-  // --- Book the tear down at the end of main:
+  // --- 00. Initialise cuda
+  // Replace cudaFree(0) by cudaSetDevice(0), even if it is probably not needed either
+  // (but see https://developer.nvidia.com/blog/cuda-pro-tip-always-set-current-device-avoid-multithreading-bugs)
+  // ** NB: it is useful to call cudaSetDevice, or cudaFree, to properly book-keep the time spent in CUDA initialization
+  // ** NB: otherwise, the first CUDA operation (eg a cudaMemcpyToSymbol in CPPProcess ctor) appears to take much longer!
+  const std::string cdsdKey = "00 CudaSetD";
+  timermap.start( cdsdKey );
+  //std::cout << "Calling cudaSetDevice(0)... " << std::endl;
+  checkCuda( cudaSetDevice( 0 ) ); // slow?
+  //std::cout << "Calling cudaSetDevice(0)... done" << std::endl;
+
+  // --- Book the tear down at the end of main
+  // See https://docs.nvidia.com/cuda/cuda-memcheck/index.html#leak-checking
   struct CudaTearDown {
     CudaTearDown(bool print) : _print(print) { }
     ~CudaTearDown() {
