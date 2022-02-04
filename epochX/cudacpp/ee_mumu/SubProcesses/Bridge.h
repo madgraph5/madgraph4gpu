@@ -64,17 +64,28 @@ namespace mg5amcCpu
    * For the moment, use T* in cpu/gpu sequence (emulate using float or double throughout).
    */
   template<typename FORTRANFPTYPE>
-  class Bridge
+  class Bridge final
   {
   public:
     /**
-     * Class constructor
+     * Constructor
      *
      * @param nevtF (NB_PAGE, vector.inc) number of events in Fortran arrays
      * @param nparF (NEXTERNAL, nexternal.inc) number of external particles in Fortran arrays (KEPT FOR SANITY CHECKS ONLY: remove it?)
      * @param np4F number of momenta components, usually 4, in Fortran arrays (KEPT FOR SANITY CHECKS ONLY: remove it?)
      */
     Bridge( int nevtF, int nparF, int np4F );
+
+    /**
+     * Destructor
+     */
+    ~Bridge(){}
+
+    // Delete copy/move constructors and assignment operators
+    Bridge( const Bridge&  ) = delete;
+    Bridge( Bridge&&  ) = delete;
+    Bridge& operator=( const Bridge& ) = delete;
+    Bridge& operator=( Bridge&& ) = delete;
 
 #ifdef __CUDACC__
     /**
