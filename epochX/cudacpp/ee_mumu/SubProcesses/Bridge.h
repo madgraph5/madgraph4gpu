@@ -225,6 +225,8 @@ namespace mg5amcCpu
 
   //
   // Implementations of transposition functions
+  // - FORTRAN arrays: P_MULTI(0:3, NEXTERNAL, NB_PAGE) ==> p_multi[nevt][npar][np4] in C++ (AOS)
+  // - C++ array: momenta[npagM][npar][np4][neppM] with nevt=npagM*neppM (AOSOA)
   //
 
 #ifdef __CUDACC__
@@ -260,7 +262,7 @@ namespace mg5amcCpu
     else
     {
       // AV attempt another implementation with 1 event per thread: this seems slower...
-      // C-style: AOSOA[npagM][npar][np4][neppM]
+      // C-style: AOSOA[npagM][npar][np4][neppM] with nevt=npagM*neppM
       // F-style: AOS[nevt][npar][np4]
       constexpr int npar = mgOnGpu::npar;
       constexpr int np4 = mgOnGpu::np4;
@@ -314,7 +316,7 @@ namespace mg5amcCpu
     {
       // AV attempt another implementation: this is slightly faster (better c++ pipelining?)
       // [NB! this is not a transposition, it is an AOS to AOSOA conversion: if neppM=1, a memcpy is enough]
-      // C-style: AOSOA[npagM][npar][np4][neppM]
+      // C-style: AOSOA[npagM][npar][np4][neppM] with nevt=npagM*neppM
       // F-style: AOS[nevt][npar][np4]
       constexpr int npar = mgOnGpu::npar;
       constexpr int np4 = mgOnGpu::np4;
