@@ -1,4 +1,4 @@
-#=== Configure common compiler flags for CUDA and C++
+#=== Configure common compiler flags for C++ and CUDA
 
 INCFLAGS = -I.
 OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
@@ -72,7 +72,7 @@ CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
 
 #-------------------------------------------------------------------------------
 
-#=== Configure ccache for CUDA and C++ builds
+#=== Configure ccache for C++ and CUDA builds
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -89,7 +89,7 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure PowerPC-specific compiler flags for CUDA and C++
+#=== Configure PowerPC-specific compiler flags for C++ and CUDA
 
 # Assuming uname is available, detect if architecture is PowerPC
 UNAME_P := $(shell uname -p)
@@ -352,7 +352,12 @@ MG5AMC_CULIB = mg5amc_cu
 cu_objects=$(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o
 endif
 
-# Target (and build rules): CUDA and C++ shared libraries
+# Target (and build rules): C++ and CUDA shared libraries
+$(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(BUILDDIR)/fbridge.o
+$(LIBDIR)/lib$(MG5AMC_CXXLIB).so: cxx_objects += $(BUILDDIR)/fbridge.o
+$(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects)
+	$(CXX) -shared -o $@ $(cxx_objects) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+
 ifneq ($(NVCC),)
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: $(BUILDDIR)/fbridge_cu.o
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: cu_objects += $(BUILDDIR)/fbridge_cu.o
@@ -360,14 +365,12 @@ $(LIBDIR)/lib$(MG5AMC_CULIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_object
 	$(NVCC) --shared -o $@ $(cu_objects) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 endif
 
-$(LIBDIR)/lib$(MG5AMC_CULIB).so: $(BUILDDIR)/fbridge.o
-$(LIBDIR)/lib$(MG5AMC_CULIB).so: cxx_objects += $(BUILDDIR)/fbridge.o
-$(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects)
-	$(CXX) -shared -o $@ $(cxx_objects) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
-
 #-------------------------------------------------------------------------------
 
-# Target (and build rules): CUDA and C++ standalone executables
+# Target (and build rules): C++ and CUDA standalone executables
+$(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
+	$(CXX) -o $@ $(BUILDDIR)/check_sa.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB)
+
 ifneq ($(NVCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(cu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
@@ -375,9 +378,6 @@ endif
 $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
 	$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB)
 endif
-
-$(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
-	$(CXX) -o $@ $(BUILDDIR)/check_sa.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB)
 
 #-------------------------------------------------------------------------------
 
