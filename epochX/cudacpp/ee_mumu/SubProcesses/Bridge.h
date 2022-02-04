@@ -29,15 +29,15 @@ namespace mg5amcCpu
 
   template <typename Tin, typename Tout>
   __global__
-  void dev_transposeMomentaF2C( const Tin* in, Tout* out, const int evt );
+  void dev_transposeMomentaF2C( const Tin* in, Tout* out, const int nevt );
 
 #endif // __CUDACC__
 
   template <typename Tin, typename Tout>
-  void hst_transposeMomentaF2C( const Tin* in, Tout* out, const int evt );
+  void hst_transposeMomentaF2C( const Tin* in, Tout* out, const int nevt );
 
   template <typename Tin, typename Tout>
-  void hst_transposeMomentaC2F( const Tin* in, Tout* out, const int evt );
+  void hst_transposeMomentaC2F( const Tin* in, Tout* out, const int nevt );
 
   // *****************************************************************************
 
@@ -46,11 +46,15 @@ namespace mg5amcCpu
    * the event generation workflow. The template parameter is used for the
    * precision of the calculations in CUDA/C++ (float or double).
    *
-   * The fortran momenta passed in are in the form of
+   * The Fortran momenta passed in are in the form of
    *   DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE)
-   * where the dimensions are <# momenta>, <# of particles>, <# events>
+   * where the dimensions are <np4F(#momenta)>, <nparF(#particles)>, <nevtF(#events)>.
+   * In memory, this is stored in a way that C reads as an array P_MULTI[nevtF][nparF][np4F].
+   * The CUDA/C++ momenta are stored as an array[npagM][npar][np4][neppM] with nevt=npagM*neppM.
+   * The Bridge is configured to store nevt==nevtF events in CUDA/C++.
+   * It also checks that Fortran and C++ parameters match, nparF==npar and np4F==np4.
    *
-   * NB: cpu/gpu sequences take double* (not T*) momenta/MEs.
+   * The cpu/gpu sequences take double* (not T*) momenta/MEs.
    * This would allow using double in MadEvent Fortran and float in CUDA/C++ sigmaKin.
    * This would require significant changes to the "--bridge" test in check_sa.
    * A mixing of float and double is not yet possible in the CUDA/C++ code.
@@ -63,13 +67,11 @@ namespace mg5amcCpu
     /**
      * class constructor
      *
-     * @param evt number of events (NB_PAGE, vector.inc)                    [STRICTLY NEEDED]
-     * @param par number of particles per event (NEXTERNAL, nexternal.inc)  [KEPT FOR SANITY CHECKS ONLY! remove it?]
-     * @param mom number of momenta per particle                            [KEPT FOR SANITY CHECKS ONLY! remove it?]
-     * @param str stride length                                             [IGNORED! REMOVE IT! fully encapsulated in Cuda/C++]
-     * @param ncomb number of good helicities                               [IGNORED! REMOVE IT! fully encapsulated in Cuda/C++]
+     * @param nevtF (NB_PAGE, vector.inc) number of events in Fortran arrays
+     * @param nparF (NEXTERNAL, nexternal.inc) number of external particles in Fortran arrays (KEPT FOR SANITY CHECKS ONLY: remove it?)
+     * @param np4F number of momenta components, usually 4, in Fortran arrays (KEPT FOR SANITY CHECKS ONLY: remove it?)
      */
-    Bridge( int evt, int par, int mom, int /*dummy*/str=0, int /*dummy*/ncomb=0 );
+    Bridge( int nevtF, int nparF, int np4F );
 
 #ifdef __CUDACC__
     /**
@@ -102,15 +104,10 @@ namespace mg5amcCpu
 
   private:
 
-    int m_evt;                 ///< number of events
-    //int m_part;                ///< number of particles per event [NO LONGER NEEDED!]
-    //int m_mome;                ///< number of momenta per particle (usually 4) [NO LONGER NEEDED!]
-    //int m_strd;                ///< stride length of the AOSOA structure [NO LONGER NEEDED!]
-    //int m_ncomb;               ///< number of good helicities [NO LONGER NEEDED!]
-    bool m_goodHelsCalculated; ///< have the good helicities been calculated?
-
-    int m_gputhreads;          ///< number of gpu threads (default set from number of events, can be modified)
-    int m_gpublocks;           ///< number of gpu blocks (default set from number of events, can be modified)
+    int m_nevt;                 ///< number of events
+    bool m_goodHelsCalculated;  ///< have the good helicities been calculated?
+    int m_gputhreads;           ///< number of gpu threads (default set from number of events, can be modified)
+    int m_gpublocks;            ///< number of gpu blocks (default set from number of events, can be modified)
 
 #ifdef __CUDACC__
     mg5amcGpu::DeviceBufferMomenta m_devMomentaF;
@@ -132,29 +129,25 @@ namespace mg5amcCpu
   //
 
   template <typename FORTRANFPTYPE>
-  Bridge<FORTRANFPTYPE>::Bridge( int evnt, int part, int mome, int /*strd*/, int /*ncomb*/ )
-    : m_evt( evnt )
-      //, m_part( part )
-      //, m_mome( mome )
-      //, m_strd( strd )
-      //, m_ncomb( ncomb )
+  Bridge<FORTRANFPTYPE>::Bridge( int nevtF, int nparF, int np4F )
+    : m_nevt( nevtF )
     , m_goodHelsCalculated( false )
     , m_gputhreads( 256 ) // default number of gpu threads
-    , m_gpublocks( ceil(double(m_evt)/m_gputhreads) ) // this ensures m_evt <= m_gpublocks*m_gputhreads
+    , m_gpublocks( ceil( double( m_nevt ) / m_gputhreads ) ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
 #ifdef __CUDACC__
-    , m_devMomentaF( evnt )
-    , m_devMomentaC( evnt )
-    , m_devMEsC( evnt )
+    , m_devMomentaF( m_nevt )
+    , m_devMomentaC( m_nevt )
+    , m_devMEsC( m_nevt )
     , m_devMek( m_devMomentaC, m_devMEsC, m_gpublocks, m_gputhreads )
 #else
-    , m_hstMomentaC( evnt )
-    , m_hstMEsC( evnt )
-    , m_hstMek( m_hstMomentaC, m_hstMEsC, evnt )
+    , m_hstMomentaC( m_nevt )
+    , m_hstMEsC( m_nevt )
+    , m_hstMek( m_hstMomentaC, m_hstMEsC, m_nevt )
 #endif
   {
-    if ( part != mgOnGpu::npar ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
-    if ( mome != mgOnGpu::np4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
-    std::cout << "WARNING! Instantiate Bridge (nevt=" << m_evt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
+    if ( nparF != mgOnGpu::npar ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
+    if ( np4F != mgOnGpu::np4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
+    std::cout << "WARNING! Instantiate Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
               << ", gpublocks*gputhreads=" << m_gpublocks*m_gputhreads << ")" << std::endl;
 #ifdef __CUDACC__
     mg5amcGpu::CPPProcess process( 1, m_gpublocks, m_gputhreads, false );
@@ -168,11 +161,11 @@ namespace mg5amcCpu
   template <typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::set_gpugrid(const int gpublocks, const int gputhreads)
   {
-    if ( m_evt != gpublocks*gputhreads )
-      throw std::runtime_error( "Bridge: gpublocks*gputhreads must equal m_evt in set_gpugrid" );
+    if ( m_nevt != gpublocks*gputhreads )
+      throw std::runtime_error( "Bridge: gpublocks*gputhreads must equal m_nevt in set_gpugrid" );
     m_gpublocks = gpublocks;
     m_gputhreads = gputhreads;
-    std::cout << "WARNING! Set grid in Bridge (nevt=" << m_evt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
+    std::cout << "WARNING! Set grid in Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
               << ", gpublocks*gputhreads=" << m_gpublocks*m_gputhreads << ")" << std::endl;
     m_devMek.setGrid( m_gpublocks, m_gputhreads );
   }
@@ -192,7 +185,7 @@ namespace mg5amcCpu
       checkCuda( cudaMemcpy( m_devMomentaF.data(), momenta, m_devMomentaF.bytes(), cudaMemcpyHostToDevice ) );
       const int thrPerEvt = mgOnGpu::npar * mgOnGpu::np4; // AV: transpose alg does 1 element per thread (NOT 1 event per thread)
       //const int thrPerEvt = 1; // AV: try new alg with 1 event per thread... this seems slower
-      dev_transposeMomentaF2C<<<m_gpublocks*thrPerEvt, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(), m_evt );
+      dev_transposeMomentaF2C<<<m_gpublocks*thrPerEvt, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(), m_nevt );
     }
     if ( !m_goodHelsCalculated )
     {
@@ -209,7 +202,7 @@ namespace mg5amcCpu
   template <typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::cpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly )
   {
-    hst_transposeMomentaF2C( momenta, m_hstMomentaC.data(), m_evt );
+    hst_transposeMomentaF2C( momenta, m_hstMomentaC.data(), m_nevt );
     if ( !m_goodHelsCalculated )
     {
       m_hstMek.computeGoodHelicities();
@@ -225,24 +218,24 @@ namespace mg5amcCpu
 
   //
   // Implementations of transposition functions
-  // - FORTRAN arrays: P_MULTI(0:3, NEXTERNAL, NB_PAGE) ==> p_multi[nevt][npar][np4] in C++ (AOS)
+  // - FORTRAN arrays: P_MULTI(0:3, NEXTERNAL, NB_PAGE) ==> p_multi[nevtF][nparF][np4F] in C++ (AOS)
   // - C++ array: momenta[npagM][npar][np4][neppM] with nevt=npagM*neppM (AOSOA)
   //
 
 #ifdef __CUDACC__
   template <typename Tin, typename Tout>
   __global__
-  void dev_transposeMomentaF2C( const Tin* in, Tout* out, const int evt )
+  void dev_transposeMomentaF2C( const Tin* in, Tout* out, const int nevt )
   {
     constexpr bool oldImplementation = true; // default: use old implementation
     if constexpr ( oldImplementation )
     {
-      // Stefan's initial implementation
+      // SR initial implementation
       constexpr int part = mgOnGpu::npar;
       constexpr int mome = mgOnGpu::np4;
       constexpr int strd = MemoryAccessMomenta::neppM;
       int pos = blockDim.x * blockIdx.x + threadIdx.x;
-      int arrlen = evt * part * mome;
+      int arrlen = nevt * part * mome;
       if (pos < arrlen)
       {
         int page_i = pos / (strd * mome * part);
@@ -262,12 +255,12 @@ namespace mg5amcCpu
     else
     {
       // AV attempt another implementation with 1 event per thread: this seems slower...
+      // F-style: AOS[nevtF][nparF][np4F]
       // C-style: AOSOA[npagM][npar][np4][neppM] with nevt=npagM*neppM
-      // F-style: AOS[nevt][npar][np4]
       constexpr int npar = mgOnGpu::npar;
       constexpr int np4 = mgOnGpu::np4;
       constexpr int neppM = MemoryAccessMomenta::neppM;
-      assert( evt%neppM == 0 ); // number of events is not a multiple of neppM???
+      assert( nevt%neppM == 0 ); // number of events is not a multiple of neppM???
       int ievt = blockDim.x * blockIdx.x + threadIdx.x;
       int ipagM = ievt/neppM;
       int ieppM = ievt%neppM;
@@ -283,16 +276,16 @@ namespace mg5amcCpu
 #endif
 
   template <typename Tin, typename Tout, bool F2C>
-  void hst_transposeMomenta( const Tin *in, Tout *out, const int evt )
+  void hst_transposeMomenta( const Tin *in, Tout *out, const int nevt )
   {
     constexpr bool oldImplementation = false; // default: use new implementation
     if constexpr ( oldImplementation )
     {
-      // Stefan's initial implementation
+      // SR initial implementation
       constexpr int part = mgOnGpu::npar;
       constexpr int mome = mgOnGpu::np4;
       constexpr int strd = MemoryAccessMomenta::neppM;
-      int arrlen = evt * part * mome;
+      int arrlen = nevt * part * mome;
       for (int pos = 0; pos < arrlen; ++pos)
       {
         int page_i = pos / (strd * mome * part);
@@ -316,19 +309,19 @@ namespace mg5amcCpu
     {
       // AV attempt another implementation: this is slightly faster (better c++ pipelining?)
       // [NB! this is not a transposition, it is an AOS to AOSOA conversion: if neppM=1, a memcpy is enough]
+      // F-style: AOS[nevtF][nparF][np4F]
       // C-style: AOSOA[npagM][npar][np4][neppM] with nevt=npagM*neppM
-      // F-style: AOS[nevt][npar][np4]
       constexpr int npar = mgOnGpu::npar;
       constexpr int np4 = mgOnGpu::np4;
       constexpr int neppM = MemoryAccessMomenta::neppM;
       if constexpr ( neppM == 1 && std::is_same_v<Tin,Tout> )
       {
-        memcpy( out, in, evt * npar * np4 * sizeof(Tin) );
+        memcpy( out, in, nevt * npar * np4 * sizeof(Tin) );
       }
       else
       {
-        const int npagM = evt/neppM;
-        assert( evt%neppM == 0 ); // number of events is not a multiple of neppM???
+        const int npagM = nevt/neppM;
+        assert( nevt%neppM == 0 ); // number of events is not a multiple of neppM???
         for ( int ipagM=0; ipagM<npagM; ipagM++ )
           for ( int ip4=0; ip4<np4; ip4++ )
             for ( int ipar=0; ipar<npar; ipar++ )
@@ -345,17 +338,17 @@ namespace mg5amcCpu
   }
 
   template <typename Tin, typename Tout>
-  void hst_transposeMomentaF2C( const Tin* in, Tout* out, const int evt )
+  void hst_transposeMomentaF2C( const Tin* in, Tout* out, const int nevt )
   {
     constexpr bool F2C = true;
-    hst_transposeMomenta<Tin, Tout, F2C>( in, out, evt );
+    hst_transposeMomenta<Tin, Tout, F2C>( in, out, nevt );
   }
 
   template <typename Tin, typename Tout>
-  void hst_transposeMomentaC2F( const Tin* in, Tout* out, const int evt )
+  void hst_transposeMomentaC2F( const Tin* in, Tout* out, const int nevt )
   {
     constexpr bool F2C = false;
-    hst_transposeMomenta<Tin, Tout, F2C>( in, out, evt );
+    hst_transposeMomenta<Tin, Tout, F2C>( in, out, nevt );
   }
 
 }
