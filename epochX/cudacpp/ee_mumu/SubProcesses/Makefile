@@ -261,11 +261,13 @@ override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
   override BUILDDIR = build.$(DIRTAG)
-  override LIBDIR   = ../../lib/$(BUILDDIR)
+  override LIBDIR = ../../lib/$(BUILDDIR)
+  override LIBDIRRPATH = ../$(LIBDIR)
   $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is set = 1))
 else
   override BUILDDIR = .
-  override LIBDIR   = ../../lib
+  override LIBDIR = ../../lib
+  override LIBDIRRPATH = $(LIBDIR)
   $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is not set))
 endif
 ###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
@@ -368,7 +370,7 @@ endif
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): C++ and CUDA standalone executables
-$(cxx_main): LIBFLAGS += -Wl,-rpath='$$ORIGIN/$(LIBDIR)' # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(cxx_main): LIBFLAGS += -Wl,-rpath='$$ORIGIN/$(LIBDIRRPATH)' # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
 $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
 	$(CXX) -o $@ $(BUILDDIR)/check_sa.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB)
 
@@ -376,7 +378,7 @@ ifneq ($(NVCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(cu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
 endif
-$(cu_main): LIBFLAGS += -Xlinker -rpath='$$ORIGIN/$(LIBDIR)' # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(cu_main): LIBFLAGS += -Xlinker -rpath='$$ORIGIN/$(LIBDIRRPATH)' # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
 $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
 	$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB)
 endif
@@ -430,11 +432,11 @@ $(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(shell which $(CXX) | t
 endif
 
 ifeq ($(NVCC),) # link only runTest.o
-$(testmain): LIBFLAGS += -Wl,-rpath='$$ORIGIN/$(LIBDIR)' # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(testmain): LIBFLAGS += -Wl,-rpath='$$ORIGIN/$(LIBDIRRPATH)' # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else # link both runTest.o and runTest_cu.o
-$(testmain): LIBFLAGS += -Xlinker -rpath='$$ORIGIN/$(LIBDIR)' # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(testmain): LIBFLAGS += -Xlinker -rpath='$$ORIGIN/$(LIBDIRRPATH)' # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects) $(cu_objects) $(GTESTLIBS)
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
