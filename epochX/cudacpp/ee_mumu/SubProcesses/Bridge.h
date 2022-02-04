@@ -22,8 +22,11 @@ namespace mg5amcCpu
 #endif
 {
 
-  // Forward declare transposition kernels
-  // (Inverse transposition with template bool parameter F2C and "if constexpr" would require C++17, not available in cuda 11.1)
+  // *****************************************************************************
+
+  //
+  // Forward declare transposition methods
+  //
 
 #ifdef __CUDACC__
 
@@ -42,9 +45,9 @@ namespace mg5amcCpu
   // *****************************************************************************
 
   /**
-   * A templated class for calling the C++ / Cuda matrix element calculations of
-   * the event generation workflow. The template parameter is used for the
-   * precision of the calculations in CUDA/C++ (float or double).
+   * A templated class for calling the CUDA/C++ matrix element calculations of the event generation workflow.
+   * The FORTRANFPTYPE template parameter indicates the precision of the Fortran momenta from MadEvent (float or double).
+   * The precision of the matrix element calculation is hardcoded in the fptype typedef in CUDA/C++.
    *
    * The Fortran momenta passed in are in the form of
    *   DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE)
@@ -65,7 +68,7 @@ namespace mg5amcCpu
   {
   public:
     /**
-     * class constructor
+     * Class constructor
      *
      * @param nevtF (NB_PAGE, vector.inc) number of events in Fortran arrays
      * @param nparF (NEXTERNAL, nexternal.inc) number of external particles in Fortran arrays (KEPT FOR SANITY CHECKS ONLY: remove it?)
@@ -75,7 +78,7 @@ namespace mg5amcCpu
 
 #ifdef __CUDACC__
     /**
-     * set the gpublocks and gputhreads for the gpusequence - throws if evnt != gpublocks*gputhreads
+     * Set the gpublocks and gputhreads for the gpusequence - throws if evnt != gpublocks*gputhreads
      * (this is needed for BridgeKernel tests rather than for actual production use in Fortran)
      *
      * @param gpublocks number of gpublocks
@@ -85,20 +88,20 @@ namespace mg5amcCpu
 #endif
 
     /**
-     * sequence to be executed for the Cuda matrix element calculation
+     * Sequence to be executed for the Cuda matrix element calculation
      *
-     * @param momenta memory address of the input 4-momenta
-     * @param mes memory address of the output matrix elements
-     * @param goodHelOnly quit after computing good helicities
+     * @param momenta the pointer to the input 4-momenta
+     * @param mes the pointer to the output matrix elements
+     * @param goodHelOnly quit after computing good helicities?
      */
     void gpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly=false );
 
     /**
-     * sequence to be executed for the vectorized CPU matrix element calculation
+     * Sequence to be executed for the vectorized CPU matrix element calculation
      *
-     * @param momenta memory address of the input 4-momenta
-     * @param mes memory address of the output matrix elements
-     * @param goodHelOnly quit after computing good helicities
+     * @param momenta the pointer to the input 4-momenta
+     * @param mes the pointer to the output matrix elements
+     * @param goodHelOnly quit after computing good helicities?
      */
     void cpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly=false );
 
@@ -125,7 +128,7 @@ namespace mg5amcCpu
   // *****************************************************************************
 
   //
-  // Implementations of class Bridge member functions
+  // Implementations of member functions of class Bridge
   //
 
   template <typename FORTRANFPTYPE>
@@ -217,7 +220,7 @@ namespace mg5amcCpu
   // *****************************************************************************
 
   //
-  // Implementations of transposition functions
+  // Implementations of transposition methods
   // - FORTRAN arrays: P_MULTI(0:3, NEXTERNAL, NB_PAGE) ==> p_multi[nevtF][nparF][np4F] in C++ (AOS)
   // - C++ array: momenta[npagM][npar][np4][neppM] with nevt=npagM*neppM (AOSOA)
   //
@@ -351,6 +354,7 @@ namespace mg5amcCpu
     hst_transposeMomenta<Tin, Tout, F2C>( in, out, nevt );
   }
 
-}
+  // *****************************************************************************
 
+}
 #endif // BRIDGE_H
