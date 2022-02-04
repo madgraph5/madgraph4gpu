@@ -34,8 +34,8 @@ extern "C"
    *
    * @param ppbridge the pointer to the Bridge pointer (the Bridge pointer is handled in Fortran as an INTEGER*8 variable)
    * @param nevtF the pointer to the number of events in the Fortran arrays
-   * @param nparF the pointer to the number of external particles in the Fortran arrays (KEPT FOR SANITY CHECKS ONLY: remove it?)
-   * @param np4F the pointer to the number of momenta components, usually 4, in the Fortran arrays (KEPT FOR SANITY CHECKS ONLY: remove it?)
+   * @param nparF the pointer to the number of external particles in the Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
+   * @param np4F the pointer to the number of momenta components, usually 4, in the Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
    */
   void fbridgecreate_( Bridge<FORTRANFPTYPE>** ppbridge, const int* pnevtF, const int* pnparF, const int* pnp4F )
   {

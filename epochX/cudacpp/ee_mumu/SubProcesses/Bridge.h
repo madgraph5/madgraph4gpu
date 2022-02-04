@@ -71,8 +71,8 @@ namespace mg5amcCpu
      * Constructor
      *
      * @param nevtF (NB_PAGE, vector.inc) number of events in Fortran arrays
-     * @param nparF (NEXTERNAL, nexternal.inc) number of external particles in Fortran arrays (KEPT FOR SANITY CHECKS ONLY: remove it?)
-     * @param np4F number of momenta components, usually 4, in Fortran arrays (KEPT FOR SANITY CHECKS ONLY: remove it?)
+     * @param nparF (NEXTERNAL, nexternal.inc) number of external particles in Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
+     * @param np4F number of momenta components, usually 4, in Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
      */
     Bridge( int nevtF, int nparF, int np4F );
 
