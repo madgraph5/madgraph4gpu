@@ -530,24 +530,26 @@ endif
 
 #-------------------------------------------------------------------------------
 
+# Note: using rpath makes it unnecessary to prepend DYLD_LIBRARY_PATH="$(LIBDIR):$(DYLD_LIBRARY_PATH)" LD_LIBRARY_PATH="$(LIBDIR):$(LD_LIBRARY_PATH)"
+
 # Target: check (run the C++ test executable)
 # [NB THIS IS WHAT IS USED IN THE GITHUB CI!]
 check: runTest
 
 # Target: runTest (run the C++ test executable runTest.exe)
 runTest: $(BUILDDIR)/runTest.exe
-	DYLD_LIBRARY_PATH="$(LIBDIR):$(DYLD_LIBRARY_PATH)" LD_LIBRARY_PATH="$(LIBDIR):$(LD_LIBRARY_PATH)" $(BUILDDIR)/runTest.exe
+	$(BUILDDIR)/runTest.exe
 
 # Target: runCheck (run the CUDA standalone executable gcheck.exe with a small number of events)
 runCheck: $(BUILDDIR)/check.exe
-	DYLD_LIBRARY_PATH="$(LIBDIR):$(DYLD_LIBRARY_PATH)" LD_LIBRARY_PATH="$(LIBDIR):$(LD_LIBRARY_PATH)" $(BUILDDIR)/check.exe -p 2 32 2
+	$(BUILDDIR)/check.exe -p 2 32 2
 
 # Target: runGcheck (run the CUDA standalone executable gcheck.exe with a small number of events)
 runGcheck: $(BUILDDIR)/gcheck.exe
-	DYLD_LIBRARY_PATH="$(LIBDIR):$(DYLD_LIBRARY_PATH)" LD_LIBRARY_PATH="$(LIBDIR):$(LD_LIBRARY_PATH)" $(BUILDDIR)/gcheck.exe -p 2 32 2
+	$(BUILDDIR)/gcheck.exe -p 2 32 2
 
 # Target: memcheck (run the CUDA standalone executable gcheck.exe with a small number of events through cuda-memcheck)
 memcheck: $(BUILDDIR)/gcheck.exe
-	DYLD_LIBRARY_PATH="$(LIBDIR):$(DYLD_LIBRARY_PATH)" LD_LIBRARY_PATH="$(LIBDIR):$(LD_LIBRARY_PATH)" $(CUDA_HOME)/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes $(BUILDDIR)/gcheck.exe -p 2 32 2
+	$(CUDA_HOME)/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes $(BUILDDIR)/gcheck.exe -p 2 32 2
 
 #-------------------------------------------------------------------------------
