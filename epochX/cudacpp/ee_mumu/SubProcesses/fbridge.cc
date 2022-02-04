@@ -39,6 +39,7 @@ extern "C"
    */
   void fbridgecreate_( Bridge<FORTRANFPTYPE>** ppbridge, const int* pnevtF, const int* pnparF, const int* pnp4F )
   {
+    // FIXME: disable OMP in Bridge when called from Fortran
     *ppbridge = new Bridge<FORTRANFPTYPE>( *pnevtF, *pnparF, *pnp4F );
   }
 
