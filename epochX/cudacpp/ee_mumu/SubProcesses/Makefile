@@ -275,7 +275,13 @@ endif
 #===============================================================================
 
 cxx_main=$(BUILDDIR)/check.exe
+
+ifneq ($(NVCC),)
 cu_main=$(BUILDDIR)/gcheck.exe
+else
+cu_main=
+endif
+
 testmain=$(BUILDDIR)/runTest.exe
 
 # First target (default goal)
@@ -301,6 +307,7 @@ $(BUILDDIR)/.build.$(TAG):
 #-------------------------------------------------------------------------------
 
 # Generic target and build rules: objects from CUDA compilation
+ifneq ($(NVCC),)
 $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c $< -o $@
@@ -308,6 +315,7 @@ $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 $(BUILDDIR)/%_cu.o : %.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
+endif
 
 # Generic target and build rules: objects from C++ compilation
 $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
@@ -316,7 +324,9 @@ $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
 
 # Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117)
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
+ifneq ($(NVCC),)
 $(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
+endif
 
 #### Apply special build flags only to CPPProcess.cc (-flto)
 ###$(BUILDDIR)/CPPProcess.o: CXXFLAGS += -flto
@@ -337,14 +347,18 @@ $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so: ../../src/*.h ../../src/*.cc
 MG5AMC_CXXLIB = mg5amc_cxx
 cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o $(BUILDDIR)/RamboSamplingKernels.o $(BUILDDIR)/MatrixElementKernels.o $(BUILDDIR)/BridgeKernels.o $(BUILDDIR)/CrossSectionKernels.o
 
+ifneq ($(NVCC),)
 MG5AMC_CULIB = mg5amc_cu
 cu_objects=$(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o
+endif
 
 # Target (and build rules): CUDA and C++ shared libraries
+ifneq ($(NVCC),)
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: $(BUILDDIR)/fbridge_cu.o
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: cu_objects += $(BUILDDIR)/fbridge_cu.o
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_objects)
 	$(NVCC) --shared -o $@ $(cu_objects) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+endif
 
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: $(BUILDDIR)/fbridge.o
 $(LIBDIR)/lib$(MG5AMC_CULIB).so: cxx_objects += $(BUILDDIR)/fbridge.o
@@ -354,12 +368,13 @@ $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_obje
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): CUDA and C++ standalone executables
+ifneq ($(NVCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(cu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
 endif
-
 $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
 	$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB)
+endif
 
 $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
 	$(CXX) -o $@ $(BUILDDIR)/check_sa.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB)
