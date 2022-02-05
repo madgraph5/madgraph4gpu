@@ -385,7 +385,7 @@ endif
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): C++ and CUDA standalone executables
-$(cxx_main): LIBFLAGS += -Wl,-rpath=$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(cxx_main): LIBFLAGS += -Wl,-rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
 $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
 	$(CXX) -o $@ $(BUILDDIR)/check_sa.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB)
 
@@ -393,7 +393,7 @@ ifneq ($(NVCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(cu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
 endif
-$(cu_main): LIBFLAGS += -Xlinker -rpath=$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(cu_main): LIBFLAGS += -Xlinker -rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
 $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
 	$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB)
 endif
@@ -447,11 +447,11 @@ $(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(shell which $(CXX) | t
 endif
 
 ifeq ($(NVCC),) # link only runTest.o
-$(testmain): LIBFLAGS += -Wl,-rpath=$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(testmain): LIBFLAGS += -Wl,-rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else # link both runTest.o and runTest_cu.o
-$(testmain): LIBFLAGS += -Xlinker -rpath=$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(testmain): LIBFLAGS += -Xlinker -rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects) $(cu_objects) $(GTESTLIBS)
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
