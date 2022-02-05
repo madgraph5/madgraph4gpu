@@ -1,3 +1,13 @@
+#=== Detect O/S and architecture (assuming uname is available, https://en.wikipedia.org/wiki/Uname)
+
+# Detect O/S kernel (Linux, Darwin...)
+UNAME_S := $(shell uname -s)
+
+# Detect architecture (x86_64, ppc64le...)
+UNAME_P := $(shell uname -p)
+
+#-------------------------------------------------------------------------------
+
 #=== Configure common compiler flags for C++ and CUDA
 
 INCFLAGS = -I.
@@ -90,9 +100,6 @@ endif
 #-------------------------------------------------------------------------------
 
 #=== Configure PowerPC-specific compiler flags for C++ and CUDA
-
-# Assuming uname is available, detect if architecture is PowerPC
-UNAME_P := $(shell uname -p)
 
 # PowerPC-specific CXX compiler flags (being reviewed)
 ifeq ($(UNAME_P),ppc64le)
@@ -500,8 +507,7 @@ distclean: cleanall
 # Target: show system and compiler information
 info:
 	@echo ""
-	@echo -n "hostname="
-	@hostname
+	@uname -spn # e.g. Linux nodename.cern.ch x86_64
 	@cat /proc/cpuinfo | grep "model name" | sort -u
 	@cat /proc/cpuinfo | grep "flags" | sort -u
 	@cat /proc/cpuinfo | grep "cpu cores" | sort -u
