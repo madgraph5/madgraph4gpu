@@ -269,15 +269,23 @@ override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
 ifeq ($(USEBUILDDIR),1)
   override BUILDDIR = build.$(DIRTAG)
   override LIBDIR = ../../lib/$(BUILDDIR)
-  override LIBDIRRPATH = '$$ORIGIN/../$(LIBDIR)'
+  override LIBDIRRPATH = '$(RPATHPREFIX)../$(LIBDIR)'
   $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is set = 1))
 else
   override BUILDDIR = .
   override LIBDIR = ../../lib
-  override LIBDIRRPATH = '$$ORIGIN/$(LIBDIR)'
+  override LIBDIRRPATH = '$(RPATHPREFIX)$(LIBDIR)'
   $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is not set))
 endif
 ###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
+
+# Set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH or DYLD_LIBRARY_PATH
+# Use relative paths with respect to the executables ($ORIGIN on Linux and @executable_path on Darwin)
+ifeq ($(UNAME_S),Darwin)
+  override RPATHPREFIX = @executable_path/
+else
+  override RPATHPREFIX = $$ORIGIN/
+endif
 
 #===============================================================================
 #=== Makefile TARGETS and build rules below
