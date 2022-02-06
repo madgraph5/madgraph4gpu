@@ -298,7 +298,8 @@ fcxx_main=$(BUILDDIR)/fcheck.exe
 
 ifneq ($(NVCC),)
 cu_main=$(BUILDDIR)/gcheck.exe
-fcu_main=$(BUILDDIR)/fgcheck.exe
+###fcu_main=$(BUILDDIR)/fgcheck.exe
+fcu_main= # TEMPORARY! disable fgcheck compilation for now
 else
 cu_main=
 fcu_main=
