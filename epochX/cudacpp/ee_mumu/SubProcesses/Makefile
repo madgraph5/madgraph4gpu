@@ -403,10 +403,17 @@ $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
 	$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB)
 endif
 
+#-------------------------------------------------------------------------------
+
+# Generic target and build rules: objects from C++ compilation
+$(BUILDDIR)/%.o : %.f *.inc ../../include/*.inc
+	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
+	$(FC) -I. -I../../include -c $< -o $@
+
 # Target (and build rules): Fortran standalone executables
 $(fcxx_main): LIBFLAGS += -Wl,-rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
-$(fcxx_main): fcheck_sa.f fsampler.inc $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
-	$(FC) -o $@ fcheck_sa.f -I. -I../../include $(BUILDDIR)/fsampler.o $(LIBFLAGS) $(CULIBFLAGS) -lstdc++ -L$(LIBDIR) -l$(MG5AMC_CXXLIB)
+$(fcxx_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
+	$(CXX) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBFLAGS) $(CULIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB)
 
 ifneq ($(NVCC),)
 $(fcu_main): $(BUILDDIR)/fsampler.o
@@ -414,9 +421,9 @@ ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(fcu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
 endif
 $(fcu_main): LIBFLAGS += -Xlinker -rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(fcu_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
 $(fcu_main): fcheck_sa.f fsampler.inc $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
-	$(FC) -o $@ fcheck_sa.f -I. -I../../include $(BUILDDIR)/fsampler.o $(LIBFLAGS) $(CULIBFLAGS) -lstdc++ -L$(LIBDIR) -l$(MG5AMC_CULIB)
-#	$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB)
+	$(NVCC) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBFLAGS) $(CULIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CULIB)
 endif
 
 #-------------------------------------------------------------------------------
