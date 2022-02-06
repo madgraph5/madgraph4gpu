@@ -1,5 +1,7 @@
 #include "Bridge.h"
 
+#include "CudaRuntime.h"
+
 extern "C"
 {
   /**
@@ -39,6 +41,9 @@ extern "C"
    */
   void fbridgecreate_( Bridge<FORTRANFPTYPE>** ppbridge, const int* pnevtF, const int* pnparF, const int* pnp4F )
   {
+#ifdef __CUDACC__
+    CudaRuntime::setUp();
+#endif
     // FIXME: disable OMP in Bridge when called from Fortran
     *ppbridge = new Bridge<FORTRANFPTYPE>( *pnevtF, *pnparF, *pnp4F );
   }
@@ -52,6 +57,9 @@ extern "C"
   void fbridgedelete_( Bridge<FORTRANFPTYPE>** ppbridge )
   {
     delete *ppbridge;
+#ifdef __CUDACC__
+    CudaRuntime::tearDown();
+#endif
   }
 
   /**
