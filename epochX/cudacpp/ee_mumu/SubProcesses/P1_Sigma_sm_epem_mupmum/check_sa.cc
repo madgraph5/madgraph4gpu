@@ -271,16 +271,9 @@ int main(int argc, char **argv)
   checkCuda( cudaSetDevice( 0 ) ); // slow?
   //std::cout << "Calling cudaSetDevice(0)... done" << std::endl;
 
-  // --- Book the tear down at the end of main
-  // See https://docs.nvidia.com/cuda/cuda-memcheck/index.html#leak-checking
-  struct CudaTearDown {
-    CudaTearDown(bool print) : _print(print) { }
-    ~CudaTearDown() {
-      //if ( _print ) std::cout << "Calling cudaDeviceReset()." << std::endl;
-      checkCuda( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
-    }
-    bool _print{false};
-  } cudaTearDown(debug);
+  // Book a cudaDeviceReset when CudaTearDown goes out of scope
+  // This is needed to check for memory leaks in cuda-memcheck
+  CudaTearDown cudaTearDown(debug);
 #endif
 
   // --- 0a. Initialise physics process
