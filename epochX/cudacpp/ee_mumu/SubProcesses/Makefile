@@ -403,8 +403,6 @@ $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
 	$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB)
 endif
 
-#-------------------------------------------------------------------------------
-
 # Target (and build rules): Fortran standalone executables
 $(fcxx_main): LIBFLAGS += -Wl,-rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
 $(fcxx_main): fcheck_sa.f fsampler.inc $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
@@ -417,7 +415,7 @@ $(fcu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefin
 endif
 $(fcu_main): LIBFLAGS += -Xlinker -rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
 $(fcu_main): fcheck_sa.f fsampler.inc $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
-	$(NVCC) -o $@ fcheck_sa.f -I. -I../../include $(BUILDDIR)/fsampler.o $(LIBFLAGS) $(CULIBFLAGS) -lstdc++ -L$(LIBDIR) -l$(MG5AMC_CULIB)
+	$(FC) -o $@ fcheck_sa.f -I. -I../../include $(BUILDDIR)/fsampler.o $(LIBFLAGS) $(CULIBFLAGS) -lstdc++ -L$(LIBDIR) -l$(MG5AMC_CULIB)
 #	$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB)
 endif
 
