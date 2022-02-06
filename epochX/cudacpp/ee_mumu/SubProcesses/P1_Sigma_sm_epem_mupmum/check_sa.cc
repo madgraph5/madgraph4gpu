@@ -251,29 +251,11 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
 
   // --- 00. Initialise cuda
-  // [We initially added cudaFree(0) to "ease profile analysis" only because it shows up as a big recognizable block!]
-  // No explicit initialization is needed: https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#initialization
-  // It is not clear what cudaFree(0) does at all: https://stackoverflow.com/questions/69967813/
-  //const std::string cdfrKey = "00 CudaFree";
-  //timermap.start( cdfrKey );
-  //std::cout << "Calling cudaFree... " << std::endl;
-  //checkCuda( cudaFree( 0 ) ); // SLOW!
-  //std::cout << "Calling cudaFree... done" << std::endl;
-
-  // --- 00. Initialise cuda
-  // Replace cudaFree(0) by cudaSetDevice(0), even if it is probably not needed either
-  // (but see https://developer.nvidia.com/blog/cuda-pro-tip-always-set-current-device-avoid-multithreading-bugs)
-  // ** NB: it is useful to call cudaSetDevice, or cudaFree, to properly book-keep the time spent in CUDA initialization
-  // ** NB: otherwise, the first CUDA operation (eg a cudaMemcpyToSymbol in CPPProcess ctor) appears to take much longer!
-  const std::string cdsdKey = "00 CudaSetD";
-  timermap.start( cdsdKey );
-  //std::cout << "Calling cudaSetDevice(0)... " << std::endl;
-  checkCuda( cudaSetDevice( 0 ) ); // slow?
-  //std::cout << "Calling cudaSetDevice(0)... done" << std::endl;
-
-  // Book a cudaDeviceReset when CudaTearDown goes out of scope
-  // This is needed to check for memory leaks in cuda-memcheck
-  CudaTearDown cudaTearDown(debug);
+  // Instantiate a CudaRuntime at the beginnining of the application's main to
+  // invoke cudaSetDevice(0) in the constructor and book a cudaDeviceReset() call in the destructor
+  const std::string cdinKey = "00 CudaInit";
+  timermap.start( cdinKey );
+  CudaRuntime cudaRuntime(debug);
 #endif
 
   // --- 0a. Initialise physics process
