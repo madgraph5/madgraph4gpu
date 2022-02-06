@@ -11,7 +11,6 @@
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuVectors.h"
 
-#include "checkCuda.h"
 #include "Parameters_sm.h"
 
 #include <vector>

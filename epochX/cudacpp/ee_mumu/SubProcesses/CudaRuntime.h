@@ -1,5 +1,8 @@
-#ifndef MG5_CHECKCUDA_H 
-#define MG5_CHECKCUDA_H 1
+#ifndef MG5AMC_CUDARUNTIME_H 
+#define MG5AMC_CUDARUNTIME_H 1
+
+// MG5AMC on GPU uses the CUDA runtime API, not the lower level CUDA driver API
+// See https://docs.nvidia.com/cuda/cuda-runtime-api/driver-vs-runtime-api.html#driver-vs-runtime-api
 
 #include <cassert>
 #include <iostream>
@@ -23,4 +26,4 @@ inline void assertCuda( cudaError_t code, const char* file, int line, bool abort
 
 //--------------------------------------------------------------------------
 
-#endif // MG5_CHECKCUDA_H
+#endif // MG5AMC_CUDARUNTIME_H

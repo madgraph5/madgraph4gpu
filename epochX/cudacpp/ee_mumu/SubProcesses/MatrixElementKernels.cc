@@ -1,7 +1,7 @@
 #include "MatrixElementKernels.h"
 
-#include "checkCuda.h"
 #include "CPPProcess.h"
+#include "CudaRuntime.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
 
