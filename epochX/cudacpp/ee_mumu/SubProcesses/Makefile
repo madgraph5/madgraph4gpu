@@ -294,17 +294,20 @@ endif
 #===============================================================================
 
 cxx_main=$(BUILDDIR)/check.exe
+fcxx_main=$(BUILDDIR)/fcheck.exe
 
 ifneq ($(NVCC),)
 cu_main=$(BUILDDIR)/gcheck.exe
+fcu_main=$(BUILDDIR)/fgcheck.exe
 else
 cu_main=
+fcu_main=
 endif
 
 testmain=$(BUILDDIR)/runTest.exe
 
 # First target (default goal)
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) ../../src/$(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain) $(BUILDDIR)/fsampler.o
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) ../../src/$(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain) $(fcu_main) $(fcxx_main)
 
 # Target (and build options): debug
 MAKEDEBUG=
@@ -398,6 +401,22 @@ endif
 $(cu_main): LIBFLAGS += -Xlinker -rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
 $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
 	$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB)
+endif
+
+# Target (and build rules): Fortran standalone executables
+$(fcxx_main): LIBFLAGS += -Wl,-rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(fcxx_main): fcheck_sa.f fsampler.inc $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
+	$(FC) -o $@ fcheck_sa.f -I. -I../../include $(BUILDDIR)/fsampler.o $(LIBFLAGS) $(CULIBFLAGS) -lstdc++ -L$(LIBDIR) -l$(MG5AMC_CXXLIB)
+
+ifneq ($(NVCC),)
+$(fcu_main): $(BUILDDIR)/fsampler.o
+ifneq ($(shell $(CXX) --version | grep ^Intel),)
+$(fcu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
+endif
+$(fcu_main): LIBFLAGS += -Xlinker -rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(fcu_main): fcheck_sa.f fsampler.inc $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
+	$(FC) -o $@ fcheck_sa.f -I. -I../../include $(BUILDDIR)/fsampler.o $(LIBFLAGS) $(CULIBFLAGS) -lstdc++ -L$(LIBDIR) -l$(MG5AMC_CULIB)
+#	$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB)
 endif
 
 #-------------------------------------------------------------------------------
