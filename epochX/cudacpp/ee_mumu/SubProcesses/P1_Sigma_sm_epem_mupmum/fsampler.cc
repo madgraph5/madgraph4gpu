@@ -1,27 +1,10 @@
-#include <algorithm>
-#include <array>
-#include <cmath>
-#include <cstring>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <memory>
-#include <numeric>
-#include <string>
-#include <unistd.h>
-
 #include "mgOnGpuConfig.h"
 
+#include "Bridge.h"
 #include "CPPProcess.h"
-#include "MatrixElementKernels.h"
-#include "MemoryAccessMomenta.h"
-#include "MemoryAccessRandomNumbers.h"
-#include "MemoryAccessWeights.h"
 #include "MemoryBuffers.h"
 #include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
-
-#include "Bridge.h"
 
 //--------------------------------------------------------------------------
 
