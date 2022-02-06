@@ -21,9 +21,12 @@
 #include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
 
+#include "Bridge.h"
+
+//--------------------------------------------------------------------------
+
 #ifndef __CUDACC__
 namespace mg5amcCpu
-#endif
 {
 
   template<typename FORTRANFPTYPE>
@@ -113,18 +116,18 @@ namespace mg5amcCpu
       // --- 1b. Generate all relevant numbers to build nevt events (i.e. nevt phase space points) on the host
       prnk->generateRnarray();
       //std::cout << "Got random numbers" << std::endl;
-      
+
       // === STEP 2 OF 3
-      
+
       // --- 2a. Fill in momenta of initial state particles on the device
       prsk->getMomentaInitial();
       //std::cout << "Got initial momenta" << std::endl;
-      
+
       // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
       // (i.e. map random numbers to final-state particle momenta for each of nevt events)
       prsk->getMomentaFinal();
       //std::cout << "Got final momenta" << std::endl;
-      
+
       // --- 2c. TransposeC2F
       hst_transposeMomentaC2F( hstMomenta.data(), fortranMomenta, nevt );
     }
@@ -132,3 +135,63 @@ namespace mg5amcCpu
   };
 
 }
+#endif
+
+//--------------------------------------------------------------------------
+
+#ifndef __CUDACC__
+extern "C"
+{
+  using namespace mg5amcCpu;
+
+  /**
+   * The floating point precision used in Fortran arrays.
+   * This is presently hardcoded to double precision (REAL*8).
+   */
+  using FORTRANFPTYPE = double; // for Fortran double precision (REAL*8) arrays
+  //using FORTRANFPTYPE = float; // for Fortran single precision (REAL*4) arrays
+
+  /**
+   * Create a Sampler and return its pointer.
+   * This is a C symbol that should be called from the Fortran code (in auto_dsig1.f).
+   *
+   * @param ppsampler the pointer to the Sampler pointer (the Sampler pointer is handled in Fortran as an INTEGER*8 variable)
+   * @param nevtF the pointer to the number of events in the Fortran arrays
+   * @param nparF the pointer to the number of external particles in the Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
+   * @param np4F the pointer to the number of momenta components, usually 4, in the Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
+   */
+  void fsamplercreate_( Sampler<FORTRANFPTYPE>** ppsampler, const int* pnevtF, const int* pnparF, const int* pnp4F )
+  {
+    *ppsampler = new Sampler<FORTRANFPTYPE>( *pnevtF, *pnparF, *pnp4F );
+  }
+
+  /**
+   * Delete a Sampler.
+   * This is a C symbol that should be called from the Fortran code (in auto_dsig1.f).
+   *
+   * @param ppsampler the pointer to the Sampler pointer (the Sampler pointer is handled in Fortran as an INTEGER*8 variable)
+   */
+  void fsamplerdelete_( Sampler<FORTRANFPTYPE>** ppsampler )
+  {
+    delete *ppsampler;
+  }
+
+  /**
+   * Execute the matrix-element calculation "sequence" via a Sampler on GPU/CUDA or CUDA/C++.
+   * This is a C symbol that should be called from the Fortran code (in auto_dsig1.f).
+   *
+   * @param ppsampler the pointer to the Sampler pointer (the Sampler pointer is handled in Fortran as an INTEGER*8 variable)
+   * @param momenta the pointer to the input 4-momenta
+   * @param mes the pointer to the output matrix elements
+   */
+  void fsamplersequence_( Sampler<FORTRANFPTYPE>** ppsampler, FORTRANFPTYPE* momenta )
+  {
+    // Use the host/CPU implementation
+    // (there is no device implementation)
+    (*ppsampler)->samplerHostSequence( momenta );
+  }
+
+}
+#endif
+
+//--------------------------------------------------------------------------
