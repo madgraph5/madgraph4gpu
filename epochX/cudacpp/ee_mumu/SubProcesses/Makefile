@@ -302,7 +302,7 @@ endif
 testmain=$(BUILDDIR)/runTest.exe
 
 # First target (default goal)
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) ../../src/$(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain) # $(BUILDDIR)/fcheck_sa.o
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) ../../src/$(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain) $(BUILDDIR)/fsampler.o
 
 # Target (and build options): debug
 MAKEDEBUG=
