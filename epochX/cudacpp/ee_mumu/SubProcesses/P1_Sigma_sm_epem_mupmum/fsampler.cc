@@ -1,7 +1,6 @@
 #include "mgOnGpuConfig.h"
 
 #include "Bridge.h"
-#include "CPPProcess.h"
 #include "MemoryBuffers.h"
 #include "RamboSamplingKernels.h"
 #include "RandomNumberKernels.h"
@@ -48,7 +47,6 @@ namespace mg5amcCpu
     std::unique_ptr<SamplingKernelBase> m_prsk; // The appropriate SamplingKernel
     int m_iiter; // The iteration counter (for random number seeding)
     // HARDCODED DEFAULTS
-    static constexpr bool verbose = false;
     static constexpr int gputhreads = 32;
     static constexpr fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   };
@@ -74,11 +72,6 @@ namespace mg5amcCpu
     const int gpublocks = m_nevt/gputhreads;
     std::cout << "WARNING! Instantiate Sampler (nevt=" << m_nevt << ", gpublocks=" << gpublocks << ", gputhreads=" << gputhreads
               << ", gpublocks*gputhreads=" << gpublocks*gputhreads << ")" << std::endl;
-    // Create a process object
-    // FIXME: this can happily go out of scope because it is only needed to read parameters?
-    CPPProcess process( verbose );
-    // Read param_card and set parameters
-    process.initProc( "../../Cards/param_card.dat" );
   }
 
   // Draw random numbers and convert them to momenta in C++, then transpose them to Fortran momenta
