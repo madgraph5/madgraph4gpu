@@ -8,8 +8,11 @@
 
 //--------------------------------------------------------------------------
 
-#ifndef __CUDACC__
+#ifdef __CUDACC__
+namespace mg5amcGpu
+#else
 namespace mg5amcCpu
+#endif
 {
 
   template<typename FORTRANFPTYPE>
@@ -32,9 +35,15 @@ namespace mg5amcCpu
     void samplerHostSequence( FORTRANFPTYPE* fortranMomenta );
   private:
     const int m_nevt; // The number of events in each iteration
+#ifndef __CUDACC__
     HostBufferRandomNumbers m_hstRnarray; // Memory buffers for random numbers
     HostBufferMomenta m_hstMomenta; // Memory buffers for momenta
     HostBufferWeights m_hstWeights; // Memory buffers for sampling weights
+#else
+    PinnedHostBufferRandomNumbers m_hstRnarray; // Memory buffers for random numbers
+    PinnedHostBufferMomenta m_hstMomenta; // Memory buffers for momenta
+    PinnedHostBufferWeights m_hstWeights; // Memory buffers for sampling weights
+#endif
     std::unique_ptr<RandomNumberKernelBase> m_prnk; // The appropriate RandomNumberKernel
     std::unique_ptr<SamplingKernelBase> m_prsk; // The appropriate SamplingKernel
     int m_iiter; // The iteration counter (for random number seeding)
@@ -103,14 +112,16 @@ namespace mg5amcCpu
   }
 
 }
-#endif
 
 //--------------------------------------------------------------------------
 
-#ifndef __CUDACC__
 extern "C"
 {
+#ifdef __CUDACC__
+  using namespace mg5amcGpu;
+#else
   using namespace mg5amcCpu;
+#endif
 
   /**
    * The floating point precision used in Fortran arrays.
@@ -160,6 +171,5 @@ extern "C"
   }
 
 }
-#endif
 
 //--------------------------------------------------------------------------
