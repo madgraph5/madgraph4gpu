@@ -21,9 +21,7 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
-  // *****************************************************************************
-
+  //--------------------------------------------------------------------------
   //
   // Forward declare transposition methods
   //
@@ -42,8 +40,7 @@ namespace mg5amcCpu
   template <typename Tin, typename Tout>
   void hst_transposeMomentaC2F( const Tin* in, Tout* out, const int nevt );
 
-  // *****************************************************************************
-
+  //--------------------------------------------------------------------------
   /**
    * A templated class for calling the CUDA/C++ matrix element calculations of the event generation workflow.
    * The FORTRANFPTYPE template parameter indicates the precision of the Fortran momenta from MadEvent (float or double).
@@ -136,8 +133,7 @@ namespace mg5amcCpu
 
   };
 
-  // *****************************************************************************
-
+  //--------------------------------------------------------------------------
   //
   // Implementations of member functions of class Bridge
   //
@@ -228,8 +224,7 @@ namespace mg5amcCpu
   }
 #endif
 
-  // *****************************************************************************
-
+  //--------------------------------------------------------------------------
   //
   // Implementations of transposition methods
   // - FORTRAN arrays: P_MULTI(0:3, NEXTERNAL, NB_PAGE) ==> p_multi[nevtF][nparF][np4F] in C++ (AOS)
@@ -365,7 +360,6 @@ namespace mg5amcCpu
     hst_transposeMomenta<Tin, Tout, F2C>( in, out, nevt );
   }
 
-  // *****************************************************************************
-
+  //--------------------------------------------------------------------------
 }
 #endif // BRIDGE_H
