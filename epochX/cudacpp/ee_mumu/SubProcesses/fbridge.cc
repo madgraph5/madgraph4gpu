@@ -39,7 +39,7 @@ extern "C"
    * @param nparF the pointer to the number of external particles in the Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
    * @param np4F the pointer to the number of momenta components, usually 4, in the Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
    */
-  void fbridgecreate_( Bridge<FORTRANFPTYPE>** ppbridge, const int* pnevtF, const int* pnparF, const int* pnp4F )
+  void fbridgecreate_( CppObjectInFortran** ppbridge, const int* pnevtF, const int* pnparF, const int* pnp4F )
   {
 #ifdef __CUDACC__
     CudaRuntime::setUp();
@@ -54,9 +54,11 @@ extern "C"
    *
    * @param ppbridge the pointer to the Bridge pointer (the Bridge pointer is handled in Fortran as an INTEGER*8 variable)
    */
-  void fbridgedelete_( Bridge<FORTRANFPTYPE>** ppbridge )
+  void fbridgedelete_( CppObjectInFortran** ppbridge )
   {
-    delete *ppbridge;
+    Bridge<FORTRANFPTYPE>* pbridge = dynamic_cast<Bridge<FORTRANFPTYPE>*>( *ppbridge );
+    if ( pbridge == 0 ) throw std::runtime_error( "fbridgedelete_: invalid Bridge address" );
+    delete pbridge;
 #ifdef __CUDACC__
     CudaRuntime::tearDown();
 #endif
@@ -70,16 +72,18 @@ extern "C"
    * @param momenta the pointer to the input 4-momenta
    * @param mes the pointer to the output matrix elements
    */
-  void fbridgesequence_( Bridge<FORTRANFPTYPE>** ppbridge, const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes )
+  void fbridgesequence_( CppObjectInFortran** ppbridge, const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes )
   {
+    Bridge<FORTRANFPTYPE>* pbridge = dynamic_cast<Bridge<FORTRANFPTYPE>*>( *ppbridge );
+    if ( pbridge == 0 ) throw std::runtime_error( "fbridgesequence_: invalid Bridge address" );
 #ifdef __CUDACC__
     // Use the device/GPU implementation in the CUDA library
     // (there is also a host implementation in this library)
-    (*ppbridge)->gpu_sequence( momenta, mes );
+    pbridge->gpu_sequence( momenta, mes );
 #else
     // Use the host/CPU implementation in the C++ library
     // (there is no device implementation in this library)
-    (*ppbridge)->cpu_sequence( momenta, mes );
+    pbridge->cpu_sequence( momenta, mes );
 #endif
   }
 

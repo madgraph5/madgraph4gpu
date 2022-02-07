@@ -16,7 +16,7 @@ namespace mg5amcCpu
 {
 
   template<typename FORTRANFPTYPE>
-  class Sampler
+  class Sampler final : public CppObjectInFortran
   {
   public:
     // Constructor
@@ -25,7 +25,7 @@ namespace mg5amcCpu
     // @param np4F number of momenta components, usually 4, in Fortran arrays (KEPT FOR SANITY CHECKS ONLY: remove it?)
     Sampler( int nevtF, int nparF, int np4F );
     // Destructor
-    ~Sampler(){}
+    virtual ~Sampler(){}
     // Delete copy/move constructors and assignment operators
     Sampler( const Sampler&  ) = delete;
     Sampler( Sampler&&  ) = delete;
@@ -139,7 +139,7 @@ extern "C"
    * @param nparF the pointer to the number of external particles in the Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
    * @param np4F the pointer to the number of momenta components, usually 4, in the Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
    */
-  void fsamplercreate_( Sampler<FORTRANFPTYPE>** ppsampler, const int* pnevtF, const int* pnparF, const int* pnp4F )
+  void fsamplercreate_( CppObjectInFortran** ppsampler, const int* pnevtF, const int* pnparF, const int* pnp4F )
   {
     *ppsampler = new Sampler<FORTRANFPTYPE>( *pnevtF, *pnparF, *pnp4F );
   }
@@ -150,9 +150,11 @@ extern "C"
    *
    * @param ppsampler the pointer to the Sampler pointer (the Sampler pointer is handled in Fortran as an INTEGER*8 variable)
    */
-  void fsamplerdelete_( Sampler<FORTRANFPTYPE>** ppsampler )
+  void fsamplerdelete_( CppObjectInFortran** ppsampler )
   {
-    delete *ppsampler;
+    Sampler<FORTRANFPTYPE>* psampler = dynamic_cast<Sampler<FORTRANFPTYPE>*>( *ppsampler );
+    if ( psampler == 0 ) throw std::runtime_error( "fsamplerdelete_: invalid Sampler address" );
+    delete psampler;
   }
 
   /**
@@ -163,11 +165,12 @@ extern "C"
    * @param momenta the pointer to the input 4-momenta
    * @param mes the pointer to the output matrix elements
    */
-  void fsamplersequence_( Sampler<FORTRANFPTYPE>** ppsampler, FORTRANFPTYPE* momenta )
+  void fsamplersequence_( CppObjectInFortran** ppsampler, FORTRANFPTYPE* momenta )
   {
-    // Use the host/CPU implementation
-    // (there is no device implementation)
-    (*ppsampler)->samplerHostSequence( momenta );
+    Sampler<FORTRANFPTYPE>* psampler = dynamic_cast<Sampler<FORTRANFPTYPE>*>( *ppsampler );
+    if ( psampler == 0 ) throw std::runtime_error( "fsamplersequence_: invalid Sampler address" );
+    // Use the host/CPU implementation (there is no device implementation)
+    psampler->samplerHostSequence( momenta );
   }
 
 }

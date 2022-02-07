@@ -23,6 +23,17 @@ namespace mg5amcCpu
 {
   //--------------------------------------------------------------------------
   /**
+   * A base class for a class whose pointer is passed between Fortran and C++.
+   * This is not really necessary, but it allows minimal type checks on all such pointers.
+   */
+  struct CppObjectInFortran
+  {
+    CppObjectInFortran(){}
+    virtual ~CppObjectInFortran(){}
+  };
+  
+  //--------------------------------------------------------------------------
+  /**
    * A templated class for calling the CUDA/C++ matrix element calculations of the event generation workflow.
    * The FORTRANFPTYPE template parameter indicates the precision of the Fortran momenta from MadEvent (float or double).
    * The precision of the matrix element calculation is hardcoded in the fptype typedef in CUDA/C++.
@@ -42,7 +53,7 @@ namespace mg5amcCpu
    * For the moment, use T* in cpu/gpu sequence (emulate using float or double throughout).
    */
   template<typename FORTRANFPTYPE>
-  class Bridge final
+  class Bridge final : public CppObjectInFortran
   {
   public:
     /**
@@ -57,7 +68,7 @@ namespace mg5amcCpu
     /**
      * Destructor
      */
-    ~Bridge(){}
+    virtual ~Bridge(){}
 
     // Delete copy/move constructors and assignment operators
     Bridge( const Bridge&  ) = delete;
