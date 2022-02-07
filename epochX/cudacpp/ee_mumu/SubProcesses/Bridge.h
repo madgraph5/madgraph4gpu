@@ -22,25 +22,6 @@ namespace mg5amcCpu
 #endif
 {
   //--------------------------------------------------------------------------
-  //
-  // Forward declare transposition methods
-  //
-
-#ifdef __CUDACC__
-
-  template <typename Tin, typename Tout>
-  __global__
-  void dev_transposeMomentaF2C( const Tin* in, Tout* out, const int nevt );
-
-#endif // __CUDACC__
-
-  template <typename Tin, typename Tout>
-  void hst_transposeMomentaF2C( const Tin* in, Tout* out, const int nevt );
-
-  template <typename Tin, typename Tout>
-  void hst_transposeMomentaC2F( const Tin* in, Tout* out, const int nevt );
-
-  //--------------------------------------------------------------------------
   /**
    * A templated class for calling the CUDA/C++ matrix element calculations of the event generation workflow.
    * The FORTRANFPTYPE template parameter indicates the precision of the Fortran momenta from MadEvent (float or double).
@@ -132,6 +113,25 @@ namespace mg5amcCpu
 #endif
 
   };
+
+  //--------------------------------------------------------------------------
+  //
+  // Forward declare transposition methods
+  //
+
+#ifdef __CUDACC__
+
+  template <typename Tin, typename Tout>
+  __global__
+  void dev_transposeMomentaF2C( const Tin* in, Tout* out, const int nevt );
+
+#endif // __CUDACC__
+
+  template <typename Tin, typename Tout>
+  void hst_transposeMomentaF2C( const Tin* in, Tout* out, const int nevt );
+
+  template <typename Tin, typename Tout>
+  void hst_transposeMomentaC2F( const Tin* in, Tout* out, const int nevt );
 
   //--------------------------------------------------------------------------
   //
