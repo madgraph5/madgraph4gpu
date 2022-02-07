@@ -31,7 +31,7 @@ namespace mg5amcCpu
     CppObjectInFortran(){}
     virtual ~CppObjectInFortran(){}
   };
-  
+
   //--------------------------------------------------------------------------
   /**
    * A templated class for calling the CUDA/C++ matrix element calculations of the event generation workflow.
@@ -106,21 +106,21 @@ namespace mg5amcCpu
     void cpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly=false );
 
   private:
-
-    int m_nevt;                 ///< number of events
-    bool m_goodHelsCalculated;  ///< have the good helicities been calculated?
-    int m_gputhreads;           ///< number of gpu threads (default set from number of events, can be modified)
-    int m_gpublocks;            ///< number of gpu blocks (default set from number of events, can be modified)
+    int m_nevt; // number of events
+    bool m_goodHelsCalculated; // have the good helicities been calculated?
 
 #ifdef __CUDACC__
+    int m_gputhreads; // number of gpu threads (default set from number of events, can be modified)
+    int m_gpublocks; // number of gpu blocks (default set from number of events, can be modified)
     mg5amcGpu::DeviceBufferMomenta m_devMomentaF;
     mg5amcGpu::DeviceBufferMomenta m_devMomentaC;
     mg5amcGpu::DeviceBufferMatrixElements m_devMEsC;
-    mg5amcGpu::MatrixElementKernelDevice m_devMek;
+    std::unique_ptr<mg5amcGpu::MatrixElementKernelDevice> m_pmek;
+    static constexpr int s_gputhreadsmin = 32; // minimum number of gpu threads
 #else
     mg5amcCpu::HostBufferMomenta m_hstMomentaC;
     mg5amcCpu::HostBufferMatrixElements m_hstMEsC;
-    mg5amcCpu::MatrixElementKernelHost m_hstMek;
+    std::unique_ptr<mg5amcCpu::MatrixElementKernelHost> m_pmek;
 #endif
 
   };
@@ -153,27 +153,38 @@ namespace mg5amcCpu
   Bridge<FORTRANFPTYPE>::Bridge( int nevtF, int nparF, int np4F )
     : m_nevt( nevtF )
     , m_goodHelsCalculated( false )
-    , m_gputhreads( 256 ) // default number of gpu threads
-    , m_gpublocks( ceil( double( m_nevt ) / m_gputhreads ) ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
 #ifdef __CUDACC__
+    , m_gputhreads( 256 ) // default number of gpu threads
+    , m_gpublocks( m_nevt / m_gputhreads ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
     , m_devMomentaF( m_nevt )
     , m_devMomentaC( m_nevt )
     , m_devMEsC( m_nevt )
-    , m_devMek( m_devMomentaC, m_devMEsC, m_gpublocks, m_gputhreads )
 #else
     , m_hstMomentaC( m_nevt )
     , m_hstMEsC( m_nevt )
-    , m_hstMek( m_hstMomentaC, m_hstMEsC, m_nevt )
 #endif
+    , m_pmek( nullptr )
   {
     if ( nparF != mgOnGpu::npar ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
     if ( np4F != mgOnGpu::np4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
-    std::cout << "WARNING! Instantiate Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
-              << ", gpublocks*gputhreads=" << m_gpublocks*m_gputhreads << ")" << std::endl;
 #ifdef __CUDACC__
+    if ( ( m_nevt < s_gputhreadsmin ) || ( m_nevt % s_gputhreadsmin != 0 ) )
+      throw std::runtime_error( "Bridge constructor: nevt should be a multiple of " + std::to_string(s_gputhreadsmin) );
+    while ( m_nevt != m_gpublocks * m_gputhreads )
+    {
+      m_gputhreads /= 2;
+      if ( m_gputhreads < s_gputhreadsmin )
+        throw std::logic_error( "Bridge constructor: FIXME! cannot choose gputhreads" ); // this should never happen!
+      m_gpublocks = m_nevt / m_gputhreads;
+    }
+    std::cout << "WARNING! Instantiate device Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
+              << ", gpublocks*gputhreads=" << m_gpublocks*m_gputhreads << ")" << std::endl;
     mg5amcGpu::CPPProcess process( /*verbose=*/false );
+    m_pmek.reset( new mg5amcGpu::MatrixElementKernelDevice( m_devMomentaC, m_devMEsC, m_gpublocks, m_gputhreads ) );
 #else
+    std::cout << "WARNING! Instantiate host Bridge (nevt=" << m_nevt << ")" << std::endl;
     mg5amcCpu::CPPProcess process( /*verbose=*/false );
+    m_pmek.reset( new mg5amcCpu::MatrixElementKernelHost( m_hstMomentaC, m_hstMEsC, m_nevt ) );
 #endif // __CUDACC__
     process.initProc( "../../Cards/param_card.dat" );
   }
@@ -188,7 +199,7 @@ namespace mg5amcCpu
     m_gputhreads = gputhreads;
     std::cout << "WARNING! Set grid in Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
               << ", gpublocks*gputhreads=" << m_gpublocks*m_gputhreads << ")" << std::endl;
-    m_devMek.setGrid( m_gpublocks, m_gputhreads );
+    m_pmek->setGrid( m_gpublocks, m_gputhreads );
   }
 #endif
 
@@ -210,11 +221,11 @@ namespace mg5amcCpu
     }
     if ( !m_goodHelsCalculated )
     {
-      m_devMek.computeGoodHelicities();
+      m_pmek->computeGoodHelicities();
       m_goodHelsCalculated = true;
     }
     if ( goodHelOnly ) return;
-    m_devMek.computeMatrixElements();
+    m_pmek->computeMatrixElements();
     checkCuda( cudaMemcpy( mes, m_devMEsC.data(), m_devMEsC.bytes(), cudaMemcpyDeviceToHost ) );
   }
 #endif
@@ -226,11 +237,11 @@ namespace mg5amcCpu
     hst_transposeMomentaF2C( momenta, m_hstMomentaC.data(), m_nevt );
     if ( !m_goodHelsCalculated )
     {
-      m_hstMek.computeGoodHelicities();
+      m_pmek->computeGoodHelicities();
       m_goodHelsCalculated = true;
     }
     if ( goodHelOnly ) return;
-    m_hstMek.computeMatrixElements();
+    m_pmek->computeMatrixElements();
     memcpy( mes, m_hstMEsC.data(), m_hstMEsC.bytes() );
   }
 #endif
