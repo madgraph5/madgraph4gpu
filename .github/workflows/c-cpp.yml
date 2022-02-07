@@ -43,6 +43,8 @@ jobs:
           brew update
           brew install gfortran
           brew link gcc
+    - name: Invoke gfortran
+      run: gfortran -v
     - name: make info
       run: make -C ${{ matrix.folder }} info
     - name: make
