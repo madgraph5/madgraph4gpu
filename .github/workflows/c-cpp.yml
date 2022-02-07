@@ -42,7 +42,7 @@ jobs:
       run: |
           brew update
           brew install gfortran
-          brew link gcc
+          brew link --overwrite gcc
     - name: Invoke gfortran
       run: gfortran -v
     - name: make info
