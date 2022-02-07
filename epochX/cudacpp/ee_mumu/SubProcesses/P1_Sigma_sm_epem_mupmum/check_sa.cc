@@ -263,7 +263,7 @@ int main(int argc, char **argv)
   timermap.start( procKey );
 
   // Create a process object
-  CPPProcess process( niter, gpublocks, gputhreads, verbose );
+  CPPProcess process( verbose );
 
   // Read param_card and set parameters
   process.initProc("../../Cards/param_card.dat");

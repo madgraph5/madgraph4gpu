@@ -76,9 +76,7 @@ namespace mg5amcCpu
               << ", gpublocks*gputhreads=" << gpublocks*gputhreads << ")" << std::endl;
     // Create a process object
     // FIXME: this can happily go out of scope because it is only needed to read parameters?
-    // FIXME: niter is totally dummy in the CPPProcess ctor!
-    constexpr int niterdummy = 2;
-    CPPProcess process( niterdummy, gpublocks, gputhreads, verbose );
+    CPPProcess process( verbose );
     // Read param_card and set parameters
     process.initProc( "../../Cards/param_card.dat" );
   }

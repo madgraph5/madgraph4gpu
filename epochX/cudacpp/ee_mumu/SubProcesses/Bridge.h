@@ -171,9 +171,9 @@ namespace mg5amcCpu
     std::cout << "WARNING! Instantiate Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
               << ", gpublocks*gputhreads=" << m_gpublocks*m_gputhreads << ")" << std::endl;
 #ifdef __CUDACC__
-    mg5amcGpu::CPPProcess process( 1, m_gpublocks, m_gputhreads, false );
+    mg5amcGpu::CPPProcess process( /*verbose=*/false );
 #else
-    mg5amcCpu::CPPProcess process( 1, m_gpublocks, m_gputhreads, false );
+    mg5amcCpu::CPPProcess process( /*verbose=*/false );
 #endif // __CUDACC__
     process.initProc( "../../Cards/param_card.dat" );
   }
