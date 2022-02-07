@@ -47,7 +47,6 @@ namespace mg5amcCpu
     std::unique_ptr<SamplingKernelBase> m_prsk; // The appropriate SamplingKernel
     int m_iiter; // The iteration counter (for random number seeding)
     // HARDCODED DEFAULTS
-    static constexpr int gputhreads = 32;
     static constexpr fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   };
 
@@ -61,17 +60,9 @@ namespace mg5amcCpu
     , m_prsk( new RamboSamplingKernelHost( energy, m_hstRnarray, m_hstMomenta, m_hstWeights, nevtF ) )
     , m_iiter( 0 )
   {
-    if ( m_nevt%gputhreads != 0 )
-    {
-      std::ostringstream sstr;
-      sstr << "Sampler: nevt should be a multiple of gputhreads=" << gputhreads;
-      throw std::runtime_error( sstr.str() );
-    }
     if ( nparF != mgOnGpu::npar ) throw std::runtime_error( "Sampler constructor: npar mismatch" );
     if ( np4F != mgOnGpu::np4 ) throw std::runtime_error( "Sampler constructor: np4 mismatch" );
-    const int gpublocks = m_nevt/gputhreads;
-    std::cout << "WARNING! Instantiate Sampler (nevt=" << m_nevt << ", gpublocks=" << gpublocks << ", gputhreads=" << gputhreads
-              << ", gpublocks*gputhreads=" << gpublocks*gputhreads << ")" << std::endl;
+    std::cout << "WARNING! Instantiate host Sampler (nevt=" << m_nevt << ")" << std::endl;
   }
 
   // Draw random numbers and convert them to momenta in C++, then transpose them to Fortran momenta
