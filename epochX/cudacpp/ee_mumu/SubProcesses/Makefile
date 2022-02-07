@@ -569,6 +569,9 @@ ifneq ($(shell $(CXX) --version | grep ^clang),)
 else
 	$(CXX) --version
 endif
+	@echo ""
+	@echo FC=$(FC)
+	$(FC) --version
 
 #-------------------------------------------------------------------------------
 
