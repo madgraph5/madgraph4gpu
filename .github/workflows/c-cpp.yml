@@ -32,6 +32,8 @@ jobs:
       run: make -C ${{ matrix.folder }} check
   CPU_MAC:
     runs-on: macos-latest
+    env:
+      FC: gfortran-11
     strategy:
       matrix:
         folder: [ epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum, epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/ ]
