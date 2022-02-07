@@ -44,7 +44,9 @@ jobs:
           brew install gfortran
           brew link --overwrite gcc
     - name: Invoke gfortran
-      run: gfortran -v
+      run: |
+          ls /usr/local/Cellar/gcc/*/bin
+          gfortran -v
     - name: make info
       run: make -C ${{ matrix.folder }} info
     - name: make
