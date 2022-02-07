@@ -411,6 +411,9 @@ $(BUILDDIR)/%.o : %.f *.inc ../../include/*.inc
 	$(FC) -I. -I../../include -c $< -o $@
 
 # Target (and build rules): Fortran standalone executables
+ifeq ($(UNAME_S),Darwin)
+$(fcxx_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
+endif
 $(fcxx_main): LIBFLAGS += -Wl,-rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
 $(fcxx_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
 	$(CXX) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBFLAGS) $(CULIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB)
@@ -418,6 +421,9 @@ $(fcxx_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5A
 ifneq ($(NVCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(fcu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
+endif
+ifeq ($(UNAME_S),Darwin)
+$(fcu_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
 endif
 $(fcu_main): LIBFLAGS += -Xlinker -rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
 $(fcu_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler_cu.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
