@@ -46,7 +46,7 @@ jobs:
     - name: Invoke gfortran
       run: |
           ls /usr/local/Cellar/gcc/*/bin
-          gfortran -v
+          gfortran-11 -v
     - name: make info
       run: make -C ${{ matrix.folder }} info
     - name: make
