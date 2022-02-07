@@ -304,11 +304,6 @@ cu_main=
 fcu_main=
 endif
 
-ifeq ($(UNAME_S),Darwin)
-fcu_main= # TEMPORARY for Mac! #375 and #376
-fcxx_main= # TEMPORARY for Mac! #375 and #376
-endif
-
 testmain=$(BUILDDIR)/runTest.exe
 
 # First target (default goal)
