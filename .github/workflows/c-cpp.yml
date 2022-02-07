@@ -38,6 +38,11 @@ jobs:
         precision: [ d ]
     steps:
     - uses: actions/checkout@v2
+    - name: Install gfortran
+      run: |
+          brew update
+          brew install gfortran
+          brew link gcc
     - name: make info
       run: make -C ${{ matrix.folder }} info
     - name: make
