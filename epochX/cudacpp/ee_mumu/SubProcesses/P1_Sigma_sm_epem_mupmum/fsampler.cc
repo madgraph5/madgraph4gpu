@@ -69,7 +69,7 @@ namespace mg5amcCpu
   template<typename FORTRANFPTYPE>
   void Sampler<FORTRANFPTYPE>::samplerHostSequence( FORTRANFPTYPE* fortranMomenta )
   {
-    std::cout << "Iteration #" << ++m_iiter << std::endl;
+    std::cout << "Iteration #" << m_iiter+1 << std::endl;
     // === STEP 1 OF 3
     // --- 1a. Seed curand generator (to get same results on host and device)
     // [NB This should not be necessary using the host API: "Generation functions
@@ -78,6 +78,7 @@ namespace mg5amcCpu
     // functions will yield the same result as a single call with a large size."]
     constexpr unsigned long long seed = 20200805;
     m_prnk->seedGenerator( seed+m_iiter );
+    m_iiter++;
     // --- 1b. Generate all relevant numbers to build nevt events (i.e. nevt phase space points) on the host
     m_prnk->generateRnarray();
     //std::cout << "Got random numbers" << std::endl;
