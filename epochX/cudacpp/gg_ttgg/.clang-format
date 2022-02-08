@@ -63,7 +63,7 @@ BreakBeforeConceptDeclarations: true
 BreakBeforeBraces: Allman # AV was Attach
 BreakBeforeInheritanceComma: false
 BreakInheritanceList: BeforeComma # AV was BeforeColon
-BreakBeforeTernaryOperators: true
+BreakBeforeTernaryOperators: true # AV ok
 BreakConstructorInitializersBeforeComma: false
 BreakConstructorInitializers: BeforeColon
 BreakAfterJavaFieldAnnotations: false
@@ -78,10 +78,10 @@ Cpp11BracedListStyle: true # AV ok
 DeriveLineEnding: true
 DerivePointerAlignment: false # AV was true
 ###DisableFormat: false # AV ok
-EmptyLineAfterAccessModifier: Never # AV ok
+EmptyLineAfterAccessModifier: Leave # AV was Never
 EmptyLineBeforeAccessModifier: Leave # AV was LogicalBlock
 ExperimentalAutoDetectBinPacking: false
-FixNamespaceComments: true # AV ok
+FixNamespaceComments: false # AV was true
 ###ForEachMacros:
 ###  - foreach
 ###  - Q_FOREACH
@@ -109,15 +109,15 @@ IncludeCategories:
 IncludeIsMainRegex: '([-_](test|unittest))?$'
 IncludeIsMainSourceRegex: ''
 IndentAccessModifiers: false # AV ok
-IndentCaseLabels: true
-IndentCaseBlocks: false
-IndentGotoLabels: true
-IndentPPDirectives: None
-IndentExternBlock: AfterExternBlock
-IndentRequires:  false
-IndentWidth:     2
-IndentWrappedFunctionNames: false
-InsertTrailingCommas: None
+IndentCaseLabels: true # AV ok
+IndentCaseBlocks: false # AV ok
+IndentGotoLabels: false # AV was true
+IndentPPDirectives: None # AV ok (do not indent ifdef's)
+IndentExternBlock: Indent # AV was AfterExternBlock
+IndentRequires: false # AV ok(?)
+IndentWidth: 2 # AV ok
+IndentWrappedFunctionNames: false # AV ok
+###InsertTrailingCommas: None
 ###JavaScriptQuotes: Leave
 ###JavaScriptWrapImports: true
 KeepEmptyLinesAtTheStartOfBlocks: false
