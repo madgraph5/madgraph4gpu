@@ -16,7 +16,6 @@ public:
   void set_name( std::string name ) { _name = name; }
   std::string get_name() { return _name; }
   int get_indices() { return _indices; }
-
 private:
   std::string _name;
   std::map<std::vector<int>, double> _entries;
@@ -35,7 +34,6 @@ public:
   double get_block_entry( std::string block_name, int index, double def_val = 0 );
   void set_block_entry( std::string block_name, std::vector<int> indices, double value );
   void set_block_entry( std::string block_name, int index, double value );
-
 private:
   std::map<std::string, SLHABlock> _blocks;
 };
