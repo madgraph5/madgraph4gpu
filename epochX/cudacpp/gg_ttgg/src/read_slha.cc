@@ -67,7 +67,6 @@ SLHAReader::read_slha_file( std::string file_name, bool verbose )
   char buf[200];
   std::string line;
   std::string block( "" );
-
   while( param_card.good() )
   {
     param_card.getline( buf, 200 );
@@ -133,7 +132,6 @@ SLHAReader::read_slha_file( std::string file_name, bool verbose )
       }
     }
   }
-
   if( _blocks.size() == 0 )
     throw "No information read from SLHA card";
 
@@ -141,8 +139,7 @@ SLHAReader::read_slha_file( std::string file_name, bool verbose )
 }
 
 double
-SLHAReader::get_block_entry( std::string block_name, std::vector<int> indices,
-                             double def_val )
+SLHAReader::get_block_entry( std::string block_name, std::vector<int> indices, double def_val )
 {
   if( _blocks.find( block_name ) == _blocks.end() )
   {
@@ -154,8 +151,7 @@ SLHAReader::get_block_entry( std::string block_name, std::vector<int> indices,
 }
 
 double
-SLHAReader::get_block_entry( std::string block_name, int index,
-                             double def_val )
+SLHAReader::get_block_entry( std::string block_name, int index, double def_val )
 {
   std::vector<int> indices;
   indices.push_back( index );
@@ -163,8 +159,7 @@ SLHAReader::get_block_entry( std::string block_name, int index,
 }
 
 void
-SLHAReader::set_block_entry( std::string block_name, std::vector<int> indices,
-                             double value )
+SLHAReader::set_block_entry( std::string block_name, std::vector<int> indices, double value )
 {
   if( _blocks.find( block_name ) == _blocks.end() )
   {
@@ -172,15 +167,16 @@ SLHAReader::set_block_entry( std::string block_name, std::vector<int> indices,
     _blocks[block_name] = block;
   }
   _blocks[block_name].set_entry( indices, value );
-  /* cout << "Set block " << block_name << " entry ";
-     for (int i=0;i < indices.size();i++)
-     cout << indices[i] << " ";
-     cout << "to " << _blocks[block_name].get_entry(indices) << endl;*/
+  /*
+  cout << "Set block " << block_name << " entry ";
+  for (int i=0;i < indices.size();i++)
+    cout << indices[i] << " ";
+  cout << "to " << _blocks[block_name].get_entry(indices) << endl;
+  */
 }
 
 void
-SLHAReader::set_block_entry( std::string block_name, int index,
-                             double value )
+SLHAReader::set_block_entry( std::string block_name, int index, double value )
 {
   std::vector<int> indices;
   indices.push_back( index );
