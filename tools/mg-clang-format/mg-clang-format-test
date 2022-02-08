@@ -1,14 +1,19 @@
 #!/bin/bash
-if [ "$1" == "" ] || [ "$2" != "" ]; then
-  echo "Usage: $0 <filepath>"
-  exit 1
+checkout=1
+if [ "$1" == "--no-checkout" ]; then
+  checkout=0; shift
 fi
-file=$1
-git checkout $file
+if [ "$1" == "" ] || [ "$2" != "" ]; then
+  echo "Usage: $0 [--no-checkout] <filepath>"; exit 1
+else
+  file=$1; shift
+fi
+if [ "$checkout" == "1" ]; then git checkout $file; fi
 mg-clang-format -i $file
 git diff $file
 echo
-echo "git difftool $file &"
-echo
 echo "Lines in git diff output: $(git diff $file | wc -l)"
+echo
+echo "For tkdiff:"
+echo "  git difftool $file &"
 
