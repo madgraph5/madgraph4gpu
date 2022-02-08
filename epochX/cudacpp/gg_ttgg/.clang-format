@@ -75,7 +75,7 @@ ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 0 # AV was 4
 Cpp11BracedListStyle: true # AV ok
 DeriveLineEnding: true
-DerivePointerAlignment: true
+DerivePointerAlignment: false # AV was true
 ###DisableFormat: false # AV ok
 EmptyLineAfterAccessModifier: Never
 EmptyLineBeforeAccessModifier: LogicalBlock
