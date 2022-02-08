@@ -30,7 +30,7 @@ AllowShortLambdasOnASingleLine: All
 AllowShortIfStatementsOnASingleLine: WithoutElse
 AllowShortLoopsOnASingleLine: true
 AlwaysBreakAfterDefinitionReturnType: None
-AlwaysBreakAfterReturnType: All # AV was None
+AlwaysBreakAfterReturnType: TopLevelDefinitions # AV was None (altearnative: All?)
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: Yes
 ###AttributeMacros: # AV keep defaults (NB this is not about '__host__' attributes, see llvm/llvm-project/issues/45968)
