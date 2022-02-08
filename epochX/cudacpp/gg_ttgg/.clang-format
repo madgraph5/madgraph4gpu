@@ -9,7 +9,7 @@
 Language: Cpp
 BasedOnStyle: Google
 
-AccessModifierOffset: -1
+AccessModifierOffset: -2 # AV was -1
 AlignAfterOpenBracket: Align
 AlignArrayOfStructures: None
 AlignConsecutiveMacros: None
@@ -78,8 +78,8 @@ Cpp11BracedListStyle: true # AV ok
 DeriveLineEnding: true
 DerivePointerAlignment: false # AV was true
 ###DisableFormat: false # AV ok
-EmptyLineAfterAccessModifier: Never
-EmptyLineBeforeAccessModifier: LogicalBlock
+EmptyLineAfterAccessModifier: Never # AV ok
+EmptyLineBeforeAccessModifier: Leave # AV was LogicalBlock
 ExperimentalAutoDetectBinPacking: false
 FixNamespaceComments: true # AV ok
 ###ForEachMacros:
@@ -108,7 +108,7 @@ IncludeCategories:
     CaseSensitive:   false
 IncludeIsMainRegex: '([-_](test|unittest))?$'
 IncludeIsMainSourceRegex: ''
-IndentAccessModifiers: false
+IndentAccessModifiers: false # AV ok
 IndentCaseLabels: true
 IndentCaseBlocks: false
 IndentGotoLabels: true

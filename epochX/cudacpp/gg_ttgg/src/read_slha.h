@@ -8,7 +8,7 @@
 
 class SLHABlock
 {
- public:
+public:
   SLHABlock( std::string name = "" ) { _name = name; }
   ~SLHABlock() {}
   void set_entry( std::vector<int> indices, double value );
@@ -17,7 +17,7 @@ class SLHABlock
   std::string get_name() { return _name; }
   int get_indices() { return _indices; }
 
- private:
+private:
   std::string _name;
   std::map<std::vector<int>, double> _entries;
   unsigned int _indices;
@@ -25,7 +25,7 @@ class SLHABlock
 
 class SLHAReader
 {
- public:
+public:
   SLHAReader( std::string file_name = "", bool verbose = true )
   {
     if( file_name != "" ) read_slha_file( file_name, verbose );
@@ -36,7 +36,7 @@ class SLHAReader
   void set_block_entry( std::string block_name, std::vector<int> indices, double value );
   void set_block_entry( std::string block_name, int index, double value );
 
- private:
+private:
   std::map<std::string, SLHABlock> _blocks;
 };
 
