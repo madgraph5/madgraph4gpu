@@ -17,8 +17,8 @@ AlignConsecutiveAssignments: None
 AlignConsecutiveBitFields: None
 AlignConsecutiveDeclarations: None
 AlignEscapedNewlines: Left
-AlignOperands:   Align
-AlignTrailingComments: true
+AlignOperands: Align
+AlignTrailingComments: true # AV ok
 AllowAllArgumentsOnNextLine: true
 AllowAllConstructorInitializersOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: true
@@ -30,63 +30,64 @@ AllowShortLambdasOnASingleLine: All
 AllowShortIfStatementsOnASingleLine: WithoutElse
 AllowShortLoopsOnASingleLine: true
 AlwaysBreakAfterDefinitionReturnType: None
-AlwaysBreakAfterReturnType: None
+AlwaysBreakAfterReturnType: All # AV was None
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: Yes
-AttributeMacros:
-  - __capability
+###AttributeMacros: # AV keep defaults (NB this is not about '__host__' attributes, see llvm/llvm-project/issues/45968)
+###  - __capability
 BinPackArguments: true
 BinPackParameters: true
-BraceWrapping:
-  AfterCaseLabel:  false
-  AfterClass:      false
-  AfterControlStatement: Never
-  AfterEnum:       false
-  AfterFunction:   false
-  AfterNamespace:  false
-  AfterObjCDeclaration: false
-  AfterStruct:     false
-  AfterUnion:      false
-  AfterExternBlock: false
-  BeforeCatch:     false
-  BeforeElse:      false
-  BeforeLambdaBody: false
-  BeforeWhile:     false
-  IndentBraces:    false
-  SplitEmptyFunction: true
-  SplitEmptyRecord: true
-  SplitEmptyNamespace: true
+BitFieldColonSpacing: Both
+###BraceWrapping: # AV irrelevant! (this is only relevant for "BreakBeforeBraces: Custom")
+###  AfterCaseLabel:  false
+###  AfterClass:      false
+###  AfterControlStatement: Never
+###  AfterEnum:       false
+###  AfterFunction:   false
+###  AfterNamespace:  false
+###  AfterObjCDeclaration: false
+###  AfterStruct:     false
+###  AfterUnion:      false
+###  AfterExternBlock: false
+###  BeforeCatch:     false
+###  BeforeElse:      false
+###  BeforeLambdaBody: false
+###  BeforeWhile:     false
+###  IndentBraces:    false
+###  SplitEmptyFunction: true
+###  SplitEmptyRecord: true
+###  SplitEmptyNamespace: true
 BreakBeforeBinaryOperators: None
 BreakBeforeConceptDeclarations: true
-BreakBeforeBraces: Attach
+BreakBeforeBraces: Allman # AV was Attach
 BreakBeforeInheritanceComma: false
-BreakInheritanceList: BeforeColon
+BreakInheritanceList: BeforeComma # AV was BeforeColon
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializersBeforeComma: false
 BreakConstructorInitializers: BeforeColon
 BreakAfterJavaFieldAnnotations: false
 BreakStringLiterals: true
-ColumnLimit:     80
-CommentPragmas:  '^ IWYU pragma:'
-CompactNamespaces: false
+ColumnLimit: 0 # AV was 80
+###CommentPragmas: '^[^ ]*' # AV use SpacesInLineCommentPrefix Min=0 Max=1 to allow both "//comment" and "// comment"
+CompactNamespaces: false # AV ok
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth: 4
-ContinuationIndentWidth: 4
-Cpp11BracedListStyle: true
+ContinuationIndentWidth: 0 # AV was 4
+Cpp11BracedListStyle: true # AV ok
 DeriveLineEnding: true
 DerivePointerAlignment: true
-DisableFormat:   false
+###DisableFormat: false # AV ok
 EmptyLineAfterAccessModifier: Never
 EmptyLineBeforeAccessModifier: LogicalBlock
 ExperimentalAutoDetectBinPacking: false
-FixNamespaceComments: true
-ForEachMacros:
-  - foreach
-  - Q_FOREACH
-  - BOOST_FOREACH
-IfMacros:
-  - KJ_IF_MAYBE
-IncludeBlocks:   Regroup
+FixNamespaceComments: true # AV ok
+###ForEachMacros:
+###  - foreach
+###  - Q_FOREACH
+###  - BOOST_FOREACH
+###IfMacros:
+###  - KJ_IF_MAYBE
+IncludeBlocks: Regroup
 IncludeCategories:
   - Regex:           '^<ext/.*\.h>'
     Priority:        2
@@ -116,19 +117,19 @@ IndentRequires:  false
 IndentWidth:     2
 IndentWrappedFunctionNames: false
 InsertTrailingCommas: None
-JavaScriptQuotes: Leave
-JavaScriptWrapImports: true
+###JavaScriptQuotes: Leave
+###JavaScriptWrapImports: true
 KeepEmptyLinesAtTheStartOfBlocks: false
 LambdaBodyIndentation: Signature
 MacroBlockBegin: ''
 MacroBlockEnd:   ''
 MaxEmptyLinesToKeep: 1
-NamespaceIndentation: None
-ObjCBinPackProtocolList: Never
-ObjCBlockIndentWidth: 2
-ObjCBreakBeforeNestedBlockParam: true
-ObjCSpaceAfterProperty: false
-ObjCSpaceBeforeProtocolList: true
+NamespaceIndentation: All # AV was None
+###ObjCBinPackProtocolList: Never
+###ObjCBlockIndentWidth: 2
+###ObjCBreakBeforeNestedBlockParam: true
+###ObjCSpaceAfterProperty: false
+###ObjCSpaceBeforeProtocolList: true
 PenaltyBreakAssignment: 2
 PenaltyBreakBeforeFirstCallParameter: 1
 PenaltyBreakComment: 300
@@ -138,8 +139,8 @@ PenaltyBreakTemplateDeclaration: 10
 PenaltyExcessCharacter: 1000000
 PenaltyReturnTypeOnItsOwnLine: 200
 PenaltyIndentedWhitespace: 0
-PointerAlignment: Left
-PPIndentWidth:   -1
+PointerAlignment: Left # AV ok
+PPIndentWidth: 0 # AV was -1
 RawStringFormats:
   - Language:        Cpp
     Delimiters:
@@ -171,37 +172,36 @@ RawStringFormats:
     CanonicalDelimiter: pb
     BasedOnStyle:    google
 ReferenceAlignment: Pointer
-ReflowComments:  true
-ShortNamespaceLines: 1
-SortIncludes:    CaseSensitive
+ReflowComments: false # AV was true
+ShortNamespaceLines: 1 # AV ok
+SortIncludes: CaseSensitive
 SortJavaStaticImport: Before
-SortUsingDeclarations: true
-SpaceAfterCStyleCast: false
-SpaceAfterLogicalNot: false
-SpaceAfterTemplateKeyword: true
-SpaceBeforeAssignmentOperators: true
-SpaceBeforeCaseColon: false
-SpaceBeforeCpp11BracedList: false
-SpaceBeforeCtorInitializerColon: true
-SpaceBeforeInheritanceColon: true
-SpaceBeforeParens: ControlStatements
-SpaceAroundPointerQualifiers: Default
-SpaceBeforeRangeBasedForLoopColon: true
-SpaceInEmptyBlock: false
-SpaceInEmptyParentheses: false
-SpacesBeforeTrailingComments: 2
-SpacesInAngles:  Never
-SpacesInConditionalStatement: false
-SpacesInContainerLiterals: true
-SpacesInCStyleCastParentheses: false
+SortUsingDeclarations: false # AV was true
+SpaceAfterCStyleCast: false # AV ok
+SpaceAfterLogicalNot: false # AV ok
+SpaceAfterTemplateKeyword: false # AV was true
+SpaceAroundPointerQualifiers: Default # AV ok (alternative: Before?)
+SpaceBeforeAssignmentOperators: true # AV ok
+SpaceBeforeCaseColon: false # AV ok
+SpaceBeforeCpp11BracedList: false # AV ok
+SpaceBeforeCtorInitializerColon: true # AV ok
+SpaceBeforeInheritanceColon: true # AV ok
+SpaceBeforeParens: Never # AV was ControlStatements
+SpaceBeforeRangeBasedForLoopColon: false # AV was true
+SpaceBeforeSquareBrackets: false # AV ok
+SpaceInEmptyBlock: false # AV ok
+SpaceInEmptyParentheses: false # AV ok
+SpacesBeforeTrailingComments: 1 # AV was 2
+SpacesInAngles: Never # AV ok
+SpacesInConditionalStatement: false # AV ok (does this work?)
+SpacesInContainerLiterals: false # AV was true
+SpacesInCStyleCastParentheses: false # AV ok
 SpacesInLineCommentPrefix:
-  Minimum:         1
-  Maximum:         -1
-SpacesInParentheses: false
+  Minimum: 0 # AV was 1
+  Maximum: 1 # AV was -1
+SpacesInParentheses: true # AV was false
 SpacesInSquareBrackets: false
-SpaceBeforeSquareBrackets: false
-BitFieldColonSpacing: Both
-Standard:        Auto
+Standard: c++17 # AV was Auto
 StatementAttributeLikeMacros:
   - Q_EMIT
 StatementMacros:
