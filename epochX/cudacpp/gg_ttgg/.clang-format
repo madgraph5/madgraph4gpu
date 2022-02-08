@@ -30,6 +30,7 @@ AllowShortLambdasOnASingleLine: All
 AllowShortIfStatementsOnASingleLine: WithoutElse
 AllowShortLoopsOnASingleLine: true
 AlwaysBreakAfterDefinitionReturnType: None
+###AlwaysBreakAfterReturnType: All # AV use this initially, then switch to TopLevelDefinitions!
 AlwaysBreakAfterReturnType: TopLevelDefinitions # AV was None (altearnative: All?)
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: Yes
