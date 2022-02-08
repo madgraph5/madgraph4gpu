@@ -1,19 +1,22 @@
 #!/bin/bash
-checkout=1
-if [ "$1" == "--no-checkout" ]; then
-  checkout=0; shift
-fi
-if [ "$1" == "" ] || [ "$2" != "" ]; then
-  echo "Usage: $0 [--no-checkout] <filepath>"; exit 1
-else
-  file=$1; shift
-fi
-if [ "$checkout" == "1" ]; then git checkout $file; fi
-mg-clang-format -i $file
-git diff $file
-echo
-echo "Lines in git diff output: $(git diff $file | wc -l)"
-echo
-echo "For tkdiff:"
-echo "  git difftool $file &"
 
+checkout=1
+files=
+while [ "$1" != "" ]; do
+  if [ "$1" == "-h" ]; then echo "Usage: $0 [--no-checkout] <file1> [<file2>...]"; exit 1; fi
+  if [ "$1" == "--no-checkout" ]; then checkout=0; shift; continue; fi
+  if [ ! -f "$1" ]; then echo "ERROR! File not found: $1"; exit 1; else files="$files $1"; shift; continue; fi
+done
+
+for file in $files; do
+  echo "============================================================="
+  echo "FILE: $file"
+  if [ "$checkout" == "1" ]; then git checkout $file; fi
+  mg-clang-format -i $file
+  git diff $file
+  echo
+  echo "Lines in git diff output: $(git diff $file | wc -l)"
+  ###echo
+  ###echo "For tkdiff:"
+  ###echo "  git difftool $file &"
+done
