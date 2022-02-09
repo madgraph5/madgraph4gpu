@@ -112,7 +112,7 @@ IndentAccessModifiers: false # AV ok
 IndentCaseLabels: true # AV ok
 IndentCaseBlocks: false # AV ok
 IndentGotoLabels: false # AV was true
-IndentPPDirectives: None # AV ok (do not indent ifdef's)
+IndentPPDirectives: None # AV ok (NB: AfterHash and BeforeHash do not seem to work as intended)
 IndentExternBlock: Indent # AV was AfterExternBlock
 IndentRequires: false # AV ok(?)
 IndentWidth: 2 # AV ok
