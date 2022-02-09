@@ -91,19 +91,23 @@ FixNamespaceComments: false # AV was true
 IncludeBlocks: Regroup
 IncludeCategories:
   - Regex:           '^<ext/.*\.h>'
-    Priority:        2 # AV was 2
+    Priority:        3 # AV was 2
     SortPriority:    0
     CaseSensitive:   false
   - Regex:           '^<.*\.h>'
-    Priority:        3 # AV was 1
+    Priority:        4 # AV was 1
     SortPriority:    0
     CaseSensitive:   false
   - Regex:           '^<.*'
-    Priority:        4 # AV was 2
+    Priority:        5 # AV was 2
+    SortPriority:    0
+    CaseSensitive:   false
+  - Regex:           'mgOnGpu*.*'
+    Priority:        1 # AV new
     SortPriority:    0
     CaseSensitive:   false
   - Regex:           '.*'
-    Priority:        1 # AV was 3
+    Priority:        2 # AV was 3
     SortPriority:    0
     CaseSensitive:   false
 IncludeIsMainRegex: '([-_](test|unittest))?$'
