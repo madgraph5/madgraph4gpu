@@ -80,8 +80,8 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   double constexpr sqrtNR( double x )
   {
     return x >= 0 && x < std::numeric_limits<double>::infinity()
-           ? detailSqrtNewtonRaphson( x, x, 0 )
-           : std::numeric_limits<double>::quiet_NaN();
+      ? detailSqrtNewtonRaphson( x, x, 0 )
+      : std::numeric_limits<double>::quiet_NaN();
   }
 
   // Model parameters independent of aS
