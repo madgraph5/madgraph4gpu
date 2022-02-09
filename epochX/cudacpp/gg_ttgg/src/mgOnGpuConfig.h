@@ -120,43 +120,34 @@ namespace mgOnGpu
 using mgOnGpu::fptype;
 
 // C++ SIMD vectorization width (this will be used to set neppV)
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // CUDA implementation has no SIMD
 #undef MGONGPU_CPPSIMD
-#else
-#if defined __AVX512VL__
-#ifdef MGONGPU_PVW512
-// "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
+#elif defined __AVX512VL__ && defined MGONGPU_PVW512 // C++ "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
 #ifdef MGONGPU_FPTYPE_DOUBLE
 #define MGONGPU_CPPSIMD 8
 #else
 #define MGONGPU_CPPSIMD 16
 #endif
-#else
-// "512y" AVX512 with 256 width (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [gcc DEFAULT]
+#elif defined __AVX512VL__ // C++ "512y" AVX512 with 256 width (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [gcc DEFAULT]
 #ifdef MGONGPU_FPTYPE_DOUBLE
 #define MGONGPU_CPPSIMD 4
 #else
 #define MGONGPU_CPPSIMD 8
 #endif
-#endif
-#elif defined __AVX2__
-// "avx2" AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [clang DEFAULT]
+#elif defined __AVX2__ // C++ "avx2" AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [clang DEFAULT]
 #ifdef MGONGPU_FPTYPE_DOUBLE
 #define MGONGPU_CPPSIMD 4
 #else
 #define MGONGPU_CPPSIMD 8
 #endif
-#elif defined __SSE4_2__
-// "sse4" SSE4.2 (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT)
+#elif defined __SSE4_2__ // C++ "sse4" SSE4.2 (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT)
 #ifdef MGONGPU_FPTYPE_DOUBLE
 #define MGONGPU_CPPSIMD 2
 #else
 #define MGONGPU_CPPSIMD 4
 #endif
-#else
-// "none" i.e. no SIMD (*** NB: this is equivalent to AOS ***)
+#else // C++ "none" i.e. no SIMD
 #undef MGONGPU_CPPSIMD
-#endif
 #endif
 
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
