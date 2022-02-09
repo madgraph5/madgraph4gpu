@@ -87,13 +87,13 @@ namespace mgOnGpu
 
   const int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
 
-  const int npari = 2; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
-  const int nparf = 4; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
+  const int npari = 2;            // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
+  const int nparf = 4;            // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
   const int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
 
   const int ncomb = 64; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
 
-  const int nw6 = 6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  const int nw6 = 6;  // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
   const int nwf = 26; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
 
   // --- Platform-specific software implementation details
@@ -172,24 +172,28 @@ using mgOnGpu::fptype;
 #endif
 
 // For SANITY CHECKS: check that neppR, neppM, neppV... are powers of two (https://stackoverflow.com/a/108360)
-inline constexpr bool ispoweroftwo( int n ){ return ( n > 0 ) && !( n & ( n - 1 ) ); }
+inline constexpr bool
+ispoweroftwo( int n )
+{
+  return ( n > 0 ) && !( n & ( n - 1 ) );
+}
 
 // Compiler version support (#96): require nvcc from CUDA >= 11.2, e.g. to use C++17 (see #333)
 #ifdef __NVCC__
-#if ( __CUDACC_VER_MAJOR__ < 11 ) || ( __CUDACC_VER_MAJOR__ == 11 && __CUDACC_VER_MINOR__ < 2 )
+#if( __CUDACC_VER_MAJOR__ < 11 ) || ( __CUDACC_VER_MAJOR__ == 11 && __CUDACC_VER_MINOR__ < 2 )
 #error Unsupported CUDA version: please use CUDA >= 11.2
 #endif
 #endif
 
 // Compiler version support (#96): require clang >= 11
 #if defined __clang__
-#if ( __clang_major__ < 11 )
+#if( __clang_major__ < 11 )
 #error Unsupported clang version: please use clang >= 11
 #endif
 // Compiler version support (#96): require gcc >= 9.3, e.g. for some OMP issues (see #269)
 // [NB skip this check for the gcc toolchain below clang or icx (TEMPORARY? #355)]
 #elif defined __GNUC__
-#if ( __GNUC__ < 9 ) || ( __GNUC__ == 9 && __GNUC_MINOR__ < 3 )
+#if( __GNUC__ < 9 ) || ( __GNUC__ == 9 && __GNUC_MINOR__ < 3 )
 #error Unsupported gcc version: please gcc >= 9.3
 #endif
 #endif
