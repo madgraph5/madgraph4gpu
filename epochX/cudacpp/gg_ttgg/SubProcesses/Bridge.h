@@ -95,12 +95,7 @@ public:
 private:
 
   int m_evt; ///< number of events
-  //int m_part;                ///< number of particles per event [NO LONGER NEEDED!]
-  //int m_mome;                ///< number of momenta per particle (usually 4) [NO LONGER NEEDED!]
-  //int m_strd;                ///< stride length of the AOSOA structure [NO LONGER NEEDED!]
-  //int m_ncomb;               ///< number of good helicities [NO LONGER NEEDED!]
   bool m_goodHelsCalculated; ///< have the good helicities been calculated?
-
   int m_gputhreads; ///< number of gpu threads (default set from number of events, can be modified)
   int m_gpublocks;  ///< number of gpu blocks (default set from number of events, can be modified)
 
@@ -125,10 +120,6 @@ private:
 template<typename T>
 Bridge<T>::Bridge( int evnt, int part, int mome, int /*strd*/, int /*ncomb*/ )
     : m_evt( evnt )
-      //, m_part( part )
-      //, m_mome( mome )
-      //, m_strd( strd )
-      //, m_ncomb( ncomb )
       ,
       m_goodHelsCalculated( false ),
       m_gputhreads( 256 ) // default number of gpu threads
