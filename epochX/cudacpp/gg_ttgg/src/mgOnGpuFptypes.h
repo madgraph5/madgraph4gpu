@@ -15,14 +15,14 @@
 //------------------------------
 
 /*
-inline __host__ __device__
-fptype fpmax( const fptype& a, const fptype& b )
+inline __host__ __device__ fptype
+fpmax( const fptype& a, const fptype& b )
 {
   return max( a, b );
 }
 
-inline __host__ __device__
-fptype fpmin( const fptype& a, const fptype& b )
+inline __host__ __device__ fptype
+fpmin( const fptype& a, const fptype& b )
 {
   return min( a, b );
 }
@@ -40,9 +40,8 @@ fpmin( const fptype& a, const fptype& b )
   return ( ( a < b ) ? a : b );
 }
 
-inline __host__ __device__
-  fptype
-  fpsqrt( const fptype& f )
+inline __host__ __device__ fptype
+fpsqrt( const fptype& f )
 {
 #if defined MGONGPU_FPTYPE_FLOAT
   // See https://docs.nvidia.com/cuda/cuda-math-api/group__CUDA__MATH__SINGLE.html
