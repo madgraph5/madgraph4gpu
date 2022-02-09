@@ -1,4 +1,5 @@
 #include "mgOnGpuConfig.h"
+
 #include "mgOnGpuFptypes.h"
 
 #include <cmath>

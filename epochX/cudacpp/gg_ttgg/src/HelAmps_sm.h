@@ -9,6 +9,7 @@
 #define HelAmps_sm_H 1
 
 #include "mgOnGpuConfig.h"
+
 #include "mgOnGpuVectors.h"
 
 //#include <cmath>

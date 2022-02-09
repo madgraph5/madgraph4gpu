@@ -2,6 +2,7 @@
 #define MGONGPUCXTYPES_H 1
 
 #include "mgOnGpuConfig.h"
+
 #include "mgOnGpuFptypes.h"
 
 #include <iostream>
