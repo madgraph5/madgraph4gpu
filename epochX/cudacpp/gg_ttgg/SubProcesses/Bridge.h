@@ -3,10 +3,11 @@
 
 // Includes from Cuda/C++ matrix element calculations
 #include "mgOnGpuConfig.h" // for mgOnGpu::npar, mgOnGpu::np4
-#include "CPPProcess.h" // for CPPProcess
+
+#include "CPPProcess.h"           // for CPPProcess
 #include "MatrixElementKernels.h" // for MatrixElementKernelHost, MatrixElementKernelDevice
-#include "MemoryAccessMomenta.h" // for MemoryAccessMomenta::neppM
-#include "MemoryBuffers.h" // for HostBufferMomenta, DeviceBufferMomenta etc
+#include "MemoryAccessMomenta.h"  // for MemoryAccessMomenta::neppM
+#include "MemoryBuffers.h"        // for HostBufferMomenta, DeviceBufferMomenta etc
 
 #include <cassert>
 #include <cmath>
@@ -19,17 +20,16 @@
 
 #ifdef __CUDACC__
 
-template <typename T>
-__global__
-void dev_transposeMomentaF2C( const T *in, T *out, const int evt );
+template<typename T>
+__global__ void dev_transposeMomentaF2C( const T* in, T* out, const int evt );
 
 #endif // __CUDACC__
 
-template <typename T>
-void hst_transposeMomentaF2C( const T *in, T *out, const int evt );
+template<typename T>
+void hst_transposeMomentaF2C( const T* in, T* out, const int evt );
 
-template <typename T>
-void hst_transposeMomentaC2F( const T *in, T *out, const int evt );
+template<typename T>
+void hst_transposeMomentaC2F( const T* in, T* out, const int evt );
 
 // *****************************************************************************
 
@@ -48,7 +48,8 @@ void hst_transposeMomentaC2F( const T *in, T *out, const int evt );
  * A mixing of float and double is not yet possible in the CUDA/C++ code.
  * For the moment, use T* in cpu/gpu sequence (emulate using float or double throughout).
  */
-template <typename T> class Bridge
+template<typename T>
+class Bridge
 {
 public:
   /**
@@ -60,7 +61,7 @@ public:
    * @param str stride length                                             [IGNORED! REMOVE IT! fully encapsulated in Cuda/C++]
    * @param ncomb number of good helicities                               [IGNORED! REMOVE IT! fully encapsulated in Cuda/C++]
    */
-  Bridge( int evt, int par, int mom, int /*dummy*/str=0, int /*dummy*/ncomb=0 );
+  Bridge( int evt, int par, int mom, int /*dummy*/ str = 0, int /*dummy*/ ncomb = 0 );
 
 #ifdef __CUDACC__
   /**
@@ -80,7 +81,7 @@ public:
    * @param mes memory address of the output matrix elements
    * @param goodHelOnly quit after computing good helicities
    */
-  void gpu_sequence( const T *momenta, T *mes, const bool goodHelOnly=false );
+  void gpu_sequence( const T* momenta, T* mes, const bool goodHelOnly = false );
 
   /**
    * sequence to be executed for the vectorized CPU matrix element calculation
@@ -89,19 +90,19 @@ public:
    * @param mes memory address of the output matrix elements
    * @param goodHelOnly quit after computing good helicities
    */
-  void cpu_sequence( const T *momenta, T *mes, const bool goodHelOnly=false );
+  void cpu_sequence( const T* momenta, T* mes, const bool goodHelOnly = false );
 
 private:
 
-  int m_evt;                 ///< number of events
+  int m_evt; ///< number of events
   //int m_part;                ///< number of particles per event [NO LONGER NEEDED!]
   //int m_mome;                ///< number of momenta per particle (usually 4) [NO LONGER NEEDED!]
   //int m_strd;                ///< stride length of the AOSOA structure [NO LONGER NEEDED!]
   //int m_ncomb;               ///< number of good helicities [NO LONGER NEEDED!]
   bool m_goodHelsCalculated; ///< have the good helicities been calculated?
 
-  int m_gputhreads;          ///< number of gpu threads (default set from number of events, can be modified)
-  int m_gpublocks;           ///< number of gpu blocks (default set from number of events, can be modified)
+  int m_gputhreads; ///< number of gpu threads (default set from number of events, can be modified)
+  int m_gpublocks;  ///< number of gpu blocks (default set from number of events, can be modified)
 
 #ifdef __CUDACC__
   mg5amcGpu::DeviceBufferMomenta m_devMomentaF;
@@ -113,7 +114,6 @@ private:
   mg5amcCpu::HostBufferMatrixElements m_hstMEsC;
   mg5amcCpu::MatrixElementKernelHost m_hstMek;
 #endif
-
 };
 
 // *****************************************************************************
@@ -122,31 +122,35 @@ private:
 // Implementations of class Bridge member functions
 //
 
-template <typename T>
+template<typename T>
 Bridge<T>::Bridge( int evnt, int part, int mome, int /*strd*/, int /*ncomb*/ )
-  : m_evt( evnt )
-    //, m_part( part )
-    //, m_mome( mome )
-    //, m_strd( strd )
-    //, m_ncomb( ncomb )
-  , m_goodHelsCalculated( false )
-  , m_gputhreads( 256 ) // default number of gpu threads
-  , m_gpublocks( ceil(double(m_evt)/m_gputhreads) ) // this ensures m_evt <= m_gpublocks*m_gputhreads
+    : m_evt( evnt )
+      //, m_part( part )
+      //, m_mome( mome )
+      //, m_strd( strd )
+      //, m_ncomb( ncomb )
+      ,
+      m_goodHelsCalculated( false ),
+      m_gputhreads( 256 ) // default number of gpu threads
+      ,
+      m_gpublocks( ceil( double( m_evt ) / m_gputhreads ) ) // this ensures m_evt <= m_gpublocks*m_gputhreads
 #ifdef __CUDACC__
-  , m_devMomentaF( evnt )
-  , m_devMomentaC( evnt )
-  , m_devMEsC( evnt )
-  , m_devMek( m_devMomentaC, m_devMEsC, m_gpublocks, m_gputhreads )
+      ,
+      m_devMomentaF( evnt ),
+      m_devMomentaC( evnt ),
+      m_devMEsC( evnt ),
+      m_devMek( m_devMomentaC, m_devMEsC, m_gpublocks, m_gputhreads )
 #else
-  , m_hstMomentaC( evnt )
-  , m_hstMEsC( evnt )
-  , m_hstMek( m_hstMomentaC, m_hstMEsC, evnt )
+      ,
+      m_hstMomentaC( evnt ),
+      m_hstMEsC( evnt ),
+      m_hstMek( m_hstMomentaC, m_hstMEsC, evnt )
 #endif
 {
-  if ( part != mgOnGpu::npar ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
-  if ( mome != mgOnGpu::np4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
+  if( part != mgOnGpu::npar ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
+  if( mome != mgOnGpu::np4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
   std::cout << "WARNING! Instantiate Bridge (nevt=" << m_evt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
-            << ", gpublocks*gputhreads=" << m_gpublocks*m_gputhreads << ")" << std::endl;
+            << ", gpublocks*gputhreads=" << m_gpublocks * m_gputhreads << ")" << std::endl;
 #ifdef __CUDACC__
   mg5amcGpu::CPPProcess process( 1, m_gpublocks, m_gputhreads, false );
 #else
@@ -156,25 +160,27 @@ Bridge<T>::Bridge( int evnt, int part, int mome, int /*strd*/, int /*ncomb*/ )
 }
 
 #ifdef __CUDACC__
-template <typename T>
-void Bridge<T>::set_gpugrid(const int gpublocks, const int gputhreads)
+template<typename T>
+void
+Bridge<T>::set_gpugrid( const int gpublocks, const int gputhreads )
 {
-  if ( m_evt != gpublocks*gputhreads )
+  if( m_evt != gpublocks * gputhreads )
     throw std::runtime_error( "Bridge: gpublocks*gputhreads must equal m_evt in set_gpugrid" );
   m_gpublocks = gpublocks;
   m_gputhreads = gputhreads;
   std::cout << "WARNING! Set grid in Bridge (nevt=" << m_evt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
-            << ", gpublocks*gputhreads=" << m_gpublocks*m_gputhreads << ")" << std::endl;
+            << ", gpublocks*gputhreads=" << m_gpublocks * m_gputhreads << ")" << std::endl;
   m_devMek.setGrid( m_gpublocks, m_gputhreads );
 }
 #endif
 
 #ifdef __CUDACC__
-template <typename T>
-void Bridge<T>::gpu_sequence( const T *momenta, T *mes, const bool goodHelOnly )
+template<typename T>
+void
+Bridge<T>::gpu_sequence( const T* momenta, T* mes, const bool goodHelOnly )
 {
   constexpr int neppM = MemoryAccessMomenta::neppM;
-  if constexpr ( neppM == 1 ) // needs c++17 and cuda >=11.2 (#333)
+  if constexpr( neppM == 1 ) // needs c++17 and cuda >=11.2 (#333)
   {
     checkCuda( cudaMemcpy( m_devMomentaC.data(), momenta, m_devMomentaC.bytes(), cudaMemcpyHostToDevice ) );
   }
@@ -183,30 +189,31 @@ void Bridge<T>::gpu_sequence( const T *momenta, T *mes, const bool goodHelOnly )
     checkCuda( cudaMemcpy( m_devMomentaF.data(), momenta, m_devMomentaF.bytes(), cudaMemcpyHostToDevice ) );
     const int thrPerEvt = mgOnGpu::npar * mgOnGpu::np4; // AV: transpose alg does 1 element per thread (NOT 1 event per thread)
     //const int thrPerEvt = 1; // AV: try new alg with 1 event per thread... this seems slower
-    dev_transposeMomentaF2C<<<m_gpublocks*thrPerEvt, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(), m_evt );
+    dev_transposeMomentaF2C<<<m_gpublocks * thrPerEvt, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(), m_evt );
   }
-  if ( !m_goodHelsCalculated )
+  if( !m_goodHelsCalculated )
   {
     m_devMek.computeGoodHelicities();
     m_goodHelsCalculated = true;
   }
-  if ( goodHelOnly ) return;
+  if( goodHelOnly ) return;
   m_devMek.computeMatrixElements();
   checkCuda( cudaMemcpy( mes, m_devMEsC.data(), m_devMEsC.bytes(), cudaMemcpyDeviceToHost ) );
 }
 #endif
 
 #ifndef __CUDACC__
-template <typename T>
-void Bridge<T>::cpu_sequence( const T *momenta, T *mes, const bool goodHelOnly )
+template<typename T>
+void
+Bridge<T>::cpu_sequence( const T* momenta, T* mes, const bool goodHelOnly )
 {
   hst_transposeMomentaF2C( momenta, m_hstMomentaC.data(), m_evt );
-  if ( !m_goodHelsCalculated )
+  if( !m_goodHelsCalculated )
   {
     m_hstMek.computeGoodHelicities();
     m_goodHelsCalculated = true;
   }
-  if ( goodHelOnly ) return;
+  if( goodHelOnly ) return;
   m_hstMek.computeMatrixElements();
   memcpy( mes, m_hstMEsC.data(), m_hstMEsC.bytes() );
 }
@@ -219,29 +226,29 @@ void Bridge<T>::cpu_sequence( const T *momenta, T *mes, const bool goodHelOnly )
 //
 
 #ifdef __CUDACC__
-template <typename T>
-__global__
-void dev_transposeMomentaF2C( const T *in, T *out, const int evt )
+template<typename T>
+__global__ void
+dev_transposeMomentaF2C( const T* in, T* out, const int evt )
 {
   constexpr int part = mgOnGpu::npar;
   constexpr int mome = mgOnGpu::np4;
   constexpr int strd = MemoryAccessMomenta::neppM;
   int pos = blockDim.x * blockIdx.x + threadIdx.x;
   int arrlen = evt * part * mome;
-  if (pos < arrlen)
+  if( pos < arrlen )
   {
-    int page_i = pos / (strd * mome * part);
-    int rest_1 = pos % (strd * mome * part);
-    int part_i = rest_1 / (strd * mome);
-    int rest_2 = rest_1 % (strd * mome);
+    int page_i = pos / ( strd * mome * part );
+    int rest_1 = pos % ( strd * mome * part );
+    int part_i = rest_1 / ( strd * mome );
+    int rest_2 = rest_1 % ( strd * mome );
     int mome_i = rest_2 / strd;
     int strd_i = rest_2 % strd;
     int inpos =
-      (page_i * strd + strd_i) // event number
-      * (part * mome)          // event size (pos of event)
-      + part_i * mome          // particle inside event
-      + mome_i;                // momentum inside particle
-    out[pos] = in[inpos]; // F2C (Fortran to C)
+      ( page_i * strd + strd_i ) // event number
+        * ( part * mome )        // event size (pos of event)
+      + part_i * mome            // particle inside event
+      + mome_i;                  // momentum inside particle
+    out[pos] = in[inpos];        // F2C (Fortran to C)
   }
   /*
   // AV attempt another implementation with 1 event per thread: this seems slower...
@@ -266,8 +273,9 @@ void dev_transposeMomentaF2C( const T *in, T *out, const int evt )
 }
 #endif
 
-template <typename T>
-void hst_transposeMomentaF2C( const T *in, T *out, const int evt )
+template<typename T>
+void
+hst_transposeMomentaF2C( const T* in, T* out, const int evt )
 {
   /*
   constexpr int part = mgOnGpu::npar;
@@ -297,48 +305,49 @@ void hst_transposeMomentaF2C( const T *in, T *out, const int evt )
   constexpr int npar = mgOnGpu::npar;
   constexpr int np4 = mgOnGpu::np4;
   constexpr int neppM = MemoryAccessMomenta::neppM;
-  if constexpr ( neppM == 1 ) // needs c++17 and cuda >=11.2 (#333)
+  if constexpr( neppM == 1 ) // needs c++17 and cuda >=11.2 (#333)
   {
-    memcpy( out, in, evt * npar * np4 * sizeof(T) );
+    memcpy( out, in, evt * npar * np4 * sizeof( T ) );
   }
   else
   {
-    const int npagM = evt/neppM;
-    assert( evt%neppM == 0 ); // number of events is not a multiple of neppM???
-    for ( int ipagM=0; ipagM<npagM; ipagM++ )
-      for ( int ip4=0; ip4<np4; ip4++ )
-        for ( int ipar=0; ipar<npar; ipar++ )
-          for ( int ieppM=0; ieppM<neppM; ieppM++ )
+    const int npagM = evt / neppM;
+    assert( evt % neppM == 0 ); // number of events is not a multiple of neppM???
+    for( int ipagM = 0; ipagM < npagM; ipagM++ )
+      for( int ip4 = 0; ip4 < np4; ip4++ )
+        for( int ipar = 0; ipar < npar; ipar++ )
+          for( int ieppM = 0; ieppM < neppM; ieppM++ )
           {
-            int ievt = ipagM*neppM + ieppM;
-            int cpos = ipagM*npar*np4*neppM + ipar*np4*neppM + ip4*neppM + ieppM;
-            int fpos = ievt*npar*np4 + ipar*np4 + ip4;
+            int ievt = ipagM * neppM + ieppM;
+            int cpos = ipagM * npar * np4 * neppM + ipar * np4 * neppM + ip4 * neppM + ieppM;
+            int fpos = ievt * npar * np4 + ipar * np4 + ip4;
             out[cpos] = in[fpos]; // F2C (Fortran to C)
           }
   }
 }
 
-template <typename T>
-void hst_transposeMomentaC2F( const T *in, T *out, const int evt )
+template<typename T>
+void
+hst_transposeMomentaC2F( const T* in, T* out, const int evt )
 {
   constexpr int part = mgOnGpu::npar;
   constexpr int mome = mgOnGpu::np4;
   constexpr int strd = MemoryAccessMomenta::neppM;
   int arrlen = evt * part * mome;
-  for (int pos = 0; pos < arrlen; ++pos)
+  for( int pos = 0; pos < arrlen; ++pos )
   {
-    int page_i = pos / (strd * mome * part);
-    int rest_1 = pos % (strd * mome * part);
-    int part_i = rest_1 / (strd * mome);
-    int rest_2 = rest_1 % (strd * mome);
+    int page_i = pos / ( strd * mome * part );
+    int rest_1 = pos % ( strd * mome * part );
+    int part_i = rest_1 / ( strd * mome );
+    int rest_2 = rest_1 % ( strd * mome );
     int mome_i = rest_2 / strd;
     int strd_i = rest_2 % strd;
     int inpos =
-      (page_i * strd + strd_i) // event number
-      * (part * mome)          // event size (pos of event)
-      + part_i * mome          // particle inside event
-      + mome_i;                // momentum inside particle
-    out[inpos] = in[pos]; // C2F (C to Fortran)
+      ( page_i * strd + strd_i ) // event number
+        * ( part * mome )        // event size (pos of event)
+      + part_i * mome            // particle inside event
+      + mome_i;                  // momentum inside particle
+    out[inpos] = in[pos];        // C2F (C to Fortran)
   }
 }
 
