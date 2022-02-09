@@ -1,9 +1,9 @@
+#include "mgOnGpuConfig.h"
+#include "mgOnGpuFptypes.h"
+
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
-
-#include "mgOnGpuConfig.h"
-#include "mgOnGpuFptypes.h"
 
 // Simplified rambo version for 2 to N (with N>=2) processes with massless particles
 #ifdef __CUDACC__
