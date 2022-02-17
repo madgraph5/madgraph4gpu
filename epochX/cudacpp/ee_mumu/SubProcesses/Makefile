@@ -91,8 +91,8 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   CUARCHNUM=80
   ###CUARCHNUM=61 # (For Pascal Architecture Cards)
   USE_NVTX ?=-DUSE_NVTX
-  CUARCHFLAGS = -arch=compute_$(CUARCHNUM)
-  ###CUARCHFLAGS = -gencode arch=compute_$(CUARCHNUM),code=sm_$(CUARCHNUM)
+  ###CUARCHFLAGS = -arch=compute_$(CUARCHNUM)
+  CUARCHFLAGS = -gencode arch=compute_$(CUARCHNUM),code=sm_$(CUARCHNUM)
   CUINC       = -I$(CUDA_HOME)/include/
   CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
   CUOPTFLAGS  = -lineinfo
