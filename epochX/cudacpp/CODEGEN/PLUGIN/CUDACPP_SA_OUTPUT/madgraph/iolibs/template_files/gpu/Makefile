@@ -88,11 +88,16 @@ endif
 # Set NVCC as $(CUDA_HOME)/bin/nvcc if it exists
 ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
-  CUARCHNUM=70
-  ###CUARCHNUM=61 # (For Pascal Architecture Cards)
   USE_NVTX ?=-DUSE_NVTX
-  CUARCHFLAGS = -arch=compute_$(CUARCHNUM)
-  ###CUARCHFLAGS = -gencode arch=compute_$(CUARCHNUM),code=sm_$(CUARCHNUM)
+  # Always include V100 support (compute capability 70): examples CERN and Juwels Cluster	
+  CUARCHFLAGS = -gencode arch=compute_70,code=compute_70
+  CUARCHFLAGS += -gencode arch=compute_70,code=sm_70
+  # (FIXME?) Include A100 support (compute capability 80) only at Juwels (for Juwels Booster)	
+  # See https://docs.nvidia.com/cuda/ampere-compatibility-guide/index.html#building-applications-with-ampere-support
+  ifneq ($(shell hostname | grep juwels),)
+    CUARCHFLAGS += -gencode arch=compute_80,code=compute_80
+    CUARCHFLAGS += -gencode arch=compute_80,code=sm_80
+  endif
   CUINC       = -I$(CUDA_HOME)/include/
   CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
   CUOPTFLAGS  = -lineinfo
