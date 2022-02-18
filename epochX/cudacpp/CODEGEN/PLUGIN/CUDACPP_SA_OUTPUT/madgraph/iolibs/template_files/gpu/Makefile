@@ -89,13 +89,13 @@ endif
 ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
   USE_NVTX ?=-DUSE_NVTX
-  # Always include V100 support (compute capability 70): examples CERN and Juwels Cluster	
+  # Default: build for V100 (compute capability 70): examples CERN and Juwels Cluster
   CUARCHFLAGS = -gencode arch=compute_70,code=compute_70
   CUARCHFLAGS += -gencode arch=compute_70,code=sm_70
-  # (FIXME?) Include A100 support (compute capability 80) only at Juwels (for Juwels Booster)	
+  # (FIXME?) At Juwels: build only for A100 (compute capability 80) for Juwels Booster
   # See https://docs.nvidia.com/cuda/ampere-compatibility-guide/index.html#building-applications-with-ampere-support
   ifneq ($(shell hostname | grep juwels),)
-    CUARCHFLAGS += -gencode arch=compute_80,code=compute_80
+    CUARCHFLAGS = -gencode arch=compute_80,code=compute_80 # Use += to build both 70 and 80 (e.g. Juwels Cluster and Booster)
     CUARCHFLAGS += -gencode arch=compute_80,code=sm_80
   endif
   CUINC       = -I$(CUDA_HOME)/include/
