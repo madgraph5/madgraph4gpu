@@ -255,7 +255,7 @@ cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o $(BUILDDI
 
 testmain=$(BUILDDIR)/runTest.exe
 
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) ../../src/$(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MODELLIB).a $(cu_main) $(cxx_main) $(testmain)
 
 install: all.$(TAG) $(INSTALL_INC_DIR) $(addprefix $(INSTALL_INC_DIR)/, $(INSTALL_HEADERS)) $(addprefix $(LIBDIR)/, $(INSTALL_OBJECTS))
 
@@ -279,9 +279,6 @@ $(INSTALL_INC_DIR)/%%.h : %%.h
 
 $(LIBDIR)/%%.o : $(BUILDDIR)/%%.o
 	cp $< $@
-
-../../src/$(BUILDDIR)/.build.$(TAG):
-	$(MAKE) -C ../../src $(MAKEDEBUG)
 
 modellib : $(LIBDIR)/lib$(MODELLIB).a
 
