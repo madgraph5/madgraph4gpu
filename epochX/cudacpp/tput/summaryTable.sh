@@ -70,7 +70,7 @@ for fpt in $fpts; do
 	if [ "$nodelast" != "$node" ]; then echo -e "$node\n" >> $out; nodelast=$node; fi
         ###cat $files | awk '/^Process/{print $0}; /Workflow/{print $0}; /MECalcOnly/{print $0}'; exit 0
         cat $files | awk -vrev=$rev -vcomplast=none -vinllast=none -vhrdlast=none -vfptlast=none\
-          '/^Process(.)*nvcc/{split($0,a,"["); comp="["a[2]; if ( comp != complast ){print comp; complast=comp}};\
+          '/^Process(.)/{split($0,a,"["); comp="["a[2]; if ( complast == "none" ){print comp; complast=comp}};\
            /^Process/{split($0,a,"]"); split(a[2],b,"="); inl=b[2]; if ( inl != inllast ){printf "HELINL="inl; inllast=inl}}\
            /^Process/{split($0,a,"]"); split(a[3],b,"="); hrd=b[2]; if ( hrd != hrdlast ){print " HRDCOD="hrd; hrdlast=hrd}}\
            /^Process/{proc=""; split($3,a,"_"); proc=a[3]"_"a[4]};\

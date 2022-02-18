@@ -26,6 +26,7 @@ CPP/512z    8.28e+06    3.43e+05                6.66e+03
 +++ REVISION 65730b2 +++
 On jwlogin05.juwels [CPU: Intel(R) Xeon(R) Gold 6148 CPU] [GPU: none]:
 
+[gcc 11.2.0] 
 HELINL=0 HRDCOD=0
             eemumu      ggtt        ggttg       ggttgg      ggttggg     
 CUD/none                                                                
@@ -35,6 +36,7 @@ CPP/avx2    8.26e+06    8.57e+05    1.34e+05    1.06e+04    4.04e+02
 CPP/512y    8.48e+06    9.51e+05    1.45e+05    1.15e+04    4.51e+02    
 CPP/512z    1.10e+07    9.39e+05    2.09e+05    1.96e+04    7.70e+02    
 
+[gcc 11.2.0] 
 HELINL=1 HRDCOD=0
             eemumu      ggtt        ggttg       ggttgg      ggttggg     
 CUD/none                                                                
@@ -95,6 +97,7 @@ CPP/512z    1.74e+07    5.63e+05                1.30e+04
 +++ REVISION 65730b2 +++
 On jwlogin05.juwels [CPU: Intel(R) Xeon(R) Gold 6148 CPU] [GPU: none]:
 
+[gcc 11.2.0] 
 HELINL=0 HRDCOD=0
             eemumu      ggtt        ggttg       ggttgg      ggttggg     
 CUD/none                                                                
@@ -104,6 +107,7 @@ CPP/avx2    1.75e+07    1.52e+06    2.70e+05    2.15e+04    8.18e+02
 CPP/512y    1.88e+07    1.73e+06    2.96e+05    2.28e+04    9.06e+02    
 CPP/512z    2.44e+07    1.97e+06    4.35e+05    4.03e+04    1.57e+03    
 
+[gcc 11.2.0] 
 HELINL=1 HRDCOD=0
             eemumu      ggtt        ggttg       ggttgg      ggttggg     
 CUD/none                                                                
