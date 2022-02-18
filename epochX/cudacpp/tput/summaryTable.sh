@@ -1,53 +1,53 @@
 #!/bin/sh
 
-hrdcod=0
-if [ "$1" == "-hrdcod" ]; then hrdcod=1; shift; fi
-if [ "$1" != "" ]; then echo "Usage: $0 [-hrdcod]"; exit 1; fi  
+table=
+if [ "$1" == "-hrdcod" ]; then
+  table="hrdcod"; shift
+elif [ "$1" == "-juwels" ]; then
+  table="juwels"; shift
+fi
+if [ "$1" != "" ]; then echo "Usage: $0 [-hrdcod|-juwels]"; exit 1; fi  
 
 cd $(dirname $0)/..
 
 # Output file
-if [ "$hrdcod" == "0" ]; then
+if [ "$table" == "" ]; then
   out=tput/summaryTable.txt
-elif [ "$hrdcod" == "1" ]; then
-  out=tput/summaryTable_hrdcod.txt
 else
-  echo "ERROR! Unknown hrdcod=$hrdcod"; exit 1
+  out=tput/summaryTable_${table}.txt
 fi
 \rm -f $out
 touch $out
 
 # Select revisions
 revs=""
-if [ "$hrdcod" == "0" ]; then
-  revs="$revs c2e67b4" # cuda116/gcc102  (25 Jan 2022) BASELINE eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/dr
+if [ "$table" == "" ]; then
+  revs="$revs c2e67b4" # cuda116/gcc102  (25 Jan 2022) BASELINE eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
   revs="$revs 4f3229d" # cuda116/icx2021 (25 Jan 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
-elif [ "$hrdcod" == "1" ]; then
+elif [ "$table" == "hrdcod" ]; then
   revs="$revs 2938acb" # cuda116/gcc102  (27 Jan 2022) HRD TEST eemumu/ggtt(g(g(g))) d inl0 x hrd0/hrd1
+elif [ "$table" == "juwels" ]; then
+  revs="$revs c2e67b4" # cuda116/gcc102  (25 Jan 2022) BASELINE eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
+  revs="$revs 65730b2" # cuda115/gcc112  (18 Feb 2022) JUWELSCL eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
+  revs="$revs df441ad" # cuda115/gcc112  (18 Feb 2022) JUWELSBO eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
 fi
 
 # Select processes
 procs="eemumu ggtt ggttg ggttgg ggttggg"
 
-# Select fptype
-if [ "$hrdcod" == "0" ]; then
+# Select fptype, helinl, hrdcod
+if [ "$table" == "" ]; then
   fpts="d f"
-elif [ "$hrdcod" == "1" ]; then
-  fpts="d"
-fi
-
-# Select helinl
-if [ "$hrdcod" == "0" ]; then
   inls="inl0 inl1"
-elif [ "$hrdcod" == "1" ]; then
-  inls="inl0"
-fi
-
-# Select hrdcod
-if [ "$hrdcod" == "0" ]; then
   hrds="hrd0"
-elif [ "$hrdcod" == "1" ]; then
+elif [ "$table" == "hrdcod" ]; then
+  fpts="d"
+  inls="inl0"
   hrds="hrd0 hrd1"
+elif [ "$table" == "juwels" ]; then
+  fpts="d f"
+  inls="inl0 inl1"
+  hrds="hrd0"
 fi
 
 # Iterate through log files
