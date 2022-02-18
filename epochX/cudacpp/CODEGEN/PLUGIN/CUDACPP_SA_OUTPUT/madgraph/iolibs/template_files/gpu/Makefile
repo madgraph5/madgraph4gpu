@@ -90,6 +90,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
   USE_NVTX ?=-DUSE_NVTX
   # Default: build for V100 (compute capability 70): examples CERN and Juwels Cluster
+  # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
   CUARCHFLAGS = -gencode arch=compute_70,code=compute_70
   CUARCHFLAGS += -gencode arch=compute_70,code=sm_70
   # (FIXME?) At Juwels: build only for A100 (compute capability 80) for Juwels Booster
