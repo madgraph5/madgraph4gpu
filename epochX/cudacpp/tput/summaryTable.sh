@@ -54,9 +54,9 @@ fi
 for fpt in $fpts; do
   echo -e "*** FPTYPE=$fpt ******************************************************************\n" >> $out
   for rev in $revs; do
+    echo -e "+++ REVISION $rev +++\n" >> $out
     for inl in $inls; do
       for hrd in $hrds; do
-        ###echo "*** REVISION $rev ***" >> $out
         files=""
         for proc in $procs; do
           file=tput/logs_${proc}_manu/log_${proc}_manu_${fpt}_${inl}_${hrd}.txt
@@ -67,7 +67,7 @@ for fpt in $fpts; do
         git checkout $rev $files >& /dev/null
         ###cat $files | awk '/^Process/{print $0}; /Workflow/{print $0}; /MECalcOnly/{print $0}'; exit 0
         cat $files | awk -vrev=$rev -vcomplast=none -vinllast=none -vhrdlast=none -vfptlast=none\
-          '/^Process(.)*nvcc/{split($0,a,"["); comp="["a[2]; if ( comp != complast ){print "Revision", rev, comp; complast=comp}};\
+          '/^Process(.)*nvcc/{split($0,a,"["); comp="["a[2]; if ( comp != complast ){print comp; complast=comp}};\
            /^Process/{split($0,a,"]"); split(a[2],b,"="); inl=b[2]; if ( inl != inllast ){printf "HELINL="inl; inllast=inl}}\
            /^Process/{split($0,a,"]"); split(a[3],b,"="); hrd=b[2]; if ( hrd != hrdlast ){print " HRDCOD="hrd; hrdlast=hrd}}\
            /^Process/{proc=""; split($3,a,"_"); proc=a[3]"_"a[4]};\

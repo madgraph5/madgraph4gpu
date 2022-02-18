@@ -1,6 +1,8 @@
 *** FPTYPE=d ******************************************************************
 
-Revision c2e67b4 [nvcc 11.6.55 (gcc 10.2.0)] 
++++ REVISION c2e67b4 +++
+
+[nvcc 11.6.55 (gcc 10.2.0)] 
 HELINL=0 HRDCOD=0
             eemumu      ggtt        ggttg       ggttgg      ggttggg     
 CUD/none    1.35e+09    1.41e+08    1.45e+07    5.20e+05    1.18e+04    
@@ -10,7 +12,7 @@ CPP/avx2    5.54e+06    5.64e+05    8.86e+04    6.83e+03    2.61e+02
 CPP/512y    5.82e+06    6.15e+05    9.83e+04    7.49e+03    2.88e+02    
 CPP/512z    4.65e+06    3.75e+05    7.19e+04    6.52e+03    2.94e+02    
 
-Revision c2e67b4 [nvcc 11.6.55 (gcc 10.2.0)] 
+[nvcc 11.6.55 (gcc 10.2.0)] 
 HELINL=1 HRDCOD=0
             eemumu      ggtt        ggttg       ggttgg      ggttggg     
 CUD/none    1.38e+09    1.42e+08                3.85e+05                
@@ -19,6 +21,8 @@ CPP/sse4    8.95e+06    2.78e+05                2.94e+03
 CPP/avx2    1.20e+07    4.44e+05                6.09e+03                
 CPP/512y    1.23e+07    4.54e+05                7.52e+03                
 CPP/512z    8.28e+06    3.43e+05                6.66e+03                
+
++++ REVISION 65730b2 +++
 
 HELINL=0 HRDCOD=0
             eemumu      ggtt        ggttg       ggttgg      ggttggg     
@@ -38,7 +42,9 @@ CPP/avx2    1.86e+07    7.01e+05                9.43e+03
 CPP/512y    2.05e+07    7.36e+05                1.17e+04                
 CPP/512z    1.58e+07    7.94e+05                2.02e+04                
 
-Revision df441ad [nvcc 11.5.50 (gcc 11.2.0)] 
++++ REVISION df441ad +++
+
+[nvcc 11.5.50 (gcc 11.2.0)] 
 HELINL=0 HRDCOD=0
             eemumu      ggtt        ggttg       ggttgg      ggttggg     
 CUD/none    1.57e+09    1.69e+08    2.37e+07    9.45e+05    2.04e+04    
@@ -48,7 +54,7 @@ CPP/avx2    8.58e+06    8.69e+05    1.26e+05    9.92e+03    3.68e+02
 CPP/512y                                                                
 CPP/512z                                                                
 
-Revision df441ad [nvcc 11.5.50 (gcc 11.2.0)] 
+[nvcc 11.5.50 (gcc 11.2.0)] 
 HELINL=1 HRDCOD=0
             eemumu      ggtt        ggttg       ggttgg      ggttggg     
 CUD/none    1.57e+09    1.69e+08                7.46e+05                
@@ -60,7 +66,9 @@ CPP/512z
 
 *** FPTYPE=f ******************************************************************
 
-Revision c2e67b4 [nvcc 11.6.55 (gcc 10.2.0)] 
++++ REVISION c2e67b4 +++
+
+[nvcc 11.6.55 (gcc 10.2.0)] 
 HELINL=0 HRDCOD=0
             eemumu      ggtt        ggttg       ggttgg      ggttggg     
 CUD/none    3.26e+09    3.79e+08    4.75e+07    9.71e+05    2.66e+04    
@@ -70,7 +78,7 @@ CPP/avx2    1.15e+07    1.04e+06    1.75e+05    1.36e+04    5.21e+02
 CPP/512y    1.21e+07    1.10e+06    1.85e+05    1.48e+04    5.66e+02    
 CPP/512z    9.32e+06    7.64e+05    1.47e+05    1.30e+04    5.81e+02    
 
-Revision c2e67b4 [nvcc 11.6.55 (gcc 10.2.0)] 
+[nvcc 11.6.55 (gcc 10.2.0)] 
 HELINL=1 HRDCOD=0
             eemumu      ggtt        ggttg       ggttgg      ggttggg     
 CUD/none    3.23e+09    3.80e+08                7.48e+05                
@@ -79,6 +87,8 @@ CPP/sse4    1.80e+07    5.40e+05                6.75e+03
 CPP/avx2    2.53e+07    7.02e+05                1.19e+04                
 CPP/512y    2.61e+07    7.15e+05                1.47e+04                
 CPP/512z    1.74e+07    5.63e+05                1.30e+04                
+
++++ REVISION 65730b2 +++
 
 HELINL=0 HRDCOD=0
             eemumu      ggtt        ggttg       ggttgg      ggttggg     
@@ -98,7 +108,9 @@ CPP/avx2    4.25e+07    1.11e+06                1.84e+04
 CPP/512y    4.57e+07    1.12e+06                2.26e+04                
 CPP/512z    3.78e+07    1.30e+06                4.00e+04                
 
-Revision df441ad [nvcc 11.5.50 (gcc 11.2.0)] 
++++ REVISION df441ad +++
+
+[nvcc 11.5.50 (gcc 11.2.0)] 
 HELINL=0 HRDCOD=0
             eemumu      ggtt        ggttg       ggttgg      ggttggg     
 CUD/none    3.80e+09    4.78e+08    5.73e+07    1.80e+06    3.74e+04    
@@ -108,7 +120,7 @@ CPP/avx2    1.74e+07    1.50e+06    2.50e+05    1.98e+04    7.36e+02
 CPP/512y                                                                
 CPP/512z                                                                
 
-Revision df441ad [nvcc 11.5.50 (gcc 11.2.0)] 
+[nvcc 11.5.50 (gcc 11.2.0)] 
 HELINL=1 HRDCOD=0
             eemumu      ggtt        ggttg       ggttgg      ggttggg     
 CUD/none    3.80e+09    4.73e+08                1.52e+06                
