@@ -164,9 +164,10 @@ $(BUILDDIR)/%%.o : %%.cc *.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
+# NB: Use "ar crus" instead of "ar cru" and "ranlib" to improve parallel "make -j" builds
 $(target): $(cxx_objects) $(cu_objects)
 	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
-	$(AR) crus $@ $(cxx_objects) $(cu_objects) # Added "s" and removed "$(RANLIB) $(target)"
+	$(AR) crus $@ $(cxx_objects) $(cu_objects)
 
 .PHONY: clean
 
