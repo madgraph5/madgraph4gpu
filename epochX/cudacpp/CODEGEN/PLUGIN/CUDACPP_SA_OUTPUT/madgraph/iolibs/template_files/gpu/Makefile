@@ -88,11 +88,17 @@ endif
 # Set NVCC as $(CUDA_HOME)/bin/nvcc if it exists
 ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
-  CUARCHNUM=70
-  ###CUARCHNUM=61 # (For Pascal Architecture Cards)
   USE_NVTX ?=-DUSE_NVTX
-  CUARCHFLAGS = -arch=compute_$(CUARCHNUM)
-  ###CUARCHFLAGS = -gencode arch=compute_$(CUARCHNUM),code=sm_$(CUARCHNUM)
+  # Default: build for V100 (compute capability 70): examples CERN and Juwels Cluster
+  # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
+  CUARCHFLAGS = -gencode arch=compute_70,code=compute_70
+  CUARCHFLAGS += -gencode arch=compute_70,code=sm_70
+  # (FIXME?) At Juwels: build only for A100 (compute capability 80) for Juwels Booster
+  # See https://docs.nvidia.com/cuda/ampere-compatibility-guide/index.html#building-applications-with-ampere-support
+  ifneq ($(shell hostname | grep juwels),)
+    CUARCHFLAGS = -gencode arch=compute_80,code=compute_80 # Use += to build both 70 and 80 (e.g. Juwels Cluster and Booster)
+    CUARCHFLAGS += -gencode arch=compute_80,code=sm_80
+  endif
   CUINC       = -I$(CUDA_HOME)/include/
   CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
   CUOPTFLAGS  = -lineinfo
@@ -250,7 +256,7 @@ cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o $(BUILDDI
 
 testmain=$(BUILDDIR)/runTest.exe
 
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) ../../src/$(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MODELLIB).a $(cu_main) $(cxx_main) $(testmain)
 
 install: all.$(TAG) $(INSTALL_INC_DIR) $(addprefix $(INSTALL_INC_DIR)/, $(INSTALL_HEADERS)) $(addprefix $(LIBDIR)/, $(INSTALL_OBJECTS))
 
@@ -274,9 +280,6 @@ $(INSTALL_INC_DIR)/%%.h : %%.h
 
 $(LIBDIR)/%%.o : $(BUILDDIR)/%%.o
 	cp $< $@
-
-../../src/$(BUILDDIR)/.build.$(TAG):
-	$(MAKE) -C ../../src $(MAKEDEBUG)
 
 modellib : $(LIBDIR)/lib$(MODELLIB).a
 

@@ -11,7 +11,7 @@ INSTALL_INC_DIR=../include
 
 # Note: AR and CXX are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
-RANLIB = ranlib
+###RANLIB = ranlib
 
 # OpenMP flags
 CXXFLAGS += $(OMPFLAGS)
@@ -164,10 +164,10 @@ $(BUILDDIR)/%.o : %.cc *.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
+# NB: Use "ar crus" instead of "ar cru" and "ranlib" to improve parallel "make -j" builds
 $(target): $(cxx_objects) $(cu_objects)
 	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
-	$(AR) cru $@ $(cxx_objects) $(cu_objects)
-	$(RANLIB) $(target)
+	$(AR) crus $@ $(cxx_objects) $(cu_objects)
 
 .PHONY: clean
 
