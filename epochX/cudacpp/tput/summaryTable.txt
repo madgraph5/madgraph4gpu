@@ -1,6 +1,7 @@
 *** FPTYPE=d ******************************************************************
 
 +++ REVISION c2e67b4 +++
+On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.55 (gcc 10.2.0)] 
 HELINL=0 HRDCOD=0
@@ -23,6 +24,7 @@ CPP/512y    1.23e+07    4.54e+05                7.52e+03
 CPP/512z    8.28e+06    3.43e+05                6.66e+03                
 
 +++ REVISION 4f3229d +++
+On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.55 (icx 20210400, clang 13.0.0, gcc 10.2.0)] 
 HELINL=0 HRDCOD=0
@@ -47,6 +49,7 @@ CPP/512z    9.19e+06    5.83e+05                1.09e+04
 *** FPTYPE=f ******************************************************************
 
 +++ REVISION c2e67b4 +++
+On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.55 (gcc 10.2.0)] 
 HELINL=0 HRDCOD=0
@@ -69,6 +72,7 @@ CPP/512y    2.61e+07    7.15e+05                1.47e+04
 CPP/512z    1.74e+07    5.63e+05                1.30e+04                
 
 +++ REVISION 4f3229d +++
+On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.55 (icx 20210400, clang 13.0.0, gcc 10.2.0)] 
 HELINL=0 HRDCOD=0

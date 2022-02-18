@@ -1,6 +1,7 @@
 *** FPTYPE=d ******************************************************************
 
 +++ REVISION 2938acb +++
+On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.55 (gcc 10.2.0)] 
 HELINL=0 HRDCOD=0

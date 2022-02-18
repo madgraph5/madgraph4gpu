@@ -54,7 +54,8 @@ fi
 for fpt in $fpts; do
   echo -e "*** FPTYPE=$fpt ******************************************************************\n" >> $out
   for rev in $revs; do
-    echo -e "+++ REVISION $rev +++\n" >> $out
+    echo -e "+++ REVISION $rev +++" >> $out
+    nodelast=
     for inl in $inls; do
       for hrd in $hrds; do
         files=""
@@ -65,6 +66,8 @@ for fpt in $fpts; do
         ###echo "*** FILES $files ***" >> $out
         if [ "$files" == "" ]; then continue; fi
         git checkout $rev $files >& /dev/null
+        node=$(cat $files | grep ^On | sort -u)
+	if [ "$nodelast" != "$node" ]; then echo -e "$node\n" >> $out; nodelast=$node; fi
         ###cat $files | awk '/^Process/{print $0}; /Workflow/{print $0}; /MECalcOnly/{print $0}'; exit 0
         cat $files | awk -vrev=$rev -vcomplast=none -vinllast=none -vhrdlast=none -vfptlast=none\
           '/^Process(.)*nvcc/{split($0,a,"["); comp="["a[2]; if ( comp != complast ){print comp; complast=comp}};\
