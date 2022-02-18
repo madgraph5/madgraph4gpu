@@ -88,7 +88,7 @@ for fpt in $fpts; do
                for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; printf "%-12s", procs_txt[proc]}; printf "\n";\
                for(itag=1;itag<=ntag;itag++)\
                {tag=tags[itag]; printf "%-12s", tag;\
-                for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; printf "%-12s", tput_proc_tag[proc,tag]}; printf "\n"}}' >> $out
+                for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; tput=tput_proc_tag[proc,tag]; if(tput==""){tput="--------"}; printf "%-12s", tput}; printf "\n"}}' >> $out
         echo "" >> $out
       done
     done
