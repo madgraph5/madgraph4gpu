@@ -71,11 +71,12 @@ namespace mg5amcCpu
   {
     std::cout << "Iteration #" << m_iiter+1 << std::endl;
     // === STEP 1 OF 3
-    // --- 1a. Seed curand generator (to get same results on host and device)
+    // --- 1a. Seed rnd generator (to get same results on host and device in curand)
     // [NB This should not be necessary using the host API: "Generation functions
     // can be called multiple times on the same generator to generate successive
     // blocks of results. For pseudorandom generators, multiple calls to generation
     // functions will yield the same result as a single call with a large size."]
+    // *** NB! REMEMBER THAT THE FORTRAN SAMPLER ALWAYS USES COMMON RANDOM NUMBERS! ***
     constexpr unsigned long long seed = 20200805;
     m_prnk->seedGenerator( seed+m_iiter );
     m_iiter++;

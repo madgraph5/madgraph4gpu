@@ -398,7 +398,7 @@ int main(int argc, char **argv)
     // *** START THE OLD-STYLE TIMER FOR RANDOM GEN ***
     double genrtime = 0;
 
-    // --- 1a. Seed curand generator (to get same results on host and device)
+    // --- 1a. Seed rnd generator (to get same results on host and device in curand)
     // [NB This should not be necessary using the host API: "Generation functions
     // can be called multiple times on the same generator to generate successive
     // blocks of results. For pseudorandom generators, multiple calls to generation
