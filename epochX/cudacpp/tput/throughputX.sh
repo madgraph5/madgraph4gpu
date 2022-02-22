@@ -323,6 +323,24 @@ function runExe() {
   fi
 }
 
+function cmpExe() {
+  exe=$1
+  exef=${exe/\/check//gcheck}
+  exef=${exef/\/gcheck//fgcheck}
+  argsf="2 64 2"
+  args="--common -p ${argsf}"
+  echo "cmpExe $exe $args"
+  echo "cmpExe $exef $argsf"
+  me1=$(${exe} ${args} | grep MeanMatrix | awk '{print $4}')
+  me2=$(${exef} ${argsf} | grep Average | awk '{print $4}')
+  if [ "${exe%%/gcheck*}" != "${exe}" ]; then
+    echo -e "Avg ME (C++/CUDA)   = ${me1}\nAvg ME (F77/CUDA)   = ${me2}"
+  else
+    echo -e "Avg ME (C++/C++)    = ${me1}\nAvg ME (F77/C++)    = ${me2}"
+  fi
+  python -c "me1=${me1}; me2=${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 1E-6; print ( '%s (relative difference %s 1E-6)' % ( ('OK','<=') if ok else ('ERROR','>') ) ); import sys; sys.exit(0 if ok else 1)"
+}
+
 # Profile #registers and %divergence only
 function runNcu() {
   exe=$1
@@ -452,9 +470,10 @@ for exe in $exes; do
     runNcu $exe "$ncuArgs"
     if [ "${div}" == "1" ]; then runNcuDiv $exe; fi
     if [ "${req}" == "1" ]; then runNcuReq $exe "$ncuArgs"; fi
-    echo "........................................................................."
-    if [ "${exeArgs2}" != "" ]; then runExe $exe "$exeArgs2"; fi
+    if [ "${exeArgs2}" != "" ]; then echo "........................................................................."; runExe $exe "$exeArgs2"; fi
   fi
+  echo "-------------------------------------------------------------------------"
+  cmpExe $exe
 done
 echo "========================================================================="
 
