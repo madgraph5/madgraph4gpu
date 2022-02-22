@@ -57,13 +57,11 @@ namespace mg5amcCpu
       return refWG + ( nevtOK()>0 ? sumWGdiff / nevtOK() : 0 );
     }
     // Variance matrix element
-    double varME() const { return ( sqsMEdiff + 2 * sumMEdiff * ( refME-meanME() ) + std::pow( refME-meanME(), 2 ) ) / nevtOK(); }
     // [x = ref+d => n*var(x) = sum((x-mean(x))^2) = sum((ref+d-ref-sum(d)/n)^2) = sum((d-sum(d)/n)^2)/n = sum(d^2)-(sum(d))^2/n]
-    //double varME() const { return ( sqsMEdiff - std::pow( sumMEdiff, 2 ) / nevtOK() ) / nevtOK(); }
+    double varME() const { return ( sqsMEdiff - std::pow( sumMEdiff, 2 ) / nevtOK() ) / nevtOK(); }
     // Variance sampling weight
-    double varWG() const { return ( sqsWGdiff + 2 * sumWGdiff * ( refWG-meanWG() ) + std::pow( refWG-meanWG(), 2 ) ) / nevtOK(); }
     // [x = ref+d => n*var(x) = sum((x-mean(x))^2) = sum((ref+d-ref-sum(d)/n)^2) = sum((d-sum(d)/n)^2)/n = sum(d^2)-(sum(d))^2/n]
-    //double varWG() const { return ( sqsWGdiff - std::pow( sumWGdiff, 2 ) / nevtOK() ) / nevtOK(); }
+    double varWG() const { return ( sqsWGdiff - std::pow( sumWGdiff, 2 ) / nevtOK() ) / nevtOK(); }
     // Standard deviation matrix element
     double stdME() const { return std::sqrt( varME() ); }
     // Standard deviation sampling weight
