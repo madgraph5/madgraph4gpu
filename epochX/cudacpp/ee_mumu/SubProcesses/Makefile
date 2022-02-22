@@ -586,27 +586,41 @@ endif
 
 # Target: check (run the C++ test executable)
 # [NB THIS IS WHAT IS USED IN THE GITHUB CI!]
-check: runTest
+check: runTest cmpFcheck cmpFGcheck
 
 # Target: runTest (run the C++ test executable runTest.exe)
 runTest: $(BUILDDIR)/runTest.exe
 	$(RUNTIME) $(BUILDDIR)/runTest.exe
 
-# Target: runCheck (run the C++ standalone executable check.exe with a small number of events)
+# Target: runCheck (run the C++ standalone executable check.exe, with a small number of events)
 runCheck: $(BUILDDIR)/check.exe
 	$(RUNTIME) $(BUILDDIR)/check.exe -p 2 32 2
 
-# Target: runGcheck (run the CUDA standalone executable gcheck.exe with a small number of events)
+# Target: runGcheck (run the CUDA standalone executable gcheck.exe, with a small number of events)
 runGcheck: $(BUILDDIR)/gcheck.exe
 	$(RUNTIME) $(BUILDDIR)/gcheck.exe -p 2 32 2
 
-# Target: runFCheck (run the Fortran standalone executable - with C++ MEs - fcheck.exe with a small number of events)
+# Target: runFcheck (run the Fortran standalone executable - with C++ MEs - fcheck.exe, with a small number of events)
 runFcheck: $(BUILDDIR)/fcheck.exe
 	$(RUNTIME) $(BUILDDIR)/fcheck.exe 2 32 2
 
-# Target: runFGCheck (run the Fortran standalone executable - with CUDA MEs - fgcheck.exe with a small number of events)
+# Target: runFGcheck (run the Fortran standalone executable - with CUDA MEs - fgcheck.exe, with a small number of events)
 runFGcheck: $(BUILDDIR)/fgcheck.exe
 	$(RUNTIME) $(BUILDDIR)/fgcheck.exe 2 32 2
+
+# Target: cmpFcheck (compare ME results from the C++ and Fortran with C++ MEs standalone executables, with a small number of events)
+cmpFcheck: $(BUILDDIR)/check.exe $(BUILDDIR)/fcheck.exe
+	@echo
+	@echo -e "$(BUILDDIR)/check.exe --common -p 2 32 2"
+	@echo -e "$(BUILDDIR)/fcheck.exe 2 32 2"
+	@me1=$(shell $(RUNTIME) $(BUILDDIR)/check.exe --common -p 2 32 2 | grep MeanMatrix | awk '{print $$4}'); me2=$(shell $(RUNTIME) $(BUILDDIR)/fcheck.exe 2 32 2 | grep Average | awk '{print $$4}'); echo -e "Avg ME (C++/C++)    = $${me1}\nAvg ME (F77/C++)    = $${me2}"; python -c "me1=$${me1}; me2=$${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 1E-6; print ( '%s (relative difference %s 1E-6)' % ( ('OK','<=') if ok else ('ERROR','>') ) ); import sys; sys.exit(0 if ok else 1)"
+
+# Target: cmpFGcheck (compare ME results from the CUDA and Fortran with CUDA MEs standalone executables, with a small number of events)
+cmpFGcheck: $(BUILDDIR)/gcheck.exe $(BUILDDIR)/fgcheck.exe
+	@echo
+	@echo -e "$(BUILDDIR)/gcheck.exe --common -p 2 32 2"
+	@echo -e "$(BUILDDIR)/fgcheck.exe 2 32 2"
+	@me1=$(shell $(RUNTIME) $(BUILDDIR)/gcheck.exe --common -p 2 32 2 | grep MeanMatrix | awk '{print $$4}'); me2=$(shell $(RUNTIME) $(BUILDDIR)/fgcheck.exe 2 32 2 | grep Average | awk '{print $$4}'); echo -e "Avg ME (C++/CUDA)   = $${me1}\nAvg ME (F77/CUDA)   = $${me2}"; python -c "me1=$${me1}; me2=$${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 1E-6; print ( '%s (relative difference %s 1E-6)' % ( ('OK','<=') if ok else ('ERROR','>') ) ); import sys; sys.exit(0 if ok else 1)"
 
 # Target: memcheck (run the CUDA standalone executable gcheck.exe with a small number of events through cuda-memcheck)
 memcheck: $(BUILDDIR)/gcheck.exe
