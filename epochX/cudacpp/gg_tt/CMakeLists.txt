@@ -1,3 +1,5 @@
+# Minimal CMake configuration to build a functional CPU version
+
 cmake_minimum_required(VERSION 3.22)
 
 project(Madgraph4GPU)
