@@ -592,13 +592,21 @@ check: runTest
 runTest: $(BUILDDIR)/runTest.exe
 	$(RUNTIME) $(BUILDDIR)/runTest.exe
 
-# Target: runCheck (run the CUDA standalone executable gcheck.exe with a small number of events)
+# Target: runCheck (run the C++ standalone executable check.exe with a small number of events)
 runCheck: $(BUILDDIR)/check.exe
 	$(RUNTIME) $(BUILDDIR)/check.exe -p 2 32 2
 
 # Target: runGcheck (run the CUDA standalone executable gcheck.exe with a small number of events)
 runGcheck: $(BUILDDIR)/gcheck.exe
 	$(RUNTIME) $(BUILDDIR)/gcheck.exe -p 2 32 2
+
+# Target: runFCheck (run the Fortran standalone executable - with C++ MEs - fcheck.exe with a small number of events)
+runFcheck: $(BUILDDIR)/fcheck.exe
+	$(RUNTIME) $(BUILDDIR)/fcheck.exe 2 32 2
+
+# Target: runFGCheck (run the Fortran standalone executable - with CUDA MEs - fgcheck.exe with a small number of events)
+runFGcheck: $(BUILDDIR)/fgcheck.exe
+	$(RUNTIME) $(BUILDDIR)/fgcheck.exe 2 32 2
 
 # Target: memcheck (run the CUDA standalone executable gcheck.exe with a small number of events through cuda-memcheck)
 memcheck: $(BUILDDIR)/gcheck.exe
