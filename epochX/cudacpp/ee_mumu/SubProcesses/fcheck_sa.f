@@ -13,6 +13,7 @@ c     INTEGER IEXTERNAL
       DOUBLE PRECISION MOMENTA(0:NP4-1, NEXTERNAL, NEVTMAX) ! c-array momenta[nevt][nexternal][np4]
       DOUBLE PRECISION MES(NEVTMAX)
       DOUBLE PRECISION MES_SUM ! use REAL*16 for quadruple precision
+      INTEGER NEVTOK ! exclude nan/abnormal MEs
 C
 C READ COMMAND LINE ARGUMENTS
 C (NB: most errors will crash the program !)
@@ -42,6 +43,7 @@ C
 C
 C USE SAMPLER AND BRIDGE
 C
+      NEVTOK = 0
       MES_SUM = 0
       CALL FBRIDGECREATE(BRIDGE, NEVT, NEXTERNAL, NP4) ! this must be at the beginning as it initialises the CUDA device
       CALL FSAMPLERCREATE(SAMPLER, NEVT, NEXTERNAL, NP4)
@@ -58,10 +60,14 @@ c    &        MOMENTA(3, IEXTERNAL, IEVT)
 c         END DO
 c         WRITE(6,*) 'MES    ', IEVT, MES(IEVT)
 c         WRITE(6,*)
-          MES_SUM = MES_SUM + MES(IEVT)
+          IF ( .NOT. ISNAN(MES(IEVT)) ) THEN
+            NEVTOK = NEVTOK + 1
+            MES_SUM = MES_SUM + MES(IEVT)
+          ENDIF
         END DO
       END DO
       CALL FSAMPLERDELETE(SAMPLER)
       CALL FBRIDGEDELETE(BRIDGE) ! this must be at the end as it shuts down the CUDA device
       WRITE(6,*) 'Average Matrix Element:', MES_SUM/NEVT/NITER
+      WRITE(6,*) 'Abnormal MEs:', NEVT*NITER - NEVTOK
       END PROGRAM FCHECK_SA
