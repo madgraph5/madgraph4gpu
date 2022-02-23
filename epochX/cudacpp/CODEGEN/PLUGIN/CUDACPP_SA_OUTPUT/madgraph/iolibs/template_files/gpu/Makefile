@@ -52,11 +52,18 @@ endif
 # Set NVCC as $(CUDA_HOME)/bin/nvcc if it exists
 ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
-  CUARCHNUM=70 # For V100 (Volta), e.g. SCALE cluster and CERN lxbatch, see https://developer.nvidia.com/cuda-gpus#compute
-  ###CUARCHNUM=35 # For Jetson Nano (Maxwell), see https://developer.nvidia.com/cuda-gpus#compute
   USE_NVTX ?=-DUSE_NVTX
-  CUARCHFLAGS = -arch=compute_$(CUARCHNUM)
-  ###CUARCHFLAGS = -gencode arch=compute_$(CUARCHNUM),code=sm_$(CUARCHNUM)
+  # Default: build for V100 (compute capability 70): e.g. CERN (lxbatch, itscrd) and Juwels (Cluster)
+  # See https://developer.nvidia.com/cuda-gpus#compute (other examples: Jetson Nano Maxwell has compute capability 35)
+  # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
+  CUARCHFLAGS = -gencode arch=compute_70,code=compute_70
+  CUARCHFLAGS += -gencode arch=compute_70,code=sm_70
+  # (FIXME?) At Juwels: build only for A100 (compute capability 80) for Juwels (Booster)
+  # See https://docs.nvidia.com/cuda/ampere-compatibility-guide/index.html#building-applications-with-ampere-support
+  ifneq ($(shell hostname | grep juwels),)
+    CUARCHFLAGS = -gencode arch=compute_80,code=compute_80 # Use += to build both 70 and 80 (e.g. Juwels Cluster and Booster)
+    CUARCHFLAGS += -gencode arch=compute_80,code=sm_80
+  endif
   CUINC       = -I$(CUDA_HOME)/include/
   CULIBFLAGS  = -L$(CUDA_HOME)/lib64/ -lcurand # NB: -lcuda is not needed here!
   CUOPTFLAGS  = -lineinfo
@@ -306,8 +313,7 @@ endif
 
 testmain=$(BUILDDIR)/runTest.exe
 
-# First target (default goal)
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) ../../src/$(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain) $(fcu_main) $(fcxx_main)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_main) $(cxx_main) $(testmain) $(fcu_main) $(fcxx_main)
 
 # Target (and build options): debug
 MAKEDEBUG=
@@ -322,11 +328,6 @@ $(BUILDDIR)/.build.$(TAG):
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	@if [ "$(oldtagsb)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtagsb)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
 	@touch $(BUILDDIR)/.build.$(TAG)
-
-../../src/$(BUILDDIR)/.build.$(TAG):
-	$(MAKE) -C ../../src $(MAKEDEBUG)
-
-#-------------------------------------------------------------------------------
 
 # Generic target and build rules: objects from CUDA compilation
 ifneq ($(NVCC),)
