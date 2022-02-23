@@ -4,7 +4,7 @@
 // Includes from Cuda/C++ matrix element calculations
 #include "mgOnGpuConfig.h" // for mgOnGpu::npar, mgOnGpu::np4
 
-#include "abnormalfp.h" // for fp_is_abnormal
+#include "CrossSectionKernels.h" // for flagAbnormalMEs
 #include "CPPProcess.h" // for CPPProcess
 #include "MatrixElementKernels.h" // for MatrixElementKernelHost, MatrixElementKernelDevice
 #include "MemoryAccessMomenta.h" // for MemoryAccessMomenta::neppM
@@ -107,13 +107,6 @@ namespace mg5amcCpu
      * @param goodHelOnly quit after computing good helicities?
      */
     void cpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly=false );
-
-    /**
-     * Iterate through all output MEs and replace any NaN/abnormal ones by sqrt(-1)
-     *
-     * @param mes the pointer to the output matrix elements
-     */
-    void flagAbnormalMEs( FORTRANFPTYPE* mes );
 
   private:
     int m_nevt; // number of events
@@ -238,16 +231,9 @@ namespace mg5amcCpu
     }
     if ( goodHelOnly ) return;
     m_pmek->computeMatrixElements();
-    if constexpr ( std::is_same_v<FORTRANFPTYPE,fptype> )
-    {
-      checkCuda( cudaMemcpy( mes, m_devMEsC.data(), m_devMEsC.bytes(), cudaMemcpyDeviceToHost ) );
-    }
-    else
-    {
-      checkCuda( cudaMemcpy( m_hstMEsC.data(), m_devMEsC.data(), m_devMEsC.bytes(), cudaMemcpyDeviceToHost ) );
-      std::copy( m_hstMEsC.data(), m_hstMEsC.data() + m_nevt, mes );
-    }
-    flagAbnormalMEs( mes );
+    checkCuda( cudaMemcpy( m_hstMEsC.data(), m_devMEsC.data(), m_devMEsC.bytes(), cudaMemcpyDeviceToHost ) );
+    flagAbnormalMEs( m_hstMEsC.data(), m_nevt );
+    std::copy( m_hstMEsC.data(), m_hstMEsC.data() + m_nevt, mes );
   }
 #endif
 
@@ -263,6 +249,7 @@ namespace mg5amcCpu
     }
     if ( goodHelOnly ) return;
     m_pmek->computeMatrixElements();
+    flagAbnormalMEs( m_hstMEsC.data(), m_nevt );
     if constexpr ( std::is_same_v<FORTRANFPTYPE,fptype> )
     {
       memcpy( mes, m_hstMEsC.data(), m_hstMEsC.bytes() );
@@ -271,18 +258,8 @@ namespace mg5amcCpu
     {
       std::copy( m_hstMEsC.data(), m_hstMEsC.data() + m_nevt, mes );
     }
-    flagAbnormalMEs( mes );
   }
 #endif
-
-  template <typename FORTRANFPTYPE>
-  void Bridge<FORTRANFPTYPE>::flagAbnormalMEs( FORTRANFPTYPE* mes )
-  {
-    for ( int ievt = 0; ievt < m_nevt; ievt++ )
-    {
-      if ( fp_is_abnormal( mes[ievt] ) ) mes[ievt] = std::sqrt(-1.);
-    }
-  }  
 
   //--------------------------------------------------------------------------
   //

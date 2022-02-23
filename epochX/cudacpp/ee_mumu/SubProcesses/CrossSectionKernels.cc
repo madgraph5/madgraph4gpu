@@ -75,6 +75,16 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  void flagAbnormalMEs( fptype* hstMEs, int nevt )
+  {
+    for ( int ievt = 0; ievt < nevt; ievt++ )
+    {
+      if ( fp_is_abnormal( hstMEs[ievt] ) ) hstMEs[ievt] = std::sqrt(-1.);
+    }
+  }  
+
+  //--------------------------------------------------------------------------
+
   CrossSectionKernelHost::CrossSectionKernelHost( const BufferWeights& samplingWeights,       // input: sampling weights
                                                   const BufferMatrixElements& matrixElements, // input: matrix elements
                                                   EventStatistics& stats,                     // output: event statistics
