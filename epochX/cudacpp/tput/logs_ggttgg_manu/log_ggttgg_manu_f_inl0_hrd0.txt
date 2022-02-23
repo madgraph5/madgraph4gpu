@@ -68,7 +68,7 @@ make[1]: Entering directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp
 make[1]: Nothing to be done for `all.512z_f_inl0_hrd0_hasCurand'.
 make[1]: Leaving directory `/data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg'
 
-DATE: 2022-02-23_23:10:58
+DATE: 2022-02-23_23:29:01
 
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 =========================================================================
@@ -76,14 +76,14 @@ runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/
 Process                     = SIGMA_SM_GG_TTXGG_CUDA [nvcc 11.6.112 (gcc 10.2.0)] [inlineHel=0] [hardcodeCIPC=0]
 Workflow summary            = CUD:FLT+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
-EvtsPerSec[Rmb+ME]     (23) = ( 6.993434e+05                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 7.059664e+05                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 7.066708e+05                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 6.994236e+05                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 7.055533e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 7.062456e+05                 )  sec^-1
 MeanMatrixElemValue         = ( 4.059596e+00 +- 2.368053e+00 )  GeV^-4
-TOTAL       :     0.556025 sec
-       138,981,503      cycles:u                  #    0.176 GHz                    
-       175,404,936      instructions:u            #    1.26  insn per cycle         
-       0.849096635 seconds time elapsed
+TOTAL       :     0.556093 sec
+       138,478,824      cycles:u                  #    0.175 GHz                    
+       174,370,646      instructions:u            #    1.26  insn per cycle         
+       0.847530186 seconds time elapsed
 ==PROF== Profiling "sigmaKin": launch__registers_per_thread 255
 ==PROF== Profiling "sigmaKin": sm__sass_average_branch_targets_threads_uniform.pct 100%
 .........................................................................
@@ -91,58 +91,35 @@ runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/
 Process                     = SIGMA_SM_GG_TTXGG_CUDA [nvcc 11.6.112 (gcc 10.2.0)] [inlineHel=0] [hardcodeCIPC=0]
 Workflow summary            = CUD:FLT+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
-EvtsPerSec[Rmb+ME]     (23) = ( 9.592715e+05                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 9.676262e+05                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 9.679863e+05                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 9.579935e+05                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 9.662392e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 9.666140e+05                 )  sec^-1
 MeanMatrixElemValue         = ( 6.664703e+00 +- 5.072736e+00 )  GeV^-4
-TOTAL       :     1.677417 sec
-     1,115,739,533      cycles:u                  #    0.582 GHz                    
-     2,372,910,076      instructions:u            #    2.13  insn per cycle         
-       1.974006757 seconds time elapsed
+TOTAL       :     1.678110 sec
+     1,146,601,841      cycles:u                  #    0.598 GHz                    
+     2,404,742,511      instructions:u            #    2.10  insn per cycle         
+       1.975620018 seconds time elapsed
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.none_f_inl0_hrd0/gcheck.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.none_f_inl0_hrd0/fgcheck.exe 2 64 2
-terminate called after throwing an instance of 'std::runtime_error'
-  what():  Bridge constructor: npar mismatch
-
-Program received signal SIGABRT: Process abort signal.
-
-Backtrace for this error:
-#0  0x7f873cf5e3ff in ???
-#1  0x7f873cf5e387 in ???
-#2  0x7f873cf5fa77 in ???
-#3  0x7f873d69a80b in _ZN9__gnu_cxx27__verbose_terminate_handlerEv
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/vterminate.cc:95
-#4  0x7f873d6a5b15 in _ZN10__cxxabiv111__terminateEPFvvE
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/eh_terminate.cc:48
-#5  0x7f873d6a5b80 in _ZSt9terminatev
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/eh_terminate.cc:58
-#6  0x7f873d6a5e14 in __cxa_throw
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/eh_throw.cc:95
-#7  0x7f873de1423e in ???
-#8  0x7f873de1342b in ???
-#9  0x406950 in ???
-#10  0x406bb5 in ???
-#11  0x7f873cf4a554 in ???
-#12  0x4062cd in ???
-#13  0xffffffffffffffff in ???
 Avg ME (C++/CUDA)   = 6.626454e-04
-Avg ME (F77/CUDA)   = 
-ERROR! Fortran calculation (F77/CUDA) crashed
+Avg ME (F77/CUDA)   = 6.6262612091509687E-004
+Relative difference = 2.9094120178250506e-05
+ERROR (relative difference > 2E-5)
 =========================================================================
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.none_f_inl0_hrd0/check.exe -p 64 256 1 OMP=
 Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 10.2.0] [inlineHel=0] [hardcodeCIPC=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = SCALAR ('none': ~vector[1], no SIMD)
-EvtsPerSec[Rmb+ME]     (23) = ( 1.855291e+03                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.856919e+03                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.856919e+03                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 1.855330e+03                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.857031e+03                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.857031e+03                 )  sec^-1
 MeanMatrixElemValue         = ( 4.060121e+00 +- 2.367903e+00 )  GeV^-4
-TOTAL       :     8.849903 sec
-    23,647,557,542      cycles:u                  #    2.671 GHz                    
-    75,865,759,361      instructions:u            #    3.21  insn per cycle         
-       8.857776023 seconds time elapsed
+TOTAL       :     8.851636 sec
+    23,645,778,874      cycles:u                  #    2.671 GHz                    
+    75,865,759,385      instructions:u            #    3.21  insn per cycle         
+       8.858661876 seconds time elapsed
 =Symbols in CPPProcess.o= (~sse4: 1107) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.none_f_inl0_hrd0/runTest.exe
@@ -150,47 +127,24 @@ runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.none_f_inl0_hrd0/check.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.none_f_inl0_hrd0/fgcheck.exe 2 64 2
-terminate called after throwing an instance of 'std::runtime_error'
-  what():  Bridge constructor: npar mismatch
-
-Program received signal SIGABRT: Process abort signal.
-
-Backtrace for this error:
-#0  0x7ff23e8023ff in ???
-#1  0x7ff23e802387 in ???
-#2  0x7ff23e803a77 in ???
-#3  0x7ff23ef3e80b in _ZN9__gnu_cxx27__verbose_terminate_handlerEv
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/vterminate.cc:95
-#4  0x7ff23ef49b15 in _ZN10__cxxabiv111__terminateEPFvvE
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/eh_terminate.cc:48
-#5  0x7ff23ef49b80 in _ZSt9terminatev
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/eh_terminate.cc:58
-#6  0x7ff23ef49e14 in __cxa_throw
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/eh_throw.cc:95
-#7  0x7ff23f6b823e in ???
-#8  0x7ff23f6b742b in ???
-#9  0x406950 in ???
-#10  0x406bb5 in ???
-#11  0x7ff23e7ee554 in ???
-#12  0x4062cd in ???
-#13  0xffffffffffffffff in ???
 Avg ME (C++/C++)    = 6.627471e-04
-Avg ME (F77/C++)    = 
-ERROR! Fortran calculation (F77/C++)  crashed
+Avg ME (F77/C++)    = 6.6262612091509687E-004
+Relative difference = 0.00018254185480879616
+ERROR (relative difference > 2E-5)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.sse4_f_inl0_hrd0/check.exe -p 64 256 1 OMP=
 Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 10.2.0] [inlineHel=0] [hardcodeCIPC=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/sse4+CXVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[4] ('sse4': SSE4.2, 128bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 6.921122e+03                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 6.944603e+03                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 6.944603e+03                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 6.915354e+03                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 6.939164e+03                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.939164e+03                 )  sec^-1
 MeanMatrixElemValue         = ( 4.060121e+00 +- 2.367902e+00 )  GeV^-4
-TOTAL       :     2.378690 sec
-     6,350,139,789      cycles:u                  #    2.664 GHz                    
-    20,902,003,619      instructions:u            #    3.29  insn per cycle         
-       2.386424863 seconds time elapsed
+TOTAL       :     2.380730 sec
+     6,351,482,548      cycles:u                  #    2.663 GHz                    
+    20,902,004,005      instructions:u            #    3.29  insn per cycle         
+       2.387826968 seconds time elapsed
 =Symbols in CPPProcess.o= (~sse4: 8441) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.sse4_f_inl0_hrd0/runTest.exe
@@ -198,47 +152,24 @@ runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.sse4_f_inl0_hrd0/check.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.sse4_f_inl0_hrd0/fgcheck.exe 2 64 2
-terminate called after throwing an instance of 'std::runtime_error'
-  what():  Bridge constructor: npar mismatch
-
-Program received signal SIGABRT: Process abort signal.
-
-Backtrace for this error:
-#0  0x7fa0534863ff in ???
-#1  0x7fa053486387 in ???
-#2  0x7fa053487a77 in ???
-#3  0x7fa053bc280b in _ZN9__gnu_cxx27__verbose_terminate_handlerEv
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/vterminate.cc:95
-#4  0x7fa053bcdb15 in _ZN10__cxxabiv111__terminateEPFvvE
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/eh_terminate.cc:48
-#5  0x7fa053bcdb80 in _ZSt9terminatev
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/eh_terminate.cc:58
-#6  0x7fa053bcde14 in __cxa_throw
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/eh_throw.cc:95
-#7  0x7fa05433c23e in ???
-#8  0x7fa05433b42b in ???
-#9  0x406950 in ???
-#10  0x406bb5 in ???
-#11  0x7fa053472554 in ???
-#12  0x4062cd in ???
-#13  0xffffffffffffffff in ???
 Avg ME (C++/C++)    = 6.627540e-04
-Avg ME (F77/C++)    = 
-ERROR! Fortran calculation (F77/C++)  crashed
+Avg ME (F77/C++)    = 6.6262612091509687E-004
+Relative difference = 0.00019295105710884946
+ERROR (relative difference > 2E-5)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.avx2_f_inl0_hrd0/check.exe -p 64 256 1 OMP=
 Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 10.2.0] [inlineHel=0] [hardcodeCIPC=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/avx2+CXVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[8] ('avx2': AVX2, 256bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 1.343081e+04                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.351926e+04                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.351926e+04                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 1.342381e+04                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.351364e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.351364e+04                 )  sec^-1
 MeanMatrixElemValue         = ( 4.060587e+00 +- 2.367627e+00 )  GeV^-4
-TOTAL       :     1.230174 sec
-     2,793,754,857      cycles:u                  #    2.262 GHz                    
-     7,243,496,043      instructions:u            #    2.59  insn per cycle         
-       1.238023793 seconds time elapsed
+TOTAL       :     1.230942 sec
+     2,795,346,615      cycles:u                  #    2.263 GHz                    
+     7,243,496,132      instructions:u            #    2.59  insn per cycle         
+       1.238037210 seconds time elapsed
 =Symbols in CPPProcess.o= (~sse4:    0) (avx2: 7298) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.avx2_f_inl0_hrd0/runTest.exe
@@ -246,47 +177,24 @@ runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.avx2_f_inl0_hrd0/check.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.avx2_f_inl0_hrd0/fgcheck.exe 2 64 2
-terminate called after throwing an instance of 'std::runtime_error'
-  what():  Bridge constructor: npar mismatch
-
-Program received signal SIGABRT: Process abort signal.
-
-Backtrace for this error:
-#0  0x7fe8ab9fb3ff in ???
-#1  0x7fe8ab9fb387 in ???
-#2  0x7fe8ab9fca77 in ???
-#3  0x7fe8ac13780b in _ZN9__gnu_cxx27__verbose_terminate_handlerEv
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/vterminate.cc:95
-#4  0x7fe8ac142b15 in _ZN10__cxxabiv111__terminateEPFvvE
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/eh_terminate.cc:48
-#5  0x7fe8ac142b80 in _ZSt9terminatev
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/eh_terminate.cc:58
-#6  0x7fe8ac142e14 in __cxa_throw
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/eh_throw.cc:95
-#7  0x7fe8ac8b123e in ???
-#8  0x7fe8ac8b042b in ???
-#9  0x406950 in ???
-#10  0x406bb5 in ???
-#11  0x7fe8ab9e7554 in ???
-#12  0x4062cd in ???
-#13  0xffffffffffffffff in ???
 Avg ME (C++/C++)    = 6.627261e-04
-Avg ME (F77/C++)    = 
-ERROR! Fortran calculation (F77/C++)  crashed
+Avg ME (F77/C++)    = 6.6262612091509687E-004
+Relative difference = 0.00015086034019656886
+ERROR (relative difference > 2E-5)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.512y_f_inl0_hrd0/check.exe -p 64 256 1 OMP=
 Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 10.2.0] [inlineHel=0] [hardcodeCIPC=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[8] ('512y': AVX512, 256bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 1.467787e+04                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.478470e+04                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.478470e+04                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 1.465860e+04                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.476404e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.476404e+04                 )  sec^-1
 MeanMatrixElemValue         = ( 4.060587e+00 +- 2.367627e+00 )  GeV^-4
-TOTAL       :     1.126552 sec
-     2,557,970,764      cycles:u                  #    2.261 GHz                    
-     6,675,023,963      instructions:u            #    2.61  insn per cycle         
-       1.134437880 seconds time elapsed
+TOTAL       :     1.127888 sec
+     2,557,946,429      cycles:u                  #    2.260 GHz                    
+     6,675,024,225      instructions:u            #    2.61  insn per cycle         
+       1.135147245 seconds time elapsed
 =Symbols in CPPProcess.o= (~sse4:    0) (avx2: 7102) (512y:   28) (512z:    0)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.512y_f_inl0_hrd0/runTest.exe
@@ -294,47 +202,24 @@ runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.512y_f_inl0_hrd0/check.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.512y_f_inl0_hrd0/fgcheck.exe 2 64 2
-terminate called after throwing an instance of 'std::runtime_error'
-  what():  Bridge constructor: npar mismatch
-
-Program received signal SIGABRT: Process abort signal.
-
-Backtrace for this error:
-#0  0x7f2f4dc7b3ff in ???
-#1  0x7f2f4dc7b387 in ???
-#2  0x7f2f4dc7ca77 in ???
-#3  0x7f2f4e3b780b in _ZN9__gnu_cxx27__verbose_terminate_handlerEv
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/vterminate.cc:95
-#4  0x7f2f4e3c2b15 in _ZN10__cxxabiv111__terminateEPFvvE
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/eh_terminate.cc:48
-#5  0x7f2f4e3c2b80 in _ZSt9terminatev
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/eh_terminate.cc:58
-#6  0x7f2f4e3c2e14 in __cxa_throw
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/eh_throw.cc:95
-#7  0x7f2f4eb3123e in ???
-#8  0x7f2f4eb3042b in ???
-#9  0x406950 in ???
-#10  0x406bb5 in ???
-#11  0x7f2f4dc67554 in ???
-#12  0x4062cd in ???
-#13  0xffffffffffffffff in ???
 Avg ME (C++/C++)    = 6.627261e-04
-Avg ME (F77/C++)    = 
-ERROR! Fortran calculation (F77/C++)  crashed
+Avg ME (F77/C++)    = 6.6262612091509687E-004
+Relative difference = 0.00015086034019656886
+ERROR (relative difference > 2E-5)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.512z_f_inl0_hrd0/check.exe -p 64 256 1 OMP=
 Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 10.2.0] [inlineHel=0] [hardcodeCIPC=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/512z+CXVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[16] ('512z': AVX512, 512bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 1.299072e+04                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.307335e+04                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.307335e+04                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 1.298785e+04                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.307043e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.307043e+04                 )  sec^-1
 MeanMatrixElemValue         = ( 4.060588e+00 +- 2.367628e+00 )  GeV^-4
-TOTAL       :     1.271974 sec
-     2,012,676,844      cycles:u                  #    1.576 GHz                    
-     3,409,887,641      instructions:u            #    1.69  insn per cycle         
-       1.279710708 seconds time elapsed
+TOTAL       :     1.273230 sec
+     2,013,232,239      cycles:u                  #    1.577 GHz                    
+     3,409,887,686      instructions:u            #    1.69  insn per cycle         
+       1.280275759 seconds time elapsed
 =Symbols in CPPProcess.o= (~sse4:    0) (avx2: 2112) (512y:   13) (512z: 5701)
 -------------------------------------------------------------------------
 runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.512z_f_inl0_hrd0/runTest.exe
@@ -342,33 +227,10 @@ runExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.512z_f_inl0_hrd0/check.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/build.512z_f_inl0_hrd0/fgcheck.exe 2 64 2
-terminate called after throwing an instance of 'std::runtime_error'
-  what():  Bridge constructor: npar mismatch
-
-Program received signal SIGABRT: Process abort signal.
-
-Backtrace for this error:
-#0  0x7f2b38afc3ff in ???
-#1  0x7f2b38afc387 in ???
-#2  0x7f2b38afda77 in ???
-#3  0x7f2b3923880b in _ZN9__gnu_cxx27__verbose_terminate_handlerEv
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/vterminate.cc:95
-#4  0x7f2b39243b15 in _ZN10__cxxabiv111__terminateEPFvvE
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/eh_terminate.cc:48
-#5  0x7f2b39243b80 in _ZSt9terminatev
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/eh_terminate.cc:58
-#6  0x7f2b39243e14 in __cxa_throw
-	at /build/dkonst/CONTRIB/build/contrib/gcc-10.2.0/src/gcc/10.2.0/libstdc++-v3/libsupc++/eh_throw.cc:95
-#7  0x7f2b399b223e in ???
-#8  0x7f2b399b142b in ???
-#9  0x406950 in ???
-#10  0x406bb5 in ???
-#11  0x7f2b38ae8554 in ???
-#12  0x4062cd in ???
-#13  0xffffffffffffffff in ???
 Avg ME (C++/C++)    = 6.627263e-04
-Avg ME (F77/C++)    = 
-ERROR! Fortran calculation (F77/C++)  crashed
+Avg ME (F77/C++)    = 6.6262612091509687E-004
+Relative difference = 0.0001511620783770089
+ERROR (relative difference > 2E-5)
 =========================================================================
 
 TEST COMPLETED
