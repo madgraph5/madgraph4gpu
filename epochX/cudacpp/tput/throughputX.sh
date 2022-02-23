@@ -342,7 +342,7 @@ function cmpExe() {
     echo "ERROR! Fortran calculation returns NaN"
   else
     # NB do not execute this test if me2 is NaN, otherwise python returns an error status and the following tests are not executed
-    python -c "me1=${me1}; me2=${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 1E-6; print ( '%s (relative difference %s 1E-6)' % ( ('OK','<=') if ok else ('ERROR','>') ) )"
+    python -c "me1=${me1}; me2=${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 1E-5; print ( '%s (relative difference %s 1E-5)' % ( ('OK','<=') if ok else ('ERROR','>') ) )"
   fi
 }
 
