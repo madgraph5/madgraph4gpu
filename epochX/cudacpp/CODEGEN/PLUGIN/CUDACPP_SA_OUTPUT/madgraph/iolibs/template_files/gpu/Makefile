@@ -507,6 +507,7 @@ $(GTESTLIBS):
 
 # Target: build all targets in all AVX modes (each AVX mode in a separate build directory)
 # Split the avxall target into five separate targets to allow parallel 'make -j avxall' builds
+# (Hack: add a fbridge.inc dependency to avxall, to ensure it is only copied once for all AVX modes)
 avxnone:
 	@echo
 	make USEBUILDDIR=1 AVX=none
@@ -527,7 +528,7 @@ avx512z:
 	@echo
 	make USEBUILDDIR=1 AVX=512z
 
-avxall: avxnone avxsse4 avxavx2 avx512y avx512z
+avxall: $(INCDIR)/fbridge.inc avxnone avxsse4 avxavx2 avx512y avx512z
 
 #-------------------------------------------------------------------------------
 
