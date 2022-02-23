@@ -113,9 +113,10 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
     int m_gputhreads; // number of gpu threads (default set from number of events, can be modified)
     int m_gpublocks; // number of gpu blocks (default set from number of events, can be modified)
-    mg5amcGpu::DeviceBufferMomenta m_devMomentaF;
+    mg5amcGpu::DeviceBuffer<FORTRANFPTYPE, sizePerEventMomenta> m_devMomentaF;
     mg5amcGpu::DeviceBufferMomenta m_devMomentaC;
     mg5amcGpu::DeviceBufferMatrixElements m_devMEsC;
+    mg5amcGpu::PinnedHostBufferMatrixElements m_hstMEsC;
     std::unique_ptr<mg5amcGpu::MatrixElementKernelDevice> m_pmek;
     static constexpr int s_gputhreadsmin = 32; // minimum number of gpu threads
 #else
@@ -160,6 +161,7 @@ namespace mg5amcCpu
     , m_devMomentaF( m_nevt )
     , m_devMomentaC( m_nevt )
     , m_devMEsC( m_nevt )
+    , m_hstMEsC( m_nevt )
 #else
     , m_hstMomentaC( m_nevt )
     , m_hstMEsC( m_nevt )
@@ -227,7 +229,15 @@ namespace mg5amcCpu
     }
     if ( goodHelOnly ) return;
     m_pmek->computeMatrixElements();
-    checkCuda( cudaMemcpy( mes, m_devMEsC.data(), m_devMEsC.bytes(), cudaMemcpyDeviceToHost ) );
+    if constexpr ( std::is_same_v<FORTRANFPTYPE,fptype> )
+    {
+      checkCuda( cudaMemcpy( mes, m_devMEsC.data(), m_devMEsC.bytes(), cudaMemcpyDeviceToHost ) );
+    }
+    else
+    {
+      checkCuda( cudaMemcpy( m_hstMEsC.data(), m_devMEsC.data(), m_devMEsC.bytes(), cudaMemcpyDeviceToHost ) );
+      std::copy( m_hstMEsC.data(), m_hstMEsC.data() + m_nevt, mes );
+    }
   }
 #endif
 
