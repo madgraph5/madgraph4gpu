@@ -334,17 +334,14 @@ function cmpExe() {
   tmp=$(mktemp)
   me1=$(${exe} ${args} 2>${tmp} | grep MeanMatrix | awk '{print $4}'); cat ${tmp}
   me2=$(${exef} ${argsf} 2>${tmp} | grep Average | awk '{print $4}'); cat ${tmp}
-  if [ "${exe%%/gcheck*}" != "${exe}" ]; then
-    echo -e "Avg ME (C++/CUDA)   = ${me1}\nAvg ME (F77/CUDA)   = ${me2}"
-  else
-    echo -e "Avg ME (C++/C++)    = ${me1}\nAvg ME (F77/C++)    = ${me2}"
-  fi
+  if [ "${exe%%/gcheck*}" != "${exe}" ]; then tag="/CUDA)"; else tag="/C++) "; fi
+  echo -e "Avg ME (C++${tag}   = ${me1}\nAvg ME (F77${tag}   = ${me2}"
   if [ "${me2}" == "NaN" ]; then
-    echo "ERROR! Fortran calculation returns NaN"
+    echo "ERROR! Fortran calculation (F77${tag} returned NaN"
   elif [ "${me2}" == "" ]; then
-    echo "ERROR! Fortran calculation crashed"
+    echo "ERROR! Fortran calculation (F77${tag} crashed"
   else
-    # NB do not execute this test if me2 is NaN, otherwise python returns an error status and the following tests are not executed
+    # NB skip python comparison if Fortran returned NaN or crashed, otherwise python returns an error status and the following tests are not executed
     python -c "me1=${me1}; me2=${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 2E-5; print ( '%s (relative difference %s 2E-5)' % ( ('OK','<=') if ok else ('ERROR','>') ) )"
   fi
 }
