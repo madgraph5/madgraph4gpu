@@ -50,7 +50,7 @@ generate g g > t t~ g g g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006875514984130859 [0m
+[1;32mDEBUG: model prefixing  takes 0.006929636001586914 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
@@ -67,7 +67,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=5: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ g g g WEIGHTED<=5 @1  
 INFO: Process has 1240 diagrams 
-1 processes with 1240 diagrams generated in 2.474 s
+1 processes with 1240 diagrams generated in 2.472 s
 Total: 1 processes with 1240 diagrams
 output standalone_cudacpp CODEGEN_cudacpp_gg_ttggg
 [1mOutput will be done with PLUGIN: CUDACPP_SA_OUTPUT[0m
@@ -103,7 +103,7 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/G
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1058][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1065][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1077][0m [0m
-Generated helas calls for 1 subprocesses (1240 diagrams) in 8.931 s
+Generated helas calls for 1 subprocesses (1240 diagrams) in 8.950 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 175][0m [0m
 ALOHA: aloha creates routines (starting by VVV1)
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
@@ -139,6 +139,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_cudacpp_gg_ttggg/src/. and
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 184][0m [0m
 quit
 
-real	0m19.805s
-user	0m17.074s
-sys	0m0.258s
+real	0m20.145s
+user	0m17.131s
+sys	0m0.215s

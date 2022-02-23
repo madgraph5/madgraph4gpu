@@ -49,11 +49,10 @@ namespace mg5amcCpu
    * The Bridge is configured to store nevt==nevtF events in CUDA/C++.
    * It also checks that Fortran and C++ parameters match, nparF==npar and np4F==np4.
    *
-   * The cpu/gpu sequences take double* (not T*) momenta/MEs.
-   * This would allow using double in MadEvent Fortran and float in CUDA/C++ sigmaKin.
-   * This would require significant changes to the "--bridge" test in check_sa.
-   * A mixing of float and double is not yet possible in the CUDA/C++ code.
-   * For the moment, use T* in cpu/gpu sequence (emulate using float or double throughout).
+   * The cpu/gpu sequences take FORTRANFPTYPE* (not fptype*) momenta/MEs.
+   * This allows mixing double in MadEvent Fortran with float in CUDA/C++ sigmaKin.
+   * In the fcheck_sa.f test, Fortran uses double while CUDA/C++ may use double or float.
+   * In the check_sa "--bridge" test, everything is implemented in fptype (double or float).
    */
   template<typename FORTRANFPTYPE>
   class Bridge final : public CppObjectInFortran
