@@ -8,6 +8,7 @@
 #include "MemoryAccessMomenta.h" // for MemoryAccessMomenta::neppM
 #include "MemoryBuffers.h" // for HostBufferMomenta, DeviceBufferMomenta etc
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstring>
@@ -242,7 +243,14 @@ namespace mg5amcCpu
     }
     if ( goodHelOnly ) return;
     m_pmek->computeMatrixElements();
-    memcpy( mes, m_hstMEsC.data(), m_hstMEsC.bytes() );
+    if constexpr ( std::is_same_v<FORTRANFPTYPE,fptype> )
+    {
+      memcpy( mes, m_hstMEsC.data(), m_hstMEsC.bytes() );
+    }
+    else
+    {
+      std::copy( m_hstMEsC.data(), m_hstMEsC.data() + m_nevt, mes );
+    }
   }
 #endif
 
