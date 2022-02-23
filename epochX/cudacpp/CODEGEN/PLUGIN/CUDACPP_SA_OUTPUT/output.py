@@ -113,6 +113,7 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
                                      s+'gpu/RamboSamplingKernels.cc', s+'gpu/RamboSamplingKernels.h',
                                      s+'gpu/RandomNumberKernels.cc', s+'gpu/RandomNumberKernels.h',
                                      s+'gpu/Bridge.h', s+'gpu/BridgeKernels.cc', s+'gpu/BridgeKernels.h',
+                                     s+'gpu/fbridge.inc', # NB do NOT link this in P!
                                      s+'gpu/fbridge.cc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc', s+'gpu/fcheck_sa.f',
                                      s+'gpu/Makefile',
                                      s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',

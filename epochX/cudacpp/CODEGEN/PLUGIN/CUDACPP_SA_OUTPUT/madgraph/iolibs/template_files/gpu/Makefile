@@ -284,6 +284,7 @@ else
   override LIBDIRRPATH = '$(RPATHPREFIX)$(LIBDIR)'
   $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is not set))
 endif
+override INCDIR = ../../include
 ###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
 
 # Set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH or DYLD_LIBRARY_PATH
@@ -332,17 +333,17 @@ $(BUILDDIR)/.build.$(TAG):
 # Generic target and build rules: objects from CUDA compilation
 ifneq ($(NVCC),)
 $(BUILDDIR)/%%.o : %%.cu *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c $< -o $@
 
 $(BUILDDIR)/%%_cu.o : %%.cc *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
 endif
 
 # Generic target and build rules: objects from C++ compilation
 $(BUILDDIR)/%%.o : %%.cc *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -fPIC -c $< -o $@
 
 # Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117)
@@ -390,6 +391,13 @@ endif
 
 #-------------------------------------------------------------------------------
 
+# Target (and build rules): Fortran include files
+$(INCDIR)/%%.inc : ../%%.inc
+	@if [ ! -d $(INCDIR) ]; then echo "mkdir -p $(INCDIR)"; mkdir -p $(INCDIR); fi
+	cp -i $< $@
+
+#-------------------------------------------------------------------------------
+
 # Target (and build rules): C++ and CUDA standalone executables
 $(cxx_main): LIBFLAGS += -Wl,-rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
 $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
@@ -406,12 +414,15 @@ endif
 
 #-------------------------------------------------------------------------------
 
-# Generic target and build rules: objects from C++ compilation
-$(BUILDDIR)/%%.o : %%.f *.inc ../../include/*.inc
-	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(FC) -I. -I../../include -c $< -o $@
+# Generic target and build rules: objects from Fortran compilation
+$(BUILDDIR)/%%.o : %%.f *.inc
+	@if [ ! -d $(INCDIR) ]; then echo "mkdir -p $(INCDIR)"; mkdir -p $(INCDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(FC) -I. -I$(INCDIR) -c $< -o $@
 
 # Target (and build rules): Fortran standalone executables
+$(BUILDDIR)/fcheck_sa.o : $(INCDIR)/fbridge.inc
+
 ifeq ($(UNAME_S),Darwin)
 $(fcxx_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
 endif
@@ -530,6 +541,7 @@ ifneq ($(BUILDDIR),.)
 else
 	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 endif
+	rm -rf $(INCDIR)
 
 cleanall:
 	@echo
