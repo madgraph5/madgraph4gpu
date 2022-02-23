@@ -9,6 +9,7 @@
       INTEGER NARG1, NARG2, NARG3
       INTEGER NEVT, NITER
       INTEGER IEVT, IITER
+c     INTEGER IEXTERNAL
       DOUBLE PRECISION MOMENTA(0:NP4-1, NEXTERNAL, NEVTMAX) ! c-array momenta[nevt][nexternal][np4]
       DOUBLE PRECISION MES(NEVTMAX)
       DOUBLE PRECISION MES_SUM ! use REAL*16 for quadruple precision
@@ -48,10 +49,17 @@ C
         CALL FSAMPLERSEQUENCE(SAMPLER, MOMENTA)
         CALL FBRIDGESEQUENCE(BRIDGE, MOMENTA, MES)
         DO IEVT = 1, NEVT
-c         WRITE(6,*) 'MES', IEVT, MES(IEVT)
+c         DO IEXTERNAL = 1, NEXTERNAL
+c           WRITE(6,*) 'MOMENTA', IEVT, IEXTERNAL,
+c    &        MOMENTA(0, IEXTERNAL, IEVT),
+c    &        MOMENTA(1, IEXTERNAL, IEVT),
+c    &        MOMENTA(2, IEXTERNAL, IEVT),
+c    &        MOMENTA(3, IEXTERNAL, IEVT)
+c         END DO
+c         WRITE(6,*) 'MES    ', IEVT, MES(IEVT)
+c         WRITE(6,*)
           MES_SUM = MES_SUM + MES(IEVT)
         END DO
-c       WRITE(6,*)
       END DO
       CALL FSAMPLERDELETE(SAMPLER)
       CALL FBRIDGEDELETE(BRIDGE) ! this must be at the end as it shuts down the CUDA device
