@@ -97,7 +97,7 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     # Information to find the template file that we want to include from madgraph
     # you can include additional file from the plugin directory as well
     # AV - use template files from PLUGINDIR instead of MG5DIR and add gpu/mgOnGpuVectors.h
-    # [NB: mgOnGpuConfig.h and check_sa.cu are handled through dedicated methods]
+    # [NB: mgOnGpuConfig.h, check_sa.cc and fcheck_sa.f are handled through dedicated methods]
     ###s = MG5DIR + '/madgraph/iolibs/template_files/'
     s = PLUGINDIR + '/madgraph/iolibs/template_files/'
     from_template = {'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
@@ -114,7 +114,7 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
                                      s+'gpu/RandomNumberKernels.cc', s+'gpu/RandomNumberKernels.h',
                                      s+'gpu/Bridge.h', s+'gpu/BridgeKernels.cc', s+'gpu/BridgeKernels.h',
                                      s+'gpu/fbridge.inc', # NB do NOT link this in P!
-                                     s+'gpu/fbridge.cc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc', s+'gpu/fcheck_sa.f',
+                                     s+'gpu/fbridge.cc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
                                      s+'gpu/Makefile',
                                      s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
                                      s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt',
@@ -130,7 +130,7 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
                     'RamboSamplingKernels.cc', 'RamboSamplingKernels.h',
                     'RandomNumberKernels.h', 'RandomNumberKernels.cc',
                     'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h',
-                    'fbridge.cc', 'fsampler.cc', 'fsampler.inc', 'fcheck_sa.f',
+                    'fbridge.cc', 'fsampler.cc', 'fsampler.inc',
                     'Makefile',
                     'MadgraphTest.h', 'runTest.cc',
                     'testmisc.cc', 'testxxx_cc_ref.txt',
