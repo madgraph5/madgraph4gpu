@@ -79,7 +79,11 @@ namespace mg5amcCpu
   {
     for ( int ievt = 0; ievt < nevt; ievt++ )
     {
-      if ( fp_is_abnormal( hstMEs[ievt] ) ) hstMEs[ievt] = std::sqrt(-1.);
+      if ( fp_is_abnormal( hstMEs[ievt] ) )
+      {
+        std::cout << "WARNING! flagging abnormal ME for ievt=" << ievt << std::endl;
+        hstMEs[ievt] = std::sqrt(-1.);
+      }
     }
   }  
 
