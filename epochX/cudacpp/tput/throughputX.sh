@@ -331,8 +331,9 @@ function cmpExe() {
   args="--common -p ${argsf}"
   echo "cmpExe $exe $args"
   echo "cmpExe $exef $argsf"
-  me1=$(${exe} ${args} | grep MeanMatrix | awk '{print $4}')
-  me2=$(${exef} ${argsf} | grep Average | awk '{print $4}')
+  tmp=$(mktemp)
+  me1=$(${exe} ${args} 2>${tmp} | grep MeanMatrix | awk '{print $4}'); cat ${tmp}
+  me2=$(${exef} ${argsf} 2>${tmp} | grep Average | awk '{print $4}'); cat ${tmp}
   if [ "${exe%%/gcheck*}" != "${exe}" ]; then
     echo -e "Avg ME (C++/CUDA)   = ${me1}\nAvg ME (F77/CUDA)   = ${me2}"
   else
@@ -340,6 +341,8 @@ function cmpExe() {
   fi
   if [ "${me2}" == "NaN" ]; then
     echo "ERROR! Fortran calculation returns NaN"
+  elif [ "${me2}" == "" ]; then
+    echo "ERROR! Fortran calculation crashed"
   else
     # NB do not execute this test if me2 is NaN, otherwise python returns an error status and the following tests are not executed
     python -c "me1=${me1}; me2=${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 1E-5; print ( '%s (relative difference %s 1E-5)' % ( ('OK','<=') if ok else ('ERROR','>') ) )"
