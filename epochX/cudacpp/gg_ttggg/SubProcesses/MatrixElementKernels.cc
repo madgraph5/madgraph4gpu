@@ -1,7 +1,7 @@
 #include "MatrixElementKernels.h"
 
-#include "checkCuda.h"
 #include "CPPProcess.h"
+#include "CudaRuntime.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
 
@@ -11,7 +11,7 @@
 
 #ifndef __CUDACC__
 namespace mg5amcCpu
-{  
+{
 
   //--------------------------------------------------------------------------
 
@@ -34,6 +34,11 @@ namespace mg5amcCpu
       sstr << "MatrixElementKernelHost: nevt should be a multiple of neppM=" << neppM;
       throw std::runtime_error( sstr.str() );
     }
+    // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the SIMD used in the ME calculation
+    // Note: this prevents a crash on pmpe04 but not on some github CI nodes?
+    // [NB: SIMD vectorization in mg5amc C++ code is only used in the ME calculation below MatrixElementKernelHost!]
+    if ( ! MatrixElementKernelHost::hostSupportsSIMD() )
+      throw std::runtime_error( "Host does not support the SIMD implementation of MatrixElementKernelsHost" );
   }
 
   //--------------------------------------------------------------------------
@@ -54,6 +59,42 @@ namespace mg5amcCpu
   void MatrixElementKernelHost::computeMatrixElements()
   {
     sigmaKin( m_momenta.data(), m_matrixElements.data(), nevt() );
+  }
+
+  //--------------------------------------------------------------------------
+
+  // Does this host system support the SIMD used in the matrix element calculation?
+  bool MatrixElementKernelHost::hostSupportsSIMD( const bool verbose )
+  {
+#if defined __AVX512VL__
+    bool ok = __builtin_cpu_supports( "avx512vl" );
+    const std::string tag = "skylake-avx512 (AVX512VL)";
+#elif defined __AVX2__
+    bool ok = __builtin_cpu_supports( "avx2" );
+    const std::string tag = "haswell (AVX2)";
+#elif defined __SSE4_2__
+#ifdef __PPC__
+    // See https://gcc.gnu.org/onlinedocs/gcc/Basic-PowerPC-Built-in-Functions-Available-on-all-Configurations.html
+    bool ok = __builtin_cpu_supports( "vsx" );
+    const std::string tag = "powerpc vsx (128bit as in SSE4.2)";
+#else
+    bool ok = __builtin_cpu_supports( "sse4.2" );
+    const std::string tag = "nehalem (SSE4.2)";
+#endif
+#else
+    bool ok = true;
+    const std::string tag = "none";
+#endif
+    if ( verbose )
+    {
+      if ( tag == "none" )
+        std::cout << "INFO: The application does not require the host to support any AVX feature" << std::endl;
+      else if ( ok )
+        std::cout << "INFO: The application is built for " << tag << " and the host supports it" << std::endl;
+      else
+        std::cout << "ERROR! The application is built for " << tag << " but the host does not support it" << std::endl;
+    }
+    return ok;
   }
 
   //--------------------------------------------------------------------------

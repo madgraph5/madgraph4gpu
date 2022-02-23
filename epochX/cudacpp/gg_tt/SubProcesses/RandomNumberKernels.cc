@@ -1,8 +1,9 @@
 #include "RandomNumberKernels.h"
 
-#include "checkCuda.h"
 #include "CommonRandomNumbers.h"
 #include "MemoryBuffers.h"
+
+#include "CudaRuntime.h"
 
 #include <cassert>
 

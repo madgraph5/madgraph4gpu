@@ -74,6 +74,10 @@ namespace mg5amcCpu
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return false; }
 
+    // Does this host system support the SIMD used in the matrix element calculation?
+    // [NB: SIMD vectorization in mg5amc C++ code is currently only used in the ME calculations below MatrixElementKernelHost!]
+    static bool hostSupportsSIMD( const bool verbose = true );
+
   };
 #endif
 

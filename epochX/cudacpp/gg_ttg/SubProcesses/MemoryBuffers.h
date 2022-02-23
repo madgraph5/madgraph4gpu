@@ -4,7 +4,7 @@
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuCxtypes.h"
 
-#include "checkCuda.h"
+#include "CudaRuntime.h"
 
 #include <sstream>
 
