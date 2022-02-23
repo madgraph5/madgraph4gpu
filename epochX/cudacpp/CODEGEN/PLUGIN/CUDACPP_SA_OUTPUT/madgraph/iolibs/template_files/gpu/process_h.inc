@@ -9,7 +9,6 @@
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuVectors.h"
 
-#include "checkCuda.h"
 #include "Parameters_%(model_name)s.h"
 
 #include <vector>

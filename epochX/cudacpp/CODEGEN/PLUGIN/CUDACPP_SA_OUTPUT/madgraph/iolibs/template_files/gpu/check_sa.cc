@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 #else
   using namespace mg5amcCpu;
 #endif
-  
+
   // DEFAULTS FOR COMMAND LINE ARGUMENTS
   bool verbose = false;
   bool debug = false;
@@ -187,7 +187,7 @@ int main(int argc, char **argv)
     std::cout << "WARNING! Bridge selected: cannot use RamboDevice, will use RamboHost" << std::endl;
     rmbsmp = RamboSamplingMode::RamboHost;
   }
-  
+
   if ( rmbsmp == RamboSamplingMode::RamboHost && rndgen == RandomNumberMode::CurandDevice )
   {
 #if not defined MGONGPU_HAS_NO_CURAND
@@ -198,7 +198,7 @@ int main(int argc, char **argv)
     rndgen = RandomNumberMode::CommonRandom;
 #endif
   }
-  
+
   constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
   constexpr int neppR = MemoryAccessRandomNumbers::neppR; // AOSOA layout
 
@@ -227,39 +227,14 @@ int main(int argc, char **argv)
     if ( debug ) std::cout << "DEBUG: omp_get_num_threads() = " << omp_get_num_threads() << std::endl; // always == 1 here!
     if ( debug ) std::cout << "DEBUG: omp_get_max_threads() = " << omp_get_max_threads() << std::endl;
   }
+#endif
+#endif
 
-  // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the requested AVX
-  // [NB: this prevents a crash on pmpe04 but not on some github CI nodes]
-  auto supportsAvx = [](){
-#if defined __AVX512VL__
-    bool ok = __builtin_cpu_supports( "avx512vl" );
-    const std::string tag = "skylake-avx512 (AVX512VL)";
-#elif defined __AVX2__
-    bool ok = __builtin_cpu_supports( "avx2" );
-    const std::string tag = "haswell (AVX2)";
-#elif defined __SSE4_2__
-#ifdef __PPC__
-    // See https://gcc.gnu.org/onlinedocs/gcc/Basic-PowerPC-Built-in-Functions-Available-on-all-Configurations.html
-    bool ok = __builtin_cpu_supports( "vsx" );
-    const std::string tag = "powerpc vsx (128bit as in SSE4.2)";
-#else
-    bool ok = __builtin_cpu_supports( "sse4.2" );
-    const std::string tag = "nehalem (SSE4.2)";
-#endif
-#else
-    bool ok = true;
-    const std::string tag = "none";
-#endif
-    if ( tag == "none" )
-      std::cout << "INFO: The application does not require the host to support any AVX feature" << std::endl;
-    else if ( ok )
-      std::cout << "INFO: The application is built for " << tag << " and the host supports it" << std::endl;
-    else
-      std::cout << "ERROR! The application is built for " << tag << " but the host does not support it" << std::endl;
-    return ok;
-  };
-  if ( ! supportsAvx() ) return 1;
-#endif
+#ifndef __CUDACC__
+  // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the SIMD used in the ME calculation
+  // Note: this prevents a crash on pmpe04 but not on some github CI nodes?
+  // [NB: SIMD vectorization in mg5amc C++ code is only used in the ME calculation below MatrixElementKernelHost!]
+  if ( ! MatrixElementKernelHost::hostSupportsSIMD() ) return 1;
 #endif
 
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
@@ -274,22 +249,13 @@ int main(int argc, char **argv)
   // === STEP 0 - INITIALISE
 
 #ifdef __CUDACC__
-  // --- 00. Initialise cuda (call cudaFree to ease cuda profile analysis)
-  const std::string cdfrKey = "00 CudaFree";
-  timermap.start( cdfrKey );
-  //std::cout << "Calling cudaFree... " << std::endl;
-  checkCuda( cudaFree( 0 ) ); // SLOW!
-  //std::cout << "Calling cudaFree... done" << std::endl;
 
-  // --- Book the tear down at the end of main:
-  struct CudaTearDown {
-    CudaTearDown(bool print) : _print(print) { }
-    ~CudaTearDown() {
-      //if ( _print ) std::cout << "Calling cudaDeviceReset()." << std::endl;
-      checkCuda( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
-    }
-    bool _print{false};
-  } cudaTearDown(debug);
+  // --- 00. Initialise cuda
+  // Instantiate a CudaRuntime at the beginnining of the application's main to
+  // invoke cudaSetDevice(0) in the constructor and book a cudaDeviceReset() call in the destructor
+  const std::string cdinKey = "00 CudaInit";
+  timermap.start( cdinKey );
+  CudaRuntime cudaRuntime(debug);
 #endif
 
   // --- 0a. Initialise physics process
@@ -297,7 +263,7 @@ int main(int argc, char **argv)
   timermap.start( procKey );
 
   // Create a process object
-  CPPProcess process( niter, gpublocks, gputhreads, verbose );
+  CPPProcess process( verbose );
 
   // Read param_card and set parameters
   process.initProc("../../Cards/param_card.dat");
@@ -342,15 +308,6 @@ int main(int argc, char **argv)
   DeviceBufferMatrixElements devMatrixElements( nevt );
 #endif
 
-  // Memory buffers for the helicity mask
-  using mgOnGpu::ncomb; // the number of helicity combinations
-#ifndef __CUDACC__
-  HostBufferHelicityMask hstIsGoodHel( ncomb );
-#else
-  PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
-  DeviceBufferHelicityMask devIsGoodHel( ncomb );
-#endif
-
   std::unique_ptr<double[]> genrtimes( new double[niter] );
   std::unique_ptr<double[]> rambtimes( new double[niter] );
   std::unique_ptr<double[]> wavetimes( new double[niter] );
@@ -365,7 +322,7 @@ int main(int argc, char **argv)
   {
     prnk.reset( new CommonRandomNumberKernel( hstRnarray ) );
   }
-#ifndef MGONGPU_HAS_NO_CURAND    
+#ifndef MGONGPU_HAS_NO_CURAND
   else if ( rndgen == RandomNumberMode::CurandHost )
   {
     const bool onDevice = false;
@@ -415,7 +372,7 @@ int main(int argc, char **argv)
     pmek.reset( new MatrixElementKernelHost( hstMomenta, hstMatrixElements, nevt ) );
 #endif
   }
-  else 
+  else
   {
 #ifdef __CUDACC__
     pmek.reset( new BridgeKernelDevice( hstMomenta, hstMatrixElements, gpublocks, gputhreads ) );
@@ -441,7 +398,7 @@ int main(int argc, char **argv)
     // *** START THE OLD-STYLE TIMER FOR RANDOM GEN ***
     double genrtime = 0;
 
-    // --- 1a. Seed curand generator (to get same results on host and device)
+    // --- 1a. Seed rnd generator (to get same results on host and device in curand)
     // [NB This should not be necessary using the host API: "Generation functions
     // can be called multiple times on the same generator to generate successive
     // blocks of results. For pseudorandom generators, multiple calls to generation
@@ -459,7 +416,7 @@ int main(int argc, char **argv)
     //std::cout << "Got random numbers" << std::endl;
 
 #ifdef __CUDACC__
-    if ( rndgen != RandomNumberMode::CurandDevice )
+    if ( rndgen != RandomNumberMode::CurandDevice && rmbsmp == RamboSamplingMode::RamboDevice )
     {
       // --- 1c. Copy rnarray from host to device
       const std::string htodKey = "1c CpHTDrnd";
@@ -497,7 +454,7 @@ int main(int argc, char **argv)
       const std::string cwgtKey = "2c CpDTHwgt";
       rambtime += timermap.start( cwgtKey );
       copyHostFromDevice( hstWeights, devWeights );
-      
+
       // --- 2d. CopyDToH Momenta
       const std::string cmomKey = "2d CpDTHmom";
       rambtime += timermap.start( cmomKey );
@@ -509,7 +466,7 @@ int main(int argc, char **argv)
       const std::string cwgtKey = "2c CpHTDwgt";
       rambtime += timermap.start( cwgtKey );
       copyDeviceFromHost( devWeights, hstWeights );
-      
+
       // --- 2d. CopyHToD Momenta
       const std::string cmomKey = "2d CpHTDmom";
       rambtime += timermap.start( cmomKey );
@@ -533,7 +490,7 @@ int main(int argc, char **argv)
       const std::string tc2fKey = "0d TransC2F";
       timermap.start( tc2fKey );
       dynamic_cast<BridgeKernelBase*>( pmek.get() )->transposeInputMomentaC2F();
-    }    
+    }
 
     // --- 0e. SGoodHel
     if ( iiter == 0 )
@@ -690,7 +647,7 @@ int main(int argc, char **argv)
   int nzero = hstStats.nevtZERO;
 
   // === STEP 9 FINALISE
-  
+
   std::string rndgentxt;
   if ( rndgen == RandomNumberMode::CommonRandom ) rndgentxt = "COMMON RANDOM HOST";
   else if ( rndgen == RandomNumberMode::CurandHost ) rndgentxt = "CURAND HOST";
@@ -811,7 +768,7 @@ int main(int argc, char **argv)
     const std::string cxtref = " [cxtype_ref=NO]";
 #endif
 #endif
-  // Dump all configuration parameters and all results
+    // Dump all configuration parameters and all results
     std::cout << std::string(SEP79, '*') << std::endl
 #ifdef __CUDACC__
               << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CUDA"

@@ -1,4 +1,14 @@
-#=== Configure common compiler flags for CUDA and C++
+#=== Detect O/S and architecture (assuming uname is available, https://en.wikipedia.org/wiki/Uname)
+
+# Detect O/S kernel (Linux, Darwin...)
+UNAME_S := $(shell uname -s)
+
+# Detect architecture (x86_64, ppc64le...)
+UNAME_P := $(shell uname -p)
+
+#-------------------------------------------------------------------------------
+
+#=== Configure common compiler flags for C++ and CUDA
 
 INCFLAGS = -I.
 OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
@@ -26,7 +36,7 @@ CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
-# Note: AR and CXX are implicitly defined if not set externally
+# Note: AR, CXX and FC are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
 #-------------------------------------------------------------------------------
@@ -72,7 +82,7 @@ CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
 
 #-------------------------------------------------------------------------------
 
-#=== Configure ccache for CUDA and C++ builds
+#=== Configure ccache for C++ and CUDA builds
 
 # Enable ccache if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
@@ -89,10 +99,7 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure PowerPC-specific compiler flags for CUDA and C++
-
-# Assuming uname is available, detect if architecture is PowerPC
-UNAME_P := $(shell uname -p)
+#=== Configure PowerPC-specific compiler flags for C++ and CUDA
 
 # PowerPC-specific CXX compiler flags (being reviewed)
 ifeq ($(UNAME_P),ppc64le)
@@ -261,25 +268,46 @@ override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
   override BUILDDIR = build.$(DIRTAG)
-  override LIBDIR   = ../../lib/$(BUILDDIR)
+  override LIBDIR = ../../lib/$(BUILDDIR)
+  override LIBDIRRPATH = '$(RPATHPREFIX)../$(LIBDIR)'
   $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is set = 1))
 else
   override BUILDDIR = .
-  override LIBDIR   = ../../lib
+  override LIBDIR = ../../lib
+  override LIBDIRRPATH = '$(RPATHPREFIX)$(LIBDIR)'
   $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is not set))
 endif
 ###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
+
+# Set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH or DYLD_LIBRARY_PATH
+# Use relative paths with respect to the executables ($ORIGIN on Linux and @executable_path on Darwin)
+ifeq ($(UNAME_S),Darwin)
+  override RPATHPREFIX = @executable_path/
+  override RUNTIME = DYLD_LIBRARY_PATH="$(LIBDIR):$$DYLD_LIBRARY_PATH" # TEMPORARY for Mac! #375
+else
+  override RPATHPREFIX = $$ORIGIN/
+  override RUNTIME =
+endif
 
 #===============================================================================
 #=== Makefile TARGETS and build rules below
 #===============================================================================
 
 cxx_main=$(BUILDDIR)/check.exe
+fcxx_main=$(BUILDDIR)/fcheck.exe
+
+ifneq ($(NVCC),)
 cu_main=$(BUILDDIR)/gcheck.exe
+fcu_main=$(BUILDDIR)/fgcheck.exe
+else
+cu_main=
+fcu_main=
+endif
+
 testmain=$(BUILDDIR)/runTest.exe
 
 # First target (default goal)
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) ../../src/$(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) ../../src/$(BUILDDIR)/.build.$(TAG) $(cu_main) $(cxx_main) $(testmain) $(fcu_main) $(fcxx_main)
 
 # Target (and build options): debug
 MAKEDEBUG=
@@ -301,13 +329,15 @@ $(BUILDDIR)/.build.$(TAG):
 #-------------------------------------------------------------------------------
 
 # Generic target and build rules: objects from CUDA compilation
+ifneq ($(NVCC),)
 $(BUILDDIR)/%%.o : %%.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(NVCC) $(CPPFLAGS) $(CUFLAGS) --compiler-options '-fPIC' -c $< -o $@
+	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c $< -o $@
 
 $(BUILDDIR)/%%_cu.o : %%.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
-	$(NVCC) $(CPPFLAGS) $(CUFLAGS) --compiler-options '-fPIC' -c -x cu $< -o $@
+	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -Xcompiler -fPIC -c -x cu $< -o $@
+endif
 
 # Generic target and build rules: objects from C++ compilation
 $(BUILDDIR)/%%.o : %%.cc *.h ../../src/*.h
@@ -316,7 +346,9 @@ $(BUILDDIR)/%%.o : %%.cc *.h ../../src/*.h
 
 # Apply special build flags only to CrossSectionKernel.cc and gCrossSectionKernel.cu (no fast math, see #117)
 $(BUILDDIR)/CrossSectionKernels.o: CXXFLAGS += -fno-fast-math
+ifneq ($(NVCC),)
 $(BUILDDIR)/gCrossSectionKernels.o: CUFLAGS += -Xcompiler -fno-fast-math
+endif
 
 #### Apply special build flags only to CPPProcess.cc (-flto)
 ###$(BUILDDIR)/CPPProcess.o: CXXFLAGS += -flto
@@ -337,28 +369,66 @@ $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so: ../../src/*.h ../../src/*.cc
 MG5AMC_CXXLIB = mg5amc_cxx
 cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o $(BUILDDIR)/RamboSamplingKernels.o $(BUILDDIR)/MatrixElementKernels.o $(BUILDDIR)/BridgeKernels.o $(BUILDDIR)/CrossSectionKernels.o
 
+ifneq ($(NVCC),)
 MG5AMC_CULIB = mg5amc_cu
 cu_objects=$(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o
+endif
 
-# Target (and build rules): CUDA and C++ shared libraries
-$(LIBDIR)/lib$(MG5AMC_CULIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_objects)
-	$(NVCC) --shared -o $@ $(cu_objects) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
-
+# Target (and build rules): C++ and CUDA shared libraries
+$(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(BUILDDIR)/fbridge.o
+$(LIBDIR)/lib$(MG5AMC_CXXLIB).so: cxx_objects += $(BUILDDIR)/fbridge.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects)
 	$(CXX) -shared -o $@ $(cxx_objects) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 
+ifneq ($(NVCC),)
+$(LIBDIR)/lib$(MG5AMC_CULIB).so: $(BUILDDIR)/fbridge_cu.o
+$(LIBDIR)/lib$(MG5AMC_CULIB).so: cu_objects += $(BUILDDIR)/fbridge_cu.o
+$(LIBDIR)/lib$(MG5AMC_CULIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cu_objects)
+	$(NVCC) --shared -o $@ $(cu_objects) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+endif
+
 #-------------------------------------------------------------------------------
 
-# Target (and build rules): CUDA and C++ standalone executables
+# Target (and build rules): C++ and CUDA standalone executables
+$(cxx_main): LIBFLAGS += -Wl,-rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
+	$(CXX) -o $@ $(BUILDDIR)/check_sa.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB)
+
+ifneq ($(NVCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(cu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
 endif
-
+$(cu_main): LIBFLAGS += -Xlinker -rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
 $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
 	$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB)
+endif
 
-$(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
-	$(CXX) -o $@ $(BUILDDIR)/check_sa.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB)
+#-------------------------------------------------------------------------------
+
+# Generic target and build rules: objects from C++ compilation
+$(BUILDDIR)/%%.o : %%.f *.inc ../../include/*.inc
+	@if [ ! -d $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi
+	$(FC) -I. -I../../include -c $< -o $@
+
+# Target (and build rules): Fortran standalone executables
+ifeq ($(UNAME_S),Darwin)
+$(fcxx_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
+endif
+$(fcxx_main): LIBFLAGS += -Wl,-rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(fcxx_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
+	$(CXX) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBFLAGS) $(CULIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB)
+
+ifneq ($(NVCC),)
+ifneq ($(shell $(CXX) --version | grep ^Intel),)
+$(fcu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
+endif
+ifeq ($(UNAME_S),Darwin)
+$(fcu_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
+endif
+$(fcu_main): LIBFLAGS += -Xlinker -rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(fcu_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler_cu.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
+	$(NVCC) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler_cu.o $(LIBFLAGS) $(CULIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CULIB)
+endif
 
 #-------------------------------------------------------------------------------
 
@@ -409,34 +479,17 @@ $(testmain): LIBFLAGS += -L$(patsubst %%bin/clang++,%%lib,$(shell which $(CXX) |
 endif
 
 ifeq ($(NVCC),) # link only runTest.o
+$(testmain): LIBFLAGS += -Wl,-rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else # link both runTest.o and runTest_cu.o
+$(testmain): LIBFLAGS += -Xlinker -rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects) $(cu_objects) $(GTESTLIBS)
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
 
 $(GTESTLIBS):
 	$(MAKE) -C $(TESTDIR)
-
-#-------------------------------------------------------------------------------
-
-# Target (and build rules): install libraries and headers (for use by MadEvent in Fortran)
-INSTALL_HEADERS=CPPProcess.h MatrixElementKernels.h MemoryBuffers.h checkCuda.h MemoryAccessMomenta.h MemoryAccessHelpers.h MemoryAccessVectors.h
-INSTALL_INC_DIR=../../include
-INSTALL_OBJECTS=CPPProcess.o gCPPProcess.o MatrixElementKernels.o gMatrixElementKernels.o
-
-install: all.$(TAG) $(INSTALL_INC_DIR) $(addprefix $(INSTALL_INC_DIR)/, $(INSTALL_HEADERS)) $(addprefix $(LIBDIR)/, $(INSTALL_OBJECTS))
-
-$(INSTALL_INC_DIR) :
-	$(MAKE) -C ../../src install
-
-$(INSTALL_INC_DIR)/%%.h : %%.h
-	@if [ ! -d $(INSTALL_INC_DIR) ]; then mkdir $(INSTALL_INC_DIR); fi
-	cp $< $@
-
-$(LIBDIR)/%%.o : $(BUILDDIR)/%%.o
-	cp $< $@
 
 #-------------------------------------------------------------------------------
 
@@ -463,20 +516,6 @@ avx512z:
 	make USEBUILDDIR=1 AVX=512z
 
 avxall: avxnone avxsse4 avxavx2 avx512y avx512z
-
-# Target: install all targets in all AVX modes (each AVX mode in a separate build directory)
-# Do not make the avxall-install target dependent on avxall and do not implement -j (do 'make avxall -j; make avxall-install' instead)
-avxall-install:
-	@echo
-	make USEBUILDDIR=1 AVX=none install
-	@echo
-	make USEBUILDDIR=1 AVX=sse4 install
-	@echo
-	make USEBUILDDIR=1 AVX=avx2 install
-	@echo
-	make USEBUILDDIR=1 AVX=512y install
-	@echo
-	make USEBUILDDIR=1 AVX=512z install
 
 #-------------------------------------------------------------------------------
 
@@ -508,8 +547,7 @@ distclean: cleanall
 # Target: show system and compiler information
 info:
 	@echo ""
-	@echo -n "hostname="
-	@hostname
+	@uname -spn # e.g. Linux nodename.cern.ch x86_64
 	@cat /proc/cpuinfo | grep "model name" | sort -u
 	@cat /proc/cpuinfo | grep "flags" | sort -u
 	@cat /proc/cpuinfo | grep "cpu cores" | sort -u
@@ -537,27 +575,55 @@ ifneq ($(shell $(CXX) --version | grep ^clang),)
 else
 	$(CXX) --version
 endif
+	@echo ""
+	@echo FC=$(FC)
+	$(FC) --version
 
 #-------------------------------------------------------------------------------
 
+# Note: using rpath makes it unnecessary to prepend DYLD_LIBRARY_PATH="$(LIBDIR):$(DYLD_LIBRARY_PATH)" LD_LIBRARY_PATH="$(LIBDIR):$(LD_LIBRARY_PATH)"
+# [Temporary patch for Mac #375: prepend RUNTIME setting DYLD_LIBRARY_PATH]
+
 # Target: check (run the C++ test executable)
 # [NB THIS IS WHAT IS USED IN THE GITHUB CI!]
-check: runTest
+check: runTest cmpFcheck cmpFGcheck
 
 # Target: runTest (run the C++ test executable runTest.exe)
 runTest: $(BUILDDIR)/runTest.exe
-	DYLD_LIBRARY_PATH="$(LIBDIR):$(DYLD_LIBRARY_PATH)" LD_LIBRARY_PATH="$(LIBDIR):$(LD_LIBRARY_PATH)" $(BUILDDIR)/runTest.exe
+	$(RUNTIME) $(BUILDDIR)/runTest.exe
 
-# Target: runCheck (run the CUDA standalone executable gcheck.exe with a small number of events)
+# Target: runCheck (run the C++ standalone executable check.exe, with a small number of events)
 runCheck: $(BUILDDIR)/check.exe
-	DYLD_LIBRARY_PATH="$(LIBDIR):$(DYLD_LIBRARY_PATH)" LD_LIBRARY_PATH="$(LIBDIR):$(LD_LIBRARY_PATH)" $(BUILDDIR)/check.exe -p 2 32 2
+	$(RUNTIME) $(BUILDDIR)/check.exe -p 2 32 2
 
-# Target: runGcheck (run the CUDA standalone executable gcheck.exe with a small number of events)
+# Target: runGcheck (run the CUDA standalone executable gcheck.exe, with a small number of events)
 runGcheck: $(BUILDDIR)/gcheck.exe
-	DYLD_LIBRARY_PATH="$(LIBDIR):$(DYLD_LIBRARY_PATH)" LD_LIBRARY_PATH="$(LIBDIR):$(LD_LIBRARY_PATH)" $(BUILDDIR)/gcheck.exe -p 2 32 2
+	$(RUNTIME) $(BUILDDIR)/gcheck.exe -p 2 32 2
+
+# Target: runFcheck (run the Fortran standalone executable - with C++ MEs - fcheck.exe, with a small number of events)
+runFcheck: $(BUILDDIR)/fcheck.exe
+	$(RUNTIME) $(BUILDDIR)/fcheck.exe 2 32 2
+
+# Target: runFGcheck (run the Fortran standalone executable - with CUDA MEs - fgcheck.exe, with a small number of events)
+runFGcheck: $(BUILDDIR)/fgcheck.exe
+	$(RUNTIME) $(BUILDDIR)/fgcheck.exe 2 32 2
+
+# Target: cmpFcheck (compare ME results from the C++ and Fortran with C++ MEs standalone executables, with a small number of events)
+cmpFcheck: $(BUILDDIR)/check.exe $(BUILDDIR)/fcheck.exe
+	@echo
+	@echo -e "$(BUILDDIR)/check.exe --common -p 2 32 2"
+	@echo -e "$(BUILDDIR)/fcheck.exe 2 32 2"
+	@me1=$(shell $(RUNTIME) $(BUILDDIR)/check.exe --common -p 2 32 2 | grep MeanMatrix | awk '{print $$4}'); me2=$(shell $(RUNTIME) $(BUILDDIR)/fcheck.exe 2 32 2 | grep Average | awk '{print $$4}'); echo -e "Avg ME (C++/C++)    = $${me1}\nAvg ME (F77/C++)    = $${me2}"; python -c "me1=$${me1}; me2=$${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 1E-6; print ( '%%s (relative difference %%s 1E-6)' %% ( ('OK','<=') if ok else ('ERROR','>') ) ); import sys; sys.exit(0 if ok else 1)"
+
+# Target: cmpFGcheck (compare ME results from the CUDA and Fortran with CUDA MEs standalone executables, with a small number of events)
+cmpFGcheck: $(BUILDDIR)/gcheck.exe $(BUILDDIR)/fgcheck.exe
+	@echo
+	@echo -e "$(BUILDDIR)/gcheck.exe --common -p 2 32 2"
+	@echo -e "$(BUILDDIR)/fgcheck.exe 2 32 2"
+	@me1=$(shell $(RUNTIME) $(BUILDDIR)/gcheck.exe --common -p 2 32 2 | grep MeanMatrix | awk '{print $$4}'); me2=$(shell $(RUNTIME) $(BUILDDIR)/fgcheck.exe 2 32 2 | grep Average | awk '{print $$4}'); echo -e "Avg ME (C++/CUDA)   = $${me1}\nAvg ME (F77/CUDA)   = $${me2}"; python -c "me1=$${me1}; me2=$${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 1E-6; print ( '%%s (relative difference %%s 1E-6)' %% ( ('OK','<=') if ok else ('ERROR','>') ) ); import sys; sys.exit(0 if ok else 1)"
 
 # Target: memcheck (run the CUDA standalone executable gcheck.exe with a small number of events through cuda-memcheck)
 memcheck: $(BUILDDIR)/gcheck.exe
-	DYLD_LIBRARY_PATH="$(LIBDIR):$(DYLD_LIBRARY_PATH)" LD_LIBRARY_PATH="$(LIBDIR):$(LD_LIBRARY_PATH)" $(CUDA_HOME)/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes $(BUILDDIR)/gcheck.exe -p 2 32 2
+	$(RUNTIME) $(CUDA_HOME)/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes $(BUILDDIR)/gcheck.exe -p 2 32 2
 
 #-------------------------------------------------------------------------------

@@ -46,15 +46,9 @@ namespace mg5amcCpu
 %(all_sigmaKin)s
   //--------------------------------------------------------------------------
 
-  CPPProcess::CPPProcess( int numiterations,
-                          int ngpublocks,
-                          int ngputhreads,
-                          bool verbose,
+  CPPProcess::CPPProcess( bool verbose,
                           bool debug )
-    : m_numiterations( numiterations )
-    , m_ngpublocks( ngpublocks )
-    , m_ngputhreads( ngputhreads )
-    , m_verbose( verbose )
+    : m_verbose( verbose )
     , m_debug( debug )
 #ifndef MGONGPU_HARDCODE_CIPC
     , m_pars( 0 )
