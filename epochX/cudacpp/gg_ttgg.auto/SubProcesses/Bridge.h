@@ -3,11 +3,14 @@
 
 // Includes from Cuda/C++ matrix element calculations
 #include "mgOnGpuConfig.h" // for mgOnGpu::npar, mgOnGpu::np4
+
+#include "CrossSectionKernels.h" // for flagAbnormalMEs
 #include "CPPProcess.h" // for CPPProcess
 #include "MatrixElementKernels.h" // for MatrixElementKernelHost, MatrixElementKernelDevice
 #include "MemoryAccessMomenta.h" // for MemoryAccessMomenta::neppM
 #include "MemoryBuffers.h" // for HostBufferMomenta, DeviceBufferMomenta etc
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstring>
@@ -112,9 +115,10 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
     int m_gputhreads; // number of gpu threads (default set from number of events, can be modified)
     int m_gpublocks; // number of gpu blocks (default set from number of events, can be modified)
-    mg5amcGpu::DeviceBufferMomenta m_devMomentaF;
+    mg5amcGpu::DeviceBuffer<FORTRANFPTYPE, sizePerEventMomenta> m_devMomentaF;
     mg5amcGpu::DeviceBufferMomenta m_devMomentaC;
     mg5amcGpu::DeviceBufferMatrixElements m_devMEsC;
+    mg5amcGpu::PinnedHostBufferMatrixElements m_hstMEsC;
     std::unique_ptr<mg5amcGpu::MatrixElementKernelDevice> m_pmek;
     static constexpr int s_gputhreadsmin = 32; // minimum number of gpu threads
 #else
@@ -159,6 +163,7 @@ namespace mg5amcCpu
     , m_devMomentaF( m_nevt )
     , m_devMomentaC( m_nevt )
     , m_devMEsC( m_nevt )
+    , m_hstMEsC( m_nevt )
 #else
     , m_hstMomentaC( m_nevt )
     , m_hstMEsC( m_nevt )
@@ -226,7 +231,9 @@ namespace mg5amcCpu
     }
     if ( goodHelOnly ) return;
     m_pmek->computeMatrixElements();
-    checkCuda( cudaMemcpy( mes, m_devMEsC.data(), m_devMEsC.bytes(), cudaMemcpyDeviceToHost ) );
+    checkCuda( cudaMemcpy( m_hstMEsC.data(), m_devMEsC.data(), m_devMEsC.bytes(), cudaMemcpyDeviceToHost ) );
+    flagAbnormalMEs( m_hstMEsC.data(), m_nevt );
+    std::copy( m_hstMEsC.data(), m_hstMEsC.data() + m_nevt, mes );
   }
 #endif
 
@@ -242,7 +249,15 @@ namespace mg5amcCpu
     }
     if ( goodHelOnly ) return;
     m_pmek->computeMatrixElements();
-    memcpy( mes, m_hstMEsC.data(), m_hstMEsC.bytes() );
+    flagAbnormalMEs( m_hstMEsC.data(), m_nevt );
+    if constexpr ( std::is_same_v<FORTRANFPTYPE,fptype> )
+    {
+      memcpy( mes, m_hstMEsC.data(), m_hstMEsC.bytes() );
+    }
+    else
+    {
+      std::copy( m_hstMEsC.data(), m_hstMEsC.data() + m_nevt, mes );
+    }
   }
 #endif
 
