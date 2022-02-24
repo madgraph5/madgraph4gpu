@@ -21,8 +21,7 @@ namespace nvtx
 {
 
   // Colour palette (RGB): https://colorbrewer2.org/#type=qualitative&scheme=Paired&n=12
-  const uint32_t palette[] = { 0xffa6cee3, 0xff1f78b4, 0xffb2df8a, 0xff33a02c, 0xfffb9a99, 0xffe31a1c,
-                               0xfffdbf6f, 0xffff7f00, 0xffcab2d6, 0xff6a3d9a, 0xffffff99, 0xffb15928 };
+  const uint32_t palette[] = { 0xffa6cee3, 0xff1f78b4, 0xffb2df8a, 0xff33a02c, 0xfffb9a99, 0xffe31a1c, 0xfffdbf6f, 0xffff7f00, 0xffcab2d6, 0xff6a3d9a, 0xffffff99, 0xffb15928 };
   const uint32_t colourCount = sizeof( palette ) / sizeof( uint32_t );
 
   // Inline method to push an nvtx range

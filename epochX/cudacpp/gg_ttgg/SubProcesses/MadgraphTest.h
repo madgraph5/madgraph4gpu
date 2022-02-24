@@ -134,8 +134,7 @@ public:
   virtual void runSigmaKin( std::size_t iiter ) = 0;
 
   /// Print the requested event into the stream. If the reference data has enough events, it will be printed as well.
-  void dumpParticles( std::ostream& stream, std::size_t ievt, unsigned int numParticles,
-                      unsigned int nDigit, const ReferenceData& referenceData ) const
+  void dumpParticles( std::ostream& stream, std::size_t ievt, unsigned int numParticles, unsigned int nDigit, const ReferenceData& referenceData ) const
   {
     const auto width = nDigit + 8;
     for( unsigned int ipar = 0; ipar < numParticles; ipar++ )

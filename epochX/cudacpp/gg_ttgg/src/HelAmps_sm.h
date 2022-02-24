@@ -260,7 +260,8 @@ namespace mg5amcCpu
     else
     {
       const fptype_sv sqp0p3 = fpternary( ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0. ),
-                                          fptype_sv{ 0 }, fpsqrt( fpmax( pvec0 + pvec3, 0. ) ) * (fptype)nsf );
+                                          fptype_sv{ 0 },
+                                          fpsqrt( fpmax( pvec0 + pvec3, 0. ) ) * (fptype)nsf );
       const cxtype_sv chi[2] = { cxmake( sqp0p3, 0. ), cxternary( ( sqp0p3 == 0. ), cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0 ), 0. ), cxmake( (fptype)nh * pvec1, pvec2 ) / sqp0p3 ) };
       if( nh == 1 )
       {
@@ -639,7 +640,8 @@ namespace mg5amcCpu
     else
     {
       const fptype_sv sqp0p3 = fpternary( ( pvec1 == 0. ) and ( pvec2 == 0. ) and ( pvec3 < 0. ),
-                                          0, fpsqrt( fpmax( pvec0 + pvec3, 0. ) ) * (fptype)nsf );
+                                          0,
+                                          fpsqrt( fpmax( pvec0 + pvec3, 0. ) ) * (fptype)nsf );
       const cxtype_sv chi[2] = { cxmake( sqp0p3, 0. ),
                                  cxternary( ( sqp0p3 == 0. ),
                                             cxmake( -nhel, 0. ) * fpsqrt( 2. * pvec0 ),

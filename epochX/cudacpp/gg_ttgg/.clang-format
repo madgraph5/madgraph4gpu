@@ -11,33 +11,33 @@ BasedOnStyle: Google
 
 AccessModifierOffset: -2 # AV was -1
 AlignAfterOpenBracket: Align # AV ok
-AlignArrayOfStructures: None
-AlignConsecutiveAssignments: None
-AlignConsecutiveBitFields: None
-AlignConsecutiveDeclarations: None
+AlignArrayOfStructures: None # AV ok (alternative: Right, but code-generating it would be too complex)
+AlignConsecutiveAssignments: None # AV ok
+AlignConsecutiveBitFields: None # AV ok
+AlignConsecutiveDeclarations: None # AV ok
 AlignConsecutiveMacros: None # AV ok
 AlignEscapedNewlines: DontAlign # AV was Left
 AlignOperands: DontAlign # AV was Align
 AlignTrailingComments: true # AV ok
-AllowAllArgumentsOnNextLine: true
-AllowAllConstructorInitializersOnNextLine: true
-AllowAllParametersOfDeclarationOnNextLine: true
+AllowAllArgumentsOnNextLine: true # AV ok?
+AllowAllConstructorInitializersOnNextLine: true # AV ok (NB: relevant only if ConstructorInitializerAllOnOneLineOrOnePerLine=true)
+AllowAllParametersOfDeclarationOnNextLine: true # AV ok?
 AllowShortBlocksOnASingleLine: Always # AV was Never
-AllowShortEnumsOnASingleLine: true
+AllowShortEnumsOnASingleLine: true # AV ok
 AllowShortCaseLabelsOnASingleLine: true # AV was false
-AllowShortFunctionsOnASingleLine: All
-AllowShortLambdasOnASingleLine: All
-AllowShortIfStatementsOnASingleLine: WithoutElse
-AllowShortLoopsOnASingleLine: true
-AlwaysBreakAfterDefinitionReturnType: None
-###AlwaysBreakAfterReturnType: All # AV use this initially, then switch to TopLevelDefinitions!
+AllowShortFunctionsOnASingleLine: All # AV ok
+AllowShortLambdasOnASingleLine: All # AV ok
+AllowShortIfStatementsOnASingleLine: WithoutElse # AV ok
+AllowShortLoopsOnASingleLine: true # AV ok
+###AlwaysBreakAfterDefinitionReturnType: None # AV keep defaults (deprecated)
+#AlwaysBreakAfterReturnType: All # AV use this initially, then switch to TopLevelDefinitions!
 AlwaysBreakAfterReturnType: TopLevelDefinitions # AV was None (altearnative: All?)
 AlwaysBreakBeforeMultilineStrings: false # AV was true
-AlwaysBreakTemplateDeclarations: Yes
+AlwaysBreakTemplateDeclarations: Yes # AV ok
 ###AttributeMacros: # AV keep defaults (NB this is not about '__host__' attributes, see llvm/llvm-project/issues/45968)
 ###  - __capability
-BinPackArguments: true
-BinPackParameters: true
+BinPackArguments: false # AV was true
+BinPackParameters: false # AV was true
 BitFieldColonSpacing: Both
 BraceWrapping: # AV (this is only relevant for "BreakBeforeBraces: Custom")
   AfterCaseLabel: true # AV was false
@@ -77,18 +77,18 @@ ContinuationIndentWidth: 2 # AV was 4
 Cpp11BracedListStyle: true # AV ok
 DeriveLineEnding: false # AV was true
 DerivePointerAlignment: false # AV was true
-###DisableFormat: false # AV ok
+DisableFormat: false # AV ok
 EmptyLineAfterAccessModifier: Leave # AV was Never
 EmptyLineBeforeAccessModifier: Leave # AV was LogicalBlock
 ExperimentalAutoDetectBinPacking: false
 FixNamespaceComments: false # AV was true
-###ForEachMacros:
+###ForEachMacros: # AV keep defaults
 ###  - foreach
 ###  - Q_FOREACH
 ###  - BOOST_FOREACH
-###IfMacros:
+###IfMacros: # AV keep defaults
 ###  - KJ_IF_MAYBE
-IncludeBlocks: Regroup
+IncludeBlocks: Regroup # AV ok
 IncludeCategories:
   - Regex:           '^<ext/.*\.h>'
     Priority:        4 # AV was 2

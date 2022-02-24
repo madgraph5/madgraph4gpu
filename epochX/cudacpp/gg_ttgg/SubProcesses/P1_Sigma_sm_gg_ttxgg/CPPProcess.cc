@@ -48,9 +48,7 @@ namespace mg5amcCpu
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
 #ifdef MGONGPU_HARDCODE_CIPC
   __device__ const fptype cIPC[6] = {
-    Parameters_sm::GC_10.real(), Parameters_sm::GC_10.imag(),
-    Parameters_sm::GC_11.real(), Parameters_sm::GC_11.imag(),
-    Parameters_sm::GC_12.real(), Parameters_sm::GC_12.imag() };
+    Parameters_sm::GC_10.real(), Parameters_sm::GC_10.imag(), Parameters_sm::GC_11.real(), Parameters_sm::GC_11.imag(), Parameters_sm::GC_12.real(), Parameters_sm::GC_12.imag() };
   __device__ const fptype cIPD[2] = {
     Parameters_sm::mdl_MT,
     Parameters_sm::mdl_WT };
