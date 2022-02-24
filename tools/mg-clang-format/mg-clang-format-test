@@ -3,8 +3,8 @@
 checkout=1
 files=
 while [ "$1" != "" ]; do
-  if [ "$1" == "-h" ]; then echo "Usage: $0 [--no-checkout] <file1> [<file2>...]"; exit 1; fi
-  if [ "$1" == "--no-checkout" ]; then checkout=0; shift; continue; fi
+  if [ "$1" == "-h" ]; then echo "Usage: $0 [-nc|--no-checkout] <file1> [<file2>...]"; exit 1; fi
+  if [ "$1" == "-nc" ] || [ "$1" == "--no-checkout" ]; then checkout=0; shift; continue; fi
   if [ ! -f "$1" ]; then echo "ERROR! File not found: $1"; exit 1; else files="$files $1"; shift; continue; fi
 done
 
