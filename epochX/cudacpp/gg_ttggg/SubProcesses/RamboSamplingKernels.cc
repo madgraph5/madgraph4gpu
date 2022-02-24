@@ -1,6 +1,6 @@
 #include "RamboSamplingKernels.h"
 
-#include "checkCuda.h"
+#include "CudaRuntime.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessRandomNumbers.h"
 #include "MemoryAccessWeights.h"

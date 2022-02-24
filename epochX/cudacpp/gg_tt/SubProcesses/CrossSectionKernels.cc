@@ -6,18 +6,12 @@
 
 #include <sstream>
 
-//============================================================================
+// ******************************************************************************************
+// *** NB: Disabling fast math is essential here, otherwise results are undefined         ***
+// *** NB: This file CrossSectionKernels.cc IS BUILT WITH -fno-fast-math in the Makefile! ***
+// *** NB: Attempts with __attribute__((optimize("-fno-fast-math"))) were unsatisfactory  ***
+// ******************************************************************************************
 
-// Disabling fast math is essential here, otherwise results are undefined
-// *** NB: these __attributes__ are now superseded by -fno-fast-math in the Makefile, but keep them anyway ***
-// See https://stackoverflow.com/a/40702790 about __attribute__ on gcc
-// See https://stackoverflow.com/a/32292725 about __attribute__ on clang
-// (probably this does not work on clang? see https://groups.google.com/g/llvm-dev/c/Ys0hpgTFMH8)
-#ifdef __clang__
-__attribute__((optnone))
-#else
-__attribute__((optimize("-fno-fast-math")))
-#endif
 inline bool fp_is_nan( const fptype& fp )
 {
   //#pragma clang diagnostic push
@@ -26,11 +20,6 @@ inline bool fp_is_nan( const fptype& fp )
   //#pragma clang diagnostic pop
 }
 
-#ifdef __clang__
-__attribute__((optnone))
-#else
-__attribute__((optimize("-fno-fast-math")))
-#endif
 inline bool fp_is_abnormal( const fptype& fp )
 {
   if ( fp_is_nan( fp ) ) return true;
@@ -38,11 +27,6 @@ inline bool fp_is_abnormal( const fptype& fp )
   return false;
 }
 
-#ifdef __clang__
-__attribute__((optnone))
-#else
-__attribute__((optimize("-fno-fast-math")))
-#endif
 inline bool fp_is_zero( const fptype& fp )
 {
   if ( fp == 0 ) return true;
@@ -50,11 +34,6 @@ inline bool fp_is_zero( const fptype& fp )
 }
 
 // See https://en.cppreference.com/w/cpp/numeric/math/FP_categories
-#ifdef __clang__
-__attribute__((optnone))
-#else
-__attribute__((optimize("-fno-fast-math")))
-#endif
 inline const char* fp_show_class( const fptype& fp )
 {
   switch( std::fpclassify( fp ) ) {
@@ -67,11 +46,6 @@ inline const char* fp_show_class( const fptype& fp )
   }
 }
 
-#ifdef __clang__
-__attribute__((optnone))
-#else
-__attribute__((optimize("-fno-fast-math")))
-#endif
 inline void debug_me_is_abnormal( const fptype& me, size_t ievtALL )
 {
   std::cout << "DEBUG[" << ievtALL << "]"
@@ -98,6 +72,20 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
+
+  //--------------------------------------------------------------------------
+
+  void flagAbnormalMEs( fptype* hstMEs, int nevt )
+  {
+    for ( int ievt = 0; ievt < nevt; ievt++ )
+    {
+      if ( fp_is_abnormal( hstMEs[ievt] ) )
+      {
+        std::cout << "WARNING! flagging abnormal ME for ievt=" << ievt << std::endl;
+        hstMEs[ievt] = std::sqrt(-1.);
+      }
+    }
+  }  
 
   //--------------------------------------------------------------------------
 
