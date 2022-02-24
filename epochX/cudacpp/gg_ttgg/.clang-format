@@ -49,7 +49,7 @@ BraceWrapping: # AV (this is only relevant for "BreakBeforeBraces: Custom")
   AfterObjCDeclaration: true # AV was false
   AfterStruct: true # AV was false
   AfterUnion: true # AV was false
-  AfterExternBlock: true # AV was false
+  AfterExternBlock: true # AV was false (NB: does not work unless IndentExternBlock is AfterExternBlock?!)
   BeforeCatch: true # AV was false
   BeforeElse: true # AV was false
   BeforeLambdaBody: true # AV was false
@@ -121,7 +121,8 @@ IndentCaseLabels: true # AV ok
 IndentCaseBlocks: false # AV ok
 IndentGotoLabels: false # AV was true
 IndentPPDirectives: None # AV ok (NB: AfterHash and BeforeHash do not seem to work as intended)
-IndentExternBlock: Indent # AV was AfterExternBlock
+###IndentExternBlock: Indent # AV was AfterExternBlock
+IndentExternBlock: AfterExternBlock # AV ok (only with Custom BraceWrapping.AfterExternBlock = true)
 IndentRequires: false # AV ok(?)
 IndentWidth: 2 # AV ok
 IndentWrappedFunctionNames: false # AV ok
