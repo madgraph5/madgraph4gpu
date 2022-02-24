@@ -6,6 +6,7 @@ project(Madgraph4GPU)
 
 include(${PROJECT_SOURCE_DIR}/CMake/Platforms.txt)
 include(${PROJECT_SOURCE_DIR}/CMake/Compilers.txt)
+include(${PROJECT_SOURCE_DIR}/CMake/Macros.txt)
 
 set(PROJECT_GITROOT_DIR ${PROJECT_SOURCE_DIR}/../../..)
 
