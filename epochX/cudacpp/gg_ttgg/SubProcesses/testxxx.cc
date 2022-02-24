@@ -41,7 +41,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   mg5amcGpu::PinnedHostBufferMomenta hstMomenta( nevt ); // AOSOA[npagM][npar=4][np4=4][neppM]
 #else
   mg5amcCpu::HostBufferMomenta hstMomenta( nevt ); // AOSOA[npagM][npar=4][np4=4][neppM]
-#endif
+#endif /* clang-format off */
   const fptype par0[np4 * nevt] = // AOS[nevt][np4]
     {
       500, 0, 0, 500,      // #0 (m=0 pT=0 E=pz>0)
@@ -60,7 +60,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       500, 0, 0, -500,     // DUPLICATE #13 == #1 (m=0 pT=0 -E=pz<0)
       500, 300, 400, 0,    // DUPLICATE #14 == #2 (m=0 pT>0 pz=0)
       500, 180, 240, 400   // DUPLICATE #15 == #3 (m=0 pT>0 pz>0)
-    };
+    }; /* clang-format on */
   // Array initialization: zero-out as "{0}" (C and C++) or as "{}" (C++ only)
   // See https://en.cppreference.com/w/c/language/array_initialization#Notes
   fptype mass0[nevt] = {};
