@@ -606,7 +606,11 @@ endif
 
 # Target: check (run the C++ test executable)
 # [NB THIS IS WHAT IS USED IN THE GITHUB CI!]
+ifneq ($(NVCC),)
 check: runTest cmpFcheck cmpFGcheck
+else
+check: runTest cmpFcheck
+endif
 
 # Target: runTest (run the C++ test executable runTest.exe)
 runTest: all.$(TAG)
