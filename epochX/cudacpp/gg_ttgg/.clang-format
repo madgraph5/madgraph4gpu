@@ -62,7 +62,7 @@ BreakBeforeBinaryOperators: None # AV ok
 BreakBeforeConceptDeclarations: true
 BreakBeforeBraces: Allman # AV was Attach
 BreakBeforeInheritanceComma: false
-BreakInheritanceList: BeforeComma # AV was BeforeColon
+BreakInheritanceList: BeforeColon # AV ok (alternative: BeforeComma?)
 BreakBeforeTernaryOperators: true # AV ok
 BreakConstructorInitializersBeforeComma: true # AV was false
 BreakConstructorInitializers: BeforeColon
