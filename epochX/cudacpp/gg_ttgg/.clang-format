@@ -72,7 +72,7 @@ ColumnLimit: 0 # AV was 80
 ###CommentPragmas: '^[^ ]*' # AV use SpacesInLineCommentPrefix Min=0 Max=1 to allow both "//comment" and "// comment"
 CompactNamespaces: false # AV ok
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
-ConstructorInitializerIndentWidth: 4
+ConstructorInitializerIndentWidth: 2 # AV was 4
 ContinuationIndentWidth: 2 # AV was 4
 Cpp11BracedListStyle: true # AV ok
 DeriveLineEnding: false # AV was true

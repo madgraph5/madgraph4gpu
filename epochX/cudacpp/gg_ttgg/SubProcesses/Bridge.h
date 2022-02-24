@@ -152,20 +152,20 @@ namespace mg5amcCpu
 
   template<typename FORTRANFPTYPE>
   Bridge<FORTRANFPTYPE>::Bridge( int nevtF, int nparF, int np4F )
-      : m_nevt( nevtF )
-      , m_goodHelsCalculated( false )
+    : m_nevt( nevtF )
+    , m_goodHelsCalculated( false )
 #ifdef __CUDACC__
-      , m_gputhreads( 256 )                  // default number of gpu threads
-      , m_gpublocks( m_nevt / m_gputhreads ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
-      , m_devMomentaF( m_nevt )
-      , m_devMomentaC( m_nevt )
-      , m_devMEsC( m_nevt )
-      , m_hstMEsC( m_nevt )
+    , m_gputhreads( 256 )                  // default number of gpu threads
+    , m_gpublocks( m_nevt / m_gputhreads ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
+    , m_devMomentaF( m_nevt )
+    , m_devMomentaC( m_nevt )
+    , m_devMEsC( m_nevt )
+    , m_hstMEsC( m_nevt )
 #else
-      , m_hstMomentaC( m_nevt )
-      , m_hstMEsC( m_nevt )
+    , m_hstMomentaC( m_nevt )
+    , m_hstMEsC( m_nevt )
 #endif
-      , m_pmek( nullptr )
+    , m_pmek( nullptr )
   {
     if( nparF != mgOnGpu::npar ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
     if( np4F != mgOnGpu::np4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
