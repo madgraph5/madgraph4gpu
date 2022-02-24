@@ -12,6 +12,7 @@ jobs:
     strategy:
       matrix:
         folder: [ epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum ]
+      fail-fast: false
     steps:
     - uses: actions/checkout@v2
     - name: make epoch1
@@ -22,6 +23,7 @@ jobs:
       matrix:
         folder: [ epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/ ]
         precision: [ d , f ]
+      fail-fast: false
     steps:
     - uses: actions/checkout@v2
     - name: make info
@@ -38,6 +40,7 @@ jobs:
       matrix:
         folder: [ epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum, epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/ ]
         precision: [ d ]
+      fail-fast: false
     steps:
     - uses: actions/checkout@v2
     - name: make info
@@ -54,6 +57,7 @@ jobs:
       matrix:
         folder: [ epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/ , epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum ]
         precision: [ d , f ]
+      fail-fast: false
     steps:
     - uses: actions/checkout@v2
     - name: make info
