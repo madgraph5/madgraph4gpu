@@ -32,13 +32,11 @@ echo -e "About to format files:\n$files"
 
 for file in $files; do
   echo -e "\nAbout to format file: '$file'"
-  filenew=${file}.tmp
-  \cp ${file} ${filenew}
-  mg-clang-format -i ${filenew}
-  echo "Compare OLD '${file}' and NEW '${filenew}' : START"
-  echo diff ${file} ${filenew}
-  diff ${file} ${filenew}
-  echo "Compare OLD '${file}' and NEW '${filenew}' : END"
-  \mv ${file} ${file}.bak
-  \mv ${filenew} ${file}
+  filebak=${file}.bak
+  \cp ${file} ${filebak}
+  mg-clang-format -i ${file}
+  echo "Compare OLD '${filebak}' and NEW '${file}' : START"
+  echo diff ${filebak} ${file}
+  diff ${filebak} ${file}
+  echo "Compare OLD '${filebak}' and NEW '${file}' : END"
 done
