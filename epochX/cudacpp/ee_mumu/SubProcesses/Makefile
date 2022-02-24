@@ -1,3 +1,9 @@
+#=== Use bash in the Makefile (https://www.gnu.org/software/make/manual/html_node/Choosing-the-Shell.html)
+
+SHELL = /bin/bash
+
+#-------------------------------------------------------------------------------
+
 #=== Detect O/S and architecture (assuming uname is available, https://en.wikipedia.org/wiki/Uname)
 
 # Detect O/S kernel (Linux, Darwin...)

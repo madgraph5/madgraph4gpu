@@ -1,3 +1,9 @@
+#=== Use bash in the Makefile (https://www.gnu.org/software/make/manual/html_node/Choosing-the-Shell.html)
+
+SHELL = /bin/bash
+
+#-------------------------------------------------------------------------------
+
 #=== Configure common compiler flags for CUDA and C++
 
 INCFLAGS = -I.
