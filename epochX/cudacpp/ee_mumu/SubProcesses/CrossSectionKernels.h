@@ -14,6 +14,11 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
+  //--------------------------------------------------------------------------
+
+  // Helper function for Bridge.h: must be compiled without fast math
+  // Iterate through all output MEs and replace any NaN/abnormal ones by sqrt(-1)
+  void flagAbnormalMEs( fptype* hstMEs, int nevt );
 
   //--------------------------------------------------------------------------
 

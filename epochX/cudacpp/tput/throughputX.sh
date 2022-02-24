@@ -27,6 +27,10 @@ detailed=0
 gtest=0
 verbose=0
 
+# This is no longer necessary as check/gcheck/runTest.exe are now built using rpath
+###export LD_LIBRARY_PATH_start=$LD_LIBRARY_PATH
+###export DYLD_LIBRARY_PATH_start=$DYLD_LIBRARY_PATH
+
 function usage()
 {
   echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttg] [-ggttgg] [-ggttggg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
@@ -319,6 +323,29 @@ function runExe() {
   fi
 }
 
+function cmpExe() {
+  exe=$1
+  exef=${exe/\/check//gcheck}
+  exef=${exef/\/gcheck//fgcheck}
+  argsf="2 64 2"
+  args="--common -p ${argsf}"
+  echo "cmpExe $exe $args"
+  echo "cmpExe $exef $argsf"
+  tmp=$(mktemp)
+  me1=$(${exe} ${args} 2>${tmp} | grep MeanMatrix | awk '{print $4}'); cat ${tmp}
+  me2=$(${exef} ${argsf} 2>${tmp} | grep Average | awk '{print $4}'); cat ${tmp}
+  if [ "${exe%%/gcheck*}" != "${exe}" ]; then tag="/CUDA)"; else tag="/C++) "; fi
+  echo -e "Avg ME (C++${tag}   = ${me1}\nAvg ME (F77${tag}   = ${me2}"
+  if [ "${me2}" == "NaN" ]; then
+    echo "ERROR! Fortran calculation (F77${tag} returned NaN"
+  elif [ "${me2}" == "" ]; then
+    echo "ERROR! Fortran calculation (F77${tag} crashed"
+  else
+    # NB skip python comparison if Fortran returned NaN or crashed, otherwise python returns an error status and the following tests are not executed
+    python -c "me1=${me1}; me2=${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 2E-4; print ( '%s (relative difference %s 2E-4)' % ( ('OK','<=') if ok else ('ERROR','>') ) )"
+  fi
+}
+
 # Profile #registers and %divergence only
 function runNcu() {
   exe=$1
@@ -421,6 +448,13 @@ for exe in $exes; do
   else
     echo "-------------------------------------------------------------------------"
   fi
+  exeDir=$(dirname $exe)
+  libDir=$exeDir/../../../lib/$(basename $exeDir)
+  if [ ! -d $libDir ]; then echo "WARNING! $libDir not found"; else libDir=$(cd $libDir; pwd -P); fi
+  # This is no longer necessary as check/gcheck/runTest.exe are now built using rpath
+  ###export LD_LIBRARY_PATH=$libDir:$LD_LIBRARY_PATH_start
+  ###export DYLD_LIBRARY_PATH=$libDir:$DYLD_LIBRARY_PATH_start
+  ###echo "LD_LIBRARY_PATH=$libDir:..."
   unset OMP_NUM_THREADS
   runExe $exe "$exeArgs"
   if [ "${exe%%/check*}" != "${exe}" ]; then 
@@ -441,9 +475,10 @@ for exe in $exes; do
     runNcu $exe "$ncuArgs"
     if [ "${div}" == "1" ]; then runNcuDiv $exe; fi
     if [ "${req}" == "1" ]; then runNcuReq $exe "$ncuArgs"; fi
-    echo "........................................................................."
-    if [ "${exeArgs2}" != "" ]; then runExe $exe "$exeArgs2"; fi
+    if [ "${exeArgs2}" != "" ]; then echo "........................................................................."; runExe $exe "$exeArgs2"; fi
   fi
+  echo "-------------------------------------------------------------------------"
+  cmpExe $exe
 done
 echo "========================================================================="
 

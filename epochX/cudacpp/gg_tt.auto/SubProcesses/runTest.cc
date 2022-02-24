@@ -45,7 +45,7 @@ struct CPUTest : public CUDA_CPU_TestBase
   // Don't remove!
   CPUTest( const std::string& refFileName )
     : CUDA_CPU_TestBase( refFileName )
-    , process( niter, gpublocks, gputhreads, /*verbose=*/false )
+    , process( /*verbose=*/false )
     , hstRnarray( nevt )
     , hstMomenta( nevt )
     , hstWeights( nevt )
@@ -130,7 +130,7 @@ struct CUDATest : public CUDA_CPU_TestBase
   // Don't remove!
   CUDATest( const std::string& refFileName )
     : CUDA_CPU_TestBase( refFileName )
-    , process( niter, gpublocks, gputhreads, /*verbose=*/false )
+    , process( /*verbose=*/false )
     , hstRnarray( nevt )
     , hstMomenta( nevt )
     , hstWeights( nevt )

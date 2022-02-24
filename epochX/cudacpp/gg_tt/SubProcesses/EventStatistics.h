@@ -45,19 +45,23 @@ namespace mg5amcCpu
     std::string tag; // a text tag for printouts
     size_t nevtOK() const { return nevtALL - nevtABN; } // number of events used, where ME is not abnormal
     // Mean matrix element
+    // [x = ref+d => mean(x) = sum(x)/n = ref+sum(d)/n]
     double meanME() const
     {
       return refME + ( nevtOK()>0 ? sumMEdiff / nevtOK() : 0 );
     }
     // Mean sampling weight
+    // [x = ref+d => mean(x) = sum(x)/n = ref+sum(d)/n]
     double meanWG() const
     {
       return refWG + ( nevtOK()>0 ? sumWGdiff / nevtOK() : 0 );
     }
     // Variance matrix element
-    double varME() const { return ( sqsMEdiff + 2 * sumMEdiff * ( refME-meanME() ) + std::pow( refME-meanME(), 2 ) ) / nevtOK(); }
+    // [x = ref+d => n*var(x) = sum((x-mean(x))^2) = sum((ref+d-ref-sum(d)/n)^2) = sum((d-sum(d)/n)^2)/n = sum(d^2)-(sum(d))^2/n]
+    double varME() const { return ( sqsMEdiff - std::pow( sumMEdiff, 2 ) / nevtOK() ) / nevtOK(); }
     // Variance sampling weight
-    double varWG() const { return ( sqsWGdiff + 2 * sumWGdiff * ( refWG-meanWG() ) + std::pow( refWG-meanWG(), 2 ) ) / nevtOK(); }
+    // [x = ref+d => n*var(x) = sum((x-mean(x))^2) = sum((ref+d-ref-sum(d)/n)^2) = sum((d-sum(d)/n)^2)/n = sum(d^2)-(sum(d))^2/n]
+    double varWG() const { return ( sqsWGdiff - std::pow( sumWGdiff, 2 ) / nevtOK() ) / nevtOK(); }
     // Standard deviation matrix element
     double stdME() const { return std::sqrt( varME() ); }
     // Standard deviation sampling weight

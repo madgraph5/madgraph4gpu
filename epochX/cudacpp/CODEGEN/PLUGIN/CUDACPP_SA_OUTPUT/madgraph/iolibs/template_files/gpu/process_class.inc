@@ -8,7 +8,7 @@
   public:
 
     // Constructor (from command line arguments)
-    CPPProcess( int numiterations, int gpublocks, int gputhreads, bool verbose = false, bool debug = false );
+    CPPProcess( bool verbose = false, bool debug = false );
 
     // Destructor
     ~CPPProcess();
@@ -27,9 +27,6 @@
     //int getNIOParticles() const { return nexternal; } // nexternal was nioparticles
 
     // Accessors (unused so far: add four of them only to fix a clang build warning)
-    int numiterations() const { return m_numiterations; }
-    int gpublocks() const { return m_ngpublocks; }
-    int gputhreads() const { return m_ngputhreads; }
     //bool verbose() const { return m_verbose; }
     bool debug() const { return m_debug; }
 
@@ -47,9 +44,6 @@
   private:
 
     // Command line arguments (constructor)
-    int m_numiterations; // number of iterations (each iteration has nblocks*nthreads events)
-    int m_ngpublocks; // number of GPU blocks in one grid (i.e. one iteration)
-    int m_ngputhreads; // number of GPU threads in a block
     bool m_verbose;
     bool m_debug;
 
