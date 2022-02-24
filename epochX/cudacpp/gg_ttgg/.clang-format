@@ -210,22 +210,22 @@ SpacesInLineCommentPrefix:
   Minimum: 0 # AV was 1
   Maximum: 1 # AV was -1
 SpacesInParentheses: true # AV was false
-SpacesInSquareBrackets: false
+SpacesInSquareBrackets: false # AV ok
 Standard: c++17 # AV was Auto
-StatementAttributeLikeMacros:
-  - Q_EMIT
-StatementMacros:
-  - Q_UNUSED
-  - QT_REQUIRE_VERSION
-###TabWidth: 8
+###StatementAttributeLikeMacros: # AV keep defaults
+###  - Q_EMIT
+###StatementMacros: # AV keep defaults
+###  - Q_UNUSED
+###  - QT_REQUIRE_VERSION
+###TabWidth: 8 # AV irrelevant if UseTab=Never?
 UseCRLF: false # AV ok (but set DeriveLineEnding=false)
 UseTab: Never # AV ok
-WhitespaceSensitiveMacros:
-  - STRINGIZE
-  - PP_STRINGIZE
-  - BOOST_PP_STRINGIZE
-  - NS_SWIFT_NAME
-  - CF_SWIFT_NAME
+###WhitespaceSensitiveMacros: # AV keep defaults
+###  - STRINGIZE
+###  - PP_STRINGIZE
+###  - BOOST_PP_STRINGIZE
+###  - NS_SWIFT_NAME
+###  - CF_SWIFT_NAME
 ...
 
 #AccessModifierOffset: -2 # was -1
