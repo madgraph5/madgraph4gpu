@@ -39,28 +39,28 @@ AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: true
 BinPackParameters: true
 BitFieldColonSpacing: Both
-###BraceWrapping: # AV irrelevant! (this is only relevant for "BreakBeforeBraces: Custom")
-###  AfterCaseLabel:  false
-###  AfterClass:      false
-###  AfterControlStatement: Never
-###  AfterEnum:       false
-###  AfterFunction:   false
-###  AfterNamespace:  false
-###  AfterObjCDeclaration: false
-###  AfterStruct:     false
-###  AfterUnion:      false
-###  AfterExternBlock: false
-###  BeforeCatch:     false
-###  BeforeElse:      false
-###  BeforeLambdaBody: false
-###  BeforeWhile:     false
-###  IndentBraces:    false
-###  SplitEmptyFunction: true
-###  SplitEmptyRecord: true
-###  SplitEmptyNamespace: true
+BraceWrapping: # AV (this is only relevant for "BreakBeforeBraces: Custom")
+  AfterCaseLabel: true # AV was false
+  AfterClass: true # AV was false
+  AfterControlStatement: Always # AV was Never
+  AfterEnum: true # AV was false
+  AfterFunction: true # AV was false
+  AfterNamespace: true # AV was false
+  AfterObjCDeclaration: true # AV was false
+  AfterStruct: true # AV was false
+  AfterUnion: true # AV was false
+  AfterExternBlock: true # AV was false
+  BeforeCatch: true # AV was false
+  BeforeElse: true # AV was false
+  BeforeLambdaBody: true # AV was false
+  BeforeWhile: true # AV was false
+  IndentBraces: false # AV ok
+  SplitEmptyFunction: true # AV ok
+  SplitEmptyRecord: true # AV ok
+  SplitEmptyNamespace: true # AV ok
 BreakBeforeBinaryOperators: None # AV ok
 BreakBeforeConceptDeclarations: true
-BreakBeforeBraces: Allman # AV was Attach
+BreakBeforeBraces: Custom # AV was Attach (alternative: Allman)
 BreakBeforeInheritanceComma: false
 BreakInheritanceList: BeforeColon # AV ok (alternative: BeforeComma?)
 BreakBeforeTernaryOperators: true # AV ok
