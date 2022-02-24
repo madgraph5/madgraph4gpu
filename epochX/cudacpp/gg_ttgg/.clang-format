@@ -64,7 +64,7 @@ BreakBeforeBraces: Allman # AV was Attach
 BreakBeforeInheritanceComma: false
 BreakInheritanceList: BeforeComma # AV was BeforeColon
 BreakBeforeTernaryOperators: true # AV ok
-BreakConstructorInitializersBeforeComma: false
+BreakConstructorInitializersBeforeComma: true # AV was false
 BreakConstructorInitializers: BeforeColon
 BreakAfterJavaFieldAnnotations: false
 BreakStringLiterals: true
