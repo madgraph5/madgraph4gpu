@@ -12,11 +12,11 @@ BasedOnStyle: Google
 AccessModifierOffset: -2 # AV was -1
 AlignAfterOpenBracket: Align # AV ok
 AlignArrayOfStructures: None
-AlignConsecutiveMacros: None
 AlignConsecutiveAssignments: None
 AlignConsecutiveBitFields: None
 AlignConsecutiveDeclarations: None
-AlignEscapedNewlines: Left
+AlignConsecutiveMacros: None # AV ok
+AlignEscapedNewlines: DontAlign # AV was Left
 AlignOperands: DontAlign # AV was Align
 AlignTrailingComments: true # AV ok
 AllowAllArgumentsOnNextLine: true
@@ -131,7 +131,7 @@ IndentWrappedFunctionNames: false # AV ok
 KeepEmptyLinesAtTheStartOfBlocks: false
 LambdaBodyIndentation: Signature
 MacroBlockBegin: ''
-MacroBlockEnd:   ''
+MacroBlockEnd: ''
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: All # AV was None
 ###ObjCBinPackProtocolList: Never
