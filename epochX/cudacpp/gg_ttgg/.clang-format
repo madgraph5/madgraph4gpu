@@ -1,9 +1,6 @@
 # AV's draft .clang-format
 # --- 
-# March 2021: original draft based on clang 8.0.0 (BasedOnStyle: Google)
-# See https://github.com/madgraph5/madgraph4gpu/blob/e0f033e6ead254faedf8985955600a0d81bd0880/.clang-format
-# --- 
-# February 2022: new draft based on clang 13.0.0 (BasedOnStyle: Google)
+# February 2022: latest draft for clang 13.0.0 (BasedOnStyle: Google)
 # See https://releases.llvm.org/13.0.0/tools/clang/docs/ClangFormatStyleOptions.html
 ---
 Language: Cpp
@@ -19,9 +16,9 @@ AlignConsecutiveMacros: None # AV ok
 AlignEscapedNewlines: DontAlign # AV was Left
 AlignOperands: DontAlign # AV was Align
 AlignTrailingComments: true # AV ok
-AllowAllArgumentsOnNextLine: true # AV ok?
+AllowAllArgumentsOnNextLine: true # AV ok(?)
 AllowAllConstructorInitializersOnNextLine: true # AV ok (NB: relevant only if ConstructorInitializerAllOnOneLineOrOnePerLine=true)
-AllowAllParametersOfDeclarationOnNextLine: true # AV ok?
+AllowAllParametersOfDeclarationOnNextLine: true # AV ok(?)
 AllowShortBlocksOnASingleLine: Always # AV was Never
 AllowShortEnumsOnASingleLine: true # AV ok
 AllowShortCaseLabelsOnASingleLine: true # AV was false
@@ -38,8 +35,8 @@ AlwaysBreakTemplateDeclarations: Yes # AV ok
 ###  - __capability
 BinPackArguments: false # AV was true
 BinPackParameters: false # AV was true
-BitFieldColonSpacing: Both
-BraceWrapping: # AV (this is only relevant for "BreakBeforeBraces: Custom")
+BitFieldColonSpacing: Both # AV ok
+BraceWrapping: # (NB: this is only relevant for "BreakBeforeBraces: Custom")
   AfterCaseLabel: true # AV was false
   AfterClass: true # AV was false
   AfterControlStatement: Always # AV was Never
@@ -58,16 +55,16 @@ BraceWrapping: # AV (this is only relevant for "BreakBeforeBraces: Custom")
   SplitEmptyFunction: true # AV ok
   SplitEmptyRecord: true # AV ok
   SplitEmptyNamespace: true # AV ok
-BreakBeforeBinaryOperators: None # AV ok
-BreakBeforeConceptDeclarations: true
-BreakBeforeBraces: Custom # AV was Attach (alternative: Allman)
-BreakBeforeInheritanceComma: false
-BreakInheritanceList: BeforeColon # AV ok (alternative: BeforeComma?)
-BreakBeforeTernaryOperators: true # AV ok
-BreakConstructorInitializersBeforeComma: true # AV was false
-BreakConstructorInitializers: BeforeColon
 BreakAfterJavaFieldAnnotations: false
-BreakStringLiterals: true
+BreakBeforeBinaryOperators: None # AV ok
+BreakBeforeBraces: Custom # AV was Attach (alternative: Allman)
+BreakBeforeConceptDeclarations: true # AV ok
+###BreakBeforeInheritanceComma: false # (obsolete???)
+BreakBeforeTernaryOperators: true # AV ok
+###BreakConstructorInitializersBeforeComma: true # AV was false (obsolete???)
+BreakConstructorInitializers: BeforeComma # AV was BeforeColon
+BreakInheritanceList: BeforeColon # AV ok (alternative: BeforeComma?)
+BreakStringLiterals: false # AV was true
 ColumnLimit: 0 # AV was 80
 ###CommentPragmas: '^[^ ]*' # AV use SpacesInLineCommentPrefix Min=0 Max=1 to allow both "//comment" and "// comment"
 CompactNamespaces: false # AV ok
@@ -80,7 +77,7 @@ DerivePointerAlignment: false # AV was true
 DisableFormat: false # AV ok
 EmptyLineAfterAccessModifier: Leave # AV was Never
 EmptyLineBeforeAccessModifier: Leave # AV was LogicalBlock
-ExperimentalAutoDetectBinPacking: false
+ExperimentalAutoDetectBinPacking: false # AV ok ("use at your own risk")
 FixNamespaceComments: false # AV was true
 ###ForEachMacros: # AV keep defaults
 ###  - foreach
@@ -114,8 +111,8 @@ IncludeCategories:
     Priority:        3 # AV was 3
     SortPriority:    0
     CaseSensitive:   false
-IncludeIsMainRegex: '([-_](test|unittest))?$'
-IncludeIsMainSourceRegex: ''
+###IncludeIsMainRegex: '([-_](test|unittest))?$' # AV keep defaults
+###IncludeIsMainSourceRegex: '' # AV keep defaults
 IndentAccessModifiers: false # AV ok
 IndentCaseLabels: true # AV ok
 IndentCaseBlocks: false # AV ok
@@ -126,66 +123,66 @@ IndentExternBlock: AfterExternBlock # AV ok (only with Custom BraceWrapping.Afte
 IndentRequires: false # AV ok(?)
 IndentWidth: 2 # AV ok
 IndentWrappedFunctionNames: false # AV ok
-###InsertTrailingCommas: None
-###JavaScriptQuotes: Leave
-###JavaScriptWrapImports: true
-KeepEmptyLinesAtTheStartOfBlocks: false
-LambdaBodyIndentation: Signature
-MacroBlockBegin: ''
-MacroBlockEnd: ''
-MaxEmptyLinesToKeep: 1
+###InsertTrailingCommas: None # AV keep defaults (Java only?)
+###JavaScriptQuotes: Leave # AV irrelevant
+###JavaScriptWrapImports: true # AV irrelevant
+KeepEmptyLinesAtTheStartOfBlocks: false # AV ok
+LambdaBodyIndentation: Signature # AV ok
+###MacroBlockBegin: '' # AV keep defaults
+###MacroBlockEnd: '' # AV keep defaults
+MaxEmptyLinesToKeep: 1 # AV ok
 NamespaceIndentation: All # AV was None
-###ObjCBinPackProtocolList: Never
-###ObjCBlockIndentWidth: 2
-###ObjCBreakBeforeNestedBlockParam: true
-###ObjCSpaceAfterProperty: false
-###ObjCSpaceBeforeProtocolList: true
-PenaltyBreakAssignment: 2
-PenaltyBreakBeforeFirstCallParameter: 1
-PenaltyBreakComment: 300
-PenaltyBreakFirstLessLess: 120
-PenaltyBreakString: 1000
-PenaltyBreakTemplateDeclaration: 10
-PenaltyExcessCharacter: 1000000
-PenaltyReturnTypeOnItsOwnLine: 200
-PenaltyIndentedWhitespace: 0
+###ObjCBinPackProtocolList: Never # AV irrelevant
+###ObjCBlockIndentWidth: 2 # AV irrelevant
+###ObjCBreakBeforeNestedBlockParam: true # AV irrelevant
+###ObjCSpaceAfterProperty: false # AV irrelevant
+###ObjCSpaceBeforeProtocolList: true # AV irrelevant
+###PenaltyBreakAssignment: 2 # AV keep defaults
+###PenaltyBreakBeforeFirstCallParameter: 1 # AV keep defaults
+###PenaltyBreakComment: 300 # AV keep defaults
+###PenaltyBreakFirstLessLess: 120 # AV keep defaults
+###PenaltyBreakString: 1000 # AV keep defaults
+###PenaltyBreakTemplateDeclaration: 10 # AV keep defaults
+###PenaltyExcessCharacter: 1000000 # AV keep defaults
+###PenaltyReturnTypeOnItsOwnLine: 200 # AV keep defaults
+###PenaltyIndentedWhitespace: 0 # AV keep defaults
 PointerAlignment: Left # AV ok
 PPIndentWidth: 0 # AV was -1
-RawStringFormats:
-  - Language:        Cpp
-    Delimiters:
-      - cc
-      - CC
-      - cpp
-      - Cpp
-      - CPP
-      - 'c++'
-      - 'C++'
-    CanonicalDelimiter: ''
-    BasedOnStyle:    google
-  - Language:        TextProto
-    Delimiters:
-      - pb
-      - PB
-      - proto
-      - PROTO
-    EnclosingFunctions:
-      - EqualsProto
-      - EquivToProto
-      - PARSE_PARTIAL_TEXT_PROTO
-      - PARSE_TEST_PROTO
-      - PARSE_TEXT_PROTO
-      - ParseTextOrDie
-      - ParseTextProtoOrDie
-      - ParseTestProto
-      - ParsePartialTestProto
-    CanonicalDelimiter: pb
-    BasedOnStyle:    google
-ReferenceAlignment: Pointer
+###RawStringFormats: # AV keep defaults
+###  - Language: Cpp
+###    Delimiters:
+###      - cc
+###      - CC
+###      - cpp
+###      - Cpp
+###      - CPP
+###      - 'c++'
+###      - 'C++'
+###    CanonicalDelimiter: ''
+###    BasedOnStyle: google
+###  - Language: TextProto
+###    Delimiters:
+###      - pb
+###      - PB
+###      - proto
+###      - PROTO
+###    EnclosingFunctions:
+###      - EqualsProto
+###      - EquivToProto
+###      - PARSE_PARTIAL_TEXT_PROTO
+###      - PARSE_TEST_PROTO
+###      - PARSE_TEXT_PROTO
+###      - ParseTextOrDie
+###      - ParseTextProtoOrDie
+###      - ParseTestProto
+###      - ParsePartialTestProto
+###    CanonicalDelimiter: pb
+###    BasedOnStyle: google
+ReferenceAlignment: Pointer # AV ok
 ReflowComments: false # AV was true
 ShortNamespaceLines: 1 # AV ok
-SortIncludes: CaseSensitive
-SortJavaStaticImport: Before
+SortIncludes: CaseSensitive # AV ok
+###SortJavaStaticImport: Before # irrelevant
 SortUsingDeclarations: false # AV was true
 SpaceAfterCStyleCast: false # AV ok
 SpaceAfterLogicalNot: false # AV ok
@@ -227,71 +224,3 @@ UseTab: Never # AV ok
 ###  - NS_SWIFT_NAME
 ###  - CF_SWIFT_NAME
 ...
-
-#AccessModifierOffset: -2 # was -1
-#AlignConsecutiveAssignments: false # keep default
-#AlignConsecutiveDeclarations: false # keep default
-#AlignEscapedNewlines: DontAlign # was Left (certainly not Right with 130 columns)
-#AlignOperands: false # was true
-####AlignTrailingComments: false # was true
-#AllowShortBlocksOnASingleLine: true # was false
-#AllowShortCaseLabelsOnASingleLine: true # was false
-#AlwaysBreakAfterReturnType: None # keep default
-#AlwaysBreakBeforeMultilineStrings: true # keep default
-#AlwaysBreakTemplateDeclarations: Yes # keep default
-#BinPackArguments: false # was true
-#BinPackParameters: false # was true
-#BreakBeforeBinaryOperators: None # keep default (very long arithmetics in ALOHA)
-#BreakBeforeBraces: Allman # was Attach
-#BreakBeforeTernaryOperators: true # keep default?
-#BreakConstructorInitializersBeforeComma: true # was false
-#BreakConstructorInitializers: BeforeComma # was BeforeColon
-#BreakInheritanceList: BeforeComma # was BeforeColon
-#ColumnLimit: 130 # was 80
-####CommentPragmas: '.*' # was '^ IWYU pragma:' (do not modify any comment!)
-#CompactNamespaces: false # keep default
-####ConstructorInitializerAllOnOneLineOrOnePerLine: true # keep default
-#ConstructorInitializerIndentWidth: 2 # was 4
-#ContinuationIndentWidth: 2 # was 4
-#Cpp11BracedListStyle: true # keep default: do not add extra spaces in {+1, -1, +1, -1}
-####DerivePointerAlignment: false # was true
-###IncludeBlocks: Regroup # was Preserve
-###IncludeCategories: 
-###  - Regex:    '^<.*\.h>'
-###    Priority: 3 # was 1
-###  - Regex:    '^<.*'
-###    Priority: 2 # was 2
-###  - Regex:    '.*'
-###    Priority: 1 # was 3
-#IndentCaseLabels: true # keep default
-#IndentPPDirectives: None # keep default
-#IndentWidth: 2 # keep default
-#IndentWrappedFunctionNames: false # keep default (NB it does indent inline/global before type however)
-#KeepEmptyLinesAtTheStartOfBlocks: false # keep default
-#MaxEmptyLinesToKeep: 1 # keep default
-#NamespaceIndentation: All # was None
-####PenaltyBreakComment: 300 # keep default (no impact even if > PenaltyExcessCharacter?)
-####PenaltyExcessCharacter: 1000000 # keep default
-####PointerAlignment: Left # keep default (no impact unless DerivePointerAlignment is false?)
-#ReflowComments: false # was true
-#SortIncludes: true # keep default
-#SortUsingDeclarations: true # keep default
-#SpaceAfterCStyleCast: false # keep default
-#SpaceAfterTemplateKeyword: false # was true
-####SpaceAroundPointerQualifiers: ??? # not in clang-format8
-#SpaceBeforeAssignmentOperators: true # keep default
-#SpaceBeforeCpp11BracedList: false # keep default
-#SpaceBeforeCtorInitializerColon: true # keep default
-#SpaceBeforeInheritanceColon: true # keep default
-#SpaceBeforeParens: ControlStatements # keep default
-#SpaceBeforeRangeBasedForLoopColon: true # keep default
-#SpaceInEmptyParentheses: false # keep default
-#SpacesBeforeTrailingComments: 1 # was 2
-#SpacesInAngles: false # keep default
-#SpacesInCStyleCastParentheses: false # keep default
-#SpacesInParentheses: true # was false
-#SpacesInSquareBrackets: false # keep default
-#Standard: Cpp11 # was Auto
-#TabWidth: 8 # keep default
-#UseTab: Never # keep default
-#...
