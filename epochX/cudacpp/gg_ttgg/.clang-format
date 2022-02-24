@@ -22,8 +22,8 @@ AlignTrailingComments: true # AV ok
 AllowAllArgumentsOnNextLine: true
 AllowAllConstructorInitializersOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: Always # AV was Never
 AllowShortEnumsOnASingleLine: true
-AllowShortBlocksOnASingleLine: Never
 AllowShortCaseLabelsOnASingleLine: true # AV was false
 AllowShortFunctionsOnASingleLine: All
 AllowShortLambdasOnASingleLine: All
