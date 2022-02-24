@@ -45,14 +45,17 @@ bool is_number(const char *s) {
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
             << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--curhst|--curdev|--common] [--rmbhst|--rmbdev] [--bridge]"
-            << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
+            << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl;
+  std::cout << std::endl;
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
-  std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
+  std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl;
+  std::cout << std::endl;
   std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
   std::cout << "The '-d' flag only enables NaN/abnormal warnings and OMP debugging" << std::endl;
 #ifndef __CUDACC__
 #ifdef _OPENMP
-  std::cout << std::endl << "Use the OMP_NUM_THREADS environment variable to control OMP multi-threading" << std::endl;
+  std::cout << std::endl;
+  std::cout << "Use the OMP_NUM_THREADS environment variable to control OMP multi-threading" << std::endl;
   std::cout << "(OMP multithreading will be disabled if OMP_NUM_THREADS is not set)" << std::endl;
 #endif
 #endif
@@ -999,7 +1002,8 @@ int main(int argc, char **argv)
 
     timermap.dump(jsonFile, true); // NB For the active json timer this dumps a partial total
 
-    jsonFile << "}" << std::endl << "]";
+    jsonFile << "}" << std::endl;
+    jsonFile << "]";
     jsonFile.close();
   }
 
