@@ -5,20 +5,21 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#include <algorithm>
-#include <array>
-#include <cstring>
-#include <iostream>
-#include <memory>
+#include "CPPProcess.h"
 
 #include "mgOnGpuConfig.h"
 
-#include "CPPProcess.h"
 #include "CudaRuntime.h"
 #include "HelAmps_sm.h"
 #include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
+
+#include <algorithm>
+#include <array>
+#include <cstring>
+#include <iostream>
+#include <memory>
 
 // Test ncu metrics for CUDA thread divergence
 #undef MGONGPU_TEST_DIVERGENCE

@@ -3,20 +3,21 @@
 %(info_lines)s
 //==========================================================================
 
-#include <algorithm>
-#include <array>
-#include <cstring>
-#include <iostream>
-#include <memory>
+#include "CPPProcess.h"
 
 #include "mgOnGpuConfig.h"
 
-#include "CPPProcess.h"
 #include "CudaRuntime.h"
 %(hel_amps_h)s
 #include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
+
+#include <algorithm>
+#include <array>
+#include <cstring>
+#include <iostream>
+#include <memory>
 
 // Test ncu metrics for CUDA thread divergence
 #undef MGONGPU_TEST_DIVERGENCE
