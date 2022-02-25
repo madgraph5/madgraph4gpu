@@ -917,11 +917,11 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         param_str = "    const fptype tIPD[%s] = { (fptype)m_pars->%s };"\
             %(len(self.params2order), ', (fptype)m_pars->'.join(params))
         replace_dict['assign_coupling'] = coup_str + param_str
-        coup_str_hrd = "__device__ const fptype cIPC[%s] = {\n" % (len(self.couplings2order)*2)
-        for coup in coupling : coup_str_hrd += "    Parameters_sm::%s.real(), Parameters_sm::%s.imag(),\n" % ( coup, coup )
+        coup_str_hrd = "__device__ const fptype cIPC[%s] = { " % (len(self.couplings2order)*2)
+        for coup in coupling : coup_str_hrd += "Parameters_sm::%s.real(), Parameters_sm::%s.imag(), " % ( coup, coup )
         coup_str_hrd = coup_str_hrd[:-2] + " };\n"
-        param_str_hrd = "  __device__ const fptype cIPD[%s] = {\n" % len(self.params2order)
-        for para in params : param_str_hrd += "    Parameters_sm::%s,\n" % para
+        param_str_hrd = "  __device__ const fptype cIPD[%s] = { " % len(self.params2order)
+        for para in params : param_str_hrd += "Parameters_sm::%s, " % para
         param_str_hrd = param_str_hrd[:-2] + " };"
         replace_dict['assign_hardcoded_coupling'] = coup_str_hrd + param_str_hrd
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
