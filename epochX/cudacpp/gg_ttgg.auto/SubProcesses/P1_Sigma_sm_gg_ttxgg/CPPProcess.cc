@@ -2295,18 +2295,18 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
     allMEs[ievt] = 0;
 #else
-    const int npagV = nevt/neppV;
-    for ( int ipagV = 0; ipagV < npagV; ++ipagV )
+    const int npagV = nevt / neppV;
+    for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
-      for ( int ieppV=0; ieppV<neppV; ieppV++ )
-        allMEs[ipagV*neppV + ieppV] = 0; // all zeros
+      for( int ieppV = 0; ieppV < neppV; ieppV++ )
+        allMEs[ipagV * neppV + ieppV] = 0; // all zeros
     }
 #endif
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-    for ( int ighel = 0; ighel < cNGoodHel; ighel++ )
+    for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
 #ifdef __CUDACC__
@@ -2325,10 +2325,10 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
     allMEs[ievt] /= denominators;
 #else
-    for ( int ipagV = 0; ipagV < npagV; ++ipagV )
+    for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
-      for ( int ieppV=0; ieppV<neppV; ieppV++ )
-        allMEs[ipagV*neppV + ieppV] /= denominators;
+      for( int ieppV = 0; ieppV < neppV; ieppV++ )
+        allMEs[ipagV * neppV + ieppV] /= denominators;
     }
 #endif
     mgDebugFinalise();
