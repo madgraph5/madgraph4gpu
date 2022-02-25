@@ -35,8 +35,8 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-  using mgOnGpu::np4; // dimensions of 4-momenta (E,px,py,pz)
-  using mgOnGpu::npar; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+  using mgOnGpu::np4;   // dimensions of 4-momenta (E,px,py,pz)
+  using mgOnGpu::npar;  // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
   using mgOnGpu::ncomb; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
 
   using mgOnGpu::nwf; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
@@ -2038,9 +2038,9 @@ namespace mg5amcCpu
       {1, 1, 1, 1, 1, -1},
       {1, 1, 1, 1, 1, 1}};
 #ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * mgOnGpu::npar * sizeof(short) ) );
+    checkCuda( cudaMemcpyToSymbol( cHel, tHel, ncomb * mgOnGpu::npar * sizeof( short ) ) );
 #else
-    memcpy( cHel, tHel, ncomb * mgOnGpu::npar * sizeof(short) );
+    memcpy( cHel, tHel, ncomb * mgOnGpu::npar * sizeof( short ) );
 #endif
   }
 
@@ -2052,7 +2052,8 @@ namespace mg5amcCpu
 
 #ifndef MGONGPU_HARDCODE_CIPC
   // Initialize process (with parameters read from user cards)
-  void CPPProcess::initProc( const std::string& param_card_name )
+  void
+  CPPProcess::initProc( const std::string& param_card_name )
   {
     // Instantiate the model class and set parameters that stay fixed during run
     m_pars = Parameters_sm::getInstance();
@@ -2061,7 +2062,7 @@ namespace mg5amcCpu
     m_pars->setIndependentCouplings();
     m_pars->setDependentParameters();
     m_pars->setDependentCouplings();
-    if ( m_verbose )
+    if( m_verbose )
     {
       m_pars->printIndependentParameters();
       m_pars->printIndependentCouplings();
