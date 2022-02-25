@@ -650,6 +650,18 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_set_parameters(self, params):
         res = super().write_set_parameters(params)
+        res = res.replace('(','( ')
+        res = res.replace(')',' )')
+        res = res.replace('+',' + ')
+        res = res.replace('-',' - ')
+        res = res.replace('e + ','e+') # fix exponents
+        res = res.replace('e - ','e-') # fix exponents
+        res = res.replace('=  + ','= +') # fix leading + in assignmments
+        res = res.replace('=  - ','= -') # fix leading - in assignmments
+        res = res.replace('*',' * ')
+        res = res.replace('/',' / ')
+        res = res.replace(',',', ')
+        res = res.replace(',  ',', ')
         res = res.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
         if res == '' : res = '// (none)'
         res = res.replace('\n','\n  ')
@@ -774,8 +786,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         # For each parameter, write name = expr;
         res_strings = []
         for param in params:
-            ###res_strings.append("cout << setw(20) << \"%s \" << \"= \" << setiosflags(ios::scientific) << setw(10) << %s << endl;" % (param.name, param.name))
-            res_strings.append("std::cout << std::setw(20) << \"%s \" << \"= \" << std::setiosflags(std::ios::scientific) << std::setw(10) << %s << std::endl;" % (param.name, param.name)) # AV
+            res_strings.append("std::cout << std::setw( 20 ) << \"%s = \" << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << %s << std::endl;" % (param.name, param.name)) # AV
         if len(res_strings) == 0 : res_strings.append('// (none)')
         ##return "\n".join(res_strings)
         return "\n  ".join(res_strings) # AV (why was this not necessary before?)
