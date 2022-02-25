@@ -37,7 +37,7 @@ public:
   cxsmpl<double> GC_10, GC_11, GC_12;
 
   // Set parameters that are unchanged during the run
-  void setIndependentParameters(SLHAReader& slha);
+  void setIndependentParameters( SLHAReader& slha );
 
   // Set couplings that are unchanged during the run
   void setIndependentCouplings();
@@ -63,7 +63,6 @@ public:
 private:
 
   static Parameters_sm* instance;
-
 };
 
 #else
@@ -78,11 +77,11 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   {
     return curr == prev ? curr : detailSqrtNewtonRaphson( x, 0.5 * ( curr + x / curr ), curr );
   }
-  double constexpr sqrtNR(double x)
+  double constexpr sqrtNR( double x )
   {
     return x >= 0 && x < std::numeric_limits<double>::infinity()
-                         ? detailSqrtNewtonRaphson(x, x, 0)
-                         : std::numeric_limits<double>::quiet_NaN();
+      ? detailSqrtNewtonRaphson( x, x, 0 )
+      : std::numeric_limits<double>::quiet_NaN();
   }
 
   // Model parameters independent of aS

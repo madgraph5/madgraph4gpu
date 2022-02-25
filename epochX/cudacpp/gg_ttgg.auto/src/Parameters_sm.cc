@@ -5,9 +5,10 @@
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
 
-#include <iostream>
-#include <iomanip>
 #include "Parameters_sm.h"
+
+#include <iomanip>
+#include <iostream>
 
 #ifndef MGONGPU_HARDCODE_CIPC
 
@@ -15,14 +16,16 @@
 Parameters_sm* Parameters_sm::instance = 0;
 
 // Function to get static instance - only one instance per program
-Parameters_sm* Parameters_sm::getInstance()
+Parameters_sm*
+Parameters_sm::getInstance()
 {
-  if (instance == 0)
+  if( instance == 0 )
     instance = new Parameters_sm();
   return instance;
 }
 
-void Parameters_sm::setIndependentParameters(SLHAReader& slha)
+void
+Parameters_sm::setIndependentParameters( SLHAReader& slha )
 {
   zero = 0; // define "zero"
   ZERO = 0; // define "zero"
@@ -77,19 +80,22 @@ void Parameters_sm::setIndependentParameters(SLHAReader& slha)
   mdl_cw__exp__2 = ((mdl_cw)*(mdl_cw));
 }
 
-void Parameters_sm::setIndependentCouplings()
+void
+Parameters_sm::setIndependentCouplings()
 {
   // (none)
 }
 
-void Parameters_sm::setDependentParameters()
+void
+Parameters_sm::setDependentParameters()
 {
   mdl_sqrt__aS = sqrt(aS);
   G = 2.*mdl_sqrt__aS*sqrt(M_PI);
   mdl_G__exp__2 = ((G)*(G));
 }
 
-void Parameters_sm::setDependentCouplings()
+void
+Parameters_sm::setDependentCouplings()
 {
   GC_10 = -G;
   GC_11 = mdl_complexi*G;
@@ -99,7 +105,8 @@ void Parameters_sm::setDependentCouplings()
 #endif
 
 // Routines for printing out parameters
-void Parameters_sm::printIndependentParameters()
+void
+Parameters_sm::printIndependentParameters()
 {
   std::cout << "sm model parameters independent of event kinematics:" << std::endl;
   std::cout << std::setw(20) << "mdl_WH " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_WH << std::endl;
@@ -152,13 +159,15 @@ void Parameters_sm::printIndependentParameters()
   std::cout << std::setw(20) << "mdl_cw__exp__2 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_cw__exp__2 << std::endl;
 }
 
-void Parameters_sm::printIndependentCouplings()
+void
+Parameters_sm::printIndependentCouplings()
 {
   std::cout << "sm model couplings independent of event kinematics:" << std::endl;
   // (none)
 }
 
-void Parameters_sm::printDependentParameters()
+void
+Parameters_sm::printDependentParameters()
 {
   std::cout << "sm model parameters dependent on event kinematics:" << std::endl;
   std::cout << std::setw(20) << "mdl_sqrt__aS " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_sqrt__aS << std::endl;
@@ -166,7 +175,8 @@ void Parameters_sm::printDependentParameters()
   std::cout << std::setw(20) << "mdl_G__exp__2 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << mdl_G__exp__2 << std::endl;
 }
 
-void Parameters_sm::printDependentCouplings()
+void
+Parameters_sm::printDependentCouplings()
 {
   std::cout << "sm model couplings dependent on event kinematics:" << std::endl;
   std::cout << std::setw(20) << "GC_10 " << "= " << std::setiosflags(std::ios::scientific) << std::setw(10) << GC_10 << std::endl;
