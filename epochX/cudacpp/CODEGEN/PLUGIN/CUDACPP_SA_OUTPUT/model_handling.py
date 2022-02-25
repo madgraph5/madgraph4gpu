@@ -942,17 +942,16 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             ret_lines.append("""
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-  __device__
-  INLINE
-  void calculate_wavefunctions( int ihel,
-                                const fptype* allmomenta, // input: momenta[nevt*npar*4]
-                                fptype* allMEs            // output: allMEs[nevt], |M|^2 running_sum_over_helicities
+  __device__ INLINE void /* clang-format off */
+  calculate_wavefunctions( int ihel,
+                           const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                           fptype* allMEs            // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifndef __CUDACC__
-                                , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                           , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
-                                )
+                           )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
-  {
+  { /* clang-format on */
 #ifdef __CUDACC__
     using namespace mg5amcGpu;
     using M_ACCESS = DeviceAccessMomenta;
@@ -967,19 +966,20 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
     //printf( "calculate_wavefunctions: nevt %d\\n", nevt );
-#endif\n""")
-            ret_lines.append("    // The number of colors")
-            ret_lines.append("    constexpr int ncolor = %i;" % len(color_amplitudes[0]))
-            ret_lines.append("""
+#endif
+
+    // The number of colors
+    constexpr int ncolor = 24;
+
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
     //MemoryBufferWavefunctions w_buffer[nwf]{ neppV };
     cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
-    cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
+    cxtype_sv amp_sv[1];      // invariant amplitude for one given Feynman diagram
 
     // Proof of concept for using fptype* in the interface
     fptype* w_fp[nwf];
-    for ( int iwf=0; iwf<nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_sv[iwf] );
+    for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_sv[iwf] );
     fptype* amp_fp;
     amp_fp = reinterpret_cast<fptype*>( amp_sv );
 
@@ -991,7 +991,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
 #ifndef __CUDACC__
     const int npagV = nevt / neppV;
 #ifdef MGONGPU_CPPSIMD
-    const bool isAligned_allMEs = ( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // require SIMD-friendly alignment by at least neppV*sizeof(fptype)
+    const bool isAligned_allMEs = ( (size_t)( allMEs ) % mgOnGpu::cppAlign == 0 ); // require SIMD-friendly alignment by at least neppV*sizeof(fptype)
 #endif
     // ** START LOOP ON IPAGV **
 #ifdef _OPENMP
@@ -1001,12 +1001,12 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
 #ifdef MGONGPU_CPPSIMD
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV,amp_fp,w_fp,isAligned_allMEs) private (amp_sv,w_sv,jamp_sv)
+#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, cIPC, cIPD, ihel, npagV, amp_fp, w_fp, isAligned_allMEs ) private( amp_sv, w_sv, jamp_sv )
 #else
-#pragma omp parallel for default(none) shared(allmomenta,allMEs,cHel,cIPC,cIPD,ihel,npagV,amp_fp,w_fp) private (amp_sv,w_sv,jamp_sv)
+#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, cIPC, cIPD, ihel, npagV, amp_fp, w_fp ) private( amp_sv, w_sv, jamp_sv )
 #endif
 #endif
-    for ( int ipagV = 0; ipagV < npagV; ++ipagV )
+    for( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif""")
             ret_lines.append('    {') # NB This is closed in process_matrix.inc
             helas_calls = self.helas_call_writer.get_matrix_element_calls(\
@@ -1313,11 +1313,11 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         res.append('const fptype* momenta = allmomenta;')
         res.append('#else')
         res.append('// C++ kernels take an input buffer with momenta for one specific event (the first in the current event page)')
-        res.append('const int ievt0 = ipagV*neppV;')
+        res.append('const int ievt0 = ipagV * neppV;')
         res.append('const fptype* momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );')
         res.append('#endif\n')
         res.append('// Reset color flows (reset jamp_sv) at the beginning of a new event or event page')
-        res.append('for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }')
+        res.append('for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }')
         for diagram in matrix_element.get('diagrams'):
             ###print('DIAGRAM %3d: #wavefunctions=%3d, #diagrams=%3d' %
             ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING
