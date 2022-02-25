@@ -308,5 +308,3 @@ namespace mg5amcCpu
     // Start sigmaKin_lines
 %(sigmaKin_lines)s
 } // end namespace
-
-//==========================================================================

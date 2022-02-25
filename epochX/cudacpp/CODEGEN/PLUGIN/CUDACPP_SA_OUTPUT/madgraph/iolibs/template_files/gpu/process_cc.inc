@@ -24,3 +24,4 @@
 //#define MGONGPU_TEST_DIVERGENCE 1
 
 %(process_function_definitions)s
+//==========================================================================
