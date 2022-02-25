@@ -2,6 +2,7 @@
 #define MemoryBuffers_H 1
 
 #include "mgOnGpuConfig.h"
+
 #include "mgOnGpuCxtypes.h"
 
 #include "CudaRuntime.h"
@@ -32,7 +33,7 @@ namespace mg5amcCpu
   class INumberOfEvents
   {
   public:
-    virtual ~INumberOfEvents(){}
+    virtual ~INumberOfEvents() {}
     virtual size_t nevt() const = 0;
   };
 
@@ -43,8 +44,8 @@ namespace mg5amcCpu
   {
   public:
     NumberOfEvents( const size_t nevt )
-      : m_nevt( nevt ){}
-    virtual ~NumberOfEvents(){}
+      : m_nevt( nevt ) {}
+    virtual ~NumberOfEvents() {}
     virtual size_t nevt() const override { return m_nevt; }
   private:
     const size_t m_nevt;
@@ -57,22 +58,23 @@ namespace mg5amcCpu
   class BufferBase : virtual public INumberOfEvents
   {
   protected:
-    BufferBase( const size_t size, const bool onDevice ) : m_size( size ), m_data( nullptr ), m_isOnDevice( onDevice ){}
-    virtual ~BufferBase(){}
+    BufferBase( const size_t size, const bool onDevice )
+      : m_size( size ), m_data( nullptr ), m_isOnDevice( onDevice ) {}
+    virtual ~BufferBase() {}
   public:
-    T* data(){ return m_data; }
-    const T* data() const{ return m_data; }
-    T& operator[]( const size_t index ){ return m_data[index]; }
+    T* data() { return m_data; }
+    const T* data() const { return m_data; }
+    T& operator[]( const size_t index ) { return m_data[index]; }
     const T& operator[]( const size_t index ) const { return m_data[index]; }
-    size_t size() const{ return m_size; }
-    size_t bytes() const{ return m_size * sizeof(T); }
+    size_t size() const { return m_size; }
+    size_t bytes() const { return m_size * sizeof( T ); }
     bool isOnDevice() const { return m_isOnDevice; }
     virtual size_t nevt() const override { throw std::runtime_error( "This BufferBase is not an event buffer" ); }
   protected:
     const size_t m_size;
     T* m_data;
     const bool m_isOnDevice;
- };
+  };
 
   //--------------------------------------------------------------------------
 
@@ -82,9 +84,10 @@ namespace mg5amcCpu
   class HostBufferBase : public BufferBase<T>
   {
   public:
-    HostBufferBase( const size_t size ) : BufferBase<T>( size, false )
+    HostBufferBase( const size_t size )
+      : BufferBase<T>( size, false )
     {
-      this->m_data = new( std::align_val_t( cppAlign ) ) T[ size ]();
+      this->m_data = new( std::align_val_t( cppAlign ) ) T[size]();
       //this->m_data = new( std::align_val_t( cppAlign ) ) T[ size+1 ]() + 1; // TEST MISALIGNMENT!
     }
     virtual ~HostBufferBase()
@@ -105,9 +108,10 @@ namespace mg5amcCpu
   class PinnedHostBufferBase : public BufferBase<T>
   {
   public:
-    PinnedHostBufferBase( const size_t size ) : BufferBase<T>( size, false )
+    PinnedHostBufferBase( const size_t size )
+      : BufferBase<T>( size, false )
     {
-      checkCuda( cudaMallocHost( &(this->m_data), this->bytes() ) );
+      checkCuda( cudaMallocHost( &( this->m_data ), this->bytes() ) );
     }
     virtual ~PinnedHostBufferBase()
     {
@@ -124,9 +128,10 @@ namespace mg5amcCpu
   class DeviceBufferBase : public BufferBase<T>
   {
   public:
-    DeviceBufferBase( const size_t size ) : BufferBase<T>( size, true )
+    DeviceBufferBase( const size_t size )
+      : BufferBase<T>( size, true )
     {
-      checkCuda( cudaMalloc( &(this->m_data), this->bytes() ) );
+      checkCuda( cudaMalloc( &( this->m_data ), this->bytes() ) );
     }
     virtual ~DeviceBufferBase()
     {
@@ -145,8 +150,8 @@ namespace mg5amcCpu
   public:
     HostBuffer( const size_t nevt )
       : NumberOfEvents( nevt )
-      , HostBufferBase<T>( sizePerEvent * nevt ){}
-    virtual ~HostBuffer(){}
+      , HostBufferBase<T>( sizePerEvent * nevt ) {}
+    virtual ~HostBuffer() {}
     virtual size_t nevt() const override final { return NumberOfEvents::nevt(); }
   };
 #endif
@@ -161,8 +166,8 @@ namespace mg5amcCpu
   public:
     PinnedHostBuffer( const size_t nevt )
       : NumberOfEvents( nevt )
-      , PinnedHostBufferBase<T>( sizePerEvent * nevt ){}
-    virtual ~PinnedHostBuffer(){}
+      , PinnedHostBufferBase<T>( sizePerEvent * nevt ) {}
+    virtual ~PinnedHostBuffer() {}
     virtual size_t nevt() const override final { return NumberOfEvents::nevt(); }
   };
 #endif
@@ -177,8 +182,8 @@ namespace mg5amcCpu
   public:
     DeviceBuffer( const size_t nevt )
       : NumberOfEvents( nevt )
-      , DeviceBufferBase<T>( sizePerEvent * nevt ){}
-    virtual ~DeviceBuffer(){}
+      , DeviceBufferBase<T>( sizePerEvent * nevt ) {}
+    virtual ~DeviceBuffer() {}
     virtual size_t nevt() const override final { return NumberOfEvents::nevt(); }
   };
 #endif
@@ -294,13 +299,13 @@ namespace mg5amcCpu
   template<class Tdst, class Tsrc>
   void copyDeviceFromHost( Tdst& dst, const Tsrc& src ) // keep the same order of arguments as in memcpy
   {
-    if ( dst.size() != src.size() )
+    if( dst.size() != src.size() )
     {
       std::ostringstream sstr;
       sstr << "Size (#elements) mismatch in copyDeviceFromHost: dst=" << dst.size() << ", src=" << src.size();
       throw std::runtime_error( sstr.str() );
     }
-    if ( dst.bytes() != src.bytes() )
+    if( dst.bytes() != src.bytes() )
     {
       std::ostringstream sstr;
       sstr << "Size (#bytes) mismatch in copyDeviceFromHost: dst=" << dst.bytes() << ", src=" << src.bytes();
@@ -317,13 +322,13 @@ namespace mg5amcCpu
   template<class Tdst, class Tsrc>
   void copyHostFromDevice( Tdst& dst, const Tsrc& src ) // keep the same order of arguments as in memcpy
   {
-    if ( dst.size() != src.size() )
+    if( dst.size() != src.size() )
     {
       std::ostringstream sstr;
       sstr << "Size (#elements) mismatch in copyHostFromDevice: dst=" << dst.size() << ", src=" << src.size();
       throw std::runtime_error( sstr.str() );
     }
-    if ( dst.bytes() != src.bytes() )
+    if( dst.bytes() != src.bytes() )
     {
       std::ostringstream sstr;
       sstr << "Size (#bytes) mismatch in copyHostFromDevice: dst=" << dst.bytes() << ", src=" << src.bytes();
