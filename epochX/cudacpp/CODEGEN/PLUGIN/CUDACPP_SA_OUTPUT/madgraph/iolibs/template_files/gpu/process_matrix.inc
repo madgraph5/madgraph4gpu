@@ -8,7 +8,7 @@
 
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
-      fptype_sv deltaMEs = {0}; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
+      fptype_sv deltaMEs = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
       for( int icol = 0; icol < ncolor; icol++ )
       {
         cxtype_sv ztemp_sv = cxzero_sv();
@@ -32,14 +32,14 @@
       //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %%6d %%2d %%f\n", ievt, ihel, allMEs[ievt] );
 #else
 #ifdef MGONGPU_CPPSIMD
-      if ( isAligned_allMEs )
+      if( isAligned_allMEs )
       {
-        *reinterpret_cast<fptype_sv*>( &( allMEs[ipagV*neppV] ) ) += deltaMEs;
+        *reinterpret_cast<fptype_sv*>( &( allMEs[ipagV * neppV] ) ) += deltaMEs;
       }
       else
       {
-        for ( int ieppV=0; ieppV<neppV; ieppV++ )
-          allMEs[ipagV*neppV + ieppV] += deltaMEs[ieppV];
+        for( int ieppV = 0; ieppV < neppV; ieppV++ )
+          allMEs[ipagV * neppV + ieppV] += deltaMEs[ieppV];
       }
       //if ( cNGoodHel > 0 )
       //  for ( int ieppV=0; ieppV<neppV; ieppV++ )
