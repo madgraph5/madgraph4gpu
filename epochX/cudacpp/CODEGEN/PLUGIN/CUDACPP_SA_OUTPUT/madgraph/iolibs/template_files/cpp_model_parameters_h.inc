@@ -81,16 +81,12 @@ namespace Parameters_%(model_name)s // keep the same name rather than HardcodedP
   constexpr double zero = 0;
   constexpr double ZERO = 0;
   %(hardcoded_independent_parameters)s
-
   // Model couplings independent of aS
   %(hardcoded_independent_couplings)s
-
   // Model parameters dependent on aS
   %(hardcoded_dependent_parameters)s
-
   // Model couplings dependent on aS
   %(hardcoded_dependent_couplings)s
-
   // Print parameters that are unchanged during the run
   void printIndependentParameters();
 

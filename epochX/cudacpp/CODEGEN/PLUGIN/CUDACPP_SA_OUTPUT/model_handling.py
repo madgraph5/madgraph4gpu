@@ -641,10 +641,10 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
     def write_parameters(self, params):
         res = super().write_parameters(params)
         res = res.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
-        if res == '' : res = '  // (none)'
-        else : res = '  ' + res # add leading '  ' after the '// Model' line
         res = res.replace('\n','\n  ')
         res = res.replace(',',', ')
+        if res == '' : res = '  // (none)'
+        else : res = '  ' + res # add leading '  ' after the '// Model' line
         return res
 
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
@@ -663,11 +663,22 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         ###print( '"' + parset + '"' )
         if ( pardef == '' ):
             assert( parset == '' ) # AV sanity check (both are empty)
-            res = '// (none)'
+            res = '// (none)\n'
             return res
         pardef = pardef.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
         parset = parset.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
         parset = parset.replace('sqrt(','sqrtNR(') # Newton-Raphson sqrt (with constexpr arithmetics)
+        parset = parset.replace('(','( ')
+        parset = parset.replace(')',' )')
+        parset = parset.replace('+',' + ')
+        parset = parset.replace('-',' - ')
+        parset = parset.replace('e + ','e+') # fix exponents
+        parset = parset.replace('e - ','e-') # fix exponents
+        parset = parset.replace('=  + ','= +') # fix leading + in assignmments
+        parset = parset.replace('=  - ','= -') # fix leading - in assignmments
+        parset = parset.replace('*',' * ')
+        parset = parset.replace('/',' / ')
+        parset = parset.replace(',',', ')
         pardef_lines = {}
         for line in pardef.split('\n'):
             type, pars = line.rstrip(';').split(' ') # strip trailing ';'
@@ -684,6 +695,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         ###print( parset_lines )
         assert( len(pardef_lines) == len(parset_lines) ) # AV sanity check (same number of parameters)
         res = '  '.join( pardef_lines[par] + " = " + parset_lines[par] + '\n' for par in parset_pars ) # no leading '  ' on first row
+        res = res.replace(' ;',';')
         ###print(res); assert(False)
         return res
 
