@@ -284,6 +284,13 @@ int main(int argc, char **argv)
   DeviceBufferRandomNumbers devRnarray( nevt );
 #endif
 
+#ifndef __CUDACC__
+    HostBufferScales hstScales( nevt );
+    for (int i = 0; i < nevt; ++i) hstScales[i] = 1; // sr fill them for now, in the end they should come via the bridge
+#else
+    // sr fix CUDA version
+#endif
+
   // Memory buffers for momenta
 #ifndef __CUDACC__
   HostBufferMomenta hstMomenta( nevt );
