@@ -1172,17 +1172,17 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         else:
             color_denominators = matrix_element.get('color_matrix').\
                                                  get_line_denominators()
-            denom_string = "      static constexpr fptype denom[ncolor] = {%s}; // 1-D array[%i]" \
+            denom_string = "      static constexpr fptype denom[ncolor] = { %s }; // 1-D array[%i]" \
                            % ( ", ".join(["%i" % denom for denom in color_denominators]), len(color_denominators) )
             matrix_strings = []
             my_cs = color.ColorString()
             for index, denominator in enumerate(color_denominators):
                 # Then write the numerators for the matrix elements
                 num_list = matrix_element.get('color_matrix').get_line_numerators(index, denominator)
-                matrix_strings.append("{%s}" % ", ".join(["%d" % i for i in num_list]))
+                matrix_strings.append("{ %s }" % ", ".join(["%d" % i for i in num_list]))
             matrix_string = "      static constexpr fptype cf[ncolor][ncolor] = "
-            if len( matrix_strings ) > 1 : matrix_string += '{\n        ' + ',\n        '.join(matrix_strings) + '};'
-            else: matrix_string += '{' + matrix_strings[0] + '};'
+            if len( matrix_strings ) > 1 : matrix_string += '{\n        ' + ',\n        '.join(matrix_strings) + ' };'
+            else: matrix_string += '{ ' + matrix_strings[0] + ' };'
             matrix_string += ' // 2-D array[%i][%i]' % ( len(color_denominators), len(color_denominators) )
             return "\n".join([denom_string, matrix_string])
 
@@ -1201,14 +1201,11 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     # AV - replace the export_cpp.OneProcessExporterCPP method (improve formatting)
     def get_helicity_matrix(self, matrix_element):
         """Return the Helicity matrix definition lines for this matrix element"""
-        ###helicity_line = "static const int helicities[ncomb][nexternal] = {";
         helicity_line = "    static constexpr short helicities[ncomb][mgOnGpu::npar] = {\n      "; # AV (this is tHel)
         helicity_line_list = []
         for helicities in matrix_element.get_helicity_matrix(allow_reverse=False):
-            ###helicity_line_list.append("{"+",".join(['%d'] * len(helicities)) % tuple(helicities) + "}")
-            helicity_line_list.append( "{" + ", ".join(['%d'] * len(helicities)) % tuple(helicities) + "}" ) # AV
-        ###return helicity_line + ",".join(helicity_line_list) + "};"
-        return helicity_line + ",\n      ".join(helicity_line_list) + "};" # AV
+            helicity_line_list.append( "{ " + ", ".join(['%d'] * len(helicities)) % tuple(helicities) + " }" ) # AV
+        return helicity_line + ",\n      ".join(helicity_line_list) + " };" # AV
 
     # AV - overload the export_cpp.OneProcessExporterGPU method (just to add some comments...)
     def get_reset_jamp_lines(self, color_amplitudes):
