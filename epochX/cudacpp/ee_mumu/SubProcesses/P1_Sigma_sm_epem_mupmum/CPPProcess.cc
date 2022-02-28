@@ -194,9 +194,12 @@ namespace mg5amcCpu
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called CPPProcess::matrix_1_epem_mupmum()?)
 
-      // The color matrix (initialize all array elements, with ncolor=1)
+      // The color denominators (initialize all array elements, with ncolor=1)
       // [NB do keep 'static' for these constexpr arrays, see issue #283]
       static constexpr fptype denom[ncolor] = {1}; // 1-D array[1]
+
+      // The color matrix (initialize all array elements, with ncolor=1)
+      // [NB do keep 'static' for these constexpr arrays, see issue #283]
       static constexpr fptype cf[ncolor][ncolor] = {{1}}; // 2-D array[1][1]
 
       // Sum and square the color flows to get the matrix element
