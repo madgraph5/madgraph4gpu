@@ -387,7 +387,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     # This affects 'denom = COUP' in HelAmps_sm.cc
     # This affects 'V1[2] = ' and 'F1[2] = ' in HelAmps_sm.cc
     # This affects 'TMP0 = ' in HelAmps_sm.cc
-    # This affects '(*vertex) = ' in HelAmps_sm.cc
+    # This affects '( *vertex ) = ' in HelAmps_sm.cc
     def define_expression(self):
         """Write the helicity amplitude in C++ format"""
         out = StringIO()
@@ -414,7 +414,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             coup_name = '%s' % self.change_number_format(1)
         if not self.offshell:
             if coup_name == 'COUP':
-                mydict = {'num': self.write_obj(numerator.get_rep([0]))}
+                mydict = {'num': self.write_obj(numerator.get_rep([0]))} # '...(TMP4)-cI...' comes from here
                 for c in ['coup', 'vertex']:
                     if self.type2def['pointer_%s' %c] in ['*']:
                         mydict['pre_%s' %c] = '( *'
@@ -433,9 +433,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     mydict['pre_vertex'] = ''
                     mydict['post_vertex'] = ''
                 mydict['data'] = self.write_obj(numerator.get_rep([0]))
-                # This affects '(*vertex) = ' in HelAmps_sm.cc
-                ###out.write(' %(pre_vertex)svertex%(post_vertex)s = %(data)s;\n' % mydict)
-                out.write('    %(pre_vertex)svertex%(post_vertex)s = %(data)s;\n' % mydict) # AV
+                # This affects '( *vertex ) = ' in HelAmps_sm.cc
+                out.write('    %(pre_vertex)svertex%(post_vertex)s = %(data)s;\n' % mydict)
         else:
             OffShellParticle = '%s%d' % (self.particles[self.offshell-1],\
                                                                   self.offshell)
@@ -569,7 +568,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             first = False
             # AV comment: write_obj here also adds calls declaration_add (via change_var_format) - example: OM3
             ###print('..."'+file_str.getvalue()+'"') # AV - FOR DEBUGGING
-            file_str.write(add.join([self.write_obj(obj, prefactor=False) for obj in obj_list]))
+            file_str.write( add.join( [self.write_obj(obj, prefactor=False) for obj in obj_list] ) ) # NB: RECURSIVE! (write_obj_Add calls write_obj...)
+            ###print('...."'+file_str.getvalue()+'"') # AV - FOR DEBUGGING
             if value not in [1,-1]:
                 ###file_str.write(')')
                 file_str.write(' )') # AV
@@ -578,7 +578,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             file_str.write('+ %s' % self.change_number_format(total))
         ###file_str.write(')')
         file_str.write(' )') # AV
-        ###print('...."'+file_str.getvalue()+'"') # AV - FOR DEBUGGING
+        ###print('....."'+file_str.getvalue()+'"') # AV - FOR DEBUGGING
         return file_str.getvalue()
 
 #------------------------------------------------------------------------------------
