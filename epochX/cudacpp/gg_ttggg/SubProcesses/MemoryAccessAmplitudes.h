@@ -2,6 +2,7 @@
 #define MemoryAccessAmplitudes_H 1
 
 #include "mgOnGpuConfig.h"
+
 #include "mgOnGpuCxtypes.h"
 
 #include "MemoryAccessHelpers.h"
@@ -15,19 +16,19 @@
 // A class describing the internal layout of memory buffers for amplitudes
 // This implementation uses an AOSOA[npagW][nx2][neppW] where nevt=npagW*neppW
 // [If many implementations are used, a suffix _AOSOAv1 should be appended to the class name]
-class MemoryAccessAmplitudesBase//_AOSOAv1
+class MemoryAccessAmplitudesBase //_AOSOAv1
 {
 public:
 
   // Number of Events Per Page in the amplitude AOSOA memory buffer layout
   static constexpr int neppW = 1; // AOS (just a test...)
 
- private:
+private:
 
   friend class MemoryAccessHelper<MemoryAccessAmplitudesBase>;
   friend class KernelAccessHelper<MemoryAccessAmplitudesBase, true>;
   friend class KernelAccessHelper<MemoryAccessAmplitudesBase, false>;
-  
+
   // The number of floating point components of a complex number
   static constexpr int nx2 = mgOnGpu::nx2;
 
@@ -38,15 +39,14 @@ public:
 
   // Locate an event record (output) in a memory buffer (input) from the given event number (input)
   // [Signature (non-const) ===> fptype* ieventAccessRecord( fptype* buffer, const int ievt ) <===]
-  static
-  __host__ __device__ inline
-  fptype* ieventAccessRecord( fptype* buffer,
-                              const int ievt )
+  static __host__ __device__ inline fptype*
+  ieventAccessRecord( fptype* buffer,
+                      const int ievt )
   {
     constexpr int ix2 = 0;
-    const int ipagW = ievt/neppW; // #event "W-page"
-    const int ieppW = ievt%neppW; // #event in the current event W-page
-    return &( buffer[ipagW*nx2*neppW + ix2*neppW + ieppW] ); // AOSOA[ipagW][ix2][ieppW]
+    const int ipagW = ievt / neppW;                                // #event "W-page"
+    const int ieppW = ievt % neppW;                                // #event in the current event W-page
+    return &( buffer[ipagW * nx2 * neppW + ix2 * neppW + ieppW] ); // AOSOA[ipagW][ix2][ieppW]
   }
 
   //--------------------------------------------------------------------------
@@ -54,16 +54,14 @@ public:
   // Locate a field (output) of an event record (input) from the given field indexes (input)
   // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, Ts... args ) <===]
   // [NB: expand variadic template "Ts... args" to "const int ix2" and rename "Field" as "Ix2"]
-  static
-  __host__ __device__ inline
-  fptype& decodeRecord( fptype* buffer,
-                        const int ix2 )
+  static __host__ __device__ inline fptype&
+  decodeRecord( fptype* buffer,
+                const int ix2 )
   {
     constexpr int ipagW = 0;
     constexpr int ieppW = 0;
-    return buffer[ipagW*nx2*neppW + ix2*neppW + ieppW]; // AOSOA[ipagW][ix2][ieppW]
+    return buffer[ipagW * nx2 * neppW + ix2 * neppW + ieppW]; // AOSOA[ipagW][ix2][ieppW]
   }
-
 };
 
 //----------------------------------------------------------------------------
@@ -100,7 +98,6 @@ public:
   // [Signature (const) ===> const fptype& ieventAccessIx2Const( const fptype* buffer, const ievt, const int ix2 ) <===]
   static constexpr auto ieventAccessIx2Const =
     MemoryAccessHelper<MemoryAccessAmplitudesBase>::template ieventAccessFieldConst<int>;
-
 };
 
 #endif // #ifndef MGONGPU_TRIVIAL_AMPLITUDES
@@ -128,22 +125,19 @@ public:
 
 #else
 
-  static
-  __host__ __device__ inline
-  cxtype_sv* kernelAccess( fptype* buffer )
+  static __host__ __device__ inline cxtype_sv*
+  kernelAccess( fptype* buffer )
   {
     return reinterpret_cast<cxtype_sv*>( buffer );
   }
 
-  static
-  __host__ __device__ inline
-  const cxtype_sv* kernelAccessConst( const fptype* buffer )
+  static __host__ __device__ inline const cxtype_sv*
+  kernelAccessConst( const fptype* buffer )
   {
     return reinterpret_cast<const cxtype_sv*>( buffer );
   }
 
 #endif // #ifndef MGONGPU_TRIVIAL_AMPLITUDES
-
 };
 
 //----------------------------------------------------------------------------
