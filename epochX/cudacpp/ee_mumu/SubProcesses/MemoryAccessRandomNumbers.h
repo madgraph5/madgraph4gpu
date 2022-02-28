@@ -10,9 +10,9 @@
 // A class describing the internal layout of memory buffers for random numbers
 // This implementation uses an AOSOA[npagR][nparf][np4][neppR] where nevt=npagR*neppR
 // [If many implementations are used, a suffix _AOSOAv1 should be appended to the class name]
-class MemoryAccessRandomNumbersBase//_AOSOAv1
+class MemoryAccessRandomNumbersBase //_AOSOAv1
 {
-public:
+public: /* clang-format off */
 
   // Number of Events Per Page in the random number AOSOA memory buffer layout
   // *** NB Different values of neppR lead to different physics results: the ***
@@ -20,12 +20,12 @@ public:
   static constexpr int neppR = 8; // HARDCODED TO GIVE ALWAYS THE SAME PHYSICS RESULTS!
   //static constexpr int neppR = 1; // AOS (tests of sectors/requests)
 
- private:
+private: /* clang-format on */
 
   friend class MemoryAccessHelper<MemoryAccessRandomNumbersBase>;
   friend class KernelAccessHelper<MemoryAccessRandomNumbersBase, true>;
   friend class KernelAccessHelper<MemoryAccessRandomNumbersBase, false>;
-  
+
   // The number of components of a 4-momentum
   static constexpr int np4 = mgOnGpu::np4;
 
@@ -39,16 +39,15 @@ public:
 
   // Locate an event record (output) in a memory buffer (input) from the given event number (input)
   // [Signature (non-const) ===> fptype* ieventAccessRecord( fptype* buffer, const int ievt ) <===]
-  static
-  __host__ __device__ inline
-  fptype* ieventAccessRecord( fptype* buffer,
-                              const int ievt )
+  static __host__ __device__ inline fptype*
+  ieventAccessRecord( fptype* buffer,
+                      const int ievt )
   {
+    const int ipagR = ievt / neppR; // #event "R-page"
+    const int ieppR = ievt % neppR; // #event in the current event R-page
     constexpr int ip4 = 0;
     constexpr int iparf = 0;
-    const int ipagR = ievt/neppR; // #event "R-page"
-    const int ieppR = ievt%neppR; // #event in the current event R-page
-    return &( buffer[ipagR*nparf*np4*neppR + iparf*np4*neppR + ip4*neppR + ieppR] ); // AOSOA[ipagR][iparf][ip4][ieppR]
+    return &( buffer[ipagR * nparf * np4 * neppR + iparf * np4 * neppR + ip4 * neppR + ieppR] ); // AOSOA[ipagR][iparf][ip4][ieppR]
   }
 
   //--------------------------------------------------------------------------
@@ -56,17 +55,15 @@ public:
   // Locate a field (output) of an event record (input) from the given field indexes (input)
   // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, Ts... args ) <===]
   // [NB: expand variadic template "Ts... args" to "const int ip4, const int iparf" and rename "Field" as "Ip4Iparf"]
-  static
-  __host__ __device__ inline
-  fptype& decodeRecord( fptype* buffer,
-                        const int ip4,
-                        const int iparf )
+  static __host__ __device__ inline fptype&
+  decodeRecord( fptype* buffer,
+                const int ip4,
+                const int iparf )
   {
     constexpr int ipagR = 0;
     constexpr int ieppR = 0;
-    return buffer[ipagR*nparf*np4*neppR + iparf*np4*neppR + ip4*neppR + ieppR]; // AOSOA[ipagR][iparf][ip4][ieppR]
+    return buffer[ipagR * nparf * np4 * neppR + iparf * np4 * neppR + ip4 * neppR + ieppR]; // AOSOA[ipagR][iparf][ip4][ieppR]
   }
-
 };
 
 //----------------------------------------------------------------------------
@@ -103,7 +100,6 @@ public:
   // [Signature (const) ===> const fptype& ieventAccessIp4IparfConst( const fptype* buffer, const ievt, const int ipar, const int iparf ) <===]
   static constexpr auto ieventAccessIp4IparfConst =
     MemoryAccessHelper<MemoryAccessRandomNumbersBase>::template ieventAccessFieldConst<int, int>;
-
 };
 
 //----------------------------------------------------------------------------
@@ -124,7 +120,6 @@ public:
   // [Signature (const) ===> const fptype& kernelAccessIp4IparfConst( const fptype* buffer, const int ipar, const int iparf ) <===]
   static constexpr auto kernelAccessIp4IparfConst =
     KernelAccessHelper<MemoryAccessRandomNumbersBase, onDevice>::template kernelAccessFieldConst<int, int>;
-
 };
 
 //----------------------------------------------------------------------------

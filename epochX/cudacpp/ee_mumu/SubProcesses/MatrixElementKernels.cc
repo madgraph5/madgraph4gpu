@@ -21,14 +21,14 @@ namespace mg5amcCpu
     : MatrixElementKernelBase( momenta, matrixElements )
     , NumberOfEvents( nevt )
   {
-    if ( m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: momenta must be a host array" );
-    if ( m_matrixElements.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: matrixElements must be a host array" );
-    if ( this->nevt() != m_momenta.nevt() ) throw std::runtime_error( "MatrixElementKernelHost: nevt mismatch with momenta" );
-    if ( this->nevt() != m_matrixElements.nevt() ) throw std::runtime_error( "MatrixElementKernelHost: nevt mismatch with matrixElements" );
+    if( m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: momenta must be a host array" );
+    if( m_matrixElements.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: matrixElements must be a host array" );
+    if( this->nevt() != m_momenta.nevt() ) throw std::runtime_error( "MatrixElementKernelHost: nevt mismatch with momenta" );
+    if( this->nevt() != m_matrixElements.nevt() ) throw std::runtime_error( "MatrixElementKernelHost: nevt mismatch with matrixElements" );
     // Sanity checks for memory access (momenta buffer)
     constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
     static_assert( ispoweroftwo( neppM ), "neppM is not a power of 2" );
-    if ( nevt%neppM != 0 )
+    if( nevt % neppM != 0 )
     {
       std::ostringstream sstr;
       sstr << "MatrixElementKernelHost: nevt should be a multiple of neppM=" << neppM;
@@ -37,7 +37,7 @@ namespace mg5amcCpu
     // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the SIMD used in the ME calculation
     // Note: this prevents a crash on pmpe04 but not on some github CI nodes?
     // [NB: SIMD vectorization in mg5amc C++ code is only used in the ME calculation below MatrixElementKernelHost!]
-    if ( ! MatrixElementKernelHost::hostSupportsSIMD() )
+    if( !MatrixElementKernelHost::hostSupportsSIMD() )
       throw std::runtime_error( "Host does not support the SIMD implementation of MatrixElementKernelsHost" );
   }
 
@@ -85,11 +85,11 @@ namespace mg5amcCpu
     bool ok = true;
     const std::string tag = "none";
 #endif
-    if ( verbose )
+    if( verbose )
     {
-      if ( tag == "none" )
+      if( tag == "none" )
         std::cout << "INFO: The application does not require the host to support any AVX feature" << std::endl;
-      else if ( ok )
+      else if( ok )
         std::cout << "INFO: The application is built for " << tag << " and the host supports it" << std::endl;
       else
         std::cout << "ERROR! The application is built for " << tag << " but the host does not support it" << std::endl;
@@ -115,20 +115,20 @@ namespace mg5amcGpu
                                                         const size_t gpublocks,
                                                         const size_t gputhreads )
     : MatrixElementKernelBase( momenta, matrixElements )
-    , NumberOfEvents( gpublocks*gputhreads )
+    , NumberOfEvents( gpublocks * gputhreads )
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
   {
-    if ( ! m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelDevice: momenta must be a device array" );
-    if ( ! m_matrixElements.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelDevice: matrixElements must be a device array" );
-    if ( m_gpublocks == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gpublocks must be > 0" );
-    if ( m_gputhreads == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gputhreads must be > 0" );
-    if ( this->nevt() != m_momenta.nevt() ) throw std::runtime_error( "MatrixElementKernelDevice: nevt mismatch with momenta" );
-    if ( this->nevt() != m_matrixElements.nevt() ) throw std::runtime_error( "MatrixElementKernelDevice: nevt mismatch with matrixElements" );
+    if( !m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelDevice: momenta must be a device array" );
+    if( !m_matrixElements.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelDevice: matrixElements must be a device array" );
+    if( m_gpublocks == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gpublocks must be > 0" );
+    if( m_gputhreads == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gputhreads must be > 0" );
+    if( this->nevt() != m_momenta.nevt() ) throw std::runtime_error( "MatrixElementKernelDevice: nevt mismatch with momenta" );
+    if( this->nevt() != m_matrixElements.nevt() ) throw std::runtime_error( "MatrixElementKernelDevice: nevt mismatch with matrixElements" );
     // Sanity checks for memory access (momenta buffer)
     constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
     static_assert( ispoweroftwo( neppM ), "neppM is not a power of 2" );
-    if ( m_gputhreads%neppM != 0 )
+    if( m_gputhreads % neppM != 0 )
     {
       std::ostringstream sstr;
       sstr << "MatrixElementKernelHost: gputhreads should be a multiple of neppM=" << neppM;
@@ -140,9 +140,9 @@ namespace mg5amcGpu
 
   void MatrixElementKernelDevice::setGrid( const int gpublocks, const int gputhreads )
   {
-    if ( m_gpublocks == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gpublocks must be > 0 in setGrid" );
-    if ( m_gputhreads == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gputhreads must be > 0 in setGrid" );
-    if ( this->nevt() != m_gpublocks * m_gputhreads ) throw std::runtime_error( "MatrixElementKernelDevice: nevt mismatch in setGrid" );
+    if( m_gpublocks == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gpublocks must be > 0 in setGrid" );
+    if( m_gputhreads == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gputhreads must be > 0 in setGrid" );
+    if( this->nevt() != m_gpublocks * m_gputhreads ) throw std::runtime_error( "MatrixElementKernelDevice: nevt mismatch in setGrid" );
   }
 
   //--------------------------------------------------------------------------
@@ -168,7 +168,7 @@ namespace mg5amcGpu
 #ifndef MGONGPU_NSIGHT_DEBUG
     sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_matrixElements.data() );
 #else
-    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX*sizeof(float)>>>( m_momenta.data(), m_matrixElements.data() );
+    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX * sizeof( float )>>>( m_momenta.data(), m_matrixElements.data() );
 #endif
     checkCuda( cudaPeekAtLastError() );
     checkCuda( cudaDeviceSynchronize() );
