@@ -317,8 +317,11 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 out_size = self.type_to_size[type]
                 continue
             elif self.offshell:
-                if len(p) != 0 : p.append(' ')
-                p.append('{0} {1}{2}[%(i)s]'.format(signs[i],type,i+1,type))
+                if len(p) == 0 :
+                    p.append('{0}{1}{2}[%(i)s]'.format(signs[i],type,i+1,type)) # AV for clang-format (ugly!)
+                else:
+                    p.append(' ')
+                    p.append('{0} {1}{2}[%(i)s]'.format(signs[i],type,i+1,type))
             if self.declaration.is_used('P%s' % (i+1)):
                 self.get_one_momenta_def(i+1, out)
         # Define the resulting momenta
@@ -331,10 +334,11 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 size_p = 2
             for i in range(size_p):
                 dict_energy = {'i':i}
-                out.write('    %s%s[%s] = %s;\n' % (type,self.outgoing, i, ''.join(p) % dict_energy))
-            if self.declaration.is_used('P%s' % self.outgoing):
-                self.get_one_momenta_def(self.outgoing, out)
+                out.write( '    %s%s[%s] = %s;\n' % ( type, self.outgoing, i, ''.join(p) % dict_energy ) )
+            if self.declaration.is_used( 'P%s' % self.outgoing ):
+                self.get_one_momenta_def( self.outgoing, out )
         # Returning result
+        ###print('."' + out.getvalue() + '"') # AV - FOR DEBUGGING
         return out.getvalue()
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting, add delayed declaration with initialisation)
