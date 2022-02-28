@@ -7,6 +7,7 @@
 #define HelAmps_%(model_name)s_H 1
 
 #include "mgOnGpuConfig.h"
+
 #include "mgOnGpuVectors.h"
 
 //#include <cmath>
