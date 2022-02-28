@@ -148,7 +148,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             tmp = tmp.limit_denominator(100)
             if not abs(tmp - number) / abs(tmp + number) < 1e-8: out = '%.9f' % (number)
             elif tmp.numerator == 1 and tmp.denominator == 2 : out = 'half' # AV
-            elif tmp.numerator == -1 and tmp.denominator == 2 : out = '-half' # AV
+            elif tmp.numerator == -1 and tmp.denominator == 2 : out = '( -half )' # AV
             else: out = '%s./%s.' % (tmp.numerator, tmp.denominator)
         return out
 
