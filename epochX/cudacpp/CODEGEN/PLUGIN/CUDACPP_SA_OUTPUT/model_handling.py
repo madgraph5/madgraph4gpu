@@ -306,15 +306,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         # Define all the required momenta
         p = [] # a list for keeping track how to write the momentum
         signs = self.get_momentum_conservation_sign()
-        for i,type in enumerate(self.particles):
-            if self.declaration.is_used('OM%s' % (i+1)):
-                ###out.write("    OM{0} = {1};\n    if (M{0} != {1})\n OM{0}={2}/(M{0}*M{0});\n".format(
-                ###out.write("    OM{0} = {1};\n    if ( M{0} != {1} ) OM{0} = {2} / (M{0}*M{0});\n".format( # AV older
-                ###out.write("    OM{0} = ( M{0} != {1} ? {2} / ( M{0} * M{0} ) : {1} );\n".format( # AV use ternary in OM3
-                ###    ###i+1, self.change_number_format(0), self.change_number_format(1)))
-                ###    i+1, '0.', '1.')) # AV force scalar "1." instead of vector "one"
-                declname = 'OM%s' % (i+1) # AV
-                if self.nodeclare: declname = 'const ' + self.declaration.codedict[declname] # AV
+        for i, type in enumerate(self.particles):
+            if self.declaration.is_used( 'OM%s' % (i+1) ):
+                declname = 'OM%s' % (i+1)
+                if self.nodeclare: declname = 'const ' + self.declaration.codedict[declname]
                 out.write("    {3} = ( M{0} != {1} ? {2} / ( M{0} * M{0} ) : {1} );\n".format( # AV use ternary in OM3
                     i+1, '0.', '1.', declname)) # AV force scalar "1." instead of vector "one", add declaration
             if i+1 == self.outgoing:
@@ -322,12 +317,11 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 out_size = self.type_to_size[type]
                 continue
             elif self.offshell:
-                if len(p) != 0 : p.append(' ') # AV
-                ###p.append('{0}{1}{2}[%(i)s]'.format(signs[i],type,i+1,type))
-                p.append('{0} {1}{2}[%(i)s]'.format(signs[i],type,i+1,type)) # AV
+                if len(p) != 0 : p.append(' ')
+                p.append('{0} {1}{2}[%(i)s]'.format(signs[i],type,i+1,type))
             if self.declaration.is_used('P%s' % (i+1)):
                 self.get_one_momenta_def(i+1, out)
-        # define the resulting momenta
+        # Define the resulting momenta
         if self.offshell:
             energy_pos = out_size -2
             type = self.particles[self.outgoing-1]
@@ -337,8 +331,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 size_p = 2
             for i in range(size_p):
                 dict_energy = {'i':i}
-                ###out.write('    %s%s[%s] = %s;\n' % (type,self.outgoing, i, ''.join(p) % dict_energy))
-                out.write('    %s%s[%s] = %s;\n' % (type,self.outgoing, i, ''.join(p) % dict_energy)) # AV
+                out.write('    %s%s[%s] = %s;\n' % (type,self.outgoing, i, ''.join(p) % dict_energy))
             if self.declaration.is_used('P%s' % self.outgoing):
                 self.get_one_momenta_def(self.outgoing, out)
         # Returning result
