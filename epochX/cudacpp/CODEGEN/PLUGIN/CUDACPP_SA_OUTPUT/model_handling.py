@@ -125,9 +125,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 return False
         if isinteger(number):
             if number == 1: out = 'one' # AV
-            elif number == -1: out = '- one' # AV
+            elif number == -1: out = '( -one )' # AV
             elif number == 2: out = 'two' # AV
-            elif number == -2: out = '- two' # AV
+            elif number == -2: out = '( -two )' # AV
             else: out = '%s.' % (str(int(number))) # This prints -1 as '-1.'
         elif isinstance(number, complex):
             if number.imag:
@@ -531,7 +531,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         if prefactor and obj.prefactor != 1:
             formatted = self.change_number_format(obj.prefactor)
             if formatted.startswith(('+','-')):
-                file_str.write('(%s)' % formatted)
+                file_str.write('( %s )' % formatted)
             else:
                 file_str.write(formatted)
             file_str.write(' * ( ')
