@@ -1,4 +1,4 @@
-#ifndef MATRIXELEMENTKERNELS_H 
+#ifndef MATRIXELEMENTKERNELS_H
 #define MATRIXELEMENTKERNELS_H 1
 
 #include "mgOnGpuConfig.h"
@@ -11,7 +11,6 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
   //--------------------------------------------------------------------------
 
   // A base class encapsulating matrix element calculations on a CPU host or on a GPU device
@@ -23,12 +22,14 @@ namespace mg5amcCpu
     MatrixElementKernelBase( const BufferMomenta& momenta,          // input: momenta
                              BufferMatrixElements& matrixElements ) // output: matrix elements
       : m_momenta( momenta )
-      , m_matrixElements( matrixElements ){}
+      , m_matrixElements( matrixElements )
+    {
+    }
 
   public:
 
     // Destructor
-    virtual ~MatrixElementKernelBase(){}
+    virtual ~MatrixElementKernelBase() {}
 
     // Compute good helicities
     virtual void computeGoodHelicities() = 0;
@@ -46,7 +47,6 @@ namespace mg5amcCpu
 
     // The buffer for the output matrix elements
     BufferMatrixElements& m_matrixElements;
-
   };
 
   //--------------------------------------------------------------------------
@@ -63,7 +63,7 @@ namespace mg5amcCpu
                              const size_t nevt );
 
     // Destructor
-    virtual ~MatrixElementKernelHost(){}
+    virtual ~MatrixElementKernelHost() {}
 
     // Compute good helicities
     void computeGoodHelicities() override final;
@@ -77,7 +77,6 @@ namespace mg5amcCpu
     // Does this host system support the SIMD used in the matrix element calculation?
     // [NB: SIMD vectorization in mg5amc C++ code is currently only used in the ME calculations below MatrixElementKernelHost!]
     static bool hostSupportsSIMD( const bool verbose = true );
-
   };
 #endif
 
@@ -96,7 +95,7 @@ namespace mg5amcCpu
                                const size_t gputhreads );
 
     // Destructor
-    virtual ~MatrixElementKernelDevice(){}
+    virtual ~MatrixElementKernelDevice() {}
 
     // Reset gpublocks and gputhreads
     void setGrid( const int gpublocks, const int gputhreads );
@@ -117,11 +116,9 @@ namespace mg5amcCpu
 
     // The number of threads in the GPU grid
     size_t m_gputhreads;
-
   };
 #endif
 
   //--------------------------------------------------------------------------
-
 }
 #endif // MATRIXELEMENTKERNELS_H
