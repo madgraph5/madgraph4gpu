@@ -546,10 +546,12 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 nb_str = self.change_number_format(value)
                 if nb_str[0] in ['+','-']:
                     file_str.write(nb_str)
+                elif first and nb_str == '( -cI )':
+                    file_str.write('-cI')
                 else:
                     file_str.write('+' if first else ' + ')
                     file_str.write(nb_str)
-                file_str.write(' * ( ') # AV: example '+ cI * (V3[4])'
+                file_str.write(' * ( ')
             elif value == -1:
                 add = ' - '
                 file_str.write('-' if first else ' - ')
