@@ -138,9 +138,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     if number.imag == 1:
                         out = 'cI'
                     elif number.imag == -1:
-                        out = '-cI'
+                        out = '( -cI )'
                     else:
-                        out = '%s * cI' % self.change_number_format(number.imag)
+                        out = '( %s * cI )' % self.change_number_format(number.imag)
             else:
                 out = '%s' % (self.change_number_format(number.real))
         else:
