@@ -424,8 +424,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             else:
                 mydict= {}
                 if self.type2def['pointer_vertex'] in ['*']:
-                    mydict['pre_vertex'] = '(*'
-                    mydict['post_vertex'] = ')'
+                    mydict['pre_vertex'] = '( *'
+                    mydict['post_vertex'] = ' )'
                 else:
                     mydict['pre_vertex'] = ''
                     mydict['post_vertex'] = ''
