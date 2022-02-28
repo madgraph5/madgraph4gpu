@@ -1,9 +1,6 @@
 
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called %(process_class_name)s::matrix_%(proc_name)s(%(matrix_args)s)?)
-
-      // The color matrix (initialize all array elements, with ncolor=1)
-      // [NB do keep 'static' for these constexpr arrays, see issue #283]
 %(color_matrix_lines)s
 
       // Sum and square the color flows to get the matrix element
