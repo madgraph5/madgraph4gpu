@@ -138,7 +138,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     if number.imag == 1:
                         out = 'cI'
                     elif number.imag == -1:
-                        out = '- cI'
+                        out = '-cI'
                     else:
                         out = '%s * cI' % self.change_number_format(number.imag)
             else:
@@ -417,14 +417,13 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 mydict = {'num': self.write_obj(numerator.get_rep([0]))}
                 for c in ['coup', 'vertex']:
                     if self.type2def['pointer_%s' %c] in ['*']:
-                        mydict['pre_%s' %c] = '(*'
-                        mydict['post_%s' %c] = ')'
+                        mydict['pre_%s' %c] = '( *'
+                        mydict['post_%s' %c] = ' )'
                     else:
                         mydict['pre_%s' %c] = ''
                         mydict['post_%s'%c] = ''
-                # This affects '(*vertex) = ' in HelAmps_sm.cc
-                ###out.write(' %(pre_vertex)svertex%(post_vertex)s = %(pre_coup)sCOUP%(post_coup)s*%(num)s;\n' % mydict)
-                out.write('    %(pre_vertex)svertex%(post_vertex)s = %(pre_coup)sCOUP%(post_coup)s * %(num)s;\n' % mydict) # AV
+                # This affects '( *vertex ) = ' in HelAmps_sm.cc
+                out.write('    %(pre_vertex)svertex%(post_vertex)s = %(pre_coup)sCOUP%(post_coup)s * %(num)s;\n' % mydict)
             else:
                 mydict= {}
                 if self.type2def['pointer_vertex'] in ['*']:
