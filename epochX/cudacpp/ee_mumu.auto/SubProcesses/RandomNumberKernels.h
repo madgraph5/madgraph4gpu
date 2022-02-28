@@ -1,4 +1,4 @@
-#ifndef RANDOMNUMBERKERNELS_H 
+#ifndef RANDOMNUMBERKERNELS_H
 #define RANDOMNUMBERKERNELS_H 1
 
 #include "mgOnGpuConfig.h"
@@ -48,13 +48,14 @@ namespace mg5amcCpu
   protected:
 
     // Constructor from an existing output buffer
-    RandomNumberKernelBase( BufferRandomNumbers& rnarray ) : m_rnarray( rnarray ){}
+    RandomNumberKernelBase( BufferRandomNumbers& rnarray )
+      : m_rnarray( rnarray ) {}
 
   public:
 
     // Destructor
-    virtual ~RandomNumberKernelBase(){}
-    
+    virtual ~RandomNumberKernelBase() {}
+
     // Seed the random number generator
     virtual void seedGenerator( const int seed ) = 0;
 
@@ -68,7 +69,6 @@ namespace mg5amcCpu
 
     // The buffer for the output random numbers
     BufferRandomNumbers& m_rnarray;
-
   };
 
   //--------------------------------------------------------------------------
@@ -82,7 +82,7 @@ namespace mg5amcCpu
     CommonRandomNumberKernel( BufferRandomNumbers& rnarray );
 
     // Destructor
-    ~CommonRandomNumberKernel(){}
+    ~CommonRandomNumberKernel() {}
 
     // Seed the random number generator
     void seedGenerator( const int seed ) override final { m_seed = seed; };
@@ -97,7 +97,6 @@ namespace mg5amcCpu
 
     // The generator seed
     int m_seed;
-
   };
 
   //--------------------------------------------------------------------------
@@ -130,12 +129,10 @@ namespace mg5amcCpu
 
     // The curand generator
     curandGenerator_t m_rnGen;
-
   };
 
 #endif
 
   //--------------------------------------------------------------------------
-
 }
 #endif // RANDOMNUMBERKERNELS_H
