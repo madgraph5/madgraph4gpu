@@ -156,10 +156,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 1 OF 2 ***
 
       // Wavefunction(s) for diagram number 1
-#if not ( defined __CUDACC__ and defined MGONGPU_TEST_DIVERGENCE )
+#if not( defined __CUDACC__ and defined MGONGPU_TEST_DIVERGENCE )
       opzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
 #else
-      if ( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
+      if( ( blockDim.x * blockIdx.x + threadIdx.x ) % 2 == 0 )
         opzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][0], -1, w_fp[0], 0 ); // NB: opzxxx only uses pz
       else
         oxxxxx<M_ACCESS, W_ACCESS>( momenta, 0, cHel[ihel][0], -1, w_fp[0], 0 );
