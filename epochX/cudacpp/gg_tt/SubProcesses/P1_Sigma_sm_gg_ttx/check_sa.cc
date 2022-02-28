@@ -376,7 +376,7 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
     pmek.reset( new MatrixElementKernelDevice( devMomenta, devMatrixElements, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstMatrixElements, nevt ) );
+    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstScales, hstMatrixElements, nevt ) );
 #endif
   }
   else
@@ -384,7 +384,7 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
     pmek.reset( new BridgeKernelDevice( hstMomenta, hstMatrixElements, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new BridgeKernelHost( hstMomenta, hstMatrixElements, nevt ) );
+    pmek.reset( new BridgeKernelHost( hstMomenta, hstScales, hstMatrixElements, nevt ) );
 #endif
   }
 

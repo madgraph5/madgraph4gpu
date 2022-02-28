@@ -16,9 +16,10 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   MatrixElementKernelHost::MatrixElementKernelHost( const BufferMomenta& momenta,         // input: momenta
+                                                    const BufferScales& scales,           // input: scales for alphaS
                                                     BufferMatrixElements& matrixElements, // output: matrix elements
                                                     const size_t nevt )
-    : MatrixElementKernelBase( momenta, matrixElements )
+    : MatrixElementKernelBase( momenta, scales, matrixElements )
     , NumberOfEvents( nevt )
   {
     if ( m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: momenta must be a host array" );
