@@ -534,11 +534,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 file_str.write('(%s)' % formatted)
             else:
                 file_str.write(formatted)
-            ###file_str.write('*(')
-            file_str.write(' * ( ') # AV
+            file_str.write(' * ( ')
         else:
-            ###file_str.write('(')
-            file_str.write('( ') # AV
+            file_str.write('( ')
         ###print('."'+file_str.getvalue()+'"') # AV - FOR DEBUGGING
         first=True
         for value, obj_list in data.items():
@@ -547,22 +545,16 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             if value not in  [-1,1]:
                 nb_str = self.change_number_format(value)
                 if nb_str[0] in ['+','-']:
-                    ###file_str.write(' '+nb_str) # AV
-                    file_str.write(nb_str) # AV
-                else:
-                    ###file_str.write('+')
-                    file_str.write('+' if first else ' + ') # AV
                     file_str.write(nb_str)
-                ###file_str.write('*(')
-                file_str.write(' * ( ') # AV (eg '+ cI * (V3[4])')
+                else:
+                    file_str.write('+' if first else ' + ')
+                    file_str.write(nb_str)
+                file_str.write(' * ( ') # AV: example '+ cI * (V3[4])'
             elif value == -1:
-                ###add = '-'
-                ###file_str.write('-')
-                add = ' - ' # AV
-                file_str.write('-' if first else ' - ') # AV
+                add = ' - '
+                file_str.write('-' if first else ' - ')
             elif not first:
-                ###file_str.write('+')
-                file_str.write(' + ') # AV
+                file_str.write(' + ')
             else:
                 file_str.write('')
             first = False
@@ -571,13 +563,11 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             file_str.write( add.join( [self.write_obj(obj, prefactor=False) for obj in obj_list] ) ) # NB: RECURSIVE! (write_obj_Add calls write_obj...)
             ###print('...."'+file_str.getvalue()+'"') # AV - FOR DEBUGGING
             if value not in [1,-1]:
-                ###file_str.write(')')
-                file_str.write(' )') # AV
+                file_str.write(' )')
         if number:
             total = sum(number)
             file_str.write('+ %s' % self.change_number_format(total))
-        ###file_str.write(')')
-        file_str.write(' )') # AV
+        file_str.write(' )')
         ###print('....."'+file_str.getvalue()+'"') # AV - FOR DEBUGGING
         return file_str.getvalue()
 
