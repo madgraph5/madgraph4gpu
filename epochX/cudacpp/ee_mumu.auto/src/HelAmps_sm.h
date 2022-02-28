@@ -1037,7 +1037,7 @@ namespace mg5amcCpu
     const cxtype_sv TMP4 = ( F1[4] * ( F2[2] * ( P3[0] - P3[3] ) - F2[3] * ( P3[1] + cI * ( P3[2] ) ) ) + F1[5] * ( F2[2] * ( -P3[1] + cI * ( P3[2] ) ) + F2[3] * ( P3[0] + P3[3] ) ) );
     const cxtype_sv denom = COUP / ( ( P3[0] * P3[0] ) - ( P3[1] * P3[1] ) - ( P3[2] * P3[2] ) - ( P3[3] * P3[3] ) - M3 * ( M3 - cI * W3 ) );
     V3[2] = denom * ( ( -two ) * cI ) * ( OM3 * ( -half ) * P3[0] * ( TMP2 + two * ( TMP4 ) ) + ( +half * ( F1[2] * F2[4] + F1[3] * F2[5] ) + F1[4] * F2[2] + F1[5] * F2[3] ) );
-    V3[3] = denom * ( ( -two ) * cI ) * ( OM3 * ( -half ) * P3[1] * ( TMP2 + two * ( TMP4 ) ) + ( +( -half ) * ( F1[2] * F2[5] + F1[3] * F2[4] ) + F1[4] * F2[3] + F1[5] * F2[2] ) );
+    V3[3] = denom * ( ( -two ) * cI ) * ( OM3 * ( -half ) * P3[1] * ( TMP2 + two * ( TMP4 ) ) + ( -half * ( F1[2] * F2[5] + F1[3] * F2[4] ) + F1[4] * F2[3] + F1[5] * F2[2] ) );
     V3[4] = denom * ( two * cI ) * ( OM3 * half * P3[2] * ( TMP2 + two * ( TMP4 ) ) + ( +( half * cI ) * ( F1[2] * F2[5] ) + ( ( -half ) * cI ) * ( F1[3] * F2[4] ) + ( -cI ) * ( F1[4] * F2[3] ) + cI * ( F1[5] * F2[2] ) ) );
     V3[5] = denom * ( two * cI ) * ( OM3 * half * P3[3] * ( TMP2 + two * ( TMP4 ) ) + ( +half * ( F1[2] * F2[4] ) + ( -half ) * ( F1[3] * F2[5] ) - F1[4] * F2[2] + F1[5] * F2[3] ) );
     mgDebug( 1, __FUNCTION__ );
@@ -1100,7 +1100,7 @@ namespace mg5amcCpu
     const cxtype_sv TMP4 = ( F1[4] * ( F2[2] * ( P3[0] - P3[3] ) - F2[3] * ( P3[1] + cI * ( P3[2] ) ) ) + F1[5] * ( F2[2] * ( -P3[1] + cI * ( P3[2] ) ) + F2[3] * ( P3[0] + P3[3] ) ) );
     const cxtype_sv denom = one / ( ( P3[0] * P3[0] ) - ( P3[1] * P3[1] ) - ( P3[2] * P3[2] ) - ( P3[3] * P3[3] ) - M3 * ( M3 - cI * W3 ) );
     V3[2] = denom * ( ( -two ) * cI ) * ( COUP2 * ( OM3 * ( -half ) * P3[0] * ( TMP2 + two * ( TMP4 ) ) + ( +half * ( F1[2] * F2[4] + F1[3] * F2[5] ) + F1[4] * F2[2] + F1[5] * F2[3] ) ) + half * ( COUP1 * ( F1[2] * F2[4] + F1[3] * F2[5] - P3[0] * OM3 * TMP2 ) ) );
-    V3[3] = denom * ( ( -two ) * cI ) * ( COUP2 * ( OM3 * ( -half ) * P3[1] * ( TMP2 + two * ( TMP4 ) ) + ( +( -half ) * ( F1[2] * F2[5] + F1[3] * F2[4] ) + F1[4] * F2[3] + F1[5] * F2[2] ) ) + ( -half ) * ( COUP1 * ( F1[2] * F2[5] + F1[3] * F2[4] + P3[1] * OM3 * TMP2 ) ) );
+    V3[3] = denom * ( ( -two ) * cI ) * ( COUP2 * ( OM3 * ( -half ) * P3[1] * ( TMP2 + two * ( TMP4 ) ) + ( -half * ( F1[2] * F2[5] + F1[3] * F2[4] ) + F1[4] * F2[3] + F1[5] * F2[2] ) ) + ( -half ) * ( COUP1 * ( F1[2] * F2[5] + F1[3] * F2[4] + P3[1] * OM3 * TMP2 ) ) );
     V3[4] = denom * cI * ( COUP2 * ( OM3 * P3[2] * ( TMP2 + two * ( TMP4 ) ) + ( +cI * ( F1[2] * F2[5] ) + ( -cI ) * ( F1[3] * F2[4] ) + ( ( -two ) * cI ) * ( F1[4] * F2[3] ) + ( two * cI ) * ( F1[5] * F2[2] ) ) ) + COUP1 * ( +cI * ( F1[2] * F2[5] ) + ( -cI ) * ( F1[3] * F2[4] ) + P3[2] * OM3 * TMP2 ) );
     V3[5] = denom * ( two * cI ) * ( COUP2 * ( OM3 * half * P3[3] * ( TMP2 + two * ( TMP4 ) ) + ( +half * ( F1[2] * F2[4] ) + ( -half ) * ( F1[3] * F2[5] ) - F1[4] * F2[2] + F1[5] * F2[3] ) ) + half * ( COUP1 * ( F1[2] * F2[4] + P3[3] * OM3 * TMP2 - F1[3] * F2[5] ) ) );
     mgDebug( 1, __FUNCTION__ );

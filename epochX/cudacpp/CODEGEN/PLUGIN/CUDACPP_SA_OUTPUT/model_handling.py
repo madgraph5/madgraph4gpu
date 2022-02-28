@@ -543,6 +543,12 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 nb_str = self.change_number_format(value)
                 if nb_str[0] in ['+','-']:
                     file_str.write(nb_str)
+                elif first and nb_str == '( -one )':
+                    file_str.write('-one')
+                elif first and nb_str == '( -two )':
+                    file_str.write('-two')
+                elif first and nb_str == '( -half )':
+                    file_str.write('-half')
                 elif first and nb_str == '( -cI )':
                     file_str.write('-cI')
                 else:
