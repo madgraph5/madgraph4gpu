@@ -1877,9 +1877,12 @@ namespace mg5amcCpu
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called CPPProcess::matrix_1_gg_ttxgg()?)
 
-      // The color matrix (initialize all array elements, with ncolor=1)
+      // The color denominators (initialize all array elements, with ncolor=24)
       // [NB do keep 'static' for these constexpr arrays, see issue #283]
       static constexpr fptype denom[ncolor] = { 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54 }; // 1-D array[24]
+
+      // The color matrix (initialize all array elements, with ncolor=24)
+      // [NB do keep 'static' for these constexpr arrays, see issue #283]
       static constexpr fptype cf[ncolor][ncolor] = {
         { 512, -64, -64, 8, 8, 80, -64, 8, 8, -1, -1, -10, 8, -1, 80, -10, 71, 62, -1, -10, -10, 62, 62, -28 },
         { -64, 512, 8, 80, -64, 8, 8, -64, -1, -10, 8, -1, -1, -10, -10, 62, 62, -28, 8, -1, 80, -10, 71, 62 },
