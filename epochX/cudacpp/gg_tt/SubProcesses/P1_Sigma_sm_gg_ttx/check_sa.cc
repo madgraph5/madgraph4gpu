@@ -285,8 +285,8 @@ int main(int argc, char **argv)
 #endif
 
 #ifndef __CUDACC__
-    HostBufferScales hstScales( nevt );
-    for (int i = 0; i < nevt; ++i) hstScales[i] = 1; // sr fill them for now, in the end they should come via the bridge
+    HostBufferGs hstGs( nevt );
+    for (int i = 0; i < nevt; ++i) hstGs[i] = 1; // sr fill them for now, in the end they should come via the bridge
 #else
     // sr fix CUDA version
 #endif
@@ -376,7 +376,7 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
     pmek.reset( new MatrixElementKernelDevice( devMomenta, devMatrixElements, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstScales, hstMatrixElements, nevt ) );
+    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstMatrixElements, nevt ) );
 #endif
   }
   else
@@ -384,7 +384,7 @@ int main(int argc, char **argv)
 #ifdef __CUDACC__
     pmek.reset( new BridgeKernelDevice( hstMomenta, hstMatrixElements, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new BridgeKernelHost( hstMomenta, hstScales, hstMatrixElements, nevt ) );
+    pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstMatrixElements, nevt ) );
 #endif
   }
 

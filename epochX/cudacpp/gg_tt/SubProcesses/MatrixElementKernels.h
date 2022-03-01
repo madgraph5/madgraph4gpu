@@ -21,10 +21,10 @@ namespace mg5amcCpu
 
     // Constructor from existing input and output buffers
     MatrixElementKernelBase( const BufferMomenta& momenta,          // input: momenta
-                             const BufferScales& scales,            // input: scales for alphaS
+                             const BufferGs& gs,                    // input: gs for alphaS
                              BufferMatrixElements& matrixElements ) // output: matrix elements
       : m_momenta( momenta )
-      , m_scales( scales )
+      , m_gs( gs )
       , m_matrixElements( matrixElements ){}
 
   public:
@@ -46,8 +46,8 @@ namespace mg5amcCpu
     // The buffer for the input momenta
     const BufferMomenta& m_momenta;
       
-    // The buffer for the scales to calculate the alphaS values
-    const BufferScales& m_scales;
+    // The buffer for the gs to calculate the alphaS values
+    const BufferGs& m_gs;
 
     // The buffer for the output matrix elements
     BufferMatrixElements& m_matrixElements;
@@ -64,7 +64,7 @@ namespace mg5amcCpu
 
     // Constructor from existing input and output buffers
     MatrixElementKernelHost( const BufferMomenta& momenta,         // input: momenta
-                             const BufferScales& scales,           // input: scales for alphaS
+                             const BufferGs& gs,                   // input: gs for alphaS
                              BufferMatrixElements& matrixElements, // output: matrix elements
                              const size_t nevt );
 
