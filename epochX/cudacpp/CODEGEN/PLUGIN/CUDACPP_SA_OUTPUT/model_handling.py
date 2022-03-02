@@ -895,7 +895,14 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         super().__init__(*args, **kwargs)
         self.process_class = "CPPProcess"
 
-    # AV - modify export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
+    # AV - overload export_cpp.OneProcessExporterGPU method (indent comments in process_lines)
+    def get_process_class_definitions(self, write=True):
+        replace_dict = super().get_process_class_definitions(write=False)
+        replace_dict['process_lines'] = replace_dict['process_lines'].replace('\n','\n  ')
+        file = self.read_template_file(self.process_class_template) % replace_dict # HACK! ignore write=False case
+        return file
+
+    # AV - replace export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
     def get_process_function_definitions(self, write=True):
         """The complete class definition for the process"""
         replace_dict = super(export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False)
@@ -925,7 +932,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         replace_dict['assign_hardcoded_coupling'] = coup_str_hrd + param_str_hrd
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "tHel")
-        file = self.read_template_file(self.process_definition_template) % replace_dict
+        file = self.read_template_file(self.process_definition_template) % replace_dict # HACK! ignore write=False case
         if len(self.params2order) == 0: # remove all IPD occurrences (issue #349)
             file_lines = file.split('\n')
             file_lines = [l.replace('cIPC,cIPD','cIPC') for l in file_lines] # remove cIPD from OpenMP pragma
