@@ -519,7 +519,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
 
     # AV - new method (based on implementation of write_obj and write_MultVariable)
     def objIsSimpleVariable(self, obj) :
-        return ( obj.vartype == 0 ) or ( obj.vartype == 2 and obj.prefactor == 1 and len( obj ) == 1 )
+        ###print ( obj.vartype, obj.prefactor, len( obj ), obj ) # AV - FOR DEBUGGING
+        return ( obj.vartype == 0 ) or ( obj.vartype == 2 and len( obj ) == 1 )
 
     # AV - modify aloha_writers.WriteALOHA method (improve formatting)
     # This affects 'V1[2] = ' and 'F1[2] = ' in HelAmps_sm.cc
