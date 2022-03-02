@@ -286,7 +286,8 @@ int main(int argc, char **argv)
 
 #ifndef __CUDACC__
     HostBufferGs hstGs( nevt );
-    for (int i = 0; i < nevt; ++i) hstGs[i] = 1; // sr fill them for now, in the end they should come via the bridge
+    constexpr double tmpG = 1.2177157847767195;
+    for (int i = 0; i < nevt; ++i) hstGs[i] = tmpG; // sr fill them for now, in the end they should come via the bridge
 #else
     // sr fix CUDA version
 #endif
