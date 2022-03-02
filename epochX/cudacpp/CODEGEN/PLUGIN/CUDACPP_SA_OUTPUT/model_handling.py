@@ -125,9 +125,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 return False
         if isinteger(number):
             if number == 1: out = 'one' # AV
-            elif number == -1: out = '( -one )' # AV
+            elif number == -1: out = '-one' # AV
             elif number == 2: out = 'two' # AV
-            elif number == -2: out = '( -two )' # AV
+            elif number == -2: out = '-two' # AV
             else: out = '%s.' % (str(int(number))) # This prints -1 as '-1.'
         elif isinstance(number, complex):
             if number.imag:
@@ -138,7 +138,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     if number.imag == 1:
                         out = 'cI'
                     elif number.imag == -1:
-                        out = '( -cI )'
+                        out = '-cI'
                     else:
                         out = '( %s * cI )' % self.change_number_format(number.imag)
             else:
@@ -148,7 +148,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             tmp = tmp.limit_denominator(100)
             if not abs(tmp - number) / abs(tmp + number) < 1e-8: out = '%.9f' % (number)
             elif tmp.numerator == 1 and tmp.denominator == 2 : out = 'half' # AV
-            elif tmp.numerator == -1 and tmp.denominator == 2 : out = '( -half )' # AV
+            elif tmp.numerator == -1 and tmp.denominator == 2 : out = '-half' # AV
             else: out = '%s./%s.' % (tmp.numerator, tmp.denominator)
         return out
 
