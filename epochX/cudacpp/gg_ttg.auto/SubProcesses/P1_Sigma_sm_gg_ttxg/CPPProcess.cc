@@ -172,8 +172,8 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 1
       VVV1_0<W_ACCESS, A_ACCESS>( w_fp[5], w_fp[6], w_fp[4], cxmake( cIPC[0], cIPC[1] ), &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
-      jamp_sv[2] += +amp_sv[0];
-      jamp_sv[4] += +amp_sv[0];
+      jamp_sv[2] += amp_sv[0];
+      jamp_sv[4] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
 
       // *** DIAGRAM 2 OF 16 ***
@@ -183,7 +183,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 2
       FFV1_0<W_ACCESS, A_ACCESS>( w_fp[3], w_fp[7], w_fp[5], cxmake( cIPC[2], cIPC[3] ), &amp_fp[0] );
-      jamp_sv[4] += +cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 3 OF 16 ***
@@ -193,7 +193,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 3
       FFV1_0<W_ACCESS, A_ACCESS>( w_fp[8], w_fp[2], w_fp[5], cxmake( cIPC[2], cIPC[3] ), &amp_fp[0] );
-      jamp_sv[0] += +cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 4 OF 16 ***
@@ -213,7 +213,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 5
       FFV1_0<W_ACCESS, A_ACCESS>( w_fp[3], w_fp[5], w_fp[10], cxmake( cIPC[2], cIPC[3] ), &amp_fp[0] );
-      jamp_sv[0] += +cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 6 OF 16 ***
@@ -242,7 +242,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 8
       FFV1_0<W_ACCESS, A_ACCESS>( w_fp[5], w_fp[2], w_fp[10], cxmake( cIPC[2], cIPC[3] ), &amp_fp[0] );
-      jamp_sv[3] += +cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 9 OF 16 ***
@@ -261,7 +261,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 10
       FFV1_0<W_ACCESS, A_ACCESS>( w_fp[3], w_fp[11], w_fp[5], cxmake( cIPC[2], cIPC[3] ), &amp_fp[0] );
-      jamp_sv[2] += +cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 11 OF 16 ***
@@ -271,7 +271,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 11
       FFV1_0<W_ACCESS, A_ACCESS>( w_fp[9], w_fp[2], w_fp[5], cxmake( cIPC[2], cIPC[3] ), &amp_fp[0] );
-      jamp_sv[1] += +cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 12 OF 16 ***
@@ -281,9 +281,9 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 12
       VVV1_0<W_ACCESS, A_ACCESS>( w_fp[5], w_fp[1], w_fp[6], cxmake( cIPC[0], cIPC[1] ), &amp_fp[0] );
-      jamp_sv[1] += +amp_sv[0];
+      jamp_sv[1] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
-      jamp_sv[3] += +amp_sv[0];
+      jamp_sv[3] += amp_sv[0];
       jamp_sv[4] -= amp_sv[0];
 
       // *** DIAGRAM 13 OF 16 ***
@@ -311,10 +311,10 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 15
       VVV1_0<W_ACCESS, A_ACCESS>( w_fp[0], w_fp[10], w_fp[6], cxmake( cIPC[0], cIPC[1] ), &amp_fp[0] );
-      jamp_sv[0] += +amp_sv[0];
+      jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
-      jamp_sv[5] += +amp_sv[0];
+      jamp_sv[5] += amp_sv[0];
 
       // *** DIAGRAM 16 OF 16 ***
 
@@ -325,19 +325,19 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 16
       FFV1_0<W_ACCESS, A_ACCESS>( w_fp[3], w_fp[2], w_fp[10], cxmake( cIPC[2], cIPC[3] ), &amp_fp[0] );
-      jamp_sv[0] += +amp_sv[0];
+      jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
-      jamp_sv[5] += +amp_sv[0];
+      jamp_sv[5] += amp_sv[0];
       FFV1_0<W_ACCESS, A_ACCESS>( w_fp[3], w_fp[2], w_fp[6], cxmake( cIPC[2], cIPC[3] ), &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
-      jamp_sv[2] += +amp_sv[0];
+      jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
-      jamp_sv[4] += +amp_sv[0];
+      jamp_sv[4] += amp_sv[0];
       FFV1_0<W_ACCESS, A_ACCESS>( w_fp[3], w_fp[2], w_fp[9], cxmake( cIPC[2], cIPC[3] ), &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
-      jamp_sv[2] += +amp_sv[0];
-      jamp_sv[4] += +amp_sv[0];
+      jamp_sv[2] += amp_sv[0];
+      jamp_sv[4] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***

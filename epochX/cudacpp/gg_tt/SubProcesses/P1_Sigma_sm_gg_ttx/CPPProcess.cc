@@ -168,7 +168,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 1
       FFV1_0<W_ACCESS, A_ACCESS>( w_fp[3], w_fp[2], w_fp[4], cxmake( cIPC[2], cIPC[3] ), &amp_fp[0] );
-      jamp_sv[0] += +cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 2 OF 3 ***
