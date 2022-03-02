@@ -546,16 +546,18 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             add= ' + '
             if value not in  [-1,1]:
                 nb_str = self.change_number_format(value)
-                if nb_str[0] in ['+','-']:
-                    file_str.write(nb_str)
-                elif first and nb_str == '( -one )':
-                    file_str.write('-one')
-                elif first and nb_str == '( -two )':
-                    file_str.write('-two')
-                elif first and nb_str == '( -half )':
-                    file_str.write('-half')
-                elif first and nb_str == '( -cI )':
-                    file_str.write('-cI')
+                ###print('.>"' + nb_str + '"') # AV - FOR DEBUGGING
+                if nb_str[0] in ['+', '-']:
+                    if first: file_str.write(nb_str)
+                    else : file_str.write(' ' + nb_str[0] + ' ' + nb_str[1:])
+                ###elif first and nb_str == '( -one )':
+                ###    file_str.write('-one')
+                ###elif first and nb_str == '( -two )':
+                ###    file_str.write('-two')
+                ###elif first and nb_str == '( -half )':
+                ###    file_str.write('-half')
+                ###elif first and nb_str == '( -cI )':
+                ###    file_str.write('-cI')
                 else:
                     file_str.write('+' if first else ' + ')
                     file_str.write(nb_str)
