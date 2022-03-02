@@ -517,6 +517,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             text = '%(factors)s'
         return text % data
 
+    # AV - new method (based on implementation of write_obj and write_MultVariable)
+    def objIsSimpleVariable(self, obj) :
+        return ( obj.vartype == 0 ) or ( obj.vartype == 2 and obj.prefactor == 1 and len( obj ) == 1 )
+
     # AV - modify aloha_writers.WriteALOHA method (improve formatting)
     # This affects 'V1[2] = ' and 'F1[2] = ' in HelAmps_sm.cc
     def write_obj_Add(self, obj, prefactor=True):
@@ -554,7 +558,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 else:
                     file_str.write('+' if first else ' + ')
                     file_str.write(nb_str)
-                file_str.write(' * ( ')
+                file_str.write(' * ')
+                if len( obj_list ) > 1 or not self.objIsSimpleVariable( obj_list[0] ) : file_str.write('( ')
             elif value == -1:
                 add = ' - '
                 file_str.write('-' if first else ' - ')
@@ -568,7 +573,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             file_str.write( add.join( [self.write_obj(obj, prefactor=False) for obj in obj_list] ) ) # NB: RECURSIVE! (write_obj_Add calls write_obj...)
             ###print('...."'+file_str.getvalue()+'"') # AV - FOR DEBUGGING
             if value not in [1,-1]:
-                file_str.write(' )')
+                if len( obj_list ) > 1 or not self.objIsSimpleVariable( obj_list[0] ) : file_str.write(' )')
         if number:
             total = sum(number)
             file_str.write('+ %s' % self.change_number_format(total))
