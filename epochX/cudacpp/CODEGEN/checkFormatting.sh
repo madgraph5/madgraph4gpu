@@ -33,6 +33,7 @@ function checkProcdir()
   # Check each file
   status=0
   badfiles=
+  out=$(mktemp)
   for file in $files; do
     filebak=${file}.bak
     \rm -f $filebak
@@ -40,16 +41,14 @@ function checkProcdir()
     ../../tools/mg-clang-format/mg-clang-format -i $file
     if [ "$quiet" == "0" ]; then
       echo "-----------------------------------------------------------------"
-      echo "[......] Check formatting in: $file"
-      diff $filebak $file
-    else
-      diff $filebak $file > /dev/null
+      ###echo "[......] Check formatting in: $file"
     fi
+    diff $filebak $file > $out
     if [ "$?" == "0" ]; then
       if [ $quiet -lt 2 ]; then echo "[....OK] Check formatting in: $file"; fi
       \rm -f $filebak
     else
-      if [ $quiet -lt 2 ]; then echo "[NOT OK] Check formatting in: $file"; fi
+      if [ $quiet -lt 3 ]; then echo "[NOT OK] Check formatting in: $file"; cat $out; fi      
       status=$((status+1))
       badfiles="$badfiles $file"      
       if [ "$rmbad" == "0" ]; then \mv $file $file.badfmt; fi
