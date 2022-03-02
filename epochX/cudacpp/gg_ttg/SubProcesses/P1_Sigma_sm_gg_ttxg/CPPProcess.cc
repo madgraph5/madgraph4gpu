@@ -101,7 +101,7 @@ namespace mg5amcCpu
 #endif
 
     // The number of colors
-    constexpr int ncolor = 24;
+    constexpr int ncolor = 6;
 
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
