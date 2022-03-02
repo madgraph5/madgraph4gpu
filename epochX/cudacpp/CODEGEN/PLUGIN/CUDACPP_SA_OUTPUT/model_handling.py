@@ -1330,15 +1330,13 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             res.append('\n      // *** DIAGRAM %d OF %d ***' % (diagram.get('number'), len(matrix_element.get('diagrams'))) ) # AV
             res.append('\n      // Wavefunction(s) for diagram number %d' % diagram.get('number')) # AV
             res.extend([ self.get_wavefunction_call(wf) for wf in diagram.get('wavefunctions') ]) # AV new: avoid format_call
-            ###res.extend([ self.format_call(self.get_wavefunction_call(wf)) for wf in diagram.get('wavefunctions') ]) # AV old: use format_call
             if len(diagram.get('wavefunctions')) == 0 : res.append('// (none)') # AV
-            ###res.append("# Amplitude(s) for diagram number %d" % diagram.get('number'))
+            if res[-1][-1] == '\n' : res[-1] = res[-1][:-1]
             res.append("\n      // Amplitude(s) for diagram number %d" % diagram.get('number'))
             for amplitude in diagram.get('amplitudes'):
                 namp = amplitude.get('number')
                 amplitude.set('number', 1)
                 res.append(self.get_amplitude_call(amplitude)) # AV new: avoid format_call
-                ###res.append(self.format_call(self.get_amplitude_call(amplitude))) # AV old: use format_call
                 for njamp, coeff in color[namp].items():
                     scoeff = PLUGIN_OneProcessExporter.coeff(*coeff) # AV
                     if scoeff[0] == '+' : scoeff = scoeff[1:]
