@@ -1340,14 +1340,13 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 res.append(self.get_amplitude_call(amplitude)) # AV new: avoid format_call
                 ###res.append(self.format_call(self.get_amplitude_call(amplitude))) # AV old: use format_call
                 for njamp, coeff in color[namp].items():
-                    ###res.append("jamp[%s] += %samp[0];" % (njamp, export_cpp.OneProcessExporterGPU.coeff(*coeff)))
-                    ###res.append("jamp[%s] += %samp[0];" % (njamp, PLUGIN_OneProcessExporter.coeff(*coeff)))
-                    ###res.append("jamp_sv[%s] += %samp_sv[0];" % (njamp, PLUGIN_OneProcessExporter.coeff(*coeff))) # AV vectorize
                     scoeff = PLUGIN_OneProcessExporter.coeff(*coeff) # AV
+                    if scoeff[0] == '+' : scoeff = scoeff[1:]
                     scoeff = scoeff.replace('(','( ')
                     scoeff = scoeff.replace(')',' )')
                     scoeff = scoeff.replace(',',', ')
                     scoeff = scoeff.replace('*',' * ')
+                    scoeff = scoeff.replace('/',' / ')
                     if scoeff.startswith('-'): res.append("jamp_sv[%s] -= %samp_sv[0];" % (njamp, scoeff[1:])) # AV
                     else: res.append("jamp_sv[%s] += %samp_sv[0];" % (njamp, scoeff)) # AV
             if len(diagram.get('amplitudes')) == 0 : res.append('// (none)') # AV
