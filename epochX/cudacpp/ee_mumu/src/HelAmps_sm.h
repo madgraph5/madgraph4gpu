@@ -1038,7 +1038,7 @@ namespace mg5amcCpu
     const cxtype_sv denom = COUP / ( ( P3[0] * P3[0] ) - ( P3[1] * P3[1] ) - ( P3[2] * P3[2] ) - ( P3[3] * P3[3] ) - M3 * ( M3 - cI * W3 ) );
     V3[2] = denom * ( -two * cI ) * ( OM3 * -half * P3[0] * ( TMP2 + two * TMP4 ) + ( +half * ( F1[2] * F2[4] + F1[3] * F2[5] ) + F1[4] * F2[2] + F1[5] * F2[3] ) );
     V3[3] = denom * ( -two * cI ) * ( OM3 * -half * P3[1] * ( TMP2 + two * TMP4 ) + ( -half * ( F1[2] * F2[5] + F1[3] * F2[4] ) + F1[4] * F2[3] + F1[5] * F2[2] ) );
-    V3[4] = denom * ( two * cI ) * ( OM3 * half * P3[2] * ( TMP2 + two * TMP4 ) + ( +( half * cI ) * ( F1[2] * F2[5] ) + ( -half * cI ) * ( F1[3] * F2[4] ) - cI * ( F1[4] * F2[3] ) + cI * ( F1[5] * F2[2] ) ) );
+    V3[4] = denom * ( two * cI ) * ( OM3 * half * P3[2] * ( TMP2 + two * TMP4 ) + ( half * cI * ( F1[2] * F2[5] ) - half * cI * ( F1[3] * F2[4] ) - cI * ( F1[4] * F2[3] ) + cI * ( F1[5] * F2[2] ) ) );
     V3[5] = denom * ( two * cI ) * ( OM3 * half * P3[3] * ( TMP2 + two * TMP4 ) + ( +half * ( F1[2] * F2[4] ) - half * ( F1[3] * F2[5] ) - F1[4] * F2[2] + F1[5] * F2[3] ) );
     mgDebug( 1, __FUNCTION__ );
     return;
