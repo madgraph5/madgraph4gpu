@@ -93,6 +93,11 @@ endif
 # Set the host C++ compiler for nvcc
 CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
 
+# Allow unsupported clang14 compiler from icx2022 with the latest CUDA (11.6)
+ifneq ($(shell $(CXX) --version | grep ^Intel | grep ' 2022\.'),)
+CUFLAGS += -allow-unsupported-compiler
+endif
+
 #-------------------------------------------------------------------------------
 
 #=== Configure ccache for C++ and CUDA builds
@@ -412,6 +417,7 @@ $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
 ifneq ($(NVCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(cu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
+$(cu_main): LIBFLAGS += -lsvml # compile with icpx and link with nvcc (undefined reference to `__svml_cos4_l9')
 endif
 $(cu_main): LIBFLAGS += -Xlinker -rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
 $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
@@ -439,6 +445,7 @@ $(fcxx_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5A
 ifneq ($(NVCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(fcu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
+$(fcu_main): LIBFLAGS += -lsvml # compile with icpx and link with nvcc (undefined reference to `__svml_cos4_l9')
 endif
 ifeq ($(UNAME_S),Darwin)
 $(fcu_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
@@ -485,6 +492,10 @@ $(testmain): cxx_objects += $(BUILDDIR)/runTest.o
 ifneq ($(NVCC),)
 $(BUILDDIR)/runTest_cu.o: $(GTESTLIBS)
 $(BUILDDIR)/runTest_cu.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+ifneq ($(shell $(CXX) --version | grep ^Intel),)
+$(testmain): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
+$(testmain): LIBFLAGS += -lsvml # compile with icpx and link with nvcc (undefined reference to `__svml_cos4_l9')
+endif
 $(testmain): $(BUILDDIR)/runTest_cu.o
 $(testmain): cu_objects  += $(BUILDDIR)/runTest_cu.o
 endif

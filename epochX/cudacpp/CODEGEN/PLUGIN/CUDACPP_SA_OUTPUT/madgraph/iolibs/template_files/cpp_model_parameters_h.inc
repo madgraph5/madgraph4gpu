@@ -72,7 +72,7 @@ namespace Parameters_%(model_name)s // keep the same name rather than HardcodedP
   }
   double constexpr sqrtNR( double x )
   {
-    return x >= 0 && x < std::numeric_limits<double>::infinity()
+    return x >= 0 // && x < std::numeric_limits<double>::infinity() // avoid -Wtautological-constant-compare warning in fast math
       ? detailSqrtNewtonRaphson( x, x, 0 )
       : std::numeric_limits<double>::quiet_NaN();
   }
