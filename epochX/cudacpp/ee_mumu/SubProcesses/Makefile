@@ -490,6 +490,9 @@ $(testmain): cxx_objects += $(BUILDDIR)/runTest.o
 ifneq ($(NVCC),)
 $(BUILDDIR)/runTest_cu.o: $(GTESTLIBS)
 $(BUILDDIR)/runTest_cu.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+ifneq ($(shell $(CXX) --version | grep ^Intel),)
+$(testmain): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
+endif
 $(testmain): $(BUILDDIR)/runTest_cu.o
 $(testmain): cu_objects  += $(BUILDDIR)/runTest_cu.o
 endif
