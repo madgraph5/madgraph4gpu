@@ -93,6 +93,11 @@ endif
 # Set the host C++ compiler for nvcc
 CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
 
+# Allow unsupported clang14 compiler from icx2022 with the latest CUDA (11.6)
+ifneq ($(shell $(CXX) --version | grep ^Intel | grep ' 2022\.'),)
+CUFLAGS += -allow-unsupported-compiler
+endif
+
 #-------------------------------------------------------------------------------
 
 #=== Configure ccache for C++ and CUDA builds
@@ -485,6 +490,9 @@ $(testmain): cxx_objects += $(BUILDDIR)/runTest.o
 ifneq ($(NVCC),)
 $(BUILDDIR)/runTest_cu.o: $(GTESTLIBS)
 $(BUILDDIR)/runTest_cu.o: INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
+ifneq ($(shell $(CXX) --version | grep ^Intel),)
+$(testmain): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
+endif
 $(testmain): $(BUILDDIR)/runTest_cu.o
 $(testmain): cu_objects  += $(BUILDDIR)/runTest_cu.o
 endif
