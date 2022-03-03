@@ -197,9 +197,11 @@ echo "proc=${proc}"
 if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"; exit 1; fi
 
 # Make sure that $MG5AMC_HOME exists
+###mg5amc_branch=2.7.0_gpu
+mg5amc_branch=3.1.1_lo_vectorization
 if [ "$MG5AMC_HOME" == "" ]; then
   echo "ERROR! MG5AMC_HOME is not defined"
-  echo "To download MG5AMC please run 'bzr branch lp:~maddevelopers/mg5amcnlo/2.7.0_gpu'"
+  echo "To download MG5AMC please run 'bzr branch lp:~maddevelopers/mg5amcnlo/${mg5amc_branch}'"
   exit 1
 fi
 echo -e "\nUsing MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
@@ -213,7 +215,7 @@ if bzr --version >& /dev/null; then
   echo -e "Using $(bzr --version | head -1)"
   echo -e "Retrieving bzr information about MG5AMC_HOME"
   if bzr info ${MG5AMC_HOME} > /dev/null; then
-    revno_patches=$(cat $SCRDIR/MG5aMC_patches/2.7.0_gpu/revision.BZR)
+    revno_patches=$(cat $SCRDIR/MG5aMC_patches/${mg5amc_branch}/revision.BZR)
     echo -e "MG5AMC patches in this plugin refer to bzr revno '${revno_patches}'"
     echo -e "Revert MG5AMC_HOME to bzr revno '${revno_patches}'"
     bzr revert ${MG5AMC_HOME} -r ${revno_patches}
@@ -230,14 +232,14 @@ else
 fi
 
 # Copy MG5AMC patches if any
-patches=$(cd $SCRDIR/MG5aMC_patches/2.7.0_gpu; find . -type f -name '*.py')
-echo -e "Copy MG5aMC_patches/2.7.0_gpu patches..."
+patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amc_branch}; find . -type f -name '*.py')
+echo -e "Copy MG5aMC_patches/${mg5amc_branch} patches..."
 for patch in $patches; do
   patch=${patch#./}
-  echo cp -dpr $SCRDIR/MG5aMC_patches/2.7.0_gpu/$patch $MG5AMC_HOME/$patch
-  cp -dpr $SCRDIR/MG5aMC_patches/2.7.0_gpu/$patch $MG5AMC_HOME/$patch
+  echo cp -dpr $SCRDIR/MG5aMC_patches/${mg5amc_branch}/$patch $MG5AMC_HOME/$patch
+  cp -dpr $SCRDIR/MG5aMC_patches/${mg5amc_branch}/$patch $MG5AMC_HOME/$patch
 done
-echo -e "Copy MG5aMC_patches/2.7.0_gpu patches... done\n"
+echo -e "Copy MG5aMC_patches/${mg5amc_branch} patches... done\n"
 
 # Clean up before code generation
 cleanup_MG5AMC_HOME
