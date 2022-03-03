@@ -6,6 +6,8 @@
 
 ;;; Commentary:
 
+;; Downloaded and adapted from https://github.com/emacsmirror/clang-format/blob/master/clang-format.el
+
 ;; This package allows to filter code through clang-format to fix its formatting.
 ;; clang-format is a tool that formats C/C++/Obj-C code according to a set of
 ;; style options, see <http://clang.llvm.org/docs/ClangFormatStyleOptions.html>.
