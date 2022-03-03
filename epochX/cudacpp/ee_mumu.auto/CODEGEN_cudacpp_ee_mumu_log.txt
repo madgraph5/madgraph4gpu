@@ -1,5 +1,4 @@
 Running MG5 in debug mode
-('WARNING: loading of madgraph too slow!!!', 1.288557767868042)
 ************************************************************
 *                                                          *
 *                     W E L C O M E to                     *
@@ -51,7 +50,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006807804107666016 [0m
+[1;32mDEBUG: model prefixing  takes 0.006906986236572266 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
@@ -69,7 +68,7 @@ INFO: Process has 2 diagrams
 Total: 1 processes with 2 diagrams
 output standalone_cudacpp CODEGEN_cudacpp_ee_mumu
 [1;34mPlugin PLUGIN.CUDACPP_SA_OUTPUT has marked as NOT being validated with this version. 
-It has been validated for the last time with version: 2.9.5[0m
+It has been validated for the last time with version: 3.1.1[0m
 [1mOutput will be done with PLUGIN: CUDACPP_SA_OUTPUT[0m
 [1;32mDEBUG:  cformat = [0m plugin [1;30m[export_cpp.py at line 2974][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 159][0m [0m
@@ -94,7 +93,7 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/G
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1086][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1093][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1105][0m [0m
-Generated helas calls for 1 subprocesses (2 diagrams) in 0.005 s
+Generated helas calls for 1 subprocesses (2 diagrams) in 0.006 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 176][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
@@ -127,6 +126,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_ee_mu
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 185][0m [0m
 quit
 
-real	0m2.260s
-user	0m1.868s
-sys	0m0.190s
+real	0m1.119s
+user	0m0.906s
+sys	0m0.127s
