@@ -2,6 +2,7 @@
 #define MemoryAccessWavefunctions_H 1
 
 #include "mgOnGpuConfig.h"
+
 #include "mgOnGpuCxtypes.h"
 
 #include "MemoryAccessHelpers.h"
@@ -15,19 +16,19 @@
 // A class describing the internal layout of memory buffers for wavefunctions
 // This implementation uses an AOSOA[npagW][nw6][nx2][neppW] where nevt=npagW*neppW
 // [If many implementations are used, a suffix _AOSOAv1 should be appended to the class name]
-class MemoryAccessWavefunctionsBase//_AOSOAv1
+class MemoryAccessWavefunctionsBase //_AOSOAv1
 {
 public:
 
   // Number of Events Per Page in the wavefunction AOSOA memory buffer layout
   static constexpr int neppW = 1; // AOS (just a test...)
 
- private:
+private:
 
   friend class MemoryAccessHelper<MemoryAccessWavefunctionsBase>;
   friend class KernelAccessHelper<MemoryAccessWavefunctionsBase, true>;
   friend class KernelAccessHelper<MemoryAccessWavefunctionsBase, false>;
-  
+
   // The number of components of a (fermion or vector) wavefunction
   static constexpr int nw6 = mgOnGpu::nw6;
 
@@ -41,16 +42,15 @@ public:
 
   // Locate an event record (output) in a memory buffer (input) from the given event number (input)
   // [Signature (non-const) ===> fptype* ieventAccessRecord( fptype* buffer, const int ievt ) <===]
-  static
-  __host__ __device__ inline
-  fptype* ieventAccessRecord( fptype* buffer,
-                              const int ievt )
+  static __host__ __device__ inline fptype*
+  ieventAccessRecord( fptype* buffer,
+                      const int ievt )
   {
+    const int ipagW = ievt / neppW; // #event "W-page"
+    const int ieppW = ievt % neppW; // #event in the current event W-page
     constexpr int iw6 = 0;
     constexpr int ix2 = 0;
-    const int ipagW = ievt/neppW; // #event "W-page"
-    const int ieppW = ievt%neppW; // #event in the current event W-page
-    return &( buffer[ipagW*nw6*nx2*neppW + iw6*nx2*neppW + ix2*neppW + ieppW] ); // AOSOA[ipagW][iw6][ix2][ieppW]
+    return &( buffer[ipagW * nw6 * nx2 * neppW + iw6 * nx2 * neppW + ix2 * neppW + ieppW] ); // AOSOA[ipagW][iw6][ix2][ieppW]
   }
 
   //--------------------------------------------------------------------------
@@ -58,17 +58,15 @@ public:
   // Locate a field (output) of an event record (input) from the given field indexes (input)
   // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, Ts... args ) <===]
   // [NB: expand variadic template "Ts... args" to "const int ix2, const int iw6" and rename "Field" as "Ix2Iw6"]
-  static
-  __host__ __device__ inline
-  fptype& decodeRecord( fptype* buffer,
-                        const int ix2,
-                        const int iw6 )
+  static __host__ __device__ inline fptype&
+  decodeRecord( fptype* buffer,
+                const int ix2,
+                const int iw6 )
   {
     constexpr int ipagW = 0;
     constexpr int ieppW = 0;
-    return buffer[ipagW*nw6*nx2*neppW + iw6*nx2*neppW + ix2*neppW + ieppW]; // AOSOA[ipagW][iw6][ix2][ieppW]
+    return buffer[ipagW * nw6 * nx2 * neppW + iw6 * nx2 * neppW + ix2 * neppW + ieppW]; // AOSOA[ipagW][iw6][ix2][ieppW]
   }
-
 };
 
 //----------------------------------------------------------------------------
@@ -105,7 +103,6 @@ public:
   // [Signature (const) ===> const fptype& ieventAccessIx2Iw6Const( const fptype* buffer, const ievt, const int ipar, const int iw6 ) <===]
   static constexpr auto ieventAccessIx2Iw6Const =
     MemoryAccessHelper<MemoryAccessWavefunctionsBase>::template ieventAccessFieldConst<int, int>;
-
 };
 
 #endif // #ifndef MGONGPU_TRIVIAL_WAVEFUNCTIONS
@@ -133,22 +130,19 @@ public:
 
 #else
 
-  static
-  __host__ __device__ inline
-  cxtype_sv* kernelAccess( fptype* buffer )
+  static __host__ __device__ inline cxtype_sv*
+  kernelAccess( fptype* buffer )
   {
     return reinterpret_cast<cxtype_sv*>( buffer );
   }
 
-  static
-  __host__ __device__ inline
-  const cxtype_sv* kernelAccessConst( const fptype* buffer )
+  static __host__ __device__ inline const cxtype_sv*
+  kernelAccessConst( const fptype* buffer )
   {
     return reinterpret_cast<const cxtype_sv*>( buffer );
   }
 
 #endif // #ifndef MGONGPU_TRIVIAL_WAVEFUNCTIONS
-
 };
 
 //----------------------------------------------------------------------------

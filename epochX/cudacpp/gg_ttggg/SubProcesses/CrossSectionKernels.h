@@ -1,4 +1,4 @@
-#ifndef CROSSSECTIONKERNELS_H 
+#ifndef CROSSSECTIONKERNELS_H
 #define CROSSSECTIONKERNELS_H 1
 
 #include "mgOnGpuConfig.h"
@@ -42,10 +42,10 @@ namespace mg5amcCpu
   public:
 
     // Destructor
-    virtual ~CrossSectionKernelBase(){}
+    virtual ~CrossSectionKernelBase() {}
 
     // Update event statistics
-    virtual void updateEventStatistics( const bool debug=false ) = 0;
+    virtual void updateEventStatistics( const bool debug = false ) = 0;
 
     // Is this a host or device kernel?
     virtual bool isOnDevice() const = 0;
@@ -63,7 +63,6 @@ namespace mg5amcCpu
 
     // The number of iterations processed so far
     size_t m_iter;
-
   };
 
   //--------------------------------------------------------------------------
@@ -80,14 +79,13 @@ namespace mg5amcCpu
                             const size_t nevt );
 
     // Destructor
-    virtual ~CrossSectionKernelHost(){}
+    virtual ~CrossSectionKernelHost() {}
 
     // Update event statistics
-    void updateEventStatistics( const bool debug=false ) override final;
+    void updateEventStatistics( const bool debug = false ) override final;
 
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return false; }
-
   };
 
   //--------------------------------------------------------------------------
@@ -131,6 +129,5 @@ namespace mg5amcCpu
   */
 
   //--------------------------------------------------------------------------
-
 }
 #endif // CROSSSECTIONKERNELS_H

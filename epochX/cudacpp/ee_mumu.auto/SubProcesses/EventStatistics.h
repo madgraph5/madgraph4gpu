@@ -15,7 +15,6 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
   //--------------------------------------------------------------------------
 
   // The EventStatistics struct is used to accumulate running aggregates of event statistics.
@@ -29,32 +28,33 @@ namespace mg5amcCpu
   struct EventStatistics
   {
   public:
-    size_t nevtALL; // total number of events used
-    size_t nevtABN; // number of events used, where ME is abnormal (nevtABN <= nevtALL)
-    size_t nevtZERO; // number of not-abnormal events used, where ME is zero (nevtZERO <= nevtOK)
-    double minME; // minimum matrix element
-    double maxME; // maximum matrix element
-    double minWG; // minimum sampling weight
-    double maxWG; // maximum sampling weight
-    double refME; // "reference" matrix element (normally the current mean)
-    double refWG; // "reference" sampling weight (normally the current mean)
+    size_t nevtALL;   // total number of events used
+    size_t nevtABN;   // number of events used, where ME is abnormal (nevtABN <= nevtALL)
+    size_t nevtZERO;  // number of not-abnormal events used, where ME is zero (nevtZERO <= nevtOK)
+    double minME;     // minimum matrix element
+    double maxME;     // maximum matrix element
+    double minWG;     // minimum sampling weight
+    double maxWG;     // maximum sampling weight
+    double refME;     // "reference" matrix element (normally the current mean)
+    double refWG;     // "reference" sampling weight (normally the current mean)
     double sumMEdiff; // sum of diff to ref for matrix element
     double sumWGdiff; // sum of diff to ref for sampling weight
     double sqsMEdiff; // squared sum of diff to ref for matrix element
     double sqsWGdiff; // squared sum of diff to ref for sampling weight
-    std::string tag; // a text tag for printouts
-    size_t nevtOK() const { return nevtALL - nevtABN; } // number of events used, where ME is not abnormal
+    std::string tag;  // a text tag for printouts
+    // Number of events used, where ME is not abnormal
+    size_t nevtOK() const { return nevtALL - nevtABN; }
     // Mean matrix element
     // [x = ref+d => mean(x) = sum(x)/n = ref+sum(d)/n]
     double meanME() const
     {
-      return refME + ( nevtOK()>0 ? sumMEdiff / nevtOK() : 0 );
+      return refME + ( nevtOK() > 0 ? sumMEdiff / nevtOK() : 0 );
     }
     // Mean sampling weight
     // [x = ref+d => mean(x) = sum(x)/n = ref+sum(d)/n]
     double meanWG() const
     {
-      return refWG + ( nevtOK()>0 ? sumWGdiff / nevtOK() : 0 );
+      return refWG + ( nevtOK() > 0 ? sumWGdiff / nevtOK() : 0 );
     }
     // Variance matrix element
     // [x = ref+d => n*var(x) = sum((x-mean(x))^2) = sum((ref+d-ref-sum(d)/n)^2) = sum((d-sum(d)/n)^2)/n = sum(d^2)-(sum(d))^2/n]
@@ -97,7 +97,7 @@ namespace mg5amcCpu
       , sumWGdiff( 0 )
       , sqsMEdiff( 0 )
       , sqsWGdiff( 0 )
-      , tag( "" ){}
+      , tag( "" ) {}
     // Combine two EventStatistics
     EventStatistics& operator+=( const EventStatistics& stats )
     {
@@ -111,12 +111,12 @@ namespace mg5amcCpu
       sum.maxME = std::max( s1.maxME, s2.maxME );
       sum.minWG = std::min( s1.minWG, s2.minWG );
       sum.maxWG = std::max( s1.maxWG, s2.maxWG );
-      sum.refME = ( s1.meanME()*s1.nevtOK() + s2.meanME()*s2.nevtOK() ) / sum.nevtOK(); // new mean ME
+      sum.refME = ( s1.meanME() * s1.nevtOK() + s2.meanME() * s2.nevtOK() ) / sum.nevtOK(); // new mean ME
       s1.updateRefME( sum.refME );
       s2.updateRefME( sum.refME );
       sum.sumMEdiff = s1.sumMEdiff + s2.sumMEdiff;
       sum.sqsMEdiff = s1.sqsMEdiff + s2.sqsMEdiff;
-      sum.refWG = ( s1.meanWG()*s1.nevtOK() + s2.meanWG()*s2.nevtOK() ) / sum.nevtOK(); // new mean WG
+      sum.refWG = ( s1.meanWG() * s1.nevtOK() + s2.meanWG() * s2.nevtOK() ) / sum.nevtOK(); // new mean WG
       s1.updateRefWG( sum.refWG );
       s2.updateRefWG( sum.refWG );
       sum.sumWGdiff = s1.sumWGdiff + s2.sumWGdiff;
@@ -126,8 +126,8 @@ namespace mg5amcCpu
     // Printout
     void printout( std::ostream& out ) const
     {
-      const EventStatistics &s = *this;
-      constexpr int meGeVexponent = -(2 * mgOnGpu::npar - 8);
+      const EventStatistics& s = *this;
+      constexpr int meGeVexponent = -( 2 * mgOnGpu::npar - 8 );
       out << s.tag << "NumMatrixElems(notAbnormal) = " << s.nevtOK() << std::endl
           << std::scientific // fixed format: affects all floats (default precision: 6)
           << s.tag << "MeanMatrixElemValue         = ( " << s.meanME()
@@ -135,13 +135,13 @@ namespace mg5amcCpu
           << s.tag << "[Min,Max]MatrixElemValue    = [ " << s.minME
           << " ,  " << s.maxME << " ]  GeV^" << meGeVexponent << std::endl
           << s.tag << "StdDevMatrixElemValue       = ( " << s.stdME()
-          << std::string(16, ' ') << " )  GeV^" << meGeVexponent << std::endl
+          << std::string( 16, ' ' ) << " )  GeV^" << meGeVexponent << std::endl
           << s.tag << "MeanWeight                  = ( " << s.meanWG()
           << " +- " << s.stdWG() / std::sqrt( s.nevtOK() ) << std::endl // standard error
           << s.tag << "[Min,Max]Weight             = [ " << s.minWG
           << " ,  " << s.maxWG << " ]" << std::endl
           << s.tag << "StdDevWeight                = ( " << s.stdWG()
-          << std::string(16, ' ') << " )" << std::endl
+          << std::string( 16, ' ' ) << " )" << std::endl
           << std::defaultfloat; // default format: affects all floats
     }
   };
@@ -150,11 +150,11 @@ namespace mg5amcCpu
 
   inline std::ostream& operator<<( std::ostream& out, const EventStatistics& s )
   {
-    s.printout( out ); return out;
+    s.printout( out );
+    return out;
   }
 
   //--------------------------------------------------------------------------
-
 }
 
 #endif // EventStatistics_H

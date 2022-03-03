@@ -1,4 +1,4 @@
-#ifndef RAMBOSAMPLINGKERNELS_H 
+#ifndef RAMBOSAMPLINGKERNELS_H
 #define RAMBOSAMPLINGKERNELS_H 1
 
 #include "mgOnGpuConfig.h"
@@ -11,7 +11,6 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
   //--------------------------------------------------------------------------
 
   // A base class encapsulating phase space sampling on a CPU host or on a GPU device
@@ -27,12 +26,14 @@ namespace mg5amcCpu
       : m_energy( energy )
       , m_rnarray( rnarray )
       , m_momenta( momenta )
-      , m_weights( weights ){}
+      , m_weights( weights )
+    {
+    }
 
   public:
 
     // Destructor
-    virtual ~SamplingKernelBase(){}
+    virtual ~SamplingKernelBase() {}
 
     // Get momenta of initial state particles
     virtual void getMomentaInitial() = 0;
@@ -56,7 +57,6 @@ namespace mg5amcCpu
 
     // The buffer for the output weights
     BufferWeights& m_weights;
-
   };
 
   //--------------------------------------------------------------------------
@@ -74,7 +74,7 @@ namespace mg5amcCpu
                              const size_t nevt );
 
     // Destructor
-    virtual ~RamboSamplingKernelHost(){}
+    virtual ~RamboSamplingKernelHost() {}
 
     // Get momenta of initial state particles
     void getMomentaInitial() override final;
@@ -84,7 +84,6 @@ namespace mg5amcCpu
 
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return false; }
-
   };
 
   //--------------------------------------------------------------------------
@@ -104,7 +103,7 @@ namespace mg5amcCpu
                                const size_t gputhreads );
 
     // Destructor
-    virtual ~RamboSamplingKernelDevice(){}
+    virtual ~RamboSamplingKernelDevice() {}
 
     // Get momenta of initial state particles
     void getMomentaInitial() override final;
@@ -122,11 +121,9 @@ namespace mg5amcCpu
 
     // The number of threads in the GPU grid
     size_t m_gputhreads;
-
   };
 #endif
 
   //--------------------------------------------------------------------------
-
 }
 #endif // RAMBOSAMPLINGKERNELS_H

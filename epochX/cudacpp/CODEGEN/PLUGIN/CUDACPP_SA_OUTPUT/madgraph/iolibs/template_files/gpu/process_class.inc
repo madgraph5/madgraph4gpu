@@ -5,7 +5,7 @@
 
   class CPPProcess
   {
-  public:
+  public: /* clang-format off */
 
     // Constructor (from command line arguments)
     CPPProcess( bool verbose = false, bool debug = false );
@@ -30,7 +30,7 @@
     //bool verbose() const { return m_verbose; }
     bool debug() const { return m_debug; }
 
-  public:
+  public: /* clang-format on */
 
     // Hardcoded parameters for this process (constant class variables)
     //static const int ninitial = mgOnGpu::npari;
@@ -56,5 +56,4 @@
     // Other variables of this instance (???)
     //int id1, id2; // initial particle ids
     //cxtype** amp; // ???
-
   };

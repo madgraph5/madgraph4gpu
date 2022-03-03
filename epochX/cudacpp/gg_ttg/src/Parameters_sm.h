@@ -37,7 +37,7 @@ public:
   cxsmpl<double> GC_10, GC_11, GC_12;
 
   // Set parameters that are unchanged during the run
-  void setIndependentParameters(SLHAReader& slha);
+  void setIndependentParameters( SLHAReader& slha );
 
   // Set couplings that are unchanged during the run
   void setIndependentCouplings();
@@ -63,7 +63,6 @@ public:
 private:
 
   static Parameters_sm* instance;
-
 };
 
 #else
@@ -78,11 +77,11 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   {
     return curr == prev ? curr : detailSqrtNewtonRaphson( x, 0.5 * ( curr + x / curr ), curr );
   }
-  double constexpr sqrtNR(double x)
+  double constexpr sqrtNR( double x )
   {
     return x >= 0 && x < std::numeric_limits<double>::infinity()
-                         ? detailSqrtNewtonRaphson(x, x, 0)
-                         : std::numeric_limits<double>::quiet_NaN();
+      ? detailSqrtNewtonRaphson( x, x, 0 )
+      : std::numeric_limits<double>::quiet_NaN();
   }
 
   // Model parameters independent of aS
@@ -106,52 +105,49 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   constexpr double mdl_conjg__CKM3x3 = 1.;
   constexpr double mdl_conjg__CKM1x1 = 1.;
   constexpr double mdl_CKM3x3 = 1.;
-  constexpr cxsmpl<double> mdl_complexi = cxsmpl<double>(0.,1.);
-  constexpr double mdl_MZ__exp__2 = ((mdl_MZ)*(mdl_MZ));
-  constexpr double mdl_MZ__exp__4 = ((mdl_MZ)*(mdl_MZ)*(mdl_MZ)*(mdl_MZ));
-  constexpr double mdl_sqrt__2 = sqrtNR(2.);
-  constexpr double mdl_MH__exp__2 = ((mdl_MH)*(mdl_MH));
-  constexpr double mdl_aEW = 1./aEWM1;
-  constexpr double mdl_MW = sqrtNR(mdl_MZ__exp__2/2.+sqrtNR(mdl_MZ__exp__4/4.-(mdl_aEW*M_PI*mdl_MZ__exp__2)/(mdl_Gf*mdl_sqrt__2)));
-  constexpr double mdl_sqrt__aEW = sqrtNR(mdl_aEW);
-  constexpr double mdl_ee = 2.*mdl_sqrt__aEW*sqrtNR(M_PI);
-  constexpr double mdl_MW__exp__2 = ((mdl_MW)*(mdl_MW));
-  constexpr double mdl_sw2 = 1.-mdl_MW__exp__2/mdl_MZ__exp__2;
-  constexpr double mdl_cw = sqrtNR(1.-mdl_sw2);
-  constexpr double mdl_sqrt__sw2 = sqrtNR(mdl_sw2);
+  constexpr cxsmpl<double> mdl_complexi = cxsmpl<double>( 0., 1. );
+  constexpr double mdl_MZ__exp__2 = ( ( mdl_MZ ) * ( mdl_MZ ) );
+  constexpr double mdl_MZ__exp__4 = ( ( mdl_MZ ) * ( mdl_MZ ) * ( mdl_MZ ) * ( mdl_MZ ) );
+  constexpr double mdl_sqrt__2 = sqrtNR( 2. );
+  constexpr double mdl_MH__exp__2 = ( ( mdl_MH ) * ( mdl_MH ) );
+  constexpr double mdl_aEW = 1. / aEWM1;
+  constexpr double mdl_MW = sqrtNR( mdl_MZ__exp__2 / 2. + sqrtNR( mdl_MZ__exp__4 / 4. - ( mdl_aEW * M_PI * mdl_MZ__exp__2 ) / ( mdl_Gf * mdl_sqrt__2 ) ) );
+  constexpr double mdl_sqrt__aEW = sqrtNR( mdl_aEW );
+  constexpr double mdl_ee = 2. * mdl_sqrt__aEW * sqrtNR( M_PI );
+  constexpr double mdl_MW__exp__2 = ( ( mdl_MW ) * ( mdl_MW ) );
+  constexpr double mdl_sw2 = 1. - mdl_MW__exp__2 / mdl_MZ__exp__2;
+  constexpr double mdl_cw = sqrtNR( 1. - mdl_sw2 );
+  constexpr double mdl_sqrt__sw2 = sqrtNR( mdl_sw2 );
   constexpr double mdl_sw = mdl_sqrt__sw2;
-  constexpr double mdl_g1 = mdl_ee/mdl_cw;
-  constexpr double mdl_gw = mdl_ee/mdl_sw;
-  constexpr double mdl_vev = (2.*mdl_MW*mdl_sw)/mdl_ee;
-  constexpr double mdl_vev__exp__2 = ((mdl_vev)*(mdl_vev));
-  constexpr double mdl_lam = mdl_MH__exp__2/(2.*mdl_vev__exp__2);
-  constexpr double mdl_yb = (mdl_ymb*mdl_sqrt__2)/mdl_vev;
-  constexpr double mdl_yt = (mdl_ymt*mdl_sqrt__2)/mdl_vev;
-  constexpr double mdl_ytau = (mdl_ymtau*mdl_sqrt__2)/mdl_vev;
-  constexpr double mdl_muH = sqrtNR(mdl_lam*mdl_vev__exp__2);
-  constexpr cxsmpl<double> mdl_I1x33 = mdl_yb*mdl_conjg__CKM3x3;
-  constexpr cxsmpl<double> mdl_I2x33 = mdl_yt*mdl_conjg__CKM3x3;
-  constexpr cxsmpl<double> mdl_I3x33 = mdl_CKM3x3*mdl_yt;
-  constexpr cxsmpl<double> mdl_I4x33 = mdl_CKM3x3*mdl_yb;
-  constexpr double mdl_ee__exp__2 = ((mdl_ee)*(mdl_ee));
-  constexpr double mdl_sw__exp__2 = ((mdl_sw)*(mdl_sw));
-  constexpr double mdl_cw__exp__2 = ((mdl_cw)*(mdl_cw));
-
+  constexpr double mdl_g1 = mdl_ee / mdl_cw;
+  constexpr double mdl_gw = mdl_ee / mdl_sw;
+  constexpr double mdl_vev = ( 2. * mdl_MW * mdl_sw ) / mdl_ee;
+  constexpr double mdl_vev__exp__2 = ( ( mdl_vev ) * ( mdl_vev ) );
+  constexpr double mdl_lam = mdl_MH__exp__2 / ( 2. * mdl_vev__exp__2 );
+  constexpr double mdl_yb = ( mdl_ymb * mdl_sqrt__2 ) / mdl_vev;
+  constexpr double mdl_yt = ( mdl_ymt * mdl_sqrt__2 ) / mdl_vev;
+  constexpr double mdl_ytau = ( mdl_ymtau * mdl_sqrt__2 ) / mdl_vev;
+  constexpr double mdl_muH = sqrtNR( mdl_lam * mdl_vev__exp__2 );
+  constexpr cxsmpl<double> mdl_I1x33 = mdl_yb * mdl_conjg__CKM3x3;
+  constexpr cxsmpl<double> mdl_I2x33 = mdl_yt * mdl_conjg__CKM3x3;
+  constexpr cxsmpl<double> mdl_I3x33 = mdl_CKM3x3 * mdl_yt;
+  constexpr cxsmpl<double> mdl_I4x33 = mdl_CKM3x3 * mdl_yb;
+  constexpr double mdl_ee__exp__2 = ( ( mdl_ee ) * ( mdl_ee ) );
+  constexpr double mdl_sw__exp__2 = ( ( mdl_sw ) * ( mdl_sw ) );
+  constexpr double mdl_cw__exp__2 = ( ( mdl_cw ) * ( mdl_cw ) );
 
   // Model couplings independent of aS
   // (none)
 
   // Model parameters dependent on aS
-  constexpr double mdl_sqrt__aS = sqrtNR(aS);
-  constexpr double G = 2.*mdl_sqrt__aS*sqrtNR(M_PI);
-  constexpr double mdl_G__exp__2 = ((G)*(G));
-
+  constexpr double mdl_sqrt__aS = sqrtNR( aS );
+  constexpr double G = 2. * mdl_sqrt__aS * sqrtNR( M_PI );
+  constexpr double mdl_G__exp__2 = ( ( G ) * ( G ) );
 
   // Model couplings dependent on aS
   constexpr cxsmpl<double> GC_10 = -G;
-  constexpr cxsmpl<double> GC_11 = mdl_complexi*G;
-  constexpr cxsmpl<double> GC_12 = mdl_complexi*mdl_G__exp__2;
-
+  constexpr cxsmpl<double> GC_11 = mdl_complexi * G;
+  constexpr cxsmpl<double> GC_12 = mdl_complexi * mdl_G__exp__2;
 
   // Print parameters that are unchanged during the run
   void printIndependentParameters();

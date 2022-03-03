@@ -1,4 +1,4 @@
-#ifndef MG5AMC_CUDARUNTIME_H 
+#ifndef MG5AMC_CUDARUNTIME_H
 #define MG5AMC_CUDARUNTIME_H 1
 
 // MG5AMC on GPU uses the CUDA runtime API, not the lower level CUDA driver API
@@ -9,17 +9,17 @@
 
 //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef __CUDACC__ /* clang-format off */
 #define checkCuda( code ) { assertCuda( code, __FILE__, __LINE__ ); }
 inline void assertCuda( cudaError_t code, const char* file, int line, bool abort = true )
 {
-  if ( code != cudaSuccess )
+  if( code != cudaSuccess )
   {
-    printf( "ERROR! GPUassert: %s %s:%d\n", cudaGetErrorString(code), file, line );
-    if ( abort ) assert( code == cudaSuccess );
+    printf( "ERROR! GPUassert: %s %s:%d\n", cudaGetErrorString( code ), file, line );
+    if( abort ) assert( code == cudaSuccess );
   }
 }
-#endif
+#endif /* clang-format on */
 
 //--------------------------------------------------------------------------
 
@@ -31,10 +31,11 @@ namespace mg5amcGpu
   // *** FIXME! This will all need to be designed differently when going to multi-GPU nodes! ***
   struct CudaRuntime final
   {
-    CudaRuntime( const bool debug=true ) : m_debug( debug ){ setUp( m_debug ); }
-    ~CudaRuntime(){ tearDown( m_debug ); }
-    CudaRuntime( const CudaRuntime&  ) = delete;
-    CudaRuntime( CudaRuntime&&  ) = delete;
+    CudaRuntime( const bool debug = true )
+      : m_debug( debug ) { setUp( m_debug ); }
+    ~CudaRuntime() { tearDown( m_debug ); }
+    CudaRuntime( const CudaRuntime& ) = delete;
+    CudaRuntime( CudaRuntime&& ) = delete;
     CudaRuntime& operator=( const CudaRuntime& ) = delete;
     CudaRuntime& operator=( CudaRuntime&& ) = delete;
     bool m_debug;
@@ -42,7 +43,7 @@ namespace mg5amcGpu
     // Set up CUDA application
     // ** NB: strictly speaking this is not needed when using the CUDA runtime API **
     // Calling cudaSetDevice on startup is useful to properly book-keep the time spent in CUDA initialization
-    static void setUp( const bool debug=true )
+    static void setUp( const bool debug = true )
     {
       // ** NB: it is useful to call cudaSetDevice, or cudaFree, to properly book-keep the time spent in CUDA initialization
       // ** NB: otherwise, the first CUDA operation (eg a cudaMemcpyToSymbol in CPPProcess ctor) appears to take much longer!
@@ -55,7 +56,7 @@ namespace mg5amcGpu
       */
       // Replace cudaFree(0) by cudaSetDevice(0), even if it is not really needed either
       // (but see https://developer.nvidia.com/blog/cuda-pro-tip-always-set-current-device-avoid-multithreading-bugs)
-      if ( debug ) std::cout << "__CudaRuntime: calling cudaSetDevice(0)" << std::endl;
+      if( debug ) std::cout << "__CudaRuntime: calling cudaSetDevice(0)" << std::endl;
       checkCuda( cudaSetDevice( 0 ) ); // SLOW!
     }
 
@@ -63,9 +64,9 @@ namespace mg5amcGpu
     // ** NB: strictly speaking this is not needed when using the CUDA runtime API **
     // Calling cudaDeviceReset on shutdown is only needed for checking memory leaks in cuda-memcheck
     // See https://docs.nvidia.com/cuda/cuda-memcheck/index.html#leak-checking
-    static void tearDown( const bool debug=true )
+    static void tearDown( const bool debug = true )
     {
-      if ( debug ) std::cout << "__CudaRuntime: calling cudaDeviceReset()" << std::endl;
+      if( debug ) std::cout << "__CudaRuntime: calling cudaDeviceReset()" << std::endl;
       checkCuda( cudaDeviceReset() );
     }
   };

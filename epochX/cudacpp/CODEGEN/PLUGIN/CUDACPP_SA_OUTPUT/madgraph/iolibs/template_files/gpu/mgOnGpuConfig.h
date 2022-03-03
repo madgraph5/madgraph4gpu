@@ -88,12 +88,15 @@ namespace mgOnGpu
   const int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
 
   const int npari = %(nincoming)d; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
+
   const int nparf = %(noutcoming)d; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
+
   const int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
 
   const int ncomb = %(nbhel)d; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
 
   const int nw6 = %(wavefuncsize)d; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+
   const int nwf = %(nwavefunc)d; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
 
   // --- Platform-specific software implementation details
@@ -114,71 +117,55 @@ namespace mgOnGpu
   constexpr int cppAlign = 64; // alignment requirement for SIMD vectorization (64-byte i.e. 512-bit)
 #endif
 
-  // C++ SIMD vectorization width (this will be used to set neppV)
-#ifdef __CUDACC__
-#undef MGONGPU_CPPSIMD
-#else
-#if defined __AVX512VL__
-#ifdef MGONGPU_PVW512
-  // "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
-#ifdef MGONGPU_FPTYPE_DOUBLE
-#define MGONGPU_CPPSIMD 8
-#else
-#define MGONGPU_CPPSIMD 16
-#endif
-#else
-  // "512y" AVX512 with 256 width (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [gcc DEFAULT]
-#ifdef MGONGPU_FPTYPE_DOUBLE
-#define MGONGPU_CPPSIMD 4
-#else
-#define MGONGPU_CPPSIMD 8
-#endif
-#endif
-#elif defined __AVX2__
-  // "avx2" AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [clang DEFAULT]
-#ifdef MGONGPU_FPTYPE_DOUBLE
-#define MGONGPU_CPPSIMD 4
-#else
-#define MGONGPU_CPPSIMD 8
-#endif
-#elif defined __SSE4_2__
-  // "sse4" SSE4.2 (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT)
-#ifdef MGONGPU_FPTYPE_DOUBLE
-#define MGONGPU_CPPSIMD 2
-#else
-#define MGONGPU_CPPSIMD 4
-#endif
-#else
-  // "none" i.e. no SIMD (*** NB: this is equivalent to AOS ***)
-#undef MGONGPU_CPPSIMD
-#endif
-#endif
 }
 
 // Expose typedefs and operators outside the namespace
 using mgOnGpu::fptype;
 
+// C++ SIMD vectorization width (this will be used to set neppV)
+#ifdef __CUDACC__ // CUDA implementation has no SIMD
+#undef MGONGPU_CPPSIMD
+#elif defined __AVX512VL__ && defined MGONGPU_PVW512 // C++ "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
+#ifdef MGONGPU_FPTYPE_DOUBLE
+#define MGONGPU_CPPSIMD 8
+#else
+#define MGONGPU_CPPSIMD 16
+#endif
+#elif defined __AVX512VL__ // C++ "512y" AVX512 with 256 width (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [gcc DEFAULT]
+#ifdef MGONGPU_FPTYPE_DOUBLE
+#define MGONGPU_CPPSIMD 4
+#else
+#define MGONGPU_CPPSIMD 8
+#endif
+#elif defined __AVX2__ // C++ "avx2" AVX2 (256-bit ie 32-byte): 4 (DOUBLE) or 8 (FLOAT) [clang DEFAULT]
+#ifdef MGONGPU_FPTYPE_DOUBLE
+#define MGONGPU_CPPSIMD 4
+#else
+#define MGONGPU_CPPSIMD 8
+#endif
+#elif defined __SSE4_2__ // C++ "sse4" SSE4.2 (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT)
+#ifdef MGONGPU_FPTYPE_DOUBLE
+#define MGONGPU_CPPSIMD 2
+#else
+#define MGONGPU_CPPSIMD 4
+#endif
+#else // C++ "none" i.e. no SIMD
+#undef MGONGPU_CPPSIMD
+#endif
+
 // Cuda nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
 // Arguments (not used so far): text is __FUNCTION__, code is 0 (start) or 1 (end)
-#if defined __CUDACC__ && defined MGONGPU_NSIGHT_DEBUG
-#define mgDebugDeclare()                              \
-  __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
-#define mgDebugInitialise()                     \
-  { mgDebugCounter[threadIdx.x] = 0; }
-#define mgDebug( code, text )                   \
-  { mgDebugCounter[threadIdx.x] += 1; }
-#define mgDebugFinalise()                                               \
-  { if ( blockIdx.x == 0 && threadIdx.x == 0 ) printf( "MGDEBUG: counter=%%f\n", mgDebugCounter[threadIdx.x] ); }
+#if defined __CUDACC__ && defined MGONGPU_NSIGHT_DEBUG /* clang-format off */
+#define mgDebugDeclare() __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
+#define mgDebugInitialise() { mgDebugCounter[threadIdx.x] = 0; }
+#define mgDebug( code, text ) { mgDebugCounter[threadIdx.x] += 1; }
+#define mgDebugFinalise() { if ( blockIdx.x == 0 && threadIdx.x == 0 ) printf( "MGDEBUG: counter=%%f\n", mgDebugCounter[threadIdx.x] ); }
 #else
-#define mgDebugDeclare()                        \
-  /*noop*/
-#define mgDebugInitialise()                     \
-  { /*noop*/ }
-#define mgDebug( code, text )                   \
-  { /*noop*/ }
-#define mgDebugFinalise()                       \
-  { /*noop*/ }
-#endif
+#define mgDebugDeclare() /*noop*/
+#define mgDebugInitialise() { /*noop*/ }
+#define mgDebug( code, text ) { /*noop*/ }
+#define mgDebugFinalise() { /*noop*/ }
+#endif /* clang-format on */
 
 // Define empty CUDA declaration specifiers for C++
 #ifndef __CUDACC__
@@ -188,24 +175,28 @@ using mgOnGpu::fptype;
 #endif
 
 // For SANITY CHECKS: check that neppR, neppM, neppV... are powers of two (https://stackoverflow.com/a/108360)
-inline constexpr bool ispoweroftwo( int n ){ return ( n > 0 ) && !( n & ( n - 1 ) ); }
+inline constexpr bool
+ispoweroftwo( int n )
+{
+  return ( n > 0 ) && !( n & ( n - 1 ) );
+}
 
 // Compiler version support (#96): require nvcc from CUDA >= 11.2, e.g. to use C++17 (see #333)
 #ifdef __NVCC__
-#if ( __CUDACC_VER_MAJOR__ < 11 ) || ( __CUDACC_VER_MAJOR__ == 11 && __CUDACC_VER_MINOR__ < 2 )
+#if( __CUDACC_VER_MAJOR__ < 11 ) || ( __CUDACC_VER_MAJOR__ == 11 && __CUDACC_VER_MINOR__ < 2 )
 #error Unsupported CUDA version: please use CUDA >= 11.2
 #endif
 #endif
 
 // Compiler version support (#96): require clang >= 11
 #if defined __clang__
-#if ( __clang_major__ < 11 )
+#if( __clang_major__ < 11 )
 #error Unsupported clang version: please use clang >= 11
 #endif
 // Compiler version support (#96): require gcc >= 9.3, e.g. for some OMP issues (see #269)
 // [NB skip this check for the gcc toolchain below clang or icx (TEMPORARY? #355)]
 #elif defined __GNUC__
-#if ( __GNUC__ < 9 ) || ( __GNUC__ == 9 && __GNUC_MINOR__ < 3 )
+#if( __GNUC__ < 9 ) || ( __GNUC__ == 9 && __GNUC_MINOR__ < 3 )
 #error Unsupported gcc version: please gcc >= 9.3
 #endif
 #endif

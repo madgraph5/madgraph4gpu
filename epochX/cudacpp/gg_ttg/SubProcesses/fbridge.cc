@@ -1,5 +1,4 @@
 #include "Bridge.h"
-
 #include "CPPProcess.h"
 #include "CudaRuntime.h"
 
@@ -63,7 +62,7 @@ extern "C"
   void fbridgedelete_( CppObjectInFortran** ppbridge )
   {
     Bridge<FORTRANFPTYPE>* pbridge = dynamic_cast<Bridge<FORTRANFPTYPE>*>( *ppbridge );
-    if ( pbridge == 0 ) throw std::runtime_error( "fbridgedelete_: invalid Bridge address" );
+    if( pbridge == 0 ) throw std::runtime_error( "fbridgedelete_: invalid Bridge address" );
     delete pbridge;
 #ifdef __CUDACC__
     CudaRuntime::tearDown();
@@ -81,7 +80,7 @@ extern "C"
   void fbridgesequence_( CppObjectInFortran** ppbridge, const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes )
   {
     Bridge<FORTRANFPTYPE>* pbridge = dynamic_cast<Bridge<FORTRANFPTYPE>*>( *ppbridge );
-    if ( pbridge == 0 ) throw std::runtime_error( "fbridgesequence_: invalid Bridge address" );
+    if( pbridge == 0 ) throw std::runtime_error( "fbridgesequence_: invalid Bridge address" );
 #ifdef __CUDACC__
     // Use the device/GPU implementation in the CUDA library
     // (there is also a host implementation in this library)
@@ -92,5 +91,4 @@ extern "C"
     pbridge->cpu_sequence( momenta, mes );
 #endif
   }
-
 }

@@ -2,6 +2,7 @@
 #define MemoryAccessVectors_H 1
 
 #include "mgOnGpuConfig.h"
+
 #include "mgOnGpuVectors.h"
 
 #ifndef __CUDACC__
@@ -23,39 +24,39 @@ namespace mg5amcCpu // this is only needed for CPU SIMD vectorization
   inline fptype_v fptypevFromUnalignedArray( const fptype& ref )
   {
 #if MGONGPU_CPPSIMD == 2
-    return fptype_v{ *( &ref   ), // explicit initialization of all array elements (2)
-                     *( &ref+1 ) };
+    return fptype_v{ *( &ref ), // explicit initialization of all array elements (2)
+                     *( &ref + 1 ) };
 #elif MGONGPU_CPPSIMD == 4
-    return fptype_v{ *( &ref   ), // explicit initialization of all array elements (4)
-                     *( &ref+1 ),
-                     *( &ref+2 ),
-                     *( &ref+3 ) };
+    return fptype_v{ *( &ref ), // explicit initialization of all array elements (4)
+                     *( &ref + 1 ),
+                     *( &ref + 2 ),
+                     *( &ref + 3 ) };
 #elif MGONGPU_CPPSIMD == 8
-    return fptype_v{ *( &ref   ), // explicit initialization of all array elements (8)
-                     *( &ref+1 ),
-                     *( &ref+2 ),
-                     *( &ref+3 ),
-                     *( &ref+4 ),
-                     *( &ref+5 ),
-                     *( &ref+6 ),
-                     *( &ref+7 ) };
+    return fptype_v{ *( &ref ), // explicit initialization of all array elements (8)
+                     *( &ref + 1 ),
+                     *( &ref + 2 ),
+                     *( &ref + 3 ),
+                     *( &ref + 4 ),
+                     *( &ref + 5 ),
+                     *( &ref + 6 ),
+                     *( &ref + 7 ) };
 #elif MGONGPU_CPPSIMD == 16
-    return fptype_v{ *( &ref   ), // explicit initialization of all array elements (16)
-                     *( &ref+1 ),
-                     *( &ref+2 ),
-                     *( &ref+3 ),
-                     *( &ref+4 ),
-                     *( &ref+5 ),
-                     *( &ref+6 ),
-                     *( &ref+7 ),
-                     *( &ref+8 ),
-                     *( &ref+9 ),
-                     *( &ref+10 ),
-                     *( &ref+11 ),
-                     *( &ref+12 ),
-                     *( &ref+13 ),
-                     *( &ref+14 ),
-                     *( &ref+15 ) };
+    return fptype_v{ *( &ref ), // explicit initialization of all array elements (16)
+                     *( &ref + 1 ),
+                     *( &ref + 2 ),
+                     *( &ref + 3 ),
+                     *( &ref + 4 ),
+                     *( &ref + 5 ),
+                     *( &ref + 6 ),
+                     *( &ref + 7 ),
+                     *( &ref + 8 ),
+                     *( &ref + 9 ),
+                     *( &ref + 10 ),
+                     *( &ref + 11 ),
+                     *( &ref + 12 ),
+                     *( &ref + 13 ),
+                     *( &ref + 14 ),
+                     *( &ref + 15 ) };
 #else
 #error Internal error! Unknown MGONGPU_CPPSIMD value
 #endif
@@ -63,7 +64,7 @@ namespace mg5amcCpu // this is only needed for CPU SIMD vectorization
 
   // Build one fptype_v (one vector of neppV fptype values) from one fptype references,
   // with no a priori assumption on how the input fptype array should be decoded
-  template <typename Functor>
+  template<typename Functor>
   inline fptype_v fptypevFromArbitraryArray( Functor decoderIeppv )
   {
 #if MGONGPU_CPPSIMD == 2

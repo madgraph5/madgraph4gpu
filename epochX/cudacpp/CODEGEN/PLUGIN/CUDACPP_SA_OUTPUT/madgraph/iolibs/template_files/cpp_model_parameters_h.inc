@@ -30,7 +30,7 @@ public:
   %(dependent_couplings)s
 
   // Set parameters that are unchanged during the run
-  void setIndependentParameters(SLHAReader& slha);
+  void setIndependentParameters( SLHAReader& slha );
 
   // Set couplings that are unchanged during the run
   void setIndependentCouplings();
@@ -56,7 +56,6 @@ public:
 private:
 
   static Parameters_%(model_name)s* instance;
-
 };
 
 #else
@@ -71,27 +70,23 @@ namespace Parameters_%(model_name)s // keep the same name rather than HardcodedP
   {
     return curr == prev ? curr : detailSqrtNewtonRaphson( x, 0.5 * ( curr + x / curr ), curr );
   }
-  double constexpr sqrtNR(double x)
+  double constexpr sqrtNR( double x )
   {
     return x >= 0 && x < std::numeric_limits<double>::infinity()
-                         ? detailSqrtNewtonRaphson(x, x, 0)
-                         : std::numeric_limits<double>::quiet_NaN();
+      ? detailSqrtNewtonRaphson( x, x, 0 )
+      : std::numeric_limits<double>::quiet_NaN();
   }
 
   // Model parameters independent of aS
   constexpr double zero = 0;
   constexpr double ZERO = 0;
   %(hardcoded_independent_parameters)s
-
   // Model couplings independent of aS
   %(hardcoded_independent_couplings)s
-
   // Model parameters dependent on aS
   %(hardcoded_dependent_parameters)s
-
   // Model couplings dependent on aS
   %(hardcoded_dependent_couplings)s
-
   // Print parameters that are unchanged during the run
   void printIndependentParameters();
 
