@@ -2103,6 +2103,8 @@ namespace mg5amcCpu
     // Set external particle masses for this matrix element
     m_masses.push_back( Parameters_sm::ZERO );
     m_masses.push_back( Parameters_sm::ZERO );
+    m_masses.push_back( Parameters_sm::mdl_MT );
+    m_masses.push_back( Parameters_sm::mdl_MT );
     m_masses.push_back( Parameters_sm::ZERO );
     m_masses.push_back( Parameters_sm::ZERO );
   }
