@@ -92,28 +92,35 @@ function codeGenAndDiff()
     outprocauto=${MG5AMC_HOME}/${outproc}
   fi
   cp -dpr ${MG5AMC_HOME}/${outproc}_log.txt ${outprocauto}/
+  # Output directories: examples ee_mumu.auto for cudacpp and gridpacks, eemumu.cpp for cpp, eemumu.gpu for gpu
+  autosuffix=auto
+  if [ "${OUTBCK}" == "cpp" ]; then autosuffix=cpp; fi
+  if [ "${OUTBCK}" == "gpu" ]; then autosuffix=gpu; fi
   # Replace the existing generated code in the output source code directory by the newly generated code and create a .BKP
-  rm -rf ${OUTDIR}/${proc}.auto.BKP
-  if [ -d ${OUTDIR}/${proc}.auto ]; then mv ${OUTDIR}/${proc}.auto ${OUTDIR}/${proc}.auto.BKP; fi
-  cp -dpr ${outprocauto} ${OUTDIR}/${proc}.auto
-  echo -e "\nOutput source code has been copied to ${OUTDIR}/${proc}.auto"
+  rm -rf ${OUTDIR}/${proc}.${autosuffix}.BKP
+  if [ -d ${OUTDIR}/${proc}.${autosuffix} ]; then mv ${OUTDIR}/${proc}.${autosuffix} ${OUTDIR}/${proc}.${autosuffix}.BKP; fi
+  cp -dpr ${outprocauto} ${OUTDIR}/${proc}.${autosuffix}
+  echo -e "\nOutput source code has been copied to ${OUTDIR}/${proc}.${autosuffix}"
   # Compare the existing generated code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
   echo -e "\n+++ Compare old and new code generation log for $proc\n"
-  ###if diff -c ${proc}.auto.BKP/${outproc}_log.txt ${proc}.auto; then echo "Old and new code generation logs are identical"; fi # context diff
-  if diff ${proc}.auto.BKP/${outproc}_log.txt ${proc}.auto; then echo "Old and new code generation logs are identical"; fi # context diff
+  ###if diff -c ${proc}.${autosuffix}.BKP/${outproc}_log.txt ${proc}.${autosuffix}; then echo "Old and new code generation logs are identical"; fi # context diff
+  if diff ${proc}.${autosuffix}.BKP/${outproc}_log.txt ${proc}.${autosuffix}; then echo "Old and new code generation logs are identical"; fi # context diff
   echo -e "\n+++ Compare old and new generated code for $proc\n"
-  if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc}.auto.BKP ${proc}.auto; then echo "Old and new generated codes are identical"; else echo -e "\nWARNING! Old and new generated codes differ"; fi
+  if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc}.${autosuffix}.BKP ${proc}.${autosuffix}; then echo "Old and new generated codes are identical"; else echo -e "\nWARNING! Old and new generated codes differ"; fi
   popd >& /dev/null
   # Compare the existing manually developed code to the newly generated code for the specific process
-  pushd ${OUTDIR} >& /dev/null
-  echo -e "\n+++ Compare manually developed code to newly generated code for $proc\n"
-  if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc} ${proc}.auto; then echo "Manual and generated codes are identical"; else echo -e "\nWARNING! Manual and generated codes differ"; fi
+  if [ "${OUTBCK}" == "cudacpp" ] || [ "${OUTBCK}" == "gridpack" ]; then
+    pushd ${OUTDIR} >& /dev/null
+    echo -e "\n+++ Compare manually developed code to newly generated code for $proc\n"
+    if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc} ${proc}.${autosuffix}; then echo "Manual and generated codes are identical"; else echo -e "\nWARNING! Manual and generated codes differ"; fi
+    popd >& /dev/null
+  fi
   # Print a summary of the available code
   echo
   echo -e "Manually developed code is\n  ${OUTDIR}/${proc}"
-  echo -e "Old generated code moved to\n  ${OUTDIR}/${proc}.auto.BKP"
-  echo -e "New generated code moved to\n  ${OUTDIR}/${proc}.auto"
+  echo -e "Old generated code moved to\n  ${OUTDIR}/${proc}.${autosuffix}.BKP"
+  echo -e "New generated code moved to\n  ${OUTDIR}/${proc}.${autosuffix}"
 }
 
 #--------------------------------------------------------------------------------------
@@ -121,9 +128,9 @@ function codeGenAndDiff()
 function usage()
 {
   if [ "${OUTBCK}" == "gridpack" ]; then
-    echo "Usage: $0 [--nobrief] [--nountaronly] [--nohelrec] <proc>" # New: only one process
+    echo "Usage: $0 [--nobrief] [--nountaronly] [--nohelrec] <proc>" # NB: only one process
   else
-    echo "Usage: $0 [--nobrief] <proc>" # New: only one process
+    echo "Usage: $0 [--nobrief] [--cpp|--gpu] <proc>" # NB: only one process
   fi
   exit 1
 }
@@ -151,7 +158,7 @@ SCRDIR=$(cd $(dirname $0); pwd)
 # Output source code directory for the chosen backend
 OUTDIR=$(dirname $SCRDIR) # e.g. epochX/cudacpp if $SCRDIR=epochX/cudacpp/CODEGEN
 
-# Output backend
+# Default output backend (in the cudacpp directory this can be changed to cpp or gpu using --cpp and --gpu)
 OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
 
 # Default: brief diffs (use --nobrief to use full diffs)
@@ -175,6 +182,10 @@ for arg in "$@"; do
     UNTARONLY=0; continue
   elif [ "$arg" == "--nohelrec" ] && [ "${OUTBCK}" == "gridpack" ]; then
     export HELREC=0; continue
+  elif [ "$arg" == "--cpp" ] && [ "${OUTBCK}" == "cudacpp" ]; then
+    export OUTBCK=cpp; continue
+  elif [ "$arg" == "--gpu" ] && [ "${OUTBCK}" == "cudacpp" ]; then
+    export OUTBCK=gpu; continue
   else
     # Keep the possibility to collect more then one process
     # However, require a single process to be chosen (allow full cleanup before/after code generation)
@@ -253,8 +264,9 @@ if bzr --version >& /dev/null; then
   fi
 fi
 
-# Copy the new plugin to MG5AMC_HOME (unless this is the gridpack directory)
-if [ "${OUTBCK}" != "gridpack" ]; then
+# Copy the new plugin to MG5AMC_HOME (if the selected output is cudacpp)
+###if [ "${OUTBCK}" != "gridpack" ]; then
+if [ "${OUTBCK}" == "cudacpp" ]; then
   cp -dpr ${SCRDIR}/PLUGIN/${OUTBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
   ls -l ${MG5AMC_HOME}/PLUGIN
 fi
@@ -280,8 +292,10 @@ codeGenAndDiff $proc
 cleanup_MG5AMC_HOME
 
 # Check formatting in the auto-generated code
-echo -e "\n+++ Check code formatting in newly generated code for $proc\n"
-if ! $SCRDIR/checkFormatting.sh -q -q ${proc}.auto; then
-  echo "ERROR! Auto-generated code does not respect formatting policies"
-  exit 1
+if [ "${OUTBCK}" == "cudacpp" ]; then
+  echo -e "\n+++ Check code formatting in newly generated code for $proc\n"
+  if ! $SCRDIR/checkFormatting.sh -q -q ${proc}.auto; then
+    echo "ERROR! Auto-generated code does not respect formatting policies"
+    exit 1
+  fi
 fi
