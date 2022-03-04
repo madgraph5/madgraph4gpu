@@ -352,6 +352,13 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  void CPPProcess::setDependentCouplings(const fptype *tmpIPC, const int nevt)
+  {
+      memcpy(cIPC, tmpIPC, 2 * nevt * sizeof(cxtype));
+  }
+
+  //--------------------------------------------------------------------------
+
   // Retrieve the compiler that was used to build this module
   const std::string CPPProcess::getCompiler()
   {

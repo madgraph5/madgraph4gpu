@@ -32,6 +32,9 @@ namespace mg5amcCpu
 
     // Transpose input momenta from C to Fortran before the matrix element calculation in the Bridge
     virtual void transposeInputMomentaC2F() = 0;
+      
+    // Calculate dependent couplings from Gs transferred via the Bridge
+    virtual fptype* calcDependentCouplings() = 0;
 
   protected:
 
@@ -59,6 +62,9 @@ namespace mg5amcCpu
 
     // Transpose input momenta from C to Fortran before the matrix element calculation in the Bridge
     void transposeInputMomentaC2F() override final;
+      
+    // Calculate dependent couplings from Gs transferred via the Bridge
+    virtual fptype* calcDependentCouplings() override final;
 
     // Compute good helicities
     void computeGoodHelicities() override final;

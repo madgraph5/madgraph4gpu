@@ -61,6 +61,13 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  fptype* BridgeKernelHost::calcDependentCouplings()
+  {
+      // sr 
+  }
+
+  //--------------------------------------------------------------------------
+
   void BridgeKernelHost::computeGoodHelicities()
   {
     constexpr bool goodHelOnly=true;
