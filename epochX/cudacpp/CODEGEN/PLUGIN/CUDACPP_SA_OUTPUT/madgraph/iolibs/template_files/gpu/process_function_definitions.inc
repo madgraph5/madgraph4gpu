@@ -116,11 +116,7 @@ namespace mg5amcCpu
       Parameters_%(model_name)s::printDependentParameters();
       Parameters_%(model_name)s::printDependentCouplings();
     }
-    // Set external particle masses for this matrix element
-    m_masses.push_back( Parameters_%(model_name)s::ZERO );
-    m_masses.push_back( Parameters_%(model_name)s::ZERO );
-    m_masses.push_back( Parameters_%(model_name)s::ZERO );
-    m_masses.push_back( Parameters_%(model_name)s::ZERO );
+    %(hardcoded_initProc_lines)s
   }
 #endif
 

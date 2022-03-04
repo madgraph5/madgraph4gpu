@@ -905,7 +905,8 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     # AV - replace export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
     def get_process_function_definitions(self, write=True):
         """The complete class definition for the process"""
-        replace_dict = super(export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False)
+        replace_dict = super(export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False) # defines replace_dict['initProc_lines']
+        replace_dict['hardcoded_initProc_lines'] = replace_dict['initProc_lines'].replace( 'm_pars->', 'Parameters_sm::' ) 
         replace_dict['ncouplings'] = len(self.couplings2order)
         replace_dict['ncouplingstimes2'] = 2 * replace_dict['ncouplings']
         replace_dict['nparams'] = len(self.params2order)
