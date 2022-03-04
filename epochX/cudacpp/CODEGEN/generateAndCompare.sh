@@ -208,15 +208,20 @@ echo "proc=${proc}"
 if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"; exit 1; fi
 
 # Make sure that $MG5AMC_HOME exists
-###mg5amc_branch=2.7.0_gpu
-mg5amc_branch=3.1.1_lo_vectorization
+mg5amc270=2.7.0_gpu
+mg5amc311=3.1.1_lo_vectorization
+mg5amcBrn=${mg5amc311}
 if [ "$MG5AMC_HOME" == "" ]; then
   echo "ERROR! MG5AMC_HOME is not defined"
-  echo "To download MG5AMC please run 'bzr branch lp:~maddevelopers/mg5amcnlo/${mg5amc_branch}'"
+  echo "To download MG5AMC please run 'bzr branch lp:~maddevelopers/mg5amcnlo/${mg5amcBrn}'"
   exit 1
 fi
 echo -e "\nUsing MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
 if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exist"; exit 1; fi
+if [ "$(basename ${MG5AMC_HOME})" != "${mg5amcBrn}" ]; then
+  echo "ERROR! MG5AMC_HOME basename is not ${mg5amcBrn}"
+  exit 1
+fi
 
 # Print MG5amc bazaar info if any
 # Revert to the appropriate bazaar revision number
@@ -226,7 +231,7 @@ if bzr --version >& /dev/null; then
   echo -e "Using $(bzr --version | head -1)"
   echo -e "Retrieving bzr information about MG5AMC_HOME"
   if bzr info ${MG5AMC_HOME} > /dev/null; then
-    revno_patches=$(cat $SCRDIR/MG5aMC_patches/${mg5amc_branch}/revision.BZR)
+    revno_patches=$(cat $SCRDIR/MG5aMC_patches/${mg5amcBrn}/revision.BZR)
     echo -e "MG5AMC patches in this plugin refer to bzr revno '${revno_patches}'"
     echo -e "Revert MG5AMC_HOME to bzr revno '${revno_patches}'"
     bzr revert ${MG5AMC_HOME} -r ${revno_patches}
@@ -243,14 +248,14 @@ else
 fi
 
 # Copy MG5AMC patches if any
-patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amc_branch}; find . -type f -name '*.py')
-echo -e "Copy MG5aMC_patches/${mg5amc_branch} patches..."
+patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f -name '*.py')
+echo -e "Copy MG5aMC_patches/${mg5amcBrn} patches..."
 for patch in $patches; do
   patch=${patch#./}
-  echo cp -dpr $SCRDIR/MG5aMC_patches/${mg5amc_branch}/$patch $MG5AMC_HOME/$patch
-  cp -dpr $SCRDIR/MG5aMC_patches/${mg5amc_branch}/$patch $MG5AMC_HOME/$patch
+  echo cp -dpr $SCRDIR/MG5aMC_patches/${mg5amcBrn}/$patch $MG5AMC_HOME/$patch
+  cp -dpr $SCRDIR/MG5aMC_patches/${mg5amcBrn}/$patch $MG5AMC_HOME/$patch
 done
-echo -e "Copy MG5aMC_patches/${mg5amc_branch} patches... done\n"
+echo -e "Copy MG5aMC_patches/${mg5amcBrn} patches... done\n"
 
 # Clean up before code generation
 cleanup_MG5AMC_HOME
