@@ -94,8 +94,11 @@ function codeGenAndDiff()
   cp -dpr ${MG5AMC_HOME}/${outproc}_log.txt ${outprocauto}/
   # Output directories: examples ee_mumu.auto for cudacpp and gridpacks, eemumu.cpp for cpp, eemumu.gpu for gpu
   autosuffix=auto
-  if [ "${OUTBCK}" == "cpp" ]; then autosuffix=cpp; fi
-  if [ "${OUTBCK}" == "gpu" ]; then autosuffix=gpu; fi
+  if [ "$use270" == "0" ]; then
+    if [ "${OUTBCK}" == "cpp" ]; then autosuffix=cpp311; elif [ "${OUTBCK}" == "gpu" ]; then autosuffix=gpu311; fi
+  else
+    if [ "${OUTBCK}" == "cpp" ]; then autosuffix=cpp270; elif [ "${OUTBCK}" == "gpu" ]; then autosuffix=gpu270; fi
+  fi
   # Replace the existing generated code in the output source code directory by the newly generated code and create a .BKP
   rm -rf ${OUTDIR}/${proc}.${autosuffix}.BKP
   if [ -d ${OUTDIR}/${proc}.${autosuffix} ]; then mv ${OUTDIR}/${proc}.${autosuffix} ${OUTDIR}/${proc}.${autosuffix}.BKP; fi
@@ -130,7 +133,7 @@ function usage()
   if [ "${OUTBCK}" == "gridpack" ]; then
     echo "Usage: $0 [--nobrief] [--nountaronly] [--nohelrec] <proc>" # NB: only one process
   else
-    echo "Usage: $0 [--nobrief] [--cpp|--gpu] <proc>" # NB: only one process
+    echo "Usage: $0 [--nobrief] [--cpp|--gpu] [--270] <proc>" # NB: only one process
   fi
   exit 1
 }
@@ -164,6 +167,9 @@ OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
 # Default: brief diffs (use --nobrief to use full diffs)
 BRIEF=--brief
 
+# Default: use the 311 MG5aMC branch
+use270=0
+
 # Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
 UNTARONLY=1
 
@@ -178,6 +184,8 @@ for arg in "$@"; do
     usage; continue; # continue is unnecessary as usage will exit anyway...
   elif [ "$arg" == "--nobrief" ]; then
     BRIEF=; continue
+  elif [ "$arg" == "--270" ]; then
+    use270=1; continue
   elif [ "$arg" == "--nountaronly" ] && [ "${OUTBCK}" == "gridpack" ]; then
     UNTARONLY=0; continue
   elif [ "$arg" == "--nohelrec" ] && [ "${OUTBCK}" == "gridpack" ]; then
@@ -216,11 +224,19 @@ if [ "$MG5AMC_HOME" == "" ]; then
   echo "To download MG5AMC please run 'bzr branch lp:~maddevelopers/mg5amcnlo/${mg5amcBrn}'"
   exit 1
 fi
-echo -e "\nUsing MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
+echo -e "\nDefault MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
 if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exist"; exit 1; fi
 if [ "$(basename ${MG5AMC_HOME})" != "${mg5amcBrn}" ]; then
   echo "ERROR! MG5AMC_HOME basename is not ${mg5amcBrn}"
   exit 1
+fi
+
+# Redefine MG5AMC_HOME to use the 270 branch if required
+if [ "$use270" == "1" ]; then
+  mg5amcBrn=${mg5amc270}
+  export MG5AMC_HOME=$(dirname ${MG5AMC_HOME})/${mg5amcBrn}
+  echo -e "Using non-default MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
+  if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exist"; exit 1; fi
 fi
 
 # Print MG5amc bazaar info if any
