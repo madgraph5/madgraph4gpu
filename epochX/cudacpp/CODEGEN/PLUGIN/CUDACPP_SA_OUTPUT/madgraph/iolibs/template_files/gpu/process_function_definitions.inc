@@ -20,7 +20,7 @@ namespace mg5amcCpu
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
 #ifdef MGONGPU_HARDCODE_CIPC
-  %(assign_hardcoded_coupling)s
+  %(hardcoded_assign_coupling)s
 #else
 #ifdef __CUDACC__
   __device__ __constant__ fptype cIPC[%(ncouplingstimes2)i];

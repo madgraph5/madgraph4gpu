@@ -930,7 +930,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         param_str_hrd = "  __device__ const fptype cIPD[%s] = { " % len(self.params2order)
         for para in params : param_str_hrd += "(fptype)Parameters_sm::%s, " % para
         param_str_hrd = param_str_hrd[:-2] + " };"
-        replace_dict['assign_hardcoded_coupling'] = coup_str_hrd + param_str_hrd
+        replace_dict['hardcoded_assign_coupling'] = coup_str_hrd + param_str_hrd
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "tHel")
         file = self.read_template_file(self.process_definition_template) % replace_dict # HACK! ignore write=False case
