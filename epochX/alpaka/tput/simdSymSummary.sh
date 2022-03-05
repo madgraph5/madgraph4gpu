@@ -1,0 +1,1 @@
+../../cudacpp/tput/simdSymSummary.sh
