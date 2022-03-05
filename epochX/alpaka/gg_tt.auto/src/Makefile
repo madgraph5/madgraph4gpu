@@ -180,15 +180,15 @@ $(LIBDIR)/.build.$(TAG):
 
 # NB: cuda includes are needed in the C++ code for curand.h
 $(BUILDDIR)/%.o : %.cc *.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
 #$(BUILDDIR)/%.o : %.cu *.h
-#	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+#	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 #	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 $(target): $(cxx_objects) $(cu_objects)
-	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
+	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
 	$(AR) cru $@ $(cxx_objects) $(cu_objects)
 	$(RANLIB) $(target)
 
