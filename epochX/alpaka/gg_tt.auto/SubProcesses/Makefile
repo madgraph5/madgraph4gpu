@@ -338,17 +338,29 @@ $(GTESTLIBS):
 check: $(testmain)
 	$(testmain)
 
-avxall:
+# Target: build all targets in all AVX modes (each AVX mode in a separate build directory)
+# Split the avxall target into five separate targets to allow parallel 'make -j avxall' builds
+avxnone:
 	@echo
 	make USEBUILDDIR=1 AVX=none
+
+avxsse4:
 	@echo
 	make USEBUILDDIR=1 AVX=sse4
+
+avxavx2:
 	@echo
 	make USEBUILDDIR=1 AVX=avx2
+
+avx512y:
 	@echo
 	make USEBUILDDIR=1 AVX=512y
+
+avx512z:
 	@echo
 	make USEBUILDDIR=1 AVX=512z
+
+avxall: avxnone avxsse4 avxavx2 avx512y avx512z
 
 .PHONY: clean
 
