@@ -171,12 +171,20 @@ done
 # Check that at least one process has been selected
 if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ]; then usage; fi
 
+# Use only the .auto process directories in the alpaka directory
+if [ "$bckend" == "alpaka" ]; then
+  echo "WARNING! alpaka directory: using .auto process directories only"
+  suffs=".auto/"
+fi
+
+# Use only HRDCOD=0 in the alpaka directory (old epochX-golden2 code base)
+if [ "$bckend" == "alpaka" ]; then
+  echo "WARNING! alpaka directory: using HRDCOD=0 only"
+  hrdcods="0"
+fi
+
 # Check whether Alpaka should and can be run
 if [ "${alpaka}" == "1" ]; then
-  echo "WARNING! alpaka mode selected: using .auto directories only"
-  suffs=".auto/"
-  echo "WARNING! alpaka mode selected: using HRDCOD=0 only"
-  hrdcods="0"
   if [ "${CUPLA_ROOT}" == "" ]; then echo "ERROR! CUPLA_ROOT is not set!"; exit 1; fi
   echo "CUPLA_ROOT=$CUPLA_ROOT"
   if [ ! -d "${CUPLA_ROOT}" ]; then echo "ERROR! $CUPLA_ROOT does not exist!"; exit 1; fi
@@ -219,7 +227,7 @@ for suff in $suffs; do
     fi
     for hrdcod in $hrdcods; do
       hrdsuf=_hrd${hrdcod}
-      if [ "${alpaka}" == "1" ]; then hrdsuf=""; fi
+      if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
       for helinl in $helinls; do
         for fptype in $fptypes; do
           exes="$exes ${dir}/build.none_${fptype}_inl${helinl}${hrdsuf}/gcheck.exe"
@@ -248,7 +256,7 @@ for suff in $suffs; do
     fi
     for hrdcod in $hrdcods; do
       hrdsuf=_hrd${hrdcod}
-      if [ "${alpaka}" == "1" ]; then hrdsuf=""; fi
+      if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
       for helinl in $helinls; do
         for fptype in $fptypes; do
           exes="$exes $dir/build.none_${fptype}_inl${helinl}${hrdsuf}/check.exe"
