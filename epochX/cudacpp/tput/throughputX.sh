@@ -414,7 +414,6 @@ pushd $topdir/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /de
 lastExe=
 for exe in $exes; do
   exeArgs2=""
-  ###if [ ! -f $exe ]; then continue; fi
   if [ ! -f $exe ]; then echo "Not found: $exe"; continue; fi
   if [ "${exe%%/gcheck*}" != "${exe}" ] && [ "$gpuTxt" == "none" ]; then continue; fi
   if [ "${exe%%/gg_ttggg*}" != "${exe}" ]; then 
@@ -449,9 +448,10 @@ for exe in $exes; do
     echo "-------------------------------------------------------------------------"
   fi
   exeDir=$(dirname $exe)
-  libDir=$exeDir/../../../lib/$(basename $exeDir)
-  if [ ! -d $libDir ]; then echo "WARNING! $libDir not found"; else libDir=$(cd $libDir; pwd -P); fi
+  cd $exeDir/.. # workaround for reading '../../Cards/param_card.dat' without setting MG5AMC_CARD_PATH
   # This is no longer necessary as check/gcheck/runTest.exe are now built using rpath
+  ###libDir=$exeDir/../../../lib/$(basename $exeDir)
+  ###if [ ! -d $libDir ]; then echo "WARNING! $libDir not found"; else libDir=$(cd $libDir; pwd -P); fi
   ###export LD_LIBRARY_PATH=$libDir:$LD_LIBRARY_PATH_start
   ###export DYLD_LIBRARY_PATH=$libDir:$DYLD_LIBRARY_PATH_start
   ###echo "LD_LIBRARY_PATH=$libDir:..."
