@@ -84,7 +84,6 @@ for arg in $*; do
     fi
   elif [ "$arg" == "-makej" ]; then
     makej=-makej
-    shift
   else
     echo "ERROR! Invalid option '$arg'"; usage
   fi  
