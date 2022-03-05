@@ -318,12 +318,18 @@ ifeq ($(NVCC),)
 # Link only runTest.o
 $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS) 
 	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
-else
+else ifneq ($(wildcard $(CUPLA_ROOT)/include/cuda_to_cupla.hpp),)
 # Link both runTest.o and runTest_alp.o
 # (todo? avoid multiple targets and '&', this needs the latest make 4.3, see https://stackoverflow.com/a/60232515)
 $(testmain) $(BUILDDIR)/runTest_alp.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(alp_objects) $(cupla_objects) $(GTESTLIBS)
 	$(NVCC) -o $(BUILDDIR)/runTest_alp.o -dc -x cu runTest.cc $(CUFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC)
 	$(NVCC) -o $@ $(cxx_objects) $(alp_objects) $(cupla_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
+else
+# Link both runTest.o and runTest_cu.o
+# (todo? avoid multiple targets and '&', this needs the latest make 4.3, see https://stackoverflow.com/a/60232515)
+$(testmain) $(BUILDDIR)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
+	$(NVCC) -o $(BUILDDIR)/runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
+	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
 
 $(GTESTLIBS):
