@@ -90,7 +90,7 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
     ALPINC := -I$(ALPAKA_ROOT)/include -I$(BOOSTINC)
     CUPLAINC := -I$(CUPLA_ROOT)/include
     CUPLASRC := $(CUPLA_ROOT)/src
-    ALPFLAGS := -DALPAKA -DALPAKA_ACC_GPU_CUDA_ENABLED
+    ALPFLAGS := -DALPAKA -DALPAKA_ACC_GPU_CUDA_ENABLED --expt-relaxed-constexpr
   endif
 
 else
