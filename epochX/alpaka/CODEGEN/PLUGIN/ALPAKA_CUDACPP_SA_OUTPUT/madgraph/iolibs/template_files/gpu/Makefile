@@ -301,10 +301,9 @@ $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
 $(testmain): $(GTESTLIBS)
 $(testmain): INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
-$(testmain): INCFLAGS += -I$(TESTDIR)/include
 $(testmain): LIBFLAGS += -L$(GTESTLIBDIR) -lgtest -lgtest_main
-$(testmain): $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o $(TESTDIR)/include/*.h
-$(testmain): cxx_objects += $(BUILDDIR)/runTest.o $(TESTDIR)/src/MadgraphTest.o
+$(testmain): $(BUILDDIR)/runTest.o $(BUILDDIR)/MadgraphTest.o
+$(testmain): cxx_objects += $(BUILDDIR)/runTest.o $(BUILDDIR)/MadgraphTest.o
 $(testmain): alp_objects += $(BUILDDIR)/runTest_alp.o
 ifneq ($(shell $(CXX) --version | grep ^clang),)
 $(testmain): LIBFLAGS += -L$(patsubst %%bin/clang++,%%lib,$(shell which $(CXX) | tail -1))
@@ -319,16 +318,19 @@ ifeq ($(NVCC),)
 # Link only runTest.o
 $(testmain): $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(GTESTLIBS) 
 	$(CXX) -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
-else
+else ifneq ($(wildcard $(CUPLA_ROOT)/include/cuda_to_cupla.hpp),)
 # Link both runTest.o and runTest_alp.o
 # (todo? avoid multiple targets and '&', this needs the latest make 4.3, see https://stackoverflow.com/a/60232515)
 $(testmain) $(BUILDDIR)/runTest_alp.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(alp_objects) $(cupla_objects) $(GTESTLIBS)
 	$(NVCC) -o $(BUILDDIR)/runTest_alp.o -dc -x cu runTest.cc $(CUFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC)
 	$(NVCC) -o $@ $(cxx_objects) $(alp_objects) $(cupla_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
+else
+# Link both runTest.o and runTest_cu.o
+# (todo? avoid multiple targets and '&', this needs the latest make 4.3, see https://stackoverflow.com/a/60232515)
+$(testmain) $(BUILDDIR)/runTest_cu.o &: runTest.cc $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects) $(cu_objects) $(GTESTLIBS)
+	$(NVCC) -o $(BUILDDIR)/runTest_cu.o -c -x cu runTest.cc $(CPPFLAGS) $(CUFLAGS)
+	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) $(CPPFLAGS) $(CUFLAGS) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
-
-$(TESTDIR)/src/MadgraphTest.o: $(TESTDIR)/src/MadgraphTest.cc $(TESTDIR)/include/*.h
-	$(MAKE) -C $(TESTDIR)
 
 $(GTESTLIBS):
 	$(MAKE) -C $(TESTDIR)
