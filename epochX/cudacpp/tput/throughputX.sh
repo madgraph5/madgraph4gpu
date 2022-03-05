@@ -3,27 +3,31 @@
 set +x # not verbose
 set -e # fail on error
 
-omp=0
-avxall=0
-cpp=1
-cuda=1
-alpaka=0
-ab3=0
 eemumu=0
 ggtt=0
 ggttg=0
 ggttgg=0
 ggttggg=0
-div=0
-req=0
+suffs="/"
+
+omp=0
+avxall=0
+cpp=1
+cuda=1
+alpaka=0
+
 fptypes="d"
 helinls="0"
 hrdcods="0"
 rndgen=""
 rmbsam=""
-suffs="/"
+
 maketype=
 makej=
+
+ab3=0
+div=0
+req=0
 detailed=0
 gtest=0
 verbose=0
@@ -34,7 +38,7 @@ verbose=0
 
 function usage()
 {
-  echo "Usage: $0 <processes[-eemumu] [-ggtt] [-ggttg] [-ggttgg] [-ggttggg]> [-nocpp|[-omp][-avxall][-nocuda]] [-alpaka] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes[-eemumu] [-ggtt] [-ggttg] [-ggttgg] [-ggttggg]> [-nocpp|[-omp][-avxall][-nocuda]] [-auto|-autoonly] [-alpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -47,7 +51,30 @@ bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
 topdir=$(cd $scrdir; cd ../../..; pwd)
 
 while [ "$1" != "" ]; do
-  if [ "$1" == "-omp" ]; then
+  if [ "$1" == "-eemumu" ]; then
+    eemumu=1
+    shift
+  elif [ "$1" == "-ggtt" ]; then
+    ggtt=1
+    shift
+  elif [ "$1" == "-ggttg" ]; then
+    ggttg=1
+    shift
+  elif [ "$1" == "-ggttgg" ]; then
+    ggttgg=1
+    shift
+  elif [ "$1" == "-ggttggg" ]; then
+    ggttggg=1
+    shift
+  elif [ "$1" == "-auto" ]; then
+    if [ "${suffs}" == ".auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
+    suffs="/ .auto/"
+    shift
+  elif [ "$1" == "-autoonly" ]; then
+    if [ "${suffs}" == "/ .auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
+    suffs=".auto/"
+    shift
+  elif [ "$1" == "-omp" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
     omp=1
     shift
@@ -67,30 +94,6 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-alpaka" ]; then
     alpaka=1
-    shift
-  elif [ "$1" == "-3a3b" ]; then
-    ab3=1
-    shift
-  elif [ "$1" == "-eemumu" ]; then
-    eemumu=1
-    shift
-  elif [ "$1" == "-ggtt" ]; then
-    ggtt=1
-    shift
-  elif [ "$1" == "-ggttg" ]; then
-    ggttg=1
-    shift
-  elif [ "$1" == "-ggttgg" ]; then
-    ggttgg=1
-    shift
-  elif [ "$1" == "-ggttggg" ]; then
-    ggttggg=1
-    shift
-  elif [ "$1" == "-div" ]; then
-    div=1
-    shift
-  elif [ "$1" == "-req" ]; then
-    req=1
     shift
   elif [ "$1" == "-flt" ]; then
     if [ "${fptypes}" == "f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
@@ -128,14 +131,6 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-bridge" ]; then
     rmbsmp=" -${1}"
     shift
-  elif [ "$1" == "-auto" ]; then
-    if [ "${suffs}" == ".auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
-    suffs="/ .auto/"
-    shift
-  elif [ "$1" == "-autoonly" ]; then
-    if [ "${suffs}" == "/ .auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
-    suffs=".auto/"
-    shift
   elif [ "$1" == "-makeonly" ] || [ "$1" == "-makeclean" ] || [ "$1" == "-makecleanonly" ]; then
     if [ "${maketype}" != "" ] && [ "${maketype}" != "$1" ]; then
       echo "ERROR! Options -makeonly, -makeclean and -makecleanonly are incompatible"; usage
@@ -144,6 +139,15 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-makej" ]; then
     makej=-j
+    shift
+  elif [ "$1" == "-3a3b" ]; then
+    ab3=1
+    shift
+  elif [ "$1" == "-div" ]; then
+    div=1
+    shift
+  elif [ "$1" == "-req" ]; then
+    req=1
     shift
   elif [ "$1" == "-detailed" ]; then
     detailed=1
