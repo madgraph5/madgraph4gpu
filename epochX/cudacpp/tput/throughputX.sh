@@ -3,6 +3,24 @@
 set +x # not verbose
 set -e # fail on error
 
+scrdir=$(cd $(dirname $0); pwd)
+bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
+topdir=$(cd $scrdir; cd ../../..; pwd)
+
+# This is no longer necessary as check/gcheck/runTest.exe are now built using rpath
+###export LD_LIBRARY_PATH_start=$LD_LIBRARY_PATH
+###export DYLD_LIBRARY_PATH_start=$DYLD_LIBRARY_PATH
+
+function usage()
+{
+  echo "Usage: $0 <processes[-eemumu] [-ggtt] [-ggttg] [-ggttgg] [-ggttggg]> [-nocpp|[-omp][-avxall][-nocuda]] [-auto|-autoonly] [-alpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v]"
+  exit 1
+}
+
+##########################################################################
+# PART 0 - decode command line arguments
+##########################################################################
+
 eemumu=0
 ggtt=0
 ggttg=0
@@ -32,23 +50,7 @@ detailed=0
 gtest=0
 verbose=0
 
-# This is no longer necessary as check/gcheck/runTest.exe are now built using rpath
-###export LD_LIBRARY_PATH_start=$LD_LIBRARY_PATH
-###export DYLD_LIBRARY_PATH_start=$DYLD_LIBRARY_PATH
-
-function usage()
-{
-  echo "Usage: $0 <processes[-eemumu] [-ggtt] [-ggttg] [-ggttgg] [-ggttggg]> [-nocpp|[-omp][-avxall][-nocuda]] [-auto|-autoonly] [-alpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v]"
-  exit 1
-}
-
-##########################################################################
-# PART 0 - decode command line arguments
-##########################################################################
-
-scrdir=$(cd $(dirname $0); pwd)
-bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
-topdir=$(cd $scrdir; cd ../../..; pwd)
+if [ "$bckend" == "alpaka" ]; then alpaka=1; fi
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-eemumu" ]; then

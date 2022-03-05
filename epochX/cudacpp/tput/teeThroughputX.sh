@@ -1,6 +1,8 @@
 #!/bin/bash
 
-cd $(dirname $0)
+scrdir=$(cd $(dirname $0); pwd)
+bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
+cd $scrdir
 
 function usage()
 {
@@ -23,6 +25,9 @@ rndgen=
 rmbsmp=
 steps="make test"
 makej=
+
+if [ "$bckend" == "alpaka" ]; then alpaka="-alpaka"; fi
+
 for arg in $*; do
   if [ "$arg" == "-eemumu" ]; then
     if [ "$eemumu" == "" ]; then procs+=${procs:+ }${arg}; fi
