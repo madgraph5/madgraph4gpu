@@ -13,7 +13,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes[-eemumu] [-ggtt] [-ggttg] [-ggttgg] [-ggttggg]> [-nocpp|[-omp][-avxall][-nocuda]] [-auto|-autoonly] [-alpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes[-eemumu] [-ggtt] [-ggttg] [-ggttgg] [-ggttggg]> [-nocpp|[-omp][-avxall][-nocuda]] [-auto|-autoonly] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -32,7 +32,7 @@ omp=0
 avxall=0
 cpp=1
 cuda=1
-alpaka=0
+alpaka=1
 
 fptypes="d"
 helinls="0"
@@ -50,7 +50,7 @@ detailed=0
 gtest=0
 verbose=0
 
-if [ "$bckend" == "alpaka" ]; then alpaka=1; fi
+if [ "$bckend" != "alpaka" ]; then alpaka=0; fi # alpaka mode is only available in the alpaka directory
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-eemumu" ]; then
@@ -94,8 +94,8 @@ while [ "$1" != "" ]; do
     if [ "${cuda}" == "0" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
     cpp=0
     shift
-  elif [ "$1" == "-alpaka" ]; then
-    alpaka=1
+  elif [ "$1" == "-noalpaka" ]; then
+    alpaka=0
     shift
   elif [ "$1" == "-flt" ]; then
     if [ "${fptypes}" == "f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
@@ -186,8 +186,9 @@ if [ "${alpaka}" == "1" ]; then
   if [ "${BOOSTINC}" == "" ]; then echo "ERROR! BOOSTINC is not set!"; exit 1; fi
   echo "BOOSTINC=$BOOSTINC"
   if [ ! -d "${BOOSTINC}" ]; then echo "ERROR! $BOOSTINC does not exist!"; exit 1; fi  
+else
+  export CUPLA_ROOT=none
 fi
-if [ "${alpaka}" == "0" ]; then export CUPLA_ROOT=none; fi # disable alpaka builds
 
 ###echo -e "\n********************************************************************************\n"
 printf "\n"
@@ -512,7 +513,7 @@ for exe in $exes; do
     if [ "${req}" == "1" ]; then runNcuReq $exe "$ncuArgs"; fi
     if [ "${exeArgs2}" != "" ]; then echo "........................................................................."; runExe $exe "$exeArgs2"; fi
   fi
-  if [ "${alpaka}" == "0" ]; then
+  if [ "${bckend}" != "alpaka" ]; then
     echo "-------------------------------------------------------------------------"
     cmpExe $exe
   fi
