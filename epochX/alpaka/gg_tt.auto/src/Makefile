@@ -158,18 +158,25 @@ target=$(LIBDIR)/libmodel_sm.a
 cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o rambo.o)
 cu_objects=
 
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(target)
-
-override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)'`
-$(BUILDDIR)/.build.$(TAG):
-	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir $(BUILDDIR)"; mkdir $(BUILDDIR); fi
-	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
-	@touch $(BUILDDIR)/.build.$(TAG)
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(target)
 
 debug: OPTFLAGS = -g -O0 -DDEBUG2
 #debug: CUFLAGS := $(filter-out -lineinfo,$(CUFLAGS))
 #debug: CUFLAGS += -G
 debug: $(target)
+
+override oldtagsb=`if [ -d $(BUILDDIR) ]; then find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
+override oldtagsl=`if [ -d $(LIBDIR) ]; then find $(LIBDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
+
+$(BUILDDIR)/.build.$(TAG): $(LIBDIR)/.build.$(TAG)
+
+$(LIBDIR)/.build.$(TAG):
+	@if [ "$(oldtagsl)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist in $(LIBDIR) for other tags:\n$(oldtagsl)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
+	@if [ "$(oldtagsb)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist in $(BUILDDIR) for other tags:\n$(oldtagsb)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
+	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
+	@touch $(LIBDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	@touch $(BUILDDIR)/.build.$(TAG)
 
 # NB: cuda includes are needed in the C++ code for curand.h
 $(BUILDDIR)/%.o : %.cc *.h
