@@ -34,16 +34,23 @@ std::map<unsigned int, ReferenceData> readReferenceData(const std::string& refFi
  */
 template<typename Fptype>
 class TestDriverBase {
+  std::string m_refFileName;
  public:
-  unsigned int nparticle = 4;
+  unsigned int nparticle;
   static constexpr unsigned int np4 = 4;
   static constexpr unsigned int niter = 2;
   static constexpr unsigned int gpublocks = 2;
   static constexpr unsigned int gputhreads = 128;
   static constexpr unsigned int nevt = gpublocks * gputhreads;
 
-  TestDriverBase() { }
+  TestDriverBase( unsigned int npart, const std::string& refFileName )
+    : m_refFileName( refFileName )
+    , nparticle( npart )
+  {
+  }
+  TestDriverBase() = delete;
   virtual ~TestDriverBase() { }
+  const std::string& getRefFileName() { return m_refFileName; }
 
   // ------------------------------------------------
   // Interface for retrieving info from madgraph

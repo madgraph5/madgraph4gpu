@@ -63,28 +63,28 @@ std::map<unsigned int, ReferenceData> readReferenceData(const std::string& refFi
 template<typename Fptype>
 void MadgraphTestFptype<Fptype>::madgraphTestBody_eemumu()
 {
-  // Set to dump events:
+  // Set to true to dump events:
   constexpr bool dumpEvents = false;
+  constexpr Fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   constexpr Fptype toleranceMomenta = std::is_same<Fptype, double>::value ? 8.E-11 : 3.E-2;
   constexpr Fptype toleranceMEs     = std::is_same<Fptype, double>::value ? 1.E-6  : 1.E-3;
-  constexpr Fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
-
-  std::string dumpFileName = std::string("dump_")
-      + testing::UnitTest::GetInstance()->current_test_info()->name()
-      + ".txt";
-  while (dumpFileName.find('/') != std::string::npos) {
+  std::string dumpFileName = std::string("dump_") + testing::UnitTest::GetInstance()->current_test_info()->name() + ".txt";
+  while (dumpFileName.find('/') != std::string::npos)
+  {
     dumpFileName.replace(dumpFileName.find('/'), 1, "_");
   }
-  const std::string refFileName = "../../../../../test/ref/dump_CPUTest.Sigma_sm_epem_mupmum.txt";
-
   std::ofstream dumpFile;
   if ( dumpEvents )
   {
     dumpFile.open(dumpFileName, std::ios::trunc);
   }
-
   // Read reference data
-  std::map<unsigned int, ReferenceData> referenceData = readReferenceData(refFileName);
+  const std::string refFileName = testDriver->getRefFileName();
+  std::map<unsigned int, ReferenceData> referenceData;
+  if( !dumpEvents )
+  {
+    referenceData = readReferenceData(refFileName);
+  }
   ASSERT_FALSE(TestWithParamFptype::HasFailure()); // It doesn't make any sense to continue if we couldn't read the reference file.
 
   // **************************************
