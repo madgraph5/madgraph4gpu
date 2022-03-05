@@ -4,7 +4,7 @@ cd $(dirname $0)
 
 function usage()
 {
-  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttg|-ggttgg|-ggttggg)> [-auto|-autoonly] [-flt|-fltonly] [-inl|-inlonly]  [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej]"
+  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttg|-ggttgg|-ggttggg)> [-auto|-autoonly] [-alpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej]"
   exit 1
 }
 
@@ -15,6 +15,7 @@ ggttg=
 ggttgg=
 ggttggg=
 suffs="manu"
+alpaka=""
 fptypes="d"
 helinls="0"
 hrdcods="0"
@@ -44,6 +45,8 @@ for arg in $*; do
   elif [ "$arg" == "-autoonly" ]; then
     if [ "${suffs}" == "manu auto" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
     suffs="auto"
+  elif [ "$arg" == "-alpaka" ]; then
+    alpaka=$arg
   elif [ "$arg" == "-flt" ]; then
     if [ "${fptypes}" == "f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
     fptypes="d f"
@@ -116,6 +119,7 @@ for step in $steps; do
           for hrdcod in $hrdcods; do
             hrd=; if [ "${hrdcod}" == "1" ]; then hrd=" -hrdonly"; fi
             args="${proc}${auto}${flt}${inl}${hrd}"
+            args="${args} ${alpaka}" # optionally run also alpaka tests
             args="${args} ${rndgen}" # optionally use common random numbers or curand on host
             args="${args} ${rmbsmp}" # optionally use rambo or bridge on host
             args="${args} -avxall" # avx, fptype, helinl and hrdcod are now supported for all processes
