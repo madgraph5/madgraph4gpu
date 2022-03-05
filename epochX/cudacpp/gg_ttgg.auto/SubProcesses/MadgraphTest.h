@@ -112,11 +112,12 @@ public:
   static constexpr unsigned int gputhreads = 128;
   static constexpr unsigned int nevt = gpublocks * gputhreads;
 
-  TestDriverBase( unsigned int npart = mgOnGpu::npar, const std::string& refFileName = "" ) // default value "" is for backward compatibility
-    : m_refFileName( refFileName != "" ? refFileName : std::string( "../../../../../test/ref/dump_CPUTest.Sigma_sm_epem_mupmum.txt" ) )
+  TestDriverBase( unsigned int npart, const std::string& refFileName )
+    : m_refFileName( refFileName )
     , nparticle( npart )
   {
   }
+  TestDriverBase() = delete;
   virtual ~TestDriverBase() {}
   const std::string& getRefFileName() { return m_refFileName; }
 
@@ -202,13 +203,13 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
   {
     dumpFileName.replace( dumpFileName.find( '/' ), 1, "_" );
   }
-  const std::string refFileName = testDriver->getRefFileName();
   std::ofstream dumpFile;
   if( dumpEvents )
   {
     dumpFile.open( dumpFileName, std::ios::trunc );
   }
   // Read reference data
+  const std::string refFileName = testDriver->getRefFileName();
   std::map<unsigned int, ReferenceData> referenceData;
   if( !dumpEvents )
   {
