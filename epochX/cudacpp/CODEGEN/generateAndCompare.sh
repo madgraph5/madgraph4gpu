@@ -65,6 +65,8 @@ function codeGenAndDiff()
       echo "set gridpack True" >> ${outproc}.mg
       echo "set ebeam1 750" >> ${outproc}.mg
       echo "set ebeam2 750" >> ${outproc}.mg
+    elif [ "${OUTBCK}" == "alpaka" ]; then
+      echo "output standalone_${OUTBCK}_cudacpp ${outproc}" >> ${outproc}.mg
     else
       echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
     fi
@@ -132,6 +134,8 @@ function usage()
 {
   if [ "${OUTBCK}" == "gridpack" ]; then
     echo "Usage: $0 [--nobrief] [--nountaronly] [--nohelrec] <proc>" # NB: only one process
+  elif [ "${OUTBCK}" == "alpaka" ]; then
+    echo "Usage: $0 [--nobrief] <proc>" # NB: only one process
   else
     echo "Usage: $0 [--nobrief] [--cpp|--gpu] [--270] <proc>" # NB: only one process
   fi
@@ -167,8 +171,9 @@ OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
 # Default: brief diffs (use --nobrief to use full diffs)
 BRIEF=--brief
 
-# Default: use the 311 MG5aMC branch
+# Default: use the 311 MG5aMC branch (except for alpaka)
 use270=0
+if [ "${OUTBCK}" == "alpaka" ]; then use270=1; fi
 
 # Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
 UNTARONLY=1
@@ -239,6 +244,24 @@ if [ "$use270" == "1" ]; then
   if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exist"; exit 1; fi
 fi
 
+# Make sure that $ALPAKA_ROOT and $CUPLA_ROOT exist if alpaka is used
+if [ "${OUTBCK}" == "alpaka" ]; then
+  if [ "$ALPAKA_ROOT" == "" ]; then
+    echo "ERROR! ALPAKA_ROOT is not defined"
+    echo "To download ALPAKA please run 'git clone -b 0.8.0 https://github.com/alpaka-group/alpaka.git'"
+    exit 1
+  fi
+  echo -e "Using ALPAKA_ROOT=$ALPAKA_ROOT on $(hostname)\n"
+  if [ ! -d $ALPAKA_ROOT ]; then echo "ERROR! Directory $ALPAKA_ROOT does not exist"; exit 1; fi
+  if [ "$CUPLA_ROOT" == "" ]; then
+    echo "ERROR! CUPLA_ROOT is not defined"
+    echo "To download CUPLA please run 'git clone -b 0.3.0 https://github.com/alpaka-group/cupla.git'"
+    exit 1
+  fi
+  echo -e "Using CUPLA_ROOT=$CUPLA_ROOT on $(hostname)\n"
+  if [ ! -d $CUPLA_ROOT ]; then echo "ERROR! Directory $CUPLA_ROOT does not exist"; exit 1; fi
+fi
+
 # Print MG5amc bazaar info if any
 # Revert to the appropriate bazaar revision number
 # (NB! 'bzr revert' does not change the output of 'bzr revno': it is NOT like 'git reset --hard'!)
@@ -247,7 +270,11 @@ if bzr --version >& /dev/null; then
   echo -e "Using $(bzr --version | head -1)"
   echo -e "Retrieving bzr information about MG5AMC_HOME"
   if bzr info ${MG5AMC_HOME} > /dev/null; then
-    revno_patches=$(cat $SCRDIR/MG5aMC_patches/${mg5amcBrn}/revision.BZR)
+    if [ "${OUTBCK}" == "alpaka" ]; then
+      revno_patches=370
+    else
+      revno_patches=$(cat $SCRDIR/MG5aMC_patches/${mg5amcBrn}/revision.BZR)
+    fi
     echo -e "MG5AMC patches in this plugin refer to bzr revno '${revno_patches}'"
     echo -e "Revert MG5AMC_HOME to bzr revno '${revno_patches}'"
     bzr revert ${MG5AMC_HOME} -r ${revno_patches}
@@ -264,14 +291,17 @@ else
 fi
 
 # Copy MG5AMC patches if any
-patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f -name '*.py')
-echo -e "Copy MG5aMC_patches/${mg5amcBrn} patches..."
-for patch in $patches; do
-  patch=${patch#./}
-  echo cp -dpr $SCRDIR/MG5aMC_patches/${mg5amcBrn}/$patch $MG5AMC_HOME/$patch
-  cp -dpr $SCRDIR/MG5aMC_patches/${mg5amcBrn}/$patch $MG5AMC_HOME/$patch
-done
-echo -e "Copy MG5aMC_patches/${mg5amcBrn} patches... done\n"
+if [ "${OUTBCK}" == "cudacpp" ]; then
+  patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f -name '*.py')
+  patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f -name '*.py')
+  echo -e "Copy MG5aMC_patches/${mg5amcBrn} patches..."
+  for patch in $patches; do
+    patch=${patch#./}
+    echo cp -dpr $SCRDIR/MG5aMC_patches/${mg5amcBrn}/$patch $MG5AMC_HOME/$patch
+    cp -dpr $SCRDIR/MG5aMC_patches/${mg5amcBrn}/$patch $MG5AMC_HOME/$patch
+  done
+  echo -e "Copy MG5aMC_patches/${mg5amcBrn} patches... done\n"
+fi
 
 # Clean up before code generation
 cleanup_MG5AMC_HOME
@@ -285,10 +315,12 @@ if bzr --version >& /dev/null; then
   fi
 fi
 
-# Copy the new plugin to MG5AMC_HOME (if the selected output is cudacpp)
-###if [ "${OUTBCK}" != "gridpack" ]; then
+# Copy the new plugin to MG5AMC_HOME (if the selected output is cudacpp or alpaka)
 if [ "${OUTBCK}" == "cudacpp" ]; then
   cp -dpr ${SCRDIR}/PLUGIN/${OUTBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
+  ls -l ${MG5AMC_HOME}/PLUGIN
+elif [ "${OUTBCK}" == "alpaka" ]; then
+  cp -dpr ${SCRDIR}/PLUGIN/${OUTBCK^^}_CUDACPP_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
   ls -l ${MG5AMC_HOME}/PLUGIN
 fi
 
