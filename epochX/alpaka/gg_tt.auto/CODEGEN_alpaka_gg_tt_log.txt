@@ -50,7 +50,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0068476200103759766 [0m
+[1;32mDEBUG: model prefixing  takes 0.006890773773193359 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
@@ -118,6 +118,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_alpaka_gg_tt/src/. and /da
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 155][0m [0m
 quit
 
-real	0m3.342s
-user	0m0.786s
-sys	0m0.139s
+real	0m3.270s
+user	0m0.779s
+sys	0m0.145s
