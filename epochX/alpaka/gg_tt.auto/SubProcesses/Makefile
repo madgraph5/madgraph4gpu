@@ -238,7 +238,7 @@ all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MODELLIB).a $(cu_main) $(al
 
 override oldtags=`find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)'`
 $(BUILDDIR)/.build.$(TAG):
-	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir $(BUILDDIR)"; mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
 	@touch $(BUILDDIR)/.build.$(TAG)
 
@@ -251,32 +251,32 @@ $(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
 	$(MAKE) -C ../../src $(MAKEDEBUG)
 
 $(BUILDDIR)/gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h # ../../src/*.cu
-	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 $(BUILDDIR)/alpcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(LIBFLAGS) $(CULIBFLAGS) $(CUFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC) -dc $< -o $@
 
 $(BUILDDIR)/CPPProcess.o : ../../src/HelAmps_sm.cc
 $(BUILDDIR)/gCPPProcess.o : ../../src/HelAmps_sm.cc
 
 $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
 # Apply special build flags only to CPPProcess.cc (-flto)
 #$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
-#	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+#	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 #	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -flto $(CUINC) -c $< -o $@
 
 ### Apply special build flags only to CPPProcess.cc (AVXFLAGS)
 ###$(BUILDDIR)/CPPProcess.o : CPPProcess.cc *.h ../../src/*.h
-###	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+###	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 ###	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(AVXFLAGS) $(CUINC) -c $< -o $@
 
 $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
 $(BUILDDIR)/cupla/%.o: $(CUPLASRC)/%.cpp
