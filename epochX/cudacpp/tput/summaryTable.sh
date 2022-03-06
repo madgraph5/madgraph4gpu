@@ -25,12 +25,9 @@ touch $out
 crevs=""
 arevs=""
 if [ "$table" == "" ]; then
-  ###crevs="$crevs c2e67b4" # cuda116/gcc102  (25 Jan 2022) BASELINE eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d x inl0
-  ###crevs="$crevs 4f3229d" # cuda116/icx2021 (25 Jan 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d x inl0
   crevs="$crevs 09e482e" # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
   crevs="$crevs 88dc717" # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
 elif [ "$table" == "hrdcod" ]; then
-  ###crevs="$crevs 2938acb" # cuda116/gcc102  (27 Jan 2022) HRD TEST eemumu/ggtt(g(g(g))) d inl0 x hrd0/hrd1
   crevs="$crevs 09e482e" # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
   crevs="$crevs 88dc717" # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
 elif [ "$table" == "juwels" ]; then
