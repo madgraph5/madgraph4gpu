@@ -515,7 +515,7 @@ for exe in $exes; do
       echo "runExe $exe2"
       $exe2 2>&1 | tail -1
     fi
-  elif [ "${exe%%/gcheck*}" != "${exe}" ]; then 
+  elif [ "${exe%%/gcheck*}" != "${exe}" ] ||  [ "${exe%%/alpcheck*}" != "${exe}" ]; then 
     runNcu $exe "$ncuArgs"
     if [ "${div}" == "1" ]; then runNcuDiv $exe; fi
     if [ "${req}" == "1" ]; then runNcuReq $exe "$ncuArgs"; fi
