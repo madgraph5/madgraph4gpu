@@ -5,8 +5,10 @@ if [ "$1" == "-hrdcod" ]; then
   table="hrdcod"; shift
 elif [ "$1" == "-juwels" ]; then
   table="juwels"; shift
+elif [ "$1" == "-alpaka" ]; then
+  table="alpaka"; shift
 fi
-if [ "$1" != "" ]; then echo "Usage: $0 [-hrdcod|-juwels]"; exit 1; fi  
+if [ "$1" != "" ]; then echo "Usage: $0 [-hrdcod|-juwels|-alpaka]"; exit 1; fi
 
 cd $(dirname $0)/..
 
@@ -19,21 +21,27 @@ fi
 \rm -f $out
 touch $out
 
-# Select revisions
-revs=""
+# Select revisions of cudacpp logs
+crevs=""
 if [ "$table" == "" ]; then
-  ###revs="$revs c2e67b4" # cuda116/gcc102  (25 Jan 2022) BASELINE eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d x inl0
-  ###revs="$revs 4f3229d" # cuda116/icx2021 (25 Jan 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d x inl0
-  revs="$revs 09e482e" # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
-  revs="$revs 88dc717" # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
+  ###crevs="$crevs c2e67b4" # cuda116/gcc102  (25 Jan 2022) BASELINE eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d x inl0
+  ###crevs="$crevs 4f3229d" # cuda116/icx2021 (25 Jan 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d x inl0
+  crevs="$crevs 09e482e" # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
+  crevs="$crevs 88dc717" # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
 elif [ "$table" == "hrdcod" ]; then
-  ###revs="$revs 2938acb" # cuda116/gcc102  (27 Jan 2022) HRD TEST eemumu/ggtt(g(g(g))) d inl0 x hrd0/hrd1
-  revs="$revs 09e482e" # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
-  revs="$revs 88dc717" # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
+  ###crevs="$crevs 2938acb" # cuda116/gcc102  (27 Jan 2022) HRD TEST eemumu/ggtt(g(g(g))) d inl0 x hrd0/hrd1
+  crevs="$crevs 09e482e" # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
+  crevs="$crevs 88dc717" # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
 elif [ "$table" == "juwels" ]; then
-  revs="$revs c2e67b4" # cuda116/gcc102  (25 Jan 2022) BASELINE eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
-  revs="$revs 65730b2" # cuda115/gcc112  (18 Feb 2022) JUWELSCL eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
-  revs="$revs df441ad" # cuda115/gcc112  (18 Feb 2022) JUWELSBO eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
+  crevs="$crevs c2e67b4" # cuda116/gcc102  (25 Jan 2022) BASELINE eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
+  crevs="$crevs 65730b2" # cuda115/gcc112  (18 Feb 2022) JUWELSCL eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
+  crevs="$crevs df441ad" # cuda115/gcc112  (18 Feb 2022) JUWELSBO eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
+fi
+
+# Select revisions of alpaka logs
+arevs=""
+if [ "$table" == "alpaka" ]; then
+  arevs="$arevs f5a44ba" # cuda116/gcc102  (06 Mar 2022) GOLDEPX4 eemumu/ggtt/ggttg/ggttgg/ggttggg x d x inl0
 fi
 
 # Select processes
@@ -52,6 +60,23 @@ elif [ "$table" == "juwels" ]; then
   fpts="d f"
   inls="inl0 inl1"
   hrds="hrd0"
+elif [ "$table" == "alpaka" ]; then
+  fpts="d"
+  inls="inl0"
+  hrds="hrd0"
+fi
+
+# Select revisions, logfiles, tags
+if [ "$table" == "alpaka" ]; then
+  revs=$arevs
+  bckend=alpaka
+  suff=auto
+  taglist="CUD/none ALP/none CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
+else
+  revs=$crevs
+  bckend=cudacpp
+  suff=manu
+  taglist="CUD/none CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
 fi
 
 # Iterate through log files
@@ -64,24 +89,25 @@ for fpt in $fpts; do
       for hrd in $hrds; do
         files=""
         for proc in $procs; do
-          file=tput/logs_${proc}_manu/log_${proc}_manu_${fpt}_${inl}_${hrd}.txt
+          file=../${bckend}/tput/logs_${proc}_${suff}/log_${proc}_${suff}_${fpt}_${inl}_${hrd}.txt
           if [ -f $file ]; then files="$files $file"; fi
         done
         ###echo "*** FILES $files ***" >> $out
         if [ "$files" == "" ]; then continue; fi
         git checkout $rev $files >& /dev/null
         node=$(cat $files | grep ^On | sort -u)
-	if [ "$nodelast" != "$node" ]; then echo -e "$node\n" >> $out; nodelast=$node; fi
-        ###cat $files | awk '/^Process/{print $0}; /Workflow/{print $0}; /MECalcOnly/{print $0}'; exit 0
-        cat $files | awk -vrev=$rev -vcomplast=none -vinllast=none -vhrdlast=none -vfptlast=none\
-          '/^Process(.)/{split($0,a,"["); comp="["a[2]; if ( complast == "none" ){print comp; complast=comp}};\
-           /^Process/{split($0,a,"]"); split(a[2],b,"="); inl=b[2]; if ( inl != inllast ){printf "HELINL="inl; inllast=inl}}\
-           /^Process/{split($0,a,"]"); split(a[3],b,"="); hrd=b[2]; if ( hrd != hrdlast ){print " HRDCOD="hrd; hrdlast=hrd}}\
+        if [ "$nodelast" != "$node" ]; then echo -e "$node\n" >> $out; nodelast=$node; fi
+        ###cat $files | awk '/^runExe.*check.*/{print $0};/^Process/{print $0};/Workflow/{print $0};/MECalcOnly/{print $0}'; continue
+        cat $files | awk -vtaglist="$taglist" -vrev=$rev -vcomplast=none -vinllast=none -vhrdlast=none -vfptlast=none '\
+           ###/^runExe .*check.*/{split($0,a,"check.exe"); last=substr(a[1],length(a[1])); if (last=="g"){tag="CUD"} else if(last=="p"){tag="ALP"} else{tag="CPP"}; split($0,a,"build."); split(a[2],b,"_"); tag=tag"/"b[1]};\
+	   /^Process(.)/{split($0,a,"["); comp="["a[2]; if ( complast == "none" ){print comp; complast=comp}};\
+           /^Process/{split($0,a,"]"); split(a[2],b,"="); inl=b[2]; if (inl!=inllast){printf "HELINL="inl; inllast=inl}}\
+           /^Process/{split($0,a,"]"); split(a[3],b,"="); hrd=b[2]; if (hrd!=hrdlast){if(hrd==""){hrd=0}; print " HRDCOD="hrd; hrdlast=hrd}}\
            /^Process/{proc=""; split($3,a,"_"); proc=a[3]"_"a[4]};\
            /^FP precision/{fpt=$4; /*if ( fpt != fptlast ){print "FPTYPE="fpt; fptlast=fpt}*/}\
-           /Workflow/{tag=""; split($4,a,":"); tag=a[1]; split($4,a,"+"); split(a[4],b,"/"); tag=tag"/"b[2]};\
+           /Workflow/{split($4,a,":"); tag=a[1]; split($4,a,"+"); split(a[4],b,"/"); tag=tag"/"b[2]};\
            /MECalcOnly/{tput=sprintf("%.2e", $5); tput_proc_tag[proc,tag]=tput}; \
-           END{ntag=split("CUD/none CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z",tags);\
+           END{ntag=split(taglist,tags);\
                nproc=split("EPEM_MUPMUM GG_TTX GG_TTXG GG_TTXGG GG_TTXGGG",procs);\
                procs_txt["EPEM_MUPMUM"]="eemumu";\
                procs_txt["GG_TTX"]="ggtt";\
