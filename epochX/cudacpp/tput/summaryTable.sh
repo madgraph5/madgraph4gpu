@@ -100,10 +100,11 @@ for fpt in $fpts; do
         ###cat $files | awk '/^runExe.*check.*/{print $0};/^Process/{print $0};/Workflow/{print $0};/MECalcOnly/{print $0}'; continue
         cat $files | awk -vtaglist="$taglist" -vrev=$rev -vcomplast=none -vinllast=none -vhrdlast=none -vfptlast=none '\
            /^runExe .*check.*/{split($0,a,"check.exe"); last=substr(a[1],length(a[1])); if (last=="g"){tag="CUD"} else if(last=="p"){tag="ALP"} else{tag="CPP"}; split($0,a,"build."); split(a[2],b,"_"); tag=tag"/"b[1]};\
+           /^runExe .*check.*/{split($0,a," -p "); split(a[2],b); grid=b[1]"/"b[2]"/"b[3]};\
 	   /^Process(.)/{split($0,a,"["); comp="["a[2]; if ( complast == "none" ){print comp; complast=comp}};\
            /^Process/{split($0,a,"]"); split(a[2],b,"="); inl=b[2]; if (inl!=inllast){printf "HELINL="inl; inllast=inl}}\
            /^Process/{split($0,a,"]"); split(a[3],b,"="); hrd=b[2]; if (hrd!=hrdlast){if(hrd==""){hrd=0}; print " HRDCOD="hrd; hrdlast=hrd}}\
-           /^Process/{proc=""; split($3,a,"_"); proc=a[3]"_"a[4]};\
+           /^Process/{split($3,a,"_"); proc=a[3]"_"a[4]; grid_proc_tag[proc,tag]=grid};\
            /^FP precision/{fpt=$4; /*if ( fpt != fptlast ){print "FPTYPE="fpt; fptlast=fpt}*/}\
            ###/Workflow/{split($4,a,":"); tag=a[1]; split($4,a,"+"); split(a[4],b,"/"); tag=tag"/"b[2]};\
 	   /.*check.exe: Aborted/{tput_proc_tag[proc,tag]="(FAILED)"};\
@@ -115,11 +116,12 @@ for fpt in $fpts; do
                procs_txt["GG_TTXG"]="ggttg";\
                procs_txt["GG_TTXGG"]="ggttgg";\
                procs_txt["GG_TTXGGG"]="ggttggg";\
-               printf "%12s", "";\
-               for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; printf "%-12s", procs_txt[proc]}; printf "\n";\
+               printf "%8s", "";\
+               for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; printf "%12s", procs_txt[proc]}; printf "\n";\
                for(itag=1;itag<=ntag;itag++)\
-               {tag=tags[itag]; printf "%-12s", tag;\
-                for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; tput=tput_proc_tag[proc,tag]; if(tput==""){tput="--------"}; printf "%-12s", tput}; printf "\n"}}' >> $out
+               {tag=tags[itag];\
+                ###printf "%-8s", tag; for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; grid=grid_proc_tag[proc,tag]; if(grid==""){grid="--------"}; printf "%12s", grid}; printf "\n";\
+                printf "%-8s", tag; for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; tput=tput_proc_tag[proc,tag]; if(tput==""){tput="--------"}; printf "%12s", tput}; printf "\n"}}' >> $out
         echo "" >> $out
       done
     done
