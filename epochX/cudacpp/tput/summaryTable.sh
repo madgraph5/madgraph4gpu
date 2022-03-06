@@ -127,8 +127,8 @@ for fpt in $fpts; do
 	       gridslast="";\
                for(itag=1;itag<=ntag;itag++)\
                {tag=tags[itag];\
-	        grids=""; for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; grid=grid_proc_tag[proc,tag]; if(grid==""){grid="------"}; grids=grids""sprintf("%14s","["grid"]")}; grids=grids"\n";\
-                if(grids!=gridslast){printf "%-8s%s", "", grids}; gridslast=grids;\
+	        gridsok=0; grids=""; for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; grid=grid_proc_tag[proc,tag]; if(grid==""){grid="------"} else {gridsok=1}; grids=grids""sprintf("%14s","["grid"]")}; grids=grids"\n";\
+                if(grids!=gridslast && gridsok==1){printf "%-8s%s", "", grids}; gridslast=grids;\
                 printf "%-8s", tag; for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; tput=tput_proc_tag[proc,tag]; if(tput==""){tput="--------"}; printf "%14s", tput}; printf "\n";\
                }}' >> $out
         echo "" >> $out
