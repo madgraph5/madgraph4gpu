@@ -120,7 +120,7 @@ for fpt in $fpts; do
                for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; printf "%12s", procs_txt[proc]}; printf "\n";\
                for(itag=1;itag<=ntag;itag++)\
                {tag=tags[itag];\
-                ###printf "%-8s", tag; for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; grid=grid_proc_tag[proc,tag]; if(grid==""){grid="--------"}; printf "%12s", grid}; printf "\n";\
+                printf "%-8s", tag; for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; grid=grid_proc_tag[proc,tag]; if(grid==""){grid="--------"}; printf "%12s", grid}; printf "\n";\
                 printf "%-8s", tag; for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; tput=tput_proc_tag[proc,tag]; if(tput==""){tput="--------"}; printf "%12s", tput}; printf "\n"}}' >> $out
         echo "" >> $out
       done
