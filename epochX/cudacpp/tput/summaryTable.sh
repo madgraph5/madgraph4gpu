@@ -61,6 +61,13 @@ elif [ "$table" == "alpaka" ]; then
   hrds="hrd0"
 fi
 
+# Select tag list
+if [ "$table" == "alpaka" ]; then
+  taglist="CUD/none ALP/none CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
+else
+  taglist="CUD/none CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
+fi
+
 # Iterate through log files
 for fpt in $fpts; do
   echo -e "*** FPTYPE=$fpt ******************************************************************\n" >> $out
@@ -68,11 +75,9 @@ for fpt in $fpts; do
     if [ "$bckend" == "alpaka" ]; then
       revs="$arevs"
       suff=auto
-      taglist="CUD/none ALP/none CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
     else
       revs="$crevs"
       suff=manu
-      taglist="CUD/none CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
     fi
     if [ "$revs" == "" ]; then continue; fi
     for rev in $revs; do
