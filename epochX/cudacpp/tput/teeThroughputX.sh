@@ -95,6 +95,12 @@ for arg in $*; do
   fi  
 done
 
+# Use only the .auto process directories in the alpaka directory
+if [ "$bckend" == "alpaka" ]; then
+  echo "WARNING! alpaka directory: using .auto process directories only"
+  suffs="auto"
+fi
+
 #echo "procs=$procs"
 #echo "suffs=$suffs"
 #echo "df=$df"
