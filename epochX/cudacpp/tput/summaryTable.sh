@@ -123,12 +123,14 @@ for fpt in $fpts; do
                procs_txt["gg_ttg"]="ggttg";\
                procs_txt["gg_ttgg"]="ggttgg";\
                procs_txt["gg_ttggg"]="ggttggg";\
-               printf "%8s", "";\
-               for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; printf "%12s", procs_txt[proc]}; printf "\n";\
+               printf "%8s", ""; for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; printf "%14s", procs_txt[proc]}; printf "\n";\
+	       gridslast="";\
                for(itag=1;itag<=ntag;itag++)\
                {tag=tags[itag];\
-                printf "%-8s", tag; for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; grid=grid_proc_tag[proc,tag]; if(grid==""){grid="--------"}; printf "%12s", grid}; printf "\n";\
-                printf "%-8s", tag; for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; tput=tput_proc_tag[proc,tag]; if(tput==""){tput="--------"}; printf "%12s", tput}; printf "\n"}}' >> $out
+	        grids=""; for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; grid=grid_proc_tag[proc,tag]; if(grid==""){grid="------"}; grids=grids""sprintf("%14s","["grid"]")}; grids=grids"\n";\
+                if(grids!=gridslast){printf "%-8s%s", "", grids}; gridslast=grids;\
+                printf "%-8s", tag; for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; tput=tput_proc_tag[proc,tag]; if(tput==""){tput="--------"}; printf "%14s", tput}; printf "\n";\
+               }}' >> $out
         echo "" >> $out
       done
     done
