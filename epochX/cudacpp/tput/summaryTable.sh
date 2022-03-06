@@ -35,6 +35,7 @@ elif [ "$table" == "juwels" ]; then
   crevs="$crevs 65730b2" # cuda115/gcc112  (18 Feb 2022) JUWELSCL eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
   crevs="$crevs df441ad" # cuda115/gcc112  (18 Feb 2022) JUWELSBO eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
 elif [ "$table" == "alpaka" ]; then
+  crevs="$crevs 09e482e" # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
   arevs="$arevs f5a44ba" # cuda116/gcc102  (06 Mar 2022) GOLDEPX4 eemumu/ggtt/ggttg/ggttgg/ggttggg x d x inl0
 fi
 
@@ -62,12 +63,12 @@ fi
 
 # Select revisions, logfiles, tags
 if [ "$table" == "alpaka" ]; then
-  revs=$arevs
+  revs="$arevs $crevs"
   bckend=alpaka
   suff=auto
   taglist="CUD/none ALP/none CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
 else
-  revs=$crevs
+  revs="$arevs $crevs"
   bckend=cudacpp
   suff=manu
   taglist="CUD/none CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
