@@ -106,7 +106,8 @@ for fpt in $fpts; do
            /^Process/{proc=""; split($3,a,"_"); proc=a[3]"_"a[4]};\
            /^FP precision/{fpt=$4; /*if ( fpt != fptlast ){print "FPTYPE="fpt; fptlast=fpt}*/}\
            ###/Workflow/{split($4,a,":"); tag=a[1]; split($4,a,"+"); split(a[4],b,"/"); tag=tag"/"b[2]};\
-           /MECalcOnly/{tput=sprintf("%.2e", $5); tput_proc_tag[proc,tag]=tput}; \
+	   /.*check.exe: Aborted/{tput_proc_tag[proc,tag]="(FAILED)"};\
+           /MECalcOnly/{tput=sprintf("%.2e", $5); tput_proc_tag[proc,tag]=tput};\
            END{ntag=split(taglist,tags);\
                nproc=split("EPEM_MUPMUM GG_TTX GG_TTXG GG_TTXGG GG_TTXGGG",procs);\
                procs_txt["EPEM_MUPMUM"]="eemumu";\
