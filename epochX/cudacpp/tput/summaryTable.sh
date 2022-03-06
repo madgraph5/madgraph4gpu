@@ -21,8 +21,9 @@ fi
 \rm -f $out
 touch $out
 
-# Select revisions of cudacpp logs
+# Select revisions of cudacpp and alpaka logs
 crevs=""
+arevs=""
 if [ "$table" == "" ]; then
   ###crevs="$crevs c2e67b4" # cuda116/gcc102  (25 Jan 2022) BASELINE eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d x inl0
   ###crevs="$crevs 4f3229d" # cuda116/icx2021 (25 Jan 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d x inl0
@@ -36,11 +37,7 @@ elif [ "$table" == "juwels" ]; then
   crevs="$crevs c2e67b4" # cuda116/gcc102  (25 Jan 2022) BASELINE eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
   crevs="$crevs 65730b2" # cuda115/gcc112  (18 Feb 2022) JUWELSCL eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
   crevs="$crevs df441ad" # cuda115/gcc112  (18 Feb 2022) JUWELSBO eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
-fi
-
-# Select revisions of alpaka logs
-arevs=""
-if [ "$table" == "alpaka" ]; then
+elif [ "$table" == "alpaka" ]; then
   arevs="$arevs f5a44ba" # cuda116/gcc102  (06 Mar 2022) GOLDEPX4 eemumu/ggtt/ggttg/ggttgg/ggttggg x d x inl0
 fi
 
