@@ -101,21 +101,28 @@ for fpt in $fpts; do
         cat $files | awk -vtaglist="$taglist" -vrev=$rev -vcomplast=none -vinllast=none -vhrdlast=none -vfptlast=none '\
            /^runExe .*check.*/{split($0,a,"check.exe"); last=substr(a[1],length(a[1])); if (last=="g"){tag="CUD"} else if(last=="p"){tag="ALP"} else{tag="CPP"}; split($0,a,"build."); split(a[2],b,"_"); tag=tag"/"b[1]};\
            /^runExe .*check.*/{split($0,a," -p "); split(a[2],b); grid=b[1]"/"b[2]"/"b[3]};\
+           /^runExe .*check.*/{gsub("/SubProcesses.*",""); gsub(".*/",""); gsub(".auto",""); proc=$0; grid_proc_tag[proc,tag]=grid};\
+           ###/^Process/{split($3,a,"_"); proc=a[3]"_"a[4]; grid_proc_tag[proc,tag]=grid};\
 	   /^Process(.)/{split($0,a,"["); comp="["a[2]; if ( complast == "none" ){print comp; complast=comp}};\
            /^Process/{split($0,a,"]"); split(a[2],b,"="); inl=b[2]; if (inl!=inllast){printf "HELINL="inl; inllast=inl}}\
            /^Process/{split($0,a,"]"); split(a[3],b,"="); hrd=b[2]; if (hrd!=hrdlast){if(hrd==""){hrd=0}; print " HRDCOD="hrd; hrdlast=hrd}}\
-           /^Process/{split($3,a,"_"); proc=a[3]"_"a[4]; grid_proc_tag[proc,tag]=grid};\
            /^FP precision/{fpt=$4; /*if ( fpt != fptlast ){print "FPTYPE="fpt; fptlast=fpt}*/}\
            ###/Workflow/{split($4,a,":"); tag=a[1]; split($4,a,"+"); split(a[4],b,"/"); tag=tag"/"b[2]};\
 	   /.*check.exe: Aborted/{tput_proc_tag[proc,tag]="(FAILED)"};\
            /MECalcOnly/{tput=sprintf("%.2e", $5); tput_proc_tag[proc,tag]=tput};\
            END{ntag=split(taglist,tags);\
-               nproc=split("EPEM_MUPMUM GG_TTX GG_TTXG GG_TTXGG GG_TTXGGG",procs);\
-               procs_txt["EPEM_MUPMUM"]="eemumu";\
-               procs_txt["GG_TTX"]="ggtt";\
-               procs_txt["GG_TTXG"]="ggttg";\
-               procs_txt["GG_TTXGG"]="ggttgg";\
-               procs_txt["GG_TTXGGG"]="ggttggg";\
+               ###nproc=split("EPEM_MUPMUM GG_TTX GG_TTXG GG_TTXGG GG_TTXGGG",procs);\
+               ###procs_txt["EPEM_MUPMUM"]="eemumu";\
+               ###procs_txt["GG_TTX"]="ggtt";\
+               ###procs_txt["GG_TTXG"]="ggttg";\
+               ###procs_txt["GG_TTXGG"]="ggttgg";\
+               ###procs_txt["GG_TTXGGG"]="ggttggg";\
+               nproc=split("ee_mumu gg_tt gg_ttg gg_ttgg gg_ttggg",procs);\
+               procs_txt["ee_mumu"]="eemumu";\
+               procs_txt["gg_tt"]="ggtt";\
+               procs_txt["gg_ttg"]="ggttg";\
+               procs_txt["gg_ttgg"]="ggttgg";\
+               procs_txt["gg_ttggg"]="ggttggg";\
                printf "%8s", "";\
                for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; printf "%12s", procs_txt[proc]}; printf "\n";\
                for(itag=1;itag<=ntag;itag++)\
