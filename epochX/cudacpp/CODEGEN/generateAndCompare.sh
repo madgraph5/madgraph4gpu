@@ -65,6 +65,8 @@ function codeGenAndDiff()
       echo "set gridpack True" >> ${outproc}.mg
       echo "set ebeam1 750" >> ${outproc}.mg
       echo "set ebeam2 750" >> ${outproc}.mg
+    elif [ "${OUTBCK}" == "alpaka" ]; then
+      echo "output standalone_${OUTBCK}_cudacpp ${outproc}" >> ${outproc}.mg
     else
       echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
     fi
@@ -92,28 +94,38 @@ function codeGenAndDiff()
     outprocauto=${MG5AMC_HOME}/${outproc}
   fi
   cp -dpr ${MG5AMC_HOME}/${outproc}_log.txt ${outprocauto}/
+  # Output directories: examples ee_mumu.auto for cudacpp and gridpacks, eemumu.cpp for cpp, eemumu.gpu for gpu
+  autosuffix=auto
+  if [ "$use270" == "0" ]; then
+    if [ "${OUTBCK}" == "cpp" ]; then autosuffix=cpp311; elif [ "${OUTBCK}" == "gpu" ]; then autosuffix=gpu311; fi
+  else
+    if [ "${OUTBCK}" == "cpp" ]; then autosuffix=cpp270; elif [ "${OUTBCK}" == "gpu" ]; then autosuffix=gpu270; fi
+  fi
   # Replace the existing generated code in the output source code directory by the newly generated code and create a .BKP
-  rm -rf ${OUTDIR}/${proc}.auto.BKP
-  if [ -d ${OUTDIR}/${proc}.auto ]; then mv ${OUTDIR}/${proc}.auto ${OUTDIR}/${proc}.auto.BKP; fi
-  cp -dpr ${outprocauto} ${OUTDIR}/${proc}.auto
-  echo -e "\nOutput source code has been copied to ${OUTDIR}/${proc}.auto"
+  rm -rf ${OUTDIR}/${proc}.${autosuffix}.BKP
+  if [ -d ${OUTDIR}/${proc}.${autosuffix} ]; then mv ${OUTDIR}/${proc}.${autosuffix} ${OUTDIR}/${proc}.${autosuffix}.BKP; fi
+  cp -dpr ${outprocauto} ${OUTDIR}/${proc}.${autosuffix}
+  echo -e "\nOutput source code has been copied to ${OUTDIR}/${proc}.${autosuffix}"
   # Compare the existing generated code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
   echo -e "\n+++ Compare old and new code generation log for $proc\n"
-  ###if diff -c ${proc}.auto.BKP/${outproc}_log.txt ${proc}.auto; then echo "Old and new code generation logs are identical"; fi # context diff
-  if diff ${proc}.auto.BKP/${outproc}_log.txt ${proc}.auto; then echo "Old and new code generation logs are identical"; fi # context diff
+  ###if diff -c ${proc}.${autosuffix}.BKP/${outproc}_log.txt ${proc}.${autosuffix}; then echo "Old and new code generation logs are identical"; fi # context diff
+  if diff ${proc}.${autosuffix}.BKP/${outproc}_log.txt ${proc}.${autosuffix}; then echo "Old and new code generation logs are identical"; fi # context diff
   echo -e "\n+++ Compare old and new generated code for $proc\n"
-  if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc}.auto.BKP ${proc}.auto; then echo "Old and new generated codes are identical"; else echo -e "\nWARNING! Old and new generated codes differ"; fi
+  if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc}.${autosuffix}.BKP ${proc}.${autosuffix}; then echo "Old and new generated codes are identical"; else echo -e "\nWARNING! Old and new generated codes differ"; fi
   popd >& /dev/null
   # Compare the existing manually developed code to the newly generated code for the specific process
-  pushd ${OUTDIR} >& /dev/null
-  echo -e "\n+++ Compare manually developed code to newly generated code for $proc\n"
-  if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc} ${proc}.auto; then echo "Manual and generated codes are identical"; else echo -e "\nWARNING! Manual and generated codes differ"; fi
+  if [ "${OUTBCK}" == "cudacpp" ] || [ "${OUTBCK}" == "gridpack" ]; then
+    pushd ${OUTDIR} >& /dev/null
+    echo -e "\n+++ Compare manually developed code to newly generated code for $proc\n"
+    if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc} ${proc}.${autosuffix}; then echo "Manual and generated codes are identical"; else echo -e "\nWARNING! Manual and generated codes differ"; fi
+    popd >& /dev/null
+  fi
   # Print a summary of the available code
   echo
   echo -e "Manually developed code is\n  ${OUTDIR}/${proc}"
-  echo -e "Old generated code moved to\n  ${OUTDIR}/${proc}.auto.BKP"
-  echo -e "New generated code moved to\n  ${OUTDIR}/${proc}.auto"
+  echo -e "Old generated code moved to\n  ${OUTDIR}/${proc}.${autosuffix}.BKP"
+  echo -e "New generated code moved to\n  ${OUTDIR}/${proc}.${autosuffix}"
 }
 
 #--------------------------------------------------------------------------------------
@@ -121,9 +133,11 @@ function codeGenAndDiff()
 function usage()
 {
   if [ "${OUTBCK}" == "gridpack" ]; then
-    echo "Usage: $0 [--nobrief] [--nountaronly] [--nohelrec] <proc>" # New: only one process
+    echo "Usage: $0 [--nobrief] [--nountaronly] [--nohelrec] <proc>" # NB: only one process
+  elif [ "${OUTBCK}" == "alpaka" ]; then
+    echo "Usage: $0 [--nobrief] <proc>" # NB: only one process
   else
-    echo "Usage: $0 [--nobrief] <proc>" # New: only one process
+    echo "Usage: $0 [--nobrief] [--cpp|--gpu] [--270] <proc>" # NB: only one process
   fi
   exit 1
 }
@@ -151,11 +165,15 @@ SCRDIR=$(cd $(dirname $0); pwd)
 # Output source code directory for the chosen backend
 OUTDIR=$(dirname $SCRDIR) # e.g. epochX/cudacpp if $SCRDIR=epochX/cudacpp/CODEGEN
 
-# Output backend
+# Default output backend (in the cudacpp directory this can be changed to cpp or gpu using --cpp and --gpu)
 OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
 
 # Default: brief diffs (use --nobrief to use full diffs)
 BRIEF=--brief
+
+# Default: use the 311 MG5aMC branch (except for alpaka)
+use270=0
+if [ "${OUTBCK}" == "alpaka" ]; then use270=1; fi
 
 # Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
 UNTARONLY=1
@@ -171,10 +189,16 @@ for arg in "$@"; do
     usage; continue; # continue is unnecessary as usage will exit anyway...
   elif [ "$arg" == "--nobrief" ]; then
     BRIEF=; continue
+  elif [ "$arg" == "--270" ]; then
+    use270=1; continue
   elif [ "$arg" == "--nountaronly" ] && [ "${OUTBCK}" == "gridpack" ]; then
     UNTARONLY=0; continue
   elif [ "$arg" == "--nohelrec" ] && [ "${OUTBCK}" == "gridpack" ]; then
     export HELREC=0; continue
+  elif [ "$arg" == "--cpp" ] && [ "${OUTBCK}" == "cudacpp" ]; then
+    export OUTBCK=cpp; continue
+  elif [ "$arg" == "--gpu" ] && [ "${OUTBCK}" == "cudacpp" ]; then
+    export OUTBCK=gpu; continue
   else
     # Keep the possibility to collect more then one process
     # However, require a single process to be chosen (allow full cleanup before/after code generation)
@@ -197,15 +221,46 @@ echo "proc=${proc}"
 if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"; exit 1; fi
 
 # Make sure that $MG5AMC_HOME exists
-###mg5amc_branch=2.7.0_gpu
-mg5amc_branch=3.1.1_lo_vectorization
+mg5amc270=2.7.0_gpu
+mg5amc311=3.1.1_lo_vectorization
+mg5amcBrn=${mg5amc311}
 if [ "$MG5AMC_HOME" == "" ]; then
   echo "ERROR! MG5AMC_HOME is not defined"
-  echo "To download MG5AMC please run 'bzr branch lp:~maddevelopers/mg5amcnlo/${mg5amc_branch}'"
+  echo "To download MG5AMC please run 'bzr branch lp:~maddevelopers/mg5amcnlo/${mg5amcBrn}'"
   exit 1
 fi
-echo -e "\nUsing MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
+echo -e "\nDefault MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
 if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exist"; exit 1; fi
+if [ "$(basename ${MG5AMC_HOME})" != "${mg5amcBrn}" ]; then
+  echo "ERROR! MG5AMC_HOME basename is not ${mg5amcBrn}"
+  exit 1
+fi
+
+# Redefine MG5AMC_HOME to use the 270 branch if required
+if [ "$use270" == "1" ]; then
+  mg5amcBrn=${mg5amc270}
+  export MG5AMC_HOME=$(dirname ${MG5AMC_HOME})/${mg5amcBrn}
+  echo -e "Using non-default MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
+  if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exist"; exit 1; fi
+fi
+
+# Make sure that $ALPAKA_ROOT and $CUPLA_ROOT exist if alpaka is used
+if [ "${OUTBCK}" == "alpaka" ]; then
+  if [ "$ALPAKA_ROOT" == "" ]; then
+    echo "ERROR! ALPAKA_ROOT is not defined"
+    echo "To download ALPAKA please run 'git clone -b 0.8.0 https://github.com/alpaka-group/alpaka.git'"
+    exit 1
+  fi
+  echo -e "Using ALPAKA_ROOT=$ALPAKA_ROOT on $(hostname)\n"
+  if [ ! -d $ALPAKA_ROOT ]; then echo "ERROR! Directory $ALPAKA_ROOT does not exist"; exit 1; fi
+  if [ "$CUPLA_ROOT" == "" ]; then
+    echo "ERROR! CUPLA_ROOT is not defined"
+    echo "To download CUPLA please run 'git clone -b 0.3.0 https://github.com/alpaka-group/cupla.git'"
+    exit 1
+  fi
+  echo -e "Using CUPLA_ROOT=$CUPLA_ROOT on $(hostname)\n"
+  if [ ! -d $CUPLA_ROOT ]; then echo "ERROR! Directory $CUPLA_ROOT does not exist"; exit 1; fi
+fi
 
 # Print MG5amc bazaar info if any
 # Revert to the appropriate bazaar revision number
@@ -215,7 +270,11 @@ if bzr --version >& /dev/null; then
   echo -e "Using $(bzr --version | head -1)"
   echo -e "Retrieving bzr information about MG5AMC_HOME"
   if bzr info ${MG5AMC_HOME} > /dev/null; then
-    revno_patches=$(cat $SCRDIR/MG5aMC_patches/${mg5amc_branch}/revision.BZR)
+    if [ "${OUTBCK}" == "alpaka" ]; then
+      revno_patches=370
+    else
+      revno_patches=$(cat $SCRDIR/MG5aMC_patches/${mg5amcBrn}/revision.BZR)
+    fi
     echo -e "MG5AMC patches in this plugin refer to bzr revno '${revno_patches}'"
     echo -e "Revert MG5AMC_HOME to bzr revno '${revno_patches}'"
     bzr revert ${MG5AMC_HOME} -r ${revno_patches}
@@ -232,14 +291,17 @@ else
 fi
 
 # Copy MG5AMC patches if any
-patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amc_branch}; find . -type f -name '*.py')
-echo -e "Copy MG5aMC_patches/${mg5amc_branch} patches..."
-for patch in $patches; do
-  patch=${patch#./}
-  echo cp -dpr $SCRDIR/MG5aMC_patches/${mg5amc_branch}/$patch $MG5AMC_HOME/$patch
-  cp -dpr $SCRDIR/MG5aMC_patches/${mg5amc_branch}/$patch $MG5AMC_HOME/$patch
-done
-echo -e "Copy MG5aMC_patches/${mg5amc_branch} patches... done\n"
+if [ "${OUTBCK}" == "cudacpp" ]; then
+  patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f -name '*.py')
+  patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f -name '*.py')
+  echo -e "Copy MG5aMC_patches/${mg5amcBrn} patches..."
+  for patch in $patches; do
+    patch=${patch#./}
+    echo cp -dpr $SCRDIR/MG5aMC_patches/${mg5amcBrn}/$patch $MG5AMC_HOME/$patch
+    cp -dpr $SCRDIR/MG5aMC_patches/${mg5amcBrn}/$patch $MG5AMC_HOME/$patch
+  done
+  echo -e "Copy MG5aMC_patches/${mg5amcBrn} patches... done\n"
+fi
 
 # Clean up before code generation
 cleanup_MG5AMC_HOME
@@ -253,9 +315,12 @@ if bzr --version >& /dev/null; then
   fi
 fi
 
-# Copy the new plugin to MG5AMC_HOME (unless this is the gridpack directory)
-if [ "${OUTBCK}" != "gridpack" ]; then
+# Copy the new plugin to MG5AMC_HOME (if the selected output is cudacpp or alpaka)
+if [ "${OUTBCK}" == "cudacpp" ]; then
   cp -dpr ${SCRDIR}/PLUGIN/${OUTBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
+  ls -l ${MG5AMC_HOME}/PLUGIN
+elif [ "${OUTBCK}" == "alpaka" ]; then
+  cp -dpr ${SCRDIR}/PLUGIN/${OUTBCK^^}_CUDACPP_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
   ls -l ${MG5AMC_HOME}/PLUGIN
 fi
 
@@ -280,8 +345,10 @@ codeGenAndDiff $proc
 cleanup_MG5AMC_HOME
 
 # Check formatting in the auto-generated code
-echo -e "\n+++ Check code formatting in newly generated code for $proc\n"
-if ! $SCRDIR/checkFormatting.sh -q -q ${proc}.auto; then
-  echo "ERROR! Auto-generated code does not respect formatting policies"
-  exit 1
+if [ "${OUTBCK}" == "cudacpp" ]; then
+  echo -e "\n+++ Check code formatting in newly generated code for $proc\n"
+  if ! $SCRDIR/checkFormatting.sh -q -q ${proc}.auto; then
+    echo "ERROR! Auto-generated code does not respect formatting policies"
+    exit 1
+  fi
 fi

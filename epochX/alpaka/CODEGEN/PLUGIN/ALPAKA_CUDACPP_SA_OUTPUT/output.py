@@ -104,8 +104,9 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
                              s+'gpu/mgOnGpuTypes.h', s+'gpu/mgOnGpuVectors.h', s+'gpu/alsimple.h'],
                     'SubProcesses': [s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h', s+'gpu/Memory.h', 
                                      s+'gpu/Makefile', s+'gpu/runTest.cc', s+'gpu/testxxx.cc', s+'gpu/testxxx_cc_ref.txt',
+                                     s+'gpu/MadgraphTest.h', s+'gpu/MadgraphTest.cc',
                                      s+'gpu/perf.py', s+'gpu/profile.sh']}
-    to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h', 'Memory.h', 'Makefile', 'runTest.cc', 'testxxx.cc', 'testxxx_cc_ref.txt', 'perf.py', 'profile.sh']
+    to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h', 'Memory.h', 'Makefile', 'runTest.cc', 'testxxx.cc', 'testxxx_cc_ref.txt', 'MadgraphTest.h', 'MadgraphTest.cc', 'perf.py', 'profile.sh']
 
     # AV - use template files from PLUGINDIR instead of MG5DIR
     ###template_src_make = pjoin(MG5DIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')

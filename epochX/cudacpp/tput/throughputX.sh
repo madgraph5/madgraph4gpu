@@ -3,29 +3,9 @@
 set +x # not verbose
 set -e # fail on error
 
-omp=0
-avxall=0
-cpp=1
-cuda=1
-ab3=0
-eemumu=0
-ggtt=0
-ggttg=0
-ggttgg=0
-ggttggg=0
-div=0
-req=0
-fptypes="d"
-helinls="0"
-hrdcods="0"
-rndgen=""
-rmbsam=""
-suffs="/"
-maketype=
-makej=
-detailed=0
-gtest=0
-verbose=0
+scrdir=$(cd $(dirname $0); pwd)
+bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
+topdir=$(cd $scrdir; cd ../../..; pwd)
 
 # This is no longer necessary as check/gcheck/runTest.exe are now built using rpath
 ###export LD_LIBRARY_PATH_start=$LD_LIBRARY_PATH
@@ -33,7 +13,7 @@ verbose=0
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu] [-ggtt] [-ggttg] [-ggttgg] [-ggttggg]> [-nocpp|[-omp][-avxall][-nocuda]] [-3a3b] [-div] [-req] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-auto|-autoonly] [-makeonly|-makeclean|-makecleanonly] [-makej] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes[-eemumu] [-ggtt] [-ggttg] [-ggttgg] [-ggttggg]> [-nocpp|[-omp][-avxall][-nocuda]] [-auto|-autoonly] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v]"
   exit 1
 }
 
@@ -41,11 +21,62 @@ function usage()
 # PART 0 - decode command line arguments
 ##########################################################################
 
-scrdir=$(cd $(dirname $0); pwd)
-topdir=$(cd $scrdir; cd ../../..; pwd)
+eemumu=0
+ggtt=0
+ggttg=0
+ggttgg=0
+ggttggg=0
+suffs="/"
+
+omp=0
+avxall=0
+cpp=1
+cuda=1
+alpaka=1
+
+fptypes="d"
+helinls="0"
+hrdcods="0"
+rndgen=""
+rmbsam=""
+
+maketype=
+makej=
+
+ab3=0
+div=0
+req=0
+detailed=0
+gtest=0
+verbose=0
+
+if [ "$bckend" != "alpaka" ]; then alpaka=0; fi # alpaka mode is only available in the alpaka directory
 
 while [ "$1" != "" ]; do
-  if [ "$1" == "-omp" ]; then
+  if [ "$1" == "-eemumu" ]; then
+    eemumu=1
+    shift
+  elif [ "$1" == "-ggtt" ]; then
+    ggtt=1
+    shift
+  elif [ "$1" == "-ggttg" ]; then
+    ggttg=1
+    shift
+  elif [ "$1" == "-ggttgg" ]; then
+    ggttgg=1
+    shift
+  elif [ "$1" == "-ggttggg" ]; then
+    ggttggg=1
+    shift
+  elif [ "$1" == "-auto" ]; then
+    if [ "${suffs}" == ".auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
+    suffs="/ .auto/"
+    shift
+  elif [ "$1" == "-autoonly" ]; then
+    if [ "${suffs}" == "/ .auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
+    suffs=".auto/"
+    shift
+  elif [ "$1" == "-omp" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
     omp=1
     shift
@@ -63,29 +94,8 @@ while [ "$1" != "" ]; do
     if [ "${cuda}" == "0" ]; then echo "ERROR! Options -nocuda and -nocpp are incompatible"; usage; fi
     cpp=0
     shift
-  elif [ "$1" == "-3a3b" ]; then
-    ab3=1
-    shift
-  elif [ "$1" == "-eemumu" ]; then
-    eemumu=1
-    shift
-  elif [ "$1" == "-ggtt" ]; then
-    ggtt=1
-    shift
-  elif [ "$1" == "-ggttg" ]; then
-    ggttg=1
-    shift
-  elif [ "$1" == "-ggttgg" ]; then
-    ggttgg=1
-    shift
-  elif [ "$1" == "-ggttggg" ]; then
-    ggttggg=1
-    shift
-  elif [ "$1" == "-div" ]; then
-    div=1
-    shift
-  elif [ "$1" == "-req" ]; then
-    req=1
+  elif [ "$1" == "-noalpaka" ]; then
+    alpaka=0
     shift
   elif [ "$1" == "-flt" ]; then
     if [ "${fptypes}" == "f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
@@ -123,14 +133,6 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-bridge" ]; then
     rmbsmp=" -${1}"
     shift
-  elif [ "$1" == "-auto" ]; then
-    if [ "${suffs}" == ".auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
-    suffs="/ .auto/"
-    shift
-  elif [ "$1" == "-autoonly" ]; then
-    if [ "${suffs}" == "/ .auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
-    suffs=".auto/"
-    shift
   elif [ "$1" == "-makeonly" ] || [ "$1" == "-makeclean" ] || [ "$1" == "-makecleanonly" ]; then
     if [ "${maketype}" != "" ] && [ "${maketype}" != "$1" ]; then
       echo "ERROR! Options -makeonly, -makeclean and -makecleanonly are incompatible"; usage
@@ -139,6 +141,15 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-makej" ]; then
     makej=-j
+    shift
+  elif [ "$1" == "-3a3b" ]; then
+    ab3=1
+    shift
+  elif [ "$1" == "-div" ]; then
+    div=1
+    shift
+  elif [ "$1" == "-req" ]; then
+    req=1
     shift
   elif [ "$1" == "-detailed" ]; then
     detailed=1
@@ -160,6 +171,33 @@ done
 # Check that at least one process has been selected
 if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ]; then usage; fi
 
+# Use only the .auto process directories in the alpaka directory
+if [ "$bckend" == "alpaka" ]; then
+  echo "WARNING! alpaka directory: using .auto process directories only"
+  suffs=".auto/"
+fi
+
+# Use only HRDCOD=0 in the alpaka directory (old epochX-golden2 code base)
+if [ "$bckend" == "alpaka" ]; then
+  echo "WARNING! alpaka directory: using HRDCOD=0 only"
+  hrdcods="0"
+fi
+
+# Check whether Alpaka should and can be run
+if [ "${alpaka}" == "1" ]; then
+  if [ "${CUPLA_ROOT}" == "" ]; then echo "ERROR! CUPLA_ROOT is not set!"; exit 1; fi
+  echo "CUPLA_ROOT=$CUPLA_ROOT"
+  if [ ! -d "${CUPLA_ROOT}" ]; then echo "ERROR! $CUPLA_ROOT does not exist!"; exit 1; fi
+  if [ "${ALPAKA_ROOT}" == "" ]; then echo "ERROR! ALPAKA_ROOT is not set!"; exit 1; fi
+  echo "ALPAKA_ROOT=$ALPAKA_ROOT"
+  if [ ! -d "${ALPAKA_ROOT}" ]; then echo "ERROR! $ALPAKA_ROOT does not exist!"; exit 1; fi
+  if [ "${BOOSTINC}" == "" ]; then echo "ERROR! BOOSTINC is not set!"; exit 1; fi
+  echo "BOOSTINC=$BOOSTINC"
+  if [ ! -d "${BOOSTINC}" ]; then echo "ERROR! $BOOSTINC does not exist!"; exit 1; fi  
+else
+  export CUPLA_ROOT=none
+fi
+
 ###echo -e "\n********************************************************************************\n"
 printf "\n"
 
@@ -172,24 +210,30 @@ exes=
 for suff in $suffs; do
 
   #=====================================
-  # CUDA (epochX - manual/auto)
+  # CUDA   (epochX - manual/auto)
+  # ALPAKA (epochX - manual/auto)
   #=====================================
   if [ "${cuda}" == "1" ]; then
     if [ "${eemumu}" == "1" ]; then 
-      dir=$topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
+      dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
     elif [ "${ggtt}" == "1" ]; then 
-      dir=$topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
+      dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
     elif [ "${ggttg}" == "1" ]; then 
-      dir=$topdir/epochX/cudacpp/gg_ttg${suff}SubProcesses/P1_Sigma_sm_gg_ttxg
+      dir=$topdir/epochX/${bckend}/gg_ttg${suff}SubProcesses/P1_Sigma_sm_gg_ttxg
     elif [ "${ggttgg}" == "1" ]; then 
-      dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
+      dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
     elif [ "${ggttggg}" == "1" ]; then 
-      dir=$topdir/epochX/cudacpp/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
+      dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
     fi
     for hrdcod in $hrdcods; do
+      hrdsuf=_hrd${hrdcod}
+      if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
       for helinl in $helinls; do
         for fptype in $fptypes; do
-          exes="$exes ${dir}/build.none_${fptype}_inl${helinl}_hrd${hrdcod}/gcheck.exe"
+          exes="$exes ${dir}/build.none_${fptype}_inl${helinl}${hrdsuf}/gcheck.exe"
+          if [ "${alpaka}" == "1" ]; then
+            exes="$exes ${dir}/build.none_${fptype}_inl${helinl}${hrdsuf}/alpcheck.exe"
+          fi
         done
       done
     done
@@ -200,28 +244,30 @@ for suff in $suffs; do
   #=====================================
   if [ "${cpp}" == "1" ]; then 
     if [ "${eemumu}" == "1" ]; then 
-      dir=$topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
+      dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
     elif [ "${ggtt}" == "1" ]; then 
-      dir=$topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
+      dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
     elif [ "${ggttg}" == "1" ]; then 
-      dir=$topdir/epochX/cudacpp/gg_ttg${suff}SubProcesses/P1_Sigma_sm_gg_ttxg
+      dir=$topdir/epochX/${bckend}/gg_ttg${suff}SubProcesses/P1_Sigma_sm_gg_ttxg
     elif [ "${ggttgg}" == "1" ]; then 
-      dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
+      dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
     elif [ "${ggttggg}" == "1" ]; then 
-      dir=$topdir/epochX/cudacpp/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
+      dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
     fi
     for hrdcod in $hrdcods; do
+      hrdsuf=_hrd${hrdcod}
+      if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
       for helinl in $helinls; do
         for fptype in $fptypes; do
-          exes="$exes $dir/build.none_${fptype}_inl${helinl}_hrd${hrdcod}/check.exe"
+          exes="$exes $dir/build.none_${fptype}_inl${helinl}${hrdsuf}/check.exe"
           if [ "${avxall}" == "1" ]; then 
-            exes="$exes $dir/build.sse4_${fptype}_inl${helinl}_hrd${hrdcod}/check.exe"
-            exes="$exes $dir/build.avx2_${fptype}_inl${helinl}_hrd${hrdcod}/check.exe"
+            exes="$exes $dir/build.sse4_${fptype}_inl${helinl}${hrdsuf}/check.exe"
+            exes="$exes $dir/build.avx2_${fptype}_inl${helinl}${hrdsuf}/check.exe"
           fi
           if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
-            exes="$exes $dir/build.512y_${fptype}_inl${helinl}_hrd${hrdcod}/check.exe"
+            exes="$exes $dir/build.512y_${fptype}_inl${helinl}${hrdsuf}/check.exe"
             if [ "${avxall}" == "1" ]; then 
-              exes="$exes $dir/build.512z_${fptype}_inl${helinl}_hrd${hrdcod}/check.exe"
+              exes="$exes $dir/build.512z_${fptype}_inl${helinl}${hrdsuf}/check.exe"
             fi
           fi
         done
@@ -240,15 +286,15 @@ done
 for suff in $suffs; do
 
   if [ "${eemumu}" == "1" ]; then 
-    dir=$topdir/epochX/cudacpp/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
+    dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
   elif [ "${ggtt}" == "1" ]; then 
-    dir=$topdir/epochX/cudacpp/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
+    dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
   elif [ "${ggttg}" == "1" ]; then 
-    dir=$topdir/epochX/cudacpp/gg_ttg${suff}SubProcesses/P1_Sigma_sm_gg_ttxg
+    dir=$topdir/epochX/${bckend}/gg_ttg${suff}SubProcesses/P1_Sigma_sm_gg_ttxg
   elif [ "${ggttgg}" == "1" ]; then 
-    dir=$topdir/epochX/cudacpp/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
+    dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
   elif [ "${ggttggg}" == "1" ]; then 
-    dir=$topdir/epochX/cudacpp/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
+    dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
   fi
 
   export USEBUILDDIR=1
@@ -408,13 +454,10 @@ else
 fi
 echo -e "On $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
 
-# Workaround for reading of data files
-pushd $topdir/epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum >& /dev/null
-
 lastExe=
 for exe in $exes; do
+  ###echo EXE=$exe; continue
   exeArgs2=""
-  ###if [ ! -f $exe ]; then continue; fi
   if [ ! -f $exe ]; then echo "Not found: $exe"; continue; fi
   if [ "${exe%%/gcheck*}" != "${exe}" ] && [ "$gpuTxt" == "none" ]; then continue; fi
   if [ "${exe%%/gg_ttggg*}" != "${exe}" ]; then 
@@ -449,9 +492,10 @@ for exe in $exes; do
     echo "-------------------------------------------------------------------------"
   fi
   exeDir=$(dirname $exe)
-  libDir=$exeDir/../../../lib/$(basename $exeDir)
-  if [ ! -d $libDir ]; then echo "WARNING! $libDir not found"; else libDir=$(cd $libDir; pwd -P); fi
+  cd $exeDir/.. # workaround for reading '../../Cards/param_card.dat' without setting MG5AMC_CARD_PATH
   # This is no longer necessary as check/gcheck/runTest.exe are now built using rpath
+  ###libDir=$exeDir/../../../lib/$(basename $exeDir)
+  ###if [ ! -d $libDir ]; then echo "WARNING! $libDir not found"; else libDir=$(cd $libDir; pwd -P); fi
   ###export LD_LIBRARY_PATH=$libDir:$LD_LIBRARY_PATH_start
   ###export DYLD_LIBRARY_PATH=$libDir:$DYLD_LIBRARY_PATH_start
   ###echo "LD_LIBRARY_PATH=$libDir:..."
@@ -471,14 +515,16 @@ for exe in $exes; do
       echo "runExe $exe2"
       $exe2 2>&1 | tail -1
     fi
-  elif [ "${exe%%/gcheck*}" != "${exe}" ]; then 
+  elif [ "${exe%%/gcheck*}" != "${exe}" ] ||  [ "${exe%%/alpcheck*}" != "${exe}" ]; then 
     runNcu $exe "$ncuArgs"
     if [ "${div}" == "1" ]; then runNcuDiv $exe; fi
     if [ "${req}" == "1" ]; then runNcuReq $exe "$ncuArgs"; fi
     if [ "${exeArgs2}" != "" ]; then echo "........................................................................."; runExe $exe "$exeArgs2"; fi
   fi
-  echo "-------------------------------------------------------------------------"
-  cmpExe $exe
+  if [ "${bckend}" != "alpaka" ]; then
+    echo "-------------------------------------------------------------------------"
+    cmpExe $exe
+  fi
 done
 echo "========================================================================="
 

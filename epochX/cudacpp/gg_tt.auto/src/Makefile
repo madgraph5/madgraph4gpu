@@ -197,7 +197,7 @@ cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
 
 # Target (and build rules): common (src) library
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
-	@if [ ! -d $(LIBDIR) ]; then mkdir -p $(LIBDIR); fi
+	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
 	$(CXX) -shared -o$@ $(cxx_objects)
 
 #-------------------------------------------------------------------------------

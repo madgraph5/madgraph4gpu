@@ -1,10 +1,12 @@
 #!/bin/bash
 
-cd $(dirname $0)
+scrdir=$(cd $(dirname $0); pwd)
+bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
+cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttg|-ggttgg|-ggttggg)> [-auto|-autoonly] [-flt|-fltonly] [-inl|-inlonly]  [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej]"
+  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttg|-ggttgg|-ggttggg)> [-auto|-autoonly] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej]"
   exit 1
 }
 
@@ -15,6 +17,7 @@ ggttg=
 ggttgg=
 ggttggg=
 suffs="manu"
+alpaka=
 fptypes="d"
 helinls="0"
 hrdcods="0"
@@ -22,6 +25,7 @@ rndgen=
 rmbsmp=
 steps="make test"
 makej=
+
 for arg in $*; do
   if [ "$arg" == "-eemumu" ]; then
     if [ "$eemumu" == "" ]; then procs+=${procs:+ }${arg}; fi
@@ -44,6 +48,8 @@ for arg in $*; do
   elif [ "$arg" == "-autoonly" ]; then
     if [ "${suffs}" == "manu auto" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
     suffs="auto"
+  elif [ "$arg" == "-noalpaka" ]; then
+    alpaka=$arg
   elif [ "$arg" == "-flt" ]; then
     if [ "${fptypes}" == "f" ]; then echo "ERROR! Options -flt and -fltonly are incompatible"; usage; fi
     fptypes="d f"
@@ -84,11 +90,16 @@ for arg in $*; do
     fi
   elif [ "$arg" == "-makej" ]; then
     makej=-makej
-    shift
   else
     echo "ERROR! Invalid option '$arg'"; usage
   fi  
 done
+
+# Use only the .auto process directories in the alpaka directory
+if [ "$bckend" == "alpaka" ]; then
+  echo "WARNING! alpaka directory: using .auto process directories only"
+  suffs="auto"
+fi
 
 #echo "procs=$procs"
 #echo "suffs=$suffs"
@@ -117,6 +128,7 @@ for step in $steps; do
           for hrdcod in $hrdcods; do
             hrd=; if [ "${hrdcod}" == "1" ]; then hrd=" -hrdonly"; fi
             args="${proc}${auto}${flt}${inl}${hrd}"
+            args="${args} ${alpaka}" # optionally disable alpaka tests
             args="${args} ${rndgen}" # optionally use common random numbers or curand on host
             args="${args} ${rmbsmp}" # optionally use rambo or bridge on host
             args="${args} -avxall" # avx, fptype, helinl and hrdcod are now supported for all processes
