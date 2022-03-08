@@ -379,11 +379,14 @@ $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so: ../../src/*.h ../../src/*.cc
 
 #-------------------------------------------------------------------------------
 
-MG5AMC_CXXLIB = mg5amc_cxx
+processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
+###$(info processid_short=$(processid_short))
+
+MG5AMC_CXXLIB = mg5amc_$(processid_short)_cxx
 cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o $(BUILDDIR)/RamboSamplingKernels.o $(BUILDDIR)/MatrixElementKernels.o $(BUILDDIR)/BridgeKernels.o $(BUILDDIR)/CrossSectionKernels.o
 
 ifneq ($(NVCC),)
-MG5AMC_CULIB = mg5amc_cu
+MG5AMC_CULIB = mg5amc_$(processid_short)_cu
 cu_objects=$(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o
 endif
 
