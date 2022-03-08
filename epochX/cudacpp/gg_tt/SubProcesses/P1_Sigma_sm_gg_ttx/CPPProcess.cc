@@ -354,7 +354,7 @@ namespace mg5amcCpu
 
   void CPPProcess::setDependentCouplings(const fptype *tmpIPC, const int nevt)
   {
-      memcpy(cIPC, tmpIPC, 2 * nevt * sizeof(cxtype));
+      //memcpy(cIPC, tmpIPC, 2 * nevt * sizeof(cxtype)); // sr remove comment
   }
 
   //--------------------------------------------------------------------------
