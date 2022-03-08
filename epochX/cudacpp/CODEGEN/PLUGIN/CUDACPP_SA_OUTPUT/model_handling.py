@@ -1050,6 +1050,9 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     def generate_process_files(self):
         """Generate mgOnGpuConfig.h, CPPProcess.cc, CPPProcess.h, check_sa.cc, gXXX.cu links"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.generate_process_files')
+        if self.matrix_elements[0].get('has_mirror_process'):
+            self.matrix_elements[0].set('has_mirror_process', False)
+            self.nprocesses/=2
         super(export_cpp.OneProcessExporterGPU, self).generate_process_files()
         self.edit_check_sa()
         self.edit_mgonGPU()

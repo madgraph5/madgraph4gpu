@@ -689,7 +689,9 @@ namespace mg5amcCpu
     mgDebugInitialise();
 
     // Denominators: spins, colors and identical particles
-    const int denominators = 256; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
+    constexpr int nprocesses = 1;
+    static_assert( nprocesses == 1, "Assume nprocesses == 1" ); // FIXME (#343): assume nprocesses == 1
+    constexpr int denominators[1] = { 256 };
 
     // Set the parameters which change event by event
     // Need to discuss this with Stefan
@@ -739,12 +741,12 @@ namespace mg5amcCpu
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
-    allMEs[ievt] /= denominators;
+    allMEs[ievt] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
 #else
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
       for( int ieppV = 0; ieppV < neppV; ieppV++ )
-        allMEs[ipagV * neppV + ieppV] /= denominators;
+        allMEs[ipagV * neppV + ieppV] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
     }
 #endif
     mgDebugFinalise();
