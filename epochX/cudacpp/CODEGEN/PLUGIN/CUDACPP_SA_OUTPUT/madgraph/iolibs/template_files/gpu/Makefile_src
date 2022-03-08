@@ -161,7 +161,7 @@ endif
 # NB1: there are no CUDA targets in src as we avoid RDC!
 # NB2: CUDA includes for curand.h are no longer needed in the C++ code anywhere in src!
 
-MG5AMC_COMMONLIB = mg5amc_%(processid_short)s_common
+MG5AMC_COMMONLIB = mg5amc_common
 
 # First target (default goal)
 all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
