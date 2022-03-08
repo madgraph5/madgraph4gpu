@@ -63,7 +63,7 @@ namespace mg5amcCpu
 
   fptype* BridgeKernelHost::calcDependentCouplings()
   {
-    // sr
+    return dynamic_cast<MatrixElementKernelHost*>(this)->calcDependentCouplings();
   }
 
   //--------------------------------------------------------------------------
