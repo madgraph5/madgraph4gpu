@@ -20,7 +20,7 @@ INCFLAGS = -I.
 OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
 
 # Dependency on src directory
-MG5AMC_COMMONLIB = mg5amc_common
+MG5AMC_COMMONLIB = mg5amc_%(processid_short)s_common
 LIBFLAGS = -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 INCFLAGS += -I../../src
 
@@ -379,11 +379,11 @@ $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so: ../../src/*.h ../../src/*.cc
 
 #-------------------------------------------------------------------------------
 
-MG5AMC_CXXLIB = mg5amc_cxx
+MG5AMC_CXXLIB = mg5amc_%(processid_short)s_cxx
 cxx_objects=$(BUILDDIR)/CPPProcess.o $(BUILDDIR)/RandomNumberKernels.o $(BUILDDIR)/RamboSamplingKernels.o $(BUILDDIR)/MatrixElementKernels.o $(BUILDDIR)/BridgeKernels.o $(BUILDDIR)/CrossSectionKernels.o
 
 ifneq ($(NVCC),)
-MG5AMC_CULIB = mg5amc_cu
+MG5AMC_CULIB = mg5amc_%(processid_short)s_cu
 cu_objects=$(BUILDDIR)/gCPPProcess.o $(BUILDDIR)/gRandomNumberKernels.o $(BUILDDIR)/gRamboSamplingKernels.o $(BUILDDIR)/gMatrixElementKernels.o $(BUILDDIR)/gBridgeKernels.o $(BUILDDIR)/gCrossSectionKernels.o
 endif
 
