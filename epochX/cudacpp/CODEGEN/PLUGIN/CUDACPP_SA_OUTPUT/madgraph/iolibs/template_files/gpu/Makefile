@@ -405,7 +405,7 @@ endif
 # Target (and build rules): Fortran include files
 $(INCDIR)/%%.inc : ../%%.inc
 	@if [ ! -d $(INCDIR) ]; then echo "mkdir -p $(INCDIR)"; mkdir -p $(INCDIR); fi
-	cp -i $< $@
+	\cp $< $@
 
 #-------------------------------------------------------------------------------
 
