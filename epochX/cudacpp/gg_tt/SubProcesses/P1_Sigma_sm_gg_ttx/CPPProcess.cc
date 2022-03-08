@@ -517,8 +517,8 @@ namespace mg5amcCpu
 
     // Denominators: spins, colors and identical particles
     constexpr int nprocesses = 1;
-    static_assert( nprocesses == 1, "Assume nprocesses == 1" );
-    constexpr int denominators[1] = {256}; // FIXME (#343): assume nprocesses == 1
+    static_assert( nprocesses == 1, "Assume nprocesses == 1" ); // FIXME (#343): assume nprocesses == 1
+    constexpr int denominators[1] = { 256 };
 
     // Set the parameters which change event by event
     // Need to discuss this with Stefan

@@ -285,7 +285,9 @@ namespace mg5amcCpu
     mgDebugInitialise();
 
     // Denominators: spins, colors and identical particles
-    const int denominators = %(den_factors)s; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
+    constexpr int nprocesses = %(nproc)i;
+    static_assert( nprocesses == 1, "Assume nprocesses == 1" ); // FIXME (#343): assume nprocesses == 1
+    constexpr int denominators[%(nproc)i] = { %(den_factors)s };
 
     // Set the parameters which change event by event
     // Need to discuss this with Stefan
