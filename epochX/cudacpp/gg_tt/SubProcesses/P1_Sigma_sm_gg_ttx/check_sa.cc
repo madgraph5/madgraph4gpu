@@ -498,11 +498,12 @@ int main(int argc, char **argv)
       const std::string tc2fKey = "0d TransC2F";
       timermap.start( tc2fKey );
       dynamic_cast<BridgeKernelBase*>( pmek.get() )->transposeInputMomentaC2F();
-
-      fptype* tmpIPC = dynamic_cast<BridgeKernelBase*>(pmek.get() )->calcDependentCouplings();
-      process.setDependentCouplings(tmpIPC, nevt);
     }
 
+    fptype* tmpIPC = pmek.get()->calcDependentCouplings();
+    process.setDependentCouplings(tmpIPC, nevt);
+
+      
     // --- 0e. SGoodHel
     if ( iiter == 0 )
     {

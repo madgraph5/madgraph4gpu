@@ -63,7 +63,7 @@ namespace mg5amcCpu
 
   fptype* BridgeKernelHost::calcDependentCouplings()
   {
-      // sr 
+    // sr
   }
 
   //--------------------------------------------------------------------------

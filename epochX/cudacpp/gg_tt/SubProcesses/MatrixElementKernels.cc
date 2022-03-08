@@ -44,6 +44,13 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  fptype* MatrixElementKernelHost::calcDependentCouplings()
+  {
+    // sr
+  }
+
+  //--------------------------------------------------------------------------
+
   void MatrixElementKernelHost::computeGoodHelicities()
   {
     using mgOnGpu::ncomb; // the number of helicity combinations
