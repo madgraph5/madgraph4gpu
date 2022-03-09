@@ -67,6 +67,8 @@ function codeGenAndDiff()
       echo "set ebeam2 750" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "alpaka" ]; then
       echo "output standalone_${OUTBCK}_cudacpp ${outproc}" >> ${outproc}.mg
+    elif [ "${OUTBCK}" == "mad" ]; then
+      echo "output madevent ${outproc} --vector_size=16 --me_exporter=standalone_gpu" >> ${outproc}.mg
     else
       echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
     fi
@@ -137,7 +139,7 @@ function usage()
   elif [ "${OUTBCK}" == "alpaka" ]; then
     echo "Usage: $0 [--nobrief] <proc>" # NB: only one process
   else
-    echo "Usage: $0 [--nobrief] [--cpp|--gpu] [--270] <proc>" # NB: only one process
+    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--mad] [--270] <proc>" # NB: only one process
   fi
   exit 1
 }
@@ -165,7 +167,7 @@ SCRDIR=$(cd $(dirname $0); pwd)
 # Output source code directory for the chosen backend
 OUTDIR=$(dirname $SCRDIR) # e.g. epochX/cudacpp if $SCRDIR=epochX/cudacpp/CODEGEN
 
-# Default output backend (in the cudacpp directory this can be changed to cpp or gpu using --cpp and --gpu)
+# Default output backend (in the cudacpp directory this can be changed using --cpp, --gpu or --mad)
 OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
 
 # Default: brief diffs (use --nobrief to use full diffs)
@@ -199,6 +201,8 @@ for arg in "$@"; do
     export OUTBCK=cpp; continue
   elif [ "$arg" == "--gpu" ] && [ "${OUTBCK}" == "cudacpp" ]; then
     export OUTBCK=gpu; continue
+  elif [ "$arg" == "--mad" ] && [ "${OUTBCK}" == "cudacpp" ]; then
+    export OUTBCK=mad; continue
   else
     # Keep the possibility to collect more then one process
     # However, require a single process to be chosen (allow full cleanup before/after code generation)
