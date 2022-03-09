@@ -134,12 +134,16 @@ function codeGenAndDiff()
 
 function usage()
 {
+  # NB: Generate only one process at a time
   if [ "${OUTBCK}" == "gridpack" ]; then
-    echo "Usage: $0 [--nobrief] [--nountaronly] [--nohelrec] <proc>" # NB: only one process
+    # NB: gridpack generation has been tested only agains the 270 branch so far
+    echo "Usage: $0 [--nobrief] [--nountaronly] [--nohelrec] <proc>"
   elif [ "${OUTBCK}" == "alpaka" ]; then
-    echo "Usage: $0 [--nobrief] <proc>" # NB: only one process
+    # NB: alpaka generation has been tested only agains the 270 branch so far
+    echo "Usage: $0 [--nobrief] <proc>"
   else
-    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--mad] [--270] <proc>" # NB: only one process
+    # NB: the --mad option uses the 311 branch and can be combined with --cpp and --gpu
+    echo "Usage: $0 [--nobrief] [--cpp|--gpu] [--270|--mad] <proc>" # 
   fi
   exit 1
 }
@@ -173,9 +177,9 @@ OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
 # Default: brief diffs (use --nobrief to use full diffs)
 BRIEF=--brief
 
-# Default: use the 311 MG5aMC branch (except for alpaka)
+# Default: use the 311 MG5aMC branch (except for alpaka and gridpack)
 use270=0
-if [ "${OUTBCK}" == "alpaka" ]; then use270=1; fi
+if [ "${OUTBCK}" == "alpaka" ] || [ "${OUTBCK}" == "gridpack" ]; then use270=1; fi
 
 # Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
 UNTARONLY=1
