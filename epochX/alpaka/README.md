@@ -32,15 +32,16 @@ It is assumed that Bazaar, boost, git, CUDA and a C++ compiler are installed
 checkout madgraph and the madgraph gpu repo:
 
 ```
-bzr checkout -r 370 http://bazaar.launchpad.net/~maddevelopers/mg5amcnlo/2.7.0_gpu/
-git clone git clone https://github.com/madgraph5/madgraph4gpu.git
+mkdir -p mad-bzr/2.7.0_gpu
+bzr checkout -r 370 http://bazaar.launchpad.net/~maddevelopers/mg5amcnlo/2.7.0_gpu mad-bzr/2.7.0_gpu
+git clone https://github.com/madgraph5/madgraph4gpu.git
 
 ```
 
 install the Alpaka plugin in the madgraph directory:
 
 ```
-cp -rp madgraph4gpu/epochX/alpaka/CODEGEN/PLUGIN/ALPAKA_CUDACPP_SA_OUTPUT 2.7.0_gpu/PLUGIN
+cp -rp madgraph4gpu/epochX/alpaka/CODEGEN/PLUGIN/ALPAKA_CUDACPP_SA_OUTPUT mad-bzr/2.7.0_gpu/PLUGIN
 ```
 
 Checkout Alpaka and Cupla and setup some links and environment:
@@ -59,7 +60,7 @@ export CUPLA_ROOT=`pwd`/cupla
 Use madgraph to genreate a process and use the plugin:
 
 ```
-cd 2.7.0_gpu
+cd mad-bzr/2.7.0_gpu
 python3 ./bin/mg5_aMC
 
 > generate g g > t t~ g g
@@ -71,7 +72,7 @@ Compile the generated code:
 
 ```
 cd TEST_SA_CUDA/SubProcesses/P1_Sigma_sm_gg_ttxgg/
-ln -s ../../../../tools/CommonRandomNumbers.h .
+ln -s ../../../../../tools/CommonRandomNumbers.h .
 make BOOSTINC=/usr/include/boost-1.78.0
 
 # the make should have generated check and test programs.
