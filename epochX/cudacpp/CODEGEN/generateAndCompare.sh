@@ -70,6 +70,10 @@ function codeGenAndDiff()
     elif [ "${SCRBCK}" == "alpaka" ]; then # $SCRBCK=$OUTBCK=alpaka
       echo "output standalone_${SCRBCK}_cudacpp ${outproc}" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "mad" ]; then # $SCRBCK=cudacpp and $OUTBCK=mad
+      echo "output madevent ${outproc} --vector_size=16 --me_exporter=standalone_cudacpp" >> ${outproc}.mg
+    elif [ "${OUTBCK}" == "mad_cpp" ]; then # $SCRBCK=cudacpp and $OUTBCK=mad_cpp
+      echo "output madevent ${outproc} --vector_size=16 --me_exporter=standalone_cpp" >> ${outproc}.mg
+    elif [ "${OUTBCK}" == "mad_gpu" ]; then # $SCRBCK=cudacpp and $OUTBCK=mad_gpu
       echo "output madevent ${outproc} --vector_size=16 --me_exporter=standalone_gpu" >> ${outproc}.mg
     else # $SCRBCK=cudacpp and $OUTBCK=cudacpp, cpp or gpu
       echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
@@ -102,10 +106,12 @@ function codeGenAndDiff()
   cp -dpr ${MG5AMC_HOME}/${outproc}_log.txt ${outprocauto}/
   # Output directories: examples ee_mumu.auto for cudacpp and gridpacks, eemumu.cpp for cpp, eemumu.gpu for gpu
   autosuffix=auto
-  if [ "$use270" == "0" ]; then
-    if [ "${OUTBCK}" == "cpp" ]; then autosuffix=cpp311; elif [ "${OUTBCK}" == "gpu" ]; then autosuffix=gpu311; fi
-  else
-    if [ "${OUTBCK}" == "cpp" ]; then autosuffix=cpp270; elif [ "${OUTBCK}" == "gpu" ]; then autosuffix=gpu270; fi
+  if [ "${OUTBCK}" == "cpp" ]; then
+    if [ "$use270" == "0" ]; then autosuffix=cpp270; else autosuffix=cpp311; fi
+  elif [ "${OUTBCK}" == "gpu" ]; then
+    if [ "$use270" == "0" ]; then autosuffix=gpu270; else autosuffix=gpu311; fi
+  elif [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "mad_cpp" ] || [ "${OUTBCK}" == "mad_gpu" ]; then
+    autosuffix=${OUTBCK}
   fi
   # Replace the existing generated code in the output source code directory by the newly generated code and create a .BKP
   rm -rf ${OUTDIR}/${proc}.${autosuffix}.BKP
@@ -209,11 +215,31 @@ for arg in "$@"; do
   elif [ "$arg" == "--nohelrec" ] && [ "${SCRBCK}" == "gridpack" ]; then
     export HELREC=0
   elif [ "$arg" == "--cpp" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=cpp
+    if [ "${OUTBCK}" == "gpu" ]; then
+      echo "ERROR! --cpp and --gpu are incompatible!"
+      usage
+    elif [ "${OUTBCK}" == "mad" ]; then
+      export OUTBCK=mad_cpp
+    else
+      export OUTBCK=cpp
+    fi
   elif [ "$arg" == "--gpu" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=gpu
+    if [ "${OUTBCK}" == "cpp" ]; then
+      echo "ERROR! --cpp and --gpu are incompatible!"
+      usage
+    elif [ "${OUTBCK}" == "mad" ]; then
+      export OUTBCK=mad_gpu
+    else
+      export OUTBCK=gpu
+    fi
   elif [ "$arg" == "--mad" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=mad
+    if [ "${OUTBCK}" == "cpp" ]; then
+      export OUTBCK=mad_cpp
+    elif [ "${OUTBCK}" == "gpu" ]; then
+      export OUTBCK=mad_gpu
+    else
+      export OUTBCK=mad
+    fi
   else
     # Keep the possibility to collect more then one process
     # However, require a single process to be chosen (allow full cleanup before/after code generation)
