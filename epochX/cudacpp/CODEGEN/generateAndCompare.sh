@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e # fail on error
+
 #--------------------------------------------------------------------------------------
 
 function codeGenAndDiff()
@@ -47,14 +49,14 @@ function codeGenAndDiff()
   ###exit 0 # FOR DEBUGGING
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null
-  outproc=CODEGEN_${SCRBCK}_${proc}
+  outproc=CODEGEN_${OUTBCK}_${proc}
   if [ "${SCRBCK}" == "gridpack" ] && [ "${UNTARONLY}" == "1" ]; then
     echo -e "WARNING! Skip generation of gridpack.tar.gz (--nountaronly was not specified)\n"
   else
     \rm -rf ${outproc} ${outproc}.* ${outproc}_*
     echo "set stdout_level DEBUG" >> ${outproc}.mg # does not help (log is essentially identical) but add it anyway
     echo "${cmd}" >> ${outproc}.mg
-    if [ "${SCRBCK}" == "gridpack" ]; then
+    if [ "${SCRBCK}" == "gridpack" ]; then # $SCRBCK=$OUTBCK=gridpack
       if [ "${HELREC}" == "0" ]; then
         echo "output ${outproc} --hel_recycling=False" >> ${outproc}.mg
       else
@@ -65,14 +67,16 @@ function codeGenAndDiff()
       echo "set gridpack True" >> ${outproc}.mg
       echo "set ebeam1 750" >> ${outproc}.mg
       echo "set ebeam2 750" >> ${outproc}.mg
-    elif [ "${SCRBCK}" == "alpaka" ]; then
-      echo "output standalone_${OUTBCK}_cudacpp ${outproc}" >> ${outproc}.mg
-    elif [ "${OUTBCK}" == "mad" ]; then
+    elif [ "${SCRBCK}" == "alpaka" ]; then # $SCRBCK=$OUTBCK=alpaka
+      echo "output standalone_${SCRBCK}_cudacpp ${outproc}" >> ${outproc}.mg
+    elif [ "${OUTBCK}" == "mad" ]; then # $SCRBCK=cudacpp and $OUTBCK=mad
       echo "output madevent ${outproc} --vector_size=16 --me_exporter=standalone_gpu" >> ${outproc}.mg
-    else # default $OUTBCK=$SCRBCK=cudacpp
+    else # $SCRBCK=cudacpp and $OUTBCK=cudacpp, cpp or gpu
       echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
     fi
+    echo "--------------------------------------------------"
     cat ${outproc}.mg
+    echo -e "--------------------------------------------------\n"
     ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
     { time python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
     cat ${outproc}_log.txt | egrep -v '(Crash Annotation)' > ${outproc}_log.txt.new # remove firefox 'glxtest: libEGL initialize failed' errors
@@ -223,7 +227,7 @@ proc=$1
 echo "SCRDIR=${SCRDIR}"
 echo "OUTDIR=${OUTDIR}"
 echo "SCRBCK=${SCRBCK} (uppercase=${SCRBCK^^})"
-echo "OUTBCK=${OUTBCK} (uppercase=${OUTBCK^^})"
+echo "OUTBCK=${OUTBCK}"
 
 echo "BRIEF=${BRIEF}"
 ###echo "procs=${procs}"
@@ -327,12 +331,12 @@ if bzr --version >& /dev/null; then
   fi
 fi
 
-# Copy the new plugin to MG5AMC_HOME (if the selected output is cudacpp or alpaka)
+# Copy the new plugin to MG5AMC_HOME (if the script directory backend is cudacpp or alpaka)
 if [ "${SCRBCK}" == "cudacpp" ]; then
-  cp -dpr ${SCRDIR}/PLUGIN/${OUTBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
+  cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
   ls -l ${MG5AMC_HOME}/PLUGIN
 elif [ "${SCRBCK}" == "alpaka" ]; then
-  cp -dpr ${SCRDIR}/PLUGIN/${OUTBCK^^}_CUDACPP_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
+  cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_CUDACPP_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
   ls -l ${MG5AMC_HOME}/PLUGIN
 fi
 
