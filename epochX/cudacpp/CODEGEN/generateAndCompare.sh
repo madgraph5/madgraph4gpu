@@ -332,7 +332,8 @@ if bzr --version >& /dev/null; then
 fi
 
 # Copy the new plugin to MG5AMC_HOME (if the script directory backend is cudacpp or alpaka)
-if [ "${SCRBCK}" == "cudacpp" ]; then
+if [ "${OUTBCK}" == "cudacpp" ]; then # WORKAROUND FOR #341
+###if [ "${SCRBCK}" == "cudacpp" ]; then # CURRENTLY FAILS WITH #341
   cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
   ls -l ${MG5AMC_HOME}/PLUGIN
 elif [ "${SCRBCK}" == "alpaka" ]; then
@@ -361,7 +362,7 @@ codeGenAndDiff $proc
 cleanup_MG5AMC_HOME
 
 # Check formatting in the auto-generated code
-if [ "${SCRBCK}" == "cudacpp" ]; then
+if [ "${OUTBCK}" == "cudacpp" ]; then
   echo -e "\n+++ Check code formatting in newly generated code for $proc\n"
   if ! $SCRDIR/checkFormatting.sh -q -q ${proc}.auto; then
     echo "ERROR! Auto-generated code does not respect formatting policies"
