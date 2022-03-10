@@ -168,11 +168,14 @@ function cleanup_MG5AMC_HOME()
 # Script directory
 SCRDIR=$(cd $(dirname $0); pwd)
 
-# Output source code directory for the chosen backend
+# Output source code directory for the chosen backend (generated code will be created as a subdirectory of $OUTDIR)
 OUTDIR=$(dirname $SCRDIR) # e.g. epochX/cudacpp if $SCRDIR=epochX/cudacpp/CODEGEN
 
+# Script directory backend (cudacpp, gridpack or alpaka)
+SCRBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
+
 # Default output backend (in the cudacpp directory this can be changed using --cpp, --gpu or --mad)
-OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
+OUTBCK=$SCRBCK
 
 # Default: brief diffs (use --nobrief to use full diffs)
 BRIEF=--brief
