@@ -47,14 +47,14 @@ function codeGenAndDiff()
   ###exit 0 # FOR DEBUGGING
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null
-  outproc=CODEGEN_${OUTBCK}_${proc}
-  if [ "${OUTBCK}" == "gridpack" ] && [ "${UNTARONLY}" == "1" ]; then
+  outproc=CODEGEN_${SCRBCK}_${proc}
+  if [ "${SCRBCK}" == "gridpack" ] && [ "${UNTARONLY}" == "1" ]; then
     echo -e "WARNING! Skip generation of gridpack.tar.gz (--nountaronly was not specified)\n"
   else
     \rm -rf ${outproc} ${outproc}.* ${outproc}_*
     echo "set stdout_level DEBUG" >> ${outproc}.mg # does not help (log is essentially identical) but add it anyway
     echo "${cmd}" >> ${outproc}.mg
-    if [ "${OUTBCK}" == "gridpack" ]; then
+    if [ "${SCRBCK}" == "gridpack" ]; then
       if [ "${HELREC}" == "0" ]; then
         echo "output ${outproc} --hel_recycling=False" >> ${outproc}.mg
       else
@@ -65,11 +65,11 @@ function codeGenAndDiff()
       echo "set gridpack True" >> ${outproc}.mg
       echo "set ebeam1 750" >> ${outproc}.mg
       echo "set ebeam2 750" >> ${outproc}.mg
-    elif [ "${OUTBCK}" == "alpaka" ]; then
+    elif [ "${SCRBCK}" == "alpaka" ]; then
       echo "output standalone_${OUTBCK}_cudacpp ${outproc}" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "mad" ]; then
       echo "output madevent ${outproc} --vector_size=16 --me_exporter=standalone_gpu" >> ${outproc}.mg
-    else
+    else # default $OUTBCK=$SCRBCK=cudacpp
       echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
     fi
     cat ${outproc}.mg
@@ -89,7 +89,7 @@ function codeGenAndDiff()
   fi
   popd >& /dev/null
   # Choose which directory must be copied (for gridpack generation: untar and modify the gridpack)
-  if [ "${OUTBCK}" == "gridpack" ]; then
+  if [ "${SCRBCK}" == "gridpack" ]; then
     outprocauto=${MG5AMC_HOME}/${outproc}/run_01_gridpack
     if ! $SCRDIR/untarGridpack.sh ${outprocauto}.tar.gz; then echo "ERROR! untarGridpack.sh failed"; exit 1; fi
   else
@@ -135,10 +135,10 @@ function codeGenAndDiff()
 function usage()
 {
   # NB: Generate only one process at a time
-  if [ "${OUTBCK}" == "gridpack" ]; then
+  if [ "${SCRBCK}" == "gridpack" ]; then
     # NB: gridpack generation has been tested only agains the 270 branch so far
     echo "Usage: $0 [--nobrief] [--nountaronly] [--nohelrec] <proc>"
-  elif [ "${OUTBCK}" == "alpaka" ]; then
+  elif [ "${SCRBCK}" == "alpaka" ]; then
     # NB: alpaka generation has been tested only agains the 270 branch so far
     echo "Usage: $0 [--nobrief] <proc>"
   else
@@ -182,7 +182,7 @@ BRIEF=--brief
 
 # Default: use the 311 MG5aMC branch (except for alpaka and gridpack)
 use270=0
-if [ "${OUTBCK}" == "alpaka" ] || [ "${OUTBCK}" == "gridpack" ]; then use270=1; fi
+if [ "${SCRBCK}" == "alpaka" ] || [ "${SCRBCK}" == "gridpack" ]; then use270=1; fi
 
 # Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
 UNTARONLY=1
@@ -200,15 +200,15 @@ for arg in "$@"; do
     BRIEF=; continue
   elif [ "$arg" == "--270" ]; then
     use270=1; continue
-  elif [ "$arg" == "--nountaronly" ] && [ "${OUTBCK}" == "gridpack" ]; then
+  elif [ "$arg" == "--nountaronly" ] && [ "${SCRBCK}" == "gridpack" ]; then
     UNTARONLY=0; continue
-  elif [ "$arg" == "--nohelrec" ] && [ "${OUTBCK}" == "gridpack" ]; then
+  elif [ "$arg" == "--nohelrec" ] && [ "${SCRBCK}" == "gridpack" ]; then
     export HELREC=0; continue
-  elif [ "$arg" == "--cpp" ] && [ "${OUTBCK}" == "cudacpp" ]; then
+  elif [ "$arg" == "--cpp" ] && [ "${SCRBCK}" == "cudacpp" ]; then
     export OUTBCK=cpp; continue
-  elif [ "$arg" == "--gpu" ] && [ "${OUTBCK}" == "cudacpp" ]; then
+  elif [ "$arg" == "--gpu" ] && [ "${SCRBCK}" == "cudacpp" ]; then
     export OUTBCK=gpu; continue
-  elif [ "$arg" == "--mad" ] && [ "${OUTBCK}" == "cudacpp" ]; then
+  elif [ "$arg" == "--mad" ] && [ "${SCRBCK}" == "cudacpp" ]; then
     export OUTBCK=mad; continue
   else
     # Keep the possibility to collect more then one process
@@ -222,6 +222,7 @@ proc=$1
 
 echo "SCRDIR=${SCRDIR}"
 echo "OUTDIR=${OUTDIR}"
+echo "SCRBCK=${SCRBCK} (uppercase=${SCRBCK^^})"
 echo "OUTBCK=${OUTBCK} (uppercase=${OUTBCK^^})"
 
 echo "BRIEF=${BRIEF}"
@@ -256,7 +257,7 @@ if [ "$use270" == "1" ]; then
 fi
 
 # Make sure that $ALPAKA_ROOT and $CUPLA_ROOT exist if alpaka is used
-if [ "${OUTBCK}" == "alpaka" ]; then
+if [ "${SCRBCK}" == "alpaka" ]; then
   if [ "$ALPAKA_ROOT" == "" ]; then
     echo "ERROR! ALPAKA_ROOT is not defined"
     echo "To download ALPAKA please run 'git clone -b 0.8.0 https://github.com/alpaka-group/alpaka.git'"
@@ -281,7 +282,7 @@ if bzr --version >& /dev/null; then
   echo -e "Using $(bzr --version | head -1)"
   echo -e "Retrieving bzr information about MG5AMC_HOME"
   if bzr info ${MG5AMC_HOME} > /dev/null; then
-    if [ "${OUTBCK}" == "alpaka" ]; then
+    if [ "${SCRBCK}" == "alpaka" ]; then
       revno_patches=370
     else
       revno_patches=$(cat $SCRDIR/MG5aMC_patches/${mg5amcBrn}/revision.BZR)
@@ -302,7 +303,7 @@ else
 fi
 
 # Copy MG5AMC patches if any
-if [ "${OUTBCK}" == "cudacpp" ]; then
+if [ "${SCRBCK}" == "cudacpp" ]; then
   patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f -name '*.py')
   patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f -name '*.py')
   echo -e "Copy MG5aMC_patches/${mg5amcBrn} patches..."
@@ -327,16 +328,16 @@ if bzr --version >& /dev/null; then
 fi
 
 # Copy the new plugin to MG5AMC_HOME (if the selected output is cudacpp or alpaka)
-if [ "${OUTBCK}" == "cudacpp" ]; then
+if [ "${SCRBCK}" == "cudacpp" ]; then
   cp -dpr ${SCRDIR}/PLUGIN/${OUTBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
   ls -l ${MG5AMC_HOME}/PLUGIN
-elif [ "${OUTBCK}" == "alpaka" ]; then
+elif [ "${SCRBCK}" == "alpaka" ]; then
   cp -dpr ${SCRDIR}/PLUGIN/${OUTBCK^^}_CUDACPP_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
   ls -l ${MG5AMC_HOME}/PLUGIN
 fi
 
 # For gridpacks, use separate output directories for MG 28x and MG 29x
-if [ "${OUTBCK}" == "gridpack" ]; then
+if [ "${SCRBCK}" == "gridpack" ]; then
   if [ ${revno_patches} -le 365 ]; then
     OUTDIR=${OUTDIR}/28x
   else
@@ -356,7 +357,7 @@ codeGenAndDiff $proc
 cleanup_MG5AMC_HOME
 
 # Check formatting in the auto-generated code
-if [ "${OUTBCK}" == "cudacpp" ]; then
+if [ "${SCRBCK}" == "cudacpp" ]; then
   echo -e "\n+++ Check code formatting in newly generated code for $proc\n"
   if ! $SCRDIR/checkFormatting.sh -q -q ${proc}.auto; then
     echo "ERROR! Auto-generated code does not respect formatting policies"
