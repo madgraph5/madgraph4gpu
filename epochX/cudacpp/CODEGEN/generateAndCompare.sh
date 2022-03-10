@@ -332,8 +332,8 @@ if bzr --version >& /dev/null; then
 fi
 
 # Copy the new plugin to MG5AMC_HOME (if the script directory backend is cudacpp or alpaka)
-if [ "${OUTBCK}" == "cudacpp" ]; then # WORKAROUND FOR #341
-###if [ "${SCRBCK}" == "cudacpp" ]; then # CURRENTLY FAILS WITH #341
+###if [ "${OUTBCK}" == "cudacpp" ]; then # WORKAROUND FOR #341
+if [ "${SCRBCK}" == "cudacpp" ]; then # CURRENTLY FAILS WITH #341
   cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
   ls -l ${MG5AMC_HOME}/PLUGIN
 elif [ "${SCRBCK}" == "alpaka" ]; then
