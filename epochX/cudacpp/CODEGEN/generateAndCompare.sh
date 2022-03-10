@@ -54,14 +54,15 @@ function codeGenAndDiff()
     echo -e "WARNING! Skip generation of gridpack.tar.gz (--nountaronly was not specified)\n"
   else
     \rm -rf ${outproc} ${outproc}.* ${outproc}_*
+    if [ "${HELREC}" == "0" ]; then
+      helrecopt="--hel_recycling=False"
+    else
+      helrecopt=
+    fi
     echo "set stdout_level DEBUG" >> ${outproc}.mg # does not help (log is essentially identical) but add it anyway
     echo "${cmd}" >> ${outproc}.mg
     if [ "${SCRBCK}" == "gridpack" ]; then # $SCRBCK=$OUTBCK=gridpack
-      if [ "${HELREC}" == "0" ]; then
-        echo "output ${outproc} --hel_recycling=False" >> ${outproc}.mg
-      else
-        echo "output ${outproc}" >> ${outproc}.mg
-      fi
+      echo "output ${outproc} ${helrecopt}" >> ${outproc}.mg
       ###echo "!cp -dpr ${outproc} ${outproc}_prelaunch" >> ${outproc}.mg
       echo "launch" >> ${outproc}.mg
       echo "set gridpack True" >> ${outproc}.mg
@@ -70,13 +71,13 @@ function codeGenAndDiff()
     elif [ "${SCRBCK}" == "alpaka" ]; then # $SCRBCK=$OUTBCK=alpaka
       echo "output standalone_${SCRBCK}_cudacpp ${outproc}" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madonly" ]; then # $SCRBCK=cudacpp and $OUTBCK=madonly
-      echo "output madevent ${outproc} --vector_size=16" >> ${outproc}.mg
+      echo "output madevent ${outproc} ${helrecopt} --vector_size=16" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "mad" ]; then # $SCRBCK=cudacpp and $OUTBCK=mad
-      echo "output madevent ${outproc} --vector_size=16 --me_exporter=standalone_cudacpp" >> ${outproc}.mg
+      echo "output madevent ${outproc} ${helrecopt} --vector_size=16 --me_exporter=standalone_cudacpp" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madcpp" ]; then # $SCRBCK=cudacpp and $OUTBCK=madcpp
-      echo "output madevent ${outproc} --vector_size=16 --me_exporter=standalone_cpp" >> ${outproc}.mg
+      echo "output madevent ${outproc} ${helrecopt} --vector_size=16 --me_exporter=standalone_cpp" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madgpu" ]; then # $SCRBCK=cudacpp and $OUTBCK=madgpu
-      echo "output madevent ${outproc} --vector_size=16 --me_exporter=standalone_gpu" >> ${outproc}.mg
+      echo "output madevent ${outproc} ${helrecopt} --vector_size=16 --me_exporter=standalone_gpu" >> ${outproc}.mg
     else # $SCRBCK=cudacpp and $OUTBCK=cudacpp, cpp or gpu
       echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
     fi
@@ -159,7 +160,7 @@ function usage()
     # NB: alpaka generation has been tested only agains the 270 branch so far
     echo "Usage: $0 [--nobrief] <proc>"
   else
-    # NB: all options with $SCRBCK=cudacpp use the 311 branch by default
+    # NB: all options with $SCRBCK=cudacpp use the 311 branch by default and always disable helicity recycling
     echo "Usage: $0 [--nobrief] [--cpp|--gpu|--madonly|--mad|--madcpp|--madgpu] [--270] <proc>" # 
   fi
   exit 1
@@ -206,7 +207,8 @@ UNTARONLY=1
 
 # Default for gridpacks: use helicity recycling (use --nohelrec to disable it)
 # (export the value to the untarGridpack.sh script)
-export HELREC=1
+# Hardcoded for cudacpp and alpaka: disable helicity recycling (#400, #279) for the moment
+if [ "${SCRBCK}" == "gridpack" ]; then export HELREC=1; else export HELREC=0; fi
 
 # Process command line arguments (https://unix.stackexchange.com/a/258514)
 for arg in "$@"; do
