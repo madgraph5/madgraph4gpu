@@ -454,7 +454,11 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 if not aloha.complex_mass:
                     # This affects 'denom = COUP' in HelAmps_sm.cc
                     if self.routine.denominator:
-                        out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( %(denom)s )\n' % mydict) # AV
+                        if self.routine.denominator == "1":
+                            out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s\n' % mydict) # AV
+                        else:
+                            mydict['denom'] = self.routine.denominator
+                            out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( %(denom)s )\n' % mydict) # AV
                     else:
                         out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( ( P%(i)s[0] * P%(i)s[0] ) - ( P%(i)s[1] * P%(i)s[1] ) - ( P%(i)s[2] * P%(i)s[2] ) - ( P%(i)s[3] * P%(i)s[3] ) - M%(i)s * ( M%(i)s - cI * W%(i)s ) );\n' % mydict) # AV
                 else:
