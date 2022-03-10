@@ -199,21 +199,21 @@ export HELREC=1
 for arg in "$@"; do
   shift
   if [ "$arg" == "-h" ] || [ "$arg" == "--help" ]; then
-    usage; continue; # continue is unnecessary as usage will exit anyway...
+    usage
   elif [ "$arg" == "--nobrief" ]; then
-    BRIEF=; continue
+    BRIEF=
   elif [ "$arg" == "--270" ]; then
-    use270=1; continue
+    use270=1
   elif [ "$arg" == "--nountaronly" ] && [ "${SCRBCK}" == "gridpack" ]; then
-    UNTARONLY=0; continue
+    UNTARONLY=0
   elif [ "$arg" == "--nohelrec" ] && [ "${SCRBCK}" == "gridpack" ]; then
-    export HELREC=0; continue
+    export HELREC=0
   elif [ "$arg" == "--cpp" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=cpp; continue
+    export OUTBCK=cpp
   elif [ "$arg" == "--gpu" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=gpu; continue
+    export OUTBCK=gpu
   elif [ "$arg" == "--mad" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    export OUTBCK=mad; continue
+    export OUTBCK=mad
   else
     # Keep the possibility to collect more then one process
     # However, require a single process to be chosen (allow full cleanup before/after code generation)
