@@ -69,11 +69,13 @@ function codeGenAndDiff()
       echo "set ebeam2 750" >> ${outproc}.mg
     elif [ "${SCRBCK}" == "alpaka" ]; then # $SCRBCK=$OUTBCK=alpaka
       echo "output standalone_${SCRBCK}_cudacpp ${outproc}" >> ${outproc}.mg
+    elif [ "${OUTBCK}" == "madonly" ]; then # $SCRBCK=cudacpp and $OUTBCK=madonly
+      echo "output madevent ${outproc} --vector_size=16" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "mad" ]; then # $SCRBCK=cudacpp and $OUTBCK=mad
       echo "output madevent ${outproc} --vector_size=16 --me_exporter=standalone_cudacpp" >> ${outproc}.mg
-    elif [ "${OUTBCK}" == "mad_cpp" ]; then # $SCRBCK=cudacpp and $OUTBCK=mad_cpp
+    elif [ "${OUTBCK}" == "madcpp" ]; then # $SCRBCK=cudacpp and $OUTBCK=madcpp
       echo "output madevent ${outproc} --vector_size=16 --me_exporter=standalone_cpp" >> ${outproc}.mg
-    elif [ "${OUTBCK}" == "mad_gpu" ]; then # $SCRBCK=cudacpp and $OUTBCK=mad_gpu
+    elif [ "${OUTBCK}" == "madgpu" ]; then # $SCRBCK=cudacpp and $OUTBCK=madgpu
       echo "output madevent ${outproc} --vector_size=16 --me_exporter=standalone_gpu" >> ${outproc}.mg
     else # $SCRBCK=cudacpp and $OUTBCK=cudacpp, cpp or gpu
       echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
@@ -104,13 +106,13 @@ function codeGenAndDiff()
     outprocauto=${MG5AMC_HOME}/${outproc}
   fi
   cp -dpr ${MG5AMC_HOME}/${outproc}_log.txt ${outprocauto}/
-  # Output directories: examples ee_mumu.auto for cudacpp and gridpacks, eemumu.cpp for cpp, eemumu.gpu for gpu
+  # Output directories: examples ee_mumu.auto for cudacpp and gridpacks, eemumu.cpp270 or eemumu.gpu270 for cpp
   autosuffix=auto
   if [ "${OUTBCK}" == "cpp" ]; then
     if [ "$use270" == "0" ]; then autosuffix=cpp270; else autosuffix=cpp311; fi
   elif [ "${OUTBCK}" == "gpu" ]; then
     if [ "$use270" == "0" ]; then autosuffix=gpu270; else autosuffix=gpu311; fi
-  elif [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "mad_cpp" ] || [ "${OUTBCK}" == "mad_gpu" ]; then
+  elif [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
     autosuffix=${OUTBCK}
   fi
   # Replace the existing generated code in the output source code directory by the newly generated code and create a .BKP
@@ -152,8 +154,8 @@ function usage()
     # NB: alpaka generation has been tested only agains the 270 branch so far
     echo "Usage: $0 [--nobrief] <proc>"
   else
-    # NB: the --mad option uses the 311 branch and can be combined with --cpp and --gpu
-    echo "Usage: $0 [--nobrief] [--cpp|--gpu] [--270|--mad] <proc>" # 
+    # NB: all options with $SCRBCK=cudacpp use the 311 branch by default
+    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--madonly|--mad|--madcpp|--madgpu] [--270] <proc>" # 
   fi
   exit 1
 }
@@ -184,7 +186,7 @@ OUTDIR=$(dirname $SCRDIR) # e.g. epochX/cudacpp if $SCRDIR=epochX/cudacpp/CODEGE
 # Script directory backend (cudacpp, gridpack or alpaka)
 SCRBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
 
-# Default output backend (in the cudacpp directory this can be changed using --cpp, --gpu or --mad)
+# Default output backend (in the cudacpp directory this can be changed using commad line options like --cpp, --gpu or --mad)
 OUTBCK=$SCRBCK
 
 # Default: brief diffs (use --nobrief to use full diffs)
@@ -215,31 +217,17 @@ for arg in "$@"; do
   elif [ "$arg" == "--nohelrec" ] && [ "${SCRBCK}" == "gridpack" ]; then
     export HELREC=0
   elif [ "$arg" == "--cpp" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    if [ "${OUTBCK}" == "gpu" ]; then
-      echo "ERROR! --cpp and --gpu are incompatible!"
-      usage
-    elif [ "${OUTBCK}" == "mad" ]; then
-      export OUTBCK=mad_cpp
-    else
-      export OUTBCK=cpp
-    fi
+    export OUTBCK=${arg#--}
   elif [ "$arg" == "--gpu" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    if [ "${OUTBCK}" == "cpp" ]; then
-      echo "ERROR! --cpp and --gpu are incompatible!"
-      usage
-    elif [ "${OUTBCK}" == "mad" ]; then
-      export OUTBCK=mad_gpu
-    else
-      export OUTBCK=gpu
-    fi
+    export OUTBCK=${arg#--}
+  elif [ "$arg" == "--madonly" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${arg#--}
   elif [ "$arg" == "--mad" ] && [ "${SCRBCK}" == "cudacpp" ]; then
-    if [ "${OUTBCK}" == "cpp" ]; then
-      export OUTBCK=mad_cpp
-    elif [ "${OUTBCK}" == "gpu" ]; then
-      export OUTBCK=mad_gpu
-    else
-      export OUTBCK=mad
-    fi
+    export OUTBCK=${arg#--}
+  elif [ "$arg" == "--madcpp" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${arg#--}
+  elif [ "$arg" == "--madgpu" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${arg#--}
   else
     # Keep the possibility to collect more then one process
     # However, require a single process to be chosen (allow full cleanup before/after code generation)
@@ -280,6 +268,10 @@ fi
 
 # Redefine MG5AMC_HOME to use the 270 branch if required
 if [ "$use270" == "1" ]; then
+  if [ "${OUTBCK}" != "cpp" ] && [ "${OUTBCK}" != "gpu" ]; then
+    echo "ERROR! Option --270 is only supported in --cpu or --gpu mode"
+    exit 1
+  fi
   mg5amcBrn=${mg5amc270}
   export MG5AMC_HOME=$(dirname ${MG5AMC_HOME})/${mg5amcBrn}
   echo -e "Using non-default MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
