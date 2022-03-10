@@ -17,6 +17,6 @@
  splitting_types = [] 
  perturbation_order = [] 
  limitations = [] 
- hel_recycling = True 
+ hel_recycling = False 
  single_color = True 
  nlo_mixed_expansion = True 
