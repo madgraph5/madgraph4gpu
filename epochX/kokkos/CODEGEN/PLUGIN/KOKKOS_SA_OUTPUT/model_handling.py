@@ -726,14 +726,14 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
                                self.write_print_parameters(list(self.coups_dep.values()))
         if 'include_prefix' not in replace_dict:
             replace_dict['include_prefix'] = ''
-        replace_dict['hardcoded_independent_parameters'] = \
-                               self.write_hardcoded_parameters(self.params_indep)
-        replace_dict['hardcoded_independent_couplings'] = \
-                               self.write_hardcoded_parameters(self.coups_indep)
-        replace_dict['hardcoded_dependent_parameters'] = \
-                               self.write_hardcoded_parameters(self.params_dep)
-        replace_dict['hardcoded_dependent_couplings'] = \
-                               self.write_hardcoded_parameters(list(self.coups_dep.values()))
+        # replace_dict['hardcoded_independent_parameters'] = \
+        #                        self.write_hardcoded_parameters(self.params_indep)
+        # replace_dict['hardcoded_independent_couplings'] = \
+        #                        self.write_hardcoded_parameters(self.coups_indep)
+        # replace_dict['hardcoded_dependent_parameters'] = \
+        #                        self.write_hardcoded_parameters(self.params_dep)
+        # replace_dict['hardcoded_dependent_couplings'] = \
+        #                        self.write_hardcoded_parameters(list(self.coups_dep.values()))
         file_h = self.read_template_file(self.param_template_h) % \
                  replace_dict
         file_cc = self.read_template_file(self.param_template_cc) % \
@@ -742,8 +742,8 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
 
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def generate_parameters_class_files(self):
-        ###file_h, file_cc = super().generate_parameters_class_files()
-        file_h, file_cc = self.super_generate_parameters_class_files()
+        file_h, file_cc = super().generate_parameters_class_files()
+        #file_h, file_cc = self.super_generate_parameters_class_files()
         file_h = file_h[:-1] # remove extra trailing '\n'
         file_cc = file_cc[:-1] # remove extra trailing '\n'
         # [NB: there is a minor bug in export_cpp.UFOModelConverterCPP.generate_parameters_class_files
@@ -879,63 +879,24 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         replace_dict['nmodels'] = replace_dict['nparams'] + replace_dict['ncouplings']
         replace_dict['coupling_list'] = ' '
         replace_dict['hel_amps_cc'] = "#include \"HelAmps_%s.cc\"" % self.model_name # AV
-        
         coupling = [''] * len(self.couplings2order)
         params = [''] * len(self.params2order)
         for coup, pos in self.couplings2order.items():
             coupling[pos] = coup
-        #coup_str = "const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n" % (len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling))
-
-        coup_str = ''
-        for i in range(len(self.couplings2order)):
-            coup_str += "hIPC(%s) = pars->%s;\n" % (i, coupling[i])
-
+        ###coup_str = "static cxtype tIPC[%s] = {pars->%s};\n"\
+        ###    %(len(self.couplings2order), ',pars->'.join(coupling))
+        coup_str = "const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n"\
+            %(len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling)) # AV
         for para, pos in self.params2order.items():
-            params[pos] = para            
-        
-        param_str = ''
-        for i in range(len(self.params2order)):
-            param_str += "hIPD(%s) = pars->%s;\n" % (i, params[i])
-        # NSN - Need access to tIPC outside of CPPProcess for SYCL
-        # coup_str = ""
-        # for i in range(len(self.couplings2order)):
-        #     coup_str += "m_tIPC[%s] = cxmake( m_pars->%s );\n" % (i, coupling[i])
-
-       
-        #param_str = "    const fptype tIPD[%s] = { (fptype)m_pars->%s };" % (len(self.params2order), ', (fptype)m_pars->'.join(params))
-
-        # NSN - Need access to tIPD outside of CPPProcess for SYCL
-        # param_str = ""
-        # for i in range(len(self.params2order)):
-        #     param_str += "m_tIPD[%s] = (fptype)m_pars->%s;\n" % (i, params[i])
-        # replace_dict['assign_coupling'] = coup_str + param_str
-        # coup_str_hrd = "__device__ const fptype cIPC[%s] = {\n" % (len(self.couplings2order)*2)
-        # for coup in coupling : coup_str_hrd += "    Parameters_sm::%s.real(), Parameters_sm::%s.imag(),\n" % ( coup, coup )
-        # coup_str_hrd = coup_str_hrd[:-2] + " };\n"
-        # param_str_hrd = "  __device__ const fptype cIPD[%s] = {\n" % len(self.params2order)
-        # for para in params : param_str_hrd += "    Parameters_sm::%s,\n" % para
-        # param_str_hrd = param_str_hrd[:-2] + " };"
-        # replace_dict['assign_hardcoded_coupling'] = coup_str_hrd + param_str_hrd
-        # replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
-        # replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "m_tHel")
-        # replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace(";", "")
-        # file = self.read_template_file(self.process_definition_template) % replace_dict
-        # if len(self.params2order) == 0: # remove all IPD occurrences (issue #349)
-        #     file_lines = file.split('\n')
-        #     file_lines = [l.replace('cIPC,cIPD','cIPC') for l in file_lines] # remove cIPD from OpenMP pragma
-        #     file_lines = [l for l in file_lines if 'IPD' not in l] # remove all other lines matchin IPD           
-        #     file = '\n'.join( file_lines )
-          
-        param_str = ''
-        for i in range(len(self.helas_call_writer.params2order)):
-            param_str += "hIPD(%s) = pars->%s;\n" % (i, params[i])
-         
+            params[pos] = para
+        ###param_str = "static double tIPD[%s] = {pars->%s};\n"\
+        ###    %(len(self.params2order), ',pars->'.join(params))
+        param_str = "    const fptype tIPD[%s] = { (fptype)m_pars->%s };"\
+            %(len(self.params2order), ', (fptype)m_pars->'.join(params)) # AV
         replace_dict['assign_coupling'] = coup_str + param_str
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "tHel")
-        
         file = self.read_template_file(self.process_definition_template) % replace_dict
-
         return file
 
     # AV - modify export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
@@ -1024,27 +985,8 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
     def edit_mgonGPU(self):
         """Generate mgOnGpuConfig.h"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_mgonGPU')
-        template = open(pjoin(self.template_path,'gpu','mgOnGpuConfig.h'),'r').read()
-        replace_dict = {}
-        nexternal, nincoming = self.matrix_elements[0].get_nexternal_ninitial()
-        replace_dict['nincoming'] = nincoming
-        replace_dict['noutcoming'] = nexternal - nincoming
-        
-        # Number of helicity combinations
-        replace_dict['nbhel'] = \
-                            self.matrix_elements[0].get_helicity_combinations()
-        replace_dict['nwavefunc'] = \
-                          self.matrix_elements[0].get_number_of_wavefunctions()
-        replace_dict['wavefuncsize'] = 6
-
-        replace_dict['ncouplings'] = len(self.couplings2order)
-        replace_dict['ncouplingstimes2'] = 2 * replace_dict['ncouplings']
-        replace_dict['nparams'] = len(self.params2order)
-        
-        
-        ff = open(pjoin(self.path, '..','..','src','mgOnGpuConfig.h'),'w')
-        ff.write(template % replace_dict)
-        ff.close()        
+        ###misc.sprint('  template_path=%s'%self.template_path) # look for gpu/mgOnGpuConfig.h here
+        return super().edit_mgonGPU() 
 
     # AV - new method
     def edit_processidfile(self):
@@ -1052,8 +994,7 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_processidfile')
         template = open(pjoin(self.template_path,'gpu','epoch_process_id.h'),'r').read()
         replace_dict = {}
-        replace_dict['processid'] = self.get_process_name()
-        replace_dict['processid_uppercase'] = self.get_process_name().upper()
+        replace_dict['processid'] = self.get_process_name().upper()
         ff = open(pjoin(self.path, 'epoch_process_id.h'),'w')
         ff.write(template % replace_dict)
         ff.close()
@@ -1366,25 +1307,22 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     def get_external_line(self, wf, argument):
         call = ''
         call = call + helas_call_writers.HelasCallWriter.mother_dict[\
-                argument.get_spin_state_number()].lower()
+                argument.get_spin_state_number()].lower() 
         if wf.get('mass').lower() != 'zero' or argument.get('spin') != 2:
             # Fill out with X up to 6 positions
             call = call + 'x' * (6 - len(call))
             # Specify namespace for Helas calls
-            call = call + "( momenta, ievt,"
+            call = call + "(allmomenta,"
             if argument.get('spin') != 1:
                 # For non-scalars, need mass and helicity
-                call = call + "m_pars->%s, cHel[ihel*npar + %d],"
+                call = call + "m_pars->%s, cHel[ihel][%d],"
             else:
-                # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
-                ###call = call + "m_pars->%s,"
-                call = call
-            call = call + "%+d, w_sv[%d], %d );"
+                call = call + "m_pars->%s,"
+            ###call = call + "%+d,w[%d], %d);"
+            call = call + "%+d, w_sv[%d], %d);" # AV vectorize
             if argument.get('spin') == 1:
-                # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
                 return call % \
-                                (
-                                 ###wf.get('mass'),
+                                (wf.get('mass'),
                                  # For boson, need initial/final here
                                  (-1) ** (wf.get('state') == 'initial'),
                                  wf.get('me_id')-1,
@@ -1424,7 +1362,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if wf.get('number_external') == 1 or wf.get('number_external') == 2: # AV
                 comment = ' // NB: ' + call + ' only uses pz' # AV skip '(not E,px,py)' to avoid interference with comma parsing in get_external
             # Specify namespace for Helas calls
-            call = call + '( momenta, ievt, cHel[ihel*npar + %d], %+d, w_sv[%d], %d );' + comment # AV vectorize and add comment
+            ###call = call + "(allmomenta, cHel[ihel][%d],%+d,w[%d],%d);"
+            call = call + '( allmomenta, cHel[ihel][%d], %+d, w_sv[%d], %d );' + comment # AV vectorize and add comment
             return self.format_coupling(call % \
                                 (wf.get('number_external')-1,
                                  # For fermions, need particle/antiparticle
@@ -1476,7 +1415,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 outgoing = 0
             # Check if we need to append a charge conjugation flag
             l = [str(l) for l in argument.get('lorentz')]
-            flag = []
+            flag = [] 
             if argument.needs_hermitian_conjugate():
                 flag = ['C%d' % i for i in argument.get_conjugate_index()]
             # Creating line formatting:
@@ -1487,22 +1426,26 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             ###    call = '%(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s);'
             call = '%(routine_name)s( %(wf)s%(coup)s%(mass)s%(out)s );'
             # compute wf
-            arg = {'routine_name': aloha_writers.combine_name('%s' % l[0], l[1:], outgoing, flag, True),
-                   'wf': ("w_fp[%%(%d)d], " * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))),
-                   'coup': ("m_pars->%%(coup%d)s, " * len(argument.get('coupling'))) % tuple(range(len(argument.get('coupling'))))
+            arg = {'routine_name': aloha_writers.combine_name(\
+                                            '%s' % l[0], l[1:], outgoing, flag,True),
+                   ###'wf': ("w[%%(%d)d]," * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))),
+                   'wf': ("w_sv[%%(%d)d], " * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))), # AV
+                   ###'coup': ("pars->%%(coup%d)s," * len(argument.get('coupling'))) % tuple(range(len(argument.get('coupling'))))
+                   'coup': ("m_pars->%%(coup%d)s, " * len(argument.get('coupling'))) % tuple(range(len(argument.get('coupling')))) # AV
                    }
-            #if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<find_me, A_ACCESS>'
-            #else : arg['routine_name'] += '<W_ACCESS>'
             if isinstance(argument, helas_objects.HelasWavefunction):
-                #arg['out'] = 'w_sv[%(out)d]'
-                arg['out'] = 'w_fp[%(out)d]'
+                ###arg['out'] = 'w[%(out)d]'
+                arg['out'] = 'w_sv[%(out)d]'
                 if aloha.complex_mass:
-                    arg['mass'] = "m_pars->%(CM)s, "
+                    ###arg['mass'] = "pars->%(CM)s,"
+                    arg['mass'] = "m_pars->%(CM)s, " # AV
                 else:
-                    arg['mass'] = "m_pars->%(M)s, m_pars->%(W)s, "
-            else:
-                #arg['out'] = '&amp_sv[%(out)d]'
-                arg['out'] = '&amp_fp[%(out)d]'
+                    ###arg['mass'] = "pars->%(M)s,pars->%(W)s,"
+                    arg['mass'] = "m_pars->%(M)s, m_pars->%(W)s, " # AV
+            else:        
+                ###arg['out'] = '&amp[%(out)d]'
+                ###arg['out2'] = 'amp[%(out)d]'
+                arg['out'] = '&amp_sv[%(out)d]'
                 arg['out2'] = 'amp_sv[%(out)d]'
                 arg['mass'] = ''
             call = call % arg
@@ -1514,6 +1457,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             self.add_wavefunction(argument.get_call_key(), call_function)
         else:
             self.add_amplitude(argument.get_call_key(), call_function)
+
 
 # AV - use the custom HelasCallWriter
 DEFAULT_GPUFOHelasCallWriter = helas_call_writers.GPUFOHelasCallWriter

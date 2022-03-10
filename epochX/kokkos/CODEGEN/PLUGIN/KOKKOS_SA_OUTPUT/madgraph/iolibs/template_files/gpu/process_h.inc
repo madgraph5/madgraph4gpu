@@ -14,6 +14,7 @@
 
 #include "mgOnGpuConfig.h"
 #include "mgOnGpuVectors.h"
+#include "mgOnGpuTypes.h"
 
 #include "Kokkos_Core.hpp"
 
