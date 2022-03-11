@@ -178,8 +178,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 comment_inputs.append('%s[6]'%argname) # AV (wavefuncsize=6 is hardcoded also in export_cpp...)
                 ###if not argname.startswith('COUP'): type = self.type2def[format[5:]+'_v'] # AV vectorize (double_v or complex_v)
                 if not argname.startswith('COUP'):
-                    type = self.type2def['double'] # AV from cxtype_sv to fptype
-                    argname = 'all'+argname
+                    type = self.type2def['complex'] # AV from cxtype_sv to fptype
+                    #argname = 'all'+argname
+                    argname = argname
                 list_arg = '[]'
             else:
                 type = self.type2def[format]
@@ -193,13 +194,15 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             ###output = '%(doublec)s%(pointer_vertex)s allvertexes' % {
             ###    'doublec': self.type2def['double'],
             ###    'pointer_vertex': self.type2def['pointer_vertex']}
-            output = '%(doublec)s allvertexes[]' % {
-                'doublec': self.type2def['double']}
+            output = '%(doublec)s vertex[]' % {
+                #'%(doublec)s allvertexes[]' % {
+                'doublec': self.type2def['complex']}
             comment_output = 'amplitude \'vertex\''
             template = ''
         else:
-            output = '%(doublec)s all%(spin)s%(id)d[]' % {
-                     'doublec': self.type2def['double'],
+            output = '%(doublec)s %(spin)s%(id)d[]' % {
+                #'%(doublec)s all%(spin)s%(id)d[]' % {
+                     'doublec': self.type2def['complex'],
                      'spin': self.particles[self.outgoing -1],
                      'id': self.outgoing}
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
@@ -236,21 +239,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     def get_declaration_txt(self, add_i=True):
         """ Prototype for how to write the declaration of variable
             Include the symmetry line (entry FFV_2)
-        """
+        """        
         out = StringIO()
-        #out.write('    mgDebug( 0, __FUNCTION__ );\n') # AV
-        ###argument_var = [name for type,name in self.call_arg] # UNUSED
-        for type, name in self.call_arg:
-            ###out.write('    %s %s;\n' % ( type, name ) ) # FOR DEBUGGING
-            if type.startswith('list'):
-                out.write('    const %s* %s = reinterpret_cast<const %s*>( all%s );\n' % ( self.type2def[type[5:]+'_v'], name, self.type2def[type[5:]+'_v'], name ) )
-        if not self.offshell:
-            vname = 'vertex'
-            allvname = 'allvertexes'
-        else:
-            vname = '%(spin)s%(id)d' % { 'spin': self.particles[self.outgoing -1], 'id': self.outgoing }
-            allvname = 'all'+vname
-        out.write('    cxtype_sv* %s = reinterpret_cast<cxtype_sv*>( %s );\n' % ( vname, allvname ) )
+        #out.write('    mgDebug( 0, __FUNCTION__ );\n') # AV - NO! move to get_declaration.txt
+        argument_var = [name for type,name in self.call_arg]
         # define the complex number CI = 0+1j
         if add_i:
             ###out.write(self.ci_definition)
@@ -258,7 +250,6 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         codedict = {} # AV allow delayed declaration with initialisation
         for type, name in self.declaration.tolist():
             ###print(name) # FOR DEBUGGING
-            ###out.write('    %s %s;\n' % ( type, name ) ) # FOR DEBUGGING
             if type.startswith('list'):
                 type = type[5:]
                 if name.startswith('P'):
@@ -275,7 +266,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                         size = 5
                     else:
                         size = 3
-                elif name[0] in ['R','T']:
+                elif name[0] in ['R','T']: 
                     if aloha.loop_mode:
                         size = 20
                     else:
@@ -298,7 +289,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         return out.getvalue()
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
-    # This affects 'V1[0] = ' in HelAmps_sm.cc
+    # This affects 'V1[0] = ' in HelAmps_sm.cu
     def get_momenta_txt(self):
         """Define the Header of the C++ file. This include
             - momentum conservation
@@ -320,7 +311,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     i+1, '0.', '1.', declname)) # AV force scalar "1." instead of vector "one", add declaration
             if i+1 == self.outgoing:
                 out_type = type
-                out_size = self.type_to_size[type]
+                out_size = self.type_to_size[type] 
                 continue
             elif self.offshell:
                 if len(p) != 0 : p.append(' ') # AV
@@ -344,6 +335,43 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 self.get_one_momenta_def(self.outgoing, out)
         # Returning result
         return out.getvalue()
+
+    # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting, add delayed declaration with initialisation)
+    # This affects 'P1[0] = ' in HelAmps_sm.cu
+    def get_one_momenta_def(self, i, strfile):
+        type = self.particles[i-1]
+        if aloha.loop_mode:
+            ptype = 'complex_v'
+            templateval ='%(sign)s %(type)s%(i)d[%(nb)d]' # AV
+        else:
+            ptype = 'double_v'
+            templateval ='%(sign)s%(operator)s( %(type)s%(i)d[%(nb2)d] )' # AV cxreal/cximag
+        if self.nodeclare: strfile.write('    const %s P%d[4] = { ' % ( self.type2def[ptype], i) ) # AV
+        nb2 = 0
+        for j in range(4):
+            if not aloha.loop_mode:
+                nb = j 
+                if j == 0: 
+                    assert not aloha.mp_precision 
+                    operator = self.realoperator # not suppose to pass here in mp
+                elif j == 1: 
+                    nb2 += 1
+                elif j == 2:
+                    assert not aloha.mp_precision 
+                    operator = self.imagoperator # not suppose to pass here in mp
+                elif j ==3:
+                    nb2 -= 1
+            else:
+                operator =''
+                nb = j
+                nb2 = j
+            sign = self.get_P_sign(i) if self.get_P_sign(i) else '+' # AV
+            if self.nodeclare: template = templateval + ( ', ' if j<3 else '' ) # AV
+            else: template ='    P%(i)d[%(j)d] = ' + templateval + ';\n' # AV
+            strfile.write(template % {'j':j,'type': type, 'i': i, 
+                        'nb': nb, 'nb2': nb2, 'operator':operator,
+                        'sign': sign}) # AV
+        if self.nodeclare: strfile.write(' };\n') # AV
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting, add delayed declaration with initialisation)
     # This affects 'P1[0] = ' in HelAmps_sm.cc
@@ -822,7 +850,7 @@ class PLUGIN_UFOModelConverter(export_cpp.UFOModelConverterGPU):
         ###             os.path.split(model_cc_file)[0]))
         # Write only the HelAmps_sm.h file
         file_h_lines = file_h.split('\n')
-        file_h = '\n'.join( file_h_lines[:-3]) # skip the trailing '//---'
+        #file_h = '\n'.join( file_h_lines[:-3]) # skip the trailing '//---'
         file_h += file_cc # append the contents of HelAmps_sm.cc directly to HelAmps_sm.h!
         writers.CPPWriter(model_h_file).writelines(file_h)
         logger.info("Created file %s in directory %s" \
@@ -846,6 +874,18 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     # [NB process_class = "gCPPProcess" is set in OneProcessExporterGPU.__init__]
     ###cc_ext = 'cu' # create gCPPProcess.cu (and symlink it as CPPProcess.cc)
     cc_ext = 'cc' # create CPPProcess.cc (and symlink it as gCPPProcess.cu)
+
+    type2def = {}    
+    type2def['int'] = 'int '
+    type2def['double'] = 'fptype'
+    type2def['complex'] = 'cxtype'
+    type2def['pointer_vertex'] = '*'  # using complex_t<double> * vertex)
+    type2def['pointer_coup'] = ''
+
+    # AV - add vector types
+    # WH - this needs to be modified for kokkos.
+    type2def['double_v'] = 'fptype_sv'
+    type2def['complex_v'] = 'cxtype_sv'
 
     # AV - keep defaults from export_cpp.OneProcessExporterGPU
     ###process_dir = '.'
@@ -909,17 +949,35 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             ret_lines.append("""
 template <typename hel_t, typename mom_t, typename ipd_t, typename ipc_t>
 KOKKOS_FUNCTION void calculate_wavefunctions(
-    const hel_t& cHel,
-    const mom_t& local_mom,
+    int ihel,
+                                const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
+                                fptype_sv* allMEs,            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
+        const hel_t& cHel,
     const ipd_t& cIPD,
-    const ipc_t& cIPC,
-    double& matrix)
-{""")
-
+    const ipc_t& cIPC
+#ifndef __CUDACC__
+                                , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#endif
+                               ){""")
             ret_lines.append("using namespace MG5_%s;" % self.model_name)
-            ret_lines.append("cxtype<double> amp[1]; // was %i" % len(self.matrix_elements[0].get_all_amplitudes()))
-            ret_lines.append("const int ncolor =  %i;" % len(color_amplitudes[0]))
-            ret_lines.append("cxtype<double> jamp[ncolor];")
+
+            ret_lines.append("    // The number of colors")
+            ret_lines.append("    constexpr int ncolor = %i;" % len(color_amplitudes[0]))
+            ret_lines.append("""
+    // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
+    // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
+    cxtype_sv w_sv[mgOnGpu::nwf][mgOnGpu::nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
+    cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
+
+    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
+    cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
+
+""")
+
+            # ret_lines.append("using namespace MG5_%s;" % self.model_name)
+            # ret_lines.append("%s amp[1]; // was %i" % (self.type2def['complex'], len(self.matrix_elements[0].get_all_amplitudes())))
+            # ret_lines.append("const int ncolor =  %i;" % len(color_amplitudes[0]))
+            # ret_lines.append("%s jamp[ncolor];" % self.type2def['complex'])
             ret_lines.append("// Calculate wavefunctions for all processes")
             
             helas_calls = self.helas_call_writer.get_matrix_element_calls(self.matrix_elements[0], color_amplitudes[0])
@@ -927,7 +985,7 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
             self.couplings2order = self.helas_call_writer.couplings2order
             self.params2order = self.helas_call_writer.params2order
             nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
-            ret_lines.append("cxtype<double> w[" + str(nwavefuncs) + "][mgOnGpu::nw6];")
+            ret_lines.append(self.type2def['complex']+" w[" + str(nwavefuncs) + "][mgOnGpu::nw6];")
             
             ret_lines += helas_calls
             # ret_lines.append(self.get_calculate_wavefunctions(\
@@ -1284,7 +1342,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         # (AV join using ',': no need to add a space as this is done by format_call later on)
         line = ', '.join(split_line)
         #line = line.replace( 'xxx(', 'xxx<M_ACCESS, W_ACCESS>(' )
-        line = line.replace( 'w_sv', 'w_fp' )
+        #line = line.replace( 'w_sv', 'w_fp' )
         # AV2: line2 logic is to have MGONGPU_TEST_DIVERGENCE on the first xxx call
         if self.first_get_external and ( ( 'mzxxx' in line ) or ( 'pzxxx' in line ) or ( 'xzxxx' in line ) ) :
             self.first_get_external = False

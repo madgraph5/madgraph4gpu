@@ -1,24 +1,40 @@
-//double %(process_class_name)s::matrix_%(proc_name)s(%(matrix_args)s) { 
 
+      // *** COLOR ALGEBRA BELOW ***
+      // (This method used to be called %(process_class_name)s::matrix_%(proc_name)s(%(matrix_args)s)?)
 
-%(all_wavefunction_calls)s
-// Local variables
-
-  // The color matrix;
+      // The color matrix
 %(color_matrix_lines)s
 
+      // Sum and square the color flows to get the matrix element
+      // (compute |M|^2 by squaring |M|, taking into account colours)
+      fptype_sv deltaMEs = { 0 }; // all zeros
+      for( int icol = 0; icol < ncolor; icol++ )
+      {
+        cxtype_sv ztemp_sv = cxzero_sv();
+        for( int jcol = 0; jcol < ncolor; jcol++ )
+          ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
+        deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];
+      }
 
-// Sum and square the color flows to get the matrix element
-for(int icol=0; icol < ncolor; icol++){
-  auto ztemp = complex_t<double>( 0, 0 );
-  for(int jcol = 0; jcol < ncolor; jcol++)
-    ztemp = ztemp + cf[icol][jcol]*jamp[jcol];
-  matrix = matrix+ (ztemp*conj(jamp[icol])).real()/denom[icol];
-}
+      // *** STORE THE RESULTS ***
 
-// Store the leading color flows for choice of color
-//for(i=0;i < ncolor; i++)
-//    jamp2[%(proc_number)d][i] += real(jamp[i]*conj(jamp[i]));
+      // Store the leading color flows for choice of color
+      // (NB: jamp2_sv must be an array of fptype_sv)
+      // for( int icol = 0; icol < ncolor; icol++ )
+      // jamp2_sv[0][icol] += cxreal( jamp_sv[icol]*cxconj( jamp_sv[icol] ) );
 
+      // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
+      // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
+#ifdef __CUDACC__
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+      allMEs[ievt] += deltaMEs;
+      //printf( "calculate_wavefunction: %%6d %%2d %%f\n", ievt, ihel, allMEs[ievt] );
+#else
+      allMEs[ipagV] += deltaMEs;
+      //printf( "calculate_wavefunction: %%6d %%2d %%f\n", ipagV, ihel, allMEs[ipagV] ); // FIXME for MGONGPU_CPPSIMD
+#endif
+    }
+
+    mgDebug( 1, __FUNCTION__ );
     return;
-}
+  }
