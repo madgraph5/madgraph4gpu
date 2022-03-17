@@ -1,0 +1,10 @@
+mgOnGpuConfig.h
+mgOnGpuFptypes.h
+mgOnGpuCxtypes.h
+MemoryBuffers.h
+MatrixElementKernels.h
+process_cc.inc
+process_h.inc
+process_function_definitions.inc
+process_sigmaKin_function.inc
+process_matrix.inc
