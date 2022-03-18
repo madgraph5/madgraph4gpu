@@ -58,7 +58,7 @@ namespace mg5amcCpu
     virtual ~BridgeKernelHost(){}
 
     // Calculate dependent couplings from Gs transferred via the Bridge
-    fptype* calcDependentCouplings() override final;
+    void computeDependentCouplings() override final;
 
     // Transpose input momenta from C to Fortran before the matrix element calculation in the Bridge
     void transposeInputMomentaC2F() override final;

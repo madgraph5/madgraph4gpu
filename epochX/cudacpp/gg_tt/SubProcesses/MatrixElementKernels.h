@@ -33,7 +33,7 @@ namespace mg5amcCpu
     virtual ~MatrixElementKernelBase(){}
 
     // Calculate dependent couplings from Gs transferred via the Bridge
-    virtual fptype* calcDependentCouplings() = 0;
+    virtual void computeDependentCouplings() = 0;
 
     // Compute good helicities
     virtual void computeGoodHelicities() = 0;
@@ -75,7 +75,7 @@ namespace mg5amcCpu
     virtual ~MatrixElementKernelHost(){}
 
     // Calculate dependent couplings from Gs transferred via the Bridge
-    fptype* calcDependentCouplings() override final;
+    void computeDependentCouplings() override final;
 
     // Compute good helicities
     void computeGoodHelicities() override final;

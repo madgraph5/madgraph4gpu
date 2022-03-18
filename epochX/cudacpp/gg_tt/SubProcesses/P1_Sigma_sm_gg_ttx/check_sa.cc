@@ -500,10 +500,8 @@ int main(int argc, char **argv)
       dynamic_cast<BridgeKernelBase*>( pmek.get() )->transposeInputMomentaC2F();
     }
 
-    fptype* tmpIPC = pmek.get()->calcDependentCouplings();
-    process.setDependentCouplings(tmpIPC, nevt);
+    pmek.get()->computeDependentCouplings();
 
-      
     // --- 0e. SGoodHel
     if ( iiter == 0 )
     {

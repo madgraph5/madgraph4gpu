@@ -352,13 +352,6 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void CPPProcess::setDependentCouplings(const fptype *tmpIPC, const int nevt)
-  {
-      //memcpy(cIPC, tmpIPC, 2 * nevt * sizeof(cxtype)); // sr remove comment
-  }
-
-  //--------------------------------------------------------------------------
-
   // Retrieve the compiler that was used to build this module
   const std::string CPPProcess::getCompiler()
   {
@@ -418,6 +411,19 @@ namespace mg5amcCpu
     out << ")";
 #endif
     return out.str();
+  }
+
+  //--------------------------------------------------------------------------
+
+  void dependentCouplings(const fptype* gs, const int nevt)
+  {
+    constexpr cxsmpl<double> mdl_complexi = cxsmpl<double>(0.,1.);
+    cxtype_sv GC_10_v[nevt], GC_11_v[nevt];
+    for (int i = 0; i < nevt; ++i) {
+        fptype thisg = gs[i];
+        GC_10_v[i] = -thisg;
+        GC_11_v[i] = mdl_complexi * thisg;
+    }
   }
 
   //--------------------------------------------------------------------------

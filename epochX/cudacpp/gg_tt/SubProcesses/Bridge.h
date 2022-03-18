@@ -98,6 +98,8 @@ namespace mg5amcCpu
      */
     void gpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly=false );
 
+    void cpu_depCouplings(const FORTRANFPTYPE* gs);
+
     /**
      * Sequence to be executed for the vectorized CPU matrix element calculation
      *
@@ -239,6 +241,13 @@ namespace mg5amcCpu
 #endif
 
 #ifndef __CUDACC__
+
+  template<typename FORTRANFPTYPE>
+  void Bridge<FORTRANFPTYPE>::cpu_depCouplings(const FORTRANFPTYPE* gs) {
+      memcpy( m_hstGsC.data(), gs, m_nevt * sizeof(FORTRANFPTYPE) );
+      m_pmek->computeDependentCouplings();
+  }
+
   template <typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::cpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, FORTRANFPTYPE* mes, const bool goodHelOnly )
   {

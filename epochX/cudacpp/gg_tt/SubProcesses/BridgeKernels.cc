@@ -61,9 +61,9 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  fptype* BridgeKernelHost::calcDependentCouplings()
+  void BridgeKernelHost::computeDependentCouplings()
   {
-    return dynamic_cast<MatrixElementKernelHost*>(this)->calcDependentCouplings();
+      m_bridge.cpu_depCouplings( m_gs.data() );
   }
 
   //--------------------------------------------------------------------------

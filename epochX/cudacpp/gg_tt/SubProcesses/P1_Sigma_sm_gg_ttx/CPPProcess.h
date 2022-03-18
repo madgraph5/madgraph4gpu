@@ -55,8 +55,6 @@ namespace mg5amcCpu
     // Accessors (unused so far: add four of them only to fix a clang build warning)
     //bool verbose() const { return m_verbose; }
     bool debug() const { return m_debug; }
-      
-    void setDependentCouplings(const fptype* tmpIPC, const int nevt);
 
   public:
 
@@ -87,6 +85,10 @@ namespace mg5amcCpu
 
   };
 
+  //--------------------------------------------------------------------------
+
+  void dependentCouplings(const fptype* gs, const int nevt);
+ 
   //--------------------------------------------------------------------------
 
   __global__
