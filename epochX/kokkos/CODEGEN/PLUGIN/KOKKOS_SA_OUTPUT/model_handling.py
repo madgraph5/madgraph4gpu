@@ -92,7 +92,6 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
 
     # realoperator = '.real()'
     # imagoperator = '.imag()'
-    #ci_definition = 'complex_t<double> cI = complex_t<double>(0., 1.);\n'
     ci_definition = 'const cxtype cI = cxmake( 0., 1. );\n'
 
     type2def = {}    
@@ -213,7 +212,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         out.write('  %(comment)s\n  %(template)s\n  %(prefix)s\n  void %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
                   {'comment': comment, # AV - add comment
                    'template': template, # AV - add template
-                   'prefix':'',
+                   'prefix':'KOKKOS_FUNCTION',
                    'suffix':'',
                    #'prefix': self.prefix + ( ' INLINE' if 'is_h' in mode else '' ), # AV - add INLINE
                    #'suffix': ( ' ALWAYS_INLINE' if 'is_h' in mode else '' ), # AV - add ALWAYS_INLINE
@@ -925,14 +924,14 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             coupling[pos] = coup
         ###coup_str = "static cxtype tIPC[%s] = {pars->%s};\n"\
         ###    %(len(self.couplings2order), ',pars->'.join(coupling))
-        coup_str = "const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n"\
-            %(len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling)) # AV
+        coup_str = "const cxtype tIPC[%s] = { cxmake( pars->%s ) };\n"\
+            %(len(self.couplings2order), ' ), cxmake( pars->'.join(coupling)) # AV
         for para, pos in self.params2order.items():
             params[pos] = para
         ###param_str = "static double tIPD[%s] = {pars->%s};\n"\
         ###    %(len(self.params2order), ',pars->'.join(params))
-        param_str = "    const fptype tIPD[%s] = { (fptype)m_pars->%s };"\
-            %(len(self.params2order), ', (fptype)m_pars->'.join(params)) # AV
+        param_str = "    const fptype tIPD[%s] = { (fptype)pars->%s };"\
+            %(len(self.params2order), ', (fptype)pars->'.join(params)) # AV
         replace_dict['assign_coupling'] = coup_str + param_str
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "tHel")
@@ -949,28 +948,25 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
             ret_lines.append("""
 template <typename hel_t, typename mom_t, typename ipd_t, typename ipc_t>
 KOKKOS_FUNCTION void calculate_wavefunctions(
-    int ihel,
-                                const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
-                                fptype_sv* allMEs,            // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
-        const hel_t& cHel,
-    const ipd_t& cIPD,
-    const ipc_t& cIPC
-#ifndef __CUDACC__
-                                , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
-#endif
-                               ){""")
-            ret_lines.append("using namespace MG5_%s;" % self.model_name)
+  const mom_t& allmomenta,
+  const hel_t& cHel,
+  const ipd_t& cIPD,
+  const ipc_t& cIPC,
+  fptype_sv& allMEs
+  )
+{""")
+            ret_lines.append("  using namespace MG5_%s;" % self.model_name)
 
-            ret_lines.append("    // The number of colors")
-            ret_lines.append("    constexpr int ncolor = %i;" % len(color_amplitudes[0]))
+            ret_lines.append("  // The number of colors")
+            ret_lines.append("  constexpr int ncolor = %i;" % len(color_amplitudes[0]))
             ret_lines.append("""
-    // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
-    // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
-    cxtype_sv w_sv[mgOnGpu::nwf][mgOnGpu::nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
-    cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
+  // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
+  // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
+  cxtype_sv w_sv[mgOnGpu::nwf][mgOnGpu::nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
+  cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
 
-    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
-    cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
+  // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
+  cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
 
 """)
 
@@ -978,14 +974,14 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
             # ret_lines.append("%s amp[1]; // was %i" % (self.type2def['complex'], len(self.matrix_elements[0].get_all_amplitudes())))
             # ret_lines.append("const int ncolor =  %i;" % len(color_amplitudes[0]))
             # ret_lines.append("%s jamp[ncolor];" % self.type2def['complex'])
-            ret_lines.append("// Calculate wavefunctions for all processes")
+            ret_lines.append("  // Calculate wavefunctions for all processes")
             
             helas_calls = self.helas_call_writer.get_matrix_element_calls(self.matrix_elements[0], color_amplitudes[0])
             logger.debug("only one Matrix-element supported?")
             self.couplings2order = self.helas_call_writer.couplings2order
             self.params2order = self.helas_call_writer.params2order
             nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
-            ret_lines.append(self.type2def['complex']+" w[" + str(nwavefuncs) + "][mgOnGpu::nw6];")
+            # ret_lines.append('  ' + self.type2def['complex']+" w[" + str(nwavefuncs) + "][mgOnGpu::nw6];")
             
             ret_lines += helas_calls
             # ret_lines.append(self.get_calculate_wavefunctions(\
@@ -1170,9 +1166,9 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
         """Get initProc_lines for function definition for gCPPProcess::initProc"""
         initProc_lines = []
         initProc_lines.append("// Set external particle masses for this matrix element")
-        for part in matrix_element.get_external_wavefunctions():
+        for i,part in enumerate(matrix_element.get_external_wavefunctions()):
             ###initProc_lines.append("mME.push_back(pars->%s);" % part.get('mass'))
-            initProc_lines.append("    m_masses.push_back( m_pars->%s );" % part.get('mass')) # AV
+            initProc_lines.append("  hmME(%d) = ( pars->%s );" % (i,part.get('mass'))) # AV
         ###for i, colamp in enumerate(color_amplitudes):
         ###    initProc_lines.append("jamp2_sv[%d] = new double[%d];" % (i, len(colamp))) # AV - this was commented out already
         return "\n".join(initProc_lines)
@@ -1182,7 +1178,7 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
         """Return the Helicity matrix definition lines for this matrix element"""
         ###helicity_line = "static const int helicities[ncomb][nexternal] = {";
         ###helicity_line = "    static constexpr short helicities[ncomb][mgOnGpu::npar] = {\n      "; # AV (this is tHel)
-        helicity_line = "    , helicities {\n      "; # NSN SYCL needs access to tHel outside CPPProcess
+        helicity_line = "static const int helicities[ncomb][nexternal] = {\n      "; # NSN SYCL needs access to tHel outside CPPProcess
         helicity_line_list = []
         for helicities in matrix_element.get_helicity_matrix(allow_reverse=False):
             ###helicity_line_list.append("{"+",".join(['%d'] * len(helicities)) % tuple(helicities) + "}")
@@ -1289,7 +1285,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
         res.append('// SYCL kernels take an input buffer with momenta for all events')
-        res.append('const fptype* momenta = allmomenta;')
+        res.append('// const fptype* momenta = allmomenta;')
         res.append('// Reset color flows (reset jamp_sv) at the beginning of a new event or event page')
         res.append('for( int i=0; i<ncolor; i++ ){ jamp_sv[i] = cxzero_sv(); }')
         for diagram in matrix_element.get('diagrams'):
@@ -1370,44 +1366,42 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             # Fill out with X up to 6 positions
             call = call + 'x' * (6 - len(call))
             # Specify namespace for Helas calls
-            call = call + "(allmomenta,"
+            call = call + "(Kokkos::subview(allmomenta,%d,Kokkos::ALL),"
             if argument.get('spin') != 1:
                 # For non-scalars, need mass and helicity
-                call = call + "m_pars->%s, cHel[ihel][%d],"
+                call = call + "m_pars->%s, cHel[%d],"
             else:
                 call = call + "m_pars->%s,"
             ###call = call + "%+d,w[%d], %d);"
-            call = call + "%+d, w_sv[%d], %d);" # AV vectorize
+            call = call + "%+d, w_sv[%d]);" # AV vectorize
             if argument.get('spin') == 1:
                 return call % \
-                                (wf.get('mass'),
+                                (wf.get('number_external')-1,
+                                 wf.get('mass'),
                                  # For boson, need initial/final here
                                  (-1) ** (wf.get('state') == 'initial'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1)
+                                 wf.get('me_id')-1)
             elif argument.is_boson():
                 misc.sprint(call)
-                misc.sprint( (wf.get('mass'),
+                misc.sprint( (wf.get('number_external')-1, wf.get('mass'),
                                  wf.get('number_external')-1,
                                  # For boson, need initial/final here
                                  (-1) ** (wf.get('state') == 'initial'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1))
+                                 wf.get('me_id')-1))
                 return  self.format_coupling(call % \
-                                (wf.get('mass'),
+                                (wf.get('number_external')-1, wf.get('mass'),
                                  wf.get('number_external')-1,
                                  # For boson, need initial/final here
                                  (-1) ** (wf.get('state') == 'initial'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1))
+                                 wf.get('me_id')-1))
             else:
                 return self.format_coupling(call % \
-                                (wf.get('mass'),
+                                (wf.get('number_external')-1,
+                                 wf.get('mass'),
                                  wf.get('number_external')-1,
                                  # For fermions, need particle/antiparticle
                                  - (-1) ** wf.get_with_flow('is_part'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1))
+                                 wf.get('me_id')-1))
         else:
             if wf.get('number_external') == 1:
                 call += 'pz'
@@ -1421,13 +1415,14 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 comment = ' // NB: ' + call + ' only uses pz' # AV skip '(not E,px,py)' to avoid interference with comma parsing in get_external
             # Specify namespace for Helas calls
             ###call = call + "(allmomenta, cHel[ihel][%d],%+d,w[%d],%d);"
-            call = call + '( allmomenta, cHel[ihel][%d], %+d, w_sv[%d], %d );' + comment # AV vectorize and add comment
+            call = call + '( Kokkos::subview(allmomenta,%d,Kokkos::ALL), cHel[%d], %+d, w_sv[%d]);' + comment # AV vectorize and add comment
             return self.format_coupling(call % \
                                 (wf.get('number_external')-1,
+                                 wf.get('number_external')-1,
                                  # For fermions, need particle/antiparticle
                                  - (-1) ** wf.get_with_flow('is_part'),
-                                 wf.get('me_id')-1,
-                                 wf.get('number_external')-1))
+                                 wf.get('me_id')-1)
+                            )
 
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (vectorize w_sv and amp_sv)
     def generate_helas_call(self, argument):

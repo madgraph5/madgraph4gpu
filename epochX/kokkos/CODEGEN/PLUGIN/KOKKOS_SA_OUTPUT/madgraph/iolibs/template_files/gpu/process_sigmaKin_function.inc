@@ -19,7 +19,7 @@
     for (int ighel = 0;ighel < nGoodHel(0);++ighel)
     {
       auto local_cHel = Kokkos::subview(cHel,iGoodHel(ighel),Kokkos::ALL);
-      calculate_wavefunctions(local_cHel, local_mom, cIPD, cIPC, meHelSum[0]);
+      calculate_wavefunctions(local_mom, local_cHel, cIPD, cIPC, meHelSum[0]);
     }
 
     // Get the final |M|^2 as an average over helicities/colors of the running

@@ -137,7 +137,7 @@ int main(int argc, char **argv) {
     section_timer.reset();
 
     // Create a process object
-    Proc::CPPProcess<Kokkos::DefaultExecutionSpace> process(niter, league_size, team_size);
+    mg5amcGpu::CPPProcess<Kokkos::DefaultExecutionSpace> process(niter, league_size, team_size);
 
     // Read param_card and set parameters
     process.initProc("../../Cards/param_card.dat");
@@ -281,7 +281,7 @@ int main(int argc, char **argv) {
       {
         nvtxRangePush("0d_SGoodHel");
         section_timer.reset();
-        Proc::sigmaKin_setup(devMomenta, process.cHel, process.cIPD, process.cIPC, devIsGoodHel, devNGoodHel, process.ncomb, league_size, team_size);
+        mg5amcGpu::sigmaKin_setup(devMomenta, process.cHel, process.cIPD, process.cIPC, devIsGoodHel, devNGoodHel, process.ncomb, league_size, team_size);
         Kokkos::DefaultExecutionSpace().fence();
         time_SGoodHel = section_timer.seconds();
         nvtxRangePop();
@@ -290,7 +290,7 @@ int main(int argc, char **argv) {
       // --- 3a. SigmaKin
        nvtxRangePush("3a_SigmaKin");
       section_timer.reset();
-      Proc::sigmaKin(devMomenta, devMEs, process.cHel, process.cIPD, process.cIPC, devIsGoodHel, devNGoodHel, process.ncomb, league_size, team_size);//, debug, verbose);
+      mg5amcGpu::sigmaKin(devMomenta, devMEs, process.cHel, process.cIPD, process.cIPC, devIsGoodHel, devNGoodHel, process.ncomb, league_size, team_size);//, debug, verbose);
       Kokkos::DefaultExecutionSpace().fence();
       tmr_skin.add_value(section_timer.seconds());
       nvtxRangePop();

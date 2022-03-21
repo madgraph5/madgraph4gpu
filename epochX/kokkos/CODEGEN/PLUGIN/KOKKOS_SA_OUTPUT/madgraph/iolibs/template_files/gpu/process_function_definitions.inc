@@ -14,63 +14,68 @@ using mgOnGpu::ncomb; // number of helicity combinations
 
 //--------------------------------------------------------------------------
 
-CPPProcess::CPPProcess(int numiterations, int leaguesize, int teamsize,
-             bool verbose = false, bool debug = false);: 
-        m_numiterations(numiterations), league_size(leaguesize), 
-        team_size(teamsize), 
-        dim(league_size * team_size),
-        cHel("cHel",mgOnGpu::ncomb,mgOnGpu::npar), hHel("hHel",mgOnGpu::ncomb,mgOnGpu::npar), 
-        cmME("cmME",mgOnGpu::npar), hmME("hmME",mgOnGpu::npar),
-        cIPC("cIPC",mgOnGpu::ncouplings), hIPC("hIPC",mgOnGpu::ncouplings), 
-        cIPD("cIPD",mgOnGpu::nparams), hIPD("hIPD",mgOnGpu::nparams) {
+template <typename ExecSpace>
+CPPProcess<ExecSpace>::CPPProcess(
+    int numiterations, int leaguesize, int teamsize,
+    bool verbose, bool debug): 
+      m_numiterations(numiterations), league_size(leaguesize), 
+      team_size(teamsize), 
+      dim(league_size * team_size),
+      cHel("cHel",mgOnGpu::ncomb,mgOnGpu::npar), hHel("hHel",mgOnGpu::ncomb,mgOnGpu::npar), 
+      cmME("cmME",mgOnGpu::npar), hmME("hmME",mgOnGpu::npar),
+      cIPC("cIPC",%(ncouplings)s), hIPC("hIPC",%(ncouplings)s), 
+      cIPD("cIPD",%(nparams)s), hIPD("hIPD",%(nparams)s)
+{
 
-    // Helicities for the process - nodim
-    %(all_helicities)s
+  // Helicities for the process - nodim
+  %(all_helicities)s
 
-    for(int i=0;i<mgOnGpu::ncomb;++i)
-        for(int j=0;j<mgOnGpu::npar;++j){
-            hHel(i,j) = tHel[i][j];
-        }
-    Kokkos::deep_copy(cHel,hHel);
+  for(int i=0;i<mgOnGpu::ncomb;++i)
+      for(int j=0;j<mgOnGpu::npar;++j){
+          hHel(i,j) = tHel[i][j];
+      }
+  Kokkos::deep_copy(cHel,hHel);
+}
+
+//--------------------------------------------------------------------------
+
+// Initialize process (with parameters read from user cards)
+template <typename ExecSpace>
+void CPPProcess<ExecSpace>::initProc( const std::string& param_card_name )
+{
+  // Instantiate the model class and set parameters that stay fixed during run
+  pars = Parameters_%(model_name)s::getInstance();
+  SLHAReader slha(param_card_name, m_verbose);
+  pars->setIndependentParameters(slha);
+  pars->setIndependentCouplings();
+  if (m_verbose) {
+      pars->printIndependentParameters();
+    pars->printIndependentCouplings();
   }
+  pars->setDependentParameters();
+  pars->setDependentCouplings();
+  %(initProc_lines)s
+  
+  %(assign_coupling)s
 
-  //--------------------------------------------------------------------------
+}
 
-  CPPProcess::~CPPProcess() {}
+//--------------------------------------------------------------------------
+// Define pointer accessors
+template <typename ExecSpace>
+const short* CPPProcess<ExecSpace>::get_tHel_ptr() const {return &(**hHel);}
 
-  //--------------------------------------------------------------------------
+template <typename ExecSpace>
+cxtype* CPPProcess<ExecSpace>::get_tIPC_ptr() {return hIPC;}
+template <typename ExecSpace>
+const cxtype* CPPProcess<ExecSpace>::get_tIPC_ptr() const {return hIPC;}
 
-  // Initialize process (with parameters read from user cards)
-  void CPPProcess::initProc( const std::string& param_card_name )
-  {
-    // Instantiate the model class and set parameters that stay fixed during run
-    pars = Parameters_%(model_name)s::getInstance();
-    SLHAReader slha(param_card_name, m_verbose);
-    pars->setIndependentParameters(slha);
-    pars->setIndependentCouplings();
-    if (m_verbose) {
-        pars->printIndependentParameters();
-      pars->printIndependentCouplings();
-    }
-    pars->setDependentParameters();
-    pars->setDependentCouplings();
-    %(initProc_lines)s
-    
-    %(assign_coupling)s
+template <typename ExecSpace>
+fptype* CPPProcess<ExecSpace>::get_tIPD_ptr() {return hIPD;}
+template <typename ExecSpace>
+const fptype* CPPProcess<ExecSpace>::get_tIPD_ptr() const {return hIPD;}
 
-  }
-
-  //--------------------------------------------------------------------------
-  // Define pointer accessors
-  const short* CPPProcess::get_tHel_ptr() const {return &(**m_tHel);}
-
-  cxtype* CPPProcess::get_tIPC_ptr() {return m_tIPC;}
-  const cxtype* CPPProcess::get_tIPC_ptr() const {return m_tIPC;}
-
-  fptype* CPPProcess::get_tIPD_ptr() {return m_tIPD;}
-  const fptype* CPPProcess::get_tIPD_ptr() const {return m_tIPD;}
-
-  //--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 
 template <typename mom_t, typename hel_t, typename ipd_t, 
           typename ipc_t, typename igh_t, typename ngh_t>
@@ -94,14 +99,14 @@ void sigmaKin_setup(
     const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
 
     const int nprocesses = 1;  // FIXME: assume process.nprocesses == 1
-    double meHelSum[nprocesses] = {0};  // all zeros
-    double meHelSumLast = 0;
+    fptype meHelSum[nprocesses] = {0};  // all zeros
+    fptype meHelSumLast = 0;
 
-    auto evt_mom = Kokkos::subview(momenta,ievt,Kokkos::ALL,Kokkos::ALL);
+    auto local_mom = Kokkos::subview(momenta,ievt,Kokkos::ALL,Kokkos::ALL);
     for (int ihel = 0;ihel < ncomb;++ihel)
     {
       auto local_cHel = Kokkos::subview(cHel,ihel,Kokkos::ALL);
-      calculate_wavefunctions(local_cHel, evt_mom, cIPD, cIPC, meHelSum[0]);
+      calculate_wavefunctions(local_mom, local_cHel, cIPD, cIPC, meHelSum[0]);
       if (meHelSum[0] != meHelSumLast)
       {
         isGoodHel(ihel) = true;
@@ -146,14 +151,14 @@ void sigmaKin(const mom_t& momenta, out_t& allMEs, const hel_t& cHel,
 
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for
     // the given event
-    double meHelSum[nprocesses] = {0};  // all zeros
+    fptype meHelSum[nprocesses] = {0};  // all zeros
 
     // using precomputed good helicities
     auto local_mom = Kokkos::subview(momenta,ievt,Kokkos::ALL,Kokkos::ALL);
     for (int ighel = 0;ighel < nGoodHel(0);++ighel)
     {
       auto local_cHel = Kokkos::subview(cHel,iGoodHel(ighel),Kokkos::ALL);
-      calculate_wavefunctions(local_cHel, local_mom, cIPD, cIPC, meHelSum[0]);
+      calculate_wavefunctions(local_mom, local_cHel, cIPD, cIPC, meHelSum[0]);
     }
     // Get the final |M|^2 as an average over helicities/colors of the running
     // sum of |M|^2 over helicities for the given event

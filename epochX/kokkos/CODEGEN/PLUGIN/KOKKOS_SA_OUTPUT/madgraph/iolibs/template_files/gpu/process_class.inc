@@ -17,12 +17,12 @@ public:
   ~CPPProcess() = default;
 
   // Initialize process.
-	virtual void initProc(std::string param_card_name);
+	virtual void initProc(const std::string& param_card_name);
 
 
   virtual int code() const { return 1; }
 
-  const typename Kokkos::View<double*,ExecSpace>::HostMirror &getMasses() const { return hmME; }
+  const typename Kokkos::View<fptype*,ExecSpace>::HostMirror &getMasses() const { return hmME; }
 
   void setInitial(int inid1, int inid2) {
     id1 = inid1;
@@ -43,15 +43,22 @@ public:
   Kokkos::View<int**,ExecSpace> cHel;
   typename Kokkos::View<int**,ExecSpace>::HostMirror hHel;
 
-  Kokkos::View<double*,ExecSpace> cmME;
-  typename Kokkos::View<double*,ExecSpace>::HostMirror hmME;
+  Kokkos::View<fptype*,ExecSpace> cmME;
+  typename Kokkos::View<fptype*,ExecSpace>::HostMirror hmME;
 
-  Kokkos::View<complex_t<double>*,ExecSpace> cIPC;
-  typename Kokkos::View<complex_t<double>*,ExecSpace>::HostMirror hIPC;
+  Kokkos::View<fptype*,ExecSpace> cIPC;
+  typename Kokkos::View<fptype*,ExecSpace>::HostMirror hIPC;
 
-  Kokkos::View<double*,ExecSpace> cIPD;
-  typename Kokkos::View<double*,ExecSpace>::HostMirror hIPD;
+  Kokkos::View<fptype*,ExecSpace> cIPD;
+  typename Kokkos::View<fptype*,ExecSpace>::HostMirror hIPD;
 
+  const short* get_tHel_ptr() const;
+
+  cxtype* get_tIPC_ptr();
+  const cxtype* get_tIPC_ptr() const;
+
+  fptype* get_tIPD_ptr();
+  const fptype* get_tIPD_ptr() const;
 private:
   int m_numiterations;
   // gpu variables

@@ -3,40 +3,32 @@
 
 #include "mgOnGpuConfig.h"
 
-
-#ifdef THRUST_COMPLEX
-  #include <thrust/complex.h>
-  template<typename T>
-  using complex_t = thrust::complex<T>;
-#else
-  #include "Kokkos_Complex.hpp"
-  template<typename T>
-  using complex_t = Kokkos::complex<T>;
-#endif
-
 #ifndef __CUDACC__
 #include <cmath>
-using std::min;
-using std::max;
-using std::sqrt;
+#include "Kokkos_Complex.hpp"
+inline void nvtxRangePush(char* temp){
+  return;
+}
+inline void nvtxRangePop(void){return};
+
+#else
+#include "nvToolsExt.h"
+#endif
+
+
+#if defined MGONGPU_CXTYPE_THRUST
+  #include <thrust/complex.h>
 #endif
 
 namespace mgOnGpu
 {
-
   // --- Type definitions
 
   // Complex type: cxtype
-#ifdef __CUDACC__ // cuda
 #if defined MGONGPU_CXTYPE_THRUST
   typedef thrust::complex<fptype> cxtype; // two doubles: RI
-#elif defined MGONGPU_FPTYPE_DOUBLE
-  typedef cuDoubleComplex cxtype;
-#elif defined MGONGPU_FPTYPE_FLOAT
-  typedef cuFloatComplex cxtype;
-#endif
 #else // c++
-  typedef std::complex<fptype> cxtype; // two doubles: RI
+  typedef Kokkos::complex<fptype> cxtype; // two doubles: RI
 #endif
 
 }
@@ -49,32 +41,32 @@ using mgOnGpu::cxtype;
 #ifdef __CUDACC__ // cuda
 
 /*
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 fptype fpmax( const fptype& a, const fptype& b )
 {
   return max( a, b );
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 fptype fpmin( const fptype& a, const fptype& b )
 {
   return min( a, b );
 }
 */
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 const fptype& fpmax( const fptype& a, const fptype& b )
 {
   return ( ( b < a ) ? a : b );
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 const fptype& fpmin( const fptype& a, const fptype& b )
 {
   return ( ( a < b ) ? a : b );
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 fptype fpsqrt( const fptype& f )
 {
 #if defined MGONGPU_FPTYPE_FLOAT
@@ -127,31 +119,31 @@ fptype fpsqrt( const fptype& f )
 // thrust::complex<float>
 //+++++++++++++++++++++++++
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype cxmake( const fptype& r, const fptype& i )
 {
   return cxtype( r, i ); // thrust::complex<fptype> constructor
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 fptype cxreal( const cxtype& c )
 {
   return c.real(); // thrust::complex<fptype>::real()
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 fptype cximag( const cxtype& c )
 {
   return c.imag(); // thrust::complex<fptype>::imag()
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype cxconj( const cxtype& c )
 {
   return conj( c ); // conj( thrust::complex<fptype> )
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 const cxtype& cxmake( const cxtype& c )
 {
   return c;
@@ -169,55 +161,55 @@ const cxtype& cxmake( const cxtype& c )
 
 #if defined MGONGPU_FPTYPE_DOUBLE  // cuda + cucomplex + double
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype cxmake( const fptype& r, const fptype& i )
 {
   return make_cuDoubleComplex( r, i );
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 fptype cxreal( const cxtype& c )
 {
   return cuCreal(c); // returns by value
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 fptype cximag( const cxtype& c )
 {
   return cuCimag(c); // returns by value
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype operator+( const cxtype& a, const cxtype& b )
 {
   return cuCadd( a, b );
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype& operator+=( cxtype& a, const cxtype& b )
 {
   a = cuCadd( a, b ); return a;
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype operator-( const cxtype& a, const cxtype& b )
 {
   return cuCsub( a, b );
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype& operator-=( cxtype& a, const cxtype& b )
 {
   a = cuCsub( a, b ); return a;
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype operator*( const cxtype& a, const cxtype& b )
 {
   return cuCmul( a, b );
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype operator/( const cxtype& a, const cxtype& b )
 {
   return cuCdiv( a, b );
@@ -229,55 +221,55 @@ cxtype operator/( const cxtype& a, const cxtype& b )
 
 #elif defined MGONGPU_FPTYPE_FLOAT  // cuda + cucomplex + float
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype cxmake( const fptype& r, const fptype& i )
 {
   return make_cuFloatComplex( r, i );
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 fptype cxreal( const cxtype& c )
 {
   return cuCrealf(c); // returns by value
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 fptype cximag( const cxtype& c )
 {
   return cuCimagf(c); // returns by value
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype operator+( const cxtype& a, const cxtype& b )
 {
   return cuCaddf( a, b );
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype& operator+=( cxtype& a, const cxtype& b )
 {
   a = cuCaddf( a, b ); return a;
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype operator-( const cxtype& a, const cxtype& b )
 {
   return cuCsubf( a, b );
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype& operator-=( cxtype& a, const cxtype& b )
 {
   a = cuCsubf( a, b ); return a;
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype operator*( const cxtype& a, const cxtype& b )
 {
   return cuCmulf( a, b );
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype operator/( const cxtype& a, const cxtype& b )
 {
   return cuCdivf( a, b );
@@ -296,67 +288,67 @@ cxtype cxmake( const std::complex<double>& c ) // std::complex to cucomplex (cas
 
 #endif  // END cuda + cucomplex + double/float
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype operator+( const cxtype a )
 {
   return a;
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype operator-( const cxtype& a )
 {
   return cxmake( -cxreal(a), -cximag(a) );
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype operator+( const fptype& a, const cxtype& b )
 {
   return cxmake( a, 0 ) + b;
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype operator-( const fptype& a, const cxtype& b )
 {
   return cxmake( a, 0 ) - b;
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype operator*( const fptype& a, const cxtype& b )
 {
   return cxmake( a, 0 ) * b;
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype operator/( const fptype& a, const cxtype& b )
 {
   return cxmake( a, 0 ) / b;
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype operator+( const cxtype& a, const fptype& b )
 {
   return a + cxmake( b, 0 );
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype operator-( const cxtype& a, const fptype& b )
 {
   return a - cxmake( b, 0 );
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype operator*( const cxtype& a, const fptype& b )
 {
   return a * cxmake( b, 0 );
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype operator/( const cxtype& a, const fptype& b )
 {
   return a / cxmake( b, 0 );
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype cxconj( const cxtype& c )
 {
   return cxmake( cxreal( c ), -cximag( c ) );

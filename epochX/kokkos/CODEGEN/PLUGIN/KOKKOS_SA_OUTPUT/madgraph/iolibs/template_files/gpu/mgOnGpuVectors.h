@@ -619,7 +619,7 @@ typedef cxtype cxtype_sv;
 
 // Scalar-or-vector zeros: scalar in CUDA, vector or scalar in C++
 #ifdef __CUDACC__
-inline __device__ cxtype cxzero_sv(){ return cxmake( 0, 0 ); }
+KOKKOS_INLINE_FUNCTION cxtype cxzero_sv(){ return cxmake( 0, 0 ); }
 #elif defined MGONGPU_CPPSIMD
 inline cxtype_v cxzero_sv(){ return cxtype_v{ fptype_v{0}, fptype_v{0} }; }
 #else

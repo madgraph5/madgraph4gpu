@@ -1345,13 +1345,13 @@ class ALOHAWriterForCPP(WriteALOHA):
     type2def = {}    
     type2def['int'] = 'int '
     type2def['double'] = 'double '
-    type2def['complex'] = 'complex_t<double>'  # 'std::complex<double> '
+    type2def['complex'] = 'cxtype'  # 'std::complex<double> '
     type2def['pointer_vertex'] = '*' # using complex<double> & vertex)
     type2def['pointer_coup'] = ''
     #variable overwritten by gpu
     realoperator = '.real()'
     imagoperator = '.imag()'
-    ci_definition = 'const complex_t<double> cI = complex_t<double>(0.,1.);\n'
+    ci_definition = 'const cxtype cI = cxtype(0.,1.);\n'
     
     
     def change_number_format(self, number):

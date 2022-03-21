@@ -9,11 +9,12 @@
 
 template <typename ExecSpace>
 void get_initial_momenta(
-                        Kokkos::View<double***,ExecSpace> d_p,
-                        const int nexternal,const double energy,
-                        const Kokkos::View<double*,ExecSpace>& masses,
-                        const int& league_size,
-                        const int& team_size){
+      Kokkos::View<double***,ExecSpace> d_p,
+      const int nexternal,const double energy,
+      const Kokkos::View<double*,ExecSpace>& masses,
+      const int& league_size,
+      const int& team_size)
+{
   
   using member_type = typename Kokkos::TeamPolicy<ExecSpace>::member_type;
   Kokkos::TeamPolicy<ExecSpace> policy( league_size, team_size );
@@ -21,33 +22,34 @@ void get_initial_momenta(
   KOKKOS_LAMBDA(member_type team_member){
     const int tid = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
 
-      auto e2 = pow(energy,2);
-      double mom = sqrt((pow(e2, 2) - 2 * e2 * pow(masses(0), 2) + pow(masses(0), 4) -
-          2 * e2 * pow(masses(0), 2) - 2 * pow(masses(0), 2) * pow(masses(1), 2) + pow(masses(1), 4)) /
-         (4 * e2));
-      auto energy1 = sqrt(pow(mom, 2) + pow(masses(0), 2));
-      auto energy2 = sqrt(pow(mom, 2) + pow(masses(1), 2));
+    auto e2 = pow(energy,2);
+    double mom = sqrt((pow(e2, 2) - 2 * e2 * pow(masses(0), 2) + pow(masses(0), 4) -
+        2 * e2 * pow(masses(0), 2) - 2 * pow(masses(0), 2) * pow(masses(1), 2) + pow(masses(1), 4)) /
+        (4 * e2));
+    auto energy1 = sqrt(pow(mom, 2) + pow(masses(0), 2));
+    auto energy2 = sqrt(pow(mom, 2) + pow(masses(1), 2));
 
-      for(int j=0;j<nexternal;++j)
-        for(int k=0;k<4;++k)
-          d_p(tid,j,k) = 0.;
-      // particle 1
-      d_p(tid,0,0) = energy1;
-      d_p(tid,0,3) = mom;
-      // particle 2
-      d_p(tid,1,0) = energy2;
-      d_p(tid,1,3) = -mom;
-    });
+    for(int j=0;j<nexternal;++j)
+      for(int k=0;k<4;++k)
+        d_p(tid,j,k) = 0.;
+    // particle 1
+    d_p(tid,0,0) = energy1;
+    d_p(tid,0,3) = mom;
+    // particle 2
+    d_p(tid,1,0) = energy2;
+    d_p(tid,1,3) = -mom;
+  });
 }
 
 template <typename ExecSpace>
 void get_final_momenta(const int ninitial,const int nexternal,const double energy,
-                       const Kokkos::View<double*,ExecSpace>& masses,
-                       Kokkos::View<double ***,ExecSpace>& d_p,
-                       const Kokkos::View<double **,ExecSpace>& random_numbers,
-                       Kokkos::View<double*,ExecSpace>& d_wgt,
-                       const int& league_size,
-                       const int& team_size) {
+    const Kokkos::View<double*,ExecSpace>& masses,
+    Kokkos::View<double ***,ExecSpace>& d_p,
+    const Kokkos::View<double **,ExecSpace>& random_numbers,
+    Kokkos::View<double*,ExecSpace>& d_wgt,
+    const int& league_size,
+    const int& team_size)
+  {
 
   Kokkos::View<int*,ExecSpace> iwarn("iwarn",5);
   
@@ -233,8 +235,8 @@ void get_final_momenta(const int ninitial,const int nexternal,const double energ
         for (int k = 0; k < 4; k++)
           lp(j+ninitial,k) = p[j][k];
 
-    });
-
+    }
+  );
 }
 
 #endif // RAMBO_H 1
