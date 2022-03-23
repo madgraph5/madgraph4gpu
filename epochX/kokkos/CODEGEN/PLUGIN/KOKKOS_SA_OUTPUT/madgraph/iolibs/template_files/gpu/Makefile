@@ -15,7 +15,7 @@ LDFLAGS=
 CUDA_ARCH_NUM ?= 70
 NVCC=$(KOKKOSPATH_CUDA)/bin/nvcc_wrapper
 CUDA_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_CUDA)/include -arch=compute_$(CUDA_ARCH_NUM) --expt-extended-lambda --expt-relaxed-constexpr -use_fast_math --openmp
-CUDA_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_CUDA)/lib64/libkokkoscore.a -lnvToolsExt --openmp
+CUDA_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_CUDA)/lib64/libkokkoscore.a -lnvToolsExt --openmp -lstdc++fs
 
 CXX=g++
 ICPX=icpx

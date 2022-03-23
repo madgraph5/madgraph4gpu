@@ -54,10 +54,10 @@ KOKKOS_FUNCTION void ixxxxx(const T& pvec,
     const fptype_sv sqp0p3 = fpternary( ( pvec(1) == 0. and pvec(2) == 0. and pvec(3) < 0. ),
                                         fptype_sv{0}, fpsqrt(fpmax(pvec(0) + pvec(3), 0. ) ) * (fptype)nsf );
 
-    const cxtype_sv chi[2] = { cxmake(sqp0p3, 0. ), cxternary( (sqp0p3 == 0.),
+    const cxtype_sv chi[2] = { cxmake( sqp0p3, 0. ), cxternary( ( sqp0p3 == 0. ),
                                                                cxmake( -(fptype)nhel * fpsqrt( 2. * pvec(0) ), 0. ),
                                                                cxmake( (fptype)nh * pvec(1), pvec(2)) / sqp0p3 ) };
-    if (nh == 1)
+    if ( nh == 1 )
     {
       fi[2] = cxzero_sv();
       fi[3] = cxzero_sv();

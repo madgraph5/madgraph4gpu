@@ -926,17 +926,27 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         ###    %(len(self.couplings2order), ',pars->'.join(coupling))
         coup_str = "const cxtype tIPC[%s] = { cxmake( pars->%s ) };\n"\
             %(len(self.couplings2order), ' ), cxmake( pars->'.join(coupling)) # AV
+        coup_str += '''  for(int i=0;i<%s;++i){
+    hIPC(i*2 + 0) = tIPC[i].real();
+    hIPC(i*2 + 1) = tIPC[i].imag();
+  }
+  Kokkos::deep_copy(cIPC,hIPC);\n\n''' % len(self.couplings2order)
         for para, pos in self.params2order.items():
             params[pos] = para
         ###param_str = "static double tIPD[%s] = {pars->%s};\n"\
         ###    %(len(self.params2order), ',pars->'.join(params))
         param_str = "    const fptype tIPD[%s] = { (fptype)pars->%s };"\
             %(len(self.params2order), ', (fptype)pars->'.join(params)) # AV
+        param_str += '''
+  for(int i=0;i<%s;++i)
+    hIPD(i) = tIPD[i];
+  Kokkos::deep_copy(cIPD,hIPD);''' % len(self.params2order)
         replace_dict['assign_coupling'] = coup_str + param_str
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "tHel")
-        file = self.read_template_file(self.process_definition_template) % replace_dict
-        return file
+        file_text = self.read_template_file(self.process_definition_template)
+        
+        return file_text % replace_dict
 
     # AV - modify export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
     def get_all_sigmaKin_lines(self, color_amplitudes, class_name):
@@ -967,7 +977,6 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
 
   // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
   cxtype_sv jamp_sv[ncolor] = {}; // sum of the invariant amplitudes for all Feynman diagrams in the event or event page
-
 """)
 
             # ret_lines.append("using namespace MG5_%s;" % self.model_name)
@@ -1169,6 +1178,7 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
         for i,part in enumerate(matrix_element.get_external_wavefunctions()):
             ###initProc_lines.append("mME.push_back(pars->%s);" % part.get('mass'))
             initProc_lines.append("  hmME(%d) = ( pars->%s );" % (i,part.get('mass'))) # AV
+        initProc_lines.append("  Kokkos::deep_copy(cmME,hmME);")
         ###for i, colamp in enumerate(color_amplitudes):
         ###    initProc_lines.append("jamp2_sv[%d] = new double[%d];" % (i, len(colamp))) # AV - this was commented out already
         return "\n".join(initProc_lines)

@@ -18,7 +18,7 @@ public:
 
   // Initialize process.
 	virtual void initProc(const std::string& param_card_name);
-
+  const std::string getCompiler();
 
   virtual int code() const { return 1; }
 

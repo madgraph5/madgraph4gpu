@@ -12,7 +12,7 @@
   {
     cxtype_sv ztemp_sv = cxzero_sv();
     for( int jcol = 0; jcol < ncolor; jcol++ )
-    ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
+      ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
     deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];
   }
 

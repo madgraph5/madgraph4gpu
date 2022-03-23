@@ -103,7 +103,11 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
                              s + 'gpu/mgOnGpuTypes.h',
                              s + 'gpu/mgOnGpuVectors.h',
                              s + 'gpu/extras.h',
-                             s + 'gpu/mgOnGpuConfig.h'],
+                             s + 'gpu/mgOnGpuConfig.h',
+                             s + 'gpu/epoch_process_id.h',
+                             s + 'gpu/nvtx.h',
+                             s + 'gpu/timer.h',
+                             s + 'gpu/timermap.h'],
                      'SubProcesses': [s + 'gpu/Makefile', s + 'gpu/CalcMean.h']}
     to_link_in_P = ['Makefile', 'CalcMean.h']
 

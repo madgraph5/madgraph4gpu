@@ -8,15 +8,22 @@
 #include <numeric>
 #include <string>
 #include <unistd.h>
-#include <vector>
-#include <chrono>
 
 #include "Kokkos_Core.hpp"
-#include "CPPProcess.h"
+#include "mgOnGpuConfig.h"
 #include "mgOnGpuTypes.h"
+#include "mgOnGpuVectors.h"
 #include "random_generator.h"
 #include "rambo.h"
-#include "CalcMean.h"
+
+#include "CPPProcess.h"
+#include "timermap.h"
+
+#include "epoch_process_id.h"
+#define STRINGIFY(s) #s
+#define XSTRINGIFY(s) STRINGIFY(s)
+
+#define SEP79 79
 
 bool is_number(const char *s) {
   const char *t = s;
@@ -25,23 +32,79 @@ bool is_number(const char *s) {
   return (int)strlen(s) == t - s;
 }
 
+// Disabling fast math is essential here, otherwise results are undefined
+// See https://stackoverflow.com/a/40702790 about __attribute__ on gcc
+// See https://stackoverflow.com/a/32292725 about __attribute__ on clang
+__attribute__((optimize("-fno-fast-math")))
+bool fp_is_abnormal( const fptype& fp )
+{
+  if ( std::isnan( fp ) ) return true;
+  if ( fp != fp ) return true;
+  return false;
+}
+
+__attribute__((optimize("-fno-fast-math")))
+bool fp_is_zero( const fptype& fp )
+{
+  if ( fp == 0 ) return true;
+  return false;
+}
+
+// See https://en.cppreference.com/w/cpp/numeric/math/FP_categories
+__attribute__((optimize("-fno-fast-math")))
+const char* fp_show_class( const fptype& fp )
+{
+  switch( std::fpclassify( fp ) ) {
+  case FP_INFINITE:  return "Inf";
+  case FP_NAN:       return "NaN";
+  case FP_NORMAL:    return "normal";
+  case FP_SUBNORMAL: return "subnormal";
+  case FP_ZERO:      return "zero";
+  default:           return "unknown";
+  }
+}
+
+__attribute__((optimize("-fno-fast-math")))
+void debug_me_is_abnormal( const fptype& me, int ievtALL )
+{
+  std::cout << "DEBUG[" << ievtALL << "]"
+            << " ME=" << me
+            << " fpisabnormal=" << fp_is_abnormal( me )
+            << " fpclass=" << fp_show_class( me )
+            << " (me==me)=" << ( me == me )
+            << " (me==me+1)=" << ( me == me+1 )
+            << " isnan=" << std::isnan( me )
+            << " isfinite=" << std::isfinite( me )
+            << " isnormal=" << std::isnormal( me )
+            << " is0=" << ( me == 0 )
+            << " is1=" << ( me == 1 )
+            << " abs(ME)=" << std::abs( me )
+            << " isnan=" << std::isnan( std::abs( me ) )
+            << std::endl;
+}
+
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
             << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j]"
-            << " [#league-size #team-size] #iterations" << std::endl << std::endl;
-  std::cout << "The number of events per iteration is #thread-teams * #team-size" << std::endl;
+            << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
+  std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
   std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
-  std::cout << "The '-d' flag only controls if nan's emit warnings" << std::endl;
+  std::cout << "The '-d' flag only enables NaN/abnormal warnings and OMP debugging" << std::endl;
   return ret;
 }
 
-int main(int argc, char **argv) {
-  auto start = std::chrono::high_resolution_clock::now();
-  bool verbose = false, debug = false, perf = false, json = false;
-  int niter = 0, league_size = 1, team_size = 1;
-  // int jsondate = 0;
-
+int main(int argc, char **argv)
+{
+  // READ COMMAND LINE ARGUMENTS
+  bool verbose = false;
+  bool debug = false;
+  bool perf = false;
+  bool json = false;
+  int niter = 0;
+  int league_size = 1;
+  int team_size = 32;
+  int jsondate = 0;
   int jsonrun = 0;
   int numvec[5] = {0,0,0,0,0};
   int nnum = 0;
@@ -69,7 +132,7 @@ int main(int argc, char **argv) {
     team_size = numvec[1];
     niter = numvec[2];
     if (nnum == 5){
-      // jsondate = numvec[3];
+      jsondate = numvec[3];
       jsonrun = numvec[4];
     }
   } else if (nnum == 1) {
@@ -80,391 +143,729 @@ int main(int argc, char **argv) {
 
   if (niter == 0)
     return usage(argv[0]);
-
-  auto end = std::chrono::high_resolution_clock::now();
-  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.;
-  std::cout << "command line parsing: " << duration << " seconds\n";
-  start = std::chrono::high_resolution_clock::now();
-
   // initialize Kokkos
-  Kokkos::initialize(argc, argv);
+  Kokkos::initialize(argc, argv); {
 
-  end = std::chrono::high_resolution_clock::now();
-  duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.;
-  
-  std::cout << "Kokkkos initialize: " << duration << " seconds\n";
-  auto kokkos_init_sec = duration;
-
-  // bracket Kokkos Views so that deconstructors are called
-  // before Kokkos::finalize()
+  const int neppR = mgOnGpu::neppR; // AOSOA layout: constant at compile-time
+  if ( team_size%neppR != 0 )
   {
+    std::cout << "ERROR! #threads/block should be a multiple of neppR=" << neppR << std::endl;
+    return usage(argv[0]);
+  }
 
-    // const int neppR = mgKokkos::neppR; // ASA layout: constant at compile-time
-    // if ( team_size%neppR != 0 )
-    // {
-    //   std::cout << "ERROR! #threads/block should be a multiple of neppR=" << neppR << std::endl;
-    //   return usage(argv[0]);
-    // }
+  const int neppM = mgOnGpu::neppM; // AOSOA layout: constant at compile-time
+  if ( team_size%neppM != 0 )
+  {
+    std::cout << "ERROR! #threads/block should be a multiple of neppM=" << neppM << std::endl;
+    return usage(argv[0]);
+  }
 
-    // const int neppM = mgKokkos::neppM; // ASA layout: constant at compile-time
-    // if ( team_size%neppM != 0 )
-    // {
-    //   std::cout << "ERROR! #threads/block should be a multiple of neppM=" << neppM << std::endl;
-    //   return usage(argv[0]);
-    // }
+  using mgOnGpu::ntpbMAX;
+  if ( team_size > ntpbMAX )
+  {
+    std::cout << "ERROR! #threads/block should be <= " << ntpbMAX << std::endl;
+    return usage(argv[0]);
+  }
 
-    // using mgKokkos::ntpbMAX;
-    // if ( team_size > ntpbMAX )
-    // {
-    //   std::cout << "ERROR! #threads/block should be <= " << ntpbMAX << std::endl;
-    //   return usage(argv[0]);
-    // }
+  const int ndim = league_size * team_size; // number of threads in one GPU grid
+  const int nevt = ndim; // number of events in one iteration == number of GPU threads
+  const int nevtALL = niter*nevt; // total number of ALL events in all iterations
 
-    const int ndim = league_size * team_size; // number of threads in one GPU grid
-    const int nevt = ndim; // number of events in one iteration == number of GPU threads
-    const int nevtALL = niter*nevt; // total number of ALL events in all iterations
+  if (verbose)
+    std::cout << "# iterations: " << niter << std::endl;
+
+  // *** START THE NEW TIMERS ***
+  mgOnGpu::TimerMap timermap;
+
+  // === STEP 0 - INITIALISE
+  // --- 00. Initialise cuda (call cudaFree to ease cuda profile analysis)
+  
+
+  // --- 0a. Initialise physics process
+  const std::string procKey = "0a ProcInit";
+  timermap.start( procKey );
+
+  // Create a process object
+  mg5amcGpu::CPPProcess<Kokkos::DefaultExecutionSpace> process( niter, league_size, team_size, verbose );
+
+
+  // Read param_card and set parameters
+  process.initProc("../../Cards/param_card.dat");
+  const fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
+  //const fptype energy = 91.2; // Ecms = 91.2 GeV (Z peak)
+  //const fptype energy = 0.100; // Ecms = 100 MeV (well below the Z peak, pure em scattering)
+  const int meGeVexponent = -(2 * mgOnGpu::npar - 8);
+
+  // --- 0b. Allocate memory structures
+  const std::string alloKey = "0b MemAlloc";
+  timermap.start( alloKey );
+
+  // Memory structures for random numbers, momenta, matrix elements and weights on host and device
+  using mgOnGpu::np4;
+  using mgOnGpu::nparf;
+  using mgOnGpu::npar;
+  using mgOnGpu::ncomb; // Number of helicity combinations
+  // const int nRnarray = np4*nparf*nevt; // (NB: AOSOA layout with nevt=npagR*neppR events per iteration)
+  // const int nMomenta = np4*npar*nevt; // (NB: nevt=npagM*neppM for AOSOA layouts)
+  // const int nWeights = nevt;
+  // const int nMEs     = nevt; // FIXME: assume process.nprocesses == 1 (eventually: nMEs = nevt * nprocesses?)
+
+  // Random Numbers
+  Kokkos::View<fptype**,Kokkos::DefaultExecutionSpace> devRnarray(Kokkos::ViewAllocateWithoutInitializing("devRnarray"),nevt,np4*nparf);
+  auto hstRnarray = Kokkos::create_mirror_view(devRnarray);
+
+  // momenta
+  Kokkos::View<fptype***,Kokkos::DefaultExecutionSpace> devMomenta(Kokkos::ViewAllocateWithoutInitializing("devMomenta"),nevt,npar,np4);
+  auto hstMomenta = Kokkos::create_mirror_view(devMomenta);
+
+  // matrix elements
+  Kokkos::View<fptype*,Kokkos::DefaultExecutionSpace> devMEs(Kokkos::ViewAllocateWithoutInitializing("devMEs"),nevt*process.nprocesses);
+  auto hstMEs = Kokkos::create_mirror_view(devMEs);
+
+  // weights
+  Kokkos::View<fptype*,Kokkos::DefaultExecutionSpace> devWeights(Kokkos::ViewAllocateWithoutInitializing("devWeights"),nevt*process.nprocesses);
+  auto hstWeights = Kokkos::create_mirror_view(devWeights);
+
+  // good helicity indices tracking (device-side only)
+  Kokkos::View<int*,Kokkos::DefaultExecutionSpace> devNGoodHel("devNGoodHel",1);
+  Kokkos::View<int*,Kokkos::DefaultExecutionSpace> devIsGoodHel("devIsGoodHel",ncomb);
+
+
+  // const int nbytesMomenta = nMomenta * sizeof(fptype);
+  // const int nbytesIsGoodHel = ncomb * sizeof(bool);
+  // const int nbytesWeights = nWeights * sizeof(fptype);
+  // const int nbytesMEs = nMEs * sizeof(fptype);
+
+  std::unique_ptr<double[]> genrtimes( new double[niter] );
+  std::unique_ptr<double[]> rambtimes( new double[niter] );
+  std::unique_ptr<double[]> wavetimes( new double[niter] );
+  std::unique_ptr<double[]> wv3atimes( new double[niter] );
+  std::unique_ptr<fptype[]> matrixelementALL( new fptype[nevtALL] ); // FIXME: assume process.nprocesses == 1
+  std::unique_ptr<fptype[]> weightALL( new fptype[nevtALL] );
+
+  // --- 0c. Create curand or common generator
+  const std::string cgenKey = "0c GenCreat";
+  timermap.start( cgenKey );
+
+  // init random number generator pool
+  int random_seed = 1234;
+  auto rand_pool = init_random_generator(random_seed);
+
+  // **************************************
+  // *** START MAIN LOOP ON #ITERATIONS ***
+  // **************************************
+
+  for (int iiter = 0; iiter < niter; ++iiter)
+  {
+    //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
+
+    // === STEP 1 OF 3
+
+    // *** START THE OLD-STYLE TIMER FOR RANDOM GEN ***
+    double genrtime = 0;
+
+    // --- 1a. Seed curand generator (to get same results on host and device)
+    // [NB This should not be necessary using the host API: "Generation functions
+    // can be called multiple times on the same generator to generate successive
+    // blocks of results. For pseudorandom generators, multiple calls to generation
+    // functions will yield the same result as a single call with a large size."]
+    const std::string sgenKey = "1a GenSeed ";
+    timermap.start( sgenKey );
+    // const unsigned long long seed = 20200805;
+
+    // --- 1b. Generate all relevant numbers to build nevt events (i.e. nevt phase space points) on the host
+    const std::string rngnKey = "1b GenRnGen";
+    timermap.start( rngnKey );
+    fill_random_numbers_2d(devRnarray,nevt,np4*nparf, rand_pool, league_size, team_size);
+    Kokkos::DefaultExecutionSpace().fence();
+    //std::cout << "Got random numbers" << std::endl;
+
+    // --- 1c. Copy rnarray from host to device
+    const std::string htodKey = "1c CpHTDrnd";
+    genrtime += timermap.start( htodKey );
+    // NB (PR #45): this cudaMemcpy would involve an intermediate memcpy to pinned memory, if hstRnarray was not already cudaMalloc'ed
+    Kokkos::deep_copy( devRnarray, hstRnarray);
+
+    // *** STOP THE OLD-STYLE TIMER FOR RANDOM GEN ***
+    genrtime += timermap.stop();
+
+    // === STEP 2 OF 3
+    // Fill in particle momenta for each of nevt events on the device
+
+    // *** START THE OLD-STYLE TIMER FOR RAMBO ***
+    double rambtime = 0;
+
+    // --- 2a. Fill in momenta of initial state particles on the device
+    const std::string riniKey = "2a RamboIni";
+    timermap.start( riniKey );
+    get_initial_momenta(devMomenta,process.nexternal,energy,process.cmME,league_size,team_size);
+    Kokkos::DefaultExecutionSpace().fence();
+    //std::cout << "Got initial momenta" << std::endl;
+
+    // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
+    // (i.e. map random numbers to final-state particle momenta for each of nevt events)
+    const std::string rfinKey = "2b RamboFin";
+    rambtime += timermap.start( rfinKey );
+    get_final_momenta(process.ninitial, process.nexternal, energy, process.cmME, devMomenta, devRnarray, devWeights, league_size, team_size);
+    Kokkos::DefaultExecutionSpace().fence();
+    //std::cout << "Got final momenta" << std::endl;
+
+    // --- 2c. CopyDToH Weights
+    const std::string cwgtKey = "2c CpDTHwgt";
+    rambtime += timermap.start( cwgtKey );
+    Kokkos::deep_copy(hstWeights,devWeights);
+
+    // --- 2d. CopyDToH Momenta
+    const std::string cmomKey = "2d CpDTHmom";
+    rambtime += timermap.start( cmomKey );
+    Kokkos::deep_copy(hstMomenta,devMomenta);
+
+
+    // *** STOP THE OLD-STYLE TIMER FOR RAMBO ***
+    rambtime += timermap.stop();
+
+/////
+// for(int ievt=0;ievt<nevt;++ievt){
+//   hstMomenta(ievt,0,0) = 750.;
+//   hstMomenta(ievt,0,1) = 0.;
+//   hstMomenta(ievt,0,2) = 0.;
+//   hstMomenta(ievt,0,3) = 750.;
+
+//   hstMomenta(ievt,1,0) = 750.;
+//   hstMomenta(ievt,1,1) = 0.;
+//   hstMomenta(ievt,1,2) = 0.;
+//   hstMomenta(ievt,1,3) = -750.;
+  
+//   hstMomenta(ievt,2,0) = 679.;
+//   hstMomenta(ievt,2,1) = 391.;
+//   hstMomenta(ievt,2,2) = 445.;
+//   hstMomenta(ievt,2,3) = 330.;
+
+//   hstMomenta(ievt,3,0) = 300.;
+//   hstMomenta(ievt,3,1) = -262.;
+//   hstMomenta(ievt,3,2) = -64.;
+//   hstMomenta(ievt,3,3) = -131.;
+
+//   hstMomenta(ievt,4,0) = 225.;
+//   hstMomenta(ievt,4,1) = -177.;
+//   hstMomenta(ievt,4,2) = -130.;
+//   hstMomenta(ievt,4,3) = -47.;
+
+//   hstMomenta(ievt,5,0) = 297.;
+//   hstMomenta(ievt,5,1) = 48.;
+//   hstMomenta(ievt,5,2) = -250.;
+//   hstMomenta(ievt,5,3) = -152.;
+// }
+// Kokkos::deep_copy(devMomenta,hstMomenta);
+
+    // === STEP 3 OF 3
+    // Evaluate matrix elements for all nevt events
+    // 0d. (Only on the first iteration) Get good helicities [renamed as 0d: this is initialisation!]
+    // 3a. Evaluate MEs on the device
+    // 3b. Copy MEs back from device to host
+
+    // --- 0d. SGoodHel
+    if ( iiter == 0 )
+    {
+      const std::string ghelKey = "0d SGoodHel";
+      timermap.start( ghelKey );
+      // ... 0d1. Compute good helicity mask on the device
+      mg5amcGpu::sigmaKin_setup(devMomenta, devMEs, process.cHel, process.cIPD, process.cIPC, devIsGoodHel, devNGoodHel, process.ncomb, league_size, team_size);
+      Kokkos::DefaultExecutionSpace().fence();
+    }
+
+    // *** START THE OLD-STYLE TIMERS FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
+    double wavetime = 0; // calc plus copy
+    double wv3atime = 0; // calc only
+    
+    // --- 3a. SigmaKin
+    const std::string skinKey = "3a SigmaKin";
+    timermap.start( skinKey );
+    mg5amcGpu::sigmaKin(devMomenta, devMEs, process.cHel, process.cIPD, process.cIPC, devIsGoodHel, devNGoodHel, process.ncomb, league_size, team_size);
+    Kokkos::DefaultExecutionSpace().fence();
+    // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
+    wv3atime += timermap.stop(); // calc only
+    wavetime += wv3atime; // calc plus copy
+
+    // --- 3b. CopyDToH MEs
+    const std::string cmesKey = "3b CpDTHmes";
+    timermap.start( cmesKey );
+    Kokkos::deep_copy(hstMEs,devMEs);
+    // *** STOP THE OLD OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
+    wavetime += timermap.stop(); // calc plus copy
+
+
+    // === STEP 4 FINALISE LOOP
+    // --- 4a Dump within the loop
+    const std::string loopKey = "4a DumpLoop";
+    timermap.start(loopKey);
+    genrtimes[iiter] = genrtime;
+    rambtimes[iiter] = rambtime;
+    wavetimes[iiter] = wavetime;
+    wv3atimes[iiter] = wv3atime;
 
     if (verbose)
-      std::cout << "# iterations: " << niter << std::endl;
-
-    // *** START THE NEW TIMERS ***
-    Kokkos::Timer total_timer,loop_timer,section_timer;
-
-    // === STEP 0 - INITIALISE
-
-    // --- 0a. Initialise physics process
-    nvtxRangePush("0a_ProcInit");
-    section_timer.reset();
-
-    // Create a process object
-    mg5amcGpu::CPPProcess<Kokkos::DefaultExecutionSpace> process(niter, league_size, team_size);
-
-    // Read param_card and set parameters
-    process.initProc("../../Cards/param_card.dat");
-    const double energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
-    //const fptype energy = 91.2; // Ecms = 91.2 GeV (Z peak)
-    //const fptype energy = 0.100; // Ecms = 100 MeV (well below the Z peak, pure em scattering)
-    const int meGeVexponent = -(2 * process.nexternal - 8);
-
-    auto time_procInit = section_timer.seconds();
-    nvtxRangePop();
-
-    // --- 0b. Allocate memory structures
-    nvtxRangePush("0b_MemAlloc");
-    section_timer.reset();
-
-    // random numbers (device-side only)
-    Kokkos::View<double**,Kokkos::DefaultExecutionSpace> devRnarray(Kokkos::ViewAllocateWithoutInitializing("devRnarray"),nevt,4*(process.nexternal - process.ninitial));
-#ifdef FIXED_RANDOM
-    auto hstRnarray = Kokkos::create_mirror_view(devRnarray);
-#endif
-
-    // momenta
-    Kokkos::View<double***,Kokkos::DefaultExecutionSpace> devMomenta(Kokkos::ViewAllocateWithoutInitializing("devMomenta"),nevt,process.nexternal,4);
-    auto hstMomenta = Kokkos::create_mirror_view(devMomenta);
-
-    // matrix elements
-    Kokkos::View<double*,Kokkos::DefaultExecutionSpace> devMEs(Kokkos::ViewAllocateWithoutInitializing("devMEs"),nevt*process.nprocesses);
-    auto hstMEs = Kokkos::create_mirror_view(devMEs);
-
-    // weights
-    Kokkos::View<double*,Kokkos::DefaultExecutionSpace> devWeights(Kokkos::ViewAllocateWithoutInitializing("devWeights"),nevt*process.nprocesses);
-    auto hstWeights = Kokkos::create_mirror_view(devWeights);
-
-    // good helicity indices tracking (device-side only)
-    Kokkos::View<int*,Kokkos::DefaultExecutionSpace> devNGoodHel("devNGoodHel",1);
-    Kokkos::View<int*,Kokkos::DefaultExecutionSpace> devIsGoodHel("devIsGoodHel",process.ncomb);
-
-    auto time_memAlloc = section_timer.seconds();
-    nvtxRangePop();
-
-    // --- 0c. Create curand or common generator
-    nvtxRangePush("0c_GenCreat");
-    section_timer.reset();
-
-    // init random number generator pool
-    auto rand_pool = init_random_generator();
-
-    auto time_genCreat = section_timer.seconds();
-    nvtxRangePop();
-
-
-    // **************************************
-    // *** START MAIN LOOP ON #ITERATIONS ***
-    // **************************************
-
-    // creating statistics counters for metrics of interest
-    CalcMean<float,unsigned int> ave_me;
-    CalcMean<float,unsigned int> ave_weight;
-    CalcMean<float,unsigned int> tmr_rand;
-    CalcMean<float,unsigned int> tmr_momini;
-    CalcMean<float,unsigned int> tmr_momfin;
-    CalcMean<float,unsigned int> tmr_cpyMom;
-    CalcMean<float,unsigned int> tmr_cpyWgt;
-    CalcMean<float,unsigned int> tmr_skin;
-    CalcMean<float,unsigned int> tmr_cpyME;
-    CalcMean<float,unsigned int> tmr_dumploop;
-    CalcMean<float,unsigned int> tmr_iter;
-    
-    float time_SGoodHel = 0;
-    
-    for (int iiter = 0; iiter < niter; ++iiter)
     {
-      //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
-      
-      // time each loop
-      loop_timer.reset();
-      
-      // === STEP 1 OF 3
+      std::cout << std::string(SEP79, '*') << std::endl
+                << "Iteration #" << iiter+1 << " of " << niter << std::endl;
+      if (perf) std::cout << "Wave function time: " << wavetime << std::endl;
+    }
 
-      nvtxRangePush("1a_1b_1c_RandGen");
-      section_timer.reset();
-#ifdef FIXED_RANDOM
-      srand(123);
-      
-      for(int ii=0;ii<nevt;++ii){
-        for(int jj=0;jj < 4*(process.nexternal - process.ninitial);++jj){
-          hstRnarray(ii,jj) = static_cast<double>(rand()) / (double)RAND_MAX;
-      }}
-      
-      Kokkos::deep_copy(devRnarray,hstRnarray);
-#else
-      fill_random_numbers_2d(devRnarray,nevt,4*(process.nexternal - process.ninitial), rand_pool, league_size, team_size);
-#endif
-      Kokkos::DefaultExecutionSpace().fence();
-      tmr_rand.add_value(section_timer.seconds());
-      nvtxRangePop();
-
-      // === STEP 2 OF 3
-      // Fill in particle momenta for each of nevt events on the device
-
-      // --- 2a. Fill in momenta of initial state particles on the device
-      nvtxRangePush("2a_RamboIni");
-      section_timer.reset();
-      get_initial_momenta(devMomenta,process.nexternal,energy,process.cmME,league_size,team_size);
-      tmr_momini.add_value(section_timer.seconds());
-      nvtxRangePop();
-      //std::cout << "Got initial momenta" << std::endl;
-
-      // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
-      // (i.e. map random numbers to final-state particle momenta for each of nevt events)
-      nvtxRangePush("2b_RamboFin");
-      section_timer.reset();
-      get_final_momenta(process.ninitial, process.nexternal, energy, process.cmME, devMomenta, devRnarray, devWeights, league_size, team_size);
-      Kokkos::DefaultExecutionSpace().fence();
-      tmr_momfin.add_value(section_timer.seconds());
-      nvtxRangePop();
-      //std::cout << "Got final momenta" << std::endl;
-
-      nvtxRangePush("2c_CpDTHwgt");
-      section_timer.reset();
-      Kokkos::deep_copy(hstWeights,devWeights);
-      Kokkos::DefaultExecutionSpace().fence();
-      tmr_cpyWgt.add_value(section_timer.seconds());
-      nvtxRangePop();
-
-      nvtxRangePush("2d_CpDTHmom");
-      section_timer.reset();
-      Kokkos::deep_copy(hstMomenta,devMomenta);
-      Kokkos::DefaultExecutionSpace().fence();
-      tmr_cpyMom.add_value(section_timer.seconds());
-      nvtxRangePop();
-
-      // === STEP 3 OF 3
-      // Evaluate matrix elements for all nevt events
-      // 0d. (Only on the first iteration) Get good helicities [renamed as 0d: this is initialisation!]
-      // 3a. Evaluate MEs on the device
-      // 3b. Copy MEs back from device to host
-
-      // --- 0d. SGoodHel
-      if ( iiter == 0 )
-      {
-        nvtxRangePush("0d_SGoodHel");
-        section_timer.reset();
-        mg5amcGpu::sigmaKin_setup(devMomenta, process.cHel, process.cIPD, process.cIPC, devIsGoodHel, devNGoodHel, process.ncomb, league_size, team_size);
-        Kokkos::DefaultExecutionSpace().fence();
-        time_SGoodHel = section_timer.seconds();
-        nvtxRangePop();
-      }
-
-      // --- 3a. SigmaKin
-       nvtxRangePush("3a_SigmaKin");
-      section_timer.reset();
-      mg5amcGpu::sigmaKin(devMomenta, devMEs, process.cHel, process.cIPD, process.cIPC, devIsGoodHel, devNGoodHel, process.ncomb, league_size, team_size);//, debug, verbose);
-      Kokkos::DefaultExecutionSpace().fence();
-      tmr_skin.add_value(section_timer.seconds());
-      nvtxRangePop();
-
-
-      nvtxRangePush("3b_CpDTHmes");
-      section_timer.reset();
-      Kokkos::deep_copy(hstMEs,devMEs);
-      Kokkos::DefaultExecutionSpace().fence();
-      tmr_cpyME.add_value(section_timer.seconds());
-      nvtxRangePop();
-
-
-      // === STEP 4 FINALISE LOOP
-      // --- 4a Dump within the loop
-      nvtxRangePush("4a_DumpLoop");
-      section_timer.reset();
-
+    for (int ievt = 0; ievt < nevt; ++ievt) // Loop over all events in this iteration
+    {
       if (verbose)
       {
-        std::cout << "***********************************************************************" << std::endl
-                  << "Iteration #" << iiter+1 << " of " << niter << std::endl;
-        if (perf) std::cout << "Wave function time: " << tmr_skin.mean() + tmr_cpyME.mean() << std::endl;
-      }
-
-      for (int ievt = 0; ievt < nevt; ++ievt) // Loop over all events in this iteration
-      {
-        if (verbose)
+        // Display momenta
+        std::cout << "Momenta:" << std::endl;
+        for (int ipar = 0; ipar < npar; ipar++)
         {
-          // Display momenta
-          std::cout << "Momenta:" << std::endl;
-          for (int i = 0; i < process.nexternal; i++)
-            std::cout << std::setw(4) << i + 1
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta(ievt,i,0) << setiosflags(std::ios::scientific)
-                      << std::setw(14) << hstMomenta(ievt,i,1)
-                      << setiosflags(std::ios::scientific) << std::setw(14)
-                      << hstMomenta(ievt,i,2) << setiosflags(std::ios::scientific)
-                      << std::setw(14) << hstMomenta(ievt,i,3) << std::endl;
-          std::cout << std::string(80, '-') << std::endl;
+          // NB: 'setw' affects only the next field (of any type)
+          std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
+                    << std::setw(4) << ipar + 1
+                    << std::setw(14) << hstMomenta(ievt,ipar,0) // AOSOA[ipagM][ipar][0][ieppM]
+                    << std::setw(14) << hstMomenta(ievt,ipar,1) // AOSOA[ipagM][ipar][1][ieppM]
+                    << std::setw(14) << hstMomenta(ievt,ipar,2) // AOSOA[ipagM][ipar][2][ieppM]
+                    << std::setw(14) << hstMomenta(ievt,ipar,3) // AOSOA[ipagM][ipar][3][ieppM]
+                    << std::endl
+                    << std::defaultfloat; // default format: affects all floats
         }
+        std::cout << std::string(SEP79, '-') << std::endl;
         // Display matrix elements
-        for (int i = 0; i < process.nprocesses; i++) {
-          if (verbose)
-            std::cout << " Matrix element = "
-                      // << setiosflags(ios::fixed) << setprecision(17)
-                      << hstMEs(i*1 + ievt) << " GeV^" << meGeVexponent << std::endl;
-          
-          ave_me.add_value(hstMEs(i*1 + ievt));
-          ave_weight.add_value(hstWeights(i*1 + ievt));
-        }
+        std::cout << " Matrix element = "
+                  << hstMEs[ievt]
+                  << " GeV^" << meGeVexponent << std::endl; // FIXME: assume process.nprocesses == 1
+        std::cout << std::string(SEP79, '-') << std::endl;
+      }
+      // Fill the arrays with ALL MEs and weights
+      matrixelementALL[iiter*nevt + ievt] = hstMEs[ievt]; // FIXME: assume process.nprocesses == 1
+      weightALL[iiter*nevt + ievt] = hstWeights[ievt];
+    }
 
-        if (verbose)
-          std::cout << std::string(80, '-') << std::endl;
-      } // end if ievt
-
-      if (!(verbose || debug || perf))
-          std::cout << ".";
-      nvtxRangePop();
-      tmr_dumploop.add_value(section_timer.seconds());
-      tmr_iter.add_value(loop_timer.seconds());
-    } // end for niter
     if (!(verbose || debug || perf))
-      std::cout << std::endl;
-
-
-    // **************************************
-    // *** END MAIN LOOP ON #ITERATIONS ***
-    // **************************************
-
-    // === STEP 8 ANALYSIS
-    // --- 8a Analysis: compute stats after the loop
-    nvtxRangePush("8a_9a_DumpStat");
-    section_timer.reset();
-    
-    // timer sums
-    double tmr_sum_me = tmr_skin.sum() + tmr_cpyME.sum();
-    double tmr_sum_rmb = tmr_momini.sum() + tmr_momfin.sum() + tmr_cpyWgt.sum() + tmr_cpyMom.sum();
-    double tmr_sum_rnd = tmr_rand.sum();
-    double tmr_sum_rmb_me = tmr_sum_me + tmr_sum_rmb;
-    double tmr_sum_rnd_rmb_me = tmr_sum_me + tmr_sum_rmb + tmr_sum_rnd;
-
-    if (perf) {
-      printf("**********************************************************************\n");
-      printf("NumBlocksPerGrid            = %8d\n",league_size);
-      printf("NumThreadsPerBlock          = %8d\n",team_size);
-      printf("NumIterations               = %8d\n",niter);
-      printf("----------------------------------------------------------------------\n");
-      printf("FP Precision                = DOUBLE\n");
-      printf("Complex type                = KOKKOS::COMPLEX\n");
-      printf("Random number generator     = Kokkos Device Side\n");
-      printf("----------------------------------------------------------------------\n");
-      printf("NumberOfEntries             = %8d\n",niter);
-      printf("TotalTime[Rnd+Rmb+ME] (123) = ( %.6e ) sec\n",tmr_sum_rnd_rmb_me);
-      printf("TotalTime[Rambo+ME]    (23) = ( %.6e ) sec\n",tmr_sum_rmb_me);
-      printf("TotalTime[RndNumGen]    (1) = ( %.6e ) sec\n",tmr_sum_rnd);
-      printf("TotalTime[Rambo]        (2) = ( %.6e ) sec\n",tmr_sum_rmb);
-      printf("TotalTime[MatrixElems]  (3) = ( %.6e ) sec\n",tmr_sum_me);
-      printf("MeanTimeInMatrixElems       = ( %.6e ) sec\n",tmr_skin.mean()+tmr_cpyME.mean());
-      printf("[Min,Max]TimeInMatrixElems  = [ %.6e , %.6e ] sec\n",tmr_skin.min()+tmr_cpyME.min(),tmr_skin.max()+tmr_cpyME.max());
-
-      printf("----------------------------------------------------------------------\n");
-      printf("TotalEventsComputed         = %8d\n",nevtALL);
-      printf("EvtsPerSec[Rnd+Rmb+ME](123) = ( %.6e ) sec^-1 \n",nevtALL/tmr_sum_rnd_rmb_me);
-      printf("EvtsPerSec[Rmb+ME]     (23) = ( %.6e ) sec^-1 \n",nevtALL/tmr_sum_rmb_me);
-      printf("EvtsPerSec[MatrixElems] (3) = ( %.6e ) sec^-1 \n",nevtALL/tmr_sum_me);
-
-      printf("**********************************************************************\n");
-      printf("NumMatrixElements(notNan)   = %8d\n",nevtALL);
-      printf("MeanMatrixElemValue         = ( %.6e +- %.6e ) GeV^%d\n",ave_me.mean(),ave_me.sigma()/sqrt(nevtALL),meGeVexponent);
-      printf("[Min,Max]MatrixElemValue    = [ %.6e , %.6e ]  GeV^%d\n",ave_me.min(),ave_me.max(),meGeVexponent);
-      printf("StdDevMatrixElemValue       = ( %.6e ) GeV^%d\n",ave_me.sigma(),meGeVexponent);
-      printf("MeanWeight                  = ( %.6e +- %.6e ) GeV^%d\n",ave_weight.mean(),ave_weight.sigma(),meGeVexponent);
-      printf("[Min,Max]Weight             = [ %.6e , %.6e ]  GeV^%d\n",ave_weight.min(),ave_weight.max(),meGeVexponent);
-      printf("StdDevWeight                = ( %.6e ) GeV^%d\n",ave_weight.sigma()/sqrt(nevtALL),meGeVexponent);
-
-      printf("**********************************************************************\n");
-      printf("0a_ProcInit           = %8.6f seconds\n",time_procInit);
-      printf("0b_MemAlloc           = %8.6f seconds\n",time_memAlloc);
-      printf("0c_GenCreat           = %8.6f seconds\n",time_genCreat);
-      printf("0d_SGoodHel           = %8.6f seconds\n",time_SGoodHel);
-
-      printf("1a_1b_1c_GenSeed      = %8.6f +/- %8.6f seconds\n",tmr_rand.mean(),tmr_rand.sigma());
-      printf("2a_RamboIni           = %8.6f +/- %8.6f seconds\n",tmr_momini.mean(),tmr_momini.sigma());
-      printf("2b_RamboFin           = %8.6f +/- %8.6f seconds\n",tmr_momfin.mean(),tmr_momfin.sigma());
-      printf("2c_CpDTHwgt           = %8.6f +/- %8.6f seconds\n",tmr_cpyWgt.mean(),tmr_cpyWgt.sigma());
-      printf("2d_CpDTHmom           = %8.6f +/- %8.6f seconds\n",tmr_cpyMom.mean(),tmr_cpyMom.sigma());
-      printf("3a_SigmaKin           = %8.6f +/- %8.6f seconds\n",tmr_skin.mean(),tmr_skin.sigma());
-      printf("3b_CpDTHmes           = %8.6f +/- %8.6f seconds\n",tmr_cpyME.mean(),tmr_cpyME.sigma());
-      printf("4a_DumpLoop           = %8.6f +/- %8.6f seconds\n",tmr_dumploop.mean(),tmr_dumploop.sigma());
-
-      printf("8a_9a_DumpStat        = %8.6f seconds\n",section_timer.seconds());
-      printf("**********************************************************************\n");
+    {
+      std::cout << ".";
     }
-    
-    if(json){
-      std::stringstream json_fn;
-      json_fn << "./perf/data/" << league_size << "-" << team_size << "-" << niter 
-              << "perf-test-run" << jsonrun << ".json";
 
-      std::ofstream fout(json_fn.str());
-      fout << "[{\n";
-      fout << "  \"NumberOfEntries\": "         << niter << ",\n";
-      fout << "  \"NumThreadsPerBlock\": "      << team_size << ",\n";
-      fout << "  \"NumBlocksPerGrid\": "        << league_size << ",\n";
-      fout << "  \"FP precision\": \"DOUBLE\",\n";
-#ifdef THRUST_COMPLEX
-      fout << "  \"Complex type\": \"thrust::complex\",\n";
-#else
-      fout << "  \"Complex type\": \"Kokkos::complex\",\n";
+  }
+
+  // **************************************
+  // *** END MAIN LOOP ON #ITERATIONS ***
+  // **************************************
+
+  // === STEP 8 ANALYSIS
+  // --- 8a Analysis: compute stats after the loop
+  const std::string statKey = "8a CompStat";
+  timermap.start(statKey);
+
+  double sumgtim = 0;
+  double sqsgtim = 0;
+  double mingtim = genrtimes[0];
+  double maxgtim = genrtimes[0];
+  for ( int iiter = 0; iiter < niter; ++iiter )
+  {
+    sumgtim += genrtimes[iiter];
+    sqsgtim += genrtimes[iiter]*genrtimes[iiter];
+    mingtim = std::min( mingtim, genrtimes[iiter] );
+    maxgtim = std::max( maxgtim, genrtimes[iiter] );
+  }
+
+  double sumrtim = 0;
+  double sqsrtim = 0;
+  double minrtim = rambtimes[0];
+  double maxrtim = rambtimes[0];
+  for ( int iiter = 0; iiter < niter; ++iiter )
+  {
+    sumrtim += rambtimes[iiter];
+    sqsrtim += rambtimes[iiter]*rambtimes[iiter];
+    minrtim = std::min( minrtim, rambtimes[iiter] );
+    maxrtim = std::max( maxrtim, rambtimes[iiter] );
+  }
+
+  double sumwtim = 0;
+  double sqswtim = 0;
+  double minwtim = wavetimes[0];
+  double maxwtim = wavetimes[0];
+  for ( int iiter = 0; iiter < niter; ++iiter )
+  {
+    sumwtim += wavetimes[iiter];
+    sqswtim += wavetimes[iiter]*wavetimes[iiter];
+    minwtim = std::min( minwtim, wavetimes[iiter] );
+    maxwtim = std::max( maxwtim, wavetimes[iiter] );
+  }
+  double meanwtim = sumwtim / niter;
+  //double stdwtim = std::sqrt( sqswtim / niter - meanwtim * meanwtim );
+
+  double sumw3atim = 0;
+  double sqsw3atim = 0;
+  double minw3atim = wv3atimes[0];
+  double maxw3atim = wv3atimes[0];
+  for ( int iiter = 0; iiter < niter; ++iiter )
+  {
+    sumw3atim += wv3atimes[iiter];
+    sqsw3atim += wv3atimes[iiter]*wv3atimes[iiter];
+    minw3atim = std::min( minw3atim, wv3atimes[iiter] );
+    maxw3atim = std::max( maxw3atim, wv3atimes[iiter] );
+  }
+  double meanw3atim = sumw3atim / niter;
+  //double stdw3atim = std::sqrt( sqsw3atim / niter - meanw3atim * meanw3atim );
+
+  int nabn = 0;
+  int nzero = 0;
+  double minelem = matrixelementALL[0];
+  double maxelem = matrixelementALL[0];
+  double minweig = weightALL[0];
+  double maxweig = weightALL[0];
+  for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
+  {
+    // The following events are abnormal in a run with "-p 2048 256 12 -d"
+    // - check.exe/commonrand: ME[310744,451171,3007871,3163868,4471038,5473927] with fast math
+    // - check.exe/curand: ME[578162,1725762,2163579,5407629,5435532,6014690] with fast math
+    // - gcheck.exe/curand: ME[596016,1446938] with fast math
+    // Debug NaN/abnormal issues
+    //if ( ievtALL == 310744 ) // this ME is abnormal both with and without fast math
+    //  debug_me_is_abnormal( matrixelementALL[ievtALL], ievtALL );
+    //if ( ievtALL == 5473927 ) // this ME is abnormal only with fast math
+    //  debug_me_is_abnormal( matrixelementALL[ievtALL], ievtALL );
+    // Compute min/max
+    if ( fp_is_zero( matrixelementALL[ievtALL] ) ) nzero++;
+    if ( fp_is_abnormal( matrixelementALL[ievtALL] ) )
+    {
+      if ( debug ) // only printed out with "-p -d" (matrixelementALL is not filled without -p)
+        std::cout << "WARNING! ME[" << ievtALL << "] is NaN/abnormal" << std::endl;
+      nabn++;
+      continue;
+    }
+    minelem = std::min( minelem, (double)matrixelementALL[ievtALL] );
+    maxelem = std::max( maxelem, (double)matrixelementALL[ievtALL] );
+    minweig = std::min( minweig, (double)weightALL[ievtALL] );
+    maxweig = std::max( maxweig, (double)weightALL[ievtALL] );
+  }
+  double sumelemdiff = 0;
+  double sumweigdiff = 0;
+  for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
+  {
+    // Compute mean from the sum of diff to min
+    if ( fp_is_abnormal( matrixelementALL[ievtALL] ) ) continue;
+    sumelemdiff += ( matrixelementALL[ievtALL] - minelem );
+    sumweigdiff += ( weightALL[ievtALL] - minweig );
+  }
+  double meanelem = minelem + sumelemdiff / ( nevtALL - nabn );
+  double meanweig = minweig + sumweigdiff / ( nevtALL - nabn );
+  double sqselemdiff = 0;
+  double sqsweigdiff = 0;
+  for ( int ievtALL = 0; ievtALL < nevtALL; ++ievtALL )
+  {
+    // Compute stddev from the squared sum of diff to mean
+    if ( fp_is_abnormal( matrixelementALL[ievtALL] ) ) continue;
+    sqselemdiff += std::pow( matrixelementALL[ievtALL] - meanelem, 2 );
+    sqsweigdiff += std::pow( weightALL[ievtALL] - meanweig, 2 );
+  }
+  double stdelem = std::sqrt( sqselemdiff / ( nevtALL - nabn ) );
+  double stdweig = std::sqrt( sqsweigdiff / ( nevtALL - nabn ) );
+
+  // === STEP 9 FINALISE
+  // --- 9a. Destroy curand generator
+  const std::string dgenKey = "9a GenDestr";
+  timermap.start( dgenKey );
+
+  // --- 9b Dump to screen
+  const std::string dumpKey = "9b DumpScrn";
+  timermap.start(dumpKey);
+
+  if (!(verbose || debug || perf))
+  {
+    std::cout << std::endl;
+  }
+
+  if (perf)
+  {
+#ifndef __CUDACC__
+    // Get the output of "nproc --all" (https://stackoverflow.com/a/478960)
+    std::string nprocall;
+    std::unique_ptr<FILE, decltype(&pclose)> nprocpipe( popen( "nproc --all", "r" ), pclose );
+    if ( !nprocpipe ) throw std::runtime_error( "`nproc --all` failed?" );
+    std::array<char, 128> nprocbuf;
+    while ( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get() ) != nullptr ) nprocall += nprocbuf.data();
 #endif
-      fout << "  \"TotalTimeInWaveFuncs\": "    << std::scientific << tmr_skin.sum()+tmr_cpyME.sum() << ",\n";
-      fout << "  \"MeanTimeInWaveFuncs\": "     << tmr_skin.mean()+tmr_cpyME.mean() << ",\n";
-      fout << "  \"StdDevTimeInWaveFuncs\": "   << tmr_skin.sigma()+tmr_cpyME.sigma() << ",\n";
-      fout << "  \"TotalEventsComputed\": "     << nevtALL << ",\n";
-      fout << "  \"MinTimeInWaveFuncs\": "      << tmr_skin.min()+tmr_cpyME.min() << ",\n";
-      fout << "  \"MaxTimeInWaveFuncs\": "      << tmr_skin.max()+tmr_cpyME.max() << ",\n";
-      fout << "  \"RamboEventsPerSec\": "       << nevtALL/tmr_sum_rmb << ",\n";
-      fout << "  \"MatrixElemEventsPerSec\": "  << nevtALL/tmr_sum_me << ",\n";
-      fout << "  \"MeanMatrixElemValue\": "     << ave_me.mean() << ",\n";
-      fout << "  \"StdDevMatrixElemValue\": "   << ave_me.sigma() << ",\n";
-      fout << "  \"StdErrMatrixElemValue\": "   << ave_me.sigma()/sqrt(nevtALL) << ",\n";
-      fout << "  \"MinMatrixElemValue\": "      << ave_me.min() << ",\n";
-      fout << "  \"MaxMatrixElemValue\": "      << ave_me.max() << ",\n";
-      fout << "  \"MatrixElemUnits\": "         << " \"GeV^" << meGeVexponent << "\",\n";
-      fout << "  \"rateUnits\": "               << " \"sec^-1\",\n";
-      fout << "  \"periodUnits\": "               << " \"sec\"\n";
-      fout << "}]";
-      fout.close();
+#ifdef MGONGPU_CPPSIMD
+#ifdef MGONGPU_HAS_CXTYPE_REF
+    const std::string cxtref = " [cxtype_ref=YES]";
+#else
+    const std::string cxtref = " [cxtype_ref=NO]";
+#endif
+#endif
+    // Dump all configuration parameters and all results
+    std::cout << std::string(SEP79, '*') << std::endl
+#ifdef __CUDACC__
+              << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CUDA"
+#else
+              << "Process                     = " << XSTRINGIFY(MG_EPOCH_PROCESS_ID) << "_CPP"
+#endif
+              << " [" << process.getCompiler() << "]"
+#ifdef MGONGPU_INLINE_HELAMPS
+              << " [inlineHel=1]" << std::endl
+#else
+              << " [inlineHel=0]" << std::endl
+#endif
+              << "NumBlocksPerGrid            = " << league_size << std::endl
+              << "NumThreadsPerBlock          = " << team_size << std::endl
+              << "NumIterations               = " << niter << std::endl
+              << std::string(SEP79, '-') << std::endl
+#if defined MGONGPU_FPTYPE_DOUBLE
+              << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
+#elif defined MGONGPU_FPTYPE_FLOAT
+              << "FP precision                = FLOAT (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
+#endif
+#ifdef __CUDACC__
+#if defined MGONGPU_CXTYPE_CUCOMPLEX
+              << "Complex type                = CUCOMPLEX" << std::endl
+#elif defined MGONGPU_CXTYPE_THRUST
+              << "Complex type                = THRUST::COMPLEX" << std::endl
+#endif
+#else
+              << "Complex type                = STD::COMPLEX" << std::endl
+#endif
+              << "RanNumb memory layout       = AOSOA[" << neppR << "]"
+              << ( neppR == 1 ? " == AOS" : "" )
+              << " [HARDCODED FOR REPRODUCIBILITY]" << std::endl
+              << "Momenta memory layout       = AOSOA[" << neppM << "]"
+              << ( neppM == 1 ? " == AOS" : "" ) << std::endl
+#ifdef __CUDACC__
+      //<< "Wavefunction GPU memory     = LOCAL" << std::endl
+#else
+#if !defined MGONGPU_CPPSIMD
+              << "Internal loops fptype_sv    = SCALAR ('none': ~vector[" << neppV
+              << "], no SIMD)" << std::endl
+#elif defined __AVX512VL__
+#ifdef MGONGPU_PVW512
+              << "Internal loops fptype_sv    = VECTOR[" << neppV
+              << "] ('512z': AVX512, 512bit)" << cxtref << std::endl
+#else
+              << "Internal loops fptype_sv    = VECTOR[" << neppV
+              << "] ('512y': AVX512, 256bit)" << cxtref << std::endl
+#endif
+#elif defined __AVX2__
+              << "Internal loops fptype_sv    = VECTOR[" << neppV
+              << "] ('avx2': AVX2, 256bit)" << cxtref << std::endl
+#elif defined __SSE4_2__
+              << "Internal loops fptype_sv    = VECTOR[" << neppV
+#ifdef __PPC__
+              << "] ('sse4': PPC VSX, 128bit)" << cxtref << std::endl
+#else
+              << "] ('sse4': SSE4.2, 128bit)" << cxtref << std::endl
+#endif
+#else
+#error Internal error: unknown SIMD build configuration
+#endif
+#endif
+#ifdef __CUDACC__
+#if defined MGONGPU_COMMONRAND_ONHOST
+              << "Random number generation    = COMMON RANDOM HOST (CUDA code)" << std::endl
+#elif defined MGONGPU_CURAND_ONDEVICE
+              << "Random number generation    = CURAND DEVICE (CUDA code)" << std::endl
+#elif defined MGONGPU_CURAND_ONHOST
+              << "Random number generation    = CURAND HOST (CUDA code)" << std::endl
+#endif
+#else
+#if defined MGONGPU_COMMONRAND_ONHOST
+              << "Random number generation    = COMMON RANDOM (C++ code)" << std::endl
+#else
+              << "Random number generation    = CURAND (C++ code)" << std::endl
+#endif
+#ifdef _OPENMP
+              << "OMP threads / `nproc --all` = " << omp_get_max_threads() << " / " << nprocall // includes a newline
+#endif
+#endif
+      //<< "MatrixElements compiler     = " << process.getCompiler() << std::endl
+              << std::string(SEP79, '-') << std::endl
+              << "NumberOfEntries             = " << niter << std::endl
+              << std::scientific // fixed format: affects all floats (default precision: 6)
+              << "TotalTime[Rnd+Rmb+ME] (123) = ( " << sumgtim+sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTime[Rambo+ME]    (23) = ( " << sumrtim+sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTime[RndNumGen]    (1) = ( " << sumgtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTime[Rambo]        (2) = ( " << sumrtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTime[MatrixElems]  (3) = ( " << sumwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "MeanTimeInMatrixElems       = ( " << meanwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "[Min,Max]TimeInMatrixElems  = [ " << minwtim
+              << " ,  " << maxwtim << " ]  sec" << std::endl
+      //<< "StdDevTimeInMatrixElems     = ( " << stdwtim << std::string(16, ' ') << " )  sec" << std::endl
+              << "TotalTime[MECalcOnly]  (3a) = ( " << sumw3atim << std::string(16, ' ') << " )  sec" << std::endl
+              << "MeanTimeInMECalcOnly        = ( " << meanw3atim << std::string(16, ' ') << " )  sec" << std::endl
+              << "[Min,Max]TimeInMECalcOnly   = [ " << minw3atim
+              << " ,  " << maxw3atim << " ]  sec" << std::endl
+      //<< "StdDevTimeInMECalcOnly      = ( " << stdw3atim << std::string(16, ' ') << " )  sec" << std::endl
+              << std::string(SEP79, '-') << std::endl
+      //<< "ProcessID:                  = " << getpid() << std::endl
+      //<< "NProcesses                  = " << process.nprocesses << std::endl
+              << "TotalEventsComputed         = " << nevtALL << std::endl
+              << "EvtsPerSec[Rnd+Rmb+ME](123) = ( " << nevtALL/(sumgtim+sumrtim+sumwtim)
+              << std::string(16, ' ') << " )  sec^-1" << std::endl
+              << "EvtsPerSec[Rmb+ME]     (23) = ( " << nevtALL/(sumrtim+sumwtim)
+              << std::string(16, ' ') << " )  sec^-1" << std::endl
+      //<< "EvtsPerSec[RndNumbGen]   (1) = ( " << nevtALL/sumgtim
+      //<< std::string(16, ' ') << " )  sec^-1" << std::endl
+      //<< "EvtsPerSec[Rambo]        (2) = ( " << nevtALL/sumrtim
+      //<< std::string(16, ' ') << " )  sec^-1" << std::endl
+              << "EvtsPerSec[MatrixElems] (3) = ( " << nevtALL/sumwtim
+              << std::string(16, ' ') << " )  sec^-1" << std::endl
+              << "EvtsPerSec[MECalcOnly] (3a) = ( " << nevtALL/sumw3atim
+              << std::string(16, ' ') << " )  sec^-1" << std::endl
+              << std::defaultfloat; // default format: affects all floats
+    std::cout << std::string(SEP79, '*') << std::endl
+              << "NumMatrixElems(notAbnormal) = " << nevtALL - nabn << std::endl
+              << std::scientific // fixed format: affects all floats (default precision: 6)
+              << "MeanMatrixElemValue         = ( " << meanelem
+              << " +- " << stdelem/sqrt(nevtALL - nabn) << " )  GeV^" << meGeVexponent << std::endl // standard error
+              << "[Min,Max]MatrixElemValue    = [ " << minelem
+              << " ,  " << maxelem << " ]  GeV^" << meGeVexponent << std::endl
+              << "StdDevMatrixElemValue       = ( " << stdelem << std::string(16, ' ') << " )  GeV^" << meGeVexponent << std::endl
+              << "MeanWeight                  = ( " << meanweig
+              << " +- " << stdweig/sqrt(nevtALL - nabn) << " )" << std::endl // standard error
+              << "[Min,Max]Weight             = [ " << minweig
+              << " ,  " << maxweig << " ]" << std::endl
+              << "StdDevWeight                = ( " << stdweig << std::string(16, ' ') << " )" << std::endl
+              << std::defaultfloat; // default format: affects all floats
+  }
+
+  // --- 9c Dump to json
+  const std::string jsonKey = "9c DumpJson";
+  timermap.start(jsonKey);
+
+  if(json)
+  {
+    std::string jsonFileName = std::to_string(jsondate) + "-perf-test-run" + std::to_string(jsonrun) + ".json";
+    jsonFileName = "./perf/data/" + jsonFileName;
+
+    //Checks if file exists
+    std::ifstream fileCheck;
+    bool fileExists = false;
+    fileCheck.open(jsonFileName);
+    if(fileCheck){
+      fileExists = true;
+      fileCheck.close();
     }
 
-    printf("kokkos init time      = %10.3f\n",kokkos_init_sec);
-    printf("iteration time        = %10.3f +/- %10.3f seconds\n",tmr_iter.mean(),tmr_iter.sigma());
-    printf("total time            = %10.3f seconds\n",total_timer.seconds());
-  } // end Kokkos View Space
-  Kokkos::finalize();
+    std::ofstream jsonFile;
+    jsonFile.open(jsonFileName, std::ios_base::app);
+    if(!fileExists){
+      jsonFile << "[" << std::endl;
+    }
+    else{
+      //deleting the last bracket and outputting a ", "
+      std::string temp = "truncate -s-1 " + jsonFileName;
+      const char *command = temp.c_str();
+      if ( system(command) != 0 )
+        std::cout << "WARNING! Command '" << temp << "' failed" << std::endl;
+      jsonFile << ", " << std::endl;
+    }
+
+    jsonFile << "{" << std::endl
+             << "\"NumIterations\": " << niter << ", " << std::endl
+             << "\"NumThreadsPerBlock\": " << team_size << ", " << std::endl
+             << "\"NumBlocksPerGrid\": " << league_size << ", " << std::endl
+#if defined MGONGPU_FPTYPE_DOUBLE
+             << "\"FP precision\": " << "\"DOUBLE (NaN/abnormal=" << nabn << ")\"," << std::endl
+#elif defined MGONGPU_FPTYPE_FLOAT
+             << "\"FP precision\": " << "\"FLOAT (NaN/abnormal=" << nabn << ")\"," << std::endl
+#endif
+             << "\"Complex type\": "
+#ifdef __CUDACC__
+#if defined MGONGPU_CXTYPE_CUCOMPLEX
+             << "\"CUCOMPLEX\"," << std::endl
+#elif defined MGONGPU_CXTYPE_THRUST
+             << "\"THRUST::COMPLEX\"," << std::endl
+#endif
+#else
+             << "\"STD::COMPLEX\"," << std::endl
+#endif
+             << "\"RanNumb memory layout\": " << "\"AOSOA[" << neppR << "]\""
+             << ( neppR == 1 ? " == AOS" : "" ) << ", " << std::endl
+             << "\"Momenta memory layout\": " << "\"AOSOA[" << neppM << "]\""
+             << ( neppM == 1 ? " == AOS" : "" ) << ", " << std::endl
+#ifdef __CUDACC__
+      //<< "\"Wavefunction GPU memory\": " << "\"LOCAL\"," << std::endl
+#endif
+             << "\"Curand generation\": "
+#ifdef __CUDACC__
+#if defined MGONGPU_COMMONRAND_ONHOST
+             << "\"COMMON RANDOM HOST (CUDA code)\"," << std::endl;
+#elif defined MGONGPU_CURAND_ONDEVICE
+    << "\"CURAND DEVICE (CUDA code)\"," << std::endl;
+#elif defined MGONGPU_CURAND_ONHOST
+    << "\"CURAND HOST (CUDA code)\"," << std::endl;
+#endif
+#else
+#if defined MGONGPU_COMMONRAND_ONHOST
+    << "\"COMMON RANDOM (C++ code)\"," << std::endl;
+#else
+    << "\"CURAND (C++ code)\"," << std::endl;
+#endif
+#endif
+    jsonFile << "\"NumberOfEntries\": " << niter << "," << std::endl
+      //<< std::scientific // Not sure about this
+             << "\"TotalTime[Rnd+Rmb+ME] (123)\": \""
+             << std::to_string(sumgtim+sumrtim+sumwtim) << " sec\","
+             << std::endl
+             << "\"TotalTime[Rambo+ME] (23)\": \""
+             << std::to_string(sumrtim+sumwtim) << " sec\"," << std::endl
+             << "\"TotalTime[RndNumGen] (1)\": \""
+             << std::to_string(sumgtim) << " sec\"," << std::endl
+             << "\"TotalTime[Rambo] (2)\": \""
+             << std::to_string(sumrtim) << " sec\"," << std::endl
+             << "\"TotalTime[MatrixElems] (3)\": \""
+             << std::to_string(sumwtim) << " sec\"," << std::endl
+             << "\"MeanTimeInMatrixElems\": \""
+             << std::to_string(meanwtim) << " sec\"," << std::endl
+             << "\"MinTimeInMatrixElems\": \""
+             << std::to_string(minwtim) << " sec\"," << std::endl
+             << "\"MaxTimeInMatrixElems\": \""
+             << std::to_string(maxwtim) << " sec\"," << std::endl
+      //<< "ProcessID:                = " << getpid() << std::endl
+      //<< "NProcesses                = " << process.nprocesses << std::endl
+             << "\"TotalEventsComputed\": " << nevtALL << "," << std::endl
+             << "\"EvtsPerSec[Rnd+Rmb+ME](123)\": \""
+             << std::to_string(nevtALL/(sumgtim+sumrtim+sumwtim)) << " sec^-1\"," << std::endl
+             << "\"EvtsPerSec[Rmb+ME] (23)\": \""
+             << std::to_string(nevtALL/(sumrtim+sumwtim)) << " sec^-1\"," << std::endl
+             << "\"EvtsPerSec[MatrixElems] (3)\": \""
+             << std::to_string(nevtALL/sumwtim) << " sec^-1\"," << std::endl
+             << "\"EvtsPerSec[MECalcOnly] (3)\": \""
+             << std::to_string(nevtALL/sumw3atim) << " sec^-1\"," << std::endl
+             << "\"NumMatrixElems(notAbnormal)\": " << nevtALL - nabn << "," << std::endl
+             << std::scientific
+             << "\"MeanMatrixElemValue\": "
+             << "\"" << std::to_string(meanelem) << " GeV^"
+             << std::to_string(meGeVexponent) << "\"," << std::endl
+             << "\"StdErrMatrixElemValue\": "
+             << "\"" << std::to_string(stdelem/sqrt(nevtALL)) << " GeV^"
+             << std::to_string(meGeVexponent) << "\"," << std::endl
+             << "\"StdDevMatrixElemValue\": "
+             << "\"" << std::to_string(stdelem)
+             << " GeV^" << std::to_string(meGeVexponent) << "\"," << std::endl
+             << "\"MinMatrixElemValue\": "
+             << "\"" << std::to_string(minelem) << " GeV^"
+             << std::to_string(meGeVexponent) << "\"," << std::endl
+             << "\"MaxMatrixElemValue\": "
+             << "\"" << std::to_string(maxelem) << " GeV^"
+             << std::to_string(meGeVexponent) <<  "\"," << std::endl;
+
+    timermap.dump(jsonFile, true); // NB For the active json timer this dumps a partial total
+
+    jsonFile << "}" << std::endl << "]";
+    jsonFile.close();
+  }
+
+  // *** STOP THE NEW TIMERS ***
+  timermap.stop();
+  if (perf)
+  {
+    std::cout << std::string(SEP79, '*') << std::endl;
+    timermap.dump();
+    std::cout << std::string(SEP79, '*') << std::endl;
+  }
+
+  } Kokkos::finalize();
+
+  //std::cout << "ALL OK" << std::endl;
+  return 0;
 }
