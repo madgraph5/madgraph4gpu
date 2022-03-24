@@ -2,9 +2,9 @@
 #define RAMBO_H 1
 #include <vector>
 #include "Kokkos_Core.hpp"
+#include "mgOnGpuConfig.h"
+#include "mgOnGpuTypes.h"
 
-
-#define PI 3.14159265358628
 #define ACC 1e-14
 
 template <typename ExecSpace>
@@ -20,24 +20,21 @@ void get_initial_momenta(
   Kokkos::TeamPolicy<ExecSpace> policy( league_size, team_size );
   Kokkos::parallel_for(__func__,policy, 
   KOKKOS_LAMBDA(member_type team_member){
-    const int tid = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
+    const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
+    const fptype energy1 = energy/2;
+    const fptype energy2 = energy/2;
+    const fptype mom = energy/2;
 
-    auto e2 = pow(energy,2);
-    double mom = sqrt((pow(e2, 2) - 2 * e2 * pow(masses(0), 2) + pow(masses(0), 4) -
-        2 * e2 * pow(masses(0), 2) - 2 * pow(masses(0), 2) * pow(masses(1), 2) + pow(masses(1), 4)) /
-        (4 * e2));
-    auto energy1 = sqrt(pow(mom, 2) + pow(masses(0), 2));
-    auto energy2 = sqrt(pow(mom, 2) + pow(masses(1), 2));
-
-    for(int j=0;j<nexternal;++j)
-      for(int k=0;k<4;++k)
-        d_p(tid,j,k) = 0.;
     // particle 1
-    d_p(tid,0,0) = energy1;
-    d_p(tid,0,3) = mom;
+    d_p(ievt,0,0) = energy1;
+    d_p(ievt,0,1) = 0.;
+    d_p(ievt,0,2) = 0.;
+    d_p(ievt,0,3) = mom;
     // particle 2
-    d_p(tid,1,0) = energy2;
-    d_p(tid,1,3) = -mom;
+    d_p(ievt,1,0) = energy2;
+    d_p(ievt,1,1) = 0.;
+    d_p(ievt,1,2) = 0.;
+    d_p(ievt,1,3) = -mom;
   });
 }
 
@@ -57,9 +54,9 @@ void get_final_momenta(const int ninitial,const int nexternal,const double energ
   Kokkos::TeamPolicy<ExecSpace> policy( league_size, team_size );
   Kokkos::parallel_for(__func__,policy, 
     KOKKOS_LAMBDA(member_type team_member){
-      const int i = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
+      const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
 
-      auto lp = Kokkos::subview(d_p,i,Kokkos::ALL,Kokkos::ALL);
+      auto lp = Kokkos::subview(d_p,ievt,Kokkos::ALL,Kokkos::ALL);
 
       /**********************************************************************
        *                       rambo                                         *
@@ -76,99 +73,78 @@ void get_final_momenta(const int ninitial,const int nexternal,const double energ
        *    p  = particle momenta ( dim=(4,nexternal-nincoming) )            *
        *    wt = weight of the event                                         *
        ***********************************************************************/
-      constexpr int n_outgoing = 4; // TODO: hardcoded due to compiler not allowing dynamic array creation, really needs to be (nexternal - ninitial);
-      double z[n_outgoing] = {0}, r[4] = {0}, b[3] = {0}, p2[n_outgoing] = {0};
-      double xm2[n_outgoing] = {0}, e[n_outgoing] = {0}, v[n_outgoing] = {0};
       
-      constexpr int itmax = 6;
-      const double po2log = log(PI / 2.);
-
-      double q[n_outgoing][4] = {0};
-      double p[n_outgoing][4] = {0};
-
       // initialization step: factorials for the phase space weight
-      z[0] = 0;
+      const fptype twopi = 8. * atan(1.);
+      const fptype po2log = log(twopi / 4.);
+      fptype z[mgOnGpu::nparf];
       z[1] = po2log;
-      for (int j = 2; j < n_outgoing; j++)
-        z[j] = z[j - 1] + po2log - 2. * log(double(j - 1));
-      for (int j = 2; j < n_outgoing; j++)
-        z[j] = (z[j] - log(double(j)));
+      for (int kpar = 2; kpar < mgOnGpu::nparf; kpar++)
+        z[kpar] = z[kpar - 1] + po2log - 2. * log(fptype(kpar - 1));
+      for (int kpar = 2; kpar < mgOnGpu::nparf; kpar++)
+        z[kpar] = (z[kpar] - log(fptype(kpar)));
 
-      // check whether total energy is sufficient; count nonzero masses
-      double xmt = 0.;
-      int nm = 0;
-      for (int j = 0; j < n_outgoing; ++j) {
-        if (masses(j+ninitial) != 0.)
-          nm = nm + 1;
-        xmt = xmt + abs(masses(j+ninitial));
-      }
-      if (xmt > energy) {
-        printf("Too low energy: %f needed %f\n",energy,xmt);
-        return;
-      }
-
-      // the parameter values are now accepted
+      fptype& wt = d_wgt[ievt];
 
       // generate n massless momenta in infinite phase space
-      for (int j = 0; j < n_outgoing; j++) {
-        double r1 = random_numbers(i,j*n_outgoing);
-        double c = 2. * r1 - 1.;
-        double s = sqrt(1. - c * c);
-        double f = 2. * PI * random_numbers(i,j*n_outgoing+1);
-        r1 = random_numbers(i,j*n_outgoing+2);
-        double r2 = random_numbers(i,j*n_outgoing+3);
-        q[j][0] = -log(r1 * r2);
-        q[j][3] = q[j][0] * c;
-        q[j][2] = q[j][0] * s * cos(f);
-        q[j][1] = q[j][0] * s * sin(f);
+      fptype q[mgOnGpu::nparf][mgOnGpu::np4];
+      for (int iparf = 0; iparf < mgOnGpu::nparf; iparf++) {
+        const fptype r1 = random_numbers(ievt,iparf*mgOnGpu::nparf + 0);
+        const fptype r2 = random_numbers(ievt,iparf*mgOnGpu::nparf + 1);
+        const fptype r3 = random_numbers(ievt,iparf*mgOnGpu::nparf + 2);
+        const fptype r4 = random_numbers(ievt,iparf*mgOnGpu::nparf + 3);
+        // printf("ievt=%02d  iparf = %02d  r = %6.3f,%6.3f,%6.3f,%6.3f\n",ievt,iparf,r1,r2,r3,r4);
+        
+        const fptype c = 2. * r1 - 1.;
+        const fptype s = sqrt(1. - c * c);
+        const fptype f = twopi * r2;
+        q[iparf][0] = -log(r3 * r4);
+        q[iparf][3] = q[iparf][0] * c;
+        q[iparf][2] = q[iparf][0] * s * cos(f);
+        q[iparf][1] = q[iparf][0] * s * sin(f);
       }
 
-      // calculate the parameters of the conformal transformatjon
-      for (int j = 0; j < n_outgoing; j++) {
-        for (int k = 0; k < 4; k++)
-          r[k] = r[k] + q[j][k];
+      // calculate the parameters of the conformal transformation
+      fptype r[mgOnGpu::np4];
+      fptype b[mgOnGpu::np4-1];
+      for (int i4 = 0; i4 < mgOnGpu::np4; i4++)
+        r[i4] = 0.;
+      for (int iparf = 0; iparf < mgOnGpu::nparf; iparf++) {
+        for (int i4 = 0; i4 < mgOnGpu::np4; i4++)
+          r[i4] = r[i4] + q[iparf][i4];
+      }
+      const fptype rmas = sqrt(pow(r[0], 2) - pow(r[3], 2) - pow(r[2], 2) - pow(r[1], 2));
+      for (int i4 = 1; i4 < mgOnGpu::np4; i4++)
+        b[i4-1] = -r[i4] / rmas;
+      const fptype g = r[0] / rmas;
+      const fptype a = 1. / (1. + g);
+      const fptype x0 = energy / rmas;
+
+      // transform the q's conformally into the p's (i.e. the 'momenta')
+      for (int iparf = 0; iparf < mgOnGpu::nparf; iparf++) {
+        fptype bq = b[0] * q[iparf][1] + b[1] * q[iparf][2] + b[2] * q[iparf][3];
+        for (int i4 = 1; i4 < mgOnGpu::np4; i4++)
+          lp(iparf+mgOnGpu::npari,i4) = x0 * (q[iparf][i4] + b[i4-1] * (q[iparf][0] + a * bq));
+        lp(iparf+mgOnGpu::npari,0) = x0 * (g * q[iparf][0] + bq);
+
+        // printf("ievt=%02d  iparf = %02d  p = %6.3f,%6.3f,%6.3f,%6.3f\n",ievt,iparf,
+        //   lp(iparf+mgOnGpu::npari,0),
+        //   lp(iparf+mgOnGpu::npari,1),
+        //   lp(iparf+mgOnGpu::npari,2),
+        //   lp(iparf+mgOnGpu::npari,3));
       }
 
-      double rmas = sqrt(pow(r[0], 2) - pow(r[3], 2) - pow(r[2], 2) - pow(r[1], 2));
-      for (int j = 1; j < 4; j++)
-        b[j - 1] = -r[j] / rmas;
-      double g = r[0] / rmas;
-      double a = 1. / (1. + g);
-      double x = energy / rmas;
-      
-      // transform the q's conformally into the p's
-      for (int j = 0; j < n_outgoing; j++) {
-        double bq = b[0] * q[j][1] + b[1] * q[j][2] + b[2] * q[j][3];
-        for (int k = 1; k < 4; k++)
-          p[j][k] = x * (q[j][k] + b[k - 1] * (q[j][0] + a * bq));
-        p[j][0] = x * (g * q[j][0] + bq);
-      }
 
-      // calculate weight and possible warnings
-      d_wgt(i) = po2log;
-      if (n_outgoing != 2)
-        d_wgt(i) = (2. * n_outgoing - 4.) * log(energy) + z[n_outgoing - 1];
-      
-      if (d_wgt(i) < -180.) {
-        if (iwarn(0) <= 5)
-         printf("Too small wt, risk for underflow: %f\n",d_wgt(i));
-        Kokkos::atomic_fetch_add(&iwarn(0),1);
-      }
-      if (d_wgt(i) > 174.) {
-        if (iwarn(1) <= 5)
-          printf("Too large wt, risk for overflow: %f\n",d_wgt(i));
-        Kokkos::atomic_fetch_add(&iwarn(1),1);
-      }
+      // calculate weight (NB return log of weight)
+      wt = po2log;
+      if (mgOnGpu::nparf != 2)
+        wt = (2. * mgOnGpu::nparf - 4.) * log(energy) + z[mgOnGpu::nparf-1];
 
       // return for weighted massless momenta
-      // if (nm == 0) {
-      if(true){  /// set to match CUDA output
-        for (int j = 0; j < n_outgoing; j++)
-          for (int k = 0; k < 4; k++)
-            lp(j+ninitial,k) = p[j][k];
-        return;
-      }
+      // nothing else to do in this event if all particles are massless (nm==0)
 
+      return; // TODO Fix for massive partons
+/*
       // massive particles: rescale the momenta by a factor x
       double xmax = sqrt(1. - pow(xmt / energy, 2));
       for (int j = 0; j < n_outgoing; j++) {
@@ -234,7 +210,7 @@ void get_final_momenta(const int ninitial,const int nexternal,const double energ
       for (int j = 0; j < n_outgoing; j++)
         for (int k = 0; k < 4; k++)
           lp(j+ninitial,k) = p[j][k];
-
+*/
     }
   );
 }

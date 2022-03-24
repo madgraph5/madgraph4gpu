@@ -180,7 +180,10 @@ int main(int argc, char **argv)
   // === STEP 0 - INITIALISE
   // --- 00. Initialise cuda (call cudaFree to ease cuda profile analysis)
   
-
+  // --- 00. Initialise cuda (call cudaFree to ease cuda profile analysis)
+  const std::string cdfrKey = "00 CudaFree";
+  timermap.start( cdfrKey );
+  
   // --- 0a. Initialise physics process
   const std::string procKey = "0a ProcInit";
   timermap.start( procKey );
@@ -212,7 +215,9 @@ int main(int argc, char **argv)
 
   // Random Numbers
   Kokkos::View<fptype**,Kokkos::DefaultExecutionSpace> devRnarray(Kokkos::ViewAllocateWithoutInitializing("devRnarray"),nevt,np4*nparf);
-  auto hstRnarray = Kokkos::create_mirror_view(devRnarray);
+#ifdef FIXED_RANDOM
+    auto hstRnarray = Kokkos::create_mirror_view(devRnarray);
+#endif
 
   // momenta
   Kokkos::View<fptype***,Kokkos::DefaultExecutionSpace> devMomenta(Kokkos::ViewAllocateWithoutInitializing("devMomenta"),nevt,npar,np4);
@@ -227,7 +232,8 @@ int main(int argc, char **argv)
   auto hstWeights = Kokkos::create_mirror_view(devWeights);
 
   // good helicity indices tracking (device-side only)
-  Kokkos::View<int*,Kokkos::DefaultExecutionSpace> devNGoodHel("devNGoodHel",1);
+  Kokkos::View<int*,Kokkos::DefaultExecutionSpace> devNGoodHel("devNGoodHel",1); // TODO Fixed to 1 process
+  auto hstNGoodHel = Kokkos::create_mirror_view(devNGoodHel);
   Kokkos::View<int*,Kokkos::DefaultExecutionSpace> devIsGoodHel("devIsGoodHel",ncomb);
 
 
@@ -254,7 +260,7 @@ int main(int argc, char **argv)
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
   // **************************************
-
+  
   for (int iiter = 0; iiter < niter; ++iiter)
   {
     //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
@@ -276,15 +282,22 @@ int main(int argc, char **argv)
     // --- 1b. Generate all relevant numbers to build nevt events (i.e. nevt phase space points) on the host
     const std::string rngnKey = "1b GenRnGen";
     timermap.start( rngnKey );
+#ifdef FIXED_RANDOM
+    srand(123);
+    
+    for(int ii=0;ii<nevt;++ii){
+    for(int jj=0;jj < nparf;++jj){
+    for(int kk=0;kk < np4;++kk){
+          fptype r = static_cast<double>(rand()) / (double)RAND_MAX;
+          hstRnarray(ii,jj*np4 + kk) = r;
+    }}}
+    
+    Kokkos::deep_copy(devRnarray,hstRnarray);
+#else
     fill_random_numbers_2d(devRnarray,nevt,np4*nparf, rand_pool, league_size, team_size);
     Kokkos::DefaultExecutionSpace().fence();
+#endif
     //std::cout << "Got random numbers" << std::endl;
-
-    // --- 1c. Copy rnarray from host to device
-    const std::string htodKey = "1c CpHTDrnd";
-    genrtime += timermap.start( htodKey );
-    // NB (PR #45): this cudaMemcpy would involve an intermediate memcpy to pinned memory, if hstRnarray was not already cudaMalloc'ed
-    Kokkos::deep_copy( devRnarray, hstRnarray);
 
     // *** STOP THE OLD-STYLE TIMER FOR RANDOM GEN ***
     genrtime += timermap.stop();
@@ -323,40 +336,6 @@ int main(int argc, char **argv)
 
     // *** STOP THE OLD-STYLE TIMER FOR RAMBO ***
     rambtime += timermap.stop();
-
-/////
-// for(int ievt=0;ievt<nevt;++ievt){
-//   hstMomenta(ievt,0,0) = 750.;
-//   hstMomenta(ievt,0,1) = 0.;
-//   hstMomenta(ievt,0,2) = 0.;
-//   hstMomenta(ievt,0,3) = 750.;
-
-//   hstMomenta(ievt,1,0) = 750.;
-//   hstMomenta(ievt,1,1) = 0.;
-//   hstMomenta(ievt,1,2) = 0.;
-//   hstMomenta(ievt,1,3) = -750.;
-  
-//   hstMomenta(ievt,2,0) = 679.;
-//   hstMomenta(ievt,2,1) = 391.;
-//   hstMomenta(ievt,2,2) = 445.;
-//   hstMomenta(ievt,2,3) = 330.;
-
-//   hstMomenta(ievt,3,0) = 300.;
-//   hstMomenta(ievt,3,1) = -262.;
-//   hstMomenta(ievt,3,2) = -64.;
-//   hstMomenta(ievt,3,3) = -131.;
-
-//   hstMomenta(ievt,4,0) = 225.;
-//   hstMomenta(ievt,4,1) = -177.;
-//   hstMomenta(ievt,4,2) = -130.;
-//   hstMomenta(ievt,4,3) = -47.;
-
-//   hstMomenta(ievt,5,0) = 297.;
-//   hstMomenta(ievt,5,1) = 48.;
-//   hstMomenta(ievt,5,2) = -250.;
-//   hstMomenta(ievt,5,3) = -152.;
-// }
-// Kokkos::deep_copy(devMomenta,hstMomenta);
 
     // === STEP 3 OF 3
     // Evaluate matrix elements for all nevt events
@@ -446,7 +425,7 @@ int main(int argc, char **argv)
       std::cout << ".";
     }
 
-  }
+  } // end loop iterations
 
   // **************************************
   // *** END MAIN LOOP ON #ITERATIONS ***
@@ -564,6 +543,9 @@ int main(int argc, char **argv)
   double stdweig = std::sqrt( sqsweigdiff / ( nevtALL - nabn ) );
 
   // === STEP 9 FINALISE
+
+  Kokkos::deep_copy(hstNGoodHel,devNGoodHel);
+
   // --- 9a. Destroy curand generator
   const std::string dgenKey = "9a GenDestr";
   timermap.start( dgenKey );
@@ -610,6 +592,7 @@ int main(int argc, char **argv)
               << "NumBlocksPerGrid            = " << league_size << std::endl
               << "NumThreadsPerBlock          = " << team_size << std::endl
               << "NumIterations               = " << niter << std::endl
+              << "IsGoodHel                   = " << hstNGoodHel(0) << " out of " << ncomb << std::endl
               << std::string(SEP79, '-') << std::endl
 #if defined MGONGPU_FPTYPE_DOUBLE
               << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
