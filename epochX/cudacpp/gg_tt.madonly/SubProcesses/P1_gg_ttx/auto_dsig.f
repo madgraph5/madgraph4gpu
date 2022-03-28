@@ -301,7 +301,7 @@ C      entries to the grid for the MC over helicity configuration
 
 C     set the running scale (MLM not working)
 C     and update the couplings accordingly
-      CALL UPDATE_SCALE_COUPLING(ALL_P, ALL_WGT, NB_PAGE)
+      CALL UPDATE_SCALE_COUPLING(ALL_P, ALL_WGT, ALL_Q2FACT, NB_PAGE)
 
 
       IF(GROUPED_MC_GRID_STATUS.EQ.0) THEN

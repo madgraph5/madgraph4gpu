@@ -121,11 +121,11 @@ C     Continue only if IMODE is 0, 4 or 5
 
       IF (ABS(LPP(IB(1))).GE.1) THEN
           !LP=SIGN(1,LPP(IB(1)))
-        G1=PDG2PDF(ABS(LPP(IB(1))),0*LP, 1,XBK(IB(1)),DSQRT(Q2FACT(1)))
+        G1=PDG2PDF(LPP(IB(1)),0, IB(1),XBK(IB(1)),DSQRT(Q2FACT(IB(1))))
       ENDIF
       IF (ABS(LPP(IB(2))).GE.1) THEN
           !LP=SIGN(1,LPP(IB(2)))
-        G2=PDG2PDF(ABS(LPP(IB(2))),0*LP, 1,XBK(IB(2)),DSQRT(Q2FACT(2)))
+        G2=PDG2PDF(LPP(IB(2)),0, IB(2),XBK(IB(2)),DSQRT(Q2FACT(IB(2))))
       ENDIF
       PD(0) = 0D0
       IPROC = 0
@@ -308,13 +308,13 @@ C     Continue only if IMODE is 0, 4 or 5
       DO IVEC=1,NB_PAGE
         IF (ABS(LPP(IB(1))).GE.1) THEN
             !LP=SIGN(1,LPP(IB(1)))
-          G1(IVEC)=PDG2PDF(ABS(LPP(IB(1))),0*LP, 1,ALL_XBK(IB(1),IVEC)
-     $     ,DSQRT(ALL_Q2FACT(1, IVEC)))
+          G1(IVEC)=PDG2PDF(LPP(IB(1)),0, IB(1),ALL_XBK(IB(1),IVEC)
+     $     ,DSQRT(ALL_Q2FACT(IB(1), IVEC)))
         ENDIF
         IF (ABS(LPP(IB(2))).GE.1) THEN
             !LP=SIGN(1,LPP(IB(2)))
-          G2(IVEC)=PDG2PDF(ABS(LPP(IB(2))),0*LP, 1,ALL_XBK(IB(2),IVEC)
-     $     ,DSQRT(ALL_Q2FACT(2, IVEC)))
+          G2(IVEC)=PDG2PDF(LPP(IB(2)),0, IB(2),ALL_XBK(IB(2),IVEC)
+     $     ,DSQRT(ALL_Q2FACT(IB(2), IVEC)))
         ENDIF
       ENDDO
       ALL_PD(0,:) = 0D0
