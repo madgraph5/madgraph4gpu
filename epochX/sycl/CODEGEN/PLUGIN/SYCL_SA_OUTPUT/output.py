@@ -100,19 +100,32 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     # [NB: mgOnGpuConfig.h and check_sa.cu are handled through dedicated methods]
     ###s = MG5DIR + '/madgraph/iolibs/template_files/'
     s = PLUGINDIR + '/madgraph/iolibs/template_files/'
-    from_template = {'src': [s+'gpu/rambo.h', s+'gpu/rambo.cc', s+'read_slha.h', s+'read_slha.cc',
-                             s+'gpu/mgOnGpuTypes.h', s+'gpu/mgOnGpuVectors.h', s+'gpu/extras.h', s+'gpu/CommonRandomNumbers.h'],
-                    'SubProcesses': [s+'gpu/timer.h', s+'gpu/timermap.h',
-                                     s+'gpu/Memory.h', s+'gpu/MemoryAccess.h', 
-                                     s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
+    from_template = {'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
+                             s+'gpu/mgOnGpuFptypes.h', s+'gpu/mgOnGpuCxtypes.h', s+'gpu/mgOnGpuVectors.h', s+'gpu/extras.h'],
+                    'SubProcesses': [s+'gpu/timer.h', s+'gpu/timermap.h', 
+                                     s+'gpu/MemoryBuffers.h',
+                                     s+'gpu/EventStatistics.h',
+                                     s+'gpu/CrossSectionKernels.cc', s+'gpu/CrossSectionKernels.h',
+                                     s+'gpu/MatrixElementKernels.cc', s+'gpu/MatrixElementKernels.h',
+                                     s+'gpu/RamboSamplingKernels.cc', s+'gpu/RamboSamplingKernels.h',
+                                     s+'gpu/RandomNumberKernels.cc', s+'gpu/RandomNumberKernels.h',
+                                     s+'gpu/Bridge.h', s+'gpu/Makefile', 
                                      s+'gpu/perf.py', s+'gpu/profile.sh']}
-    to_link_in_P = ['timer.h', 'timermap.h', 'Memory.h', 'MemoryAccess.h', 'runTest.cc', 'perf.py', 'profile.sh']
+    to_link_in_P = ['timer.h', 'timermap.h',
+                    'MemoryBuffers.h',
+                    'EventStatistics.h',
+                    'CrossSectionKernels.cc', 'CrossSectionKernels.h',
+                    'MatrixElementKernels.cc', 'MatrixElementKernels.h',
+                    'RamboSamplingKernels.cc', 'RamboSamplingKernels.h',
+                    'RandomNumberKernels.h', 'RandomNumberKernels.cc',
+                    'Bridge.h', 'Makefile',
+                    'perf.py', 'profile.sh']
 
     # AV - use template files from PLUGINDIR instead of MG5DIR
     ###template_src_make = pjoin(MG5DIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')
     ###template_Sub_make = pjoin(MG5DIR, 'madgraph', 'iolibs', 'template_files','gpu','Makefile')
-    #template_src_make = pjoin(PLUGINDIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')
-    #template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','Makefile')
+    template_src_make = pjoin(PLUGINDIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')
+    template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','Makefile')
 
     # AV - use a custom UFOModelConverter (model/aloha exporter)
     ###create_model_class =  export_cpp.UFOModelConverterGPU

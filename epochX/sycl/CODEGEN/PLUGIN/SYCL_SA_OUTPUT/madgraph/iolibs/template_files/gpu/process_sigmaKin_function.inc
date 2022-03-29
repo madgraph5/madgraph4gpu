@@ -6,9 +6,10 @@
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-    for ( int ighel = 0; ighel < *cNGoodHel; ighel++ ) {
-        const int ihel = cGoodHel[ighel];
-        calculate_wavefunctions( ihel, allmomenta, allMEs, ievt, cHel, cIPC, cIPD );
+    for ( int ighel = 0; ighel < cNGoodHel[0]; ighel++ )
+    {
+      const int ihel = cGoodHel[ighel];
+      calculate_wavefunctions( ihel, allmomenta, allMEs, ievt, cHel, cIPC, cIPD );
     }
 
     // PART 2 - FINALISATION (after calculate_wavefunctions)

@@ -1,20 +1,23 @@
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
 
-// ** NB1 Throughputs (e.g. 6.8E8) are events/sec for "./gcheck.exe -p 65536 128 12"
-// ** NB2 Baseline on b7g47n0004 fluctuates (probably depends on load on other VMs)
-
 // Choose floating point precision
 // If one of these macros has been set from outside with e.g. -DMGONGPU_FPTYPE_FLOAT, nothing happens (issue #167)
 #if not defined MGONGPU_FPTYPE_DOUBLE and not defined MGONGPU_FPTYPE_FLOAT
 // Floating point precision (CHOOSE ONLY ONE)
-#define MGONGPU_FPTYPE_DOUBLE 1 // default
-//#define MGONGPU_FPTYPE_FLOAT 1 // 
+#define MGONGPU_FPTYPE_DOUBLE 1 // default (~6.8E8)
+//#define MGONGPU_FPTYPE_FLOAT 1 // 2.4x faster (~1.64E9 against 6.8E8)
 #endif
+
+// Choose whether to inline all HelAmps functions
+// This optimization can gain almost a factor 4 in C++, similar to -flto (issue #229)
+// By default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_INLINE_HELAMPS
+//#undef MGONGPU_INLINE_HELAMPS // default
+////#define MGONGPU_INLINE_HELAMPS 1
 
 // SANITY CHECKS (floating point precision)
 #if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE_FLOAT
-#error You must CHOOSE ONLY ONE of MGONGPU_FPTYPE_DOUBLE or defined MGONGPU_FPTYPE_FLOAT
+#error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_FPTYPE_DOUBLE or defined MGONGPU_FPTYPE_FLOAT
 #endif
 
 namespace mgOnGpu
@@ -41,6 +44,10 @@ namespace mgOnGpu
 
   const int nw6 = %(wavefuncsize)d; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
   const int nwf = %(nwavefunc)d; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+  
+  const int ncouplings = %(ncouplings)d;
+  const int ncouplingstimes2 = %(ncouplingstimes2)d;
+  const int nparams = %(nparams)d;
 
   // --- Platform-specific software implementation details
 
@@ -50,49 +57,42 @@ namespace mgOnGpu
   //const int nbpgMAX = 2048;
 
   // Maximum number of threads per block
+  //const int ntpbMAX = 256; // AV Apr2021: why had I set this to 256?
 #ifdef MGONGPU_NTPBMAX
   const int ntpbMAX = MGONGPU_NTPBMAX;
 #else
-  const int ntpbMAX = 256;
+  const int ntpbMAX = 1024; // NB: 512 is ok, but 1024 does fail with "too many resources requested for launch"
 #endif
 
-  // Alignment requirement for using reinterpret_cast with SIMD vectorized code
-  // (using reinterpret_cast with non aligned memory may lead to segmentation faults!)
-  constexpr int cppAlign = 64; // alignment requirement for SIMD vectorization (64-byte i.e. 512-bit)
-
-  // C++ SIMD vectorization width (this will be used to set neppV)
-
-  // Number of Events Per Page in the momenta AOSOA memory layout
-  // (these are all best kept as a compile-time constants: see issue #23)
   // -----------------------------------------------------------------------------------------------
   // --- GPUs: neppM is best set to a power of 2 times the number of fptype's in a 32-byte cacheline
   // --- This is relevant to ensure coalesced access to momenta in global memory
   // --- Note that neppR is hardcoded and may differ from neppM and neppV on some platforms
   // -----------------------------------------------------------------------------------------------
-  // -----------------------------------------------------------------------------------------------
-  // --- CPUs: neppM is best set equal to the number of fptype's (neppV) in a vector register
-  // --- This is relevant to ensure faster access to momenta from C++ memory cache lines
-  // --- However, neppM is now decoupled from neppV (issue #176) and can be separately hardcoded
-  // --- In practice, neppR, neppM and neppV could now (in principle) all be different
-  // -----------------------------------------------------------------------------------------------
-#ifdef MGONGPU_NEPPM 
-  const int neppM = MGONGPU_NEPPM; 
+#ifdef MGONGPU_NEPPM
+  static constexpr int  neppM = MGONGPU_NEPPM;
 #else
-  const int neppM = 1; // (DEFAULT) neppM=neppV for optimal performance (NB: this is equivalent to AOS)
+  //static constexpr int neppM = 64/sizeof(fptype); // 2x 32-byte GPU cache lines (512 bits): 8 (DOUBLE) or 16 (FLOAT)
+  static constexpr int neppM = 32/sizeof(fptype); // (DEFAULT) 32-byte GPU cache line (256 bits): 4 (DOUBLE) or 8 (FLOAT)
+  //static constexpr int neppM = 1;  // *** NB: this is equivalent to AOS *** (slower: 1.03E9 instead of 1.11E9 in eemumu)
 #endif
-
-  // Number of Events Per Page in the random number AOSOA memory layout
-  // *** NB Different values of neppR lead to different physics results: the ***
-  // *** same 1d array is generated, but it is interpreted in different ways ***
-  const int neppR = 8; // HARDCODED TO GIVE ALWAYS THE SAME PHYSICS RESULTS!
-  //const int neppR = 1; // AOS (tests of sectors/requests)
-
 }
 
 // Expose typedefs and operators outside the namespace
 using mgOnGpu::fptype;
 
+// SYCL debug: add dummy lines to ease SASS program flow navigation
 // Arguments (not used so far): text is __FUNCTION__, code is 0 (start) or 1 (end)
+#if defined SYCL_DEBUG
+#define mgDebugDeclare()                              \
+  //__shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
+#define mgDebugInitialise()                     \
+  { /*mgDebugCounter[threadIdx.x] = 0;*/ }
+#define mgDebug( code, text )                   \
+  { /*mgDebugCounter[threadIdx.x] += 1; */}
+#define mgDebugFinalise()                                               \
+  { /*if ( blockIdx.x == 0 && threadIdx.x == 0 ) printf( "MGDEBUG: counter=%%f\n", mgDebugCounter[threadIdx.x] ); */}
+#else
 #define mgDebugDeclare()                        \
   /*noop*/
 #define mgDebugInitialise()                     \
@@ -101,5 +101,9 @@ using mgOnGpu::fptype;
   { /*noop*/ }
 #define mgDebugFinalise()                       \
   { /*noop*/ }
+#endif
+
+// For SANITY CHECKS: check that neppR, neppM, neppV... are powers of two (https://stackoverflow.com/a/108360)
+inline constexpr bool ispoweroftwo( int n ){ return ( n > 0 ) && !( n & ( n - 1 ) ); }
 
 #endif // MGONGPUCONFIG_H
