@@ -126,10 +126,16 @@ function codeGenAndDiff()
     cat ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt | sed 's/mg5_path/#mg5_path/' > ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt.new
     \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt.new ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt
   fi
-  # Additional cleanup for madonly directories
+  # Additional setup and cleanup for madonly directories
   if [ "${OUTBCK}" == "madonly" ]; then
+    # These two steps are part of "cd Source; make" but they actually are code-generating steps
+    ${OUTDIR}/${proc}.${autosuffix}/bin/madevent treatcards run
+    ${OUTDIR}/${proc}.${autosuffix}/bin/madevent treatcards param
+    # Cleanup
+    \rm -f ${OUTDIR}/${proc}.${autosuffix}/crossx.html
     \rm -f ${OUTDIR}/${proc}.${autosuffix}/index.html
     \rm -f ${OUTDIR}/${proc}.${autosuffix}/madevent.tar.gz
+    \rm -rf ${OUTDIR}/${proc}.${autosuffix}/bin/internal/__pycache__
     \rm -rf ${OUTDIR}/${proc}.${autosuffix}/bin/internal/ufomodel/__pycache__
     echo -e "index.html" > ${OUTDIR}/${proc}.${autosuffix}/.gitignore
     touch ${OUTDIR}/${proc}.${autosuffix}/Events/.keepme
