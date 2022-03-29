@@ -77,6 +77,12 @@ for suff in $suffs; do
   # PART 1a - build
   ##########################################################################
 
+  if [ "${USECCACHE}" == "1" ]; then
+    if [ "${FC/ccache}" == "${FC}" ]; then export FC="ccache ${FC}"; fi
+    if [ "${AR}" == "" ]; then export AR=ar; fi
+    if [ "${AR/ccache}" == "${AR}" ]; then export AR="ccache ${AR}"; fi
+  fi  
+  
   cd $dir/../../Source
   if [ "${clean}" == "1" ]; then make clean; echo; fi
   make
