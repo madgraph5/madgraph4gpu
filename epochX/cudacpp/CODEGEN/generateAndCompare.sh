@@ -128,17 +128,7 @@ function codeGenAndDiff()
   fi
   # Additional setup and cleanup for madonly directories
   if [ "${OUTBCK}" == "madonly" ]; then
-    # These two steps are part of "cd Source; make" but they actually are code-generating steps
-    ${OUTDIR}/${proc}.${autosuffix}/bin/madevent treatcards run
-    ${OUTDIR}/${proc}.${autosuffix}/bin/madevent treatcards param
-    # Cleanup
-    \rm -f ${OUTDIR}/${proc}.${autosuffix}/crossx.html
-    \rm -f ${OUTDIR}/${proc}.${autosuffix}/index.html
-    \rm -f ${OUTDIR}/${proc}.${autosuffix}/madevent.tar.gz
-    \rm -rf ${OUTDIR}/${proc}.${autosuffix}/bin/internal/__pycache__
-    \rm -rf ${OUTDIR}/${proc}.${autosuffix}/bin/internal/ufomodel/__pycache__
-    echo -e "index.html" > ${OUTDIR}/${proc}.${autosuffix}/.gitignore
-    touch ${OUTDIR}/${proc}.${autosuffix}/Events/.keepme
+    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} # delegate to patchMad.sh (similarly to what is done with untarGridpack.sh)
   fi
   # Compare the existing generated code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
