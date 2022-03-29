@@ -126,6 +126,14 @@ function codeGenAndDiff()
     cat ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt | sed 's/mg5_path/#mg5_path/' > ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt.new
     \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt.new ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt
   fi
+  # Additional cleanup for madonly directories
+  if [ "${OUTBCK}" == "madonly" ]; then
+    \rm -f ${OUTDIR}/${proc}.${autosuffix}/index.html
+    \rm -f ${OUTDIR}/${proc}.${autosuffix}/madevent.tar.gz
+    \rm -rf ${OUTDIR}/${proc}.${autosuffix}/bin/internal/ufomodel/__pycache__
+    echo -e "index.html" > ${OUTDIR}/${proc}.${autosuffix}/.gitignore
+    touch ${OUTDIR}/${proc}.${autosuffix}/Events/.keepme
+  fi
   # Compare the existing generated code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
   echo -e "\n+++ Compare old and new code generation log for $proc\n"
