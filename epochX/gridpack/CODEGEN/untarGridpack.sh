@@ -50,8 +50,8 @@ cat madevent/Cards/me5_configuration.txt | sed 's/mg5_path/#mg5_path/' > madeven
 # Inject C++ counters into the Fortran code
 ###exit 0
 revno_patches=$(cat ${scrdir}/MG5aMC_patches/2.7.0_gpu/revision.BZR)
-for dir in madevent/SubProcesses/P1_*; do
-  cd $dir
+for p1dir in madevent/SubProcesses/P1_*; do
+  cd $p1dir
   \cp -dpr ${scrdir}/MG5aMC_patches/timer.h .
   \cp -dpr ${scrdir}/MG5aMC_patches/counters.cpp .
   if ! patch -i ${scrdir}/MG5aMC_patches/patch.driver.f; then status=1; fi
