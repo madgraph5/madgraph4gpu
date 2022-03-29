@@ -99,17 +99,24 @@ for suff in $suffs; do
   # Pattern to filter
   ###pattern='$' # no filter
   pattern='(Number of events|Actual xsec)' # filter pattern
-  
+
+  # Use the time command?
+  ###timecmd=time
+  timecmd=
+
   # First execution: this will create results.dat
   cd $dir
   if [ "${clean}" == "1" ]; then \rm -f results.dat; fi
   if [ ! -f results.dat ]; then
     echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
-    time ./madevent < ${scrdir}/input_app_100k.txt | grep -E "${pattern}"
+    $timecmd ./madevent < ${scrdir}/input_app_100k.txt | grep -E "${pattern}"
+    cat counters_log.txt 
   fi
   # Second execution: this will read results.dat and create events.lhe
   echo -e "\n*** EXECUTE MADEVENT (create events.lhe) ***"
-  time ./madevent < ${scrdir}/input_app_100k.txt | grep -E "${pattern}"
+  $timecmd ./madevent < ${scrdir}/input_app_100k.txt | grep -E "${pattern}"
+  cat counters_log.txt 
+  \rm -f counters_log.txt 
   
 done
 
