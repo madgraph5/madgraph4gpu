@@ -1,5 +1,5 @@
 //==========================================================================
-// This file has been automatically generated for CUDA/C++ standalone by
+// This file has been automatically generated for SYCL standalone by
 // MadGraph5_aMC@NLO v. 2.9.5, 2021-08-22
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
@@ -8,10 +8,6 @@
 #include <iostream>
 #include <iomanip>
 #include "Parameters_sm.h"
-
-#include "extras.h"
-#include "mgOnGpuTypes.h"
-#ifndef MGONGPU_HARDCODE_CIPC
 
 // Initialize static instance
 Parameters_sm* Parameters_sm::instance = 0;
@@ -99,8 +95,6 @@ void Parameters_sm::setDependentCouplings()
   GC_11 = mdl_complexi*G;
   GC_12 = mdl_complexi*mdl_G__exp__2;
 }
-
-#endif
 
 // Routines for printing out parameters
 void Parameters_sm::printIndependentParameters()

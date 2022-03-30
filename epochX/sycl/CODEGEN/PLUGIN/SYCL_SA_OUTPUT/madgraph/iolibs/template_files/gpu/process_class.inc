@@ -13,16 +13,17 @@
     // Destructor
     ~CPPProcess();
 
-    // Device Pointer Accessors
-    short * get_cHel_ptr() const;
-    fptype * get_cIPC_ptr();
-    fptype * get_cIPD_ptr();
-
     // Initialize process (read model parameters from file)
     virtual void initProc( const std::string& param_card_name );
 
-    // Retrieve the compiler that was used to build this module
-    static const std::string getCompiler();
+    // Pointer accessors
+    const short* get_tHel_ptr() const;
+
+    cxtype* get_tIPC_ptr();
+    const cxtype* get_tIPC_ptr() const;
+
+    fptype* get_tIPD_ptr();
+    const fptype* get_tIPD_ptr() const;
 
     // Other methods of this instance (???)
     //const std::vector<fptype>& getMasses() const { return m_masses; }
@@ -31,18 +32,18 @@
     //int getDim() const { return dim; }
     //int getNIOParticles() const { return nexternal; } // nexternal was nioparticles
 
-    // Accessors (unused so far: add them to fix a clang build warning)
-    //int numiterations() const { return m_numiterations; }
-    //int gpublocks() const { return m_ngpublocks; }
-    //int gputhreads() const { return m_ngputhreads; }
+    // Accessors (unused so far: add four of them only to fix a clang build warning)
+    int numiterations() const { return m_numiterations; }
+    int gpublocks() const { return m_ngpublocks; }
+    int gputhreads() const { return m_ngputhreads; }
     //bool verbose() const { return m_verbose; }
-    //bool debug() const { return m_debug; }
+    bool debug() const { return m_debug; }
 
   public:
 
     // Hardcoded parameters for this process (constant class variables)
     //static const int ninitial = mgOnGpu::npari;
-    static const int nexternal = %(nexternal)d; // mgOnGpu::npar (nexternal was nioparticles)
+    //static const int nexternal = %(nexternal)d; // mgOnGpu::npar (nexternal was nioparticles)
     //static const int nprocesses = %(nprocesses)d; // FIXME: assume process.nprocesses == 1
     //static const int nwavefuncs = %(nwavefuncs)d; // mgOnGpu::nwf
     //static const int namplitudes = %(namp)d;
@@ -59,10 +60,15 @@
     bool m_debug;
 
     // Physics model parameters to be read from file (initProc function)
-#ifndef MGONGPU_HARDCODE_CIPC
-    Parameters_sm* m_pars;
-#endif
+    Parameters_%(model_name)s* m_pars;
     std::vector<fptype> m_masses; // external particle masses
+
+    // Helicities for the process
+    const short m_tHel[mgOnGpu::ncomb][mgOnGpu::npar];
+
+    // Physics parameters (masses, coupling, etc...)
+    cxtype m_tIPC[mgOnGpu::ncouplings];
+    fptype m_tIPD[mgOnGpu::nparams];
 
     // Other variables of this instance (???)
     //int id1, id2; // initial particle ids

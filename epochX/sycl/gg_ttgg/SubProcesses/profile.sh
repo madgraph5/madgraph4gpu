@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#FIXME need to write profile script for use with vtune
 usage(){
   echo "Usage (GUI analysis): $0 -l label [-cc] [-p #blocks #threads #iterations]"
   echo "Usage (CL analysis):  $0 -nogui [-p #blocks #threads #iterations]"
@@ -8,10 +8,6 @@ usage(){
 
 # Default options
 tag=cu
-###cuargs="16384 32 12" # NEW DEFAULT 2020.08.10 (faster on local, and allows comparison to global and shared memory)
-###ccargs="  256 32 12" # Similar to cuda config, but faster than using "16384 32 12"
-##cuargs="16384 32 2" # faster tests
-##ccargs="  256 32 2" # faster tests
 cuargs="2048 256 1" # NEW DEFAULT 2021.04.06 (matches "-p 2048 256 12" but only one iteration)
 ccargs="2048 256 1" # NEW DEFAULT 2021.04.06 (matches "-p 2048 256 12" but only one iteration)
 args=
@@ -60,15 +56,9 @@ while [ "$1" != "" ]; do
   fi
 done
 
-if [ "$tag" == "cc" ]; then
-  if [ "$args" == "" ]; then args=$ccargs; fi
-  cmd="./check.exe -p $args"
-  make
-else
-  if [ "$args" == "" ]; then args=$cuargs; fi
-  cmd="./gcheck.exe -p $args"
-  make
-fi
+if [ "$args" == "" ]; then args=$cuargs; fi
+cmd="./gcheck.exe -p $args"
+make
 
 ncu="ncu"
 nsys="nsys"
