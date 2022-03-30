@@ -50,7 +50,15 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006895542144775391 [0m
+HALLOP ()
+HALLOP ('external',)
+HALLOP ('aEWM1',)
+HALLOP ('aS',)
+HALLOUFO () ['ZERO', 'lamWS__exp__2', 'CKM1x1', 'CKM1x2', 'complexi', 'lamWS__exp__3', 'CKM1x3', 'CKM2x1', 'CKM2x2', 'CKM2x3', 'CKM3x1', 'CKM3x2', 'CKM3x3', 'MZ__exp__2', 'MZ__exp__4', 'sqrt__2', 'MH__exp__2', 'conjg__CKM1x3', 'conjg__CKM2x3', 'conjg__CKM3x3', 'conjg__CKM2x1', 'conjg__CKM3x1', 'conjg__CKM2x2', 'conjg__CKM3x2', 'conjg__CKM1x1', 'conjg__CKM1x2']
+HALLOUFO ('external',) ['aEWM1', 'Gf', 'aS', 'lamWS', 'AWS', 'rhoWS', 'etaWS', 'ymc', 'ymb', 'ymt', 'yme', 'ymm', 'ymtau', 'MZ', 'MC', 'MT', 'MB', 'MH', 'Me', 'MM', 'MTA', 'WZ', 'WW', 'WT', 'WH', 'WTau']
+HALLOUFO ('aEWM1',) ['aEW', 'MW', 'sqrt__aEW', 'ee', 'MW__exp__2', 'sw2', 'cw', 'sqrt__sw2', 'sw', 'g1', 'gw', 'vev', 'vev__exp__2', 'lam', 'yb', 'yc', 'ye', 'ym', 'yt', 'ytau', 'muH', 'I1x31', 'I1x32', 'I1x33', 'I2x12', 'I2x13', 'I2x22', 'I2x23', 'I2x32', 'I2x33', 'I3x21', 'I3x22', 'I3x23', 'I3x31', 'I3x32', 'I3x33', 'I4x13', 'I4x23', 'I4x33', 'ee__exp__2', 'sw__exp__2', 'cw__exp__2']
+HALLOUFO ('aS',) ['sqrt__aS', 'G', 'G__exp__2']
+[1;32mDEBUG: model prefixing  takes 0.006823539733886719 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
@@ -60,6 +68,10 @@ Defined multiparticle l- = e- mu-
 Defined multiparticle vl = ve vm vt
 Defined multiparticle vl~ = ve~ vm~ vt~
 Defined multiparticle all = g u c d s u~ c~ d~ s~ a ve vm vt e- mu- ve~ vm~ vt~ e+ mu+ t b t~ b~ z w+ h w- ta- ta+
+HALLOMG-5 () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOMG-5 ('external',) ['aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_MZ', 'mdl_MT', 'mdl_MB', 'mdl_MH', 'mdl_MTA', 'mdl_WZ', 'mdl_WW', 'mdl_WT', 'mdl_WH']
+HALLOMG-5 ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOMG-5 ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
 INFO: Checking for minimal orders which gives processes. 
 INFO: Please specify coupling orders to bypass this step. 
 INFO: Trying coupling order WEIGHTED<=2: WEIGTHED IS QCD+2*QED 
@@ -68,35 +80,154 @@ INFO: Process has 3 diagrams
 1 processes with 3 diagrams generated in 0.011 s
 Total: 1 processes with 3 diagrams
 output madevent CODEGEN_madonly_gg_tt --hel_recycling=False --vector_size=16
+HALLOMG-4 () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOMG-4 ('external',) ['aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_MZ', 'mdl_MT', 'mdl_MB', 'mdl_MH', 'mdl_MTA', 'mdl_WZ', 'mdl_WW', 'mdl_WT', 'mdl_WH']
+HALLOMG-4 ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOMG-4 ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
+HALLOMG-3 () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOMG-3 ('external',) ['aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_MZ', 'mdl_MT', 'mdl_MB', 'mdl_MH', 'mdl_MTA', 'mdl_WZ', 'mdl_WW', 'mdl_WT', 'mdl_WH']
+HALLOMG-3 ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOMG-3 ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
+HALLOMG-2 () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOMG-2 ('external',) ['aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_MZ', 'mdl_MT', 'mdl_MB', 'mdl_MH', 'mdl_MTA', 'mdl_WZ', 'mdl_WW', 'mdl_WT', 'mdl_WH']
+HALLOMG-2 ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOMG-2 ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
+HALLOMG-2a () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOMG-2a ('external',) ['aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_MZ', 'mdl_MT', 'mdl_MB', 'mdl_MH', 'mdl_MTA', 'mdl_WZ', 'mdl_WW', 'mdl_WT', 'mdl_WH']
+HALLOMG-2a ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOMG-2a ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
+HALLOMG-2b () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOMG-2b ('external',) ['aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_MZ', 'mdl_MT', 'mdl_MB', 'mdl_MH', 'mdl_MTA', 'mdl_WZ', 'mdl_WW', 'mdl_WT', 'mdl_WH']
+HALLOMG-2b ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOMG-2b ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
 INFO: initialize a new directory: CODEGEN_madonly_gg_tt 
 INFO: remove old information in CODEGEN_madonly_gg_tt 
+HALLOMG-2ccc () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOMG-2ccc ('external',) ['aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_MZ', 'mdl_MT', 'mdl_MB', 'mdl_MH', 'mdl_MTA', 'mdl_WZ', 'mdl_WW', 'mdl_WT', 'mdl_WH']
+HALLOMG-2ccc ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOMG-2ccc ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
+HALLOMG-2ddd () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOMG-2ddd ('external',) ['aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_MZ', 'mdl_MT', 'mdl_MB', 'mdl_MH', 'mdl_MTA', 'mdl_WZ', 'mdl_WW', 'mdl_WT', 'mdl_WH']
+HALLOMG-2ddd ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOMG-2ddd ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
+HALLOMG-1 () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOMG-1 ('external',) ['aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_MZ', 'mdl_MT', 'mdl_MB', 'mdl_MH', 'mdl_MTA', 'mdl_WZ', 'mdl_WW', 'mdl_WT', 'mdl_WH']
+HALLOMG-1 ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOMG-1 ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
 INFO: Organizing processes into subprocess groups 
 INFO: Generating Helas calls for process: g g > t t~ WEIGHTED<=2 @1 
 INFO: Processing color information for process: g g > t t~ @1 
 INFO: Creating files in directory P1_gg_ttx 
-[1;32mDEBUG:  'before', call, arg = [0m before CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'VVV1%(propa)s_1', 'coup': '%(coup0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),', 'out': 'W(1,%(out)d)', 'mass': '%(M)s, fk_%(W)s,'} [1;30m[export_v4.py at line 3925][0m [0m
-[1;32mDEBUG:  'after',call, arg = [0m after CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'VVV1%(propa)s_1', 'coup': '%(coup0)s%(vec0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),', 'out': 'W(1,%(out)d)', 'mass': '%(M)s, fk_%(W)s,'} [1;30m[export_v4.py at line 3928][0m [0m
-[1;32mDEBUG:  'before', call, arg = [0m before CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV1_0', 'coup': '%(coup0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),W(1,%(2)d),', 'mass': '', 'out': 'AMP(%(out)d)'} [1;30m[export_v4.py at line 3925][0m [0m
-[1;32mDEBUG:  'after',call, arg = [0m after CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV1_0', 'coup': '%(coup0)s%(vec0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),W(1,%(2)d),', 'mass': '', 'out': 'AMP(%(out)d)'} [1;30m[export_v4.py at line 3928][0m [0m
-[1;32mDEBUG:  'before', call, arg = [0m before CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV1%(propa)s_1', 'coup': '%(coup0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),', 'out': 'W(1,%(out)d)', 'mass': '%(M)s, fk_%(W)s,'} [1;30m[export_v4.py at line 3925][0m [0m
-[1;32mDEBUG:  'after',call, arg = [0m after CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV1%(propa)s_1', 'coup': '%(coup0)s%(vec0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),', 'out': 'W(1,%(out)d)', 'mass': '%(M)s, fk_%(W)s,'} [1;30m[export_v4.py at line 3928][0m [0m
-[1;32mDEBUG:  'before', call, arg = [0m before CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV1%(propa)s_2', 'coup': '%(coup0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),', 'out': 'W(1,%(out)d)', 'mass': '%(M)s, fk_%(W)s,'} [1;30m[export_v4.py at line 3925][0m [0m
-[1;32mDEBUG:  'after',call, arg = [0m after CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV1%(propa)s_2', 'coup': '%(coup0)s%(vec0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),', 'out': 'W(1,%(out)d)', 'mass': '%(M)s, fk_%(W)s,'} [1;30m[export_v4.py at line 3928][0m [0m
+[1;32mDEBUG:  'before', call, arg = [0m before CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'VVV1%(propa)s_1', 'coup': '%(coup0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),', 'out': 'W(1,%(out)d)', 'mass': '%(M)s, fk_%(W)s,'} [1;30m[export_v4.py at line 3929][0m [0m
+[1;32mDEBUG:  'after',call, arg = [0m after CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'VVV1%(propa)s_1', 'coup': '%(coup0)s%(vec0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),', 'out': 'W(1,%(out)d)', 'mass': '%(M)s, fk_%(W)s,'} [1;30m[export_v4.py at line 3932][0m [0m
+[1;32mDEBUG:  'before', call, arg = [0m before CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV1_0', 'coup': '%(coup0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),W(1,%(2)d),', 'mass': '', 'out': 'AMP(%(out)d)'} [1;30m[export_v4.py at line 3929][0m [0m
+[1;32mDEBUG:  'after',call, arg = [0m after CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV1_0', 'coup': '%(coup0)s%(vec0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),W(1,%(2)d),', 'mass': '', 'out': 'AMP(%(out)d)'} [1;30m[export_v4.py at line 3932][0m [0m
+[1;32mDEBUG:  'before', call, arg = [0m before CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV1%(propa)s_1', 'coup': '%(coup0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),', 'out': 'W(1,%(out)d)', 'mass': '%(M)s, fk_%(W)s,'} [1;30m[export_v4.py at line 3929][0m [0m
+[1;32mDEBUG:  'after',call, arg = [0m after CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV1%(propa)s_1', 'coup': '%(coup0)s%(vec0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),', 'out': 'W(1,%(out)d)', 'mass': '%(M)s, fk_%(W)s,'} [1;30m[export_v4.py at line 3932][0m [0m
+[1;32mDEBUG:  'before', call, arg = [0m before CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV1%(propa)s_2', 'coup': '%(coup0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),', 'out': 'W(1,%(out)d)', 'mass': '%(M)s, fk_%(W)s,'} [1;30m[export_v4.py at line 3929][0m [0m
+[1;32mDEBUG:  'after',call, arg = [0m after CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV1%(propa)s_2', 'coup': '%(coup0)s%(vec0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),', 'out': 'W(1,%(out)d)', 'mass': '%(M)s, fk_%(W)s,'} [1;30m[export_v4.py at line 3932][0m [0m
 [1mINFO: Some T-channel width have been set to zero [new since 2.8.0]
  if you want to keep this width please set "zerowidth_tchannel" to False [0m
 INFO: Generating Feynman diagrams for Process: g g > t t~ WEIGHTED<=2 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_ttx 
-[1;32mDEBUG:  done [1;30m[madgraph_interface.py at line 8459][0m [0m
+[1;32mDEBUG:  done [1;30m[madgraph_interface.py at line 8482][0m [0m
 Generated helas calls for 1 subprocesses (3 diagrams) in 0.008 s
 Wrote files for 10 helas calls in 0.103 s
+HALLOMG0 () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOMG0 ('external',) ['aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_MZ', 'mdl_MT', 'mdl_MB', 'mdl_MH', 'mdl_MTA', 'mdl_WZ', 'mdl_WW', 'mdl_WT', 'mdl_WH']
+HALLOMG0 ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOMG0 ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
+DEBUG: starting self._curr_exporter.convert_model
+HALLO! ENTERING CONVERT_MODEL
+HALLOTOP () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOTOP ('external',) ['aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_MZ', 'mdl_MT', 'mdl_MB', 'mdl_MH', 'mdl_MTA', 'mdl_WZ', 'mdl_WW', 'mdl_WT', 'mdl_WH']
+HALLOTOP ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOTOP ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
+HALLOK1 [(), ('external',), ('aEWM1',), ('aS',)]
+HALLOK2 [(), ('external',), ('aEWM1',), ('aS',)]
+HALLOKO () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOKO ('external',) ['aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_MZ', 'mdl_MT', 'mdl_MB', 'mdl_MH', 'mdl_MTA', 'mdl_WZ', 'mdl_WW', 'mdl_WT', 'mdl_WH']
+HALLOKO ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOKO ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
+HALLOK3 aEWM1
+HALLOK3 mdl_Gf
+HALLOK3 aS
+HALLOK3 mdl_ymb
+HALLOK3 mdl_ymt
+HALLOK3 mdl_ymtau
+HALLOK3 mdl_MZ
+HALLOK3 mdl_MT
+HALLOK3 mdl_MB
+HALLOK3 mdl_MH
+HALLOK3 mdl_MTA
+HALLOK3 mdl_WZ
+HALLOK3 mdl_WW
+HALLOK3 mdl_WT
+HALLOK3 mdl_WH
+HALLO aEWM1
+HALLO mdl_Gf
+HALLO aS
+HALLO mdl_ymb
+HALLO mdl_ymt
+HALLO mdl_ymtau
+HALLO mdl_MZ
+HALLO mdl_MT
+HALLO mdl_MB
+HALLO mdl_MH
+HALLO mdl_MTA
+HALLO mdl_WZ
+HALLO mdl_WW
+HALLO mdl_WT
+HALLO mdl_WH
+HALLOWPC-ccc () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOWPC-ccc ('external',) ['aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_MZ', 'mdl_MT', 'mdl_MB', 'mdl_MH', 'mdl_MTA', 'mdl_WZ', 'mdl_WW', 'mdl_WT', 'mdl_WH']
+HALLOWPC-ccc ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOWPC-ccc ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
+HALLOWPC-ccc2 () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOWPC-ccc2 ('external',) ['aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_MZ', 'mdl_MT', 'mdl_MB', 'mdl_MH', 'mdl_MTA', 'mdl_WZ', 'mdl_WW', 'mdl_WT', 'mdl_WH']
+HALLOWPC-ccc2 ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOWPC-ccc2 ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
+HALLOWPC-ccc2 () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOWPC-ccc2 ('external',) ['aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_MZ', 'mdl_MT', 'mdl_MB', 'mdl_MH', 'mdl_MTA', 'mdl_WZ', 'mdl_WW', 'mdl_WT', 'mdl_WH']
+HALLOWPC-ccc2 ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOWPC-ccc2 ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
+HALLOWPC-ccc3 () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOWPC-ccc3 ('external',) ['aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_MZ', 'mdl_MT', 'mdl_MB', 'mdl_MH', 'mdl_MTA', 'mdl_WZ', 'mdl_WW', 'mdl_WT', 'mdl_WH']
+HALLOWPC-ccc3 ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOWPC-ccc3 ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
+HALLOWPC-ccc4 () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOWPC-ccc4 ('external',) ['aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_MZ', 'mdl_MT', 'mdl_MB', 'mdl_MH', 'mdl_MTA', 'mdl_WZ', 'mdl_WW', 'mdl_WT', 'mdl_WH']
+HALLOWPC-ccc4 ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOWPC-ccc4 ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
+HALLOWC-ccc () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOWC-ccc ('external',) ['aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_MZ', 'mdl_MT', 'mdl_MB', 'mdl_MH', 'mdl_MTA', 'mdl_WZ', 'mdl_WW', 'mdl_WT', 'mdl_WH']
+HALLOWC-ccc ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOWC-ccc ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
+HALLOWC-ddd () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOWC-ddd ('external',) ['mdl_MB', 'mdl_MT', 'mdl_MTA', 'mdl_MZ', 'mdl_MH', 'aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_WT', 'mdl_WZ', 'mdl_WW', 'mdl_WH']
+HALLOWC-ddd ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOWC-ddd ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
+HALLOWPC-ddd () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOWPC-ddd ('external',) ['mdl_MB', 'mdl_MT', 'mdl_MTA', 'mdl_MZ', 'mdl_MH', 'aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_WT', 'mdl_WZ', 'mdl_WW', 'mdl_WH']
+HALLOWPC-ddd ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOWPC-ddd ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.172 s
+ALOHA: aloha creates 2 routines in  0.177 s
 [1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2451][0m [0m
 [1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2451][0m [0m
 [1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2451][0m [0m
 [1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2451][0m [0m
+DEBUG: completed self._curr_exporter.convert_model
+HALLOMG1 () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOMG1 ('external',) ['mdl_MB', 'mdl_MT', 'mdl_MTA', 'mdl_MZ', 'mdl_MH', 'aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_WT', 'mdl_WZ', 'mdl_WW', 'mdl_WH']
+HALLOMG1 ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOMG1 ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
+HALLOMG2 () ['mdl_conjg__CKM3x3', 'mdl_conjg__CKM1x1', 'mdl_CKM3x3', 'ZERO', 'mdl_complexi', 'mdl_MZ__exp__2', 'mdl_MZ__exp__4', 'mdl_sqrt__2', 'mdl_MH__exp__2']
+HALLOMG2 ('external',) ['mdl_MB', 'mdl_MT', 'mdl_MTA', 'mdl_MZ', 'mdl_MH', 'aEWM1', 'mdl_Gf', 'aS', 'mdl_ymb', 'mdl_ymt', 'mdl_ymtau', 'mdl_WT', 'mdl_WZ', 'mdl_WW', 'mdl_WH']
+HALLOMG2 ('aEWM1',) ['mdl_aEW', 'mdl_MW', 'mdl_sqrt__aEW', 'mdl_ee', 'mdl_MW__exp__2', 'mdl_sw2', 'mdl_cw', 'mdl_sqrt__sw2', 'mdl_sw', 'mdl_g1', 'mdl_gw', 'mdl_vev', 'mdl_vev__exp__2', 'mdl_lam', 'mdl_yb', 'mdl_yt', 'mdl_ytau', 'mdl_muH', 'mdl_I1x33', 'mdl_I2x33', 'mdl_I3x33', 'mdl_I4x33', 'mdl_ee__exp__2', 'mdl_sw__exp__2', 'mdl_cw__exp__2']
+HALLOMG2 ('aS',) ['mdl_sqrt__aS', 'G', 'mdl_G__exp__2']
 save configuration file to /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_madonly_gg_tt/Cards/me5_configuration.txt
 INFO: Use Fortran compiler gfortran 
 INFO: Use c++ compiler g++ 
@@ -108,6 +239,6 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.076s
-user	0m1.725s
-sys	0m0.332s
+real	0m2.053s
+user	0m1.748s
+sys	0m0.295s
