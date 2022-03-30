@@ -18,6 +18,7 @@ target_link_libraries(${execname} PUBLIC mg5amc_common ${libname})
 target_include_directories(${execname} PRIVATE "${PROJECT_SOURCE_DIR}/src")
 
 # some XCode specific stuff to make the executable run
+set_property(TARGET ${libname} PROPERTY XCODE_GENERATE_SCHEME TRUE)
 set_property(TARGET ${execname} PROPERTY XCODE_GENERATE_SCHEME TRUE)
 set_property(TARGET ${execname} PROPERTY XCODE_SCHEME_ARGUMENTS "--bridge" "8" "8" "32")
 set_property(TARGET ${execname} PROPERTY XCODE_SCHEME_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
