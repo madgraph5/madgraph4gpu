@@ -72,7 +72,9 @@ class ParamCardWriter(object):
 
         # Compute the value of all dependant parameter
         if isinstance(model, model_reader.ModelReader):
-            self.model = model
+            ###self.model = model
+            import copy
+            self.model = copy.deepcopy(model) # workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/2
         else:
             self.model = model_reader.ModelReader(model)
             self.model.set_parameters_and_couplings()
