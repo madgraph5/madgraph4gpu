@@ -57,7 +57,7 @@ namespace mg5amcCpu
     virtual ~RandomNumberKernelBase() {}
 
     // Seed the random number generator
-    virtual void seedGenerator( const int seed ) = 0;
+    virtual void seedGenerator( const unsigned int seed ) = 0;
 
     // Generate the random number array
     virtual void generateRnarray() = 0;
@@ -85,7 +85,7 @@ namespace mg5amcCpu
     ~CommonRandomNumberKernel() {}
 
     // Seed the random number generator
-    void seedGenerator( const int seed ) override final { m_seed = seed; };
+    void seedGenerator( const unsigned int seed ) override final { m_seed = seed; };
 
     // Generate the random number array
     void generateRnarray() override final;
@@ -96,7 +96,7 @@ namespace mg5amcCpu
   private:
 
     // The generator seed
-    int m_seed;
+    unsigned int m_seed;
   };
 
   //--------------------------------------------------------------------------
