@@ -28,6 +28,7 @@ echo -e "index.html" > ${dir}/.gitignore
 touch ${dir}/Events/.keepme
 
 # Inject C++ counters into the Fortran code
+\cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir}
 for p1dir in ${dir}/SubProcesses/P1_*; do
   pushd $p1dir > /dev/null
   \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/gpu/timer.h . 
