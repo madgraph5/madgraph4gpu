@@ -33,16 +33,18 @@ touch ${dir}/Events/.keepme
 # Inject C++ counters into the Fortran code
 \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir}
 for p1dir in ${dir}/SubProcesses/P1_*; do
-  pushd $p1dir > /dev/null
+  cd $p1dir
   if [ "${dir%.mad}" == "$1" ]; then
     \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/gpu/timer.h . # already present through cudacpp in *.mad
   fi
   \cp -dpr ${scrdir}/MG5aMC_patches/counters.cpp .
   if ! patch -i ${scrdir}/MG5aMC_patches/patch.driver.f; then status=1; fi
   if ! patch -i ${scrdir}/MG5aMC_patches/patch.matrix1.f; then status=1; fi
-  cd ..
-  if ! patch -i ${scrdir}/MG5aMC_patches/patch.makefile; then status=1; fi  
-  popd > /dev/null
+  cd -
 done
+cd ${dir}/SubProcesses
+if ! patch -i ${scrdir}/MG5aMC_patches/patch.makefile; then status=1; fi  
+if ! patch -i ${scrdir}/MG5aMC_patches/patch.reweight.f; then status=1; fi  
+cd -
 
 exit $status
