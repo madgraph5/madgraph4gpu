@@ -34,7 +34,9 @@ touch ${dir}/Events/.keepme
 \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir}
 for p1dir in ${dir}/SubProcesses/P1_*; do
   pushd $p1dir > /dev/null
-  \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/gpu/timer.h . 
+  if [ "${dir%.mad}" == "$1" ]; then
+    \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/gpu/timer.h . # already present through cudacpp in *.mad
+  fi
   \cp -dpr ${scrdir}/MG5aMC_patches/counters.cpp .
   if ! patch -i ${scrdir}/MG5aMC_patches/patch.driver.f; then status=1; fi
   if ! patch -i ${scrdir}/MG5aMC_patches/patch.matrix1.f; then status=1; fi
