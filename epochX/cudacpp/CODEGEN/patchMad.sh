@@ -4,8 +4,11 @@ status=0
 
 scrdir=$(cd $(dirname $0); pwd)
 
-if [ "${1%.madonly}" == "$1" ] || [ "$2" != "" ]; then
-  echo "Usage: $0 <process.madonly>"
+if [ "${1%.madonly}" == "$1" ] && [ "${1%.mad}" == "$1" ]; then
+  echo "Usage: $0 <process.[madonly|mad]>"
+  exit 1 
+elif [ "$2" != "" ]; then
+  echo "Usage: $0 <process.[madonly|mad]>"
   exit 1 
 fi
 dir=$1

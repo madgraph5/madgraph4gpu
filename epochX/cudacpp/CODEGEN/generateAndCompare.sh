@@ -126,8 +126,8 @@ function codeGenAndDiff()
     cat ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt | sed 's/mg5_path/#mg5_path/' > ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt.new
     \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt.new ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt
   fi
-  # Additional setup and cleanup for madonly directories
-  if [ "${OUTBCK}" == "madonly" ]; then
+  # Additional setup and cleanup for madonly and mad directories
+  if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ]; then
     $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} # delegate to patchMad.sh (similarly to what is done with untarGridpack.sh)
   fi
   # Compare the existing generated code to the newly generated code for the specific process
