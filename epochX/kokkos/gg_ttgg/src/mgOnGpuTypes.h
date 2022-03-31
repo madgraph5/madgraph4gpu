@@ -6,10 +6,8 @@
 #ifndef __CUDACC__
 #include <cmath>
 #include "Kokkos_Complex.hpp"
-inline void nvtxRangePush(char* temp){
-  return;
-}
-inline void nvtxRangePop(void){return};
+inline void nvtxRangePush(char* temp){return;}
+inline void nvtxRangePop(void){return;};
 
 #else
 #include "nvToolsExt.h"
@@ -80,19 +78,19 @@ fptype fpsqrt( const fptype& f )
 
 #else // c++
 
-inline
+KOKKOS_INLINE_FUNCTION
 const fptype& fpmax( const fptype& a, const fptype& b )
 {
   return std::max( a, b );
 }
 
-inline
+KOKKOS_INLINE_FUNCTION
 const fptype& fpmin( const fptype& a, const fptype& b )
 {
   return std::min( a, b );
 }
 
-inline
+KOKKOS_INLINE_FUNCTION
 fptype fpsqrt( const fptype& f )
 {
   return std::sqrt( f );
@@ -354,7 +352,7 @@ cxtype cxconj( const cxtype& c )
   return cxmake( cxreal( c ), -cximag( c ) );
 }
 
-inline __host__ // NOT __device__
+KOKKOS_INLINE_FUNCTION
 cxtype cxmake( const std::complex<fptype>& c ) // std::complex to cucomplex (float-to-float or double-to-double)
 {
   return cxmake( c.real(), c.imag() );
@@ -373,38 +371,38 @@ cxtype cxmake( const std::complex<fptype>& c ) // std::complex to cucomplex (flo
 // std::complex<double>
 //+++++++++++++++++++++++++
 
-inline
+KOKKOS_INLINE_FUNCTION
 cxtype cxmake( const fptype& r, const fptype& i )
 {
   return cxtype( r, i ); // std::complex<fptype> constructor
 }
 
-inline
+KOKKOS_INLINE_FUNCTION
 fptype cxreal( const cxtype& c )
 {
   return c.real(); // std::complex<fptype>::real()
 }
 
-inline
+KOKKOS_INLINE_FUNCTION
 fptype cximag( const cxtype& c )
 {
   return c.imag(); // std::complex<fptype>::imag()
 }
 
-inline
+KOKKOS_INLINE_FUNCTION
 cxtype cxconj( const cxtype& c )
 {
   return conj( c ); // conj( std::complex<fptype> )
 }
 
-inline
+KOKKOS_INLINE_FUNCTION
 const cxtype& cxmake( const cxtype& c ) // std::complex to std::complex (float-to-float or double-to-double)
 {
   return c;
 }
 
 #if defined MGONGPU_FPTYPE_FLOAT
-inline
+KOKKOS_INLINE_FUNCTION
 cxtype cxmake( const std::complex<double>& c ) // std::complex to std::complex (cast double-to-float)
 {
   return cxmake( (fptype)c.real(), (fptype)c.imag() );

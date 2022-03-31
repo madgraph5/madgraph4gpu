@@ -394,7 +394,7 @@ cxtype_v operator/( const cxtype_v& a, const fptype& b )
 // Operators for bool_v
 #ifdef MGONGPU_CPPSIMD
 
-inline
+KOKKOS_INLINE_FUNCTION
 fptype_v fpternary( const bool_v& mask, const fptype_v& a, const fptype_v& b )
 {
   fptype_v out;
@@ -402,7 +402,7 @@ fptype_v fpternary( const bool_v& mask, const fptype_v& a, const fptype_v& b )
   return out;
 }
 
-inline
+KOKKOS_INLINE_FUNCTION
 fptype_v fpternary( const bool_v& mask, const fptype_v& a, const fptype& b )
 {
   fptype_v out;
@@ -418,7 +418,7 @@ fptype_v fpternary( const bool_v& mask, const fptype& a, const fptype_v& b )
   return out;
 }
 
-inline
+KOKKOS_INLINE_FUNCTION
 fptype_v fpternary( const bool_v& mask, const fptype& a, const fptype& b )
 {
   fptype_v out;
@@ -426,7 +426,7 @@ fptype_v fpternary( const bool_v& mask, const fptype& a, const fptype& b )
   return out;
 }
 
-inline
+KOKKOS_INLINE_FUNCTION
 cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype_v& b )
 {
 #ifdef MGONGPU_HAS_CXTYPE_REF
@@ -444,7 +444,7 @@ cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype_v& b )
 #endif
 }
 
-inline
+KOKKOS_INLINE_FUNCTION
 cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype& b )
 {
 #ifdef MGONGPU_HAS_CXTYPE_REF
@@ -462,7 +462,7 @@ cxtype_v cxternary( const bool_v& mask, const cxtype_v& a, const cxtype& b )
 #endif
 }
 
-inline
+KOKKOS_INLINE_FUNCTION
 cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype_v& b )
 {
 #ifdef MGONGPU_HAS_CXTYPE_REF
@@ -480,7 +480,7 @@ cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype_v& b )
 #endif
 }
 
-inline
+KOKKOS_INLINE_FUNCTION
 cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype& b )
 {
 #ifdef MGONGPU_HAS_CXTYPE_REF
@@ -498,47 +498,47 @@ cxtype_v cxternary( const bool_v& mask, const cxtype& a, const cxtype& b )
 #endif
 }
 
-inline
+KOKKOS_INLINE_FUNCTION
 fptype_v fpmax( const fptype_v& a, const fptype_v& b )
 {
   return fpternary( ( b < a ), a, b );
 }
 
-inline
+KOKKOS_INLINE_FUNCTION
 fptype_v fpmax( const fptype_v& a, const fptype& b )
 {
   return fpternary( ( b < a ), a, b );
 }
 
 /*
-inline
+KOKKOS_INLINE_FUNCTION
 fptype_v fpmax( const fptype& a, const fptype_v& b )
 {
   return fpternary( ( b < a ), a, b );
 }
 */
 
-inline
+KOKKOS_INLINE_FUNCTION
 fptype_v fpmin( const fptype_v& a, const fptype_v& b )
 {
   return fpternary( ( a < b ), a, b );
 }
 
 /*
-inline
+KOKKOS_INLINE_FUNCTION
 fptype_v fpmin( const fptype_v& a, const fptype& b )
 {
   return fpternary( ( a < b ), a, b );
 }
 
-inline
+KOKKOS_INLINE_FUNCTION
 fptype_v fpmin( const fptype& a, const fptype_v& b )
 {
   return fpternary( ( a < b ), a, b );
 }
 */
 
-inline
+KOKKOS_INLINE_FUNCTION
 bool maskor( const bool_v& mask )
 {
   bool out = false;
@@ -548,19 +548,19 @@ bool maskor( const bool_v& mask )
 
 #else
 
-inline
+KOKKOS_INLINE_FUNCTION
 fptype fpternary( const bool& mask, const fptype& a, const fptype& b )
 {
   return ( mask ? a : b );
 }
 
-inline
+KOKKOS_INLINE_FUNCTION
 cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
 {
   return ( mask ? a : b );
 }
 
-inline
+KOKKOS_INLINE_FUNCTION
 bool maskor( const bool& mask )
 {
   return mask;
@@ -575,24 +575,24 @@ bool maskor( const bool& mask )
 #else
 
 // Printout to std::cout for user defined types
-inline __device__ void print( const fptype& f ){ printf( "%f\n", f ); }
-inline __device__ void print( const cxtype& c ){ printf( "[%f, %f]\n", cxreal(c), cximag(c) ); }
+KOKKOS_INLINE_FUNCTION void print( const fptype& f ){ printf( "%f\n", f ); }
+KOKKOS_INLINE_FUNCTION void print( const cxtype& c ){ printf( "[%f, %f]\n", cxreal(c), cximag(c) ); }
 
 /*
-inline __device__
+KOKKOS_INLINE_FUNCTION
 const cxtype& cxvmake( const cxtype& c )
 {
   return c;
 }
 */
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 fptype fpternary( const bool& mask, const fptype& a, const fptype& b )
 {
   return ( mask ? a : b );
 }
 
-inline __host__ __device__
+KOKKOS_INLINE_FUNCTION
 cxtype cxternary( const bool& mask, const cxtype& a, const cxtype& b )
 {
   return ( mask ? a : b );
@@ -621,9 +621,9 @@ typedef cxtype cxtype_sv;
 #ifdef __CUDACC__
 KOKKOS_INLINE_FUNCTION cxtype cxzero_sv(){ return cxmake( 0, 0 ); }
 #elif defined MGONGPU_CPPSIMD
-inline cxtype_v cxzero_sv(){ return cxtype_v{ fptype_v{0}, fptype_v{0} }; }
+KOKKOS_INLINE_FUNCTION cxtype_v cxzero_sv(){ return cxtype_v{ fptype_v{0}, fptype_v{0} }; }
 #else
-inline cxtype cxzero_sv(){ return cxtype{ fptype{0}, fptype{0} }; }
+KOKKOS_INLINE_FUNCTION cxtype cxzero_sv(){ return cxtype{ fptype{0}, fptype{0} }; }
 #endif
 
 //--------------------------------------------------------------------------

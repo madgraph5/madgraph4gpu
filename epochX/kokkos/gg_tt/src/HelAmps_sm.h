@@ -163,7 +163,7 @@ template<typename T>
 KOKKOS_FUNCTION void ixzxxx(const T& pvec,
                             const int& nhel,
                             const int& nsf,
-                            const cxtype_sv fi[])
+                            cxtype_sv fi[])
 {
   const fptype pvec0 = pvec(0);
   const fptype pvec1 = pvec(1);

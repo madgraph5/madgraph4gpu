@@ -9,12 +9,12 @@ HELAMP_H = ../../src/HelAmps_$(MODELSTR).h
 PAR_H = ../../src/Parameters_$(MODELSTR).h
 
 INCDIR=../../src
-CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++17 -lineinfo
+CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++17
 LDFLAGS=
 
 CUDA_ARCH_NUM ?= 70
 NVCC=$(KOKKOSPATH_CUDA)/bin/nvcc_wrapper
-CUDA_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_CUDA)/include -arch=compute_$(CUDA_ARCH_NUM) --expt-extended-lambda --expt-relaxed-constexpr -use_fast_math --openmp
+CUDA_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_CUDA)/include -arch=compute_$(CUDA_ARCH_NUM) --expt-extended-lambda --expt-relaxed-constexpr -use_fast_math --openmp -lineinfo
 CUDA_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_CUDA)/lib64/libkokkoscore.a -lnvToolsExt --openmp -lstdc++fs
 
 CXX=g++
