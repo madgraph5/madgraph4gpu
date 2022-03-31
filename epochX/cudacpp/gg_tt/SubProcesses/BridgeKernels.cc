@@ -18,9 +18,10 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   BridgeKernelBase::BridgeKernelBase( const BufferMomenta& momenta,         // input: momenta
+                                      const BufferGs& gs,                   // input: gs for alphaS
                                       BufferMatrixElements& matrixElements, // output: matrix elements
                                       const size_t nevt )
-    : MatrixElementKernelBase( momenta, matrixElements )
+    : MatrixElementKernelBase( momenta, gs, matrixElements )
     , NumberOfEvents( nevt )
     , m_bridge( nevt, npar, np4 )
   {
@@ -42,9 +43,10 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   BridgeKernelHost::BridgeKernelHost( const BufferMomenta& momenta,         // input: momenta
+                                      const BufferGs& gs,                   // input: Gs for alphaS
                                       BufferMatrixElements& matrixElements, // output: matrix elements
                                       const size_t nevt )
-    : BridgeKernelBase( momenta, matrixElements, nevt )
+    : BridgeKernelBase( momenta, gs, matrixElements, nevt )
     , m_fortranMomenta( nevt )
   {
   }
@@ -58,10 +60,17 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  void BridgeKernelHost::computeDependentCouplings()
+  {
+      m_bridge.cpu_depCouplings( m_gs.data() );
+  }
+
+  //--------------------------------------------------------------------------
+
   void BridgeKernelHost::computeGoodHelicities()
   {
     constexpr bool goodHelOnly = true;
-    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
+    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_matrixElements.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------
@@ -69,7 +78,7 @@ namespace mg5amcCpu
   void BridgeKernelHost::computeMatrixElements()
   {
     constexpr bool goodHelOnly = false;
-    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
+    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_matrixElements.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------

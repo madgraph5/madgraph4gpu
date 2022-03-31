@@ -26,8 +26,10 @@ test/googletest
 *.local
 *~
 local/
+**/build/
 *.log
 *.output
 *.error
 *.cobaltlog
 *.BKP
+.DS_Store

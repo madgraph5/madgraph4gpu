@@ -30,8 +30,8 @@
 // Choose whether to hardcode the cIPC/cIPD physics parameters rather than reading them from user cards
 // This optimization can gain 20% in CUDA in eemumu (issue #39)
 // By default, do not hardcode, but allow this macro to be set from outside with e.g. -DMGONGPU_HARDCODE_CIPC
-//#undef MGONGPU_HARDCODE_CIPC // default
-////#define MGONGPU_HARDCODE_CIPC 1
+#undef MGONGPU_HARDCODE_CIPC // default
+//#define MGONGPU_HARDCODE_CIPC 1
 
 // Complex type in c++: std::complex or cxsmpl (CHOOSE ONLY ONE)
 #ifndef __CUDACC__

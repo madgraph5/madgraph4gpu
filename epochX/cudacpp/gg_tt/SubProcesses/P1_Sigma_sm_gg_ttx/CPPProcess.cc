@@ -417,6 +417,19 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  void dependentCouplings(const fptype* gs, const int nevt)
+  {
+    constexpr cxsmpl<double> mdl_complexi = cxsmpl<double>(0.,1.);
+    cxtype_sv GC_10_v[nevt], GC_11_v[nevt];
+    for (int i = 0; i < nevt; ++i) {
+        fptype thisg = gs[i];
+        GC_10_v[i] = -thisg;
+        GC_11_v[i] = mdl_complexi * thisg;
+    }
+  }
+
+  //--------------------------------------------------------------------------
+
 #ifdef __CUDACC__
   __global__ void
   sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]

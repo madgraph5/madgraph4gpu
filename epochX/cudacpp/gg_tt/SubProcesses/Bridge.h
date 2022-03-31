@@ -98,6 +98,8 @@ namespace mg5amcCpu
      */
     void gpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly = false );
 
+    void cpu_depCouplings(const FORTRANFPTYPE* gs);
+
     /**
      * Sequence to be executed for the vectorized CPU matrix element calculation
      *
@@ -105,7 +107,7 @@ namespace mg5amcCpu
      * @param mes the pointer to the output matrix elements
      * @param goodHelOnly quit after computing good helicities?
      */
-    void cpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly = false );
+    void cpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, FORTRANFPTYPE* mes, const bool goodHelOnly = false );
 
   private:
     int m_nevt;                // number of events
@@ -122,6 +124,7 @@ namespace mg5amcCpu
     static constexpr int s_gputhreadsmin = 32; // minimum number of gpu threads
 #else
     mg5amcCpu::HostBufferMomenta m_hstMomentaC;
+    mg5amcCpu::HostBufferGs m_hstGsC;
     mg5amcCpu::HostBufferMatrixElements m_hstMEsC;
     std::unique_ptr<mg5amcCpu::MatrixElementKernelHost> m_pmek;
 #endif
@@ -163,6 +166,7 @@ namespace mg5amcCpu
     , m_hstMEsC( m_nevt )
 #else
     , m_hstMomentaC( m_nevt )
+    , m_hstGsC( m_nevt )
     , m_hstMEsC( m_nevt )
 #endif
     , m_pmek( nullptr )
@@ -186,7 +190,7 @@ namespace mg5amcCpu
 #else
     std::cout << "WARNING! Instantiate host Bridge (nevt=" << m_nevt << ")" << std::endl;
     mg5amcCpu::CPPProcess process( /*verbose=*/false );
-    m_pmek.reset( new mg5amcCpu::MatrixElementKernelHost( m_hstMomentaC, m_hstMEsC, m_nevt ) );
+    m_pmek.reset( new mg5amcCpu::MatrixElementKernelHost( m_hstMomentaC, m_hstGsC, m_hstMEsC, m_nevt ) );
 #endif // __CUDACC__
     process.initProc( "../../Cards/param_card.dat" );
   }
@@ -235,8 +239,15 @@ namespace mg5amcCpu
 #endif
 
 #ifndef __CUDACC__
+
   template<typename FORTRANFPTYPE>
-  void Bridge<FORTRANFPTYPE>::cpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly )
+  void Bridge<FORTRANFPTYPE>::cpu_depCouplings(const FORTRANFPTYPE* gs) {
+      memcpy( m_hstGsC.data(), gs, m_nevt * sizeof(FORTRANFPTYPE) );
+      m_pmek->computeDependentCouplings();
+  }
+
+  template <typename FORTRANFPTYPE>
+  void Bridge<FORTRANFPTYPE>::cpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, FORTRANFPTYPE* mes, const bool goodHelOnly )
   {
     hst_transposeMomentaF2C( momenta, m_hstMomentaC.data(), m_nevt );
     if( !m_goodHelsCalculated )
