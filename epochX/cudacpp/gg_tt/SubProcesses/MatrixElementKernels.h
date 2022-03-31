@@ -24,7 +24,7 @@ namespace mg5amcCpu
                              BufferMatrixElements& matrixElements ) // output: matrix elements
       : m_momenta( momenta )
       , m_gs( gs )
-      , m_matrixElements( matrixElements ){}
+      , m_matrixElements( matrixElements )
     {
     }
 
