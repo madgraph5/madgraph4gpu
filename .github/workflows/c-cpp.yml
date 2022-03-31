@@ -61,8 +61,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: make info
-      run: source /opt/rh/gcc-toolset-10/enable; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
+      run: source /opt/rh/gcc-toolset-11/enable; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} info
     - name: make
-      run: source /opt/rh/gcc-toolset-10/enable; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
+      run: source /opt/rh/gcc-toolset-11/enable; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make check
-      run: source /opt/rh/gcc-toolset-10/enable; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
+      run: source /opt/rh/gcc-toolset-11/enable; make FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} check
