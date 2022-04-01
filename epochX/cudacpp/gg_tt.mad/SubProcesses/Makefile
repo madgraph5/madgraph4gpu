@@ -1,3 +1,10 @@
+#=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
+#=== NB: assume that the same name (e.g. cudacpp.mk, Makefile...) is used in the Subprocess and src directories
+
+THISMK = $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
+
+#-------------------------------------------------------------------------------
+
 #=== Use bash in the Makefile (https://www.gnu.org/software/make/manual/html_node/Choosing-the-Shell.html)
 
 SHELL = /bin/bash
@@ -375,7 +382,7 @@ endif
 commonlib : $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so: ../../src/*.h ../../src/*.cc
-	$(MAKE) -C ../../src $(MAKEDEBUG)
+	$(MAKE) -C ../../src $(MAKEDEBUG) -f $(THISMK)
 
 #-------------------------------------------------------------------------------
 
@@ -532,23 +539,23 @@ $(GTESTLIBS):
 # (Hack: add a fbridge.inc dependency to avxall, to ensure it is only copied once for all AVX modes)
 avxnone:
 	@echo
-	make USEBUILDDIR=1 AVX=none
+	$(MAKE) USEBUILDDIR=1 AVX=none -f $(THISMK)
 
 avxsse4:
 	@echo
-	make USEBUILDDIR=1 AVX=sse4
+	$(MAKE) USEBUILDDIR=1 AVX=sse4 -f $(THISMK)
 
 avxavx2:
 	@echo
-	make USEBUILDDIR=1 AVX=avx2
+	$(MAKE) USEBUILDDIR=1 AVX=avx2 -f $(THISMK)
 
 avx512y:
 	@echo
-	make USEBUILDDIR=1 AVX=512y
+	$(MAKE) USEBUILDDIR=1 AVX=512y -f $(THISMK)
 
 avx512z:
 	@echo
-	make USEBUILDDIR=1 AVX=512z
+	$(MAKE) USEBUILDDIR=1 AVX=512z -f $(THISMK)
 
 avxall: $(INCDIR)/fbridge.inc avxnone avxsse4 avxavx2 avx512y avx512z
 
@@ -558,25 +565,26 @@ avxall: $(INCDIR)/fbridge.inc avxnone avxsse4 avxavx2 avx512y avx512z
 .PHONY: clean
 
 clean:
-	make -C ../../src clean
-ifneq ($(BUILDDIR),.)
+ifeq ($(USEBUILDDIR),1)
 	rm -rf $(BUILDDIR)
 else
 	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+	rm -f $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(LIBDIR)/lib$(MG5AMC_CULIB).so
 endif
 	rm -rf $(INCDIR)
+	$(MAKE) -C ../../src clean -f $(THISMK)
 
 cleanall:
 	@echo
-	make USEBUILDDIR=0 clean
+	$(MAKE) USEBUILDDIR=0 clean -f $(THISMK)
 	@echo
-	make USEBUILDDIR=0 -C ../../src cleanall
+	$(MAKE) USEBUILDDIR=0 -C ../../src cleanall -f $(THISMK)
 	rm -rf build.*
 
 # Target: clean the builds as well as the googletest installation
 distclean: cleanall
-	make -C $(TOOLSDIR) clean
-	make -C $(TESTDIR) clean
+	$(MAKE) -C $(TOOLSDIR) clean
+	$(MAKE) -C $(TESTDIR) clean
 
 #-------------------------------------------------------------------------------
 
