@@ -46,7 +46,7 @@ namespace mg5amcCpu
 
   void MatrixElementKernelHost::computeDependentCouplings()
   {
-    dependentCouplings(m_gs.data(), m_gs.size());
+    dependentCouplings( m_gs.data(), m_gs.size() );
   }
 
   //--------------------------------------------------------------------------

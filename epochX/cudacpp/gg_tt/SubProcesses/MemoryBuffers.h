@@ -224,7 +224,7 @@ namespace mg5amcCpu
   typedef DeviceBuffer<fptype, sizePerEventGs> DeviceBufferGs;
 #endif
 
-//--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
 
   // A base class encapsulating a memory buffer for momenta
   typedef BufferBase<fptype> BufferMomenta;

@@ -49,7 +49,7 @@ namespace mg5amcCpu
 
     // The buffer for the input momenta
     const BufferMomenta& m_momenta;
-      
+
     // The buffer for the gs to calculate the alphaS values
     const BufferGs& m_gs;
 

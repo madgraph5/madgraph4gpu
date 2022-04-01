@@ -86,9 +86,9 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-void dependentCouplings(const fptype* gs, const int nevt);
+  void dependentCouplings( const fptype* gs, const int nevt );
 
-//--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
   __global__ void

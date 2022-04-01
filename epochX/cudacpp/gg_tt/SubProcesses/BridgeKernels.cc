@@ -62,7 +62,7 @@ namespace mg5amcCpu
 
   void BridgeKernelHost::computeDependentCouplings()
   {
-      m_bridge.cpu_depCouplings( m_gs.data() );
+    m_bridge.cpu_depCouplings( m_gs.data() );
   }
 
   //--------------------------------------------------------------------------

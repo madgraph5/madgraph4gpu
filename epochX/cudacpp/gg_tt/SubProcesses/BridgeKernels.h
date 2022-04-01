@@ -31,7 +31,7 @@ namespace mg5amcCpu
 
     // Transpose input momenta from C to Fortran before the matrix element calculation in the Bridge
     virtual void transposeInputMomentaC2F() = 0;
-      
+
   protected:
 
     // The wrapped bridge
