@@ -62,7 +62,7 @@ SYMMETRY = symmetry.o idenparts.o
 ifeq (,$(wildcard fbridge.inc))
 all: $(PROG)
 else
-all: $(PROG) $(PROG)_cudacpp
+all: $(LIBDIR)libgeneric.$(libext) $(PROG) $(PROG)_cudacpp
 endif
 
 $(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
@@ -127,6 +127,10 @@ initcluster.o: message.inc
 
 clean:
 	$(RM) *.o gensym $(PROG) $(PROG)_forhel $(PROG)_cudacpp
+
 ifneq (,$(wildcard fbridge.inc))
+cleanall:
+	make clean
+	make -C ../../Source clean
 	$(MAKE) -f $(PLUGIN_MAKEFILE) cleanall
 endif
