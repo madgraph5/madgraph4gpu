@@ -73,12 +73,20 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 
       include 'coupl.inc'
 
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      INCLUDE '../../Source/vector.inc'
+      INCLUDE 'fbridge.inc'
+#endif
 C-----
 C  BEGIN CODE
 C----- 
-      call counters_initialise()
       call cpu_time(t_before)
       CUMULATED_TIMING = t_before
+
+      CALL COUNTERS_INITIALISE()
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      CALL FBRIDGECREATE(MEEXPORTER_PBRIDGE, NB_PAGE, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
+#endif
 c
 c     Read process number
 c
@@ -200,9 +208,12 @@ c      call sample_result(xsec,xerr)
 c      write(*,*) 'Final xsec: ',xsec
 
       rewind(lun)
-
-      call counters_finalise()
       close(lun)
+
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      CALL FBRIDGEDELETE(MEEXPORTER_PBRIDGE) ! this must be at the end as it shuts down the CUDA device
+#endif
+      CALL COUNTERS_FINALISE()
       end
 
 c     $B$ get_user_params $B$ ! tag for MadWeight

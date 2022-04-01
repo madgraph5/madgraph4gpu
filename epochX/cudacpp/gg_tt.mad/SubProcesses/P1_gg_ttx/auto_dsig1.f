@@ -281,7 +281,6 @@ C     jamp2 information
       DOUBLE PRECISION HEL_RAND(NB_PAGE)
       INTEGER SELECTED_HEL(NB_PAGE)
 
-
 C     
 C     local
 C     
@@ -444,6 +443,10 @@ C
 
       INTEGER IVEC
 
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      INCLUDE 'fbridge.inc'
+      DOUBLE PRECISION OUT2(NB_PAGE)
+#endif
 
 !$OMP PARALLEL
 !$OMP DO
@@ -459,6 +462,14 @@ C       &				 selected_hel(IVEC),
       ENDDO
 !$OMP END DO
 !$OMP END PARALLEL
+
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      CALL FBRIDGESEQUENCE(MEEXPORTER_PBRIDGE, P_MULTI, OUT2)
+      DO IVEC=1, NB_PAGE
+        WRITE (*,*) IVEC, OUT(IVEC), OUT2(IVEC), OUT2(IVEC)/OUT(IVEC)
+      END DO
+#endif
+
       RETURN
       END
 
