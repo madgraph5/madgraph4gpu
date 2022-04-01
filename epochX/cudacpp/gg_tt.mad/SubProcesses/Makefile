@@ -206,6 +206,10 @@ export HRDCOD
 export RNDGEN
 export OMPFLAGS
 
+# Reset MAKEOVERRIDES to avoid command-line make arguments to be propagated (e.g. 'make AVX=' would fail otherwise)
+# See https://www.gnu.org/software/make/manual/html_node/Options_002fRecursion.html
+MAKEOVERRIDES=
+
 #-------------------------------------------------------------------------------
 
 #=== Set the CUDA/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD, RNDGEN
