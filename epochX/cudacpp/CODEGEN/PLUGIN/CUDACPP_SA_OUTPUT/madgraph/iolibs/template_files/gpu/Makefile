@@ -302,7 +302,7 @@ else
   override LIBDIRRPATH = '$(RPATHPREFIX)$(LIBDIR)'
   $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is not set))
 endif
-override INCDIR = ../../include
+###override INCDIR = ../../include
 ###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
 
 # Set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH or DYLD_LIBRARY_PATH
@@ -415,9 +415,9 @@ endif
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): Fortran include files
-$(INCDIR)/%%.inc : ../%%.inc
-	@if [ ! -d $(INCDIR) ]; then echo "mkdir -p $(INCDIR)"; mkdir -p $(INCDIR); fi
-	\cp $< $@
+###$(INCDIR)/%%.inc : ../%%.inc
+###	@if [ ! -d $(INCDIR) ]; then echo "mkdir -p $(INCDIR)"; mkdir -p $(INCDIR); fi
+###	\cp $< $@
 
 #-------------------------------------------------------------------------------
 
@@ -440,12 +440,17 @@ endif
 
 # Generic target and build rules: objects from Fortran compilation
 $(BUILDDIR)/%%.o : %%.f *.inc
-	@if [ ! -d $(INCDIR) ]; then echo "mkdir -p $(INCDIR)"; mkdir -p $(INCDIR); fi
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(FC) -I. -I$(INCDIR) -c $< -o $@
+	$(FC) -I. -c $< -o $@
+
+# Generic target and build rules: objects from Fortran compilation
+###$(BUILDDIR)/%%.o : %%.f *.inc
+###	@if [ ! -d $(INCDIR) ]; then echo "mkdir -p $(INCDIR)"; mkdir -p $(INCDIR); fi
+###	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+###	$(FC) -I. -I$(INCDIR) -c $< -o $@
 
 # Target (and build rules): Fortran standalone executables
-$(BUILDDIR)/fcheck_sa.o : $(INCDIR)/fbridge.inc
+###$(BUILDDIR)/fcheck_sa.o : $(INCDIR)/fbridge.inc
 
 ifeq ($(UNAME_S),Darwin)
 $(fcxx_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
@@ -557,7 +562,8 @@ avx512z:
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=512z -f $(THISMK)
 
-avxall: $(INCDIR)/fbridge.inc avxnone avxsse4 avxavx2 avx512y avx512z
+###avxall: $(INCDIR)/fbridge.inc avxnone avxsse4 avxavx2 avx512y avx512z
+avxall: avxnone avxsse4 avxavx2 avx512y avx512z
 
 #-------------------------------------------------------------------------------
 
@@ -571,8 +577,8 @@ else
 	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 	rm -f $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(LIBDIR)/lib$(MG5AMC_CULIB).so
 endif
-	rm -rf $(INCDIR)
 	$(MAKE) -C ../../src clean -f $(THISMK)
+###	rm -rf $(INCDIR)
 
 cleanall:
 	@echo
