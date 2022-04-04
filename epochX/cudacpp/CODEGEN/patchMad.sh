@@ -41,6 +41,7 @@ for p1dir in ${dir}/SubProcesses/P1_*; do
   \cp -dpr ${scrdir}/MG5aMC_patches/counters.cpp .
   if ! patch -i ${scrdir}/MG5aMC_patches/patch.driver.f; then status=1; fi
   if ! patch -i ${scrdir}/MG5aMC_patches/patch.matrix1.f; then status=1; fi
+  if ! patch -i ${scrdir}/MG5aMC_patches/patch.auto_dsig1.f; then status=1; fi
   cd -
 done
 cd ${dir}/SubProcesses
