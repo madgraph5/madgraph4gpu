@@ -61,8 +61,8 @@ index cce95279..16f618dd 100644
 +processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 +PLUGIN_COMMONLIB = mg5amc_common
 +PLUGIN_COMMONLIB = mg5amc_common
-+PLUGIN_CXXLIB = mg5amc_$(processid_short)_cxx
-+PLUGIN_CULIB = mg5amc_$(processid_short)_cu
++PLUGIN_CXXLIB = mg5amc_$(processid_short)_cpp
++PLUGIN_CULIB = mg5amc_$(processid_short)_cuda
 +PLUGIN_MAKEFILE = Makefile
 +
 +c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/$(PLUGIN_CXXLIB)
