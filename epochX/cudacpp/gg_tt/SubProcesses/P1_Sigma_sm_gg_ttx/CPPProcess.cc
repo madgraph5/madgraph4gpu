@@ -423,9 +423,12 @@ namespace mg5amcCpu
     cxtype_sv GC_10_v[nevt], GC_11_v[nevt];
     for( int i = 0; i < nevt; ++i )
     {
-      fptype thisg = gs[i];
-      GC_10_v[i] = -thisg;
-      GC_11_v[i] = mdl_complexi * thisg;
+      for( int j = 0; j < neppV; ++j )
+      {
+        fptype thisg = gs[i];
+        GC_10_v[i] = -thisg;
+        //GC_11_v[i] = mdl_complexi * thisg;
+      }
     }
   }
 
