@@ -469,12 +469,12 @@ C       &				 selected_hel(IVEC),
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       CALL FBRIDGESEQUENCE(MEEXPORTER_PBRIDGE, P_MULTI, OUT2)
       DO IVEC=1, NB_PAGE
-        DO IEXT=1, NEXTERNAL
-          WRITE (*,*) P_MULTI(0,IEXT,IVEC), P_MULTI(1,IEXT,IVEC),
-     &                P_MULTI(2,IEXT,IVEC), P_MULTI(3,IEXT,IVEC)
-        END DO
+c       DO IEXT=1, NEXTERNAL
+c         WRITE (*,*) P_MULTI(0,IEXT,IVEC), P_MULTI(1,IEXT,IVEC),
+c    &                P_MULTI(2,IEXT,IVEC), P_MULTI(3,IEXT,IVEC)
+c       END DO
         WRITE (*,*) IVEC, OUT(IVEC), OUT2(IVEC), OUT2(IVEC)/OUT(IVEC)
-        WRITE (*,*)
+c       WRITE (*,*)
       END DO
 #endif
 
