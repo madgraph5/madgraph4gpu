@@ -68,8 +68,10 @@ namespace mgOnGpu
   // Floating point type: fptype
 #if defined MGONGPU_FPTYPE_DOUBLE
   typedef double fptype; // double precision (8 bytes, fp64)
+#define FPTYPE_NAME "DOUBLE"
 #elif defined MGONGPU_FPTYPE_FLOAT
   typedef float fptype; // single precision (4 bytes, fp32)
+#define FPTYPE_NAME "FLOAT"
 #endif
 
   // --- Physics process-specific constants that are best declared at compile time
