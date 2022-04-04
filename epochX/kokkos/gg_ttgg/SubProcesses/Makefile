@@ -85,7 +85,7 @@ $(cuda_exe): $(cuda_objects) $(cuda_libmodel)
 	$(NVCC) $(cuda_objects) -o $@ $(CUDA_LDFLAGS) $(cuda_libmodel)
 
 $(openmp_exe): $(openmp_objects) $(openmp_libmodel)
-	$(CXX) $(openmp_objects) -o $@ $(OPENMP_LDFLAGS) $(openmp_libmodel)
+	$(CXX) $(openmp_objects) -o $@ $(openmp_libmodel) $(OPENMP_LDFLAGS)
 
 $(intel_exe): $(intel_objects) $(intel_libmodel)
 	$(ICPX) $(intel_objects) -o $@ $(intel_libmodel) $(INTEL_LDFLAGS)
