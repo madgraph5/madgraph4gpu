@@ -62,11 +62,14 @@ SYMMETRY = symmetry.o idenparts.o
 ifeq (,$(wildcard fbridge.inc))
 all: $(PROG)
 else
-all: $(LIBDIR)libgeneric.$(libext) $(PROG) c$(PROG)_cudacpp g$(PROG)_cudacpp
+all: libs $(PROG) c$(PROG)_cudacpp g$(PROG)_cudacpp
 endif
 
 $(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
 	$(FC) -o $(PROG) $(PROCESS) $(DSIG) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
+
+libs:
+	cd ../../Source; make
 
 processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 PLUGIN_COMMONLIB = mg5amc_common
