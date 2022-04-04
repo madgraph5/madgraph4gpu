@@ -10,12 +10,12 @@ PAR_H = ../../src/Parameters_$(MODELSTR).h
 
 INCDIR=../../src
 CXXFLAGS=-O3 -ffast-math -I$(INCDIR) --std=c++17
-LDFLAGS=
+LDFLAGS=-lstdc++fs
 
 CUDA_ARCH_NUM ?= 70
 NVCC=$(KOKKOSPATH_CUDA)/bin/nvcc_wrapper
 CUDA_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_CUDA)/include -arch=compute_$(CUDA_ARCH_NUM) --expt-extended-lambda --expt-relaxed-constexpr -use_fast_math --openmp -lineinfo
-CUDA_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_CUDA)/lib64/libkokkoscore.a -lnvToolsExt --openmp -lstdc++fs
+CUDA_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_CUDA)/lib64/libkokkoscore.a -lnvToolsExt --openmp
 
 CXX=g++
 ICPX=icpx
@@ -87,7 +87,7 @@ $(openmp_exe): $(openmp_objects) $(openmp_libmodel)
 	$(CXX) $(openmp_objects) -o $@ $(OPENMP_LDFLAGS) $(openmp_libmodel)
 
 $(intel_exe): $(intel_objects) $(intel_libmodel)
-	$(IPCX) $(intel_objects) -o $@ $(INTEL_LDFLAGS) $(intel_libmodel)
+	$(ICPX) $(intel_objects) -o $@ $(intel_libmodel) $(INTEL_LDFLAGS)
 
 $(hip_exe): $(hip_objects) $(hip_libmodel)
 	$(HIPCC) $(hip_objects) -o $@ $(HIP_LDFLAGS) $(hip_libmodel)
