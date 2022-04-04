@@ -451,8 +451,8 @@ C
       DOUBLE PRECISION OUT2(NB_PAGE)
 #endif
 
-!$OMP PARALLEL
-!$OMP DO
+c!$OMP PARALLEL
+c!$OMP DO
       DO IVEC=1, NB_PAGE
         CALL SMATRIX1(P_MULTI(0,1,IVEC),
      &	                         hel_rand(IVEC),
@@ -463,8 +463,8 @@ C       &				 selected_hel(IVEC),
      &				 IVEC
      &				 )
       ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+c!$OMP END DO
+c!$OMP END PARALLEL
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       CALL FBRIDGESEQUENCE(MEEXPORTER_PBRIDGE, P_MULTI, OUT2)
