@@ -29,7 +29,7 @@ ${dir}/bin/madevent treatcards param
 \rm -rf ${dir}/bin/internal/ufomodel/__pycache__
 echo -e "index.html" > ${dir}/.gitignore
 touch ${dir}/Events/.keepme
-\rm -f ${dir}/HTML
+\rm -rf ${dir}/HTML
 
 # Inject C++ counters into the Fortran code
 \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir}
