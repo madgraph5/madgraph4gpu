@@ -419,16 +419,13 @@ namespace mg5amcCpu
 
   void dependentCouplings( const fptype* gs, const int nevt )
   {
-    constexpr cxsmpl<double> mdl_complexi = cxsmpl<double>( 0., 1. );
-    cxtype_sv GC_10_v[nevt], GC_11_v[nevt];
-    for( int i = 0; i < nevt; ++i )
+    constexpr cxtype mdl_complexi( 0., 1. );
+    cxtype_sv GC_10_sv[nevt / neppV], GC_11_sv[nevt / neppV];
+    for( int i = 0; i < nevt / neppV; ++i )
     {
-      for( int j = 0; j < neppV; ++j )
-      {
-        fptype thisg = gs[i];
-        GC_10_v[i] = -thisg;
-        //GC_11_v[i] = mdl_complexi * thisg;
-      }
+      fptype_sv gs_sv = gs[i * neppV];
+      GC_10_sv[i] = -gs_sv;
+      GC_11_sv[i] = mdl_complexi * gs_sv;
     }
   }
 
