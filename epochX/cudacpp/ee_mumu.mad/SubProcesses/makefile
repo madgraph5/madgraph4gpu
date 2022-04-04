@@ -135,5 +135,6 @@ ifneq (,$(wildcard fbridge.inc))
 cleanall:
 	make clean
 	make -C ../../Source clean
+	rm -rf $(LIBDIR)libbias.$(libext)
 	$(MAKE) -f $(PLUGIN_MAKEFILE) cleanall
 endif
