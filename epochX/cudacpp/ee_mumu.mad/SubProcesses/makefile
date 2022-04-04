@@ -75,13 +75,13 @@ PLUGIN_CXXLIB = mg5amc_$(processid_short)_cpp
 PLUGIN_CULIB = mg5amc_$(processid_short)_cuda
 PLUGIN_MAKEFILE = Makefile
 
-c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/$(PLUGIN_CXXLIB)
+c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/lib$(PLUGIN_CXXLIB).so
 	$(FC) -o c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CXXLIB)
 
-g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/$(PLUGIN_CULIB)
+g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/lib$(PLUGIN_CULIB).so
 	$(FC) -o g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CULIB)
 
-$(LIBDIR)/$(PLUGIN_CXXLIB) $(LIBDIR)/$(PLUGIN_CULIB):
+$(LIBDIR)/lib$(PLUGIN_CXXLIB).so $(LIBDIR)/lib$(PLUGIN_CULIB).so:
 	$(MAKE) -f $(PLUGIN_MAKEFILE)
 
 counters.o: counters.cpp timer.h
