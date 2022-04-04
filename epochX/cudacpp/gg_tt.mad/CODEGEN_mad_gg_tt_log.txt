@@ -50,7 +50,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006925106048583984 [0m
+[1;32mDEBUG: model prefixing  takes 0.006880998611450195 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
@@ -74,7 +74,7 @@ It has been validated for the last time with version: 3.1.1[0m
 [1mAddition matrix-element will be done with PLUGIN: CUDACPP_SA_OUTPUT[0m
 [1mOutput will be done with PLUGIN: CUDACPP_SA_OUTPUT[0m
 [1;32mDEBUG:  cformat = [0m standalone_cudacpp [1;30m[export_cpp.py at line 3008][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 159][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 158][0m [0m
 INFO: initialize a new directory: CODEGEN_mad_gg_tt 
 INFO: remove old information in CODEGEN_mad_gg_tt 
 FileWriter <class 'madgraph.iolibs.file_writers.FileWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_mad_gg_tt/Source/makefile
@@ -85,7 +85,7 @@ FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for /data/avalas
 FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_mad_gg_tt/SubProcesses/symmetry.f
 FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_mad_gg_tt/SubProcesses/addmothers.f
 FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_mad_gg_tt/Source/vector.inc
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 164][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 163][0m [0m
 [1;34mWARNING: File exists /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_mad_gg_tt [0m
 INFO: Creating subdirectories in directory /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_mad_gg_tt 
 [1;34mWARNING: File exists /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_mad_gg_tt [0m
@@ -109,23 +109,23 @@ FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for matrix1.f
 [1;32mDEBUG:  'after',call, arg = [0m after CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV1%(propa)s_2', 'coup': '%(coup0)s%(vec0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),', 'out': 'W(1,%(out)d)', 'mass': '%(M)s, fk_%(W)s,'} [1;30m[export_v4.py at line 3928][0m [0m
 [1mINFO: Some T-channel width have been set to zero [new since 2.8.0]
  if you want to keep this width please set "zerowidth_tchannel" to False [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f3dcae4ca00> [1;30m[export_v4.py at line 5943][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f00839992b0> [1;30m[export_v4.py at line 5943][0m [0m
 INFO: Creating files in directory . 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1056][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1057][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for ././CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1125][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1126][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for ././CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1147][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1433][0m [0m
-[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1434][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1433][0m [0m
-[1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1434][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1148][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1481][0m [0m
+[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1482][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1481][0m [0m
+[1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1482][0m [0m
 [1;32mDEBUG: only one Matrix-element supported? [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1077][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1094][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1101][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1113][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1078][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1095][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1102][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1114][0m [0m
 [1;32mDEBUG:  proc_id = [0m 1 [1;30m[export_cpp.py at line 710][0m [0m
 [1;32mDEBUG:  config_map = [0m [1, 2, 3] [1;30m[export_cpp.py at line 711][0m [0m
 [1;32mDEBUG:  subproc_number = [0m 0 [1;30m[export_cpp.py at line 712][0m [0m
@@ -155,7 +155,7 @@ FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for symswap.inc
 FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for symperms.inc
 [1;32mDEBUG:  done [1;30m[madgraph_interface.py at line 8459][0m [0m
 Generated helas calls for 1 subprocesses (3 diagrams) in 0.008 s
-Wrote files for 10 helas calls in 0.126 s
+Wrote files for 10 helas calls in 0.124 s
 FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_mad_gg_tt/Source/MODEL/param_read.inc
 FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_mad_gg_tt/Source/MODEL/input.inc
 FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_mad_gg_tt/Source/MODEL/intparam_definition.inc
@@ -172,7 +172,7 @@ FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for /data/avalas
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.175 s
+ALOHA: aloha creates 2 routines in  0.174 s
 [1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2451][0m [0m
 FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_mad_gg_tt/Source/DHELAS/VVV1P0_1.f
 [1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2451][0m [0m
@@ -181,11 +181,11 @@ FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for /data/avalas
 FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_mad_gg_tt/Source/DHELAS/FFV1_1.f
 [1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2451][0m [0m
 FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_mad_gg_tt/Source/DHELAS/FFV1_2.f
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 176][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 175][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 4 routines in  0.160 s
+ALOHA: aloha creates 4 routines in  0.161 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 [1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2451][0m [0m
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -214,6 +214,6 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.517s
-user	0m2.065s
-sys	0m0.381s
+real	0m2.456s
+user	0m2.109s
+sys	0m0.317s
