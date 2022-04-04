@@ -594,20 +594,8 @@ int main(int argc, char **argv)
               << "NumIterations               = " << niter << std::endl
               << "IsGoodHel                   = " << hstNGoodHel(0) << " out of " << ncomb << std::endl
               << std::string(SEP79, '-') << std::endl
-#if defined MGONGPU_FPTYPE_DOUBLE
-              << "FP precision                = DOUBLE (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
-#elif defined MGONGPU_FPTYPE_FLOAT
-              << "FP precision                = FLOAT (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
-#endif
-#ifdef __CUDACC__
-#if defined MGONGPU_CXTYPE_CUCOMPLEX
-              << "Complex type                = CUCOMPLEX" << std::endl
-#elif defined MGONGPU_CXTYPE_THRUST
-              << "Complex type                = THRUST::COMPLEX" << std::endl
-#endif
-#else
-              << "Complex type                = STD::COMPLEX" << std::endl
-#endif
+              << "FP precision                = " << FPTYPE_NAME << " (NaN/abnormal=" << nabn << ", zero=" << nzero << ")" << std::endl
+              << "Complex type                = " << COMPLEX_TYPE_NAME << std::endl
               << "RanNumb memory layout       = AOSOA[" << neppR << "]"
               << ( neppR == 1 ? " == AOS" : "" )
               << " [HARDCODED FOR REPRODUCIBILITY]" << std::endl
@@ -746,21 +734,8 @@ int main(int argc, char **argv)
              << "\"NumIterations\": " << niter << ", " << std::endl
              << "\"NumThreadsPerBlock\": " << team_size << ", " << std::endl
              << "\"NumBlocksPerGrid\": " << league_size << ", " << std::endl
-#if defined MGONGPU_FPTYPE_DOUBLE
-             << "\"FP precision\": " << "\"DOUBLE (NaN/abnormal=" << nabn << ")\"," << std::endl
-#elif defined MGONGPU_FPTYPE_FLOAT
-             << "\"FP precision\": " << "\"FLOAT (NaN/abnormal=" << nabn << ")\"," << std::endl
-#endif
-             << "\"Complex type\": "
-#ifdef __CUDACC__
-#if defined MGONGPU_CXTYPE_CUCOMPLEX
-             << "\"CUCOMPLEX\"," << std::endl
-#elif defined MGONGPU_CXTYPE_THRUST
-             << "\"THRUST::COMPLEX\"," << std::endl
-#endif
-#else
-             << "\"STD::COMPLEX\"," << std::endl
-#endif
+             << "\"FP precision\": " << "\"" << FPTYPE_NAME << " (NaN/abnormal=" << nabn << ")\"," << std::endl
+             << "\"Complex type\": " << "\"" << COMPLEX_TYPE_NAME << "\"" << std::endl
              << "\"RanNumb memory layout\": " << "\"AOSOA[" << neppR << "]\""
              << ( neppR == 1 ? " == AOS" : "" ) << ", " << std::endl
              << "\"Momenta memory layout\": " << "\"AOSOA[" << neppM << "]\""

@@ -340,7 +340,7 @@ const std::string CPPProcess<ExecSpace>::getCompiler()
   if ( !tchainpipe ) throw std::runtime_error( "`readelf ...` failed?" );
   std::array<char, 128> tchainbuf;
   while ( fgets( tchainbuf.data(), tchainbuf.size(), tchainpipe.get() ) != nullptr ) tchainout += tchainbuf.data();
-  tchainout.pop_back(); // remove trailing newline
+  if(tchainout.size() > 0) tchainout.pop_back(); // remove trailing newline
 #if defined __CUDACC__ or defined __INTEL_LLVM_COMPILER
   out << ", gcc " << tchainout;
 #else

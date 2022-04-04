@@ -31,7 +31,7 @@ OPENMP_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_OMP)/lib64/libkokkoscore.a -ldl --openmp
 INTEL_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_INTEL)/include -fiopenmp -fopenmp-targets=spir64 -Wno-parentheses -Wno-openmp-mapping
 INTEL_LDFLAGS=$(LDFLAGS)  $(KOKKOSPATH_INTEL)/lib64/libkokkoscore.a -fiopenmp -fopenmp-targets=spir64 
 
-HIP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_HIP)/include -fopenmp -fno-gpu-rdc --amdgpu-target=gfx908
+HIP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_HIP)/include -fopenmp -fno-gpu-rdc --amdgpu-target=gfx906
 HIP_LDFLAGS=$(LDFLAGS) -L $(KOKKOSPATH_HIP)/lib64  -lkokkoscore -ldl -fopenmp 
 
 FILES = check.ext
@@ -87,7 +87,7 @@ $(openmp_exe): $(openmp_objects) $(openmp_libmodel)
 	$(CXX) $(openmp_objects) -o $@ $(OPENMP_LDFLAGS) $(openmp_libmodel)
 
 $(intel_exe): $(intel_objects) $(intel_libmodel)
-	$(IPCX) $(intel_objects) -o $@ $(INTEL_LDFLAGS) $(intel_libmodel)
+	$(ICPX) $(intel_objects) -o $@ $(intel_libmodel) $(INTEL_LDFLAGS)
 
 $(hip_exe): $(hip_objects) $(hip_libmodel)
 	$(HIPCC) $(hip_objects) -o $@ $(HIP_LDFLAGS) $(hip_libmodel)

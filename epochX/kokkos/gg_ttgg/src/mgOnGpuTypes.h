@@ -5,7 +5,6 @@
 
 #ifndef __CUDACC__
 #include <cmath>
-#include "Kokkos_Complex.hpp"
 inline void nvtxRangePush(char* temp){return;}
 inline void nvtxRangePop(void){return;};
 
@@ -16,23 +15,13 @@ inline void nvtxRangePop(void){return;};
 
 #if defined MGONGPU_CXTYPE_THRUST
   #include <thrust/complex.h>
-#endif
-
-namespace mgOnGpu
-{
-  // --- Type definitions
-
-  // Complex type: cxtype
-#if defined MGONGPU_CXTYPE_THRUST
   typedef thrust::complex<fptype> cxtype; // two doubles: RI
-#else // c++
+  #define COMPLEX_TYPE_NAME "THRUST::COMPLEX"
+#else
+  #include "Kokkos_Complex.hpp"
   typedef Kokkos::complex<fptype> cxtype; // two doubles: RI
+  #define COMPLEX_TYPE_NAME "KOKKOS::COMPLEX"
 #endif
-
-}
-
-// Expose typedefs and operators outside the namespace
-using mgOnGpu::cxtype;
 
 // --- Functions and operators for floating point types
 

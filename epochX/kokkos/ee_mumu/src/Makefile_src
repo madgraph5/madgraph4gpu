@@ -6,12 +6,12 @@ KOKKOSPATH_HIP ?= /home/jchilders/git/kokkos/install_mi50
 MODELSTR = %(model)s
 MODELLIB = model_$(MODELSTR)
 
-CXXFLAGS=-O3 -ffast-math --std=c++17 -lineinfo
+CXXFLAGS=-O3 -ffast-math --std=c++17
 LDFLAGS=
 
 CUDA_ARCH_NUM ?= 70
 NVCC=$(KOKKOSPATH_CUDA)/bin/nvcc_wrapper
-CUDA_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_CUDA)/include -arch=compute_$(CUDA_ARCH_NUM) --expt-extended-lambda --expt-relaxed-constexpr -use_fast_math --openmp
+CUDA_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_CUDA)/include -arch=compute_$(CUDA_ARCH_NUM) --expt-extended-lambda --expt-relaxed-constexpr -use_fast_math --openmp -lineinfo
 CUDA_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_CUDA)/lib64/libkokkoscore.a -lnvToolsExt --openmp
 
 CXX=g++
