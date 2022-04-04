@@ -971,8 +971,9 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     using A_ACCESS = HostAccessAmplitudes;
 #endif
     mgDebug( 0, __FUNCTION__ );
+    //printf( \"calculate_wavefunctions: ihel=%2d\\n\", ihel );
 #ifndef __CUDACC__
-    //printf( "calculate_wavefunctions: nevt %d\\n", nevt );
+    //printf( \"calculate_wavefunctions: nevt %d\\n\", nevt );
 #endif\n""")
             ret_lines.append("    // The number of colors")
             ret_lines.append("    constexpr int ncolor = %i;" % len(color_amplitudes[0]))
@@ -1318,16 +1319,63 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         matrix_element.reuse_outdated_wavefunctions(me)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
-        res.append('#ifdef __CUDACC__')
-        res.append('// CUDA kernels take an input buffer with momenta for all events')
-        res.append('const fptype* momenta = allmomenta;')
-        res.append('#else')
-        res.append('// C++ kernels take an input buffer with momenta for one specific event (the first in the current event page)')
-        res.append('const int ievt0 = ipagV * neppV;')
-        res.append('const fptype* momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );')
-        res.append('#endif\n')
-        res.append('// Reset color flows (reset jamp_sv) at the beginning of a new event or event page')
-        res.append('for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }')
+        res.append("""#ifdef __CUDACC__
+      // CUDA kernels take an input buffer with momenta for all events
+      const fptype* momenta = allmomenta;
+#else
+      // C++ kernels take an input buffer with momenta for one specific event (the first in the current event page)
+      const int ievt0 = ipagV * neppV;
+      const fptype* momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );
+      /*
+      // --- START debug: printout momenta
+      static int maxihel = -1;
+      static int minihel = -1;
+      if( maxihel >= -1 )
+      {
+        if( ihel > maxihel )
+        {
+          //printf( "calculate_wavefunctions: ihel=%2d\n", ihel );
+          maxihel = ihel;
+        }
+        else if( ihel < maxihel )
+        {
+          printf( "calculate_wavefunctions: FIRST CALL AFTER HELICITY FILTERING ihel=%2d\n", ihel );
+          maxihel = -2;
+          minihel = ihel;
+        }
+      }
+      else // skip printout during the calculation of good helicities
+      {
+        if( ihel == minihel ) // printout momenta only for the first good helicity
+        {
+          for( int ieppV = 0; ieppV < neppV; ieppV++ )
+          {
+            printf( "calculate_wavefunctions: ievt=%6d ihel=%2d\n", ievt0 + ieppV, ihel );
+            for( int ipar = 0; ipar < npar; ipar++ )
+            {
+#ifdef MGONGPU_CPPSIMD
+              printf( "calculate_wavefunctions: %f %f %f %f\n",
+                      M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar )[ieppV],
+                      M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar )[ieppV],
+                      M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar )[ieppV],
+                      M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar )[ieppV] );
+#else
+              printf( "calculate_wavefunctions: %f %f %f %f\n",
+                      M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar ),
+                      M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar ),
+                      M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar ),
+                      M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar ) );
+#endif
+            }
+          }
+        }
+      }
+      // --- END debug: printout momenta
+      */
+#endif
+
+      // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
+      for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }""")
         for diagram in matrix_element.get('diagrams'):
             ###print('DIAGRAM %3d: #wavefunctions=%3d, #diagrams=%3d' %
             ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING

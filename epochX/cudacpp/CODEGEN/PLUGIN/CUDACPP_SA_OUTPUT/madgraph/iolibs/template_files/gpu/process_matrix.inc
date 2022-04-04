@@ -26,7 +26,7 @@
 #ifdef __CUDACC__
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
       allMEs[ievt] += deltaMEs;
-      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %%6d %%2d %%f\n", ievt, ihel, allMEs[ievt] );
+      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%%6d ihel=%%2d me_running=%%f\n", ievt, ihel, allMEs[ievt] );
 #else
 #ifdef MGONGPU_CPPSIMD
       if( isAligned_allMEs )
@@ -38,12 +38,12 @@
         for( int ieppV = 0; ieppV < neppV; ieppV++ )
           allMEs[ipagV * neppV + ieppV] += deltaMEs[ieppV];
       }
-      //if ( cNGoodHel > 0 )
-      //  for ( int ieppV=0; ieppV<neppV; ieppV++ )
-      //    printf( "calculate_wavefunction: %%6d %%2d %%f\n", ipagV*neppV+ieppV, ihel, allMEs[ipagV][ieppV] );
+      //if( cNGoodHel > 0 )
+      //  for( int ieppV = 0; ieppV < neppV; ieppV++ )
+      //    printf( "calculate_wavefunctions: ievt=%%6d ihel=%%2d me_running=%%f\n", ipagV * neppV + ieppV, ihel, allMEs[ipagV * neppV + ieppV] );
 #else
       allMEs[ipagV] += deltaMEs;
-      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunction: %%6d %%2d %%f\n", ipagV, ihel, allMEs[ipagV] );
+      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%%6d ihel=%%2d me_running=%%f\n", ipagV, ihel, allMEs[ipagV] );
 #endif
 #endif
     }
