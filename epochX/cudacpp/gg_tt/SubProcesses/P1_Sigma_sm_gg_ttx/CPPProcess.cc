@@ -56,7 +56,6 @@ namespace mg5amcCpu
 #else
   static cxtype_sv GC_10_sv[32]; //[nevt / neppV];
   static cxtype_sv GC_11_sv[32]; //[nevt / neppV];
-  static fptype cIPC[4];
   static fptype cIPD[2];
 #endif
 #endif
@@ -326,7 +325,6 @@ namespace mg5amcCpu
     checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 2 * sizeof( cxtype ) ) );
     checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) ) );
 #else
-    memcpy( cIPC, tIPC, 2 * sizeof( cxtype ) );
     memcpy( cIPD, tIPD, 2 * sizeof( fptype ) );
 #endif
     //for ( i=0; i<3; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;
