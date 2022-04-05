@@ -735,11 +735,11 @@ int main(int argc, char **argv)
              << "\"NumThreadsPerBlock\": " << team_size << ", " << std::endl
              << "\"NumBlocksPerGrid\": " << league_size << ", " << std::endl
              << "\"FP precision\": " << "\"" << FPTYPE_NAME << " (NaN/abnormal=" << nabn << ")\"," << std::endl
-             << "\"Complex type\": " << "\"" << COMPLEX_TYPE_NAME << "\"" << std::endl
-             << "\"RanNumb memory layout\": " << "\"AOSOA[" << neppR << "]\""
-             << ( neppR == 1 ? " == AOS" : "" ) << ", " << std::endl
-             << "\"Momenta memory layout\": " << "\"AOSOA[" << neppM << "]\""
-             << ( neppM == 1 ? " == AOS" : "" ) << ", " << std::endl
+             << "\"Complex type\": " << "\"" << COMPLEX_TYPE_NAME << "\"," << std::endl
+             << "\"RanNumb memory layout\": " << "\"AOSOA[" << neppR << "]"
+             << ( neppR == 1 ? " == AOS" : "" ) << "\", " << std::endl
+             << "\"Momenta memory layout\": " << "\"AOSOA[" << neppM << ""
+             << ( neppM == 1 ? " == AOS" : "" ) << "]\", " << std::endl
 #ifdef __CUDACC__
       //<< "\"Wavefunction GPU memory\": " << "\"LOCAL\"," << std::endl
 #endif
