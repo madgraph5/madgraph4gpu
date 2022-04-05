@@ -54,8 +54,8 @@ namespace mg5amcCpu
   __device__ __constant__ fptype cIPC[4];
   __device__ __constant__ fptype cIPD[2];
 #else
-static cxtype_sv GC_10_sv[32]; //[nevt / neppV];
-static cxtype_sv GC_11_sv[32]; //[nevt / neppV];
+  static cxtype_sv GC_10_sv[32]; //[nevt / neppV];
+  static cxtype_sv GC_11_sv[32]; //[nevt / neppV];
   static fptype cIPC[4];
   static fptype cIPD[2];
 #endif
