@@ -104,11 +104,11 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     # [NB: mgOnGpuConfig.h, check_sa.cc and fcheck_sa.f are handled through dedicated methods]
     ###s = MG5DIR + '/madgraph/iolibs/template_files/'
     s = PLUGINDIR + '/madgraph/iolibs/template_files/'
-    from_template = {'.': [s+'.clang-format', s+'CMakeLists.txt'],
+    from_template = {'.': [s+'.clang-format', s+'CMake/CMakeLists.txt'],
                      'CMake': [s+'CMake/Compilers.txt', s+'CMake/Platforms.txt', s+'CMake/Macros.txt'],
                      'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
                              s+'gpu/mgOnGpuFptypes.h', s+'gpu/mgOnGpuCxtypes.h', s+'gpu/mgOnGpuVectors.h',
-                             s+'src/CMakeLists.txt'],
+                             s+'CMake/src/CMakeLists.txt'],
                      'SubProcesses': [s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h', s+'gpu/CudaRuntime.h',
                                       s+'gpu/MemoryBuffers.h', s+'gpu/MemoryAccessHelpers.h', s+'gpu/MemoryAccessVectors.h',
                                       s+'gpu/MemoryAccessMatrixElements.h', s+'gpu/MemoryAccessMomenta.h',
@@ -125,7 +125,8 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
                                       s+'gpu/Makefile',
                                       s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
                                       s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt',
-                                      s+'gpu/perf.py', s+'gpu/profile.sh', s+'SubProcesses/CMakeLists.txt']}
+                                      s+'gpu/perf.py', s+'gpu/profile.sh',
+                                      s+'CMake/SubProcesses/CMakeLists.txt']}
     to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h', 'CudaRuntime.h',
                     'MemoryBuffers.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h',
                     'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h',
