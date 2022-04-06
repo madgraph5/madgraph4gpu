@@ -1072,7 +1072,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     def edit_CMakeLists(self):
         """Generate CMakeLists.txt"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_CMakeLists')
-        template = open(pjoin(self.template_path,'gpu','CMakeLists_P.txt'),'r').read()
+        template = open(pjoin(self.template_path,'CMake/SubProcesses/CMakeLists_P.txt'),'r').read()
         ff = open(pjoin(self.path, 'CMakeLists.txt'),'w')
         ff.write(template)
         ff.close()
