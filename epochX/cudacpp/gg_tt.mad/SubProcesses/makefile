@@ -62,11 +62,14 @@ SYMMETRY = symmetry.o idenparts.o
 ifeq (,$(wildcard fbridge.inc))
 all: $(PROG)
 else
-all: $(LIBDIR)libgeneric.$(libext) $(PROG) c$(PROG)_cudacpp g$(PROG)_cudacpp
+all: libs $(PROG) c$(PROG)_cudacpp g$(PROG)_cudacpp
 endif
 
 $(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
 	$(FC) -o $(PROG) $(PROCESS) $(DSIG) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
+
+libs:
+	cd ../../Source; make
 
 processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 PLUGIN_COMMONLIB = mg5amc_common
@@ -75,13 +78,13 @@ PLUGIN_CXXLIB = mg5amc_$(processid_short)_cpp
 PLUGIN_CULIB = mg5amc_$(processid_short)_cuda
 PLUGIN_MAKEFILE = Makefile
 
-c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/$(PLUGIN_CXXLIB)
+c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/lib$(PLUGIN_CXXLIB).so
 	$(FC) -o c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CXXLIB)
 
-g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/$(PLUGIN_CULIB)
+g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/lib$(PLUGIN_CULIB).so
 	$(FC) -o g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CULIB)
 
-$(LIBDIR)/$(PLUGIN_CXXLIB) $(LIBDIR)/$(PLUGIN_CULIB):
+$(LIBDIR)/lib$(PLUGIN_CXXLIB).so $(LIBDIR)/lib$(PLUGIN_CULIB).so:
 	$(MAKE) -f $(PLUGIN_MAKEFILE)
 
 counters.o: counters.cpp timer.h
@@ -135,5 +138,6 @@ ifneq (,$(wildcard fbridge.inc))
 cleanall:
 	make clean
 	make -C ../../Source clean
+	rm -rf $(LIBDIR)libbias.$(libext)
 	$(MAKE) -f $(PLUGIN_MAKEFILE) cleanall
 endif
