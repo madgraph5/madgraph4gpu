@@ -3,4 +3,4 @@
 0           ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
 1           ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
 0           ! Helicity Sum/event 0=exact
-1           ! Channel number for singla-diagram enhancement multi-channel
+1           ! Channel number for single-diagram enhancement multi-channel
