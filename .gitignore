@@ -31,3 +31,5 @@ local/
 *.error
 *.cobaltlog
 *.BKP
+.DS_Store
+***/build
