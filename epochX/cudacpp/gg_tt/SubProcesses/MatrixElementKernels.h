@@ -20,8 +20,10 @@ namespace mg5amcCpu
 
     // Constructor from existing input and output buffers
     MatrixElementKernelBase( const BufferMomenta& momenta,          // input: momenta
+                             const BufferGs& gs,                    // input: gs for alphaS
                              BufferMatrixElements& matrixElements ) // output: matrix elements
       : m_momenta( momenta )
+      , m_gs( gs )
       , m_matrixElements( matrixElements )
     {
     }
@@ -30,6 +32,9 @@ namespace mg5amcCpu
 
     // Destructor
     virtual ~MatrixElementKernelBase() {}
+
+    // Calculate dependent couplings from Gs transferred via the Bridge
+    virtual void computeDependentCouplings() = 0;
 
     // Compute good helicities
     virtual void computeGoodHelicities() = 0;
@@ -45,6 +50,9 @@ namespace mg5amcCpu
     // The buffer for the input momenta
     const BufferMomenta& m_momenta;
 
+    // The buffer for the gs to calculate the alphaS values
+    const BufferGs& m_gs;
+
     // The buffer for the output matrix elements
     BufferMatrixElements& m_matrixElements;
   };
@@ -59,11 +67,15 @@ namespace mg5amcCpu
 
     // Constructor from existing input and output buffers
     MatrixElementKernelHost( const BufferMomenta& momenta,         // input: momenta
+                             const BufferGs& gs,                   // input: gs for alphaS
                              BufferMatrixElements& matrixElements, // output: matrix elements
                              const size_t nevt );
 
     // Destructor
     virtual ~MatrixElementKernelHost() {}
+
+    // Calculate dependent couplings from Gs transferred via the Bridge
+    void computeDependentCouplings() override final;
 
     // Compute good helicities
     void computeGoodHelicities() override final;

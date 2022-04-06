@@ -54,7 +54,8 @@ namespace mg5amcCpu
   __device__ __constant__ fptype cIPC[4];
   __device__ __constant__ fptype cIPD[2];
 #else
-  static fptype cIPC[4];
+  static cxtype_sv GC_10_sv[32]; //[nevt / neppV];
+  static cxtype_sv GC_11_sv[32]; //[nevt / neppV];
   static fptype cIPD[2];
 #endif
 #endif
@@ -164,29 +165,29 @@ namespace mg5amcCpu
 
       ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
 
-      VVV1P0_1<W_ACCESS>( w_fp[0], w_fp[1], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_fp[4] );
+      VVV1P0_1<W_ACCESS>( w_fp[0], w_fp[1], GC_10_sv[ipagV], 0., 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 1
-      FFV1_0<W_ACCESS, A_ACCESS>( w_fp[3], w_fp[2], w_fp[4], cxmake( cIPC[2], cIPC[3] ), &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS>( w_fp[3], w_fp[2], w_fp[4], GC_11_sv[ipagV], &amp_fp[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 2 OF 3 ***
 
       // Wavefunction(s) for diagram number 2
-      FFV1_1<W_ACCESS>( w_fp[2], w_fp[0], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_fp[4] );
+      FFV1_1<W_ACCESS>( w_fp[2], w_fp[0], GC_11_sv[ipagV], cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 2
-      FFV1_0<W_ACCESS, A_ACCESS>( w_fp[3], w_fp[4], w_fp[1], cxmake( cIPC[2], cIPC[3] ), &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS>( w_fp[3], w_fp[4], w_fp[1], GC_11_sv[ipagV], &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 3 OF 3 ***
 
       // Wavefunction(s) for diagram number 3
-      FFV1_2<W_ACCESS>( w_fp[3], w_fp[0], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_fp[4] );
+      FFV1_2<W_ACCESS>( w_fp[3], w_fp[0], GC_11_sv[ipagV], cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 3
-      FFV1_0<W_ACCESS, A_ACCESS>( w_fp[4], w_fp[2], w_fp[1], cxmake( cIPC[2], cIPC[3] ), &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS>( w_fp[4], w_fp[2], w_fp[1], GC_11_sv[ipagV], &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***
@@ -324,7 +325,6 @@ namespace mg5amcCpu
     checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 2 * sizeof( cxtype ) ) );
     checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) ) );
 #else
-    memcpy( cIPC, tIPC, 2 * sizeof( cxtype ) );
     memcpy( cIPD, tIPD, 2 * sizeof( fptype ) );
 #endif
     //for ( i=0; i<3; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;
@@ -413,6 +413,19 @@ namespace mg5amcCpu
     out << ")";
 #endif
     return out.str();
+  }
+
+  //--------------------------------------------------------------------------
+
+  void dependentCouplings( const fptype* gs, const int nevt )
+  {
+    constexpr cxtype mdl_complexi( 0., 1. );
+    for( int i = 0; i < nevt / neppV; ++i )
+    {
+      fptype_sv gs_sv = gs[i * neppV];
+      GC_10_sv[i] = -gs_sv;
+      GC_11_sv[i] = mdl_complexi * gs_sv;
+    }
   }
 
   //--------------------------------------------------------------------------

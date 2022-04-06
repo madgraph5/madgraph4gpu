@@ -791,7 +791,7 @@ namespace mg5amcCpu
   __device__ INLINE void
   VVV1P0_1( const fptype allV2[],
             const fptype allV3[],
-            const cxtype COUP,
+            const cxtype_sv COUP,
             const fptype M1,
             const fptype W1,
             fptype allV1[] ) ALWAYS_INLINE;
@@ -804,7 +804,7 @@ namespace mg5amcCpu
   FFV1_0( const fptype allF1[],
           const fptype allF2[],
           const fptype allV3[],
-          const cxtype COUP,
+          const cxtype_sv COUP,
           fptype allvertexes[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
@@ -814,7 +814,7 @@ namespace mg5amcCpu
   __device__ INLINE void
   FFV1_1( const fptype allF2[],
           const fptype allV3[],
-          const cxtype COUP,
+          const cxtype_sv COUP,
           const fptype M1,
           const fptype W1,
           fptype allF1[] ) ALWAYS_INLINE;
@@ -826,7 +826,7 @@ namespace mg5amcCpu
   __device__ INLINE void
   FFV1_2( const fptype allF1[],
           const fptype allV3[],
-          const cxtype COUP,
+          const cxtype_sv COUP,
           const fptype M2,
           const fptype W2,
           fptype allF2[] ) ALWAYS_INLINE;
@@ -838,7 +838,7 @@ namespace mg5amcCpu
   __device__ void
   VVV1P0_1( const fptype allV2[],
             const fptype allV3[],
-            const cxtype COUP,
+            const cxtype_sv COUP,
             const fptype M1,
             const fptype W1,
             fptype allV1[] )
@@ -875,7 +875,7 @@ namespace mg5amcCpu
   FFV1_0( const fptype allF1[],
           const fptype allF2[],
           const fptype allV3[],
-          const cxtype COUP,
+          const cxtype_sv COUP,
           fptype allvertexes[] )
   {
     mgDebug( 0, __FUNCTION__ );
@@ -897,7 +897,7 @@ namespace mg5amcCpu
   __device__ void
   FFV1_1( const fptype allF2[],
           const fptype allV3[],
-          const cxtype COUP,
+          const cxtype_sv COUP,
           const fptype M1,
           const fptype W1,
           fptype allF1[] )
@@ -927,7 +927,7 @@ namespace mg5amcCpu
   __device__ void
   FFV1_2( const fptype allF1[],
           const fptype allV3[],
-          const cxtype COUP,
+          const cxtype_sv COUP,
           const fptype M2,
           const fptype W2,
           fptype allF2[] )

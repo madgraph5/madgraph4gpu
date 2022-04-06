@@ -16,9 +16,10 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   MatrixElementKernelHost::MatrixElementKernelHost( const BufferMomenta& momenta,         // input: momenta
+                                                    const BufferGs& gs,                   // input: gs for alphaS
                                                     BufferMatrixElements& matrixElements, // output: matrix elements
                                                     const size_t nevt )
-    : MatrixElementKernelBase( momenta, matrixElements )
+    : MatrixElementKernelBase( momenta, gs, matrixElements )
     , NumberOfEvents( nevt )
   {
     if( m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: momenta must be a host array" );
@@ -39,6 +40,13 @@ namespace mg5amcCpu
     // [NB: SIMD vectorization in mg5amc C++ code is only used in the ME calculation below MatrixElementKernelHost!]
     if( !MatrixElementKernelHost::hostSupportsSIMD() )
       throw std::runtime_error( "Host does not support the SIMD implementation of MatrixElementKernelsHost" );
+  }
+
+  //--------------------------------------------------------------------------
+
+  void MatrixElementKernelHost::computeDependentCouplings()
+  {
+    dependentCouplings( m_gs.data(), m_gs.size() );
   }
 
   //--------------------------------------------------------------------------

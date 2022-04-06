@@ -30,8 +30,8 @@
 // Choose whether to hardcode the cIPC/cIPD physics parameters rather than reading them from user cards
 // This optimization can gain 20% in CUDA in eemumu (issue #39)
 // By default, do not hardcode, but allow this macro to be set from outside with e.g. -DMGONGPU_HARDCODE_CIPC
-//#undef MGONGPU_HARDCODE_CIPC // default
-////#define MGONGPU_HARDCODE_CIPC 1
+#undef MGONGPU_HARDCODE_CIPC // default
+//#define MGONGPU_HARDCODE_CIPC 1
 
 // Complex type in c++: std::complex or cxsmpl (CHOOSE ONLY ONE)
 #ifndef __CUDACC__
@@ -143,7 +143,7 @@ using mgOnGpu::fptype;
 #else
 #define MGONGPU_CPPSIMD 8
 #endif
-#elif defined __SSE4_2__ // C++ "sse4" SSE4.2 (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT)
+#elif defined __SSE4_2__ || defined __ARM_NEON__ // C++ "sse4" SSE4.2 (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT)
 #ifdef MGONGPU_FPTYPE_DOUBLE
 #define MGONGPU_CPPSIMD 2
 #else

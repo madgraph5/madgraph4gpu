@@ -22,6 +22,7 @@ namespace mg5amcCpu
 
     // Constructor from existing input and output buffers
     BridgeKernelBase( const BufferMomenta& momenta,         // input: momenta
+                      const BufferGs& gs,                   // input: gs for alphaS
                       BufferMatrixElements& matrixElements, // output: matrix elements
                       const size_t nevt );
 
@@ -47,11 +48,15 @@ namespace mg5amcCpu
 
     // Constructor from existing input and output buffers
     BridgeKernelHost( const BufferMomenta& momenta,         // input: momenta
+                      const BufferGs& gs,                   // input: gs for alphaS
                       BufferMatrixElements& matrixElements, // output: matrix elements
                       const size_t nevt );
 
     // Destructor
     virtual ~BridgeKernelHost() {}
+
+    // Calculate dependent couplings from Gs transferred via the Bridge
+    void computeDependentCouplings() override final;
 
     // Transpose input momenta from C to Fortran before the matrix element calculation in the Bridge
     void transposeInputMomentaC2F() override final;

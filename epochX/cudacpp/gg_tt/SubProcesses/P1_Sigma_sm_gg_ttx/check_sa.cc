@@ -309,7 +309,15 @@ main( int argc, char** argv )
   DeviceBufferRandomNumbers devRnarray( nevt );
 #endif
 
-  // Memory buffers for momenta
+#ifndef __CUDACC__
+  HostBufferGs hstGs( nevt );
+  constexpr double tmpG = 1.2177157847767195;
+  for( int i = 0; i < nevt; ++i ) hstGs[i] = tmpG; // sr fill them for now, in the end they should come via the bridge
+#else
+  // sr fix CUDA version
+#endif
+
+    // Memory buffers for momenta
 #ifndef __CUDACC__
   HostBufferMomenta hstMomenta( nevt );
 #else
@@ -394,7 +402,7 @@ main( int argc, char** argv )
 #ifdef __CUDACC__
     pmek.reset( new MatrixElementKernelDevice( devMomenta, devMatrixElements, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstMatrixElements, nevt ) );
+    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstMatrixElements, nevt ) );
 #endif
   }
   else
@@ -402,7 +410,7 @@ main( int argc, char** argv )
 #ifdef __CUDACC__
     pmek.reset( new BridgeKernelDevice( hstMomenta, hstMatrixElements, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new BridgeKernelHost( hstMomenta, hstMatrixElements, nevt ) );
+    pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstMatrixElements, nevt ) );
 #endif
   }
 
@@ -516,6 +524,8 @@ main( int argc, char** argv )
       timermap.start( tc2fKey );
       dynamic_cast<BridgeKernelBase*>( pmek.get() )->transposeInputMomentaC2F();
     }
+
+    pmek.get()->computeDependentCouplings();
 
     // --- 0e. SGoodHel
     if( iiter == 0 )
@@ -766,6 +776,8 @@ main( int argc, char** argv )
 #else
   wrkflwtxt += "/sse4";
 #endif
+#elif defined __ARM_NEON__
+  wrkflwtxt += "/neon";
 #else
   wrkflwtxt += "/????"; // no path to this statement
 #endif
@@ -872,6 +884,9 @@ main( int argc, char** argv )
 #else
               << "] ('sse4': SSE4.2, 128bit)" << cxtref << std::endl
 #endif
+#elif defined __ARM_NEON__
+              << "Internal loops fptype_sv    = VECTOR[" << neppV
+              << "] ('neon': ARM NEON, 128bit)" << cxtref << std::endl
 #else
 #error Internal error: unknown SIMD build configuration
 #endif
