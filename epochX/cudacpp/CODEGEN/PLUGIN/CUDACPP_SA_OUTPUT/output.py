@@ -10,6 +10,10 @@ PLUGINDIR = os.path.dirname( __file__ )
 # AV - model_handling includes custom UFOModelConverter and OneProcessExporter, plus additional patches
 import PLUGIN.CUDACPP_SA_OUTPUT.model_handling as model_handling
 
+# AV - create a plugin-specific logger
+import logging
+logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.output')
+
 #------------------------------------------------------------------------------------
 
 # AV - modify misc.make_unique (remove a printout)
@@ -161,13 +165,30 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
         misc.sprint('Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter)')
         return super().__init__(*args, **kwargs)
 
-    # AV (default from OM's tutorial) - add a debug printout
+    # AV - overload the default version: create CMake directory, do not create lib directory
     def copy_template(self, model):
         misc.sprint('Entering PLUGIN_ProcessExporter.copy_template (initialise the directory)')
-        os.mkdir(self.dir_path)
-        os.mkdir(os.path.join(self.dir_path,'CMake'))
-        super().copy_template(model)
-        os.rmdir(os.path.join(self.dir_path,'lib'))
+        try: os.mkdir(self.dir_path)
+        except os.error as error: logger.warning(error.strerror + " " + self.dir_path)
+        with misc.chdir(self.dir_path):
+            logger.info('Creating subdirectories in directory %s' % self.dir_path)
+            for d in ['src', 'Cards', 'SubProcesses', 'CMake']: # AV - added CMake, removed lib
+                try: os.mkdir(d)
+                except os.error as error: logger.warning(error.strerror + " " + os.path.join(self.dir_path,d))
+            # Write param_card
+            open(os.path.join("Cards","param_card.dat"), 'w').write(model.write_param_card())    
+            # Copy files in various subdirectories
+            for key in self.from_template:
+                for f in self.from_template[key]:
+                    export_cpp.cp(f, key) # NB this assumes directory key exists...
+            # Copy src Makefile
+            if self.template_src_make:
+                makefile = self.read_template_file(self.template_src_make) % {'model': self.get_model_name(model.get('name'))}
+                open(os.path.join('src', 'Makefile'), 'w').write(makefile)
+            # Copy SubProcesses Makefile
+            if self.template_Sub_make:
+                makefile = self.read_template_file(self.template_Sub_make) % {'model': self.get_model_name(model.get('name'))}
+                open(os.path.join('SubProcesses', 'Makefile'), 'w').write(makefile)
 
     # AV - add debug printouts (in addition to the default one from OM's tutorial)
     def generate_subprocess_directory(self, subproc_group, fortran_model, me=None):
