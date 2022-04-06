@@ -164,7 +164,10 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     # AV (default from OM's tutorial) - add a debug printout
     def copy_template(self, model):
         misc.sprint('Entering PLUGIN_ProcessExporter.copy_template (initialise the directory)')
-        return super().copy_template(model)
+        os.mkdir(self.dir_path)
+        os.mkdir(os.path.join(self.dir_path,'CMake'))
+        super().copy_template(model)
+        os.rmdir(os.path.join(self.dir_path,'lib'))
 
     # AV - add debug printouts (in addition to the default one from OM's tutorial)
     def generate_subprocess_directory(self, subproc_group, fortran_model, me=None):
