@@ -906,7 +906,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
     def get_process_function_definitions(self, write=True):
         """The complete class definition for the process"""
         replace_dict = super(export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False) # defines replace_dict['initProc_lines']
-        replace_dict['hardcoded_initProc_lines'] = replace_dict['initProc_lines'].replace( 'm_pars->', 'Parameters_%s::' % self.model_name ) 
+        replace_dict['hardcoded_initProc_lines'] = replace_dict['initProc_lines'].replace( 'm_pars->', 'Parameters_%s::' % self.model_name )
         replace_dict['ncouplings'] = len(self.couplings2order)
         replace_dict['ncouplingstimes2'] = 2 * replace_dict['ncouplings']
         replace_dict['nparams'] = len(self.params2order)
@@ -937,7 +937,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         if len(self.params2order) == 0: # remove all IPD occurrences (issue #349)
             file_lines = file.split('\n')
             file_lines = [l.replace('cIPC,cIPD','cIPC') for l in file_lines] # remove cIPD from OpenMP pragma
-            file_lines = [l for l in file_lines if 'IPD' not in l] # remove all other lines matchin IPD
+            file_lines = [l for l in file_lines if 'IPD' not in l] # remove all other lines matching IPD
             file = '\n'.join( file_lines )
         return file
 
@@ -1068,8 +1068,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
         files.ln(pjoin(self.path, 'RandomNumberKernels.cc'), self.path, 'gRandomNumberKernels.cu')
         files.ln(pjoin(self.path, 'BridgeKernels.cc'), self.path, 'gBridgeKernels.cu')
 
-
-    # sr - generate CMakeLists.txt file inside the P* directory
+    # SR - generate CMakeLists.txt file inside the P* directory
     def edit_CMakeLists(self):
         """Generate CMakeLists.txt"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_CMakeLists')

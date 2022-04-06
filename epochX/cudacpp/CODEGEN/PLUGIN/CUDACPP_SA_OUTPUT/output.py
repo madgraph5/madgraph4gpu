@@ -126,7 +126,7 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
                     'MemoryBuffers.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h',
                     'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h',
                     'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h',
-	                'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h',
+                    'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h',
                     'EventStatistics.h',
                     'CrossSectionKernels.cc', 'CrossSectionKernels.h',
                     'MatrixElementKernels.cc', 'MatrixElementKernels.h',
