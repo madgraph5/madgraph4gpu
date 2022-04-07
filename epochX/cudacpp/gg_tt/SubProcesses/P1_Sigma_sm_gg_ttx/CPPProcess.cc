@@ -14,6 +14,7 @@
 #include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
+#include "MemoryAccessCouplings.h"
 
 #include <algorithm>
 #include <array>
@@ -54,8 +55,8 @@ namespace mg5amcCpu
   __device__ __constant__ fptype cIPC[4];
   __device__ __constant__ fptype cIPD[2];
 #else
-  static cxtype_sv GC_10_sv[32]; //[nevt / neppV];
-  static cxtype_sv GC_11_sv[32]; //[nevt / neppV];
+  static fptype GC_10[128]; // [nevt * 2] (cmplx numbers)
+  static fptype GC_11[128]; // [nevt * 2] (cmplx numbers)
   static fptype cIPD[2];
 #endif
 #endif
@@ -90,11 +91,13 @@ namespace mg5amcCpu
     using M_ACCESS = DeviceAccessMomenta;
     using W_ACCESS = DeviceAccessWavefunctions;
     using A_ACCESS = DeviceAccessAmplitudes;
+    using C_ACCESS = DeviceAccessCouplings;
 #else
     using namespace mg5amcCpu;
     using M_ACCESS = HostAccessMomenta;
     using W_ACCESS = HostAccessWavefunctions;
     using A_ACCESS = HostAccessAmplitudes;
+    using C_ACCESS = HostAccessCouplings;
 #endif
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
@@ -165,29 +168,29 @@ namespace mg5amcCpu
 
       ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
 
-      VVV1P0_1<W_ACCESS>( w_fp[0], w_fp[1], GC_10_sv[ipagV], 0., 0., w_fp[4] );
+      VVV1P0_1<W_ACCESS, C_ACCESS>( w_fp[0], w_fp[1], GC_10, 0., 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 1
-      FFV1_0<W_ACCESS, A_ACCESS>( w_fp[3], w_fp[2], w_fp[4], GC_11_sv[ipagV], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[3], w_fp[2], w_fp[4], GC_11, &amp_fp[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 2 OF 3 ***
 
       // Wavefunction(s) for diagram number 2
-      FFV1_1<W_ACCESS>( w_fp[2], w_fp[0], GC_11_sv[ipagV], cIPD[0], cIPD[1], w_fp[4] );
+      FFV1_1<W_ACCESS, C_ACCESS>( w_fp[2], w_fp[0], GC_11, cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 2
-      FFV1_0<W_ACCESS, A_ACCESS>( w_fp[3], w_fp[4], w_fp[1], GC_11_sv[ipagV], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[3], w_fp[4], w_fp[1], GC_11, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 3 OF 3 ***
 
       // Wavefunction(s) for diagram number 3
-      FFV1_2<W_ACCESS>( w_fp[3], w_fp[0], GC_11_sv[ipagV], cIPD[0], cIPD[1], w_fp[4] );
+      FFV1_2<W_ACCESS, C_ACCESS>( w_fp[3], w_fp[0], GC_11, cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 3
-      FFV1_0<W_ACCESS, A_ACCESS>( w_fp[4], w_fp[2], w_fp[1], GC_11_sv[ipagV], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[4], w_fp[2], w_fp[1], GC_11, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***
@@ -420,11 +423,13 @@ namespace mg5amcCpu
   void dependentCouplings( const fptype* gs, const int nevt )
   {
     constexpr cxtype mdl_complexi( 0., 1. );
-    for( int i = 0; i < nevt / neppV; ++i )
+    for( int i = 0; i < nevt / 2; ++i )
     {
       fptype_sv gs_sv = gs[i * neppV];
-      GC_10_sv[i] = -gs_sv;
-      GC_11_sv[i] = mdl_complexi * gs_sv;
+      cxtype_sv tmp_gc10 = -gs_sv;
+      memcpy(&GC_10[i * neppV * 2], &tmp_gc10, 2 * neppV * sizeof(fptype));
+      cxtype_sv tmp_gc11 = mdl_complexi * gs_sv;
+      memcpy(&GC_11[i * neppV * 2], &tmp_gc11, 2 * neppV * sizeof(fptype));
     }
   }
 

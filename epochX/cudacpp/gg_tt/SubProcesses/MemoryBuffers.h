@@ -208,7 +208,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // A base class encapsulating a memory buffer for random numbers
+  // A base class encapsulating a memory buffer for Gs for calculating dependent couplings
   typedef BufferBase<fptype> BufferGs;
 
   // The size (number of elements) per event in a memory buffer for random numbers
