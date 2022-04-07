@@ -12,9 +12,9 @@
 #include "CudaRuntime.h"
 #include "HelAmps_sm.h"
 #include "MemoryAccessAmplitudes.h"
+#include "MemoryAccessCouplings.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
-#include "MemoryAccessCouplings.h"
 
 #include <algorithm>
 #include <array>
@@ -427,9 +427,9 @@ namespace mg5amcCpu
     {
       fptype_sv gs_sv = gs[i * neppV];
       cxtype_sv tmp_gc10 = -gs_sv;
-      memcpy(&GC_10[i * neppV * 2], &tmp_gc10, 2 * neppV * sizeof(fptype));
+      memcpy( &GC_10[i * neppV * 2], &tmp_gc10, 2 * neppV * sizeof( fptype ) );
       cxtype_sv tmp_gc11 = mdl_complexi * gs_sv;
-      memcpy(&GC_11[i * neppV * 2], &tmp_gc11, 2 * neppV * sizeof(fptype));
+      memcpy( &GC_11[i * neppV * 2], &tmp_gc11, 2 * neppV * sizeof( fptype ) );
     }
   }
 

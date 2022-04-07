@@ -143,7 +143,7 @@ public:
 //----------------------------------------------------------------------------
 
 typedef KernelAccessCouplings<false> HostAccessCouplings;
-typedef KernelAccessCouplings<true>  DeviceAccessCouplings;
+typedef KernelAccessCouplings<true> DeviceAccessCouplings;
 
 //----------------------------------------------------------------------------
 
