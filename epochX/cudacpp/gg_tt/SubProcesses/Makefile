@@ -8,9 +8,11 @@ SHELL = /bin/bash
 
 # Detect O/S kernel (Linux, Darwin...)
 UNAME_S := $(shell uname -s)
+###$(info UNAME_S='$(UNAME_S)')
 
 # Detect architecture (x86_64, ppc64le...)
 UNAME_P := $(shell uname -p)
+###$(info UNAME_P='$(UNAME_P)')
 
 #-------------------------------------------------------------------------------
 
@@ -157,6 +159,9 @@ ifeq ($(AVX),)
   ifeq ($(UNAME_P),ppc64le)
     ###override AVX = none
     override AVX = sse4
+  else ifeq ($(UNAME_P),arm)
+    ###override AVX = none
+    override AVX = sse4
   else ifeq ($(wildcard /proc/cpuinfo),)
     override AVX = none
     $(warning Using AVX='$(AVX)' because host SIMD features cannot be read from /proc/cpuinfo)
@@ -222,6 +227,12 @@ ifeq ($(UNAME_P),ppc64le)
     override AVXFLAGS = -D__SSE4_2__ # Power9 VSX with 128 width (VSR registers)
   else ifneq ($(AVX),none)
     $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on PowerPC for the moment)
+  endif
+else ifeq ($(UNAME_P),arm)
+  ifeq ($(AVX),sse4)
+    override AVXFLAGS = -D__SSE4_2__ # ARM NEON with 128 width (Q/quadword registers)
+  else ifneq ($(AVX),none)
+    $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on ARM for the moment)
   endif
 else
   ifeq ($(AVX),sse4)
