@@ -42,6 +42,9 @@ CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
+# Optionally add debug flags to display the full list of flags (eg on Darwin)
+###CXXFLAGS+= -v
+
 # Note: AR, CXX and FC are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
