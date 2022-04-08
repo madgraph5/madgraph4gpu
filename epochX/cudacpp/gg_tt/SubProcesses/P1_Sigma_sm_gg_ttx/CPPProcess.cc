@@ -384,7 +384,9 @@ namespace mg5amcCpu
     // CLANG version (either as CXX or as host compiler inside NVCC or inside ICX)
 #if defined __clang__
 #if defined __clang_major__ && defined __clang_minor__ && defined __clang_patchlevel__
-    out << "clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
+#ifdef __APPLE__
+    out << "Apple clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
+#else
     // GCC toolchain version inside CLANG
     std::string tchainout;
     std::string tchaincmd = "readelf -p .comment $(${CXX} -print-libgcc-file-name) |& grep 'GCC: (GNU)' | grep -v Warning | sort -u | awk '{print $5}'";
@@ -397,6 +399,7 @@ namespace mg5amcCpu
     out << ", gcc " << tchainout;
 #else
     out << " (gcc " << tchainout << ")";
+#endif
 #endif
 #else
     out << "clang UNKNOWKN";
