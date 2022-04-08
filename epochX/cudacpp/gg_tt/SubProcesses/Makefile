@@ -154,6 +154,9 @@ ifeq ($(AVX),)
   ifeq ($(UNAME_P),ppc64le)
     ###override AVX = none
     override AVX = sse4
+  else ifeq ($(wildcard /proc/cpuinfo),)
+    override AVX = none
+    $(warning Using AVX='$(AVX)' because host SIMD features cannot be read from /proc/cpuinfo)
   else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
     override AVX = 512y
     ###$(info Using AVX='$(AVX)' as no user input exists)
@@ -582,10 +585,17 @@ distclean: cleanall
 info:
 	@echo ""
 	@uname -spn # e.g. Linux nodename.cern.ch x86_64
+ifeq ($(UNAME_S),Darwin)
+	@sysctl -a | grep -i brand
+	@sysctl -a | grep machdep.cpu | grep features || true
+	@sysctl -a | grep hw.physicalcpu:
+	@sysctl -a | grep hw.logicalcpu:
+else
 	@cat /proc/cpuinfo | grep "model name" | sort -u
 	@cat /proc/cpuinfo | grep "flags" | sort -u
 	@cat /proc/cpuinfo | grep "cpu cores" | sort -u
 	@cat /proc/cpuinfo | grep "physical id" | sort -u
+endif
 	@echo ""
 ifneq ($(shell which nvidia-smi 2>/dev/null),)
 	nvidia-smi -L
