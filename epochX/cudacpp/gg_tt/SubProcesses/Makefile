@@ -565,7 +565,13 @@ avx512z:
 	@echo
 	make USEBUILDDIR=1 AVX=512z
 
+ifeq ($(UNAME_P),ppc64le)
+avxall: $(INCDIR)/fbridge.inc avxnone avxsse4
+else ifeq ($(UNAME_P),arm)
+avxall: $(INCDIR)/fbridge.inc avxnone avxsse4
+else
 avxall: $(INCDIR)/fbridge.inc avxnone avxsse4 avxavx2 avx512y avx512z
+endif
 
 #-------------------------------------------------------------------------------
 
