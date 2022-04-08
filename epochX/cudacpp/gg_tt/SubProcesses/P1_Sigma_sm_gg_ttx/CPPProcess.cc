@@ -425,6 +425,20 @@ namespace mg5amcCpu
   void dependentCouplings( const fptype* gs, const int nevt )
   {
 #ifdef __CUDACC__
+    /* constexpr */ cxtype mdl_complexi( 0., 1. );
+    static fptype GC_10t[128]; // [nevt * 2] (cmplx numbers)
+    static fptype GC_11t[128]; // [nevt * 2] (cmplx numbers)
+    for( int i = 0; i < nevt / neppV; ++i )
+    {
+      const fptype_sv* gs_sv = reinterpret_cast<const fptype_sv*>( &gs[i * neppV] );
+      // better --> const fptype_sv gs_sv{gs[idx], gs[idx+1], gs[idx+2], gs[idx+3]};
+      cxtype_sv tmp_gc10 = -( *gs_sv );
+      memcpy( &GC_10t[i * neppV * 2], &tmp_gc10, 2 * neppV * sizeof( fptype ) );
+      cxtype_sv tmp_gc11 = mdl_complexi * ( *gs_sv );
+      memcpy( &GC_11t[i * neppV * 2], &tmp_gc11, 2 * neppV * sizeof( fptype ) );
+    }
+    checkCuda( cudaMemcpyToSymbol( GC_10, GC_10t, nevt * 2 * sizeof( fptype ) ) );
+    checkCuda( cudaMemcpyToSymbol( GC_11, GC_11t, nevt * 2 * sizeof( fptype ) ) );
 #else
     constexpr cxtype mdl_complexi( 0., 1. );
     for( int i = 0; i < nevt / neppV; ++i )
