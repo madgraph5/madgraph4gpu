@@ -35,6 +35,7 @@ struct CPUTest : public CUDA_CPU_TestBase
   CPPProcess process;
   HostBufferRandomNumbers hstRnarray;
   HostBufferMomenta hstMomenta;
+  HostBufferGs hstGs;
   HostBufferWeights hstWeights;
   HostBufferMatrixElements hstMatrixElements;
   HostBufferHelicityMask hstIsGoodHel;
@@ -49,6 +50,7 @@ struct CPUTest : public CUDA_CPU_TestBase
     , process( /*verbose=*/false )
     , hstRnarray( nevt )
     , hstMomenta( nevt )
+    , hstGs( nevt )
     , hstWeights( nevt )
     , hstMatrixElements( nevt )
     , hstIsGoodHel( mgOnGpu::ncomb )
@@ -77,7 +79,7 @@ struct CPUTest : public CUDA_CPU_TestBase
 
   void runSigmaKin( std::size_t iiter ) override
   {
-    MatrixElementKernelHost mek( hstMomenta, hstMatrixElements, nevt );
+    MatrixElementKernelHost mek( hstMomenta, hstGs, hstMatrixElements, nevt );
     if( iiter == 0 ) mek.computeGoodHelicities();
     mek.computeMatrixElements();
   }
@@ -114,6 +116,7 @@ struct CUDATest : public CUDA_CPU_TestBase
   CPPProcess process;
   PinnedHostBufferRandomNumbers hstRnarray;
   PinnedHostBufferMomenta hstMomenta;
+  PinnedHostBufferGs hstGs;
   PinnedHostBufferWeights hstWeights;
   PinnedHostBufferMatrixElements hstMatrixElements;
   PinnedHostBufferHelicityMask hstIsGoodHel;
@@ -133,6 +136,7 @@ struct CUDATest : public CUDA_CPU_TestBase
     , process( /*verbose=*/false )
     , hstRnarray( nevt )
     , hstMomenta( nevt )
+    , hstGs( nevt )
     , hstWeights( nevt )
     , hstMatrixElements( nevt )
     , hstIsGoodHel( mgOnGpu::ncomb )
@@ -171,7 +175,7 @@ struct CUDATest : public CUDA_CPU_TestBase
 
   void runSigmaKin( std::size_t iiter ) override
   {
-    MatrixElementKernelDevice mek( devMomenta, devMatrixElements, gpublocks, gputhreads );
+    MatrixElementKernelDevice mek( devMomenta, hstGs, devMatrixElements, gpublocks, gputhreads );
     if( iiter == 0 ) mek.computeGoodHelicities();
     mek.computeMatrixElements();
     copyHostFromDevice( hstMatrixElements, devMatrixElements );

@@ -107,7 +107,7 @@ namespace mg5amcCpu
      * @param mes the pointer to the output matrix elements
      * @param goodHelOnly quit after computing good helicities?
      */
-    void cpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, FORTRANFPTYPE* mes, const bool goodHelOnly = false );
+    void cpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly = false );
 
   private:
     int m_nevt;                // number of events
@@ -118,6 +118,7 @@ namespace mg5amcCpu
     int m_gpublocks;  // number of gpu blocks (default set from number of events, can be modified)
     mg5amcGpu::DeviceBuffer<FORTRANFPTYPE, sizePerEventMomenta> m_devMomentaF;
     mg5amcGpu::DeviceBufferMomenta m_devMomentaC;
+    mg5amcGpu::PinnedHostBufferGs m_hstGsC;
     mg5amcGpu::DeviceBufferMatrixElements m_devMEsC;
     mg5amcGpu::PinnedHostBufferMatrixElements m_hstMEsC;
     std::unique_ptr<mg5amcGpu::MatrixElementKernelDevice> m_pmek;
@@ -162,6 +163,7 @@ namespace mg5amcCpu
     , m_gpublocks( m_nevt / m_gputhreads ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
     , m_devMomentaF( m_nevt )
     , m_devMomentaC( m_nevt )
+    , m_hstGsC( m_nevt )
     , m_devMEsC( m_nevt )
     , m_hstMEsC( m_nevt )
 #else
@@ -186,7 +188,7 @@ namespace mg5amcCpu
     std::cout << "WARNING! Instantiate device Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
               << ", gpublocks*gputhreads=" << m_gpublocks * m_gputhreads << ")" << std::endl;
     mg5amcGpu::CPPProcess process( /*verbose=*/false );
-    m_pmek.reset( new mg5amcGpu::MatrixElementKernelDevice( m_devMomentaC, m_devMEsC, m_gpublocks, m_gputhreads ) );
+    m_pmek.reset( new mg5amcGpu::MatrixElementKernelDevice( m_devMomentaC, m_hstGsC, m_devMEsC, m_gpublocks, m_gputhreads ) );
 #else
     std::cout << "WARNING! Instantiate host Bridge (nevt=" << m_nevt << ")" << std::endl;
     mg5amcCpu::CPPProcess process( /*verbose=*/false );
@@ -210,6 +212,14 @@ namespace mg5amcCpu
 #endif
 
 #ifdef __CUDACC__
+
+  template<typename FORTRANFPTYPE>
+  void Bridge<FORTRANFPTYPE>::cpu_depCouplings( const FORTRANFPTYPE* gs )
+  {
+    memcpy( m_hstGsC.data(), gs, m_nevt * sizeof( FORTRANFPTYPE ) );
+    m_pmek->computeDependentCouplings();
+  }
+
   template<typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::gpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly )
   {
@@ -248,7 +258,7 @@ namespace mg5amcCpu
   }
 
   template<typename FORTRANFPTYPE>
-  void Bridge<FORTRANFPTYPE>::cpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, FORTRANFPTYPE* mes, const bool goodHelOnly )
+  void Bridge<FORTRANFPTYPE>::cpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly )
   {
     hst_transposeMomentaF2C( momenta, m_hstMomentaC.data(), m_nevt );
     if( !m_goodHelsCalculated )

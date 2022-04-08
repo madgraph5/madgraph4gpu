@@ -102,6 +102,7 @@ namespace mg5amcCpu
 
     // Constructor from existing input and output buffers
     MatrixElementKernelDevice( const BufferMomenta& momenta,         // input: momenta
+                               const BufferGs& gs,                   // input: gs for alphaS
                                BufferMatrixElements& matrixElements, // output: matrix elements
                                const size_t gpublocks,
                                const size_t gputhreads );
@@ -111,6 +112,9 @@ namespace mg5amcCpu
 
     // Reset gpublocks and gputhreads
     void setGrid( const int gpublocks, const int gputhreads );
+
+    // Calculate dependent couplings from Gs transferred via the Bridge
+    void computeDependentCouplings() override final;
 
     // Compute good helicities
     void computeGoodHelicities() override final;

@@ -314,7 +314,9 @@ main( int argc, char** argv )
   constexpr double tmpG = 1.2177157847767195;
   for( int i = 0; i < nevt; ++i ) hstGs[i] = tmpG; // sr fill them for now, in the end they should come via the bridge
 #else
-  // sr fix CUDA version
+  PinnedHostBufferGs hstGs( nevt );
+  constexpr double tmpG = 1.2177157847767195;
+  for( int i = 0; i < nevt; ++i ) hstGs[i] = tmpG; // sr fill them for now, in the end they should come via the bridge
 #endif
 
     // Memory buffers for momenta
@@ -400,7 +402,7 @@ main( int argc, char** argv )
   if( !bridge )
   {
 #ifdef __CUDACC__
-    pmek.reset( new MatrixElementKernelDevice( devMomenta, devMatrixElements, gpublocks, gputhreads ) );
+    pmek.reset( new MatrixElementKernelDevice( devMomenta, hstGs, devMatrixElements, gpublocks, gputhreads ) );
 #else
     pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstMatrixElements, nevt ) );
 #endif
@@ -408,7 +410,7 @@ main( int argc, char** argv )
   else
   {
 #ifdef __CUDACC__
-    pmek.reset( new BridgeKernelDevice( hstMomenta, hstMatrixElements, gpublocks, gputhreads ) );
+    pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, hstMatrixElements, gpublocks, gputhreads ) );
 #else
     pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstMatrixElements, nevt ) );
 #endif

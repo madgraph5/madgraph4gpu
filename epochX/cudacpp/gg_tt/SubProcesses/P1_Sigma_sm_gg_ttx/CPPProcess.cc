@@ -53,6 +53,8 @@ namespace mg5amcCpu
 #else
 #ifdef __CUDACC__
   __device__ __constant__ fptype cIPC[4];
+  __device__ __constant__ fptype GC_10[128];
+  __device__ __constant__ fptype GC_11[128];
   __device__ __constant__ fptype cIPD[2];
 #else
   static fptype GC_10[128]; // [nevt * 2] (cmplx numbers)
@@ -422,15 +424,19 @@ namespace mg5amcCpu
 
   void dependentCouplings( const fptype* gs, const int nevt )
   {
+#ifdef __CUDACC__
+#else
     constexpr cxtype mdl_complexi( 0., 1. );
-    for( int i = 0; i < nevt / 2; ++i )
+    for( int i = 0; i < nevt / neppV; ++i )
     {
-      fptype_sv gs_sv = gs[i * neppV];
-      cxtype_sv tmp_gc10 = -gs_sv;
+      const fptype_sv* gs_sv = reinterpret_cast<const fptype_sv*>( &gs[i * neppV] );
+      // better --> const fptype_sv gs_sv{gs[idx], gs[idx+1], gs[idx+2], gs[idx+3]};
+      cxtype_sv tmp_gc10 = -( *gs_sv );
       memcpy( &GC_10[i * neppV * 2], &tmp_gc10, 2 * neppV * sizeof( fptype ) );
-      cxtype_sv tmp_gc11 = mdl_complexi * gs_sv;
+      cxtype_sv tmp_gc11 = mdl_complexi * ( *gs_sv );
       memcpy( &GC_11[i * neppV * 2], &tmp_gc11, 2 * neppV * sizeof( fptype ) );
     }
+#endif // __CUDACC__
   }
 
   //--------------------------------------------------------------------------

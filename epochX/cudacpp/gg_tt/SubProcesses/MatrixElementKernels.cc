@@ -1,7 +1,6 @@
-#include "MatrixElementKernels.h"
-
 #include "CPPProcess.h"
 #include "CudaRuntime.h"
+#include "MatrixElementKernels.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryBuffers.h"
 
@@ -119,10 +118,11 @@ namespace mg5amcGpu
   //--------------------------------------------------------------------------
 
   MatrixElementKernelDevice::MatrixElementKernelDevice( const BufferMomenta& momenta,         // input: momenta
+                                                        const BufferGs& gs,                   // input: gs for alphaS
                                                         BufferMatrixElements& matrixElements, // output: matrix elements
                                                         const size_t gpublocks,
                                                         const size_t gputhreads )
-    : MatrixElementKernelBase( momenta, matrixElements )
+    : MatrixElementKernelBase( momenta, gs, matrixElements )
     , NumberOfEvents( gpublocks * gputhreads )
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
@@ -151,6 +151,13 @@ namespace mg5amcGpu
     if( m_gpublocks == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gpublocks must be > 0 in setGrid" );
     if( m_gputhreads == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gputhreads must be > 0 in setGrid" );
     if( this->nevt() != m_gpublocks * m_gputhreads ) throw std::runtime_error( "MatrixElementKernelDevice: nevt mismatch in setGrid" );
+  }
+
+  //--------------------------------------------------------------------------
+
+  void MatrixElementKernelDevice::computeDependentCouplings()
+  {
+    dependentCouplings( m_gs.data(), m_gs.size() );
   }
 
   //--------------------------------------------------------------------------
