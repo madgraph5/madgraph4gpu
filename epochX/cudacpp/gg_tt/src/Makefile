@@ -161,8 +161,8 @@ else
 endif
 ######$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
 
-# Ugly workaround for Mac #375 (I did not manage to fix rpath with @executable_path): use absolute paths for LIBDIR
-# (NB: this is even uglier because it creates the directory if it does not exist - avoid removing src by mistake)
+# Workaround for Mac #375 (I did not manage to fix rpath with @executable_path): use absolute paths for LIBDIR
+# (NB: this is quite ugly because it creates the directory if it does not exist - to avoid removing src by mistake)
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
 override LIBDIR = $(shell mkdir -p $(LIBDIRREL); cd $(LIBDIRREL); pwd)
