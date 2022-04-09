@@ -80,6 +80,12 @@ ifeq ($(UNAME_P),ppc64le)
   else ifneq ($(AVX),none)
     $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on PowerPC for the moment)
   endif
+else ifeq ($(UNAME_P),arm)
+  ifeq ($(AVX),sse4)
+    override AVXFLAGS = -D__SSE4_2__ # ARM NEON with 128 width (Q/quadword registers)
+  else ifneq ($(AVX),none)
+    $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on ARM for the moment)
+  endif
 else
   ifeq ($(AVX),sse4)
     override AVXFLAGS = -march=nehalem # SSE4.2 with 128 width (xmm registers)
@@ -143,16 +149,29 @@ override DIRTAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
+###$(info Current directory is $(shell pwd))
 ifeq ($(USEBUILDDIR),1)
   override BUILDDIR = build.$(DIRTAG)
-  override LIBDIR   = ../lib/$(BUILDDIR)
+  override LIBDIRREL = ../lib/$(BUILDDIR)
   ###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR=1 is set))
 else
   override BUILDDIR = .
-  override LIBDIR   = ../lib
+  override LIBDIRREL = ../lib
   ###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is not set))
 endif
 ######$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
+
+# Workaround for Mac #375 (I did not manage to fix rpath with @executable_path): use absolute paths for LIBDIR
+# (NB: this is quite ugly because it creates the directory if it does not exist - to avoid removing src by mistake)
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+override LIBDIR = $(shell mkdir -p $(LIBDIRREL); cd $(LIBDIRREL); pwd)
+ifeq ($(wildcard $(LIBDIR)),)
+$(error Directory LIBDIR="$(LIBDIR)" should have been created by now)
+endif
+else
+override LIBDIR = $(LIBDIRREL)
+endif
 
 #===============================================================================
 #=== Makefile TARGETS and build rules below

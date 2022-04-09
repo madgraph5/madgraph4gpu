@@ -8,9 +8,11 @@ SHELL = /bin/bash
 
 # Detect O/S kernel (Linux, Darwin...)
 UNAME_S := $(shell uname -s)
+###$(info UNAME_S='$(UNAME_S)')
 
 # Detect architecture (x86_64, ppc64le...)
 UNAME_P := $(shell uname -p)
+###$(info UNAME_P='$(UNAME_P)')
 
 #-------------------------------------------------------------------------------
 
@@ -41,6 +43,9 @@ CXXFLAGS = $(OPTFLAGS) -std=c++17 $(INCFLAGS) $(USE_NVTX) -Wall -Wshadow -Wextra
 CXXFLAGS+= -ffast-math # see issue #117
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
+
+# Optionally add debug flags to display the full list of flags (eg on Darwin)
+###CXXFLAGS+= -v
 
 # Note: AR, CXX and FC are implicitly defined if not set externally
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
@@ -154,6 +159,12 @@ ifeq ($(AVX),)
   ifeq ($(UNAME_P),ppc64le)
     ###override AVX = none
     override AVX = sse4
+  else ifeq ($(UNAME_P),arm)
+    ###override AVX = none
+    override AVX = sse4
+  else ifeq ($(wildcard /proc/cpuinfo),)
+    override AVX = none
+    $(warning Using AVX='$(AVX)' because host SIMD features cannot be read from /proc/cpuinfo)
   else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
     override AVX = 512y
     ###$(info Using AVX='$(AVX)' as no user input exists)
@@ -216,6 +227,12 @@ ifeq ($(UNAME_P),ppc64le)
     override AVXFLAGS = -D__SSE4_2__ # Power9 VSX with 128 width (VSR registers)
   else ifneq ($(AVX),none)
     $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on PowerPC for the moment)
+  endif
+else ifeq ($(UNAME_P),arm)
+  ifeq ($(AVX),sse4)
+    override AVXFLAGS = -D__SSE4_2__ # ARM NEON with 128 width (Q/quadword registers)
+  else ifneq ($(AVX),none)
+    $(error Unknown AVX='$(AVX)': only 'none' and 'sse4' are supported on ARM for the moment)
   endif
 else
   ifeq ($(AVX),sse4)
@@ -287,26 +304,30 @@ override TAG = $(AVX)_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(RNDGEN)
 ifeq ($(USEBUILDDIR),1)
   override BUILDDIR = build.$(DIRTAG)
   override LIBDIR = ../../lib/$(BUILDDIR)
-  override LIBDIRRPATH = '$(RPATHPREFIX)../$(LIBDIR)'
+  override LIBDIRRPATH = '$$ORIGIN/../$(LIBDIR)'
   $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is set = 1))
 else
   override BUILDDIR = .
   override LIBDIR = ../../lib
-  override LIBDIRRPATH = '$(RPATHPREFIX)$(LIBDIR)'
+  override LIBDIRRPATH = '$$ORIGIN/$(LIBDIR)'
   $(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG) (USEBUILDDIR is not set))
 endif
 override INCDIR = ../../include
 ###$(info Building in BUILDDIR=$(BUILDDIR) for tag=$(TAG))
 
-# Set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH or DYLD_LIBRARY_PATH
-# Use relative paths with respect to the executables ($ORIGIN on Linux and @executable_path on Darwin)
+# On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
+# Use relative paths with respect to the executables ($ORIGIN on Linux)
+# On Darwin, building libraries with absolute paths in LIBDIR makes this unnecessary
 ifeq ($(UNAME_S),Darwin)
-  override RPATHPREFIX = @executable_path/
-  override RUNTIME = DYLD_LIBRARY_PATH="$(LIBDIR):$$DYLD_LIBRARY_PATH" # TEMPORARY for Mac! #375
+  override CXXLIBFLAGSRPATH =
+  override CULIBFLAGSRPATH =
 else
-  override RPATHPREFIX = $$ORIGIN/
-  override RUNTIME =
+  override CXXLIBFLAGSRPATH = -Wl,-rpath,$(LIBDIRRPATH)
+  override CULIBFLAGSRPATH = -Xlinker -rpath,$(LIBDIRRPATH)
 endif
+
+# Setting LD_LIBRARY_PATH or DYLD_LIBRARY_PATH in the RUNTIME is no longer necessary (neither on Linux nor on Mac)
+override RUNTIME =
 
 #===============================================================================
 #=== Makefile TARGETS and build rules below
@@ -413,7 +434,7 @@ $(INCDIR)/%%.inc : ../%%.inc
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): C++ and CUDA standalone executables
-$(cxx_main): LIBFLAGS += -Wl,-rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(cxx_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
 	$(CXX) -o $@ $(BUILDDIR)/check_sa.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB)
 
@@ -422,7 +443,7 @@ ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(cu_main): LIBFLAGS += -lintlc # compile with icpx and link with nvcc (undefined reference to `_intel_fast_memcpy')
 $(cu_main): LIBFLAGS += -lsvml # compile with icpx and link with nvcc (undefined reference to `__svml_cos4_l9')
 endif
-$(cu_main): LIBFLAGS += -Xlinker -rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(cu_main): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
 	$(NVCC) -o $@ $(BUILDDIR)/gcheck_sa.o $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CULIB)
 endif
@@ -441,7 +462,7 @@ $(BUILDDIR)/fcheck_sa.o : $(INCDIR)/fbridge.inc
 ifeq ($(UNAME_S),Darwin)
 $(fcxx_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
 endif
-$(fcxx_main): LIBFLAGS += -Wl,-rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(fcxx_main): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(fcxx_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so
 	$(CXX) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler.o $(LIBFLAGS) $(CULIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB)
 
@@ -453,7 +474,7 @@ endif
 ifeq ($(UNAME_S),Darwin)
 $(fcu_main): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
 endif
-$(fcu_main): LIBFLAGS += -Xlinker -rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(fcu_main): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(fcu_main): $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler_cu.o $(LIBDIR)/lib$(MG5AMC_CULIB).so
 	$(NVCC) -o $@ $(BUILDDIR)/fcheck_sa.o $(BUILDDIR)/fsampler_cu.o $(LIBFLAGS) $(CULIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CULIB)
 endif
@@ -511,11 +532,11 @@ $(testmain): LIBFLAGS += -L$(patsubst %%bin/clang++,%%lib,$(shell which $(CXX) |
 endif
 
 ifeq ($(NVCC),) # link only runTest.o
-$(testmain): LIBFLAGS += -Wl,-rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(testmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 else # link both runTest.o and runTest_cu.o
-$(testmain): LIBFLAGS += -Xlinker -rpath,$(LIBDIRRPATH) # avoid the need for LD_LIBRARY_PATH to execute ./runTest.exe
+$(testmain): LIBFLAGS += $(CULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects) $(cu_objects) $(GTESTLIBS)
 	$(NVCC) -o $@ $(cxx_objects) $(cu_objects) -ldl $(LIBFLAGS) $(CULIBFLAGS) -lcuda -lgomp
 endif
@@ -548,7 +569,13 @@ avx512z:
 	@echo
 	make USEBUILDDIR=1 AVX=512z
 
+ifeq ($(UNAME_P),ppc64le)
+avxall: $(INCDIR)/fbridge.inc avxnone avxsse4
+else ifeq ($(UNAME_P),arm)
+avxall: $(INCDIR)/fbridge.inc avxnone avxsse4
+else
 avxall: $(INCDIR)/fbridge.inc avxnone avxsse4 avxavx2 avx512y avx512z
+endif
 
 #-------------------------------------------------------------------------------
 
@@ -582,10 +609,17 @@ distclean: cleanall
 info:
 	@echo ""
 	@uname -spn # e.g. Linux nodename.cern.ch x86_64
+ifeq ($(UNAME_S),Darwin)
+	@sysctl -a | grep -i brand
+	@sysctl -a | grep machdep.cpu | grep features || true
+	@sysctl -a | grep hw.physicalcpu:
+	@sysctl -a | grep hw.logicalcpu:
+else
 	@cat /proc/cpuinfo | grep "model name" | sort -u
 	@cat /proc/cpuinfo | grep "flags" | sort -u
 	@cat /proc/cpuinfo | grep "cpu cores" | sort -u
 	@cat /proc/cpuinfo | grep "physical id" | sort -u
+endif
 	@echo ""
 ifneq ($(shell which nvidia-smi 2>/dev/null),)
 	nvidia-smi -L
@@ -614,9 +648,6 @@ endif
 	$(FC) --version
 
 #-------------------------------------------------------------------------------
-
-# Note: using rpath makes it unnecessary to prepend DYLD_LIBRARY_PATH="$(LIBDIR):$(DYLD_LIBRARY_PATH)" LD_LIBRARY_PATH="$(LIBDIR):$(LD_LIBRARY_PATH)"
-# [Temporary patch for Mac #375: prepend RUNTIME setting DYLD_LIBRARY_PATH]
 
 # Target: check (run the C++ test executable)
 # [NB THIS IS WHAT IS USED IN THE GITHUB CI!]

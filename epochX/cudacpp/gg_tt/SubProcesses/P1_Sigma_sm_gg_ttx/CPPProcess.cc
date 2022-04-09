@@ -387,6 +387,7 @@ namespace mg5amcCpu
 #ifdef __APPLE__
     out << "Apple clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
 #else
+    out << "clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
     // GCC toolchain version inside CLANG
     std::string tchainout;
     std::string tchaincmd = "readelf -p .comment $(${CXX} -print-libgcc-file-name) |& grep 'GCC: (GNU)' | grep -v Warning | sort -u | awk '{print $5}'";
