@@ -29,7 +29,7 @@ RNDGEN=hasNoCurand
 Building in BUILDDIR=build.sse4_d_inl0_hrd0 for tag=sse4_d_inl0_hrd0_hasNoCurand (USEBUILDDIR is set = 1)
 make[1]: Nothing to be done for `all.sse4_d_inl0_hrd0_hasNoCurand'.
 
-DATE: 2022-04-10_00:02:52
+DATE: 2022-04-10_00:28:36
 
 On mac-1T0-438.local [CPU: Apple M1] [GPU: none]:
 =========================================================================
@@ -40,11 +40,11 @@ Process                     = SIGMA_SM_GG_TTX_CPP [Apple clang 12.0.5] [inlineHe
 Workflow summary            = CPP:DBL+CXS:COMMON+RMBHST+MESHST/none+NAVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = SCALAR ('none': ~vector[1], no SIMD)
-EvtsPerSec[Rmb+ME]     (23) = ( 5.613488e+05                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 5.790782e+05                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 5.790782e+05                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 5.604712e+05                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 5.772540e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 5.772540e+05                 )  sec^-1
 MeanMatrixElemValue         = ( 2.082594e+00 +- 4.821650e-03 )  GeV^0
-TOTAL       :     0.987469 sec
+TOTAL       :     1.004123 sec
 -------------------------------------------------------------------------
 runExe /Users/avalassi/GPU2022/madgraph4gpuX/epochX/cudacpp/gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/build.none_d_inl0_hrd0/runTest.exe
 [  PASSED  ] 3 tests.
@@ -63,11 +63,11 @@ Process                     = SIGMA_SM_GG_TTX_CPP [Apple clang 12.0.5] [inlineHe
 Workflow summary            = CPP:DBL+CXS:COMMON+RMBHST+MESHST/neon+NOVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[2] ('sse4': ARM NEON, 128bit) [cxtype_ref=NO]
-EvtsPerSec[Rmb+ME]     (23) = ( 9.338368e+05                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 9.794657e+05                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 9.794657e+05                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 9.335988e+05                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 9.792533e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 9.792533e+05                 )  sec^-1
 MeanMatrixElemValue         = ( 2.082594e+00 +- 4.821650e-03 )  GeV^0
-TOTAL       :     0.615496 sec
+TOTAL       :     0.629847 sec
 -------------------------------------------------------------------------
 runExe /Users/avalassi/GPU2022/madgraph4gpuX/epochX/cudacpp/gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/build.sse4_d_inl0_hrd0/runTest.exe
 [  PASSED  ] 3 tests.
