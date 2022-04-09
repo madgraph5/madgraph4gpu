@@ -12,6 +12,12 @@ elif [ "$1" == "-macm1" ]; then
 fi
 if [ "$1" != "" ]; then echo "Usage: $0 [-hrdcod|-juwels|-alpaka|-macm1]"; exit 1; fi
 
+unames=$(uname -s)
+if [ "${unames}" == "Darwin" ]; then
+  echo "ERROR! This script is not supported on MacOS (issues in awk): please execute it on Linux"
+  exit 1
+fi
+
 cd $(dirname $0)/..
 echo PWD=$(pwd)
 
