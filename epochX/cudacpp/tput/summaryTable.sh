@@ -7,8 +7,10 @@ elif [ "$1" == "-juwels" ]; then
   table="juwels"; shift
 elif [ "$1" == "-alpaka" ]; then
   table="alpaka"; shift
+elif [ "$1" == "-macm1" ]; then
+  table="macm1"; shift
 fi
-if [ "$1" != "" ]; then echo "Usage: $0 [-hrdcod|-juwels|-alpaka]"; exit 1; fi
+if [ "$1" != "" ]; then echo "Usage: $0 [-hrdcod|-juwels|-alpaka|-macm1]"; exit 1; fi
 
 cd $(dirname $0)/..
 echo PWD=$(pwd)
@@ -38,6 +40,8 @@ elif [ "$table" == "juwels" ]; then
 elif [ "$table" == "alpaka" ]; then
   crevs="$crevs 09e482e" # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
   arevs="$arevs b93a2f3" # cuda116/gcc102  (06 Mar 2022) GOLDEPX4 eemumu/ggtt/ggttg/ggttgg/ggttggg x d x inl0
+elif [ "$table" == "macm1" ]; then
+  crevs="$crevs ea28661" # NOGPU/clang120  (10 Apr 2022) MACM1ARM eemumu/ggtt/ggttg/ggttgg/ggttggg x f/d x hrd0 x inl0
 fi
 
 # Select processes
@@ -60,11 +64,17 @@ elif [ "$table" == "alpaka" ]; then
   fpts="d"
   inls="inl0"
   hrds="hrd0"
+elif [ "$table" == "macm1" ]; then
+  fpts="d f"
+  inls="inl0"
+  hrds="hrd0"
 fi
 
 # Select tag list
 if [ "$table" == "alpaka" ]; then
   taglist="CUD/none ALP/none CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
+elif [ "$table" == "macm1" ]; then
+  taglist="CPP/none CPP/sse4"
 else
   taglist="CUD/none CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
 fi
