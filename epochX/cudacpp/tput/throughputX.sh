@@ -210,6 +210,10 @@ else
   export CUPLA_ROOT=none
 fi
 
+# Determine the O/S and the processor architecture for late decisions
+unames=$(uname -s)
+unamep=$(uname -p)
+
 ###echo -e "\n********************************************************************************\n"
 printf "\n"
 
@@ -274,9 +278,11 @@ for suff in $suffs; do
           exes="$exes $dir/build.none_${fptype}_inl${helinl}${hrdsuf}/check.exe"
           if [ "${avxall}" == "1" ]; then 
             exes="$exes $dir/build.sse4_${fptype}_inl${helinl}${hrdsuf}/check.exe"
-            exes="$exes $dir/build.avx2_${fptype}_inl${helinl}${hrdsuf}/check.exe"
+            if [ "${unamep}" == "x86_64" ]; then 
+              exes="$exes $dir/build.avx2_${fptype}_inl${helinl}${hrdsuf}/check.exe"
+            fi
           fi
-          if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
+          if [ "${unamep}" == "x86_64" ] && [ "${unames}" != "Darwin" ] && [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
             exes="$exes $dir/build.512y_${fptype}_inl${helinl}${hrdsuf}/check.exe"
             if [ "${avxall}" == "1" ]; then 
               exes="$exes $dir/build.512z_${fptype}_inl${helinl}${hrdsuf}/check.exe"
@@ -458,8 +464,6 @@ function runNcuReq() {
 }
 
 if nvidia-smi -L > /dev/null 2>&1; then gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"; else gpuTxt=none; fi
-unames=$(uname -s)
-unamep=$(uname -p)
 if [ "${unames}" == "Darwin" ]; then 
   cpuTxt=$(sysctl -h machdep.cpu.brand_string)
   cpuTxt=${cpuTxt/machdep.cpu.brand_string: }
