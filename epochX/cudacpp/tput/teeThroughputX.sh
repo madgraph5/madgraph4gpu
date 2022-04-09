@@ -6,7 +6,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttg|-ggttgg|-ggttggg)> [-auto|-autoonly] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej]"
+  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttg|-ggttgg|-ggttggg)> [-auto|-autoonly] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -25,9 +25,16 @@ rndgen=
 rmbsmp=
 steps="make test"
 makej=
+dlp=
+dlpset=0
 
 for arg in $*; do
-  if [ "$arg" == "-eemumu" ]; then
+  if [ "${dlpset}" == "1" ]; then
+    dlpset=2
+    dlp="-dlp $arg"
+  elif [ "$arg" == "-dlp" ] && [ "${dlpset}" == "0" ]; then
+    dlpset=1
+  elif [ "$arg" == "-eemumu" ]; then
     if [ "$eemumu" == "" ]; then procs+=${procs:+ }${arg}; fi
     eemumu=$arg
   elif [ "$arg" == "-ggtt" ]; then
@@ -95,6 +102,9 @@ for arg in $*; do
   fi  
 done
 
+# Workaround for MacOS SIP (SystemIntegrity Protection): set DYLD_LIBRARY_PATH In subprocesses
+if [ "${dlpset}" == "1" ]; then usage; fi
+
 # Use only the .auto process directories in the alpaka directory
 if [ "$bckend" == "alpaka" ]; then
   echo "WARNING! alpaka directory: using .auto process directories only"
@@ -127,7 +137,7 @@ for step in $steps; do
           inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; fi
           for hrdcod in $hrdcods; do
             hrd=; if [ "${hrdcod}" == "1" ]; then hrd=" -hrdonly"; fi
-            args="${proc}${auto}${flt}${inl}${hrd}"
+            args="${proc}${auto}${flt}${inl}${hrd} ${dlp}"
             args="${args} ${alpaka}" # optionally disable alpaka tests
             args="${args} ${rndgen}" # optionally use common random numbers or curand on host
             args="${args} ${rmbsmp}" # optionally use rambo or bridge on host

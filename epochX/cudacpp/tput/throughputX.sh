@@ -13,7 +13,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes[-eemumu] [-ggtt] [-ggttg] [-ggttgg] [-ggttggg]> [-nocpp|[-omp][-avxall][-nocuda]] [-auto|-autoonly] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes[-eemumu] [-ggtt] [-ggttg] [-ggttgg] [-ggttggg]> [-nocpp|[-omp][-avxall][-nocuda]] [-auto|-autoonly] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -49,6 +49,8 @@ req=0
 detailed=0
 gtest=0
 verbose=0
+
+dlp=
 
 if [ "$bckend" != "alpaka" ]; then alpaka=0; fi # alpaka mode is only available in the alpaka directory
 
@@ -162,11 +164,21 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-v" ]; then
     verbose=1
     shift
+  elif [ "$1" == "-dlp" ] && [ "$2" != "" ]; then
+    dlp="$2"
+    shift
+    shift
   else
     usage
   fi
 done
 ###exit 1
+
+# Workaround for MacOS SIP (SystemIntegrity Protection): set DYLD_LIBRARY_PATH In subprocesses
+if [ "${dlp}" != "" ]; then
+  echo "export DYLD_LIBRARY_PATH=$dlp"
+  export DYLD_LIBRARY_PATH=$dlp
+fi
 
 # Check that at least one process has been selected
 if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ]; then usage; fi
