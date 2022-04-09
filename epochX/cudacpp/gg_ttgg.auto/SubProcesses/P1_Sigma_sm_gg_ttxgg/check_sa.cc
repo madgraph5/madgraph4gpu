@@ -763,6 +763,8 @@ main( int argc, char** argv )
 #elif defined __SSE4_2__
 #ifdef __PPC__
   wrkflwtxt += "/ppcv";
+#elif defined __ARM_NEON__
+  wrkflwtxt += "/neon";
 #else
   wrkflwtxt += "/sse4";
 #endif
@@ -792,12 +794,14 @@ main( int argc, char** argv )
   if( perf )
   {
 #ifndef __CUDACC__
+#ifdef _OPENMP
     // Get the output of "nproc --all" (https://stackoverflow.com/a/478960)
     std::string nprocall;
     std::unique_ptr<FILE, decltype( &pclose )> nprocpipe( popen( "nproc --all", "r" ), pclose );
     if( !nprocpipe ) throw std::runtime_error( "`nproc --all` failed?" );
     std::array<char, 128> nprocbuf;
     while( fgets( nprocbuf.data(), nprocbuf.size(), nprocpipe.get() ) != nullptr ) nprocall += nprocbuf.data();
+#endif
 #endif
 #ifdef MGONGPU_CPPSIMD
 #ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
@@ -869,6 +873,8 @@ main( int argc, char** argv )
               << "Internal loops fptype_sv    = VECTOR[" << neppV
 #ifdef __PPC__
               << "] ('sse4': PPC VSX, 128bit)" << cxtref << std::endl
+#elif defined __ARM_NEON__
+              << "] ('sse4': ARM NEON, 128bit)" << cxtref << std::endl
 #else
               << "] ('sse4': SSE4.2, 128bit)" << cxtref << std::endl
 #endif
