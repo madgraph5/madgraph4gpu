@@ -371,7 +371,7 @@ function runExe() {
 
 function cmpExe() {
   exe=$1
-  exef=${exe/\/check//gcheck}
+  exef=${exe/\/check//fcheck}
   exef=${exef/\/gcheck//fgcheck}
   argsf="2 64 2"
   args="--common -p ${argsf}"
