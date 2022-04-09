@@ -478,6 +478,12 @@ lastExe=
 for exe in $exes; do
   ###echo EXE=$exe; continue
   exeArgs2=""
+  if [ "$(basename $exe)" != "$lastExe" ]; then
+    echo "========================================================================="
+    lastExe=$(basename $exe)
+  else
+    echo "-------------------------------------------------------------------------"
+  fi
   if [ ! -f $exe ]; then echo "Not found: $exe"; continue; fi
   if [ "${exe%%/gcheck*}" != "${exe}" ] && [ "$gpuTxt" == "none" ]; then continue; fi
   if [ "${exe%%/gg_ttggg*}" != "${exe}" ]; then 
@@ -504,12 +510,6 @@ for exe in $exes; do
   else # eemumu
     exeArgs="-p 2048 256 12"
     ncuArgs="-p 2048 256 1"
-  fi
-  if [ "$(basename $exe)" != "$lastExe" ]; then
-    echo "========================================================================="
-    lastExe=$(basename $exe)
-  else
-    echo "-------------------------------------------------------------------------"
   fi
   exeDir=$(dirname $exe)
   cd $exeDir/.. # workaround for reading '../../Cards/param_card.dat' without setting MG5AMC_CARD_PATH
