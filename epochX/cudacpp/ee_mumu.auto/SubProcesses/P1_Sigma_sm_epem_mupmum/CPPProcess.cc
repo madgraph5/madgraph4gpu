@@ -166,8 +166,8 @@ namespace Proc
       // (This method used to be called CPPProcess::matrix_1_epem_mupmum()?)
 
       // The color matrix
-      constexpr fptype denom[ncolor] = {1};
-      constexpr fptype cf[ncolor][ncolor] = {{1}};
+      static constexpr fptype denom[ncolor] = {1};
+      static constexpr fptype cf[ncolor][ncolor] = {{1}};
 
       // Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
