@@ -315,7 +315,7 @@ main( int argc, char** argv )
   for( int i = 0; i < nevt; ++i ) hstGs[i] = tmpG; // sr fill them for now, in the end they should come via the bridge
 #else
   PinnedHostBufferGs hstGs( nevt );
-  constexpr double tmpG = 1.2177157847767195;
+  DeviceBufferGs constexpr double tmpG = 1.2177157847767195;
   for( int i = 0; i < nevt; ++i ) hstGs[i] = tmpG; // sr fill them for now, in the end they should come via the bridge
 #endif
 
