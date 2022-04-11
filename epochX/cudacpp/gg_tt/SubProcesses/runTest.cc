@@ -36,6 +36,8 @@ struct CPUTest : public CUDA_CPU_TestBase
   HostBufferRandomNumbers hstRnarray;
   HostBufferMomenta hstMomenta;
   HostBufferGs hstGs;
+  HostBufferGCs hstGC10s;
+  HostBufferGCs hstGC11s;
   HostBufferWeights hstWeights;
   HostBufferMatrixElements hstMatrixElements;
   HostBufferHelicityMask hstIsGoodHel;
@@ -51,6 +53,8 @@ struct CPUTest : public CUDA_CPU_TestBase
     , hstRnarray( nevt )
     , hstMomenta( nevt )
     , hstGs( nevt )
+    , hstGC10s( nevt )
+    , hstGC11s( nevt )
     , hstWeights( nevt )
     , hstMatrixElements( nevt )
     , hstIsGoodHel( mgOnGpu::ncomb )
@@ -79,7 +83,7 @@ struct CPUTest : public CUDA_CPU_TestBase
 
   void runSigmaKin( std::size_t iiter ) override
   {
-    MatrixElementKernelHost mek( hstMomenta, hstGs, hstMatrixElements, nevt );
+    MatrixElementKernelHost mek( hstMomenta, hstGs, hstGC10s, hstGC11s, hstMatrixElements, nevt );
     if( iiter == 0 ) mek.computeGoodHelicities();
     mek.computeMatrixElements();
   }
@@ -121,6 +125,8 @@ struct CUDATest : public CUDA_CPU_TestBase
   PinnedHostBufferMatrixElements hstMatrixElements;
   PinnedHostBufferHelicityMask hstIsGoodHel;
   DeviceBufferRandomNumbers devRnarray;
+  DeviceBufferGCs devGC10s;
+  DeviceBufferGCs devGC11s;
   DeviceBufferMomenta devMomenta;
   DeviceBufferWeights devWeights;
   DeviceBufferMatrixElements devMatrixElements;
@@ -141,6 +147,8 @@ struct CUDATest : public CUDA_CPU_TestBase
     , hstMatrixElements( nevt )
     , hstIsGoodHel( mgOnGpu::ncomb )
     , devRnarray( nevt )
+    , devGC10s( nevt )
+    , devGC11s( nevt )
     , devMomenta( nevt )
     , devWeights( nevt )
     , devMatrixElements( nevt )
@@ -175,7 +183,7 @@ struct CUDATest : public CUDA_CPU_TestBase
 
   void runSigmaKin( std::size_t iiter ) override
   {
-    MatrixElementKernelDevice mek( devMomenta, hstGs, devMatrixElements, gpublocks, gputhreads );
+    MatrixElementKernelDevice mek( devMomenta, hstGs, devGC10s, devGC11s, devMatrixElements, gpublocks, gputhreads );
     if( iiter == 0 ) mek.computeGoodHelicities();
     mek.computeMatrixElements();
     copyHostFromDevice( hstMatrixElements, devMatrixElements );
