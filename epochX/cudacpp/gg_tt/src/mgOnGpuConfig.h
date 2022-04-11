@@ -27,11 +27,12 @@
 //#undef MGONGPU_INLINE_HELAMPS // default
 ////#define MGONGPU_INLINE_HELAMPS 1
 
-// Choose whether to hardcode the cIPC/cIPD physics parameters rather than reading them from user cards
-// This optimization can gain 20% in CUDA in eemumu (issue #39)
-// By default, do not hardcode, but allow this macro to be set from outside with e.g. -DMGONGPU_HARDCODE_CIPC
+// [OLD: Choose whether to hardcode the cIPC/cIPD physics parameters rather than reading them from user cards]
+// [OLD: This optimization can gain 20% in CUDA in eemumu (issue #39)]
+// [OLD: By default, should not hardcode, but allow this macro to be set from outside with e.g. -DMGONGPU_HARDCODE_CIPC]
+// The option to use hardcoded cIPC/cIPD physics parameters is no longer relevant or applicable when alphas is running (#373)
 #undef MGONGPU_HARDCODE_CIPC // default
-//#define MGONGPU_HARDCODE_CIPC 1
+////#define MGONGPU_HARDCODE_CIPC 1 // FIXME: this is no longer supported when alphas is running
 
 // Complex type in c++: std::complex or cxsmpl (CHOOSE ONLY ONE)
 #ifndef __CUDACC__
