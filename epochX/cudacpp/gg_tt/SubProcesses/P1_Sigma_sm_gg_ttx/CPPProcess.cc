@@ -424,7 +424,7 @@ namespace mg5amcCpu
 
   void dependentCouplings( const fptype* gs, const int nevt )
   {
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // sr: this should become a kernel
     /* constexpr */ cxtype mdl_complexi( 0., 1. );
     static fptype GC_10t[128]; // [nevt * 2] (cmplx numbers)
     static fptype GC_11t[128]; // [nevt * 2] (cmplx numbers)
