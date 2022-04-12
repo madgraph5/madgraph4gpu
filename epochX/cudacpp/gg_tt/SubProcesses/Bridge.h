@@ -119,8 +119,8 @@ namespace mg5amcCpu
     mg5amcGpu::DeviceBufferMatrixElements m_devMEsC;
     mg5amcGpu::PinnedHostBufferMatrixElements m_hstMEsC;
     std::unique_ptr<mg5amcGpu::MatrixElementKernelDevice> m_pmek;
-    //static constexpr int s_gputhreadsmin = 32; // minimum number of gpu threads (FUTURE DEFAULT)
-    static constexpr int s_gputhreadsmin = 16; // minimum number of gpu threads (CURRENT VALUE FOR MADEVENT)
+    //static constexpr int s_gputhreadsmin = 16; // minimum number of gpu threads (TEST VALUE FOR MADEVENT)
+    static constexpr int s_gputhreadsmin = 32; // minimum number of gpu threads (DEFAULT)
 #else
     mg5amcCpu::HostBufferMomenta m_hstMomentaC;
     mg5amcCpu::HostBufferMatrixElements m_hstMEsC;
