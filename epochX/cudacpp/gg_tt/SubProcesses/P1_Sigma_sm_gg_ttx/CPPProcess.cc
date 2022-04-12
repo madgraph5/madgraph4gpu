@@ -462,10 +462,7 @@ namespace mg5amcCpu
     using G_ACCESS = HostAccessGs;
     using C_ACCESS = HostAccessCouplings;
     for( int ipagV = 0; ipagV < nevt / neppV; ++ipagV )
-    {
-      //const fptype* gs2 = &gs[ipagV * neppV];
       dependent_couplings<G_ACCESS, C_ACCESS>( &gs[ipagV * neppV], gc10, gc11 );
-    }
 
 #endif
   }
