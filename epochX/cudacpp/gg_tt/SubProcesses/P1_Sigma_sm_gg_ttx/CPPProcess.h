@@ -86,18 +86,32 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void dependentCouplings( const fptype* gs, const int nevt );
-
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
   __global__ void
+  dependentCouplings( const fptype* gs, fptype* gc10, fptype* gc11 );
+
+#else
+
+  __global__ void
+  dependentCouplings( const fptype* gs, fptype* gc10, fptype* gc11, const int nevt );
+
+#endif
+
+#ifdef __CUDACC__
+
+  __global__ void
   sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                       const fptype* gc10,       // input: gc10 couplings
+                       const fptype* gc11,       // input: gc11 couplings
                        fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
                        bool* isGoodHel );        // output: isGoodHel[ncomb] - device array
 #else
   __global__ void
   sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                       const fptype* gc10,       // input: gc10 couplings
+                       const fptype* gc11,       // input: gc11 couplings
                        fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
                        bool* isGoodHel,          // output: isGoodHel[ncomb] - device array
                        const int nevt );         // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
@@ -113,10 +127,14 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
   __global__ void
   sigmaKin( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+            const fptype* gc10,       // input: gc10 couplings
+            const fptype* gc11,       // input: gc11 couplings
             fptype* allMEs );         // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #else
   __global__ void
   sigmaKin( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+            const fptype* gc10,       // input: gc10 couplings
+            const fptype* gc11,       // input: gc11 couplings
             fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
             const int nevt );         // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif

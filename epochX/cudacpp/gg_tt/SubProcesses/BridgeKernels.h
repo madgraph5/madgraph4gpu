@@ -23,6 +23,8 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     BridgeKernelBase( const BufferMomenta& momenta,         // input: momenta
                       const BufferGs& gs,                   // input: gs for alphaS
+                      BufferGCs& gc10,                      // local: GC_10 couplings
+                      BufferGCs& gc11,                      // local: GC_11 couplings
                       BufferMatrixElements& matrixElements, // output: matrix elements
                       const size_t nevt );
 
@@ -49,6 +51,8 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     BridgeKernelHost( const BufferMomenta& momenta,         // input: momenta
                       const BufferGs& gs,                   // input: gs for alphaS
+                      BufferGCs& gc10,                      // local: GC_10 couplings
+                      BufferGCs& gc11,                      // local: GC_11 couplings
                       BufferMatrixElements& matrixElements, // output: matrix elements
                       const size_t nevt );
 
@@ -87,12 +91,18 @@ namespace mg5amcCpu
 
     // Constructor from existing input and output buffers
     BridgeKernelDevice( const BufferMomenta& momenta,         // input: momenta
+                        const BufferGs& gs,                   // input: gs for alphaS
+                        BufferGCs& gc10,                      // local: GC_10 couplings
+                        BufferGCs& gc11,                      // local: GC_11 couplings
                         BufferMatrixElements& matrixElements, // output: matrix elements
                         const size_t gpublocks,
                         const size_t gputhreads );
 
     // Destructor
     virtual ~BridgeKernelDevice() {}
+
+    // Calculate dependent couplings from Gs transferred via the Bridge
+    void computeDependentCouplings() override final;
 
     // Transpose input momenta from C to Fortran before the matrix element calculation in the Bridge
     void transposeInputMomentaC2F() override final;

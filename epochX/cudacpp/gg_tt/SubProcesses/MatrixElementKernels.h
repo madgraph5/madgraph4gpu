@@ -21,9 +21,13 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     MatrixElementKernelBase( const BufferMomenta& momenta,          // input: momenta
                              const BufferGs& gs,                    // input: gs for alphaS
+                             BufferGCs& gc10,                       // local: GC_10 couplings
+                             BufferGCs& gc11,                       // local: GC_11 couplings
                              BufferMatrixElements& matrixElements ) // output: matrix elements
       : m_momenta( momenta )
       , m_gs( gs )
+      , m_gc10( gc10 )
+      , m_gc11( gc11 )
       , m_matrixElements( matrixElements )
     {
     }
@@ -53,6 +57,12 @@ namespace mg5amcCpu
     // The buffer for the gs to calculate the alphaS values
     const BufferGs& m_gs;
 
+    // The buffer for the GC_10 coupling
+    BufferGCs& m_gc10;
+
+    // The buffer for the GC_11 coupling
+    BufferGCs& m_gc11;
+
     // The buffer for the output matrix elements
     BufferMatrixElements& m_matrixElements;
   };
@@ -68,6 +78,8 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     MatrixElementKernelHost( const BufferMomenta& momenta,         // input: momenta
                              const BufferGs& gs,                   // input: gs for alphaS
+                             BufferGCs& gc10,                      // local: GC_10 couplings
+                             BufferGCs& gc11,                      // local: GC_11 couplings
                              BufferMatrixElements& matrixElements, // output: matrix elements
                              const size_t nevt );
 
@@ -102,6 +114,9 @@ namespace mg5amcCpu
 
     // Constructor from existing input and output buffers
     MatrixElementKernelDevice( const BufferMomenta& momenta,         // input: momenta
+                               const BufferGs& gs,                   // input: gs for alphaS
+                               BufferGCs& gc10,                      // local: GC_10 couplings
+                               BufferGCs& gc11,                      // local: GC_11 couplings
                                BufferMatrixElements& matrixElements, // output: matrix elements
                                const size_t gpublocks,
                                const size_t gputhreads );
@@ -111,6 +126,9 @@ namespace mg5amcCpu
 
     // Reset gpublocks and gputhreads
     void setGrid( const int gpublocks, const int gputhreads );
+
+    // Calculate dependent couplings from Gs transferred via the Bridge
+    void computeDependentCouplings() override final;
 
     // Compute good helicities
     void computeGoodHelicities() override final;

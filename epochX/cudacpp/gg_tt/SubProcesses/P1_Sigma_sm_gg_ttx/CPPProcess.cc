@@ -12,6 +12,7 @@
 #include "CudaRuntime.h"
 #include "HelAmps_sm.h"
 #include "MemoryAccessAmplitudes.h"
+#include "MemoryAccessCouplings.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
 
@@ -52,10 +53,10 @@ namespace mg5amcCpu
 #else
 #ifdef __CUDACC__
   __device__ __constant__ fptype cIPC[4];
+  __device__ __constant__ fptype GC_10[128];
+  __device__ __constant__ fptype GC_11[128];
   __device__ __constant__ fptype cIPD[2];
 #else
-  static cxtype_sv GC_10_sv[32]; //[nevt / neppV];
-  static cxtype_sv GC_11_sv[32]; //[nevt / neppV];
   static fptype cIPD[2];
 #endif
 #endif
@@ -78,6 +79,8 @@ namespace mg5amcCpu
   __device__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
                            const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                           const fptype* gc10,       // input: gc10 couplings
+                           const fptype* gc11,       // input: gc11 couplings
                            fptype* allMEs            // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifndef __CUDACC__
                            , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
@@ -90,11 +93,13 @@ namespace mg5amcCpu
     using M_ACCESS = DeviceAccessMomenta;
     using W_ACCESS = DeviceAccessWavefunctions;
     using A_ACCESS = DeviceAccessAmplitudes;
+    using C_ACCESS = DeviceAccessCouplings;
 #else
     using namespace mg5amcCpu;
     using M_ACCESS = HostAccessMomenta;
     using W_ACCESS = HostAccessWavefunctions;
     using A_ACCESS = HostAccessAmplitudes;
+    using C_ACCESS = HostAccessCouplings;
 #endif
     mgDebug( 0, __FUNCTION__ );
 #ifndef __CUDACC__
@@ -134,9 +139,9 @@ namespace mg5amcCpu
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
 #ifdef MGONGPU_CPPSIMD
-#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, cIPC, cIPD, ihel, npagV, amp_fp, w_fp, isAligned_allMEs ) private( amp_sv, w_sv, jamp_sv )
+#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, gc10, gc11, cIPD, ihel, npagV, amp_fp, w_fp, isAligned_allMEs ) private( amp_sv, w_sv, jamp_sv )
 #else
-#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, cIPC, cIPD, ihel, npagV, amp_fp, w_fp ) private( amp_sv, w_sv, jamp_sv )
+#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, gc10, gc11, cIPD, ihel, npagV, amp_fp, w_fp ) private( amp_sv, w_sv, jamp_sv )
 #endif
 #endif
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
@@ -165,29 +170,29 @@ namespace mg5amcCpu
 
       ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
 
-      VVV1P0_1<W_ACCESS>( w_fp[0], w_fp[1], GC_10_sv[ipagV], 0., 0., w_fp[4] );
+      VVV1P0_1<W_ACCESS, C_ACCESS>( w_fp[0], w_fp[1], gc10, 0., 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 1
-      FFV1_0<W_ACCESS, A_ACCESS>( w_fp[3], w_fp[2], w_fp[4], GC_11_sv[ipagV], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[3], w_fp[2], w_fp[4], gc11, &amp_fp[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 2 OF 3 ***
 
       // Wavefunction(s) for diagram number 2
-      FFV1_1<W_ACCESS>( w_fp[2], w_fp[0], GC_11_sv[ipagV], cIPD[0], cIPD[1], w_fp[4] );
+      FFV1_1<W_ACCESS, C_ACCESS>( w_fp[2], w_fp[0], gc11, cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 2
-      FFV1_0<W_ACCESS, A_ACCESS>( w_fp[3], w_fp[4], w_fp[1], GC_11_sv[ipagV], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[3], w_fp[4], w_fp[1], gc11, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 3 OF 3 ***
 
       // Wavefunction(s) for diagram number 3
-      FFV1_2<W_ACCESS>( w_fp[3], w_fp[0], GC_11_sv[ipagV], cIPD[0], cIPD[1], w_fp[4] );
+      FFV1_2<W_ACCESS, C_ACCESS>( w_fp[3], w_fp[0], gc11, cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 3
-      FFV1_0<W_ACCESS, A_ACCESS>( w_fp[4], w_fp[2], w_fp[1], GC_11_sv[ipagV], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[4], w_fp[2], w_fp[1], gc11, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***
@@ -319,10 +324,8 @@ namespace mg5amcCpu
     m_masses.push_back( m_pars->mdl_MT );
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
-    const cxtype tIPC[2] = { cxmake( m_pars->GC_10 ), cxmake( m_pars->GC_11 ) };
     const fptype tIPD[2] = { (fptype)m_pars->mdl_MT, (fptype)m_pars->mdl_WT };
 #ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 2 * sizeof( cxtype ) ) );
     checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) ) );
 #else
     memcpy( cIPD, tIPD, 2 * sizeof( fptype ) );
@@ -421,22 +424,54 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void dependentCouplings( const fptype* gs, const int nevt )
+#ifdef __CUDACC__
+
+  __global__ void
+  dependentCouplings( const fptype* gs, fptype* gc10, fptype* gc11 )
+  {
+    /*
+    cxtype mdl_complexi( 0., 1. );
+    static fptype GC_10t[128]; // [nevt * 2] (cmplx numbers)
+    static fptype GC_11t[128]; // [nevt * 2] (cmplx numbers)
+    for( int i = 0; i < nevt / neppV; ++i )
+    {
+      const fptype_sv* gs_sv = reinterpret_cast<const fptype_sv*>( &gs[i * neppV] );
+      // better --> const fptype_sv gs_sv{gs[idx], gs[idx+1], gs[idx+2], gs[idx+3]};
+      cxtype_sv tmp_gc10 = -( *gs_sv );
+      memcpy( &GC_10t[i * neppV * 2], &tmp_gc10, 2 * neppV * sizeof( fptype ) );
+      cxtype_sv tmp_gc11 = mdl_complexi * ( *gs_sv );
+      memcpy( &GC_11t[i * neppV * 2], &tmp_gc11, 2 * neppV * sizeof( fptype ) );
+    }
+    checkCuda( cudaMemcpyToSymbol( GC_10, GC_10t, nevt * 2 * sizeof( fptype ) ) );
+    checkCuda( cudaMemcpyToSymbol( GC_11, GC_11t, nevt * 2 * sizeof( fptype ) ) );
+    */
+  }
+
+#else
+
+  void dependentCouplings( const fptype* gs, fptype* gc10, fptype* gc11, const int nevt )
   {
     constexpr cxtype mdl_complexi( 0., 1. );
     for( int i = 0; i < nevt / neppV; ++i )
     {
-      fptype_sv gs_sv = gs[i * neppV];
-      GC_10_sv[i] = -gs_sv;
-      GC_11_sv[i] = mdl_complexi * gs_sv;
+      const fptype_sv* gs_sv = reinterpret_cast<const fptype_sv*>( &gs[i * neppV] );
+      // better --> const fptype_sv gs_sv{gs[idx], gs[idx+1], gs[idx+2], gs[idx+3]};
+      cxtype_sv tmp_gc10 = -( *gs_sv );
+      memcpy( &gc10[i * neppV * 2], &tmp_gc10, 2 * neppV * sizeof( fptype ) );
+      cxtype_sv tmp_gc11 = mdl_complexi * ( *gs_sv );
+      memcpy( &gc11[i * neppV * 2], &tmp_gc11, 2 * neppV * sizeof( fptype ) );
     }
   }
+
+#endif
 
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
   __global__ void
   sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                       const fptype* gc10,       // input: gc10 couplings
+                       const fptype* gc11,       // input: gc11 couplings
                        fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
                        bool* isGoodHel )         // output: isGoodHel[ncomb] - device array
   {
@@ -446,7 +481,7 @@ namespace mg5amcCpu
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-      calculate_wavefunctions( ihel, allmomenta, allMEs );
+      calculate_wavefunctions( ihel, allmomenta, gc10, gc11, allMEs );
       if( allMEs[ievt] != allMEsLast )
       {
         //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
@@ -458,6 +493,8 @@ namespace mg5amcCpu
 #else
   void
   sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+                       const fptype* gc10,       // input: gc10 couplings
+                       const fptype* gc11,       // input: gc11 couplings
                        fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
                        bool* isGoodHel,          // output: isGoodHel[ncomb] - device array
                        const int nevt )          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
@@ -475,7 +512,7 @@ namespace mg5amcCpu
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
       //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
-      calculate_wavefunctions( ihel, allmomenta, allMEs, maxtry );
+      calculate_wavefunctions( ihel, allmomenta, gc10, gc11, allMEs, maxtry );
       for( int ievt = 0; ievt < maxtry; ++ievt )
       {
         // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
@@ -524,6 +561,8 @@ namespace mg5amcCpu
 
   __global__ void /* clang-format off */
   sigmaKin( const fptype* allmomenta, // input: momenta[nevt*npar*4]
+            const fptype* gc10,       // input: gc10 couplings
+            const fptype* gc11,       // input: gc11 couplings
             fptype* allMEs            // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifndef __CUDACC__
             , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
@@ -572,9 +611,9 @@ namespace mg5amcCpu
     {
       const int ihel = cGoodHel[ighel];
 #ifdef __CUDACC__
-      calculate_wavefunctions( ihel, allmomenta, allMEs );
+      calculate_wavefunctions( ihel, allmomenta, gc10, gc11, allMEs );
 #else
-      calculate_wavefunctions( ihel, allmomenta, allMEs, nevt );
+      calculate_wavefunctions( ihel, allmomenta, gc10, gc11, allMEs, nevt );
 #endif
       //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
