@@ -172,11 +172,11 @@ public:
   // DEBUG VERSION WITH PRINTOUTS
   static __host__ __device__ inline const fptype&
   kernelAccessIp4IparConst_s( const fptype* buffer,
-                                            const int ip4,
-                                            const int ipar )
+                              const int ip4,
+                              const int ipar )
   {
     const fptype& out = KernelAccessHelper<MemoryAccessMomentaBase, onDevice>::template kernelAccessFieldConst<int, int>( buffer, ip4, ipar );
-    printf( "ipar=%2d ip4=%2d ievt=  kernel out=%8.3f\n", ipar, ip4, out );
+    printf( "ipar=%2d ip4=%2d ievt='kernel' out=%8.3f\n", ipar, ip4, out );
     return out;
   }
   */
