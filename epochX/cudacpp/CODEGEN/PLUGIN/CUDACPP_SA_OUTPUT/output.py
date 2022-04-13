@@ -114,8 +114,7 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
                                       s+'gpu/RamboSamplingKernels.cc', s+'gpu/RamboSamplingKernels.h',
                                       s+'gpu/RandomNumberKernels.cc', s+'gpu/RandomNumberKernels.h',
                                       s+'gpu/Bridge.h', s+'gpu/BridgeKernels.cc', s+'gpu/BridgeKernels.h',
-                                      s+'gpu/fbridge.inc', # NB do NOT link this in P!
-                                      s+'gpu/fbridge.cc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
+                                      s+'gpu/fbridge.cc', s+'gpu/fbridge.inc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
                                       s+'gpu/Makefile',
                                       s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
                                       s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt',
@@ -131,7 +130,7 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
                     'RamboSamplingKernels.cc', 'RamboSamplingKernels.h',
                     'RandomNumberKernels.h', 'RandomNumberKernels.cc',
                     'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h',
-                    'fbridge.cc', 'fsampler.cc', 'fsampler.inc',
+                    'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
                     'Makefile',
                     'MadgraphTest.h', 'runTest.cc',
                     'testmisc.cc', 'testxxx_cc_ref.txt',
