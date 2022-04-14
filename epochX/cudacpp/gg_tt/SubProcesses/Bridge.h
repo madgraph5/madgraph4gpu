@@ -135,7 +135,7 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
 
   template<typename Tin, typename Tout>
-  __global__ void dev_transposeMomentaF2C( const Tin* in, Tout* out, const int nevt );
+  __global__ void dev_transposeMomentaF2C( const Tin* in, Tout* out, const unsigned int nevt );
 
 #endif // __CUDACC__
 

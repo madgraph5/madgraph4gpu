@@ -28,7 +28,7 @@ namespace mg5amcCpu
     virtual ~IRandomNumberKernel(){}
 
     // Seed the random number generator
-    virtual void seedGenerator( const int seed ) = 0;
+    virtual void seedGenerator( const unsigned int seed ) = 0;
 
     // Generate the random number array
     virtual void generateRnarray() = 0;
@@ -114,7 +114,7 @@ namespace mg5amcCpu
     ~CurandRandomNumberKernel();
 
     // Seed the random number generator
-    void seedGenerator( const int seed ) override final;
+    void seedGenerator( const unsigned int seed ) override final;
 
     // Generate the random number array
     void generateRnarray() override final;
