@@ -571,7 +571,7 @@ main( int argc, char** argv )
       if( perf ) std::cout << "Wave function time: " << wavetime << std::endl;
     }
 
-    for( int ievt = 0; ievt < nevt; ++ievt ) // Loop over all events in this iteration
+    for( unsigned int ievt = 0; ievt < nevt; ++ievt ) // Loop over all events in this iteration
     {
       if( verbose )
       {
@@ -664,7 +664,7 @@ main( int argc, char** argv )
   double meanw3atim = sumw3atim / niter;
   //double stdw3atim = std::sqrt( sqsw3atim / niter - meanw3atim * meanw3atim );
 
-  const int nevtALL = hstStats.nevtALL; // total number of ALL events in all iterations
+  const unsigned int nevtALL = hstStats.nevtALL; // total number of ALL events in all iterations
   if( nevtALL != niter * nevt )
     std::cout << "ERROR! nevtALL mismatch " << nevtALL << " != " << niter * nevt << std::endl; // SANITY CHECK
   int nabn = hstStats.nevtABN;
