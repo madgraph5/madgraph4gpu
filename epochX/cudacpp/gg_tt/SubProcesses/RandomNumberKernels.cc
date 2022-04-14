@@ -12,7 +12,7 @@ inline void assertCurand( curandStatus_t code, const char *file, int line, bool 
 {
   if ( code != CURAND_STATUS_SUCCESS )
   {
-    printf( "CurandAssert: %s %d\n", file, line );
+    printf( "CurandAssert: %s:%d code=%d\n", file, line, code );
     if ( abort ) assert( code == CURAND_STATUS_SUCCESS );
   }
 }
@@ -77,9 +77,9 @@ namespace mg5amcCpu
     {
       checkCurand( curandCreateGeneratorHost( &m_rnGen, type ) );
     }
-    //checkCurand( curandSetGeneratorOrdering( *&m_rnGen, CURAND_ORDERING_PSEUDO_LEGACY ) ); // fails at runtime? (see #429)
+    //checkCurand( curandSetGeneratorOrdering( *&m_rnGen, CURAND_ORDERING_PSEUDO_LEGACY ) ); // fails with code=104 (see #429)
     checkCurand( curandSetGeneratorOrdering( *&m_rnGen, CURAND_ORDERING_PSEUDO_BEST ) );
-    //checkCurand( curandSetGeneratorOrdering( *&m_rnGen, CURAND_ORDERING_PSEUDO_DYNAMIC ) ); // fails at runtime? (see #429)
+    //checkCurand( curandSetGeneratorOrdering( *&m_rnGen, CURAND_ORDERING_PSEUDO_DYNAMIC ) ); // fails with code=104 (see #429)
   }
 
   //--------------------------------------------------------------------------
