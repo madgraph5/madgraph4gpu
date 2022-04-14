@@ -77,6 +77,11 @@ namespace mg5amcCpu
 
   void CurandRandomNumberKernel::seedGenerator( const int seed )
   {
+    if( m_isOnDevice )
+    {
+      destroyGenerator(); // workaround for #429
+      createGenerator();  // workaround for #429
+    }
     //printf( "seedGenerator: seed %d\n", seed );
     checkCurand( curandSetPseudoRandomGeneratorSeed( m_rnGen, seed ) );
   }
