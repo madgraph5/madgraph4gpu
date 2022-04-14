@@ -63,6 +63,28 @@ namespace mg5amcCpu
       if( m_rnarray.isOnDevice() )
         throw std::runtime_error( "CurandRandomNumberKernel on host with a device random number array" );
     }
+    createGenerator();
+  }
+
+  //--------------------------------------------------------------------------
+
+  CurandRandomNumberKernel::~CurandRandomNumberKernel()
+  {
+    destroyGenerator();
+  }
+
+  //--------------------------------------------------------------------------
+
+  void CurandRandomNumberKernel::seedGenerator( const int seed )
+  {
+    //printf( "seedGenerator: seed %d\n", seed );
+    checkCurand( curandSetPseudoRandomGeneratorSeed( m_rnGen, seed ) );
+  }
+
+  //--------------------------------------------------------------------------
+
+  void CurandRandomNumberKernel::createGenerator()
+  {
     // [NB Timings are for GenRnGen host|device (cpp|cuda) generation of 256*32*1 events with nproc=1: rn(0) is host=0.0012s]
     const curandRngType_t type = CURAND_RNG_PSEUDO_MTGP32; //          0.00082s | 0.00064s (FOR FAST TESTS)
     //const curandRngType_t type = CURAND_RNG_PSEUDO_XORWOW;        // 0.049s   | 0.0016s
@@ -80,21 +102,14 @@ namespace mg5amcCpu
     //checkCurand( curandSetGeneratorOrdering( *&m_rnGen, CURAND_ORDERING_PSEUDO_LEGACY ) ); // fails with code=104 (see #429)
     checkCurand( curandSetGeneratorOrdering( *&m_rnGen, CURAND_ORDERING_PSEUDO_BEST ) );
     //checkCurand( curandSetGeneratorOrdering( *&m_rnGen, CURAND_ORDERING_PSEUDO_DYNAMIC ) ); // fails with code=104 (see #429)
+    //checkCurand( curandSetGeneratorOrdering( *&m_rnGen, CURAND_ORDERING_PSEUDO_SEEDED ) ); // fails with code=104 (see #429)
   }
 
   //--------------------------------------------------------------------------
 
-  CurandRandomNumberKernel::~CurandRandomNumberKernel()
+  void CurandRandomNumberKernel::destroyGenerator()
   {
     checkCurand( curandDestroyGenerator( m_rnGen ) );
-  }
-
-  //--------------------------------------------------------------------------
-
-  void CurandRandomNumberKernel::seedGenerator( const int seed )
-  {
-    //printf( "seedGenerator: seed %lld\n", seed );
-    checkCurand( curandSetPseudoRandomGeneratorSeed( m_rnGen, seed ) );
   }
 
   //--------------------------------------------------------------------------
