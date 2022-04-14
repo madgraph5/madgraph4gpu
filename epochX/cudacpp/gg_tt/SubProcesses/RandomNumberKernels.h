@@ -124,6 +124,14 @@ namespace mg5amcCpu
 
   private:
 
+    // Create the generator (workaround for #429: do this in every seedGenerator call rather than only in the ctor)
+    void createGenerator();
+
+    // Destroy the generator (workaround for #429: do this in every seedGenerator call rather than only in the ctor)
+    void destroyGenerator();
+
+  private:
+
     // Is this a host or device kernel?
     const bool m_isOnDevice;
 
