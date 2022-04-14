@@ -77,8 +77,9 @@ namespace mg5amcCpu
     {
       checkCurand( curandCreateGeneratorHost( &m_rnGen, type ) );
     }
-    //checkCurand( curandSetGeneratorOrdering( *&m_rnGen, CURAND_ORDERING_PSEUDO_LEGACY ) ); // CUDA 11
+    //checkCurand( curandSetGeneratorOrdering( *&m_rnGen, CURAND_ORDERING_PSEUDO_LEGACY ) ); // fails at runtime? (see #429)
     checkCurand( curandSetGeneratorOrdering( *&m_rnGen, CURAND_ORDERING_PSEUDO_BEST ) );
+    //checkCurand( curandSetGeneratorOrdering( *&m_rnGen, CURAND_ORDERING_PSEUDO_DYNAMIC ) ); // fails at runtime? (see #429)
   }
 
   //--------------------------------------------------------------------------
@@ -105,7 +106,22 @@ namespace mg5amcCpu
 #elif defined MGONGPU_FPTYPE_FLOAT
     checkCurand( curandGenerateUniform( m_rnGen, m_rnarray.data(), m_rnarray.size() ) );
 #endif
-    //for ( int i=0; i<8; i++ ) printf("%f %f %f %f\n",m_rnarray.data()[i*4],m_rnarray.data()[i*4+2],m_rnarray.data()[i*4+2],m_rnarray.data()[i*4+3]);
+    /*
+    printf( "\nCurandRandomNumberKernel::generateRnarray size = %d\n", (int)m_rnarray.size() );
+    fptype* data = m_rnarray.data();
+#ifdef __CUDACC__
+    if( m_rnarray.isOnDevice() )
+    {
+      data = new fptype[m_rnarray.size()]();
+      checkCuda( cudaMemcpy( data, m_rnarray.data(), m_rnarray.bytes(), cudaMemcpyDeviceToHost ) );
+    }
+#endif
+    for( int i = 0; i < ( (int)m_rnarray.size() / 4 ); i++ )
+      printf( "[%4d] %f %f %f %f\n", i * 4, data[i * 4], data[i * 4 + 2], data[i * 4 + 2], data[i * 4 + 3] );
+#ifdef __CUDACC__
+    if( m_rnarray.isOnDevice() ) delete[] data;
+#endif
+    */
   }
 
   //--------------------------------------------------------------------------
