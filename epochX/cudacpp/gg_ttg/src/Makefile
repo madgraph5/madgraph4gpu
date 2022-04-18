@@ -1,3 +1,10 @@
+#=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
+#=== NB: assume that the same name (e.g. cudacpp.mk, Makefile...) is used in the Subprocess and src directories
+
+THISMK = $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
+
+#-------------------------------------------------------------------------------
+
 #=== Use bash in the Makefile (https://www.gnu.org/software/make/manual/html_node/Choosing-the-Shell.html)
 
 SHELL = /bin/bash
@@ -225,17 +232,19 @@ $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
 .PHONY: clean
 
 clean:
+ifeq ($(USEBUILDDIR),1)
 	rm -rf $(LIBDIR)
-ifneq ($(BUILDDIR),.)
 	rm -rf $(BUILDDIR)
 else
+	rm -f $(LIBDIR)/.build.* $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 endif
 
 cleanall:
 	@echo
-	make clean
+	$(MAKE) clean -f $(THISMK)
 	@echo
+	rm -rf $(LIBDIR)/build.*
 	rm -rf build.*
 
 #-------------------------------------------------------------------------------
