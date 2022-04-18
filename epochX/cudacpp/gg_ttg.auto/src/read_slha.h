@@ -15,7 +15,7 @@ public:
   double get_entry( std::vector<int> indices, double def_val = 0 );
   void set_name( std::string name ) { _name = name; }
   std::string get_name() { return _name; }
-  int get_indices() { return _indices; }
+  unsigned int get_indices() { return _indices; }
 private:
   std::string _name;
   std::map<std::vector<int>, double> _entries;
