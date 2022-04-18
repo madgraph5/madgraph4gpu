@@ -110,8 +110,8 @@ SLHAReader::read_slha_file( std::string file_name, bool verbose )
         while( line[0] == ' ' )
           line = line.substr( 1 );
         // Now find end of block name
-        int space_pos = line.find( ' ' );
-        if( space_pos != ( (int)line.npos ) )
+        size_t space_pos = line.find( ' ' );
+        if( space_pos != std::string::npos )
           line = line.substr( 0, space_pos );
         block = line;
         continue;

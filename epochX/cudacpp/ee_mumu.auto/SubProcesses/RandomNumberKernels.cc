@@ -75,7 +75,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void CurandRandomNumberKernel::seedGenerator( const int seed )
+  void CurandRandomNumberKernel::seedGenerator( const unsigned int seed )
   {
     if( m_isOnDevice )
     {
