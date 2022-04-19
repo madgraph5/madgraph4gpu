@@ -1,5 +1,5 @@
 diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index cce95279..a0d0814a 100644
+index cce95279..c9db8fa0 100644
 --- a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,17 @@
@@ -29,7 +29,7 @@ index cce95279..a0d0814a 100644
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -37,23 +48,54 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -37,23 +48,63 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -69,11 +69,20 @@ index cce95279..a0d0814a 100644
 +PLUGIN_CULIB = mg5amc_$(processid_short)_cuda
 +PLUGIN_MAKEFILE = Makefile
 +
++# On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
++# Use relative paths with respect to the executables ($ORIGIN on Linux)
++# On Darwin, building libraries with absolute paths in LIBDIR makes this unnecessary
++ifeq ($(UNAME_S),Darwin)
++  override LIBFLAGSRPATH =
++else
++  override LIBFLAGSRPATH = -Wl,-rpath,'$$ORIGIN/$(LIBDIR)'
++endif
++
 +c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/lib$(PLUGIN_CXXLIB).so
-+	$(FC) -o c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CXXLIB)
++	$(FC) -o c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CXXLIB) $(LIBFLAGSRPATH)
 +
 +g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/lib$(PLUGIN_CULIB).so
-+	$(FC) -o g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CULIB)
++	$(FC) -o g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CULIB) $(LIBFLAGSRPATH)
 +
 +$(LIBDIR)/lib$(PLUGIN_CXXLIB).so $(LIBDIR)/lib$(PLUGIN_CULIB).so:
 +	$(MAKE) -f $(PLUGIN_MAKEFILE)
@@ -90,7 +99,7 @@ index cce95279..a0d0814a 100644
  
  $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
  	cd ../../Source/MODEL; make
-@@ -68,7 +110,9 @@ $(LIBDIR)libpdf.$(libext):
+@@ -68,7 +119,9 @@ $(LIBDIR)libpdf.$(libext):
  $(MATRIX): %.o: %.f
  	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -fopenmp
  %.o: %.f
@@ -101,7 +110,7 @@ index cce95279..a0d0814a 100644
  
  # Dependencies
  
-@@ -89,4 +133,12 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -89,4 +142,12 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  initcluster.o: message.inc
  
  clean:
