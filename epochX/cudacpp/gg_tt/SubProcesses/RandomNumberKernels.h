@@ -28,7 +28,7 @@ namespace mg5amcCpu
     virtual ~IRandomNumberKernel(){}
 
     // Seed the random number generator
-    virtual void seedGenerator( const int seed ) = 0;
+    virtual void seedGenerator( const unsigned int seed ) = 0;
 
     // Generate the random number array
     virtual void generateRnarray() = 0;
@@ -57,7 +57,7 @@ namespace mg5amcCpu
     virtual ~RandomNumberKernelBase() {}
 
     // Seed the random number generator
-    virtual void seedGenerator( const int seed ) = 0;
+    virtual void seedGenerator( const unsigned int seed ) = 0;
 
     // Generate the random number array
     virtual void generateRnarray() = 0;
@@ -85,7 +85,7 @@ namespace mg5amcCpu
     ~CommonRandomNumberKernel() {}
 
     // Seed the random number generator
-    void seedGenerator( const int seed ) override final { m_seed = seed; };
+    void seedGenerator( const unsigned int seed ) override final { m_seed = seed; };
 
     // Generate the random number array
     void generateRnarray() override final;
@@ -96,7 +96,7 @@ namespace mg5amcCpu
   private:
 
     // The generator seed
-    int m_seed;
+    unsigned int m_seed;
   };
 
   //--------------------------------------------------------------------------
@@ -114,13 +114,21 @@ namespace mg5amcCpu
     ~CurandRandomNumberKernel();
 
     // Seed the random number generator
-    void seedGenerator( const int seed ) override final;
+    void seedGenerator( const unsigned int seed ) override final;
 
     // Generate the random number array
     void generateRnarray() override final;
 
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return m_isOnDevice; }
+
+  private:
+
+    // Create the generator (workaround for #429: do this in every seedGenerator call rather than only in the ctor)
+    void createGenerator();
+
+    // Destroy the generator (workaround for #429: do this in every seedGenerator call rather than only in the ctor)
+    void destroyGenerator();
 
   private:
 

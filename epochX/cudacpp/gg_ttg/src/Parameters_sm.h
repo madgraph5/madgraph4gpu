@@ -24,7 +24,7 @@ public:
   double zero, ZERO;
 
   // Model parameters independent of aS
-  double mdl_WH, mdl_WW, mdl_WZ, mdl_WT, mdl_ymtau, mdl_ymt, mdl_ymb, aS, mdl_Gf, aEWM1, mdl_MH, mdl_MZ, mdl_MTA, mdl_MT, mdl_MB, mdl_conjg__CKM3x3, mdl_conjg__CKM1x1, mdl_CKM3x3, mdl_MZ__exp__2, mdl_MZ__exp__4, mdl_sqrt__2, mdl_MH__exp__2, mdl_aEW, mdl_MW, mdl_sqrt__aEW, mdl_ee, mdl_MW__exp__2, mdl_sw2, mdl_cw, mdl_sqrt__sw2, mdl_sw, mdl_g1, mdl_gw, mdl_vev, mdl_vev__exp__2, mdl_lam, mdl_yb, mdl_yt, mdl_ytau, mdl_muH, mdl_ee__exp__2, mdl_sw__exp__2, mdl_cw__exp__2;
+  double mdl_WH, mdl_WT, mdl_WW, mdl_WZ, mdl_MTA, mdl_MH, mdl_MB, mdl_MT, mdl_MZ, mdl_ymtau, mdl_ymt, mdl_ymb, aS, mdl_Gf, aEWM1, mdl_conjg__CKM3x3, mdl_conjg__CKM1x1, mdl_CKM3x3, mdl_MZ__exp__2, mdl_MZ__exp__4, mdl_sqrt__2, mdl_MH__exp__2, mdl_aEW, mdl_MW, mdl_sqrt__aEW, mdl_ee, mdl_MW__exp__2, mdl_sw2, mdl_cw, mdl_sqrt__sw2, mdl_sw, mdl_g1, mdl_gw, mdl_vev, mdl_vev__exp__2, mdl_lam, mdl_yb, mdl_yt, mdl_ytau, mdl_muH, mdl_ee__exp__2, mdl_sw__exp__2, mdl_cw__exp__2;
   cxsmpl<double> mdl_complexi, mdl_I1x33, mdl_I2x33, mdl_I3x33, mdl_I4x33;
 
   // Model couplings independent of aS
@@ -88,20 +88,20 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   constexpr double zero = 0;
   constexpr double ZERO = 0;
   constexpr double mdl_WH = 6.382339e-03;
+  constexpr double mdl_WT = 1.491500e+00;
   constexpr double mdl_WW = 2.047600e+00;
   constexpr double mdl_WZ = 2.441404e+00;
-  constexpr double mdl_WT = 1.491500e+00;
+  constexpr double mdl_MTA = 1.777000e+00;
+  constexpr double mdl_MH = 1.250000e+02;
+  constexpr double mdl_MB = 4.700000e+00;
+  constexpr double mdl_MT = 1.730000e+02;
+  constexpr double mdl_MZ = 9.118800e+01;
   constexpr double mdl_ymtau = 1.777000e+00;
   constexpr double mdl_ymt = 1.730000e+02;
   constexpr double mdl_ymb = 4.700000e+00;
   constexpr double aS = 1.180000e-01;
   constexpr double mdl_Gf = 1.166390e-05;
   constexpr double aEWM1 = 1.325070e+02;
-  constexpr double mdl_MH = 1.250000e+02;
-  constexpr double mdl_MZ = 9.118800e+01;
-  constexpr double mdl_MTA = 1.777000e+00;
-  constexpr double mdl_MT = 1.730000e+02;
-  constexpr double mdl_MB = 4.700000e+00;
   constexpr double mdl_conjg__CKM3x3 = 1.;
   constexpr double mdl_conjg__CKM1x1 = 1.;
   constexpr double mdl_CKM3x3 = 1.;

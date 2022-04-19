@@ -270,13 +270,22 @@ if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"
 mg5amc270=2.7.0_gpu
 mg5amc311=3.1.1_lo_vectorization
 mg5amcBrn=${mg5amc311}
+if [ "${OUTBCK}" == "alpaka" ]; then
+  revno_patches=370
+else
+  revno_patches=$(cat $SCRDIR/MG5aMC_patches/${mg5amcBrn}/revision.BZR)
+fi
 if [ "$MG5AMC_HOME" == "" ]; then
   echo "ERROR! MG5AMC_HOME is not defined"
-  echo "To download MG5AMC please run 'bzr branch lp:~maddevelopers/mg5amcnlo/${mg5amcBrn}'"
+  echo -e "To download MG5AMC please run\n  bzr branch lp:~maddevelopers/mg5amcnlo/${mg5amcBrn} -r ${revno_patches}"
   exit 1
 fi
 echo -e "\nDefault MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
-if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exist"; exit 1; fi
+if [ ! -d $MG5AMC_HOME ]; then
+  echo "ERROR! Directory $MG5AMC_HOME does not exist"
+  echo -e "To download MG5AMC please run\n  bzr branch lp:~maddevelopers/mg5amcnlo/${mg5amcBrn} -r ${revno_patches}"
+  exit 1
+fi
 if [ "$(basename ${MG5AMC_HOME})" != "${mg5amcBrn}" ]; then
   echo "ERROR! MG5AMC_HOME basename is not ${mg5amcBrn}"
   exit 1
@@ -320,11 +329,6 @@ if bzr --version >& /dev/null; then
   echo -e "Using $(bzr --version | head -1)"
   echo -e "Retrieving bzr information about MG5AMC_HOME"
   if bzr info ${MG5AMC_HOME} > /dev/null; then
-    if [ "${SCRBCK}" == "alpaka" ]; then
-      revno_patches=370
-    else
-      revno_patches=$(cat $SCRDIR/MG5aMC_patches/${mg5amcBrn}/revision.BZR)
-    fi
     echo -e "MG5AMC patches in this plugin refer to bzr revno '${revno_patches}'"
     echo -e "Revert MG5AMC_HOME to bzr revno '${revno_patches}'"
     bzr revert ${MG5AMC_HOME} -r ${revno_patches}
