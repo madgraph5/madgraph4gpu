@@ -251,6 +251,13 @@ C
       DOUBLE PRECISION RHEL  ! random number
       INTEGER CHANNEL
 C     
+C     STUFF FOR DRESSED EE COLLISIONS --even if not supported for now--
+C     
+      INCLUDE '../../Source/PDF/eepdf.inc'
+      DOUBLE PRECISION EE_COMP_PROD
+
+      INTEGER I_EE
+C     
 C     EXTERNAL FUNCTIONS
 C     
       LOGICAL PASSCUTS
@@ -282,6 +289,11 @@ C     jamp2 information
       DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE)
       DOUBLE PRECISION HEL_RAND(NB_PAGE)
       INTEGER SELECTED_HEL(NB_PAGE)
+
+C     Common blocks
+      CHARACTER*7         PDLABEL,EPA_LABEL
+      INTEGER       LHAID
+      COMMON/TO_PDF/LHAID,PDLABEL,EPA_LABEL
 
 C     
 C     local
@@ -386,7 +398,7 @@ C       CM_RAP = ALL_CM_RAP(IVEC)
         ELSE
           P1 = ALL_PP(:,:,IVEC)
         ENDIF
-
+        CALL RESTORE_CL_VAL_TO(IVEC)
         DSIGUU=DSIGUU*REWGT(P1)
 
 C       Apply the bias weight specified in the run card (default is
