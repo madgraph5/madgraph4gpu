@@ -70,6 +70,7 @@ $(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
 
 libs:
 	cd ../../Source; make
+	$(MAKE) -f $(PLUGIN_MAKEFILE)
 
 processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 PLUGIN_COMMONLIB = mg5amc_common
