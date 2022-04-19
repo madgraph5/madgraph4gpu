@@ -249,6 +249,13 @@ C
       DOUBLE PRECISION RHEL  ! random number
       INTEGER CHANNEL
 C     
+C     STUFF FOR DRESSED EE COLLISIONS --even if not supported for now--
+C     
+      INCLUDE '../../Source/PDF/eepdf.inc'
+      DOUBLE PRECISION EE_COMP_PROD
+
+      INTEGER I_EE
+C     
 C     EXTERNAL FUNCTIONS
 C     
       LOGICAL PASSCUTS
@@ -280,6 +287,11 @@ C     jamp2 information
       DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE)
       DOUBLE PRECISION HEL_RAND(NB_PAGE)
       INTEGER SELECTED_HEL(NB_PAGE)
+
+C     Common blocks
+      CHARACTER*7         PDLABEL,EPA_LABEL
+      INTEGER       LHAID
+      COMMON/TO_PDF/LHAID,PDLABEL,EPA_LABEL
 
 C     
 C     local
@@ -384,7 +396,7 @@ C       CM_RAP = ALL_CM_RAP(IVEC)
         ELSE
           P1 = ALL_PP(:,:,IVEC)
         ENDIF
-
+        CALL RESTORE_CL_VAL_TO(IVEC)
         DSIGUU=DSIGUU*REWGT(P1)
 
 C       Apply the bias weight specified in the run card (default is
@@ -442,15 +454,10 @@ C
       DOUBLE PRECISION JAMP2_MULTI(0:MAXFLOW, NB_PAGE)
 
       INTEGER IVEC
-      INTEGER IEXT
 
-#ifdef MG5AMC_MEEXPORTER_CUDACPP
-      INCLUDE 'fbridge.inc'
-      DOUBLE PRECISION OUT2(NB_PAGE)
-#endif
 
-c!$OMP PARALLEL
-c!$OMP DO
+!$OMP PARALLEL
+!$OMP DO
       DO IVEC=1, NB_PAGE
         CALL SMATRIX1(P_MULTI(0,1,IVEC),
      &	                         hel_rand(IVEC),
@@ -461,21 +468,8 @@ C       &				 selected_hel(IVEC),
      &				 IVEC
      &				 )
       ENDDO
-c!$OMP END DO
-c!$OMP END PARALLEL
-
-#ifdef MG5AMC_MEEXPORTER_CUDACPP
-      CALL FBRIDGESEQUENCE(MEEXPORTER_PBRIDGE, P_MULTI, OUT2)
-      DO IVEC=1, NB_PAGE
-c       DO IEXT=1, NEXTERNAL
-c         WRITE (*,*) P_MULTI(0,IEXT,IVEC), P_MULTI(1,IEXT,IVEC),
-c    &                P_MULTI(2,IEXT,IVEC), P_MULTI(3,IEXT,IVEC)
-c       END DO
-        WRITE (*,*) IVEC, OUT(IVEC), OUT2(IVEC), OUT2(IVEC)/OUT(IVEC)
-c       WRITE (*,*)
-      END DO
-#endif
-
+!$OMP END DO
+!$OMP END PARALLEL
       RETURN
       END
 
