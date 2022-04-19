@@ -46,7 +46,6 @@ for p1dir in ${dir}/SubProcesses/P1_*; do
 done
 cd ${dir}/SubProcesses
 if ! patch -i ${scrdir}/MG5aMC_patches/patch.makefile; then status=1; fi  
-if ! patch -i ${scrdir}/MG5aMC_patches/patch.reweight.f; then status=1; fi  
 cd -
 
 exit $status
