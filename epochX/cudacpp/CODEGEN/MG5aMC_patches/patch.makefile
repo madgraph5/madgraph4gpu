@@ -1,5 +1,5 @@
 diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index cce95279..c9db8fa0 100644
+index cce95279..95f79f3c 100644
 --- a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,17 @@
@@ -29,7 +29,7 @@ index cce95279..c9db8fa0 100644
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -37,23 +48,63 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -37,23 +48,65 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -50,7 +50,7 @@ index cce95279..c9db8fa0 100644
 -$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX)
 -	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
 +ifeq (,$(wildcard fbridge.inc))
-+all: $(PROG)
++all: libs $(PROG)
 +else
 +all: libs $(PROG) c$(PROG)_cudacpp g$(PROG)_cudacpp
 +endif
@@ -60,7 +60,9 @@ index cce95279..c9db8fa0 100644
 +
 +libs:
 +	cd ../../Source; make
++ifneq (,$(wildcard fbridge.inc))
 +	$(MAKE) -f $(PLUGIN_MAKEFILE)
++endif
 +
 +processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 +PLUGIN_COMMONLIB = mg5amc_common
@@ -99,7 +101,7 @@ index cce95279..c9db8fa0 100644
  
  $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
  	cd ../../Source/MODEL; make
-@@ -68,7 +119,9 @@ $(LIBDIR)libpdf.$(libext):
+@@ -68,7 +121,9 @@ $(LIBDIR)libpdf.$(libext):
  $(MATRIX): %.o: %.f
  	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -fopenmp
  %.o: %.f
@@ -110,17 +112,21 @@ index cce95279..c9db8fa0 100644
  
  # Dependencies
  
-@@ -89,4 +142,12 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -89,4 +144,16 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  initcluster.o: message.inc
  
  clean:
 -	$(RM) *.o gensym madevent madevent_forhel
++ifeq (,$(wildcard fbridge.inc))
++	$(RM) *.o gensym $(PROG) $(PROG)_forhel
++else
 +	$(RM) *.o gensym $(PROG) $(PROG)_forhel *$(PROG)_cudacpp
++endif
 +
-+ifneq (,$(wildcard fbridge.inc))
 +cleanall:
 +	make clean
 +	make -C ../../Source clean
 +	rm -rf $(LIBDIR)libbias.$(libext)
++ifneq (,$(wildcard fbridge.inc))
 +	$(MAKE) -f $(PLUGIN_MAKEFILE) cleanall
 +endif
