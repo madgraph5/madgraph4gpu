@@ -1338,12 +1338,12 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       {
         if( ihel > maxihel )
         {
-          //printf( "calculate_wavefunctions: ihel=%2d\n", ihel );
+          //printf( "calculate_wavefunctions: ihel=%2d\\n", ihel );
           maxihel = ihel;
         }
         else if( ihel < maxihel )
         {
-          printf( "calculate_wavefunctions: FIRST CALL AFTER HELICITY FILTERING ihel=%2d\n", ihel );
+          printf( "calculate_wavefunctions: FIRST CALL AFTER HELICITY FILTERING ihel=%2d\\n", ihel );
           maxihel = -2;
           minihel = ihel;
         }
@@ -1354,17 +1354,17 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         {
           for( int ieppV = 0; ieppV < neppV; ieppV++ )
           {
-            printf( "calculate_wavefunctions: ievt=%6d ihel=%2d\n", ievt0 + ieppV, ihel );
+            printf( "calculate_wavefunctions: ievt=%6d ihel=%2d\\n", ievt0 + ieppV, ihel );
             for( int ipar = 0; ipar < npar; ipar++ )
             {
 #ifdef MGONGPU_CPPSIMD
-              printf( "calculate_wavefunctions: %f %f %f %f\n",
+              printf( "calculate_wavefunctions: %f %f %f %f\\n",
                       M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar )[ieppV],
                       M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar )[ieppV],
                       M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar )[ieppV],
                       M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar )[ieppV] );
 #else
-              printf( "calculate_wavefunctions: %f %f %f %f\n",
+              printf( "calculate_wavefunctions: %f %f %f %f\\n",
                       M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar ),
                       M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar ),
                       M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar ),
