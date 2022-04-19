@@ -7,13 +7,9 @@ scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
 topdir=$(cd $scrdir; cd ../../..; pwd)
 
-# This is no longer necessary as check/gcheck/runTest.exe are now built using rpath
-###export LD_LIBRARY_PATH_start=$LD_LIBRARY_PATH
-###export DYLD_LIBRARY_PATH_start=$DYLD_LIBRARY_PATH
-
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-nocpp|[-omp][-avxall][-nocuda]] [-auto|-autoonly] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-nocpp|[-omp][-avxall][-nocuda]] [-auto|-autoonly] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -49,6 +45,8 @@ req=0
 detailed=0
 gtest=0
 verbose=0
+
+dlp=
 
 if [ "$bckend" != "alpaka" ]; then alpaka=0; fi # alpaka mode is only available in the alpaka directory
 
@@ -162,11 +160,21 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-v" ]; then
     verbose=1
     shift
+  elif [ "$1" == "-dlp" ] && [ "$2" != "" ]; then
+    dlp="$2"
+    shift
+    shift
   else
     usage
   fi
 done
 ###exit 1
+
+# Workaround for MacOS SIP (SystemIntegrity Protection): set DYLD_LIBRARY_PATH In subprocesses
+if [ "${dlp}" != "" ]; then
+  echo "export DYLD_LIBRARY_PATH=$dlp"
+  export DYLD_LIBRARY_PATH=$dlp
+fi
 
 # Check that at least one process has been selected
 if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ]; then usage; fi
@@ -197,6 +205,10 @@ if [ "${alpaka}" == "1" ]; then
 else
   export CUPLA_ROOT=none
 fi
+
+# Determine the O/S and the processor architecture for late decisions
+unames=$(uname -s)
+unamep=$(uname -p)
 
 ###echo -e "\n********************************************************************************\n"
 printf "\n"
@@ -262,9 +274,11 @@ for suff in $suffs; do
           exes="$exes $dir/build.none_${fptype}_inl${helinl}${hrdsuf}/check.exe"
           if [ "${avxall}" == "1" ]; then 
             exes="$exes $dir/build.sse4_${fptype}_inl${helinl}${hrdsuf}/check.exe"
-            exes="$exes $dir/build.avx2_${fptype}_inl${helinl}${hrdsuf}/check.exe"
+            if [ "${unamep}" == "x86_64" ]; then 
+              exes="$exes $dir/build.avx2_${fptype}_inl${helinl}${hrdsuf}/check.exe"
+            fi
           fi
-          if [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
+          if [ "${unamep}" == "x86_64" ] && [ "${unames}" != "Darwin" ] && [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" == "1" ]; then 
             exes="$exes $dir/build.512y_${fptype}_inl${helinl}${hrdsuf}/check.exe"
             if [ "${avxall}" == "1" ]; then 
               exes="$exes $dir/build.512z_${fptype}_inl${helinl}${hrdsuf}/check.exe"
@@ -371,7 +385,7 @@ function runExe() {
 
 function cmpExe() {
   exe=$1
-  exef=${exe/\/check//gcheck}
+  exef=${exe/\/check//fcheck}
   exef=${exef/\/gcheck//fgcheck}
   argsf="2 64 2"
   args="--common -p ${argsf}"
@@ -388,7 +402,7 @@ function cmpExe() {
     echo "ERROR! Fortran calculation (F77${tag} crashed"
   else
     # NB skip python comparison if Fortran returned NaN or crashed, otherwise python returns an error status and the following tests are not executed
-    python -c "me1=${me1}; me2=${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 2E-4; print ( '%s (relative difference %s 2E-4)' % ( ('OK','<=') if ok else ('ERROR','>') ) )"
+    python3 -c "me1=${me1}; me2=${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 2E-4; print ( '%s (relative difference %s 2E-4)' % ( ('OK','<=') if ok else ('ERROR','>') ) )"
   fi
 }
 
@@ -446,8 +460,10 @@ function runNcuReq() {
 }
 
 if nvidia-smi -L > /dev/null 2>&1; then gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"; else gpuTxt=none; fi
-unamep=$(uname -p)
-if [ "${unamep}" == "ppc64le" ]; then 
+if [ "${unames}" == "Darwin" ]; then 
+  cpuTxt=$(sysctl -h machdep.cpu.brand_string)
+  cpuTxt=${cpuTxt/machdep.cpu.brand_string: }
+elif [ "${unamep}" == "ppc64le" ]; then 
   cpuTxt=$(cat /proc/cpuinfo | grep ^machine | awk '{print substr($0,index($0,"Power"))", "}')$(cat /proc/cpuinfo | grep ^cpu | head -1 | awk '{print substr($0,index($0,"POWER"))}')
 else
   cpuTxt=$(cat /proc/cpuinfo | grep '^model name' |& head -1 | awk '{i0=index($0,"Intel"); if (i0==0) i0=index($0,"AMD"); i1=index($0," @"); if (i1>0) {print substr($0,i0,i1-i0)} else {print substr($0,i0)}}')
@@ -458,6 +474,12 @@ lastExe=
 for exe in $exes; do
   ###echo EXE=$exe; continue
   exeArgs2=""
+  if [ "$(basename $exe)" != "$lastExe" ]; then
+    echo "========================================================================="
+    lastExe=$(basename $exe)
+  else
+    echo "-------------------------------------------------------------------------"
+  fi
   if [ ! -f $exe ]; then echo "Not found: $exe"; continue; fi
   if [ "${exe%%/gcheck*}" != "${exe}" ] && [ "$gpuTxt" == "none" ]; then continue; fi
   if [ "${exe%%/gg_ttggg*}" != "${exe}" ]; then 
@@ -485,20 +507,8 @@ for exe in $exes; do
     exeArgs="-p 2048 256 12"
     ncuArgs="-p 2048 256 1"
   fi
-  if [ "$(basename $exe)" != "$lastExe" ]; then
-    echo "========================================================================="
-    lastExe=$(basename $exe)
-  else
-    echo "-------------------------------------------------------------------------"
-  fi
   exeDir=$(dirname $exe)
   cd $exeDir/.. # workaround for reading '../../Cards/param_card.dat' without setting MG5AMC_CARD_PATH
-  # This is no longer necessary as check/gcheck/runTest.exe are now built using rpath
-  ###libDir=$exeDir/../../../lib/$(basename $exeDir)
-  ###if [ ! -d $libDir ]; then echo "WARNING! $libDir not found"; else libDir=$(cd $libDir; pwd -P); fi
-  ###export LD_LIBRARY_PATH=$libDir:$LD_LIBRARY_PATH_start
-  ###export DYLD_LIBRARY_PATH=$libDir:$DYLD_LIBRARY_PATH_start
-  ###echo "LD_LIBRARY_PATH=$libDir:..."
   unset OMP_NUM_THREADS
   runExe $exe "$exeArgs"
   if [ "${exe%%/check*}" != "${exe}" ]; then 

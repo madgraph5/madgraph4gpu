@@ -10,6 +10,10 @@ PLUGINDIR = os.path.dirname( __file__ )
 # AV - model_handling includes custom UFOModelConverter and OneProcessExporter, plus additional patches
 import PLUGIN.CUDACPP_SA_OUTPUT.model_handling as model_handling
 
+# AV - create a plugin-specific logger
+import logging
+logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.output')
+
 #------------------------------------------------------------------------------------
 
 # AV - modify misc.make_unique (remove a printout)
@@ -25,12 +29,12 @@ def PLUGIN_make_unique(input, keepordering=None):
             printordering = False
             misc.sprint('keepordering (default): %s'%keepordering) # AV - add a printout only in the first call
     else:
-        misc.sprint('keepordering (argument): %s'%keepordering) # AV - add a printout at every call only if it is an argument	
+        misc.sprint('keepordering (argument): %s'%keepordering) # AV - add a printout at every call only if it is an argument
     ###sprint(keepordering) # AV - remove the printout at every call
     if not keepordering:
         return list(set(input))
     else:
-        return list(dict.fromkeys(input)) 
+        return list(dict.fromkeys(input))
 
 DEFAULT_make_unique = misc.make_unique
 misc.make_unique = PLUGIN_make_unique
@@ -65,12 +69,12 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     #      Note: only change class attribute
     #  - PLUGIN_ProcessExporter(ProcessExporterGPU)
     #      This class
-    
+
     # Below are the class variable that are defined in export_v4.VirtualExporter
     # AV - keep defaults from export_v4.VirtualExporter
     # Check status of the directory. Remove it if already exists
-    ###check = True 
-    # Output type: [Template/dir/None] copy the Template (via copy_template), just create dir or do nothing 
+    ###check = True
+    # Output type: [Template/dir/None] copy the Template (via copy_template), just create dir or do nothing
     ###output = 'Template'
 
     # If sa_symmetry is true, generate fewer matrix elements
@@ -80,10 +84,10 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     # Below are the class variable that are defined in export_cpp.ProcessExporterGPU
     # AV - keep defaults from export_cpp.ProcessExporterGPU
     # Decide which type of merging is used [madevent/madweight]
-    ###grouped_mode = False 
+    ###grouped_mode = False
     # Other options
     ###default_opt = {'clean': False, 'complex_mass':False, 'export_format':'madevent', 'mp': False, 'v5_model': True }
-    
+
     # AV - keep defaults from export_cpp.ProcessExporterGPU
     # AV - used in MadGraphCmd.do_output to assign export_cpp.ExportCPPFactory to MadGraphCmd._curr_exporter (if cpp or gpu)
     # AV - used in MadGraphCmd.export to assign helas_call_writers.(CPPUFO|GPUFO)HelasCallWriter to MadGraphCmd._curr_helas_model (if cpp or gpu)
@@ -93,16 +97,18 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     # AV - use a custom OneProcessExporter
     ###oneprocessclass = export_cpp.OneProcessExporterGPU # responsible for P directory
     oneprocessclass = model_handling.PLUGIN_OneProcessExporter
-    
+
     # Information to find the template file that we want to include from madgraph
     # you can include additional file from the plugin directory as well
     # AV - use template files from PLUGINDIR instead of MG5DIR and add gpu/mgOnGpuVectors.h
     # [NB: mgOnGpuConfig.h, check_sa.cc and fcheck_sa.f are handled through dedicated methods]
     ###s = MG5DIR + '/madgraph/iolibs/template_files/'
     s = PLUGINDIR + '/madgraph/iolibs/template_files/'
-    from_template = {'.': [s+'.clang-format'],
+    from_template = {'.': [s+'.clang-format', s+'CMake/CMakeLists.txt'],
+                     'CMake': [s+'CMake/Compilers.txt', s+'CMake/Platforms.txt', s+'CMake/Macros.txt'],
                      'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
-                             s+'gpu/mgOnGpuFptypes.h', s+'gpu/mgOnGpuCxtypes.h', s+'gpu/mgOnGpuVectors.h'],
+                             s+'gpu/mgOnGpuFptypes.h', s+'gpu/mgOnGpuCxtypes.h', s+'gpu/mgOnGpuVectors.h',
+                             s+'CMake/src/CMakeLists.txt'],
                      'SubProcesses': [s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h', s+'gpu/CudaRuntime.h',
                                       s+'gpu/MemoryBuffers.h', s+'gpu/MemoryAccessHelpers.h', s+'gpu/MemoryAccessVectors.h',
                                       s+'gpu/MemoryAccessMatrixElements.h', s+'gpu/MemoryAccessMomenta.h',
@@ -118,12 +124,13 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
                                       s+'gpu/Makefile',
                                       s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
                                       s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt',
-                                      s+'gpu/perf.py', s+'gpu/profile.sh']}
+                                      s+'gpu/perf.py', s+'gpu/profile.sh',
+                                      s+'CMake/SubProcesses/CMakeLists.txt']}
     to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h', 'CudaRuntime.h',
                     'MemoryBuffers.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h',
                     'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h',
-                    'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h', 
-		    'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h',
+                    'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h',
+                    'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h',
                     'EventStatistics.h',
                     'CrossSectionKernels.cc', 'CrossSectionKernels.h',
                     'MatrixElementKernels.cc', 'MatrixElementKernels.h',
@@ -145,9 +152,9 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
 
     # AV - use a custom UFOModelConverter (model/aloha exporter)
     ###create_model_class =  export_cpp.UFOModelConverterGPU
-    import PLUGIN.CUDACPP_SA_OUTPUT.model_handling as model_handling 
+    import PLUGIN.CUDACPP_SA_OUTPUT.model_handling as model_handling
     create_model_class = model_handling.PLUGIN_UFOModelConverter
-    
+
     # AV - "aloha_exporter" is not used anywhere!
     # (OM: "typically not defined but useful for this tutorial - the class for writing helas routine")
     ###aloha_exporter = None
@@ -158,10 +165,30 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
         misc.sprint('Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter)')
         return super().__init__(*args, **kwargs)
 
-    # AV (default from OM's tutorial) - add a debug printout
+    # AV - overload the default version: create CMake directory, do not create lib directory
     def copy_template(self, model):
         misc.sprint('Entering PLUGIN_ProcessExporter.copy_template (initialise the directory)')
-        return super().copy_template(model)
+        try: os.mkdir(self.dir_path)
+        except os.error as error: logger.warning(error.strerror + " " + self.dir_path)
+        with misc.chdir(self.dir_path):
+            logger.info('Creating subdirectories in directory %s' % self.dir_path)
+            for d in ['src', 'Cards', 'SubProcesses', 'CMake']: # AV - added CMake, removed lib
+                try: os.mkdir(d)
+                except os.error as error: logger.warning(error.strerror + " " + os.path.join(self.dir_path,d))
+            # Write param_card
+            open(os.path.join("Cards","param_card.dat"), 'w').write(model.write_param_card())    
+            # Copy files in various subdirectories
+            for key in self.from_template:
+                for f in self.from_template[key]:
+                    export_cpp.cp(f, key) # NB this assumes directory key exists...
+            # Copy src Makefile
+            if self.template_src_make:
+                makefile = self.read_template_file(self.template_src_make) % {'model': self.get_model_name(model.get('name'))}
+                open(os.path.join('src', 'Makefile'), 'w').write(makefile)
+            # Copy SubProcesses Makefile
+            if self.template_Sub_make:
+                makefile = self.read_template_file(self.template_Sub_make) % {'model': self.get_model_name(model.get('name'))}
+                open(os.path.join('SubProcesses', 'Makefile'), 'w').write(makefile)
 
     # AV - add debug printouts (in addition to the default one from OM's tutorial)
     def generate_subprocess_directory(self, subproc_group, fortran_model, me=None):
