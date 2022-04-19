@@ -1,5 +1,5 @@
 diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index cce95279..4cbc86d6 100644
+index cce95279..a0d0814a 100644
 --- a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,17 @@
@@ -29,7 +29,7 @@ index cce95279..4cbc86d6 100644
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -37,23 +48,53 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -37,23 +48,54 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -60,6 +60,7 @@ index cce95279..4cbc86d6 100644
 +
 +libs:
 +	cd ../../Source; make
++	$(MAKE) -f $(PLUGIN_MAKEFILE)
 +
 +processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 +PLUGIN_COMMONLIB = mg5amc_common
@@ -89,7 +90,7 @@ index cce95279..4cbc86d6 100644
  
  $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
  	cd ../../Source/MODEL; make
-@@ -68,7 +109,9 @@ $(LIBDIR)libpdf.$(libext):
+@@ -68,7 +110,9 @@ $(LIBDIR)libpdf.$(libext):
  $(MATRIX): %.o: %.f
  	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -fopenmp
  %.o: %.f
@@ -100,7 +101,7 @@ index cce95279..4cbc86d6 100644
  
  # Dependencies
  
-@@ -89,4 +132,12 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -89,4 +133,12 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  initcluster.o: message.inc
  
  clean:
