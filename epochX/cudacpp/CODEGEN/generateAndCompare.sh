@@ -126,6 +126,11 @@ function codeGenAndDiff()
     cat ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt | sed 's/mg5_path/#mg5_path/' > ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt.new
     \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt.new ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt
   fi
+  # Temporarely use a fixed renormalization scale (#417)
+  if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
+    cat ${OUTDIR}/${proc}.${autosuffix}/Cards/run_card.dat | sed 's/False = fixed_ren_scale/True = fixed_ren_scale/' > ${OUTDIR}/${proc}.${autosuffix}/Cards/run_card.dat.new
+    \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/run_card.dat.new ${OUTDIR}/${proc}.${autosuffix}/Cards/run_card.dat
+  fi  
   # Additional setup and cleanup for madonly and mad directories
   if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ]; then
     $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} # delegate to patchMad.sh (similarly to what is done with untarGridpack.sh)
