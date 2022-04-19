@@ -1,5 +1,5 @@
 diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index cce95279..16f618dd 100644
+index cce95279..4cbc86d6 100644
 --- a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,17 @@
@@ -29,7 +29,7 @@ index cce95279..16f618dd 100644
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -37,23 +48,50 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -37,23 +48,53 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -52,11 +52,14 @@ index cce95279..16f618dd 100644
 +ifeq (,$(wildcard fbridge.inc))
 +all: $(PROG)
 +else
-+all: $(LIBDIR)libgeneric.$(libext) $(PROG) c$(PROG)_cudacpp g$(PROG)_cudacpp
++all: libs $(PROG) c$(PROG)_cudacpp g$(PROG)_cudacpp
 +endif
 +
 +$(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
 +	$(FC) -o $(PROG) $(PROCESS) $(DSIG) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
++
++libs:
++	cd ../../Source; make
 +
 +processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 +PLUGIN_COMMONLIB = mg5amc_common
@@ -65,13 +68,13 @@ index cce95279..16f618dd 100644
 +PLUGIN_CULIB = mg5amc_$(processid_short)_cuda
 +PLUGIN_MAKEFILE = Makefile
 +
-+c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/$(PLUGIN_CXXLIB)
++c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/lib$(PLUGIN_CXXLIB).so
 +	$(FC) -o c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CXXLIB)
 +
-+g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/$(PLUGIN_CULIB)
++g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/lib$(PLUGIN_CULIB).so
 +	$(FC) -o g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CULIB)
 +
-+$(LIBDIR)/$(PLUGIN_CXXLIB) $(LIBDIR)/$(PLUGIN_CULIB):
++$(LIBDIR)/lib$(PLUGIN_CXXLIB).so $(LIBDIR)/lib$(PLUGIN_CULIB).so:
 +	$(MAKE) -f $(PLUGIN_MAKEFILE)
 +
 +counters.o: counters.cpp timer.h
@@ -86,7 +89,7 @@ index cce95279..16f618dd 100644
  
  $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
  	cd ../../Source/MODEL; make
-@@ -68,7 +106,9 @@ $(LIBDIR)libpdf.$(libext):
+@@ -68,7 +109,9 @@ $(LIBDIR)libpdf.$(libext):
  $(MATRIX): %.o: %.f
  	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -fopenmp
  %.o: %.f
@@ -97,7 +100,7 @@ index cce95279..16f618dd 100644
  
  # Dependencies
  
-@@ -89,4 +129,11 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -89,4 +132,12 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  initcluster.o: message.inc
  
  clean:
@@ -108,5 +111,6 @@ index cce95279..16f618dd 100644
 +cleanall:
 +	make clean
 +	make -C ../../Source clean
++	rm -rf $(LIBDIR)libbias.$(libext)
 +	$(MAKE) -f $(PLUGIN_MAKEFILE) cleanall
 +endif
