@@ -60,7 +60,7 @@ SYMMETRY = symmetry.o idenparts.o
 # Binaries
 
 ifeq (,$(wildcard fbridge.inc))
-all: $(PROG)
+all: libs $(PROG)
 else
 all: libs $(PROG) c$(PROG)_cudacpp g$(PROG)_cudacpp
 endif
@@ -70,7 +70,9 @@ $(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
 
 libs:
 	cd ../../Source; make
+ifneq (,$(wildcard fbridge.inc))
 	$(MAKE) -f $(PLUGIN_MAKEFILE)
+endif
 
 processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 PLUGIN_COMMONLIB = mg5amc_common
@@ -142,12 +144,16 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
 initcluster.o: message.inc
 
 clean:
+ifeq (,$(wildcard fbridge.inc))
+	$(RM) *.o gensym $(PROG) $(PROG)_forhel
+else
 	$(RM) *.o gensym $(PROG) $(PROG)_forhel *$(PROG)_cudacpp
+endif
 
-ifneq (,$(wildcard fbridge.inc))
 cleanall:
 	make clean
 	make -C ../../Source clean
 	rm -rf $(LIBDIR)libbias.$(libext)
+ifneq (,$(wildcard fbridge.inc))
 	$(MAKE) -f $(PLUGIN_MAKEFILE) cleanall
 endif
