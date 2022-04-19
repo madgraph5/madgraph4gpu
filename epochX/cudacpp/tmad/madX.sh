@@ -53,7 +53,7 @@ done
 # Check that at least one process has been selected
 if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ]; then usage; fi
 
-suffs=".madonly/"
+suffs=".madonly/ .mad/"
 
 ##########################################################################
 # PART 1 - build and run madevent
@@ -62,7 +62,7 @@ suffs=".madonly/"
 for suff in $suffs; do
 
   if [ "${eemumu}" == "1" ]; then 
-    dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_epem_mupmum
+    dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_ll_ll
   elif [ "${ggtt}" == "1" ]; then 
     dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_gg_ttx
   elif [ "${ggttg}" == "1" ]; then 
@@ -72,6 +72,7 @@ for suff in $suffs; do
   elif [ "${ggttggg}" == "1" ]; then 
     dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_gg_ttxggg
   fi
+  if [ ! -d $dir ]; then echo "WARNING! Skip missing directory $dir"; continue; fi
 
   ##########################################################################
   # PART 1a - build
