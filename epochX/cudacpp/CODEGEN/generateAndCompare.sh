@@ -130,7 +130,7 @@ function codeGenAndDiff()
   if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
     cat ${OUTDIR}/${proc}.${autosuffix}/Cards/run_card.dat | sed 's/False = fixed_ren_scale/True = fixed_ren_scale/' | sed 's/    False = fixed_fac_scale/False = fixed_fac_scale/' > ${OUTDIR}/${proc}.${autosuffix}/Cards/run_card.dat.new
     \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/run_card.dat.new ${OUTDIR}/${proc}.${autosuffix}/Cards/run_card.dat
-  fi  
+  fi
   # Additional setup and cleanup for madonly and mad directories
   if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ]; then
     $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} # delegate to patchMad.sh (similarly to what is done with untarGridpack.sh)
@@ -170,7 +170,7 @@ function usage()
     echo "Usage: $0 [--nobrief] <proc>"
   else
     # NB: all options with $SCRBCK=cudacpp use the 311 branch by default and always disable helicity recycling
-    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--madonly|--mad|--madcpp|--madgpu] [--270] <proc>" # 
+    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--madonly|--mad|--madcpp|--madgpu] [--270] <proc>"
   fi
   exit 1
 }
