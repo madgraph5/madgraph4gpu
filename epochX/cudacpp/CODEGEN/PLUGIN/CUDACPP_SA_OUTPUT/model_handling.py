@@ -1241,7 +1241,7 @@ class PLUGIN_OneProcessExporter(export_cudacpp.OneProcessExporterGPU):
 import madgraph.core.helas_objects as helas_objects
 import madgraph.iolibs.helas_call_writers as helas_call_writers
 
-# AV - define a custom HelasCallWriter (NB: enable it via PLUGIN_ProcessExporter.aloha_exporter in output.py - this fixes #341)
+# AV - define a custom HelasCallWriter (NB: enable it via PLUGIN_ProcessExporter.helas_exporter in output.py - this fixes #341)
 class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     """ A Custom HelasCallWriter """
     # Class structure information

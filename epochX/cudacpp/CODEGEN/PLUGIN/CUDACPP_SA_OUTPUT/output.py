@@ -126,11 +126,11 @@ class PLUGIN_ProcessExporter(export_cudacpp.ProcessExporterGPU):
     import PLUGIN.CUDACPP_SA_OUTPUT.model_handling as model_handling
     create_model_class = model_handling.PLUGIN_UFOModelConverter
 
-    # AV - "aloha_exporter" is not used anywhere!
-    # (OM: "typically not defined but useful for this tutorial - the class for writing helas routine")
-    ###aloha_exporter = None
-    ###aloha_exporter = model_handling.PLUGIN_UFOHelasCallWriter
-    aloha_exporter = model_handling.PLUGIN_GPUFOHelasCallWriter # this is one of the main fixes for issue #341!
+    # AV - use a custom GPUFOHelasCallWriter
+    # (NB: use "helas_exporter" - see class MadGraphCmd in madgraph_interface.py - not "aloha_exporter" that is never used!)
+    ###helas_exporter = None
+    ###helas_exporter = model_handling.PLUGIN_UFOHelasCallWriter
+    helas_exporter = model_handling.PLUGIN_GPUFOHelasCallWriter # this is one of the main fixes for issue #341!
 
     # AV (default from OM's tutorial) - add a debug printout
     def __init__(self, *args, **kwargs):
