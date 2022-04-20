@@ -379,8 +379,8 @@ fi
 if [ "${SCRBCK}" == "cudacpp" ]; then
   if [ "${OUTBCK}" == "madcpp" ]; then
     echo -e "\nWARNING! 'madcpp' mode selected: do not copy the cudacpp plugin (workaround for #341)"
-  elif [ "${OUTBCK}" == "madgpu" ]; then
-    echo -e "\nWARNING! 'madgpu' mode selected: do not copy the cudacpp plugin (workaround for #341)"
+  #elif [ "${OUTBCK}" == "madgpu" ]; then
+  #  echo -e "\nWARNING! 'madgpu' mode selected: do not copy the cudacpp plugin (workaround for #341)"
   else # CURRENTLY FAILS WITH #341 FOR MADCPP AND MADGPU
     echo -e "\nINFO! '${OUTBCK}' mode selected: copy the cudacpp plugin\n"
     cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
