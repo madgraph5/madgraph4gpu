@@ -68,29 +68,6 @@ export_cudacpp.writers.CPPWriter = PLUGIN_FileWriter # WITHOUT FORMATTING
 import aloha
 import aloha.aloha_writers as aloha_writers
 
-# AV - replace aloha_writers.Declaration_list.is_used (disable caching to be on the safe side)
-# (NB class Declaration_list(set) is a set of (type, name) pairs!)
-def PLUGIN_Declaration_list_is_used(self, var):
-    ###if hasattr(self, 'var_name'): return var in self.var_name # AV why was this needed? disable caching to be on the safe side
-    self.var_name = [name for type,name in self]
-    return var in self.var_name
-
-DEFAULT_Declaration_list_is_used = aloha_writers.Declaration_list.is_used
-aloha_writers.Declaration_list.is_used = PLUGIN_Declaration_list_is_used
-
-#------------------------------------------------------------------------------------
-
-# AV - decorate aloha_writers.Declaration_list.add (add optional debug printout)
-def PLUGIN_Declaration_list_add(self, obj):
-    #print( 'ADDING ', obj) # FOR DEBUGGING
-    #assert( obj[1] != 'P3' ) # FOR DEBUGGING (check MG5_debug to see where OM3, TMP3, P3 etc were added)
-    return DEFAULT_Declaration_list_add(self, obj)
-
-DEFAULT_Declaration_list_add = aloha_writers.Declaration_list.add
-aloha_writers.Declaration_list.add = PLUGIN_Declaration_list_add
-
-#------------------------------------------------------------------------------------
-
 class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     # Class structure information
     #  - object
