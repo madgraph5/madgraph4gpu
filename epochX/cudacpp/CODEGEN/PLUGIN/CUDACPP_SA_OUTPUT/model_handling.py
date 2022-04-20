@@ -37,7 +37,7 @@ import importlib.util
 SPEC_WRITERS = importlib.util.find_spec('madgraph.iolibs.file_writers')
 writers = importlib.util.module_from_spec(SPEC_WRITERS)
 SPEC_WRITERS.loader.exec_module(writers)
-###sys.modules['PLUGIN.CUDACPP_SA_OUTPUT.writers'] = writers # allow other files to simply import PLUGIN.CUDACPP_SA_OUTPUT.writers (not needed)
+###sys.modules['PLUGIN.CUDACPP_SA_OUTPUT.writers'] = writers # may now simply import PLUGIN.CUDACPP_SA_OUTPUT.writers (not needed)
 del SPEC_WRITERS
 
 DEFAULT_writers = export_cudacpp.writers
@@ -66,7 +66,19 @@ export_cudacpp.writers.CPPWriter = PLUGIN_FileWriter # WITHOUT FORMATTING
 #------------------------------------------------------------------------------------
 
 import aloha
-import aloha.aloha_writers as aloha_writers
+
+# AV - load a second copy of the writers module and use that within the export_cudacpp module
+###import aloha.aloha_writers as aloha_writers # first copy
+SPEC_ALOHAWRITERS = importlib.util.find_spec('aloha.aloha_writers')
+aloha_writers = importlib.util.module_from_spec(SPEC_ALOHAWRITERS)
+SPEC_ALOHAWRITERS.loader.exec_module(aloha_writers)
+###sys.modules['PLUGIN.CUDACPP_SA_OUTPUT.aloha_writers'] = aloha_writers # may now simply import PLUGIN.CUDACPP_SA_OUTPUT.aloha_writers (not needed)
+del SPEC_ALOHAWRITERS
+
+DEFAULT_aloha_writers = export_cudacpp.aloha_writers
+export_cudacpp.aloha_writers = aloha_writers
+
+#------------------------------------------------------------------------------------
 
 # AV - replace aloha_writers.Declaration_list.is_used (disable caching to be on the safe side)
 # (NB class Declaration_list(set) is a set of (type, name) pairs!)
@@ -75,8 +87,8 @@ def PLUGIN_Declaration_list_is_used(self, var):
     self.var_name = [name for type,name in self]
     return var in self.var_name
 
-DEFAULT_Declaration_list_is_used = aloha_writers.Declaration_list.is_used
-aloha_writers.Declaration_list.is_used = PLUGIN_Declaration_list_is_used
+DEFAULT_Declaration_list_is_used = export_cudacpp.aloha_writers.Declaration_list.is_used
+export_cudacpp.aloha_writers.Declaration_list.is_used = PLUGIN_Declaration_list_is_used
 
 #------------------------------------------------------------------------------------
 
@@ -86,8 +98,8 @@ def PLUGIN_Declaration_list_add(self, obj):
     #assert( obj[1] != 'P3' ) # FOR DEBUGGING (check MG5_debug to see where OM3, TMP3, P3 etc were added)
     return DEFAULT_Declaration_list_add(self, obj)
 
-DEFAULT_Declaration_list_add = aloha_writers.Declaration_list.add
-aloha_writers.Declaration_list.add = PLUGIN_Declaration_list_add
+DEFAULT_Declaration_list_add = export_cudacpp.aloha_writers.Declaration_list.add
+export_cudacpp.aloha_writers.Declaration_list.add = PLUGIN_Declaration_list_add
 
 #------------------------------------------------------------------------------------
 
