@@ -10,7 +10,7 @@ import importlib.util
 SPEC_EXPORTCPP = importlib.util.find_spec('madgraph.iolibs.export_cpp')
 export_cudacpp = importlib.util.module_from_spec(SPEC_EXPORTCPP)
 SPEC_EXPORTCPP.loader.exec_module(export_cudacpp)
-sys.modules['madgraph.iolibs.export_cudacpp'] = export_cudacpp # allow model_handling to simply import madgraph.iolibs.export_cudacpp
+sys.modules['PLUGIN.CUDACPP_SA_OUTPUT.export_cudacpp'] = export_cudacpp # allow model_handling to simply import PLUGIN.CUDACPP_SA_OUTPUT.export_cudacpp
 del SPEC_EXPORTCPP
 ###print('id(export_cpp)=%s'%id(export_cpp))
 ###print('id(export_cudacpp)=%s'%id(export_cudacpp))
