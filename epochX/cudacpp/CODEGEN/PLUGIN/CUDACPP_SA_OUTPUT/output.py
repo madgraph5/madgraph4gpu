@@ -1,8 +1,19 @@
 import os
 pjoin = os.path.join
 
-###import madgraph.iolibs.export_cpp as export_cpp
-import madgraph.iolibs.export_cpp as export_cudacpp # workaround for #341
+# AV - workaround for #341, load a separate copy of the export_cpp module as export_cudacpp
+# See https://stackoverflow.com/a/11285504
+import madgraph.iolibs.export_cpp as export_cpp # first copy
+###import madgraph.iolibs.export_cpp as export_cudacpp # this is not enough to define a second copy: id(export_cpp)==id(export_cudacpp)
+import sys
+import importlib.util
+SPEC_EXPORTCPP = importlib.util.find_spec('madgraph.iolibs.export_cpp')
+export_cudacpp = importlib.util.module_from_spec(SPEC_EXPORTCPP)
+SPEC_EXPORTCPP.loader.exec_module(export_cudacpp)
+sys.modules['madgraph.iolibs.export_cudacpp'] = export_cudacpp # allow model_handling to simply import madgraph.iolibs.export_cudacpp
+del SPEC_EXPORTCPP
+print('id(export_cpp)=%s'%id(export_cpp))
+print('id(export_cudacpp)=%s'%id(export_cudacpp))
 
 # AV - use template files from PLUGINDIR instead of MG5DIR
 ###from madgraph import MG5DIR
