@@ -30,15 +30,28 @@ export_cudacpp.get_mg5_info_lines = PLUGIN_get_mg5_info_lines
 
 #------------------------------------------------------------------------------------
 
-# AV - modify writers.FileWriter.__init__ (add a debug printout)
-import madgraph.iolibs.file_writers as writers
+# AV - load a second copy of the writers module and use that within the export_cudacpp module
+###import madgraph.iolibs.file_writers as writers # first copy
+import sys
+import importlib.util
+SPEC_WRITERS = importlib.util.find_spec('madgraph.iolibs.file_writers')
+writers = importlib.util.module_from_spec(SPEC_WRITERS)
+SPEC_WRITERS.loader.exec_module(writers)
+###sys.modules['PLUGIN.CUDACPP_SA_OUTPUT.writers'] = writers # allow other files to simply import PLUGIN.CUDACPP_SA_OUTPUT.writers (not needed)
+del SPEC_WRITERS
 
+DEFAULT_writers = export_cudacpp.writers
+export_cudacpp.writers = writers
+
+#------------------------------------------------------------------------------------
+
+# AV - modify writers.FileWriter.__init__ (add a debug printout)
 def PLUGIN_FileWriter__init__( self, name, opt = 'w' ):
     print( 'FileWriter %s for %s'%( type(self), name) )
     return DEFAULT_FileWriter__init__( self, name, opt )
 
-DEFAULT_FileWriter__init__ = writers.FileWriter.__init__
-writers.FileWriter.__init__ = PLUGIN_FileWriter__init__
+DEFAULT_FileWriter__init__ = export_cudacpp.writers.FileWriter.__init__
+export_cudacpp.writers.FileWriter.__init__ = PLUGIN_FileWriter__init__
 
 #------------------------------------------------------------------------------------
 
@@ -46,9 +59,9 @@ writers.FileWriter.__init__ = PLUGIN_FileWriter__init__
 class PLUGIN_FileWriter(writers.FileWriter):
     """Default FileWriter with minimal modifications"""
 
-DEFAULT_CPPWriter = writers.CPPWriter
-###writers.CPPWriter = DEFAULT_FileWriter # WITH FORMATTING
-writers.CPPWriter = PLUGIN_FileWriter # WITHOUT FORMATTING
+DEFAULT_CPPWriter = export_cudacpp.writers.CPPWriter
+###export_cudacpp.writers.CPPWriter = DEFAULT_FileWriter # WITH FORMATTING
+export_cudacpp.writers.CPPWriter = PLUGIN_FileWriter # WITHOUT FORMATTING
 
 #------------------------------------------------------------------------------------
 
