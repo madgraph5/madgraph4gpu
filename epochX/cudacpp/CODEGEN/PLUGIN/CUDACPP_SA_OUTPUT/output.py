@@ -1,7 +1,8 @@
 import os
 pjoin = os.path.join
 
-import madgraph.iolibs.export_cpp as export_cpp
+###import madgraph.iolibs.export_cpp as export_cpp
+import madgraph.iolibs.export_cpp as export_cudacpp # workaround for #341
 
 # AV - use template files from PLUGINDIR instead of MG5DIR
 ###from madgraph import MG5DIR
@@ -19,7 +20,7 @@ import madgraph.various.misc as misc
 
 #------------------------------------------------------------------------------------
 
-class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
+class PLUGIN_ProcessExporter(export_cudacpp.ProcessExporterGPU):
     # Class structure information
     #  - object
     #  - VirtualExporter(object) [in madgraph/iolibs/export_v4.py]
@@ -54,7 +55,7 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     exporter = 'gpu'
 
     # AV - use a custom OneProcessExporter
-    ###oneprocessclass = export_cpp.OneProcessExporterGPU # responsible for P directory
+    ###oneprocessclass = export_cudacpp.OneProcessExporterGPU # responsible for P directory
     oneprocessclass = model_handling.PLUGIN_OneProcessExporter
 
     # Information to find the template file that we want to include from madgraph
@@ -110,7 +111,7 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
     template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','Makefile')
 
     # AV - use a custom UFOModelConverter (model/aloha exporter)
-    ###create_model_class =  export_cpp.UFOModelConverterGPU
+    ###create_model_class =  export_cudacpp.UFOModelConverterGPU
     import PLUGIN.CUDACPP_SA_OUTPUT.model_handling as model_handling
     create_model_class = model_handling.PLUGIN_UFOModelConverter
 
@@ -139,7 +140,7 @@ class PLUGIN_ProcessExporter(export_cpp.ProcessExporterGPU):
             # Copy files in various subdirectories
             for key in self.from_template:
                 for f in self.from_template[key]:
-                    export_cpp.cp(f, key) # NB this assumes directory key exists...
+                    export_cudacpp.cp(f, key) # NB this assumes directory key exists...
             # Copy src Makefile
             if self.template_src_make:
                 makefile = self.read_template_file(self.template_src_make) % {'model': self.get_model_name(model.get('name'))}
