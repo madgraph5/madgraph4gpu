@@ -1700,9 +1700,9 @@ param_card.inc: ../Cards/param_card.dat\n\t../bin/madevent treatcards param\n'''
                 dressed_lep = True
             else:
                 dressed_lep = False
+            dressed_lep=False # workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/10
             ee_pdf_definition_lines += "DOUBLE PRECISION dummy_components(n_ee)\n"
 
-   
             # Prepare all variable names
             pdf_codes = dict([(p, model.get_particle(p).get_name()) for p in \
                               sum(initial_states,[])])
