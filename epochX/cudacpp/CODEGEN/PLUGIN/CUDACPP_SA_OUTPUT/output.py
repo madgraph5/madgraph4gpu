@@ -130,6 +130,7 @@ class PLUGIN_ProcessExporter(export_cudacpp.ProcessExporterGPU):
     # (OM: "typically not defined but useful for this tutorial - the class for writing helas routine")
     ###aloha_exporter = None
     ###aloha_exporter = model_handling.PLUGIN_UFOHelasCallWriter
+    aloha_exporter = model_handling.PLUGIN_GPUFOHelasCallWriter # this is one of the main fixes for issue #341!
 
     # AV (default from OM's tutorial) - add a debug printout
     def __init__(self, *args, **kwargs):
