@@ -15,10 +15,13 @@ logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.model_handling')
 
 #------------------------------------------------------------------------------------
 
-# AV - modify export_cpp.get_mg5_info_lines (replace '# ' by '//')
-###import madgraph.iolibs.export_cpp as export_cpp
-import madgraph.iolibs.export_cpp as export_cudacpp # workaround for #341
+###import madgraph.iolibs.export_cpp as export_cpp # first copy
+######import madgraph.iolibs.export_cpp as export_cudacpp # this is not enough to define a second copy: id(export_cpp)==id(export_cudacpp)
+import madgraph.iolibs.export_cudacpp as export_cudacpp # second copy loaded in the plugin's output.py
+###print('id(export_cpp)=%s'%id(export_cpp))
+###print('id(export_cudacpp)=%s'%id(export_cudacpp))
 
+# AV - modify export_cpp.get_mg5_info_lines (replace '# ' by '//')
 def PLUGIN_get_mg5_info_lines():
     return DEFAULT_get_mg5_info_lines().replace('# ','//')
 
