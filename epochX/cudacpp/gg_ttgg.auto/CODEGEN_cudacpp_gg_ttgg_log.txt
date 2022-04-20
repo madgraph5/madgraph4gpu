@@ -12,7 +12,7 @@ Running MG5 in debug mode
 *                 *                       *                *
 *                                                          *
 *         VERSION 3.3.1_lo_vect         2022-01-30         *
-*         BZR 3.1.1_lo_vectorization           999         *
+*         BZR 3.1.1_lo_vectorization          1000         *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -50,7 +50,7 @@ generate g g > t t~ g g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0068738460540771484 [0m
+[1;32mDEBUG: model prefixing  takes 0.006879329681396484 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
@@ -104,7 +104,7 @@ INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/G
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1105][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1112][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1124][0m [0m
-Generated helas calls for 1 subprocesses (123 diagrams) in 0.574 s
+Generated helas calls for 1 subprocesses (123 diagrams) in 0.572 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 202][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
@@ -112,7 +112,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.383 s
+ALOHA: aloha creates 5 routines in  0.385 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 [1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2451][0m [0m
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
@@ -147,5 +147,5 @@ INFO: /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_gg_tt
 quit
 
 real	0m2.138s
-user	0m1.966s
-sys	0m0.148s
+user	0m1.984s
+sys	0m0.128s
