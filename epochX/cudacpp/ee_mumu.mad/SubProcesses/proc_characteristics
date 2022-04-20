@@ -16,7 +16,7 @@
  pdg_initial2 = [11] 
  splitting_types = [] 
  perturbation_order = [] 
- limitations = [] 
+ limitations = ['dressed_ee'] 
  hel_recycling = False 
  single_color = True 
  nlo_mixed_expansion = True 

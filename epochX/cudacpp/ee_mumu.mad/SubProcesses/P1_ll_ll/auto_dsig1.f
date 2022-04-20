@@ -52,6 +52,9 @@ C     STUFF FOR DRESSED EE COLLISIONS
 C     
       INCLUDE '../../Source/PDF/eepdf.inc'
       DOUBLE PRECISION EE_COMP_PROD
+      DOUBLE PRECISION DUMMY_COMPONENTS(N_EE)
+      DOUBLE PRECISION EP1_COMPONENTS(N_EE)
+      DOUBLE PRECISION EM2_COMPONENTS(N_EE)
 
       INTEGER I_EE
 C     
@@ -123,16 +126,22 @@ C     Continue only if IMODE is 0, 4 or 5
           !LP=SIGN(1,LPP(IB(1)))
         EP1=PDG2PDF(LPP(IB(1)),-11, IB(1),XBK(IB(1)),DSQRT(Q2FACT(IB(1)
      $   )))
+        IF (PDLABEL.EQ.'dressed') EP1_COMPONENTS(1:4) =
+     $    EE_COMPONENTS(1:4)
       ENDIF
       IF (ABS(LPP(IB(2))).GE.1) THEN
           !LP=SIGN(1,LPP(IB(2)))
         EM2=PDG2PDF(LPP(IB(2)),11, IB(2),XBK(IB(2)),DSQRT(Q2FACT(IB(2))
      $   ))
+        IF (PDLABEL.EQ.'dressed') EM2_COMPONENTS(1:4) =
+     $    EE_COMPONENTS(1:4)
       ENDIF
       PD(0) = 0D0
       IPROC = 0
       IPROC=IPROC+1  ! e+ e- > mu+ mu-
       PD(IPROC)=EP1*EM2
+      IF (PDLABEL.EQ.'dressed')PD(IPROC)=EE_COMP_PROD(EP1_COMPONENTS
+     $ ,EM2_COMPONENTS)
       PD(0)=PD(0)+DABS(PD(IPROC))
       IF (IMODE.EQ.4)THEN
         DSIG1 = PD(0)
@@ -251,6 +260,16 @@ C
       DOUBLE PRECISION RHEL  ! random number
       INTEGER CHANNEL
 C     
+C     STUFF FOR DRESSED EE COLLISIONS --even if not supported for now--
+C     
+      INCLUDE '../../Source/PDF/eepdf.inc'
+      DOUBLE PRECISION EE_COMP_PROD
+      DOUBLE PRECISION DUMMY_COMPONENTS(N_EE)
+      DOUBLE PRECISION EP1_COMPONENTS(N_EE)
+      DOUBLE PRECISION EM2_COMPONENTS(N_EE)
+
+      INTEGER I_EE
+C     
 C     EXTERNAL FUNCTIONS
 C     
       LOGICAL PASSCUTS
@@ -282,6 +301,11 @@ C     jamp2 information
       DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE)
       DOUBLE PRECISION HEL_RAND(NB_PAGE)
       INTEGER SELECTED_HEL(NB_PAGE)
+
+C     Common blocks
+      CHARACTER*7         PDLABEL,EPA_LABEL
+      INTEGER       LHAID
+      COMMON/TO_PDF/LHAID,PDLABEL,EPA_LABEL
 
 C     
 C     local
@@ -386,7 +410,7 @@ C       CM_RAP = ALL_CM_RAP(IVEC)
         ELSE
           P1 = ALL_PP(:,:,IVEC)
         ENDIF
-
+        CALL RESTORE_CL_VAL_TO(IVEC)
         DSIGUU=DSIGUU*REWGT(P1)
 
 C       Apply the bias weight specified in the run card (default is
