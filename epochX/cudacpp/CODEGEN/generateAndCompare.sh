@@ -133,7 +133,8 @@ function codeGenAndDiff()
   fi
   # Add a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/2
   if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
-    cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | sort > ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
+    cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | head -3 > ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
+    cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | tail -n+4 | sort >> ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
     \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat
   fi
   # Additional setup and cleanup for madonly and mad directories
