@@ -46,6 +46,7 @@ C
 C     
 couplings needed to be evaluated points by points
 C     
+      ALL_G(VECID) = G
       CALL COUP2(VECID)
 
       RETURN

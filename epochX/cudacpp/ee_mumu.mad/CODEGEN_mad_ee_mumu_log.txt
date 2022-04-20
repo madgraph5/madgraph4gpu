@@ -50,7 +50,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006911516189575195 [0m
+[1;32mDEBUG: model prefixing  takes 0.0068361759185791016 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
@@ -97,15 +97,7 @@ INFO: Processing color information for process: e+ e- > mu+ mu- @1
 INFO: Creating files in directory P1_ll_ll 
 FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for driver.f
 FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for matrix1.f
-[1;32mDEBUG:  'before', call, arg = [0m before CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV1%(propa)s_3', 'coup': '%(coup0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),', 'out': 'W(1,%(out)d)', 'mass': '%(M)s, fk_%(W)s,'} [1;30m[export_v4.py at line 3926][0m [0m
-[1;32mDEBUG:  'after',call, arg = [0m after CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV1%(propa)s_3', 'coup': '%(coup0)s%(vec0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),', 'out': 'W(1,%(out)d)', 'mass': '%(M)s, fk_%(W)s,'} [1;30m[export_v4.py at line 3929][0m [0m
-[1;32mDEBUG:  'before', call, arg = [0m before CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV1_0', 'coup': '%(coup0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),W(1,%(2)d),', 'mass': '', 'out': 'AMP(%(out)d)'} [1;30m[export_v4.py at line 3926][0m [0m
-[1;32mDEBUG:  'after',call, arg = [0m after CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV1_0', 'coup': '%(coup0)s%(vec0)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),W(1,%(2)d),', 'mass': '', 'out': 'AMP(%(out)d)'} [1;30m[export_v4.py at line 3929][0m [0m
-[1;32mDEBUG:  'before', call, arg = [0m before CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV2_4%(propa)s_3', 'coup': '%(coup0)s,%(coup1)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),', 'out': 'W(1,%(out)d)', 'mass': '%(M)s, fk_%(W)s,'} [1;30m[export_v4.py at line 3926][0m [0m
-[1;32mDEBUG:  'after',call, arg = [0m after CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV2_4%(propa)s_3', 'coup': '%(coup0)s%(vec0)s,%(coup1)s%(vec1)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),', 'out': 'W(1,%(out)d)', 'mass': '%(M)s, fk_%(W)s,'} [1;30m[export_v4.py at line 3929][0m [0m
-[1;32mDEBUG:  'before', call, arg = [0m before CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV2_4_0', 'coup': '%(coup0)s,%(coup1)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),W(1,%(2)d),', 'mass': '', 'out': 'AMP(%(out)d)'} [1;30m[export_v4.py at line 3926][0m [0m
-[1;32mDEBUG:  'after',call, arg = [0m after CALL %(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s) {'routine_name': 'FFV2_4_0', 'coup': '%(coup0)s%(vec0)s,%(coup1)s%(vec1)s,', 'wf': 'W(1,%(0)d),W(1,%(1)d),W(1,%(2)d),', 'mass': '', 'out': 'AMP(%(out)d)'} [1;30m[export_v4.py at line 3929][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f042a973130> [1;30m[export_v4.py at line 5944][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f88530f46a0> [1;30m[export_v4.py at line 5953][0m [0m
 INFO: Creating files in directory . 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1057][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for ././CPPProcess.h
@@ -147,8 +139,8 @@ INFO: Finding symmetric diagrams for subprocess group ll_ll
 FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for symswap.inc
 FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for symperms.inc
 [1;32mDEBUG:  done [1;30m[madgraph_interface.py at line 8459][0m [0m
-Generated helas calls for 1 subprocesses (2 diagrams) in 0.005 s
-Wrote files for 8 helas calls in 0.107 s
+Generated helas calls for 1 subprocesses (2 diagrams) in 0.006 s
+Wrote files for 8 helas calls in 0.102 s
 FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_mad_ee_mumu/Source/MODEL/param_read.inc
 FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_mad_ee_mumu/Source/MODEL/input.inc
 FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_mad_ee_mumu/Source/MODEL/intparam_definition.inc
@@ -166,7 +158,7 @@ ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
-ALOHA: aloha creates 3 routines in  0.241 s
+ALOHA: aloha creates 3 routines in  0.240 s
 [1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2451][0m [0m
 FileWriter <class 'madgraph.iolibs.file_writers.FortranWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_mad_ee_mumu/Source/DHELAS/FFV1_0.f
 [1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2451][0m [0m
@@ -187,7 +179,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 7 routines in  0.309 s
+ALOHA: aloha creates 7 routines in  0.305 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 [1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2451][0m [0m
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -224,6 +216,6 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.649s
-user	0m2.288s
-sys	0m0.338s
+real	0m2.619s
+user	0m2.254s
+sys	0m0.329s
