@@ -1976,13 +1976,14 @@ def is_plugin_supported(obj):
         plugin_support[name] = False
         return
     
+    logger.warning("Validating plugin against this version: %s." % '.'.join(str(i) for i in mg5_ver) )
     if get_older_version(min_ver, mg5_ver) == min_ver and \
        get_older_version(mg5_ver, max_ver) == mg5_ver:
         plugin_support[name] = True
         if get_older_version(mg5_ver, val_ver) == val_ver:
-            logger.warning("""Plugin %s has marked as NOT being validated with this version. 
+            logger.warning("""Plugin %s has marked as NOT being validated with this version: %s. 
 It has been validated for the last time with version: %s""",
-                                        name, '.'.join(str(i) for i in val_ver))
+			   name, '.'.join(str(i) for i in mg5_ver), '.'.join(str(i) for i in val_ver) )
     else:
         if __debug__:
             logger.error("Plugin %s seems not supported by this version of MG5aMC. Keep it active (please update status)" % name)
