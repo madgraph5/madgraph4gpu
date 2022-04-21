@@ -13,6 +13,7 @@
 #include "HelAmps_sm.h"
 #include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessCouplings.h"
+#include "MemoryAccessGs.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
 
@@ -142,10 +143,10 @@ namespace mg5amcCpu
 #pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, gc10, gc11, cIPD, ihel, npagV, amp_fp, w_fp, isAligned_allMEs ) private( amp_sv, w_sv, jamp_sv )
 #else
 #pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, gc10, gc11, cIPD, ihel, npagV, amp_fp, w_fp ) private( amp_sv, w_sv, jamp_sv )
-#endif
-#endif
+#endif // MGONGPU_CPPSIMD
+#endif // _OPENMP
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
-#endif
+#endif // !__CUDACC__
     {
 #ifdef __CUDACC__
       // CUDA kernels take an input buffer with momenta for all events
@@ -424,46 +425,51 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  template<class G_ACCESS, class C_ACCESS>
+  __device__ INLINE void
+  dependent_couplings( const fptype gs[],
+                       fptype gc10[],
+                       fptype gc11[] )
+  {
+    /* constexpr */ cxtype mdl_complexi( 0., 1. );
+    const fptype_sv* gs_sv = G_ACCESS::kernelAccessConst( gs );
+    cxtype_sv* gc10_sv = C_ACCESS::kernelAccess( gc10 );
+    cxtype_sv* gc11_sv = C_ACCESS::kernelAccess( gc11 );
+
+    cxtype_sv tmp_gc10 = -( *gs_sv );
+    ( *gc10_sv ) = tmp_gc10;
+    cxtype_sv tmp_gc11 = mdl_complexi * ( *gs_sv );
+    ( *gc11_sv ) = tmp_gc11;
+  }
+
+  //--------------------------------------------------------------------------
+
+  __global__ void /* clang-format off */
+  dependentCouplings( const fptype* gs,
+                      fptype* gc10,
+                      fptype* gc11
+#ifndef __CUDACC__
+                      , const int nevt
+#endif
+  ) /* clang-format on */
+  {
 #ifdef __CUDACC__
 
-  __global__ void
-  dependentCouplings( const fptype* gs, fptype* gc10, fptype* gc11 )
-  {
-    /*
-    cxtype mdl_complexi( 0., 1. );
-    static fptype GC_10t[128]; // [nevt * 2] (cmplx numbers)
-    static fptype GC_11t[128]; // [nevt * 2] (cmplx numbers)
-    for( int i = 0; i < nevt / neppV; ++i )
-    {
-      const fptype_sv* gs_sv = reinterpret_cast<const fptype_sv*>( &gs[i * neppV] );
-      // better --> const fptype_sv gs_sv{gs[idx], gs[idx+1], gs[idx+2], gs[idx+3]};
-      cxtype_sv tmp_gc10 = -( *gs_sv );
-      memcpy( &GC_10t[i * neppV * 2], &tmp_gc10, 2 * neppV * sizeof( fptype ) );
-      cxtype_sv tmp_gc11 = mdl_complexi * ( *gs_sv );
-      memcpy( &GC_11t[i * neppV * 2], &tmp_gc11, 2 * neppV * sizeof( fptype ) );
-    }
-    checkCuda( cudaMemcpyToSymbol( GC_10, GC_10t, nevt * 2 * sizeof( fptype ) ) );
-    checkCuda( cudaMemcpyToSymbol( GC_11, GC_11t, nevt * 2 * sizeof( fptype ) ) );
-    */
-  }
+    using namespace mg5amcGpu;
+    using G_ACCESS = DeviceAccessGs;
+    using C_ACCESS = DeviceAccessCouplings;
+    dependent_couplings<G_ACCESS, C_ACCESS>( gs, gc10, gc11 );
 
 #else
 
-  void dependentCouplings( const fptype* gs, fptype* gc10, fptype* gc11, const int nevt )
-  {
-    constexpr cxtype mdl_complexi( 0., 1. );
-    for( int i = 0; i < nevt / neppV; ++i )
-    {
-      const fptype_sv* gs_sv = reinterpret_cast<const fptype_sv*>( &gs[i * neppV] );
-      // better --> const fptype_sv gs_sv{gs[idx], gs[idx+1], gs[idx+2], gs[idx+3]};
-      cxtype_sv tmp_gc10 = -( *gs_sv );
-      memcpy( &gc10[i * neppV * 2], &tmp_gc10, 2 * neppV * sizeof( fptype ) );
-      cxtype_sv tmp_gc11 = mdl_complexi * ( *gs_sv );
-      memcpy( &gc11[i * neppV * 2], &tmp_gc11, 2 * neppV * sizeof( fptype ) );
-    }
-  }
+    using namespace mg5amcCpu;
+    using G_ACCESS = HostAccessGs;
+    using C_ACCESS = HostAccessCouplings;
+    for( int ipagV = 0; ipagV < nevt / neppV; ++ipagV )
+      dependent_couplings<G_ACCESS, C_ACCESS>( &gs[ipagV * neppV], gc10, gc11 );
 
 #endif
+  }
 
   //--------------------------------------------------------------------------
 
