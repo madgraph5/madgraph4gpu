@@ -11,9 +11,9 @@ logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.model_handling')
 #------------------------------------------------------------------------------------
 
 # AV - import the independent 2nd copy of the export_cpp module (as export_cudacpp), previously loaded in output.py
-###import madgraph.iolibs.export_cpp as export_cpp # first copy
-######import madgraph.iolibs.export_cpp as export_cudacpp # this is not enough to define a second copy: id(export_cpp)==id(export_cudacpp)
-import PLUGIN.CUDACPP_SA_OUTPUT.export_cudacpp as export_cudacpp # second copy loaded in the plugin's output.py
+###import madgraph.iolibs.export_cpp as export_cpp # 1st copy
+######import madgraph.iolibs.export_cpp as PLUGIN_export_cpp # this is not enough to define an independent 2nd copy: id(export_cpp)==id(PLUGIN_export_cpp)
+import PLUGIN.CUDACPP_SA_OUTPUT.export_cudacpp as export_cudacpp # 2nd copy loaded in the plugin's output.py
 ###print('id(export_cpp)=%s'%id(export_cpp))
 ###print('id(export_cudacpp)=%s'%id(export_cudacpp))
 
@@ -28,20 +28,20 @@ export_cudacpp.get_mg5_info_lines = PLUGIN_get_mg5_info_lines
 
 #------------------------------------------------------------------------------------
 
-# AV - load an independent 2nd copy of the writers module and use that within the plugin (workaround for #341)
+# AV - load an independent 2nd copy of the writers module (as PLUGIN_writers) and use that within the plugin (workaround for #341)
 # See https://stackoverflow.com/a/11285504
 ###import madgraph.iolibs.file_writers as writers # 1st copy
 import sys
 import importlib.util
 SPEC_WRITERS = importlib.util.find_spec('madgraph.iolibs.file_writers')
-writers = importlib.util.module_from_spec(SPEC_WRITERS)
-SPEC_WRITERS.loader.exec_module(writers)
-###sys.modules['PLUGIN.CUDACPP_SA_OUTPUT.writers'] = writers # would allow 'import PLUGIN.CUDACPP_SA_OUTPUT.writers' (not needed)
+PLUGIN_writers = importlib.util.module_from_spec(SPEC_WRITERS)
+SPEC_WRITERS.loader.exec_module(PLUGIN_writers)
+###sys.modules['PLUGIN.CUDACPP_SA_OUTPUT.PLUGIN_writers'] = PLUGIN_writers # would allow 'import PLUGIN.CUDACPP_SA_OUTPUT.PLUGIN_writers' (not needed)
 del SPEC_WRITERS
 
 # AV - use the independent 2nd copy of the writers module within the export_cudacpp module (workaround for #341)
 ###DEFAULT_writers = export_cudacpp.writers # not needed
-export_cudacpp.writers = writers
+export_cudacpp.writers = PLUGIN_writers
 
 #------------------------------------------------------------------------------------
 
@@ -50,18 +50,18 @@ def PLUGIN_FileWriter__init__( self, name, opt = 'w' ):
     print( 'FileWriter %s for %s'%( type(self), name) )
     return DEFAULT_FileWriter__init__( self, name, opt )
 
-DEFAULT_FileWriter__init__ = writers.FileWriter.__init__
-writers.FileWriter.__init__ = PLUGIN_FileWriter__init__
+DEFAULT_FileWriter__init__ = PLUGIN_writers.FileWriter.__init__
+PLUGIN_writers.FileWriter.__init__ = PLUGIN_FileWriter__init__
 
 #------------------------------------------------------------------------------------
 
-# AV - replace writers.CPPWriter by PLUGIN_FileWriter (remove formatting)
-class PLUGIN_FileWriter(writers.FileWriter):
-    """Default FileWriter with minimal modifications"""
+# AV - replace writers.CPPWriter by PLUGIN_CPPWriter (remove formatting)
+class PLUGIN_CPPWriter(PLUGIN_writers.FileWriter):
+    """Custom CPPWriter based on the default FileWriter with minimal modifications"""
 
-DEFAULT_CPPWriter = writers.CPPWriter
-###writers.CPPWriter = DEFAULT_FileWriter # WITH FORMATTING
-writers.CPPWriter = PLUGIN_FileWriter # WITHOUT FORMATTING
+DEFAULT_CPPWriter = PLUGIN_writers.CPPWriter
+###PLUGIN_writers.CPPWriter = DEFAULT_CPPWriter # WITH FORMATTING
+PLUGIN_writers.CPPWriter = PLUGIN_CPPWriter # WITHOUT FORMATTING
 
 #------------------------------------------------------------------------------------
 
@@ -72,6 +72,8 @@ from collections import defaultdict
 from fractions import Fraction
 from six import StringIO
 
+# AV - define a custom ALOHAWriter
+# (NB: enable this via PLUGIN_UFOModelConverter.aloha_writer)
 class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     # Class structure information
     #  - object
@@ -586,6 +588,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
 
 from os.path import join as pjoin
 
+# AV - define a custom UFOModelConverter
+# (NB: enable this via PLUGIN_ProcessExporter.create_model_class in output.py)
 class PLUGIN_UFOModelConverter(export_cudacpp.UFOModelConverterGPU):
     # Class structure information
     #  - object
@@ -841,8 +845,8 @@ class PLUGIN_UFOModelConverter(export_cudacpp.UFOModelConverterGPU):
         file_h = self.read_template_file(self.aloha_template_h) % replace_dict
         file_cc = self.read_template_file(self.aloha_template_cc) % replace_dict
         # Write the HelAmps_sm.h and HelAmps_sm.cc files
-        ###writers.CPPWriter(model_h_file).writelines(file_h)
-        ###writers.CPPWriter(model_cc_file).writelines(file_cc)
+        ###PLUGIN_writers.CPPWriter(model_h_file).writelines(file_h)
+        ###PLUGIN_writers.CPPWriter(model_cc_file).writelines(file_cc)
         ###logger.info("Created files %s and %s in directory" \
         ###            % (os.path.split(model_h_file)[-1],
         ###               os.path.split(model_cc_file)[-1]))
@@ -854,7 +858,7 @@ class PLUGIN_UFOModelConverter(export_cudacpp.UFOModelConverterGPU):
         file_h = '\n'.join( file_h_lines[:-3]) # skip the trailing '//---'
         file_h += file_cc # append the contents of HelAmps_sm.cc directly to HelAmps_sm.h!
         file_h = file_h[:-1] # skip the trailing empty line
-        writers.CPPWriter(model_h_file).writelines(file_h)
+        PLUGIN_writers.CPPWriter(model_h_file).writelines(file_h)
         logger.info("Created file %s in directory %s" \
                     % (os.path.split(model_h_file)[-1], os.path.split(model_h_file)[0] ) )
 
@@ -863,6 +867,10 @@ class PLUGIN_UFOModelConverter(export_cudacpp.UFOModelConverterGPU):
 import madgraph.iolibs.files as files
 import madgraph.various.misc as misc
 
+# AV - define a custom OneProcessExporter
+# (NB: enable this via PLUGIN_ProcessExporter.oneprocessclass in output.py)
+# (NB: use this directly also in PLUGIN_UFOModelConverter.read_template_file)
+# (NB: use this directly also in PLUGIN_GPUFOHelasCallWriter.super_get_matrix_element_call)
 class PLUGIN_OneProcessExporter(export_cudacpp.OneProcessExporterGPU):
     # Class structure information
     #  - object
@@ -1247,7 +1255,8 @@ class PLUGIN_OneProcessExporter(export_cudacpp.OneProcessExporterGPU):
 import madgraph.core.helas_objects as helas_objects
 import madgraph.iolibs.helas_call_writers as helas_call_writers
 
-# AV - define a custom HelasCallWriter (NB: enable this via PLUGIN_ProcessExporter.helas_exporter in output.py - this fixes #341)
+# AV - define a custom HelasCallWriter
+# (NB: enable this via PLUGIN_ProcessExporter.helas_exporter in output.py - this fixes #341)
 class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     """ A Custom HelasCallWriter """
     # Class structure information

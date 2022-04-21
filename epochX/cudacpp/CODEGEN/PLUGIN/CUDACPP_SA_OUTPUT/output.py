@@ -1,24 +1,24 @@
 import os
 
-# AV - load an independent 2nd copy of the export_cpp module (as export_cudacpp) and use that within the plugin (workaround for #341)
+# AV - load an independent 2nd copy of the export_cpp module (as PLUGIN_export_cpp) and use that within the plugin (workaround for #341)
 # See https://stackoverflow.com/a/11285504
 ###import madgraph.iolibs.export_cpp as export_cpp # 1st copy
-######import madgraph.iolibs.export_cpp as export_cudacpp # this is not enough to define an independent 2nd copy: id(export_cpp)==id(export_cudacpp)
+######import madgraph.iolibs.export_cpp as PLUGIN_export_cpp # this is not enough to define an independent 2nd copy: id(export_cpp)==id(PLUGIN_export_cpp)
 import sys
 import importlib.util
 SPEC_EXPORTCPP = importlib.util.find_spec('madgraph.iolibs.export_cpp')
-export_cudacpp = importlib.util.module_from_spec(SPEC_EXPORTCPP)
-SPEC_EXPORTCPP.loader.exec_module(export_cudacpp)
-sys.modules['PLUGIN.CUDACPP_SA_OUTPUT.export_cudacpp'] = export_cudacpp # allow 'import PLUGIN.CUDACPP_SA_OUTPUT.export_cudacpp' in model_handling.py
+PLUGIN_export_cpp = importlib.util.module_from_spec(SPEC_EXPORTCPP)
+SPEC_EXPORTCPP.loader.exec_module(PLUGIN_export_cpp)
+sys.modules['PLUGIN.CUDACPP_SA_OUTPUT.PLUGIN_export_cpp'] = PLUGIN_export_cpp # allow 'import PLUGIN.CUDACPP_SA_OUTPUT.PLUGIN_export_cpp' in model_handling.py
 del SPEC_EXPORTCPP
 ###print('id(export_cpp)=%s'%id(export_cpp))
-###print('id(export_cudacpp)=%s'%id(export_cudacpp))
+###print('id(PLUGIN_export_cpp)=%s'%id(PLUGIN_export_cpp))
 
 # AV - use template files from PLUGINDIR instead of MG5DIR
 ###from madgraph import MG5DIR
 PLUGINDIR = os.path.dirname( __file__ )
 
-# AV - model_handling includes custom UFOModelConverter and OneProcessExporter, plus additional patches
+# AV - model_handling includes the custom FileWriter, ALOHAWriter, UFOModelConverter, OneProcessExporter and HelasCallWriter, plus additional patches
 import PLUGIN.CUDACPP_SA_OUTPUT.model_handling as model_handling
 
 # AV - create a plugin-specific logger
@@ -30,7 +30,9 @@ logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.output')
 from os.path import join as pjoin
 import madgraph.various.misc as misc
 
-class PLUGIN_ProcessExporter(export_cudacpp.ProcessExporterGPU):
+# AV - define the plugin's process exporter
+# (NB: this is the plugin's main class, enabled in the new_output dictionary in __init__.py)
+class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     # Class structure information
     #  - object
     #  - VirtualExporter(object) [in madgraph/iolibs/export_v4.py]
@@ -65,7 +67,7 @@ class PLUGIN_ProcessExporter(export_cudacpp.ProcessExporterGPU):
     exporter = 'gpu'
 
     # AV - use a custom OneProcessExporter
-    ###oneprocessclass = export_cudacpp.OneProcessExporterGPU # responsible for P directory
+    ###oneprocessclass = PLUGIN_export_cpp.OneProcessExporterGPU # responsible for P directory
     oneprocessclass = model_handling.PLUGIN_OneProcessExporter
 
     # Information to find the template file that we want to include from madgraph
@@ -121,14 +123,12 @@ class PLUGIN_ProcessExporter(export_cudacpp.ProcessExporterGPU):
     template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','Makefile')
 
     # AV - use a custom UFOModelConverter (model/aloha exporter)
-    ###create_model_class =  export_cudacpp.UFOModelConverterGPU
-    import PLUGIN.CUDACPP_SA_OUTPUT.model_handling as model_handling
+    ###create_model_class =  PLUGIN_export_cpp.UFOModelConverterGPU
     create_model_class = model_handling.PLUGIN_UFOModelConverter
 
     # AV - use a custom GPUFOHelasCallWriter
     # (NB: use "helas_exporter" - see class MadGraphCmd in madgraph_interface.py - not "aloha_exporter" that is never used!)
     ###helas_exporter = None
-    ###helas_exporter = model_handling.PLUGIN_UFOHelasCallWriter
     helas_exporter = model_handling.PLUGIN_GPUFOHelasCallWriter # this is one of the main fixes for issue #341!
 
     # AV (default from OM's tutorial) - add a debug printout
@@ -151,7 +151,7 @@ class PLUGIN_ProcessExporter(export_cudacpp.ProcessExporterGPU):
             # Copy files in various subdirectories
             for key in self.from_template:
                 for f in self.from_template[key]:
-                    export_cudacpp.cp(f, key) # NB this assumes directory key exists...
+                    PLUGIN_export_cpp.cp(f, key) # NB this assumes directory key exists...
             # Copy src Makefile
             if self.template_src_make:
                 makefile = self.read_template_file(self.template_src_make) % {'model': self.get_model_name(model.get('name'))}
