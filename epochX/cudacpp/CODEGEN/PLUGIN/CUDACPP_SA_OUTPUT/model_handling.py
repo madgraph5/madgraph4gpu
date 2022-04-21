@@ -287,7 +287,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             if fullname.startswith('OM') :
                 codedict[fullname] = '%s %s' % (self.type2def[type], fullname) # AV UGLY HACK (OM3 is always a scalar)
             else:
-                codedict[fullname] = '%s %s' % (self.type2def[type+"_v"], fullname) # AV vectorize, add to codedict
+                codedict[fullname] = '%s %s' % (self.type2def[type+'_v'], fullname) # AV vectorize, add to codedict
             ###print(fullname, codedict[fullname]) # FOR DEBUGGING
             if self.nodeclare:
                 self.declaration.codedict = codedict # AV new behaviour (delayed declaration with initialisation)
@@ -310,7 +310,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             if self.declaration.is_used( 'OM%s' % (i+1) ):
                 declname = 'OM%s' % (i+1)
                 if self.nodeclare: declname = 'const ' + self.declaration.codedict[declname]
-                out.write("    {3} = ( M{0} != {1} ? {2} / ( M{0} * M{0} ) : {1} );\n".format( # AV use ternary in OM3
+                out.write('    {3} = ( M{0} != {1} ? {2} / ( M{0} * M{0} ) : {1} );\n'.format( # AV use ternary in OM3
                     i+1, '0.', '1.', declname)) # AV force scalar "1." instead of vector "one", add declaration
             if i+1 == self.outgoing:
                 out_type = type
@@ -454,7 +454,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 if not aloha.complex_mass:
                     # This affects 'denom = COUP' in HelAmps_sm.cc
                     if self.routine.denominator:
-                        if self.routine.denominator == "1":
+                        if self.routine.denominator == '1':
                             out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s\n' % mydict) # AV
                         else:
                             mydict['denom'] = self.routine.denominator
@@ -712,7 +712,7 @@ class PLUGIN_UFOModelConverter(export_cudacpp.UFOModelConverterGPU):
             parset_lines[par] = parval # includes a trailing ';'
         ###print( parset_lines )
         assert( len(pardef_lines) == len(parset_lines) ) # AV sanity check (same number of parameters)
-        res = '  '.join( pardef_lines[par] + " = " + parset_lines[par] + '\n' for par in parset_pars ) # no leading '  ' on first row
+        res = '  '.join( pardef_lines[par] + ' = ' + parset_lines[par] + '\n' for par in parset_pars ) # no leading '  ' on first row
         res = res.replace(' ;',';')
         ###print(res); assert(False)
         return res
@@ -724,23 +724,23 @@ class PLUGIN_UFOModelConverter(export_cudacpp.UFOModelConverterGPU):
         replace_dict['info_lines'] = export_cudacpp.get_mg5_info_lines()
         replace_dict['model_name'] = self.model_name
         replace_dict['independent_parameters'] = \
-                                   "// Model parameters independent of aS\n" + \
+                                   '// Model parameters independent of aS\n' + \
                                    self.write_parameters(self.params_indep)
         # AV swap the order (fix bug https://bugs.launchpad.net/mg5amcnlo/+bug/1959192)
         ###replace_dict['independent_couplings'] = \
-        ###                           "// Model parameters dependent on aS\n" + \
+        ###                           '// Model parameters dependent on aS\n' + \
         ###                           self.write_parameters(self.params_dep)
         ###replace_dict['dependent_parameters'] = \
-        ###                           "// Model couplings independent of aS\n" + \
+        ###                           '// Model couplings independent of aS\n' + \
         ###                           self.write_parameters(self.coups_indep)
         replace_dict['independent_couplings'] = \
-                                   "// Model couplings independent of aS\n" + \
+                                   '// Model couplings independent of aS\n' + \
                                    self.write_parameters(self.coups_indep)
         replace_dict['dependent_parameters'] = \
-                                   "// Model parameters dependent on aS\n" + \
+                                   '// Model parameters dependent on aS\n' + \
                                    self.write_parameters(self.params_dep)
         replace_dict['dependent_couplings'] = \
-                                   "// Model couplings dependent on aS\n" + \
+                                   '// Model couplings dependent on aS\n' + \
                                    self.write_parameters(list(self.coups_dep.values()))
         replace_dict['set_independent_parameters'] = \
                                self.write_set_parameters(self.params_indep)
@@ -792,10 +792,10 @@ class PLUGIN_UFOModelConverter(export_cudacpp.UFOModelConverterGPU):
         # For each parameter, write name = expr;
         res_strings = []
         for param in params:
-            res_strings.append("std::cout << std::setw( 20 ) << \"%s = \" << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << %s << std::endl;" % (param.name, param.name)) # AV
+            res_strings.append('std::cout << std::setw( 20 ) << \"%s = \" << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << %s << std::endl;' % (param.name, param.name)) # AV
         if len(res_strings) == 0 : res_strings.append('// (none)')
-        ##return "\n".join(res_strings)
-        return "\n  ".join(res_strings) # AV (why was this not necessary before?)
+        ##return '\n'.join(res_strings)
+        return '\n  '.join(res_strings) # AV (why was this not necessary before?)
 
     # AV - replace export_cpp.UFOModelConverterCPP method (add debug printouts)
     # (This is where the loop over FFV functions takes place - I had a hard time to understand it)
@@ -847,10 +847,10 @@ class PLUGIN_UFOModelConverter(export_cudacpp.UFOModelConverterGPU):
         # Write the HelAmps_sm.h and HelAmps_sm.cc files
         ###PLUGIN_writers.CPPWriter(model_h_file).writelines(file_h)
         ###PLUGIN_writers.CPPWriter(model_cc_file).writelines(file_cc)
-        ###logger.info("Created files %s and %s in directory" \
+        ###logger.info('Created files %s and %s in directory' \
         ###            % (os.path.split(model_h_file)[-1],
         ###               os.path.split(model_cc_file)[-1]))
-        ###logger.info("%s and %s" % \
+        ###logger.info('%s and %s' % \
         ###            (os.path.split(model_h_file)[0],
         ###             os.path.split(model_cc_file)[0]))
         # Write only the HelAmps_sm.h file
@@ -859,7 +859,7 @@ class PLUGIN_UFOModelConverter(export_cudacpp.UFOModelConverterGPU):
         file_h += file_cc # append the contents of HelAmps_sm.cc directly to HelAmps_sm.h!
         file_h = file_h[:-1] # skip the trailing empty line
         PLUGIN_writers.CPPWriter(model_h_file).writelines(file_h)
-        logger.info("Created file %s in directory %s" \
+        logger.info('Created file %s in directory %s' \
                     % (os.path.split(model_h_file)[-1], os.path.split(model_h_file)[0] ) )
 
 #------------------------------------------------------------------------------------
@@ -905,7 +905,7 @@ class PLUGIN_OneProcessExporter(export_cudacpp.OneProcessExporterGPU):
     # AV - overload export_cpp.OneProcessExporterGPU constructor (rename gCPPProcess to CPPProcess)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.process_class = "CPPProcess"
+        self.process_class = 'CPPProcess'
 
     # AV - overload export_cpp.OneProcessExporterGPU method (indent comments in process_lines)
     def get_process_class_definitions(self, write=True):
@@ -924,27 +924,27 @@ class PLUGIN_OneProcessExporter(export_cudacpp.OneProcessExporterGPU):
         replace_dict['nparams'] = len(self.params2order)
         replace_dict['nmodels'] = replace_dict['nparams'] + replace_dict['ncouplings']
         replace_dict['coupling_list'] = ' '
-        replace_dict['hel_amps_cc'] = "#include \"HelAmps_%s.cc\"" % self.model_name # AV
+        replace_dict['hel_amps_cc'] = '#include \"HelAmps_%s.cc\"' % self.model_name # AV
         coupling = [''] * len(self.couplings2order)
         params = [''] * len(self.params2order)
         for coup, pos in self.couplings2order.items():
             coupling[pos] = coup
-        coup_str = "const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n"\
+        coup_str = 'const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n'\
             %(len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling))
         for para, pos in self.params2order.items():
             params[pos] = para
-        param_str = "    const fptype tIPD[%s] = { (fptype)m_pars->%s };"\
+        param_str = '    const fptype tIPD[%s] = { (fptype)m_pars->%s };'\
             %(len(self.params2order), ', (fptype)m_pars->'.join(params))
         replace_dict['assign_coupling'] = coup_str + param_str
-        coup_str_hrd = "__device__ const fptype cIPC[%s] = { " % (len(self.couplings2order)*2)
-        for coup in coupling : coup_str_hrd += "(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), " % ( self.model_name, coup, self.model_name, coup )
-        coup_str_hrd = coup_str_hrd[:-2] + " };\n"
-        param_str_hrd = "  __device__ const fptype cIPD[%s] = { " % len(self.params2order)
-        for para in params : param_str_hrd += "(fptype)Parameters_%s::%s, " % ( self.model_name, para )
-        param_str_hrd = param_str_hrd[:-2] + " };"
+        coup_str_hrd = '__device__ const fptype cIPC[%s] = { ' % (len(self.couplings2order)*2)
+        for coup in coupling : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup )
+        coup_str_hrd = coup_str_hrd[:-2] + ' };\n'
+        param_str_hrd = '  __device__ const fptype cIPD[%s] = { ' % len(self.params2order)
+        for para in params : param_str_hrd += '(fptype)Parameters_%s::%s, ' % ( self.model_name, para )
+        param_str_hrd = param_str_hrd[:-2] + ' };'
         replace_dict['hardcoded_assign_coupling'] = coup_str_hrd + param_str_hrd
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
-        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace("helicities", "tHel")
+        replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
         file = self.read_template_file(self.process_definition_template) % replace_dict # HACK! ignore write=False case
         if len(self.params2order) == 0: # remove all IPD occurrences (issue #349)
             file_lines = file.split('\n')
@@ -987,8 +987,8 @@ class PLUGIN_OneProcessExporter(export_cudacpp.OneProcessExporterGPU):
 #ifndef __CUDACC__
     //printf( \"calculate_wavefunctions: nevt %d\\n\", nevt );
 #endif\n""")
-            ret_lines.append("    // The number of colors")
-            ret_lines.append("    constexpr int ncolor = %i;" % len(color_amplitudes[0]))
+            ret_lines.append('    // The number of colors')
+            ret_lines.append('    constexpr int ncolor = %i;' % len(color_amplitudes[0]))
             ret_lines.append("""
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
@@ -1004,7 +1004,7 @@ class PLUGIN_OneProcessExporter(export_cudacpp.OneProcessExporterGPU):
 
     // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
     // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
-    cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxype is NOT, if "= {}" is missing!)
+    cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxype is NOT, if \"= {}\" is missing!)
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
 #ifndef __CUDACC__
@@ -1032,7 +1032,7 @@ class PLUGIN_OneProcessExporter(export_cudacpp.OneProcessExporterGPU):
                                                     self.matrix_elements[0],
                                                     color_amplitudes[0]
                                                     )
-            logger.debug("only one Matrix-element supported?")
+            logger.debug('only one Matrix-element supported?')
             self.couplings2order = self.helas_call_writer.couplings2order
             self.params2order = self.helas_call_writer.params2order
             nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
@@ -1049,14 +1049,14 @@ class PLUGIN_OneProcessExporter(export_cudacpp.OneProcessExporterGPU):
                                                          color_amplitudes[i],
                                                          class_name) \
                                 for i, me in enumerate(self.matrix_elements)])
-        return "\n".join(ret_lines)
+        return '\n'.join(ret_lines)
 
     # AV - modify export_cpp.OneProcessExporterGPU method (replace '# Process' by '// Process')
     def get_process_info_lines(self, matrix_element):
         """Return info lines describing the processes for this matrix element"""
-        ###return"\n".join([ "# " + process.nice_string().replace('\n', '\n# * ') \
+        ###return'\n'.join([ '# ' + process.nice_string().replace('\n', '\n# * ') \
         ###                 for process in matrix_element.get('processes')])
-        return"\n".join([ "// " + process.nice_string().replace('\n', '\n// * ') \
+        return'\n'.join([ '// ' + process.nice_string().replace('\n', '\n// * ') \
                          for process in matrix_element.get('processes')])
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (invert .cc/.cu, add debug printouts)
@@ -1151,8 +1151,8 @@ class PLUGIN_OneProcessExporter(export_cudacpp.OneProcessExporterGPU):
     def super_write_process_cc_file(self, writer):
         """Write the class member definition (.cc) file for the process described by matrix_element"""
         replace_dict = super(export_cudacpp.OneProcessExporterGPU, self).write_process_cc_file(False)
-        ###replace_dict['hel_amps_def'] = "\n#include \"../../src/HelAmps_%s.cu\"" % self.model_name
-        replace_dict['hel_amps_h'] = "#include \"HelAmps_%s.h\"" % self.model_name # AV
+        ###replace_dict['hel_amps_def'] = '\n#include \"../../src/HelAmps_%s.cu\"' % self.model_name
+        replace_dict['hel_amps_h'] = '#include \"HelAmps_%s.h\"' % self.model_name # AV
         if writer:
             file = self.read_template_file(self.process_template_cc) % replace_dict
             # Write the file
@@ -1200,54 +1200,54 @@ class PLUGIN_OneProcessExporter(export_cudacpp.OneProcessExporterGPU):
         """Return the color matrix definition lines for this matrix element. Split rows in chunks of size n."""
         import madgraph.core.color_algebra as color
         if not matrix_element.get('color_matrix'):
-            return "\n".join(["      static constexpr fptype denom[1] = {1.};", "static const fptype cf[1][1] = {1.};"])
+            return '\n'.join(['      static constexpr fptype denom[1] = {1.};', 'static const fptype cf[1][1] = {1.};'])
         else:
             color_denominators = matrix_element.get('color_matrix').\
                                                  get_line_denominators()
-            denom_string = "      static constexpr fptype denom[ncolor] = { %s }; // 1-D array[%i]" \
-                           % ( ", ".join(["%i" % denom for denom in color_denominators]), len(color_denominators) )
+            denom_string = '      static constexpr fptype denom[ncolor] = { %s }; // 1-D array[%i]' \
+                           % ( ', '.join(['%i' % denom for denom in color_denominators]), len(color_denominators) )
             matrix_strings = []
             my_cs = color.ColorString()
             for index, denominator in enumerate(color_denominators):
                 # Then write the numerators for the matrix elements
                 num_list = matrix_element.get('color_matrix').get_line_numerators(index, denominator)
-                matrix_strings.append("{ %s }" % ", ".join(["%d" % i for i in num_list]))
-            matrix_string = "      static constexpr fptype cf[ncolor][ncolor] = "
+                matrix_strings.append('{ %s }' % ', '.join(['%d' % i for i in num_list]))
+            matrix_string = '      static constexpr fptype cf[ncolor][ncolor] = '
             if len( matrix_strings ) > 1 : matrix_string += '{\n        ' + ',\n        '.join(matrix_strings) + ' };'
             else: matrix_string += '{ ' + matrix_strings[0] + ' };'
             matrix_string += ' // 2-D array[%i][%i]' % ( len(color_denominators), len(color_denominators) )
-            denom_comment = "\n      // The color denominators (initialize all array elements, with ncolor=%i)\n      // [NB do keep 'static' for these constexpr arrays, see issue #283]\n" % len(color_denominators)
-            matrix_comment = "\n      // The color matrix (initialize all array elements, with ncolor=%i)\n      // [NB do keep 'static' for these constexpr arrays, see issue #283]\n" % len(color_denominators)
+            denom_comment = '\n      // The color denominators (initialize all array elements, with ncolor=%i)\n      // [NB do keep 'static' for these constexpr arrays, see issue #283]\n' % len(color_denominators)
+            matrix_comment = '\n      // The color matrix (initialize all array elements, with ncolor=%i)\n      // [NB do keep 'static' for these constexpr arrays, see issue #283]\n' % len(color_denominators)
             denom_string = denom_comment + denom_string
             matrix_string = matrix_comment + matrix_string
-            return "\n".join([denom_string, matrix_string])
+            return '\n'.join([denom_string, matrix_string])
 
     # AV - replace the export_cpp.OneProcessExporterGPU method (improve formatting)
     def get_initProc_lines(self, matrix_element, color_amplitudes):
         """Get initProc_lines for function definition for gCPPProcess::initProc"""
         initProc_lines = []
-        initProc_lines.append("// Set external particle masses for this matrix element")
+        initProc_lines.append('// Set external particle masses for this matrix element')
         for part in matrix_element.get_external_wavefunctions():
-            ###initProc_lines.append("mME.push_back(pars->%s);" % part.get('mass'))
-            initProc_lines.append("    m_masses.push_back( m_pars->%s );" % part.get('mass')) # AV
+            ###initProc_lines.append('mME.push_back(pars->%s);' % part.get('mass'))
+            initProc_lines.append('    m_masses.push_back( m_pars->%s );' % part.get('mass')) # AV
         ###for i, colamp in enumerate(color_amplitudes):
-        ###    initProc_lines.append("jamp2_sv[%d] = new double[%d];" % (i, len(colamp))) # AV - this was commented out already
-        return "\n".join(initProc_lines)
+        ###    initProc_lines.append('jamp2_sv[%d] = new double[%d];' % (i, len(colamp))) # AV - this was commented out already
+        return '\n'.join(initProc_lines)
 
     # AV - replace the export_cpp.OneProcessExporterCPP method (improve formatting)
     def get_helicity_matrix(self, matrix_element):
         """Return the Helicity matrix definition lines for this matrix element"""
-        helicity_line = "    static constexpr short helicities[ncomb][mgOnGpu::npar] = {\n      "; # AV (this is tHel)
+        helicity_line = '    static constexpr short helicities[ncomb][mgOnGpu::npar] = {\n      '; # AV (this is tHel)
         helicity_line_list = []
         for helicities in matrix_element.get_helicity_matrix(allow_reverse=False):
-            helicity_line_list.append( "{ " + ", ".join(['%d'] * len(helicities)) % tuple(helicities) + " }" ) # AV
-        return helicity_line + ",\n      ".join(helicity_line_list) + " };" # AV
+            helicity_line_list.append( '{ ' + ', '.join(['%d'] * len(helicities)) % tuple(helicities) + ' }' ) # AV
+        return helicity_line + ',\n      '.join(helicity_line_list) + ' };' # AV
 
     # AV - overload the export_cpp.OneProcessExporterGPU method (just to add some comments...)
     def get_reset_jamp_lines(self, color_amplitudes):
         """Get lines to reset jamps"""
         ret_lines = super().get_reset_jamp_lines(color_amplitudes)
-        if ret_lines != "" : ret_lines = '    // Reset jamp (reset color flows)\n' + ret_lines # AV THIS SHOULD NEVER HAPPEN!
+        if ret_lines != '' : ret_lines = '    // Reset jamp (reset color flows)\n' + ret_lines # AV THIS SHOULD NEVER HAPPEN!
         return ret_lines
 
 #------------------------------------------------------------------------------------
@@ -1299,13 +1299,13 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 param = False
             if param:
                 alias = self.params2order
-                name = "cIPD"
+                name = 'cIPD'
             else:
                 alias = self.couplings2order
-                name = "cIPC"
+                name = 'cIPC'
             if coup not in alias:
                 alias[coup] = len(alias)
-            if name == "cIPD":
+            if name == 'cIPD':
                 call = call.replace('m_pars->%s%s' % (sign, coup),
                                     '%s%s[%s]' % (sign, name, alias[coup]))
             else:
@@ -1326,7 +1326,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         import madgraph.core.helas_objects as helas_objects
         import madgraph.loop.loop_helas_objects as loop_helas_objects
         assert isinstance(matrix_element, helas_objects.HelasMatrixElement), \
-               "%s not valid argument for get_matrix_element_calls" % \
+               '%s not valid argument for get_matrix_element_calls' % \
                type(matrix_element)
         # Do not reuse the wavefunctions for loop matrix elements
         if isinstance(matrix_element, loop_helas_objects.LoopHelasMatrixElement):
@@ -1357,12 +1357,12 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       {
         if( ihel > maxihel )
         {
-          //printf( "calculate_wavefunctions: ihel=%2d\\n", ihel );
+          //printf( \"calculate_wavefunctions: ihel=%2d\\n\", ihel );
           maxihel = ihel;
         }
         else if( ihel < maxihel )
         {
-          printf( "calculate_wavefunctions: FIRST CALL AFTER HELICITY FILTERING ihel=%2d\\n", ihel );
+          printf( \"calculate_wavefunctions: FIRST CALL AFTER HELICITY FILTERING ihel=%2d\\n\", ihel );
           maxihel = -2;
           minihel = ihel;
         }
@@ -1373,17 +1373,17 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         {
           for( int ieppV = 0; ieppV < neppV; ieppV++ )
           {
-            printf( "calculate_wavefunctions: ievt=%6d ihel=%2d\\n", ievt0 + ieppV, ihel );
+            printf( \"calculate_wavefunctions: ievt=%6d ihel=%2d\\n\", ievt0 + ieppV, ihel );
             for( int ipar = 0; ipar < npar; ipar++ )
             {
 #ifdef MGONGPU_CPPSIMD
-              printf( "calculate_wavefunctions: %f %f %f %f\\n",
+              printf( \"calculate_wavefunctions: %f %f %f %f\\n\",
                       M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar )[ieppV],
                       M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar )[ieppV],
                       M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar )[ieppV],
                       M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar )[ieppV] );
 #else
-              printf( "calculate_wavefunctions: %f %f %f %f\\n",
+              printf( \"calculate_wavefunctions: %f %f %f %f\\n\",
                       M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar ),
                       M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar ),
                       M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar ),
@@ -1407,7 +1407,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             res.extend([ self.get_wavefunction_call(wf) for wf in diagram.get('wavefunctions') ]) # AV new: avoid format_call
             if len(diagram.get('wavefunctions')) == 0 : res.append('// (none)') # AV
             if res[-1][-1] == '\n' : res[-1] = res[-1][:-1]
-            res.append("\n      // Amplitude(s) for diagram number %d" % diagram.get('number'))
+            res.append('\n      // Amplitude(s) for diagram number %d' % diagram.get('number'))
             for amplitude in diagram.get('amplitudes'):
                 namp = amplitude.get('number')
                 amplitude.set('number', 1)
@@ -1420,8 +1420,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                     scoeff = scoeff.replace(',',', ')
                     scoeff = scoeff.replace('*',' * ')
                     scoeff = scoeff.replace('/',' / ')
-                    if scoeff.startswith('-'): res.append("jamp_sv[%s] -= %samp_sv[0];" % (njamp, scoeff[1:])) # AV
-                    else: res.append("jamp_sv[%s] += %samp_sv[0];" % (njamp, scoeff)) # AV
+                    if scoeff.startswith('-'): res.append('jamp_sv[%s] -= %samp_sv[0];' % (njamp, scoeff[1:])) # AV
+                    else: res.append('jamp_sv[%s] += %samp_sv[0];' % (njamp, scoeff)) # AV
             if len(diagram.get('amplitudes')) == 0 : res.append('// (none)') # AV
         ###res.append('\n    // *** END OF DIAGRAMS ***' ) # AV - no longer needed ('COLOR ALGEBRA BELOW')
         return res
@@ -1478,15 +1478,15 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             # Fill out with X up to 6 positions
             call = call + 'x' * (6 - len(call))
             # Specify namespace for Helas calls
-            call = call + "( momenta,"
+            call = call + '( momenta,'
             if argument.get('spin') != 1:
                 # For non-scalars, need mass and helicity
-                call = call + "m_pars->%s, cHel[ihel][%d],"
+                call = call + 'm_pars->%s, cHel[ihel][%d],'
             else:
                 # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
-                ###call = call + "m_pars->%s,"
+                ###call = call + 'm_pars->%s,'
                 call = call
-            call = call + "%+d, w_sv[%d], %d );"
+            call = call + '%+d, w_sv[%d], %d );'
             if argument.get('spin') == 1:
                 # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
                 return call % \
@@ -1563,12 +1563,12 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         """
         if not isinstance(argument, helas_objects.HelasWavefunction) and \
            not isinstance(argument, helas_objects.HelasAmplitude):
-            raise self.PhysicsObjectError("get_helas_call must be called with wavefunction or amplitude")
-        call = ""
+            raise self.PhysicsObjectError('get_helas_call must be called with wavefunction or amplitude')
+        call = ''
         call_function = None
         if isinstance(argument, helas_objects.HelasAmplitude) and \
            argument.get('interaction_id') == 0:
-            call = "#"
+            call = '#'
             call_function = lambda amp: call
             self.add_amplitude(argument.get_call_key(), call_function)
             return
@@ -1595,8 +1595,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             call = '%(routine_name)s( %(wf)s%(coup)s%(mass)s%(out)s );'
             # compute wf
             arg = {'routine_name': aloha_writers.combine_name('%s' % l[0], l[1:], outgoing, flag, True),
-                   'wf': ("w_fp[%%(%d)d], " * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))),
-                   'coup': ("m_pars->%%(coup%d)s, " * len(argument.get('coupling'))) % tuple(range(len(argument.get('coupling'))))
+                   'wf': ('w_fp[%%(%d)d], ' * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))),
+                   'coup': ('m_pars->%%(coup%d)s, ' * len(argument.get('coupling'))) % tuple(range(len(argument.get('coupling'))))
                    }
             if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS>'
             else : arg['routine_name'] += '<W_ACCESS>'
@@ -1604,9 +1604,9 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 #arg['out'] = 'w_sv[%(out)d]'
                 arg['out'] = 'w_fp[%(out)d]'
                 if aloha.complex_mass:
-                    arg['mass'] = "m_pars->%(CM)s, "
+                    arg['mass'] = 'm_pars->%(CM)s, '
                 else:
-                    arg['mass'] = "m_pars->%(M)s, m_pars->%(W)s, "
+                    arg['mass'] = 'm_pars->%(M)s, m_pars->%(W)s, '
             else:
                 #arg['out'] = '&amp_sv[%(out)d]'
                 arg['out'] = '&amp_fp[%(out)d]'

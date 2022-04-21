@@ -140,14 +140,14 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     def copy_template(self, model):
         misc.sprint('Entering PLUGIN_ProcessExporter.copy_template (initialise the directory)')
         try: os.mkdir(self.dir_path)
-        except os.error as error: logger.warning(error.strerror + " " + self.dir_path)
+        except os.error as error: logger.warning(error.strerror + ' ' + self.dir_path)
         with misc.chdir(self.dir_path):
             logger.info('Creating subdirectories in directory %s' % self.dir_path)
             for d in ['src', 'Cards', 'SubProcesses', 'CMake']: # AV - added CMake, removed lib
                 try: os.mkdir(d)
-                except os.error as error: logger.warning(error.strerror + " " + os.path.join(self.dir_path,d))
+                except os.error as error: logger.warning(error.strerror + ' ' + os.path.join(self.dir_path,d))
             # Write param_card
-            open(os.path.join("Cards","param_card.dat"), 'w').write(model.write_param_card())
+            open(os.path.join('Cards','param_card.dat'), 'w').write(model.write_param_card())
             # Copy files in various subdirectories
             for key in self.from_template:
                 for f in self.from_template[key]:
