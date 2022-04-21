@@ -472,24 +472,6 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  template<class G_ACCESS, class C_ACCESS>
-  __device__ INLINE void
-  G2COUP( const fptype gs[],
-          fptype gc10[],
-          fptype gc11[] )
-  {
-    /*constexpr*/ cxtype mdl_complexi( 0., 1. );
-    const fptype_sv* gs_sv = G_ACCESS::kernelAccessConst( gs );
-    cxtype_sv* gc10_sv = C_ACCESS::kernelAccess( gc10 );
-    cxtype_sv* gc11_sv = C_ACCESS::kernelAccess( gc11 );
-    cxtype_sv tmp_gc10 = -( *gs_sv );
-    ( *gc10_sv ) = tmp_gc10;
-    cxtype_sv tmp_gc11 = mdl_complexi * ( *gs_sv );
-    ( *gc11_sv ) = tmp_gc11;
-  }
-
-  //--------------------------------------------------------------------------
-
   __global__ void /* clang-format off */
   computeCouplings( const fptype* gs,
                     fptype* gc10,
