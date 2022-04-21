@@ -6,7 +6,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <procs (-eemumu|-ggtt|-ggttg|-ggttgg|-ggttggg)> [-auto|-autoonly] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-auto|-autoonly] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]"
   exit 1
 }
 

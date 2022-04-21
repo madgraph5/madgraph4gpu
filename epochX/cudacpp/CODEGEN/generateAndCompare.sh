@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e # fail on error
+
 #--------------------------------------------------------------------------------------
 
 function codeGenAndDiff()
@@ -48,29 +50,40 @@ function codeGenAndDiff()
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null
   outproc=CODEGEN_${OUTBCK}_${proc}
-  if [ "${OUTBCK}" == "gridpack" ] && [ "${UNTARONLY}" == "1" ]; then
+  if [ "${SCRBCK}" == "gridpack" ] && [ "${UNTARONLY}" == "1" ]; then
     echo -e "WARNING! Skip generation of gridpack.tar.gz (--nountaronly was not specified)\n"
   else
     \rm -rf ${outproc} ${outproc}.* ${outproc}_*
+    if [ "${HELREC}" == "0" ]; then
+      helrecopt="--hel_recycling=False"
+    else
+      helrecopt=
+    fi
     echo "set stdout_level DEBUG" >> ${outproc}.mg # does not help (log is essentially identical) but add it anyway
     echo "${cmd}" >> ${outproc}.mg
-    if [ "${OUTBCK}" == "gridpack" ]; then
-      if [ "${HELREC}" == "0" ]; then
-        echo "output ${outproc} --hel_recycling=False" >> ${outproc}.mg
-      else
-        echo "output ${outproc}" >> ${outproc}.mg
-      fi
+    if [ "${SCRBCK}" == "gridpack" ]; then # $SCRBCK=$OUTBCK=gridpack
+      echo "output ${outproc} ${helrecopt}" >> ${outproc}.mg
       ###echo "!cp -dpr ${outproc} ${outproc}_prelaunch" >> ${outproc}.mg
       echo "launch" >> ${outproc}.mg
       echo "set gridpack True" >> ${outproc}.mg
       echo "set ebeam1 750" >> ${outproc}.mg
       echo "set ebeam2 750" >> ${outproc}.mg
-    elif [ "${OUTBCK}" == "alpaka" ]; then
-      echo "output standalone_${OUTBCK}_cudacpp ${outproc}" >> ${outproc}.mg
-    else
+    elif [ "${SCRBCK}" == "alpaka" ]; then # $SCRBCK=$OUTBCK=alpaka
+      echo "output standalone_${SCRBCK}_cudacpp ${outproc}" >> ${outproc}.mg
+    elif [ "${OUTBCK}" == "madonly" ]; then # $SCRBCK=cudacpp and $OUTBCK=madonly
+      echo "output madevent ${outproc} ${helrecopt} --vector_size=16" >> ${outproc}.mg
+    elif [ "${OUTBCK}" == "mad" ]; then # $SCRBCK=cudacpp and $OUTBCK=mad
+      echo "output madevent ${outproc} ${helrecopt} --vector_size=16 --me_exporter=standalone_cudacpp" >> ${outproc}.mg
+    elif [ "${OUTBCK}" == "madcpp" ]; then # $SCRBCK=cudacpp and $OUTBCK=madcpp
+      echo "output madevent ${outproc} ${helrecopt} --vector_size=16 --me_exporter=standalone_cpp" >> ${outproc}.mg
+    elif [ "${OUTBCK}" == "madgpu" ]; then # $SCRBCK=cudacpp and $OUTBCK=madgpu
+      echo "output madevent ${outproc} ${helrecopt} --vector_size=16 --me_exporter=standalone_gpu" >> ${outproc}.mg
+    else # $SCRBCK=cudacpp and $OUTBCK=cudacpp, cpp or gpu
       echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
     fi
+    echo "--------------------------------------------------"
     cat ${outproc}.mg
+    echo -e "--------------------------------------------------\n"
     ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
     { time python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
     cat ${outproc}_log.txt | egrep -v '(Crash Annotation)' > ${outproc}_log.txt.new # remove firefox 'glxtest: libEGL initialize failed' errors
@@ -87,25 +100,47 @@ function codeGenAndDiff()
   fi
   popd >& /dev/null
   # Choose which directory must be copied (for gridpack generation: untar and modify the gridpack)
-  if [ "${OUTBCK}" == "gridpack" ]; then
+  if [ "${SCRBCK}" == "gridpack" ]; then
     outprocauto=${MG5AMC_HOME}/${outproc}/run_01_gridpack
     if ! $SCRDIR/untarGridpack.sh ${outprocauto}.tar.gz; then echo "ERROR! untarGridpack.sh failed"; exit 1; fi
   else
     outprocauto=${MG5AMC_HOME}/${outproc}
   fi
   cp -dpr ${MG5AMC_HOME}/${outproc}_log.txt ${outprocauto}/
-  # Output directories: examples ee_mumu.auto for cudacpp and gridpacks, eemumu.cpp for cpp, eemumu.gpu for gpu
+  # Output directories: examples ee_mumu.auto for cudacpp and gridpacks, eemumu.cpp270 or eemumu.gpu270 for cpp
   autosuffix=auto
-  if [ "$use270" == "0" ]; then
-    if [ "${OUTBCK}" == "cpp" ]; then autosuffix=cpp311; elif [ "${OUTBCK}" == "gpu" ]; then autosuffix=gpu311; fi
-  else
-    if [ "${OUTBCK}" == "cpp" ]; then autosuffix=cpp270; elif [ "${OUTBCK}" == "gpu" ]; then autosuffix=gpu270; fi
+  if [ "${OUTBCK}" == "cpp" ]; then
+    if [ "$use270" == "0" ]; then autosuffix=cpp270; else autosuffix=cpp311; fi
+  elif [ "${OUTBCK}" == "gpu" ]; then
+    if [ "$use270" == "0" ]; then autosuffix=gpu270; else autosuffix=gpu311; fi
+  elif [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
+    autosuffix=${OUTBCK}
   fi
   # Replace the existing generated code in the output source code directory by the newly generated code and create a .BKP
   rm -rf ${OUTDIR}/${proc}.${autosuffix}.BKP
   if [ -d ${OUTDIR}/${proc}.${autosuffix} ]; then mv ${OUTDIR}/${proc}.${autosuffix} ${OUTDIR}/${proc}.${autosuffix}.BKP; fi
   cp -dpr ${outprocauto} ${OUTDIR}/${proc}.${autosuffix}
   echo -e "\nOutput source code has been copied to ${OUTDIR}/${proc}.${autosuffix}"
+  # Fix build errors which arise because the autogenerated directories are not relocatable (see #400)
+  if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
+    cat ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt | sed 's/mg5_path/#mg5_path/' > ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt.new
+    \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt.new ${OUTDIR}/${proc}.${autosuffix}/Cards/me5_configuration.txt
+  fi
+  # Temporarely use a fixed renormalization scale (#417) and improve formatting of fixed factorization scale
+  if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
+    cat ${OUTDIR}/${proc}.${autosuffix}/Cards/run_card.dat | sed 's/False = fixed_ren_scale/True = fixed_ren_scale/' | sed 's/    False = fixed_fac_scale/False = fixed_fac_scale/' > ${OUTDIR}/${proc}.${autosuffix}/Cards/run_card.dat.new
+    \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/run_card.dat.new ${OUTDIR}/${proc}.${autosuffix}/Cards/run_card.dat
+  fi
+  # Add a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/2
+  if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
+    cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | head -3 > ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
+    cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | tail -n+4 | sort >> ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
+    \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat
+  fi
+  # Additional setup and cleanup for madonly and mad directories
+  if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ]; then
+    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} # delegate to patchMad.sh (similarly to what is done with untarGridpack.sh)
+  fi
   # Compare the existing generated code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
   echo -e "\n+++ Compare old and new code generation log for $proc\n"
@@ -132,12 +167,16 @@ function codeGenAndDiff()
 
 function usage()
 {
-  if [ "${OUTBCK}" == "gridpack" ]; then
-    echo "Usage: $0 [--nobrief] [--nountaronly] [--nohelrec] <proc>" # NB: only one process
-  elif [ "${OUTBCK}" == "alpaka" ]; then
-    echo "Usage: $0 [--nobrief] <proc>" # NB: only one process
+  # NB: Generate only one process at a time
+  if [ "${SCRBCK}" == "gridpack" ]; then
+    # NB: gridpack generation has been tested only agains the 270 branch so far
+    echo "Usage: $0 [--nobrief] [--nountaronly] [--nohelrec] <proc>"
+  elif [ "${SCRBCK}" == "alpaka" ]; then
+    # NB: alpaka generation has been tested only agains the 270 branch so far
+    echo "Usage: $0 [--nobrief] <proc>"
   else
-    echo "Usage: $0 [--nobrief] [--cpp|--gpu] [--270] <proc>" # NB: only one process
+    # NB: all options with $SCRBCK=cudacpp use the 311 branch by default and always disable helicity recycling
+    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--madonly|--mad|--madcpp|--madgpu] [--270] <proc>"
   fi
   exit 1
 }
@@ -162,43 +201,55 @@ function cleanup_MG5AMC_HOME()
 # Script directory
 SCRDIR=$(cd $(dirname $0); pwd)
 
-# Output source code directory for the chosen backend
+# Output source code directory for the chosen backend (generated code will be created as a subdirectory of $OUTDIR)
 OUTDIR=$(dirname $SCRDIR) # e.g. epochX/cudacpp if $SCRDIR=epochX/cudacpp/CODEGEN
 
-# Default output backend (in the cudacpp directory this can be changed to cpp or gpu using --cpp and --gpu)
-OUTBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
+# Script directory backend (cudacpp, gridpack or alpaka)
+SCRBCK=$(basename $OUTDIR) # e.g. cudacpp if $OUTDIR=epochX/cudacpp
+
+# Default output backend (in the cudacpp directory this can be changed using commad line options like --cpp, --gpu or --mad)
+OUTBCK=$SCRBCK
 
 # Default: brief diffs (use --nobrief to use full diffs)
 BRIEF=--brief
 
-# Default: use the 311 MG5aMC branch (except for alpaka)
+# Default: use the 311 MG5aMC branch (except for alpaka and gridpack)
 use270=0
-if [ "${OUTBCK}" == "alpaka" ]; then use270=1; fi
+if [ "${SCRBCK}" == "alpaka" ] || [ "${SCRBCK}" == "gridpack" ]; then use270=1; fi
 
 # Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
 UNTARONLY=1
 
 # Default for gridpacks: use helicity recycling (use --nohelrec to disable it)
 # (export the value to the untarGridpack.sh script)
-export HELREC=1
+# Hardcoded for cudacpp and alpaka: disable helicity recycling (#400, #279) for the moment
+if [ "${SCRBCK}" == "gridpack" ]; then export HELREC=1; else export HELREC=0; fi
 
 # Process command line arguments (https://unix.stackexchange.com/a/258514)
 for arg in "$@"; do
   shift
   if [ "$arg" == "-h" ] || [ "$arg" == "--help" ]; then
-    usage; continue; # continue is unnecessary as usage will exit anyway...
+    usage
   elif [ "$arg" == "--nobrief" ]; then
-    BRIEF=; continue
+    BRIEF=
   elif [ "$arg" == "--270" ]; then
-    use270=1; continue
-  elif [ "$arg" == "--nountaronly" ] && [ "${OUTBCK}" == "gridpack" ]; then
-    UNTARONLY=0; continue
-  elif [ "$arg" == "--nohelrec" ] && [ "${OUTBCK}" == "gridpack" ]; then
-    export HELREC=0; continue
-  elif [ "$arg" == "--cpp" ] && [ "${OUTBCK}" == "cudacpp" ]; then
-    export OUTBCK=cpp; continue
-  elif [ "$arg" == "--gpu" ] && [ "${OUTBCK}" == "cudacpp" ]; then
-    export OUTBCK=gpu; continue
+    use270=1
+  elif [ "$arg" == "--nountaronly" ] && [ "${SCRBCK}" == "gridpack" ]; then
+    UNTARONLY=0
+  elif [ "$arg" == "--nohelrec" ] && [ "${SCRBCK}" == "gridpack" ]; then
+    export HELREC=0
+  elif [ "$arg" == "--cpp" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${arg#--}
+  elif [ "$arg" == "--gpu" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${arg#--}
+  elif [ "$arg" == "--madonly" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${arg#--}
+  elif [ "$arg" == "--mad" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${arg#--}
+  elif [ "$arg" == "--madcpp" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${arg#--}
+  elif [ "$arg" == "--madgpu" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    export OUTBCK=${arg#--}
   else
     # Keep the possibility to collect more then one process
     # However, require a single process to be chosen (allow full cleanup before/after code generation)
@@ -211,7 +262,8 @@ proc=$1
 
 echo "SCRDIR=${SCRDIR}"
 echo "OUTDIR=${OUTDIR}"
-echo "OUTBCK=${OUTBCK} (uppercase=${OUTBCK^^})"
+echo "SCRBCK=${SCRBCK} (uppercase=${SCRBCK^^})"
+echo "OUTBCK=${OUTBCK}"
 
 echo "BRIEF=${BRIEF}"
 ###echo "procs=${procs}"
@@ -224,13 +276,22 @@ if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"
 mg5amc270=2.7.0_gpu
 mg5amc311=3.1.1_lo_vectorization
 mg5amcBrn=${mg5amc311}
+if [ "${OUTBCK}" == "alpaka" ]; then
+  revno_patches=370
+else
+  revno_patches=$(cat $SCRDIR/MG5aMC_patches/${mg5amcBrn}/revision.BZR)
+fi
 if [ "$MG5AMC_HOME" == "" ]; then
   echo "ERROR! MG5AMC_HOME is not defined"
-  echo "To download MG5AMC please run 'bzr branch lp:~maddevelopers/mg5amcnlo/${mg5amcBrn}'"
+  echo -e "To download MG5AMC please run\n  bzr branch lp:~maddevelopers/mg5amcnlo/${mg5amcBrn} -r ${revno_patches}"
   exit 1
 fi
 echo -e "\nDefault MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
-if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exist"; exit 1; fi
+if [ ! -d $MG5AMC_HOME ]; then
+  echo "ERROR! Directory $MG5AMC_HOME does not exist"
+  echo -e "To download MG5AMC please run\n  bzr branch lp:~maddevelopers/mg5amcnlo/${mg5amcBrn} -r ${revno_patches}"
+  exit 1
+fi
 if [ "$(basename ${MG5AMC_HOME})" != "${mg5amcBrn}" ]; then
   echo "ERROR! MG5AMC_HOME basename is not ${mg5amcBrn}"
   exit 1
@@ -238,6 +299,10 @@ fi
 
 # Redefine MG5AMC_HOME to use the 270 branch if required
 if [ "$use270" == "1" ]; then
+  if [ "${OUTBCK}" != "cpp" ] && [ "${OUTBCK}" != "gpu" ]; then
+    echo "ERROR! Option --270 is only supported in --cpu or --gpu mode"
+    exit 1
+  fi
   mg5amcBrn=${mg5amc270}
   export MG5AMC_HOME=$(dirname ${MG5AMC_HOME})/${mg5amcBrn}
   echo -e "Using non-default MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
@@ -245,7 +310,7 @@ if [ "$use270" == "1" ]; then
 fi
 
 # Make sure that $ALPAKA_ROOT and $CUPLA_ROOT exist if alpaka is used
-if [ "${OUTBCK}" == "alpaka" ]; then
+if [ "${SCRBCK}" == "alpaka" ]; then
   if [ "$ALPAKA_ROOT" == "" ]; then
     echo "ERROR! ALPAKA_ROOT is not defined"
     echo "To download ALPAKA please run 'git clone -b 0.8.0 https://github.com/alpaka-group/alpaka.git'"
@@ -270,11 +335,6 @@ if bzr --version >& /dev/null; then
   echo -e "Using $(bzr --version | head -1)"
   echo -e "Retrieving bzr information about MG5AMC_HOME"
   if bzr info ${MG5AMC_HOME} > /dev/null; then
-    if [ "${OUTBCK}" == "alpaka" ]; then
-      revno_patches=370
-    else
-      revno_patches=$(cat $SCRDIR/MG5aMC_patches/${mg5amcBrn}/revision.BZR)
-    fi
     echo -e "MG5AMC patches in this plugin refer to bzr revno '${revno_patches}'"
     echo -e "Revert MG5AMC_HOME to bzr revno '${revno_patches}'"
     bzr revert ${MG5AMC_HOME} -r ${revno_patches}
@@ -291,7 +351,7 @@ else
 fi
 
 # Copy MG5AMC patches if any
-if [ "${OUTBCK}" == "cudacpp" ]; then
+if [ "${SCRBCK}" == "cudacpp" ]; then
   patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f -name '*.py')
   patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f -name '*.py')
   echo -e "Copy MG5aMC_patches/${mg5amcBrn} patches..."
@@ -315,17 +375,22 @@ if bzr --version >& /dev/null; then
   fi
 fi
 
-# Copy the new plugin to MG5AMC_HOME (if the selected output is cudacpp or alpaka)
-if [ "${OUTBCK}" == "cudacpp" ]; then
-  cp -dpr ${SCRDIR}/PLUGIN/${OUTBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
-  ls -l ${MG5AMC_HOME}/PLUGIN
-elif [ "${OUTBCK}" == "alpaka" ]; then
-  cp -dpr ${SCRDIR}/PLUGIN/${OUTBCK^^}_CUDACPP_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
+# Copy the new plugin to MG5AMC_HOME (if the script directory backend is cudacpp or alpaka)
+if [ "${SCRBCK}" == "cudacpp" ]; then
+  if [ "${OUTBCK}" == "no-path-to-this-statement" ]; then
+    echo -e "\nWARNING! '${OUTBCK}' mode selected: do not copy the cudacpp plugin (workaround for #341)"
+  else # currently succeeds also for madcpp and madgpu (#341 has been fixed)
+    echo -e "\nINFO! '${OUTBCK}' mode selected: copy the cudacpp plugin\n"
+    cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
+    ls -l ${MG5AMC_HOME}/PLUGIN
+  fi
+elif [ "${SCRBCK}" == "alpaka" ]; then
+  cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_CUDACPP_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
   ls -l ${MG5AMC_HOME}/PLUGIN
 fi
 
 # For gridpacks, use separate output directories for MG 28x and MG 29x
-if [ "${OUTBCK}" == "gridpack" ]; then
+if [ "${SCRBCK}" == "gridpack" ]; then
   if [ ${revno_patches} -le 365 ]; then
     OUTDIR=${OUTDIR}/28x
   else

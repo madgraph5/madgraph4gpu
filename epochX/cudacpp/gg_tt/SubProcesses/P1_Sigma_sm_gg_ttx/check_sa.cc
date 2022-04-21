@@ -81,12 +81,12 @@ main( int argc, char** argv )
   bool debug = false;
   bool perf = false;
   bool json = false;
-  int niter = 0;
-  int gpublocks = 1;
-  int gputhreads = 32;
-  int jsondate = 0;
-  int jsonrun = 0;
-  int numvec[5] = { 0, 0, 0, 0, 0 };
+  unsigned int niter = 0;
+  unsigned int gpublocks = 1;
+  unsigned int gputhreads = 32;
+  unsigned int jsondate = 0;
+  unsigned int jsonrun = 0;
+  unsigned int numvec[5] = { 0, 0, 0, 0, 0 };
   int nnum = 0;
   // Random number mode
   enum class RandomNumberMode
@@ -174,7 +174,7 @@ main( int argc, char** argv )
     }
     else if( is_number( argv[argn] ) && nnum < 5 )
     {
-      numvec[nnum++] = atoi( argv[argn] );
+      numvec[nnum++] = strtoul( argv[argn], NULL, 0 );
     }
     else
     {
@@ -262,8 +262,8 @@ main( int argc, char** argv )
   if( !MatrixElementKernelHost::hostSupportsSIMD() ) return 1;
 #endif
 
-  const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
-  const int nevt = ndim;                   // number of events in one iteration == number of GPU threads
+  const unsigned int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
+  const unsigned int nevt = ndim;                   // number of events in one iteration == number of GPU threads
 
   if( verbose )
     std::cout << "# iterations: " << niter << std::endl;
@@ -433,7 +433,7 @@ main( int argc, char** argv )
   // *** START MAIN LOOP ON #ITERATIONS ***
   // **************************************
 
-  for( int iiter = 0; iiter < niter; ++iiter )
+  for( unsigned long int iiter = 0; iiter < niter; ++iiter )
   {
     //std::cout << "Iteration #" << iiter+1 << " of " << niter << std::endl;
 
@@ -599,7 +599,7 @@ main( int argc, char** argv )
       if( perf ) std::cout << "Wave function time: " << wavetime << std::endl;
     }
 
-    for( int ievt = 0; ievt < nevt; ++ievt ) // Loop over all events in this iteration
+    for( unsigned int ievt = 0; ievt < nevt; ++ievt ) // Loop over all events in this iteration
     {
       if( verbose )
       {
@@ -644,7 +644,7 @@ main( int argc, char** argv )
   //double sqsgtim = 0;
   double mingtim = genrtimes[0];
   double maxgtim = genrtimes[0];
-  for( int iiter = 0; iiter < niter; ++iiter )
+  for( unsigned int iiter = 0; iiter < niter; ++iiter )
   {
     sumgtim += genrtimes[iiter];
     //sqsgtim += genrtimes[iiter]*genrtimes[iiter];
@@ -656,7 +656,7 @@ main( int argc, char** argv )
   //double sqsrtim = 0;
   double minrtim = rambtimes[0];
   double maxrtim = rambtimes[0];
-  for( int iiter = 0; iiter < niter; ++iiter )
+  for( unsigned int iiter = 0; iiter < niter; ++iiter )
   {
     sumrtim += rambtimes[iiter];
     //sqsrtim += rambtimes[iiter]*rambtimes[iiter];
@@ -668,7 +668,7 @@ main( int argc, char** argv )
   //double sqswtim = 0;
   double minwtim = wavetimes[0];
   double maxwtim = wavetimes[0];
-  for( int iiter = 0; iiter < niter; ++iiter )
+  for( unsigned int iiter = 0; iiter < niter; ++iiter )
   {
     sumwtim += wavetimes[iiter];
     //sqswtim += wavetimes[iiter]*wavetimes[iiter];
@@ -682,7 +682,7 @@ main( int argc, char** argv )
   //double sqsw3atim = 0;
   double minw3atim = wv3atimes[0];
   double maxw3atim = wv3atimes[0];
-  for( int iiter = 0; iiter < niter; ++iiter )
+  for( unsigned int iiter = 0; iiter < niter; ++iiter )
   {
     sumw3atim += wv3atimes[iiter];
     //sqsw3atim += wv3atimes[iiter]*wv3atimes[iiter];
@@ -692,7 +692,7 @@ main( int argc, char** argv )
   double meanw3atim = sumw3atim / niter;
   //double stdw3atim = std::sqrt( sqsw3atim / niter - meanw3atim * meanw3atim );
 
-  const int nevtALL = hstStats.nevtALL; // total number of ALL events in all iterations
+  const unsigned int nevtALL = hstStats.nevtALL; // total number of ALL events in all iterations
   if( nevtALL != niter * nevt )
     std::cout << "ERROR! nevtALL mismatch " << nevtALL << " != " << niter * nevt << std::endl; // SANITY CHECK
   int nabn = hstStats.nevtABN;

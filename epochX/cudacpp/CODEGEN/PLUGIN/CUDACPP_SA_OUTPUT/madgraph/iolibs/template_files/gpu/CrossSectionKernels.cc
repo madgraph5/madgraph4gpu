@@ -80,9 +80,9 @@ namespace mg5amcCpu
 {
   //--------------------------------------------------------------------------
 
-  void flagAbnormalMEs( fptype* hstMEs, int nevt )
+  void flagAbnormalMEs( fptype* hstMEs, unsigned int nevt )
   {
-    for( int ievt = 0; ievt < nevt; ievt++ )
+    for( unsigned int ievt = 0; ievt < nevt; ievt++ )
     {
       if( fp_is_abnormal( hstMEs[ievt] ) )
       {

@@ -65,7 +65,7 @@ namespace mg5amcCpu
      * @param nparF (NEXTERNAL, nexternal.inc) number of external particles in Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
      * @param np4F number of momenta components, usually 4, in Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
      */
-    Bridge( int nevtF, int nparF, int np4F );
+    Bridge( unsigned int nevtF, unsigned int nparF, unsigned int np4F );
 
     /**
      * Destructor
@@ -115,7 +115,7 @@ namespace mg5amcCpu
 #endif
 
   private:
-    int m_nevt;                // number of events
+    unsigned int m_nevt;       // number of events
     bool m_goodHelsCalculated; // have the good helicities been calculated?
 
 #ifdef __CUDACC__
@@ -129,7 +129,8 @@ namespace mg5amcCpu
     mg5amcGpu::DeviceBufferMatrixElements m_devMEsC;
     mg5amcGpu::PinnedHostBufferMatrixElements m_hstMEsC;
     std::unique_ptr<mg5amcGpu::MatrixElementKernelDevice> m_pmek;
-    static constexpr int s_gputhreadsmin = 32; // minimum number of gpu threads
+    //static constexpr int s_gputhreadsmin = 16; // minimum number of gpu threads (TEST VALUE FOR MADEVENT)
+    static constexpr int s_gputhreadsmin = 32; // minimum number of gpu threads (DEFAULT)
 #else
     mg5amcCpu::HostBufferMomenta m_hstMomentaC;
     mg5amcCpu::HostBufferGs m_hstGsC;
@@ -148,15 +149,15 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
 
   template<typename Tin, typename Tout>
-  __global__ void dev_transposeMomentaF2C( const Tin* in, Tout* out, const int nevt );
+  __global__ void dev_transposeMomentaF2C( const Tin* in, Tout* out, const unsigned int nevt );
 
 #endif // __CUDACC__
 
   template<typename Tin, typename Tout>
-  void hst_transposeMomentaF2C( const Tin* in, Tout* out, const int nevt );
+  void hst_transposeMomentaF2C( const Tin* in, Tout* out, const unsigned int nevt );
 
   template<typename Tin, typename Tout>
-  void hst_transposeMomentaC2F( const Tin* in, Tout* out, const int nevt );
+  void hst_transposeMomentaC2F( const Tin* in, Tout* out, const unsigned int nevt );
 
   //--------------------------------------------------------------------------
   //
@@ -164,7 +165,7 @@ namespace mg5amcCpu
   //
 
   template<typename FORTRANFPTYPE>
-  Bridge<FORTRANFPTYPE>::Bridge( int nevtF, int nparF, int np4F )
+  Bridge<FORTRANFPTYPE>::Bridge( unsigned int nevtF, unsigned int nparF, unsigned int np4F )
     : m_nevt( nevtF )
     , m_goodHelsCalculated( false )
 #ifdef __CUDACC__
@@ -302,7 +303,7 @@ namespace mg5amcCpu
 
 #ifdef __CUDACC__
   template<typename Tin, typename Tout>
-  __global__ void dev_transposeMomentaF2C( const Tin* in, Tout* out, const int nevt )
+  __global__ void dev_transposeMomentaF2C( const Tin* in, Tout* out, const unsigned int nevt )
   {
     constexpr bool oldImplementation = true; // default: use old implementation
     if constexpr( oldImplementation )
@@ -353,25 +354,25 @@ namespace mg5amcCpu
 #endif
 
   template<typename Tin, typename Tout, bool F2C>
-  void hst_transposeMomenta( const Tin* in, Tout* out, const int nevt )
+  void hst_transposeMomenta( const Tin* in, Tout* out, const unsigned int nevt )
   {
     constexpr bool oldImplementation = false; // default: use new implementation
     if constexpr( oldImplementation )
     {
       // SR initial implementation
-      constexpr int part = mgOnGpu::npar;
-      constexpr int mome = mgOnGpu::np4;
-      constexpr int strd = MemoryAccessMomenta::neppM;
-      int arrlen = nevt * part * mome;
-      for( int pos = 0; pos < arrlen; ++pos )
+      constexpr unsigned int part = mgOnGpu::npar;
+      constexpr unsigned int mome = mgOnGpu::np4;
+      constexpr unsigned int strd = MemoryAccessMomenta::neppM;
+      unsigned int arrlen = nevt * part * mome;
+      for( unsigned int pos = 0; pos < arrlen; ++pos )
       {
-        int page_i = pos / ( strd * mome * part );
-        int rest_1 = pos % ( strd * mome * part );
-        int part_i = rest_1 / ( strd * mome );
-        int rest_2 = rest_1 % ( strd * mome );
-        int mome_i = rest_2 / strd;
-        int strd_i = rest_2 % strd;
-        int inpos =
+        unsigned int page_i = pos / ( strd * mome * part );
+        unsigned int rest_1 = pos % ( strd * mome * part );
+        unsigned int part_i = rest_1 / ( strd * mome );
+        unsigned int rest_2 = rest_1 % ( strd * mome );
+        unsigned int mome_i = rest_2 / strd;
+        unsigned int strd_i = rest_2 % strd;
+        unsigned int inpos =
           ( page_i * strd + strd_i ) // event number
             * ( part * mome )        // event size (pos of event)
           + part_i * mome            // particle inside event
@@ -388,25 +389,25 @@ namespace mg5amcCpu
       // [NB! this is not a transposition, it is an AOS to AOSOA conversion: if neppM=1, a memcpy is enough]
       // F-style: AOS[nevtF][nparF][np4F]
       // C-style: AOSOA[npagM][npar][np4][neppM] with nevt=npagM*neppM
-      constexpr int npar = mgOnGpu::npar;
-      constexpr int np4 = mgOnGpu::np4;
-      constexpr int neppM = MemoryAccessMomenta::neppM;
+      constexpr unsigned int npar = mgOnGpu::npar;
+      constexpr unsigned int np4 = mgOnGpu::np4;
+      constexpr unsigned int neppM = MemoryAccessMomenta::neppM;
       if constexpr( neppM == 1 && std::is_same_v<Tin, Tout> )
       {
         memcpy( out, in, nevt * npar * np4 * sizeof( Tin ) );
       }
       else
       {
-        const int npagM = nevt / neppM;
+        const unsigned int npagM = nevt / neppM;
         assert( nevt % neppM == 0 ); // number of events is not a multiple of neppM???
-        for( int ipagM = 0; ipagM < npagM; ipagM++ )
-          for( int ip4 = 0; ip4 < np4; ip4++ )
-            for( int ipar = 0; ipar < npar; ipar++ )
-              for( int ieppM = 0; ieppM < neppM; ieppM++ )
+        for( unsigned int ipagM = 0; ipagM < npagM; ipagM++ )
+          for( unsigned int ip4 = 0; ip4 < np4; ip4++ )
+            for( unsigned int ipar = 0; ipar < npar; ipar++ )
+              for( unsigned int ieppM = 0; ieppM < neppM; ieppM++ )
               {
-                int ievt = ipagM * neppM + ieppM;
-                int cpos = ipagM * npar * np4 * neppM + ipar * np4 * neppM + ip4 * neppM + ieppM;
-                int fpos = ievt * npar * np4 + ipar * np4 + ip4;
+                unsigned int ievt = ipagM * neppM + ieppM;
+                unsigned int cpos = ipagM * npar * np4 * neppM + ipar * np4 * neppM + ip4 * neppM + ieppM;
+                unsigned int fpos = ievt * npar * np4 + ipar * np4 + ip4;
                 if constexpr( F2C )
                   out[cpos] = in[fpos]; // F2C (Fortran to C)
                 else
@@ -417,14 +418,14 @@ namespace mg5amcCpu
   }
 
   template<typename Tin, typename Tout>
-  void hst_transposeMomentaF2C( const Tin* in, Tout* out, const int nevt )
+  void hst_transposeMomentaF2C( const Tin* in, Tout* out, const unsigned int nevt )
   {
     constexpr bool F2C = true;
     hst_transposeMomenta<Tin, Tout, F2C>( in, out, nevt );
   }
 
   template<typename Tin, typename Tout>
-  void hst_transposeMomentaC2F( const Tin* in, Tout* out, const int nevt )
+  void hst_transposeMomentaC2F( const Tin* in, Tout* out, const unsigned int nevt )
   {
     constexpr bool F2C = false;
     hst_transposeMomenta<Tin, Tout, F2C>( in, out, nevt );
