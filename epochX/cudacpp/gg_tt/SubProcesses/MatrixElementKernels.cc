@@ -17,12 +17,12 @@ namespace mg5amcCpu
 
   MatrixElementKernelHost::MatrixElementKernelHost( const BufferMomenta& momenta,         // input: momenta
                                                     const BufferGs& gs,                   // input: gs for alphaS
-                                                    BufferGCs& gc10,                      // local: GC_10 couplings
-                                                    BufferGCs& gc11,                      // local: GC_11 couplings
                                                     BufferMatrixElements& matrixElements, // output: matrix elements
                                                     const size_t nevt )
-    : MatrixElementKernelBase( momenta, gs, gc10, gc11, matrixElements )
+    : MatrixElementKernelBase( momenta, gs, matrixElements )
     , NumberOfEvents( nevt )
+    , m_gc10( nevt )
+    , m_gc11( nevt )
   {
     if( m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: momenta must be a host array" );
     if( m_matrixElements.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: matrixElements must be a host array" );
@@ -136,13 +136,13 @@ namespace mg5amcGpu
 
   MatrixElementKernelDevice::MatrixElementKernelDevice( const BufferMomenta& momenta,         // input: momenta
                                                         const BufferGs& gs,                   // input: gs for alphaS
-                                                        BufferGCs& gc10,                      // local: GC_10 couplings
-                                                        BufferGCs& gc11,                      // local: GC_11 couplings
                                                         BufferMatrixElements& matrixElements, // output: matrix elements
                                                         const size_t gpublocks,
                                                         const size_t gputhreads )
-    : MatrixElementKernelBase( momenta, gs, gc10, gc11, matrixElements )
+    : MatrixElementKernelBase( momenta, gs, matrixElements )
     , NumberOfEvents( gpublocks * gputhreads )
+    , m_gc10( this->nevt() )
+    , m_gc11( this->nevt() )
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
   {

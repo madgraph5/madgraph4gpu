@@ -19,11 +19,9 @@ namespace mg5amcCpu
 
   BridgeKernelBase::BridgeKernelBase( const BufferMomenta& momenta,         // input: momenta
                                       const BufferGs& gs,                   // input: gs for alphaS
-                                      BufferGCs& gc10,                      // local: GC_10 couplings
-                                      BufferGCs& gc11,                      // local: GC_11 couplings
                                       BufferMatrixElements& matrixElements, // output: matrix elements
                                       const size_t nevt )
-    : MatrixElementKernelBase( momenta, gs, gc10, gc11, matrixElements )
+    : MatrixElementKernelBase( momenta, gs, matrixElements )
     , NumberOfEvents( nevt )
     , m_bridge( nevt, npar, np4 )
   {
@@ -46,11 +44,9 @@ namespace mg5amcCpu
 
   BridgeKernelHost::BridgeKernelHost( const BufferMomenta& momenta,         // input: momenta
                                       const BufferGs& gs,                   // input: Gs for alphaS
-                                      BufferGCs& gc10,                      // local: GC_10 couplings
-                                      BufferGCs& gc11,                      // local: GC_11 couplings
                                       BufferMatrixElements& matrixElements, // output: matrix elements
                                       const size_t nevt )
-    : BridgeKernelBase( momenta, gs, gc10, gc11, matrixElements, nevt )
+    : BridgeKernelBase( momenta, gs, matrixElements, nevt )
     , m_fortranMomenta( nevt )
   {
   }
@@ -100,12 +96,10 @@ namespace mg5amcGpu
 
   BridgeKernelDevice::BridgeKernelDevice( const BufferMomenta& momenta,         // input: momenta
                                           const BufferGs& gs,                   // input: Gs for alphaS
-                                          BufferGCs& gc10,                      // local: GC_10 couplings
-                                          BufferGCs& gc11,                      // local: GC_11 couplings
                                           BufferMatrixElements& matrixElements, // output: matrix elements
                                           const size_t gpublocks,
                                           const size_t gputhreads )
-    : BridgeKernelBase( momenta, gs, gc10, gc11, matrixElements, gpublocks * gputhreads )
+    : BridgeKernelBase( momenta, gs, matrixElements, gpublocks * gputhreads )
     , m_fortranMomenta( nevt() )
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )

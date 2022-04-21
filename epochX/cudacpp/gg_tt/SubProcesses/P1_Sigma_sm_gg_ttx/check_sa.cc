@@ -318,14 +318,6 @@ main( int argc, char** argv )
   constexpr double tmpG = 1.2177157847767195;
   for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = tmpG; // sr fill them for now, in the end they should come via the bridge
 
-#ifndef __CUDACC__
-  HostBufferGCs hstGC10s( nevt );
-  HostBufferGCs hstGC11s( nevt );
-#else
-  DeviceBufferGCs devGC10s( nevt );
-  DeviceBufferGCs devGC11s( nevt );
-#endif
-
   // Memory buffers for momenta
 #ifndef __CUDACC__
   HostBufferMomenta hstMomenta( nevt );
@@ -409,17 +401,17 @@ main( int argc, char** argv )
   if( !bridge )
   {
 #ifdef __CUDACC__
-    pmek.reset( new MatrixElementKernelDevice( devMomenta, devGs, devGC10s, devGC11s, devMatrixElements, gpublocks, gputhreads ) );
+    pmek.reset( new MatrixElementKernelDevice( devMomenta, devGs, devMatrixElements, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstGC10s, hstGC11s, hstMatrixElements, nevt ) );
+    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstMatrixElements, nevt ) );
 #endif
   }
   else
   {
 #ifdef __CUDACC__
-    pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, devGC10s, devGC11s, hstMatrixElements, gpublocks, gputhreads ) );
+    pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, hstMatrixElements, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstGC10s, hstGC11s, hstMatrixElements, nevt ) );
+    pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstMatrixElements, nevt ) );
 #endif
   }
 

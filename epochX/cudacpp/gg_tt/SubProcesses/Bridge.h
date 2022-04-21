@@ -124,8 +124,6 @@ namespace mg5amcCpu
     mg5amcGpu::DeviceBuffer<FORTRANFPTYPE, sizePerEventMomenta> m_devMomentaF;
     mg5amcGpu::DeviceBufferMomenta m_devMomentaC;
     mg5amcGpu::DeviceBufferGs m_devGsC;
-    mg5amcGpu::DeviceBufferGCs m_devGC10s;
-    mg5amcGpu::DeviceBufferGCs m_devGC11s;
     mg5amcGpu::DeviceBufferMatrixElements m_devMEsC;
     mg5amcGpu::PinnedHostBufferMatrixElements m_hstMEsC;
     std::unique_ptr<mg5amcGpu::MatrixElementKernelDevice> m_pmek;
@@ -134,8 +132,6 @@ namespace mg5amcCpu
 #else
     mg5amcCpu::HostBufferMomenta m_hstMomentaC;
     mg5amcCpu::HostBufferGs m_hstGsC;
-    mg5amcCpu::HostBufferGCs m_hstGC10s;
-    mg5amcCpu::HostBufferGCs m_hstGC11s;
     mg5amcCpu::HostBufferMatrixElements m_hstMEsC;
     std::unique_ptr<mg5amcCpu::MatrixElementKernelHost> m_pmek;
 #endif
@@ -174,15 +170,11 @@ namespace mg5amcCpu
     , m_devMomentaF( m_nevt )
     , m_devMomentaC( m_nevt )
     , m_devGsC( m_nevt )
-    , m_devGC10s( m_nevt )
-    , m_devGC11s( m_nevt )
     , m_devMEsC( m_nevt )
     , m_hstMEsC( m_nevt )
 #else
     , m_hstMomentaC( m_nevt )
     , m_hstGsC( m_nevt )
-    , m_hstGC10s( m_nevt )
-    , m_hstGC11s( m_nevt )
     , m_hstMEsC( m_nevt )
 #endif
     , m_pmek( nullptr )
@@ -202,11 +194,11 @@ namespace mg5amcCpu
     std::cout << "WARNING! Instantiate device Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
               << ", gpublocks*gputhreads=" << m_gpublocks * m_gputhreads << ")" << std::endl;
     mg5amcGpu::CPPProcess process( /*verbose=*/false );
-    m_pmek.reset( new mg5amcGpu::MatrixElementKernelDevice( m_devMomentaC, m_devGsC, m_devGC10s, m_devGC11s, m_devMEsC, m_gpublocks, m_gputhreads ) );
+    m_pmek.reset( new mg5amcGpu::MatrixElementKernelDevice( m_devMomentaC, m_devGsC, m_devMEsC, m_gpublocks, m_gputhreads ) );
 #else
     std::cout << "WARNING! Instantiate host Bridge (nevt=" << m_nevt << ")" << std::endl;
     mg5amcCpu::CPPProcess process( /*verbose=*/false );
-    m_pmek.reset( new mg5amcCpu::MatrixElementKernelHost( m_hstMomentaC, m_hstGsC, m_hstGC10s, m_hstGC11s, m_hstMEsC, m_nevt ) );
+    m_pmek.reset( new mg5amcCpu::MatrixElementKernelHost( m_hstMomentaC, m_hstGsC, m_hstMEsC, m_nevt ) );
 #endif // __CUDACC__
     process.initProc( "../../Cards/param_card.dat" );
   }
