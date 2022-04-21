@@ -482,7 +482,6 @@ namespace mg5amcCpu
     const fptype_sv* gs_sv = G_ACCESS::kernelAccessConst( gs );
     cxtype_sv* gc10_sv = C_ACCESS::kernelAccess( gc10 );
     cxtype_sv* gc11_sv = C_ACCESS::kernelAccess( gc11 );
-
     cxtype_sv tmp_gc10 = -( *gs_sv );
     ( *gc10_sv ) = tmp_gc10;
     cxtype_sv tmp_gc11 = mdl_complexi * ( *gs_sv );
@@ -501,20 +500,16 @@ namespace mg5amcCpu
   ) /* clang-format on */
   {
 #ifdef __CUDACC__
-
     using namespace mg5amcGpu;
     using G_ACCESS = DeviceAccessGs;
     using C_ACCESS = DeviceAccessCouplings;
     dependent_couplings<G_ACCESS, C_ACCESS>( gs, gc10, gc11 );
-
 #else
-
     using namespace mg5amcCpu;
     using G_ACCESS = HostAccessGs;
     using C_ACCESS = HostAccessCouplings;
     for( int ipagV = 0; ipagV < nevt / neppV; ++ipagV )
       dependent_couplings<G_ACCESS, C_ACCESS>( &gs[ipagV * neppV], gc10, gc11 );
-
 #endif
   }
 
