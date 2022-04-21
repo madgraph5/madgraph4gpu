@@ -12,7 +12,7 @@ Running MG5 in debug mode
 *                 *                       *                *
 *                                                          *
 *         VERSION 3.3.1_lo_vect         2022-01-30         *
-*         BZR 3.1.1_lo_vectorization          1001         *
+*         BZR 3.1.1_lo_vectorization          1003         *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -50,7 +50,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006818532943725586 [0m
+[1;32mDEBUG: model prefixing  takes 0.006908893585205078 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
@@ -102,7 +102,7 @@ Generated helas calls for 1 subprocesses (3 diagrams) in 0.007 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.163 s
+ALOHA: aloha creates 2 routines in  0.165 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 [1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2451][0m [0m
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -120,6 +120,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_gg_tt
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 182][0m [0m
 quit
 
-real	0m0.931s
+real	0m0.915s
 user	0m0.778s
-sys	0m0.131s
+sys	0m0.119s
