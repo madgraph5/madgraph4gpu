@@ -50,7 +50,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006952762603759766 [0m
+[1;32mDEBUG: model prefixing  takes 0.006818532943725586 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
@@ -69,7 +69,6 @@ INFO: Process has 3 diagrams
 Total: 1 processes with 3 diagrams
 output standalone_cudacpp CODEGEN_cudacpp_gg_tt
 Load PLUGIN.CUDACPP_SA_OUTPUT
-[1;34mValidating plugin against this version: 3.3.1_lo_vect.[0m
 [1mOutput will be done with PLUGIN: CUDACPP_SA_OUTPUT[0m
 [1;32mDEBUG:  cformat = [0m plugin [1;30m[export_cpp.py at line 3008][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 136][0m [0m
@@ -121,6 +120,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_gg_tt
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 182][0m [0m
 quit
 
-real	0m0.934s
-user	0m0.782s
-sys	0m0.132s
+real	0m0.931s
+user	0m0.778s
+sys	0m0.131s
