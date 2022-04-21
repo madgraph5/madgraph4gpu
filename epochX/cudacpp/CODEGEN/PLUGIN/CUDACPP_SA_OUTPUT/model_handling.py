@@ -1216,8 +1216,8 @@ class PLUGIN_OneProcessExporter(export_cudacpp.OneProcessExporterGPU):
             if len( matrix_strings ) > 1 : matrix_string += '{\n        ' + ',\n        '.join(matrix_strings) + ' };'
             else: matrix_string += '{ ' + matrix_strings[0] + ' };'
             matrix_string += ' // 2-D array[%i][%i]' % ( len(color_denominators), len(color_denominators) )
-            denom_comment = '\n      // The color denominators (initialize all array elements, with ncolor=%i)\n      // [NB do keep 'static' for these constexpr arrays, see issue #283]\n' % len(color_denominators)
-            matrix_comment = '\n      // The color matrix (initialize all array elements, with ncolor=%i)\n      // [NB do keep 'static' for these constexpr arrays, see issue #283]\n' % len(color_denominators)
+            denom_comment = '\n      // The color denominators (initialize all array elements, with ncolor=%i)\n      // [NB do keep \'static\' for these constexpr arrays, see issue #283]\n' % len(color_denominators)
+            matrix_comment = '\n      // The color matrix (initialize all array elements, with ncolor=%i)\n      // [NB do keep \'static\' for these constexpr arrays, see issue #283]\n' % len(color_denominators)
             denom_string = denom_comment + denom_string
             matrix_string = matrix_comment + matrix_string
             return '\n'.join([denom_string, matrix_string])
