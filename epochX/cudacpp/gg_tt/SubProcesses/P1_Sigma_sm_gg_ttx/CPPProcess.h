@@ -86,21 +86,17 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+#ifdef __CUDACC__
+  __global__ void
+  computeCouplings( const fptype* gs, fptype* gc10, fptype* gc11 );
+#else
+  __global__ void
+  computeCouplings( const fptype* gs, fptype* gc10, fptype* gc11, const int nevt );
+#endif
+
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
-  __global__ void
-  dependentCouplings( const fptype* gs, fptype* gc10, fptype* gc11 );
-
-#else
-
-  __global__ void
-  dependentCouplings( const fptype* gs, fptype* gc10, fptype* gc11, const int nevt );
-
-#endif
-
-#ifdef __CUDACC__
-
   __global__ void
   sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
                        const fptype* gc10,       // input: gc10 couplings

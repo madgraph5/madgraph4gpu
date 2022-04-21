@@ -48,7 +48,7 @@ namespace mg5amcCpu
 
   void MatrixElementKernelHost::computeDependentCouplings()
   {
-    dependentCouplings( m_gs.data(), m_gc10.data(), m_gc11.data(), m_gs.size() );
+    computeCouplings( m_gs.data(), m_gc10.data(), m_gc11.data(), m_gs.size() );
   }
 
   //--------------------------------------------------------------------------
@@ -176,7 +176,7 @@ namespace mg5amcGpu
 
   void MatrixElementKernelDevice::computeDependentCouplings()
   {
-    dependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_gc10.data(), m_gc11.data() );
+    computeCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_gc10.data(), m_gc11.data() );
   }
 
   //--------------------------------------------------------------------------

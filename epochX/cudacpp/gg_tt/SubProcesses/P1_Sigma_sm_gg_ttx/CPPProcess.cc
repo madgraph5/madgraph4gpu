@@ -478,7 +478,7 @@ namespace mg5amcCpu
                        fptype gc10[],
                        fptype gc11[] )
   {
-    /* constexpr */ cxtype mdl_complexi( 0., 1. );
+    /*constexpr*/ cxtype mdl_complexi( 0., 1. );
     const fptype_sv* gs_sv = G_ACCESS::kernelAccessConst( gs );
     cxtype_sv* gc10_sv = C_ACCESS::kernelAccess( gc10 );
     cxtype_sv* gc11_sv = C_ACCESS::kernelAccess( gc11 );
@@ -491,11 +491,11 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   __global__ void /* clang-format off */
-  dependentCouplings( const fptype* gs,
-                      fptype* gc10,
-                      fptype* gc11
+  computeCouplings( const fptype* gs,
+                    fptype* gc10,
+                    fptype* gc11
 #ifndef __CUDACC__
-                      , const int nevt
+                    , const int nevt
 #endif
   ) /* clang-format on */
   {
