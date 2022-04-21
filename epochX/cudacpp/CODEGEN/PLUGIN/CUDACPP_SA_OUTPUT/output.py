@@ -147,7 +147,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                 try: os.mkdir(d)
                 except os.error as error: logger.warning(error.strerror + " " + os.path.join(self.dir_path,d))
             # Write param_card
-            open(os.path.join("Cards","param_card.dat"), 'w').write(model.write_param_card())    
+            open(os.path.join("Cards","param_card.dat"), 'w').write(model.write_param_card())
             # Copy files in various subdirectories
             for key in self.from_template:
                 for f in self.from_template[key]:
@@ -176,9 +176,9 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     # AV (default from OM's tutorial) - add a debug printout
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
         """Typically creating jpeg/HTML output/ compilation/...
-           cmdhistory is the list of command used so far.
-           MG5options are all the options of the main interface
-           outputflags is a list of options provided when doing the output command"""
+	    cmdhistory is the list of command used so far.
+	    MG5options are all the options of the main interface
+	    outputflags is a list of options provided when doing the output command"""
         misc.sprint('Entering PLUGIN_ProcessExporter.finalize')
         return super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
 
