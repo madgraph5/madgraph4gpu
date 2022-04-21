@@ -474,9 +474,9 @@ namespace mg5amcCpu
 
   template<class G_ACCESS, class C_ACCESS>
   __device__ INLINE void
-  dependent_couplings( const fptype gs[],
-                       fptype gc10[],
-                       fptype gc11[] )
+  G2COUP( const fptype gs[],
+          fptype gc10[],
+          fptype gc11[] )
   {
     /*constexpr*/ cxtype mdl_complexi( 0., 1. );
     const fptype_sv* gs_sv = G_ACCESS::kernelAccessConst( gs );
@@ -503,13 +503,13 @@ namespace mg5amcCpu
     using namespace mg5amcGpu;
     using G_ACCESS = DeviceAccessGs;
     using C_ACCESS = DeviceAccessCouplings;
-    dependent_couplings<G_ACCESS, C_ACCESS>( gs, gc10, gc11 );
+    G2COUP<G_ACCESS, C_ACCESS>( gs, gc10, gc11 );
 #else
     using namespace mg5amcCpu;
     using G_ACCESS = HostAccessGs;
     using C_ACCESS = HostAccessCouplings;
     for( int ipagV = 0; ipagV < nevt / neppV; ++ipagV )
-      dependent_couplings<G_ACCESS, C_ACCESS>( &gs[ipagV * neppV], gc10, gc11 );
+      G2COUP<G_ACCESS, C_ACCESS>( &gs[ipagV * neppV], gc10, gc11 );
 #endif
   }
 
