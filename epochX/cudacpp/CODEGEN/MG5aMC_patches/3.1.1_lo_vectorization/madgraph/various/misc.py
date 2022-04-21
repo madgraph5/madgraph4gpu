@@ -1978,7 +1978,7 @@ def is_plugin_supported(obj):
         plugin_support[name] = False
         return
     
-    logger.warning("Validating plugin against this version: %s." % '.'.join(str(i) for i in mg5_ver) )
+    logger.debug("Validating plugin against this version: %s." % '.'.join(str(i) for i in mg5_ver) )
     if get_older_version(min_ver, mg5_ver) == min_ver and \
        get_older_version(mg5_ver, max_ver) == mg5_ver:
         plugin_support[name] = True
