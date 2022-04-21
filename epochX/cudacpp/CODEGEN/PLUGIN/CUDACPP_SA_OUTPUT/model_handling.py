@@ -10,12 +10,12 @@ logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.model_handling')
 
 #------------------------------------------------------------------------------------
 
-# AV - import the independent 2nd copy of the export_cpp module (as export_cudacpp), previously loaded in output.py
+# AV - import the independent 2nd copy of the export_cpp module (as PLUGIN_export_cpp), previously loaded in output.py
 ###import madgraph.iolibs.export_cpp as export_cpp # 1st copy
 ######import madgraph.iolibs.export_cpp as PLUGIN_export_cpp # this is not enough to define an independent 2nd copy: id(export_cpp)==id(PLUGIN_export_cpp)
-import PLUGIN.CUDACPP_SA_OUTPUT.export_cudacpp as export_cudacpp # 2nd copy loaded in the plugin's output.py
+import PLUGIN.CUDACPP_SA_OUTPUT.PLUGIN_export_cpp as PLUGIN_export_cpp # 2nd copy loaded in the plugin's output.py
 ###print('id(export_cpp)=%s'%id(export_cpp))
-###print('id(export_cudacpp)=%s'%id(export_cudacpp))
+###print('id(PLUGIN_export_cpp)=%s'%id(PLUGIN_export_cpp))
 
 #------------------------------------------------------------------------------------
 
@@ -23,8 +23,8 @@ import PLUGIN.CUDACPP_SA_OUTPUT.export_cudacpp as export_cudacpp # 2nd copy load
 def PLUGIN_get_mg5_info_lines():
     return DEFAULT_get_mg5_info_lines().replace('# ','//')
 
-DEFAULT_get_mg5_info_lines = export_cudacpp.get_mg5_info_lines
-export_cudacpp.get_mg5_info_lines = PLUGIN_get_mg5_info_lines
+DEFAULT_get_mg5_info_lines = PLUGIN_export_cpp.get_mg5_info_lines
+PLUGIN_export_cpp.get_mg5_info_lines = PLUGIN_get_mg5_info_lines
 
 #------------------------------------------------------------------------------------
 
@@ -39,9 +39,9 @@ SPEC_WRITERS.loader.exec_module(PLUGIN_writers)
 ###sys.modules['PLUGIN.CUDACPP_SA_OUTPUT.PLUGIN_writers'] = PLUGIN_writers # would allow 'import PLUGIN.CUDACPP_SA_OUTPUT.PLUGIN_writers' (not needed)
 del SPEC_WRITERS
 
-# AV - use the independent 2nd copy of the writers module within the export_cudacpp module (workaround for #341)
-###DEFAULT_writers = export_cudacpp.writers # not needed
-export_cudacpp.writers = PLUGIN_writers
+# AV - use the independent 2nd copy of the writers module within the PLUGIN_export_cpp module (workaround for #341)
+###DEFAULT_writers = PLUGIN_export_cpp.writers # not needed
+PLUGIN_export_cpp.writers = PLUGIN_writers
 
 #------------------------------------------------------------------------------------
 
@@ -590,7 +590,7 @@ from os.path import join as pjoin
 
 # AV - define a custom UFOModelConverter
 # (NB: enable this via PLUGIN_ProcessExporter.create_model_class in output.py)
-class PLUGIN_UFOModelConverter(export_cudacpp.UFOModelConverterGPU):
+class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
     # Class structure information
     #  - object
     #  - UFOModelConverterCPP(object) [in madgraph/iolibs/export_cpp.py]
@@ -721,7 +721,7 @@ class PLUGIN_UFOModelConverter(export_cudacpp.UFOModelConverterGPU):
     def super_generate_parameters_class_files(self):
         """Create the content of the Parameters_model.h and .cc files"""
         replace_dict = self.default_replace_dict
-        replace_dict['info_lines'] = export_cudacpp.get_mg5_info_lines()
+        replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
         replace_dict['model_name'] = self.model_name
         replace_dict['independent_parameters'] = \
                                    '// Model parameters independent of aS\n' + \
@@ -823,7 +823,7 @@ class PLUGIN_UFOModelConverter(export_cudacpp.UFOModelConverterGPU):
                                      'HelAmps_%s.%s' % (self.model_name, self.cc_ext))
         replace_dict = {}
         replace_dict['output_name'] = self.output_name
-        replace_dict['info_lines'] = export_cudacpp.get_mg5_info_lines()
+        replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
         replace_dict['namespace'] = self.namespace
         replace_dict['model_name'] = self.model_name
         # Read in the template .h and .cc files, stripped of compiler commands and namespaces
@@ -871,7 +871,7 @@ import madgraph.various.misc as misc
 # (NB: enable this via PLUGIN_ProcessExporter.oneprocessclass in output.py)
 # (NB: use this directly also in PLUGIN_UFOModelConverter.read_template_file)
 # (NB: use this directly also in PLUGIN_GPUFOHelasCallWriter.super_get_matrix_element_call)
-class PLUGIN_OneProcessExporter(export_cudacpp.OneProcessExporterGPU):
+class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     # Class structure information
     #  - object
     #  - OneProcessExporterCPP(object) [in madgraph/iolibs/export_cpp.py]
@@ -917,7 +917,7 @@ class PLUGIN_OneProcessExporter(export_cudacpp.OneProcessExporterGPU):
     # AV - replace export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
     def get_process_function_definitions(self, write=True):
         """The complete class definition for the process"""
-        replace_dict = super(export_cudacpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False) # defines replace_dict['initProc_lines']
+        replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False) # defines replace_dict['initProc_lines']
         replace_dict['hardcoded_initProc_lines'] = replace_dict['initProc_lines'].replace( 'm_pars->', 'Parameters_%s::' % self.model_name )
         replace_dict['ncouplings'] = len(self.couplings2order)
         replace_dict['ncouplingstimes2'] = 2 * replace_dict['ncouplings']
@@ -1066,7 +1066,7 @@ class PLUGIN_OneProcessExporter(export_cudacpp.OneProcessExporterGPU):
         if self.matrix_elements[0].get('has_mirror_process'):
             self.matrix_elements[0].set('has_mirror_process', False)
             self.nprocesses/=2
-        super(export_cudacpp.OneProcessExporterGPU, self).generate_process_files()
+        super(PLUGIN_export_cpp.OneProcessExporterGPU, self).generate_process_files()
         self.edit_CMakeLists()
         self.edit_check_sa()
         self.edit_mgonGPU()
@@ -1150,7 +1150,7 @@ class PLUGIN_OneProcessExporter(export_cudacpp.OneProcessExporterGPU):
     # AV - replace the export_cpp.OneProcessExporterGPU method (replace HelAmps.cu by HelAmps.cc)
     def super_write_process_cc_file(self, writer):
         """Write the class member definition (.cc) file for the process described by matrix_element"""
-        replace_dict = super(export_cudacpp.OneProcessExporterGPU, self).write_process_cc_file(False)
+        replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU, self).write_process_cc_file(False)
         ###replace_dict['hel_amps_def'] = '\n#include \"../../src/HelAmps_%s.cu\"' % self.model_name
         replace_dict['hel_amps_h'] = '#include \"HelAmps_%s.h\"' % self.model_name # AV
         if writer:
