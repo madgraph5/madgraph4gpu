@@ -977,10 +977,8 @@ namespace mg5amcCpu
     const fptype_sv* gs_sv = G_ACCESS::kernelAccessConst( gs );
     cxtype_sv* gc10_sv = C_ACCESS::kernelAccess( gc10 );
     cxtype_sv* gc11_sv = C_ACCESS::kernelAccess( gc11 );
-    cxtype_sv tmp_gc10 = -( *gs_sv );
-    ( *gc10_sv ) = tmp_gc10;
-    cxtype_sv tmp_gc11 = mdl_complexi * ( *gs_sv );
-    ( *gc11_sv ) = tmp_gc11;
+    ( *gc10_sv ) = -( *gs_sv );
+    ( *gc11_sv ) = mdl_complexi * ( *gs_sv );
     mgDebug( 1, __FUNCTION__ );
     return;
   }
