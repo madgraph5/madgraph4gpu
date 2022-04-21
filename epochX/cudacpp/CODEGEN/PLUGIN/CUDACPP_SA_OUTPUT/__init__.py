@@ -1,4 +1,4 @@
-print("Load PLUGIN.CUDACPP_SA_OUTPUT")
+print('Load PLUGIN.CUDACPP_SA_OUTPUT')
 
 # AV - Require Python >= 3.8 to ensure that {} dictionaries preserve the order of item insertion
 # (note: python3.7 would probably be enough but I test my scripts using python3.8)
@@ -6,7 +6,7 @@ import sys
 minpython = (3,8)
 if sys.version_info < minpython :
 
-    print("ERROR! Cannot load PLUGIN.CUDACPP_SA_OUTPUT: Python >= %s.%s is required" % minpython)
+    print('ERROR! Cannot load PLUGIN.CUDACPP_SA_OUTPUT: Python >= %s.%s is required' % minpython)
 
 else:
 
@@ -23,7 +23,7 @@ else:
     #    madgraph will then allow the command "output myformat PATH"
     #    MYCLASS should inherated of the class madgraph.iolibs.export_v4.VirtualExporter
     import PLUGIN.CUDACPP_SA_OUTPUT.output as output
-    new_output = {'standalone_cudacpp':output.PLUGIN_ProcessExporter}
+    new_output = { 'standalone_cudacpp' : output.PLUGIN_ProcessExporter }
 
     # 2. Define new way to handle the cluster.
     #    example new_cluster = {'mycluster': MYCLUSTERCLASS}

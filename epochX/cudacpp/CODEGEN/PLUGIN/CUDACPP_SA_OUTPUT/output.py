@@ -1,16 +1,15 @@
 import os
-pjoin = os.path.join
 
-# AV - workaround for #341, load a separate copy of the export_cpp module as export_cudacpp
+# AV - load an independent 2nd copy of the export_cpp module (as export_cudacpp) and use that within the plugin (workaround for #341)
 # See https://stackoverflow.com/a/11285504
-###import madgraph.iolibs.export_cpp as export_cpp # first copy
-######import madgraph.iolibs.export_cpp as export_cudacpp # this is not enough to define a second copy: id(export_cpp)==id(export_cudacpp)
+###import madgraph.iolibs.export_cpp as export_cpp # 1st copy
+######import madgraph.iolibs.export_cpp as export_cudacpp # this is not enough to define an independent 2nd copy: id(export_cpp)==id(export_cudacpp)
 import sys
 import importlib.util
 SPEC_EXPORTCPP = importlib.util.find_spec('madgraph.iolibs.export_cpp')
 export_cudacpp = importlib.util.module_from_spec(SPEC_EXPORTCPP)
 SPEC_EXPORTCPP.loader.exec_module(export_cudacpp)
-sys.modules['PLUGIN.CUDACPP_SA_OUTPUT.export_cudacpp'] = export_cudacpp # allow model_handling to simply import PLUGIN.CUDACPP_SA_OUTPUT.export_cudacpp
+sys.modules['PLUGIN.CUDACPP_SA_OUTPUT.export_cudacpp'] = export_cudacpp # allow 'import PLUGIN.CUDACPP_SA_OUTPUT.export_cudacpp' in model_handling.py
 del SPEC_EXPORTCPP
 ###print('id(export_cpp)=%s'%id(export_cpp))
 ###print('id(export_cudacpp)=%s'%id(export_cudacpp))
@@ -26,10 +25,10 @@ import PLUGIN.CUDACPP_SA_OUTPUT.model_handling as model_handling
 import logging
 logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_SA_OUTPUT.output')
 
-# AV - used for various printouts
-import madgraph.various.misc as misc
-
 #------------------------------------------------------------------------------------
+
+from os.path import join as pjoin
+import madgraph.various.misc as misc
 
 class PLUGIN_ProcessExporter(export_cudacpp.ProcessExporterGPU):
     # Class structure information
