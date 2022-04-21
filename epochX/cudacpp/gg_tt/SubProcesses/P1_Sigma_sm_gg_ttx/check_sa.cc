@@ -312,12 +312,12 @@ main( int argc, char** argv )
 #ifndef __CUDACC__
   HostBufferGs hstGs( nevt );
   constexpr double tmpG = 1.2177157847767195;
-  for( int i = 0; i < nevt; ++i ) hstGs[i] = tmpG; // sr fill them for now, in the end they should come via the bridge
+  for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = tmpG; // sr fill them for now, in the end they should come via the bridge
 #else
   PinnedHostBufferGs hstGs( nevt );
   DeviceBufferGs devGs( nevt );
   constexpr double tmpG = 1.2177157847767195;
-  for( int i = 0; i < nevt; ++i ) hstGs[i] = tmpG; // sr fill them for now, in the end they should come via the bridge
+  for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = tmpG; // sr fill them for now, in the end they should come via the bridge
 #endif
 
 #ifndef __CUDACC__
