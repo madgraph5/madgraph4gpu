@@ -1929,20 +1929,22 @@ class EasterEgg(object):
 
 
 def get_older_version(v1, v2):
-    """ return v2  if v1>v2
+    """ return v2 if v1>v2
         return v1 if v1<v2
         return v1 if v1=v2 
-        return v1 if v2 is not in 1.2.3.4.5 format
-        return v2 if v1 is not in 1.2.3.4.5 format
+        return v1 if v2 is not in 1.2.3.4.5 format (treat '<n>_text' as '<n>' if n is an integer)
+        return v2 if v1 is not in 1.2.3.4.5 format (treat '<n>_text' as '<n>' if n is an integer)
     """
     
     for a1, a2 in zip_longest(v1, v2, fillvalue=0):
+        if '_' in str(a1) : a1 = str(a1)[:str(a1).index('_')]
+        if '_' in str(a2) : a2 = str(a2)[:str(a2).index('_')]
         try:
-            a1= int(a1)
+            a1 = int(a1)
         except:
             return v2
         try:
-            a2= int(a2)
+            a2 = int(a2)
         except:
             return v1        
         if a1 > a2:
