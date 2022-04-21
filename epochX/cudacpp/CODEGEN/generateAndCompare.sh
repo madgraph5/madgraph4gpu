@@ -377,11 +377,9 @@ fi
 
 # Copy the new plugin to MG5AMC_HOME (if the script directory backend is cudacpp or alpaka)
 if [ "${SCRBCK}" == "cudacpp" ]; then
-  if [ "${OUTBCK}" == "madcpp" ]; then
-    echo -e "\nWARNING! 'madcpp' mode selected: do not copy the cudacpp plugin (workaround for #341)"
-  elif [ "${OUTBCK}" == "madgpu" ]; then
-    echo -e "\nWARNING! 'madgpu' mode selected: do not copy the cudacpp plugin (workaround for #341)"
-  else # CURRENTLY FAILS WITH #341 FOR MADCPP AND MADGPU
+  if [ "${OUTBCK}" == "no-path-to-this-statement" ]; then
+    echo -e "\nWARNING! '${OUTBCK}' mode selected: do not copy the cudacpp plugin (workaround for #341)"
+  else # currently succeeds also for madcpp and madgpu (#341 has been fixed)
     echo -e "\nINFO! '${OUTBCK}' mode selected: copy the cudacpp plugin\n"
     cp -dpr ${SCRDIR}/PLUGIN/${SCRBCK^^}_SA_OUTPUT ${MG5AMC_HOME}/PLUGIN/
     ls -l ${MG5AMC_HOME}/PLUGIN
