@@ -14,6 +14,7 @@
 #include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessCouplings.h"
 #include "MemoryAccessGs.h"
+#include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
 
@@ -92,12 +93,14 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
     using namespace mg5amcGpu;
     using M_ACCESS = DeviceAccessMomenta;
+    using E_ACCESS = DeviceAccessMatrixElements;
     using W_ACCESS = DeviceAccessWavefunctions;
     using A_ACCESS = DeviceAccessAmplitudes;
     using C_ACCESS = DeviceAccessCouplings;
 #else
     using namespace mg5amcCpu;
     using M_ACCESS = HostAccessMomenta;
+    using E_ACCESS = HostAccessMatrixElements;
     using W_ACCESS = HostAccessWavefunctions;
     using A_ACCESS = HostAccessAmplitudes;
     using C_ACCESS = HostAccessCouplings;
@@ -130,9 +133,6 @@ namespace mg5amcCpu
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
 #ifndef __CUDACC__
     const int npagV = nevt / neppV;
-#ifdef MGONGPU_CPPSIMD
-    const bool isAligned_allMEs = ( (size_t)( allMEs ) % mgOnGpu::cppAlign == 0 ); // require SIMD-friendly alignment by at least neppV*sizeof(fptype)
-#endif
     // ** START LOOP ON IPAGV **
 #ifdef _OPENMP
     // (NB gcc9 or higher, or clang, is required)
@@ -140,11 +140,7 @@ namespace mg5amcCpu
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
-#ifdef MGONGPU_CPPSIMD
-#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, gc10, gc11, cIPD, ihel, npagV, amp_fp, w_fp, isAligned_allMEs ) private( amp_sv, w_sv, jamp_sv )
-#else
 #pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, gc10, gc11, cIPD, ihel, npagV, amp_fp, w_fp ) private( amp_sv, w_sv, jamp_sv )
-#endif // MGONGPU_CPPSIMD
 #endif // _OPENMP
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif // !__CUDACC__
@@ -277,28 +273,24 @@ namespace mg5amcCpu
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-      allMEs[ievt] += deltaMEs;
-      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", ievt, ihel, allMEs[ievt] );
+      fptype_sv& allMEs_sv = E_ACCESS::kernelAccess( allMEs );
+#else
+      fptype_sv& allMEs_sv = E_ACCESS::kernelAccess( &( allMEs[ipagV * neppV] ) );
+#endif
+      allMEs_sv += deltaMEs; // fix #435
+      /*
+#ifdef __CUDACC__
+      if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", ievt, ihel, allMEs_sv );
 #else
 #ifdef MGONGPU_CPPSIMD
-      if( isAligned_allMEs )
-      {
-        *reinterpret_cast<fptype_sv*>( &( allMEs[ipagV * neppV] ) ) += deltaMEs;
-      }
-      else
-      {
+      if( cNGoodHel > 0 )
         for( int ieppV = 0; ieppV < neppV; ieppV++ )
-          allMEs[ipagV * neppV + ieppV] += deltaMEs[ieppV];
-      }
-      //if( cNGoodHel > 0 )
-      //  for( int ieppV = 0; ieppV < neppV; ieppV++ )
-      //    printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", ipagV * neppV + ieppV, ihel, allMEs[ipagV * neppV + ieppV] );
+          printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", ipagV * neppV + ieppV, ihel, allMEs[ipagV * neppV + ieppV] );
 #else
-      allMEs[ipagV] += deltaMEs;
-      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", ipagV, ihel, allMEs[ipagV] );
+      if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", ipagV, ihel, allMEs_sv );
 #endif
 #endif
+      */
     }
     mgDebug( 1, __FUNCTION__ );
     return;
