@@ -974,11 +974,29 @@ namespace mg5amcCpu
   {
     mgDebug( 0, __FUNCTION__ );
     /*constexpr*/ cxtype mdl_complexi( 0., 1. );
-    const fptype_sv* gs_sv = G_ACCESS::kernelAccessConst( gs );
+    const fptype* gs_s = &(G_ACCESS::kernelAccessConst( gs ));
     cxtype_sv* gc10_sv = C_ACCESS::kernelAccess( gc10 );
     cxtype_sv* gc11_sv = C_ACCESS::kernelAccess( gc11 );
-    ( *gc10_sv ) = -( *gs_sv );
-    ( *gc11_sv ) = mdl_complexi * ( *gs_sv );
+#ifdef __CUDACC__
+    const fptype_sv gs_sv = *gs_s;
+#else
+#ifdef MGONGPU_CPPSIMD
+    const bool isAligned = ( (size_t)( gs_s ) % mgOnGpu::cppAlign == 0 ); // require SIMD-friendly alignment by at least neppV*sizeof(fptype)
+    fptype_sv gs_sv;
+    if( isAligned )
+    {
+      gs_sv = *reinterpret_cast<const fptype_sv*>( gs_s ); // FIXME # 435
+    }
+    else
+    {
+      for( int ieppV = 0; ieppV < neppV; ieppV++ ) gs_sv[ieppV] = gs_s[ieppV]; // FIXME # 435
+    }
+#else
+    const fptype_sv gs_sv = *gs_s;
+#endif
+#endif
+    ( *gc10_sv ) = -( gs_sv );
+    ( *gc11_sv ) = mdl_complexi * ( gs_sv );
     mgDebug( 1, __FUNCTION__ );
     return;
   }
