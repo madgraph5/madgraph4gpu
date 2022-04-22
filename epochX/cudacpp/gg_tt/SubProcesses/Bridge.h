@@ -119,6 +119,7 @@ namespace mg5amcCpu
     mg5amcGpu::DeviceBuffer<FORTRANFPTYPE, sizePerEventMomenta> m_devMomentaF;
     mg5amcGpu::DeviceBufferMomenta m_devMomentaC;
     mg5amcGpu::DeviceBufferGs m_devGsC;
+    mg5amcGpu::PinnedHostBufferMatrixElements m_hstGsC;
     mg5amcGpu::DeviceBufferMatrixElements m_devMEsC;
     mg5amcGpu::PinnedHostBufferMatrixElements m_hstMEsC;
     std::unique_ptr<mg5amcGpu::MatrixElementKernelDevice> m_pmek;
@@ -165,6 +166,7 @@ namespace mg5amcCpu
     , m_devMomentaF( m_nevt )
     , m_devMomentaC( m_nevt )
     , m_devGsC( m_nevt )
+    , m_hstGsC( m_nevt )
     , m_devMEsC( m_nevt )
     , m_hstMEsC( m_nevt )
 #else
@@ -228,7 +230,8 @@ namespace mg5amcCpu
       //const int thrPerEvt = 1; // AV: try new alg with 1 event per thread... this seems slower
       dev_transposeMomentaF2C<<<m_gpublocks * thrPerEvt, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(), m_nevt );
     }
-    checkCuda( cudaMemcpy( m_devGsC.data(), gs, m_devGsC.bytes(), cudaMemcpyHostToDevice ) ); // FIXME! if FORTRANFPTYPE != fptype
+    std::copy( gs, gs + m_nevt, m_hstGsC.data() );
+    checkCuda( cudaMemcpy( m_devGsC.data(), m_hstGsC.data(), m_devGsC.bytes(), cudaMemcpyHostToDevice ) );
     if( !m_goodHelsCalculated )
     {
       m_pmek->computeGoodHelicities();
