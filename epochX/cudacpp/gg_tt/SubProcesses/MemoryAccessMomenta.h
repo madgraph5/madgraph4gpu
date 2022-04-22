@@ -15,7 +15,7 @@ class MemoryAccessMomentaBase //_AOSOAv1
 {
 public:
 
-  // Number of Events Per Page in the momenta AOSOA memory layout
+  // Number of Events Per Page in the momenta AOSOA memory buffer layout
   // (these are all best kept as a compile-time constants: see issue #23)
 #ifdef __CUDACC__ /* clang-format off */
   // -----------------------------------------------------------------------------------------------
