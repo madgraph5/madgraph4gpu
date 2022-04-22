@@ -92,26 +92,21 @@ namespace mg5amcCpu
      * Sequence to be executed for the Cuda matrix element calculation
      *
      * @param momenta the pointer to the input 4-momenta
+     * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
      * @param mes the pointer to the output matrix elements
      * @param goodHelOnly quit after computing good helicities?
      */
-    void gpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly = false );
-
-    void gpu_depCouplings( const FORTRANFPTYPE* gs );
-
+    void gpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, FORTRANFPTYPE* mes, const bool goodHelOnly = false );
 #else
-
     /**
      * Sequence to be executed for the vectorized CPU matrix element calculation
      *
      * @param momenta the pointer to the input 4-momenta
+     * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
      * @param mes the pointer to the output matrix elements
      * @param goodHelOnly quit after computing good helicities?
      */
-    void cpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly = false );
-
-    void cpu_depCouplings( const FORTRANFPTYPE* gs );
-
+    void cpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, FORTRANFPTYPE* mes, const bool goodHelOnly = false );
 #endif
 
   private:
@@ -218,16 +213,8 @@ namespace mg5amcCpu
 #endif
 
 #ifdef __CUDACC__
-
   template<typename FORTRANFPTYPE>
-  void Bridge<FORTRANFPTYPE>::gpu_depCouplings( const FORTRANFPTYPE* gs )
-  {
-    checkCuda( cudaMemcpy( m_devGsC.data(), gs, m_devGsC.bytes(), cudaMemcpyHostToDevice ) );
-    m_pmek->computeDependentCouplings();
-  }
-
-  template<typename FORTRANFPTYPE>
-  void Bridge<FORTRANFPTYPE>::gpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly )
+  void Bridge<FORTRANFPTYPE>::gpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, FORTRANFPTYPE* mes, const bool goodHelOnly )
   {
     constexpr int neppM = MemoryAccessMomenta::neppM;
     if constexpr( neppM == 1 && std::is_same_v<FORTRANFPTYPE, fptype> )
@@ -241,6 +228,8 @@ namespace mg5amcCpu
       //const int thrPerEvt = 1; // AV: try new alg with 1 event per thread... this seems slower
       dev_transposeMomentaF2C<<<m_gpublocks * thrPerEvt, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(), m_nevt );
     }
+    checkCuda( cudaMemcpy( m_devGsC.data(), gs, m_devGsC.bytes(), cudaMemcpyHostToDevice ) );
+    m_pmek->computeDependentCouplings();
     if( !m_goodHelsCalculated )
     {
       m_pmek->computeGoodHelicities();
@@ -255,18 +244,12 @@ namespace mg5amcCpu
 #endif
 
 #ifndef __CUDACC__
-
   template<typename FORTRANFPTYPE>
-  void Bridge<FORTRANFPTYPE>::cpu_depCouplings( const FORTRANFPTYPE* gs )
-  {
-    memcpy( m_hstGsC.data(), gs, m_nevt * sizeof( FORTRANFPTYPE ) );
-    m_pmek->computeDependentCouplings();
-  }
-
-  template<typename FORTRANFPTYPE>
-  void Bridge<FORTRANFPTYPE>::cpu_sequence( const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes, const bool goodHelOnly )
+  void Bridge<FORTRANFPTYPE>::cpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, FORTRANFPTYPE* mes, const bool goodHelOnly )
   {
     hst_transposeMomentaF2C( momenta, m_hstMomentaC.data(), m_nevt );
+    memcpy( m_hstGsC.data(), gs, m_nevt * sizeof( FORTRANFPTYPE ) );
+    m_pmek->computeDependentCouplings();
     if( !m_goodHelsCalculated )
     {
       m_pmek->computeGoodHelicities();

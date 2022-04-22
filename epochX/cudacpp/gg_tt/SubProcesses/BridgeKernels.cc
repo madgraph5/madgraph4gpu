@@ -60,17 +60,10 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void BridgeKernelHost::computeDependentCouplings()
-  {
-    m_bridge.cpu_depCouplings( m_gs.data() );
-  }
-
-  //--------------------------------------------------------------------------
-
   void BridgeKernelHost::computeGoodHelicities()
   {
     constexpr bool goodHelOnly = true;
-    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
+    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_matrixElements.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------
@@ -78,7 +71,7 @@ namespace mg5amcCpu
   void BridgeKernelHost::computeMatrixElements()
   {
     constexpr bool goodHelOnly = false;
-    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
+    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_matrixElements.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------
@@ -118,17 +111,10 @@ namespace mg5amcGpu
 
   //--------------------------------------------------------------------------
 
-  void BridgeKernelDevice::computeDependentCouplings()
-  {
-    m_bridge.gpu_depCouplings( m_gs.data() );
-  }
-
-  //--------------------------------------------------------------------------
-
   void BridgeKernelDevice::computeGoodHelicities()
   {
     constexpr bool goodHelOnly = true;
-    m_bridge.gpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
+    m_bridge.gpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_matrixElements.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------
@@ -136,7 +122,7 @@ namespace mg5amcGpu
   void BridgeKernelDevice::computeMatrixElements()
   {
     constexpr bool goodHelOnly = false;
-    m_bridge.gpu_sequence( m_fortranMomenta.data(), m_matrixElements.data(), goodHelOnly );
+    m_bridge.gpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_matrixElements.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------
