@@ -260,8 +260,8 @@ namespace mg5amcCpu
 
 #ifndef __CUDACC__
   // A class encapsulating a C++ host buffer for momenta
-  typedef HostBuffer<fptype, sizePerEventMomenta, HostBufferALIGNED> HostBufferMomenta;
-  //typedef HostBuffer<fptype, sizePerEventMomenta, HostBufferMISALIGNED> HostBufferMomenta; // TEST MISALIGNMENT!
+  //typedef HostBuffer<fptype, sizePerEventMomenta, HostBufferALIGNED> HostBufferMomenta;
+  typedef HostBuffer<fptype, sizePerEventMomenta, HostBufferMISALIGNED> HostBufferMomenta; // TEST MISALIGNMENT!
 #else
   // A class encapsulating a CUDA pinned host buffer for momenta
   typedef PinnedHostBuffer<fptype, sizePerEventMomenta> PinnedHostBufferMomenta;
