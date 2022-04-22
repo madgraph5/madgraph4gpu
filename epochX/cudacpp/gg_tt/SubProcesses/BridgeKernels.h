@@ -32,12 +32,6 @@ namespace mg5amcCpu
     // Transpose input momenta from C to Fortran before the matrix element calculation in the Bridge
     virtual void transposeInputMomentaC2F() = 0;
 
-    // Calculate dependent couplings from Gs transferred via the Bridge
-    void computeDependentCouplings() override final
-    {
-      // FIXME: THIS SHOULD BE REMOVED
-    }    
-
   protected:
 
     // The wrapped bridge

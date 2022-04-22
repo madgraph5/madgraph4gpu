@@ -528,11 +528,9 @@ main( int argc, char** argv )
 #ifdef __CUDACC__
     // --- 2d. CopyHToD Momenta
     const std::string gKey = "0.. CpHTDg";
-    rambtime += timermap.start( gKey );
+    rambtime += timermap.start( gKey ); // FIXME! NOT A RAMBO TIMER!
     copyDeviceFromHost( devGs, hstGs );
 #endif
-
-    pmek.get()->computeDependentCouplings();
 
     // --- 0e. SGoodHel
     if( iiter == 0 )

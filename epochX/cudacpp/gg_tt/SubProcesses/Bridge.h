@@ -228,8 +228,7 @@ namespace mg5amcCpu
       //const int thrPerEvt = 1; // AV: try new alg with 1 event per thread... this seems slower
       dev_transposeMomentaF2C<<<m_gpublocks * thrPerEvt, m_gputhreads>>>( m_devMomentaF.data(), m_devMomentaC.data(), m_nevt );
     }
-    checkCuda( cudaMemcpy( m_devGsC.data(), gs, m_devGsC.bytes(), cudaMemcpyHostToDevice ) );
-    m_pmek->computeDependentCouplings();
+    checkCuda( cudaMemcpy( m_devGsC.data(), gs, m_devGsC.bytes(), cudaMemcpyHostToDevice ) ); // FIXME! if FORTRANFPTYPE != fptype
     if( !m_goodHelsCalculated )
     {
       m_pmek->computeGoodHelicities();
@@ -248,8 +247,14 @@ namespace mg5amcCpu
   void Bridge<FORTRANFPTYPE>::cpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, FORTRANFPTYPE* mes, const bool goodHelOnly )
   {
     hst_transposeMomentaF2C( momenta, m_hstMomentaC.data(), m_nevt );
-    memcpy( m_hstGsC.data(), gs, m_nevt * sizeof( FORTRANFPTYPE ) );
-    m_pmek->computeDependentCouplings();
+    if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
+    {
+      memcpy( m_hstGsC.data(), gs, m_nevt * sizeof( FORTRANFPTYPE ) );
+    }
+    else
+    {
+      std::copy( gs, gs + m_nevt, m_hstGsC.data() );
+    }
     if( !m_goodHelsCalculated )
     {
       m_pmek->computeGoodHelicities();

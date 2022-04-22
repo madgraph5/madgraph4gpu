@@ -33,9 +33,6 @@ namespace mg5amcCpu
     // Destructor
     virtual ~MatrixElementKernelBase() {}
 
-    // Calculate dependent couplings from Gs transferred via the Bridge
-    virtual void computeDependentCouplings() = 0;
-
     // Compute good helicities
     virtual void computeGoodHelicities() = 0;
 
@@ -73,9 +70,6 @@ namespace mg5amcCpu
 
     // Destructor
     virtual ~MatrixElementKernelHost() {}
-
-    // Calculate dependent couplings from Gs transferred via the Bridge
-    void computeDependentCouplings() override final;
 
     // Compute good helicities
     void computeGoodHelicities() override final;
@@ -120,9 +114,6 @@ namespace mg5amcCpu
 
     // Reset gpublocks and gputhreads
     void setGrid( const int gpublocks, const int gputhreads );
-
-    // Calculate dependent couplings from Gs transferred via the Bridge
-    void computeDependentCouplings() override final;
 
     // Compute good helicities
     void computeGoodHelicities() override final;
