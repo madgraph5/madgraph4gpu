@@ -103,6 +103,7 @@ namespace mg5amcCpu
       else
         ::operator delete( (this->m_data) - 1, std::align_val_t( cppAlign ) ); // TEST MISALIGNMENT!
     }
+    static constexpr bool isaligned(){ return !ismisaligned; }
   public:
     static constexpr size_t cppAlign = mgOnGpu::cppAlign;
   };
