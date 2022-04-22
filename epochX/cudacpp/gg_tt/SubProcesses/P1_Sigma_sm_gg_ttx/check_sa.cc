@@ -315,8 +315,7 @@ main( int argc, char** argv )
   PinnedHostBufferGs hstGs( nevt );
   DeviceBufferGs devGs( nevt );
 #endif
-  constexpr double tmpG = 1.2177157847767195;
-  for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = tmpG; // sr fill them for now, in the end they should come via the bridge
+  for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = 1.2177157847767195; // hardcoded for now in both check_sa.cc and fcheck_sa.f
 
   // Memory buffers for momenta
 #ifndef __CUDACC__
