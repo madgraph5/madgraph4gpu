@@ -90,39 +90,15 @@ class KernelAccessMatrixElements
 {
 public:
 
-  /*
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
   // [Signature (non-const) ===> fptype& kernelAccess( fptype* buffer ) <===]
-  // FINAL IMPLEMENTATION FOR CUDA 11.4
   static constexpr auto kernelAccess =
-    KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessField<>;
-  */
+    KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessField<>; // requires cuda 11.4
 
-  // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // [Signature (non-const) ===> fptype& kernelAccess( fptype* buffer ) <===]
-  // TEMPORARY HACK FOR CUDA 11.1
-  static __host__ __device__ inline fptype&
-  kernelAccess( fptype* buffer )
-  {
-    return KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessField<>( buffer );
-  }
-
-  /*
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
   // [Signature (const) ===> const fptype& kernelAccessConst( const fptype* buffer ) <===]
-  // FINAL IMPLEMENTATION FOR CUDA 11.4
   static constexpr auto kernelAccessConst =
-    KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessFieldConst<>;
-  */
-
-  // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // [Signature (const) ===> const fptype& kernelAccessConst( const fptype* buffer ) <===]
-  // TEMPORARY HACK FOR CUDA 11.1
-  static __host__ __device__ inline const fptype&
-  kernelAccessConst( const fptype* buffer )
-  {
-    return KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessFieldConst<>( buffer );
-  }
+    KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessFieldConst<>; // requires cuda 11.4
 };
 
 //----------------------------------------------------------------------------
