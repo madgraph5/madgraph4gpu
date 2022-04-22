@@ -209,7 +209,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // A base class encapsulating a memory buffer for Gs for calculating dependent couplings
+  // A base class encapsulating a memory buffer for Gs (related to the event-by-event strength of running coupling constant alphas QCD)
   typedef BufferBase<fptype> BufferGs;
 
   // The size (number of elements) per event in a memory buffer for random numbers
@@ -227,20 +227,20 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // A base class encapsulating a memory buffer for Gs for calculating dependent couplings
-  typedef BufferBase<fptype> BufferGCs;
+  // A base class encapsulating a memory buffer for couplings that depend on the event-by-event running coupling constant alphas QCD
+  typedef BufferBase<fptype> BufferCouplings;
 
   // The size (number of elements) per event in a memory buffer for random numbers
-  constexpr size_t sizePerEventGCs = 2; // is complex
+  constexpr size_t sizePerEventCouplings = MemoryBuffers::nx2;
 
 #ifndef __CUDACC__
   // A class encapsulating a C++ host buffer for gs
-  typedef HostBuffer<fptype, sizePerEventGCs> HostBufferGCs;
+  typedef HostBuffer<fptype, sizePerEventCouplings> HostBufferCouplings;
 #else
   // A class encapsulating a CUDA pinned host buffer for gs
-  typedef PinnedHostBuffer<fptype, sizePerEventGCs> PinnedHostBufferGCs;
+  typedef PinnedHostBuffer<fptype, sizePerEventCouplings> PinnedHostBufferCouplings;
   // A class encapsulating a CUDA device buffer for gs
-  typedef DeviceBuffer<fptype, sizePerEventGCs> DeviceBufferGCs;
+  typedef DeviceBuffer<fptype, sizePerEventCouplings> DeviceBufferCouplings;
 #endif
 
   //--------------------------------------------------------------------------
