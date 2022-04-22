@@ -473,9 +473,9 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   __global__ void /* clang-format off */
-  computeCouplings( const fptype* gs,
-                    fptype* gc10,
-                    fptype* gc11
+  computeDependentCouplings( const fptype* gs,
+                             fptype* gc10,
+                             fptype* gc11
 #ifndef __CUDACC__
                     , const int nevt
 #endif

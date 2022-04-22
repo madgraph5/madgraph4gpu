@@ -88,10 +88,10 @@ namespace mg5amcCpu
 
 #ifdef __CUDACC__
   __global__ void
-  computeCouplings( const fptype* gs, fptype* gc10, fptype* gc11 );
+  computeDependentCouplings( const fptype* gs, fptype* gc10, fptype* gc11 );
 #else
   __global__ void
-  computeCouplings( const fptype* gs, fptype* gc10, fptype* gc11, const int nevt );
+  computeDependentCouplings( const fptype* gs, fptype* gc10, fptype* gc11, const int nevt );
 #endif
 
   //--------------------------------------------------------------------------

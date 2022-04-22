@@ -48,7 +48,7 @@ namespace mg5amcCpu
 
   void MatrixElementKernelHost::computeGoodHelicities()
   {
-    computeCouplings( m_gs.data(), m_gc10.data(), m_gc11.data(), m_gs.size() );
+    computeDependentCouplings( m_gs.data(), m_gc10.data(), m_gc11.data(), m_gs.size() );
     using mgOnGpu::ncomb; // the number of helicity combinations
     HostBufferHelicityMask hstIsGoodHel( ncomb );
     // ... 0d1. Compute good helicity mask on the host
@@ -62,7 +62,7 @@ namespace mg5amcCpu
 
   void MatrixElementKernelHost::computeMatrixElements()
   {
-    computeCouplings( m_gs.data(), m_gc10.data(), m_gc11.data(), m_gs.size() );
+    computeDependentCouplings( m_gs.data(), m_gc10.data(), m_gc11.data(), m_gs.size() );
     sigmaKin( m_momenta.data(), m_gc10.data(), m_gc11.data(), m_matrixElements.data(), nevt() );
   }
 
@@ -171,7 +171,7 @@ namespace mg5amcGpu
 
   void MatrixElementKernelDevice::computeGoodHelicities()
   {
-    computeCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_gc10.data(), m_gc11.data() );
+    computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_gc10.data(), m_gc11.data() );
     using mgOnGpu::ncomb; // the number of helicity combinations
     PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
     DeviceBufferHelicityMask devIsGoodHel( ncomb );
@@ -188,7 +188,7 @@ namespace mg5amcGpu
 
   void MatrixElementKernelDevice::computeMatrixElements()
   {
-    computeCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_gc10.data(), m_gc11.data() );
+    computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_gc10.data(), m_gc11.data() );
 #ifndef MGONGPU_NSIGHT_DEBUG
     sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_gc10.data(), m_gc11.data(), m_matrixElements.data() );
 #else
