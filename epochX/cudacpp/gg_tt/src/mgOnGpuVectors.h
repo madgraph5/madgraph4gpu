@@ -609,6 +609,29 @@ fpmin( const fptype& a, const fptype_v& b )
 }
 */
 
+//--------------------------------------------------------------------------
+
+// Vector wrapper over RRRRIIII floating point vectors (cxtype_v_ref)
+namespace mgOnGpu /* clang-format off */
+{
+  // The cxtype_v_ref class (a non-const reference to two fptype_v variables) was originally designed for MemoryAccessCouplings.
+  class cxtype_v_ref
+  {
+  public:
+    cxtype_v_ref() = delete;
+    cxtype_v_ref( const cxtype_v_ref& ) = delete;
+    cxtype_v_ref( cxtype_v_ref&& ) = default;
+    cxtype_v_ref( fptype_v& r, fptype_v& i ) : m_real( r ), m_imag( i ) {}
+    cxtype_v_ref& operator=( const cxtype_v_ref& ) = delete;
+    cxtype_v_ref& operator=( cxtype_v_ref&& c ) = delete;
+    cxtype_v_ref& operator=( const cxtype_v& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; }
+    __host__ __device__ operator cxtype_v() const { return cxmake( m_real, m_imag ); }
+  private:
+    fptype_v &m_real, &m_imag; // RRRRIIII
+  };
+} /* clang-format on */
+
+
 #endif // #ifdef MGONGPU_CPPSIMD
 
 #endif // #ifndef __CUDACC__
@@ -662,14 +685,17 @@ cxternary( const bool& mask, const cxtype& a, const cxtype& b )
 typedef bool bool_sv;
 typedef fptype fptype_sv;
 typedef cxtype cxtype_sv;
+typedef mgOnGpu::cxtype_ref cxtype_sv_ref;
 #elif defined MGONGPU_CPPSIMD
 typedef bool_v bool_sv;
 typedef fptype_v fptype_sv;
 typedef cxtype_v cxtype_sv;
+typedef mgOnGpu::cxtype_v_ref cxtype_sv_ref;
 #else
 typedef bool bool_sv;
 typedef fptype fptype_sv;
 typedef cxtype cxtype_sv;
+typedef mgOnGpu::cxtype_ref cxtype_sv_ref;
 #endif
 
 // Scalar-or-vector zeros: scalar in CUDA, vector or scalar in C++
