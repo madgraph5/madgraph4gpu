@@ -86,11 +86,8 @@ namespace mg5amcCpu
 
   private:
 
-    // The buffer for the GC_10 coupling
-    HostBufferCouplings m_gc10;
-
-    // The buffer for the GC_11 coupling
-    HostBufferCouplings m_gc11;
+    // The buffer for the event-by-event couplings that depends on alphas QCD
+    HostBufferCouplings m_couplings;
   };
 #endif
 
@@ -126,11 +123,8 @@ namespace mg5amcCpu
 
   private:
 
-    // The buffer for the GC_10 coupling
-    DeviceBufferCouplings m_gc10;
-
-    // The buffer for the GC_11 coupling
-    DeviceBufferCouplings m_gc11;
+    // The buffer for the event-by-event couplings that depends on alphas QCD
+    DeviceBufferCouplings m_couplings;
 
     // The number of blocks in the GPU grid
     size_t m_gpublocks;

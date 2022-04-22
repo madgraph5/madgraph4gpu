@@ -231,7 +231,7 @@ namespace mg5amcCpu
   typedef BufferBase<fptype> BufferCouplings;
 
   // The size (number of elements) per event in a memory buffer for random numbers
-  constexpr size_t sizePerEventCouplings = MemoryBuffers::nx2;
+  constexpr size_t sizePerEventCouplings = MemoryBuffers::ndcoup * MemoryBuffers::nx2;
 
 #ifndef __CUDACC__
   // A class encapsulating a C++ host buffer for gs
