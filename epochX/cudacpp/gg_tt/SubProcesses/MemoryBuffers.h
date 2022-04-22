@@ -24,6 +24,7 @@ namespace mg5amcCpu
     static constexpr size_t nparf = mgOnGpu::nparf;
     static constexpr size_t npar = mgOnGpu::npar;
     static constexpr size_t nw6 = mgOnGpu::nw6;
+    static constexpr size_t ndcoup = mgOnGpu::ndcoup;
     static constexpr size_t nx2 = mgOnGpu::nx2;
   }
 
