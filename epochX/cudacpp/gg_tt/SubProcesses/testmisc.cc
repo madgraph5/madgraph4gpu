@@ -173,7 +173,6 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
     EXPECT_TRUE( cxtype(r12c).imag() == 2 ); // points to f2c, not to f2
   }
 
-#ifdef MGONGPU_CPPSIMD
   // Vector complex references
   {
     using namespace mgOnGpu;
@@ -213,7 +212,6 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
     EXPECT_TRUE_sv( cxtype_sv(r12c).real() == 1 ); // points to f1c, not to f1
     EXPECT_TRUE_sv( cxtype_sv(r12c).imag() == 2 ); // points to f2c, not to f2
   }
-#endif
 
   //--------------------------------------------------------------------------
 
