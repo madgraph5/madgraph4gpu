@@ -174,6 +174,45 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
   }
 
 #ifdef MGONGPU_CPPSIMD
+  // Vector complex references
+  {
+    using namespace mgOnGpu;
+    // Refs to f1, f2
+    fptype_sv f1 = fptype_sv{ 0 } + 1;
+    fptype_sv f2 = fptype_sv{ 0 } + 2;
+    cxtype_sv_ref r12( f1, f2 ); // copy refs
+    //cxtype_sv_ref r12a( r12 ); //deleted
+    cxtype_sv_ref r12a( cxtype_sv_ref( f1, f2 ) ); // copy refs
+    //cxtype_sv_ref r12b = r12; // deleted
+    cxtype_sv_ref r12b = cxtype_sv_ref( f1, f2 ); // copy refs
+    EXPECT_TRUE_sv( cxtype_sv(r12).real() == 1 );
+    EXPECT_TRUE_sv( cxtype_sv(r12).imag() == 2 );
+    EXPECT_TRUE_sv( cxtype_sv(r12a).real() == 1 );
+    EXPECT_TRUE_sv( cxtype_sv(r12a).imag() == 2 );
+    EXPECT_TRUE_sv( cxtype_sv(r12b).real() == 1 );
+    EXPECT_TRUE_sv( cxtype_sv(r12b).imag() == 2 );
+    // Refs to f1c, f2c
+    fptype_sv f1c = fptype_sv{ 0 };
+    fptype_sv f2c = fptype_sv{ 0 };
+    cxtype_sv_ref r12c( f1c, f2c );
+    EXPECT_TRUE_sv( cxtype_sv(r12c).real() == 0 );
+    EXPECT_TRUE_sv( cxtype_sv(r12c).imag() == 0 );
+    //r12c = r12; // deleted
+    r12c = cxtype_sv( r12 ); // copy values
+    EXPECT_TRUE_sv( cxtype_sv(r12c).real() == 1 );
+    EXPECT_TRUE_sv( cxtype_sv(r12c).imag() == 2 );
+    // Update f1, f2
+    f1 = fptype_sv{ 0 } + 10;
+    f2 = fptype_sv{ 0 } + 20;
+    EXPECT_TRUE_sv( cxtype_sv(r12).real() == 10 );
+    EXPECT_TRUE_sv( cxtype_sv(r12).imag() == 20 );
+    EXPECT_TRUE_sv( cxtype_sv(r12a).real() == 10 );
+    EXPECT_TRUE_sv( cxtype_sv(r12a).imag() == 20 );
+    EXPECT_TRUE_sv( cxtype_sv(r12b).real() == 10 );
+    EXPECT_TRUE_sv( cxtype_sv(r12b).imag() == 20 );
+    EXPECT_TRUE_sv( cxtype_sv(r12c).real() == 1 ); // points to f1c, not to f1
+    EXPECT_TRUE_sv( cxtype_sv(r12c).imag() == 2 ); // points to f2c, not to f2
+  }
 #endif
 
   //--------------------------------------------------------------------------
