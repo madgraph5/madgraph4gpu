@@ -598,6 +598,7 @@ namespace mgOnGpu /* clang-format off */
   // The cxtype_ref class (a non-const reference to two fp variables) was originally designed for cxtype_v::operator[]
   // It used to be included in the code only when MGONGPU_HAS_CPPCXTYPEV_BRK (originally MGONGPU_HAS_CPPCXTYPE_REF) is defined
   // It is now always included in the code because it is needed also to access an fptype wavefunction buffer as a cxtype
+#if 0
   class cxtype_ref
   {
   public:
@@ -609,9 +610,26 @@ namespace mgOnGpu /* clang-format off */
     __host__ __device__ cxtype_ref& operator=( cxtype_ref&& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // for cxternary
     __host__ __device__ cxtype_ref& operator=( const cxtype& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; }
     __host__ __device__ operator cxtype() const { return cxmake( m_real, m_imag ); }
+
   private:
     fptype &m_real, &m_imag; // RI
   };
+#else
+  class cxtype_ref
+  {
+  public:
+    cxtype_ref() = delete;
+    cxtype_ref( const cxtype_ref& ) = delete;
+    cxtype_ref( cxtype_ref&& ) = default; // copy refs
+    __host__ __device__ cxtype_ref( fptype& r, fptype& i ) : m_preal( &r ), m_pimag( &i ) {} // copy refs
+    cxtype_ref& operator=( const cxtype_ref& ) = delete;
+    __host__ __device__ cxtype_ref& operator=( cxtype_ref&& c ) { m_preal = c.m_preal; m_pimag = c.m_pimag; return *this; } // copy refs (for cxternary)
+    __host__ __device__ cxtype_ref& operator=( const cxtype& c ) { *m_preal = cxreal( c ); *m_pimag = cximag( c ); return *this; } // copy values
+    __host__ __device__ operator cxtype() const { return cxmake( *m_preal, *m_pimag ); }
+  private:
+    fptype *m_preal, *m_pimag; // RI
+  };
+#endif
 } /* clang-format on */
 
 // Printout to stream for user defined types
