@@ -146,12 +146,14 @@ namespace mg5amcCpu
 #endif // !__CUDACC__
     {
 #ifdef __CUDACC__
-      // CUDA kernels take an input buffer with momenta for all events
+      // CUDA kernels take input/output buffers with momenta/MEs for all events
       const fptype* momenta = allmomenta;
+      fptype* MEs = allMEs;
 #else
-      // C++ kernels take an input buffer with momenta for one specific event (the first in the current event page)
+      // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
       const int ievt0 = ipagV * neppV;
       const fptype* momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );
+      fptype* MEs = MemoryAccessMatrixElements::ieventAccessRecord( allMEs, ievt0 );
 #endif
 
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
@@ -226,22 +228,18 @@ namespace mg5amcCpu
 
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-#ifdef __CUDACC__
-      fptype_sv& allMEs_sv = E_ACCESS::kernelAccess( allMEs );
-#else
-      fptype_sv& allMEs_sv = E_ACCESS::kernelAccess( &( allMEs[ipagV * neppV] ) );
-#endif
-      allMEs_sv += deltaMEs; // fix #435
+      fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
+      MEs_sv += deltaMEs; // fix #435
       /*
 #ifdef __CUDACC__
-      if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", ievt, ihel, allMEs_sv );
+      if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", blockDim.x * blockIdx.x + threadIdx.x, ihel, MEs_sv );
 #else
 #ifdef MGONGPU_CPPSIMD
       if( cNGoodHel > 0 )
         for( int ieppV = 0; ieppV < neppV; ieppV++ )
-          printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", ipagV * neppV + ieppV, ihel, allMEs[ipagV * neppV + ieppV] );
+          printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", ipagV * neppV + ieppV, ihel, MEs_sv[ieppV] );
 #else
-      if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", ipagV, ihel, allMEs_sv );
+      if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d me_running=%f\n", ipagV, ihel, MEs_sv );
 #endif
 #endif
       */
