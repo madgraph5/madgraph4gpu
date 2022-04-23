@@ -621,14 +621,14 @@ namespace mgOnGpu /* clang-format off */
   public:
     cxtype_v_ref() = delete;
     cxtype_v_ref( const cxtype_v_ref& ) = delete;
-    cxtype_v_ref( cxtype_v_ref&& ) = default;
-    cxtype_v_ref( fptype_v& r, fptype_v& i ) : m_real( r ), m_imag( i ) {}
+    cxtype_v_ref( cxtype_v_ref&& ) = default; // copy refs
+    cxtype_v_ref( fptype_v& r, fptype_v& i ) : m_preal( &r ), m_pimag( &i ) {} // copy refs
     cxtype_v_ref& operator=( const cxtype_v_ref& ) = delete;
     cxtype_v_ref& operator=( cxtype_v_ref&& c ) = delete;
-    cxtype_v_ref& operator=( const cxtype_v& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; }
-    __host__ __device__ operator cxtype_v() const { return cxmake( m_real, m_imag ); }
+    cxtype_v_ref& operator=( const cxtype_v& c ) { *m_preal = cxreal( c ); *m_pimag = cximag( c ); return *this; } // copy values
+    __host__ __device__ operator cxtype_v() const { return cxmake( *m_preal, *m_pimag ); }
   private:
-    fptype_v &m_real, &m_imag; // RRRRIIII
+    fptype_v *m_preal, *m_pimag; // RRRRIIII
   };
 } /* clang-format on */
 
