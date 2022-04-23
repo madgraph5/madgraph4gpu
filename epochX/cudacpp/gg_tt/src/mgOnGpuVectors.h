@@ -462,7 +462,8 @@ cxternary( const bool_v& mask, const cxtype_v& a, const cxtype_v& b )
 {
 #ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
   cxtype_v out;
-  for( int i = 0; i < neppV; i++ ) out[i] = ( mask[i] ? a[i] : b[i] );
+  //for( int i = 0; i < neppV; i++ ) out[i] = ( mask[i] ? a[i] : b[i] ); // OLD error-prone depends on "cxtype_ref& operator=( cxtype_ref&& c )"
+  for( int i = 0; i < neppV; i++ ) out[i] = cxtype( mask[i] ? a[i] : b[i] );
   return out;
 #else
   fptype_v outr, outi;

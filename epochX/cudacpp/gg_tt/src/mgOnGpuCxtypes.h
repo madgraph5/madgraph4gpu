@@ -606,8 +606,7 @@ namespace mgOnGpu /* clang-format off */
     cxtype_ref( cxtype_ref&& ) = default; // copy refs
     __host__ __device__ cxtype_ref( fptype& r, fptype& i ) : m_preal( &r ), m_pimag( &i ) {} // copy refs
     cxtype_ref& operator=( const cxtype_ref& ) = delete;
-    //__host__ __device__ cxtype_ref& operator=( cxtype_ref&& c ) { m_preal = c.m_preal; m_pimag = c.m_pimag; return *this; } // copy refs (for cxternary)
-    __host__ __device__ cxtype_ref& operator=( cxtype_ref&& c ) { *m_preal = cxreal( c ); *m_pimag = cximag( c ); return *this; } // copy values (for cxternary)
+    //__host__ __device__ cxtype_ref& operator=( cxtype_ref&& c ) {...} // REMOVED! Should copy refs or copy values? No longer needed in cxternary
     __host__ __device__ cxtype_ref& operator=( const cxtype& c ) { *m_preal = cxreal( c ); *m_pimag = cximag( c ); return *this; } // copy values
     __host__ __device__ operator cxtype() const { return cxmake( *m_preal, *m_pimag ); }
   private:
