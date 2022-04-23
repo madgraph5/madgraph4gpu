@@ -94,15 +94,15 @@ namespace mg5amcCpu
     using namespace mg5amcGpu;
     using M_ACCESS = DeviceAccessMomenta;
     using E_ACCESS = DeviceAccessMatrixElements;
-    using W_ACCESS = DeviceAccessWavefunctions;
-    using A_ACCESS = DeviceAccessAmplitudes;
+    using W_ACCESS = DeviceAccessWavefunctions; // TRIVIAL ACCESS (no kernel splitting yet)
+    using A_ACCESS = DeviceAccessAmplitudes; // TRIVIAL ACCESS (no kernel splitting yet)
     using C_ACCESS = DeviceAccessCouplings;
 #else
     using namespace mg5amcCpu;
     using M_ACCESS = HostAccessMomenta;
     using E_ACCESS = HostAccessMatrixElements;
-    using W_ACCESS = HostAccessWavefunctions;
-    using A_ACCESS = HostAccessAmplitudes;
+    using W_ACCESS = HostAccessWavefunctions; // TRIVIAL ACCESS (no kernel splitting yet)
+    using A_ACCESS = HostAccessAmplitudes; // TRIVIAL ACCESS (no kernel splitting yet)
     using C_ACCESS = HostAccessCouplings;
 #endif
     mgDebug( 0, __FUNCTION__ );
@@ -116,6 +116,8 @@ namespace mg5amcCpu
 
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
+    // ** NB: in other words, amplitudes and wavefunctions still have TRIVIAL ACCESS: there is currently no need
+    // ** NB: to have large memory structurs for wavefunctions/amplitudes fir all events (no kernel splitting yet)!
     //MemoryBufferWavefunctions w_buffer[nwf]{ neppV };
     cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
     cxtype_sv amp_sv[1];      // invariant amplitude for one given Feynman diagram
