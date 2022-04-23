@@ -152,52 +152,6 @@ namespace mg5amcCpu
       // C++ kernels take an input buffer with momenta for one specific event (the first in the current event page)
       const int ievt0 = ipagV * neppV;
       const fptype* momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );
-      /*
-      // --- START debug: printout momenta
-      static int maxihel = -1;
-      static int minihel = -1;
-      if( maxihel >= -1 )
-      {
-        if( ihel > maxihel )
-        {
-          //printf( "calculate_wavefunctions: ihel=%2d\n", ihel );
-          maxihel = ihel;
-        }
-        else if( ihel < maxihel )
-        {
-          printf( "calculate_wavefunctions: FIRST CALL AFTER HELICITY FILTERING ihel=%2d\n", ihel );
-          maxihel = -2;
-          minihel = ihel;
-        }
-      }
-      else // skip printout during the calculation of good helicities
-      {
-        if( ihel == minihel ) // printout momenta only for the first good helicity
-        {
-          for( int ieppV = 0; ieppV < neppV; ieppV++ )
-          {
-            printf( "calculate_wavefunctions: ievt=%6d ihel=%2d\n", ievt0 + ieppV, ihel );
-            for( int ipar = 0; ipar < npar; ipar++ )
-            {
-#ifdef MGONGPU_CPPSIMD
-              printf( "calculate_wavefunctions: %f %f %f %f\n",
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar )[ieppV],
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar )[ieppV],
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar )[ieppV],
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar )[ieppV] );
-#else
-              printf( "calculate_wavefunctions: %f %f %f %f\n",
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar ),
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar ),
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar ),
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar ) );
-#endif
-            }
-          }
-        }
-      }
-      // --- END debug: printout momenta
-      */
 #endif
 
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
