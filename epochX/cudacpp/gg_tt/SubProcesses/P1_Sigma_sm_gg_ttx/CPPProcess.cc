@@ -150,11 +150,17 @@ namespace mg5amcCpu
 #ifdef __CUDACC__
       // CUDA kernels take input/output buffers with momenta/MEs for all events
       const fptype* momenta = allmomenta;
+      const fptype* gc10s = allgc10s;
+      const fptype* gc11s = allgc11s;
       fptype* MEs = allMEs;
 #else
       // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
       const int ievt0 = ipagV * neppV;
       const fptype* momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );
+      //const fptype* gc10s = MemoryAccessCouplings::ieventAccessRecordConst( allgc10s, ievt0 );
+      //const fptype* gc11s = MemoryAccessCouplings::ieventAccessRecordConst( allgc11s, ievt0 );
+      const fptype* gc10s = &allgc10s[ievt0]; // hardcoded for now
+      const fptype* gc11s = &allgc11s[ievt0]; // hardcoded for now
       fptype* MEs = MemoryAccessMatrixElements::ieventAccessRecord( allMEs, ievt0 );
 #endif
 
@@ -163,13 +169,14 @@ namespace mg5amcCpu
 
       // DEBUG MemoryAccessCouplings
       {
-        const fptype_sv CPr = cxreal( C_ACCESS::kernelAccessConst( allgc10s ) );
-        const fptype_sv CPi = cximag( C_ACCESS::kernelAccessConst( allgc10s ) );
+        const fptype_sv CPr = cxreal( C_ACCESS::kernelAccessConst( gc10s ) );
+        const fptype_sv CPi = cximag( C_ACCESS::kernelAccessConst( gc10s ) );
 #ifndef MGONGPU_CPPSIMD
-        printf( "calculate_wavefunctions: allgc10s=%p CPr=%f CPi=%f\n", allgc10s, CPr, CPi );
+        printf( "calculate_wavefunctions: allgc10s=%p gc10s=%p CPr=%f CPi=%f\n", allgc10s, gc10s, CPr, CPi );
 #else
         for( int ieppV = 0; ieppV < neppV; ieppV++ )
-          printf( "calculate_wavefunctions: allgc10s=%p ipagV=%d ieppV=%d CPr=%f CPi=%f\n", allgc10s, ipagV, ieppV, CPr[ieppV], CPi[ieppV] );
+          printf( "calculate_wavefunctions: allgc10s=%p gc10s=%p ipagV=%d ieppV=%d CPr=%f CPi=%f\n",
+                  allgc10s, gc10s, ipagV, ieppV, CPr[ieppV], CPi[ieppV] );
 #endif
       }
       
@@ -184,29 +191,29 @@ namespace mg5amcCpu
 
       ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
 
-      VVV1P0_1<W_ACCESS, C_ACCESS>( w_fp[0], w_fp[1], allgc10s, 0., 0., w_fp[4] );
+      VVV1P0_1<W_ACCESS, C_ACCESS>( w_fp[0], w_fp[1], gc10s, 0., 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 1
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[3], w_fp[2], w_fp[4], allgc11s, &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[3], w_fp[2], w_fp[4], gc11s, &amp_fp[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 2 OF 3 ***
 
       // Wavefunction(s) for diagram number 2
-      FFV1_1<W_ACCESS, C_ACCESS>( w_fp[2], w_fp[0], allgc11s, cIPD[0], cIPD[1], w_fp[4] );
+      FFV1_1<W_ACCESS, C_ACCESS>( w_fp[2], w_fp[0], gc11s, cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 2
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[3], w_fp[4], w_fp[1], allgc11s, &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[3], w_fp[4], w_fp[1], gc11s, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 3 OF 3 ***
 
       // Wavefunction(s) for diagram number 3
-      FFV1_2<W_ACCESS, C_ACCESS>( w_fp[3], w_fp[0], allgc11s, cIPD[0], cIPD[1], w_fp[4] );
+      FFV1_2<W_ACCESS, C_ACCESS>( w_fp[3], w_fp[0], gc11s, cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 3
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[4], w_fp[2], w_fp[1], allgc11s, &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[4], w_fp[2], w_fp[1], gc11s, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***
