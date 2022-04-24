@@ -449,7 +449,11 @@ namespace mg5amcCpu
     using G_ACCESS = HostAccessGs;
     using C_ACCESS = HostAccessCouplings;
     for( int ipagV = 0; ipagV < nevt / neppV; ++ipagV )
-      G2COUP<G_ACCESS, C_ACCESS>( &allgs[ipagV * neppV], allgc10s, allgc11s ); // FIXME!!! #436
+    {
+      //G2COUP<G_ACCESS, C_ACCESS>( &allgs[ipagV * neppV], allgc10s, allgc11s ); // FIXME!!! #436
+      const int ievt0 = ipagV * neppV;
+      G2COUP<G_ACCESS, C_ACCESS>( &allgs[ievt0], &allgc10s[ievt0], &allgc11s[ievt0] );
+    }
 #endif
   }
 
