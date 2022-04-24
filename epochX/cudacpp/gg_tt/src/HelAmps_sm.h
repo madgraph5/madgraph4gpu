@@ -997,6 +997,23 @@ namespace mg5amcCpu
 #endif
     ( *gc10_sv ) = -( gs_sv );
     ( *gc11_sv ) = mdl_complexi * ( gs_sv );
+#ifdef __CUDACC__
+    printf( "G2COUP: %s=%2d gs=%f gc10=(%f, %f) gc11=(%f, %f)\n",
+            "ievt", blockDim.x * blockIdx.x + threadIdx.x, gs_sv,
+            cxreal( *gc10_sv ), cximag( *gc10_sv ), cxreal( *gc11_sv ), cximag( *gc11_sv ) );
+#else
+#ifndef MGONGPU_CPPSIMD
+    printf( "G2COUP: %s=%2d gs=%f gc10=(%f, %f) gc11=(%f, %f)\n",
+            "ieppV", 0, gs_sv,
+            cxreal( *gc10_sv ), cximag( *gc10_sv ), cxreal( *gc11_sv ), cximag( *gc11_sv ) );
+#else
+    for( int ieppV = 0; ieppV < neppV; ieppV++ )
+      printf( "G2COUP: %s=%2d gs=%f gc10=(%f, %f) gc11=(%f, %f)\n", "ieppV",
+              ieppV, gs_sv[ieppV],
+              cxreal( (*gc10_sv)[ieppV] ), cximag( (*gc10_sv)[ieppV] ),
+              cxreal( (*gc11_sv)[ieppV] ), cximag( (*gc11_sv)[ieppV] ) );
+#endif
+#endif
     mgDebug( 1, __FUNCTION__ );
     return;
   }
