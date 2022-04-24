@@ -999,7 +999,6 @@ namespace mg5amcCpu
     gc11_sv = mdl_complexi * ( gs_sv );
     /*
     printf( "G2COUP: pgs=%p pgc10=%p pgc11=%p\n", gs, gc10, gc11 );
-    */
 #ifdef __CUDACC__
     printf( "G2COUP: pgssv=%p pgc10sv=%p pgc11sv=%p\n", &gs_sv, &gc10_sv, &gc11_sv );
     //printf( "G2COUP: pgc10svr=%p pgc11rsv=%p\n", gc10_sv.m_preal, gc11_sv.m_preal ); // needs a hack in cxtype_ref
@@ -1019,6 +1018,7 @@ namespace mg5amcCpu
               cxreal( gc11_sv[ieppV] ), cximag( gc11_sv[ieppV] ) );
 #endif
 #endif
+    */
     mgDebug( 1, __FUNCTION__ );
     return;
   }
