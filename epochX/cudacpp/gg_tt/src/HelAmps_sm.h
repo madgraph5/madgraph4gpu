@@ -976,7 +976,7 @@ namespace mg5amcCpu
     /*constexpr*/ cxtype mdl_complexi( 0., 1. );
     const fptype* gs_s = &(G_ACCESS::kernelAccessConst( gs ));
 #ifdef __CUDACC__
-    const fptype_sv gs_sv = *gs_s;
+    const fptype_sv& gs_sv = *gs_s;
 #else
 #ifdef MGONGPU_CPPSIMD
     const bool isAligned = ( (size_t)( gs_s ) % mgOnGpu::cppAlign == 0 ); // require SIMD-friendly alignment by at least neppV*sizeof(fptype)
@@ -1001,6 +1001,7 @@ namespace mg5amcCpu
     printf( "G2COUP: pgs=%p pgc10=%p pgc11=%p\n", gs, gc10, gc11 );
     */
 #ifdef __CUDACC__
+    printf( "G2COUP: pgssv=%p pgc10sv=%p pgc11sv=%p\n", &gs_sv, &gc10_sv, &gc11_sv );
     printf( "G2COUP: %s=%2d gs=%f gc10=(%f, %f) gc11=(%f, %f)\n",
             "ievt", blockDim.x * blockIdx.x + threadIdx.x, gs_sv,
             cxreal( gc10_sv ), cximag( gc10_sv ), cxreal( gc11_sv ), cximag( gc11_sv ) );
