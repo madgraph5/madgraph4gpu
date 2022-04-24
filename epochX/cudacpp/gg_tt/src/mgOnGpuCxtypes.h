@@ -609,7 +609,7 @@ namespace mgOnGpu /* clang-format off */
     //__host__ __device__ cxtype_ref& operator=( cxtype_ref&& c ) {...} // REMOVED! Should copy refs or copy values? No longer needed in cxternary
     __host__ __device__ cxtype_ref& operator=( const cxtype& c ) { *m_preal = cxreal( c ); *m_pimag = cximag( c ); return *this; } // copy values
     __host__ __device__ operator cxtype() const { return cxmake( *m_preal, *m_pimag ); }
-  private:
+    //private:
     fptype *m_preal, *m_pimag; // RI
   };
 } /* clang-format on */
