@@ -51,7 +51,7 @@ namespace mg5amcCpu
     HostBufferHelicityMask hstIsGoodHel( ncomb );
     // ... 0d1. Compute good helicity mask on the host
     fptype* gc10 = m_couplings.data();
-    fptype* gc11 = m_couplings.data() + nevt();   
+    fptype* gc11 = m_couplings.data() + mgOnGpu::nx2 * nevt(); // complex data: needs 2*nevt fptypes per coupling!
     computeDependentCouplings( m_gs.data(), gc10, gc11, m_gs.size() );
     sigmaKin_getGoodHel( m_momenta.data(), gc10, gc11, m_matrixElements.data(), hstIsGoodHel.data(), nevt() );
     // ... 0d2. Copy back good helicity list to static memory on the host
@@ -64,7 +64,7 @@ namespace mg5amcCpu
   void MatrixElementKernelHost::computeMatrixElements()
   {
     fptype* gc10 = m_couplings.data();
-    fptype* gc11 = m_couplings.data() + nevt();   
+    fptype* gc11 = m_couplings.data() + mgOnGpu::nx2 * nevt(); // complex data: needs 2*nevt fptypes per coupling!
     computeDependentCouplings( m_gs.data(), gc10, gc11, m_gs.size() );
     sigmaKin( m_momenta.data(), gc10, gc11, m_matrixElements.data(), nevt() );
   }
@@ -178,7 +178,7 @@ namespace mg5amcGpu
     DeviceBufferHelicityMask devIsGoodHel( ncomb );
     // ... 0d1. Compute good helicity mask on the device
     fptype* gc10 = m_couplings.data();
-    fptype* gc11 = m_couplings.data() + nevt();   
+    fptype* gc11 = m_couplings.data() + mgOnGpu::nx2 * nevt(); // complex data: needs 2*nevt fptypes per coupling!
     computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), gc10, gc11 );
     sigmaKin_getGoodHel<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), gc10, gc11, m_matrixElements.data(), devIsGoodHel.data() );
     checkCuda( cudaPeekAtLastError() );
@@ -193,7 +193,7 @@ namespace mg5amcGpu
   void MatrixElementKernelDevice::computeMatrixElements()
   {
     fptype* gc10 = m_couplings.data();
-    fptype* gc11 = m_couplings.data() + nevt();   
+    fptype* gc11 = m_couplings.data() + mgOnGpu::nx2 * nevt(); // complex data: needs 2*nevt fptypes per coupling!
     computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), gc10, gc11 );
 #ifndef MGONGPU_NSIGHT_DEBUG
     sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), gc10, gc11, m_matrixElements.data() );
