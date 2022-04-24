@@ -6,12 +6,10 @@
 #include "mgOnGpuCxtypes.h"
 
 #include "MemoryAccessHelpers.h"
-
-#define MGONGPU_TRIVIAL_COUPLINGS 1
+#include "MemoryAccessMomenta.h" // for MemoryAccessMomentaBase::neppM
+#include "MemoryBuffers.h" // for HostBufferCouplings::isaligned
 
 //----------------------------------------------------------------------------
-
-#ifndef MGONGPU_TRIVIAL_COUPLINGS
 
 // A class describing the internal layout of memory buffers for couplings
 // This implementation uses an AOSOA[npagW][nx2][neppW] where nevt=npagW*neppW
@@ -21,7 +19,10 @@ class MemoryAccessCouplingsBase //_AOSOAv1
 public:
 
   // Number of Events Per Page in the coupling AOSOA memory buffer layout
-  static constexpr int neppW = 1; // AOS (just a test...)
+  static constexpr int neppC = MemoryAccessMomentaBase::neppM; // use the same AOSOA striding as for momenta
+
+  // SANITY CHECK: check that neppC is a power of two
+  static_assert( ispoweroftwo( neppC ), "neppC is not a power of 2" );
 
 private:
 
@@ -44,9 +45,9 @@ private:
                       const int ievt )
   {
     constexpr int ix2 = 0;
-    const int ipagW = ievt / neppW;                                // #event "W-page"
-    const int ieppW = ievt % neppW;                                // #event in the current event W-page
-    return &( buffer[ipagW * nx2 * neppW + ix2 * neppW + ieppW] ); // AOSOA[ipagW][ix2][ieppW]
+    const int ipagC = ievt / neppC;                                // #event "C-page"
+    const int ieppC = ievt % neppC;                                // #event in the current event C-page
+    return &( buffer[ipagC * nx2 * neppC + ix2 * neppC + ieppC] ); // AOSOA[ipagC][ix2][ieppC]
   }
 
   //--------------------------------------------------------------------------
@@ -58,9 +59,9 @@ private:
   decodeRecord( fptype* buffer,
                 const int ix2 )
   {
-    constexpr int ipagW = 0;
-    constexpr int ieppW = 0;
-    return buffer[ipagW * nx2 * neppW + ix2 * neppW + ieppW]; // AOSOA[ipagW][ix2][ieppW]
+    constexpr int ipagC = 0;
+    constexpr int ieppC = 0;
+    return buffer[ipagC * nx2 * neppC + ix2 * neppC + ieppC]; // AOSOA[ipagC][ix2][ieppC]
   }
 };
 
@@ -100,8 +101,6 @@ public:
     MemoryAccessHelper<MemoryAccessCouplingsBase>::template ieventAccessFieldConst<int>;
 };
 
-#endif // #ifndef MGONGPU_TRIVIAL_COUPLINGS
-
 //----------------------------------------------------------------------------
 
 // A class providing access to memory buffers for a given event, based on implicit kernel rules
@@ -111,35 +110,86 @@ class KernelAccessCouplings
 {
 public:
 
-#ifndef MGONGPU_TRIVIAL_COUPLINGS
-
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // [Signature (non-const) ===> fptype& kernelAccessIx2( fptype* buffer, const int ix2 ) <===]
-  static constexpr auto kernelAccessIx2 =
+  // [Signature (non-const, SCALAR) ===> fptype& kernelAccessIx2( fptype* buffer, const int ix2 ) <===]
+  static constexpr auto kernelAccessIx2_s =
     KernelAccessHelper<MemoryAccessCouplingsBase, onDevice>::template kernelAccessField<int>;
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // [Signature (const) ===> const fptype& kernelAccessIx2Const( const fptype* buffer, const int ix2 ) <===]
-  static constexpr auto kernelAccessIx2Const =
+  // [Signature (const, SCALAR) ===> const fptype& kernelAccessIx2Const( const fptype* buffer, const int ix2 ) <===]
+  static constexpr auto kernelAccessIx2Const_s =
     KernelAccessHelper<MemoryAccessCouplingsBase, onDevice>::template kernelAccessFieldConst<int>;
 
+  // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
+  // [Signature (non const, SCALAR OR VECTOR) ===> fptype_sv& kernelAccessIx2( fptype* buffer, const int ix2 ) <===]
+  static __host__ __device__ inline fptype_sv&
+  kernelAccessIx2( fptype* buffer,
+                   const int ix2 )
+  {
+    fptype& out = kernelAccessIx2_s( buffer, ix2 );
+#ifndef MGONGPU_CPPSIMD
+    return out;
 #else
+    // NB: derived from MemoryAccessMomenta, restricting the implementation to contiguous aligned arrays
+    constexpr int neppC = MemoryAccessCouplingsBase::neppC;
+    static_assert( neppC >= neppV ); // ASSUME CONTIGUOUS ARRAYS
+    static_assert( neppC % neppV == 0 ); // ASSUME CONTIGUOUS ARRAYS
+    static_assert( mg5amcCpu::HostBufferCouplings::isaligned() ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)    
+    //assert( (size_t)( buffer ) % mgOnGpu::cppAlign == 0 ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
+    return mg5amcCpu::fptypevFromAlignedArray( out ); // SIMD bulk load of neppV, use reinterpret_cast
+#endif
+  }
 
-  static __host__ __device__ inline cxtype_sv*
+  // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
+  // [Signature (const, SCALAR OR VECTOR) ===> const fptype_sv& kernelAccessIx2Const( const fptype* buffer, const int ix2 ) <===]
+  static __host__ __device__ inline const fptype_sv&
+  kernelAccessIx2Const( const fptype* buffer,
+                        const int ix2 )
+  {
+    return kernelAccessIx2Const( const_cast<fptype*>( buffer ), ix2 );
+  }
+
+  /*
+  // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
+  // [Signature (const, SCALAR OR VECTOR) ===> const fptype_sv& kernelAccessIx2Const( const fptype* buffer, const int ix2 ) <===]
+  static __host__ __device__ inline const fptype_sv&
+  kernelAccessIx2Const( const fptype* buffer,
+                        const int ix2 )
+  {
+    const fptype& out = kernelAccessIx2Const_s( buffer, ix2 );
+#ifndef MGONGPU_CPPSIMD
+    return out;
+#else
+    // NB: derived from MemoryAccessMomenta, restricting the implementation to contiguous aligned arrays
+    constexpr int neppC = MemoryAccessCouplingsBase::neppC;
+    static_assert( neppC >= neppV ); // ASSUME CONTIGUOUS ARRAYS
+    static_assert( neppC % neppV == 0 ); // ASSUME CONTIGUOUS ARRAYS
+    static_assert( mg5amcCpu::HostBufferCouplings::isaligned() ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)    
+    //assert( (size_t)( buffer ) % mgOnGpu::cppAlign == 0 ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
+    return mg5amcCpu::fptypevFromAlignedArray( out ); // SIMD bulk load of neppV, use reinterpret_cast
+#endif
+  }
+  */
+  
+  // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
+  // [Signature (non const, SCALAR OR VECTOR) ===> cxtype_sv_ref kernelAccessConst( fptype* buffer ) <===]
+  static __host__ __device__ inline cxtype_sv_ref
   kernelAccess( fptype* buffer )
   {
-    return reinterpret_cast<cxtype_sv*>( buffer );
+    return cxtype_sv_ref( kernelAccessIx2( buffer, 0 ),
+                          kernelAccessIx2( buffer, 1 ) );
   }
 
-  static __host__ __device__ inline const cxtype_sv*
+  // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
+  // [Signature (const, SCALAR OR VECTOR) ===> cxtype_sv kernelAccessConst( const fptype* buffer ) <===]
+  static __host__ __device__ inline cxtype_sv
   kernelAccessConst( const fptype* buffer )
   {
-    return reinterpret_cast<const cxtype_sv*>( buffer );
+    return cxtype_sv( kernelAccessIx2Const( buffer, 0 ),
+                      kernelAccessIx2Const( buffer, 1 ) );
   }
-
-#endif // #ifndef MGONGPU_TRIVIAL_COUPLINGS
 };
-
+  
 //----------------------------------------------------------------------------
 
 typedef KernelAccessCouplings<false> HostAccessCouplings;
