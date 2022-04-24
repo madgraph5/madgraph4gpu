@@ -975,8 +975,6 @@ namespace mg5amcCpu
     mgDebug( 0, __FUNCTION__ );
     /*constexpr*/ cxtype mdl_complexi( 0., 1. );
     const fptype* gs_s = &(G_ACCESS::kernelAccessConst( gs ));
-    cxtype_sv_ref gc10_sv = C_ACCESS::kernelAccess( gc10 );
-    cxtype_sv_ref gc11_sv = C_ACCESS::kernelAccess( gc11 );
 #ifdef __CUDACC__
     const fptype_sv gs_sv = *gs_s;
 #else
@@ -995,8 +993,13 @@ namespace mg5amcCpu
     const fptype_sv gs_sv = *gs_s;
 #endif
 #endif
+    cxtype_sv_ref gc10_sv = C_ACCESS::kernelAccess( gc10 );
+    cxtype_sv_ref gc11_sv = C_ACCESS::kernelAccess( gc11 );
     gc10_sv = -( gs_sv );
     gc11_sv = mdl_complexi * ( gs_sv );
+    /*
+    printf( "G2COUP: pgs=%p pgc10=%p pgc11=%p\n", gs, gc10, gc11 );
+    */
 #ifdef __CUDACC__
     printf( "G2COUP: %s=%2d gs=%f gc10=(%f, %f) gc11=(%f, %f)\n",
             "ievt", blockDim.x * blockIdx.x + threadIdx.x, gs_sv,
