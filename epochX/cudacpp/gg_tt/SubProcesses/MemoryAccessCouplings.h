@@ -146,7 +146,7 @@ public:
   kernelAccessIx2Const( const fptype* buffer,
                         const int ix2 )
   {
-    return kernelAccessIx2Const( const_cast<fptype*>( buffer ), ix2 );
+    return kernelAccessIx2( const_cast<fptype*>( buffer ), ix2 );
   }
 
   /*
