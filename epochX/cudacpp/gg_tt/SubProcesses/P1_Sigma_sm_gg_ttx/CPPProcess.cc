@@ -157,10 +157,8 @@ namespace mg5amcCpu
       // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
       const int ievt0 = ipagV * neppV;
       const fptype* momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );
-      //const fptype* gc10s = MemoryAccessCouplings::ieventAccessRecordConst( allgc10s, ievt0 );
-      //const fptype* gc11s = MemoryAccessCouplings::ieventAccessRecordConst( allgc11s, ievt0 );
-      const fptype* gc10s = &allgc10s[ievt0]; // hardcoded for now
-      const fptype* gc11s = &allgc11s[ievt0]; // hardcoded for now
+      const fptype* gc10s = MemoryAccessCouplings::ieventAccessRecordConst( allgc10s, ievt0 );
+      const fptype* gc11s = MemoryAccessCouplings::ieventAccessRecordConst( allgc11s, ievt0 );
       fptype* MEs = MemoryAccessMatrixElements::ieventAccessRecord( allMEs, ievt0 );
 #endif
 
