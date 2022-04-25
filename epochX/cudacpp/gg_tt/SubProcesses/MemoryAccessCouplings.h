@@ -12,7 +12,8 @@
 //----------------------------------------------------------------------------
 
 // A class describing the internal layout of memory buffers for couplings
-// This implementation uses an AOSOA[npagC][nx2][neppC] where nevt=npagC*neppC
+// This implementation uses an AOSOA[ndcoup][npagC][nx2][neppC] "super-buffer" where nevt=npagC*neppC
+// From the "super-buffer" for ndcoup different couplings, use idcoupAccessBuffer to access the buffer for one specific coupling
 // [If many implementations are used, a suffix _AOSOAv1 should be appended to the class name]
 class MemoryAccessCouplingsBase //_AOSOAv1
 {
@@ -30,9 +31,33 @@ private:
   friend class KernelAccessHelper<MemoryAccessCouplingsBase, true>;
   friend class KernelAccessHelper<MemoryAccessCouplingsBase, false>;
 
+  // The number of couplings that dependent on the running alphas QCD in this specific process
+  static constexpr int ndcoup = mgOnGpu::ndcoup;
+
   // The number of floating point components of a complex number
   static constexpr int nx2 = mgOnGpu::nx2;
 
+  //--------------------------------------------------------------------------
+  // ** NB! A single super-buffer AOSOA[ndcoup][npagC][nx2][neppC] includes data for ndcoup different couplings  **
+  // ** NB! The ieventAccessRecord and kernelAccess functions refer to the buffer for one individual coupling    **
+  // ** NB! Use idcoupAccessBuffer to add a fixed offset and locate the buffer for one given individual coupling **
+  //--------------------------------------------------------------------------
+
+  // Locate the buffer for a single coupling (output) in a memory super-buffer (input) from the given coupling index (input)
+  // [Signature (non-const) ===> fptype* idcoupAccessBuffer( fptype* buffer, const int idcoup ) <===]
+  static __host__ __device__ inline fptype*
+  idcoupAccessBuffer( fptype* buffer, // input "super-buffer"
+                      const int idcoup,
+                      const int nevt )
+  {
+    const int npagC = nevt / neppC; // assumes nevt is a multiple of neppC
+    constexpr int ipagC = 0;
+    constexpr int ieppC = 0;
+    constexpr int ix2 = 0;
+    // NB! this effectively adds an offset "npagC * nx2 * neppC" i.e. "nx2 * nevt" 
+    return &( buffer[idcoup * npagC * nx2 * neppC + ipagC * nx2 * neppC + ix2 * neppC + ieppC] ); // AOSOA[idcoup][ipagC][ix2][ieppC]
+  }
+  
   //--------------------------------------------------------------------------
   // NB all KernelLaunchers assume that memory access can be decomposed as "accessField = decodeRecord( accessRecord )"
   // (in other words: first locate the event record for a given event, then locate an element in that record)
@@ -44,10 +69,11 @@ private:
   ieventAccessRecord( fptype* buffer,
                       const int ievt )
   {
+    const int ipagC = ievt / neppC; // #event "C-page"
+    const int ieppC = ievt % neppC; // #event in the current event C-page
+    /*constexpr int idcoup = 0;*/
     constexpr int ix2 = 0;
-    const int ipagC = ievt / neppC;                                // #event "C-page"
-    const int ieppC = ievt % neppC;                                // #event in the current event C-page
-    return &( buffer[ipagC * nx2 * neppC + ix2 * neppC + ieppC] ); // AOSOA[ipagC][ix2][ieppC]
+    return &( buffer[/*idcoup * npagC * nx2 * neppC*/ + ipagC * nx2 * neppC + ix2 * neppC + ieppC] ); // AOSOA[idcoup][ipagC][ix2][ieppC]
   }
 
   //--------------------------------------------------------------------------
@@ -61,7 +87,9 @@ private:
   {
     constexpr int ipagC = 0;
     constexpr int ieppC = 0;
-    return buffer[ipagC * nx2 * neppC + ix2 * neppC + ieppC]; // AOSOA[ipagC][ix2][ieppC]
+    // NB! the offset "npagC * nx2 * neppC" i.e. "nx2 * nevt" has been added in idcoupAccessBuffer
+    /*constexpr int idcoup = 0;*/
+    return buffer[/*idcoup * npagC * nx2 * neppC*/ + ipagC * nx2 * neppC + ix2 * neppC + ieppC]; // AOSOA[idcoup][ipagC][ix2][ieppC]
   }
 };
 
