@@ -43,6 +43,15 @@ public:
     // NB! this effectively adds an offset "idcoup * nx2 * neppC"
     return &( buffer[ipagC * ndcoup * nx2 * neppC + idcoup * nx2 * neppC + ix2 * neppC + ieppC] ); // AOSOA[ipagC][idcoup][ix2][ieppC]
   }
+
+  // Locate the buffer for a single coupling (output) in a memory super-buffer (input) from the given coupling index (input)
+  // [Signature (const) ===> const fptype* idcoupAccessBufferConst( const fptype* buffer, const int idcoup ) <===]
+  static __host__ __device__ inline const fptype*
+  idcoupAccessBufferConst( const fptype* buffer, // input "super-buffer"
+                           const int idcoup )
+  {
+    return idcoupAccessBuffer( const_cast<fptype*>( buffer ), idcoup );
+  }
   
 private:
 

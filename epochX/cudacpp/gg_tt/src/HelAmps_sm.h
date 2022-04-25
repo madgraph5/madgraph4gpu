@@ -17,6 +17,8 @@
 //#include <iomanip>
 //#include <iostream>
 
+#include "MemoryAccessCouplings.h" // TEMPORARY!
+
 #ifdef __CUDACC__
 namespace mg5amcGpu
 #else
@@ -960,8 +962,7 @@ namespace mg5amcCpu
   template<class G_ACCESS, class C_ACCESS>
   __device__ INLINE void
   G2COUP( const fptype gs[],
-          fptype gc10[],
-          fptype gc11[] ) ALWAYS_INLINE;
+          fptype couplings[] ); ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
@@ -969,18 +970,19 @@ namespace mg5amcCpu
   template<class G_ACCESS, class C_ACCESS>
   __device__ void
   G2COUP( const fptype gs[],
-          fptype gc10[],
-          fptype gc11[] )
+          fptype couplings[] )
   {
     mgDebug( 0, __FUNCTION__ );
     /*constexpr*/ cxtype mdl_complexi( 0., 1. );
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
+    fptype* gc10 = MemoryAccessCouplingsBase::idcoupAccessBuffer( couplings, 0 );
+    fptype* gc11 = MemoryAccessCouplingsBase::idcoupAccessBuffer( couplings, 1 );
     cxtype_sv_ref gc10_sv = C_ACCESS::kernelAccess( gc10 );
     cxtype_sv_ref gc11_sv = C_ACCESS::kernelAccess( gc11 );
     gc10_sv = -( gs_sv );
     gc11_sv = mdl_complexi * ( gs_sv );
     /*
-    printf( "G2COUP: pgs=%p pgc10=%p pgc11=%p\n", gs, gc10, gc11 );
+    printf( "G2COUP: pgs=%p pgc10=%p pgc11=%p\n", gs, gc10s, gc11s );
 #ifdef __CUDACC__
     printf( "G2COUP: pgssv=%p pgc10sv=%p pgc11sv=%p\n", &gs_sv, &gc10_sv, &gc11_sv );
     //printf( "G2COUP: pgc10svr=%p pgc11rsv=%p\n", gc10_sv.m_preal, gc11_sv.m_preal ); // needs a hack in cxtype_ref

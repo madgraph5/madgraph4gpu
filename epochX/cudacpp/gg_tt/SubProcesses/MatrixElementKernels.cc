@@ -3,7 +3,6 @@
 #include "CPPProcess.h"
 #include "CudaRuntime.h"
 #include "MemoryAccessMomenta.h"
-#include "MemoryAccessCouplings.h" // TEMPORARY?
 #include "MemoryBuffers.h"
 
 #include <sstream>
@@ -51,10 +50,8 @@ namespace mg5amcCpu
     using mgOnGpu::ncomb; // the number of helicity combinations
     HostBufferHelicityMask hstIsGoodHel( ncomb );
     // ... 0d1. Compute good helicity mask on the host
-    fptype* gc10 = MemoryAccessCouplingsBase::idcoupAccessBuffer( m_couplings.data(), 0 );
-    fptype* gc11 = MemoryAccessCouplingsBase::idcoupAccessBuffer( m_couplings.data(), 1 );
-    computeDependentCouplings( m_gs.data(), gc10, gc11, m_gs.size() );
-    sigmaKin_getGoodHel( m_momenta.data(), gc10, gc11, m_matrixElements.data(), hstIsGoodHel.data(), nevt() );
+    computeDependentCouplings( m_gs.data(), m_couplings.data(), m_gs.size() );
+    sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), hstIsGoodHel.data(), nevt() );
     // ... 0d2. Copy back good helicity list to static memory on the host
     // [FIXME! REMOVE THIS STATIC THAT BREAKS MULTITHREADING?]
     sigmaKin_setGoodHel( hstIsGoodHel.data() );
@@ -64,10 +61,8 @@ namespace mg5amcCpu
 
   void MatrixElementKernelHost::computeMatrixElements()
   {
-    fptype* gc10 = MemoryAccessCouplingsBase::idcoupAccessBuffer( m_couplings.data(), 0 );
-    fptype* gc11 = MemoryAccessCouplingsBase::idcoupAccessBuffer( m_couplings.data(), 1 );
-    computeDependentCouplings( m_gs.data(), gc10, gc11, m_gs.size() );
-    sigmaKin( m_momenta.data(), gc10, gc11, m_matrixElements.data(), nevt() );
+    computeDependentCouplings( m_gs.data(), m_couplings.data(), m_gs.size() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), nevt() );
   }
 
   //--------------------------------------------------------------------------
@@ -178,10 +173,8 @@ namespace mg5amcGpu
     PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
     DeviceBufferHelicityMask devIsGoodHel( ncomb );
     // ... 0d1. Compute good helicity mask on the device
-    fptype* gc10 = MemoryAccessCouplingsBase::idcoupAccessBuffer( m_couplings.data(), 0 );
-    fptype* gc11 = MemoryAccessCouplingsBase::idcoupAccessBuffer( m_couplings.data(), 1 );
-    computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), gc10, gc11 );
-    sigmaKin_getGoodHel<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), gc10, gc11, m_matrixElements.data(), devIsGoodHel.data() );
+    computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_couplings.data() );
+    sigmaKin_getGoodHel<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), devIsGoodHel.data() );
     checkCuda( cudaPeekAtLastError() );
     // ... 0d2. Copy back good helicity mask to the host
     copyHostFromDevice( hstIsGoodHel, devIsGoodHel );
@@ -193,13 +186,11 @@ namespace mg5amcGpu
 
   void MatrixElementKernelDevice::computeMatrixElements()
   {
-    fptype* gc10 = MemoryAccessCouplingsBase::idcoupAccessBuffer( m_couplings.data(), 0 );
-    fptype* gc11 = MemoryAccessCouplingsBase::idcoupAccessBuffer( m_couplings.data(), 1 );
-    computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), gc10, gc11 );
+    computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_couplings.data() );
 #ifndef MGONGPU_NSIGHT_DEBUG
-    sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), gc10, gc11, m_matrixElements.data() );
+    sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data() );
 #else
-    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX * sizeof( float )>>>( m_momenta.data(), gc10, gc11, m_matrixElements.data() );
+    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX * sizeof( float )>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data() );
 #endif
     checkCuda( cudaPeekAtLastError() );
     checkCuda( cudaDeviceSynchronize() );

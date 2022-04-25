@@ -88,29 +88,30 @@ namespace mg5amcCpu
 
 #ifdef __CUDACC__
   __global__ void
-  computeDependentCouplings( const fptype* gs, fptype* gc10, fptype* gc11 );
+  computeDependentCouplings( const fptype* allgs,    // input: Gs[nevt]
+                             fptype* allcouplings ); // output: couplings[nevt*ndcoup*2]
 #else
   __global__ void
-  computeDependentCouplings( const fptype* gs, fptype* gc10, fptype* gc11, const int nevt );
+  computeDependentCouplings( const fptype* allgs,    // input: Gs[nevt]
+                             fptype* allcouplings,   // output: couplings[nevt*ndcoup*2]
+                             const int nevt );       // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
 
   //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__
   __global__ void
-  sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
-                       const fptype* gc10,       // input: gc10 couplings
-                       const fptype* gc11,       // input: gc11 couplings
-                       fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-                       bool* isGoodHel );        // output: isGoodHel[ncomb] - device array
+  sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
+                       const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
+                       fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                       bool* isGoodHel );          // output: isGoodHel[ncomb] - device array
 #else
   __global__ void
-  sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
-                       const fptype* gc10,       // input: gc10 couplings
-                       const fptype* gc11,       // input: gc11 couplings
-                       fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-                       bool* isGoodHel,          // output: isGoodHel[ncomb] - device array
-                       const int nevt );         // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+  sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
+                       const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
+                       fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                       bool* isGoodHel,            // output: isGoodHel[ncomb] - device array
+                       const int nevt );           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
 
   //--------------------------------------------------------------------------
@@ -122,17 +123,15 @@ namespace mg5amcCpu
 
 #ifdef __CUDACC__
   __global__ void
-  sigmaKin( const fptype* allmomenta, // input: momenta[nevt*npar*4]
-            const fptype* gc10,       // input: gc10 couplings
-            const fptype* gc11,       // input: gc11 couplings
-            fptype* allMEs );         // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+  sigmaKin( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
+            const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
+            fptype* allMEs );           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #else
   __global__ void
-  sigmaKin( const fptype* allmomenta, // input: momenta[nevt*npar*4]
-            const fptype* gc10,       // input: gc10 couplings
-            const fptype* gc11,       // input: gc11 couplings
-            fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-            const int nevt );         // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+  sigmaKin( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
+            const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
+            fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+            const int nevt );           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
 
   //--------------------------------------------------------------------------

@@ -80,12 +80,11 @@ namespace mg5amcCpu
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   __device__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
-                           const fptype* allmomenta, // input: momenta[nevt*npar*4]
-                           const fptype* allgc10s,   // input: gc10 couplings
-                           const fptype* allgc11s,   // input: gc11 couplings
-                           fptype* allMEs            // output: allMEs[nevt], |M|^2 running_sum_over_helicities
+                           const fptype* allmomenta,   // input: momenta[nevt*npar*4]
+                           const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
+                           fptype* allMEs              // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifndef __CUDACC__
-                           , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                           , const int nevt            // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
@@ -142,11 +141,13 @@ namespace mg5amcCpu
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
-#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, allgc10s, allgc11s, cIPD, ihel, npagV, amp_fp, w_fp ) private( amp_sv, w_sv, jamp_sv )
+#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, allcouplings, cIPD, ihel, npagV, amp_fp, w_fp ) private( amp_sv, w_sv, jamp_sv )
 #endif // _OPENMP
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif // !__CUDACC__
     {
+      const fptype* allgc10s = MemoryAccessCouplingsBase::idcoupAccessBufferConst( allcouplings, 0 );
+      const fptype* allgc11s = MemoryAccessCouplingsBase::idcoupAccessBufferConst( allcouplings, 1 );
 #ifdef __CUDACC__
       // CUDA kernels take input/output buffers with momenta/MEs for all events
       const fptype* momenta = allmomenta;
@@ -438,11 +439,10 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   __global__ void /* clang-format off */
-  computeDependentCouplings( const fptype* allgs,
-                             fptype* allgc10s,
-                             fptype* allgc11s
+  computeDependentCouplings( const fptype* allgs, // input: Gs[nevt]
+                             fptype* allcouplings // output: couplings[nevt*ndcoup*2]
 #ifndef __CUDACC__
-                    , const int nevt
+                             , const int nevt     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
   ) /* clang-format on */
   {
@@ -450,7 +450,7 @@ namespace mg5amcCpu
     using namespace mg5amcGpu;
     using G_ACCESS = DeviceAccessGs;
     using C_ACCESS = DeviceAccessCouplings;
-    G2COUP<G_ACCESS, C_ACCESS>( allgs, allgc10s, allgc11s );
+    G2COUP<G_ACCESS, C_ACCESS>( allgs, allcouplings );
 #else
     using namespace mg5amcCpu;
     using G_ACCESS = HostAccessGs;
@@ -459,9 +459,8 @@ namespace mg5amcCpu
     {
       const int ievt0 = ipagV * neppV;
       const fptype* gs = MemoryAccessGs::ieventAccessRecordConst( allgs, ievt0 );
-      fptype* gc10s = MemoryAccessCouplings::ieventAccessRecord( allgc10s, ievt0 );
-      fptype* gc11s = MemoryAccessCouplings::ieventAccessRecord( allgc11s, ievt0 );
-      G2COUP<G_ACCESS, C_ACCESS>( gs, gc10s, gc11s );
+      fptype* couplings = MemoryAccessCouplings::ieventAccessRecord( allcouplings, ievt0 );
+      G2COUP<G_ACCESS, C_ACCESS>( gs, couplings );
     }
 #endif
   }
@@ -470,11 +469,10 @@ namespace mg5amcCpu
 
 #ifdef __CUDACC__
   __global__ void
-  sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
-                       const fptype* allgc10s,   // input: gc10 couplings
-                       const fptype* allgc11s,   // input: gc11 couplings
-                       fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-                       bool* isGoodHel )         // output: isGoodHel[ncomb] - device array
+  sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
+                       const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
+                       fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                       bool* isGoodHel )           // output: isGoodHel[ncomb] - device array
   {
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
@@ -482,7 +480,7 @@ namespace mg5amcCpu
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-      calculate_wavefunctions( ihel, allmomenta, allgc10s, allgc11s, allMEs );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
       if( allMEs[ievt] != allMEsLast )
       {
         //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
@@ -493,12 +491,11 @@ namespace mg5amcCpu
   }
 #else
   void
-  sigmaKin_getGoodHel( const fptype* allmomenta, // input: momenta[nevt*npar*4]
-                       const fptype* allgc10s,   // input: gc10 couplings
-                       const fptype* allgc11s,   // input: gc11 couplings
-                       fptype* allMEs,           // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-                       bool* isGoodHel,          // output: isGoodHel[ncomb] - device array
-                       const int nevt )          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+  sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
+                       const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
+                       fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                       bool* isGoodHel,            // output: isGoodHel[ncomb] - device array
+                       const int nevt )            // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
     //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
     //assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
@@ -513,7 +510,7 @@ namespace mg5amcCpu
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
       //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
-      calculate_wavefunctions( ihel, allmomenta, allgc10s, allgc11s, allMEs, maxtry );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, maxtry );
       for( int ievt = 0; ievt < maxtry; ++ievt )
       {
         // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
@@ -561,12 +558,11 @@ namespace mg5amcCpu
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
 
   __global__ void /* clang-format off */
-  sigmaKin( const fptype* allmomenta, // input: momenta[nevt*npar*4]
-            const fptype* allgc10s,   // input: gc10 couplings
-            const fptype* allgc11s,   // input: gc11 couplings
-            fptype* allMEs            // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+  sigmaKin( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
+            const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
+            fptype* allMEs              // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifndef __CUDACC__
-            , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+            , const int nevt            // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
             ) /* clang-format on */
   {
@@ -612,9 +608,9 @@ namespace mg5amcCpu
     {
       const int ihel = cGoodHel[ighel];
 #ifdef __CUDACC__
-      calculate_wavefunctions( ihel, allmomenta, allgc10s, allgc11s, allMEs );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
 #else
-      calculate_wavefunctions( ihel, allmomenta, allgc10s, allgc11s, allMEs, nevt );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, nevt );
 #endif
       //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
