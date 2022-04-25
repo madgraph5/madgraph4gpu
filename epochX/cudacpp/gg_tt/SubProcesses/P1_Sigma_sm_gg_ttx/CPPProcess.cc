@@ -55,8 +55,6 @@ namespace mg5amcCpu
 #else
 #ifdef __CUDACC__
   __device__ __constant__ fptype cIPC[4];
-  __device__ __constant__ fptype GC_10[128];
-  __device__ __constant__ fptype GC_11[128];
   __device__ __constant__ fptype cIPD[2];
 #else
   static fptype cIPD[2];
