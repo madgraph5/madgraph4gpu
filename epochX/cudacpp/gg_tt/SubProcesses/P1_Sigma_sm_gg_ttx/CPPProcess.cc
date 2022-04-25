@@ -166,6 +166,7 @@ namespace mg5amcCpu
       for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }
 
       // DEBUG MemoryAccessCouplings
+      /*
       {
         const fptype_sv CPr = cxreal( C_ACCESS::kernelAccessConst( gc10s ) );
         const fptype_sv CPi = cximag( C_ACCESS::kernelAccessConst( gc10s ) );
@@ -177,6 +178,7 @@ namespace mg5amcCpu
                   allgc10s, gc10s, ipagV, ieppV, CPr[ieppV], CPi[ieppV] );
 #endif
       }
+      */
       
       // *** DIAGRAM 1 OF 3 ***
 
