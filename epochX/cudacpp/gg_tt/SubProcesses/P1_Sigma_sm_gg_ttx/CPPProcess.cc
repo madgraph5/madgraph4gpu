@@ -50,11 +50,9 @@ namespace mg5amcCpu
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
 #ifdef MGONGPU_HARDCODE_CIPC
-  __device__ const fptype cIPC[4] = { (fptype)Parameters_sm::GC_10.real(), (fptype)Parameters_sm::GC_10.imag(), (fptype)Parameters_sm::GC_11.real(), (fptype)Parameters_sm::GC_11.imag() };
   __device__ const fptype cIPD[2] = { (fptype)Parameters_sm::mdl_MT, (fptype)Parameters_sm::mdl_WT };
 #else
 #ifdef __CUDACC__
-  __device__ __constant__ fptype cIPC[4];
   __device__ __constant__ fptype cIPD[2];
 #else
   static fptype cIPD[2];
@@ -342,7 +340,6 @@ namespace mg5amcCpu
 #else
     memcpy( cIPD, tIPD, 2 * sizeof( fptype ) );
 #endif
-    //for ( i=0; i<3; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;
     //for ( i=0; i<2; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
   }
 #else
