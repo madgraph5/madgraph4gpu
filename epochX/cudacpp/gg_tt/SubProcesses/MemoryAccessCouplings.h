@@ -33,6 +33,7 @@ public:
 
   // Locate the buffer for a single coupling (output) in a memory super-buffer (input) from the given coupling index (input)
   // [Signature (non-const) ===> fptype* idcoupAccessBuffer( fptype* buffer, const int idcoup ) <===]
+  // NB: keep this in public even if exposed through KernelAccessCouplings: nvcc says it is inaccesible otherwise?
   static __host__ __device__ inline fptype*
   idcoupAccessBuffer( fptype* buffer, // input "super-buffer"
                       const int idcoup )
@@ -46,6 +47,7 @@ public:
 
   // Locate the buffer for a single coupling (output) in a memory super-buffer (input) from the given coupling index (input)
   // [Signature (const) ===> const fptype* idcoupAccessBufferConst( const fptype* buffer, const int idcoup ) <===]
+  // NB: keep this in public even if exposed through KernelAccessCouplings: nvcc says it is inaccesible otherwise?
   static __host__ __device__ inline const fptype*
   idcoupAccessBufferConst( const fptype* buffer, // input "super-buffer"
                            const int idcoup )
@@ -54,7 +56,7 @@ public:
   }
   
 private:
-
+  
   friend class MemoryAccessHelper<MemoryAccessCouplingsBase>;
   friend class KernelAccessHelper<MemoryAccessCouplingsBase, true>;
   friend class KernelAccessHelper<MemoryAccessCouplingsBase, false>;
@@ -144,6 +146,14 @@ template<bool onDevice>
 class KernelAccessCouplings
 {
 public:
+
+  // Locate the buffer for a single coupling (output) in a memory super-buffer (input) from the given coupling index (input)
+  // [Signature (non-const) ===> fptype* idcoupAccessBuffer( fptype* buffer, const int idcoup ) <===]
+  static constexpr auto idcoupAccessBuffer = MemoryAccessCouplingsBase::idcoupAccessBuffer;
+
+  // Locate the buffer for a single coupling (output) in a memory super-buffer (input) from the given coupling index (input)
+  // [Signature (const) ===> const fptype* idcoupAccessBufferConst( const fptype* buffer, const int idcoup ) <===]
+  static constexpr auto idcoupAccessBufferConst = MemoryAccessCouplingsBase::idcoupAccessBufferConst;
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
   // [Signature (non-const, SCALAR) ===> fptype& kernelAccessIx2( fptype* buffer, const int ix2 ) <===]

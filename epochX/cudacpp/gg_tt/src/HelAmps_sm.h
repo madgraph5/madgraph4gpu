@@ -17,8 +17,6 @@
 //#include <iomanip>
 //#include <iostream>
 
-#include "MemoryAccessCouplings.h" // TEMPORARY!
-
 #ifdef __CUDACC__
 namespace mg5amcGpu
 #else
@@ -975,8 +973,8 @@ namespace mg5amcCpu
     mgDebug( 0, __FUNCTION__ );
     /*constexpr*/ cxtype mdl_complexi( 0., 1. );
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
-    fptype* gc10 = MemoryAccessCouplingsBase::idcoupAccessBuffer( couplings, 0 );
-    fptype* gc11 = MemoryAccessCouplingsBase::idcoupAccessBuffer( couplings, 1 );
+    fptype* gc10 = C_ACCESS::idcoupAccessBuffer( couplings, 0 );
+    fptype* gc11 = C_ACCESS::idcoupAccessBuffer( couplings, 1 );
     cxtype_sv_ref gc10_sv = C_ACCESS::kernelAccess( gc10 );
     cxtype_sv_ref gc11_sv = C_ACCESS::kernelAccess( gc11 );
     gc10_sv = -( gs_sv );
