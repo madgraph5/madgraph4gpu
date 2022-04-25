@@ -172,14 +172,14 @@ public:
   */
   
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // [Signature (non const, SCALAR OR VECTOR) ===> cxtype_sv_ref kernelAccessConst( fptype* buffer ) <===]
+  // [Signature (non const, SCALAR OR VECTOR) ===> cxtype_sv_ref kernelAccess( fptype* buffer ) <===]
   static __host__ __device__ inline cxtype_sv_ref
   kernelAccess( fptype* buffer )
   {
     /*
-    fptype& real = kernelAccessIx2( buffer, 0 );
-    fptype& imag = kernelAccessIx2( buffer, 1 );
-    printf( "C_ACCESS::kernelAccess: buffer=%p r=%p i=%p\n", buffer, &real, &imag );    
+    fptype_sv& real = kernelAccessIx2( buffer, 0 );
+    fptype_sv& imag = kernelAccessIx2( buffer, 1 );
+    printf( "C_ACCESS::kernelAccess: pbuffer=%p pr=%p pi=%p\n", buffer, &real, &imag );
     return cxtype_sv_ref( real, imag );
     */
     return cxtype_sv_ref( kernelAccessIx2( buffer, 0 ),
