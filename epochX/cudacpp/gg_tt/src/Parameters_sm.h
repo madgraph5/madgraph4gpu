@@ -24,17 +24,18 @@ public:
   double zero, ZERO;
 
   // Model parameters independent of aS
-  double mdl_WH, mdl_WW, mdl_WZ, mdl_WT, mdl_ymtau, mdl_ymt, mdl_ymb, aS, mdl_Gf, aEWM1, mdl_MH, mdl_MZ, mdl_MTA, mdl_MT, mdl_MB, mdl_conjg__CKM3x3, mdl_conjg__CKM1x1, mdl_CKM3x3, mdl_MZ__exp__2, mdl_MZ__exp__4, mdl_sqrt__2, mdl_MH__exp__2, mdl_aEW, mdl_MW, mdl_sqrt__aEW, mdl_ee, mdl_MW__exp__2, mdl_sw2, mdl_cw, mdl_sqrt__sw2, mdl_sw, mdl_g1, mdl_gw, mdl_vev, mdl_vev__exp__2, mdl_lam, mdl_yb, mdl_yt, mdl_ytau, mdl_muH, mdl_ee__exp__2, mdl_sw__exp__2, mdl_cw__exp__2;
+  double aS; // now retrieved event-by-event (as G) from Fortran (running alphas #373)
+  double mdl_WH, mdl_WW, mdl_WZ, mdl_WT, mdl_ymtau, mdl_ymt, mdl_ymb, mdl_Gf, aEWM1, mdl_MH, mdl_MZ, mdl_MTA, mdl_MT, mdl_MB, mdl_conjg__CKM3x3, mdl_conjg__CKM1x1, mdl_CKM3x3, mdl_MZ__exp__2, mdl_MZ__exp__4, mdl_sqrt__2, mdl_MH__exp__2, mdl_aEW, mdl_MW, mdl_sqrt__aEW, mdl_ee, mdl_MW__exp__2, mdl_sw2, mdl_cw, mdl_sqrt__sw2, mdl_sw, mdl_g1, mdl_gw, mdl_vev, mdl_vev__exp__2, mdl_lam, mdl_yb, mdl_yt, mdl_ytau, mdl_muH, mdl_ee__exp__2, mdl_sw__exp__2, mdl_cw__exp__2;
   cxsmpl<double> mdl_complexi, mdl_I1x33, mdl_I2x33, mdl_I3x33, mdl_I4x33;
 
   // Model couplings independent of aS
   // (none)
 
   // Model parameters dependent on aS
-  double mdl_sqrt__aS, G, mdl_G__exp__2;
+  //double mdl_sqrt__aS, G, mdl_G__exp__2; // now computed event-by-event (running alphas #373)
 
   // Model couplings dependent on aS
-  cxsmpl<double> GC_10, GC_11;
+  //cxsmpl<double> GC_10, GC_11; // now computed event-by-event (running alphas #373)
 
   // Set parameters that are unchanged during the run
   void setIndependentParameters( SLHAReader& slha );
@@ -43,10 +44,10 @@ public:
   void setIndependentCouplings();
 
   // Set parameters that are changed event by event
-  void setDependentParameters();
+  //void setDependentParameters(); // now computed event-by-event (running alphas #373)
 
   // Set couplings that are changed event by event
-  void setDependentCouplings();
+  //void setDependentCouplings(); // now done event-by-event (running alphas #373)
 
   // Print parameters that are unchanged during the run
   void printIndependentParameters();
@@ -55,10 +56,10 @@ public:
   void printIndependentCouplings();
 
   // Print parameters that are changed event by event
-  void printDependentParameters();
+  //void printDependentParameters(); // now computed event-by-event (running alphas #373)
 
   // Print couplings that are changed event by event
-  void printDependentCouplings();
+  //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
 
 private:
 
@@ -94,7 +95,7 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   constexpr double mdl_ymtau = 1.777000e+00;
   constexpr double mdl_ymt = 1.730000e+02;
   constexpr double mdl_ymb = 4.700000e+00;
-  constexpr double aS = 1.180000e-01;
+  //constexpr double aS = 1.180000e-01; // now retrieved event-by-event (as G) from Fortran (running alphas #373)
   constexpr double mdl_Gf = 1.166390e-05;
   constexpr double aEWM1 = 1.325070e+02;
   constexpr double mdl_MH = 1.250000e+02;
@@ -140,13 +141,13 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   // (none)
 
   // Model parameters dependent on aS
-  constexpr double mdl_sqrt__aS = sqrtNR( aS );
-  constexpr double G = 2. * mdl_sqrt__aS * sqrtNR( M_PI );
-  constexpr double mdl_G__exp__2 = ( ( G ) * ( G ) );
+  //constexpr double mdl_sqrt__aS = sqrtNR( aS ); // now computed event-by-event (running alphas #373)
+  //constexpr double G = 2. * mdl_sqrt__aS * sqrtNR( M_PI ); // now computed event-by-event (running alphas #373)
+  //constexpr double mdl_G__exp__2 = ( ( G ) * ( G ) ); // now computed event-by-event (running alphas #373)
 
   // Model couplings dependent on aS
-  constexpr cxsmpl<double> GC_10 = -G;
-  constexpr cxsmpl<double> GC_11 = mdl_complexi * G;
+  //constexpr cxsmpl<double> GC_10 = -G; // now computed event-by-event (running alphas #373)
+  //constexpr cxsmpl<double> GC_11 = mdl_complexi * G; // now computed event-by-event (running alphas #373)
 
   // Print parameters that are unchanged during the run
   void printIndependentParameters();
@@ -155,10 +156,10 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   void printIndependentCouplings();
 
   // Print parameters that are changed event by event
-  void printDependentParameters();
+  //void printDependentParameters(); // now computed event-by-event (running alphas #373)
 
   // Print couplings that are changed event by event
-  void printDependentCouplings();
+  //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
 }
 
 #endif
