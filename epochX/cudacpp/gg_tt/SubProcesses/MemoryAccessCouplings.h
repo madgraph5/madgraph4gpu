@@ -147,13 +147,12 @@ class KernelAccessCouplings
 {
 public:
 
-  // Locate the buffer for a single coupling (output) in a memory super-buffer (input) from the given coupling index (input)
-  // [Signature (non-const) ===> fptype* idcoupAccessBuffer( fptype* buffer, const int idcoup ) <===]
+  // Expose selected functions from MemoryAccessCouplingsBase
   static constexpr auto idcoupAccessBuffer = MemoryAccessCouplingsBase::idcoupAccessBuffer;
-
-  // Locate the buffer for a single coupling (output) in a memory super-buffer (input) from the given coupling index (input)
-  // [Signature (const) ===> const fptype* idcoupAccessBufferConst( const fptype* buffer, const int idcoup ) <===]
   static constexpr auto idcoupAccessBufferConst = MemoryAccessCouplingsBase::idcoupAccessBufferConst;
+
+  // Expose selected functions from MemoryAccessCouplings
+  static constexpr auto ieventAccessRecordConst = MemoryAccessCouplings::ieventAccessRecordConst;
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
   // [Signature (non-const, SCALAR) ===> fptype& kernelAccessIx2( fptype* buffer, const int ix2 ) <===]

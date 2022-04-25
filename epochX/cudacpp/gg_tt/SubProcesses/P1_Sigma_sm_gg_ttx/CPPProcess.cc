@@ -157,10 +157,10 @@ namespace mg5amcCpu
 #else
       // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
       const int ievt0 = ipagV * neppV;
-      const fptype* momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );
-      const fptype* gc10s = MemoryAccessCouplings::ieventAccessRecordConst( allgc10s, ievt0 );
-      const fptype* gc11s = MemoryAccessCouplings::ieventAccessRecordConst( allgc11s, ievt0 );
-      fptype* MEs = MemoryAccessMatrixElements::ieventAccessRecord( allMEs, ievt0 );
+      const fptype* momenta = M_ACCESS::ieventAccessRecordConst( allmomenta, ievt0 );
+      const fptype* gc10s = C_ACCESS::ieventAccessRecordConst( allgc10s, ievt0 );
+      const fptype* gc11s = C_ACCESS::ieventAccessRecordConst( allgc11s, ievt0 );
+      fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
 #endif
 
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page

@@ -92,6 +92,9 @@ class KernelAccessMatrixElements
 {
 public:
 
+  // Expose selected functions from MemoryAccessMatrixElements
+  static constexpr auto ieventAccessRecord = MemoryAccessMatrixElements::ieventAccessRecord;
+
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
   // [Signature (non-const, SCALAR) ===> fptype& kernelAccess_s( fptype* buffer ) <===]
   static constexpr auto kernelAccess_s =
