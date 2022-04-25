@@ -144,33 +144,33 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
     cxtype_ref r12a( cxtype_ref( f1, f2 ) ); // copy refs
     //cxtype_ref r12b = r12; // deleted
     cxtype_ref r12b = cxtype_ref( f1, f2 ); // copy refs
-    EXPECT_TRUE( cxtype(r12).real() == 1 );
-    EXPECT_TRUE( cxtype(r12).imag() == 2 );
-    EXPECT_TRUE( cxtype(r12a).real() == 1 );
-    EXPECT_TRUE( cxtype(r12a).imag() == 2 );
-    EXPECT_TRUE( cxtype(r12b).real() == 1 );
-    EXPECT_TRUE( cxtype(r12b).imag() == 2 );
+    EXPECT_TRUE( cxtype( r12 ).real() == 1 );
+    EXPECT_TRUE( cxtype( r12 ).imag() == 2 );
+    EXPECT_TRUE( cxtype( r12a ).real() == 1 );
+    EXPECT_TRUE( cxtype( r12a ).imag() == 2 );
+    EXPECT_TRUE( cxtype( r12b ).real() == 1 );
+    EXPECT_TRUE( cxtype( r12b ).imag() == 2 );
     // Refs to f1c, f2c
     fptype f1c = 0;
     fptype f2c = 0;
     cxtype_ref r12c( f1c, f2c );
-    EXPECT_TRUE( cxtype(r12c).real() == 0 );
-    EXPECT_TRUE( cxtype(r12c).imag() == 0 );
+    EXPECT_TRUE( cxtype( r12c ).real() == 0 );
+    EXPECT_TRUE( cxtype( r12c ).imag() == 0 );
     //r12c = r12; // deleted
     r12c = cxtype( r12 ); // copy values
-    EXPECT_TRUE( cxtype(r12c).real() == 1 );
-    EXPECT_TRUE( cxtype(r12c).imag() == 2 );
+    EXPECT_TRUE( cxtype( r12c ).real() == 1 );
+    EXPECT_TRUE( cxtype( r12c ).imag() == 2 );
     // Update f1, f2
     f1 = 10;
     f2 = 20;
-    EXPECT_TRUE( cxtype(r12).real() == 10 );
-    EXPECT_TRUE( cxtype(r12).imag() == 20 );
-    EXPECT_TRUE( cxtype(r12a).real() == 10 );
-    EXPECT_TRUE( cxtype(r12a).imag() == 20 );
-    EXPECT_TRUE( cxtype(r12b).real() == 10 );
-    EXPECT_TRUE( cxtype(r12b).imag() == 20 );
-    EXPECT_TRUE( cxtype(r12c).real() == 1 ); // points to f1c, not to f1
-    EXPECT_TRUE( cxtype(r12c).imag() == 2 ); // points to f2c, not to f2
+    EXPECT_TRUE( cxtype( r12 ).real() == 10 );
+    EXPECT_TRUE( cxtype( r12 ).imag() == 20 );
+    EXPECT_TRUE( cxtype( r12a ).real() == 10 );
+    EXPECT_TRUE( cxtype( r12a ).imag() == 20 );
+    EXPECT_TRUE( cxtype( r12b ).real() == 10 );
+    EXPECT_TRUE( cxtype( r12b ).imag() == 20 );
+    EXPECT_TRUE( cxtype( r12c ).real() == 1 ); // points to f1c, not to f1
+    EXPECT_TRUE( cxtype( r12c ).imag() == 2 ); // points to f2c, not to f2
   }
 
   // Vector complex references
@@ -184,35 +184,34 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
     cxtype_sv_ref r12a( cxtype_sv_ref( f1, f2 ) ); // copy refs
     //cxtype_sv_ref r12b = r12; // deleted
     cxtype_sv_ref r12b = cxtype_sv_ref( f1, f2 ); // copy refs
-    EXPECT_TRUE_sv( cxtype_sv(r12).real() == 1 );
-    EXPECT_TRUE_sv( cxtype_sv(r12).imag() == 2 );
-    EXPECT_TRUE_sv( cxtype_sv(r12a).real() == 1 );
-    EXPECT_TRUE_sv( cxtype_sv(r12a).imag() == 2 );
-    EXPECT_TRUE_sv( cxtype_sv(r12b).real() == 1 );
-    EXPECT_TRUE_sv( cxtype_sv(r12b).imag() == 2 );
+    EXPECT_TRUE_sv( cxtype_sv( r12 ).real() == 1 );
+    EXPECT_TRUE_sv( cxtype_sv( r12 ).imag() == 2 );
+    EXPECT_TRUE_sv( cxtype_sv( r12a ).real() == 1 );
+    EXPECT_TRUE_sv( cxtype_sv( r12a ).imag() == 2 );
+    EXPECT_TRUE_sv( cxtype_sv( r12b ).real() == 1 );
+    EXPECT_TRUE_sv( cxtype_sv( r12b ).imag() == 2 );
     // Refs to f1c, f2c
     fptype_sv f1c = fptype_sv{ 0 };
     fptype_sv f2c = fptype_sv{ 0 };
     cxtype_sv_ref r12c( f1c, f2c );
-    EXPECT_TRUE_sv( cxtype_sv(r12c).real() == 0 );
-    EXPECT_TRUE_sv( cxtype_sv(r12c).imag() == 0 );
+    EXPECT_TRUE_sv( cxtype_sv( r12c ).real() == 0 );
+    EXPECT_TRUE_sv( cxtype_sv( r12c ).imag() == 0 );
     //r12c = r12; // deleted
     r12c = cxtype_sv( r12 ); // copy values
-    EXPECT_TRUE_sv( cxtype_sv(r12c).real() == 1 );
-    EXPECT_TRUE_sv( cxtype_sv(r12c).imag() == 2 );
+    EXPECT_TRUE_sv( cxtype_sv( r12c ).real() == 1 );
+    EXPECT_TRUE_sv( cxtype_sv( r12c ).imag() == 2 );
     // Update f1, f2
     f1 = fptype_sv{ 0 } + 10;
     f2 = fptype_sv{ 0 } + 20;
-    EXPECT_TRUE_sv( cxtype_sv(r12).real() == 10 );
-    EXPECT_TRUE_sv( cxtype_sv(r12).imag() == 20 );
-    EXPECT_TRUE_sv( cxtype_sv(r12a).real() == 10 );
-    EXPECT_TRUE_sv( cxtype_sv(r12a).imag() == 20 );
-    EXPECT_TRUE_sv( cxtype_sv(r12b).real() == 10 );
-    EXPECT_TRUE_sv( cxtype_sv(r12b).imag() == 20 );
-    EXPECT_TRUE_sv( cxtype_sv(r12c).real() == 1 ); // points to f1c, not to f1
-    EXPECT_TRUE_sv( cxtype_sv(r12c).imag() == 2 ); // points to f2c, not to f2
+    EXPECT_TRUE_sv( cxtype_sv( r12 ).real() == 10 );
+    EXPECT_TRUE_sv( cxtype_sv( r12 ).imag() == 20 );
+    EXPECT_TRUE_sv( cxtype_sv( r12a ).real() == 10 );
+    EXPECT_TRUE_sv( cxtype_sv( r12a ).imag() == 20 );
+    EXPECT_TRUE_sv( cxtype_sv( r12b ).real() == 10 );
+    EXPECT_TRUE_sv( cxtype_sv( r12b ).imag() == 20 );
+    EXPECT_TRUE_sv( cxtype_sv( r12c ).real() == 1 ); // points to f1c, not to f1
+    EXPECT_TRUE_sv( cxtype_sv( r12c ).imag() == 2 ); // points to f2c, not to f2
   }
 
   //--------------------------------------------------------------------------
-
 }

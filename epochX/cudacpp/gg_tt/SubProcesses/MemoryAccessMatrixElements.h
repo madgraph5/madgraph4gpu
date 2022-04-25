@@ -107,7 +107,7 @@ public:
     return out;
 #else
     // NB: derived from MemoryAccessMomenta, restricting the implementation to contiguous aligned arrays (#435)
-    static_assert( mg5amcCpu::HostBufferMatrixElements::isaligned() ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)    
+    static_assert( mg5amcCpu::HostBufferMatrixElements::isaligned() ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
     //assert( (size_t)( buffer ) % mgOnGpu::cppAlign == 0 ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
     return mg5amcCpu::fptypevFromAlignedArray( out ); // SIMD bulk load of neppV, use reinterpret_cast
 #endif

@@ -80,7 +80,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifndef __CUDACC__
-  constexpr bool HostBufferALIGNED = false; // ismisaligned=false
+  constexpr bool HostBufferALIGNED = false;   // ismisaligned=false
   constexpr bool HostBufferMISALIGNED = true; // ismisaligned=true
 
   // A class encapsulating a C++ host buffer
@@ -91,19 +91,19 @@ namespace mg5amcCpu
     HostBufferBase( const size_t size )
       : BufferBase<T>( size, false )
     {
-      if constexpr( !ismisaligned )  
+      if constexpr( !ismisaligned )
         this->m_data = new( std::align_val_t( cppAlign ) ) T[size]();
       else
-        this->m_data = new( std::align_val_t( cppAlign ) ) T[ size+1 ]() + 1; // TEST MISALIGNMENT!
+        this->m_data = new( std::align_val_t( cppAlign ) ) T[size + 1]() + 1; // TEST MISALIGNMENT!
     }
     virtual ~HostBufferBase()
     {
-      if constexpr( !ismisaligned )  
+      if constexpr( !ismisaligned )
         ::operator delete( this->m_data, std::align_val_t( cppAlign ) );
       else
-        ::operator delete( (this->m_data) - 1, std::align_val_t( cppAlign ) ); // TEST MISALIGNMENT!
+        ::operator delete( ( this->m_data ) - 1, std::align_val_t( cppAlign ) ); // TEST MISALIGNMENT!
     }
-    static constexpr bool isaligned(){ return !ismisaligned; }
+    static constexpr bool isaligned() { return !ismisaligned; }
   public:
     static constexpr size_t cppAlign = mgOnGpu::cppAlign;
   };

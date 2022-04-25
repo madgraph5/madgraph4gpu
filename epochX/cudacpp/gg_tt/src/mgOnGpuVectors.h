@@ -632,7 +632,6 @@ namespace mgOnGpu /* clang-format off */
   };
 } /* clang-format on */
 
-
 #endif // #ifdef MGONGPU_CPPSIMD
 
 #endif // #ifndef __CUDACC__

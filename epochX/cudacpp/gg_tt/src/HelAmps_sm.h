@@ -974,7 +974,7 @@ namespace mg5amcCpu
   {
     mgDebug( 0, __FUNCTION__ );
     /*constexpr*/ cxtype mdl_complexi( 0., 1. );
-    const fptype* gs_s = &(G_ACCESS::kernelAccessConst( gs ));
+    const fptype* gs_s = &( G_ACCESS::kernelAccessConst( gs ) );
 #ifdef __CUDACC__
     const fptype_sv& gs_sv = *gs_s;
 #else

@@ -92,18 +92,18 @@ namespace mg5amcCpu
   { /* clang-format on */
 #ifdef __CUDACC__
     using namespace mg5amcGpu;
-    using M_ACCESS = DeviceAccessMomenta; // non-trivial access: buffer includes all events
+    using M_ACCESS = DeviceAccessMomenta;        // non-trivial access: buffer includes all events
     using E_ACCESS = DeviceAccessMatrixElements; // non-trivial access: buffer includes all events
-    using W_ACCESS = DeviceAccessWavefunctions; // TRIVIAL ACCESS: buffer for one event (no kernel splitting yet)
-    using A_ACCESS = DeviceAccessAmplitudes; // TRIVIAL ACCESS: buffer for one event (no kernel splitting yet)
-    using C_ACCESS = DeviceAccessCouplings; // non-trivial access: buffer includes all events
+    using W_ACCESS = DeviceAccessWavefunctions;  // TRIVIAL ACCESS: buffer for one event (no kernel splitting yet)
+    using A_ACCESS = DeviceAccessAmplitudes;     // TRIVIAL ACCESS: buffer for one event (no kernel splitting yet)
+    using C_ACCESS = DeviceAccessCouplings;      // non-trivial access: buffer includes all events
 #else
     using namespace mg5amcCpu;
-    using M_ACCESS = HostAccessMomenta; // non-trivial access: buffer includes all events
+    using M_ACCESS = HostAccessMomenta;        // non-trivial access: buffer includes all events
     using E_ACCESS = HostAccessMatrixElements; // non-trivial access: buffer includes all events
-    using W_ACCESS = HostAccessWavefunctions; // TRIVIAL ACCESS: buffer for one event or SIMD vector (no kernel splitting yet)
-    using A_ACCESS = HostAccessAmplitudes; // TRIVIAL ACCESS: buffer for one event or SIMD vector (no kernel splitting yet)
-    using C_ACCESS = HostAccessCouplings; // non-trivial access: buffer includes all events
+    using W_ACCESS = HostAccessWavefunctions;  // TRIVIAL ACCESS: buffer for one event or SIMD vector (no kernel splitting yet)
+    using A_ACCESS = HostAccessAmplitudes;     // TRIVIAL ACCESS: buffer for one event or SIMD vector (no kernel splitting yet)
+    using C_ACCESS = HostAccessCouplings;      // non-trivial access: buffer includes all events
 #endif
     mgDebug( 0, __FUNCTION__ );
     //printf( "calculate_wavefunctions: ihel=%2d\n", ihel );
@@ -179,7 +179,7 @@ namespace mg5amcCpu
 #endif
       }
       */
-      
+
       // *** DIAGRAM 1 OF 3 ***
 
       // Wavefunction(s) for diagram number 1
