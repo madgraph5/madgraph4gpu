@@ -12,7 +12,7 @@
 //----------------------------------------------------------------------------
 
 // A class describing the internal layout of memory buffers for couplings
-// This implementation uses an AOSOA[npagW][nx2][neppW] where nevt=npagW*neppW
+// This implementation uses an AOSOA[npagC][nx2][neppC] where nevt=npagC*neppC
 // [If many implementations are used, a suffix _AOSOAv1 should be appended to the class name]
 class MemoryAccessCouplingsBase //_AOSOAv1
 {
