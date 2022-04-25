@@ -458,10 +458,10 @@ namespace mg5amcCpu
     for( int ipagV = 0; ipagV < nevt / neppV; ++ipagV )
     {
       const int ievt0 = ipagV * neppV;
-      //G2COUP<G_ACCESS, C_ACCESS>( &allgs[ievt0], &allgc10s[ievt0], &allgc11s[ievt0] ); // NASTY BUG!
+      const fptype* gs = MemoryAccessGs::ieventAccessRecordConst( allgs, ievt0 );
       fptype* gc10s = MemoryAccessCouplings::ieventAccessRecord( allgc10s, ievt0 );
       fptype* gc11s = MemoryAccessCouplings::ieventAccessRecord( allgc11s, ievt0 );
-      G2COUP<G_ACCESS, C_ACCESS>( &allgs[ievt0], gc10s, gc11s );
+      G2COUP<G_ACCESS, C_ACCESS>( gs, gc10s, gc11s );
     }
 #endif
   }
