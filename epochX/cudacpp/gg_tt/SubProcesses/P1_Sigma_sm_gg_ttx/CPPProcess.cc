@@ -161,6 +161,18 @@ namespace mg5amcCpu
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
       for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }
 
+      // DEBUG MemoryAccessCouplings
+      {
+        const fptype_sv CPr = cxreal( C_ACCESS::kernelAccessConst( allgc10s ) );
+        const fptype_sv CPi = cximag( C_ACCESS::kernelAccessConst( allgc10s ) );
+#ifndef MGONGPU_CPPSIMD
+        printf( "calculate_wavefunctions: allgc10s=%p CPr=%f CPi=%f\n", allgc10s, CPr, CPi );
+#else
+        for( int ieppV = 0; ieppV < neppV; ieppV++ )
+          printf( "calculate_wavefunctions: allgc10s=%p ipagV=%d ieppV=%d CPr=%f CPi=%f\n", allgc10s, ipagV, ieppV, CPr[ieppV], CPi[ieppV] );
+#endif
+      }
+      
       // *** DIAGRAM 1 OF 3 ***
 
       // Wavefunction(s) for diagram number 1
