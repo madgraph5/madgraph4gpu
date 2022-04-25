@@ -997,7 +997,7 @@ namespace mg5amcCpu
     cxtype_sv_ref gc11_sv = C_ACCESS::kernelAccess( gc11 );
     gc10_sv = -( gs_sv );
     gc11_sv = mdl_complexi * ( gs_sv );
-    /*
+
     printf( "G2COUP: pgs=%p pgc10=%p pgc11=%p\n", gs, gc10, gc11 );
 #ifdef __CUDACC__
     printf( "G2COUP: pgssv=%p pgc10sv=%p pgc11sv=%p\n", &gs_sv, &gc10_sv, &gc11_sv );
@@ -1014,11 +1014,10 @@ namespace mg5amcCpu
     for( int ieppV = 0; ieppV < neppV; ieppV++ )
       printf( "G2COUP: %s=%2d gs=%f gc10=(%f, %f) gc11=(%f, %f)\n", "ieppV",
               ieppV, gs_sv[ieppV],
-              cxreal( gc10_sv[ieppV] ), cximag( gc10_sv[ieppV] ),
-              cxreal( gc11_sv[ieppV] ), cximag( gc11_sv[ieppV] ) );
+              cxreal( gc10_sv )[ieppV], cximag( gc10_sv )[ieppV],
+              cxreal( gc11_sv )[ieppV], cximag( gc11_sv )[ieppV] );
 #endif
 #endif
-    */
     mgDebug( 1, __FUNCTION__ );
     return;
   }
