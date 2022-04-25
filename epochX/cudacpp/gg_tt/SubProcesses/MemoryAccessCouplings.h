@@ -25,18 +25,6 @@ public:
   // SANITY CHECK: check that neppC is a power of two
   static_assert( ispoweroftwo( neppC ), "neppC is not a power of 2" );
 
-private:
-
-  friend class MemoryAccessHelper<MemoryAccessCouplingsBase>;
-  friend class KernelAccessHelper<MemoryAccessCouplingsBase, true>;
-  friend class KernelAccessHelper<MemoryAccessCouplingsBase, false>;
-
-  // The number of couplings that dependent on the running alphas QCD in this specific process
-  static constexpr int ndcoup = mgOnGpu::ndcoup;
-
-  // The number of floating point components of a complex number
-  static constexpr int nx2 = mgOnGpu::nx2;
-
   //--------------------------------------------------------------------------
   // ** NB! A single super-buffer AOSOA[ndcoup][npagC][nx2][neppC] includes data for ndcoup different couplings  **
   // ** NB! The ieventAccessRecord and kernelAccess functions refer to the buffer for one individual coupling    **
@@ -58,6 +46,18 @@ private:
     return &( buffer[idcoup * npagC * nx2 * neppC + ipagC * nx2 * neppC + ix2 * neppC + ieppC] ); // AOSOA[idcoup][ipagC][ix2][ieppC]
   }
   
+private:
+
+  friend class MemoryAccessHelper<MemoryAccessCouplingsBase>;
+  friend class KernelAccessHelper<MemoryAccessCouplingsBase, true>;
+  friend class KernelAccessHelper<MemoryAccessCouplingsBase, false>;
+
+  // The number of couplings that dependent on the running alphas QCD in this specific process
+  static constexpr int ndcoup = mgOnGpu::ndcoup;
+
+  // The number of floating point components of a complex number
+  static constexpr int nx2 = mgOnGpu::nx2;
+
   //--------------------------------------------------------------------------
   // NB all KernelLaunchers assume that memory access can be decomposed as "accessField = decodeRecord( accessRecord )"
   // (in other words: first locate the event record for a given event, then locate an element in that record)
