@@ -319,9 +319,9 @@ main( int argc, char** argv )
   // Hardcode Gs for now (eventually they should come from Fortran MadEvent)
   for( unsigned int i = 0; i < nevt; ++i )
   {
-    hstGs[i] = 1.2177157847767195; // hardcoded for now as in check_sa.cc and fcheck_sa.f
+    //hstGs[i] = 1.2177157847767195; // hardcoded for now as in check_sa.cc and fcheck_sa.f
     //if ( i > 0 ) hstGs[i] = 0; // try hardcoding G only for event 0
-    //hstGs[i] = i;
+    hstGs[i] = i;
   }
 
   // Memory buffers for momenta
