@@ -845,10 +845,10 @@ main( int argc, char** argv )
 #else
               << " [inlineHel=0]"
 #endif
-#ifdef MGONGPU_HARDCODE_CIPC
-              << " [hardcodeCIPC=1]" << std::endl
+#ifdef MGONGPU_HARDCODE_CIPD
+              << " [hardcodeCIPD=1]" << std::endl
 #else
-              << " [hardcodeCIPC=0]" << std::endl
+              << " [hardcodeCIPD=0]" << std::endl
 #endif
               << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << "NumThreadsPerBlock          = " << gputhreads << std::endl
