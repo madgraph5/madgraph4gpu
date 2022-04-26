@@ -16,9 +16,8 @@
 namespace Parameters_%(model_name)s_dependentCouplings
 {
   constexpr size_t ndcoup = %(ndcoup)d; // #couplings that depend on the running alphas QCD and vary event by event
-%(idcoup)s
   // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
-%(inlinedcoup)s
+%(idcoup)s%(inlinedcoup)s
 }
 
 //==========================================================================
@@ -37,9 +36,7 @@ namespace mg5amcCpu
   {
     mgDebug( 0, __FUNCTION__ );
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
-%(dcoupaccessbuffer)s
-%(dcoupkernelaccess)s
-%(dcoupcompute)s
+%(dcoupaccessbuffer)s%(dcoupkernelaccess)s%(dcoupcompute)s
     mgDebug( 1, __FUNCTION__ );
     return;
   }
