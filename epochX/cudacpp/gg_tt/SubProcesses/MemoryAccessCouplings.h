@@ -62,7 +62,7 @@ private:
   friend class KernelAccessHelper<MemoryAccessCouplingsBase, false>;
 
   // The number of couplings that dependent on the running alphas QCD in this specific process
-  static constexpr int ndcoup = mgOnGpu::ndcoup;
+  static constexpr size_t ndcoup = Parameters_sm_dependentCouplings::ndcoup;
 
   // The number of floating point components of a complex number
   static constexpr int nx2 = mgOnGpu::nx2;
