@@ -12,6 +12,8 @@
 
 #include "mgOnGpuVectors.h"
 
+#include "Parameters_sm.h"
+
 //#include <cmath>
 //#include <cstdlib>
 //#include <iomanip>

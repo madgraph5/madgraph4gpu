@@ -39,7 +39,7 @@
       for( int ieppV = 0; ieppV < neppV; ieppV++ )
       {
         allMEs[ipagV * neppV + ieppV] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
-        //printf( "sigmakin: ievt=%%2d me=%%f\n", ipagV * neppV + ieppV, allMEs[ipagV * neppV + ieppV] );
+        //printf( "sigmaKin: ievt=%%2d me=%%f\n", ipagV * neppV + ieppV, allMEs[ipagV * neppV + ieppV] );
       }
     }
 #endif
