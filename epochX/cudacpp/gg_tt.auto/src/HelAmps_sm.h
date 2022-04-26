@@ -789,7 +789,7 @@ namespace mg5amcCpu
   //==========================================================================
 
   // Compute the output wavefunction 'V1[6]' from the input wavefunctions V2[6], V3[6]
-  template<class W_ACCESS>
+  template<class W_ACCESS, class C_ACCESS>
   __device__ INLINE void
   VVV1P0_1( const fptype allV2[],
             const fptype allV3[],
@@ -801,7 +801,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
-  template<class W_ACCESS, class A_ACCESS>
+  template<class W_ACCESS, class A_ACCESS, class C_ACCESS>
   __device__ INLINE void
   FFV1_0( const fptype allF1[],
           const fptype allF2[],
@@ -812,7 +812,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'F1[6]' from the input wavefunctions F2[6], V3[6]
-  template<class W_ACCESS>
+  template<class W_ACCESS, class C_ACCESS>
   __device__ INLINE void
   FFV1_1( const fptype allF2[],
           const fptype allV3[],
@@ -824,7 +824,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'F2[6]' from the input wavefunctions F1[6], V3[6]
-  template<class W_ACCESS>
+  template<class W_ACCESS, class C_ACCESS>
   __device__ INLINE void
   FFV1_2( const fptype allF1[],
           const fptype allV3[],
@@ -836,7 +836,7 @@ namespace mg5amcCpu
   //==========================================================================
 
   // Compute the output wavefunction 'V1[6]' from the input wavefunctions V2[6], V3[6]
-  template<class W_ACCESS>
+  template<class W_ACCESS, class C_ACCESS>
   __device__ void
   VVV1P0_1( const fptype allV2[],
             const fptype allV3[],
@@ -872,7 +872,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
-  template<class W_ACCESS, class A_ACCESS>
+  template<class W_ACCESS, class A_ACCESS, class C_ACCESS>
   __device__ void
   FFV1_0( const fptype allF1[],
           const fptype allF2[],
@@ -895,7 +895,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'F1[6]' from the input wavefunctions F2[6], V3[6]
-  template<class W_ACCESS>
+  template<class W_ACCESS, class C_ACCESS>
   __device__ void
   FFV1_1( const fptype allF2[],
           const fptype allV3[],
@@ -925,7 +925,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'F2[6]' from the input wavefunctions F1[6], V3[6]
-  template<class W_ACCESS>
+  template<class W_ACCESS, class C_ACCESS>
   __device__ void
   FFV1_2( const fptype allF1[],
           const fptype allV3[],

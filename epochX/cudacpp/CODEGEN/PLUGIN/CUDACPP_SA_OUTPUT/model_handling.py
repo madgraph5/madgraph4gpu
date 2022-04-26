@@ -195,7 +195,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             output = '%(doublec)s allvertexes[]' % {
                 'doublec': self.type2def['double']}
             comment_output = 'amplitude \'vertex\''
-            template = 'template<class W_ACCESS, class A_ACCESS>'
+            template = 'template<class W_ACCESS, class A_ACCESS, class C_ACCESS>'
         else:
             output = '%(doublec)s all%(spin)s%(id)d[]' % {
                      'doublec': self.type2def['double'],
@@ -203,7 +203,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                      'id': self.outgoing}
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
             comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
-            template = 'template<class W_ACCESS>'
+            template = 'template<class W_ACCESS, class C_ACCESS>'
         comment = '// Compute the output %s from the input wavefunctions %s' % ( comment_output, ', '.join(comment_inputs) ) # AV
         indent = ' ' * len( '  %s( ' % name )
         out.write('  %(comment)s\n  %(template)s\n  %(prefix)s void\n  %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
