@@ -312,14 +312,14 @@ namespace mg5amcCpu
     SLHAReader slha( param_card_name, m_verbose );
     m_pars->setIndependentParameters( slha );
     m_pars->setIndependentCouplings();
-    m_pars->setDependentParameters();
-    m_pars->setDependentCouplings();
+    //m_pars->setDependentParameters(); // now computed event-by-event (running alphas #373)
+    //m_pars->setDependentCouplings(); // now computed event-by-event (running alphas #373)
     if( m_verbose )
     {
       m_pars->printIndependentParameters();
       m_pars->printIndependentCouplings();
-      m_pars->printDependentParameters();
-      m_pars->printDependentCouplings();
+      //m_pars->printDependentParameters(); // now computed event-by-event (running alphas #373)
+      //m_pars->printDependentCouplings(); // now computed event-by-event (running alphas #373)
     }
     // Set external particle masses for this matrix element
     m_masses.push_back( m_pars->ZERO );
@@ -350,8 +350,8 @@ namespace mg5amcCpu
     {
       Parameters_sm::printIndependentParameters();
       Parameters_sm::printIndependentCouplings();
-      Parameters_sm::printDependentParameters();
-      Parameters_sm::printDependentCouplings();
+      //Parameters_sm::printDependentParameters(); // now computed event-by-event (running alphas #373)
+      //Parameters_sm::printDependentCouplings(); // now computed event-by-event (running alphas #373)
     }
     // Set external particle masses for this matrix element
     m_masses.push_back( Parameters_sm::ZERO );

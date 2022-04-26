@@ -78,14 +78,14 @@ namespace mg5amcCpu
     SLHAReader slha( param_card_name, m_verbose );
     m_pars->setIndependentParameters( slha );
     m_pars->setIndependentCouplings();
-    m_pars->setDependentParameters();
-    m_pars->setDependentCouplings();
+    //m_pars->setDependentParameters(); // now computed event-by-event (running alphas #373)
+    //m_pars->setDependentCouplings(); // now computed event-by-event (running alphas #373)
     if( m_verbose )
     {
       m_pars->printIndependentParameters();
       m_pars->printIndependentCouplings();
-      m_pars->printDependentParameters();
-      m_pars->printDependentCouplings();
+      //m_pars->printDependentParameters(); // now computed event-by-event (running alphas #373)
+      //m_pars->printDependentCouplings(); // now computed event-by-event (running alphas #373)
     }
     %(initProc_lines)s
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
@@ -111,8 +111,8 @@ namespace mg5amcCpu
     {
       Parameters_%(model_name)s::printIndependentParameters();
       Parameters_%(model_name)s::printIndependentCouplings();
-      Parameters_%(model_name)s::printDependentParameters();
-      Parameters_%(model_name)s::printDependentCouplings();
+      //Parameters_%(model_name)s::printDependentParameters(); // now computed event-by-event (running alphas #373)
+      //Parameters_%(model_name)s::printDependentCouplings(); // now computed event-by-event (running alphas #373)
     }
     %(hardcoded_initProc_lines)s
   }
