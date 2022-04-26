@@ -94,7 +94,7 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   constexpr double mdl_ymtau = 1.777000e+00;
   constexpr double mdl_ymt = 1.730000e+02;
   constexpr double mdl_ymb = 4.700000e+00;
-  constexpr double aS = 1.180000e-01;
+  //constexpr double aS = 1.180000e-01; // now retrieved event-by-event (as G) from Fortran (running alphas #373)
   constexpr double mdl_Gf = 1.166390e-05;
   constexpr double aEWM1 = 1.325070e+02;
   constexpr double mdl_MH = 1.250000e+02;
