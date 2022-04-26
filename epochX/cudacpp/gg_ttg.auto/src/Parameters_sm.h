@@ -30,8 +30,8 @@ namespace Parameters_sm_dependentCouplings
   __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G )
   {
     // Model parameters dependent on aS
-    const fptype_sv mdl_sqrt__aS = sqrtNR( aS );
-    const fptype_sv G = 2. * mdl_sqrt__aS * sqrtNR( M_PI );
+    //const fptype_sv mdl_sqrt__aS = sqrtNR( aS );
+    //const fptype_sv G = 2. * mdl_sqrt__aS * sqrtNR( M_PI );
     const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
     // Model couplings dependent on aS
     DependentCouplings_sv out;
