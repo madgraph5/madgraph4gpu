@@ -30,6 +30,20 @@ extern "C"
   using FORTRANFPTYPE = double; // for Fortran double precision (REAL*8) arrays
   //using FORTRANFPTYPE = float; // for Fortran single precision (REAL*4) arrays
 
+  /** 
+   * Retrieve a Process singleton.
+   */
+  const CPPProcess& getProcess()
+  {
+    static CPPProcess* pprocess = nullptr;
+    if( !pprocess )
+    {
+      pprocess = new CPPProcess( /*verbose=*/false );
+      pprocess->initProc( "../../Cards/param_card.dat" );
+    }
+    return *pprocess;
+  }
+  
   /**
    * Create a Bridge and return its pointer.
    * This is a C symbol that should be called from the Fortran code (in auto_dsig1.f).
@@ -45,10 +59,9 @@ extern "C"
     CudaRuntime::setUp();
 #endif
     // Create a process object, read parm card and set parameters
-    // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
-    // FIXME: the CPPProcess should really be a singleton? what if fbridgecreate is called from several Fortran threads?
-    CPPProcess process( /*verbose=*/false );
-    process.initProc( "../../Cards/param_card.dat" );
+    // FIXME: the process instance is not even used and could happily go out of scope because it is only needed to read parameters?
+    // [Now use a CPPProcess singleton to enable retrieving aS. Also useful if fbridgecreate is called from several Fortran threads?]
+    getProcess();
     // FIXME: disable OMP in Bridge when called from Fortran
     *ppbridge = new Bridge<FORTRANFPTYPE>( *pnevtF, *pnparF, *pnp4F );
   }

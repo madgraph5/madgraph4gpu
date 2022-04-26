@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <array>
-#include <cmath>
+#include <cmath> // includes M_PI
 #include <cstring>
 #include <fstream>
 #include <iomanip>
@@ -317,9 +317,10 @@ main( int argc, char** argv )
 #endif
 
   // Hardcode Gs for now (eventually they should come from Fortran MadEvent)
+  const fptype fixedG = 2 * sqrt( process.aS() ) * sqrt( M_PI ); // 1.2177 for aS=0.118
   for( unsigned int i = 0; i < nevt; ++i )
   {
-    hstGs[i] = 1.2177157847767195; // hardcoded for now as in check_sa.cc and fcheck_sa.f
+    hstGs[i] = fixedG; // hardcoded for now as in check_sa.cc and fcheck_sa.f
     //if ( i > 0 ) hstGs[i] = 0; // try hardcoding G only for event 0
     //hstGs[i] = i;
   }

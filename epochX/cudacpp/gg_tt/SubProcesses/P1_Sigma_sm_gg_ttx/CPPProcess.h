@@ -56,6 +56,13 @@ namespace mg5amcCpu
     //bool verbose() const { return m_verbose; }
     bool debug() const { return m_debug; }
 
+    // Retrieve alphas QCD to initialise Gs array when not retrieved from Fortran event-by-event #373
+    inline fptype aS() const
+    {
+      if( m_pars == 0 ) throw std::runtime_error( "Internal error: cannot retrieve aS because CPPProcess is not yet initialized" );
+      return m_pars->aS;
+    }
+
   public: /* clang-format on */
 
     // Hardcoded parameters for this process (constant class variables)
