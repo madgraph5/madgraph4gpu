@@ -1317,7 +1317,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 ###                    '%scxmake( cIPC[%s], cIPC[%s] )' %
                 ###                    (sign, 2*alias[coup],2*alias[coup]+1))
                 call = call.replace('m_pars->%s%s' % (sign, coup),
-                                    '%sCOUP%ss' % (sign, alias[coup])) # AV from cIPCs to COUP array (running alphas #373)
+                                    '%sCOUPs[%s]' % (sign, alias[coup])) # AV from cIPCs to COUP array (running alphas #373)
         return call
 
     # AV - new method for formatting wavefunction/amplitude calls
