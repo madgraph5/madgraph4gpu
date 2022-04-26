@@ -291,11 +291,6 @@ namespace mg5amcCpu
     static_assert( nprocesses == 1, "Assume nprocesses == 1" ); // FIXME (#343): assume nprocesses == 1
     constexpr int denominators[%(nproc)i] = { %(den_factors)s };
 
-    // Set the parameters which change event by event
-    // Need to discuss this with Stefan
-    //m_pars->setDependentParameters();
-    //m_pars->setDependentCouplings();
-
 #ifdef __CUDACC__
     // Remember: in CUDA this is a kernel for one event, in c++ this processes n events
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
