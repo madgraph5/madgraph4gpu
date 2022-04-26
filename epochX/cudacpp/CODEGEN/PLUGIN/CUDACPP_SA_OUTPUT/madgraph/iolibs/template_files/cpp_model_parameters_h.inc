@@ -25,9 +25,9 @@ public:
 
   %(independent_couplings)s
 
-  %(dependent_parameters)s
+  //%(dependent_parameters)s // now computed event-by-event (running alphas #373)
 
-  %(dependent_couplings)s
+  //%(dependent_couplings)s // now computed event-by-event (running alphas #373)
 
   // Set parameters that are unchanged during the run
   void setIndependentParameters( SLHAReader& slha );
@@ -36,10 +36,10 @@ public:
   void setIndependentCouplings();
 
   // Set parameters that are changed event by event
-  void setDependentParameters();
+  //void setDependentParameters(); // now computed event-by-event (running alphas #373)
 
   // Set couplings that are changed event by event
-  void setDependentCouplings();
+  //void setDependentCouplings(); // now computed event-by-event (running alphas #373)
 
   // Print parameters that are unchanged during the run
   void printIndependentParameters();
@@ -48,10 +48,10 @@ public:
   void printIndependentCouplings();
 
   // Print parameters that are changed event by event
-  void printDependentParameters();
+  //void printDependentParameters(); // now computed event-by-event (running alphas #373)
 
   // Print couplings that are changed event by event
-  void printDependentCouplings();
+  //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
 
 private:
 
@@ -94,10 +94,10 @@ namespace Parameters_%(model_name)s // keep the same name rather than HardcodedP
   void printIndependentCouplings();
 
   // Print parameters that are changed event by event
-  void printDependentParameters();
+  //void printDependentParameters(); // now computed event-by-event (running alphas #373)
 
   // Print couplings that are changed event by event
-  void printDependentCouplings();
+  //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
 }
 
 #endif

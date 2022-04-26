@@ -86,8 +86,9 @@ Parameters_sm::setIndependentCouplings()
   // (none)
 }
 
+/*
 void
-Parameters_sm::setDependentParameters()
+Parameters_sm::setDependentParameters() // now computed event-by-event (running alphas #373)
 {
   mdl_sqrt__aS = sqrt( aS );
   G = 2. * mdl_sqrt__aS * sqrt( M_PI );
@@ -95,11 +96,12 @@ Parameters_sm::setDependentParameters()
 }
 
 void
-Parameters_sm::setDependentCouplings()
+Parameters_sm::setDependentCouplings() // now computed event-by-event (running alphas #373)
 {
   GC_10 = -G;
   GC_11 = mdl_complexi * G;
 }
+*/
 
 #endif
 
@@ -108,6 +110,7 @@ void
 Parameters_sm::printIndependentParameters()
 {
   std::cout << "sm model parameters independent of event kinematics:" << std::endl;
+  std::cout << "(Warning: aS in the runcard is ignored because event-by-event Gs are hardcoded or retrieved from Fortran)" << std::endl;
   std::cout << std::setw( 20 ) << "mdl_WH = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_WH << std::endl;
   std::cout << std::setw( 20 ) << "mdl_WW = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_WW << std::endl;
   std::cout << std::setw( 20 ) << "mdl_WZ = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_WZ << std::endl;
@@ -165,8 +168,9 @@ Parameters_sm::printIndependentCouplings()
   // (none)
 }
 
+/*
 void
-Parameters_sm::printDependentParameters()
+Parameters_sm::printDependentParameters() // now computed event-by-event (running alphas #373)
 {
   std::cout << "sm model parameters dependent on event kinematics:" << std::endl;
   std::cout << std::setw( 20 ) << "mdl_sqrt__aS = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_sqrt__aS << std::endl;
@@ -175,9 +179,10 @@ Parameters_sm::printDependentParameters()
 }
 
 void
-Parameters_sm::printDependentCouplings()
+Parameters_sm::printDependentCouplings() // now computed event-by-event (running alphas #373)
 {
   std::cout << "sm model couplings dependent on event kinematics:" << std::endl;
   std::cout << std::setw( 20 ) << "GC_10 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_10 << std::endl;
   std::cout << std::setw( 20 ) << "GC_11 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_11 << std::endl;
 }
+*/

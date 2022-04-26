@@ -30,11 +30,11 @@ public:
   // Model couplings independent of aS
   // (none)
 
-  // Model parameters dependent on aS
-  double mdl_sqrt__aS, G, mdl_G__exp__2;
+  //// Model parameters dependent on aS
+  double mdl_sqrt__aS, G, mdl_G__exp__2; // now computed event-by-event (running alphas #373)
 
-  // Model couplings dependent on aS
-  cxsmpl<double> GC_10, GC_11;
+  //// Model couplings dependent on aS
+  cxsmpl<double> GC_10, GC_11; // now computed event-by-event (running alphas #373)
 
   // Set parameters that are unchanged during the run
   void setIndependentParameters( SLHAReader& slha );
@@ -43,10 +43,10 @@ public:
   void setIndependentCouplings();
 
   // Set parameters that are changed event by event
-  void setDependentParameters();
+  //void setDependentParameters(); // now computed event-by-event (running alphas #373)
 
   // Set couplings that are changed event by event
-  void setDependentCouplings();
+  //void setDependentCouplings(); // now computed event-by-event (running alphas #373)
 
   // Print parameters that are unchanged during the run
   void printIndependentParameters();
@@ -55,10 +55,10 @@ public:
   void printIndependentCouplings();
 
   // Print parameters that are changed event by event
-  void printDependentParameters();
+  //void printDependentParameters(); // now computed event-by-event (running alphas #373)
 
   // Print couplings that are changed event by event
-  void printDependentCouplings();
+  //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
 
 private:
 
@@ -155,10 +155,10 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   void printIndependentCouplings();
 
   // Print parameters that are changed event by event
-  void printDependentParameters();
+  //void printDependentParameters(); // now computed event-by-event (running alphas #373)
 
   // Print couplings that are changed event by event
-  void printDependentCouplings();
+  //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
 }
 
 #endif
