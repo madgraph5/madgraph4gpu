@@ -12,14 +12,21 @@ namespace mg5amcCpu // this is only needed for CPU SIMD vectorization
 #ifdef MGONGPU_CPPSIMD
   //--------------------------------------------------------------------------
 
-  // Build one fptype_v (one vector of neppV fptype values) from one fptype references,
+  // Cast one non-const fptype_v reference (one vector of neppV fptype values) from one non-const fptype reference (#435),
   // assuming that "pointer(evt#0)+1" indicates "pointer(evt#1)", and that the arrays are aligned
-  inline fptype_v fptypevFromAlignedArray( const fptype& ref )
+  inline fptype_v& fptypevFromAlignedArray( fptype& ref )
+  {
+    return *reinterpret_cast<fptype_sv*>( &ref );
+  }
+
+  // Cast one const fptype_v reference (one vector of neppV fptype values) from one const fptype reference,
+  // assuming that "pointer(evt#0)+1" indicates "pointer(evt#1)", and that the arrays are aligned
+  inline const fptype_v& fptypevFromAlignedArray( const fptype& ref )
   {
     return *reinterpret_cast<const fptype_sv*>( &ref );
   }
 
-  // Build one fptype_v (one vector of neppV fptype values) from one fptype references,
+  // Build one fptype_v (one vector of neppV fptype values) from one fptype reference,
   // assuming that "pointer(evt#0)+1" indicates "pointer(evt#1)", but that the arrays are not aligned
   inline fptype_v fptypevFromUnalignedArray( const fptype& ref )
   {
@@ -62,7 +69,7 @@ namespace mg5amcCpu // this is only needed for CPU SIMD vectorization
 #endif
   }
 
-  // Build one fptype_v (one vector of neppV fptype values) from one fptype references,
+  // Build one fptype_v (one vector of neppV fptype values) from one fptype reference,
   // with no a priori assumption on how the input fptype array should be decoded
   template<typename Functor>
   inline fptype_v fptypevFromArbitraryArray( Functor decoderIeppv )

@@ -11,6 +11,7 @@
       INTEGER IEVT, IITER
 c     INTEGER IEXTERNAL
       DOUBLE PRECISION MOMENTA(0:NP4-1, NEXTERNAL, NEVTMAX) ! c-array momenta[nevt][nexternal][np4]
+      DOUBLE PRECISION GS(NEVTMAX)
       DOUBLE PRECISION MES(NEVTMAX)
       DOUBLE PRECISION MES_SUM ! use REAL*16 for quadruple precision
       INTEGER NEVTOK ! exclude nan/abnormal MEs
@@ -49,7 +50,10 @@ C
       CALL FSAMPLERCREATE(SAMPLER, NEVT, NEXTERNAL, NP4)
       DO IITER = 1, NITER
         CALL FSAMPLERSEQUENCE(SAMPLER, MOMENTA)
-        CALL FBRIDGESEQUENCE(BRIDGE, MOMENTA, MES)
+        DO IEVT = 1, NEVT
+          GS(IEVT) = 1.2177157847767195 ! fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
+        END DO
+        CALL FBRIDGESEQUENCE(BRIDGE, MOMENTA, GS, MES)
         DO IEVT = 1, NEVT
 c         DO IEXTERNAL = 1, NEXTERNAL
 c           WRITE(6,*) 'MOMENTA', IEVT, IEXTERNAL,
