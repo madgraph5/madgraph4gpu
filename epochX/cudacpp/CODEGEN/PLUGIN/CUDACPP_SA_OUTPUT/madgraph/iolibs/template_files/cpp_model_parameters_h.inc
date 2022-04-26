@@ -8,7 +8,7 @@
 
 #include "mgOnGpuCxtypes.h"
 
-#ifndef MGONGPU_HARDCODE_CIPC
+#ifndef MGONGPU_HARDCODE_CIPD
 
 #include "read_slha.h"
 
