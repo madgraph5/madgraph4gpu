@@ -788,7 +788,9 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupcompute'] = '\n'.join( dcoupcompute )
         else:
             replace_dict['idcoup'] = ''
-            replace_dict['inlinedcoup'] = '  // NB: this physics process has no couplings that depend on alphas QCD'
+            replace_dict['dcoupdecl'] = '    // (none)'
+            replace_dict['dcoupsetdpar'] = '  // (none)'
+            replace_dict['dcoupsetdcoup'] = '  // (none)'
             replace_dict['dcoupaccessbuffer'] = ''
             replace_dict['dcoupkernelaccess'] = ''
             replace_dict['dcoupcompute'] = '    // NB: this physics process has no couplings that depend on alphas QCD'
