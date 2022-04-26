@@ -18,10 +18,10 @@
 namespace Parameters_sm_dependentCouplings
 {
   constexpr size_t ndcoup = 3; // #couplings that depend on the running alphas QCD and vary event by event
+  // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
   constexpr size_t idcoup_GC_10 = 0;
   constexpr size_t idcoup_GC_11 = 1;
   constexpr size_t idcoup_GC_12 = 2;
-  // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
   __host__ __device__ inline const cxtype_sv GC_10_fromG( const fptype_sv& G ) { return -G; }
   __host__ __device__ inline const cxtype_sv GC_11_fromG( const fptype_sv& G ) { return cxmake( 0., 1. ) * G; }
   __host__ __device__ inline const cxtype_sv GC_12_fromG( const fptype_sv& G ) { return cxmake( 0., 1. ) * mdl_G__exp__2; }
