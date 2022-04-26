@@ -603,14 +603,14 @@ namespace mgOnGpu /* clang-format off */
   public:
     cxtype_ref() = delete;
     cxtype_ref( const cxtype_ref& ) = delete;
-    cxtype_ref( cxtype_ref&& ) = default;
-    cxtype_ref( fptype& r, fptype& i ) : m_real( r ), m_imag( i ) {}
+    cxtype_ref( cxtype_ref&& ) = default; // copy refs
+    __host__ __device__ cxtype_ref( fptype& r, fptype& i ) : m_preal( &r ), m_pimag( &i ) {} // copy refs
     cxtype_ref& operator=( const cxtype_ref& ) = delete;
-    cxtype_ref& operator=( cxtype_ref&& c ) { m_real = cxreal( c ); m_imag = cximag( c ); return *this; } // for cxternary
-    cxtype_ref& operator=( const cxtype& c ) { m_real = cxreal( c );m_imag = cximag( c ); return *this; }
-    __host__ __device__ operator cxtype() const { return cxmake( m_real, m_imag ); }
+    //__host__ __device__ cxtype_ref& operator=( cxtype_ref&& c ) {...} // REMOVED! Should copy refs or copy values? No longer needed in cxternary
+    __host__ __device__ cxtype_ref& operator=( const cxtype& c ) { *m_preal = cxreal( c ); *m_pimag = cximag( c ); return *this; } // copy values
+    __host__ __device__ operator cxtype() const { return cxmake( *m_preal, *m_pimag ); }
   private:
-    fptype &m_real, &m_imag; // RI
+    fptype *m_preal, *m_pimag; // RI
   };
 } /* clang-format on */
 
