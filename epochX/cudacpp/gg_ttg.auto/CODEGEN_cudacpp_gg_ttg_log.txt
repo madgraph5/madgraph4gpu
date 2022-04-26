@@ -50,7 +50,7 @@ generate g g > t t~ g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006888151168823242 [0m
+[1;32mDEBUG: model prefixing  takes 0.006888628005981445 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
@@ -71,43 +71,43 @@ output standalone_cudacpp CODEGEN_cudacpp_gg_ttg
 Load PLUGIN.CUDACPP_SA_OUTPUT
 [1mOutput will be done with PLUGIN: CUDACPP_SA_OUTPUT[0m
 [1;32mDEBUG:  cformat = [0m plugin [1;30m[export_cpp.py at line 3008][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 136][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 141][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 138][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 143][0m [0m
 INFO: Creating subdirectories in directory /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_gg_ttg 
 INFO: Organizing processes into subprocess groups 
 INFO: Generating Helas calls for process: g g > t t~ g WEIGHTED<=3 @1 
 INFO: Processing color information for process: g g > t t~ g @1 
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory) [1;30m[output.py at line 166][0m [0m
-[1;32mDEBUG:    type(subproc_group)=<class 'madgraph.core.helas_objects.HelasMatrixElement'> [1;30m[output.py at line 167][0m [0m
-[1;32mDEBUG:    type(fortran_model)=<class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 168][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory) [1;30m[output.py at line 168][0m [0m
+[1;32mDEBUG:    type(subproc_group)=<class 'madgraph.core.helas_objects.HelasMatrixElement'> [1;30m[output.py at line 169][0m [0m
+[1;32mDEBUG:    type(fortran_model)=<class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 170][0m [0m
 INFO: Creating files in directory /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_gg_ttg/SubProcesses/P1_Sigma_sm_gg_ttxg 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1065][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1075][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_gg_ttg/SubProcesses/P1_Sigma_sm_gg_ttxg/./CPPProcess.h
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1144][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1154][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_gg_ttg/SubProcesses/P1_Sigma_sm_gg_ttxg/./CPPProcess.cc
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1166][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1500][0m [0m
-[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1501][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1500][0m [0m
-[1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1501][0m [0m
-[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1500][0m [0m
-[1;32mDEBUG:  ('ZERO', 4, 1, 4, 4) [1;30m[model_handling.py at line 1501][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1176][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1477][0m [0m
+[1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1478][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1477][0m [0m
+[1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1478][0m [0m
+[1;32mDEBUG:  call = [0m vxxxxx( momenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d ); [1;30m[model_handling.py at line 1477][0m [0m
+[1;32mDEBUG:  ('ZERO', 4, 1, 4, 4) [1;30m[model_handling.py at line 1478][0m [0m
 [1;32mDEBUG: only one Matrix-element supported? [0m
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_gg_ttg/SubProcesses/P1_Sigma_sm_gg_ttxg/. 
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1087][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1096][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1113][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1120][0m [0m
-[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1132][0m [0m
-Generated helas calls for 1 subprocesses (16 diagrams) in 0.050 s
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 173][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1097][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1106][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1123][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 1130][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_testxxx [1;30m[model_handling.py at line 1142][0m [0m
+Generated helas calls for 1 subprocesses (16 diagrams) in 0.049 s
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 175][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV3 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV4 set of routines with options: P0[0m
-ALOHA: aloha creates 5 routines in  0.388 s
+ALOHA: aloha creates 5 routines in  0.393 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 [1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2451][0m [0m
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
@@ -132,9 +132,9 @@ FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> fo
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_gg_ttg/src/./Parameters_sm.cc
 INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory 
 INFO: /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_gg_ttg/src/. and /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_gg_ttg/src/. 
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 182][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 184][0m [0m
 quit
 
-real	0m1.230s
-user	0m1.080s
-sys	0m0.131s
+real	0m1.266s
+user	0m1.109s
+sys	0m0.123s
