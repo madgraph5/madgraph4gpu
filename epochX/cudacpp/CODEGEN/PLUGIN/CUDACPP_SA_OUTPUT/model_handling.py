@@ -726,13 +726,6 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['independent_parameters'] = \
                                    '// Model parameters independent of aS\n' + \
                                    self.write_parameters(self.params_indep)
-        # AV swap the order (fix bug https://bugs.launchpad.net/mg5amcnlo/+bug/1959192)
-        ###replace_dict['independent_couplings'] = \
-        ###                           '// Model parameters dependent on aS\n' + \
-        ###                           self.write_parameters(self.params_dep)
-        ###replace_dict['dependent_parameters'] = \
-        ###                           '// Model couplings independent of aS\n' + \
-        ###                           self.write_parameters(self.coups_indep)
         replace_dict['independent_couplings'] = \
                                    '// Model couplings independent of aS\n' + \
                                    self.write_parameters(self.coups_indep)
