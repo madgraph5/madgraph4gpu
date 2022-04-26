@@ -20,9 +20,24 @@ namespace Parameters_sm_dependentCouplings
   constexpr size_t ndcoup = 2; // #couplings that depend on the running alphas QCD and vary event by event
   constexpr size_t idcoup_GC_10 = 0;
   constexpr size_t idcoup_GC_11 = 1;
-  // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
-  __host__ __device__ inline const cxtype_sv GC_10_fromG( const fptype_sv& G ) { return -G; }
-  __host__ __device__ inline const cxtype_sv GC_11_fromG( const fptype_sv& G ) { return cxmake( 0., 1. ) * G; }
+  struct DependentCouplings_sv
+  {
+    cxtype_sv GC_10;
+    cxtype_sv GC_11;
+  };
+  __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G )
+  {
+    // Model parameters dependent on aS
+    //const fptype_sv mdl_sqrt__aS = sqrtNR( aS );
+    //const fptype_sv G = 2. * mdl_sqrt__aS * sqrtNR( M_PI );
+    const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
+    // Model couplings dependent on aS
+    DependentCouplings_sv out;
+    // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
+    out.GC_10 = -G;
+    out.GC_11 = cxmake( 0., 1. ) * G;
+    return out;
+  }
 }
 
 //==========================================================================
@@ -40,13 +55,15 @@ namespace mg5amcCpu
           fptype couplings[] )
   {
     mgDebug( 0, __FUNCTION__ );
+    using namespace Parameters_sm_dependentCouplings;
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
-    fptype* GC_10s = C_ACCESS::idcoupAccessBuffer( couplings, Parameters_sm_dependentCouplings::idcoup_GC_10 );
-    fptype* GC_11s = C_ACCESS::idcoupAccessBuffer( couplings, Parameters_sm_dependentCouplings::idcoup_GC_11 );
+    fptype* GC_10s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_10 );
+    fptype* GC_11s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_11 );
     cxtype_sv_ref GC_10s_sv = C_ACCESS::kernelAccess( GC_10s );
     cxtype_sv_ref GC_11s_sv = C_ACCESS::kernelAccess( GC_11s );
-    GC_10s_sv = Parameters_sm_dependentCouplings::GC_10_fromG( gs_sv );
-    GC_11s_sv = Parameters_sm_dependentCouplings::GC_11_fromG( gs_sv );
+    DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
+    GC_10s_sv = couplings_sv.GC_10;
+    GC_11s_sv = couplings_sv.GC_11;
     mgDebug( 1, __FUNCTION__ );
     return;
   }
