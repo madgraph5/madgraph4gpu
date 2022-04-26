@@ -319,7 +319,8 @@ main( int argc, char** argv )
   // Hardcode Gs for now (eventually they should come from Fortran MadEvent)
   for( unsigned int i = 0; i < nevt; ++i )
   {
-    hstGs[i] = 1.2177157847767195; // hardcoded for now as in check_sa.cc and fcheck_sa.f
+    constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
+    hstGs[i] = fixedG;
     //if ( i > 0 ) hstGs[i] = 0; // try hardcoding G only for event 0
     //hstGs[i] = i;
   }

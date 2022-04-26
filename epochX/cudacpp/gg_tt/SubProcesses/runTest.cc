@@ -79,8 +79,9 @@ struct CPUTest : public CUDA_CPU_TestBase
 
   void runSigmaKin( std::size_t iiter ) override
   {
+    constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
+    for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
     MatrixElementKernelHost mek( hstMomenta, hstGs, hstMatrixElements, nevt );
-    for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = 1.2177157847767195; // hardcoded for now as in check_sa.cc and fcheck_sa.f
     if( iiter == 0 ) mek.computeGoodHelicities();
     mek.computeMatrixElements();
   }
@@ -176,8 +177,9 @@ struct CUDATest : public CUDA_CPU_TestBase
 
   void runSigmaKin( std::size_t iiter ) override
   {
+    constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
+    for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
     MatrixElementKernelDevice mek( devMomenta, hstGs, devMatrixElements, gpublocks, gputhreads );
-    for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = 1.2177157847767195; // hardcoded for now as in check_sa.cc and fcheck_sa.f
     if( iiter == 0 ) mek.computeGoodHelicities();
     mek.computeMatrixElements();
     copyHostFromDevice( hstMatrixElements, devMatrixElements );

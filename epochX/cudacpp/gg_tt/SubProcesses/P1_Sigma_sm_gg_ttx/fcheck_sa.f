@@ -51,7 +51,7 @@ C
       DO IITER = 1, NITER
         CALL FSAMPLERSEQUENCE(SAMPLER, MOMENTA)
         DO IEVT = 1, NEVT
-          GS(IEVT) = 1.2177157847767195 ! hardcoded for now in both check_sa.cc and fcheck_sa.f
+          GS(IEVT) = 1.2177157847767195 ! fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
         END DO
         CALL FBRIDGESEQUENCE(BRIDGE, MOMENTA, GS, MES)
         DO IEVT = 1, NEVT
