@@ -779,7 +779,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                     if 'constexpr double G =' in line: foundG = True
             replace_dict['dcoupsetdpar'] = '\n'.join( dcoupsetdpar )
             dcoupsetdcoup = [ '  ' + line.replace('constexpr cxsmpl<double> ','out.').replace('mdl_complexi', 'cxmake( 0., 1. )') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
-            replace_dict['dcoupsetdcoup'] = '\n'.join( dcoupsetdcoup )
+            replace_dict['dcoupsetdcoup'] = '  // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?\n  ' + '\n'.join( dcoupsetdcoup )
             dcoupaccessbuffer = [ '    fptype* %ss = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_%s );'%( name, name ) for name in self.coups_dep ]
             replace_dict['dcoupaccessbuffer'] = '\n'.join( dcoupaccessbuffer ) + '\n'
             dcoupkernelaccess = [ '    cxtype_sv_ref %ss_sv = C_ACCESS::kernelAccess( %ss );'%( name, name ) for name in self.coups_dep ]

@@ -29,7 +29,6 @@ namespace Parameters_sm_dependentCouplings
     // (none)
     // Model couplings dependent on aS
     DependentCouplings_sv out;
-    // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
     // (none)
     return out;
   }
