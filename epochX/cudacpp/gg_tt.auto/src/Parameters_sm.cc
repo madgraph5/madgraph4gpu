@@ -89,16 +89,16 @@ Parameters_sm::setIndependentCouplings()
 void
 Parameters_sm::setDependentParameters()
 {
-  mdl_sqrt__aS = sqrt( aS );
-  G = 2. * mdl_sqrt__aS * sqrt( M_PI );
-  mdl_G__exp__2 = ( ( G ) * ( G ) );
+  //mdl_sqrt__aS = sqrt( aS );
+  //G = 2. * mdl_sqrt__aS * sqrt( M_PI );
+  //mdl_G__exp__2 = ( ( G ) * ( G ) );
 }
 
 void
 Parameters_sm::setDependentCouplings()
 {
-  GC_10 = -G;
-  GC_11 = mdl_complexi * G;
+  //GC_10 = -G;
+  //GC_11 = mdl_complexi * G;
 }
 
 #endif
@@ -169,15 +169,15 @@ void
 Parameters_sm::printDependentParameters()
 {
   std::cout << "sm model parameters dependent on event kinematics:" << std::endl;
-  std::cout << std::setw( 20 ) << "mdl_sqrt__aS = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_sqrt__aS << std::endl;
-  std::cout << std::setw( 20 ) << "G = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << G << std::endl;
-  std::cout << std::setw( 20 ) << "mdl_G__exp__2 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_G__exp__2 << std::endl;
+  //std::cout << std::setw( 20 ) << "mdl_sqrt__aS = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_sqrt__aS << std::endl;
+  //std::cout << std::setw( 20 ) << "G = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << G << std::endl;
+  //std::cout << std::setw( 20 ) << "mdl_G__exp__2 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_G__exp__2 << std::endl;
 }
 
 void
 Parameters_sm::printDependentCouplings()
 {
   std::cout << "sm model couplings dependent on event kinematics:" << std::endl;
-  std::cout << std::setw( 20 ) << "GC_10 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_10 << std::endl;
-  std::cout << std::setw( 20 ) << "GC_11 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_11 << std::endl;
+  //std::cout << std::setw( 20 ) << "GC_10 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_10 << std::endl;
+  //std::cout << std::setw( 20 ) << "GC_11 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_11 << std::endl;
 }

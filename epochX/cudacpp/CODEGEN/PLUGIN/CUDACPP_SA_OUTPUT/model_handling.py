@@ -653,8 +653,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         else : res = '  ' + res # add leading '  ' after the '// Model' line
         return res
 
-    # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
-    def write_set_parameters(self, params):
+    # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting and add disable parameter)
+    def write_set_parameters(self, params, disable=False):
         res = super().write_set_parameters(params)
         res = res.replace('(','( ')
         res = res.replace(')',' )')
@@ -669,6 +669,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         res = res.replace(',',', ')
         res = res.replace(',  ',', ')
         res = res.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
+        if disable:
+            if res != '' : res = '//'+res
+            res = res.replace('\n','\n//')
+            #if res != '' : res = res[:-2]
         if res == '' : res = '// (none)'
         res = res.replace('\n','\n  ')
         return res
@@ -723,16 +727,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict = self.default_replace_dict
         replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
         replace_dict['model_name'] = self.model_name
+        disable = True
         replace_dict['independent_parameters'] = \
                                    '// Model parameters independent of aS\n' + \
                                    self.write_parameters(self.params_indep)
-        # AV swap the order (fix bug https://bugs.launchpad.net/mg5amcnlo/+bug/1959192)
-        ###replace_dict['independent_couplings'] = \
-        ###                           '// Model parameters dependent on aS\n' + \
-        ###                           self.write_parameters(self.params_dep)
-        ###replace_dict['dependent_parameters'] = \
-        ###                           '// Model couplings independent of aS\n' + \
-        ###                           self.write_parameters(self.coups_indep)
         replace_dict['independent_couplings'] = \
                                    '// Model couplings independent of aS\n' + \
                                    self.write_parameters(self.coups_indep)
@@ -747,17 +745,17 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['set_independent_couplings'] = \
                                self.write_set_parameters(self.coups_indep)
         replace_dict['set_dependent_parameters'] = \
-                               self.write_set_parameters(self.params_dep)
+                               self.write_set_parameters(self.params_dep, disable)
         replace_dict['set_dependent_couplings'] = \
-                               self.write_set_parameters(list(self.coups_dep.values()))
+                               self.write_set_parameters(list(self.coups_dep.values()), disable)
         replace_dict['print_independent_parameters'] = \
                                self.write_print_parameters(self.params_indep)
         replace_dict['print_independent_couplings'] = \
                                self.write_print_parameters(self.coups_indep)
         replace_dict['print_dependent_parameters'] = \
-                               self.write_print_parameters(self.params_dep)
+                               self.write_print_parameters(self.params_dep, disable)
         replace_dict['print_dependent_couplings'] = \
-                               self.write_print_parameters(list(self.coups_dep.values()))
+                               self.write_print_parameters(list(self.coups_dep.values()), disable)
         if 'include_prefix' not in replace_dict:
             replace_dict['include_prefix'] = ''
         replace_dict['hardcoded_independent_parameters'] = \
@@ -786,13 +784,15 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         # [This has been reported as bug https://bugs.launchpad.net/mg5amcnlo/+bug/1959192]
         return file_h, file_cc
 
-    # AV - replace export_cpp.UFOModelConverterCPP method (add explicit std namespace)
-    def write_print_parameters(self, params):
+    # AV - replace export_cpp.UFOModelConverterCPP method (add explicit std namespace and add disable parameter)
+    def write_print_parameters(self, params, disable=False):
         """Write out the lines of independent parameters"""
         # For each parameter, write name = expr;
         res_strings = []
+        prefix = ''
+        if disable: prefix = '//'
         for param in params:
-            res_strings.append('std::cout << std::setw( 20 ) << \"%s = \" << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << %s << std::endl;' % (param.name, param.name)) # AV
+            res_strings.append(prefix+'std::cout << std::setw( 20 ) << \"%s = \" << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << %s << std::endl;' % (param.name, param.name)) # AV
         if len(res_strings) == 0 : res_strings.append('// (none)')
         ##return '\n'.join(res_strings)
         return '\n  '.join(res_strings) # AV (why was this not necessary before?)
