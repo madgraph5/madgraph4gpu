@@ -184,6 +184,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 type = self.type2def[format]
                 list_arg = ''
             if argname.startswith('COUP'):
+                type = self.type2def['double'] # AV from cxtype_sv to fptype array (running alphas #373)
+                argname = 'all'+argname # AV from cxtype_sv to fptype array (running alphas #373)
+                list_arg = '[]' # AV from cxtype_sv to fptype array (running alphas #373)
                 point = self.type2def['pointer_coup']
                 args.append('%s %s%s%s'% (type, point, argname, list_arg))
             else:
