@@ -50,11 +50,14 @@ namespace mg5amcCpu
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
 #ifdef MGONGPU_HARDCODE_CIPD
+  __device__ const fptype cIPC[6] = { (fptype)Parameters_sm::GC_3.real(), (fptype)Parameters_sm::GC_3.imag(), (fptype)Parameters_sm::GC_50.real(), (fptype)Parameters_sm::GC_50.imag(), (fptype)Parameters_sm::GC_59.real(), (fptype)Parameters_sm::GC_59.imag() };
   __device__ const fptype cIPD[2] = { (fptype)Parameters_sm::mdl_MZ, (fptype)Parameters_sm::mdl_WZ };
 #else
 #ifdef __CUDACC__
+  __device__ __constant__ fptype cIPC[6];
   __device__ __constant__ fptype cIPD[2];
 #else
+  static fptype cIPC[6];
   static fptype cIPD[2];
 #endif
 #endif
@@ -183,19 +186,19 @@ namespace mg5amcCpu
 
       oxzxxx<M_ACCESS, W_ACCESS>( momenta, cHel[ihel][3], +1, w_fp[3], 3 );
 
-      FFV1P0_3<W_ACCESS, C_ACCESS>( w_fp[1], w_fp[0], COUPs[0], 0., 0., w_fp[4] );
+      FFV1P0_3<W_ACCESS, C_ACCESS>( w_fp[1], w_fp[0], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 1
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[2], w_fp[3], w_fp[4], COUPs[0], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[2], w_fp[3], w_fp[4], cxmake( cIPC[0], cIPC[1] ), &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 2 OF 2 ***
 
       // Wavefunction(s) for diagram number 2
-      FFV2_4_3<W_ACCESS, C_ACCESS>( w_fp[1], w_fp[0], COUPs[1], COUPs[2], cIPD[0], cIPD[1], w_fp[4] );
+      FFV2_4_3<W_ACCESS, C_ACCESS>( w_fp[1], w_fp[0], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 2
-      FFV2_4_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[2], w_fp[3], w_fp[4], COUPs[1], COUPs[2], &amp_fp[0] );
+      FFV2_4_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[2], w_fp[3], w_fp[4], cxmake( cIPC[2], cIPC[3] ), cxmake( cIPC[4], cIPC[5] ), &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***
@@ -317,12 +320,16 @@ namespace mg5amcCpu
     m_masses.push_back( m_pars->ZERO );
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
+    const cxtype tIPC[3] = { cxmake( m_pars->GC_3 ), cxmake( m_pars->GC_50 ), cxmake( m_pars->GC_59 ) };
     const fptype tIPD[2] = { (fptype)m_pars->mdl_MZ, (fptype)m_pars->mdl_WZ };
 #ifdef __CUDACC__
+    checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof( cxtype ) ) );
     checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) ) );
 #else
+    memcpy( cIPC, tIPC, 3 * sizeof( cxtype ) );
     memcpy( cIPD, tIPD, 2 * sizeof( fptype ) );
 #endif
+    //for ( i=0; i<3; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;
     //for ( i=0; i<2; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
   }
 #else

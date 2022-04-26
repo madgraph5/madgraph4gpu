@@ -23,12 +23,12 @@ namespace Parameters_sm_dependentCouplings
   {
     // (none)
   };
-  __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G )
+  __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& /*G*/ )
   {
+    DependentCouplings_sv out;
     // Model parameters dependent on aS
     // (none)
     // Model couplings dependent on aS
-    DependentCouplings_sv out;
     // (none)
     return out;
   }
