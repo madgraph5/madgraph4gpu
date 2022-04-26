@@ -1024,7 +1024,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 #pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, allcouplings, cIPD, ihel, npagV, amp_fp, w_fp ) private( amp_sv, w_sv, jamp_sv )
 #endif // _OPENMP
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
-#endif""")
+#endif // !__CUDACC__""")
             ret_lines.append('    {') # NB This is closed in process_matrix.inc
             helas_calls = self.helas_call_writer.get_matrix_element_calls(\
                                                     self.matrix_elements[0],
@@ -1340,59 +1340,21 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         matrix_element.reuse_outdated_wavefunctions(me)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
-        res.append("""#ifdef __CUDACC__
-      // CUDA kernels take an input buffer with momenta for all events
+        res.append("""const fptype* allgc10s = C_ACCESS::idcoupAccessBufferConst( allcouplings, Parameters_sm_dependentCouplings::idcoup_GC_10 );
+      const fptype* allgc11s = C_ACCESS::idcoupAccessBufferConst( allcouplings, Parameters_sm_dependentCouplings::idcoup_GC_11 );
+#ifdef __CUDACC__
+      // CUDA kernels take input/output buffers with momenta/MEs for all events
       const fptype* momenta = allmomenta;
+      const fptype* gc10s = allgc10s;
+      const fptype* gc11s = allgc11s;
+      fptype* MEs = allMEs;
 #else
-      // C++ kernels take an input buffer with momenta for one specific event (the first in the current event page)
+      // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
       const int ievt0 = ipagV * neppV;
-      const fptype* momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );
-      /*
-      // --- START debug: printout momenta
-      static int maxihel = -1;
-      static int minihel = -1;
-      if( maxihel >= -1 )
-      {
-        if( ihel > maxihel )
-        {
-          //printf( \"calculate_wavefunctions: ihel=%2d\\n\", ihel );
-          maxihel = ihel;
-        }
-        else if( ihel < maxihel )
-        {
-          printf( \"calculate_wavefunctions: FIRST CALL AFTER HELICITY FILTERING ihel=%2d\\n\", ihel );
-          maxihel = -2;
-          minihel = ihel;
-        }
-      }
-      else // skip printout during the calculation of good helicities
-      {
-        if( ihel == minihel ) // printout momenta only for the first good helicity
-        {
-          for( int ieppV = 0; ieppV < neppV; ieppV++ )
-          {
-            printf( \"calculate_wavefunctions: ievt=%6d ihel=%2d\\n\", ievt0 + ieppV, ihel );
-            for( int ipar = 0; ipar < npar; ipar++ )
-            {
-#ifdef MGONGPU_CPPSIMD
-              printf( \"calculate_wavefunctions: %f %f %f %f\\n\",
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar )[ieppV],
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar )[ieppV],
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar )[ieppV],
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar )[ieppV] );
-#else
-              printf( \"calculate_wavefunctions: %f %f %f %f\\n\",
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar ),
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar ),
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar ),
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar ) );
-#endif
-            }
-          }
-        }
-      }
-      // --- END debug: printout momenta
-      */
+      const fptype* momenta = M_ACCESS::ieventAccessRecordConst( allmomenta, ievt0 );
+      const fptype* gc10s = C_ACCESS::ieventAccessRecordConst( allgc10s, ievt0 );
+      const fptype* gc11s = C_ACCESS::ieventAccessRecordConst( allgc11s, ievt0 );
+      fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
 #endif
 
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
