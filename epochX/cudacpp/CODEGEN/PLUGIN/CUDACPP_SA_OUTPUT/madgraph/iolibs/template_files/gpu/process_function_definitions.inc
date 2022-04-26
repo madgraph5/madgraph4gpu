@@ -23,10 +23,8 @@ namespace mg5amcCpu
   %(hardcoded_assign_coupling)s
 #else
 #ifdef __CUDACC__
-  __device__ __constant__ fptype cIPC[%(ncouplingstimes2)i];
   __device__ __constant__ fptype cIPD[%(nparams)i];
 #else
-  static fptype cIPC[%(ncouplingstimes2)i];
   static fptype cIPD[%(nparams)i];
 #endif
 #endif
