@@ -11,6 +11,7 @@
 #include "mgOnGpuConfig.h"
 
 #include "mgOnGpuVectors.h"
+#include "Parameters_sm.h"
 
 //#include <cmath>
 //#include <cstdlib>
@@ -971,14 +972,13 @@ namespace mg5amcCpu
           fptype couplings[] )
   {
     mgDebug( 0, __FUNCTION__ );
-    /*constexpr*/ cxtype mdl_complexi( 0., 1. );
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
     fptype* gc10 = C_ACCESS::idcoupAccessBuffer( couplings, 0 );
     fptype* gc11 = C_ACCESS::idcoupAccessBuffer( couplings, 1 );
     cxtype_sv_ref gc10_sv = C_ACCESS::kernelAccess( gc10 );
     cxtype_sv_ref gc11_sv = C_ACCESS::kernelAccess( gc11 );
-    gc10_sv = -( gs_sv );
-    gc11_sv = mdl_complexi * ( gs_sv );
+    gc10_sv = Parameters_sm_dependentCouplings::GC_10_fromG( gs_sv );
+    gc11_sv = Parameters_sm_dependentCouplings::GC_11_fromG( gs_sv );
     /*
     printf( "G2COUP: pgs=%p pgc10=%p pgc11=%p\n", gs, gc10s, gc11s );
 #ifdef __CUDACC__

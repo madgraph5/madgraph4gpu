@@ -9,10 +9,20 @@
 #define Parameters_sm_H
 
 #include "mgOnGpuCxtypes.h"
+#include "mgOnGpuVectors.h"
 
 #ifndef MGONGPU_HARDCODE_CIPD
 
 #include "read_slha.h"
+
+//constexpr double G = 2. * mdl_sqrt__aS * sqrtNR( M_PI ); // now computed event-by-event (running alphas #373)
+
+namespace Parameters_sm_dependentCouplings
+{
+  // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded (0,1)?
+  __host__ __device__ inline const cxtype_sv GC_10_fromG( const fptype_sv& G ){ return -G; }
+  __host__ __device__ inline const cxtype_sv GC_11_fromG( const fptype_sv& G ){ return cxmake( 0., 1. ) * G; }  
+}
 
 class Parameters_sm
 {
