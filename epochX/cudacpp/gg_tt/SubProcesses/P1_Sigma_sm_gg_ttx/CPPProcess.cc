@@ -143,13 +143,13 @@ namespace mg5amcCpu
 #endif // !__CUDACC__
     {
       const fptype* allCOUPs[Parameters_sm_dependentCouplings::ndcoup];
-      for ( size_t idcoup = 0; idcoup < Parameters_sm_dependentCouplings::ndcoup; idcoup++ )
+      for( size_t idcoup = 0; idcoup < Parameters_sm_dependentCouplings::ndcoup; idcoup++ )
         allCOUPs[idcoup] = C_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup );
 #ifdef __CUDACC__
       // CUDA kernels take input/output buffers with momenta/MEs for all events
       const fptype* momenta = allmomenta;
       const fptype* COUPs[Parameters_sm_dependentCouplings::ndcoup];
-      for ( size_t idcoup = 0; idcoup < Parameters_sm_dependentCouplings::ndcoup; idcoup++ )
+      for( size_t idcoup = 0; idcoup < Parameters_sm_dependentCouplings::ndcoup; idcoup++ )
         COUPs[idcoup] = allCOUPs[idcoup];
       fptype* MEs = allMEs;
 #else
@@ -157,7 +157,7 @@ namespace mg5amcCpu
       const int ievt0 = ipagV * neppV;
       const fptype* momenta = M_ACCESS::ieventAccessRecordConst( allmomenta, ievt0 );
       const fptype* COUPs[Parameters_sm_dependentCouplings::ndcoup];
-      for ( size_t idcoup = 0; idcoup < Parameters_sm_dependentCouplings::ndcoup; idcoup++ )
+      for( size_t idcoup = 0; idcoup < Parameters_sm_dependentCouplings::ndcoup; idcoup++ )
         COUPs[idcoup] = C_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 );
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
 #endif

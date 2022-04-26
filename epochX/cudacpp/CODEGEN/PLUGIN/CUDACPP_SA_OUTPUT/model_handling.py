@@ -1348,20 +1348,23 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         matrix_element.reuse_outdated_wavefunctions(me)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
-        res.append("""const fptype* allgc10s = C_ACCESS::idcoupAccessBufferConst( allcouplings, Parameters_sm_dependentCouplings::idcoup_GC_10 );
-      const fptype* allgc11s = C_ACCESS::idcoupAccessBufferConst( allcouplings, Parameters_sm_dependentCouplings::idcoup_GC_11 );
+        res.append("""const fptype* allCOUPs[Parameters_sm_dependentCouplings::ndcoup];
+      for( size_t idcoup = 0; idcoup < Parameters_sm_dependentCouplings::ndcoup; idcoup++ )
+        allCOUPs[idcoup] = C_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup );
 #ifdef __CUDACC__
       // CUDA kernels take input/output buffers with momenta/MEs for all events
       const fptype* momenta = allmomenta;
-      const fptype* gc10s = allgc10s;
-      const fptype* gc11s = allgc11s;
+      const fptype* COUPs[Parameters_sm_dependentCouplings::ndcoup];
+      for( size_t idcoup = 0; idcoup < Parameters_sm_dependentCouplings::ndcoup; idcoup++ )
+        COUPs[idcoup] = allCOUPs[idcoup];
       fptype* MEs = allMEs;
 #else
       // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
       const int ievt0 = ipagV * neppV;
       const fptype* momenta = M_ACCESS::ieventAccessRecordConst( allmomenta, ievt0 );
-      const fptype* gc10s = C_ACCESS::ieventAccessRecordConst( allgc10s, ievt0 );
-      const fptype* gc11s = C_ACCESS::ieventAccessRecordConst( allgc11s, ievt0 );
+      const fptype* COUPs[Parameters_sm_dependentCouplings::ndcoup];
+      for( size_t idcoup = 0; idcoup < Parameters_sm_dependentCouplings::ndcoup; idcoup++ )
+        COUPs[idcoup] = C_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 );
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
 #endif
 
