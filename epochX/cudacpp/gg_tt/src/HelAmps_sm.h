@@ -833,6 +833,14 @@ namespace mg5amcCpu
           const fptype W2,
           fptype allF2[] ) ALWAYS_INLINE;
 
+  //--------------------------------------------------------------------------
+
+  // Compute the output couplings gc10 and gc11 from the input gs
+  template<class G_ACCESS, class C_ACCESS>
+  __device__ INLINE void
+  G2COUP( const fptype gs[],
+          fptype couplings[] ) ALWAYS_INLINE;
+
   //==========================================================================
 
   // Compute the output wavefunction 'V1[6]' from the input wavefunctions V2[6], V3[6]
@@ -955,14 +963,6 @@ namespace mg5amcCpu
     mgDebug( 1, __FUNCTION__ );
     return;
   }
-
-  //==========================================================================
-
-  // Compute the output couplings gc10 and gc11 from the input gs
-  template<class G_ACCESS, class C_ACCESS>
-  __device__ INLINE void
-  G2COUP( const fptype gs[],
-          fptype couplings[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
