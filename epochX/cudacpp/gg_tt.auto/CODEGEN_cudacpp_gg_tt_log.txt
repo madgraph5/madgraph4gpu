@@ -50,7 +50,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0069043636322021484 [0m
+[1;32mDEBUG: model prefixing  takes 0.006936788558959961 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
@@ -65,7 +65,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=2: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ WEIGHTED<=2 @1  
 INFO: Process has 3 diagrams 
-1 processes with 3 diagrams generated in 0.011 s
+1 processes with 3 diagrams generated in 0.010 s
 Total: 1 processes with 3 diagrams
 output standalone_cudacpp CODEGEN_cudacpp_gg_tt
 Load PLUGIN.CUDACPP_SA_OUTPUT
@@ -102,7 +102,7 @@ Generated helas calls for 1 subprocesses (3 diagrams) in 0.007 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.164 s
+ALOHA: aloha creates 2 routines in  0.163 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 [1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2451][0m [0m
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -120,6 +120,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_gg_tt
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 184][0m [0m
 quit
 
-real	0m0.995s
-user	0m0.768s
-sys	0m0.150s
+real	0m0.934s
+user	0m0.766s
+sys	0m0.139s
