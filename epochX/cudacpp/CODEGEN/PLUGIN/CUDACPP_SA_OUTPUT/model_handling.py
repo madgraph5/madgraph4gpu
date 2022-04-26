@@ -723,13 +723,12 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict = self.default_replace_dict
         replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
         replace_dict['model_name'] = self.model_name
-        replace_dict['independent_parameters'] = \
-                                   '// Model parameters independent of aS\n' + \
-                                   self.write_parameters(self.params_indep)
+        params_indep = [ line.replace('aS, ','') for line in self.write_parameters(self.params_indep).split('\n') ]
+        replace_dict['independent_parameters'] = '// Model parameters independent of aS\n  //double aS; // now retrieved event-by-event (as G) from Fortran (running alphas #373)\n' + '\n'.join( params_indep )
         replace_dict['independent_couplings'] = \
                                    '// Model couplings independent of aS\n' + \
                                    self.write_parameters(self.coups_indep)
-        params_dep = [ '  //' + line[2:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(self.params_dep).split('\n')]
+        params_dep = [ '  //' + line[2:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(self.params_dep).split('\n') ]
         replace_dict['dependent_parameters'] = \
                                    '// Model parameters dependent on aS\n' + '\n'.join( params_dep )
         coups_dep = [ '  //' + line[2:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(list(self.coups_dep.values())).split('\n') ]
@@ -757,7 +756,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['hardcoded_independent_parameters'] = '\n'.join( hrd_params_indep )
         replace_dict['hardcoded_independent_couplings'] = \
                                self.write_hardcoded_parameters(self.coups_indep)
-        hrd_params_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(self.params_dep).split('\n')]
+        hrd_params_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(self.params_dep).split('\n') ]
         replace_dict['hardcoded_dependent_parameters'] = '\n'.join( hrd_params_dep )
         hrd_coups_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') ]
         replace_dict['hardcoded_dependent_couplings'] = '\n'.join( hrd_coups_dep )
