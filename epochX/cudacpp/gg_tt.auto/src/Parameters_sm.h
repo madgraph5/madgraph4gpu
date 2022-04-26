@@ -30,11 +30,11 @@ public:
   // Model couplings independent of aS
   // (none)
 
-  //// Model parameters dependent on aS
-  double mdl_sqrt__aS, G, mdl_G__exp__2; // now computed event-by-event (running alphas #373)
+  // Model parameters dependent on aS
+  //double mdl_sqrt__aS, G, mdl_G__exp__2; // now computed event-by-event (running alphas #373)
 
-  //// Model couplings dependent on aS
-  cxsmpl<double> GC_10, GC_11; // now computed event-by-event (running alphas #373)
+  // Model couplings dependent on aS
+  //cxsmpl<double> GC_10, GC_11; // now computed event-by-event (running alphas #373)
 
   // Set parameters that are unchanged during the run
   void setIndependentParameters( SLHAReader& slha );

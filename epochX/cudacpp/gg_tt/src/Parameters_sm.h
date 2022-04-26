@@ -58,7 +58,7 @@ public:
   //void setDependentParameters(); // now computed event-by-event (running alphas #373)
 
   // Set couplings that are changed event by event
-  //void setDependentCouplings(); // now done event-by-event (running alphas #373)
+  //void setDependentCouplings(); // now computed event-by-event (running alphas #373)
 
   // Print parameters that are unchanged during the run
   void printIndependentParameters();

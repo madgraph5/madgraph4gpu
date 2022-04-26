@@ -25,9 +25,9 @@ public:
 
   %(independent_couplings)s
 
-  //%(dependent_parameters)s // now computed event-by-event (running alphas #373)
+  %(dependent_parameters)s
 
-  //%(dependent_couplings)s // now computed event-by-event (running alphas #373)
+  %(dependent_couplings)s
 
   // Set parameters that are unchanged during the run
   void setIndependentParameters( SLHAReader& slha );

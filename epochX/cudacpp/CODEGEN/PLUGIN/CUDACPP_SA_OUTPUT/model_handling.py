@@ -729,12 +729,12 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['independent_couplings'] = \
                                    '// Model couplings independent of aS\n' + \
                                    self.write_parameters(self.coups_indep)
+        params_dep = [ '  //' + line[2:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(self.params_dep).split('\n')]
         replace_dict['dependent_parameters'] = \
-                                   '// Model parameters dependent on aS\n' + \
-                                   self.write_parameters(self.params_dep)
+                                   '// Model parameters dependent on aS\n' + '\n'.join( params_dep )
+        coups_dep = [ '  //' + line[2:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(list(self.coups_dep.values())).split('\n') ]
         replace_dict['dependent_couplings'] = \
-                                   '// Model couplings dependent on aS\n' + \
-                                   self.write_parameters(list(self.coups_dep.values()))
+                                   '// Model couplings dependent on aS\n' + '\n'.join( coups_dep )
         set_params_indep = [ line.replace('aS','//aS') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if line.startswith( '  aS =' ) else line for line in self.write_set_parameters(self.params_indep).split('\n') ]
         replace_dict['set_independent_parameters'] = '\n'.join( set_params_indep )
         replace_dict['set_independent_couplings'] = \
