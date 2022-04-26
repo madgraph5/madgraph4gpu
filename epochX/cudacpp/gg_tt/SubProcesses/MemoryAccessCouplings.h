@@ -54,9 +54,9 @@ public:
   {
     return idcoupAccessBuffer( const_cast<fptype*>( buffer ), idcoup );
   }
-  
+
 private:
-  
+
   friend class MemoryAccessHelper<MemoryAccessCouplingsBase>;
   friend class KernelAccessHelper<MemoryAccessCouplingsBase, true>;
   friend class KernelAccessHelper<MemoryAccessCouplingsBase, false>;
@@ -97,7 +97,7 @@ private:
     constexpr int ipagC = 0;
     constexpr int ieppC = 0;
     // NB! the offset "idcoup * nx2 * neppC" has been added in idcoupAccessBuffer
-    constexpr int idcoup = 0; 
+    constexpr int idcoup = 0;
     return buffer[ipagC * ndcoup * nx2 * neppC + idcoup * nx2 * neppC + ix2 * neppC + ieppC]; // AOSOA[ipagC][idcoup][ix2][ieppC]
   }
 };

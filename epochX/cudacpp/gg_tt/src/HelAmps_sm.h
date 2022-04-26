@@ -11,6 +11,7 @@
 #include "mgOnGpuConfig.h"
 
 #include "mgOnGpuVectors.h"
+
 #include "Parameters_sm.h"
 
 //#include <cmath>
@@ -961,7 +962,7 @@ namespace mg5amcCpu
   template<class G_ACCESS, class C_ACCESS>
   __device__ INLINE void
   G2COUP( const fptype gs[],
-          fptype couplings[] ); ALWAYS_INLINE;
+          fptype couplings[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 

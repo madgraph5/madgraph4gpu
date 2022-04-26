@@ -92,9 +92,9 @@ namespace mg5amcCpu
                              fptype* allcouplings ); // output: couplings[nevt*ndcoup*2]
 #else
   __global__ void
-  computeDependentCouplings( const fptype* allgs,    // input: Gs[nevt]
-                             fptype* allcouplings,   // output: couplings[nevt*ndcoup*2]
-                             const int nevt );       // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+  computeDependentCouplings( const fptype* allgs,  // input: Gs[nevt]
+                             fptype* allcouplings, // output: couplings[nevt*ndcoup*2]
+                             const int nevt );     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
 
   //--------------------------------------------------------------------------
