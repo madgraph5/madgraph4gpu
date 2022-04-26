@@ -37,7 +37,7 @@ Parameters_sm::setIndependentParameters( SLHAReader& slha )
   mdl_ymtau = slha.get_block_entry( "yukawa", 15, 1.777000e+00 );
   mdl_ymt = slha.get_block_entry( "yukawa", 6, 1.730000e+02 );
   mdl_ymb = slha.get_block_entry( "yukawa", 5, 4.700000e+00 );
-  aS = slha.get_block_entry( "sminputs", 3, 1.180000e-01 );
+  //aS = slha.get_block_entry( "sminputs", 3, 1.180000e-01 ); // now retrieved event-by-event (as G) from Fortran (running alphas #373)
   mdl_Gf = slha.get_block_entry( "sminputs", 2, 1.166390e-05 );
   aEWM1 = slha.get_block_entry( "sminputs", 1, 1.325070e+02 );
   mdl_MH = slha.get_block_entry( "mass", 25, 1.250000e+02 );
@@ -118,7 +118,7 @@ Parameters_sm::printIndependentParameters()
   std::cout << std::setw( 20 ) << "mdl_ymtau = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_ymtau << std::endl;
   std::cout << std::setw( 20 ) << "mdl_ymt = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_ymt << std::endl;
   std::cout << std::setw( 20 ) << "mdl_ymb = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_ymb << std::endl;
-  std::cout << std::setw( 20 ) << "aS = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << aS << std::endl;
+  //std::cout << std::setw( 20 ) << "aS = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << aS << std::endl; // now retrieved event-by-event (as G) from Fortran (running alphas #373)
   std::cout << std::setw( 20 ) << "mdl_Gf = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_Gf << std::endl;
   std::cout << std::setw( 20 ) << "aEWM1 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << aEWM1 << std::endl;
   std::cout << std::setw( 20 ) << "mdl_MH = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_MH << std::endl;
