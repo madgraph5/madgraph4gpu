@@ -185,6 +185,35 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  __global__ void /* clang-format off */
+  computeDependentCouplings( const fptype* allgs, // input: Gs[nevt]
+                             fptype* allcouplings // output: couplings[nevt*ndcoup*2]
+#ifndef __CUDACC__
+                             , const int nevt     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#endif
+  ) /* clang-format on */
+  {
+#ifdef __CUDACC__
+    using namespace mg5amcGpu;
+    using G_ACCESS = DeviceAccessGs;
+    using C_ACCESS = DeviceAccessCouplings;
+    G2COUP<G_ACCESS, C_ACCESS>( allgs, allcouplings );
+#else
+    using namespace mg5amcCpu;
+    using G_ACCESS = HostAccessGs;
+    using C_ACCESS = HostAccessCouplings;
+    for( int ipagV = 0; ipagV < nevt / neppV; ++ipagV )
+    {
+      const int ievt0 = ipagV * neppV;
+      const fptype* gs = MemoryAccessGs::ieventAccessRecordConst( allgs, ievt0 );
+      fptype* couplings = MemoryAccessCouplings::ieventAccessRecord( allcouplings, ievt0 );
+      G2COUP<G_ACCESS, C_ACCESS>( gs, couplings );
+    }
+#endif
+  }
+
+  //--------------------------------------------------------------------------
+
 #ifdef __CUDACC__
   __global__ void
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
