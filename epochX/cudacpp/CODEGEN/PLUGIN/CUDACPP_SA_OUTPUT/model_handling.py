@@ -726,13 +726,6 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['independent_parameters'] = \
                                    '// Model parameters independent of aS\n' + \
                                    self.write_parameters(self.params_indep)
-        # AV swap the order (fix bug https://bugs.launchpad.net/mg5amcnlo/+bug/1959192)
-        ###replace_dict['independent_couplings'] = \
-        ###                           '// Model parameters dependent on aS\n' + \
-        ###                           self.write_parameters(self.params_dep)
-        ###replace_dict['dependent_parameters'] = \
-        ###                           '// Model couplings independent of aS\n' + \
-        ###                           self.write_parameters(self.coups_indep)
         replace_dict['independent_couplings'] = \
                                    '// Model couplings independent of aS\n' + \
                                    self.write_parameters(self.coups_indep)
@@ -1107,12 +1100,25 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ff.write(template % replace_dict)
         ff.close()
 
-    # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
+    # AV - add ndcoup and debug printouts over the export_cpp.OneProcessExporterGPU method
     def edit_mgonGPU(self):
         """Generate mgOnGpuConfig.h"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_mgonGPU')
         ###misc.sprint('  template_path=%s'%self.template_path) # look for gpu/mgOnGpuConfig.h here
-        return super().edit_mgonGPU()
+        template = open(pjoin(self.template_path,'gpu','mgOnGpuConfig.h'),'r').read()
+        replace_dict = {}
+        nexternal, nincoming = self.matrix_elements[0].get_nexternal_ninitial()
+        replace_dict['nincoming'] = nincoming
+        replace_dict['noutcoming'] = nexternal - nincoming        
+        replace_dict['nbhel'] = \
+                            self.matrix_elements[0].get_helicity_combinations()
+        replace_dict['nwavefunc'] = \
+                          self.matrix_elements[0].get_number_of_wavefunctions()
+        replace_dict['wavefuncsize'] = 6
+        replace_dict['ndcoup'] = len(self.coups_dep.values())
+        ff = open(pjoin(self.path, '..','..','src','mgOnGpuConfig.h'),'w')
+        ff.write(template % replace_dict)
+        ff.close()        
 
     # AV - new method
     def edit_processidfile(self):
