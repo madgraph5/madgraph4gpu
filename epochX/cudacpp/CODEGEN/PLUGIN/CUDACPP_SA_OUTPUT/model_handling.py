@@ -760,6 +760,11 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['hardcoded_dependent_parameters'] = '\n'.join( hrd_params_dep )
         hrd_coups_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') ]
         replace_dict['hardcoded_dependent_couplings'] = '\n'.join( hrd_coups_dep )
+        replace_dict['ndcoup'] = len( self.coups_dep )
+        idcoups = [ '  constexpr size_t idcoup_%s = %d;' % (name, id) for (id, name) in enumerate(self.coups_dep) ]
+        replace_dict['idcoup'] = '\n'.join( idcoups )
+        inlinedcoups = [ '  __host__ __device__ inline const cxtype_sv %s_fromG( const fptype_sv& G ) { return %s }' % ( set.split(' =')[0].lstrip(' '), set.split('= ')[1].replace('mdl_complexi', 'cxmake( 0., 1. )') ) for set in self.write_set_parameters(list(self.coups_dep.values())).split('\n') ]
+        replace_dict['inlinedcoup'] = '\n'.join( inlinedcoups )
         file_h = self.read_template_file(self.param_template_h) % \
                  replace_dict
         file_cc = self.read_template_file(self.param_template_cc) % \

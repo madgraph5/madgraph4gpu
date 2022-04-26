@@ -7,6 +7,15 @@
 #define Parameters_%(model_name)s_H
 
 #include "mgOnGpuCxtypes.h"
+#include "mgOnGpuVectors.h"
+
+namespace Parameters_%(model_name)s_dependentCouplings
+{
+  constexpr size_t ndcoup = %(ndcoup)d; // #couplings that depend on the running alphas QCD and vary event by event
+%(idcoup)s
+  // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
+%(inlinedcoup)s
+}
 
 #ifndef MGONGPU_HARDCODE_CIPD
 
