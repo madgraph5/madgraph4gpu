@@ -757,10 +757,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                                self.write_hardcoded_parameters(self.params_indep)
         replace_dict['hardcoded_independent_couplings'] = \
                                self.write_hardcoded_parameters(self.coups_indep)
-        replace_dict['hardcoded_dependent_parameters'] = \
-                               self.write_hardcoded_parameters(self.params_dep)
-        replace_dict['hardcoded_dependent_couplings'] = \
-                               self.write_hardcoded_parameters(list(self.coups_dep.values()))
+        hrd_params_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(self.params_dep).split('\n')]
+        replace_dict['hardcoded_dependent_parameters'] = '\n'.join( hrd_params_dep )
+        hrd_coups_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') ]
+        replace_dict['hardcoded_dependent_couplings'] = '\n'.join( hrd_coups_dep )
         file_h = self.read_template_file(self.param_template_h) % \
                  replace_dict
         file_cc = self.read_template_file(self.param_template_cc) % \

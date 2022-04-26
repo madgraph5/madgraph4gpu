@@ -140,13 +140,13 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   // (none)
 
   // Model parameters dependent on aS
-  constexpr double mdl_sqrt__aS = sqrtNR( aS );
-  constexpr double G = 2. * mdl_sqrt__aS * sqrtNR( M_PI );
-  constexpr double mdl_G__exp__2 = ( ( G ) * ( G ) );
+  //constexpr double mdl_sqrt__aS = sqrtNR( aS ); // now computed event-by-event (running alphas #373)
+  //constexpr double G = 2. * mdl_sqrt__aS * sqrtNR( M_PI ); // now computed event-by-event (running alphas #373)
+  //constexpr double mdl_G__exp__2 = ( ( G ) * ( G ) ); // now computed event-by-event (running alphas #373)
 
   // Model couplings dependent on aS
-  constexpr cxsmpl<double> GC_10 = -G;
-  constexpr cxsmpl<double> GC_11 = mdl_complexi * G;
+  //constexpr cxsmpl<double> GC_10 = -G; // now computed event-by-event (running alphas #373)
+  //constexpr cxsmpl<double> GC_11 = mdl_complexi * G; // now computed event-by-event (running alphas #373)
 
   // Print parameters that are unchanged during the run
   void printIndependentParameters();
