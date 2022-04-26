@@ -973,8 +973,8 @@ namespace mg5amcCpu
   {
     mgDebug( 0, __FUNCTION__ );
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
-    fptype* gc10s = C_ACCESS::idcoupAccessBuffer( couplings, 0 );
-    fptype* gc11s = C_ACCESS::idcoupAccessBuffer( couplings, 1 );
+    fptype* gc10s = C_ACCESS::idcoupAccessBuffer( couplings, Parameters_sm_dependentCouplings::idcoup_GC_10 );
+    fptype* gc11s = C_ACCESS::idcoupAccessBuffer( couplings, Parameters_sm_dependentCouplings::idcoup_GC_11 );
     cxtype_sv_ref gc10s_sv = C_ACCESS::kernelAccess( gc10s );
     cxtype_sv_ref gc11s_sv = C_ACCESS::kernelAccess( gc11s );
     gc10s_sv = Parameters_sm_dependentCouplings::GC_10_fromG( gs_sv );

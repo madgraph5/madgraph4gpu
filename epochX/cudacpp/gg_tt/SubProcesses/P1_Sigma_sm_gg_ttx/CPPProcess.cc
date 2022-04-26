@@ -142,8 +142,8 @@ namespace mg5amcCpu
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif // !__CUDACC__
     {
-      const fptype* allgc10s = C_ACCESS::idcoupAccessBufferConst( allcouplings, 0 );
-      const fptype* allgc11s = C_ACCESS::idcoupAccessBufferConst( allcouplings, 1 );
+      const fptype* allgc10s = C_ACCESS::idcoupAccessBufferConst( allcouplings, Parameters_sm_dependentCouplings::idcoup_GC_10 );
+      const fptype* allgc11s = C_ACCESS::idcoupAccessBufferConst( allcouplings, Parameters_sm_dependentCouplings::idcoup_GC_11 );
 #ifdef __CUDACC__
       // CUDA kernels take input/output buffers with momenta/MEs for all events
       const fptype* momenta = allmomenta;
