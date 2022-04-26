@@ -16,7 +16,6 @@
 namespace Parameters_%(model_name)s_dependentCouplings
 {
   constexpr size_t ndcoup = %(ndcoup)d; // #couplings that depend on the running alphas QCD and vary event by event
-  // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
 %(idcoup)s%(inlinedcoup)s
 }
 

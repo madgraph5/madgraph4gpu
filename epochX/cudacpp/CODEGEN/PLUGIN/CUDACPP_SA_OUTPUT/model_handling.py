@@ -768,7 +768,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['ndcoup'] = len( self.coups_dep )
         if len( self.coups_dep ) > 0 :
             idcoups = [ '  constexpr size_t idcoup_%s = %d;' % (name, id) for (id, name) in enumerate(self.coups_dep) ]
-            replace_dict['idcoup'] = '\n'.join( idcoups ) + '\n'
+            replace_dict['idcoup'] = '  // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?\n' + '\n'.join( idcoups ) + '\n'
             inlinedcoups = [ '  __host__ __device__ inline const cxtype_sv %s_fromG( const fptype_sv& G ) { return %s }' % ( set.split(' =')[0].lstrip(' '), set.split('= ')[1].replace('mdl_complexi', 'cxmake( 0., 1. )') ) for set in self.write_set_parameters(list(self.coups_dep.values())).split('\n') ]
             replace_dict['inlinedcoup'] = '\n'.join( inlinedcoups )
             dcoupaccessbuffer = [ '    fptype* %ss = C_ACCESS::idcoupAccessBuffer( couplings, Parameters_sm_dependentCouplings::idcoup_%s );'%( name, name ) for name in self.coups_dep ]
@@ -779,10 +779,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupcompute'] = '\n'.join( dcoupcompute )
         else:
             replace_dict['idcoup'] = ''
-            replace_dict['inlinedcoup'] = '  // NB: this physics process has no couplings that depend on alphaS QCD'
+            replace_dict['inlinedcoup'] = '  // NB: this physics process has no couplings that depend on alphas QCD'
             replace_dict['dcoupaccessbuffer'] = ''
             replace_dict['dcoupkernelaccess'] = ''
-            replace_dict['dcoupcompute'] = '    // NB: this physics process has no couplings that depend on alphaS QCD'
+            replace_dict['dcoupcompute'] = '    // NB: this physics process has no couplings that depend on alphas QCD'
         file_h = self.read_template_file(self.param_template_h) % \
                  replace_dict
         file_cc = self.read_template_file(self.param_template_cc) % \
