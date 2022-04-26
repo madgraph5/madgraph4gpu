@@ -16,7 +16,21 @@
 namespace Parameters_%(model_name)s_dependentCouplings
 {
   constexpr size_t ndcoup = %(ndcoup)d; // #couplings that depend on the running alphas QCD and vary event by event
-%(idcoup)s%(inlinedcoup)s
+%(idcoup)s
+  struct DependentCouplings_sv
+  {
+%(dcoupdecl)s
+  };
+  __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G )
+  {
+    // Model parameters dependent on aS
+  %(dcoupsetdpar)s
+    // Model couplings dependent on aS
+    DependentCouplings_sv out;
+    // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
+  %(dcoupsetdcoup)s
+    return out;
+  }
 }
 
 //==========================================================================
@@ -34,8 +48,11 @@ namespace mg5amcCpu
           fptype couplings[] )
   {
     mgDebug( 0, __FUNCTION__ );
+    using namespace Parameters_sm_dependentCouplings;
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
-%(dcoupaccessbuffer)s%(dcoupkernelaccess)s%(dcoupcompute)s
+%(dcoupaccessbuffer)s%(dcoupkernelaccess)s
+    DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
+%(dcoupcompute)s
     mgDebug( 1, __FUNCTION__ );
     return;
   }
