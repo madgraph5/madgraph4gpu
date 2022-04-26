@@ -17,6 +17,7 @@
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
+#include "Parameters_sm.h"
 
 #include <algorithm>
 #include <array>

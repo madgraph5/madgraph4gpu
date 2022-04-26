@@ -11,12 +11,6 @@
 #include "mgOnGpuCxtypes.h"
 #include "mgOnGpuVectors.h"
 
-#ifndef MGONGPU_HARDCODE_CIPD
-
-#include "read_slha.h"
-
-//constexpr double G = 2. * mdl_sqrt__aS * sqrtNR( M_PI ); // now computed event-by-event (running alphas #373)
-
 namespace Parameters_sm_dependentCouplings
 {
   constexpr size_t idcoup_GC_10 = 0;
@@ -25,6 +19,10 @@ namespace Parameters_sm_dependentCouplings
   __host__ __device__ inline const cxtype_sv GC_10_fromG( const fptype_sv& G ){ return -G; }
   __host__ __device__ inline const cxtype_sv GC_11_fromG( const fptype_sv& G ){ return cxmake( 0., 1. ) * G; }  
 }
+
+#ifndef MGONGPU_HARDCODE_CIPD
+
+#include "read_slha.h"
 
 class Parameters_sm
 {
