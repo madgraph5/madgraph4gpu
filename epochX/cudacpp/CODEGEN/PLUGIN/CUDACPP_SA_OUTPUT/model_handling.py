@@ -929,15 +929,16 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['hel_amps_cc'] = '#include \"HelAmps_%s.cc\"' % self.model_name # AV
         coupling = [''] * len(self.couplings2order)
         params = [''] * len(self.params2order)
-        for coup, pos in self.couplings2order.items():
-            coupling[pos] = coup
-        coup_str = 'const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n'\
-            %(len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling))
+        ###for coup, pos in self.couplings2order.items():
+        ###    coupling[pos] = coup
+        ###coup_str = 'const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n    '\
+        ###    %(len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling))
         for para, pos in self.params2order.items():
             params[pos] = para
-        param_str = '    const fptype tIPD[%s] = { (fptype)m_pars->%s };'\
+        param_str = 'const fptype tIPD[%s] = { (fptype)m_pars->%s };'\
             %(len(self.params2order), ', (fptype)m_pars->'.join(params))
-        replace_dict['assign_coupling'] = coup_str + param_str
+        ###replace_dict['assign_coupling'] = coup_str + param_str
+        replace_dict['assign_coupling'] = param_str
         ###coup_str_hrd = '__device__ const fptype cIPC[%s] = { ' % (len(self.couplings2order)*2)
         ###for coup in coupling : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup )
         ###coup_str_hrd = coup_str_hrd[:-2] + ' };\n  '

@@ -320,7 +320,6 @@ namespace mg5amcCpu
     m_masses.push_back( m_pars->mdl_MT );
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
-    const cxtype tIPC[2] = { cxmake( m_pars->GC_10 ), cxmake( m_pars->GC_11 ) };
     const fptype tIPD[2] = { (fptype)m_pars->mdl_MT, (fptype)m_pars->mdl_WT };
 #ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) ) );
