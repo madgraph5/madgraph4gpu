@@ -101,8 +101,6 @@ namespace mgOnGpu
 
   const int nwf = %(nwavefunc)d; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
 
-  const int ndcoup = %(ndcoup)d; // #couplings that depend on the running alphas QCD and vary event by event: e.g. for e+ e- -> mu+ mu- (no QCD)
-
   // --- Platform-specific software implementation details
 
   // Maximum number of blocks per grid
