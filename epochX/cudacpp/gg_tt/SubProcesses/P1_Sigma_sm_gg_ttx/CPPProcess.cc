@@ -142,20 +142,21 @@ namespace mg5amcCpu
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif // !__CUDACC__
     {
-      const fptype* allCOUP0s = C_ACCESS::idcoupAccessBufferConst( allcouplings, 0 );
-      const fptype* allCOUP1s = C_ACCESS::idcoupAccessBufferConst( allcouplings, 1 );
+      const fptype* allCOUPs[Parameters_sm_dependentCouplings::ndcoup];
+      for ( size_t idcoup = 0; idcoup < Parameters_sm_dependentCouplings::ndcoup; idcoup++ )
+        allCOUPs[idcoup] = C_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup );
 #ifdef __CUDACC__
       // CUDA kernels take input/output buffers with momenta/MEs for all events
       const fptype* momenta = allmomenta;
-      const fptype* COUP0s = allCOUP0s;
-      const fptype* COUP1s = allCOUP1s;
+      const fptype* COUP0s = allCOUPs[0];
+      const fptype* COUP1s = allCOUPs[1];
       fptype* MEs = allMEs;
 #else
       // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
       const int ievt0 = ipagV * neppV;
       const fptype* momenta = M_ACCESS::ieventAccessRecordConst( allmomenta, ievt0 );
-      const fptype* COUP0s = C_ACCESS::ieventAccessRecordConst( allCOUP0s, ievt0 );
-      const fptype* COUP1s = C_ACCESS::ieventAccessRecordConst( allCOUP1s, ievt0 );
+      const fptype* COUP0s = C_ACCESS::ieventAccessRecordConst( allCOUPs[0], ievt0 );
+      const fptype* COUP1s = C_ACCESS::ieventAccessRecordConst( allCOUPs[1], ievt0 );
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
 #endif
 
