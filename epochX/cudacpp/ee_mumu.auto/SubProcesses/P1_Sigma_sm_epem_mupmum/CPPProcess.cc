@@ -13,6 +13,7 @@
 #include "HelAmps_sm.h"
 #include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessCouplings.h"
+#include "MemoryAccessCouplingsFixed.h"
 #include "MemoryAccessGs.h"
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
@@ -50,6 +51,7 @@ namespace mg5amcCpu
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
 #ifdef MGONGPU_HARDCODE_CIPD
+  __device__ const fptype cIPC[6] = { (fptype)Parameters_sm::GC_3.real(), (fptype)Parameters_sm::GC_3.imag(), (fptype)Parameters_sm::GC_50.real(), (fptype)Parameters_sm::GC_50.imag(), (fptype)Parameters_sm::GC_59.real(), (fptype)Parameters_sm::GC_59.imag() };
   __device__ const fptype cIPD[2] = { (fptype)Parameters_sm::mdl_MZ, (fptype)Parameters_sm::mdl_WZ };
 #else
 #ifdef __CUDACC__
@@ -87,18 +89,20 @@ namespace mg5amcCpu
   { /* clang-format on */
 #ifdef __CUDACC__
     using namespace mg5amcGpu;
-    using M_ACCESS = DeviceAccessMomenta;        // non-trivial access: buffer includes all events
-    using E_ACCESS = DeviceAccessMatrixElements; // non-trivial access: buffer includes all events
-    using W_ACCESS = DeviceAccessWavefunctions;  // TRIVIAL ACCESS: buffer for one event (no kernel splitting yet)
-    using A_ACCESS = DeviceAccessAmplitudes;     // TRIVIAL ACCESS: buffer for one event (no kernel splitting yet)
-    using C_ACCESS = DeviceAccessCouplings;      // non-trivial access: buffer includes all events
+    using M_ACCESS = DeviceAccessMomenta;         // non-trivial access: buffer includes all events
+    using E_ACCESS = DeviceAccessMatrixElements;  // non-trivial access: buffer includes all events
+    using W_ACCESS = DeviceAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #else
     using namespace mg5amcCpu;
-    using M_ACCESS = HostAccessMomenta;        // non-trivial access: buffer includes all events
-    using E_ACCESS = HostAccessMatrixElements; // non-trivial access: buffer includes all events
-    using W_ACCESS = HostAccessWavefunctions;  // TRIVIAL ACCESS: buffer for one event or SIMD vector (no kernel splitting yet)
-    using A_ACCESS = HostAccessAmplitudes;     // TRIVIAL ACCESS: buffer for one event or SIMD vector (no kernel splitting yet)
-    using C_ACCESS = HostAccessCouplings;      // non-trivial access: buffer includes all events
+    using M_ACCESS = HostAccessMomenta;         // non-trivial access: buffer includes all events
+    using E_ACCESS = HostAccessMatrixElements;  // non-trivial access: buffer includes all events
+    using W_ACCESS = HostAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #endif
     mgDebug( 0, __FUNCTION__ );
     //printf( "calculate_wavefunctions: ihel=%2d\n", ihel );
@@ -142,23 +146,34 @@ namespace mg5amcCpu
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif // !__CUDACC__
     {
-      const fptype* allCOUPs[Parameters_sm_dependentCouplings::ndcoup];
-      for( size_t idcoup = 0; idcoup < Parameters_sm_dependentCouplings::ndcoup; idcoup++ )
-        allCOUPs[idcoup] = C_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup );
+      using Parameters_sm_dependentCouplings::ndcoup;
+      using Parameters_sm_independentCouplings::nicoup;
+      constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independet couplings
+      const fptype* allCOUPs[nxcoup];
 #ifdef __CUDACC__
+#pragma nv_diagnostic push
+#pragma nv_diag_suppress 186 // e.g. <<warning #186-D: pointless comparison of unsigned integer with zero>>
+#endif
+      for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
+        allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup ); // dependent couplings, vary event-by-event
+      for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
+        allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
+#ifdef __CUDACC__
+#pragma nv_diagnostic pop
       // CUDA kernels take input/output buffers with momenta/MEs for all events
       const fptype* momenta = allmomenta;
-      const fptype* COUPs[Parameters_sm_dependentCouplings::ndcoup];
-      for( size_t idcoup = 0; idcoup < Parameters_sm_dependentCouplings::ndcoup; idcoup++ )
-        COUPs[idcoup] = allCOUPs[idcoup];
+      const fptype* COUPs[nxcoup];
+      for( size_t ixcoup = 0; ixcoup < nxcoup; ixcoup++ ) COUPs[ixcoup] = allCOUPs[ixcoup];
       fptype* MEs = allMEs;
 #else
       // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
       const int ievt0 = ipagV * neppV;
       const fptype* momenta = M_ACCESS::ieventAccessRecordConst( allmomenta, ievt0 );
-      const fptype* COUPs[Parameters_sm_dependentCouplings::ndcoup];
-      for( size_t idcoup = 0; idcoup < Parameters_sm_dependentCouplings::ndcoup; idcoup++ )
-        COUPs[idcoup] = C_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 );
+      const fptype* COUPs[nxcoup];
+      for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
+        COUPs[idcoup] = CD_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 ); // dependent couplings, vary event-by-event
+      for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
+        COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
 #endif
 
@@ -317,6 +332,7 @@ namespace mg5amcCpu
     m_masses.push_back( m_pars->ZERO );
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
+    const cxtype tIPC[3] = { cxmake( m_pars->GC_3 ), cxmake( m_pars->GC_50 ), cxmake( m_pars->GC_59 ) };
     const fptype tIPD[2] = { (fptype)m_pars->mdl_MZ, (fptype)m_pars->mdl_WZ };
 #ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) ) );

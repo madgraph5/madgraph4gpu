@@ -959,24 +959,22 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['hel_amps_cc'] = '#include \"HelAmps_%s.cc\"' % self.model_name # AV
         coupling = [''] * len(self.couplings2order)
         params = [''] * len(self.params2order)
-        ###for coup, pos in self.couplings2order.items():
-        ###    coupling[pos] = coup
-        ###coup_str = 'const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n    '\
-        ###    %(len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling))
+        for coup, pos in self.couplings2order.items():
+            coupling[pos] = coup
+        coup_str = 'const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n    '\
+            %(len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling))
         for para, pos in self.params2order.items():
             params[pos] = para
         param_str = 'const fptype tIPD[%s] = { (fptype)m_pars->%s };'\
             %(len(self.params2order), ', (fptype)m_pars->'.join(params))
-        ###replace_dict['assign_coupling'] = coup_str + param_str
-        replace_dict['assign_coupling'] = param_str
-        ###coup_str_hrd = '__device__ const fptype cIPC[%s] = { ' % (len(self.couplings2order)*2)
-        ###for coup in coupling : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup )
-        ###coup_str_hrd = coup_str_hrd[:-2] + ' };\n  '
+        replace_dict['assign_coupling'] = coup_str + param_str
+        coup_str_hrd = '__device__ const fptype cIPC[%s] = { ' % (len(self.couplings2order)*2)
+        for coup in coupling : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup )
+        coup_str_hrd = coup_str_hrd[:-2] + ' };\n  '
         param_str_hrd = '__device__ const fptype cIPD[%s] = { ' % len(self.params2order)
         for para in params : param_str_hrd += '(fptype)Parameters_%s::%s, ' % ( self.model_name, para )
         param_str_hrd = param_str_hrd[:-2] + ' };'
-        ###replace_dict['hardcoded_assign_coupling'] = coup_str_hrd + param_str_hrd
-        replace_dict['hardcoded_assign_coupling'] = param_str_hrd
+        replace_dict['hardcoded_assign_coupling'] = coup_str_hrd + param_str_hrd
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
         file = self.read_template_file(self.process_definition_template) % replace_dict # HACK! ignore write=False case
@@ -1008,18 +1006,20 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   { /* clang-format on */
 #ifdef __CUDACC__
     using namespace mg5amcGpu;
-    using M_ACCESS = DeviceAccessMomenta;        // non-trivial access: buffer includes all events
-    using E_ACCESS = DeviceAccessMatrixElements; // non-trivial access: buffer includes all events
-    using W_ACCESS = DeviceAccessWavefunctions;  // TRIVIAL ACCESS: buffer for one event (no kernel splitting yet)
-    using A_ACCESS = DeviceAccessAmplitudes;     // TRIVIAL ACCESS: buffer for one event (no kernel splitting yet)
-    using C_ACCESS = DeviceAccessCouplings;      // non-trivial access: buffer includes all events
+    using M_ACCESS = DeviceAccessMomenta;         // non-trivial access: buffer includes all events
+    using E_ACCESS = DeviceAccessMatrixElements;  // non-trivial access: buffer includes all events
+    using W_ACCESS = DeviceAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #else
     using namespace mg5amcCpu;
-    using M_ACCESS = HostAccessMomenta;        // non-trivial access: buffer includes all events
-    using E_ACCESS = HostAccessMatrixElements; // non-trivial access: buffer includes all events
-    using W_ACCESS = HostAccessWavefunctions;  // TRIVIAL ACCESS: buffer for one event or SIMD vector (no kernel splitting yet)
-    using A_ACCESS = HostAccessAmplitudes;     // TRIVIAL ACCESS: buffer for one event or SIMD vector (no kernel splitting yet)
-    using C_ACCESS = HostAccessCouplings;      // non-trivial access: buffer includes all events
+    using M_ACCESS = HostAccessMomenta;         // non-trivial access: buffer includes all events
+    using E_ACCESS = HostAccessMatrixElements;  // non-trivial access: buffer includes all events
+    using W_ACCESS = HostAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #endif
     mgDebug( 0, __FUNCTION__ );
     //printf( \"calculate_wavefunctions: ihel=%2d\\n\", ihel );
@@ -1378,23 +1378,34 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         matrix_element.reuse_outdated_wavefunctions(me)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
-        res.append("""const fptype* allCOUPs[Parameters_sm_dependentCouplings::ndcoup];
-      for( size_t idcoup = 0; idcoup < Parameters_sm_dependentCouplings::ndcoup; idcoup++ )
-        allCOUPs[idcoup] = C_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup );
+        res.append("""using Parameters_sm_dependentCouplings::ndcoup;
+      using Parameters_sm_independentCouplings::nicoup;
+      constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independet couplings
+      const fptype* allCOUPs[nxcoup];
 #ifdef __CUDACC__
+#pragma nv_diagnostic push
+#pragma nv_diag_suppress 186 // e.g. <<warning #186-D: pointless comparison of unsigned integer with zero>>
+#endif
+      for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
+        allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup ); // dependent couplings, vary event-by-event
+      for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
+        allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
+#ifdef __CUDACC__
+#pragma nv_diagnostic pop
       // CUDA kernels take input/output buffers with momenta/MEs for all events
       const fptype* momenta = allmomenta;
-      const fptype* COUPs[Parameters_sm_dependentCouplings::ndcoup];
-      for( size_t idcoup = 0; idcoup < Parameters_sm_dependentCouplings::ndcoup; idcoup++ )
-        COUPs[idcoup] = allCOUPs[idcoup];
+      const fptype* COUPs[nxcoup];
+      for( size_t ixcoup = 0; ixcoup < nxcoup; ixcoup++ ) COUPs[ixcoup] = allCOUPs[ixcoup];
       fptype* MEs = allMEs;
 #else
       // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
       const int ievt0 = ipagV * neppV;
       const fptype* momenta = M_ACCESS::ieventAccessRecordConst( allmomenta, ievt0 );
-      const fptype* COUPs[Parameters_sm_dependentCouplings::ndcoup];
-      for( size_t idcoup = 0; idcoup < Parameters_sm_dependentCouplings::ndcoup; idcoup++ )
-        COUPs[idcoup] = C_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 );
+      const fptype* COUPs[nxcoup];
+      for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
+        COUPs[idcoup] = CD_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 ); // dependent couplings, vary event-by-event
+      for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
+        COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
 #endif
 

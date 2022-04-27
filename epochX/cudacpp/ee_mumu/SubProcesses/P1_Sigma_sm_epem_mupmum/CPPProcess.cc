@@ -159,7 +159,7 @@ namespace mg5amcCpu
       for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
         allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup ); // dependent couplings, vary event-by-event
       for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
-        allCOUPs[ndcoup+iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
+        allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
 #ifdef __CUDACC__
 #pragma nv_diagnostic pop
       // CUDA kernels take input/output buffers with momenta/MEs for all events
@@ -175,7 +175,7 @@ namespace mg5amcCpu
       for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
         COUPs[idcoup] = CD_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 ); // dependent couplings, vary event-by-event
       for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
-        COUPs[ndcoup+iicoup] = allCOUPs[ndcoup+iicoup]; // independent couplings, fixed for all events
+        COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
 #endif
 
