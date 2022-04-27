@@ -50,11 +50,14 @@ namespace mg5amcCpu
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
 #ifdef MGONGPU_HARDCODE_CIPD
+  __device__ const fptype cIPC[6] = { (fptype)Parameters_sm::GC_3.real(), (fptype)Parameters_sm::GC_3.imag(), (fptype)Parameters_sm::GC_50.real(), (fptype)Parameters_sm::GC_50.imag(), (fptype)Parameters_sm::GC_59.real(), (fptype)Parameters_sm::GC_59.imag() };
   __device__ const fptype cIPD[2] = { (fptype)Parameters_sm::mdl_MZ, (fptype)Parameters_sm::mdl_WZ };
 #else
 #ifdef __CUDACC__
+  __device__ __constant__ fptype cIPC[6];
   __device__ __constant__ fptype cIPD[2];
 #else
+  static fptype cIPC[6];
   static fptype cIPD[2];
 #endif
 #endif
@@ -317,12 +320,16 @@ namespace mg5amcCpu
     m_masses.push_back( m_pars->ZERO );
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
+    const cxtype tIPC[3] = { cxmake( m_pars->GC_3 ), cxmake( m_pars->GC_50 ), cxmake( m_pars->GC_59 ) };
     const fptype tIPD[2] = { (fptype)m_pars->mdl_MZ, (fptype)m_pars->mdl_WZ };
 #ifdef __CUDACC__
+    checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 3 * sizeof( cxtype ) ) );
     checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) ) );
 #else
+    memcpy( cIPC, tIPC, 3 * sizeof( cxtype ) );
     memcpy( cIPD, tIPD, 2 * sizeof( fptype ) );
 #endif
+    //for ( i=0; i<3; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;
     //for ( i=0; i<2; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
   }
 #else
