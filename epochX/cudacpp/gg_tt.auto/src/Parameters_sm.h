@@ -68,11 +68,11 @@ namespace mg5amcCpu
     mgDebug( 0, __FUNCTION__ );
     using namespace Parameters_sm_dependentCouplings;
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
+    DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
     fptype* GC_10s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_10 );
     fptype* GC_11s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_11 );
     cxtype_sv_ref GC_10s_sv = C_ACCESS::kernelAccess( GC_10s );
     cxtype_sv_ref GC_11s_sv = C_ACCESS::kernelAccess( GC_11s );
-    DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
     GC_10s_sv = couplings_sv.GC_10;
     GC_11s_sv = couplings_sv.GC_11;
     mgDebug( 1, __FUNCTION__ );

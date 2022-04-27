@@ -60,9 +60,8 @@ namespace mg5amcCpu
     mgDebug( 0, __FUNCTION__ );
     using namespace Parameters_sm_dependentCouplings;
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
-%(dcoupaccessbuffer)s%(dcoupkernelaccess)s
     DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
-%(dcoupcompute)s
+%(dcoupaccessbuffer)s%(dcoupkernelaccess)s%(dcoupcompute)s
     mgDebug( 1, __FUNCTION__ );
     return;
   }

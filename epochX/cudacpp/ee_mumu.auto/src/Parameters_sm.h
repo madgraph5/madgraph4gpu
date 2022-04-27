@@ -62,7 +62,6 @@ namespace mg5amcCpu
     mgDebug( 0, __FUNCTION__ );
     using namespace Parameters_sm_dependentCouplings;
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
-
     DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
     // NB: this physics process has no couplings that depend on alphas QCD
     mgDebug( 1, __FUNCTION__ );
