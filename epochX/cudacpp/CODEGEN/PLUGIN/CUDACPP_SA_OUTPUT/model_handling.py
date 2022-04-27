@@ -951,6 +951,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         """The complete class definition for the process"""
         replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False) # defines replace_dict['initProc_lines']
         replace_dict['hardcoded_initProc_lines'] = replace_dict['initProc_lines'].replace( 'm_pars->', 'Parameters_%s::' % self.model_name )
+        couplings2order_indep = []
         replace_dict['ncouplings'] = len(self.couplings2order)
         replace_dict['ncouplingstimes2'] = 2 * replace_dict['ncouplings']
         replace_dict['nparams'] = len(self.params2order)
@@ -961,15 +962,25 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         params = [''] * len(self.params2order)
         for coup, pos in self.couplings2order.items():
             coupling[pos] = coup
+        coupling_indep = [] # AV keep only the alphas-independent couplings #434
+        for coup in coupling:
+            keep = True
+            # Use the same implementation as in UFOModelConverterCPP.prepare_couplings (assume self.model is the same)
+            for key, coup_list in self.model['couplings'].items():
+                if "aS" in key and coup in coup_list: keep = False
+            if keep: coupling_indep.append( coup ) # AV only indep!
+        ###coup_str = 'const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n    '\
+        ###    %(len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling))
         coup_str = 'const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n    '\
-            %(len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling))
+            %(len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling_indep)) # AV only indep!
         for para, pos in self.params2order.items():
             params[pos] = para
         param_str = 'const fptype tIPD[%s] = { (fptype)m_pars->%s };'\
             %(len(self.params2order), ', (fptype)m_pars->'.join(params))
         replace_dict['assign_coupling'] = coup_str + param_str
         coup_str_hrd = '__device__ const fptype cIPC[%s] = { ' % (len(self.couplings2order)*2)
-        for coup in coupling : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup )
+        ###for coup in coupling : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup )
+        for coup in coupling_indep : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup ) # AV only indep!
         coup_str_hrd = coup_str_hrd[:-2] + ' };\n  '
         param_str_hrd = '__device__ const fptype cIPD[%s] = { ' % len(self.params2order)
         for para in params : param_str_hrd += '(fptype)Parameters_%s::%s, ' % ( self.model_name, para )
