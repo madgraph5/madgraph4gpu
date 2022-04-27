@@ -1609,7 +1609,9 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                    'coup': ('m_pars->%%(coup%d)s, ' * len(argument.get('coupling'))) % tuple(range(len(argument.get('coupling'))))
                    }
             if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, C_ACCESS>'
-            else : arg['routine_name'] += '<W_ACCESS, C_ACCESS>'
+            else :
+                # FIXME FOR PR #434: CI_ACCESS for independent couplings and CD_ACCESS for dependent couplings
+                arg['routine_name'] += '<W_ACCESS, C_ACCESS>'
             if isinstance(argument, helas_objects.HelasWavefunction):
                 #arg['out'] = 'w_sv[%(out)d]'
                 arg['out'] = 'w_fp[%(out)d]'
