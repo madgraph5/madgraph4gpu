@@ -1640,7 +1640,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             usesdepcoupl = None
             for coup in argument.get('coupling'):
                 # Use the same implementation as in UFOModelConverterCPP.prepare_couplings (assume self.model is the same)
-                for key, coup_list in self.model['couplings'].items():
+                for key, coup_list in self.get('model')['couplings'].items():
                     if coup in coup_list:
                         if "aS" in key:
                             if usesdepcoupl is None: usesdepcoupl = True
