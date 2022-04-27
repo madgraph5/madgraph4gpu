@@ -1636,10 +1636,26 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                    'wf': ('w_fp[%%(%d)d], ' * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))),
                    'coup': ('m_pars->%%(coup%d)s, ' * len(argument.get('coupling'))) % tuple(range(len(argument.get('coupling'))))
                    }
-            if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, C_ACCESS>'
-            else :
-                # FIXME FOR PR #434: CI_ACCESS for independent couplings and CD_ACCESS for dependent couplings
-                arg['routine_name'] += '<W_ACCESS, C_ACCESS>'
+            # AV FOR PR #434: determine if this call needs aS-dependent or aS-independent parameters
+            usesdepcoupl = None
+            for coup in argument.get('coupling'):
+                # Use the same implementation as in UFOModelConverterCPP.prepare_couplings (assume self.model is the same)
+                for key, coup_list in self.model['couplings'].items():
+                    if coup in coup_list:
+                        if "aS" in key:
+                            if usesdepcoupl is None: usesdepcoupl = True
+                            elif not usesdepcoupl: raise "PANIC! this call seems to use both aS-dependent and aS-independent couplings?"
+                        else:
+                            if usesdepcoupl is None: usesdepcoupl = False
+                            elif usesdepcoupl: raise "PANIC! this call seems to use both aS-dependent and aS-independent couplings?"
+            # AV FOR PR #434: CI_ACCESS for independent couplings and CD_ACCESS for dependent couplings
+            if usesdepcoupl is None: raise "PANIC! could not determine if this call uses aS-dependent or aS-independent couplings?"
+            elif usesdepcoupl: caccess = 'CD_ACCESS'
+            else: caccess = 'CI_ACCESS'
+            ###if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, C_ACCESS>'
+            ###else : arg['routine_name'] += '<W_ACCESS, C_ACCESS>'
+            if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, %s>'%caccess
+            else : arg['routine_name'] += '<W_ACCESS, %s>'%caccess
             if isinstance(argument, helas_objects.HelasWavefunction):
                 #arg['out'] = 'w_sv[%(out)d]'
                 arg['out'] = 'w_fp[%(out)d]'
