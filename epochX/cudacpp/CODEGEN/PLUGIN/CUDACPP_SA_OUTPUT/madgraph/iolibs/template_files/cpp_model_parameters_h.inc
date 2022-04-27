@@ -15,7 +15,7 @@
 
 namespace Parameters_%(model_name)s_dependentCouplings
 {
-  constexpr size_t ndcoup = %(ndcoup)d; // #couplings that depend on the running alphas QCD and vary event by event
+  constexpr size_t ndcoup = %(ndcoup)d; // #couplings that vary event by event because they depend on the running alphas QCD
 %(idcoup)s
   struct DependentCouplings_sv
   {
@@ -45,12 +45,22 @@ namespace Parameters_%(model_name)s_dependentCouplings
 
 //==========================================================================
 
+namespace Parameters_sm_independentCouplings
+{
+  constexpr size_t nicoup = %(nicoup)d; // #couplings that are fixed for all events because they do not depend on the running alphas QCD
+%(iicoup)s
+}
+
+//==========================================================================
+
 #ifdef __CUDACC__
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
 #endif
 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" // e.g. <<warning: variable ‘couplings_sv’ set but not used [-Wunused-but-set-variable]>>
   // Compute the output couplings (e.g. gc10 and gc11) from the input gs
   template<class G_ACCESS, class C_ACCESS>
   __device__ inline void
@@ -65,6 +75,7 @@ namespace mg5amcCpu
     mgDebug( 1, __FUNCTION__ );
     return;
   }
+#pragma GCC diagnostic pop
 }
 
 //==========================================================================

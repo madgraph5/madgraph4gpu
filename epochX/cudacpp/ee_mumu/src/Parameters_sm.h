@@ -50,9 +50,9 @@ namespace Parameters_sm_dependentCouplings
 namespace Parameters_sm_independentCouplings
 {
   constexpr size_t nicoup = 3; // #couplings that are fixed for all events because they do not depend on the running alphas QCD
-  constexpr size_t ixcoup_GC_3 = 0 + Parameters_sm_dependentCouplings::ndcoup; // out of nicoup+ndcoup
-  constexpr size_t ixcoup_GC_50 = 1 + Parameters_sm_dependentCouplings::ndcoup; // out of nicoup+ndcoup
-  constexpr size_t ixcoup_GC_59 = 2 + Parameters_sm_dependentCouplings::ndcoup; // out of nicoup+ndcoup
+  //constexpr size_t ixcoup_GC_3 = 0 + Parameters_sm_dependentCouplings::ndcoup; // out of ndcoup+nicoup
+  //constexpr size_t ixcoup_GC_50 = 1 + Parameters_sm_dependentCouplings::ndcoup; // out of ndcoup+nicoup
+  //constexpr size_t ixcoup_GC_59 = 2 + Parameters_sm_dependentCouplings::ndcoup; // out of ndcoup+nicoup
 }
 
 //==========================================================================
@@ -64,7 +64,7 @@ namespace mg5amcCpu
 #endif
 {
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"// e.g. <<warning: variable ‘couplings_sv’ set but not used [-Wunused-but-set-variable]>>
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" // e.g. <<warning: variable ‘couplings_sv’ set but not used [-Wunused-but-set-variable]>>
   // Compute the output couplings (e.g. gc10 and gc11) from the input gs
   template<class G_ACCESS, class C_ACCESS>
   __device__ inline void

@@ -765,10 +765,16 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['hardcoded_dependent_parameters'] = '\n'.join( hrd_params_dep )
         hrd_coups_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') ]
         replace_dict['hardcoded_dependent_couplings'] = '\n'.join( hrd_coups_dep )
+        replace_dict['nicoup'] = len( self.coups_indep )
+        if len( self.coups_indep ) > 0 :
+            iicoup = [ '  //constexpr size_t ixcoup_%s = %d + Parameters_sm_dependentCouplings::ndcoup; // out of ndcoup+nicoup' % (par.name, id) for (id, par) in enumerate(self.coups_indep) ]
+            replace_dict['iicoup'] = '\n'.join( iicoup )
+        else:
+            replace_dict['iicoup'] = '  // NB: there are no aS-independent couplings in this physics process'
         replace_dict['ndcoup'] = len( self.coups_dep )
         if len( self.coups_dep ) > 0 :
-            idcoups = [ '  constexpr size_t idcoup_%s = %d;' % (name, id) for (id, name) in enumerate(self.coups_dep) ]
-            replace_dict['idcoup'] = '\n'.join( idcoups )
+            idcoup = [ '  constexpr size_t idcoup_%s = %d;' % (name, id) for (id, name) in enumerate(self.coups_dep) ]
+            replace_dict['idcoup'] = '\n'.join( idcoup )
             dcoupdecl = [ '    cxtype_sv %s;' % name for name in self.coups_dep ]
             replace_dict['dcoupdecl'] = '\n'.join( dcoupdecl )
             dcoupsetdpar = []
@@ -787,13 +793,13 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             dcoupcompute = [ '    %ss_sv = couplings_sv.%s;'%( name, name ) for name in self.coups_dep ]
             replace_dict['dcoupcompute'] = '\n'.join( dcoupcompute )
         else:
-            replace_dict['idcoup'] = ''
+            replace_dict['idcoup'] = '  // NB: there are no aS-dependent couplings in this physics process'
             replace_dict['dcoupdecl'] = '    // (none)'
             replace_dict['dcoupsetdpar'] = '  // (none)'
             replace_dict['dcoupsetdcoup'] = '  // (none)'
             replace_dict['dcoupaccessbuffer'] = ''
             replace_dict['dcoupkernelaccess'] = ''
-            replace_dict['dcoupcompute'] = '    // NB: this physics process has no couplings that depend on alphas QCD'
+            replace_dict['dcoupcompute'] = '    // NB: there are no aS-dependent couplings in this physics process'
         file_h = self.read_template_file(self.param_template_h) % \
                  replace_dict
         file_cc = self.read_template_file(self.param_template_cc) % \
