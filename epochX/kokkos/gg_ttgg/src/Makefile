@@ -19,7 +19,14 @@ HIPCC=hipcc
 
 OPENMP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_OMP)/include --openmp
 
+INTEL_SYCL ?= 0
+ifeq ($(INTEL_SYCL),1)
+# build for SYCL
+INTEL_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_INTEL)/include -fiopenmp -fsycl -fsycl-targets=spir64_gen -Wno-parentheses -Wno-openmp-mapping -Wno-deprecated-declarations -Wno-tautological-constant-compare -Wno-unknown-attributes
+else
+# build for OPENMP
 INTEL_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_INTEL)/include -fiopenmp -fopenmp-targets=spir64_gen -Wno-parentheses -Wno-openmp-mapping -Wno-deprecated-declarations -Wno-tautological-constant-compare -Wno-unknown-attributes
+endif
 
 HIP_ARCH_NUM ?= gfx906
 HIP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_HIP)/include -fopenmp -fno-gpu-rdc --amdgpu-target=$(HIP_ARCH_NUM)

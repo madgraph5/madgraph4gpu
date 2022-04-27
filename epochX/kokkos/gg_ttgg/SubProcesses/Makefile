@@ -29,8 +29,16 @@ OPENMP_LDFLAGS=$(LDFLAGS) $(KOKKOSPATH_OMP)/lib64/libkokkoscore.a -ldl --openmp
 # INTEL_LDFLAGS=$(LDFLAGS)  $(KOKKOSPATH_INTEL)/lib64/libkokkoscore.a -fiopenmp -fopenmp-targets=spir64 -L/soft/restricted/CNDA/sdk/2021.04.30.001/oneapi/compiler/latest/linux/lib/ -lsycl
 
 INTEL_BACKEND ?= xehp,12.4.0,skl
+INTEL_SYCL ?= 0
+ifeq ($(INTEL_SYCL),1)
+# build for SYCL
+INTEL_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_INTEL)/include -fiopenmp -fsycl -fsycl-targets=spir64_gen -Wno-parentheses -Wno-openmp-mapping -Wno-deprecated-declarations -Wno-tautological-constant-compare -Wno-unknown-attributes
+INTEL_LDFLAGS=$(LDFLAGS)  $(KOKKOSPATH_INTEL)/lib64/libkokkoscore.a $(KOKKOSPATH_INTEL)/lib64/libkokkoscontainers.a -fiopenmp -fsycl -fsycl-targets=spir64_gen -Xsycl-target-backend "-device ${INTEL_BACKEND}"
+else
+# build for OPENMP
 INTEL_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_INTEL)/include -fiopenmp -fopenmp-targets=spir64_gen -Wno-parentheses -Wno-openmp-mapping -Wno-deprecated-declarations -Wno-tautological-constant-compare -Wno-unknown-attributes
 INTEL_LDFLAGS=$(LDFLAGS)  $(KOKKOSPATH_INTEL)/lib64/libkokkoscore.a $(KOKKOSPATH_INTEL)/lib64/libkokkoscontainers.a -fiopenmp -fopenmp-targets=spir64_gen -Xopenmp-target-backend "-device ${INTEL_BACKEND}"
+endif
 
 HIP_ARCH_NUM ?= gfx906
 HIP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_HIP)/include -fopenmp -fno-gpu-rdc --amdgpu-target=$(HIP_ARCH_NUM)
@@ -62,7 +70,7 @@ openmp:
 	make -C ../../src openmp
 	make $(openmp_exe)
 intel:
-	make -C ../../src intel
+	INTEL_SYCL=$(INTEL_SYCL) make -C ../../src intel
 	make $(intel_exe)
 hip:
 	make -C ../../src hip
