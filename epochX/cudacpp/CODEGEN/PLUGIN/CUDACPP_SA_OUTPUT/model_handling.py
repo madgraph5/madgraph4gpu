@@ -974,8 +974,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             ###    %(len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling))
             coup_str = 'const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n    '\
                 %(len(coupling_indep), ' ), cxmake( m_pars->'.join(coupling_indep)) # AV only indep!
-            replace_dict['cipcdevice'] = '\n  __device__ __constant__ fptype cIPC[%i];'%2*len(coupling_indep)
-            replace_dict['cipcstatic'] = '\n  static fptype cIPC[%i];'%2*len(coupling_indep)
+            replace_dict['cipcdevice'] = '\n  __device__ __constant__ fptype cIPC[%i];'%(2*len(coupling_indep))
+            replace_dict['cipcstatic'] = '\n  static fptype cIPC[%i];'%(2*len(coupling_indep))
             replace_dict['cipc2tipcSym'] = '\n    checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, %i * sizeof( cxtype ) ) );'%len(coupling_indep)
             replace_dict['cipc2tipc'] = '\n    memcpy( cIPC, tIPC, %i * sizeof( cxtype ) );'%len(coupling_indep)
             replace_dict['cipcdump'] = '\n    //for ( i=0; i<%i; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;'%len(coupling_indep)
