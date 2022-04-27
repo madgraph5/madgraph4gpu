@@ -131,6 +131,35 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
     EXPECT_TRUE_sv( array[1].imag() == 0 );
   }
 
+#ifdef MGONGPU_CPPSIMD
+  // Vector initialization for cxtype_sv - bug in PR #434
+  {
+    //cxtype_sv c12( 1, 2 ); // currently this fails compilation!
+    cxtype_sv c12 = cxmake( fptype_sv{ 1 }, fptype_sv{ 2 } ); // THIS IS BAD CODING!
+    EXPECT_TRUE( cxreal( c12[0] ) == 1 );
+    EXPECT_TRUE( cximag( c12[0] ) == 2 );
+    if( neppV > 1 )
+    {
+      EXPECT_TRUE( cxreal( c12[neppV - 1] ) == 0 ); // NOT 1!
+      EXPECT_TRUE( cximag( c12[neppV - 1] ) == 0 ); // NOT 2!
+    }
+  }
+  // Vector initialization for cxtype_sv - possible workaround for bug in PR #434
+  {
+    //cxtype_sv c12 = cxzero_sv() + cxmake( 1, 2 ); // currently this also fails compilation!
+    fptype_sv f1 = fptype_sv{ 0 } + 1;
+    fptype_sv f2 = fptype_sv{ 0 } + 2;
+    cxtype_sv c12 = cxmake( f1, f2 ); // ugly but effective
+    EXPECT_TRUE( cxreal( c12[0] ) == 1 );
+    EXPECT_TRUE( cximag( c12[0] ) == 2 );
+    if( neppV > 1 )
+    {
+      EXPECT_TRUE( cxreal( c12[neppV - 1] ) == 1 ); // ok, not 0
+      EXPECT_TRUE( cximag( c12[neppV - 1] ) == 2 ); // ok, not 0
+    }
+  }
+#endif
+
   //--------------------------------------------------------------------------
 
   // Scalar complex references
