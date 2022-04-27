@@ -195,11 +195,11 @@ namespace mg5amcCpu
 
       vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][4], +1, w_fp[4], 4 );
 
-      VVV1P0_1<W_ACCESS, C_ACCESS>( w_fp[0], w_fp[1], COUPs[0], 0., 0., w_fp[5] );
-      FFV1P0_3<W_ACCESS, C_ACCESS>( w_fp[3], w_fp[2], COUPs[1], 0., 0., w_fp[6] );
+      VVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], COUPs[0], 0., 0., w_fp[5] );
+      FFV1P0_3<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], COUPs[1], 0., 0., w_fp[6] );
 
       // Amplitude(s) for diagram number 1
-      VVV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[5], w_fp[6], w_fp[4], COUPs[0], &amp_fp[0] );
+      VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[5], w_fp[6], w_fp[4], COUPs[0], &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[4] += amp_sv[0];
@@ -208,40 +208,40 @@ namespace mg5amcCpu
       // *** DIAGRAM 2 OF 16 ***
 
       // Wavefunction(s) for diagram number 2
-      FFV1_1<W_ACCESS, C_ACCESS>( w_fp[2], w_fp[4], COUPs[1], cIPD[0], cIPD[1], w_fp[7] );
+      FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[2], w_fp[4], COUPs[1], cIPD[0], cIPD[1], w_fp[7] );
 
       // Amplitude(s) for diagram number 2
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[3], w_fp[7], w_fp[5], COUPs[1], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[7], w_fp[5], COUPs[1], &amp_fp[0] );
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 3 OF 16 ***
 
       // Wavefunction(s) for diagram number 3
-      FFV1_2<W_ACCESS, C_ACCESS>( w_fp[3], w_fp[4], COUPs[1], cIPD[0], cIPD[1], w_fp[8] );
+      FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], COUPs[1], cIPD[0], cIPD[1], w_fp[8] );
 
       // Amplitude(s) for diagram number 3
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[8], w_fp[2], w_fp[5], COUPs[1], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[8], w_fp[2], w_fp[5], COUPs[1], &amp_fp[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 4 OF 16 ***
 
       // Wavefunction(s) for diagram number 4
-      FFV1_1<W_ACCESS, C_ACCESS>( w_fp[2], w_fp[0], COUPs[1], cIPD[0], cIPD[1], w_fp[5] );
-      FFV1_2<W_ACCESS, C_ACCESS>( w_fp[3], w_fp[1], COUPs[1], cIPD[0], cIPD[1], w_fp[9] );
+      FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[2], w_fp[0], COUPs[1], cIPD[0], cIPD[1], w_fp[5] );
+      FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[1], COUPs[1], cIPD[0], cIPD[1], w_fp[9] );
 
       // Amplitude(s) for diagram number 4
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[9], w_fp[5], w_fp[4], COUPs[1], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[9], w_fp[5], w_fp[4], COUPs[1], &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
 
       // *** DIAGRAM 5 OF 16 ***
 
       // Wavefunction(s) for diagram number 5
-      VVV1P0_1<W_ACCESS, C_ACCESS>( w_fp[1], w_fp[4], COUPs[0], 0., 0., w_fp[10] );
+      VVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[1], w_fp[4], COUPs[0], 0., 0., w_fp[10] );
 
       // Amplitude(s) for diagram number 5
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[3], w_fp[5], w_fp[10], COUPs[1], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[5], w_fp[10], COUPs[1], &amp_fp[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
@@ -251,17 +251,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 6
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[8], w_fp[5], w_fp[1], COUPs[1], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[8], w_fp[5], w_fp[1], COUPs[1], &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 7 OF 16 ***
 
       // Wavefunction(s) for diagram number 7
-      FFV1_2<W_ACCESS, C_ACCESS>( w_fp[3], w_fp[0], COUPs[1], cIPD[0], cIPD[1], w_fp[5] );
-      FFV1_1<W_ACCESS, C_ACCESS>( w_fp[2], w_fp[1], COUPs[1], cIPD[0], cIPD[1], w_fp[11] );
+      FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[0], COUPs[1], cIPD[0], cIPD[1], w_fp[5] );
+      FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[2], w_fp[1], COUPs[1], cIPD[0], cIPD[1], w_fp[11] );
 
       // Amplitude(s) for diagram number 7
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[5], w_fp[11], w_fp[4], COUPs[1], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[5], w_fp[11], w_fp[4], COUPs[1], &amp_fp[0] );
       jamp_sv[3] -= amp_sv[0];
 
       // *** DIAGRAM 8 OF 16 ***
@@ -270,7 +270,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 8
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[5], w_fp[2], w_fp[10], COUPs[1], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[5], w_fp[2], w_fp[10], COUPs[1], &amp_fp[0] );
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
 
@@ -280,16 +280,16 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 9
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[5], w_fp[7], w_fp[1], COUPs[1], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[5], w_fp[7], w_fp[1], COUPs[1], &amp_fp[0] );
       jamp_sv[5] -= amp_sv[0];
 
       // *** DIAGRAM 10 OF 16 ***
 
       // Wavefunction(s) for diagram number 10
-      VVV1P0_1<W_ACCESS, C_ACCESS>( w_fp[0], w_fp[4], COUPs[0], 0., 0., w_fp[5] );
+      VVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[4], COUPs[0], 0., 0., w_fp[5] );
 
       // Amplitude(s) for diagram number 10
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[3], w_fp[11], w_fp[5], COUPs[1], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[11], w_fp[5], COUPs[1], &amp_fp[0] );
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
 
@@ -299,7 +299,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 11
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[9], w_fp[2], w_fp[5], COUPs[1], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[9], w_fp[2], w_fp[5], COUPs[1], &amp_fp[0] );
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
 
@@ -309,7 +309,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 12
-      VVV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[5], w_fp[1], w_fp[6], COUPs[0], &amp_fp[0] );
+      VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[5], w_fp[1], w_fp[6], COUPs[0], &amp_fp[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[3] += amp_sv[0];
@@ -321,7 +321,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 13
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[8], w_fp[11], w_fp[0], COUPs[1], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[8], w_fp[11], w_fp[0], COUPs[1], &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
 
       // *** DIAGRAM 14 OF 16 ***
@@ -330,7 +330,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 14
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[9], w_fp[7], w_fp[0], COUPs[1], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[9], w_fp[7], w_fp[0], COUPs[1], &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
 
       // *** DIAGRAM 15 OF 16 ***
@@ -339,7 +339,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 15
-      VVV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[0], w_fp[10], w_fp[6], COUPs[0], &amp_fp[0] );
+      VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[0], w_fp[10], w_fp[6], COUPs[0], &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
@@ -348,22 +348,22 @@ namespace mg5amcCpu
       // *** DIAGRAM 16 OF 16 ***
 
       // Wavefunction(s) for diagram number 16
-      VVVV1P0_1<W_ACCESS, C_ACCESS>( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 0., 0., w_fp[10] );
-      VVVV3P0_1<W_ACCESS, C_ACCESS>( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 0., 0., w_fp[6] );
-      VVVV4P0_1<W_ACCESS, C_ACCESS>( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 0., 0., w_fp[9] );
+      VVVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 0., 0., w_fp[10] );
+      VVVV3P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 0., 0., w_fp[6] );
+      VVVV4P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 0., 0., w_fp[9] );
 
       // Amplitude(s) for diagram number 16
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[3], w_fp[2], w_fp[10], COUPs[1], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[10], COUPs[1], &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[5] += amp_sv[0];
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[3], w_fp[2], w_fp[6], COUPs[1], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[6], COUPs[1], &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[4] += amp_sv[0];
-      FFV1_0<W_ACCESS, A_ACCESS, C_ACCESS>( w_fp[3], w_fp[2], w_fp[9], COUPs[1], &amp_fp[0] );
+      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[9], COUPs[1], &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[4] += amp_sv[0];
