@@ -767,7 +767,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['hardcoded_dependent_couplings'] = '\n'.join( hrd_coups_dep )
         replace_dict['nicoup'] = len( self.coups_indep )
         if len( self.coups_indep ) > 0 :
-            iicoup = [ '  //constexpr size_t ixcoup_%s = %d + Parameters_sm_dependentCouplings::ndcoup; // out of ndcoup+nicoup' % (par.name, id) for (id, par) in enumerate(self.coups_indep) ]
+            iicoup = [ '  //constexpr size_t ixcoup_%s = %d + Parameters_%s_dependentCouplings::ndcoup; // out of ndcoup+nicoup' % (par.name, id, self.model_name) for (id, par) in enumerate(self.coups_indep) ]
             replace_dict['iicoup'] = '\n'.join( iicoup )
         else:
             replace_dict['iicoup'] = '  // NB: there are no aS-independent couplings in this physics process'
@@ -1378,9 +1378,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         matrix_element.reuse_outdated_wavefunctions(me)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
-        res.append("""using Parameters_sm_dependentCouplings::ndcoup;
-      using Parameters_sm_independentCouplings::nicoup;
-      constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independet couplings
+        res.append("""constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independet couplings
       const fptype* allCOUPs[nxcoup];
 #ifdef __CUDACC__
 #pragma nv_diagnostic push
