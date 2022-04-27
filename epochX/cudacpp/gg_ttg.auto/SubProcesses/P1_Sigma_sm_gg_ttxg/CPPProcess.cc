@@ -54,15 +54,14 @@ namespace mg5amcCpu
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
 #ifdef MGONGPU_HARDCODE_CIPD
-  __device__ const fptype cIPC[0];
   __device__ const fptype cIPD[2] = { (fptype)Parameters_sm::mdl_MT, (fptype)Parameters_sm::mdl_WT };
 #else
 #ifdef __CUDACC__
-  __device__ __constant__ fptype cIPC[0];
   __device__ __constant__ fptype cIPD[2];
+  __device__ __constant__ fptype* cIPC = nullptr; // unused as nicoup=0
 #else
-  static fptype cIPC[0];
   static fptype cIPD[2];
+  static fptype* cIPC = nullptr; // unused as nicoup=0
 #endif
 #endif
 
@@ -151,7 +150,7 @@ namespace mg5amcCpu
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif // !__CUDACC__
     {
-      constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independet couplings
+      constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings
       const fptype* allCOUPs[nxcoup];
 #ifdef __CUDACC__
 #pragma nv_diagnostic push
@@ -512,16 +511,12 @@ namespace mg5amcCpu
     m_masses.push_back( m_pars->ZERO );
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
-    const cxtype tIPC[0];
     const fptype tIPD[2] = { (fptype)m_pars->mdl_MT, (fptype)m_pars->mdl_WT };
 #ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ) );
     checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) ) );
 #else
-    memcpy( cIPC, tIPC, 0 * sizeof( cxtype ) );
     memcpy( cIPD, tIPD, 2 * sizeof( fptype ) );
 #endif
-    //for ( i=0; i<0; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;
     //for ( i=0; i<2; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
   }
 #else

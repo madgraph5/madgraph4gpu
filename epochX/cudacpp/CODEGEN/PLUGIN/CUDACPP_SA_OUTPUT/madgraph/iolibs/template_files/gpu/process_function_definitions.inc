@@ -26,11 +26,9 @@ namespace mg5amcCpu
   %(hardcoded_assign_coupling)s
 #else
 #ifdef __CUDACC__
-  __device__ __constant__ fptype cIPC[%(ncouplingstimes2)i];
-  __device__ __constant__ fptype cIPD[%(nparams)i];
+  __device__ __constant__ fptype cIPD[%(nparams)i];%(cipcdevice)s
 #else
-  static fptype cIPC[%(ncouplingstimes2)i];
-  static fptype cIPD[%(nparams)i];
+  static fptype cIPD[%(nparams)i];%(cipcstatic)s
 #endif
 #endif
 
@@ -97,14 +95,11 @@ namespace mg5amcCpu
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     %(assign_coupling)s
 #ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, %(ncouplings)i * sizeof( cxtype ) ) );
-    checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, %(nparams)i * sizeof( fptype ) ) );
+    checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, %(nparams)i * sizeof( fptype ) ) );%(cipc2tipcSym)s
 #else
-    memcpy( cIPC, tIPC, %(ncouplings)i * sizeof( cxtype ) );
-    memcpy( cIPD, tIPD, %(nparams)i * sizeof( fptype ) );
+    memcpy( cIPD, tIPD, %(nparams)i * sizeof( fptype ) );%(cipc2tipc)s
 #endif
-    //for ( i=0; i<%(ncouplings)i; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;
-    //for ( i=0; i<%(nparams)i; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
+    //for ( i=0; i<%(nparams)i; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;%(cipcdump)s
   }
 #else
   // Initialize process (with hardcoded parameters)

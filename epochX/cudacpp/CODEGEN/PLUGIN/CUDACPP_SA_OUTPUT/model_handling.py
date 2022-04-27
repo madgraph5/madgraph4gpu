@@ -955,7 +955,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ###replace_dict['ncouplings'] = len(self.couplings2order)
         ###replace_dict['ncouplingstimes2'] = 2 * replace_dict['ncouplings']
         replace_dict['nparams'] = len(self.params2order)
-        ###replace_dict['nmodels'] = replace_dict['nparams'] + replace_dict['ncouplings']
+        ###replace_dict['nmodels'] = replace_dict['nparams'] + replace_dict['ncouplings'] # AV unused???
         replace_dict['coupling_list'] = ' '
         replace_dict['hel_amps_cc'] = '#include \"HelAmps_%s.cc\"' % self.model_name # AV
         coupling = [''] * len(self.couplings2order)
@@ -974,11 +974,19 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             ###    %(len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling))
             coup_str = 'const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n    '\
                 %(len(coupling_indep), ' ), cxmake( m_pars->'.join(coupling_indep)) # AV only indep!
+            replace_dict['cipcdevice'] = '\n  __device__ __constant__ fptype cIPC[%i];'%2*len(coupling_indep)
+            replace_dict['cipcstatic'] = '\n  static fptype cIPC[%i];'%2*len(coupling_indep)
+            replace_dict['cipc2tipcSym'] = '\n    checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, %i * sizeof( cxtype ) ) );'%len(coupling_indep)
+            replace_dict['cipc2tipc'] = '\n    memcpy( cIPC, tIPC, %i * sizeof( cxtype ) );'%len(coupling_indep)
+            replace_dict['cipcdump'] = '\n    //for ( i=0; i<%i; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;'%len(coupling_indep)
         else:
-            coup_str = 'const cxtype tIPC[%s];\n    ' % len(coupling_indep) # AV only indep!
+            coup_str = ''
+            replace_dict['cipcdevice'] = '\n  __device__ __constant__ fptype* cIPC = nullptr; // unused as nicoup=0'
+            replace_dict['cipcstatic'] = '\n  static fptype* cIPC = nullptr; // unused as nicoup=0'
+            replace_dict['cipc2tipcSym'] = ''
+            replace_dict['cipc2tipc'] = ''
+            replace_dict['cipcdump'] = ''
         replace_dict['ncouplings'] = len(coupling_indep) # AV only indep!
-        replace_dict['ncouplingstimes2'] = 2 * replace_dict['ncouplings']
-        replace_dict['nmodels'] = replace_dict['nparams'] + replace_dict['ncouplings']
         for para, pos in self.params2order.items():
             params[pos] = para
         param_str = 'const fptype tIPD[%s] = { (fptype)m_pars->%s };'\
@@ -990,8 +998,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             ###for coup in coupling : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup )
             for coup in coupling_indep : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup ) # AV only indep!
             coup_str_hrd = coup_str_hrd[:-2] + ' };\n  '
-        else:
-            coup_str_hrd = '__device__ const fptype cIPC[%s];\n  ' % (len(coupling_indep)*2)
+        else: coup_str_hrd = ''
         param_str_hrd = '__device__ const fptype cIPD[%s] = { ' % len(self.params2order)
         for para in params : param_str_hrd += '(fptype)Parameters_%s::%s, ' % ( self.model_name, para )
         param_str_hrd = param_str_hrd[:-2] + ' };'
@@ -1399,7 +1406,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         matrix_element.reuse_outdated_wavefunctions(me)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
-        res.append("""constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independet couplings
+        res.append("""constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings
       const fptype* allCOUPs[nxcoup];
 #ifdef __CUDACC__
 #pragma nv_diagnostic push
