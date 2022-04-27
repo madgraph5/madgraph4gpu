@@ -4,7 +4,6 @@
 #include "mgOnGpuConfig.h"
 
 #include "mgOnGpuCxtypes.h"
-#include "mgOnGpuVectors.h"
 
 //#include "MemoryAccessHelpers.h"
 
@@ -17,17 +16,19 @@ class KernelAccessCouplingsFixed
 {
 public:
   // TRIVIAL ACCESS to fixed-couplings buffers
-  static __host__ __device__ inline cxtype_sv*
+  static __host__ __device__ inline cxtype*
   kernelAccess( fptype* buffer )
   {
-    return reinterpret_cast<cxtype_sv*>( buffer );
+    // FIXME: this assumes that ANY cxtype implementation is two adjacent fptypes - is it safer to cast to cxsmpl<fptype>*?
+    return reinterpret_cast<cxtype*>( buffer );
   }
 
   // TRIVIAL ACCESS to fixed-couplings buffers
-  static __host__ __device__ inline const cxtype_sv*
+  static __host__ __device__ inline const cxtype*
   kernelAccessConst( const fptype* buffer )
   {
-    return reinterpret_cast<const cxtype_sv*>( buffer );
+    // FIXME: this assumes that ANY cxtype implementation is two adjacent fptypes - is it safer to cast to cxsmpl<fptype>*?
+    return reinterpret_cast<const cxtype*>( buffer );
   }
 };
 
