@@ -17,8 +17,8 @@
 
 namespace Parameters_sm_dependentCouplings
 {
-  constexpr size_t ndcoup = 0; // #couplings that depend on the running alphas QCD and vary event by event
-
+  constexpr size_t ndcoup = 0; // #couplings that vary event by event because they depend on the running alphas QCD
+  // NB: there are no aS-dependent couplings in this physics process
   struct DependentCouplings_sv
   {
     // (none)
@@ -47,12 +47,24 @@ namespace Parameters_sm_dependentCouplings
 
 //==========================================================================
 
+namespace Parameters_sm_independentCouplings
+{
+  constexpr size_t nicoup = 3; // #couplings that are fixed for all events because they do not depend on the running alphas QCD
+  constexpr size_t ixcoup_GC_3 = 0 + Parameters_sm_dependentCouplings::ndcoup; // out of nicoup+ndcoup
+  constexpr size_t ixcoup_GC_50 = 1 + Parameters_sm_dependentCouplings::ndcoup; // out of nicoup+ndcoup
+  constexpr size_t ixcoup_GC_59 = 2 + Parameters_sm_dependentCouplings::ndcoup; // out of nicoup+ndcoup
+}
+
+//==========================================================================
+
 #ifdef __CUDACC__
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
 #endif
 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"// e.g. <<warning: variable ‘couplings_sv’ set but not used [-Wunused-but-set-variable]>>
   // Compute the output couplings (e.g. gc10 and gc11) from the input gs
   template<class G_ACCESS, class C_ACCESS>
   __device__ inline void
@@ -63,10 +75,11 @@ namespace mg5amcCpu
     using namespace Parameters_sm_dependentCouplings;
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
     DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
-    // NB: this physics process has no couplings that depend on alphas QCD
+    // NB: there are no aS-dependent couplings in this physics process
     mgDebug( 1, __FUNCTION__ );
     return;
   }
+#pragma GCC diagnostic pop
 }
 
 //==========================================================================

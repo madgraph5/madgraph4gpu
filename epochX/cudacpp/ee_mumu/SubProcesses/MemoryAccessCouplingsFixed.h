@@ -46,20 +46,13 @@ public:
   // Expose selected functions from MemoryAccessCouplingsFixedBase
   static constexpr auto iicoupAccessBufferConst = MemoryAccessCouplingsFixedBase::iicoupAccessBufferConst;
 
-  // TRIVIAL ACCESS to fixed-couplings buffers
-  static __host__ __device__ inline cxtype*
-  kernelAccess( fptype* buffer )
-  {
-    // FIXME: this assumes that ANY cxtype implementation is two adjacent fptypes - is it safer to cast to cxsmpl<fptype>*?
-    return reinterpret_cast<cxtype*>( buffer );
-  }
-
-  // TRIVIAL ACCESS to fixed-couplings buffers
-  static __host__ __device__ inline const cxtype*
+  // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
+  // [Signature (const, SCALAR OR VECTOR) ===> cxtype_sv kernelAccessConst( const fptype* buffer ) <===]
+  static __host__ __device__ inline const cxtype_sv
   kernelAccessConst( const fptype* buffer )
   {
-    // FIXME: this assumes that ANY cxtype implementation is two adjacent fptypes - is it safer to cast to cxsmpl<fptype>*?
-    return reinterpret_cast<const cxtype*>( buffer );
+    // TRIVIAL ACCESS to fixed-couplings buffers!
+    return cxmake( fptype_sv{ buffer[0] }, fptype_sv{ buffer[1] } );
   }
 };
 
