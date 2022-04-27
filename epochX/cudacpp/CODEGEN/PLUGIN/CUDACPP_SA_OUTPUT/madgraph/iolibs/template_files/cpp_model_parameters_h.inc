@@ -21,6 +21,12 @@ namespace Parameters_%(model_name)s_dependentCouplings
   {
 %(dcoupdecl)s
   };
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable" // e.g. <<warning: unused variable ‘mdl_G__exp__2’ [-Wunused-variable]>>
+#ifdef __CUDACC__
+#pragma nv_diagnostic push
+#pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
+#endif
   __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G )
   {
     // Model parameters dependent on aS
@@ -30,6 +36,10 @@ namespace Parameters_%(model_name)s_dependentCouplings
   %(dcoupsetdcoup)s
     return out;
   }
+#ifdef __CUDACC__
+#pragma GCC diagnostic pop
+#pragma nv_diagnostic pop
+#endif
 }
 
 //==========================================================================

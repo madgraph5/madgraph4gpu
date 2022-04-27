@@ -27,6 +27,12 @@ namespace Parameters_sm_dependentCouplings
     cxtype_sv GC_11;
     cxtype_sv GC_12;
   };
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable" // e.g. <<warning: unused variable ‘mdl_G__exp__2’ [-Wunused-variable]>>
+#ifdef __CUDACC__
+#pragma nv_diagnostic push
+#pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
+#endif
   __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G )
   {
     // Model parameters dependent on aS
@@ -41,6 +47,10 @@ namespace Parameters_sm_dependentCouplings
     out.GC_12 = cxmake( 0., 1. ) * mdl_G__exp__2;
     return out;
   }
+#ifdef __CUDACC__
+#pragma GCC diagnostic pop
+#pragma nv_diagnostic pop
+#endif
 }
 
 //==========================================================================
