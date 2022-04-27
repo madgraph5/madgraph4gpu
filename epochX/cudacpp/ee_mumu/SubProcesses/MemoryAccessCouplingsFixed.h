@@ -4,6 +4,7 @@
 #include "mgOnGpuConfig.h"
 
 #include "mgOnGpuCxtypes.h"
+#include "mgOnGpuVectors.h"
 
 //#include "MemoryAccessHelpers.h"
 
@@ -52,7 +53,10 @@ public:
   kernelAccessConst( const fptype* buffer )
   {
     // TRIVIAL ACCESS to fixed-couplings buffers!
-    return cxmake( fptype_sv{ buffer[0] }, fptype_sv{ buffer[1] } );
+    //return cxmake( fptype_sv{ buffer[0] }, fptype_sv{ buffer[1] } ); // NO! BUG #339!
+    const fptype_sv r_sv = fptype_sv{ 0 } + buffer[0];
+    const fptype_sv i_sv = fptype_sv{ 0 } + buffer[1]; 
+    return cxmake( r_sv, i_sv ); // ugly but effective
   }
 };
 
