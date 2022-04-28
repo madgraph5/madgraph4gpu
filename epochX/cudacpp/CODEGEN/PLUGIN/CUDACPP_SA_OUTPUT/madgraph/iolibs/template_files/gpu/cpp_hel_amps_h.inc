@@ -10,7 +10,7 @@
 
 #include "mgOnGpuVectors.h"
 
-#include "Parameters_sm.h"
+#include "Parameters_%(model_name)s.h"
 
 //#include <cmath>
 //#include <cstdlib>

@@ -45,7 +45,7 @@ namespace Parameters_%(model_name)s_dependentCouplings
 
 //==========================================================================
 
-namespace Parameters_sm_independentCouplings
+namespace Parameters_%(model_name)s_independentCouplings
 {
   constexpr size_t nicoup = %(nicoup)d; // #couplings that are fixed for all events because they do not depend on the running alphas QCD
 %(iicoup)s
@@ -68,7 +68,7 @@ namespace mg5amcCpu
           fptype couplings[] )
   {
     mgDebug( 0, __FUNCTION__ );
-    using namespace Parameters_sm_dependentCouplings;
+    using namespace Parameters_%(model_name)s_dependentCouplings;
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
     DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
 %(dcoupaccessbuffer)s%(dcoupkernelaccess)s%(dcoupcompute)s
