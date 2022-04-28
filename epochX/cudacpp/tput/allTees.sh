@@ -12,10 +12,14 @@ started="STARTED AT $(date)"
 # Four logs (double/float x hrd0/hrd1 x inl0) in each of the five processes
 ./tput/teeThroughputX.sh -flt -hrd -makej -makeclean -eemumu -ggtt -ggttg -ggttgg -ggttggg
 ended1="ENDED(1) AT $(date)"
+tmp1=$(mktemp)
+ls -ltr ee_mumu/lib/build.none_*_inl0_hrd* gg_tt/lib/build.none_*_inl0_hrd* gg_tt*g/lib/build.none_*_inl0_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp1
 
 # Four extra logs (double/float x hrd0/hrd1 x inl1) only in three of the five processes
 ./tput/teeThroughputX.sh -flt -hrd -makej -makeclean -eemumu -ggtt -ggttgg -inlonly
 ended2="ENDED(2) AT $(date)"
+tmp2=$(mktemp)
+ls -ltr ee_mumu/lib/build.none_*_inl1_hrd* gg_tt/lib/build.none_*_inl1_hrd* gg_tt*g/lib/build.none_*_inl1_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp2
 
 # Two extra logs (double/float x hrd0 x inl0 + bridge) only in three of the five processes (no rebuild needed)
 ./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt -bridge
@@ -33,6 +37,12 @@ ended5="ENDED(5) AT $(date)"
 ./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt -common
 ended6="ENDED(6) AT $(date)"
 
+echo
+echo "Build(1):"
+cat $tmp1
+echo
+echo "Build(2):"
+cat $tmp2
 echo
 echo "$started"
 echo "$ended1"
