@@ -17,7 +17,7 @@ profile_*
 
 #=== Perf data ===
 *-perf-test-run*.json
-***/perf/params*.txt
+**/perf/params*.txt
 
 #=== Googletest ===
 test/googletest
@@ -27,10 +27,11 @@ test/googletest
 *.local
 *~
 local/
+**/build/
 *.log
 *.output
 *.error
 *.cobaltlog
 *.BKP
 .DS_Store
-***/build
+*.bak

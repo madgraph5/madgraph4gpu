@@ -35,12 +35,14 @@ C
 C Execute the matrix-element calculation "sequence" via a Bridge on GPU/CUDA or CUDA/C++.
 C - PBRIDGE: the memory address of the C++ Bridge
 C - MOMENTA: the input 4-momenta Fortran array
+C - GS:      the input Gs (running QCD coupling constant alphas)
 C - MES:     the output matrix element Fortran array
 C
       INTERFACE
-         SUBROUTINE FBRIDGESEQUENCE(PBRIDGE, MOMENTA, MES)
+         SUBROUTINE FBRIDGESEQUENCE(PBRIDGE, MOMENTA, GS, MES)
          INTEGER*8 PBRIDGE
          DOUBLE PRECISION MOMENTA(*)
+         DOUBLE PRECISION GS(*)
          DOUBLE PRECISION MES(*)
          END SUBROUTINE FBRIDGESEQUENCE
       END INTERFACE

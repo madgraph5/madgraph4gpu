@@ -57,11 +57,11 @@ private:
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
   // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, Ts... args ) <===]
-  // [NB: expand variadic template "Ts... args" to "const int ix2, const int iw6" and rename "Field" as "Ix2Iw6"]
+  // [NB: expand variadic template "Ts... args" to "const int iw6, const int ix2" and rename "Field" as "Iw6Ix2"]
   static __host__ __device__ inline fptype&
   decodeRecord( fptype* buffer,
-                const int ix2,
-                const int iw6 )
+                const int iw6,
+                const int ix2 )
   {
     constexpr int ipagW = 0;
     constexpr int ieppW = 0;
@@ -86,22 +86,22 @@ public:
   static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessWavefunctionsBase>::ieventAccessRecordConst;
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
-  // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, const int ipar, const int iw6 ) <===]
-  static constexpr auto decodeRecordIx2Iw6 = MemoryAccessHelper<MemoryAccessWavefunctionsBase>::decodeRecord;
+  // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, const int iw6, const int ix2 ) <===]
+  static constexpr auto decodeRecordIw6Ix2 = MemoryAccessHelper<MemoryAccessWavefunctionsBase>::decodeRecord;
 
   // Locate a field (output) of an event record (input) from the given field indexes (input)
-  // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer, const int ipar, const int iw6 ) <===]
-  static constexpr auto decodeRecordIx2Iw6Const =
+  // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer, const int iw6, const int ix2 ) <===]
+  static constexpr auto decodeRecordIw6Ix2Const =
     MemoryAccessHelper<MemoryAccessWavefunctionsBase>::template decodeRecordConst<int, int>;
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
-  // [Signature (non-const) ===> fptype& ieventAccessIx2Iw6( fptype* buffer, const ievt, const int ipar, const int iw6 ) <===]
-  static constexpr auto ieventAccessIx2Iw6 =
+  // [Signature (non-const) ===> fptype& ieventAccessIw6Ix2( fptype* buffer, const ievt, const int iw6, const int ix2 ) <===]
+  static constexpr auto ieventAccessIw6Ix2 =
     MemoryAccessHelper<MemoryAccessWavefunctionsBase>::template ieventAccessField<int, int>;
 
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
-  // [Signature (const) ===> const fptype& ieventAccessIx2Iw6Const( const fptype* buffer, const ievt, const int ipar, const int iw6 ) <===]
-  static constexpr auto ieventAccessIx2Iw6Const =
+  // [Signature (const) ===> const fptype& ieventAccessIw6Ix2Const( const fptype* buffer, const ievt, const int iw6, const int ix2 ) <===]
+  static constexpr auto ieventAccessIw6Ix2Const =
     MemoryAccessHelper<MemoryAccessWavefunctionsBase>::template ieventAccessFieldConst<int, int>;
 };
 
@@ -119,13 +119,13 @@ public:
 #ifndef MGONGPU_TRIVIAL_WAVEFUNCTIONS
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // [Signature (non-const) ===> fptype& kernelAccessIx2Iw6( fptype* buffer, const int ipar, const int iw6 ) <===]
-  static constexpr auto kernelAccessIx2Iw6 =
+  // [Signature (non-const) ===> fptype& kernelAccessIw6Ix2( fptype* buffer, const int iw6, const int ix2 ) <===]
+  static constexpr auto kernelAccessIw6Ix2 =
     KernelAccessHelper<MemoryAccessWavefunctionsBase, onDevice>::template kernelAccessField<int, int>;
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-  // [Signature (const) ===> const fptype& kernelAccessIx2Iw6Const( const fptype* buffer, const int ipar, const int iw6 ) <===]
-  static constexpr auto kernelAccessIx2Iw6Const =
+  // [Signature (const) ===> const fptype& kernelAccessIw6Ix2Const( const fptype* buffer, const int iw6, const int ix2 ) <===]
+  static constexpr auto kernelAccessIw6Ix2Const =
     KernelAccessHelper<MemoryAccessWavefunctionsBase, onDevice>::template kernelAccessFieldConst<int, int>;
 
 #else

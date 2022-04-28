@@ -130,7 +130,7 @@ endif
 # Set the build flags appropriate to each HRDCOD choice (example: "make HRDCOD=1")
 ###$(info HRDCOD=$(HRDCOD))
 ifeq ($(HRDCOD),1)
-  CXXFLAGS += -DMGONGPU_HARDCODE_CIPC
+  CXXFLAGS += -DMGONGPU_HARDCODE_CIPD
 else ifneq ($(HRDCOD),0)
   $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
 endif
@@ -219,7 +219,7 @@ $(BUILDDIR)/%%.o : %%.cc *.h
 
 #-------------------------------------------------------------------------------
 
-cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_sm.o read_slha.o)
+cxx_objects=$(addprefix $(BUILDDIR)/, Parameters_%(model)s.o read_slha.o)
 
 # Target (and build rules): common (src) library
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)

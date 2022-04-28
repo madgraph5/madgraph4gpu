@@ -14,14 +14,14 @@
 #ifndef MGONGPU_TRIVIAL_AMPLITUDES
 
 // A class describing the internal layout of memory buffers for amplitudes
-// This implementation uses an AOSOA[npagW][nx2][neppW] where nevt=npagW*neppW
+// This implementation uses an AOSOA[npagA][nx2][neppA] where nevt=npagA*neppA
 // [If many implementations are used, a suffix _AOSOAv1 should be appended to the class name]
 class MemoryAccessAmplitudesBase //_AOSOAv1
 {
 public:
 
   // Number of Events Per Page in the amplitude AOSOA memory buffer layout
-  static constexpr int neppW = 1; // AOS (just a test...)
+  static constexpr int neppA = 1; // AOS (just a test...)
 
 private:
 
@@ -43,10 +43,10 @@ private:
   ieventAccessRecord( fptype* buffer,
                       const int ievt )
   {
+    const int ipagA = ievt / neppA; // #event "A-page"
+    const int ieppA = ievt % neppA; // #event in the current event A-page
     constexpr int ix2 = 0;
-    const int ipagW = ievt / neppW;                                // #event "W-page"
-    const int ieppW = ievt % neppW;                                // #event in the current event W-page
-    return &( buffer[ipagW * nx2 * neppW + ix2 * neppW + ieppW] ); // AOSOA[ipagW][ix2][ieppW]
+    return &( buffer[ipagA * nx2 * neppA + ix2 * neppA + ieppA] ); // AOSOA[ipagA][ix2][ieppA]
   }
 
   //--------------------------------------------------------------------------
@@ -58,9 +58,9 @@ private:
   decodeRecord( fptype* buffer,
                 const int ix2 )
   {
-    constexpr int ipagW = 0;
-    constexpr int ieppW = 0;
-    return buffer[ipagW * nx2 * neppW + ix2 * neppW + ieppW]; // AOSOA[ipagW][ix2][ieppW]
+    constexpr int ipagA = 0;
+    constexpr int ieppA = 0;
+    return buffer[ipagA * nx2 * neppA + ix2 * neppA + ieppA]; // AOSOA[ipagA][ix2][ieppA]
   }
 };
 

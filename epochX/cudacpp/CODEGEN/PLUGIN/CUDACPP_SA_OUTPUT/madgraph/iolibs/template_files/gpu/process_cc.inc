@@ -10,6 +10,10 @@
 #include "CudaRuntime.h"
 %(hel_amps_h)s
 #include "MemoryAccessAmplitudes.h"
+#include "MemoryAccessCouplings.h"
+#include "MemoryAccessCouplingsFixed.h"
+#include "MemoryAccessGs.h"
+#include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
 
