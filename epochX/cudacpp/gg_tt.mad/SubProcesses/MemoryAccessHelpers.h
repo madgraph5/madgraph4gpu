@@ -94,6 +94,8 @@ public:
   {
     if constexpr( !onDevice ) // requires c++17 also in CUDA (#333)
     {
+      // FIXME #436: clarify that buffer includes all events on device, and only the record for an event subset on host!
+      // FIXME #436: am I not assuming that the following line is always identical to buffer for all access classes T?
       return T::ieventAccessRecord( buffer, 0 );
     }
     else
