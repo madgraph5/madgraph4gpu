@@ -1,7 +1,13 @@
 #!/bin/sh
 
 table=
-if [ "$1" == "-hrdcod" ]; then
+if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
+  $0
+  $0 -hrdcod
+  $0 -juwels
+  $0 -alpaka
+  $0 -macm1
+elif [ "$1" == "-hrdcod" ]; then
   table="hrdcod"; shift
 elif [ "$1" == "-juwels" ]; then
   table="juwels"; shift
@@ -10,7 +16,7 @@ elif [ "$1" == "-alpaka" ]; then
 elif [ "$1" == "-macm1" ]; then
   table="macm1"; shift
 fi
-if [ "$1" != "" ]; then echo "Usage: $0 [-hrdcod|-juwels|-alpaka|-macm1]"; exit 1; fi
+if [ "$1" != "" ]; then echo "Usage: $0 [-ALL|-hrdcod|-juwels|-alpaka|-macm1]"; exit 1; fi
 
 unames=$(uname -s)
 if [ "${unames}" == "Darwin" ]; then
