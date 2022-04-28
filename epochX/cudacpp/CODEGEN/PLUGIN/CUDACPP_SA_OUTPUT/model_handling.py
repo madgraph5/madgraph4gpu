@@ -998,7 +998,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             ###for coup in coupling : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup )
             for coup in coupling_indep : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup ) # AV only indep!
             coup_str_hrd = coup_str_hrd[:-2] + ' };\n  '
-        else: coup_str_hrd = ''
+        else:
+            coup_str_hrd = '__device__ const fptype* cIPC = nullptr; // unused as nicoup=0\n  '
         param_str_hrd = '__device__ const fptype cIPD[%s] = { ' % len(self.params2order)
         for para in params : param_str_hrd += '(fptype)Parameters_%s::%s, ' % ( self.model_name, para )
         param_str_hrd = param_str_hrd[:-2] + ' };'
