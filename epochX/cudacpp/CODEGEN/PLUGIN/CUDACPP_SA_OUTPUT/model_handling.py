@@ -1135,6 +1135,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         self.edit_mgonGPU()
         self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
         self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
+        self.edit_memorybuffers() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
+        self.edit_memoryaccesscouplings() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         # Add symbolic links
         files.ln(pjoin(self.path, 'check_sa.cc'), self.path, 'gcheck_sa.cu')
         files.ln(pjoin(self.path, 'CPPProcess.cc'), self.path, 'gCPPProcess.cu')
@@ -1197,6 +1199,28 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict = {}
         replace_dict['model_name'] = self.model_name
         ff = open(pjoin(self.path, '..', 'testxxx.cc'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
+
+    # AV - new method
+    def edit_memorybuffers(self):
+        """Generate MemoryBuffers.h"""
+        misc.sprint('Entering PLUGIN_OneProcessExporter.edit_memorybuffers')
+        template = open(pjoin(self.template_path,'gpu','MemoryBuffers.h'),'r').read()
+        replace_dict = {}
+        replace_dict['model_name'] = self.model_name
+        ff = open(pjoin(self.path, '..', 'MemoryBuffers.h'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
+
+    # AV - new method
+    def edit_memoryaccesscouplings(self):
+        """Generate MemoryAccessCouplings.h"""
+        misc.sprint('Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings')
+        template = open(pjoin(self.template_path,'gpu','MemoryAccessCouplings.h'),'r').read()
+        replace_dict = {}
+        replace_dict['model_name'] = self.model_name
+        ff = open(pjoin(self.path, '..', 'MemoryAccessCouplings.h'),'w')
         ff.write(template % replace_dict)
         ff.close()
 

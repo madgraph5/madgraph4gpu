@@ -62,7 +62,7 @@ private:
   friend class KernelAccessHelper<MemoryAccessCouplingsBase, false>;
 
   // The number of couplings that dependent on the running alphas QCD in this specific process
-  static constexpr size_t ndcoup = Parameters_sm_dependentCouplings::ndcoup;
+  static constexpr size_t ndcoup = Parameters_%(model_name)s_dependentCouplings::ndcoup;
 
   // The number of floating point components of a complex number
   static constexpr int nx2 = mgOnGpu::nx2;
@@ -79,7 +79,7 @@ private:
                       const int ievt )
   {
     const int ipagC = ievt / neppC; // #event "C-page"
-    const int ieppC = ievt % neppC; // #event in the current event C-page
+    const int ieppC = ievt %% neppC; // #event in the current event C-page
     constexpr int idcoup = 0;
     constexpr int ix2 = 0;
     return &( buffer[ipagC * ndcoup * nx2 * neppC + idcoup * nx2 * neppC + ix2 * neppC + ieppC] ); // AOSOA[ipagC][idcoup][ix2][ieppC]
@@ -177,9 +177,9 @@ public:
     // NB: derived from MemoryAccessMomenta, restricting the implementation to contiguous aligned arrays
     constexpr int neppC = MemoryAccessCouplingsBase::neppC;
     static_assert( neppC >= neppV );                              // ASSUME CONTIGUOUS ARRAYS
-    static_assert( neppC % neppV == 0 );                          // ASSUME CONTIGUOUS ARRAYS
+    static_assert( neppC %% neppV == 0 );                          // ASSUME CONTIGUOUS ARRAYS
     static_assert( mg5amcCpu::HostBufferCouplings::isaligned() ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
-    //assert( (size_t)( buffer ) % mgOnGpu::cppAlign == 0 ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
+    //assert( (size_t)( buffer ) %% mgOnGpu::cppAlign == 0 ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
     return mg5amcCpu::fptypevFromAlignedArray( out ); // SIMD bulk load of neppV, use reinterpret_cast
 #endif
   }
@@ -207,9 +207,9 @@ public:
     // NB: derived from MemoryAccessMomenta, restricting the implementation to contiguous aligned arrays
     constexpr int neppC = MemoryAccessCouplingsBase::neppC;
     static_assert( neppC >= neppV ); // ASSUME CONTIGUOUS ARRAYS
-    static_assert( neppC % neppV == 0 ); // ASSUME CONTIGUOUS ARRAYS
+    static_assert( neppC %% neppV == 0 ); // ASSUME CONTIGUOUS ARRAYS
     static_assert( mg5amcCpu::HostBufferCouplings::isaligned() ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)    
-    //assert( (size_t)( buffer ) % mgOnGpu::cppAlign == 0 ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
+    //assert( (size_t)( buffer ) %% mgOnGpu::cppAlign == 0 ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
     return mg5amcCpu::fptypevFromAlignedArray( out ); // SIMD bulk load of neppV, use reinterpret_cast
 #endif
   }
@@ -223,7 +223,7 @@ public:
     /*
     fptype_sv& real = kernelAccessIx2( buffer, 0 );
     fptype_sv& imag = kernelAccessIx2( buffer, 1 );
-    printf( "C_ACCESS::kernelAccess: pbuffer=%p pr=%p pi=%p\n", buffer, &real, &imag );
+    printf( "C_ACCESS::kernelAccess: pbuffer=%%p pr=%%p pi=%%p\n", buffer, &real, &imag );
     return cxtype_sv_ref( real, imag );
     */
     return cxtype_sv_ref( kernelAccessIx2( buffer, 0 ),
@@ -238,7 +238,7 @@ public:
     /*
     const fptype_sv& real = kernelAccessIx2Const( buffer, 0 );
     const fptype_sv& imag = kernelAccessIx2Const( buffer, 1 );
-    printf( "C_ACCESS::kernelAccessConst: pbuffer=%p pr=%p pi=%p\n", buffer, &real, &imag );
+    printf( "C_ACCESS::kernelAccessConst: pbuffer=%%p pr=%%p pi=%%p\n", buffer, &real, &imag );
     return cxtype_sv( real, imag );
     */
     return cxtype_sv( kernelAccessIx2Const( buffer, 0 ),
