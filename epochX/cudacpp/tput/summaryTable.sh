@@ -172,22 +172,30 @@ for fpt in $fpts; do
       suff=manu
     fi
     if [ "$revs" == "" ]; then continue; fi
-    ### Old sorting (all but alphas)
-    for rev in $revs; do
-      echo -e "+++ $bckend REVISION $rev +++" >> $out
-      nodelast=
+    ### New sorting (alphas)
+    if [ "$table" == "alphas" ]; then
       for inl in $inls; do
         for hrd in $hrds; do
-    ### New sorting (alphas)
-    #for inl in $inls; do
-    #  for hrd in $hrds; do
-    #    for rev in $revs; do
-    #      echo -e "+++ $bckend REVISION $rev +++" >> $out
-    #      nodelast=
-          oneTable
+          echo -e "-------------------------------------------------------------------------------\n" >> $out
+          for rev in $revs; do
+            echo -e "+++ $bckend REVISION $rev +++" >> $out
+            nodelast=
+            oneTable
+          done
         done
       done
-    done
+    else
+      ### Old sorting (all but alphas)
+      for rev in $revs; do
+        echo -e "+++ $bckend REVISION $rev +++" >> $out
+        nodelast=
+        for inl in $inls; do
+          for hrd in $hrds; do
+            oneTable
+          done
+        done
+      done
+    fi
   done
 done
 git checkout HEAD tput/logs* >& /dev/null
