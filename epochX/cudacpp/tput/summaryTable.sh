@@ -97,7 +97,7 @@ elif [ "$table" == "macm1" ]; then
   hrds="hrd0"
 elif [ "$table" == "alphas" ]; then
   fpts="d f"
-  inls="inl0 inl1"
+  inls="inl0" # no need to add inl1 (even if data exists)
   hrds="hrd0 hrd1"
 fi
 
