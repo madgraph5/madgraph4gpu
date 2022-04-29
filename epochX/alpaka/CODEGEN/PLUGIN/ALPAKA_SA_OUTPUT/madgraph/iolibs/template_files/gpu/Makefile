@@ -1,7 +1,7 @@
 TOOLSDIR = ../../../../../tools
 TESTDIR  = ../../../../../test
 INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
-MODELLIB = model_%(model)s
+MODELLIB = model_sm
 OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 OMPFLAGS?=
@@ -55,7 +55,7 @@ endif
 
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
-  CUDA_HOME = $(patsubst %%bin/nvcc,%%,$(shell which nvcc 2>/dev/null))
+  CUDA_HOME = $(patsubst %bin/nvcc,%,$(shell which nvcc 2>/dev/null))
   $(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
 endif
 
@@ -79,19 +79,6 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   cu_main     = $(BUILDDIR)/gcheck.exe
   cu_objects  = $(BUILDDIR)/gCPPProcess.o
 
-  # See if we can build a CUPLA version targetting cuda
-  ifneq ($(wildcard $(CUPLA_ROOT)/include/cuda_to_cupla.hpp),)
-    ifeq ($(wildcard $(ALPAKA_ROOT)/include/alpaka/alpaka.hpp),)
-      ALPAKA_ROOT := $(CUPLA_ROOT)/alpaka
-    endif
-    alp_main = $(BUILDDIR)/alpcheck.exe
-    alp_objects = $(BUILDDIR)/alpCPPProcess.o
-    cupla_objects = $(BUILDDIR)/cupla/common.o $(BUILDDIR)/cupla/device.o  $(BUILDDIR)/cupla/event.o $(BUILDDIR)/cupla/memory.o $(BUILDDIR)/cupla/stream.o $(BUILDDIR)/cupla/manager/Driver.o
-    ALPINC := -I$(ALPAKA_ROOT)/include -I$(BOOSTINC)
-    CUPLAINC := -I$(CUPLA_ROOT)/include
-    CUPLASRC := $(CUPLA_ROOT)/src
-    ALPFLAGS ?= -DALPAKA -DALPAKA_ACC_GPU_CUDA_ENABLED --expt-relaxed-constexpr
-  endif
 
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
@@ -107,11 +94,11 @@ CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
 
 # PowerPC-specific CXX compiler flags (being reviewed)
 ifeq ($(UNAME_P),ppc64le)
-  CXXFLAGS+= -mcpu=power9 -mtune=power9 # gains ~2-3%% both for none and sse4
+  CXXFLAGS+= -mcpu=power9 -mtune=power9 # gains ~2-3% both for none and sse4
   # Throughput references without the extra flags below: none=1.41-1.42E6, sse4=2.15-2.19E6
   ###CXXFLAGS+= -DNO_WARN_X86_INTRINSICS # no change
   ###CXXFLAGS+= -fpeel-loops # no change
-  ###CXXFLAGS+= -funroll-loops # gains ~1%% for none, loses ~1%% for sse4
+  ###CXXFLAGS+= -funroll-loops # gains ~1% for none, loses ~1% for sse4
   ###CXXFLAGS+= -ftree-vectorize # no change
   ###CXXFLAGS+= -flto # would increase to none=4.08-4.12E6, sse4=4.99-5.03E6!
 else
@@ -242,6 +229,51 @@ $(BUILDDIR)/.build.$(TAG):
 	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
 	@touch $(BUILDDIR)/.build.$(TAG)
 
+#ALPAKA NVIDIA DEVICES CONFIG
+ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
+  # See if we can build a CUPLA version targetting cuda
+  ifneq ($(wildcard $(CUPLA_ROOT)/include/cuda_to_cupla.hpp),)
+    ifeq ($(wildcard $(ALPAKA_ROOT)/include/alpaka/alpaka.hpp),)
+      ALPAKA_ROOT := $(CUPLA_ROOT)/alpaka
+    endif
+    alp_main = $(BUILDDIR)/alpcheck.exe
+    alp_objects = $(BUILDDIR)/alpCPPProcess.o
+    cupla_objects = $(BUILDDIR)/cupla/common.o $(BUILDDIR)/cupla/device.o  $(BUILDDIR)/cupla/event.o $(BUILDDIR)/cupla/memory.o $(BUILDDIR)/cupla/stream.o $(BUILDDIR)/cupla/manager/Driver.o
+    ALPINC := -I$(ALPAKA_ROOT)/include -I$(BOOSTINC)
+    CUPLAINC := -I$(CUPLA_ROOT)/include
+    CUPLASRC := $(CUPLA_ROOT)/src
+    ALPFLAGS ?= -DALPAKA -DALPAKA_ACC_GPU_CUDA_ENABLED --expt-relaxed-constexpr
+    ALPCXX = $(NVCC)
+    CUPLA_OBJ_FLAGS_AND_INC = -x cu -dc $(CULIBFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC)
+    ALP_CHECK_OBJ_FLAGS_AND_INC = $(LIBFLAGS) $(CUFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC) -dc 
+    ALP_PROC_OBJ_FLAGS_AND_INC = $(CULIBFLAGS) $(LIBFLAGS) $(CUFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC)
+    ALP_MAIN_FLAGS_AND_INC = $(CUFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
+  endif
+endif
+
+#ALPAKA AMD DEVICES CONFIG
+ifneq ($(wildcard $(ROCM_HOME)/hip/bin/hipcc),)
+  # See if we can build a CUPLA version targetting cuda
+  ifneq ($(wildcard $(CUPLA_ROOT)/include/cupla.hpp),)
+    ifeq ($(wildcard $(ALPAKA_ROOT)/include/alpaka/alpaka.hpp),)
+      ALPAKA_ROOT := $(CUPLA_ROOT)/alpaka
+    endif
+    alp_main = $(BUILDDIR)/alpcheck.exe
+    alp_objects = $(BUILDDIR)/alpCPPProcess.o
+    cupla_objects = $(BUILDDIR)/cupla/common.o $(BUILDDIR)/cupla/device.o  $(BUILDDIR)/cupla/event.o $(BUILDDIR)/cupla/memory.o $(BUILDDIR)/cupla/stream.o $(BUILDDIR)/cupla/manager/Driver.o
+    ALPINC := -I$(ALPAKA_ROOT)/include -I$(BOOSTINC)
+    CUPLAINC := -I$(CUPLA_ROOT)/include
+    CUPLASRC := $(CUPLA_ROOT)/src
+    HIPRAND_INC_AND_LIB = -I$(ROCM_HOME)/hiprand/include -L$(ROCM_HOME)/hiprand/lib -lhiprand -I$(ROCM_HOME)/rocrand/include -L$(ROCM_HOME)/rocrand/lib -lrocrand
+    ALPFLAGS ?= -DALPAKA -DALPAKA_ACC_GPU_HIP_ENABLED -DALPAKA_ACC_GPU_HIP_ONLY_MODE -famd-opt
+    ALPCXX = $(ROCM_HOME)/hip/bin/hipcc
+    CUPLA_OBJ_FLAGS_AND_INC = $(ALPFLAGS) $(ALPINC) $(CUPLAINC) $(HIPRAND_INC_AND_LIB) $(CXXFLAGS) -fPIC -fgpu-rdc -c 
+    ALP_CHECK_OBJ_FLAGS_AND_INC = $(LIBFLAGS) $(CXXFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC) $(HIPRAND_INC_AND_LIB) -fPIC -fgpu-rdc -c 
+    ALP_PROC_OBJ_FLAGS_AND_INC = $(LIBFLAGS) $(CXXFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC) $(HIPRAND_INC_AND_LIB) -fPIC -fgpu-rdc -c
+    ALP_MAIN_FLAGS_AND_INC = $(CXXFLAGS) $(LIBFLAGS) $(HIPRAND_INC_AND_LIB) -lstdc++fs -fgpu-rdc --hip-link
+  endif
+endif
+
 debug: OPTFLAGS   = -g -O0 -DDEBUG2
 debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
@@ -254,14 +286,10 @@ $(BUILDDIR)/gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h # ../../src/*.cu
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
-$(BUILDDIR)/alpcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(NVCC) $(LIBFLAGS) $(CULIBFLAGS) $(CUFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC) -dc $< -o $@
-
 $(BUILDDIR)/CPPProcess.o : ../../src/HelAmps_sm.cc
 $(BUILDDIR)/gCPPProcess.o : ../../src/HelAmps_sm.cc
 
-$(BUILDDIR)/%%.o : %%.cu *.h ../../src/*.h
+$(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
@@ -275,26 +303,35 @@ $(BUILDDIR)/%%.o : %%.cu *.h ../../src/*.h
 ###	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 ###	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(AVXFLAGS) $(CUINC) -c $< -o $@
 
-$(BUILDDIR)/%%.o : %%.cc *.h ../../src/*.h
+$(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
-
-$(BUILDDIR)/cupla/%%.o: $(CUPLASRC)/%%.cpp
-	@if [ ! -d $(BUILDDIR)/cupla/manager ]; then mkdir -p $(BUILDDIR)/cupla/manager; fi
-	$(NVCC) -x cu -dc $< -o $@ $(CULIBFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC)
 
 $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
 	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
 
-$(BUILDDIR)/alpCPPProcess.o: gCPPProcess.cu ../../src/HelAmps_sm.cc
-	$(NVCC) $(CULIBFLAGS) $(LIBFLAGS) $(CUFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC) -dc $< -o $@
-
-$(alp_main): $(BUILDDIR)/alpcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(alp_objects) $(cupla_objects)
-	$(NVCC) $< -o $@ $(alp_objects) $(cupla_objects) $(CUFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
-
 $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
+#Alpaka targets
+$(BUILDDIR)/cupla/%.o: $(CUPLASRC)/%.cpp
+	@if [ ! -d $(BUILDDIR)/cupla/manager ]; then mkdir -p $(BUILDDIR)/cupla/manager; fi
+	$(ALPCXX) $< -o $@ $(CUPLA_OBJ_FLAGS_AND_INC) 
+
+$(BUILDDIR)/alpcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(ALPCXX) $< -o $@ $(ALP_CHECK_OBJ_FLAGS_AND_INC)
+
+$(BUILDDIR)/alpCPPProcess.o: gCPPProcess.cu ../../src/HelAmps_sm.cc
+	$(ALPCXX) $< -o $@ $(ALP_PROC_OBJ_FLAGS_AND_INC)
+
+$(alp_main): $(BUILDDIR)/alpcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(alp_objects) $(cupla_objects)
+	$(ALPCXX) $(BUILDDIR)/alpcheck_sa.o $(alp_objects) $(cupla_objects) -o $@ $(ALP_MAIN_FLAGS_AND_INC)
+
+#$(alp_main): gcheck_sa.cu gCPPProcess.cu ../../src/*.cc $(CUPLASRC)/*.cpp 
+#	$(ALPCXX) gcheck_sa.cu gCPPProcess.cu ../../src/*.cc $(CUPLASRC)/*.cpp -o $@ -fPIC -fgpu-rdc -I../../src $(ALP_MAIN_FLAGS_AND_INC2)
+
+#FIXME the tests need to be fixed for non-CUDA runs of Alpaka
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
 $(testmain): $(GTESTLIBS)
 $(testmain): INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
@@ -303,7 +340,7 @@ $(testmain): $(BUILDDIR)/runTest.o $(BUILDDIR)/MadgraphTest.o
 $(testmain): cxx_objects += $(BUILDDIR)/runTest.o $(BUILDDIR)/MadgraphTest.o
 $(testmain): alp_objects += $(BUILDDIR)/runTest_alp.o
 ifneq ($(shell $(CXX) --version | grep ^clang),)
-$(testmain): LIBFLAGS += -L$(patsubst %%bin/clang++,%%lib,$(shell which $(CXX) | tail -1))
+$(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(shell which $(CXX) | tail -1))
 endif
 
 $(BUILDDIR)/testxxx.o:   $(GTESTLIBS)
@@ -416,6 +453,10 @@ ifneq ($(shell $(CXX) --version | grep ^clang),)
 else
 	$(CXX) --version
 endif
+
+.PHONY: list
+list:
+	@LC_ALL=C $(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$'
 
 force:
 
