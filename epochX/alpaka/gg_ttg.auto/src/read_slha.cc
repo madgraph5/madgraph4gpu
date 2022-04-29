@@ -1,6 +1,14 @@
 #include <algorithm>
 #include <cstdlib>
-#include <filesystem>
+#if __has_include(<filesystem>)
+  #include <filesystem>
+  namespace fs = std::filesystem;
+#elif __has_include(<experimental/filesystem>)
+  #include <experimental/filesystem> 
+  namespace fs = std::experimental::filesystem;
+#else
+  error "Missing the <filesystem> header."
+#endif
 #include <fstream>
 #include <iostream>
 #include "read_slha.h"
@@ -46,7 +54,7 @@ void SLHAReader::read_slha_file(std::string file_name, bool verbose)
     {
       std::cout << "WARNING! Card file '" << file_name << "' does not exist:"
                 << " look for the file in directory $" << envpath << "='" << getenv( envpath ) << "'" << std::endl;
-      const std::string file_name2 = std::filesystem::path( getenv( envpath ) ) / std::filesystem::path( file_name ).filename();
+      const std::string file_name2 = fs::path( getenv( envpath ) ) / fs::path( file_name ).filename();
       param_card.open( file_name2.c_str(), std::ifstream::in );
       if( param_card.good() )
       {

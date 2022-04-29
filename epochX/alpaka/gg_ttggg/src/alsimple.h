@@ -18,7 +18,7 @@ public:
     }
     return *this;
   }
-  ALPAKA_FN_ACC ~complex() { }
+  //ALPAKA_FN_ACC ~complex() { }
 
   ALPAKA_FN_ACC complex() { }
   ALPAKA_FN_ACC complex(FPType r, FPType i) : r_(r), i_(i) { }

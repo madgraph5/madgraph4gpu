@@ -713,7 +713,7 @@ namespace Proc
 #if defined(ALPAKA) || defined(__CUDACC__)
 #ifdef ALPAKA
 template< typename T_Acc >
-ALPAKA_FN_ACC
+  ALPAKA_FN_ACC
   void sigmaKin_getGoodHel::operator()( T_Acc const &acc,
                             const fptype_sv* allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                             fptype_sv* allMEs,           // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
@@ -914,7 +914,7 @@ ALPAKA_FN_ACC
 //==========================================================================
 
 #ifdef ALPAKA
-template void gProc::sigmaKin_getGoodHel::operator()<cupla::Acc>(cupla::Acc const&, const fptype_sv* , fptype_sv*, bool *) const;
-template void gProc::sigmaKin::operator()<cupla::Acc>(cupla::Acc const&, const fptype_sv* , fptype_sv*) const;
+template ALPAKA_FN_ACC void gProc::sigmaKin_getGoodHel::operator()<cupla::Acc>(cupla::Acc const&, const fptype_sv* , fptype_sv*, bool *) const;
+template ALPAKA_FN_ACC void gProc::sigmaKin::operator()<cupla::Acc>(cupla::Acc const&, const fptype_sv* , fptype_sv*) const;
 #endif
 

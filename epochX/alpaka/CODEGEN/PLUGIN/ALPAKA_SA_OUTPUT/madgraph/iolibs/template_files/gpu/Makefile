@@ -1,7 +1,7 @@
 TOOLSDIR = ../../../../../tools
 TESTDIR  = ../../../../../test
 INCFLAGS = -I. -I../../src -I$(TOOLSDIR)
-MODELLIB = model_sm
+MODELLIB = model_%(model)s
 OPTFLAGS = -O3 # this ends up in CUFLAGS too (should it?), cannot add -Ofast or -ffast-math here
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 OMPFLAGS?=
@@ -55,7 +55,7 @@ endif
 
 # If CUDA_HOME is not set, try to set it from the location of nvcc
 ifndef CUDA_HOME
-  CUDA_HOME = $(patsubst %bin/nvcc,%,$(shell which nvcc 2>/dev/null))
+  CUDA_HOME = $(patsubst %%bin/nvcc,%%,$(shell which nvcc 2>/dev/null))
   $(warning CUDA_HOME was not set: using "$(CUDA_HOME)")
 endif
 
@@ -94,11 +94,11 @@ CUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
 
 # PowerPC-specific CXX compiler flags (being reviewed)
 ifeq ($(UNAME_P),ppc64le)
-  CXXFLAGS+= -mcpu=power9 -mtune=power9 # gains ~2-3% both for none and sse4
+  CXXFLAGS+= -mcpu=power9 -mtune=power9 # gains ~2-3%% both for none and sse4
   # Throughput references without the extra flags below: none=1.41-1.42E6, sse4=2.15-2.19E6
   ###CXXFLAGS+= -DNO_WARN_X86_INTRINSICS # no change
   ###CXXFLAGS+= -fpeel-loops # no change
-  ###CXXFLAGS+= -funroll-loops # gains ~1% for none, loses ~1% for sse4
+  ###CXXFLAGS+= -funroll-loops # gains ~1%% for none, loses ~1%% for sse4
   ###CXXFLAGS+= -ftree-vectorize # no change
   ###CXXFLAGS+= -flto # would increase to none=4.08-4.12E6, sse4=4.99-5.03E6!
 else
@@ -289,7 +289,7 @@ $(BUILDDIR)/gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h # ../../src/*.cu
 $(BUILDDIR)/CPPProcess.o : ../../src/HelAmps_sm.cc
 $(BUILDDIR)/gCPPProcess.o : ../../src/HelAmps_sm.cc
 
-$(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
+$(BUILDDIR)/%%.o : %%.cu *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
 
@@ -303,7 +303,7 @@ $(BUILDDIR)/%.o : %.cu *.h ../../src/*.h
 ###	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 ###	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(AVXFLAGS) $(CUINC) -c $< -o $@
 
-$(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
+$(BUILDDIR)/%%.o : %%.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
@@ -314,7 +314,7 @@ $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
 #Alpaka targets
-$(BUILDDIR)/cupla/%.o: $(CUPLASRC)/%.cpp
+$(BUILDDIR)/cupla/%%.o: $(CUPLASRC)/%%.cpp
 	@if [ ! -d $(BUILDDIR)/cupla/manager ]; then mkdir -p $(BUILDDIR)/cupla/manager; fi
 	$(ALPCXX) $< -o $@ $(CUPLA_OBJ_FLAGS_AND_INC) 
 
@@ -328,9 +328,6 @@ $(BUILDDIR)/alpCPPProcess.o: gCPPProcess.cu ../../src/HelAmps_sm.cc
 $(alp_main): $(BUILDDIR)/alpcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(alp_objects) $(cupla_objects)
 	$(ALPCXX) $(BUILDDIR)/alpcheck_sa.o $(alp_objects) $(cupla_objects) -o $@ $(ALP_MAIN_FLAGS_AND_INC)
 
-#$(alp_main): gcheck_sa.cu gCPPProcess.cu ../../src/*.cc $(CUPLASRC)/*.cpp 
-#	$(ALPCXX) gcheck_sa.cu gCPPProcess.cu ../../src/*.cc $(CUPLASRC)/*.cpp -o $@ -fPIC -fgpu-rdc -I../../src $(ALP_MAIN_FLAGS_AND_INC2)
-
 #FIXME the tests need to be fixed for non-CUDA runs of Alpaka
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
 $(testmain): $(GTESTLIBS)
@@ -340,7 +337,7 @@ $(testmain): $(BUILDDIR)/runTest.o $(BUILDDIR)/MadgraphTest.o
 $(testmain): cxx_objects += $(BUILDDIR)/runTest.o $(BUILDDIR)/MadgraphTest.o
 $(testmain): alp_objects += $(BUILDDIR)/runTest_alp.o
 ifneq ($(shell $(CXX) --version | grep ^clang),)
-$(testmain): LIBFLAGS += -L$(patsubst %bin/clang++,%lib,$(shell which $(CXX) | tail -1))
+$(testmain): LIBFLAGS += -L$(patsubst %%bin/clang++,%%lib,$(shell which $(CXX) | tail -1))
 endif
 
 $(BUILDDIR)/testxxx.o:   $(GTESTLIBS)
@@ -454,6 +451,7 @@ else
 	$(CXX) --version
 endif
 
+#Run `make list` to get list of available targets
 .PHONY: list
 list:
 	@LC_ALL=C $(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$'

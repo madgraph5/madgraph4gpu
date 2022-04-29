@@ -79,19 +79,6 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   cu_main     = $(BUILDDIR)/gcheck.exe
   cu_objects  = $(BUILDDIR)/gCPPProcess.o
 
-  # See if we can build a CUPLA version targetting cuda
-  ifneq ($(wildcard $(CUPLA_ROOT)/include/cuda_to_cupla.hpp),)
-    ifeq ($(wildcard $(ALPAKA_ROOT)/include/alpaka/alpaka.hpp),)
-      ALPAKA_ROOT := $(CUPLA_ROOT)/alpaka
-    endif
-    alp_main = $(BUILDDIR)/alpcheck.exe
-    alp_objects = $(BUILDDIR)/alpCPPProcess.o
-    cupla_objects = $(BUILDDIR)/cupla/common.o $(BUILDDIR)/cupla/device.o  $(BUILDDIR)/cupla/event.o $(BUILDDIR)/cupla/memory.o $(BUILDDIR)/cupla/stream.o $(BUILDDIR)/cupla/manager/Driver.o
-    ALPINC := -I$(ALPAKA_ROOT)/include -I$(BOOSTINC)
-    CUPLAINC := -I$(CUPLA_ROOT)/include
-    CUPLASRC := $(CUPLA_ROOT)/src
-    ALPFLAGS ?= -DALPAKA -DALPAKA_ACC_GPU_CUDA_ENABLED --expt-relaxed-constexpr
-  endif
 
 else
   # No cuda. Switch cuda compilation off and go to common random numbers in C++
@@ -242,6 +229,51 @@ $(BUILDDIR)/.build.$(TAG):
 	@if [ "$(oldtags)" != "" ]; then echo -e "Cannot build for tag=$(TAG) as old builds exist for other tags:\n$(oldtags)\nPlease run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
 	@touch $(BUILDDIR)/.build.$(TAG)
 
+#ALPAKA NVIDIA DEVICES CONFIG
+ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
+  # See if we can build a CUPLA version targetting cuda
+  ifneq ($(wildcard $(CUPLA_ROOT)/include/cuda_to_cupla.hpp),)
+    ifeq ($(wildcard $(ALPAKA_ROOT)/include/alpaka/alpaka.hpp),)
+      ALPAKA_ROOT := $(CUPLA_ROOT)/alpaka
+    endif
+    alp_main = $(BUILDDIR)/alpcheck.exe
+    alp_objects = $(BUILDDIR)/alpCPPProcess.o
+    cupla_objects = $(BUILDDIR)/cupla/common.o $(BUILDDIR)/cupla/device.o  $(BUILDDIR)/cupla/event.o $(BUILDDIR)/cupla/memory.o $(BUILDDIR)/cupla/stream.o $(BUILDDIR)/cupla/manager/Driver.o
+    ALPINC := -I$(ALPAKA_ROOT)/include -I$(BOOSTINC)
+    CUPLAINC := -I$(CUPLA_ROOT)/include
+    CUPLASRC := $(CUPLA_ROOT)/src
+    ALPFLAGS ?= -DALPAKA -DALPAKA_ACC_GPU_CUDA_ENABLED --expt-relaxed-constexpr
+    ALPCXX = $(NVCC)
+    CUPLA_OBJ_FLAGS_AND_INC = -x cu -dc $(CULIBFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC)
+    ALP_CHECK_OBJ_FLAGS_AND_INC = $(LIBFLAGS) $(CUFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC) -dc 
+    ALP_PROC_OBJ_FLAGS_AND_INC = $(CULIBFLAGS) $(LIBFLAGS) $(CUFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC)
+    ALP_MAIN_FLAGS_AND_INC = $(CUFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
+  endif
+endif
+
+#ALPAKA AMD DEVICES CONFIG
+ifneq ($(wildcard $(ROCM_HOME)/hip/bin/hipcc),)
+  # See if we can build a CUPLA version targetting cuda
+  ifneq ($(wildcard $(CUPLA_ROOT)/include/cupla.hpp),)
+    ifeq ($(wildcard $(ALPAKA_ROOT)/include/alpaka/alpaka.hpp),)
+      ALPAKA_ROOT := $(CUPLA_ROOT)/alpaka
+    endif
+    alp_main = $(BUILDDIR)/alpcheck.exe
+    alp_objects = $(BUILDDIR)/alpCPPProcess.o
+    cupla_objects = $(BUILDDIR)/cupla/common.o $(BUILDDIR)/cupla/device.o  $(BUILDDIR)/cupla/event.o $(BUILDDIR)/cupla/memory.o $(BUILDDIR)/cupla/stream.o $(BUILDDIR)/cupla/manager/Driver.o
+    ALPINC := -I$(ALPAKA_ROOT)/include -I$(BOOSTINC)
+    CUPLAINC := -I$(CUPLA_ROOT)/include
+    CUPLASRC := $(CUPLA_ROOT)/src
+    HIPRAND_INC_AND_LIB = -I$(ROCM_HOME)/hiprand/include -L$(ROCM_HOME)/hiprand/lib -lhiprand -I$(ROCM_HOME)/rocrand/include -L$(ROCM_HOME)/rocrand/lib -lrocrand
+    ALPFLAGS ?= -DALPAKA -DALPAKA_ACC_GPU_HIP_ENABLED -DALPAKA_ACC_GPU_HIP_ONLY_MODE -famd-opt
+    ALPCXX = $(ROCM_HOME)/hip/bin/hipcc
+    CUPLA_OBJ_FLAGS_AND_INC = $(ALPFLAGS) $(ALPINC) $(CUPLAINC) $(HIPRAND_INC_AND_LIB) $(CXXFLAGS) -fPIC -fgpu-rdc -c 
+    ALP_CHECK_OBJ_FLAGS_AND_INC = $(LIBFLAGS) $(CXXFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC) $(HIPRAND_INC_AND_LIB) -fPIC -fgpu-rdc -c 
+    ALP_PROC_OBJ_FLAGS_AND_INC = $(LIBFLAGS) $(CXXFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC) $(HIPRAND_INC_AND_LIB) -fPIC -fgpu-rdc -c
+    ALP_MAIN_FLAGS_AND_INC = $(CXXFLAGS) $(LIBFLAGS) $(HIPRAND_INC_AND_LIB) -lstdc++fs -fgpu-rdc --hip-link
+  endif
+endif
+
 debug: OPTFLAGS   = -g -O0 -DDEBUG2
 debug: CUOPTFLAGS = -G
 debug: MAKEDEBUG := debug
@@ -253,10 +285,6 @@ $(LIBDIR)/lib$(MODELLIB).a: ../../src/*.h ../../src/*.cc
 $(BUILDDIR)/gcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h # ../../src/*.cu
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(NVCC) $(CPPFLAGS) $(CUFLAGS) -c $< -o $@
-
-$(BUILDDIR)/alpcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h
-	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(NVCC) $(LIBFLAGS) $(CULIBFLAGS) $(CUFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC) -dc $< -o $@
 
 $(BUILDDIR)/CPPProcess.o : ../../src/HelAmps_sm.cc
 $(BUILDDIR)/gCPPProcess.o : ../../src/HelAmps_sm.cc
@@ -279,22 +307,28 @@ $(BUILDDIR)/%.o : %.cc *.h ../../src/*.h
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CUINC) -c $< -o $@
 
-$(BUILDDIR)/cupla/%.o: $(CUPLASRC)/%.cpp
-	@if [ ! -d $(BUILDDIR)/cupla/manager ]; then mkdir -p $(BUILDDIR)/cupla/manager; fi
-	$(NVCC) -x cu -dc $< -o $@ $(CULIBFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC)
-
 $(cu_main): $(BUILDDIR)/gcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cu_objects)
 	$(NVCC) $< -o $@ $(cu_objects) $(CUARCHFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
-
-$(BUILDDIR)/alpCPPProcess.o: gCPPProcess.cu ../../src/HelAmps_sm.cc
-	$(NVCC) $(CULIBFLAGS) $(LIBFLAGS) $(CUFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC) -dc $< -o $@
-
-$(alp_main): $(BUILDDIR)/alpcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(alp_objects) $(cupla_objects)
-	$(NVCC) $< -o $@ $(alp_objects) $(cupla_objects) $(CUFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
 
 $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 	$(CXX) $< -o $@ $(cxx_objects) $(CPPFLAGS) $(CXXFLAGS) -ldl -pthread $(LIBFLAGS) $(CULIBFLAGS)
 
+#Alpaka targets
+$(BUILDDIR)/cupla/%.o: $(CUPLASRC)/%.cpp
+	@if [ ! -d $(BUILDDIR)/cupla/manager ]; then mkdir -p $(BUILDDIR)/cupla/manager; fi
+	$(ALPCXX) $< -o $@ $(CUPLA_OBJ_FLAGS_AND_INC) 
+
+$(BUILDDIR)/alpcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(ALPCXX) $< -o $@ $(ALP_CHECK_OBJ_FLAGS_AND_INC)
+
+$(BUILDDIR)/alpCPPProcess.o: gCPPProcess.cu ../../src/HelAmps_sm.cc
+	$(ALPCXX) $< -o $@ $(ALP_PROC_OBJ_FLAGS_AND_INC)
+
+$(alp_main): $(BUILDDIR)/alpcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(alp_objects) $(cupla_objects)
+	$(ALPCXX) $(BUILDDIR)/alpcheck_sa.o $(alp_objects) $(cupla_objects) -o $@ $(ALP_MAIN_FLAGS_AND_INC)
+
+#FIXME the tests need to be fixed for non-CUDA runs of Alpaka
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
 $(testmain): $(GTESTLIBS)
 $(testmain): INCFLAGS += -I$(TESTDIR)/googletest/googletest/include
@@ -416,6 +450,11 @@ ifneq ($(shell $(CXX) --version | grep ^clang),)
 else
 	$(CXX) --version
 endif
+
+#Run `make list` to get list of available targets
+.PHONY: list
+list:
+	@LC_ALL=C $(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$'
 
 force:
 

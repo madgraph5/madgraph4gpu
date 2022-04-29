@@ -687,10 +687,10 @@ namespace MG5_sm
           sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
           const int ip = -( ( 1 - nh ) / 2 ) * nhel; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
           const int im = ( 1 + nh ) / 2 * nhel; // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
-          fo[2] = cxmake( im * sqm[std::abs( ip )], 0 );
-          fo[3] = cxmake( ip * nsf * sqm[std::abs( ip )], 0 );
-          fo[4] = cxmake( im * nsf * sqm[std::abs( im )], 0 );
-          fo[5] = cxmake( ip * sqm[std::abs( im )], 0 );
+          fo[2] = cxmake( im *       sqm[abs( ip )], 0 );
+          fo[3] = cxmake( ip * nsf * sqm[abs( ip )], 0 );
+          fo[4] = cxmake( im * nsf * sqm[abs( im )], 0 );
+          fo[5] = cxmake( ip *       sqm[abs( im )], 0 );
         }
         else
         {
