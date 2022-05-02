@@ -245,8 +245,8 @@ ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
     ALPFLAGS ?= -DALPAKA -DALPAKA_ACC_GPU_CUDA_ENABLED --expt-relaxed-constexpr
     ALPCXX = $(NVCC)
     CUPLA_OBJ_FLAGS_AND_INC = -x cu -dc $(CULIBFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC)
-    ALP_CHECK_OBJ_FLAGS_AND_INC = $(LIBFLAGS) $(CUFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC) -dc 
-    ALP_PROC_OBJ_FLAGS_AND_INC = $(CULIBFLAGS) $(LIBFLAGS) $(CUFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC)
+    ALP_CHECK_OBJ_FLAGS_AND_INC = -dc $(LIBFLAGS) $(CUFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC)
+    ALP_PROC_OBJ_FLAGS_AND_INC = -dc $(CULIBFLAGS) $(LIBFLAGS) $(CUFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC)
     ALP_MAIN_FLAGS_AND_INC = $(CUFLAGS) $(LIBFLAGS) $(CULIBFLAGS)
   endif
 endif
@@ -267,10 +267,10 @@ ifneq ($(wildcard $(ROCM_HOME)/hip/bin/hipcc),)
     HIPRAND_INC_AND_LIB = -I$(ROCM_HOME)/hiprand/include -L$(ROCM_HOME)/hiprand/lib -lhiprand -I$(ROCM_HOME)/rocrand/include -L$(ROCM_HOME)/rocrand/lib -lrocrand
     ALPFLAGS ?= -DALPAKA -DALPAKA_ACC_GPU_HIP_ENABLED -DALPAKA_ACC_GPU_HIP_ONLY_MODE -famd-opt
     ALPCXX = $(ROCM_HOME)/hip/bin/hipcc
-    CUPLA_OBJ_FLAGS_AND_INC = $(ALPFLAGS) $(ALPINC) $(CUPLAINC) $(HIPRAND_INC_AND_LIB) $(CXXFLAGS) -fPIC -fgpu-rdc -c 
-    ALP_CHECK_OBJ_FLAGS_AND_INC = $(LIBFLAGS) $(CXXFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC) $(HIPRAND_INC_AND_LIB) -fPIC -fgpu-rdc -c 
-    ALP_PROC_OBJ_FLAGS_AND_INC = $(LIBFLAGS) $(CXXFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC) $(HIPRAND_INC_AND_LIB) -fPIC -fgpu-rdc -c
-    ALP_MAIN_FLAGS_AND_INC = $(CXXFLAGS) $(LIBFLAGS) $(HIPRAND_INC_AND_LIB) -lstdc++fs -fgpu-rdc --hip-link
+    CUPLA_OBJ_FLAGS_AND_INC = -fPIC -fgpu-rdc -c $(ALPFLAGS) $(ALPINC) $(CUPLAINC) $(HIPRAND_INC_AND_LIB) $(CXXFLAGS) 
+    ALP_CHECK_OBJ_FLAGS_AND_INC = -fPIC -fgpu-rdc -c $(LIBFLAGS) $(CXXFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC) $(HIPRAND_INC_AND_LIB)
+    ALP_PROC_OBJ_FLAGS_AND_INC = -fPIC -fgpu-rdc -c $(LIBFLAGS) $(CXXFLAGS) $(ALPFLAGS) $(ALPINC) $(CUPLAINC) $(HIPRAND_INC_AND_LIB)
+    ALP_MAIN_FLAGS_AND_INC = -fgpu-rdc --hip-link $(CXXFLAGS) $(LIBFLAGS) $(HIPRAND_INC_AND_LIB) -lstdc++fs
   endif
 endif
 
@@ -316,17 +316,17 @@ $(cxx_main): $(BUILDDIR)/check_sa.o $(LIBDIR)/lib$(MODELLIB).a $(cxx_objects)
 #Alpaka targets
 $(BUILDDIR)/cupla/%.o: $(CUPLASRC)/%.cpp
 	@if [ ! -d $(BUILDDIR)/cupla/manager ]; then mkdir -p $(BUILDDIR)/cupla/manager; fi
-	$(ALPCXX) $< -o $@ $(CUPLA_OBJ_FLAGS_AND_INC) 
+	$(ALPCXX) -o $@ $(CUPLA_OBJ_FLAGS_AND_INC) $<
 
-$(BUILDDIR)/alpcheck_sa.o: gcheck_sa.cu *.h ../../src/*.h
+$(BUILDDIR)/alpcheck_sa.o: gcheck_sa.cu
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(ALPCXX) $< -o $@ $(ALP_CHECK_OBJ_FLAGS_AND_INC)
+	$(ALPCXX) -o $@ $(ALP_CHECK_OBJ_FLAGS_AND_INC) $<
 
-$(BUILDDIR)/alpCPPProcess.o: gCPPProcess.cu ../../src/HelAmps_sm.cc
-	$(ALPCXX) $< -o $@ $(ALP_PROC_OBJ_FLAGS_AND_INC)
+$(BUILDDIR)/alpCPPProcess.o: gCPPProcess.cu
+	$(ALPCXX) -o $@ $(ALP_PROC_OBJ_FLAGS_AND_INC) $<
 
 $(alp_main): $(BUILDDIR)/alpcheck_sa.o $(LIBDIR)/lib$(MODELLIB).a $(alp_objects) $(cupla_objects)
-	$(ALPCXX) $(BUILDDIR)/alpcheck_sa.o $(alp_objects) $(cupla_objects) -o $@ $(ALP_MAIN_FLAGS_AND_INC)
+	$(ALPCXX) -o $@ $(ALP_MAIN_FLAGS_AND_INC) $(BUILDDIR)/alpcheck_sa.o $(alp_objects) $(cupla_objects)
 
 #FIXME the tests need to be fixed for non-CUDA runs of Alpaka
 $(BUILDDIR)/runTest.o: $(GTESTLIBS)
