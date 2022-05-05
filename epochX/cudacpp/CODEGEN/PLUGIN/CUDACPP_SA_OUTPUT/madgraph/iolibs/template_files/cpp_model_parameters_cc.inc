@@ -8,7 +8,7 @@
 #include <iomanip>
 #include <iostream>
 
-#ifndef MGONGPU_HARDCODE_CIPD
+#ifndef MGONGPU_HARDCODE_PARAM
 
 // Initialize static instance
 Parameters_%(model_name)s* Parameters_%(model_name)s::instance = 0;

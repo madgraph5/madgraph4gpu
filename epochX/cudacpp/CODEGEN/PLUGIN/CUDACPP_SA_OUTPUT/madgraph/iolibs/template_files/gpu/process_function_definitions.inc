@@ -22,7 +22,7 @@ namespace mg5amcCpu
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
-#ifdef MGONGPU_HARDCODE_CIPD
+#ifdef MGONGPU_HARDCODE_PARAM
   %(hardcoded_assign_coupling)s
 #else
 #ifdef __CUDACC__
@@ -51,7 +51,7 @@ namespace mg5amcCpu
                           bool debug )
     : m_verbose( verbose )
     , m_debug( debug )
-#ifndef MGONGPU_HARDCODE_CIPD
+#ifndef MGONGPU_HARDCODE_PARAM
     , m_pars( 0 )
 #endif
     , m_masses()
@@ -71,7 +71,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifndef MGONGPU_HARDCODE_CIPD
+#ifndef MGONGPU_HARDCODE_PARAM
   // Initialize process (with parameters read from user cards)
   void
   CPPProcess::initProc( const std::string& param_card_name )
