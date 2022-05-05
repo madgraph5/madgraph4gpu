@@ -23,12 +23,15 @@ namespace mg5amcCpu
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
 #ifdef MGONGPU_HARDCODE_PARAM
-  %(hardcoded_assign_coupling)s
+  %(cipdhrdcod)s
+  %(cipchrdcod)s
 #else
 #ifdef __CUDACC__
-  __device__ __constant__ fptype cIPD[%(nparams)i];%(cipcdevice)s
+  %(cipddevice)s
+  %(cipcdevice)s
 #else
-  static fptype cIPD[%(nparams)i];%(cipcstatic)s
+  %(cipdstatic)s
+  %(cipcstatic)s
 #endif
 #endif
 
@@ -93,13 +96,15 @@ namespace mg5amcCpu
     %(initProc_lines)s
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
-    %(assign_coupling)s
+    %(cipdassign)s
+    %(cipcassign)s
 #ifdef __CUDACC__
-    checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, %(nparams)i * sizeof( fptype ) ) );%(cipc2tipcSym)s
+    %(cipd2tipdSym)s
+    %(cipc2tipcSym)s
 #else
-    memcpy( cIPD, tIPD, %(nparams)i * sizeof( fptype ) );%(cipc2tipc)s
-#endif
-    //for ( i=0; i<%(nparams)i; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;%(cipcdump)s
+    %(cipd2tipd)s
+    %(cipc2tipc)s
+#endif%(cipddump)s%(cipcdump)s
   }
 #else
   // Initialize process (with hardcoded parameters)
