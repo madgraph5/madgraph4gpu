@@ -4,6 +4,7 @@
 *.exe
 *.mod
 *.pyc
+*.so
 build.*
 .build.*
 
