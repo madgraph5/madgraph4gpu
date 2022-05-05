@@ -99,7 +99,7 @@ namespace mg5amcCpu
 
 //==========================================================================
 
-#ifndef MGONGPU_HARDCODE_CIPD
+#ifndef MGONGPU_HARDCODE_PARAM
 
 #include "read_slha.h"
 
