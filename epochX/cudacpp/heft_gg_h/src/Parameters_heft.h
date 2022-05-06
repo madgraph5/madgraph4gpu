@@ -15,80 +15,6 @@
 
 //==========================================================================
 
-namespace Parameters_heft_dependentCouplings
-{
-  constexpr size_t ndcoup = 1; // #couplings that vary event by event because they depend on the running alphas QCD
-  constexpr size_t idcoup_GC_13 = 0;
-  struct DependentCouplings_sv
-  {
-    cxtype_sv GC_13;
-  };
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-variable"  // e.g. <<warning: unused variable ‘mdl_G__exp__2’ [-Wunused-variable]>>
-#pragma GCC diagnostic ignored "-Wunused-parameter" // e.g. <<warning: unused parameter ‘G’ [-Wunused-parameter]>>
-#ifdef __CUDACC__
-#pragma nv_diagnostic push
-#pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
-#endif
-  __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G )
-  {
-    // Model parameters dependent on aS
-    //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
-    //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
-    const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
-    const fptype_sv mdl_GH = -( mdl_G__exp__2 * ( 1. + ( 13. * mdl_MH__exp__6 ) / ( 16800. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 168. * mdl_MT__exp__4 ) + ( 7. * mdl_MH__exp__2 ) / ( 120. * mdl_MT__exp__2 ) ) ) / ( 12. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
-    const fptype_sv mdl_Gphi = -( mdl_G__exp__2 * ( 1. + mdl_MH__exp__6 / ( 560. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 90. * mdl_MT__exp__4 ) + mdl_MH__exp__2 / ( 12. * mdl_MT__exp__2 ) ) ) / ( 8. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
-    // Model couplings dependent on aS
-    DependentCouplings_sv out;
-    // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
-    out.GC_13 = -( cxmake( 0., 1. ) * mdl_GH );
-    return out;
-  }
-#ifdef __CUDACC__
-#pragma GCC diagnostic pop
-#pragma nv_diagnostic pop
-#endif
-}
-
-//==========================================================================
-
-namespace Parameters_heft_independentCouplings
-{
-  constexpr size_t nicoup = 0; // #couplings that are fixed for all events because they do not depend on the running alphas QCD
-  // NB: there are no aS-independent couplings in this physics process
-}
-
-//==========================================================================
-
-#ifdef __CUDACC__
-namespace mg5amcGpu
-#else
-namespace mg5amcCpu
-#endif
-{
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable" // e.g. <<warning: variable ‘couplings_sv’ set but not used [-Wunused-but-set-variable]>>
-  // Compute the output couplings (e.g. gc10 and gc11) from the input gs
-  template<class G_ACCESS, class C_ACCESS>
-  __device__ inline void
-  G2COUP( const fptype gs[],
-          fptype couplings[] )
-  {
-    mgDebug( 0, __FUNCTION__ );
-    using namespace Parameters_heft_dependentCouplings;
-    const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
-    DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
-    fptype* GC_13s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_13 );
-    cxtype_sv_ref GC_13s_sv = C_ACCESS::kernelAccess( GC_13s );
-    GC_13s_sv = couplings_sv.GC_13;
-    mgDebug( 1, __FUNCTION__ );
-    return;
-  }
-#pragma GCC diagnostic pop
-}
-
-//==========================================================================
-
 #ifndef MGONGPU_HARDCODE_PARAM
 
 #include "read_slha.h"
@@ -274,6 +200,80 @@ namespace Parameters_heft // keep the same name rather than HardcodedParameters_
 }
 
 #endif
+
+//==========================================================================
+
+namespace Parameters_heft_dependentCouplings
+{
+  constexpr size_t ndcoup = 1; // #couplings that vary event by event because they depend on the running alphas QCD
+  constexpr size_t idcoup_GC_13 = 0;
+  struct DependentCouplings_sv
+  {
+    cxtype_sv GC_13;
+  };
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"  // e.g. <<warning: unused variable ‘mdl_G__exp__2’ [-Wunused-variable]>>
+#pragma GCC diagnostic ignored "-Wunused-parameter" // e.g. <<warning: unused parameter ‘G’ [-Wunused-parameter]>>
+#ifdef __CUDACC__
+#pragma nv_diagnostic push
+#pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
+#endif
+  __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G )
+  {
+    // Model parameters dependent on aS
+    //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
+    //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
+    const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
+    const fptype_sv mdl_GH = -( mdl_G__exp__2 * ( 1. + ( 13. * mdl_MH__exp__6 ) / ( 16800. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 168. * mdl_MT__exp__4 ) + ( 7. * mdl_MH__exp__2 ) / ( 120. * mdl_MT__exp__2 ) ) ) / ( 12. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
+    const fptype_sv mdl_Gphi = -( mdl_G__exp__2 * ( 1. + mdl_MH__exp__6 / ( 560. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 90. * mdl_MT__exp__4 ) + mdl_MH__exp__2 / ( 12. * mdl_MT__exp__2 ) ) ) / ( 8. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
+    // Model couplings dependent on aS
+    DependentCouplings_sv out;
+    // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
+    out.GC_13 = -( cxmake( 0., 1. ) * mdl_GH );
+    return out;
+  }
+#ifdef __CUDACC__
+#pragma GCC diagnostic pop
+#pragma nv_diagnostic pop
+#endif
+}
+
+//==========================================================================
+
+namespace Parameters_heft_independentCouplings
+{
+  constexpr size_t nicoup = 0; // #couplings that are fixed for all events because they do not depend on the running alphas QCD
+  // NB: there are no aS-independent couplings in this physics process
+}
+
+//==========================================================================
+
+#ifdef __CUDACC__
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
+{
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" // e.g. <<warning: variable ‘couplings_sv’ set but not used [-Wunused-but-set-variable]>>
+  // Compute the output couplings (e.g. gc10 and gc11) from the input gs
+  template<class G_ACCESS, class C_ACCESS>
+  __device__ inline void
+  G2COUP( const fptype gs[],
+          fptype couplings[] )
+  {
+    mgDebug( 0, __FUNCTION__ );
+    using namespace Parameters_heft_dependentCouplings;
+    const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
+    DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
+    fptype* GC_13s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_13 );
+    cxtype_sv_ref GC_13s_sv = C_ACCESS::kernelAccess( GC_13s );
+    GC_13s_sv = couplings_sv.GC_13;
+    mgDebug( 1, __FUNCTION__ );
+    return;
+  }
+#pragma GCC diagnostic pop
+}
 
 //==========================================================================
 
