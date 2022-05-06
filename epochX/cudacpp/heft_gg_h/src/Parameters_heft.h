@@ -73,14 +73,14 @@ private:
 namespace Parameters_heft // keep the same name rather than HardcodedParameters_heft for simplicity
 {
   // Constexpr implementation of sqrt (see https://stackoverflow.com/a/34134071)
-  double constexpr detailSqrtNewtonRaphson( double x, double curr, double prev )
+  double constexpr sqrtNewtonRaphson( double x, double curr, double prev )
   {
-    return curr == prev ? curr : detailSqrtNewtonRaphson( x, 0.5 * ( curr + x / curr ), curr );
+    return curr == prev ? curr : sqrtNewtonRaphson( x, 0.5 * ( curr + x / curr ), curr );
   }
-  double constexpr sqrtNR( double x )
+  double constexpr constexpr_sqrt( double x )
   {
     return x >= 0 // && x < std::numeric_limits<double>::infinity() // avoid -Wtautological-constant-compare warning in fast math
-      ? detailSqrtNewtonRaphson( x, x, 0 )
+      ? sqrtNewtonRaphson( x, x, 0 )
       : std::numeric_limits<double>::quiet_NaN();
   }
 
@@ -115,7 +115,7 @@ namespace Parameters_heft // keep the same name rather than HardcodedParameters_
   constexpr cxsmpl<double> mdl_complexi = cxsmpl<double>( 0., 1. );
   constexpr double mdl_MZ__exp__2 = ( ( mdl_MZ ) * ( mdl_MZ ) );
   constexpr double mdl_MZ__exp__4 = ( ( mdl_MZ ) * ( mdl_MZ ) * ( mdl_MZ ) * ( mdl_MZ ) );
-  constexpr double mdl_sqrt__2 = sqrtNR( 2. );
+  constexpr double mdl_sqrt__2 = constexpr_sqrt( 2. );
   constexpr double mdl_MH__exp__4 = ( ( mdl_MH ) * ( mdl_MH ) * ( mdl_MH ) * ( mdl_MH ) );
   constexpr double mdl_MT__exp__4 = ( ( mdl_MT ) * ( mdl_MT ) * ( mdl_MT ) * ( mdl_MT ) );
   constexpr double mdl_MH__exp__2 = ( ( mdl_MH ) * ( mdl_MH ) );
@@ -126,13 +126,13 @@ namespace Parameters_heft // keep the same name rather than HardcodedParameters_
   constexpr double mdl_MH__exp__6 = constexpr_pow( mdl_MH, 6 );
   constexpr double mdl_MT__exp__6 = constexpr_pow( mdl_MT, 6 );
   constexpr double mdl_aEW = 1. / aEWM1;
-  constexpr double mdl_MW = sqrtNR( mdl_MZ__exp__2 / 2. + sqrtNR( mdl_MZ__exp__4 / 4. - ( mdl_aEW * M_PI * mdl_MZ__exp__2 ) / ( mdl_Gf * mdl_sqrt__2 ) ) );
-  constexpr double mdl_sqrt__aEW = sqrtNR( mdl_aEW );
-  constexpr double mdl_ee = 2. * mdl_sqrt__aEW * sqrtNR( M_PI );
+  constexpr double mdl_MW = constexpr_sqrt( mdl_MZ__exp__2 / 2. + constexpr_sqrt( mdl_MZ__exp__4 / 4. - ( mdl_aEW * M_PI * mdl_MZ__exp__2 ) / ( mdl_Gf * mdl_sqrt__2 ) ) );
+  constexpr double mdl_sqrt__aEW = constexpr_sqrt( mdl_aEW );
+  constexpr double mdl_ee = 2. * mdl_sqrt__aEW * constexpr_sqrt( M_PI );
   constexpr double mdl_MW__exp__2 = ( ( mdl_MW ) * ( mdl_MW ) );
   constexpr double mdl_sw2 = 1. - mdl_MW__exp__2 / mdl_MZ__exp__2;
-  constexpr double mdl_cw = sqrtNR( 1. - mdl_sw2 );
-  constexpr double mdl_sqrt__sw2 = sqrtNR( mdl_sw2 );
+  constexpr double mdl_cw = constexpr_sqrt( 1. - mdl_sw2 );
+  constexpr double mdl_sqrt__sw2 = constexpr_sqrt( mdl_sw2 );
   constexpr double mdl_sw = mdl_sqrt__sw2;
   constexpr double mdl_g1 = mdl_ee / mdl_cw;
   constexpr double mdl_gw = mdl_ee / mdl_sw;
@@ -149,7 +149,7 @@ namespace Parameters_heft // keep the same name rather than HardcodedParameters_
   constexpr double mdl_yb = ( mdl_ymb * mdl_sqrt__2 ) / mdl_v;
   constexpr double mdl_yt = ( mdl_ymt * mdl_sqrt__2 ) / mdl_v;
   constexpr double mdl_ytau = ( mdl_ymtau * mdl_sqrt__2 ) / mdl_v;
-  constexpr double mdl_muH = sqrtNR( mdl_lam * mdl_v__exp__2 );
+  constexpr double mdl_muH = constexpr_sqrt( mdl_lam * mdl_v__exp__2 );
   constexpr double mdl_gw__exp__2 = ( ( mdl_gw ) * ( mdl_gw ) );
   constexpr double mdl_cw__exp__2 = ( ( mdl_cw ) * ( mdl_cw ) );
   constexpr double mdl_sw__exp__2 = ( ( mdl_sw ) * ( mdl_sw ) );
@@ -158,8 +158,8 @@ namespace Parameters_heft // keep the same name rather than HardcodedParameters_
   // (none)
 
   // Model parameters dependent on aS
-  constexpr double mdl_sqrt__aS = sqrtNR( aS );
-  constexpr double G = 2. * mdl_sqrt__aS * sqrtNR( M_PI );
+  constexpr double mdl_sqrt__aS = constexpr_sqrt( aS );
+  constexpr double G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
   constexpr double mdl_G__exp__2 = ( ( G ) * ( G ) );
   constexpr double mdl_GH = -( mdl_G__exp__2 * ( 1. + ( 13. * mdl_MH__exp__6 ) / ( 16800. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 168. * mdl_MT__exp__4 ) + ( 7. * mdl_MH__exp__2 ) / ( 120. * mdl_MT__exp__2 ) ) ) / ( 12. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
   constexpr double mdl_Gphi = -( mdl_G__exp__2 * ( 1. + mdl_MH__exp__6 / ( 560. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 90. * mdl_MT__exp__4 ) + mdl_MH__exp__2 / ( 12. * mdl_MT__exp__2 ) ) ) / ( 8. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
