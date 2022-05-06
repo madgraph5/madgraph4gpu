@@ -132,6 +132,7 @@ private:
 
 #else
 
+#include <cassert>
 #include <limits>
 
 // Hardcoded constexpr physics parameters
@@ -149,10 +150,22 @@ namespace Parameters_%(model_name)s // keep the same name rather than HardcodedP
       : std::numeric_limits<double>::quiet_NaN();
   }
 
-  // Constexpr implementation of pow
-  template<typename T>
-  constexpr T constexpr_pow( T base, unsigned int iexp )
+  // Constexpr implementation of floor (see https://stackoverflow.com/a/66146159)
+  constexpr int constexpr_floor( double d )
   {
+    const int i = static_cast<int>( d );
+    return d < i ? i - 1 : i;
+  }
+
+  // Constexpr implementation of pow
+  constexpr double constexpr_pow( double base, double exp )
+  {
+    // NB(1): this implementation of constexpr_pow requires exponent >= 0
+    assert( exp >= 0 ); // NB would fail at compile time with "error: call to non-‘constexpr’ function ‘void __assert_fail'"
+    // NB(2): this implementation of constexpr_pow requires an integer exponent
+    const int iexp = constexpr_floor( exp );
+    assert( static_cast<double>( iexp ) == exp ); // NB would fail at compile time with "error: call to non-‘constexpr’ function ‘void __assert_fail'"
+    // Iterative implementation of pow if exp is a non negative integer
     return iexp == 0 ? 1 : base * constexpr_pow( base, iexp - 1 );
   }
 
