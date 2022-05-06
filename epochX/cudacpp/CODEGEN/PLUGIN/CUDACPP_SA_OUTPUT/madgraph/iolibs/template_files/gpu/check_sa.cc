@@ -309,6 +309,22 @@ main( int argc, char** argv )
   DeviceBufferRandomNumbers devRnarray( nevt );
 #endif
 
+#ifndef __CUDACC__
+  HostBufferGs hstGs( nevt );
+#else
+  PinnedHostBufferGs hstGs( nevt );
+  DeviceBufferGs devGs( nevt );
+#endif
+
+  // Hardcode Gs for now (eventually they should come from Fortran MadEvent)
+  for( unsigned int i = 0; i < nevt; ++i )
+  {
+    constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
+    hstGs[i] = fixedG;
+    //if ( i > 0 ) hstGs[i] = 0; // try hardcoding G only for event 0
+    //hstGs[i] = i;
+  }
+
   // Memory buffers for momenta
 #ifndef __CUDACC__
   HostBufferMomenta hstMomenta( nevt );
@@ -392,17 +408,17 @@ main( int argc, char** argv )
   if( !bridge )
   {
 #ifdef __CUDACC__
-    pmek.reset( new MatrixElementKernelDevice( devMomenta, devMatrixElements, gpublocks, gputhreads ) );
+    pmek.reset( new MatrixElementKernelDevice( devMomenta, devGs, devMatrixElements, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstMatrixElements, nevt ) );
+    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstMatrixElements, nevt ) );
 #endif
   }
   else
   {
 #ifdef __CUDACC__
-    pmek.reset( new BridgeKernelDevice( hstMomenta, hstMatrixElements, gpublocks, gputhreads ) );
+    pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, hstMatrixElements, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new BridgeKernelHost( hstMomenta, hstMatrixElements, nevt ) );
+    pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstMatrixElements, nevt ) );
 #endif
   }
 
@@ -516,6 +532,13 @@ main( int argc, char** argv )
       timermap.start( tc2fKey );
       dynamic_cast<BridgeKernelBase*>( pmek.get() )->transposeInputMomentaC2F();
     }
+
+#ifdef __CUDACC__
+    // --- 2d. CopyHToD Momenta
+    const std::string gKey = "0.. CpHTDg";
+    rambtime += timermap.start( gKey ); // FIXME! NOT A RAMBO TIMER!
+    copyDeviceFromHost( devGs, hstGs );
+#endif
 
     // --- 0e. SGoodHel
     if( iiter == 0 )
@@ -823,10 +846,10 @@ main( int argc, char** argv )
 #else
               << " [inlineHel=0]"
 #endif
-#ifdef MGONGPU_HARDCODE_CIPC
-              << " [hardcodeCIPC=1]" << std::endl
+#ifdef MGONGPU_HARDCODE_PARAM
+              << " [hardcodePARAM=1]" << std::endl
 #else
-              << " [hardcodeCIPC=0]" << std::endl
+              << " [hardcodePARAM=0]" << std::endl
 #endif
               << "NumBlocksPerGrid            = " << gpublocks << std::endl
               << "NumThreadsPerBlock          = " << gputhreads << std::endl

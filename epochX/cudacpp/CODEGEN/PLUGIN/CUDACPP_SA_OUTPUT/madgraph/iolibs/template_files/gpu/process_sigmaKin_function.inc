@@ -19,9 +19,9 @@
     {
       const int ihel = cGoodHel[ighel];
 #ifdef __CUDACC__
-      calculate_wavefunctions( ihel, allmomenta, allMEs );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
 #else
-      calculate_wavefunctions( ihel, allmomenta, allMEs, nevt );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, nevt );
 #endif
       //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
@@ -39,7 +39,7 @@
       for( int ieppV = 0; ieppV < neppV; ieppV++ )
       {
         allMEs[ipagV * neppV + ieppV] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
-        //printf( "sigmakin: ievt=%%2d me=%%f\n", ipagV * neppV + ieppV, allMEs[ipagV * neppV + ieppV] );
+        //printf( "sigmaKin: ievt=%%2d me=%%f\n", ipagV * neppV + ieppV, allMEs[ipagV * neppV + ieppV] );
       }
     }
 #endif

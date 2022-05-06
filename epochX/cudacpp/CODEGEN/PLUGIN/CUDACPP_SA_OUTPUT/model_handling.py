@@ -184,6 +184,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 type = self.type2def[format]
                 list_arg = ''
             if argname.startswith('COUP'):
+                type = self.type2def['double'] # AV from cxtype_sv to fptype array (running alphas #373)
+                argname = 'all'+argname # AV from cxtype_sv to fptype array (running alphas #373)
+                list_arg = '[]' # AV from cxtype_sv to fptype array (running alphas #373)
                 point = self.type2def['pointer_coup']
                 args.append('%s %s%s%s'% (type, point, argname, list_arg))
             else:
@@ -195,7 +198,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             output = '%(doublec)s allvertexes[]' % {
                 'doublec': self.type2def['double']}
             comment_output = 'amplitude \'vertex\''
-            template = 'template<class W_ACCESS, class A_ACCESS>'
+            template = 'template<class W_ACCESS, class A_ACCESS, class C_ACCESS>'
         else:
             output = '%(doublec)s all%(spin)s%(id)d[]' % {
                      'doublec': self.type2def['double'],
@@ -203,7 +206,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                      'id': self.outgoing}
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
             comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
-            template = 'template<class W_ACCESS>'
+            template = 'template<class W_ACCESS, class C_ACCESS>'
         comment = '// Compute the output %s from the input wavefunctions %s' % ( comment_output, ', '.join(comment_inputs) ) # AV
         indent = ' ' * len( '  %s( ' % name )
         out.write('  %(comment)s\n  %(template)s\n  %(prefix)s void\n  %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
@@ -241,6 +244,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             ###out.write('    %s %s;\n' % ( type, name ) ) # FOR DEBUGGING
             if type.startswith('list'):
                 out.write('    const %s* %s = W_ACCESS::kernelAccessConst( all%s );\n' % ( self.type2def[type[5:]+'_v'], name, name ) )
+            if name.startswith('COUP'): # AV from cxtype_sv to fptype array (running alphas #373)
+                out.write('    const cxtype_sv %s = C_ACCESS::kernelAccessConst( all%s );\n' % ( name, name ) )
         if not self.offshell:
             vname = 'vertex'
             access = 'A_ACCESS'
@@ -724,35 +729,27 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict = self.default_replace_dict
         replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
         replace_dict['model_name'] = self.model_name
-        replace_dict['independent_parameters'] = \
-                                   '// Model parameters independent of aS\n' + \
-                                   self.write_parameters(self.params_indep)
-        # AV swap the order (fix bug https://bugs.launchpad.net/mg5amcnlo/+bug/1959192)
-        ###replace_dict['independent_couplings'] = \
-        ###                           '// Model parameters dependent on aS\n' + \
-        ###                           self.write_parameters(self.params_dep)
-        ###replace_dict['dependent_parameters'] = \
-        ###                           '// Model couplings independent of aS\n' + \
-        ###                           self.write_parameters(self.coups_indep)
+        params_indep = [ line.replace('aS, ','') for line in self.write_parameters(self.params_indep).split('\n') ]
+        replace_dict['independent_parameters'] = '// Model parameters independent of aS\n  //double aS; // now retrieved event-by-event (as G) from Fortran (running alphas #373)\n' + '\n'.join( params_indep )
         replace_dict['independent_couplings'] = \
                                    '// Model couplings independent of aS\n' + \
                                    self.write_parameters(self.coups_indep)
+        params_dep = [ '  //' + line[2:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(self.params_dep).split('\n') ]
         replace_dict['dependent_parameters'] = \
-                                   '// Model parameters dependent on aS\n' + \
-                                   self.write_parameters(self.params_dep)
+                                   '// Model parameters dependent on aS\n' + '\n'.join( params_dep )
+        coups_dep = [ '  //' + line[2:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(list(self.coups_dep.values())).split('\n') ]
         replace_dict['dependent_couplings'] = \
-                                   '// Model couplings dependent on aS\n' + \
-                                   self.write_parameters(list(self.coups_dep.values()))
-        replace_dict['set_independent_parameters'] = \
-                               self.write_set_parameters(self.params_indep)
+                                   '// Model couplings dependent on aS\n' + '\n'.join( coups_dep )
+        set_params_indep = [ line.replace('aS','//aS') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if line.startswith( '  aS =' ) else line for line in self.write_set_parameters(self.params_indep).split('\n') ]
+        replace_dict['set_independent_parameters'] = '\n'.join( set_params_indep )
         replace_dict['set_independent_couplings'] = \
                                self.write_set_parameters(self.coups_indep)
         replace_dict['set_dependent_parameters'] = \
                                self.write_set_parameters(self.params_dep)
         replace_dict['set_dependent_couplings'] = \
                                self.write_set_parameters(list(self.coups_dep.values()))
-        replace_dict['print_independent_parameters'] = \
-                               self.write_print_parameters(self.params_indep)
+        print_params_indep = [ line.replace('std::cout','//std::cout') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if '"aS =' in line else line for line in self.write_print_parameters(self.params_indep).split('\n') ]
+        replace_dict['print_independent_parameters'] = '\n'.join( print_params_indep )
         replace_dict['print_independent_couplings'] = \
                                self.write_print_parameters(self.coups_indep)
         replace_dict['print_dependent_parameters'] = \
@@ -761,14 +758,49 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                                self.write_print_parameters(list(self.coups_dep.values()))
         if 'include_prefix' not in replace_dict:
             replace_dict['include_prefix'] = ''
-        replace_dict['hardcoded_independent_parameters'] = \
-                               self.write_hardcoded_parameters(self.params_indep)
+        hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep).split('\n') ]
+        replace_dict['hardcoded_independent_parameters'] = '\n'.join( hrd_params_indep )
         replace_dict['hardcoded_independent_couplings'] = \
                                self.write_hardcoded_parameters(self.coups_indep)
-        replace_dict['hardcoded_dependent_parameters'] = \
-                               self.write_hardcoded_parameters(self.params_dep)
-        replace_dict['hardcoded_dependent_couplings'] = \
-                               self.write_hardcoded_parameters(list(self.coups_dep.values()))
+        hrd_params_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(self.params_dep).split('\n') ]
+        replace_dict['hardcoded_dependent_parameters'] = '\n'.join( hrd_params_dep )
+        hrd_coups_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') ]
+        replace_dict['hardcoded_dependent_couplings'] = '\n'.join( hrd_coups_dep )
+        replace_dict['nicoup'] = len( self.coups_indep )
+        if len( self.coups_indep ) > 0 :
+            iicoup = [ '  //constexpr size_t ixcoup_%s = %d + Parameters_%s_dependentCouplings::ndcoup; // out of ndcoup+nicoup' % (par.name, id, self.model_name) for (id, par) in enumerate(self.coups_indep) ]
+            replace_dict['iicoup'] = '\n'.join( iicoup )
+        else:
+            replace_dict['iicoup'] = '  // NB: there are no aS-independent couplings in this physics process'
+        replace_dict['ndcoup'] = len( self.coups_dep )
+        if len( self.coups_dep ) > 0 :
+            idcoup = [ '  constexpr size_t idcoup_%s = %d;' % (name, id) for (id, name) in enumerate(self.coups_dep) ]
+            replace_dict['idcoup'] = '\n'.join( idcoup )
+            dcoupdecl = [ '    cxtype_sv %s;' % name for name in self.coups_dep ]
+            replace_dict['dcoupdecl'] = '\n'.join( dcoupdecl )
+            dcoupsetdpar = []
+            foundG = False
+            for line in self.write_hardcoded_parameters(self.params_dep).split('\n'):
+                if line != '':
+                    dcoupsetdpar.append( '  ' + line.replace('constexpr double', 'const fptype_sv' if foundG else '//const fptype_sv' ) )
+                    if 'constexpr double G =' in line: foundG = True
+            replace_dict['dcoupsetdpar'] = '\n'.join( dcoupsetdpar )
+            dcoupsetdcoup = [ '  ' + line.replace('constexpr cxsmpl<double> ','out.').replace('mdl_complexi', 'cxmake( 0., 1. )') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
+            replace_dict['dcoupsetdcoup'] = '  // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?\n  ' + '\n'.join( dcoupsetdcoup )
+            dcoupaccessbuffer = [ '    fptype* %ss = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_%s );'%( name, name ) for name in self.coups_dep ]
+            replace_dict['dcoupaccessbuffer'] = '\n'.join( dcoupaccessbuffer ) + '\n'
+            dcoupkernelaccess = [ '    cxtype_sv_ref %ss_sv = C_ACCESS::kernelAccess( %ss );'%( name, name ) for name in self.coups_dep ]
+            replace_dict['dcoupkernelaccess'] = '\n'.join( dcoupkernelaccess ) + '\n'
+            dcoupcompute = [ '    %ss_sv = couplings_sv.%s;'%( name, name ) for name in self.coups_dep ]
+            replace_dict['dcoupcompute'] = '\n'.join( dcoupcompute )
+        else:
+            replace_dict['idcoup'] = '  // NB: there are no aS-dependent couplings in this physics process'
+            replace_dict['dcoupdecl'] = '    // (none)'
+            replace_dict['dcoupsetdpar'] = '  // (none)'
+            replace_dict['dcoupsetdcoup'] = '  // (none)'
+            replace_dict['dcoupaccessbuffer'] = ''
+            replace_dict['dcoupkernelaccess'] = ''
+            replace_dict['dcoupcompute'] = '    // NB: there are no aS-dependent couplings in this physics process'
         file_h = self.read_template_file(self.param_template_h) % \
                  replace_dict
         file_cc = self.read_template_file(self.param_template_cc) % \
@@ -920,37 +952,73 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         """The complete class definition for the process"""
         replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False) # defines replace_dict['initProc_lines']
         replace_dict['hardcoded_initProc_lines'] = replace_dict['initProc_lines'].replace( 'm_pars->', 'Parameters_%s::' % self.model_name )
-        replace_dict['ncouplings'] = len(self.couplings2order)
-        replace_dict['ncouplingstimes2'] = 2 * replace_dict['ncouplings']
+        couplings2order_indep = []
+        ###replace_dict['ncouplings'] = len(self.couplings2order)
+        ###replace_dict['ncouplingstimes2'] = 2 * replace_dict['ncouplings']
         replace_dict['nparams'] = len(self.params2order)
-        replace_dict['nmodels'] = replace_dict['nparams'] + replace_dict['ncouplings']
+        ###replace_dict['nmodels'] = replace_dict['nparams'] + replace_dict['ncouplings'] # AV unused???
         replace_dict['coupling_list'] = ' '
         replace_dict['hel_amps_cc'] = '#include \"HelAmps_%s.cc\"' % self.model_name # AV
         coupling = [''] * len(self.couplings2order)
         params = [''] * len(self.params2order)
         for coup, pos in self.couplings2order.items():
             coupling[pos] = coup
-        coup_str = 'const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n'\
-            %(len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling))
         for para, pos in self.params2order.items():
             params[pos] = para
-        param_str = '    const fptype tIPD[%s] = { (fptype)m_pars->%s };'\
-            %(len(self.params2order), ', (fptype)m_pars->'.join(params))
-        replace_dict['assign_coupling'] = coup_str + param_str
-        coup_str_hrd = '__device__ const fptype cIPC[%s] = { ' % (len(self.couplings2order)*2)
-        for coup in coupling : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup )
-        coup_str_hrd = coup_str_hrd[:-2] + ' };\n'
-        param_str_hrd = '  __device__ const fptype cIPD[%s] = { ' % len(self.params2order)
-        for para in params : param_str_hrd += '(fptype)Parameters_%s::%s, ' % ( self.model_name, para )
-        param_str_hrd = param_str_hrd[:-2] + ' };'
-        replace_dict['hardcoded_assign_coupling'] = coup_str_hrd + param_str_hrd
+        coupling_indep = [] # AV keep only the alphas-independent couplings #434
+        for coup in coupling:
+            keep = True
+            # Use the same implementation as in UFOModelConverterCPP.prepare_couplings (assume self.model is the same)
+            for key, coup_list in self.model['couplings'].items():
+                if "aS" in key and coup in coup_list: keep = False
+            if keep: coupling_indep.append( coup ) # AV only indep!
+        replace_dict['ncouplings'] = len(coupling_indep) # AV only indep!
+        if len(coupling_indep) > 0:
+            replace_dict['cipcassign'] = 'const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };'\
+                                         %(len(coupling_indep), ' ), cxmake( m_pars->'.join(coupling_indep)) # AV only indep!
+            replace_dict['cipcdevice'] = '__device__ __constant__ fptype cIPC[%i];'%(2*len(coupling_indep))
+            replace_dict['cipcstatic'] = 'static fptype cIPC[%i];'%(2*len(coupling_indep))
+            replace_dict['cipc2tipcSym'] = 'checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, %i * sizeof( cxtype ) ) );'%len(coupling_indep)
+            replace_dict['cipc2tipc'] = 'memcpy( cIPC, tIPC, %i * sizeof( cxtype ) );'%len(coupling_indep)
+            replace_dict['cipcdump'] = '\n    //for ( i=0; i<%i; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;'%len(coupling_indep)
+            coup_str_hrd = '__device__ const fptype cIPC[%s] = { ' % (len(coupling_indep)*2)
+            for coup in coupling_indep : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup ) # AV only indep!
+            coup_str_hrd = coup_str_hrd[:-2] + ' };'
+            replace_dict['cipchrdcod'] = coup_str_hrd
+        else:
+            replace_dict['cipcassign'] = '//const cxtype tIPC[0] = { ... }; // nicoup=0'
+            replace_dict['cipcdevice'] = '__device__ __constant__ fptype* cIPC = nullptr; // unused as nicoup=0'
+            replace_dict['cipcstatic'] = 'static fptype* cIPC = nullptr; // unused as nicoup=0'
+            replace_dict['cipc2tipcSym'] = '//checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, %i * sizeof( cxtype ) ) ); // nicoup=0'%len(coupling_indep)
+            replace_dict['cipc2tipc'] = '//memcpy( cIPC, tIPC, %i * sizeof( cxtype ) ); // nicoup=0'%len(coupling_indep)
+            replace_dict['cipcdump'] = ''
+            replace_dict['cipchrdcod'] = '__device__ const fptype* cIPC = nullptr; // unused as nicoup=0'
+        if len(params) > 0:
+            replace_dict['cipdassign'] = 'const fptype tIPD[%s] = { (fptype)m_pars->%s };'\
+                                         %(len(params), ', (fptype)m_pars->'.join(params))
+            replace_dict['cipddevice'] = '__device__ __constant__ fptype cIPD[%i];'%(len(params))
+            replace_dict['cipdstatic'] = 'static fptype cIPD[%i];'%(len(params))
+            replace_dict['cipd2tipdSym'] = 'checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, %i * sizeof( fptype ) ) );'%len(params)
+            replace_dict['cipd2tipd'] = 'memcpy( cIPD, tIPD, %i * sizeof( fptype ) );'%len(params)
+            replace_dict['cipddump'] = '\n    //for ( i=0; i<%i; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;'%len(params)
+            param_str_hrd = '__device__ const fptype cIPD[%s] = { ' % len(params)
+            for para in params : param_str_hrd += '(fptype)Parameters_%s::%s, ' % ( self.model_name, para )
+            param_str_hrd = param_str_hrd[:-2] + ' };'
+            replace_dict['cipdhrdcod'] = param_str_hrd
+        else:
+            replace_dict['cipdassign'] = '//const fptype tIPD[0] = { ... }; // nparam=0'
+            replace_dict['cipddevice'] = '//__device__ __constant__ fptype* cIPD = nullptr; // unused as nparam=0'
+            replace_dict['cipdstatic'] = '//static fptype* cIPD = nullptr; // unused as nparam=0'
+            replace_dict['cipd2tipdSym'] = '//checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, %i * sizeof( fptype ) ) ); // nparam=0'%len(params)
+            replace_dict['cipd2tipd'] = '//memcpy( cIPD, tIPD, %i * sizeof( fptype ) ); // nparam=0'%len(params)
+            replace_dict['cipddump'] = ''
+            replace_dict['cipdhrdcod'] = '//__device__ const fptype* cIPD = nullptr; // unused as nparam=0'
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
         file = self.read_template_file(self.process_definition_template) % replace_dict # HACK! ignore write=False case
-        if len(self.params2order) == 0: # remove all IPD occurrences (issue #349)
+        if len(params) == 0: # remove cIPD from OpenMP pragma (issue #349)
             file_lines = file.split('\n')
-            file_lines = [l.replace('cIPC,cIPD','cIPC') for l in file_lines] # remove cIPD from OpenMP pragma
-            file_lines = [l for l in file_lines if 'IPD' not in l] # remove all other lines matching IPD
+            file_lines = [l.replace('cIPC, cIPD','cIPC') for l in file_lines] # remove cIPD from OpenMP pragma
             file = '\n'.join( file_lines )
         return file
 
@@ -964,24 +1032,31 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   __device__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
-                           const fptype* allmomenta, // input: momenta[nevt*npar*4]
-                           fptype* allMEs            // output: allMEs[nevt], |M|^2 running_sum_over_helicities
+                           const fptype* allmomenta,   // input: momenta[nevt*npar*4]
+                           const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
+                           fptype* allMEs              // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifndef __CUDACC__
-                           , const int nevt          // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                           , const int nevt            // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
   { /* clang-format on */
 #ifdef __CUDACC__
     using namespace mg5amcGpu;
-    using M_ACCESS = DeviceAccessMomenta;
-    using W_ACCESS = DeviceAccessWavefunctions;
-    using A_ACCESS = DeviceAccessAmplitudes;
+    using M_ACCESS = DeviceAccessMomenta;         // non-trivial access: buffer includes all events
+    using E_ACCESS = DeviceAccessMatrixElements;  // non-trivial access: buffer includes all events
+    using W_ACCESS = DeviceAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #else
     using namespace mg5amcCpu;
-    using M_ACCESS = HostAccessMomenta;
-    using W_ACCESS = HostAccessWavefunctions;
-    using A_ACCESS = HostAccessAmplitudes;
+    using M_ACCESS = HostAccessMomenta;         // non-trivial access: buffer includes all events
+    using E_ACCESS = HostAccessMatrixElements;  // non-trivial access: buffer includes all events
+    using W_ACCESS = HostAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #endif
     mgDebug( 0, __FUNCTION__ );
     //printf( \"calculate_wavefunctions: ihel=%2d\\n\", ihel );
@@ -993,6 +1068,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             ret_lines.append("""
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
+    // ** NB: in other words, amplitudes and wavefunctions still have TRIVIAL ACCESS: there is currently no need
+    // ** NB: to have large memory structurs for wavefunctions/amplitudes fir all events (no kernel splitting yet)!
     //MemoryBufferWavefunctions w_buffer[nwf]{ neppV };
     cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
     cxtype_sv amp_sv[1];      // invariant amplitude for one given Feynman diagram
@@ -1010,9 +1087,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes - Loop over nevt events ===
 #ifndef __CUDACC__
     const int npagV = nevt / neppV;
-#ifdef MGONGPU_CPPSIMD
-    const bool isAligned_allMEs = ( (size_t)( allMEs ) % mgOnGpu::cppAlign == 0 ); // require SIMD-friendly alignment by at least neppV*sizeof(fptype)
-#endif
     // ** START LOOP ON IPAGV **
 #ifdef _OPENMP
     // (NB gcc9 or higher, or clang, is required)
@@ -1020,14 +1094,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
-#ifdef MGONGPU_CPPSIMD
-#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, cIPC, cIPD, ihel, npagV, amp_fp, w_fp, isAligned_allMEs ) private( amp_sv, w_sv, jamp_sv )
-#else
-#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, cIPC, cIPD, ihel, npagV, amp_fp, w_fp ) private( amp_sv, w_sv, jamp_sv )
-#endif
-#endif
+#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, allcouplings, cIPC, cIPD, ihel, npagV, amp_fp, w_fp ) private( amp_sv, w_sv, jamp_sv )
+#endif // _OPENMP
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
-#endif""")
+#endif // !__CUDACC__""")
             ret_lines.append('    {') # NB This is closed in process_matrix.inc
             helas_calls = self.helas_call_writer.get_matrix_element_calls(\
                                                     self.matrix_elements[0],
@@ -1073,6 +1143,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         self.edit_mgonGPU()
         self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
         self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
+        self.edit_memorybuffers() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
+        self.edit_memoryaccesscouplings() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         # Add symbolic links
         files.ln(pjoin(self.path, 'check_sa.cc'), self.path, 'gcheck_sa.cu')
         files.ln(pjoin(self.path, 'CPPProcess.cc'), self.path, 'gCPPProcess.cu')
@@ -1135,6 +1207,28 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict = {}
         replace_dict['model_name'] = self.model_name
         ff = open(pjoin(self.path, '..', 'testxxx.cc'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
+
+    # AV - new method
+    def edit_memorybuffers(self):
+        """Generate MemoryBuffers.h"""
+        misc.sprint('Entering PLUGIN_OneProcessExporter.edit_memorybuffers')
+        template = open(pjoin(self.template_path,'gpu','MemoryBuffers.h'),'r').read()
+        replace_dict = {}
+        replace_dict['model_name'] = self.model_name
+        ff = open(pjoin(self.path, '..', 'MemoryBuffers.h'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
+
+    # AV - new method
+    def edit_memoryaccesscouplings(self):
+        """Generate MemoryAccessCouplings.h"""
+        misc.sprint('Entering PLUGIN_OneProcessExporter.edit_memoryaccesscouplings')
+        template = open(pjoin(self.template_path,'gpu','MemoryAccessCouplings.h'),'r').read()
+        replace_dict = {}
+        replace_dict['model_name'] = self.model_name
+        ff = open(pjoin(self.path, '..', 'MemoryAccessCouplings.h'),'w')
         ff.write(template % replace_dict)
         ff.close()
 
@@ -1310,9 +1404,11 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 call = call.replace('m_pars->%s%s' % (sign, coup),
                                     '%s%s[%s]' % (sign, name, alias[coup]))
             else:
+                ###call = call.replace('m_pars->%s%s' % (sign, coup),
+                ###                    '%scxmake( cIPC[%s], cIPC[%s] )' %
+                ###                    (sign, 2*alias[coup],2*alias[coup]+1))
                 call = call.replace('m_pars->%s%s' % (sign, coup),
-                                    '%scxmake( cIPC[%s], cIPC[%s] )' %
-                                    (sign, 2*alias[coup],2*alias[coup]+1))
+                                    '%sCOUPs[%s]' % (sign, alias[coup])) # AV from cIPCs to COUP array (running alphas #373)
         return call
 
     # AV - new method for formatting wavefunction/amplitude calls
@@ -1343,59 +1439,33 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         matrix_element.reuse_outdated_wavefunctions(me)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
-        res.append("""#ifdef __CUDACC__
-      // CUDA kernels take an input buffer with momenta for all events
-      const fptype* momenta = allmomenta;
-#else
-      // C++ kernels take an input buffer with momenta for one specific event (the first in the current event page)
-      const int ievt0 = ipagV * neppV;
-      const fptype* momenta = MemoryAccessMomenta::ieventAccessRecordConst( allmomenta, ievt0 );
-      /*
-      // --- START debug: printout momenta
-      static int maxihel = -1;
-      static int minihel = -1;
-      if( maxihel >= -1 )
-      {
-        if( ihel > maxihel )
-        {
-          //printf( \"calculate_wavefunctions: ihel=%2d\\n\", ihel );
-          maxihel = ihel;
-        }
-        else if( ihel < maxihel )
-        {
-          printf( \"calculate_wavefunctions: FIRST CALL AFTER HELICITY FILTERING ihel=%2d\\n\", ihel );
-          maxihel = -2;
-          minihel = ihel;
-        }
-      }
-      else // skip printout during the calculation of good helicities
-      {
-        if( ihel == minihel ) // printout momenta only for the first good helicity
-        {
-          for( int ieppV = 0; ieppV < neppV; ieppV++ )
-          {
-            printf( \"calculate_wavefunctions: ievt=%6d ihel=%2d\\n\", ievt0 + ieppV, ihel );
-            for( int ipar = 0; ipar < npar; ipar++ )
-            {
-#ifdef MGONGPU_CPPSIMD
-              printf( \"calculate_wavefunctions: %f %f %f %f\\n\",
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar )[ieppV],
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar )[ieppV],
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar )[ieppV],
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar )[ieppV] );
-#else
-              printf( \"calculate_wavefunctions: %f %f %f %f\\n\",
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar ),
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar ),
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar ),
-                      M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar ) );
+        res.append("""constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings
+      const fptype* allCOUPs[nxcoup];
+#ifdef __CUDACC__
+#pragma nv_diagnostic push
+#pragma nv_diag_suppress 186 // e.g. <<warning #186-D: pointless comparison of unsigned integer with zero>>
 #endif
-            }
-          }
-        }
-      }
-      // --- END debug: printout momenta
-      */
+      for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
+        allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup ); // dependent couplings, vary event-by-event
+      for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
+        allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
+#ifdef __CUDACC__
+#pragma nv_diagnostic pop
+      // CUDA kernels take input/output buffers with momenta/MEs for all events
+      const fptype* momenta = allmomenta;
+      const fptype* COUPs[nxcoup];
+      for( size_t ixcoup = 0; ixcoup < nxcoup; ixcoup++ ) COUPs[ixcoup] = allCOUPs[ixcoup];
+      fptype* MEs = allMEs;
+#else
+      // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
+      const int ievt0 = ipagV * neppV;
+      const fptype* momenta = M_ACCESS::ieventAccessRecordConst( allmomenta, ievt0 );
+      const fptype* COUPs[nxcoup];
+      for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
+        COUPs[idcoup] = CD_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 ); // dependent couplings, vary event-by-event
+      for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
+        COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
+      fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
 #endif
 
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
@@ -1599,8 +1669,26 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                    'wf': ('w_fp[%%(%d)d], ' * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))),
                    'coup': ('m_pars->%%(coup%d)s, ' * len(argument.get('coupling'))) % tuple(range(len(argument.get('coupling'))))
                    }
-            if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS>'
-            else : arg['routine_name'] += '<W_ACCESS>'
+            # AV FOR PR #434: determine if this call needs aS-dependent or aS-independent parameters
+            usesdepcoupl = None
+            for coup in argument.get('coupling'):
+                # Use the same implementation as in UFOModelConverterCPP.prepare_couplings (assume self.model is the same)
+                for key, coup_list in self.get('model')['couplings'].items():
+                    if coup in coup_list:
+                        if "aS" in key:
+                            if usesdepcoupl is None: usesdepcoupl = True
+                            elif not usesdepcoupl: raise "PANIC! this call seems to use both aS-dependent and aS-independent couplings?"
+                        else:
+                            if usesdepcoupl is None: usesdepcoupl = False
+                            elif usesdepcoupl: raise "PANIC! this call seems to use both aS-dependent and aS-independent couplings?"
+            # AV FOR PR #434: CI_ACCESS for independent couplings and CD_ACCESS for dependent couplings
+            if usesdepcoupl is None: raise "PANIC! could not determine if this call uses aS-dependent or aS-independent couplings?"
+            elif usesdepcoupl: caccess = 'CD_ACCESS'
+            else: caccess = 'CI_ACCESS'
+            ###if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, C_ACCESS>'
+            ###else : arg['routine_name'] += '<W_ACCESS, C_ACCESS>'
+            if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, %s>'%caccess
+            else : arg['routine_name'] += '<W_ACCESS, %s>'%caccess
             if isinstance(argument, helas_objects.HelasWavefunction):
                 #arg['out'] = 'w_sv[%(out)d]'
                 arg['out'] = 'w_fp[%(out)d]'
