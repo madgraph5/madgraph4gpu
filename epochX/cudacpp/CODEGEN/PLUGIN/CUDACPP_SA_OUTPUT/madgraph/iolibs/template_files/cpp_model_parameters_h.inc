@@ -138,15 +138,22 @@ private:
 namespace Parameters_%(model_name)s // keep the same name rather than HardcodedParameters_%(model_name)s for simplicity
 {
   // Constexpr implementation of sqrt (see https://stackoverflow.com/a/34134071)
-  double constexpr detailSqrtNewtonRaphson( double x, double curr, double prev )
+  double constexpr sqrtNewtonRaphson( double x, double curr, double prev )
   {
-    return curr == prev ? curr : detailSqrtNewtonRaphson( x, 0.5 * ( curr + x / curr ), curr );
+    return curr == prev ? curr : sqrtNewtonRaphson( x, 0.5 * ( curr + x / curr ), curr );
   }
-  double constexpr sqrtNR( double x )
+  double constexpr constexpr_sqrt( double x )
   {
     return x >= 0 // && x < std::numeric_limits<double>::infinity() // avoid -Wtautological-constant-compare warning in fast math
-      ? detailSqrtNewtonRaphson( x, x, 0 )
+      ? sqrtNewtonRaphson( x, x, 0 )
       : std::numeric_limits<double>::quiet_NaN();
+  }
+
+  // Constexpr implementation of pow
+  template<typename T>
+  constexpr T constexpr_pow( T base, unsigned int iexp )
+  {
+    return iexp == 0 ? 1 : base * constexpr_pow( base, iexp - 1 );
   }
 
   // Model parameters independent of aS
