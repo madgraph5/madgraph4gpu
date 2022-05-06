@@ -138,14 +138,11 @@ operator*( const FP& a, const cxsmpl<FP>& b )
   return cxsmpl<FP>( a, 0 ) * b;
 }
 
-#if defined MGONGPU_FPTYPE_FLOAT
-template<typename FP>
-inline __host__ __device__ constexpr cxsmpl<FP>
-operator*( const double& a, const cxsmpl<FP>& b )
+inline __host__ __device__ constexpr cxsmpl<float>
+operator*( const double& a, const cxsmpl<float>& b )
 {
-  return cxsmpl<FP>( a, 0 ) * b;
+  return cxsmpl<float>( a, 0 ) * b;
 }
-#endif
 
 template<typename FP>
 inline __host__ __device__ constexpr cxsmpl<FP>
