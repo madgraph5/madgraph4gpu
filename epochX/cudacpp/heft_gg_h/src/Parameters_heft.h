@@ -220,6 +220,9 @@ namespace Parameters_heft_dependentCouplings
 #endif
   __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G )
   {
+#ifdef MGONGPU_HARDCODE_PARAM
+    using namespace Parameters_heft;
+#endif
     // Model parameters dependent on aS
     //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
     //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
