@@ -84,6 +84,13 @@ namespace Parameters_heft // keep the same name rather than HardcodedParameters_
       : std::numeric_limits<double>::quiet_NaN();
   }
 
+  // Constexpr implementation of pow
+  template <typename T>
+  constexpr T constexpr_pow( T base, unsigned int iexp )
+  {
+    return iexp == 0 ? 1 : base * constexpr_pow( base, iexp - 1 );
+  }
+
   // Model parameters independent of aS
   constexpr double zero = 0;
   constexpr double ZERO = 0;
@@ -113,11 +120,11 @@ namespace Parameters_heft // keep the same name rather than HardcodedParameters_
   constexpr double mdl_MT__exp__4 = ( ( mdl_MT ) * ( mdl_MT ) * ( mdl_MT ) * ( mdl_MT ) );
   constexpr double mdl_MH__exp__2 = ( ( mdl_MH ) * ( mdl_MH ) );
   constexpr double mdl_MT__exp__2 = ( ( mdl_MT ) * ( mdl_MT ) );
-  constexpr double mdl_MH__exp__12 = pow( mdl_MH, 12. );
-  constexpr double mdl_MH__exp__10 = pow( mdl_MH, 10. );
-  constexpr double mdl_MH__exp__8 = pow( mdl_MH, 8. );
-  constexpr double mdl_MH__exp__6 = pow( mdl_MH, 6. );
-  constexpr double mdl_MT__exp__6 = pow( mdl_MT, 6. );
+  constexpr double mdl_MH__exp__12 = constexpr_pow( mdl_MH, 12 );
+  constexpr double mdl_MH__exp__10 = constexpr_pow( mdl_MH, 10 );
+  constexpr double mdl_MH__exp__8 = constexpr_pow( mdl_MH, 8 );
+  constexpr double mdl_MH__exp__6 = constexpr_pow( mdl_MH, 6 );
+  constexpr double mdl_MT__exp__6 = constexpr_pow( mdl_MT, 6 );
   constexpr double mdl_aEW = 1. / aEWM1;
   constexpr double mdl_MW = sqrtNR( mdl_MZ__exp__2 / 2. + sqrtNR( mdl_MZ__exp__4 / 4. - ( mdl_aEW * M_PI * mdl_MZ__exp__2 ) / ( mdl_Gf * mdl_sqrt__2 ) ) );
   constexpr double mdl_sqrt__aEW = sqrtNR( mdl_aEW );
@@ -131,10 +138,10 @@ namespace Parameters_heft // keep the same name rather than HardcodedParameters_
   constexpr double mdl_gw = mdl_ee / mdl_sw;
   constexpr double mdl_v = ( 2. * mdl_MW * mdl_sw ) / mdl_ee;
   constexpr double mdl_ee__exp__2 = ( ( mdl_ee ) * ( mdl_ee ) );
-  constexpr double mdl_MW__exp__12 = pow( mdl_MW, 12. );
-  constexpr double mdl_MW__exp__10 = pow( mdl_MW, 10. );
-  constexpr double mdl_MW__exp__8 = pow( mdl_MW, 8. );
-  constexpr double mdl_MW__exp__6 = pow( mdl_MW, 6. );
+  constexpr double mdl_MW__exp__12 = constexpr_pow( mdl_MW, 12 );
+  constexpr double mdl_MW__exp__10 = constexpr_pow( mdl_MW, 10 );
+  constexpr double mdl_MW__exp__8 = constexpr_pow( mdl_MW, 8 );
+  constexpr double mdl_MW__exp__6 = constexpr_pow( mdl_MW, 6 );
   constexpr double mdl_MW__exp__4 = ( ( mdl_MW ) * ( mdl_MW ) * ( mdl_MW ) * ( mdl_MW ) );
   constexpr double mdl_AH = ( 47. * mdl_ee__exp__2 * ( 1. - ( 2. * mdl_MH__exp__4 ) / ( 987. * mdl_MT__exp__4 ) - ( 14. * mdl_MH__exp__2 ) / ( 705. * mdl_MT__exp__2 ) + ( 213. * mdl_MH__exp__12 ) / ( 2.634632e7 * mdl_MW__exp__12 ) + ( 5. * mdl_MH__exp__10 ) / ( 119756. * mdl_MW__exp__10 ) + ( 41. * mdl_MH__exp__8 ) / ( 180950. * mdl_MW__exp__8 ) + ( 87. * mdl_MH__exp__6 ) / ( 65800. * mdl_MW__exp__6 ) + ( 57. * mdl_MH__exp__4 ) / ( 6580. * mdl_MW__exp__4 ) + ( 33. * mdl_MH__exp__2 ) / ( 470. * mdl_MW__exp__2 ) ) ) / ( 72. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
   constexpr double mdl_v__exp__2 = ( ( mdl_v ) * ( mdl_v ) );
