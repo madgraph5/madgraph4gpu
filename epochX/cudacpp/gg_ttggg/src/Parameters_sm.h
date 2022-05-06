@@ -15,90 +15,6 @@
 
 //==========================================================================
 
-namespace Parameters_sm_dependentCouplings
-{
-  constexpr size_t ndcoup = 3; // #couplings that vary event by event because they depend on the running alphas QCD
-  constexpr size_t idcoup_GC_10 = 0;
-  constexpr size_t idcoup_GC_11 = 1;
-  constexpr size_t idcoup_GC_12 = 2;
-  struct DependentCouplings_sv
-  {
-    cxtype_sv GC_10;
-    cxtype_sv GC_11;
-    cxtype_sv GC_12;
-  };
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-variable"  // e.g. <<warning: unused variable ‘mdl_G__exp__2’ [-Wunused-variable]>>
-#pragma GCC diagnostic ignored "-Wunused-parameter" // e.g. <<warning: unused parameter ‘G’ [-Wunused-parameter]>>
-#ifdef __CUDACC__
-#pragma nv_diagnostic push
-#pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
-#endif
-  __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G )
-  {
-    // Model parameters dependent on aS
-    //const fptype_sv mdl_sqrt__aS = sqrtNR( aS );
-    //const fptype_sv G = 2. * mdl_sqrt__aS * sqrtNR( M_PI );
-    const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
-    // Model couplings dependent on aS
-    DependentCouplings_sv out;
-    // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
-    out.GC_10 = -G;
-    out.GC_11 = cxmake( 0., 1. ) * G;
-    out.GC_12 = cxmake( 0., 1. ) * mdl_G__exp__2;
-    return out;
-  }
-#ifdef __CUDACC__
-#pragma GCC diagnostic pop
-#pragma nv_diagnostic pop
-#endif
-}
-
-//==========================================================================
-
-namespace Parameters_sm_independentCouplings
-{
-  constexpr size_t nicoup = 0; // #couplings that are fixed for all events because they do not depend on the running alphas QCD
-  // NB: there are no aS-independent couplings in this physics process
-}
-
-//==========================================================================
-
-#ifdef __CUDACC__
-namespace mg5amcGpu
-#else
-namespace mg5amcCpu
-#endif
-{
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable" // e.g. <<warning: variable ‘couplings_sv’ set but not used [-Wunused-but-set-variable]>>
-  // Compute the output couplings (e.g. gc10 and gc11) from the input gs
-  template<class G_ACCESS, class C_ACCESS>
-  __device__ inline void
-  G2COUP( const fptype gs[],
-          fptype couplings[] )
-  {
-    mgDebug( 0, __FUNCTION__ );
-    using namespace Parameters_sm_dependentCouplings;
-    const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
-    DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
-    fptype* GC_10s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_10 );
-    fptype* GC_11s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_11 );
-    fptype* GC_12s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_12 );
-    cxtype_sv_ref GC_10s_sv = C_ACCESS::kernelAccess( GC_10s );
-    cxtype_sv_ref GC_11s_sv = C_ACCESS::kernelAccess( GC_11s );
-    cxtype_sv_ref GC_12s_sv = C_ACCESS::kernelAccess( GC_12s );
-    GC_10s_sv = couplings_sv.GC_10;
-    GC_11s_sv = couplings_sv.GC_11;
-    GC_12s_sv = couplings_sv.GC_12;
-    mgDebug( 1, __FUNCTION__ );
-    return;
-  }
-#pragma GCC diagnostic pop
-}
-
-//==========================================================================
-
 #ifndef MGONGPU_HARDCODE_PARAM
 
 #include "read_slha.h"
@@ -157,21 +73,41 @@ private:
 
 #else
 
+#include <cassert>
 #include <limits>
 
 // Hardcoded constexpr physics parameters
 namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm for simplicity
 {
   // Constexpr implementation of sqrt (see https://stackoverflow.com/a/34134071)
-  double constexpr detailSqrtNewtonRaphson( double x, double curr, double prev )
+  double constexpr sqrtNewtonRaphson( double x, double curr, double prev )
   {
-    return curr == prev ? curr : detailSqrtNewtonRaphson( x, 0.5 * ( curr + x / curr ), curr );
+    return curr == prev ? curr : sqrtNewtonRaphson( x, 0.5 * ( curr + x / curr ), curr );
   }
-  double constexpr sqrtNR( double x )
+  double constexpr constexpr_sqrt( double x )
   {
     return x >= 0 // && x < std::numeric_limits<double>::infinity() // avoid -Wtautological-constant-compare warning in fast math
-      ? detailSqrtNewtonRaphson( x, x, 0 )
+      ? sqrtNewtonRaphson( x, x, 0 )
       : std::numeric_limits<double>::quiet_NaN();
+  }
+
+  // Constexpr implementation of floor (see https://stackoverflow.com/a/66146159)
+  constexpr int constexpr_floor( double d )
+  {
+    const int i = static_cast<int>( d );
+    return d < i ? i - 1 : i;
+  }
+
+  // Constexpr implementation of pow
+  constexpr double constexpr_pow( double base, double exp )
+  {
+    // NB(1): this implementation of constexpr_pow requires exponent >= 0
+    assert( exp >= 0 ); // NB would fail at compile time with "error: call to non-‘constexpr’ function ‘void __assert_fail'"
+    // NB(2): this implementation of constexpr_pow requires an integer exponent
+    const int iexp = constexpr_floor( exp );
+    assert( static_cast<double>( iexp ) == exp ); // NB would fail at compile time with "error: call to non-‘constexpr’ function ‘void __assert_fail'"
+    // Iterative implementation of pow if exp is a non negative integer
+    return iexp == 0 ? 1 : base * constexpr_pow( base, iexp - 1 );
   }
 
   // Model parameters independent of aS
@@ -198,16 +134,16 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   constexpr cxsmpl<double> mdl_complexi = cxsmpl<double>( 0., 1. );
   constexpr double mdl_MZ__exp__2 = ( ( mdl_MZ ) * ( mdl_MZ ) );
   constexpr double mdl_MZ__exp__4 = ( ( mdl_MZ ) * ( mdl_MZ ) * ( mdl_MZ ) * ( mdl_MZ ) );
-  constexpr double mdl_sqrt__2 = sqrtNR( 2. );
+  constexpr double mdl_sqrt__2 = constexpr_sqrt( 2. );
   constexpr double mdl_MH__exp__2 = ( ( mdl_MH ) * ( mdl_MH ) );
   constexpr double mdl_aEW = 1. / aEWM1;
-  constexpr double mdl_MW = sqrtNR( mdl_MZ__exp__2 / 2. + sqrtNR( mdl_MZ__exp__4 / 4. - ( mdl_aEW * M_PI * mdl_MZ__exp__2 ) / ( mdl_Gf * mdl_sqrt__2 ) ) );
-  constexpr double mdl_sqrt__aEW = sqrtNR( mdl_aEW );
-  constexpr double mdl_ee = 2. * mdl_sqrt__aEW * sqrtNR( M_PI );
+  constexpr double mdl_MW = constexpr_sqrt( mdl_MZ__exp__2 / 2. + constexpr_sqrt( mdl_MZ__exp__4 / 4. - ( mdl_aEW * M_PI * mdl_MZ__exp__2 ) / ( mdl_Gf * mdl_sqrt__2 ) ) );
+  constexpr double mdl_sqrt__aEW = constexpr_sqrt( mdl_aEW );
+  constexpr double mdl_ee = 2. * mdl_sqrt__aEW * constexpr_sqrt( M_PI );
   constexpr double mdl_MW__exp__2 = ( ( mdl_MW ) * ( mdl_MW ) );
   constexpr double mdl_sw2 = 1. - mdl_MW__exp__2 / mdl_MZ__exp__2;
-  constexpr double mdl_cw = sqrtNR( 1. - mdl_sw2 );
-  constexpr double mdl_sqrt__sw2 = sqrtNR( mdl_sw2 );
+  constexpr double mdl_cw = constexpr_sqrt( 1. - mdl_sw2 );
+  constexpr double mdl_sqrt__sw2 = constexpr_sqrt( mdl_sw2 );
   constexpr double mdl_sw = mdl_sqrt__sw2;
   constexpr double mdl_g1 = mdl_ee / mdl_cw;
   constexpr double mdl_gw = mdl_ee / mdl_sw;
@@ -217,7 +153,7 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   constexpr double mdl_yb = ( mdl_ymb * mdl_sqrt__2 ) / mdl_vev;
   constexpr double mdl_yt = ( mdl_ymt * mdl_sqrt__2 ) / mdl_vev;
   constexpr double mdl_ytau = ( mdl_ymtau * mdl_sqrt__2 ) / mdl_vev;
-  constexpr double mdl_muH = sqrtNR( mdl_lam * mdl_vev__exp__2 );
+  constexpr double mdl_muH = constexpr_sqrt( mdl_lam * mdl_vev__exp__2 );
   constexpr cxsmpl<double> mdl_I1x33 = mdl_yb * mdl_conjg__CKM3x3;
   constexpr cxsmpl<double> mdl_I2x33 = mdl_yt * mdl_conjg__CKM3x3;
   constexpr cxsmpl<double> mdl_I3x33 = mdl_CKM3x3 * mdl_yt;
@@ -230,8 +166,8 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
   // (none)
 
   // Model parameters dependent on aS
-  //constexpr double mdl_sqrt__aS = sqrtNR( aS ); // now computed event-by-event (running alphas #373)
-  //constexpr double G = 2. * mdl_sqrt__aS * sqrtNR( M_PI ); // now computed event-by-event (running alphas #373)
+  //constexpr double mdl_sqrt__aS = //constexpr_sqrt( aS ); // now computed event-by-event (running alphas #373)
+  //constexpr double G = 2. * mdl_sqrt__aS * //constexpr_sqrt( M_PI ); // now computed event-by-event (running alphas #373)
   //constexpr double mdl_G__exp__2 = ( ( G ) * ( G ) ); // now computed event-by-event (running alphas #373)
 
   // Model couplings dependent on aS
@@ -253,6 +189,93 @@ namespace Parameters_sm // keep the same name rather than HardcodedParameters_sm
 }
 
 #endif
+
+//==========================================================================
+
+namespace Parameters_sm_dependentCouplings
+{
+  constexpr size_t ndcoup = 3; // #couplings that vary event by event because they depend on the running alphas QCD
+  constexpr size_t idcoup_GC_10 = 0;
+  constexpr size_t idcoup_GC_11 = 1;
+  constexpr size_t idcoup_GC_12 = 2;
+  struct DependentCouplings_sv
+  {
+    cxtype_sv GC_10;
+    cxtype_sv GC_11;
+    cxtype_sv GC_12;
+  };
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"  // e.g. <<warning: unused variable ‘mdl_G__exp__2’ [-Wunused-variable]>>
+#pragma GCC diagnostic ignored "-Wunused-parameter" // e.g. <<warning: unused parameter ‘G’ [-Wunused-parameter]>>
+#ifdef __CUDACC__
+#pragma nv_diagnostic push
+#pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
+#endif
+  __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G )
+  {
+#ifdef MGONGPU_HARDCODE_PARAM
+    using namespace Parameters_heft;
+#endif
+    // Model parameters dependent on aS
+    //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
+    //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
+    const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
+    // Model couplings dependent on aS
+    DependentCouplings_sv out;
+    // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
+    out.GC_10 = -G;
+    out.GC_11 = cxmake( 0., 1. ) * G;
+    out.GC_12 = cxmake( 0., 1. ) * mdl_G__exp__2;
+    return out;
+  }
+#ifdef __CUDACC__
+#pragma GCC diagnostic pop
+#pragma nv_diagnostic pop
+#endif
+}
+
+//==========================================================================
+
+namespace Parameters_sm_independentCouplings
+{
+  constexpr size_t nicoup = 0; // #couplings that are fixed for all events because they do not depend on the running alphas QCD
+  // NB: there are no aS-independent couplings in this physics process
+}
+
+//==========================================================================
+
+#ifdef __CUDACC__
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
+{
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" // e.g. <<warning: variable ‘couplings_sv’ set but not used [-Wunused-but-set-variable]>>
+  // Compute the output couplings (e.g. gc10 and gc11) from the input gs
+  template<class G_ACCESS, class C_ACCESS>
+  __device__ inline void
+  G2COUP( const fptype gs[],
+          fptype couplings[] )
+  {
+    mgDebug( 0, __FUNCTION__ );
+    using namespace Parameters_sm_dependentCouplings;
+    const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
+    DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
+    fptype* GC_10s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_10 );
+    fptype* GC_11s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_11 );
+    fptype* GC_12s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_12 );
+    cxtype_sv_ref GC_10s_sv = C_ACCESS::kernelAccess( GC_10s );
+    cxtype_sv_ref GC_11s_sv = C_ACCESS::kernelAccess( GC_11s );
+    cxtype_sv_ref GC_12s_sv = C_ACCESS::kernelAccess( GC_12s );
+    GC_10s_sv = couplings_sv.GC_10;
+    GC_11s_sv = couplings_sv.GC_11;
+    GC_12s_sv = couplings_sv.GC_12;
+    mgDebug( 1, __FUNCTION__ );
+    return;
+  }
+#pragma GCC diagnostic pop
+}
 
 //==========================================================================
 
