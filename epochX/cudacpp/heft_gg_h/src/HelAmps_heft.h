@@ -12,6 +12,8 @@
 
 #include "mgOnGpuVectors.h"
 
+#include "Parameters_heft.h"
+
 //#include <cmath>
 //#include <cstdlib>
 //#include <iomanip>
@@ -787,29 +789,30 @@ namespace mg5amcCpu
   //==========================================================================
 
   // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], V2[6], S3[6]
-  template<class W_ACCESS, class A_ACCESS>
+  template<class W_ACCESS, class A_ACCESS, class C_ACCESS>
   __device__ INLINE void
   VVS3_0( const fptype allV1[],
           const fptype allV2[],
           const fptype allS3[],
-          const cxtype COUP,
+          const fptype allCOUP[],
           fptype allvertexes[] ) ALWAYS_INLINE;
 
   //==========================================================================
 
   // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], V2[6], S3[6]
-  template<class W_ACCESS, class A_ACCESS>
+  template<class W_ACCESS, class A_ACCESS, class C_ACCESS>
   __device__ void
   VVS3_0( const fptype allV1[],
           const fptype allV2[],
           const fptype allS3[],
-          const cxtype COUP,
+          const fptype allCOUP[],
           fptype allvertexes[] )
   {
     mgDebug( 0, __FUNCTION__ );
     const cxtype_sv* V1 = W_ACCESS::kernelAccessConst( allV1 );
     const cxtype_sv* V2 = W_ACCESS::kernelAccessConst( allV2 );
     const cxtype_sv* S3 = W_ACCESS::kernelAccessConst( allS3 );
+    const cxtype_sv COUP = C_ACCESS::kernelAccessConst( allCOUP );
     cxtype_sv* vertex = A_ACCESS::kernelAccess( allvertexes );
     const cxtype cI = cxmake( 0., 1. );
     const fptype_sv P1[4] = { +cxreal( V1[0] ), +cxreal( V1[1] ), +cximag( V1[1] ), +cximag( V1[0] ) };

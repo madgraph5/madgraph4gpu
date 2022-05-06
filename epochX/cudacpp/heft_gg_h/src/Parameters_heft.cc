@@ -10,7 +10,7 @@
 #include <iomanip>
 #include <iostream>
 
-#ifndef MGONGPU_HARDCODE_CIPC
+#ifndef MGONGPU_HARDCODE_PARAM
 
 // Initialize static instance
 Parameters_heft* Parameters_heft::instance = 0;
@@ -38,7 +38,7 @@ Parameters_heft::setIndependentParameters( SLHAReader& slha )
   mdl_ymtau = slha.get_block_entry( "yukawa", 15, 1.777000e+00 );
   mdl_ymt = slha.get_block_entry( "yukawa", 6, 1.645000e+02 );
   mdl_ymb = slha.get_block_entry( "yukawa", 5, 4.200000e+00 );
-  aS = slha.get_block_entry( "sminputs", 3, 1.180000e-01 );
+  //aS = slha.get_block_entry( "sminputs", 3, 1.180000e-01 ); // now retrieved event-by-event (as G) from Fortran (running alphas #373)
   mdl_Gf = slha.get_block_entry( "sminputs", 2, 1.166390e-05 );
   aEWM1 = slha.get_block_entry( "sminputs", 1, 1.325070e+02 );
   mdl_MP = slha.get_block_entry( "mass", 9000006, 1.250001e+02 );
@@ -97,8 +97,9 @@ Parameters_heft::setIndependentCouplings()
   // (none)
 }
 
+/*
 void
-Parameters_heft::setDependentParameters()
+Parameters_heft::setDependentParameters() // now computed event-by-event (running alphas #373)
 {
   mdl_sqrt__aS = sqrt( aS );
   G = 2. * mdl_sqrt__aS * sqrt( M_PI );
@@ -108,10 +109,11 @@ Parameters_heft::setDependentParameters()
 }
 
 void
-Parameters_heft::setDependentCouplings()
+Parameters_heft::setDependentCouplings() // now computed event-by-event (running alphas #373)
 {
   GC_13 = -( mdl_complexi * mdl_GH );
 }
+*/
 
 #endif
 
@@ -120,6 +122,7 @@ void
 Parameters_heft::printIndependentParameters()
 {
   std::cout << "heft model parameters independent of event kinematics:" << std::endl;
+  std::cout << "(Warning: aS in the runcard is ignored because event-by-event Gs are hardcoded or retrieved from Fortran)" << std::endl;
   std::cout << std::setw( 20 ) << "mdl_WH1 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_WH1 << std::endl;
   std::cout << std::setw( 20 ) << "mdl_WH = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_WH << std::endl;
   std::cout << std::setw( 20 ) << "mdl_WW = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_WW << std::endl;
@@ -128,7 +131,7 @@ Parameters_heft::printIndependentParameters()
   std::cout << std::setw( 20 ) << "mdl_ymtau = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_ymtau << std::endl;
   std::cout << std::setw( 20 ) << "mdl_ymt = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_ymt << std::endl;
   std::cout << std::setw( 20 ) << "mdl_ymb = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_ymb << std::endl;
-  std::cout << std::setw( 20 ) << "aS = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << aS << std::endl;
+  //std::cout << std::setw( 20 ) << "aS = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << aS << std::endl; // now retrieved event-by-event (as G) from Fortran (running alphas #373)
   std::cout << std::setw( 20 ) << "mdl_Gf = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_Gf << std::endl;
   std::cout << std::setw( 20 ) << "aEWM1 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << aEWM1 << std::endl;
   std::cout << std::setw( 20 ) << "mdl_MP = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_MP << std::endl;
@@ -188,8 +191,9 @@ Parameters_heft::printIndependentCouplings()
   // (none)
 }
 
+/*
 void
-Parameters_heft::printDependentParameters()
+Parameters_heft::printDependentParameters() // now computed event-by-event (running alphas #373)
 {
   std::cout << "heft model parameters dependent on event kinematics:" << std::endl;
   std::cout << std::setw( 20 ) << "mdl_sqrt__aS = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_sqrt__aS << std::endl;
@@ -200,8 +204,9 @@ Parameters_heft::printDependentParameters()
 }
 
 void
-Parameters_heft::printDependentCouplings()
+Parameters_heft::printDependentCouplings() // now computed event-by-event (running alphas #373)
 {
   std::cout << "heft model couplings dependent on event kinematics:" << std::endl;
   std::cout << std::setw( 20 ) << "GC_13 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << GC_13 << std::endl;
 }
+*/

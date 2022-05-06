@@ -8,9 +8,88 @@
 #ifndef Parameters_heft_H
 #define Parameters_heft_H
 
-#include "mgOnGpuCxtypes.h"
+#include "mgOnGpuConfig.h"
 
-#ifndef MGONGPU_HARDCODE_CIPC
+#include "mgOnGpuCxtypes.h"
+#include "mgOnGpuVectors.h"
+
+//==========================================================================
+
+namespace Parameters_heft_dependentCouplings
+{
+  constexpr size_t ndcoup = 1; // #couplings that vary event by event because they depend on the running alphas QCD
+  constexpr size_t idcoup_GC_13 = 0;
+  struct DependentCouplings_sv
+  {
+    cxtype_sv GC_13;
+  };
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"  // e.g. <<warning: unused variable ‘mdl_G__exp__2’ [-Wunused-variable]>>
+#pragma GCC diagnostic ignored "-Wunused-parameter" // e.g. <<warning: unused parameter ‘G’ [-Wunused-parameter]>>
+#ifdef __CUDACC__
+#pragma nv_diagnostic push
+#pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
+#endif
+  __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G )
+  {
+    // Model parameters dependent on aS
+    //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
+    //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
+    const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
+    const fptype_sv mdl_GH = -( mdl_G__exp__2 * ( 1. + ( 13. * mdl_MH__exp__6 ) / ( 16800. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 168. * mdl_MT__exp__4 ) + ( 7. * mdl_MH__exp__2 ) / ( 120. * mdl_MT__exp__2 ) ) ) / ( 12. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
+    const fptype_sv mdl_Gphi = -( mdl_G__exp__2 * ( 1. + mdl_MH__exp__6 / ( 560. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 90. * mdl_MT__exp__4 ) + mdl_MH__exp__2 / ( 12. * mdl_MT__exp__2 ) ) ) / ( 8. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
+    // Model couplings dependent on aS
+    DependentCouplings_sv out;
+    // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
+    out.GC_13 = -( cxmake( 0., 1. ) * mdl_GH );
+    return out;
+  }
+#ifdef __CUDACC__
+#pragma GCC diagnostic pop
+#pragma nv_diagnostic pop
+#endif
+}
+
+//==========================================================================
+
+namespace Parameters_heft_independentCouplings
+{
+  constexpr size_t nicoup = 0; // #couplings that are fixed for all events because they do not depend on the running alphas QCD
+  // NB: there are no aS-independent couplings in this physics process
+}
+
+//==========================================================================
+
+#ifdef __CUDACC__
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
+{
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable" // e.g. <<warning: variable ‘couplings_sv’ set but not used [-Wunused-but-set-variable]>>
+  // Compute the output couplings (e.g. gc10 and gc11) from the input gs
+  template<class G_ACCESS, class C_ACCESS>
+  __device__ inline void
+  G2COUP( const fptype gs[],
+          fptype couplings[] )
+  {
+    mgDebug( 0, __FUNCTION__ );
+    using namespace Parameters_heft_dependentCouplings;
+    const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
+    DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv );
+    fptype* GC_13s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_13 );
+    cxtype_sv_ref GC_13s_sv = C_ACCESS::kernelAccess( GC_13s );
+    GC_13s_sv = couplings_sv.GC_13;
+    mgDebug( 1, __FUNCTION__ );
+    return;
+  }
+#pragma GCC diagnostic pop
+}
+
+//==========================================================================
+
+#ifndef MGONGPU_HARDCODE_PARAM
 
 #include "read_slha.h"
 
@@ -24,17 +103,18 @@ public:
   double zero, ZERO;
 
   // Model parameters independent of aS
-  double mdl_WH1, mdl_WH, mdl_WW, mdl_WZ, mdl_WT, mdl_ymtau, mdl_ymt, mdl_ymb, aS, mdl_Gf, aEWM1, mdl_MP, mdl_MH, mdl_MZ, mdl_MTA, mdl_MT, mdl_MB, mdl_conjg__CKM3x3, mdl_MZ__exp__2, mdl_MZ__exp__4, mdl_sqrt__2, mdl_MH__exp__4, mdl_MT__exp__4, mdl_MH__exp__2, mdl_MT__exp__2, mdl_MH__exp__12, mdl_MH__exp__10, mdl_MH__exp__8, mdl_MH__exp__6, mdl_MT__exp__6, mdl_aEW, mdl_MW, mdl_sqrt__aEW, mdl_ee, mdl_MW__exp__2, mdl_sw2, mdl_cw, mdl_sqrt__sw2, mdl_sw, mdl_g1, mdl_gw, mdl_v, mdl_ee__exp__2, mdl_MW__exp__12, mdl_MW__exp__10, mdl_MW__exp__8, mdl_MW__exp__6, mdl_MW__exp__4, mdl_AH, mdl_v__exp__2, mdl_lam, mdl_yb, mdl_yt, mdl_ytau, mdl_muH, mdl_gw__exp__2, mdl_cw__exp__2, mdl_sw__exp__2;
+  //double aS; // now retrieved event-by-event (as G) from Fortran (running alphas #373)
+  double mdl_WH1, mdl_WH, mdl_WW, mdl_WZ, mdl_WT, mdl_ymtau, mdl_ymt, mdl_ymb, mdl_Gf, aEWM1, mdl_MP, mdl_MH, mdl_MZ, mdl_MTA, mdl_MT, mdl_MB, mdl_conjg__CKM3x3, mdl_MZ__exp__2, mdl_MZ__exp__4, mdl_sqrt__2, mdl_MH__exp__4, mdl_MT__exp__4, mdl_MH__exp__2, mdl_MT__exp__2, mdl_MH__exp__12, mdl_MH__exp__10, mdl_MH__exp__8, mdl_MH__exp__6, mdl_MT__exp__6, mdl_aEW, mdl_MW, mdl_sqrt__aEW, mdl_ee, mdl_MW__exp__2, mdl_sw2, mdl_cw, mdl_sqrt__sw2, mdl_sw, mdl_g1, mdl_gw, mdl_v, mdl_ee__exp__2, mdl_MW__exp__12, mdl_MW__exp__10, mdl_MW__exp__8, mdl_MW__exp__6, mdl_MW__exp__4, mdl_AH, mdl_v__exp__2, mdl_lam, mdl_yb, mdl_yt, mdl_ytau, mdl_muH, mdl_gw__exp__2, mdl_cw__exp__2, mdl_sw__exp__2;
   cxsmpl<double> mdl_complexi;
 
   // Model couplings independent of aS
   // (none)
 
   // Model parameters dependent on aS
-  double mdl_sqrt__aS, G, mdl_G__exp__2, mdl_GH, mdl_Gphi;
+  //double mdl_sqrt__aS, G, mdl_G__exp__2, mdl_GH, mdl_Gphi; // now computed event-by-event (running alphas #373)
 
   // Model couplings dependent on aS
-  cxsmpl<double> GC_13;
+  //cxsmpl<double> GC_13; // now computed event-by-event (running alphas #373)
 
   // Set parameters that are unchanged during the run
   void setIndependentParameters( SLHAReader& slha );
@@ -43,10 +123,10 @@ public:
   void setIndependentCouplings();
 
   // Set parameters that are changed event by event
-  void setDependentParameters();
+  //void setDependentParameters(); // now computed event-by-event (running alphas #373)
 
   // Set couplings that are changed event by event
-  void setDependentCouplings();
+  //void setDependentCouplings(); // now computed event-by-event (running alphas #373)
 
   // Print parameters that are unchanged during the run
   void printIndependentParameters();
@@ -55,10 +135,10 @@ public:
   void printIndependentCouplings();
 
   // Print parameters that are changed event by event
-  void printDependentParameters();
+  //void printDependentParameters(); // now computed event-by-event (running alphas #373)
 
   // Print couplings that are changed event by event
-  void printDependentCouplings();
+  //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
 
 private:
 
@@ -115,7 +195,7 @@ namespace Parameters_heft // keep the same name rather than HardcodedParameters_
   constexpr double mdl_ymtau = 1.777000e+00;
   constexpr double mdl_ymt = 1.645000e+02;
   constexpr double mdl_ymb = 4.200000e+00;
-  constexpr double aS = 1.180000e-01;
+  //constexpr double aS = 1.180000e-01; // now retrieved event-by-event (as G) from Fortran (running alphas #373)
   constexpr double mdl_Gf = 1.166390e-05;
   constexpr double aEWM1 = 1.325070e+02;
   constexpr double mdl_MP = 1.250001e+02;
@@ -171,14 +251,14 @@ namespace Parameters_heft // keep the same name rather than HardcodedParameters_
   // (none)
 
   // Model parameters dependent on aS
-  constexpr double mdl_sqrt__aS = constexpr_sqrt( aS );
-  constexpr double G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
-  constexpr double mdl_G__exp__2 = ( ( G ) * ( G ) );
-  constexpr double mdl_GH = -( mdl_G__exp__2 * ( 1. + ( 13. * mdl_MH__exp__6 ) / ( 16800. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 168. * mdl_MT__exp__4 ) + ( 7. * mdl_MH__exp__2 ) / ( 120. * mdl_MT__exp__2 ) ) ) / ( 12. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
-  constexpr double mdl_Gphi = -( mdl_G__exp__2 * ( 1. + mdl_MH__exp__6 / ( 560. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 90. * mdl_MT__exp__4 ) + mdl_MH__exp__2 / ( 12. * mdl_MT__exp__2 ) ) ) / ( 8. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
+  //constexpr double mdl_sqrt__aS = //constexpr_sqrt( aS ); // now computed event-by-event (running alphas #373)
+  //constexpr double G = 2. * mdl_sqrt__aS * //constexpr_sqrt( M_PI ); // now computed event-by-event (running alphas #373)
+  //constexpr double mdl_G__exp__2 = ( ( G ) * ( G ) ); // now computed event-by-event (running alphas #373)
+  //constexpr double mdl_GH = -( mdl_G__exp__2 * ( 1. + ( 13. * mdl_MH__exp__6 ) / ( 16800. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 168. * mdl_MT__exp__4 ) + ( 7. * mdl_MH__exp__2 ) / ( 120. * mdl_MT__exp__2 ) ) ) / ( 12. * ( ( M_PI ) * ( M_PI ) ) * mdl_v ); // now computed event-by-event (running alphas #373)
+  //constexpr double mdl_Gphi = -( mdl_G__exp__2 * ( 1. + mdl_MH__exp__6 / ( 560. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 90. * mdl_MT__exp__4 ) + mdl_MH__exp__2 / ( 12. * mdl_MT__exp__2 ) ) ) / ( 8. * ( ( M_PI ) * ( M_PI ) ) * mdl_v ); // now computed event-by-event (running alphas #373)
 
   // Model couplings dependent on aS
-  constexpr cxsmpl<double> GC_13 = -( mdl_complexi * mdl_GH );
+  //constexpr cxsmpl<double> GC_13 = -( mdl_complexi * mdl_GH ); // now computed event-by-event (running alphas #373)
 
   // Print parameters that are unchanged during the run
   void printIndependentParameters();
@@ -187,12 +267,14 @@ namespace Parameters_heft // keep the same name rather than HardcodedParameters_
   void printIndependentCouplings();
 
   // Print parameters that are changed event by event
-  void printDependentParameters();
+  //void printDependentParameters(); // now computed event-by-event (running alphas #373)
 
   // Print couplings that are changed event by event
-  void printDependentCouplings();
+  //void printDependentCouplings(); // now computed event-by-event (running alphas #373)
 }
 
 #endif
+
+//==========================================================================
 
 #endif // Parameters_heft_H
