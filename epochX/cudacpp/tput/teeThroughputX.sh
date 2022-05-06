@@ -6,7 +6,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-auto|-autoonly] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-auto|-autoonly] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -16,6 +16,7 @@ ggtt=
 ggttg=
 ggttgg=
 ggttggg=
+heftggh=
 suffs="manu"
 alpaka=
 fptypes="d"
@@ -49,6 +50,9 @@ for arg in $*; do
   elif [ "$arg" == "-ggttggg" ]; then
     if [ "$ggttggg" == "" ]; then procs+=${procs:+ }${arg}; fi
     ggttggg=$arg
+  elif [ "$arg" == "-heftggh" ]; then
+    if [ "$heftggh" == "" ]; then procs+=${procs:+ }${arg}; fi
+    heftggh=$arg
   elif [ "$arg" == "-auto" ]; then
     if [ "${suffs}" == "auto" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
     suffs="manu auto"
