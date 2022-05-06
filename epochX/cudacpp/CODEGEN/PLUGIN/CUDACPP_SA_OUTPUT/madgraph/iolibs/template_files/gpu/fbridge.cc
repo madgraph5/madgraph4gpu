@@ -75,21 +75,20 @@ extern "C"
    *
    * @param ppbridge the pointer to the Bridge pointer (the Bridge pointer is handled in Fortran as an INTEGER*8 variable)
    * @param momenta the pointer to the input 4-momenta
-   * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
    * @param mes the pointer to the output matrix elements
    */
-  void fbridgesequence_( CppObjectInFortran** ppbridge, const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, FORTRANFPTYPE* mes )
+  void fbridgesequence_( CppObjectInFortran** ppbridge, const FORTRANFPTYPE* momenta, FORTRANFPTYPE* mes )
   {
     Bridge<FORTRANFPTYPE>* pbridge = dynamic_cast<Bridge<FORTRANFPTYPE>*>( *ppbridge );
     if( pbridge == 0 ) throw std::runtime_error( "fbridgesequence_: invalid Bridge address" );
 #ifdef __CUDACC__
     // Use the device/GPU implementation in the CUDA library
     // (there is also a host implementation in this library)
-    pbridge->gpu_sequence( momenta, gs, mes );
+    pbridge->gpu_sequence( momenta, mes );
 #else
     // Use the host/CPU implementation in the C++ library
     // (there is no device implementation in this library)
-    pbridge->cpu_sequence( momenta, gs, mes );
+    pbridge->cpu_sequence( momenta, mes );
 #endif
   }
 }

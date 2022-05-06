@@ -35,7 +35,6 @@ struct CPUTest : public CUDA_CPU_TestBase
   CPPProcess process;
   HostBufferRandomNumbers hstRnarray;
   HostBufferMomenta hstMomenta;
-  HostBufferGs hstGs;
   HostBufferWeights hstWeights;
   HostBufferMatrixElements hstMatrixElements;
   HostBufferHelicityMask hstIsGoodHel;
@@ -50,7 +49,6 @@ struct CPUTest : public CUDA_CPU_TestBase
     , process( /*verbose=*/false )
     , hstRnarray( nevt )
     , hstMomenta( nevt )
-    , hstGs( nevt )
     , hstWeights( nevt )
     , hstMatrixElements( nevt )
     , hstIsGoodHel( mgOnGpu::ncomb )
@@ -79,9 +77,7 @@ struct CPUTest : public CUDA_CPU_TestBase
 
   void runSigmaKin( std::size_t iiter ) override
   {
-    constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
-    for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
-    MatrixElementKernelHost mek( hstMomenta, hstGs, hstMatrixElements, nevt );
+    MatrixElementKernelHost mek( hstMomenta, hstMatrixElements, nevt );
     if( iiter == 0 ) mek.computeGoodHelicities();
     mek.computeMatrixElements();
   }
@@ -118,7 +114,6 @@ struct CUDATest : public CUDA_CPU_TestBase
   CPPProcess process;
   PinnedHostBufferRandomNumbers hstRnarray;
   PinnedHostBufferMomenta hstMomenta;
-  PinnedHostBufferGs hstGs;
   PinnedHostBufferWeights hstWeights;
   PinnedHostBufferMatrixElements hstMatrixElements;
   PinnedHostBufferHelicityMask hstIsGoodHel;
@@ -138,7 +133,6 @@ struct CUDATest : public CUDA_CPU_TestBase
     , process( /*verbose=*/false )
     , hstRnarray( nevt )
     , hstMomenta( nevt )
-    , hstGs( nevt )
     , hstWeights( nevt )
     , hstMatrixElements( nevt )
     , hstIsGoodHel( mgOnGpu::ncomb )
@@ -177,9 +171,7 @@ struct CUDATest : public CUDA_CPU_TestBase
 
   void runSigmaKin( std::size_t iiter ) override
   {
-    constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
-    for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
-    MatrixElementKernelDevice mek( devMomenta, hstGs, devMatrixElements, gpublocks, gputhreads );
+    MatrixElementKernelDevice mek( devMomenta, devMatrixElements, gpublocks, gputhreads );
     if( iiter == 0 ) mek.computeGoodHelicities();
     mek.computeMatrixElements();
     copyHostFromDevice( hstMatrixElements, devMatrixElements );

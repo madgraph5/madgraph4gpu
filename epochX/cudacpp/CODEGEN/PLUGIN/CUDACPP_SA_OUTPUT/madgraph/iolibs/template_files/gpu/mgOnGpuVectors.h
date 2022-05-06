@@ -462,8 +462,7 @@ cxternary( const bool_v& mask, const cxtype_v& a, const cxtype_v& b )
 {
 #ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
   cxtype_v out;
-  //for( int i = 0; i < neppV; i++ ) out[i] = ( mask[i] ? a[i] : b[i] ); // OLD error-prone depends on "cxtype_ref& operator=( cxtype_ref&& c )"
-  for( int i = 0; i < neppV; i++ ) out[i] = cxtype( mask[i] ? a[i] : b[i] );
+  for( int i = 0; i < neppV; i++ ) out[i] = ( mask[i] ? a[i] : b[i] );
   return out;
 #else
   fptype_v outr, outi;
@@ -610,28 +609,6 @@ fpmin( const fptype& a, const fptype_v& b )
 }
 */
 
-//--------------------------------------------------------------------------
-
-// Vector wrapper over RRRRIIII floating point vectors (cxtype_v_ref)
-namespace mgOnGpu /* clang-format off */
-{
-  // The cxtype_v_ref class (a non-const reference to two fptype_v variables) was originally designed for MemoryAccessCouplings.
-  class cxtype_v_ref
-  {
-  public:
-    cxtype_v_ref() = delete;
-    cxtype_v_ref( const cxtype_v_ref& ) = delete;
-    cxtype_v_ref( cxtype_v_ref&& ) = default; // copy refs
-    cxtype_v_ref( fptype_v& r, fptype_v& i ) : m_preal( &r ), m_pimag( &i ) {} // copy refs
-    cxtype_v_ref& operator=( const cxtype_v_ref& ) = delete;
-    cxtype_v_ref& operator=( cxtype_v_ref&& c ) = delete;
-    cxtype_v_ref& operator=( const cxtype_v& c ) { *m_preal = cxreal( c ); *m_pimag = cximag( c ); return *this; } // copy values
-    __host__ __device__ operator cxtype_v() const { return cxmake( *m_preal, *m_pimag ); }
-  private:
-    fptype_v *m_preal, *m_pimag; // RRRRIIII
-  };
-} /* clang-format on */
-
 #endif // #ifdef MGONGPU_CPPSIMD
 
 #endif // #ifndef __CUDACC__
@@ -685,17 +662,14 @@ cxternary( const bool& mask, const cxtype& a, const cxtype& b )
 typedef bool bool_sv;
 typedef fptype fptype_sv;
 typedef cxtype cxtype_sv;
-typedef mgOnGpu::cxtype_ref cxtype_sv_ref;
 #elif defined MGONGPU_CPPSIMD
 typedef bool_v bool_sv;
 typedef fptype_v fptype_sv;
 typedef cxtype_v cxtype_sv;
-typedef mgOnGpu::cxtype_v_ref cxtype_sv_ref;
 #else
 typedef bool bool_sv;
 typedef fptype fptype_sv;
 typedef cxtype cxtype_sv;
-typedef mgOnGpu::cxtype_ref cxtype_sv_ref;
 #endif
 
 // Scalar-or-vector zeros: scalar in CUDA, vector or scalar in C++

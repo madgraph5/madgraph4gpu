@@ -8,7 +8,7 @@
 #include <iomanip>
 #include <iostream>
 
-#ifndef MGONGPU_HARDCODE_PARAM
+#ifndef MGONGPU_HARDCODE_CIPC
 
 // Initialize static instance
 Parameters_%(model_name)s* Parameters_%(model_name)s::instance = 0;
@@ -37,19 +37,17 @@ Parameters_%(model_name)s::setIndependentCouplings()
   %(set_independent_couplings)s
 }
 
-/*
 void
-Parameters_%(model_name)s::setDependentParameters() // now computed event-by-event (running alphas #373)
+Parameters_%(model_name)s::setDependentParameters()
 {
   %(set_dependent_parameters)s
 }
 
 void
-Parameters_%(model_name)s::setDependentCouplings() // now computed event-by-event (running alphas #373)
+Parameters_%(model_name)s::setDependentCouplings()
 {
   %(set_dependent_couplings)s
 }
-*/
 
 #endif
 
@@ -58,7 +56,6 @@ void
 Parameters_%(model_name)s::printIndependentParameters()
 {
   std::cout << "%(model_name)s model parameters independent of event kinematics:" << std::endl;
-  std::cout << "(Warning: aS in the runcard is ignored because event-by-event Gs are hardcoded or retrieved from Fortran)" << std::endl;
   %(print_independent_parameters)s
 }
 
@@ -69,18 +66,16 @@ Parameters_%(model_name)s::printIndependentCouplings()
   %(print_independent_couplings)s
 }
 
-/*
 void
-Parameters_%(model_name)s::printDependentParameters() // now computed event-by-event (running alphas #373)
+Parameters_%(model_name)s::printDependentParameters()
 {
   std::cout << "%(model_name)s model parameters dependent on event kinematics:" << std::endl;
   %(print_dependent_parameters)s
 }
 
 void
-Parameters_%(model_name)s::printDependentCouplings() // now computed event-by-event (running alphas #373)
+Parameters_%(model_name)s::printDependentCouplings()
 {
   std::cout << "%(model_name)s model couplings dependent on event kinematics:" << std::endl;
   %(print_dependent_couplings)s
 }
-*/

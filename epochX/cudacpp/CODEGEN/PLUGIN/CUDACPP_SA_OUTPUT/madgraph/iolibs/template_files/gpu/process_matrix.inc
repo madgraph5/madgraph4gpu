@@ -23,21 +23,29 @@
 
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-      fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
-      MEs_sv += deltaMEs; // fix #435
-      /*
 #ifdef __CUDACC__
-      if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%%6d ihel=%%2d me_running=%%f\n", blockDim.x * blockIdx.x + threadIdx.x, ihel, MEs_sv );
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+      allMEs[ievt] += deltaMEs;
+      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%%6d ihel=%%2d me_running=%%f\n", ievt, ihel, allMEs[ievt] );
 #else
 #ifdef MGONGPU_CPPSIMD
-      if( cNGoodHel > 0 )
+      if( isAligned_allMEs )
+      {
+        *reinterpret_cast<fptype_sv*>( &( allMEs[ipagV * neppV] ) ) += deltaMEs;
+      }
+      else
+      {
         for( int ieppV = 0; ieppV < neppV; ieppV++ )
-          printf( "calculate_wavefunctions: ievt=%%6d ihel=%%2d me_running=%%f\n", ipagV * neppV + ieppV, ihel, MEs_sv[ieppV] );
+          allMEs[ipagV * neppV + ieppV] += deltaMEs[ieppV];
+      }
+      //if( cNGoodHel > 0 )
+      //  for( int ieppV = 0; ieppV < neppV; ieppV++ )
+      //    printf( "calculate_wavefunctions: ievt=%%6d ihel=%%2d me_running=%%f\n", ipagV * neppV + ieppV, ihel, allMEs[ipagV * neppV + ieppV] );
 #else
-      if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%%6d ihel=%%2d me_running=%%f\n", ipagV, ihel, MEs_sv );
+      allMEs[ipagV] += deltaMEs;
+      //if ( cNGoodHel > 0 ) printf( "calculate_wavefunctions: ievt=%%6d ihel=%%2d me_running=%%f\n", ipagV, ihel, allMEs[ipagV] );
 #endif
 #endif
-      */
     }
     mgDebug( 1, __FUNCTION__ );
     return;

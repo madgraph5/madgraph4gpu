@@ -6,7 +6,6 @@
 #include "mgOnGpuCxtypes.h"
 
 #include "CudaRuntime.h"
-#include "Parameters_%(model_name)s.h"
 
 #include <sstream>
 
@@ -26,7 +25,6 @@ namespace mg5amcCpu
     static constexpr size_t npar = mgOnGpu::npar;
     static constexpr size_t nw6 = mgOnGpu::nw6;
     static constexpr size_t nx2 = mgOnGpu::nx2;
-    static constexpr size_t ndcoup = Parameters_%(model_name)s_dependentCouplings::ndcoup;
   }
 
   //--------------------------------------------------------------------------
@@ -81,30 +79,22 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifndef __CUDACC__
-  constexpr bool HostBufferALIGNED = false;   // ismisaligned=false
-  constexpr bool HostBufferMISALIGNED = true; // ismisaligned=true
-
   // A class encapsulating a C++ host buffer
-  template<typename T, bool ismisaligned>
+  template<typename T>
   class HostBufferBase : public BufferBase<T>
   {
   public:
     HostBufferBase( const size_t size )
       : BufferBase<T>( size, false )
     {
-      if constexpr( !ismisaligned )
-        this->m_data = new( std::align_val_t( cppAlign ) ) T[size]();
-      else
-        this->m_data = new( std::align_val_t( cppAlign ) ) T[size + 1]() + 1; // TEST MISALIGNMENT!
+      this->m_data = new( std::align_val_t( cppAlign ) ) T[size]();
+      //this->m_data = new( std::align_val_t( cppAlign ) ) T[ size+1 ]() + 1; // TEST MISALIGNMENT!
     }
     virtual ~HostBufferBase()
     {
-      if constexpr( !ismisaligned )
-        ::operator delete( this->m_data, std::align_val_t( cppAlign ) );
-      else
-        ::operator delete( ( this->m_data ) - 1, std::align_val_t( cppAlign ) ); // TEST MISALIGNMENT!
+      ::operator delete( this->m_data, std::align_val_t( cppAlign ) );
+      //::operator delete( (this->m_data) - 1, std::align_val_t( cppAlign ) ); // TEST MISALIGNMENT!
     }
-    static constexpr bool isaligned() { return !ismisaligned; }
   public:
     static constexpr size_t cppAlign = mgOnGpu::cppAlign;
   };
@@ -154,13 +144,13 @@ namespace mg5amcCpu
 
 #ifndef __CUDACC__
   // A class encapsulating a C++ host buffer for a given number of events
-  template<typename T, size_t sizePerEvent, bool ismisaligned>
-  class HostBuffer : public HostBufferBase<T, ismisaligned>, virtual private NumberOfEvents
+  template<typename T, size_t sizePerEvent>
+  class HostBuffer : public HostBufferBase<T>, virtual private NumberOfEvents
   {
   public:
     HostBuffer( const size_t nevt )
       : NumberOfEvents( nevt )
-      , HostBufferBase<T, ismisaligned>( sizePerEvent * nevt ) {}
+      , HostBufferBase<T>( sizePerEvent * nevt ) {}
     virtual ~HostBuffer() {}
     virtual size_t nevt() const override final { return NumberOfEvents::nevt(); }
   };
@@ -208,48 +198,12 @@ namespace mg5amcCpu
 
 #ifndef __CUDACC__
   // A class encapsulating a C++ host buffer for random numbers
-  typedef HostBuffer<fptype, sizePerEventRandomNumbers, HostBufferALIGNED> HostBufferRandomNumbers;
+  typedef HostBuffer<fptype, sizePerEventRandomNumbers> HostBufferRandomNumbers;
 #else
   // A class encapsulating a CUDA pinned host buffer for random numbers
   typedef PinnedHostBuffer<fptype, sizePerEventRandomNumbers> PinnedHostBufferRandomNumbers;
   // A class encapsulating a CUDA device buffer for random numbers
   typedef DeviceBuffer<fptype, sizePerEventRandomNumbers> DeviceBufferRandomNumbers;
-#endif
-
-  //--------------------------------------------------------------------------
-
-  // A base class encapsulating a memory buffer for Gs (related to the event-by-event strength of running coupling constant alphas QCD)
-  typedef BufferBase<fptype> BufferGs;
-
-  // The size (number of elements) per event in a memory buffer for random numbers
-  constexpr size_t sizePerEventGs = 1;
-
-#ifndef __CUDACC__
-  // A class encapsulating a C++ host buffer for gs
-  typedef HostBuffer<fptype, sizePerEventGs, HostBufferALIGNED> HostBufferGs;
-#else
-  // A class encapsulating a CUDA pinned host buffer for gs
-  typedef PinnedHostBuffer<fptype, sizePerEventGs> PinnedHostBufferGs;
-  // A class encapsulating a CUDA device buffer for gs
-  typedef DeviceBuffer<fptype, sizePerEventGs> DeviceBufferGs;
-#endif
-
-  //--------------------------------------------------------------------------
-
-  // A base class encapsulating a memory buffer for couplings that depend on the event-by-event running coupling constant alphas QCD
-  typedef BufferBase<fptype> BufferCouplings;
-
-  // The size (number of elements) per event in a memory buffer for random numbers
-  constexpr size_t sizePerEventCouplings = MemoryBuffers::ndcoup * MemoryBuffers::nx2;
-
-#ifndef __CUDACC__
-  // A class encapsulating a C++ host buffer for gs
-  typedef HostBuffer<fptype, sizePerEventCouplings, HostBufferALIGNED> HostBufferCouplings;
-#else
-  // A class encapsulating a CUDA pinned host buffer for gs
-  typedef PinnedHostBuffer<fptype, sizePerEventCouplings> PinnedHostBufferCouplings;
-  // A class encapsulating a CUDA device buffer for gs
-  typedef DeviceBuffer<fptype, sizePerEventCouplings> DeviceBufferCouplings;
 #endif
 
   //--------------------------------------------------------------------------
@@ -262,8 +216,7 @@ namespace mg5amcCpu
 
 #ifndef __CUDACC__
   // A class encapsulating a C++ host buffer for momenta
-  typedef HostBuffer<fptype, sizePerEventMomenta, HostBufferALIGNED> HostBufferMomenta;
-  //typedef HostBuffer<fptype, sizePerEventMomenta, HostBufferMISALIGNED> HostBufferMomenta; // TEST MISALIGNMENT!
+  typedef HostBuffer<fptype, sizePerEventMomenta> HostBufferMomenta;
 #else
   // A class encapsulating a CUDA pinned host buffer for momenta
   typedef PinnedHostBuffer<fptype, sizePerEventMomenta> PinnedHostBufferMomenta;
@@ -281,7 +234,7 @@ namespace mg5amcCpu
 
 #ifndef __CUDACC__
   // A class encapsulating a C++ host buffer for sampling weights
-  typedef HostBuffer<fptype, sizePerEventWeights, HostBufferALIGNED> HostBufferWeights;
+  typedef HostBuffer<fptype, sizePerEventWeights> HostBufferWeights;
 #else
   // A class encapsulating a CUDA pinned host buffer for sampling weights
   typedef PinnedHostBuffer<fptype, sizePerEventWeights> PinnedHostBufferWeights;
@@ -299,7 +252,7 @@ namespace mg5amcCpu
 
 #ifndef __CUDACC__
   // A class encapsulating a C++ host buffer for matrix elements
-  typedef HostBuffer<fptype, sizePerEventMatrixElements, HostBufferALIGNED> HostBufferMatrixElements;
+  typedef HostBuffer<fptype, sizePerEventMatrixElements> HostBufferMatrixElements;
 #else
   // A class encapsulating a CUDA pinned host buffer for matrix elements
   typedef PinnedHostBuffer<fptype, sizePerEventMatrixElements> PinnedHostBufferMatrixElements;
@@ -314,7 +267,7 @@ namespace mg5amcCpu
 
 #ifndef __CUDACC__
   // A class encapsulating a C++ host buffer for the helicity mask
-  typedef HostBufferBase<bool, HostBufferALIGNED> HostBufferHelicityMask;
+  typedef HostBufferBase<bool> HostBufferHelicityMask;
 #else
   // A class encapsulating a CUDA pinned host buffer for the helicity mask
   typedef PinnedHostBufferBase<bool> PinnedHostBufferHelicityMask;
@@ -332,7 +285,7 @@ namespace mg5amcCpu
 
 #ifndef __CUDACC__
   // A class encapsulating a C++ host buffer for wavefunctions
-  typedef HostBuffer<fptype, sizePerEventWavefunctions, HostBufferALIGNED> HostBufferWavefunctions;
+  typedef HostBuffer<fptype, sizePerEventWavefunctions> HostBufferWavefunctions;
 #else
   // A class encapsulating a CUDA pinned host buffer for wavefunctions
   typedef PinnedHostBuffer<fptype, sizePerEventWavefunctions> PinnedHostBufferWavefunctions;

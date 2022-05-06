@@ -15,7 +15,7 @@ class MemoryAccessMomentaBase //_AOSOAv1
 {
 public:
 
-  // Number of Events Per Page in the momenta AOSOA memory buffer layout
+  // Number of Events Per Page in the momenta AOSOA memory layout
   // (these are all best kept as a compile-time constants: see issue #23)
 #ifdef __CUDACC__ /* clang-format off */
   // -----------------------------------------------------------------------------------------------
@@ -154,9 +154,6 @@ template<bool onDevice>
 class KernelAccessMomenta
 {
 public:
-
-  // Expose selected functions from MemoryAccessMomenta
-  static constexpr auto ieventAccessRecordConst = MemoryAccessMomenta::ieventAccessRecordConst;
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
   // [Signature (non-const, SCALAR) ===> fptype& kernelAccessIp4Ipar( fptype* buffer, const int ipar, const int ipar ) <===]

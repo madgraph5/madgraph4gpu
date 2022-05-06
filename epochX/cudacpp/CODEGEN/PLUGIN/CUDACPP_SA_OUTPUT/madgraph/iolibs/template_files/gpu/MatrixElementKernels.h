@@ -20,10 +20,8 @@ namespace mg5amcCpu
 
     // Constructor from existing input and output buffers
     MatrixElementKernelBase( const BufferMomenta& momenta,          // input: momenta
-                             const BufferGs& gs,                    // input: gs for alphaS
                              BufferMatrixElements& matrixElements ) // output: matrix elements
       : m_momenta( momenta )
-      , m_gs( gs )
       , m_matrixElements( matrixElements )
     {
     }
@@ -47,9 +45,6 @@ namespace mg5amcCpu
     // The buffer for the input momenta
     const BufferMomenta& m_momenta;
 
-    // The buffer for the gs to calculate the alphaS values
-    const BufferGs& m_gs;
-
     // The buffer for the output matrix elements
     BufferMatrixElements& m_matrixElements;
   };
@@ -64,7 +59,6 @@ namespace mg5amcCpu
 
     // Constructor from existing input and output buffers
     MatrixElementKernelHost( const BufferMomenta& momenta,         // input: momenta
-                             const BufferGs& gs,                   // input: gs for alphaS
                              BufferMatrixElements& matrixElements, // output: matrix elements
                              const size_t nevt );
 
@@ -83,11 +77,6 @@ namespace mg5amcCpu
     // Does this host system support the SIMD used in the matrix element calculation?
     // [NB: SIMD vectorization in mg5amc C++ code is currently only used in the ME calculations below MatrixElementKernelHost!]
     static bool hostSupportsSIMD( const bool verbose = true );
-
-  private:
-
-    // The buffer for the event-by-event couplings that depends on alphas QCD
-    HostBufferCouplings m_couplings;
   };
 #endif
 
@@ -101,7 +90,6 @@ namespace mg5amcCpu
 
     // Constructor from existing input and output buffers
     MatrixElementKernelDevice( const BufferMomenta& momenta,         // input: momenta
-                               const BufferGs& gs,                   // input: gs for alphaS
                                BufferMatrixElements& matrixElements, // output: matrix elements
                                const size_t gpublocks,
                                const size_t gputhreads );
@@ -122,9 +110,6 @@ namespace mg5amcCpu
     bool isOnDevice() const override final { return true; }
 
   private:
-
-    // The buffer for the event-by-event couplings that depends on alphas QCD
-    DeviceBufferCouplings m_couplings;
 
     // The number of blocks in the GPU grid
     size_t m_gpublocks;

@@ -197,7 +197,7 @@ ifeq ($(HELINL),)
   override HELINL = 0
 endif
 
-# Set the default HRDCOD (hardcode cIPD physics parameters?) choice
+# Set the default HRDCOD (hardcode cIPC and cIPD physics parameters?) choice
 ifeq ($(HRDCOD),)
   override HRDCOD = 0
 endif
@@ -281,8 +281,8 @@ endif
 # Set the build flags appropriate to each HRDCOD choice (example: "make HRDCOD=1")
 $(info HRDCOD=$(HRDCOD))
 ifeq ($(HRDCOD),1)
-  CXXFLAGS += -DMGONGPU_HARDCODE_PARAM
-  CUFLAGS  += -DMGONGPU_HARDCODE_PARAM
+  CXXFLAGS += -DMGONGPU_HARDCODE_CIPC
+  CUFLAGS  += -DMGONGPU_HARDCODE_CIPC
 else ifneq ($(HRDCOD),0)
   $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
 endif
