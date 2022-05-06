@@ -281,8 +281,8 @@ endif
 # Set the build flags appropriate to each HRDCOD choice (example: "make HRDCOD=1")
 $(info HRDCOD=$(HRDCOD))
 ifeq ($(HRDCOD),1)
-  CXXFLAGS += -DMGONGPU_HARDCODE_CIPD
-  CUFLAGS  += -DMGONGPU_HARDCODE_CIPD
+  CXXFLAGS += -DMGONGPU_HARDCODE_PARAM
+  CUFLAGS  += -DMGONGPU_HARDCODE_PARAM
 else ifneq ($(HRDCOD),0)
   $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
 endif

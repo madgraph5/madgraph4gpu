@@ -962,6 +962,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         params = [''] * len(self.params2order)
         for coup, pos in self.couplings2order.items():
             coupling[pos] = coup
+        for para, pos in self.params2order.items():
+            params[pos] = para
         coupling_indep = [] # AV keep only the alphas-independent couplings #434
         for coup in coupling:
             keep = True
@@ -969,48 +971,53 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             for key, coup_list in self.model['couplings'].items():
                 if "aS" in key and coup in coup_list: keep = False
             if keep: coupling_indep.append( coup ) # AV only indep!
-        if len(coupling_indep) > 0:
-            ###coup_str = 'const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n    '\
-            ###    %(len(self.couplings2order), ' ), cxmake( m_pars->'.join(coupling))
-            coup_str = 'const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };\n    '\
-                %(len(coupling_indep), ' ), cxmake( m_pars->'.join(coupling_indep)) # AV only indep!
-            replace_dict['cipcdevice'] = '\n  __device__ __constant__ fptype cIPC[%i];'%(2*len(coupling_indep))
-            replace_dict['cipcstatic'] = '\n  static fptype cIPC[%i];'%(2*len(coupling_indep))
-            replace_dict['cipc2tipcSym'] = '\n    checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, %i * sizeof( cxtype ) ) );'%len(coupling_indep)
-            replace_dict['cipc2tipc'] = '\n    memcpy( cIPC, tIPC, %i * sizeof( cxtype ) );'%len(coupling_indep)
-            replace_dict['cipcdump'] = '\n    //for ( i=0; i<%i; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;'%len(coupling_indep)
-        else:
-            coup_str = ''
-            replace_dict['cipcdevice'] = '\n  __device__ __constant__ fptype* cIPC = nullptr; // unused as nicoup=0'
-            replace_dict['cipcstatic'] = '\n  static fptype* cIPC = nullptr; // unused as nicoup=0'
-            replace_dict['cipc2tipcSym'] = ''
-            replace_dict['cipc2tipc'] = ''
-            replace_dict['cipcdump'] = ''
         replace_dict['ncouplings'] = len(coupling_indep) # AV only indep!
-        for para, pos in self.params2order.items():
-            params[pos] = para
-        param_str = 'const fptype tIPD[%s] = { (fptype)m_pars->%s };'\
-            %(len(self.params2order), ', (fptype)m_pars->'.join(params))
-        replace_dict['assign_coupling'] = coup_str + param_str
         if len(coupling_indep) > 0:
-            ###coup_str_hrd = '__device__ const fptype cIPC[%s] = { ' % (len(self.couplings2order)*2)
+            replace_dict['cipcassign'] = 'const cxtype tIPC[%s] = { cxmake( m_pars->%s ) };'\
+                                         %(len(coupling_indep), ' ), cxmake( m_pars->'.join(coupling_indep)) # AV only indep!
+            replace_dict['cipcdevice'] = '__device__ __constant__ fptype cIPC[%i];'%(2*len(coupling_indep))
+            replace_dict['cipcstatic'] = 'static fptype cIPC[%i];'%(2*len(coupling_indep))
+            replace_dict['cipc2tipcSym'] = 'checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, %i * sizeof( cxtype ) ) );'%len(coupling_indep)
+            replace_dict['cipc2tipc'] = 'memcpy( cIPC, tIPC, %i * sizeof( cxtype ) );'%len(coupling_indep)
+            replace_dict['cipcdump'] = '\n    //for ( i=0; i<%i; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;'%len(coupling_indep)
             coup_str_hrd = '__device__ const fptype cIPC[%s] = { ' % (len(coupling_indep)*2)
-            ###for coup in coupling : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup )
             for coup in coupling_indep : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup ) # AV only indep!
-            coup_str_hrd = coup_str_hrd[:-2] + ' };\n  '
+            coup_str_hrd = coup_str_hrd[:-2] + ' };'
+            replace_dict['cipchrdcod'] = coup_str_hrd
         else:
-            coup_str_hrd = '__device__ const fptype* cIPC = nullptr; // unused as nicoup=0\n  '
-        param_str_hrd = '__device__ const fptype cIPD[%s] = { ' % len(self.params2order)
-        for para in params : param_str_hrd += '(fptype)Parameters_%s::%s, ' % ( self.model_name, para )
-        param_str_hrd = param_str_hrd[:-2] + ' };'
-        replace_dict['hardcoded_assign_coupling'] = coup_str_hrd + param_str_hrd
+            replace_dict['cipcassign'] = '//const cxtype tIPC[0] = { ... }; // nicoup=0'
+            replace_dict['cipcdevice'] = '__device__ __constant__ fptype* cIPC = nullptr; // unused as nicoup=0'
+            replace_dict['cipcstatic'] = 'static fptype* cIPC = nullptr; // unused as nicoup=0'
+            replace_dict['cipc2tipcSym'] = '//checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, %i * sizeof( cxtype ) ) ); // nicoup=0'%len(coupling_indep)
+            replace_dict['cipc2tipc'] = '//memcpy( cIPC, tIPC, %i * sizeof( cxtype ) ); // nicoup=0'%len(coupling_indep)
+            replace_dict['cipcdump'] = ''
+            replace_dict['cipchrdcod'] = '__device__ const fptype* cIPC = nullptr; // unused as nicoup=0'
+        if len(params) > 0:
+            replace_dict['cipdassign'] = 'const fptype tIPD[%s] = { (fptype)m_pars->%s };'\
+                                         %(len(params), ', (fptype)m_pars->'.join(params))
+            replace_dict['cipddevice'] = '__device__ __constant__ fptype cIPD[%i];'%(len(params))
+            replace_dict['cipdstatic'] = 'static fptype cIPD[%i];'%(len(params))
+            replace_dict['cipd2tipdSym'] = 'checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, %i * sizeof( fptype ) ) );'%len(params)
+            replace_dict['cipd2tipd'] = 'memcpy( cIPD, tIPD, %i * sizeof( fptype ) );'%len(params)
+            replace_dict['cipddump'] = '\n    //for ( i=0; i<%i; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;'%len(params)
+            param_str_hrd = '__device__ const fptype cIPD[%s] = { ' % len(params)
+            for para in params : param_str_hrd += '(fptype)Parameters_%s::%s, ' % ( self.model_name, para )
+            param_str_hrd = param_str_hrd[:-2] + ' };'
+            replace_dict['cipdhrdcod'] = param_str_hrd
+        else:
+            replace_dict['cipdassign'] = '//const fptype tIPD[0] = { ... }; // nparam=0'
+            replace_dict['cipddevice'] = '//__device__ __constant__ fptype* cIPD = nullptr; // unused as nparam=0'
+            replace_dict['cipdstatic'] = '//static fptype* cIPD = nullptr; // unused as nparam=0'
+            replace_dict['cipd2tipdSym'] = '//checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, %i * sizeof( fptype ) ) ); // nparam=0'%len(params)
+            replace_dict['cipd2tipd'] = '//memcpy( cIPD, tIPD, %i * sizeof( fptype ) ); // nparam=0'%len(params)
+            replace_dict['cipddump'] = ''
+            replace_dict['cipdhrdcod'] = '//__device__ const fptype* cIPD = nullptr; // unused as nparam=0'
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
         file = self.read_template_file(self.process_definition_template) % replace_dict # HACK! ignore write=False case
-        if len(self.params2order) == 0: # remove all IPD occurrences (issue #349)
+        if len(params) == 0: # remove cIPD from OpenMP pragma (issue #349)
             file_lines = file.split('\n')
-            file_lines = [l.replace('cIPC,cIPD','cIPC') for l in file_lines] # remove cIPD from OpenMP pragma
-            file_lines = [l for l in file_lines if 'IPD' not in l] # remove all other lines matching IPD
+            file_lines = [l.replace('cIPC, cIPD','cIPC') for l in file_lines] # remove cIPD from OpenMP pragma
             file = '\n'.join( file_lines )
         return file
 
@@ -1086,7 +1093,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
-#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, allcouplings, cIPD, ihel, npagV, amp_fp, w_fp ) private( amp_sv, w_sv, jamp_sv )
+#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, allcouplings, cIPC, cIPD, ihel, npagV, amp_fp, w_fp ) private( amp_sv, w_sv, jamp_sv )
 #endif // _OPENMP
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif // !__CUDACC__""")

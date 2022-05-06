@@ -53,9 +53,9 @@ namespace mg5amcCpu
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
-#ifdef MGONGPU_HARDCODE_CIPD
-  __device__ const fptype* cIPC = nullptr; // unused as nicoup=0
+#ifdef MGONGPU_HARDCODE_PARAM
   __device__ const fptype cIPD[2] = { (fptype)Parameters_sm::mdl_MT, (fptype)Parameters_sm::mdl_WT };
+  __device__ const fptype* cIPC = nullptr; // unused as nicoup=0
 #else
 #ifdef __CUDACC__
   __device__ __constant__ fptype cIPD[2];
@@ -146,7 +146,7 @@ namespace mg5amcCpu
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
-#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, allcouplings, cIPD, ihel, npagV, amp_fp, w_fp ) private( amp_sv, w_sv, jamp_sv )
+#pragma omp parallel for default( none ) shared( allmomenta, allMEs, cHel, allcouplings, cIPC, cIPD, ihel, npagV, amp_fp, w_fp ) private( amp_sv, w_sv, jamp_sv )
 #endif // _OPENMP
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif // !__CUDACC__
@@ -278,7 +278,7 @@ namespace mg5amcCpu
                           bool debug )
     : m_verbose( verbose )
     , m_debug( debug )
-#ifndef MGONGPU_HARDCODE_CIPD
+#ifndef MGONGPU_HARDCODE_PARAM
     , m_pars( 0 )
 #endif
     , m_masses()
@@ -314,7 +314,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifndef MGONGPU_HARDCODE_CIPD
+#ifndef MGONGPU_HARDCODE_PARAM
   // Initialize process (with parameters read from user cards)
   void
   CPPProcess::initProc( const std::string& param_card_name )
@@ -341,10 +341,13 @@ namespace mg5amcCpu
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     const fptype tIPD[2] = { (fptype)m_pars->mdl_MT, (fptype)m_pars->mdl_WT };
+    //const cxtype tIPC[0] = { ... }; // nicoup=0
 #ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cIPD, tIPD, 2 * sizeof( fptype ) ) );
+    //checkCuda( cudaMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ) ); // nicoup=0
 #else
     memcpy( cIPD, tIPD, 2 * sizeof( fptype ) );
+    //memcpy( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nicoup=0
 #endif
     //for ( i=0; i<2; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
   }
