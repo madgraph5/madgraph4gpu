@@ -185,6 +185,15 @@ inline void print( const cxtype_v& v ) { std::cout << v << std::endl; }
 
 // Functions and operators for fptype_v
 
+#if defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT
+// Avoid "error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(N) float’} involves truncation"
+inline fptype_v
+operator*( const fptype_v& a, const double& b )
+{
+  return a * (float)b;
+}
+#endif
+
 #ifdef MGONGPU_CPPSIMD
 inline fptype_v
 fpsqrt( const fptype_v& v )
