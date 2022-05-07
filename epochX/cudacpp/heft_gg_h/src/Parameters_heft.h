@@ -225,15 +225,18 @@ namespace Parameters_heft_dependentCouplings
 #endif
     DependentCouplings_sv out;
 #ifdef MGONGPU_CPPSIMD
+    // Use an explicit loop to avoid "error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation"
+    // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)
     for( int i = 0; i < neppV; i++ )
 #endif
     {
 #ifdef MGONGPU_CPPSIMD
       const fptype& G = G_sv[i];
-      cxtype& GC_13 = out.GC_13[i];
+      fptype& GC_13r = cxreal( out.GC_13 )[i];
+      fptype& GC_13i = cximag( out.GC_13 )[i];
 #else
       const fptype& G = G_sv;
-      cxtype& GC_13 = out.GC_13;
+      cxtype& GC_13ri = out.GC_13;      
 #endif
       // Model parameters dependent on aS
       //const fptype mdl_sqrt__aS = constexpr_sqrt( aS );
@@ -243,7 +246,13 @@ namespace Parameters_heft_dependentCouplings
       const fptype mdl_Gphi = -( mdl_G__exp__2 * ( 1. + mdl_MH__exp__6 / ( 560. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 90. * mdl_MT__exp__4 ) + mdl_MH__exp__2 / ( 12. * mdl_MT__exp__2 ) ) ) / ( 8. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
       // Model couplings dependent on aS
       // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
-      GC_13 = -( cxmake( 0., 1. ) * mdl_GH );
+      const cxtype GC_13 = -( cxmake( 0., 1. ) * mdl_GH );
+#ifdef MGONGPU_CPPSIMD
+      GC_13r = cxreal( GC_13 );
+      GC_13i = cximag( GC_13 );
+#else
+      GC_13ri = GC_13;
+#endif
     }
     return out;
   }
