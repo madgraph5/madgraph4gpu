@@ -227,6 +227,8 @@ namespace Parameters_heft_dependentCouplings
     //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
     //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
     const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
+    // The following fails (for neppV=8) with "error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation"
+    // The problematic part is the multiplication of vector float mdl_G__exp__2 by scalar double (1. + ...)
     const fptype_sv mdl_GH = -( mdl_G__exp__2 * ( 1. + ( 13. * mdl_MH__exp__6 ) / ( 16800. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 168. * mdl_MT__exp__4 ) + ( 7. * mdl_MH__exp__2 ) / ( 120. * mdl_MT__exp__2 ) ) ) / ( 12. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
     const fptype_sv mdl_Gphi = -( mdl_G__exp__2 * ( 1. + mdl_MH__exp__6 / ( 560. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 90. * mdl_MT__exp__4 ) + mdl_MH__exp__2 / ( 12. * mdl_MT__exp__2 ) ) ) / ( 8. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
     // Model couplings dependent on aS
