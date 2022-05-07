@@ -218,23 +218,33 @@ namespace Parameters_heft_dependentCouplings
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
 #endif
-  __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G )
+  __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv )
   {
 #ifdef MGONGPU_HARDCODE_PARAM
     using namespace Parameters_heft;
 #endif
-    // Model parameters dependent on aS
-    //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
-    //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
-    const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
-    // The following fails (for neppV=8) with "error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation"
-    // The problematic part is the multiplication of vector float mdl_G__exp__2 by scalar double (1. + ...)
-    const fptype_sv mdl_GH = -( mdl_G__exp__2 * ( 1. + ( 13. * mdl_MH__exp__6 ) / ( 16800. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 168. * mdl_MT__exp__4 ) + ( 7. * mdl_MH__exp__2 ) / ( 120. * mdl_MT__exp__2 ) ) ) / ( 12. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
-    const fptype_sv mdl_Gphi = -( mdl_G__exp__2 * ( 1. + mdl_MH__exp__6 / ( 560. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 90. * mdl_MT__exp__4 ) + mdl_MH__exp__2 / ( 12. * mdl_MT__exp__2 ) ) ) / ( 8. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
-    // Model couplings dependent on aS
     DependentCouplings_sv out;
-    // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
-    out.GC_13 = -( cxmake( 0., 1. ) * mdl_GH );
+#ifdef MGONGPU_CPPSIMD
+    for( int i = 0; i < neppV; i++ )
+#endif
+    {
+#ifdef MGONGPU_CPPSIMD
+      const fptype& G = G_sv[i];
+      cxtype& GC_13 = out.GC_13[i];
+#else
+      const fptype& G = G_sv;
+      cxtype& GC_13 = out.GC_13;
+#endif
+      // Model parameters dependent on aS
+      //const fptype mdl_sqrt__aS = constexpr_sqrt( aS );
+      //const fptype G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
+      const fptype mdl_G__exp__2 = ( ( G ) * ( G ) );
+      const fptype mdl_GH = -( mdl_G__exp__2 * ( 1. + ( 13. * mdl_MH__exp__6 ) / ( 16800. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 168. * mdl_MT__exp__4 ) + ( 7. * mdl_MH__exp__2 ) / ( 120. * mdl_MT__exp__2 ) ) ) / ( 12. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
+      const fptype mdl_Gphi = -( mdl_G__exp__2 * ( 1. + mdl_MH__exp__6 / ( 560. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 90. * mdl_MT__exp__4 ) + mdl_MH__exp__2 / ( 12. * mdl_MT__exp__2 ) ) ) / ( 8. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
+      // Model couplings dependent on aS
+      // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
+      GC_13 = -( cxmake( 0., 1. ) * mdl_GH );
+    }
     return out;
   }
 #ifdef __CUDACC__
