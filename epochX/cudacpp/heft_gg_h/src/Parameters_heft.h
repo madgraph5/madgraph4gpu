@@ -225,41 +225,40 @@ namespace Parameters_heft_dependentCouplings
 #endif
     DependentCouplings_sv out;
 #if not ( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )
-    typedef fptype_sv doublesv_or_floats; // vector or scalar double, or scalar float
-    typedef cxtype_sv cxdoublesv_or_cxfloats; // vector or scalar double complex, or scalar float complex
-#else
-    typedef fptype doublesv_or_floats; // scalar float
-    typedef cxtype cxdoublesv_or_cxfloats; // scalar float complex
+    {
+      const fptype_sv& G = G_sv;
+      // Model parameters dependent on aS
+      //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
+      //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
+      const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
+      const fptype_sv mdl_GH = -( mdl_G__exp__2 * ( 1. + ( 13. * mdl_MH__exp__6 ) / ( 16800. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 168. * mdl_MT__exp__4 ) + ( 7. * mdl_MH__exp__2 ) / ( 120. * mdl_MT__exp__2 ) ) ) / ( 12. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
+      const fptype_sv mdl_Gphi = -( mdl_G__exp__2 * ( 1. + mdl_MH__exp__6 / ( 560. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 90. * mdl_MT__exp__4 ) + mdl_MH__exp__2 / ( 12. * mdl_MT__exp__2 ) ) ) / ( 8. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
+      // Model couplings dependent on aS
+      // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
+      out.GC_13 = -( cxmake( 0., 1. ) * mdl_GH );
+    }
+#else    
     // ** NB #439: special handling is necessary ONLY FOR VECTORS OF FLOATS (variable Gs are vector floats, fixed parameters are scalar doubles)
     // Use an explicit loop to avoid "error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation"
     // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)
     for( int i = 0; i < neppV; i++ )      
-#endif
     {
-#if ( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )
       const fptype& G = G_sv[i];
       fptype& GC_13r = cxreal( out.GC_13 )[i];
       fptype& GC_13i = cximag( out.GC_13 )[i];
-#else
-      const fptype_sv& G = G_sv;
-      cxtype_sv& GC_13ri = out.GC_13;
-#endif
       // Model parameters dependent on aS
-      //const doublesv_or_floats mdl_sqrt__aS = constexpr_sqrt( aS );
-      //const doublesv_or_floats G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
-      const doublesv_or_floats mdl_G__exp__2 = ( ( G ) * ( G ) );
-      const doublesv_or_floats mdl_GH = -( mdl_G__exp__2 * ( 1. + ( 13. * mdl_MH__exp__6 ) / ( 16800. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 168. * mdl_MT__exp__4 ) + ( 7. * mdl_MH__exp__2 ) / ( 120. * mdl_MT__exp__2 ) ) ) / ( 12. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
-      const doublesv_or_floats mdl_Gphi = -( mdl_G__exp__2 * ( 1. + mdl_MH__exp__6 / ( 560. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 90. * mdl_MT__exp__4 ) + mdl_MH__exp__2 / ( 12. * mdl_MT__exp__2 ) ) ) / ( 8. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
+      //const fptype mdl_sqrt__aS = constexpr_sqrt( aS );
+      //const fptype G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
+      const fptype mdl_G__exp__2 = ( ( G ) * ( G ) );
+      const fptype mdl_GH = -( mdl_G__exp__2 * ( 1. + ( 13. * mdl_MH__exp__6 ) / ( 16800. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 168. * mdl_MT__exp__4 ) + ( 7. * mdl_MH__exp__2 ) / ( 120. * mdl_MT__exp__2 ) ) ) / ( 12. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
+      const fptype mdl_Gphi = -( mdl_G__exp__2 * ( 1. + mdl_MH__exp__6 / ( 560. * mdl_MT__exp__6 ) + mdl_MH__exp__4 / ( 90. * mdl_MT__exp__4 ) + mdl_MH__exp__2 / ( 12. * mdl_MT__exp__2 ) ) ) / ( 8. * ( ( M_PI ) * ( M_PI ) ) * mdl_v );
       // Model couplings dependent on aS
       // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
-      const cxdoublesv_or_cxfloats GC_13 = -( cxmake( 0., 1. ) * mdl_GH );
-#if ( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )
+      const cxtype GC_13 = -( cxmake( 0., 1. ) * mdl_GH );
       GC_13r = cxreal( GC_13 );
       GC_13i = cximag( GC_13 );
-#else
-      GC_13ri = GC_13;
-#endif
     }
+#endif
     return out;
   }
 #ifdef __CUDACC__
