@@ -224,7 +224,7 @@ namespace Parameters_heft_dependentCouplings
     using namespace Parameters_heft;
 #endif
     DependentCouplings_sv out;
-#if not ( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )
+#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )
     {
       const fptype_sv& G = G_sv;
       // Model parameters dependent on aS
@@ -237,11 +237,11 @@ namespace Parameters_heft_dependentCouplings
       // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
       out.GC_13 = -( cxmake( 0., 1. ) * mdl_GH );
     }
-#else    
+#else
     // ** NB #439: special handling is necessary ONLY FOR VECTORS OF FLOATS (variable Gs are vector floats, fixed parameters are scalar doubles)
     // Use an explicit loop to avoid "error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation"
     // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)
-    for( int i = 0; i < neppV; i++ )      
+    for( int i = 0; i < neppV; i++ )
     {
       const fptype& G = G_sv[i];
       fptype& GC_13r = cxreal( out.GC_13 )[i];
