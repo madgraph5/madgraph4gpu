@@ -729,7 +729,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict = self.default_replace_dict
         replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
         replace_dict['model_name'] = self.model_name
-        params_indep = [ line.replace('aS, ','') for line in self.write_parameters(self.params_indep).split('\n') ]
+        params_indep = [ '  //cxsmpl<double> mdl_complexi; // hardcoded there where it is necessary'
+                         if line == '  cxsmpl<double> mdl_complexi;' else
+                         line.replace('aS, ','')
+                         for line in self.write_parameters(self.params_indep).split('\n') ]
         replace_dict['independent_parameters'] = '// Model parameters independent of aS\n  //double aS; // now retrieved event-by-event (as G) from Fortran (running alphas #373)\n' + '\n'.join( params_indep )
         replace_dict['independent_couplings'] = '// Model couplings independent of aS\n' + self.write_parameters(self.coups_indep)
         params_dep = [ '  //' + line[2:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(self.params_dep).split('\n') ]
@@ -782,8 +785,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                     dcoupsetdpar.append( '    ' + line.replace('constexpr double', 'const fptype_sv' if foundG else '//const fptype_sv' ) )
                     if 'constexpr double G =' in line: foundG = True
             replace_dict['dcoupsetdpar'] = '  ' + '\n'.join( dcoupsetdpar )
-            dcoupsetdcoup = [ '    ' + line.replace('constexpr cxsmpl<double> ','out.').replace('mdl_complexi', 'cxmake( 0., 1. )') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
-            replace_dict['dcoupsetdcoup'] = '      // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?\n  ' + '\n'.join( dcoupsetdcoup )
+            dcoupsetdcoup = [ '    ' + line.replace('constexpr cxsmpl<double> ','out.').replace('mdl_complexi', 'cI') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
+            replace_dict['dcoupsetdcoup'] = '  ' + '\n'.join( dcoupsetdcoup )
             dcoupaccessbuffer = [ '    fptype* %ss = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_%s );'%( name, name ) for name in self.coups_dep ]
             replace_dict['dcoupaccessbuffer'] = '\n'.join( dcoupaccessbuffer ) + '\n'
             dcoupkernelaccess = [ '    cxtype_sv_ref %ss_sv = C_ACCESS::kernelAccess( %ss );'%( name, name ) for name in self.coups_dep ]
@@ -794,9 +797,9 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             dcoupoutdcoup2 = [ '      fptype& %sr = cxreal( out.%s )[i];\n      fptype& %si = cximag( out.%s )[i];'%(name,name,name,name) for name in self.coups_dep ]
             replace_dict['dcoupoutdcoup2'] = '\n' + '\n'.join( dcoupoutdcoup2 )
             replace_dict['dcoupsetdpar2'] = replace_dict['dcoupsetdpar'].replace('fptype_sv','fptype')
-            dcoupsetdcoup2 = [ '    ' + line.replace('constexpr cxsmpl<double> ','const cxtype ').replace('mdl_complexi', 'cxmake( 0., 1. )') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
+            dcoupsetdcoup2 = [ '    ' + line.replace('constexpr cxsmpl<double> ','const cxtype ').replace('mdl_complexi', 'cI') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
             dcoupsetdcoup2 += [ '      %sr = cxreal( %s );\n      %si = cximag( %s );'%(name,name,name,name) for name in self.coups_dep ]
-            replace_dict['dcoupsetdcoup2'] = '      // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?\n  ' + '\n'.join( dcoupsetdcoup2 )
+            replace_dict['dcoupsetdcoup2'] = '  ' + '\n'.join( dcoupsetdcoup2 )
         else:
             replace_dict['idcoup'] = '  // NB: there are no aS-dependent couplings in this physics process'
             replace_dict['dcoupdecl'] = '    // (none)'
