@@ -228,7 +228,6 @@ namespace Parameters_sm_dependentCouplings
     for( int i = 0; i < neppV; i++ )
     {
       const fptype& G = G_sv[i];
-      // (none)
       // Model parameters dependent on aS
       // (none)
       // Model couplings dependent on aS
