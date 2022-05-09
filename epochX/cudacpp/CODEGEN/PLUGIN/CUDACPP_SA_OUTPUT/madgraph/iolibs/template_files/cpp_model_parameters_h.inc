@@ -165,7 +165,7 @@ namespace Parameters_%(model_name)s_dependentCouplings
     for( int i = 0; i < neppV; i++ )
     {
       const fptype& G = G_sv[i];
-  %(dcoupoutdcoup2)s
+%(dcoupoutdcoup2)s
       // Model parameters dependent on aS
   %(dcoupsetdpar2)s
       // Model couplings dependent on aS
