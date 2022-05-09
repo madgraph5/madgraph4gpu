@@ -213,8 +213,8 @@ namespace Parameters_sm_dependentCouplings
 #ifdef MGONGPU_HARDCODE_PARAM
     using namespace Parameters_sm;
 #endif
-    // NB: hardcode cxtype cI(0,1) instead of cxsmpl mdl_complexi (which exists in Parameters_heft) because:
-    // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in the following code
+    // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_sm) because:
+    // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
     const cxtype cI( 0., 1. );
     DependentCouplings_sv out;
     // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)
