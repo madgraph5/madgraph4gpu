@@ -793,7 +793,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupkernelaccess'] = '\n'.join( dcoupkernelaccess ) + '\n'
             dcoupcompute = [ '    %ss_sv = couplings_sv.%s;'%( name, name ) for name in self.coups_dep ]
             replace_dict['dcoupcompute'] = '\n'.join( dcoupcompute )
-            # Special handling for fptype=float using SIMD
+            # Special handling in EFT for fptype=float using SIMD
             dcoupoutdcoup2 = [ '      fptype& %sr = cxreal( out.%s )[i];\n      fptype& %si = cximag( out.%s )[i];'%(name,name,name,name) for name in self.coups_dep ]
             replace_dict['dcoupoutdcoup2'] = '\n' + '\n'.join( dcoupoutdcoup2 )
             replace_dict['dcoupsetdpar2'] = replace_dict['dcoupsetdpar'].replace('fptype_sv','fptype')
@@ -808,10 +808,31 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupaccessbuffer'] = ''
             replace_dict['dcoupkernelaccess'] = ''
             replace_dict['dcoupcompute'] = '    // NB: there are no aS-dependent couplings in this physics process'
-            # Special handling for fptype=float using SIMD
+            # Special handling in EFT for fptype=float using SIMD
             replace_dict['dcoupoutdcoup2'] = ''
             replace_dict['dcoupsetdpar2'] = '      // (none)'
             replace_dict['dcoupsetdcoup2'] = '      // (none)'
+        # Special handling in EFT for fptype=float using SIMD
+        if self.model_name == 'sm' :
+            replace_dict['eftspecial1'] = '    // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)'
+            replace_dict['eftspecial2'] = '    // End SM implementation - no special handling of vectors of floats as in EFT (#439)'
+        else:
+            replace_dict['eftspecial1'] = '    // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
+            replace_dict['eftspecial1'] += '\n#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )'
+            replace_dict['eftspecial2'] = """#else
+    // ** NB #439: special handling is necessary ONLY FOR VECTORS OF FLOATS (variable Gs are vector floats, fixed parameters are scalar doubles)
+    // Use an explicit loop to avoid <<error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation>>
+    // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)
+    for( int i = 0; i < neppV; i++ )
+    {
+      const fptype& G = G_sv[i];%(dcoupoutdcoup2)s
+      // Model parameters dependent on aS
+%(dcoupsetdpar2)s
+      // Model couplings dependent on aS
+%(dcoupsetdcoup2)s
+    }
+#endif""" % replace_dict
+            replace_dict['eftspecial2'] += '\n    // End non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
         file_h = self.read_template_file(self.param_template_h) % \
                  replace_dict
         file_cc = self.read_template_file(self.param_template_cc) % \
