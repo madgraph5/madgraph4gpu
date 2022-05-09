@@ -731,45 +731,34 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['model_name'] = self.model_name
         params_indep = [ line.replace('aS, ','') for line in self.write_parameters(self.params_indep).split('\n') ]
         replace_dict['independent_parameters'] = '// Model parameters independent of aS\n  //double aS; // now retrieved event-by-event (as G) from Fortran (running alphas #373)\n' + '\n'.join( params_indep )
-        replace_dict['independent_couplings'] = \
-                                   '// Model couplings independent of aS\n' + \
-                                   self.write_parameters(self.coups_indep)
+        replace_dict['independent_couplings'] = '// Model couplings independent of aS\n' + self.write_parameters(self.coups_indep)
         params_dep = [ '  //' + line[2:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(self.params_dep).split('\n') ]
-        replace_dict['dependent_parameters'] = \
-                                   '// Model parameters dependent on aS\n' + '\n'.join( params_dep )
+        replace_dict['dependent_parameters'] = '// Model parameters dependent on aS\n' + '\n'.join( params_dep )
         coups_dep = [ '  //' + line[2:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(list(self.coups_dep.values())).split('\n') ]
-        replace_dict['dependent_couplings'] = \
-                                   '// Model couplings dependent on aS\n' + '\n'.join( coups_dep )
+        replace_dict['dependent_couplings'] = '// Model couplings dependent on aS\n' + '\n'.join( coups_dep )
         set_params_indep = [ line.replace('aS','//aS') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)'
                              if line.startswith( '  aS =' ) else
                              line.replace('mdl_complexi','//mdl_complexi') + ' // hardcoded there where it is necessary'
                              if line.startswith( '  mdl_complexi =' ) else
                              line for line in self.write_set_parameters(self.params_indep).split('\n') ]
         replace_dict['set_independent_parameters'] = '\n'.join( set_params_indep )
-        replace_dict['set_independent_couplings'] = \
-                               self.write_set_parameters(self.coups_indep)
-        replace_dict['set_dependent_parameters'] = \
-                               self.write_set_parameters(self.params_dep)
-        replace_dict['set_dependent_couplings'] = \
-                               self.write_set_parameters(list(self.coups_dep.values()))
+        replace_dict['set_independent_couplings'] = self.write_set_parameters(self.coups_indep)
+        replace_dict['set_dependent_parameters'] = self.write_set_parameters(self.params_dep)
+        replace_dict['set_dependent_couplings'] = self.write_set_parameters(list(self.coups_dep.values()))
         print_params_indep = [ line.replace('std::cout','//std::cout') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)'
                                if '"aS =' in line else
                                line.replace('std::cout','//std::cout')
                                if '"mdl_complexi =' in line else
                                line for line in self.write_print_parameters(self.params_indep).split('\n') ]
         replace_dict['print_independent_parameters'] = '\n'.join( print_params_indep )
-        replace_dict['print_independent_couplings'] = \
-                               self.write_print_parameters(self.coups_indep)
-        replace_dict['print_dependent_parameters'] = \
-                               self.write_print_parameters(self.params_dep)
-        replace_dict['print_dependent_couplings'] = \
-                               self.write_print_parameters(list(self.coups_dep.values()))
+        replace_dict['print_independent_couplings'] = self.write_print_parameters(self.coups_indep)
+        replace_dict['print_dependent_parameters'] = self.write_print_parameters(self.params_dep)
+        replace_dict['print_dependent_couplings'] = self.write_print_parameters(list(self.coups_dep.values()))
         if 'include_prefix' not in replace_dict:
             replace_dict['include_prefix'] = ''
         hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep).split('\n') ]
         replace_dict['hardcoded_independent_parameters'] = '\n'.join( hrd_params_indep )
-        replace_dict['hardcoded_independent_couplings'] = \
-                               self.write_hardcoded_parameters(self.coups_indep)
+        replace_dict['hardcoded_independent_couplings'] = self.write_hardcoded_parameters(self.coups_indep)
         hrd_params_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(self.params_dep).split('\n') ]
         replace_dict['hardcoded_dependent_parameters'] = '\n'.join( hrd_params_dep )
         hrd_coups_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') ]
@@ -843,10 +832,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
     }
 #endif""" % replace_dict
             replace_dict['eftspecial2'] += '\n    // End non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
-        file_h = self.read_template_file(self.param_template_h) % \
-                 replace_dict
-        file_cc = self.read_template_file(self.param_template_cc) % \
-                  replace_dict
+        file_h = self.read_template_file(self.param_template_h) % replace_dict
+        file_cc = self.read_template_file(self.param_template_cc) % replace_dict
         return file_h, file_cc
 
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
