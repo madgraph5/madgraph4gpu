@@ -207,16 +207,34 @@ namespace Parameters_sm_dependentCouplings
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
 #endif
-  __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G )
+  __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv )
   {
 #ifdef MGONGPU_HARDCODE_PARAM
     using namespace Parameters_heft;
 #endif
-    // Model parameters dependent on aS
-    // (none)
-    // Model couplings dependent on aS
     DependentCouplings_sv out;
-    // (none)
+#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )
+    {
+      const fptype_sv& G = G_sv;
+      // Model parameters dependent on aS
+      // (none)
+      // Model couplings dependent on aS
+      // (none)
+    }
+#else
+    // ** NB #439: special handling is necessary ONLY FOR VECTORS OF FLOATS (variable Gs are vector floats, fixed parameters are scalar doubles)
+    // Use an explicit loop to avoid "error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation"
+    // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)
+    for( int i = 0; i < neppV; i++ )
+    {
+      const fptype& G = G_sv[i];
+      // (none)
+      // Model parameters dependent on aS
+      // (none)
+      // Model couplings dependent on aS
+      // (none)
+    }
+#endif
     return out;
   }
 #ifdef __CUDACC__
