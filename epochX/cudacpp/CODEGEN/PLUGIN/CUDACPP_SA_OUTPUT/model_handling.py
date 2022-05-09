@@ -740,7 +740,11 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         coups_dep = [ '  //' + line[2:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(list(self.coups_dep.values())).split('\n') ]
         replace_dict['dependent_couplings'] = \
                                    '// Model couplings dependent on aS\n' + '\n'.join( coups_dep )
-        set_params_indep = [ line.replace('aS','//aS') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if line.startswith( '  aS =' ) else line for line in self.write_set_parameters(self.params_indep).split('\n') ]
+        set_params_indep = [ line.replace('aS','//aS') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)'
+                             if line.startswith( '  aS =' ) else
+                             line.replace('mdl_complexi','//mdl_complexi') + ' // hardcoded there where it is necessary'
+                             if line.startswith( '  mdl_complexi =' ) else
+                             line for line in self.write_set_parameters(self.params_indep).split('\n') ]
         replace_dict['set_independent_parameters'] = '\n'.join( set_params_indep )
         replace_dict['set_independent_couplings'] = \
                                self.write_set_parameters(self.coups_indep)
@@ -748,7 +752,11 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                                self.write_set_parameters(self.params_dep)
         replace_dict['set_dependent_couplings'] = \
                                self.write_set_parameters(list(self.coups_dep.values()))
-        print_params_indep = [ line.replace('std::cout','//std::cout') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if '"aS =' in line else line for line in self.write_print_parameters(self.params_indep).split('\n') ]
+        print_params_indep = [ line.replace('std::cout','//std::cout') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)'
+                               if '"aS =' in line else
+                               line.replace('std::cout','//std::cout')
+                               if '"mdl_complexi =' in line else
+                               line for line in self.write_print_parameters(self.params_indep).split('\n') ]
         replace_dict['print_independent_parameters'] = '\n'.join( print_params_indep )
         replace_dict['print_independent_couplings'] = \
                                self.write_print_parameters(self.coups_indep)
