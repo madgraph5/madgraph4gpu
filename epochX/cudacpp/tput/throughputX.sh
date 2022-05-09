@@ -9,7 +9,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-nocpp|[-omp][-avxall][-nocuda]] [-auto|-autoonly] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-nocpp|[-omp][-avxall][-nocuda]] [-auto|-autoonly] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -22,6 +22,7 @@ ggtt=0
 ggttg=0
 ggttgg=0
 ggttggg=0
+heftggh=0
 suffs="/"
 
 omp=0
@@ -65,6 +66,9 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-ggttggg" ]; then
     ggttggg=1
+    shift
+  elif [ "$1" == "-heftggh" ]; then
+    heftggh=1
     shift
   elif [ "$1" == "-auto" ]; then
     if [ "${suffs}" == ".auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
@@ -177,7 +181,7 @@ if [ "${dlp}" != "" ]; then
 fi
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ]; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${heftggh}" == "0" ]; then usage; fi
 
 # Use only the .auto process directories in the alpaka directory
 if [ "$bckend" == "alpaka" ]; then
@@ -236,6 +240,8 @@ for suff in $suffs; do
       dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
     elif [ "${ggttggg}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
+    elif [ "${heftggh}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/heft_gg_h${suff}/SubProcesses/P1_Sigma_heft_gg_h
     fi
     for hrdcod in $hrdcods; do
       hrdsuf=_hrd${hrdcod}
@@ -265,6 +271,8 @@ for suff in $suffs; do
       dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
     elif [ "${ggttggg}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
+    elif [ "${heftggh}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/heft_gg_h${suff}/SubProcesses/P1_Sigma_heft_gg_h
     fi
     for hrdcod in $hrdcods; do
       hrdsuf=_hrd${hrdcod}
@@ -309,6 +317,8 @@ for suff in $suffs; do
     dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
   elif [ "${ggttggg}" == "1" ]; then 
     dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
+  elif [ "${heftggh}" == "1" ]; then 
+    dir=$topdir/epochX/${bckend}/heft_gg_h${suff}/SubProcesses/P1_Sigma_heft_gg_h
   fi
 
   export USEBUILDDIR=1
@@ -482,7 +492,11 @@ for exe in $exes; do
   fi
   if [ ! -f $exe ]; then echo "Not found: $exe"; continue; fi
   if [ "${exe%%/gcheck*}" != "${exe}" ] && [ "$gpuTxt" == "none" ]; then continue; fi
-  if [ "${exe%%/gg_ttggg*}" != "${exe}" ]; then 
+  if [ "${exe%%/heft_gg_h*}" != "${exe}" ]; then 
+    # For heftggh: 2->1 process, hence all events are identical and random numbers are ignored, use bare minimum 1 8 1
+    exeArgs="-p 1 8 1"
+    ncuArgs="-p 1 8 1"
+  elif [ "${exe%%/gg_ttggg*}" != "${exe}" ]; then 
     # For ggttggg: this is far too little for GPU (4.8E2), but it keeps the CPU to a manageble level (1sec with 512y)
     exeArgs="-p 1 256 1"
     ncuArgs="-p 1 256 1"

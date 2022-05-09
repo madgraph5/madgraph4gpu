@@ -690,7 +690,8 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             return res
         pardef = pardef.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
         parset = parset.replace('std::complex<','cxsmpl<') # custom simplex complex class (with constexpr arithmetics)
-        parset = parset.replace('sqrt(','sqrtNR(') # Newton-Raphson sqrt (with constexpr arithmetics)
+        parset = parset.replace('sqrt(','constexpr_sqrt(') # constexpr sqrt (based on iterative Newton-Raphson approximation)
+        parset = parset.replace('pow(','constexpr_pow(') # constexpr sqrt (based on iterative Newton-Raphson approximation)
         parset = parset.replace('(','( ')
         parset = parset.replace(')',' )')
         parset = parset.replace('+',' + ')
@@ -728,39 +729,33 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict = self.default_replace_dict
         replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
         replace_dict['model_name'] = self.model_name
-        params_indep = [ line.replace('aS, ','') for line in self.write_parameters(self.params_indep).split('\n') ]
+        params_indep = [ line.replace('aS, ','')
+                         for line in self.write_parameters(self.params_indep).split('\n') ]
         replace_dict['independent_parameters'] = '// Model parameters independent of aS\n  //double aS; // now retrieved event-by-event (as G) from Fortran (running alphas #373)\n' + '\n'.join( params_indep )
-        replace_dict['independent_couplings'] = \
-                                   '// Model couplings independent of aS\n' + \
-                                   self.write_parameters(self.coups_indep)
+        replace_dict['independent_couplings'] = '// Model couplings independent of aS\n' + self.write_parameters(self.coups_indep)
         params_dep = [ '  //' + line[2:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(self.params_dep).split('\n') ]
-        replace_dict['dependent_parameters'] = \
-                                   '// Model parameters dependent on aS\n' + '\n'.join( params_dep )
+        replace_dict['dependent_parameters'] = '// Model parameters dependent on aS\n' + '\n'.join( params_dep )
         coups_dep = [ '  //' + line[2:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(list(self.coups_dep.values())).split('\n') ]
-        replace_dict['dependent_couplings'] = \
-                                   '// Model couplings dependent on aS\n' + '\n'.join( coups_dep )
-        set_params_indep = [ line.replace('aS','//aS') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if line.startswith( '  aS =' ) else line for line in self.write_set_parameters(self.params_indep).split('\n') ]
+        replace_dict['dependent_couplings'] = '// Model couplings dependent on aS\n' + '\n'.join( coups_dep )
+        set_params_indep = [ line.replace('aS','//aS') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)'
+                             if line.startswith( '  aS =' ) else
+                             line for line in self.write_set_parameters(self.params_indep).split('\n') ]
         replace_dict['set_independent_parameters'] = '\n'.join( set_params_indep )
-        replace_dict['set_independent_couplings'] = \
-                               self.write_set_parameters(self.coups_indep)
-        replace_dict['set_dependent_parameters'] = \
-                               self.write_set_parameters(self.params_dep)
-        replace_dict['set_dependent_couplings'] = \
-                               self.write_set_parameters(list(self.coups_dep.values()))
-        print_params_indep = [ line.replace('std::cout','//std::cout') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if '"aS =' in line else line for line in self.write_print_parameters(self.params_indep).split('\n') ]
+        replace_dict['set_independent_couplings'] = self.write_set_parameters(self.coups_indep)
+        replace_dict['set_dependent_parameters'] = self.write_set_parameters(self.params_dep)
+        replace_dict['set_dependent_couplings'] = self.write_set_parameters(list(self.coups_dep.values()))
+        print_params_indep = [ line.replace('std::cout','//std::cout') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)'
+                               if '"aS =' in line else
+                               line for line in self.write_print_parameters(self.params_indep).split('\n') ]
         replace_dict['print_independent_parameters'] = '\n'.join( print_params_indep )
-        replace_dict['print_independent_couplings'] = \
-                               self.write_print_parameters(self.coups_indep)
-        replace_dict['print_dependent_parameters'] = \
-                               self.write_print_parameters(self.params_dep)
-        replace_dict['print_dependent_couplings'] = \
-                               self.write_print_parameters(list(self.coups_dep.values()))
+        replace_dict['print_independent_couplings'] = self.write_print_parameters(self.coups_indep)
+        replace_dict['print_dependent_parameters'] = self.write_print_parameters(self.params_dep)
+        replace_dict['print_dependent_couplings'] = self.write_print_parameters(list(self.coups_dep.values()))
         if 'include_prefix' not in replace_dict:
             replace_dict['include_prefix'] = ''
         hrd_params_indep = [ line.replace('constexpr','//constexpr') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)' if 'aS =' in line else line for line in self.write_hardcoded_parameters(self.params_indep).split('\n') ]
         replace_dict['hardcoded_independent_parameters'] = '\n'.join( hrd_params_indep )
-        replace_dict['hardcoded_independent_couplings'] = \
-                               self.write_hardcoded_parameters(self.coups_indep)
+        replace_dict['hardcoded_independent_couplings'] = self.write_hardcoded_parameters(self.coups_indep)
         hrd_params_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(self.params_dep).split('\n') ]
         replace_dict['hardcoded_dependent_parameters'] = '\n'.join( hrd_params_dep )
         hrd_coups_dep = [ line.replace('constexpr','//constexpr') + ' // now computed event-by-event (running alphas #373)' if line != '' else line for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') ]
@@ -781,29 +776,61 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             foundG = False
             for line in self.write_hardcoded_parameters(self.params_dep).split('\n'):
                 if line != '':
-                    dcoupsetdpar.append( '  ' + line.replace('constexpr double', 'const fptype_sv' if foundG else '//const fptype_sv' ) )
+                    dcoupsetdpar.append( '    ' + line.replace('constexpr double', 'const fptype_sv' if foundG else '//const fptype_sv' ) )
                     if 'constexpr double G =' in line: foundG = True
-            replace_dict['dcoupsetdpar'] = '\n'.join( dcoupsetdpar )
-            dcoupsetdcoup = [ '  ' + line.replace('constexpr cxsmpl<double> ','out.').replace('mdl_complexi', 'cxmake( 0., 1. )') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
-            replace_dict['dcoupsetdcoup'] = '  // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?\n  ' + '\n'.join( dcoupsetdcoup )
+            replace_dict['dcoupsetdpar'] = '  ' + '\n'.join( dcoupsetdpar )
+            dcoupsetdcoup = [ '    ' + line.replace('constexpr cxsmpl<double> ','out.').replace('mdl_complexi', 'cI') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
+            replace_dict['dcoupsetdcoup'] = '  ' + '\n'.join( dcoupsetdcoup )
             dcoupaccessbuffer = [ '    fptype* %ss = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_%s );'%( name, name ) for name in self.coups_dep ]
             replace_dict['dcoupaccessbuffer'] = '\n'.join( dcoupaccessbuffer ) + '\n'
             dcoupkernelaccess = [ '    cxtype_sv_ref %ss_sv = C_ACCESS::kernelAccess( %ss );'%( name, name ) for name in self.coups_dep ]
             replace_dict['dcoupkernelaccess'] = '\n'.join( dcoupkernelaccess ) + '\n'
             dcoupcompute = [ '    %ss_sv = couplings_sv.%s;'%( name, name ) for name in self.coups_dep ]
             replace_dict['dcoupcompute'] = '\n'.join( dcoupcompute )
+            # Special handling in EFT for fptype=float using SIMD
+            dcoupoutdcoup2 = [ '      fptype& %sr = cxreal( out.%s )[i];\n      fptype& %si = cximag( out.%s )[i];'%(name,name,name,name) for name in self.coups_dep ]
+            replace_dict['dcoupoutdcoup2'] = '\n' + '\n'.join( dcoupoutdcoup2 )
+            replace_dict['dcoupsetdpar2'] = replace_dict['dcoupsetdpar'].replace('fptype_sv','fptype')
+            dcoupsetdcoup2 = [ '    ' + line.replace('constexpr cxsmpl<double> ','const cxtype ').replace('mdl_complexi', 'cI') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
+            dcoupsetdcoup2 += [ '      %sr = cxreal( %s );\n      %si = cximag( %s );'%(name,name,name,name) for name in self.coups_dep ]
+            replace_dict['dcoupsetdcoup2'] = '  ' + '\n'.join( dcoupsetdcoup2 )
         else:
             replace_dict['idcoup'] = '  // NB: there are no aS-dependent couplings in this physics process'
             replace_dict['dcoupdecl'] = '    // (none)'
-            replace_dict['dcoupsetdpar'] = '  // (none)'
-            replace_dict['dcoupsetdcoup'] = '  // (none)'
+            replace_dict['dcoupsetdpar'] = '      // (none)'
+            replace_dict['dcoupsetdcoup'] = '      // (none)'
             replace_dict['dcoupaccessbuffer'] = ''
             replace_dict['dcoupkernelaccess'] = ''
             replace_dict['dcoupcompute'] = '    // NB: there are no aS-dependent couplings in this physics process'
-        file_h = self.read_template_file(self.param_template_h) % \
-                 replace_dict
-        file_cc = self.read_template_file(self.param_template_cc) % \
-                  replace_dict
+            # Special handling in EFT for fptype=float using SIMD
+            replace_dict['dcoupoutdcoup2'] = ''
+            replace_dict['dcoupsetdpar2'] = '      // (none)'
+            replace_dict['dcoupsetdcoup2'] = '      // (none)'
+        # Require HRDCOD=1 in EFT and special handling in EFT for fptype=float using SIMD
+        if self.model_name == 'sm' :
+            replace_dict['efterror'] = ''
+            replace_dict['eftspecial1'] = '    // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)'
+            replace_dict['eftspecial2'] = '    // End SM implementation - no special handling of vectors of floats as in EFT (#439)'
+        else:
+            replace_dict['efterror'] = '\n#error This non-SM physics process only supports MGONGPU_HARDCODE_PARAM builds (#439): please run "make HRDCOD=1"'
+            replace_dict['eftspecial1'] = '    // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
+            replace_dict['eftspecial1'] += '\n#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )'
+            replace_dict['eftspecial2'] = """#else
+    // ** NB #439: special handling is necessary ONLY FOR VECTORS OF FLOATS (variable Gs are vector floats, fixed parameters are scalar doubles)
+    // Use an explicit loop to avoid <<error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation>>
+    // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)
+    for( int i = 0; i < neppV; i++ )
+    {
+      const fptype& G = G_sv[i];%(dcoupoutdcoup2)s
+      // Model parameters dependent on aS
+%(dcoupsetdpar2)s
+      // Model couplings dependent on aS
+%(dcoupsetdcoup2)s
+    }
+#endif""" % replace_dict
+            replace_dict['eftspecial2'] += '\n    // End non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
+        file_h = self.read_template_file(self.param_template_h) % replace_dict
+        file_cc = self.read_template_file(self.param_template_cc) % replace_dict
         return file_h, file_cc
 
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
