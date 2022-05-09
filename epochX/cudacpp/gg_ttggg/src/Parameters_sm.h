@@ -15,7 +15,7 @@
 
 //==========================================================================
 
-#ifndef MGONGPU_HARDCODE_PARAM
+#ifndef MGONGPU_HARDCODE_PARAM // this is only supported in SM processes (e.g. not in EFT models) for the moment (#439)
 
 #include "read_slha.h"
 
@@ -216,6 +216,9 @@ namespace Parameters_sm_dependentCouplings
 #ifdef MGONGPU_HARDCODE_PARAM
     using namespace Parameters_sm;
 #endif
+    // NB: hardcode cxtype cI(0,1) instead of cxsmpl mdl_complexi (which exists in Parameters_heft) because:
+    // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in the following code
+    const cxtype cI( 0., 1. );
     DependentCouplings_sv out;
     // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)
     {
@@ -225,10 +228,9 @@ namespace Parameters_sm_dependentCouplings
       //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
       const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
       // Model couplings dependent on aS
-      // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
       out.GC_10 = -G;
-      out.GC_11 = cxmake( 0., 1. ) * G;
-      out.GC_12 = cxmake( 0., 1. ) * mdl_G__exp__2;
+      out.GC_11 = cI * G;
+      out.GC_12 = cI * mdl_G__exp__2;
     }
     // End SM implementation - no special handling of vectors of floats as in EFT (#439)
     return out;
