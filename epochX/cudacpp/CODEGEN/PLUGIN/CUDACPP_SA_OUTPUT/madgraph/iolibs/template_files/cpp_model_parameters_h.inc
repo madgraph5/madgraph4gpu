@@ -154,7 +154,7 @@ namespace Parameters_%(model_name)s_dependentCouplings
     {
       const fptype_sv& G = G_sv;
       // Model parameters dependent on aS
-  %(dcoupsetdpar)s
+%(dcoupsetdpar)s
       // Model couplings dependent on aS
   %(dcoupsetdcoup)s
     }
@@ -167,7 +167,7 @@ namespace Parameters_%(model_name)s_dependentCouplings
       const fptype& G = G_sv[i];
 %(dcoupoutdcoup2)s
       // Model parameters dependent on aS
-  %(dcoupsetdpar2)s
+%(dcoupsetdpar2)s
       // Model couplings dependent on aS
   %(dcoupsetdcoup2)s
     }

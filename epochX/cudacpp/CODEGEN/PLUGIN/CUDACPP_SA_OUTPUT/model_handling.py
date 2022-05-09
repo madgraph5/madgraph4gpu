@@ -784,7 +784,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                 if line != '':
                     dcoupsetdpar.append( '    ' + line.replace('constexpr double', 'const fptype_sv' if foundG else '//const fptype_sv' ) )
                     if 'constexpr double G =' in line: foundG = True
-            replace_dict['dcoupsetdpar'] = '\n'.join( dcoupsetdpar )
+            replace_dict['dcoupsetdpar'] = '  ' + '\n'.join( dcoupsetdpar )
             dcoupsetdcoup = [ '    ' + line.replace('constexpr cxsmpl<double> ','out.').replace('mdl_complexi', 'cxmake( 0., 1. )') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
             replace_dict['dcoupsetdcoup'] = '    // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?\n  ' + '\n'.join( dcoupsetdcoup )
             dcoupaccessbuffer = [ '    fptype* %ss = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_%s );'%( name, name ) for name in self.coups_dep ]
@@ -803,14 +803,14 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         else:
             replace_dict['idcoup'] = '  // NB: there are no aS-dependent couplings in this physics process'
             replace_dict['dcoupdecl'] = '    // (none)'
-            replace_dict['dcoupsetdpar'] = '    // (none)'
+            replace_dict['dcoupsetdpar'] = '      // (none)'
             replace_dict['dcoupsetdcoup'] = '    // (none)'
             replace_dict['dcoupaccessbuffer'] = ''
             replace_dict['dcoupkernelaccess'] = ''
             replace_dict['dcoupcompute'] = '    // NB: there are no aS-dependent couplings in this physics process'
             # Special handling for fptype=float using SIMD
             replace_dict['dcoupoutdcoup2'] = '  ' + replace_dict['dcoupsetdcoup']
-            replace_dict['dcoupsetdpar2'] = '    // (none)'
+            replace_dict['dcoupsetdpar2'] = '      // (none)'
             replace_dict['dcoupsetdcoup2'] = '    // (none)'
         file_h = self.read_template_file(self.param_template_h) % \
                  replace_dict
