@@ -211,7 +211,7 @@ namespace Parameters_sm_dependentCouplings
   __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv )
   {
 #ifdef MGONGPU_HARDCODE_PARAM
-    using namespace Parameters_heft;
+    using namespace Parameters_sm;
 #endif
     DependentCouplings_sv out;
     // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)
