@@ -156,7 +156,7 @@ namespace Parameters_%(model_name)s_dependentCouplings
       // Model parameters dependent on aS
 %(dcoupsetdpar)s
       // Model couplings dependent on aS
-  %(dcoupsetdcoup)s
+%(dcoupsetdcoup)s
     }
 #else
     // ** NB #439: special handling is necessary ONLY FOR VECTORS OF FLOATS (variable Gs are vector floats, fixed parameters are scalar doubles)
@@ -164,12 +164,11 @@ namespace Parameters_%(model_name)s_dependentCouplings
     // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)
     for( int i = 0; i < neppV; i++ )
     {
-      const fptype& G = G_sv[i];
-%(dcoupoutdcoup2)s
+      const fptype& G = G_sv[i];%(dcoupoutdcoup2)s
       // Model parameters dependent on aS
 %(dcoupsetdpar2)s
       // Model couplings dependent on aS
-  %(dcoupsetdcoup2)s
+%(dcoupsetdcoup2)s
     }
 #endif
     return out;
