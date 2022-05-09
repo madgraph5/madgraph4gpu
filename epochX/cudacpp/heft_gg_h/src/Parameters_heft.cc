@@ -48,7 +48,7 @@ Parameters_heft::setIndependentParameters( SLHAReader& slha )
   mdl_MT = slha.get_block_entry( "mass", 6, 1.730000e+02 );
   mdl_MB = slha.get_block_entry( "mass", 5, 4.700000e+00 );
   mdl_conjg__CKM3x3 = 1.;
-  //mdl_complexi = cxsmpl<double>( 0., 1. ); // hardcoded there where it is necessary
+  mdl_complexi = cxsmpl<double>( 0., 1. );
   mdl_MZ__exp__2 = ( ( mdl_MZ ) * ( mdl_MZ ) );
   mdl_MZ__exp__4 = ( ( mdl_MZ ) * ( mdl_MZ ) * ( mdl_MZ ) * ( mdl_MZ ) );
   mdl_sqrt__2 = sqrt( 2. );
@@ -141,7 +141,7 @@ Parameters_heft::printIndependentParameters()
   std::cout << std::setw( 20 ) << "mdl_MT = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_MT << std::endl;
   std::cout << std::setw( 20 ) << "mdl_MB = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_MB << std::endl;
   std::cout << std::setw( 20 ) << "mdl_conjg__CKM3x3 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_conjg__CKM3x3 << std::endl;
-  //std::cout << std::setw( 20 ) << "mdl_complexi = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_complexi << std::endl;
+  std::cout << std::setw( 20 ) << "mdl_complexi = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_complexi << std::endl;
   std::cout << std::setw( 20 ) << "mdl_MZ__exp__2 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_MZ__exp__2 << std::endl;
   std::cout << std::setw( 20 ) << "mdl_MZ__exp__4 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_MZ__exp__4 << std::endl;
   std::cout << std::setw( 20 ) << "mdl_sqrt__2 = " << std::setiosflags( std::ios::scientific ) << std::setw( 10 ) << mdl_sqrt__2 << std::endl;

@@ -32,7 +32,7 @@ public:
   // Model parameters independent of aS
   //double aS; // now retrieved event-by-event (as G) from Fortran (running alphas #373)
   double mdl_WH1, mdl_WH, mdl_WW, mdl_WZ, mdl_WT, mdl_ymtau, mdl_ymt, mdl_ymb, mdl_Gf, aEWM1, mdl_MP, mdl_MH, mdl_MZ, mdl_MTA, mdl_MT, mdl_MB, mdl_conjg__CKM3x3, mdl_MZ__exp__2, mdl_MZ__exp__4, mdl_sqrt__2, mdl_MH__exp__4, mdl_MT__exp__4, mdl_MH__exp__2, mdl_MT__exp__2, mdl_MH__exp__12, mdl_MH__exp__10, mdl_MH__exp__8, mdl_MH__exp__6, mdl_MT__exp__6, mdl_aEW, mdl_MW, mdl_sqrt__aEW, mdl_ee, mdl_MW__exp__2, mdl_sw2, mdl_cw, mdl_sqrt__sw2, mdl_sw, mdl_g1, mdl_gw, mdl_v, mdl_ee__exp__2, mdl_MW__exp__12, mdl_MW__exp__10, mdl_MW__exp__8, mdl_MW__exp__6, mdl_MW__exp__4, mdl_AH, mdl_v__exp__2, mdl_lam, mdl_yb, mdl_yt, mdl_ytau, mdl_muH, mdl_gw__exp__2, mdl_cw__exp__2, mdl_sw__exp__2;
-  //cxsmpl<double> mdl_complexi; // hardcoded there where it is necessary
+  cxsmpl<double> mdl_complexi;
 
   // Model couplings independent of aS
   // (none)
@@ -224,8 +224,8 @@ namespace Parameters_heft_dependentCouplings
 #ifdef MGONGPU_HARDCODE_PARAM
     using namespace Parameters_heft;
 #endif
-    // NB: hardcode cxtype cI(0,1) instead of cxsmpl mdl_complexi (which exists in Parameters_heft) because:
-    // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in the following code
+    // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_heft) because:
+    // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
     const cxtype cI( 0., 1. );
     DependentCouplings_sv out;
     // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)
