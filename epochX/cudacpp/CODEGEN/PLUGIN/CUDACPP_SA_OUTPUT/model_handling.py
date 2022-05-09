@@ -729,9 +729,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict = self.default_replace_dict
         replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
         replace_dict['model_name'] = self.model_name
-        params_indep = [ '  //cxsmpl<double> mdl_complexi; // hardcoded there where it is necessary'
-                         if line == '  cxsmpl<double> mdl_complexi;' else
-                         line.replace('aS, ','')
+        params_indep = [ line.replace('aS, ','')
                          for line in self.write_parameters(self.params_indep).split('\n') ]
         replace_dict['independent_parameters'] = '// Model parameters independent of aS\n  //double aS; // now retrieved event-by-event (as G) from Fortran (running alphas #373)\n' + '\n'.join( params_indep )
         replace_dict['independent_couplings'] = '// Model couplings independent of aS\n' + self.write_parameters(self.coups_indep)
@@ -741,8 +739,6 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['dependent_couplings'] = '// Model couplings dependent on aS\n' + '\n'.join( coups_dep )
         set_params_indep = [ line.replace('aS','//aS') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)'
                              if line.startswith( '  aS =' ) else
-                             line.replace('mdl_complexi','//mdl_complexi') + ' // hardcoded there where it is necessary'
-                             if line.startswith( '  mdl_complexi =' ) else
                              line for line in self.write_set_parameters(self.params_indep).split('\n') ]
         replace_dict['set_independent_parameters'] = '\n'.join( set_params_indep )
         replace_dict['set_independent_couplings'] = self.write_set_parameters(self.coups_indep)
@@ -750,8 +746,6 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['set_dependent_couplings'] = self.write_set_parameters(list(self.coups_dep.values()))
         print_params_indep = [ line.replace('std::cout','//std::cout') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)'
                                if '"aS =' in line else
-                               line.replace('std::cout','//std::cout')
-                               if '"mdl_complexi =' in line else
                                line for line in self.write_print_parameters(self.params_indep).split('\n') ]
         replace_dict['print_independent_parameters'] = '\n'.join( print_params_indep )
         replace_dict['print_independent_couplings'] = self.write_print_parameters(self.coups_indep)
