@@ -16,7 +16,7 @@
 //==========================================================================
 
 #ifndef MGONGPU_HARDCODE_PARAM // this is only supported in SM processes (e.g. not in EFT models) for the moment (#439)
-#error This non-SM physics process only supports MGONGPU_HARDCODE_PARAM builds (#439): please run 'make HRDCOD=1'
+#error This non-SM physics process only supports MGONGPU_HARDCODE_PARAM builds (#439): please run "make HRDCOD=1"
 
 #include "read_slha.h"
 

@@ -812,11 +812,13 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupoutdcoup2'] = ''
             replace_dict['dcoupsetdpar2'] = '      // (none)'
             replace_dict['dcoupsetdcoup2'] = '      // (none)'
-        # Special handling in EFT for fptype=float using SIMD
+        # Require HRDCOD=1 in EFT and special handling in EFT for fptype=float using SIMD
         if self.model_name == 'sm' :
+            replace_dict['efterror'] = ''
             replace_dict['eftspecial1'] = '    // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)'
             replace_dict['eftspecial2'] = '    // End SM implementation - no special handling of vectors of floats as in EFT (#439)'
         else:
+            replace_dict['efterror'] = '\n#error This non-SM physics process only supports MGONGPU_HARDCODE_PARAM builds (#439): please run "make HRDCOD=1"'
             replace_dict['eftspecial1'] = '    // Begin non-SM (e.g. EFT) implementation - special handling of vectors of floats (#439)'
             replace_dict['eftspecial1'] += '\n#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )'
             replace_dict['eftspecial2'] = """#else
