@@ -15,7 +15,7 @@
 
 //==========================================================================
 
-#ifndef MGONGPU_HARDCODE_PARAM
+#ifndef MGONGPU_HARDCODE_PARAM // this is only supported in SM processes (e.g. not in EFT models) for the moment (#439)
 
 #include "read_slha.h"
 
@@ -208,20 +208,27 @@ namespace Parameters_sm_dependentCouplings
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "mdl_G__exp__2" was declared but never referenced>>
 #endif
-  __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G )
+  __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv )
   {
 #ifdef MGONGPU_HARDCODE_PARAM
-    using namespace Parameters_heft;
+    using namespace Parameters_sm;
 #endif
-    // Model parameters dependent on aS
-    //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
-    //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
-    const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
-    // Model couplings dependent on aS
+    // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_sm) because:
+    // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
+    const cxtype cI( 0., 1. );
     DependentCouplings_sv out;
-    // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
-    out.GC_10 = -G;
-    out.GC_11 = cxmake( 0., 1. ) * G;
+    // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)
+    {
+      const fptype_sv& G = G_sv;
+      // Model parameters dependent on aS
+      //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
+      //const fptype_sv G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
+      const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
+      // Model couplings dependent on aS
+      out.GC_10 = -G;
+      out.GC_11 = cI * G;
+    }
+    // End SM implementation - no special handling of vectors of floats as in EFT (#439)
     return out;
   }
 #ifdef __CUDACC__

@@ -50,7 +50,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0069484710693359375 [0m
+[1;32mDEBUG: model prefixing  takes 0.0068454742431640625 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
@@ -80,7 +80,7 @@ INFO: Generating Feynman diagrams for Process: g g > t t~ WEIGHTED<=2 @1
 INFO: Finding symmetric diagrams for subprocess group gg_ttx 
 [1;32mDEBUG:  done [1;30m[madgraph_interface.py at line 8458][0m [0m
 Generated helas calls for 1 subprocesses (3 diagrams) in 0.008 s
-Wrote files for 10 helas calls in 0.095 s
+Wrote files for 10 helas calls in 0.094 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
@@ -100,6 +100,6 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.308s
-user	0m1.770s
-sys	0m0.319s
+real	0m2.049s
+user	0m1.730s
+sys	0m0.298s
