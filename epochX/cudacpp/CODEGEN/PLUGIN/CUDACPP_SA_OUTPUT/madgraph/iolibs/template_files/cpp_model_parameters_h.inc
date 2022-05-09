@@ -147,7 +147,7 @@ namespace Parameters_%(model_name)s_dependentCouplings
   __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv )
   {
 #ifdef MGONGPU_HARDCODE_PARAM
-    using namespace Parameters_heft;
+    using namespace Parameters_%(model_name)s;
 #endif
     DependentCouplings_sv out;
 %(eftspecial1)s
