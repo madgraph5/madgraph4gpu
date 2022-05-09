@@ -214,7 +214,7 @@ namespace Parameters_sm_dependentCouplings
     using namespace Parameters_heft;
 #endif
     DependentCouplings_sv out;
-#if not( defined MGONGPU_CPPSIMD && defined MGONGPU_FPTYPE_FLOAT )
+    // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)
     {
       const fptype_sv& G = G_sv;
       // Model parameters dependent on aS
@@ -226,31 +226,7 @@ namespace Parameters_sm_dependentCouplings
       out.GC_10 = -G;
       out.GC_11 = cxmake( 0., 1. ) * G;
     }
-#else
-    // ** NB #439: special handling is necessary ONLY FOR VECTORS OF FLOATS (variable Gs are vector floats, fixed parameters are scalar doubles)
-    // Use an explicit loop to avoid "error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation"
-    // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)
-    for( int i = 0; i < neppV; i++ )
-    {
-      const fptype& G = G_sv[i];
-      fptype& GC_10r = cxreal( out.GC_10 )[i];
-      fptype& GC_10i = cximag( out.GC_10 )[i];
-      fptype& GC_11r = cxreal( out.GC_11 )[i];
-      fptype& GC_11i = cximag( out.GC_11 )[i];
-      // Model parameters dependent on aS
-      //const fptype mdl_sqrt__aS = constexpr_sqrt( aS );
-      //const fptype G = 2. * mdl_sqrt__aS * constexpr_sqrt( M_PI );
-      const fptype mdl_G__exp__2 = ( ( G ) * ( G ) );
-      // Model couplings dependent on aS
-      // FIXME? should this use a model-dependent mdl_complexi instead of a hardcoded cxmake(0,1)?
-      const cxtype GC_10 = -G;
-      const cxtype GC_11 = cxmake( 0., 1. ) * G;
-      GC_10r = cxreal( GC_10 );
-      GC_10i = cximag( GC_10 );
-      GC_11r = cxreal( GC_11 );
-      GC_11i = cximag( GC_11 );
-    }
-#endif
+    // End SM implementation - no special handling of vectors of floats as in EFT (#439)
     return out;
   }
 #ifdef __CUDACC__
