@@ -153,7 +153,7 @@ for step in $steps; do
               if ! ./throughputX.sh -makecleanonly $args; then exit 1; fi
             elif [ "${step}" == "make" ]; then
               printf "\n%80s\n" |tr " " "*"
-              printf "*** ./throughputX.sh -makeonly $args"
+              printf "*** ./throughputX.sh -makeonly ${makej} $args"
               printf "\n%80s\n" |tr " " "*"
               if ! ./throughputX.sh -makeonly ${makej} $args; then exit 1; fi
             else
