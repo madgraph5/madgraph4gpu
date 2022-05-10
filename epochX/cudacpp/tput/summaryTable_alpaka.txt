@@ -1,6 +1,6 @@
 *** FPTYPE=d ******************************************************************
 
-+++ cudacpp REVISION 09e482e +++
++++ cudacpp REVISION 09e482e (commit date: 2022-03-03 08:03:33 +0100) +++
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.112 (gcc 10.2.0)] 
@@ -16,7 +16,7 @@ CPP/avx2      5.42e+06      5.63e+05      8.84e+04      6.82e+03      2.58e+02
 CPP/512y      5.89e+06      6.15e+05      9.81e+04      7.49e+03      2.85e+02
 CPP/512z      4.77e+06      3.84e+05      7.20e+04      6.54e+03      2.95e+02
 
-+++ alpaka REVISION f5a44ba +++
++++ alpaka REVISION f5a44ba (commit date: 2022-03-06 16:28:06 +0100) +++
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.112 (gcc 10.2.0)] 

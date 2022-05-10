@@ -1,6 +1,6 @@
 *** FPTYPE=d ******************************************************************
 
-+++ cudacpp REVISION 09e482e +++
++++ cudacpp REVISION 09e482e (commit date: 2022-03-03 08:03:33 +0100) +++
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.112 (gcc 10.2.0)] 
@@ -27,7 +27,7 @@ CPP/avx2      1.23e+07      4.31e+05      --------      6.14e+03      --------
 CPP/512y      1.34e+07      4.55e+05      --------      7.54e+03      --------
 CPP/512z      8.65e+06      3.50e+05      --------      6.68e+03      --------
 
-+++ cudacpp REVISION 16df79c +++
++++ cudacpp REVISION 16df79c (commit date: 2022-03-03 17:46:07 +0100) +++
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.112 (icx 20220000, clang 14.0.0, gcc 10.2.0)] 
@@ -56,7 +56,7 @@ CPP/512z      1.05e+07      5.94e+05      --------      1.09e+04      --------
 
 *** FPTYPE=f ******************************************************************
 
-+++ cudacpp REVISION 09e482e +++
++++ cudacpp REVISION 09e482e (commit date: 2022-03-03 08:03:33 +0100) +++
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.112 (gcc 10.2.0)] 
@@ -83,7 +83,7 @@ CPP/avx2      2.89e+07      7.11e+05      --------      1.20e+04      --------
 CPP/512y      2.97e+07      7.09e+05      --------      1.47e+04      --------
 CPP/512z      2.04e+07      5.57e+05      --------      1.30e+04      --------
 
-+++ cudacpp REVISION 16df79c +++
++++ cudacpp REVISION 16df79c (commit date: 2022-03-03 17:46:07 +0100) +++
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.112 (icx 20220000, clang 14.0.0, gcc 10.2.0)] 

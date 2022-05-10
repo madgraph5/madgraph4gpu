@@ -1,6 +1,6 @@
 *** FPTYPE=d ******************************************************************
 
-+++ cudacpp REVISION 09e482e +++
++++ cudacpp REVISION 09e482e (commit date: 2022-03-03 08:03:33 +0100) +++
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.112 (gcc 10.2.0)] 
@@ -27,7 +27,7 @@ CPP/avx2      1.23e+07      4.31e+05      --------      6.14e+03      --------
 CPP/512y      1.34e+07      4.55e+05      --------      7.54e+03      --------
 CPP/512z      8.65e+06      3.50e+05      --------      6.68e+03      --------
 
-+++ cudacpp REVISION 65730b2 +++
++++ cudacpp REVISION 65730b2 (commit date: 2022-02-18 10:53:35 +0100) +++
 On jwlogin05.juwels [CPU: Intel(R) Xeon(R) Gold 6148 CPU] [GPU: none]:
 
 [gcc 11.2.0] 
@@ -52,7 +52,7 @@ CPP/avx2      1.86e+07      7.01e+05      --------      9.43e+03      --------
 CPP/512y      2.05e+07      7.36e+05      --------      1.17e+04      --------
 CPP/512z      1.58e+07      7.94e+05      --------      2.02e+04      --------
 
-+++ cudacpp REVISION df441ad +++
++++ cudacpp REVISION df441ad (commit date: 2022-02-18 10:34:36 +0100) +++
 On jwb0085.juwels [CPU: AMD EPYC 7402 24-Core Processor] [GPU: 4x NVIDIA A100-SXM4-40GB]:
 
 [nvcc 11.5.50 (gcc 11.2.0)] 
@@ -81,7 +81,7 @@ CPP/512z      --------      --------      --------      --------      --------
 
 *** FPTYPE=f ******************************************************************
 
-+++ cudacpp REVISION 09e482e +++
++++ cudacpp REVISION 09e482e (commit date: 2022-03-03 08:03:33 +0100) +++
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.112 (gcc 10.2.0)] 
@@ -108,7 +108,7 @@ CPP/avx2      2.89e+07      7.11e+05      --------      1.20e+04      --------
 CPP/512y      2.97e+07      7.09e+05      --------      1.47e+04      --------
 CPP/512z      2.04e+07      5.57e+05      --------      1.30e+04      --------
 
-+++ cudacpp REVISION 65730b2 +++
++++ cudacpp REVISION 65730b2 (commit date: 2022-02-18 10:53:35 +0100) +++
 On jwlogin05.juwels [CPU: Intel(R) Xeon(R) Gold 6148 CPU] [GPU: none]:
 
 [gcc 11.2.0] 
@@ -133,7 +133,7 @@ CPP/avx2      4.25e+07      1.11e+06      --------      1.84e+04      --------
 CPP/512y      4.57e+07      1.12e+06      --------      2.26e+04      --------
 CPP/512z      3.78e+07      1.30e+06      --------      4.00e+04      --------
 
-+++ cudacpp REVISION df441ad +++
++++ cudacpp REVISION df441ad (commit date: 2022-02-18 10:34:36 +0100) +++
 On jwb0085.juwels [CPU: AMD EPYC 7402 24-Core Processor] [GPU: 4x NVIDIA A100-SXM4-40GB]:
 
 [nvcc 11.5.50 (gcc 11.2.0)] 

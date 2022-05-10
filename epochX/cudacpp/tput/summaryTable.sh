@@ -196,7 +196,7 @@ for fpt in $fpts; do
         for hrd in $hrds; do
           echo -e "-------------------------------------------------------------------------------\n" >> $out
           for rev in $revs; do
-            echo -e "+++ $bckend REVISION $rev +++" >> $out
+            echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
             nodelast=
             oneTable
           done
@@ -208,7 +208,7 @@ for fpt in $fpts; do
         for hrd in $hrds; do
           echo -e "-------------------------------------------------------------------------------\n" >> $out
           for rev in $revs; do
-            echo -e "+++ $bckend REVISION $rev +++" >> $out
+            echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
             nodelast=
             oneTable
           done
@@ -217,7 +217,7 @@ for fpt in $fpts; do
     else
       ### Old sorting (all but alphas and 3xcomp)
       for rev in $revs; do
-        echo -e "+++ $bckend REVISION $rev +++" >> $out
+        echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
         nodelast=
         for inl in $inls; do
           for hrd in $hrds; do
