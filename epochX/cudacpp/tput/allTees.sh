@@ -5,8 +5,10 @@ scrdir=$(cd $(dirname $0); pwd)
 # Short (no ggttggg) or long version?
 if [ "$1" == "-short" ]; then
   ggttggg=
+  shift
 elif [ "$1" == "" ]; then
   ggttggg=-ggttggg
+  shift
 else
   echo "Usage: $0 [-short]"
   exit 1
@@ -63,3 +65,9 @@ echo "$ended2"
 echo "$ended3"
 echo "$ended4"
 echo "$ended5"
+
+if [ "$ggttggg" == "" ]; then
+  echo
+  echo "To complete the test for ggttggg type:"
+  echo "  ./tput/teeThroughputX.sh -flt -hrd -makej -makeclean -ggttggg"
+fi
