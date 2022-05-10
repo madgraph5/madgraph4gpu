@@ -3,7 +3,7 @@
 table=
 if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   set -e
-  $0
+  $0 -default
   $0 -hrdcod
   $0 -juwels
   $0 -alpaka
@@ -11,6 +11,8 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   $0 -alphas
   $0 -3xcomp
   exit 0
+elif [ "$1" == "-default" ]; then
+  table="default"; shift
 elif [ "$1" == "-hrdcod" ]; then
   table="hrdcod"; shift
 elif [ "$1" == "-juwels" ]; then
@@ -23,8 +25,9 @@ elif [ "$1" == "-alphas" ]; then
   table="alphas"; shift
 elif [ "$1" == "-3xcomp" ]; then
   table="3xcomp"; shift
+else
+  echo "Usage: $0 <table [-ALL|_default|-hrdcod|-juwels|-alpaka|-macm1|-alphas|-3xcomp]>"; exit 1
 fi
-if [ "$1" != "" ]; then echo "Usage: $0 [-ALL|-hrdcod|-juwels|-alpaka|-macm1|-alphas|-3xcomp]"; exit 1; fi
 
 unames=$(uname -s)
 if [ "${unames}" == "Darwin" ]; then
@@ -36,11 +39,7 @@ cd $(dirname $0)/..
 echo PWD=$(pwd)
 
 # Output file
-if [ "$table" == "" ]; then
-  out=tput/summaryTable.txt
-else
-  out=tput/summaryTable_${table}.txt
-fi
+out=tput/summaryTable_${table}.txt
 \rm -f $out
 touch $out
 
@@ -55,7 +54,7 @@ touch $out
 # Select revisions of cudacpp and alpaka logs
 crevs=""
 arevs=""
-if [ "$table" == "" ]; then
+if [ "$table" == "default" ]; then
   crevs="$crevs 09e482e"  # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
   crevs="$crevs 16df79c"  # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
 elif [ "$table" == "hrdcod" ]; then
@@ -85,7 +84,7 @@ fi
 procs="eemumu ggtt ggttg ggttgg ggttggg"
 
 # Select fptype, helinl, hrdcod
-if [ "$table" == "" ]; then
+if [ "$table" == "default" ]; then
   fpts="d f"
   inls="inl0 inl1"
   hrds="hrd0"
