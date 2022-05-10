@@ -252,7 +252,9 @@ namespace mg5amcCpu
 #endif
 {
 #pragma GCC diagnostic push
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable" // e.g. <<warning: variable ‘couplings_sv’ set but not used [-Wunused-but-set-variable]>>
+#endif
   // Compute the output couplings (e.g. gc10 and gc11) from the input gs
   template<class G_ACCESS, class C_ACCESS>
   __device__ inline void

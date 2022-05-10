@@ -1,6 +1,6 @@
 *** FPTYPE=d ******************************************************************
 
-+++ cudacpp REVISION ea28661 +++
++++ cudacpp REVISION ea28661 (commit date: 2022-04-10 00:37:17 +0200) +++
 On mac-1T0-438.local [CPU: Apple M1] [GPU: none]:
 
 [Apple clang 12.0.5] 
@@ -12,7 +12,7 @@ CPP/sse4      7.55e+06      9.79e+05      1.39e+05      1.11e+04      3.65e+02
 
 *** FPTYPE=f ******************************************************************
 
-+++ cudacpp REVISION ea28661 +++
++++ cudacpp REVISION ea28661 (commit date: 2022-04-10 00:37:17 +0200) +++
 On mac-1T0-438.local [CPU: Apple M1] [GPU: none]:
 
 [Apple clang 12.0.5] 

@@ -2,13 +2,17 @@
 
 table=
 if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
-  $0
+  set -e
+  $0 -default
   $0 -hrdcod
   $0 -juwels
   $0 -alpaka
   $0 -macm1
   $0 -alphas
+  $0 -3xcomp
   exit 0
+elif [ "$1" == "-default" ]; then
+  table="default"; shift
 elif [ "$1" == "-hrdcod" ]; then
   table="hrdcod"; shift
 elif [ "$1" == "-juwels" ]; then
@@ -19,8 +23,11 @@ elif [ "$1" == "-macm1" ]; then
   table="macm1"; shift
 elif [ "$1" == "-alphas" ]; then
   table="alphas"; shift
+elif [ "$1" == "-3xcomp" ]; then
+  table="3xcomp"; shift
+else
+  echo "Usage: $0 <table [-ALL|_default|-hrdcod|-juwels|-alpaka|-macm1|-alphas|-3xcomp]>"; exit 1
 fi
-if [ "$1" != "" ]; then echo "Usage: $0 [-ALL|-hrdcod|-juwels|-alpaka|-macm1|-alphas]"; exit 1; fi
 
 unames=$(uname -s)
 if [ "${unames}" == "Darwin" ]; then
@@ -32,11 +39,7 @@ cd $(dirname $0)/..
 echo PWD=$(pwd)
 
 # Output file
-if [ "$table" == "" ]; then
-  out=tput/summaryTable.txt
-else
-  out=tput/summaryTable_${table}.txt
-fi
+out=tput/summaryTable_${table}.txt
 \rm -f $out
 touch $out
 
@@ -51,31 +54,37 @@ touch $out
 # Select revisions of cudacpp and alpaka logs
 crevs=""
 arevs=""
-if [ "$table" == "" ]; then
+if [ "$table" == "default" ]; then
   crevs="$crevs 09e482e"  # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
-  crevs="$crevs 88dc717"  # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
+  crevs="$crevs 16df79c"  # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
 elif [ "$table" == "hrdcod" ]; then
   crevs="$crevs 09e482e"  # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
-  crevs="$crevs 88dc717"  # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
+  crevs="$crevs 16df79c"  # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
 elif [ "$table" == "juwels" ]; then
   crevs="$crevs 09e482e"  # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
   crevs="$crevs 65730b2"  # cuda115/gcc112  (18 Feb 2022) JUWELSCL eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
   crevs="$crevs df441ad"  # cuda115/gcc112  (18 Feb 2022) JUWELSBO eemumu/ggtt/ggttgg x f/d x inl0/inl1 + ggttg/ggttggg x f/d
 elif [ "$table" == "alpaka" ]; then
   crevs="$crevs 09e482e"  # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
-  arevs="$arevs b93a2f3"  # cuda116/gcc102  (06 Mar 2022) GOLDEPX4 eemumu/ggtt/ggttg/ggttgg/ggttggg x d x inl0
+  arevs="$arevs f5a44ba"  # cuda116/gcc102  (06 Mar 2022) GOLDEPX4 eemumu/ggtt/ggttg/ggttgg/ggttggg x d x inl0 (golden tag epochx4)
 elif [ "$table" == "macm1" ]; then
   crevs="$crevs ea28661"  # NOGPU/clang120  (10 Apr 2022) MACM1ARM eemumu/ggtt/ggttg/ggttgg/ggttggg x f/d x hrd0 x inl0
 elif [ "$table" == "alphas" ]; then
   crevs="$crevs 88fe36d1" # cuda116/gcc102  (28 Apr 2022) PRE-AS   56 logs allTees.sh
   crevs="$crevs bae5c248" # cuda116/gcc102  (28 Apr 2022) POST-AS  56 logs allTees.sh
+elif [ "$table" == "3xcomp" ]; then
+  crevs="$crevs c112e7db" # cuda116/gcc102  (10 May 2022) GCC102   58 logs allTees.sh (includes also heftggh)
+  crevs="$crevs 7a158588" # cuda116/clang12 (10 May 2022) CLANG12  56 logs allTees.sh
+  crevs="$crevs 7912f186" # cuda116/icx2022 (10 May 2022) ICX2022  56 logs allTees.sh
+else
+  echo "ERROR! Unknown table '$table'"; exit 1
 fi
 
 # Select processes
 procs="eemumu ggtt ggttg ggttgg ggttggg"
 
 # Select fptype, helinl, hrdcod
-if [ "$table" == "" ]; then
+if [ "$table" == "default" ]; then
   fpts="d f"
   inls="inl0 inl1"
   hrds="hrd0"
@@ -99,6 +108,12 @@ elif [ "$table" == "alphas" ]; then
   fpts="d f"
   inls="inl0" # no need to add inl1 (even if data exists)
   hrds="hrd0 hrd1"
+elif [ "$table" == "3xcomp" ]; then
+  fpts="d f"
+  inls="inl0 inl1"
+  hrds="hrd0 hrd1"
+else
+  echo "ERROR! Unknown table '$table'"; exit 1
 fi
 
 # Select tag list
@@ -121,6 +136,7 @@ function oneTable()
   ###echo "*** FILES $files ***" >> $out
   if [ "$files" == "" ]; then continue; fi
   git checkout $rev $files >& /dev/null
+  if [ "$?" != "0" ]; then echo "ERROR! 'git checkout $rev' failed!"; exit 1; fi
   node=$(cat $files | grep ^On | sort -u)
   if [ "$nodelast" != "$node" ]; then echo -e "$node\n" >> $out; nodelast=$node; fi
   ###cat $files | awk '/^runExe.*check.*/{print $0};/^Process/{print $0};/Workflow/{print $0};/MECalcOnly/{print $0}'; continue
@@ -172,22 +188,35 @@ for fpt in $fpts; do
       suff=manu
     fi
     if [ "$revs" == "" ]; then continue; fi
-    ### New sorting (alphas)
-    if [ "$table" == "alphas" ]; then
+    ### DIFFERENT SORTINGS
+    if [ "$table" == "3xcomp" ]; then
+      ### New sorting (3xcomp)
       for inl in $inls; do
         for hrd in $hrds; do
           echo -e "-------------------------------------------------------------------------------\n" >> $out
           for rev in $revs; do
-            echo -e "+++ $bckend REVISION $rev +++" >> $out
+            echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
+            nodelast=
+            oneTable
+          done
+        done
+      done
+    ### New sorting (alphas)
+    elif [ "$table" == "alphas" ]; then
+      for inl in $inls; do
+        for hrd in $hrds; do
+          echo -e "-------------------------------------------------------------------------------\n" >> $out
+          for rev in $revs; do
+            echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
             nodelast=
             oneTable
           done
         done
       done
     else
-      ### Old sorting (all but alphas)
+      ### Old sorting (all but alphas and 3xcomp)
       for rev in $revs; do
-        echo -e "+++ $bckend REVISION $rev +++" >> $out
+        echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
         nodelast=
         for inl in $inls; do
           for hrd in $hrds; do
@@ -198,5 +227,6 @@ for fpt in $fpts; do
     fi
   done
 done
-git checkout HEAD tput/logs* >& /dev/null
+git checkout HEAD ../cudacpp/tput/logs* >& /dev/null
+git checkout HEAD ../alpaka/tput/logs* >& /dev/null
 cat $out
