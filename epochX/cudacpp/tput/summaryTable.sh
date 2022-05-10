@@ -2,6 +2,7 @@
 
 table=
 if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
+  set -e
   $0
   $0 -hrdcod
   $0 -juwels
@@ -136,6 +137,7 @@ function oneTable()
   ###echo "*** FILES $files ***" >> $out
   if [ "$files" == "" ]; then continue; fi
   git checkout $rev $files >& /dev/null
+  if [ "$?" != "0" ]; then echo "ERROR! 'git checkout $rev' failed!"; exit 1; fi
   node=$(cat $files | grep ^On | sort -u)
   if [ "$nodelast" != "$node" ]; then echo -e "$node\n" >> $out; nodelast=$node; fi
   ###cat $files | awk '/^runExe.*check.*/{print $0};/^Process/{print $0};/Workflow/{print $0};/MECalcOnly/{print $0}'; continue
@@ -226,5 +228,6 @@ for fpt in $fpts; do
     fi
   done
 done
-git checkout HEAD tput/logs* >& /dev/null
+git checkout HEAD ../cudacpp/tput/logs* >& /dev/null
+git checkout HEAD ../alpaka/tput/logs* >& /dev/null
 cat $out
