@@ -8,6 +8,7 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   $0 -alpaka
   $0 -macm1
   $0 -alphas
+  $0 -3xcomp
   exit 0
 elif [ "$1" == "-hrdcod" ]; then
   table="hrdcod"; shift
@@ -19,8 +20,10 @@ elif [ "$1" == "-macm1" ]; then
   table="macm1"; shift
 elif [ "$1" == "-alphas" ]; then
   table="alphas"; shift
+elif [ "$1" == "-3xcomp" ]; then
+  table="3xcomp"; shift
 fi
-if [ "$1" != "" ]; then echo "Usage: $0 [-ALL|-hrdcod|-juwels|-alpaka|-macm1|-alphas]"; exit 1; fi
+if [ "$1" != "" ]; then echo "Usage: $0 [-ALL|-hrdcod|-juwels|-alpaka|-macm1|-alphas|-3xcomp]"; exit 1; fi
 
 unames=$(uname -s)
 if [ "${unames}" == "Darwin" ]; then
@@ -69,6 +72,12 @@ elif [ "$table" == "macm1" ]; then
 elif [ "$table" == "alphas" ]; then
   crevs="$crevs 88fe36d1" # cuda116/gcc102  (28 Apr 2022) PRE-AS   56 logs allTees.sh
   crevs="$crevs bae5c248" # cuda116/gcc102  (28 Apr 2022) POST-AS  56 logs allTees.sh
+elif [ "$table" == "3xcomp" ]; then
+  crevs="$crevs c112e7db" # cuda116/gcc102  (10 May 2022) GCC102   58 logs allTees.sh (includes also heftggh)
+  crevs="$crevs 7a158588" # cuda116/clang12 (10 May 2022) CLANG12  56 logs allTees.sh
+  crevs="$crevs 7912f186" # cuda116/icx2022 (10 May 2022) ICX2022  56 logs allTees.sh
+else
+  echo "ERROR! Unknown table '$table'"; exit 1
 fi
 
 # Select processes
@@ -99,6 +108,12 @@ elif [ "$table" == "alphas" ]; then
   fpts="d f"
   inls="inl0" # no need to add inl1 (even if data exists)
   hrds="hrd0 hrd1"
+elif [ "$table" == "3xcomp" ]; then
+  fpts="d f"
+  inls="inl0 inl1"
+  hrds="hrd0 hrd1"
+else
+  echo "ERROR! Unknown table '$table'"; exit 1
 fi
 
 # Select tag list
@@ -172,8 +187,21 @@ for fpt in $fpts; do
       suff=manu
     fi
     if [ "$revs" == "" ]; then continue; fi
+    ### DIFFERENT SORTINGS
+    if [ "$table" == "3xcomp" ]; then
+      ### New sorting (3xcomp)
+      for inl in $inls; do
+        for hrd in $hrds; do
+          echo -e "-------------------------------------------------------------------------------\n" >> $out
+          for rev in $revs; do
+            echo -e "+++ $bckend REVISION $rev +++" >> $out
+            nodelast=
+            oneTable
+          done
+        done
+      done
     ### New sorting (alphas)
-    if [ "$table" == "alphas" ]; then
+    elif [ "$table" == "alphas" ]; then
       for inl in $inls; do
         for hrd in $hrds; do
           echo -e "-------------------------------------------------------------------------------\n" >> $out
@@ -185,7 +213,7 @@ for fpt in $fpts; do
         done
       done
     else
-      ### Old sorting (all but alphas)
+      ### Old sorting (all but alphas and 3xcomp)
       for rev in $revs; do
         echo -e "+++ $bckend REVISION $rev +++" >> $out
         nodelast=
