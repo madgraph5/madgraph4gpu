@@ -68,6 +68,8 @@ endif
 $(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
 	$(FC) -o $(PROG) $(PROCESS) $(DSIG) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
 
+$(LIBS): libs
+
 libs:
 	cd ../../Source; make
 ifneq (,$(wildcard fbridge.inc))
