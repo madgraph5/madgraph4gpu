@@ -37,7 +37,15 @@ endif
 
 LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
 
-LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
+processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
+PLUGIN_COMMONLIB = mg5amc_common
+PLUGIN_COMMONLIB = mg5amc_common
+PLUGIN_CXXLIB = mg5amc_$(processid_short)_cpp
+PLUGIN_CULIB = mg5amc_$(processid_short)_cuda
+PLUGIN_MAKEFILE = Makefile
+PLUGINLIBS = $(LIBDIR)/lib$(PLUGIN_CXXLIB).so $(LIBDIR)/lib$(PLUGIN_CULIB).so
+
+LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)$(LIBDIR)/lib $(PLUGINLIBS)
 
 # Source files
 
@@ -60,26 +68,22 @@ SYMMETRY = symmetry.o idenparts.o
 # Binaries
 
 ifeq (,$(wildcard fbridge.inc))
-all: libs $(PROG)
+all: $(PROG)
 else
-all: libs $(PROG) c$(PROG)_cudacpp g$(PROG)_cudacpp
+all: .libs $(PROG) c$(PROG)_cudacpp g$(PROG)_cudacpp
 endif
 
 $(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
 	$(FC) -o $(PROG) $(PROCESS) $(DSIG) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
 
-libs:
-	cd ../../Source; make
 ifneq (,$(wildcard fbridge.inc))
-	$(MAKE) -f $(PLUGIN_MAKEFILE)
-endif
+$(LIBS): .libs
 
-processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
-PLUGIN_COMMONLIB = mg5amc_common
-PLUGIN_COMMONLIB = mg5amc_common
-PLUGIN_CXXLIB = mg5amc_$(processid_short)_cpp
-PLUGIN_CULIB = mg5amc_$(processid_short)_cuda
-PLUGIN_MAKEFILE = Makefile
+.libs:
+	cd ../../Source; make
+	$(MAKE) -f $(PLUGIN_MAKEFILE)
+	touch $@
+endif
 
 # On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
 # Use relative paths with respect to the executables ($ORIGIN on Linux)
@@ -96,9 +100,6 @@ c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) count
 g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/lib$(PLUGIN_CULIB).so
 	$(FC) -o g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CULIB) $(LIBFLAGSRPATH)
 
-$(LIBDIR)/lib$(PLUGIN_CXXLIB).so $(LIBDIR)/lib$(PLUGIN_CULIB).so:
-	$(MAKE) -f $(PLUGIN_MAKEFILE)
-
 counters.o: counters.cpp timer.h
 	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
 
@@ -108,6 +109,7 @@ $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 gensym: $(SYMMETRY) configs.inc $(LIBDIR)libmodel.$(libext) $(LIBDIR)libgeneric.$(libext)
 	$(FC) -o gensym $(SYMMETRY) -L$(LIBDIR) -lmodel -lgeneric -lpdf $(llhapdf) $(LDFLAGS)
 
+ifeq (,$(wildcard fbridge.inc))
 $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
 	cd ../../Source/MODEL; make
 
@@ -116,6 +118,7 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
 
 $(LIBDIR)libpdf.$(libext): 
 	cd ../../Source/PDF; make
+endif
 
 # Add source so that the compiler finds the DiscreteSampler module.
 $(MATRIX): %.o: %.f
@@ -156,4 +159,5 @@ cleanall:
 	rm -rf $(LIBDIR)libbias.$(libext)
 ifneq (,$(wildcard fbridge.inc))
 	$(MAKE) -f $(PLUGIN_MAKEFILE) cleanall
+	rm -f .libs
 endif
