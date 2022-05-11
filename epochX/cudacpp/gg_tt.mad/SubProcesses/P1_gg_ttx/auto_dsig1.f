@@ -486,12 +486,7 @@ c!$OMP END PARALLEL
 
       IF( MEEXPORTER_MODE .LT. -1 ) THEN ! (BothDebug=-2)
         DO IVEC=1, NB_PAGE
-c         DO IEXT=1, NEXTERNAL
-c           WRITE (*,*) P_MULTI(0,IEXT,IVEC), P_MULTI(1,IEXT,IVEC),
-c    &                  P_MULTI(2,IEXT,IVEC), P_MULTI(3,IEXT,IVEC)
-c         END DO
           WRITE (*,*) IVEC, OUT(IVEC), OUT2(IVEC), OUT2(IVEC)/OUT(IVEC)
-c         WRITE (*,*)
         END DO
       ENDIF
 #endif
