@@ -1,5 +1,5 @@
 diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index cce95279..8028e828 100644
+index cce95279..b1e20909 100644
 --- a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,17 @@
@@ -26,7 +26,8 @@ index cce95279..8028e828 100644
  
 -LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L../../lib/ -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
 +LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
-+
+ 
+-LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
 +processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 +PLUGIN_COMMONLIB = mg5amc_common
 +PLUGIN_COMMONLIB = mg5amc_common
@@ -34,8 +35,7 @@ index cce95279..8028e828 100644
 +PLUGIN_CULIB = mg5amc_$(processid_short)_cuda
 +PLUGIN_MAKEFILE = Makefile
 +PLUGINLIBS = $(LIBDIR)/lib$(PLUGIN_CXXLIB).so $(LIBDIR)/lib$(PLUGIN_CULIB).so
- 
--LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
++
 +LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)$(LIBDIR)/lib $(PLUGINLIBS)
  
  # Source files
@@ -124,9 +124,21 @@ index cce95279..8028e828 100644
  
  # Dependencies
  
-@@ -89,4 +147,17 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -88,5 +146,30 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+ 	 run_config.inc
  initcluster.o: message.inc
  
++# Extra dependencies on discretesampler.mod
++
++ifneq (,$(wildcard fbridge.inc))
++$(DSIG): .libs
++$(DSIG_cudacpp) : .libs
++$(MATRIX): .libs
++genps.o: .libs
++endif
++
++# Clean
++
  clean:
 -	$(RM) *.o gensym madevent madevent_forhel
 +ifeq (,$(wildcard fbridge.inc))
@@ -140,6 +152,7 @@ index cce95279..8028e828 100644
 +	make -C ../../Source clean
 +	rm -rf $(LIBDIR)libbias.$(libext)
 +ifneq (,$(wildcard fbridge.inc))
++	rm -f ../../Source/*.mod ../../Source/*/*.mod
 +	$(MAKE) -f $(PLUGIN_MAKEFILE) cleanall
 +	rm -f .libs
 +endif
