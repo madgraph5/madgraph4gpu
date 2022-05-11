@@ -53,6 +53,7 @@ jobs:
     runs-on: self-hosted
     env:
       FC: gfortran
+      REQUIRE_CUDA: 1
     strategy:
       matrix:
         folder: [ epochX/cudacpp/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epochX/cudacpp/gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg , epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum ]
