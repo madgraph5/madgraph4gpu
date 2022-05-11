@@ -78,7 +78,7 @@ $(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
 
 $(LIBS): .libs
 
-.libs:
+.libs: ../../Cards/param_card.dat ../../Cards/run_card.dat
 	cd ../../Source; make
 ifneq (,$(wildcard fbridge.inc))
 	$(MAKE) -f $(PLUGIN_MAKEFILE)
