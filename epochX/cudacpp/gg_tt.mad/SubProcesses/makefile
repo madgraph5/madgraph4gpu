@@ -68,7 +68,7 @@ SYMMETRY = symmetry.o idenparts.o
 # Binaries
 
 ifeq (,$(wildcard fbridge.inc))
-all: $(PROG)
+all: .libs $(PROG)
 else
 all: .libs $(PROG) c$(PROG)_cudacpp g$(PROG)_cudacpp
 endif
@@ -76,14 +76,14 @@ endif
 $(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
 	$(FC) -o $(PROG) $(PROCESS) $(DSIG) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
 
-ifneq (,$(wildcard fbridge.inc))
 $(LIBS): .libs
 
 .libs:
 	cd ../../Source; make
+ifneq (,$(wildcard fbridge.inc))
 	$(MAKE) -f $(PLUGIN_MAKEFILE)
-	touch $@
 endif
+	touch $@
 
 # On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
 # Use relative paths with respect to the executables ($ORIGIN on Linux)
@@ -148,12 +148,10 @@ initcluster.o: message.inc
 
 # Extra dependencies on discretesampler.mod
 
-ifneq (,$(wildcard fbridge.inc))
 $(DSIG): .libs
 $(DSIG_cudacpp) : .libs
 $(MATRIX): .libs
 genps.o: .libs
-endif
 
 # Clean
 
@@ -169,7 +167,7 @@ cleanall:
 	make -C ../../Source clean
 	rm -rf $(LIBDIR)libbias.$(libext)
 ifneq (,$(wildcard fbridge.inc))
-	rm -f ../../Source/*.mod ../../Source/*/*.mod
 	$(MAKE) -f $(PLUGIN_MAKEFILE) cleanall
-	rm -f .libs
 endif
+	rm -f ../../Source/*.mod ../../Source/*/*.mod
+	rm -f .libs
