@@ -146,6 +146,17 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
 	 run_config.inc
 initcluster.o: message.inc
 
+# Extra dependencies on discretesampler.mod
+
+ifneq (,$(wildcard fbridge.inc))
+$(DSIG): .libs
+$(DSIG_cudacpp) : .libs
+$(MATRIX): .libs
+genps.o: .libs
+endif
+
+# Clean
+
 clean:
 ifeq (,$(wildcard fbridge.inc))
 	$(RM) *.o gensym $(PROG) $(PROG)_forhel
@@ -158,6 +169,7 @@ cleanall:
 	make -C ../../Source clean
 	rm -rf $(LIBDIR)libbias.$(libext)
 ifneq (,$(wildcard fbridge.inc))
+	rm -f ../../Source/*.mod ../../Source/*/*.mod
 	$(MAKE) -f $(PLUGIN_MAKEFILE) cleanall
 	rm -f .libs
 endif
