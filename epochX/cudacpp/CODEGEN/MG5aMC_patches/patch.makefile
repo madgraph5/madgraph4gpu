@@ -1,5 +1,5 @@
 diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index cce95279..b1e20909 100644
+index cce95279..6639b814 100644
 --- a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,17 @@
@@ -61,7 +61,7 @@ index cce95279..b1e20909 100644
 -$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX)
 -	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
 +ifeq (,$(wildcard fbridge.inc))
-+all: $(PROG)
++all: .libs $(PROG)
 +else
 +all: .libs $(PROG) c$(PROG)_cudacpp g$(PROG)_cudacpp
 +endif
@@ -69,14 +69,14 @@ index cce95279..b1e20909 100644
 +$(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
 +	$(FC) -o $(PROG) $(PROCESS) $(DSIG) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
 +
-+ifneq (,$(wildcard fbridge.inc))
 +$(LIBS): .libs
 +
 +.libs:
 +	cd ../../Source; make
++ifneq (,$(wildcard fbridge.inc))
 +	$(MAKE) -f $(PLUGIN_MAKEFILE)
-+	touch $@
 +endif
++	touch $@
 +
 +# On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
 +# Use relative paths with respect to the executables ($ORIGIN on Linux)
@@ -124,18 +124,16 @@ index cce95279..b1e20909 100644
  
  # Dependencies
  
-@@ -88,5 +146,30 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -88,5 +146,28 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  
 +# Extra dependencies on discretesampler.mod
 +
-+ifneq (,$(wildcard fbridge.inc))
 +$(DSIG): .libs
 +$(DSIG_cudacpp) : .libs
 +$(MATRIX): .libs
 +genps.o: .libs
-+endif
 +
 +# Clean
 +
@@ -152,7 +150,7 @@ index cce95279..b1e20909 100644
 +	make -C ../../Source clean
 +	rm -rf $(LIBDIR)libbias.$(libext)
 +ifneq (,$(wildcard fbridge.inc))
-+	rm -f ../../Source/*.mod ../../Source/*/*.mod
 +	$(MAKE) -f $(PLUGIN_MAKEFILE) cleanall
-+	rm -f .libs
 +endif
++	rm -f ../../Source/*.mod ../../Source/*/*.mod
++	rm -f .libs
