@@ -460,6 +460,7 @@ C
       INCLUDE 'coupl.inc'
       INCLUDE 'fbridge.inc'
       DOUBLE PRECISION OUT2(NB_PAGE)
+      DOUBLE PRECISION CBYF
 
       IF( MEEXPORTER_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
@@ -484,9 +485,18 @@ c!$OMP END PARALLEL
         CALL FBRIDGESEQUENCE(MEEXPORTER_PBRIDGE, P_MULTI, ALL_G, OUT2)
       ENDIF
 
-      IF( MEEXPORTER_MODE .LT. -1 ) THEN ! (BothDebug=-2)
+      IF( MEEXPORTER_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
         DO IVEC=1, NB_PAGE
-          WRITE (*,*) IVEC, OUT(IVEC), OUT2(IVEC), OUT2(IVEC)/OUT(IVEC)
+          CBYF = OUT2(IVEC)/OUT(IVEC)
+          IF( CBYF .GT. MEEXPORTER_CBYFMAX ) MEEXPORTER_CBYFMAX = CBYF
+          IF( CBYF .LT. MEEXPORTER_CBYFMIN ) MEEXPORTER_CBYFMIN = CBYF
+          IF( MEEXPORTER_MODE .EQ. -2 ) THEN ! (BothDebug=-2)
+            WRITE (*,*) IVEC, OUT(IVEC), OUT2(IVEC), CBYF
+          ENDIF
+          IF( ABS(CBYF-1).GT.5E-5 ) THEN
+            WRITE (*,*) 'WARNING! Deviation more than 5E-5',
+     &        IVEC, OUT(IVEC), OUT2(IVEC), CBYF
+          ENDIF
         END DO
       ENDIF
 #endif
