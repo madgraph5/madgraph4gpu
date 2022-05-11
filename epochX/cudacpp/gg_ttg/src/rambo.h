@@ -104,7 +104,8 @@ namespace mg5amcCpu
     const fptype twopi = 8. * atan( 1. );
     const fptype po2log = log( twopi / 4. );
     fptype z[nparf];
-    z[1] = po2log;
+    if constexpr( nparf > 1 ) // avoid build warning on clang (related to #358)
+      z[1] = po2log;
     for( int kpar = 2; kpar < nparf; kpar++ ) z[kpar] = z[kpar - 1] + po2log - 2. * log( fptype( kpar - 1 ) );
     for( int kpar = 2; kpar < nparf; kpar++ ) z[kpar] = ( z[kpar] - log( fptype( kpar ) ) );
 
