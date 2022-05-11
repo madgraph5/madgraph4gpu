@@ -86,6 +86,7 @@ C-----
       CALL COUNTERS_INITIALISE()
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       CALL FBRIDGECREATE(MEEXPORTER_PBRIDGE, NB_PAGE, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
+      MEEXPORTER_MODE = -2 ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
 #endif
 c
 c     Read process number

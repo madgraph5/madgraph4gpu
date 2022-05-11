@@ -460,33 +460,40 @@ C
       INCLUDE 'coupl.inc'
       INCLUDE 'fbridge.inc'
       DOUBLE PRECISION OUT2(NB_PAGE)
-#endif
 
+      IF( MEEXPORTER_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
+#endif
 c!$OMP PARALLEL
 c!$OMP DO
-      DO IVEC=1, NB_PAGE
-        CALL SMATRIX1(P_MULTI(0,1,IVEC),
-     &	                         hel_rand(IVEC),
-     &				 channel,
-     &				 out(IVEC),
-C       &				 selected_hel(IVEC),
-     &				 jamp2_multi(0,IVEC),
-     &				 IVEC
-     &				 )
-      ENDDO
+        DO IVEC=1, NB_PAGE
+          CALL SMATRIX1(P_MULTI(0,1,IVEC),
+     &      hel_rand(IVEC),
+     &      channel,
+     &      out(IVEC),
+C    &      selected_hel(IVEC),
+     &      jamp2_multi(0,IVEC),
+     &      IVEC
+     &      )
+        ENDDO
 c!$OMP END DO
 c!$OMP END PARALLEL
-
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
-      CALL FBRIDGESEQUENCE(MEEXPORTER_PBRIDGE, P_MULTI, ALL_G, OUT2)
-      DO IVEC=1, NB_PAGE
-c       DO IEXT=1, NEXTERNAL
-c         WRITE (*,*) P_MULTI(0,IEXT,IVEC), P_MULTI(1,IEXT,IVEC),
-c    &                P_MULTI(2,IEXT,IVEC), P_MULTI(3,IEXT,IVEC)
-c       END DO
-        WRITE (*,*) IVEC, OUT(IVEC), OUT2(IVEC), OUT2(IVEC)/OUT(IVEC)
-c       WRITE (*,*)
-      END DO
+      ENDIF
+
+      IF( MEEXPORTER_MODE .EQ. 1 .OR. MEEXPORTER_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
+        CALL FBRIDGESEQUENCE(MEEXPORTER_PBRIDGE, P_MULTI, ALL_G, OUT2)
+      ENDIF
+
+      IF( MEEXPORTER_MODE .LT. -1 ) THEN ! (BothDebug=-2)
+        DO IVEC=1, NB_PAGE
+c         DO IEXT=1, NEXTERNAL
+c           WRITE (*,*) P_MULTI(0,IEXT,IVEC), P_MULTI(1,IEXT,IVEC),
+c    &                  P_MULTI(2,IEXT,IVEC), P_MULTI(3,IEXT,IVEC)
+c         END DO
+          WRITE (*,*) IVEC, OUT(IVEC), OUT2(IVEC), OUT2(IVEC)/OUT(IVEC)
+c         WRITE (*,*)
+        END DO
+      ENDIF
 #endif
 
       RETURN
