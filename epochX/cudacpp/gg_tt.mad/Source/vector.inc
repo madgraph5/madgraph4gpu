@@ -1,4 +1,4 @@
       INTEGER NB_PAGE
 
-      PARAMETER (NB_PAGE=16)
+      PARAMETER (NB_PAGE=32)
 
