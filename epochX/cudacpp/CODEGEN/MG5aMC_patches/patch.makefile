@@ -1,5 +1,5 @@
 diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index cce95279..95f79f3c 100644
+index cce95279..6639b814 100644
 --- a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,17 @@
@@ -20,16 +20,27 @@ index cce95279..95f79f3c 100644
  # Load additional dependencies of the bias module, if present
  ifeq (,$(wildcard ../bias_dependencies))
  BIASDEPENDENCIES =
-@@ -24,7 +35,7 @@ else
+@@ -24,9 +35,17 @@ else
      MADLOOP_LIB =
  endif
  
 -LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L../../lib/ -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
 +LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
  
- LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
+-LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
++processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
++PLUGIN_COMMONLIB = mg5amc_common
++PLUGIN_COMMONLIB = mg5amc_common
++PLUGIN_CXXLIB = mg5amc_$(processid_short)_cpp
++PLUGIN_CULIB = mg5amc_$(processid_short)_cuda
++PLUGIN_MAKEFILE = Makefile
++PLUGINLIBS = $(LIBDIR)/lib$(PLUGIN_CXXLIB).so $(LIBDIR)/lib$(PLUGIN_CULIB).so
++
++LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)$(LIBDIR)/lib $(PLUGINLIBS)
  
-@@ -37,23 +48,65 @@ ifeq ($(strip $(MATRIX_HEL)),)
+ # Source files
+ 
+@@ -37,24 +56,60 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -50,26 +61,22 @@ index cce95279..95f79f3c 100644
 -$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX)
 -	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
 +ifeq (,$(wildcard fbridge.inc))
-+all: libs $(PROG)
++all: .libs $(PROG)
 +else
-+all: libs $(PROG) c$(PROG)_cudacpp g$(PROG)_cudacpp
++all: .libs $(PROG) c$(PROG)_cudacpp g$(PROG)_cudacpp
 +endif
 +
 +$(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
 +	$(FC) -o $(PROG) $(PROCESS) $(DSIG) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
 +
-+libs:
++$(LIBS): .libs
++
++.libs:
 +	cd ../../Source; make
 +ifneq (,$(wildcard fbridge.inc))
 +	$(MAKE) -f $(PLUGIN_MAKEFILE)
 +endif
-+
-+processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
-+PLUGIN_COMMONLIB = mg5amc_common
-+PLUGIN_COMMONLIB = mg5amc_common
-+PLUGIN_CXXLIB = mg5amc_$(processid_short)_cpp
-+PLUGIN_CULIB = mg5amc_$(processid_short)_cuda
-+PLUGIN_MAKEFILE = Makefile
++	touch $@
 +
 +# On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
 +# Use relative paths with respect to the executables ($ORIGIN on Linux)
@@ -86,9 +93,6 @@ index cce95279..95f79f3c 100644
 +g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/lib$(PLUGIN_CULIB).so
 +	$(FC) -o g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CULIB) $(LIBFLAGSRPATH)
 +
-+$(LIBDIR)/lib$(PLUGIN_CXXLIB).so $(LIBDIR)/lib$(PLUGIN_CULIB).so:
-+	$(MAKE) -f $(PLUGIN_MAKEFILE)
-+
 +counters.o: counters.cpp timer.h
 +	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
  
@@ -99,9 +103,17 @@ index cce95279..95f79f3c 100644
 -	$(FC) -o gensym $(SYMMETRY) -L../../lib/ -lmodel -lgeneric -lpdf $(llhapdf) $(LDFLAGS)
 +	$(FC) -o gensym $(SYMMETRY) -L$(LIBDIR) -lmodel -lgeneric -lpdf $(llhapdf) $(LDFLAGS)
  
++ifeq (,$(wildcard fbridge.inc))
  $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
  	cd ../../Source/MODEL; make
-@@ -68,7 +121,9 @@ $(LIBDIR)libpdf.$(libext):
+ 
+@@ -63,12 +118,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
+ 
+ $(LIBDIR)libpdf.$(libext): 
+ 	cd ../../Source/PDF; make
++endif
+ 
+ # Add source so that the compiler finds the DiscreteSampler module.
  $(MATRIX): %.o: %.f
  	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -fopenmp
  %.o: %.f
@@ -112,9 +124,19 @@ index cce95279..95f79f3c 100644
  
  # Dependencies
  
-@@ -89,4 +144,16 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -88,5 +146,28 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+ 	 run_config.inc
  initcluster.o: message.inc
  
++# Extra dependencies on discretesampler.mod
++
++$(DSIG): .libs
++$(DSIG_cudacpp) : .libs
++$(MATRIX): .libs
++genps.o: .libs
++
++# Clean
++
  clean:
 -	$(RM) *.o gensym madevent madevent_forhel
 +ifeq (,$(wildcard fbridge.inc))
@@ -130,3 +152,5 @@ index cce95279..95f79f3c 100644
 +ifneq (,$(wildcard fbridge.inc))
 +	$(MAKE) -f $(PLUGIN_MAKEFILE) cleanall
 +endif
++	rm -f ../../Source/*.mod ../../Source/*/*.mod
++	rm -f .libs
