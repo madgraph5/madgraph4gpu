@@ -36,7 +36,7 @@
 
       LHAID = 230000
 
-      FIXED_REN_SCALE = .TRUE.
+      FIXED_REN_SCALE = .FALSE.
 
       FIXED_FAC_SCALE1 = .FALSE.
 

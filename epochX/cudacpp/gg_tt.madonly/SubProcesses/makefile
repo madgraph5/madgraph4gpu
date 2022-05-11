@@ -45,7 +45,7 @@ PLUGIN_CULIB = mg5amc_$(processid_short)_cuda
 PLUGIN_MAKEFILE = Makefile
 PLUGINLIBS = $(LIBDIR)/lib$(PLUGIN_CXXLIB).so $(LIBDIR)/lib$(PLUGIN_CULIB).so
 
-LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)$(LIBDIR)/lib $(PLUGINLIBS)
+LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS) $(PLUGINLIBS)
 
 # Source files
 
@@ -78,7 +78,7 @@ $(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
 
 $(LIBS): .libs
 
-.libs:
+.libs: ../../Cards/param_card.dat ../../Cards/run_card.dat
 	cd ../../Source; make
 ifneq (,$(wildcard fbridge.inc))
 	$(MAKE) -f $(PLUGIN_MAKEFILE)
