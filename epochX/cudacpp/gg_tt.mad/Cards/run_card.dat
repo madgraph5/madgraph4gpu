@@ -50,7 +50,7 @@
 #*********************************************************************
 # Renormalization and factorization scales                           *
 #*********************************************************************
- True = fixed_ren_scale  ! if .true. use fixed ren scale
+ False = fixed_ren_scale  ! if .true. use fixed ren scale
  False = fixed_fac_scale  ! if .true. use fixed fac scale
  91.188  = scale            ! fixed ren scale
  91.188  = dsqrt_q2fact1    ! fixed fact scale for pdf1
