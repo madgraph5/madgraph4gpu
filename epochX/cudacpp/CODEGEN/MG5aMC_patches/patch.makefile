@@ -1,5 +1,5 @@
 diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index cce95279..6639b814 100644
+index cce95279..87613763 100644
 --- a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,17 @@
@@ -36,7 +36,7 @@ index cce95279..6639b814 100644
 +PLUGIN_MAKEFILE = Makefile
 +PLUGINLIBS = $(LIBDIR)/lib$(PLUGIN_CXXLIB).so $(LIBDIR)/lib$(PLUGIN_CULIB).so
 +
-+LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)$(LIBDIR)/lib $(PLUGINLIBS)
++LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS) $(PLUGINLIBS)
  
  # Source files
  
@@ -71,7 +71,7 @@ index cce95279..6639b814 100644
 +
 +$(LIBS): .libs
 +
-+.libs:
++.libs: ../../Cards/param_card.dat ../../Cards/run_card.dat
 +	cd ../../Source; make
 +ifneq (,$(wildcard fbridge.inc))
 +	$(MAKE) -f $(PLUGIN_MAKEFILE)
