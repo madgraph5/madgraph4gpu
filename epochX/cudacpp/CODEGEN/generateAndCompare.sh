@@ -71,13 +71,13 @@ function codeGenAndDiff()
     elif [ "${SCRBCK}" == "alpaka" ]; then # $SCRBCK=$OUTBCK=alpaka
       echo "output standalone_${SCRBCK}_cudacpp ${outproc}" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madonly" ]; then # $SCRBCK=cudacpp and $OUTBCK=madonly
-      echo "output madevent ${outproc} ${helrecopt} --vector_size=16" >> ${outproc}.mg
+      echo "output madevent ${outproc} ${helrecopt} --vector_size=32" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "mad" ]; then # $SCRBCK=cudacpp and $OUTBCK=mad
-      echo "output madevent ${outproc} ${helrecopt} --vector_size=16 --me_exporter=standalone_cudacpp" >> ${outproc}.mg
+      echo "output madevent ${outproc} ${helrecopt} --vector_size=32 --me_exporter=standalone_cudacpp" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madcpp" ]; then # $SCRBCK=cudacpp and $OUTBCK=madcpp
-      echo "output madevent ${outproc} ${helrecopt} --vector_size=16 --me_exporter=standalone_cpp" >> ${outproc}.mg
+      echo "output madevent ${outproc} ${helrecopt} --vector_size=32 --me_exporter=standalone_cpp" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madgpu" ]; then # $SCRBCK=cudacpp and $OUTBCK=madgpu
-      echo "output madevent ${outproc} ${helrecopt} --vector_size=16 --me_exporter=standalone_gpu" >> ${outproc}.mg
+      echo "output madevent ${outproc} ${helrecopt} --vector_size=32 --me_exporter=standalone_gpu" >> ${outproc}.mg
     else # $SCRBCK=cudacpp and $OUTBCK=cudacpp, cpp or gpu
       echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
     fi
