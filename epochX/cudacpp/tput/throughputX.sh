@@ -326,12 +326,9 @@ for suff in $suffs; do
       for fptype in $fptypes; do
         export FPTYPE=$fptype
         if [ "${avxall}" == "1" ]; then
-          ###echo "=== make ${makej} avxall"
           make ${makej} avxall; echo
         else
-          ###echo "=== make ${makej} AVX=none"
           make ${makej} AVX=none; echo
-          ###echo "=== make ${makej} AVX=512y"
           make ${makej} AVX=512y; echo
         fi
       done
