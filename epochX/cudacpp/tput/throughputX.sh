@@ -49,6 +49,10 @@ verbose=0
 
 dlp=
 
+# Optional hack to build only the cudacpp plugin in .mad directories
+###makef=
+makef="-f Makefile"
+
 if [ "$bckend" != "alpaka" ]; then alpaka=0; fi # alpaka mode is only available in the alpaka directory
 
 while [ "$1" != "" ]; do
@@ -326,10 +330,10 @@ for suff in $suffs; do
       for fptype in $fptypes; do
         export FPTYPE=$fptype
         if [ "${avxall}" == "1" ]; then
-          make ${makej} avxall; echo
+          make ${makef} ${makej} avxall; echo
         else
-          make ${makej} AVX=none; echo
-          make ${makej} AVX=512y; echo
+          make ${makef} ${makej} AVX=none; echo
+          make ${makef} ${makej} AVX=512y; echo
         fi
       done
     done
