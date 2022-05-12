@@ -71,6 +71,7 @@ extern "C"
 
   void counters_finalise_()
   {
+    // Write to file
     FILE* f;
     f = fopen( "counters_log.txt", "w" );
 #ifdef COUNTERS_USETIMER
@@ -84,6 +85,16 @@ extern "C"
     fprintf( f, "SMATRIX1 : %8d calls\n", matrix1_counter );
 #endif
     fclose( f );
+    // Write to stdout
+#ifdef COUNTERS_USETIMER
+    printf( "PROGRAM    : %9.4fs\n", program_totaltime );
+    printf( "MATRIX1(a) : %9.4fs for %8d MATRIX1 calls  => throughput is %8.2E calls/s\n", matrix1_totaltime, matrix1_counter, matrix1_counter / matrix1_totaltime );
+    printf( "MATRIX1(b) : %9.4fs for %8d SMATRIX1 calls => throughput is %8.2E calls/s\n", matrix1_totaltime, smatrix1_counter, smatrix1_counter / matrix1_totaltime );
+    printf( "SMATRIX1   : %9.4fs for %8d SMATRIX1 calls => throughput is %8.2E calls/s\n", smatrix1_totaltime, smatrix1_counter, smatrix1_counter / smatrix1_totaltime );
+#else
+    printf( "MATRIX1  : %8d calls\n", matrix1_counter );
+    printf( "SMATRIX1 : %8d calls\n", matrix1_counter );
+#endif
     return;
   }
 }
