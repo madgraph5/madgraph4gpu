@@ -50,7 +50,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006916999816894531 [0m
+[1;32mDEBUG: model prefixing  takes 0.0069506168365478516 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
@@ -67,7 +67,7 @@ INFO: Trying process: g g > t t~ WEIGHTED<=2 @1
 INFO: Process has 3 diagrams 
 1 processes with 3 diagrams generated in 0.010 s
 Total: 1 processes with 3 diagrams
-output madevent CODEGEN_madonly_gg_tt --hel_recycling=False --vector_size=16
+output madevent CODEGEN_madonly_gg_tt --hel_recycling=False --vector_size=32
 INFO: initialize a new directory: CODEGEN_madonly_gg_tt 
 INFO: remove old information in CODEGEN_madonly_gg_tt 
 INFO: Organizing processes into subprocess groups 
@@ -84,7 +84,7 @@ Wrote files for 10 helas calls in 0.096 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.172 s
+ALOHA: aloha creates 2 routines in  0.174 s
 [1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2451][0m [0m
 [1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2451][0m [0m
 [1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2451][0m [0m
@@ -100,6 +100,6 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.094s
-user	0m1.748s
-sys	0m0.312s
+real	0m2.117s
+user	0m1.745s
+sys	0m0.325s

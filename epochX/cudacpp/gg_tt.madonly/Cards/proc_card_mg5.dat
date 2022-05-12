@@ -43,4 +43,4 @@ define l- = e- mu-
 define vl = ve vm vt
 define vl~ = ve~ vm~ vt~
 output madevent CODEGEN_madonly_gg_tt --hel_recycling=False --vector_s\
-ize=16
+ize=32
