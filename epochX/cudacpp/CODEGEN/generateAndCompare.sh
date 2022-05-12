@@ -133,9 +133,9 @@ function codeGenAndDiff()
     \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat
   fi
   # Additional setup and cleanup for madonly and mad directories
-  if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ]; then
-    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} # delegate to patchMad.sh (similarly to what is done with untarGridpack.sh)
-  fi
+  #if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ]; then
+  #  $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} # delegate to patchMad.sh (similarly to what is done with untarGridpack.sh)
+  #fi
   # Compare the existing generated code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
   echo -e "\n+++ Compare old and new code generation log for $proc\n"
