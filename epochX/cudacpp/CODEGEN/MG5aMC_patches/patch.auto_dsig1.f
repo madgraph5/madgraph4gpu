@@ -1,5 +1,5 @@
 diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index 3aa1040b..c10c5625 100644
+index 3aa1040b..a5a2b7ae 100644
 --- a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 @@ -454,22 +454,63 @@ C
@@ -35,14 +35,14 @@ index 3aa1040b..c10c5625 100644
 +        ENDDO
 +c!$OMP END DO
 +c!$OMP END PARALLEL
++        call counters_smatrix1multi_stop( -1 ) ! fortran=-1
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
 +      ENDIF
-+      call counters_smatrix1multi_stop( -1 ) ! fortran=-1
 +
 +      IF( MEEXPORTER_MODE .EQ. 1 .OR. MEEXPORTER_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
 +        call counters_smatrix1multi_start( 0, nb_page ) ! cudacpp=0
 +        CALL FBRIDGESEQUENCE(MEEXPORTER_PBRIDGE, P_MULTI, ALL_G, OUT2)
-+      call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
++        call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
 +      ENDIF
 +
 +      IF( MEEXPORTER_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
