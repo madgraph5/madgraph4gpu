@@ -497,14 +497,14 @@ C    &      selected_hel(IVEC),
         ENDDO
 c!$OMP END DO
 c!$OMP END PARALLEL
+        call counters_smatrix1multi_stop( -1 ) ! fortran=-1
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       ENDIF
-      call counters_smatrix1multi_stop( -1 ) ! fortran=-1
 
       IF( MEEXPORTER_MODE .EQ. 1 .OR. MEEXPORTER_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
         call counters_smatrix1multi_start( 0, nb_page ) ! cudacpp=0
         CALL FBRIDGESEQUENCE(MEEXPORTER_PBRIDGE, P_MULTI, ALL_G, OUT2)
-      call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
+        call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
       ENDIF
 
       IF( MEEXPORTER_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
