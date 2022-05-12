@@ -462,6 +462,10 @@ C
       DOUBLE PRECISION OUT2(NB_PAGE)
       DOUBLE PRECISION CBYF
 
+      INTEGER*4 NWARNINGS
+      SAVE NWARNINGS
+      DATA NWARNINGS/0/
+      
       IF( MEEXPORTER_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
         call counters_smatrix1multi_start( -1, nb_page ) ! fortran=-1
@@ -497,9 +501,11 @@ c!$OMP END PARALLEL
           IF( MEEXPORTER_MODE .EQ. -2 ) THEN ! (BothDebug=-2)
             WRITE (*,*) IVEC, OUT(IVEC), OUT2(IVEC), CBYF
           ENDIF
-          IF( ABS(CBYF-1).GT.5E-5 ) THEN
-            WRITE (*,*) 'WARNING! Deviation more than 5E-5',
-     &        IVEC, OUT(IVEC), OUT2(IVEC), CBYF
+          IF( ABS(CBYF-1).GT.5E-5 .AND. NWARNINGS.LT.20 ) THEN
+            NWARNINGS = NWARNINGS + 1
+            WRITE (*,'(A,I2,A,I4,4E16.8)')
+     &        'WARNING! (', NWARNINGS, '/20) Deviation more than 5E-5',
+     &        IVEC, OUT(IVEC), OUT2(IVEC), CBYF, ABS(CBYF-1)
           ENDIF
         END DO
       ENDIF
