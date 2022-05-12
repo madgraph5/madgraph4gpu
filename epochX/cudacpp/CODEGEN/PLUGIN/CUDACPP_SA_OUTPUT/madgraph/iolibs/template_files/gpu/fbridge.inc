@@ -1,9 +1,18 @@
 C
+C Common blocks for internal communication between MadEvent components
+C - MEEXPORTER_MODE: the operation mode of MEs from Fortran and from the C++ Bridge
+C
+      INTEGER*4 MEEXPORTER_MODE ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
+      COMMON/TO_MEEXPORTER_MODE/MEEXPORTER_MODE
+      DOUBLE PRECISION MEEXPORTER_CBYFMIN, MEEXPORTER_CBYFMAX ! min/max ratio C++/Fortran for MEs
+      COMMON/TO_MEEXPORTER_CBYF/MEEXPORTER_CBYFMIN, MEEXPORTER_CBYFMAX
+
+C
 C Common block for internal communication between MadEvent components
 C - MEEXPORTER_PBRIDGE: the memory address of the C++ Bridge
 C
       INTEGER*8 MEEXPORTER_PBRIDGE ! 64bit memory address
-      COMMON/TO_MEEXPORTER/MEEXPORTER_PBRIDGE
+      COMMON/TO_MEEXPORTER_PBRIDGE/MEEXPORTER_PBRIDGE
       
 C
 C Create a Bridge and return its pointer
