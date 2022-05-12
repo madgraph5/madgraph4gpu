@@ -23,9 +23,12 @@ extern "C"
   static float matrix1_totaltime = 0;
   static mgOnGpu::Timer<TIMERTYPE> smatrix1_timer;
   static float smatrix1_totaltime = 0;
+  static mgOnGpu::Timer<TIMERTYPE> smatrix1multi_timer;
+  static float smatrix1multi_totaltime = 0;
 #endif
   static int matrix1_counter = 0;
   static int smatrix1_counter = 0;
+  static int smatrix1multi_counter = 0;
 
   void counters_initialise_()
   {
@@ -69,6 +72,23 @@ extern "C"
     return;
   }
 
+  void counters_smatrix1multi_start_( const int* pnevt )
+  {
+    smatrix1multi_counter += *pnevt;
+#ifdef COUNTERS_USETIMER
+    smatrix1multi_timer.Start();
+#endif
+    return;
+  }
+
+  void counters_smatrix1multi_stop_()
+  {
+#ifdef COUNTERS_USETIMER
+    smatrix1multi_totaltime += smatrix1multi_timer.GetDuration();
+#endif
+    return;
+  }
+
   void counters_finalise_()
   {
     // Write to file
@@ -76,24 +96,28 @@ extern "C"
     f = fopen( "counters_log.txt", "w" );
 #ifdef COUNTERS_USETIMER
     program_totaltime += program_timer.GetDuration();
-    fprintf( f, "PROGRAM    : %9.4fs\n", program_totaltime );
-    fprintf( f, "MATRIX1(a) : %9.4fs for %8d MATRIX1 calls  => throughput is %8.2E calls/s\n", matrix1_totaltime, matrix1_counter, matrix1_counter / matrix1_totaltime );
-    fprintf( f, "MATRIX1(b) : %9.4fs for %8d SMATRIX1 calls => throughput is %8.2E calls/s\n", matrix1_totaltime, smatrix1_counter, smatrix1_counter / matrix1_totaltime );
-    fprintf( f, "SMATRIX1   : %9.4fs for %8d SMATRIX1 calls => throughput is %8.2E calls/s\n", smatrix1_totaltime, smatrix1_counter, smatrix1_counter / smatrix1_totaltime );
+    fprintf( f, "PROGRAM       : %9.4fs\n", program_totaltime );
+    fprintf( f, "MATRIX1(a)    : %9.4fs for %8d MATRIX1 calls  => throughput is %8.2E calls/s\n", matrix1_totaltime, matrix1_counter, matrix1_counter / matrix1_totaltime );
+    fprintf( f, "MATRIX1(b)    : %9.4fs for %8d SMATRIX1 calls => throughput is %8.2E calls/s\n", matrix1_totaltime, smatrix1_counter, smatrix1_counter / matrix1_totaltime );
+    fprintf( f, "SMATRIX1      : %9.4fs for %8d SMATRIX1 calls => throughput is %8.2E calls/s\n", smatrix1_totaltime, smatrix1_counter, smatrix1_counter / smatrix1_totaltime );
+    fprintf( f, "SMATRIX1MULTI : %9.4fs for %8d events         => throughput is %8.2E events/s\n", smatrix1multi_totaltime, smatrix1multi_counter, smatrix1multi_counter / smatrix1multi_totaltime );
 #else
-    fprintf( f, "MATRIX1  : %8d calls\n", matrix1_counter );
-    fprintf( f, "SMATRIX1 : %8d calls\n", matrix1_counter );
+    fprintf( f, "MATRIX1       : %8d calls\n", matrix1_counter );
+    fprintf( f, "SMATRIX1      : %8d calls\n", smatrix1_counter );
+    fprintf( f, "SMATRIX1MULTI : %8d events\n", smatrix1multi_counter );
 #endif
     fclose( f );
     // Write to stdout
 #ifdef COUNTERS_USETIMER
-    printf( "PROGRAM    : %9.4fs\n", program_totaltime );
-    printf( "MATRIX1(a) : %9.4fs for %8d MATRIX1 calls  => throughput is %8.2E calls/s\n", matrix1_totaltime, matrix1_counter, matrix1_counter / matrix1_totaltime );
-    printf( "MATRIX1(b) : %9.4fs for %8d SMATRIX1 calls => throughput is %8.2E calls/s\n", matrix1_totaltime, smatrix1_counter, smatrix1_counter / matrix1_totaltime );
-    printf( "SMATRIX1   : %9.4fs for %8d SMATRIX1 calls => throughput is %8.2E calls/s\n", smatrix1_totaltime, smatrix1_counter, smatrix1_counter / smatrix1_totaltime );
+    printf( "PROGRAM       : %9.4fs\n", program_totaltime );
+    printf( "MATRIX1(a)    : %9.4fs for %8d MATRIX1 calls  => throughput is %8.2E calls/s\n", matrix1_totaltime, matrix1_counter, matrix1_counter / matrix1_totaltime );
+    printf( "MATRIX1(b)    : %9.4fs for %8d SMATRIX1 calls => throughput is %8.2E calls/s\n", matrix1_totaltime, smatrix1_counter, smatrix1_counter / matrix1_totaltime );
+    printf( "SMATRIX1      : %9.4fs for %8d SMATRIX1 calls => throughput is %8.2E calls/s\n", smatrix1_totaltime, smatrix1_counter, smatrix1_counter / smatrix1_totaltime );
+    printf( "SMATRIX1MULTI : %9.4fs for %8d events         => throughput is %8.2E events/s\n", smatrix1multi_totaltime, smatrix1multi_counter, smatrix1multi_counter / smatrix1multi_totaltime );
 #else
-    printf( "MATRIX1  : %8d calls\n", matrix1_counter );
-    printf( "SMATRIX1 : %8d calls\n", matrix1_counter );
+    printf( "MATRIX1       : %8d calls\n", matrix1_counter );
+    printf( "SMATRIX1      : %8d calls\n", smatrix1_counter );
+    printf( "SMATRIX1MULTI : %8d events\n", smatrix1multi_counter );
 #endif
     return;
   }

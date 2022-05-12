@@ -464,6 +464,7 @@ C
 
       IF( MEEXPORTER_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
+      call counters_smatrix1multi_start( nb_page )
 c!$OMP PARALLEL
 c!$OMP DO
         DO IVEC=1, NB_PAGE
@@ -480,6 +481,7 @@ c!$OMP END DO
 c!$OMP END PARALLEL
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       ENDIF
+      call counters_smatrix1multi_stop()
 
       IF( MEEXPORTER_MODE .EQ. 1 .OR. MEEXPORTER_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
         CALL FBRIDGESEQUENCE(MEEXPORTER_PBRIDGE, P_MULTI, ALL_G, OUT2)
