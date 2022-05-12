@@ -497,8 +497,8 @@ c!$OMP END PARALLEL
           IF( MEEXPORTER_MODE .EQ. -2 ) THEN ! (BothDebug=-2)
             WRITE (*,*) IVEC, OUT(IVEC), OUT2(IVEC), CBYF
           ENDIF
-          IF( ABS(CBYF-1).GT.5E-5 ) THEN
-            WRITE (*,*) 'WARNING! Deviation more than 5E-5',
+          IF( ABS(CBYF-1).GT.1E-4 ) THEN
+            WRITE (*,*) 'WARNING! Deviation more than 1E-4',
      &        IVEC, OUT(IVEC), OUT2(IVEC), CBYF
           ENDIF
         END DO
