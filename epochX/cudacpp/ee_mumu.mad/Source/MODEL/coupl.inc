@@ -2,13 +2,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      written by the UFO converter
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      DOUBLE PRECISION G, ALL_G(16)
+      DOUBLE PRECISION G, ALL_G(32)
       COMMON/STRONG/ G, ALL_G
 
       DOUBLE COMPLEX GAL(2)
       COMMON/WEAK/ GAL
 
-      DOUBLE PRECISION MU_R, ALL_MU_R(16)
+      DOUBLE PRECISION MU_R, ALL_MU_R(32)
       COMMON/RSCALE/ MU_R, ALL_MU_R
 
       DOUBLE PRECISION NF

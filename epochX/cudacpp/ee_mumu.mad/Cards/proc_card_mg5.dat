@@ -43,4 +43,4 @@ define l- = e- mu-
 define vl = ve vm vt
 define vl~ = ve~ vm~ vt~
 output madevent CODEGEN_mad_ee_mumu --hel_recycling=False --vector_siz\
-e=16 --me_exporter=standalone_cudacpp
+e=32 --me_exporter=standalone_cudacpp
