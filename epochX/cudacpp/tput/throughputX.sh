@@ -50,8 +50,8 @@ verbose=0
 dlp=
 
 # Optional hack to build only the cudacpp plugin in .mad directories
-###makef=
-makef="-f Makefile"
+makef=
+###makef="-f Makefile"
 
 if [ "$bckend" != "alpaka" ]; then alpaka=0; fi # alpaka mode is only available in the alpaka directory
 
