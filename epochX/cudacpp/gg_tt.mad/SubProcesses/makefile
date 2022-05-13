@@ -167,11 +167,11 @@ ifneq (,$(wildcard fbridge.inc))
 
 UNAME_P := $(shell uname -p)
 ifeq ($(UNAME_P),ppc64le)
-avxall: avxnone avxsse4
+avxall: $(PROG) avxnone avxsse4
 else ifeq ($(UNAME_P),arm)
-avxall: avxnone avxsse4
+avxall: $(PROG) avxnone avxsse4
 else
-avxall: avxnone avxsse4 avxavx2 avx512y avx512z
+avxall: $(PROG) avxnone avxsse4 avxavx2 avx512y avx512z
 endif
 
 avxnone:
