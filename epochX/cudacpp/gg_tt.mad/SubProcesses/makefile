@@ -88,7 +88,7 @@ $(LIBS): .libs
 	touch $@
 
 ifneq (,$(wildcard fbridge.inc))
-.pluginlibs:
+$(PLUGIN_BUILDDIR)/.pluginlibs:
 	$(MAKE) -f $(PLUGIN_MAKEFILE)
 	touch $@
 endif
@@ -102,10 +102,10 @@ else
   override LIBFLAGSRPATH = -Wl,-rpath,'$$ORIGIN/$(LIBDIR)'
 endif
 
-$(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o .pluginlibs
+$(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(PLUGIN_BUILDDIR)/.pluginlibs
 	$(FC) -o $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(PLUGIN_BUILDDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CXXLIB) $(LIBFLAGSRPATH)
 
-$(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o .pluginlibs
+$(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(PLUGIN_BUILDDIR)/.pluginlibs
 	$(FC) -o $(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(PLUGIN_BUILDDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CULIB) $(LIBFLAGSRPATH)
 
 counters.o: counters.cpp timer.h
@@ -211,7 +211,7 @@ cleanall:
 	rm -rf $(LIBDIR)libbias.$(libext)
 ifneq (,$(wildcard fbridge.inc))
 	$(MAKE) -f $(PLUGIN_MAKEFILE) cleanall
-	rm -f .pluginlibs
+	rm -f $(PLUGIN_BUILDDIR)/.pluginlibs
 endif
 	rm -f ../../Source/*.mod ../../Source/*/*.mod
 	rm -f .libs
