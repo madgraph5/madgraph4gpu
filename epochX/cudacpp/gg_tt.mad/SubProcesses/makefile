@@ -69,9 +69,9 @@ SYMMETRY = symmetry.o idenparts.o
 # Binaries
 
 ifeq (,$(wildcard fbridge.inc))
-all: .libs $(PROG)
+all: $(PROG)
 else
-all: .libs $(PROG) $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp $(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp
+all: $(PROG) $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp $(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp
 endif
 
 $(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
