@@ -39,9 +39,13 @@ LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample 
 
 processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 PLUGIN_MAKEFILE=Makefile
-# NB1 Using ":=" below instead of "=" is much faster (it only runs the subprocess once instead of many times?)
+# NB1 Using ":=" below instead of "=" is much faster (it only runs the subprocess once instead of many times)
 # NB2 Do not add a comment inlined "PLUGIN_BUILDDIR=$(shell ...) # comment" as otherwise a trailing space is included...
-PLUGIN_BUILDDIR:=$(shell $(MAKE) -f $(PLUGIN_MAKEFILE) -pn | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
+# NB3 The variables relevant to the plugin Makefile must be explicitly passed to $(shell...)
+PLUGIN_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|AVX|FPTYPE|HELINL|HRDCOD)")
+###$(info PLUGIN_MAKEENV=$(PLUGIN_MAKEENV))
+###$(info $(foreach v,$(PLUGIN_MAKEENV),$(v)="$($(v))"))
+PLUGIN_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(PLUGIN_MAKEENV),$(v)="$($(v))") -f $(PLUGIN_MAKEFILE) -pn | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
 ###$(info PLUGIN_BUILDDIR='$(PLUGIN_BUILDDIR)')
 PLUGIN_COMMONLIB=mg5amc_common
 PLUGIN_CXXLIB=mg5amc_$(processid_short)_cpp
