@@ -39,7 +39,7 @@ LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample 
 
 processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 PLUGIN_MAKEFILE=Makefile
-PLUGIN_BUILDDIR=$(shell make -f $(PLUGIN_MAKEFILE) -pn | awk '/Building/{split($$3,a,"="); print a[2]}')
+PLUGIN_BUILDDIR:=$(shell make -f $(PLUGIN_MAKEFILE) -pn | awk '/Building/{split($$3,a,"="); print a[2]}') # Using ":=" instead of "=" is much faster!
 PLUGIN_COMMONLIB=mg5amc_common
 PLUGIN_CXXLIB=mg5amc_$(processid_short)_cpp
 PLUGIN_CULIB=mg5amc_$(processid_short)_cuda
