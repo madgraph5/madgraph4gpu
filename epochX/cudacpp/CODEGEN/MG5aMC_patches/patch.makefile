@@ -1,5 +1,5 @@
 diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index cce95279..87613763 100644
+index cce95279..ef2e3f9c 100644
 --- a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,17 @@
@@ -20,30 +20,34 @@ index cce95279..87613763 100644
  # Load additional dependencies of the bias module, if present
  ifeq (,$(wildcard ../bias_dependencies))
  BIASDEPENDENCIES =
-@@ -24,9 +35,17 @@ else
+@@ -24,7 +35,21 @@ else
      MADLOOP_LIB =
  endif
  
 -LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L../../lib/ -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
 +LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
- 
--LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
-+processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
-+PLUGIN_COMMONLIB = mg5amc_common
-+PLUGIN_COMMONLIB = mg5amc_common
-+PLUGIN_CXXLIB = mg5amc_$(processid_short)_cpp
-+PLUGIN_CULIB = mg5amc_$(processid_short)_cuda
-+PLUGIN_MAKEFILE = Makefile
-+PLUGINLIBS = $(LIBDIR)/lib$(PLUGIN_CXXLIB).so $(LIBDIR)/lib$(PLUGIN_CULIB).so
 +
-+LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS) $(PLUGINLIBS)
++processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
++PLUGIN_MAKEFILE=Makefile
++# NB1 Using ":=" below instead of "=" is much faster (it only runs the subprocess once instead of many times)
++# NB2 Do not add a comment inlined "PLUGIN_BUILDDIR=$(shell ...) # comment" as otherwise a trailing space is included...
++# NB3 The variables relevant to the plugin Makefile must be explicitly passed to $(shell...)
++PLUGIN_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|AVX|FPTYPE|HELINL|HRDCOD)")
++###$(info PLUGIN_MAKEENV=$(PLUGIN_MAKEENV))
++###$(info $(foreach v,$(PLUGIN_MAKEENV),$(v)="$($(v))"))
++PLUGIN_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(PLUGIN_MAKEENV),$(v)="$($(v))") -f $(PLUGIN_MAKEFILE) -pn | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
++###$(info PLUGIN_BUILDDIR='$(PLUGIN_BUILDDIR)')
++PLUGIN_COMMONLIB=mg5amc_common
++PLUGIN_CXXLIB=mg5amc_$(processid_short)_cpp
++PLUGIN_CULIB=mg5amc_$(processid_short)_cuda
  
- # Source files
+ LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -37,24 +56,60 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -36,25 +61,63 @@ ifeq ($(strip $(MATRIX_HEL)),)
+         MATRIX = $(patsubst %.f,%.o,$(wildcard matrix*.f))
  endif
  
- 
+-
 -PROCESS= driver.o myamp.o genps.o unwgt.o setcuts.o get_color.o \
 +PROCESS= myamp.o genps.o unwgt.o setcuts.o get_color.o \
           cuts.o cluster.o reweight.o initcluster.o addmothers.o setscales.o \
@@ -61,9 +65,9 @@ index cce95279..87613763 100644
 -$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX)
 -	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
 +ifeq (,$(wildcard fbridge.inc))
-+all: .libs $(PROG)
++all: $(PROG)
 +else
-+all: .libs $(PROG) c$(PROG)_cudacpp g$(PROG)_cudacpp
++all: $(PROG) $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp $(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp
 +endif
 +
 +$(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
@@ -73,10 +77,13 @@ index cce95279..87613763 100644
 +
 +.libs: ../../Cards/param_card.dat ../../Cards/run_card.dat
 +	cd ../../Source; make
-+ifneq (,$(wildcard fbridge.inc))
-+	$(MAKE) -f $(PLUGIN_MAKEFILE)
-+endif
 +	touch $@
++
++ifneq (,$(wildcard fbridge.inc))
++$(PLUGIN_BUILDDIR)/.pluginlibs:
++	$(MAKE) -f $(PLUGIN_MAKEFILE)
++	touch $@
++endif
 +
 +# On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
 +# Use relative paths with respect to the executables ($ORIGIN on Linux)
@@ -87,11 +94,11 @@ index cce95279..87613763 100644
 +  override LIBFLAGSRPATH = -Wl,-rpath,'$$ORIGIN/$(LIBDIR)'
 +endif
 +
-+c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/lib$(PLUGIN_CXXLIB).so
-+	$(FC) -o c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CXXLIB) $(LIBFLAGSRPATH)
++$(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(PLUGIN_BUILDDIR)/.pluginlibs
++	$(FC) -o $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(PLUGIN_BUILDDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CXXLIB) $(LIBFLAGSRPATH)
 +
-+g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/lib$(PLUGIN_CULIB).so
-+	$(FC) -o g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CULIB) $(LIBFLAGSRPATH)
++$(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(PLUGIN_BUILDDIR)/.pluginlibs
++	$(FC) -o $(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(PLUGIN_BUILDDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CULIB) $(LIBFLAGSRPATH)
 +
 +counters.o: counters.cpp timer.h
 +	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
@@ -107,7 +114,7 @@ index cce95279..87613763 100644
  $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
  	cd ../../Source/MODEL; make
  
-@@ -63,12 +118,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
+@@ -63,12 +126,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
  
  $(LIBDIR)libpdf.$(libext): 
  	cd ../../Source/PDF; make
@@ -124,7 +131,7 @@ index cce95279..87613763 100644
  
  # Dependencies
  
-@@ -88,5 +146,28 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -88,5 +154,64 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  
@@ -135,6 +142,41 @@ index cce95279..87613763 100644
 +$(MATRIX): .libs
 +genps.o: .libs
 +
++# Plugin avxall targets
++
++ifneq (,$(wildcard fbridge.inc))
++
++UNAME_P := $(shell uname -p)
++ifeq ($(UNAME_P),ppc64le)
++avxall: $(PROG) avxnone avxsse4
++else ifeq ($(UNAME_P),arm)
++avxall: $(PROG) avxnone avxsse4
++else
++avxall: $(PROG) avxnone avxsse4 avxavx2 avx512y avx512z
++endif
++
++avxnone:
++	@echo
++	$(MAKE) USEBUILDDIR=1 AVX=none
++
++avxsse4:
++	@echo
++	$(MAKE) USEBUILDDIR=1 AVX=sse4
++
++avxavx2:
++	@echo
++	$(MAKE) USEBUILDDIR=1 AVX=avx2
++
++avx512y:
++	@echo
++	$(MAKE) USEBUILDDIR=1 AVX=512y
++
++avx512z:
++	@echo
++	$(MAKE) USEBUILDDIR=1 AVX=512z
++
++endif
++
 +# Clean
 +
  clean:
@@ -142,7 +184,7 @@ index cce95279..87613763 100644
 +ifeq (,$(wildcard fbridge.inc))
 +	$(RM) *.o gensym $(PROG) $(PROG)_forhel
 +else
-+	$(RM) *.o gensym $(PROG) $(PROG)_forhel *$(PROG)_cudacpp
++	$(RM) *.o gensym $(PROG) $(PROG)_forhel $(PLUGIN_BUILDDIR)/*$(PROG)_cudacpp
 +endif
 +
 +cleanall:
@@ -151,6 +193,7 @@ index cce95279..87613763 100644
 +	rm -rf $(LIBDIR)libbias.$(libext)
 +ifneq (,$(wildcard fbridge.inc))
 +	$(MAKE) -f $(PLUGIN_MAKEFILE) cleanall
++	rm -f $(PLUGIN_BUILDDIR)/.pluginlibs
 +endif
 +	rm -f ../../Source/*.mod ../../Source/*/*.mod
 +	rm -f .libs
