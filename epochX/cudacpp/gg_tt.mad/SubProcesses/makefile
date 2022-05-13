@@ -46,9 +46,8 @@ PLUGIN_BUILDDIR:=$(shell $(MAKE) -f $(PLUGIN_MAKEFILE) -pn | awk '/Building/{pri
 PLUGIN_COMMONLIB=mg5amc_common
 PLUGIN_CXXLIB=mg5amc_$(processid_short)_cpp
 PLUGIN_CULIB=mg5amc_$(processid_short)_cuda
-PLUGINLIBS=$(LIBDIR)/$(PLUGIN_BUILDDIR)/lib$(PLUGIN_CXXLIB).so $(LIBDIR)/$(PLUGIN_BUILDDIR)/lib$(PLUGIN_CULIB).so
 
-LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS) $(PLUGINLIBS)
+LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
 
 # Source files
 
@@ -82,10 +81,13 @@ $(LIBS): .libs
 
 .libs: ../../Cards/param_card.dat ../../Cards/run_card.dat
 	cd ../../Source; make
-ifneq (,$(wildcard fbridge.inc))
-	$(MAKE) -f $(PLUGIN_MAKEFILE)
-endif
 	touch $@
+
+ifneq (,$(wildcard fbridge.inc))
+.pluginlibs:
+	$(MAKE) -f $(PLUGIN_MAKEFILE)
+	touch $@
+endif
 
 # On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
 # Use relative paths with respect to the executables ($ORIGIN on Linux)
@@ -96,10 +98,10 @@ else
   override LIBFLAGSRPATH = -Wl,-rpath,'$$ORIGIN/$(LIBDIR)'
 endif
 
-$(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/$(PLUGIN_BUILDDIR)/lib$(PLUGIN_CXXLIB).so
+$(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o .pluginlibs
 	$(FC) -o $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(PLUGIN_BUILDDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CXXLIB) $(LIBFLAGSRPATH)
 
-$(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(LIBDIR)/$(PLUGIN_BUILDDIR)/lib$(PLUGIN_CULIB).so
+$(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o .pluginlibs
 	$(FC) -o $(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(PLUGIN_BUILDDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CULIB) $(LIBFLAGSRPATH)
 
 counters.o: counters.cpp timer.h
@@ -170,6 +172,7 @@ cleanall:
 	rm -rf $(LIBDIR)libbias.$(libext)
 ifneq (,$(wildcard fbridge.inc))
 	$(MAKE) -f $(PLUGIN_MAKEFILE) cleanall
+	rm -f .pluginlibs
 endif
 	rm -f ../../Source/*.mod ../../Source/*/*.mod
 	rm -f .libs
