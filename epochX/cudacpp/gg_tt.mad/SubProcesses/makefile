@@ -161,6 +161,41 @@ $(DSIG_cudacpp) : .libs
 $(MATRIX): .libs
 genps.o: .libs
 
+# Plugin avxall targets
+
+ifneq (,$(wildcard fbridge.inc))
+
+UNAME_P := $(shell uname -p)
+ifeq ($(UNAME_P),ppc64le)
+avxall: avxnone avxsse4
+else ifeq ($(UNAME_P),arm)
+avxall: avxnone avxsse4
+else
+avxall: avxnone avxsse4 avxavx2 avx512y avx512z
+endif
+
+avxnone:
+	@echo
+	$(MAKE) USEBUILDDIR=1 AVX=none
+
+avxsse4:
+	@echo
+	$(MAKE) USEBUILDDIR=1 AVX=sse4
+
+avxavx2:
+	@echo
+	$(MAKE) USEBUILDDIR=1 AVX=avx2
+
+avx512y:
+	@echo
+	$(MAKE) USEBUILDDIR=1 AVX=512y
+
+avx512z:
+	@echo
+	$(MAKE) USEBUILDDIR=1 AVX=512z
+
+endif
+
 # Clean
 
 clean:
