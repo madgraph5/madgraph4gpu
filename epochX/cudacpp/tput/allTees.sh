@@ -24,42 +24,42 @@ fi
 cd $scrdir/..
 started="STARTED  AT $(date)"
 
-# Four logs (double/float x hrd0/hrd1 x inl0) in each of the five processes
+# (20/56) Four logs (double/float x hrd0/hrd1 x inl0) in each of the five processes
 \rm -rf gg_ttggg/lib/build.none_*
-./tput/teeThroughputX.sh ${mad} -flt -hrd -makej -makeclean -eemumu -ggtt -ggttg -ggttgg $ggttggg
-status=$?
-ended1="ENDED(1) AT $(date) [Status=$status]"
+cmd="./tput/teeThroughputX.sh ${mad} -flt -hrd -makej -makeclean -eemumu -ggtt -ggttg -ggttgg $ggttggg"
+$cmd; status=$?
+ended1="$cmd\nENDED(1) AT $(date) [Status=$status]"
 tmp1=$(mktemp)
 ls -ltr ee_mumu/lib/build.none_*_inl0_hrd* gg_tt/lib/build.none_*_inl0_hrd* gg_tt*g/lib/build.none_*_inl0_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp1
 
-# Four extra logs (double/float x hrd0/hrd1 x inl1) only in three of the five processes
+# (32/56) Four extra logs (double/float x hrd0/hrd1 x inl1) only in three of the five processes
 \rm -rf gg_ttg/lib/build.none_*
 \rm -rf gg_ttggg/lib/build.none_*
-./tput/teeThroughputX.sh ${mad} -flt -hrd -makej -makeclean -eemumu -ggtt -ggttgg -inlonly
-status=$?
-ended2="ENDED(2) AT $(date) [Status=$status]"
+cmd="./tput/teeThroughputX.sh ${mad} -flt -hrd -makej -makeclean -eemumu -ggtt -ggttgg -inlonly"
+$cmd; status=$?
+ended2="$cmd\nENDED(2) AT $(date) [Status=$status]"
 tmp2=$(mktemp)
 ls -ltr ee_mumu/lib/build.none_*_inl1_hrd* gg_tt/lib/build.none_*_inl1_hrd* gg_tt*g/lib/build.none_*_inl1_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp2
 
-# Two extra logs (double/float x hrd0 x inl0 + bridge) only in three of the five processes (no rebuild needed)
-./tput/teeThroughputX.sh ${mad} -eemumu -ggtt -ggttgg -flt -bridge
-status=$?
-ended3="ENDED(3) AT $(date) [Status=$status]"
+# (38/56) Two extra logs (double/float x hrd0 x inl0 + bridge) only in three of the five processes (no rebuild needed)
+cmd="./tput/teeThroughputX.sh ${mad} -eemumu -ggtt -ggttgg -flt -bridge"
+$cmd; status=$?
+ended3="$cmd\nENDED(3) AT $(date) [Status=$status]"
 
-# Two extra logs (double/float x hrd0 x inl0 + rmbhst) only in three of the five processes (no rebuild needed)
-./tput/teeThroughputX.sh ${mad} -eemumu -ggtt -ggttgg -flt -rmbhst
-status=$?
-ended4="ENDED(4) AT $(date) [Status=$status]"
+# (44/56) Two extra logs (double/float x hrd0 x inl0 + rmbhst) only in three of the five processes (no rebuild needed)
+cmd="./tput/teeThroughputX.sh ${mad} -eemumu -ggtt -ggttgg -flt -rmbhst"
+$cmd; status=$?
+ended4="$cmd\nENDED(4) AT $(date) [Status=$status]"
 
-# Two extra logs (double/float x hrd0 x inl0 + curhst) only in three of the five processes (no rebuild needed)
-./tput/teeThroughputX.sh ${mad} -eemumu -ggtt -ggttgg -flt -curhst
-status=$?
-ended5="ENDED(5) AT $(date) [Status=$status]"
+# (50/56) Two extra logs (double/float x hrd0 x inl0 + curhst) only in three of the five processes (no rebuild needed)
+cmd="./tput/teeThroughputX.sh ${mad} -eemumu -ggtt -ggttgg -flt -curhst"
+$cmd; status=$?
+ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
 
-# Two extra logs (double/float x hrd0 x inl0 + common) only in three of the five processes (no rebuild needed)
-./tput/teeThroughputX.sh ${mad} -eemumu -ggtt -ggttgg -flt -common
-status=$?
-ended6="ENDED(6) AT $(date) [Status=$status]"
+# (56/56) Two extra logs (double/float x hrd0 x inl0 + common) only in three of the five processes (no rebuild needed)
+cmd="./tput/teeThroughputX.sh ${mad} -eemumu -ggtt -ggttgg -flt -common"
+$cmd; status=$?
+ended6="$cmd\nENDED(6) AT $(date) [Status=$status]"
 
 echo
 echo "Build(1):"
@@ -68,12 +68,12 @@ echo
 echo "Build(2):"
 cat $tmp2
 echo
-echo "$started"
-echo "$ended1"
-echo "$ended2"
-echo "$ended3"
-echo "$ended4"
-echo "$ended5"
+echo -e "$started"
+echo -e "$ended1"
+echo -e "$ended2"
+echo -e "$ended3"
+echo -e "$ended4"
+echo -e "$ended5"
 
 if [ "$ggttggg" == "" ]; then
   echo
