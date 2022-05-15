@@ -78,7 +78,7 @@ else
 all: $(PROG) $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp $(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp
 endif
 
-$(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
+$(PROG): .libs $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
 	$(FC) -o $(PROG) $(PROCESS) $(DSIG) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
 
 $(LIBS): .libs
@@ -174,23 +174,23 @@ else
 avxall: $(PROG) avxnone avxsse4 avxavx2 avx512y avx512z
 endif
 
-avxnone:
+avxnone: $(PROG)
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=none
 
-avxsse4:
+avxsse4: $(PROG)
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=sse4
 
-avxavx2:
+avxavx2: $(PROG)
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=avx2
 
-avx512y:
+avx512y: $(PROG)
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=512y
 
-avx512z:
+avx512z: $(PROG)
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=512z
 
