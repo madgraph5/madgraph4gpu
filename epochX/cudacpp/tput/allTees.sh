@@ -5,17 +5,22 @@ scrdir=$(cd $(dirname $0); pwd)
 # Use the -mad version of code and tee scripts
 mad=-mad
 
-# Short (no ggttggg) or long version?
-if [ "$1" == "-short" ]; then
-  ggttggg=
-  shift
-elif [ "$1" == "" ]; then
-  ggttggg=-ggttggg
-  shift
-else
-  echo "Usage: $0 [-short]"
-  exit 1
-fi
+# Parse command line arguments
+ggttggg=-ggttggg
+while [ "$1" != "" ]; do
+  if [ "$1" == "-short" ]; then
+    # Short (no ggttggg) or long version?
+    ggttggg=
+    shift
+  elif [ "$1" == "-e" ]; then
+    # Fail on error?
+    set -e
+    shift
+  else
+    echo "Usage: $0 [-short] [-e]"
+    exit 1
+  fi
+done
 
 # This is a script to launch in one go all tests for the (4 or) 5 main processes in this repository
 # It reproduces the logs in tput at the time of commit c0c276840654575d9fa0c3f3c4a0088e57764dbc
