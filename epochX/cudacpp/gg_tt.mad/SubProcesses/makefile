@@ -65,8 +65,8 @@ PROCESS= myamp.o genps.o unwgt.o setcuts.o get_color.o \
          cuts.o cluster.o reweight.o initcluster.o addmothers.o setscales.o \
 	 idenparts.o dummy_fct.o
 
-DSIG=driver.o $(patsubst %.f,%.o,$(wildcard auto_dsig*.f))
-DSIG_cudacpp=driver_cudacpp.o $(patsubst %.f,%_cudacpp.o, $(filter-out auto_dsig.f, $(wildcard auto_dsig*.f)))
+DSIG=driver.o $(patsubst %.f, %.o, $(filter-out auto_dsig.f, $(wildcard auto_dsig*.f)))
+DSIG_cudacpp=driver_cudacpp.o $(patsubst %.f, %_cudacpp.o, $(filter-out auto_dsig.f, $(wildcard auto_dsig*.f)))
 
 SYMMETRY = symmetry.o idenparts.o 
 
@@ -79,7 +79,7 @@ all: $(PROG) $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp $(PLUGIN_BUILDDIR)/g$(PROG)_cud
 endif
 
 $(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
-	$(FC) -o $(PROG) $(PROCESS) $(DSIG) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
+	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
 
 $(LIBS): .libs
 
@@ -156,8 +156,9 @@ initcluster.o: message.inc
 
 # Extra dependencies on discretesampler.mod
 
-$(DSIG): .libs
-$(DSIG_cudacpp) : .libs
+auto_dsig.o: .libs
+driver.o: .libs
+driver_cudacpp.o: .libs
 $(MATRIX): .libs
 genps.o: .libs
 
