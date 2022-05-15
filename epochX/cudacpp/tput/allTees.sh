@@ -27,7 +27,8 @@ started="STARTED  AT $(date)"
 # Four logs (double/float x hrd0/hrd1 x inl0) in each of the five processes
 \rm -rf gg_ttggg/lib/build.none_*
 ./tput/teeThroughputX.sh ${mad} -flt -hrd -makej -makeclean -eemumu -ggtt -ggttg -ggttgg $ggttggg
-ended1="ENDED(1) AT $(date)"
+status=$?
+ended1="ENDED(1) AT $(date) [Status=$status]"
 tmp1=$(mktemp)
 ls -ltr ee_mumu/lib/build.none_*_inl0_hrd* gg_tt/lib/build.none_*_inl0_hrd* gg_tt*g/lib/build.none_*_inl0_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp1
 
@@ -35,25 +36,30 @@ ls -ltr ee_mumu/lib/build.none_*_inl0_hrd* gg_tt/lib/build.none_*_inl0_hrd* gg_t
 \rm -rf gg_ttg/lib/build.none_*
 \rm -rf gg_ttggg/lib/build.none_*
 ./tput/teeThroughputX.sh ${mad} -flt -hrd -makej -makeclean -eemumu -ggtt -ggttgg -inlonly
-ended2="ENDED(2) AT $(date)"
+status=$?
+ended2="ENDED(2) AT $(date) [Status=$status]"
 tmp2=$(mktemp)
 ls -ltr ee_mumu/lib/build.none_*_inl1_hrd* gg_tt/lib/build.none_*_inl1_hrd* gg_tt*g/lib/build.none_*_inl1_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp2
 
 # Two extra logs (double/float x hrd0 x inl0 + bridge) only in three of the five processes (no rebuild needed)
 ./tput/teeThroughputX.sh ${mad} -eemumu -ggtt -ggttgg -flt -bridge
-ended3="ENDED(3) AT $(date)"
+status=$?
+ended3="ENDED(3) AT $(date) [Status=$status]"
 
 # Two extra logs (double/float x hrd0 x inl0 + rmbhst) only in three of the five processes (no rebuild needed)
 ./tput/teeThroughputX.sh ${mad} -eemumu -ggtt -ggttgg -flt -rmbhst
-ended4="ENDED(4) AT $(date)"
+status=$?
+ended4="ENDED(4) AT $(date) [Status=$status]"
 
 # Two extra logs (double/float x hrd0 x inl0 + curhst) only in three of the five processes (no rebuild needed)
 ./tput/teeThroughputX.sh ${mad} -eemumu -ggtt -ggttgg -flt -curhst
-ended5="ENDED(5) AT $(date)"
+status=$?
+ended5="ENDED(5) AT $(date) [Status=$status]"
 
 # Two extra logs (double/float x hrd0 x inl0 + common) only in three of the five processes (no rebuild needed)
 ./tput/teeThroughputX.sh ${mad} -eemumu -ggtt -ggttgg -flt -common
-ended6="ENDED(6) AT $(date)"
+status=$?
+ended6="ENDED(6) AT $(date) [Status=$status]"
 
 echo
 echo "Build(1):"
