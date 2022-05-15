@@ -1,5 +1,5 @@
 diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index cce95279..ef2e3f9c 100644
+index cce95279..8753bafc 100644
 --- a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,17 @@
@@ -55,8 +55,8 @@ index cce95279..ef2e3f9c 100644
 -         $(patsubst %.f,%.o,$(wildcard auto_dsig*.f)) \
 +	 idenparts.o dummy_fct.o
 +
-+DSIG=driver.o $(patsubst %.f,%.o,$(wildcard auto_dsig*.f))
-+DSIG_cudacpp=driver_cudacpp.o $(patsubst %.f,%_cudacpp.o,$(wildcard auto_dsig*.f))
++DSIG=driver.o $(patsubst %.f, %.o, $(filter-out auto_dsig.f, $(wildcard auto_dsig*.f)))
++DSIG_cudacpp=driver_cudacpp.o $(patsubst %.f, %_cudacpp.o, $(filter-out auto_dsig.f, $(wildcard auto_dsig*.f)))
  
  SYMMETRY = symmetry.o idenparts.o 
  
@@ -71,7 +71,7 @@ index cce95279..ef2e3f9c 100644
 +endif
 +
 +$(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
-+	$(FC) -o $(PROG) $(PROCESS) $(DSIG) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
++	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
 +
 +$(LIBS): .libs
 +
@@ -95,10 +95,10 @@ index cce95279..ef2e3f9c 100644
 +endif
 +
 +$(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(PLUGIN_BUILDDIR)/.pluginlibs
-+	$(FC) -o $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(PLUGIN_BUILDDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CXXLIB) $(LIBFLAGSRPATH)
++	$(FC) -o $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(PLUGIN_BUILDDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CXXLIB) $(LIBFLAGSRPATH)
 +
 +$(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(PLUGIN_BUILDDIR)/.pluginlibs
-+	$(FC) -o $(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(PLUGIN_BUILDDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CULIB) $(LIBFLAGSRPATH)
++	$(FC) -o $(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(PLUGIN_BUILDDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CULIB) $(LIBFLAGSRPATH)
 +
 +counters.o: counters.cpp timer.h
 +	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
@@ -131,14 +131,15 @@ index cce95279..ef2e3f9c 100644
  
  # Dependencies
  
-@@ -88,5 +154,64 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -88,5 +154,65 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  
 +# Extra dependencies on discretesampler.mod
 +
-+$(DSIG): .libs
-+$(DSIG_cudacpp) : .libs
++auto_dsig.o: .libs
++driver.o: .libs
++driver_cudacpp.o: .libs
 +$(MATRIX): .libs
 +genps.o: .libs
 +
@@ -148,30 +149,30 @@ index cce95279..ef2e3f9c 100644
 +
 +UNAME_P := $(shell uname -p)
 +ifeq ($(UNAME_P),ppc64le)
-+avxall: $(PROG) avxnone avxsse4
++avxall: avxnone avxsse4
 +else ifeq ($(UNAME_P),arm)
-+avxall: $(PROG) avxnone avxsse4
++avxall: avxnone avxsse4
 +else
-+avxall: $(PROG) avxnone avxsse4 avxavx2 avx512y avx512z
++avxall: avxnone avxsse4 avxavx2 avx512y avx512z
 +endif
 +
-+avxnone:
++avxnone: $(PROG) $(DSIG_cudacpp)
 +	@echo
 +	$(MAKE) USEBUILDDIR=1 AVX=none
 +
-+avxsse4:
++avxsse4: $(PROG) $(DSIG_cudacpp)
 +	@echo
 +	$(MAKE) USEBUILDDIR=1 AVX=sse4
 +
-+avxavx2:
++avxavx2: $(PROG) $(DSIG_cudacpp)
 +	@echo
 +	$(MAKE) USEBUILDDIR=1 AVX=avx2
 +
-+avx512y:
++avx512y: $(PROG) $(DSIG_cudacpp)
 +	@echo
 +	$(MAKE) USEBUILDDIR=1 AVX=512y
 +
-+avx512z:
++avx512z: $(PROG) $(DSIG_cudacpp)
 +	@echo
 +	$(MAKE) USEBUILDDIR=1 AVX=512z
 +
