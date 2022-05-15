@@ -119,6 +119,7 @@ fi
 #echo "steps=$steps"
 ###exit 0
 
+status=0
 started="STARTED AT $(date)"
 
 for step in $steps; do
@@ -160,7 +161,7 @@ for step in $steps; do
               printf "*** ./throughputX.sh $args | tee $logfile"
               printf "\n%80s\n" |tr " " "*"
               mkdir -p $(dirname $logfile)
-              ./throughputX.sh $args -gtest | tee $logfile
+              if ! ./throughputX.sh $args -gtest | tee $logfile; then status=2; fi
             fi
           done
         done
@@ -174,3 +175,4 @@ ended="ENDED   AT $(date)"
 echo
 echo "$started"
 echo "$ended"
+exit $status
