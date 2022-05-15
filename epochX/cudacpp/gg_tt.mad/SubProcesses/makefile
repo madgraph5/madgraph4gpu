@@ -78,7 +78,7 @@ else
 all: $(PROG) $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp $(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp
 endif
 
-$(PROG): .libs $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
+$(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
 	$(FC) -o $(PROG) $(PROCESS) $(DSIG) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
 
 $(LIBS): .libs
