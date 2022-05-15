@@ -174,23 +174,23 @@ else
 avxall: $(PROG) avxnone avxsse4 avxavx2 avx512y avx512z
 endif
 
-avxnone: $(PROG)
+avxnone: $(PROG) $(DSIG_cudacpp)
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=none
 
-avxsse4: $(PROG)
+avxsse4: $(PROG) $(DSIG_cudacpp)
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=sse4
 
-avxavx2: $(PROG)
+avxavx2: $(PROG) $(DSIG_cudacpp)
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=avx2
 
-avx512y: $(PROG)
+avx512y: $(PROG) $(DSIG_cudacpp)
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=512y
 
-avx512z: $(PROG)
+avx512z: $(PROG) $(DSIG_cudacpp)
 	@echo
 	$(MAKE) USEBUILDDIR=1 AVX=512z
 
