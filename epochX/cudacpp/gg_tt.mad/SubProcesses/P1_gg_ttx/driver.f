@@ -229,12 +229,16 @@ c      write(*,*) 'Final xsec: ',xsec
         WRITE(*,'(a,i6)')
      &    ' [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES = ',
      &    MEEXPORTER_NCBYF1
-        WRITE(*,'(a,e8.2)')
+c        WRITE(*,'(a,e8.2)')
+c    &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = ',
+c    &    MEEXPORTER_CBYF1SUM / MEEXPORTER_NCBYF1
+c       WRITE(*,'(a,e8.2)')
+c    &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: STD = ',
+c    &    SQRT( MEEXPORTER_CBYF1SUM2 / MEEXPORTER_NCBYF1 ) ! ~standard deviation
+        WRITE(*,'(a,e8.2,a,e8.2)')
      &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = ',
-     &    MEEXPORTER_CBYF1SUM / MEEXPORTER_NCBYF1
-        WRITE(*,'(a,e8.2)')
-     &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: STD = ',
-     &    SQRT( MEEXPORTER_CBYF1SUM2 / MEEXPORTER_NCBYF1 )
+     &    MEEXPORTER_CBYF1SUM / MEEXPORTER_NCBYF1, ' +- ',
+     &    SQRT( MEEXPORTER_CBYF1SUM2 ) / MEEXPORTER_NCBYF1 ! ~standard error
       ENDIF
 #endif
       CALL COUNTERS_FINALISE()
