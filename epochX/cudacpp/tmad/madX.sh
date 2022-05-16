@@ -56,23 +56,48 @@ if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ 
 # Always test only the .mad/ directories (hardcoded)
 suffs=".mad/"
 
+# Determine the working directory below topdir based on suff, bckend and <process>
+function showdir()
+{
+  if [ "${suff}" == ".mad/" ]; then
+    if [ "${eemumu}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_ll_ll
+    elif [ "${ggtt}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_gg_ttx
+    elif [ "${ggttg}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttg${suff}SubProcesses/P1_gg_ttxg
+    elif [ "${ggttgg}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_gg_ttxgg
+    elif [ "${ggttggg}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_gg_ttxggg
+    elif [ "${heftggh}" == "1" ]; then 
+      echo "ERROR! Options -mad and -madonly are not supported with -heftggh"; exit 1
+    fi
+  else
+    if [ "${eemumu}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
+    elif [ "${ggtt}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
+    elif [ "${ggttg}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttg${suff}SubProcesses/P1_Sigma_sm_gg_ttxg
+    elif [ "${ggttgg}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
+    elif [ "${ggttggg}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
+    elif [ "${heftggh}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/heft_gg_h${suff}/SubProcesses/P1_Sigma_heft_gg_h
+    fi
+  fi
+  echo $dir
+}
+
 ##########################################################################
 # PART 1 - build and run madevent
 ##########################################################################
 
 for suff in $suffs; do
 
-  if [ "${eemumu}" == "1" ]; then 
-    dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_ll_ll
-  elif [ "${ggtt}" == "1" ]; then 
-    dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_gg_ttx
-  elif [ "${ggttg}" == "1" ]; then 
-    dir=$topdir/epochX/${bckend}/gg_ttg${suff}SubProcesses/P1_gg_ttxg
-  elif [ "${ggttgg}" == "1" ]; then 
-    dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_gg_ttxgg
-  elif [ "${ggttggg}" == "1" ]; then 
-    dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_gg_ttxggg
-  fi
+  dir=$(showdir)
   if [ ! -d $dir ]; then echo "WARNING! Skip missing directory $dir"; continue; fi
 
   ##########################################################################
