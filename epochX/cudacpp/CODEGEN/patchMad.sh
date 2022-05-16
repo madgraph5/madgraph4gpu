@@ -27,7 +27,7 @@ ${dir}/bin/madevent treatcards param
 \rm -f ${dir}/madevent.tar.gz
 \rm -rf ${dir}/bin/internal/__pycache__
 \rm -rf ${dir}/bin/internal/ufomodel/__pycache__
-echo -e "index.html" > ${dir}/.gitignore
+echo -e "index.html\n.libs\n.pluginlibs" > ${dir}/.gitignore
 touch ${dir}/Events/.keepme
 \rm -rf ${dir}/HTML
 
