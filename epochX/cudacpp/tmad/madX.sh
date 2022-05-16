@@ -97,7 +97,7 @@ function inputfile()
   if [ "${eemumu}" == "1" ]; then
     nevt=16384 # 16384 unweighted events require 524320 MEs
   elif [ "${ggtt}" == "1" ]; then 
-    nevt=163840 # 16384 unweighted events require 524320 MEs
+    nevt=16384 # 16384 unweighted events require 524320 MEs
   #  dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_gg_ttx
   #elif [ "${ggttg}" == "1" ]; then 
   #  dir=$topdir/epochX/${bckend}/gg_ttg${suff}SubProcesses/P1_gg_ttxg
@@ -135,7 +135,9 @@ function runmadevent()
     # Hack: use awk to convert Fortran's 0.42E-01 into 4.20e-02
     cat ${tmp} | grep --binary-files=text MERATIOS \
       | awk -v sep=" 1 - " '{i=index($0,sep); if(i>0){print substr($0,0,i-1) sep 0+substr($0,i+length(sep))} else print $0}' \
-      | awk -v sep=" 1 + " '{i=index($0,sep); if(i>0){print substr($0,0,i-1) sep 0+substr($0,i+length(sep))} else print $0}'
+      | awk -v sep=" 1 + " '{i=index($0,sep); if(i>0){print substr($0,0,i-1) sep 0+substr($0,i+length(sep))} else print $0}' \
+      | awk -v sep=" AVG = " '{i=index($0,sep); if(i>0){print substr($0,0,i-1) sep 0+substr($0,i+length(sep))} else print $0}' \
+      | awk -v sep=" STD = " '{i=index($0,sep); if(i>0){print substr($0,0,i-1) sep 0+substr($0,i+length(sep))} else print $0}'
   fi
   cat ${tmp} | grep --binary-files=text COUNTERS
 }
