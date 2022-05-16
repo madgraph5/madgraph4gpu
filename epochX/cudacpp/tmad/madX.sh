@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set +x # not verbose
-set -e # fail on error
+###set -e # fail on error
 
 scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
@@ -97,14 +97,13 @@ function inputfile()
   if [ "${eemumu}" == "1" ]; then
     nevt=16384 # 16384 unweighted events require 524320 MEs
   elif [ "${ggtt}" == "1" ]; then 
-    nevt=1638 # 16384 unweighted events require 524320 MEs
-  #  dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_gg_ttx
-  #elif [ "${ggttg}" == "1" ]; then 
-  #  dir=$topdir/epochX/${bckend}/gg_ttg${suff}SubProcesses/P1_gg_ttxg
-  #elif [ "${ggttgg}" == "1" ]; then 
-  #  dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_gg_ttxgg
-  #elif [ "${ggttggg}" == "1" ]; then 
-  #  dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_gg_ttxggg
+    nevt=16384 # compute 16416 MEs and write to file 368 events
+  elif [ "${ggttg}" == "1" ]; then # crashes
+    nevt=64 # CRASHES
+  elif [ "${ggttgg}" == "1" ]; then # crashes
+    nevt=64 # CRASHES
+  elif [ "${ggttggg}" == "1" ]; then # crashes
+    nevt=64 # CRASHES
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
@@ -129,7 +128,7 @@ function runmadevent()
   tmp=$(mktemp)
   if [ ! -f results.dat ]; then grepA=4; else grepA=12; fi
   $timecmd $1 < ${tmpin} > ${tmp}
-  ###echo $tmp
+  echo $tmp
   xsec=$(cat ${tmp} | grep --binary-files=text 'Cross sec =' | awk '{print 0+$NF}')
   if [ "${xsec}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec}"
