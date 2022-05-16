@@ -105,18 +105,12 @@ extern "C"
     f = fopen( "counters_log.txt", "w" );
     program_totaltime += program_timer.GetDuration();
     fprintf( f, "PROGRAM         : %9.4fs\n", program_totaltime );
-    //fprintf( f, "MATRIX1(a)      : %9.4fs for %8d MATRIX1 calls  => throughput is %8.2E calls/s\n", matrix1_totaltime, matrix1_counter, matrix1_counter / matrix1_totaltime );
-    //fprintf( f, "MATRIX1(b)      : %9.4fs for %8d SMATRIX1 calls => throughput is %8.2E calls/s\n", matrix1_totaltime, smatrix1_counter, smatrix1_counter / matrix1_totaltime );
-    //fprintf( f, "SMATRIX1        : %9.4fs for %8d SMATRIX1 calls => throughput is %8.2E calls/s\n", smatrix1_totaltime, smatrix1_counter, smatrix1_counter / smatrix1_totaltime );
     for ( unsigned int iimplC=0; iimplC<nimplC; iimplC++ )
       if ( smatrix1multi_counter[iimplC] > 0 )
         fprintf( f, "%15s : %9.4fs for %8d %7s events => throughput is %8.2E events/s\n", iimplC2FUN( iimplC ), smatrix1multi_totaltime[iimplC], smatrix1multi_counter[iimplC], iimplC2TXT( iimplC ), smatrix1multi_counter[iimplC] / smatrix1multi_totaltime[iimplC] );
     fclose( f );
     // Write to stdout
     printf( "PROGRAM         : %9.4fs\n", program_totaltime );
-    //printf( "MATRIX1(a)      : %9.4fs for %8d MATRIX1 calls  => throughput is %8.2E calls/s\n", matrix1_totaltime, matrix1_counter, matrix1_counter / matrix1_totaltime );
-    //printf( "MATRIX1(b)      : %9.4fs for %8d SMATRIX1 calls => throughput is %8.2E calls/s\n", matrix1_totaltime, smatrix1_counter, smatrix1_counter / matrix1_totaltime );
-    //printf( "SMATRIX1        : %9.4fs for %8d SMATRIX1 calls => throughput is %8.2E calls/s\n", smatrix1_totaltime, smatrix1_counter, smatrix1_counter / smatrix1_totaltime );
     for ( unsigned int iimplC=0; iimplC<nimplC; iimplC++ )
       if ( smatrix1multi_counter[iimplC] > 0 )
         printf( "%15s : %9.4fs for %8d %7s events => throughput is %8.2E events/s\n", iimplC2FUN( iimplC ), smatrix1multi_totaltime[iimplC], smatrix1multi_counter[iimplC], iimplC2TXT( iimplC ), smatrix1multi_counter[iimplC] / smatrix1multi_totaltime[iimplC] );
