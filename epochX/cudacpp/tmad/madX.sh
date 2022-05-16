@@ -131,7 +131,10 @@ function runmadevent()
   $timecmd $1 < ${tmpin} > ${tmp}
   ###echo $tmp
   cat ${tmp} | grep --binary-files=text -B1 -A${grepA} Accumulated
-  if [ "${1/cmadevent}" != "$1" ] || [ "${1/gmadevent}" != "$1" ]; then cat ${tmp} | grep --binary-files=text COUNTERS; fi
+  if [ "${1/cmadevent}" != "$1" ] || [ "${1/gmadevent}" != "$1" ]; then
+    cat ${tmp} | grep --binary-files=text MERATIOS
+  fi
+  cat ${tmp} | grep --binary-files=text COUNTERS
 }
 
 ##########################################################################
