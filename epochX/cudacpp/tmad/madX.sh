@@ -53,7 +53,8 @@ done
 # Check that at least one process has been selected
 if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ]; then usage; fi
 
-suffs=".madonly/ .mad/"
+# Always test only the .mad/ directories (hardcoded)
+suffs=".mad/"
 
 ##########################################################################
 # PART 1 - build and run madevent
@@ -78,12 +79,6 @@ for suff in $suffs; do
   # PART 1a - build
   ##########################################################################
 
-  if [ "${USECCACHE}" == "1" ]; then
-    if [ "${FC/ccache}" == "${FC}" ]; then export FC="ccache ${FC}"; fi
-    if [ "${AR}" == "" ]; then export AR=ar; fi
-    if [ "${AR/ccache}" == "${AR}" ]; then export AR="ccache ${AR}"; fi
-  fi  
-  
   cd $dir/../../Source
   if [ "${clean}" == "1" ]; then make clean; echo; fi
   make
