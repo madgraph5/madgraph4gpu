@@ -132,7 +132,10 @@ function runmadevent()
   ###echo $tmp
   cat ${tmp} | grep --binary-files=text -B1 -A${grepA} Accumulated
   if [ "${1/cmadevent}" != "$1" ] || [ "${1/gmadevent}" != "$1" ]; then
-    cat ${tmp} | grep --binary-files=text MERATIOS
+    # Hack: use awk to convert Fortran's 0.42E-01 into 4.20e-02
+    cat ${tmp} | grep --binary-files=text MERATIOS \
+      | awk -v sep=" 1 - " '{i=index($0,sep); if(i>0){print substr($0,0,i-1) sep 0+substr($0,i+length(sep))} else print $0}' \
+      | awk -v sep=" 1 + " '{i=index($0,sep); if(i>0){print substr($0,0,i-1) sep 0+substr($0,i+length(sep))} else print $0}'
   fi
   cat ${tmp} | grep --binary-files=text COUNTERS
 }
