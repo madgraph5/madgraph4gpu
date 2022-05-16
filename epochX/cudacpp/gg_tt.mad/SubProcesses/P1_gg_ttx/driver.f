@@ -144,7 +144,8 @@ c   If CKKW-type matching, read IS Sudakov grid
           exit
  30       issgridfile='../'//issgridfile
           if(i.eq.5)then
-            print *,'ERROR: No Sudakov grid file found in lib with ickkw=2'
+            print *,
+     &        'ERROR: No Sudakov grid file found in lib with ickkw=2'
             stop
           endif
         enddo
@@ -216,10 +217,10 @@ c      write(*,*) 'Final xsec: ',xsec
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       CALL FBRIDGEDELETE(MEEXPORTER_PBRIDGE) ! this must be at the end as it shuts down the CUDA device
       IF( MEEXPORTER_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
-        WRITE(*,*) 'ME ratio CudaCpp/Fortran: MIN = ', MEEXPORTER_CBYFMIN
-        WRITE(*,*) 'ME ratio CudaCpp/Fortran: MAX = ', MEEXPORTER_CBYFMAX
-        WRITE(*,*) 'ME ratio CudaCpp/Fortran: 1-MIN = ', 1-MEEXPORTER_CBYFMIN
-        WRITE(*,*) 'ME ratio CudaCpp/Fortran: MAX-1 = ', MEEXPORTER_CBYFMAX-1
+        WRITE(*,*) '[MERATIOS] ME ratio CudaCpp/Fortran: MIN = ',
+     &    MEEXPORTER_CBYFMIN, ' = 1 - ', 1-MEEXPORTER_CBYFMIN
+        WRITE(*,*) '[MERATIOS] ME ratio CudaCpp/Fortran: MAX = ',
+     &    MEEXPORTER_CBYFMAX, ' = 1 + ', MEEXPORTER_CBYFMAX-1
       ENDIF
 #endif
       CALL COUNTERS_FINALISE()

@@ -94,12 +94,13 @@ extern "C"
     // Write to stdout
     float overhead_totaltime = program_totaltime;
     for ( unsigned int iimplC=0; iimplC<nimplC; iimplC++ ) overhead_totaltime -= smatrix1multi_totaltime[iimplC];
-    printf( "[COUNTERS] PROGRAM TOTAL          : %9.4fs\n", nimplC, program_totaltime );
-    printf( "[COUNTERS] Fortran Overhead ( 0 ) : %9.4fs\n", overhead_totaltime );
+    printf( " [COUNTERS] PROGRAM TOTAL          : %9.4fs\n", program_totaltime );
+    printf( " [COUNTERS] Fortran Overhead ( 0 ) : %9.4fs\n", overhead_totaltime );
     for ( unsigned int iimplC=0; iimplC<nimplC; iimplC++ )
-      printf( "[COUNTERS] %7s MEs      ( %1d ) : %9.4fs for %8d events => throughput is %8.2E events/s\n",
-              iimplC2TXT( iimplC ), iimplC+1, smatrix1multi_totaltime[iimplC], smatrix1multi_counter[iimplC],
-              smatrix1multi_counter[iimplC] / smatrix1multi_totaltime[iimplC] );
+      if ( smatrix1multi_counter[iimplC] > 0 )
+        printf( " [COUNTERS] %7s MEs      ( %1d ) : %9.4fs for %8d events => throughput is %8.2E events/s\n",
+                iimplC2TXT( iimplC ), iimplC+1, smatrix1multi_totaltime[iimplC], smatrix1multi_counter[iimplC],
+                smatrix1multi_counter[iimplC] / smatrix1multi_totaltime[iimplC] );
     return;
   }
 }
