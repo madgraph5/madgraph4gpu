@@ -97,7 +97,7 @@ function inputfile()
   if [ "${eemumu}" == "1" ]; then
     nevt=16384 # 16384 unweighted events require 524320 MEs
   elif [ "${ggtt}" == "1" ]; then 
-    nevt=16384 # 16384 unweighted events require 524320 MEs
+    nevt=1638 # 16384 unweighted events require 524320 MEs
   #  dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_gg_ttx
   #elif [ "${ggttg}" == "1" ]; then 
   #  dir=$topdir/epochX/${bckend}/gg_ttg${suff}SubProcesses/P1_gg_ttxg
@@ -130,7 +130,15 @@ function runmadevent()
   if [ ! -f results.dat ]; then grepA=4; else grepA=12; fi
   $timecmd $1 < ${tmpin} > ${tmp}
   ###echo $tmp
-  cat ${tmp} | grep --binary-files=text -B1 -A${grepA} Accumulated
+  xsec=$(cat ${tmp} | grep --binary-files=text 'Cross sec =' | awk '{print 0+$NF}')
+  if [ "${xsec}" != "" ]; then
+    echo " [XSECTION] Cross section = ${xsec}"
+  fi
+  evtf=$(cat ${tmp} | grep --binary-files=text 'events.' | grep 'Found' | awk '{print $2}')
+  evtw=$(cat ${tmp} | grep --binary-files=text 'events.' | grep 'Wrote' | awk '{print $2}')
+  if [ "${evtf}" != "" ] && [ "${evtw}" != "" ]; then
+    echo " [UNWEIGHT] Wrote ${evtw} events (found ${evtf} events)"  
+  fi
   if [ "${1/cmadevent}" != "$1" ] || [ "${1/gmadevent}" != "$1" ]; then
     # Hack: use awk to convert Fortran's 0.42E-01 into 4.20e-02
     cat ${tmp} | grep --binary-files=text MERATIOS \
