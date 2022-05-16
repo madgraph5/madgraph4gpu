@@ -100,15 +100,6 @@ extern "C"
 
   void counters_finalise_()
   {
-    // Write to file
-    FILE* f;
-    f = fopen( "counters_log.txt", "w" );
-    program_totaltime += program_timer.GetDuration();
-    fprintf( f, "PROGRAM         : %9.4fs\n", program_totaltime );
-    for ( unsigned int iimplC=0; iimplC<nimplC; iimplC++ )
-      if ( smatrix1multi_counter[iimplC] > 0 )
-        fprintf( f, "%15s : %9.4fs for %8d %7s events => throughput is %8.2E events/s\n", iimplC2FUN( iimplC ), smatrix1multi_totaltime[iimplC], smatrix1multi_counter[iimplC], iimplC2TXT( iimplC ), smatrix1multi_counter[iimplC] / smatrix1multi_totaltime[iimplC] );
-    fclose( f );
     // Write to stdout
     printf( "PROGRAM         : %9.4fs\n", program_totaltime );
     for ( unsigned int iimplC=0; iimplC<nimplC; iimplC++ )
