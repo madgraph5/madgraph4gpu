@@ -180,6 +180,7 @@ for suff in $suffs; do
 
   # First execution: this will create results.dat
   cd $dir
+  \rm -f ftn26
   if [ "${runclean}" == "1" ]; then \rm -f results.dat; fi
   if [ ! -f results.dat ]; then
     echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
