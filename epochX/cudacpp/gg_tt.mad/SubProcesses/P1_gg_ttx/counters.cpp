@@ -28,16 +28,6 @@ extern "C"
     default: assert( false ); break;
     }
   }
-  const char* iimplC2FUN( int iimplC )
-  {
-    const int iimplF = iimplC - 1;
-    switch( iimplF )
-    {
-    case -1: return "SMATRIX1MULTI  "; break;
-    case +0: return "FBRIDGESEQUENCE"; break;
-    default: assert( false ); break;
-    }
-  }
 
   static mgOnGpu::Timer<TIMERTYPE> program_timer;
   static float program_totaltime = 0;
@@ -100,11 +90,16 @@ extern "C"
 
   void counters_finalise_()
   {
+    program_totaltime += program_timer.GetDuration();
     // Write to stdout
-    printf( "PROGRAM         : %9.4fs\n", program_totaltime );
+    float overhead_totaltime = program_totaltime;
+    for ( unsigned int iimplC=0; iimplC<nimplC; iimplC++ ) overhead_totaltime -= smatrix1multi_totaltime[iimplC];
+    printf( "[COUNTERS] PROGRAM TOTAL          : %9.4fs\n", nimplC, program_totaltime );
+    printf( "[COUNTERS] Fortran Overhead ( 0 ) : %9.4fs\n", overhead_totaltime );
     for ( unsigned int iimplC=0; iimplC<nimplC; iimplC++ )
-      if ( smatrix1multi_counter[iimplC] > 0 )
-        printf( "%15s : %9.4fs for %8d %7s events => throughput is %8.2E events/s\n", iimplC2FUN( iimplC ), smatrix1multi_totaltime[iimplC], smatrix1multi_counter[iimplC], iimplC2TXT( iimplC ), smatrix1multi_counter[iimplC] / smatrix1multi_totaltime[iimplC] );
+      printf( "[COUNTERS] %7s MEs      ( %1d ) : %9.4fs for %8d events => throughput is %8.2E events/s\n",
+              iimplC2TXT( iimplC ), iimplC+1, smatrix1multi_totaltime[iimplC], smatrix1multi_counter[iimplC],
+              smatrix1multi_counter[iimplC] / smatrix1multi_totaltime[iimplC] );
     return;
   }
 }
