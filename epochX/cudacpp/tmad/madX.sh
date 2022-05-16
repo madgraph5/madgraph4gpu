@@ -9,7 +9,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-clean]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-makeclean] [-runclean]" > /dev/stderr
   exit 1
 }
 
@@ -23,7 +23,8 @@ ggttg=0
 ggttgg=0
 ggttggg=0
 
-clean=0
+makeclean=0
+runclean=0
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-eemumu" ]; then
@@ -41,8 +42,11 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-ggttggg" ]; then
     ggttggg=1
     shift
-  elif [ "$1" == "-clean" ]; then
-    clean=1
+  elif [ "$1" == "-makeclean" ]; then
+    makeclean=1
+    shift
+  elif [ "$1" == "-runclean" ]; then
+    runclean=1
     shift
   else
     usage
@@ -70,8 +74,6 @@ function showdir()
       dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_gg_ttxgg
     elif [ "${ggttggg}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_gg_ttxggg
-    elif [ "${heftggh}" == "1" ]; then 
-      echo "ERROR! Options -mad and -madonly are not supported with -heftggh"; exit 1
     fi
   else
     if [ "${eemumu}" == "1" ]; then 
@@ -84,11 +86,52 @@ function showdir()
       dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
     elif [ "${ggttggg}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
-    elif [ "${heftggh}" == "1" ]; then 
-      dir=$topdir/epochX/${bckend}/heft_gg_h${suff}/SubProcesses/P1_Sigma_heft_gg_h
     fi
   fi
   echo $dir
+}
+
+# Create an input file that is appropriate for the specific process
+function inputfile()
+{
+  if [ "${eemumu}" == "1" ]; then
+    nevt=16384 # 16384 unweighted events require 524320 MEs
+  elif [ "${ggtt}" == "1" ]; then 
+    nevt=163840 # 16384 unweighted events require 524320 MEs
+  #  dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_gg_ttx
+  #elif [ "${ggttg}" == "1" ]; then 
+  #  dir=$topdir/epochX/${bckend}/gg_ttg${suff}SubProcesses/P1_gg_ttxg
+  #elif [ "${ggttgg}" == "1" ]; then 
+  #  dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_gg_ttxgg
+  #elif [ "${ggttggg}" == "1" ]; then 
+  #  dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_gg_ttxggg
+  else
+    echo "ERROR! Unknown process" > /dev/stderr; usage
+  fi
+  tmp=$(mktemp)
+  cat << EOF > ${tmp}
+${nevt} 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+0 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! Channel number for single-diagram enhancement multi-channel (IGNORED as suppress amplitude is 0?)
+EOF
+  echo ${tmp}
+}
+
+# Run madevent (or cmadevent or gmadevent, depending on $1) and parse its output
+function runmadevent()
+{
+  if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: runmadevent <madevent executable>"; exit 1; fi
+  tmpin=$(inputfile)
+  if [ ! -f $tmpin ]; then echo "ERROR! Missing input file $tmpin"; exit 1; fi
+  tmp=$(mktemp)
+  if [ ! -f results.dat ]; then grepA=4; else grepA=12; fi
+  $timecmd $1 < ${tmpin} > ${tmp}
+  ###echo $tmp
+  cat ${tmp} | grep --binary-files=text -B1 -A${grepA} Accumulated
+  if [ "${1/cmadevent}" != "$1" ] || [ "${1/gmadevent}" != "$1" ]; then cat ${tmp} | tail -7; fi
 }
 
 ##########################################################################
@@ -104,22 +147,17 @@ for suff in $suffs; do
   # PART 1a - build
   ##########################################################################
 
-  cd $dir/../../Source
-  if [ "${clean}" == "1" ]; then make clean; echo; fi
-  make
+  echo "Working directory: $dir"
   cd $dir
-  make
+  if [ "${makeclean}" == "1" ]; then make cleanall; echo; fi
+  make -j
 
   ##########################################################################
   # PART 1b - run madevent
   ##########################################################################
 
   # Disable OpenMP multithreading in Fortran
-  export OMP_NUM_THREADS=1
-
-  # Pattern to filter
-  ###pattern='$' # no filter
-  pattern='(Number of events|Actual xsec)' # filter pattern
+  ###export OMP_NUM_THREADS=1 # not needed in .mad directories (OpenMP MT disabled in the code)
 
   # Use the time command?
   ###timecmd=time
@@ -127,17 +165,18 @@ for suff in $suffs; do
 
   # First execution: this will create results.dat
   cd $dir
-  if [ "${clean}" == "1" ]; then \rm -f results.dat; fi
+  if [ "${runclean}" == "1" ]; then \rm -f results.dat; fi
   if [ ! -f results.dat ]; then
     echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
-    $timecmd ./madevent < ${scrdir}/input_app_100k.txt | grep -E "${pattern}"
-    cat counters_log.txt 
+    runmadevent ./madevent
   fi
-  # Second execution: this will read results.dat and create events.lhe
+  # Second execution: this will read results.dat and create events.lhe 
   echo -e "\n*** EXECUTE MADEVENT (create events.lhe) ***"
-  $timecmd ./madevent < ${scrdir}/input_app_100k.txt | grep -E "${pattern}"
-  cat counters_log.txt 
-  \rm -f counters_log.txt 
+  runmadevent ./madevent
+  echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
+  runmadevent ./cmadevent_cudacpp
+  echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
+  runmadevent ./gmadevent_cudacpp
   
 done
 
