@@ -87,6 +87,8 @@ C-----
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       CALL FBRIDGECREATE(MEEXPORTER_PBRIDGE, NB_PAGE, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
       MEEXPORTER_MODE = -1 ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
+      MEEXPORTER_NCBYF = 0
+      MEEXPORTER_CBYFSUM = 0
       MEEXPORTER_CBYFMAX = 0
       MEEXPORTER_CBYFMIN = 1D100
 #endif
@@ -217,6 +219,10 @@ c      write(*,*) 'Final xsec: ',xsec
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       CALL FBRIDGEDELETE(MEEXPORTER_PBRIDGE) ! this must be at the end as it shuts down the CUDA device
       IF( MEEXPORTER_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
+        WRITE(*,'(a,f10.8,a,i6,a)')
+     &    ' [MERATIOS] ME ratio CudaCpp/Fortran: AVG = ',
+     &    MEEXPORTER_CBYFSUM / MEEXPORTER_NCBYF,
+     &    ' over ', MEEXPORTER_NCBYF, ' entries'
         WRITE(*,'(a,f10.8,a,e8.2)')
      &    ' [MERATIOS] ME ratio CudaCpp/Fortran: MIN = ',
      &    MEEXPORTER_CBYFMIN, ' = 1 - ', 1-MEEXPORTER_CBYFMIN
