@@ -126,8 +126,8 @@ function runmadevent()
   tmpin=$(inputfile)
   if [ ! -f $tmpin ]; then echo "ERROR! Missing input file $tmpin"; exit 1; fi
   tmp=$(mktemp)
-  ###echo "Results on $tmp"
   set +e # do not fail on error
+  ###echo "Executing '$timecmd $1 < ${tmpin} > ${tmp}'"
   $timecmd $1 < ${tmpin} > ${tmp}
   if [ "$?" != "0" ]; then echo "ERROR! '$1' failed"; exit 1; fi
   xsec=$(cat ${tmp} | grep --binary-files=text 'Cross sec =' | awk '{print 0+$NF}')
