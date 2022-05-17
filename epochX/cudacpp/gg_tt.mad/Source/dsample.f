@@ -34,7 +34,7 @@ c
       integer itmax_adjust
 
       integer imirror, iproc, iconf
-      integer ivec !position of the event in the vectorization # max is nb_page_max 
+      integer ivec ! position of the event in the vectorization # max is nb_page_max (but loops go over nb_page_loop)
 c
 c     External
 c
@@ -181,12 +181,12 @@ c               fx = dsig(all_p(1,i),all_wgt(i),0)
 c               bckp(i) = fx
 c               write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
 c               all_wgt(i) = all_wgt(i)*fx
-               if (ivec.lt.nb_page_max)then
+               if (ivec.lt.nb_page_loop)then
                   cycle
                endif
                ivec=0
 c               call dsig(all_p,all_fx, all_wgt,0) !Evaluate function
-               do i=1, nb_page_max
+               do i=1, nb_page_loop
 c                 need to restore common block                  
                   xbk(:) = all_xbk(:, i)
                   cm_rap = all_cm_rap(i)
@@ -195,11 +195,11 @@ c                 need to restore common block
                   CUTSPASSED=.TRUE.
                   call prepare_grouping_choice(all_p(1,i), all_wgt(i), i.eq.1)
                enddo
-               call select_grouping(imirror, iproc, iconf, all_wgt, nb_page_max)
+               call select_grouping(imirror, iproc, iconf, all_wgt, nb_page_loop)
                call dsig_vec(all_p, all_wgt, all_xbk, all_q2fact, all_cm_rap,
-     &                          iconf, iproc, imirror, all_fx,nb_page_max)
+     &                          iconf, iproc, imirror, all_fx,nb_page_loop)
 
-                do i=1, nb_page_max
+                do i=1, nb_page_loop
 c                 need to restore common block                  
                   xbk(:) = all_xbk(:, i)
                   cm_rap = all_cm_rap(i)
@@ -211,17 +211,17 @@ c                     stop 1
 c                  endif
 c     write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
                enddo
-               do I=1, nb_page_max
+               do I=1, nb_page_loop
                   all_wgt(i) = all_wgt(i)*all_fx(i)
               enddo
-               do i =1, nb_page_max
+               do i =1, nb_page_loop
 c     if last paremeter is true -> allow grid update so only for a full page
                   lastbin(:) = all_lastbin(:,i)
                   if (all_wgt(i) .ne. 0d0) kevent=kevent+1
-c                  write(*,*) 'put point in sample kevent', kevent, 'allow_update', ivec.eq.nb_page_max                   
-                  call sample_put_point(all_wgt(i),all_x(1,i),iter,ipole, i.eq.nb_page_max) !Store result
+c                  write(*,*) 'put point in sample kevent', kevent, 'allow_update', ivec.eq.nb_page_loop                   
+                  call sample_put_point(all_wgt(i),all_x(1,i),iter,ipole, i.eq.nb_page_loop) !Store result
                enddo
-               if (nb_page_max.ne.1.and.force_reset)then
+               if (nb_page_loop.ne.1.and.force_reset)then
                   call reset_cumulative_variable()
                   force_reset=.false.
                endif
@@ -890,7 +890,7 @@ c      write(*,*) 'Forwarding random number generator'
 
 C     sanity check that we have a minimal number of event
       
-      if ( .not.MC_GROUPED_SUBPROC.or.nb_page_max.gt.1)then
+      if ( .not.MC_GROUPED_SUBPROC.or.nb_page_loop.gt.1)then
          events = max(events, maxtries)
          MC_GROUPED_SUBPROC = .false.
       else 

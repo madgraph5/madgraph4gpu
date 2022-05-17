@@ -1,3 +1,13 @@
+C
+C All Fortran arrays for cudacpp offload can hold up to NB_PAGE_MAX events 
+C These arrays are allocated at compile time (NB_PAGE_MAX is a constant)
+C      
+C Of these, only NB_PAGE_LOOP events are used in Fortran loops
+C The value of NB_PAGE_LOOP can be chosen at runtime
+C (very large for CUDA/GPUs, smaller for C++/CPUs using SIMD)
+C
       INTEGER NB_PAGE_MAX
       PARAMETER (NB_PAGE_MAX=1024)
+      INTEGER NB_PAGE_LOOP
+      PARAMETER (NB_PAGE_LOOP=32)
 
