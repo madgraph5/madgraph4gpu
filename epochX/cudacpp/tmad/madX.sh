@@ -9,7 +9,8 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-makeclean] [-runclean]" > /dev/stderr
+  ###echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-makeclean] [-runclean]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-makeclean]" > /dev/stderr
   exit 1
 }
 
@@ -24,7 +25,7 @@ ggttgg=0
 ggttggg=0
 
 makeclean=0
-runclean=0
+###runclean=0
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-eemumu" ]; then
@@ -45,9 +46,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-makeclean" ]; then
     makeclean=1
     shift
-  elif [ "$1" == "-runclean" ]; then
-    runclean=1
-    shift
+  ###elif [ "$1" == "-runclean" ]; then
+  ###  runclean=1
+  ###  shift
   else
     usage
   fi
@@ -183,19 +184,33 @@ for suff in $suffs; do
   ###timecmd=time
   timecmd=
 
-  # First execution: this will create results.dat
+  # FUTURE IMPLEMENTATION? Currently fails with https://github.com/oliviermattelaer/mg5amc_test/issues/14
+  # First execution: compute xsec (create results.dat)
+  #cd $dir
+  #\rm -f ftn26
+  #if [ "${runclean}" == "1" ]; then \rm -f results.dat; fi
+  #if [ ! -f results.dat ]; then
+  #  echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
+  #  runmadevent ./madevent
+  #fi
+  # Second execution: compute xsec and generate events (read results.dat and create events.lhe)
+  #echo -e "\n*** EXECUTE MADEVENT (create events.lhe) ***"
+  #runmadevent ./madevent
+  #echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
+  #runmadevent ./cmadevent_cudacpp
+  #echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
+  #runmadevent ./gmadevent_cudacpp
+  
+  # CURRENT (TEMPORARY?) IMPLEMENTATION! Work around https://github.com/oliviermattelaer/mg5amc_test/issues/14
+  # First execution ONLY (no event generation): compute xsec (create results.dat)
   cd $dir
-  \rm -f ftn26
-  if [ "${runclean}" == "1" ]; then \rm -f results.dat; fi
-  if [ ! -f results.dat ]; then
-    echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
-    runmadevent ./madevent
-  fi
-  # Second execution: this will read results.dat and create events.lhe 
-  echo -e "\n*** EXECUTE MADEVENT (create events.lhe) ***"
+  \rm -f ftn26 results.dat
+  echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
   runmadevent ./madevent
+  \rm -f ftn26 results.dat
   echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
   runmadevent ./cmadevent_cudacpp
+  \rm -f ftn26 results.dat
   echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
   runmadevent ./gmadevent_cudacpp
   
