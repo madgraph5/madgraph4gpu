@@ -39,6 +39,7 @@ if ! patch -i ${scrdir}/MG5aMC_patches/patch.makefile; then status=1; fi
 cd -
 for p1dir in ${dir}/SubProcesses/P1_*; do
   cd $p1dir
+  echo -e "madevent\n*madevent_cudacpp" > .gitignore
   ln -sf ../fbridge_common.inc .
   \cp -dpr ${scrdir}/MG5aMC_patches/counters.cpp .
   if [ "${dir%.mad}" == "$1" ]; then
