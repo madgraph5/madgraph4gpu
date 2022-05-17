@@ -133,6 +133,10 @@ function runmadevent()
   xsec=$(cat ${tmp} | grep --binary-files=text 'Cross sec =' | awk '{print 0+$NF}')
   if [ "${xsec}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec}"
+  else
+    echo -e " [XSECTION] ERROR! No cross section in log file:\n   $tmp\n   ..."
+    tail -10 $tmp
+    exit 1
   fi
   evtf=$(cat ${tmp} | grep --binary-files=text 'events.' | grep 'Found' | awk '{print $2}')
   evtw=$(cat ${tmp} | grep --binary-files=text 'events.' | grep 'Wrote' | awk '{print $2}')
