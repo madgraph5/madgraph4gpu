@@ -294,6 +294,10 @@ c
       integer        lbw(0:nexternal)  !Use of B.W.
       common /to_BW/ lbw
 
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      include 'vector.inc'
+#endif
+
 c-----
 c  Begin Code
 c-----
@@ -381,6 +385,16 @@ c         enddo
       endif
  10   format( a)
  12   format( a,i4)
+
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      write(*,'(a,i7,a)') 'Enter number of events in each vector loop (max=',nb_page_max,')'
+      read(*,*) nb_page_loop
+      if( nb_page_loop.gt.nb_page_max .or. nb_page_loop.le.0 ) then
+        write(*,*) 'ERROR! Invalid nb_page_loop = ', nb_page_loop
+        STOP
+      endif
+#endif
+
       end
 c     $E$ get_user_params $E$ ! tag for MadWeight
 c     change this routine to read the input in a file
