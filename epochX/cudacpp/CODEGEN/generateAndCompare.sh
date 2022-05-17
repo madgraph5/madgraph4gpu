@@ -47,6 +47,9 @@ function codeGenAndDiff()
   esac
   echo -e "\n+++ Generate code for '$proc'\n"
   ###exit 0 # FOR DEBUGGING
+  # Vector size for mad/madonly meexporter  (maximum nb_page for cuda, actual nb_page for cpp)
+  ###vecsize=524288
+  vecsize=1024
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null
   outproc=CODEGEN_${OUTBCK}_${proc}
@@ -71,9 +74,9 @@ function codeGenAndDiff()
     elif [ "${SCRBCK}" == "alpaka" ]; then # $SCRBCK=$OUTBCK=alpaka
       echo "output standalone_${SCRBCK}_cudacpp ${outproc}" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madonly" ]; then # $SCRBCK=cudacpp and $OUTBCK=madonly
-      echo "output madevent ${outproc} ${helrecopt} --vector_size=32" >> ${outproc}.mg
+      echo "output madevent ${outproc} ${helrecopt} --vector_size=${vecsize}" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "mad" ]; then # $SCRBCK=cudacpp and $OUTBCK=mad
-      echo "output madevent ${outproc} ${helrecopt} --vector_size=32 --me_exporter=standalone_cudacpp" >> ${outproc}.mg
+      echo "output madevent ${outproc} ${helrecopt} --vector_size=${vecsize} --me_exporter=standalone_cudacpp" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madcpp" ]; then # $SCRBCK=cudacpp and $OUTBCK=madcpp
       echo "output madevent ${outproc} ${helrecopt} --vector_size=32 --me_exporter=standalone_cpp" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madgpu" ]; then # $SCRBCK=cudacpp and $OUTBCK=madgpu
