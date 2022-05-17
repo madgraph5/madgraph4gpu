@@ -77,6 +77,7 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       INCLUDE 'fbridge.inc'
       INCLUDE 'fbridge_common.inc'
+      INTEGER DUMMY
 #endif
 C-----
 C  BEGIN CODE
@@ -91,8 +92,10 @@ C-----
         write(*,*) 'ERROR! Invalid nb_page_loop = ', nb_page_loop
         STOP
       endif
-
+      
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
+      READ(*,*) DUMMY
+      WRITE(6,*) '[COUNTERS] DUMMY=',DUMMY
       CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, NB_PAGE_LOOP, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
       FBRIDGE_MODE = -1 ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
       FBRIDGE_NCBYF1 = 0
