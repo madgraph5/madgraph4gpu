@@ -86,7 +86,12 @@ C-----
 
       CALL COUNTERS_INITIALISE()
 
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      write(*,*) 'Enter #events in a vector loop (max=',nb_page_max,',)'
+      read(*,*) nb_page_loop
+#else
       NB_PAGE_LOOP = 32
+#endif
       if( nb_page_loop.gt.nb_page_max .or. nb_page_loop.le.0 ) then
         write(*,*) 'ERROR! Invalid nb_page_loop = ', nb_page_loop
         STOP
