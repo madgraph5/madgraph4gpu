@@ -85,7 +85,13 @@ C-----
       CUMULATED_TIMING = t_before
 
       CALL COUNTERS_INITIALISE()
+
       NB_PAGE_LOOP = 32
+      if( nb_page_loop.gt.nb_page_max .or. nb_page_loop.le.0 ) then
+        write(*,*) 'ERROR! Invalid nb_page_loop = ', nb_page_loop
+        STOP
+      endif
+
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, NB_PAGE_LOOP, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
       FBRIDGE_MODE = -1 ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
