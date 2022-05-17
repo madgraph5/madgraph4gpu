@@ -87,6 +87,7 @@ C-----
       CALL COUNTERS_INITIALISE()
       NB_PAGE_LOOP = 32
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
+      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, NB_PAGE_LOOP, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
       FBRIDGE_MODE = -1 ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
       FBRIDGE_NCBYF1 = 0
       FBRIDGE_CBYF1SUM = 0
@@ -174,11 +175,6 @@ c
       write(*,*) "getting user params"
       call init_good_hel()
       call get_user_params(ncall,itmax,itmin,mincfig)
-#ifdef MG5AMC_MEEXPORTER_CUDACPP
-c Create the Bridge from Fortran to CUDA/C++
-c The number of events per CUDA/C++ iteration (NB_PAGE_LOOP) is read at runtime in get_user_params
-      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, NB_PAGE_LOOP, NEXTERNAL, 4) ! (note: this initialises the CUDA device)
-#endif
       maxcfig=mincfig
       minvar(1,1) = 0              !This tells it to map things invarients
       write(*,*) 'Attempting mappinvarients',nconfigs,nexternal
@@ -294,10 +290,6 @@ c
       integer        lbw(0:nexternal)  !Use of B.W.
       common /to_BW/ lbw
 
-#ifdef MG5AMC_MEEXPORTER_CUDACPP
-      include 'vector.inc'
-#endif
-
 c-----
 c  Begin Code
 c-----
@@ -385,16 +377,6 @@ c         enddo
       endif
  10   format( a)
  12   format( a,i4)
-
-#ifdef MG5AMC_MEEXPORTER_CUDACPP
-      write(*,'(a,i7,a)') 'Enter number of events in each vector loop (max=',nb_page_max,')'
-      read(*,*) nb_page_loop
-      if( nb_page_loop.gt.nb_page_max .or. nb_page_loop.le.0 ) then
-        write(*,*) 'ERROR! Invalid nb_page_loop = ', nb_page_loop
-        STOP
-      endif
-#endif
-
       end
 c     $E$ get_user_params $E$ ! tag for MadWeight
 c     change this routine to read the input in a file
