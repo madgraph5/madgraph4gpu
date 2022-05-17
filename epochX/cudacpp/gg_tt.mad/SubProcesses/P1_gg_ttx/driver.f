@@ -87,7 +87,6 @@ C-----
       CALL COUNTERS_INITIALISE()
       NB_PAGE_LOOP = 32
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
-      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, NB_PAGE_LOOP, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
       FBRIDGE_MODE = -1 ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
       FBRIDGE_NCBYF1 = 0
       FBRIDGE_CBYF1SUM = 0
@@ -175,6 +174,11 @@ c
       write(*,*) "getting user params"
       call init_good_hel()
       call get_user_params(ncall,itmax,itmin,mincfig)
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+c Create the Bridge from Fortran to CUDA/C++
+c The number of events per CUDA/C++ iteration (NB_PAGE_LOOP) is read at runtime in get_user_params
+      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, NB_PAGE_LOOP, NEXTERNAL, 4) ! (note: this initialises the CUDA device)
+#endif
       maxcfig=mincfig
       minvar(1,1) = 0              !This tells it to map things invarients
       write(*,*) 'Attempting mappinvarients',nconfigs,nexternal
