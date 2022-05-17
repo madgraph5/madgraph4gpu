@@ -95,16 +95,18 @@ function showdir()
 # Create an input file that is appropriate for the specific process
 function inputfile()
 {
-  if [ "${eemumu}" == "1" ]; then
-    nevt=16384 # 16384 unweighted events require 524320 MEs
+  if [ "${eemumu}" == "1" ]; then # computed xsec is zero (https://github.com/oliviermattelaer/mg5amc_test/issues/13)
+    ###nevt=16384 # computes 524320 MEs in 7.4s
+    nevt=2048 # computes 65558 MEs in 1.1s
   elif [ "${ggtt}" == "1" ]; then 
-    nevt=16384 # compute 16416 MEs and write to file 368 events
-  elif [ "${ggttg}" == "1" ]; then # crashes
-    nevt=64 # CRASHES
-  elif [ "${ggttgg}" == "1" ]; then # crashes
-    nevt=64 # CRASHES
-  elif [ "${ggttggg}" == "1" ]; then # crashes
-    nevt=64 # CRASHES
+    nevt=16384 # computes 16416 MEs (writes to file 368 events) in 1.2s
+  elif [ "${ggttg}" == "1" ]; then # event generation fails (https://github.com/oliviermattelaer/mg5amc_test/issues/14)
+    nevt=4096 # computes 4128 MEs in 1.2s
+  elif [ "${ggttgg}" == "1" ]; then # event generation fails (https://github.com/oliviermattelaer/mg5amc_test/issues/14)
+    ###nevt=1024 # computes 1056 MEs in 2.6s
+    nevt=512 # computes 544 MEs in 1.5s
+  elif [ "${ggttggg}" == "1" ]; then # event generation fails (https://github.com/oliviermattelaer/mg5amc_test/issues/14)
+    nevt=64 # computes 96 MEs in 5.3s
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
