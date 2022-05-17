@@ -467,7 +467,7 @@ C
       SAVE NWARNINGS
       DATA NWARNINGS/0/
       
-      IF( MEEXPORTER_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
+      IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
         call counters_smatrix1multi_start( -1, nb_page ) ! fortran=-1
 c!$OMP PARALLEL
@@ -488,23 +488,21 @@ c!$OMP END PARALLEL
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       ENDIF
 
-      IF( MEEXPORTER_MODE .EQ. 1 .OR. MEEXPORTER_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
+      IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
         call counters_smatrix1multi_start( 0, nb_page ) ! cudacpp=0
-        CALL FBRIDGESEQUENCE(MEEXPORTER_PBRIDGE, P_MULTI, ALL_G, OUT2)
+        CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2)
         call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
       ENDIF
 
-      IF( MEEXPORTER_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
+      IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
         DO IVEC=1, NB_PAGE
           CBYF1 = OUT2(IVEC)/OUT(IVEC) - 1
-          MEEXPORTER_NCBYF1 = MEEXPORTER_NCBYF1 + 1
-          MEEXPORTER_CBYF1SUM = MEEXPORTER_CBYF1SUM + CBYF1
-          MEEXPORTER_CBYF1SUM2 = MEEXPORTER_CBYF1SUM2 + CBYF1 * CBYF1
-          IF( CBYF1 .GT. MEEXPORTER_CBYF1MAX )
-     &      MEEXPORTER_CBYF1MAX = CBYF1
-          IF( CBYF1 .LT. MEEXPORTER_CBYF1MIN )
-     &      MEEXPORTER_CBYF1MIN = CBYF1
-          IF( MEEXPORTER_MODE .EQ. -2 ) THEN ! (BothDebug=-2)
+          FBRIDGE_NCBYF1 = FBRIDGE_NCBYF1 + 1
+          FBRIDGE_CBYF1SUM = FBRIDGE_CBYF1SUM + CBYF1
+          FBRIDGE_CBYF1SUM2 = FBRIDGE_CBYF1SUM2 + CBYF1 * CBYF1
+          IF( CBYF1 .GT. FBRIDGE_CBYF1MAX ) FBRIDGE_CBYF1MAX = CBYF1
+          IF( CBYF1 .LT. FBRIDGE_CBYF1MIN ) FBRIDGE_CBYF1MIN = CBYF1
+          IF( FBRIDGE_MODE .EQ. -2 ) THEN ! (BothDebug=-2)
             WRITE (*,*) IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
           ENDIF
           IF( ABS(CBYF1).GT.5E-5 .AND. NWARNINGS.LT.20 ) THEN

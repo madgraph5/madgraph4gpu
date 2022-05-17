@@ -86,13 +86,13 @@ C-----
 
       CALL COUNTERS_INITIALISE()
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
-      CALL FBRIDGECREATE(MEEXPORTER_PBRIDGE, NB_PAGE, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
-      MEEXPORTER_MODE = -1 ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-      MEEXPORTER_NCBYF1 = 0
-      MEEXPORTER_CBYF1SUM = 0
-      MEEXPORTER_CBYF1SUM2 = 0
-      MEEXPORTER_CBYF1MAX = -1D100
-      MEEXPORTER_CBYF1MIN = 1D100
+      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, NB_PAGE, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
+      FBRIDGE_MODE = -1 ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
+      FBRIDGE_NCBYF1 = 0
+      FBRIDGE_CBYF1SUM = 0
+      FBRIDGE_CBYF1SUM2 = 0
+      FBRIDGE_CBYF1MAX = -1D100
+      FBRIDGE_CBYF1MIN = 1D100
 #endif
 c
 c     Read process number
@@ -219,27 +219,27 @@ c      write(*,*) 'Final xsec: ',xsec
       close(lun)
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
-      CALL FBRIDGEDELETE(MEEXPORTER_PBRIDGE) ! this must be at the end as it shuts down the CUDA device
-      IF( MEEXPORTER_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
+      CALL FBRIDGEDELETE(FBRIDGE_PBRIDGE) ! this must be at the end as it shuts down the CUDA device
+      IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
         WRITE(*,'(a,f10.8,a,e8.2)')
      &    ' [MERATIOS] ME ratio CudaCpp/Fortran: MIN = ',
-     &    MEEXPORTER_CBYF1MIN + 1, ' = 1 - ', -MEEXPORTER_CBYF1MIN
+     &    FBRIDGE_CBYF1MIN + 1, ' = 1 - ', -FBRIDGE_CBYF1MIN
         WRITE(*,'(a,f10.8,a,e8.2)')
      &    ' [MERATIOS] ME ratio CudaCpp/Fortran: MAX = ',
-     &    MEEXPORTER_CBYF1MAX + 1, ' = 1 + ', MEEXPORTER_CBYF1MAX
+     &    FBRIDGE_CBYF1MAX + 1, ' = 1 + ', FBRIDGE_CBYF1MAX
         WRITE(*,'(a,i6)')
      &    ' [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES = ',
-     &    MEEXPORTER_NCBYF1
+     &    FBRIDGE_NCBYF1
 c        WRITE(*,'(a,e8.2)')
 c    &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = ',
-c    &    MEEXPORTER_CBYF1SUM / MEEXPORTER_NCBYF1
+c    &    FBRIDGE_CBYF1SUM / FBRIDGE_NCBYF1
 c       WRITE(*,'(a,e8.2)')
 c    &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: STD = ',
-c    &    SQRT( MEEXPORTER_CBYF1SUM2 / MEEXPORTER_NCBYF1 ) ! ~standard deviation
+c    &    SQRT( FBRIDGE_CBYF1SUM2 / FBRIDGE_NCBYF1 ) ! ~standard deviation
         WRITE(*,'(a,e8.2,a,e8.2)')
      &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = ',
-     &    MEEXPORTER_CBYF1SUM / MEEXPORTER_NCBYF1, ' +- ',
-     &    SQRT( MEEXPORTER_CBYF1SUM2 ) / MEEXPORTER_NCBYF1 ! ~standard error
+     &    FBRIDGE_CBYF1SUM / FBRIDGE_NCBYF1, ' +- ',
+     &    SQRT( FBRIDGE_CBYF1SUM2 ) / FBRIDGE_NCBYF1 ! ~standard error
       ENDIF
 #endif
       CALL COUNTERS_FINALISE()
