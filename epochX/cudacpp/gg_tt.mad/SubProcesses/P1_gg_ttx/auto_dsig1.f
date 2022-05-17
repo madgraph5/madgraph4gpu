@@ -459,6 +459,7 @@ C
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       INCLUDE 'coupl.inc'
       INCLUDE 'fbridge.inc'
+      INCLUDE 'fbridge_common.inc'
       DOUBLE PRECISION OUT2(NB_PAGE)
       DOUBLE PRECISION CBYF1
 

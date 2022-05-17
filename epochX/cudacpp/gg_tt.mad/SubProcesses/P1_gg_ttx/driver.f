@@ -76,6 +76,7 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       INCLUDE '../../Source/vector.inc'
       INCLUDE 'fbridge.inc'
+      INCLUDE 'fbridge_common.inc'
 #endif
 C-----
 C  BEGIN CODE
