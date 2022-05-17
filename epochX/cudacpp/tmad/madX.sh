@@ -116,14 +116,6 @@ function inputfile()
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
   tmp=$(mktemp)
-  cat << EOF > ${tmp}
-${nevt} 1 1 ! Number of events and max and min iterations
-0.000001 ! Accuracy (ignored because max iterations = min iterations)
-0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-0 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
-0 ! Helicity Sum/event 0=exact
-1 ! Channel number for single-diagram enhancement multi-channel (IGNORED as suppress amplitude is 0?)
-EOF
   if [ "$1" == "-fortran" ]; then
     mv ${tmp} ${tmp}_fortran
     tmp=${tmp}_fortran
@@ -141,6 +133,14 @@ EOF
     echo "Usage: inputfile <backend [-fortran][-cuda]-cpp]>"
     exit 1
   fi
+  cat << EOF >> ${tmp}
+${nevt} 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+0 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! Channel number for single-diagram enhancement multi-channel (IGNORED as suppress amplitude is 0?)
+EOF
   echo ${tmp}
 }
 
