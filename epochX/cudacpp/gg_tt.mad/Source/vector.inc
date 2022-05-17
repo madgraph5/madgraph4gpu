@@ -7,7 +7,7 @@ C The value of NB_PAGE_LOOP can be chosen at runtime
 C (very large for CUDA/GPUs, smaller for C++/CPUs using SIMD)
 C
       INTEGER NB_PAGE_MAX
-      PARAMETER (NB_PAGE_MAX=1024)
+      PARAMETER (NB_PAGE_MAX=16384)
 
       INTEGER NB_PAGE_LOOP
       COMMON/TO_NB_PAGE/NB_PAGE_LOOP
