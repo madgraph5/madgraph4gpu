@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set +x # not verbose
-###set -e # fail on error
+set -e # fail on error
 
 scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
@@ -126,9 +126,10 @@ function runmadevent()
   tmpin=$(inputfile)
   if [ ! -f $tmpin ]; then echo "ERROR! Missing input file $tmpin"; exit 1; fi
   tmp=$(mktemp)
-  if [ ! -f results.dat ]; then grepA=4; else grepA=12; fi
+  ###echo "Results on $tmp"
+  set +e # do not fail on error
   $timecmd $1 < ${tmpin} > ${tmp}
-  echo $tmp
+  if [ "$?" != "0" ]; then echo "ERROR! '$1' failed"; exit 1; fi
   xsec=$(cat ${tmp} | grep --binary-files=text 'Cross sec =' | awk '{print 0+$NF}')
   if [ "${xsec}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec}"
@@ -146,6 +147,7 @@ function runmadevent()
       | awk -v sep1=" AVG = " -v sep2=" +- " '{i1=index($0,sep1); i2=index($0,sep2); if(i1>0 && i2>0){print substr($0,0,i1-1) sep1 0+substr($0,i1+length(sep1),i2-i1) sep2 0+substr($0,i2+length(sep2))} else print $0}'
   fi
   cat ${tmp} | grep --binary-files=text COUNTERS
+  set -e # fail on error
 }
 
 ##########################################################################
