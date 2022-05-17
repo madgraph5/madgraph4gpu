@@ -45,7 +45,7 @@ c     Variables for combination of color indices (including multipart. vert)
       save prmass,prwidth,pow
       data first_time /.true./
 
-      Double Precision jamp2(0:maxflow, nb_page)
+      Double Precision jamp2(0:maxflow, nb_page_max)
       common/to_jamps/       jamp2
 
       integer           mincfig, maxcfig
