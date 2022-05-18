@@ -72,9 +72,9 @@ c      integer ncols,ncolflow(maxamps),ncolalt(maxamps),ic
 c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 
       include 'coupl.inc'
+      include 'vector.inc'
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
-      INCLUDE '../../Source/vector.inc'
       INCLUDE 'fbridge.inc'
       INCLUDE 'fbridge_common.inc'
 #endif
@@ -85,8 +85,20 @@ C-----
       CUMULATED_TIMING = t_before
 
       CALL COUNTERS_INITIALISE()
+
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
-      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, NB_PAGE, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
+      write(*,*) 'Enter #events in a vector loop (max=',nb_page_max,',)'
+      read(*,*) nb_page_loop
+#else
+      NB_PAGE_LOOP = 32
+#endif
+      if( nb_page_loop.gt.nb_page_max .or. nb_page_loop.le.0 ) then
+        write(*,*) 'ERROR! Invalid nb_page_loop = ', nb_page_loop
+        STOP
+      endif
+
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, NB_PAGE_LOOP, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
       FBRIDGE_MODE = -1 ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
       FBRIDGE_NCBYF1 = 0
       FBRIDGE_CBYF1SUM = 0

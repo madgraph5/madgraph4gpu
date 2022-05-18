@@ -9,14 +9,16 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  ###echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-makeclean] [-runclean]" > /dev/stderr
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-makeclean]" > /dev/stderr
+  ###echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeclean] [-runclean]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeclean]" > /dev/stderr
   exit 1
 }
 
 ##########################################################################
 # PART 0 - decode command line arguments
 ##########################################################################
+
+debug=0
 
 eemumu=0
 ggtt=0
@@ -28,7 +30,10 @@ makeclean=0
 ###runclean=0
 
 while [ "$1" != "" ]; do
-  if [ "$1" == "-eemumu" ]; then
+  if [ "$1" == "-d" ]; then
+    debug=1
+    shift
+  elif [ "$1" == "-eemumu" ]; then
     eemumu=1
     shift
   elif [ "$1" == "-ggtt" ]; then
@@ -111,7 +116,25 @@ function inputfile()
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
   tmp=$(mktemp)
-  cat << EOF > ${tmp}
+  if [ "$1" == "-fortran" ]; then
+    mv ${tmp} ${tmp}_fortran
+    tmp=${tmp}_fortran
+  elif [ "$1" == "-cuda" ]; then
+    mv ${tmp} ${tmp}_cuda
+    tmp=${tmp}_cuda
+    #nloop=524288
+    nloop=2048
+    while [ $nloop -gt $nevt ]; do (( nloop = nloop / 2 )); done
+    echo "${nloop} ! Number of events in a single CUDA iteration (nb_page_loop)" >> ${tmp}
+  elif [ "$1" == "-cpp" ]; then
+    mv ${tmp} ${tmp}_cuda
+    tmp=${tmp}_cuda
+    echo "32 ! Number of events in a single C++ iteration (nb_page_loop)" >> ${tmp}
+  else
+    echo "Usage: inputfile <backend [-fortran][-cuda]-cpp]>"
+    exit 1
+  fi
+  cat << EOF >> ${tmp}
 ${nevt} 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
@@ -126,13 +149,22 @@ EOF
 function runmadevent()
 {
   if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: runmadevent <madevent executable>"; exit 1; fi
-  tmpin=$(inputfile)
+  if [ "${1/cmadevent}" != "$1" ]; then
+    tmpin=$(inputfile -cpp)
+  elif [ "${1/gmadevent}" != "$1" ]; then
+    tmpin=$(inputfile -cuda)
+  else
+    tmpin=$(inputfile -fortran)
+  fi
   if [ ! -f $tmpin ]; then echo "ERROR! Missing input file $tmpin"; exit 1; fi
   tmp=$(mktemp)
   set +e # do not fail on error
-  ###echo "Executing '$timecmd $1 < ${tmpin} > ${tmp}'"
+  if [ "${debug}" == "1" ]; then
+    echo "--------------------"; cat ${tmpin}; echo "--------------------"
+    echo "Executing '$timecmd $1 < ${tmpin} > ${tmp}'"
+  fi
   $timecmd $1 < ${tmpin} > ${tmp}
-  if [ "$?" != "0" ]; then echo "ERROR! '$1' failed"; exit 1; fi
+  if [ "$?" != "0" ]; then echo "ERROR! '$timecmd $1 < ${tmpin} > ${tmp}' failed"; tail -10 $tmp; exit 1; fi
   xsec=$(cat ${tmp} | grep --binary-files=text 'Cross sec =' | awk '{print 0+$NF}')
   if [ "${xsec}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec}"
