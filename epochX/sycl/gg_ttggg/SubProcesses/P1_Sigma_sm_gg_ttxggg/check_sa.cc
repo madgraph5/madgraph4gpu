@@ -337,6 +337,18 @@ int main(int argc, char **argv)
     return usage(argv[0]);
   }
 
+  if ( gputhreads < 1 )
+  {
+    std::cout << "ERROR! #threads/block should be >= 0" << std::endl;
+    return usage(argv[0]);
+  }
+
+  if ( gpublocks < 1 )
+  {
+    std::cout << "ERROR! #blocks should be >= 0" << std::endl;
+    return usage(argv[0]);
+  }
+
   const int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
   const int nevt = ndim; // number of events in one iteration == number of GPU threads
   const int nevtALL = niter*nevt; // total number of ALL events in all iterations

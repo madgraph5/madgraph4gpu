@@ -194,6 +194,18 @@ int main(int argc, char **argv)
     return usage(argv[0]);
   }
 
+  if ( team_size < 1 )
+  {
+    std::cout << "ERROR! #threads/block should be >= 0" << std::endl;
+    return usage(argv[0]);
+  }
+
+  if ( league_size < 1 )
+  {
+    std::cout << "ERROR! #blocks should be >= 0" << std::endl;
+    return usage(argv[0]);
+  }
+
   const int ndim = league_size * team_size; // number of threads in one GPU grid
   const int nevt = ndim; // number of events in one iteration == number of GPU threads
   const int nevtALL = niter*nevt; // total number of ALL events in all iterations

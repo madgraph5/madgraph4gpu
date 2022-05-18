@@ -225,6 +225,18 @@ int main(int argc, char **argv)
     return usage(argv[0]);
   }
 
+  if ( gputhreads < 1 )
+  {
+    std::cout << "ERROR! #threads/block should be >= 0" << std::endl;
+    return usage(argv[0]);
+  }
+
+  if ( gpublocks < 1 )
+  {
+    std::cout << "ERROR! #blocks should be >= 0" << std::endl;
+    return usage(argv[0]);
+  }
+
 #ifndef __CUDACC__
 #ifdef _OPENMP
   // Set OMP_NUM_THREADS equal to 1 if it is not yet set
