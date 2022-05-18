@@ -465,7 +465,9 @@ c
       include 'nexternal.inc'
       include 'maxamps.inc'
       include 'message.inc'
-      include 'cluster.inc'
+      include 'cluster.inc' ! includes vector.inc
+#define VECTOR_INC 1 // ugly hack! vector.inc is already included by cluster.inc
+#include "coupl.inc"
       include 'run.inc'
       include 'run_config.inc'
 
@@ -543,8 +545,6 @@ c      integer ncols,ncolflow(maxamps),ncolalt(maxamps)
 c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 c      data ncolflow/maxamps*0/
 c      data ncolalt/maxamps*0/
-
-      include 'coupl.inc'
 
       include 'lhe_event_infos.inc'
       data AlreadySetInBiasModule/.False./

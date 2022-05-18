@@ -1,3 +1,6 @@
+#ifndef VECTOR_INC
+#define VECTOR_INC 1 // NB This include guard will work if vector.inc is included via '#include' 
+
 C
 C All Fortran arrays for cudacpp offload can hold up to NB_PAGE_MAX events 
 C These arrays are allocated at compile time (NB_PAGE_MAX is a constant)
@@ -11,3 +14,5 @@ C
 
       INTEGER NB_PAGE_LOOP
       COMMON/TO_NB_PAGE/NB_PAGE_LOOP
+
+#endif // VECTOR_INC

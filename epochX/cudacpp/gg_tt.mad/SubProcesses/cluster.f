@@ -203,8 +203,9 @@ c**************************************************************************
       include 'genps.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
-      include 'coupl.inc'
+      include 'cluster.inc' ! includes vector.inc
+#define VECTOR_INC 1 // ugly hack! vector.inc is already included by cluster.inc
+#include "coupl.inc"
       include 'message.inc'
       integer ignum, ipnum, ipids(nexternal,4,2:nexternal)
 C $B$ IFOREST $B$ !this is a tag for MadWeight
