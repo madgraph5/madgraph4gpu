@@ -1939,7 +1939,8 @@ namespace mg5amcCpu
         { 62, 71, -10, 80, -1, 8, -28, 62, 62, -10, -10, -1, -1, 8, -10, -1, -64, 8, 8, -64, 80, 8, 512, -64 },
         { -28, 62, 62, -10, -10, -1, 62, 71, -10, 80, -1, 8, -10, -1, -1, 8, 8, -64, 80, 8, 8, -64, -64, 512 } }; // 2-D array[24][24]
 
-      // Sum and square the color flows to get the matrix element
+      /*
+      // OLD! SLOWER? Sum and square the color flows to get the matrix element
       // (compute |M|^2 by squaring |M|, taking into account colours)
       fptype_sv deltaMEs = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
       for( int icol = 0; icol < ncolor; icol++ )
@@ -1948,6 +1949,26 @@ namespace mg5amcCpu
         for( int jcol = 0; jcol < ncolor; jcol++ )
           ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
         deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];
+      }
+      */
+      
+      // NEW! FASTER? Sum and square the color flows to get the matrix element
+      // (compute |M|^2 by squaring |M|, taking into account colours)
+      // Rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB!
+      fptype_sv deltaMEs = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
+      for( int icol = 0; icol < ncolor; icol++ )
+      {
+        fptype_sv rtemp_sv = { 0 };
+        for( int jcol = 0; jcol < ncolor; jcol++ )
+          rtemp_sv += cf[icol][jcol] * cxreal( jamp_sv[jcol] );
+        deltaMEs += rtemp_sv * cxreal( jamp_sv[icol] ) / denom[icol];
+      }
+      for( int icol = 0; icol < ncolor; icol++ )
+      {
+        fptype_sv itemp_sv = { 0 };
+        for( int jcol = 0; jcol < ncolor; jcol++ )
+          itemp_sv += cf[icol][jcol] * cximag( jamp_sv[jcol] );
+        deltaMEs += itemp_sv * cximag( jamp_sv[icol] ) / denom[icol];
       }
 
       // *** STORE THE RESULTS ***
