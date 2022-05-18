@@ -1959,15 +1959,13 @@ namespace mg5amcCpu
       for( int icol = 0; icol < ncolor; icol++ )
       {
         fptype_sv rtemp_sv = { 0 };
-        for( int jcol = 0; jcol < ncolor; jcol++ )
-          rtemp_sv += cf[icol][jcol] * cxreal( jamp_sv[jcol] );
-        deltaMEs += rtemp_sv * cxreal( jamp_sv[icol] ) / denom[icol];
-      }
-      for( int icol = 0; icol < ncolor; icol++ )
-      {
         fptype_sv itemp_sv = { 0 };
         for( int jcol = 0; jcol < ncolor; jcol++ )
+        {
+          rtemp_sv += cf[icol][jcol] * cxreal( jamp_sv[jcol] );
           itemp_sv += cf[icol][jcol] * cximag( jamp_sv[jcol] );
+        }
+        deltaMEs += rtemp_sv * cxreal( jamp_sv[icol] ) / denom[icol];
         deltaMEs += itemp_sv * cximag( jamp_sv[icol] ) / denom[icol];
       }
 
