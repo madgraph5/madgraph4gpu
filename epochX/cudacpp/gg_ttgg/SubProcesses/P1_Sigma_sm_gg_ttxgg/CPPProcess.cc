@@ -1958,15 +1958,11 @@ namespace mg5amcCpu
       fptype_sv deltaMEs = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
       for( int icol = 0; icol < ncolor; icol++ )
       {
-        fptype_sv rtemp_sv = { 0 };
-        fptype_sv itemp_sv = { 0 };
+        cxtype_sv ztemp_sv = cxzero_sv();
         for( int jcol = 0; jcol < ncolor; jcol++ )
-        {
-          rtemp_sv += cf[icol][jcol] * cxreal( jamp_sv[jcol] );
-          itemp_sv += cf[icol][jcol] * cximag( jamp_sv[jcol] );
-        }
-        deltaMEs += rtemp_sv * cxreal( jamp_sv[icol] ) / denom[icol];
-        deltaMEs += itemp_sv * cximag( jamp_sv[icol] ) / denom[icol];
+          ztemp_sv += cf[icol][jcol] * jamp_sv[jcol];
+        deltaMEs += cxreal( ztemp_sv ) * cxreal( jamp_sv[icol] ) / denom[icol];
+        deltaMEs += cximag( ztemp_sv ) * cximag( jamp_sv[icol] ) / denom[icol];
       }
 
       // *** STORE THE RESULTS ***
