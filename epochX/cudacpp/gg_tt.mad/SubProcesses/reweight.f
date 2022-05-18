@@ -1778,7 +1778,7 @@ c            s_rwfact=0d0
       return
       end
       
-      subroutine update_scale_coupling(all_p, all_wgt,all_q2fact, nb_page_loop)
+      subroutine update_scale_coupling(all_p, all_wgt,all_q2fact, nb_page)
       implicit none
 
 C
@@ -1795,7 +1795,7 @@ C      include 'maxparticles.inc'
       
       double precision all_p(4*maxdim/3+14,*), all_wgt(*)
       double precision all_q2fact(2,*)
-      integer i,j,k, nb_page_loop
+      integer i,j,k, nb_page
 
       logical setclscales
       external setclscales
@@ -1809,7 +1809,7 @@ c      save firsttime
       if(.not.fixed_ren_scale) then
          scale = 0d0
       endif
-      do i =1, nb_page_loop
+      do i =1, nb_page
 
          if(.not.fixed_ren_scale) then
             call set_ren_scale(all_p(1,i),scale)
@@ -1929,7 +1929,7 @@ c     q2bck holds the central q2fact scales
       integer njets,iqjets(nexternal)
       common /to_rw/jlast,njetstore,iqjetstore,njets,iqjets,q2bck
 
-      DOUBLE PRECISION G, ALL_G(nb_page_max)
+      DOUBLE PRECISION G, ALL_G(nb_page)
       COMMON/STRONG/ G, ALL_G
 
 c     strong coupling is needed for the reweighting function      

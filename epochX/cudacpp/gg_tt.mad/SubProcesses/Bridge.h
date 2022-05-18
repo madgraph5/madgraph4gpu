@@ -42,7 +42,7 @@ namespace mg5amcCpu
    * The precision of the matrix element calculation is hardcoded in the fptype typedef in CUDA/C++.
    *
    * The Fortran momenta passed in are in the form of
-   *   DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_LOOP)
+   *   DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE)
    * where the dimensions are <np4F(#momenta)>, <nparF(#particles)>, <nevtF(#events)>.
    * In memory, this is stored in a way that C reads as an array P_MULTI[nevtF][nparF][np4F].
    * The CUDA/C++ momenta are stored as an array[npagM][npar][np4][neppM] with nevt=npagM*neppM.
@@ -61,7 +61,7 @@ namespace mg5amcCpu
     /**
      * Constructor
      *
-     * @param nevtF (NB_PAGE_LOOP, vector.inc) number of events in Fortran array loops (NB_PAGE_LOOP <= NB_PAGE_MAX)
+     * @param nevtF (NB_PAGE, vector.inc) number of events in Fortran arrays
      * @param nparF (NEXTERNAL, nexternal.inc) number of external particles in Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
      * @param np4F number of momenta components, usually 4, in Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
      */
@@ -280,7 +280,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
   //
   // Implementations of transposition methods
-  // - FORTRAN arrays: P_MULTI(0:3, NEXTERNAL, NB_PAGE_LOOP) ==> p_multi[nevtF][nparF][np4F] in C++ (AOS)
+  // - FORTRAN arrays: P_MULTI(0:3, NEXTERNAL, NB_PAGE) ==> p_multi[nevtF][nparF][np4F] in C++ (AOS)
   // - C++ array: momenta[npagM][npar][np4][neppM] with nevt=npagM*neppM (AOSOA)
   //
 
