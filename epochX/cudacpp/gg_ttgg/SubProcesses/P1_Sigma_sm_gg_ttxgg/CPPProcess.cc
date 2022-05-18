@@ -1951,10 +1951,9 @@ namespace mg5amcCpu
         //deltaMEs += cxreal( ztemp_sv * cxconj( jamp_sv[icol] ) ) / denom[icol];
         // NEW implementation: keep this even if (surprisingly) it is not faster! it is clearer and easier for tensor core offload anyway...
         // Rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB!
-        deltaMEs += ( cxreal( ztemp_sv ) * cxreal( jamp_sv[icol] ) +
-                      cximag( ztemp_sv ) * cximag( jamp_sv[icol] ) ) / denom[icol];
+        deltaMEs += ( cxreal( ztemp_sv ) * cxreal( jamp_sv[icol] ) + cximag( ztemp_sv ) * cximag( jamp_sv[icol] ) ) / denom[icol];
       }
-      
+
       // *** STORE THE RESULTS ***
 
       // Store the leading color flows for choice of color
