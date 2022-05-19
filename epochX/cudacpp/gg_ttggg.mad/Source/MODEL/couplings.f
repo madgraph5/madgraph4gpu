@@ -13,7 +13,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       LOGICAL UPDATELOOP
       COMMON /TO_UPDATELOOP/UPDATELOOP
       INCLUDE 'input.inc'
-      INCLUDE 'coupl.inc'
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
       READLHA = .TRUE.
       INCLUDE 'intparam_definition.inc'
       CALL COUP1()
@@ -37,7 +38,8 @@ C
       COMMON /TO_UPDATELOOP/UPDATELOOP
       INCLUDE 'model_functions.inc'
       INCLUDE 'input.inc'
-      INCLUDE 'coupl.inc'
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
       READLHA = .FALSE.
 
       INCLUDE 'intparam_definition.inc'
@@ -62,7 +64,8 @@ C
       INTEGER VECID
       INCLUDE 'model_functions.inc'
       INCLUDE 'input.inc'
-      INCLUDE 'coupl.inc'
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
 
       IF (MU_R2.GT.0D0) MU_R = MU_R2
       G = SQRT(4.0D0*PI*AS2)
