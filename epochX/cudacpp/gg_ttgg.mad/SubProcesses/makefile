@@ -72,6 +72,8 @@ SYMMETRY = symmetry.o idenparts.o
 
 # Binaries
 
+LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458
+
 ifeq (,$(wildcard fbridge.inc))
 all: $(PROG)
 else
