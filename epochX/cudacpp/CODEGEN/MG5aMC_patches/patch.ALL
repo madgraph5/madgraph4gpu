@@ -1,0 +1,1432 @@
+diff --git a/epochX/cudacpp/gg_tt.mad/Source/MODEL/couplings.f b/epochX/cudacpp/gg_tt.mad/Source/MODEL/couplings.f
+index f7060151..07e5d02d 100644
+--- a/epochX/cudacpp/gg_tt.mad/Source/MODEL/couplings.f
++++ b/epochX/cudacpp/gg_tt.mad/Source/MODEL/couplings.f
+@@ -13,7 +13,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+       LOGICAL UPDATELOOP
+       COMMON /TO_UPDATELOOP/UPDATELOOP
+       INCLUDE 'input.inc'
+-      INCLUDE 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+       READLHA = .TRUE.
+       INCLUDE 'intparam_definition.inc'
+       CALL COUP1()
+@@ -37,7 +38,8 @@ C
+       COMMON /TO_UPDATELOOP/UPDATELOOP
+       INCLUDE 'model_functions.inc'
+       INCLUDE 'input.inc'
+-      INCLUDE 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+       READLHA = .FALSE.
+ 
+       INCLUDE 'intparam_definition.inc'
+@@ -62,7 +64,8 @@ C
+       INTEGER VECID
+       INCLUDE 'model_functions.inc'
+       INCLUDE 'input.inc'
+-      INCLUDE 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+ 
+       IF (MU_R2.GT.0D0) MU_R = MU_R2
+       G = SQRT(4.0D0*PI*AS2)
+diff --git a/epochX/cudacpp/gg_tt.mad/Source/MODEL/couplings1.f b/epochX/cudacpp/gg_tt.mad/Source/MODEL/couplings1.f
+index 41bc856c..e2369a10 100644
+--- a/epochX/cudacpp/gg_tt.mad/Source/MODEL/couplings1.f
++++ b/epochX/cudacpp/gg_tt.mad/Source/MODEL/couplings1.f
+@@ -12,5 +12,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+       PARAMETER  (PI=3.141592653589793D0)
+       PARAMETER  (ZERO=0D0)
+       INCLUDE 'input.inc'
+-      INCLUDE 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+       END
+diff --git a/epochX/cudacpp/gg_tt.mad/Source/MODEL/couplings2.f b/epochX/cudacpp/gg_tt.mad/Source/MODEL/couplings2.f
+index 1a0ffa68..b8500dce 100644
+--- a/epochX/cudacpp/gg_tt.mad/Source/MODEL/couplings2.f
++++ b/epochX/cudacpp/gg_tt.mad/Source/MODEL/couplings2.f
+@@ -12,7 +12,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+       PARAMETER  (PI=3.141592653589793D0)
+       PARAMETER  (ZERO=0D0)
+       INCLUDE 'input.inc'
+-      INCLUDE 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+       GC_10(VECID) = -G
+       GC_11(VECID) = MDL_COMPLEXI*G
+       END
+diff --git a/epochX/cudacpp/gg_tt.mad/Source/MODEL/makefile b/epochX/cudacpp/gg_tt.mad/Source/MODEL/makefile
+index f229bf59..3122ca9e 100644
+--- a/epochX/cudacpp/gg_tt.mad/Source/MODEL/makefile
++++ b/epochX/cudacpp/gg_tt.mad/Source/MODEL/makefile
+@@ -13,6 +13,7 @@ else
+ endif
+ 
+ include makeinc.inc
++FFLAGS+=-I..
+ 
+ LIBDIR=../../lib/
+ LIBRARY=libmodel.$(libext)
+diff --git a/epochX/cudacpp/gg_tt.mad/Source/MODEL/printout.f b/epochX/cudacpp/gg_tt.mad/Source/MODEL/printout.f
+index d0e6c0a1..2b9b695b 100644
+--- a/epochX/cudacpp/gg_tt.mad/Source/MODEL/printout.f
++++ b/epochX/cudacpp/gg_tt.mad/Source/MODEL/printout.f
+@@ -9,7 +9,8 @@ c************************************************************************
+       subroutine printout
+       implicit none
+ 
+-      include 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+       include 'input.inc'
+       
+       include 'formats.inc'
+diff --git a/epochX/cudacpp/gg_tt.mad/Source/MODEL/rw_para.f b/epochX/cudacpp/gg_tt.mad/Source/MODEL/rw_para.f
+index 9640abaf..7f220441 100644
+--- a/epochX/cudacpp/gg_tt.mad/Source/MODEL/rw_para.f
++++ b/epochX/cudacpp/gg_tt.mad/Source/MODEL/rw_para.f
+@@ -12,7 +12,8 @@ c************************************************************************
+       character*(*) param_name
+       logical readlha
+ 
+-      include 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+       include 'input.inc'
+       include 'model_functions.inc'
+ 
+diff --git a/epochX/cudacpp/gg_tt.mad/Source/PDF/ElectroweakFlux.inc b/epochX/cudacpp/gg_tt.mad/Source/PDF/ElectroweakFlux.inc
+index 188b1071..a93c5475 100644
+--- a/epochX/cudacpp/gg_tt.mad/Source/PDF/ElectroweakFlux.inc
++++ b/epochX/cudacpp/gg_tt.mad/Source/PDF/ElectroweakFlux.inc
+@@ -46,7 +46,8 @@ c     /* ********************************************************* *
+ 	parameter (eva_pi   = 3.141592653589793d0)
+ 	parameter (eva_sqr2 = 1.414213562373095d0)
+ 
+-	include '../MODEL/coupl.inc'
++	include 'vector.inc'
++	include 'coupl.inc' ! NB must also include vector.inc
+ 
+ 	logical first
+ 	data first /.true./
+diff --git a/epochX/cudacpp/gg_tt.mad/Source/PDF/makefile b/epochX/cudacpp/gg_tt.mad/Source/PDF/makefile
+index d575d786..73964447 100644
+--- a/epochX/cudacpp/gg_tt.mad/Source/PDF/makefile
++++ b/epochX/cudacpp/gg_tt.mad/Source/PDF/makefile
+@@ -9,6 +9,7 @@ LIBRARY	      = libpdf.$(libext)
+ LIBDIR        = ../../lib/
+ 
+ include ../make_opts
++FFLAGS+=-I..
+ 
+ ifdef lhapdf
+   ifeq ($(lhapdfversion),5)
+diff --git a/epochX/cudacpp/gg_tt.mad/Source/dsample.f b/epochX/cudacpp/gg_tt.mad/Source/dsample.f
+index 0f9155f3..933ab3ec 100644
+--- a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
++++ b/epochX/cudacpp/gg_tt.mad/Source/dsample.f
+@@ -25,16 +25,16 @@ c
+ c Local
+ c
+       double precision x(maxinvar),wgt,p(4*maxdim/3+14)
+-      double precision all_p(4*maxdim/3+14,nb_page), all_wgt(nb_page), all_x(maxinvar,nb_page)
+-      integer all_lastbin(maxdim, nb_page)
+-      double precision bckp(nb_page)
++      double precision all_p(4*maxdim/3+14,nb_page_max), all_wgt(nb_page_max), all_x(maxinvar,nb_page_max)
++      integer all_lastbin(maxdim, nb_page_max)
++      double precision bckp(nb_page_max)
+       double precision tdem, chi2, dum
+       integer ievent,kevent,nwrite,iter,nun,luntmp,itsum
+       integer jmax,i,j,ipole
+       integer itmax_adjust
+ 
+       integer imirror, iproc, iconf
+-      integer ivec !position of the event in the vectorization # max is nb_page 
++      integer ivec ! position of the event in the vectorization # max is nb_page_max (but loops go over nb_page_loop)
+ c
+ c     External
+ c
+@@ -101,8 +101,8 @@ c      common /to_fx/   fx
+       COMMON/TO_CM_RAP/SET_CM_RAP,CM_RAP
+ 
+ C     data for vectorization      
+-      double precision all_xbk(2, nb_page), all_q2fact(2, nb_page), all_cm_rap(nb_page)
+-      double precision all_fx(nb_page)
++      double precision all_xbk(2, nb_page_max), all_q2fact(2, nb_page_max), all_cm_rap(nb_page_max)
++      double precision all_fx(nb_page_max)
+       
+       
+       LOGICAL CUTSDONE,CUTSPASSED
+@@ -181,12 +181,12 @@ c               fx = dsig(all_p(1,i),all_wgt(i),0)
+ c               bckp(i) = fx
+ c               write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
+ c               all_wgt(i) = all_wgt(i)*fx
+-               if (ivec.lt.nb_page)then
++               if (ivec.lt.nb_page_loop)then
+                   cycle
+                endif
+                ivec=0
+ c               call dsig(all_p,all_fx, all_wgt,0) !Evaluate function
+-               do i=1, nb_page
++               do i=1, nb_page_loop
+ c                 need to restore common block                  
+                   xbk(:) = all_xbk(:, i)
+                   cm_rap = all_cm_rap(i)
+@@ -195,11 +195,11 @@ c                 need to restore common block
+                   CUTSPASSED=.TRUE.
+                   call prepare_grouping_choice(all_p(1,i), all_wgt(i), i.eq.1)
+                enddo
+-               call select_grouping(imirror, iproc, iconf, all_wgt, nb_page)
++               call select_grouping(imirror, iproc, iconf, all_wgt, nb_page_loop)
+                call dsig_vec(all_p, all_wgt, all_xbk, all_q2fact, all_cm_rap,
+-     &                          iconf, iproc, imirror, all_fx,nb_page)
++     &                          iconf, iproc, imirror, all_fx,nb_page_loop)
+ 
+-                do i=1, nb_page
++                do i=1, nb_page_loop
+ c                 need to restore common block                  
+                   xbk(:) = all_xbk(:, i)
+                   cm_rap = all_cm_rap(i)
+@@ -211,17 +211,17 @@ c                     stop 1
+ c                  endif
+ c     write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
+                enddo
+-               do I=1, nb_page
++               do I=1, nb_page_loop
+                   all_wgt(i) = all_wgt(i)*all_fx(i)
+               enddo
+-               do i =1, nb_page
++               do i =1, nb_page_loop
+ c     if last paremeter is true -> allow grid update so only for a full page
+                   lastbin(:) = all_lastbin(:,i)
+                   if (all_wgt(i) .ne. 0d0) kevent=kevent+1
+-c                  write(*,*) 'put point in sample kevent', kevent, 'allow_update', ivec.eq.nb_page                   
+-                  call sample_put_point(all_wgt(i),all_x(1,i),iter,ipole, i.eq.nb_page) !Store result
++c                  write(*,*) 'put point in sample kevent', kevent, 'allow_update', ivec.eq.nb_page_loop                   
++                  call sample_put_point(all_wgt(i),all_x(1,i),iter,ipole, i.eq.nb_page_loop) !Store result
+                enddo
+-               if (nb_page.ne.1.and.force_reset)then
++               if (nb_page_loop.ne.1.and.force_reset)then
+                   call reset_cumulative_variable()
+                   force_reset=.false.
+                endif
+@@ -890,7 +890,7 @@ c      write(*,*) 'Forwarding random number generator'
+ 
+ C     sanity check that we have a minimal number of event
+       
+-      if ( .not.MC_GROUPED_SUBPROC.or.nb_page.gt.1)then
++      if ( .not.MC_GROUPED_SUBPROC.or.nb_page_loop.gt.1)then
+          events = max(events, maxtries)
+          MC_GROUPED_SUBPROC = .false.
+       else 
+diff --git a/epochX/cudacpp/gg_tt.mad/Source/rw_events.short.f b/epochX/cudacpp/gg_tt.mad/Source/rw_events.short.f
+index 0165c1b2..ff93cd2c 100644
+--- a/epochX/cudacpp/gg_tt.mad/Source/rw_events.short.f
++++ b/epochX/cudacpp/gg_tt.mad/Source/rw_events.short.f
+@@ -33,7 +33,6 @@ c
+ c
+ c     Global
+ c
+-c      include 'coupl.inc'
+ c      real*8          scale
+ 
+       logical banner_open
+diff --git a/epochX/cudacpp/gg_tt.mad/Source/setrun.f b/epochX/cudacpp/gg_tt.mad/Source/setrun.f
+index 66225d49..f66d0c35 100644
+--- a/epochX/cudacpp/gg_tt.mad/Source/setrun.f
++++ b/epochX/cudacpp/gg_tt.mad/Source/setrun.f
+@@ -15,7 +15,8 @@ c
+       include 'PDF/pdf.inc'
+       include 'run.inc'
+       include 'alfas.inc'
+-      include 'MODEL/coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+ 
+       double precision D
+       common/to_dj/D
+diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig.f
+index 720e07a9..d847eac5 100644
+--- a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig.f
++++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig.f
+@@ -117,7 +117,7 @@ C     Cannot make a selection with all PDFs to zero, so we return now
+       ENDIF
+       END
+ 
+-      SUBROUTINE SELECT_GROUPING(IMIRROR,  IPROC, ICONF, WGT, NB_PAGE)
++      SUBROUTINE SELECT_GROUPING(IMIRROR,  IPROC, ICONF, WGT, NB_PAGE_LOOP)
+       USE DISCRETESAMPLER
+       IMPLICIT NONE
+ C     
+@@ -125,15 +125,15 @@ C     INPUT (VIA COMMAND BLOCK)
+ C     SELPROC 
+ C     SUMPROB
+ C     INPUT
+-C     nb_page (number of weight to update)
++C     nb_page_loop (number of weight to update)
+ C     INPUT/OUTPUT
+-C     WGTS(nb_page) #multiplied by the associated jacobian      
++C     WGTS(nb_page_loop) #multiplied by the associated jacobian      
+ C     
+ C     OUTPUT
+ C     
+ C     iconf, iproc, imirror
+ C     
+-      INTEGER NB_PAGE
++      INTEGER NB_PAGE_LOOP
+       DOUBLE PRECISION WGT(*)
+       INTEGER IMIRROR, IPROC, ICONF
+ 
+@@ -207,7 +207,7 @@ C     all, then we pick a point based on PDF only.
+  50     CONTINUE
+ C       Update weigth w.r.t SELPROC normalized to selection probability
+ 
+-        DO I=1, NB_PAGE
++        DO I=1, NB_PAGE_LOOP
+           WGT(I)=WGT(I)*(SUMPROB/SELPROC(IMIRROR,IPROC,ICONF))
+         ENDDO
+ 
+@@ -215,7 +215,7 @@ C       Update weigth w.r.t SELPROC normalized to selection probability
+ C       We are using the grouped_processes grid and it is initialized.
+         CALL DS_GET_POINT('grouped_processes',R,LMAPPED
+      $   ,MC_GROUPED_PROC_JACOBIAN,'norm',(/'PDF_convolution'/))
+-        DO I=1, NB_PAGE
++        DO I=1, NB_PAGE_LOOP
+           WGT(I)=WGT(I)*MC_GROUPED_PROC_JACOBIAN
+         ENDDO
+         CALL MAP_1_TO_3(LMAPPED,MAXSPROC,2,ICONF,IPROC,IMIRROR)
+@@ -224,19 +224,19 @@ C       We are using the grouped_processes grid and it is initialized.
+       END
+ 
+       SUBROUTINE DSIG_VEC(ALL_P,ALL_WGT,ALL_XBK, ALL_Q2FACT,
+-     $  ALL_CM_RAP, ICONF,IPROC,IMIRROR, ALL_OUT,NB_PAGE)
++     $  ALL_CM_RAP, ICONF,IPROC,IMIRROR, ALL_OUT,NB_PAGE_LOOP)
+ C     ******************************************************
+ C     
+-C     INPUT: ALL_PP(0:3, NEXTERNAL, NB_PAGE)
+-C     INPUT/OUtpUT       ALL_WGT(Nb_PAGE)
+-C     nb_page = vector size
+-C     ALL_OUT(NB_PAGE)
++C     INPUT: ALL_PP(0:3, NEXTERNAL, NB_PAGE_LOOP)
++C     INPUT/OUtpUT       ALL_WGT(Nb_Page_Loop)
++C     nb_page_loop = vector size
++C     ALL_OUT(NB_PAGE_LOOP)
+ C     function (PDf*cross)
+ C     ******************************************************
+       USE DISCRETESAMPLER
+       IMPLICIT NONE
+ 
+-      INTEGER NB_PAGE
++      INTEGER NB_PAGE_LOOP
+       INCLUDE 'genps.inc'
+       DOUBLE PRECISION ALL_P(4*MAXDIM/3+14,*)
+       DOUBLE PRECISION ALL_WGT(*)
+@@ -301,7 +301,7 @@ C      entries to the grid for the MC over helicity configuration
+ 
+ C     set the running scale (MLM not working)
+ C     and update the couplings accordingly
+-      CALL UPDATE_SCALE_COUPLING(ALL_P, ALL_WGT, ALL_Q2FACT, NB_PAGE)
++      CALL UPDATE_SCALE_COUPLING(ALL_P, ALL_WGT, ALL_Q2FACT)
+ 
+ 
+       IF(GROUPED_MC_GRID_STATUS.EQ.0) THEN
+@@ -316,7 +316,7 @@ C        the call DSIGPROC just below.
+      $  IPROC,IMIRROR,SYMCONF,CONFSUB,ALL_WGT,0, ALL_OUT)
+ 
+ 
+-      DO I =1,NB_PAGE
++      DO I =1,NB_PAGE_LOOP
+ C       Reset ALLOW_HELICITY_GRID_ENTRIES
+         ALLOW_HELICITY_GRID_ENTRIES = .TRUE.
+ 
+@@ -333,7 +333,7 @@ C       OC(IMIRROR,IPROC,ICONF)))
+ C       ENDIF
+ 
+       ENDDO
+-      DO I=1, NB_PAGE
++      DO I=1, NB_PAGE_LOOP
+         IF(ALL_OUT(I).GT.0D0)THEN
+ C         Update summed weight and number of events
+           SUMWGT(IMIRROR,IPROC,ICONF)=SUMWGT(IMIRROR,IPROC,ICONF)
+@@ -429,7 +429,8 @@ C     Common blocks
+       DATA  NB_SPIN_STATE /2,2/
+       COMMON /NB_HEL_STATE/ NB_SPIN_STATE
+ 
+-      INCLUDE 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+       INCLUDE 'run.inc'
+ C     ICONFIG has this config number
+       INTEGER MAPCONFIG(0:LMAXCONFIGS), ICONFIG
+@@ -768,7 +769,8 @@ C     ****************************************************
+       INCLUDE 'maxconfigs.inc'
+       INCLUDE 'nexternal.inc'
+       INCLUDE 'maxamps.inc'
+-      INCLUDE 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+       INCLUDE 'run.inc'
+ C     
+ C     ARGUMENTS 
+@@ -894,18 +896,18 @@ C     ****************************************************
+       INCLUDE 'maxconfigs.inc'
+       INCLUDE 'nexternal.inc'
+       INCLUDE 'maxamps.inc'
+-      INCLUDE 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+       INCLUDE 'run.inc'
+-      INCLUDE '../../Source/vector.inc'
+ C     
+ C     ARGUMENTS 
+ C     
+-      DOUBLE PRECISION ALL_P(4*MAXDIM/3+14,NB_PAGE)
+-      DOUBLE PRECISION ALL_XBK(2, NB_PAGE)
+-      DOUBLE PRECISION ALL_Q2FACT(2, NB_PAGE)
+-      DOUBLE PRECISION ALL_CM_RAP(NB_PAGE)
+-      DOUBLE PRECISION ALL_WGT(NB_PAGE)
+-      DOUBLE PRECISION ALL_OUT(NB_PAGE)
++      DOUBLE PRECISION ALL_P(4*MAXDIM/3+14,NB_PAGE_MAX)
++      DOUBLE PRECISION ALL_XBK(2, NB_PAGE_MAX)
++      DOUBLE PRECISION ALL_Q2FACT(2, NB_PAGE_MAX)
++      DOUBLE PRECISION ALL_CM_RAP(NB_PAGE_MAX)
++      DOUBLE PRECISION ALL_WGT(NB_PAGE_MAX)
++      DOUBLE PRECISION ALL_OUT(NB_PAGE_MAX)
+       DOUBLE PRECISION DSIGPROC
+       INTEGER ICONF,IPROC,IMIRROR,IMODE
+       INTEGER SYMCONF(0:LMAXCONFIGS)
+@@ -940,7 +942,7 @@ C
+ C     
+ C     LOCAL VARIABLES 
+ C     
+-      DOUBLE PRECISION ALL_P1(0:3,NEXTERNAL,NB_PAGE),XDUM
++      DOUBLE PRECISION ALL_P1(0:3,NEXTERNAL,NB_PAGE_MAX),XDUM
+       INTEGER I,J,K,JC(NEXTERNAL)
+       INTEGER PERMS(NEXTERNAL,LMAXCONFIGS)
+       INCLUDE 'symperms.inc'
+@@ -953,7 +955,7 @@ C
+         ENDDO
+ 
+ C       Set momenta according to this permutation
+-        DO IVEC=1, NB_PAGE
++        DO IVEC=1, NB_PAGE_LOOP
+           CALL SWITCHMOM(ALL_P(1,IVEC),ALL_P1(0,1,IVEC),PERMS(1
+      $     ,MAPCONFIG(ICONFIG)),JC,NEXTERNAL)
+ 
+@@ -969,7 +971,7 @@ C       Set momenta according to this permutation
+ 
+ 
+       IF(IMIRROR.EQ.2)THEN
+-        DO IVEC=1,NB_PAGE
++        DO IVEC=1,NB_PAGE_LOOP
+ C         Flip momenta (rotate around x axis)
+           DO I=1,NEXTERNAL
+             ALL_P1(2,I, IVEC)=-ALL_P1(2,I,IVEC)
+@@ -988,7 +990,7 @@ C         Flip beam identity
+       ALL_OUT(:)=0D0
+ 
+ C     IF (PASSCUTS(P1)) THEN
+-      DO IVEC=1,NB_PAGE
++      DO IVEC=1,NB_PAGE_LOOP
+         IF (IMODE.EQ.0D0.AND.NB_PASS_CUTS.LT.2**12.AND.ALL_WGT(IVEC)
+      $   .NE.0D0)THEN
+           NB_PASS_CUTS = NB_PASS_CUTS + 1
+@@ -1001,7 +1003,7 @@ C     ENDIF
+ 
+       IF (LAST_ICONF.NE.-1.AND.IMIRROR.EQ.2) THEN
+ C       Flip back local momenta P1 if cached
+-        DO IVEC=1,NB_PAGE
++        DO IVEC=1,NB_PAGE_LOOP
+           DO I=1,NEXTERNAL
+             ALL_P1(2,I,IVEC)=-ALL_P1(2,I,IVEC)
+             ALL_P1(3,I,IVEC)=-ALL_P1(3,I,IVEC)
+diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
+index 3aa1040b..32420f00 100644
+--- a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
++++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
+@@ -76,7 +76,8 @@ C     Keep track of whether cuts already calculated for this event
+ 
+       INTEGER SUBDIAG(MAXSPROC),IB(2)
+       COMMON/TO_SUB_DIAG/SUBDIAG,IB
+-      INCLUDE 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+       INCLUDE 'run.inc'
+ C     Common blocks
+       CHARACTER*7         PDLABEL,EPA_LABEL
+@@ -212,7 +213,8 @@ C     ****************************************************
+ C     
+ C     CONSTANTS
+ C     
+-      INCLUDE '../../Source/vector.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+       INCLUDE 'genps.inc'
+       INCLUDE 'nexternal.inc'
+       INCLUDE 'maxconfigs.inc'
+@@ -224,13 +226,13 @@ C
+ C     
+ C     ARGUMENTS 
+ C     
+-      DOUBLE PRECISION ALL_PP(0:3,NEXTERNAL,NB_PAGE)
+-      DOUBLE PRECISION ALL_WGT(NB_PAGE)
+-      DOUBLE PRECISION ALL_XBK(2,NB_PAGE)
+-      DOUBLE PRECISION ALL_Q2FACT(2,NB_PAGE)
+-      DOUBLE PRECISION ALL_CM_RAP(NB_PAGE)
++      DOUBLE PRECISION ALL_PP(0:3,NEXTERNAL,NB_PAGE_MAX)
++      DOUBLE PRECISION ALL_WGT(NB_PAGE_MAX)
++      DOUBLE PRECISION ALL_XBK(2,NB_PAGE_MAX)
++      DOUBLE PRECISION ALL_Q2FACT(2,NB_PAGE_MAX)
++      DOUBLE PRECISION ALL_CM_RAP(NB_PAGE_MAX)
+       INTEGER IMODE
+-      DOUBLE PRECISION ALL_OUT(NB_PAGE)
++      DOUBLE PRECISION ALL_OUT(NB_PAGE_MAX)
+ C     ----------
+ C     BEGIN CODE
+ C     ----------
+@@ -238,10 +240,10 @@ C
+ C     LOCAL VARIABLES 
+ C     
+       INTEGER I,ITYPE,LP,IPROC
+-      DOUBLE PRECISION G1(NB_PAGE)
+-      DOUBLE PRECISION G2(NB_PAGE)
++      DOUBLE PRECISION G1(NB_PAGE_MAX)
++      DOUBLE PRECISION G2(NB_PAGE_MAX)
+       DOUBLE PRECISION XPQ(-7:7),PD(0:MAXPROC)
+-      DOUBLE PRECISION ALL_PD(0:MAXPROC, NB_PAGE)
++      DOUBLE PRECISION ALL_PD(0:MAXPROC, NB_PAGE_MAX)
+       DOUBLE PRECISION DSIGUU,R,RCONF
+       INTEGER LUN,ICONF,IFACT,NFACT
+       DATA NFACT/1/
+@@ -276,17 +278,16 @@ C     Keep track of whether cuts already calculated for this event
+       LOGICAL CUTSDONE,CUTSPASSED
+       COMMON/TO_CUTSDONE/CUTSDONE,CUTSPASSED
+ C     jamp2 information      
+-      DOUBLE PRECISION JAMP2(0:MAXFLOW, NB_PAGE)
++      DOUBLE PRECISION JAMP2(0:MAXFLOW, NB_PAGE_MAX)
+       COMMON/TO_JAMPS/       JAMP2
+ 
+       INTEGER SUBDIAG(MAXSPROC),IB(2)
+       COMMON/TO_SUB_DIAG/SUBDIAG,IB
+-      INCLUDE 'coupl.inc'
+       INCLUDE 'run.inc'
+ 
+-      DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE)
+-      DOUBLE PRECISION HEL_RAND(NB_PAGE)
+-      INTEGER SELECTED_HEL(NB_PAGE)
++      DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
++      DOUBLE PRECISION HEL_RAND(NB_PAGE_MAX)
++      INTEGER SELECTED_HEL(NB_PAGE_MAX)
+ 
+ C     Common blocks
+       CHARACTER*7         PDLABEL,EPA_LABEL
+@@ -316,7 +317,7 @@ C     Continue only if IMODE is 0, 4 or 5
+       IF(IMODE.NE.0.AND.IMODE.NE.4.AND.IMODE.NE.5) RETURN
+ 
+ 
+-      DO IVEC=1,NB_PAGE
++      DO IVEC=1,NB_PAGE_LOOP
+         IF (ABS(LPP(IB(1))).GE.1) THEN
+             !LP=SIGN(1,LPP(IB(1)))
+           G1(IVEC)=PDG2PDF(LPP(IB(1)),0, IB(1),ALL_XBK(IB(1),IVEC)
+@@ -331,7 +332,7 @@ C     Continue only if IMODE is 0, 4 or 5
+       ALL_PD(0,:) = 0D0
+       IPROC = 0
+       IPROC=IPROC+1  ! g g > t t~
+-      DO IVEC=1, NB_PAGE
++      DO IVEC=1, NB_PAGE_LOOP
+         ALL_PD(IPROC,IVEC)=G1(IVEC)*G2(IVEC)
+         ALL_PD(0,IVEC)=ALL_PD(0,IVEC)+DABS(ALL_PD(IPROC,IVEC))
+ 
+@@ -343,7 +344,7 @@ C     Continue only if IMODE is 0, 4 or 5
+         RETURN
+       ENDIF
+ 
+-      DO IVEC=1,NB_PAGE
++      DO IVEC=1,NB_PAGE_LOOP
+ C       Do not need those three here do I?	 
+         XBK(:) = ALL_XBK(:,IVEC)
+ C       CM_RAP = ALL_CM_RAP(IVEC)
+@@ -361,7 +362,7 @@ C        IVEC), IVEC)
+       ENDDO
+       CHANNEL = SUBDIAG(1)
+ 
+-C     do IVEC=1, NB_PAGE
++C     do IVEC=1, NB_PAGE_LOOP
+ C     CALL SMATRIX1(p_multi(0,1,IVEC), hel_rand(ivec), channel,
+ C      ALL_OUT(IVEC), JAMP2(0, IVEC), IVEC)
+ C     enddo 
+@@ -369,7 +370,7 @@ C     enddo
+      $  SELECTED_HEL, JAMP2)
+ 
+ 
+-      DO IVEC=1,NB_PAGE
++      DO IVEC=1,NB_PAGE_LOOP
+         DSIGUU = ALL_OUT(IVEC)
+         IF (IMODE.EQ.5) THEN
+           IF (DSIGUU.LT.1D199) THEN
+@@ -444,32 +445,77 @@ C
+       USE OMP_LIB
+ 
+       INCLUDE 'nexternal.inc'
+-      INCLUDE '../../Source/vector.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+       INCLUDE 'maxamps.inc'
+-      DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE)
+-      DOUBLE PRECISION HEL_RAND(NB_PAGE)
++      DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
++      DOUBLE PRECISION HEL_RAND(NB_PAGE_MAX)
+       INTEGER CHANNEL
+-      DOUBLE PRECISION OUT(NB_PAGE)
+-      INTEGER SELECTED_HEL(NB_PAGE)
+-      DOUBLE PRECISION JAMP2_MULTI(0:MAXFLOW, NB_PAGE)
++      DOUBLE PRECISION OUT(NB_PAGE_MAX)
++      INTEGER SELECTED_HEL(NB_PAGE_MAX)
++      DOUBLE PRECISION JAMP2_MULTI(0:MAXFLOW, NB_PAGE_MAX)
+ 
+       INTEGER IVEC
++      INTEGER IEXT
++
++#ifdef MG5AMC_MEEXPORTER_CUDACPP
++      INCLUDE 'fbridge.inc'
++      INCLUDE 'fbridge_common.inc'
++      DOUBLE PRECISION OUT2(NB_PAGE_MAX)
++      DOUBLE PRECISION CBYF1
++
++      INTEGER*4 NWARNINGS
++      SAVE NWARNINGS
++      DATA NWARNINGS/0/
++      
++      IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
++#endif
++        call counters_smatrix1multi_start( -1, nb_page_loop ) ! fortran=-1
++c!$OMP PARALLEL
++c!$OMP DO
++        DO IVEC=1, NB_PAGE_LOOP
++          CALL SMATRIX1(P_MULTI(0,1,IVEC),
++     &      hel_rand(IVEC),
++     &      channel,
++     &      out(IVEC),
++C    &      selected_hel(IVEC),
++     &      jamp2_multi(0,IVEC),
++     &      IVEC
++     &      )
++        ENDDO
++c!$OMP END DO
++c!$OMP END PARALLEL
++        call counters_smatrix1multi_stop( -1 ) ! fortran=-1
++#ifdef MG5AMC_MEEXPORTER_CUDACPP
++      ENDIF
+ 
++      IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
++        call counters_smatrix1multi_start( 0, nb_page_loop ) ! cudacpp=0
++        CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2)
++        call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
++      ENDIF
++
++      IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
++        DO IVEC=1, NB_PAGE_LOOP
++          CBYF1 = OUT2(IVEC)/OUT(IVEC) - 1
++          FBRIDGE_NCBYF1 = FBRIDGE_NCBYF1 + 1
++          FBRIDGE_CBYF1SUM = FBRIDGE_CBYF1SUM + CBYF1
++          FBRIDGE_CBYF1SUM2 = FBRIDGE_CBYF1SUM2 + CBYF1 * CBYF1
++          IF( CBYF1 .GT. FBRIDGE_CBYF1MAX ) FBRIDGE_CBYF1MAX = CBYF1
++          IF( CBYF1 .LT. FBRIDGE_CBYF1MIN ) FBRIDGE_CBYF1MIN = CBYF1
++          IF( FBRIDGE_MODE .EQ. -2 ) THEN ! (BothDebug=-2)
++            WRITE (*,*) IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
++          ENDIF
++          IF( ABS(CBYF1).GT.5E-5 .AND. NWARNINGS.LT.20 ) THEN
++            NWARNINGS = NWARNINGS + 1
++            WRITE (*,'(A,I2,A,I4,4E16.8)')
++     &        'WARNING! (', NWARNINGS, '/20) Deviation more than 5E-5',
++     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1, ABS(CBYF1)
++          ENDIF
++        END DO
++      ENDIF
++#endif
+ 
+-!$OMP PARALLEL
+-!$OMP DO
+-      DO IVEC=1, NB_PAGE
+-        CALL SMATRIX1(P_MULTI(0,1,IVEC),
+-     &	                         hel_rand(IVEC),
+-     &				 channel,
+-     &				 out(IVEC),
+-C       &				 selected_hel(IVEC),
+-     &				 jamp2_multi(0,IVEC),
+-     &				 IVEC
+-     &				 )
+-      ENDDO
+-!$OMP END DO
+-!$OMP END PARALLEL
+       RETURN
+       END
+ 
+diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
+index 91e1f5b4..f3aa9a2d 100644
+--- a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
++++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
+@@ -71,13 +71,41 @@ c      double precision xsec,xerr
+ c      integer ncols,ncolflow(maxamps),ncolalt(maxamps),ic
+ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
+ 
+-      include 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+ 
++#ifdef MG5AMC_MEEXPORTER_CUDACPP
++      INCLUDE 'fbridge.inc'
++      INCLUDE 'fbridge_common.inc'
++#endif
+ C-----
+ C  BEGIN CODE
+ C----- 
+       call cpu_time(t_before)
+       CUMULATED_TIMING = t_before
++
++      CALL COUNTERS_INITIALISE()
++
++#ifdef MG5AMC_MEEXPORTER_CUDACPP
++      write(*,*) 'Enter #events in a vector loop (max=',nb_page_max,',)'
++      read(*,*) nb_page_loop
++#else
++      NB_PAGE_LOOP = 32
++#endif
++      if( nb_page_loop.gt.nb_page_max .or. nb_page_loop.le.0 ) then
++        write(*,*) 'ERROR! Invalid nb_page_loop = ', nb_page_loop
++        STOP
++      endif
++
++#ifdef MG5AMC_MEEXPORTER_CUDACPP
++      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, NB_PAGE_LOOP, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
++      FBRIDGE_MODE = -1 ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
++      FBRIDGE_NCBYF1 = 0
++      FBRIDGE_CBYF1SUM = 0
++      FBRIDGE_CBYF1SUM2 = 0
++      FBRIDGE_CBYF1MAX = -1D100
++      FBRIDGE_CBYF1MIN = 1D100
++#endif
+ c
+ c     Read process number
+ c
+@@ -132,7 +160,8 @@ c   If CKKW-type matching, read IS Sudakov grid
+           exit
+  30       issgridfile='../'//issgridfile
+           if(i.eq.5)then
+-            print *,'ERROR: No Sudakov grid file found in lib with ickkw=2'
++            print *,
++     &        'ERROR: No Sudakov grid file found in lib with ickkw=2'
+             stop
+           endif
+         enddo
+@@ -199,8 +228,33 @@ c      call sample_result(xsec,xerr)
+ c      write(*,*) 'Final xsec: ',xsec
+ 
+       rewind(lun)
+-
+       close(lun)
++
++#ifdef MG5AMC_MEEXPORTER_CUDACPP
++      CALL FBRIDGEDELETE(FBRIDGE_PBRIDGE) ! this must be at the end as it shuts down the CUDA device
++      IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
++        WRITE(*,'(a,f10.8,a,e8.2)')
++     &    ' [MERATIOS] ME ratio CudaCpp/Fortran: MIN = ',
++     &    FBRIDGE_CBYF1MIN + 1, ' = 1 - ', -FBRIDGE_CBYF1MIN
++        WRITE(*,'(a,f10.8,a,e8.2)')
++     &    ' [MERATIOS] ME ratio CudaCpp/Fortran: MAX = ',
++     &    FBRIDGE_CBYF1MAX + 1, ' = 1 + ', FBRIDGE_CBYF1MAX
++        WRITE(*,'(a,i6)')
++     &    ' [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES = ',
++     &    FBRIDGE_NCBYF1
++c        WRITE(*,'(a,e8.2)')
++c    &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = ',
++c    &    FBRIDGE_CBYF1SUM / FBRIDGE_NCBYF1
++c       WRITE(*,'(a,e8.2)')
++c    &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: STD = ',
++c    &    SQRT( FBRIDGE_CBYF1SUM2 / FBRIDGE_NCBYF1 ) ! ~standard deviation
++        WRITE(*,'(a,e8.2,a,e8.2)')
++     &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = ',
++     &    FBRIDGE_CBYF1SUM / FBRIDGE_NCBYF1, ' +- ',
++     &    SQRT( FBRIDGE_CBYF1SUM2 ) / FBRIDGE_NCBYF1 ! ~standard error
++      ENDIF
++#endif
++      CALL COUNTERS_FINALISE()
+       end
+ 
+ c     $B$ get_user_params $B$ ! tag for MadWeight
+@@ -378,7 +432,7 @@ c
+       fopened=.false.
+       tempname=filename 	 
+       fine=index(tempname,' ') 	 
+-      fine2=index(path,' ')-1	 
++c     fine2=index(path,' ')-1 ! AV remove valgrind "Conditional jump or move depends on uninitialised value(s)"
+       if(fine.eq.0) fine=len(tempname)
+       open(unit=lun,file=tempname,status='old',ERR=20)
+       fopened=.true.
+diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
+index 0a69788c..7f4f075e 100644
+--- a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
++++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
+@@ -77,7 +77,7 @@ C     GLOBAL VARIABLES
+ C     
+       LOGICAL INIT_MODE
+       COMMON /TO_DETERMINE_ZERO_HEL/INIT_MODE
+-      INCLUDE '../../Source/vector.inc'
++      include 'vector.inc'
+       DOUBLE PRECISION AMP2(MAXAMPS), JAMP2(0:MAXFLOW)
+ 
+       CHARACTER*101         HEL_BUFF
+@@ -136,6 +136,7 @@ C     ----------
+ C     BEGIN CODE
+ C     ----------
+ 
++      call counters_smatrix1_start()
+       NTRY(IMIRROR)=NTRY(IMIRROR)+1
+       THIS_NTRY(IMIRROR) = THIS_NTRY(IMIRROR)+1
+       DO I=1,NEXTERNAL
+@@ -232,6 +233,7 @@ C       Include the Jacobian from helicity sampling
+         WRITE(HEL_BUFF,'(20i5)')(NHEL(II,I),II=1,NEXTERNAL)
+       ELSE
+         ANS = 1D0
++        call counters_smatrix1_stop()
+         RETURN
+       ENDIF
+       IF (ANS.NE.0D0.AND.(ISUM_HEL .NE. 1.OR.HEL_PICKED.EQ.-1)) THEN
+@@ -276,6 +278,7 @@ C           Set right sign for ANS, based on sign of chosen helicity
+         ENDIF
+       ENDIF
+       ANS=ANS/DBLE(IDEN)
++      call counters_smatrix1_stop()
+       END
+ 
+ 
+@@ -346,9 +349,9 @@ C
+ C     
+ C     GLOBAL VARIABLES
+ C     
+-      INCLUDE '../../Source/vector.inc'
+       DOUBLE PRECISION AMP2(MAXAMPS), JAMP2(0:MAXFLOW)
+-      INCLUDE 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+ 
+       DOUBLE PRECISION SMALL_WIDTH_TREATMENT
+       COMMON/NARROW_WIDTH/SMALL_WIDTH_TREATMENT
+@@ -376,6 +379,7 @@ C     1 T(2,1,3,4)
+ C     ----------
+ C     BEGIN CODE
+ C     ----------
++      call counters_matrix1_start()
+       IF (FIRST) THEN
+         FIRST=.FALSE.
+         IF(ZERO.NE.0D0) FK_ZERO = SIGN(MAX(ABS(ZERO), ABS(ZERO
+@@ -449,6 +453,7 @@ C     JAMPs contributing to orders ALL_ORDERS=1
+         ENDDO
+       ENDDO
+ 
++      call counters_matrix1_stop()
+       END
+ 
+       SUBROUTINE PRINT_ZERO_AMP_1()
+diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f
+index e10bc230..b400925d 100644
+--- a/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f
++++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f
+@@ -4,9 +4,10 @@
+       implicit none
+       include 'genps.inc'
+       include 'nexternal.inc'
+-      include 'coupl.inc'
+       include 'maxamps.inc'
+-      include 'cluster.inc'
++      include 'vector.inc'
++      include 'cluster.inc' ! NB must also include vector.inc
++      include 'coupl.inc' ! NB must also include vector.inc
+       include 'message.inc'
+       include 'run.inc'
+ 
+@@ -45,7 +46,7 @@ c     Variables for combination of color indices (including multipart. vert)
+       save prmass,prwidth,pow
+       data first_time /.true./
+ 
+-      Double Precision jamp2(0:maxflow, nb_page)
++      Double Precision jamp2(0:maxflow, nb_page_max)
+       common/to_jamps/       jamp2
+ 
+       integer           mincfig, maxcfig
+diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/cluster.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/cluster.f
+index 6be9b1ed..b69b8748 100644
+--- a/epochX/cudacpp/gg_tt.mad/SubProcesses/cluster.f
++++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/cluster.f
+@@ -173,7 +173,8 @@ c**************************************************************************
+       implicit none
+       include 'nexternal.inc'
+       include 'maxamps.inc'
+-      include 'cluster.inc'
++      include 'vector.inc'
++      include 'cluster.inc' ! NB must also include vector.inc
+       include 'message.inc'
+       integer ignum, idij, iproc, i
+ 
+@@ -203,8 +204,9 @@ c**************************************************************************
+       include 'genps.inc'
+       include 'nexternal.inc'
+       include 'maxamps.inc'
+-      include 'cluster.inc'
+-      include 'coupl.inc'
++      include 'vector.inc'
++      include 'cluster.inc' ! NB must also include vector.inc
++      include 'coupl.inc' ! NB must also include vector.inc
+       include 'message.inc'
+       integer ignum, ipnum, ipids(nexternal,4,2:nexternal)
+ C $B$ IFOREST $B$ !this is a tag for MadWeight
+@@ -331,7 +333,8 @@ c**************************************************************************
+       include 'genps.inc'
+       include 'nexternal.inc'
+       include 'maxamps.inc'
+-      include 'cluster.inc'
++      include 'vector.inc'
++      include 'cluster.inc' ! NB must also include vector.inc
+       include 'message.inc'
+ C $B$ IFOREST $B$ !this is a tag for MadWeight
+       integer mapconfig(0:lmaxconfigs), this_config
+@@ -441,7 +444,8 @@ c**************************************************************************
+       implicit none
+       include 'nexternal.inc'
+       include 'maxamps.inc'
+-      include 'cluster.inc'
++      include 'vector.inc'
++      include 'cluster.inc' ! NB must also include vector.inc
+       include 'message.inc'
+       include 'genps.inc'
+       include 'run.inc'
+@@ -525,7 +529,8 @@ c**************************************************************************
+       include 'run.inc'
+       include 'nexternal.inc'
+       include 'maxamps.inc'
+-      include 'cluster.inc'
++      include 'vector.inc'
++      include 'cluster.inc' ! NB must also include vector.inc
+       include 'message.inc'
+ 
+       real*8 p(0:3,nexternal), pcmsp(0:3), p1(0:3)
+diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f
+index ce39ccba..2ad355fd 100644
+--- a/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f
++++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f
+@@ -69,7 +69,6 @@ C     GLOBAL
+ C
+       include 'run.inc'
+       include 'cuts.inc'
+-      include '../../Source/vector.inc'
+       
+       double precision ptjet(nexternal)
+       double precision ptheavyjet(nexternal)
+@@ -181,7 +180,8 @@ C     Sort array of results: ismode>0 for real, isway=0 for ascending order
+       parameter (isway=0)
+       parameter (izero=0)
+ 
+-      include 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+ 
+ C
+ C
+@@ -260,7 +260,7 @@ c         endif
+ 
+          if(fixed_ren_scale) then
+             G = SQRT(4d0*PI*ALPHAS(scale))
+-            do i =1, nb_page
++            do i =1, nb_page_loop
+                call update_as_param(i)
+             enddo
+          endif
+diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/genps.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/genps.f
+index 9fc24fee..8b5adb07 100644
+--- a/epochX/cudacpp/gg_tt.mad/SubProcesses/genps.f
++++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/genps.f
+@@ -1799,7 +1799,8 @@ c     find the boost momenta --sum of particles--
+       include 'nexternal.inc'
+       include 'genps.inc'
+       include 'maxamps.inc'
+-      include 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+ c     include 'run.inc'
+ 
+       double precision p(0:3, nexternal)
+diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/idenparts.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/idenparts.f
+index f75246e6..c8e0c21f 100644
+--- a/epochX/cudacpp/gg_tt.mad/SubProcesses/idenparts.f
++++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/idenparts.f
+@@ -31,7 +31,8 @@ c
+ c
+ c     Global
+ c
+-      include 'coupl.inc'                     !Mass and width info
++      include 'vector.inc'
++      include 'coupl.inc' ! Mass and width info ! NB must also include vector.inc
+       double precision stot
+       common/to_stot/stot
+ 
+diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/initcluster.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/initcluster.f
+index ac07bbe8..4a4a76f7 100644
+--- a/epochX/cudacpp/gg_tt.mad/SubProcesses/initcluster.f
++++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/initcluster.f
+@@ -7,7 +7,8 @@
+       include 'run.inc'
+       include 'nexternal.inc'
+       include 'maxamps.inc'
+-      include 'cluster.inc'
++      include 'vector.inc'
++      include 'cluster.inc' ! NB must also include vector.inc
+ C
+ C     SPECIAL CUTS
+ C
+diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
+index cce95279..8753bafc 100644
+--- a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
++++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
+@@ -1,6 +1,17 @@
+ include ../../Source/make_opts
+ FFLAGS+= -w
+ 
++# Enable the C preprocessor https://gcc.gnu.org/onlinedocs/gfortran/Preprocessing-Options.html
++FFLAGS+= -cpp 
++
++# Enable ccache if USECCACHE=1
++ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
++  override CXX:=ccache $(CXX)
++endif
++ifeq ($(USECCACHE)$(shell echo $(FC) | grep ccache),1)
++  override FC:=ccache $(FC)
++endif
++
+ # Load additional dependencies of the bias module, if present
+ ifeq (,$(wildcard ../bias_dependencies))
+ BIASDEPENDENCIES =
+@@ -24,7 +35,21 @@ else
+     MADLOOP_LIB =
+ endif
+ 
+-LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L../../lib/ -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
++LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
++
++processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
++PLUGIN_MAKEFILE=Makefile
++# NB1 Using ":=" below instead of "=" is much faster (it only runs the subprocess once instead of many times)
++# NB2 Do not add a comment inlined "PLUGIN_BUILDDIR=$(shell ...) # comment" as otherwise a trailing space is included...
++# NB3 The variables relevant to the plugin Makefile must be explicitly passed to $(shell...)
++PLUGIN_MAKEENV:=$(shell echo '$(.VARIABLES)' | tr " " "\n" | egrep "(USEBUILDDIR|AVX|FPTYPE|HELINL|HRDCOD)")
++###$(info PLUGIN_MAKEENV=$(PLUGIN_MAKEENV))
++###$(info $(foreach v,$(PLUGIN_MAKEENV),$(v)="$($(v))"))
++PLUGIN_BUILDDIR:=$(shell $(MAKE) $(foreach v,$(PLUGIN_MAKEENV),$(v)="$($(v))") -f $(PLUGIN_MAKEFILE) -pn | awk '/Building/{print $$3}' | sed s/BUILDDIR=//)
++###$(info PLUGIN_BUILDDIR='$(PLUGIN_BUILDDIR)')
++PLUGIN_COMMONLIB=mg5amc_common
++PLUGIN_CXXLIB=mg5amc_$(processid_short)_cpp
++PLUGIN_CULIB=mg5amc_$(processid_short)_cuda
+ 
+ LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
+ 
+@@ -36,25 +61,63 @@ ifeq ($(strip $(MATRIX_HEL)),)
+         MATRIX = $(patsubst %.f,%.o,$(wildcard matrix*.f))
+ endif
+ 
+-
+-PROCESS= driver.o myamp.o genps.o unwgt.o setcuts.o get_color.o \
++PROCESS= myamp.o genps.o unwgt.o setcuts.o get_color.o \
+          cuts.o cluster.o reweight.o initcluster.o addmothers.o setscales.o \
+-	 idenparts.o dummy_fct.o \
+-         $(patsubst %.f,%.o,$(wildcard auto_dsig*.f)) \
++	 idenparts.o dummy_fct.o
++
++DSIG=driver.o $(patsubst %.f, %.o, $(filter-out auto_dsig.f, $(wildcard auto_dsig*.f)))
++DSIG_cudacpp=driver_cudacpp.o $(patsubst %.f, %_cudacpp.o, $(filter-out auto_dsig.f, $(wildcard auto_dsig*.f)))
+ 
+ SYMMETRY = symmetry.o idenparts.o 
+ 
+ # Binaries
+ 
+-$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX)
+-	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
++ifeq (,$(wildcard fbridge.inc))
++all: $(PROG)
++else
++all: $(PROG) $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp $(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp
++endif
++
++$(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
++	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
++
++$(LIBS): .libs
++
++.libs: ../../Cards/param_card.dat ../../Cards/run_card.dat
++	cd ../../Source; make
++	touch $@
++
++ifneq (,$(wildcard fbridge.inc))
++$(PLUGIN_BUILDDIR)/.pluginlibs:
++	$(MAKE) -f $(PLUGIN_MAKEFILE)
++	touch $@
++endif
++
++# On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
++# Use relative paths with respect to the executables ($ORIGIN on Linux)
++# On Darwin, building libraries with absolute paths in LIBDIR makes this unnecessary
++ifeq ($(UNAME_S),Darwin)
++  override LIBFLAGSRPATH =
++else
++  override LIBFLAGSRPATH = -Wl,-rpath,'$$ORIGIN/$(LIBDIR)'
++endif
++
++$(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(PLUGIN_BUILDDIR)/.pluginlibs
++	$(FC) -o $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(PLUGIN_BUILDDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CXXLIB) $(LIBFLAGSRPATH)
++
++$(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(PLUGIN_BUILDDIR)/.pluginlibs
++	$(FC) -o $(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(PLUGIN_BUILDDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CULIB) $(LIBFLAGSRPATH)
++
++counters.o: counters.cpp timer.h
++	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
+ 
+ $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
+ 	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
+ 
+ gensym: $(SYMMETRY) configs.inc $(LIBDIR)libmodel.$(libext) $(LIBDIR)libgeneric.$(libext)
+-	$(FC) -o gensym $(SYMMETRY) -L../../lib/ -lmodel -lgeneric -lpdf $(llhapdf) $(LDFLAGS)
++	$(FC) -o gensym $(SYMMETRY) -L$(LIBDIR) -lmodel -lgeneric -lpdf $(llhapdf) $(LDFLAGS)
+ 
++ifeq (,$(wildcard fbridge.inc))
+ $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
+ 	cd ../../Source/MODEL; make
+ 
+@@ -63,12 +126,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
+ 
+ $(LIBDIR)libpdf.$(libext): 
+ 	cd ../../Source/PDF; make
++endif
+ 
+ # Add source so that the compiler finds the DiscreteSampler module.
+ $(MATRIX): %.o: %.f
+ 	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -fopenmp
+ %.o: %.f
+-	$(FC) $(FFLAGS) -c $< -I../../Source/ -fopenmp
++	$(FC) $(FFLAGS) -c $< -I../../Source/ -fopenmp -o $@
++%_cudacpp.o: %.f
++	$(FC) $(FFLAGS) -c -DMG5AMC_MEEXPORTER_CUDACPP $< -I../../Source/ -fopenmp -o $@
+ 
+ # Dependencies
+ 
+@@ -88,5 +154,65 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+ 	 run_config.inc
+ initcluster.o: message.inc
+ 
++# Extra dependencies on discretesampler.mod
++
++auto_dsig.o: .libs
++driver.o: .libs
++driver_cudacpp.o: .libs
++$(MATRIX): .libs
++genps.o: .libs
++
++# Plugin avxall targets
++
++ifneq (,$(wildcard fbridge.inc))
++
++UNAME_P := $(shell uname -p)
++ifeq ($(UNAME_P),ppc64le)
++avxall: avxnone avxsse4
++else ifeq ($(UNAME_P),arm)
++avxall: avxnone avxsse4
++else
++avxall: avxnone avxsse4 avxavx2 avx512y avx512z
++endif
++
++avxnone: $(PROG) $(DSIG_cudacpp)
++	@echo
++	$(MAKE) USEBUILDDIR=1 AVX=none
++
++avxsse4: $(PROG) $(DSIG_cudacpp)
++	@echo
++	$(MAKE) USEBUILDDIR=1 AVX=sse4
++
++avxavx2: $(PROG) $(DSIG_cudacpp)
++	@echo
++	$(MAKE) USEBUILDDIR=1 AVX=avx2
++
++avx512y: $(PROG) $(DSIG_cudacpp)
++	@echo
++	$(MAKE) USEBUILDDIR=1 AVX=512y
++
++avx512z: $(PROG) $(DSIG_cudacpp)
++	@echo
++	$(MAKE) USEBUILDDIR=1 AVX=512z
++
++endif
++
++# Clean
++
+ clean:
+-	$(RM) *.o gensym madevent madevent_forhel
++ifeq (,$(wildcard fbridge.inc))
++	$(RM) *.o gensym $(PROG) $(PROG)_forhel
++else
++	$(RM) *.o gensym $(PROG) $(PROG)_forhel $(PLUGIN_BUILDDIR)/*$(PROG)_cudacpp
++endif
++
++cleanall:
++	make clean
++	make -C ../../Source clean
++	rm -rf $(LIBDIR)libbias.$(libext)
++ifneq (,$(wildcard fbridge.inc))
++	$(MAKE) -f $(PLUGIN_MAKEFILE) cleanall
++	rm -f $(PLUGIN_BUILDDIR)/.pluginlibs
++endif
++	rm -f ../../Source/*.mod ../../Source/*/*.mod
++	rm -f .libs
+diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/myamp.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/myamp.f
+index 7b4b7888..b82e64d6 100644
+--- a/epochX/cudacpp/gg_tt.mad/SubProcesses/myamp.f
++++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/myamp.f
+@@ -52,7 +52,8 @@ c
+       logical             OnBW(-nexternal:0)     !Set if event is on B.W.
+       common/to_BWEvents/ OnBW
+       
+-      include 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+ 
+       integer idup(nexternal,maxproc,maxsproc)
+       integer mothup(2,nexternal)
+@@ -285,7 +286,8 @@ c
+       double precision stot,m1,m2
+       common/to_stot/stot,m1,m2
+ 
+-      include 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+       include 'cuts.inc'
+ C
+ C     SPECIAL CUTS
+diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
+index 3aa0d6b2..20da3228 100644
+--- a/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
++++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
+@@ -24,7 +24,8 @@ c**************************************************
+       include 'nexternal.inc'
+       include 'message.inc'
+       include 'maxamps.inc'
+-      include 'cluster.inc'
++      include 'vector.inc'
++      include 'cluster.inc' ! NB must also include vector.inc
+       include 'sudakov.inc'
+       include 'maxparticles.inc'
+       include 'run.inc'
+@@ -97,7 +98,8 @@ c**************************************************
+       include 'message.inc'
+       include 'nexternal.inc'
+       include 'maxamps.inc'
+-      include 'cluster.inc'      
++      include 'vector.inc'
++      include 'cluster.inc' ! NB must also include vector.inc
+       integer ipdg,imode
+       double precision q0, Q11
+       double precision gamma,DGAUSS
+@@ -562,9 +564,10 @@ c**************************************************
+       include 'genps.inc'
+       include 'nexternal.inc'
+       include 'maxamps.inc'
+-      include 'cluster.inc'
++      include 'vector.inc'
++      include 'cluster.inc' ! NB must also include vector.inc
++      include 'coupl.inc' ! NB must also include vector.inc
+       include 'run.inc'
+-      include 'coupl.inc'
+       include 'run_config.inc'
+ C   
+ C   ARGUMENTS 
+@@ -1315,9 +1318,10 @@ c**************************************************
+       include 'genps.inc'
+       include 'nexternal.inc'
+       include 'maxamps.inc'
+-      include 'cluster.inc'
++      include 'vector.inc'
++      include 'cluster.inc' ! NB must also include vector.inc
++      include 'coupl.inc' ! NB must also include vector.inc
+       include 'run.inc'
+-      include 'coupl.inc'
+       include 'run_config.inc'
+ C   
+ C   ARGUMENTS 
+@@ -1778,7 +1782,7 @@ c            s_rwfact=0d0
+       return
+       end
+       
+-      subroutine update_scale_coupling(all_p, all_wgt,all_q2fact, nb_page)
++      subroutine update_scale_coupling(all_p, all_wgt,all_q2fact)
+       implicit none
+ 
+ C
+@@ -1790,12 +1794,13 @@ C
+       include 'genps.inc'
+       include 'run.inc'
+       include 'nexternal.inc'
+-      include 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+ C      include 'maxparticles.inc'
+       
+       double precision all_p(4*maxdim/3+14,*), all_wgt(*)
+       double precision all_q2fact(2,*)
+-      integer i,j,k, nb_page
++      integer i,j,k
+ 
+       logical setclscales
+       external setclscales
+@@ -1809,7 +1814,7 @@ c      save firsttime
+       if(.not.fixed_ren_scale) then
+          scale = 0d0
+       endif
+-      do i =1, nb_page
++      do i =1, nb_page_loop
+ 
+          if(.not.fixed_ren_scale) then
+             call set_ren_scale(all_p(1,i),scale)
+@@ -1855,7 +1860,8 @@ c      ENDIF
+ 
+       include 'nexternal.inc'
+       include 'maxamps.inc'
+-      include 'cluster.inc'
++      include 'vector.inc'
++      include 'cluster.inc' ! NB must also include vector.inc
+ c     Common block for reweighting info
+ c     q2bck holds the central q2fact scales
+       integer jlast(2)
+@@ -1920,7 +1926,8 @@ c     to_rw
+ 
+       include 'nexternal.inc'
+       include 'maxamps.inc'
+-      include 'cluster.inc'
++      include 'vector.inc'
++      include 'cluster.inc' ! NB must also include vector.inc
+ c     Common block for reweighting info
+ c     q2bck holds the central q2fact scales
+       integer jlast(2)
+@@ -1929,7 +1936,7 @@ c     q2bck holds the central q2fact scales
+       integer njets,iqjets(nexternal)
+       common /to_rw/jlast,njetstore,iqjetstore,njets,iqjets,q2bck
+ 
+-      DOUBLE PRECISION G, ALL_G(nb_page)
++      DOUBLE PRECISION G, ALL_G(nb_page_max)
+       COMMON/STRONG/ G, ALL_G
+ 
+ c     strong coupling is needed for the reweighting function      
+diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/setcuts.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/setcuts.f
+index 9c926e61..9d01442e 100644
+--- a/epochX/cudacpp/gg_tt.mad/SubProcesses/setcuts.f
++++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/setcuts.f
+@@ -8,7 +8,8 @@ c     INCLUDE
+ c
+       include 'genps.inc'
+       include 'nexternal.inc'
+-      include 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+       include 'run.inc'
+       include 'cuts.inc'
+ c
+diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/setscales.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/setscales.f
+index 493fafaf..1ac42678 100644
+--- a/epochX/cudacpp/gg_tt.mad/SubProcesses/setscales.f
++++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/setscales.f
+@@ -11,7 +11,8 @@ c     INCLUDE and COMMON
+ c
+       include 'genps.inc'
+       include 'nexternal.inc'
+-      include 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+ 
+       integer i
+       include 'maxamps.inc'
+@@ -108,7 +109,8 @@ c     INCLUDE and COMMON
+ c
+       include 'genps.inc'
+       include 'nexternal.inc'
+-      include 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+       include 'run.inc'
+ c--masses and poles
+ c
+diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/symmetry.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/symmetry.f
+index 351706c5..1d10349a 100644
+--- a/epochX/cudacpp/gg_tt.mad/SubProcesses/symmetry.f
++++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/symmetry.f
+@@ -38,7 +38,8 @@ c
+ c
+ c     Global
+ c
+-      include 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+       logical gridpack
+       common/to_gridpack/gridpack
+       double precision stot
+@@ -322,7 +323,8 @@ c
+ c
+ c     Global
+ c
+-      include 'coupl.inc'                     !Mass and width info
++      include 'vector.inc'
++      include 'coupl.inc' ! Mass and width info ! NB must also include vector.inc
+       double precision stot
+       common/to_stot/stot
+ 
+@@ -459,7 +461,8 @@ c
+       common/to_bwcutoff/bwcutoff
+       double precision stot
+       common/to_stot/stot
+-      include 'coupl.inc'                     !Mass and width info
++      include 'vector.inc'
++      include 'coupl.inc' ! Mass and width info ! NB must also include vector.inc
+ 
+ c-----
+ c  Begin Code
+diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/unwgt.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/unwgt.f
+index fc94f0e7..edf7a401 100644
+--- a/epochX/cudacpp/gg_tt.mad/SubProcesses/unwgt.f
++++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/unwgt.f
+@@ -35,7 +35,8 @@ C
+       double precision xzoomfact
+       common/to_zoom/  xzoomfact
+       include 'run.inc'
+-      include 'coupl.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
+ c
+ c     DATA
+ c
+@@ -465,7 +466,9 @@ c
+       include 'nexternal.inc'
+       include 'maxamps.inc'
+       include 'message.inc'
+-      include 'cluster.inc'
++      include 'vector.inc'
++      include 'coupl.inc' ! NB must also include vector.inc
++      include 'cluster.inc' ! NB must also include vector.inc
+       include 'run.inc'
+       include 'run_config.inc'
+ 
+@@ -544,8 +547,6 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
+ c      data ncolflow/maxamps*0/
+ c      data ncolalt/maxamps*0/
+ 
+-      include 'coupl.inc'
+-
+       include 'lhe_event_infos.inc'
+       data AlreadySetInBiasModule/.False./
+ 
