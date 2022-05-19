@@ -63,5 +63,10 @@ cat coupl.inc | sed "s/($vecsize)/(NB_PAGE_MAX)/g" >> coupl.inc.new
 cat coupl_write.inc | awk '{if($1=="WRITE(*,2)") print $0"(1)"; else print $0 }' > coupl_write.inc.new
 \mv coupl_write.inc.new coupl_write.inc
 cd -
+cd ${dir}/SubProcesses
+echo "c NB vector.inc (defining nb_page_max) must be included before clusters.inc (#458)" > cluster.inc.new
+cat cluster.inc | grep -v "      include 'vector.inc'" | sed "s/nb_page/nb_page_max/g" >> cluster.inc.new
+\mv cluster.inc.new cluster.inc
+cd -
 
 exit $status
