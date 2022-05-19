@@ -39,6 +39,7 @@ touch ${dir}/Events/.keepme
 \cp -dpr ${scrdir}/MG5aMC_patches/fbridge_common.inc ${dir}/SubProcesses # new file
 cd ${dir} > /dev/null
 if ! patch -p4 -i ${scrdir}/MG5aMC_patches/patch.common; then status=1; fi  
+\rm ${dir}/Source/MODEL/couplings2.f.orig # hunk succeeds with fuzz 1
 cd - > /dev/null
 for p1dir in ${dir}/SubProcesses/P1_*; do
   cd $p1dir > /dev/null
