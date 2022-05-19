@@ -285,7 +285,7 @@ index 3aa1040b..32420f00 100644
 @@ -331,7 +332,7 @@ C     Continue only if IMODE is 0, 4 or 5
        ALL_PD(0,:) = 0D0
        IPROC = 0
-       IPROC=IPROC+1  ! g g > t t~
+       IPROC=IPROC+1
 -      DO IVEC=1, NB_PAGE
 +      DO IVEC=1, NB_PAGE_LOOP
          ALL_PD(IPROC,IVEC)=G1(IVEC)*G2(IVEC)
