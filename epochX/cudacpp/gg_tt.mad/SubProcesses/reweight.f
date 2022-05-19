@@ -24,7 +24,8 @@ c**************************************************
       include 'nexternal.inc'
       include 'message.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
       include 'sudakov.inc'
       include 'maxparticles.inc'
       include 'run.inc'
@@ -97,7 +98,8 @@ c**************************************************
       include 'message.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'      
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
       integer ipdg,imode
       double precision q0, Q11
       double precision gamma,DGAUSS
@@ -562,9 +564,9 @@ c**************************************************
       include 'genps.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc' ! includes vector.inc
-#define VECTOR_INC 1 // ugly hack! vector.inc is already included by cluster.inc
-#include "coupl.inc"
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
+      include 'coupl.inc' ! NB must also include vector.inc
       include 'run.inc'
       include 'run_config.inc'
 C   
@@ -1316,9 +1318,9 @@ c**************************************************
       include 'genps.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc' ! includes vector.inc
-#define VECTOR_INC 1 // ugly hack! vector.inc is already included by cluster.inc
-#include "coupl.inc"
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
+      include 'coupl.inc' ! NB must also include vector.inc
       include 'run.inc'
       include 'run_config.inc'
 C   
@@ -1792,7 +1794,8 @@ C
       include 'genps.inc'
       include 'run.inc'
       include 'nexternal.inc'
-      include 'coupl.inc'
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
 C      include 'maxparticles.inc'
       
       double precision all_p(4*maxdim/3+14,*), all_wgt(*)
@@ -1857,7 +1860,8 @@ c      ENDIF
 
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
 c     Common block for reweighting info
 c     q2bck holds the central q2fact scales
       integer jlast(2)
@@ -1922,7 +1926,8 @@ c     to_rw
 
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
 c     Common block for reweighting info
 c     q2bck holds the central q2fact scales
       integer jlast(2)

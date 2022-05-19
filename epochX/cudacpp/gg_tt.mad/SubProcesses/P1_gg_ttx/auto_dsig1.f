@@ -76,7 +76,8 @@ C     Keep track of whether cuts already calculated for this event
 
       INTEGER SUBDIAG(MAXSPROC),IB(2)
       COMMON/TO_SUB_DIAG/SUBDIAG,IB
-      INCLUDE 'coupl.inc'
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
       INCLUDE 'run.inc'
 C     Common blocks
       CHARACTER*7         PDLABEL,EPA_LABEL
@@ -212,7 +213,8 @@ C     ****************************************************
 C     
 C     CONSTANTS
 C     
-      INCLUDE '../../Source/vector.inc'
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
       INCLUDE 'genps.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxconfigs.inc'
@@ -281,7 +283,6 @@ C     jamp2 information
 
       INTEGER SUBDIAG(MAXSPROC),IB(2)
       COMMON/TO_SUB_DIAG/SUBDIAG,IB
-      INCLUDE 'coupl.inc'
       INCLUDE 'run.inc'
 
       DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
@@ -444,7 +445,8 @@ C
       USE OMP_LIB
 
       INCLUDE 'nexternal.inc'
-      INCLUDE '../../Source/vector.inc'
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
       INCLUDE 'maxamps.inc'
       DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
       DOUBLE PRECISION HEL_RAND(NB_PAGE_MAX)
@@ -457,7 +459,6 @@ C
       INTEGER IEXT
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
-      INCLUDE 'coupl.inc'
       INCLUDE 'fbridge.inc'
       INCLUDE 'fbridge_common.inc'
       DOUBLE PRECISION OUT2(NB_PAGE_MAX)

@@ -1,10 +1,4 @@
-#define COUPL_INC 1
-#ifdef COUPL_INC // ugly hack: include vector.inc via '#include' if and only if coupl.inc was included this way
-#include "vector.inc"
-#else
-      include 'vector.inc'
-#endif
-
+c NB vector.inc (defining nb_page_max) must be included before coupl.inc (#458)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      written by the UFO converter
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

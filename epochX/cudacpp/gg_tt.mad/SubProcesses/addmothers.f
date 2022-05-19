@@ -4,10 +4,10 @@
       implicit none
       include 'genps.inc'
       include 'nexternal.inc'
-      include 'cluster.inc' ! includes vector.inc
-#define VECTOR_INC 1 // ugly hack! vector.inc is already included by cluster.inc
-#include "coupl.inc"
       include 'maxamps.inc'
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
+      include 'coupl.inc' ! NB must also include vector.inc
       include 'message.inc'
       include 'run.inc'
 

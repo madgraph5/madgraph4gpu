@@ -9,7 +9,8 @@ c************************************************************************
       subroutine printout
       implicit none
 
-      include 'coupl.inc'
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
       include 'input.inc'
       
       include 'formats.inc'

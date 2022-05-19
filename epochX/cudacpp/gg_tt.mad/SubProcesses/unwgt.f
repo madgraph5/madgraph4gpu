@@ -35,7 +35,8 @@ C
       double precision xzoomfact
       common/to_zoom/  xzoomfact
       include 'run.inc'
-      include 'coupl.inc'
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
 c
 c     DATA
 c
@@ -465,9 +466,9 @@ c
       include 'nexternal.inc'
       include 'maxamps.inc'
       include 'message.inc'
-      include 'cluster.inc' ! includes vector.inc
-#define VECTOR_INC 1 // ugly hack! vector.inc is already included by cluster.inc
-#include "coupl.inc"
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
+      include 'cluster.inc' ! NB must also include vector.inc
       include 'run.inc'
       include 'run_config.inc'
 

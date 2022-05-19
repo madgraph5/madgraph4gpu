@@ -71,8 +71,8 @@ c      double precision xsec,xerr
 c      integer ncols,ncolflow(maxamps),ncolalt(maxamps),ic
 c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 
-      include 'coupl.inc'
       include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       INCLUDE 'fbridge.inc'

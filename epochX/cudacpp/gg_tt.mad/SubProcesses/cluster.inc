@@ -1,9 +1,9 @@
+c NB vector.inc (defining nb_page_max) must be included before clusters.inc (#458)
 c*************************************************************************
 c	Parameters used by cluster
 c*************************************************************************
       include 'ncombs.inc'
       include 'ngraphs.inc'
-      include 'vector.inc'
       include 'maxconfigs.inc'
 c     parameters for clustering:
 c     id_cl gives diagrams for propagators     

@@ -180,7 +180,8 @@ C     Sort array of results: ismode>0 for real, isway=0 for ascending order
       parameter (isway=0)
       parameter (izero=0)
 
-      include "coupl.inc" ! includes vector.inc
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
 
 C
 C
