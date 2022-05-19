@@ -36,9 +36,9 @@ touch ${dir}/Events/.keepme
 # (1) Process-independent patches
 \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir} # new file
 \cp -dpr ${scrdir}/MG5aMC_patches/vector.inc ${dir}/Source # replace default
-cd ${dir}/SubProcesses
-\cp -dpr ${scrdir}/MG5aMC_patches/fbridge_common.inc . # new file
-if ! patch -i ${scrdir}/MG5aMC_patches/patch.makefile; then status=1; fi  
+\cp -dpr ${scrdir}/MG5aMC_patches/fbridge_common.inc ${dir}/SubProcesses # new file
+cd ${dir}
+if ! patch -p4 -i ${scrdir}/MG5aMC_patches/patch.ALL; then status=1; fi  
 cd -
 for p1dir in ${dir}/SubProcesses/P1_*; do
   cd $p1dir
@@ -48,9 +48,6 @@ for p1dir in ${dir}/SubProcesses/P1_*; do
   if [ "${dir%.mad}" == "$1" ]; then
     \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/gpu/timer.h . # new file, already present via cudacpp in *.mad
   fi
-  if ! patch -i ${scrdir}/MG5aMC_patches/patch.driver.f; then status=1; fi
-  if ! patch -i ${scrdir}/MG5aMC_patches/patch.matrix1.f; then status=1; fi
-  if ! patch -i ${scrdir}/MG5aMC_patches/patch.auto_dsig1.f; then status=1; fi
   cd -
 done
 
