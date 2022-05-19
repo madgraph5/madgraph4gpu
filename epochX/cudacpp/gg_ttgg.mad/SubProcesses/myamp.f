@@ -52,7 +52,8 @@ c
       logical             OnBW(-nexternal:0)     !Set if event is on B.W.
       common/to_BWEvents/ OnBW
       
-      include 'coupl.inc'
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
 
       integer idup(nexternal,maxproc,maxsproc)
       integer mothup(2,nexternal)
@@ -285,7 +286,8 @@ c
       double precision stot,m1,m2
       common/to_stot/stot,m1,m2
 
-      include 'coupl.inc'
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
       include 'cuts.inc'
 C
 C     SPECIAL CUTS

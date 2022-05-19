@@ -4,9 +4,10 @@
       implicit none
       include 'genps.inc'
       include 'nexternal.inc'
-      include 'coupl.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
+      include 'coupl.inc' ! NB must also include vector.inc
       include 'message.inc'
       include 'run.inc'
 
@@ -45,7 +46,7 @@ c     Variables for combination of color indices (including multipart. vert)
       save prmass,prwidth,pow
       data first_time /.true./
 
-      Double Precision jamp2(0:maxflow, nb_page)
+      Double Precision jamp2(0:maxflow, nb_page_max)
       common/to_jamps/       jamp2
 
       integer           mincfig, maxcfig

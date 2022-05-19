@@ -33,7 +33,6 @@ c
 c
 c     Global
 c
-c      include 'coupl.inc'
 c      real*8          scale
 
       logical banner_open
