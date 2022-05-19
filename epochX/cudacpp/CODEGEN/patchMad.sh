@@ -39,7 +39,6 @@ touch ${dir}/Events/.keepme
 \cp -dpr ${scrdir}/MG5aMC_patches/fbridge_common.inc ${dir}/SubProcesses # new file
 cd ${dir} > /dev/null
 if ! patch -p4 -i ${scrdir}/MG5aMC_patches/patch.common; then status=1; fi  
-\rm ${dir}/Source/MODEL/couplings2.f.orig # hunk succeeds with fuzz 1
 cd - > /dev/null
 for p1dir in ${dir}/SubProcesses/P1_*; do
   cd $p1dir > /dev/null
@@ -66,6 +65,10 @@ cat coupl.inc | sed "s/($vecsize)/(NB_PAGE_MAX)/g" >> coupl.inc.new
 \mv coupl.inc.new coupl.inc
 cat coupl_write.inc | awk '{if($1=="WRITE(*,2)") print $0"(1)"; else print $0 }' > coupl_write.inc.new
 \mv coupl_write.inc.new coupl_write.inc
+for file in couplings.f couplings1.f couplings2.f; do
+  cat ${file} | sed "s/      INCLUDE 'coupl.inc'/      include 'vector.inc'\n      include 'coupl.inc' ! NB must also include vector.inc/" > ${file}.new
+  \mv ${file}.new ${file}
+done
 cd - > /dev/null
 cd ${dir}/SubProcesses
 echo "c NB vector.inc (defining nb_page_max) must be included before clusters.inc (#458)" > cluster.inc.new
