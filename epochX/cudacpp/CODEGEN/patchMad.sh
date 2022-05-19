@@ -83,6 +83,7 @@ for p1dir in ${dir}/SubProcesses/P1_*; do
     | sed "s/1, NB_PAGE/1, NB_PAGE_LOOP/" \
     > auto_dsig1.f.new
   \mv auto_dsig1.f.new auto_dsig1.f
+  if ! patch -p6 -i ${scrdir}/MG5aMC_patches/patch.auto_dsig1.f; then status=1; fi  
   cd - > /dev/null
 done
 
