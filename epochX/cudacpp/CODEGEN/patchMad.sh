@@ -84,6 +84,7 @@ for p1dir in ${dir}/SubProcesses/P1_*; do
     > auto_dsig1.f.new
   \mv auto_dsig1.f.new auto_dsig1.f
   if ! patch -p6 -i ${scrdir}/MG5aMC_patches/patch.auto_dsig1.f; then status=1; fi  
+  \rm -f *.orig
   cd - > /dev/null
 done
 
