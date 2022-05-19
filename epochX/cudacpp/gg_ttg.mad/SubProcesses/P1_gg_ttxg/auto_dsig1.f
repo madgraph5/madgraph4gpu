@@ -332,7 +332,7 @@ C     Continue only if IMODE is 0, 4 or 5
       ALL_PD(0,:) = 0D0
       IPROC = 0
       IPROC=IPROC+1  ! g g > t t~ g
-      DO IVEC=1, NB_PAGE
+      DO IVEC=1, NB_PAGE_LOOP
         ALL_PD(IPROC,IVEC)=G1(IVEC)*G2(IVEC)
         ALL_PD(0,IVEC)=ALL_PD(0,IVEC)+DABS(ALL_PD(IPROC,IVEC))
 
