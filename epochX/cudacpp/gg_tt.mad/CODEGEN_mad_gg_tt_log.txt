@@ -50,7 +50,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0069484710693359375 [0m
+[1;32mDEBUG: model prefixing  takes 0.006896018981933594 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
@@ -65,7 +65,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=2: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ WEIGHTED<=2 @1  
 INFO: Process has 3 diagrams 
-1 processes with 3 diagrams generated in 0.010 s
+1 processes with 3 diagrams generated in 0.011 s
 Total: 1 processes with 3 diagrams
 output madevent CODEGEN_mad_gg_tt --hel_recycling=False --vector_size=32768 --me_exporter=standalone_cudacpp
 Load PLUGIN.CUDACPP_SA_OUTPUT
@@ -86,7 +86,7 @@ INFO: Processing color information for process: g g > t t~ @1
 INFO: Creating files in directory P1_gg_ttx 
 [1mINFO: Some T-channel width have been set to zero [new since 2.8.0]
  if you want to keep this width please set "zerowidth_tchannel" to False [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f527a54ea90> [1;30m[export_v4.py at line 5955][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fbc87717a90> [1;30m[export_v4.py at line 5955][0m [0m
 INFO: Creating files in directory . 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1165][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
@@ -114,7 +114,7 @@ INFO: Generating Feynman diagrams for Process: g g > t t~ WEIGHTED<=2 @1
 INFO: Finding symmetric diagrams for subprocess group gg_ttx 
 [1;32mDEBUG:  done [1;30m[madgraph_interface.py at line 8458][0m [0m
 Generated helas calls for 1 subprocesses (3 diagrams) in 0.008 s
-Wrote files for 10 helas calls in 0.120 s
+Wrote files for 10 helas calls in 0.121 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
@@ -153,6 +153,6 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.398s
-user	0m2.058s
-sys	0m0.317s
+real	0m2.406s
+user	0m2.040s
+sys	0m0.340s
