@@ -47,9 +47,8 @@ function codeGenAndDiff()
   esac
   echo -e "\n+++ Generate code for '$proc'\n"
   ###exit 0 # FOR DEBUGGING
-  # Vector size for mad/madonly meexporter  (maximum nb_page for cuda, actual nb_page for cpp)
-  ###vecsize=524288
-  vecsize=1024
+  # Vector size for mad/madonly meexporter (nb_page_max)
+  vecsize=32768 # above (e.g. 524288) would segfault at runtime
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null
   outproc=CODEGEN_${OUTBCK}_${proc}
@@ -135,9 +134,9 @@ function codeGenAndDiff()
     cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | tail -n+4 | sort >> ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
     \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat
   fi
-  # Additional setup and cleanup for madonly and mad directories
+  # Additional patches for madonly and mad directories (integration of Fortran and cudacpp)
   if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ]; then
-    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} # delegate to patchMad.sh (similarly to what is done with untarGridpack.sh)
+    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize}
   fi
   # Compare the existing generated code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null

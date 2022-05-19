@@ -5,13 +5,14 @@ status=0
 scrdir=$(cd $(dirname $0); pwd)
 
 if [ "${1%.madonly}" == "$1" ] && [ "${1%.mad}" == "$1" ]; then
-  echo "Usage: $0 <process.[madonly|mad]>"
+  echo "Usage: $0 <process.[madonly|mad]> <vecsize>"
   exit 1 
-elif [ "$2" != "" ]; then
-  echo "Usage: $0 <process.[madonly|mad]>"
+elif [ "$2" == "" ] || [ "$3" != "" ]; then
+  echo "Usage: $0 <process.[madonly|mad]> <vecsize>"
   exit 1 
 fi
 dir=$1
+vecsize=$2
 ###echo "Current dir: $pwd"
 ###echo "Input dir to patch: $dir"
 
@@ -56,6 +57,9 @@ done
 # Patch the default Fortran code to provide the integration with the cudacpp plugin
 # (2) Process-dependent patches
 cd ${dir}/Source/MODEL
+echo "c NB vector.inc (defining nb_page_max) must be included before coupl.inc (#458)" > coupl.inc.new
+cat coupl.inc | sed "s/($vecsize)/(NB_PAGE_MAX)/g" >> coupl.inc.new
+\mv coupl.inc.new coupl.inc
 cat coupl_write.inc | awk '{if($1=="WRITE(*,2)") print $0"(1)"; else print $0 }' > coupl_write.inc.new
 \mv coupl_write.inc.new coupl_write.inc
 cd -
