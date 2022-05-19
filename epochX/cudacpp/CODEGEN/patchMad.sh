@@ -34,8 +34,8 @@ touch ${dir}/Events/.keepme
 # Patch the default Fortran code to provide the integration with the cudacpp plugin
 # (1) Process-independent patches
 \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir} # new file
+\cp -dpr ${scrdir}/MG5aMC_patches/vector.inc ${dir}/Source # replace default
 cd ${dir}/SubProcesses
-\cp -dpr ${scrdir}/MG5aMC_patches/vector.inc . # replace default
 \cp -dpr ${scrdir}/MG5aMC_patches/fbridge_common.inc . # new file
 if ! patch -i ${scrdir}/MG5aMC_patches/patch.makefile; then status=1; fi  
 cd -
@@ -58,5 +58,6 @@ done
 cd ${dir}/Source/MODEL
 cat coupl_write.inc | awk '{if($1=="WRITE(*,2)") print $0"(1)"; else print $0 }' > coupl_write.inc.new
 \mv coupl_write.inc.new coupl_write.inc
+cd -
 
 exit $status
