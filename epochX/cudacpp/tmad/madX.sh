@@ -122,7 +122,7 @@ function inputfile()
   elif [ "$1" == "-cuda" ]; then
     mv ${tmp} ${tmp}_cuda
     tmp=${tmp}_cuda
-    nloop=524288
+    nloop=131072
     while [ $nloop -gt $nevt ]; do (( nloop = nloop / 2 )); done
     echo "${nloop} ! Number of events in a single CUDA iteration (nb_page_loop)" >> ${tmp}
   elif [ "$1" == "-cpp" ]; then
