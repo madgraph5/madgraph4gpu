@@ -173,7 +173,8 @@ c**************************************************************************
       implicit none
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
       include 'message.inc'
       integer ignum, idij, iproc, i
 
@@ -203,8 +204,9 @@ c**************************************************************************
       include 'genps.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
-      include 'coupl.inc'
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
+      include 'coupl.inc' ! NB must also include vector.inc
       include 'message.inc'
       integer ignum, ipnum, ipids(nexternal,4,2:nexternal)
 C $B$ IFOREST $B$ !this is a tag for MadWeight
@@ -331,7 +333,8 @@ c**************************************************************************
       include 'genps.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
       include 'message.inc'
 C $B$ IFOREST $B$ !this is a tag for MadWeight
       integer mapconfig(0:lmaxconfigs), this_config
@@ -441,7 +444,8 @@ c**************************************************************************
       implicit none
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
       include 'message.inc'
       include 'genps.inc'
       include 'run.inc'
@@ -525,7 +529,8 @@ c**************************************************************************
       include 'run.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
       include 'message.inc'
 
       real*8 p(0:3,nexternal), pcmsp(0:3), p1(0:3)

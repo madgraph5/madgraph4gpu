@@ -117,7 +117,7 @@ C     Cannot make a selection with all PDFs to zero, so we return now
       ENDIF
       END
 
-      SUBROUTINE SELECT_GROUPING(IMIRROR,  IPROC, ICONF, WGT, NB_PAGE)
+      SUBROUTINE SELECT_GROUPING(IMIRROR,  IPROC, ICONF, WGT, NB_PAGE_LOOP)
       USE DISCRETESAMPLER
       IMPLICIT NONE
 C     
@@ -125,15 +125,15 @@ C     INPUT (VIA COMMAND BLOCK)
 C     SELPROC 
 C     SUMPROB
 C     INPUT
-C     nb_page (number of weight to update)
+C     nb_page_loop (number of weight to update)
 C     INPUT/OUTPUT
-C     WGTS(nb_page) #multiplied by the associated jacobian      
+C     WGTS(nb_page_loop) #multiplied by the associated jacobian      
 C     
 C     OUTPUT
 C     
 C     iconf, iproc, imirror
 C     
-      INTEGER NB_PAGE
+      INTEGER NB_PAGE_LOOP
       DOUBLE PRECISION WGT(*)
       INTEGER IMIRROR, IPROC, ICONF
 
@@ -207,7 +207,7 @@ C     all, then we pick a point based on PDF only.
  50     CONTINUE
 C       Update weigth w.r.t SELPROC normalized to selection probability
 
-        DO I=1, NB_PAGE
+        DO I=1, NB_PAGE_LOOP
           WGT(I)=WGT(I)*(SUMPROB/SELPROC(IMIRROR,IPROC,ICONF))
         ENDDO
 
@@ -215,7 +215,7 @@ C       Update weigth w.r.t SELPROC normalized to selection probability
 C       We are using the grouped_processes grid and it is initialized.
         CALL DS_GET_POINT('grouped_processes',R,LMAPPED
      $   ,MC_GROUPED_PROC_JACOBIAN,'norm',(/'PDF_convolution'/))
-        DO I=1, NB_PAGE
+        DO I=1, NB_PAGE_LOOP
           WGT(I)=WGT(I)*MC_GROUPED_PROC_JACOBIAN
         ENDDO
         CALL MAP_1_TO_3(LMAPPED,MAXSPROC,2,ICONF,IPROC,IMIRROR)
@@ -224,19 +224,19 @@ C       We are using the grouped_processes grid and it is initialized.
       END
 
       SUBROUTINE DSIG_VEC(ALL_P,ALL_WGT,ALL_XBK, ALL_Q2FACT,
-     $  ALL_CM_RAP, ICONF,IPROC,IMIRROR, ALL_OUT,NB_PAGE)
+     $  ALL_CM_RAP, ICONF,IPROC,IMIRROR, ALL_OUT,NB_PAGE_LOOP)
 C     ******************************************************
 C     
-C     INPUT: ALL_PP(0:3, NEXTERNAL, NB_PAGE)
-C     INPUT/OUtpUT       ALL_WGT(Nb_PAGE)
-C     nb_page = vector size
-C     ALL_OUT(NB_PAGE)
+C     INPUT: ALL_PP(0:3, NEXTERNAL, NB_PAGE_LOOP)
+C     INPUT/OUtpUT       ALL_WGT(Nb_Page_Loop)
+C     nb_page_loop = vector size
+C     ALL_OUT(NB_PAGE_LOOP)
 C     function (PDf*cross)
 C     ******************************************************
       USE DISCRETESAMPLER
       IMPLICIT NONE
 
-      INTEGER NB_PAGE
+      INTEGER NB_PAGE_LOOP
       INCLUDE 'genps.inc'
       DOUBLE PRECISION ALL_P(4*MAXDIM/3+14,*)
       DOUBLE PRECISION ALL_WGT(*)
@@ -301,7 +301,7 @@ C      entries to the grid for the MC over helicity configuration
 
 C     set the running scale (MLM not working)
 C     and update the couplings accordingly
-      CALL UPDATE_SCALE_COUPLING(ALL_P, ALL_WGT, ALL_Q2FACT, NB_PAGE)
+      CALL UPDATE_SCALE_COUPLING(ALL_P, ALL_WGT, ALL_Q2FACT)
 
 
       IF(GROUPED_MC_GRID_STATUS.EQ.0) THEN
@@ -316,7 +316,7 @@ C        the call DSIGPROC just below.
      $  IPROC,IMIRROR,SYMCONF,CONFSUB,ALL_WGT,0, ALL_OUT)
 
 
-      DO I =1,NB_PAGE
+      DO I =1,NB_PAGE_LOOP
 C       Reset ALLOW_HELICITY_GRID_ENTRIES
         ALLOW_HELICITY_GRID_ENTRIES = .TRUE.
 
@@ -333,7 +333,7 @@ C       OC(IMIRROR,IPROC,ICONF)))
 C       ENDIF
 
       ENDDO
-      DO I=1, NB_PAGE
+      DO I=1, NB_PAGE_LOOP
         IF(ALL_OUT(I).GT.0D0)THEN
 C         Update summed weight and number of events
           SUMWGT(IMIRROR,IPROC,ICONF)=SUMWGT(IMIRROR,IPROC,ICONF)
@@ -429,7 +429,8 @@ C     Common blocks
       DATA  NB_SPIN_STATE /2,2/
       COMMON /NB_HEL_STATE/ NB_SPIN_STATE
 
-      INCLUDE 'coupl.inc'
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
       INCLUDE 'run.inc'
 C     ICONFIG has this config number
       INTEGER MAPCONFIG(0:LMAXCONFIGS), ICONFIG
@@ -768,7 +769,8 @@ C     ****************************************************
       INCLUDE 'maxconfigs.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxamps.inc'
-      INCLUDE 'coupl.inc'
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
       INCLUDE 'run.inc'
 C     
 C     ARGUMENTS 
@@ -894,18 +896,18 @@ C     ****************************************************
       INCLUDE 'maxconfigs.inc'
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxamps.inc'
-      INCLUDE 'coupl.inc'
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
       INCLUDE 'run.inc'
-      INCLUDE '../../Source/vector.inc'
 C     
 C     ARGUMENTS 
 C     
-      DOUBLE PRECISION ALL_P(4*MAXDIM/3+14,NB_PAGE)
-      DOUBLE PRECISION ALL_XBK(2, NB_PAGE)
-      DOUBLE PRECISION ALL_Q2FACT(2, NB_PAGE)
-      DOUBLE PRECISION ALL_CM_RAP(NB_PAGE)
-      DOUBLE PRECISION ALL_WGT(NB_PAGE)
-      DOUBLE PRECISION ALL_OUT(NB_PAGE)
+      DOUBLE PRECISION ALL_P(4*MAXDIM/3+14,NB_PAGE_MAX)
+      DOUBLE PRECISION ALL_XBK(2, NB_PAGE_MAX)
+      DOUBLE PRECISION ALL_Q2FACT(2, NB_PAGE_MAX)
+      DOUBLE PRECISION ALL_CM_RAP(NB_PAGE_MAX)
+      DOUBLE PRECISION ALL_WGT(NB_PAGE_MAX)
+      DOUBLE PRECISION ALL_OUT(NB_PAGE_MAX)
       DOUBLE PRECISION DSIGPROC
       INTEGER ICONF,IPROC,IMIRROR,IMODE
       INTEGER SYMCONF(0:LMAXCONFIGS)
@@ -940,7 +942,7 @@ C
 C     
 C     LOCAL VARIABLES 
 C     
-      DOUBLE PRECISION ALL_P1(0:3,NEXTERNAL,NB_PAGE),XDUM
+      DOUBLE PRECISION ALL_P1(0:3,NEXTERNAL,NB_PAGE_MAX),XDUM
       INTEGER I,J,K,JC(NEXTERNAL)
       INTEGER PERMS(NEXTERNAL,LMAXCONFIGS)
       INCLUDE 'symperms.inc'
@@ -953,7 +955,7 @@ C
         ENDDO
 
 C       Set momenta according to this permutation
-        DO IVEC=1, NB_PAGE
+        DO IVEC=1, NB_PAGE_LOOP
           CALL SWITCHMOM(ALL_P(1,IVEC),ALL_P1(0,1,IVEC),PERMS(1
      $     ,MAPCONFIG(ICONFIG)),JC,NEXTERNAL)
 
@@ -969,7 +971,7 @@ C       Set momenta according to this permutation
 
 
       IF(IMIRROR.EQ.2)THEN
-        DO IVEC=1,NB_PAGE
+        DO IVEC=1,NB_PAGE_LOOP
 C         Flip momenta (rotate around x axis)
           DO I=1,NEXTERNAL
             ALL_P1(2,I, IVEC)=-ALL_P1(2,I,IVEC)
@@ -988,7 +990,7 @@ C         Flip beam identity
       ALL_OUT(:)=0D0
 
 C     IF (PASSCUTS(P1)) THEN
-      DO IVEC=1,NB_PAGE
+      DO IVEC=1,NB_PAGE_LOOP
         IF (IMODE.EQ.0D0.AND.NB_PASS_CUTS.LT.2**12.AND.ALL_WGT(IVEC)
      $   .NE.0D0)THEN
           NB_PASS_CUTS = NB_PASS_CUTS + 1
@@ -1001,7 +1003,7 @@ C     ENDIF
 
       IF (LAST_ICONF.NE.-1.AND.IMIRROR.EQ.2) THEN
 C       Flip back local momenta P1 if cached
-        DO IVEC=1,NB_PAGE
+        DO IVEC=1,NB_PAGE_LOOP
           DO I=1,NEXTERNAL
             ALL_P1(2,I,IVEC)=-ALL_P1(2,I,IVEC)
             ALL_P1(3,I,IVEC)=-ALL_P1(3,I,IVEC)

@@ -24,7 +24,8 @@ c**************************************************
       include 'nexternal.inc'
       include 'message.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
       include 'sudakov.inc'
       include 'maxparticles.inc'
       include 'run.inc'
@@ -97,7 +98,8 @@ c**************************************************
       include 'message.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'      
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
       integer ipdg,imode
       double precision q0, Q11
       double precision gamma,DGAUSS
@@ -562,9 +564,10 @@ c**************************************************
       include 'genps.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
+      include 'coupl.inc' ! NB must also include vector.inc
       include 'run.inc'
-      include 'coupl.inc'
       include 'run_config.inc'
 C   
 C   ARGUMENTS 
@@ -1315,9 +1318,10 @@ c**************************************************
       include 'genps.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
+      include 'coupl.inc' ! NB must also include vector.inc
       include 'run.inc'
-      include 'coupl.inc'
       include 'run_config.inc'
 C   
 C   ARGUMENTS 
@@ -1778,7 +1782,7 @@ c            s_rwfact=0d0
       return
       end
       
-      subroutine update_scale_coupling(all_p, all_wgt,all_q2fact, nb_page)
+      subroutine update_scale_coupling(all_p, all_wgt,all_q2fact)
       implicit none
 
 C
@@ -1790,12 +1794,13 @@ C
       include 'genps.inc'
       include 'run.inc'
       include 'nexternal.inc'
-      include 'coupl.inc'
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
 C      include 'maxparticles.inc'
       
       double precision all_p(4*maxdim/3+14,*), all_wgt(*)
       double precision all_q2fact(2,*)
-      integer i,j,k, nb_page
+      integer i,j,k
 
       logical setclscales
       external setclscales
@@ -1809,7 +1814,7 @@ c      save firsttime
       if(.not.fixed_ren_scale) then
          scale = 0d0
       endif
-      do i =1, nb_page
+      do i =1, nb_page_loop
 
          if(.not.fixed_ren_scale) then
             call set_ren_scale(all_p(1,i),scale)
@@ -1855,7 +1860,8 @@ c      ENDIF
 
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
 c     Common block for reweighting info
 c     q2bck holds the central q2fact scales
       integer jlast(2)
@@ -1920,7 +1926,8 @@ c     to_rw
 
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
 c     Common block for reweighting info
 c     q2bck holds the central q2fact scales
       integer jlast(2)
@@ -1929,7 +1936,7 @@ c     q2bck holds the central q2fact scales
       integer njets,iqjets(nexternal)
       common /to_rw/jlast,njetstore,iqjetstore,njets,iqjets,q2bck
 
-      DOUBLE PRECISION G, ALL_G(nb_page)
+      DOUBLE PRECISION G, ALL_G(nb_page_max)
       COMMON/STRONG/ G, ALL_G
 
 c     strong coupling is needed for the reweighting function      

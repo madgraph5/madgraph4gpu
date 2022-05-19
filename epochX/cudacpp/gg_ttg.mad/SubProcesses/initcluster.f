@@ -7,7 +7,8 @@
       include 'run.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'cluster.inc'
+      include 'vector.inc'
+      include 'cluster.inc' ! NB must also include vector.inc
 C
 C     SPECIAL CUTS
 C
