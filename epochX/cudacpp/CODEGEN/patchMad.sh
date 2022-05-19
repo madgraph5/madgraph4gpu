@@ -37,18 +37,19 @@ touch ${dir}/Events/.keepme
 \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir} # new file
 \cp -dpr ${scrdir}/MG5aMC_patches/vector.inc ${dir}/Source # replace default
 \cp -dpr ${scrdir}/MG5aMC_patches/fbridge_common.inc ${dir}/SubProcesses # new file
-cd ${dir}
-if ! patch -p4 -i ${scrdir}/MG5aMC_patches/patch.ALL; then status=1; fi  
-cd -
+cd ${dir} > /dev/null
+if ! patch -p4 -i ${scrdir}/MG5aMC_patches/patch.common; then status=1; fi  
+cd - > /dev/null
 for p1dir in ${dir}/SubProcesses/P1_*; do
-  cd $p1dir
+  cd $p1dir > /dev/null
   echo -e "madevent\n*madevent_cudacpp" > .gitignore # new file
   ln -sf ../fbridge_common.inc . # new file
   \cp -dpr ${scrdir}/MG5aMC_patches/counters.cpp . # new file
   if [ "${dir%.mad}" == "$1" ]; then
     \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/gpu/timer.h . # new file, already present via cudacpp in *.mad
   fi
-  cd -
+  if ! patch -p6 -i ${scrdir}/MG5aMC_patches/patch.P1; then status=1; fi  
+  cd - > /dev/null
 done
 
 # Patch the default Fortran code to provide the integration with the cudacpp plugin
@@ -59,11 +60,11 @@ cat coupl.inc | sed "s/($vecsize)/(NB_PAGE_MAX)/g" >> coupl.inc.new
 \mv coupl.inc.new coupl.inc
 cat coupl_write.inc | awk '{if($1=="WRITE(*,2)") print $0"(1)"; else print $0 }' > coupl_write.inc.new
 \mv coupl_write.inc.new coupl_write.inc
-cd -
+cd - > /dev/null
 cd ${dir}/SubProcesses
 echo "c NB vector.inc (defining nb_page_max) must be included before clusters.inc (#458)" > cluster.inc.new
 cat cluster.inc | grep -v "      include 'vector.inc'" | sed "s/nb_page/nb_page_max/g" >> cluster.inc.new
 \mv cluster.inc.new cluster.inc
-cd -
+cd - > /dev/null
 
 exit $status
