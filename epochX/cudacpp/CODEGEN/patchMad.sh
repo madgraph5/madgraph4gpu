@@ -58,8 +58,16 @@ cd ${dir}/Source/MODEL
 echo "c NB vector.inc (defining nb_page_max) must be included before coupl.inc (#458)" > coupl.inc.new
 cat coupl.inc | sed "s/($vecsize)/(NB_PAGE_MAX)/g" >> coupl.inc.new
 \mv coupl.inc.new coupl.inc
-cat coupl_write.inc | awk '{if($1=="WRITE(*,2)") print $0"(1)"; else print $0 }' > coupl_write.inc.new
-\mv coupl_write.inc.new coupl_write.inc
+gcs=$(cat coupl_write.inc | awk '{if($1=="WRITE(*,2)") print $NF}') # different printouts for scalar/vector couplings #456
+for gc in $gcs; do
+  if grep -q "$gc(NB_PAGE_MAX)" coupl.inc; then
+    ###echo "DEBUG: Coupling $gc is a vector"
+    cat coupl_write.inc | awk -vgc=$gc '{if($1=="WRITE(*,2)" && $NF==gc) print $0"(1)"; else print $0}' > coupl_write.inc.new
+    \mv coupl_write.inc.new coupl_write.inc
+  ###else
+  ###  echo "DEBUG: Coupling $gc is a scalar"
+  fi
+done
 for file in couplings.f couplings1.f couplings2.f; do
   cat ${file} | sed "s/      INCLUDE 'coupl.inc'/      include 'vector.inc'\n      include 'coupl.inc' ! NB must also include vector.inc/" > ${file}.new
   \mv ${file}.new ${file}
