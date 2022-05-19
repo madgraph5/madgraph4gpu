@@ -404,7 +404,7 @@ index ac07bbe8..4a4a76f7 100644
  C     SPECIAL CUTS
  C
 diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index cce95279..8753bafc 100644
+index cce95279..20bd400d 100644
 --- a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,17 @@
@@ -448,7 +448,7 @@ index cce95279..8753bafc 100644
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -36,25 +61,63 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -36,25 +61,65 @@ ifeq ($(strip $(MATRIX_HEL)),)
          MATRIX = $(patsubst %.f,%.o,$(wildcard matrix*.f))
  endif
  
@@ -469,6 +469,8 @@ index cce95279..8753bafc 100644
  
 -$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX)
 -	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
++LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458
++
 +ifeq (,$(wildcard fbridge.inc))
 +all: $(PROG)
 +else
@@ -519,7 +521,7 @@ index cce95279..8753bafc 100644
  $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
  	cd ../../Source/MODEL; make
  
-@@ -63,12 +126,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
+@@ -63,12 +128,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
  
  $(LIBDIR)libpdf.$(libext): 
  	cd ../../Source/PDF; make
@@ -536,7 +538,7 @@ index cce95279..8753bafc 100644
  
  # Dependencies
  
-@@ -88,5 +154,65 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -88,5 +156,65 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  
