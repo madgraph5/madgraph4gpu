@@ -75,5 +75,15 @@ echo "c NB vector.inc (defining nb_page_max) must be included before clusters.in
 cat cluster.inc | grep -v "      include 'vector.inc'" | sed "s/nb_page/nb_page_max/g" >> cluster.inc.new
 \mv cluster.inc.new cluster.inc
 cd - > /dev/null
+for p1dir in ${dir}/SubProcesses/P1_*; do
+  cd $p1dir > /dev/null
+  cat auto_dsig1.f \
+    | sed "s/NB_PAGE)/NB_PAGE_MAX)/" \
+    | sed "s/1,NB_PAGE/1,NB_PAGE_LOOP/" \
+    | sed "s/1, NB_PAGE/1, NB_PAGE_LOOP/" \
+    > auto_dsig1.f.new
+  \mv auto_dsig1.f.new auto_dsig1.f
+  cd - > /dev/null
+done
 
 exit $status
