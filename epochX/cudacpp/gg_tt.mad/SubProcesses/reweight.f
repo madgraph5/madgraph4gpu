@@ -1782,7 +1782,7 @@ c            s_rwfact=0d0
       return
       end
       
-      subroutine update_scale_coupling(all_p, all_wgt,all_q2fact, nb_page_loop2)
+      subroutine update_scale_coupling(all_p, all_wgt,all_q2fact)
       implicit none
 
 C
@@ -1800,7 +1800,7 @@ C      include 'maxparticles.inc'
       
       double precision all_p(4*maxdim/3+14,*), all_wgt(*)
       double precision all_q2fact(2,*)
-      integer i,j,k, nb_page_loop2
+      integer i,j,k
 
       logical setclscales
       external setclscales
@@ -1814,7 +1814,7 @@ c      save firsttime
       if(.not.fixed_ren_scale) then
          scale = 0d0
       endif
-      do i =1, nb_page_loop2
+      do i =1, nb_page_loop
 
          if(.not.fixed_ren_scale) then
             call set_ren_scale(all_p(1,i),scale)
