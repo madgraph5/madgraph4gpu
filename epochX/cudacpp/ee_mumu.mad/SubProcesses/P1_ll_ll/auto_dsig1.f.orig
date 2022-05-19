@@ -138,7 +138,7 @@ C     Continue only if IMODE is 0, 4 or 5
       ENDIF
       PD(0) = 0D0
       IPROC = 0
-      IPROC=IPROC+1  ! e+ e- > mu+ mu-
+      IPROC=IPROC+1
       PD(IPROC)=EP1*EM2
       IF (PDLABEL.EQ.'dressed')PD(IPROC)=EE_COMP_PROD(EP1_COMPONENTS
      $ ,EM2_COMPONENTS)
@@ -344,7 +344,7 @@ C     Continue only if IMODE is 0, 4 or 5
       ENDDO
       ALL_PD(0,:) = 0D0
       IPROC = 0
-      IPROC=IPROC+1  ! e+ e- > mu+ mu-
+      IPROC=IPROC+1
       DO IVEC=1, NB_PAGE
         ALL_PD(IPROC,IVEC)=EP1(IVEC)*EM2(IVEC)
         ALL_PD(0,IVEC)=ALL_PD(0,IVEC)+DABS(ALL_PD(IPROC,IVEC))
