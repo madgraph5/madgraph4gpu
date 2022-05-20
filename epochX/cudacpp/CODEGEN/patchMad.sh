@@ -6,13 +6,19 @@ scrdir=$(cd $(dirname $0); pwd)
 
 function usage()
 {
-  echo "Usage: $0 <process.[madonly|mad]> <vecsize>"
+  echo "Usage: $0 <process.[madonly|mad]> <vecsize> [--nopatch]"
   exit 1 
 }
 
+nopatch=0 # apply patch commands (default)
 if [ "${1%.madonly}" == "$1" ] && [ "${1%.mad}" == "$1" ]; then
   usage
-elif [ "$2" == "" ] || [ "$3" != "" ]; then
+elif [ "$2" == "" ]; then
+  usage
+elif [ "$3" == "--nopatch" ]; then
+  if [ "$4" != "" ]; then usage; fi
+  nopatch=1 # skip patch commands (produce a new reference)
+elif [ "$3" != "" ]; then
   usage
 fi
 dir=$1
@@ -41,9 +47,11 @@ touch ${dir}/Events/.keepme
 \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir} # new file
 \cp -dpr ${scrdir}/MG5aMC_patches/vector.inc ${dir}/Source # replace default
 \cp -dpr ${scrdir}/MG5aMC_patches/fbridge_common.inc ${dir}/SubProcesses # new file
-cd ${dir} > /dev/null
-if ! patch -p4 -i ${scrdir}/MG5aMC_patches/patch.common; then status=1; fi  
-cd - > /dev/null
+if [ "${nopatch}" == "0" ]; then
+  cd ${dir} > /dev/null
+  if ! patch -p4 -i ${scrdir}/MG5aMC_patches/patch.common; then status=1; fi  
+  cd - > /dev/null
+fi
 for p1dir in ${dir}/SubProcesses/P1_*; do
   cd $p1dir > /dev/null
   echo -e "madevent\n*madevent_cudacpp" > .gitignore # new file
@@ -52,7 +60,9 @@ for p1dir in ${dir}/SubProcesses/P1_*; do
   if [ "${dir%.mad}" == "$1" ]; then
     \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/gpu/timer.h . # new file, already present via cudacpp in *.mad
   fi
-  if ! patch -p6 -i ${scrdir}/MG5aMC_patches/patch.P1; then status=1; fi  
+  if [ "${nopatch}" == "0" ]; then
+    if ! patch -p6 -i ${scrdir}/MG5aMC_patches/patch.P1; then status=1; fi  
+  fi
   cd - > /dev/null
 done
 
@@ -90,7 +100,9 @@ for p1dir in ${dir}/SubProcesses/P1_*; do
     | sed "s/1, NB_PAGE/1, NB_PAGE_LOOP/" \
     > auto_dsig1.f.new
   \mv auto_dsig1.f.new auto_dsig1.f
-  if ! patch -p6 -i ${scrdir}/MG5aMC_patches/patch.auto_dsig1.f; then status=1; fi  
+  if [ "${nopatch}" == "0" ]; then
+    if ! patch -p6 -i ${scrdir}/MG5aMC_patches/patch.auto_dsig1.f; then status=1; fi  
+  fi
   \rm -f *.orig
   cd - > /dev/null
 done

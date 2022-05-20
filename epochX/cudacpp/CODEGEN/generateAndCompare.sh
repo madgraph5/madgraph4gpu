@@ -138,7 +138,7 @@ function codeGenAndDiff()
   # [NB: NEW! these patches are no longer applied to madonly, which is now meant as an out-of-the-box reference]
   ###if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ]; then
   if [ "${OUTBCK}" == "mad" ]; then
-    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize}
+    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${NOPATCH}
   fi
   # Compare the existing generated code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
@@ -175,7 +175,7 @@ function usage()
     echo "Usage: $0 [--nobrief] <proc>"
   else
     # NB: all options with $SCRBCK=cudacpp use the 311 branch by default and always disable helicity recycling
-    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--madonly|--mad|--madcpp|--madgpu] [--270] <proc>"
+    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--madonly|--mad|--madcpp|--madgpu] [--270] [--nopatch] <proc>"
   fi
   exit 1
 }
@@ -219,6 +219,9 @@ if [ "${SCRBCK}" == "alpaka" ] || [ "${SCRBCK}" == "gridpack" ]; then use270=1; 
 # Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
 UNTARONLY=1
 
+# Default: apply all patches in patchMad.sh (this is ignored unless --mad is also specified)
+NOPATCH=
+
 # Default for gridpacks: use helicity recycling (use --nohelrec to disable it)
 # (export the value to the untarGridpack.sh script)
 # Hardcoded for cudacpp and alpaka: disable helicity recycling (#400, #279) for the moment
@@ -231,6 +234,8 @@ for arg in "$@"; do
     usage
   elif [ "$arg" == "--nobrief" ]; then
     BRIEF=
+  elif [ "$arg" == "--nopatch" ]; then
+    NOPATCH=--nopatch
   elif [ "$arg" == "--270" ]; then
     use270=1
   elif [ "$arg" == "--nountaronly" ] && [ "${SCRBCK}" == "gridpack" ]; then
