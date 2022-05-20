@@ -53,6 +53,12 @@ PLUGIN_CULIB=mg5amc_$(processid_short)_cuda
 
 LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
 
+ifneq ("$(wildcard ../../Source/RUNNING)","")
+    LINKLIBS += -lrunning
+    LIBS += $(LIBDIR)librunning.$(libext) 
+endif
+
+
 # Source files
 
 MATRIX_HEL = $(patsubst %.f,%.o,$(wildcard matrix*_orig.f))
@@ -61,65 +67,25 @@ ifeq ($(strip $(MATRIX_HEL)),)
         MATRIX = $(patsubst %.f,%.o,$(wildcard matrix*.f))
 endif
 
-PROCESS= myamp.o genps.o unwgt.o setcuts.o get_color.o \
-         cuts.o cluster.o reweight.o initcluster.o addmothers.o setscales.o \
-	 idenparts.o dummy_fct.o
 
-DSIG=driver.o $(patsubst %.f, %.o, $(filter-out auto_dsig.f, $(wildcard auto_dsig*.f)))
-DSIG_cudacpp=driver_cudacpp.o $(patsubst %.f, %_cudacpp.o, $(filter-out auto_dsig.f, $(wildcard auto_dsig*.f)))
+PROCESS= driver.o myamp.o genps.o unwgt.o setcuts.o get_color.o \
+         cuts.o cluster.o reweight.o initcluster.o addmothers.o setscales.o \
+	 idenparts.o dummy_fct.o \
+         $(patsubst %.f,%.o,$(wildcard auto_dsig*.f)) \
 
 SYMMETRY = symmetry.o idenparts.o 
 
 # Binaries
 
-LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #458
-
-ifeq (,$(wildcard fbridge.inc))
-all: $(PROG)
-else
-all: $(PROG) $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp $(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp
-endif
-
-$(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
-	$(FC) -o $(PROG) $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o
-
-$(LIBS): .libs
-
-.libs: ../../Cards/param_card.dat ../../Cards/run_card.dat
-	cd ../../Source; make
-	touch $@
-
-ifneq (,$(wildcard fbridge.inc))
-$(PLUGIN_BUILDDIR)/.pluginlibs:
-	$(MAKE) -f $(PLUGIN_MAKEFILE)
-	touch $@
-endif
-
-# On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
-# Use relative paths with respect to the executables ($ORIGIN on Linux)
-# On Darwin, building libraries with absolute paths in LIBDIR makes this unnecessary
-ifeq ($(UNAME_S),Darwin)
-  override LIBFLAGSRPATH =
-else
-  override LIBFLAGSRPATH = -Wl,-rpath,'$$ORIGIN/$(LIBDIR)'
-endif
-
-$(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(PLUGIN_BUILDDIR)/.pluginlibs
-	$(FC) -o $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(PLUGIN_BUILDDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CXXLIB) $(LIBFLAGSRPATH)
-
-$(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(PLUGIN_BUILDDIR)/.pluginlibs
-	$(FC) -o $(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(PLUGIN_BUILDDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CULIB) $(LIBFLAGSRPATH)
-
-counters.o: counters.cpp timer.h
-	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
+$(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX)
+	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
 
 $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
 
-gensym: $(SYMMETRY) configs.inc $(LIBDIR)libmodel.$(libext) $(LIBDIR)libgeneric.$(libext)
-	$(FC) -o gensym $(SYMMETRY) -L$(LIBDIR) -lmodel -lgeneric -lpdf $(llhapdf) $(LDFLAGS)
+gensym: $(SYMMETRY) configs.inc $(LIBS)
+	$(FC) -o gensym $(SYMMETRY) -L../../lib/ $(LINKLIBS) $(LDFLAGS)
 
-ifeq (,$(wildcard fbridge.inc))
 $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
 	cd ../../Source/MODEL; make
 

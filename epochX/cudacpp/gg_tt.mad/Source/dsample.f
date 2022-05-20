@@ -181,12 +181,14 @@ c               fx = dsig(all_p(1,i),all_wgt(i),0)
 c               bckp(i) = fx
 c               write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
 c               all_wgt(i) = all_wgt(i)*fx
-               if (ivec.lt.nb_page_loop)then
+               if (ivec.lt.nb_page)then
                   cycle
                endif
                ivec=0
-c               call dsig(all_p,all_fx, all_wgt,0) !Evaluate function
-               do i=1, nb_page_loop
+               if (nb_page.le.1) then
+                  all_fx(1) = dsig(all_p, all_wgt,0)
+               else
+               do i=1, nb_page
 c                 need to restore common block                  
                   xbk(:) = all_xbk(:, i)
                   cm_rap = all_cm_rap(i)
@@ -211,17 +213,18 @@ c                     stop 1
 c                  endif
 c     write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
                enddo
-               do I=1, nb_page_loop
+               endif
+               do I=1, nb_page
                   all_wgt(i) = all_wgt(i)*all_fx(i)
               enddo
-               do i =1, nb_page_loop
+               do i =1, nb_page
 c     if last paremeter is true -> allow grid update so only for a full page
                   lastbin(:) = all_lastbin(:,i)
                   if (all_wgt(i) .ne. 0d0) kevent=kevent+1
-c                  write(*,*) 'put point in sample kevent', kevent, 'allow_update', ivec.eq.nb_page_loop                   
-                  call sample_put_point(all_wgt(i),all_x(1,i),iter,ipole, i.eq.nb_page_loop) !Store result
+c                  write(*,*) 'put point in sample kevent', kevent, 'allow_update', ivec.eq.nb_page                   
+                  call sample_put_point(all_wgt(i),all_x(1,i),iter,ipole, i.eq.nb_page) !Store result
                enddo
-               if (nb_page_loop.ne.1.and.force_reset)then
+               if (nb_page.ne.1.and.force_reset)then
                   call reset_cumulative_variable()
                   force_reset=.false.
                endif
