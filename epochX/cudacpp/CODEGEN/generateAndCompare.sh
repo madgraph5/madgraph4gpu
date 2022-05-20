@@ -356,8 +356,8 @@ fi
 
 # Copy MG5AMC patches if any
 if [ "${SCRBCK}" == "cudacpp" ]; then
-  patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f -name '*.py')
-  patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f -name '*.py')
+  ###patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f -name '*.py')
+  patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f ! -name '*.BZR')
   echo -e "Copy MG5aMC_patches/${mg5amcBrn} patches..."
   for patch in $patches; do
     patch=${patch#./}
