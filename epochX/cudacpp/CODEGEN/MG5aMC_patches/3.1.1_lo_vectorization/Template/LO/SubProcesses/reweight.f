@@ -24,7 +24,6 @@ c**************************************************
       include 'nexternal.inc'
       include 'message.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
       include 'sudakov.inc'
       include 'maxparticles.inc'
@@ -98,8 +97,7 @@ c**************************************************
       include 'message.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
-      include 'cluster.inc'
+      include 'cluster.inc'      
       integer ipdg,imode
       double precision q0, Q11
       double precision gamma,DGAUSS
@@ -564,10 +562,9 @@ c**************************************************
       include 'genps.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
-      include 'coupl.inc'
       include 'run.inc'
+      include 'coupl.inc'
       include 'run_config.inc'
 C   
 C   ARGUMENTS 
@@ -1318,10 +1315,9 @@ c**************************************************
       include 'genps.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
-      include 'coupl.inc'
       include 'run.inc'
+      include 'coupl.inc'
       include 'run_config.inc'
 C   
 C   ARGUMENTS 
@@ -1781,8 +1777,8 @@ c            s_rwfact=0d0
 
       return
       end
-      
-      subroutine update_scale_coupling(all_p, all_wgt,all_q2fact, nb_page)
+
+      subroutine update_scale_coupling(p, wgt)
       implicit none
 
 C
@@ -1794,7 +1790,32 @@ C
       include 'genps.inc'
       include 'run.inc'
       include 'nexternal.inc'
-      include 'vector.inc'
+      include 'coupl.inc'
+C      include 'maxparticles.inc'
+      
+      double precision all_p(4*maxdim/3+14,1), all_wgt(1)
+      double precision p(4*maxdim/3+14), wgt
+      double precision all_q2fact(2,1)
+      all_p(:,1) = p(:)
+      all_wgt(1) = wgt
+      call update_scale_coupling_vec(all_p, all_wgt,all_q2fact, 1)
+      wgt = all_wgt(1)
+      return
+      end
+
+      
+      subroutine update_scale_coupling_vec(all_p, all_wgt,all_q2fact, nb_page)
+      implicit none
+
+C
+C     PARAMETERS
+C
+      real*8 PI
+      parameter( PI = 3.14159265358979323846d0 )
+      
+      include 'genps.inc'
+      include 'run.inc'
+      include 'nexternal.inc'
       include 'coupl.inc'
 C      include 'maxparticles.inc'
       
@@ -1860,7 +1881,6 @@ c      ENDIF
 
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
 c     Common block for reweighting info
 c     q2bck holds the central q2fact scales
@@ -1926,7 +1946,6 @@ c     to_rw
 
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
 c     Common block for reweighting info
 c     q2bck holds the central q2fact scales
