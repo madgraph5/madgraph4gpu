@@ -1,27 +1,3 @@
-diff --git b/epochX/cudacpp/gg_tt.mad/Source/MODEL/makefile a/epochX/cudacpp/gg_tt.mad/Source/MODEL/makefile
-index f229bf59..3122ca9e 100644
---- b/epochX/cudacpp/gg_tt.mad/Source/MODEL/makefile
-+++ a/epochX/cudacpp/gg_tt.mad/Source/MODEL/makefile
-@@ -13,6 +13,7 @@ else
- endif
- 
- include makeinc.inc
-+FFLAGS+=-I..
- 
- LIBDIR=../../lib/
- LIBRARY=libmodel.$(libext)
-diff --git b/epochX/cudacpp/gg_tt.mad/Source/PDF/makefile a/epochX/cudacpp/gg_tt.mad/Source/PDF/makefile
-index d575d786..73964447 100644
---- b/epochX/cudacpp/gg_tt.mad/Source/PDF/makefile
-+++ a/epochX/cudacpp/gg_tt.mad/Source/PDF/makefile
-@@ -9,6 +9,7 @@ LIBRARY	      = libpdf.$(libext)
- LIBDIR        = ../../lib/
- 
- include ../make_opts
-+FFLAGS+=-I..
- 
- ifdef lhapdf
-   ifeq ($(lhapdfversion),5)
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/dsample.f a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
 index 0f9155f3..933ab3ec 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/dsample.f
@@ -120,36 +96,11 @@ index 0f9155f3..933ab3ec 100644
           events = max(events, maxtries)
           MC_GROUPED_SUBPROC = .false.
        else 
-diff --git b/epochX/cudacpp/gg_tt.mad/Source/rw_events.short.f a/epochX/cudacpp/gg_tt.mad/Source/rw_events.short.f
-index 0165c1b2..ff93cd2c 100644
---- b/epochX/cudacpp/gg_tt.mad/Source/rw_events.short.f
-+++ a/epochX/cudacpp/gg_tt.mad/Source/rw_events.short.f
-@@ -33,7 +33,6 @@ c
- c
- c     Global
- c
--c      include 'coupl.inc'
- c      real*8          scale
- 
-       logical banner_open
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f
-index e10bc230..b400925d 100644
+index c1226b21..2d20032a 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f
-@@ -4,9 +4,10 @@
-       implicit none
-       include 'genps.inc'
-       include 'nexternal.inc'
--      include 'coupl.inc'
-       include 'maxamps.inc'
--      include 'cluster.inc'
-+      include 'vector.inc'
-+      include 'cluster.inc' ! NB must also include vector.inc
-+      include 'coupl.inc' ! NB must also include vector.inc
-       include 'message.inc'
-       include 'run.inc'
- 
-@@ -45,7 +46,7 @@ c     Variables for combination of color indices (including multipart. vert)
+@@ -46,7 +46,7 @@ c     Variables for combination of color indices (including multipart. vert)
        save prmass,prwidth,pow
        data first_time /.true./
  
@@ -158,84 +109,10 @@ index e10bc230..b400925d 100644
        common/to_jamps/       jamp2
  
        integer           mincfig, maxcfig
-diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/cluster.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/cluster.f
-index 6be9b1ed..b69b8748 100644
---- b/epochX/cudacpp/gg_tt.mad/SubProcesses/cluster.f
-+++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/cluster.f
-@@ -173,7 +173,8 @@ c**************************************************************************
-       implicit none
-       include 'nexternal.inc'
-       include 'maxamps.inc'
--      include 'cluster.inc'
-+      include 'vector.inc'
-+      include 'cluster.inc' ! NB must also include vector.inc
-       include 'message.inc'
-       integer ignum, idij, iproc, i
- 
-@@ -203,8 +204,9 @@ c**************************************************************************
-       include 'genps.inc'
-       include 'nexternal.inc'
-       include 'maxamps.inc'
--      include 'cluster.inc'
--      include 'coupl.inc'
-+      include 'vector.inc'
-+      include 'cluster.inc' ! NB must also include vector.inc
-+      include 'coupl.inc' ! NB must also include vector.inc
-       include 'message.inc'
-       integer ignum, ipnum, ipids(nexternal,4,2:nexternal)
- C $B$ IFOREST $B$ !this is a tag for MadWeight
-@@ -331,7 +333,8 @@ c**************************************************************************
-       include 'genps.inc'
-       include 'nexternal.inc'
-       include 'maxamps.inc'
--      include 'cluster.inc'
-+      include 'vector.inc'
-+      include 'cluster.inc' ! NB must also include vector.inc
-       include 'message.inc'
- C $B$ IFOREST $B$ !this is a tag for MadWeight
-       integer mapconfig(0:lmaxconfigs), this_config
-@@ -441,7 +444,8 @@ c**************************************************************************
-       implicit none
-       include 'nexternal.inc'
-       include 'maxamps.inc'
--      include 'cluster.inc'
-+      include 'vector.inc'
-+      include 'cluster.inc' ! NB must also include vector.inc
-       include 'message.inc'
-       include 'genps.inc'
-       include 'run.inc'
-@@ -525,7 +529,8 @@ c**************************************************************************
-       include 'run.inc'
-       include 'nexternal.inc'
-       include 'maxamps.inc'
--      include 'cluster.inc'
-+      include 'vector.inc'
-+      include 'cluster.inc' ! NB must also include vector.inc
-       include 'message.inc'
- 
-       real*8 p(0:3,nexternal), pcmsp(0:3), p1(0:3)
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f
-index ce39ccba..2ad355fd 100644
+index 6b581bdf..32c71b45 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f
-@@ -69,7 +69,6 @@ C     GLOBAL
- C
-       include 'run.inc'
-       include 'cuts.inc'
--      include '../../Source/vector.inc'
-       
-       double precision ptjet(nexternal)
-       double precision ptheavyjet(nexternal)
-@@ -181,7 +180,8 @@ C     Sort array of results: ismode>0 for real, isway=0 for ascending order
-       parameter (isway=0)
-       parameter (izero=0)
- 
--      include 'coupl.inc'
-+      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
- 
- C
- C
 @@ -260,7 +260,7 @@ c         endif
  
           if(fixed_ren_scale) then
@@ -245,20 +122,6 @@ index ce39ccba..2ad355fd 100644
                 call update_as_param(i)
              enddo
           endif
-diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/idenparts.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/idenparts.f
-index f75246e6..c8e0c21f 100644
---- b/epochX/cudacpp/gg_tt.mad/SubProcesses/idenparts.f
-+++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/idenparts.f
-@@ -31,7 +31,8 @@ c
- c
- c     Global
- c
--      include 'coupl.inc'                     !Mass and width info
-+      include 'vector.inc'
-+      include 'coupl.inc' ! Mass and width info ! NB must also include vector.inc
-       double precision stot
-       common/to_stot/stot
- 
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 index cce95279..20bd400d 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
@@ -462,56 +325,10 @@ index cce95279..20bd400d 100644
 +	rm -f ../../Source/*.mod ../../Source/*/*.mod
 +	rm -f .libs
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
-index 3aa0d6b2..20da3228 100644
+index 76d85e56..2024700c 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
-@@ -24,7 +24,8 @@ c**************************************************
-       include 'nexternal.inc'
-       include 'message.inc'
-       include 'maxamps.inc'
--      include 'cluster.inc'
-+      include 'vector.inc'
-+      include 'cluster.inc' ! NB must also include vector.inc
-       include 'sudakov.inc'
-       include 'maxparticles.inc'
-       include 'run.inc'
-@@ -97,7 +98,8 @@ c**************************************************
-       include 'message.inc'
-       include 'nexternal.inc'
-       include 'maxamps.inc'
--      include 'cluster.inc'      
-+      include 'vector.inc'
-+      include 'cluster.inc' ! NB must also include vector.inc
-       integer ipdg,imode
-       double precision q0, Q11
-       double precision gamma,DGAUSS
-@@ -562,9 +564,10 @@ c**************************************************
-       include 'genps.inc'
-       include 'nexternal.inc'
-       include 'maxamps.inc'
--      include 'cluster.inc'
-+      include 'vector.inc'
-+      include 'cluster.inc' ! NB must also include vector.inc
-+      include 'coupl.inc' ! NB must also include vector.inc
-       include 'run.inc'
--      include 'coupl.inc'
-       include 'run_config.inc'
- C   
- C   ARGUMENTS 
-@@ -1315,9 +1318,10 @@ c**************************************************
-       include 'genps.inc'
-       include 'nexternal.inc'
-       include 'maxamps.inc'
--      include 'cluster.inc'
-+      include 'vector.inc'
-+      include 'cluster.inc' ! NB must also include vector.inc
-+      include 'coupl.inc' ! NB must also include vector.inc
-       include 'run.inc'
--      include 'coupl.inc'
-       include 'run_config.inc'
- C   
- C   ARGUMENTS 
-@@ -1778,7 +1782,7 @@ c            s_rwfact=0d0
+@@ -1782,7 +1782,7 @@ c            s_rwfact=0d0
        return
        end
        
@@ -520,14 +337,7 @@ index 3aa0d6b2..20da3228 100644
        implicit none
  
  C
-@@ -1790,12 +1794,13 @@ C
-       include 'genps.inc'
-       include 'run.inc'
-       include 'nexternal.inc'
--      include 'coupl.inc'
-+      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
- C      include 'maxparticles.inc'
+@@ -1800,7 +1800,7 @@ C      include 'maxparticles.inc'
        
        double precision all_p(4*maxdim/3+14,*), all_wgt(*)
        double precision all_q2fact(2,*)
@@ -536,7 +346,7 @@ index 3aa0d6b2..20da3228 100644
  
        logical setclscales
        external setclscales
-@@ -1809,7 +1814,7 @@ c      save firsttime
+@@ -1814,7 +1814,7 @@ c      save firsttime
        if(.not.fixed_ren_scale) then
           scale = 0d0
        endif
@@ -545,27 +355,7 @@ index 3aa0d6b2..20da3228 100644
  
           if(.not.fixed_ren_scale) then
              call set_ren_scale(all_p(1,i),scale)
-@@ -1855,7 +1860,8 @@ c      ENDIF
- 
-       include 'nexternal.inc'
-       include 'maxamps.inc'
--      include 'cluster.inc'
-+      include 'vector.inc'
-+      include 'cluster.inc' ! NB must also include vector.inc
- c     Common block for reweighting info
- c     q2bck holds the central q2fact scales
-       integer jlast(2)
-@@ -1920,7 +1926,8 @@ c     to_rw
- 
-       include 'nexternal.inc'
-       include 'maxamps.inc'
--      include 'cluster.inc'
-+      include 'vector.inc'
-+      include 'cluster.inc' ! NB must also include vector.inc
- c     Common block for reweighting info
- c     q2bck holds the central q2fact scales
-       integer jlast(2)
-@@ -1929,7 +1936,7 @@ c     q2bck holds the central q2fact scales
+@@ -1936,7 +1936,7 @@ c     q2bck holds the central q2fact scales
        integer njets,iqjets(nexternal)
        common /to_rw/jlast,njetstore,iqjetstore,njets,iqjets,q2bck
  
@@ -574,37 +364,3 @@ index 3aa0d6b2..20da3228 100644
        COMMON/STRONG/ G, ALL_G
  
  c     strong coupling is needed for the reweighting function      
-diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/unwgt.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/unwgt.f
-index fc94f0e7..edf7a401 100644
---- b/epochX/cudacpp/gg_tt.mad/SubProcesses/unwgt.f
-+++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/unwgt.f
-@@ -35,7 +35,8 @@ C
-       double precision xzoomfact
-       common/to_zoom/  xzoomfact
-       include 'run.inc'
--      include 'coupl.inc'
-+      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
- c
- c     DATA
- c
-@@ -465,7 +466,9 @@ c
-       include 'nexternal.inc'
-       include 'maxamps.inc'
-       include 'message.inc'
--      include 'cluster.inc'
-+      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
-+      include 'cluster.inc' ! NB must also include vector.inc
-       include 'run.inc'
-       include 'run_config.inc'
- 
-@@ -544,8 +547,6 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
- c      data ncolflow/maxamps*0/
- c      data ncolalt/maxamps*0/
- 
--      include 'coupl.inc'
--
-       include 'lhe_event_infos.inc'
-       data AlreadySetInBiasModule/.False./
- 
