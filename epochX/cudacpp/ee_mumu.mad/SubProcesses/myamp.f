@@ -53,7 +53,7 @@ c
       common/to_BWEvents/ OnBW
       
       include 'vector.inc'
-      include 'coupl.inc' ! NB must also include vector.inc
+      include 'coupl.inc'
 
       integer idup(nexternal,maxproc,maxsproc)
       integer mothup(2,nexternal)
@@ -287,7 +287,7 @@ c
       common/to_stot/stot,m1,m2
 
       include 'vector.inc'
-      include 'coupl.inc' ! NB must also include vector.inc
+      include 'coupl.inc'
       include 'cuts.inc'
 C
 C     SPECIAL CUTS

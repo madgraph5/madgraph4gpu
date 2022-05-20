@@ -430,7 +430,7 @@ C     Common blocks
       COMMON /NB_HEL_STATE/ NB_SPIN_STATE
 
       include 'vector.inc'
-      include 'coupl.inc' ! NB must also include vector.inc
+      include 'coupl.inc'
       INCLUDE 'run.inc'
 C     ICONFIG has this config number
       INTEGER MAPCONFIG(0:LMAXCONFIGS), ICONFIG
@@ -770,7 +770,7 @@ C     ****************************************************
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxamps.inc'
       include 'vector.inc'
-      include 'coupl.inc' ! NB must also include vector.inc
+      include 'coupl.inc'
       INCLUDE 'run.inc'
 C     
 C     ARGUMENTS 
@@ -897,7 +897,7 @@ C     ****************************************************
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxamps.inc'
       include 'vector.inc'
-      include 'coupl.inc' ! NB must also include vector.inc
+      include 'coupl.inc'
       INCLUDE 'run.inc'
 C     
 C     ARGUMENTS 

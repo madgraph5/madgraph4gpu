@@ -13,7 +13,7 @@ c************************************************************************
       logical readlha
 
       include 'vector.inc'
-      include 'coupl.inc' ! NB must also include vector.inc
+      include 'coupl.inc'
       include 'input.inc'
       include 'model_functions.inc'
 

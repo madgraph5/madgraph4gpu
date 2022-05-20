@@ -13,5 +13,5 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       PARAMETER  (ZERO=0D0)
       INCLUDE 'input.inc'
       include 'vector.inc'
-      include 'coupl.inc' ! NB must also include vector.inc
+      include 'coupl.inc'
       END
