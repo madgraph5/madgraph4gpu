@@ -1,5 +1,5 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index 78cad8ef..48414a39 100644
+index 1734289b..48414a39 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 @@ -76,13 +76,13 @@ C     Keep track of whether cuts already calculated for this event
@@ -36,17 +36,6 @@ index 78cad8ef..48414a39 100644
        INCLUDE 'run.inc'
  
        DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
-@@ -309,8 +309,8 @@ C
- C     
- C     DATA
- C     
--      DATA G1/NB_PAGE*1D0/
--      DATA G2/NB_PAGE*1D0/
-+      DATA G1/NB_PAGE_MAX*1D0/
-+      DATA G2/NB_PAGE_MAX*1D0/
- C     ----------
- C     BEGIN CODE
- C     ----------
 @@ -452,7 +452,8 @@ C
        USE OMP_LIB
  
