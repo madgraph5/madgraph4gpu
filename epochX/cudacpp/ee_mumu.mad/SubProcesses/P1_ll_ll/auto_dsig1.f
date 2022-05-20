@@ -323,8 +323,8 @@ C
 C     
 C     DATA
 C     
-      DATA EP1/NB_PAGE*1D0/
-      DATA EM2/NB_PAGE*1D0/
+      DATA EP1/NB_PAGE_MAX*1D0/
+      DATA EM2/NB_PAGE_MAX*1D0/
 C     ----------
 C     BEGIN CODE
 C     ----------
