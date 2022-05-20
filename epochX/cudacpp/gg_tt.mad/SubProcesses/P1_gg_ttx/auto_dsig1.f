@@ -83,7 +83,6 @@ C     Common blocks
       CHARACTER*7         PDLABEL,EPA_LABEL
       INTEGER       LHAID
       COMMON/TO_PDF/LHAID,PDLABEL,EPA_LABEL
-      INCLUDE 'vector.inc'
 C     jamp2 information
       DOUBLE PRECISION JAMP2(0:MAXFLOW, NB_PAGE_MAX)
       COMMON/TO_JAMPS/       JAMP2
@@ -310,8 +309,8 @@ C
 C     
 C     DATA
 C     
-      DATA G1/NB_PAGE*1D0/
-      DATA G2/NB_PAGE*1D0/
+      DATA G1/NB_PAGE_MAX*1D0/
+      DATA G2/NB_PAGE_MAX*1D0/
 C     ----------
 C     BEGIN CODE
 C     ----------

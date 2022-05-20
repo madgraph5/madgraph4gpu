@@ -775,7 +775,6 @@ C     ****************************************************
       include 'vector.inc'
       include 'coupl.inc'
       INCLUDE 'run.inc'
-      INCLUDE 'vector.inc'
 C     
 C     ARGUMENTS 
 C     
@@ -863,7 +862,7 @@ C
       ENDIF
 C     set the running scale 
 C     and update the couplings accordingly
-      IF (NB_PAGE.LE.1) THEN
+      IF (NB_PAGE_LOOP.LE.1) THEN
         CALL UPDATE_SCALE_COUPLING(PP, WGT)
       ENDIF
 
