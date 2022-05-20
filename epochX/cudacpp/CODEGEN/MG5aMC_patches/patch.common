@@ -1,7 +1,7 @@
-diff --git a/epochX/cudacpp/gg_tt.mad/Source/MODEL/makefile b/epochX/cudacpp/gg_tt.mad/Source/MODEL/makefile
+diff --git b/epochX/cudacpp/gg_tt.mad/Source/MODEL/makefile a/epochX/cudacpp/gg_tt.mad/Source/MODEL/makefile
 index f229bf59..3122ca9e 100644
---- a/epochX/cudacpp/gg_tt.mad/Source/MODEL/makefile
-+++ b/epochX/cudacpp/gg_tt.mad/Source/MODEL/makefile
+--- b/epochX/cudacpp/gg_tt.mad/Source/MODEL/makefile
++++ a/epochX/cudacpp/gg_tt.mad/Source/MODEL/makefile
 @@ -13,6 +13,7 @@ else
  endif
  
@@ -10,52 +10,10 @@ index f229bf59..3122ca9e 100644
  
  LIBDIR=../../lib/
  LIBRARY=libmodel.$(libext)
-diff --git a/epochX/cudacpp/gg_tt.mad/Source/MODEL/printout.f b/epochX/cudacpp/gg_tt.mad/Source/MODEL/printout.f
-index d0e6c0a1..2b9b695b 100644
---- a/epochX/cudacpp/gg_tt.mad/Source/MODEL/printout.f
-+++ b/epochX/cudacpp/gg_tt.mad/Source/MODEL/printout.f
-@@ -9,7 +9,8 @@ c************************************************************************
-       subroutine printout
-       implicit none
- 
--      include 'coupl.inc'
-+      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
-       include 'input.inc'
-       
-       include 'formats.inc'
-diff --git a/epochX/cudacpp/gg_tt.mad/Source/MODEL/rw_para.f b/epochX/cudacpp/gg_tt.mad/Source/MODEL/rw_para.f
-index 9640abaf..7f220441 100644
---- a/epochX/cudacpp/gg_tt.mad/Source/MODEL/rw_para.f
-+++ b/epochX/cudacpp/gg_tt.mad/Source/MODEL/rw_para.f
-@@ -12,7 +12,8 @@ c************************************************************************
-       character*(*) param_name
-       logical readlha
- 
--      include 'coupl.inc'
-+      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
-       include 'input.inc'
-       include 'model_functions.inc'
- 
-diff --git a/epochX/cudacpp/gg_tt.mad/Source/PDF/ElectroweakFlux.inc b/epochX/cudacpp/gg_tt.mad/Source/PDF/ElectroweakFlux.inc
-index 188b1071..a93c5475 100644
---- a/epochX/cudacpp/gg_tt.mad/Source/PDF/ElectroweakFlux.inc
-+++ b/epochX/cudacpp/gg_tt.mad/Source/PDF/ElectroweakFlux.inc
-@@ -46,7 +46,8 @@ c     /* ********************************************************* *
- 	parameter (eva_pi   = 3.141592653589793d0)
- 	parameter (eva_sqr2 = 1.414213562373095d0)
- 
--	include '../MODEL/coupl.inc'
-+	include 'vector.inc'
-+	include 'coupl.inc' ! NB must also include vector.inc
- 
- 	logical first
- 	data first /.true./
-diff --git a/epochX/cudacpp/gg_tt.mad/Source/PDF/makefile b/epochX/cudacpp/gg_tt.mad/Source/PDF/makefile
+diff --git b/epochX/cudacpp/gg_tt.mad/Source/PDF/makefile a/epochX/cudacpp/gg_tt.mad/Source/PDF/makefile
 index d575d786..73964447 100644
---- a/epochX/cudacpp/gg_tt.mad/Source/PDF/makefile
-+++ b/epochX/cudacpp/gg_tt.mad/Source/PDF/makefile
+--- b/epochX/cudacpp/gg_tt.mad/Source/PDF/makefile
++++ a/epochX/cudacpp/gg_tt.mad/Source/PDF/makefile
 @@ -9,6 +9,7 @@ LIBRARY	      = libpdf.$(libext)
  LIBDIR        = ../../lib/
  
@@ -64,10 +22,10 @@ index d575d786..73964447 100644
  
  ifdef lhapdf
    ifeq ($(lhapdfversion),5)
-diff --git a/epochX/cudacpp/gg_tt.mad/Source/dsample.f b/epochX/cudacpp/gg_tt.mad/Source/dsample.f
+diff --git b/epochX/cudacpp/gg_tt.mad/Source/dsample.f a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
 index 0f9155f3..933ab3ec 100644
---- a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
-+++ b/epochX/cudacpp/gg_tt.mad/Source/dsample.f
+--- b/epochX/cudacpp/gg_tt.mad/Source/dsample.f
++++ a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
 @@ -25,16 +25,16 @@ c
  c Local
  c
@@ -162,10 +120,10 @@ index 0f9155f3..933ab3ec 100644
           events = max(events, maxtries)
           MC_GROUPED_SUBPROC = .false.
        else 
-diff --git a/epochX/cudacpp/gg_tt.mad/Source/rw_events.short.f b/epochX/cudacpp/gg_tt.mad/Source/rw_events.short.f
+diff --git b/epochX/cudacpp/gg_tt.mad/Source/rw_events.short.f a/epochX/cudacpp/gg_tt.mad/Source/rw_events.short.f
 index 0165c1b2..ff93cd2c 100644
---- a/epochX/cudacpp/gg_tt.mad/Source/rw_events.short.f
-+++ b/epochX/cudacpp/gg_tt.mad/Source/rw_events.short.f
+--- b/epochX/cudacpp/gg_tt.mad/Source/rw_events.short.f
++++ a/epochX/cudacpp/gg_tt.mad/Source/rw_events.short.f
 @@ -33,7 +33,6 @@ c
  c
  c     Global
@@ -174,24 +132,10 @@ index 0165c1b2..ff93cd2c 100644
  c      real*8          scale
  
        logical banner_open
-diff --git a/epochX/cudacpp/gg_tt.mad/Source/setrun.f b/epochX/cudacpp/gg_tt.mad/Source/setrun.f
-index 66225d49..f66d0c35 100644
---- a/epochX/cudacpp/gg_tt.mad/Source/setrun.f
-+++ b/epochX/cudacpp/gg_tt.mad/Source/setrun.f
-@@ -15,7 +15,8 @@ c
-       include 'PDF/pdf.inc'
-       include 'run.inc'
-       include 'alfas.inc'
--      include 'MODEL/coupl.inc'
-+      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
- 
-       double precision D
-       common/to_dj/D
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f
+diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f
 index e10bc230..b400925d 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f
+--- b/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f
++++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/addmothers.f
 @@ -4,9 +4,10 @@
        implicit none
        include 'genps.inc'
@@ -214,10 +158,10 @@ index e10bc230..b400925d 100644
        common/to_jamps/       jamp2
  
        integer           mincfig, maxcfig
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/cluster.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/cluster.f
+diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/cluster.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/cluster.f
 index 6be9b1ed..b69b8748 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/cluster.f
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/cluster.f
+--- b/epochX/cudacpp/gg_tt.mad/SubProcesses/cluster.f
++++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/cluster.f
 @@ -173,7 +173,8 @@ c**************************************************************************
        implicit none
        include 'nexternal.inc'
@@ -270,10 +214,10 @@ index 6be9b1ed..b69b8748 100644
        include 'message.inc'
  
        real*8 p(0:3,nexternal), pcmsp(0:3), p1(0:3)
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f
+diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f
 index ce39ccba..2ad355fd 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f
+--- b/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f
++++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/cuts.f
 @@ -69,7 +69,6 @@ C     GLOBAL
  C
        include 'run.inc'
@@ -301,24 +245,10 @@ index ce39ccba..2ad355fd 100644
                 call update_as_param(i)
              enddo
           endif
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/genps.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/genps.f
-index 9fc24fee..8b5adb07 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/genps.f
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/genps.f
-@@ -1799,7 +1799,8 @@ c     find the boost momenta --sum of particles--
-       include 'nexternal.inc'
-       include 'genps.inc'
-       include 'maxamps.inc'
--      include 'coupl.inc'
-+      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
- c     include 'run.inc'
- 
-       double precision p(0:3, nexternal)
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/idenparts.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/idenparts.f
+diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/idenparts.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/idenparts.f
 index f75246e6..c8e0c21f 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/idenparts.f
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/idenparts.f
+--- b/epochX/cudacpp/gg_tt.mad/SubProcesses/idenparts.f
++++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/idenparts.f
 @@ -31,7 +31,8 @@ c
  c
  c     Global
@@ -329,24 +259,10 @@ index f75246e6..c8e0c21f 100644
        double precision stot
        common/to_stot/stot
  
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/initcluster.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/initcluster.f
-index ac07bbe8..4a4a76f7 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/initcluster.f
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/initcluster.f
-@@ -7,7 +7,8 @@
-       include 'run.inc'
-       include 'nexternal.inc'
-       include 'maxamps.inc'
--      include 'cluster.inc'
-+      include 'vector.inc'
-+      include 'cluster.inc' ! NB must also include vector.inc
- C
- C     SPECIAL CUTS
- C
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
+diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 index cce95279..20bd400d 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
+--- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
++++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,17 @@
  include ../../Source/make_opts
  FFLAGS+= -w
@@ -545,34 +461,10 @@ index cce95279..20bd400d 100644
 +endif
 +	rm -f ../../Source/*.mod ../../Source/*/*.mod
 +	rm -f .libs
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/myamp.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/myamp.f
-index 7b4b7888..b82e64d6 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/myamp.f
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/myamp.f
-@@ -52,7 +52,8 @@ c
-       logical             OnBW(-nexternal:0)     !Set if event is on B.W.
-       common/to_BWEvents/ OnBW
-       
--      include 'coupl.inc'
-+      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
- 
-       integer idup(nexternal,maxproc,maxsproc)
-       integer mothup(2,nexternal)
-@@ -285,7 +286,8 @@ c
-       double precision stot,m1,m2
-       common/to_stot/stot,m1,m2
- 
--      include 'coupl.inc'
-+      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
-       include 'cuts.inc'
- C
- C     SPECIAL CUTS
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
+diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
 index 3aa0d6b2..20da3228 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
+--- b/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
++++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
 @@ -24,7 +24,8 @@ c**************************************************
        include 'nexternal.inc'
        include 'message.inc'
@@ -682,82 +574,10 @@ index 3aa0d6b2..20da3228 100644
        COMMON/STRONG/ G, ALL_G
  
  c     strong coupling is needed for the reweighting function      
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/setcuts.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/setcuts.f
-index 9c926e61..9d01442e 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/setcuts.f
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/setcuts.f
-@@ -8,7 +8,8 @@ c     INCLUDE
- c
-       include 'genps.inc'
-       include 'nexternal.inc'
--      include 'coupl.inc'
-+      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
-       include 'run.inc'
-       include 'cuts.inc'
- c
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/setscales.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/setscales.f
-index 493fafaf..1ac42678 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/setscales.f
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/setscales.f
-@@ -11,7 +11,8 @@ c     INCLUDE and COMMON
- c
-       include 'genps.inc'
-       include 'nexternal.inc'
--      include 'coupl.inc'
-+      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
- 
-       integer i
-       include 'maxamps.inc'
-@@ -108,7 +109,8 @@ c     INCLUDE and COMMON
- c
-       include 'genps.inc'
-       include 'nexternal.inc'
--      include 'coupl.inc'
-+      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
-       include 'run.inc'
- c--masses and poles
- c
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/symmetry.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/symmetry.f
-index 351706c5..1d10349a 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/symmetry.f
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/symmetry.f
-@@ -38,7 +38,8 @@ c
- c
- c     Global
- c
--      include 'coupl.inc'
-+      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
-       logical gridpack
-       common/to_gridpack/gridpack
-       double precision stot
-@@ -322,7 +323,8 @@ c
- c
- c     Global
- c
--      include 'coupl.inc'                     !Mass and width info
-+      include 'vector.inc'
-+      include 'coupl.inc' ! Mass and width info ! NB must also include vector.inc
-       double precision stot
-       common/to_stot/stot
- 
-@@ -459,7 +461,8 @@ c
-       common/to_bwcutoff/bwcutoff
-       double precision stot
-       common/to_stot/stot
--      include 'coupl.inc'                     !Mass and width info
-+      include 'vector.inc'
-+      include 'coupl.inc' ! Mass and width info ! NB must also include vector.inc
- 
- c-----
- c  Begin Code
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/unwgt.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/unwgt.f
+diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/unwgt.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/unwgt.f
 index fc94f0e7..edf7a401 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/unwgt.f
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/unwgt.f
+--- b/epochX/cudacpp/gg_tt.mad/SubProcesses/unwgt.f
++++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/unwgt.f
 @@ -35,7 +35,8 @@ C
        double precision xzoomfact
        common/to_zoom/  xzoomfact
