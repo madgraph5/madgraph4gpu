@@ -1,5 +1,5 @@
 diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index 845f883c..32420f00 100644
+index 845f883c..e488c70f 100644
 --- a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 @@ -76,7 +76,8 @@ C     Keep track of whether cuts already calculated for this event
@@ -8,7 +8,7 @@ index 845f883c..32420f00 100644
        COMMON/TO_SUB_DIAG/SUBDIAG,IB
 -      INCLUDE 'coupl.inc'
 +      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
++      include 'coupl.inc'
        INCLUDE 'run.inc'
  C     Common blocks
        CHARACTER*7         PDLABEL,EPA_LABEL
@@ -18,7 +18,7 @@ index 845f883c..32420f00 100644
  C     
 -      INCLUDE '../../Source/vector.inc'
 +      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
++      include 'coupl.inc'
        INCLUDE 'genps.inc'
        INCLUDE 'nexternal.inc'
        INCLUDE 'maxconfigs.inc'
@@ -36,7 +36,7 @@ index 845f883c..32420f00 100644
        INCLUDE 'nexternal.inc'
 -      INCLUDE '../../Source/vector.inc'
 +      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
++      include 'coupl.inc'
        INCLUDE 'maxamps.inc'
        DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
        DOUBLE PRECISION HEL_RAND(NB_PAGE_MAX)
