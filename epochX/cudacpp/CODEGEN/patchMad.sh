@@ -47,13 +47,9 @@ touch ${dir}/Events/.keepme
 \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir} # new file
 \cp -dpr ${scrdir}/MG5aMC_patches/vector.inc ${dir}/Source # replace default
 \cp -dpr ${scrdir}/MG5aMC_patches/fbridge_common.inc ${dir}/SubProcesses # new file
-for file in ${dir}/Source/MODEL/printout.f ${dir}/Source/MODEL/rw_para.f; do cat ${file} | sed "s|include 'coupl.inc'|include 'vector.inc'\n      include 'coupl.inc' ! NB must also include vector.inc|" > ${file}.new; \mv ${file}.new ${file}; done
-for file in ${dir}/Source/PDF/ElectroweakFlux.inc; do cat ${file} | sed "s|include '../MODEL/coupl.inc'|include 'vector.inc'\n        include 'coupl.inc' ! NB must also include vector.inc|" > ${file}.new; \mv ${file}.new ${file}; done
-for file in ${dir}/Source/setrun.f; do cat ${file} | sed "s|include 'MODEL/coupl.inc'|include 'vector.inc'\n      include 'coupl.inc' ! NB must also include vector.inc|" > ${file}.new; \mv ${file}.new ${file}; done
+for file in ${dir}/Source/MODEL/rw_para.f; do cat ${file} | sed "s|include 'coupl.inc'|include 'vector.inc'\n      include 'coupl.inc'|" > ${file}.new; \mv ${file}.new ${file}; done
+for file in ${dir}/Source/PDF/ElectroweakFlux.inc; do cat ${file} | sed "s|include '../MODEL/coupl.inc'|include 'vector.inc'\n        include 'coupl.inc'|" > ${file}.new; \mv ${file}.new ${file}; done
 cd ${dir}/SubProcesses
-for file in symmetry.f; do cat ${file} | sed "s|include 'coupl.inc'.*Mass and width info|include 'vector.inc'\n      include 'coupl.inc' ! Mass and width info ! NB must also include vector.inc|" > ${file}.new; \mv ${file}.new ${file}; done
-for file in genps.f myamp.f setcuts.f setscales.f symmetry.f; do cat ${file} | sed "s|include 'coupl.inc'$|include 'vector.inc'\n      include 'coupl.inc' ! NB must also include vector.inc|" > ${file}.new; \mv ${file}.new ${file}; done
-for file in initcluster.f; do cat ${file} | sed "s|include 'cluster.inc'|include 'vector.inc'\n      include 'cluster.inc' ! NB must also include vector.inc|" > ${file}.new; \mv ${file}.new ${file}; done
 cd - > /dev/null
 if [ "${nopatch}" == "0" ]; then
   cd ${dir}
@@ -90,7 +86,7 @@ for gc in $gcs; do
   ###  echo "DEBUG: Coupling $gc is a scalar"
   fi
 done
-for file in couplings.f couplings1.f couplings2.f; do cat ${file} | sed "s|INCLUDE 'coupl.inc'|include 'vector.inc'\n      include 'coupl.inc' ! NB must also include vector.inc|" > ${file}.new; \mv ${file}.new ${file}; done
+for file in couplings.f couplings1.f couplings2.f; do cat ${file} | sed "s|INCLUDE 'coupl.inc'|include 'vector.inc'\n      include 'coupl.inc'|" > ${file}.new; \mv ${file}.new ${file}; done
 cd - > /dev/null
 cd ${dir}/SubProcesses > /dev/null
 echo "c NB vector.inc (defining nb_page_max) must be included before clusters.inc (#458)" > cluster.inc.new
