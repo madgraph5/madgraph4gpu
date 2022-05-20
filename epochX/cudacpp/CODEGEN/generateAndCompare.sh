@@ -47,6 +47,8 @@ function codeGenAndDiff()
   esac
   echo -e "\n+++ Generate code for '$proc'\n"
   ###exit 0 # FOR DEBUGGING
+  # Vector size for mad/madonly meexporter (nb_page_max)
+  vecsize=16384 # NB THIS IS IGNORED ANYWAY (ALL HARDCODED VALUES ARE REPLACED IN PATCHMAD.SH)...
   # Generate code for the specific process
   pushd $MG5AMC_HOME >& /dev/null
   outproc=CODEGEN_${OUTBCK}_${proc}
@@ -71,13 +73,13 @@ function codeGenAndDiff()
     elif [ "${SCRBCK}" == "alpaka" ]; then # $SCRBCK=$OUTBCK=alpaka
       echo "output standalone_${SCRBCK}_cudacpp ${outproc}" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madonly" ]; then # $SCRBCK=cudacpp and $OUTBCK=madonly
-      echo "output madevent ${outproc} ${helrecopt} --vector_size=16" >> ${outproc}.mg
+      echo "output madevent ${outproc} ${helrecopt} --vector_size=${vecsize}" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "mad" ]; then # $SCRBCK=cudacpp and $OUTBCK=mad
-      echo "output madevent ${outproc} ${helrecopt} --vector_size=16 --me_exporter=standalone_cudacpp" >> ${outproc}.mg
+      echo "output madevent ${outproc} ${helrecopt} --vector_size=${vecsize} --me_exporter=standalone_cudacpp" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madcpp" ]; then # $SCRBCK=cudacpp and $OUTBCK=madcpp
-      echo "output madevent ${outproc} ${helrecopt} --vector_size=16 --me_exporter=standalone_cpp" >> ${outproc}.mg
+      echo "output madevent ${outproc} ${helrecopt} --vector_size=32 --me_exporter=standalone_cpp" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madgpu" ]; then # $SCRBCK=cudacpp and $OUTBCK=madgpu
-      echo "output madevent ${outproc} ${helrecopt} --vector_size=16 --me_exporter=standalone_gpu" >> ${outproc}.mg
+      echo "output madevent ${outproc} ${helrecopt} --vector_size=32 --me_exporter=standalone_gpu" >> ${outproc}.mg
     else # $SCRBCK=cudacpp and $OUTBCK=cudacpp, cpp or gpu
       echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
     fi
@@ -132,9 +134,9 @@ function codeGenAndDiff()
     cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | tail -n+4 | sort >> ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
     \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat
   fi
-  # Additional setup and cleanup for madonly and mad directories
+  # Additional patches for madonly and mad directories (integration of Fortran and cudacpp)
   if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ]; then
-    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} # delegate to patchMad.sh (similarly to what is done with untarGridpack.sh)
+    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize}
   fi
   # Compare the existing generated code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null

@@ -1,11 +1,4 @@
 C
-C Common block for internal communication between MadEvent components
-C - MEEXPORTER_PBRIDGE: the memory address of the C++ Bridge
-C
-      INTEGER*8 MEEXPORTER_PBRIDGE ! 64bit memory address
-      COMMON/TO_MEEXPORTER/MEEXPORTER_PBRIDGE
-      
-C
 C Create a Bridge and return its pointer
 C - PBRIDGE: the memory address of the C++ Bridge
 C - NEVT:    the number of events in the Fortran arrays

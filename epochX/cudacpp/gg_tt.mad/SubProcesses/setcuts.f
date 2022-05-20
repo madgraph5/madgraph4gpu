@@ -8,7 +8,8 @@ c     INCLUDE
 c
       include 'genps.inc'
       include 'nexternal.inc'
-      include 'coupl.inc'
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
       include 'run.inc'
       include 'cuts.inc'
 c

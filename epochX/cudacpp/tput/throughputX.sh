@@ -9,7 +9,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-nocpp|[-omp][-avxall][-nocuda]] [-auto|-autoonly] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-nocpp|[-omp][-avxall][-nocuda]] [-mad] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -49,6 +49,10 @@ verbose=0
 
 dlp=
 
+# Optional hack to build only the cudacpp plugin in .mad directories
+makef=
+###makef="-f Makefile"
+
 if [ "$bckend" != "alpaka" ]; then alpaka=0; fi # alpaka mode is only available in the alpaka directory
 
 while [ "$1" != "" ]; do
@@ -70,13 +74,8 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-heftggh" ]; then
     heftggh=1
     shift
-  elif [ "$1" == "-auto" ]; then
-    if [ "${suffs}" == ".auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
-    suffs="/ .auto/"
-    shift
-  elif [ "$1" == "-autoonly" ]; then
-    if [ "${suffs}" == "/ .auto/" ]; then echo "ERROR! Options -auto and -autoonly are incompatible"; usage; fi
-    suffs=".auto/"
+  elif [ "$1" == "-mad" ]; then
+    suffs=".mad/"
     shift
   elif [ "$1" == "-omp" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
@@ -214,22 +213,24 @@ fi
 unames=$(uname -s)
 unamep=$(uname -p)
 
-###echo -e "\n********************************************************************************\n"
-printf "\n"
-
-##########################################################################
-# PART 1 - compile the list of the executables which should be run
-##########################################################################
-
-exes=
-
-for suff in $suffs; do
-
-  #=====================================
-  # CUDA   (epochX - manual/auto)
-  # ALPAKA (epochX - manual/auto)
-  #=====================================
-  if [ "${cuda}" == "1" ]; then
+# Determine the working directory below topdir based on suff, bckend and <process>
+function showdir()
+{
+  if [ "${suff}" == ".mad/" ]; then
+    if [ "${eemumu}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_ll_ll
+    elif [ "${ggtt}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_gg_ttx
+    elif [ "${ggttg}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttg${suff}SubProcesses/P1_gg_ttxg
+    elif [ "${ggttgg}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_gg_ttxgg
+    elif [ "${ggttggg}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_gg_ttxggg
+    elif [ "${heftggh}" == "1" ]; then 
+      echo "ERROR! Options -mad and -madonly are not supported with -heftggh"; exit 1
+    fi
+  else
     if [ "${eemumu}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
     elif [ "${ggtt}" == "1" ]; then 
@@ -243,6 +244,27 @@ for suff in $suffs; do
     elif [ "${heftggh}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/heft_gg_h${suff}/SubProcesses/P1_Sigma_heft_gg_h
     fi
+  fi
+  echo $dir
+}
+
+###echo -e "\n********************************************************************************\n"
+printf "\n"
+
+##########################################################################
+# PART 1 - compile the list of the executables which should be run
+##########################################################################
+
+exes=
+
+for suff in $suffs; do
+
+  #=====================================
+  # CUDA   (epochX - manual/mad)
+  # ALPAKA (epochX - manual/auto)
+  #=====================================
+  if [ "${cuda}" == "1" ]; then
+    dir=$(showdir)
     for hrdcod in $hrdcods; do
       hrdsuf=_hrd${hrdcod}
       if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
@@ -258,22 +280,10 @@ for suff in $suffs; do
   fi
   
   #=====================================
-  # C++ (eemumu/epochX - manual/auto)
+  # C++ (eemumu/epochX - manual/mad)
   #=====================================
   if [ "${cpp}" == "1" ]; then 
-    if [ "${eemumu}" == "1" ]; then 
-      dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
-    elif [ "${ggtt}" == "1" ]; then 
-      dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
-    elif [ "${ggttg}" == "1" ]; then 
-      dir=$topdir/epochX/${bckend}/gg_ttg${suff}SubProcesses/P1_Sigma_sm_gg_ttxg
-    elif [ "${ggttgg}" == "1" ]; then 
-      dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
-    elif [ "${ggttggg}" == "1" ]; then 
-      dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
-    elif [ "${heftggh}" == "1" ]; then 
-      dir=$topdir/epochX/${bckend}/heft_gg_h${suff}/SubProcesses/P1_Sigma_heft_gg_h
-    fi
+    dir=$(showdir)
     for hrdcod in $hrdcods; do
       hrdsuf=_hrd${hrdcod}
       if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
@@ -307,20 +317,7 @@ done
 
 for suff in $suffs; do
 
-  if [ "${eemumu}" == "1" ]; then 
-    dir=$topdir/epochX/${bckend}/ee_mumu${suff}SubProcesses/P1_Sigma_sm_epem_mupmum
-  elif [ "${ggtt}" == "1" ]; then 
-    dir=$topdir/epochX/${bckend}/gg_tt${suff}SubProcesses/P1_Sigma_sm_gg_ttx
-  elif [ "${ggttg}" == "1" ]; then 
-    dir=$topdir/epochX/${bckend}/gg_ttg${suff}SubProcesses/P1_Sigma_sm_gg_ttxg
-  elif [ "${ggttgg}" == "1" ]; then 
-    dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
-  elif [ "${ggttggg}" == "1" ]; then 
-    dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
-  elif [ "${heftggh}" == "1" ]; then 
-    dir=$topdir/epochX/${bckend}/heft_gg_h${suff}/SubProcesses/P1_Sigma_heft_gg_h
-  fi
-
+  dir=$(showdir)
   export USEBUILDDIR=1
   pushd $dir >& /dev/null
   pwd
@@ -333,10 +330,10 @@ for suff in $suffs; do
       for fptype in $fptypes; do
         export FPTYPE=$fptype
         if [ "${avxall}" == "1" ]; then
-          make ${makej} avxall; echo
+          make ${makef} ${makej} avxall; echo
         else
-          make ${makej} AVX=none; echo
-          make ${makej} AVX=512y; echo
+          make ${makef} ${makej} AVX=none; echo
+          make ${makef} ${makej} AVX=512y; echo
         fi
       done
     done

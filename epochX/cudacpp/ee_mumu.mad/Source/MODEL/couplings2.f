@@ -12,5 +12,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       PARAMETER  (PI=3.141592653589793D0)
       PARAMETER  (ZERO=0D0)
       INCLUDE 'input.inc'
-      INCLUDE 'coupl.inc'
+      include 'vector.inc'
+      include 'coupl.inc' ! NB must also include vector.inc
       END
