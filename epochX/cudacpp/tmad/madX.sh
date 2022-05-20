@@ -97,8 +97,8 @@ function showdir()
   echo $dir
 }
 
-# Create an input file that is appropriate for the specific process
-function inputfile()
+# Determine the appropriate number of events for the specific process
+function getnevt()
 {
   if [ "${eemumu}" == "1" ]; then # computed xsec is zero (https://github.com/oliviermattelaer/mg5amc_test/issues/13)
     ###nevt=16384 # computes 524320 MEs in 7.4s
@@ -115,6 +115,13 @@ function inputfile()
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
+  echo $nevt
+}
+
+# Create an input file that is appropriate for the specific process
+function getinputfile()
+{
+  nevt=$(getnevt)
   tmp=$(mktemp)
   if [ "$1" == "-fortran" ]; then
     mv ${tmp} ${tmp}_fortran
@@ -130,7 +137,7 @@ function inputfile()
     tmp=${tmp}_cuda
     echo "32 ! Number of events in a single C++ iteration (nb_page_loop)" >> ${tmp}
   else
-    echo "Usage: inputfile <backend [-fortran][-cuda]-cpp]>"
+    echo "Usage: getinputfile <backend [-fortran][-cuda]-cpp]>"
     exit 1
   fi
   cat << EOF >> ${tmp}
@@ -149,11 +156,11 @@ function runmadevent()
 {
   if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: runmadevent <madevent executable>"; exit 1; fi
   if [ "${1/cmadevent}" != "$1" ]; then
-    tmpin=$(inputfile -cpp)
+    tmpin=$(getinputfile -cpp)
   elif [ "${1/gmadevent}" != "$1" ]; then
-    tmpin=$(inputfile -cuda)
+    tmpin=$(getinputfile -cuda)
   else
-    tmpin=$(inputfile -fortran)
+    tmpin=$(getinputfile -fortran)
   fi
   if [ ! -f $tmpin ]; then echo "ERROR! Missing input file $tmpin"; exit 1; fi
   tmp=$(mktemp)
