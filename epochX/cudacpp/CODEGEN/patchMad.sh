@@ -99,8 +99,7 @@ for p1dir in ${dir}/SubProcesses/P1_*; do
     | sed "s|NB_PAGE)|NB_PAGE_MAX)|" \
     | sed "s|1,NB_PAGE|1,NB_PAGE_LOOP|" \
     | sed "s|1, NB_PAGE|1, NB_PAGE_LOOP|" \
-    | sed "s|G1/NB_PAGE|G1/NB_PAGE_MAX|" \
-    | sed "s|G2/NB_PAGE|G2/NB_PAGE_MAX|" \
+    | sed "s|/NB_PAGE|/NB_PAGE_MAX|" \
     > auto_dsig1.f.new
   \mv auto_dsig1.f.new auto_dsig1.f
   if [ "${nopatch}" == "0" ]; then
