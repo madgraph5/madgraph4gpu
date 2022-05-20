@@ -1,13 +1,13 @@
 Working directory: /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll
 make: Nothing to be done for `all'.
 
-DATE: 2022-05-20_15:01:11
+DATE: 2022-05-20_22:49:02
 
 Working directory: /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll
 
 *** EXECUTE MADEVENT (create results.dat) ***
  [XSECTION] ERROR! No cross section in log file:
-   /tmp/avalassi/tmp.cC56OA8UOb
+   /tmp/avalassi/tmp.FEWifI9U27
    ...
 xqcutij # 3>     0.0     0.0
  Added good helicity            1  0.13852041978098753       in event            1 local:           1

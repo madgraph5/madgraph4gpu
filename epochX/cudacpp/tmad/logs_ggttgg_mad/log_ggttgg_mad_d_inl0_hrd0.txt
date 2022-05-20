@@ -1,15 +1,15 @@
 Working directory: /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg
 make: Nothing to be done for `all'.
 
-DATE: 2022-05-20_15:00:14
+DATE: 2022-05-20_22:49:10
 
 Working directory: /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg
 
 *** EXECUTE MADEVENT (create results.dat) ***
  [XSECTION] Cross section = 651.1
- [COUNTERS] PROGRAM TOTAL          :    1.0731s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.1714s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.9017s for      544 events => throughput is 6.03E+02 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.0852s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.1843s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.9008s for      544 events => throughput is 6.04E+02 events/s
 
 *** EXECUTE CMADEVENT_CUDACPP (create results.dat) ***
  [XSECTION] Cross section = 651.1
@@ -17,20 +17,20 @@ Working directory: /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttgg.m
  [MERATIOS] ME ratio CudaCpp/Fortran: MAX = 1.00126901 = 1 + 0.0013
  [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES =    544
  [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = 3.9e-05 +- 4.9e-06
- [COUNTERS] PROGRAM TOTAL          :    1.1680s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.1649s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.9283s for      544 events => throughput is 5.86E+02 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.1685s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.1673s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.9265s for      544 events => throughput is 5.87E+02 events/s
  [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0747s for      544 events => throughput is 7.28E+03 events/s
 
 *** EXECUTE CHECK -p 16 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 10.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 7.380747e+03                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 7.571699e+03                 )  sec^-1
 
 *** EXECUTE CHECK -p 16 32 1 ***
 Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 10.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 7.569812e+03                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 7.572505e+03                 )  sec^-1
 
 *** EXECUTE GMADEVENT_CUDACPP (create results.dat) ***
  [XSECTION] Cross section = 730.5
@@ -38,19 +38,19 @@ EvtsPerSec[MECalcOnly] (3a) = ( 7.569812e+03                 )  sec^-1
  [MERATIOS] ME ratio CudaCpp/Fortran: MAX = 1.00210748 = 1 + 0.0021
  [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES =    512
  [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = 4.1e-05 +- 6.1e-06
- [COUNTERS] PROGRAM TOTAL          :    1.2576s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.3532s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.8694s for      512 events => throughput is 5.89E+02 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.2473s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3392s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.8731s for      512 events => throughput is 5.86E+02 events/s
  [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0350s for      512 events => throughput is 1.46E+04 events/s
 
 *** EXECUTE GCHECK -p 16 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTXGG_CUDA [nvcc 11.6.124 (gcc 10.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.333558e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.320142e+04                 )  sec^-1
 
 *** EXECUTE GCHECK -p 16 32 1 ***
 Process                     = SIGMA_SM_GG_TTXGG_CUDA [nvcc 11.6.124 (gcc 10.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 4.396416e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 4.432681e+04                 )  sec^-1
 
 TEST COMPLETED
