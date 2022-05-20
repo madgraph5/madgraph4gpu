@@ -374,7 +374,7 @@ cleanup_MG5AMC_HOME
 if bzr --version >& /dev/null; then
   if bzr info ${MG5AMC_HOME} 2> /dev/null | grep parent; then
     echo -e "\n***************** Differences to the current bzr revno ${revno_patches} [START]"
-    if bzr diff ${MG5AMC_HOME} -r ${revno_patches}; then echo -e "[No differences]"; fi
+    if bzr diff ${MG5AMC_HOME} -r ${revno_patches} --using /usr/bin/diff --diff-options --brief; then echo -e "[No differences]"; fi
     echo -e "***************** Differences to the current bzr revno ${revno_patches} [END]"
   fi
 fi
