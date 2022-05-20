@@ -4,12 +4,16 @@ status=0
 
 scrdir=$(cd $(dirname $0); pwd)
 
+function usage()
+{
+  echo "Usage: $0 <process.[madonly|mad]> <vecsize>"
+  exit 1 
+}
+
 if [ "${1%.madonly}" == "$1" ] && [ "${1%.mad}" == "$1" ]; then
-  echo "Usage: $0 <process.[madonly|mad]> <vecsize>"
-  exit 1 
+  usage
 elif [ "$2" == "" ] || [ "$3" != "" ]; then
-  echo "Usage: $0 <process.[madonly|mad]> <vecsize>"
-  exit 1 
+  usage
 fi
 dir=$1
 vecsize=$2
