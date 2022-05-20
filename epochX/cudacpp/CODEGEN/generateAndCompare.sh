@@ -134,8 +134,10 @@ function codeGenAndDiff()
     cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | tail -n+4 | sort >> ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
     \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat
   fi
-  # Additional patches for madonly and mad directories (integration of Fortran and cudacpp)
-  if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ]; then
+  # Additional patches for mad directory (integration of Fortran and cudacpp)
+  # [NB: NEW! these patches are no longer applied to madonly, which is now meant as an out-of-the-box reference]
+  ###if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ]; then
+  if [ "${OUTBCK}" == "mad" ]; then
     $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize}
   fi
   # Compare the existing generated code to the newly generated code for the specific process
