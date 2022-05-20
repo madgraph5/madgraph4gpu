@@ -10,7 +10,7 @@ c************************************************************************
       implicit none
 
       include 'vector.inc'
-      include 'coupl.inc' ! NB must also include vector.inc
+      include 'coupl.inc'
       include 'input.inc'
       
       include 'formats.inc'

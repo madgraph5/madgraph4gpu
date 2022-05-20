@@ -39,7 +39,7 @@ c
 c     Global
 c
       include 'vector.inc'
-      include 'coupl.inc' ! NB must also include vector.inc
+      include 'coupl.inc'
       logical gridpack
       common/to_gridpack/gridpack
       double precision stot
@@ -324,7 +324,7 @@ c
 c     Global
 c
       include 'vector.inc'
-      include 'coupl.inc' ! Mass and width info ! NB must also include vector.inc
+      include 'coupl.inc' ! Mass and width info
       double precision stot
       common/to_stot/stot
 
@@ -462,7 +462,7 @@ c
       double precision stot
       common/to_stot/stot
       include 'vector.inc'
-      include 'coupl.inc' ! Mass and width info ! NB must also include vector.inc
+      include 'coupl.inc' ! Mass and width info
 
 c-----
 c  Begin Code
