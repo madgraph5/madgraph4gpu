@@ -31,18 +31,34 @@ C
       IMPLICIT NONE
       INTEGER VECID
       DOUBLE PRECISION PI, ZERO
-      LOGICAL READLHA
+      LOGICAL READLHA, FIRST
+      DATA FIRST /.TRUE./
+      SAVE FIRST
       PARAMETER  (PI=3.141592653589793D0)
       PARAMETER  (ZERO=0D0)
       LOGICAL UPDATELOOP
       COMMON /TO_UPDATELOOP/UPDATELOOP
       INCLUDE 'model_functions.inc'
+      DOUBLE PRECISION GOTHER
+
+      DOUBLE PRECISION MODEL_SCALE
+      COMMON /MODEL_SCALE/MODEL_SCALE
+
+
+      INCLUDE '../maxparticles.inc'
+      INCLUDE '../cuts.inc'
+      INCLUDE '../run.inc'
+
+      DOUBLE PRECISION ALPHAS
+      EXTERNAL ALPHAS
+
       INCLUDE 'input.inc'
       include 'vector.inc'
       include 'coupl.inc'
       READLHA = .FALSE.
 
       INCLUDE 'intparam_definition.inc'
+
 
 
 C     
@@ -66,8 +82,12 @@ C
       INCLUDE 'input.inc'
       include 'vector.inc'
       include 'coupl.inc'
+      DOUBLE PRECISION MODEL_SCALE
+      COMMON /MODEL_SCALE/MODEL_SCALE
 
-      IF (MU_R2.GT.0D0) MU_R = MU_R2
+
+      IF (MU_R2.GT.0D0) MU_R = DSQRT(MU_R2)
+      MODEL_SCALE = DSQRT(MU_R2)
       G = SQRT(4.0D0*PI*AS2)
       AS = AS2
 

@@ -1589,6 +1589,8 @@ C     Diagram 106
       DATA TPRID(-4,106)/6/
       DATA (SPROP(I,-4,106),I=1,1)/0/
       DATA (IFOREST(I,-5,106),I=1,2)/-3,7/
+      DATA TPRID(-5,106)/6/
+      DATA (SPROP(I,-5,106),I=1,1)/0/
 C     Diagram 107
       DATA MAPCONFIG(107)/107/
       DATA TSTRATEGY(107)/-2/
@@ -1605,6 +1607,8 @@ C     Diagram 107
       DATA TPRID(-4,107)/6/
       DATA (SPROP(I,-4,107),I=1,1)/0/
       DATA (IFOREST(I,-5,107),I=1,2)/-3,6/
+      DATA TPRID(-5,107)/6/
+      DATA (SPROP(I,-5,107),I=1,1)/0/
 C     Diagram 108
       DATA MAPCONFIG(108)/108/
       DATA TSTRATEGY(108)/-2/
@@ -1621,6 +1625,8 @@ C     Diagram 108
       DATA TPRID(-4,108)/6/
       DATA (SPROP(I,-4,108),I=1,1)/0/
       DATA (IFOREST(I,-5,108),I=1,2)/-3,7/
+      DATA TPRID(-5,108)/6/
+      DATA (SPROP(I,-5,108),I=1,1)/0/
 C     Diagram 109
       DATA MAPCONFIG(109)/109/
       DATA TSTRATEGY(109)/-2/
@@ -1637,6 +1643,8 @@ C     Diagram 109
       DATA TPRID(-4,109)/6/
       DATA (SPROP(I,-4,109),I=1,1)/0/
       DATA (IFOREST(I,-5,109),I=1,2)/-3,5/
+      DATA TPRID(-5,109)/6/
+      DATA (SPROP(I,-5,109),I=1,1)/0/
 C     Diagram 110
       DATA MAPCONFIG(110)/110/
       DATA TSTRATEGY(110)/-2/
@@ -1653,6 +1661,8 @@ C     Diagram 110
       DATA TPRID(-4,110)/6/
       DATA (SPROP(I,-4,110),I=1,1)/0/
       DATA (IFOREST(I,-5,110),I=1,2)/-3,6/
+      DATA TPRID(-5,110)/6/
+      DATA (SPROP(I,-5,110),I=1,1)/0/
 C     Diagram 111
       DATA MAPCONFIG(111)/111/
       DATA TSTRATEGY(111)/-2/
@@ -1669,6 +1679,8 @@ C     Diagram 111
       DATA TPRID(-4,111)/6/
       DATA (SPROP(I,-4,111),I=1,1)/0/
       DATA (IFOREST(I,-5,111),I=1,2)/-3,5/
+      DATA TPRID(-5,111)/6/
+      DATA (SPROP(I,-5,111),I=1,1)/0/
 C     Diagram 112
       DATA MAPCONFIG(112)/112/
       DATA TSTRATEGY(112)/1/
@@ -1685,6 +1697,8 @@ C     Diagram 112
       DATA TPRID(-4,112)/6/
       DATA (SPROP(I,-4,112),I=1,1)/0/
       DATA (IFOREST(I,-5,112),I=1,2)/-4,3/
+      DATA TPRID(-5,112)/21/
+      DATA (SPROP(I,-5,112),I=1,1)/0/
 C     Diagram 113
       DATA MAPCONFIG(113)/113/
       DATA TSTRATEGY(113)/-2/
@@ -1701,6 +1715,8 @@ C     Diagram 113
       DATA TPRID(-4,113)/6/
       DATA (SPROP(I,-4,113),I=1,1)/0/
       DATA (IFOREST(I,-5,113),I=1,2)/-3,7/
+      DATA TPRID(-5,113)/6/
+      DATA (SPROP(I,-5,113),I=1,1)/0/
 C     Diagram 114
       DATA MAPCONFIG(114)/114/
       DATA TSTRATEGY(114)/-2/
@@ -1717,6 +1733,8 @@ C     Diagram 114
       DATA TPRID(-4,114)/6/
       DATA (SPROP(I,-4,114),I=1,1)/0/
       DATA (IFOREST(I,-5,114),I=1,2)/-3,-1/
+      DATA TPRID(-5,114)/6/
+      DATA (SPROP(I,-5,114),I=1,1)/0/
 C     Diagram 115
       DATA MAPCONFIG(115)/115/
       DATA TSTRATEGY(115)/1/
@@ -1733,6 +1751,8 @@ C     Diagram 115
       DATA TPRID(-4,115)/6/
       DATA (SPROP(I,-4,115),I=1,1)/0/
       DATA (IFOREST(I,-5,115),I=1,2)/-4,3/
+      DATA TPRID(-5,115)/21/
+      DATA (SPROP(I,-5,115),I=1,1)/0/
 C     Diagram 116
       DATA MAPCONFIG(116)/116/
       DATA TSTRATEGY(116)/-2/
@@ -1749,6 +1769,8 @@ C     Diagram 116
       DATA TPRID(-4,116)/6/
       DATA (SPROP(I,-4,116),I=1,1)/0/
       DATA (IFOREST(I,-5,116),I=1,2)/-3,6/
+      DATA TPRID(-5,116)/6/
+      DATA (SPROP(I,-5,116),I=1,1)/0/
 C     Diagram 117
       DATA MAPCONFIG(117)/117/
       DATA TSTRATEGY(117)/-2/
@@ -1765,6 +1787,8 @@ C     Diagram 117
       DATA TPRID(-4,117)/6/
       DATA (SPROP(I,-4,117),I=1,1)/0/
       DATA (IFOREST(I,-5,117),I=1,2)/-3,-1/
+      DATA TPRID(-5,117)/6/
+      DATA (SPROP(I,-5,117),I=1,1)/0/
 C     Diagram 118
       DATA MAPCONFIG(118)/118/
       DATA TSTRATEGY(118)/1/
@@ -1781,6 +1805,8 @@ C     Diagram 118
       DATA TPRID(-4,118)/6/
       DATA (SPROP(I,-4,118),I=1,1)/0/
       DATA (IFOREST(I,-5,118),I=1,2)/-4,3/
+      DATA TPRID(-5,118)/21/
+      DATA (SPROP(I,-5,118),I=1,1)/0/
 C     Diagram 119
       DATA MAPCONFIG(119)/119/
       DATA TSTRATEGY(119)/-2/
@@ -1797,6 +1823,8 @@ C     Diagram 119
       DATA TPRID(-4,119)/6/
       DATA (SPROP(I,-4,119),I=1,1)/0/
       DATA (IFOREST(I,-5,119),I=1,2)/-3,-1/
+      DATA TPRID(-5,119)/6/
+      DATA (SPROP(I,-5,119),I=1,1)/0/
 C     Diagram 120
       DATA MAPCONFIG(120)/120/
       DATA TSTRATEGY(120)/-2/
@@ -1813,6 +1841,8 @@ C     Diagram 120
       DATA TPRID(-4,120)/6/
       DATA (SPROP(I,-4,120),I=1,1)/0/
       DATA (IFOREST(I,-5,120),I=1,2)/-3,5/
+      DATA TPRID(-5,120)/6/
+      DATA (SPROP(I,-5,120),I=1,1)/0/
 C     Diagram 121
       DATA MAPCONFIG(121)/121/
       DATA TSTRATEGY(121)/1/
@@ -1829,6 +1859,8 @@ C     Diagram 121
       DATA TPRID(-4,121)/6/
       DATA (SPROP(I,-4,121),I=1,1)/0/
       DATA (IFOREST(I,-5,121),I=1,2)/-4,3/
+      DATA TPRID(-5,121)/21/
+      DATA (SPROP(I,-5,121),I=1,1)/0/
 C     Diagram 122
       DATA MAPCONFIG(122)/122/
       DATA TSTRATEGY(122)/1/
@@ -1845,6 +1877,8 @@ C     Diagram 122
       DATA TPRID(-4,122)/6/
       DATA (SPROP(I,-4,122),I=1,1)/0/
       DATA (IFOREST(I,-5,122),I=1,2)/-4,3/
+      DATA TPRID(-5,122)/21/
+      DATA (SPROP(I,-5,122),I=1,1)/0/
 C     Diagram 123
       DATA MAPCONFIG(123)/123/
       DATA TSTRATEGY(123)/-2/
@@ -1861,6 +1895,8 @@ C     Diagram 123
       DATA TPRID(-4,123)/6/
       DATA (SPROP(I,-4,123),I=1,1)/0/
       DATA (IFOREST(I,-5,123),I=1,2)/-3,7/
+      DATA TPRID(-5,123)/6/
+      DATA (SPROP(I,-5,123),I=1,1)/0/
 C     Diagram 124
       DATA MAPCONFIG(124)/124/
       DATA TSTRATEGY(124)/1/
@@ -1877,6 +1913,8 @@ C     Diagram 124
       DATA TPRID(-4,124)/6/
       DATA (SPROP(I,-4,124),I=1,1)/0/
       DATA (IFOREST(I,-5,124),I=1,2)/-4,3/
+      DATA TPRID(-5,124)/21/
+      DATA (SPROP(I,-5,124),I=1,1)/0/
 C     Diagram 125
       DATA MAPCONFIG(125)/125/
       DATA TSTRATEGY(125)/-2/
@@ -1893,6 +1931,8 @@ C     Diagram 125
       DATA TPRID(-4,125)/6/
       DATA (SPROP(I,-4,125),I=1,1)/0/
       DATA (IFOREST(I,-5,125),I=1,2)/-3,6/
+      DATA TPRID(-5,125)/6/
+      DATA (SPROP(I,-5,125),I=1,1)/0/
 C     Diagram 126
       DATA MAPCONFIG(126)/126/
       DATA TSTRATEGY(126)/1/
@@ -1909,6 +1949,8 @@ C     Diagram 126
       DATA TPRID(-4,126)/6/
       DATA (SPROP(I,-4,126),I=1,1)/0/
       DATA (IFOREST(I,-5,126),I=1,2)/-4,3/
+      DATA TPRID(-5,126)/21/
+      DATA (SPROP(I,-5,126),I=1,1)/0/
 C     Diagram 127
       DATA MAPCONFIG(127)/127/
       DATA TSTRATEGY(127)/1/
@@ -1925,6 +1967,8 @@ C     Diagram 127
       DATA TPRID(-4,127)/6/
       DATA (SPROP(I,-4,127),I=1,1)/0/
       DATA (IFOREST(I,-5,127),I=1,2)/-4,3/
+      DATA TPRID(-5,127)/21/
+      DATA (SPROP(I,-5,127),I=1,1)/0/
 C     Diagram 128
       DATA MAPCONFIG(128)/128/
       DATA TSTRATEGY(128)/1/
@@ -1941,6 +1985,8 @@ C     Diagram 128
       DATA TPRID(-4,128)/6/
       DATA (SPROP(I,-4,128),I=1,1)/0/
       DATA (IFOREST(I,-5,128),I=1,2)/-4,3/
+      DATA TPRID(-5,128)/21/
+      DATA (SPROP(I,-5,128),I=1,1)/0/
 C     Diagram 129
       DATA MAPCONFIG(129)/129/
       DATA TSTRATEGY(129)/-2/
@@ -1957,6 +2003,8 @@ C     Diagram 129
       DATA TPRID(-4,129)/6/
       DATA (SPROP(I,-4,129),I=1,1)/0/
       DATA (IFOREST(I,-5,129),I=1,2)/-3,-1/
+      DATA TPRID(-5,129)/6/
+      DATA (SPROP(I,-5,129),I=1,1)/0/
 C     Diagram 130
       DATA MAPCONFIG(130)/130/
       DATA TSTRATEGY(130)/1/
@@ -1973,6 +2021,8 @@ C     Diagram 130
       DATA TPRID(-4,130)/6/
       DATA (SPROP(I,-4,130),I=1,1)/0/
       DATA (IFOREST(I,-5,130),I=1,2)/-4,3/
+      DATA TPRID(-5,130)/21/
+      DATA (SPROP(I,-5,130),I=1,1)/0/
 C     Diagram 131
       DATA MAPCONFIG(131)/131/
       DATA TSTRATEGY(131)/1/
@@ -1989,6 +2039,8 @@ C     Diagram 131
       DATA TPRID(-4,131)/6/
       DATA (SPROP(I,-4,131),I=1,1)/0/
       DATA (IFOREST(I,-5,131),I=1,2)/-4,3/
+      DATA TPRID(-5,131)/21/
+      DATA (SPROP(I,-5,131),I=1,1)/0/
 C     Diagram 132
       DATA MAPCONFIG(132)/132/
       DATA TSTRATEGY(132)/-2/
@@ -2005,6 +2057,8 @@ C     Diagram 132
       DATA TPRID(-4,132)/6/
       DATA (SPROP(I,-4,132),I=1,1)/0/
       DATA (IFOREST(I,-5,132),I=1,2)/-3,-1/
+      DATA TPRID(-5,132)/6/
+      DATA (SPROP(I,-5,132),I=1,1)/0/
 C     Diagram 133
       DATA MAPCONFIG(133)/133/
       DATA TSTRATEGY(133)/1/
@@ -2021,6 +2075,8 @@ C     Diagram 133
       DATA TPRID(-4,133)/6/
       DATA (SPROP(I,-4,133),I=1,1)/0/
       DATA (IFOREST(I,-5,133),I=1,2)/-4,3/
+      DATA TPRID(-5,133)/21/
+      DATA (SPROP(I,-5,133),I=1,1)/0/
 C     Diagram 134
       DATA MAPCONFIG(134)/134/
       DATA TSTRATEGY(134)/1/
@@ -2037,6 +2093,8 @@ C     Diagram 134
       DATA TPRID(-4,134)/6/
       DATA (SPROP(I,-4,134),I=1,1)/0/
       DATA (IFOREST(I,-5,134),I=1,2)/-4,3/
+      DATA TPRID(-5,134)/21/
+      DATA (SPROP(I,-5,134),I=1,1)/0/
 C     Diagram 135
       DATA MAPCONFIG(135)/135/
       DATA TSTRATEGY(135)/-2/
@@ -2053,6 +2111,8 @@ C     Diagram 135
       DATA TPRID(-4,135)/6/
       DATA (SPROP(I,-4,135),I=1,1)/0/
       DATA (IFOREST(I,-5,135),I=1,2)/-3,4/
+      DATA TPRID(-5,135)/6/
+      DATA (SPROP(I,-5,135),I=1,1)/0/
 C     Diagram 136
       DATA MAPCONFIG(136)/136/
       DATA TSTRATEGY(136)/1/
@@ -2069,6 +2129,8 @@ C     Diagram 136
       DATA TPRID(-4,136)/6/
       DATA (SPROP(I,-4,136),I=1,1)/0/
       DATA (IFOREST(I,-5,136),I=1,2)/-4,3/
+      DATA TPRID(-5,136)/21/
+      DATA (SPROP(I,-5,136),I=1,1)/0/
 C     Diagram 137
       DATA MAPCONFIG(137)/137/
       DATA TSTRATEGY(137)/1/
@@ -2085,6 +2147,8 @@ C     Diagram 137
       DATA TPRID(-4,137)/6/
       DATA (SPROP(I,-4,137),I=1,1)/0/
       DATA (IFOREST(I,-5,137),I=1,2)/-4,3/
+      DATA TPRID(-5,137)/21/
+      DATA (SPROP(I,-5,137),I=1,1)/0/
 C     Diagram 138
       DATA MAPCONFIG(138)/138/
       DATA TSTRATEGY(138)/-2/
@@ -2101,6 +2165,8 @@ C     Diagram 138
       DATA TPRID(-4,138)/6/
       DATA (SPROP(I,-4,138),I=1,1)/0/
       DATA (IFOREST(I,-5,138),I=1,2)/-3,7/
+      DATA TPRID(-5,138)/6/
+      DATA (SPROP(I,-5,138),I=1,1)/0/
 C     Diagram 139
       DATA MAPCONFIG(139)/139/
       DATA TSTRATEGY(139)/1/
@@ -2117,6 +2183,8 @@ C     Diagram 139
       DATA TPRID(-4,139)/6/
       DATA (SPROP(I,-4,139),I=1,1)/0/
       DATA (IFOREST(I,-5,139),I=1,2)/-4,3/
+      DATA TPRID(-5,139)/21/
+      DATA (SPROP(I,-5,139),I=1,1)/0/
 C     Diagram 140
       DATA MAPCONFIG(140)/140/
       DATA TSTRATEGY(140)/-2/
@@ -2133,6 +2201,8 @@ C     Diagram 140
       DATA TPRID(-4,140)/6/
       DATA (SPROP(I,-4,140),I=1,1)/0/
       DATA (IFOREST(I,-5,140),I=1,2)/-3,5/
+      DATA TPRID(-5,140)/6/
+      DATA (SPROP(I,-5,140),I=1,1)/0/
 C     Diagram 141
       DATA MAPCONFIG(141)/141/
       DATA TSTRATEGY(141)/1/
@@ -2149,6 +2219,8 @@ C     Diagram 141
       DATA TPRID(-4,141)/6/
       DATA (SPROP(I,-4,141),I=1,1)/0/
       DATA (IFOREST(I,-5,141),I=1,2)/-4,3/
+      DATA TPRID(-5,141)/21/
+      DATA (SPROP(I,-5,141),I=1,1)/0/
 C     Diagram 142
       DATA MAPCONFIG(142)/142/
       DATA TSTRATEGY(142)/1/
@@ -2165,6 +2237,8 @@ C     Diagram 142
       DATA TPRID(-4,142)/6/
       DATA (SPROP(I,-4,142),I=1,1)/0/
       DATA (IFOREST(I,-5,142),I=1,2)/-4,3/
+      DATA TPRID(-5,142)/21/
+      DATA (SPROP(I,-5,142),I=1,1)/0/
 C     Diagram 143
       DATA MAPCONFIG(143)/143/
       DATA TSTRATEGY(143)/1/
@@ -2181,6 +2255,8 @@ C     Diagram 143
       DATA TPRID(-4,143)/6/
       DATA (SPROP(I,-4,143),I=1,1)/0/
       DATA (IFOREST(I,-5,143),I=1,2)/-4,3/
+      DATA TPRID(-5,143)/21/
+      DATA (SPROP(I,-5,143),I=1,1)/0/
 C     Diagram 144
       DATA MAPCONFIG(144)/144/
       DATA TSTRATEGY(144)/-2/
@@ -2197,6 +2273,8 @@ C     Diagram 144
       DATA TPRID(-4,144)/6/
       DATA (SPROP(I,-4,144),I=1,1)/0/
       DATA (IFOREST(I,-5,144),I=1,2)/-3,-1/
+      DATA TPRID(-5,144)/6/
+      DATA (SPROP(I,-5,144),I=1,1)/0/
 C     Diagram 145
       DATA MAPCONFIG(145)/145/
       DATA TSTRATEGY(145)/1/
@@ -2213,6 +2291,8 @@ C     Diagram 145
       DATA TPRID(-4,145)/6/
       DATA (SPROP(I,-4,145),I=1,1)/0/
       DATA (IFOREST(I,-5,145),I=1,2)/-4,3/
+      DATA TPRID(-5,145)/21/
+      DATA (SPROP(I,-5,145),I=1,1)/0/
 C     Diagram 146
       DATA MAPCONFIG(146)/146/
       DATA TSTRATEGY(146)/1/
@@ -2229,6 +2309,8 @@ C     Diagram 146
       DATA TPRID(-4,146)/6/
       DATA (SPROP(I,-4,146),I=1,1)/0/
       DATA (IFOREST(I,-5,146),I=1,2)/-4,3/
+      DATA TPRID(-5,146)/21/
+      DATA (SPROP(I,-5,146),I=1,1)/0/
 C     Diagram 147
       DATA MAPCONFIG(147)/147/
       DATA TSTRATEGY(147)/-2/
@@ -2245,6 +2327,8 @@ C     Diagram 147
       DATA TPRID(-4,147)/6/
       DATA (SPROP(I,-4,147),I=1,1)/0/
       DATA (IFOREST(I,-5,147),I=1,2)/-3,-1/
+      DATA TPRID(-5,147)/6/
+      DATA (SPROP(I,-5,147),I=1,1)/0/
 C     Diagram 148
       DATA MAPCONFIG(148)/148/
       DATA TSTRATEGY(148)/1/
@@ -2261,6 +2345,8 @@ C     Diagram 148
       DATA TPRID(-4,148)/6/
       DATA (SPROP(I,-4,148),I=1,1)/0/
       DATA (IFOREST(I,-5,148),I=1,2)/-4,3/
+      DATA TPRID(-5,148)/21/
+      DATA (SPROP(I,-5,148),I=1,1)/0/
 C     Diagram 149
       DATA MAPCONFIG(149)/149/
       DATA TSTRATEGY(149)/1/
@@ -2277,6 +2363,8 @@ C     Diagram 149
       DATA TPRID(-4,149)/6/
       DATA (SPROP(I,-4,149),I=1,1)/0/
       DATA (IFOREST(I,-5,149),I=1,2)/-4,3/
+      DATA TPRID(-5,149)/21/
+      DATA (SPROP(I,-5,149),I=1,1)/0/
 C     Diagram 150
       DATA MAPCONFIG(150)/150/
       DATA TSTRATEGY(150)/-2/
@@ -2293,6 +2381,8 @@ C     Diagram 150
       DATA TPRID(-4,150)/6/
       DATA (SPROP(I,-4,150),I=1,1)/0/
       DATA (IFOREST(I,-5,150),I=1,2)/-3,4/
+      DATA TPRID(-5,150)/6/
+      DATA (SPROP(I,-5,150),I=1,1)/0/
 C     Diagram 151
       DATA MAPCONFIG(151)/151/
       DATA TSTRATEGY(151)/1/
@@ -2309,6 +2399,8 @@ C     Diagram 151
       DATA TPRID(-4,151)/6/
       DATA (SPROP(I,-4,151),I=1,1)/0/
       DATA (IFOREST(I,-5,151),I=1,2)/-4,3/
+      DATA TPRID(-5,151)/21/
+      DATA (SPROP(I,-5,151),I=1,1)/0/
 C     Diagram 152
       DATA MAPCONFIG(152)/152/
       DATA TSTRATEGY(152)/1/
@@ -2325,6 +2417,8 @@ C     Diagram 152
       DATA TPRID(-4,152)/6/
       DATA (SPROP(I,-4,152),I=1,1)/0/
       DATA (IFOREST(I,-5,152),I=1,2)/-4,3/
+      DATA TPRID(-5,152)/21/
+      DATA (SPROP(I,-5,152),I=1,1)/0/
 C     Diagram 153
       DATA MAPCONFIG(153)/153/
       DATA TSTRATEGY(153)/-2/
@@ -2341,6 +2435,8 @@ C     Diagram 153
       DATA TPRID(-4,153)/6/
       DATA (SPROP(I,-4,153),I=1,1)/0/
       DATA (IFOREST(I,-5,153),I=1,2)/-3,6/
+      DATA TPRID(-5,153)/6/
+      DATA (SPROP(I,-5,153),I=1,1)/0/
 C     Diagram 154
       DATA MAPCONFIG(154)/154/
       DATA TSTRATEGY(154)/1/
@@ -2357,6 +2453,8 @@ C     Diagram 154
       DATA TPRID(-4,154)/6/
       DATA (SPROP(I,-4,154),I=1,1)/0/
       DATA (IFOREST(I,-5,154),I=1,2)/-4,3/
+      DATA TPRID(-5,154)/21/
+      DATA (SPROP(I,-5,154),I=1,1)/0/
 C     Diagram 155
       DATA MAPCONFIG(155)/155/
       DATA TSTRATEGY(155)/-2/
@@ -2373,6 +2471,8 @@ C     Diagram 155
       DATA TPRID(-4,155)/6/
       DATA (SPROP(I,-4,155),I=1,1)/0/
       DATA (IFOREST(I,-5,155),I=1,2)/-3,5/
+      DATA TPRID(-5,155)/6/
+      DATA (SPROP(I,-5,155),I=1,1)/0/
 C     Diagram 156
       DATA MAPCONFIG(156)/156/
       DATA TSTRATEGY(156)/1/
@@ -2389,6 +2489,8 @@ C     Diagram 156
       DATA TPRID(-4,156)/6/
       DATA (SPROP(I,-4,156),I=1,1)/0/
       DATA (IFOREST(I,-5,156),I=1,2)/-4,3/
+      DATA TPRID(-5,156)/21/
+      DATA (SPROP(I,-5,156),I=1,1)/0/
 C     Diagram 157
       DATA MAPCONFIG(157)/157/
       DATA TSTRATEGY(157)/1/
@@ -2405,6 +2507,8 @@ C     Diagram 157
       DATA TPRID(-4,157)/6/
       DATA (SPROP(I,-4,157),I=1,1)/0/
       DATA (IFOREST(I,-5,157),I=1,2)/-4,3/
+      DATA TPRID(-5,157)/21/
+      DATA (SPROP(I,-5,157),I=1,1)/0/
 C     Diagram 158
       DATA MAPCONFIG(158)/158/
       DATA TSTRATEGY(158)/1/
@@ -2421,6 +2525,8 @@ C     Diagram 158
       DATA TPRID(-4,158)/6/
       DATA (SPROP(I,-4,158),I=1,1)/0/
       DATA (IFOREST(I,-5,158),I=1,2)/-4,3/
+      DATA TPRID(-5,158)/21/
+      DATA (SPROP(I,-5,158),I=1,1)/0/
 C     Diagram 159
       DATA MAPCONFIG(159)/159/
       DATA TSTRATEGY(159)/-2/
@@ -2437,6 +2543,8 @@ C     Diagram 159
       DATA TPRID(-4,159)/6/
       DATA (SPROP(I,-4,159),I=1,1)/0/
       DATA (IFOREST(I,-5,159),I=1,2)/-3,-1/
+      DATA TPRID(-5,159)/6/
+      DATA (SPROP(I,-5,159),I=1,1)/0/
 C     Diagram 160
       DATA MAPCONFIG(160)/160/
       DATA TSTRATEGY(160)/1/
@@ -2453,6 +2561,8 @@ C     Diagram 160
       DATA TPRID(-4,160)/6/
       DATA (SPROP(I,-4,160),I=1,1)/0/
       DATA (IFOREST(I,-5,160),I=1,2)/-4,3/
+      DATA TPRID(-5,160)/21/
+      DATA (SPROP(I,-5,160),I=1,1)/0/
 C     Diagram 161
       DATA MAPCONFIG(161)/161/
       DATA TSTRATEGY(161)/1/
@@ -2469,6 +2579,8 @@ C     Diagram 161
       DATA TPRID(-4,161)/6/
       DATA (SPROP(I,-4,161),I=1,1)/0/
       DATA (IFOREST(I,-5,161),I=1,2)/-4,3/
+      DATA TPRID(-5,161)/21/
+      DATA (SPROP(I,-5,161),I=1,1)/0/
 C     Diagram 162
       DATA MAPCONFIG(162)/162/
       DATA TSTRATEGY(162)/-2/
@@ -2485,6 +2597,8 @@ C     Diagram 162
       DATA TPRID(-4,162)/6/
       DATA (SPROP(I,-4,162),I=1,1)/0/
       DATA (IFOREST(I,-5,162),I=1,2)/-3,-1/
+      DATA TPRID(-5,162)/6/
+      DATA (SPROP(I,-5,162),I=1,1)/0/
 C     Diagram 163
       DATA MAPCONFIG(163)/163/
       DATA TSTRATEGY(163)/1/
@@ -2501,6 +2615,8 @@ C     Diagram 163
       DATA TPRID(-4,163)/6/
       DATA (SPROP(I,-4,163),I=1,1)/0/
       DATA (IFOREST(I,-5,163),I=1,2)/-4,3/
+      DATA TPRID(-5,163)/21/
+      DATA (SPROP(I,-5,163),I=1,1)/0/
 C     Diagram 164
       DATA MAPCONFIG(164)/164/
       DATA TSTRATEGY(164)/1/
@@ -2517,6 +2633,8 @@ C     Diagram 164
       DATA TPRID(-4,164)/6/
       DATA (SPROP(I,-4,164),I=1,1)/0/
       DATA (IFOREST(I,-5,164),I=1,2)/-4,3/
+      DATA TPRID(-5,164)/21/
+      DATA (SPROP(I,-5,164),I=1,1)/0/
 C     Diagram 165
       DATA MAPCONFIG(165)/165/
       DATA TSTRATEGY(165)/-2/
@@ -2533,6 +2651,8 @@ C     Diagram 165
       DATA TPRID(-4,165)/6/
       DATA (SPROP(I,-4,165),I=1,1)/0/
       DATA (IFOREST(I,-5,165),I=1,2)/-3,4/
+      DATA TPRID(-5,165)/6/
+      DATA (SPROP(I,-5,165),I=1,1)/0/
 C     Diagram 166
       DATA MAPCONFIG(166)/166/
       DATA TSTRATEGY(166)/2/
@@ -2549,6 +2669,8 @@ C     Diagram 166
       DATA TPRID(-4,166)/6/
       DATA (SPROP(I,-4,166),I=1,1)/0/
       DATA (IFOREST(I,-5,166),I=1,2)/-4,-3/
+      DATA TPRID(-5,166)/21/
+      DATA (SPROP(I,-5,166),I=1,1)/0/
 C     Diagram 167
       DATA MAPCONFIG(167)/167/
       DATA TSTRATEGY(167)/2/
@@ -2565,6 +2687,8 @@ C     Diagram 167
       DATA TPRID(-4,167)/6/
       DATA (SPROP(I,-4,167),I=1,1)/0/
       DATA (IFOREST(I,-5,167),I=1,2)/-4,-3/
+      DATA TPRID(-5,167)/21/
+      DATA (SPROP(I,-5,167),I=1,1)/0/
 C     Diagram 168
       DATA MAPCONFIG(168)/168/
       DATA TSTRATEGY(168)/-2/
@@ -2581,6 +2705,8 @@ C     Diagram 168
       DATA TPRID(-4,168)/6/
       DATA (SPROP(I,-4,168),I=1,1)/0/
       DATA (IFOREST(I,-5,168),I=1,2)/-3,7/
+      DATA TPRID(-5,168)/6/
+      DATA (SPROP(I,-5,168),I=1,1)/0/
 C     Diagram 169
       DATA MAPCONFIG(169)/169/
       DATA TSTRATEGY(169)/2/
@@ -2597,6 +2723,8 @@ C     Diagram 169
       DATA TPRID(-4,169)/6/
       DATA (SPROP(I,-4,169),I=1,1)/0/
       DATA (IFOREST(I,-5,169),I=1,2)/-4,-2/
+      DATA TPRID(-5,169)/21/
+      DATA (SPROP(I,-5,169),I=1,1)/0/
 C     Diagram 170
       DATA MAPCONFIG(170)/170/
       DATA TSTRATEGY(170)/-2/
@@ -2613,6 +2741,8 @@ C     Diagram 170
       DATA TPRID(-4,170)/6/
       DATA (SPROP(I,-4,170),I=1,1)/0/
       DATA (IFOREST(I,-5,170),I=1,2)/-3,6/
+      DATA TPRID(-5,170)/6/
+      DATA (SPROP(I,-5,170),I=1,1)/0/
 C     Diagram 171
       DATA MAPCONFIG(171)/171/
       DATA TSTRATEGY(171)/2/
@@ -2629,6 +2759,8 @@ C     Diagram 171
       DATA TPRID(-4,171)/6/
       DATA (SPROP(I,-4,171),I=1,1)/0/
       DATA (IFOREST(I,-5,171),I=1,2)/-4,-2/
+      DATA TPRID(-5,171)/21/
+      DATA (SPROP(I,-5,171),I=1,1)/0/
 C     Diagram 172
       DATA MAPCONFIG(172)/172/
       DATA TSTRATEGY(172)/2/
@@ -2645,6 +2777,8 @@ C     Diagram 172
       DATA TPRID(-4,172)/6/
       DATA (SPROP(I,-4,172),I=1,1)/0/
       DATA (IFOREST(I,-5,172),I=1,2)/-4,-3/
+      DATA TPRID(-5,172)/21/
+      DATA (SPROP(I,-5,172),I=1,1)/0/
 C     Diagram 173
       DATA MAPCONFIG(173)/173/
       DATA TSTRATEGY(173)/1/
@@ -2661,6 +2795,8 @@ C     Diagram 173
       DATA TPRID(-4,173)/6/
       DATA (SPROP(I,-4,173),I=1,1)/0/
       DATA (IFOREST(I,-5,173),I=1,2)/-4,3/
+      DATA TPRID(-5,173)/21/
+      DATA (SPROP(I,-5,173),I=1,1)/0/
 C     Diagram 174
       DATA MAPCONFIG(174)/174/
       DATA TSTRATEGY(174)/2/
@@ -2677,6 +2813,8 @@ C     Diagram 174
       DATA TPRID(-4,174)/6/
       DATA (SPROP(I,-4,174),I=1,1)/0/
       DATA (IFOREST(I,-5,174),I=1,2)/-4,-2/
+      DATA TPRID(-5,174)/21/
+      DATA (SPROP(I,-5,174),I=1,1)/0/
 C     Diagram 175
       DATA MAPCONFIG(175)/175/
       DATA TSTRATEGY(175)/2/
@@ -2693,6 +2831,8 @@ C     Diagram 175
       DATA TPRID(-4,175)/6/
       DATA (SPROP(I,-4,175),I=1,1)/0/
       DATA (IFOREST(I,-5,175),I=1,2)/-4,-3/
+      DATA TPRID(-5,175)/21/
+      DATA (SPROP(I,-5,175),I=1,1)/0/
 C     Diagram 176
       DATA MAPCONFIG(176)/176/
       DATA TSTRATEGY(176)/2/
@@ -2709,6 +2849,8 @@ C     Diagram 176
       DATA TPRID(-4,176)/6/
       DATA (SPROP(I,-4,176),I=1,1)/0/
       DATA (IFOREST(I,-5,176),I=1,2)/-4,-3/
+      DATA TPRID(-5,176)/21/
+      DATA (SPROP(I,-5,176),I=1,1)/0/
 C     Diagram 177
       DATA MAPCONFIG(177)/177/
       DATA TSTRATEGY(177)/-2/
@@ -2725,6 +2867,8 @@ C     Diagram 177
       DATA TPRID(-4,177)/6/
       DATA (SPROP(I,-4,177),I=1,1)/0/
       DATA (IFOREST(I,-5,177),I=1,2)/-3,7/
+      DATA TPRID(-5,177)/6/
+      DATA (SPROP(I,-5,177),I=1,1)/0/
 C     Diagram 178
       DATA MAPCONFIG(178)/178/
       DATA TSTRATEGY(178)/2/
@@ -2741,6 +2885,8 @@ C     Diagram 178
       DATA TPRID(-4,178)/6/
       DATA (SPROP(I,-4,178),I=1,1)/0/
       DATA (IFOREST(I,-5,178),I=1,2)/-4,-2/
+      DATA TPRID(-5,178)/21/
+      DATA (SPROP(I,-5,178),I=1,1)/0/
 C     Diagram 179
       DATA MAPCONFIG(179)/179/
       DATA TSTRATEGY(179)/-2/
@@ -2757,6 +2903,8 @@ C     Diagram 179
       DATA TPRID(-4,179)/6/
       DATA (SPROP(I,-4,179),I=1,1)/0/
       DATA (IFOREST(I,-5,179),I=1,2)/-3,5/
+      DATA TPRID(-5,179)/6/
+      DATA (SPROP(I,-5,179),I=1,1)/0/
 C     Diagram 180
       DATA MAPCONFIG(180)/180/
       DATA TSTRATEGY(180)/2/
@@ -2773,6 +2921,8 @@ C     Diagram 180
       DATA TPRID(-4,180)/6/
       DATA (SPROP(I,-4,180),I=1,1)/0/
       DATA (IFOREST(I,-5,180),I=1,2)/-4,-2/
+      DATA TPRID(-5,180)/21/
+      DATA (SPROP(I,-5,180),I=1,1)/0/
 C     Diagram 181
       DATA MAPCONFIG(181)/181/
       DATA TSTRATEGY(181)/2/
@@ -2789,6 +2939,8 @@ C     Diagram 181
       DATA TPRID(-4,181)/6/
       DATA (SPROP(I,-4,181),I=1,1)/0/
       DATA (IFOREST(I,-5,181),I=1,2)/-4,-3/
+      DATA TPRID(-5,181)/21/
+      DATA (SPROP(I,-5,181),I=1,1)/0/
 C     Diagram 182
       DATA MAPCONFIG(182)/182/
       DATA TSTRATEGY(182)/1/
@@ -2805,6 +2957,8 @@ C     Diagram 182
       DATA TPRID(-4,182)/6/
       DATA (SPROP(I,-4,182),I=1,1)/0/
       DATA (IFOREST(I,-5,182),I=1,2)/-4,3/
+      DATA TPRID(-5,182)/21/
+      DATA (SPROP(I,-5,182),I=1,1)/0/
 C     Diagram 183
       DATA MAPCONFIG(183)/183/
       DATA TSTRATEGY(183)/2/
@@ -2821,6 +2975,8 @@ C     Diagram 183
       DATA TPRID(-4,183)/6/
       DATA (SPROP(I,-4,183),I=1,1)/0/
       DATA (IFOREST(I,-5,183),I=1,2)/-4,-2/
+      DATA TPRID(-5,183)/21/
+      DATA (SPROP(I,-5,183),I=1,1)/0/
 C     Diagram 184
       DATA MAPCONFIG(184)/184/
       DATA TSTRATEGY(184)/2/
@@ -2837,6 +2993,8 @@ C     Diagram 184
       DATA TPRID(-4,184)/6/
       DATA (SPROP(I,-4,184),I=1,1)/0/
       DATA (IFOREST(I,-5,184),I=1,2)/-4,-3/
+      DATA TPRID(-5,184)/21/
+      DATA (SPROP(I,-5,184),I=1,1)/0/
 C     Diagram 185
       DATA MAPCONFIG(185)/185/
       DATA TSTRATEGY(185)/2/
@@ -2853,6 +3011,8 @@ C     Diagram 185
       DATA TPRID(-4,185)/6/
       DATA (SPROP(I,-4,185),I=1,1)/0/
       DATA (IFOREST(I,-5,185),I=1,2)/-4,-3/
+      DATA TPRID(-5,185)/21/
+      DATA (SPROP(I,-5,185),I=1,1)/0/
 C     Diagram 186
       DATA MAPCONFIG(186)/186/
       DATA TSTRATEGY(186)/-2/
@@ -2869,6 +3029,8 @@ C     Diagram 186
       DATA TPRID(-4,186)/6/
       DATA (SPROP(I,-4,186),I=1,1)/0/
       DATA (IFOREST(I,-5,186),I=1,2)/-3,6/
+      DATA TPRID(-5,186)/6/
+      DATA (SPROP(I,-5,186),I=1,1)/0/
 C     Diagram 187
       DATA MAPCONFIG(187)/187/
       DATA TSTRATEGY(187)/2/
@@ -2885,6 +3047,8 @@ C     Diagram 187
       DATA TPRID(-4,187)/6/
       DATA (SPROP(I,-4,187),I=1,1)/0/
       DATA (IFOREST(I,-5,187),I=1,2)/-4,-2/
+      DATA TPRID(-5,187)/21/
+      DATA (SPROP(I,-5,187),I=1,1)/0/
 C     Diagram 188
       DATA MAPCONFIG(188)/188/
       DATA TSTRATEGY(188)/-2/
@@ -2901,6 +3065,8 @@ C     Diagram 188
       DATA TPRID(-4,188)/6/
       DATA (SPROP(I,-4,188),I=1,1)/0/
       DATA (IFOREST(I,-5,188),I=1,2)/-3,5/
+      DATA TPRID(-5,188)/6/
+      DATA (SPROP(I,-5,188),I=1,1)/0/
 C     Diagram 189
       DATA MAPCONFIG(189)/189/
       DATA TSTRATEGY(189)/2/
@@ -2917,6 +3083,8 @@ C     Diagram 189
       DATA TPRID(-4,189)/6/
       DATA (SPROP(I,-4,189),I=1,1)/0/
       DATA (IFOREST(I,-5,189),I=1,2)/-4,-2/
+      DATA TPRID(-5,189)/21/
+      DATA (SPROP(I,-5,189),I=1,1)/0/
 C     Diagram 190
       DATA MAPCONFIG(190)/190/
       DATA TSTRATEGY(190)/2/
@@ -2933,6 +3101,8 @@ C     Diagram 190
       DATA TPRID(-4,190)/6/
       DATA (SPROP(I,-4,190),I=1,1)/0/
       DATA (IFOREST(I,-5,190),I=1,2)/-4,-3/
+      DATA TPRID(-5,190)/21/
+      DATA (SPROP(I,-5,190),I=1,1)/0/
 C     Diagram 191
       DATA MAPCONFIG(191)/191/
       DATA TSTRATEGY(191)/1/
@@ -2949,6 +3119,8 @@ C     Diagram 191
       DATA TPRID(-4,191)/6/
       DATA (SPROP(I,-4,191),I=1,1)/0/
       DATA (IFOREST(I,-5,191),I=1,2)/-4,3/
+      DATA TPRID(-5,191)/21/
+      DATA (SPROP(I,-5,191),I=1,1)/0/
 C     Diagram 192
       DATA MAPCONFIG(192)/192/
       DATA TSTRATEGY(192)/2/
@@ -2965,6 +3137,8 @@ C     Diagram 192
       DATA TPRID(-4,192)/6/
       DATA (SPROP(I,-4,192),I=1,1)/0/
       DATA (IFOREST(I,-5,192),I=1,2)/-4,-2/
+      DATA TPRID(-5,192)/21/
+      DATA (SPROP(I,-5,192),I=1,1)/0/
 C     Diagram 193
       DATA MAPCONFIG(193)/193/
       DATA TSTRATEGY(193)/2/
@@ -2981,6 +3155,8 @@ C     Diagram 193
       DATA TPRID(-4,193)/6/
       DATA (SPROP(I,-4,193),I=1,1)/0/
       DATA (IFOREST(I,-5,193),I=1,2)/-4,-3/
+      DATA TPRID(-5,193)/21/
+      DATA (SPROP(I,-5,193),I=1,1)/0/
 C     Diagram 194
       DATA MAPCONFIG(194)/194/
       DATA TSTRATEGY(194)/2/
@@ -2997,6 +3173,8 @@ C     Diagram 194
       DATA TPRID(-4,194)/6/
       DATA (SPROP(I,-4,194),I=1,1)/0/
       DATA (IFOREST(I,-5,194),I=1,2)/-4,-3/
+      DATA TPRID(-5,194)/21/
+      DATA (SPROP(I,-5,194),I=1,1)/0/
 C     Diagram 195
       DATA MAPCONFIG(195)/195/
       DATA TSTRATEGY(195)/1/
@@ -3013,6 +3191,8 @@ C     Diagram 195
       DATA TPRID(-4,195)/6/
       DATA (SPROP(I,-4,195),I=1,1)/0/
       DATA (IFOREST(I,-5,195),I=1,2)/-4,3/
+      DATA TPRID(-5,195)/21/
+      DATA (SPROP(I,-5,195),I=1,1)/0/
 C     Diagram 196
       DATA MAPCONFIG(196)/196/
       DATA TSTRATEGY(196)/1/
@@ -3029,6 +3209,8 @@ C     Diagram 196
       DATA TPRID(-4,196)/6/
       DATA (SPROP(I,-4,196),I=1,1)/0/
       DATA (IFOREST(I,-5,196),I=1,2)/-4,3/
+      DATA TPRID(-5,196)/21/
+      DATA (SPROP(I,-5,196),I=1,1)/0/
 C     Diagram 197
       DATA MAPCONFIG(197)/197/
       DATA TSTRATEGY(197)/-2/
@@ -3045,6 +3227,8 @@ C     Diagram 197
       DATA TPRID(-4,197)/6/
       DATA (SPROP(I,-4,197),I=1,1)/0/
       DATA (IFOREST(I,-5,197),I=1,2)/-3,4/
+      DATA TPRID(-5,197)/6/
+      DATA (SPROP(I,-5,197),I=1,1)/0/
 C     Diagram 198
       DATA MAPCONFIG(198)/198/
       DATA TSTRATEGY(198)/2/
@@ -3061,6 +3245,8 @@ C     Diagram 198
       DATA TPRID(-4,198)/6/
       DATA (SPROP(I,-4,198),I=1,1)/0/
       DATA (IFOREST(I,-5,198),I=1,2)/-4,-2/
+      DATA TPRID(-5,198)/21/
+      DATA (SPROP(I,-5,198),I=1,1)/0/
 C     Diagram 199
       DATA MAPCONFIG(199)/199/
       DATA TSTRATEGY(199)/2/
@@ -3077,6 +3263,8 @@ C     Diagram 199
       DATA TPRID(-4,199)/6/
       DATA (SPROP(I,-4,199),I=1,1)/0/
       DATA (IFOREST(I,-5,199),I=1,2)/-4,-3/
+      DATA TPRID(-5,199)/21/
+      DATA (SPROP(I,-5,199),I=1,1)/0/
 C     Diagram 200
       DATA MAPCONFIG(200)/200/
       DATA TSTRATEGY(200)/2/
@@ -3093,6 +3281,8 @@ C     Diagram 200
       DATA TPRID(-4,200)/6/
       DATA (SPROP(I,-4,200),I=1,1)/0/
       DATA (IFOREST(I,-5,200),I=1,2)/-4,-3/
+      DATA TPRID(-5,200)/21/
+      DATA (SPROP(I,-5,200),I=1,1)/0/
 C     Diagram 201
       DATA MAPCONFIG(201)/201/
       DATA TSTRATEGY(201)/1/
@@ -3109,6 +3299,8 @@ C     Diagram 201
       DATA TPRID(-4,201)/6/
       DATA (SPROP(I,-4,201),I=1,1)/0/
       DATA (IFOREST(I,-5,201),I=1,2)/-4,3/
+      DATA TPRID(-5,201)/21/
+      DATA (SPROP(I,-5,201),I=1,1)/0/
 C     Diagram 202
       DATA MAPCONFIG(202)/202/
       DATA TSTRATEGY(202)/1/
@@ -3125,6 +3317,8 @@ C     Diagram 202
       DATA TPRID(-4,202)/6/
       DATA (SPROP(I,-4,202),I=1,1)/0/
       DATA (IFOREST(I,-5,202),I=1,2)/-4,3/
+      DATA TPRID(-5,202)/21/
+      DATA (SPROP(I,-5,202),I=1,1)/0/
 C     Diagram 203
       DATA MAPCONFIG(203)/203/
       DATA TSTRATEGY(203)/-2/
@@ -3141,6 +3335,8 @@ C     Diagram 203
       DATA TPRID(-4,203)/6/
       DATA (SPROP(I,-4,203),I=1,1)/0/
       DATA (IFOREST(I,-5,203),I=1,2)/-3,4/
+      DATA TPRID(-5,203)/6/
+      DATA (SPROP(I,-5,203),I=1,1)/0/
 C     Diagram 204
       DATA MAPCONFIG(204)/204/
       DATA TSTRATEGY(204)/2/
@@ -3157,6 +3353,8 @@ C     Diagram 204
       DATA TPRID(-4,204)/6/
       DATA (SPROP(I,-4,204),I=1,1)/0/
       DATA (IFOREST(I,-5,204),I=1,2)/-4,-2/
+      DATA TPRID(-5,204)/21/
+      DATA (SPROP(I,-5,204),I=1,1)/0/
 C     Diagram 205
       DATA MAPCONFIG(205)/205/
       DATA TSTRATEGY(205)/2/
@@ -3173,6 +3371,8 @@ C     Diagram 205
       DATA TPRID(-4,205)/6/
       DATA (SPROP(I,-4,205),I=1,1)/0/
       DATA (IFOREST(I,-5,205),I=1,2)/-4,-3/
+      DATA TPRID(-5,205)/21/
+      DATA (SPROP(I,-5,205),I=1,1)/0/
 C     Diagram 206
       DATA MAPCONFIG(206)/206/
       DATA TSTRATEGY(206)/2/
@@ -3189,6 +3389,8 @@ C     Diagram 206
       DATA TPRID(-4,206)/6/
       DATA (SPROP(I,-4,206),I=1,1)/0/
       DATA (IFOREST(I,-5,206),I=1,2)/-4,-3/
+      DATA TPRID(-5,206)/21/
+      DATA (SPROP(I,-5,206),I=1,1)/0/
 C     Diagram 207
       DATA MAPCONFIG(207)/207/
       DATA TSTRATEGY(207)/1/
@@ -3205,6 +3407,8 @@ C     Diagram 207
       DATA TPRID(-4,207)/6/
       DATA (SPROP(I,-4,207),I=1,1)/0/
       DATA (IFOREST(I,-5,207),I=1,2)/-4,3/
+      DATA TPRID(-5,207)/21/
+      DATA (SPROP(I,-5,207),I=1,1)/0/
 C     Diagram 208
       DATA MAPCONFIG(208)/208/
       DATA TSTRATEGY(208)/1/
@@ -3221,6 +3425,8 @@ C     Diagram 208
       DATA TPRID(-4,208)/6/
       DATA (SPROP(I,-4,208),I=1,1)/0/
       DATA (IFOREST(I,-5,208),I=1,2)/-4,3/
+      DATA TPRID(-5,208)/21/
+      DATA (SPROP(I,-5,208),I=1,1)/0/
 C     Diagram 209
       DATA MAPCONFIG(209)/209/
       DATA TSTRATEGY(209)/-2/
@@ -3237,6 +3443,8 @@ C     Diagram 209
       DATA TPRID(-4,209)/6/
       DATA (SPROP(I,-4,209),I=1,1)/0/
       DATA (IFOREST(I,-5,209),I=1,2)/-3,4/
+      DATA TPRID(-5,209)/6/
+      DATA (SPROP(I,-5,209),I=1,1)/0/
 C     Diagram 210
       DATA MAPCONFIG(210)/210/
       DATA TSTRATEGY(210)/2/
@@ -3253,6 +3461,8 @@ C     Diagram 210
       DATA TPRID(-4,210)/6/
       DATA (SPROP(I,-4,210),I=1,1)/0/
       DATA (IFOREST(I,-5,210),I=1,2)/-4,-2/
+      DATA TPRID(-5,210)/21/
+      DATA (SPROP(I,-5,210),I=1,1)/0/
 C     Diagram 211
       DATA MAPCONFIG(211)/211/
       DATA TSTRATEGY(211)/-2/
@@ -3269,6 +3479,8 @@ C     Diagram 211
       DATA TPRID(-4,211)/6/
       DATA (SPROP(I,-4,211),I=1,1)/0/
       DATA (IFOREST(I,-5,211),I=1,2)/-3,7/
+      DATA TPRID(-5,211)/6/
+      DATA (SPROP(I,-5,211),I=1,1)/0/
 C     Diagram 212
       DATA MAPCONFIG(212)/212/
       DATA TSTRATEGY(212)/-2/
@@ -3285,6 +3497,8 @@ C     Diagram 212
       DATA TPRID(-4,212)/6/
       DATA (SPROP(I,-4,212),I=1,1)/0/
       DATA (IFOREST(I,-5,212),I=1,2)/-3,6/
+      DATA TPRID(-5,212)/6/
+      DATA (SPROP(I,-5,212),I=1,1)/0/
 C     Diagram 213
       DATA MAPCONFIG(213)/213/
       DATA TSTRATEGY(213)/-2/
@@ -3301,6 +3515,8 @@ C     Diagram 213
       DATA TPRID(-4,213)/6/
       DATA (SPROP(I,-4,213),I=1,1)/0/
       DATA (IFOREST(I,-5,213),I=1,2)/-3,7/
+      DATA TPRID(-5,213)/6/
+      DATA (SPROP(I,-5,213),I=1,1)/0/
 C     Diagram 214
       DATA MAPCONFIG(214)/214/
       DATA TSTRATEGY(214)/-2/
@@ -3317,6 +3533,8 @@ C     Diagram 214
       DATA TPRID(-4,214)/6/
       DATA (SPROP(I,-4,214),I=1,1)/0/
       DATA (IFOREST(I,-5,214),I=1,2)/-3,5/
+      DATA TPRID(-5,214)/6/
+      DATA (SPROP(I,-5,214),I=1,1)/0/
 C     Diagram 215
       DATA MAPCONFIG(215)/215/
       DATA TSTRATEGY(215)/-2/
@@ -3333,6 +3551,8 @@ C     Diagram 215
       DATA TPRID(-4,215)/6/
       DATA (SPROP(I,-4,215),I=1,1)/0/
       DATA (IFOREST(I,-5,215),I=1,2)/-3,6/
+      DATA TPRID(-5,215)/6/
+      DATA (SPROP(I,-5,215),I=1,1)/0/
 C     Diagram 216
       DATA MAPCONFIG(216)/216/
       DATA TSTRATEGY(216)/-2/
@@ -3349,6 +3569,8 @@ C     Diagram 216
       DATA TPRID(-4,216)/6/
       DATA (SPROP(I,-4,216),I=1,1)/0/
       DATA (IFOREST(I,-5,216),I=1,2)/-3,5/
+      DATA TPRID(-5,216)/6/
+      DATA (SPROP(I,-5,216),I=1,1)/0/
 C     Diagram 217
       DATA MAPCONFIG(217)/217/
       DATA TSTRATEGY(217)/2/
@@ -3365,6 +3587,8 @@ C     Diagram 217
       DATA TPRID(-4,217)/6/
       DATA (SPROP(I,-4,217),I=1,1)/0/
       DATA (IFOREST(I,-5,217),I=1,2)/-4,3/
+      DATA TPRID(-5,217)/21/
+      DATA (SPROP(I,-5,217),I=1,1)/0/
 C     Diagram 218
       DATA MAPCONFIG(218)/218/
       DATA TSTRATEGY(218)/-2/
@@ -3381,6 +3605,8 @@ C     Diagram 218
       DATA TPRID(-4,218)/6/
       DATA (SPROP(I,-4,218),I=1,1)/0/
       DATA (IFOREST(I,-5,218),I=1,2)/-3,7/
+      DATA TPRID(-5,218)/6/
+      DATA (SPROP(I,-5,218),I=1,1)/0/
 C     Diagram 219
       DATA MAPCONFIG(219)/219/
       DATA TSTRATEGY(219)/-2/
@@ -3397,6 +3623,8 @@ C     Diagram 219
       DATA TPRID(-4,219)/6/
       DATA (SPROP(I,-4,219),I=1,1)/0/
       DATA (IFOREST(I,-5,219),I=1,2)/-3,-1/
+      DATA TPRID(-5,219)/6/
+      DATA (SPROP(I,-5,219),I=1,1)/0/
 C     Diagram 220
       DATA MAPCONFIG(220)/220/
       DATA TSTRATEGY(220)/2/
@@ -3413,6 +3641,8 @@ C     Diagram 220
       DATA TPRID(-4,220)/6/
       DATA (SPROP(I,-4,220),I=1,1)/0/
       DATA (IFOREST(I,-5,220),I=1,2)/-4,3/
+      DATA TPRID(-5,220)/21/
+      DATA (SPROP(I,-5,220),I=1,1)/0/
 C     Diagram 221
       DATA MAPCONFIG(221)/221/
       DATA TSTRATEGY(221)/-2/
@@ -3429,6 +3659,8 @@ C     Diagram 221
       DATA TPRID(-4,221)/6/
       DATA (SPROP(I,-4,221),I=1,1)/0/
       DATA (IFOREST(I,-5,221),I=1,2)/-3,6/
+      DATA TPRID(-5,221)/6/
+      DATA (SPROP(I,-5,221),I=1,1)/0/
 C     Diagram 222
       DATA MAPCONFIG(222)/222/
       DATA TSTRATEGY(222)/-2/
@@ -3445,6 +3677,8 @@ C     Diagram 222
       DATA TPRID(-4,222)/6/
       DATA (SPROP(I,-4,222),I=1,1)/0/
       DATA (IFOREST(I,-5,222),I=1,2)/-3,-1/
+      DATA TPRID(-5,222)/6/
+      DATA (SPROP(I,-5,222),I=1,1)/0/
 C     Diagram 223
       DATA MAPCONFIG(223)/223/
       DATA TSTRATEGY(223)/2/
@@ -3461,6 +3695,8 @@ C     Diagram 223
       DATA TPRID(-4,223)/6/
       DATA (SPROP(I,-4,223),I=1,1)/0/
       DATA (IFOREST(I,-5,223),I=1,2)/-4,3/
+      DATA TPRID(-5,223)/21/
+      DATA (SPROP(I,-5,223),I=1,1)/0/
 C     Diagram 224
       DATA MAPCONFIG(224)/224/
       DATA TSTRATEGY(224)/-2/
@@ -3477,6 +3713,8 @@ C     Diagram 224
       DATA TPRID(-4,224)/6/
       DATA (SPROP(I,-4,224),I=1,1)/0/
       DATA (IFOREST(I,-5,224),I=1,2)/-3,-1/
+      DATA TPRID(-5,224)/6/
+      DATA (SPROP(I,-5,224),I=1,1)/0/
 C     Diagram 225
       DATA MAPCONFIG(225)/225/
       DATA TSTRATEGY(225)/-2/
@@ -3493,6 +3731,8 @@ C     Diagram 225
       DATA TPRID(-4,225)/6/
       DATA (SPROP(I,-4,225),I=1,1)/0/
       DATA (IFOREST(I,-5,225),I=1,2)/-3,5/
+      DATA TPRID(-5,225)/6/
+      DATA (SPROP(I,-5,225),I=1,1)/0/
 C     Diagram 226
       DATA MAPCONFIG(226)/226/
       DATA TSTRATEGY(226)/1/
@@ -3509,6 +3749,8 @@ C     Diagram 226
       DATA TPRID(-4,226)/6/
       DATA (SPROP(I,-4,226),I=1,1)/0/
       DATA (IFOREST(I,-5,226),I=1,2)/-4,4/
+      DATA TPRID(-5,226)/21/
+      DATA (SPROP(I,-5,226),I=1,1)/0/
 C     Diagram 227
       DATA MAPCONFIG(227)/227/
       DATA TSTRATEGY(227)/1/
@@ -3525,6 +3767,8 @@ C     Diagram 227
       DATA TPRID(-4,227)/6/
       DATA (SPROP(I,-4,227),I=1,1)/0/
       DATA (IFOREST(I,-5,227),I=1,2)/-4,4/
+      DATA TPRID(-5,227)/21/
+      DATA (SPROP(I,-5,227),I=1,1)/0/
 C     Diagram 228
       DATA MAPCONFIG(228)/228/
       DATA TSTRATEGY(228)/-2/
@@ -3541,6 +3785,8 @@ C     Diagram 228
       DATA TPRID(-4,228)/6/
       DATA (SPROP(I,-4,228),I=1,1)/0/
       DATA (IFOREST(I,-5,228),I=1,2)/-3,7/
+      DATA TPRID(-5,228)/6/
+      DATA (SPROP(I,-5,228),I=1,1)/0/
 C     Diagram 229
       DATA MAPCONFIG(229)/229/
       DATA TSTRATEGY(229)/1/
@@ -3557,6 +3803,8 @@ C     Diagram 229
       DATA TPRID(-4,229)/6/
       DATA (SPROP(I,-4,229),I=1,1)/0/
       DATA (IFOREST(I,-5,229),I=1,2)/-4,4/
+      DATA TPRID(-5,229)/21/
+      DATA (SPROP(I,-5,229),I=1,1)/0/
 C     Diagram 230
       DATA MAPCONFIG(230)/230/
       DATA TSTRATEGY(230)/-2/
@@ -3573,6 +3821,8 @@ C     Diagram 230
       DATA TPRID(-4,230)/6/
       DATA (SPROP(I,-4,230),I=1,1)/0/
       DATA (IFOREST(I,-5,230),I=1,2)/-3,6/
+      DATA TPRID(-5,230)/6/
+      DATA (SPROP(I,-5,230),I=1,1)/0/
 C     Diagram 231
       DATA MAPCONFIG(231)/231/
       DATA TSTRATEGY(231)/1/
@@ -3589,6 +3839,8 @@ C     Diagram 231
       DATA TPRID(-4,231)/6/
       DATA (SPROP(I,-4,231),I=1,1)/0/
       DATA (IFOREST(I,-5,231),I=1,2)/-4,4/
+      DATA TPRID(-5,231)/21/
+      DATA (SPROP(I,-5,231),I=1,1)/0/
 C     Diagram 232
       DATA MAPCONFIG(232)/232/
       DATA TSTRATEGY(232)/1/
@@ -3605,6 +3857,8 @@ C     Diagram 232
       DATA TPRID(-4,232)/6/
       DATA (SPROP(I,-4,232),I=1,1)/0/
       DATA (IFOREST(I,-5,232),I=1,2)/-4,4/
+      DATA TPRID(-5,232)/21/
+      DATA (SPROP(I,-5,232),I=1,1)/0/
 C     Diagram 233
       DATA MAPCONFIG(233)/233/
       DATA TSTRATEGY(233)/1/
@@ -3621,6 +3875,8 @@ C     Diagram 233
       DATA TPRID(-4,233)/6/
       DATA (SPROP(I,-4,233),I=1,1)/0/
       DATA (IFOREST(I,-5,233),I=1,2)/-4,4/
+      DATA TPRID(-5,233)/21/
+      DATA (SPROP(I,-5,233),I=1,1)/0/
 C     Diagram 234
       DATA MAPCONFIG(234)/234/
       DATA TSTRATEGY(234)/-2/
@@ -3637,6 +3893,8 @@ C     Diagram 234
       DATA TPRID(-4,234)/6/
       DATA (SPROP(I,-4,234),I=1,1)/0/
       DATA (IFOREST(I,-5,234),I=1,2)/-3,-1/
+      DATA TPRID(-5,234)/6/
+      DATA (SPROP(I,-5,234),I=1,1)/0/
 C     Diagram 235
       DATA MAPCONFIG(235)/235/
       DATA TSTRATEGY(235)/1/
@@ -3653,6 +3911,8 @@ C     Diagram 235
       DATA TPRID(-4,235)/6/
       DATA (SPROP(I,-4,235),I=1,1)/0/
       DATA (IFOREST(I,-5,235),I=1,2)/-4,4/
+      DATA TPRID(-5,235)/21/
+      DATA (SPROP(I,-5,235),I=1,1)/0/
 C     Diagram 236
       DATA MAPCONFIG(236)/236/
       DATA TSTRATEGY(236)/1/
@@ -3669,6 +3929,8 @@ C     Diagram 236
       DATA TPRID(-4,236)/6/
       DATA (SPROP(I,-4,236),I=1,1)/0/
       DATA (IFOREST(I,-5,236),I=1,2)/-4,4/
+      DATA TPRID(-5,236)/21/
+      DATA (SPROP(I,-5,236),I=1,1)/0/
 C     Diagram 237
       DATA MAPCONFIG(237)/237/
       DATA TSTRATEGY(237)/-2/
@@ -3685,6 +3947,8 @@ C     Diagram 237
       DATA TPRID(-4,237)/6/
       DATA (SPROP(I,-4,237),I=1,1)/0/
       DATA (IFOREST(I,-5,237),I=1,2)/-3,-1/
+      DATA TPRID(-5,237)/6/
+      DATA (SPROP(I,-5,237),I=1,1)/0/
 C     Diagram 238
       DATA MAPCONFIG(238)/238/
       DATA TSTRATEGY(238)/1/
@@ -3701,6 +3965,8 @@ C     Diagram 238
       DATA TPRID(-4,238)/6/
       DATA (SPROP(I,-4,238),I=1,1)/0/
       DATA (IFOREST(I,-5,238),I=1,2)/-4,4/
+      DATA TPRID(-5,238)/21/
+      DATA (SPROP(I,-5,238),I=1,1)/0/
 C     Diagram 239
       DATA MAPCONFIG(239)/239/
       DATA TSTRATEGY(239)/1/
@@ -3717,6 +3983,8 @@ C     Diagram 239
       DATA TPRID(-4,239)/6/
       DATA (SPROP(I,-4,239),I=1,1)/0/
       DATA (IFOREST(I,-5,239),I=1,2)/-4,4/
+      DATA TPRID(-5,239)/21/
+      DATA (SPROP(I,-5,239),I=1,1)/0/
 C     Diagram 240
       DATA MAPCONFIG(240)/240/
       DATA TSTRATEGY(240)/-2/
@@ -3733,6 +4001,8 @@ C     Diagram 240
       DATA TPRID(-4,240)/6/
       DATA (SPROP(I,-4,240),I=1,1)/0/
       DATA (IFOREST(I,-5,240),I=1,2)/-3,3/
+      DATA TPRID(-5,240)/6/
+      DATA (SPROP(I,-5,240),I=1,1)/0/
 C     Diagram 241
       DATA MAPCONFIG(241)/241/
       DATA TSTRATEGY(241)/1/
@@ -3749,6 +4019,8 @@ C     Diagram 241
       DATA TPRID(-4,241)/6/
       DATA (SPROP(I,-4,241),I=1,1)/0/
       DATA (IFOREST(I,-5,241),I=1,2)/-4,4/
+      DATA TPRID(-5,241)/21/
+      DATA (SPROP(I,-5,241),I=1,1)/0/
 C     Diagram 242
       DATA MAPCONFIG(242)/242/
       DATA TSTRATEGY(242)/1/
@@ -3765,6 +4037,8 @@ C     Diagram 242
       DATA TPRID(-4,242)/6/
       DATA (SPROP(I,-4,242),I=1,1)/0/
       DATA (IFOREST(I,-5,242),I=1,2)/-4,4/
+      DATA TPRID(-5,242)/21/
+      DATA (SPROP(I,-5,242),I=1,1)/0/
 C     Diagram 243
       DATA MAPCONFIG(243)/243/
       DATA TSTRATEGY(243)/-2/
@@ -3781,6 +4055,8 @@ C     Diagram 243
       DATA TPRID(-4,243)/6/
       DATA (SPROP(I,-4,243),I=1,1)/0/
       DATA (IFOREST(I,-5,243),I=1,2)/-3,7/
+      DATA TPRID(-5,243)/6/
+      DATA (SPROP(I,-5,243),I=1,1)/0/
 C     Diagram 244
       DATA MAPCONFIG(244)/244/
       DATA TSTRATEGY(244)/1/
@@ -3797,6 +4073,8 @@ C     Diagram 244
       DATA TPRID(-4,244)/6/
       DATA (SPROP(I,-4,244),I=1,1)/0/
       DATA (IFOREST(I,-5,244),I=1,2)/-4,4/
+      DATA TPRID(-5,244)/21/
+      DATA (SPROP(I,-5,244),I=1,1)/0/
 C     Diagram 245
       DATA MAPCONFIG(245)/245/
       DATA TSTRATEGY(245)/-2/
@@ -3813,6 +4091,8 @@ C     Diagram 245
       DATA TPRID(-4,245)/6/
       DATA (SPROP(I,-4,245),I=1,1)/0/
       DATA (IFOREST(I,-5,245),I=1,2)/-3,5/
+      DATA TPRID(-5,245)/6/
+      DATA (SPROP(I,-5,245),I=1,1)/0/
 C     Diagram 246
       DATA MAPCONFIG(246)/246/
       DATA TSTRATEGY(246)/1/
@@ -3829,6 +4109,8 @@ C     Diagram 246
       DATA TPRID(-4,246)/6/
       DATA (SPROP(I,-4,246),I=1,1)/0/
       DATA (IFOREST(I,-5,246),I=1,2)/-4,4/
+      DATA TPRID(-5,246)/21/
+      DATA (SPROP(I,-5,246),I=1,1)/0/
 C     Diagram 247
       DATA MAPCONFIG(247)/247/
       DATA TSTRATEGY(247)/1/
@@ -3845,6 +4127,8 @@ C     Diagram 247
       DATA TPRID(-4,247)/6/
       DATA (SPROP(I,-4,247),I=1,1)/0/
       DATA (IFOREST(I,-5,247),I=1,2)/-4,4/
+      DATA TPRID(-5,247)/21/
+      DATA (SPROP(I,-5,247),I=1,1)/0/
 C     Diagram 248
       DATA MAPCONFIG(248)/248/
       DATA TSTRATEGY(248)/1/
@@ -3861,6 +4145,8 @@ C     Diagram 248
       DATA TPRID(-4,248)/6/
       DATA (SPROP(I,-4,248),I=1,1)/0/
       DATA (IFOREST(I,-5,248),I=1,2)/-4,4/
+      DATA TPRID(-5,248)/21/
+      DATA (SPROP(I,-5,248),I=1,1)/0/
 C     Diagram 249
       DATA MAPCONFIG(249)/249/
       DATA TSTRATEGY(249)/-2/
@@ -3877,6 +4163,8 @@ C     Diagram 249
       DATA TPRID(-4,249)/6/
       DATA (SPROP(I,-4,249),I=1,1)/0/
       DATA (IFOREST(I,-5,249),I=1,2)/-3,-1/
+      DATA TPRID(-5,249)/6/
+      DATA (SPROP(I,-5,249),I=1,1)/0/
 C     Diagram 250
       DATA MAPCONFIG(250)/250/
       DATA TSTRATEGY(250)/1/
@@ -3893,6 +4181,8 @@ C     Diagram 250
       DATA TPRID(-4,250)/6/
       DATA (SPROP(I,-4,250),I=1,1)/0/
       DATA (IFOREST(I,-5,250),I=1,2)/-4,4/
+      DATA TPRID(-5,250)/21/
+      DATA (SPROP(I,-5,250),I=1,1)/0/
 C     Diagram 251
       DATA MAPCONFIG(251)/251/
       DATA TSTRATEGY(251)/1/
@@ -3909,6 +4199,8 @@ C     Diagram 251
       DATA TPRID(-4,251)/6/
       DATA (SPROP(I,-4,251),I=1,1)/0/
       DATA (IFOREST(I,-5,251),I=1,2)/-4,4/
+      DATA TPRID(-5,251)/21/
+      DATA (SPROP(I,-5,251),I=1,1)/0/
 C     Diagram 252
       DATA MAPCONFIG(252)/252/
       DATA TSTRATEGY(252)/-2/
@@ -3925,6 +4217,8 @@ C     Diagram 252
       DATA TPRID(-4,252)/6/
       DATA (SPROP(I,-4,252),I=1,1)/0/
       DATA (IFOREST(I,-5,252),I=1,2)/-3,-1/
+      DATA TPRID(-5,252)/6/
+      DATA (SPROP(I,-5,252),I=1,1)/0/
 C     Diagram 253
       DATA MAPCONFIG(253)/253/
       DATA TSTRATEGY(253)/1/
@@ -3941,6 +4235,8 @@ C     Diagram 253
       DATA TPRID(-4,253)/6/
       DATA (SPROP(I,-4,253),I=1,1)/0/
       DATA (IFOREST(I,-5,253),I=1,2)/-4,4/
+      DATA TPRID(-5,253)/21/
+      DATA (SPROP(I,-5,253),I=1,1)/0/
 C     Diagram 254
       DATA MAPCONFIG(254)/254/
       DATA TSTRATEGY(254)/1/
@@ -3957,6 +4253,8 @@ C     Diagram 254
       DATA TPRID(-4,254)/6/
       DATA (SPROP(I,-4,254),I=1,1)/0/
       DATA (IFOREST(I,-5,254),I=1,2)/-4,4/
+      DATA TPRID(-5,254)/21/
+      DATA (SPROP(I,-5,254),I=1,1)/0/
 C     Diagram 255
       DATA MAPCONFIG(255)/255/
       DATA TSTRATEGY(255)/-2/
@@ -3973,6 +4271,8 @@ C     Diagram 255
       DATA TPRID(-4,255)/6/
       DATA (SPROP(I,-4,255),I=1,1)/0/
       DATA (IFOREST(I,-5,255),I=1,2)/-3,3/
+      DATA TPRID(-5,255)/6/
+      DATA (SPROP(I,-5,255),I=1,1)/0/
 C     Diagram 256
       DATA MAPCONFIG(256)/256/
       DATA TSTRATEGY(256)/1/
@@ -3989,6 +4289,8 @@ C     Diagram 256
       DATA TPRID(-4,256)/6/
       DATA (SPROP(I,-4,256),I=1,1)/0/
       DATA (IFOREST(I,-5,256),I=1,2)/-4,4/
+      DATA TPRID(-5,256)/21/
+      DATA (SPROP(I,-5,256),I=1,1)/0/
 C     Diagram 257
       DATA MAPCONFIG(257)/257/
       DATA TSTRATEGY(257)/1/
@@ -4005,6 +4307,8 @@ C     Diagram 257
       DATA TPRID(-4,257)/6/
       DATA (SPROP(I,-4,257),I=1,1)/0/
       DATA (IFOREST(I,-5,257),I=1,2)/-4,4/
+      DATA TPRID(-5,257)/21/
+      DATA (SPROP(I,-5,257),I=1,1)/0/
 C     Diagram 258
       DATA MAPCONFIG(258)/258/
       DATA TSTRATEGY(258)/-2/
@@ -4021,6 +4325,8 @@ C     Diagram 258
       DATA TPRID(-4,258)/6/
       DATA (SPROP(I,-4,258),I=1,1)/0/
       DATA (IFOREST(I,-5,258),I=1,2)/-3,6/
+      DATA TPRID(-5,258)/6/
+      DATA (SPROP(I,-5,258),I=1,1)/0/
 C     Diagram 259
       DATA MAPCONFIG(259)/259/
       DATA TSTRATEGY(259)/1/
@@ -4037,6 +4343,8 @@ C     Diagram 259
       DATA TPRID(-4,259)/6/
       DATA (SPROP(I,-4,259),I=1,1)/0/
       DATA (IFOREST(I,-5,259),I=1,2)/-4,4/
+      DATA TPRID(-5,259)/21/
+      DATA (SPROP(I,-5,259),I=1,1)/0/
 C     Diagram 260
       DATA MAPCONFIG(260)/260/
       DATA TSTRATEGY(260)/-2/
@@ -4053,6 +4361,8 @@ C     Diagram 260
       DATA TPRID(-4,260)/6/
       DATA (SPROP(I,-4,260),I=1,1)/0/
       DATA (IFOREST(I,-5,260),I=1,2)/-3,5/
+      DATA TPRID(-5,260)/6/
+      DATA (SPROP(I,-5,260),I=1,1)/0/
 C     Diagram 261
       DATA MAPCONFIG(261)/261/
       DATA TSTRATEGY(261)/1/
@@ -4069,6 +4379,8 @@ C     Diagram 261
       DATA TPRID(-4,261)/6/
       DATA (SPROP(I,-4,261),I=1,1)/0/
       DATA (IFOREST(I,-5,261),I=1,2)/-4,4/
+      DATA TPRID(-5,261)/21/
+      DATA (SPROP(I,-5,261),I=1,1)/0/
 C     Diagram 262
       DATA MAPCONFIG(262)/262/
       DATA TSTRATEGY(262)/1/
@@ -4085,6 +4397,8 @@ C     Diagram 262
       DATA TPRID(-4,262)/6/
       DATA (SPROP(I,-4,262),I=1,1)/0/
       DATA (IFOREST(I,-5,262),I=1,2)/-4,4/
+      DATA TPRID(-5,262)/21/
+      DATA (SPROP(I,-5,262),I=1,1)/0/
 C     Diagram 263
       DATA MAPCONFIG(263)/263/
       DATA TSTRATEGY(263)/1/
@@ -4101,6 +4415,8 @@ C     Diagram 263
       DATA TPRID(-4,263)/6/
       DATA (SPROP(I,-4,263),I=1,1)/0/
       DATA (IFOREST(I,-5,263),I=1,2)/-4,4/
+      DATA TPRID(-5,263)/21/
+      DATA (SPROP(I,-5,263),I=1,1)/0/
 C     Diagram 264
       DATA MAPCONFIG(264)/264/
       DATA TSTRATEGY(264)/-2/
@@ -4117,6 +4433,8 @@ C     Diagram 264
       DATA TPRID(-4,264)/6/
       DATA (SPROP(I,-4,264),I=1,1)/0/
       DATA (IFOREST(I,-5,264),I=1,2)/-3,-1/
+      DATA TPRID(-5,264)/6/
+      DATA (SPROP(I,-5,264),I=1,1)/0/
 C     Diagram 265
       DATA MAPCONFIG(265)/265/
       DATA TSTRATEGY(265)/1/
@@ -4133,6 +4451,8 @@ C     Diagram 265
       DATA TPRID(-4,265)/6/
       DATA (SPROP(I,-4,265),I=1,1)/0/
       DATA (IFOREST(I,-5,265),I=1,2)/-4,4/
+      DATA TPRID(-5,265)/21/
+      DATA (SPROP(I,-5,265),I=1,1)/0/
 C     Diagram 266
       DATA MAPCONFIG(266)/266/
       DATA TSTRATEGY(266)/1/
@@ -4149,6 +4469,8 @@ C     Diagram 266
       DATA TPRID(-4,266)/6/
       DATA (SPROP(I,-4,266),I=1,1)/0/
       DATA (IFOREST(I,-5,266),I=1,2)/-4,4/
+      DATA TPRID(-5,266)/21/
+      DATA (SPROP(I,-5,266),I=1,1)/0/
 C     Diagram 267
       DATA MAPCONFIG(267)/267/
       DATA TSTRATEGY(267)/-2/
@@ -4165,6 +4487,8 @@ C     Diagram 267
       DATA TPRID(-4,267)/6/
       DATA (SPROP(I,-4,267),I=1,1)/0/
       DATA (IFOREST(I,-5,267),I=1,2)/-3,-1/
+      DATA TPRID(-5,267)/6/
+      DATA (SPROP(I,-5,267),I=1,1)/0/
 C     Diagram 268
       DATA MAPCONFIG(268)/268/
       DATA TSTRATEGY(268)/1/
@@ -4181,6 +4505,8 @@ C     Diagram 268
       DATA TPRID(-4,268)/6/
       DATA (SPROP(I,-4,268),I=1,1)/0/
       DATA (IFOREST(I,-5,268),I=1,2)/-4,4/
+      DATA TPRID(-5,268)/21/
+      DATA (SPROP(I,-5,268),I=1,1)/0/
 C     Diagram 269
       DATA MAPCONFIG(269)/269/
       DATA TSTRATEGY(269)/1/
@@ -4197,6 +4523,8 @@ C     Diagram 269
       DATA TPRID(-4,269)/6/
       DATA (SPROP(I,-4,269),I=1,1)/0/
       DATA (IFOREST(I,-5,269),I=1,2)/-4,4/
+      DATA TPRID(-5,269)/21/
+      DATA (SPROP(I,-5,269),I=1,1)/0/
 C     Diagram 270
       DATA MAPCONFIG(270)/270/
       DATA TSTRATEGY(270)/-2/
@@ -4213,6 +4541,8 @@ C     Diagram 270
       DATA TPRID(-4,270)/6/
       DATA (SPROP(I,-4,270),I=1,1)/0/
       DATA (IFOREST(I,-5,270),I=1,2)/-3,3/
+      DATA TPRID(-5,270)/6/
+      DATA (SPROP(I,-5,270),I=1,1)/0/
 C     Diagram 271
       DATA MAPCONFIG(271)/271/
       DATA TSTRATEGY(271)/2/
@@ -4229,6 +4559,8 @@ C     Diagram 271
       DATA TPRID(-4,271)/6/
       DATA (SPROP(I,-4,271),I=1,1)/0/
       DATA (IFOREST(I,-5,271),I=1,2)/-4,-3/
+      DATA TPRID(-5,271)/21/
+      DATA (SPROP(I,-5,271),I=1,1)/0/
 C     Diagram 272
       DATA MAPCONFIG(272)/272/
       DATA TSTRATEGY(272)/2/
@@ -4245,6 +4577,8 @@ C     Diagram 272
       DATA TPRID(-4,272)/6/
       DATA (SPROP(I,-4,272),I=1,1)/0/
       DATA (IFOREST(I,-5,272),I=1,2)/-4,-3/
+      DATA TPRID(-5,272)/21/
+      DATA (SPROP(I,-5,272),I=1,1)/0/
 C     Diagram 273
       DATA MAPCONFIG(273)/273/
       DATA TSTRATEGY(273)/-2/
@@ -4261,6 +4595,8 @@ C     Diagram 273
       DATA TPRID(-4,273)/6/
       DATA (SPROP(I,-4,273),I=1,1)/0/
       DATA (IFOREST(I,-5,273),I=1,2)/-3,7/
+      DATA TPRID(-5,273)/6/
+      DATA (SPROP(I,-5,273),I=1,1)/0/
 C     Diagram 274
       DATA MAPCONFIG(274)/274/
       DATA TSTRATEGY(274)/2/
@@ -4277,6 +4613,8 @@ C     Diagram 274
       DATA TPRID(-4,274)/6/
       DATA (SPROP(I,-4,274),I=1,1)/0/
       DATA (IFOREST(I,-5,274),I=1,2)/-4,-2/
+      DATA TPRID(-5,274)/21/
+      DATA (SPROP(I,-5,274),I=1,1)/0/
 C     Diagram 275
       DATA MAPCONFIG(275)/275/
       DATA TSTRATEGY(275)/-2/
@@ -4293,6 +4631,8 @@ C     Diagram 275
       DATA TPRID(-4,275)/6/
       DATA (SPROP(I,-4,275),I=1,1)/0/
       DATA (IFOREST(I,-5,275),I=1,2)/-3,6/
+      DATA TPRID(-5,275)/6/
+      DATA (SPROP(I,-5,275),I=1,1)/0/
 C     Diagram 276
       DATA MAPCONFIG(276)/276/
       DATA TSTRATEGY(276)/2/
@@ -4309,6 +4649,8 @@ C     Diagram 276
       DATA TPRID(-4,276)/6/
       DATA (SPROP(I,-4,276),I=1,1)/0/
       DATA (IFOREST(I,-5,276),I=1,2)/-4,-2/
+      DATA TPRID(-5,276)/21/
+      DATA (SPROP(I,-5,276),I=1,1)/0/
 C     Diagram 277
       DATA MAPCONFIG(277)/277/
       DATA TSTRATEGY(277)/2/
@@ -4325,6 +4667,8 @@ C     Diagram 277
       DATA TPRID(-4,277)/6/
       DATA (SPROP(I,-4,277),I=1,1)/0/
       DATA (IFOREST(I,-5,277),I=1,2)/-4,-3/
+      DATA TPRID(-5,277)/21/
+      DATA (SPROP(I,-5,277),I=1,1)/0/
 C     Diagram 278
       DATA MAPCONFIG(278)/278/
       DATA TSTRATEGY(278)/1/
@@ -4341,6 +4685,8 @@ C     Diagram 278
       DATA TPRID(-4,278)/6/
       DATA (SPROP(I,-4,278),I=1,1)/0/
       DATA (IFOREST(I,-5,278),I=1,2)/-4,4/
+      DATA TPRID(-5,278)/21/
+      DATA (SPROP(I,-5,278),I=1,1)/0/
 C     Diagram 279
       DATA MAPCONFIG(279)/279/
       DATA TSTRATEGY(279)/2/
@@ -4357,6 +4703,8 @@ C     Diagram 279
       DATA TPRID(-4,279)/6/
       DATA (SPROP(I,-4,279),I=1,1)/0/
       DATA (IFOREST(I,-5,279),I=1,2)/-4,-2/
+      DATA TPRID(-5,279)/21/
+      DATA (SPROP(I,-5,279),I=1,1)/0/
 C     Diagram 280
       DATA MAPCONFIG(280)/280/
       DATA TSTRATEGY(280)/2/
@@ -4373,6 +4721,8 @@ C     Diagram 280
       DATA TPRID(-4,280)/6/
       DATA (SPROP(I,-4,280),I=1,1)/0/
       DATA (IFOREST(I,-5,280),I=1,2)/-4,-3/
+      DATA TPRID(-5,280)/21/
+      DATA (SPROP(I,-5,280),I=1,1)/0/
 C     Diagram 281
       DATA MAPCONFIG(281)/281/
       DATA TSTRATEGY(281)/2/
@@ -4389,6 +4739,8 @@ C     Diagram 281
       DATA TPRID(-4,281)/6/
       DATA (SPROP(I,-4,281),I=1,1)/0/
       DATA (IFOREST(I,-5,281),I=1,2)/-4,-3/
+      DATA TPRID(-5,281)/21/
+      DATA (SPROP(I,-5,281),I=1,1)/0/
 C     Diagram 282
       DATA MAPCONFIG(282)/282/
       DATA TSTRATEGY(282)/-2/
@@ -4405,6 +4757,8 @@ C     Diagram 282
       DATA TPRID(-4,282)/6/
       DATA (SPROP(I,-4,282),I=1,1)/0/
       DATA (IFOREST(I,-5,282),I=1,2)/-3,7/
+      DATA TPRID(-5,282)/6/
+      DATA (SPROP(I,-5,282),I=1,1)/0/
 C     Diagram 283
       DATA MAPCONFIG(283)/283/
       DATA TSTRATEGY(283)/2/
@@ -4421,6 +4775,8 @@ C     Diagram 283
       DATA TPRID(-4,283)/6/
       DATA (SPROP(I,-4,283),I=1,1)/0/
       DATA (IFOREST(I,-5,283),I=1,2)/-4,-2/
+      DATA TPRID(-5,283)/21/
+      DATA (SPROP(I,-5,283),I=1,1)/0/
 C     Diagram 284
       DATA MAPCONFIG(284)/284/
       DATA TSTRATEGY(284)/-2/
@@ -4437,6 +4793,8 @@ C     Diagram 284
       DATA TPRID(-4,284)/6/
       DATA (SPROP(I,-4,284),I=1,1)/0/
       DATA (IFOREST(I,-5,284),I=1,2)/-3,5/
+      DATA TPRID(-5,284)/6/
+      DATA (SPROP(I,-5,284),I=1,1)/0/
 C     Diagram 285
       DATA MAPCONFIG(285)/285/
       DATA TSTRATEGY(285)/2/
@@ -4453,6 +4811,8 @@ C     Diagram 285
       DATA TPRID(-4,285)/6/
       DATA (SPROP(I,-4,285),I=1,1)/0/
       DATA (IFOREST(I,-5,285),I=1,2)/-4,-2/
+      DATA TPRID(-5,285)/21/
+      DATA (SPROP(I,-5,285),I=1,1)/0/
 C     Diagram 286
       DATA MAPCONFIG(286)/286/
       DATA TSTRATEGY(286)/2/
@@ -4469,6 +4829,8 @@ C     Diagram 286
       DATA TPRID(-4,286)/6/
       DATA (SPROP(I,-4,286),I=1,1)/0/
       DATA (IFOREST(I,-5,286),I=1,2)/-4,-3/
+      DATA TPRID(-5,286)/21/
+      DATA (SPROP(I,-5,286),I=1,1)/0/
 C     Diagram 287
       DATA MAPCONFIG(287)/287/
       DATA TSTRATEGY(287)/1/
@@ -4485,6 +4847,8 @@ C     Diagram 287
       DATA TPRID(-4,287)/6/
       DATA (SPROP(I,-4,287),I=1,1)/0/
       DATA (IFOREST(I,-5,287),I=1,2)/-4,4/
+      DATA TPRID(-5,287)/21/
+      DATA (SPROP(I,-5,287),I=1,1)/0/
 C     Diagram 288
       DATA MAPCONFIG(288)/288/
       DATA TSTRATEGY(288)/2/
@@ -4501,6 +4865,8 @@ C     Diagram 288
       DATA TPRID(-4,288)/6/
       DATA (SPROP(I,-4,288),I=1,1)/0/
       DATA (IFOREST(I,-5,288),I=1,2)/-4,-2/
+      DATA TPRID(-5,288)/21/
+      DATA (SPROP(I,-5,288),I=1,1)/0/
 C     Diagram 289
       DATA MAPCONFIG(289)/289/
       DATA TSTRATEGY(289)/2/
@@ -4517,6 +4883,8 @@ C     Diagram 289
       DATA TPRID(-4,289)/6/
       DATA (SPROP(I,-4,289),I=1,1)/0/
       DATA (IFOREST(I,-5,289),I=1,2)/-4,-3/
+      DATA TPRID(-5,289)/21/
+      DATA (SPROP(I,-5,289),I=1,1)/0/
 C     Diagram 290
       DATA MAPCONFIG(290)/290/
       DATA TSTRATEGY(290)/2/
@@ -4533,6 +4901,8 @@ C     Diagram 290
       DATA TPRID(-4,290)/6/
       DATA (SPROP(I,-4,290),I=1,1)/0/
       DATA (IFOREST(I,-5,290),I=1,2)/-4,-3/
+      DATA TPRID(-5,290)/21/
+      DATA (SPROP(I,-5,290),I=1,1)/0/
 C     Diagram 291
       DATA MAPCONFIG(291)/291/
       DATA TSTRATEGY(291)/-2/
@@ -4549,6 +4919,8 @@ C     Diagram 291
       DATA TPRID(-4,291)/6/
       DATA (SPROP(I,-4,291),I=1,1)/0/
       DATA (IFOREST(I,-5,291),I=1,2)/-3,6/
+      DATA TPRID(-5,291)/6/
+      DATA (SPROP(I,-5,291),I=1,1)/0/
 C     Diagram 292
       DATA MAPCONFIG(292)/292/
       DATA TSTRATEGY(292)/2/
@@ -4565,6 +4937,8 @@ C     Diagram 292
       DATA TPRID(-4,292)/6/
       DATA (SPROP(I,-4,292),I=1,1)/0/
       DATA (IFOREST(I,-5,292),I=1,2)/-4,-2/
+      DATA TPRID(-5,292)/21/
+      DATA (SPROP(I,-5,292),I=1,1)/0/
 C     Diagram 293
       DATA MAPCONFIG(293)/293/
       DATA TSTRATEGY(293)/-2/
@@ -4581,6 +4955,8 @@ C     Diagram 293
       DATA TPRID(-4,293)/6/
       DATA (SPROP(I,-4,293),I=1,1)/0/
       DATA (IFOREST(I,-5,293),I=1,2)/-3,5/
+      DATA TPRID(-5,293)/6/
+      DATA (SPROP(I,-5,293),I=1,1)/0/
 C     Diagram 294
       DATA MAPCONFIG(294)/294/
       DATA TSTRATEGY(294)/2/
@@ -4597,6 +4973,8 @@ C     Diagram 294
       DATA TPRID(-4,294)/6/
       DATA (SPROP(I,-4,294),I=1,1)/0/
       DATA (IFOREST(I,-5,294),I=1,2)/-4,-2/
+      DATA TPRID(-5,294)/21/
+      DATA (SPROP(I,-5,294),I=1,1)/0/
 C     Diagram 295
       DATA MAPCONFIG(295)/295/
       DATA TSTRATEGY(295)/2/
@@ -4613,6 +4991,8 @@ C     Diagram 295
       DATA TPRID(-4,295)/6/
       DATA (SPROP(I,-4,295),I=1,1)/0/
       DATA (IFOREST(I,-5,295),I=1,2)/-4,-3/
+      DATA TPRID(-5,295)/21/
+      DATA (SPROP(I,-5,295),I=1,1)/0/
 C     Diagram 296
       DATA MAPCONFIG(296)/296/
       DATA TSTRATEGY(296)/1/
@@ -4629,6 +5009,8 @@ C     Diagram 296
       DATA TPRID(-4,296)/6/
       DATA (SPROP(I,-4,296),I=1,1)/0/
       DATA (IFOREST(I,-5,296),I=1,2)/-4,4/
+      DATA TPRID(-5,296)/21/
+      DATA (SPROP(I,-5,296),I=1,1)/0/
 C     Diagram 297
       DATA MAPCONFIG(297)/297/
       DATA TSTRATEGY(297)/2/
@@ -4645,6 +5027,8 @@ C     Diagram 297
       DATA TPRID(-4,297)/6/
       DATA (SPROP(I,-4,297),I=1,1)/0/
       DATA (IFOREST(I,-5,297),I=1,2)/-4,-2/
+      DATA TPRID(-5,297)/21/
+      DATA (SPROP(I,-5,297),I=1,1)/0/
 C     Diagram 298
       DATA MAPCONFIG(298)/298/
       DATA TSTRATEGY(298)/2/
@@ -4661,6 +5045,8 @@ C     Diagram 298
       DATA TPRID(-4,298)/6/
       DATA (SPROP(I,-4,298),I=1,1)/0/
       DATA (IFOREST(I,-5,298),I=1,2)/-4,-3/
+      DATA TPRID(-5,298)/21/
+      DATA (SPROP(I,-5,298),I=1,1)/0/
 C     Diagram 299
       DATA MAPCONFIG(299)/299/
       DATA TSTRATEGY(299)/2/
@@ -4677,6 +5063,8 @@ C     Diagram 299
       DATA TPRID(-4,299)/6/
       DATA (SPROP(I,-4,299),I=1,1)/0/
       DATA (IFOREST(I,-5,299),I=1,2)/-4,-3/
+      DATA TPRID(-5,299)/21/
+      DATA (SPROP(I,-5,299),I=1,1)/0/
 C     Diagram 300
       DATA MAPCONFIG(300)/300/
       DATA TSTRATEGY(300)/1/
@@ -4693,6 +5081,8 @@ C     Diagram 300
       DATA TPRID(-4,300)/6/
       DATA (SPROP(I,-4,300),I=1,1)/0/
       DATA (IFOREST(I,-5,300),I=1,2)/-4,4/
+      DATA TPRID(-5,300)/21/
+      DATA (SPROP(I,-5,300),I=1,1)/0/
 C     Diagram 301
       DATA MAPCONFIG(301)/301/
       DATA TSTRATEGY(301)/1/
@@ -4709,6 +5099,8 @@ C     Diagram 301
       DATA TPRID(-4,301)/6/
       DATA (SPROP(I,-4,301),I=1,1)/0/
       DATA (IFOREST(I,-5,301),I=1,2)/-4,4/
+      DATA TPRID(-5,301)/21/
+      DATA (SPROP(I,-5,301),I=1,1)/0/
 C     Diagram 302
       DATA MAPCONFIG(302)/302/
       DATA TSTRATEGY(302)/-2/
@@ -4725,6 +5117,8 @@ C     Diagram 302
       DATA TPRID(-4,302)/6/
       DATA (SPROP(I,-4,302),I=1,1)/0/
       DATA (IFOREST(I,-5,302),I=1,2)/-3,3/
+      DATA TPRID(-5,302)/6/
+      DATA (SPROP(I,-5,302),I=1,1)/0/
 C     Diagram 303
       DATA MAPCONFIG(303)/303/
       DATA TSTRATEGY(303)/2/
@@ -4741,6 +5135,8 @@ C     Diagram 303
       DATA TPRID(-4,303)/6/
       DATA (SPROP(I,-4,303),I=1,1)/0/
       DATA (IFOREST(I,-5,303),I=1,2)/-4,-2/
+      DATA TPRID(-5,303)/21/
+      DATA (SPROP(I,-5,303),I=1,1)/0/
 C     Diagram 304
       DATA MAPCONFIG(304)/304/
       DATA TSTRATEGY(304)/2/
@@ -4757,6 +5153,8 @@ C     Diagram 304
       DATA TPRID(-4,304)/6/
       DATA (SPROP(I,-4,304),I=1,1)/0/
       DATA (IFOREST(I,-5,304),I=1,2)/-4,-3/
+      DATA TPRID(-5,304)/21/
+      DATA (SPROP(I,-5,304),I=1,1)/0/
 C     Diagram 305
       DATA MAPCONFIG(305)/305/
       DATA TSTRATEGY(305)/2/
@@ -4773,6 +5171,8 @@ C     Diagram 305
       DATA TPRID(-4,305)/6/
       DATA (SPROP(I,-4,305),I=1,1)/0/
       DATA (IFOREST(I,-5,305),I=1,2)/-4,-3/
+      DATA TPRID(-5,305)/21/
+      DATA (SPROP(I,-5,305),I=1,1)/0/
 C     Diagram 306
       DATA MAPCONFIG(306)/306/
       DATA TSTRATEGY(306)/1/
@@ -4789,6 +5189,8 @@ C     Diagram 306
       DATA TPRID(-4,306)/6/
       DATA (SPROP(I,-4,306),I=1,1)/0/
       DATA (IFOREST(I,-5,306),I=1,2)/-4,4/
+      DATA TPRID(-5,306)/21/
+      DATA (SPROP(I,-5,306),I=1,1)/0/
 C     Diagram 307
       DATA MAPCONFIG(307)/307/
       DATA TSTRATEGY(307)/1/
@@ -4805,6 +5207,8 @@ C     Diagram 307
       DATA TPRID(-4,307)/6/
       DATA (SPROP(I,-4,307),I=1,1)/0/
       DATA (IFOREST(I,-5,307),I=1,2)/-4,4/
+      DATA TPRID(-5,307)/21/
+      DATA (SPROP(I,-5,307),I=1,1)/0/
 C     Diagram 308
       DATA MAPCONFIG(308)/308/
       DATA TSTRATEGY(308)/-2/
@@ -4821,6 +5225,8 @@ C     Diagram 308
       DATA TPRID(-4,308)/6/
       DATA (SPROP(I,-4,308),I=1,1)/0/
       DATA (IFOREST(I,-5,308),I=1,2)/-3,3/
+      DATA TPRID(-5,308)/6/
+      DATA (SPROP(I,-5,308),I=1,1)/0/
 C     Diagram 309
       DATA MAPCONFIG(309)/309/
       DATA TSTRATEGY(309)/2/
@@ -4837,6 +5243,8 @@ C     Diagram 309
       DATA TPRID(-4,309)/6/
       DATA (SPROP(I,-4,309),I=1,1)/0/
       DATA (IFOREST(I,-5,309),I=1,2)/-4,-2/
+      DATA TPRID(-5,309)/21/
+      DATA (SPROP(I,-5,309),I=1,1)/0/
 C     Diagram 310
       DATA MAPCONFIG(310)/310/
       DATA TSTRATEGY(310)/2/
@@ -4853,6 +5261,8 @@ C     Diagram 310
       DATA TPRID(-4,310)/6/
       DATA (SPROP(I,-4,310),I=1,1)/0/
       DATA (IFOREST(I,-5,310),I=1,2)/-4,-3/
+      DATA TPRID(-5,310)/21/
+      DATA (SPROP(I,-5,310),I=1,1)/0/
 C     Diagram 311
       DATA MAPCONFIG(311)/311/
       DATA TSTRATEGY(311)/2/
@@ -4869,6 +5279,8 @@ C     Diagram 311
       DATA TPRID(-4,311)/6/
       DATA (SPROP(I,-4,311),I=1,1)/0/
       DATA (IFOREST(I,-5,311),I=1,2)/-4,-3/
+      DATA TPRID(-5,311)/21/
+      DATA (SPROP(I,-5,311),I=1,1)/0/
 C     Diagram 312
       DATA MAPCONFIG(312)/312/
       DATA TSTRATEGY(312)/1/
@@ -4885,6 +5297,8 @@ C     Diagram 312
       DATA TPRID(-4,312)/6/
       DATA (SPROP(I,-4,312),I=1,1)/0/
       DATA (IFOREST(I,-5,312),I=1,2)/-4,4/
+      DATA TPRID(-5,312)/21/
+      DATA (SPROP(I,-5,312),I=1,1)/0/
 C     Diagram 313
       DATA MAPCONFIG(313)/313/
       DATA TSTRATEGY(313)/1/
@@ -4901,6 +5315,8 @@ C     Diagram 313
       DATA TPRID(-4,313)/6/
       DATA (SPROP(I,-4,313),I=1,1)/0/
       DATA (IFOREST(I,-5,313),I=1,2)/-4,4/
+      DATA TPRID(-5,313)/21/
+      DATA (SPROP(I,-5,313),I=1,1)/0/
 C     Diagram 314
       DATA MAPCONFIG(314)/314/
       DATA TSTRATEGY(314)/-2/
@@ -4917,6 +5333,8 @@ C     Diagram 314
       DATA TPRID(-4,314)/6/
       DATA (SPROP(I,-4,314),I=1,1)/0/
       DATA (IFOREST(I,-5,314),I=1,2)/-3,3/
+      DATA TPRID(-5,314)/6/
+      DATA (SPROP(I,-5,314),I=1,1)/0/
 C     Diagram 315
       DATA MAPCONFIG(315)/315/
       DATA TSTRATEGY(315)/2/
@@ -4933,6 +5351,8 @@ C     Diagram 315
       DATA TPRID(-4,315)/6/
       DATA (SPROP(I,-4,315),I=1,1)/0/
       DATA (IFOREST(I,-5,315),I=1,2)/-4,-2/
+      DATA TPRID(-5,315)/21/
+      DATA (SPROP(I,-5,315),I=1,1)/0/
 C     Diagram 316
       DATA MAPCONFIG(316)/316/
       DATA TSTRATEGY(316)/-2/
@@ -4949,6 +5369,8 @@ C     Diagram 316
       DATA TPRID(-4,316)/6/
       DATA (SPROP(I,-4,316),I=1,1)/0/
       DATA (IFOREST(I,-5,316),I=1,2)/-3,7/
+      DATA TPRID(-5,316)/6/
+      DATA (SPROP(I,-5,316),I=1,1)/0/
 C     Diagram 317
       DATA MAPCONFIG(317)/317/
       DATA TSTRATEGY(317)/-2/
@@ -4965,6 +5387,8 @@ C     Diagram 317
       DATA TPRID(-4,317)/6/
       DATA (SPROP(I,-4,317),I=1,1)/0/
       DATA (IFOREST(I,-5,317),I=1,2)/-3,6/
+      DATA TPRID(-5,317)/6/
+      DATA (SPROP(I,-5,317),I=1,1)/0/
 C     Diagram 318
       DATA MAPCONFIG(318)/318/
       DATA TSTRATEGY(318)/2/
@@ -4981,6 +5405,8 @@ C     Diagram 318
       DATA TPRID(-4,318)/6/
       DATA (SPROP(I,-4,318),I=1,1)/0/
       DATA (IFOREST(I,-5,318),I=1,2)/-4,3/
+      DATA TPRID(-5,318)/21/
+      DATA (SPROP(I,-5,318),I=1,1)/0/
 C     Diagram 319
       DATA MAPCONFIG(319)/319/
       DATA TSTRATEGY(319)/2/
@@ -4997,6 +5423,8 @@ C     Diagram 319
       DATA TPRID(-4,319)/6/
       DATA (SPROP(I,-4,319),I=1,1)/0/
       DATA (IFOREST(I,-5,319),I=1,2)/-4,3/
+      DATA TPRID(-5,319)/21/
+      DATA (SPROP(I,-5,319),I=1,1)/0/
 C     Diagram 320
       DATA MAPCONFIG(320)/320/
       DATA TSTRATEGY(320)/2/
@@ -5013,6 +5441,8 @@ C     Diagram 320
       DATA TPRID(-4,320)/6/
       DATA (SPROP(I,-4,320),I=1,1)/0/
       DATA (IFOREST(I,-5,320),I=1,2)/-4,3/
+      DATA TPRID(-5,320)/21/
+      DATA (SPROP(I,-5,320),I=1,1)/0/
 C     Diagram 321
       DATA MAPCONFIG(321)/321/
       DATA TSTRATEGY(321)/2/
@@ -5029,6 +5459,8 @@ C     Diagram 321
       DATA TPRID(-4,321)/6/
       DATA (SPROP(I,-4,321),I=1,1)/0/
       DATA (IFOREST(I,-5,321),I=1,2)/-4,3/
+      DATA TPRID(-5,321)/21/
+      DATA (SPROP(I,-5,321),I=1,1)/0/
 C     Diagram 322
       DATA MAPCONFIG(322)/322/
       DATA TSTRATEGY(322)/2/
@@ -5045,6 +5477,8 @@ C     Diagram 322
       DATA TPRID(-4,322)/6/
       DATA (SPROP(I,-4,322),I=1,1)/0/
       DATA (IFOREST(I,-5,322),I=1,2)/-4,3/
+      DATA TPRID(-5,322)/21/
+      DATA (SPROP(I,-5,322),I=1,1)/0/
 C     Diagram 323
       DATA MAPCONFIG(323)/323/
       DATA TSTRATEGY(323)/-2/
@@ -5061,6 +5495,8 @@ C     Diagram 323
       DATA TPRID(-4,323)/6/
       DATA (SPROP(I,-4,323),I=1,1)/0/
       DATA (IFOREST(I,-5,323),I=1,2)/-3,7/
+      DATA TPRID(-5,323)/6/
+      DATA (SPROP(I,-5,323),I=1,1)/0/
 C     Diagram 324
       DATA MAPCONFIG(324)/324/
       DATA TSTRATEGY(324)/2/
@@ -5077,6 +5513,8 @@ C     Diagram 324
       DATA TPRID(-4,324)/6/
       DATA (SPROP(I,-4,324),I=1,1)/0/
       DATA (IFOREST(I,-5,324),I=1,2)/-4,3/
+      DATA TPRID(-5,324)/21/
+      DATA (SPROP(I,-5,324),I=1,1)/0/
 C     Diagram 325
       DATA MAPCONFIG(325)/325/
       DATA TSTRATEGY(325)/2/
@@ -5093,6 +5531,8 @@ C     Diagram 325
       DATA TPRID(-4,325)/6/
       DATA (SPROP(I,-4,325),I=1,1)/0/
       DATA (IFOREST(I,-5,325),I=1,2)/-4,3/
+      DATA TPRID(-5,325)/21/
+      DATA (SPROP(I,-5,325),I=1,1)/0/
 C     Diagram 326
       DATA MAPCONFIG(326)/326/
       DATA TSTRATEGY(326)/-2/
@@ -5109,6 +5549,8 @@ C     Diagram 326
       DATA TPRID(-4,326)/6/
       DATA (SPROP(I,-4,326),I=1,1)/0/
       DATA (IFOREST(I,-5,326),I=1,2)/-3,6/
+      DATA TPRID(-5,326)/6/
+      DATA (SPROP(I,-5,326),I=1,1)/0/
 C     Diagram 327
       DATA MAPCONFIG(327)/327/
       DATA TSTRATEGY(327)/2/
@@ -5125,6 +5567,8 @@ C     Diagram 327
       DATA TPRID(-4,327)/6/
       DATA (SPROP(I,-4,327),I=1,1)/0/
       DATA (IFOREST(I,-5,327),I=1,2)/-4,3/
+      DATA TPRID(-5,327)/21/
+      DATA (SPROP(I,-5,327),I=1,1)/0/
 C     Diagram 328
       DATA MAPCONFIG(328)/328/
       DATA TSTRATEGY(328)/2/
@@ -5141,6 +5585,8 @@ C     Diagram 328
       DATA TPRID(-4,328)/6/
       DATA (SPROP(I,-4,328),I=1,1)/0/
       DATA (IFOREST(I,-5,328),I=1,2)/-4,3/
+      DATA TPRID(-5,328)/21/
+      DATA (SPROP(I,-5,328),I=1,1)/0/
 C     Diagram 329
       DATA MAPCONFIG(329)/329/
       DATA TSTRATEGY(329)/-2/
@@ -5157,6 +5603,8 @@ C     Diagram 329
       DATA TPRID(-4,329)/6/
       DATA (SPROP(I,-4,329),I=1,1)/0/
       DATA (IFOREST(I,-5,329),I=1,2)/-3,-1/
+      DATA TPRID(-5,329)/6/
+      DATA (SPROP(I,-5,329),I=1,1)/0/
 C     Diagram 330
       DATA MAPCONFIG(330)/330/
       DATA TSTRATEGY(330)/2/
@@ -5173,6 +5621,8 @@ C     Diagram 330
       DATA TPRID(-4,330)/6/
       DATA (SPROP(I,-4,330),I=1,1)/0/
       DATA (IFOREST(I,-5,330),I=1,2)/-4,3/
+      DATA TPRID(-5,330)/21/
+      DATA (SPROP(I,-5,330),I=1,1)/0/
 C     Diagram 331
       DATA MAPCONFIG(331)/331/
       DATA TSTRATEGY(331)/-2/
@@ -5189,6 +5639,8 @@ C     Diagram 331
       DATA TPRID(-4,331)/6/
       DATA (SPROP(I,-4,331),I=1,1)/0/
       DATA (IFOREST(I,-5,331),I=1,2)/-3,7/
+      DATA TPRID(-5,331)/6/
+      DATA (SPROP(I,-5,331),I=1,1)/0/
 C     Diagram 332
       DATA MAPCONFIG(332)/332/
       DATA TSTRATEGY(332)/-2/
@@ -5205,6 +5657,8 @@ C     Diagram 332
       DATA TPRID(-4,332)/6/
       DATA (SPROP(I,-4,332),I=1,1)/0/
       DATA (IFOREST(I,-5,332),I=1,2)/-3,6/
+      DATA TPRID(-5,332)/6/
+      DATA (SPROP(I,-5,332),I=1,1)/0/
 C     Diagram 333
       DATA MAPCONFIG(333)/333/
       DATA TSTRATEGY(333)/2/
@@ -5221,6 +5675,8 @@ C     Diagram 333
       DATA TPRID(-4,333)/6/
       DATA (SPROP(I,-4,333),I=1,1)/0/
       DATA (IFOREST(I,-5,333),I=1,2)/-4,4/
+      DATA TPRID(-5,333)/21/
+      DATA (SPROP(I,-5,333),I=1,1)/0/
 C     Diagram 334
       DATA MAPCONFIG(334)/334/
       DATA TSTRATEGY(334)/2/
@@ -5237,6 +5693,8 @@ C     Diagram 334
       DATA TPRID(-4,334)/6/
       DATA (SPROP(I,-4,334),I=1,1)/0/
       DATA (IFOREST(I,-5,334),I=1,2)/-4,4/
+      DATA TPRID(-5,334)/21/
+      DATA (SPROP(I,-5,334),I=1,1)/0/
 C     Diagram 335
       DATA MAPCONFIG(335)/335/
       DATA TSTRATEGY(335)/2/
@@ -5253,6 +5711,8 @@ C     Diagram 335
       DATA TPRID(-4,335)/6/
       DATA (SPROP(I,-4,335),I=1,1)/0/
       DATA (IFOREST(I,-5,335),I=1,2)/-4,4/
+      DATA TPRID(-5,335)/21/
+      DATA (SPROP(I,-5,335),I=1,1)/0/
 C     Diagram 336
       DATA MAPCONFIG(336)/336/
       DATA TSTRATEGY(336)/2/
@@ -5269,6 +5729,8 @@ C     Diagram 336
       DATA TPRID(-4,336)/6/
       DATA (SPROP(I,-4,336),I=1,1)/0/
       DATA (IFOREST(I,-5,336),I=1,2)/-4,4/
+      DATA TPRID(-5,336)/21/
+      DATA (SPROP(I,-5,336),I=1,1)/0/
 C     Diagram 337
       DATA MAPCONFIG(337)/337/
       DATA TSTRATEGY(337)/2/
@@ -5285,6 +5747,8 @@ C     Diagram 337
       DATA TPRID(-4,337)/6/
       DATA (SPROP(I,-4,337),I=1,1)/0/
       DATA (IFOREST(I,-5,337),I=1,2)/-4,4/
+      DATA TPRID(-5,337)/21/
+      DATA (SPROP(I,-5,337),I=1,1)/0/
 C     Diagram 338
       DATA MAPCONFIG(338)/338/
       DATA TSTRATEGY(338)/-2/
@@ -5301,6 +5765,8 @@ C     Diagram 338
       DATA TPRID(-4,338)/6/
       DATA (SPROP(I,-4,338),I=1,1)/0/
       DATA (IFOREST(I,-5,338),I=1,2)/-3,7/
+      DATA TPRID(-5,338)/6/
+      DATA (SPROP(I,-5,338),I=1,1)/0/
 C     Diagram 339
       DATA MAPCONFIG(339)/339/
       DATA TSTRATEGY(339)/2/
@@ -5317,6 +5783,8 @@ C     Diagram 339
       DATA TPRID(-4,339)/6/
       DATA (SPROP(I,-4,339),I=1,1)/0/
       DATA (IFOREST(I,-5,339),I=1,2)/-4,4/
+      DATA TPRID(-5,339)/21/
+      DATA (SPROP(I,-5,339),I=1,1)/0/
 C     Diagram 340
       DATA MAPCONFIG(340)/340/
       DATA TSTRATEGY(340)/2/
@@ -5333,6 +5801,8 @@ C     Diagram 340
       DATA TPRID(-4,340)/6/
       DATA (SPROP(I,-4,340),I=1,1)/0/
       DATA (IFOREST(I,-5,340),I=1,2)/-4,4/
+      DATA TPRID(-5,340)/21/
+      DATA (SPROP(I,-5,340),I=1,1)/0/
 C     Diagram 341
       DATA MAPCONFIG(341)/341/
       DATA TSTRATEGY(341)/-2/
@@ -5349,6 +5819,8 @@ C     Diagram 341
       DATA TPRID(-4,341)/6/
       DATA (SPROP(I,-4,341),I=1,1)/0/
       DATA (IFOREST(I,-5,341),I=1,2)/-3,6/
+      DATA TPRID(-5,341)/6/
+      DATA (SPROP(I,-5,341),I=1,1)/0/
 C     Diagram 342
       DATA MAPCONFIG(342)/342/
       DATA TSTRATEGY(342)/2/
@@ -5365,6 +5837,8 @@ C     Diagram 342
       DATA TPRID(-4,342)/6/
       DATA (SPROP(I,-4,342),I=1,1)/0/
       DATA (IFOREST(I,-5,342),I=1,2)/-4,4/
+      DATA TPRID(-5,342)/21/
+      DATA (SPROP(I,-5,342),I=1,1)/0/
 C     Diagram 343
       DATA MAPCONFIG(343)/343/
       DATA TSTRATEGY(343)/2/
@@ -5381,6 +5855,8 @@ C     Diagram 343
       DATA TPRID(-4,343)/6/
       DATA (SPROP(I,-4,343),I=1,1)/0/
       DATA (IFOREST(I,-5,343),I=1,2)/-4,4/
+      DATA TPRID(-5,343)/21/
+      DATA (SPROP(I,-5,343),I=1,1)/0/
 C     Diagram 344
       DATA MAPCONFIG(344)/344/
       DATA TSTRATEGY(344)/-2/
@@ -5397,6 +5873,8 @@ C     Diagram 344
       DATA TPRID(-4,344)/6/
       DATA (SPROP(I,-4,344),I=1,1)/0/
       DATA (IFOREST(I,-5,344),I=1,2)/-3,-1/
+      DATA TPRID(-5,344)/6/
+      DATA (SPROP(I,-5,344),I=1,1)/0/
 C     Diagram 345
       DATA MAPCONFIG(345)/345/
       DATA TSTRATEGY(345)/2/
@@ -5413,6 +5891,8 @@ C     Diagram 345
       DATA TPRID(-4,345)/6/
       DATA (SPROP(I,-4,345),I=1,1)/0/
       DATA (IFOREST(I,-5,345),I=1,2)/-4,4/
+      DATA TPRID(-5,345)/21/
+      DATA (SPROP(I,-5,345),I=1,1)/0/
 C     Diagram 346
       DATA MAPCONFIG(346)/346/
       DATA TSTRATEGY(346)/-2/
@@ -5429,6 +5909,8 @@ C     Diagram 346
       DATA TPRID(-4,346)/6/
       DATA (SPROP(I,-4,346),I=1,1)/0/
       DATA (IFOREST(I,-5,346),I=1,2)/-3,7/
+      DATA TPRID(-5,346)/6/
+      DATA (SPROP(I,-5,346),I=1,1)/0/
 C     Diagram 347
       DATA MAPCONFIG(347)/347/
       DATA TSTRATEGY(347)/-2/
@@ -5445,6 +5927,8 @@ C     Diagram 347
       DATA TPRID(-4,347)/21/
       DATA (SPROP(I,-4,347),I=1,1)/0/
       DATA (IFOREST(I,-5,347),I=1,2)/-3,4/
+      DATA TPRID(-5,347)/21/
+      DATA (SPROP(I,-5,347),I=1,1)/0/
 C     Diagram 348
       DATA MAPCONFIG(348)/348/
       DATA TSTRATEGY(348)/-2/
@@ -5461,6 +5945,8 @@ C     Diagram 348
       DATA TPRID(-4,348)/6/
       DATA (SPROP(I,-4,348),I=1,1)/0/
       DATA (IFOREST(I,-5,348),I=1,2)/-3,7/
+      DATA TPRID(-5,348)/6/
+      DATA (SPROP(I,-5,348),I=1,1)/0/
 C     Diagram 349
       DATA MAPCONFIG(349)/349/
       DATA TSTRATEGY(349)/-2/
@@ -5477,6 +5963,8 @@ C     Diagram 349
       DATA TPRID(-4,349)/21/
       DATA (SPROP(I,-4,349),I=1,1)/0/
       DATA (IFOREST(I,-5,349),I=1,2)/-3,3/
+      DATA TPRID(-5,349)/21/
+      DATA (SPROP(I,-5,349),I=1,1)/0/
 C     Diagram 350
       DATA MAPCONFIG(350)/350/
       DATA TSTRATEGY(350)/-2/
@@ -5493,6 +5981,8 @@ C     Diagram 350
       DATA TPRID(-4,350)/6/
       DATA (SPROP(I,-4,350),I=1,1)/0/
       DATA (IFOREST(I,-5,350),I=1,2)/-3,4/
+      DATA TPRID(-5,350)/6/
+      DATA (SPROP(I,-5,350),I=1,1)/0/
 C     Diagram 351
       DATA MAPCONFIG(351)/351/
       DATA TSTRATEGY(351)/-2/
@@ -5509,6 +5999,8 @@ C     Diagram 351
       DATA TPRID(-4,351)/6/
       DATA (SPROP(I,-4,351),I=1,1)/0/
       DATA (IFOREST(I,-5,351),I=1,2)/-3,3/
+      DATA TPRID(-5,351)/6/
+      DATA (SPROP(I,-5,351),I=1,1)/0/
 C     Diagram 352
       DATA MAPCONFIG(352)/352/
       DATA TSTRATEGY(352)/1/
@@ -5525,6 +6017,8 @@ C     Diagram 352
       DATA TPRID(-4,352)/21/
       DATA (SPROP(I,-4,352),I=1,1)/0/
       DATA (IFOREST(I,-5,352),I=1,2)/-4,5/
+      DATA TPRID(-5,352)/21/
+      DATA (SPROP(I,-5,352),I=1,1)/0/
 C     Diagram 353
       DATA MAPCONFIG(353)/353/
       DATA TSTRATEGY(353)/-2/
@@ -5541,6 +6035,8 @@ C     Diagram 353
       DATA TPRID(-4,353)/21/
       DATA (SPROP(I,-4,353),I=1,1)/0/
       DATA (IFOREST(I,-5,353),I=1,2)/-3,7/
+      DATA TPRID(-5,353)/21/
+      DATA (SPROP(I,-5,353),I=1,1)/0/
 C     Diagram 354
       DATA MAPCONFIG(354)/354/
       DATA TSTRATEGY(354)/-2/
@@ -5557,6 +6053,8 @@ C     Diagram 354
       DATA TPRID(-4,354)/21/
       DATA (SPROP(I,-4,354),I=1,1)/0/
       DATA (IFOREST(I,-5,354),I=1,2)/-3,-1/
+      DATA TPRID(-5,354)/21/
+      DATA (SPROP(I,-5,354),I=1,1)/0/
 C     Diagram 355
       DATA MAPCONFIG(355)/355/
       DATA TSTRATEGY(355)/1/
@@ -5573,6 +6071,8 @@ C     Diagram 355
       DATA TPRID(-4,355)/21/
       DATA (SPROP(I,-4,355),I=1,1)/0/
       DATA (IFOREST(I,-5,355),I=1,2)/-4,5/
+      DATA TPRID(-5,355)/21/
+      DATA (SPROP(I,-5,355),I=1,1)/0/
 C     Diagram 356
       DATA MAPCONFIG(356)/356/
       DATA TSTRATEGY(356)/-2/
@@ -5589,6 +6089,8 @@ C     Diagram 356
       DATA TPRID(-4,356)/6/
       DATA (SPROP(I,-4,356),I=1,1)/0/
       DATA (IFOREST(I,-5,356),I=1,2)/-3,4/
+      DATA TPRID(-5,356)/6/
+      DATA (SPROP(I,-5,356),I=1,1)/0/
 C     Diagram 357
       DATA MAPCONFIG(357)/357/
       DATA TSTRATEGY(357)/-2/
@@ -5605,6 +6107,8 @@ C     Diagram 357
       DATA TPRID(-4,357)/6/
       DATA (SPROP(I,-4,357),I=1,1)/0/
       DATA (IFOREST(I,-5,357),I=1,2)/-3,-1/
+      DATA TPRID(-5,357)/6/
+      DATA (SPROP(I,-5,357),I=1,1)/0/
 C     Diagram 358
       DATA MAPCONFIG(358)/358/
       DATA TSTRATEGY(358)/1/
@@ -5621,6 +6125,8 @@ C     Diagram 358
       DATA TPRID(-4,358)/21/
       DATA (SPROP(I,-4,358),I=1,1)/0/
       DATA (IFOREST(I,-5,358),I=1,2)/-4,5/
+      DATA TPRID(-5,358)/21/
+      DATA (SPROP(I,-5,358),I=1,1)/0/
 C     Diagram 359
       DATA MAPCONFIG(359)/359/
       DATA TSTRATEGY(359)/-2/
@@ -5637,6 +6143,8 @@ C     Diagram 359
       DATA TPRID(-4,359)/6/
       DATA (SPROP(I,-4,359),I=1,1)/0/
       DATA (IFOREST(I,-5,359),I=1,2)/-3,-1/
+      DATA TPRID(-5,359)/6/
+      DATA (SPROP(I,-5,359),I=1,1)/0/
 C     Diagram 360
       DATA MAPCONFIG(360)/360/
       DATA TSTRATEGY(360)/-2/
@@ -5653,6 +6161,8 @@ C     Diagram 360
       DATA TPRID(-4,360)/6/
       DATA (SPROP(I,-4,360),I=1,1)/0/
       DATA (IFOREST(I,-5,360),I=1,2)/-3,3/
+      DATA TPRID(-5,360)/6/
+      DATA (SPROP(I,-5,360),I=1,1)/0/
 C     Diagram 361
       DATA MAPCONFIG(361)/361/
       DATA TSTRATEGY(361)/-2/
@@ -5669,6 +6179,8 @@ C     Diagram 361
       DATA TPRID(-4,361)/6/
       DATA (SPROP(I,-4,361),I=1,1)/0/
       DATA (IFOREST(I,-5,361),I=1,2)/-3,6/
+      DATA TPRID(-5,361)/6/
+      DATA (SPROP(I,-5,361),I=1,1)/0/
 C     Diagram 362
       DATA MAPCONFIG(362)/362/
       DATA TSTRATEGY(362)/-2/
@@ -5685,6 +6197,8 @@ C     Diagram 362
       DATA TPRID(-4,362)/21/
       DATA (SPROP(I,-4,362),I=1,1)/0/
       DATA (IFOREST(I,-5,362),I=1,2)/-3,4/
+      DATA TPRID(-5,362)/21/
+      DATA (SPROP(I,-5,362),I=1,1)/0/
 C     Diagram 363
       DATA MAPCONFIG(363)/363/
       DATA TSTRATEGY(363)/-2/
@@ -5701,6 +6215,8 @@ C     Diagram 363
       DATA TPRID(-4,363)/6/
       DATA (SPROP(I,-4,363),I=1,1)/0/
       DATA (IFOREST(I,-5,363),I=1,2)/-3,6/
+      DATA TPRID(-5,363)/6/
+      DATA (SPROP(I,-5,363),I=1,1)/0/
 C     Diagram 364
       DATA MAPCONFIG(364)/364/
       DATA TSTRATEGY(364)/-2/
@@ -5717,6 +6233,8 @@ C     Diagram 364
       DATA TPRID(-4,364)/21/
       DATA (SPROP(I,-4,364),I=1,1)/0/
       DATA (IFOREST(I,-5,364),I=1,2)/-3,3/
+      DATA TPRID(-5,364)/21/
+      DATA (SPROP(I,-5,364),I=1,1)/0/
 C     Diagram 365
       DATA MAPCONFIG(365)/365/
       DATA TSTRATEGY(365)/-2/
@@ -5733,6 +6251,8 @@ C     Diagram 365
       DATA TPRID(-4,365)/6/
       DATA (SPROP(I,-4,365),I=1,1)/0/
       DATA (IFOREST(I,-5,365),I=1,2)/-3,4/
+      DATA TPRID(-5,365)/6/
+      DATA (SPROP(I,-5,365),I=1,1)/0/
 C     Diagram 366
       DATA MAPCONFIG(366)/366/
       DATA TSTRATEGY(366)/-2/
@@ -5749,6 +6269,8 @@ C     Diagram 366
       DATA TPRID(-4,366)/6/
       DATA (SPROP(I,-4,366),I=1,1)/0/
       DATA (IFOREST(I,-5,366),I=1,2)/-3,3/
+      DATA TPRID(-5,366)/6/
+      DATA (SPROP(I,-5,366),I=1,1)/0/
 C     Diagram 367
       DATA MAPCONFIG(367)/367/
       DATA TSTRATEGY(367)/1/
@@ -5765,6 +6287,8 @@ C     Diagram 367
       DATA TPRID(-4,367)/21/
       DATA (SPROP(I,-4,367),I=1,1)/0/
       DATA (IFOREST(I,-5,367),I=1,2)/-4,5/
+      DATA TPRID(-5,367)/21/
+      DATA (SPROP(I,-5,367),I=1,1)/0/
 C     Diagram 368
       DATA MAPCONFIG(368)/368/
       DATA TSTRATEGY(368)/-2/
@@ -5781,6 +6305,8 @@ C     Diagram 368
       DATA TPRID(-4,368)/21/
       DATA (SPROP(I,-4,368),I=1,1)/0/
       DATA (IFOREST(I,-5,368),I=1,2)/-3,6/
+      DATA TPRID(-5,368)/21/
+      DATA (SPROP(I,-5,368),I=1,1)/0/
 C     Diagram 369
       DATA MAPCONFIG(369)/369/
       DATA TSTRATEGY(369)/-2/
@@ -5797,6 +6323,8 @@ C     Diagram 369
       DATA TPRID(-4,369)/21/
       DATA (SPROP(I,-4,369),I=1,1)/0/
       DATA (IFOREST(I,-5,369),I=1,2)/-3,-1/
+      DATA TPRID(-5,369)/21/
+      DATA (SPROP(I,-5,369),I=1,1)/0/
 C     Diagram 370
       DATA MAPCONFIG(370)/370/
       DATA TSTRATEGY(370)/1/
@@ -5813,6 +6341,8 @@ C     Diagram 370
       DATA TPRID(-4,370)/21/
       DATA (SPROP(I,-4,370),I=1,1)/0/
       DATA (IFOREST(I,-5,370),I=1,2)/-4,5/
+      DATA TPRID(-5,370)/21/
+      DATA (SPROP(I,-5,370),I=1,1)/0/
 C     Diagram 371
       DATA MAPCONFIG(371)/371/
       DATA TSTRATEGY(371)/-2/
@@ -5829,6 +6359,8 @@ C     Diagram 371
       DATA TPRID(-4,371)/6/
       DATA (SPROP(I,-4,371),I=1,1)/0/
       DATA (IFOREST(I,-5,371),I=1,2)/-3,4/
+      DATA TPRID(-5,371)/6/
+      DATA (SPROP(I,-5,371),I=1,1)/0/
 C     Diagram 372
       DATA MAPCONFIG(372)/372/
       DATA TSTRATEGY(372)/-2/
@@ -5845,6 +6377,8 @@ C     Diagram 372
       DATA TPRID(-4,372)/6/
       DATA (SPROP(I,-4,372),I=1,1)/0/
       DATA (IFOREST(I,-5,372),I=1,2)/-3,-1/
+      DATA TPRID(-5,372)/6/
+      DATA (SPROP(I,-5,372),I=1,1)/0/
 C     Diagram 373
       DATA MAPCONFIG(373)/373/
       DATA TSTRATEGY(373)/1/
@@ -5861,6 +6395,8 @@ C     Diagram 373
       DATA TPRID(-4,373)/21/
       DATA (SPROP(I,-4,373),I=1,1)/0/
       DATA (IFOREST(I,-5,373),I=1,2)/-4,5/
+      DATA TPRID(-5,373)/21/
+      DATA (SPROP(I,-5,373),I=1,1)/0/
 C     Diagram 374
       DATA MAPCONFIG(374)/374/
       DATA TSTRATEGY(374)/-2/
@@ -5877,6 +6413,8 @@ C     Diagram 374
       DATA TPRID(-4,374)/6/
       DATA (SPROP(I,-4,374),I=1,1)/0/
       DATA (IFOREST(I,-5,374),I=1,2)/-3,-1/
+      DATA TPRID(-5,374)/6/
+      DATA (SPROP(I,-5,374),I=1,1)/0/
 C     Diagram 375
       DATA MAPCONFIG(375)/375/
       DATA TSTRATEGY(375)/-2/
@@ -5893,6 +6431,8 @@ C     Diagram 375
       DATA TPRID(-4,375)/6/
       DATA (SPROP(I,-4,375),I=1,1)/0/
       DATA (IFOREST(I,-5,375),I=1,2)/-3,3/
+      DATA TPRID(-5,375)/6/
+      DATA (SPROP(I,-5,375),I=1,1)/0/
 C     Diagram 376
       DATA MAPCONFIG(376)/376/
       DATA TSTRATEGY(376)/2/
@@ -5909,6 +6449,8 @@ C     Diagram 376
       DATA TPRID(-4,376)/21/
       DATA (SPROP(I,-4,376),I=1,1)/0/
       DATA (IFOREST(I,-5,376),I=1,2)/-4,-3/
+      DATA TPRID(-5,376)/21/
+      DATA (SPROP(I,-5,376),I=1,1)/0/
 C     Diagram 377
       DATA MAPCONFIG(377)/377/
       DATA TSTRATEGY(377)/2/
@@ -5925,6 +6467,8 @@ C     Diagram 377
       DATA TPRID(-4,377)/21/
       DATA (SPROP(I,-4,377),I=1,1)/0/
       DATA (IFOREST(I,-5,377),I=1,2)/-4,-3/
+      DATA TPRID(-5,377)/21/
+      DATA (SPROP(I,-5,377),I=1,1)/0/
 C     Diagram 378
       DATA MAPCONFIG(378)/378/
       DATA TSTRATEGY(378)/-2/
@@ -5941,6 +6485,8 @@ C     Diagram 378
       DATA TPRID(-4,378)/21/
       DATA (SPROP(I,-4,378),I=1,1)/0/
       DATA (IFOREST(I,-5,378),I=1,2)/-3,7/
+      DATA TPRID(-5,378)/21/
+      DATA (SPROP(I,-5,378),I=1,1)/0/
 C     Diagram 379
       DATA MAPCONFIG(379)/379/
       DATA TSTRATEGY(379)/2/
@@ -5957,6 +6503,8 @@ C     Diagram 379
       DATA TPRID(-4,379)/21/
       DATA (SPROP(I,-4,379),I=1,1)/0/
       DATA (IFOREST(I,-5,379),I=1,2)/-4,-2/
+      DATA TPRID(-5,379)/21/
+      DATA (SPROP(I,-5,379),I=1,1)/0/
 C     Diagram 380
       DATA MAPCONFIG(380)/380/
       DATA TSTRATEGY(380)/-2/
@@ -5973,6 +6521,8 @@ C     Diagram 380
       DATA TPRID(-4,380)/21/
       DATA (SPROP(I,-4,380),I=1,1)/0/
       DATA (IFOREST(I,-5,380),I=1,2)/-3,6/
+      DATA TPRID(-5,380)/21/
+      DATA (SPROP(I,-5,380),I=1,1)/0/
 C     Diagram 381
       DATA MAPCONFIG(381)/381/
       DATA TSTRATEGY(381)/2/
@@ -5989,6 +6539,8 @@ C     Diagram 381
       DATA TPRID(-4,381)/21/
       DATA (SPROP(I,-4,381),I=1,1)/0/
       DATA (IFOREST(I,-5,381),I=1,2)/-4,-2/
+      DATA TPRID(-5,381)/21/
+      DATA (SPROP(I,-5,381),I=1,1)/0/
 C     Diagram 382
       DATA MAPCONFIG(382)/382/
       DATA TSTRATEGY(382)/2/
@@ -6005,6 +6557,8 @@ C     Diagram 382
       DATA TPRID(-4,382)/21/
       DATA (SPROP(I,-4,382),I=1,1)/0/
       DATA (IFOREST(I,-5,382),I=1,2)/-4,-3/
+      DATA TPRID(-5,382)/21/
+      DATA (SPROP(I,-5,382),I=1,1)/0/
 C     Diagram 383
       DATA MAPCONFIG(383)/383/
       DATA TSTRATEGY(383)/2/
@@ -6021,6 +6575,8 @@ C     Diagram 383
       DATA TPRID(-4,383)/21/
       DATA (SPROP(I,-4,383),I=1,1)/0/
       DATA (IFOREST(I,-5,383),I=1,2)/-4,-2/
+      DATA TPRID(-5,383)/21/
+      DATA (SPROP(I,-5,383),I=1,1)/0/
 C     Diagram 384
       DATA MAPCONFIG(384)/384/
       DATA TSTRATEGY(384)/2/
@@ -6037,6 +6593,8 @@ C     Diagram 384
       DATA TPRID(-4,384)/21/
       DATA (SPROP(I,-4,384),I=1,1)/0/
       DATA (IFOREST(I,-5,384),I=1,2)/-4,-2/
+      DATA TPRID(-5,384)/21/
+      DATA (SPROP(I,-5,384),I=1,1)/0/
 C     Diagram 385
       DATA MAPCONFIG(385)/385/
       DATA TSTRATEGY(385)/2/
@@ -6053,6 +6611,8 @@ C     Diagram 385
       DATA TPRID(-4,385)/21/
       DATA (SPROP(I,-4,385),I=1,1)/0/
       DATA (IFOREST(I,-5,385),I=1,2)/-4,-3/
+      DATA TPRID(-5,385)/21/
+      DATA (SPROP(I,-5,385),I=1,1)/0/
 C     Diagram 386
       DATA MAPCONFIG(386)/386/
       DATA TSTRATEGY(386)/2/
@@ -6069,6 +6629,8 @@ C     Diagram 386
       DATA TPRID(-4,386)/21/
       DATA (SPROP(I,-4,386),I=1,1)/0/
       DATA (IFOREST(I,-5,386),I=1,2)/-4,-3/
+      DATA TPRID(-5,386)/21/
+      DATA (SPROP(I,-5,386),I=1,1)/0/
 C     Diagram 387
       DATA MAPCONFIG(387)/387/
       DATA TSTRATEGY(387)/-2/
@@ -6085,6 +6647,8 @@ C     Diagram 387
       DATA TPRID(-4,387)/6/
       DATA (SPROP(I,-4,387),I=1,1)/0/
       DATA (IFOREST(I,-5,387),I=1,2)/-3,7/
+      DATA TPRID(-5,387)/6/
+      DATA (SPROP(I,-5,387),I=1,1)/0/
 C     Diagram 388
       DATA MAPCONFIG(388)/388/
       DATA TSTRATEGY(388)/2/
@@ -6101,6 +6665,8 @@ C     Diagram 388
       DATA TPRID(-4,388)/6/
       DATA (SPROP(I,-4,388),I=1,1)/0/
       DATA (IFOREST(I,-5,388),I=1,2)/-4,-2/
+      DATA TPRID(-5,388)/21/
+      DATA (SPROP(I,-5,388),I=1,1)/0/
 C     Diagram 389
       DATA MAPCONFIG(389)/389/
       DATA TSTRATEGY(389)/2/
@@ -6117,6 +6683,8 @@ C     Diagram 389
       DATA TPRID(-4,389)/6/
       DATA (SPROP(I,-4,389),I=1,1)/0/
       DATA (IFOREST(I,-5,389),I=1,2)/-4,-1/
+      DATA TPRID(-5,389)/21/
+      DATA (SPROP(I,-5,389),I=1,1)/0/
 C     Diagram 390
       DATA MAPCONFIG(390)/390/
       DATA TSTRATEGY(390)/2/
@@ -6133,6 +6701,8 @@ C     Diagram 390
       DATA TPRID(-4,390)/21/
       DATA (SPROP(I,-4,390),I=1,1)/0/
       DATA (IFOREST(I,-5,390),I=1,2)/-4,-2/
+      DATA TPRID(-5,390)/21/
+      DATA (SPROP(I,-5,390),I=1,1)/0/
 C     Diagram 391
       DATA MAPCONFIG(391)/391/
       DATA TSTRATEGY(391)/2/
@@ -6149,6 +6719,8 @@ C     Diagram 391
       DATA TPRID(-4,391)/21/
       DATA (SPROP(I,-4,391),I=1,1)/0/
       DATA (IFOREST(I,-5,391),I=1,2)/-4,-3/
+      DATA TPRID(-5,391)/21/
+      DATA (SPROP(I,-5,391),I=1,1)/0/
 C     Diagram 392
       DATA MAPCONFIG(392)/392/
       DATA TSTRATEGY(392)/2/
@@ -6165,6 +6737,8 @@ C     Diagram 392
       DATA TPRID(-4,392)/6/
       DATA (SPROP(I,-4,392),I=1,1)/0/
       DATA (IFOREST(I,-5,392),I=1,2)/-4,-2/
+      DATA TPRID(-5,392)/21/
+      DATA (SPROP(I,-5,392),I=1,1)/0/
 C     Diagram 393
       DATA MAPCONFIG(393)/393/
       DATA TSTRATEGY(393)/2/
@@ -6181,6 +6755,8 @@ C     Diagram 393
       DATA TPRID(-4,393)/6/
       DATA (SPROP(I,-4,393),I=1,1)/0/
       DATA (IFOREST(I,-5,393),I=1,2)/-4,-2/
+      DATA TPRID(-5,393)/21/
+      DATA (SPROP(I,-5,393),I=1,1)/0/
 C     Diagram 394
       DATA MAPCONFIG(394)/394/
       DATA TSTRATEGY(394)/2/
@@ -6197,6 +6773,8 @@ C     Diagram 394
       DATA TPRID(-4,394)/21/
       DATA (SPROP(I,-4,394),I=1,1)/0/
       DATA (IFOREST(I,-5,394),I=1,2)/-4,-3/
+      DATA TPRID(-5,394)/21/
+      DATA (SPROP(I,-5,394),I=1,1)/0/
 C     Diagram 395
       DATA MAPCONFIG(395)/395/
       DATA TSTRATEGY(395)/2/
@@ -6213,6 +6791,8 @@ C     Diagram 395
       DATA TPRID(-4,395)/21/
       DATA (SPROP(I,-4,395),I=1,1)/0/
       DATA (IFOREST(I,-5,395),I=1,2)/-4,-3/
+      DATA TPRID(-5,395)/21/
+      DATA (SPROP(I,-5,395),I=1,1)/0/
 C     Diagram 396
       DATA MAPCONFIG(396)/396/
       DATA TSTRATEGY(396)/-2/
@@ -6229,6 +6809,8 @@ C     Diagram 396
       DATA TPRID(-4,396)/6/
       DATA (SPROP(I,-4,396),I=1,1)/0/
       DATA (IFOREST(I,-5,396),I=1,2)/-3,6/
+      DATA TPRID(-5,396)/6/
+      DATA (SPROP(I,-5,396),I=1,1)/0/
 C     Diagram 397
       DATA MAPCONFIG(397)/397/
       DATA TSTRATEGY(397)/2/
@@ -6245,6 +6827,8 @@ C     Diagram 397
       DATA TPRID(-4,397)/6/
       DATA (SPROP(I,-4,397),I=1,1)/0/
       DATA (IFOREST(I,-5,397),I=1,2)/-4,-2/
+      DATA TPRID(-5,397)/21/
+      DATA (SPROP(I,-5,397),I=1,1)/0/
 C     Diagram 398
       DATA MAPCONFIG(398)/398/
       DATA TSTRATEGY(398)/2/
@@ -6261,6 +6845,8 @@ C     Diagram 398
       DATA TPRID(-4,398)/6/
       DATA (SPROP(I,-4,398),I=1,1)/0/
       DATA (IFOREST(I,-5,398),I=1,2)/-4,-1/
+      DATA TPRID(-5,398)/21/
+      DATA (SPROP(I,-5,398),I=1,1)/0/
 C     Diagram 399
       DATA MAPCONFIG(399)/399/
       DATA TSTRATEGY(399)/2/
@@ -6277,6 +6863,8 @@ C     Diagram 399
       DATA TPRID(-4,399)/21/
       DATA (SPROP(I,-4,399),I=1,1)/0/
       DATA (IFOREST(I,-5,399),I=1,2)/-4,-2/
+      DATA TPRID(-5,399)/21/
+      DATA (SPROP(I,-5,399),I=1,1)/0/
 C     Diagram 400
       DATA MAPCONFIG(400)/400/
       DATA TSTRATEGY(400)/2/
@@ -6293,6 +6881,8 @@ C     Diagram 400
       DATA TPRID(-4,400)/21/
       DATA (SPROP(I,-4,400),I=1,1)/0/
       DATA (IFOREST(I,-5,400),I=1,2)/-4,-3/
+      DATA TPRID(-5,400)/21/
+      DATA (SPROP(I,-5,400),I=1,1)/0/
 C     Diagram 401
       DATA MAPCONFIG(401)/401/
       DATA TSTRATEGY(401)/2/
@@ -6309,6 +6899,8 @@ C     Diagram 401
       DATA TPRID(-4,401)/6/
       DATA (SPROP(I,-4,401),I=1,1)/0/
       DATA (IFOREST(I,-5,401),I=1,2)/-4,-2/
+      DATA TPRID(-5,401)/21/
+      DATA (SPROP(I,-5,401),I=1,1)/0/
 C     Diagram 402
       DATA MAPCONFIG(402)/402/
       DATA TSTRATEGY(402)/2/
@@ -6325,6 +6917,8 @@ C     Diagram 402
       DATA TPRID(-4,402)/6/
       DATA (SPROP(I,-4,402),I=1,1)/0/
       DATA (IFOREST(I,-5,402),I=1,2)/-4,-2/
+      DATA TPRID(-5,402)/21/
+      DATA (SPROP(I,-5,402),I=1,1)/0/
 C     Diagram 403
       DATA MAPCONFIG(403)/403/
       DATA TSTRATEGY(403)/2/
@@ -6341,6 +6935,8 @@ C     Diagram 403
       DATA TPRID(-4,403)/21/
       DATA (SPROP(I,-4,403),I=1,1)/0/
       DATA (IFOREST(I,-5,403),I=1,2)/-4,-3/
+      DATA TPRID(-5,403)/21/
+      DATA (SPROP(I,-5,403),I=1,1)/0/
 C     Diagram 404
       DATA MAPCONFIG(404)/404/
       DATA TSTRATEGY(404)/2/
@@ -6357,6 +6953,8 @@ C     Diagram 404
       DATA TPRID(-4,404)/21/
       DATA (SPROP(I,-4,404),I=1,1)/0/
       DATA (IFOREST(I,-5,404),I=1,2)/-4,-3/
+      DATA TPRID(-5,404)/21/
+      DATA (SPROP(I,-5,404),I=1,1)/0/
 C     Diagram 405
       DATA MAPCONFIG(405)/405/
       DATA TSTRATEGY(405)/-2/
@@ -6373,6 +6971,8 @@ C     Diagram 405
       DATA TPRID(-4,405)/6/
       DATA (SPROP(I,-4,405),I=1,1)/0/
       DATA (IFOREST(I,-5,405),I=1,2)/-3,7/
+      DATA TPRID(-5,405)/6/
+      DATA (SPROP(I,-5,405),I=1,1)/0/
 C     Diagram 406
       DATA MAPCONFIG(406)/406/
       DATA TSTRATEGY(406)/2/
@@ -6389,6 +6989,8 @@ C     Diagram 406
       DATA TPRID(-4,406)/6/
       DATA (SPROP(I,-4,406),I=1,1)/0/
       DATA (IFOREST(I,-5,406),I=1,2)/-4,-2/
+      DATA TPRID(-5,406)/21/
+      DATA (SPROP(I,-5,406),I=1,1)/0/
 C     Diagram 407
       DATA MAPCONFIG(407)/407/
       DATA TSTRATEGY(407)/2/
@@ -6405,6 +7007,8 @@ C     Diagram 407
       DATA TPRID(-4,407)/6/
       DATA (SPROP(I,-4,407),I=1,1)/0/
       DATA (IFOREST(I,-5,407),I=1,2)/-4,-1/
+      DATA TPRID(-5,407)/21/
+      DATA (SPROP(I,-5,407),I=1,1)/0/
 C     Diagram 408
       DATA MAPCONFIG(408)/408/
       DATA TSTRATEGY(408)/2/
@@ -6421,6 +7025,8 @@ C     Diagram 408
       DATA TPRID(-4,408)/21/
       DATA (SPROP(I,-4,408),I=1,1)/0/
       DATA (IFOREST(I,-5,408),I=1,2)/-4,-2/
+      DATA TPRID(-5,408)/21/
+      DATA (SPROP(I,-5,408),I=1,1)/0/
 C     Diagram 409
       DATA MAPCONFIG(409)/409/
       DATA TSTRATEGY(409)/2/
@@ -6437,6 +7043,8 @@ C     Diagram 409
       DATA TPRID(-4,409)/21/
       DATA (SPROP(I,-4,409),I=1,1)/0/
       DATA (IFOREST(I,-5,409),I=1,2)/-4,-3/
+      DATA TPRID(-5,409)/21/
+      DATA (SPROP(I,-5,409),I=1,1)/0/
 C     Diagram 410
       DATA MAPCONFIG(410)/410/
       DATA TSTRATEGY(410)/2/
@@ -6453,6 +7061,8 @@ C     Diagram 410
       DATA TPRID(-4,410)/21/
       DATA (SPROP(I,-4,410),I=1,1)/0/
       DATA (IFOREST(I,-5,410),I=1,2)/-4,-3/
+      DATA TPRID(-5,410)/21/
+      DATA (SPROP(I,-5,410),I=1,1)/0/
 C     Diagram 411
       DATA MAPCONFIG(411)/411/
       DATA TSTRATEGY(411)/-2/
@@ -6469,6 +7079,8 @@ C     Diagram 411
       DATA TPRID(-4,411)/6/
       DATA (SPROP(I,-4,411),I=1,1)/0/
       DATA (IFOREST(I,-5,411),I=1,2)/-3,6/
+      DATA TPRID(-5,411)/6/
+      DATA (SPROP(I,-5,411),I=1,1)/0/
 C     Diagram 412
       DATA MAPCONFIG(412)/412/
       DATA TSTRATEGY(412)/2/
@@ -6485,6 +7097,8 @@ C     Diagram 412
       DATA TPRID(-4,412)/6/
       DATA (SPROP(I,-4,412),I=1,1)/0/
       DATA (IFOREST(I,-5,412),I=1,2)/-4,-2/
+      DATA TPRID(-5,412)/21/
+      DATA (SPROP(I,-5,412),I=1,1)/0/
 C     Diagram 413
       DATA MAPCONFIG(413)/413/
       DATA TSTRATEGY(413)/2/
@@ -6501,6 +7115,8 @@ C     Diagram 413
       DATA TPRID(-4,413)/6/
       DATA (SPROP(I,-4,413),I=1,1)/0/
       DATA (IFOREST(I,-5,413),I=1,2)/-4,-1/
+      DATA TPRID(-5,413)/21/
+      DATA (SPROP(I,-5,413),I=1,1)/0/
 C     Diagram 414
       DATA MAPCONFIG(414)/414/
       DATA TSTRATEGY(414)/2/
@@ -6517,6 +7133,8 @@ C     Diagram 414
       DATA TPRID(-4,414)/21/
       DATA (SPROP(I,-4,414),I=1,1)/0/
       DATA (IFOREST(I,-5,414),I=1,2)/-4,-2/
+      DATA TPRID(-5,414)/21/
+      DATA (SPROP(I,-5,414),I=1,1)/0/
 C     Diagram 415
       DATA MAPCONFIG(415)/415/
       DATA TSTRATEGY(415)/2/
@@ -6533,6 +7151,8 @@ C     Diagram 415
       DATA TPRID(-4,415)/21/
       DATA (SPROP(I,-4,415),I=1,1)/0/
       DATA (IFOREST(I,-5,415),I=1,2)/-4,-3/
+      DATA TPRID(-5,415)/21/
+      DATA (SPROP(I,-5,415),I=1,1)/0/
 C     Diagram 416
       DATA MAPCONFIG(416)/416/
       DATA TSTRATEGY(416)/2/
@@ -6549,6 +7169,8 @@ C     Diagram 416
       DATA TPRID(-4,416)/21/
       DATA (SPROP(I,-4,416),I=1,1)/0/
       DATA (IFOREST(I,-5,416),I=1,2)/-4,-3/
+      DATA TPRID(-5,416)/21/
+      DATA (SPROP(I,-5,416),I=1,1)/0/
 C     Diagram 417
       DATA MAPCONFIG(417)/417/
       DATA TSTRATEGY(417)/-2/
@@ -6565,6 +7187,8 @@ C     Diagram 417
       DATA TPRID(-4,417)/6/
       DATA (SPROP(I,-4,417),I=1,1)/0/
       DATA (IFOREST(I,-5,417),I=1,2)/-3,4/
+      DATA TPRID(-5,417)/6/
+      DATA (SPROP(I,-5,417),I=1,1)/0/
 C     Diagram 418
       DATA MAPCONFIG(418)/418/
       DATA TSTRATEGY(418)/2/
@@ -6581,6 +7205,8 @@ C     Diagram 418
       DATA TPRID(-4,418)/6/
       DATA (SPROP(I,-4,418),I=1,1)/0/
       DATA (IFOREST(I,-5,418),I=1,2)/-4,-2/
+      DATA TPRID(-5,418)/21/
+      DATA (SPROP(I,-5,418),I=1,1)/0/
 C     Diagram 419
       DATA MAPCONFIG(419)/419/
       DATA TSTRATEGY(419)/-2/
@@ -6597,6 +7223,8 @@ C     Diagram 419
       DATA TPRID(-4,419)/6/
       DATA (SPROP(I,-4,419),I=1,1)/0/
       DATA (IFOREST(I,-5,419),I=1,2)/-3,3/
+      DATA TPRID(-5,419)/6/
+      DATA (SPROP(I,-5,419),I=1,1)/0/
 C     Diagram 420
       DATA MAPCONFIG(420)/420/
       DATA TSTRATEGY(420)/2/
@@ -6613,6 +7241,8 @@ C     Diagram 420
       DATA TPRID(-4,420)/6/
       DATA (SPROP(I,-4,420),I=1,1)/0/
       DATA (IFOREST(I,-5,420),I=1,2)/-4,-2/
+      DATA TPRID(-5,420)/21/
+      DATA (SPROP(I,-5,420),I=1,1)/0/
 C     Diagram 421
       DATA MAPCONFIG(421)/421/
       DATA TSTRATEGY(421)/-2/
@@ -6629,6 +7259,8 @@ C     Diagram 421
       DATA TPRID(-4,421)/6/
       DATA (SPROP(I,-4,421),I=1,1)/0/
       DATA (IFOREST(I,-5,421),I=1,2)/-3,7/
+      DATA TPRID(-5,421)/6/
+      DATA (SPROP(I,-5,421),I=1,1)/0/
 C     Diagram 422
       DATA MAPCONFIG(422)/422/
       DATA TSTRATEGY(422)/-2/
@@ -6645,6 +7277,8 @@ C     Diagram 422
       DATA TPRID(-4,422)/6/
       DATA (SPROP(I,-4,422),I=1,1)/0/
       DATA (IFOREST(I,-5,422),I=1,2)/-3,5/
+      DATA TPRID(-5,422)/6/
+      DATA (SPROP(I,-5,422),I=1,1)/0/
 C     Diagram 423
       DATA MAPCONFIG(423)/423/
       DATA TSTRATEGY(423)/2/
@@ -6661,6 +7295,8 @@ C     Diagram 423
       DATA TPRID(-4,423)/6/
       DATA (SPROP(I,-4,423),I=1,1)/0/
       DATA (IFOREST(I,-5,423),I=1,2)/-4,3/
+      DATA TPRID(-5,423)/21/
+      DATA (SPROP(I,-5,423),I=1,1)/0/
 C     Diagram 424
       DATA MAPCONFIG(424)/424/
       DATA TSTRATEGY(424)/2/
@@ -6677,6 +7313,8 @@ C     Diagram 424
       DATA TPRID(-4,424)/6/
       DATA (SPROP(I,-4,424),I=1,1)/0/
       DATA (IFOREST(I,-5,424),I=1,2)/-4,3/
+      DATA TPRID(-5,424)/21/
+      DATA (SPROP(I,-5,424),I=1,1)/0/
 C     Diagram 425
       DATA MAPCONFIG(425)/425/
       DATA TSTRATEGY(425)/2/
@@ -6693,6 +7331,8 @@ C     Diagram 425
       DATA TPRID(-4,425)/6/
       DATA (SPROP(I,-4,425),I=1,1)/0/
       DATA (IFOREST(I,-5,425),I=1,2)/-4,3/
+      DATA TPRID(-5,425)/21/
+      DATA (SPROP(I,-5,425),I=1,1)/0/
 C     Diagram 426
       DATA MAPCONFIG(426)/426/
       DATA TSTRATEGY(426)/2/
@@ -6709,6 +7349,8 @@ C     Diagram 426
       DATA TPRID(-4,426)/6/
       DATA (SPROP(I,-4,426),I=1,1)/0/
       DATA (IFOREST(I,-5,426),I=1,2)/-4,3/
+      DATA TPRID(-5,426)/21/
+      DATA (SPROP(I,-5,426),I=1,1)/0/
 C     Diagram 427
       DATA MAPCONFIG(427)/427/
       DATA TSTRATEGY(427)/2/
@@ -6725,6 +7367,8 @@ C     Diagram 427
       DATA TPRID(-4,427)/6/
       DATA (SPROP(I,-4,427),I=1,1)/0/
       DATA (IFOREST(I,-5,427),I=1,2)/-4,3/
+      DATA TPRID(-5,427)/21/
+      DATA (SPROP(I,-5,427),I=1,1)/0/
 C     Diagram 428
       DATA MAPCONFIG(428)/428/
       DATA TSTRATEGY(428)/-2/
@@ -6741,6 +7385,8 @@ C     Diagram 428
       DATA TPRID(-4,428)/6/
       DATA (SPROP(I,-4,428),I=1,1)/0/
       DATA (IFOREST(I,-5,428),I=1,2)/-3,7/
+      DATA TPRID(-5,428)/6/
+      DATA (SPROP(I,-5,428),I=1,1)/0/
 C     Diagram 429
       DATA MAPCONFIG(429)/429/
       DATA TSTRATEGY(429)/2/
@@ -6757,6 +7403,8 @@ C     Diagram 429
       DATA TPRID(-4,429)/6/
       DATA (SPROP(I,-4,429),I=1,1)/0/
       DATA (IFOREST(I,-5,429),I=1,2)/-4,3/
+      DATA TPRID(-5,429)/21/
+      DATA (SPROP(I,-5,429),I=1,1)/0/
 C     Diagram 430
       DATA MAPCONFIG(430)/430/
       DATA TSTRATEGY(430)/2/
@@ -6773,6 +7421,8 @@ C     Diagram 430
       DATA TPRID(-4,430)/6/
       DATA (SPROP(I,-4,430),I=1,1)/0/
       DATA (IFOREST(I,-5,430),I=1,2)/-4,3/
+      DATA TPRID(-5,430)/21/
+      DATA (SPROP(I,-5,430),I=1,1)/0/
 C     Diagram 431
       DATA MAPCONFIG(431)/431/
       DATA TSTRATEGY(431)/-2/
@@ -6789,6 +7439,8 @@ C     Diagram 431
       DATA TPRID(-4,431)/6/
       DATA (SPROP(I,-4,431),I=1,1)/0/
       DATA (IFOREST(I,-5,431),I=1,2)/-3,5/
+      DATA TPRID(-5,431)/6/
+      DATA (SPROP(I,-5,431),I=1,1)/0/
 C     Diagram 432
       DATA MAPCONFIG(432)/432/
       DATA TSTRATEGY(432)/2/
@@ -6805,6 +7457,8 @@ C     Diagram 432
       DATA TPRID(-4,432)/6/
       DATA (SPROP(I,-4,432),I=1,1)/0/
       DATA (IFOREST(I,-5,432),I=1,2)/-4,3/
+      DATA TPRID(-5,432)/21/
+      DATA (SPROP(I,-5,432),I=1,1)/0/
 C     Diagram 433
       DATA MAPCONFIG(433)/433/
       DATA TSTRATEGY(433)/2/
@@ -6821,6 +7475,8 @@ C     Diagram 433
       DATA TPRID(-4,433)/6/
       DATA (SPROP(I,-4,433),I=1,1)/0/
       DATA (IFOREST(I,-5,433),I=1,2)/-4,3/
+      DATA TPRID(-5,433)/21/
+      DATA (SPROP(I,-5,433),I=1,1)/0/
 C     Diagram 434
       DATA MAPCONFIG(434)/434/
       DATA TSTRATEGY(434)/-2/
@@ -6837,6 +7493,8 @@ C     Diagram 434
       DATA TPRID(-4,434)/6/
       DATA (SPROP(I,-4,434),I=1,1)/0/
       DATA (IFOREST(I,-5,434),I=1,2)/-3,-1/
+      DATA TPRID(-5,434)/6/
+      DATA (SPROP(I,-5,434),I=1,1)/0/
 C     Diagram 435
       DATA MAPCONFIG(435)/435/
       DATA TSTRATEGY(435)/2/
@@ -6853,6 +7511,8 @@ C     Diagram 435
       DATA TPRID(-4,435)/6/
       DATA (SPROP(I,-4,435),I=1,1)/0/
       DATA (IFOREST(I,-5,435),I=1,2)/-4,3/
+      DATA TPRID(-5,435)/21/
+      DATA (SPROP(I,-5,435),I=1,1)/0/
 C     Diagram 436
       DATA MAPCONFIG(436)/436/
       DATA TSTRATEGY(436)/-2/
@@ -6869,6 +7529,8 @@ C     Diagram 436
       DATA TPRID(-4,436)/6/
       DATA (SPROP(I,-4,436),I=1,1)/0/
       DATA (IFOREST(I,-5,436),I=1,2)/-3,7/
+      DATA TPRID(-5,436)/6/
+      DATA (SPROP(I,-5,436),I=1,1)/0/
 C     Diagram 437
       DATA MAPCONFIG(437)/437/
       DATA TSTRATEGY(437)/-2/
@@ -6885,6 +7547,8 @@ C     Diagram 437
       DATA TPRID(-4,437)/6/
       DATA (SPROP(I,-4,437),I=1,1)/0/
       DATA (IFOREST(I,-5,437),I=1,2)/-3,5/
+      DATA TPRID(-5,437)/6/
+      DATA (SPROP(I,-5,437),I=1,1)/0/
 C     Diagram 438
       DATA MAPCONFIG(438)/438/
       DATA TSTRATEGY(438)/2/
@@ -6901,6 +7565,8 @@ C     Diagram 438
       DATA TPRID(-4,438)/6/
       DATA (SPROP(I,-4,438),I=1,1)/0/
       DATA (IFOREST(I,-5,438),I=1,2)/-4,4/
+      DATA TPRID(-5,438)/21/
+      DATA (SPROP(I,-5,438),I=1,1)/0/
 C     Diagram 439
       DATA MAPCONFIG(439)/439/
       DATA TSTRATEGY(439)/2/
@@ -6917,6 +7583,8 @@ C     Diagram 439
       DATA TPRID(-4,439)/6/
       DATA (SPROP(I,-4,439),I=1,1)/0/
       DATA (IFOREST(I,-5,439),I=1,2)/-4,4/
+      DATA TPRID(-5,439)/21/
+      DATA (SPROP(I,-5,439),I=1,1)/0/
 C     Diagram 440
       DATA MAPCONFIG(440)/440/
       DATA TSTRATEGY(440)/2/
@@ -6933,6 +7601,8 @@ C     Diagram 440
       DATA TPRID(-4,440)/6/
       DATA (SPROP(I,-4,440),I=1,1)/0/
       DATA (IFOREST(I,-5,440),I=1,2)/-4,4/
+      DATA TPRID(-5,440)/21/
+      DATA (SPROP(I,-5,440),I=1,1)/0/
 C     Diagram 441
       DATA MAPCONFIG(441)/441/
       DATA TSTRATEGY(441)/2/
@@ -6949,6 +7619,8 @@ C     Diagram 441
       DATA TPRID(-4,441)/6/
       DATA (SPROP(I,-4,441),I=1,1)/0/
       DATA (IFOREST(I,-5,441),I=1,2)/-4,4/
+      DATA TPRID(-5,441)/21/
+      DATA (SPROP(I,-5,441),I=1,1)/0/
 C     Diagram 442
       DATA MAPCONFIG(442)/442/
       DATA TSTRATEGY(442)/2/
@@ -6965,6 +7637,8 @@ C     Diagram 442
       DATA TPRID(-4,442)/6/
       DATA (SPROP(I,-4,442),I=1,1)/0/
       DATA (IFOREST(I,-5,442),I=1,2)/-4,4/
+      DATA TPRID(-5,442)/21/
+      DATA (SPROP(I,-5,442),I=1,1)/0/
 C     Diagram 443
       DATA MAPCONFIG(443)/443/
       DATA TSTRATEGY(443)/-2/
@@ -6981,6 +7655,8 @@ C     Diagram 443
       DATA TPRID(-4,443)/6/
       DATA (SPROP(I,-4,443),I=1,1)/0/
       DATA (IFOREST(I,-5,443),I=1,2)/-3,7/
+      DATA TPRID(-5,443)/6/
+      DATA (SPROP(I,-5,443),I=1,1)/0/
 C     Diagram 444
       DATA MAPCONFIG(444)/444/
       DATA TSTRATEGY(444)/2/
@@ -6997,6 +7673,8 @@ C     Diagram 444
       DATA TPRID(-4,444)/6/
       DATA (SPROP(I,-4,444),I=1,1)/0/
       DATA (IFOREST(I,-5,444),I=1,2)/-4,4/
+      DATA TPRID(-5,444)/21/
+      DATA (SPROP(I,-5,444),I=1,1)/0/
 C     Diagram 445
       DATA MAPCONFIG(445)/445/
       DATA TSTRATEGY(445)/2/
@@ -7013,6 +7691,8 @@ C     Diagram 445
       DATA TPRID(-4,445)/6/
       DATA (SPROP(I,-4,445),I=1,1)/0/
       DATA (IFOREST(I,-5,445),I=1,2)/-4,4/
+      DATA TPRID(-5,445)/21/
+      DATA (SPROP(I,-5,445),I=1,1)/0/
 C     Diagram 446
       DATA MAPCONFIG(446)/446/
       DATA TSTRATEGY(446)/-2/
@@ -7029,6 +7709,8 @@ C     Diagram 446
       DATA TPRID(-4,446)/6/
       DATA (SPROP(I,-4,446),I=1,1)/0/
       DATA (IFOREST(I,-5,446),I=1,2)/-3,5/
+      DATA TPRID(-5,446)/6/
+      DATA (SPROP(I,-5,446),I=1,1)/0/
 C     Diagram 447
       DATA MAPCONFIG(447)/447/
       DATA TSTRATEGY(447)/2/
@@ -7045,6 +7727,8 @@ C     Diagram 447
       DATA TPRID(-4,447)/6/
       DATA (SPROP(I,-4,447),I=1,1)/0/
       DATA (IFOREST(I,-5,447),I=1,2)/-4,4/
+      DATA TPRID(-5,447)/21/
+      DATA (SPROP(I,-5,447),I=1,1)/0/
 C     Diagram 448
       DATA MAPCONFIG(448)/448/
       DATA TSTRATEGY(448)/2/
@@ -7061,6 +7745,8 @@ C     Diagram 448
       DATA TPRID(-4,448)/6/
       DATA (SPROP(I,-4,448),I=1,1)/0/
       DATA (IFOREST(I,-5,448),I=1,2)/-4,4/
+      DATA TPRID(-5,448)/21/
+      DATA (SPROP(I,-5,448),I=1,1)/0/
 C     Diagram 449
       DATA MAPCONFIG(449)/449/
       DATA TSTRATEGY(449)/-2/
@@ -7077,6 +7763,8 @@ C     Diagram 449
       DATA TPRID(-4,449)/6/
       DATA (SPROP(I,-4,449),I=1,1)/0/
       DATA (IFOREST(I,-5,449),I=1,2)/-3,-1/
+      DATA TPRID(-5,449)/6/
+      DATA (SPROP(I,-5,449),I=1,1)/0/
 C     Diagram 450
       DATA MAPCONFIG(450)/450/
       DATA TSTRATEGY(450)/2/
@@ -7093,6 +7781,8 @@ C     Diagram 450
       DATA TPRID(-4,450)/6/
       DATA (SPROP(I,-4,450),I=1,1)/0/
       DATA (IFOREST(I,-5,450),I=1,2)/-4,4/
+      DATA TPRID(-5,450)/21/
+      DATA (SPROP(I,-5,450),I=1,1)/0/
 C     Diagram 451
       DATA MAPCONFIG(451)/451/
       DATA TSTRATEGY(451)/-2/
@@ -7109,6 +7799,8 @@ C     Diagram 451
       DATA TPRID(-4,451)/6/
       DATA (SPROP(I,-4,451),I=1,1)/0/
       DATA (IFOREST(I,-5,451),I=1,2)/-3,7/
+      DATA TPRID(-5,451)/6/
+      DATA (SPROP(I,-5,451),I=1,1)/0/
 C     Diagram 452
       DATA MAPCONFIG(452)/452/
       DATA TSTRATEGY(452)/-2/
@@ -7125,6 +7817,8 @@ C     Diagram 452
       DATA TPRID(-4,452)/21/
       DATA (SPROP(I,-4,452),I=1,1)/0/
       DATA (IFOREST(I,-5,452),I=1,2)/-3,4/
+      DATA TPRID(-5,452)/21/
+      DATA (SPROP(I,-5,452),I=1,1)/0/
 C     Diagram 453
       DATA MAPCONFIG(453)/453/
       DATA TSTRATEGY(453)/-2/
@@ -7141,6 +7835,8 @@ C     Diagram 453
       DATA TPRID(-4,453)/6/
       DATA (SPROP(I,-4,453),I=1,1)/0/
       DATA (IFOREST(I,-5,453),I=1,2)/-3,7/
+      DATA TPRID(-5,453)/6/
+      DATA (SPROP(I,-5,453),I=1,1)/0/
 C     Diagram 454
       DATA MAPCONFIG(454)/454/
       DATA TSTRATEGY(454)/-2/
@@ -7157,6 +7853,8 @@ C     Diagram 454
       DATA TPRID(-4,454)/21/
       DATA (SPROP(I,-4,454),I=1,1)/0/
       DATA (IFOREST(I,-5,454),I=1,2)/-3,3/
+      DATA TPRID(-5,454)/21/
+      DATA (SPROP(I,-5,454),I=1,1)/0/
 C     Diagram 455
       DATA MAPCONFIG(455)/455/
       DATA TSTRATEGY(455)/-2/
@@ -7173,6 +7871,8 @@ C     Diagram 455
       DATA TPRID(-4,455)/6/
       DATA (SPROP(I,-4,455),I=1,1)/0/
       DATA (IFOREST(I,-5,455),I=1,2)/-3,4/
+      DATA TPRID(-5,455)/6/
+      DATA (SPROP(I,-5,455),I=1,1)/0/
 C     Diagram 456
       DATA MAPCONFIG(456)/456/
       DATA TSTRATEGY(456)/-2/
@@ -7189,6 +7889,8 @@ C     Diagram 456
       DATA TPRID(-4,456)/6/
       DATA (SPROP(I,-4,456),I=1,1)/0/
       DATA (IFOREST(I,-5,456),I=1,2)/-3,3/
+      DATA TPRID(-5,456)/6/
+      DATA (SPROP(I,-5,456),I=1,1)/0/
 C     Diagram 457
       DATA MAPCONFIG(457)/457/
       DATA TSTRATEGY(457)/2/
@@ -7205,6 +7907,8 @@ C     Diagram 457
       DATA TPRID(-4,457)/21/
       DATA (SPROP(I,-4,457),I=1,1)/0/
       DATA (IFOREST(I,-5,457),I=1,2)/-4,5/
+      DATA TPRID(-5,457)/21/
+      DATA (SPROP(I,-5,457),I=1,1)/0/
 C     Diagram 458
       DATA MAPCONFIG(458)/458/
       DATA TSTRATEGY(458)/-2/
@@ -7221,6 +7925,8 @@ C     Diagram 458
       DATA TPRID(-4,458)/21/
       DATA (SPROP(I,-4,458),I=1,1)/0/
       DATA (IFOREST(I,-5,458),I=1,2)/-3,7/
+      DATA TPRID(-5,458)/21/
+      DATA (SPROP(I,-5,458),I=1,1)/0/
 C     Diagram 459
       DATA MAPCONFIG(459)/459/
       DATA TSTRATEGY(459)/-2/
@@ -7237,6 +7943,8 @@ C     Diagram 459
       DATA TPRID(-4,459)/21/
       DATA (SPROP(I,-4,459),I=1,1)/0/
       DATA (IFOREST(I,-5,459),I=1,2)/-3,-1/
+      DATA TPRID(-5,459)/21/
+      DATA (SPROP(I,-5,459),I=1,1)/0/
 C     Diagram 460
       DATA MAPCONFIG(460)/460/
       DATA TSTRATEGY(460)/2/
@@ -7253,6 +7961,8 @@ C     Diagram 460
       DATA TPRID(-4,460)/21/
       DATA (SPROP(I,-4,460),I=1,1)/0/
       DATA (IFOREST(I,-5,460),I=1,2)/-4,5/
+      DATA TPRID(-5,460)/21/
+      DATA (SPROP(I,-5,460),I=1,1)/0/
 C     Diagram 461
       DATA MAPCONFIG(461)/461/
       DATA TSTRATEGY(461)/-2/
@@ -7269,6 +7979,8 @@ C     Diagram 461
       DATA TPRID(-4,461)/6/
       DATA (SPROP(I,-4,461),I=1,1)/0/
       DATA (IFOREST(I,-5,461),I=1,2)/-3,4/
+      DATA TPRID(-5,461)/6/
+      DATA (SPROP(I,-5,461),I=1,1)/0/
 C     Diagram 462
       DATA MAPCONFIG(462)/462/
       DATA TSTRATEGY(462)/-2/
@@ -7285,6 +7997,8 @@ C     Diagram 462
       DATA TPRID(-4,462)/6/
       DATA (SPROP(I,-4,462),I=1,1)/0/
       DATA (IFOREST(I,-5,462),I=1,2)/-3,-1/
+      DATA TPRID(-5,462)/6/
+      DATA (SPROP(I,-5,462),I=1,1)/0/
 C     Diagram 463
       DATA MAPCONFIG(463)/463/
       DATA TSTRATEGY(463)/2/
@@ -7301,6 +8015,8 @@ C     Diagram 463
       DATA TPRID(-4,463)/21/
       DATA (SPROP(I,-4,463),I=1,1)/0/
       DATA (IFOREST(I,-5,463),I=1,2)/-4,5/
+      DATA TPRID(-5,463)/21/
+      DATA (SPROP(I,-5,463),I=1,1)/0/
 C     Diagram 464
       DATA MAPCONFIG(464)/464/
       DATA TSTRATEGY(464)/-2/
@@ -7317,6 +8033,8 @@ C     Diagram 464
       DATA TPRID(-4,464)/6/
       DATA (SPROP(I,-4,464),I=1,1)/0/
       DATA (IFOREST(I,-5,464),I=1,2)/-3,-1/
+      DATA TPRID(-5,464)/6/
+      DATA (SPROP(I,-5,464),I=1,1)/0/
 C     Diagram 465
       DATA MAPCONFIG(465)/465/
       DATA TSTRATEGY(465)/-2/
@@ -7333,6 +8051,8 @@ C     Diagram 465
       DATA TPRID(-4,465)/6/
       DATA (SPROP(I,-4,465),I=1,1)/0/
       DATA (IFOREST(I,-5,465),I=1,2)/-3,3/
+      DATA TPRID(-5,465)/6/
+      DATA (SPROP(I,-5,465),I=1,1)/0/
 C     Diagram 466
       DATA MAPCONFIG(466)/466/
       DATA TSTRATEGY(466)/-2/
@@ -7349,6 +8069,8 @@ C     Diagram 466
       DATA TPRID(-4,466)/6/
       DATA (SPROP(I,-4,466),I=1,1)/0/
       DATA (IFOREST(I,-5,466),I=1,2)/-3,5/
+      DATA TPRID(-5,466)/6/
+      DATA (SPROP(I,-5,466),I=1,1)/0/
 C     Diagram 467
       DATA MAPCONFIG(467)/467/
       DATA TSTRATEGY(467)/-2/
@@ -7365,6 +8087,8 @@ C     Diagram 467
       DATA TPRID(-4,467)/21/
       DATA (SPROP(I,-4,467),I=1,1)/0/
       DATA (IFOREST(I,-5,467),I=1,2)/-3,4/
+      DATA TPRID(-5,467)/21/
+      DATA (SPROP(I,-5,467),I=1,1)/0/
 C     Diagram 468
       DATA MAPCONFIG(468)/468/
       DATA TSTRATEGY(468)/-2/
@@ -7381,6 +8105,8 @@ C     Diagram 468
       DATA TPRID(-4,468)/6/
       DATA (SPROP(I,-4,468),I=1,1)/0/
       DATA (IFOREST(I,-5,468),I=1,2)/-3,5/
+      DATA TPRID(-5,468)/6/
+      DATA (SPROP(I,-5,468),I=1,1)/0/
 C     Diagram 469
       DATA MAPCONFIG(469)/469/
       DATA TSTRATEGY(469)/-2/
@@ -7397,6 +8123,8 @@ C     Diagram 469
       DATA TPRID(-4,469)/21/
       DATA (SPROP(I,-4,469),I=1,1)/0/
       DATA (IFOREST(I,-5,469),I=1,2)/-3,3/
+      DATA TPRID(-5,469)/21/
+      DATA (SPROP(I,-5,469),I=1,1)/0/
 C     Diagram 470
       DATA MAPCONFIG(470)/470/
       DATA TSTRATEGY(470)/-2/
@@ -7413,6 +8141,8 @@ C     Diagram 470
       DATA TPRID(-4,470)/6/
       DATA (SPROP(I,-4,470),I=1,1)/0/
       DATA (IFOREST(I,-5,470),I=1,2)/-3,4/
+      DATA TPRID(-5,470)/6/
+      DATA (SPROP(I,-5,470),I=1,1)/0/
 C     Diagram 471
       DATA MAPCONFIG(471)/471/
       DATA TSTRATEGY(471)/-2/
@@ -7429,6 +8159,8 @@ C     Diagram 471
       DATA TPRID(-4,471)/6/
       DATA (SPROP(I,-4,471),I=1,1)/0/
       DATA (IFOREST(I,-5,471),I=1,2)/-3,3/
+      DATA TPRID(-5,471)/6/
+      DATA (SPROP(I,-5,471),I=1,1)/0/
 C     Diagram 472
       DATA MAPCONFIG(472)/472/
       DATA TSTRATEGY(472)/1/
@@ -7445,6 +8177,8 @@ C     Diagram 472
       DATA TPRID(-4,472)/21/
       DATA (SPROP(I,-4,472),I=1,1)/0/
       DATA (IFOREST(I,-5,472),I=1,2)/-4,6/
+      DATA TPRID(-5,472)/21/
+      DATA (SPROP(I,-5,472),I=1,1)/0/
 C     Diagram 473
       DATA MAPCONFIG(473)/473/
       DATA TSTRATEGY(473)/-2/
@@ -7461,6 +8195,8 @@ C     Diagram 473
       DATA TPRID(-4,473)/21/
       DATA (SPROP(I,-4,473),I=1,1)/0/
       DATA (IFOREST(I,-5,473),I=1,2)/-3,5/
+      DATA TPRID(-5,473)/21/
+      DATA (SPROP(I,-5,473),I=1,1)/0/
 C     Diagram 474
       DATA MAPCONFIG(474)/474/
       DATA TSTRATEGY(474)/-2/
@@ -7477,6 +8213,8 @@ C     Diagram 474
       DATA TPRID(-4,474)/21/
       DATA (SPROP(I,-4,474),I=1,1)/0/
       DATA (IFOREST(I,-5,474),I=1,2)/-3,-1/
+      DATA TPRID(-5,474)/21/
+      DATA (SPROP(I,-5,474),I=1,1)/0/
 C     Diagram 475
       DATA MAPCONFIG(475)/475/
       DATA TSTRATEGY(475)/1/
@@ -7493,6 +8231,8 @@ C     Diagram 475
       DATA TPRID(-4,475)/21/
       DATA (SPROP(I,-4,475),I=1,1)/0/
       DATA (IFOREST(I,-5,475),I=1,2)/-4,6/
+      DATA TPRID(-5,475)/21/
+      DATA (SPROP(I,-5,475),I=1,1)/0/
 C     Diagram 476
       DATA MAPCONFIG(476)/476/
       DATA TSTRATEGY(476)/-2/
@@ -7509,6 +8249,8 @@ C     Diagram 476
       DATA TPRID(-4,476)/6/
       DATA (SPROP(I,-4,476),I=1,1)/0/
       DATA (IFOREST(I,-5,476),I=1,2)/-3,4/
+      DATA TPRID(-5,476)/6/
+      DATA (SPROP(I,-5,476),I=1,1)/0/
 C     Diagram 477
       DATA MAPCONFIG(477)/477/
       DATA TSTRATEGY(477)/-2/
@@ -7525,6 +8267,8 @@ C     Diagram 477
       DATA TPRID(-4,477)/6/
       DATA (SPROP(I,-4,477),I=1,1)/0/
       DATA (IFOREST(I,-5,477),I=1,2)/-3,-1/
+      DATA TPRID(-5,477)/6/
+      DATA (SPROP(I,-5,477),I=1,1)/0/
 C     Diagram 478
       DATA MAPCONFIG(478)/478/
       DATA TSTRATEGY(478)/1/
@@ -7541,6 +8285,8 @@ C     Diagram 478
       DATA TPRID(-4,478)/21/
       DATA (SPROP(I,-4,478),I=1,1)/0/
       DATA (IFOREST(I,-5,478),I=1,2)/-4,6/
+      DATA TPRID(-5,478)/21/
+      DATA (SPROP(I,-5,478),I=1,1)/0/
 C     Diagram 479
       DATA MAPCONFIG(479)/479/
       DATA TSTRATEGY(479)/-2/
@@ -7557,6 +8303,8 @@ C     Diagram 479
       DATA TPRID(-4,479)/6/
       DATA (SPROP(I,-4,479),I=1,1)/0/
       DATA (IFOREST(I,-5,479),I=1,2)/-3,-1/
+      DATA TPRID(-5,479)/6/
+      DATA (SPROP(I,-5,479),I=1,1)/0/
 C     Diagram 480
       DATA MAPCONFIG(480)/480/
       DATA TSTRATEGY(480)/-2/
@@ -7573,6 +8321,8 @@ C     Diagram 480
       DATA TPRID(-4,480)/6/
       DATA (SPROP(I,-4,480),I=1,1)/0/
       DATA (IFOREST(I,-5,480),I=1,2)/-3,3/
+      DATA TPRID(-5,480)/6/
+      DATA (SPROP(I,-5,480),I=1,1)/0/
 C     Diagram 481
       DATA MAPCONFIG(481)/481/
       DATA TSTRATEGY(481)/2/
@@ -7589,6 +8339,8 @@ C     Diagram 481
       DATA TPRID(-4,481)/21/
       DATA (SPROP(I,-4,481),I=1,1)/0/
       DATA (IFOREST(I,-5,481),I=1,2)/-4,-3/
+      DATA TPRID(-5,481)/21/
+      DATA (SPROP(I,-5,481),I=1,1)/0/
 C     Diagram 482
       DATA MAPCONFIG(482)/482/
       DATA TSTRATEGY(482)/2/
@@ -7605,6 +8357,8 @@ C     Diagram 482
       DATA TPRID(-4,482)/21/
       DATA (SPROP(I,-4,482),I=1,1)/0/
       DATA (IFOREST(I,-5,482),I=1,2)/-4,-3/
+      DATA TPRID(-5,482)/21/
+      DATA (SPROP(I,-5,482),I=1,1)/0/
 C     Diagram 483
       DATA MAPCONFIG(483)/483/
       DATA TSTRATEGY(483)/-2/
@@ -7621,6 +8375,8 @@ C     Diagram 483
       DATA TPRID(-4,483)/21/
       DATA (SPROP(I,-4,483),I=1,1)/0/
       DATA (IFOREST(I,-5,483),I=1,2)/-3,7/
+      DATA TPRID(-5,483)/21/
+      DATA (SPROP(I,-5,483),I=1,1)/0/
 C     Diagram 484
       DATA MAPCONFIG(484)/484/
       DATA TSTRATEGY(484)/2/
@@ -7637,6 +8393,8 @@ C     Diagram 484
       DATA TPRID(-4,484)/21/
       DATA (SPROP(I,-4,484),I=1,1)/0/
       DATA (IFOREST(I,-5,484),I=1,2)/-4,-2/
+      DATA TPRID(-5,484)/21/
+      DATA (SPROP(I,-5,484),I=1,1)/0/
 C     Diagram 485
       DATA MAPCONFIG(485)/485/
       DATA TSTRATEGY(485)/-2/
@@ -7653,6 +8411,8 @@ C     Diagram 485
       DATA TPRID(-4,485)/21/
       DATA (SPROP(I,-4,485),I=1,1)/0/
       DATA (IFOREST(I,-5,485),I=1,2)/-3,5/
+      DATA TPRID(-5,485)/21/
+      DATA (SPROP(I,-5,485),I=1,1)/0/
 C     Diagram 486
       DATA MAPCONFIG(486)/486/
       DATA TSTRATEGY(486)/2/
@@ -7669,6 +8429,8 @@ C     Diagram 486
       DATA TPRID(-4,486)/21/
       DATA (SPROP(I,-4,486),I=1,1)/0/
       DATA (IFOREST(I,-5,486),I=1,2)/-4,-2/
+      DATA TPRID(-5,486)/21/
+      DATA (SPROP(I,-5,486),I=1,1)/0/
 C     Diagram 487
       DATA MAPCONFIG(487)/487/
       DATA TSTRATEGY(487)/2/
@@ -7685,6 +8447,8 @@ C     Diagram 487
       DATA TPRID(-4,487)/21/
       DATA (SPROP(I,-4,487),I=1,1)/0/
       DATA (IFOREST(I,-5,487),I=1,2)/-4,-3/
+      DATA TPRID(-5,487)/21/
+      DATA (SPROP(I,-5,487),I=1,1)/0/
 C     Diagram 488
       DATA MAPCONFIG(488)/488/
       DATA TSTRATEGY(488)/2/
@@ -7701,6 +8465,8 @@ C     Diagram 488
       DATA TPRID(-4,488)/21/
       DATA (SPROP(I,-4,488),I=1,1)/0/
       DATA (IFOREST(I,-5,488),I=1,2)/-4,-2/
+      DATA TPRID(-5,488)/21/
+      DATA (SPROP(I,-5,488),I=1,1)/0/
 C     Diagram 489
       DATA MAPCONFIG(489)/489/
       DATA TSTRATEGY(489)/2/
@@ -7717,6 +8483,8 @@ C     Diagram 489
       DATA TPRID(-4,489)/21/
       DATA (SPROP(I,-4,489),I=1,1)/0/
       DATA (IFOREST(I,-5,489),I=1,2)/-4,-2/
+      DATA TPRID(-5,489)/21/
+      DATA (SPROP(I,-5,489),I=1,1)/0/
 C     Diagram 490
       DATA MAPCONFIG(490)/490/
       DATA TSTRATEGY(490)/2/
@@ -7733,6 +8501,8 @@ C     Diagram 490
       DATA TPRID(-4,490)/21/
       DATA (SPROP(I,-4,490),I=1,1)/0/
       DATA (IFOREST(I,-5,490),I=1,2)/-4,-3/
+      DATA TPRID(-5,490)/21/
+      DATA (SPROP(I,-5,490),I=1,1)/0/
 C     Diagram 491
       DATA MAPCONFIG(491)/491/
       DATA TSTRATEGY(491)/2/
@@ -7749,6 +8519,8 @@ C     Diagram 491
       DATA TPRID(-4,491)/21/
       DATA (SPROP(I,-4,491),I=1,1)/0/
       DATA (IFOREST(I,-5,491),I=1,2)/-4,-3/
+      DATA TPRID(-5,491)/21/
+      DATA (SPROP(I,-5,491),I=1,1)/0/
 C     Diagram 492
       DATA MAPCONFIG(492)/492/
       DATA TSTRATEGY(492)/-2/
@@ -7765,6 +8537,8 @@ C     Diagram 492
       DATA TPRID(-4,492)/6/
       DATA (SPROP(I,-4,492),I=1,1)/0/
       DATA (IFOREST(I,-5,492),I=1,2)/-3,7/
+      DATA TPRID(-5,492)/6/
+      DATA (SPROP(I,-5,492),I=1,1)/0/
 C     Diagram 493
       DATA MAPCONFIG(493)/493/
       DATA TSTRATEGY(493)/2/
@@ -7781,6 +8555,8 @@ C     Diagram 493
       DATA TPRID(-4,493)/6/
       DATA (SPROP(I,-4,493),I=1,1)/0/
       DATA (IFOREST(I,-5,493),I=1,2)/-4,-2/
+      DATA TPRID(-5,493)/21/
+      DATA (SPROP(I,-5,493),I=1,1)/0/
 C     Diagram 494
       DATA MAPCONFIG(494)/494/
       DATA TSTRATEGY(494)/2/
@@ -7797,6 +8573,8 @@ C     Diagram 494
       DATA TPRID(-4,494)/6/
       DATA (SPROP(I,-4,494),I=1,1)/0/
       DATA (IFOREST(I,-5,494),I=1,2)/-4,-1/
+      DATA TPRID(-5,494)/21/
+      DATA (SPROP(I,-5,494),I=1,1)/0/
 C     Diagram 495
       DATA MAPCONFIG(495)/495/
       DATA TSTRATEGY(495)/2/
@@ -7813,6 +8591,8 @@ C     Diagram 495
       DATA TPRID(-4,495)/21/
       DATA (SPROP(I,-4,495),I=1,1)/0/
       DATA (IFOREST(I,-5,495),I=1,2)/-4,-2/
+      DATA TPRID(-5,495)/21/
+      DATA (SPROP(I,-5,495),I=1,1)/0/
 C     Diagram 496
       DATA MAPCONFIG(496)/496/
       DATA TSTRATEGY(496)/2/
@@ -7829,6 +8609,8 @@ C     Diagram 496
       DATA TPRID(-4,496)/21/
       DATA (SPROP(I,-4,496),I=1,1)/0/
       DATA (IFOREST(I,-5,496),I=1,2)/-4,-3/
+      DATA TPRID(-5,496)/21/
+      DATA (SPROP(I,-5,496),I=1,1)/0/
 C     Diagram 497
       DATA MAPCONFIG(497)/497/
       DATA TSTRATEGY(497)/2/
@@ -7845,6 +8627,8 @@ C     Diagram 497
       DATA TPRID(-4,497)/6/
       DATA (SPROP(I,-4,497),I=1,1)/0/
       DATA (IFOREST(I,-5,497),I=1,2)/-4,-2/
+      DATA TPRID(-5,497)/21/
+      DATA (SPROP(I,-5,497),I=1,1)/0/
 C     Diagram 498
       DATA MAPCONFIG(498)/498/
       DATA TSTRATEGY(498)/2/
@@ -7861,6 +8645,8 @@ C     Diagram 498
       DATA TPRID(-4,498)/6/
       DATA (SPROP(I,-4,498),I=1,1)/0/
       DATA (IFOREST(I,-5,498),I=1,2)/-4,-2/
+      DATA TPRID(-5,498)/21/
+      DATA (SPROP(I,-5,498),I=1,1)/0/
 C     Diagram 499
       DATA MAPCONFIG(499)/499/
       DATA TSTRATEGY(499)/2/
@@ -7877,6 +8663,8 @@ C     Diagram 499
       DATA TPRID(-4,499)/21/
       DATA (SPROP(I,-4,499),I=1,1)/0/
       DATA (IFOREST(I,-5,499),I=1,2)/-4,-3/
+      DATA TPRID(-5,499)/21/
+      DATA (SPROP(I,-5,499),I=1,1)/0/
 C     Diagram 500
       DATA MAPCONFIG(500)/500/
       DATA TSTRATEGY(500)/2/
@@ -7893,6 +8681,8 @@ C     Diagram 500
       DATA TPRID(-4,500)/21/
       DATA (SPROP(I,-4,500),I=1,1)/0/
       DATA (IFOREST(I,-5,500),I=1,2)/-4,-3/
+      DATA TPRID(-5,500)/21/
+      DATA (SPROP(I,-5,500),I=1,1)/0/
 C     Diagram 501
       DATA MAPCONFIG(501)/501/
       DATA TSTRATEGY(501)/-2/
@@ -7909,6 +8699,8 @@ C     Diagram 501
       DATA TPRID(-4,501)/6/
       DATA (SPROP(I,-4,501),I=1,1)/0/
       DATA (IFOREST(I,-5,501),I=1,2)/-3,5/
+      DATA TPRID(-5,501)/6/
+      DATA (SPROP(I,-5,501),I=1,1)/0/
 C     Diagram 502
       DATA MAPCONFIG(502)/502/
       DATA TSTRATEGY(502)/2/
@@ -7925,6 +8717,8 @@ C     Diagram 502
       DATA TPRID(-4,502)/6/
       DATA (SPROP(I,-4,502),I=1,1)/0/
       DATA (IFOREST(I,-5,502),I=1,2)/-4,-2/
+      DATA TPRID(-5,502)/21/
+      DATA (SPROP(I,-5,502),I=1,1)/0/
 C     Diagram 503
       DATA MAPCONFIG(503)/503/
       DATA TSTRATEGY(503)/2/
@@ -7941,6 +8735,8 @@ C     Diagram 503
       DATA TPRID(-4,503)/6/
       DATA (SPROP(I,-4,503),I=1,1)/0/
       DATA (IFOREST(I,-5,503),I=1,2)/-4,-1/
+      DATA TPRID(-5,503)/21/
+      DATA (SPROP(I,-5,503),I=1,1)/0/
 C     Diagram 504
       DATA MAPCONFIG(504)/504/
       DATA TSTRATEGY(504)/2/
@@ -7957,6 +8753,8 @@ C     Diagram 504
       DATA TPRID(-4,504)/21/
       DATA (SPROP(I,-4,504),I=1,1)/0/
       DATA (IFOREST(I,-5,504),I=1,2)/-4,-2/
+      DATA TPRID(-5,504)/21/
+      DATA (SPROP(I,-5,504),I=1,1)/0/
 C     Diagram 505
       DATA MAPCONFIG(505)/505/
       DATA TSTRATEGY(505)/2/
@@ -7973,6 +8771,8 @@ C     Diagram 505
       DATA TPRID(-4,505)/21/
       DATA (SPROP(I,-4,505),I=1,1)/0/
       DATA (IFOREST(I,-5,505),I=1,2)/-4,-3/
+      DATA TPRID(-5,505)/21/
+      DATA (SPROP(I,-5,505),I=1,1)/0/
 C     Diagram 506
       DATA MAPCONFIG(506)/506/
       DATA TSTRATEGY(506)/2/
@@ -7989,6 +8789,8 @@ C     Diagram 506
       DATA TPRID(-4,506)/6/
       DATA (SPROP(I,-4,506),I=1,1)/0/
       DATA (IFOREST(I,-5,506),I=1,2)/-4,-2/
+      DATA TPRID(-5,506)/21/
+      DATA (SPROP(I,-5,506),I=1,1)/0/
 C     Diagram 507
       DATA MAPCONFIG(507)/507/
       DATA TSTRATEGY(507)/2/
@@ -8005,6 +8807,8 @@ C     Diagram 507
       DATA TPRID(-4,507)/6/
       DATA (SPROP(I,-4,507),I=1,1)/0/
       DATA (IFOREST(I,-5,507),I=1,2)/-4,-2/
+      DATA TPRID(-5,507)/21/
+      DATA (SPROP(I,-5,507),I=1,1)/0/
 C     Diagram 508
       DATA MAPCONFIG(508)/508/
       DATA TSTRATEGY(508)/2/
@@ -8021,6 +8825,8 @@ C     Diagram 508
       DATA TPRID(-4,508)/21/
       DATA (SPROP(I,-4,508),I=1,1)/0/
       DATA (IFOREST(I,-5,508),I=1,2)/-4,-3/
+      DATA TPRID(-5,508)/21/
+      DATA (SPROP(I,-5,508),I=1,1)/0/
 C     Diagram 509
       DATA MAPCONFIG(509)/509/
       DATA TSTRATEGY(509)/2/
@@ -8037,6 +8843,8 @@ C     Diagram 509
       DATA TPRID(-4,509)/21/
       DATA (SPROP(I,-4,509),I=1,1)/0/
       DATA (IFOREST(I,-5,509),I=1,2)/-4,-3/
+      DATA TPRID(-5,509)/21/
+      DATA (SPROP(I,-5,509),I=1,1)/0/
 C     Diagram 510
       DATA MAPCONFIG(510)/510/
       DATA TSTRATEGY(510)/-2/
@@ -8053,6 +8861,8 @@ C     Diagram 510
       DATA TPRID(-4,510)/6/
       DATA (SPROP(I,-4,510),I=1,1)/0/
       DATA (IFOREST(I,-5,510),I=1,2)/-3,7/
+      DATA TPRID(-5,510)/6/
+      DATA (SPROP(I,-5,510),I=1,1)/0/
 C     Diagram 511
       DATA MAPCONFIG(511)/511/
       DATA TSTRATEGY(511)/2/
@@ -8069,6 +8879,8 @@ C     Diagram 511
       DATA TPRID(-4,511)/6/
       DATA (SPROP(I,-4,511),I=1,1)/0/
       DATA (IFOREST(I,-5,511),I=1,2)/-4,-2/
+      DATA TPRID(-5,511)/21/
+      DATA (SPROP(I,-5,511),I=1,1)/0/
 C     Diagram 512
       DATA MAPCONFIG(512)/512/
       DATA TSTRATEGY(512)/2/
@@ -8085,6 +8897,8 @@ C     Diagram 512
       DATA TPRID(-4,512)/6/
       DATA (SPROP(I,-4,512),I=1,1)/0/
       DATA (IFOREST(I,-5,512),I=1,2)/-4,-1/
+      DATA TPRID(-5,512)/21/
+      DATA (SPROP(I,-5,512),I=1,1)/0/
 C     Diagram 513
       DATA MAPCONFIG(513)/513/
       DATA TSTRATEGY(513)/2/
@@ -8101,6 +8915,8 @@ C     Diagram 513
       DATA TPRID(-4,513)/21/
       DATA (SPROP(I,-4,513),I=1,1)/0/
       DATA (IFOREST(I,-5,513),I=1,2)/-4,-2/
+      DATA TPRID(-5,513)/21/
+      DATA (SPROP(I,-5,513),I=1,1)/0/
 C     Diagram 514
       DATA MAPCONFIG(514)/514/
       DATA TSTRATEGY(514)/2/
@@ -8117,6 +8933,8 @@ C     Diagram 514
       DATA TPRID(-4,514)/21/
       DATA (SPROP(I,-4,514),I=1,1)/0/
       DATA (IFOREST(I,-5,514),I=1,2)/-4,-3/
+      DATA TPRID(-5,514)/21/
+      DATA (SPROP(I,-5,514),I=1,1)/0/
 C     Diagram 515
       DATA MAPCONFIG(515)/515/
       DATA TSTRATEGY(515)/2/
@@ -8133,6 +8951,8 @@ C     Diagram 515
       DATA TPRID(-4,515)/21/
       DATA (SPROP(I,-4,515),I=1,1)/0/
       DATA (IFOREST(I,-5,515),I=1,2)/-4,-3/
+      DATA TPRID(-5,515)/21/
+      DATA (SPROP(I,-5,515),I=1,1)/0/
 C     Diagram 516
       DATA MAPCONFIG(516)/516/
       DATA TSTRATEGY(516)/-2/
@@ -8149,6 +8969,8 @@ C     Diagram 516
       DATA TPRID(-4,516)/6/
       DATA (SPROP(I,-4,516),I=1,1)/0/
       DATA (IFOREST(I,-5,516),I=1,2)/-3,5/
+      DATA TPRID(-5,516)/6/
+      DATA (SPROP(I,-5,516),I=1,1)/0/
 C     Diagram 517
       DATA MAPCONFIG(517)/517/
       DATA TSTRATEGY(517)/2/
@@ -8165,6 +8987,8 @@ C     Diagram 517
       DATA TPRID(-4,517)/6/
       DATA (SPROP(I,-4,517),I=1,1)/0/
       DATA (IFOREST(I,-5,517),I=1,2)/-4,-2/
+      DATA TPRID(-5,517)/21/
+      DATA (SPROP(I,-5,517),I=1,1)/0/
 C     Diagram 518
       DATA MAPCONFIG(518)/518/
       DATA TSTRATEGY(518)/2/
@@ -8181,6 +9005,8 @@ C     Diagram 518
       DATA TPRID(-4,518)/6/
       DATA (SPROP(I,-4,518),I=1,1)/0/
       DATA (IFOREST(I,-5,518),I=1,2)/-4,-1/
+      DATA TPRID(-5,518)/21/
+      DATA (SPROP(I,-5,518),I=1,1)/0/
 C     Diagram 519
       DATA MAPCONFIG(519)/519/
       DATA TSTRATEGY(519)/2/
@@ -8197,6 +9023,8 @@ C     Diagram 519
       DATA TPRID(-4,519)/21/
       DATA (SPROP(I,-4,519),I=1,1)/0/
       DATA (IFOREST(I,-5,519),I=1,2)/-4,-2/
+      DATA TPRID(-5,519)/21/
+      DATA (SPROP(I,-5,519),I=1,1)/0/
 C     Diagram 520
       DATA MAPCONFIG(520)/520/
       DATA TSTRATEGY(520)/2/
@@ -8213,6 +9041,8 @@ C     Diagram 520
       DATA TPRID(-4,520)/21/
       DATA (SPROP(I,-4,520),I=1,1)/0/
       DATA (IFOREST(I,-5,520),I=1,2)/-4,-3/
+      DATA TPRID(-5,520)/21/
+      DATA (SPROP(I,-5,520),I=1,1)/0/
 C     Diagram 521
       DATA MAPCONFIG(521)/521/
       DATA TSTRATEGY(521)/2/
@@ -8229,6 +9059,8 @@ C     Diagram 521
       DATA TPRID(-4,521)/21/
       DATA (SPROP(I,-4,521),I=1,1)/0/
       DATA (IFOREST(I,-5,521),I=1,2)/-4,-3/
+      DATA TPRID(-5,521)/21/
+      DATA (SPROP(I,-5,521),I=1,1)/0/
 C     Diagram 522
       DATA MAPCONFIG(522)/522/
       DATA TSTRATEGY(522)/-2/
@@ -8245,6 +9077,8 @@ C     Diagram 522
       DATA TPRID(-4,522)/6/
       DATA (SPROP(I,-4,522),I=1,1)/0/
       DATA (IFOREST(I,-5,522),I=1,2)/-3,4/
+      DATA TPRID(-5,522)/6/
+      DATA (SPROP(I,-5,522),I=1,1)/0/
 C     Diagram 523
       DATA MAPCONFIG(523)/523/
       DATA TSTRATEGY(523)/2/
@@ -8261,6 +9095,8 @@ C     Diagram 523
       DATA TPRID(-4,523)/6/
       DATA (SPROP(I,-4,523),I=1,1)/0/
       DATA (IFOREST(I,-5,523),I=1,2)/-4,-2/
+      DATA TPRID(-5,523)/21/
+      DATA (SPROP(I,-5,523),I=1,1)/0/
 C     Diagram 524
       DATA MAPCONFIG(524)/524/
       DATA TSTRATEGY(524)/-2/
@@ -8277,6 +9113,8 @@ C     Diagram 524
       DATA TPRID(-4,524)/6/
       DATA (SPROP(I,-4,524),I=1,1)/0/
       DATA (IFOREST(I,-5,524),I=1,2)/-3,3/
+      DATA TPRID(-5,524)/6/
+      DATA (SPROP(I,-5,524),I=1,1)/0/
 C     Diagram 525
       DATA MAPCONFIG(525)/525/
       DATA TSTRATEGY(525)/2/
@@ -8293,6 +9131,8 @@ C     Diagram 525
       DATA TPRID(-4,525)/6/
       DATA (SPROP(I,-4,525),I=1,1)/0/
       DATA (IFOREST(I,-5,525),I=1,2)/-4,-2/
+      DATA TPRID(-5,525)/21/
+      DATA (SPROP(I,-5,525),I=1,1)/0/
 C     Diagram 526
       DATA MAPCONFIG(526)/526/
       DATA TSTRATEGY(526)/-2/
@@ -8309,6 +9149,8 @@ C     Diagram 526
       DATA TPRID(-4,526)/6/
       DATA (SPROP(I,-4,526),I=1,1)/0/
       DATA (IFOREST(I,-5,526),I=1,2)/-3,6/
+      DATA TPRID(-5,526)/6/
+      DATA (SPROP(I,-5,526),I=1,1)/0/
 C     Diagram 527
       DATA MAPCONFIG(527)/527/
       DATA TSTRATEGY(527)/-2/
@@ -8325,6 +9167,8 @@ C     Diagram 527
       DATA TPRID(-4,527)/6/
       DATA (SPROP(I,-4,527),I=1,1)/0/
       DATA (IFOREST(I,-5,527),I=1,2)/-3,5/
+      DATA TPRID(-5,527)/6/
+      DATA (SPROP(I,-5,527),I=1,1)/0/
 C     Diagram 528
       DATA MAPCONFIG(528)/528/
       DATA TSTRATEGY(528)/2/
@@ -8341,6 +9185,8 @@ C     Diagram 528
       DATA TPRID(-4,528)/6/
       DATA (SPROP(I,-4,528),I=1,1)/0/
       DATA (IFOREST(I,-5,528),I=1,2)/-4,3/
+      DATA TPRID(-5,528)/21/
+      DATA (SPROP(I,-5,528),I=1,1)/0/
 C     Diagram 529
       DATA MAPCONFIG(529)/529/
       DATA TSTRATEGY(529)/2/
@@ -8357,6 +9203,8 @@ C     Diagram 529
       DATA TPRID(-4,529)/6/
       DATA (SPROP(I,-4,529),I=1,1)/0/
       DATA (IFOREST(I,-5,529),I=1,2)/-4,3/
+      DATA TPRID(-5,529)/21/
+      DATA (SPROP(I,-5,529),I=1,1)/0/
 C     Diagram 530
       DATA MAPCONFIG(530)/530/
       DATA TSTRATEGY(530)/2/
@@ -8373,6 +9221,8 @@ C     Diagram 530
       DATA TPRID(-4,530)/6/
       DATA (SPROP(I,-4,530),I=1,1)/0/
       DATA (IFOREST(I,-5,530),I=1,2)/-4,3/
+      DATA TPRID(-5,530)/21/
+      DATA (SPROP(I,-5,530),I=1,1)/0/
 C     Diagram 531
       DATA MAPCONFIG(531)/531/
       DATA TSTRATEGY(531)/2/
@@ -8389,6 +9239,8 @@ C     Diagram 531
       DATA TPRID(-4,531)/6/
       DATA (SPROP(I,-4,531),I=1,1)/0/
       DATA (IFOREST(I,-5,531),I=1,2)/-4,3/
+      DATA TPRID(-5,531)/21/
+      DATA (SPROP(I,-5,531),I=1,1)/0/
 C     Diagram 532
       DATA MAPCONFIG(532)/532/
       DATA TSTRATEGY(532)/2/
@@ -8405,6 +9257,8 @@ C     Diagram 532
       DATA TPRID(-4,532)/6/
       DATA (SPROP(I,-4,532),I=1,1)/0/
       DATA (IFOREST(I,-5,532),I=1,2)/-4,3/
+      DATA TPRID(-5,532)/21/
+      DATA (SPROP(I,-5,532),I=1,1)/0/
 C     Diagram 533
       DATA MAPCONFIG(533)/533/
       DATA TSTRATEGY(533)/-2/
@@ -8421,6 +9275,8 @@ C     Diagram 533
       DATA TPRID(-4,533)/6/
       DATA (SPROP(I,-4,533),I=1,1)/0/
       DATA (IFOREST(I,-5,533),I=1,2)/-3,6/
+      DATA TPRID(-5,533)/6/
+      DATA (SPROP(I,-5,533),I=1,1)/0/
 C     Diagram 534
       DATA MAPCONFIG(534)/534/
       DATA TSTRATEGY(534)/2/
@@ -8437,6 +9293,8 @@ C     Diagram 534
       DATA TPRID(-4,534)/6/
       DATA (SPROP(I,-4,534),I=1,1)/0/
       DATA (IFOREST(I,-5,534),I=1,2)/-4,3/
+      DATA TPRID(-5,534)/21/
+      DATA (SPROP(I,-5,534),I=1,1)/0/
 C     Diagram 535
       DATA MAPCONFIG(535)/535/
       DATA TSTRATEGY(535)/2/
@@ -8453,6 +9311,8 @@ C     Diagram 535
       DATA TPRID(-4,535)/6/
       DATA (SPROP(I,-4,535),I=1,1)/0/
       DATA (IFOREST(I,-5,535),I=1,2)/-4,3/
+      DATA TPRID(-5,535)/21/
+      DATA (SPROP(I,-5,535),I=1,1)/0/
 C     Diagram 536
       DATA MAPCONFIG(536)/536/
       DATA TSTRATEGY(536)/-2/
@@ -8469,6 +9329,8 @@ C     Diagram 536
       DATA TPRID(-4,536)/6/
       DATA (SPROP(I,-4,536),I=1,1)/0/
       DATA (IFOREST(I,-5,536),I=1,2)/-3,5/
+      DATA TPRID(-5,536)/6/
+      DATA (SPROP(I,-5,536),I=1,1)/0/
 C     Diagram 537
       DATA MAPCONFIG(537)/537/
       DATA TSTRATEGY(537)/2/
@@ -8485,6 +9347,8 @@ C     Diagram 537
       DATA TPRID(-4,537)/6/
       DATA (SPROP(I,-4,537),I=1,1)/0/
       DATA (IFOREST(I,-5,537),I=1,2)/-4,3/
+      DATA TPRID(-5,537)/21/
+      DATA (SPROP(I,-5,537),I=1,1)/0/
 C     Diagram 538
       DATA MAPCONFIG(538)/538/
       DATA TSTRATEGY(538)/2/
@@ -8501,6 +9365,8 @@ C     Diagram 538
       DATA TPRID(-4,538)/6/
       DATA (SPROP(I,-4,538),I=1,1)/0/
       DATA (IFOREST(I,-5,538),I=1,2)/-4,3/
+      DATA TPRID(-5,538)/21/
+      DATA (SPROP(I,-5,538),I=1,1)/0/
 C     Diagram 539
       DATA MAPCONFIG(539)/539/
       DATA TSTRATEGY(539)/-2/
@@ -8517,6 +9383,8 @@ C     Diagram 539
       DATA TPRID(-4,539)/6/
       DATA (SPROP(I,-4,539),I=1,1)/0/
       DATA (IFOREST(I,-5,539),I=1,2)/-3,-1/
+      DATA TPRID(-5,539)/6/
+      DATA (SPROP(I,-5,539),I=1,1)/0/
 C     Diagram 540
       DATA MAPCONFIG(540)/540/
       DATA TSTRATEGY(540)/2/
@@ -8533,6 +9401,8 @@ C     Diagram 540
       DATA TPRID(-4,540)/6/
       DATA (SPROP(I,-4,540),I=1,1)/0/
       DATA (IFOREST(I,-5,540),I=1,2)/-4,3/
+      DATA TPRID(-5,540)/21/
+      DATA (SPROP(I,-5,540),I=1,1)/0/
 C     Diagram 541
       DATA MAPCONFIG(541)/541/
       DATA TSTRATEGY(541)/-2/
@@ -8549,6 +9419,8 @@ C     Diagram 541
       DATA TPRID(-4,541)/6/
       DATA (SPROP(I,-4,541),I=1,1)/0/
       DATA (IFOREST(I,-5,541),I=1,2)/-3,6/
+      DATA TPRID(-5,541)/6/
+      DATA (SPROP(I,-5,541),I=1,1)/0/
 C     Diagram 542
       DATA MAPCONFIG(542)/542/
       DATA TSTRATEGY(542)/-2/
@@ -8565,6 +9437,8 @@ C     Diagram 542
       DATA TPRID(-4,542)/6/
       DATA (SPROP(I,-4,542),I=1,1)/0/
       DATA (IFOREST(I,-5,542),I=1,2)/-3,5/
+      DATA TPRID(-5,542)/6/
+      DATA (SPROP(I,-5,542),I=1,1)/0/
 C     Diagram 543
       DATA MAPCONFIG(543)/543/
       DATA TSTRATEGY(543)/2/
@@ -8581,6 +9455,8 @@ C     Diagram 543
       DATA TPRID(-4,543)/6/
       DATA (SPROP(I,-4,543),I=1,1)/0/
       DATA (IFOREST(I,-5,543),I=1,2)/-4,4/
+      DATA TPRID(-5,543)/21/
+      DATA (SPROP(I,-5,543),I=1,1)/0/
 C     Diagram 544
       DATA MAPCONFIG(544)/544/
       DATA TSTRATEGY(544)/2/
@@ -8597,6 +9473,8 @@ C     Diagram 544
       DATA TPRID(-4,544)/6/
       DATA (SPROP(I,-4,544),I=1,1)/0/
       DATA (IFOREST(I,-5,544),I=1,2)/-4,4/
+      DATA TPRID(-5,544)/21/
+      DATA (SPROP(I,-5,544),I=1,1)/0/
 C     Diagram 545
       DATA MAPCONFIG(545)/545/
       DATA TSTRATEGY(545)/2/
@@ -8613,6 +9491,8 @@ C     Diagram 545
       DATA TPRID(-4,545)/6/
       DATA (SPROP(I,-4,545),I=1,1)/0/
       DATA (IFOREST(I,-5,545),I=1,2)/-4,4/
+      DATA TPRID(-5,545)/21/
+      DATA (SPROP(I,-5,545),I=1,1)/0/
 C     Diagram 546
       DATA MAPCONFIG(546)/546/
       DATA TSTRATEGY(546)/2/
@@ -8629,6 +9509,8 @@ C     Diagram 546
       DATA TPRID(-4,546)/6/
       DATA (SPROP(I,-4,546),I=1,1)/0/
       DATA (IFOREST(I,-5,546),I=1,2)/-4,4/
+      DATA TPRID(-5,546)/21/
+      DATA (SPROP(I,-5,546),I=1,1)/0/
 C     Diagram 547
       DATA MAPCONFIG(547)/547/
       DATA TSTRATEGY(547)/2/
@@ -8645,6 +9527,8 @@ C     Diagram 547
       DATA TPRID(-4,547)/6/
       DATA (SPROP(I,-4,547),I=1,1)/0/
       DATA (IFOREST(I,-5,547),I=1,2)/-4,4/
+      DATA TPRID(-5,547)/21/
+      DATA (SPROP(I,-5,547),I=1,1)/0/
 C     Diagram 548
       DATA MAPCONFIG(548)/548/
       DATA TSTRATEGY(548)/-2/
@@ -8661,6 +9545,8 @@ C     Diagram 548
       DATA TPRID(-4,548)/6/
       DATA (SPROP(I,-4,548),I=1,1)/0/
       DATA (IFOREST(I,-5,548),I=1,2)/-3,6/
+      DATA TPRID(-5,548)/6/
+      DATA (SPROP(I,-5,548),I=1,1)/0/
 C     Diagram 549
       DATA MAPCONFIG(549)/549/
       DATA TSTRATEGY(549)/2/
@@ -8677,6 +9563,8 @@ C     Diagram 549
       DATA TPRID(-4,549)/6/
       DATA (SPROP(I,-4,549),I=1,1)/0/
       DATA (IFOREST(I,-5,549),I=1,2)/-4,4/
+      DATA TPRID(-5,549)/21/
+      DATA (SPROP(I,-5,549),I=1,1)/0/
 C     Diagram 550
       DATA MAPCONFIG(550)/550/
       DATA TSTRATEGY(550)/2/
@@ -8693,6 +9581,8 @@ C     Diagram 550
       DATA TPRID(-4,550)/6/
       DATA (SPROP(I,-4,550),I=1,1)/0/
       DATA (IFOREST(I,-5,550),I=1,2)/-4,4/
+      DATA TPRID(-5,550)/21/
+      DATA (SPROP(I,-5,550),I=1,1)/0/
 C     Diagram 551
       DATA MAPCONFIG(551)/551/
       DATA TSTRATEGY(551)/-2/
@@ -8709,6 +9599,8 @@ C     Diagram 551
       DATA TPRID(-4,551)/6/
       DATA (SPROP(I,-4,551),I=1,1)/0/
       DATA (IFOREST(I,-5,551),I=1,2)/-3,5/
+      DATA TPRID(-5,551)/6/
+      DATA (SPROP(I,-5,551),I=1,1)/0/
 C     Diagram 552
       DATA MAPCONFIG(552)/552/
       DATA TSTRATEGY(552)/2/
@@ -8725,6 +9617,8 @@ C     Diagram 552
       DATA TPRID(-4,552)/6/
       DATA (SPROP(I,-4,552),I=1,1)/0/
       DATA (IFOREST(I,-5,552),I=1,2)/-4,4/
+      DATA TPRID(-5,552)/21/
+      DATA (SPROP(I,-5,552),I=1,1)/0/
 C     Diagram 553
       DATA MAPCONFIG(553)/553/
       DATA TSTRATEGY(553)/2/
@@ -8741,6 +9635,8 @@ C     Diagram 553
       DATA TPRID(-4,553)/6/
       DATA (SPROP(I,-4,553),I=1,1)/0/
       DATA (IFOREST(I,-5,553),I=1,2)/-4,4/
+      DATA TPRID(-5,553)/21/
+      DATA (SPROP(I,-5,553),I=1,1)/0/
 C     Diagram 554
       DATA MAPCONFIG(554)/554/
       DATA TSTRATEGY(554)/-2/
@@ -8757,6 +9653,8 @@ C     Diagram 554
       DATA TPRID(-4,554)/6/
       DATA (SPROP(I,-4,554),I=1,1)/0/
       DATA (IFOREST(I,-5,554),I=1,2)/-3,-1/
+      DATA TPRID(-5,554)/6/
+      DATA (SPROP(I,-5,554),I=1,1)/0/
 C     Diagram 555
       DATA MAPCONFIG(555)/555/
       DATA TSTRATEGY(555)/2/
@@ -8773,6 +9671,8 @@ C     Diagram 555
       DATA TPRID(-4,555)/6/
       DATA (SPROP(I,-4,555),I=1,1)/0/
       DATA (IFOREST(I,-5,555),I=1,2)/-4,4/
+      DATA TPRID(-5,555)/21/
+      DATA (SPROP(I,-5,555),I=1,1)/0/
 C     Diagram 556
       DATA MAPCONFIG(556)/556/
       DATA TSTRATEGY(556)/-2/
@@ -8789,6 +9689,8 @@ C     Diagram 556
       DATA TPRID(-4,556)/6/
       DATA (SPROP(I,-4,556),I=1,1)/0/
       DATA (IFOREST(I,-5,556),I=1,2)/-3,6/
+      DATA TPRID(-5,556)/6/
+      DATA (SPROP(I,-5,556),I=1,1)/0/
 C     Diagram 557
       DATA MAPCONFIG(557)/557/
       DATA TSTRATEGY(557)/-2/
@@ -8805,6 +9707,8 @@ C     Diagram 557
       DATA TPRID(-4,557)/21/
       DATA (SPROP(I,-4,557),I=1,1)/0/
       DATA (IFOREST(I,-5,557),I=1,2)/-3,4/
+      DATA TPRID(-5,557)/21/
+      DATA (SPROP(I,-5,557),I=1,1)/0/
 C     Diagram 558
       DATA MAPCONFIG(558)/558/
       DATA TSTRATEGY(558)/-2/
@@ -8821,6 +9725,8 @@ C     Diagram 558
       DATA TPRID(-4,558)/6/
       DATA (SPROP(I,-4,558),I=1,1)/0/
       DATA (IFOREST(I,-5,558),I=1,2)/-3,6/
+      DATA TPRID(-5,558)/6/
+      DATA (SPROP(I,-5,558),I=1,1)/0/
 C     Diagram 559
       DATA MAPCONFIG(559)/559/
       DATA TSTRATEGY(559)/-2/
@@ -8837,6 +9743,8 @@ C     Diagram 559
       DATA TPRID(-4,559)/21/
       DATA (SPROP(I,-4,559),I=1,1)/0/
       DATA (IFOREST(I,-5,559),I=1,2)/-3,3/
+      DATA TPRID(-5,559)/21/
+      DATA (SPROP(I,-5,559),I=1,1)/0/
 C     Diagram 560
       DATA MAPCONFIG(560)/560/
       DATA TSTRATEGY(560)/-2/
@@ -8853,6 +9761,8 @@ C     Diagram 560
       DATA TPRID(-4,560)/6/
       DATA (SPROP(I,-4,560),I=1,1)/0/
       DATA (IFOREST(I,-5,560),I=1,2)/-3,4/
+      DATA TPRID(-5,560)/6/
+      DATA (SPROP(I,-5,560),I=1,1)/0/
 C     Diagram 561
       DATA MAPCONFIG(561)/561/
       DATA TSTRATEGY(561)/-2/
@@ -8869,6 +9779,8 @@ C     Diagram 561
       DATA TPRID(-4,561)/6/
       DATA (SPROP(I,-4,561),I=1,1)/0/
       DATA (IFOREST(I,-5,561),I=1,2)/-3,3/
+      DATA TPRID(-5,561)/6/
+      DATA (SPROP(I,-5,561),I=1,1)/0/
 C     Diagram 562
       DATA MAPCONFIG(562)/562/
       DATA TSTRATEGY(562)/2/
@@ -8885,6 +9797,8 @@ C     Diagram 562
       DATA TPRID(-4,562)/21/
       DATA (SPROP(I,-4,562),I=1,1)/0/
       DATA (IFOREST(I,-5,562),I=1,2)/-4,5/
+      DATA TPRID(-5,562)/21/
+      DATA (SPROP(I,-5,562),I=1,1)/0/
 C     Diagram 563
       DATA MAPCONFIG(563)/563/
       DATA TSTRATEGY(563)/-2/
@@ -8901,6 +9815,8 @@ C     Diagram 563
       DATA TPRID(-4,563)/21/
       DATA (SPROP(I,-4,563),I=1,1)/0/
       DATA (IFOREST(I,-5,563),I=1,2)/-3,6/
+      DATA TPRID(-5,563)/21/
+      DATA (SPROP(I,-5,563),I=1,1)/0/
 C     Diagram 564
       DATA MAPCONFIG(564)/564/
       DATA TSTRATEGY(564)/-2/
@@ -8917,6 +9833,8 @@ C     Diagram 564
       DATA TPRID(-4,564)/21/
       DATA (SPROP(I,-4,564),I=1,1)/0/
       DATA (IFOREST(I,-5,564),I=1,2)/-3,-1/
+      DATA TPRID(-5,564)/21/
+      DATA (SPROP(I,-5,564),I=1,1)/0/
 C     Diagram 565
       DATA MAPCONFIG(565)/565/
       DATA TSTRATEGY(565)/2/
@@ -8933,6 +9851,8 @@ C     Diagram 565
       DATA TPRID(-4,565)/21/
       DATA (SPROP(I,-4,565),I=1,1)/0/
       DATA (IFOREST(I,-5,565),I=1,2)/-4,5/
+      DATA TPRID(-5,565)/21/
+      DATA (SPROP(I,-5,565),I=1,1)/0/
 C     Diagram 566
       DATA MAPCONFIG(566)/566/
       DATA TSTRATEGY(566)/-2/
@@ -8949,6 +9869,8 @@ C     Diagram 566
       DATA TPRID(-4,566)/6/
       DATA (SPROP(I,-4,566),I=1,1)/0/
       DATA (IFOREST(I,-5,566),I=1,2)/-3,4/
+      DATA TPRID(-5,566)/6/
+      DATA (SPROP(I,-5,566),I=1,1)/0/
 C     Diagram 567
       DATA MAPCONFIG(567)/567/
       DATA TSTRATEGY(567)/-2/
@@ -8965,6 +9887,8 @@ C     Diagram 567
       DATA TPRID(-4,567)/6/
       DATA (SPROP(I,-4,567),I=1,1)/0/
       DATA (IFOREST(I,-5,567),I=1,2)/-3,-1/
+      DATA TPRID(-5,567)/6/
+      DATA (SPROP(I,-5,567),I=1,1)/0/
 C     Diagram 568
       DATA MAPCONFIG(568)/568/
       DATA TSTRATEGY(568)/2/
@@ -8981,6 +9905,8 @@ C     Diagram 568
       DATA TPRID(-4,568)/21/
       DATA (SPROP(I,-4,568),I=1,1)/0/
       DATA (IFOREST(I,-5,568),I=1,2)/-4,5/
+      DATA TPRID(-5,568)/21/
+      DATA (SPROP(I,-5,568),I=1,1)/0/
 C     Diagram 569
       DATA MAPCONFIG(569)/569/
       DATA TSTRATEGY(569)/-2/
@@ -8997,6 +9923,8 @@ C     Diagram 569
       DATA TPRID(-4,569)/6/
       DATA (SPROP(I,-4,569),I=1,1)/0/
       DATA (IFOREST(I,-5,569),I=1,2)/-3,-1/
+      DATA TPRID(-5,569)/6/
+      DATA (SPROP(I,-5,569),I=1,1)/0/
 C     Diagram 570
       DATA MAPCONFIG(570)/570/
       DATA TSTRATEGY(570)/-2/
@@ -9013,6 +9941,8 @@ C     Diagram 570
       DATA TPRID(-4,570)/6/
       DATA (SPROP(I,-4,570),I=1,1)/0/
       DATA (IFOREST(I,-5,570),I=1,2)/-3,3/
+      DATA TPRID(-5,570)/6/
+      DATA (SPROP(I,-5,570),I=1,1)/0/
 C     Diagram 571
       DATA MAPCONFIG(571)/571/
       DATA TSTRATEGY(571)/-2/
@@ -9029,6 +9959,8 @@ C     Diagram 571
       DATA TPRID(-4,571)/6/
       DATA (SPROP(I,-4,571),I=1,1)/0/
       DATA (IFOREST(I,-5,571),I=1,2)/-3,5/
+      DATA TPRID(-5,571)/6/
+      DATA (SPROP(I,-5,571),I=1,1)/0/
 C     Diagram 572
       DATA MAPCONFIG(572)/572/
       DATA TSTRATEGY(572)/-2/
@@ -9045,6 +9977,8 @@ C     Diagram 572
       DATA TPRID(-4,572)/21/
       DATA (SPROP(I,-4,572),I=1,1)/0/
       DATA (IFOREST(I,-5,572),I=1,2)/-3,4/
+      DATA TPRID(-5,572)/21/
+      DATA (SPROP(I,-5,572),I=1,1)/0/
 C     Diagram 573
       DATA MAPCONFIG(573)/573/
       DATA TSTRATEGY(573)/-2/
@@ -9061,6 +9995,8 @@ C     Diagram 573
       DATA TPRID(-4,573)/6/
       DATA (SPROP(I,-4,573),I=1,1)/0/
       DATA (IFOREST(I,-5,573),I=1,2)/-3,5/
+      DATA TPRID(-5,573)/6/
+      DATA (SPROP(I,-5,573),I=1,1)/0/
 C     Diagram 574
       DATA MAPCONFIG(574)/574/
       DATA TSTRATEGY(574)/-2/
@@ -9077,6 +10013,8 @@ C     Diagram 574
       DATA TPRID(-4,574)/21/
       DATA (SPROP(I,-4,574),I=1,1)/0/
       DATA (IFOREST(I,-5,574),I=1,2)/-3,3/
+      DATA TPRID(-5,574)/21/
+      DATA (SPROP(I,-5,574),I=1,1)/0/
 C     Diagram 575
       DATA MAPCONFIG(575)/575/
       DATA TSTRATEGY(575)/-2/
@@ -9093,6 +10031,8 @@ C     Diagram 575
       DATA TPRID(-4,575)/6/
       DATA (SPROP(I,-4,575),I=1,1)/0/
       DATA (IFOREST(I,-5,575),I=1,2)/-3,4/
+      DATA TPRID(-5,575)/6/
+      DATA (SPROP(I,-5,575),I=1,1)/0/
 C     Diagram 576
       DATA MAPCONFIG(576)/576/
       DATA TSTRATEGY(576)/-2/
@@ -9109,6 +10049,8 @@ C     Diagram 576
       DATA TPRID(-4,576)/6/
       DATA (SPROP(I,-4,576),I=1,1)/0/
       DATA (IFOREST(I,-5,576),I=1,2)/-3,3/
+      DATA TPRID(-5,576)/6/
+      DATA (SPROP(I,-5,576),I=1,1)/0/
 C     Diagram 577
       DATA MAPCONFIG(577)/577/
       DATA TSTRATEGY(577)/2/
@@ -9125,6 +10067,8 @@ C     Diagram 577
       DATA TPRID(-4,577)/21/
       DATA (SPROP(I,-4,577),I=1,1)/0/
       DATA (IFOREST(I,-5,577),I=1,2)/-4,6/
+      DATA TPRID(-5,577)/21/
+      DATA (SPROP(I,-5,577),I=1,1)/0/
 C     Diagram 578
       DATA MAPCONFIG(578)/578/
       DATA TSTRATEGY(578)/-2/
@@ -9141,6 +10085,8 @@ C     Diagram 578
       DATA TPRID(-4,578)/21/
       DATA (SPROP(I,-4,578),I=1,1)/0/
       DATA (IFOREST(I,-5,578),I=1,2)/-3,5/
+      DATA TPRID(-5,578)/21/
+      DATA (SPROP(I,-5,578),I=1,1)/0/
 C     Diagram 579
       DATA MAPCONFIG(579)/579/
       DATA TSTRATEGY(579)/-2/
@@ -9157,6 +10103,8 @@ C     Diagram 579
       DATA TPRID(-4,579)/21/
       DATA (SPROP(I,-4,579),I=1,1)/0/
       DATA (IFOREST(I,-5,579),I=1,2)/-3,-1/
+      DATA TPRID(-5,579)/21/
+      DATA (SPROP(I,-5,579),I=1,1)/0/
 C     Diagram 580
       DATA MAPCONFIG(580)/580/
       DATA TSTRATEGY(580)/2/
@@ -9173,6 +10121,8 @@ C     Diagram 580
       DATA TPRID(-4,580)/21/
       DATA (SPROP(I,-4,580),I=1,1)/0/
       DATA (IFOREST(I,-5,580),I=1,2)/-4,6/
+      DATA TPRID(-5,580)/21/
+      DATA (SPROP(I,-5,580),I=1,1)/0/
 C     Diagram 581
       DATA MAPCONFIG(581)/581/
       DATA TSTRATEGY(581)/-2/
@@ -9189,6 +10139,8 @@ C     Diagram 581
       DATA TPRID(-4,581)/6/
       DATA (SPROP(I,-4,581),I=1,1)/0/
       DATA (IFOREST(I,-5,581),I=1,2)/-3,4/
+      DATA TPRID(-5,581)/6/
+      DATA (SPROP(I,-5,581),I=1,1)/0/
 C     Diagram 582
       DATA MAPCONFIG(582)/582/
       DATA TSTRATEGY(582)/-2/
@@ -9205,6 +10157,8 @@ C     Diagram 582
       DATA TPRID(-4,582)/6/
       DATA (SPROP(I,-4,582),I=1,1)/0/
       DATA (IFOREST(I,-5,582),I=1,2)/-3,-1/
+      DATA TPRID(-5,582)/6/
+      DATA (SPROP(I,-5,582),I=1,1)/0/
 C     Diagram 583
       DATA MAPCONFIG(583)/583/
       DATA TSTRATEGY(583)/2/
@@ -9221,6 +10175,8 @@ C     Diagram 583
       DATA TPRID(-4,583)/21/
       DATA (SPROP(I,-4,583),I=1,1)/0/
       DATA (IFOREST(I,-5,583),I=1,2)/-4,6/
+      DATA TPRID(-5,583)/21/
+      DATA (SPROP(I,-5,583),I=1,1)/0/
 C     Diagram 584
       DATA MAPCONFIG(584)/584/
       DATA TSTRATEGY(584)/-2/
@@ -9237,6 +10193,8 @@ C     Diagram 584
       DATA TPRID(-4,584)/6/
       DATA (SPROP(I,-4,584),I=1,1)/0/
       DATA (IFOREST(I,-5,584),I=1,2)/-3,-1/
+      DATA TPRID(-5,584)/6/
+      DATA (SPROP(I,-5,584),I=1,1)/0/
 C     Diagram 585
       DATA MAPCONFIG(585)/585/
       DATA TSTRATEGY(585)/-2/
@@ -9253,6 +10211,8 @@ C     Diagram 585
       DATA TPRID(-4,585)/6/
       DATA (SPROP(I,-4,585),I=1,1)/0/
       DATA (IFOREST(I,-5,585),I=1,2)/-3,3/
+      DATA TPRID(-5,585)/6/
+      DATA (SPROP(I,-5,585),I=1,1)/0/
 C     Diagram 586
       DATA MAPCONFIG(586)/586/
       DATA TSTRATEGY(586)/2/
@@ -9269,6 +10229,8 @@ C     Diagram 586
       DATA TPRID(-4,586)/21/
       DATA (SPROP(I,-4,586),I=1,1)/0/
       DATA (IFOREST(I,-5,586),I=1,2)/-4,-3/
+      DATA TPRID(-5,586)/21/
+      DATA (SPROP(I,-5,586),I=1,1)/0/
 C     Diagram 587
       DATA MAPCONFIG(587)/587/
       DATA TSTRATEGY(587)/2/
@@ -9285,6 +10247,8 @@ C     Diagram 587
       DATA TPRID(-4,587)/21/
       DATA (SPROP(I,-4,587),I=1,1)/0/
       DATA (IFOREST(I,-5,587),I=1,2)/-4,-3/
+      DATA TPRID(-5,587)/21/
+      DATA (SPROP(I,-5,587),I=1,1)/0/
 C     Diagram 588
       DATA MAPCONFIG(588)/588/
       DATA TSTRATEGY(588)/-2/
@@ -9301,6 +10265,8 @@ C     Diagram 588
       DATA TPRID(-4,588)/21/
       DATA (SPROP(I,-4,588),I=1,1)/0/
       DATA (IFOREST(I,-5,588),I=1,2)/-3,6/
+      DATA TPRID(-5,588)/21/
+      DATA (SPROP(I,-5,588),I=1,1)/0/
 C     Diagram 589
       DATA MAPCONFIG(589)/589/
       DATA TSTRATEGY(589)/2/
@@ -9317,6 +10283,8 @@ C     Diagram 589
       DATA TPRID(-4,589)/21/
       DATA (SPROP(I,-4,589),I=1,1)/0/
       DATA (IFOREST(I,-5,589),I=1,2)/-4,-2/
+      DATA TPRID(-5,589)/21/
+      DATA (SPROP(I,-5,589),I=1,1)/0/
 C     Diagram 590
       DATA MAPCONFIG(590)/590/
       DATA TSTRATEGY(590)/-2/
@@ -9333,6 +10301,8 @@ C     Diagram 590
       DATA TPRID(-4,590)/21/
       DATA (SPROP(I,-4,590),I=1,1)/0/
       DATA (IFOREST(I,-5,590),I=1,2)/-3,5/
+      DATA TPRID(-5,590)/21/
+      DATA (SPROP(I,-5,590),I=1,1)/0/
 C     Diagram 591
       DATA MAPCONFIG(591)/591/
       DATA TSTRATEGY(591)/2/
@@ -9349,6 +10319,8 @@ C     Diagram 591
       DATA TPRID(-4,591)/21/
       DATA (SPROP(I,-4,591),I=1,1)/0/
       DATA (IFOREST(I,-5,591),I=1,2)/-4,-2/
+      DATA TPRID(-5,591)/21/
+      DATA (SPROP(I,-5,591),I=1,1)/0/
 C     Diagram 592
       DATA MAPCONFIG(592)/592/
       DATA TSTRATEGY(592)/2/
@@ -9365,6 +10337,8 @@ C     Diagram 592
       DATA TPRID(-4,592)/21/
       DATA (SPROP(I,-4,592),I=1,1)/0/
       DATA (IFOREST(I,-5,592),I=1,2)/-4,-3/
+      DATA TPRID(-5,592)/21/
+      DATA (SPROP(I,-5,592),I=1,1)/0/
 C     Diagram 593
       DATA MAPCONFIG(593)/593/
       DATA TSTRATEGY(593)/2/
@@ -9381,6 +10355,8 @@ C     Diagram 593
       DATA TPRID(-4,593)/21/
       DATA (SPROP(I,-4,593),I=1,1)/0/
       DATA (IFOREST(I,-5,593),I=1,2)/-4,-2/
+      DATA TPRID(-5,593)/21/
+      DATA (SPROP(I,-5,593),I=1,1)/0/
 C     Diagram 594
       DATA MAPCONFIG(594)/594/
       DATA TSTRATEGY(594)/2/
@@ -9397,6 +10373,8 @@ C     Diagram 594
       DATA TPRID(-4,594)/21/
       DATA (SPROP(I,-4,594),I=1,1)/0/
       DATA (IFOREST(I,-5,594),I=1,2)/-4,-2/
+      DATA TPRID(-5,594)/21/
+      DATA (SPROP(I,-5,594),I=1,1)/0/
 C     Diagram 595
       DATA MAPCONFIG(595)/595/
       DATA TSTRATEGY(595)/2/
@@ -9413,6 +10391,8 @@ C     Diagram 595
       DATA TPRID(-4,595)/21/
       DATA (SPROP(I,-4,595),I=1,1)/0/
       DATA (IFOREST(I,-5,595),I=1,2)/-4,-3/
+      DATA TPRID(-5,595)/21/
+      DATA (SPROP(I,-5,595),I=1,1)/0/
 C     Diagram 596
       DATA MAPCONFIG(596)/596/
       DATA TSTRATEGY(596)/2/
@@ -9429,6 +10409,8 @@ C     Diagram 596
       DATA TPRID(-4,596)/21/
       DATA (SPROP(I,-4,596),I=1,1)/0/
       DATA (IFOREST(I,-5,596),I=1,2)/-4,-3/
+      DATA TPRID(-5,596)/21/
+      DATA (SPROP(I,-5,596),I=1,1)/0/
 C     Diagram 597
       DATA MAPCONFIG(597)/597/
       DATA TSTRATEGY(597)/-2/
@@ -9445,6 +10427,8 @@ C     Diagram 597
       DATA TPRID(-4,597)/6/
       DATA (SPROP(I,-4,597),I=1,1)/0/
       DATA (IFOREST(I,-5,597),I=1,2)/-3,6/
+      DATA TPRID(-5,597)/6/
+      DATA (SPROP(I,-5,597),I=1,1)/0/
 C     Diagram 598
       DATA MAPCONFIG(598)/598/
       DATA TSTRATEGY(598)/2/
@@ -9461,6 +10445,8 @@ C     Diagram 598
       DATA TPRID(-4,598)/6/
       DATA (SPROP(I,-4,598),I=1,1)/0/
       DATA (IFOREST(I,-5,598),I=1,2)/-4,-2/
+      DATA TPRID(-5,598)/21/
+      DATA (SPROP(I,-5,598),I=1,1)/0/
 C     Diagram 599
       DATA MAPCONFIG(599)/599/
       DATA TSTRATEGY(599)/2/
@@ -9477,6 +10463,8 @@ C     Diagram 599
       DATA TPRID(-4,599)/6/
       DATA (SPROP(I,-4,599),I=1,1)/0/
       DATA (IFOREST(I,-5,599),I=1,2)/-4,-1/
+      DATA TPRID(-5,599)/21/
+      DATA (SPROP(I,-5,599),I=1,1)/0/
 C     Diagram 600
       DATA MAPCONFIG(600)/600/
       DATA TSTRATEGY(600)/2/
@@ -9493,6 +10481,8 @@ C     Diagram 600
       DATA TPRID(-4,600)/21/
       DATA (SPROP(I,-4,600),I=1,1)/0/
       DATA (IFOREST(I,-5,600),I=1,2)/-4,-2/
+      DATA TPRID(-5,600)/21/
+      DATA (SPROP(I,-5,600),I=1,1)/0/
 C     Diagram 601
       DATA MAPCONFIG(601)/601/
       DATA TSTRATEGY(601)/2/
@@ -9509,6 +10499,8 @@ C     Diagram 601
       DATA TPRID(-4,601)/21/
       DATA (SPROP(I,-4,601),I=1,1)/0/
       DATA (IFOREST(I,-5,601),I=1,2)/-4,-3/
+      DATA TPRID(-5,601)/21/
+      DATA (SPROP(I,-5,601),I=1,1)/0/
 C     Diagram 602
       DATA MAPCONFIG(602)/602/
       DATA TSTRATEGY(602)/2/
@@ -9525,6 +10517,8 @@ C     Diagram 602
       DATA TPRID(-4,602)/6/
       DATA (SPROP(I,-4,602),I=1,1)/0/
       DATA (IFOREST(I,-5,602),I=1,2)/-4,-2/
+      DATA TPRID(-5,602)/21/
+      DATA (SPROP(I,-5,602),I=1,1)/0/
 C     Diagram 603
       DATA MAPCONFIG(603)/603/
       DATA TSTRATEGY(603)/2/
@@ -9541,6 +10535,8 @@ C     Diagram 603
       DATA TPRID(-4,603)/6/
       DATA (SPROP(I,-4,603),I=1,1)/0/
       DATA (IFOREST(I,-5,603),I=1,2)/-4,-2/
+      DATA TPRID(-5,603)/21/
+      DATA (SPROP(I,-5,603),I=1,1)/0/
 C     Diagram 604
       DATA MAPCONFIG(604)/604/
       DATA TSTRATEGY(604)/2/
@@ -9557,6 +10553,8 @@ C     Diagram 604
       DATA TPRID(-4,604)/21/
       DATA (SPROP(I,-4,604),I=1,1)/0/
       DATA (IFOREST(I,-5,604),I=1,2)/-4,-3/
+      DATA TPRID(-5,604)/21/
+      DATA (SPROP(I,-5,604),I=1,1)/0/
 C     Diagram 605
       DATA MAPCONFIG(605)/605/
       DATA TSTRATEGY(605)/2/
@@ -9573,6 +10571,8 @@ C     Diagram 605
       DATA TPRID(-4,605)/21/
       DATA (SPROP(I,-4,605),I=1,1)/0/
       DATA (IFOREST(I,-5,605),I=1,2)/-4,-3/
+      DATA TPRID(-5,605)/21/
+      DATA (SPROP(I,-5,605),I=1,1)/0/
 C     Diagram 606
       DATA MAPCONFIG(606)/606/
       DATA TSTRATEGY(606)/-2/
@@ -9589,6 +10589,8 @@ C     Diagram 606
       DATA TPRID(-4,606)/6/
       DATA (SPROP(I,-4,606),I=1,1)/0/
       DATA (IFOREST(I,-5,606),I=1,2)/-3,5/
+      DATA TPRID(-5,606)/6/
+      DATA (SPROP(I,-5,606),I=1,1)/0/
 C     Diagram 607
       DATA MAPCONFIG(607)/607/
       DATA TSTRATEGY(607)/2/
@@ -9605,6 +10607,8 @@ C     Diagram 607
       DATA TPRID(-4,607)/6/
       DATA (SPROP(I,-4,607),I=1,1)/0/
       DATA (IFOREST(I,-5,607),I=1,2)/-4,-2/
+      DATA TPRID(-5,607)/21/
+      DATA (SPROP(I,-5,607),I=1,1)/0/
 C     Diagram 608
       DATA MAPCONFIG(608)/608/
       DATA TSTRATEGY(608)/2/
@@ -9621,6 +10625,8 @@ C     Diagram 608
       DATA TPRID(-4,608)/6/
       DATA (SPROP(I,-4,608),I=1,1)/0/
       DATA (IFOREST(I,-5,608),I=1,2)/-4,-1/
+      DATA TPRID(-5,608)/21/
+      DATA (SPROP(I,-5,608),I=1,1)/0/
 C     Diagram 609
       DATA MAPCONFIG(609)/609/
       DATA TSTRATEGY(609)/2/
@@ -9637,6 +10643,8 @@ C     Diagram 609
       DATA TPRID(-4,609)/21/
       DATA (SPROP(I,-4,609),I=1,1)/0/
       DATA (IFOREST(I,-5,609),I=1,2)/-4,-2/
+      DATA TPRID(-5,609)/21/
+      DATA (SPROP(I,-5,609),I=1,1)/0/
 C     Diagram 610
       DATA MAPCONFIG(610)/610/
       DATA TSTRATEGY(610)/2/
@@ -9653,6 +10661,8 @@ C     Diagram 610
       DATA TPRID(-4,610)/21/
       DATA (SPROP(I,-4,610),I=1,1)/0/
       DATA (IFOREST(I,-5,610),I=1,2)/-4,-3/
+      DATA TPRID(-5,610)/21/
+      DATA (SPROP(I,-5,610),I=1,1)/0/
 C     Diagram 611
       DATA MAPCONFIG(611)/611/
       DATA TSTRATEGY(611)/2/
@@ -9669,6 +10679,8 @@ C     Diagram 611
       DATA TPRID(-4,611)/6/
       DATA (SPROP(I,-4,611),I=1,1)/0/
       DATA (IFOREST(I,-5,611),I=1,2)/-4,-2/
+      DATA TPRID(-5,611)/21/
+      DATA (SPROP(I,-5,611),I=1,1)/0/
 C     Diagram 612
       DATA MAPCONFIG(612)/612/
       DATA TSTRATEGY(612)/2/
@@ -9685,6 +10697,8 @@ C     Diagram 612
       DATA TPRID(-4,612)/6/
       DATA (SPROP(I,-4,612),I=1,1)/0/
       DATA (IFOREST(I,-5,612),I=1,2)/-4,-2/
+      DATA TPRID(-5,612)/21/
+      DATA (SPROP(I,-5,612),I=1,1)/0/
 C     Diagram 613
       DATA MAPCONFIG(613)/613/
       DATA TSTRATEGY(613)/2/
@@ -9701,6 +10715,8 @@ C     Diagram 613
       DATA TPRID(-4,613)/21/
       DATA (SPROP(I,-4,613),I=1,1)/0/
       DATA (IFOREST(I,-5,613),I=1,2)/-4,-3/
+      DATA TPRID(-5,613)/21/
+      DATA (SPROP(I,-5,613),I=1,1)/0/
 C     Diagram 614
       DATA MAPCONFIG(614)/614/
       DATA TSTRATEGY(614)/2/
@@ -9717,6 +10733,8 @@ C     Diagram 614
       DATA TPRID(-4,614)/21/
       DATA (SPROP(I,-4,614),I=1,1)/0/
       DATA (IFOREST(I,-5,614),I=1,2)/-4,-3/
+      DATA TPRID(-5,614)/21/
+      DATA (SPROP(I,-5,614),I=1,1)/0/
 C     Diagram 615
       DATA MAPCONFIG(615)/615/
       DATA TSTRATEGY(615)/-2/
@@ -9733,6 +10751,8 @@ C     Diagram 615
       DATA TPRID(-4,615)/6/
       DATA (SPROP(I,-4,615),I=1,1)/0/
       DATA (IFOREST(I,-5,615),I=1,2)/-3,6/
+      DATA TPRID(-5,615)/6/
+      DATA (SPROP(I,-5,615),I=1,1)/0/
 C     Diagram 616
       DATA MAPCONFIG(616)/616/
       DATA TSTRATEGY(616)/2/
@@ -9749,6 +10769,8 @@ C     Diagram 616
       DATA TPRID(-4,616)/6/
       DATA (SPROP(I,-4,616),I=1,1)/0/
       DATA (IFOREST(I,-5,616),I=1,2)/-4,-2/
+      DATA TPRID(-5,616)/21/
+      DATA (SPROP(I,-5,616),I=1,1)/0/
 C     Diagram 617
       DATA MAPCONFIG(617)/617/
       DATA TSTRATEGY(617)/2/
@@ -9765,6 +10787,8 @@ C     Diagram 617
       DATA TPRID(-4,617)/6/
       DATA (SPROP(I,-4,617),I=1,1)/0/
       DATA (IFOREST(I,-5,617),I=1,2)/-4,-1/
+      DATA TPRID(-5,617)/21/
+      DATA (SPROP(I,-5,617),I=1,1)/0/
 C     Diagram 618
       DATA MAPCONFIG(618)/618/
       DATA TSTRATEGY(618)/2/
@@ -9781,6 +10805,8 @@ C     Diagram 618
       DATA TPRID(-4,618)/21/
       DATA (SPROP(I,-4,618),I=1,1)/0/
       DATA (IFOREST(I,-5,618),I=1,2)/-4,-2/
+      DATA TPRID(-5,618)/21/
+      DATA (SPROP(I,-5,618),I=1,1)/0/
 C     Diagram 619
       DATA MAPCONFIG(619)/619/
       DATA TSTRATEGY(619)/2/
@@ -9797,6 +10823,8 @@ C     Diagram 619
       DATA TPRID(-4,619)/21/
       DATA (SPROP(I,-4,619),I=1,1)/0/
       DATA (IFOREST(I,-5,619),I=1,2)/-4,-3/
+      DATA TPRID(-5,619)/21/
+      DATA (SPROP(I,-5,619),I=1,1)/0/
 C     Diagram 620
       DATA MAPCONFIG(620)/620/
       DATA TSTRATEGY(620)/2/
@@ -9813,6 +10841,8 @@ C     Diagram 620
       DATA TPRID(-4,620)/21/
       DATA (SPROP(I,-4,620),I=1,1)/0/
       DATA (IFOREST(I,-5,620),I=1,2)/-4,-3/
+      DATA TPRID(-5,620)/21/
+      DATA (SPROP(I,-5,620),I=1,1)/0/
 C     Diagram 621
       DATA MAPCONFIG(621)/621/
       DATA TSTRATEGY(621)/-2/
@@ -9829,6 +10859,8 @@ C     Diagram 621
       DATA TPRID(-4,621)/6/
       DATA (SPROP(I,-4,621),I=1,1)/0/
       DATA (IFOREST(I,-5,621),I=1,2)/-3,5/
+      DATA TPRID(-5,621)/6/
+      DATA (SPROP(I,-5,621),I=1,1)/0/
 C     Diagram 622
       DATA MAPCONFIG(622)/622/
       DATA TSTRATEGY(622)/2/
@@ -9845,6 +10877,8 @@ C     Diagram 622
       DATA TPRID(-4,622)/6/
       DATA (SPROP(I,-4,622),I=1,1)/0/
       DATA (IFOREST(I,-5,622),I=1,2)/-4,-2/
+      DATA TPRID(-5,622)/21/
+      DATA (SPROP(I,-5,622),I=1,1)/0/
 C     Diagram 623
       DATA MAPCONFIG(623)/623/
       DATA TSTRATEGY(623)/2/
@@ -9861,6 +10895,8 @@ C     Diagram 623
       DATA TPRID(-4,623)/6/
       DATA (SPROP(I,-4,623),I=1,1)/0/
       DATA (IFOREST(I,-5,623),I=1,2)/-4,-1/
+      DATA TPRID(-5,623)/21/
+      DATA (SPROP(I,-5,623),I=1,1)/0/
 C     Diagram 624
       DATA MAPCONFIG(624)/624/
       DATA TSTRATEGY(624)/2/
@@ -9877,6 +10913,8 @@ C     Diagram 624
       DATA TPRID(-4,624)/21/
       DATA (SPROP(I,-4,624),I=1,1)/0/
       DATA (IFOREST(I,-5,624),I=1,2)/-4,-2/
+      DATA TPRID(-5,624)/21/
+      DATA (SPROP(I,-5,624),I=1,1)/0/
 C     Diagram 625
       DATA MAPCONFIG(625)/625/
       DATA TSTRATEGY(625)/2/
@@ -9893,6 +10931,8 @@ C     Diagram 625
       DATA TPRID(-4,625)/21/
       DATA (SPROP(I,-4,625),I=1,1)/0/
       DATA (IFOREST(I,-5,625),I=1,2)/-4,-3/
+      DATA TPRID(-5,625)/21/
+      DATA (SPROP(I,-5,625),I=1,1)/0/
 C     Diagram 626
       DATA MAPCONFIG(626)/626/
       DATA TSTRATEGY(626)/2/
@@ -9909,6 +10949,8 @@ C     Diagram 626
       DATA TPRID(-4,626)/21/
       DATA (SPROP(I,-4,626),I=1,1)/0/
       DATA (IFOREST(I,-5,626),I=1,2)/-4,-3/
+      DATA TPRID(-5,626)/21/
+      DATA (SPROP(I,-5,626),I=1,1)/0/
 C     Diagram 627
       DATA MAPCONFIG(627)/627/
       DATA TSTRATEGY(627)/-2/
@@ -9925,6 +10967,8 @@ C     Diagram 627
       DATA TPRID(-4,627)/6/
       DATA (SPROP(I,-4,627),I=1,1)/0/
       DATA (IFOREST(I,-5,627),I=1,2)/-3,4/
+      DATA TPRID(-5,627)/6/
+      DATA (SPROP(I,-5,627),I=1,1)/0/
 C     Diagram 628
       DATA MAPCONFIG(628)/628/
       DATA TSTRATEGY(628)/2/
@@ -9941,6 +10985,8 @@ C     Diagram 628
       DATA TPRID(-4,628)/6/
       DATA (SPROP(I,-4,628),I=1,1)/0/
       DATA (IFOREST(I,-5,628),I=1,2)/-4,-2/
+      DATA TPRID(-5,628)/21/
+      DATA (SPROP(I,-5,628),I=1,1)/0/
 C     Diagram 629
       DATA MAPCONFIG(629)/629/
       DATA TSTRATEGY(629)/-2/
@@ -9957,6 +11003,8 @@ C     Diagram 629
       DATA TPRID(-4,629)/6/
       DATA (SPROP(I,-4,629),I=1,1)/0/
       DATA (IFOREST(I,-5,629),I=1,2)/-3,3/
+      DATA TPRID(-5,629)/6/
+      DATA (SPROP(I,-5,629),I=1,1)/0/
 C     Diagram 630
       DATA MAPCONFIG(630)/630/
       DATA TSTRATEGY(630)/2/
@@ -9973,6 +11021,8 @@ C     Diagram 630
       DATA TPRID(-4,630)/6/
       DATA (SPROP(I,-4,630),I=1,1)/0/
       DATA (IFOREST(I,-5,630),I=1,2)/-4,-2/
+      DATA TPRID(-5,630)/21/
+      DATA (SPROP(I,-5,630),I=1,1)/0/
 C     Diagram 631
       DATA MAPCONFIG(631)/631/
       DATA TSTRATEGY(631)/2/
@@ -9989,6 +11039,8 @@ C     Diagram 631
       DATA TPRID(-4,631)/6/
       DATA (SPROP(I,-4,631),I=1,1)/0/
       DATA (IFOREST(I,-5,631),I=1,2)/-4,3/
+      DATA TPRID(-5,631)/21/
+      DATA (SPROP(I,-5,631),I=1,1)/0/
 C     Diagram 632
       DATA MAPCONFIG(632)/632/
       DATA TSTRATEGY(632)/2/
@@ -10005,6 +11057,8 @@ C     Diagram 632
       DATA TPRID(-4,632)/6/
       DATA (SPROP(I,-4,632),I=1,1)/0/
       DATA (IFOREST(I,-5,632),I=1,2)/-4,3/
+      DATA TPRID(-5,632)/21/
+      DATA (SPROP(I,-5,632),I=1,1)/0/
 C     Diagram 633
       DATA MAPCONFIG(633)/633/
       DATA TSTRATEGY(633)/-2/
@@ -10021,6 +11075,8 @@ C     Diagram 633
       DATA TPRID(-4,633)/6/
       DATA (SPROP(I,-4,633),I=1,1)/0/
       DATA (IFOREST(I,-5,633),I=1,2)/-3,6/
+      DATA TPRID(-5,633)/6/
+      DATA (SPROP(I,-5,633),I=1,1)/0/
 C     Diagram 634
       DATA MAPCONFIG(634)/634/
       DATA TSTRATEGY(634)/-2/
@@ -10037,6 +11093,8 @@ C     Diagram 634
       DATA TPRID(-4,634)/6/
       DATA (SPROP(I,-4,634),I=1,1)/0/
       DATA (IFOREST(I,-5,634),I=1,2)/-3,7/
+      DATA TPRID(-5,634)/6/
+      DATA (SPROP(I,-5,634),I=1,1)/0/
 C     Diagram 635
       DATA MAPCONFIG(635)/635/
       DATA TSTRATEGY(635)/1/
@@ -10053,6 +11111,8 @@ C     Diagram 635
       DATA TPRID(-4,635)/6/
       DATA (SPROP(I,-4,635),I=1,1)/0/
       DATA (IFOREST(I,-5,635),I=1,2)/-4,-2/
+      DATA TPRID(-5,635)/21/
+      DATA (SPROP(I,-5,635),I=1,1)/0/
 C     Diagram 636
       DATA MAPCONFIG(636)/636/
       DATA TSTRATEGY(636)/1/
@@ -10069,6 +11129,8 @@ C     Diagram 636
       DATA TPRID(-4,636)/6/
       DATA (SPROP(I,-4,636),I=1,1)/0/
       DATA (IFOREST(I,-5,636),I=1,2)/-4,-2/
+      DATA TPRID(-5,636)/21/
+      DATA (SPROP(I,-5,636),I=1,1)/0/
 C     Diagram 637
       DATA MAPCONFIG(637)/637/
       DATA TSTRATEGY(637)/2/
@@ -10085,6 +11147,8 @@ C     Diagram 637
       DATA TPRID(-4,637)/6/
       DATA (SPROP(I,-4,637),I=1,1)/0/
       DATA (IFOREST(I,-5,637),I=1,2)/-4,3/
+      DATA TPRID(-5,637)/21/
+      DATA (SPROP(I,-5,637),I=1,1)/0/
 C     Diagram 638
       DATA MAPCONFIG(638)/638/
       DATA TSTRATEGY(638)/1/
@@ -10101,6 +11165,8 @@ C     Diagram 638
       DATA TPRID(-4,638)/6/
       DATA (SPROP(I,-4,638),I=1,1)/0/
       DATA (IFOREST(I,-5,638),I=1,2)/-4,-1/
+      DATA TPRID(-5,638)/21/
+      DATA (SPROP(I,-5,638),I=1,1)/0/
 C     Diagram 639
       DATA MAPCONFIG(639)/639/
       DATA TSTRATEGY(639)/2/
@@ -10117,6 +11183,8 @@ C     Diagram 639
       DATA TPRID(-4,639)/6/
       DATA (SPROP(I,-4,639),I=1,1)/0/
       DATA (IFOREST(I,-5,639),I=1,2)/-4,3/
+      DATA TPRID(-5,639)/21/
+      DATA (SPROP(I,-5,639),I=1,1)/0/
 C     Diagram 640
       DATA MAPCONFIG(640)/640/
       DATA TSTRATEGY(640)/2/
@@ -10133,6 +11201,8 @@ C     Diagram 640
       DATA TPRID(-4,640)/6/
       DATA (SPROP(I,-4,640),I=1,1)/0/
       DATA (IFOREST(I,-5,640),I=1,2)/-4,3/
+      DATA TPRID(-5,640)/21/
+      DATA (SPROP(I,-5,640),I=1,1)/0/
 C     Diagram 641
       DATA MAPCONFIG(641)/641/
       DATA TSTRATEGY(641)/2/
@@ -10149,6 +11219,8 @@ C     Diagram 641
       DATA TPRID(-4,641)/6/
       DATA (SPROP(I,-4,641),I=1,1)/0/
       DATA (IFOREST(I,-5,641),I=1,2)/-4,3/
+      DATA TPRID(-5,641)/21/
+      DATA (SPROP(I,-5,641),I=1,1)/0/
 C     Diagram 642
       DATA MAPCONFIG(642)/642/
       DATA TSTRATEGY(642)/-2/
@@ -10165,6 +11237,8 @@ C     Diagram 642
       DATA TPRID(-4,642)/6/
       DATA (SPROP(I,-4,642),I=1,1)/0/
       DATA (IFOREST(I,-5,642),I=1,2)/-3,5/
+      DATA TPRID(-5,642)/6/
+      DATA (SPROP(I,-5,642),I=1,1)/0/
 C     Diagram 643
       DATA MAPCONFIG(643)/643/
       DATA TSTRATEGY(643)/-2/
@@ -10181,6 +11255,8 @@ C     Diagram 643
       DATA TPRID(-4,643)/6/
       DATA (SPROP(I,-4,643),I=1,1)/0/
       DATA (IFOREST(I,-5,643),I=1,2)/-3,7/
+      DATA TPRID(-5,643)/6/
+      DATA (SPROP(I,-5,643),I=1,1)/0/
 C     Diagram 644
       DATA MAPCONFIG(644)/644/
       DATA TSTRATEGY(644)/1/
@@ -10197,6 +11273,8 @@ C     Diagram 644
       DATA TPRID(-4,644)/6/
       DATA (SPROP(I,-4,644),I=1,1)/0/
       DATA (IFOREST(I,-5,644),I=1,2)/-4,-2/
+      DATA TPRID(-5,644)/21/
+      DATA (SPROP(I,-5,644),I=1,1)/0/
 C     Diagram 645
       DATA MAPCONFIG(645)/645/
       DATA TSTRATEGY(645)/1/
@@ -10213,6 +11291,8 @@ C     Diagram 645
       DATA TPRID(-4,645)/6/
       DATA (SPROP(I,-4,645),I=1,1)/0/
       DATA (IFOREST(I,-5,645),I=1,2)/-4,-2/
+      DATA TPRID(-5,645)/21/
+      DATA (SPROP(I,-5,645),I=1,1)/0/
 C     Diagram 646
       DATA MAPCONFIG(646)/646/
       DATA TSTRATEGY(646)/2/
@@ -10229,6 +11309,8 @@ C     Diagram 646
       DATA TPRID(-4,646)/6/
       DATA (SPROP(I,-4,646),I=1,1)/0/
       DATA (IFOREST(I,-5,646),I=1,2)/-4,3/
+      DATA TPRID(-5,646)/21/
+      DATA (SPROP(I,-5,646),I=1,1)/0/
 C     Diagram 647
       DATA MAPCONFIG(647)/647/
       DATA TSTRATEGY(647)/1/
@@ -10245,6 +11327,8 @@ C     Diagram 647
       DATA TPRID(-4,647)/6/
       DATA (SPROP(I,-4,647),I=1,1)/0/
       DATA (IFOREST(I,-5,647),I=1,2)/-4,-1/
+      DATA TPRID(-5,647)/21/
+      DATA (SPROP(I,-5,647),I=1,1)/0/
 C     Diagram 648
       DATA MAPCONFIG(648)/648/
       DATA TSTRATEGY(648)/2/
@@ -10261,6 +11345,8 @@ C     Diagram 648
       DATA TPRID(-4,648)/6/
       DATA (SPROP(I,-4,648),I=1,1)/0/
       DATA (IFOREST(I,-5,648),I=1,2)/-4,3/
+      DATA TPRID(-5,648)/21/
+      DATA (SPROP(I,-5,648),I=1,1)/0/
 C     Diagram 649
       DATA MAPCONFIG(649)/649/
       DATA TSTRATEGY(649)/2/
@@ -10277,6 +11363,8 @@ C     Diagram 649
       DATA TPRID(-4,649)/6/
       DATA (SPROP(I,-4,649),I=1,1)/0/
       DATA (IFOREST(I,-5,649),I=1,2)/-4,3/
+      DATA TPRID(-5,649)/21/
+      DATA (SPROP(I,-5,649),I=1,1)/0/
 C     Diagram 650
       DATA MAPCONFIG(650)/650/
       DATA TSTRATEGY(650)/2/
@@ -10293,6 +11381,8 @@ C     Diagram 650
       DATA TPRID(-4,650)/6/
       DATA (SPROP(I,-4,650),I=1,1)/0/
       DATA (IFOREST(I,-5,650),I=1,2)/-4,3/
+      DATA TPRID(-5,650)/21/
+      DATA (SPROP(I,-5,650),I=1,1)/0/
 C     Diagram 651
       DATA MAPCONFIG(651)/651/
       DATA TSTRATEGY(651)/-2/
@@ -10309,6 +11399,8 @@ C     Diagram 651
       DATA TPRID(-4,651)/6/
       DATA (SPROP(I,-4,651),I=1,1)/0/
       DATA (IFOREST(I,-5,651),I=1,2)/-3,5/
+      DATA TPRID(-5,651)/6/
+      DATA (SPROP(I,-5,651),I=1,1)/0/
 C     Diagram 652
       DATA MAPCONFIG(652)/652/
       DATA TSTRATEGY(652)/-2/
@@ -10325,6 +11417,8 @@ C     Diagram 652
       DATA TPRID(-4,652)/6/
       DATA (SPROP(I,-4,652),I=1,1)/0/
       DATA (IFOREST(I,-5,652),I=1,2)/-3,6/
+      DATA TPRID(-5,652)/6/
+      DATA (SPROP(I,-5,652),I=1,1)/0/
 C     Diagram 653
       DATA MAPCONFIG(653)/653/
       DATA TSTRATEGY(653)/1/
@@ -10341,6 +11435,8 @@ C     Diagram 653
       DATA TPRID(-4,653)/6/
       DATA (SPROP(I,-4,653),I=1,1)/0/
       DATA (IFOREST(I,-5,653),I=1,2)/-4,-2/
+      DATA TPRID(-5,653)/21/
+      DATA (SPROP(I,-5,653),I=1,1)/0/
 C     Diagram 654
       DATA MAPCONFIG(654)/654/
       DATA TSTRATEGY(654)/1/
@@ -10357,6 +11453,8 @@ C     Diagram 654
       DATA TPRID(-4,654)/6/
       DATA (SPROP(I,-4,654),I=1,1)/0/
       DATA (IFOREST(I,-5,654),I=1,2)/-4,-2/
+      DATA TPRID(-5,654)/21/
+      DATA (SPROP(I,-5,654),I=1,1)/0/
 C     Diagram 655
       DATA MAPCONFIG(655)/655/
       DATA TSTRATEGY(655)/2/
@@ -10373,6 +11471,8 @@ C     Diagram 655
       DATA TPRID(-4,655)/6/
       DATA (SPROP(I,-4,655),I=1,1)/0/
       DATA (IFOREST(I,-5,655),I=1,2)/-4,3/
+      DATA TPRID(-5,655)/21/
+      DATA (SPROP(I,-5,655),I=1,1)/0/
 C     Diagram 656
       DATA MAPCONFIG(656)/656/
       DATA TSTRATEGY(656)/1/
@@ -10389,6 +11489,8 @@ C     Diagram 656
       DATA TPRID(-4,656)/6/
       DATA (SPROP(I,-4,656),I=1,1)/0/
       DATA (IFOREST(I,-5,656),I=1,2)/-4,-1/
+      DATA TPRID(-5,656)/21/
+      DATA (SPROP(I,-5,656),I=1,1)/0/
 C     Diagram 657
       DATA MAPCONFIG(657)/657/
       DATA TSTRATEGY(657)/2/
@@ -10405,6 +11507,8 @@ C     Diagram 657
       DATA TPRID(-4,657)/6/
       DATA (SPROP(I,-4,657),I=1,1)/0/
       DATA (IFOREST(I,-5,657),I=1,2)/-4,3/
+      DATA TPRID(-5,657)/21/
+      DATA (SPROP(I,-5,657),I=1,1)/0/
 C     Diagram 658
       DATA MAPCONFIG(658)/658/
       DATA TSTRATEGY(658)/2/
@@ -10421,6 +11525,8 @@ C     Diagram 658
       DATA TPRID(-4,658)/6/
       DATA (SPROP(I,-4,658),I=1,1)/0/
       DATA (IFOREST(I,-5,658),I=1,2)/-4,3/
+      DATA TPRID(-5,658)/21/
+      DATA (SPROP(I,-5,658),I=1,1)/0/
 C     Diagram 659
       DATA MAPCONFIG(659)/659/
       DATA TSTRATEGY(659)/2/
@@ -10437,6 +11543,8 @@ C     Diagram 659
       DATA TPRID(-4,659)/6/
       DATA (SPROP(I,-4,659),I=1,1)/0/
       DATA (IFOREST(I,-5,659),I=1,2)/-4,3/
+      DATA TPRID(-5,659)/21/
+      DATA (SPROP(I,-5,659),I=1,1)/0/
 C     Diagram 660
       DATA MAPCONFIG(660)/660/
       DATA TSTRATEGY(660)/2/
@@ -10453,6 +11561,8 @@ C     Diagram 660
       DATA TPRID(-4,660)/6/
       DATA (SPROP(I,-4,660),I=1,1)/0/
       DATA (IFOREST(I,-5,660),I=1,2)/-4,3/
+      DATA TPRID(-5,660)/21/
+      DATA (SPROP(I,-5,660),I=1,1)/0/
 C     Diagram 661
       DATA MAPCONFIG(661)/661/
       DATA TSTRATEGY(661)/-2/
@@ -10469,6 +11579,8 @@ C     Diagram 661
       DATA TPRID(-4,661)/6/
       DATA (SPROP(I,-4,661),I=1,1)/0/
       DATA (IFOREST(I,-5,661),I=1,2)/-3,7/
+      DATA TPRID(-5,661)/6/
+      DATA (SPROP(I,-5,661),I=1,1)/0/
 C     Diagram 662
       DATA MAPCONFIG(662)/662/
       DATA TSTRATEGY(662)/2/
@@ -10485,6 +11597,8 @@ C     Diagram 662
       DATA TPRID(-4,662)/6/
       DATA (SPROP(I,-4,662),I=1,1)/0/
       DATA (IFOREST(I,-5,662),I=1,2)/-4,3/
+      DATA TPRID(-5,662)/21/
+      DATA (SPROP(I,-5,662),I=1,1)/0/
 C     Diagram 663
       DATA MAPCONFIG(663)/663/
       DATA TSTRATEGY(663)/1/
@@ -10501,6 +11615,8 @@ C     Diagram 663
       DATA TPRID(-4,663)/6/
       DATA (SPROP(I,-4,663),I=1,1)/0/
       DATA (IFOREST(I,-5,663),I=1,2)/-4,-2/
+      DATA TPRID(-5,663)/21/
+      DATA (SPROP(I,-5,663),I=1,1)/0/
 C     Diagram 664
       DATA MAPCONFIG(664)/664/
       DATA TSTRATEGY(664)/2/
@@ -10517,6 +11633,8 @@ C     Diagram 664
       DATA TPRID(-4,664)/6/
       DATA (SPROP(I,-4,664),I=1,1)/0/
       DATA (IFOREST(I,-5,664),I=1,2)/-4,3/
+      DATA TPRID(-5,664)/21/
+      DATA (SPROP(I,-5,664),I=1,1)/0/
 C     Diagram 665
       DATA MAPCONFIG(665)/665/
       DATA TSTRATEGY(665)/2/
@@ -10533,6 +11651,8 @@ C     Diagram 665
       DATA TPRID(-4,665)/6/
       DATA (SPROP(I,-4,665),I=1,1)/0/
       DATA (IFOREST(I,-5,665),I=1,2)/-4,3/
+      DATA TPRID(-5,665)/21/
+      DATA (SPROP(I,-5,665),I=1,1)/0/
 C     Diagram 666
       DATA MAPCONFIG(666)/666/
       DATA TSTRATEGY(666)/2/
@@ -10549,6 +11669,8 @@ C     Diagram 666
       DATA TPRID(-4,666)/6/
       DATA (SPROP(I,-4,666),I=1,1)/0/
       DATA (IFOREST(I,-5,666),I=1,2)/-4,3/
+      DATA TPRID(-5,666)/21/
+      DATA (SPROP(I,-5,666),I=1,1)/0/
 C     Diagram 667
       DATA MAPCONFIG(667)/667/
       DATA TSTRATEGY(667)/-2/
@@ -10565,6 +11687,8 @@ C     Diagram 667
       DATA TPRID(-4,667)/6/
       DATA (SPROP(I,-4,667),I=1,1)/0/
       DATA (IFOREST(I,-5,667),I=1,2)/-3,6/
+      DATA TPRID(-5,667)/6/
+      DATA (SPROP(I,-5,667),I=1,1)/0/
 C     Diagram 668
       DATA MAPCONFIG(668)/668/
       DATA TSTRATEGY(668)/2/
@@ -10581,6 +11705,8 @@ C     Diagram 668
       DATA TPRID(-4,668)/6/
       DATA (SPROP(I,-4,668),I=1,1)/0/
       DATA (IFOREST(I,-5,668),I=1,2)/-4,3/
+      DATA TPRID(-5,668)/21/
+      DATA (SPROP(I,-5,668),I=1,1)/0/
 C     Diagram 669
       DATA MAPCONFIG(669)/669/
       DATA TSTRATEGY(669)/1/
@@ -10597,6 +11723,8 @@ C     Diagram 669
       DATA TPRID(-4,669)/6/
       DATA (SPROP(I,-4,669),I=1,1)/0/
       DATA (IFOREST(I,-5,669),I=1,2)/-4,-2/
+      DATA TPRID(-5,669)/21/
+      DATA (SPROP(I,-5,669),I=1,1)/0/
 C     Diagram 670
       DATA MAPCONFIG(670)/670/
       DATA TSTRATEGY(670)/2/
@@ -10613,6 +11741,8 @@ C     Diagram 670
       DATA TPRID(-4,670)/6/
       DATA (SPROP(I,-4,670),I=1,1)/0/
       DATA (IFOREST(I,-5,670),I=1,2)/-4,3/
+      DATA TPRID(-5,670)/21/
+      DATA (SPROP(I,-5,670),I=1,1)/0/
 C     Diagram 671
       DATA MAPCONFIG(671)/671/
       DATA TSTRATEGY(671)/2/
@@ -10629,6 +11759,8 @@ C     Diagram 671
       DATA TPRID(-4,671)/6/
       DATA (SPROP(I,-4,671),I=1,1)/0/
       DATA (IFOREST(I,-5,671),I=1,2)/-4,3/
+      DATA TPRID(-5,671)/21/
+      DATA (SPROP(I,-5,671),I=1,1)/0/
 C     Diagram 672
       DATA MAPCONFIG(672)/672/
       DATA TSTRATEGY(672)/2/
@@ -10645,6 +11777,8 @@ C     Diagram 672
       DATA TPRID(-4,672)/6/
       DATA (SPROP(I,-4,672),I=1,1)/0/
       DATA (IFOREST(I,-5,672),I=1,2)/-4,3/
+      DATA TPRID(-5,672)/21/
+      DATA (SPROP(I,-5,672),I=1,1)/0/
 C     Diagram 673
       DATA MAPCONFIG(673)/673/
       DATA TSTRATEGY(673)/-2/
@@ -10661,6 +11795,8 @@ C     Diagram 673
       DATA TPRID(-4,673)/6/
       DATA (SPROP(I,-4,673),I=1,1)/0/
       DATA (IFOREST(I,-5,673),I=1,2)/-3,5/
+      DATA TPRID(-5,673)/6/
+      DATA (SPROP(I,-5,673),I=1,1)/0/
 C     Diagram 674
       DATA MAPCONFIG(674)/674/
       DATA TSTRATEGY(674)/2/
@@ -10677,6 +11813,8 @@ C     Diagram 674
       DATA TPRID(-4,674)/6/
       DATA (SPROP(I,-4,674),I=1,1)/0/
       DATA (IFOREST(I,-5,674),I=1,2)/-4,3/
+      DATA TPRID(-5,674)/21/
+      DATA (SPROP(I,-5,674),I=1,1)/0/
 C     Diagram 675
       DATA MAPCONFIG(675)/675/
       DATA TSTRATEGY(675)/1/
@@ -10693,6 +11831,8 @@ C     Diagram 675
       DATA TPRID(-4,675)/6/
       DATA (SPROP(I,-4,675),I=1,1)/0/
       DATA (IFOREST(I,-5,675),I=1,2)/-4,-2/
+      DATA TPRID(-5,675)/21/
+      DATA (SPROP(I,-5,675),I=1,1)/0/
 C     Diagram 676
       DATA MAPCONFIG(676)/676/
       DATA TSTRATEGY(676)/2/
@@ -10709,6 +11849,8 @@ C     Diagram 676
       DATA TPRID(-4,676)/6/
       DATA (SPROP(I,-4,676),I=1,1)/0/
       DATA (IFOREST(I,-5,676),I=1,2)/-4,4/
+      DATA TPRID(-5,676)/21/
+      DATA (SPROP(I,-5,676),I=1,1)/0/
 C     Diagram 677
       DATA MAPCONFIG(677)/677/
       DATA TSTRATEGY(677)/2/
@@ -10725,6 +11867,8 @@ C     Diagram 677
       DATA TPRID(-4,677)/6/
       DATA (SPROP(I,-4,677),I=1,1)/0/
       DATA (IFOREST(I,-5,677),I=1,2)/-4,4/
+      DATA TPRID(-5,677)/21/
+      DATA (SPROP(I,-5,677),I=1,1)/0/
 C     Diagram 678
       DATA MAPCONFIG(678)/678/
       DATA TSTRATEGY(678)/-2/
@@ -10741,6 +11885,8 @@ C     Diagram 678
       DATA TPRID(-4,678)/6/
       DATA (SPROP(I,-4,678),I=1,1)/0/
       DATA (IFOREST(I,-5,678),I=1,2)/-3,6/
+      DATA TPRID(-5,678)/6/
+      DATA (SPROP(I,-5,678),I=1,1)/0/
 C     Diagram 679
       DATA MAPCONFIG(679)/679/
       DATA TSTRATEGY(679)/-2/
@@ -10757,6 +11903,8 @@ C     Diagram 679
       DATA TPRID(-4,679)/6/
       DATA (SPROP(I,-4,679),I=1,1)/0/
       DATA (IFOREST(I,-5,679),I=1,2)/-3,7/
+      DATA TPRID(-5,679)/6/
+      DATA (SPROP(I,-5,679),I=1,1)/0/
 C     Diagram 680
       DATA MAPCONFIG(680)/680/
       DATA TSTRATEGY(680)/1/
@@ -10773,6 +11921,8 @@ C     Diagram 680
       DATA TPRID(-4,680)/6/
       DATA (SPROP(I,-4,680),I=1,1)/0/
       DATA (IFOREST(I,-5,680),I=1,2)/-4,-2/
+      DATA TPRID(-5,680)/21/
+      DATA (SPROP(I,-5,680),I=1,1)/0/
 C     Diagram 681
       DATA MAPCONFIG(681)/681/
       DATA TSTRATEGY(681)/1/
@@ -10789,6 +11939,8 @@ C     Diagram 681
       DATA TPRID(-4,681)/6/
       DATA (SPROP(I,-4,681),I=1,1)/0/
       DATA (IFOREST(I,-5,681),I=1,2)/-4,-2/
+      DATA TPRID(-5,681)/21/
+      DATA (SPROP(I,-5,681),I=1,1)/0/
 C     Diagram 682
       DATA MAPCONFIG(682)/682/
       DATA TSTRATEGY(682)/2/
@@ -10805,6 +11957,8 @@ C     Diagram 682
       DATA TPRID(-4,682)/6/
       DATA (SPROP(I,-4,682),I=1,1)/0/
       DATA (IFOREST(I,-5,682),I=1,2)/-4,4/
+      DATA TPRID(-5,682)/21/
+      DATA (SPROP(I,-5,682),I=1,1)/0/
 C     Diagram 683
       DATA MAPCONFIG(683)/683/
       DATA TSTRATEGY(683)/1/
@@ -10821,6 +11975,8 @@ C     Diagram 683
       DATA TPRID(-4,683)/6/
       DATA (SPROP(I,-4,683),I=1,1)/0/
       DATA (IFOREST(I,-5,683),I=1,2)/-4,-1/
+      DATA TPRID(-5,683)/21/
+      DATA (SPROP(I,-5,683),I=1,1)/0/
 C     Diagram 684
       DATA MAPCONFIG(684)/684/
       DATA TSTRATEGY(684)/2/
@@ -10837,6 +11993,8 @@ C     Diagram 684
       DATA TPRID(-4,684)/6/
       DATA (SPROP(I,-4,684),I=1,1)/0/
       DATA (IFOREST(I,-5,684),I=1,2)/-4,4/
+      DATA TPRID(-5,684)/21/
+      DATA (SPROP(I,-5,684),I=1,1)/0/
 C     Diagram 685
       DATA MAPCONFIG(685)/685/
       DATA TSTRATEGY(685)/2/
@@ -10853,6 +12011,8 @@ C     Diagram 685
       DATA TPRID(-4,685)/6/
       DATA (SPROP(I,-4,685),I=1,1)/0/
       DATA (IFOREST(I,-5,685),I=1,2)/-4,4/
+      DATA TPRID(-5,685)/21/
+      DATA (SPROP(I,-5,685),I=1,1)/0/
 C     Diagram 686
       DATA MAPCONFIG(686)/686/
       DATA TSTRATEGY(686)/2/
@@ -10869,6 +12029,8 @@ C     Diagram 686
       DATA TPRID(-4,686)/6/
       DATA (SPROP(I,-4,686),I=1,1)/0/
       DATA (IFOREST(I,-5,686),I=1,2)/-4,4/
+      DATA TPRID(-5,686)/21/
+      DATA (SPROP(I,-5,686),I=1,1)/0/
 C     Diagram 687
       DATA MAPCONFIG(687)/687/
       DATA TSTRATEGY(687)/-2/
@@ -10885,6 +12047,8 @@ C     Diagram 687
       DATA TPRID(-4,687)/6/
       DATA (SPROP(I,-4,687),I=1,1)/0/
       DATA (IFOREST(I,-5,687),I=1,2)/-3,5/
+      DATA TPRID(-5,687)/6/
+      DATA (SPROP(I,-5,687),I=1,1)/0/
 C     Diagram 688
       DATA MAPCONFIG(688)/688/
       DATA TSTRATEGY(688)/-2/
@@ -10901,6 +12065,8 @@ C     Diagram 688
       DATA TPRID(-4,688)/6/
       DATA (SPROP(I,-4,688),I=1,1)/0/
       DATA (IFOREST(I,-5,688),I=1,2)/-3,7/
+      DATA TPRID(-5,688)/6/
+      DATA (SPROP(I,-5,688),I=1,1)/0/
 C     Diagram 689
       DATA MAPCONFIG(689)/689/
       DATA TSTRATEGY(689)/1/
@@ -10917,6 +12083,8 @@ C     Diagram 689
       DATA TPRID(-4,689)/6/
       DATA (SPROP(I,-4,689),I=1,1)/0/
       DATA (IFOREST(I,-5,689),I=1,2)/-4,-2/
+      DATA TPRID(-5,689)/21/
+      DATA (SPROP(I,-5,689),I=1,1)/0/
 C     Diagram 690
       DATA MAPCONFIG(690)/690/
       DATA TSTRATEGY(690)/1/
@@ -10933,6 +12101,8 @@ C     Diagram 690
       DATA TPRID(-4,690)/6/
       DATA (SPROP(I,-4,690),I=1,1)/0/
       DATA (IFOREST(I,-5,690),I=1,2)/-4,-2/
+      DATA TPRID(-5,690)/21/
+      DATA (SPROP(I,-5,690),I=1,1)/0/
 C     Diagram 691
       DATA MAPCONFIG(691)/691/
       DATA TSTRATEGY(691)/2/
@@ -10949,6 +12119,8 @@ C     Diagram 691
       DATA TPRID(-4,691)/6/
       DATA (SPROP(I,-4,691),I=1,1)/0/
       DATA (IFOREST(I,-5,691),I=1,2)/-4,4/
+      DATA TPRID(-5,691)/21/
+      DATA (SPROP(I,-5,691),I=1,1)/0/
 C     Diagram 692
       DATA MAPCONFIG(692)/692/
       DATA TSTRATEGY(692)/1/
@@ -10965,6 +12137,8 @@ C     Diagram 692
       DATA TPRID(-4,692)/6/
       DATA (SPROP(I,-4,692),I=1,1)/0/
       DATA (IFOREST(I,-5,692),I=1,2)/-4,-1/
+      DATA TPRID(-5,692)/21/
+      DATA (SPROP(I,-5,692),I=1,1)/0/
 C     Diagram 693
       DATA MAPCONFIG(693)/693/
       DATA TSTRATEGY(693)/2/
@@ -10981,6 +12155,8 @@ C     Diagram 693
       DATA TPRID(-4,693)/6/
       DATA (SPROP(I,-4,693),I=1,1)/0/
       DATA (IFOREST(I,-5,693),I=1,2)/-4,4/
+      DATA TPRID(-5,693)/21/
+      DATA (SPROP(I,-5,693),I=1,1)/0/
 C     Diagram 694
       DATA MAPCONFIG(694)/694/
       DATA TSTRATEGY(694)/2/
@@ -10997,6 +12173,8 @@ C     Diagram 694
       DATA TPRID(-4,694)/6/
       DATA (SPROP(I,-4,694),I=1,1)/0/
       DATA (IFOREST(I,-5,694),I=1,2)/-4,4/
+      DATA TPRID(-5,694)/21/
+      DATA (SPROP(I,-5,694),I=1,1)/0/
 C     Diagram 695
       DATA MAPCONFIG(695)/695/
       DATA TSTRATEGY(695)/2/
@@ -11013,6 +12191,8 @@ C     Diagram 695
       DATA TPRID(-4,695)/6/
       DATA (SPROP(I,-4,695),I=1,1)/0/
       DATA (IFOREST(I,-5,695),I=1,2)/-4,4/
+      DATA TPRID(-5,695)/21/
+      DATA (SPROP(I,-5,695),I=1,1)/0/
 C     Diagram 696
       DATA MAPCONFIG(696)/696/
       DATA TSTRATEGY(696)/-2/
@@ -11029,6 +12209,8 @@ C     Diagram 696
       DATA TPRID(-4,696)/6/
       DATA (SPROP(I,-4,696),I=1,1)/0/
       DATA (IFOREST(I,-5,696),I=1,2)/-3,5/
+      DATA TPRID(-5,696)/6/
+      DATA (SPROP(I,-5,696),I=1,1)/0/
 C     Diagram 697
       DATA MAPCONFIG(697)/697/
       DATA TSTRATEGY(697)/-2/
@@ -11045,6 +12227,8 @@ C     Diagram 697
       DATA TPRID(-4,697)/6/
       DATA (SPROP(I,-4,697),I=1,1)/0/
       DATA (IFOREST(I,-5,697),I=1,2)/-3,6/
+      DATA TPRID(-5,697)/6/
+      DATA (SPROP(I,-5,697),I=1,1)/0/
 C     Diagram 698
       DATA MAPCONFIG(698)/698/
       DATA TSTRATEGY(698)/1/
@@ -11061,6 +12245,8 @@ C     Diagram 698
       DATA TPRID(-4,698)/6/
       DATA (SPROP(I,-4,698),I=1,1)/0/
       DATA (IFOREST(I,-5,698),I=1,2)/-4,-2/
+      DATA TPRID(-5,698)/21/
+      DATA (SPROP(I,-5,698),I=1,1)/0/
 C     Diagram 699
       DATA MAPCONFIG(699)/699/
       DATA TSTRATEGY(699)/1/
@@ -11077,6 +12263,8 @@ C     Diagram 699
       DATA TPRID(-4,699)/6/
       DATA (SPROP(I,-4,699),I=1,1)/0/
       DATA (IFOREST(I,-5,699),I=1,2)/-4,-2/
+      DATA TPRID(-5,699)/21/
+      DATA (SPROP(I,-5,699),I=1,1)/0/
 C     Diagram 700
       DATA MAPCONFIG(700)/700/
       DATA TSTRATEGY(700)/2/
@@ -11093,6 +12281,8 @@ C     Diagram 700
       DATA TPRID(-4,700)/6/
       DATA (SPROP(I,-4,700),I=1,1)/0/
       DATA (IFOREST(I,-5,700),I=1,2)/-4,4/
+      DATA TPRID(-5,700)/21/
+      DATA (SPROP(I,-5,700),I=1,1)/0/
 C     Diagram 701
       DATA MAPCONFIG(701)/701/
       DATA TSTRATEGY(701)/1/
@@ -11109,6 +12299,8 @@ C     Diagram 701
       DATA TPRID(-4,701)/6/
       DATA (SPROP(I,-4,701),I=1,1)/0/
       DATA (IFOREST(I,-5,701),I=1,2)/-4,-1/
+      DATA TPRID(-5,701)/21/
+      DATA (SPROP(I,-5,701),I=1,1)/0/
 C     Diagram 702
       DATA MAPCONFIG(702)/702/
       DATA TSTRATEGY(702)/2/
@@ -11125,6 +12317,8 @@ C     Diagram 702
       DATA TPRID(-4,702)/6/
       DATA (SPROP(I,-4,702),I=1,1)/0/
       DATA (IFOREST(I,-5,702),I=1,2)/-4,4/
+      DATA TPRID(-5,702)/21/
+      DATA (SPROP(I,-5,702),I=1,1)/0/
 C     Diagram 703
       DATA MAPCONFIG(703)/703/
       DATA TSTRATEGY(703)/2/
@@ -11141,6 +12335,8 @@ C     Diagram 703
       DATA TPRID(-4,703)/6/
       DATA (SPROP(I,-4,703),I=1,1)/0/
       DATA (IFOREST(I,-5,703),I=1,2)/-4,4/
+      DATA TPRID(-5,703)/21/
+      DATA (SPROP(I,-5,703),I=1,1)/0/
 C     Diagram 704
       DATA MAPCONFIG(704)/704/
       DATA TSTRATEGY(704)/2/
@@ -11157,6 +12353,8 @@ C     Diagram 704
       DATA TPRID(-4,704)/6/
       DATA (SPROP(I,-4,704),I=1,1)/0/
       DATA (IFOREST(I,-5,704),I=1,2)/-4,4/
+      DATA TPRID(-5,704)/21/
+      DATA (SPROP(I,-5,704),I=1,1)/0/
 C     Diagram 705
       DATA MAPCONFIG(705)/705/
       DATA TSTRATEGY(705)/2/
@@ -11173,6 +12371,8 @@ C     Diagram 705
       DATA TPRID(-4,705)/6/
       DATA (SPROP(I,-4,705),I=1,1)/0/
       DATA (IFOREST(I,-5,705),I=1,2)/-4,4/
+      DATA TPRID(-5,705)/21/
+      DATA (SPROP(I,-5,705),I=1,1)/0/
 C     Diagram 706
       DATA MAPCONFIG(706)/706/
       DATA TSTRATEGY(706)/-2/
@@ -11189,6 +12389,8 @@ C     Diagram 706
       DATA TPRID(-4,706)/6/
       DATA (SPROP(I,-4,706),I=1,1)/0/
       DATA (IFOREST(I,-5,706),I=1,2)/-3,7/
+      DATA TPRID(-5,706)/6/
+      DATA (SPROP(I,-5,706),I=1,1)/0/
 C     Diagram 707
       DATA MAPCONFIG(707)/707/
       DATA TSTRATEGY(707)/2/
@@ -11205,6 +12407,8 @@ C     Diagram 707
       DATA TPRID(-4,707)/6/
       DATA (SPROP(I,-4,707),I=1,1)/0/
       DATA (IFOREST(I,-5,707),I=1,2)/-4,4/
+      DATA TPRID(-5,707)/21/
+      DATA (SPROP(I,-5,707),I=1,1)/0/
 C     Diagram 708
       DATA MAPCONFIG(708)/708/
       DATA TSTRATEGY(708)/1/
@@ -11221,6 +12425,8 @@ C     Diagram 708
       DATA TPRID(-4,708)/6/
       DATA (SPROP(I,-4,708),I=1,1)/0/
       DATA (IFOREST(I,-5,708),I=1,2)/-4,-2/
+      DATA TPRID(-5,708)/21/
+      DATA (SPROP(I,-5,708),I=1,1)/0/
 C     Diagram 709
       DATA MAPCONFIG(709)/709/
       DATA TSTRATEGY(709)/2/
@@ -11237,6 +12443,8 @@ C     Diagram 709
       DATA TPRID(-4,709)/6/
       DATA (SPROP(I,-4,709),I=1,1)/0/
       DATA (IFOREST(I,-5,709),I=1,2)/-4,4/
+      DATA TPRID(-5,709)/21/
+      DATA (SPROP(I,-5,709),I=1,1)/0/
 C     Diagram 710
       DATA MAPCONFIG(710)/710/
       DATA TSTRATEGY(710)/2/
@@ -11253,6 +12461,8 @@ C     Diagram 710
       DATA TPRID(-4,710)/6/
       DATA (SPROP(I,-4,710),I=1,1)/0/
       DATA (IFOREST(I,-5,710),I=1,2)/-4,4/
+      DATA TPRID(-5,710)/21/
+      DATA (SPROP(I,-5,710),I=1,1)/0/
 C     Diagram 711
       DATA MAPCONFIG(711)/711/
       DATA TSTRATEGY(711)/2/
@@ -11269,6 +12479,8 @@ C     Diagram 711
       DATA TPRID(-4,711)/6/
       DATA (SPROP(I,-4,711),I=1,1)/0/
       DATA (IFOREST(I,-5,711),I=1,2)/-4,4/
+      DATA TPRID(-5,711)/21/
+      DATA (SPROP(I,-5,711),I=1,1)/0/
 C     Diagram 712
       DATA MAPCONFIG(712)/712/
       DATA TSTRATEGY(712)/-2/
@@ -11285,6 +12497,8 @@ C     Diagram 712
       DATA TPRID(-4,712)/6/
       DATA (SPROP(I,-4,712),I=1,1)/0/
       DATA (IFOREST(I,-5,712),I=1,2)/-3,6/
+      DATA TPRID(-5,712)/6/
+      DATA (SPROP(I,-5,712),I=1,1)/0/
 C     Diagram 713
       DATA MAPCONFIG(713)/713/
       DATA TSTRATEGY(713)/2/
@@ -11301,6 +12515,8 @@ C     Diagram 713
       DATA TPRID(-4,713)/6/
       DATA (SPROP(I,-4,713),I=1,1)/0/
       DATA (IFOREST(I,-5,713),I=1,2)/-4,4/
+      DATA TPRID(-5,713)/21/
+      DATA (SPROP(I,-5,713),I=1,1)/0/
 C     Diagram 714
       DATA MAPCONFIG(714)/714/
       DATA TSTRATEGY(714)/1/
@@ -11317,6 +12533,8 @@ C     Diagram 714
       DATA TPRID(-4,714)/6/
       DATA (SPROP(I,-4,714),I=1,1)/0/
       DATA (IFOREST(I,-5,714),I=1,2)/-4,-2/
+      DATA TPRID(-5,714)/21/
+      DATA (SPROP(I,-5,714),I=1,1)/0/
 C     Diagram 715
       DATA MAPCONFIG(715)/715/
       DATA TSTRATEGY(715)/2/
@@ -11333,6 +12551,8 @@ C     Diagram 715
       DATA TPRID(-4,715)/6/
       DATA (SPROP(I,-4,715),I=1,1)/0/
       DATA (IFOREST(I,-5,715),I=1,2)/-4,4/
+      DATA TPRID(-5,715)/21/
+      DATA (SPROP(I,-5,715),I=1,1)/0/
 C     Diagram 716
       DATA MAPCONFIG(716)/716/
       DATA TSTRATEGY(716)/2/
@@ -11349,6 +12569,8 @@ C     Diagram 716
       DATA TPRID(-4,716)/6/
       DATA (SPROP(I,-4,716),I=1,1)/0/
       DATA (IFOREST(I,-5,716),I=1,2)/-4,4/
+      DATA TPRID(-5,716)/21/
+      DATA (SPROP(I,-5,716),I=1,1)/0/
 C     Diagram 717
       DATA MAPCONFIG(717)/717/
       DATA TSTRATEGY(717)/2/
@@ -11365,6 +12587,8 @@ C     Diagram 717
       DATA TPRID(-4,717)/6/
       DATA (SPROP(I,-4,717),I=1,1)/0/
       DATA (IFOREST(I,-5,717),I=1,2)/-4,4/
+      DATA TPRID(-5,717)/21/
+      DATA (SPROP(I,-5,717),I=1,1)/0/
 C     Diagram 718
       DATA MAPCONFIG(718)/718/
       DATA TSTRATEGY(718)/-2/
@@ -11381,6 +12605,8 @@ C     Diagram 718
       DATA TPRID(-4,718)/6/
       DATA (SPROP(I,-4,718),I=1,1)/0/
       DATA (IFOREST(I,-5,718),I=1,2)/-3,5/
+      DATA TPRID(-5,718)/6/
+      DATA (SPROP(I,-5,718),I=1,1)/0/
 C     Diagram 719
       DATA MAPCONFIG(719)/719/
       DATA TSTRATEGY(719)/2/
@@ -11397,6 +12623,8 @@ C     Diagram 719
       DATA TPRID(-4,719)/6/
       DATA (SPROP(I,-4,719),I=1,1)/0/
       DATA (IFOREST(I,-5,719),I=1,2)/-4,4/
+      DATA TPRID(-5,719)/21/
+      DATA (SPROP(I,-5,719),I=1,1)/0/
 C     Diagram 720
       DATA MAPCONFIG(720)/720/
       DATA TSTRATEGY(720)/1/
@@ -11413,6 +12641,8 @@ C     Diagram 720
       DATA TPRID(-4,720)/6/
       DATA (SPROP(I,-4,720),I=1,1)/0/
       DATA (IFOREST(I,-5,720),I=1,2)/-4,-2/
+      DATA TPRID(-5,720)/21/
+      DATA (SPROP(I,-5,720),I=1,1)/0/
 C     Diagram 721
       DATA MAPCONFIG(721)/721/
       DATA TSTRATEGY(721)/2/
@@ -11429,6 +12659,8 @@ C     Diagram 721
       DATA TPRID(-4,721)/21/
       DATA (SPROP(I,-4,721),I=1,1)/0/
       DATA (IFOREST(I,-5,721),I=1,2)/-4,5/
+      DATA TPRID(-5,721)/21/
+      DATA (SPROP(I,-5,721),I=1,1)/0/
 C     Diagram 722
       DATA MAPCONFIG(722)/722/
       DATA TSTRATEGY(722)/2/
@@ -11445,6 +12677,8 @@ C     Diagram 722
       DATA TPRID(-4,722)/21/
       DATA (SPROP(I,-4,722),I=1,1)/0/
       DATA (IFOREST(I,-5,722),I=1,2)/-4,5/
+      DATA TPRID(-5,722)/21/
+      DATA (SPROP(I,-5,722),I=1,1)/0/
 C     Diagram 723
       DATA MAPCONFIG(723)/723/
       DATA TSTRATEGY(723)/-2/
@@ -11461,6 +12695,8 @@ C     Diagram 723
       DATA TPRID(-4,723)/21/
       DATA (SPROP(I,-4,723),I=1,1)/0/
       DATA (IFOREST(I,-5,723),I=1,2)/-3,6/
+      DATA TPRID(-5,723)/21/
+      DATA (SPROP(I,-5,723),I=1,1)/0/
 C     Diagram 724
       DATA MAPCONFIG(724)/724/
       DATA TSTRATEGY(724)/-2/
@@ -11477,6 +12713,8 @@ C     Diagram 724
       DATA TPRID(-4,724)/21/
       DATA (SPROP(I,-4,724),I=1,1)/0/
       DATA (IFOREST(I,-5,724),I=1,2)/-3,7/
+      DATA TPRID(-5,724)/21/
+      DATA (SPROP(I,-5,724),I=1,1)/0/
 C     Diagram 725
       DATA MAPCONFIG(725)/725/
       DATA TSTRATEGY(725)/1/
@@ -11493,6 +12731,8 @@ C     Diagram 725
       DATA TPRID(-4,725)/21/
       DATA (SPROP(I,-4,725),I=1,1)/0/
       DATA (IFOREST(I,-5,725),I=1,2)/-4,-2/
+      DATA TPRID(-5,725)/21/
+      DATA (SPROP(I,-5,725),I=1,1)/0/
 C     Diagram 726
       DATA MAPCONFIG(726)/726/
       DATA TSTRATEGY(726)/1/
@@ -11509,6 +12749,8 @@ C     Diagram 726
       DATA TPRID(-4,726)/21/
       DATA (SPROP(I,-4,726),I=1,1)/0/
       DATA (IFOREST(I,-5,726),I=1,2)/-4,-2/
+      DATA TPRID(-5,726)/21/
+      DATA (SPROP(I,-5,726),I=1,1)/0/
 C     Diagram 727
       DATA MAPCONFIG(727)/727/
       DATA TSTRATEGY(727)/2/
@@ -11525,6 +12767,8 @@ C     Diagram 727
       DATA TPRID(-4,727)/21/
       DATA (SPROP(I,-4,727),I=1,1)/0/
       DATA (IFOREST(I,-5,727),I=1,2)/-4,5/
+      DATA TPRID(-5,727)/21/
+      DATA (SPROP(I,-5,727),I=1,1)/0/
 C     Diagram 728
       DATA MAPCONFIG(728)/728/
       DATA TSTRATEGY(728)/1/
@@ -11541,6 +12785,8 @@ C     Diagram 728
       DATA TPRID(-4,728)/21/
       DATA (SPROP(I,-4,728),I=1,1)/0/
       DATA (IFOREST(I,-5,728),I=1,2)/-4,-1/
+      DATA TPRID(-5,728)/21/
+      DATA (SPROP(I,-5,728),I=1,1)/0/
 C     Diagram 729
       DATA MAPCONFIG(729)/729/
       DATA TSTRATEGY(729)/1/
@@ -11557,6 +12803,8 @@ C     Diagram 729
       DATA TPRID(-4,729)/21/
       DATA (SPROP(I,-4,729),I=1,1)/0/
       DATA (IFOREST(I,-5,729),I=1,2)/-4,-1/
+      DATA TPRID(-5,729)/21/
+      DATA (SPROP(I,-5,729),I=1,1)/0/
 C     Diagram 730
       DATA MAPCONFIG(730)/730/
       DATA TSTRATEGY(730)/2/
@@ -11573,6 +12821,8 @@ C     Diagram 730
       DATA TPRID(-4,730)/21/
       DATA (SPROP(I,-4,730),I=1,1)/0/
       DATA (IFOREST(I,-5,730),I=1,2)/-4,5/
+      DATA TPRID(-5,730)/21/
+      DATA (SPROP(I,-5,730),I=1,1)/0/
 C     Diagram 731
       DATA MAPCONFIG(731)/731/
       DATA TSTRATEGY(731)/2/
@@ -11589,6 +12839,8 @@ C     Diagram 731
       DATA TPRID(-4,731)/21/
       DATA (SPROP(I,-4,731),I=1,1)/0/
       DATA (IFOREST(I,-5,731),I=1,2)/-4,5/
+      DATA TPRID(-5,731)/21/
+      DATA (SPROP(I,-5,731),I=1,1)/0/
 C     Diagram 732
       DATA MAPCONFIG(732)/732/
       DATA TSTRATEGY(732)/-2/
@@ -11605,6 +12857,8 @@ C     Diagram 732
       DATA TPRID(-4,732)/6/
       DATA (SPROP(I,-4,732),I=1,1)/0/
       DATA (IFOREST(I,-5,732),I=1,2)/-3,4/
+      DATA TPRID(-5,732)/6/
+      DATA (SPROP(I,-5,732),I=1,1)/0/
 C     Diagram 733
       DATA MAPCONFIG(733)/733/
       DATA TSTRATEGY(733)/1/
@@ -11621,6 +12875,8 @@ C     Diagram 733
       DATA TPRID(-4,733)/6/
       DATA (SPROP(I,-4,733),I=1,1)/0/
       DATA (IFOREST(I,-5,733),I=1,2)/-4,-1/
+      DATA TPRID(-5,733)/21/
+      DATA (SPROP(I,-5,733),I=1,1)/0/
 C     Diagram 734
       DATA MAPCONFIG(734)/734/
       DATA TSTRATEGY(734)/1/
@@ -11637,6 +12893,8 @@ C     Diagram 734
       DATA TPRID(-4,734)/6/
       DATA (SPROP(I,-4,734),I=1,1)/0/
       DATA (IFOREST(I,-5,734),I=1,2)/-4,-2/
+      DATA TPRID(-5,734)/21/
+      DATA (SPROP(I,-5,734),I=1,1)/0/
 C     Diagram 735
       DATA MAPCONFIG(735)/735/
       DATA TSTRATEGY(735)/1/
@@ -11653,6 +12911,8 @@ C     Diagram 735
       DATA TPRID(-4,735)/21/
       DATA (SPROP(I,-4,735),I=1,1)/0/
       DATA (IFOREST(I,-5,735),I=1,2)/-4,-2/
+      DATA TPRID(-5,735)/21/
+      DATA (SPROP(I,-5,735),I=1,1)/0/
 C     Diagram 736
       DATA MAPCONFIG(736)/736/
       DATA TSTRATEGY(736)/2/
@@ -11669,6 +12929,8 @@ C     Diagram 736
       DATA TPRID(-4,736)/21/
       DATA (SPROP(I,-4,736),I=1,1)/0/
       DATA (IFOREST(I,-5,736),I=1,2)/-4,5/
+      DATA TPRID(-5,736)/21/
+      DATA (SPROP(I,-5,736),I=1,1)/0/
 C     Diagram 737
       DATA MAPCONFIG(737)/737/
       DATA TSTRATEGY(737)/1/
@@ -11685,6 +12947,8 @@ C     Diagram 737
       DATA TPRID(-4,737)/6/
       DATA (SPROP(I,-4,737),I=1,1)/0/
       DATA (IFOREST(I,-5,737),I=1,2)/-4,-1/
+      DATA TPRID(-5,737)/21/
+      DATA (SPROP(I,-5,737),I=1,1)/0/
 C     Diagram 738
       DATA MAPCONFIG(738)/738/
       DATA TSTRATEGY(738)/1/
@@ -11701,6 +12965,8 @@ C     Diagram 738
       DATA TPRID(-4,738)/6/
       DATA (SPROP(I,-4,738),I=1,1)/0/
       DATA (IFOREST(I,-5,738),I=1,2)/-4,-1/
+      DATA TPRID(-5,738)/21/
+      DATA (SPROP(I,-5,738),I=1,1)/0/
 C     Diagram 739
       DATA MAPCONFIG(739)/739/
       DATA TSTRATEGY(739)/2/
@@ -11717,6 +12983,8 @@ C     Diagram 739
       DATA TPRID(-4,739)/21/
       DATA (SPROP(I,-4,739),I=1,1)/0/
       DATA (IFOREST(I,-5,739),I=1,2)/-4,5/
+      DATA TPRID(-5,739)/21/
+      DATA (SPROP(I,-5,739),I=1,1)/0/
 C     Diagram 740
       DATA MAPCONFIG(740)/740/
       DATA TSTRATEGY(740)/2/
@@ -11733,6 +13001,8 @@ C     Diagram 740
       DATA TPRID(-4,740)/21/
       DATA (SPROP(I,-4,740),I=1,1)/0/
       DATA (IFOREST(I,-5,740),I=1,2)/-4,5/
+      DATA TPRID(-5,740)/21/
+      DATA (SPROP(I,-5,740),I=1,1)/0/
 C     Diagram 741
       DATA MAPCONFIG(741)/741/
       DATA TSTRATEGY(741)/-2/
@@ -11749,6 +13019,8 @@ C     Diagram 741
       DATA TPRID(-4,741)/6/
       DATA (SPROP(I,-4,741),I=1,1)/0/
       DATA (IFOREST(I,-5,741),I=1,2)/-3,4/
+      DATA TPRID(-5,741)/6/
+      DATA (SPROP(I,-5,741),I=1,1)/0/
 C     Diagram 742
       DATA MAPCONFIG(742)/742/
       DATA TSTRATEGY(742)/1/
@@ -11765,6 +13037,8 @@ C     Diagram 742
       DATA TPRID(-4,742)/6/
       DATA (SPROP(I,-4,742),I=1,1)/0/
       DATA (IFOREST(I,-5,742),I=1,2)/-4,-1/
+      DATA TPRID(-5,742)/21/
+      DATA (SPROP(I,-5,742),I=1,1)/0/
 C     Diagram 743
       DATA MAPCONFIG(743)/743/
       DATA TSTRATEGY(743)/1/
@@ -11781,6 +13055,8 @@ C     Diagram 743
       DATA TPRID(-4,743)/6/
       DATA (SPROP(I,-4,743),I=1,1)/0/
       DATA (IFOREST(I,-5,743),I=1,2)/-4,-2/
+      DATA TPRID(-5,743)/21/
+      DATA (SPROP(I,-5,743),I=1,1)/0/
 C     Diagram 744
       DATA MAPCONFIG(744)/744/
       DATA TSTRATEGY(744)/1/
@@ -11797,6 +13073,8 @@ C     Diagram 744
       DATA TPRID(-4,744)/21/
       DATA (SPROP(I,-4,744),I=1,1)/0/
       DATA (IFOREST(I,-5,744),I=1,2)/-4,-2/
+      DATA TPRID(-5,744)/21/
+      DATA (SPROP(I,-5,744),I=1,1)/0/
 C     Diagram 745
       DATA MAPCONFIG(745)/745/
       DATA TSTRATEGY(745)/2/
@@ -11813,6 +13091,8 @@ C     Diagram 745
       DATA TPRID(-4,745)/21/
       DATA (SPROP(I,-4,745),I=1,1)/0/
       DATA (IFOREST(I,-5,745),I=1,2)/-4,5/
+      DATA TPRID(-5,745)/21/
+      DATA (SPROP(I,-5,745),I=1,1)/0/
 C     Diagram 746
       DATA MAPCONFIG(746)/746/
       DATA TSTRATEGY(746)/1/
@@ -11829,6 +13109,8 @@ C     Diagram 746
       DATA TPRID(-4,746)/6/
       DATA (SPROP(I,-4,746),I=1,1)/0/
       DATA (IFOREST(I,-5,746),I=1,2)/-4,-1/
+      DATA TPRID(-5,746)/21/
+      DATA (SPROP(I,-5,746),I=1,1)/0/
 C     Diagram 747
       DATA MAPCONFIG(747)/747/
       DATA TSTRATEGY(747)/1/
@@ -11845,6 +13127,8 @@ C     Diagram 747
       DATA TPRID(-4,747)/6/
       DATA (SPROP(I,-4,747),I=1,1)/0/
       DATA (IFOREST(I,-5,747),I=1,2)/-4,-1/
+      DATA TPRID(-5,747)/21/
+      DATA (SPROP(I,-5,747),I=1,1)/0/
 C     Diagram 748
       DATA MAPCONFIG(748)/748/
       DATA TSTRATEGY(748)/2/
@@ -11861,6 +13145,8 @@ C     Diagram 748
       DATA TPRID(-4,748)/21/
       DATA (SPROP(I,-4,748),I=1,1)/0/
       DATA (IFOREST(I,-5,748),I=1,2)/-4,5/
+      DATA TPRID(-5,748)/21/
+      DATA (SPROP(I,-5,748),I=1,1)/0/
 C     Diagram 749
       DATA MAPCONFIG(749)/749/
       DATA TSTRATEGY(749)/2/
@@ -11877,6 +13163,8 @@ C     Diagram 749
       DATA TPRID(-4,749)/21/
       DATA (SPROP(I,-4,749),I=1,1)/0/
       DATA (IFOREST(I,-5,749),I=1,2)/-4,5/
+      DATA TPRID(-5,749)/21/
+      DATA (SPROP(I,-5,749),I=1,1)/0/
 C     Diagram 750
       DATA MAPCONFIG(750)/750/
       DATA TSTRATEGY(750)/-2/
@@ -11893,6 +13181,8 @@ C     Diagram 750
       DATA TPRID(-4,750)/6/
       DATA (SPROP(I,-4,750),I=1,1)/0/
       DATA (IFOREST(I,-5,750),I=1,2)/-3,3/
+      DATA TPRID(-5,750)/6/
+      DATA (SPROP(I,-5,750),I=1,1)/0/
 C     Diagram 751
       DATA MAPCONFIG(751)/751/
       DATA TSTRATEGY(751)/1/
@@ -11909,6 +13199,8 @@ C     Diagram 751
       DATA TPRID(-4,751)/6/
       DATA (SPROP(I,-4,751),I=1,1)/0/
       DATA (IFOREST(I,-5,751),I=1,2)/-4,-1/
+      DATA TPRID(-5,751)/21/
+      DATA (SPROP(I,-5,751),I=1,1)/0/
 C     Diagram 752
       DATA MAPCONFIG(752)/752/
       DATA TSTRATEGY(752)/1/
@@ -11925,6 +13217,8 @@ C     Diagram 752
       DATA TPRID(-4,752)/6/
       DATA (SPROP(I,-4,752),I=1,1)/0/
       DATA (IFOREST(I,-5,752),I=1,2)/-4,-2/
+      DATA TPRID(-5,752)/21/
+      DATA (SPROP(I,-5,752),I=1,1)/0/
 C     Diagram 753
       DATA MAPCONFIG(753)/753/
       DATA TSTRATEGY(753)/1/
@@ -11941,6 +13235,8 @@ C     Diagram 753
       DATA TPRID(-4,753)/21/
       DATA (SPROP(I,-4,753),I=1,1)/0/
       DATA (IFOREST(I,-5,753),I=1,2)/-4,-2/
+      DATA TPRID(-5,753)/21/
+      DATA (SPROP(I,-5,753),I=1,1)/0/
 C     Diagram 754
       DATA MAPCONFIG(754)/754/
       DATA TSTRATEGY(754)/2/
@@ -11957,6 +13253,8 @@ C     Diagram 754
       DATA TPRID(-4,754)/21/
       DATA (SPROP(I,-4,754),I=1,1)/0/
       DATA (IFOREST(I,-5,754),I=1,2)/-4,5/
+      DATA TPRID(-5,754)/21/
+      DATA (SPROP(I,-5,754),I=1,1)/0/
 C     Diagram 755
       DATA MAPCONFIG(755)/755/
       DATA TSTRATEGY(755)/2/
@@ -11973,6 +13271,8 @@ C     Diagram 755
       DATA TPRID(-4,755)/21/
       DATA (SPROP(I,-4,755),I=1,1)/0/
       DATA (IFOREST(I,-5,755),I=1,2)/-4,5/
+      DATA TPRID(-5,755)/21/
+      DATA (SPROP(I,-5,755),I=1,1)/0/
 C     Diagram 756
       DATA MAPCONFIG(756)/756/
       DATA TSTRATEGY(756)/-2/
@@ -11989,6 +13289,8 @@ C     Diagram 756
       DATA TPRID(-4,756)/6/
       DATA (SPROP(I,-4,756),I=1,1)/0/
       DATA (IFOREST(I,-5,756),I=1,2)/-3,3/
+      DATA TPRID(-5,756)/6/
+      DATA (SPROP(I,-5,756),I=1,1)/0/
 C     Diagram 757
       DATA MAPCONFIG(757)/757/
       DATA TSTRATEGY(757)/1/
@@ -12005,6 +13307,8 @@ C     Diagram 757
       DATA TPRID(-4,757)/6/
       DATA (SPROP(I,-4,757),I=1,1)/0/
       DATA (IFOREST(I,-5,757),I=1,2)/-4,-1/
+      DATA TPRID(-5,757)/21/
+      DATA (SPROP(I,-5,757),I=1,1)/0/
 C     Diagram 758
       DATA MAPCONFIG(758)/758/
       DATA TSTRATEGY(758)/1/
@@ -12021,6 +13325,8 @@ C     Diagram 758
       DATA TPRID(-4,758)/6/
       DATA (SPROP(I,-4,758),I=1,1)/0/
       DATA (IFOREST(I,-5,758),I=1,2)/-4,-2/
+      DATA TPRID(-5,758)/21/
+      DATA (SPROP(I,-5,758),I=1,1)/0/
 C     Diagram 759
       DATA MAPCONFIG(759)/759/
       DATA TSTRATEGY(759)/1/
@@ -12037,6 +13343,8 @@ C     Diagram 759
       DATA TPRID(-4,759)/21/
       DATA (SPROP(I,-4,759),I=1,1)/0/
       DATA (IFOREST(I,-5,759),I=1,2)/-4,-2/
+      DATA TPRID(-5,759)/21/
+      DATA (SPROP(I,-5,759),I=1,1)/0/
 C     Diagram 760
       DATA MAPCONFIG(760)/760/
       DATA TSTRATEGY(760)/2/
@@ -12053,6 +13361,8 @@ C     Diagram 760
       DATA TPRID(-4,760)/21/
       DATA (SPROP(I,-4,760),I=1,1)/0/
       DATA (IFOREST(I,-5,760),I=1,2)/-4,5/
+      DATA TPRID(-5,760)/21/
+      DATA (SPROP(I,-5,760),I=1,1)/0/
 C     Diagram 761
       DATA MAPCONFIG(761)/761/
       DATA TSTRATEGY(761)/2/
@@ -12069,6 +13379,8 @@ C     Diagram 761
       DATA TPRID(-4,761)/21/
       DATA (SPROP(I,-4,761),I=1,1)/0/
       DATA (IFOREST(I,-5,761),I=1,2)/-4,5/
+      DATA TPRID(-5,761)/21/
+      DATA (SPROP(I,-5,761),I=1,1)/0/
 C     Diagram 762
       DATA MAPCONFIG(762)/762/
       DATA TSTRATEGY(762)/-2/
@@ -12085,6 +13397,8 @@ C     Diagram 762
       DATA TPRID(-4,762)/6/
       DATA (SPROP(I,-4,762),I=1,1)/0/
       DATA (IFOREST(I,-5,762),I=1,2)/-3,3/
+      DATA TPRID(-5,762)/6/
+      DATA (SPROP(I,-5,762),I=1,1)/0/
 C     Diagram 763
       DATA MAPCONFIG(763)/763/
       DATA TSTRATEGY(763)/-2/
@@ -12101,6 +13415,8 @@ C     Diagram 763
       DATA TPRID(-4,763)/6/
       DATA (SPROP(I,-4,763),I=1,1)/0/
       DATA (IFOREST(I,-5,763),I=1,2)/-3,4/
+      DATA TPRID(-5,763)/6/
+      DATA (SPROP(I,-5,763),I=1,1)/0/
 C     Diagram 764
       DATA MAPCONFIG(764)/764/
       DATA TSTRATEGY(764)/1/
@@ -12117,6 +13433,8 @@ C     Diagram 764
       DATA TPRID(-4,764)/6/
       DATA (SPROP(I,-4,764),I=1,1)/0/
       DATA (IFOREST(I,-5,764),I=1,2)/-4,-2/
+      DATA TPRID(-5,764)/21/
+      DATA (SPROP(I,-5,764),I=1,1)/0/
 C     Diagram 765
       DATA MAPCONFIG(765)/765/
       DATA TSTRATEGY(765)/1/
@@ -12133,6 +13451,8 @@ C     Diagram 765
       DATA TPRID(-4,765)/6/
       DATA (SPROP(I,-4,765),I=1,1)/0/
       DATA (IFOREST(I,-5,765),I=1,2)/-4,-2/
+      DATA TPRID(-5,765)/21/
+      DATA (SPROP(I,-5,765),I=1,1)/0/
 C     Diagram 766
       DATA MAPCONFIG(766)/766/
       DATA TSTRATEGY(766)/2/
@@ -12149,6 +13469,8 @@ C     Diagram 766
       DATA TPRID(-4,766)/21/
       DATA (SPROP(I,-4,766),I=1,1)/0/
       DATA (IFOREST(I,-5,766),I=1,2)/-4,6/
+      DATA TPRID(-5,766)/21/
+      DATA (SPROP(I,-5,766),I=1,1)/0/
 C     Diagram 767
       DATA MAPCONFIG(767)/767/
       DATA TSTRATEGY(767)/2/
@@ -12165,6 +13487,8 @@ C     Diagram 767
       DATA TPRID(-4,767)/21/
       DATA (SPROP(I,-4,767),I=1,1)/0/
       DATA (IFOREST(I,-5,767),I=1,2)/-4,6/
+      DATA TPRID(-5,767)/21/
+      DATA (SPROP(I,-5,767),I=1,1)/0/
 C     Diagram 768
       DATA MAPCONFIG(768)/768/
       DATA TSTRATEGY(768)/-2/
@@ -12181,6 +13505,8 @@ C     Diagram 768
       DATA TPRID(-4,768)/21/
       DATA (SPROP(I,-4,768),I=1,1)/0/
       DATA (IFOREST(I,-5,768),I=1,2)/-3,5/
+      DATA TPRID(-5,768)/21/
+      DATA (SPROP(I,-5,768),I=1,1)/0/
 C     Diagram 769
       DATA MAPCONFIG(769)/769/
       DATA TSTRATEGY(769)/-2/
@@ -12197,6 +13523,8 @@ C     Diagram 769
       DATA TPRID(-4,769)/21/
       DATA (SPROP(I,-4,769),I=1,1)/0/
       DATA (IFOREST(I,-5,769),I=1,2)/-3,7/
+      DATA TPRID(-5,769)/21/
+      DATA (SPROP(I,-5,769),I=1,1)/0/
 C     Diagram 770
       DATA MAPCONFIG(770)/770/
       DATA TSTRATEGY(770)/1/
@@ -12213,6 +13541,8 @@ C     Diagram 770
       DATA TPRID(-4,770)/21/
       DATA (SPROP(I,-4,770),I=1,1)/0/
       DATA (IFOREST(I,-5,770),I=1,2)/-4,-2/
+      DATA TPRID(-5,770)/21/
+      DATA (SPROP(I,-5,770),I=1,1)/0/
 C     Diagram 771
       DATA MAPCONFIG(771)/771/
       DATA TSTRATEGY(771)/1/
@@ -12229,6 +13559,8 @@ C     Diagram 771
       DATA TPRID(-4,771)/21/
       DATA (SPROP(I,-4,771),I=1,1)/0/
       DATA (IFOREST(I,-5,771),I=1,2)/-4,-2/
+      DATA TPRID(-5,771)/21/
+      DATA (SPROP(I,-5,771),I=1,1)/0/
 C     Diagram 772
       DATA MAPCONFIG(772)/772/
       DATA TSTRATEGY(772)/2/
@@ -12245,6 +13577,8 @@ C     Diagram 772
       DATA TPRID(-4,772)/21/
       DATA (SPROP(I,-4,772),I=1,1)/0/
       DATA (IFOREST(I,-5,772),I=1,2)/-4,6/
+      DATA TPRID(-5,772)/21/
+      DATA (SPROP(I,-5,772),I=1,1)/0/
 C     Diagram 773
       DATA MAPCONFIG(773)/773/
       DATA TSTRATEGY(773)/1/
@@ -12261,6 +13595,8 @@ C     Diagram 773
       DATA TPRID(-4,773)/21/
       DATA (SPROP(I,-4,773),I=1,1)/0/
       DATA (IFOREST(I,-5,773),I=1,2)/-4,-1/
+      DATA TPRID(-5,773)/21/
+      DATA (SPROP(I,-5,773),I=1,1)/0/
 C     Diagram 774
       DATA MAPCONFIG(774)/774/
       DATA TSTRATEGY(774)/1/
@@ -12277,6 +13613,8 @@ C     Diagram 774
       DATA TPRID(-4,774)/21/
       DATA (SPROP(I,-4,774),I=1,1)/0/
       DATA (IFOREST(I,-5,774),I=1,2)/-4,-1/
+      DATA TPRID(-5,774)/21/
+      DATA (SPROP(I,-5,774),I=1,1)/0/
 C     Diagram 775
       DATA MAPCONFIG(775)/775/
       DATA TSTRATEGY(775)/2/
@@ -12293,6 +13631,8 @@ C     Diagram 775
       DATA TPRID(-4,775)/21/
       DATA (SPROP(I,-4,775),I=1,1)/0/
       DATA (IFOREST(I,-5,775),I=1,2)/-4,6/
+      DATA TPRID(-5,775)/21/
+      DATA (SPROP(I,-5,775),I=1,1)/0/
 C     Diagram 776
       DATA MAPCONFIG(776)/776/
       DATA TSTRATEGY(776)/2/
@@ -12309,6 +13649,8 @@ C     Diagram 776
       DATA TPRID(-4,776)/21/
       DATA (SPROP(I,-4,776),I=1,1)/0/
       DATA (IFOREST(I,-5,776),I=1,2)/-4,6/
+      DATA TPRID(-5,776)/21/
+      DATA (SPROP(I,-5,776),I=1,1)/0/
 C     Diagram 777
       DATA MAPCONFIG(777)/777/
       DATA TSTRATEGY(777)/-2/
@@ -12325,6 +13667,8 @@ C     Diagram 777
       DATA TPRID(-4,777)/6/
       DATA (SPROP(I,-4,777),I=1,1)/0/
       DATA (IFOREST(I,-5,777),I=1,2)/-3,4/
+      DATA TPRID(-5,777)/6/
+      DATA (SPROP(I,-5,777),I=1,1)/0/
 C     Diagram 778
       DATA MAPCONFIG(778)/778/
       DATA TSTRATEGY(778)/1/
@@ -12341,6 +13685,8 @@ C     Diagram 778
       DATA TPRID(-4,778)/6/
       DATA (SPROP(I,-4,778),I=1,1)/0/
       DATA (IFOREST(I,-5,778),I=1,2)/-4,-1/
+      DATA TPRID(-5,778)/21/
+      DATA (SPROP(I,-5,778),I=1,1)/0/
 C     Diagram 779
       DATA MAPCONFIG(779)/779/
       DATA TSTRATEGY(779)/1/
@@ -12357,6 +13703,8 @@ C     Diagram 779
       DATA TPRID(-4,779)/6/
       DATA (SPROP(I,-4,779),I=1,1)/0/
       DATA (IFOREST(I,-5,779),I=1,2)/-4,-2/
+      DATA TPRID(-5,779)/21/
+      DATA (SPROP(I,-5,779),I=1,1)/0/
 C     Diagram 780
       DATA MAPCONFIG(780)/780/
       DATA TSTRATEGY(780)/1/
@@ -12373,6 +13721,8 @@ C     Diagram 780
       DATA TPRID(-4,780)/21/
       DATA (SPROP(I,-4,780),I=1,1)/0/
       DATA (IFOREST(I,-5,780),I=1,2)/-4,-2/
+      DATA TPRID(-5,780)/21/
+      DATA (SPROP(I,-5,780),I=1,1)/0/
 C     Diagram 781
       DATA MAPCONFIG(781)/781/
       DATA TSTRATEGY(781)/2/
@@ -12389,6 +13739,8 @@ C     Diagram 781
       DATA TPRID(-4,781)/21/
       DATA (SPROP(I,-4,781),I=1,1)/0/
       DATA (IFOREST(I,-5,781),I=1,2)/-4,6/
+      DATA TPRID(-5,781)/21/
+      DATA (SPROP(I,-5,781),I=1,1)/0/
 C     Diagram 782
       DATA MAPCONFIG(782)/782/
       DATA TSTRATEGY(782)/1/
@@ -12405,6 +13757,8 @@ C     Diagram 782
       DATA TPRID(-4,782)/6/
       DATA (SPROP(I,-4,782),I=1,1)/0/
       DATA (IFOREST(I,-5,782),I=1,2)/-4,-1/
+      DATA TPRID(-5,782)/21/
+      DATA (SPROP(I,-5,782),I=1,1)/0/
 C     Diagram 783
       DATA MAPCONFIG(783)/783/
       DATA TSTRATEGY(783)/1/
@@ -12421,6 +13775,8 @@ C     Diagram 783
       DATA TPRID(-4,783)/6/
       DATA (SPROP(I,-4,783),I=1,1)/0/
       DATA (IFOREST(I,-5,783),I=1,2)/-4,-1/
+      DATA TPRID(-5,783)/21/
+      DATA (SPROP(I,-5,783),I=1,1)/0/
 C     Diagram 784
       DATA MAPCONFIG(784)/784/
       DATA TSTRATEGY(784)/2/
@@ -12437,6 +13793,8 @@ C     Diagram 784
       DATA TPRID(-4,784)/21/
       DATA (SPROP(I,-4,784),I=1,1)/0/
       DATA (IFOREST(I,-5,784),I=1,2)/-4,6/
+      DATA TPRID(-5,784)/21/
+      DATA (SPROP(I,-5,784),I=1,1)/0/
 C     Diagram 785
       DATA MAPCONFIG(785)/785/
       DATA TSTRATEGY(785)/2/
@@ -12453,6 +13811,8 @@ C     Diagram 785
       DATA TPRID(-4,785)/21/
       DATA (SPROP(I,-4,785),I=1,1)/0/
       DATA (IFOREST(I,-5,785),I=1,2)/-4,6/
+      DATA TPRID(-5,785)/21/
+      DATA (SPROP(I,-5,785),I=1,1)/0/
 C     Diagram 786
       DATA MAPCONFIG(786)/786/
       DATA TSTRATEGY(786)/-2/
@@ -12469,6 +13829,8 @@ C     Diagram 786
       DATA TPRID(-4,786)/6/
       DATA (SPROP(I,-4,786),I=1,1)/0/
       DATA (IFOREST(I,-5,786),I=1,2)/-3,4/
+      DATA TPRID(-5,786)/6/
+      DATA (SPROP(I,-5,786),I=1,1)/0/
 C     Diagram 787
       DATA MAPCONFIG(787)/787/
       DATA TSTRATEGY(787)/1/
@@ -12485,6 +13847,8 @@ C     Diagram 787
       DATA TPRID(-4,787)/6/
       DATA (SPROP(I,-4,787),I=1,1)/0/
       DATA (IFOREST(I,-5,787),I=1,2)/-4,-1/
+      DATA TPRID(-5,787)/21/
+      DATA (SPROP(I,-5,787),I=1,1)/0/
 C     Diagram 788
       DATA MAPCONFIG(788)/788/
       DATA TSTRATEGY(788)/1/
@@ -12501,6 +13865,8 @@ C     Diagram 788
       DATA TPRID(-4,788)/6/
       DATA (SPROP(I,-4,788),I=1,1)/0/
       DATA (IFOREST(I,-5,788),I=1,2)/-4,-2/
+      DATA TPRID(-5,788)/21/
+      DATA (SPROP(I,-5,788),I=1,1)/0/
 C     Diagram 789
       DATA MAPCONFIG(789)/789/
       DATA TSTRATEGY(789)/1/
@@ -12517,6 +13883,8 @@ C     Diagram 789
       DATA TPRID(-4,789)/21/
       DATA (SPROP(I,-4,789),I=1,1)/0/
       DATA (IFOREST(I,-5,789),I=1,2)/-4,-2/
+      DATA TPRID(-5,789)/21/
+      DATA (SPROP(I,-5,789),I=1,1)/0/
 C     Diagram 790
       DATA MAPCONFIG(790)/790/
       DATA TSTRATEGY(790)/2/
@@ -12533,6 +13901,8 @@ C     Diagram 790
       DATA TPRID(-4,790)/21/
       DATA (SPROP(I,-4,790),I=1,1)/0/
       DATA (IFOREST(I,-5,790),I=1,2)/-4,6/
+      DATA TPRID(-5,790)/21/
+      DATA (SPROP(I,-5,790),I=1,1)/0/
 C     Diagram 791
       DATA MAPCONFIG(791)/791/
       DATA TSTRATEGY(791)/1/
@@ -12549,6 +13919,8 @@ C     Diagram 791
       DATA TPRID(-4,791)/6/
       DATA (SPROP(I,-4,791),I=1,1)/0/
       DATA (IFOREST(I,-5,791),I=1,2)/-4,-1/
+      DATA TPRID(-5,791)/21/
+      DATA (SPROP(I,-5,791),I=1,1)/0/
 C     Diagram 792
       DATA MAPCONFIG(792)/792/
       DATA TSTRATEGY(792)/1/
@@ -12565,6 +13937,8 @@ C     Diagram 792
       DATA TPRID(-4,792)/6/
       DATA (SPROP(I,-4,792),I=1,1)/0/
       DATA (IFOREST(I,-5,792),I=1,2)/-4,-1/
+      DATA TPRID(-5,792)/21/
+      DATA (SPROP(I,-5,792),I=1,1)/0/
 C     Diagram 793
       DATA MAPCONFIG(793)/793/
       DATA TSTRATEGY(793)/2/
@@ -12581,6 +13955,8 @@ C     Diagram 793
       DATA TPRID(-4,793)/21/
       DATA (SPROP(I,-4,793),I=1,1)/0/
       DATA (IFOREST(I,-5,793),I=1,2)/-4,6/
+      DATA TPRID(-5,793)/21/
+      DATA (SPROP(I,-5,793),I=1,1)/0/
 C     Diagram 794
       DATA MAPCONFIG(794)/794/
       DATA TSTRATEGY(794)/2/
@@ -12597,6 +13973,8 @@ C     Diagram 794
       DATA TPRID(-4,794)/21/
       DATA (SPROP(I,-4,794),I=1,1)/0/
       DATA (IFOREST(I,-5,794),I=1,2)/-4,6/
+      DATA TPRID(-5,794)/21/
+      DATA (SPROP(I,-5,794),I=1,1)/0/
 C     Diagram 795
       DATA MAPCONFIG(795)/795/
       DATA TSTRATEGY(795)/-2/
@@ -12613,6 +13991,8 @@ C     Diagram 795
       DATA TPRID(-4,795)/6/
       DATA (SPROP(I,-4,795),I=1,1)/0/
       DATA (IFOREST(I,-5,795),I=1,2)/-3,3/
+      DATA TPRID(-5,795)/6/
+      DATA (SPROP(I,-5,795),I=1,1)/0/
 C     Diagram 796
       DATA MAPCONFIG(796)/796/
       DATA TSTRATEGY(796)/1/
@@ -12629,6 +14009,8 @@ C     Diagram 796
       DATA TPRID(-4,796)/6/
       DATA (SPROP(I,-4,796),I=1,1)/0/
       DATA (IFOREST(I,-5,796),I=1,2)/-4,-1/
+      DATA TPRID(-5,796)/21/
+      DATA (SPROP(I,-5,796),I=1,1)/0/
 C     Diagram 797
       DATA MAPCONFIG(797)/797/
       DATA TSTRATEGY(797)/1/
@@ -12645,6 +14027,8 @@ C     Diagram 797
       DATA TPRID(-4,797)/6/
       DATA (SPROP(I,-4,797),I=1,1)/0/
       DATA (IFOREST(I,-5,797),I=1,2)/-4,-2/
+      DATA TPRID(-5,797)/21/
+      DATA (SPROP(I,-5,797),I=1,1)/0/
 C     Diagram 798
       DATA MAPCONFIG(798)/798/
       DATA TSTRATEGY(798)/1/
@@ -12661,6 +14045,8 @@ C     Diagram 798
       DATA TPRID(-4,798)/21/
       DATA (SPROP(I,-4,798),I=1,1)/0/
       DATA (IFOREST(I,-5,798),I=1,2)/-4,-2/
+      DATA TPRID(-5,798)/21/
+      DATA (SPROP(I,-5,798),I=1,1)/0/
 C     Diagram 799
       DATA MAPCONFIG(799)/799/
       DATA TSTRATEGY(799)/2/
@@ -12677,6 +14063,8 @@ C     Diagram 799
       DATA TPRID(-4,799)/21/
       DATA (SPROP(I,-4,799),I=1,1)/0/
       DATA (IFOREST(I,-5,799),I=1,2)/-4,6/
+      DATA TPRID(-5,799)/21/
+      DATA (SPROP(I,-5,799),I=1,1)/0/
 C     Diagram 800
       DATA MAPCONFIG(800)/800/
       DATA TSTRATEGY(800)/2/
@@ -12693,6 +14081,8 @@ C     Diagram 800
       DATA TPRID(-4,800)/21/
       DATA (SPROP(I,-4,800),I=1,1)/0/
       DATA (IFOREST(I,-5,800),I=1,2)/-4,6/
+      DATA TPRID(-5,800)/21/
+      DATA (SPROP(I,-5,800),I=1,1)/0/
 C     Diagram 801
       DATA MAPCONFIG(801)/801/
       DATA TSTRATEGY(801)/-2/
@@ -12709,6 +14099,8 @@ C     Diagram 801
       DATA TPRID(-4,801)/6/
       DATA (SPROP(I,-4,801),I=1,1)/0/
       DATA (IFOREST(I,-5,801),I=1,2)/-3,3/
+      DATA TPRID(-5,801)/6/
+      DATA (SPROP(I,-5,801),I=1,1)/0/
 C     Diagram 802
       DATA MAPCONFIG(802)/802/
       DATA TSTRATEGY(802)/1/
@@ -12725,6 +14117,8 @@ C     Diagram 802
       DATA TPRID(-4,802)/6/
       DATA (SPROP(I,-4,802),I=1,1)/0/
       DATA (IFOREST(I,-5,802),I=1,2)/-4,-1/
+      DATA TPRID(-5,802)/21/
+      DATA (SPROP(I,-5,802),I=1,1)/0/
 C     Diagram 803
       DATA MAPCONFIG(803)/803/
       DATA TSTRATEGY(803)/1/
@@ -12741,6 +14135,8 @@ C     Diagram 803
       DATA TPRID(-4,803)/6/
       DATA (SPROP(I,-4,803),I=1,1)/0/
       DATA (IFOREST(I,-5,803),I=1,2)/-4,-2/
+      DATA TPRID(-5,803)/21/
+      DATA (SPROP(I,-5,803),I=1,1)/0/
 C     Diagram 804
       DATA MAPCONFIG(804)/804/
       DATA TSTRATEGY(804)/1/
@@ -12757,6 +14153,8 @@ C     Diagram 804
       DATA TPRID(-4,804)/21/
       DATA (SPROP(I,-4,804),I=1,1)/0/
       DATA (IFOREST(I,-5,804),I=1,2)/-4,-2/
+      DATA TPRID(-5,804)/21/
+      DATA (SPROP(I,-5,804),I=1,1)/0/
 C     Diagram 805
       DATA MAPCONFIG(805)/805/
       DATA TSTRATEGY(805)/2/
@@ -12773,6 +14171,8 @@ C     Diagram 805
       DATA TPRID(-4,805)/21/
       DATA (SPROP(I,-4,805),I=1,1)/0/
       DATA (IFOREST(I,-5,805),I=1,2)/-4,6/
+      DATA TPRID(-5,805)/21/
+      DATA (SPROP(I,-5,805),I=1,1)/0/
 C     Diagram 806
       DATA MAPCONFIG(806)/806/
       DATA TSTRATEGY(806)/2/
@@ -12789,6 +14189,8 @@ C     Diagram 806
       DATA TPRID(-4,806)/21/
       DATA (SPROP(I,-4,806),I=1,1)/0/
       DATA (IFOREST(I,-5,806),I=1,2)/-4,6/
+      DATA TPRID(-5,806)/21/
+      DATA (SPROP(I,-5,806),I=1,1)/0/
 C     Diagram 807
       DATA MAPCONFIG(807)/807/
       DATA TSTRATEGY(807)/-2/
@@ -12805,6 +14207,8 @@ C     Diagram 807
       DATA TPRID(-4,807)/6/
       DATA (SPROP(I,-4,807),I=1,1)/0/
       DATA (IFOREST(I,-5,807),I=1,2)/-3,3/
+      DATA TPRID(-5,807)/6/
+      DATA (SPROP(I,-5,807),I=1,1)/0/
 C     Diagram 808
       DATA MAPCONFIG(808)/808/
       DATA TSTRATEGY(808)/-2/
@@ -12821,6 +14225,8 @@ C     Diagram 808
       DATA TPRID(-4,808)/6/
       DATA (SPROP(I,-4,808),I=1,1)/0/
       DATA (IFOREST(I,-5,808),I=1,2)/-3,4/
+      DATA TPRID(-5,808)/6/
+      DATA (SPROP(I,-5,808),I=1,1)/0/
 C     Diagram 809
       DATA MAPCONFIG(809)/809/
       DATA TSTRATEGY(809)/1/
@@ -12837,6 +14243,8 @@ C     Diagram 809
       DATA TPRID(-4,809)/6/
       DATA (SPROP(I,-4,809),I=1,1)/0/
       DATA (IFOREST(I,-5,809),I=1,2)/-4,-2/
+      DATA TPRID(-5,809)/21/
+      DATA (SPROP(I,-5,809),I=1,1)/0/
 C     Diagram 810
       DATA MAPCONFIG(810)/810/
       DATA TSTRATEGY(810)/1/
@@ -12853,6 +14261,8 @@ C     Diagram 810
       DATA TPRID(-4,810)/6/
       DATA (SPROP(I,-4,810),I=1,1)/0/
       DATA (IFOREST(I,-5,810),I=1,2)/-4,-2/
+      DATA TPRID(-5,810)/21/
+      DATA (SPROP(I,-5,810),I=1,1)/0/
 C     Diagram 811
       DATA MAPCONFIG(811)/811/
       DATA TSTRATEGY(811)/2/
@@ -12869,6 +14279,8 @@ C     Diagram 811
       DATA TPRID(-4,811)/21/
       DATA (SPROP(I,-4,811),I=1,1)/0/
       DATA (IFOREST(I,-5,811),I=1,2)/-4,7/
+      DATA TPRID(-5,811)/21/
+      DATA (SPROP(I,-5,811),I=1,1)/0/
 C     Diagram 812
       DATA MAPCONFIG(812)/812/
       DATA TSTRATEGY(812)/2/
@@ -12885,6 +14297,8 @@ C     Diagram 812
       DATA TPRID(-4,812)/21/
       DATA (SPROP(I,-4,812),I=1,1)/0/
       DATA (IFOREST(I,-5,812),I=1,2)/-4,7/
+      DATA TPRID(-5,812)/21/
+      DATA (SPROP(I,-5,812),I=1,1)/0/
 C     Diagram 813
       DATA MAPCONFIG(813)/813/
       DATA TSTRATEGY(813)/-2/
@@ -12901,6 +14315,8 @@ C     Diagram 813
       DATA TPRID(-4,813)/21/
       DATA (SPROP(I,-4,813),I=1,1)/0/
       DATA (IFOREST(I,-5,813),I=1,2)/-3,5/
+      DATA TPRID(-5,813)/21/
+      DATA (SPROP(I,-5,813),I=1,1)/0/
 C     Diagram 814
       DATA MAPCONFIG(814)/814/
       DATA TSTRATEGY(814)/-2/
@@ -12917,6 +14333,8 @@ C     Diagram 814
       DATA TPRID(-4,814)/21/
       DATA (SPROP(I,-4,814),I=1,1)/0/
       DATA (IFOREST(I,-5,814),I=1,2)/-3,6/
+      DATA TPRID(-5,814)/21/
+      DATA (SPROP(I,-5,814),I=1,1)/0/
 C     Diagram 815
       DATA MAPCONFIG(815)/815/
       DATA TSTRATEGY(815)/1/
@@ -12933,6 +14351,8 @@ C     Diagram 815
       DATA TPRID(-4,815)/21/
       DATA (SPROP(I,-4,815),I=1,1)/0/
       DATA (IFOREST(I,-5,815),I=1,2)/-4,-2/
+      DATA TPRID(-5,815)/21/
+      DATA (SPROP(I,-5,815),I=1,1)/0/
 C     Diagram 816
       DATA MAPCONFIG(816)/816/
       DATA TSTRATEGY(816)/1/
@@ -12949,6 +14369,8 @@ C     Diagram 816
       DATA TPRID(-4,816)/21/
       DATA (SPROP(I,-4,816),I=1,1)/0/
       DATA (IFOREST(I,-5,816),I=1,2)/-4,-2/
+      DATA TPRID(-5,816)/21/
+      DATA (SPROP(I,-5,816),I=1,1)/0/
 C     Diagram 817
       DATA MAPCONFIG(817)/817/
       DATA TSTRATEGY(817)/2/
@@ -12965,6 +14387,8 @@ C     Diagram 817
       DATA TPRID(-4,817)/21/
       DATA (SPROP(I,-4,817),I=1,1)/0/
       DATA (IFOREST(I,-5,817),I=1,2)/-4,7/
+      DATA TPRID(-5,817)/21/
+      DATA (SPROP(I,-5,817),I=1,1)/0/
 C     Diagram 818
       DATA MAPCONFIG(818)/818/
       DATA TSTRATEGY(818)/1/
@@ -12981,6 +14405,8 @@ C     Diagram 818
       DATA TPRID(-4,818)/21/
       DATA (SPROP(I,-4,818),I=1,1)/0/
       DATA (IFOREST(I,-5,818),I=1,2)/-4,-1/
+      DATA TPRID(-5,818)/21/
+      DATA (SPROP(I,-5,818),I=1,1)/0/
 C     Diagram 819
       DATA MAPCONFIG(819)/819/
       DATA TSTRATEGY(819)/1/
@@ -12997,6 +14423,8 @@ C     Diagram 819
       DATA TPRID(-4,819)/21/
       DATA (SPROP(I,-4,819),I=1,1)/0/
       DATA (IFOREST(I,-5,819),I=1,2)/-4,-1/
+      DATA TPRID(-5,819)/21/
+      DATA (SPROP(I,-5,819),I=1,1)/0/
 C     Diagram 820
       DATA MAPCONFIG(820)/820/
       DATA TSTRATEGY(820)/2/
@@ -13013,6 +14441,8 @@ C     Diagram 820
       DATA TPRID(-4,820)/21/
       DATA (SPROP(I,-4,820),I=1,1)/0/
       DATA (IFOREST(I,-5,820),I=1,2)/-4,7/
+      DATA TPRID(-5,820)/21/
+      DATA (SPROP(I,-5,820),I=1,1)/0/
 C     Diagram 821
       DATA MAPCONFIG(821)/821/
       DATA TSTRATEGY(821)/2/
@@ -13029,6 +14459,8 @@ C     Diagram 821
       DATA TPRID(-4,821)/21/
       DATA (SPROP(I,-4,821),I=1,1)/0/
       DATA (IFOREST(I,-5,821),I=1,2)/-4,7/
+      DATA TPRID(-5,821)/21/
+      DATA (SPROP(I,-5,821),I=1,1)/0/
 C     Diagram 822
       DATA MAPCONFIG(822)/822/
       DATA TSTRATEGY(822)/-2/
@@ -13045,6 +14477,8 @@ C     Diagram 822
       DATA TPRID(-4,822)/6/
       DATA (SPROP(I,-4,822),I=1,1)/0/
       DATA (IFOREST(I,-5,822),I=1,2)/-3,4/
+      DATA TPRID(-5,822)/6/
+      DATA (SPROP(I,-5,822),I=1,1)/0/
 C     Diagram 823
       DATA MAPCONFIG(823)/823/
       DATA TSTRATEGY(823)/1/
@@ -13061,6 +14495,8 @@ C     Diagram 823
       DATA TPRID(-4,823)/6/
       DATA (SPROP(I,-4,823),I=1,1)/0/
       DATA (IFOREST(I,-5,823),I=1,2)/-4,-1/
+      DATA TPRID(-5,823)/21/
+      DATA (SPROP(I,-5,823),I=1,1)/0/
 C     Diagram 824
       DATA MAPCONFIG(824)/824/
       DATA TSTRATEGY(824)/1/
@@ -13077,6 +14513,8 @@ C     Diagram 824
       DATA TPRID(-4,824)/6/
       DATA (SPROP(I,-4,824),I=1,1)/0/
       DATA (IFOREST(I,-5,824),I=1,2)/-4,-2/
+      DATA TPRID(-5,824)/21/
+      DATA (SPROP(I,-5,824),I=1,1)/0/
 C     Diagram 825
       DATA MAPCONFIG(825)/825/
       DATA TSTRATEGY(825)/1/
@@ -13093,6 +14531,8 @@ C     Diagram 825
       DATA TPRID(-4,825)/21/
       DATA (SPROP(I,-4,825),I=1,1)/0/
       DATA (IFOREST(I,-5,825),I=1,2)/-4,-2/
+      DATA TPRID(-5,825)/21/
+      DATA (SPROP(I,-5,825),I=1,1)/0/
 C     Diagram 826
       DATA MAPCONFIG(826)/826/
       DATA TSTRATEGY(826)/2/
@@ -13109,6 +14549,8 @@ C     Diagram 826
       DATA TPRID(-4,826)/21/
       DATA (SPROP(I,-4,826),I=1,1)/0/
       DATA (IFOREST(I,-5,826),I=1,2)/-4,7/
+      DATA TPRID(-5,826)/21/
+      DATA (SPROP(I,-5,826),I=1,1)/0/
 C     Diagram 827
       DATA MAPCONFIG(827)/827/
       DATA TSTRATEGY(827)/1/
@@ -13125,6 +14567,8 @@ C     Diagram 827
       DATA TPRID(-4,827)/6/
       DATA (SPROP(I,-4,827),I=1,1)/0/
       DATA (IFOREST(I,-5,827),I=1,2)/-4,-1/
+      DATA TPRID(-5,827)/21/
+      DATA (SPROP(I,-5,827),I=1,1)/0/
 C     Diagram 828
       DATA MAPCONFIG(828)/828/
       DATA TSTRATEGY(828)/1/
@@ -13141,6 +14585,8 @@ C     Diagram 828
       DATA TPRID(-4,828)/6/
       DATA (SPROP(I,-4,828),I=1,1)/0/
       DATA (IFOREST(I,-5,828),I=1,2)/-4,-1/
+      DATA TPRID(-5,828)/21/
+      DATA (SPROP(I,-5,828),I=1,1)/0/
 C     Diagram 829
       DATA MAPCONFIG(829)/829/
       DATA TSTRATEGY(829)/2/
@@ -13157,6 +14603,8 @@ C     Diagram 829
       DATA TPRID(-4,829)/21/
       DATA (SPROP(I,-4,829),I=1,1)/0/
       DATA (IFOREST(I,-5,829),I=1,2)/-4,7/
+      DATA TPRID(-5,829)/21/
+      DATA (SPROP(I,-5,829),I=1,1)/0/
 C     Diagram 830
       DATA MAPCONFIG(830)/830/
       DATA TSTRATEGY(830)/2/
@@ -13173,6 +14621,8 @@ C     Diagram 830
       DATA TPRID(-4,830)/21/
       DATA (SPROP(I,-4,830),I=1,1)/0/
       DATA (IFOREST(I,-5,830),I=1,2)/-4,7/
+      DATA TPRID(-5,830)/21/
+      DATA (SPROP(I,-5,830),I=1,1)/0/
 C     Diagram 831
       DATA MAPCONFIG(831)/831/
       DATA TSTRATEGY(831)/-2/
@@ -13189,6 +14639,8 @@ C     Diagram 831
       DATA TPRID(-4,831)/6/
       DATA (SPROP(I,-4,831),I=1,1)/0/
       DATA (IFOREST(I,-5,831),I=1,2)/-3,4/
+      DATA TPRID(-5,831)/6/
+      DATA (SPROP(I,-5,831),I=1,1)/0/
 C     Diagram 832
       DATA MAPCONFIG(832)/832/
       DATA TSTRATEGY(832)/1/
@@ -13205,6 +14657,8 @@ C     Diagram 832
       DATA TPRID(-4,832)/6/
       DATA (SPROP(I,-4,832),I=1,1)/0/
       DATA (IFOREST(I,-5,832),I=1,2)/-4,-1/
+      DATA TPRID(-5,832)/21/
+      DATA (SPROP(I,-5,832),I=1,1)/0/
 C     Diagram 833
       DATA MAPCONFIG(833)/833/
       DATA TSTRATEGY(833)/1/
@@ -13221,6 +14675,8 @@ C     Diagram 833
       DATA TPRID(-4,833)/6/
       DATA (SPROP(I,-4,833),I=1,1)/0/
       DATA (IFOREST(I,-5,833),I=1,2)/-4,-2/
+      DATA TPRID(-5,833)/21/
+      DATA (SPROP(I,-5,833),I=1,1)/0/
 C     Diagram 834
       DATA MAPCONFIG(834)/834/
       DATA TSTRATEGY(834)/1/
@@ -13237,6 +14693,8 @@ C     Diagram 834
       DATA TPRID(-4,834)/21/
       DATA (SPROP(I,-4,834),I=1,1)/0/
       DATA (IFOREST(I,-5,834),I=1,2)/-4,-2/
+      DATA TPRID(-5,834)/21/
+      DATA (SPROP(I,-5,834),I=1,1)/0/
 C     Diagram 835
       DATA MAPCONFIG(835)/835/
       DATA TSTRATEGY(835)/2/
@@ -13253,6 +14711,8 @@ C     Diagram 835
       DATA TPRID(-4,835)/21/
       DATA (SPROP(I,-4,835),I=1,1)/0/
       DATA (IFOREST(I,-5,835),I=1,2)/-4,7/
+      DATA TPRID(-5,835)/21/
+      DATA (SPROP(I,-5,835),I=1,1)/0/
 C     Diagram 836
       DATA MAPCONFIG(836)/836/
       DATA TSTRATEGY(836)/1/
@@ -13269,6 +14729,8 @@ C     Diagram 836
       DATA TPRID(-4,836)/6/
       DATA (SPROP(I,-4,836),I=1,1)/0/
       DATA (IFOREST(I,-5,836),I=1,2)/-4,-1/
+      DATA TPRID(-5,836)/21/
+      DATA (SPROP(I,-5,836),I=1,1)/0/
 C     Diagram 837
       DATA MAPCONFIG(837)/837/
       DATA TSTRATEGY(837)/1/
@@ -13285,6 +14747,8 @@ C     Diagram 837
       DATA TPRID(-4,837)/6/
       DATA (SPROP(I,-4,837),I=1,1)/0/
       DATA (IFOREST(I,-5,837),I=1,2)/-4,-1/
+      DATA TPRID(-5,837)/21/
+      DATA (SPROP(I,-5,837),I=1,1)/0/
 C     Diagram 838
       DATA MAPCONFIG(838)/838/
       DATA TSTRATEGY(838)/2/
@@ -13301,6 +14765,8 @@ C     Diagram 838
       DATA TPRID(-4,838)/21/
       DATA (SPROP(I,-4,838),I=1,1)/0/
       DATA (IFOREST(I,-5,838),I=1,2)/-4,7/
+      DATA TPRID(-5,838)/21/
+      DATA (SPROP(I,-5,838),I=1,1)/0/
 C     Diagram 839
       DATA MAPCONFIG(839)/839/
       DATA TSTRATEGY(839)/2/
@@ -13317,6 +14783,8 @@ C     Diagram 839
       DATA TPRID(-4,839)/21/
       DATA (SPROP(I,-4,839),I=1,1)/0/
       DATA (IFOREST(I,-5,839),I=1,2)/-4,7/
+      DATA TPRID(-5,839)/21/
+      DATA (SPROP(I,-5,839),I=1,1)/0/
 C     Diagram 840
       DATA MAPCONFIG(840)/840/
       DATA TSTRATEGY(840)/-2/
@@ -13333,6 +14801,8 @@ C     Diagram 840
       DATA TPRID(-4,840)/6/
       DATA (SPROP(I,-4,840),I=1,1)/0/
       DATA (IFOREST(I,-5,840),I=1,2)/-3,3/
+      DATA TPRID(-5,840)/6/
+      DATA (SPROP(I,-5,840),I=1,1)/0/
 C     Diagram 841
       DATA MAPCONFIG(841)/841/
       DATA TSTRATEGY(841)/1/
@@ -13349,6 +14819,8 @@ C     Diagram 841
       DATA TPRID(-4,841)/6/
       DATA (SPROP(I,-4,841),I=1,1)/0/
       DATA (IFOREST(I,-5,841),I=1,2)/-4,-1/
+      DATA TPRID(-5,841)/21/
+      DATA (SPROP(I,-5,841),I=1,1)/0/
 C     Diagram 842
       DATA MAPCONFIG(842)/842/
       DATA TSTRATEGY(842)/1/
@@ -13365,6 +14837,8 @@ C     Diagram 842
       DATA TPRID(-4,842)/6/
       DATA (SPROP(I,-4,842),I=1,1)/0/
       DATA (IFOREST(I,-5,842),I=1,2)/-4,-2/
+      DATA TPRID(-5,842)/21/
+      DATA (SPROP(I,-5,842),I=1,1)/0/
 C     Diagram 843
       DATA MAPCONFIG(843)/843/
       DATA TSTRATEGY(843)/1/
@@ -13381,6 +14855,8 @@ C     Diagram 843
       DATA TPRID(-4,843)/21/
       DATA (SPROP(I,-4,843),I=1,1)/0/
       DATA (IFOREST(I,-5,843),I=1,2)/-4,-2/
+      DATA TPRID(-5,843)/21/
+      DATA (SPROP(I,-5,843),I=1,1)/0/
 C     Diagram 844
       DATA MAPCONFIG(844)/844/
       DATA TSTRATEGY(844)/2/
@@ -13397,6 +14873,8 @@ C     Diagram 844
       DATA TPRID(-4,844)/21/
       DATA (SPROP(I,-4,844),I=1,1)/0/
       DATA (IFOREST(I,-5,844),I=1,2)/-4,7/
+      DATA TPRID(-5,844)/21/
+      DATA (SPROP(I,-5,844),I=1,1)/0/
 C     Diagram 845
       DATA MAPCONFIG(845)/845/
       DATA TSTRATEGY(845)/2/
@@ -13413,6 +14891,8 @@ C     Diagram 845
       DATA TPRID(-4,845)/21/
       DATA (SPROP(I,-4,845),I=1,1)/0/
       DATA (IFOREST(I,-5,845),I=1,2)/-4,7/
+      DATA TPRID(-5,845)/21/
+      DATA (SPROP(I,-5,845),I=1,1)/0/
 C     Diagram 846
       DATA MAPCONFIG(846)/846/
       DATA TSTRATEGY(846)/-2/
@@ -13429,6 +14909,8 @@ C     Diagram 846
       DATA TPRID(-4,846)/6/
       DATA (SPROP(I,-4,846),I=1,1)/0/
       DATA (IFOREST(I,-5,846),I=1,2)/-3,3/
+      DATA TPRID(-5,846)/6/
+      DATA (SPROP(I,-5,846),I=1,1)/0/
 C     Diagram 847
       DATA MAPCONFIG(847)/847/
       DATA TSTRATEGY(847)/1/
@@ -13445,6 +14927,8 @@ C     Diagram 847
       DATA TPRID(-4,847)/6/
       DATA (SPROP(I,-4,847),I=1,1)/0/
       DATA (IFOREST(I,-5,847),I=1,2)/-4,-1/
+      DATA TPRID(-5,847)/21/
+      DATA (SPROP(I,-5,847),I=1,1)/0/
 C     Diagram 848
       DATA MAPCONFIG(848)/848/
       DATA TSTRATEGY(848)/1/
@@ -13461,6 +14945,8 @@ C     Diagram 848
       DATA TPRID(-4,848)/6/
       DATA (SPROP(I,-4,848),I=1,1)/0/
       DATA (IFOREST(I,-5,848),I=1,2)/-4,-2/
+      DATA TPRID(-5,848)/21/
+      DATA (SPROP(I,-5,848),I=1,1)/0/
 C     Diagram 849
       DATA MAPCONFIG(849)/849/
       DATA TSTRATEGY(849)/1/
@@ -13477,6 +14963,8 @@ C     Diagram 849
       DATA TPRID(-4,849)/21/
       DATA (SPROP(I,-4,849),I=1,1)/0/
       DATA (IFOREST(I,-5,849),I=1,2)/-4,-2/
+      DATA TPRID(-5,849)/21/
+      DATA (SPROP(I,-5,849),I=1,1)/0/
 C     Diagram 850
       DATA MAPCONFIG(850)/850/
       DATA TSTRATEGY(850)/2/
@@ -13493,6 +14981,8 @@ C     Diagram 850
       DATA TPRID(-4,850)/21/
       DATA (SPROP(I,-4,850),I=1,1)/0/
       DATA (IFOREST(I,-5,850),I=1,2)/-4,7/
+      DATA TPRID(-5,850)/21/
+      DATA (SPROP(I,-5,850),I=1,1)/0/
 C     Diagram 851
       DATA MAPCONFIG(851)/851/
       DATA TSTRATEGY(851)/2/
@@ -13509,6 +14999,8 @@ C     Diagram 851
       DATA TPRID(-4,851)/21/
       DATA (SPROP(I,-4,851),I=1,1)/0/
       DATA (IFOREST(I,-5,851),I=1,2)/-4,7/
+      DATA TPRID(-5,851)/21/
+      DATA (SPROP(I,-5,851),I=1,1)/0/
 C     Diagram 852
       DATA MAPCONFIG(852)/852/
       DATA TSTRATEGY(852)/-2/
@@ -13525,6 +15017,8 @@ C     Diagram 852
       DATA TPRID(-4,852)/6/
       DATA (SPROP(I,-4,852),I=1,1)/0/
       DATA (IFOREST(I,-5,852),I=1,2)/-3,3/
+      DATA TPRID(-5,852)/6/
+      DATA (SPROP(I,-5,852),I=1,1)/0/
 C     Diagram 853
       DATA MAPCONFIG(853)/853/
       DATA TSTRATEGY(853)/-2/
@@ -13541,6 +15035,8 @@ C     Diagram 853
       DATA TPRID(-4,853)/6/
       DATA (SPROP(I,-4,853),I=1,1)/0/
       DATA (IFOREST(I,-5,853),I=1,2)/-3,4/
+      DATA TPRID(-5,853)/6/
+      DATA (SPROP(I,-5,853),I=1,1)/0/
 C     Diagram 854
       DATA MAPCONFIG(854)/854/
       DATA TSTRATEGY(854)/1/
@@ -13557,6 +15053,8 @@ C     Diagram 854
       DATA TPRID(-4,854)/6/
       DATA (SPROP(I,-4,854),I=1,1)/0/
       DATA (IFOREST(I,-5,854),I=1,2)/-4,-2/
+      DATA TPRID(-5,854)/21/
+      DATA (SPROP(I,-5,854),I=1,1)/0/
 C     Diagram 855
       DATA MAPCONFIG(855)/855/
       DATA TSTRATEGY(855)/1/
@@ -13573,6 +15071,8 @@ C     Diagram 855
       DATA TPRID(-4,855)/6/
       DATA (SPROP(I,-4,855),I=1,1)/0/
       DATA (IFOREST(I,-5,855),I=1,2)/-4,-2/
+      DATA TPRID(-5,855)/21/
+      DATA (SPROP(I,-5,855),I=1,1)/0/
 C     Diagram 856
       DATA MAPCONFIG(856)/856/
       DATA TSTRATEGY(856)/2/
@@ -13589,6 +15089,8 @@ C     Diagram 856
       DATA TPRID(-4,856)/21/
       DATA (SPROP(I,-4,856),I=1,1)/0/
       DATA (IFOREST(I,-5,856),I=1,2)/-4,-2/
+      DATA TPRID(-5,856)/21/
+      DATA (SPROP(I,-5,856),I=1,1)/0/
 C     Diagram 857
       DATA MAPCONFIG(857)/857/
       DATA TSTRATEGY(857)/2/
@@ -13605,6 +15107,8 @@ C     Diagram 857
       DATA TPRID(-4,857)/21/
       DATA (SPROP(I,-4,857),I=1,1)/0/
       DATA (IFOREST(I,-5,857),I=1,2)/-4,-2/
+      DATA TPRID(-5,857)/21/
+      DATA (SPROP(I,-5,857),I=1,1)/0/
 C     Diagram 858
       DATA MAPCONFIG(858)/858/
       DATA TSTRATEGY(858)/2/
@@ -13621,6 +15125,8 @@ C     Diagram 858
       DATA TPRID(-4,858)/21/
       DATA (SPROP(I,-4,858),I=1,1)/0/
       DATA (IFOREST(I,-5,858),I=1,2)/-4,-2/
+      DATA TPRID(-5,858)/21/
+      DATA (SPROP(I,-5,858),I=1,1)/0/
 C     Diagram 859
       DATA MAPCONFIG(859)/859/
       DATA TSTRATEGY(859)/2/
@@ -13637,6 +15143,8 @@ C     Diagram 859
       DATA TPRID(-4,859)/21/
       DATA (SPROP(I,-4,859),I=1,1)/0/
       DATA (IFOREST(I,-5,859),I=1,2)/-4,-3/
+      DATA TPRID(-5,859)/21/
+      DATA (SPROP(I,-5,859),I=1,1)/0/
 C     Diagram 860
       DATA MAPCONFIG(860)/860/
       DATA TSTRATEGY(860)/2/
@@ -13653,6 +15161,8 @@ C     Diagram 860
       DATA TPRID(-4,860)/21/
       DATA (SPROP(I,-4,860),I=1,1)/0/
       DATA (IFOREST(I,-5,860),I=1,2)/-4,-3/
+      DATA TPRID(-5,860)/21/
+      DATA (SPROP(I,-5,860),I=1,1)/0/
 C     Diagram 861
       DATA MAPCONFIG(861)/861/
       DATA TSTRATEGY(861)/2/
@@ -13669,6 +15179,8 @@ C     Diagram 861
       DATA TPRID(-4,861)/21/
       DATA (SPROP(I,-4,861),I=1,1)/0/
       DATA (IFOREST(I,-5,861),I=1,2)/-4,-3/
+      DATA TPRID(-5,861)/21/
+      DATA (SPROP(I,-5,861),I=1,1)/0/
 C     Diagram 862
       DATA MAPCONFIG(862)/862/
       DATA TSTRATEGY(862)/2/
@@ -13685,6 +15197,8 @@ C     Diagram 862
       DATA TPRID(-4,862)/21/
       DATA (SPROP(I,-4,862),I=1,1)/0/
       DATA (IFOREST(I,-5,862),I=1,2)/-4,-2/
+      DATA TPRID(-5,862)/21/
+      DATA (SPROP(I,-5,862),I=1,1)/0/
 C     Diagram 863
       DATA MAPCONFIG(863)/863/
       DATA TSTRATEGY(863)/2/
@@ -13701,6 +15215,8 @@ C     Diagram 863
       DATA TPRID(-4,863)/21/
       DATA (SPROP(I,-4,863),I=1,1)/0/
       DATA (IFOREST(I,-5,863),I=1,2)/-4,-2/
+      DATA TPRID(-5,863)/21/
+      DATA (SPROP(I,-5,863),I=1,1)/0/
 C     Diagram 864
       DATA MAPCONFIG(864)/864/
       DATA TSTRATEGY(864)/2/
@@ -13717,6 +15233,8 @@ C     Diagram 864
       DATA TPRID(-4,864)/21/
       DATA (SPROP(I,-4,864),I=1,1)/0/
       DATA (IFOREST(I,-5,864),I=1,2)/-4,-2/
+      DATA TPRID(-5,864)/21/
+      DATA (SPROP(I,-5,864),I=1,1)/0/
 C     Diagram 865
       DATA MAPCONFIG(865)/865/
       DATA TSTRATEGY(865)/2/
@@ -13733,6 +15251,8 @@ C     Diagram 865
       DATA TPRID(-4,865)/21/
       DATA (SPROP(I,-4,865),I=1,1)/0/
       DATA (IFOREST(I,-5,865),I=1,2)/-4,-3/
+      DATA TPRID(-5,865)/21/
+      DATA (SPROP(I,-5,865),I=1,1)/0/
 C     Diagram 866
       DATA MAPCONFIG(866)/866/
       DATA TSTRATEGY(866)/2/
@@ -13749,6 +15269,8 @@ C     Diagram 866
       DATA TPRID(-4,866)/21/
       DATA (SPROP(I,-4,866),I=1,1)/0/
       DATA (IFOREST(I,-5,866),I=1,2)/-4,-3/
+      DATA TPRID(-5,866)/21/
+      DATA (SPROP(I,-5,866),I=1,1)/0/
 C     Diagram 867
       DATA MAPCONFIG(867)/867/
       DATA TSTRATEGY(867)/2/
@@ -13765,6 +15287,8 @@ C     Diagram 867
       DATA TPRID(-4,867)/21/
       DATA (SPROP(I,-4,867),I=1,1)/0/
       DATA (IFOREST(I,-5,867),I=1,2)/-4,-3/
+      DATA TPRID(-5,867)/21/
+      DATA (SPROP(I,-5,867),I=1,1)/0/
 C     Diagram 868
       DATA MAPCONFIG(868)/868/
       DATA TSTRATEGY(868)/2/
@@ -13781,6 +15305,8 @@ C     Diagram 868
       DATA TPRID(-4,868)/21/
       DATA (SPROP(I,-4,868),I=1,1)/0/
       DATA (IFOREST(I,-5,868),I=1,2)/-4,-2/
+      DATA TPRID(-5,868)/21/
+      DATA (SPROP(I,-5,868),I=1,1)/0/
 C     Diagram 869
       DATA MAPCONFIG(869)/869/
       DATA TSTRATEGY(869)/2/
@@ -13797,6 +15323,8 @@ C     Diagram 869
       DATA TPRID(-4,869)/21/
       DATA (SPROP(I,-4,869),I=1,1)/0/
       DATA (IFOREST(I,-5,869),I=1,2)/-4,-2/
+      DATA TPRID(-5,869)/21/
+      DATA (SPROP(I,-5,869),I=1,1)/0/
 C     Diagram 870
       DATA MAPCONFIG(870)/870/
       DATA TSTRATEGY(870)/2/
@@ -13813,6 +15341,8 @@ C     Diagram 870
       DATA TPRID(-4,870)/21/
       DATA (SPROP(I,-4,870),I=1,1)/0/
       DATA (IFOREST(I,-5,870),I=1,2)/-4,-2/
+      DATA TPRID(-5,870)/21/
+      DATA (SPROP(I,-5,870),I=1,1)/0/
 C     Diagram 871
       DATA MAPCONFIG(871)/871/
       DATA TSTRATEGY(871)/2/
@@ -13829,6 +15359,8 @@ C     Diagram 871
       DATA TPRID(-4,871)/21/
       DATA (SPROP(I,-4,871),I=1,1)/0/
       DATA (IFOREST(I,-5,871),I=1,2)/-4,-3/
+      DATA TPRID(-5,871)/21/
+      DATA (SPROP(I,-5,871),I=1,1)/0/
 C     Diagram 872
       DATA MAPCONFIG(872)/872/
       DATA TSTRATEGY(872)/2/
@@ -13845,6 +15377,8 @@ C     Diagram 872
       DATA TPRID(-4,872)/21/
       DATA (SPROP(I,-4,872),I=1,1)/0/
       DATA (IFOREST(I,-5,872),I=1,2)/-4,-3/
+      DATA TPRID(-5,872)/21/
+      DATA (SPROP(I,-5,872),I=1,1)/0/
 C     Diagram 873
       DATA MAPCONFIG(873)/873/
       DATA TSTRATEGY(873)/2/
@@ -13861,6 +15395,8 @@ C     Diagram 873
       DATA TPRID(-4,873)/21/
       DATA (SPROP(I,-4,873),I=1,1)/0/
       DATA (IFOREST(I,-5,873),I=1,2)/-4,-3/
+      DATA TPRID(-5,873)/21/
+      DATA (SPROP(I,-5,873),I=1,1)/0/
 C     Diagram 874
       DATA MAPCONFIG(874)/874/
       DATA TSTRATEGY(874)/2/
@@ -13877,6 +15413,8 @@ C     Diagram 874
       DATA TPRID(-4,874)/6/
       DATA (SPROP(I,-4,874),I=1,1)/0/
       DATA (IFOREST(I,-5,874),I=1,2)/-4,-2/
+      DATA TPRID(-5,874)/21/
+      DATA (SPROP(I,-5,874),I=1,1)/0/
 C     Diagram 875
       DATA MAPCONFIG(875)/875/
       DATA TSTRATEGY(875)/2/
@@ -13893,6 +15431,8 @@ C     Diagram 875
       DATA TPRID(-4,875)/6/
       DATA (SPROP(I,-4,875),I=1,1)/0/
       DATA (IFOREST(I,-5,875),I=1,2)/-4,-2/
+      DATA TPRID(-5,875)/21/
+      DATA (SPROP(I,-5,875),I=1,1)/0/
 C     Diagram 876
       DATA MAPCONFIG(876)/876/
       DATA TSTRATEGY(876)/2/
@@ -13909,6 +15449,8 @@ C     Diagram 876
       DATA TPRID(-4,876)/6/
       DATA (SPROP(I,-4,876),I=1,1)/0/
       DATA (IFOREST(I,-5,876),I=1,2)/-4,-2/
+      DATA TPRID(-5,876)/21/
+      DATA (SPROP(I,-5,876),I=1,1)/0/
 C     Diagram 877
       DATA MAPCONFIG(877)/877/
       DATA TSTRATEGY(877)/2/
@@ -13925,6 +15467,8 @@ C     Diagram 877
       DATA TPRID(-4,877)/6/
       DATA (SPROP(I,-4,877),I=1,1)/0/
       DATA (IFOREST(I,-5,877),I=1,2)/-4,-3/
+      DATA TPRID(-5,877)/21/
+      DATA (SPROP(I,-5,877),I=1,1)/0/
 C     Diagram 878
       DATA MAPCONFIG(878)/878/
       DATA TSTRATEGY(878)/2/
@@ -13941,6 +15485,8 @@ C     Diagram 878
       DATA TPRID(-4,878)/6/
       DATA (SPROP(I,-4,878),I=1,1)/0/
       DATA (IFOREST(I,-5,878),I=1,2)/-4,-3/
+      DATA TPRID(-5,878)/21/
+      DATA (SPROP(I,-5,878),I=1,1)/0/
 C     Diagram 879
       DATA MAPCONFIG(879)/879/
       DATA TSTRATEGY(879)/2/
@@ -13957,6 +15503,8 @@ C     Diagram 879
       DATA TPRID(-4,879)/6/
       DATA (SPROP(I,-4,879),I=1,1)/0/
       DATA (IFOREST(I,-5,879),I=1,2)/-4,-3/
+      DATA TPRID(-5,879)/21/
+      DATA (SPROP(I,-5,879),I=1,1)/0/
 C     Diagram 880
       DATA MAPCONFIG(880)/880/
       DATA TSTRATEGY(880)/2/
@@ -13973,6 +15521,8 @@ C     Diagram 880
       DATA TPRID(-4,880)/6/
       DATA (SPROP(I,-4,880),I=1,1)/0/
       DATA (IFOREST(I,-5,880),I=1,2)/-4,-2/
+      DATA TPRID(-5,880)/21/
+      DATA (SPROP(I,-5,880),I=1,1)/0/
 C     Diagram 881
       DATA MAPCONFIG(881)/881/
       DATA TSTRATEGY(881)/2/
@@ -13989,6 +15539,8 @@ C     Diagram 881
       DATA TPRID(-4,881)/6/
       DATA (SPROP(I,-4,881),I=1,1)/0/
       DATA (IFOREST(I,-5,881),I=1,2)/-4,-2/
+      DATA TPRID(-5,881)/21/
+      DATA (SPROP(I,-5,881),I=1,1)/0/
 C     Diagram 882
       DATA MAPCONFIG(882)/882/
       DATA TSTRATEGY(882)/2/
@@ -14005,6 +15557,8 @@ C     Diagram 882
       DATA TPRID(-4,882)/6/
       DATA (SPROP(I,-4,882),I=1,1)/0/
       DATA (IFOREST(I,-5,882),I=1,2)/-4,-2/
+      DATA TPRID(-5,882)/21/
+      DATA (SPROP(I,-5,882),I=1,1)/0/
 C     Diagram 883
       DATA MAPCONFIG(883)/883/
       DATA TSTRATEGY(883)/2/
@@ -14021,6 +15575,8 @@ C     Diagram 883
       DATA TPRID(-4,883)/6/
       DATA (SPROP(I,-4,883),I=1,1)/0/
       DATA (IFOREST(I,-5,883),I=1,2)/-4,-3/
+      DATA TPRID(-5,883)/21/
+      DATA (SPROP(I,-5,883),I=1,1)/0/
 C     Diagram 884
       DATA MAPCONFIG(884)/884/
       DATA TSTRATEGY(884)/2/
@@ -14037,6 +15593,8 @@ C     Diagram 884
       DATA TPRID(-4,884)/6/
       DATA (SPROP(I,-4,884),I=1,1)/0/
       DATA (IFOREST(I,-5,884),I=1,2)/-4,-3/
+      DATA TPRID(-5,884)/21/
+      DATA (SPROP(I,-5,884),I=1,1)/0/
 C     Diagram 885
       DATA MAPCONFIG(885)/885/
       DATA TSTRATEGY(885)/2/
@@ -14053,6 +15611,8 @@ C     Diagram 885
       DATA TPRID(-4,885)/6/
       DATA (SPROP(I,-4,885),I=1,1)/0/
       DATA (IFOREST(I,-5,885),I=1,2)/-4,-3/
+      DATA TPRID(-5,885)/21/
+      DATA (SPROP(I,-5,885),I=1,1)/0/
 C     Diagram 886
       DATA MAPCONFIG(886)/886/
       DATA TSTRATEGY(886)/1/
@@ -14069,6 +15629,8 @@ C     Diagram 886
       DATA TPRID(-4,886)/6/
       DATA (SPROP(I,-4,886),I=1,1)/0/
       DATA (IFOREST(I,-5,886),I=1,2)/-4,-1/
+      DATA TPRID(-5,886)/21/
+      DATA (SPROP(I,-5,886),I=1,1)/0/
 C     Diagram 887
       DATA MAPCONFIG(887)/887/
       DATA TSTRATEGY(887)/2/
@@ -14085,6 +15647,8 @@ C     Diagram 887
       DATA TPRID(-4,887)/6/
       DATA (SPROP(I,-4,887),I=1,1)/0/
       DATA (IFOREST(I,-5,887),I=1,2)/-4,-2/
+      DATA TPRID(-5,887)/21/
+      DATA (SPROP(I,-5,887),I=1,1)/0/
 C     Diagram 888
       DATA MAPCONFIG(888)/888/
       DATA TSTRATEGY(888)/2/
@@ -14101,6 +15665,8 @@ C     Diagram 888
       DATA TPRID(-4,888)/6/
       DATA (SPROP(I,-4,888),I=1,1)/0/
       DATA (IFOREST(I,-5,888),I=1,2)/-4,-2/
+      DATA TPRID(-5,888)/21/
+      DATA (SPROP(I,-5,888),I=1,1)/0/
 C     Diagram 889
       DATA MAPCONFIG(889)/889/
       DATA TSTRATEGY(889)/2/
@@ -14117,6 +15683,8 @@ C     Diagram 889
       DATA TPRID(-4,889)/21/
       DATA (SPROP(I,-4,889),I=1,1)/0/
       DATA (IFOREST(I,-5,889),I=1,2)/-4,-3/
+      DATA TPRID(-5,889)/21/
+      DATA (SPROP(I,-5,889),I=1,1)/0/
 C     Diagram 890
       DATA MAPCONFIG(890)/890/
       DATA TSTRATEGY(890)/2/
@@ -14133,6 +15701,8 @@ C     Diagram 890
       DATA TPRID(-4,890)/6/
       DATA (SPROP(I,-4,890),I=1,1)/0/
       DATA (IFOREST(I,-5,890),I=1,2)/-4,-3/
+      DATA TPRID(-5,890)/21/
+      DATA (SPROP(I,-5,890),I=1,1)/0/
 C     Diagram 891
       DATA MAPCONFIG(891)/891/
       DATA TSTRATEGY(891)/2/
@@ -14149,6 +15719,8 @@ C     Diagram 891
       DATA TPRID(-4,891)/21/
       DATA (SPROP(I,-4,891),I=1,1)/0/
       DATA (IFOREST(I,-5,891),I=1,2)/-4,-3/
+      DATA TPRID(-5,891)/21/
+      DATA (SPROP(I,-5,891),I=1,1)/0/
 C     Diagram 892
       DATA MAPCONFIG(892)/892/
       DATA TSTRATEGY(892)/2/
@@ -14165,6 +15737,8 @@ C     Diagram 892
       DATA TPRID(-4,892)/6/
       DATA (SPROP(I,-4,892),I=1,1)/0/
       DATA (IFOREST(I,-5,892),I=1,2)/-4,-2/
+      DATA TPRID(-5,892)/21/
+      DATA (SPROP(I,-5,892),I=1,1)/0/
 C     Diagram 893
       DATA MAPCONFIG(893)/893/
       DATA TSTRATEGY(893)/2/
@@ -14181,6 +15755,8 @@ C     Diagram 893
       DATA TPRID(-4,893)/6/
       DATA (SPROP(I,-4,893),I=1,1)/0/
       DATA (IFOREST(I,-5,893),I=1,2)/-4,-3/
+      DATA TPRID(-5,893)/21/
+      DATA (SPROP(I,-5,893),I=1,1)/0/
 C     Diagram 894
       DATA MAPCONFIG(894)/894/
       DATA TSTRATEGY(894)/2/
@@ -14197,6 +15773,8 @@ C     Diagram 894
       DATA TPRID(-4,894)/6/
       DATA (SPROP(I,-4,894),I=1,1)/0/
       DATA (IFOREST(I,-5,894),I=1,2)/-4,-2/
+      DATA TPRID(-5,894)/21/
+      DATA (SPROP(I,-5,894),I=1,1)/0/
 C     Diagram 895
       DATA MAPCONFIG(895)/895/
       DATA TSTRATEGY(895)/2/
@@ -14213,6 +15791,8 @@ C     Diagram 895
       DATA TPRID(-4,895)/6/
       DATA (SPROP(I,-4,895),I=1,1)/0/
       DATA (IFOREST(I,-5,895),I=1,2)/-4,-2/
+      DATA TPRID(-5,895)/21/
+      DATA (SPROP(I,-5,895),I=1,1)/0/
 C     Diagram 896
       DATA MAPCONFIG(896)/896/
       DATA TSTRATEGY(896)/2/
@@ -14229,6 +15809,8 @@ C     Diagram 896
       DATA TPRID(-4,896)/6/
       DATA (SPROP(I,-4,896),I=1,1)/0/
       DATA (IFOREST(I,-5,896),I=1,2)/-4,-3/
+      DATA TPRID(-5,896)/21/
+      DATA (SPROP(I,-5,896),I=1,1)/0/
 C     Diagram 897
       DATA MAPCONFIG(897)/897/
       DATA TSTRATEGY(897)/2/
@@ -14245,6 +15827,8 @@ C     Diagram 897
       DATA TPRID(-4,897)/6/
       DATA (SPROP(I,-4,897),I=1,1)/0/
       DATA (IFOREST(I,-5,897),I=1,2)/-4,-3/
+      DATA TPRID(-5,897)/21/
+      DATA (SPROP(I,-5,897),I=1,1)/0/
 C     Diagram 898
       DATA MAPCONFIG(898)/898/
       DATA TSTRATEGY(898)/2/
@@ -14261,6 +15845,8 @@ C     Diagram 898
       DATA TPRID(-4,898)/6/
       DATA (SPROP(I,-4,898),I=1,1)/0/
       DATA (IFOREST(I,-5,898),I=1,2)/-4,-2/
+      DATA TPRID(-5,898)/21/
+      DATA (SPROP(I,-5,898),I=1,1)/0/
 C     Diagram 899
       DATA MAPCONFIG(899)/899/
       DATA TSTRATEGY(899)/2/
@@ -14277,6 +15863,8 @@ C     Diagram 899
       DATA TPRID(-4,899)/6/
       DATA (SPROP(I,-4,899),I=1,1)/0/
       DATA (IFOREST(I,-5,899),I=1,2)/-4,-2/
+      DATA TPRID(-5,899)/21/
+      DATA (SPROP(I,-5,899),I=1,1)/0/
 C     Diagram 900
       DATA MAPCONFIG(900)/900/
       DATA TSTRATEGY(900)/2/
@@ -14293,6 +15881,8 @@ C     Diagram 900
       DATA TPRID(-4,900)/6/
       DATA (SPROP(I,-4,900),I=1,1)/0/
       DATA (IFOREST(I,-5,900),I=1,2)/-4,-2/
+      DATA TPRID(-5,900)/21/
+      DATA (SPROP(I,-5,900),I=1,1)/0/
 C     Diagram 901
       DATA MAPCONFIG(901)/901/
       DATA TSTRATEGY(901)/2/
@@ -14309,6 +15899,8 @@ C     Diagram 901
       DATA TPRID(-4,901)/6/
       DATA (SPROP(I,-4,901),I=1,1)/0/
       DATA (IFOREST(I,-5,901),I=1,2)/-4,-3/
+      DATA TPRID(-5,901)/21/
+      DATA (SPROP(I,-5,901),I=1,1)/0/
 C     Diagram 902
       DATA MAPCONFIG(902)/902/
       DATA TSTRATEGY(902)/2/
@@ -14325,6 +15917,8 @@ C     Diagram 902
       DATA TPRID(-4,902)/6/
       DATA (SPROP(I,-4,902),I=1,1)/0/
       DATA (IFOREST(I,-5,902),I=1,2)/-4,-3/
+      DATA TPRID(-5,902)/21/
+      DATA (SPROP(I,-5,902),I=1,1)/0/
 C     Diagram 903
       DATA MAPCONFIG(903)/903/
       DATA TSTRATEGY(903)/2/
@@ -14341,6 +15935,8 @@ C     Diagram 903
       DATA TPRID(-4,903)/6/
       DATA (SPROP(I,-4,903),I=1,1)/0/
       DATA (IFOREST(I,-5,903),I=1,2)/-4,-3/
+      DATA TPRID(-5,903)/21/
+      DATA (SPROP(I,-5,903),I=1,1)/0/
 C     Diagram 904
       DATA MAPCONFIG(904)/904/
       DATA TSTRATEGY(904)/1/
@@ -14357,6 +15953,8 @@ C     Diagram 904
       DATA TPRID(-4,904)/6/
       DATA (SPROP(I,-4,904),I=1,1)/0/
       DATA (IFOREST(I,-5,904),I=1,2)/-4,-1/
+      DATA TPRID(-5,904)/21/
+      DATA (SPROP(I,-5,904),I=1,1)/0/
 C     Diagram 905
       DATA MAPCONFIG(905)/905/
       DATA TSTRATEGY(905)/2/
@@ -14373,6 +15971,8 @@ C     Diagram 905
       DATA TPRID(-4,905)/6/
       DATA (SPROP(I,-4,905),I=1,1)/0/
       DATA (IFOREST(I,-5,905),I=1,2)/-4,-2/
+      DATA TPRID(-5,905)/21/
+      DATA (SPROP(I,-5,905),I=1,1)/0/
 C     Diagram 906
       DATA MAPCONFIG(906)/906/
       DATA TSTRATEGY(906)/2/
@@ -14389,6 +15989,8 @@ C     Diagram 906
       DATA TPRID(-4,906)/6/
       DATA (SPROP(I,-4,906),I=1,1)/0/
       DATA (IFOREST(I,-5,906),I=1,2)/-4,-2/
+      DATA TPRID(-5,906)/21/
+      DATA (SPROP(I,-5,906),I=1,1)/0/
 C     Diagram 907
       DATA MAPCONFIG(907)/907/
       DATA TSTRATEGY(907)/2/
@@ -14405,6 +16007,8 @@ C     Diagram 907
       DATA TPRID(-4,907)/21/
       DATA (SPROP(I,-4,907),I=1,1)/0/
       DATA (IFOREST(I,-5,907),I=1,2)/-4,-3/
+      DATA TPRID(-5,907)/21/
+      DATA (SPROP(I,-5,907),I=1,1)/0/
 C     Diagram 908
       DATA MAPCONFIG(908)/908/
       DATA TSTRATEGY(908)/2/
@@ -14421,6 +16025,8 @@ C     Diagram 908
       DATA TPRID(-4,908)/6/
       DATA (SPROP(I,-4,908),I=1,1)/0/
       DATA (IFOREST(I,-5,908),I=1,2)/-4,-3/
+      DATA TPRID(-5,908)/21/
+      DATA (SPROP(I,-5,908),I=1,1)/0/
 C     Diagram 909
       DATA MAPCONFIG(909)/909/
       DATA TSTRATEGY(909)/2/
@@ -14437,6 +16043,8 @@ C     Diagram 909
       DATA TPRID(-4,909)/21/
       DATA (SPROP(I,-4,909),I=1,1)/0/
       DATA (IFOREST(I,-5,909),I=1,2)/-4,-3/
+      DATA TPRID(-5,909)/21/
+      DATA (SPROP(I,-5,909),I=1,1)/0/
 C     Diagram 910
       DATA MAPCONFIG(910)/910/
       DATA TSTRATEGY(910)/2/
@@ -14453,6 +16061,8 @@ C     Diagram 910
       DATA TPRID(-4,910)/6/
       DATA (SPROP(I,-4,910),I=1,1)/0/
       DATA (IFOREST(I,-5,910),I=1,2)/-4,-2/
+      DATA TPRID(-5,910)/21/
+      DATA (SPROP(I,-5,910),I=1,1)/0/
 C     Diagram 911
       DATA MAPCONFIG(911)/911/
       DATA TSTRATEGY(911)/2/
@@ -14469,6 +16079,8 @@ C     Diagram 911
       DATA TPRID(-4,911)/6/
       DATA (SPROP(I,-4,911),I=1,1)/0/
       DATA (IFOREST(I,-5,911),I=1,2)/-4,-3/
+      DATA TPRID(-5,911)/21/
+      DATA (SPROP(I,-5,911),I=1,1)/0/
 C     Diagram 912
       DATA MAPCONFIG(912)/912/
       DATA TSTRATEGY(912)/2/
@@ -14485,6 +16097,8 @@ C     Diagram 912
       DATA TPRID(-4,912)/6/
       DATA (SPROP(I,-4,912),I=1,1)/0/
       DATA (IFOREST(I,-5,912),I=1,2)/-4,-2/
+      DATA TPRID(-5,912)/21/
+      DATA (SPROP(I,-5,912),I=1,1)/0/
 C     Diagram 913
       DATA MAPCONFIG(913)/913/
       DATA TSTRATEGY(913)/2/
@@ -14501,6 +16115,8 @@ C     Diagram 913
       DATA TPRID(-4,913)/6/
       DATA (SPROP(I,-4,913),I=1,1)/0/
       DATA (IFOREST(I,-5,913),I=1,2)/-4,-2/
+      DATA TPRID(-5,913)/21/
+      DATA (SPROP(I,-5,913),I=1,1)/0/
 C     Diagram 914
       DATA MAPCONFIG(914)/914/
       DATA TSTRATEGY(914)/2/
@@ -14517,6 +16133,8 @@ C     Diagram 914
       DATA TPRID(-4,914)/6/
       DATA (SPROP(I,-4,914),I=1,1)/0/
       DATA (IFOREST(I,-5,914),I=1,2)/-4,-3/
+      DATA TPRID(-5,914)/21/
+      DATA (SPROP(I,-5,914),I=1,1)/0/
 C     Diagram 915
       DATA MAPCONFIG(915)/915/
       DATA TSTRATEGY(915)/2/
@@ -14533,6 +16151,8 @@ C     Diagram 915
       DATA TPRID(-4,915)/6/
       DATA (SPROP(I,-4,915),I=1,1)/0/
       DATA (IFOREST(I,-5,915),I=1,2)/-4,-3/
+      DATA TPRID(-5,915)/21/
+      DATA (SPROP(I,-5,915),I=1,1)/0/
 C     Diagram 916
       DATA MAPCONFIG(916)/916/
       DATA TSTRATEGY(916)/2/
@@ -14549,6 +16169,8 @@ C     Diagram 916
       DATA TPRID(-4,916)/6/
       DATA (SPROP(I,-4,916),I=1,1)/0/
       DATA (IFOREST(I,-5,916),I=1,2)/-4,-2/
+      DATA TPRID(-5,916)/21/
+      DATA (SPROP(I,-5,916),I=1,1)/0/
 C     Diagram 917
       DATA MAPCONFIG(917)/917/
       DATA TSTRATEGY(917)/2/
@@ -14565,6 +16187,8 @@ C     Diagram 917
       DATA TPRID(-4,917)/6/
       DATA (SPROP(I,-4,917),I=1,1)/0/
       DATA (IFOREST(I,-5,917),I=1,2)/-4,-3/
+      DATA TPRID(-5,917)/21/
+      DATA (SPROP(I,-5,917),I=1,1)/0/
 C     Diagram 918
       DATA MAPCONFIG(918)/918/
       DATA TSTRATEGY(918)/2/
@@ -14581,6 +16205,8 @@ C     Diagram 918
       DATA TPRID(-4,918)/6/
       DATA (SPROP(I,-4,918),I=1,1)/0/
       DATA (IFOREST(I,-5,918),I=1,2)/-4,-2/
+      DATA TPRID(-5,918)/21/
+      DATA (SPROP(I,-5,918),I=1,1)/0/
 C     Diagram 919
       DATA MAPCONFIG(919)/919/
       DATA TSTRATEGY(919)/2/
@@ -14597,6 +16223,8 @@ C     Diagram 919
       DATA TPRID(-4,919)/6/
       DATA (SPROP(I,-4,919),I=1,1)/0/
       DATA (IFOREST(I,-5,919),I=1,2)/-4,-2/
+      DATA TPRID(-5,919)/21/
+      DATA (SPROP(I,-5,919),I=1,1)/0/
 C     Diagram 920
       DATA MAPCONFIG(920)/920/
       DATA TSTRATEGY(920)/2/
@@ -14613,6 +16241,8 @@ C     Diagram 920
       DATA TPRID(-4,920)/6/
       DATA (SPROP(I,-4,920),I=1,1)/0/
       DATA (IFOREST(I,-5,920),I=1,2)/-4,-3/
+      DATA TPRID(-5,920)/21/
+      DATA (SPROP(I,-5,920),I=1,1)/0/
 C     Diagram 921
       DATA MAPCONFIG(921)/921/
       DATA TSTRATEGY(921)/2/
@@ -14629,6 +16259,8 @@ C     Diagram 921
       DATA TPRID(-4,921)/6/
       DATA (SPROP(I,-4,921),I=1,1)/0/
       DATA (IFOREST(I,-5,921),I=1,2)/-4,-3/
+      DATA TPRID(-5,921)/21/
+      DATA (SPROP(I,-5,921),I=1,1)/0/
 C     Diagram 922
       DATA MAPCONFIG(922)/922/
       DATA TSTRATEGY(922)/1/
@@ -14645,6 +16277,8 @@ C     Diagram 922
       DATA TPRID(-4,922)/6/
       DATA (SPROP(I,-4,922),I=1,1)/0/
       DATA (IFOREST(I,-5,922),I=1,2)/-4,-1/
+      DATA TPRID(-5,922)/21/
+      DATA (SPROP(I,-5,922),I=1,1)/0/
 C     Diagram 923
       DATA MAPCONFIG(923)/923/
       DATA TSTRATEGY(923)/2/
@@ -14661,6 +16295,8 @@ C     Diagram 923
       DATA TPRID(-4,923)/6/
       DATA (SPROP(I,-4,923),I=1,1)/0/
       DATA (IFOREST(I,-5,923),I=1,2)/-4,-2/
+      DATA TPRID(-5,923)/21/
+      DATA (SPROP(I,-5,923),I=1,1)/0/
 C     Diagram 924
       DATA MAPCONFIG(924)/924/
       DATA TSTRATEGY(924)/2/
@@ -14677,6 +16313,8 @@ C     Diagram 924
       DATA TPRID(-4,924)/6/
       DATA (SPROP(I,-4,924),I=1,1)/0/
       DATA (IFOREST(I,-5,924),I=1,2)/-4,-2/
+      DATA TPRID(-5,924)/21/
+      DATA (SPROP(I,-5,924),I=1,1)/0/
 C     Diagram 925
       DATA MAPCONFIG(925)/925/
       DATA TSTRATEGY(925)/2/
@@ -14693,6 +16331,8 @@ C     Diagram 925
       DATA TPRID(-4,925)/21/
       DATA (SPROP(I,-4,925),I=1,1)/0/
       DATA (IFOREST(I,-5,925),I=1,2)/-4,-3/
+      DATA TPRID(-5,925)/21/
+      DATA (SPROP(I,-5,925),I=1,1)/0/
 C     Diagram 926
       DATA MAPCONFIG(926)/926/
       DATA TSTRATEGY(926)/2/
@@ -14709,6 +16349,8 @@ C     Diagram 926
       DATA TPRID(-4,926)/6/
       DATA (SPROP(I,-4,926),I=1,1)/0/
       DATA (IFOREST(I,-5,926),I=1,2)/-4,-3/
+      DATA TPRID(-5,926)/21/
+      DATA (SPROP(I,-5,926),I=1,1)/0/
 C     Diagram 927
       DATA MAPCONFIG(927)/927/
       DATA TSTRATEGY(927)/2/
@@ -14725,6 +16367,8 @@ C     Diagram 927
       DATA TPRID(-4,927)/21/
       DATA (SPROP(I,-4,927),I=1,1)/0/
       DATA (IFOREST(I,-5,927),I=1,2)/-4,-3/
+      DATA TPRID(-5,927)/21/
+      DATA (SPROP(I,-5,927),I=1,1)/0/
 C     Diagram 928
       DATA MAPCONFIG(928)/928/
       DATA TSTRATEGY(928)/1/
@@ -14741,6 +16385,8 @@ C     Diagram 928
       DATA TPRID(-4,928)/6/
       DATA (SPROP(I,-4,928),I=1,1)/0/
       DATA (IFOREST(I,-5,928),I=1,2)/-4,-1/
+      DATA TPRID(-5,928)/21/
+      DATA (SPROP(I,-5,928),I=1,1)/0/
 C     Diagram 929
       DATA MAPCONFIG(929)/929/
       DATA TSTRATEGY(929)/2/
@@ -14757,6 +16403,8 @@ C     Diagram 929
       DATA TPRID(-4,929)/6/
       DATA (SPROP(I,-4,929),I=1,1)/0/
       DATA (IFOREST(I,-5,929),I=1,2)/-4,-2/
+      DATA TPRID(-5,929)/21/
+      DATA (SPROP(I,-5,929),I=1,1)/0/
 C     Diagram 930
       DATA MAPCONFIG(930)/930/
       DATA TSTRATEGY(930)/2/
@@ -14773,6 +16421,8 @@ C     Diagram 930
       DATA TPRID(-4,930)/6/
       DATA (SPROP(I,-4,930),I=1,1)/0/
       DATA (IFOREST(I,-5,930),I=1,2)/-4,-2/
+      DATA TPRID(-5,930)/21/
+      DATA (SPROP(I,-5,930),I=1,1)/0/
 C     Diagram 931
       DATA MAPCONFIG(931)/931/
       DATA TSTRATEGY(931)/2/
@@ -14789,6 +16439,8 @@ C     Diagram 931
       DATA TPRID(-4,931)/21/
       DATA (SPROP(I,-4,931),I=1,1)/0/
       DATA (IFOREST(I,-5,931),I=1,2)/-4,-3/
+      DATA TPRID(-5,931)/21/
+      DATA (SPROP(I,-5,931),I=1,1)/0/
 C     Diagram 932
       DATA MAPCONFIG(932)/932/
       DATA TSTRATEGY(932)/2/
@@ -14805,6 +16457,8 @@ C     Diagram 932
       DATA TPRID(-4,932)/6/
       DATA (SPROP(I,-4,932),I=1,1)/0/
       DATA (IFOREST(I,-5,932),I=1,2)/-4,-3/
+      DATA TPRID(-5,932)/21/
+      DATA (SPROP(I,-5,932),I=1,1)/0/
 C     Diagram 933
       DATA MAPCONFIG(933)/933/
       DATA TSTRATEGY(933)/2/
@@ -14821,6 +16475,8 @@ C     Diagram 933
       DATA TPRID(-4,933)/21/
       DATA (SPROP(I,-4,933),I=1,1)/0/
       DATA (IFOREST(I,-5,933),I=1,2)/-4,-3/
+      DATA TPRID(-5,933)/21/
+      DATA (SPROP(I,-5,933),I=1,1)/0/
 C     Diagram 934
       DATA MAPCONFIG(934)/934/
       DATA TSTRATEGY(934)/1/
@@ -14837,6 +16493,8 @@ C     Diagram 934
       DATA TPRID(-4,934)/6/
       DATA (SPROP(I,-4,934),I=1,1)/0/
       DATA (IFOREST(I,-5,934),I=1,2)/-4,-1/
+      DATA TPRID(-5,934)/21/
+      DATA (SPROP(I,-5,934),I=1,1)/0/
 C     Diagram 935
       DATA MAPCONFIG(935)/935/
       DATA TSTRATEGY(935)/2/
@@ -14853,6 +16511,8 @@ C     Diagram 935
       DATA TPRID(-4,935)/6/
       DATA (SPROP(I,-4,935),I=1,1)/0/
       DATA (IFOREST(I,-5,935),I=1,2)/-4,-2/
+      DATA TPRID(-5,935)/21/
+      DATA (SPROP(I,-5,935),I=1,1)/0/
 C     Diagram 936
       DATA MAPCONFIG(936)/936/
       DATA TSTRATEGY(936)/2/
@@ -14869,6 +16529,8 @@ C     Diagram 936
       DATA TPRID(-4,936)/6/
       DATA (SPROP(I,-4,936),I=1,1)/0/
       DATA (IFOREST(I,-5,936),I=1,2)/-4,-2/
+      DATA TPRID(-5,936)/21/
+      DATA (SPROP(I,-5,936),I=1,1)/0/
 C     Diagram 937
       DATA MAPCONFIG(937)/937/
       DATA TSTRATEGY(937)/2/
@@ -14885,6 +16547,8 @@ C     Diagram 937
       DATA TPRID(-4,937)/21/
       DATA (SPROP(I,-4,937),I=1,1)/0/
       DATA (IFOREST(I,-5,937),I=1,2)/-4,-3/
+      DATA TPRID(-5,937)/21/
+      DATA (SPROP(I,-5,937),I=1,1)/0/
 C     Diagram 938
       DATA MAPCONFIG(938)/938/
       DATA TSTRATEGY(938)/2/
@@ -14901,6 +16565,8 @@ C     Diagram 938
       DATA TPRID(-4,938)/6/
       DATA (SPROP(I,-4,938),I=1,1)/0/
       DATA (IFOREST(I,-5,938),I=1,2)/-4,-3/
+      DATA TPRID(-5,938)/21/
+      DATA (SPROP(I,-5,938),I=1,1)/0/
 C     Diagram 939
       DATA MAPCONFIG(939)/939/
       DATA TSTRATEGY(939)/2/
@@ -14917,6 +16583,8 @@ C     Diagram 939
       DATA TPRID(-4,939)/21/
       DATA (SPROP(I,-4,939),I=1,1)/0/
       DATA (IFOREST(I,-5,939),I=1,2)/-4,-3/
+      DATA TPRID(-5,939)/21/
+      DATA (SPROP(I,-5,939),I=1,1)/0/
 C     Diagram 940
       DATA MAPCONFIG(940)/940/
       DATA TSTRATEGY(940)/1/
@@ -14933,6 +16601,8 @@ C     Diagram 940
       DATA TPRID(-4,940)/6/
       DATA (SPROP(I,-4,940),I=1,1)/0/
       DATA (IFOREST(I,-5,940),I=1,2)/-4,-1/
+      DATA TPRID(-5,940)/21/
+      DATA (SPROP(I,-5,940),I=1,1)/0/
 C     Diagram 941
       DATA MAPCONFIG(941)/941/
       DATA TSTRATEGY(941)/2/
@@ -14949,6 +16619,8 @@ C     Diagram 941
       DATA TPRID(-4,941)/6/
       DATA (SPROP(I,-4,941),I=1,1)/0/
       DATA (IFOREST(I,-5,941),I=1,2)/-4,-2/
+      DATA TPRID(-5,941)/21/
+      DATA (SPROP(I,-5,941),I=1,1)/0/
 C     Diagram 942
       DATA MAPCONFIG(942)/942/
       DATA TSTRATEGY(942)/2/
@@ -14965,6 +16637,8 @@ C     Diagram 942
       DATA TPRID(-4,942)/6/
       DATA (SPROP(I,-4,942),I=1,1)/0/
       DATA (IFOREST(I,-5,942),I=1,2)/-4,-2/
+      DATA TPRID(-5,942)/21/
+      DATA (SPROP(I,-5,942),I=1,1)/0/
 C     Diagram 943
       DATA MAPCONFIG(943)/943/
       DATA TSTRATEGY(943)/2/
@@ -14981,6 +16655,8 @@ C     Diagram 943
       DATA TPRID(-4,943)/21/
       DATA (SPROP(I,-4,943),I=1,1)/0/
       DATA (IFOREST(I,-5,943),I=1,2)/-4,-3/
+      DATA TPRID(-5,943)/21/
+      DATA (SPROP(I,-5,943),I=1,1)/0/
 C     Diagram 944
       DATA MAPCONFIG(944)/944/
       DATA TSTRATEGY(944)/2/
@@ -14997,6 +16673,8 @@ C     Diagram 944
       DATA TPRID(-4,944)/6/
       DATA (SPROP(I,-4,944),I=1,1)/0/
       DATA (IFOREST(I,-5,944),I=1,2)/-4,-3/
+      DATA TPRID(-5,944)/21/
+      DATA (SPROP(I,-5,944),I=1,1)/0/
 C     Diagram 945
       DATA MAPCONFIG(945)/945/
       DATA TSTRATEGY(945)/2/
@@ -15013,5 +16691,7 @@ C     Diagram 945
       DATA TPRID(-4,945)/21/
       DATA (SPROP(I,-4,945),I=1,1)/0/
       DATA (IFOREST(I,-5,945),I=1,2)/-4,-3/
+      DATA TPRID(-5,945)/21/
+      DATA (SPROP(I,-5,945),I=1,1)/0/
 C     Number of configs
       DATA MAPCONFIG(0)/945/
