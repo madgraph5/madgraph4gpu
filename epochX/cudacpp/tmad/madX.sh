@@ -9,8 +9,8 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  ###echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeclean] [-runclean]" > /dev/stderr
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeclean]" > /dev/stderr
+  ###echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-runclean]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly]" > /dev/stderr
   exit 1
 }
 
@@ -26,7 +26,8 @@ ggttg=0
 ggttgg=0
 ggttggg=0
 
-makeclean=0
+maketype=
+###makej=
 ###runclean=0
 
 while [ "$1" != "" ]; do
@@ -48,8 +49,11 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-ggttggg" ]; then
     ggttggg=1
     shift
-  elif [ "$1" == "-makeclean" ]; then
-    makeclean=1
+  elif [ "$1" == "-makeonly" ] || [ "$1" == "-makeclean" ] || [ "$1" == "-makecleanonly" ]; then
+    if [ "${maketype}" != "" ] && [ "${maketype}" != "$1" ]; then
+      echo "ERROR! Options -makeonly, -makeclean and -makecleanonly are incompatible"; usage
+    fi
+    maketype="$1"
     shift
   ###elif [ "$1" == "-runclean" ]; then
   ###  runclean=1
@@ -220,26 +224,37 @@ function runmadevent()
 }
 
 ##########################################################################
-# PART 1 - build and run madevent
+# PART 1 - build madevent
 ##########################################################################
 
 for suff in $suffs; do
 
   dir=$(showdir)
   if [ ! -d $dir ]; then echo "WARNING! Skip missing directory $dir"; continue; fi
-
-  ##########################################################################
-  # PART 1a - build
-  ##########################################################################
-
   echo "Working directory: $dir"
   cd $dir
-  if [ "${makeclean}" == "1" ]; then make cleanall; echo; fi
+
+  if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
+  if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
   make -j
 
-  ##########################################################################
-  # PART 1b - run madevent
-  ##########################################################################
+done
+
+if [ "${maketype}" == "-makecleanonly" ]; then printf "\nMAKE CLEANALL COMPLETED\n"; exit 0; fi
+if [ "${maketype}" == "-makeonly" ]; then printf "\nMAKE COMPLETED\n"; exit 0; fi
+
+##########################################################################
+# PART 2 - run madevent
+##########################################################################
+
+printf "\nDATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
+
+for suff in $suffs; do
+
+  dir=$(showdir)
+  if [ ! -d $dir ]; then echo "WARNING! Skip missing directory $dir"; continue; fi
+  echo "Working directory: $dir"
+  cd $dir
 
   # Disable OpenMP multithreading in Fortran
   ###export OMP_NUM_THREADS=1 # not needed in .mad directories (OpenMP MT disabled in the code)
@@ -281,4 +296,4 @@ for suff in $suffs; do
   runcheck ./gcheck.exe
   
 done
-
+printf "\nTEST COMPLETED\n"
