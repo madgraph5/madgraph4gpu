@@ -24,7 +24,6 @@ c**************************************************
       include 'nexternal.inc'
       include 'message.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
       include 'sudakov.inc'
       include 'maxparticles.inc'
@@ -98,8 +97,7 @@ c**************************************************
       include 'message.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
-      include 'cluster.inc'
+      include 'cluster.inc'      
       integer ipdg,imode
       double precision q0, Q11
       double precision gamma,DGAUSS
@@ -564,10 +562,9 @@ c**************************************************
       include 'genps.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
-      include 'coupl.inc'
       include 'run.inc'
+      include 'coupl.inc'
       include 'run_config.inc'
 C   
 C   ARGUMENTS 
@@ -1318,10 +1315,9 @@ c**************************************************
       include 'genps.inc'
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
-      include 'coupl.inc'
       include 'run.inc'
+      include 'coupl.inc'
       include 'run_config.inc'
 C   
 C   ARGUMENTS 
@@ -1794,7 +1790,6 @@ C
       include 'genps.inc'
       include 'run.inc'
       include 'nexternal.inc'
-      include 'vector.inc'
       include 'coupl.inc'
 C      include 'maxparticles.inc'
       
@@ -1860,7 +1855,6 @@ c      ENDIF
 
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
 c     Common block for reweighting info
 c     q2bck holds the central q2fact scales
@@ -1926,7 +1920,6 @@ c     to_rw
 
       include 'nexternal.inc'
       include 'maxamps.inc'
-      include 'vector.inc'
       include 'cluster.inc'
 c     Common block for reweighting info
 c     q2bck holds the central q2fact scales

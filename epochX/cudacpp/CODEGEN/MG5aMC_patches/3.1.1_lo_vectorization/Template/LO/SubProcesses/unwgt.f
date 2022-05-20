@@ -35,7 +35,6 @@ C
       double precision xzoomfact
       common/to_zoom/  xzoomfact
       include 'run.inc'
-      include 'vector.inc'
       include 'coupl.inc'
 c
 c     DATA
@@ -466,8 +465,6 @@ c
       include 'nexternal.inc'
       include 'maxamps.inc'
       include 'message.inc'
-      include 'vector.inc'
-      include 'coupl.inc'
       include 'cluster.inc'
       include 'run.inc'
       include 'run_config.inc'
@@ -546,6 +543,8 @@ c      integer ncols,ncolflow(maxamps),ncolalt(maxamps)
 c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 c      data ncolflow/maxamps*0/
 c      data ncolalt/maxamps*0/
+
+      include 'coupl.inc'
 
       include 'lhe_event_infos.inc'
       data AlreadySetInBiasModule/.False./
