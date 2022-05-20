@@ -12,7 +12,7 @@
 #   mind the format:   value    = variable     ! comment             *
 #                                                                    *
 #   To display more options, you can type the command:               *
-#      update full_run_card                                          *
+#      update to_full                                                *
 #*********************************************************************
 #                                                                    
 #*********************************************************************
@@ -62,6 +62,7 @@
  91.188  = dsqrt_q2fact2    ! fixed fact scale for pdf2
  -1 = dynamical_scale_choice ! Choose one of the preselected dynamical choices
  1.0  = scalefact        ! scale factor for event-by-event scales
+
  
 #*********************************************************************
 # Type and output format
@@ -78,7 +79,7 @@
 #*********************************************************************
    0  = nhel          ! using helicities importance sampling or not.
                              ! 0: sum over helicity, 1: importance sampling
-   2  = sde_strategy  ! default integration strategy (hep-ph/2021.xxxxx)
+   2  = sde_strategy  ! default integration strategy (hep-ph/2021.00773)
                              ! 1 is old strategy (using amp square)
 			     ! 2 is new strategy (using only the denominator)
 # To see advanced option for Phase-Space optimization: type "update psoptim"			     
