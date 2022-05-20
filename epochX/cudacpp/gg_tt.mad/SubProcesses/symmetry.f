@@ -324,7 +324,7 @@ c
 c     Global
 c
       include 'vector.inc'
-      include 'coupl.inc' ! Mass and width info
+      include 'coupl.inc'                     !Mass and width info
       double precision stot
       common/to_stot/stot
 
@@ -462,7 +462,7 @@ c
       double precision stot
       common/to_stot/stot
       include 'vector.inc'
-      include 'coupl.inc' ! Mass and width info
+      include 'coupl.inc'                     !Mass and width info
 
 c-----
 c  Begin Code
