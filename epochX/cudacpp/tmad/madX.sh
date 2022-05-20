@@ -151,6 +151,30 @@ EOF
   echo ${tmp}
 }
 
+# Run check.exe or gcheck.exe (depending on $1) and parse its output
+function runcheck()
+{
+  if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: runcheck <check/gcheck executable>"; exit 1; fi
+  if [ "${1/gcheck}" != "$1" ]; then
+    txt=GCHECK
+  elif [ "${1/check}" != "$1" ]; then
+    txt=CHECK
+  else
+    echo "ERROR! Unknown check executable '$1'"; exit 1
+  fi
+  nevt=$(getnevt)
+  nthr=32
+  while [ $nthr -gt $nevt ]; do (( nthr = nthr / 2 )); done
+  (( nblk = nevt/nthr )) # NB integer division
+  (( nevt2 = nblk*nthr ))
+  if [ "$nevt" != "$nevt2" ]; then echo "ERROR! nevt($nevt) != nevt2($nevt2)=nthr($nthr)*nblk($nblk)"; exit 1; fi
+  pattern="Process|Workflow|EvtsPerSec\[MECalc"
+  echo -e "\n*** EXECUTE $txt -p $nblk $nthr 1 --bridge ***"
+  $1 -p $nblk $nthr 1 --bridge | egrep "(${pattern})"
+  echo -e "\n*** EXECUTE $txt -p $nblk $nthr 1 ***"
+  $1 -p $nblk $nthr 1 | egrep "(${pattern})"
+}
+
 # Run madevent (or cmadevent or gmadevent, depending on $1) and parse its output
 function runmadevent()
 {
@@ -248,11 +272,13 @@ for suff in $suffs; do
   echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
   runmadevent ./madevent
   \rm -f ftn26 results.dat
-  echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
+  echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
   runmadevent ./cmadevent_cudacpp
+  runcheck ./check.exe
   \rm -f ftn26 results.dat
-  echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
+  echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
   runmadevent ./gmadevent_cudacpp
+  runcheck ./gcheck.exe
   
 done
 
