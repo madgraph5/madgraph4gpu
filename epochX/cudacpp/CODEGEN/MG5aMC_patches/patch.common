@@ -1,5 +1,5 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/dsample.f a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
-index 0f9155f3..933ab3ec 100644
+index 8da03185..cbf27d64 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/dsample.f
 +++ a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
 @@ -25,16 +25,16 @@ c
@@ -34,7 +34,7 @@ index 0f9155f3..933ab3ec 100644
        
        
        LOGICAL CUTSDONE,CUTSPASSED
-@@ -181,12 +181,12 @@ c               fx = dsig(all_p(1,i),all_wgt(i),0)
+@@ -181,14 +181,14 @@ c               fx = dsig(all_p(1,i),all_wgt(i),0)
  c               bckp(i) = fx
  c               write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
  c               all_wgt(i) = all_wgt(i)*fx
@@ -43,13 +43,16 @@ index 0f9155f3..933ab3ec 100644
                    cycle
                 endif
                 ivec=0
- c               call dsig(all_p,all_fx, all_wgt,0) !Evaluate function
+-               if (nb_page.le.1) then
++               if (nb_page_loop.le.1) then
+                   all_fx(1) = dsig(all_p, all_wgt,0)
+                else
 -               do i=1, nb_page
 +               do i=1, nb_page_loop
  c                 need to restore common block                  
                    xbk(:) = all_xbk(:, i)
                    cm_rap = all_cm_rap(i)
-@@ -195,11 +195,11 @@ c                 need to restore common block
+@@ -197,11 +197,11 @@ c                 need to restore common block
                    CUTSPASSED=.TRUE.
                    call prepare_grouping_choice(all_p(1,i), all_wgt(i), i.eq.1)
                 enddo
@@ -64,10 +67,10 @@ index 0f9155f3..933ab3ec 100644
  c                 need to restore common block                  
                    xbk(:) = all_xbk(:, i)
                    cm_rap = all_cm_rap(i)
-@@ -211,17 +211,17 @@ c                     stop 1
- c                  endif
+@@ -214,17 +214,17 @@ c                  endif
  c     write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
                 enddo
+                endif
 -               do I=1, nb_page
 +               do I=1, nb_page_loop
                    all_wgt(i) = all_wgt(i)*all_fx(i)
@@ -87,7 +90,7 @@ index 0f9155f3..933ab3ec 100644
                    call reset_cumulative_variable()
                    force_reset=.false.
                 endif
-@@ -890,7 +890,7 @@ c      write(*,*) 'Forwarding random number generator'
+@@ -893,7 +893,7 @@ c      write(*,*) 'Forwarding random number generator'
  
  C     sanity check that we have a minimal number of event
        
@@ -123,7 +126,7 @@ index 6b581bdf..32c71b45 100644
              enddo
           endif
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index cce95279..20bd400d 100644
+index dd709f52..07bb2e00 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,17 @@
@@ -167,11 +170,10 @@ index cce95279..20bd400d 100644
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -36,25 +61,65 @@ ifeq ($(strip $(MATRIX_HEL)),)
-         MATRIX = $(patsubst %.f,%.o,$(wildcard matrix*.f))
+@@ -43,24 +68,65 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
--
+ 
 -PROCESS= driver.o myamp.o genps.o unwgt.o setcuts.o get_color.o \
 +PROCESS= myamp.o genps.o unwgt.o setcuts.o get_color.o \
           cuts.o cluster.o reweight.o initcluster.o addmothers.o setscales.o \
@@ -232,15 +234,15 @@ index cce95279..20bd400d 100644
  $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
  	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
  
- gensym: $(SYMMETRY) configs.inc $(LIBDIR)libmodel.$(libext) $(LIBDIR)libgeneric.$(libext)
--	$(FC) -o gensym $(SYMMETRY) -L../../lib/ -lmodel -lgeneric -lpdf $(llhapdf) $(LDFLAGS)
-+	$(FC) -o gensym $(SYMMETRY) -L$(LIBDIR) -lmodel -lgeneric -lpdf $(llhapdf) $(LDFLAGS)
+ gensym: $(SYMMETRY) configs.inc $(LIBS)
+-	$(FC) -o gensym $(SYMMETRY) -L../../lib/ $(LINKLIBS) $(LDFLAGS)
++	$(FC) -o gensym $(SYMMETRY) -L$(LIBDIR) $(LINKLIBS) $(LDFLAGS)
  
 +ifeq (,$(wildcard fbridge.inc))
  $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
  	cd ../../Source/MODEL; make
  
-@@ -63,12 +128,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
+@@ -69,12 +135,15 @@ $(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
  
  $(LIBDIR)libpdf.$(libext): 
  	cd ../../Source/PDF; make
@@ -257,7 +259,7 @@ index cce95279..20bd400d 100644
  
  # Dependencies
  
-@@ -88,5 +156,65 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -94,5 +163,65 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  
@@ -325,37 +327,37 @@ index cce95279..20bd400d 100644
 +	rm -f ../../Source/*.mod ../../Source/*/*.mod
 +	rm -f .libs
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
-index 76d85e56..2024700c 100644
+index e24a1456..b80b7b20 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/reweight.f
-@@ -1782,7 +1782,7 @@ c            s_rwfact=0d0
-       return
+@@ -1809,7 +1809,7 @@ C      include 'maxparticles.inc'
        end
+ 
        
--      subroutine update_scale_coupling(all_p, all_wgt,all_q2fact, nb_page)
-+      subroutine update_scale_coupling(all_p, all_wgt,all_q2fact)
+-      subroutine update_scale_coupling_vec(all_p, all_wgt,all_q2fact, nb_page)
++      subroutine update_scale_coupling_vec(all_p, all_wgt,all_q2fact, nb_page_loop_in)
        implicit none
  
  C
-@@ -1800,7 +1800,7 @@ C      include 'maxparticles.inc'
+@@ -1827,7 +1827,7 @@ C      include 'maxparticles.inc'
        
        double precision all_p(4*maxdim/3+14,*), all_wgt(*)
        double precision all_q2fact(2,*)
 -      integer i,j,k, nb_page
-+      integer i,j,k
++      integer i,j,k, nb_page_loop_in
  
        logical setclscales
        external setclscales
-@@ -1814,7 +1814,7 @@ c      save firsttime
+@@ -1841,7 +1841,7 @@ c      save firsttime
        if(.not.fixed_ren_scale) then
           scale = 0d0
        endif
 -      do i =1, nb_page
-+      do i =1, nb_page_loop
++      do i =1, nb_page_loop_in
  
           if(.not.fixed_ren_scale) then
              call set_ren_scale(all_p(1,i),scale)
-@@ -1936,7 +1936,7 @@ c     q2bck holds the central q2fact scales
+@@ -1963,7 +1963,7 @@ c     q2bck holds the central q2fact scales
        integer njets,iqjets(nexternal)
        common /to_rw/jlast,njetstore,iqjetstore,njets,iqjets,q2bck
  
