@@ -1489,6 +1489,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 color[namp][njamp] = coeff
         me = matrix_element.get('diagrams')
         matrix_element.reuse_outdated_wavefunctions(me)
+        misc.sprint(multi_channel_map)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
         res.append("""constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings
@@ -1522,6 +1523,16 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
       for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }""")
+        diagrams = matrix_element.get('diagrams')
+        diag_to_config = {}
+        if multi_channel_map:
+            for config in sorted(multi_channel_map.keys()):
+                amp = [a.get('number') for a in \
+                                  sum([diagrams[idiag].get('amplitudes') for \
+                                       idiag in multi_channel_map[config]], [])]
+                diag_to_config[amp[0]] = config
+        misc.sprint(diag_to_config)
+        id_amp = 0
         for diagram in matrix_element.get('diagrams'):
             ###print('DIAGRAM %3d: #wavefunctions=%3d, #diagrams=%3d' %
             ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING
@@ -1532,9 +1543,13 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if res[-1][-1] == '\n' : res[-1] = res[-1][:-1]
             res.append('\n      // Amplitude(s) for diagram number %d' % diagram.get('number'))
             for amplitude in diagram.get('amplitudes'):
+                id_amp +=1
                 namp = amplitude.get('number')
                 amplitude.set('number', 1)
                 res.append(self.get_amplitude_call(amplitude)) # AV new: avoid format_call
+                if id_amp in diag_to_config:
+                    res.append("if(channel_id == %i){multi_chanel_num += conj(amp[0])*amp[0];};" % diag_to_config[id_amp])
+                    res.append(" multi_chanel_denom += conj(amp[0])*amp[0];")
                 for njamp, coeff in color[namp].items():
                     scoeff = PLUGIN_OneProcessExporter.coeff(*coeff) # AV
                     if scoeff[0] == '+' : scoeff = scoeff[1:]
