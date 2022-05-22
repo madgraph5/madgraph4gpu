@@ -1065,6 +1065,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         """Get sigmaKin_process for all subprocesses for gCPPProcess.cu"""
         ret_lines = []
         if self.single_helicities:
+            if self.include_multi_channel:
+                info = {'multi_channel': self.multichannel_var}  
+            else:
+                info = {'multi_channel': ''}
             ret_lines.append("""
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
@@ -1072,8 +1076,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   calculate_wavefunctions( int ihel,
                            const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                            const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
-                           fptype* allMEs              // output: allMEs[nevt], |M|^2 running_sum_over_helicities
-#ifndef __CUDACC__
+                           fptype* allMEs              // output: allMEs[nevt], |M|^2 running_sum_over_helicities""")
+            ret_lines.append( '%(multi_channel)s' % info )
+            ret_lines.append("""#ifndef __CUDACC__
                            , const int nevt            // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                            )
