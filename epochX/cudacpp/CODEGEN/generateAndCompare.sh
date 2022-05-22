@@ -109,12 +109,12 @@ function codeGenAndDiff()
     outprocauto=${MG5AMC_HOME}/${outproc}
   fi
   cp -dpr ${MG5AMC_HOME}/${outproc}_log.txt ${outprocauto}/
-  # Output directories: examples ee_mumu.auto for cudacpp and gridpacks, eemumu.cpp270 or eemumu.gpu270 for cpp
+  # Output directories: examples ee_mumu.auto for cudacpp and gridpacks, eemumu.cpp or eemumu.gpu for cpp and gpu
   autosuffix=auto
   if [ "${OUTBCK}" == "cpp" ]; then
-    if [ "$use270" == "0" ]; then autosuffix=cpp270; else autosuffix=cpp311; fi
+    autosuffix=cpp # no support for 270 any longer
   elif [ "${OUTBCK}" == "gpu" ]; then
-    if [ "$use270" == "0" ]; then autosuffix=gpu270; else autosuffix=gpu311; fi
+    autosuffix=gpu # no support for 270 any longer
   elif [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
     autosuffix=${OUTBCK}
   fi
@@ -168,14 +168,14 @@ function usage()
 {
   # NB: Generate only one process at a time
   if [ "${SCRBCK}" == "gridpack" ]; then
-    # NB: gridpack generation has been tested only agains the 270 branch so far
+    # NB: gridpack generation has been tested only against the 270 branch so far
     echo "Usage: $0 [--nobrief] [--nountaronly] [--nohelrec] <proc>"
   elif [ "${SCRBCK}" == "alpaka" ]; then
-    # NB: alpaka generation has been tested only agains the 270 branch so far
+    # NB: alpaka generation has been tested only against the 270 branch so far
     echo "Usage: $0 [--nobrief] <proc>"
   else
     # NB: all options with $SCRBCK=cudacpp use the 311 branch by default and always disable helicity recycling
-    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--madonly|--mad|--madcpp|--madgpu] [--270] [--nopatch] <proc>"
+    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--madonly|--mad|--madcpp|--madgpu] [--nopatch] <proc>"
   fi
   exit 1
 }
@@ -236,8 +236,8 @@ for arg in "$@"; do
     BRIEF=
   elif [ "$arg" == "--nopatch" ]; then
     NOPATCH=--nopatch
-  elif [ "$arg" == "--270" ]; then
-    use270=1
+  ###elif [ "$arg" == "--270" ]; then
+  ###  use270=1
   elif [ "$arg" == "--nountaronly" ] && [ "${SCRBCK}" == "gridpack" ]; then
     UNTARONLY=0
   elif [ "$arg" == "--nohelrec" ] && [ "${SCRBCK}" == "gridpack" ]; then
@@ -303,10 +303,6 @@ fi
 
 # Redefine MG5AMC_HOME to use the 270 branch if required
 if [ "$use270" == "1" ]; then
-  if [ "${OUTBCK}" != "cpp" ] && [ "${OUTBCK}" != "gpu" ]; then
-    echo "ERROR! Option --270 is only supported in --cpu or --gpu mode"
-    exit 1
-  fi
   mg5amcBrn=${mg5amc270}
   export MG5AMC_HOME=$(dirname ${MG5AMC_HOME})/${mg5amcBrn}
   echo -e "Using non-default MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
