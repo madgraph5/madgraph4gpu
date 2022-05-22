@@ -216,8 +216,8 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 1
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], &amp_fp[0] );
-      if( channelId == 1 ){ numerators_sv += cxabs2( amp_sv[0] ); }
-      denominators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
@@ -228,8 +228,8 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 2
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], &amp_fp[0] );
-      if( channelId == 2 ){ numerators_sv += cxabs2( amp_sv[0] ); }
-      denominators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 3 OF 3 ***
@@ -239,8 +239,8 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 3
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], &amp_fp[0] );
-      if( channelId == 3 ){ numerators_sv += cxabs2( amp_sv[0] ); }
-      denominators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 3 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[1] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***
