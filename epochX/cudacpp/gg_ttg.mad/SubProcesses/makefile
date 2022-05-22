@@ -53,6 +53,12 @@ PLUGIN_CULIB=mg5amc_$(processid_short)_cuda
 
 LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
 
+ifneq ("$(wildcard ../../Source/RUNNING)","")
+    LINKLIBS += -lrunning
+    LIBS += $(LIBDIR)librunning.$(libext) 
+endif
+
+
 # Source files
 
 MATRIX_HEL = $(patsubst %.f,%.o,$(wildcard matrix*_orig.f))
@@ -60,6 +66,7 @@ MATRIX = $(patsubst %.f,%.o,$(wildcard matrix*_optim.f))
 ifeq ($(strip $(MATRIX_HEL)),)
         MATRIX = $(patsubst %.f,%.o,$(wildcard matrix*.f))
 endif
+
 
 PROCESS= myamp.o genps.o unwgt.o setcuts.o get_color.o \
          cuts.o cluster.o reweight.o initcluster.o addmothers.o setscales.o \
@@ -116,8 +123,8 @@ counters.o: counters.cpp timer.h
 $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
 	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
 
-gensym: $(SYMMETRY) configs.inc $(LIBDIR)libmodel.$(libext) $(LIBDIR)libgeneric.$(libext)
-	$(FC) -o gensym $(SYMMETRY) -L$(LIBDIR) -lmodel -lgeneric -lpdf $(llhapdf) $(LDFLAGS)
+gensym: $(SYMMETRY) configs.inc $(LIBS)
+	$(FC) -o gensym $(SYMMETRY) -L$(LIBDIR) $(LINKLIBS) $(LDFLAGS)
 
 ifeq (,$(wildcard fbridge.inc))
 $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat

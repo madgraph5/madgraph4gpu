@@ -1,7 +1,7 @@
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig.f
-index 720e07a9..d847eac5 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig.f
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig.f
+diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig.f
+index 104747ce..0f522165 100644
+--- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig.f
++++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig.f
 @@ -117,7 +117,7 @@ C     Cannot make a selection with all PDFs to zero, so we return now
        ENDIF
        END
@@ -74,16 +74,17 @@ index 720e07a9..d847eac5 100644
        INCLUDE 'genps.inc'
        DOUBLE PRECISION ALL_P(4*MAXDIM/3+14,*)
        DOUBLE PRECISION ALL_WGT(*)
-@@ -301,7 +301,7 @@ C      entries to the grid for the MC over helicity configuration
+@@ -301,8 +301,7 @@ C      entries to the grid for the MC over helicity configuration
  
- C     set the running scale (MLM not working)
+ C     set the running scale 
  C     and update the couplings accordingly
--      CALL UPDATE_SCALE_COUPLING(ALL_P, ALL_WGT, ALL_Q2FACT, NB_PAGE)
-+      CALL UPDATE_SCALE_COUPLING(ALL_P, ALL_WGT, ALL_Q2FACT)
- 
+-      CALL UPDATE_SCALE_COUPLING_VEC(ALL_P, ALL_WGT, ALL_Q2FACT,
+-     $  NB_PAGE)
++      CALL UPDATE_SCALE_COUPLING_VEC(ALL_P, ALL_WGT, ALL_Q2FACT, NB_PAGE_LOOP)
  
        IF(GROUPED_MC_GRID_STATUS.EQ.0) THEN
-@@ -316,7 +316,7 @@ C        the call DSIGPROC just below.
+ C       If we were in the initialization phase of the grid for MC over
+@@ -316,7 +315,7 @@ C        the call DSIGPROC just below.
       $  IPROC,IMIRROR,SYMCONF,CONFSUB,ALL_WGT,0, ALL_OUT)
  
  
@@ -92,7 +93,7 @@ index 720e07a9..d847eac5 100644
  C       Reset ALLOW_HELICITY_GRID_ENTRIES
          ALLOW_HELICITY_GRID_ENTRIES = .TRUE.
  
-@@ -333,7 +333,7 @@ C       OC(IMIRROR,IPROC,ICONF)))
+@@ -333,7 +332,7 @@ C       OC(IMIRROR,IPROC,ICONF)))
  C       ENDIF
  
        ENDDO
@@ -101,33 +102,44 @@ index 720e07a9..d847eac5 100644
          IF(ALL_OUT(I).GT.0D0)THEN
  C         Update summed weight and number of events
            SUMWGT(IMIRROR,IPROC,ICONF)=SUMWGT(IMIRROR,IPROC,ICONF)
-@@ -429,7 +429,8 @@ C     Common blocks
+@@ -429,7 +428,8 @@ C     Common blocks
        DATA  NB_SPIN_STATE /2,2/
        COMMON /NB_HEL_STATE/ NB_SPIN_STATE
  
 -      INCLUDE 'coupl.inc'
 +      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
++      include 'coupl.inc'
        INCLUDE 'run.inc'
  C     ICONFIG has this config number
        INTEGER MAPCONFIG(0:LMAXCONFIGS), ICONFIG
-@@ -768,7 +769,8 @@ C     ****************************************************
+@@ -772,9 +772,9 @@ C     ****************************************************
        INCLUDE 'maxconfigs.inc'
        INCLUDE 'nexternal.inc'
        INCLUDE 'maxamps.inc'
 -      INCLUDE 'coupl.inc'
 +      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
++      include 'coupl.inc'
        INCLUDE 'run.inc'
+-      INCLUDE 'vector.inc'
  C     
  C     ARGUMENTS 
-@@ -894,18 +896,18 @@ C     ****************************************************
+ C     
+@@ -862,7 +862,7 @@ C
+       ENDIF
+ C     set the running scale 
+ C     and update the couplings accordingly
+-      IF (NB_PAGE.LE.1) THEN
++      IF (NB_PAGE_LOOP.LE.1) THEN
+         CALL UPDATE_SCALE_COUPLING(PP, WGT)
+       ENDIF
+ 
+@@ -910,18 +910,18 @@ C     ****************************************************
        INCLUDE 'maxconfigs.inc'
        INCLUDE 'nexternal.inc'
        INCLUDE 'maxamps.inc'
 -      INCLUDE 'coupl.inc'
 +      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
++      include 'coupl.inc'
        INCLUDE 'run.inc'
 -      INCLUDE '../../Source/vector.inc'
  C     
@@ -148,7 +160,7 @@ index 720e07a9..d847eac5 100644
        DOUBLE PRECISION DSIGPROC
        INTEGER ICONF,IPROC,IMIRROR,IMODE
        INTEGER SYMCONF(0:LMAXCONFIGS)
-@@ -940,7 +942,7 @@ C
+@@ -956,7 +956,7 @@ C
  C     
  C     LOCAL VARIABLES 
  C     
@@ -157,7 +169,7 @@ index 720e07a9..d847eac5 100644
        INTEGER I,J,K,JC(NEXTERNAL)
        INTEGER PERMS(NEXTERNAL,LMAXCONFIGS)
        INCLUDE 'symperms.inc'
-@@ -953,7 +955,7 @@ C
+@@ -969,7 +969,7 @@ C
          ENDDO
  
  C       Set momenta according to this permutation
@@ -166,7 +178,7 @@ index 720e07a9..d847eac5 100644
            CALL SWITCHMOM(ALL_P(1,IVEC),ALL_P1(0,1,IVEC),PERMS(1
       $     ,MAPCONFIG(ICONFIG)),JC,NEXTERNAL)
  
-@@ -969,7 +971,7 @@ C       Set momenta according to this permutation
+@@ -985,7 +985,7 @@ C       Set momenta according to this permutation
  
  
        IF(IMIRROR.EQ.2)THEN
@@ -175,7 +187,7 @@ index 720e07a9..d847eac5 100644
  C         Flip momenta (rotate around x axis)
            DO I=1,NEXTERNAL
              ALL_P1(2,I, IVEC)=-ALL_P1(2,I,IVEC)
-@@ -988,7 +990,7 @@ C         Flip beam identity
+@@ -1004,7 +1004,7 @@ C         Flip beam identity
        ALL_OUT(:)=0D0
  
  C     IF (PASSCUTS(P1)) THEN
@@ -184,7 +196,7 @@ index 720e07a9..d847eac5 100644
          IF (IMODE.EQ.0D0.AND.NB_PASS_CUTS.LT.2**12.AND.ALL_WGT(IVEC)
       $   .NE.0D0)THEN
            NB_PASS_CUTS = NB_PASS_CUTS + 1
-@@ -1001,7 +1003,7 @@ C     ENDIF
+@@ -1017,7 +1017,7 @@ C     ENDIF
  
        IF (LAST_ICONF.NE.-1.AND.IMIRROR.EQ.2) THEN
  C       Flip back local momenta P1 if cached
@@ -193,17 +205,16 @@ index 720e07a9..d847eac5 100644
            DO I=1,NEXTERNAL
              ALL_P1(2,I,IVEC)=-ALL_P1(2,I,IVEC)
              ALL_P1(3,I,IVEC)=-ALL_P1(3,I,IVEC)
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index 91e1f5b4..f3aa9a2d 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
+diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
+index 91e1f5b4..455d6e33 100644
+--- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
++++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 @@ -71,13 +71,41 @@ c      double precision xsec,xerr
  c      integer ncols,ncolflow(maxamps),ncolalt(maxamps),ic
  c      common/to_colstats/ncols,ncolflow,ncolalt,ic
  
--      include 'coupl.inc'
 +      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
+       include 'coupl.inc'
  
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
 +      INCLUDE 'fbridge.inc'
@@ -294,10 +305,10 @@ index 91e1f5b4..f3aa9a2d 100644
        if(fine.eq.0) fine=len(tempname)
        open(unit=lun,file=tempname,status='old',ERR=20)
        fopened=.true.
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-index 0a69788c..7f4f075e 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
+diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
+index 906b45cf..394a3bb9 100644
+--- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
++++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 @@ -77,7 +77,7 @@ C     GLOBAL VARIABLES
  C     
        LOGICAL INIT_MODE
@@ -339,7 +350,7 @@ index 0a69788c..7f4f075e 100644
        DOUBLE PRECISION AMP2(MAXAMPS), JAMP2(0:MAXFLOW)
 -      INCLUDE 'coupl.inc'
 +      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
++      include 'coupl.inc'
  
        DOUBLE PRECISION SMALL_WIDTH_TREATMENT
        COMMON/NARROW_WIDTH/SMALL_WIDTH_TREATMENT

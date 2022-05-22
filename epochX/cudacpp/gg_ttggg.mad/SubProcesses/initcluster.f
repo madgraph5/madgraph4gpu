@@ -8,7 +8,7 @@
       include 'nexternal.inc'
       include 'maxamps.inc'
       include 'vector.inc'
-      include 'cluster.inc' ! NB must also include vector.inc
+      include 'cluster.inc'
 C
 C     SPECIAL CUTS
 C

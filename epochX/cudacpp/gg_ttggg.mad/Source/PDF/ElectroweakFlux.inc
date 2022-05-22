@@ -47,7 +47,7 @@ c     /* ********************************************************* *
 	parameter (eva_sqr2 = 1.414213562373095d0)
 
 	include 'vector.inc'
-	include 'coupl.inc' ! NB must also include vector.inc
+        include 'coupl.inc'
 
 	logical first
 	data first /.true./

@@ -174,7 +174,7 @@ c**************************************************************************
       include 'nexternal.inc'
       include 'maxamps.inc'
       include 'vector.inc'
-      include 'cluster.inc' ! NB must also include vector.inc
+      include 'cluster.inc'
       include 'message.inc'
       integer ignum, idij, iproc, i
 
@@ -205,8 +205,8 @@ c**************************************************************************
       include 'nexternal.inc'
       include 'maxamps.inc'
       include 'vector.inc'
-      include 'cluster.inc' ! NB must also include vector.inc
-      include 'coupl.inc' ! NB must also include vector.inc
+      include 'cluster.inc'
+      include 'coupl.inc'
       include 'message.inc'
       integer ignum, ipnum, ipids(nexternal,4,2:nexternal)
 C $B$ IFOREST $B$ !this is a tag for MadWeight
@@ -334,7 +334,7 @@ c**************************************************************************
       include 'nexternal.inc'
       include 'maxamps.inc'
       include 'vector.inc'
-      include 'cluster.inc' ! NB must also include vector.inc
+      include 'cluster.inc'
       include 'message.inc'
 C $B$ IFOREST $B$ !this is a tag for MadWeight
       integer mapconfig(0:lmaxconfigs), this_config
@@ -445,7 +445,7 @@ c**************************************************************************
       include 'nexternal.inc'
       include 'maxamps.inc'
       include 'vector.inc'
-      include 'cluster.inc' ! NB must also include vector.inc
+      include 'cluster.inc'
       include 'message.inc'
       include 'genps.inc'
       include 'run.inc'
@@ -530,7 +530,7 @@ c**************************************************************************
       include 'nexternal.inc'
       include 'maxamps.inc'
       include 'vector.inc'
-      include 'cluster.inc' ! NB must also include vector.inc
+      include 'cluster.inc'
       include 'message.inc'
 
       real*8 p(0:3,nexternal), pcmsp(0:3), p1(0:3)

@@ -1,28 +1,34 @@
-diff --git a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index 845f883c..32420f00 100644
---- a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-+++ b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-@@ -76,7 +76,8 @@ C     Keep track of whether cuts already calculated for this event
+diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
+index 1734289b..48414a39 100644
+--- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
++++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
+@@ -76,13 +76,13 @@ C     Keep track of whether cuts already calculated for this event
  
        INTEGER SUBDIAG(MAXSPROC),IB(2)
        COMMON/TO_SUB_DIAG/SUBDIAG,IB
 -      INCLUDE 'coupl.inc'
 +      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
++      include 'coupl.inc'
        INCLUDE 'run.inc'
  C     Common blocks
        CHARACTER*7         PDLABEL,EPA_LABEL
-@@ -212,7 +213,8 @@ C     ****************************************************
+       INTEGER       LHAID
+       COMMON/TO_PDF/LHAID,PDLABEL,EPA_LABEL
+-      INCLUDE 'vector.inc'
+ C     jamp2 information
+       DOUBLE PRECISION JAMP2(0:MAXFLOW, NB_PAGE_MAX)
+       COMMON/TO_JAMPS/       JAMP2
+@@ -219,7 +219,8 @@ C     ****************************************************
  C     
  C     CONSTANTS
  C     
 -      INCLUDE '../../Source/vector.inc'
 +      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
++      include 'coupl.inc'
        INCLUDE 'genps.inc'
        INCLUDE 'nexternal.inc'
        INCLUDE 'maxconfigs.inc'
-@@ -281,7 +283,6 @@ C     jamp2 information
+@@ -288,7 +289,6 @@ C     jamp2 information
  
        INTEGER SUBDIAG(MAXSPROC),IB(2)
        COMMON/TO_SUB_DIAG/SUBDIAG,IB
@@ -30,17 +36,17 @@ index 845f883c..32420f00 100644
        INCLUDE 'run.inc'
  
        DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
-@@ -444,7 +445,8 @@ C
+@@ -452,7 +452,8 @@ C
        USE OMP_LIB
  
        INCLUDE 'nexternal.inc'
 -      INCLUDE '../../Source/vector.inc'
 +      include 'vector.inc'
-+      include 'coupl.inc' ! NB must also include vector.inc
++      include 'coupl.inc'
        INCLUDE 'maxamps.inc'
        DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
        DOUBLE PRECISION HEL_RAND(NB_PAGE_MAX)
-@@ -454,22 +456,66 @@ C
+@@ -462,22 +463,66 @@ C
        DOUBLE PRECISION JAMP2_MULTI(0:MAXFLOW, NB_PAGE_MAX)
  
        INTEGER IVEC

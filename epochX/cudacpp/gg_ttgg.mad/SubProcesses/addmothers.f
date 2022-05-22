@@ -6,8 +6,8 @@
       include 'nexternal.inc'
       include 'maxamps.inc'
       include 'vector.inc'
-      include 'cluster.inc' ! NB must also include vector.inc
-      include 'coupl.inc' ! NB must also include vector.inc
+      include 'cluster.inc'
+      include 'coupl.inc'
       include 'message.inc'
       include 'run.inc'
 

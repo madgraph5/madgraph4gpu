@@ -11,8 +11,8 @@ Running MG5 in debug mode
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.3.1_lo_vect         2022-01-30         *
-*         BZR 3.1.1_lo_vectorization          1003         *
+*         VERSION 3.4.0_lo_vect         2022-05-06         *
+*         BZR 3.1.1_lo_vectorization          1009         *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -50,7 +50,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006971836090087891 [0m
+[1;32mDEBUG: model prefixing  takes 0.006875514984130859 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
@@ -101,23 +101,15 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 4 routines in  0.321 s
+ALOHA: aloha creates 4 routines in  0.320 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
-[1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2451][0m [0m
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
-[1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2451][0m [0m
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
-[1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2451][0m [0m
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
-[1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2451][0m [0m
 <class 'aloha.create_aloha.AbstractRoutine'> FFV4
-[1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2451][0m [0m
 <class 'aloha.create_aloha.AbstractRoutine'> FFV4
-[1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2451][0m [0m
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2_4
-[1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2451][0m [0m
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2_4
-[1;32mDEBUG:  language = [0m <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2451][0m [0m
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_ee_mumu/src/./HelAmps_sm.h
 INFO: Created file HelAmps_sm.h in directory /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_ee_mumu/src/. 
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_ee_mumu/src/./Parameters_sm.h
@@ -127,6 +119,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_ee_mu
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 186][0m [0m
 quit
 
-real	0m1.093s
-user	0m0.930s
-sys	0m0.133s
+real	0m1.060s
+user	0m0.926s
+sys	0m0.112s

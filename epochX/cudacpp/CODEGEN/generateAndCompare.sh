@@ -134,9 +134,11 @@ function codeGenAndDiff()
     cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | tail -n+4 | sort >> ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
     \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat
   fi
-  # Additional patches for madonly and mad directories (integration of Fortran and cudacpp)
-  if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ]; then
-    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize}
+  # Additional patches for mad directory (integration of Fortran and cudacpp)
+  # [NB: NEW! these patches are no longer applied to madonly, which is now meant as an out-of-the-box reference]
+  ###if [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ]; then
+  if [ "${OUTBCK}" == "mad" ]; then
+    $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${NOPATCH}
   fi
   # Compare the existing generated code to the newly generated code for the specific process
   pushd ${OUTDIR} >& /dev/null
@@ -173,7 +175,7 @@ function usage()
     echo "Usage: $0 [--nobrief] <proc>"
   else
     # NB: all options with $SCRBCK=cudacpp use the 311 branch by default and always disable helicity recycling
-    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--madonly|--mad|--madcpp|--madgpu] [--270] <proc>"
+    echo "Usage: $0 [--nobrief] [--cpp|--gpu|--madonly|--mad|--madcpp|--madgpu] [--270] [--nopatch] <proc>"
   fi
   exit 1
 }
@@ -217,6 +219,9 @@ if [ "${SCRBCK}" == "alpaka" ] || [ "${SCRBCK}" == "gridpack" ]; then use270=1; 
 # Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
 UNTARONLY=1
 
+# Default: apply all patches in patchMad.sh (this is ignored unless --mad is also specified)
+NOPATCH=
+
 # Default for gridpacks: use helicity recycling (use --nohelrec to disable it)
 # (export the value to the untarGridpack.sh script)
 # Hardcoded for cudacpp and alpaka: disable helicity recycling (#400, #279) for the moment
@@ -229,6 +234,8 @@ for arg in "$@"; do
     usage
   elif [ "$arg" == "--nobrief" ]; then
     BRIEF=
+  elif [ "$arg" == "--nopatch" ]; then
+    NOPATCH=--nopatch
   elif [ "$arg" == "--270" ]; then
     use270=1
   elif [ "$arg" == "--nountaronly" ] && [ "${SCRBCK}" == "gridpack" ]; then
@@ -349,8 +356,8 @@ fi
 
 # Copy MG5AMC patches if any
 if [ "${SCRBCK}" == "cudacpp" ]; then
-  patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f -name '*.py')
-  patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f -name '*.py')
+  ###patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f -name '*.py')
+  patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f ! -name '*.BZR')
   echo -e "Copy MG5aMC_patches/${mg5amcBrn} patches..."
   for patch in $patches; do
     patch=${patch#./}
@@ -366,9 +373,9 @@ cleanup_MG5AMC_HOME
 # Print MG5amc bazaar info if any
 if bzr --version >& /dev/null; then
   if bzr info ${MG5AMC_HOME} 2> /dev/null | grep parent; then
-    echo -e "\n***************** Differences to the current bzr revno [START]"
-    if bzr diff ${MG5AMC_HOME}; then echo -e "[No differences]"; fi
-    echo -e "***************** Differences to the current bzr revno [END]"
+    echo -e "\n***************** Differences to the current bzr revno ${revno_patches} [START]"
+    if bzr diff ${MG5AMC_HOME} -r ${revno_patches} --using /usr/bin/diff --diff-options --brief; then echo -e "[No differences]"; fi
+    echo -e "***************** Differences to the current bzr revno ${revno_patches} [END]"
   fi
 fi
 

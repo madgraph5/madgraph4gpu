@@ -12,7 +12,7 @@ c
       include 'genps.inc'
       include 'nexternal.inc'
       include 'vector.inc'
-      include 'coupl.inc' ! NB must also include vector.inc
+      include 'coupl.inc'
 
       integer i
       include 'maxamps.inc'
@@ -110,7 +110,7 @@ c
       include 'genps.inc'
       include 'nexternal.inc'
       include 'vector.inc'
-      include 'coupl.inc' ! NB must also include vector.inc
+      include 'coupl.inc'
       include 'run.inc'
 c--masses and poles
 c

@@ -36,7 +36,7 @@ C
       common/to_zoom/  xzoomfact
       include 'run.inc'
       include 'vector.inc'
-      include 'coupl.inc' ! NB must also include vector.inc
+      include 'coupl.inc'
 c
 c     DATA
 c
@@ -467,8 +467,8 @@ c
       include 'maxamps.inc'
       include 'message.inc'
       include 'vector.inc'
-      include 'coupl.inc' ! NB must also include vector.inc
-      include 'cluster.inc' ! NB must also include vector.inc
+      include 'coupl.inc'
+      include 'cluster.inc'
       include 'run.inc'
       include 'run_config.inc'
 
