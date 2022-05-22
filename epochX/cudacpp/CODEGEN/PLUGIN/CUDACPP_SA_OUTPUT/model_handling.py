@@ -932,7 +932,7 @@ import madgraph.various.misc as misc
 # AV - define a custom OneProcessExporter
 # (NB: enable this via PLUGIN_ProcessExporter.oneprocessclass in output.py)
 # (NB: use this directly also in PLUGIN_UFOModelConverter.read_template_file)
-# (NB: use this directly also in PLUGIN_GPUFOHelasCallWriter.super_get_matrix_element_call)
+# (NB: use this directly also in PLUGIN_GPUFOHelasCallWriter.super_get_matrix_element_calls)
 class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     # Class structure information
     #  - object
@@ -1470,7 +1470,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         return call.replace('(','( ').replace(')',' )').replace(',',', ')
 
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
-    def super_get_matrix_element_calls(self, matrix_element, color_amplitudes):
+    def super_get_matrix_element_calls(self, matrix_element, color_amplitudes, multi_channel_map=False):
         """Return a list of strings, corresponding to the Helas calls for the matrix element"""
         import madgraph.core.helas_objects as helas_objects
         import madgraph.loop.loop_helas_objects as loop_helas_objects
@@ -1550,10 +1550,9 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         return res
 
     # AV - overload helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
-    def get_matrix_element_calls(self, matrix_element, color_amplitudes):
+    def get_matrix_element_calls(self, matrix_element, color_amplitudes, multi_channel_map=False):
         """Return a list of strings, corresponding to the Helas calls for the matrix element"""
-        ###res = super().get_matrix_element_calls(matrix_element, color_amplitudes)
-        res = self.super_get_matrix_element_calls(matrix_element, color_amplitudes)
+        res = self.super_get_matrix_element_calls(matrix_element, color_amplitudes, multi_channel_map)
         for i, item in enumerate(res):
             ###print(item) # FOR DEBUGGING
             if item.startswith('# Amplitude'): item='//'+item[1:] # AV replace '# Amplitude' by '// Amplitude'
