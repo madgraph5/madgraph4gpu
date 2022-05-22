@@ -1,5 +1,5 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index 1734289b..78bd19ba 100644
+index 1734289b..288614d8 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 @@ -76,13 +76,13 @@ C     Keep track of whether cuts already calculated for this event
@@ -89,11 +89,11 @@ index 1734289b..78bd19ba 100644
  
 +      IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
 +        IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
-+          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2)
++          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2, 0) ! TEMPORARY! replace 0 by CHANNEL
 +          FIRST = .FALSE.
 +        ENDIF
 +        call counters_smatrix1multi_start( 0, nb_page_loop ) ! cudacpp=0
-+        CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2)
++        CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2, 0) ! TEMPORARY! replace 0 by CHANNEL
 +        call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
 +      ENDIF
 +
