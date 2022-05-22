@@ -1142,11 +1142,20 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
 #endif // !__CUDACC__""")
             ret_lines.append('    {') # NB This is closed in process_matrix.inc
+            misc.sprint(type(self.helas_call_writer))
+            misc.sprint(self.support_multichannel, self.include_multi_channel)
+            multi_channel = None
+            if self.include_multi_channel:
+                if not self.support_multichannel:
+                    raise Exception("link with madevent not supported")
+                multi_channel = self.get_multi_channel_dictionary(self.matrix_elements[0].get('diagrams'), self.include_multi_channel)
+                misc.sprint(multi_channel)
             helas_calls = self.helas_call_writer.get_matrix_element_calls(\
                                                     self.matrix_elements[0],
-                                                    color_amplitudes[0]
+                                                    color_amplitudes[0],
+                                                    multi_channel_map = multi_channel
                                                     )
-            logger.debug('only one Matrix-element supported?')
+            assert len(self.matrix_elements) == 1 # how to handle if this is not true?
             self.couplings2order = self.helas_call_writer.couplings2order
             self.params2order = self.helas_call_writer.params2order
             nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
