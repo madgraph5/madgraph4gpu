@@ -614,7 +614,8 @@ namespace mg5amcCpu
 
     // Local TEMPORARY variables for multichannel numerators/denominators in the given CUDA event (ievt) or C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
-    // ** NB: it will probably NOT be necessary to use arrays with nevt numerators and denominators when we move to kernel splitting?
+    // ** NB: in other words, numerators and denominators still have TRIVIAL ACCESS: there is currently no need
+    // ** NB: to have large memory structurs for wavefunctions/amplitudes in all events (no kernel splitting yet)!
     fptype_sv multi_chanel_num = { 0 };
     fptype_sv multi_chanel_denom = { 0 };        
 
