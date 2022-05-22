@@ -1,5 +1,5 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index 1734289b..48414a39 100644
+index 1734289b..78bd19ba 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 @@ -76,13 +76,13 @@ C     Keep track of whether cuts already calculated for this event
@@ -46,7 +46,7 @@ index 1734289b..48414a39 100644
        INCLUDE 'maxamps.inc'
        DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
        DOUBLE PRECISION HEL_RAND(NB_PAGE_MAX)
-@@ -462,22 +463,66 @@ C
+@@ -462,22 +463,74 @@ C
        DOUBLE PRECISION JAMP2_MULTI(0:MAXFLOW, NB_PAGE_MAX)
  
        INTEGER IVEC
@@ -61,6 +61,10 @@ index 1734289b..48414a39 100644
 +      INTEGER*4 NWARNINGS
 +      SAVE NWARNINGS
 +      DATA NWARNINGS/0/
++      
++      LOGICAL FIRST
++      SAVE FIRST
++      DATA FIRST/.TRUE./
 +      
 +      IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 +#endif
@@ -84,6 +88,10 @@ index 1734289b..48414a39 100644
 +      ENDIF
  
 +      IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
++        IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
++          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2)
++          FIRST = .FALSE.
++        ENDIF
 +        call counters_smatrix1multi_start( 0, nb_page_loop ) ! cudacpp=0
 +        CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2)
 +        call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
