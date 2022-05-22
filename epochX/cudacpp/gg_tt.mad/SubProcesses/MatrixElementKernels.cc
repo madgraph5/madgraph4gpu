@@ -61,10 +61,9 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void MatrixElementKernelHost::computeMatrixElements()
+  void MatrixElementKernelHost::computeMatrixElements( const unsigned int channelId )
   {
     computeDependentCouplings( m_gs.data(), m_couplings.data(), m_gs.size() );
-    const unsigned int channelId = 0; // TEMPORARY! EVENTUALLY TAKE IT FROM THE INTERFACE...
     sigmaKin( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), channelId, nevt() );
   }
 
@@ -189,10 +188,9 @@ namespace mg5amcGpu
 
   //--------------------------------------------------------------------------
 
-  void MatrixElementKernelDevice::computeMatrixElements()
+  void MatrixElementKernelDevice::computeMatrixElements( const unsigned int channelId )
   {
     computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_couplings.data() );
-    const unsigned int channelId = 0; // TEMPORARY! EVENTUALLY TAKE IT FROM THE INTERFACE...
 #ifndef MGONGPU_NSIGHT_DEBUG
     sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), channelId );
 #else
