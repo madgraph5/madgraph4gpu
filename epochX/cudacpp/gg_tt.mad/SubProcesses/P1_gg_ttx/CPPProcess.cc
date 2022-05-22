@@ -14,9 +14,11 @@
 #include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessCouplings.h"
 #include "MemoryAccessCouplingsFixed.h"
+#include "MemoryAccessDenominators.h"
 #include "MemoryAccessGs.h"
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
+#include "MemoryAccessNumerators.h"
 #include "MemoryAccessWavefunctions.h"
 
 #include <algorithm>
@@ -84,14 +86,14 @@ namespace mg5amcCpu
   // (similarly, it also ADDS the numerator and denominator for a given ihel to their running sums over helicities)
   __device__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
-                           const fptype* allmomenta,      // input: momenta[nevt*npar*4]
-                           const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
-                           fptype* allMEs,                // output: allMEs[nevt], |M|^2 running_sum_over_helicities
-                           fptype_sv& multi_chanel_num,   // output: multichannel numerators for the given event (CUDA) or event page (C++)
-                           fptype_sv& multi_chanel_denom, // output: multichannel denominators for the given event (CUDA) or event page (C++)
-                           const unsigned int channel_id  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                           const fptype* allmomenta,    // input: momenta[nevt*npar*4]
+                           const fptype* allcouplings,  // input: couplings[nevt*ndcoup*2]
+                           fptype* allMEs,              // output: allMEs[nevt], |M|^2 running_sum_over_helicities
+                           fptype* allNumerators,       // output: multichannel numerators[nevt], running_sum_over_helicities
+                           fptype* allDenominators,     // output: multichannel denominators[nevt], running_sum_over_helicities
+                           const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #ifndef __CUDACC__
-                           , const int nevt               // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                           , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
@@ -104,6 +106,8 @@ namespace mg5amcCpu
     using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
+    using NUM_ACCESS = DeviceAccessNumerators;    // non-trivial access: buffer includes all events
+    using DEN_ACCESS = DeviceAccessDenominators;  // non-trivial access: buffer includes all events
 #else
     using namespace mg5amcCpu;
     using M_ACCESS = HostAccessMomenta;         // non-trivial access: buffer includes all events
@@ -112,6 +116,8 @@ namespace mg5amcCpu
     using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
+    using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
+    using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
 #endif
     mgDebug( 0, __FUNCTION__ );
     //printf( "calculate_wavefunctions: ihel=%2d\n", ihel );
@@ -172,6 +178,8 @@ namespace mg5amcCpu
       const fptype* COUPs[nxcoup];
       for( size_t ixcoup = 0; ixcoup < nxcoup; ixcoup++ ) COUPs[ixcoup] = allCOUPs[ixcoup];
       fptype* MEs = allMEs;
+      fptype* numerators = allNumerators;
+      fptype* denominators = allDenominators;
 #else
       // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
       const int ievt0 = ipagV * neppV;
@@ -182,10 +190,16 @@ namespace mg5amcCpu
       for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
         COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
+      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
+      fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
 #endif
 
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
       for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }
+
+      // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
+      fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
+      fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
 
       // *** DIAGRAM 1 OF 3 ***
 
@@ -202,8 +216,8 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 1
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], &amp_fp[0] );
-      if( channel_id == 1 ){ multi_chanel_num += cxabs2( amp_sv[0] ); }
-      multi_chanel_denom += cxabs2( amp_sv[0] );
+      if( channelId == 1 ){ numerators_sv += cxabs2( amp_sv[0] ); }
+      denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
@@ -214,8 +228,8 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 2
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], &amp_fp[0] );
-      if( channel_id == 2 ){ multi_chanel_num += cxabs2( amp_sv[0] ); }
-      multi_chanel_denom += cxabs2( amp_sv[0] );
+      if( channelId == 2 ){ numerators_sv += cxabs2( amp_sv[0] ); }
+      denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 3 OF 3 ***
@@ -225,8 +239,8 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 3
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], &amp_fp[0] );
-      if( channel_id == 3 ){ multi_chanel_num += cxabs2( amp_sv[0] ); }
-      multi_chanel_denom += cxabs2( amp_sv[0] );
+      if( channelId == 3 ){ numerators_sv += cxabs2( amp_sv[0] ); }
+      denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[1] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***
@@ -490,18 +504,18 @@ namespace mg5amcCpu
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
                        fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                       fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
+                       fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
                        bool* isGoodHel )           // output: isGoodHel[ncomb] - device array
   {
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-    fptype_sv multi_chanel_num = { 0 }; // dummy
-    fptype_sv multi_chanel_denom = { 0 }; // dummy
-    const unsigned int channel_id = 0; // disable single-diagram channel enhancement
+    const unsigned int channelId = 0; // disable single-diagram channel enhancement
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     fptype allMEsLast = 0;
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, multi_chanel_num, multi_chanel_denom, 0 );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId );
       if( allMEs[ievt] != allMEsLast )
       {
         //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
@@ -515,12 +529,12 @@ namespace mg5amcCpu
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
                        fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+                       fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
+                       fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
                        bool* isGoodHel,            // output: isGoodHel[ncomb] - device array
                        const int nevt )            // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
-    fptype_sv multi_chanel_num = { 0 }; // dummy
-    fptype_sv multi_chanel_denom = { 0 }; // dummy
-    const unsigned int channel_id = 0; // disable single-diagram channel enhancement
+    const unsigned int channelId = 0; // disable single-diagram channel enhancement
     //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
     //assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
     const int maxtry0 = ( neppV > 16 ? neppV : 16 ); // 16, but at least neppV (otherwise the npagV loop does not even start)
@@ -534,7 +548,7 @@ namespace mg5amcCpu
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
       //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, multi_chanel_num, multi_chanel_denom, 0, maxtry );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId, maxtry );
       for( int ievt = 0; ievt < maxtry; ++ievt )
       {
         // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
@@ -580,14 +594,15 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
   // Evaluate |M|^2, part independent of incoming flavour
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
-
   __global__ void /* clang-format off */
-  sigmaKin( const fptype* allmomenta,     // input: momenta[nevt*npar*4]
-            const fptype* allcouplings,   // input: couplings[nevt*ndcoup*2]
-            fptype* allMEs,               // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-            const unsigned int channel_id // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+  sigmaKin( const fptype* allmomenta,    // input: momenta[nevt*npar*4]
+            const fptype* allcouplings,  // input: couplings[nevt*ndcoup*2]
+            fptype* allMEs,              // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+            fptype* allNumerators,       // output: multichannel numerators[nevt], running_sum_over_helicities
+            fptype* allDenominators,     // output: multichannel denominators[nevt], running_sum_over_helicities
+            const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #ifndef __CUDACC__
-            , const int nevt              // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+            , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
             ) /* clang-format on */
   {
@@ -612,21 +627,21 @@ namespace mg5amcCpu
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
     allMEs[ievt] = 0;
+    allNumerators[ievt] = 0;
+    allDenominators[ievt] = 0;
 #else
     const int npagV = nevt / neppV;
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
       for( int ieppV = 0; ieppV < neppV; ieppV++ )
-        allMEs[ipagV * neppV + ieppV] = 0; // all zeros
+      {
+        const unsigned int ievt = ipagV * neppV + ieppV;
+        allMEs[ievt] = 0;
+        allNumerators[ievt] = 0;
+        allDenominators[ievt] = 0;
+      }
     }
 #endif
-
-    // Local TEMPORARY variables for multichannel numerators/denominators in the given CUDA event (ievt) or C++ event page (ipagV)
-    // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
-    // ** NB: in other words, numerators and denominators still have TRIVIAL ACCESS: there is currently no need
-    // ** NB: to have large memory structurs for wavefunctions/amplitudes in all events (no kernel splitting yet)!
-    fptype_sv multi_chanel_num = { 0 };
-    fptype_sv multi_chanel_denom = { 0 };        
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
@@ -635,9 +650,9 @@ namespace mg5amcCpu
     {
       const int ihel = cGoodHel[ighel];
 #ifdef __CUDACC__
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, multi_chanel_num, multi_chanel_denom, channel_id );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId );
 #else
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, multi_chanel_num, multi_chanel_denom, channel_id, nevt );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId, nevt );
 #endif
       //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
@@ -649,17 +664,19 @@ namespace mg5amcCpu
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
     allMEs[ievt] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
+    if ( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
 #else
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
       for( int ieppV = 0; ieppV < neppV; ieppV++ )
       {
-        allMEs[ipagV * neppV + ieppV] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
-        //printf( "sigmaKin: ievt=%2d me=%f\n", ipagV * neppV + ieppV, allMEs[ipagV * neppV + ieppV] );
+        const unsigned int ievt = ipagV * neppV + ieppV;
+        allMEs[ievt] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
+        if ( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
+        //printf( "sigmaKin: ievt=%2d me=%f\n", ievt, allMEs[ievt] );
       }
     }
 #endif
-    if ( channel_id > 0 ) allMEs[ievt] *= multi_chanel_num / multi_chanel_denom; // FIXME (#343): assume nprocesses == 1
     mgDebugFinalise();
   }
 
