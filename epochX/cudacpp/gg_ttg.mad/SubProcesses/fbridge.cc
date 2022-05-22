@@ -77,19 +77,24 @@ extern "C"
    * @param momenta the pointer to the input 4-momenta
    * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
    * @param mes the pointer to the output matrix elements
+   * @param channelId the pointer to the Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
    */
-  void fbridgesequence_( CppObjectInFortran** ppbridge, const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, FORTRANFPTYPE* mes )
+  void fbridgesequence_( CppObjectInFortran** ppbridge,
+                         const FORTRANFPTYPE* momenta,
+                         const FORTRANFPTYPE* gs,
+                         FORTRANFPTYPE* mes,
+                         const unsigned int* pchannelId )
   {
     Bridge<FORTRANFPTYPE>* pbridge = dynamic_cast<Bridge<FORTRANFPTYPE>*>( *ppbridge );
     if( pbridge == 0 ) throw std::runtime_error( "fbridgesequence_: invalid Bridge address" );
 #ifdef __CUDACC__
     // Use the device/GPU implementation in the CUDA library
     // (there is also a host implementation in this library)
-    pbridge->gpu_sequence( momenta, gs, mes );
+    pbridge->gpu_sequence( momenta, gs, mes, *pchannelId );
 #else
     // Use the host/CPU implementation in the C++ library
     // (there is no device implementation in this library)
-    pbridge->cpu_sequence( momenta, gs, mes );
+    pbridge->cpu_sequence( momenta, gs, mes, *pchannelId );
 #endif
   }
 }

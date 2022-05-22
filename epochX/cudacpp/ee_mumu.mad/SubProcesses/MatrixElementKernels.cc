@@ -22,6 +22,8 @@ namespace mg5amcCpu
     : MatrixElementKernelBase( momenta, gs, matrixElements )
     , NumberOfEvents( nevt )
     , m_couplings( nevt )
+    , m_numerators( nevt )
+    , m_denominators( nevt )
   {
     if( m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: momenta must be a host array" );
     if( m_matrixElements.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: matrixElements must be a host array" );
@@ -51,7 +53,7 @@ namespace mg5amcCpu
     HostBufferHelicityMask hstIsGoodHel( ncomb );
     // ... 0d1. Compute good helicity mask on the host
     computeDependentCouplings( m_gs.data(), m_couplings.data(), m_gs.size() );
-    sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), hstIsGoodHel.data(), nevt() );
+    sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), hstIsGoodHel.data(), nevt() );
     // ... 0d2. Copy back good helicity list to static memory on the host
     // [FIXME! REMOVE THIS STATIC THAT BREAKS MULTITHREADING?]
     sigmaKin_setGoodHel( hstIsGoodHel.data() );
@@ -59,10 +61,10 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  void MatrixElementKernelHost::computeMatrixElements()
+  void MatrixElementKernelHost::computeMatrixElements( const unsigned int channelId )
   {
     computeDependentCouplings( m_gs.data(), m_couplings.data(), m_gs.size() );
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), nevt() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), channelId, nevt() );
   }
 
   //--------------------------------------------------------------------------
@@ -136,6 +138,8 @@ namespace mg5amcGpu
     : MatrixElementKernelBase( momenta, gs, matrixElements )
     , NumberOfEvents( gpublocks * gputhreads )
     , m_couplings( this->nevt() )
+    , m_numerators( this->nevt() )
+    , m_denominators( this->nevt() )
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
   {
@@ -174,7 +178,7 @@ namespace mg5amcGpu
     DeviceBufferHelicityMask devIsGoodHel( ncomb );
     // ... 0d1. Compute good helicity mask on the device
     computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_couplings.data() );
-    sigmaKin_getGoodHel<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), devIsGoodHel.data() );
+    sigmaKin_getGoodHel<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), devIsGoodHel.data() );
     checkCuda( cudaPeekAtLastError() );
     // ... 0d2. Copy back good helicity mask to the host
     copyHostFromDevice( hstIsGoodHel, devIsGoodHel );
@@ -184,13 +188,13 @@ namespace mg5amcGpu
 
   //--------------------------------------------------------------------------
 
-  void MatrixElementKernelDevice::computeMatrixElements()
+  void MatrixElementKernelDevice::computeMatrixElements( const unsigned int channelId )
   {
     computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_couplings.data() );
 #ifndef MGONGPU_NSIGHT_DEBUG
-    sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data() );
+    sigmaKin<<<m_gpublocks, m_gputhreads>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), channelId );
 #else
-    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX * sizeof( float )>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data() );
+    sigmaKin<<<m_gpublocks, m_gputhreads, ntpbMAX * sizeof( float )>>>( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), channelId );
 #endif
     checkCuda( cudaPeekAtLastError() );
     checkCuda( cudaDeviceSynchronize() );

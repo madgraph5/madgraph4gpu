@@ -502,11 +502,11 @@ c!$OMP END PARALLEL
 
       IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
         IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
-          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2)
+          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2, 0) ! TEMPORARY! replace 0 by CHANNEL
           FIRST = .FALSE.
         ENDIF
         call counters_smatrix1multi_start( 0, nb_page_loop ) ! cudacpp=0
-        CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2)
+        CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2, 0) ! TEMPORARY! replace 0 by CHANNEL
         call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
       ENDIF
 
