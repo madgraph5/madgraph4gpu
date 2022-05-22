@@ -11,6 +11,7 @@
         allMEs[ipagV * neppV + ieppV] = 0; // all zeros
     }
 #endif
+    %(madE_var_reset)s
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
@@ -19,9 +20,9 @@
     {
       const int ihel = cGoodHel[ighel];
 #ifdef __CUDACC__
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs%(madE_caclwfcts_call)s );
 #else
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, nevt );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, nevt%(madE_caclwfcts_call)s );
 #endif
       //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
@@ -43,6 +44,7 @@
       }
     }
 #endif
+    %(madE_update_answer)s
     mgDebugFinalise();
   }
 
