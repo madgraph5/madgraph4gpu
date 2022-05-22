@@ -957,6 +957,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     ###process_wavefunction_template = 'cpp_process_wavefunctions.inc'
     ###process_sigmaKin_function_template = 'gpu/process_sigmaKin_function.inc'
     ###single_process_template = 'gpu/process_matrix.inc'
+    ###support_multichannel = False
+    ###multichannel_var = ',fptype& multi_chanel_num, fptype& multi_chanel_denom'
 
     # AV - use template files from PLUGINDIR instead of MG5DIR
     ###template_path = os.path.join(_file_path, 'iolibs', 'template_files')
@@ -1050,6 +1052,13 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             file_lines = [l.replace('cIPC, cIPD','cIPC') for l in file_lines] # remove cIPD from OpenMP pragma
             file = '\n'.join( file_lines )
         return file
+
+    # AV - modify export_cpp.OneProcessExporterGPU method (add debug printouts for multichannel #342)
+    def get_sigmaKin_lines(self, color_amplitudes, write=True):
+        misc.sprint('Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines')
+        misc.sprint(self.include_multi_channel)
+        misc.sprint(self.support_multichannel)
+        return super().get_sigmaKin_lines(color_amplitudes, write)
 
     # AV - modify export_cpp.OneProcessExporterGPU method (fix gCPPProcess.cu)
     def get_all_sigmaKin_lines(self, color_amplitudes, class_name):
