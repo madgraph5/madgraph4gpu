@@ -80,6 +80,9 @@ for arg in $*; do
   fi  
 done
 
+# Check that at least one process has been selected
+if [ "${procs}" == "" ]; then usage; fi
+
 status=0
 started="STARTED AT $(date)"
 
