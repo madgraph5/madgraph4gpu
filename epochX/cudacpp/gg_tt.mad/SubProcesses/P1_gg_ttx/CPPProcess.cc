@@ -594,6 +594,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
   // Evaluate |M|^2, part independent of incoming flavour
   // FIXME: assume process.nprocesses == 1 (eventually: allMEs[nevt] -> allMEs[nevt*nprocesses]?)
+
   __global__ void /* clang-format off */
   sigmaKin( const fptype* allmomenta,    // input: momenta[nevt*npar*4]
             const fptype* allcouplings,  // input: couplings[nevt*ndcoup*2]
