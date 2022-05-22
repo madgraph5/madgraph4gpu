@@ -3,15 +3,21 @@
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
     allMEs[ievt] = 0;
+    allNumerators[ievt] = 0;
+    allDenominators[ievt] = 0;
 #else
     const int npagV = nevt / neppV;
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
       for( int ieppV = 0; ieppV < neppV; ieppV++ )
-        allMEs[ipagV * neppV + ieppV] = 0; // all zeros
+      {
+        const unsigned int ievt = ipagV * neppV + ieppV;
+        allMEs[ievt] = 0;
+        allNumerators[ievt] = 0;
+        allDenominators[ievt] = 0;
+      }
     }
 #endif
-    %(madE_var_reset)s
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
@@ -20,9 +26,9 @@
     {
       const int ihel = cGoodHel[ighel];
 #ifdef __CUDACC__
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs%(madE_caclwfcts_call)s );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId );
 #else
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, nevt%(madE_caclwfcts_call)s );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId, nevt );
 #endif
       //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
@@ -34,17 +40,19 @@
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
     allMEs[ievt] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
+    if ( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
 #else
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
       for( int ieppV = 0; ieppV < neppV; ieppV++ )
       {
-        allMEs[ipagV * neppV + ieppV] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
-        //printf( "sigmaKin: ievt=%%2d me=%%f\n", ipagV * neppV + ieppV, allMEs[ipagV * neppV + ieppV] );
+        const unsigned int ievt = ipagV * neppV + ieppV;
+        allMEs[ievt] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
+        if ( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
+        //printf( "sigmaKin: ievt=%%2d me=%%f\n", ievt, allMEs[ievt] );
       }
     }
 #endif
-    %(madE_update_answer)s
     mgDebugFinalise();
   }
 

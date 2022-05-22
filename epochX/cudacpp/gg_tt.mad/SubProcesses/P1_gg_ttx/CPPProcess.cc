@@ -509,7 +509,7 @@ namespace mg5amcCpu
                        bool* isGoodHel )           // output: isGoodHel[ncomb] - device array
   {
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
-    const unsigned int channelId = 0; // disable single-diagram channel enhancement
+    constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     fptype allMEsLast = 0;
     for( int ihel = 0; ihel < ncomb; ihel++ )
@@ -534,7 +534,7 @@ namespace mg5amcCpu
                        bool* isGoodHel,            // output: isGoodHel[ncomb] - device array
                        const int nevt )            // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
-    const unsigned int channelId = 0; // disable single-diagram channel enhancement
+    constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
     //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
     //assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
     const int maxtry0 = ( neppV > 16 ? neppV : 16 ); // 16, but at least neppV (otherwise the npagV loop does not even start)

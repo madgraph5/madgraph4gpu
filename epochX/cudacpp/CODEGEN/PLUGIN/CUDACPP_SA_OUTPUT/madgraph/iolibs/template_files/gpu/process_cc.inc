@@ -12,9 +12,11 @@
 #include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessCouplings.h"
 #include "MemoryAccessCouplingsFixed.h"
+#include "MemoryAccessDenominators.h"
 #include "MemoryAccessGs.h"
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
+#include "MemoryAccessNumerators.h"
 #include "MemoryAccessWavefunctions.h"
 
 #include <algorithm>
