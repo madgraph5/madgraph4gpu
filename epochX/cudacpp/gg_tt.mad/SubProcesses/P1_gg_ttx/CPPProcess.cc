@@ -86,6 +86,7 @@ namespace mg5amcCpu
                            const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                            const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
                            fptype* allMEs              // output: allMEs[nevt], |M|^2 running_sum_over_helicities
+,fptype& multi_chanel_num, fptype& multi_chanel_denom
 #ifndef __CUDACC__
                            , const int nevt            // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
@@ -198,6 +199,8 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 1
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], &amp_fp[0] );
+      if(channel_id == 1){multi_chanel_num += conj(amp[0])*amp[0];};
+       multi_chanel_denom += conj(amp[0])*amp[0];
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
@@ -208,6 +211,8 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 2
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], &amp_fp[0] );
+      if(channel_id == 2){multi_chanel_num += conj(amp[0])*amp[0];};
+       multi_chanel_denom += conj(amp[0])*amp[0];
       jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 3 OF 3 ***
@@ -217,6 +222,8 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 3
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], &amp_fp[0] );
+      if(channel_id == 3){multi_chanel_num += conj(amp[0])*amp[0];};
+       multi_chanel_denom += conj(amp[0])*amp[0];
       jamp_sv[1] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***
@@ -603,6 +610,10 @@ namespace mg5amcCpu
         allMEs[ipagV * neppV + ieppV] = 0; // all zeros
     }
 #endif
+    
+            fptype multi_chanel_num = 0.;
+            fptype multi_chanel_denom = 0.;
+            
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
@@ -611,9 +622,9 @@ namespace mg5amcCpu
     {
       const int ihel = cGoodHel[ighel];
 #ifdef __CUDACC__
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs&multi_chanel_num, &multi_chanel_denom );
 #else
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, nevt );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, nevt&multi_chanel_num, &multi_chanel_denom );
 #endif
       //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
@@ -635,6 +646,7 @@ namespace mg5amcCpu
       }
     }
 #endif
+       allMEs[iproc*nprocesses + ievt] *= multi_chanel_num/multi_chanel_denom;
     mgDebugFinalise();
   }
 
