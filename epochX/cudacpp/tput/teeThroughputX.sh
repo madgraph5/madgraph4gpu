@@ -6,7 +6,8 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-mad] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]"
+  ###echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-mad] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -17,7 +18,8 @@ ggttg=
 ggttgg=
 ggttggg=
 heftggh=
-suffs="manu"
+###suffs="manu" # DROP SUPPORT FOR logs_*_manu!
+suffs="mad" # NEW DEFAULT! USE ONLY logs_*_mad!
 alpaka=
 fptypes="d"
 helinls="0"
@@ -53,8 +55,8 @@ for arg in $*; do
   elif [ "$arg" == "-heftggh" ]; then
     if [ "$heftggh" == "" ]; then procs+=${procs:+ }${arg}; fi
     heftggh=$arg
-  elif [ "$arg" == "-mad" ]; then
-    suffs="mad"
+  ###elif [ "$arg" == "-mad" ]; then
+  ###  suffs="mad"
   elif [ "$arg" == "-noalpaka" ]; then
     alpaka=$arg
   elif [ "$arg" == "-flt" ]; then
