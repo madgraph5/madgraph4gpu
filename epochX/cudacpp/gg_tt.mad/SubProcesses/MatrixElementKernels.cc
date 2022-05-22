@@ -22,6 +22,8 @@ namespace mg5amcCpu
     : MatrixElementKernelBase( momenta, gs, matrixElements )
     , NumberOfEvents( nevt )
     , m_couplings( nevt )
+    , m_numerators( nevt )
+    , m_denominators( nevt )
   {
     if( m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: momenta must be a host array" );
     if( m_matrixElements.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: matrixElements must be a host array" );
@@ -136,6 +138,8 @@ namespace mg5amcGpu
     : MatrixElementKernelBase( momenta, gs, matrixElements )
     , NumberOfEvents( gpublocks * gputhreads )
     , m_couplings( this->nevt() )
+    , m_numerators( this->nevt() )
+    , m_denominators( this->nevt() )
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
   {
