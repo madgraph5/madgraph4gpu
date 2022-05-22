@@ -83,12 +83,13 @@ namespace mg5amcCpu
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   __device__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
-                           const fptype* allmomenta,   // input: momenta[nevt*npar*4]
-                           const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
-                           fptype* allMEs              // output: allMEs[nevt], |M|^2 running_sum_over_helicities
-,fptype& multi_chanel_num, fptype& multi_chanel_denom
+                           const fptype* allmomenta,     // input: momenta[nevt*npar*4]
+                           const fptype* allcouplings,   // input: couplings[nevt*ndcoup*2]
+                           fptype* allMEs,               // output: allMEs[nevt], |M|^2 running_sum_over_helicities
+                           fptype_sv& multi_chanel_num,  // output: multichannel numerators for the given event (CUDA) or event page (C++)
+                           fptype_sv& multi_chanel_denom // output: multichannel denominators for the given event (CUDA) or event page (C++)
 #ifndef __CUDACC__
-                           , const int nevt            // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                           , const int nevt              // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
@@ -122,7 +123,7 @@ namespace mg5amcCpu
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
     // ** NB: in other words, amplitudes and wavefunctions still have TRIVIAL ACCESS: there is currently no need
-    // ** NB: to have large memory structurs for wavefunctions/amplitudes fir all events (no kernel splitting yet)!
+    // ** NB: to have large memory structurs for wavefunctions/amplitudes in all events (no kernel splitting yet)!
     //MemoryBufferWavefunctions w_buffer[nwf]{ neppV };
     cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
     cxtype_sv amp_sv[1];      // invariant amplitude for one given Feynman diagram
@@ -199,8 +200,8 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 1
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], &amp_fp[0] );
-      if(channel_id == 1){multi_chanel_num += conj(amp[0])*amp[0];};
-       multi_chanel_denom += conj(amp[0])*amp[0];
+      if( channel_id == 1 ){ multi_chanel_num += cxabs2( amp_sv[0] ); }
+      multi_chanel_denom += cxabs2( amp_sv[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
@@ -211,8 +212,8 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 2
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], &amp_fp[0] );
-      if(channel_id == 2){multi_chanel_num += conj(amp[0])*amp[0];};
-       multi_chanel_denom += conj(amp[0])*amp[0];
+      if( channel_id == 2 ){ multi_chanel_num += cxabs2( amp_sv[0] ); }
+      multi_chanel_denom += cxabs2( amp_sv[0] );
       jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 3 OF 3 ***
@@ -222,8 +223,8 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 3
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], &amp_fp[0] );
-      if(channel_id == 3){multi_chanel_num += conj(amp[0])*amp[0];};
-       multi_chanel_denom += conj(amp[0])*amp[0];
+      if( channel_id == 3 ){ multi_chanel_num += cxabs2( amp_sv[0] ); }
+      multi_chanel_denom += cxabs2( amp_sv[0] );
       jamp_sv[1] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***
@@ -610,10 +611,12 @@ namespace mg5amcCpu
         allMEs[ipagV * neppV + ieppV] = 0; // all zeros
     }
 #endif
-    
-            fptype multi_chanel_num = 0.;
-            fptype multi_chanel_denom = 0.;
-            
+
+    // Local TEMPORARY variables for multichannel numerators/denominators in the given CUDA event (ievt) or C++ event page (ipagV)
+    // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
+    // ** NB: it will probably NOT be necessary to use arrays with nevt numerators and denominators when we move to kernel splitting?
+    fptype_sv multi_chanel_num = { 0 };
+    fptype_sv multi_chanel_denom = { 0 };        
 
     // PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     // (in both CUDA and C++, using precomputed good helicities)
@@ -622,9 +625,9 @@ namespace mg5amcCpu
     {
       const int ihel = cGoodHel[ighel];
 #ifdef __CUDACC__
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs&multi_chanel_num, &multi_chanel_denom );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, multi_chanel_num, multi_chanel_denom );
 #else
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, nevt&multi_chanel_num, &multi_chanel_denom );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, multi_chanel_num, multi_chanel_denom, nevt );
 #endif
       //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
@@ -646,7 +649,7 @@ namespace mg5amcCpu
       }
     }
 #endif
-       allMEs[iproc*nprocesses + ievt] *= multi_chanel_num/multi_chanel_denom;
+    allMEs[ievt] *= multi_chanel_num / multi_chanel_denom; // FIXME (#343): assume nprocesses == 1
     mgDebugFinalise();
   }
 
