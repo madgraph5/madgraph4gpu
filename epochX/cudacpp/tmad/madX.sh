@@ -7,10 +7,17 @@ scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
 topdir=$(cd $scrdir; cd ../../..; pwd)
 
+# Can events be generated? (i.e. has issue #14 been fixed?)
+genevt=0 # present implementation (workaround for issue #14)
+###genevt=1 # test if issue #14 has been fixed
+
 function usage()
 {
-  ###echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-keeprdat]" > /dev/stderr
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly]" > /dev/stderr
+  if [ "$genevt" == "0" ]; then
+    echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-keeprdat]" > /dev/stderr
+  else
+    echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly]" > /dev/stderr
+  fi
   exit 1
 }
 
@@ -28,7 +35,8 @@ ggttggg=0
 
 maketype=
 ###makej=
-###keeprdat=0
+
+if [ "$genevt" == "1" ]; then keeprdat=0; fi
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-d" ]; then
@@ -55,9 +63,9 @@ while [ "$1" != "" ]; do
     fi
     maketype="$1"
     shift
-  ###elif [ "$1" == "-keeprdat" ]; then
-  ###  keeprdat=1
-  ###  shift
+  elif [ "$genevt" == "0" ] && [ "$1" == "-keeprdat" ]; then
+    keeprdat=1
+    shift
   else
     usage
   fi
@@ -263,37 +271,43 @@ for suff in $suffs; do
   ###timecmd=time
   timecmd=
 
-  # FUTURE IMPLEMENTATION? Currently fails with https://github.com/oliviermattelaer/mg5amc_test/issues/14
-  # First execution: compute xsec (create results.dat)
-  #cd $dir
-  #\rm -f ftn26
-  #if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
-  #if [ ! -f results.dat ]; then
-  #  echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
-  #  runmadevent ./madevent
-  #fi
-  # Second execution: compute xsec and generate events (read results.dat and create events.lhe)
-  #echo -e "\n*** EXECUTE MADEVENT (create events.lhe) ***"
-  #runmadevent ./madevent
-  #echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
-  #runmadevent ./cmadevent_cudacpp
-  #echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
-  #runmadevent ./gmadevent_cudacpp
-  
-  # CURRENT (TEMPORARY?) IMPLEMENTATION! Work around https://github.com/oliviermattelaer/mg5amc_test/issues/14
-  # First execution ONLY (no event generation): compute xsec (create results.dat)
-  cd $dir
-  \rm -f ftn26 results.dat
-  echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
-  runmadevent ./madevent
-  \rm -f ftn26 results.dat
-  echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
-  runmadevent ./cmadevent_cudacpp
-  runcheck ./check.exe
-  \rm -f ftn26 results.dat
-  echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
-  runmadevent ./gmadevent_cudacpp
-  runcheck ./gcheck.exe
-  
+  if [ "$genevt" == "1" ]; then
+
+    # FUTURE IMPLEMENTATION? Currently fails with https://github.com/oliviermattelaer/mg5amc_test/issues/14
+    # First execution: compute xsec (create results.dat)
+    cd $dir
+    \rm -f ftn26
+    if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
+    if [ ! -f results.dat ]; then
+      echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
+      runmadevent ./madevent
+    fi
+    # Second execution: compute xsec and generate events (read results.dat and create events.lhe)
+    echo -e "\n*** EXECUTE MADEVENT (create events.lhe) ***"
+    runmadevent ./madevent
+    echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
+    runmadevent ./cmadevent_cudacpp
+    echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
+    runmadevent ./gmadevent_cudacpp
+
+  else
+
+    # CURRENT (TEMPORARY?) IMPLEMENTATION! Work around https://github.com/oliviermattelaer/mg5amc_test/issues/14
+    # First execution ONLY (no event generation): compute xsec (create results.dat)
+    cd $dir
+    \rm -f ftn26 results.dat
+    echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
+    runmadevent ./madevent
+    \rm -f ftn26 results.dat
+    echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
+    runmadevent ./cmadevent_cudacpp
+    runcheck ./check.exe
+    \rm -f ftn26 results.dat
+    echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
+    runmadevent ./gmadevent_cudacpp
+    runcheck ./gcheck.exe
+
+  fi
+
 done
 printf "\nTEST COMPLETED\n"
