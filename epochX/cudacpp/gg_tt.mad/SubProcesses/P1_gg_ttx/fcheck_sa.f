@@ -15,7 +15,7 @@ c     INTEGER IEXTERNAL
       DOUBLE PRECISION MES(NEVTMAX)
       INTEGER*4 CHANID
       PARAMETER(CHANID=0) ! TEMPORARY? disable multi-channel in fcheck.exe and fgcheck.exe #466
-      DOUBLE PRECISION MES_SUM  ! use REAL*16 for quadruple precision
+      DOUBLE PRECISION MES_SUM ! use REAL*16 for quadruple precision
       INTEGER NEVTOK ! exclude nan/abnormal MEs
 C
 C READ COMMAND LINE ARGUMENTS
