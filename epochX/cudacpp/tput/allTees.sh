@@ -3,7 +3,8 @@
 scrdir=$(cd $(dirname $0); pwd)
 
 # Use the -mad version of code and tee scripts
-mad=-mad
+###mad=-mad # THIS IS NO LONGER NECESSARY (IT IS THE DEFAULT IN TEETHROUGHPUTX)
+mad=
 
 # Parse command line arguments
 ggttggg=-ggttggg
