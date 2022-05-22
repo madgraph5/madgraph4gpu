@@ -9,7 +9,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  ###echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-runclean]" > /dev/stderr
+  ###echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-keeprdat]" > /dev/stderr
   echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly]" > /dev/stderr
   exit 1
 }
@@ -28,7 +28,7 @@ ggttggg=0
 
 maketype=
 ###makej=
-###runclean=0
+###keeprdat=0
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-d" ]; then
@@ -55,8 +55,8 @@ while [ "$1" != "" ]; do
     fi
     maketype="$1"
     shift
-  ###elif [ "$1" == "-runclean" ]; then
-  ###  runclean=1
+  ###elif [ "$1" == "-keeprdat" ]; then
+  ###  keeprdat=1
   ###  shift
   else
     usage
@@ -267,7 +267,7 @@ for suff in $suffs; do
   # First execution: compute xsec (create results.dat)
   #cd $dir
   #\rm -f ftn26
-  #if [ "${runclean}" == "1" ]; then \rm -f results.dat; fi
+  #if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
   #if [ ! -f results.dat ]; then
   #  echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
   #  runmadevent ./madevent
