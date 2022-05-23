@@ -465,6 +465,10 @@ C
       INTEGER IVEC
       INTEGER IEXT
 
+      INTEGER                    ISUM_HEL
+      LOGICAL                    MULTI_CHANNEL
+      COMMON/TO_MATRIX/ISUM_HEL, MULTI_CHANNEL
+
       LOGICAL FIRST_CHID
       SAVE FIRST_CHID
       DATA FIRST_CHID/.TRUE./
@@ -536,6 +540,11 @@ c!$OMP END PARALLEL
 #endif
 
       IF ( FIRST_CHID ) THEN
+        IF ( MULTI_CHANNEL ) THEN
+          WRITE (*,*) 'MULTI_CHANNEL = TRUE'
+        ELSE
+          WRITE (*,*) 'MULTI_CHANNEL = FALSE'
+        ENDIF
         WRITE (*,*) 'CHANNEL_ID =', CHANNEL
         FIRST_CHID = .FALSE.
       ENDIF
