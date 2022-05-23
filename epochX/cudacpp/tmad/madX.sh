@@ -158,7 +158,7 @@ ${nevt} 1 1 ! Number of events and max and min iterations
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
 0 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
 0 ! Helicity Sum/event 0=exact
-2 ! Channel number for single-diagram enhancement multi-channel (IGNORED as suppress amplitude is 0?)
+10 ! Channel number for single-diagram enhancement multi-channel (IGNORED as suppress amplitude is 0?)
 EOF
   echo ${tmp}
 }
