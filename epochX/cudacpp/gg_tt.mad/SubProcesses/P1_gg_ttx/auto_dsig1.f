@@ -483,10 +483,6 @@ C
       SAVE NWARNINGS
       DATA NWARNINGS/0/
       
-      INTEGER*4 NWARNINGS2
-      SAVE NWARNINGS2
-      DATA NWARNINGS2/0/
-      
       LOGICAL FIRST
       SAVE FIRST
       DATA FIRST/.TRUE./
@@ -538,28 +534,6 @@ c!$OMP END PARALLEL
           IF( CBYF1 .LT. FBRIDGE_CBYF1MIN ) FBRIDGE_CBYF1MIN = CBYF1
           IF( FBRIDGE_MODE .EQ. -2 ) THEN ! (BothDebug=-2)
             WRITE (*,*) IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
-          ENDIF
-          IF( NWARNINGS.LT.20 ) THEN
-            IF( ( OUT2(IVEC).GT.OUT(IVEC) .AND.
-     &        OUT2(IVEC)/OUT(IVEC).GT.1+5E-5 ) .OR.
-     &        ( OUT(IVEC).GT.OUT2(IVEC) .AND.
-     &        OUT(IVEC)/OUT2(IVEC).GT.1+5E-5 ) ) THEN
-              NWARNINGS = NWARNINGS + 1
-              WRITE (*,'(A,I2,A,I4,4E16.8)')
-     &          'WARNING! (',NWARNINGS,'/20) Deviation more than 5E-5'
-     &          ,IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1, ABS(CBYF1)
-            ENDIF
-          ENDIF
-          IF( NWARNINGS2.LT.20 ) THEN
-            IF( ( OUT2(IVEC).GT.OUT(IVEC) .AND.
-     &        OUT2(IVEC)/OUT(IVEC).GT.1+5E-1 ) .OR.
-     &        ( OUT(IVEC).GT.OUT2(IVEC) .AND.
-     &        OUT(IVEC)/OUT2(IVEC).GT.1+5E-1 ) ) THEN
-              NWARNINGS2 = NWARNINGS2 + 1
-              WRITE (*,'(A,I2,A,I4,4E16.8)')
-     &          'WARNING! (',NWARNINGS2,'/20) Deviation more than 5E-1'
-     &          ,IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1, ABS(CBYF1)
-            ENDIF
           ENDIF
           IF( ABS(CBYF1).GT.5E-5 .AND. NWARNINGS.LT.20 ) THEN
             NWARNINGS = NWARNINGS + 1
