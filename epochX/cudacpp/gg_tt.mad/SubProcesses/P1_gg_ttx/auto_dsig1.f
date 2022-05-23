@@ -536,12 +536,12 @@ c!$OMP END PARALLEL
             WRITE (*,'(I2,2E16.8,F23.11)')
      &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
           ENDIF
-          IF( ABS(CBYF1).GT.5E-5 .AND. NWARNINGS.LT.20 ) THEN
-            NWARNINGS = NWARNINGS + 1
-            WRITE (*,'(A,I2,A,I4,2E16.8,F23.11)')
-     &        'WARNING! (', NWARNINGS, '/20) Deviation more than 5E-5',
-     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
-          ENDIF
+c          IF( ABS(CBYF1).GT.5E-5 .AND. NWARNINGS.LT.20 ) THEN
+c            NWARNINGS = NWARNINGS + 1
+c            WRITE (*,'(A,I2,A,I4,2E16.8,F23.11)')
+c     &        'WARNING! (', NWARNINGS, '/20) Deviation more than 5E-5',
+c     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
+c          ENDIF
         END DO
       ENDIF
 #endif
