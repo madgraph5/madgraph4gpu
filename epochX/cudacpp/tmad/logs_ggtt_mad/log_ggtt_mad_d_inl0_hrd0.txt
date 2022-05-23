@@ -1,24 +1,24 @@
 Working directory: /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx
 make: Nothing to be done for `all'.
 
-DATE: 2022-05-23_09:43:58
+DATE: 2022-05-23_09:44:51
 
 Working directory: /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx
 
 *** EXECUTE MADEVENT (create results.dat) ***
  [XSECTION] MultiChannel = 
- [XSECTION] Configuration = -1
+ [XSECTION] Configuration = 4
  [XSECTION] ChannelId = 
  [XSECTION] ERROR! No cross section in log file:
-   /tmp/avalassi/tmp.0307C8woeY
+   /tmp/avalassi/tmp.VLjUteEuNO
    ...
-      Et >     0.0     0.0
-       E >     0.0     0.0
-     Eta <    -1.0    -1.0
-   xqcut:      0.0     0.0
-d R # 3  >    -0.0     0.0
-s min # 3>     0.0     0.0
-xqcutij # 3>     0.0     0.0
- No points passed cuts!
- Loosen cuts or increase max_events     5000000
- Deleting file events.lhe
+ Not subdividing B.W.
+ Attempting mappinvarients           1           4
+ Determine nb_t
+ T-channel found:            0
+ Completed mapping           4
+ about to integrate            4       16384           1           1           4           1
+ Keeping grid fixed.
+  4 dimensions  16384 events  4 invarients  1 iterations  1 config(s),  (0.99)
+ Using Sobel quasi-random number sequence.
+ Sorry cant use sobel
