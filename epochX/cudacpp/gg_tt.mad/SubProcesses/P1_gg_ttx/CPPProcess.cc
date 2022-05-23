@@ -673,6 +673,8 @@ namespace mg5amcCpu
       {
         const unsigned int ievt = ipagV * neppV + ieppV;
         allMEs[ievt] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
+        std::cout << "Event #" << ievt << " MEch1=" << allMEs[ievt] * allNumerators[ievt] / allDenominators[ievt]
+                  << " = MEch0 " << allMEs[ievt] << " * num " << allNumerators[ievt] << " / den " << allDenominators[ievt] <<std::endl;
         if ( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
         //printf( "sigmaKin: ievt=%2d me=%f\n", ievt, allMEs[ievt] );
       }

@@ -174,7 +174,9 @@ C     ----------
               CALL DS_ADD_ENTRY('Helicity',I,T)
             ENDIF
             ANS=ANS+DABS(T)
-            write(*,*) 'I, T, ANS', I, T, ANS
+            WRITE (*,'(a4,i4,2(a16,f16.8))')
+     &        ' ihel ', I, '  matrix1_ihel  ', T,
+     &        ' matrix1_sumhel ', ANS
             TS(I)=T
           ENDIF
         ENDDO
@@ -256,7 +258,6 @@ C           Set right sign for ANS, based on sign of chosen helicity
         XTOT=0D0
         DO I=1,LMAXCONFIGS
           J = CONFSUB(1, I)
-          WRITE(*,*) 'IJetc1', I, J, XTOT, AMP2(J), GET_CHANNEL_CUT(P, I)
           IF (J.NE.0) THEN
             IF(SDE_STRAT.EQ.1) THEN
               AMP2(J) = AMP2(J) * GET_CHANNEL_CUT(P, I)
@@ -266,11 +267,25 @@ C           Set right sign for ANS, based on sign of chosen helicity
               XTOT=XTOT+AMP2(J)
             ENDIF
           ENDIF
-          WRITE(*,*) 'IJetc2', I, J, XTOT, AMP2(J), GET_CHANNEL_CUT(P, I)
+          WRITE (*,'(a4,i4,3(a12,f16.8))')
+     &      ' ch ', J, '    amp2ch ', AMP2(J),
+     &      ' amp2sumch ', XTOT, '    getchcut', GET_CHANNEL_CUT(P, I)
         ENDDO
         IF (XTOT.NE.0D0) THEN
-          WRITE(*,*) 'IJetc3', CHANNEL, ANS, AMP2(CHANNEL), XTOT,
-     &      ANS*AMP2(CHANNEL)/XTOT/DBLE(IDEN)
+c         WRITE (*,'(4(a10,f16.8),a8,i8)')
+c    &      '  ForCh1', ANS*AMP2(CHANNEL)/XTOT/DBLE(IDEN),
+c    &      ' =  ans ', ANS, '* amp2ch ', AMP2(CHANNEL),
+c    &      '/amp2sumch', xtot, '/ iden', IDEN
+          WRITE (*,'(2(a8,f16.8),a8,i8,2(a8,f16.8))')
+     &      '  ForCh1', ANS*AMP2(CHANNEL)/XTOT/DBLE(IDEN),
+     &      '= ans ', ANS, ' /iden', IDEN,
+     &      '* amp2ch ', AMP2(CHANNEL),
+     &      '/amp2sumch', xtot
+          WRITE (*,'(a8,f16.8,a18,f16.8,2(a8,f16.8))')
+     &      '  ForCh1', ANS*AMP2(CHANNEL)/XTOT/DBLE(IDEN),
+     &      '=ForCh0(ans/iden)', ANS/DBLE(IDEN),
+     &      '* amp2ch ', AMP2(CHANNEL),
+     &      '/amp2sumch', xtot
           ANS=ANS*AMP2(CHANNEL)/XTOT
         ELSE IF(ANS.NE.0D0) THEN
           IF(NB_FAIL.GE.10)THEN
@@ -460,7 +475,7 @@ C     JAMPs contributing to orders ALL_ORDERS=1
       ENDDO
 
       call counters_matrix1_stop()
-      write(*,*) 'Exiting matrix1', matrix1
+c     write(*,*) 'Exiting matrix1', matrix1
       END
 
       SUBROUTINE PRINT_ZERO_AMP_1()

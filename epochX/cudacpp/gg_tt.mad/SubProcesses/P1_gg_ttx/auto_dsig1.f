@@ -528,6 +528,12 @@ c!$OMP END PARALLEL
         call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
       ENDIF
 
+      DO IVEC=1, NB_PAGE_LOOP
+        WRITE (*,'(a8,I4,3(a8,f16.8))')
+     &    '  Event ', IVEC, '  ForCh1', OUT(IVEC),
+     &    '  CppCh1', OUT2(IVEC), '  CppCh0', OUT3(IVEC)
+      END DO
+      
       IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
         DO IVEC=1, NB_PAGE_LOOP
           CBYF1 = OUT2(IVEC)/OUT(IVEC) - 1
@@ -537,10 +543,8 @@ c!$OMP END PARALLEL
           IF( CBYF1 .GT. FBRIDGE_CBYF1MAX ) FBRIDGE_CBYF1MAX = CBYF1
           IF( CBYF1 .LT. FBRIDGE_CBYF1MIN ) FBRIDGE_CBYF1MIN = CBYF1
           IF( FBRIDGE_MODE .EQ. -2 ) THEN ! (BothDebug=-2)
-c           WRITE (*,'(I2,2E16.8,F23.11)')
-c    &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
-            WRITE (*,'(I2,2E16.8,F23.11,E16.8)')
-     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1, OUT3(IVEC)
+            WRITE (*,'(I2,2E16.8,F23.11)')
+     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
           ENDIF
 c          IF( ABS(CBYF1).GT.5E-5 .AND. NWARNINGS.LT.20 ) THEN
 c            NWARNINGS = NWARNINGS + 1
