@@ -50,7 +50,8 @@ C
       V1(5)= DENOM*(TMP4*(-CI*(P2(2))+CI*(P3(2)))+(V2(5)*(-CI*(TMP0)
      $ +CI*(TMP1))+V3(5)*(+CI*(TMP2)-CI*(TMP3))))
       V1(6)= DENOM*(TMP4*(-CI*(P2(3))+CI*(P3(3)))+(V2(6)*(-CI*(TMP0)
-     $ +CI*(TMP1))+V3(6)*(+CI*(TMP2)-CI*(TMP3))))
+     $  +CI*(TMP1))+V3(6)*(+CI*(TMP2)-CI*(TMP3))))
+      write(*,*) v1(1), v1(2), v1(3), v1(4), v1(5), v1(6)
       END
 
 
