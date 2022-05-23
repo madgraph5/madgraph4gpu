@@ -156,7 +156,7 @@ function getinputfile()
 ${nevt} 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-0 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB NOT IGNORED even if suppress amplitude is 0!)
 EOF
