@@ -487,6 +487,8 @@ C
       SAVE FIRST
       DATA FIRST/.TRUE./
 
+      DOUBLE PRECISION OUT3(NB_PAGE_MAX)
+
       IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
         call counters_smatrix1multi_start( -1, nb_page_loop ) ! fortran=-1
@@ -514,6 +516,8 @@ c!$OMP END PARALLEL
           FIRST = .FALSE.
         ENDIF
         call counters_smatrix1multi_start( 0, nb_page_loop ) ! cudacpp=0
+        CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
+     &    P_MULTI, ALL_G, OUT3, 0) ! 0: multi channel disabled
         IF ( .NOT. MULTI_CHANNEL ) THEN
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
      &      P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled
@@ -533,8 +537,10 @@ c!$OMP END PARALLEL
           IF( CBYF1 .GT. FBRIDGE_CBYF1MAX ) FBRIDGE_CBYF1MAX = CBYF1
           IF( CBYF1 .LT. FBRIDGE_CBYF1MIN ) FBRIDGE_CBYF1MIN = CBYF1
           IF( FBRIDGE_MODE .EQ. -2 ) THEN ! (BothDebug=-2)
-            WRITE (*,'(I2,2E16.8,F23.11)')
-     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
+c           WRITE (*,'(I2,2E16.8,F23.11)')
+c    &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
+            WRITE (*,'(I2,2E16.8,F23.11,E16.8)')
+     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1, OUT3(IVEC)
           ENDIF
 c          IF( ABS(CBYF1).GT.5E-5 .AND. NWARNINGS.LT.20 ) THEN
 c            NWARNINGS = NWARNINGS + 1

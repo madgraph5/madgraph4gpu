@@ -174,6 +174,7 @@ C     ----------
               CALL DS_ADD_ENTRY('Helicity',I,T)
             ENDIF
             ANS=ANS+DABS(T)
+            write(*,*) 'I, T, ANS', I, T, ANS
             TS(I)=T
           ENDIF
         ENDDO
@@ -229,6 +230,7 @@ C       Always one helicity at a time
         ANS = T
 C       Include the Jacobian from helicity sampling
         ANS = ANS * HEL_JACOBIAN
+        write(*,*) 'T, HEL_JACOBIAN, ANS', T, HEL_JACOBIAN, ANS
 
         WRITE(HEL_BUFF,'(20i5)')(NHEL(II,I),II=1,NEXTERNAL)
       ELSE
@@ -384,7 +386,6 @@ C     ----------
 C     BEGIN CODE
 C     ----------
       call counters_matrix1_start()
-      write(10,*) 'Entering matrix1'
       IF (FIRST) THEN
         FIRST=.FALSE.
         IF(ZERO.NE.0D0) FK_ZERO = SIGN(MAX(ABS(ZERO), ABS(ZERO
@@ -459,7 +460,7 @@ C     JAMPs contributing to orders ALL_ORDERS=1
       ENDDO
 
       call counters_matrix1_stop()
-      write(10,*) 'Exiting matrix1'
+      write(*,*) 'Exiting matrix1', matrix1
       END
 
       SUBROUTINE PRINT_ZERO_AMP_1()
