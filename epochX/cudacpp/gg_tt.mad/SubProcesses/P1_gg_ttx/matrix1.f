@@ -254,6 +254,7 @@ C           Set right sign for ANS, based on sign of chosen helicity
         XTOT=0D0
         DO I=1,LMAXCONFIGS
           J = CONFSUB(1, I)
+          WRITE(*,*) 'IJetc1', I, J, XTOT, AMP2(J), GET_CHANNEL_CUT(P, I)
           IF (J.NE.0) THEN
             IF(SDE_STRAT.EQ.1) THEN
               AMP2(J) = AMP2(J) * GET_CHANNEL_CUT(P, I)
@@ -263,8 +264,11 @@ C           Set right sign for ANS, based on sign of chosen helicity
               XTOT=XTOT+AMP2(J)
             ENDIF
           ENDIF
+          WRITE(*,*) 'IJetc2', I, J, XTOT, AMP2(J), GET_CHANNEL_CUT(P, I)
         ENDDO
         IF (XTOT.NE.0D0) THEN
+          WRITE(*,*) 'IJetc3', CHANNEL, ANS, AMP2(CHANNEL), XTOT,
+     &      ANS*AMP2(CHANNEL)/XTOT/DBLE(IDEN)
           ANS=ANS*AMP2(CHANNEL)/XTOT
         ELSE IF(ANS.NE.0D0) THEN
           IF(NB_FAIL.GE.10)THEN
@@ -380,6 +384,7 @@ C     ----------
 C     BEGIN CODE
 C     ----------
       call counters_matrix1_start()
+      write(10,*) 'Entering matrix1'
       IF (FIRST) THEN
         FIRST=.FALSE.
         IF(ZERO.NE.0D0) FK_ZERO = SIGN(MAX(ABS(ZERO), ABS(ZERO
@@ -454,6 +459,7 @@ C     JAMPs contributing to orders ALL_ORDERS=1
       ENDDO
 
       call counters_matrix1_stop()
+      write(10,*) 'Exiting matrix1'
       END
 
       SUBROUTINE PRINT_ZERO_AMP_1()
