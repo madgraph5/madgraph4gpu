@@ -465,6 +465,10 @@ C
       INTEGER IVEC
       INTEGER IEXT
 
+      LOGICAL FIRST_CHID
+      SAVE FIRST_CHID
+      DATA FIRST_CHID/.TRUE./
+      
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       INCLUDE 'fbridge.inc'
       INCLUDE 'fbridge_common.inc'
@@ -530,6 +534,11 @@ c!$OMP END PARALLEL
         END DO
       ENDIF
 #endif
+
+      IF ( FIRST_CHID ) THEN
+        WRITE (*,*) 'CHANNEL_ID =', CHANNEL
+        FIRST_CHID = .FALSE.
+      ENDIF
 
       RETURN
       END
