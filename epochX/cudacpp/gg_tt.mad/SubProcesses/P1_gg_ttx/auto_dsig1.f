@@ -486,7 +486,7 @@ C
       LOGICAL FIRST
       SAVE FIRST
       DATA FIRST/.TRUE./
-      
+
       IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
         call counters_smatrix1multi_start( -1, nb_page_loop ) ! fortran=-1
@@ -510,11 +510,17 @@ c!$OMP END PARALLEL
 
       IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
         IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
-          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2, 0) ! TEMPORARY! replace 0 by CHANNEL
+          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled for helicity filtering
           FIRST = .FALSE.
         ENDIF
         call counters_smatrix1multi_start( 0, nb_page_loop ) ! cudacpp=0
-        CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2, 0) ! TEMPORARY! replace 0 by CHANNEL
+        IF ( .NOT. MULTI_CHANNEL ) THEN
+          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
+     &      P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled
+        ELSE
+          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
+     &      P_MULTI, ALL_G, OUT2, CHANNEL) ! 1-N: multi channel enabled
+        ENDIF
         call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
       ENDIF
 
