@@ -207,6 +207,12 @@ function runmadevent()
   fi
   $timecmd $1 < ${tmpin} > ${tmp}
   if [ "$?" != "0" ]; then echo "ERROR! '$timecmd $1 < ${tmpin} > ${tmp}' failed"; tail -10 $tmp; exit 1; fi
+  mch=$(cat ${tmp} | grep --binary-files=text 'MULTI_CHANNEL =' | awk '{print $NF}')
+  conf=$(cat ${tmp} | grep --binary-files=text 'Running Configuration Number:' | awk '{print $NF}')
+  chid=$(cat ${tmp} | grep --binary-files=text 'CHANNEL_ID =' | awk '{print $NF}')
+  echo " [XSECTION] MultiChannel = ${mch}"
+  echo " [XSECTION] Configuration = ${conf}"
+  echo " [XSECTION] ChannelId = ${chid}"
   xsec=$(cat ${tmp} | grep --binary-files=text 'Cross sec =' | awk '{print 0+$NF}')
   if [ "${xsec}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec}"
@@ -215,12 +221,6 @@ function runmadevent()
     tail -10 $tmp
     exit 1
   fi
-  mch=$(cat ${tmp} | grep --binary-files=text 'MULTI_CHANNEL =' | awk '{print $NF}')
-  conf=$(cat ${tmp} | grep --binary-files=text 'Running Configuration Number:' | awk '{print $NF}')
-  chid=$(cat ${tmp} | grep --binary-files=text 'CHANNEL_ID =' | awk '{print $NF}')
-  echo " [XSECTION] MultiChannel = ${mch}"
-  echo " [XSECTION] Configuration = ${conf}"
-  echo " [XSECTION] ChannelId = ${chid}"
   evtf=$(cat ${tmp} | grep --binary-files=text 'events.' | grep 'Found' | awk '{print $2}')
   evtw=$(cat ${tmp} | grep --binary-files=text 'events.' | grep 'Wrote' | awk '{print $2}')
   if [ "${evtf}" != "" ] && [ "${evtw}" != "" ]; then
