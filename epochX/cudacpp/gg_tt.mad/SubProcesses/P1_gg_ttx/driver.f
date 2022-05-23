@@ -99,7 +99,7 @@ C-----
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, NB_PAGE_LOOP, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
-      FBRIDGE_MODE = -1 ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
+      FBRIDGE_MODE = -2 ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
       FBRIDGE_NCBYF1 = 0
       FBRIDGE_CBYF1SUM = 0
       FBRIDGE_CBYF1SUM2 = 0
