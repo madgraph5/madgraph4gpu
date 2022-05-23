@@ -215,7 +215,9 @@ function runmadevent()
     tail -10 $tmp
     exit 1
   fi
+  mch=$(cat ${tmp} | grep --binary-files=text 'MULTI_CHANNEL =' | awk '{print $NF}')
   chid=$(cat ${tmp} | grep --binary-files=text 'CHANNEL_ID =' | awk '{print $NF}')
+  echo " [XSECTION] MultiChannel = ${mch}"
   echo " [XSECTION] ChannelId = ${chid}"
   evtf=$(cat ${tmp} | grep --binary-files=text 'events.' | grep 'Found' | awk '{print $2}')
   evtw=$(cat ${tmp} | grep --binary-files=text 'events.' | grep 'Wrote' | awk '{print $2}')
