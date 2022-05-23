@@ -537,9 +537,9 @@ c!$OMP END PARALLEL
           ENDIF
           IF( ABS(CBYF1).GT.5E-5 .AND. NWARNINGS.LT.20 ) THEN
             NWARNINGS = NWARNINGS + 1
-            WRITE (*,'(A,I2,A,I4,4E16.8)')
+            WRITE (*,'(A,I2,A,I4,2E16.8,F23.11)')
      &        'WARNING! (', NWARNINGS, '/20) Deviation more than 5E-5',
-     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1, ABS(CBYF1)
+     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
           ENDIF
         END DO
       ENDIF
