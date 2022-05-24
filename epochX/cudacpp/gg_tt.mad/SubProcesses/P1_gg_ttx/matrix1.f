@@ -463,7 +463,7 @@ C     JAMPs contributing to orders ALL_ORDERS=1
         AMP2(2)=AMP2(2)+AMP(2)*DCONJG(AMP(2))
         AMP2(3)=AMP2(3)+AMP(3)*DCONJG(AMP(3))
         IF ( IVEC.EQ.3 ) THEN
-          WRITE (*,'(a8,4(a9,f16.8))') 'matrix1 ',
+          WRITE (*,'(a14,i3,4(a9,f16.8))') 'matrix1  ihel ', ihel,
      &      ' amp2ch1 ', DBLE(AMP(1)*DCONJG(AMP(1))),
      &      ' amp2ch2 ', DBLE(AMP(2)*DCONJG(AMP(2))),
      &      ' amp2ch3 ', DBLE(AMP(3)*DCONJG(AMP(3))),
