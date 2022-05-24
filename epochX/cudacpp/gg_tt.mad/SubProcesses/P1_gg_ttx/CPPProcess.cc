@@ -214,18 +214,12 @@ namespace mg5amcCpu
 
       VVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], COUPs[0], 0., 0., w_fp[4] );
 
-      double amp2ch1 = 0;
-      double amp2ch2 = 0;
-      double amp2ch3 = 0;
-      
       // Amplitude(s) for diagram number 1
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], &amp_fp[0] );
       if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
-      //if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
-      denominators_sv += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
-      amp2ch1 = cxabs2( amp_sv[0] );
 
       // *** DIAGRAM 2 OF 3 ***
 
@@ -235,10 +229,8 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 2
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], &amp_fp[0] );
       if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
-      //if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
-      denominators_sv += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] -= amp_sv[0];
-      amp2ch2 = cxabs2( amp_sv[0] );
 
       // *** DIAGRAM 3 OF 3 ***
 
@@ -248,12 +240,8 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 3
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], &amp_fp[0] );
       if( channelId == 3 ) numerators_sv += cxabs2( amp_sv[0] );
-      //if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
-      denominators_sv += cxabs2( amp_sv[0] );
+      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[1] -= amp_sv[0];
-      amp2ch3 = cxabs2( amp_sv[0] );
-      //if ( ievt0==2 && channelId!=0 ) printf( "calcwvf ihel=%3d  amp2ch1=%12.8f  amp2ch2=%12.8f  amp2ch3=%12.8f  amp2tot(denom)=%12.8f\n", ihel, amp2ch1, amp2ch2, amp2ch3, denominators_sv );
-      if ( ievt0==2 ) printf( "calcwvf ihel=%3d  amp2ch1=%12.8f  amp2ch2=%12.8f  amp2ch3=%12.8f  amp2tot(denom)=%12.8f\n", ihel, amp2ch1, amp2ch2, amp2ch3, denominators_sv );
 
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called CPPProcess::matrix_1_gg_ttx()?)
@@ -567,7 +555,7 @@ namespace mg5amcCpu
         const bool differs = ( allMEs[ievt] != allMEsLast[ievt] );
         if( differs )
         {
-          if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
+          //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
           isGoodHel[ihel] = true;
         }
         allMEsLast[ievt] = allMEs[ievt]; // running sum up to helicity ihel
@@ -685,8 +673,6 @@ namespace mg5amcCpu
       {
         const unsigned int ievt = ipagV * neppV + ieppV;
         allMEs[ievt] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
-        std::cout << "Event #" << ievt << " MEch1=" << allMEs[ievt] * allNumerators[ievt] / allDenominators[ievt]
-                  << " = MEch0 " << allMEs[ievt] << " * num " << allNumerators[ievt] << " / den " << allDenominators[ievt] <<std::endl;
         if ( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
         //printf( "sigmaKin: ievt=%2d me=%f\n", ievt, allMEs[ievt] );
       }

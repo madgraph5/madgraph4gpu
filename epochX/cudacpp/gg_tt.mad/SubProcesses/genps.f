@@ -1853,7 +1853,6 @@ c      	      	      	   2 means approximation by the	denominator of the propaga
       
       include 'configs.inc'
 
-      write(10,*) 'Entering get_channel_cut'
       if(sde_strat.eq.1.and.tmin_for_channel.eq.-1)then
          get_channel_cut = 1d0
          return
@@ -1933,7 +1932,6 @@ c            write(*,*) i, "s, Mass, Width, fact", t, Mass, Width, (((t-Mass)*(t
          endif
       enddo
 c      write(*,*) 'final for config', config, get_channel_cut
-      write(10,*) 'Exiting get_channel_cut', config, get_channel_cut
       return
       end
 

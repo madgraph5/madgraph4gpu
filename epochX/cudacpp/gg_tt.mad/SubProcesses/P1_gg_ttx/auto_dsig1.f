@@ -487,8 +487,6 @@ C
       SAVE FIRST
       DATA FIRST/.TRUE./
 
-      DOUBLE PRECISION OUT3(NB_PAGE_MAX)
-
       IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
         call counters_smatrix1multi_start( -1, nb_page_loop ) ! fortran=-1
@@ -516,8 +514,6 @@ c!$OMP END PARALLEL
           FIRST = .FALSE.
         ENDIF
         call counters_smatrix1multi_start( 0, nb_page_loop ) ! cudacpp=0
-        CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
-     &    P_MULTI, ALL_G, OUT3, 0) ! 0: multi channel disabled
         IF ( .NOT. MULTI_CHANNEL ) THEN
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
      &      P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled
@@ -527,16 +523,6 @@ c!$OMP END PARALLEL
         ENDIF
         call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
       ENDIF
-
-      DO IVEC=1, NB_PAGE_LOOP
-        WRITE (*,'(a8,I4,3(a8,f16.8))')
-     &    '  Event ', IVEC, '  ForCh1', OUT(IVEC),
-     &    '  CppCh1', OUT2(IVEC), '  CppCh0', OUT3(IVEC)
-        IF( OUT3(IVEC).GT.4.11 .AND. OUT3(IVEC).LT.4.12 ) THEN
-          WRITE(6,*) 'Debug issue 419!' ! https://github.com/madgraph5/madgraph4gpu/issues/419#issuecomment-1135036223
-          STOP
-        ENDIF
-      END DO
 
       IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
         DO IVEC=1, NB_PAGE_LOOP
@@ -550,12 +536,12 @@ c!$OMP END PARALLEL
             WRITE (*,'(I2,2E16.8,F23.11)')
      &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
           ENDIF
-c          IF( ABS(CBYF1).GT.5E-5 .AND. NWARNINGS.LT.20 ) THEN
-c            NWARNINGS = NWARNINGS + 1
-c            WRITE (*,'(A,I2,A,I4,2E16.8,F23.11)')
-c     &        'WARNING! (', NWARNINGS, '/20) Deviation more than 5E-5',
-c     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
-c          ENDIF
+          IF( ABS(CBYF1).GT.5E-5 .AND. NWARNINGS.LT.20 ) THEN
+            NWARNINGS = NWARNINGS + 1
+            WRITE (*,'(A,I2,A,I4,2E16.8,F23.11)')
+     &        'WARNING! (', NWARNINGS, '/20) Deviation more than 5E-5',
+     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
+          ENDIF
         END DO
       ENDIF
 #endif

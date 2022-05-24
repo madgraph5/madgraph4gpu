@@ -174,9 +174,6 @@ C     ----------
               CALL DS_ADD_ENTRY('Helicity',I,T)
             ENDIF
             ANS=ANS+DABS(T)
-c           WRITE (*,'(a4,i4,2(a16,f16.8))')
-c    &        ' ihel ', I, '  matrix1_ihel  ', T,
-c    &        ' matrix1_sumhel ', ANS
             TS(I)=T
           ENDIF
         ENDDO
@@ -232,7 +229,6 @@ C       Always one helicity at a time
         ANS = T
 C       Include the Jacobian from helicity sampling
         ANS = ANS * HEL_JACOBIAN
-        write(*,*) 'T, HEL_JACOBIAN, ANS', T, HEL_JACOBIAN, ANS
 
         WRITE(HEL_BUFF,'(20i5)')(NHEL(II,I),II=1,NEXTERNAL)
       ELSE
@@ -267,25 +263,8 @@ C           Set right sign for ANS, based on sign of chosen helicity
               XTOT=XTOT+AMP2(J)
             ENDIF
           ENDIF
-          WRITE (*,'(a4,i4,3(a12,f16.8))')
-     &      ' ch ', J, '    amp2ch ', AMP2(J),
-     &      ' amp2sumch ', XTOT, '    getchcut', GET_CHANNEL_CUT(P, I)
         ENDDO
         IF (XTOT.NE.0D0) THEN
-c         WRITE (*,'(4(a10,f16.8),a8,i8)')
-c    &      '  ForCh1', ANS*AMP2(CHANNEL)/XTOT/DBLE(IDEN),
-c    &      ' =  ans ', ANS, '* amp2ch ', AMP2(CHANNEL),
-c    &      '/amp2sumch', xtot, '/ iden', IDEN
-          WRITE (*,'(2(a8,f16.8),a8,i8,2(a8,f16.8))')
-     &      '  ForCh1', ANS*AMP2(CHANNEL)/XTOT/DBLE(IDEN),
-     &      '= ans ', ANS, ' /iden', IDEN,
-     &      '* amp2ch ', AMP2(CHANNEL),
-     &      '/amp2sumch', xtot
-          WRITE (*,'(a8,f16.8,a18,f16.8,2(a8,f16.8))')
-     &      '  ForCh1', ANS*AMP2(CHANNEL)/XTOT/DBLE(IDEN),
-     &      '=ForCh0(ans/iden)', ANS/DBLE(IDEN),
-     &      '* amp2ch ', AMP2(CHANNEL),
-     &      '/amp2sumch', xtot
           ANS=ANS*AMP2(CHANNEL)/XTOT
         ELSE IF(ANS.NE.0D0) THEN
           IF(NB_FAIL.GE.10)THEN
@@ -462,13 +441,6 @@ C     JAMPs contributing to orders ALL_ORDERS=1
         AMP2(1)=AMP2(1)+AMP(1)*DCONJG(AMP(1))
         AMP2(2)=AMP2(2)+AMP(2)*DCONJG(AMP(2))
         AMP2(3)=AMP2(3)+AMP(3)*DCONJG(AMP(3))
-        IF ( IVEC.EQ.3 ) THEN
-          WRITE (*,'(a14,i3,4(a9,f16.8))') 'matrix1  ihel ', ihel,
-     &      ' amp2ch1 ', DBLE(AMP(1)*DCONJG(AMP(1))),
-     &      ' amp2ch2 ', DBLE(AMP(2)*DCONJG(AMP(2))),
-     &      ' amp2ch3 ', DBLE(AMP(3)*DCONJG(AMP(3))),
-     &      ' amp2tot ', AMP2(1)+AMP2(2)+AMP2(3)
-        ENDIF
       ENDIF
 
       DO I = 1, NCOLOR
@@ -482,7 +454,6 @@ C     JAMPs contributing to orders ALL_ORDERS=1
       ENDDO
 
       call counters_matrix1_stop()
-c     write(*,*) 'Exiting matrix1', matrix1
       END
 
       SUBROUTINE PRINT_ZERO_AMP_1()

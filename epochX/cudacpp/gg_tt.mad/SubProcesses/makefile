@@ -84,8 +84,7 @@ LDFLAGS+=-Wl,--no-relax # avoid 'failed to convert GOTPCREL relocation' error #4
 ifeq (,$(wildcard fbridge.inc))
 all: $(PROG)
 else
-###all: $(PROG) $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp $(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp
-all: $(PROG) $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp # hack to allow cpp-only builds
+all: $(PROG) $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp $(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp
 endif
 
 $(PROG): $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o
@@ -114,9 +113,9 @@ endif
 
 $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(PLUGIN_BUILDDIR)/.pluginlibs
 	$(FC) -o $(PLUGIN_BUILDDIR)/c$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(PLUGIN_BUILDDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CXXLIB) $(LIBFLAGSRPATH)
-ifneq (,$(wildcard $(PLUGIN_BUILDDIR)/lib$(PLUGIN_CULIB).so))
+
+$(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o $(PLUGIN_BUILDDIR)/.pluginlibs
 	$(FC) -o $(PLUGIN_BUILDDIR)/g$(PROG)_cudacpp $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp counters.o -L$(LIBDIR)/$(PLUGIN_BUILDDIR) -l$(PLUGIN_COMMONLIB) -l$(PLUGIN_CULIB) $(LIBFLAGSRPATH)
-endif
 
 counters.o: counters.cpp timer.h
 	$(CXX) -std=c++11 -Wall -Wshadow -Wextra -c $< -o $@
