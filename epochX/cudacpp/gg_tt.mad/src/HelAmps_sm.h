@@ -866,7 +866,6 @@ namespace mg5amcCpu
     V1[3] = denom * ( TMP4 * ( -cI * P2[1] + cI * P3[1] ) + ( V2[3] * ( -cI * TMP0 + cI * TMP1 ) + V3[3] * ( +cI * TMP2 - cI * TMP3 ) ) );
     V1[4] = denom * ( TMP4 * ( -cI * P2[2] + cI * P3[2] ) + ( V2[4] * ( -cI * TMP0 + cI * TMP1 ) + V3[4] * ( +cI * TMP2 - cI * TMP3 ) ) );
     V1[5] = denom * ( TMP4 * ( -cI * P2[3] + cI * P3[3] ) + ( V2[5] * ( -cI * TMP0 + cI * TMP1 ) + V3[5] * ( +cI * TMP2 - cI * TMP3 ) ) );
-    std::cout << V1[0] << ", " << V1[1] << ", " << V1[2] << ", " << V1[3] << ", " << V1[4] << ", " << V1[5] << std::endl;
     mgDebug( 1, __FUNCTION__ );
     return;
   }
