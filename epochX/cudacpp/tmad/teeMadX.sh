@@ -24,6 +24,9 @@ hrdcods="0"
 
 steps="make test"
 
+###deb=
+deb=" -d" # optional debug mode
+
 makej=
 dlp=
 
@@ -95,7 +98,7 @@ for step in $steps; do
           inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; fi
           for hrdcod in $hrdcods; do
             hrd=; if [ "${hrdcod}" == "1" ]; then hrd=" -hrdonly"; fi
-            args="${proc}${flt}${inl}${hrd} ${dlp}"
+            args="${proc}${flt}${inl}${hrd}${deb} ${dlp}"
             ###args="${args} -avxall" # avx, fptype, helinl and hrdcod are now supported for all processes
             if [ "${step}" == "makeclean" ]; then
               printf "\n%80s\n" |tr " " "*"
