@@ -220,6 +220,7 @@ namespace mg5amcCpu
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
+      if ( ievt0==2 && channelId!=0 ) std::cout << "ievt0=" << ievt0 << ", diag1, amp2=" << cxabs2( amp_sv[0] ) << ", sumamp2(denom)=" << denominators_sv << std::endl;
 
       // *** DIAGRAM 2 OF 3 ***
 
@@ -231,6 +232,7 @@ namespace mg5amcCpu
       if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] -= amp_sv[0];
+      if ( ievt0==2 && channelId!=0 ) std::cout << "ievt0=" << ievt0 << ", diag2, amp2=" << cxabs2( amp_sv[0] ) << ", sumamp2(denom)=" << denominators_sv << std::endl;
 
       // *** DIAGRAM 3 OF 3 ***
 
@@ -242,6 +244,7 @@ namespace mg5amcCpu
       if( channelId == 3 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[1] -= amp_sv[0];
+      if ( ievt0==2 && channelId!=0 ) std::cout << "ievt0=" << ievt0 << ", diag3, amp2=" << cxabs2( amp_sv[0] ) << ", sumamp2(denom)=" << denominators_sv << std::endl;
 
       // *** COLOR ALGEBRA BELOW ***
       // (This method used to be called CPPProcess::matrix_1_gg_ttx()?)
