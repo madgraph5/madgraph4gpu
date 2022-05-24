@@ -532,8 +532,12 @@ c!$OMP END PARALLEL
         WRITE (*,'(a8,I4,3(a8,f16.8))')
      &    '  Event ', IVEC, '  ForCh1', OUT(IVEC),
      &    '  CppCh1', OUT2(IVEC), '  CppCh0', OUT3(IVEC)
+        IF( OUT3(IVEC).GT.4.11 .AND. OUT3(IVEC).LT.4.12 ) THEN
+          WRITE(6,*) 'Debug issue 419!' ! https://github.com/madgraph5/madgraph4gpu/issues/419#issuecomment-1135036223
+          STOP
+        ENDIF
       END DO
-      
+
       IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
         DO IVEC=1, NB_PAGE_LOOP
           CBYF1 = OUT2(IVEC)/OUT(IVEC) - 1
