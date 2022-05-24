@@ -174,9 +174,9 @@ C     ----------
               CALL DS_ADD_ENTRY('Helicity',I,T)
             ENDIF
             ANS=ANS+DABS(T)
-            WRITE (*,'(a4,i4,2(a16,f16.8))')
-     &        ' ihel ', I, '  matrix1_ihel  ', T,
-     &        ' matrix1_sumhel ', ANS
+c           WRITE (*,'(a4,i4,2(a16,f16.8))')
+c    &        ' ihel ', I, '  matrix1_ihel  ', T,
+c    &        ' matrix1_sumhel ', ANS
             TS(I)=T
           ENDIF
         ENDDO
@@ -462,6 +462,13 @@ C     JAMPs contributing to orders ALL_ORDERS=1
         AMP2(1)=AMP2(1)+AMP(1)*DCONJG(AMP(1))
         AMP2(2)=AMP2(2)+AMP(2)*DCONJG(AMP(2))
         AMP2(3)=AMP2(3)+AMP(3)*DCONJG(AMP(3))
+        IF ( IVEC.EQ.3 ) THEN
+          WRITE (*,'(a8,4(a9,f16.8))') 'matrix1 ',
+     &      ' amp2ch1 ', DBLE(AMP(1)*DCONJG(AMP(1))),
+     &      ' amp2ch2 ', DBLE(AMP(2)*DCONJG(AMP(2))),
+     &      ' amp2ch3 ', DBLE(AMP(3)*DCONJG(AMP(3))),
+     &      ' amp2tot ', AMP2(1)+AMP2(2)+AMP2(3)
+        ENDIF
       ENDIF
 
       DO I = 1, NCOLOR
