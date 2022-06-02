@@ -476,6 +476,8 @@ C
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       INCLUDE 'fbridge.inc'
       INCLUDE 'fbridge_common.inc'
+      INCLUDE 'maxparticles.inc'
+      INCLUDE 'run.inc'
       DOUBLE PRECISION OUT2(NB_PAGE_MAX)
       DOUBLE PRECISION CBYF1
 
@@ -518,6 +520,10 @@ c!$OMP END PARALLEL
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
      &      P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled
         ELSE
+          IF( SDE_STRAT.NE.1 ) THEN
+            WRITE(6,*) 'ERROR! The cudacpp bridge in multichannel mode requires SDE=1'
+            STOP
+          ENDIF
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
      &      P_MULTI, ALL_G, OUT2, CHANNEL) ! 1-N: multi channel enabled
         ENDIF
