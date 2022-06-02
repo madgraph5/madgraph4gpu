@@ -476,7 +476,7 @@ C
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       INCLUDE 'fbridge.inc'
       INCLUDE 'fbridge_common.inc'
-      INCLUDE 'maxparticles.inc'
+      INCLUDE 'genps.inc'
       INCLUDE 'run.inc'
       DOUBLE PRECISION OUT2(NB_PAGE_MAX)
       DOUBLE PRECISION CBYF1
@@ -511,6 +511,10 @@ c!$OMP END PARALLEL
       ENDIF
 
       IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
+        IF( LIMHEL.NE.0 ) THEN
+          WRITE(6,*) 'ERROR! The cudacpp bridge only supports LIMHEL=0'
+          STOP
+        ENDIF
         IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled for helicity filtering
           FIRST = .FALSE.
