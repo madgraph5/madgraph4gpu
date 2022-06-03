@@ -198,6 +198,8 @@ function cleanup_MG5AMC_HOME()
   rm -rf ${MG5AMC_HOME}/PLUGIN
   mkdir ${MG5AMC_HOME}/PLUGIN
   touch ${MG5AMC_HOME}/PLUGIN/__init__.py
+  # Remove any *~ files in MG5AMC_HOME
+  rm -rf $(find ${MG5AMC_HOME} -name '*~')
 }
 
 #--------------------------------------------------------------------------------------
