@@ -710,8 +710,8 @@ inline cxtype cxzero_sv() { return cxtype( 0, 0 ); }
 //==========================================================================
 
 // Functions and operators for cxtype_sv
-inline fptype_sv
-__host__ __device__ cxabs2( const cxtype_sv& c )
+inline __host__ __device__ fptype_sv
+cxabs2( const cxtype_sv& c )
 {
   return cxreal( c ) * cxreal( c ) + cximag( c ) * cximag( c );
 }
