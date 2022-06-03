@@ -416,8 +416,14 @@ cleanup_MG5AMC_HOME
 
 # Check formatting in the auto-generated code
 if [ "${OUTBCK}" == "cudacpp" ]; then
-  echo -e "\n+++ Check code formatting in newly generated code for $proc\n"
+  echo -e "\n+++ Check code formatting in newly generated code ${proc}.auto\n"
   if ! $SCRDIR/checkFormatting.sh -q -q ${proc}.auto; then
+    echo "ERROR! Auto-generated code does not respect formatting policies"
+    exit 1
+  fi
+elif [ "${OUTBCK}" == "mad" ]; then
+  echo -e "\n+++ Check code formatting in newly generated code ${proc}.mad\n"
+  if ! $SCRDIR/checkFormatting.sh -q -q ${proc}.mad; then
     echo "ERROR! Auto-generated code does not respect formatting policies"
     exit 1
   fi
