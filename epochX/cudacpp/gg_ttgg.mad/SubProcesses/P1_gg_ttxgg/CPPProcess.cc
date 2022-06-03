@@ -255,7 +255,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 2
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[7], w_fp[5], w_fp[8], COUPs[0], &amp_fp[0] );
-      if( channelId == 4 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -273,7 +273,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 3
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[7], w_fp[4], w_fp[9], COUPs[0], &amp_fp[0] );
-      if( channelId == 5 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 3 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -291,7 +291,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 4
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[6], w_fp[7], w_fp[10], COUPs[0], &amp_fp[0] );
-      if( channelId == 6 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 4 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -310,7 +310,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 5
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[11], w_fp[5], COUPs[1], &amp_fp[0] );
-      if( channelId == 7 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 5 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -322,7 +322,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 6
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[11], w_fp[9], COUPs[1], &amp_fp[0] );
-      if( channelId == 8 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 6 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[12] += amp_sv[0];
       jamp_sv[14] -= amp_sv[0];
@@ -336,7 +336,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 7
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[11], w_fp[6], COUPs[1], &amp_fp[0] );
-      if( channelId == 9 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 7 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -348,7 +348,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 8
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[14], w_fp[4], COUPs[1], &amp_fp[0] );
-      if( channelId == 10 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 8 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -360,7 +360,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 9
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[14], w_fp[8], COUPs[1], &amp_fp[0] );
-      if( channelId == 11 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 9 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[18] += amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
@@ -374,7 +374,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 10
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[14], w_fp[6], COUPs[1], &amp_fp[0] );
-      if( channelId == 12 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 10 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -386,7 +386,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 11
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[16], w_fp[5], COUPs[1], &amp_fp[0] );
-      if( channelId == 13 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 11 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -398,7 +398,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 12
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[2], w_fp[9], COUPs[1], &amp_fp[0] );
-      if( channelId == 14 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 12 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
@@ -412,7 +412,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 13
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[16], w_fp[4], COUPs[1], &amp_fp[0] );
-      if( channelId == 15 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 13 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -424,7 +424,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 14
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[2], w_fp[8], COUPs[1], &amp_fp[0] );
-      if( channelId == 16 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 14 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
@@ -438,7 +438,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 15
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[16], w_fp[10], COUPs[1], &amp_fp[0] );
-      if( channelId == 17 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 15 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
@@ -452,7 +452,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 16
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[2], w_fp[10], COUPs[1], &amp_fp[0] );
-      if( channelId == 18 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 16 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[16] += amp_sv[0];
       jamp_sv[17] -= amp_sv[0];
@@ -468,7 +468,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 17
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[8], w_fp[5], COUPs[1], &amp_fp[0] );
-      if( channelId == 19 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 17 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[3] -= amp_sv[0];
 
@@ -479,7 +479,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 18
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[9], w_fp[4], COUPs[1], &amp_fp[0] );
-      if( channelId == 20 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 18 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[5] -= amp_sv[0];
 
@@ -490,7 +490,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 19
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[12], w_fp[10], COUPs[1], &amp_fp[0] );
-      if( channelId == 21 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 19 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -503,7 +503,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 20
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[6], w_fp[5], w_fp[17], COUPs[0], &amp_fp[0] );
-      if( channelId == 22 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 20 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
@@ -517,7 +517,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 21
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[9], w_fp[6], COUPs[1], &amp_fp[0] );
-      if( channelId == 23 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 21 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -529,7 +529,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 22
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[12], w_fp[6], COUPs[1], &amp_fp[0] );
-      if( channelId == 24 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 22 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -541,7 +541,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 23
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[18], w_fp[4], w_fp[17], COUPs[0], &amp_fp[0] );
-      if( channelId == 25 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 23 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
@@ -555,7 +555,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 24
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[8], w_fp[18], COUPs[1], &amp_fp[0] );
-      if( channelId == 26 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 24 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -567,7 +567,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 25
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[12], w_fp[18], COUPs[1], &amp_fp[0] );
-      if( channelId == 27 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 25 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -579,7 +579,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 26
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[19], w_fp[5], COUPs[1], &amp_fp[0] );
-      if( channelId == 28 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 26 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[1] -= amp_sv[0];
 
@@ -590,7 +590,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 27
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[9], w_fp[1], COUPs[1], &amp_fp[0] );
-      if( channelId == 29 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 27 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[4] -= amp_sv[0];
 
@@ -601,7 +601,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 28
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[19], w_fp[4], COUPs[1], &amp_fp[0] );
-      if( channelId == 30 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 28 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] -= amp_sv[0];
 
@@ -612,7 +612,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 29
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[8], w_fp[1], COUPs[1], &amp_fp[0] );
-      if( channelId == 31 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 29 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[2] -= amp_sv[0];
 
@@ -623,7 +623,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 30
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[19], w_fp[10], COUPs[1], &amp_fp[0] );
-      if( channelId == 32 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 30 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -635,7 +635,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 31
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[10], w_fp[17], COUPs[0], &amp_fp[0] );
-      if( channelId == 33 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 31 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
@@ -675,7 +675,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 33
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[20], w_fp[9], w_fp[5], COUPs[1], &amp_fp[0] );
-      if( channelId == 37 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 33 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[11] -= amp_sv[0];
 
@@ -686,7 +686,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 34
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[21], w_fp[9], w_fp[4], COUPs[1], &amp_fp[0] );
-      if( channelId == 38 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 34 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[9] -= amp_sv[0];
 
@@ -697,7 +697,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 35
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[9], w_fp[10], COUPs[1], &amp_fp[0] );
-      if( channelId == 39 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 35 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -709,7 +709,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 36
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[6], w_fp[5], w_fp[22], COUPs[0], &amp_fp[0] );
-      if( channelId == 40 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 36 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[9] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
@@ -723,7 +723,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 37
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[21], w_fp[2], w_fp[6], COUPs[1], &amp_fp[0] );
-      if( channelId == 41 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 37 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -735,7 +735,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 38
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[14], w_fp[6], COUPs[1], &amp_fp[0] );
-      if( channelId == 42 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 38 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -747,7 +747,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 39
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[18], w_fp[4], w_fp[22], COUPs[0], &amp_fp[0] );
-      if( channelId == 43 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 39 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[11] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
@@ -761,7 +761,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 40
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[20], w_fp[2], w_fp[18], COUPs[1], &amp_fp[0] );
-      if( channelId == 44 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 40 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -773,7 +773,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 41
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[11], w_fp[18], COUPs[1], &amp_fp[0] );
-      if( channelId == 45 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 41 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -785,7 +785,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 42
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[23], w_fp[11], w_fp[5], COUPs[1], &amp_fp[0] );
-      if( channelId == 46 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 42 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[17] -= amp_sv[0];
 
@@ -796,7 +796,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 43
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[21], w_fp[11], w_fp[1], COUPs[1], &amp_fp[0] );
-      if( channelId == 47 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 43 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[15] -= amp_sv[0];
 
@@ -807,7 +807,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 44
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[23], w_fp[14], w_fp[4], COUPs[1], &amp_fp[0] );
-      if( channelId == 48 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 44 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[23] -= amp_sv[0];
 
@@ -818,7 +818,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 45
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[20], w_fp[14], w_fp[1], COUPs[1], &amp_fp[0] );
-      if( channelId == 49 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 45 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[21] -= amp_sv[0];
 
@@ -829,7 +829,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 46
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[23], w_fp[2], w_fp[10], COUPs[1], &amp_fp[0] );
-      if( channelId == 50 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 46 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -841,7 +841,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 47
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[10], w_fp[22], COUPs[0], &amp_fp[0] );
-      if( channelId == 51 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 47 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[9] += amp_sv[0];
       jamp_sv[11] -= amp_sv[0];
@@ -878,7 +878,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 49
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[22], w_fp[9], w_fp[5], COUPs[1], &amp_fp[0] );
-      if( channelId == 55 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 49 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -890,7 +890,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 50
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[9], w_fp[23], COUPs[1], &amp_fp[0] );
-      if( channelId == 56 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 50 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[6] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -904,7 +904,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 51
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[9], w_fp[12], COUPs[1], &amp_fp[0] );
-      if( channelId == 57 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 51 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -916,7 +916,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 52
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[20], w_fp[5], COUPs[1], &amp_fp[0] );
-      if( channelId == 58 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 52 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -928,7 +928,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 53
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[2], w_fp[23], COUPs[1], &amp_fp[0] );
-      if( channelId == 59 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 53 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[3] += amp_sv[0];
       jamp_sv[13] -= amp_sv[0];
@@ -942,7 +942,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 54
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[14], w_fp[12], COUPs[1], &amp_fp[0] );
-      if( channelId == 60 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 54 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -954,7 +954,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 55
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[20], w_fp[18], COUPs[1], &amp_fp[0] );
-      if( channelId == 61 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 55 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
@@ -968,7 +968,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 56
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[22], w_fp[2], w_fp[18], COUPs[1], &amp_fp[0] );
-      if( channelId == 62 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 56 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[10] += amp_sv[0];
       jamp_sv[11] -= amp_sv[0];
@@ -982,7 +982,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 57
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[18], w_fp[7], COUPs[0], &amp_fp[0] );
-      if( channelId == 63 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 57 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1034,7 +1034,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 59
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[7], w_fp[5], w_fp[21], COUPs[0], &amp_fp[0] );
-      if( channelId == 67 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 59 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1052,7 +1052,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 60
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[7], w_fp[23], COUPs[0], &amp_fp[0] );
-      if( channelId == 68 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 60 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1070,7 +1070,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 61
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[14], w_fp[21], COUPs[1], &amp_fp[0] );
-      if( channelId == 69 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 61 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[19] += amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
@@ -1084,7 +1084,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 62
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[22], w_fp[14], w_fp[1], COUPs[1], &amp_fp[0] );
-      if( channelId == 70 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 62 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1096,7 +1096,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 63
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[2], w_fp[21], COUPs[1], &amp_fp[0] );
-      if( channelId == 71 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 63 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[2] += amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
@@ -1110,7 +1110,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 64
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[20], w_fp[1], COUPs[1], &amp_fp[0] );
-      if( channelId == 72 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 64 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1123,7 +1123,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 65
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[21], w_fp[9], w_fp[4], COUPs[1], &amp_fp[0] );
-      if( channelId == 73 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 65 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1135,7 +1135,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 66
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[9], w_fp[22], COUPs[1], &amp_fp[0] );
-      if( channelId == 74 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 66 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[7] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -1149,7 +1149,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 67
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[9], w_fp[20], COUPs[1], &amp_fp[0] );
-      if( channelId == 75 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 67 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1161,7 +1161,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 68
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[23], w_fp[4], COUPs[1], &amp_fp[0] );
-      if( channelId == 76 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 68 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1173,7 +1173,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 69
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[2], w_fp[22], COUPs[1], &amp_fp[0] );
-      if( channelId == 77 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 69 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[5] += amp_sv[0];
       jamp_sv[13] -= amp_sv[0];
@@ -1187,7 +1187,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 70
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[11], w_fp[20], COUPs[1], &amp_fp[0] );
-      if( channelId == 78 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 70 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1199,7 +1199,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 71
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[23], w_fp[6], COUPs[1], &amp_fp[0] );
-      if( channelId == 79 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 71 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[4] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
@@ -1213,7 +1213,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 72
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[21], w_fp[2], w_fp[6], COUPs[1], &amp_fp[0] );
-      if( channelId == 80 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 72 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[8] += amp_sv[0];
       jamp_sv[9] -= amp_sv[0];
@@ -1227,7 +1227,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 73
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[20], w_fp[6], w_fp[7], COUPs[0], &amp_fp[0] );
-      if( channelId == 81 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 73 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1279,7 +1279,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 75
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[7], w_fp[4], w_fp[12], COUPs[0], &amp_fp[0] );
-      if( channelId == 85 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 75 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1297,7 +1297,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 76
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[7], w_fp[22], COUPs[0], &amp_fp[0] );
-      if( channelId == 86 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 76 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1315,7 +1315,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 77
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[11], w_fp[12], COUPs[1], &amp_fp[0] );
-      if( channelId == 87 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 77 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[13] += amp_sv[0];
       jamp_sv[14] -= amp_sv[0];
@@ -1329,7 +1329,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 78
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[21], w_fp[11], w_fp[1], COUPs[1], &amp_fp[0] );
-      if( channelId == 88 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 78 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1341,7 +1341,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 79
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[2], w_fp[12], COUPs[1], &amp_fp[0] );
-      if( channelId == 89 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 79 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[4] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
@@ -1355,7 +1355,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 80
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[23], w_fp[1], COUPs[1], &amp_fp[0] );
-      if( channelId == 90 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 80 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1367,7 +1367,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 81
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[23], w_fp[5], COUPs[1], &amp_fp[0] );
-      if( channelId == 91 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 81 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[7] -= amp_sv[0];
 
@@ -1378,7 +1378,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 82
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[9], w_fp[5], COUPs[1], &amp_fp[0] );
-      if( channelId == 92 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 82 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[10] -= amp_sv[0];
 
@@ -1389,7 +1389,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 83
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[23], w_fp[4], COUPs[1], &amp_fp[0] );
-      if( channelId == 93 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 83 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[6] -= amp_sv[0];
 
@@ -1400,7 +1400,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 84
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[21], w_fp[9], w_fp[4], COUPs[1], &amp_fp[0] );
-      if( channelId == 94 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 84 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[8] -= amp_sv[0];
 
@@ -1411,7 +1411,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 85
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[23], w_fp[10], COUPs[1], &amp_fp[0] );
-      if( channelId == 95 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 85 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1423,7 +1423,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 86
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[9], w_fp[23], COUPs[1], &amp_fp[0] );
-      if( channelId == 96 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 86 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[6] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
@@ -1437,7 +1437,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 87
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[22], w_fp[11], w_fp[5], COUPs[1], &amp_fp[0] );
-      if( channelId == 97 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 87 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[16] -= amp_sv[0];
 
@@ -1448,7 +1448,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 88
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[20], w_fp[5], COUPs[1], &amp_fp[0] );
-      if( channelId == 98 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 88 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[13] -= amp_sv[0];
 
@@ -1459,7 +1459,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 89
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[22], w_fp[14], w_fp[4], COUPs[1], &amp_fp[0] );
-      if( channelId == 99 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 89 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[22] -= amp_sv[0];
 
@@ -1470,7 +1470,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 90
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[24], w_fp[4], COUPs[1], &amp_fp[0] );
-      if( channelId == 100 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 90 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[19] -= amp_sv[0];
 
@@ -1481,7 +1481,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 91
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[22], w_fp[2], w_fp[10], COUPs[1], &amp_fp[0] );
-      if( channelId == 101 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 91 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1493,7 +1493,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 92
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[2], w_fp[23], COUPs[1], &amp_fp[0] );
-      if( channelId == 102 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 92 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[3] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
@@ -1541,7 +1541,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 94
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[7], w_fp[5], w_fp[22], COUPs[0], &amp_fp[0] );
-      if( channelId == 106 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 94 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1559,7 +1559,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 95
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[6], w_fp[5], w_fp[25], COUPs[0], &amp_fp[0] );
-      if( channelId == 107 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 95 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1577,7 +1577,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 96
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[14], w_fp[22], COUPs[1], &amp_fp[0] );
-      if( channelId == 108 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 96 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[18] += amp_sv[0];
       jamp_sv[19] -= amp_sv[0];
@@ -1591,7 +1591,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 97
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[24], w_fp[6], COUPs[1], &amp_fp[0] );
-      if( channelId == 109 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 97 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1603,7 +1603,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 98
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[2], w_fp[22], COUPs[1], &amp_fp[0] );
-      if( channelId == 110 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 98 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
@@ -1617,7 +1617,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 99
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[21], w_fp[2], w_fp[6], COUPs[1], &amp_fp[0] );
-      if( channelId == 111 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 99 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1663,7 +1663,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 101
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[7], w_fp[4], w_fp[6], COUPs[0], &amp_fp[0] );
-      if( channelId == 115 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 101 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1681,7 +1681,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 102
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[18], w_fp[4], w_fp[25], COUPs[0], &amp_fp[0] );
-      if( channelId == 116 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 102 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1699,7 +1699,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 103
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[11], w_fp[6], COUPs[1], &amp_fp[0] );
-      if( channelId == 117 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 103 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[12] += amp_sv[0];
       jamp_sv[13] -= amp_sv[0];
@@ -1713,7 +1713,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 104
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[20], w_fp[18], COUPs[1], &amp_fp[0] );
-      if( channelId == 118 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 104 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1725,7 +1725,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 105
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[2], w_fp[6], COUPs[1], &amp_fp[0] );
-      if( channelId == 119 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 105 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[4] -= amp_sv[0];
@@ -1739,7 +1739,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 106
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[2], w_fp[18], COUPs[1], &amp_fp[0] );
-      if( channelId == 120 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 106 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1785,7 +1785,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 108
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[10], w_fp[25], COUPs[0], &amp_fp[0] );
-      if( channelId == 124 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 108 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1803,7 +1803,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 109
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[7], w_fp[23], COUPs[0], &amp_fp[0] );
-      if( channelId == 125 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 109 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1821,7 +1821,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 110
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[20], w_fp[1], COUPs[1], &amp_fp[0] );
-      if( channelId == 126 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 110 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[12] -= amp_sv[0];
 
@@ -1832,7 +1832,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 111
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[21], w_fp[11], w_fp[1], COUPs[1], &amp_fp[0] );
-      if( channelId == 127 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 111 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[14] -= amp_sv[0];
 
@@ -1843,7 +1843,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 112
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[24], w_fp[1], COUPs[1], &amp_fp[0] );
-      if( channelId == 128 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 112 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[18] -= amp_sv[0];
 
@@ -1854,7 +1854,7 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 113
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[14], w_fp[1], COUPs[1], &amp_fp[0] );
-      if( channelId == 129 ) numerators_sv += cxabs2( amp_sv[0] );
+      if( channelId == 113 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
       jamp_sv[20] -= amp_sv[0];
 
