@@ -326,6 +326,7 @@ C           Set right sign for ANS, based on sign of chosen helicity
         ENDIF
       ENDIF
       ANS=ANS/DBLE(IDEN)
+      write(6,*) 'channel amp2(channel) ans', channel, amp2(channel), ans
       call counters_smatrix1_stop()
       END
 

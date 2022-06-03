@@ -2206,6 +2206,11 @@ namespace mg5amcCpu
 #endif
 #endif
       */
+#ifndef __CUDACC__
+#ifndef MGONGPU_CPPSIMD
+      std::cout << "channelId=" << channelId << ", numerators_sv=" << numerators_sv << std::endl;
+#endif
+#endif
     }
     mgDebug( 1, __FUNCTION__ );
     return;
