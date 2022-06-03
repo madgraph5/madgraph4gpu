@@ -279,7 +279,7 @@ for suff in $suffs; do
 
   if [ "$genevt" == "1" ]; then
 
-    # FUTURE IMPLEMENTATION? Currently fails with https://github.com/oliviermattelaer/mg5amc_test/issues/14
+    # DEFAULT IMPLEMENTATION : compute cross section and then generate events
     # First execution: compute xsec (create results.dat)
     cd $dir
     \rm -f ftn26
@@ -300,7 +300,7 @@ for suff in $suffs; do
 
   else
 
-    # CURRENT (TEMPORARY?) IMPLEMENTATION! Work around https://github.com/oliviermattelaer/mg5amc_test/issues/14
+    # OLD IMPLEMENTATION : compute cross sections only (work around https://github.com/oliviermattelaer/mg5amc_test/issues/14)
     # First execution ONLY (no event generation): compute xsec (create results.dat)
     cd $dir
     \rm -f ftn26 results.dat
