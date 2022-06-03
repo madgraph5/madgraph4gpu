@@ -231,10 +231,10 @@ namespace mg5amcCpu
                        fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
                        bool* isGoodHel )           // output: isGoodHel[ncomb] - device array
   {
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     fptype allMEsLast = 0;
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)

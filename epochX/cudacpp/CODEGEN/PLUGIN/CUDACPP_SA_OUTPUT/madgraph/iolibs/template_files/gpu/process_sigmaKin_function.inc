@@ -39,16 +39,16 @@
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
-    allMEs[ievt] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
-    if ( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
+    allMEs[ievt] /= denominators[0];                                                 // FIXME (#343): assume nprocesses == 1
+    if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
 #else
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
       for( int ieppV = 0; ieppV < neppV; ieppV++ )
       {
         const unsigned int ievt = ipagV * neppV + ieppV;
-        allMEs[ievt] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
-        if ( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
+        allMEs[ievt] /= denominators[0];                                                 // FIXME (#343): assume nprocesses == 1
+        if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
         //printf( "sigmaKin: ievt=%%2d me=%%f\n", ievt, allMEs[ievt] );
       }
     }
