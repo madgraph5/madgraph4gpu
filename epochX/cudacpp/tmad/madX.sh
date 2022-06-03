@@ -7,17 +7,9 @@ scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
 topdir=$(cd $scrdir; cd ../../..; pwd)
 
-# Can events be generated? (i.e. has issue #14 been fixed?)
-###genevt=0 # present implementation (workaround for issue #14)
-genevt=1 # test if issue #14 has been fixed
-
 function usage()
 {
-  if [ "$genevt" == "0" ]; then
-    echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-keeprdat]" > /dev/stderr
-  else
-    echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly]" > /dev/stderr
-  fi
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-keeprdat]" > /dev/stderr
   exit 1
 }
 
@@ -36,7 +28,7 @@ ggttggg=0
 maketype=
 ###makej=
 
-if [ "$genevt" == "1" ]; then keeprdat=0; fi
+keeprdat=0
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-d" ]; then
@@ -63,7 +55,7 @@ while [ "$1" != "" ]; do
     fi
     maketype="$1"
     shift
-  elif [ "$genevt" == "0" ] && [ "$1" == "-keeprdat" ]; then
+  elif [ "$1" == "-keeprdat" ]; then
     keeprdat=1
     shift
   else
@@ -277,61 +269,43 @@ for suff in $suffs; do
   ###timecmd=time
   timecmd=
 
-  if [ "$genevt" == "1" ]; then
+  # DEFAULT IMPLEMENTATION : compute cross section and then generate events
+  cd $dir
 
-    # DEFAULT IMPLEMENTATION : compute cross section and then generate events
-    cd $dir
-    # (1) MADEVENT
-    \rm -f results.dat # ALWAYS remove results.dat before the first madevent execution
-    if [ ! -f results.dat ]; then
-      echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
-      \rm -f ftn26
-      runmadevent ./madevent
-    fi
-    echo -e "\n*** EXECUTE MADEVENT (create events.lhe) ***"
-    \rm -f ftn26
-    runmadevent ./madevent
-    # (2) CMADEVENT_CUDACPP
-    if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
-    if [ ! -f results.dat ]; then
-      echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
-      \rm -f ftn26
-      runmadevent ./cmadevent_cudacpp
-    fi
-    echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
-    \rm -f ftn26
-    runmadevent ./cmadevent_cudacpp
-    runcheck ./check.exe
-    # (3) GMADEVENT_CUDACPP
-    if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
-    if [ ! -f results.dat ]; then
-      echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
-      \rm -f ftn26
-      runmadevent ./gmadevent_cudacpp
-    fi
-    echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
-    \rm -f ftn26
-    runmadevent ./gmadevent_cudacpp
-    runcheck ./gcheck.exe
-
-  else
-
-    # OLD IMPLEMENTATION : compute cross sections only (work around https://github.com/oliviermattelaer/mg5amc_test/issues/14)
-    # First execution ONLY (no event generation): compute xsec (create results.dat)
-    cd $dir
-    \rm -f ftn26 results.dat
+  # (1) MADEVENT
+  \rm -f results.dat # ALWAYS remove results.dat before the first madevent execution
+  if [ ! -f results.dat ]; then
     echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
+    \rm -f ftn26
     runmadevent ./madevent
-    \rm -f ftn26 results.dat
-    echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
-    runmadevent ./cmadevent_cudacpp
-    runcheck ./check.exe
-    \rm -f ftn26 results.dat
-    echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
-    runmadevent ./gmadevent_cudacpp
-    runcheck ./gcheck.exe
-
   fi
+  echo -e "\n*** EXECUTE MADEVENT (create events.lhe) ***"
+  \rm -f ftn26
+  runmadevent ./madevent
+
+  # (2) CMADEVENT_CUDACPP
+  if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
+  if [ ! -f results.dat ]; then
+    echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
+    \rm -f ftn26
+    runmadevent ./cmadevent_cudacpp
+  fi
+  echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
+  \rm -f ftn26
+  runmadevent ./cmadevent_cudacpp
+  runcheck ./check.exe
+
+  # (3) GMADEVENT_CUDACPP
+  if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
+  if [ ! -f results.dat ]; then
+    echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
+    \rm -f ftn26
+    runmadevent ./gmadevent_cudacpp
+  fi
+  echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
+  \rm -f ftn26
+  runmadevent ./gmadevent_cudacpp
+  runcheck ./gcheck.exe
 
 done
 printf "\nTEST COMPLETED\n"
