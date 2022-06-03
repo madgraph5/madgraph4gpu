@@ -63,16 +63,15 @@ namespace mg5amcCpu
   void BridgeKernelHost::computeGoodHelicities()
   {
     constexpr bool goodHelOnly = true;
-    constexpr unsigned int channelId = 0; // disable multi-channel for helicity filtering
-    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_matrixElements.data(), channelId, goodHelOnly );
+    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_matrixElements.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------
 
-  void BridgeKernelHost::computeMatrixElements( const unsigned int channelId )
+  void BridgeKernelHost::computeMatrixElements()
   {
     constexpr bool goodHelOnly = false;
-    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_matrixElements.data(), channelId, goodHelOnly );
+    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_matrixElements.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------
@@ -115,16 +114,15 @@ namespace mg5amcGpu
   void BridgeKernelDevice::computeGoodHelicities()
   {
     constexpr bool goodHelOnly = true;
-    constexpr unsigned int channelId = 0; // disable multi-channel for helicity filtering
-    m_bridge.gpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_matrixElements.data(), channelId, goodHelOnly );
+    m_bridge.gpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_matrixElements.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------
 
-  void BridgeKernelDevice::computeMatrixElements( const unsigned int channelId )
+  void BridgeKernelDevice::computeMatrixElements()
   {
     constexpr bool goodHelOnly = false;
-    m_bridge.gpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_matrixElements.data(), channelId, goodHelOnly );
+    m_bridge.gpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_matrixElements.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------

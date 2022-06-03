@@ -92,29 +92,10 @@ class KernelAccessGs
 {
 public:
 
-  // Expose selected functions from MemoryAccessGs
-  static constexpr auto ieventAccessRecord = MemoryAccessGs::ieventAccessRecord;
-
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
   // [Signature (non-const, SCALAR) ===> fptype& kernelAccess( fptype* buffer ) <===]
-  static constexpr auto kernelAccess_s =
+  static constexpr auto kernelAccess =
     KernelAccessHelper<MemoryAccessGsBase, onDevice>::template kernelAccessField<>; // requires cuda 11.4
-
-  // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
-  // [Signature (non-const, SCALAR OR VECTOR) ===> fptype_sv& kernelAccess( fptype* buffer ) <===]
-  static __host__ __device__ inline fptype_sv&
-  kernelAccess( fptype* buffer )
-  {
-    fptype& out = kernelAccess_s( buffer );
-#ifndef MGONGPU_CPPSIMD
-    return out;
-#else
-    // NB: derived from MemoryAccessMomenta, restricting the implementation to contiguous aligned arrays (#435)
-    static_assert( mg5amcCpu::HostBufferGs::isaligned() ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
-    //assert( (size_t)( buffer ) % mgOnGpu::cppAlign == 0 ); // ASSUME ALIGNED ARRAYS (reinterpret_cast will segfault otherwise!)
-    return mg5amcCpu::fptypevFromAlignedArray( out ); // SIMD bulk load of neppV, use reinterpret_cast
-#endif
-  }
 
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
   // [Signature (const, SCALAR) ===> const fptype& kernelAccessConst( const fptype* buffer ) <===]

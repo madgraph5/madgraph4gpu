@@ -37,7 +37,7 @@ namespace mg5amcCpu
     virtual void computeGoodHelicities() = 0;
 
     // Compute matrix elements
-    virtual void computeMatrixElements( const unsigned int channelId ) = 0;
+    virtual void computeMatrixElements() = 0;
 
     // Is this a host or device kernel?
     virtual bool isOnDevice() const = 0;
@@ -75,7 +75,7 @@ namespace mg5amcCpu
     void computeGoodHelicities() override final;
 
     // Compute matrix elements
-    void computeMatrixElements( const unsigned int channelId ) override final;
+    void computeMatrixElements() override final;
 
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return false; }
@@ -88,12 +88,6 @@ namespace mg5amcCpu
 
     // The buffer for the event-by-event couplings that depends on alphas QCD
     HostBufferCouplings m_couplings;
-
-    // The buffer for the event-by-event numerators of multichannel factors
-    HostBufferNumerators m_numerators;
-
-    // The buffer for the event-by-event denominators of multichannel factors
-    HostBufferDenominators m_denominators;
   };
 #endif
 
@@ -122,7 +116,7 @@ namespace mg5amcCpu
     void computeGoodHelicities() override final;
 
     // Compute matrix elements
-    void computeMatrixElements( const unsigned int channelId ) override final;
+    void computeMatrixElements() override final;
 
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return true; }
@@ -131,12 +125,6 @@ namespace mg5amcCpu
 
     // The buffer for the event-by-event couplings that depends on alphas QCD
     DeviceBufferCouplings m_couplings;
-
-    // The buffer for the event-by-event numerators of multichannel factors
-    DeviceBufferNumerators m_numerators;
-
-    // The buffer for the event-by-event denominators of multichannel factors
-    DeviceBufferDenominators m_denominators;
 
     // The number of blocks in the GPU grid
     size_t m_gpublocks;
