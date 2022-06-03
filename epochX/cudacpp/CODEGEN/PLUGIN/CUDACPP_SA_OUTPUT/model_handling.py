@@ -1561,7 +1561,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 res.append(self.get_amplitude_call(amplitude)) # AV new: avoid format_call
                 if id_amp in diag_to_config:
                     ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diag_to_config[id_amp]) # BUG #472
-                    res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % id_amp)
+                    ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % id_amp) # wrong fix for BUG #472
+                    res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
                     res.append("if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );")
                 for njamp, coeff in color[namp].items():
                     scoeff = PLUGIN_OneProcessExporter.coeff(*coeff) # AV
