@@ -1065,7 +1065,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         """Get sigmaKin_process for all subprocesses for gCPPProcess.cu"""
         ret_lines = []
         if self.single_helicities:
-            ###assert self.include_multi_channel # do we really need to generate code where this is not true? # REMOVE THIS (FIX #473)
+            assert self.include_multi_channel # do we really need to generate code where this is not true?
             ret_lines.append("""
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
