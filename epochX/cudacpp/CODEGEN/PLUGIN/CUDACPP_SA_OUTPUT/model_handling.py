@@ -1191,6 +1191,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     def generate_process_files(self):
         """Generate mgOnGpuConfig.h, CPPProcess.cc, CPPProcess.h, check_sa.cc, gXXX.cu links"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.generate_process_files')
+        if self.include_multi_channel:
+            misc.sprint('self.include_multi_channel is already defined: this is probably madevent+second_exporter mode')
+        else: # here need a fix for #473
+            misc.sprint('self.include_multi_channel is not yet defined: this is probably standalone_cudacpp mode')
         if self.matrix_elements[0].get('has_mirror_process'):
             self.matrix_elements[0].set('has_mirror_process', False)
             self.nprocesses/=2
