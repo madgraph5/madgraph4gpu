@@ -290,11 +290,14 @@ for suff in $suffs; do
     fi
     # Second execution: compute xsec and generate events (read results.dat and create events.lhe)
     echo -e "\n*** EXECUTE MADEVENT (create events.lhe) ***"
+    \rm -f ftn26
     runmadevent ./madevent
     echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
+    \rm -f ftn26
     runmadevent ./cmadevent_cudacpp
     runcheck ./check.exe
     echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
+    \rm -f ftn26
     runmadevent ./gmadevent_cudacpp
     runcheck ./gcheck.exe
 
