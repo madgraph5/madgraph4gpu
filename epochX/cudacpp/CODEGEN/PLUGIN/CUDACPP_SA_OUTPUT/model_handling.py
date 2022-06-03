@@ -966,10 +966,11 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
     __template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
 
-    # AV - overload export_cpp.OneProcessExporterGPU constructor (rename gCPPProcess to CPPProcess)
+    # AV - overload export_cpp.OneProcessExporterGPU constructor (rename gCPPProcess to CPPProcess, set include_multi_channel)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.process_class = 'CPPProcess'
+        self.include_multi_channel = True # work around #473
 
     # AV - overload export_cpp.OneProcessExporterGPU method (indent comments in process_lines)
     def get_process_class_definitions(self, write=True):
