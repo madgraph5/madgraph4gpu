@@ -1066,7 +1066,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         """Get sigmaKin_process for all subprocesses for gCPPProcess.cu"""
         ret_lines = []
         if self.single_helicities:
-            assert self.include_multi_channel # do we really need to generate code where this is not true?
+            assert self.include_multi_channel # this should now be guaranteed after fixing #473
             ret_lines.append("""
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
@@ -1191,10 +1191,13 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     def generate_process_files(self):
         """Generate mgOnGpuConfig.h, CPPProcess.cc, CPPProcess.h, check_sa.cc, gXXX.cu links"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.generate_process_files')
-        if self.include_multi_channel:
-            misc.sprint('self.include_multi_channel is already defined: this is probably madevent+second_exporter mode')
-        else: # here need a fix for #473
-            misc.sprint('self.include_multi_channel is not yet defined: this is probably standalone_cudacpp mode')
+        if not self.include_multi_channel: # FIX #473
+            misc.sprint('self.include_multi_channel is not yet defined (standalone_cudacpp mode): define it now')
+            subproc_group = self.plugin_processexporter_subproc_group # from PLUGIN_ProcessExporter.generate_subprocess_directory
+            assert len( subproc_group.get('diagram_maps') ) == 1 # assume below that ime=0 (do not know hoe to handle ime>0)
+            self.include_multi_channel = subproc_group.get('diagram_maps')[0] # ime=0 means matrix1 methods/files (ime=1 would be matrix2)
+        else:
+            misc.sprint('self.include_multi_channel is already defined (madevent+second_exporter mode)')
         if self.matrix_elements[0].get('has_mirror_process'):
             self.matrix_elements[0].set('has_mirror_process', False)
             self.nprocesses/=2
