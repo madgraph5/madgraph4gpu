@@ -8,8 +8,8 @@ bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
 topdir=$(cd $scrdir; cd ../../..; pwd)
 
 # Can events be generated? (i.e. has issue #14 been fixed?)
-genevt=0 # present implementation (workaround for issue #14)
-###genevt=1 # test if issue #14 has been fixed
+###genevt=0 # present implementation (workaround for issue #14)
+genevt=1 # test if issue #14 has been fixed
 
 function usage()
 {
@@ -293,8 +293,10 @@ for suff in $suffs; do
     runmadevent ./madevent
     echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
     runmadevent ./cmadevent_cudacpp
+    runcheck ./check.exe
     echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
     runmadevent ./gmadevent_cudacpp
+    runcheck ./gcheck.exe
 
   else
 
