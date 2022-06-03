@@ -158,7 +158,7 @@ ${nevt} 1 1 ! Number of events and max and min iterations
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
 1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
 0 ! Helicity Sum/event 0=exact
-1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB NOT IGNORED even if suppress amplitude is 0!)
+1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 EOF
   echo ${tmp}
 }
@@ -280,22 +280,35 @@ for suff in $suffs; do
   if [ "$genevt" == "1" ]; then
 
     # DEFAULT IMPLEMENTATION : compute cross section and then generate events
-    # First execution: compute xsec (create results.dat)
     cd $dir
-    \rm -f ftn26
-    if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
+    # (1) MADEVENT
+    \rm -f results.dat # ALWAYS remove results.dat before the first madevent execution
     if [ ! -f results.dat ]; then
       echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
+      \rm -f ftn26
       runmadevent ./madevent
     fi
-    # Second execution: compute xsec and generate events (read results.dat and create events.lhe)
     echo -e "\n*** EXECUTE MADEVENT (create events.lhe) ***"
     \rm -f ftn26
     runmadevent ./madevent
+    # (2) CMADEVENT_CUDACPP
+    if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
+    if [ ! -f results.dat ]; then
+      echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
+      \rm -f ftn26
+      runmadevent ./cmadevent_cudacpp
+    fi
     echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
     \rm -f ftn26
     runmadevent ./cmadevent_cudacpp
     runcheck ./check.exe
+    # (3) GMADEVENT_CUDACPP
+    if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
+    if [ ! -f results.dat ]; then
+      echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
+      \rm -f ftn26
+      runmadevent ./gmadevent_cudacpp
+    fi
     echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
     \rm -f ftn26
     runmadevent ./gmadevent_cudacpp
