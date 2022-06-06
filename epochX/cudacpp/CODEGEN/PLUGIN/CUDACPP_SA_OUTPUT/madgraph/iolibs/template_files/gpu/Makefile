@@ -62,7 +62,7 @@ endif
 # Set NVCC as $(CUDA_HOME)/bin/nvcc if it exists
 ifneq ($(wildcard $(CUDA_HOME)/bin/nvcc),)
   NVCC = $(CUDA_HOME)/bin/nvcc
-  CUARCHNUM=70
+  CUARCHNUM ?= 70
   ###CUARCHNUM=61 # (For Pascal Architecture Cards)
   USE_NVTX ?=-DUSE_NVTX
   CUARCHFLAGS = -arch=compute_$(CUARCHNUM)
@@ -375,6 +375,11 @@ ifneq ($(shell $(CXX) --version | grep ^clang),)
 else
 	$(CXX) --version
 endif
+
+#Run `make list` to get list of available targets
+.PHONY: list
+list:
+	@LC_ALL=C $(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$'
 
 force:
 

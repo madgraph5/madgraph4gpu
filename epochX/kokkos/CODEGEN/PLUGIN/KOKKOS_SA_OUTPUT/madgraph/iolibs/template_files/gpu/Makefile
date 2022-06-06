@@ -78,16 +78,16 @@ hip:
 
 # compile object files
 
-%.openmp.o : %.cpp $(CHECK_H)
+%%.openmp.o : %%.cpp $(CHECK_H)
 	$(CXX) $(OPENMP_CXXFLAGS) -c $< -o $@
 
-%.cuda.o : %.cpp $(CHECK_H)
+%%.cuda.o : %%.cpp $(CHECK_H)
 	$(NVCC) $(CUDA_CXXFLAGS) -c $< -o $@
 
-%.intel.o : %.cpp $(CHECK_H)
+%%.intel.o : %%.cpp $(CHECK_H)
 	$(ICPX) $(INTEL_CXXFLAGS) -c $< -o $@
 
-%.hip.o : %.cpp $(CHECK_H)
+%%.hip.o : %%.cpp $(CHECK_H)
 	$(HIPCC) $(HIP_CXXFLAGS) -c $< -o $@
 
 $(cuda_exe): $(cuda_objects) $(cuda_libmodel)

@@ -111,14 +111,16 @@ void debug_me_is_abnormal( const fptype& me, int ievtALL )
 
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
-            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--param_card <PARAM_CARD_FILE>] [--json_file <JSON_FILE>] [--bridge] [--device_info] --device_id <DEVICE_ID>"
-            << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
+            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--json_file <JSON_FILE>] [--param_card <PARAM_CARD_FILE>] [--bridge] [--device_info] --device_id <DEVICE_ID>"
+            << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations [jsondate] [jsonrun]" << std::endl << std::endl;
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
   std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
   std::cout << "The '-d' flag only enables NaN/abnormal warnings and OMP debugging" << std::endl;
+  std::cout << "The '--json_file' argument sets the path to the file where the JSON output is saved if '--json | -j' is specified. (default: ./perf/data/<jsondate>-perf-test-run<jsonrun>.json)" << std::endl; 
+  std::cout << "The '--param_card' argument sets the path to the param_card file (default: ../../Cards/param_card.dat)" << std::endl;
   std::cout << "The '--device_info` flag prints information for all available devices. If a device is chosen by '--device_id', only information for that device is shown." << std::endl;
-  std::cout << "The '--device_id' arguments selects the device to run code on. (default: 0)" << std::endl;
+  std::cout << "The '--device_id' argument selects the device to run code on. (default: 0)" << std::endl;
   std::cout << "The '--help|-h' flag prints this message" << std::endl;
   return ret;
 }
@@ -332,6 +334,18 @@ int main(int argc, char **argv)
   if ( gputhreads > ntpbMAX )
   {
     std::cout << "ERROR! #threads/block should be <= " << ntpbMAX << std::endl;
+    return usage(argv[0]);
+  }
+
+  if ( gputhreads < 1 )
+  {
+    std::cout << "ERROR! #threads/block should be >= 0" << std::endl;
+    return usage(argv[0]);
+  }
+
+  if ( gpublocks < 1 )
+  {
+    std::cout << "ERROR! #blocks should be >= 0" << std::endl;
     return usage(argv[0]);
   }
 

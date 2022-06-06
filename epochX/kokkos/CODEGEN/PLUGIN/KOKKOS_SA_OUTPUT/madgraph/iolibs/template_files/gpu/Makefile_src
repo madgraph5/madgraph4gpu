@@ -54,16 +54,16 @@ intel: $(intel_lib)
 
 hip: $(hip_lib)
 
-%.openmp.o : %.cc %.h
+%%.openmp.o : %%.cc %%.h
 	$(CXX) $(OPENMP_CXXFLAGS) -c $< -o $@
 
-%.cuda.o : %.cc %.h
+%%.cuda.o : %%.cc %%.h
 	$(NVCC) $(CUDA_CXXFLAGS) -c $< -o $@
 
-%.intel.o : %.cc %.h
+%%.intel.o : %%.cc %%.h
 	$(ICPX) $(INTEL_CXXFLAGS) -c $< -o $@
 
-%.hip.o : %.cc %.h
+%%.hip.o : %%.cc %%.h
 	$(HIPCC) $(HIP_CXXFLAGS) -c $< -o $@
 
 $(cuda_lib): $(cuda_objects)

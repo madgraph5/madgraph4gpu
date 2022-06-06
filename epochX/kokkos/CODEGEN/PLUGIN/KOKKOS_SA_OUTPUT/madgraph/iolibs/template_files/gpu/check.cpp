@@ -85,12 +85,15 @@ void debug_me_is_abnormal( const fptype& me, int ievtALL )
 
 int usage(char* argv0, int ret = 1) {
   std::cout << "Usage: " << argv0
-            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j]"
-            << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations" << std::endl << std::endl;
+            << " [--verbose|-v] [--debug|-d] [--performance|-p] [--json|-j] [--json_file <JSON_FILE>] [--param_card <PARAM_CARD_FILE>] [--bridge] [--device_info] --device_id <DEVICE_ID>"
+            << " [#gpuBlocksPerGrid #gpuThreadsPerBlock] #iterations [jsondate] [jsonrun]" << std::endl << std::endl;
   std::cout << "The number of events per iteration is #gpuBlocksPerGrid * #gpuThreadsPerBlock" << std::endl;
   std::cout << "(also in CPU/C++ code, where only the product of these two parameters counts)" << std::endl << std::endl;
   std::cout << "Summary stats are always computed: '-p' and '-j' only control their printout" << std::endl;
   std::cout << "The '-d' flag only enables NaN/abnormal warnings and OMP debugging" << std::endl;
+  std::cout << "The '--json_file' argument sets the path to the file where the JSON output is saved if '--json | -j' is specified. (default: ./perf/data/<jsondate>-perf-test-run<jsonrun>.json)" << std::endl; 
+  std::cout << "The '--param_card' argument sets the path to the param_card file (default: ../../Cards/param_card.dat)" << std::endl;
+  std::cout << "The '--help|-h' flag prints this message" << std::endl;
   return ret;
 }
 
@@ -108,8 +111,12 @@ int main(int argc, char **argv)
   int jsonrun = 0;
   int numvec[5] = {0,0,0,0,0};
   int nnum = 0;
+  std::string param_card = "../../Cards/param_card.dat";
+  bool json_file_bool = false;
+  std::string json_file = "";
 
   for (int argn = 1; argn < argc; ++argn) {
+    std::string arg = argv[argn];
     if (strcmp(argv[argn], "--verbose") == 0 || strcmp(argv[argn], "-v") == 0)
       verbose = true;
     else if (strcmp(argv[argn], "--debug") == 0 ||
@@ -121,6 +128,26 @@ int main(int argc, char **argv)
     else if (strcmp(argv[argn], "--json") == 0 ||
              strcmp(argv[argn], "-j") == 0)
       json = true;
+    else if ( ( arg == "--help" ) || ( arg == "-h" ) )
+    {
+      return usage(argv[0]);
+    }
+    else if ( arg == "--param_card" )
+    {
+      param_card = argv[argn + 1];
+      argn++;
+    }
+    else if ( arg == "--json_file" )
+    {
+      json_file = argv[argn + 1];
+      json_file_bool = true;
+      argn++;
+    }
+    else if ( arg == "--device_id" )
+    {
+      //Do nothing, skip input
+      argn++;
+    }
     else if (is_number(argv[argn]) && nnum<5)
       numvec[nnum++] = atoi(argv[argn]);
     else
@@ -167,6 +194,18 @@ int main(int argc, char **argv)
     return usage(argv[0]);
   }
 
+  if ( team_size < 1 )
+  {
+    std::cout << "ERROR! #threads/block should be >= 0" << std::endl;
+    return usage(argv[0]);
+  }
+
+  if ( league_size < 1 )
+  {
+    std::cout << "ERROR! #blocks should be >= 0" << std::endl;
+    return usage(argv[0]);
+  }
+
   const int ndim = league_size * team_size; // number of threads in one GPU grid
   const int nevt = ndim; // number of events in one iteration == number of GPU threads
   const int nevtALL = niter*nevt; // total number of ALL events in all iterations
@@ -193,7 +232,7 @@ int main(int argc, char **argv)
 
 
   // Read param_card and set parameters
-  process.initProc("../../Cards/param_card.dat");
+  process.initProc(param_card);
   const fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   //const fptype energy = 91.2; // Ecms = 91.2 GeV (Z peak)
   //const fptype energy = 0.100; // Ecms = 100 MeV (well below the Z peak, pure em scattering)
@@ -706,6 +745,9 @@ int main(int argc, char **argv)
   {
     std::string jsonFileName = std::to_string(jsondate) + "-perf-test-run" + std::to_string(jsonrun) + ".json";
     jsonFileName = "./perf/data/" + jsonFileName;
+    if (json_file_bool) {
+        jsonFileName = json_file;
+    }
 
     //Checks if file exists
     std::ifstream fileCheck;
