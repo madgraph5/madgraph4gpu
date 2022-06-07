@@ -238,6 +238,9 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 1
       FFV1_0<W_ACCESS, A_ACCESS, CI_ACCESS>( w_fp[2], w_fp[3], w_fp[4], COUPs[0], &amp_fp[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+#endif
       jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 2 OF 2 ***
@@ -247,6 +250,9 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 2
       FFV2_4_0<W_ACCESS, A_ACCESS, CI_ACCESS>( w_fp[2], w_fp[3], w_fp[4], COUPs[1], COUPs[2], &amp_fp[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+#endif
       jamp_sv[0] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***
@@ -504,7 +510,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef __CUDACC__ /* clang-format off */
   __global__ void
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
@@ -514,7 +520,7 @@ namespace mg5amcCpu
                        fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
                        bool* isGoodHel )           // output: isGoodHel[ncomb] - device array
-  {
+  { /* clang-format on */
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
     fptype allMEsLast = 0;
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
