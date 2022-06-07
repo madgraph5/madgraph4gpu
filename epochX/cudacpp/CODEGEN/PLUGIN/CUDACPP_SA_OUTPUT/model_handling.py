@@ -1588,11 +1588,18 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 namp = amplitude.get('number')
                 amplitude.set('number', 1)
                 res.append(self.get_amplitude_call(amplitude)) # AV new: avoid format_call
-                if id_amp in diag_to_config:
-                    ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diag_to_config[id_amp]) # BUG #472
-                    ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % id_amp) # wrong fix for BUG #472
-                    res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
-                    res.append("if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );")
+                if multi_channel_map: # different code bases #473 (assume this is the same as self.include_multi_channel...)
+                    if id_amp in diag_to_config:
+                        ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diag_to_config[id_amp]) # BUG #472
+                        ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % id_amp) # wrong fix for BUG #472
+                        res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
+                        res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
+                        res.append("if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );")
+                        res.append("#endif")
+                else:
+                    res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
+                    res.append("// Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)")
+                    res.append("#endif")
                 for njamp, coeff in color[namp].items():
                     scoeff = PLUGIN_OneProcessExporter.coeff(*coeff) # AV
                     if scoeff[0] == '+' : scoeff = scoeff[1:]
