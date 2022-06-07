@@ -1,5 +1,6 @@
 #ifndef MemoryAccessNumerators_H
 #define MemoryAccessNumerators_H 1
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 
 #include "MemoryAccessGs.h"
 
@@ -13,4 +14,5 @@ typedef KernelAccessGs<true> DeviceAccessNumerators;
 
 //----------------------------------------------------------------------------
 
+#endif
 #endif // MemoryAccessNumerators_H
