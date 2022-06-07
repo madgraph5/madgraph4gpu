@@ -1,4 +1,5 @@
 Running MG5 in debug mode
+('WARNING: loading of madgraph too slow!!!', 1.919219970703125)
 ************************************************************
 *                                                          *
 *                     W E L C O M E to                     *
@@ -50,7 +51,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006860494613647461 [0m
+[1;32mDEBUG: model prefixing  takes 0.006903648376464844 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
@@ -127,6 +128,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_ee_mu
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 189][0m [0m
 quit
 
-real	0m1.115s
-user	0m0.930s
-sys	0m0.142s
+real	0m3.065s
+user	0m0.968s
+sys	0m0.141s
