@@ -706,6 +706,8 @@ class OneProcessExporterCPP(object):
 
 
         self.include_multi_channel = config_map
+        misc.sprint('Self type is %s'%type(self))
+        misc.sprint('From generate_process_files_madevent [.mad] will call generate_process_files')
         self.generate_process_files() 
         misc.sprint(proc_id)
         misc.sprint(config_map)

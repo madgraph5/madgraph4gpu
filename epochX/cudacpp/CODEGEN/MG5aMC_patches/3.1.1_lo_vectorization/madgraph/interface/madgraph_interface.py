@@ -8456,6 +8456,7 @@ in the MG5aMC option 'samurai' (instead of leaving it to its default 'auto')."""
             else:
                 second_exporter = None
                 second_helas = None
+            misc.sprint('Self type is %s'%type(self))
             misc.sprint('From generate_matrix_elements will call export_processes')
             calls += self._curr_exporter.export_processes(self._curr_matrix_elements,
                                                          self._curr_helas_model,
@@ -8560,6 +8561,8 @@ in the MG5aMC option 'samurai' (instead of leaving it to its default 'auto')."""
         # ungroup mode
         else:
             for nb,me in enumerate(matrix_elements[:]):
+                misc.sprint('Self type is %s'%type(self))
+                misc.sprint('Self _curr_matrix_elements [.auto] type is %s'%type(self._curr_matrix_elements))
                 misc.sprint('From generate_matrix_elements [.auto] will call generate_subprocess_directory (ungroup mode) for me of type %s including %s'%(type(me),dir(me)))
                 new_calls = self._curr_exporter.generate_subprocess_directory(\
                             me, self._curr_helas_model, nb)

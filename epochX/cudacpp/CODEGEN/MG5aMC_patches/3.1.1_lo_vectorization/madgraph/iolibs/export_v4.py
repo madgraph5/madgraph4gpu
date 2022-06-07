@@ -217,6 +217,7 @@ class ProcessExporterFortran(VirtualExporter):
                                     break
 
             for (group_number, me_group) in enumerate(matrix_elements):
+                misc.sprint('Self type is %s'%type(self))
                 misc.sprint('From export_processes [.mad] will call generate_subprocess_directory for me_group of type %s including %s'%(type(me_group),dir(me_group)))
                 calls = calls + self.generate_subprocess_directory(\
                                           me_group, fortran_model, group_number,
@@ -6113,6 +6114,7 @@ class ProcessExporterFortranMEGroup(ProcessExporterFortranME):
                     logger.info('Creating files in directory %s' % dirpath)
                     process_exporter_cpp.path = dirpath
                     # Create the process .h and .cc files
+                    misc.sprint('Self type is %s'%type(self))
                     misc.sprint('From generate_subprocess_directory [.mad] will call generate_process_files_madevent for subproc_group of type %s including %s'%(type(subproc_group),dir(subproc_group)))
                     process_exporter_cpp.generate_process_files_madevent(proc_id=str(ime+1),
                                         config_map=subproc_group.get('diagram_maps')[ime], 
