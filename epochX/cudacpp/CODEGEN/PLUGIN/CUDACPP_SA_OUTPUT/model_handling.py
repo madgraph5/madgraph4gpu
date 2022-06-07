@@ -1072,18 +1072,20 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   // (similarly, it also ADDS the numerator and denominator for a given ihel to their running sums over helicities)
   __device__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
-                           const fptype* allmomenta,    // input: momenta[nevt*npar*4]
-                           const fptype* allcouplings,  // input: couplings[nevt*ndcoup*2]
-                           fptype* allMEs,              // output: allMEs[nevt], |M|^2 running_sum_over_helicities
-                           fptype* allNumerators,       // output: multichannel numerators[nevt], running_sum_over_helicities
-                           fptype* allDenominators,     // output: multichannel denominators[nevt], running_sum_over_helicities
-                           const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                           const fptype* allmomenta,      // input: momenta[nevt*npar*4]
+                           const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
+                           fptype* allMEs                 // output: allMEs[nevt], |M|^2 running_sum_over_helicities
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                           , fptype* allNumerators        // output: multichannel numerators[nevt], running_sum_over_helicities
+                           , fptype* allDenominators      // output: multichannel denominators[nevt], running_sum_over_helicities
+                           , const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+#endif
 #ifndef __CUDACC__
-                           , const int nevt             // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                           , const int nevt               // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
-  { /* clang-format on */
+  {
 #ifdef __CUDACC__
     using namespace mg5amcGpu;
     using M_ACCESS = DeviceAccessMomenta;         // non-trivial access: buffer includes all events
@@ -1092,8 +1094,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = DeviceAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = DeviceAccessDenominators;  // non-trivial access: buffer includes all events
+#endif
 #else
     using namespace mg5amcCpu;
     using M_ACCESS = HostAccessMomenta;         // non-trivial access: buffer includes all events
@@ -1102,9 +1106,11 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
 #endif
+#endif /* clang-format on */
     mgDebug( 0, __FUNCTION__ );
     //printf( \"calculate_wavefunctions: ihel=%2d\\n\", ihel );
 #ifndef __CUDACC__
@@ -1517,8 +1523,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       const fptype* COUPs[nxcoup];
       for( size_t ixcoup = 0; ixcoup < nxcoup; ixcoup++ ) COUPs[ixcoup] = allCOUPs[ixcoup];
       fptype* MEs = allMEs;
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* numerators = allNumerators;
       fptype* denominators = allDenominators;
+#endif
 #else
       // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
       const int ievt0 = ipagV * neppV;
@@ -1529,16 +1537,20 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )
         COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
+#endif
 #endif
 
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
       for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }
 
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
       fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
-      fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );""")
+      fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
+#endif""")
         diagrams = matrix_element.get('diagrams')
         diag_to_config = {}
         if multi_channel_map:

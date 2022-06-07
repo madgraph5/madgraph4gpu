@@ -102,7 +102,7 @@ namespace mg5amcCpu
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
-  { /* clang-format on */
+  {
 #ifdef __CUDACC__
     using namespace mg5amcGpu;
     using M_ACCESS = DeviceAccessMomenta;         // non-trivial access: buffer includes all events
@@ -127,7 +127,7 @@ namespace mg5amcCpu
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
 #endif
-#endif
+#endif /* clang-format on */
     mgDebug( 0, __FUNCTION__ );
     //printf( "calculate_wavefunctions: ihel=%2d\n", ihel );
 #ifndef __CUDACC__
@@ -215,7 +215,7 @@ namespace mg5amcCpu
       fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
 #endif
-      
+
       // *** DIAGRAM 1 OF 2 ***
 
       // Wavefunction(s) for diagram number 1
@@ -695,7 +695,7 @@ namespace mg5amcCpu
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
-    allMEs[ievt] /= denominators[0];                                                 // FIXME (#343): assume nprocesses == 1
+    allMEs[ievt] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
 #endif
