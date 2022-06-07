@@ -253,7 +253,7 @@ namespace mg5amcCpu
   typedef DeviceBuffer<fptype, sizePerEventNumerators> DeviceBufferNumerators;
 #endif
 #endif
-  
+
   //--------------------------------------------------------------------------
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
