@@ -8550,6 +8550,7 @@ in the MG5aMC option 'samurai' (instead of leaving it to its default 'auto')."""
                 matrix_elements = self._curr_matrix_elements.get_matrix_elements()
 
             for me_number, me in enumerate(self._curr_matrix_elements):
+                misc.sprint('calling generate_subprocess_directory (group mode) for me of type %s including %s'%(type(me),dir(me)))
                 calls = calls + \
                     self._curr_exporter.generate_subprocess_directory(\
                         me, self._curr_helas_model, me_number)               
@@ -8557,6 +8558,7 @@ in the MG5aMC option 'samurai' (instead of leaving it to its default 'auto')."""
         # ungroup mode
         else:
             for nb,me in enumerate(matrix_elements[:]):
+                misc.sprint('calling generate_subprocess_directory (ungroup mode) for me of type %s including %s'%(type(me),dir(me)))
                 new_calls = self._curr_exporter.generate_subprocess_directory(\
                             me, self._curr_helas_model, nb)
                 if  isinstance(new_calls, int):
