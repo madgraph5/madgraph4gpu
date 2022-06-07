@@ -1246,12 +1246,25 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ff.write(template % replace_dict)
         ff.close()
 
-    # AV - add debug printouts over the export_cpp.OneProcessExporterGPU method
+    # AV - replace the export_cpp.OneProcessExporterGPU method (add debug printouts and multichannel handling #473) 
     def edit_mgonGPU(self):
         """Generate mgOnGpuConfig.h"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_mgonGPU')
-        ###misc.sprint('  template_path=%s'%self.template_path) # look for gpu/mgOnGpuConfig.h here
-        return super().edit_mgonGPU()
+        template = open(pjoin(self.template_path,'gpu','mgOnGpuConfig.h'),'r').read()
+        replace_dict = {}
+        nexternal, nincoming = self.matrix_elements[0].get_nexternal_ninitial()
+        replace_dict['nincoming'] = nincoming
+        replace_dict['noutcoming'] = nexternal - nincoming
+        replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
+        replace_dict['nwavefunc'] = self.matrix_elements[0].get_number_of_wavefunctions()
+        replace_dict['wavefuncsize'] = 6
+        if self.include_multi_channel:
+            replace_dict['mgongpu_supports_multichannel'] = '#define MGONGPU_SUPPORTS_MULTICHANNEL 1'
+        else:
+            replace_dict['mgongpu_supports_multichannel'] = '#undef MGONGPU_SUPPORTS_MULTICHANNEL'
+        ff = open(pjoin(self.path, '..','..','src','mgOnGpuConfig.h'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
 
     # AV - new method
     def edit_processidfile(self):
