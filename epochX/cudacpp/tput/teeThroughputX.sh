@@ -54,7 +54,7 @@ for arg in $*; do
     if [ "$heftggh" == "" ]; then procs+=${procs:+ }${arg}; fi
     heftggh=$arg
   elif [ "$arg" == "-sa" ]; then
-    suffs="sa" # standalone_cudacpp code base (logs_*_sa: NB this used to be logs_*_manu)
+    suffs="sa" # standalone_cudacpp code base (logs_*_manu: NB eventually this will become logs_*_sa)
   elif [ "$arg" == "-noalpaka" ]; then
     alpaka=$arg
   elif [ "$arg" == "-flt" ]; then
@@ -128,7 +128,7 @@ started="STARTED AT $(date)"
 for step in $steps; do
   for proc in $procs; do
     for suff in $suffs; do
-      sa=; if [ "${suff}" == "sa" ]; then sa=" -sa"; fi
+      sa=; if [ "${suff}" == "sa" ]; then sa=" -sa"; sufflog=manu; else sufflog=${suff}; fi
       for fptype in $fptypes; do
         flt=; if [ "${fptype}" == "f" ]; then flt=" -fltonly"; fi
         for helinl in $helinls; do
@@ -151,7 +151,7 @@ for step in $steps; do
               printf "\n%80s\n" |tr " " "*"
               if ! ./throughputX.sh -makeonly ${makej} $args; then exit 1; fi
             else
-              logfile=logs_${proc#-}_${suff}/log_${proc#-}_${suff}_${fptype}_inl${helinl}_hrd${hrdcod}.txt
+              logfile=logs_${proc#-}_${sufflog}/log_${proc#-}_${sufflog}_${fptype}_inl${helinl}_hrd${hrdcod}.txt
               if [ "${rndgen}" != "" ]; then logfile=${logfile%.txt}_${rndgen#-}.txt; fi
               if [ "${rmbsmp}" != "" ]; then logfile=${logfile%.txt}_${rmbsmp#-}.txt; fi
               printf "\n%80s\n" |tr " " "*"
