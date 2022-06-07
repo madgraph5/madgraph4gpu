@@ -47,8 +47,8 @@ ended2="$cmd\nENDED(2) AT $(date) [Status=$status]"
 tmp2=$(mktemp)
 ls -ltr ee_mumu/lib/build.none_*_inl1_hrd* gg_tt/lib/build.none_*_inl1_hrd* gg_tt*g/lib/build.none_*_inl1_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp2
 
-# (38/56) Two extra logs (double/float x hrd0 x inl0 + bridge) only in three of the five processes (no rebuild needed)
-cmd="./tput/teeThroughputX.sh ${mad} -eemumu -ggtt -ggttgg -flt -bridge"
+# (38/56) Two extra logs (double/float x hrd0 x inl0 + bridge) only in three of the five processes (rebuild from cache)
+cmd="./tput/teeThroughputX.sh ${mad} -makej -makeclean -eemumu -ggtt -ggttgg -flt -bridge"
 $cmd; status=$?
 ended3="$cmd\nENDED(3) AT $(date) [Status=$status]"
 
