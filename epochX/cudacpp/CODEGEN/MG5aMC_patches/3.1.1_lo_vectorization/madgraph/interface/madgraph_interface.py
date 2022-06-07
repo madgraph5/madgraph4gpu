@@ -8347,6 +8347,9 @@ in the MG5aMC option 'samurai' (instead of leaving it to its default 'auto')."""
             the appropriate value if the MG5 option 'group_subprocesses' was set
             to 'Auto'."""
 
+            misc.sprint('Entering generate_matrix_elements')
+            misc.sprint(type(self._curr_matrix_elements))
+            misc.sprint(dir(self._curr_matrix_elements))
             if self._export_format in ['standalone_msP', 'standalone_msF', 'standalone_mw']:
                 to_distinguish = []
                 for part in self._curr_model.get('particles'):
@@ -8453,7 +8456,7 @@ in the MG5aMC option 'samurai' (instead of leaving it to its default 'auto')."""
             else:
                 second_exporter = None
                 second_helas = None
-
+            misc.sprint('From generate_matrix_elements will call export_processes')
             calls += self._curr_exporter.export_processes(self._curr_matrix_elements,
                                                          self._curr_helas_model,
                                                          second_exporter=second_exporter,
@@ -8550,7 +8553,6 @@ in the MG5aMC option 'samurai' (instead of leaving it to its default 'auto')."""
                 matrix_elements = self._curr_matrix_elements.get_matrix_elements()
 
             for me_number, me in enumerate(self._curr_matrix_elements):
-                misc.sprint('calling generate_subprocess_directory (group mode) for me of type %s including %s'%(type(me),dir(me)))
                 calls = calls + \
                     self._curr_exporter.generate_subprocess_directory(\
                         me, self._curr_helas_model, me_number)               
@@ -8558,7 +8560,7 @@ in the MG5aMC option 'samurai' (instead of leaving it to its default 'auto')."""
         # ungroup mode
         else:
             for nb,me in enumerate(matrix_elements[:]):
-                misc.sprint('calling generate_subprocess_directory (ungroup mode) for me of type %s including %s'%(type(me),dir(me)))
+                misc.sprint('From generate_matrix_elements [.auto] will call generate_subprocess_directory (ungroup mode) for me of type %s including %s'%(type(me),dir(me)))
                 new_calls = self._curr_exporter.generate_subprocess_directory(\
                             me, self._curr_helas_model, nb)
                 if  isinstance(new_calls, int):

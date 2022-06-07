@@ -203,6 +203,7 @@ class ProcessExporterFortran(VirtualExporter):
         """Make the switch between grouped and not grouped output"""
         
         calls = 0
+        misc.sprint(type(matrix_elements))
         if isinstance(matrix_elements, group_subprocs.SubProcessGroupList):
             # check handling for the polarization
             for m in matrix_elements:
@@ -216,6 +217,7 @@ class ProcessExporterFortran(VirtualExporter):
                                     break
 
             for (group_number, me_group) in enumerate(matrix_elements):
+                misc.sprint('From export_processes [.mad] will call generate_subprocess_directory for me_group of type %s including %s'%(type(me_group),dir(me_group)))
                 calls = calls + self.generate_subprocess_directory(\
                                           me_group, fortran_model, group_number,
                                           second_exporter=second_exporter, second_helas=second_helas
@@ -6105,11 +6107,13 @@ class ProcessExporterFortranMEGroup(ProcessExporterFortranME):
             if second_exporter:
                 process_exporter_cpp = second_exporter.oneprocessclass(matrix_element,second_helas, prefix=ime)
                 misc.sprint(process_exporter_cpp)
+                misc.sprint(type(subproc_group))
                 dirpath = '.'
                 with misc.chdir(dirpath):
                     logger.info('Creating files in directory %s' % dirpath)
                     process_exporter_cpp.path = dirpath
                     # Create the process .h and .cc files
+                    misc.sprint('From generate_subprocess_directory [.mad] will call generate_process_files_madevent for subproc_group of type %s including %s'%(type(subproc_group),dir(subproc_group)))
                     process_exporter_cpp.generate_process_files_madevent(proc_id=str(ime+1),
                                         config_map=subproc_group.get('diagram_maps')[ime], 
                                         subproc_number=group_number)
