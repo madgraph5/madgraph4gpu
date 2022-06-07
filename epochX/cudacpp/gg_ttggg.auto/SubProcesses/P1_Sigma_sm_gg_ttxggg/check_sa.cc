@@ -555,7 +555,8 @@ main( int argc, char** argv )
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
-    pmek->computeMatrixElements();
+    constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in check.exe and gcheck.exe #466
+    pmek->computeMatrixElements( channelId );
 
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wv3atime += timermap.stop(); // calc only

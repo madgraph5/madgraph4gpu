@@ -83,7 +83,8 @@ struct CPUTest : public CUDA_CPU_TestBase
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
     MatrixElementKernelHost mek( hstMomenta, hstGs, hstMatrixElements, nevt );
     if( iiter == 0 ) mek.computeGoodHelicities();
-    mek.computeMatrixElements();
+    constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in runTest.exe #466
+    mek.computeMatrixElements( channelId );
   }
 
   fptype getMomentum( std::size_t ievt, unsigned int ipar, unsigned int ip4 ) const override
@@ -181,7 +182,8 @@ struct CUDATest : public CUDA_CPU_TestBase
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
     MatrixElementKernelDevice mek( devMomenta, hstGs, devMatrixElements, gpublocks, gputhreads );
     if( iiter == 0 ) mek.computeGoodHelicities();
-    mek.computeMatrixElements();
+    constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in runTest.exe #466
+    mek.computeMatrixElements( channelId );
     copyHostFromDevice( hstMatrixElements, devMatrixElements );
   }
 
