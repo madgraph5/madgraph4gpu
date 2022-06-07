@@ -49,7 +49,7 @@ verbose=0
 
 dlp=
 
-# Optional hack to build only the cudacpp plugin in .mad directories
+# Optional hack to build only the cudacpp plugin (without building the madevent code) in .mad directories
 makef=
 ###makef="-f Makefile"
 
