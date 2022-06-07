@@ -39,7 +39,6 @@
     //static const int nwavefuncs = %(nwavefuncs)d; // mgOnGpu::nwf
     //static const int namplitudes = %(namp)d;
     //static const int ncomb = %(ncomb)d; // mgOnGpu::ncomb
-    //static const int wrows = %(sizew)d; // mgOnGpu::nw6;
 
   private:
 
