@@ -221,7 +221,8 @@ BRIEF=--brief
 
 # Default: use the 311 MG5aMC branch (except for alpaka and gridpack)
 use270=0
-if [ "${SCRBCK}" == "alpaka" ] || [ "${SCRBCK}" == "gridpack" ]; then use270=1; fi
+###if [ "${SCRBCK}" == "alpaka" ] || [ "${SCRBCK}" == "gridpack" ]; then use270=1; fi
+if [ "${SCRBCK}" == "gridpack" ]; then use270=1; fi
 
 # Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
 UNTARONLY=1
@@ -287,7 +288,7 @@ if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"
 mg5amc270=2.7.0_gpu
 mg5amc311=3.1.1_lo_vectorization
 mg5amcBrn=${mg5amc311}
-if [ "${OUTBCK}" == "alpaka" ]; then
+if [ "${OUTBCK}" == "alpaka" ] && [ ${use270} == "1" ]; then
   revno_patches=370
 else
   revno_patches=$(cat $SCRDIR/MG5aMC_patches/${mg5amcBrn}/revision.BZR)
