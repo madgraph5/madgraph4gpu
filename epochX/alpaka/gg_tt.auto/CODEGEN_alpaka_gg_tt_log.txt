@@ -11,8 +11,8 @@ Running MG5 in debug mode
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 2.9.5                 2021-08-22         *
-*         BZR 2.7.0_gpu                        371         *
+*         VERSION 3.4.0_lo_vect         2022-05-06         *
+*         BZR 3.1.1_lo_vectorization          1010         *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -42,7 +42,7 @@ Note that you can still compile and run aMC@NLO with the built-in PDFs
 
 No valid eps viewer found. Please set in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
-import /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_alpaka_gg_tt.mg
+import /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_alpaka_gg_tt.mg
 The import format was not given, so we guess it as command
 set stdout_level DEBUG
 set output information to level: 10
@@ -50,10 +50,9 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0068781375885009766 [0m
+[1;32mDEBUG: model prefixing  takes 0.006856203079223633 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
-[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
 Defined multiparticle p = g u c d s u~ c~ d~ s~
 Defined multiparticle j = g u c d s u~ c~ d~ s~
 Defined multiparticle l+ = e+ mu+
@@ -61,19 +60,21 @@ Defined multiparticle l- = e- mu-
 Defined multiparticle vl = ve vm vt
 Defined multiparticle vl~ = ve~ vm~ vt~
 Defined multiparticle all = g u c d s u~ c~ d~ s~ a ve vm vt e- mu- ve~ vm~ vt~ e+ mu+ t b t~ b~ z w+ h w- ta- ta+
-[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
 INFO: Checking for minimal orders which gives processes. 
 INFO: Please specify coupling orders to bypass this step. 
 INFO: Trying coupling order WEIGHTED<=2: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ WEIGHTED<=2 @1  
 INFO: Process has 3 diagrams 
-1 processes with 3 diagrams generated in 0.010 s
+1 processes with 3 diagrams generated in 0.011 s
 Total: 1 processes with 3 diagrams
 output standalone_alpaka_cudacpp CODEGEN_alpaka_gg_tt
+[1;34mPlugin PLUGIN.ALPAKA_CUDACPP_SA_OUTPUT has marked as NOT being validated with this version: 3.4.0_lo_vect. 
+It has been validated for the last time with version: 2.9.5[0m
 [1mOutput will be done with PLUGIN: ALPAKA_CUDACPP_SA_OUTPUT[0m
+[1;32mDEBUG:  cformat = [0m plugin [1;30m[export_cpp.py at line 3008][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 129][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 134][0m [0m
-INFO: Creating subdirectories in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_alpaka_gg_tt 
+INFO: Creating subdirectories in directory /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_alpaka_gg_tt 
 INFO: Organizing processes into subprocess groups 
 INFO: Generating Helas calls for process: g g > t t~ WEIGHTED<=2 @1 
 [1;32mDEBUG:  keepordering (default): True [1;30m[output.py at line 26][0m [0m
@@ -81,43 +82,42 @@ INFO: Processing color information for process: g g > t t~ @1
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory) [1;30m[output.py at line 139][0m [0m
 [1;32mDEBUG:    type(subproc_group)=<class 'madgraph.core.helas_objects.HelasMatrixElement'> [1;30m[output.py at line 140][0m [0m
 [1;32mDEBUG:    type(fortran_model)=<class 'PLUGIN.ALPAKA_CUDACPP_SA_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 141][0m [0m
-INFO: Creating files in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_alpaka_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx 
+INFO: Creating files in directory /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_alpaka_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 894][0m [0m
-FileWriter <class 'PLUGIN.ALPAKA_CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_alpaka_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/./CPPProcess.h
+FileWriter <class 'PLUGIN.ALPAKA_CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_alpaka_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/./CPPProcess.h
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 943][0m [0m
-FileWriter <class 'PLUGIN.ALPAKA_CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_alpaka_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/./CPPProcess.cc
+FileWriter <class 'PLUGIN.ALPAKA_CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_alpaka_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/./CPPProcess.cc
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 965][0m [0m
 [1;32mDEBUG:  call = [0m vxxxxx(allmomenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d); [1;30m[model_handling.py at line 1274][0m [0m
 [1;32mDEBUG:  ('ZERO', 0, -1, 0, 0) [1;30m[model_handling.py at line 1275][0m [0m
 [1;32mDEBUG:  call = [0m vxxxxx(allmomenta,m_pars->%s, cHel[ihel][%d],%+d, w_sv[%d], %d); [1;30m[model_handling.py at line 1274][0m [0m
 [1;32mDEBUG:  ('ZERO', 1, -1, 1, 1) [1;30m[model_handling.py at line 1275][0m [0m
 [1;32mDEBUG: only one Matrix-element supported? [0m
-INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_alpaka_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/. 
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_alpaka_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/. 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 908][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 923][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_processidfile [1;30m[model_handling.py at line 930][0m [0m
 Generated helas calls for 1 subprocesses (3 diagrams) in 0.008 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 146][0m [0m
-ALOHA: aloha creates routines (starting by VVV1 with options P0)
+ALOHA: aloha starts to compute helicity amplitudes
+ALOHA: aloha creates VVV1 set of routines with options: P0[0m
+ALOHA: aloha creates FFV1 routines[0m
+ALOHA: aloha creates 2 routines in  0.162 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
-[1;32mDEBUG:  language = [0m <class 'PLUGIN.ALPAKA_CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2446][0m [0m
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
-[1;32mDEBUG:  language = [0m <class 'PLUGIN.ALPAKA_CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2446][0m [0m
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
-[1;32mDEBUG:  language = [0m <class 'PLUGIN.ALPAKA_CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2446][0m [0m
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
-[1;32mDEBUG:  language = [0m <class 'PLUGIN.ALPAKA_CUDACPP_SA_OUTPUT.model_handling.PLUGIN_ALOHAWriter'> [1;30m[aloha_writers.py at line 2446][0m [0m
-FileWriter <class 'PLUGIN.ALPAKA_CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_alpaka_gg_tt/src/./HelAmps_sm.h
-FileWriter <class 'PLUGIN.ALPAKA_CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_alpaka_gg_tt/src/./HelAmps_sm.cc
+FileWriter <class 'PLUGIN.ALPAKA_CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_alpaka_gg_tt/src/./HelAmps_sm.h
+FileWriter <class 'PLUGIN.ALPAKA_CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_alpaka_gg_tt/src/./HelAmps_sm.cc
 INFO: Created files HelAmps_sm.h and HelAmps_sm.cc in directory 
-INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_alpaka_gg_tt/src/. and /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_alpaka_gg_tt/src/. 
-FileWriter <class 'PLUGIN.ALPAKA_CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_alpaka_gg_tt/src/./Parameters_sm.h
-FileWriter <class 'PLUGIN.ALPAKA_CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_alpaka_gg_tt/src/./Parameters_sm.cc
+INFO: /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_alpaka_gg_tt/src/. and /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_alpaka_gg_tt/src/. 
+FileWriter <class 'PLUGIN.ALPAKA_CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_alpaka_gg_tt/src/./Parameters_sm.h
+FileWriter <class 'PLUGIN.ALPAKA_CUDACPP_SA_OUTPUT.model_handling.PLUGIN_FileWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_alpaka_gg_tt/src/./Parameters_sm.cc
 INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory 
-INFO: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_alpaka_gg_tt/src/. and /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_alpaka_gg_tt/src/. 
+INFO: /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_alpaka_gg_tt/src/. and /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_alpaka_gg_tt/src/. 
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 155][0m [0m
 quit
 
-real	0m3.188s
-user	0m0.782s
-sys	0m0.139s
+real	0m0.910s
+user	0m0.757s
+sys	0m0.124s
