@@ -6,7 +6,7 @@
 #include "mgOnGpuCxtypes.h"
 
 #include "CudaRuntime.h"
-#include "Parameters_sm.h"
+#include "Parameters_heft.h"
 
 #include <sstream>
 
@@ -26,7 +26,7 @@ namespace mg5amcCpu
     static constexpr size_t npar = mgOnGpu::npar;
     static constexpr size_t nw6 = mgOnGpu::nw6;
     static constexpr size_t nx2 = mgOnGpu::nx2;
-    static constexpr size_t ndcoup = Parameters_sm_dependentCouplings::ndcoup;
+    static constexpr size_t ndcoup = Parameters_heft_dependentCouplings::ndcoup;
   }
 
   //--------------------------------------------------------------------------
