@@ -217,8 +217,8 @@ namespace Proc
       // (This method used to be called CPPProcess::matrix_1_gg_ttx()?)
 
       // The color matrix
-      constexpr fptype denom[ncolor] = {3, 3};
-      constexpr fptype cf[ncolor][ncolor] = {
+      static constexpr fptype denom[ncolor] = {3, 3};
+      static constexpr fptype cf[ncolor][ncolor] = {
       {16, -2},
       {-2, 16}};
 
@@ -272,7 +272,7 @@ namespace Proc
     , m_masses()
   {
     // Helicities for the process - nodim
-    constexpr short tHel[ncomb][mgOnGpu::npar] = {
+    static constexpr short tHel[ncomb][mgOnGpu::npar] = {
       {-1, -1, -1, -1},
       {-1, -1, -1, 1},
       {-1, -1, 1, -1},
