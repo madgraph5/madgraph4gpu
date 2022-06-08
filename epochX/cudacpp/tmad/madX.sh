@@ -7,17 +7,9 @@ scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
 topdir=$(cd $scrdir; cd ../../..; pwd)
 
-# Can events be generated? (i.e. has issue #14 been fixed?)
-genevt=0 # present implementation (workaround for issue #14)
-###genevt=1 # test if issue #14 has been fixed
-
 function usage()
 {
-  if [ "$genevt" == "0" ]; then
-    echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-keeprdat]" > /dev/stderr
-  else
-    echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly]" > /dev/stderr
-  fi
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-keeprdat]" > /dev/stderr
   exit 1
 }
 
@@ -36,7 +28,7 @@ ggttggg=0
 maketype=
 ###makej=
 
-if [ "$genevt" == "1" ]; then keeprdat=0; fi
+keeprdat=0
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-d" ]; then
@@ -63,7 +55,7 @@ while [ "$1" != "" ]; do
     fi
     maketype="$1"
     shift
-  elif [ "$genevt" == "0" ] && [ "$1" == "-keeprdat" ]; then
+  elif [ "$1" == "-keeprdat" ]; then
     keeprdat=1
     shift
   else
@@ -156,9 +148,9 @@ function getinputfile()
 ${nevt} 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
-0 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
 0 ! Helicity Sum/event 0=exact
-1 ! Channel number for single-diagram enhancement multi-channel (IGNORED as suppress amplitude is 0?)
+1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 EOF
   echo ${tmp}
 }
@@ -207,6 +199,12 @@ function runmadevent()
   fi
   $timecmd $1 < ${tmpin} > ${tmp}
   if [ "$?" != "0" ]; then echo "ERROR! '$timecmd $1 < ${tmpin} > ${tmp}' failed"; tail -10 $tmp; exit 1; fi
+  mch=$(cat ${tmp} | grep --binary-files=text 'MULTI_CHANNEL =' | awk '{print $NF}')
+  conf=$(cat ${tmp} | grep --binary-files=text 'Running Configuration Number:' | awk '{print $NF}')
+  chid=$(cat ${tmp} | grep --binary-files=text 'CHANNEL_ID =' | awk '{print $NF}')
+  echo " [XSECTION] MultiChannel = ${mch}"
+  echo " [XSECTION] Configuration = ${conf}"
+  echo " [XSECTION] ChannelId = ${chid}"
   xsec=$(cat ${tmp} | grep --binary-files=text 'Cross sec =' | awk '{print 0+$NF}')
   if [ "${xsec}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec}"
@@ -271,43 +269,43 @@ for suff in $suffs; do
   ###timecmd=time
   timecmd=
 
-  if [ "$genevt" == "1" ]; then
+  # DEFAULT IMPLEMENTATION : compute cross section and then generate events
+  cd $dir
 
-    # FUTURE IMPLEMENTATION? Currently fails with https://github.com/oliviermattelaer/mg5amc_test/issues/14
-    # First execution: compute xsec (create results.dat)
-    cd $dir
-    \rm -f ftn26
-    if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
-    if [ ! -f results.dat ]; then
-      echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
-      runmadevent ./madevent
-    fi
-    # Second execution: compute xsec and generate events (read results.dat and create events.lhe)
-    echo -e "\n*** EXECUTE MADEVENT (create events.lhe) ***"
-    runmadevent ./madevent
-    echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
-    runmadevent ./cmadevent_cudacpp
-    echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
-    runmadevent ./gmadevent_cudacpp
-
-  else
-
-    # CURRENT (TEMPORARY?) IMPLEMENTATION! Work around https://github.com/oliviermattelaer/mg5amc_test/issues/14
-    # First execution ONLY (no event generation): compute xsec (create results.dat)
-    cd $dir
-    \rm -f ftn26 results.dat
+  # (1) MADEVENT
+  \rm -f results.dat # ALWAYS remove results.dat before the first madevent execution
+  if [ ! -f results.dat ]; then
     echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
+    \rm -f ftn26
     runmadevent ./madevent
-    \rm -f ftn26 results.dat
-    echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
-    runmadevent ./cmadevent_cudacpp
-    runcheck ./check.exe
-    \rm -f ftn26 results.dat
-    echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
-    runmadevent ./gmadevent_cudacpp
-    runcheck ./gcheck.exe
-
   fi
+  echo -e "\n*** EXECUTE MADEVENT (create events.lhe) ***"
+  \rm -f ftn26
+  runmadevent ./madevent
+
+  # (2) CMADEVENT_CUDACPP
+  if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
+  if [ ! -f results.dat ]; then
+    echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
+    \rm -f ftn26
+    runmadevent ./cmadevent_cudacpp
+  fi
+  echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
+  \rm -f ftn26
+  runmadevent ./cmadevent_cudacpp
+  runcheck ./check.exe
+
+  # (3) GMADEVENT_CUDACPP
+  if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
+  if [ ! -f results.dat ]; then
+    echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
+    \rm -f ftn26
+    runmadevent ./gmadevent_cudacpp
+  fi
+  echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
+  \rm -f ftn26
+  runmadevent ./gmadevent_cudacpp
+  runcheck ./gcheck.exe
 
 done
 printf "\nTEST COMPLETED\n"

@@ -5,8 +5,12 @@
 function checkProcdir()
 {
   # Allow using this script only on the processes currently supported by generateAndCompare.sh
-  procdir=$1 # e.g. ee_mumu or eemumu.auto
-  proc=${procdir%.auto}
+  procdir=$1 # e.g. ee_mumu or eemumu.auto or eemumu.mad
+  if [ "${procdir%.mad}" != "${procdir}" ]; then
+    proc=${procdir%.mad}
+  else
+    proc=${procdir%.auto}
+  fi
   case "${proc}" in
     ee_mumu) ;;
     gg_tt) ;;

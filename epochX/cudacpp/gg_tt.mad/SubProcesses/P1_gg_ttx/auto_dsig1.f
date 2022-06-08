@@ -465,9 +465,19 @@ C
       INTEGER IVEC
       INTEGER IEXT
 
+      INTEGER                    ISUM_HEL
+      LOGICAL                    MULTI_CHANNEL
+      COMMON/TO_MATRIX/ISUM_HEL, MULTI_CHANNEL
+
+      LOGICAL FIRST_CHID
+      SAVE FIRST_CHID
+      DATA FIRST_CHID/.TRUE./
+      
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       INCLUDE 'fbridge.inc'
       INCLUDE 'fbridge_common.inc'
+      INCLUDE 'genps.inc'
+      INCLUDE 'run.inc'
       DOUBLE PRECISION OUT2(NB_PAGE_MAX)
       DOUBLE PRECISION CBYF1
 
@@ -478,7 +488,7 @@ C
       LOGICAL FIRST
       SAVE FIRST
       DATA FIRST/.TRUE./
-      
+
       IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
         call counters_smatrix1multi_start( -1, nb_page_loop ) ! fortran=-1
@@ -501,12 +511,26 @@ c!$OMP END PARALLEL
       ENDIF
 
       IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
+        IF( LIMHEL.NE.0 ) THEN
+          WRITE(6,*) 'ERROR! The cudacpp bridge only supports LIMHEL=0'
+          STOP
+        ENDIF
         IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
-          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2)
+          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled for helicity filtering
           FIRST = .FALSE.
         ENDIF
         call counters_smatrix1multi_start( 0, nb_page_loop ) ! cudacpp=0
-        CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2)
+        IF ( .NOT. MULTI_CHANNEL ) THEN
+          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
+     &      P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled
+        ELSE
+          IF( SDE_STRAT.NE.1 ) THEN
+            WRITE(6,*) 'ERROR! The cudacpp bridge in multichannel mode requires SDE=1'
+            STOP
+          ENDIF
+          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
+     &      P_MULTI, ALL_G, OUT2, CHANNEL) ! 1-N: multi channel enabled
+        ENDIF
         call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
       ENDIF
 
@@ -519,17 +543,28 @@ c!$OMP END PARALLEL
           IF( CBYF1 .GT. FBRIDGE_CBYF1MAX ) FBRIDGE_CBYF1MAX = CBYF1
           IF( CBYF1 .LT. FBRIDGE_CBYF1MIN ) FBRIDGE_CBYF1MIN = CBYF1
           IF( FBRIDGE_MODE .EQ. -2 ) THEN ! (BothDebug=-2)
-            WRITE (*,*) IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
+            WRITE (*,'(I2,2E16.8,F23.11)')
+     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
           ENDIF
           IF( ABS(CBYF1).GT.5E-5 .AND. NWARNINGS.LT.20 ) THEN
             NWARNINGS = NWARNINGS + 1
-            WRITE (*,'(A,I2,A,I4,4E16.8)')
+            WRITE (*,'(A,I2,A,I4,2E16.8,F23.11)')
      &        'WARNING! (', NWARNINGS, '/20) Deviation more than 5E-5',
-     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1, ABS(CBYF1)
+     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
           ENDIF
         END DO
       ENDIF
 #endif
+
+      IF ( FIRST_CHID ) THEN
+        IF ( MULTI_CHANNEL ) THEN
+          WRITE (*,*) 'MULTI_CHANNEL = TRUE'
+        ELSE
+          WRITE (*,*) 'MULTI_CHANNEL = FALSE'
+        ENDIF
+        WRITE (*,*) 'CHANNEL_ID =', CHANNEL
+        FIRST_CHID = .FALSE.
+      ENDIF
 
       RETURN
       END

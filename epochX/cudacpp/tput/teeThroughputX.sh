@@ -6,7 +6,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-mad] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-sa] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -17,7 +17,7 @@ ggttg=
 ggttgg=
 ggttggg=
 heftggh=
-suffs="manu"
+suffs="mad" # DEFAULT code base: madevent + cudacpp as 2nd exporter (logs_*_mad)
 alpaka=
 fptypes="d"
 helinls="0"
@@ -53,8 +53,8 @@ for arg in $*; do
   elif [ "$arg" == "-heftggh" ]; then
     if [ "$heftggh" == "" ]; then procs+=${procs:+ }${arg}; fi
     heftggh=$arg
-  elif [ "$arg" == "-mad" ]; then
-    suffs="mad"
+  elif [ "$arg" == "-sa" ]; then
+    suffs="sa" # standalone_cudacpp code base (logs_*_manu: NB eventually this will become logs_*_sa)
   elif [ "$arg" == "-noalpaka" ]; then
     alpaka=$arg
   elif [ "$arg" == "-flt" ]; then
@@ -128,20 +128,14 @@ started="STARTED AT $(date)"
 for step in $steps; do
   for proc in $procs; do
     for suff in $suffs; do
-      mad=; if [ "${suff}" == "mad" ]; then mad=" -mad"; fi
-      ###if [ "${proc}" == "-ggtt" ] && [ "${suff}" == "manu" ]; then
-      ###  ###printf "\n%80s\n" |tr " " "*"
-      ###  ###printf "*** WARNING! ${proc#-}_${suff} does not exist"
-      ###  ###printf "\n%80s\n" |tr " " "*"
-      ###  continue
-      ###fi
+      sa=; if [ "${suff}" == "sa" ]; then sa=" -sa"; sufflog=manu; else sufflog=${suff}; fi
       for fptype in $fptypes; do
         flt=; if [ "${fptype}" == "f" ]; then flt=" -fltonly"; fi
         for helinl in $helinls; do
           inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; fi
           for hrdcod in $hrdcods; do
             hrd=; if [ "${hrdcod}" == "1" ]; then hrd=" -hrdonly"; fi
-            args="${proc}${mad}${flt}${inl}${hrd} ${dlp}"
+            args="${proc}${sa}${flt}${inl}${hrd} ${dlp}"
             args="${args} ${alpaka}" # optionally disable alpaka tests
             args="${args} ${rndgen}" # optionally use common random numbers or curand on host
             args="${args} ${rmbsmp}" # optionally use rambo or bridge on host
@@ -157,7 +151,7 @@ for step in $steps; do
               printf "\n%80s\n" |tr " " "*"
               if ! ./throughputX.sh -makeonly ${makej} $args; then exit 1; fi
             else
-              logfile=logs_${proc#-}_${suff}/log_${proc#-}_${suff}_${fptype}_inl${helinl}_hrd${hrdcod}.txt
+              logfile=logs_${proc#-}_${sufflog}/log_${proc#-}_${sufflog}_${fptype}_inl${helinl}_hrd${hrdcod}.txt
               if [ "${rndgen}" != "" ]; then logfile=${logfile%.txt}_${rndgen#-}.txt; fi
               if [ "${rmbsmp}" != "" ]; then logfile=${logfile%.txt}_${rmbsmp#-}.txt; fi
               printf "\n%80s\n" |tr " " "*"

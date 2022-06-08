@@ -221,7 +221,7 @@ namespace mg5amcCpu
   // A base class encapsulating a memory buffer for Gs (related to the event-by-event strength of running coupling constant alphas QCD)
   typedef BufferBase<fptype> BufferGs;
 
-  // The size (number of elements) per event in a memory buffer for random numbers
+  // The size (number of elements) per event in a memory buffer for Gs
   constexpr size_t sizePerEventGs = 1;
 
 #ifndef __CUDACC__
@@ -232,6 +232,46 @@ namespace mg5amcCpu
   typedef PinnedHostBuffer<fptype, sizePerEventGs> PinnedHostBufferGs;
   // A class encapsulating a CUDA device buffer for gs
   typedef DeviceBuffer<fptype, sizePerEventGs> DeviceBufferGs;
+#endif
+
+  //--------------------------------------------------------------------------
+
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  // A base class encapsulating a memory buffer for numerators (of the multichannel single-diagram enhancement factors)
+  typedef BufferBase<fptype> BufferNumerators;
+
+  // The size (number of elements) per event in a memory buffer for numerators
+  constexpr size_t sizePerEventNumerators = 1;
+
+#ifndef __CUDACC__
+  // A class encapsulating a C++ host buffer for gs
+  typedef HostBuffer<fptype, sizePerEventNumerators, HostBufferALIGNED> HostBufferNumerators;
+#else
+  // A class encapsulating a CUDA pinned host buffer for gs
+  typedef PinnedHostBuffer<fptype, sizePerEventNumerators> PinnedHostBufferNumerators;
+  // A class encapsulating a CUDA device buffer for gs
+  typedef DeviceBuffer<fptype, sizePerEventNumerators> DeviceBufferNumerators;
+#endif
+#endif
+
+  //--------------------------------------------------------------------------
+
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  // A base class encapsulating a memory buffer for denominators (of the multichannel single-diagram enhancement factors)
+  typedef BufferBase<fptype> BufferDenominators;
+
+  // The size (number of elements) per event in a memory buffer for denominators
+  constexpr size_t sizePerEventDenominators = 1;
+
+#ifndef __CUDACC__
+  // A class encapsulating a C++ host buffer for gs
+  typedef HostBuffer<fptype, sizePerEventDenominators, HostBufferALIGNED> HostBufferDenominators;
+#else
+  // A class encapsulating a CUDA pinned host buffer for gs
+  typedef PinnedHostBuffer<fptype, sizePerEventDenominators> PinnedHostBufferDenominators;
+  // A class encapsulating a CUDA device buffer for gs
+  typedef DeviceBuffer<fptype, sizePerEventDenominators> DeviceBufferDenominators;
+#endif
 #endif
 
   //--------------------------------------------------------------------------

@@ -326,7 +326,7 @@
 
       SMALL_WIDTH_TREATMENT = 1.0000000000D-06
 
-      SDE_STRAT = 2
+      SDE_STRAT = 1
 
       PDG_CUT(0) = 1
 

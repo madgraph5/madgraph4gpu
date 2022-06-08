@@ -94,9 +94,14 @@ namespace mg5amcCpu
      * @param momenta the pointer to the input 4-momenta
      * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
      * @param mes the pointer to the output matrix elements
+     * @param channelId the Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
      * @param goodHelOnly quit after computing good helicities?
      */
-    void gpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, FORTRANFPTYPE* mes, const bool goodHelOnly = false );
+    void gpu_sequence( const FORTRANFPTYPE* momenta,
+                       const FORTRANFPTYPE* gs,
+                       FORTRANFPTYPE* mes,
+                       const unsigned int channelId,
+                       const bool goodHelOnly = false );
 #else
     /**
      * Sequence to be executed for the vectorized CPU matrix element calculation
@@ -104,9 +109,14 @@ namespace mg5amcCpu
      * @param momenta the pointer to the input 4-momenta
      * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
      * @param mes the pointer to the output matrix elements
+     * @param channelId the Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
      * @param goodHelOnly quit after computing good helicities?
      */
-    void cpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, FORTRANFPTYPE* mes, const bool goodHelOnly = false );
+    void cpu_sequence( const FORTRANFPTYPE* momenta,
+                       const FORTRANFPTYPE* gs,
+                       FORTRANFPTYPE* mes,
+                       const unsigned int channelId,
+                       const bool goodHelOnly = false );
 #endif
 
   private:
@@ -216,7 +226,11 @@ namespace mg5amcCpu
 
 #ifdef __CUDACC__
   template<typename FORTRANFPTYPE>
-  void Bridge<FORTRANFPTYPE>::gpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, FORTRANFPTYPE* mes, const bool goodHelOnly )
+  void Bridge<FORTRANFPTYPE>::gpu_sequence( const FORTRANFPTYPE* momenta,
+                                            const FORTRANFPTYPE* gs,
+                                            FORTRANFPTYPE* mes,
+                                            const unsigned int channelId,
+                                            const bool goodHelOnly )
   {
     constexpr int neppM = MemoryAccessMomenta::neppM;
     if constexpr( neppM == 1 && std::is_same_v<FORTRANFPTYPE, fptype> )
@@ -238,7 +252,7 @@ namespace mg5amcCpu
       m_goodHelsCalculated = true;
     }
     if( goodHelOnly ) return;
-    m_pmek->computeMatrixElements();
+    m_pmek->computeMatrixElements( channelId );
     checkCuda( cudaMemcpy( m_hstMEsC.data(), m_devMEsC.data(), m_devMEsC.bytes(), cudaMemcpyDeviceToHost ) );
     flagAbnormalMEs( m_hstMEsC.data(), m_nevt );
     std::copy( m_hstMEsC.data(), m_hstMEsC.data() + m_nevt, mes );
@@ -247,7 +261,11 @@ namespace mg5amcCpu
 
 #ifndef __CUDACC__
   template<typename FORTRANFPTYPE>
-  void Bridge<FORTRANFPTYPE>::cpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, FORTRANFPTYPE* mes, const bool goodHelOnly )
+  void Bridge<FORTRANFPTYPE>::cpu_sequence( const FORTRANFPTYPE* momenta,
+                                            const FORTRANFPTYPE* gs,
+                                            FORTRANFPTYPE* mes,
+                                            const unsigned int channelId,
+                                            const bool goodHelOnly )
   {
     hst_transposeMomentaF2C( momenta, m_hstMomentaC.data(), m_nevt );
     if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
@@ -264,7 +282,7 @@ namespace mg5amcCpu
       m_goodHelsCalculated = true;
     }
     if( goodHelOnly ) return;
-    m_pmek->computeMatrixElements();
+    m_pmek->computeMatrixElements( channelId );
     flagAbnormalMEs( m_hstMEsC.data(), m_nevt );
     if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
     {

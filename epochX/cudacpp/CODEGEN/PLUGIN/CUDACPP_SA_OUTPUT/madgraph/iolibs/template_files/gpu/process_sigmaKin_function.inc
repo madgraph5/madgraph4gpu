@@ -3,12 +3,23 @@
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
     allMEs[ievt] = 0;
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    allNumerators[ievt] = 0;
+    allDenominators[ievt] = 0;
+#endif
 #else
     const int npagV = nevt / neppV;
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
       for( int ieppV = 0; ieppV < neppV; ieppV++ )
-        allMEs[ipagV * neppV + ieppV] = 0; // all zeros
+      {
+        const unsigned int ievt = ipagV * neppV + ieppV;
+        allMEs[ievt] = 0;
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+        allNumerators[ievt] = 0;
+        allDenominators[ievt] = 0;
+#endif
+      }
     }
 #endif
 
@@ -19,9 +30,17 @@
     {
       const int ihel = cGoodHel[ighel];
 #ifdef __CUDACC__
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId );
+#else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
+#endif
+#else
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId, nevt );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, nevt );
+#endif
 #endif
       //if ( ighel == 0 ) break; // TEST sectors/requests (issue #16)
     }
@@ -33,13 +52,20 @@
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
 #ifdef __CUDACC__
     allMEs[ievt] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
+#endif
 #else
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
       for( int ieppV = 0; ieppV < neppV; ieppV++ )
       {
-        allMEs[ipagV * neppV + ieppV] /= denominators[0]; // FIXME (#343): assume nprocesses == 1
-        //printf( "sigmaKin: ievt=%%2d me=%%f\n", ipagV * neppV + ieppV, allMEs[ipagV * neppV + ieppV] );
+        const unsigned int ievt = ipagV * neppV + ieppV;
+        allMEs[ievt] /= denominators[0];                                                 // FIXME (#343): assume nprocesses == 1
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+        if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
+#endif
+        //printf( "sigmaKin: ievt=%%2d me=%%f\n", ievt, allMEs[ievt] );
       }
     }
 #endif

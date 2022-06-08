@@ -9,7 +9,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-nocpp|[-omp][-avxall][-nocuda]] [-mad] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-heftggh]> [-nocpp|[-omp][-avxall][-nocuda]] [-sa] [-noalpaka] [-flt|-fltonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly|-makeclean|-makecleanonly] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]"
   exit 1
 }
 
@@ -23,7 +23,7 @@ ggttg=0
 ggttgg=0
 ggttggg=0
 heftggh=0
-suffs="/"
+suffs=".mad/"
 
 omp=0
 avxall=0
@@ -49,7 +49,7 @@ verbose=0
 
 dlp=
 
-# Optional hack to build only the cudacpp plugin in .mad directories
+# Optional hack to build only the cudacpp plugin (without building the madevent code) in .mad directories
 makef=
 ###makef="-f Makefile"
 
@@ -74,8 +74,8 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-heftggh" ]; then
     heftggh=1
     shift
-  elif [ "$1" == "-mad" ]; then
-    suffs=".mad/"
+  elif [ "$1" == "-sa" ]; then
+    suffs="/"
     shift
   elif [ "$1" == "-omp" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi
