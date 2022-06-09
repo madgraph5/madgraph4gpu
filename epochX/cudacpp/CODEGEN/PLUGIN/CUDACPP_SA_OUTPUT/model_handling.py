@@ -1078,6 +1078,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                            , fptype* allNumerators        // output: multichannel numerators[nevt], running_sum_over_helicities
                            , fptype* allDenominators      // output: multichannel denominators[nevt], running_sum_over_helicities
+                           , fptype* jamp2                // output leading color, running sum_over_hel
                            , const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
 #endif
 #ifndef __CUDACC__

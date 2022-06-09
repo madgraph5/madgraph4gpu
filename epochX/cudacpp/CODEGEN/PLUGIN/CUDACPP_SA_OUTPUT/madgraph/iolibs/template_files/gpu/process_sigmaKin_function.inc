@@ -6,6 +6,10 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     allNumerators[ievt] = 0;
     allDenominators[ievt] = 0;
+    for( int icol = 0; icol < ncolor; ++icol )
+    {
+	jamp2[ievt][icol] = 0;
+	}		    
 #endif
 #else
     const int npagV = nevt / neppV;
@@ -18,6 +22,10 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
         allNumerators[ievt] = 0;
         allDenominators[ievt] = 0;
+	for( int icol = 0; icol < ncolor; ++icol )
+    	{	
+		jamp2[ievt][icol] = 0;
+	}		    
 #endif
       }
     }
@@ -31,13 +39,13 @@
       const int ihel = cGoodHel[ighel];
 #ifdef __CUDACC__
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, jamp2, channelId );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
 #endif
 #else
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId, nevt );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, jamp2, channelId, nevt );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, nevt );
 #endif
@@ -64,6 +72,25 @@
         allMEs[ievt] /= denominators[0];                                                 // FIXME (#343): assume nprocesses == 1
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
         if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
+	fptype is_LC[%(nb_channel)s][%(nb_color)s] = %(is_LC)s ;
+
+	int nb_color = %(nb_color)i;
+	float sumjamp2 = 0.;
+	for (int c=0; c < nb_color; c++){
+	if (is_LC[channelId][c]){                       // FIXME (#343): assume nprocesses == 1
+		sumjamp2 += jamp2[c][ievt];
+	}
+	}
+	sumjamp2 = sumjamp2*random_for_color[ievt];
+	for (int c=0; c < nb_color; c++){
+		if (is_LC[channelId][c]){
+		   sumjamp2 -= jamp2[c][ievt];
+		   if (sumjamp2 < 0){
+		      selected_color[ievt] = c;
+		      break;
+		      }
+		 }
+	}
 #endif
         //printf( "sigmaKin: ievt=%%2d me=%%f\n", ievt, allMEs[ievt] );
       }

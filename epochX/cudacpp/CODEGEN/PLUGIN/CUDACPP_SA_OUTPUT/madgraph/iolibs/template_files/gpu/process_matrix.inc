@@ -22,8 +22,8 @@
 
       // Store the leading color flows for choice of color
       // (NB: jamp2_sv must be an array of fptype_sv)
-      // for( int icol = 0; icol < ncolor; icol++ )
-      // jamp2_sv[0][icol] += cxreal( jamp_sv[icol]*cxconj( jamp_sv[icol] ) );
+      for( int icol = 0; icol < ncolor; icol++ )
+      jamp2_sv[icol] += cxreal( jamp_sv[icol]*cxconj( jamp_sv[icol] ) );
 
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)

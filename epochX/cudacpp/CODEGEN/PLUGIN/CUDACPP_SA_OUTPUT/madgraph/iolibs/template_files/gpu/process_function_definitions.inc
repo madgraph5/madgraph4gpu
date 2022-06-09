@@ -241,7 +241,7 @@ namespace mg5amcCpu
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, jamp2, channelId );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs );
 #endif
@@ -270,6 +270,8 @@ namespace mg5amcCpu
     const int maxtry0 = ( neppV > 16 ? neppV : 16 ); // 16, but at least neppV (otherwise the npagV loop does not even start)
     fptype allMEsLast[maxtry0] = { 0 };              // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
     const int maxtry = std::min( maxtry0, nevt );    // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
+
+    fptype jamp2[%(nb_color)s];
     for( int ievt = 0; ievt < maxtry; ++ievt )
     {
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
@@ -280,7 +282,7 @@ namespace mg5amcCpu
       //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, channelId, maxtry );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, allNumerators, allDenominators, jamp2,channelId, maxtry );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, maxtry );
 #endif
