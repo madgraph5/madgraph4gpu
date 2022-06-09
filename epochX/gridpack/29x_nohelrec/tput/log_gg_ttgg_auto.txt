@@ -1,75 +1,75 @@
-G100  PROGRAM    :    0.4425s
-G101  PROGRAM    :    0.4399s
-G18   PROGRAM    :    2.0281s
-G19   PROGRAM    :    1.2185s
-G20   PROGRAM    :    0.4248s
-G21   PROGRAM    :    0.4258s
-G29   PROGRAM    :    0.4358s
-G30   PROGRAM    :    1.8716s
-G46   PROGRAM    :    0.4283s
-G47   PROGRAM    :    1.2277s
-G48   PROGRAM    :    0.4299s
-G52   PROGRAM    :    2.9997s
-G54   PROGRAM    :    0.4390s
-G58   PROGRAM    :    0.4318s
-G80   PROGRAM    :    0.4904s
-G81   PROGRAM    :    2.1625s
-G91   PROGRAM    :    0.4335s
-TOTAL PROGRAM    :   16.3298s
+G100  PROGRAM    :    0.4667s
+G101  PROGRAM    :    0.4655s
+G18   PROGRAM    :    2.0984s
+G19   PROGRAM    :    1.2360s
+G20   PROGRAM    :    0.4452s
+G21   PROGRAM    :    0.4512s
+G29   PROGRAM    :    0.4557s
+G30   PROGRAM    :    1.8928s
+G46   PROGRAM    :    0.4476s
+G47   PROGRAM    :    1.2499s
+G48   PROGRAM    :    0.4575s
+G52   PROGRAM    :    3.0209s
+G54   PROGRAM    :    0.4652s
+G58   PROGRAM    :    0.4582s
+G80   PROGRAM    :    0.4656s
+G81   PROGRAM    :    2.1829s
+G91   PROGRAM    :    0.4575s
+TOTAL PROGRAM    :   16.7168s
 
-G100  MATRIX1(a) :    0.2809s for    32000 MATRIX1 calls  => throughput is 1.14E+05 calls/s
-G101  MATRIX1(a) :    0.2788s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
-G18   MATRIX1(a) :    1.5983s for   183360 MATRIX1 calls  => throughput is 1.15E+05 calls/s
-G19   MATRIX1(a) :    0.8692s for    99712 MATRIX1 calls  => throughput is 1.15E+05 calls/s
-G20   MATRIX1(a) :    0.2778s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
-G21   MATRIX1(a) :    0.2784s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
-G29   MATRIX1(a) :    0.2787s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
-G30   MATRIX1(a) :    1.3616s for   156480 MATRIX1 calls  => throughput is 1.15E+05 calls/s
-G46   MATRIX1(a) :    0.2787s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
+G100  MATRIX1(a) :    0.2791s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
+G101  MATRIX1(a) :    0.2792s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
+G18   MATRIX1(a) :    1.5973s for   183360 MATRIX1 calls  => throughput is 1.15E+05 calls/s
+G19   MATRIX1(a) :    0.8679s for    99712 MATRIX1 calls  => throughput is 1.15E+05 calls/s
+G20   MATRIX1(a) :    0.2782s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
+G21   MATRIX1(a) :    0.2790s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
+G29   MATRIX1(a) :    0.2785s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
+G30   MATRIX1(a) :    1.3619s for   156480 MATRIX1 calls  => throughput is 1.15E+05 calls/s
+G46   MATRIX1(a) :    0.2782s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
 G47   MATRIX1(a) :    0.8670s for    99584 MATRIX1 calls  => throughput is 1.15E+05 calls/s
-G48   MATRIX1(a) :    0.2792s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
-G52   MATRIX1(a) :    2.2292s for   256000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
-G54   MATRIX1(a) :    0.2788s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
-G58   MATRIX1(a) :    0.2790s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
-G80   MATRIX1(a) :    0.2782s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
-G81   MATRIX1(a) :    1.5899s for   182592 MATRIX1 calls  => throughput is 1.15E+05 calls/s
-G91   MATRIX1(a) :    0.2790s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
-TOTAL MATRIX1(a) :   11.5827s for  1329728 MATRIX1 calls  => throughput is 1.15E+05 calls/s
+G48   MATRIX1(a) :    0.2793s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
+G52   MATRIX1(a) :    2.2286s for   256000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
+G54   MATRIX1(a) :    0.2786s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
+G58   MATRIX1(a) :    0.2791s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
+G80   MATRIX1(a) :    0.2786s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
+G81   MATRIX1(a) :    1.5879s for   182592 MATRIX1 calls  => throughput is 1.15E+05 calls/s
+G91   MATRIX1(a) :    0.2783s for    32000 MATRIX1 calls  => throughput is 1.15E+05 calls/s
+TOTAL MATRIX1(a) :   11.5767s for  1329728 MATRIX1 calls  => throughput is 1.15E+05 calls/s
 
-G100  MATRIX1(b) :    0.2809s for      500 SMATRIX1 calls => throughput is 1.78E+03 calls/s
-G101  MATRIX1(b) :    0.2788s for      500 SMATRIX1 calls => throughput is 1.79E+03 calls/s
-G18   MATRIX1(b) :    1.5983s for     2865 SMATRIX1 calls => throughput is 1.79E+03 calls/s
-G19   MATRIX1(b) :    0.8692s for     1558 SMATRIX1 calls => throughput is 1.79E+03 calls/s
-G20   MATRIX1(b) :    0.2778s for      500 SMATRIX1 calls => throughput is 1.80E+03 calls/s
-G21   MATRIX1(b) :    0.2784s for      500 SMATRIX1 calls => throughput is 1.80E+03 calls/s
-G29   MATRIX1(b) :    0.2787s for      500 SMATRIX1 calls => throughput is 1.79E+03 calls/s
-G30   MATRIX1(b) :    1.3616s for     2445 SMATRIX1 calls => throughput is 1.80E+03 calls/s
-G46   MATRIX1(b) :    0.2787s for      500 SMATRIX1 calls => throughput is 1.79E+03 calls/s
+G100  MATRIX1(b) :    0.2791s for      500 SMATRIX1 calls => throughput is 1.79E+03 calls/s
+G101  MATRIX1(b) :    0.2792s for      500 SMATRIX1 calls => throughput is 1.79E+03 calls/s
+G18   MATRIX1(b) :    1.5973s for     2865 SMATRIX1 calls => throughput is 1.79E+03 calls/s
+G19   MATRIX1(b) :    0.8679s for     1558 SMATRIX1 calls => throughput is 1.80E+03 calls/s
+G20   MATRIX1(b) :    0.2782s for      500 SMATRIX1 calls => throughput is 1.80E+03 calls/s
+G21   MATRIX1(b) :    0.2790s for      500 SMATRIX1 calls => throughput is 1.79E+03 calls/s
+G29   MATRIX1(b) :    0.2785s for      500 SMATRIX1 calls => throughput is 1.80E+03 calls/s
+G30   MATRIX1(b) :    1.3619s for     2445 SMATRIX1 calls => throughput is 1.80E+03 calls/s
+G46   MATRIX1(b) :    0.2782s for      500 SMATRIX1 calls => throughput is 1.80E+03 calls/s
 G47   MATRIX1(b) :    0.8670s for     1556 SMATRIX1 calls => throughput is 1.79E+03 calls/s
-G48   MATRIX1(b) :    0.2792s for      500 SMATRIX1 calls => throughput is 1.79E+03 calls/s
-G52   MATRIX1(b) :    2.2292s for     4000 SMATRIX1 calls => throughput is 1.79E+03 calls/s
-G54   MATRIX1(b) :    0.2788s for      500 SMATRIX1 calls => throughput is 1.79E+03 calls/s
-G58   MATRIX1(b) :    0.2790s for      500 SMATRIX1 calls => throughput is 1.79E+03 calls/s
-G80   MATRIX1(b) :    0.2782s for      500 SMATRIX1 calls => throughput is 1.80E+03 calls/s
-G81   MATRIX1(b) :    1.5899s for     2853 SMATRIX1 calls => throughput is 1.79E+03 calls/s
-G91   MATRIX1(b) :    0.2790s for      500 SMATRIX1 calls => throughput is 1.79E+03 calls/s
-TOTAL MATRIX1(b) :   11.5827s for    20777 SMATRIX1 calls => throughput is 1.79E+03 calls/s
+G48   MATRIX1(b) :    0.2793s for      500 SMATRIX1 calls => throughput is 1.79E+03 calls/s
+G52   MATRIX1(b) :    2.2286s for     4000 SMATRIX1 calls => throughput is 1.79E+03 calls/s
+G54   MATRIX1(b) :    0.2786s for      500 SMATRIX1 calls => throughput is 1.79E+03 calls/s
+G58   MATRIX1(b) :    0.2791s for      500 SMATRIX1 calls => throughput is 1.79E+03 calls/s
+G80   MATRIX1(b) :    0.2786s for      500 SMATRIX1 calls => throughput is 1.79E+03 calls/s
+G81   MATRIX1(b) :    1.5879s for     2853 SMATRIX1 calls => throughput is 1.80E+03 calls/s
+G91   MATRIX1(b) :    0.2783s for      500 SMATRIX1 calls => throughput is 1.80E+03 calls/s
+TOTAL MATRIX1(b) :   11.5767s for    20777 SMATRIX1 calls => throughput is 1.79E+03 calls/s
 
-G100  SMATRIX1   :    0.2897s for      500 SMATRIX1 calls => throughput is 1.73E+03 calls/s
-G101  SMATRIX1   :    0.2872s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
-G18   SMATRIX1   :    1.6466s for     2865 SMATRIX1 calls => throughput is 1.74E+03 calls/s
-G19   SMATRIX1   :    0.8957s for     1558 SMATRIX1 calls => throughput is 1.74E+03 calls/s
-G20   SMATRIX1   :    0.2861s for      500 SMATRIX1 calls => throughput is 1.75E+03 calls/s
-G21   SMATRIX1   :    0.2868s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
-G29   SMATRIX1   :    0.2872s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
-G30   SMATRIX1   :    1.4028s for     2445 SMATRIX1 calls => throughput is 1.74E+03 calls/s
-G46   SMATRIX1   :    0.2870s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
-G47   SMATRIX1   :    0.8931s for     1556 SMATRIX1 calls => throughput is 1.74E+03 calls/s
-G48   SMATRIX1   :    0.2876s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
-G52   SMATRIX1   :    2.2954s for     4000 SMATRIX1 calls => throughput is 1.74E+03 calls/s
-G54   SMATRIX1   :    0.2872s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
-G58   SMATRIX1   :    0.2876s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
-G80   SMATRIX1   :    0.2866s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
-G81   SMATRIX1   :    1.6384s for     2853 SMATRIX1 calls => throughput is 1.74E+03 calls/s
-G91   SMATRIX1   :    0.2874s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
-TOTAL SMATRIX1   :   11.9324s for    20777 SMATRIX1 calls => throughput is 1.74E+03 calls/s
+G100  SMATRIX1   :    0.2875s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
+G101  SMATRIX1   :    0.2875s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
+G18   SMATRIX1   :    1.6454s for     2865 SMATRIX1 calls => throughput is 1.74E+03 calls/s
+G19   SMATRIX1   :    0.8940s for     1558 SMATRIX1 calls => throughput is 1.74E+03 calls/s
+G20   SMATRIX1   :    0.2866s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
+G21   SMATRIX1   :    0.2877s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
+G29   SMATRIX1   :    0.2870s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
+G30   SMATRIX1   :    1.4033s for     2445 SMATRIX1 calls => throughput is 1.74E+03 calls/s
+G46   SMATRIX1   :    0.2865s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
+G47   SMATRIX1   :    0.8930s for     1556 SMATRIX1 calls => throughput is 1.74E+03 calls/s
+G48   SMATRIX1   :    0.2878s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
+G52   SMATRIX1   :    2.2966s for     4000 SMATRIX1 calls => throughput is 1.74E+03 calls/s
+G54   SMATRIX1   :    0.2871s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
+G58   SMATRIX1   :    0.2877s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
+G80   SMATRIX1   :    0.2872s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
+G81   SMATRIX1   :    1.6357s for     2853 SMATRIX1 calls => throughput is 1.74E+03 calls/s
+G91   SMATRIX1   :    0.2866s for      500 SMATRIX1 calls => throughput is 1.74E+03 calls/s
+TOTAL SMATRIX1   :   11.9272s for    20777 SMATRIX1 calls => throughput is 1.74E+03 calls/s
