@@ -1,0 +1,1110 @@
+Running MG5 in debug mode
+************************************************************
+*                                                          *
+*                     W E L C O M E to                     *
+*              M A D G R A P H 5 _ a M C @ N L O           *
+*                                                          *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 2.9.5                 2021-08-22         *
+*         BZR 2.7.0_gpu                        371         *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                            and                           *
+*            http://amcatnlo.web.cern.ch/amcatnlo/         *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*           Type 'tutorial' to learn how MG5 works         *
+*    Type 'tutorial aMCatNLO' to learn how aMC@NLO works   *
+*    Type 'tutorial MadLoop' to learn how MadLoop works    *
+*                                                          *
+************************************************************
+load MG5 configuration from input/mg5_configuration.txt 
+fastjet-config does not seem to correspond to a valid fastjet-config executable (v3+). We will use fjcore instead.
+ Please set the 'fastjet'variable to the full (absolute) /PATH/TO/fastjet-config (including fastjet-config).
+ MG5_aMC> set fastjet /PATH/TO/fastjet-config
+
+lhapdf-config does not seem to correspond to a valid lhapdf-config executable. 
+Please set the 'lhapdf' variable to the (absolute) /PATH/TO/lhapdf-config (including lhapdf-config).
+Note that you can still compile and run aMC@NLO with the built-in PDFs
+ MG5_aMC> set lhapdf /PATH/TO/lhapdf-config
+
+None does not seem to correspond to a valid lhapdf-config executable. 
+Please set the 'lhapdf' variable to the (absolute) /PATH/TO/lhapdf-config (including lhapdf-config).
+Note that you can still compile and run aMC@NLO with the built-in PDFs
+ MG5_aMC> set lhapdf /PATH/TO/lhapdf-config
+
+No valid eps viewer found. Please set in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+import /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gridpack_gg_ttgg.mg
+The import format was not given, so we guess it as command
+set stdout_level DEBUG
+set output information to level: 10
+generate g g > t t~ g g
+No model currently active, so we import the Standard Model
+INFO: load particles 
+INFO: load vertices 
+[1;32mDEBUG: model prefixing  takes 0.006890535354614258 [0m
+INFO: Restrict model sm with file models/sm/restrict_default.dat . 
+INFO: Change particles name to pass to MG5 convention 
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+Defined multiparticle p = g u c d s u~ c~ d~ s~
+Defined multiparticle j = g u c d s u~ c~ d~ s~
+Defined multiparticle l+ = e+ mu+
+Defined multiparticle l- = e- mu-
+Defined multiparticle vl = ve vm vt
+Defined multiparticle vl~ = ve~ vm~ vt~
+Defined multiparticle all = g u c d s u~ c~ d~ s~ a ve vm vt e- mu- ve~ vm~ vt~ e+ mu+ t b t~ b~ z w+ h w- ta- ta+
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+INFO: Checking for minimal orders which gives processes. 
+INFO: Please specify coupling orders to bypass this step. 
+INFO: Trying coupling order WEIGHTED<=4: WEIGTHED IS QCD+2*QED 
+INFO: Trying process: g g > t t~ g g WEIGHTED<=4 @1  
+INFO: Process has 123 diagrams 
+1 processes with 123 diagrams generated in 0.212 s
+Total: 1 processes with 123 diagrams
+output CODEGEN_gridpack_gg_ttgg
+INFO: initialize a new directory: CODEGEN_gridpack_gg_ttgg 
+INFO: remove old information in CODEGEN_gridpack_gg_ttgg 
+INFO: Organizing processes into subprocess groups 
+INFO: Generating Helas calls for process: g g > t t~ g g WEIGHTED<=4 @1 
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+INFO: Processing color information for process: g g > t t~ g g @1 
+INFO: Creating files in directory P1_gg_ttxgg 
+[1mINFO: Some T-channel width have been set to zero [new since 2.8.0]
+ if you want to keep this width please set "zerowidth_tchannel" to False [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+INFO: Generating Feynman diagrams for Process: g g > t t~ g g WEIGHTED<=4 @1 
+INFO: Finding symmetric diagrams for subprocess group gg_ttxgg 
+Generated helas calls for 1 subprocesses (123 diagrams) in 1.072 s
+Wrote files for 222 helas calls in 0.691 s
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+[1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
+ALOHA: aloha creates routines (starting by VVV1)
+ALOHA: currently creating  VVVV4
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+[1;32mDEBUG:  language = [0m fortran [1;30m[aloha_writers.py at line 2446][0m [0m
+save configuration file to /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gridpack_gg_ttgg/Cards/me5_configuration.txt
+INFO: Use Fortran compiler gfortran 
+INFO: Use c++ compiler g++ 
+INFO: Generate jpeg diagrams 
+INFO: Generate web pages 
+Output to directory /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gridpack_gg_ttgg done.
+Type "launch" to generate events from this process, or see
+/data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gridpack_gg_ttgg/README
+Run "open index.html" to see more information about this process.
+launch
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 2.9.5                 2021-08-22         *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gridpack_gg_ttgg/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/input/mg5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gridpack_gg_ttgg/Cards/me5_configuration.txt  
+No valid eps viewer found. Please set in ./input/mg5_configuration.txt
+generate_events run_01
+set gridpack True
+[1mINFO: modify parameter gridpack of the run_card.dat to True [0m
+set ebeam1 750
+[1mINFO: modify parameter ebeam1 of the run_card.dat to 750.0 [0m
+set ebeam2 750
+[1mINFO: modify parameter ebeam2 of the run_card.dat to 750.0 [0m
+Do you want to edit a card (press enter to bypass editing)?
+/------------------------------------------------------------\
+|  [31m1[0m. param : [32mparam_card.dat[0m                                 |
+|  [31m2[0m. run   : [32mrun_card.dat[0m                                   |
+\------------------------------------------------------------/
+ you can also
+   - enter the path to a valid card or banner.
+   - use the 'set' command to modify a parameter directly.
+     The set option works only for param_card and run_card.
+     Type 'help set' for more information on this command.
+   - call an external program (ASperGE/MadWidth/...).
+     Type 'help' for the list of available command
+ [[4m0[0m, done, 1, param, 2, run, enter path]
+[1mThe answer to the previous question is not set in your input file[0m
+[1mUse 0 value[0m
+[1;32mDEBUG: keep SDE to 2 [0m
+INFO: Update the dependent parameter of the param_card.dat 
+Generating gridpack with run name run_01
+survey  run_01 --accuracy=0.01 --points=2000 --iterations=8 --gridpack=.true.
+INFO: compile directory 
+[1;32mwrite compile file for card: /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gridpack_gg_ttgg/Cards/param_card.dat[0m
+[1;32mrun_card missed argument polbeam1. Takes default: 0.0[0m
+[1;32mrun_card missed argument polbeam2. Takes default: 0.0[0m
+[1;32mrun_card missed argument nb_proton1. Takes default: 1[0m
+[1;32mrun_card missed argument nb_proton2. Takes default: 1[0m
+[1;32mrun_card missed argument nb_neutron1. Takes default: 0[0m
+[1;32mrun_card missed argument nb_neutron2. Takes default: 0[0m
+[1;32mrun_card missed argument mass_ion1. Takes default: -1.0[0m
+[1;32mrun_card missed argument mass_ion2. Takes default: -1.0[0m
+[1;32mrun_card missed argument fixed_fac_scale1. Takes default: False[0m
+[1;32mrun_card missed argument fixed_fac_scale2. Takes default: False[0m
+[1;32mrun_card missed argument ickkw. Takes default: 0[0m
+[1;32mrun_card missed argument highestmult. Takes default: 1[0m
+[1;32mrun_card missed argument ktscheme. Takes default: 1[0m
+[1;32mrun_card missed argument alpsfact. Takes default: 1.0[0m
+[1;32mrun_card missed argument chcluster. Takes default: False[0m
+[1;32mrun_card missed argument pdfwgt. Takes default: True[0m
+[1;32mrun_card missed argument asrwgtflavor. Takes default: 5[0m
+[1;32mrun_card missed argument clusinfo. Takes default: True[0m
+[1;32mrun_card missed argument lhe_version. Takes default: 3.0[0m
+[1;32mrun_card missed argument auto_ptj_mjj. Takes default: True[0m
+[1;32mrun_card missed argument ej. Takes default: 0.0[0m
+[1;32mrun_card missed argument eb. Takes default: 0.0[0m
+[1;32mrun_card missed argument ea. Takes default: 0.0[0m
+[1;32mrun_card missed argument el. Takes default: 0.0[0m
+[1;32mrun_card missed argument ejmax. Takes default: -1.0[0m
+[1;32mrun_card missed argument ebmax. Takes default: -1.0[0m
+[1;32mrun_card missed argument eamax. Takes default: -1.0[0m
+[1;32mrun_card missed argument elmax. Takes default: -1.0[0m
+[1;32mrun_card missed argument r0gamma. Takes default: 0.4[0m
+[1;32mrun_card missed argument xn. Takes default: 1.0[0m
+[1;32mrun_card missed argument epsgamma. Takes default: 1.0[0m
+[1;32mrun_card missed argument isoem. Takes default: True[0m
+[1;32mrun_card missed argument pdgs_for_merging_cut. Takes default: [21, 1, 2, 3, 4, 5, 6][0m
+[1;32mrun_card missed argument gridrun. Takes default: False[0m
+[1;32mrun_card missed argument fixed_couplings. Takes default: True[0m
+[1;32mrun_card missed argument mc_grouped_subproc. Takes default: True[0m
+[1;32mrun_card missed argument xmtcentral. Takes default: 0.0[0m
+[1;32mrun_card missed argument d. Takes default: 1.0[0m
+[1;32mrun_card missed argument issgridfile. Takes default: [0m
+[1;32mrun_card missed argument tmin_for_channel. Takes default: -1.0[0m
+[1;32mrun_card missed argument small_width_treatment. Takes default: 1e-06[0m
+compile Source Directory
+[1;32mCompiling the bias module 'dummy'[0m
+Using random number seed offset = 21
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO: Compiling for process 1/1. 
+INFO:     P1_gg_ttxgg  
+[1;32mDEBUG: nb_hel: 64 zero amp: 0 bad_amps_hel: 800/10176 [0m
+INFO:     P1_gg_ttxgg  
+INFO:  Idle: 14,  Running: 4,  Completed: 0 [ current time: 17h26 ] 
+INFO:  Idle: 13,  Running: 4,  Completed: 1 [  15.7s  ] 
+INFO:  Idle: 12,  Running: 4,  Completed: 2 [  21.7s  ] 
+INFO:  Idle: 11,  Running: 4,  Completed: 3 [  26.6s  ] 
+INFO:  Idle: 10,  Running: 4,  Completed: 4 [  53.6s  ] 
+INFO:  Idle: 9,  Running: 4,  Completed: 5 [  1m 2s  ] 
+INFO:  Idle: 8,  Running: 4,  Completed: 6 [  1m 6s  ] 
+INFO:  Idle: 7,  Running: 4,  Completed: 7 [  1m 17s  ] 
+INFO:  Idle: 6,  Running: 4,  Completed: 8 [  1m 50s  ] 
+INFO:  Idle: 5,  Running: 4,  Completed: 9 [  1m 54s  ] 
+INFO:  Idle: 4,  Running: 4,  Completed: 10 [  2m 2s  ] 
+INFO:  Idle: 2,  Running: 4,  Completed: 12 [  2m 12s  ] 
+INFO:  Idle: 1,  Running: 4,  Completed: 13 [  2m 23s  ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 16 [  2m 47s  ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 17 [  2m 56s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 18 [  3m 12s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 18 [  3m 12s  ] 
+sum of cpu time of last step: 11m20s
+  === Results Summary for run: run_01 tag: tag_1 ===
+
+     Cross-section :   0.006384 +- 2.527e-05 pb
+     Nb of events :  0
+ 
+INFO: End survey 
+combine_events
+INFO: Combining Events 
+store_events
+INFO: Storing parton level results 
+INFO: End Parton 
+decay_events -from_cards
+create_gridpack
+INFO: Creating gridpack 
+P1_gg_ttxgg
+Cleaning  SubProcesses. 
+INFO: gridpack created 
+quit
+INFO: storing files of previous run 
+INFO: Done 
+INFO:  
+more information in /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gridpack_gg_ttgg/index.html
+quit
+
+real	3m38.815s
+user	11m36.779s
+sys	0m7.795s
