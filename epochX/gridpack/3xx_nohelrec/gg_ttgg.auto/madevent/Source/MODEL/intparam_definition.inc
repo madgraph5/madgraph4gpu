@@ -87,8 +87,11 @@ C
       MDL_G__EXP__2 = G**2
 
 C     
+C     Parameters that should be updated for the loops.
+C     
+C     
 C     Definition of the EW coupling used in the write out of aqed
 C     
-      GAL(1) = 3.5449077018110318D0 / DSQRT(AEWM1)
+      GAL(1) = 3.5449077018110318D0 / DSQRT(ABS(AEWM1))
       GAL(2) = 1D0
 

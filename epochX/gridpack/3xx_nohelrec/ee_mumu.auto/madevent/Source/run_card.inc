@@ -28,7 +28,11 @@
 
       MASS_ION(2) = -1.0000000000D+00
 
-      PDLABEL = 'nn23lo1'
+      PDLABEL = 'none'
+
+      PDSUBLABEL(1) = 'none'
+
+      PDSUBLABEL(2) = 'none'
 
       LHAID = 230000
 
@@ -38,13 +42,21 @@
 
       FIXED_FAC_SCALE2 = .FALSE.
 
+      FIXED_EXTRA_SCALE = .FALSE.
+
       SCALE = 9.1188000000D+01
 
       SF1 = 9.1188000000D+01
 
       SF2 = 9.1188000000D+01
 
+      MUE_REF_FIXED = 9.1188000000D+01
+
       DYNAMICAL_SCALE_CHOICE = -1
+
+      MUE_OVER_REF = 1.0000000000D+00
+
+      IEVO_EVA = 0
 
       SCALEFACT = 1.0000000000D+00
 
@@ -73,6 +85,8 @@
       BWCUTOFF = 1.5000000000D+01
 
       CUT_DECAYS = .FALSE.
+
+      DSQRT_SHAT = 0.0000000000D+00
 
       PTJ = 2.0000000000D+01
 

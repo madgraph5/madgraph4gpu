@@ -14,6 +14,9 @@
  complex_mass_scheme = False 
  pdg_initial1 = [-11] 
  pdg_initial2 = [11] 
+ splitting_types = [] 
+ perturbation_order = [] 
  limitations = [] 
  hel_recycling = False 
  single_color = True 
+ nlo_mixed_expansion = True 

@@ -14,7 +14,8 @@ c     dsig       Function to be integrated
 c**************************************************************************
       implicit none
       include 'genps.inc'
-c
+      include 'vector.inc'
+c     
 c Arguments
 c
       integer ndim,ncall,itmax,itmin,ninvar,nconfigs
@@ -24,10 +25,16 @@ c
 c Local
 c
       double precision x(maxinvar),wgt,p(4*maxdim/3+14)
+      double precision all_p(4*maxdim/3+14,nb_page), all_wgt(nb_page), all_x(maxinvar,nb_page)
+      integer all_lastbin(maxdim, nb_page)
+      double precision bckp(nb_page)
       double precision tdem, chi2, dum
       integer ievent,kevent,nwrite,iter,nun,luntmp,itsum
       integer jmax,i,j,ipole
       integer itmax_adjust
+
+      integer imirror, iproc, iconf
+      integer ivec !position of the event in the vectorization # max is nb_page 
 c
 c     External
 c
@@ -36,11 +43,13 @@ c
 c
 c Global
 c
+      integer            lastbin(maxdim)
+      common /to_lastbin/lastbin
       integer                                      nsteps
       character*40          result_file,where_file
       common /sample_status/result_file,where_file,nsteps
       double precision fx
-      common /to_fx/   fx
+c      common /to_fx/   fx
 
       integer           mincfig, maxcfig
       common/to_configs/mincfig, maxcfig
@@ -79,11 +88,30 @@ c
       integer th_nunwgt
       double precision th_maxwgt
       common/theoretical_unwgt_max/th_maxwgt, th_nunwgt
+      
+      logical force_reset
+      common/dsample_reset/ force_reset
+      
+      integer                                      lpp(2)
+      double precision    ebeam(2), xbk(2),q2fact(2)
+      common/to_collider/ ebeam   , xbk   ,q2fact,   lpp
 
+      DOUBLE PRECISION CM_RAP
+      LOGICAL SET_CM_RAP
+      COMMON/TO_CM_RAP/SET_CM_RAP,CM_RAP
+
+C     data for vectorization      
+      double precision all_xbk(2, nb_page), all_q2fact(2, nb_page), all_cm_rap(nb_page)
+      double precision all_fx(nb_page)
+      
+      
+      LOGICAL CUTSDONE,CUTSPASSED
+      COMMON/TO_CUTSDONE/CUTSDONE,CUTSPASSED
+      
 c
 c     External
 c
-      logical pass_point
+      logical pass_point, passcuts
       integer NEXTUNOPEN
 c
 c     Data
@@ -124,26 +152,93 @@ c      maxcfig=nconfigs
 c
 c     Main Integration Loop
 c
+      ievent = 0
       iter = 1
+      ivec = 0
       do while(iter .le. itmax)
 c
 c     Get integration point
 c
          call sample_get_config(wgt,iter,ipole)
          if (iter .le. itmax) then
+c            write(*,*) 'iter/ievent/ivec', iter, ievent, ivec
             ievent=ievent+1
             call x_to_f_arg(ndim,ipole,mincfig,maxcfig,ninvar,wgt,x,p)
-            if (pass_point(p)) then
-               fx = dsig(p,wgt,0) !Evaluate function
-               wgt = wgt*fx
-               if (wgt .ne. 0d0) call graph_point(p,wgt) !Update graphs
+            CUTSDONE=.FALSE.
+            CUTSPASSED=.FALSE.
+            if (passcuts(p)) then
+               ivec=ivec+1
+c              write(*,*) 'pass_point ivec is ', ivec
+               all_p(:,ivec) = p(:)
+               all_wgt(ivec) = wgt
+               all_x(:,ivec) = x(:)
+               all_xbk(:, ivec) = xbk(:)
+               all_q2fact(:, ivec) = q2fact(:)
+               all_cm_rap(ivec) = cm_rap
+               all_lastbin(:, ivec) = lastbin(:)
+c               i = ivec
+c               fx = dsig(all_p(1,i),all_wgt(i),0)
+c               bckp(i) = fx
+c               write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
+c               all_wgt(i) = all_wgt(i)*fx
+               if (ivec.lt.nb_page)then
+                  cycle
+               endif
+               ivec=0
+               if (nb_page.le.1) then
+                  all_fx(1) = dsig(all_p, all_wgt,0)
+               else
+               do i=1, nb_page
+c                 need to restore common block                  
+                  xbk(:) = all_xbk(:, i)
+                  cm_rap = all_cm_rap(i)
+                  q2fact(:) = all_q2fact(:,i)
+                  CUTSDONE=.TRUE.
+                  CUTSPASSED=.TRUE.
+                  call prepare_grouping_choice(all_p(1,i), all_wgt(i), i.eq.1)
+               enddo
+               call select_grouping(imirror, iproc, iconf, all_wgt, nb_page)
+               call dsig_vec(all_p, all_wgt, all_xbk, all_q2fact, all_cm_rap,
+     &                          iconf, iproc, imirror, all_fx,nb_page)
+
+                do i=1, nb_page
+c                 need to restore common block                  
+                  xbk(:) = all_xbk(:, i)
+                  cm_rap = all_cm_rap(i)
+                  q2fact(:) = all_q2fact(:,i)
+c                  all_fx(i) = dsig(all_p(1,i),all_wgt(i),0)
+c                  if (fx.ne.bckp(i))then
+c                     write(*,*) fx, "!=", bckp(i)
+c                     stop 1
+c                  endif
+c     write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
+               enddo
+               endif
+               do I=1, nb_page
+                  all_wgt(i) = all_wgt(i)*all_fx(i)
+              enddo
+               do i =1, nb_page
+c     if last paremeter is true -> allow grid update so only for a full page
+                  lastbin(:) = all_lastbin(:,i)
+                  if (all_wgt(i) .ne. 0d0) kevent=kevent+1
+c                  write(*,*) 'put point in sample kevent', kevent, 'allow_update', ivec.eq.nb_page                   
+                  call sample_put_point(all_wgt(i),all_x(1,i),iter,ipole, i.eq.nb_page) !Store result
+               enddo
+               if (nb_page.ne.1.and.force_reset)then
+                  call reset_cumulative_variable()
+                  force_reset=.false.
+               endif
+
+
+c     if (wgt .ne. 0d0) call graph_point(p,wgt) !Update graphs
             else
                fx =0d0
                wgt=0d0
+               call sample_put_point(wgt,x(1),iter,ipole,.true.) !Store result
             endif
-            call sample_put_point(wgt,x(1),iter,ipole) !Store result
+
          endif
-         if (wgt .ne. 0d0) kevent=kevent+1    
+c         if (wgt .ne. 0d0) kevent=kevent+1    
 c
 c     Write out progress/histograms
 c
@@ -259,6 +354,7 @@ c     remove the grid, so we are clean
 c
       goto 200
       write(*,*) "Trying w/ fresh grid"
+      stop 1 
       open(unit=25,file='ftn25',status='unknown',err=102)
       write(25,*) ' '
  102  close(25)
@@ -319,7 +415,7 @@ c
             endif
             
             if (nzoom .le. 0) then
-               call sample_put_point(wgt,x(1),iter,ipole) !Store result
+               call sample_put_point(wgt,x(1),iter,ipole,.true.) !Store result
             else
                nzoom = nzoom -1
                ievent=ievent-1
@@ -566,6 +662,7 @@ c
       include 'genps.inc'
       include 'maxconfigs.inc'
       include 'run.inc'
+      include 'vector.inc'
 c
 c     Arguments
 c
@@ -794,9 +891,11 @@ c      write(*,*) 'Forwarding random number generator'
 
  103  write(*,*) 'Grid defined OK'
 
-C     sanity check that we have a minimal number of event      
-      if ( MC_GROUPED_SUBPROC )then
+C     sanity check that we have a minimal number of event
+      
+      if ( .not.MC_GROUPED_SUBPROC.or.nb_page.gt.1)then
          events = max(events, maxtries)
+         MC_GROUPED_SUBPROC = .false.
       else 
          events = max(events, 2*maxtries*get_maxsproc())
       endif
@@ -1007,6 +1106,13 @@ c
      &                                              grid_type=grid_type)
       endif
 
+      if(DS_get_dim_status('ee_mc').ge.1) then
+        call DS_write_grid(stream_id, dim_name='ee_mc', 
+     &                                              grid_type=grid_type)
+      endif      
+
+
+      
       end subroutine write_discrete_grids
 
       subroutine write_grid(name)
@@ -1450,21 +1556,32 @@ c
       COMMON/TO_MATRIX/ISUM_HEL, MULTI_CHANNEL
       logical cutsdone, cutspassed
       COMMON/TO_CUTSDONE/CUTSDONE,CUTSPASSED
-c
+ 
+      CHARACTER*7         PDLABEL,EPA_LABEL
+      character*7 pdsublabel(2)
+      INTEGER       LHAID
+      COMMON/TO_PDF/LHAID,PDLABEL,EPA_LABEL,pdsublabel
+c     
 c     Begin code
 c
 c       It is important to divide the wgt stored in the grid by the 
 c       corresponding jacobian otherwise it flattens the sampled
 c       distribution.
-C       Also, if HEL_PICKED is equal to -1, it means that MadEvent
+C       Also, if HEL_PICKED is greater than 0, it means that MadEvent
 C       is in the initialization stage where all helicity were probed
 c       and added individually to the grid directly by matrix<i>.f so
 c       that they shouldn't be added here.
-        if(ISUM_HEL.ne.0.and.HEL_PICKED.ne.-1.and.
+        if(ISUM_HEL.ne.0.and.HEL_PICKED.gt.0.and.
      &                            (.NOT.CUTSDONE.or.CUTSPASSED)) then
           call DS_add_entry('Helicity',HEL_PICKED,(wgt/hel_jacobian))
         endif
 
+        if(pdlabel.eq.'dressed'.and.ee_picked.ne.-1) then
+           if(ee_jacobian.ne.0d0) then
+              call DS_add_entry('ee_mc',EE_PICKED,(wgt/ee_jacobian))
+           endif
+       endif
+       
       end subroutine add_entry_to_discrete_dimensions
 
 C
@@ -1509,9 +1626,13 @@ C       Security in case of all helicity vanishing (G1 of gg > qq )
         call DS_update_grid('grouped_processes', filterZeros=.True.)
       endif
 
+      if (DS_get_dim_status('ee_mc').ne.-1)then
+         call DS_update_grid('ee_mc', filterZeros=.True.)
+      endif
+
       end subroutine update_discrete_dimensions
 
-      subroutine sample_put_point(wgt, point, iteration,ipole)
+      subroutine sample_put_point(wgt, point, iteration,ipole, allow_update)
 c**************************************************************************
 c     Given point(maxinvar),wgt and iteration, updates the grid.
 c     If at the end of an iteration, reforms the grid as necessary
@@ -1529,6 +1650,7 @@ c     Arguments
 c
       integer iteration,ipole
       double precision wgt, point(maxinvar)
+      logical allow_update
 c
 c     Local
 c
@@ -1600,8 +1722,8 @@ c
       real*8             wmax                 !This is redundant
       common/to_unweight/wmax
 
-      double precision fx
-      common /to_fx/   fx
+c      double precision fx
+c      common /to_fx/   fx
       double precision   prb(maxconfigs,maxpoints,maxplace)
       double precision   fprb(maxinvar,maxpoints,maxplace)
       integer                      jpnt,jplace
@@ -1720,7 +1842,10 @@ c--------------
 c     tjs 3/5/2011  use stored value for last bin
 c--------------
                i = lastbin(j)
-c               write(*,*) 'bin choice',j,i,lastbin(j)
+               if (i.eq.0) then
+                  write(*,*) "issue with", j,'/',invar
+               endif
+c     write(*,*) 'bin choice',j,i,lastbin(j)
                if (i .gt. ng) then
                   print*,'error i>ng',i,j,ng,point(j)
                   i=ng
@@ -1759,7 +1884,9 @@ c
 c
 c     Now if done with an iteration, print out stats, rebin, reset
 c         
-c         if (kn .eq. events) then
+c     if (kn .eq. events) then
+c         write(*,*) 'allow_update', allow_update, 'nb_pass_cuts', nb_pass_cuts, 'non_zero', non_zero
+         if (allow_update)then
          if (kn .ge. max_events .and. non_zero .le. 5) then
             call none_pass(max_events)
          endif
@@ -1767,9 +1894,10 @@ c         if (kn .eq. events) then
            if (nb_pass_cuts.ge.1000 .and. non_zero.eq.0) then
               call none_pass(1000)
            endif
-         endif
-         if (non_zero .ge. events .or. (kn .gt. 200*events .and.
-     $        non_zero .gt. 5)) then
+        endif
+        endif
+         if (allow_update.and.(non_zero .ge. events .or. (kn .gt. 200*events .and.
+     $        non_zero .gt. 5))) then
 
 c          # special mode where we store information to combine them
            if(use_cut.eq.-2)then
@@ -2565,11 +2693,15 @@ C       Due to the initialization of the helicity sum.
       common /sample_common/
      .     tmean, trmean, tsigma, dim, events, itm, kn, cur_it, invar, configs
 
+      logical force_reset
+      common/dsample_reset/force_reset
+      data force_reset /.false./
 
 C     LOCAL
       integer i,j
 
       write(*,*) "RESET CUMULATIVE VARIABLE"
+      force_reset=.true.
       non_zero = 0
       nb_pass_cuts = 0
       do j=1,maxinvar

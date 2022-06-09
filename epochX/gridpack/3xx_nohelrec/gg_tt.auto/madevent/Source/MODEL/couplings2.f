@@ -2,9 +2,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      written by the UFO converter
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      SUBROUTINE COUP2()
+      SUBROUTINE COUP2( VECID)
 
       IMPLICIT NONE
+      INTEGER VECID
       INCLUDE 'model_functions.inc'
 
       DOUBLE PRECISION PI, ZERO
@@ -12,6 +13,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       PARAMETER  (ZERO=0D0)
       INCLUDE 'input.inc'
       INCLUDE 'coupl.inc'
-      GC_10 = -G
-      GC_11 = MDL_COMPLEXI*G
+      GC_10(VECID) = -G
+      GC_11(VECID) = MDL_COMPLEXI*G
       END
