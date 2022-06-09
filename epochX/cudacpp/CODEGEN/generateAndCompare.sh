@@ -221,7 +221,6 @@ BRIEF=--brief
 
 # Default: use the 311 MG5aMC branch (except for alpaka and gridpack)
 use270=0
-###if [ "${SCRBCK}" == "alpaka" ] || [ "${SCRBCK}" == "gridpack" ]; then use270=1; fi
 if [ "${SCRBCK}" == "gridpack" ]; then use270=1; fi
 
 # Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
@@ -244,8 +243,6 @@ for arg in "$@"; do
     BRIEF=
   elif [ "$arg" == "--nopatch" ]; then
     NOPATCH=--nopatch
-  ###elif [ "$arg" == "--270" ]; then
-  ###  use270=1
   elif [ "$arg" == "--nountaronly" ] && [ "${SCRBCK}" == "gridpack" ]; then
     UNTARONLY=0
   elif [ "$arg" == "--nohelrec" ] && [ "${SCRBCK}" == "gridpack" ]; then
@@ -285,14 +282,13 @@ echo "proc=${proc}"
 if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"; exit 1; fi
 
 # Make sure that $MG5AMC_HOME exists
-mg5amc270=2.7.0_gpu
-mg5amc311=3.1.1_lo_vectorization
-mg5amcBrn=${mg5amc311}
-if [ "${OUTBCK}" == "alpaka" ] && [ ${use270} == "1" ]; then
-  revno_patches=370
+# Redefine MG5AMC_HOME to use the 270 branch if required
+if [ ${use270} == "1" ]; then
+  mg5amcBrn=2.7.0_gpu
 else
-  revno_patches=$(cat $SCRDIR/MG5aMC_patches/${mg5amcBrn}/revision.BZR)
+  mg5amcBrn=3.1.1_lo_vectorization
 fi
+revno_patches=$(cat $SCRDIR/MG5aMC_patches/${mg5amcBrn}/revision.BZR)
 if [ "$MG5AMC_HOME" == "" ]; then
   echo "ERROR! MG5AMC_HOME is not defined"
   echo -e "To download MG5AMC please run\n  bzr branch lp:~maddevelopers/mg5amcnlo/${mg5amcBrn} -r ${revno_patches}"
@@ -304,17 +300,14 @@ if [ ! -d $MG5AMC_HOME ]; then
   echo -e "To download MG5AMC please run\n  bzr branch lp:~maddevelopers/mg5amcnlo/${mg5amcBrn} -r ${revno_patches}"
   exit 1
 fi
-if [ "$(basename ${MG5AMC_HOME})" != "${mg5amcBrn}" ]; then
-  echo "ERROR! MG5AMC_HOME basename is not ${mg5amcBrn}"
-  exit 1
-fi
-
-# Redefine MG5AMC_HOME to use the 270 branch if required
 if [ "$use270" == "1" ]; then
-  mg5amcBrn=${mg5amc270}
   export MG5AMC_HOME=$(dirname ${MG5AMC_HOME})/${mg5amcBrn}
   echo -e "Using non-default MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
   if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exist"; exit 1; fi
+fi
+if [ "$(basename ${MG5AMC_HOME})" != "${mg5amcBrn}" ]; then
+  echo "ERROR! MG5AMC_HOME basename is not ${mg5amcBrn}"
+  exit 1
 fi
 
 # Make sure that $ALPAKA_ROOT and $CUPLA_ROOT exist if alpaka is used
