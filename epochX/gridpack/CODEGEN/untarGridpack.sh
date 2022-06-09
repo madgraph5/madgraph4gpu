@@ -55,8 +55,12 @@ for p1dir in madevent/SubProcesses/P1_*; do
   \cp -dpr ${scrdir}/MG5aMC_patches/timer.h .
   \cp -dpr ${scrdir}/MG5aMC_patches/counters.cpp .
   if ! patch -i ${scrdir}/MG5aMC_patches/patch.driver.f; then status=1; fi
-  if ! patch -i ${scrdir}/MG5aMC_patches/patch.matrix1_optim.f; then status=1; fi
-  \rm -f matrix1_optim.f.orig
+  if [ "${HELREC}" == "0" ]; then
+    if ! patch -i ${scrdir}/MG5aMC_patches/patch.matrix1.f; then status=1; fi
+  else
+    if ! patch -i ${scrdir}/MG5aMC_patches/patch.matrix1_optim.f; then status=1; fi
+    \rm -f matrix1_optim.f.orig
+  fi
   cd - > /dev/null
 done
 cd madevent/SubProcesses
