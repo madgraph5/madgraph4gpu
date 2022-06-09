@@ -50,7 +50,7 @@ generate g g > t t~ g g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0068552494049072266 [0m
+[1;32mDEBUG: model prefixing  takes 0.006890535354614258 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
@@ -67,7 +67,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=4: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ g g WEIGHTED<=4 @1  
 INFO: Process has 123 diagrams 
-1 processes with 123 diagrams generated in 0.210 s
+1 processes with 123 diagrams generated in 0.212 s
 Total: 1 processes with 123 diagrams
 output CODEGEN_gridpack_gg_ttgg
 INFO: initialize a new directory: CODEGEN_gridpack_gg_ttgg 
@@ -914,8 +914,8 @@ INFO: Creating files in directory P1_gg_ttxgg
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
 INFO: Generating Feynman diagrams for Process: g g > t t~ g g WEIGHTED<=4 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_ttxgg 
-Generated helas calls for 1 subprocesses (123 diagrams) in 1.025 s
-Wrote files for 222 helas calls in 0.685 s
+Generated helas calls for 1 subprocesses (123 diagrams) in 1.072 s
+Wrote files for 222 helas calls in 0.691 s
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
 ALOHA: aloha creates routines (starting by VVV1)
@@ -1054,7 +1054,6 @@ INFO: compile directory
 [1;32mrun_card missed argument tmin_for_channel. Takes default: -1.0[0m
 [1;32mrun_card missed argument small_width_treatment. Takes default: 1e-06[0m
 compile Source Directory
-Running without a11y support!
 [1;32mCompiling the bias module 'dummy'[0m
 Using random number seed offset = 21
 INFO: Running Survey 
@@ -1064,24 +1063,24 @@ INFO: Compiling for process 1/1.
 INFO:     P1_gg_ttxgg  
 [1;32mDEBUG: nb_hel: 64 zero amp: 0 bad_amps_hel: 800/10176 [0m
 INFO:     P1_gg_ttxgg  
-INFO:  Idle: 14,  Running: 4,  Completed: 0 [ current time: 12h17 ] 
-INFO:  Idle: 13,  Running: 4,  Completed: 1 [  15.5s  ] 
-INFO:  Idle: 12,  Running: 4,  Completed: 2 [  21.5s  ] 
-INFO:  Idle: 11,  Running: 4,  Completed: 3 [  27s  ] 
-INFO:  Idle: 10,  Running: 4,  Completed: 4 [  54.1s  ] 
-INFO:  Idle: 9,  Running: 4,  Completed: 5 [  1m 1s  ] 
+INFO:  Idle: 14,  Running: 4,  Completed: 0 [ current time: 17h26 ] 
+INFO:  Idle: 13,  Running: 4,  Completed: 1 [  15.7s  ] 
+INFO:  Idle: 12,  Running: 4,  Completed: 2 [  21.7s  ] 
+INFO:  Idle: 11,  Running: 4,  Completed: 3 [  26.6s  ] 
+INFO:  Idle: 10,  Running: 4,  Completed: 4 [  53.6s  ] 
+INFO:  Idle: 9,  Running: 4,  Completed: 5 [  1m 2s  ] 
 INFO:  Idle: 8,  Running: 4,  Completed: 6 [  1m 6s  ] 
 INFO:  Idle: 7,  Running: 4,  Completed: 7 [  1m 17s  ] 
 INFO:  Idle: 6,  Running: 4,  Completed: 8 [  1m 50s  ] 
-INFO:  Idle: 5,  Running: 4,  Completed: 9 [  1m 53s  ] 
-INFO:  Idle: 4,  Running: 4,  Completed: 10 [  2m 1s  ] 
-INFO:  Idle: 2,  Running: 4,  Completed: 12 [  2m 11s  ] 
+INFO:  Idle: 5,  Running: 4,  Completed: 9 [  1m 54s  ] 
+INFO:  Idle: 4,  Running: 4,  Completed: 10 [  2m 2s  ] 
+INFO:  Idle: 2,  Running: 4,  Completed: 12 [  2m 12s  ] 
 INFO:  Idle: 1,  Running: 4,  Completed: 13 [  2m 23s  ] 
-INFO:  Idle: 0,  Running: 2,  Completed: 16 [  2m 46s  ] 
-INFO:  Idle: 0,  Running: 1,  Completed: 17 [  2m 55s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 18 [  3m 11s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 18 [  3m 11s  ] 
-sum of cpu time of last step: 11m17s
+INFO:  Idle: 0,  Running: 2,  Completed: 16 [  2m 47s  ] 
+INFO:  Idle: 0,  Running: 1,  Completed: 17 [  2m 56s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 18 [  3m 12s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 18 [  3m 12s  ] 
+sum of cpu time of last step: 11m20s
   === Results Summary for run: run_01 tag: tag_1 ===
 
      Cross-section :   0.006384 +- 2.527e-05 pb
@@ -1106,6 +1105,6 @@ INFO:
 more information in /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gridpack_gg_ttgg/index.html
 quit
 
-real	3m39.720s
-user	11m34.215s
-sys	0m6.693s
+real	3m38.815s
+user	11m36.779s
+sys	0m7.795s
