@@ -1,15 +1,15 @@
-G1    PROGRAM    :    0.1368s
-G2    PROGRAM    :    0.1383s
-TOTAL PROGRAM    :    0.2751s
+G1    PROGRAM    :    0.1388s
+G2    PROGRAM    :    0.1398s
+TOTAL PROGRAM    :    0.2786s
 
-G1    MATRIX1(a) :    0.0028s for     4000 MATRIX1 calls  => throughput is 1.45E+06 calls/s
-G2    MATRIX1(a) :    0.0028s for     4000 MATRIX1 calls  => throughput is 1.45E+06 calls/s
-TOTAL MATRIX1(a) :    0.0056s for     8000 MATRIX1 calls  => throughput is 1.43E+06 calls/s
+G1    MATRIX1(a) :    0.0027s for     4000 MATRIX1 calls  => throughput is 1.51E+06 calls/s
+G2    MATRIX1(a) :    0.0027s for     4000 MATRIX1 calls  => throughput is 1.51E+06 calls/s
+TOTAL MATRIX1(a) :    0.0054s for     8000 MATRIX1 calls  => throughput is 1.48E+06 calls/s
 
-G1    MATRIX1(b) :    0.0028s for     4000 SMATRIX1 calls => throughput is 1.45E+06 calls/s
-G2    MATRIX1(b) :    0.0028s for     4000 SMATRIX1 calls => throughput is 1.45E+06 calls/s
-TOTAL MATRIX1(b) :    0.0056s for     8000 SMATRIX1 calls => throughput is 1.43E+06 calls/s
+G1    MATRIX1(b) :    0.0027s for     4000 SMATRIX1 calls => throughput is 1.51E+06 calls/s
+G2    MATRIX1(b) :    0.0027s for     4000 SMATRIX1 calls => throughput is 1.51E+06 calls/s
+TOTAL MATRIX1(b) :    0.0054s for     8000 SMATRIX1 calls => throughput is 1.48E+06 calls/s
 
-G1    SMATRIX1   :    0.0132s for     4000 SMATRIX1 calls => throughput is 3.04E+05 calls/s
-G2    SMATRIX1   :    0.0139s for     4000 SMATRIX1 calls => throughput is 2.87E+05 calls/s
-TOTAL SMATRIX1   :    0.0271s for     8000 SMATRIX1 calls => throughput is 2.95E+05 calls/s
+G1    SMATRIX1   :    0.0135s for     4000 SMATRIX1 calls => throughput is 2.96E+05 calls/s
+G2    SMATRIX1   :    0.0137s for     4000 SMATRIX1 calls => throughput is 2.93E+05 calls/s
+TOTAL SMATRIX1   :    0.0272s for     8000 SMATRIX1 calls => throughput is 2.94E+05 calls/s
