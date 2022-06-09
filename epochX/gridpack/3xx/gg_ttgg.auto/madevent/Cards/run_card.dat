@@ -12,7 +12,7 @@
 #   mind the format:   value    = variable     ! comment             *
 #                                                                    *
 #   To display more options, you can type the command:               *
-#      update full_run_card                                          *
+#      update to_full                                                *
 #*********************************************************************
 #                                                                    
 #*********************************************************************
@@ -27,8 +27,9 @@
   0	= iseed ! rnd seed (0=assigned automatically=default))
 #*********************************************************************
 # Collider type and energy                                           *
-# lpp: 0=No PDF, 1=proton, -1=antiproton, 2=photon from proton,      *
-#                3=photon from electron, 4=photon from muon          *
+# lpp: 0=No PDF, 1=proton, -1=antiproton, 2=elastic photon of proton,*
+#             +/-3=PDF of electron/positron beam                     *
+#             +/-4=PDF of muon/antimuon beam                         *
 #*********************************************************************
   1	= lpp1 ! beam 1 type 
   1	= lpp2 ! beam 2 type
@@ -37,9 +38,13 @@
 # To see polarised beam options: type "update beam_pol"
 
 #*********************************************************************
-# PDF CHOICE: this automatically fixes also alpha_s and its evol.    *
+# PDF CHOICE: this automatically fixes alpha_s and its evol.         *
+# pdlabel: lhapdf=LHAPDF (installation needed) [1412.7420]           *
+#          iww=Improved Weizsaecker-Williams Approx.[hep-ph/9310350] *
+#          eva=Effective W/Z/A Approx.       [21yy.zzzzz]            *
+#          none=No PDF, same as lhapdf with lppx=0                   *
 #*********************************************************************
-  nn23lo1	= pdlabel ! PDF set                                     
+  nn23lo1	= pdlabel ! PDF set 
   230000	= lhaid ! if pdlabel=lhapdf, this is the lhapdf number
 # To see heavy ion options: type "update ion_pdf"
 #*********************************************************************
@@ -52,6 +57,8 @@
   91.188	= dsqrt_q2fact2 ! fixed fact scale for pdf2
   -1	= dynamical_scale_choice ! Choose one of the preselected dynamical choices
   1.0	= scalefact ! scale factor for event-by-event scales
+
+ 
 #*********************************************************************
 # Type and output format
 #*********************************************************************
@@ -67,7 +74,7 @@
 #*********************************************************************
   0	= nhel ! using helicities importance sampling or not.
                              ! 0: sum over helicity, 1: importance sampling
-  2	= sde_strategy ! default integration strategy (hep-ph/2021.xxxxx)
+  2	= sde_strategy ! default integration strategy (hep-ph/2021.00773)
                              ! 1 is old strategy (using amp square)
 			     ! 2 is new strategy (using only the denominator)
 # To see advanced option for Phase-Space optimization: type "update psoptim"			     
@@ -80,7 +87,8 @@
 #
 #*******************************                                                 
 # Parton level cuts definition *
-#*******************************                                     
+#*******************************
+  0.0	= dsqrt_shat ! minimal shat for full process
 #                                                                    
 #
 #*********************************************************************
@@ -92,6 +100,8 @@
 #*********************************************************************
 # Minimum and maximum pt's (for max, -1 means no cut)                *
 #*********************************************************************
+  20.0	= ptj ! minimum pt for the jets 
+  -1.0	= ptjmax ! maximum pt for the jets
   {}	= pt_min_pdg ! pt cut for other particles (use pdg code). Applied on particle and anti-particle
   {}	= pt_max_pdg ! pt cut for other particles (syntax e.g. {6: 100, 25: 50}) 
 #
@@ -100,14 +110,19 @@
 #*********************************************************************
 # Maximum and minimum absolute rapidity (for max, -1 means no cut)   *
 #*********************************************************************
+  5.0	= etaj ! max rap for the jets 
   {}	= eta_min_pdg ! rap cut for other particles (use pdg code). Applied on particle and anti-particle
   {}	= eta_max_pdg ! rap cut for other particles (syntax e.g. {6: 2.5, 23: 5})
 #*********************************************************************
 # Minimum and maximum DeltaR distance                                *
 #*********************************************************************
+  0.4	= drjj ! min distance between jets 
+  -1.0	= drjjmax ! max distance between jets
 #*********************************************************************
 # Minimum and maximum invariant mass for pairs                       *
 #*********************************************************************
+  0.0	= mmjj ! min invariant mass of a jet pair 
+  -1.0	= mmjjmax ! max invariant mass of a jet pair
   {}	= mxx_min_pdg ! min invariant mass of a pair of particles X/X~ (e.g. {6:250})
   {'default': False}	= mxx_only_part_antipart ! if True the invariant mass is applied only 
                        ! to pairs of particle/antiparticle and not to pairs of the same pdg codes.  
@@ -115,6 +130,27 @@
 # Inclusive cuts                                                     *
 #*********************************************************************
   0.0	= ptheavy ! minimum pt for at least one heavy final state
+  0.0	= xptj ! minimum pt for at least one jet  
+ #*********************************************************************
+ # Control the pt's of the jets sorted by pt                          *
+ #*********************************************************************
+  0.0	= ptj1min ! minimum pt for the leading jet in pt
+  0.0	= ptj2min ! minimum pt for the second jet in pt
+  -1.0	= ptj1max ! maximum pt for the leading jet in pt 
+  -1.0	= ptj2max ! maximum pt for the second jet in pt
+  0	= cutuse ! reject event if fails any (0) / all (1) jet pt cuts
+ #*********************************************************************
+ # Control the Ht(k)=Sum of k leading jets                            *
+ #*********************************************************************
+  0.0	= htjmin ! minimum jet HT=Sum(jet pt)
+  -1.0	= htjmax ! maximum jet HT=Sum(jet pt)
+  0.0	= ihtmin !inclusive Ht for all partons (including b)
+  -1.0	= ihtmax !inclusive Ht for all partons (including b)
+ #*********************************************************************
+ # WBF cuts                                                           *
+ #*********************************************************************
+  0.0	= xetamin ! minimum rapidity for two jets in the WBF case  
+  0.0	= deltaeta ! minimum rapidity for two jets in the WBF case 
 #*********************************************************************
 # maximal pdg code for quark to be considered as a light jet         *
 # (otherwise b cuts are applied)                                     *
@@ -130,4 +166,3 @@
 #
   systematics	= systematics_program ! none, systematics [python], SysCalc [depreceted, C++]
   ['--mur=0.5,1,2', '--muf=0.5,1,2', '--pdf=errorset']	= systematics_arguments ! see: https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Systematics#Systematicspythonmodule
-# Syscalc is deprecated but to see the associate options type'update syscalc'

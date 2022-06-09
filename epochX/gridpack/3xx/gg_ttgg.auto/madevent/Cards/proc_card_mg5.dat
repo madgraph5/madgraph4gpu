@@ -8,8 +8,8 @@
 #*                *                       *                 *
 #*                                                          *
 #*                                                          *
-#*         VERSION 2.9.5                 2021-08-22         *
-#*         BZR 2.7.0_gpu                        371         *
+#*         VERSION 3.4.0_lo_vect         2022-05-06         *
+#*         BZR 3.1.1_lo_vectorization          1010         *
 #*                                                          *
 #*    The MadGraph5_aMC@NLO Development Team - Find us at   *
 #*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -25,6 +25,7 @@ set group_subprocesses Auto
 set ignore_six_quark_processes False
 set low_mem_multicore_nlo_generation False
 set complex_mass_scheme False
+set include_lepton_initiated_processes False
 set gauge unitary
 set loop_optimized_output True
 set loop_color_flows False
@@ -32,6 +33,7 @@ set max_npoint_for_channel 0
 set default_unset_couplings 99
 set max_t_for_channel 99
 set zerowidth_tchannel True
+set nlo_mixed_expansion True
 set stdout_level DEBUG
 generate g g > t t~ g g
 define p = g u c d s u~ c~ d~ s~

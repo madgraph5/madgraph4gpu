@@ -5,20 +5,20 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       WRITE(*,*)  ' External Params'
       WRITE(*,*)  ' ---------------------------------'
       WRITE(*,*)  ' '
+      WRITE(*,*) 'mdl_MB = ', MDL_MB
+      WRITE(*,*) 'mdl_MT = ', MDL_MT
+      WRITE(*,*) 'mdl_MTA = ', MDL_MTA
+      WRITE(*,*) 'mdl_MZ = ', MDL_MZ
+      WRITE(*,*) 'mdl_MH = ', MDL_MH
       WRITE(*,*) 'aEWM1 = ', AEWM1
       WRITE(*,*) 'mdl_Gf = ', MDL_GF
       WRITE(*,*) 'aS = ', AS
       WRITE(*,*) 'mdl_ymb = ', MDL_YMB
       WRITE(*,*) 'mdl_ymt = ', MDL_YMT
       WRITE(*,*) 'mdl_ymtau = ', MDL_YMTAU
-      WRITE(*,*) 'mdl_MZ = ', MDL_MZ
-      WRITE(*,*) 'mdl_MT = ', MDL_MT
-      WRITE(*,*) 'mdl_MB = ', MDL_MB
-      WRITE(*,*) 'mdl_MH = ', MDL_MH
-      WRITE(*,*) 'mdl_MTA = ', MDL_MTA
+      WRITE(*,*) 'mdl_WT = ', MDL_WT
       WRITE(*,*) 'mdl_WZ = ', MDL_WZ
       WRITE(*,*) 'mdl_WW = ', MDL_WW
-      WRITE(*,*) 'mdl_WT = ', MDL_WT
       WRITE(*,*) 'mdl_WH = ', MDL_WH
       WRITE(*,*)  ' Internal Params'
       WRITE(*,*)  ' ---------------------------------'
