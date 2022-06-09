@@ -52,6 +52,7 @@ cat madevent/Cards/me5_configuration.txt | sed 's/mg5_path/#mg5_path/' > madeven
 revno_patches=$(cat ${scrdir}/MG5aMC_patches/2.7.0_gpu/revision.BZR)
 for p1dir in madevent/SubProcesses/P1_*; do
   cd $p1dir
+  echo "Applying patches in $(pwd)"  
   \cp -dpr ${scrdir}/MG5aMC_patches/timer.h .
   \cp -dpr ${scrdir}/MG5aMC_patches/counters.cpp .
   if ! patch -i ${scrdir}/MG5aMC_patches/patch.driver.f; then status=1; fi
@@ -61,7 +62,7 @@ for p1dir in madevent/SubProcesses/P1_*; do
     if ! patch -i ${scrdir}/MG5aMC_patches/patch.matrix1_optim.f; then status=1; fi
   fi
   \rm -f matrix1_optim.f.orig
-  cd -
+  cd - > /dev/null
 done
 cd madevent/SubProcesses
 if [ ${revno_patches} -le 365 ]; then
@@ -69,7 +70,7 @@ if [ ${revno_patches} -le 365 ]; then
 else
   if ! patch -i ${scrdir}/MG5aMC_patches/patch.makefile; then status=1; fi
 fi
-cd -
+cd - > /dev/null
 
 # Use python2 instead of python3 for revno 365 (MG28x)
 if [ ${revno_patches} -le 365 ]; then
