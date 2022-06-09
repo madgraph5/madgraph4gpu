@@ -221,7 +221,7 @@ BRIEF=--brief
 
 # Default: use the 311 MG5aMC branch (except for alpaka and gridpack)
 use270=0
-if [ "${SCRBCK}" == "gridpack" ]; then use270=1; fi
+###if [ "${SCRBCK}" == "gridpack" ]; then use270=1; fi
 
 # Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
 UNTARONLY=1
@@ -394,11 +394,17 @@ fi
 if [ "${SCRBCK}" == "gridpack" ]; then
   if [ ${revno_patches} -le 365 ]; then
     OUTDIR=${OUTDIR}/28x
-  else
+  elif [ ${use270} == "1" ]; then
     if [ "${HELREC}" == "0" ]; then
       OUTDIR=${OUTDIR}/29x_nohelrec
     else
       OUTDIR=${OUTDIR}/29x
+    fi
+  else
+    if [ "${HELREC}" == "0" ]; then
+      OUTDIR=${OUTDIR}/3xx_nohelrec
+    else
+      OUTDIR=${OUTDIR}/3xx
     fi
   fi
   echo "OUTDIR=${OUTDIR} (redefined)"
