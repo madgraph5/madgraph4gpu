@@ -390,11 +390,9 @@ elif [ "${SCRBCK}" == "alpaka" ]; then
   ls -l ${MG5AMC_HOME}/PLUGIN
 fi
 
-# For gridpacks, use separate output directories for MG 28x and MG 29x
+# For gridpacks, use separate output directories for MG 29x and MG 3xx
 if [ "${SCRBCK}" == "gridpack" ]; then
-  if [ ${revno_patches} -le 365 ]; then
-    OUTDIR=${OUTDIR}/28x
-  elif [ ${use270} == "1" ]; then
+  if [ ${use270} == "1" ]; then
     if [ "${HELREC}" == "0" ]; then
       OUTDIR=${OUTDIR}/29x_nohelrec
     else
