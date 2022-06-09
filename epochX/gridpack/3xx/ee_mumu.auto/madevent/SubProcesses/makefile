@@ -28,6 +28,12 @@ LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L../../lib/ -ldhelas -ldsample
 
 LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
 
+ifneq ("$(wildcard ../../Source/RUNNING)","")
+    LINKLIBS += -lrunning
+    LIBS += $(LIBDIR)librunning.$(libext) 
+endif
+
+
 # Source files
 
 MATRIX_HEL = $(patsubst %.f,%.o,$(wildcard matrix*_orig.f))
@@ -47,16 +53,16 @@ SYMMETRY = symmetry.o idenparts.o
 # Binaries
 
 $(PROG): $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX) counters.o
-	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) counters.o
+	$(FC) -o $(PROG) $(PROCESS) $(MATRIX) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) counters.o -fopenmp
 
 counters.o: counters.cpp timer.h
 	$(CXX)  -std=c++11 -Wall -Wshadow -Wextra -c $<
 
 $(PROG)_forhel: $(PROCESS) auto_dsig.o $(LIBS) $(MATRIX_HEL)
-	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES)
+	$(FC) -o $(PROG)_forhel $(PROCESS) $(MATRIX_HEL) $(LINKLIBS) $(LDFLAGS) $(BIASDEPENDENCIES) -fopenmp
 
-gensym: $(SYMMETRY) configs.inc $(LIBDIR)libmodel.$(libext) $(LIBDIR)libgeneric.$(libext)
-	$(FC) -o gensym $(SYMMETRY) -L../../lib/ -lmodel -lgeneric -lpdf $(llhapdf) $(LDFLAGS)
+gensym: $(SYMMETRY) configs.inc $(LIBS)
+	$(FC) -o gensym $(SYMMETRY) -L../../lib/ $(LINKLIBS) $(LDFLAGS)
 
 $(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
 	cd ../../Source/MODEL; make
@@ -69,9 +75,9 @@ $(LIBDIR)libpdf.$(libext):
 
 # Add source so that the compiler finds the DiscreteSampler module.
 $(MATRIX): %.o: %.f
-	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/
+	$(FC) $(FFLAGS) $(MATRIX_FLAG) -c $< -I../../Source/ -fopenmp
 %.o: %.f
-	$(FC) $(FFLAGS) -c $< -I../../Source/
+	$(FC) $(FFLAGS) -c $< -I../../Source/ -fopenmp
 
 # Dependencies
 

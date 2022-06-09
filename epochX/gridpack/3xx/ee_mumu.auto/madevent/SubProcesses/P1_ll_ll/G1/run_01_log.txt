@@ -18,20 +18,20 @@
   External Params
   ---------------------------------
   
+ mdl_MB =    4.7000000000000002     
+ mdl_MT =    173.00000000000000     
+ mdl_MTA =    1.7769999999999999     
+ mdl_MZ =    91.188000000000002     
+ mdl_MH =    125.00000000000000     
  aEWM1 =    132.50700000000001     
  mdl_Gf =    1.1663900000000000E-005
  aS =   0.11799999999999999     
  mdl_ymb =    4.7000000000000002     
  mdl_ymt =    173.00000000000000     
  mdl_ymtau =    1.7769999999999999     
- mdl_MZ =    91.188000000000002     
- mdl_MT =    173.00000000000000     
- mdl_MB =    4.7000000000000002     
- mdl_MH =    125.00000000000000     
- mdl_MTA =    1.7769999999999999     
+ mdl_WT =    1.4915000000000000     
  mdl_WZ =    2.4414039999999999     
  mdl_WW =    2.0476000000000001     
- mdl_WT =    1.4915000000000000     
  mdl_WH =    6.3823389999999999E-003
   Internal Params
   ---------------------------------
@@ -127,13 +127,6 @@ Setting grid   1    0.56889E-05   1
 Using random seed offsets     1 :      1
   with seed                   24
  Ranmar initialization seeds       31059        9398
- 
- ********************************************
- * You are using the DiscreteSampler module *
- *      part of the MG5_aMC framework       *
- *         Author: Valentin Hirschi         *
- ********************************************
- 
   Particle       3       4
       Et >    10.0    10.0
        E >     0.0     0.0
@@ -142,55 +135,61 @@ Using random seed offsets     1 :      1
 d R # 3  >    -0.0     0.4
 s min # 3>     0.0     0.0
 xqcutij # 3>     0.0     0.0
- alpha_s for scale    1500.0000000000000       is    8.3149301392514002E-002
+ 
+ ********************************************
+ * You are using the DiscreteSampler module *
+ *      part of the MG5_aMC framework       *
+ *         Author: Valentin Hirschi         *
+ ********************************************
+ 
  RESET CUMULATIVE VARIABLE
- Iteration  1   Mean: 0.2293E-01 Abs mean: 0.2293E-01   Fluctuation:  0.606E-03   0.591E-01    39.6%
-  1    0.2293E-01 0.2293E-01 +- 0.6057E-03      1.18
- Writing out events   3.6222037587373262E-006   1.1815289212655158     
+ Iteration  1   Mean: 0.2293E-01 Abs mean: 0.2293E-01   Fluctuation:  0.604E-03   0.587E-01    39.3%
+  1    0.2293E-01 0.2293E-01 +- 0.6044E-03      1.18
+ Writing out events   3.6492066145864007E-006   1.1786214404040112     
  Relative summed weights:
   0.1000E+01  0.0000E+00
  Relative number of events:
   0.1000E+01  0.0000E+00
  Events:
         2009           0
- Iteration  2   Mean: 0.2281E-01 Abs mean: 0.2281E-01   Fluctuation:  0.163E-03   0.564E-01    99.8%
-  2    0.2281E-01 0.2281E-01 +- 0.1631E-03      0.45
+ Iteration  2   Mean: 0.2300E-01 Abs mean: 0.2300E-01   Fluctuation:  0.160E-03   0.465E-01    99.8%
+  2    0.2300E-01 0.2300E-01 +- 0.1604E-03      0.44
  Relative summed weights:
   0.1000E+01  0.0000E+00
  Relative number of events:
   0.1000E+01  0.0000E+00
  Events:
         4000           0
- Iteration  3   Mean: 0.2331E-01 Abs mean: 0.2331E-01   Fluctuation:  0.771E-04   0.373E-01    99.8%
-  3    0.2331E-01 0.2331E-01 +- 0.7712E-04      0.30
+ Iteration  3   Mean: 0.2315E-01 Abs mean: 0.2315E-01   Fluctuation:  0.796E-04   0.405E-01    99.7%
+  3    0.2315E-01 0.2315E-01 +- 0.7961E-04      0.31
  Relative summed weights:
   0.1000E+01  0.0000E+00
  Relative number of events:
   0.1000E+01  0.0000E+00
  Events:
         8000           0
- Accuracy:    0.006   0.010   0.003   3.886
- Finished due to accuracy    5.8817908849406169E-003   1.0000000000000000E-002
+ Accuracy:    0.002   0.010   0.003   0.376
+ Finished due to accuracy    1.8777070625350303E-003   1.0000000000000000E-002
 
  -------------------------------------------------------------------------------
- Accumulated results:   Integral =  0.2322E-01
-                        Std dev  =  0.6927E-04
-                       Cross sec =  0.2322E-01
-             Chi**2 per DoF.     =      3.8861
+ Accumulated results:   Integral =  0.2311E-01
+                        Std dev  =  0.7082E-04
+                       Cross sec =  0.2311E-01
+             Chi**2 per DoF.     =      0.3756
  -------------------------------------------------------------------------------
  Found          827  events.
  Wrote          822  events.
- Actual xsec    2.3215560902738443E-002
- Correct abs xsec    2.3215560902738443E-002
- Event xsec    2.3215560902738686E-002
+ Actual xsec    2.3114786142453447E-002
+ Correct abs xsec    2.3114786142453447E-002
+ Event xsec    2.3114786142453766E-002
  Events wgts > 1:            0
  % Cross section > 1:    0.0000000000000000        0.0000000000000000     
 -------------------------------------------------
 ---------------------------
- Results Last   3 iters: Integral =   0.2322E-01
-                     Abs integral =   0.2322E-01
-                          Std dev =   0.6927E-04
-                  Chi**2 per DoF. =      3.9940
+ Results Last   3 iters: Integral =   0.2311E-01
+                     Abs integral =   0.2311E-01
+                          Std dev =   0.7082E-04
+                  Chi**2 per DoF. =      0.3787
 -------------------------------------------------
 ---------------------------
  Status   1.0000000000000000E-002           4           8
