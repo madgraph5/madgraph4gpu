@@ -1,3 +1,6 @@
+[1;31mNote that this is a development version.
+This version is intended for development/beta testing and NOT for production.
+This version has not been fully tested (if at all) and might have limited user support (if at all)[0m
 Running MG5 in debug mode
 ************************************************************
 *                                                          *
@@ -12,7 +15,10 @@ Running MG5 in debug mode
 *                 *                       *                *
 *                                                          *
 *         VERSION 3.4.0_lo_vect         2022-05-06         *
-*         BZR 3.1.1_lo_vectorization          1010         *
+[1;31m*                                                          *[1;0m
+[1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
+[1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
+[1;31m*                                                          *[1;0m
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -42,7 +48,7 @@ Note that you can still compile and run aMC@NLO with the built-in PDFs
 
 No valid eps viewer found. Please set in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
-import /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_gridpack_ee_mumu.mg
+import /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_gridpack_ee_mumu.mg
 The import format was not given, so we guess it as command
 set stdout_level DEBUG
 set output information to level: 10
@@ -50,8 +56,86 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0068874359130859375 [0m
+[1;32mDEBUG: model prefixing  takes 0.006858110427856445 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
+[1;32mDEBUG: Simplifying conditional expressions [0m
+[1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: u b w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: c d w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: c b w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: t d w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: t s w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: s u w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: b u w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: d c w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: b c w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: d t w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: s t w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: c c h at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: e- e- h at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: mu- mu- h at order: QED=1 [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_100', 1), ('GC_104', 1), ('GC_108', 1), ('GC_40', 1), ('GC_41', 1), ('GC_45', 1), ('GC_49', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_21', 1), ('GC_27', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_15', 1), ('GC_30', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_38', 1), ('GC_39', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_3', 1), ('GC_4', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_50', 1), ('GC_51', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_54', 1), ('GC_56', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_66', 1), ('GC_67', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_70', 1), ('GC_73', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_74', 1), ('GC_75', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_77', 1), ('GC_78', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_76', 1), ('GC_79', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_7', 1), ('GC_9', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_96', 1), ('GC_97', -1)  [0m
+[1;32mDEBUG: remove parameters: mdl_lamWS [0m
+[1;32mDEBUG: remove parameters: mdl_AWS [0m
+[1;32mDEBUG: remove parameters: mdl_rhoWS [0m
+[1;32mDEBUG: remove parameters: mdl_etaWS [0m
+[1;32mDEBUG: remove parameters: mdl_ymc [0m
+[1;32mDEBUG: remove parameters: mdl_yme [0m
+[1;32mDEBUG: remove parameters: mdl_ymm [0m
+[1;32mDEBUG: remove parameters: mdl_MC [0m
+[1;32mDEBUG: remove parameters: mdl_Me [0m
+[1;32mDEBUG: remove parameters: mdl_MM [0m
+[1;32mDEBUG: remove parameters: mdl_WTau [0m
+[1;32mDEBUG: remove parameters: mdl_lamWS__exp__2 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM1x2 [0m
+[1;32mDEBUG: remove parameters: mdl_lamWS__exp__3 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM1x3 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM2x1 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM2x3 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM3x1 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM3x2 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM1x3 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM2x3 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM2x1 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM3x1 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM3x2 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM1x2 [0m
+[1;32mDEBUG: remove parameters: mdl_yc [0m
+[1;32mDEBUG: remove parameters: mdl_ye [0m
+[1;32mDEBUG: remove parameters: mdl_ym [0m
+[1;32mDEBUG: remove parameters: mdl_I1x31 [0m
+[1;32mDEBUG: remove parameters: mdl_I1x32 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x12 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x13 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x22 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x23 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x32 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x21 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x22 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x23 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x31 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x32 [0m
+[1;32mDEBUG: remove parameters: mdl_I4x13 [0m
+[1;32mDEBUG: remove parameters: mdl_I4x23 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM1x1 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM2x2 [0m
+[1;32mDEBUG: fix parameter value: mdl_CKM3x3 [0m
+[1;32mDEBUG: fix parameter value: mdl_conjg__CKM3x3 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM2x2 [0m
+[1;32mDEBUG: fix parameter value: mdl_conjg__CKM1x1 [0m
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
 Defined multiparticle j = g u c d s u~ c~ d~ s~
@@ -76,20 +160,20 @@ INFO: Creating files in directory P1_ll_ll
 INFO: Generating Feynman diagrams for Process: e+ e- > mu+ mu- WEIGHTED<=4 @1 
 INFO: Finding symmetric diagrams for subprocess group ll_ll 
 Generated helas calls for 1 subprocesses (2 diagrams) in 0.005 s
-Wrote files for 8 helas calls in 0.066 s
+Wrote files for 8 helas calls in 0.065 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
-ALOHA: aloha creates 3 routines in  1.500 s
-save configuration file to /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_gridpack_ee_mumu/Cards/me5_configuration.txt
+ALOHA: aloha creates 3 routines in  1.508 s
+save configuration file to /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_gridpack_ee_mumu/Cards/me5_configuration.txt
 INFO: Use Fortran compiler gfortran 
 INFO: Use c++ compiler g++ 
 INFO: Generate jpeg diagrams 
 INFO: Generate web pages 
-Output to directory /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_gridpack_ee_mumu done.
+Output to directory /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_gridpack_ee_mumu done.
 Type "launch" to generate events from this process, or see
-/data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_gridpack_ee_mumu/README
+/data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_gridpack_ee_mumu/README
 Run "open index.html" to see more information about this process.
 launch
 ************************************************************
@@ -112,9 +196,9 @@ launch
 *               Type 'help' for in-line help.              *
 *                                                          *
 ************************************************************
-INFO: load configuration from /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_gridpack_ee_mumu/Cards/me5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/input/mg5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_gridpack_ee_mumu/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_gridpack_ee_mumu/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/input/mg5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_gridpack_ee_mumu/Cards/me5_configuration.txt  
 No valid eps viewer found. Please set in ./input/mg5_configuration.txt
 generate_events run_01
 set gridpack True
@@ -143,7 +227,7 @@ INFO: Update the dependent parameter of the param_card.dat
 Generating gridpack with run name run_01
 survey  run_01 --accuracy=0.01 --points=2000 --iterations=8 --gridpack=.true.
 INFO: compile directory 
-[1;32mwrite compile file for card: /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_gridpack_ee_mumu/Cards/param_card.dat[0m
+[1;32mwrite compile file for card: /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_gridpack_ee_mumu/Cards/param_card.dat[0m
 [1;32mrun_card missed argument nb_proton1. Takes default: 1[0m
 [1;32mrun_card missed argument nb_proton2. Takes default: 1[0m
 [1;32mrun_card missed argument nb_neutron1. Takes default: 0[0m
@@ -170,11 +254,84 @@ INFO: compile directory
 [1;32mrun_card missed argument clusinfo. Takes default: True[0m
 [1;32mrun_card missed argument lhe_version. Takes default: 3.0[0m
 [1;32mrun_card missed argument auto_ptj_mjj. Takes default: True[0m
+[1;32mrun_card missed argument cut_decays. Takes default: False[0m
+[1;32mrun_card missed argument ptj. Takes default: 20.0[0m
+[1;32mrun_card missed argument ptb. Takes default: 0.0[0m
+[1;32mrun_card missed argument pta. Takes default: 10.0[0m
+[1;32mrun_card missed argument misset. Takes default: 0.0[0m
+[1;32mrun_card missed argument ptheavy. Takes default: 0.0[0m
+[1;32mrun_card missed argument ptjmax. Takes default: -1.0[0m
+[1;32mrun_card missed argument ptbmax. Takes default: -1.0[0m
+[1;32mrun_card missed argument ptamax. Takes default: -1.0[0m
+[1;32mrun_card missed argument missetmax. Takes default: -1.0[0m
+[1;32mrun_card missed argument etaj. Takes default: 5.0[0m
+[1;32mrun_card missed argument etab. Takes default: -1.0[0m
+[1;32mrun_card missed argument etaa. Takes default: 2.5[0m
+[1;32mrun_card missed argument etajmin. Takes default: 0.0[0m
+[1;32mrun_card missed argument etabmin. Takes default: 0.0[0m
+[1;32mrun_card missed argument etaamin. Takes default: 0.0[0m
+[1;32mrun_card missed argument drjj. Takes default: 0.4[0m
+[1;32mrun_card missed argument drbb. Takes default: 0.0[0m
+[1;32mrun_card missed argument draa. Takes default: 0.4[0m
+[1;32mrun_card missed argument drbj. Takes default: 0.0[0m
+[1;32mrun_card missed argument draj. Takes default: 0.4[0m
+[1;32mrun_card missed argument drjl. Takes default: 0.4[0m
+[1;32mrun_card missed argument drab. Takes default: 0.0[0m
+[1;32mrun_card missed argument drbl. Takes default: 0.0[0m
+[1;32mrun_card missed argument dral. Takes default: 0.4[0m
+[1;32mrun_card missed argument drjjmax. Takes default: -1.0[0m
+[1;32mrun_card missed argument drbbmax. Takes default: -1.0[0m
+[1;32mrun_card missed argument draamax. Takes default: -1.0[0m
+[1;32mrun_card missed argument drbjmax. Takes default: -1.0[0m
+[1;32mrun_card missed argument drajmax. Takes default: -1.0[0m
+[1;32mrun_card missed argument drjlmax. Takes default: -1.0[0m
+[1;32mrun_card missed argument drabmax. Takes default: -1.0[0m
+[1;32mrun_card missed argument drblmax. Takes default: -1.0[0m
+[1;32mrun_card missed argument dralmax. Takes default: -1.0[0m
+[1;32mrun_card missed argument mmjj. Takes default: 0.0[0m
+[1;32mrun_card missed argument mmbb. Takes default: 0.0[0m
+[1;32mrun_card missed argument mmaa. Takes default: 0.0[0m
+[1;32mrun_card missed argument mmjjmax. Takes default: -1.0[0m
+[1;32mrun_card missed argument mmbbmax. Takes default: -1.0[0m
+[1;32mrun_card missed argument mmaamax. Takes default: -1.0[0m
+[1;32mrun_card missed argument xptj. Takes default: 0.0[0m
+[1;32mrun_card missed argument xptb. Takes default: 0.0[0m
+[1;32mrun_card missed argument xpta. Takes default: 0.0[0m
+[1;32mrun_card missed argument ptj1min. Takes default: 0.0[0m
+[1;32mrun_card missed argument ptj1max. Takes default: -1.0[0m
+[1;32mrun_card missed argument ptj2min. Takes default: 0.0[0m
+[1;32mrun_card missed argument ptj2max. Takes default: -1.0[0m
+[1;32mrun_card missed argument ptj3min. Takes default: 0.0[0m
+[1;32mrun_card missed argument ptj3max. Takes default: -1.0[0m
+[1;32mrun_card missed argument ptj4min. Takes default: 0.0[0m
+[1;32mrun_card missed argument ptj4max. Takes default: -1.0[0m
+[1;32mrun_card missed argument cutuse. Takes default: 0[0m
+[1;32mrun_card missed argument ptl3min. Takes default: 0.0[0m
+[1;32mrun_card missed argument ptl3max. Takes default: -1.0[0m
+[1;32mrun_card missed argument ptl4min. Takes default: 0.0[0m
+[1;32mrun_card missed argument ptl4max. Takes default: -1.0[0m
+[1;32mrun_card missed argument htjmin. Takes default: 0.0[0m
+[1;32mrun_card missed argument htjmax. Takes default: -1.0[0m
+[1;32mrun_card missed argument ihtmin. Takes default: 0.0[0m
+[1;32mrun_card missed argument ihtmax. Takes default: -1.0[0m
+[1;32mrun_card missed argument ht2min. Takes default: 0.0[0m
+[1;32mrun_card missed argument ht3min. Takes default: 0.0[0m
+[1;32mrun_card missed argument ht4min. Takes default: 0.0[0m
+[1;32mrun_card missed argument ht2max. Takes default: -1.0[0m
+[1;32mrun_card missed argument ht3max. Takes default: -1.0[0m
+[1;32mrun_card missed argument ht4max. Takes default: -1.0[0m
+[1;32mrun_card missed argument ptgmin. Takes default: 0.0[0m
 [1;32mrun_card missed argument r0gamma. Takes default: 0.4[0m
 [1;32mrun_card missed argument xn. Takes default: 1.0[0m
 [1;32mrun_card missed argument epsgamma. Takes default: 1.0[0m
 [1;32mrun_card missed argument isoem. Takes default: True[0m
+[1;32mrun_card missed argument xetamin. Takes default: 0.0[0m
+[1;32mrun_card missed argument deltaeta. Takes default: 0.0[0m
+[1;32mrun_card missed argument ktdurham. Takes default: -1.0[0m
+[1;32mrun_card missed argument dparameter. Takes default: 0.4[0m
+[1;32mrun_card missed argument ptlund. Takes default: -1.0[0m
 [1;32mrun_card missed argument pdgs_for_merging_cut. Takes default: [21, 1, 2, 3, 4, 5, 6][0m
+[1;32mrun_card missed argument xqcut. Takes default: 0.0[0m
 [1;32mrun_card missed argument gridrun. Takes default: False[0m
 [1;32mrun_card missed argument fixed_couplings. Takes default: True[0m
 [1;32mrun_card missed argument mc_grouped_subproc. Takes default: True[0m
@@ -193,9 +350,9 @@ INFO: Compiling for process 1/1.
 INFO:     P1_ll_ll  
 [1;32mDEBUG: nb_hel: 4 zero amp: 0 bad_amps_hel: 0/8 [0m
 INFO:     P1_ll_ll  
-INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 19h04 ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  0.5s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  0.5s  ] 
+INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 14h46 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  0.49s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  0.49s  ] 
 sum of cpu time of last step: 1 seconds
   === Results Summary for run: run_01 tag: tag_1 ===
 
@@ -218,9 +375,9 @@ quit
 INFO: storing files of previous run 
 INFO: Done 
 INFO:  
-more information in /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_gridpack_ee_mumu/index.html
+more information in /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_gridpack_ee_mumu/index.html
 quit
 
-real	0m27.720s
-user	0m30.814s
-sys	0m2.889s
+real	0m26.106s
+user	0m30.599s
+sys	0m2.760s
