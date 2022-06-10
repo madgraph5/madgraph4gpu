@@ -50,7 +50,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0068819522857666016 [0m
+[1;32mDEBUG: model prefixing  takes 0.006862163543701172 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 INFO: Change particles name to pass to MG5 convention 
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
@@ -84,7 +84,7 @@ INFO: Creating files in directory P1_ll_ll
 INFO: Generating Feynman diagrams for Process: e+ e- > mu+ mu- WEIGHTED<=4 @1 
 INFO: Finding symmetric diagrams for subprocess group ll_ll 
 Generated helas calls for 1 subprocesses (2 diagrams) in 0.008 s
-Wrote files for 8 helas calls in 0.041 s
+Wrote files for 8 helas calls in 0.042 s
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
 [1;32mDEBUG:  True [1;30m[misc.py at line 2192][0m [0m
 ALOHA: aloha creates routines (starting by FFV1)
@@ -188,7 +188,6 @@ INFO: compile directory
 [1;32mrun_card missed argument tmin_for_channel. Takes default: -1.0[0m
 [1;32mrun_card missed argument small_width_treatment. Takes default: 1e-06[0m
 compile Source Directory
-Running without a11y support!
 [1;32mCompiling the bias module 'dummy'[0m
 Using random number seed offset = 21
 INFO: Running Survey 
@@ -196,7 +195,7 @@ Creating Jobs
 Working on SubProcesses
 [1;32m[Errno 2] No such file or directory: '/data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gridpack_ee_mumu/SubProcesses/P1_ll_ll/Hel/selection'[0m
 INFO:     P1_ll_ll  
-INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 16h30 ] 
+INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 17h39 ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 1 [  0.48s  ] 
 INFO:  Idle: 0,  Running: 0,  Completed: 1 [  0.48s  ] 
 sum of cpu time of last step: 1 seconds
@@ -224,6 +223,6 @@ INFO:
 more information in /data/avalassi/GPU2020/MG5aMC/2.7.0_gpu/CODEGEN_gridpack_ee_mumu/index.html
 quit
 
-real	0m25.835s
-user	0m12.957s
-sys	0m2.497s
+real	0m11.885s
+user	0m12.917s
+sys	0m2.398s

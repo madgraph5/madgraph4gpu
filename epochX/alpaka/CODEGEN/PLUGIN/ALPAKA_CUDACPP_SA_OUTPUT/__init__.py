@@ -37,5 +37,5 @@ __email__ = 'andrea.valassi@cern.ch'
 __version__ = (1,0,0)
 minimal_mg5amcnlo_version = (2,9,5) 
 maximal_mg5amcnlo_version = (1000,1000,1000)
-latest_validated_version = (2,9,5)
+latest_validated_version = (3,4,0)
 

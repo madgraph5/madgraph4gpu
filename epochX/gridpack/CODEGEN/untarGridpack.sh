@@ -49,34 +49,23 @@ cat madevent/Cards/me5_configuration.txt | sed 's/mg5_path/#mg5_path/' > madeven
 
 # Inject C++ counters into the Fortran code
 ###exit 0
-revno_patches=$(cat ${scrdir}/MG5aMC_patches/2.7.0_gpu/revision.BZR)
 for p1dir in madevent/SubProcesses/P1_*; do
   cd $p1dir
+  echo "Applying patches in $(pwd)"  
   \cp -dpr ${scrdir}/MG5aMC_patches/timer.h .
   \cp -dpr ${scrdir}/MG5aMC_patches/counters.cpp .
   if ! patch -i ${scrdir}/MG5aMC_patches/patch.driver.f; then status=1; fi
-  if [ ${revno_patches} -le 365 ] || [ "${HELREC}" == "0" ]; then
-    if ! patch -i ${scrdir}/MG5aMC_patches/patch_28x.matrix1.f; then status=1; fi
+  if [ "${HELREC}" == "0" ]; then
+    if ! patch -i ${scrdir}/MG5aMC_patches/patch.matrix1.f; then status=1; fi
   else
     if ! patch -i ${scrdir}/MG5aMC_patches/patch.matrix1_optim.f; then status=1; fi
+    \rm -f matrix1_optim.f.orig
   fi
-  \rm -f matrix1_optim.f.orig
-  cd -
+  cd - > /dev/null
 done
 cd madevent/SubProcesses
-if [ ${revno_patches} -le 365 ]; then
-  if ! patch -i ${scrdir}/MG5aMC_patches/patch_28x.makefile; then status=1; fi
-else
-  if ! patch -i ${scrdir}/MG5aMC_patches/patch.makefile; then status=1; fi
-fi
-cd -
-
-# Use python2 instead of python3 for revno 365 (MG28x)
-if [ ${revno_patches} -le 365 ]; then
-  cat run.sh | sed "s|\${DIR}/bin/gridrun|python2 \${DIR}/bin/gridrun|" > run.sh.new
-  \mv run.sh.new run.sh
-  chmod +x run.sh
-fi
+if ! patch -i ${scrdir}/MG5aMC_patches/patch.makefile; then status=1; fi
+cd - > /dev/null
 
 # Replace "-O" by "-O3 -ffast-math" globally
 cat madevent/Source/make_opts | sed "s/GLOBAL_FLAG=-O /GLOBAL_FLAG=-O3 -ffast-math /" > madevent/Source/make_opts.new

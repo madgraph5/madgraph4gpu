@@ -112,9 +112,9 @@ function codeGenAndDiff()
   # Output directories: examples ee_mumu.auto for cudacpp and gridpacks, eemumu.cpp or eemumu.gpu for cpp and gpu
   autosuffix=auto
   if [ "${OUTBCK}" == "cpp" ]; then
-    autosuffix=cpp # no support for 270 any longer
+    autosuffix=cpp # no special suffix for the 311 branch any longer
   elif [ "${OUTBCK}" == "gpu" ]; then
-    autosuffix=gpu # no support for 270 any longer
+    autosuffix=gpu # no special suffix for the 311 branch any longer
   elif [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
     autosuffix=${OUTBCK}
   fi
@@ -173,10 +173,10 @@ function usage()
 {
   # NB: Generate only one process at a time
   if [ "${SCRBCK}" == "gridpack" ]; then
-    # NB: gridpack generation has been tested only against the 270 branch so far
+    # NB: gridpack generation uses the 311 branch by default
     echo "Usage: $0 [--nobrief] [--nountaronly] [--nohelrec] <proc>"
   elif [ "${SCRBCK}" == "alpaka" ]; then
-    # NB: alpaka generation has been tested only against the 270 branch so far
+    # NB: alpaka generation uses the 311 branch by default
     echo "Usage: $0 [--nobrief] <proc>"
   else
     # NB: all options with $SCRBCK=cudacpp use the 311 branch by default and always disable helicity recycling
@@ -219,11 +219,6 @@ OUTBCK=$SCRBCK
 # Default: brief diffs (use --nobrief to use full diffs)
 BRIEF=--brief
 
-# Default: use the 311 MG5aMC branch (except for alpaka and gridpack)
-use270=0
-###if [ "${SCRBCK}" == "alpaka" ] || [ "${SCRBCK}" == "gridpack" ]; then use270=1; fi
-if [ "${SCRBCK}" == "gridpack" ]; then use270=1; fi
-
 # Default for gridpacks: untar gridpack.tar.gz but do not regenerate it (use --nountaronly to regenerate it)
 UNTARONLY=1
 
@@ -244,8 +239,6 @@ for arg in "$@"; do
     BRIEF=
   elif [ "$arg" == "--nopatch" ]; then
     NOPATCH=--nopatch
-  ###elif [ "$arg" == "--270" ]; then
-  ###  use270=1
   elif [ "$arg" == "--nountaronly" ] && [ "${SCRBCK}" == "gridpack" ]; then
     UNTARONLY=0
   elif [ "$arg" == "--nohelrec" ] && [ "${SCRBCK}" == "gridpack" ]; then
@@ -285,14 +278,8 @@ echo "proc=${proc}"
 if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"; exit 1; fi
 
 # Make sure that $MG5AMC_HOME exists
-mg5amc270=2.7.0_gpu
-mg5amc311=3.1.1_lo_vectorization
-mg5amcBrn=${mg5amc311}
-if [ "${OUTBCK}" == "alpaka" ] && [ ${use270} == "1" ]; then
-  revno_patches=370
-else
-  revno_patches=$(cat $SCRDIR/MG5aMC_patches/${mg5amcBrn}/revision.BZR)
-fi
+mg5amcBrn=3.1.1_lo_vectorization
+revno_patches=$(cat $SCRDIR/MG5aMC_patches/${mg5amcBrn}/revision.BZR)
 if [ "$MG5AMC_HOME" == "" ]; then
   echo "ERROR! MG5AMC_HOME is not defined"
   echo -e "To download MG5AMC please run\n  bzr branch lp:~maddevelopers/mg5amcnlo/${mg5amcBrn} -r ${revno_patches}"
@@ -304,17 +291,11 @@ if [ ! -d $MG5AMC_HOME ]; then
   echo -e "To download MG5AMC please run\n  bzr branch lp:~maddevelopers/mg5amcnlo/${mg5amcBrn} -r ${revno_patches}"
   exit 1
 fi
+
+# Check that the 311 branch is being used (default for all of cudacpp, alpaka, gridpack)
 if [ "$(basename ${MG5AMC_HOME})" != "${mg5amcBrn}" ]; then
   echo "ERROR! MG5AMC_HOME basename is not ${mg5amcBrn}"
   exit 1
-fi
-
-# Redefine MG5AMC_HOME to use the 270 branch if required
-if [ "$use270" == "1" ]; then
-  mg5amcBrn=${mg5amc270}
-  export MG5AMC_HOME=$(dirname ${MG5AMC_HOME})/${mg5amcBrn}
-  echo -e "Using non-default MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
-  if [ ! -d $MG5AMC_HOME ]; then echo "ERROR! Directory $MG5AMC_HOME does not exist"; exit 1; fi
 fi
 
 # Make sure that $ALPAKA_ROOT and $CUPLA_ROOT exist if alpaka is used
@@ -397,16 +378,12 @@ elif [ "${SCRBCK}" == "alpaka" ]; then
   ls -l ${MG5AMC_HOME}/PLUGIN
 fi
 
-# For gridpacks, use separate output directories for MG 28x and MG 29x
+# For gridpacks, use separate output directories for MG 29x and MG 3xx
 if [ "${SCRBCK}" == "gridpack" ]; then
-  if [ ${revno_patches} -le 365 ]; then
-    OUTDIR=${OUTDIR}/28x
+  if [ "${HELREC}" == "0" ]; then
+    OUTDIR=${OUTDIR}/3xx_nohelrec
   else
-    if [ "${HELREC}" == "0" ]; then
-      OUTDIR=${OUTDIR}/29x_nohelrec
-    else
-      OUTDIR=${OUTDIR}/29x
-    fi
+    OUTDIR=${OUTDIR}/3xx
   fi
   echo "OUTDIR=${OUTDIR} (redefined)"
 fi
