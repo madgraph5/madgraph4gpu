@@ -278,23 +278,17 @@ echo "proc=${proc}"
 if ! python3 --version >& /dev/null; then echo "ERROR! python3 is not installed"; exit 1; fi
 
 # Make sure that $MG5AMC_HOME exists
-mg5amcBrn=3.1.1_lo_vectorization
-revno_patches=$(cat $SCRDIR/MG5aMC_patches/${mg5amcBrn}/revision.BZR)
+branch_patches=3.1.1_lo_vectorization
+commit_patches=$(cat $SCRDIR/MG5aMC_patches/${branch_patches}/commit.GIT)
 if [ "$MG5AMC_HOME" == "" ]; then
   echo "ERROR! MG5AMC_HOME is not defined"
-  echo -e "To download MG5AMC please run\n  bzr branch lp:~maddevelopers/mg5amcnlo/${mg5amcBrn} -r ${revno_patches}"
+  echo -e "To download MG5AMC please run\n  git clone git@github.com:mg5amcnlo/mg5amcnlo.git\n  cd mg5amcnlo; git checkout ${branch_patches}; git reset --hard ${commit_patches}"
   exit 1
 fi
 echo -e "\nDefault MG5AMC_HOME=$MG5AMC_HOME on $(hostname)\n"
 if [ ! -d $MG5AMC_HOME ]; then
   echo "ERROR! Directory $MG5AMC_HOME does not exist"
-  echo -e "To download MG5AMC please run\n  bzr branch lp:~maddevelopers/mg5amcnlo/${mg5amcBrn} -r ${revno_patches}"
-  exit 1
-fi
-
-# Check that the 311 branch is being used (default for all of cudacpp, alpaka, gridpack)
-if [ "$(basename ${MG5AMC_HOME})" != "${mg5amcBrn}" ]; then
-  echo "ERROR! MG5AMC_HOME basename is not ${mg5amcBrn}"
+  echo -e "To download MG5AMC please run\n  git clone git@github.com:mg5amcnlo/mg5amcnlo.git\n  cd mg5amcnlo; git checkout ${branch_patches}; git reset --hard ${commit_patches}"
   exit 1
 fi
 
@@ -316,53 +310,54 @@ if [ "${SCRBCK}" == "alpaka" ]; then
   if [ ! -d $CUPLA_ROOT ]; then echo "ERROR! Directory $CUPLA_ROOT does not exist"; exit 1; fi
 fi
 
-# Print MG5amc bazaar info if any
-# Revert to the appropriate bazaar revision number
-# (NB! 'bzr revert' does not change the output of 'bzr revno': it is NOT like 'git reset --hard'!)
-# (See the comments in https://stackoverflow.com/a/37488587)
-if bzr --version >& /dev/null; then
-  echo -e "Using $(bzr --version | head -1)"
-  echo -e "Retrieving bzr information about MG5AMC_HOME"
-  if bzr info ${MG5AMC_HOME} > /dev/null; then
-    echo -e "MG5AMC patches in this plugin refer to bzr revno '${revno_patches}'"
-    echo -e "Revert MG5AMC_HOME to bzr revno '${revno_patches}'"
-    bzr revert ${MG5AMC_HOME} -r ${revno_patches}
-    revno_mg5amc=$(bzr revno ${MG5AMC_HOME} -r ${revno_patches})
-    echo -e "Current 'bzr revno -r ${revno_patches}' of MG5AMC_HOME is '${revno_mg5amc}'"
-    if [ "${revno_patches}" != "${revno_mg5amc}" ]; then echo -e "\nERROR! bzr revno mismatch!"; exit 1; fi
-  else
-    ###echo -e "WARNING! MG5AMC_HOME is not a bzr branch\n"
-    echo -e "ERROR! MG5AMC_HOME is not a bzr branch\n"; exit 1
-  fi
-else
-  ###echo -e "WARNING! bzr is not installed: cannot retrieve bzr properties of MG5aMC_HOME\n"
-  echo -e "ERROR! bzr is not installed: cannot retrieve bzr properties of MG5aMC_HOME\n"; exit 1
+# Check that MG5aMC uses the git 311 branch (default for all of cudacpp, alpaka, gridpack)
+# Revert MG5aMC to the appropriate git commit
+if ! git --version >& /dev/null; then
+  echo -e "ERROR! git is not installed: cannot retrieve git properties of MG5aMC_HOME\n"; exit 1
 fi
+echo -e "Using $(git --version)"
+cd ${MG5AMC_HOME}
+echo -e "Retrieving git information about MG5AMC_HOME"
+if ! git log -n1 >& /dev/null; then
+  echo -e "ERROR! MG5AMC_HOME is not a git clone\n"; exit 1
+fi
+echo -e "MG5AMC patches in this plugin refer to git branch '${branch_patches}'"
+branch_mg5amc=$(git branch --no-color | \grep ^* | awk '{print $2}')
+echo -e "Current git branch of MG5AMC_HOME is '${branch_mg5amc}'"
+if [ "${branch_patches}" != "${branch_mg5amc}" ]; then echo -e "\nERROR! git branch mismatch!"; exit 1; fi
+echo -e "MG5AMC patches in this plugin refer to git commit '${commit_patches}'"
+echo -e "Reset MG5AMC_HOME to git commit '${commit_patches}'"
+if ! git reset --hard ${commit_patches}; then
+  echo -e "ERROR! 'git reset --hard ${commit_patches}' failed\n"; exit 1
+fi
+commit_mg5amc=$(git log --oneline -n1 | awk '{print $1}')
+echo -e "Current git commit of MG5AMC_HOME is '${commit_mg5amc}'"
+if [ "${commit_patches}" != "${commit_mg5amc}" ]; then echo -e "\nERROR! git commit mismatch!"; exit 1; fi
+cd - > /dev/null
 
-# Copy MG5AMC patches if any
+# Copy MG5AMC ad-hoc patches if any
 if [ "${SCRBCK}" == "cudacpp" ]; then
-  ###patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f -name '*.py')
-  patches=$(cd $SCRDIR/MG5aMC_patches/${mg5amcBrn}; find . -type f ! -name '*.BZR')
-  echo -e "Copy MG5aMC_patches/${mg5amcBrn} patches..."
+  ###patches=$(cd $SCRDIR/MG5aMC_patches/${branch_patches}; find . -type f -name '*.py')
+  patches=$(cd $SCRDIR/MG5aMC_patches/${branch_patches}; find . -type f ! -name '*.GIT')
+  echo -e "Copy MG5aMC_patches/${branch_patches} patches..."
   for patch in $patches; do
     patch=${patch#./}
-    echo cp -dpr $SCRDIR/MG5aMC_patches/${mg5amcBrn}/$patch $MG5AMC_HOME/$patch
-    cp -dpr $SCRDIR/MG5aMC_patches/${mg5amcBrn}/$patch $MG5AMC_HOME/$patch
+    echo cp -dpr $SCRDIR/MG5aMC_patches/${branch_patches}/$patch $MG5AMC_HOME/$patch
+    cp -dpr $SCRDIR/MG5aMC_patches/${branch_patches}/$patch $MG5AMC_HOME/$patch
   done
-  echo -e "Copy MG5aMC_patches/${mg5amcBrn} patches... done\n"
+  echo -e "Copy MG5aMC_patches/${branch_patches} patches... done\n"
 fi
 
 # Clean up before code generation
 cleanup_MG5AMC_HOME
 
-# Print MG5amc bazaar info if any
-if bzr --version >& /dev/null; then
-  if bzr info ${MG5AMC_HOME} 2> /dev/null | grep parent; then
-    echo -e "\n***************** Differences to the current bzr revno ${revno_patches} [START]"
-    if bzr diff ${MG5AMC_HOME} -r ${revno_patches} --using /usr/bin/diff --diff-options --brief; then echo -e "[No differences]"; fi
-    echo -e "***************** Differences to the current bzr revno ${revno_patches} [END]"
-  fi
-fi
+# Print differences in MG5AMC with respect to git after copying ad-hoc patches
+cd ${MG5AMC_HOME}
+echo -e "\n***************** Differences to the current git commit ${commit_patches} [START]"
+###if [ "$(git diff)" == "" ]; then echo -e "[No differences]"; else git diff; fi
+if [ "$(git diff)" == "" ]; then echo -e "[No differences]"; else git diff --name-status; fi
+echo -e "***************** Differences to the current git commit ${commit_patches} [END]"
+cd - > /dev/null
 
 # Copy the new plugin to MG5AMC_HOME (if the script directory backend is cudacpp or alpaka)
 if [ "${SCRBCK}" == "cudacpp" ]; then
