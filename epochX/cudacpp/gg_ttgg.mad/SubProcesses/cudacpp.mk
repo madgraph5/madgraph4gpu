@@ -1,7 +1,8 @@
 #=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
-#=== NB: assume that the same name (e.g. cudacpp.mk, Makefile...) is used in the Subprocess and src directories
+#=== NB: different names (e.g. cudacpp.mk and cudacpp_src.mk) are used in the Subprocess and src directories
 
-THISMK = $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
+CUDACPP_MAKEFILE = $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
+CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 
 #-------------------------------------------------------------------------------
 
@@ -406,7 +407,7 @@ endif
 commonlib : $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
 
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so: ../../src/*.h ../../src/*.cc
-	$(MAKE) -C ../../src $(MAKEDEBUG) -f $(THISMK)
+	$(MAKE) -C ../../src $(MAKEDEBUG) -f $(CUDACPP_SRC_MAKEFILE)
 
 #-------------------------------------------------------------------------------
 
@@ -568,23 +569,23 @@ $(GTESTLIBS):
 # (Hack: add a fbridge.inc dependency to avxall, to ensure it is only copied once for all AVX modes)
 avxnone:
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=none -f $(THISMK)
+	$(MAKE) USEBUILDDIR=1 AVX=none -f $(CUDACPP_MAKEFILE)
 
 avxsse4:
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=sse4 -f $(THISMK)
+	$(MAKE) USEBUILDDIR=1 AVX=sse4 -f $(CUDACPP_MAKEFILE)
 
 avxavx2:
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=avx2 -f $(THISMK)
+	$(MAKE) USEBUILDDIR=1 AVX=avx2 -f $(CUDACPP_MAKEFILE)
 
 avx512y:
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=512y -f $(THISMK)
+	$(MAKE) USEBUILDDIR=1 AVX=512y -f $(CUDACPP_MAKEFILE)
 
 avx512z:
 	@echo
-	$(MAKE) USEBUILDDIR=1 AVX=512z -f $(THISMK)
+	$(MAKE) USEBUILDDIR=1 AVX=512z -f $(CUDACPP_MAKEFILE)
 
 ifeq ($(UNAME_P),ppc64le)
 ###avxall: $(INCDIR)/fbridge.inc avxnone avxsse4
@@ -609,14 +610,14 @@ else
 	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
 	rm -f $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(LIBDIR)/lib$(MG5AMC_CULIB).so
 endif
-	$(MAKE) -C ../../src clean -f $(THISMK)
+	$(MAKE) -C ../../src clean -f $(CUDACPP_SRC_MAKEFILE)
 ###	rm -rf $(INCDIR)
 
 cleanall:
 	@echo
-	$(MAKE) USEBUILDDIR=0 clean -f $(THISMK)
+	$(MAKE) USEBUILDDIR=0 clean -f $(CUDACPP_MAKEFILE)
 	@echo
-	$(MAKE) USEBUILDDIR=0 -C ../../src cleanall -f $(THISMK)
+	$(MAKE) USEBUILDDIR=0 -C ../../src cleanall -f $(CUDACPP_SRC_MAKEFILE)
 	rm -rf build.*
 
 # Target: clean the builds as well as the googletest installation
