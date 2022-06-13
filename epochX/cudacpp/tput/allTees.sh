@@ -4,6 +4,7 @@ scrdir=$(cd $(dirname $0); pwd)
 
 # By default, use the madevent+cudacpp version of code and tee scripts
 sa=
+suff=".mad"
 
 # Parse command line arguments
 ggttggg=-ggttggg
@@ -19,6 +20,7 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-sa" ]; then
     # Use standalone_cudacpp builds instead of madevent+cudacpp?
     sa=-sa
+    suff=".sa"
     shift
   else
     echo "Usage: $0 [-short] [-e] [-sa]"
@@ -34,21 +36,21 @@ cd $scrdir/..
 started="STARTED  AT $(date)"
 
 # (20/56) Four logs (double/float x hrd0/hrd1 x inl0) in each of the five processes
-\rm -rf gg_ttggg/lib/build.none_*
+\rm -rf gg_ttggg${suff}/lib/build.none_*
 cmd="./tput/teeThroughputX.sh ${sa} -flt -hrd -makej -makeclean -eemumu -ggtt -ggttg -ggttgg $ggttggg"
 $cmd; status=$?
 ended1="$cmd\nENDED(1) AT $(date) [Status=$status]"
 tmp1=$(mktemp)
-ls -ltr ee_mumu/lib/build.none_*_inl0_hrd* gg_tt/lib/build.none_*_inl0_hrd* gg_tt*g/lib/build.none_*_inl0_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp1
+ls -ltr ee_mumu${suff}/lib/build.none_*_inl0_hrd* gg_tt${suff}/lib/build.none_*_inl0_hrd* gg_tt*g${suff}/lib/build.none_*_inl0_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp1
 
 # (32/56) Four extra logs (double/float x hrd0/hrd1 x inl1) only in three of the five processes
-\rm -rf gg_ttg/lib/build.none_*
-\rm -rf gg_ttggg/lib/build.none_*
+\rm -rf gg_ttg${suff}/lib/build.none_*
+\rm -rf gg_ttggg${suff}/lib/build.none_*
 cmd="./tput/teeThroughputX.sh ${sa} -flt -hrd -makej -makeclean -eemumu -ggtt -ggttgg -inlonly"
 $cmd; status=$?
 ended2="$cmd\nENDED(2) AT $(date) [Status=$status]"
 tmp2=$(mktemp)
-ls -ltr ee_mumu/lib/build.none_*_inl1_hrd* gg_tt/lib/build.none_*_inl1_hrd* gg_tt*g/lib/build.none_*_inl1_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp2
+ls -ltr ee_mumu${suff}/lib/build.none_*_inl1_hrd* gg_tt${suff}/lib/build.none_*_inl1_hrd* gg_tt*g${suff}/lib/build.none_*_inl1_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp2
 
 # (38/56) Two extra logs (double/float x hrd0 x inl0 + bridge) only in three of the five processes (rebuild from cache)
 cmd="./tput/teeThroughputX.sh ${sa} -makej -makeclean -eemumu -ggtt -ggttgg -flt -bridge"
