@@ -38,7 +38,7 @@ endif
 LINKLIBS = $(LINK_MADLOOP_LIB) $(LINK_LOOP_LIBS) -L$(LIBDIR) -ldhelas -ldsample -lmodel -lgeneric -lpdf -lcernlib $(llhapdf) -lbias 
 
 processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
-CUDACPP_MAKEFILE=Makefile
+CUDACPP_MAKEFILE=cudacpp.mk
 # NB1 Using ":=" below instead of "=" is much faster (it only runs the subprocess once instead of many times)
 # NB2 Do not add a comment inlined "CUDACPP_BUILDDIR=$(shell ...) # comment" as otherwise a trailing space is included...
 # NB3 The variables relevant to the cudacpp Makefile must be explicitly passed to $(shell...)
