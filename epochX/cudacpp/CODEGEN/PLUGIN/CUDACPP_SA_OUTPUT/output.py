@@ -115,17 +115,17 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
                     'MadgraphTest.h', 'runTest.cc',
                     'testmisc.cc', 'testxxx_cc_ref.txt',
-                    'Makefile', # this is generated from a template in Subprocesses but we still link it in Sigma
+                    'cudacpp.mk', # this is generated from a template in Subprocesses but we still link it in Sigma
                     'testxxx.cc', # this is generated from a template in Subprocesses but we still link it in Sigma
                     'MemoryBuffers.h', # this is generated from a template in Subprocesses but we still link it in Sigma
                     'MemoryAccessCouplings.h', # this is generated from a template in Subprocesses but we still link it in Sigma
                     'perf.py', 'profile.sh']
 
-    # AV - use template files from PLUGINDIR instead of MG5DIR
+    # AV - use template files from PLUGINDIR instead of MG5DIR and change their names
     ###template_src_make = pjoin(MG5DIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')
     ###template_Sub_make = pjoin(MG5DIR, 'madgraph', 'iolibs', 'template_files','gpu','Makefile')
-    template_src_make = pjoin(PLUGINDIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')
-    template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','Makefile')
+    template_src_make = pjoin(PLUGINDIR, 'madgraph' ,'iolibs', 'template_files','gpu','cudacpp_src.mk')
+    template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','cudacpp.mk')
 
     # AV - use a custom UFOModelConverter (model/aloha exporter)
     ###create_model_class =  PLUGIN_export_cpp.UFOModelConverterGPU
@@ -157,14 +157,14 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             for key in self.from_template:
                 for f in self.from_template[key]:
                     PLUGIN_export_cpp.cp(f, key) # NB this assumes directory key exists...
-            # Copy src Makefile
+            # Copy src makefile
             if self.template_src_make:
-                makefile = self.read_template_file(self.template_src_make) % {'model': self.get_model_name(model.get('name'))}
-                open(os.path.join('src', 'Makefile'), 'w').write(makefile)
-            # Copy SubProcesses Makefile
+                makefile_src = self.read_template_file(self.template_src_make) % {'model': self.get_model_name(model.get('name'))}
+                open(os.path.join('src', 'cudacpp_src.mk'), 'w').write(makefile_src)
+            # Copy SubProcesses makefile
             if self.template_Sub_make:
                 makefile = self.read_template_file(self.template_Sub_make) % {'model': self.get_model_name(model.get('name'))}
-                open(os.path.join('SubProcesses', 'Makefile'), 'w').write(makefile)
+                open(os.path.join('SubProcesses', 'cudacpp.mk'), 'w').write(makefile)
 
     # AV - add debug printouts (in addition to the default one from OM's tutorial)
     def generate_subprocess_directory(self, subproc_group, fortran_model, me=None):

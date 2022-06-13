@@ -1219,6 +1219,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         files.ln(pjoin(self.path, 'RamboSamplingKernels.cc'), self.path, 'gRamboSamplingKernels.cu')
         files.ln(pjoin(self.path, 'RandomNumberKernels.cc'), self.path, 'gRandomNumberKernels.cu')
         files.ln(pjoin(self.path, 'BridgeKernels.cc'), self.path, 'gBridgeKernels.cu')
+        files.ln(pjoin(self.path, 'cudacpp.mk'), self.path, 'Makefile')
 
     # SR - generate CMakeLists.txt file inside the P* directory
     def edit_CMakeLists(self):
