@@ -1219,6 +1219,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         files.ln(pjoin(self.path, 'RamboSamplingKernels.cc'), self.path, 'gRamboSamplingKernels.cu')
         files.ln(pjoin(self.path, 'RandomNumberKernels.cc'), self.path, 'gRandomNumberKernels.cu')
         files.ln(pjoin(self.path, 'BridgeKernels.cc'), self.path, 'gBridgeKernels.cu')
+        # NB: symlink of cudacpp.mk to makefile is overwritten by madevent makefile if this exists (#480)
+        # NB: this relies on the assumption that cudacpp code is generated before madevent code
+        files.ln(pjoin(self.path, 'cudacpp.mk'), self.path, 'makefile')
 
     # SR - generate CMakeLists.txt file inside the P* directory
     def edit_CMakeLists(self):
