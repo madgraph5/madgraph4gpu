@@ -95,7 +95,6 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/RandomNumberKernels.cc', s+'gpu/RandomNumberKernels.h',
                                       s+'gpu/Bridge.h', s+'gpu/BridgeKernels.cc', s+'gpu/BridgeKernels.h',
                                       s+'gpu/fbridge.cc', s+'gpu/fbridge.inc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
-                                      s+'gpu/Makefile',
                                       s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
                                       s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt',
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
@@ -114,9 +113,9 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'RandomNumberKernels.h', 'RandomNumberKernels.cc',
                     'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h',
                     'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
-                    'Makefile',
                     'MadgraphTest.h', 'runTest.cc',
                     'testmisc.cc', 'testxxx_cc_ref.txt',
+                    'Makefile', # this is generated from a template in Subprocesses but we still link it in Sigma
                     'testxxx.cc', # this is generated from a template in Subprocesses but we still link it in Sigma
                     'MemoryBuffers.h', # this is generated from a template in Subprocesses but we still link it in Sigma
                     'MemoryAccessCouplings.h', # this is generated from a template in Subprocesses but we still link it in Sigma
