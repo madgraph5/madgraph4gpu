@@ -1,3 +1,6 @@
+[1;31mNote that this is a development version.
+This version is intended for development/beta testing and NOT for production.
+This version has not been fully tested (if at all) and might have limited user support (if at all)[0m
 Running MG5 in debug mode
 ************************************************************
 *                                                          *
@@ -12,7 +15,10 @@ Running MG5 in debug mode
 *                 *                       *                *
 *                                                          *
 *         VERSION 3.4.0_lo_vect         2022-05-06         *
-*         BZR 3.1.1_lo_vectorization          1010         *
+[1;31m*                                                          *[1;0m
+[1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
+[1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
+[1;31m*                                                          *[1;0m
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -42,7 +48,7 @@ Note that you can still compile and run aMC@NLO with the built-in PDFs
 
 No valid eps viewer found. Please set in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
-import /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_ee_mumu.mg
+import /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_ee_mumu.mg
 The import format was not given, so we guess it as command
 set stdout_level DEBUG
 set output information to level: 10
@@ -50,8 +56,86 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006909847259521484 [0m
+[1;32mDEBUG: model prefixing  takes 0.006899356842041016 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
+[1;32mDEBUG: Simplifying conditional expressions [0m
+[1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: u b w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: c d w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: c b w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: t d w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: t s w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: s u w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: b u w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: d c w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: b c w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: d t w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: s t w+ at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: c c h at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: e- e- h at order: QED=1 [0m
+[1;32mDEBUG: remove interactions: mu- mu- h at order: QED=1 [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_100', 1), ('GC_104', 1), ('GC_108', 1), ('GC_40', 1), ('GC_41', 1), ('GC_45', 1), ('GC_49', 1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_21', 1), ('GC_27', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_15', 1), ('GC_30', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_38', 1), ('GC_39', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_3', 1), ('GC_4', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_50', 1), ('GC_51', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_54', 1), ('GC_56', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_66', 1), ('GC_67', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_70', 1), ('GC_73', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_74', 1), ('GC_75', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_77', 1), ('GC_78', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_76', 1), ('GC_79', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_7', 1), ('GC_9', -1)  [0m
+[1;32mDEBUG:  Fuse the Following coupling (they have the same value): ('GC_96', 1), ('GC_97', -1)  [0m
+[1;32mDEBUG: remove parameters: mdl_lamWS [0m
+[1;32mDEBUG: remove parameters: mdl_AWS [0m
+[1;32mDEBUG: remove parameters: mdl_rhoWS [0m
+[1;32mDEBUG: remove parameters: mdl_etaWS [0m
+[1;32mDEBUG: remove parameters: mdl_ymc [0m
+[1;32mDEBUG: remove parameters: mdl_yme [0m
+[1;32mDEBUG: remove parameters: mdl_ymm [0m
+[1;32mDEBUG: remove parameters: mdl_MC [0m
+[1;32mDEBUG: remove parameters: mdl_Me [0m
+[1;32mDEBUG: remove parameters: mdl_MM [0m
+[1;32mDEBUG: remove parameters: mdl_WTau [0m
+[1;32mDEBUG: remove parameters: mdl_lamWS__exp__2 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM1x2 [0m
+[1;32mDEBUG: remove parameters: mdl_lamWS__exp__3 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM1x3 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM2x1 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM2x3 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM3x1 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM3x2 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM1x3 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM2x3 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM2x1 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM3x1 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM3x2 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM1x2 [0m
+[1;32mDEBUG: remove parameters: mdl_yc [0m
+[1;32mDEBUG: remove parameters: mdl_ye [0m
+[1;32mDEBUG: remove parameters: mdl_ym [0m
+[1;32mDEBUG: remove parameters: mdl_I1x31 [0m
+[1;32mDEBUG: remove parameters: mdl_I1x32 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x12 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x13 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x22 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x23 [0m
+[1;32mDEBUG: remove parameters: mdl_I2x32 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x21 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x22 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x23 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x31 [0m
+[1;32mDEBUG: remove parameters: mdl_I3x32 [0m
+[1;32mDEBUG: remove parameters: mdl_I4x13 [0m
+[1;32mDEBUG: remove parameters: mdl_I4x23 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM1x1 [0m
+[1;32mDEBUG: remove parameters: mdl_CKM2x2 [0m
+[1;32mDEBUG: fix parameter value: mdl_CKM3x3 [0m
+[1;32mDEBUG: fix parameter value: mdl_conjg__CKM3x3 [0m
+[1;32mDEBUG: remove parameters: mdl_conjg__CKM2x2 [0m
+[1;32mDEBUG: fix parameter value: mdl_conjg__CKM1x1 [0m
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
 Defined multiparticle j = g u c d s u~ c~ d~ s~
@@ -72,7 +156,7 @@ Load PLUGIN.CUDACPP_SA_OUTPUT
 [1;32mDEBUG:  cformat = [0m plugin [1;30m[export_cpp.py at line 3008][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 142][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 147][0m [0m
-INFO: Creating subdirectories in directory /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_ee_mumu 
+INFO: Creating subdirectories in directory /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_ee_mumu 
 INFO: Organizing processes into subprocess groups 
 INFO: Generating Helas calls for process: e+ e- > mu+ mu- WEIGHTED<=4 @1 
 INFO: Processing color information for process: e+ e- > mu+ mu- @1 
@@ -80,12 +164,12 @@ INFO: Processing color information for process: e+ e- > mu+ mu- @1
 [1;32mDEBUG:    type(subproc_group)=<class 'madgraph.core.helas_objects.HelasMatrixElement'> [1;30m[output.py at line 173][0m [0m
 [1;32mDEBUG:    type(fortran_model)=<class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 174][0m [0m
 [1;32mDEBUG:    type(me)=<class 'int'> me=0 [1;30m[output.py at line 175][0m [0m
-INFO: Creating files in directory /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum 
+INFO: Creating files in directory /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1198][0m [0m
 [1;32mDEBUG:  self.include_multi_channel is not yet defined: this is standalone_cudacpp mode [1;30m[model_handling.py at line 1202][0m [0m
-FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/./CPPProcess.h
+FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/./CPPProcess.h
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_h_file [1;30m[model_handling.py at line 1318][0m [0m
-FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/./CPPProcess.cc
+FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/./CPPProcess.cc
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.write_process_cc_file [1;30m[model_handling.py at line 1340][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.get_sigmaKin_lines [1;30m[model_handling.py at line 1058][0m [0m
 [1;32mDEBUG:  self.include_multi_channel = [0m False [1;30m[model_handling.py at line 1059][0m [0m
@@ -94,7 +178,7 @@ FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> fo
 [1;32mDEBUG:  self.support_multichannel, self.include_multi_channel = [0m True False [1;30m[model_handling.py at line 1156][0m [0m
 [1;32mDEBUG:  multi_channel_map = [0m None [1;30m[model_handling.py at line 1519][0m [0m
 [1;32mDEBUG:  diag_to_config = [0m {} [1;30m[model_handling.py at line 1575][0m [0m
-INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/. 
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum/. 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_CMakeLists [1;30m[model_handling.py at line 1226][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_check_sa [1;30m[model_handling.py at line 1235][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.edit_mgonGPU [1;30m[model_handling.py at line 1252][0m [0m
@@ -118,15 +202,15 @@ ALOHA: aloha creates 4 routines in  0.321 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV4
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2_4
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2_4
-FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_ee_mumu/src/./HelAmps_sm.h
-INFO: Created file HelAmps_sm.h in directory /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_ee_mumu/src/. 
-FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_ee_mumu/src/./Parameters_sm.h
-FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_ee_mumu/src/./Parameters_sm.cc
+FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_ee_mumu/src/./HelAmps_sm.h
+INFO: Created file HelAmps_sm.h in directory /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_ee_mumu/src/. 
+FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_ee_mumu/src/./Parameters_sm.h
+FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_ee_mumu/src/./Parameters_sm.cc
 INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory 
-INFO: /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_ee_mumu/src/. and /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization/CODEGEN_cudacpp_ee_mumu/src/. 
+INFO: /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_ee_mumu/src/. and /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_ee_mumu/src/. 
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 189][0m [0m
 quit
 
-real	0m1.068s
-user	0m0.923s
-sys	0m0.128s
+real	0m0.905s
+user	0m0.791s
+sys	0m0.077s

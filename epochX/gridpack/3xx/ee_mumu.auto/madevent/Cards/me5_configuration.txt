@@ -230,7 +230,7 @@
 # pineappl = pineappl
 
 
-#mg5_path = /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization 
+#mg5_path = /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo 
 
 # MG5 MAIN DIRECTORY
-#mg5_path = /data/avalassi/GPU2020/MG5aMC/3.1.1_lo_vectorization
+#mg5_path = /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo
