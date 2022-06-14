@@ -92,6 +92,7 @@ C-----
 #else
       NB_PAGE_LOOP = 32
 #endif
+      write(*,'(a16,i6)') ' NB_PAGE_LOOP = ', NB_PAGE_LOOP
       if( nb_page_loop.gt.nb_page_max .or. nb_page_loop.le.0 ) then
         write(*,*) 'ERROR! Invalid nb_page_loop = ', nb_page_loop
         STOP
