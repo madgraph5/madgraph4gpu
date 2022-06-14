@@ -1817,6 +1817,7 @@ c        Add the current point to the DiscreteSamplerGrid
             non_zero = non_zero + 1
             mean = mean + dabs(wgt)
             rmean = rmean + wgt
+            write(*,*) 'DEBUG_RMEAN', non_zero, wgt, rmean 
             if (.true. ) then
 c               psect(ipole)=psect(ipole)+wgt*wgt/alpha(ipole)  !Ohl 
 c               psect(ipole)=1d0                 !Not doing multi_config
