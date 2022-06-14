@@ -1,5 +1,5 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index 1734289bf..ca06f87bc 100644
+index 1734289bf..dfa970820 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 @@ -76,13 +76,13 @@ C     Keep track of whether cuts already calculated for this event
@@ -46,7 +46,7 @@ index 1734289bf..ca06f87bc 100644
        INCLUDE 'maxamps.inc'
        DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
        DOUBLE PRECISION HEL_RAND(NB_PAGE_MAX)
-@@ -462,22 +463,109 @@ C
+@@ -462,22 +463,115 @@ C
        DOUBLE PRECISION JAMP2_MULTI(0:MAXFLOW, NB_PAGE_MAX)
  
        INTEGER IVEC
@@ -96,7 +96,7 @@ index 1734289bf..ca06f87bc 100644
 +        call counters_smatrix1multi_stop( -1 ) ! fortran=-1
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
 +      ENDIF
-+
+ 
 +      IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
 +        IF( LIMHEL.NE.0 ) THEN
 +          WRITE(6,*) 'ERROR! The cudacpp bridge only supports LIMHEL=0'
@@ -112,7 +112,7 @@ index 1734289bf..ca06f87bc 100644
 +     &      P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled
 +        ELSE
 +          IF( SDE_STRAT.NE.1 ) THEN
-+            WRITE(6,*) 'ERROR! The cudacpp bridge in multichannel mode requires SDE=1'
++            WRITE(6,*) 'ERROR! The cudacpp bridge requires SDE=1' ! multi channel single-diagram enhancement strategy
 +            STOP
 +          ENDIF
 +          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
@@ -120,8 +120,8 @@ index 1734289bf..ca06f87bc 100644
 +        ENDIF
 +        call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
 +      ENDIF
- 
-+      IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
++
++      IF( FBRIDGE_MODE .LT. 0 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
 +        DO IVEC=1, NB_PAGE_LOOP
 +          CBYF1 = OUT2(IVEC)/OUT(IVEC) - 1
 +          FBRIDGE_NCBYF1 = FBRIDGE_NCBYF1 + 1
@@ -139,6 +139,12 @@ index 1734289bf..ca06f87bc 100644
 +     &        'WARNING! (', NWARNINGS, '/20) Deviation more than 5E-5',
 +     &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
 +          ENDIF
++        END DO
++      ENDIF
++
++      IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
++        DO IVEC=1, NB_PAGE_LOOP
++          OUT(IVEC) = OUT2(IVEC) ! use the cudacpp ME instead of the fortran ME!
 +        END DO
 +      ENDIF
 +#endif
