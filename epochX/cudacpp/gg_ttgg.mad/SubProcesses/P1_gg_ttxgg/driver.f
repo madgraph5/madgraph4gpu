@@ -87,6 +87,9 @@ C-----
       CALL COUNTERS_INITIALISE()
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
+      write(*,*) 'Enter fbridge_mode'
+      read(*,*) FBRIDGE_MODE ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
+      write(*,'(a16,i6)') ' FBRIDGE_MODE = ', FBRIDGE_MODE
       write(*,*) 'Enter #events in a vector loop (max=',nb_page_max,',)'
       read(*,*) nb_page_loop
 #else
@@ -100,7 +103,6 @@ C-----
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, NB_PAGE_LOOP, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
-      FBRIDGE_MODE = -1 ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
       FBRIDGE_NCBYF1 = 0
       FBRIDGE_CBYF1SUM = 0
       FBRIDGE_CBYF1SUM2 = 0
