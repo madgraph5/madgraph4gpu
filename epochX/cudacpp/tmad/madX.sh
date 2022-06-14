@@ -154,7 +154,7 @@ function getinputfile()
   elif [ "$1" == "-cpp" ]; then
     mv ${tmp} ${tmp}_cpp
     tmp=${tmp}_cpp
-    echo "32 ! Number of events in a single C++ iteration (nb_page_loop)" >> ${tmp}
+    echo "32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)" >> ${tmp}
   else
     echo "Usage: getinputfile <backend [-fortran][-cuda]-cpp]>"
     exit 1
@@ -198,11 +198,15 @@ function runcheck()
 function runmadevent()
 {
   if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: runmadevent <madevent executable>"; exit 1; fi
-  if [ "${1/cmadevent}" != "$1" ]; then
+  cmd=$1
+  if [ "${cmd/cmadevent}" != "$cmd" ]; then
     tmpin=$(getinputfile -cpp)
-  elif [ "${1/gmadevent}" != "$1" ]; then
+  elif [ "${cmd/gmadevent2}" != "$cmd" ]; then
+    cmd=${cmd/gmadevent2/gmadevent} # hack: run cuda gmadevent with cpp input file
+    tmpin=$(getinputfile -cpp)
+  elif [ "${cmd/gmadevent}" != "$cmd" ]; then
     tmpin=$(getinputfile -cuda)
-  else
+  else # assume this is madevent (do not check)
     tmpin=$(getinputfile -fortran)
   fi
   if [ ! -f $tmpin ]; then echo "ERROR! Missing input file $tmpin"; exit 1; fi
@@ -211,10 +215,10 @@ function runmadevent()
   set +e # do not fail on error
   if [ "${debug}" == "1" ]; then
     echo "--------------------"; cat ${tmpin}; echo "--------------------"
-    echo "Executing '$timecmd $1 < ${tmpin} > ${tmp}'"
+    echo "Executing '$timecmd $cmd < ${tmpin} > ${tmp}'"
   fi
-  $timecmd $1 < ${tmpin} > ${tmp}
-  if [ "$?" != "0" ]; then echo "ERROR! '$timecmd $1 < ${tmpin} > ${tmp}' failed"; tail -10 $tmp; exit 1; fi
+  $timecmd $cmd < ${tmpin} > ${tmp}
+  if [ "$?" != "0" ]; then echo "ERROR! '$timecmd $cmd < ${tmpin} > ${tmp}' failed"; tail -10 $tmp; exit 1; fi
   mch=$(cat ${tmp} | grep --binary-files=text 'MULTI_CHANNEL =' | awk '{print $NF}')
   conf=$(cat ${tmp} | grep --binary-files=text 'Running Configuration Number:' | awk '{print $NF}')
   chid=$(cat ${tmp} | grep --binary-files=text 'CHANNEL_ID =' | awk '{print $NF}')
@@ -234,7 +238,7 @@ function runmadevent()
   if [ "${evtf}" != "" ] && [ "${evtw}" != "" ]; then
     echo " [UNWEIGHT] Wrote ${evtw} events (found ${evtf} events)"  
   fi
-  if [ "${1/cmadevent}" != "$1" ] || [ "${1/gmadevent}" != "$1" ]; then
+  if [ "${cmd/cmadevent}" != "$cmd" ] || [ "${cmd/gmadevent}" != "$cmd" ]; then
     # Hack: use awk to convert Fortran's 0.42E-01 into 4.20e-02
     cat ${tmp} | grep --binary-files=text MERATIOS \
       | awk -v sep=" 1 - " '{i=index($0,sep); if(i>0){print substr($0,0,i-1) sep 0+substr($0,i+length(sep))} else print $0}' \
@@ -291,34 +295,46 @@ for suff in $suffs; do
   # (1) MADEVENT
   \rm -f results.dat # ALWAYS remove results.dat before the first madevent execution
   if [ ! -f results.dat ]; then
-    echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
+    echo -e "\n*** (1) EXECUTE MADEVENT (create results.dat) ***"
     \rm -f ftn26
     runmadevent ./madevent
   fi
-  echo -e "\n*** EXECUTE MADEVENT (create events.lhe) ***"
+  echo -e "\n*** (1) EXECUTE MADEVENT (create events.lhe) ***"
   \rm -f ftn26
   runmadevent ./madevent
 
   # (2) CMADEVENT_CUDACPP
   if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
   if [ ! -f results.dat ]; then
-    echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
+    echo -e "\n*** (2) EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
     \rm -f ftn26
     runmadevent ./cmadevent_cudacpp
   fi
-  echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
+  echo -e "\n*** (2) EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
   \rm -f ftn26
   runmadevent ./cmadevent_cudacpp
   runcheck ./check.exe
 
-  # (3) GMADEVENT_CUDACPP
+  # (3a) GMADEVENT_CUDACPP
   if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
   if [ ! -f results.dat ]; then
-    echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
+    echo -e "\n*** (3a) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
+    \rm -f ftn26
+    runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
+  fi
+  echo -e "\n*** (3a) EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
+  \rm -f ftn26
+  runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
+  runcheck ./gcheck.exe
+
+  # (3b) GMADEVENT_CUDACPP
+  if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
+  if [ ! -f results.dat ]; then
+    echo -e "\n*** (3b) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
     \rm -f ftn26
     runmadevent ./gmadevent_cudacpp
   fi
-  echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
+  echo -e "\n*** (3b) EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
   \rm -f ftn26
   runmadevent ./gmadevent_cudacpp
   runcheck ./gcheck.exe
