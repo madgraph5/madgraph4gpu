@@ -289,6 +289,10 @@ for suff in $suffs; do
   ###timecmd=time
   timecmd=
 
+  # Show results.dat?
+  rdatcmd="stat results.dat"
+  ###rdatcmd="echo"
+
   # DEFAULT IMPLEMENTATION : compute cross section and then generate events
   cd $dir
 
@@ -300,6 +304,7 @@ for suff in $suffs; do
     runmadevent ./madevent
   fi
   echo -e "\n*** (1) EXECUTE MADEVENT (create events.lhe) ***"
+  ${rdatcmd} | grep Change | sed 's/Change/results.dat /'
   \rm -f ftn26
   runmadevent ./madevent
 
@@ -311,6 +316,7 @@ for suff in $suffs; do
     runmadevent ./cmadevent_cudacpp
   fi
   echo -e "\n*** (2) EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
+  ${rdatcmd} | grep Change | sed 's/Change/results.dat /'
   \rm -f ftn26
   runmadevent ./cmadevent_cudacpp
   runcheck ./check.exe
@@ -323,6 +329,7 @@ for suff in $suffs; do
     runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
   fi
   echo -e "\n*** (3a) EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
+  ${rdatcmd} | grep Change | sed 's/Change/results.dat /'
   \rm -f ftn26
   runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
   runcheck ./gcheck.exe
@@ -335,6 +342,7 @@ for suff in $suffs; do
     runmadevent ./gmadevent_cudacpp
   fi
   echo -e "\n*** (3b) EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
+  ${rdatcmd} | grep Change | sed 's/Change/results.dat /'
   \rm -f ftn26
   runmadevent ./gmadevent_cudacpp
   runcheck ./gcheck.exe
