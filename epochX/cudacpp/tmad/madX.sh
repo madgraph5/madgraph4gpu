@@ -219,9 +219,11 @@ function runmadevent()
   fi
   $timecmd $cmd < ${tmpin} > ${tmp}
   if [ "$?" != "0" ]; then echo "ERROR! '$timecmd $cmd < ${tmpin} > ${tmp}' failed"; tail -10 $tmp; exit 1; fi
+  nbp=$(cat ${tmp} | grep --binary-files=text 'NB_PAGE_LOOP =' | awk '{print $NF}')
   mch=$(cat ${tmp} | grep --binary-files=text 'MULTI_CHANNEL =' | awk '{print $NF}')
   conf=$(cat ${tmp} | grep --binary-files=text 'Running Configuration Number:' | awk '{print $NF}')
   chid=$(cat ${tmp} | grep --binary-files=text 'CHANNEL_ID =' | awk '{print $NF}')
+  echo " [XSECTION] nb_page_loop = ${nbp}"
   echo " [XSECTION] MultiChannel = ${mch}"
   echo " [XSECTION] Configuration = ${conf}"
   echo " [XSECTION] ChannelId = ${chid}"
