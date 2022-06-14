@@ -228,7 +228,10 @@ function runmadevent()
   echo " [XSECTION] Configuration = ${conf}"
   echo " [XSECTION] ChannelId = ${chid}"
   xsec=$(cat ${tmp} | grep --binary-files=text 'Cross sec =' | awk '{print 0+$NF}')
-  if [ "${xsec}" != "" ]; then
+  xsec2=$(cat ${tmp} | grep --binary-files=text 'Actual xsec' | awk '{print $NF}')
+  if [ "${xsec2}" != "" ]; then
+    echo " [XSECTION] Cross section = ${xsec} [${xsec2}]"
+  elif [ "${xsec}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec}"
   else
     echo -e " [XSECTION] ERROR! No cross section in log file:\n   $tmp\n   ..."
