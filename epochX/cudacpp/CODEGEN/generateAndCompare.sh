@@ -109,9 +109,13 @@ function codeGenAndDiff()
     outprocauto=${MG5AMC_HOME}/${outproc}
   fi
   cp -dpr ${MG5AMC_HOME}/${outproc}_log.txt ${outprocauto}/
-  # Output directories: examples ee_mumu.auto for cudacpp and gridpacks, eemumu.cpp or eemumu.gpu for cpp and gpu
-  autosuffix=auto
-  if [ "${OUTBCK}" == "cpp" ]; then
+  # Output directories: examples ee_mumu.sa for cudacpp, eemumu.auto for alpaka and gridpacks, eemumu.cpp or eemumu.gpu for cpp and gpu
+  autosuffix=sa
+  if [ "${SCRBCK}" == "gridpack" ]; then
+    autosuffix=auto
+  elif [ "${SCRBCK}" == "alpaka" ]; then
+    autosuffix=auto
+  elif [ "${OUTBCK}" == "cpp" ]; then
     autosuffix=cpp # no special suffix for the 311 branch any longer
   elif [ "${OUTBCK}" == "gpu" ]; then
     autosuffix=gpu # no special suffix for the 311 branch any longer
@@ -391,8 +395,8 @@ cleanup_MG5AMC_HOME
 
 # Check formatting in the auto-generated code
 if [ "${OUTBCK}" == "cudacpp" ]; then
-  echo -e "\n+++ Check code formatting in newly generated code ${proc}.auto\n"
-  if ! $SCRDIR/checkFormatting.sh -q -q ${proc}.auto; then
+  echo -e "\n+++ Check code formatting in newly generated code ${proc}.sa\n"
+  if ! $SCRDIR/checkFormatting.sh -q -q ${proc}.sa; then
     echo "ERROR! Auto-generated code does not respect formatting policies"
     exit 1
   fi

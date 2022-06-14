@@ -75,7 +75,7 @@ while [ "$1" != "" ]; do
     heftggh=1
     shift
   elif [ "$1" == "-sa" ]; then
-    suffs="/"
+    suffs=".sa/"
     shift
   elif [ "$1" == "-omp" ]; then
     if [ "${cpp}" == "0" ]; then echo "ERROR! Options -omp and -nocpp are incompatible"; usage; fi

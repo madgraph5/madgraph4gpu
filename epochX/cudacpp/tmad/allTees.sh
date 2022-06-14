@@ -12,6 +12,7 @@ while [ "$1" != "" ]; do
     shift
   else
     echo "Usage: $0 [-short] [-makeclean]"
+    exit 1
   fi
 done
 

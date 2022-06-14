@@ -9,7 +9,7 @@ function checkProcdir()
   if [ "${procdir%.mad}" != "${procdir}" ]; then
     proc=${procdir%.mad}
   else
-    proc=${procdir%.auto}
+    proc=${procdir%.sa}
   fi
   case "${proc}" in
     ee_mumu) ;;

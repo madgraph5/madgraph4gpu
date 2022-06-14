@@ -1,1 +1,0 @@
-../runTest.cc
