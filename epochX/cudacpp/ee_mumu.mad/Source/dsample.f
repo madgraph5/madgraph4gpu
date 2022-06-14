@@ -1926,7 +1926,9 @@ C
            call update_discrete_dimensions()
 
             mean=mean*dble(events)/dble(non_zero)
+            write(*,*) 'DEBUG_RMEAN(2a)', non_zero, events, rmean 
             rmean=rmean*dble(events)/dble(non_zero)
+            write(*,*) 'DEBUG_RMEAN(2b)', non_zero, events, rmean 
             twgt1=twgt1*dble(events)/dble(non_zero)
             sigma=sigma+twgt1**2    !This line for averaging over points
             if (non_zero .eq. 0) then
@@ -1937,7 +1939,9 @@ C
 c            mean = mean * itm                 !Used if don't have non_zero
             if (.true.) then
                mean = mean * itm *dble(non_zero)/dble(kn)
+               write(*,*) 'DEBUG_RMEAN(3a)', non_zero, kn, rmean 
                rmean = rmean * itm *dble(non_zero)/dble(kn)
+               write(*,*) 'DEBUG_RMEAN(3b)', non_zero, kn, rmean 
                knt = kn
             endif
 c
