@@ -525,7 +525,7 @@ c!$OMP END PARALLEL
      &      P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled
         ELSE
           IF( SDE_STRAT.NE.1 ) THEN
-            WRITE(6,*) 'ERROR! The cudacpp bridge in multichannel mode requires SDE=1'
+            WRITE(6,*) 'ERROR! The cudacpp bridge requires SDE=1' ! multi channel single-diagram enhancement strategy
             STOP
           ENDIF
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
