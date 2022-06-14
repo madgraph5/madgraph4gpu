@@ -302,6 +302,7 @@ for suff in $suffs; do
     echo -e "\n*** (1) EXECUTE MADEVENT (create results.dat) ***"
     \rm -f ftn26
     runmadevent ./madevent
+    \cp -p results.dat results.dat.ref
   fi
   echo -e "\n*** (1) EXECUTE MADEVENT (create events.lhe) ***"
   ${rdatcmd} | grep Change | sed 's/Change/results.dat /'
@@ -309,7 +310,7 @@ for suff in $suffs; do
   runmadevent ./madevent
 
   # (2) CMADEVENT_CUDACPP
-  if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
+  if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
   if [ ! -f results.dat ]; then
     echo -e "\n*** (2) EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
     \rm -f ftn26
@@ -322,7 +323,7 @@ for suff in $suffs; do
   runcheck ./check.exe
 
   # (3a) GMADEVENT_CUDACPP
-  if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
+  if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
   if [ ! -f results.dat ]; then
     echo -e "\n*** (3a) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
     \rm -f ftn26
@@ -335,7 +336,7 @@ for suff in $suffs; do
   runcheck ./gcheck.exe
 
   # (3b) GMADEVENT_CUDACPP
-  if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
+  if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
   if [ ! -f results.dat ]; then
     echo -e "\n*** (3b) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
     \rm -f ftn26
@@ -346,6 +347,9 @@ for suff in $suffs; do
   \rm -f ftn26
   runmadevent ./gmadevent_cudacpp
   runcheck ./gcheck.exe
+
+  # Cleanup
+  \rm results.dat.ref
 
 done
 printf "\nTEST COMPLETED\n"
