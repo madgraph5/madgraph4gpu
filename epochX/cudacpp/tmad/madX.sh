@@ -290,8 +290,8 @@ for suff in $suffs; do
   timecmd=
 
   # Show results.dat?
-  rdatcmd="stat results.dat"
-  ###rdatcmd="echo"
+  ###rdatcmd="stat results.dat"
+  rdatcmd="echo"
 
   # DEFAULT IMPLEMENTATION : compute cross section and then generate events
   cd $dir
