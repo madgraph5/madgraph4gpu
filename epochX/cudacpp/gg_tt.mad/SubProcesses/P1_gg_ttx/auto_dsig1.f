@@ -554,6 +554,12 @@ c!$OMP END PARALLEL
           ENDIF
         END DO
       ENDIF
+
+      IF( FBRIDGE_MODE .EQ. 1 ) THEN
+        DO IVEC=1, NB_PAGE_LOOP
+          OUT(IVEC) = OUT2(IVEC) ! use the cudacpp ME instead of the fortran ME!
+        END DO
+      ENDIF
 #endif
 
       IF ( FIRST_CHID ) THEN
