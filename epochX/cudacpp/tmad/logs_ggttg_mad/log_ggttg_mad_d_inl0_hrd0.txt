@@ -1,7 +1,7 @@
 Working directory: /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg
 make: Nothing to be done for `all'.
 
-DATE: 2022-06-14_09:15:27
+DATE: 2022-06-14_11:16:54
 
 Working directory: /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttg.mad/SubProcesses/P1_gg_ttxg
 
@@ -14,14 +14,14 @@ Working directory: /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/gg_ttg.ma
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./madevent < /tmp/avalassi/tmp.2nWXrMEchw_fortran > /tmp/avalassi/tmp.7zusRa37pp'
+Executing ' ./madevent < /tmp/avalassi/input_ggttg_fortran > /tmp/avalassi/output_ggttg_fortran'
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 0.08045
- [COUNTERS] PROGRAM TOTAL          :    0.9622s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.3814s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.5808s for     4128 events => throughput is 7.11E+03 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.8884s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3059s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.5825s for     4128 events => throughput is 7.09E+03 events/s
 
 *** EXECUTE MADEVENT (create events.lhe) ***
 --------------------
@@ -32,15 +32,15 @@ Executing ' ./madevent < /tmp/avalassi/tmp.2nWXrMEchw_fortran > /tmp/avalassi/tm
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./madevent < /tmp/avalassi/tmp.ph6FRMiHzj_fortran > /tmp/avalassi/tmp.o82TdSIthp'
+Executing ' ./madevent < /tmp/avalassi/input_ggttg_fortran > /tmp/avalassi/output_ggttg_fortran'
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 0.08045
  [UNWEIGHT] Wrote 56 events (found 449 events)
- [COUNTERS] PROGRAM TOTAL          :    0.9689s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.3862s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.5828s for     4128 events => throughput is 7.08E+03 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.9529s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3697s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.5832s for     4128 events => throughput is 7.08E+03 events/s
 
 *** EXECUTE CMADEVENT_CUDACPP (create results.dat) ***
 --------------------
@@ -52,7 +52,7 @@ Executing ' ./madevent < /tmp/avalassi/tmp.ph6FRMiHzj_fortran > /tmp/avalassi/tm
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./cmadevent_cudacpp < /tmp/avalassi/tmp.H3hwJwxyPn_cuda > /tmp/avalassi/tmp.6HS22Mu9my'
+Executing ' ./cmadevent_cudacpp < /tmp/avalassi/input_ggttg_cpp > /tmp/avalassi/output_ggttg_cpp'
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
@@ -61,10 +61,10 @@ Executing ' ./cmadevent_cudacpp < /tmp/avalassi/tmp.H3hwJwxyPn_cuda > /tmp/avala
  [MERATIOS] ME ratio CudaCpp/Fortran: MAX = 1.00557897 = 1 + 0.0056
  [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES =   4128
  [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = 5.6e-05 +- 2.3e-06
- [COUNTERS] PROGRAM TOTAL          :    0.9532s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.3254s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.5810s for     4128 events => throughput is 7.10E+03 events/s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0468s for     4128 events => throughput is 8.83E+04 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.9516s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3236s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.5813s for     4128 events => throughput is 7.10E+03 events/s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0467s for     4128 events => throughput is 8.83E+04 events/s
 
 *** EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***
 --------------------
@@ -76,7 +76,7 @@ Executing ' ./cmadevent_cudacpp < /tmp/avalassi/tmp.H3hwJwxyPn_cuda > /tmp/avala
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./cmadevent_cudacpp < /tmp/avalassi/tmp.rZvEe5mls1_cuda > /tmp/avalassi/tmp.6n6YIv1zFV'
+Executing ' ./cmadevent_cudacpp < /tmp/avalassi/input_ggttg_cpp > /tmp/avalassi/output_ggttg_cpp'
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
@@ -86,20 +86,20 @@ Executing ' ./cmadevent_cudacpp < /tmp/avalassi/tmp.rZvEe5mls1_cuda > /tmp/avala
  [MERATIOS] ME ratio CudaCpp/Fortran: MAX = 1.00557897 = 1 + 0.0056
  [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES =   4128
  [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = 5.6e-05 +- 2.3e-06
- [COUNTERS] PROGRAM TOTAL          :    1.0238s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.3936s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.5833s for     4128 events => throughput is 7.08E+03 events/s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0468s for     4128 events => throughput is 8.82E+04 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.0236s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3940s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.5826s for     4128 events => throughput is 7.09E+03 events/s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0469s for     4128 events => throughput is 8.80E+04 events/s
 
 *** EXECUTE CHECK -p 128 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTXG_CPP [gcc 10.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 9.911804e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 9.886987e+04                 )  sec^-1
 
 *** EXECUTE CHECK -p 128 32 1 ***
 Process                     = SIGMA_SM_GG_TTXG_CPP [gcc 10.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 9.910096e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 9.903653e+04                 )  sec^-1
 
 *** EXECUTE GMADEVENT_CUDACPP (create results.dat) ***
 --------------------
@@ -111,7 +111,7 @@ EvtsPerSec[MECalcOnly] (3a) = ( 9.910096e+04                 )  sec^-1
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./gmadevent_cudacpp < /tmp/avalassi/tmp.SJFVQM6E90_cuda > /tmp/avalassi/tmp.jyXaudyKBO'
+Executing ' ./gmadevent_cudacpp < /tmp/avalassi/input_ggttg_cuda > /tmp/avalassi/output_ggttg_cuda'
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
@@ -120,10 +120,10 @@ Executing ' ./gmadevent_cudacpp < /tmp/avalassi/tmp.SJFVQM6E90_cuda > /tmp/avala
  [MERATIOS] ME ratio CudaCpp/Fortran: MAX = 1.00486187 = 1 + 0.0049
  [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES =   4096
  [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = 5.7e-05 +- 2.5e-06
- [COUNTERS] PROGRAM TOTAL          :    1.3929s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.8150s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.5766s for     4096 events => throughput is 7.10E+03 events/s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0013s for     4096 events => throughput is 3.23E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.3877s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.8108s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.5756s for     4096 events => throughput is 7.12E+03 events/s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0013s for     4096 events => throughput is 3.19E+06 events/s
 
 *** EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***
 --------------------
@@ -135,7 +135,7 @@ Executing ' ./gmadevent_cudacpp < /tmp/avalassi/tmp.SJFVQM6E90_cuda > /tmp/avala
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./gmadevent_cudacpp < /tmp/avalassi/tmp.rPj42wMJh6_cuda > /tmp/avalassi/tmp.oZBo6Pylx9'
+Executing ' ./gmadevent_cudacpp < /tmp/avalassi/input_ggttg_cuda > /tmp/avalassi/output_ggttg_cuda'
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
@@ -145,19 +145,19 @@ Executing ' ./gmadevent_cudacpp < /tmp/avalassi/tmp.rPj42wMJh6_cuda > /tmp/avala
  [MERATIOS] ME ratio CudaCpp/Fortran: MAX = 1.00486187 = 1 + 0.0049
  [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES =   4096
  [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = 5.7e-05 +- 2.5e-06
- [COUNTERS] PROGRAM TOTAL          :    1.4472s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.8684s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.5775s for     4096 events => throughput is 7.09E+03 events/s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0013s for     4096 events => throughput is 3.17E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.4426s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.8658s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.5755s for     4096 events => throughput is 7.12E+03 events/s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0013s for     4096 events => throughput is 3.22E+06 events/s
 
 *** EXECUTE GCHECK -p 128 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTXG_CUDA [nvcc 11.6.124 (gcc 10.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.403760e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.373026e+06                 )  sec^-1
 
 *** EXECUTE GCHECK -p 128 32 1 ***
 Process                     = SIGMA_SM_GG_TTXG_CUDA [nvcc 11.6.124 (gcc 10.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.016442e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.012892e+06                 )  sec^-1
 
 TEST COMPLETED
