@@ -163,14 +163,17 @@ C     ----------
       IF ((ISHEL(IMIRROR).EQ.0.AND.ISUM_HEL.EQ.0)
      $ .OR.(DS_GET_DIM_STATUS('Helicity').EQ.0).OR.(HEL_PICKED.EQ.-1))
      $  THEN
+        write(6,*) 'DEBUG_SMATRIX1 #1'
         DO I=1,NCOMB
           IF (GOODHEL(I,IMIRROR) .OR. NTRY(IMIRROR)
      $     .LE.MAXTRIES.OR.(ISUM_HEL.NE.0).OR.THIS_NTRY(IMIRROR).LE.10)
      $      THEN
+            write(6,*) 'DEBUG_SMATRIX1 #1a'
             T=MATRIX1(P ,NHEL(1,I),JC(1),I,AMP2, JAMP2, IVEC)
 
             IF (ISUM_HEL.NE.0.AND.DS_GET_DIM_STATUS('Helicity')
      $       .EQ.0.AND.ALLOW_HELICITY_GRID_ENTRIES) THEN
+              write(6,*) 'DEBUG_SMATRIX1 #1b'
               CALL DS_ADD_ENTRY('Helicity',I,T)
             ENDIF
             ANS=ANS+DABS(T)
@@ -178,9 +181,11 @@ C     ----------
           ENDIF
         ENDDO
         IF(NTRY(IMIRROR).EQ.(MAXTRIES+1)) THEN
+          write(6,*) 'DEBUG_SMATRIX1 #2'
           CALL RESET_CUMULATIVE_VARIABLE()  ! avoid biais of the initialization
         ENDIF
         IF (ISUM_HEL.NE.0) THEN
+          write(6,*) 'DEBUG_SMATRIX1 #3'
             !         We set HEL_PICKED to -1 here so that later on, the call to DS_add_point in dsample.f does not add anything to the grid since it was already done here.
           HEL_PICKED = -1
             !         For safety, hardset the helicity sampling jacobian to 0.0d0 to make sure it is not .
@@ -195,8 +200,10 @@ C     ----------
             CALL DS_SET_GRID_MODE('Helicity','init')
           ENDIF
         ELSE
+          write(6,*) 'DEBUG_SMATRIX1 #4'
           JHEL(IMIRROR) = 1
           IF(NTRY(IMIRROR).LE.MAXTRIES.OR.THIS_NTRY(IMIRROR).LE.10)THEN
+            write(6,*) 'DEBUG_SMATRIX1 #4a'
             DO I=1,NCOMB
               IF(INIT_MODE) THEN
                 IF (DABS(TS(I)).GT.ANS*LIMHEL/NCOMB) THEN
@@ -214,10 +221,12 @@ C     ----------
             ENDDO
           ENDIF
           IF(NTRY(IMIRROR).EQ.MAXTRIES)THEN
+            write(6,*) 'DEBUG_SMATRIX1 #4b'
             ISHEL(IMIRROR)=MIN(ISUM_HEL,NGOOD(IMIRROR))
           ENDIF
         ENDIF
       ELSE IF (.NOT.INIT_MODE) THEN  ! random helicity 
+        write(6,*) 'DEBUG_SMATRIX1 #5'
 C       The helicity configuration was chosen already by genps and put
 C        in a common block defined in genps.inc.
         I = HEL_PICKED
@@ -232,11 +241,13 @@ C       Include the Jacobian from helicity sampling
 
         WRITE(HEL_BUFF,'(20i5)')(NHEL(II,I),II=1,NEXTERNAL)
       ELSE
+        write(6,*) 'DEBUG_SMATRIX1 #6'
         ANS = 1D0
         call counters_smatrix1_stop()
         RETURN
       ENDIF
       IF (ANS.NE.0D0.AND.(ISUM_HEL .NE. 1.OR.HEL_PICKED.EQ.-1)) THEN
+        write(6,*) 'DEBUG_SMATRIX1 #7'
 C       CALL RANMAR(R) ! rhel passed as input
         SUMHEL=0D0
         DO I=1,NCOMB
@@ -251,6 +262,7 @@ C           Set right sign for ANS, based on sign of chosen helicity
  10     CONTINUE
       ENDIF
       IF (MULTI_CHANNEL) THEN
+        write(6,*) 'DEBUG_SMATRIX1 #8'
         XTOT=0D0
         DO I=1,LMAXCONFIGS
           J = CONFSUB(1, I)
