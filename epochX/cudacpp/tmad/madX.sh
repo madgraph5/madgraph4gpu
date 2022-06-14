@@ -126,7 +126,22 @@ function getnevt()
 function getinputfile()
 {
   nevt=$(getnevt)
-  tmp=$(mktemp)
+  tmpdir=/tmp/$USER
+  mkdir -p $tmpdir
+  if [ "${eemumu}" == "1" ]; then 
+    tmp=$tmpdir/input_eemumu
+  elif [ "${ggtt}" == "1" ]; then 
+    tmp=$tmpdir/input_ggtt
+  elif [ "${ggttg}" == "1" ]; then 
+    tmp=$tmpdir/input_ggttg
+  elif [ "${ggttgg}" == "1" ]; then 
+    tmp=$tmpdir/input_ggttgg
+  elif [ "${ggttggg}" == "1" ]; then 
+    tmp=$tmpdir/input_ggttggg
+  else
+    echo "ERROR! cannot determine input file name"; exit 1
+  fi
+  \rm -f ${tmp}; touch ${tmp}
   if [ "$1" == "-fortran" ]; then
     mv ${tmp} ${tmp}_fortran
     tmp=${tmp}_fortran
@@ -137,8 +152,8 @@ function getinputfile()
     while [ $nloop -gt $nevt ]; do (( nloop = nloop / 2 )); done
     echo "${nloop} ! Number of events in a single CUDA iteration (nb_page_loop)" >> ${tmp}
   elif [ "$1" == "-cpp" ]; then
-    mv ${tmp} ${tmp}_cuda
-    tmp=${tmp}_cuda
+    mv ${tmp} ${tmp}_cpp
+    tmp=${tmp}_cpp
     echo "32 ! Number of events in a single C++ iteration (nb_page_loop)" >> ${tmp}
   else
     echo "Usage: getinputfile <backend [-fortran][-cuda]-cpp]>"
@@ -191,7 +206,8 @@ function runmadevent()
     tmpin=$(getinputfile -fortran)
   fi
   if [ ! -f $tmpin ]; then echo "ERROR! Missing input file $tmpin"; exit 1; fi
-  tmp=$(mktemp)
+  tmp=${tmpin/input/output}
+  \rm -f ${tmp}; touch ${tmp}  
   set +e # do not fail on error
   if [ "${debug}" == "1" ]; then
     echo "--------------------"; cat ${tmpin}; echo "--------------------"
