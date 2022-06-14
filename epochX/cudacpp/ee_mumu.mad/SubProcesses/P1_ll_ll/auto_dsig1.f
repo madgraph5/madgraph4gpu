@@ -571,7 +571,7 @@ c!$OMP END PARALLEL
 
       IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
         DO IVEC=1, NB_PAGE_LOOP
-          OUT(IVEC) = OUT2(IVEC) ! use the cudacpp ME instead of the fortran ME!
+          OUT(IVEC) = 2*OUT2(IVEC) ! use the cudacpp ME instead of the fortran ME!
         END DO
       ENDIF
 #endif
