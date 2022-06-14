@@ -1,11 +1,11 @@
 Working directory: /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll
 make: Nothing to be done for `all'.
 
-DATE: 2022-06-14_11:16:39
+DATE: 2022-06-14_13:41:51
 
 Working directory: /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll
 
-*** EXECUTE MADEVENT (create results.dat) ***
+*** (1) EXECUTE MADEVENT (create results.dat) ***
 --------------------
 2048 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
@@ -19,11 +19,11 @@ Executing ' ./madevent < /tmp/avalassi/input_eemumu_fortran > /tmp/avalassi/outp
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 0.09017
- [COUNTERS] PROGRAM TOTAL          :    0.0296s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.0167s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0130s for     2080 events => throughput is 1.60E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.0301s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.0169s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0132s for     2080 events => throughput is 1.57E+05 events/s
 
-*** EXECUTE MADEVENT (create events.lhe) ***
+*** (1) EXECUTE MADEVENT (create events.lhe) ***
 --------------------
 2048 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
@@ -38,13 +38,13 @@ Executing ' ./madevent < /tmp/avalassi/input_eemumu_fortran > /tmp/avalassi/outp
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 0.09017
  [UNWEIGHT] Wrote 1009 events (found 1010 events)
- [COUNTERS] PROGRAM TOTAL          :    0.1463s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.1332s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0131s for     2080 events => throughput is 1.59E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.1467s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.1334s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0133s for     2080 events => throughput is 1.56E+05 events/s
 
-*** EXECUTE CMADEVENT_CUDACPP (create results.dat) ***
+*** (2) EXECUTE CMADEVENT_CUDACPP (create results.dat) ***
 --------------------
-32 ! Number of events in a single C++ iteration (nb_page_loop)
+32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
 2048 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
@@ -62,13 +62,13 @@ Executing ' ./cmadevent_cudacpp < /tmp/avalassi/input_eemumu_cpp > /tmp/avalassi
  [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES =   2080
  [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = 1.3e-17 +- 4.9e-18
  [COUNTERS] PROGRAM TOTAL          :    0.0359s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.0202s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0153s for     2080 events => throughput is 1.36E+05 events/s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0004s for     2080 events => throughput is 5.02E+06 events/s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.0203s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0152s for     2080 events => throughput is 1.37E+05 events/s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0004s for     2080 events => throughput is 4.82E+06 events/s
 
-*** EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***
+*** (2) EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***
 --------------------
-32 ! Number of events in a single C++ iteration (nb_page_loop)
+32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
 2048 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
 0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
@@ -86,22 +86,81 @@ Executing ' ./cmadevent_cudacpp < /tmp/avalassi/input_eemumu_cpp > /tmp/avalassi
  [MERATIOS] ME ratio CudaCpp/Fortran: MAX = 1.00000000 = 1 + 6.7e-16
  [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES =   2080
  [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = 1.3e-17 +- 4.9e-18
- [COUNTERS] PROGRAM TOTAL          :    0.1472s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.1331s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0131s for     2080 events => throughput is 1.59E+05 events/s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0010s for     2080 events => throughput is 2.03E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.1461s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.1323s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0129s for     2080 events => throughput is 1.62E+05 events/s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0010s for     2080 events => throughput is 2.07E+06 events/s
 
 *** EXECUTE CHECK -p 64 32 1 --bridge ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 10.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 5.564703e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 5.699385e+06                 )  sec^-1
 
 *** EXECUTE CHECK -p 64 32 1 ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 10.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.193130e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.185144e+06                 )  sec^-1
 
-*** EXECUTE GMADEVENT_CUDACPP (create results.dat) ***
+*** (3a) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***
+--------------------
+32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
+2048 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./gmadevent_cudacpp < /tmp/avalassi/input_eemumu_cpp > /tmp/avalassi/output_eemumu_cpp'
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 0.09017
+ [MERATIOS] ME ratio CudaCpp/Fortran: MIN = 1.00000000 = 1 - 8.9e-16
+ [MERATIOS] ME ratio CudaCpp/Fortran: MAX = 1.00000000 = 1 + 6.7e-16
+ [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES =   2080
+ [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = -2.7e-17 +- 4.9e-18
+ [COUNTERS] PROGRAM TOTAL          :    0.5252s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5088s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0133s for     2080 events => throughput is 1.57E+05 events/s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0031s for     2080 events => throughput is 6.72E+05 events/s
+
+*** (3a) EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***
+--------------------
+32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)
+2048 1 1 ! Number of events and max and min iterations
+0.000001 ! Accuracy (ignored because max iterations = min iterations)
+0 ! Grid Adjustment 0=none, 2=adjust (NB if = 0, ftn26 will still be used if present)
+1 ! Suppress Amplitude 1=yes (i.e. use MadEvent single-diagram enhancement)
+0 ! Helicity Sum/event 0=exact
+1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
+--------------------
+Executing ' ./gmadevent_cudacpp < /tmp/avalassi/input_eemumu_cpp > /tmp/avalassi/output_eemumu_cpp'
+ [XSECTION] MultiChannel = TRUE
+ [XSECTION] Configuration = 1
+ [XSECTION] ChannelId = 1
+ [XSECTION] Cross section = 0.09017
+ [UNWEIGHT] Wrote 1009 events (found 1010 events)
+ [MERATIOS] ME ratio CudaCpp/Fortran: MIN = 1.00000000 = 1 - 8.9e-16
+ [MERATIOS] ME ratio CudaCpp/Fortran: MAX = 1.00000000 = 1 + 6.7e-16
+ [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES =   2080
+ [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = -2.7e-17 +- 4.9e-18
+ [COUNTERS] PROGRAM TOTAL          :    0.6410s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6243s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0132s for     2080 events => throughput is 1.57E+05 events/s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0034s for     2080 events => throughput is 6.06E+05 events/s
+
+*** EXECUTE GCHECK -p 64 32 1 --bridge ***
+Process                     = SIGMA_SM_EPEM_MUPMUM_CUDA [nvcc 11.6.124 (gcc 10.2.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 1.937523e+07                 )  sec^-1
+
+*** EXECUTE GCHECK -p 64 32 1 ***
+Process                     = SIGMA_SM_EPEM_MUPMUM_CUDA [nvcc 11.6.124 (gcc 10.2.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
+EvtsPerSec[MECalcOnly] (3a) = ( 7.453235e+07                 )  sec^-1
+
+*** (3b) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***
 --------------------
 2048 ! Number of events in a single CUDA iteration (nb_page_loop)
 2048 1 1 ! Number of events and max and min iterations
@@ -120,12 +179,12 @@ Executing ' ./gmadevent_cudacpp < /tmp/avalassi/input_eemumu_cuda > /tmp/avalass
  [MERATIOS] ME ratio CudaCpp/Fortran: MAX = 1.00000000 = 1 + 6.7e-16
  [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES =   2048
  [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = -2.9e-17 +- 5e-18
- [COUNTERS] PROGRAM TOTAL          :    0.5237s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.5106s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0129s for     2048 events => throughput is 1.58E+05 events/s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0001s for     2048 events => throughput is 1.48E+07 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.5208s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5077s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0130s for     2048 events => throughput is 1.58E+05 events/s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0001s for     2048 events => throughput is 1.42E+07 events/s
 
-*** EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***
+*** (3b) EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***
 --------------------
 2048 ! Number of events in a single CUDA iteration (nb_page_loop)
 2048 1 1 ! Number of events and max and min iterations
@@ -145,19 +204,19 @@ Executing ' ./gmadevent_cudacpp < /tmp/avalassi/input_eemumu_cuda > /tmp/avalass
  [MERATIOS] ME ratio CudaCpp/Fortran: MAX = 1.00000000 = 1 + 6.7e-16
  [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES =   2048
  [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = -2.9e-17 +- 5e-18
- [COUNTERS] PROGRAM TOTAL          :    0.5780s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.5648s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0130s for     2048 events => throughput is 1.58E+05 events/s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0001s for     2048 events => throughput is 1.46E+07 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.5695s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5561s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0133s for     2048 events => throughput is 1.54E+05 events/s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0001s for     2048 events => throughput is 1.54E+07 events/s
 
 *** EXECUTE GCHECK -p 64 32 1 --bridge ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CUDA [nvcc 11.6.124 (gcc 10.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.902762e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.922987e+07                 )  sec^-1
 
 *** EXECUTE GCHECK -p 64 32 1 ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CUDA [nvcc 11.6.124 (gcc 10.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 7.375662e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 7.046033e+07                 )  sec^-1
 
 TEST COMPLETED
