@@ -508,6 +508,11 @@ c!$OMP END DO
 c!$OMP END PARALLEL
         call counters_smatrix1multi_stop( -1 ) ! fortran=-1
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
+        DO IVEC=1, NB_PAGE_LOOP
+          DO I=1,MAXFLOW
+           JAMP2_MULTI(I,IVEC)=0
+          ENDDO
+        ENDDO
       ENDIF
 
       IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
