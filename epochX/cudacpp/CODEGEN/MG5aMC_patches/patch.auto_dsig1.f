@@ -1,5 +1,5 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index 1734289bf..dfa970820 100644
+index 1734289bf..8ce665534 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 @@ -76,13 +76,13 @@ C     Keep track of whether cuts already calculated for this event
@@ -46,7 +46,7 @@ index 1734289bf..dfa970820 100644
        INCLUDE 'maxamps.inc'
        DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
        DOUBLE PRECISION HEL_RAND(NB_PAGE_MAX)
-@@ -462,22 +463,115 @@ C
+@@ -462,22 +463,119 @@ C
        DOUBLE PRECISION JAMP2_MULTI(0:MAXFLOW, NB_PAGE_MAX)
  
        INTEGER IVEC
@@ -105,6 +105,10 @@ index 1734289bf..dfa970820 100644
 +        IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
 +          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled for helicity filtering
 +          FIRST = .FALSE.
++c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/22 (see PR #486)
++          IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all)
++            CALL RESET_CUMULATIVE_VARIABLE() ! mimic 'avoid bias of the initialization' within SMATRIX1
++          ENDIF
 +        ENDIF
 +        call counters_smatrix1multi_start( 0, nb_page_loop ) ! cudacpp=0
 +        IF ( .NOT. MULTI_CHANNEL ) THEN
