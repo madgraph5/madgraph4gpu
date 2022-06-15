@@ -451,6 +451,7 @@ C
 
       USE OMP_LIB
 
+      IMPLICIT NONE
       INCLUDE 'nexternal.inc'
       include 'vector.inc'
       include 'coupl.inc'
