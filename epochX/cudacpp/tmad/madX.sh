@@ -217,9 +217,9 @@ function runmadevent()
   set +e # do not fail on error
   if [ "${debug}" == "1" ]; then
     echo "--------------------"; cat ${tmpin}; echo "--------------------"
-    echo "Executing '$timecmd $cmd < ${tmpin} > ${tmp} 2>&1'"
+    echo "Executing '( $timecmd $cmd < ${tmpin} 2>&1 ) > ${tmp}'"
   fi
-  $timecmd $cmd < ${tmpin} > ${tmp} 2>&1 
+  ( $timecmd $cmd < ${tmpin} 2>&1 ) > ${tmp}
   if [ "$?" != "0" ]; then echo "ERROR! '$timecmd $cmd < ${tmpin} > ${tmp}' failed"; tail -10 $tmp; exit 1; fi
   fbm=$(cat ${tmp} | grep --binary-files=text 'FBRIDGE_MODE =' | awk '{print $NF}')
   nbp=$(cat ${tmp} | grep --binary-files=text 'NB_PAGE_LOOP =' | awk '{print $NF}')

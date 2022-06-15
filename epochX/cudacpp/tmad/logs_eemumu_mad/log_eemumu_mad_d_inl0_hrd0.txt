@@ -1,7 +1,7 @@
 Working directory: /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll
 make: Nothing to be done for `all'.
 
-DATE: 2022-06-15_16:11:28
+DATE: 2022-06-15_16:16:51
 
 Working directory: /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_ll_ll
 
@@ -14,16 +14,16 @@ Working directory: /data/avalassi/GPU2020/madgraph4gpuX/epochX/cudacpp/ee_mumu.m
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./madevent < /tmp/avalassi/input_eemumu_fortran > /tmp/avalassi/output_eemumu_fortran 2>&1'
+Executing '(  ./madevent < /tmp/avalassi/input_eemumu_fortran 2>&1 ) > /tmp/avalassi/output_eemumu_fortran'
  [XSECTION] fbridge_mode = 
  [XSECTION] nb_page_loop = 32
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 0.09017
- [COUNTERS] PROGRAM TOTAL          :    0.0301s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.0173s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0128s for     2080 events => throughput is 1.62E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.0303s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.0175s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0129s for     2080 events => throughput is 1.62E+05 events/s
 
 *** (1) EXECUTE MADEVENT (create events.lhe) ***
 --------------------
@@ -34,7 +34,7 @@ Executing ' ./madevent < /tmp/avalassi/input_eemumu_fortran > /tmp/avalassi/outp
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./madevent < /tmp/avalassi/input_eemumu_fortran > /tmp/avalassi/output_eemumu_fortran 2>&1'
+Executing '(  ./madevent < /tmp/avalassi/input_eemumu_fortran 2>&1 ) > /tmp/avalassi/output_eemumu_fortran'
  [XSECTION] fbridge_mode = 
  [XSECTION] nb_page_loop = 32
  [XSECTION] MultiChannel = TRUE
@@ -42,9 +42,9 @@ Executing ' ./madevent < /tmp/avalassi/input_eemumu_fortran > /tmp/avalassi/outp
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 0.09017 [9.0170633677521428E-002]
  [UNWEIGHT] Wrote 1009 events (found 1010 events)
- [COUNTERS] PROGRAM TOTAL          :    0.1454s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.1324s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0131s for     2080 events => throughput is 1.59E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.1464s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.1330s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0134s for     2080 events => throughput is 1.55E+05 events/s
 
 *** (2) EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***
 --------------------
@@ -57,7 +57,7 @@ Executing ' ./madevent < /tmp/avalassi/input_eemumu_fortran > /tmp/avalassi/outp
 0 ! Helicity Sum/event 0=exact
 1 ! Channel number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./cmadevent_cudacpp < /tmp/avalassi/input_eemumu_cpp > /tmp/avalassi/output_eemumu_cpp 2>&1'
+Executing '(  ./cmadevent_cudacpp < /tmp/avalassi/input_eemumu_cpp 2>&1 ) > /tmp/avalassi/output_eemumu_cpp'
 ERROR! ' ./cmadevent_cudacpp < /tmp/avalassi/input_eemumu_cpp > /tmp/avalassi/output_eemumu_cpp' failed
 #3  0x410c23 in ???
 #4  0x43cfd8 in ???
@@ -66,6 +66,6 @@ ERROR! ' ./cmadevent_cudacpp < /tmp/avalassi/input_eemumu_cpp > /tmp/avalassi/ou
 #7  0x45b96a in ???
 #8  0x43ab5f in ???
 #9  0x43b10a in ???
-#10  0x7f0836079554 in ???
+#10  0x7f3907136554 in ???
 #11  0x4024b8 in ???
 #12  0xffffffffffffffff in ???
