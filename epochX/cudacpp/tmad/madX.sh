@@ -266,7 +266,7 @@ for suff in $suffs; do
 
   dir=$(showdir)
   if [ ! -d $dir ]; then echo "WARNING! Skip missing directory $dir"; continue; fi
-  echo "Working directory: $dir"
+  echo "Working directory (build): $dir"
   cd $dir
 
   if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
@@ -288,7 +288,7 @@ for suff in $suffs; do
 
   dir=$(showdir)
   if [ ! -d $dir ]; then echo "WARNING! Skip missing directory $dir"; continue; fi
-  echo "Working directory: $dir"
+  echo "Working directory (run): $dir"
   cd $dir
 
   # Disable OpenMP multithreading in Fortran
