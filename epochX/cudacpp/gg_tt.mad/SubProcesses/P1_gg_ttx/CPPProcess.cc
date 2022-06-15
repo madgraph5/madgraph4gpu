@@ -294,12 +294,14 @@ namespace mg5amcCpu
 #ifndef __CUDACC__
       if ( ihel == 0 )
       {
-        std::cout << "ipagV=" << ipagV << " ihel=" << ihel
-                  << " MT = " << cIPD[0]
-                  << " W00 = " << w_sv[0][0]
-                  << " W20 = " << w_sv[2][0]
-                  << " JAMP0 = " << jamp_sv[0]
-                  << std::endl;
+        std::cout
+          << "ipagV=" << ipagV << " ihel=" << ihel
+          //<< " MT = " << cIPD[0]
+          //<< " W00 = " << w_sv[0][0]
+          //<< " W20 = " << w_sv[2][0]
+          << " AMP2 = " << amp_sv[0]
+          << " JAMP0 = " << jamp_sv[0]
+          << std::endl;
       }
 #endif
 
