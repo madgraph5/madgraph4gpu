@@ -423,7 +423,11 @@ C     JAMPs contributing to orders ALL_ORDERS=1
       ENDIF
 
       IF ( IHEL .EQ. 2 ) THEN
-        WRITE(6,*) 'IVEC =', IVEC, 'IHEL =', IHEL, 'JAMP(0) = ', JAMP(1,1)
+        WRITE(6,*) 'IVEC =', IVEC, 'IHEL =', IHEL
+     &    , ' MT = ', MDL_MT
+     &    , ' W00 = ', W(1,1)
+     &    , ' W20 = ', W(1,3)
+     &    , ' JAMP0 = ', JAMP(1,1)
       ENDIF
       
       MATRIX1 = 0.D0

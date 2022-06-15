@@ -292,7 +292,15 @@ namespace mg5amcCpu
         deltaMEs += ( cxreal( ztemp_sv ) * cxreal( jamp_sv[icol] ) + cximag( ztemp_sv ) * cximag( jamp_sv[icol] ) ) / denom[icol];
       }
 #ifndef __CUDACC__
-      if ( ihel == 0 ) std::cout << "ipagV=" << ipagV << " ihel=" << ihel << " JAMP(0) = " << jamp_sv[0] << std::endl;
+      if ( ihel == 0 )
+      {
+        std::cout << "ipagV=" << ipagV << " ihel=" << ihel
+                  << " MT = " << cIPD[0]
+                  << " W00 = " << w_sv[0][0]
+                  << " W20 = " << w_sv[2][0]
+                  << " JAMP0 = " << jamp_sv[0]
+                  << std::endl;
+      }
 #endif
 
       // *** STORE THE RESULTS ***
