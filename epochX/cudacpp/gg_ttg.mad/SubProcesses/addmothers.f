@@ -91,8 +91,6 @@ c
       real ran1
       external pt,ran1,get_color,elim_indices,set_colmp,fix_tchannel_color
 
-      write(*,*) 'DEBUG add_mothers'
-
       if (first_time) then
          include 'props.inc'
          first_time=.false.
@@ -833,8 +831,6 @@ c
       integer is_colors(2,nincoming)
       integer i,j,i3,i3bar
 
-c     write(*,*) 'DEBUG elim_indices', n3, n3bar
-
 c     Successively eliminate color indices in pairs until only the wanted
 c     indices remain
       do i=1,ncolmp
@@ -899,7 +895,6 @@ c        We have a previous epsilon which gives the wrong pop-up index
      $           ires,icol,is_colors)
          else
 c           Don't know how to deal with this
-            write(*,*) 'DEBUG1001', i3, n3, i3bar, n3bar
             call write_error(1001,n3,n3bar)
          endif
       endif
