@@ -226,7 +226,7 @@ function runmadevent()
   mch=$(cat ${tmp} | grep --binary-files=text 'MULTI_CHANNEL =' | awk '{print $NF}')
   conf=$(cat ${tmp} | grep --binary-files=text 'Running Configuration Number:' | awk '{print $NF}')
   chid=$(cat ${tmp} | grep --binary-files=text 'CHANNEL_ID =' | awk '{print $NF}')
-  echo " [XSECTION] fbridge_mode = ${fbm}"
+  if [ "${fbm}" != "" ]; then echo " [XSECTION] fbridge_mode = ${fbm}"; fi
   echo " [XSECTION] nb_page_loop = ${nbp}"
   echo " [XSECTION] MultiChannel = ${mch}"
   echo " [XSECTION] Configuration = ${conf}"
