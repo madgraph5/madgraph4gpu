@@ -422,7 +422,9 @@ C     JAMPs contributing to orders ALL_ORDERS=1
         ENDDO
       ENDIF
 
-      WRITE(6,*) 'IVEC =', IVEC, 'IHEL =', IHEL, 'JAMP(0) = ', JAMP(1,1)
+      IF ( IHEL .EQ. 2 ) THEN
+        WRITE(6,*) 'IVEC =', IVEC, 'IHEL =', IHEL, 'JAMP(0) = ', JAMP(1,1)
+      ENDIF
       
       MATRIX1 = 0.D0
       DO M = 1, NAMPSO
