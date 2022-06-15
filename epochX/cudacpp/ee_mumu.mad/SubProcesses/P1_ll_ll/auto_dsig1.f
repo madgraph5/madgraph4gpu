@@ -581,6 +581,7 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
 
       IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all, JAMP2_MULTI is not filled)
         DO IVEC=1, NB_PAGE_LOOP
+          write(*,*) 'DEBUG JAMP2_MULTI', IVEC, NCOLOR
           JAMP2_MULTI(0,IVEC) = NCOLOR ! workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/14
         END DO
       ENDIF
