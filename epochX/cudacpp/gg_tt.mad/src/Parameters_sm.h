@@ -219,6 +219,7 @@ namespace Parameters_sm_dependentCouplings
     DependentCouplings_sv out;
     // Begin SM implementation - no special handling of vectors of floats as in EFT (#439)
     {
+      static int ievt=0;
       const fptype_sv& G = G_sv;
       // Model parameters dependent on aS
       //const fptype_sv mdl_sqrt__aS = constexpr_sqrt( aS );
@@ -227,6 +228,9 @@ namespace Parameters_sm_dependentCouplings
       // Model couplings dependent on aS
       out.GC_10 = -G;
       out.GC_11 = cI * G;
+      printf( " DEBUG GC_10 GC_11\n" );
+      printf( "ievt=%d\n", ievt );
+      printf( "gc_10=(%20.16f,%20.16f) gc_11=(%20.16f,%20.16f)\n", cxreal(out.GC_10), cximag(out.GC_10), cxreal(out.GC_11), cximag(out.GC_11) );
     }
     // End SM implementation - no special handling of vectors of floats as in EFT (#439)
     return out;
