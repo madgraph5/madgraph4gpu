@@ -518,6 +518,10 @@ c!$OMP END PARALLEL
         IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled for helicity filtering
           FIRST = .FALSE.
+c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/22 (see PR #486)
+          IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all)
+            CALL RESET_CUMULATIVE_VARIABLE() ! mimic 'avoid bias of the initialization' within SMATRIX1
+          ENDIF
         ENDIF
         call counters_smatrix1multi_start( 0, nb_page_loop ) ! cudacpp=0
         IF ( .NOT. MULTI_CHANNEL ) THEN
@@ -525,7 +529,7 @@ c!$OMP END PARALLEL
      &      P_MULTI, ALL_G, OUT2, 0) ! 0: multi channel disabled
         ELSE
           IF( SDE_STRAT.NE.1 ) THEN
-            WRITE(6,*) 'ERROR! The cudacpp bridge in multichannel mode requires SDE=1'
+            WRITE(6,*) 'ERROR! The cudacpp bridge requires SDE=1' ! multi channel single-diagram enhancement strategy
             STOP
           ENDIF
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE,
@@ -534,7 +538,7 @@ c!$OMP END PARALLEL
         call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
       ENDIF
 
-      IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
+      IF( FBRIDGE_MODE .LT. 0 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
         DO IVEC=1, NB_PAGE_LOOP
           CBYF1 = OUT2(IVEC)/OUT(IVEC) - 1
           FBRIDGE_NCBYF1 = FBRIDGE_NCBYF1 + 1
@@ -552,6 +556,12 @@ c!$OMP END PARALLEL
      &        'WARNING! (', NWARNINGS, '/20) Deviation more than 5E-5',
      &        IVEC, OUT(IVEC), OUT2(IVEC), 1+CBYF1
           ENDIF
+        END DO
+      ENDIF
+
+      IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
+        DO IVEC=1, NB_PAGE_LOOP
+          OUT(IVEC) = OUT2(IVEC) ! use the cudacpp ME instead of the fortran ME!
         END DO
       ENDIF
 #endif

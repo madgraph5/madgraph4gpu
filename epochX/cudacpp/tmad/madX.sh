@@ -126,20 +126,37 @@ function getnevt()
 function getinputfile()
 {
   nevt=$(getnevt)
-  tmp=$(mktemp)
+  tmpdir=/tmp/$USER
+  mkdir -p $tmpdir
+  if [ "${eemumu}" == "1" ]; then 
+    tmp=$tmpdir/input_eemumu
+  elif [ "${ggtt}" == "1" ]; then 
+    tmp=$tmpdir/input_ggtt
+  elif [ "${ggttg}" == "1" ]; then 
+    tmp=$tmpdir/input_ggttg
+  elif [ "${ggttgg}" == "1" ]; then 
+    tmp=$tmpdir/input_ggttgg
+  elif [ "${ggttggg}" == "1" ]; then 
+    tmp=$tmpdir/input_ggttggg
+  else
+    echo "ERROR! cannot determine input file name"; exit 1
+  fi
+  \rm -f ${tmp}; touch ${tmp}
   if [ "$1" == "-fortran" ]; then
     mv ${tmp} ${tmp}_fortran
     tmp=${tmp}_fortran
   elif [ "$1" == "-cuda" ]; then
     mv ${tmp} ${tmp}_cuda
     tmp=${tmp}_cuda
+    echo "-1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
     nloop=32768
     while [ $nloop -gt $nevt ]; do (( nloop = nloop / 2 )); done
     echo "${nloop} ! Number of events in a single CUDA iteration (nb_page_loop)" >> ${tmp}
   elif [ "$1" == "-cpp" ]; then
-    mv ${tmp} ${tmp}_cuda
-    tmp=${tmp}_cuda
-    echo "32 ! Number of events in a single C++ iteration (nb_page_loop)" >> ${tmp}
+    mv ${tmp} ${tmp}_cpp
+    tmp=${tmp}_cpp
+    echo "-1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
+    echo "32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)" >> ${tmp}
   else
     echo "Usage: getinputfile <backend [-fortran][-cuda]-cpp]>"
     exit 1
@@ -183,30 +200,42 @@ function runcheck()
 function runmadevent()
 {
   if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: runmadevent <madevent executable>"; exit 1; fi
-  if [ "${1/cmadevent}" != "$1" ]; then
+  cmd=$1
+  if [ "${cmd/cmadevent}" != "$cmd" ]; then
     tmpin=$(getinputfile -cpp)
-  elif [ "${1/gmadevent}" != "$1" ]; then
+  elif [ "${cmd/gmadevent2}" != "$cmd" ]; then
+    cmd=${cmd/gmadevent2/gmadevent} # hack: run cuda gmadevent with cpp input file
+    tmpin=$(getinputfile -cpp)
+  elif [ "${cmd/gmadevent}" != "$cmd" ]; then
     tmpin=$(getinputfile -cuda)
-  else
+  else # assume this is madevent (do not check)
     tmpin=$(getinputfile -fortran)
   fi
   if [ ! -f $tmpin ]; then echo "ERROR! Missing input file $tmpin"; exit 1; fi
-  tmp=$(mktemp)
+  tmp=${tmpin/input/output}
+  \rm -f ${tmp}; touch ${tmp}  
   set +e # do not fail on error
   if [ "${debug}" == "1" ]; then
     echo "--------------------"; cat ${tmpin}; echo "--------------------"
-    echo "Executing '$timecmd $1 < ${tmpin} > ${tmp}'"
+    echo "Executing '$timecmd $cmd < ${tmpin} > ${tmp}'"
   fi
-  $timecmd $1 < ${tmpin} > ${tmp}
-  if [ "$?" != "0" ]; then echo "ERROR! '$timecmd $1 < ${tmpin} > ${tmp}' failed"; tail -10 $tmp; exit 1; fi
+  $timecmd $cmd < ${tmpin} > ${tmp}
+  if [ "$?" != "0" ]; then echo "ERROR! '$timecmd $cmd < ${tmpin} > ${tmp}' failed"; tail -10 $tmp; exit 1; fi
+  fbm=$(cat ${tmp} | grep --binary-files=text 'FBRIDGE_MODE =' | awk '{print $NF}')
+  nbp=$(cat ${tmp} | grep --binary-files=text 'NB_PAGE_LOOP =' | awk '{print $NF}')
   mch=$(cat ${tmp} | grep --binary-files=text 'MULTI_CHANNEL =' | awk '{print $NF}')
   conf=$(cat ${tmp} | grep --binary-files=text 'Running Configuration Number:' | awk '{print $NF}')
   chid=$(cat ${tmp} | grep --binary-files=text 'CHANNEL_ID =' | awk '{print $NF}')
+  echo " [XSECTION] fbridge_mode = ${fbm}"
+  echo " [XSECTION] nb_page_loop = ${nbp}"
   echo " [XSECTION] MultiChannel = ${mch}"
   echo " [XSECTION] Configuration = ${conf}"
   echo " [XSECTION] ChannelId = ${chid}"
   xsec=$(cat ${tmp} | grep --binary-files=text 'Cross sec =' | awk '{print 0+$NF}')
-  if [ "${xsec}" != "" ]; then
+  xsec2=$(cat ${tmp} | grep --binary-files=text 'Actual xsec' | awk '{print $NF}')
+  if [ "${xsec2}" != "" ]; then
+    echo " [XSECTION] Cross section = ${xsec} [${xsec2}]"
+  elif [ "${xsec}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec}"
   else
     echo -e " [XSECTION] ERROR! No cross section in log file:\n   $tmp\n   ..."
@@ -218,7 +247,7 @@ function runmadevent()
   if [ "${evtf}" != "" ] && [ "${evtw}" != "" ]; then
     echo " [UNWEIGHT] Wrote ${evtw} events (found ${evtf} events)"  
   fi
-  if [ "${1/cmadevent}" != "$1" ] || [ "${1/gmadevent}" != "$1" ]; then
+  if [ "${cmd/cmadevent}" != "$cmd" ] || [ "${cmd/gmadevent}" != "$cmd" ]; then
     # Hack: use awk to convert Fortran's 0.42E-01 into 4.20e-02
     cat ${tmp} | grep --binary-files=text MERATIOS \
       | awk -v sep=" 1 - " '{i=index($0,sep); if(i>0){print substr($0,0,i-1) sep 0+substr($0,i+length(sep))} else print $0}' \
@@ -269,43 +298,67 @@ for suff in $suffs; do
   ###timecmd=time
   timecmd=
 
+  # Show results.dat?
+  ###rdatcmd="stat results.dat"
+  rdatcmd="echo"
+
   # DEFAULT IMPLEMENTATION : compute cross section and then generate events
   cd $dir
 
   # (1) MADEVENT
   \rm -f results.dat # ALWAYS remove results.dat before the first madevent execution
   if [ ! -f results.dat ]; then
-    echo -e "\n*** EXECUTE MADEVENT (create results.dat) ***"
+    echo -e "\n*** (1) EXECUTE MADEVENT (create results.dat) ***"
     \rm -f ftn26
     runmadevent ./madevent
+    \cp -p results.dat results.dat.ref
   fi
-  echo -e "\n*** EXECUTE MADEVENT (create events.lhe) ***"
+  echo -e "\n*** (1) EXECUTE MADEVENT (create events.lhe) ***"
+  ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
   \rm -f ftn26
   runmadevent ./madevent
 
   # (2) CMADEVENT_CUDACPP
-  if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
+  if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
   if [ ! -f results.dat ]; then
-    echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
+    echo -e "\n*** (2) EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
     \rm -f ftn26
     runmadevent ./cmadevent_cudacpp
   fi
-  echo -e "\n*** EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
+  echo -e "\n*** (2) EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
+  ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
   \rm -f ftn26
   runmadevent ./cmadevent_cudacpp
   runcheck ./check.exe
 
-  # (3) GMADEVENT_CUDACPP
-  if [ "${keeprdat}" == "0" ]; then \rm -f results.dat; fi
+  # (3a) GMADEVENT_CUDACPP
+  if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
   if [ ! -f results.dat ]; then
-    echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
+    echo -e "\n*** (3a) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
+    \rm -f ftn26
+    runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
+  fi
+  echo -e "\n*** (3a) EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
+  ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
+  \rm -f ftn26
+  runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
+  runcheck ./gcheck.exe
+
+  # (3b) GMADEVENT_CUDACPP
+  if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
+  if [ ! -f results.dat ]; then
+    echo -e "\n*** (3b) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
     \rm -f ftn26
     runmadevent ./gmadevent_cudacpp
   fi
-  echo -e "\n*** EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
+  echo -e "\n*** (3b) EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
+  ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
   \rm -f ftn26
   runmadevent ./gmadevent_cudacpp
   runcheck ./gcheck.exe
+
+  # Cleanup
+  \rm results.dat.ref
 
 done
 printf "\nTEST COMPLETED\n"
