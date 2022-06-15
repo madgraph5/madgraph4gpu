@@ -1747,6 +1747,8 @@ c-----
 c  Begin Code
 c-----
 
+      write(*,*) 'DEBUG_SAMPLE_PUT_POINT', wgt
+
       if (first_time) then
          first_time = .false.
          twgt1 = 0d0       !
