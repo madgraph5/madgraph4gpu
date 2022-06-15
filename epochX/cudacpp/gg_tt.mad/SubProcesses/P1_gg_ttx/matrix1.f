@@ -392,10 +392,6 @@ C     ----------
         ENDIF
       ENDIF
 
-      IF ( IHEL .EQ. 1 ) THEN
-        write(6,*) 'DEBUG GC_10 GC_11'
-        write(6,*) 'GC_10, GC_11 = ', GC_10(IVEC), GC_11(IVEC)
-      ENDIF
 
       CALL VXXXXX(P(0,1),ZERO,NHEL(1),-1*IC(1),W(1,1))
       CALL VXXXXX(P(0,2),ZERO,NHEL(2),-1*IC(2),W(1,2))
