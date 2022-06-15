@@ -226,14 +226,15 @@ function runmadevent()
   mch=$(cat ${tmp} | grep --binary-files=text 'MULTI_CHANNEL =' | awk '{print $NF}')
   conf=$(cat ${tmp} | grep --binary-files=text 'Running Configuration Number:' | awk '{print $NF}')
   chid=$(cat ${tmp} | grep --binary-files=text 'CHANNEL_ID =' | awk '{print $NF}')
-  if [ "${fbm}" != "" ]; then echo " [XSECTION] fbridge_mode = ${fbm}"; fi
   echo " [XSECTION] nb_page_loop = ${nbp}"
   echo " [XSECTION] MultiChannel = ${mch}"
   echo " [XSECTION] Configuration = ${conf}"
   echo " [XSECTION] ChannelId = ${chid}"
   xsec=$(cat ${tmp} | grep --binary-files=text 'Cross sec =' | awk '{print 0+$NF}')
   xsec2=$(cat ${tmp} | grep --binary-files=text 'Actual xsec' | awk '{print $NF}')
-  if [ "${xsec2}" != "" ]; then
+  if [ "${fbm}" != "" ]; then
+    echo " [XSECTION] Cross section = ${xsec} [${xsec2}] fbridge_mode=${fbm}"
+  elif [ "${xsec2}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec} [${xsec2}]"
   elif [ "${xsec}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec}"
