@@ -148,14 +148,14 @@ function getinputfile()
   elif [ "$1" == "-cuda" ]; then
     mv ${tmp} ${tmp}_cuda
     tmp=${tmp}_cuda
-    echo "-1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
+    echo "+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
     nloop=32768
     while [ $nloop -gt $nevt ]; do (( nloop = nloop / 2 )); done
     echo "${nloop} ! Number of events in a single CUDA iteration (nb_page_loop)" >> ${tmp}
   elif [ "$1" == "-cpp" ]; then
     mv ${tmp} ${tmp}_cpp
     tmp=${tmp}_cpp
-    echo "-1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
+    echo "+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
     echo "32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)" >> ${tmp}
   else
     echo "Usage: getinputfile <backend [-fortran][-cuda]-cpp]>"
