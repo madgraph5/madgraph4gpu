@@ -1747,8 +1747,6 @@ c-----
 c  Begin Code
 c-----
 
-      write(*,*) 'DEBUG_SAMPLE_PUT_POINT', wgt
-
       if (first_time) then
          first_time = .false.
          twgt1 = 0d0       !
@@ -1819,7 +1817,6 @@ c        Add the current point to the DiscreteSamplerGrid
             non_zero = non_zero + 1
             mean = mean + dabs(wgt)
             rmean = rmean + wgt
-            write(*,*) 'DEBUG_RMEAN', non_zero, wgt, rmean 
             if (.true. ) then
 c               psect(ipole)=psect(ipole)+wgt*wgt/alpha(ipole)  !Ohl 
 c               psect(ipole)=1d0                 !Not doing multi_config
@@ -1928,9 +1925,7 @@ C
            call update_discrete_dimensions()
 
             mean=mean*dble(events)/dble(non_zero)
-            write(*,*) 'DEBUG_RMEAN(2a)', non_zero, events, rmean 
             rmean=rmean*dble(events)/dble(non_zero)
-            write(*,*) 'DEBUG_RMEAN(2b)', non_zero, events, rmean 
             twgt1=twgt1*dble(events)/dble(non_zero)
             sigma=sigma+twgt1**2    !This line for averaging over points
             if (non_zero .eq. 0) then
@@ -1941,9 +1936,7 @@ C
 c            mean = mean * itm                 !Used if don't have non_zero
             if (.true.) then
                mean = mean * itm *dble(non_zero)/dble(kn)
-               write(*,*) 'DEBUG_RMEAN(3a)', non_zero, kn, rmean 
                rmean = rmean * itm *dble(non_zero)/dble(kn)
-               write(*,*) 'DEBUG_RMEAN(3b)', non_zero, kn, rmean 
                knt = kn
             endif
 c
