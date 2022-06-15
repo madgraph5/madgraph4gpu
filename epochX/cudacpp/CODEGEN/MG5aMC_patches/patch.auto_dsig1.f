@@ -1,5 +1,5 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index 1734289bf..8ce665534 100644
+index 1734289bf..3c66b950f 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 @@ -76,13 +76,13 @@ C     Keep track of whether cuts already calculated for this event
@@ -36,9 +36,11 @@ index 1734289bf..8ce665534 100644
        INCLUDE 'run.inc'
  
        DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
-@@ -452,7 +452,8 @@ C
+@@ -451,8 +451,10 @@ C
+ 
        USE OMP_LIB
  
++      IMPLICIT NONE
        INCLUDE 'nexternal.inc'
 -      INCLUDE '../../Source/vector.inc'
 +      include 'vector.inc'
@@ -46,7 +48,7 @@ index 1734289bf..8ce665534 100644
        INCLUDE 'maxamps.inc'
        DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, NB_PAGE_MAX)
        DOUBLE PRECISION HEL_RAND(NB_PAGE_MAX)
-@@ -462,22 +463,119 @@ C
+@@ -462,22 +464,125 @@ C
        DOUBLE PRECISION JAMP2_MULTI(0:MAXFLOW, NB_PAGE_MAX)
  
        INTEGER IVEC
@@ -149,6 +151,12 @@ index 1734289bf..8ce665534 100644
 +      IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
 +        DO IVEC=1, NB_PAGE_LOOP
 +          OUT(IVEC) = OUT2(IVEC) ! use the cudacpp ME instead of the fortran ME!
++        END DO
++      ENDIF
++
++      IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all, JAMP2_MULTI is not filled)
++        DO IVEC=1, NB_PAGE_LOOP
++          JAMP2_MULTI(0,IVEC) = 2 ! workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/14
 +        END DO
 +      ENDIF
 +#endif

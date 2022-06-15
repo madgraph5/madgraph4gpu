@@ -451,6 +451,7 @@ C
 
       USE OMP_LIB
 
+      IMPLICIT NONE
       INCLUDE 'nexternal.inc'
       include 'vector.inc'
       include 'coupl.inc'
@@ -562,6 +563,12 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
       IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
         DO IVEC=1, NB_PAGE_LOOP
           OUT(IVEC) = OUT2(IVEC) ! use the cudacpp ME instead of the fortran ME!
+        END DO
+      ENDIF
+
+      IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all, JAMP2_MULTI is not filled)
+        DO IVEC=1, NB_PAGE_LOOP
+          JAMP2_MULTI(0,IVEC) = 24 ! workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/14
         END DO
       ENDIF
 #endif

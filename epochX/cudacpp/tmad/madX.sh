@@ -148,14 +148,14 @@ function getinputfile()
   elif [ "$1" == "-cuda" ]; then
     mv ${tmp} ${tmp}_cuda
     tmp=${tmp}_cuda
-    echo "-1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
+    echo "+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
     nloop=32768
     while [ $nloop -gt $nevt ]; do (( nloop = nloop / 2 )); done
     echo "${nloop} ! Number of events in a single CUDA iteration (nb_page_loop)" >> ${tmp}
   elif [ "$1" == "-cpp" ]; then
     mv ${tmp} ${tmp}_cpp
     tmp=${tmp}_cpp
-    echo "-1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
+    echo "+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
     echo "32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)" >> ${tmp}
   else
     echo "Usage: getinputfile <backend [-fortran][-cuda]-cpp]>"
@@ -226,14 +226,15 @@ function runmadevent()
   mch=$(cat ${tmp} | grep --binary-files=text 'MULTI_CHANNEL =' | awk '{print $NF}')
   conf=$(cat ${tmp} | grep --binary-files=text 'Running Configuration Number:' | awk '{print $NF}')
   chid=$(cat ${tmp} | grep --binary-files=text 'CHANNEL_ID =' | awk '{print $NF}')
-  echo " [XSECTION] fbridge_mode = ${fbm}"
   echo " [XSECTION] nb_page_loop = ${nbp}"
   echo " [XSECTION] MultiChannel = ${mch}"
   echo " [XSECTION] Configuration = ${conf}"
   echo " [XSECTION] ChannelId = ${chid}"
   xsec=$(cat ${tmp} | grep --binary-files=text 'Cross sec =' | awk '{print 0+$NF}')
   xsec2=$(cat ${tmp} | grep --binary-files=text 'Actual xsec' | awk '{print $NF}')
-  if [ "${xsec2}" != "" ]; then
+  if [ "${fbm}" != "" ]; then
+    echo " [XSECTION] Cross section = ${xsec} [${xsec2}] fbridge_mode=${fbm}"
+  elif [ "${xsec2}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec} [${xsec2}]"
   elif [ "${xsec}" != "" ]; then
     echo " [XSECTION] Cross section = ${xsec}"
@@ -266,7 +267,7 @@ for suff in $suffs; do
 
   dir=$(showdir)
   if [ ! -d $dir ]; then echo "WARNING! Skip missing directory $dir"; continue; fi
-  echo "Working directory: $dir"
+  echo "Working directory (build): $dir"
   cd $dir
 
   if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
@@ -288,7 +289,7 @@ for suff in $suffs; do
 
   dir=$(showdir)
   if [ ! -d $dir ]; then echo "WARNING! Skip missing directory $dir"; continue; fi
-  echo "Working directory: $dir"
+  echo "Working directory (run): $dir"
   cd $dir
 
   # Disable OpenMP multithreading in Fortran

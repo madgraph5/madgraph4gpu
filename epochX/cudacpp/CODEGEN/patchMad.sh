@@ -106,6 +106,11 @@ for p1dir in ${dir}/SubProcesses/P1_*; do
     if ! patch -p6 -i ${scrdir}/MG5aMC_patches/patch.auto_dsig1.f; then status=1; fi  
   fi
   \rm -f *.orig
+  ncolor=$(cat matrix1.f | grep PARAMETER | grep NCOLOR= | sed 's/.*NCOLOR=//' | sed 's/)//')
+  cat auto_dsig1.f \
+    | sed "s|JAMP2_MULTI(0,IVEC) = 2 ! workaround|JAMP2_MULTI(0,IVEC) = ${ncolor} ! workaround|" \
+    > auto_dsig1.f.new
+  \mv auto_dsig1.f.new auto_dsig1.f
   cd - > /dev/null
 done
 
