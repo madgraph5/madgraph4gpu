@@ -407,6 +407,18 @@ C     Amplitude(s) for diagram number 2
 C     Amplitude(s) for diagram number 3
       CALL FFV1_0(W(1,5),W(1,3),W(1,2),GC_11(IVEC),AMP(3))
 
+      IF ( IHEL .EQ. 2 ) THEN
+        WRITE(6,*) 'IVEC =', IVEC, 'IHEL =', IHEL
+     &    , ' GC11 = ', GC_11(IVEC)
+     &    !, ' MT = ', MDL_MT
+     &    !, ' W00 = ', W(1,1)
+     &    , ' W20 = ', W(1,3)
+     &    , ' W40 = ', W(1,5)
+     &    , ' W10 = ', W(1,2)
+     &    , ' AMP2 = ', AMP(3)
+     &    !, ' JAMP0 = ', JAMP(1,1)
+      ENDIF
+      
       JAMP(:,:) = (0D0,0D0)
 C     JAMPs contributing to orders ALL_ORDERS=1
       JAMP(1,1) = ((0.000000000000000D+00,1.000000000000000D+00))
@@ -422,15 +434,6 @@ C     JAMPs contributing to orders ALL_ORDERS=1
         ENDDO
       ENDIF
 
-      IF ( IHEL .EQ. 2 ) THEN
-        WRITE(6,*) 'IVEC =', IVEC, 'IHEL =', IHEL
-     &    !, ' MT = ', MDL_MT
-     &    !, ' W00 = ', W(1,1)
-     &    !, ' W20 = ', W(1,3)
-     &    , ' AMP2 = ', AMP(3)
-     &    , ' JAMP0 = ', JAMP(1,1)
-      ENDIF
-      
       MATRIX1 = 0.D0
       DO M = 1, NAMPSO
         DO I = 1, NCOLOR

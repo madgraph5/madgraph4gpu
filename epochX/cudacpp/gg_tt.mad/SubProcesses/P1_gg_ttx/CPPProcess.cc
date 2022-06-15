@@ -258,6 +258,24 @@ namespace mg5amcCpu
 
       // Amplitude(s) for diagram number 3
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], &amp_fp[0] );
+
+#ifndef __CUDACC__
+      if ( ihel == 0 )
+      {
+        std::cout
+          << "ipagV=" << ipagV << " ihel=" << ihel
+          << " GC11 = " << COUPs[1][0] << "," << COUPs[1][1]
+          //<< " MT = " << cIPD[0]
+          //<< " W00 = " << w_sv[0][0]
+          << " W20 = " << w_sv[2][0]
+          << " W40 = " << w_sv[4][0]
+          << " W10 = " << w_sv[1][0]
+          << " AMP2 = " << amp_sv[0]
+          //<< " JAMP0 = " << jamp_sv[0]
+          << std::endl;
+      }
+#endif
+
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 3 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -291,19 +309,6 @@ namespace mg5amcCpu
         // Rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB!
         deltaMEs += ( cxreal( ztemp_sv ) * cxreal( jamp_sv[icol] ) + cximag( ztemp_sv ) * cximag( jamp_sv[icol] ) ) / denom[icol];
       }
-#ifndef __CUDACC__
-      if ( ihel == 0 )
-      {
-        std::cout
-          << "ipagV=" << ipagV << " ihel=" << ihel
-          //<< " MT = " << cIPD[0]
-          //<< " W00 = " << w_sv[0][0]
-          //<< " W20 = " << w_sv[2][0]
-          << " AMP2 = " << amp_sv[0]
-          << " JAMP0 = " << jamp_sv[0]
-          << std::endl;
-      }
-#endif
 
       // *** STORE THE RESULTS ***
 
