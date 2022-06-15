@@ -291,6 +291,9 @@ namespace mg5amcCpu
         // Rewrite the quadratic form (A-iB)(M)(A+iB) as AMA - iBMA + iBMA + BMB = AMA + BMB!
         deltaMEs += ( cxreal( ztemp_sv ) * cxreal( jamp_sv[icol] ) + cximag( ztemp_sv ) * cximag( jamp_sv[icol] ) ) / denom[icol];
       }
+#ifndef __CUDACC__
+      std::cout << "ipagV=" << ipagV << " ihel=" << ihel << " JAMP(0) = " << jamp_sv[0] << std::endl;
+#endif
 
       // *** STORE THE RESULTS ***
 
