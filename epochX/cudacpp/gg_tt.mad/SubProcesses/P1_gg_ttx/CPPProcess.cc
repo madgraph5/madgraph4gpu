@@ -264,14 +264,11 @@ namespace mg5amcCpu
       {
         std::cout
           << "ipagV=" << ipagV << " ihel=" << ihel
-          << " GC11 = " << COUPs[1][0] << "," << COUPs[1][1]
-          //<< " MT = " << cIPD[0]
-          //<< " W00 = " << w_sv[0][0]
+          //<< " GC11 = " << COUPs[1][0] << "," << COUPs[1][1]
           << " W20 = " << w_sv[2][0]
           << " W40 = " << w_sv[4][0]
           << " W10 = " << w_sv[1][0]
           << " AMP2 = " << amp_sv[0]
-          //<< " JAMP0 = " << jamp_sv[0]
           << std::endl;
       }
 #endif
