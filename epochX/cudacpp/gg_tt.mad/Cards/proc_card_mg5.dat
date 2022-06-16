@@ -35,9 +35,9 @@ set loop_color_flows False
 set max_npoint_for_channel 0
 set default_unset_couplings 99
 set max_t_for_channel 99
-set zerowidth_tchannel True
 set nlo_mixed_expansion True
 set stdout_level DEBUG
+set zerowidth_tchannel F
 generate g g > t t~
 define p = g u c d s u~ c~ d~ s~
 define j = g u c d s u~ c~ d~ s~
