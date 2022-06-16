@@ -52,11 +52,12 @@ import /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu.mg
 The import format was not given, so we guess it as command
 set stdout_level DEBUG
 set output information to level: 10
+set zerowidth_tchannel F
 generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006848335266113281 [0m
+[1;32mDEBUG: model prefixing  takes 0.006887197494506836 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -154,7 +155,7 @@ output madevent CODEGEN_mad_ee_mumu --hel_recycling=False --vector_size=16384 --
 Load PLUGIN.CUDACPP_SA_OUTPUT
 [1mAddition matrix-element will be done with PLUGIN: CUDACPP_SA_OUTPUT[0m
 [1mOutput will be done with PLUGIN: CUDACPP_SA_OUTPUT[0m
-[1;32mDEBUG:  cformat = [0m standalone_cudacpp [1;30m[export_cpp.py at line 3008][0m [0m
+[1;32mDEBUG:  cformat = [0m standalone_cudacpp [1;30m[export_cpp.py at line 3071][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 141][0m [0m
 INFO: initialize a new directory: CODEGEN_mad_ee_mumu 
 INFO: remove old information in CODEGEN_mad_ee_mumu 
@@ -167,7 +168,7 @@ INFO: Organizing processes into subprocess groups
 INFO: Generating Helas calls for process: e+ e- > mu+ mu- WEIGHTED<=4 @1 
 INFO: Processing color information for process: e+ e- > mu+ mu- @1 
 INFO: Creating files in directory P1_ll_ll 
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f4014e3c280> [1;30m[export_v4.py at line 6106][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7fdc58e41640> [1;30m[export_v4.py at line 6106][0m [0m
 INFO: Creating files in directory . 
 [1;32mDEBUG:  Entering PLUGIN_OneProcessExporter.generate_process_files [1;30m[model_handling.py at line 1198][0m [0m
 [1;32mDEBUG:  self.include_multi_channel is already defined: this is madevent+second_exporter mode [1;30m[model_handling.py at line 1200][0m [0m
@@ -204,14 +205,14 @@ ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
-ALOHA: aloha creates 3 routines in  0.240 s
+ALOHA: aloha creates 3 routines in  0.239 s
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.convert_model (create the model) [1;30m[output.py at line 179][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 7 routines in  0.306 s
+ALOHA: aloha creates 7 routines in  0.309 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -226,6 +227,8 @@ FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> fo
 FileWriter <class 'PLUGIN.CUDACPP_SA_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/src/./Parameters_sm.cc
 INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory 
 INFO: /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/src/. and /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/src/. 
+The option zerowidth_tchannel is modified [True] but will not be written in the configuration files.
+If you want to make this value the default for future session, you can run 'save options --all'
 save configuration file to /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_mad_ee_mumu/Cards/me5_configuration.txt
 INFO: Use Fortran compiler gfortran 
 INFO: Use c++ compiler g++ 
@@ -237,6 +240,6 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.386s
-user	0m2.076s
-sys	0m0.300s
+real	0m2.415s
+user	0m2.101s
+sys	0m0.294s
