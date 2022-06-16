@@ -410,9 +410,9 @@ C     Amplitude(s) for diagram number 3
       IF ( IHEL .EQ. 2 ) THEN
         WRITE(6,*) 'IVEC =', IVEC, 'IHEL =', IHEL
      &    !, ' GC11 = ', GC_11(IVEC)
-     &    , ' W20 = ', W(1,3)
-     &    , ' W40 = ', W(1,5)
-     &    , ' W10 = ', W(1,2)
+     &    , ' W20 = ', W(1,3), ' W21 = ', W(2,3), ' W22 = ', W(3,3), ' W23 = ', W(4,3), ' W24 = ', W(5,3), ' W25 = ', W(6,3)
+     &    !, ' W40 = ', W(1,5)
+     &    !, ' W10 = ', W(1,2)
      &    , ' AMP2 = ', AMP(3)
       ENDIF
       
