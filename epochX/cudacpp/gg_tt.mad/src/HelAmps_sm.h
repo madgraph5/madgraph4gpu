@@ -953,24 +953,6 @@ namespace mg5amcCpu
     F2[4] = denom * ( -cI ) * ( F1[4] * ( P2[0] * ( -V3[2] + V3[5] ) + ( P2[1] * ( V3[3] + cI * V3[4] ) + ( P2[2] * ( -cI * V3[3] + V3[4] ) + P2[3] * ( -V3[2] + V3[5] ) ) ) ) + ( F1[5] * ( P2[0] * ( V3[3] - cI * V3[4] ) + ( P2[1] * ( -one ) * ( V3[2] + V3[5] ) + ( P2[2] * ( +cI * ( V3[2] + V3[5] ) ) + P2[3] * ( V3[3] - cI * V3[4] ) ) ) ) + M2 * ( F1[2] * ( -one ) * ( V3[2] + V3[5] ) + F1[3] * ( -V3[3] + cI * V3[4] ) ) ) );
     F2[5] = denom * cI * ( F1[4] * ( P2[0] * ( -one ) * ( V3[3] + cI * V3[4] ) + ( P2[1] * ( V3[2] - V3[5] ) + ( P2[2] * ( +cI * V3[2] - cI * V3[5] ) + P2[3] * ( V3[3] + cI * V3[4] ) ) ) ) + ( F1[5] * ( P2[0] * ( V3[2] + V3[5] ) + ( P2[1] * ( -V3[3] + cI * V3[4] ) + ( P2[2] * ( -one ) * ( +cI * V3[3] + V3[4] ) - P2[3] * ( V3[2] + V3[5] ) ) ) ) + M2 * ( F1[2] * ( V3[3] + cI * V3[4] ) + F1[3] * ( V3[2] - V3[5] ) ) ) );
     mgDebug( 1, __FUNCTION__ );
-#ifndef __CUDACC__
-#ifndef MGONGPU_CPPSIMD
-    static bool first = true;
-    if ( first && cximag( F2[0] ) > -795.787 && cximag( F2[0] ) < -795.786 )
-    {
-      std::cout << " CDEBUG476 " << COUP << std::endl;
-      std::cout << " CDEBUG476 " << M2 << std::endl;
-      std::cout << " CDEBUG476 " << W2 << std::endl;
-      std::cout << " CDEBUG476 " << F2[0] << std::endl;
-      std::cout << " CDEBUG476 " << F2[1] << std::endl;
-      std::cout << " CDEBUG476 " << F2[2] << std::endl;
-      std::cout << " CDEBUG476 " << F2[3] << std::endl;
-      std::cout << " CDEBUG476 " << F2[4] << std::endl;
-      std::cout << " CDEBUG476 " << F2[5] << std::endl;
-      first = false;
-    }    
-#endif
-#endif
     return;
   }
 

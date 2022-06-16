@@ -14,9 +14,6 @@ C
       COMPLEX*16 V3(*)
       REAL*8 W2
       COMPLEX*16 DENOM
-      logical first
-      save first
-      data first /.true./
       F2(1) = +F1(1)+V3(1)
       F2(2) = +F1(2)+V3(2)
       P2(0) = -DBLE(F2(1))
@@ -45,18 +42,6 @@ C
      $ *(V3(5))))))+(F1(6)*(P2(0)*(V3(3)+V3(6))+(P2(1)*(-V3(4)+CI
      $ *(V3(5)))+(P2(2)*(-1D0)*(+CI*(V3(4))+V3(5))-P2(3)*(V3(3)+V3(6)))
      $ ))+M2*(F1(3)*(V3(4)+CI*(V3(5)))+F1(4)*(V3(3)-V3(6)))))
-      if ( first .and. f2(1)%im.gt.-795.787 .and. f2(1)%im.lt.-795.786 ) then
-        write(6,*) 'FDEBUG476 ', coup
-        write(6,*) 'FDEBUG476 ', m2
-        write(6,*) 'FDEBUG476 ', w2
-        write(6,*) 'FDEBUG476 ', f2(1)
-        write(6,*) 'FDEBUG476 ', f2(2)
-        write(6,*) 'FDEBUG476 ', f2(3)
-        write(6,*) 'FDEBUG476 ', f2(4)
-        write(6,*) 'FDEBUG476 ', f2(5)
-        write(6,*) 'FDEBUG476 ', f2(6)
-        first = .false.
-      endif
       END
 
 
