@@ -62,6 +62,7 @@ function codeGenAndDiff()
       helrecopt=
     fi
     echo "set stdout_level DEBUG" >> ${outproc}.mg # does not help (log is essentially identical) but add it anyway
+    echo "set zerowidth_tchannel F" >> ${outproc}.mg # workaround for #476: do not use a zero top quark width in fortran (~E-3 effect on physics)
     echo "${cmd}" >> ${outproc}.mg
     if [ "${SCRBCK}" == "gridpack" ]; then # $SCRBCK=$OUTBCK=gridpack
       echo "output ${outproc} ${helrecopt}" >> ${outproc}.mg
