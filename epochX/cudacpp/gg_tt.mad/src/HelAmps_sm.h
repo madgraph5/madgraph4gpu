@@ -199,8 +199,8 @@ namespace mg5amcCpu
       {
         // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
         fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
-        //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
-        sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
+        //sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // BUG #476? AV "why abs here?" had removed an abs here...
+        sqm[1] = ( fmass < 0. ? -std::abs( sqm[0] ) : std::abs( sqm[0] ) ); // FIX BUG #476? possibility of negative fermion masses
         const int ip = ( 1 + nh ) / 2;              // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
         const int im = ( 1 - nh ) / 2;              // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
         fi[2] = cxmake( ip * sqm[ip], 0 );
