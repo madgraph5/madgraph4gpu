@@ -52,6 +52,7 @@ import /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_heft_gg_h.mg
 The import format was not given, so we guess it as command
 set stdout_level DEBUG
 set output information to level: 10
+set zerowidth_tchannel F
 set auto_convert_model T; import model heft; generate g g > h
 save options auto_convert_model
 save configuration file to /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/input/mg5_configuration.txt
@@ -178,6 +179,6 @@ INFO: /data/avalassi/GPU2020/MG5aMC/ghav-mg5amcnlo/CODEGEN_cudacpp_heft_gg_h/src
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.finalize [1;30m[output.py at line 188][0m [0m
 quit
 
-real	0m0.860s
-user	0m0.526s
-sys	0m0.083s
+real	0m0.611s
+user	0m0.532s
+sys	0m0.064s
