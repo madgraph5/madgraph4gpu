@@ -9,7 +9,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-keeprdat]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-rmrdat]" > /dev/stderr
   exit 1
 }
 
@@ -28,7 +28,7 @@ ggttggg=0
 maketype=
 ###makej=
 
-keeprdat=0
+rmrdat=0
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-d" ]; then
@@ -55,8 +55,8 @@ while [ "$1" != "" ]; do
     fi
     maketype="$1"
     shift
-  elif [ "$1" == "-keeprdat" ]; then
-    keeprdat=1
+  elif [ "$1" == "-rmrdat" ]; then
+    rmrdat=1
     shift
   else
     usage
@@ -334,7 +334,7 @@ for suff in $suffs; do
   # (2) CMADEVENT_CUDACPP
   xsecthr="2E-14"
   for avx in none sse4 avx2 512y 512z; do
-    if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
+    if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
     if [ ! -f results.dat ]; then
       echo -e "\n*** (2-$avx) EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
       \rm -f ftn26
@@ -358,7 +358,7 @@ for suff in $suffs; do
   done
 
   # (3) GMADEVENT_CUDACPP
-  if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
+  if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
   if [ ! -f results.dat ]; then
     echo -e "\n*** (3) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
     \rm -f ftn26
@@ -381,7 +381,7 @@ for suff in $suffs; do
   if ! diff events.lhe.cuda events.lhe.ref; then echo "ERROR! events.lhe.cuda and events.lhe.ref differ!"; exit 1; else echo -e "\nOK! events.lhe.cuda and events.lhe.ref are identical"; fi
 
   # (3bis) GMADEVENT_CUDACPP
-  if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
+  if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
   if [ ! -f results.dat ]; then
     echo -e "\n*** (3bis) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
     \rm -f ftn26

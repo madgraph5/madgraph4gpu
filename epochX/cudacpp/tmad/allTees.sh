@@ -2,7 +2,7 @@
 
 short=0
 makeclean=
-keeprdat=-keeprdat
+rmrdat=
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-short" ]; then
@@ -18,7 +18,7 @@ while [ "$1" != "" ]; do
 done
 
 if [ "$short" == "1" ]; then
-  ./tmad/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg $makeclean $keeprdat
+  ./tmad/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg $makeclean $rmrdat
 else
-  ./tmad/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -ggttggg $makeclean $keeprdat
+  ./tmad/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -ggttggg $makeclean $rmrdat
 fi

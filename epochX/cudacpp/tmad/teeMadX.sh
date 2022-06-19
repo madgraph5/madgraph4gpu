@@ -6,7 +6,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-makeonly] [-makeclean] [-keeprdat]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-makeonly] [-makeclean] [-rmrdat]" > /dev/stderr
   exit 1
 }
 
@@ -24,7 +24,7 @@ hrdcods="0"
 
 steps="make test"
 
-keeprdat=
+rmrdat=
 
 ###deb=
 deb=" -d" # optional debug mode
@@ -80,8 +80,8 @@ for arg in $*; do
     fi
   #elif [ "$arg" == "-makej" ]; then
   #  makej=-makej
-  elif [ "$arg" == "-keeprdat" ]; then
-    keeprdat=" -keeprdat"
+  elif [ "$arg" == "-rmrdat" ]; then
+    rmrdat=" -rmrdat"
   else
     echo "ERROR! Invalid option '$arg'"; usage
   fi  
@@ -102,7 +102,7 @@ for step in $steps; do
           inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; fi
           for hrdcod in $hrdcods; do
             hrd=; if [ "${hrdcod}" == "1" ]; then hrd=" -hrdonly"; fi
-            args="${proc}${flt}${inl}${hrd}${deb}${keeprdat} ${dlp}"
+            args="${proc}${flt}${inl}${hrd}${deb}${rmrdat} ${dlp}"
             ###args="${args} -avxall" # avx, fptype, helinl and hrdcod are now supported for all processes
             if [ "${step}" == "makeclean" ]; then
               printf "\n%80s\n" |tr " " "*"
