@@ -263,6 +263,7 @@ function runmadevent()
   fi
   cat ${tmp} | grep --binary-files=text COUNTERS
   set -e # fail on error
+  xsecnew=${xsec2}
 }
 
 ##########################################################################
@@ -324,11 +325,13 @@ for suff in $suffs; do
   ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
   \rm -f ftn26
   runmadevent ./madevent
+  xsecref=$xsecnew
   ${scrdir}/dummyColor.sh events.lhe events.lhe.ref
   ${scrdir}/dummyHelicities.sh events.lhe.ref events.lhe.ref2
   \mv events.lhe.ref2 events.lhe.ref
   
   # (2) CMADEVENT_CUDACPP
+  xsecthr="1E-15"
   for avx in none sse4 avx2 512y 512z; do
     if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
     if [ ! -f results.dat ]; then
@@ -341,8 +344,15 @@ for suff in $suffs; do
     \rm -f ftn26
     runmadevent ./cmadevent_cudacpp
     runcheck ./check.exe
-    \mv events.lhe events.lhe.cpp
+    echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP xsec to MADEVENT xsec ***"
+    if delta=$(python -c "d=abs(1-$xsecnew/$xsecref); print(d); assert(d<${xsecthr})" 2>/dev/null); then
+      echo -e "\nOK! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by less than ${xsecthr} ($delta)"
+    else
+      echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
+      exit 1
+    fi
     echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
+    \mv events.lhe events.lhe.cpp
     if ! diff events.lhe.cpp events.lhe.ref; then echo "ERROR! events.lhe.cpp and events.lhe.ref differ!"; exit 1; else echo -e "\nOK! events.lhe.cpp and events.lhe.ref are identical"; fi
   done
 
@@ -358,8 +368,15 @@ for suff in $suffs; do
   \rm -f ftn26
   runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
   runcheck ./gcheck.exe
-  \mv events.lhe events.lhe.cuda
+  echo -e "\n*** (3) Compare GMADEVENT_CUDACPP xsec to MADEVENT xsec ***"
+  if delta=$(python -c "d=abs(1-$xsecnew/$xsecref); print(d); assert(d<${xsecthr})" 2>/dev/null); then
+    echo -e "\nOK! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by less than ${xsecthr} ($delta)"
+  else
+    echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
+    exit 1
+  fi
   echo -e "\n*** (3) Compare GMADEVENT_CUDACPP events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
+  \mv events.lhe events.lhe.cuda
   if ! diff events.lhe.cuda events.lhe.ref; then echo "ERROR! events.lhe.cuda and events.lhe.ref differ!"; exit 1; else echo -e "\nOK! events.lhe.cuda and events.lhe.ref are identical"; fi
 
   # (3bis) GMADEVENT_CUDACPP
