@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Temmporary workaround for #402
-# Replace event-by-event color information in <events.lhe.in> by a dummy color 0 in <events.lhe.out>
+# Replace event-by-event color information in <events.lhe.in> by a dummy color "0" (integer) in <events.lhe.out>
 if [ "$1" == "$2" ] || [ "$2" == "" ] || [ "$3" != "" ]; then
   echo "Usage: $0 <events.lhe.in> <events.lhe.out>"
   exit 1
