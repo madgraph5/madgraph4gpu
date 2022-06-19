@@ -331,7 +331,7 @@ for suff in $suffs; do
   \mv events.lhe.ref2 events.lhe.ref
   
   # (2) CMADEVENT_CUDACPP
-  xsecthr="1E-15"
+  xsecthr="2E-14"
   for avx in none sse4 avx2 512y 512z; do
     if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
     if [ ! -f results.dat ]; then
