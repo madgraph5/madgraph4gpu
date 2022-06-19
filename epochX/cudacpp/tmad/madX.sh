@@ -318,6 +318,7 @@ for suff in $suffs; do
   ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
   \rm -f ftn26
   runmadevent ./madevent
+  \mv events.lhe events.lhe.fortran
 
   # (2) CMADEVENT_CUDACPP
   if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
@@ -331,6 +332,7 @@ for suff in $suffs; do
   \rm -f ftn26
   runmadevent ./cmadevent_cudacpp
   runcheck ./check.exe
+  \mv events.lhe events.lhe.cpp
 
   # (3a) GMADEVENT_CUDACPP
   if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
@@ -344,6 +346,7 @@ for suff in $suffs; do
   \rm -f ftn26
   runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
   runcheck ./gcheck.exe
+  \mv events.lhe events.lhe.cuda
 
   # (3b) GMADEVENT_CUDACPP
   if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
