@@ -318,7 +318,10 @@ for suff in $suffs; do
   ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
   \rm -f ftn26
   runmadevent ./madevent
-
+  ${scrdir}/dummyColor.sh events.lhe events.lhe.ref
+  ${scrdir}/dummyHelicities.sh events.lhe.ref events.lhe.ref2
+  \mv events.lhe.ref2 events.lhe.ref
+  
   # (2) CMADEVENT_CUDACPP
   if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
   if [ ! -f results.dat ]; then
@@ -331,6 +334,9 @@ for suff in $suffs; do
   \rm -f ftn26
   runmadevent ./cmadevent_cudacpp
   runcheck ./check.exe
+  \mv events.lhe events.lhe.cpp
+  echo -e "\n*** Compare CMADEVENT_CUDACPP events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
+  if ! diff events.lhe.cpp events.lhe.ref; then echo "ERROR! events.lhe.cpp and events.lhe.ref differ!"; exit 1; else echo -e "\nOK! events.lhe.cpp and events.lhe.ref are identical"; fi
 
   # (3a) GMADEVENT_CUDACPP
   if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
@@ -344,6 +350,9 @@ for suff in $suffs; do
   \rm -f ftn26
   runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
   runcheck ./gcheck.exe
+  \mv events.lhe events.lhe.cuda
+  echo -e "\n*** Compare GMADEVENT_CUDACPP events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
+  if ! diff events.lhe.cuda events.lhe.ref; then echo "ERROR! events.lhe.cuda and events.lhe.ref differ!"; exit 1; else echo -e "\nOK! events.lhe.cuda and events.lhe.ref are identical"; fi
 
   # (3b) GMADEVENT_CUDACPP
   if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
@@ -359,7 +368,10 @@ for suff in $suffs; do
   runcheck ./gcheck.exe
 
   # Cleanup
+  \rm results.dat
   \rm results.dat.ref
+  \rm events.lhe
+  \rm events.lhe.*
 
 done
 printf "\nTEST COMPLETED\n"
