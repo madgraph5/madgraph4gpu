@@ -203,10 +203,13 @@ function runmadevent()
   cmd=$1
   if [ "${cmd/cmadevent}" != "$cmd" ]; then
     tmpin=$(getinputfile -cpp)
+    cmd=${cmd/.\//.\/build.${avx}_d_inl0_hrd0\/}
   elif [ "${cmd/gmadevent2}" != "$cmd" ]; then
     cmd=${cmd/gmadevent2/gmadevent} # hack: run cuda gmadevent with cpp input file
+    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
     tmpin=$(getinputfile -cpp)
   elif [ "${cmd/gmadevent}" != "$cmd" ]; then
+    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
     tmpin=$(getinputfile -cuda)
   else # assume this is madevent (do not check)
     tmpin=$(getinputfile -fortran)
@@ -272,7 +275,7 @@ for suff in $suffs; do
 
   if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
   if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
-  make -j
+  make -j avxall
 
 done
 
@@ -323,45 +326,47 @@ for suff in $suffs; do
   \mv events.lhe.ref2 events.lhe.ref
   
   # (2) CMADEVENT_CUDACPP
-  if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
-  if [ ! -f results.dat ]; then
-    echo -e "\n*** (2) EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
+  for avx in none sse4 avx2 512y 512z; do
+    if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
+    if [ ! -f results.dat ]; then
+      echo -e "\n*** (2-$avx) EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
+      \rm -f ftn26
+      runmadevent ./cmadevent_cudacpp
+    fi
+    echo -e "\n*** (2-$avx) EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
+    ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
     \rm -f ftn26
     runmadevent ./cmadevent_cudacpp
-  fi
-  echo -e "\n*** (2) EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
-  ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
-  \rm -f ftn26
-  runmadevent ./cmadevent_cudacpp
-  runcheck ./check.exe
-  \mv events.lhe events.lhe.cpp
-  echo -e "\n*** Compare CMADEVENT_CUDACPP events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
-  if ! diff events.lhe.cpp events.lhe.ref; then echo "ERROR! events.lhe.cpp and events.lhe.ref differ!"; exit 1; else echo -e "\nOK! events.lhe.cpp and events.lhe.ref are identical"; fi
+    runcheck ./check.exe
+    \mv events.lhe events.lhe.cpp
+    echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
+    if ! diff events.lhe.cpp events.lhe.ref; then echo "ERROR! events.lhe.cpp and events.lhe.ref differ!"; exit 1; else echo -e "\nOK! events.lhe.cpp and events.lhe.ref are identical"; fi
+  done
 
-  # (3a) GMADEVENT_CUDACPP
+  # (3) GMADEVENT_CUDACPP
   if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
   if [ ! -f results.dat ]; then
-    echo -e "\n*** (3a) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
+    echo -e "\n*** (3) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
     \rm -f ftn26
     runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
   fi
-  echo -e "\n*** (3a) EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
+  echo -e "\n*** (3) EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
   ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
   \rm -f ftn26
   runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
   runcheck ./gcheck.exe
   \mv events.lhe events.lhe.cuda
-  echo -e "\n*** Compare GMADEVENT_CUDACPP events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
+  echo -e "\n*** (3) Compare GMADEVENT_CUDACPP events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
   if ! diff events.lhe.cuda events.lhe.ref; then echo "ERROR! events.lhe.cuda and events.lhe.ref differ!"; exit 1; else echo -e "\nOK! events.lhe.cuda and events.lhe.ref are identical"; fi
 
-  # (3b) GMADEVENT_CUDACPP
+  # (3bis) GMADEVENT_CUDACPP
   if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
   if [ ! -f results.dat ]; then
-    echo -e "\n*** (3b) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
+    echo -e "\n*** (3bis) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
     \rm -f ftn26
     runmadevent ./gmadevent_cudacpp
   fi
-  echo -e "\n*** (3b) EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
+  echo -e "\n*** (3bis) EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
   ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
   \rm -f ftn26
   runmadevent ./gmadevent_cudacpp
