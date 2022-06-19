@@ -318,8 +318,8 @@ for suff in $suffs; do
   ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
   \rm -f ftn26
   runmadevent ./madevent
-  \mv events.lhe events.lhe.fortran
-
+  ${scrdir}/dummyColor.sh events.lhe events.lhe.ref
+  
   # (2) CMADEVENT_CUDACPP
   if [ "${keeprdat}" == "1" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
   if [ ! -f results.dat ]; then
@@ -362,7 +362,10 @@ for suff in $suffs; do
   runcheck ./gcheck.exe
 
   # Cleanup
+  \rm results.dat
   \rm results.dat.ref
+  \rm events.lhe
+  #\rm events.lhe.*
 
 done
 printf "\nTEST COMPLETED\n"
