@@ -104,18 +104,16 @@ function showdir()
 # Determine the appropriate number of events for the specific process
 function getnevt()
 {
-  if [ "${eemumu}" == "1" ]; then # computed xsec is zero (https://github.com/oliviermattelaer/mg5amc_test/issues/13)
-    ###nevt=16384 # computes 524320 MEs in 7.4s
-    nevt=2048 # computes 65558 MEs in 1.1s
+  if [ "${eemumu}" == "1" ]; then
+    nevt=2048 # computes 2080 MEs (writes to file 1009 events) in 1.1s
   elif [ "${ggtt}" == "1" ]; then 
-    nevt=16384 # computes 16416 MEs (writes to file 368 events) in 1.2s
-  elif [ "${ggttg}" == "1" ]; then # event generation fails (https://github.com/oliviermattelaer/mg5amc_test/issues/14)
-    nevt=4096 # computes 4128 MEs in 1.2s
-  elif [ "${ggttgg}" == "1" ]; then # event generation fails (https://github.com/oliviermattelaer/mg5amc_test/issues/14)
-    ###nevt=1024 # computes 1056 MEs in 2.6s
-    nevt=512 # computes 544 MEs in 1.5s
-  elif [ "${ggttggg}" == "1" ]; then # event generation fails (https://github.com/oliviermattelaer/mg5amc_test/issues/14)
-    nevt=64 # computes 96 MEs in 5.3s
+    nevt=16384 # computes 16416 MEs (writes to file 788 events) in 1.6s
+  elif [ "${ggttg}" == "1" ]; then
+    nevt=4096 # computes 4128 MEs (writes to file 56 events) in 1.0s
+  elif [ "${ggttgg}" == "1" ]; then
+    nevt=512 # computes 544 MEs (writes to file 4 events) in 1.5s
+  elif [ "${ggttggg}" == "1" ]; then
+    nevt=64 # computes 96 MEs (writes to file 4 events) in 4.0s
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
