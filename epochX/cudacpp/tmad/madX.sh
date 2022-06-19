@@ -146,6 +146,7 @@ function getinputfile()
     mv ${tmp} ${tmp}_fortran
     tmp=${tmp}_fortran
   elif [ "$1" == "-cuda" ]; then
+    if [ $nevt -lt 16384 ]; then nevt=16384; fi # always use at least 16384 events for cuda
     mv ${tmp} ${tmp}_cuda
     tmp=${tmp}_cuda
     echo "+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
