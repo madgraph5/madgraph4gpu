@@ -3,7 +3,7 @@
 short=0
 makeclean=
 rmrdat=
-add10x=
+add10x=+10x
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-short" ]; then
