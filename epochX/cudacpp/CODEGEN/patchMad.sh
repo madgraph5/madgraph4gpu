@@ -42,6 +42,11 @@ echo -e "index.html\n.libs\n.cudacpplibs" > ${dir}/.gitignore
 touch ${dir}/Events/.keepme
 \rm -rf ${dir}/HTML
 
+# Add global flag '-O3 -ffast-math -fbounds-check' as in previous gridpacks
+echo "GLOBAL_FLAG=-O3 -ffast-math -fbounds-check" > ${dir}/Source/make_opts.new
+cat ${dir}/Source/make_opts >> ${dir}/Source/make_opts.new
+\mv ${dir}/Source/make_opts.new ${dir}/Source/make_opts
+
 # Patch the default Fortran code to provide the integration with the cudacpp plugin
 # (1) Process-independent patches
 \cp -dpr ${scrdir}/PLUGIN/CUDACPP_SA_OUTPUT/madgraph/iolibs/template_files/.clang-format ${dir} # new file
