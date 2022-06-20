@@ -333,7 +333,13 @@ for suff in $suffs; do
     ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
     \rm -f ftn26
     runmadevent ./madevent
-    xsecref=$xsecnew
+    if [ "${xfac}" == "1" ]; then
+      xsecref1=$xsecnew
+    elif [ "${xfac}" == "10" ]; then
+      xsecref10=$xsecnew
+    else
+      echo "ERROR! Unknown xfac=$xfac"; exit 1
+    fi
     ${scrdir}/dummyColor.sh events.lhe events.lhe.ref
     ${scrdir}/dummyHelicities.sh events.lhe.ref events.lhe.ref2
     \mv events.lhe.ref2 events.lhe.ref.$xfac
@@ -356,6 +362,13 @@ for suff in $suffs; do
       runmadevent ./cmadevent_cudacpp
       runcheck ./check.exe
       echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac xsec to MADEVENT xsec ***"
+      if [ "${xfac}" == "1" ]; then
+        xsecref=$xsecref1
+      elif [ "${xfac}" == "10" ]; then
+        xsecref=$xsecref10
+      else
+        echo "ERROR! Unknown xfac=$xfac"; exit 1
+      fi
       if delta=$(python -c "d=abs(1-$xsecnew/$xsecref); print(d); assert(d<${xsecthr})" 2>/dev/null); then
         echo -e "\nOK! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by less than ${xsecthr} ($delta)"
       else
@@ -383,6 +396,13 @@ for suff in $suffs; do
     runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
     runcheck ./gcheck.exe
     echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac xsec to MADEVENT xsec ***"
+    if [ "${xfac}" == "1" ]; then
+      xsecref=$xsecref1
+    elif [ "${xfac}" == "10" ]; then
+      xsecref=$xsecref10
+    else
+      echo "ERROR! Unknown xfac=$xfac"; exit 1
+    fi
     if delta=$(python -c "d=abs(1-$xsecnew/$xsecref); print(d); assert(d<${xsecthr})" 2>/dev/null); then
       echo -e "\nOK! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by less than ${xsecthr} ($delta)"
     else
