@@ -6,7 +6,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-makeonly] [-makeclean] [-rmrdat]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-makeonly] [-makeclean] [-rmrdat] [+10x]" > /dev/stderr
   exit 1
 }
 
@@ -31,6 +31,8 @@ deb=" -d" # optional debug mode
 
 makej=
 dlp=
+
+add10x=
 
 for arg in $*; do
   if [ "$arg" == "-eemumu" ]; then
@@ -81,7 +83,9 @@ for arg in $*; do
   #elif [ "$arg" == "-makej" ]; then
   #  makej=-makej
   elif [ "$arg" == "-rmrdat" ]; then
-    rmrdat=" -rmrdat"
+    rmrdat=" $arg"
+  elif [ "$arg" == "+10x" ]; then
+    add10x=" $arg"
   else
     echo "ERROR! Invalid option '$arg'"; usage
   fi  
@@ -102,7 +106,7 @@ for step in $steps; do
           inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; fi
           for hrdcod in $hrdcods; do
             hrd=; if [ "${hrdcod}" == "1" ]; then hrd=" -hrdonly"; fi
-            args="${proc}${flt}${inl}${hrd}${deb}${rmrdat} ${dlp}"
+            args="${proc}${flt}${inl}${hrd}${deb}${rmrdat}${add10x} ${dlp}"
             ###args="${args} -avxall" # avx, fptype, helinl and hrdcod are now supported for all processes
             if [ "${step}" == "makeclean" ]; then
               printf "\n%80s\n" |tr " " "*"

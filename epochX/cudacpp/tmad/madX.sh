@@ -9,7 +9,7 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-rmrdat]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x]" > /dev/stderr
   exit 1
 }
 
@@ -29,6 +29,8 @@ maketype=
 ###makej=
 
 rmrdat=0
+
+xfacs="1"
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-d" ]; then
@@ -57,6 +59,9 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "-rmrdat" ]; then
     rmrdat=1
+    shift
+  elif [ "$1" == "+10x" ]; then
+    xfacs="1 10"
     shift
   else
     usage
@@ -139,6 +144,7 @@ function getinputfile()
   else
     echo "ERROR! cannot determine input file name"; exit 1
   fi
+  tmp=${tmp}_x${xfac}
   \rm -f ${tmp}; touch ${tmp}
   if [ "$1" == "-fortran" ]; then
     mv ${tmp} ${tmp}_fortran
@@ -160,6 +166,7 @@ function getinputfile()
     echo "Usage: getinputfile <backend [-fortran][-cuda]-cpp]>"
     exit 1
   fi
+  (( nevt = nevt*$xfac ))
   cat << EOF >> ${tmp}
 ${nevt} 1 1 ! Number of events and max and min iterations
 0.000001 ! Accuracy (ignored because max iterations = min iterations)
@@ -313,6 +320,7 @@ for suff in $suffs; do
   cd $dir
 
   # (1) MADEVENT
+  xfac=1
   \rm -f results.dat # ALWAYS remove results.dat before the first madevent execution
   if [ ! -f results.dat ]; then
     echo -e "\n*** (1) EXECUTE MADEVENT (create results.dat) ***"
@@ -320,77 +328,88 @@ for suff in $suffs; do
     runmadevent ./madevent
     \cp -p results.dat results.dat.ref
   fi
-  echo -e "\n*** (1) EXECUTE MADEVENT (create events.lhe) ***"
-  ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
-  \rm -f ftn26
-  runmadevent ./madevent
-  xsecref=$xsecnew
-  ${scrdir}/dummyColor.sh events.lhe events.lhe.ref
-  ${scrdir}/dummyHelicities.sh events.lhe.ref events.lhe.ref2
-  \mv events.lhe.ref2 events.lhe.ref
-  
+  for xfac in $xfacs; do
+    echo -e "\n*** (1) EXECUTE MADEVENT x$xfac (create events.lhe) ***"
+    ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
+    \rm -f ftn26
+    runmadevent ./madevent
+    xsecref=$xsecnew
+    ${scrdir}/dummyColor.sh events.lhe events.lhe.ref
+    ${scrdir}/dummyHelicities.sh events.lhe.ref events.lhe.ref2
+    \mv events.lhe.ref2 events.lhe.ref.$xfac
+  done
+      
   # (2) CMADEVENT_CUDACPP
   xsecthr="2E-14"
   for avx in none sse4 avx2 512y 512z; do
+    xfac=1
     if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
     if [ ! -f results.dat ]; then
       echo -e "\n*** (2-$avx) EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
       \rm -f ftn26
       runmadevent ./cmadevent_cudacpp
     fi
-    echo -e "\n*** (2-$avx) EXECUTE CMADEVENT_CUDACPP (create events.lhe) ***"
-    ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
-    \rm -f ftn26
-    runmadevent ./cmadevent_cudacpp
-    runcheck ./check.exe
-    echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP xsec to MADEVENT xsec ***"
-    if delta=$(python -c "d=abs(1-$xsecnew/$xsecref); print(d); assert(d<${xsecthr})" 2>/dev/null); then
-      echo -e "\nOK! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by less than ${xsecthr} ($delta)"
-    else
-      echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
-      exit 1
-    fi
-    echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
-    \mv events.lhe events.lhe.cpp
-    if ! diff events.lhe.cpp events.lhe.ref; then echo "ERROR! events.lhe.cpp and events.lhe.ref differ!"; exit 1; else echo -e "\nOK! events.lhe.cpp and events.lhe.ref are identical"; fi
+    for xfac in $xfacs; do
+      echo -e "\n*** (2-$avx) EXECUTE CMADEVENT_CUDACPP x$xfac (create events.lhe) ***"
+      ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
+      \rm -f ftn26
+      runmadevent ./cmadevent_cudacpp
+      runcheck ./check.exe
+      echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac xsec to MADEVENT xsec ***"
+      if delta=$(python -c "d=abs(1-$xsecnew/$xsecref); print(d); assert(d<${xsecthr})" 2>/dev/null); then
+        echo -e "\nOK! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by less than ${xsecthr} ($delta)"
+      else
+        echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
+        exit 1
+      fi
+      echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
+      \mv events.lhe events.lhe.cpp.$xfac
+      if ! diff events.lhe.cpp.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cpp.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cpp.$xfac and events.lhe.ref.$xfac are identical"; fi
+    done
   done
 
   # (3) GMADEVENT_CUDACPP
+  xfac=1
   if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
   if [ ! -f results.dat ]; then
     echo -e "\n*** (3) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
     \rm -f ftn26
     runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
   fi
-  echo -e "\n*** (3) EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
-  ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
-  \rm -f ftn26
-  runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
-  runcheck ./gcheck.exe
-  echo -e "\n*** (3) Compare GMADEVENT_CUDACPP xsec to MADEVENT xsec ***"
-  if delta=$(python -c "d=abs(1-$xsecnew/$xsecref); print(d); assert(d<${xsecthr})" 2>/dev/null); then
-    echo -e "\nOK! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by less than ${xsecthr} ($delta)"
-  else
-    echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
-    exit 1
-  fi
-  echo -e "\n*** (3) Compare GMADEVENT_CUDACPP events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
-  \mv events.lhe events.lhe.cuda
-  if ! diff events.lhe.cuda events.lhe.ref; then echo "ERROR! events.lhe.cuda and events.lhe.ref differ!"; exit 1; else echo -e "\nOK! events.lhe.cuda and events.lhe.ref are identical"; fi
-
+  for xfac in $xfacs; do
+    echo -e "\n*** (3) EXECUTE GMADEVENT_CUDACPP x$xfac (create events.lhe) ***"
+    ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
+    \rm -f ftn26
+    runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
+    runcheck ./gcheck.exe
+    echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac xsec to MADEVENT xsec ***"
+    if delta=$(python -c "d=abs(1-$xsecnew/$xsecref); print(d); assert(d<${xsecthr})" 2>/dev/null); then
+      echo -e "\nOK! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by less than ${xsecthr} ($delta)"
+    else
+      echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
+      exit 1
+    fi
+    echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
+    \mv events.lhe events.lhe.cuda.$xfac
+    if ! diff events.lhe.cuda.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cuda.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cuda.$xfac and events.lhe.ref.$xfac are identical"; fi
+  done
+  
   # (3bis) GMADEVENT_CUDACPP
+  xfac=1
   if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
   if [ ! -f results.dat ]; then
     echo -e "\n*** (3bis) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
     \rm -f ftn26
     runmadevent ./gmadevent_cudacpp
   fi
-  echo -e "\n*** (3bis) EXECUTE GMADEVENT_CUDACPP (create events.lhe) ***"
-  ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
-  \rm -f ftn26
-  runmadevent ./gmadevent_cudacpp
-  runcheck ./gcheck.exe
-
+  for xfac in $xfacs; do
+    echo -e "\n*** (3bis) EXECUTE GMADEVENT_CUDACPP x$xfac (create events.lhe) ***"
+    ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
+    \rm -f ftn26
+    runmadevent ./gmadevent_cudacpp
+    runcheck ./gcheck.exe
+  done
+  
   # Cleanup
   \rm results.dat
   \rm results.dat.ref
