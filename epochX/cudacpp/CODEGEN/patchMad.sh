@@ -28,6 +28,12 @@ vecsize=$2
 
 if [ ! -e ${dir} ]; then echo "ERROR! Directory $dir does not exist"; exit 1; fi
 
+# Use the same GLOBAL_FLAG as in previous gridpack tests (NB: GLOBAL_FLAG is empty otherwise in .mad)
+echo "#*********************************************************************" >> ${dir}/Cards/run_card.dat
+echo "# Use '-O3 -ffast-math -fbounds-check' as in previous gridpacks      *" >> ${dir}/Cards/run_card.dat
+echo "#*********************************************************************" >> ${dir}/Cards/run_card.dat
+echo " -O3 -ffast-math -fbounds-check = global_flag" >> ${dir}/Cards/run_card.dat
+
 # These two steps are part of "cd Source; make" but they actually are code-generating steps
 ${dir}/bin/madevent treatcards run
 ${dir}/bin/madevent treatcards param

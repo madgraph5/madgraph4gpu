@@ -138,3 +138,7 @@
 #
 systematics = systematics_program ! none, systematics [python], SysCalc [depreceted, C++]
 ['--mur=0.5,1,2', '--muf=0.5,1,2', '--pdf=errorset'] = systematics_arguments ! see: https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Systematics#Systematicspythonmodule
+#*********************************************************************
+# Use '-O3 -ffast-math -fbounds-check' as in previous gridpacks      *
+#*********************************************************************
+ -O3 -ffast-math -fbounds-check = global_flag
