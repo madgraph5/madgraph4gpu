@@ -109,7 +109,7 @@ function showdir()
   echo $dir
 }
 
-# Determine the appropriate number of events for the specific process
+# Determine the appropriate number of events for the specific process (fortran/cpp/cuda)
 function getnevt()
 {
   if [ "${eemumu}" == "1" ]; then
@@ -122,6 +122,25 @@ function getnevt()
     nevt=512 # computes 544 MEs (writes to file 4 events) in 1.5s
   elif [ "${ggttggg}" == "1" ]; then
     nevt=64 # computes 96 MEs (writes to file 4 events) in 4.0s
+  else
+    echo "ERROR! Unknown process" > /dev/stderr; usage
+  fi
+  echo $nevt
+}
+
+# Determine the appropriate number of events for the specific process (cuda gcheck)
+function getnevt2()
+{
+  if [ "${eemumu}" == "1" ]; then
+    (( nevt = 2048*256 ))
+  elif [ "${ggtt}" == "1" ]; then 
+    (( nevt = 2048*256 ))
+  elif [ "${ggttg}" == "1" ]; then
+    (( nevt = 2048*256 ))
+  elif [ "${ggttgg}" == "1" ]; then
+    (( nevt = 2048*256 ))
+  elif [ "${ggttggg}" == "1" ]; then
+    (( nevt = 64*256 ))
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
@@ -186,17 +205,25 @@ function runcheck()
 {
   if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: runcheck <check/gcheck executable>"; exit 1; fi
   cmd=$1
-  if [ "${cmd/gcheck}" != "$cmd" ]; then
+  if [ "${cmd/gcheck2}" != "$cmd" ]; then
+    txt=GCHECK
+    cmd=${cmd/gcheck2/gcheck} # hack: run cuda gcheck with tput fastest settings
+    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
+    nevt=$(getnevt2)
+    nthr=256
+  elif [ "${cmd/gcheck}" != "$cmd" ]; then
     txt=GCHECK
     cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
+    nevt=$(getnevt)
+    nthr=32
   elif [ "${cmd/check}" != "$cmd" ]; then
     txt=CHECK
     cmd=${cmd/.\//.\/build.${avx}_d_inl0_hrd0\/}
+    nevt=$(getnevt)
+    nthr=32
   else
     echo "ERROR! Unknown check executable '$cmd'"; exit 1
   fi
-  nevt=$(getnevt)
-  nthr=32
   while [ $nthr -gt $nevt ]; do (( nthr = nthr / 2 )); done
   (( nblk = nevt/nthr )) # NB integer division
   (( nevt2 = nblk*nthr ))
@@ -436,7 +463,7 @@ for suff in $suffs; do
     ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
     \rm -f ftn26
     runmadevent ./gmadevent_cudacpp
-    runcheck ./gcheck.exe
+    runcheck ./gcheck2.exe
   done
   
   # Cleanup
