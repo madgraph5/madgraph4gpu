@@ -6,7 +6,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-makeonly] [-makeclean] [-rmrdat] [+10x]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-makeonly] [-makeclean] [-rmrdat] [+10x] [+100x]" > /dev/stderr
   exit 1
 }
 
@@ -85,7 +85,9 @@ for arg in $*; do
   elif [ "$arg" == "-rmrdat" ]; then
     rmrdat=" $arg"
   elif [ "$arg" == "+10x" ]; then
-    add10x=" $arg"
+    add10x="$add10x $arg"
+  elif [ "$arg" == "+100x" ]; then
+    add10x="$add10x $arg"
   else
     echo "ERROR! Invalid option '$arg'"; usage
   fi  
