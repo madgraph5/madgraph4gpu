@@ -3,7 +3,7 @@
 short=0
 makeclean=
 rmrdat=
-add10x=+10x
+add10x="+10x +100x"
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-short" ]; then
@@ -12,11 +12,11 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-makeclean" ]; then
     makeclean=$1
     shift
-  elif [ "$1" == "+100x" ]; then
-    add10x="$add10x +100x"
+  elif [ "$1" == "-no100x" ]; then
+    add10x="+10x"
     shift
   else
-    echo "Usage: $0 [-short] [-makeclean] [+100x]"
+    echo "Usage: $0 [-short] [-makeclean] [-no100x]"
     exit 1
   fi
 done
