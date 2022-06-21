@@ -34,12 +34,14 @@ function oneTable()
           print lsep;
           for (itag=1; itag<=ntag; itag++)
           {tag=tags[itag]; 
-           if(tag=="FORTRAN"){printf "| %-9s | %20s mad | %20s mad | %20s mad |\n",
-                              "", "x"facs[1], "x"facs[2], "x"facs[3];
+           if(tag=="FORTRAN"){printf "| %-9s | %24s | %24s | %24s |\n",
+                              "", "mad [32/grid]", "mad [32/grid]", "mad [32/grid]";
                               printf "| %-9s | %24s | %24s | %24s |\n",
-                              "", "["nevt1[facs[1]]"]", "["nevt1[facs[2]]"]", "["nevt1[facs[3]]"]"}
-           else if(tag=="CUDA/8192") printf "| %-9s | %24s | %24s | %24s |\n",
-                              "", "["nevt1b[facs[1]]"]", "["nevt1b[facs[2]]"]", "["nevt1b[facs[3]]"]";
+                              "", "x"facs[1]" ["nevt1[facs[1]]"]", "x"facs[2]" ["nevt1[facs[2]]"]", "x"facs[3]" ["nevt1[facs[3]]"]"}
+           else if(tag=="CUDA/8192") {printf "| %-9s | %24s | %24s | %24s |\n",
+                              "", "mad [8192/grid]", "mad [8192/grid]", "mad [8192/grid]";
+                              printf "| %-9s | %24s | %24s | %24s |\n",
+                              "", "x"facs[1]" ["nevt1b[facs[1]]"]", "x"facs[2]" ["nevt1b[facs[2]]"]", "x"facs[3]" ["nevt1b[facs[3]]"]"};
            printf "| %-9s |", tag;
            for(ifac=1; ifac<=nfac; ifac++)
            {fac=facs[ifac]; printf " %6.2f = %6.2f + %6.2f |", sec3[tag,fac,1], sec3[tag,fac,2], sec3[tag,fac,3]};
