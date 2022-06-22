@@ -139,6 +139,8 @@ if [ "$table" == "alpaka" ]; then
   taglist="CUD/none ALP/none CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
 elif [ "$table" == "macm1" ]; then
   taglist="CPP/none CPP/sse4"
+elif [ "$table" == "bridge" ]; then
+  taglist="CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUD/none" # revert order, CUDA last
 else
   taglist="CUD/none CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
 fi
