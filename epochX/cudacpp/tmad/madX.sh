@@ -129,7 +129,7 @@ function getnevt()
 }
 
 # Determine the appropriate number of events for the specific process (cuda gcheck)
-function getnevt2()
+function getnevtmax()
 {
   if [ "${eemumu}" == "1" ]; then
     (( nevt = 2048*256 ))
@@ -205,11 +205,17 @@ function runcheck()
 {
   if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: runcheck <check/gcheck executable>"; exit 1; fi
   cmd=$1
-  if [ "${cmd/gcheck2}" != "$cmd" ]; then
+  if [ "${cmd/gcheckmax}" != "$cmd" ]; then
     txt=GCHECK
-    cmd=${cmd/gcheck2/gcheck} # hack: run cuda gcheck with tput fastest settings
+    cmd=${cmd/gcheckmax/gcheck} # hack: run cuda gcheck with tput fastest settings
     cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
-    nevt=$(getnevt2)
+    nevt=$(getnevtmax)
+    nthr=256
+  elif [ "${cmd/gcheck8192}" != "$cmd" ]; then
+    txt=GCHECK
+    cmd=${cmd/gcheck8192/gcheck} # hack: run cuda gcheck with tput fastest settings
+    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
+    nevt=8192
     nthr=256
   elif [ "${cmd/gcheck}" != "$cmd" ]; then
     txt=GCHECK
@@ -463,7 +469,8 @@ for suff in $suffs; do
     ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
     \rm -f ftn26
     runmadevent ./gmadevent_cudacpp
-    runcheck ./gcheck2.exe
+    runcheck ./gcheck8192.exe
+    runcheck ./gcheckmax.exe
   done
   
   # Cleanup
