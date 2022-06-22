@@ -12,10 +12,10 @@ CUDA_ARCH_NUM ?= 70
 NVCC=$(KOKKOSPATH_CUDA)/bin/nvcc_wrapper
 CUDA_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_CUDA)/include -arch=compute_$(CUDA_ARCH_NUM) --expt-extended-lambda --expt-relaxed-constexpr -use_fast_math --openmp -lineinfo
 
-CXX=g++
-ICPX=icpx
-CLANG=clang++
-HIPCC=hipcc
+CXX ?= g++
+ICPX ?= icpx
+CLANG ?= clang++
+HIPCC ?= hipcc
 
 OPENMP_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_OMP)/include --openmp
 
