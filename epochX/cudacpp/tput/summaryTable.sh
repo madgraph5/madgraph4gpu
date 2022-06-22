@@ -160,19 +160,21 @@ function oneTable()
   if [ "$nodelast" != "$node" ]; then echo -e "$node\n" >> $out; nodelast=$node; fi
   ###cat $files | awk '/^runExe.*check.*/{print $0};/^Process/{print $0};/Workflow/{print $0};/MECalcOnly/{print $0}'; continue
   cat $files | awk -vtaglist="$taglist" -vrev=$rev -vcomplast=none -vinllast=none -vhrdlast=none -vfptlast=none -vbrdlast=none '
+    ###/^runExe .*check.*/{print $0}
     /^runExe .*check.*/{split($0,a,"check.exe"); last=substr(a[1],length(a[1])); if (last=="g"){tag="CUD"} else if(last=="p"){tag="ALP"} else{tag="CPP"}; split($0,a,"build."); split(a[2],b,"_"); tag=tag"/"b[1]};
     /^runExe .*check.*/{split($0,a," -p "); split(a[2],b); grid=b[1]"/"b[2]"/"b[3]};
-    /^runExe .*check.*/{proc=$0; gsub("/SubProcesses.*","",proc); gsub(".*/","",proc); gsub(".auto","",proc); grid_proc_tag[proc,tag]=grid};
+    /^runExe .*check.*/{proc=$0; gsub("/SubProcesses.*","",proc); gsub(".*/","",proc); gsub(".auto","",proc); gsub(".mad","",proc); grid_proc_tag[proc,tag]=grid};
     ###/^Process/{split($3,a,"_"); proc=a[3]"_"a[4]; grid_proc_tag[proc,tag]=grid};
     /^Process(.)/{split($0,a,"["); comp="["a[2]; if ( complast == "none" ){print comp; complast=comp}};
     /^Process/{split($0,a,"]"); split(a[2],b,"="); inl=b[2]; if(inl!=inllast){printf "HELINL="inl; inllast=inl}}
     /^Process/{split($0,a,"]"); split(a[3],b,"="); hrd=b[2]; if(hrd!=hrdlast){if(hrd==""){hrd=0}; printf " HRDCOD="hrd; hrdlast=hrd}}
     /Workflow .*+BRD/{brd="yes"; if(brd!=brdlast){print " BRIDGE="brd; brdlast=brd}};
     /Workflow .*+MES/{brd="no"; if(brd!=brdlast){print " BRIDGE="brd; brdlast=brd}};
-    /^FP precision/{fpt=$4; /*if ( fpt != fptlast ){print "FPTYPE="fpt; fptlast=fpt}*/}
     ###/Workflow/{split($4,a,":"); tag=a[1]; split($4,a,"+"); split(a[4],b,"/"); tag=tag"/"b[2]};
-    /.*check.exe: Aborted/{tput_proc_tag[proc,tag]="(FAILED)"};
+    /^FP precision/{fpt=$4; /*if ( fpt != fptlast ){print "FPTYPE="fpt; fptlast=fpt}*/}
+    ###/MECalcOnly/{print proc, tag, $0}
     /MECalcOnly/{tput=sprintf("%.2e", $5); tput_proc_tag[proc,tag]=tput};
+    /.*check.exe: Aborted/{tput_proc_tag[proc,tag]="(FAILED)"};
     END{ntag=split(taglist,tags);
         ###nproc=split("EPEM_MUPMUM GG_TTX GG_TTXG GG_TTXGG GG_TTXGGG",procs);
         ###procs_txt["EPEM_MUPMUM"]="eemumu";
