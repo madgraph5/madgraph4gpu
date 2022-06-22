@@ -1,10 +1,10 @@
 *** FPTYPE=d ******************************************************************
 
-+++ cudacpp REVISION 09e482e (commit date: 2022-03-03 08:03:33 +0100) +++
++++ cudacpp.sa REVISION 09e482e (commit date: 2022-03-03 08:03:33 +0100) +++
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.112 (gcc 10.2.0)] 
-HELINL=0 HRDCOD=0
+HELINL=0 HRDCOD=0 BRIDGE=no
                 eemumu          ggtt         ggttg        ggttgg       ggttggg
          [2048/256/12]  [2048/256/1]  [2048/256/1]  [2048/256/1]    [64/256/1]
 CUD/none      1.33e+09      1.42e+08      1.44e+07      5.19e+05      1.22e+04
@@ -16,7 +16,7 @@ CPP/512y      5.89e+06      6.15e+05      9.81e+04      7.49e+03      2.85e+02
 CPP/512z      4.77e+06      3.84e+05      7.20e+04      6.54e+03      2.95e+02
 
 [nvcc 11.6.112 (gcc 10.2.0)] 
-HELINL=0 HRDCOD=1
+HELINL=0 HRDCOD=1 BRIDGE=no
                 eemumu          ggtt         ggttg        ggttgg       ggttggg
          [2048/256/12]  [2048/256/1]  [2048/256/1]  [2048/256/1]    [64/256/1]
 CUD/none      1.34e+09      1.39e+08      1.46e+07      5.19e+05      1.20e+04
@@ -27,11 +27,11 @@ CPP/avx2      5.41e+06      4.61e+05      8.34e+04      6.89e+03      2.73e+02
 CPP/512y      5.77e+06      4.63e+05      9.12e+04      7.65e+03      3.01e+02
 CPP/512z      1.04e+07      3.43e+05      7.00e+04      6.58e+03      3.01e+02
 
-+++ cudacpp REVISION 16df79c (commit date: 2022-03-03 17:46:07 +0100) +++
++++ cudacpp.sa REVISION 16df79c (commit date: 2022-03-03 17:46:07 +0100) +++
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.112 (icx 20220000, clang 14.0.0, gcc 10.2.0)] 
-HELINL=0 HRDCOD=0
+HELINL=0 HRDCOD=0 BRIDGE=no
                 eemumu          ggtt         ggttg        ggttgg       ggttggg
          [2048/256/12]  [2048/256/1]  [2048/256/1]  [2048/256/1]    [64/256/1]
 CUD/none      1.33e+09      1.42e+08      1.44e+07      5.14e+05      1.22e+04
@@ -43,7 +43,7 @@ CPP/512y      1.35e+07      7.27e+05      1.07e+05      8.38e+03      2.64e+02
 CPP/512z      1.07e+07      5.31e+05      7.82e+04      6.41e+03      2.65e+02
 
 [nvcc 11.6.112 (icx 20220000, clang 14.0.0, gcc 10.2.0)] 
-HELINL=0 HRDCOD=1
+HELINL=0 HRDCOD=1 BRIDGE=no
                 eemumu          ggtt         ggttg        ggttgg       ggttggg
          [2048/256/12]  [2048/256/1]  [2048/256/1]  [2048/256/1]    [64/256/1]
 CUD/none      1.34e+09      1.38e+08      1.46e+07      5.17e+05      1.21e+04

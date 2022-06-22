@@ -1,10 +1,10 @@
 *** FPTYPE=d ******************************************************************
 
-+++ cudacpp REVISION 09e482e (commit date: 2022-03-03 08:03:33 +0100) +++
++++ cudacpp.sa REVISION 09e482e (commit date: 2022-03-03 08:03:33 +0100) +++
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.112 (gcc 10.2.0)] 
-HELINL=0 HRDCOD=0
+HELINL=0 HRDCOD=0 BRIDGE=no
                 eemumu          ggtt         ggttg        ggttgg       ggttggg
          [2048/256/12]  [2048/256/1]  [2048/256/1]  [2048/256/1]    [64/256/1]
 CUD/none      1.33e+09      1.42e+08      1.44e+07      5.19e+05      1.22e+04
@@ -20,8 +20,7 @@ CPP/512z      4.77e+06      3.84e+05      7.20e+04      6.54e+03      2.95e+02
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.112 (gcc 10.2.0)] 
-HELINL=0 HRDCOD=0
-                eemumu          ggtt         ggttg        ggttgg       ggttggg
+HELINL=0 HRDCOD=0                eemumu          ggtt         ggttg        ggttgg       ggttggg
          [2048/256/12]  [2048/256/1]  [2048/256/1]  [2048/256/1]    [64/256/1]
 CUD/none      1.32e+09      1.43e+08      1.41e+07      3.09e+05      6.22e+03
 ALP/none      6.29e+08      9.98e+07      4.69e+06      2.67e+05      (FAILED)
