@@ -3,7 +3,7 @@
 # Kernel function
 function oneTable()
 {
-  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/32 CUDA/8192 CUDA/max"
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/32 CUDA/8192 CUDA/max CUDA/8tpb"
   parlist="(1) (2-none) (2-sse4) (2-avx2) (2-512y) (2-512z) (3) (3bis)"
   faclist="1 10 100"
   echo "" > $out
@@ -22,8 +22,8 @@ function oneTable()
       ###/create events.lhe/{print $0}
       /create events.lhe/{par=$2; tag=tag1[par]} # current tag (FORTRAN... CUDA/8192)
       /GCHECK\(MAX\)/{tag="CUDA/max"} # current tag (CUDA/max)
-      /GCHECK\(MAX128THR\)/{tag="CUDA/max128thr"} # current tag (CUDA/max128thr)
-      /GCHECK\(MAX8THR\)/{tag="CUDA/max8thr"} # current tag (CUDA/max8thr)
+      /GCHECK\(MAX128THR\)/{tag="CUDA/max128t"} # current tag (CUDA/max128t)
+      /GCHECK\(MAX8THR\)/{tag="CUDA/8tpb"} # current tag (CUDA/8tpb)
       /create events.lhe/{fac=substr($5,2)} # current fac
       /\[COUNTERS\]/{if($3=="TOTAL") typ=1; else if($3=="Overhead") typ=2; else if($3=="MEs") typ=3;
                      else{print "ERROR! Unknown type $3"; status=1; exit status};
@@ -37,6 +37,7 @@ function oneTable()
                       tputm1[tag]=tolower($15)}}
       /CHECK/{if(tag!=""){if($5=="2048") fld5="2k";
                           else if($5=="16384") fld5="16k";
+                          else if($5=="65536") fld5="64k";
                           else fld5=$5;
                           if($8=="--bridge"){gcheck="bridge"; sabg1[tag]=$5*$6; sabp1[tag]=fld5"*"$6"*"$7}
                           else{gcheck="nobridge"; sag1[tag]=$5*$6; sap1[tag]=fld5"*"$6"*"$7}}}
@@ -66,15 +67,15 @@ function oneTable()
                               "nevt total", "x"facs[1]" ["nevt1b[facs[1]]"]", "x"facs[2]" ["nevt1b[facs[2]]"]", "x"facs[3]" ["nevt1b[facs[3]]"]",
                               sabp1[tag], sap1[tag];
                               print lsepe}
-           else if(tag=="CUDA/max"){
-                              print lsepd;
+           else if(tag=="CUDA/max"||tag=="CUDA/8tpb"){
+                              if(tag=="CUDA/max") print lsepd; else print lsepd2;
                               printf "| %-10s | %89s | %8s | %8s |\n",
                               "nevt/grid", "", sabg1[tag], sag1[tag];
                               printf "| %-10s | %89s | %8s | %8s |\n",
                               "nevt total", "", sabp1[tag], sap1[tag];
                               print lsepe2};
            printf "| %-10s |", tag;
-           if(tag=="CUDA/max"){ printf " %89s |", ""; }
+           if(tag=="CUDA/max"||tag=="CUDA/8tpb"){ printf " %89s |", ""; }
            else{ for(ifac=1; ifac<=nfac; ifac++)
                  { fac=facs[ifac]; printf " %6.2f = %6.2f + %6.2f |", sec3[tag,fac,1], sec3[tag,fac,2], sec3[tag,fac,3]};
                  printf " %8s |", tputm1[tag]; }
