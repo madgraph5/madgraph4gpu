@@ -1,9 +1,13 @@
 #!/bin/sh
 
+# Include CUDA/8tpb?
+###cuda8tpb=
+cuda8tpb="CUDA/8tpb"
+
 # Kernel function
 function oneTable()
 {
-  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/32 CUDA/8192 CUDA/max CUDA/8tpb"
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/32 CUDA/8192 CUDA/max $cuda8tpb"
   parlist="(1) (2-none) (2-sse4) (2-avx2) (2-512y) (2-512z) (3) (3bis)"
   faclist="1 10 100"
   echo "" > $out
@@ -98,7 +102,6 @@ hrd=hrd0
 
 procs="eemumu ggtt ggttg ggttgg ggttggg"
 ###procs="ggttggg"
-procs="eemumu"
 
 out=tmad/summaryTable_default.txt
 oneTable
