@@ -132,15 +132,15 @@ function getnevt()
 function getgridmax()
 {
   if [ "${eemumu}" == "1" ]; then
-    echo 2048 256
+    echo 16384 32 # same total grid dimension as 2048 256, but seems faster
   elif [ "${ggtt}" == "1" ]; then 
-    echo 2048 256
+    echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${ggttg}" == "1" ]; then
-    echo 2048 256
+    echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${ggttgg}" == "1" ]; then
-    echo 2048 256
+    echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${ggttggg}" == "1" ]; then
-    echo 64 256
+    echo 512 32 # same total grid dimension as 64 256
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
@@ -204,13 +204,13 @@ function runcheck()
 {
   if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: runcheck <check/gcheck executable>"; exit 1; fi
   cmd=$1
-  if [ "${cmd/gcheckmax32thr}" != "$cmd" ]; then
-    txt="GCHECK(MAX32THR)"
-    cmd=${cmd/gcheckmax32thr/gcheck} # hack: run cuda gcheck with tput fastest settings
+  if [ "${cmd/gcheckmax128thr}" != "$cmd" ]; then
+    txt="GCHECK(MAX128THR)"
+    cmd=${cmd/gcheckmax128thr/gcheck} # hack: run cuda gcheck with tput fastest settings
     cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
-    while [ $nthr -gt 32 ]; do (( nthr = nthr / 2 )); (( nblk = nblk * 2 )); done
+    while [ $nthr -lt 128 ]; do (( nthr = nthr * 2 )); (( nblk = nblk / 2 )); done
     (( nevt = nblk*nthr ))
   elif [ "${cmd/gcheckmax8thr}" != "$cmd" ]; then
     txt="GCHECK(MAX8THR)"
@@ -492,7 +492,7 @@ for suff in $suffs; do
   done
   runcheck ./gcheck8192.exe
   runcheck ./gcheckmax.exe
-  runcheck ./gcheckmax32thr.exe
+  runcheck ./gcheckmax128thr.exe
   runcheck ./gcheckmax8thr.exe
   
   # Cleanup
