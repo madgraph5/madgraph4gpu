@@ -78,7 +78,8 @@ fpt=d
 inl=inl0
 hrd=hrd0
 
-procs="eemumu ggtt ggttg ggttgg ggttggg"
+#procs="eemumu ggtt ggttg ggttgg ggttggg"
+procs="eemumu"
 ###procs="ggttggg"
 
 out=tmad/summaryTable_default.txt
