@@ -18,6 +18,9 @@
 
 #include "CPPProcess.h"
 #include "timermap.h"
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #include "epoch_process_id.h"
 #define STRINGIFY(s) #s
