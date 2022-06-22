@@ -1048,8 +1048,27 @@ KOKKOS_FUNCTION void calculate_wavefunctions(
     def edit_mgonGPU(self):
         """Generate mgOnGpuConfig.h"""
         misc.sprint('Entering PLUGIN_OneProcessExporter.edit_mgonGPU')
-        ###misc.sprint('  template_path=%s'%self.template_path) # look for gpu/mgOnGpuConfig.h here
-        return super().edit_mgonGPU() 
+        template = open(pjoin(self.template_path,'gpu','mgOnGpuConfig.h'),'r').read()
+        replace_dict = {}
+        nexternal, nincoming = self.matrix_elements[0].get_nexternal_ninitial()
+        replace_dict['nincoming'] = nincoming
+        replace_dict['noutcoming'] = nexternal - nincoming
+        
+        # Number of helicity combinations
+        replace_dict['nbhel'] = \
+                            self.matrix_elements[0].get_helicity_combinations()
+        replace_dict['nwavefunc'] = \
+                          self.matrix_elements[0].get_number_of_wavefunctions()
+        replace_dict['wavefuncsize'] = 6
+
+        replace_dict['ncouplings'] = len(self.couplings2order)
+        replace_dict['ncouplingstimes2'] = 2 * replace_dict['ncouplings']
+        replace_dict['nparams'] = len(self.params2order)
+        
+        
+        ff = open(pjoin(self.path, '..','..','src','mgOnGpuConfig.h'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
 
     # AV - new method
     def edit_processidfile(self):

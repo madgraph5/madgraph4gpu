@@ -11,10 +11,10 @@
 
 #include "Kokkos_Core.hpp"
 #include "mgOnGpuConfig.h"
-#include "mgOnGpuTypes.h"
-#include "mgOnGpuVectors.h"
 #include "random_generator.h"
-#include "rambo.h"
+//#include "rambo.h"
+#include "RamboSamplingKernels.h"
+#include "RandomNumberKernels.h"
 
 #include "CPPProcess.h"
 #include "timermap.h"

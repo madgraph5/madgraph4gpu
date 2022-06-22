@@ -1,4 +1,4 @@
-KOKKOSPATH_CUDA ?= /home/jchilders/git/kokkos/install_v100
+KOKKOSPATH_CUDA ?= /users/whopkins/new_kokkos/install/
 KOKKOSPATH_OMP ?= /home/jchilders/git/kokkos/install_omp
 KOKKOSPATH_INTEL ?= $(KOKKOS_HOME)
 KOKKOSPATH_HIP ?= /home/jchilders/git/kokkos/install_mi50
@@ -8,7 +8,7 @@ MODELLIB = model_$(MODELSTR)
 
 CXXFLAGS=-O3 -ffast-math --std=c++17
 
-CUDA_ARCH_NUM ?= 70
+CUDA_ARCH_NUM ?= 75
 NVCC=$(KOKKOSPATH_CUDA)/bin/nvcc_wrapper
 CUDA_CXXFLAGS=$(CXXFLAGS) -I$(KOKKOSPATH_CUDA)/include -arch=compute_$(CUDA_ARCH_NUM) --expt-extended-lambda --expt-relaxed-constexpr -use_fast_math --openmp -lineinfo
 
@@ -44,7 +44,7 @@ cuda_objects=$(SRCS:.cc=.cuda.o)
 intel_objects=$(SRCS:.cc=.intel.o)
 hip_objects=$(SRCS:.cc=.hip.o)
 
-all: cuda openmp intel hip
+all: cuda #openmp intel hip
 
 cuda: $(cuda_lib)
 
