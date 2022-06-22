@@ -128,23 +128,22 @@ function getnevt()
   echo $nevt
 }
 
-# Determine the appropriate number of events for the specific process (cuda gcheck)
-function getnevtmax()
+# Determine the appropriate CUDA grid dimension for the specific process (to run the fastest gcheck)
+function getgridmax()
 {
   if [ "${eemumu}" == "1" ]; then
-    (( nevt = 2048*256 ))
+    echo 2048 256
   elif [ "${ggtt}" == "1" ]; then 
-    (( nevt = 2048*256 ))
+    echo 2048 256
   elif [ "${ggttg}" == "1" ]; then
-    (( nevt = 2048*256 ))
+    echo 2048 256
   elif [ "${ggttgg}" == "1" ]; then
-    (( nevt = 2048*256 ))
+    echo 2048 256
   elif [ "${ggttggg}" == "1" ]; then
-    (( nevt = 64*256 ))
+    echo 64 256
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
-  echo $nevt
 }
 
 # Create an input file that is appropriate for the specific process
@@ -205,40 +204,61 @@ function runcheck()
 {
   if [ "$1" == "" ] || [ "$2" != "" ]; then echo "Usage: runcheck <check/gcheck executable>"; exit 1; fi
   cmd=$1
-  if [ "${cmd/gcheckmax}" != "$cmd" ]; then
-    txt=GCHECK
+  if [ "${cmd/gcheckmax32thr}" != "$cmd" ]; then
+    txt="GCHECK(MAX32THR)"
+    cmd=${cmd/gcheckmax32thr/gcheck} # hack: run cuda gcheck with tput fastest settings
+    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
+    nblk=$(getgridmax | cut -d ' ' -f1)
+    nthr=$(getgridmax | cut -d ' ' -f2)
+    while [ $nthr -gt 32 ]; do (( nthr = nthr / 2 )); (( nblk = nblk * 2 )); done
+    (( nevt = nblk*nthr ))
+  elif [ "${cmd/gcheckmax8thr}" != "$cmd" ]; then
+    txt="GCHECK(MAX8THR)"
+    cmd=${cmd/gcheckmax8thr/gcheck} # hack: run cuda gcheck with tput fastest settings
+    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
+    nblk=$(getgridmax | cut -d ' ' -f1)
+    nthr=$(getgridmax | cut -d ' ' -f2)
+    while [ $nthr -gt 8 ]; do (( nthr = nthr / 2 )); (( nblk = nblk * 2 )); done
+    (( nevt = nblk*nthr ))
+  elif [ "${cmd/gcheckmax}" != "$cmd" ]; then
+    txt="GCHECK(MAX)"
     cmd=${cmd/gcheckmax/gcheck} # hack: run cuda gcheck with tput fastest settings
     cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
-    nevt=$(getnevtmax)
-    nthr=256
+    nblk=$(getgridmax | cut -d ' ' -f1)
+    nthr=$(getgridmax | cut -d ' ' -f2)
+    (( nevt = nblk*nthr ))
   elif [ "${cmd/gcheck8192}" != "$cmd" ]; then
-    txt=GCHECK
+    txt="GCHECK(8192)"
     cmd=${cmd/gcheck8192/gcheck} # hack: run cuda gcheck with tput fastest settings
     cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
-    nevt=8192
-    nthr=256
+    nblk=256
+    nthr=32
+    nevt=$(getnevt)
   elif [ "${cmd/gcheck}" != "$cmd" ]; then
-    txt=GCHECK
+    txt="GCHECK(32)"
     cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
-    nevt=$(getnevt)
+    nblk=1
     nthr=32
+    nevt=$(getnevt)
   elif [ "${cmd/check}" != "$cmd" ]; then
-    txt=CHECK
+    txt="CHECK(32)"
     cmd=${cmd/.\//.\/build.${avx}_d_inl0_hrd0\/}
-    nevt=$(getnevt)
+    nblk=1
     nthr=32
+    nevt=$(getnevt)
   else
     echo "ERROR! Unknown check executable '$cmd'"; exit 1
   fi
-  while [ $nthr -gt $nevt ]; do (( nthr = nthr / 2 )); done
-  (( nblk = nevt/nthr )) # NB integer division
-  (( nevt2 = nblk*nthr ))
-  if [ "$nevt" != "$nevt2" ]; then echo "ERROR! nevt($nevt) != nevt2($nevt2)=nthr($nthr)*nblk($nblk)"; exit 1; fi
+  (( ngrid = nthr*nblk ))
+  if [ $ngrid -gt $nevt ]; then nevt=$ngrid; fi # do run at least 8192 events in gcheck8192
+  (( nite = nevt/ngrid )) # NB integer division
+  (( nevt2 = ngrid*nite ))
+  if [ "$nevt" != "$nevt2" ]; then echo "ERROR! nevt($nevt) != nevt2($nevt2)=ngrid($ngrid)*nite($nite)"; exit 1; fi
   pattern="Process|Workflow|EvtsPerSec\[MECalc"
-  echo -e "\n*** EXECUTE $txt -p $nblk $nthr 1 --bridge ***"
-  $cmd -p $nblk $nthr 1 --bridge | egrep "(${pattern})"
-  echo -e "\n*** EXECUTE $txt -p $nblk $nthr 1 ***"
-  $cmd -p $nblk $nthr 1 | egrep "(${pattern})"
+  echo -e "\n*** EXECUTE $txt -p $nblk $nthr $nite --bridge ***"
+  $cmd -p $nblk $nthr $nite --bridge | egrep "(${pattern})"
+  echo -e "\n*** EXECUTE $txt -p $nblk $nthr $nite ***"
+  $cmd -p $nblk $nthr $nite | egrep "(${pattern})"
 }
 
 # Run madevent (or cmadevent or gmadevent, depending on $1) and parse its output
@@ -398,7 +418,6 @@ for suff in $suffs; do
       ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
       \rm -f ftn26
       runmadevent ./cmadevent_cudacpp
-      runcheck ./check.exe
       echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac xsec to MADEVENT xsec ***"
       if [ "${xfac}" == "1" ]; then
         xsecref=$xsecref1
@@ -419,6 +438,7 @@ for suff in $suffs; do
       \mv events.lhe events.lhe.cpp.$xfac
       if ! diff events.lhe.cpp.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cpp.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cpp.$xfac and events.lhe.ref.$xfac are identical"; fi
     done
+    runcheck ./check.exe
   done
 
   # (3) GMADEVENT_CUDACPP
@@ -434,7 +454,6 @@ for suff in $suffs; do
     ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
     \rm -f ftn26
     runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
-    runcheck ./gcheck.exe
     echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac xsec to MADEVENT xsec ***"
     if [ "${xfac}" == "1" ]; then
       xsecref=$xsecref1
@@ -455,6 +474,7 @@ for suff in $suffs; do
     \mv events.lhe events.lhe.cuda.$xfac
     if ! diff events.lhe.cuda.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cuda.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cuda.$xfac and events.lhe.ref.$xfac are identical"; fi
   done
+  runcheck ./gcheck.exe
   
   # (3bis) GMADEVENT_CUDACPP
   xfac=1
@@ -469,9 +489,11 @@ for suff in $suffs; do
     ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
     \rm -f ftn26
     runmadevent ./gmadevent_cudacpp
-    runcheck ./gcheck8192.exe
-    runcheck ./gcheckmax.exe
   done
+  runcheck ./gcheck8192.exe
+  runcheck ./gcheckmax.exe
+  runcheck ./gcheckmax32thr.exe
+  runcheck ./gcheckmax8thr.exe
   
   # Cleanup
   \rm results.dat
