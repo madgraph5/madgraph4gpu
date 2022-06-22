@@ -1,10 +1,10 @@
 *** FPTYPE=d ******************************************************************
 
-+++ cudacpp REVISION 09e482e (commit date: 2022-03-03 08:03:33 +0100) +++
++++ cudacpp.sa REVISION 09e482e (commit date: 2022-03-03 08:03:33 +0100) +++
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.112 (gcc 10.2.0)] 
-HELINL=0 HRDCOD=0
+HELINL=0 HRDCOD=0 BRIDGE=no
                 eemumu          ggtt         ggttg        ggttgg       ggttggg
          [2048/256/12]  [2048/256/1]  [2048/256/1]  [2048/256/1]    [64/256/1]
 CUD/none      1.33e+09      1.42e+08      1.44e+07      5.19e+05      1.22e+04
@@ -16,7 +16,7 @@ CPP/512y      5.89e+06      6.15e+05      9.81e+04      7.49e+03      2.85e+02
 CPP/512z      4.77e+06      3.84e+05      7.20e+04      6.54e+03      2.95e+02
 
 [nvcc 11.6.112 (gcc 10.2.0)] 
-HELINL=1 HRDCOD=0
+HELINL=1 HRDCOD=0 BRIDGE=no
                 eemumu          ggtt         ggttg        ggttgg       ggttggg
          [2048/256/12]  [2048/256/1]      [------]  [2048/256/1]      [------]
 CUD/none      1.33e+09      1.42e+08      --------      3.85e+05      --------
@@ -27,11 +27,11 @@ CPP/avx2      1.23e+07      4.31e+05      --------      6.14e+03      --------
 CPP/512y      1.34e+07      4.55e+05      --------      7.54e+03      --------
 CPP/512z      8.65e+06      3.50e+05      --------      6.68e+03      --------
 
-+++ cudacpp REVISION 65730b2 (commit date: 2022-02-18 10:53:35 +0100) +++
++++ cudacpp.sa REVISION 65730b2 (commit date: 2022-02-18 10:53:35 +0100) +++
 On jwlogin05.juwels [CPU: Intel(R) Xeon(R) Gold 6148 CPU] [GPU: none]:
 
 [gcc 11.2.0] 
-HELINL=0 HRDCOD=0
+HELINL=0 HRDCOD=0 BRIDGE=no
                 eemumu          ggtt         ggttg        ggttgg       ggttggg
 CUD/none      --------      --------      --------      --------      --------
          [2048/256/12]  [2048/256/1]    [64/256/1]    [64/256/1]     [1/256/1]
@@ -42,7 +42,7 @@ CPP/512y      8.48e+06      9.51e+05      1.45e+05      1.15e+04      4.51e+02
 CPP/512z      1.10e+07      9.39e+05      2.09e+05      1.96e+04      7.70e+02
 
 [gcc 11.2.0] 
-HELINL=1 HRDCOD=0
+HELINL=1 HRDCOD=0 BRIDGE=no
                 eemumu          ggtt         ggttg        ggttgg       ggttggg
 CUD/none      --------      --------      --------      --------      --------
          [2048/256/12]  [2048/256/1]      [------]    [64/256/1]      [------]
@@ -52,11 +52,11 @@ CPP/avx2      1.86e+07      7.01e+05      --------      9.43e+03      --------
 CPP/512y      2.05e+07      7.36e+05      --------      1.17e+04      --------
 CPP/512z      1.58e+07      7.94e+05      --------      2.02e+04      --------
 
-+++ cudacpp REVISION df441ad (commit date: 2022-02-18 10:34:36 +0100) +++
++++ cudacpp.sa REVISION df441ad (commit date: 2022-02-18 10:34:36 +0100) +++
 On jwb0085.juwels [CPU: AMD EPYC 7402 24-Core Processor] [GPU: 4x NVIDIA A100-SXM4-40GB]:
 
 [nvcc 11.5.50 (gcc 11.2.0)] 
-HELINL=0 HRDCOD=0
+HELINL=0 HRDCOD=0 BRIDGE=no
                 eemumu          ggtt         ggttg        ggttgg       ggttggg
          [2048/256/12]  [2048/256/1]  [2048/256/1]  [2048/256/1]    [64/256/1]
 CUD/none      1.57e+09      1.69e+08      2.37e+07      9.45e+05      2.04e+04
@@ -68,7 +68,7 @@ CPP/512y      --------      --------      --------      --------      --------
 CPP/512z      --------      --------      --------      --------      --------
 
 [nvcc 11.5.50 (gcc 11.2.0)] 
-HELINL=1 HRDCOD=0
+HELINL=1 HRDCOD=0 BRIDGE=no
                 eemumu          ggtt         ggttg        ggttgg       ggttggg
          [2048/256/12]  [2048/256/1]      [------]  [2048/256/1]      [------]
 CUD/none      1.57e+09      1.69e+08      --------      7.46e+05      --------
@@ -81,11 +81,11 @@ CPP/512z      --------      --------      --------      --------      --------
 
 *** FPTYPE=f ******************************************************************
 
-+++ cudacpp REVISION 09e482e (commit date: 2022-03-03 08:03:33 +0100) +++
++++ cudacpp.sa REVISION 09e482e (commit date: 2022-03-03 08:03:33 +0100) +++
 On itscrd70.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 
 [nvcc 11.6.112 (gcc 10.2.0)] 
-HELINL=0 HRDCOD=0
+HELINL=0 HRDCOD=0 BRIDGE=no
                 eemumu          ggtt         ggttg        ggttgg       ggttggg
          [2048/256/12]  [2048/256/1]  [2048/256/1]  [2048/256/1]    [64/256/1]
 CUD/none      3.24e+09      3.78e+08      4.65e+07      9.66e+05      2.79e+04
@@ -97,7 +97,7 @@ CPP/512y      1.20e+07      1.08e+06      1.90e+05      1.48e+04      5.64e+02
 CPP/512z      9.77e+06      7.63e+05      1.47e+05      1.31e+04      5.82e+02
 
 [nvcc 11.6.112 (gcc 10.2.0)] 
-HELINL=1 HRDCOD=0
+HELINL=1 HRDCOD=0 BRIDGE=no
                 eemumu          ggtt         ggttg        ggttgg       ggttggg
          [2048/256/12]  [2048/256/1]      [------]  [2048/256/1]      [------]
 CUD/none      3.26e+09      3.76e+08      --------      7.49e+05      --------
@@ -108,11 +108,11 @@ CPP/avx2      2.89e+07      7.11e+05      --------      1.20e+04      --------
 CPP/512y      2.97e+07      7.09e+05      --------      1.47e+04      --------
 CPP/512z      2.04e+07      5.57e+05      --------      1.30e+04      --------
 
-+++ cudacpp REVISION 65730b2 (commit date: 2022-02-18 10:53:35 +0100) +++
++++ cudacpp.sa REVISION 65730b2 (commit date: 2022-02-18 10:53:35 +0100) +++
 On jwlogin05.juwels [CPU: Intel(R) Xeon(R) Gold 6148 CPU] [GPU: none]:
 
 [gcc 11.2.0] 
-HELINL=0 HRDCOD=0
+HELINL=0 HRDCOD=0 BRIDGE=no
                 eemumu          ggtt         ggttg        ggttgg       ggttggg
 CUD/none      --------      --------      --------      --------      --------
          [2048/256/12]  [2048/256/1]    [64/256/1]    [64/256/1]     [1/256/1]
@@ -123,7 +123,7 @@ CPP/512y      1.88e+07      1.73e+06      2.96e+05      2.28e+04      9.06e+02
 CPP/512z      2.44e+07      1.97e+06      4.35e+05      4.03e+04      1.57e+03
 
 [gcc 11.2.0] 
-HELINL=1 HRDCOD=0
+HELINL=1 HRDCOD=0 BRIDGE=no
                 eemumu          ggtt         ggttg        ggttgg       ggttggg
 CUD/none      --------      --------      --------      --------      --------
          [2048/256/12]  [2048/256/1]      [------]    [64/256/1]      [------]
@@ -133,11 +133,11 @@ CPP/avx2      4.25e+07      1.11e+06      --------      1.84e+04      --------
 CPP/512y      4.57e+07      1.12e+06      --------      2.26e+04      --------
 CPP/512z      3.78e+07      1.30e+06      --------      4.00e+04      --------
 
-+++ cudacpp REVISION df441ad (commit date: 2022-02-18 10:34:36 +0100) +++
++++ cudacpp.sa REVISION df441ad (commit date: 2022-02-18 10:34:36 +0100) +++
 On jwb0085.juwels [CPU: AMD EPYC 7402 24-Core Processor] [GPU: 4x NVIDIA A100-SXM4-40GB]:
 
 [nvcc 11.5.50 (gcc 11.2.0)] 
-HELINL=0 HRDCOD=0
+HELINL=0 HRDCOD=0 BRIDGE=no
                 eemumu          ggtt         ggttg        ggttgg       ggttggg
          [2048/256/12]  [2048/256/1]  [2048/256/1]  [2048/256/1]    [64/256/1]
 CUD/none      3.80e+09      4.78e+08      5.73e+07      1.80e+06      3.74e+04
@@ -149,7 +149,7 @@ CPP/512y      --------      --------      --------      --------      --------
 CPP/512z      --------      --------      --------      --------      --------
 
 [nvcc 11.5.50 (gcc 11.2.0)] 
-HELINL=1 HRDCOD=0
+HELINL=1 HRDCOD=0 BRIDGE=no
                 eemumu          ggtt         ggttg        ggttgg       ggttggg
          [2048/256/12]  [2048/256/1]      [------]  [2048/256/1]      [------]
 CUD/none      3.80e+09      4.73e+08      --------      1.52e+06      --------

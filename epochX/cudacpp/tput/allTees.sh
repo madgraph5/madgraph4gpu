@@ -52,22 +52,22 @@ ended2="$cmd\nENDED(2) AT $(date) [Status=$status]"
 tmp2=$(mktemp)
 ls -ltr ee_mumu${suff}/lib/build.none_*_inl1_hrd* gg_tt${suff}/lib/build.none_*_inl1_hrd* gg_tt*g${suff}/lib/build.none_*_inl1_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp2
 
-# (38/56) Two extra logs (double/float x hrd0 x inl0 + bridge) only in three of the five processes (rebuild from cache)
-cmd="./tput/teeThroughputX.sh ${sa} -makej -makeclean -eemumu -ggtt -ggttgg -flt -bridge"
+# (42/60) Two extra logs (double/float x hrd0 x inl0 + bridge) in all five processes (rebuild from cache)
+cmd="./tput/teeThroughputX.sh ${sa} -makej -makeclean -eemumu -ggtt -ggttg -ggttgg -ggttggg -flt -bridge"
 $cmd; status=$?
 ended3="$cmd\nENDED(3) AT $(date) [Status=$status]"
 
-# (44/56) Two extra logs (double/float x hrd0 x inl0 + rmbhst) only in three of the five processes (no rebuild needed)
+# (48/60) Two extra logs (double/float x hrd0 x inl0 + rmbhst) only in three of the five processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh ${sa} -eemumu -ggtt -ggttgg -flt -rmbhst"
 $cmd; status=$?
 ended4="$cmd\nENDED(4) AT $(date) [Status=$status]"
 
-# (50/56) Two extra logs (double/float x hrd0 x inl0 + curhst) only in three of the five processes (no rebuild needed)
+# (54/60) Two extra logs (double/float x hrd0 x inl0 + curhst) only in three of the five processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh ${sa} -eemumu -ggtt -ggttgg -flt -curhst"
 $cmd; status=$?
 ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
 
-# (56/56) Two extra logs (double/float x hrd0 x inl0 + common) only in three of the five processes (no rebuild needed)
+# (60/60) Two extra logs (double/float x hrd0 x inl0 + common) only in three of the five processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh ${sa} -eemumu -ggtt -ggttgg -flt -common"
 $cmd; status=$?
 ended6="$cmd\nENDED(6) AT $(date) [Status=$status]"
