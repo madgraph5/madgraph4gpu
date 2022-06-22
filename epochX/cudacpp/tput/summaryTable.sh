@@ -4,6 +4,7 @@ table=
 if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   set -e
   $0 -default
+  $0 -bridge
   $0 -hrdcod
   $0 -juwels
   $0 -alpaka
@@ -13,6 +14,8 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   exit 0
 elif [ "$1" == "-default" ]; then
   table="default"; shift
+elif [ "$1" == "-bridge" ]; then
+  table="bridge"; shift
 elif [ "$1" == "-hrdcod" ]; then
   table="hrdcod"; shift
 elif [ "$1" == "-juwels" ]; then
@@ -26,7 +29,7 @@ elif [ "$1" == "-alphas" ]; then
 elif [ "$1" == "-3xcomp" ]; then
   table="3xcomp"; shift
 else
-  echo "Usage: $0 <table [-ALL|_default|-hrdcod|-juwels|-alpaka|-macm1|-alphas|-3xcomp]>"; exit 1
+  echo "Usage: $0 <table [-ALL|-default|-bridge|-hrdcod|-juwels|-alpaka|-macm1|-alphas|-3xcomp]>"; exit 1
 fi
 
 unames=$(uname -s)
@@ -54,9 +57,12 @@ touch $out
 # Select revisions of cudacpp and alpaka logs
 crevs=""
 arevs=""
+mrevs=""
 if [ "$table" == "default" ]; then
   crevs="$crevs 09e482e"  # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
   crevs="$crevs 16df79c"  # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
+elif [ "$table" == "bridge" ]; then
+  mrevs="$mrevs 2d3e789"  # cuda116/gcc102  (22 Jun 2022) BASELINE eemumu/ggtt* x f/d x hrd0 x inl0 x default/bridge
 elif [ "$table" == "hrdcod" ]; then
   crevs="$crevs 09e482e"  # cuda116/gcc102  (03 Mar 2022) BASELINE eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
   crevs="$crevs 16df79c"  # cuda116/icx2022 (03 Mar 2022) ICX TEST eemumu/ggtt/ggttgg x f/d x hrd0/hrd1 x inl0/inl1 + ggttg/ggttggg x f/d x hrd0/hrd1 x inl0
@@ -88,30 +94,42 @@ if [ "$table" == "default" ]; then
   fpts="d f"
   inls="inl0 inl1"
   hrds="hrd0"
+  brds="nobr"
+elif [ "$table" == "bridge" ]; then
+  fpts="d f"
+  inls="inl0"
+  hrds="hrd0"
+  brds="nobr brdg"
 elif [ "$table" == "hrdcod" ]; then
   fpts="d"
   inls="inl0"
   hrds="hrd0 hrd1"
+  brds="nobr"
 elif [ "$table" == "juwels" ]; then
   fpts="d f"
   inls="inl0 inl1"
   hrds="hrd0"
+  brds="nobr"
 elif [ "$table" == "alpaka" ]; then
   fpts="d"
   inls="inl0"
   hrds="hrd0"
+  brds="nobr"
 elif [ "$table" == "macm1" ]; then
   fpts="d f"
   inls="inl0"
   hrds="hrd0"
+  brds="nobr"
 elif [ "$table" == "alphas" ]; then
   fpts="d f"
   inls="inl0" # no need to add inl1 (even if data exists)
   hrds="hrd0 hrd1"
+  brds="nobr"
 elif [ "$table" == "3xcomp" ]; then
   fpts="d f"
   inls="inl0 inl1"
   hrds="hrd0 hrd1"
+  brds="nobr"
 else
   echo "ERROR! Unknown table '$table'"; exit 1
 fi
@@ -129,8 +147,9 @@ fi
 function oneTable()
 {
   files=""
+  if [ "$brd" == "brdg" ]; then brdsuf="_bridge"; else brdsuf=""; fi
   for proc in $procs; do
-    file=../${bckend}/tput/logs_${proc}_${suff}/log_${proc}_${suff}_${fpt}_${inl}_${hrd}.txt
+    file=../${bckend/.*}/tput/logs_${proc}_${suff}/log_${proc}_${suff}_${fpt}_${inl}_${hrd}${brdsuf}.txt
     if [ -f $file ]; then files="$files $file"; fi
   done
   ###echo "*** FILES $files ***" >> $out
@@ -140,14 +159,16 @@ function oneTable()
   node=$(cat $files | grep ^On | sort -u)
   if [ "$nodelast" != "$node" ]; then echo -e "$node\n" >> $out; nodelast=$node; fi
   ###cat $files | awk '/^runExe.*check.*/{print $0};/^Process/{print $0};/Workflow/{print $0};/MECalcOnly/{print $0}'; continue
-  cat $files | awk -vtaglist="$taglist" -vrev=$rev -vcomplast=none -vinllast=none -vhrdlast=none -vfptlast=none '\
+  cat $files | awk -vtaglist="$taglist" -vrev=$rev -vcomplast=none -vinllast=none -vhrdlast=none -vfptlast=none -vbrdlast=none '\
     /^runExe .*check.*/{split($0,a,"check.exe"); last=substr(a[1],length(a[1])); if (last=="g"){tag="CUD"} else if(last=="p"){tag="ALP"} else{tag="CPP"}; split($0,a,"build."); split(a[2],b,"_"); tag=tag"/"b[1]};\
     /^runExe .*check.*/{split($0,a," -p "); split(a[2],b); grid=b[1]"/"b[2]"/"b[3]};\
     /^runExe .*check.*/{proc=$0; gsub("/SubProcesses.*","",proc); gsub(".*/","",proc); gsub(".auto","",proc); grid_proc_tag[proc,tag]=grid};\
     ###/^Process/{split($3,a,"_"); proc=a[3]"_"a[4]; grid_proc_tag[proc,tag]=grid};\
     /^Process(.)/{split($0,a,"["); comp="["a[2]; if ( complast == "none" ){print comp; complast=comp}};\
     /^Process/{split($0,a,"]"); split(a[2],b,"="); inl=b[2]; if(inl!=inllast){printf "HELINL="inl; inllast=inl}}\
-    /^Process/{split($0,a,"]"); split(a[3],b,"="); hrd=b[2]; if(hrd!=hrdlast){if(hrd==""){hrd=0}; print " HRDCOD="hrd; hrdlast=hrd}}\
+    /^Process/{split($0,a,"]"); split(a[3],b,"="); hrd=b[2]; if(hrd!=hrdlast){if(hrd==""){hrd=0}; printf " HRDCOD="hrd; hrdlast=hrd}}\
+    /Workflow .*+BRD/{brd="yes"; if(brd!=brdlast){print " BRIDGE="brd; brdlast=brd}};\
+    /Workflow .*+MES/{brd="no"; if(brd!=brdlast){print " BRIDGE="brd; brdlast=brd}};\
     /^FP precision/{fpt=$4; /*if ( fpt != fptlast ){print "FPTYPE="fpt; fptlast=fpt}*/}\
     ###/Workflow/{split($4,a,":"); tag=a[1]; split($4,a,"+"); split(a[4],b,"/"); tag=tag"/"b[2]};\
     /.*check.exe: Aborted/{tput_proc_tag[proc,tag]="(FAILED)"};\
@@ -179,13 +200,16 @@ function oneTable()
 # Iterate through log files
 for fpt in $fpts; do
   echo -e "*** FPTYPE=$fpt ******************************************************************\n" >> $out
-  for bckend in cudacpp alpaka; do
+  for bckend in cudacpp.mad cudacpp.sa alpaka; do
     if [ "$bckend" == "alpaka" ]; then
       revs="$arevs"
       suff=auto
-    else
+    elif [ "$bckend" == "cudacpp.sa" ]; then
       revs="$crevs"
       suff=manu
+    else
+      revs="$mrevs"
+      suff=mad
     fi
     if [ "$revs" == "" ]; then continue; fi
     ### DIFFERENT SORTINGS
@@ -193,11 +217,13 @@ for fpt in $fpts; do
       ### New sorting (3xcomp)
       for inl in $inls; do
         for hrd in $hrds; do
-          echo -e "-------------------------------------------------------------------------------\n" >> $out
-          for rev in $revs; do
-            echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
-            nodelast=
-            oneTable
+          for brd in $brds; do
+            echo -e "-------------------------------------------------------------------------------\n" >> $out
+            for rev in $revs; do
+              echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
+              nodelast=
+              oneTable
+            done
           done
         done
       done
@@ -205,11 +231,13 @@ for fpt in $fpts; do
     elif [ "$table" == "alphas" ]; then
       for inl in $inls; do
         for hrd in $hrds; do
-          echo -e "-------------------------------------------------------------------------------\n" >> $out
-          for rev in $revs; do
-            echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
-            nodelast=
-            oneTable
+          for brd in $brds; do
+            echo -e "-------------------------------------------------------------------------------\n" >> $out
+            for rev in $revs; do
+              echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
+              nodelast=
+              oneTable
+            done
           done
         done
       done
@@ -220,7 +248,9 @@ for fpt in $fpts; do
         nodelast=
         for inl in $inls; do
           for hrd in $hrds; do
-            oneTable
+            for brd in $brds; do
+              oneTable
+            done
           done
         done
       done
