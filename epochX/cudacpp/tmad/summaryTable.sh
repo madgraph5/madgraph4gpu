@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # Include CUDA/8tpb?
-###cuda8tpb=
-cuda8tpb="CUDA/8tpb"
+cuda8tpb=
+###cuda8tpb="CUDA/8tpb"
 
 # Kernel function
 function oneTable()
