@@ -454,6 +454,7 @@ for suff in $suffs; do
   done
 
   # (3) GMADEVENT_CUDACPP
+  if [ "$gpuTxt" == "none" ]; then continue; fi
   xfac=1
   if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
   if [ ! -f results.dat ]; then
@@ -507,11 +508,12 @@ for suff in $suffs; do
   runcheck ./gcheckmax128thr.exe
   runcheck ./gcheckmax8thr.exe
   
-  # Cleanup
-  \rm results.dat
-  \rm results.dat.ref
-  \rm events.lhe
-  \rm events.lhe.*
-
 done
+
+# Cleanup
+\rm -f results.dat
+\rm -f results.dat.ref
+\rm -f events.lhe
+\rm -f events.lhe.*
+
 printf "\nTEST COMPLETED\n"
