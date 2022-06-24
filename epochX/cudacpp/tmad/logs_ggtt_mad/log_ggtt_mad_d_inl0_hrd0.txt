@@ -25,7 +25,7 @@ make[1]: Leaving directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/c
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 
-DATE: 2022-06-24_08:56:13
+DATE: 2022-06-24_10:55:04
 
 On jwlogin05.juwels [CPU: Intel(R) Xeon(R) Gold 6148 CPU] [GPU: none]:
 Working directory (run): /p/home/jusers/valassi1/juwels/madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx
@@ -45,9 +45,9 @@ Executing ' ./madevent < /tmp/valassi1/input_ggtt_x1_fortran > /tmp/valassi1/out
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 45.91
- [COUNTERS] PROGRAM TOTAL          :    0.3636s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2482s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.1154s for    16416 events => throughput is 1.42E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.4024s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.2824s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.1200s for    16416 events => throughput is 1.37E+05 events/s
 
 *** (1) EXECUTE MADEVENT x1 (create events.lhe) ***
 --------------------
@@ -65,9 +65,9 @@ Executing ' ./madevent < /tmp/valassi1/input_ggtt_x1_fortran > /tmp/valassi1/out
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 45.91 [45.914455838006873]
  [UNWEIGHT] Wrote 788 events (found 2238 events)
- [COUNTERS] PROGRAM TOTAL          :    0.5472s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.4297s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.1175s for    16416 events => throughput is 1.40E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.5646s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4435s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.1212s for    16416 events => throughput is 1.35E+05 events/s
 
 *** (1) EXECUTE MADEVENT x10 (create events.lhe) ***
 --------------------
@@ -85,9 +85,9 @@ Executing ' ./madevent < /tmp/valassi1/input_ggtt_x10_fortran > /tmp/valassi1/ou
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 46.82 [46.821140040222161]
  [UNWEIGHT] Wrote 3385 events (found 3390 events)
- [COUNTERS] PROGRAM TOTAL          :    3.1359s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.9872s
- [COUNTERS] Fortran MEs      ( 1 ) :    1.1487s for   163872 events => throughput is 1.43E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    3.3556s
+ [COUNTERS] Fortran Overhead ( 0 ) :    2.1391s
+ [COUNTERS] Fortran MEs      ( 1 ) :    1.2165s for   163872 events => throughput is 1.35E+05 events/s
 
 *** (1) EXECUTE MADEVENT x100 (create events.lhe) ***
 --------------------
@@ -105,9 +105,9 @@ Executing ' ./madevent < /tmp/valassi1/input_ggtt_x100_fortran > /tmp/valassi1/o
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 46.84 [46.837442861749352]
  [UNWEIGHT] Wrote 32730 events (found 32735 events)
- [COUNTERS] PROGRAM TOTAL          :   30.8680s
- [COUNTERS] Fortran Overhead ( 0 ) :   19.3535s
- [COUNTERS] Fortran MEs      ( 1 ) :   11.5145s for  1638432 events => throughput is 1.42E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :   32.6446s
+ [COUNTERS] Fortran Overhead ( 0 ) :   20.5816s
+ [COUNTERS] Fortran MEs      ( 1 ) :   12.0630s for  1638432 events => throughput is 1.36E+05 events/s
 
 *** (2-none) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
 --------------------
@@ -127,9 +127,9 @@ Executing ' ./build.none_d_inl0_hrd0/cmadevent_cudacpp < /tmp/valassi1/input_ggt
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 45.91 [45.914455838006873] fbridge_mode=1
  [UNWEIGHT] Wrote 788 events (found 2238 events)
- [COUNTERS] PROGRAM TOTAL          :    0.4781s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.4118s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0663s for    16416 events => throughput is 2.47E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.5415s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4727s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0688s for    16416 events => throughput is 2.39E+05 events/s
 
 *** (2-none) Compare CMADEVENT_CUDACPP x1 xsec to MADEVENT xsec ***
 
