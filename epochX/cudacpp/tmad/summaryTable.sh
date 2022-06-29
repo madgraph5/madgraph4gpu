@@ -12,8 +12,10 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   exit 0
 elif [ "$1" == "-default" ]; then
   table="default"; shift
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/32 CUDA/8192 CUDA/max $cuda8tpb"
 elif [ "$1" == "-juwels" ]; then
   table="juwels"; shift
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
 else
   echo "Usage: $0 <table [-ALL|-default|-juwels]>"; exit 1
 fi
@@ -30,7 +32,6 @@ revs="$mrevs"
 # Kernel function
 function oneTable()
 {
-  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/32 CUDA/8192 CUDA/max $cuda8tpb"
   parlist="(1) (2-none) (2-sse4) (2-avx2) (2-512y) (2-512z) (3) (3bis)"
   faclist="1 10 100"
   for proc in $procs; do
@@ -112,7 +113,7 @@ function oneTable()
            if(tag=="FORTRAN"){ printf " %8s | %8s |", "---", "---"; }
            else{ printf " %8.2e |", tputb1[tag]; printf " %8.2e |", tput1[tag]; }
            printf "\n"};
-          print lsepEQUAL2;
+	  if(tag=="CUDA/max"||tag=="CUDA/8tpb") print lsepEQUAL2; else print lsepEQUAL;
           print "\n";
          }' >> $out
   done
