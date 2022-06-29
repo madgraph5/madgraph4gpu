@@ -21,7 +21,7 @@ fi
 # Select revisions and characteristics of mad logs
 mrevs=""
 if [ "$table" == "default" ]; then
-  mrevs="$mrevs deb4c9b"  # cuda116/gcc102  (22 Jun 2022)
+  mrevs="$mrevs cddb03b"  # cuda116/gcc102  (29 Jun 2022)
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/32 CUDA/8192 CUDA/max $cuda8tpb"
   procs="eemumu ggtt ggttg ggttgg ggttggg"
   ###procs="ggttggg"
