@@ -8,12 +8,12 @@ table=
 if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   set -e
   $0 -default
-# $0 -juwels
+  $0 -juwels
   exit 0
 elif [ "$1" == "-default" ]; then
   table="default"; shift
-#elif [ "$1" == "-juwels" ]; then
-#  table="juwels"; shift
+elif [ "$1" == "-juwels" ]; then
+  table="juwels"; shift
 else
   echo "Usage: $0 <table [-ALL|-default|-juwels]>"; exit 1
 fi
@@ -23,7 +23,7 @@ mrevs=""
 if [ "$table" == "default" ]; then
   mrevs="$mrevs deb4c9b"  # cuda116/gcc102  (22 Jun 2022)
 elif [ "$table" == "juwels" ]; then
-  mrevs="$mrevs deb4c9b"  # cuda116/gcc102  (22 Jun 2022) 
+  mrevs="$mrevs df94bdf"  # cuda116/gcc102  (22 Jun 2022) 
 fi
 revs="$mrevs"
   
