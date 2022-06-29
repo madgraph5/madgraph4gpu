@@ -12,20 +12,23 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   exit 0
 elif [ "$1" == "-default" ]; then
   table="default"; shift
-  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/32 CUDA/8192 CUDA/max $cuda8tpb"
 elif [ "$1" == "-juwels" ]; then
   table="juwels"; shift
-  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
 else
   echo "Usage: $0 <table [-ALL|-default|-juwels]>"; exit 1
 fi
 
-# Select revisions of mad logs
+# Select revisions and characteristics of mad logs
 mrevs=""
 if [ "$table" == "default" ]; then
   mrevs="$mrevs deb4c9b"  # cuda116/gcc102  (22 Jun 2022)
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/32 CUDA/8192 CUDA/max $cuda8tpb"
+  procs="eemumu ggtt ggttg ggttgg ggttggg"
+  ###procs="ggttggg"
 elif [ "$table" == "juwels" ]; then
   mrevs="$mrevs df94bdf"  # cuda116/gcc102  (22 Jun 2022) 
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
+  procs="eemumu ggtt ggttg ggttgg"
 fi
 revs="$mrevs"
   
@@ -126,9 +129,6 @@ suff=mad
 fpt=d
 inl=inl0
 hrd=hrd0
-
-procs="eemumu ggtt ggttg ggttgg ggttggg"
-###procs="ggttggg"
 
 out=tmad/summaryTable_${table}.txt
 echo "" > $out
