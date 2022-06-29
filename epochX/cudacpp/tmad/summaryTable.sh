@@ -4,17 +4,43 @@
 cuda8tpb=
 ###cuda8tpb="CUDA/8tpb"
 
+table=
+if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
+  set -e
+  $0 -default
+# $0 -juwels
+  exit 0
+elif [ "$1" == "-default" ]; then
+  table="default"; shift
+#elif [ "$1" == "-juwels" ]; then
+#  table="juwels"; shift
+else
+  echo "Usage: $0 <table [-ALL|-default|-juwels]>"; exit 1
+fi
+
+# Select revisions of mad logs
+mrevs=""
+if [ "$table" == "default" ]; then
+  mrevs="$mrevs deb4c9b"  # cuda116/gcc102  (22 Jun 2022)
+elif [ "$table" == "juwels" ]; then
+  mrevs="$mrevs deb4c9b"  # cuda116/gcc102  (22 Jun 2022) 
+fi
+revs="$mrevs"
+  
 # Kernel function
 function oneTable()
 {
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/32 CUDA/8192 CUDA/max $cuda8tpb"
   parlist="(1) (2-none) (2-sse4) (2-avx2) (2-512y) (2-512z) (3) (3bis)"
   faclist="1 10 100"
-  echo "" > $out
   for proc in $procs; do
     file=tmad/logs_${proc}_${suff}/log_${proc}_${suff}_${fpt}_${inl}_${hrd}.txt
     if [ ! -f $file ]; then continue; fi
     ###echo "*** FILE $file ***"
+    git checkout $rev $file >& /dev/null
+    if [ "$?" != "0" ]; then echo "ERROR! 'git checkout $rev' failed!"; exit 1; fi
+    node=$(cat $file | grep ^On | sort -u)
+    if [ "$nodelast" != "$node" ]; then echo -e "$node\n" >> $out; nodelast=$node; fi
     cat $file | awk -vproc=$proc -vtaglist="$taglist" -vparlist="$parlist" -vfaclist="$faclist" '
       BEGIN{status=0;}
       BEGIN{ntag=split(taglist,tags); npar=split(parlist,pars);
@@ -103,6 +129,12 @@ hrd=hrd0
 procs="eemumu ggtt ggttg ggttgg ggttggg"
 ###procs="ggttggg"
 
-out=tmad/summaryTable_default.txt
-oneTable
+out=tmad/summaryTable_${table}.txt
+echo "" > $out
+for rev in $revs; do
+  echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
+  oneTable
+done
+
+git checkout HEAD ../cudacpp/tmad/logs* >& /dev/null
 cat $out
