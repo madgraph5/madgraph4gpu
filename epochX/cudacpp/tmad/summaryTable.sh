@@ -23,14 +23,15 @@ mrevs=""
 if [ "$table" == "default" ]; then
   mrevs="$mrevs cddb03b"  # cuda116/gcc102  (29 Jun 2022)
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/32 CUDA/8192 CUDA/max $cuda8tpb"
-  procs="eemumu ggtt ggttg ggttgg ggttggg"
-  ###procs="ggttggg"
 elif [ "$table" == "juwels" ]; then
-  mrevs="$mrevs df94bdf"  # cuda116/gcc102  (22 Jun 2022) 
+  mrevs="$mrevs 330acf1"  # cuda116/gcc102  (22 Jun 2022) 
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
-  procs="eemumu ggtt ggttg ggttgg"
 fi
 revs="$mrevs"
+
+# Select processes
+procs="eemumu ggtt ggttg ggttgg ggttggg"
+###procs="ggttggg"
   
 # Kernel function
 function oneTable()
