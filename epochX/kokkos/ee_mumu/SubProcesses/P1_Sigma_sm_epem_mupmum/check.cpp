@@ -258,24 +258,24 @@ int main(int argc, char **argv)
   // Random Numbers
   Kokkos::View<fptype**,Kokkos::DefaultExecutionSpace> devRnarray(Kokkos::ViewAllocateWithoutInitializing("devRnarray"),nevt,np4*nparf);
 #ifdef FIXED_RANDOM
-    auto hstRnarray = Kokkos::create_view(devRnarray);
+    auto hstRnarray = Kokkos::create_mirror_view(devRnarray);
 #endif
 
   // momenta
   Kokkos::View<fptype***,Kokkos::DefaultExecutionSpace> devMomenta(Kokkos::ViewAllocateWithoutInitializing("devMomenta"),nevt,npar,np4);
-  auto hstMomenta = Kokkos::create_view(devMomenta);
+  auto hstMomenta = Kokkos::create_mirror_view(devMomenta);
 
   // matrix elements
   Kokkos::View<fptype*,Kokkos::DefaultExecutionSpace> devMEs(Kokkos::ViewAllocateWithoutInitializing("devMEs"),nevt*process.nprocesses);
-  auto hstMEs = Kokkos::create_view(devMEs);
+  auto hstMEs = Kokkos::create_mirror_view(devMEs);
 
   // weights
   Kokkos::View<fptype*,Kokkos::DefaultExecutionSpace> devWeights(Kokkos::ViewAllocateWithoutInitializing("devWeights"),nevt*process.nprocesses);
-  auto hstWeights = Kokkos::create_view(devWeights);
+  auto hstWeights = Kokkos::create_mirror_view(devWeights);
 
   // good helicity indices tracking (device-side only)
   Kokkos::View<int*,Kokkos::DefaultExecutionSpace> devNGoodHel("devNGoodHel",1); // TODO Fixed to 1 process
-  auto hstNGoodHel = Kokkos::create_view(devNGoodHel);
+  auto hstNGoodHel = Kokkos::create_mirror_view(devNGoodHel);
   Kokkos::View<int*,Kokkos::DefaultExecutionSpace> devIsGoodHel("devIsGoodHel",ncomb);
 
 
@@ -337,7 +337,7 @@ int main(int argc, char **argv)
     Kokkos::deep_copy(devRnarray,hstRnarray);
 #else
     fill_random_numbers_2d(devRnarray,nevt,np4*nparf, rand_pool, league_size, team_size);
-    Kokkos::DefaultExecutionSpace().fence();
+    Kokkos::fence();
 #endif
     //std::cout << "Got random numbers" << std::endl;
 
@@ -354,7 +354,7 @@ int main(int argc, char **argv)
     const std::string riniKey = "2a RamboIni";
     timermap.start( riniKey );
     get_initial_momenta(devMomenta,process.nexternal,energy,process.cmME,league_size,team_size);
-    Kokkos::DefaultExecutionSpace().fence();
+    Kokkos::fence();
     //std::cout << "Got initial momenta" << std::endl;
 
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
@@ -362,7 +362,7 @@ int main(int argc, char **argv)
     const std::string rfinKey = "2b RamboFin";
     rambtime += timermap.start( rfinKey );
     get_final_momenta(process.ninitial, process.nexternal, energy, process.cmME, devMomenta, devRnarray, devWeights, league_size, team_size);
-    Kokkos::DefaultExecutionSpace().fence();
+    Kokkos::fence();
     //std::cout << "Got final momenta" << std::endl;
 
     // --- 2c. CopyDToH Weights
@@ -392,7 +392,7 @@ int main(int argc, char **argv)
       timermap.start( ghelKey );
       // ... 0d1. Compute good helicity mask on the device
       mg5amcGpu::sigmaKin_setup(devMomenta, devMEs, process.cHel, process.cIPD, process.cIPC, devIsGoodHel, devNGoodHel, process.ncomb, league_size, team_size);
-      Kokkos::DefaultExecutionSpace().fence();
+      Kokkos::fence();
     }
 
     // *** START THE OLD-STYLE TIMERS FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
@@ -403,7 +403,7 @@ int main(int argc, char **argv)
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
     mg5amcGpu::sigmaKin(devMomenta, devMEs, process.cHel, process.cIPD, process.cIPC, devIsGoodHel, devNGoodHel, process.ncomb, league_size, team_size);
-    Kokkos::DefaultExecutionSpace().fence();
+    Kokkos::fence();
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wv3atime += timermap.stop(); // calc only
     wavetime += wv3atime; // calc plus copy

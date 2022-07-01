@@ -25,7 +25,7 @@ struct generate_random {
       : vals(vals_), rand_pool(rand_pool_), samples(samples_) {}
 
   KOKKOS_INLINE_FUNCTION
-  void operator()(member_type team_member) const {
+  void operator()(const member_type& team_member) const {
     const int tid = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
     // Get a random number state from the pool for the active thread
     typename GeneratorPool::generator_type rand_gen = rand_pool.get_state();

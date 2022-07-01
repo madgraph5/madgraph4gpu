@@ -424,6 +424,7 @@ namespace Proc
         nGoodHel++;
       }
     }
+    printf("sigmaKin_setGoodHel: nGoodHel = %d",nGoodHel);
 #ifdef __CUDACC__
     checkCuda( cudaMemcpyToSymbol( cNGoodHel, &nGoodHel, sizeof(int) ) ); // FIXME: assume process.nprocesses == 1 for the moment
     checkCuda( cudaMemcpyToSymbol( cGoodHel, goodHel, ncomb*sizeof(int) ) );

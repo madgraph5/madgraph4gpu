@@ -150,7 +150,7 @@ void sigmaKin_setup(
   using member_type = typename Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace>::member_type;
   Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace> policy( league_size, team_size );
   Kokkos::parallel_for(__func__,policy, 
-  KOKKOS_LAMBDA(member_type team_member){
+  KOKKOS_LAMBDA(const member_type& team_member){
     const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
     fptype allMEsLast = 0;
 
@@ -193,7 +193,7 @@ void sigmaKin(const mom_t& momenta, out_t& allMEs, const hel_t& cHel,
   using member_type = typename Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace>::member_type;
   Kokkos::TeamPolicy<Kokkos::DefaultExecutionSpace> policy( league_size, team_size );
   Kokkos::parallel_for(__func__,policy, 
-  KOKKOS_LAMBDA(member_type team_member){
+  KOKKOS_LAMBDA(const member_type& team_member){
 
     const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
     

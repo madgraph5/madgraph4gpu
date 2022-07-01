@@ -19,7 +19,7 @@ void get_initial_momenta(
   using member_type = typename Kokkos::TeamPolicy<ExecSpace>::member_type;
   Kokkos::TeamPolicy<ExecSpace> policy( league_size, team_size );
   Kokkos::parallel_for(__func__,policy, 
-  KOKKOS_LAMBDA(member_type team_member){
+  KOKKOS_LAMBDA(const member_type& team_member){
     const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
     const fptype energy1 = energy/2;
     const fptype energy2 = energy/2;
@@ -53,7 +53,7 @@ void get_final_momenta(const int ninitial,const int nexternal,const double energ
   using member_type = typename Kokkos::TeamPolicy<ExecSpace>::member_type;
   Kokkos::TeamPolicy<ExecSpace> policy( league_size, team_size );
   Kokkos::parallel_for(__func__,policy, 
-    KOKKOS_LAMBDA(member_type team_member){
+    KOKKOS_LAMBDA(const member_type& team_member){
       const int ievt = team_member.league_rank() * team_member.team_size() + team_member.team_rank();
 
       auto lp = Kokkos::subview(d_p,ievt,Kokkos::ALL,Kokkos::ALL);
