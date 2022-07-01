@@ -135,7 +135,7 @@ using mgOnGpu::ncomb; // number of helicity combinations
 
 
 template <typename hel_t, typename mom_t, typename ipd_t, typename ipc_t>
-KOKKOS_FUNCTION void calculate_wavefunctions(
+KOKKOS_INLINE_FUNCTION void calculate_wavefunctions(
   const mom_t& allmomenta,
   const hel_t& cHel,
   const ipd_t& cIPD,

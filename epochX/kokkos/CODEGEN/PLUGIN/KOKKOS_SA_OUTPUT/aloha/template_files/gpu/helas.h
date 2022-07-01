@@ -1,7 +1,7 @@
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
 template<typename T>
-KOKKOS_FUNCTION void ixxxxx(const T& pvec,
+KOKKOS_INLINE_FUNCTION void ixxxxx(const T& pvec,
                             const fptype fmass, 
                             const int nhel,
                             const int nsf,
@@ -80,7 +80,7 @@ KOKKOS_FUNCTION void ixxxxx(const T& pvec,
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
 template<typename T>
-KOKKOS_FUNCTION void ipzxxx(const T& pvec,
+KOKKOS_INLINE_FUNCTION void ipzxxx(const T& pvec,
                             const int& nhel,
                             const int& nsf,
                             cxtype_sv fi[])
@@ -111,7 +111,7 @@ KOKKOS_FUNCTION void ipzxxx(const T& pvec,
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
 template<typename T>
-KOKKOS_FUNCTION void imzxxx(const T& pvec, 
+KOKKOS_INLINE_FUNCTION void imzxxx(const T& pvec, 
                             const int nhel,
                             const int nsf,
                             cxtype_sv fi[])
@@ -142,7 +142,7 @@ KOKKOS_FUNCTION void imzxxx(const T& pvec,
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
 template<typename T>
-KOKKOS_FUNCTION void ixzxxx(const T& pvec,
+KOKKOS_INLINE_FUNCTION void ixzxxx(const T& pvec,
                             const int& nhel,
                             const int& nsf,
                             cxtype_sv fi[])
@@ -182,7 +182,7 @@ KOKKOS_FUNCTION void ixzxxx(const T& pvec,
 
   // Compute the output wavefunction vc[6] from the input momenta[npar*4*nevt]
 template<typename T>
-KOKKOS_FUNCTION void vxxxxx(const T& pvec,
+KOKKOS_INLINE_FUNCTION void vxxxxx(const T& pvec,
                             const fptype vmass,
                             const int nhel,
                             const int nsv,
@@ -254,7 +254,7 @@ KOKKOS_FUNCTION void vxxxxx(const T& pvec,
 
   // Compute the output wavefunction sc[3] from the input momenta[npar*4*nevt]
 template<typename T>
-KOKKOS_FUNCTION  void sxxxxx(const T& pvec,
+KOKKOS_INLINE_FUNCTION  void sxxxxx(const T& pvec,
                              const fptype& smass,
                              const int& nhel,
                              const int& nss,
@@ -274,7 +274,7 @@ KOKKOS_FUNCTION  void sxxxxx(const T& pvec,
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
 template<typename T>
-KOKKOS_FUNCTION void oxxxxx(const T& pvec,
+KOKKOS_INLINE_FUNCTION void oxxxxx(const T& pvec,
                             const fptype fmass,
                             const int nhel,
                             const int nsf,
@@ -353,7 +353,7 @@ KOKKOS_FUNCTION void oxxxxx(const T& pvec,
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
 template<typename T>
-KOKKOS_FUNCTION  void opzxxx(const T& pvec,
+KOKKOS_INLINE_FUNCTION  void opzxxx(const T& pvec,
                              const int& nhel,                  // input: -1 or +1 (helicity of fermion)
                              const int& nsf,                  // input: +1 (particle) or -1 (antiparticle)
                              cxtype_sv fo[])
@@ -384,7 +384,7 @@ KOKKOS_FUNCTION  void opzxxx(const T& pvec,
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
 template<typename T>
-KOKKOS_FUNCTION  void omzxxx(const T& pvec,
+KOKKOS_INLINE_FUNCTION  void omzxxx(const T& pvec,
                              const int& nhel,
                              const int& nsf,
                              cxtype_sv fo[])
@@ -419,7 +419,7 @@ KOKKOS_FUNCTION  void omzxxx(const T& pvec,
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
 template<typename T>
-KOKKOS_FUNCTION  void oxzxxx(const T& pvec,
+KOKKOS_INLINE_FUNCTION  void oxzxxx(const T& pvec,
                              const int& nhel,
                              const int& nsf,
                              cxtype_sv fo[])

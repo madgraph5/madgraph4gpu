@@ -86,7 +86,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     # AV - keep defaults from aloha_writers.ALOHAWriterForGPU
     ###extension = '.cu'
     extension = '.cc'
-    prefix = 'KOKKOS_FUNCTION'
+    prefix = 'KOKKOS_INLINE_FUNCTION'
     realoperator = 'cxreal' # NB now a function
     imagoperator = 'cximag' # NB now a function
 
@@ -212,7 +212,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         out.write('  %(comment)s\n  %(template)s\n  %(prefix)s\n  void %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
                   {'comment': comment, # AV - add comment
                    'template': template, # AV - add template
-                   'prefix':'KOKKOS_FUNCTION',
+                   'prefix':'KOKKOS_INLINE_FUNCTION',
                    'suffix':'',
                    #'prefix': self.prefix + ( ' INLINE' if 'is_h' in mode else '' ), # AV - add INLINE
                    #'suffix': ( ' ALWAYS_INLINE' if 'is_h' in mode else '' ), # AV - add ALWAYS_INLINE
@@ -957,7 +957,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
 
             ret_lines.append("""
 template <typename hel_t, typename mom_t, typename ipd_t, typename ipc_t>
-KOKKOS_FUNCTION void calculate_wavefunctions(
+KOKKOS_INLINE_FUNCTION void calculate_wavefunctions(
   const mom_t& allmomenta,
   const hel_t& cHel,
   const ipd_t& cIPD,

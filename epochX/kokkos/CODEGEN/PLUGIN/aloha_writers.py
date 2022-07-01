@@ -1339,7 +1339,7 @@ class ALOHAWriterForCPP(WriteALOHA):
     """Routines for writing out helicity amplitudes as C++ .h and .cc files."""
     
     extension = '.c'
-    prefix ='KOKKOS_FUNCTION'
+    prefix ='KOKKOS_INLINE_FUNCTION'
     writer = writers.CPPWriter
 
     type2def = {}    
