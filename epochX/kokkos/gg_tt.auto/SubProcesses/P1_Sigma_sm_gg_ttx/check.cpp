@@ -258,24 +258,24 @@ int main(int argc, char **argv)
   // Random Numbers
   Kokkos::View<fptype**,Kokkos::DefaultExecutionSpace> devRnarray(Kokkos::ViewAllocateWithoutInitializing("devRnarray"),nevt,np4*nparf);
 #ifdef FIXED_RANDOM
-    auto hstRnarray = Kokkos::create_mirror_view(devRnarray);
+    auto hstRnarray = Kokkos::create_view(devRnarray);
 #endif
 
   // momenta
   Kokkos::View<fptype***,Kokkos::DefaultExecutionSpace> devMomenta(Kokkos::ViewAllocateWithoutInitializing("devMomenta"),nevt,npar,np4);
-  auto hstMomenta = Kokkos::create_mirror_view(devMomenta);
+  auto hstMomenta = Kokkos::create_view(devMomenta);
 
   // matrix elements
   Kokkos::View<fptype*,Kokkos::DefaultExecutionSpace> devMEs(Kokkos::ViewAllocateWithoutInitializing("devMEs"),nevt*process.nprocesses);
-  auto hstMEs = Kokkos::create_mirror_view(devMEs);
+  auto hstMEs = Kokkos::create_view(devMEs);
 
   // weights
   Kokkos::View<fptype*,Kokkos::DefaultExecutionSpace> devWeights(Kokkos::ViewAllocateWithoutInitializing("devWeights"),nevt*process.nprocesses);
-  auto hstWeights = Kokkos::create_mirror_view(devWeights);
+  auto hstWeights = Kokkos::create_view(devWeights);
 
   // good helicity indices tracking (device-side only)
   Kokkos::View<int*,Kokkos::DefaultExecutionSpace> devNGoodHel("devNGoodHel",1); // TODO Fixed to 1 process
-  auto hstNGoodHel = Kokkos::create_mirror_view(devNGoodHel);
+  auto hstNGoodHel = Kokkos::create_view(devNGoodHel);
   Kokkos::View<int*,Kokkos::DefaultExecutionSpace> devIsGoodHel("devIsGoodHel",ncomb);
 
 
