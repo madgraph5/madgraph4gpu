@@ -7,6 +7,9 @@ scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
 topdir=$(cd $scrdir; cd ../../..; pwd)
 
+# HARDCODE NLOOP HERE (may improve this eventually...)
+NLOOP=8192
+
 function usage()
 {
   echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [+100x]" > /dev/stderr
@@ -113,15 +116,15 @@ function showdir()
 function getnevt()
 {
   if [ "${eemumu}" == "1" ]; then
-    nevt=2048 # computes 2080 MEs (writes to file 1009 events) in 1.1s
+    nevt=8192 # computes ?2080 MEs (writes to file 1009 events) in 1.1s
   elif [ "${ggtt}" == "1" ]; then 
-    nevt=16384 # computes 16416 MEs (writes to file 788 events) in 1.6s
+    nevt=8192 # computes ?16416 MEs (writes to file 788 events) in 1.6s
   elif [ "${ggttg}" == "1" ]; then
-    nevt=4096 # computes 4128 MEs (writes to file 56 events) in 1.0s
+    nevt=8192 # computes ?4128 MEs (writes to file 56 events) in 1.0s
   elif [ "${ggttgg}" == "1" ]; then
-    nevt=512 # computes 544 MEs (writes to file 4 events) in 1.5s
+    nevt=8192 # computes ?544 MEs (writes to file 4 events) in 1.5s
   elif [ "${ggttggg}" == "1" ]; then
-    nevt=64 # computes 96 MEs (writes to file 4 events) in 4.0s
+    nevt=8192 # computes ?96 MEs (writes to file 4 events) in 4.0s
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
@@ -171,20 +174,12 @@ function getinputfile()
     mv ${tmp} ${tmp}_fortran
     tmp=${tmp}_fortran
     echo "0 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
-    echo "32 ! Number of events in a single Fortran iteration (nb_page_loop)" >> ${tmp}
-  elif [ "$1" == "-cuda" ]; then
-    if [ $nevt -lt 8192 ]; then nevt=8192; fi # always use at least 8192 events for cuda
-    mv ${tmp} ${tmp}_cuda
-    tmp=${tmp}_cuda
-    echo "+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
-    nloop=32768
-    while [ $nloop -gt $nevt ]; do (( nloop = nloop / 2 )); done
-    echo "${nloop} ! Number of events in a single CUDA iteration (nb_page_loop)" >> ${tmp}
-  elif [ "$1" == "-cpp" ]; then
+    echo "${NLOOP} ! Number of events in a single Fortran iteration (nb_page_loop)" >> ${tmp}
+  elif [ "$1" == "-cuda" ] || [ "$1" == "-cpp" ]; then
     mv ${tmp} ${tmp}_cpp
     tmp=${tmp}_cpp
     echo "+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
-    echo "32 ! Number of events in a single C++ or CUDA iteration (nb_page_loop)" >> ${tmp}
+    echo "${NLOOP} ! Number of events in a single C++ or CUDA iteration (nb_page_loop)" >> ${tmp}
   else
     echo "Usage: getinputfile <backend [-fortran][-cuda]-cpp]>"
     exit 1
@@ -231,7 +226,7 @@ function runcheck()
     (( nevt = nblk*nthr ))
   elif [ "${cmd/gcheck8192}" != "$cmd" ]; then
     txt="GCHECK(8192)"
-    cmd=${cmd/gcheck8192/gcheck} # hack: run cuda gcheck with tput fastest settings
+    cmd=${cmd/gcheck8192/gcheck} # hack: run cuda gcheck with same grid used for madevent (8192)
     cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
     nblk=256
     nthr=32
