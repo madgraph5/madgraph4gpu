@@ -1,5 +1,10 @@
 #!/bin/bash
 
+scrdir=$(cd $(dirname $0); pwd)
+
+host=$(hostname)
+if [ "${host/juwels}" != "${host}" ]; then ${scrdir}/juwelspatch.sh; fi # workaround for #498
+
 short=0
 makeclean=
 rmrdat=
@@ -22,7 +27,7 @@ while [ "$1" != "" ]; do
 done
 
 if [ "$short" == "1" ]; then
-  ./tmad/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg $makeclean $rmrdat $add10x
+  ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg $makeclean $rmrdat $add10x
 else
-  ./tmad/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -ggttggg $makeclean $rmrdat $add10x
+  ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -ggttggg $makeclean $rmrdat $add10x
 fi
