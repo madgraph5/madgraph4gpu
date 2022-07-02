@@ -170,6 +170,8 @@ function getinputfile()
   if [ "$1" == "-fortran" ]; then
     mv ${tmp} ${tmp}_fortran
     tmp=${tmp}_fortran
+    echo "0 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
+    echo "32 ! Number of events in a single Fortran iteration (nb_page_loop)" >> ${tmp}
   elif [ "$1" == "-cuda" ]; then
     if [ $nevt -lt 8192 ]; then nevt=8192; fi # always use at least 8192 events for cuda
     mv ${tmp} ${tmp}_cuda
