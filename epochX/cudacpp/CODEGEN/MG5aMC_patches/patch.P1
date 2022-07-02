@@ -206,10 +206,10 @@ index 104747ce9..0f522165f 100644
              ALL_P1(2,I,IVEC)=-ALL_P1(2,I,IVEC)
              ALL_P1(3,I,IVEC)=-ALL_P1(3,I,IVEC)
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index 91e1f5b4e..9ed448453 100644
+index 91e1f5b4e..912ee2d00 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-@@ -71,13 +71,44 @@ c      double precision xsec,xerr
+@@ -71,13 +71,52 @@ c      double precision xsec,xerr
  c      integer ncols,ncolflow(maxamps),ncolalt(maxamps),ic
  c      common/to_colstats/ncols,ncolflow,ncolalt,ic
  
@@ -218,8 +218,10 @@ index 91e1f5b4e..9ed448453 100644
  
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
 +      INCLUDE 'fbridge.inc'
-+      INCLUDE 'fbridge_common.inc'
++c     INCLUDE 'fbridge_common.inc'
 +#endif
++      INCLUDE 'fbridge_common.inc'
++
  C-----
  C  BEGIN CODE
  C----- 
@@ -228,15 +230,21 @@ index 91e1f5b4e..9ed448453 100644
 +
 +      CALL COUNTERS_INITIALISE()
 +
-+#ifdef MG5AMC_MEEXPORTER_CUDACPP
++c#ifdef MG5AMC_MEEXPORTER_CUDACPP
 +      write(*,*) 'Enter fbridge_mode'
 +      read(*,*) FBRIDGE_MODE ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
 +      write(*,'(a16,i6)') ' FBRIDGE_MODE = ', FBRIDGE_MODE
++#ifndef MG5AMC_MEEXPORTER_CUDACPP
++      if( fbridge_mode.ne.0 ) then
++        write(*,*) 'ERROR! Invalid fbridge_mode = ', fbridge_mode
++        STOP
++      endif
++#endif
 +      write(*,*) 'Enter #events in a vector loop (max=',nb_page_max,',)'
 +      read(*,*) nb_page_loop
-+#else
-+      NB_PAGE_LOOP = 32
-+#endif
++c#else
++c      NB_PAGE_LOOP = 32
++c#endif
 +      write(*,'(a16,i6)') ' NB_PAGE_LOOP = ', NB_PAGE_LOOP
 +      if( nb_page_loop.gt.nb_page_max .or. nb_page_loop.le.0 ) then
 +        write(*,*) 'ERROR! Invalid nb_page_loop = ', nb_page_loop
@@ -254,7 +262,7 @@ index 91e1f5b4e..9ed448453 100644
  c
  c     Read process number
  c
-@@ -132,7 +163,8 @@ c   If CKKW-type matching, read IS Sudakov grid
+@@ -132,7 +171,8 @@ c   If CKKW-type matching, read IS Sudakov grid
            exit
   30       issgridfile='../'//issgridfile
            if(i.eq.5)then
@@ -264,7 +272,7 @@ index 91e1f5b4e..9ed448453 100644
              stop
            endif
          enddo
-@@ -199,8 +231,33 @@ c      call sample_result(xsec,xerr)
+@@ -199,8 +239,33 @@ c      call sample_result(xsec,xerr)
  c      write(*,*) 'Final xsec: ',xsec
  
        rewind(lun)
@@ -299,7 +307,7 @@ index 91e1f5b4e..9ed448453 100644
        end
  
  c     $B$ get_user_params $B$ ! tag for MadWeight
-@@ -378,7 +435,7 @@ c
+@@ -378,7 +443,7 @@ c
        fopened=.false.
        tempname=filename 	 
        fine=index(tempname,' ') 	 
