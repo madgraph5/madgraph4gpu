@@ -60,11 +60,11 @@ function oneTable()
             ###if(ntag!=npar){print "ERROR! ntag!=npar", ntag, npar; status=1; exit status}; # NB new ntag>npar!
             for(i=1;i<=npar;i++){tag1[pars[i]]=tags[i];}}
       BEGIN{nfac=split(faclist,facs)}
-      BEGIN{if(onlyxmax==0) lsepEQUAL=sprintf("%0143d",0); else lsepEQUAL=sprintf("%089d",0);
+      BEGIN{if(onlyxmax==0) lsepEQUAL=sprintf("%0116d",0); else lsepEQUAL=sprintf("%089d",0);
             lsepDASH=lsepEQUAL; gsub("0","-",lsepDASH); gsub("0","=",lsepEQUAL)}
-      BEGIN{if(onlyxmax==0) lsepEQUAL2=sprintf("%014d%104s%025d",0,"",0); else lsepEQUAL2=sprintf("%014d%50s%025d",0,"",0);
+      BEGIN{if(onlyxmax==0) lsepEQUAL2=sprintf("%014d%77s%025d",0,"",0); else lsepEQUAL2=sprintf("%014d%50s%025d",0,"",0);
             lsepDASH2=lsepEQUAL2; gsub("0","-",lsepDASH2); gsub("0","=",lsepEQUAL2)}
-      BEGIN{if(onlyxmax==0) ifac0=1; else ifac0=nfac}
+      BEGIN{if(onlyxmax==0) ifac0=2; else ifac0=nfac}
       ###/create events.lhe/{print $0}
       /create events.lhe/{par=$2; tag=tag1[par]} # current tag (FORTRAN... CUDA/8192)
       /GCHECK\(MAX\)/{tag="CUDA/max"} # current tag (CUDA/max)
@@ -95,15 +95,15 @@ function oneTable()
       END{if (status!=0) exit status;
           print lsepEQUAL;
           if(onlyxmax==0)
-            printf "| %-10s | mad%21s | mad%21s | mad%21s | mad%6s | mad%6s | %-9s | %-9s |\n",
-                   "", "x"facs[1], "x"facs[2], "x"facs[3], "x"facs[3], "x"facs[3], "sa/brdg", "sa/full";
+            printf "| %-10s | mad%21s | mad%21s | mad%6s | mad%6s | %-9s | %-9s |\n",
+                   "", "x"facs[2], "x"facs[3], "x"facs[3], "x"facs[3], "sa/brdg", "sa/full";
           else
             printf "| %-10s | mad%21s | mad%6s | mad%6s | %-9s | %-9s |\n",
                    "", "x"facs[3], "x"facs[3], "x"facs[3], "sa/brdg", "sa/full";
           print lsepDASH;
           if(onlyxmax==0)
-            printf "| %-10s | %-24s | %-24s | %-24s | %-9s | %-9s | %-9s | %-9s |\n",
-                   proc, "[sec] tot = mad + MEs", "[sec] tot = mad + MEs", "[sec] tot = mad + MEs",
+            printf "| %-10s | %-24s | %-24s | %-9s | %-9s | %-9s | %-9s |\n",
+                   proc, "[sec] tot = mad + MEs", "[sec] tot = mad + MEs",
                    "[TOT/sec]", "[MEs/sec]", "[MEs/sec]", "[MEs/sec]";
           else
             printf "| %-10s | %-24s | %-9s | %-9s | %-9s | %-9s |\n",
@@ -113,14 +113,14 @@ function oneTable()
           for (itag=1; itag<=ntag; itag++)
           {tag=tags[itag]; 
            if(tag=="FORTRAN"){if(onlyxmax==0)
-                                printf "| %-10s | %24s | %24s | %24s | %9s | %9s | %9s | %9s |\n",
-                                "nevt/grid", "32", "32", "32", "32", "32", sabg1["CPP/none"], sag1["CPP/none"];
+                                printf "| %-10s | %24s | %24s | %9s | %9s | %9s | %9s |\n",
+                                "nevt/grid", "32", "32", "32", "32", sabg1["CPP/none"], sag1["CPP/none"];
                               else
                                 printf "| %-10s | %24s | %9s | %9s | %9s | %9s |\n",
                                 "nevt/grid", "32", "32", "32", sabg1["CPP/none"], sag1["CPP/none"];
                               if(onlyxmax==0)
-                                printf "| %-10s | %24s | %24s | %24s | %9s | %9s | %9s | %9s |\n",
-                                "nevt total", nevt1[facs[1]], nevt1[facs[2]], nevt1[facs[3]], nevt1[facs[3]], nevt1[facs[3]],
+                                printf "| %-10s | %24s | %24s | %9s | %9s | %9s | %9s |\n",
+                                "nevt total", nevt1[facs[2]], nevt1[facs[3]], nevt1[facs[3]], nevt1[facs[3]],
                                 sabp1["CPP/none"], sap1["CPP/none"];
                               else
                                 printf "| %-10s | %24s | %9s | %9s | %9s | %9s |\n",
@@ -130,14 +130,14 @@ function oneTable()
            else if(tag=="CUDA/8192"){
                               print lsepEQUAL;
                               if(onlyxmax==0)
-                                printf "| %-10s | %24s | %24s | %24s | %9s | %9s | %9s | %9s |\n",
-                                "nevt/grid", "8192", "8192", "8192", "8192", "8192", sabg1[tag], sag1[tag];
+                                printf "| %-10s | %24s | %24s | %9s | %9s | %9s | %9s |\n",
+                                "nevt/grid", "8192", "8192", "8192", "8192", sabg1[tag], sag1[tag];
                               else
                                 printf "| %-10s | %24s | %9s | %9s | %9s | %9s |\n",
                                 "nevt/grid", "8192", "8192", "8192", sabg1[tag], sag1[tag];
                               if(onlyxmax==0)
-                                printf "| %-10s | %24s | %24s | %24s | %9s | %9s | %9s | %9s |\n",
-                                "nevt total", nevt1b[facs[1]], nevt1b[facs[2]], nevt1b[facs[3]], nevt1b[facs[3]], nevt1b[facs[3]],
+                                printf "| %-10s | %24s | %24s | %9s | %9s | %9s | %9s |\n",
+                                "nevt total", nevt1b[facs[2]], nevt1b[facs[3]], nevt1b[facs[3]], nevt1b[facs[3]],
                                 sabp1[tag], sap1[tag];
                               else
                                 printf "| %-10s | %24s | %9s | %9s | %9s | %9s |\n",
@@ -147,21 +147,22 @@ function oneTable()
            else if(tag=="CUDA/max"||tag=="CUDA/8tpb"){
                               if(tag=="CUDA/max") print lsepEQUAL; else print lsepEQUAL2;
                               if(onlyxmax==0)
-                                printf "| %-10s | %102s | %9s | %9s |\n",
+                                printf "| %-10s | %75s | %9s | %9s |\n",
                                 "nevt/grid", "", sabg1[tag], sag1[tag];
                               else
                                 printf "| %-10s | %48s | %9s | %9s |\n",
                                 "nevt/grid", "", sabg1[tag], sag1[tag];
                               if(onlyxmax==0)
-                                printf "| %-10s | %102s | %9s | %9s |\n",
+                                printf "| %-10s | %75s | %9s | %9s |\n",
                                 "nevt total", "", sabp1[tag], sap1[tag];
                               else
                                 printf "| %-10s | %48s | %9s | %9s |\n",
                                 "nevt total", "", sabp1[tag], sap1[tag];
                               print lsepDASH2};
            printf "| %-10s |", tag;
-           if(tag=="CUDA/max"||tag=="CUDA/8tpb"){ if(onlyxmax==0) printf " %102s |", "";
-                                                  else printf " %48s |", ""; }
+           if(tag=="CUDA/max"||tag=="CUDA/8tpb")
+                            { if(onlyxmax==0) printf " %75s |", "";
+                              else printf " %48s |", ""; }
            else{ for(ifac=ifac0; ifac<=nfac; ifac++)
                  { fac=facs[ifac]; printf " %6.2f = %6.2f + %6.2f |", sec3[tag,fac,1], sec3[tag,fac,2], sec3[tag,fac,3]};
                  printf " %9.2e | %9s |", tputm1tot[tag], tputm1[tag]; }
