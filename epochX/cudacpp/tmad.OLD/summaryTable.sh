@@ -84,7 +84,8 @@ function oneTable()
       /EvtsPerSec/{if(tag!="" && gcheck!="bridge"){tput1[tag]=$5}}
       END{if (status!=0) exit status;
           print lsepEQUAL;
-          printf "| %-10s | %24s | %24s | %24s | %9s | %9s | %9s |\n", "", "mad", "mad", "mad", "mad", "sa/brdg", "sa/full";
+          printf "| %-10s | mad%21s | mad%21s | mad%21s | mad%6s | %-9s | %-9s |\n",
+                 "", "x"facs[1], "x"facs[2], "x"facs[3], "x"facs[3], "sa/brdg", "sa/full";
           print lsepDASH;
           printf "| %-10s | %-24s | %-24s | %-24s | %-9s | %-9s | %-9s |\n",
                  proc, "[sec] tot = mad + MEs", "[sec] tot = mad + MEs", "[sec] tot = mad + MEs", "[MEs/sec]", "[MEs/sec]", "[MEs/sec]";
@@ -94,7 +95,7 @@ function oneTable()
            if(tag=="FORTRAN"){printf "| %-10s | %24s | %24s | %36s | %9s | %9s |\n",
                               "nevt/grid", "32", "32", "32", sabg1["CPP/none"], sag1["CPP/none"];
                               printf "| %-10s | %24s | %24s | %36s | %9s | %9s |\n",
-                              "nevt total", "x"facs[1]" ["nevt1[facs[1]]"]", "x"facs[2]" ["nevt1[facs[2]]"]", "x"facs[3]" ["nevt1[facs[3]]"]",
+                              "nevt total", nevt1[facs[1]], nevt1[facs[2]], nevt1[facs[3]],
                               sabp1["CPP/none"], sap1["CPP/none"];
                               print lsepDASH}
            else if(tag=="CUDA/8192"){
