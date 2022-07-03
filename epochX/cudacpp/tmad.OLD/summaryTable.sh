@@ -82,7 +82,7 @@ function oneTable()
       /EvtsPerSec/{if(tag!="" && gcheck!="bridge"){tput1[tag]=$5}}
       END{if (status!=0) exit status;
           print lsepEQUAL;
-          printf "| %-10s | %-78s | %-30s |\n", proc, "[sec] Total = Overhead (FORTRAN) + MEs (FORTRAN, CPP or CUDA)", "[MEs/sec]"; 
+          printf "| %-10s | %-24s | %-24s | %-24s | %-30s |\n", proc, "[sec] tot = mad + MEs", "[sec] tot = mad + MEs", "[sec] tot = mad + MEs", "[MEs/sec]";
           print lsepDASH;
           printf "| %-10s | %24s | %24s | %35s | %8s | %8s |\n", "", "mad", "mad", "mad", "sa/brdg", "sa/full";
           print lsepEQUAL;
