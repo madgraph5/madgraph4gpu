@@ -179,13 +179,13 @@ function getinputfile()
     tmp=${tmp}_fortran
     echo "0 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
     echo "${NLOOP} ! Number of events in a single Fortran iteration (nb_page_loop)" >> ${tmp}
-  elif [ "$1" == "-cuda" ] || [ "$1" == "-cpp" ]; then
-    mv ${tmp} ${tmp}_cpp
-    tmp=${tmp}_cpp
+  elif [ "$1" == "-cuda" ] || [ "$1" == "-cpp" ]; then # NB: new script, use the same input for cuda and cpp
+    mv ${tmp} ${tmp}_cudacpp
+    tmp=${tmp}_cudacpp
     echo "+1 ! Fortran bridge mode (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)" >> ${tmp}
     echo "${NLOOP} ! Number of events in a single C++ or CUDA iteration (nb_page_loop)" >> ${tmp}
   else
-    echo "Usage: getinputfile <backend [-fortran][-cuda]-cpp]>"
+    echo "Usage: getinputfile <backend [-fortran][-cuda][-cpp]>"
     exit 1
   fi
   (( nevt = nevt*$xfac ))
@@ -235,12 +235,6 @@ function runcheck()
     nblk=256
     nthr=32
     nevt=$(getnevt)
-  elif [ "${cmd/gcheck}" != "$cmd" ]; then
-    txt="GCHECK(32)"
-    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
-    nblk=1
-    nthr=32
-    nevt=$(getnevt)
   elif [ "${cmd/check}" != "$cmd" ]; then
     txt="CHECK(32)"
     cmd=${cmd/.\//.\/build.${avx}_d_inl0_hrd0\/}
@@ -270,10 +264,6 @@ function runmadevent()
   if [ "${cmd/cmadevent}" != "$cmd" ]; then
     tmpin=$(getinputfile -cpp)
     cmd=${cmd/.\//.\/build.${avx}_d_inl0_hrd0\/}
-  elif [ "${cmd/gmadevent2}" != "$cmd" ]; then
-    cmd=${cmd/gmadevent2/gmadevent} # hack: run cuda gmadevent with cpp input file
-    cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
-    tmpin=$(getinputfile -cpp)
   elif [ "${cmd/gmadevent}" != "$cmd" ]; then
     cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
     tmpin=$(getinputfile -cuda)
@@ -461,13 +451,13 @@ for suff in $suffs; do
   if [ ! -f results.dat ]; then
     echo -e "\n*** (3) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
     \rm -f ftn26
-    runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
+    runmadevent ./gmadevent_cudacpp
   fi
   for xfac in $xfacs; do
     echo -e "\n*** (3) EXECUTE GMADEVENT_CUDACPP x$xfac (create events.lhe) ***"
     ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
     \rm -f ftn26
-    runmadevent ./gmadevent2_cudacpp # hack: run cuda gmadevent with cpp input file
+    runmadevent ./gmadevent_cudacpp
     echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac xsec to MADEVENT xsec ***"
     if [ "${xfac}" == "1" ]; then
       xsecref=$xsecref1
@@ -487,22 +477,6 @@ for suff in $suffs; do
     echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
     \mv events.lhe events.lhe.cuda.$xfac
     if ! diff events.lhe.cuda.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cuda.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cuda.$xfac and events.lhe.ref.$xfac are identical"; fi
-  done
-  runcheck ./gcheck.exe
-  
-  # (3bis) GMADEVENT_CUDACPP
-  xfac=1
-  if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
-  if [ ! -f results.dat ]; then
-    echo -e "\n*** (3bis) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
-    \rm -f ftn26
-    runmadevent ./gmadevent_cudacpp
-  fi
-  for xfac in $xfacs; do
-    echo -e "\n*** (3bis) EXECUTE GMADEVENT_CUDACPP x$xfac (create events.lhe) ***"
-    ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
-    \rm -f ftn26
-    runmadevent ./gmadevent_cudacpp
   done
   runcheck ./gcheck8192.exe
   runcheck ./gcheckmax.exe
