@@ -1,5 +1,7 @@
 #!/bin/sh
 
+scrdir=$(cd $(dirname $0); pwd)
+
 # Include CUDA/8tpb?
 cuda8tpb=
 ###cuda8tpb="CUDA/8tpb"
@@ -131,7 +133,7 @@ fpt=d
 inl=inl0
 hrd=hrd0
 
-out=tmad/summaryTable_${table}.txt
+out=${scrdir}/summaryTable_${table}.txt
 echo "" > $out
 for rev in $revs; do
   echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
