@@ -11,13 +11,19 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   set -e
   $0 -default
   $0 -juwels
+  $0 -default-short
+  $0 -juwels-short
   exit 0
 elif [ "$1" == "-default" ]; then
-  table="default"; shift
+  table="default"; onlyxmax=0; shift
+elif [ "$1" == "-default-short" ]; then
+  table="default"; onlyxmax=1; shift
 elif [ "$1" == "-juwels" ]; then
-  table="juwels"; shift
+  table="juwels";  onlyxmax=0; shift
+elif [ "$1" == "-juwels-short" ]; then
+  table="juwels";  onlyxmax=1; shift
 else
-  echo "Usage: $0 <table [-ALL|-default|-juwels]>"; exit 1
+  echo "Usage: $0 <table [-ALL|-default|-juwels|-default-short|-juwels-short]>"; exit 1
 fi
 
 # Select revisions and characteristics of mad logs
@@ -48,14 +54,17 @@ function oneTable()
     if [ "$?" != "0" ]; then echo "ERROR! 'git checkout $rev' failed!"; exit 1; fi
     node=$(cat $file | grep ^On | sort -u)
     if [ "$nodelast" != "$node" ]; then echo -e "$node\n" >> $out; nodelast=$node; fi
-    cat $file | awk -vproc=$proc -vtaglist="$taglist" -vparlist="$parlist" -vfaclist="$faclist" '
+    cat $file | awk -vproc=$proc -vtaglist="$taglist" -vparlist="$parlist" -vfaclist="$faclist" -vonlyxmax=$onlyxmax '
       BEGIN{status=0;}
       BEGIN{ntag=split(taglist,tags); npar=split(parlist,pars);
             ###if(ntag!=npar){print "ERROR! ntag!=npar", ntag, npar; status=1; exit status}; # NB new ntag>npar!
             for(i=1;i<=npar;i++){tag1[pars[i]]=tags[i];}}
       BEGIN{nfac=split(faclist,facs)}
-      BEGIN{lsepEQUAL=sprintf("%0131d",0); lsepDASH=lsepEQUAL; gsub("0","-",lsepDASH); gsub("0","=",lsepEQUAL)}
-      BEGIN{lsepEQUAL2=sprintf("%014d%92s%025d",0,"",0); lsepDASH2=lsepEQUAL2; gsub("0","-",lsepDASH2); gsub("0","=",lsepEQUAL2)}
+      BEGIN{if(onlyxmax==0) lsepEQUAL=sprintf("%0131d",0); else lsepEQUAL=sprintf("%077d",0);
+            lsepDASH=lsepEQUAL; gsub("0","-",lsepDASH); gsub("0","=",lsepEQUAL)}
+      BEGIN{if(onlyxmax==0) lsepEQUAL2=sprintf("%014d%92s%025d",0,"",0); else lsepEQUAL2=sprintf("%014d%38s%025d",0,"",0);
+            lsepDASH2=lsepEQUAL2; gsub("0","-",lsepDASH2); gsub("0","=",lsepEQUAL2)}
+      BEGIN{if(onlyxmax==0) ifac0=1; else ifac0=nfac}
       ###/create events.lhe/{print $0}
       /create events.lhe/{par=$2; tag=tag1[par]} # current tag (FORTRAN... CUDA/8192)
       /GCHECK\(MAX\)/{tag="CUDA/max"} # current tag (CUDA/max)
@@ -84,38 +93,72 @@ function oneTable()
       /EvtsPerSec/{if(tag!="" && gcheck!="bridge"){tput1[tag]=$5}}
       END{if (status!=0) exit status;
           print lsepEQUAL;
-          printf "| %-10s | mad%21s | mad%21s | mad%21s | mad%6s | %-9s | %-9s |\n",
-                 "", "x"facs[1], "x"facs[2], "x"facs[3], "x"facs[3], "sa/brdg", "sa/full";
+          if(onlyxmax==0)
+            printf "| %-10s | mad%21s | mad%21s | mad%21s | mad%6s | %-9s | %-9s |\n",
+                   "", "x"facs[1], "x"facs[2], "x"facs[3], "x"facs[3], "sa/brdg", "sa/full";
+          else
+            printf "| %-10s | mad%21s | mad%6s | %-9s | %-9s |\n",
+                   "", "x"facs[3], "x"facs[3], "sa/brdg", "sa/full";
           print lsepDASH;
-          printf "| %-10s | %-24s | %-24s | %-24s | %-9s | %-9s | %-9s |\n",
-                 proc, "[sec] tot = mad + MEs", "[sec] tot = mad + MEs", "[sec] tot = mad + MEs", "[MEs/sec]", "[MEs/sec]", "[MEs/sec]";
+          if(onlyxmax==0)
+            printf "| %-10s | %-24s | %-24s | %-24s | %-9s | %-9s | %-9s |\n",
+                   proc, "[sec] tot = mad + MEs", "[sec] tot = mad + MEs", "[sec] tot = mad + MEs", "[MEs/sec]", "[MEs/sec]", "[MEs/sec]";
+          else
+            printf "| %-10s | %-24s | %-9s | %-9s | %-9s |\n",
+                   proc, "[sec] tot = mad + MEs", "[MEs/sec]", "[MEs/sec]", "[MEs/sec]";
           print lsepEQUAL;
           for (itag=1; itag<=ntag; itag++)
           {tag=tags[itag]; 
-           if(tag=="FORTRAN"){printf "| %-10s | %24s | %24s | %24s | %9s | %9s | %9s |\n",
-                              "nevt/grid", "32", "32", "32", "32", sabg1["CPP/none"], sag1["CPP/none"];
-                              printf "| %-10s | %24s | %24s | %24s | %9s | %9s | %9s |\n",
-                              "nevt total", nevt1[facs[1]], nevt1[facs[2]], nevt1[facs[3]], nevt1[facs[3]],
-                              sabp1["CPP/none"], sap1["CPP/none"];
+           if(tag=="FORTRAN"){if(onlyxmax==0)
+                                printf "| %-10s | %24s | %24s | %24s | %9s | %9s | %9s |\n",
+                                "nevt/grid", "32", "32", "32", "32", sabg1["CPP/none"], sag1["CPP/none"];
+                              else
+                                printf "| %-10s | %24s | %9s | %9s | %9s |\n",
+                                "nevt/grid", "32", "32", sabg1["CPP/none"], sag1["CPP/none"];
+                              if(onlyxmax==0)
+                                printf "| %-10s | %24s | %24s | %24s | %9s | %9s | %9s |\n",
+                                "nevt total", nevt1[facs[1]], nevt1[facs[2]], nevt1[facs[3]], nevt1[facs[3]],
+                                sabp1["CPP/none"], sap1["CPP/none"];
+                              else
+                                printf "| %-10s | %24s | %9s | %9s | %9s |\n",
+                                "nevt total", nevt1[facs[3]], nevt1[facs[3]],
+                                sabp1["CPP/none"], sap1["CPP/none"];
                               print lsepDASH}
            else if(tag=="CUDA/8192"){
                               print lsepEQUAL;
-                              printf "| %-10s | %24s | %24s | %36s | %9s | %9s |\n",
-                              "nevt/grid", "8192", "8192", "8192", sabg1[tag], sag1[tag];
-                              printf "| %-10s | %24s | %24s | %36s | %9s | %9s |\n",
-                              "nevt total", "x"facs[1]" ["nevt1b[facs[1]]"]", "x"facs[2]" ["nevt1b[facs[2]]"]", "x"facs[3]" ["nevt1b[facs[3]]"]",
-                              sabp1[tag], sap1[tag];
+                              if(onlyxmax==0)
+                                printf "| %-10s | %24s | %24s | %36s | %9s | %9s |\n",
+                                "nevt/grid", "8192", "8192", "8192", sabg1[tag], sag1[tag];
+                              else
+                                printf "| %-10s | %36s | %9s | %9s |\n",
+                                "nevt/grid", "8192", sabg1[tag], sag1[tag];
+                              if(onlyxmax==0)
+                                printf "| %-10s | %24s | %24s | %36s | %9s | %9s |\n",
+                                "nevt total", "x"facs[1]" ["nevt1b[facs[1]]"]", "x"facs[2]" ["nevt1b[facs[2]]"]", "x"facs[3]" ["nevt1b[facs[3]]"]",
+                                sabp1[tag], sap1[tag];
+                              else
+                                printf "| %-10s | %36s | %9s | %9s |\n",
+                                "nevt total", "x"facs[3]" ["nevt1b[facs[3]]"]",
+                                sabp1[tag], sap1[tag];
                               print lsepDASH}
            else if(tag=="CUDA/max"||tag=="CUDA/8tpb"){
                               if(tag=="CUDA/max") print lsepEQUAL; else print lsepEQUAL2;
-                              printf "| %-10s | %90s | %9s | %9s |\n",
-                              "nevt/grid", "", sabg1[tag], sag1[tag];
-                              printf "| %-10s | %90s | %9s | %9s |\n",
-                              "nevt total", "", sabp1[tag], sap1[tag];
+                              if(onlyxmax==0)
+                                printf "| %-10s | %90s | %9s | %9s |\n",
+                                "nevt/grid", "", sabg1[tag], sag1[tag];
+                              else
+                                printf "| %-10s | %36s | %9s | %9s |\n",
+                                "nevt/grid", "", sabg1[tag], sag1[tag];
+                              if(onlyxmax==0)
+                                printf "| %-10s | %90s | %9s | %9s |\n",
+                                "nevt total", "", sabp1[tag], sap1[tag];
+                              else
+                                printf "| %-10s | %36s | %9s | %9s |\n",
+                                "nevt total", "", sabp1[tag], sap1[tag];
                               print lsepDASH2};
            printf "| %-10s |", tag;
-           if(tag=="CUDA/max"||tag=="CUDA/8tpb"){ printf " %90s |", ""; }
-           else{ for(ifac=1; ifac<=nfac; ifac++)
+           if(tag=="CUDA/max"||tag=="CUDA/8tpb"){ if(onlyxmax==0) printf " %90s |", ""; else printf " %36s |", ""; }
+           else{ for(ifac=ifac0; ifac<=nfac; ifac++)
                  { fac=facs[ifac]; printf " %6.2f = %6.2f + %6.2f |", sec3[tag,fac,1], sec3[tag,fac,2], sec3[tag,fac,3]};
                  printf " %9s |", tputm1[tag]; }
            if(tag=="FORTRAN"){ printf " %9s | %9s |", "---", "---"; }
@@ -135,7 +178,11 @@ fpt=d
 inl=inl0
 hrd=hrd0
 
-out=${scrdir}/summaryTable_${table}.txt
+if [ "${onlyxmax}" == "0" ]; then
+  out=${scrdir}/summaryTable_${table}.txt
+else
+  out=${scrdir}/summaryTable_${table}_short.txt
+fi  
 echo "" > $out
 for rev in $revs; do
   echo -e "+++ $bckend REVISION $rev (commit date: $(git log $rev --pretty=format:'%ci' --abbrev-commit -n1)) +++" >> $out
