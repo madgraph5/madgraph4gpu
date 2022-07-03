@@ -120,15 +120,15 @@ function showdir()
 function getnevt()
 {
   if [ "${eemumu}" == "1" ]; then
-    nevt=8192 # computes ?2080 MEs (writes to file 1009 events) in 1.1s
+    nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (1611, 1827) events in (0.3s, 0.8s)
   elif [ "${ggtt}" == "1" ]; then 
-    nevt=8192 # computes ?16416 MEs (writes to file 788 events) in 1.6s
+    nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (434, 1690) events in (0.4s, 2.5s)
   elif [ "${ggttg}" == "1" ]; then
-    nevt=8192 # computes ?4128 MEs (writes to file 56 events) in 1.0s
+    nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (40, 633) events in (0.8s, 6.8s)
   elif [ "${ggttgg}" == "1" ]; then
-    nevt=8192 # computes ?544 MEs (writes to file 4 events) in 1.5s
+    nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (49, 217) events in (5.8s, 58s)
   elif [ "${ggttggg}" == "1" ]; then
-    nevt=8192 # computes ?96 MEs (writes to file 4 events) in 4.0s
+    nevt=8192 # Fortran (x1, x10) computes (8192, 90112) MEs and writes to file (14, 97) events in (121s, 1222s)
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
