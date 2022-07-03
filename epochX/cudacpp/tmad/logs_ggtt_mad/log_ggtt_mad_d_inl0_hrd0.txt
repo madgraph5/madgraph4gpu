@@ -155,15 +155,15 @@ OK! xsec from fortran (46.377413285475775) and cpp (46.377413285475775) differ b
 
 OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 
-*** EXECUTE CHECK(32) -p 1 32 256 --bridge ***
+*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 10.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.998776e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.985540e+05                 )  sec^-1
 
-*** EXECUTE CHECK(32) -p 1 32 256 ***
+*** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 10.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.997752e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.000830e+05                 )  sec^-1
 
 *** (2-sse4) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
 --------------------
@@ -225,15 +225,15 @@ OK! xsec from fortran (46.377413285475775) and cpp (46.377413285475775) differ b
 
 OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 
-*** EXECUTE CHECK(32) -p 1 32 256 --bridge ***
+*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 10.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/sse4+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.383581e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.146680e+05                 )  sec^-1
 
-*** EXECUTE CHECK(32) -p 1 32 256 ***
+*** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 10.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/sse4+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.394003e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.162174e+05                 )  sec^-1
 
 *** (2-avx2) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
 --------------------
@@ -295,15 +295,15 @@ OK! xsec from fortran (46.377413285475775) and cpp (46.377413285475775) differ b
 
 OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 
-*** EXECUTE CHECK(32) -p 1 32 256 --bridge ***
+*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 10.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/avx2+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 5.811099e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 5.684543e+05                 )  sec^-1
 
-*** EXECUTE CHECK(32) -p 1 32 256 ***
+*** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 10.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/avx2+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 5.831234e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 5.739317e+05                 )  sec^-1
 
 *** (2-512y) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
 --------------------
@@ -365,15 +365,15 @@ OK! xsec from fortran (46.377413285475775) and cpp (46.377413285475775) differ b
 
 OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 
-*** EXECUTE CHECK(32) -p 1 32 256 --bridge ***
+*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 10.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.168888e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.151127e+05                 )  sec^-1
 
-*** EXECUTE CHECK(32) -p 1 32 256 ***
+*** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 10.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.261187e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.247561e+05                 )  sec^-1
 
 *** (2-512z) EXECUTE CMADEVENT_CUDACPP x1 (create events.lhe) ***
 --------------------
@@ -435,15 +435,15 @@ OK! xsec from fortran (46.377413285475775) and cpp (46.377413285475775) differ b
 
 OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 
-*** EXECUTE CHECK(32) -p 1 32 256 --bridge ***
+*** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 10.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+BRDHST/512z+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.841160e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.851765e+05                 )  sec^-1
 
-*** EXECUTE CHECK(32) -p 1 32 256 ***
+*** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_TTX_CPP [gcc 10.2.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512z+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.885186e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.882148e+05                 )  sec^-1
 
 *** (3) EXECUTE GMADEVENT_CUDACPP x1 (create events.lhe) ***
 --------------------
@@ -508,41 +508,41 @@ OK! events.lhe.cuda.10 and events.lhe.ref.10 are identical
 *** EXECUTE GCHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CUDA [nvcc 11.6.124 (gcc 10.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 2.288249e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.247320e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_TTX_CUDA [nvcc 11.6.124 (gcc 10.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.283413e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.278934e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX) -p 16384 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CUDA [nvcc 11.6.124 (gcc 10.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.527660e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.515576e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX) -p 16384 32 1 ***
 Process                     = SIGMA_SM_GG_TTX_CUDA [nvcc 11.6.124 (gcc 10.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.144040e+08                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.142740e+08                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX128THR) -p 4096 128 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CUDA [nvcc 11.6.124 (gcc 10.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.547276e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.539206e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX128THR) -p 4096 128 1 ***
 Process                     = SIGMA_SM_GG_TTX_CUDA [nvcc 11.6.124 (gcc 10.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.246338e+08                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.241829e+08                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX8THR) -p 65536 8 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTX_CUDA [nvcc 11.6.124 (gcc 10.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.343400e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.334873e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX8THR) -p 65536 8 1 ***
 Process                     = SIGMA_SM_GG_TTX_CUDA [nvcc 11.6.124 (gcc 10.2.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.294763e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.223981e+07                 )  sec^-1
 
 TEST COMPLETED
