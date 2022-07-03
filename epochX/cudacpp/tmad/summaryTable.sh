@@ -39,8 +39,11 @@ revs="$mrevs"
 
 # Select processes
 procs="eemumu ggtt ggttg ggttgg ggttggg"
-###procs="ggttggg"
-  
+
+# TEST MODE (debug individual lines and skip the final END printout)
+testmode=0
+###procs="ggttggg"; testmode=1
+
 # Kernel function
 function oneTable()
 {
@@ -54,8 +57,8 @@ function oneTable()
     if [ "$?" != "0" ]; then echo "ERROR! 'git checkout $rev' failed!"; exit 1; fi
     node=$(cat $file | grep ^On | sort -u)
     if [ "$nodelast" != "$node" ]; then echo -e "$node\n" >> $out; nodelast=$node; fi
-    cat $file | awk -vproc=$proc -vtaglist="$taglist" -vparlist="$parlist" -vfaclist="$faclist" -vonlyxmax=$onlyxmax '
-      BEGIN{status=0;}
+    cat $file | awk -vproc=$proc -vtaglist="$taglist" -vparlist="$parlist" -vfaclist="$faclist" -vonlyxmax=$onlyxmax -vtestmode=$testmode '
+      BEGIN{status=testmode} # set status=1 to skip the END printout and debug individual lines 
       BEGIN{ntag=split(taglist,tags); npar=split(parlist,pars);
             ###if(ntag!=npar){print "ERROR! ntag!=npar", ntag, npar; status=1; exit status}; # NB new ntag>npar!
             for(i=1;i<=npar;i++){tag1[pars[i]]=tags[i];}}
@@ -71,6 +74,7 @@ function oneTable()
       /GCHECK\(MAX128THR\)/{tag="CUDA/max128t"} # current tag (CUDA/max128t)
       /GCHECK\(MAX8THR\)/{tag="CUDA/8tpb"} # current tag (CUDA/8tpb)
       /create events.lhe/{fac=substr($5,2)} # current fac
+      /\[XSECTION\] nb_page_loop =/{if(tag!="") nloop2[tag,fac]=$4}
       /\[COUNTERS\]/{if($3=="TOTAL") typ=1; else if($3=="Overhead") typ=2; else if($3=="MEs") typ=3;
                      else{print "ERROR! Unknown type $3"; status=1; exit status};
                      if($4==":") sec=$5; else sec=$8; sec=substr(sec,1,length(sec)-1); # current sec
@@ -114,10 +118,12 @@ function oneTable()
           {tag=tags[itag]; 
            if(tag=="FORTRAN"){if(onlyxmax==0)
                                 printf "| %-10s | %26s | %26s | %17s | %17s | %9s | %9s |\n",
-                                "nevt/grid", "8192", "8192", "8192", "8192", sabg1["CPP/none"], sag1["CPP/none"];
+                                "nevt/grid", nloop2[tag,fac], nloop2[tag,fac], nloop2[tag,fac], nloop2[tag,fac],
+                                sabg1["CPP/none"], sag1["CPP/none"];
                               else
                                 printf "| %-10s | %26s | %17s | %17s | %9s | %9s |\n",
-                                "nevt/grid", "8192", "8192", "8192", sabg1["CPP/none"], sag1["CPP/none"];
+                                "nevt/grid", nloop2[tag,fac], nloop2[tag,fac], nloop2[tag,fac],
+                                sabg1["CPP/none"], sag1["CPP/none"];
                               if(onlyxmax==0)
                                 printf "| %-10s | %26s | %26s | %17s | %17s | %9s | %9s |\n",
                                 "nevt total", nevt1[facs[1]], nevt1[facs[2]], nevt1[facs[2]], nevt1[facs[2]],
