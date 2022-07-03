@@ -99,7 +99,8 @@ function oneTable()
                    "", "x"facs[1], "x"facs[2], "x"facs[2], "x"facs[2], "sa/brdg", "sa/full";
           else
             printf "| %-10s | mad%23s | mad%14s | mad%14s | %-9s | %-9s |\n",
-                   "", "x"facs[2], "x"facs[2], "x"facs[2], "sa/brdg", "sa/full";
+                   ###"", "x"facs[2], "x"facs[2], "x"facs[2], "sa/brdg", "sa/full";
+                   "", "", "", "", "sa/brdg", "sa/full";
           print lsepDASH;
           if(onlyxmax==0)
             printf "| %-10s | %-26s | %-26s | %-17s | %-17s | %-9s | %-9s |\n",
