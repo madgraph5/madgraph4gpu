@@ -30,7 +30,7 @@ fi
 mrevs=""
 if [ "$table" == "default" ]; then
   mrevs="$mrevs 83f39cf"  # cuda116/gcc102  (03 Jul 2022)
-  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/32 CUDA/8192 CUDA/max $cuda8tpb"
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
 elif [ "$table" == "juwels" ]; then
   mrevs="$mrevs b49a0d3"  # cuda116/gcc102  (03 Jul 2022) 
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
@@ -78,7 +78,6 @@ function oneTable()
       /\[COUNTERS\]/{if(tag!="" && $3=="MEs")
                      {nevt=$10; ###print tag, nevt;
                       if(tag=="FORTRAN") nevt1[fac]=nevt; 
-                      else if(tag=="CUDA/8192") nevt1b[fac]=nevt;
                       else if(nevt1[fac]!=nevt){print "ERROR! nevt mismatch", nevt1[fac], nevt; status=1; exit status};
                       tputm1[tag]=tolower($15); # TODO? cross-check this against nevt1[fac]/sec3[tag,fac,3]
                       tputm1tot[tag]=nevt/sec3[tag,fac,1]}}
@@ -127,23 +126,6 @@ function oneTable()
                                 printf "| %-10s | %26s | %17s | %17s | %9s | %9s |\n",
                                 "nevt total", nevt1[facs[2]], nevt1[facs[2]], nevt1[facs[2]],
                                 sabp1["CPP/none"], sap1["CPP/none"];
-                              print lsepDASH}
-           else if(tag=="CUDA/8192"){
-                              print lsepEQUAL;
-                              if(onlyxmax==0)
-                                printf "| %-10s | %26s | %26s | %17s | %17s | %9s | %9s |\n",
-                                "nevt/grid", "8192", "8192", "8192", "8192", sabg1[tag], sag1[tag];
-                              else
-                                printf "| %-10s | %26s | %17s | %17s | %9s | %9s |\n",
-                                "nevt/grid", "8192", "8192", "8192", sabg1[tag], sag1[tag];
-                              if(onlyxmax==0)
-                                printf "| %-10s | %26s | %26s | %17s | %17s | %9s | %9s |\n",
-                                "nevt total", nevt1b[facs[1]], nevt1b[facs[2]], nevt1b[facs[2]], nevt1b[facs[2]],
-                                sabp1[tag], sap1[tag];
-                              else
-                                printf "| %-10s | %26s | %17s | %17s | %9s | %9s |\n",
-                                "nevt total", nevt1b[facs[2]], nevt1b[facs[2]], nevt1b[facs[2]],
-                                sabp1[tag], sap1[tag];
                               print lsepDASH}
            else if(tag=="CUDA/max"||tag=="CUDA/8tpb"){
                               if(tag=="CUDA/max") print lsepEQUAL; else print lsepEQUAL2;
