@@ -114,10 +114,10 @@ function oneTable()
           {tag=tags[itag]; 
            if(tag=="FORTRAN"){if(onlyxmax==0)
                                 printf "| %-10s | %26s | %26s | %17s | %17s | %9s | %9s |\n",
-                                "nevt/grid", "32", "32", "32", "32", sabg1["CPP/none"], sag1["CPP/none"];
+                                "nevt/grid", "8192", "8192", "8192", "8192", sabg1["CPP/none"], sag1["CPP/none"];
                               else
                                 printf "| %-10s | %26s | %17s | %17s | %9s | %9s |\n",
-                                "nevt/grid", "32", "32", "32", sabg1["CPP/none"], sag1["CPP/none"];
+                                "nevt/grid", "8192", "8192", "8192", sabg1["CPP/none"], sag1["CPP/none"];
                               if(onlyxmax==0)
                                 printf "| %-10s | %26s | %26s | %17s | %17s | %9s | %9s |\n",
                                 "nevt total", nevt1[facs[1]], nevt1[facs[2]], nevt1[facs[2]], nevt1[facs[2]],
