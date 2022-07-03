@@ -10,6 +10,10 @@ topdir=$(cd $scrdir; cd ../../..; pwd)
 # HARDCODE NLOOP HERE (may improve this eventually...)
 NLOOP=8192
 
+# Workaround for #498 on juwels
+host=$(hostname)
+if [ "${host/juwels}" != "${host}" ]; then NLOOP=32; fi # workaround for #498
+
 function usage()
 {
   echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [+100x]" > /dev/stderr
