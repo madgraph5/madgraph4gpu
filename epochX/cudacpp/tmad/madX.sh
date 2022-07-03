@@ -230,18 +230,21 @@ function runcheck()
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     (( nevt = nblk*nthr ))
-  elif [ "${cmd/gcheck8192}" != "$cmd" ]; then
-    txt="GCHECK(8192)"
-    cmd=${cmd/gcheck8192/gcheck} # hack: run cuda gcheck with same grid used for madevent (8192)
+  elif [ "${cmd/gcheck}" != "$cmd" ]; then
+    txt="GCHECK($NLOOP)"
     cmd=${cmd/.\//.\/build.none_d_inl0_hrd0\/}
-    nblk=256
     nthr=32
+    (( nblk = NLOOP/nthr )) # NB integer division
+    (( nloop2 = nblk*nthr ))
+    if [ "$NLOOP" != "$nloop2" ]; then echo "ERROR! NLOOP($nloop) != nloop2($nloop2)"; exit 1; fi
     nevt=$(getnevt)
   elif [ "${cmd/check}" != "$cmd" ]; then
-    txt="CHECK(8192)"
+    txt="CHECK($NLOOP)"
     cmd=${cmd/.\//.\/build.${avx}_d_inl0_hrd0\/}
-    nblk=256
     nthr=32
+    (( nblk = NLOOP/nthr )) # NB integer division
+    (( nloop2 = nblk*nthr ))
+    if [ "$NLOOP" != "$nloop2" ]; then echo "ERROR! NLOOP($nloop) != nloop2($nloop2)"; exit 1; fi
     nevt=$(getnevt)
   else
     echo "ERROR! Unknown check executable '$cmd'"; exit 1
@@ -480,7 +483,7 @@ for suff in $suffs; do
       if ! diff events.lhe.cuda.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cuda.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cuda.$xfac and events.lhe.ref.$xfac are identical"; fi
     done
   fi
-  runcheck ./gcheck8192.exe
+  runcheck ./gcheck.exe
   runcheck ./gcheckmax.exe
   runcheck ./gcheckmax128thr.exe
   runcheck ./gcheckmax8thr.exe
