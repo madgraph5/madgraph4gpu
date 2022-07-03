@@ -127,18 +127,18 @@ function oneTable()
            else if(tag=="CUDA/8192"){
                               print lsepEQUAL;
                               if(onlyxmax==0)
-                                printf "| %-10s | %24s | %24s | %36s | %9s | %9s |\n",
-                                "nevt/grid", "8192", "8192", "8192", sabg1[tag], sag1[tag];
+                                printf "| %-10s | %24s | %24s | %24s | %9s | %9s | %9s |\n",
+                                "nevt/grid", "8192", "8192", "8192", "8192", sabg1[tag], sag1[tag];
                               else
-                                printf "| %-10s | %36s | %9s | %9s |\n",
-                                "nevt/grid", "8192", sabg1[tag], sag1[tag];
+                                printf "| %-10s | %24s | %9s | %9s | %9s |\n",
+                                "nevt/grid", "8192", "8192", sabg1[tag], sag1[tag];
                               if(onlyxmax==0)
-                                printf "| %-10s | %24s | %24s | %36s | %9s | %9s |\n",
-                                "nevt total", "x"facs[1]" ["nevt1b[facs[1]]"]", "x"facs[2]" ["nevt1b[facs[2]]"]", "x"facs[3]" ["nevt1b[facs[3]]"]",
+                                printf "| %-10s | %24s | %24s | %24s | %9s | %9s | %9s |\n",
+                                "nevt total", nevt1b[facs[1]], nevt1b[facs[2]], nevt1b[facs[3]], nevt1b[facs[3]],
                                 sabp1[tag], sap1[tag];
                               else
-                                printf "| %-10s | %36s | %9s | %9s |\n",
-                                "nevt total", "x"facs[3]" ["nevt1b[facs[3]]"]",
+                                printf "| %-10s | %24s | %9s | %9s | %9s |\n",
+                                "nevt total", nevt1b[facs[3]], nevt1b[facs[3]],
                                 sabp1[tag], sap1[tag];
                               print lsepDASH}
            else if(tag=="CUDA/max"||tag=="CUDA/8tpb"){
