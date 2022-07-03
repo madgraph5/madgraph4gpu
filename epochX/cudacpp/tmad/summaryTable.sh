@@ -29,10 +29,10 @@ fi
 # Select revisions and characteristics of mad logs
 mrevs=""
 if [ "$table" == "default" ]; then
-  mrevs="$mrevs 4d18d1e"  # cuda116/gcc102  (03 Jul 2022)
+  mrevs="$mrevs bf727b1"  # cuda116/gcc102  (03 Jul 2022)
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
 elif [ "$table" == "juwels" ]; then
-  mrevs="$mrevs b49a0d3"  # cuda116/gcc102  (03 Jul 2022) 
+  mrevs="$mrevs 8b681c6"  # cuda116/gcc102  (03 Jul 2022) 
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
 fi
 revs="$mrevs"
