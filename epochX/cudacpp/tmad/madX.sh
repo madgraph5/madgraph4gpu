@@ -16,7 +16,7 @@ if [ "${host/juwels}" != "${host}" ]; then NLOOP=32; fi # workaround for #498
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
   exit 1
 }
 
@@ -38,6 +38,8 @@ maketype=
 rmrdat=0
 
 xfacs="1"
+
+checkonly=0
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-d" ]; then
@@ -69,6 +71,9 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "+10x" ]; then
     xfacs="$xfacs 10"
+    shift
+  elif [ "$1" == "-checkonly" ]; then
+    checkonly=1
     shift
   else
     usage
@@ -375,47 +380,88 @@ for suff in $suffs; do
   cd $dir
 
   # (1) MADEVENT
-  xfac=1
-  \rm -f results.dat # ALWAYS remove results.dat before the first madevent execution
-  if [ ! -f results.dat ]; then
-    echo -e "\n*** (1) EXECUTE MADEVENT (create results.dat) ***"
-    \rm -f ftn26
-    runmadevent ./madevent
-    \cp -p results.dat results.dat.ref
-  fi
-  for xfac in $xfacs; do
-    echo -e "\n*** (1) EXECUTE MADEVENT x$xfac (create events.lhe) ***"
-    ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
-    \rm -f ftn26
-    runmadevent ./madevent
-    if [ "${xfac}" == "1" ]; then
-      xsecref1=$xsecnew
-    elif [ "${xfac}" == "10" ]; then
-      xsecref10=$xsecnew
-    else
-      echo "ERROR! Unknown xfac=$xfac"; exit 1
+  if [ "${checkonly}" == "0" ]; then
+    xfac=1
+    \rm -f results.dat # ALWAYS remove results.dat before the first madevent execution
+    if [ ! -f results.dat ]; then
+      echo -e "\n*** (1) EXECUTE MADEVENT (create results.dat) ***"
+      \rm -f ftn26
+      runmadevent ./madevent
+      \cp -p results.dat results.dat.ref
     fi
-    ${scrdir}/dummyColor.sh events.lhe events.lhe.ref
-    ${scrdir}/dummyHelicities.sh events.lhe.ref events.lhe.ref2
-    \mv events.lhe.ref2 events.lhe.ref.$xfac
-  done
-      
+    for xfac in $xfacs; do
+      echo -e "\n*** (1) EXECUTE MADEVENT x$xfac (create events.lhe) ***"
+      ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
+      \rm -f ftn26
+      runmadevent ./madevent
+      if [ "${xfac}" == "1" ]; then
+        xsecref1=$xsecnew
+      elif [ "${xfac}" == "10" ]; then
+        xsecref10=$xsecnew
+      else
+        echo "ERROR! Unknown xfac=$xfac"; exit 1
+      fi
+      ${scrdir}/dummyColor.sh events.lhe events.lhe.ref
+      ${scrdir}/dummyHelicities.sh events.lhe.ref events.lhe.ref2
+      \mv events.lhe.ref2 events.lhe.ref.$xfac
+    done
+  fi
+
   # (2) CMADEVENT_CUDACPP
-  xsecthr="2E-14"
   for avx in none sse4 avx2 512y 512z; do
+    if [ "${checkonly}" == "0" ]; then      
+      xsecthr="2E-14"
+      xfac=1
+      if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
+      if [ ! -f results.dat ]; then
+        echo -e "\n*** (2-$avx) EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
+        \rm -f ftn26
+        runmadevent ./cmadevent_cudacpp
+      fi
+      for xfac in $xfacs; do
+        echo -e "\n*** (2-$avx) EXECUTE CMADEVENT_CUDACPP x$xfac (create events.lhe) ***"
+        ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
+        \rm -f ftn26
+        runmadevent ./cmadevent_cudacpp
+        echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac xsec to MADEVENT xsec ***"
+        if [ "${xfac}" == "1" ]; then
+          xsecref=$xsecref1
+        elif [ "${xfac}" == "10" ]; then
+          xsecref=$xsecref10
+        else
+          echo "ERROR! Unknown xfac=$xfac"; exit 1
+        fi
+        delta=$(python3 -c "print(abs(1-$xsecnew/$xsecref))")
+        if python3 -c "assert(${delta}<${xsecthr})" 2>/dev/null; then
+          echo -e "\nOK! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by less than ${xsecthr} ($delta)"
+        else
+          echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
+          exit 1
+        fi
+        echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
+        \mv events.lhe events.lhe.cpp.$xfac
+        if ! diff events.lhe.cpp.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cpp.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cpp.$xfac and events.lhe.ref.$xfac are identical"; fi
+      done
+    fi
+    runcheck ./check.exe
+  done
+
+  # (3) GMADEVENT_CUDACPP
+  if [ "$gpuTxt" == "none" ]; then continue; fi
+  if [ "${checkonly}" == "0" ]; then      
     xfac=1
     if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
     if [ ! -f results.dat ]; then
-      echo -e "\n*** (2-$avx) EXECUTE CMADEVENT_CUDACPP (create results.dat) ***"
+      echo -e "\n*** (3) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
       \rm -f ftn26
-      runmadevent ./cmadevent_cudacpp
+      runmadevent ./gmadevent_cudacpp
     fi
     for xfac in $xfacs; do
-      echo -e "\n*** (2-$avx) EXECUTE CMADEVENT_CUDACPP x$xfac (create events.lhe) ***"
+      echo -e "\n*** (3) EXECUTE GMADEVENT_CUDACPP x$xfac (create events.lhe) ***"
       ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
       \rm -f ftn26
-      runmadevent ./cmadevent_cudacpp
-      echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac xsec to MADEVENT xsec ***"
+      runmadevent ./gmadevent_cudacpp
+      echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac xsec to MADEVENT xsec ***"
       if [ "${xfac}" == "1" ]; then
         xsecref=$xsecref1
       elif [ "${xfac}" == "10" ]; then
@@ -423,52 +469,17 @@ for suff in $suffs; do
       else
         echo "ERROR! Unknown xfac=$xfac"; exit 1
       fi
-      delta=$(python3 -c "print(abs(1-$xsecnew/$xsecref))")
-      if python3 -c "assert(${delta}<${xsecthr})" 2>/dev/null; then
+      if delta=$(python -c "d=abs(1-$xsecnew/$xsecref); print(d); assert(d<${xsecthr})" 2>/dev/null); then
         echo -e "\nOK! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by less than ${xsecthr} ($delta)"
       else
         echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
         exit 1
       fi
-      echo -e "\n*** (2-$avx) Compare CMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
-      \mv events.lhe events.lhe.cpp.$xfac
-      if ! diff events.lhe.cpp.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cpp.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cpp.$xfac and events.lhe.ref.$xfac are identical"; fi
+      echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
+      \mv events.lhe events.lhe.cuda.$xfac
+      if ! diff events.lhe.cuda.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cuda.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cuda.$xfac and events.lhe.ref.$xfac are identical"; fi
     done
-    runcheck ./check.exe
-  done
-
-  # (3) GMADEVENT_CUDACPP
-  if [ "$gpuTxt" == "none" ]; then continue; fi
-  xfac=1
-  if [ "${rmrdat}" == "0" ]; then \cp -p results.dat.ref results.dat; else \rm -f results.dat; fi  
-  if [ ! -f results.dat ]; then
-    echo -e "\n*** (3) EXECUTE GMADEVENT_CUDACPP (create results.dat) ***"
-    \rm -f ftn26
-    runmadevent ./gmadevent_cudacpp
   fi
-  for xfac in $xfacs; do
-    echo -e "\n*** (3) EXECUTE GMADEVENT_CUDACPP x$xfac (create events.lhe) ***"
-    ${rdatcmd} | grep Modify | sed 's/Modify/results.dat /'
-    \rm -f ftn26
-    runmadevent ./gmadevent_cudacpp
-    echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac xsec to MADEVENT xsec ***"
-    if [ "${xfac}" == "1" ]; then
-      xsecref=$xsecref1
-    elif [ "${xfac}" == "10" ]; then
-      xsecref=$xsecref10
-    else
-      echo "ERROR! Unknown xfac=$xfac"; exit 1
-    fi
-    if delta=$(python -c "d=abs(1-$xsecnew/$xsecref); print(d); assert(d<${xsecthr})" 2>/dev/null); then
-      echo -e "\nOK! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by less than ${xsecthr} ($delta)"
-    else
-      echo -e "\nERROR! xsec from fortran ($xsecref) and cpp ($xsecnew) differ by more than ${xsecthr} ($delta)"
-      exit 1
-    fi
-    echo -e "\n*** (3) Compare GMADEVENT_CUDACPP x$xfac events.lhe to MADEVENT events.lhe reference (with dummy colors and helicities) ***"
-    \mv events.lhe events.lhe.cuda.$xfac
-    if ! diff events.lhe.cuda.$xfac events.lhe.ref.$xfac; then echo "ERROR! events.lhe.cuda.$xfac and events.lhe.ref.$xfac differ!"; exit 1; else echo -e "\nOK! events.lhe.cuda.$xfac and events.lhe.ref.$xfac are identical"; fi
-  done
   runcheck ./gcheck8192.exe
   runcheck ./gcheckmax.exe
   runcheck ./gcheckmax128thr.exe
