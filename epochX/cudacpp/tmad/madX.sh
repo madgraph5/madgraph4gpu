@@ -16,7 +16,7 @@ if [ "${host/juwels}" != "${host}" ]; then NLOOP=32; fi # workaround for #498
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [+100x]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg]> [-d] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x]" > /dev/stderr
   exit 1
 }
 
@@ -69,9 +69,6 @@ while [ "$1" != "" ]; do
     shift
   elif [ "$1" == "+10x" ]; then
     xfacs="$xfacs 10"
-    shift
-  elif [ "$1" == "+100x" ]; then
-    xfacs="$xfacs 100"
     shift
   else
     usage
@@ -395,8 +392,6 @@ for suff in $suffs; do
       xsecref1=$xsecnew
     elif [ "${xfac}" == "10" ]; then
       xsecref10=$xsecnew
-    elif [ "${xfac}" == "100" ]; then
-      xsecref100=$xsecnew
     else
       echo "ERROR! Unknown xfac=$xfac"; exit 1
     fi
@@ -425,8 +420,6 @@ for suff in $suffs; do
         xsecref=$xsecref1
       elif [ "${xfac}" == "10" ]; then
         xsecref=$xsecref10
-      elif [ "${xfac}" == "100" ]; then
-        xsecref=$xsecref100
       else
         echo "ERROR! Unknown xfac=$xfac"; exit 1
       fi
@@ -463,8 +456,6 @@ for suff in $suffs; do
       xsecref=$xsecref1
     elif [ "${xfac}" == "10" ]; then
       xsecref=$xsecref10
-    elif [ "${xfac}" == "100" ]; then
-      xsecref=$xsecref100
     else
       echo "ERROR! Unknown xfac=$xfac"; exit 1
     fi
