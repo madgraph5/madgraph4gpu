@@ -238,9 +238,9 @@ function runcheck()
     nthr=32
     nevt=$(getnevt)
   elif [ "${cmd/check}" != "$cmd" ]; then
-    txt="CHECK(32)"
+    txt="CHECK(8192)"
     cmd=${cmd/.\//.\/build.${avx}_d_inl0_hrd0\/}
-    nblk=1
+    nblk=256
     nthr=32
     nevt=$(getnevt)
   else
