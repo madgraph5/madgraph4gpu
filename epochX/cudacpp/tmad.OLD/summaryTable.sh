@@ -92,10 +92,10 @@ function oneTable()
           print lsepEQUAL;
           for (itag=1; itag<=ntag; itag++)
           {tag=tags[itag]; 
-           if(tag=="FORTRAN"){printf "| %-10s | %24s | %24s | %36s | %9s | %9s |\n",
-                              "nevt/grid", "32", "32", "32", sabg1["CPP/none"], sag1["CPP/none"];
-                              printf "| %-10s | %24s | %24s | %36s | %9s | %9s |\n",
-                              "nevt total", nevt1[facs[1]], nevt1[facs[2]], nevt1[facs[3]],
+           if(tag=="FORTRAN"){printf "| %-10s | %24s | %24s | %24s | %9s | %9s | %9s |\n",
+                              "nevt/grid", "32", "32", "32", "32", sabg1["CPP/none"], sag1["CPP/none"];
+                              printf "| %-10s | %24s | %24s | %24s | %9s | %9s | %9s |\n",
+                              "nevt total", nevt1[facs[1]], nevt1[facs[2]], nevt1[facs[3]], nevt1[facs[3]],
                               sabp1["CPP/none"], sap1["CPP/none"];
                               print lsepDASH}
            else if(tag=="CUDA/8192"){
