@@ -81,7 +81,7 @@ function oneTable()
                       else if(tag=="CUDA/8192") nevt1b[fac]=nevt;
                       else if(nevt1[fac]!=nevt){print "ERROR! nevt mismatch", nevt1[fac], nevt; status=1; exit status};
                       tputm1[tag]=tolower($15); # TODO? cross-check this against nevt1[fac]/sec3[tag,fac,3]
-                      tputm1tot[tag]=nevt1[fac]/sec3[tag,fac,1]}}
+                      tputm1tot[tag]=nevt/sec3[tag,fac,1]}}
       /CHECK/{if(tag!=""){if($5=="2048") fld5="2k";
                           else if($5=="16384") fld5="16k";
                           else if($5=="65536") fld5="64k";
