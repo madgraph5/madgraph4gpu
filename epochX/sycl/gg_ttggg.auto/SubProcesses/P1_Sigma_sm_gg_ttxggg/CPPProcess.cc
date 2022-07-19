@@ -32027,7 +32027,7 @@ m_tIPD[1] = (fptype)m_pars->mdl_WT;
     mgDebugInitialise();
 
     // Denominators: spins, colors and identical particles
-    const int denominators = 1536; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
+    constexpr int denominators = 1536; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
 
     // Set the parameters which change event by event
     // Need to discuss this with Stefan
@@ -32054,7 +32054,7 @@ m_tIPD[1] = (fptype)m_pars->mdl_WT;
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-    allMEs[ievt] /= (fptype)denominators;
+    allMEs[ievt] /= denominators;
     mgDebugFinalise();
   }
 

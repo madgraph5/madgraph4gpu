@@ -17,7 +17,7 @@
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
     // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
-    allMEs[ievt] /= (fptype)denominators;
+    allMEs[ievt] /= denominators;
     mgDebugFinalise();
   }
 

@@ -133,7 +133,7 @@ namespace Proc
     mgDebugInitialise();
 
     // Denominators: spins, colors and identical particles
-    const int denominators = %(den_factors)s; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
+    constexpr int denominators = %(den_factors)s; // FIXME: assume process.nprocesses == 1 for the moment (eventually denominators[nprocesses]?)
 
     // Set the parameters which change event by event
     // Need to discuss this with Stefan
