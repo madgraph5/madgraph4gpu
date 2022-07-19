@@ -93,7 +93,7 @@ namespace mgOnGpu
         if ( ip.first[0] == '2' ) total2 += ip.second;
         if ( ip.first[0] == '3' ) total3 += ip.second;
         if ( ip.first[0] == '3' && ip.first[1] == 'a' ) total3a += ip.second;
-        ipart++;
+        //ipart++;
       }
       // Dump individual partition timers and the overall total
       if (json) {
