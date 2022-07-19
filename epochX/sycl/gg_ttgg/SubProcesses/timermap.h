@@ -74,7 +74,7 @@ namespace mgOnGpu
         maxsize = std::max( maxsize, ip.first.size() );
       maxsize = std::max( maxsize, totalKey.size() );
       // Compute the overall total
-      size_t ipart = 0;
+      //size_t ipart = 0;
       float total = 0;
       //float totalBut2 = 0;
       float total123 = 0;

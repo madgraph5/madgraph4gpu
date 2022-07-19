@@ -202,7 +202,7 @@ int main(int argc, char **argv)
   bool device_chosen = false;
   bool device_info = false;
   auto devices = sycl::device::get_devices();
-  bool bridge = false;
+  //bool bridge = false;
 
   // READ COMMAND LINE ARGUMENTS
   for ( int argn = 1; argn < argc; ++argn )
@@ -226,7 +226,8 @@ int main(int argc, char **argv)
     }
     else if ( arg == "--bridge" )
     {
-      bridge = true;
+      //bridge = true;
+      std::cout << "--bridge unused for now." << std::endl;
     }
     else if ( ( arg == "--help" ) || ( arg == "-h" ) )
     {
@@ -257,7 +258,7 @@ int main(int argc, char **argv)
         if (d_id >= devices.size())
         {
           std::cout << "Invalid device_id. Please choose device from: " << std::endl;
-          for (int i=0; i < devices.size(); i++)
+          for (size_t i=0; i < devices.size(); i++)
           {
             const auto &device = devices[i];
             auto d_name = device.get_info<sycl::info::device::name>();
@@ -307,7 +308,7 @@ int main(int argc, char **argv)
       std::cout << "Terminating. Exit Code: -997" << std::endl;
       return -997;
     } else {
-      for (int i=0; i < devices.size(); i++) {
+      for (size_t i=0; i < devices.size(); i++) {
         std::cout << "device_id " << i << ":" << std::endl;
         print_device_info(devices[i]);
       }
@@ -652,37 +653,37 @@ int main(int argc, char **argv)
   timermap.start(statKey);
 
   double sumgtim = 0;
-  double sqsgtim = 0;
+  //double sqsgtim = 0;
   double mingtim = genrtimes[0];
   double maxgtim = genrtimes[0];
   for ( int iiter = 0; iiter < niter; ++iiter )
   {
     sumgtim += genrtimes[iiter];
-    sqsgtim += genrtimes[iiter]*genrtimes[iiter];
+    //sqsgtim += genrtimes[iiter]*genrtimes[iiter];
     mingtim = std::min( mingtim, genrtimes[iiter] );
     maxgtim = std::max( maxgtim, genrtimes[iiter] );
   }
 
   double sumrtim = 0;
-  double sqsrtim = 0;
+  //double sqsrtim = 0;
   double minrtim = rambtimes[0];
   double maxrtim = rambtimes[0];
   for ( int iiter = 0; iiter < niter; ++iiter )
   {
     sumrtim += rambtimes[iiter];
-    sqsrtim += rambtimes[iiter]*rambtimes[iiter];
+    //sqsrtim += rambtimes[iiter]*rambtimes[iiter];
     minrtim = std::min( minrtim, rambtimes[iiter] );
     maxrtim = std::max( maxrtim, rambtimes[iiter] );
   }
 
   double sumwtim = 0;
-  double sqswtim = 0;
+  //double sqswtim = 0;
   double minwtim = wavetimes[0];
   double maxwtim = wavetimes[0];
   for ( int iiter = 0; iiter < niter; ++iiter )
   {
     sumwtim += wavetimes[iiter];
-    sqswtim += wavetimes[iiter]*wavetimes[iiter];
+    //sqswtim += wavetimes[iiter]*wavetimes[iiter];
     minwtim = std::min( minwtim, wavetimes[iiter] );
     maxwtim = std::max( maxwtim, wavetimes[iiter] );
   }
@@ -690,13 +691,13 @@ int main(int argc, char **argv)
   //double stdwtim = std::sqrt( sqswtim / niter - meanwtim * meanwtim );
 
   double sumw3atim = 0;
-  double sqsw3atim = 0;
+  //double sqsw3atim = 0;
   double minw3atim = wv3atimes[0];
   double maxw3atim = wv3atimes[0];
   for ( int iiter = 0; iiter < niter; ++iiter )
   {
     sumw3atim += wv3atimes[iiter];
-    sqsw3atim += wv3atimes[iiter]*wv3atimes[iiter];
+    //sqsw3atim += wv3atimes[iiter]*wv3atimes[iiter];
     minw3atim = std::min( minw3atim, wv3atimes[iiter] );
     maxw3atim = std::max( maxw3atim, wv3atimes[iiter] );
   }
