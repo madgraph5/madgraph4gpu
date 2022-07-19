@@ -48,6 +48,7 @@ namespace Proc
   {
     using namespace MG5_sm;
     mgDebug( 0, __FUNCTION__ );
+    const cxtype* COUPs = reinterpret_cast<const cxtype*>(cIPC);
 
 
     // The number of colors
@@ -78,29 +79,29 @@ namespace Proc
 
       ixxxxx( allmomenta, ievt, cIPD[0], cHel[ihel*npar + 3], -1, w_sv[3], 3 );
 
-      VVV1P0_1( w_sv[0], w_sv[1], cxmake( cIPC[0], cIPC[1] ), 0., 0., w_sv[4] );
+      VVV1P0_1( w_sv[0], w_sv[1], COUPs[0], 0., 0., w_sv[4] );
 
       // Amplitude(s) for diagram number 1
-      FFV1_0( w_sv[3], w_sv[2], w_sv[4], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[2], w_sv[4], COUPs[1], &amp_sv[0] );
       jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
       jamp_sv[1] -= cxtype(0,1)*amp_sv[0];
 
       // *** DIAGRAM 2 OF 3 ***
 
       // Wavefunction(s) for diagram number 2
-      FFV1_1( w_sv[2], w_sv[0], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[4] );
+      FFV1_1( w_sv[2], w_sv[0], COUPs[1], cIPD[0], cIPD[1], w_sv[4] );
 
       // Amplitude(s) for diagram number 2
-      FFV1_0( w_sv[3], w_sv[4], w_sv[1], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[3], w_sv[4], w_sv[1], COUPs[1], &amp_sv[0] );
       jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 3 OF 3 ***
 
       // Wavefunction(s) for diagram number 3
-      FFV1_2( w_sv[3], w_sv[0], cxmake( cIPC[2], cIPC[3] ), cIPD[0], cIPD[1], w_sv[4] );
+      FFV1_2( w_sv[3], w_sv[0], COUPs[1], cIPD[0], cIPD[1], w_sv[4] );
 
       // Amplitude(s) for diagram number 3
-      FFV1_0( w_sv[4], w_sv[2], w_sv[1], cxmake( cIPC[2], cIPC[3] ), &amp_sv[0] );
+      FFV1_0( w_sv[4], w_sv[2], w_sv[1], COUPs[1], &amp_sv[0] );
       jamp_sv[1] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***

@@ -824,6 +824,7 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
   {
     using namespace MG5_sm;
     mgDebug( 0, __FUNCTION__ );
+    const cxtype* COUPs = reinterpret_cast<const cxtype*>(cIPC);
 \n""")
             ret_lines.append("    // The number of colors")
             ret_lines.append("    constexpr int ncolor = %i;" % len(color_amplitudes[0]))
@@ -1108,8 +1109,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                                     '%s%s[%s]' % (sign, name, alias[coup]))
             else:
                 call = call.replace('m_pars->%s%s' % (sign, coup),
-                                    '%scxmake( cIPC[%s], cIPC[%s] )' %
-                                    (sign, 2*alias[coup],2*alias[coup]+1))
+                                    '%sCOUPs[%s]' % (sign, alias[coup]))
         return call
 
     # AV - new method for formatting wavefunction/amplitude calls
