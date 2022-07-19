@@ -39,6 +39,11 @@ namespace Proc
   void calculate_wavefunctions( int ihel,
                                 const fptype_sv* __restrict__ allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                                 fptype_sv* allMEs,                        // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                           , fptype* allNumerators        // output: multichannel numerators[nevt], running_sum_over_helicities
+                           , fptype* allDenominators      // output: multichannel denominators[nevt], running_sum_over_helicities
+                           , const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+#endif
                                 size_t ievt,
                                 const short*  __restrict__ cHel,
                                 const fptype* __restrict__ cIPC,
@@ -83,8 +88,11 @@ namespace Proc
 
       // Amplitude(s) for diagram number 1
       FFV1_0( w_sv[3], w_sv[2], w_sv[4], COUPs[1], &amp_sv[0] );
-      jamp_sv[0] += +cxtype(0,1)*amp_sv[0];
-      jamp_sv[1] -= cxtype(0,1)*amp_sv[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+#endif
+      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
+      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 2 OF 3 ***
 
@@ -93,6 +101,9 @@ namespace Proc
 
       // Amplitude(s) for diagram number 2
       FFV1_0( w_sv[3], w_sv[4], w_sv[1], COUPs[1], &amp_sv[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+#endif
       jamp_sv[0] -= amp_sv[0];
 
       // *** DIAGRAM 3 OF 3 ***
@@ -102,6 +113,9 @@ namespace Proc
 
       // Amplitude(s) for diagram number 3
       FFV1_0( w_sv[4], w_sv[2], w_sv[1], COUPs[1], &amp_sv[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
+#endif
       jamp_sv[1] -= amp_sv[0];
 
       // *** COLOR ALGEBRA BELOW ***

@@ -815,6 +815,11 @@ class PLUGIN_OneProcessExporter(export_cpp.OneProcessExporterGPU):
   void calculate_wavefunctions( int ihel,
                                 const fptype_sv* __restrict__ allmomenta, // input: momenta as AOSOA[npagM][npar][4][neppM] with nevt=npagM*neppM
                                 fptype_sv* allMEs,                        // output: allMEs[npagM][neppM], final |M|^2 averaged over helicities
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                           , fptype* allNumerators        // output: multichannel numerators[nevt], running_sum_over_helicities
+                           , fptype* allDenominators      // output: multichannel denominators[nevt], running_sum_over_helicities
+                           , const unsigned int channelId // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+#endif
                                 size_t ievt,
                                 const short*  __restrict__ cHel,
                                 const fptype* __restrict__ cIPC,
@@ -1157,11 +1162,20 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 amplitude.set('number', 1)
                 res.append(self.get_amplitude_call(amplitude)) # AV new: avoid format_call
                 ###res.append(self.format_call(self.get_amplitude_call(amplitude))) # AV old: use format_call
+                res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
+                res.append("// Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)")
+                res.append("#endif")
                 for njamp, coeff in color[namp].items():
                     ###res.append("jamp[%s] += %samp[0];" % (njamp, export_cpp.OneProcessExporterGPU.coeff(*coeff)))
                     ###res.append("jamp[%s] += %samp[0];" % (njamp, PLUGIN_OneProcessExporter.coeff(*coeff)))
                     ###res.append("jamp_sv[%s] += %samp_sv[0];" % (njamp, PLUGIN_OneProcessExporter.coeff(*coeff))) # AV vectorize
                     scoeff = PLUGIN_OneProcessExporter.coeff(*coeff) # AV
+                    if scoeff[0] == '+' : scoeff = scoeff[1:]
+                    scoeff = scoeff.replace('(','( ')
+                    scoeff = scoeff.replace(')',' )')
+                    scoeff = scoeff.replace(',',', ')
+                    scoeff = scoeff.replace('*',' * ')
+                    scoeff = scoeff.replace('/',' / ')
                     if scoeff.startswith('-'): res.append("jamp_sv[%s] -= %samp_sv[0];" % (njamp, scoeff[1:])) # AV
                     else: res.append("jamp_sv[%s] += %samp_sv[0];" % (njamp, scoeff)) # AV
             if len(diagram.get('amplitudes')) == 0 : res.append('// (none)') # AV
